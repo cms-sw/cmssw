@@ -4,10 +4,10 @@
 #include "ErrorsAnalyzer.h"
 
 ErrorsAnalyzer::ErrorsAnalyzer(const edm::ParameterSet& iConfig) :
-  treeFileName_( iConfig.getParameter<string>("InputFileName") ),
+  treeFileName_( iConfig.getParameter<std::string>("InputFileName") ),
   resolFitType_( iConfig.getParameter<int>("ResolFitType") ),
   maxEvents_( iConfig.getParameter<int>("MaxEvents") ),
-  outputFileName_( iConfig.getParameter<string>("OutputFileName") ),
+  outputFileName_( iConfig.getParameter<std::string>("OutputFileName") ),
   ptBins_( iConfig.getParameter<int>("PtBins") ),
   ptMin_( iConfig.getParameter<double>("PtMin") ),
   ptMax_( iConfig.getParameter<double>("PtMax") ),
@@ -16,12 +16,12 @@ ErrorsAnalyzer::ErrorsAnalyzer(const edm::ParameterSet& iConfig) :
   etaMax_( iConfig.getParameter<double>("EtaMax") ),
   debug_( iConfig.getParameter<bool>("Debug") )
 {
-  parameters_ = iConfig.getParameter<vector<double> >("Parameters");
-  errors_ = iConfig.getParameter<vector<double> >("Errors");
-  errorFactors_ = iConfig.getParameter<vector<int> >("ErrorFactors");
+  parameters_ = iConfig.getParameter<std::vector<double> >("Parameters");
+  errors_ = iConfig.getParameter<std::vector<double> >("Errors");
+  errorFactors_ = iConfig.getParameter<std::vector<int> >("ErrorFactors");
 
   if( (parameters_.size() != errors_.size()) || (parameters_.size() != errorFactors_.size()) ) {
-    cout << "Error: parameters and errors have different number of values" << endl;
+    std::cout << "Error: parameters and errors have different number of values" << std::endl;
     exit(1);
   }
 
@@ -41,9 +41,9 @@ void ErrorsAnalyzer::fillValueError()
   valuePlusError_.resize(parameters_.size());
   valueMinusError_.resize(parameters_.size());
 
-  vector<double>::const_iterator parIt = parameters_.begin();
-  vector<double>::const_iterator errIt = errors_.begin();
-  vector<int>::const_iterator errFactorIt = errorFactors_.begin();
+  std::vector<double>::const_iterator parIt = parameters_.begin();
+  std::vector<double>::const_iterator errIt = errors_.begin();
+  std::vector<int>::const_iterator errFactorIt = errorFactors_.begin();
   int i=0;
   for( ; parIt != parameters_.end(); ++parIt, ++errIt, ++errFactorIt, ++i ) {
     valuePlusError_[i] = *parIt + (*errIt)*(*errFactorIt);
@@ -93,7 +93,7 @@ void ErrorsAnalyzer::drawHistograms(const TProfile * histo, const TProfile * his
   TGraph * graph = new TGraph(sigmaPtVsEtaTH1D);
 
   for( int i=1; i<=numBins; ++i ) {
-    // cout << "filling " << i << endl;
+    // std::cout << "filling " << i << std::endl;
     posErrors[i-1] = valuesPlus[i] - values[i];
     if( valuesMinus[i-1] < 0 ) negErrors[i-1] = values[i];
     else negErrors[i-1] = values[i] - valuesMinus[i];
@@ -149,20 +149,20 @@ void ErrorsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 void ErrorsAnalyzer::fillHistograms()
 {
-  cout << "Reading muon pairs from Root Tree in " << treeFileName_ << endl;
+  std::cout << "Reading muon pairs from Root Tree in " << treeFileName_ << std::endl;
   RootTreeHandler rootTreeHandler;
 
-  typedef vector<pair<lorentzVector,lorentzVector> > MuonPairVector;
+  typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;
   MuonPairVector savedPair;
   rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPair);
   // rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &savedPair, &(MuScleFitUtils::genPair));
 
-  resolutionFunctionBase<vector<double> > * resolutionFunctionForVec = resolutionFunctionVecService( resolFitType_ );
+  resolutionFunctionBase<std::vector<double> > * resolutionFunctionForVec = resolutionFunctionVecService( resolFitType_ );
 
   // Loop on all the pairs
   unsigned int i = 0;
   MuonPairVector::iterator it = savedPair.begin();
-  cout << "Starting loop on " << savedPair.size() << " muons" << endl;
+  std::cout << "Starting loop on " << savedPair.size() << " muons" << std::endl;
   for( ; it != savedPair.end(); ++it, ++i ) {
     double pt1 = it->first.pt();
     double eta1 = it->first.eta();
@@ -189,11 +189,11 @@ void ErrorsAnalyzer::fillHistograms()
     if( sigmaPtMinusErr1 != sigmaPtMinusErr1 ) continue;
     if( sigmaPtMinusErr2 != sigmaPtMinusErr2 ) continue;
 
-    cout << "Muon pair number " << i << endl;
+    std::cout << "Muon pair number " << i << std::endl;
 
-    // cout << "sigmaPt1 = " << sigmaPt1 << ", sigmaPt2 = " << sigmaPt2 << endl;
-    // cout << "sigmaPtPlusErr1 = " << sigmaPtPlusErr1 << ", sigmaPtMinusErr2 = " << sigmaPtMinusErr2 << endl;
-    // cout << "sigmaPtMinusErr1 = " << sigmaPtPlusErr1 << ", sigmaPtMinusErr2 = " << sigmaPtMinusErr2 << endl;
+    // std::cout << "sigmaPt1 = " << sigmaPt1 << ", sigmaPt2 = " << sigmaPt2 << std::endl;
+    // std::cout << "sigmaPtPlusErr1 = " << sigmaPtPlusErr1 << ", sigmaPtMinusErr2 = " << sigmaPtMinusErr2 << std::endl;
+    // std::cout << "sigmaPtMinusErr1 = " << sigmaPtPlusErr1 << ", sigmaPtMinusErr2 = " << sigmaPtMinusErr2 << std::endl;
 
     sigmaPtVsPt_->Fill(pt1, sigmaPt1);
     sigmaPtVsPt_->Fill(pt2, sigmaPt2);

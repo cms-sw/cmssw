@@ -12,8 +12,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-using namespace std;
-
 // Class declaration
 // -----------------
 
@@ -32,8 +30,8 @@ class MuScleFitFilter : public edm::EDFilter {
   int eventsWritten;
   bool debug;
   int theMuonType;
-  vector<double> Mmin;
-  vector<double> Mmax;
+  std::vector<double> Mmin;
+  std::vector<double> Mmax;
   int maxWrite;
   unsigned int minimumMuonsNumber;
 

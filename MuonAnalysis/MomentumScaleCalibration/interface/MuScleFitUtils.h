@@ -5,8 +5,8 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2010/03/18 15:10:49 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/03/22 18:34:03 $
+ *  $Revision: 1.19 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -27,10 +27,8 @@
 
 #include <vector>
 
-using namespace std;
-
 // #include "Functions.h"
-// class biasFunctionBase<vector<double> >;
+// class biasFunctionBase<std::vector<double> >;
 // class scaleFunctionBase<double*>;
 template <class T> class biasFunctionBase;
 template <class T> class scaleFunctionBase;
@@ -128,13 +126,13 @@ public:
   static smearFunctionBase * smearFunction;
   static int BiasType;
   // No error, we take functions from the same group for scale and bias.
-  static scaleFunctionBase<vector<double> > * biasFunction;
+  static scaleFunctionBase<std::vector<double> > * biasFunction;
   static int ResolFitType;
   static resolutionFunctionBase<double *> * resolutionFunction;
-  static resolutionFunctionBase<vector<double> > * resolutionFunctionForVec;
+  static resolutionFunctionBase<std::vector<double> > * resolutionFunctionForVec;
   static int ScaleFitType;
   static scaleFunctionBase<double*> * scaleFunction;
-  static scaleFunctionBase<vector<double> > * scaleFunctionForVec;
+  static scaleFunctionBase<std::vector<double> > * scaleFunctionForVec;
   static int BgrFitType;
   // Three background regions:
   // - one for the Z

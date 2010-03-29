@@ -17,7 +17,7 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
     maxPt = 20.;
   }
 
-  LogDebug("MuScleFitBase") << "Creating new histograms" << endl;
+  LogDebug("MuScleFitBase") << "Creating new histograms" << std::endl;
 
   mapHisto_["hRecBestMu"]      = new HParticle ("hRecBestMu", minMass, maxMass, maxPt);
   mapHisto_["hRecBestMuVSEta"] = new HPartVSEta ("hRecBestMuVSEta", minMass, maxMass, maxPt);
@@ -94,14 +94,14 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
 }
 
 void MuScleFitBase::clearHistoMap() {
-  for (map<string, Histograms*>::const_iterator histo=mapHisto_.begin();
+  for (std::map<std::string, Histograms*>::const_iterator histo=mapHisto_.begin();
        histo!=mapHisto_.end(); histo++) {
     delete (*histo).second;
   }
 }
 
 void MuScleFitBase::writeHistoMap( const unsigned int iLoop ) {
-  for (map<string, Histograms*>::const_iterator histo=mapHisto_.begin();
+  for (std::map<std::string, Histograms*>::const_iterator histo=mapHisto_.begin();
        histo!=mapHisto_.end(); histo++) {
     // This is to avoid writing into subdirs. Need a workaround.
     theFiles_[iLoop]->cd();
@@ -117,7 +117,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   if ( theMuonType_!=2 ) {
     if( probabilitiesFile_ != "" ) {
       ProbsFile = new TFile (probabilitiesFile_.c_str());
-      cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFile_ << endl;
+      std::cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFile_ << std::endl;
     }
     else {
       // edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_1000_CTEQ.root");
@@ -125,14 +125,14 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
       // edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_merge.root");
       edm::FileInPath file(probabilitiesFileInPath_.c_str());
       ProbsFile = new TFile (file.fullPath().c_str());
-      cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFileInPath_ << endl;
+      std::cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFileInPath_ << std::endl;
     }
   }
   else {
     edm::FileInPath fileSM("MuonAnalysis/MomentumScaleCalibration/test/Probs_SM_1000.root");
     ProbsFile = new TFile (fileSM.fullPath().c_str()); // NNBB need to reset this if MuScleFitUtils::nbins changes
     // ProbsFile = new TFile ("Probs_SM_1000.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
-    cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_SM_1000.root file" << endl;
+    std::cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_SM_1000.root file" << std::endl;
   }
   ProbsFile->cd();
   if( theMuonType_!=2 ) {
@@ -170,9 +170,9 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   }
   // if( debug_>2 ) {
   for( int i=0; i<6; ++i ) {
-    cout << "MuScleFitUtils::ResMass["<<i<<"] = " << MuScleFitUtils::ResMass[i] << endl;
-    cout << "MuScleFitUtils::ResHalfWidth["<<i<<"] = " << MuScleFitUtils::ResHalfWidth[i] << endl;
-    cout << "MuScleFitUtils::ResMaxSigma["<<i<<"] = " << MuScleFitUtils::ResMaxSigma[i] << endl;
+    std::cout << "MuScleFitUtils::ResMass["<<i<<"] = " << MuScleFitUtils::ResMass[i] << std::endl;
+    std::cout << "MuScleFitUtils::ResHalfWidth["<<i<<"] = " << MuScleFitUtils::ResHalfWidth[i] << std::endl;
+    std::cout << "MuScleFitUtils::ResMaxSigma["<<i<<"] = " << MuScleFitUtils::ResMaxSigma[i] << std::endl;
   }
   // }
 
@@ -182,8 +182,8 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
     int nBinsX = GLZ[iY]->GetNbinsX();
     int nBinsY = GLZ[iY]->GetNbinsY();
     if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
-      cout << "Error: for histogram \"" << GLZ[iY]->GetName() << "\" bins are not " << MuScleFitUtils::nbins << endl;
-      cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
+      std::cout << "Error: for histogram \"" << GLZ[iY]->GetName() << "\" bins are not " << MuScleFitUtils::nbins << std::endl;
+      std::cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << std::endl;
       exit(1);
     }
     for (int iy=0; iy<=MuScleFitUtils::nbins; iy++) {
@@ -200,8 +200,8 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
     int nBinsX = GL[ires]->GetNbinsX();
     int nBinsY = GL[ires]->GetNbinsY();
     if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
-      cout << "Error: for histogram \"" << GL[ires]->GetName() << "\" bins are not " << MuScleFitUtils::nbins << endl;
-      cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
+      std::cout << "Error: for histogram \"" << GL[ires]->GetName() << "\" bins are not " << MuScleFitUtils::nbins << std::endl;
+      std::cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << std::endl;
       exit(1);
     }
 

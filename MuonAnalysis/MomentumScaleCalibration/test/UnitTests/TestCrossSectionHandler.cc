@@ -103,7 +103,7 @@ public:
     crossSectionHandler_5->computeRelativeCrossSections(crossSection, resfind_5);
     crossSectionHandler_6->computeRelativeCrossSections(crossSection, resfind_6);
 
-    vector<vector<double> > relativeCrossSections;
+    std::vector<std::vector<double> > relativeCrossSections;
     relativeCrossSections.push_back(expandCrossSectionVec(crossSectionHandler_1->relativeCrossSectionVec_, resfind_1));
     relativeCrossSections.push_back(expandCrossSectionVec(crossSectionHandler_2->relativeCrossSectionVec_, resfind_2));
     relativeCrossSections.push_back(expandCrossSectionVec(crossSectionHandler_3->relativeCrossSectionVec_, resfind_3));
@@ -114,7 +114,7 @@ public:
     checkRelativeCrossSections(relativeCrossSections);
   }
 
-  void checkRelativeCrossSections(const vector<vector<double> > & relativeCrossSections)
+  void checkRelativeCrossSections(const std::vector<std::vector<double> > & relativeCrossSections)
   {
     // First case: fit all the Upsilons
     double norm = crossSection[1] + crossSection[2] + crossSection[3];
@@ -212,7 +212,7 @@ public:
 
   void testRelativeCrossSections()
   {
-    vector<vector<double> > relativeCrossSections;
+    std::vector<std::vector<double> > relativeCrossSections;
     relativeCrossSections.push_back( getRelativeCrossSections(crossSectionHandler_1, resfind_1) );
     relativeCrossSections.push_back( getRelativeCrossSections(crossSectionHandler_2, resfind_2) );
     relativeCrossSections.push_back( getRelativeCrossSections(crossSectionHandler_3, resfind_3) );
@@ -223,17 +223,17 @@ public:
     checkRelativeCrossSections( relativeCrossSections );
   }
 
-  vector<double> getRelativeCrossSections(CrossSectionHandler * crossSectionHandler, const vector<int> resfind)
+  std::vector<double> getRelativeCrossSections(CrossSectionHandler * crossSectionHandler, const std::vector<int> resfind)
   {
     crossSectionHandler->computeRelativeCrossSections(crossSection, resfind);
     crossSectionHandler->imposeConstraint();
-    vector<double>::const_iterator it = crossSectionHandler->vars_.begin();
+    std::vector<double>::const_iterator it = crossSectionHandler->vars_.begin();
     double * variables = new double[crossSectionHandler->vars_.size()];
     unsigned int i = 0;
     for( ; it != crossSectionHandler->vars_.end(); ++it, ++i ) {
       variables[i] = *it;
     }
-    vector<double> vars(crossSectionHandler->relativeCrossSections(variables, resfind));
+    std::vector<double> vars(crossSectionHandler->relativeCrossSections(variables, resfind));
 
     delete[] variables;
     return vars;
@@ -242,7 +242,7 @@ public:
   void testSetParameters()
   {
     TMinuit rmin(crossSectionHandler_1->parNum_);
-    vector<int> crossSectionOrder(6, 0);
+    std::vector<int> crossSectionOrder(6, 0);
     crossSectionOrder[1] = 1;
 
     crossSectionHandler_1->setParameters( Start, Step, Mini, Maxi, ind, parname, crossSection, crossSectionOrder, resfind_1 );
@@ -257,7 +257,7 @@ public:
   void testReleaseParameters()
   {
     TMinuit rmin(crossSectionHandler_1->parNum_);
-    vector<int> crossSectionOrder(6, 0);
+    std::vector<int> crossSectionOrder(6, 0);
     crossSectionOrder[1] = 1;
     crossSectionHandler_1->setParameters( Start, Step, Mini, Maxi, ind, parname, crossSection, crossSectionOrder, resfind_1 );
     int ierror;
@@ -266,7 +266,7 @@ public:
       rmin.FixParameter(ipar);
     }
 
-    vector<int> parfix(6, 0);
+    std::vector<int> parfix(6, 0);
     // Test by setting two parameters to order 1, but one is for the Z which is not fitted and will be ignored.
     int * ind = new int[6];
     ind[0] = 0;
@@ -281,11 +281,11 @@ public:
     CPPUNIT_ASSERT(rmin.GetNumFixedPars() == 0);
   }
 
-  vector<double> expandCrossSectionVec( const vector<double> & relativeCrossSectionVec, const vector<int> & resfind )
+  std::vector<double> expandCrossSectionVec( const std::vector<double> & relativeCrossSectionVec, const std::vector<int> & resfind )
   {
-    vector<double> relCrossSec;
+    std::vector<double> relCrossSec;
     unsigned int smallerVectorIndex = 0;
-    vector<int>::const_iterator it = resfind.begin();
+    std::vector<int>::const_iterator it = resfind.begin();
     for( ; it != resfind.end(); ++it ) {
       if( *it == 0 ) {
         relCrossSec.push_back(0.);
@@ -306,13 +306,13 @@ public:
   CrossSectionHandler * crossSectionHandler_4;
   CrossSectionHandler * crossSectionHandler_5;
   CrossSectionHandler * crossSectionHandler_6;
-  vector<int> resfind_1;
-  vector<int> resfind_2;
-  vector<int> resfind_3;
-  vector<int> resfind_4;
-  vector<int> resfind_5;
-  vector<int> resfind_6;
-  vector<double> crossSection;
+  std::vector<int> resfind_1;
+  std::vector<int> resfind_2;
+  std::vector<int> resfind_3;
+  std::vector<int> resfind_4;
+  std::vector<int> resfind_5;
+  std::vector<int> resfind_6;
+  std::vector<double> crossSection;
 
   double Start[100];
   double Step[100];

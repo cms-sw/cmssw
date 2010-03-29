@@ -21,17 +21,15 @@
 #include "TString.h"
 #include "TMinuit.h"
 
-using namespace std;
-
 class CrossSectionHandler
 {
 public:
-  CrossSectionHandler(const vector<double> & crossSection, const vector<int> & resfind) :
+  CrossSectionHandler(const std::vector<double> & crossSection, const std::vector<int> & resfind) :
     parNum_(0),
     numberOfResonances_(resfind.size())
   {
     // The number of parameters is the number of fitted resonances minus 1
-    vector<int>::const_iterator it = resfind.begin();
+    std::vector<int>::const_iterator it = resfind.begin();
     for( ; it != resfind.end(); ++it ) {
       if( *it != 0 ) ++parNum_;
     }
@@ -44,9 +42,9 @@ public:
   }
 
   /// Inputs the vars in a vector
-  void addParameters(vector<double> & initpar)
+  void addParameters(std::vector<double> & initpar)
   {
-    vector<double>::const_iterator it = vars_.begin();
+    std::vector<double>::const_iterator it = vars_.begin();
     for( ; it != vars_.end(); ++it ) {
       initpar.push_back(*it);
     }
@@ -54,8 +52,8 @@ public:
 
   /// Initializes the arrays needed by Minuit
   void setParameters( double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
-                      const vector<double> & parCrossSection, const vector<int> & parCrossSectionOrder,
-                      const vector<int> & resfind )
+                      const std::vector<double> & parCrossSection, const std::vector<int> & parCrossSectionOrder,
+                      const std::vector<int> & resfind )
   {
     computeRelativeCrossSections(parCrossSection, resfind);
     imposeConstraint();
@@ -87,7 +85,7 @@ public:
   }
 
   /// Use the information in resfind, parorder and parfix to release the N-1 variables
-  bool releaseParameters( TMinuit & rmin, const vector<int> & resfind, const vector<int> & parfix,
+  bool releaseParameters( TMinuit & rmin, const std::vector<int> & resfind, const std::vector<int> & parfix,
                           const int * ind, const int iorder, const unsigned int shift )
   {
     // Find the number of free cross section parameters in this iteration
@@ -114,7 +112,7 @@ public:
   }
 
   /// Perform a variable transformation from N-1 to relative cross sections 
-  vector<double> relativeCrossSections( const double * variables, const vector<int> & resfind )
+  std::vector<double> relativeCrossSections( const double * variables, const std::vector<int> & resfind )
   {
     // parNum_ is 0 in two cases:
     // 1) if only one resonance is being fitted, in which case the relative cross section is
@@ -127,7 +125,7 @@ public:
       double norm = 0.;
       // Loop on all relative cross sections (that are parNum_+1)
       for( unsigned int i=0; i<parNum_+1; ++i ) {
-        partialProduct[i] = accumulate(variables, variables + i, 1., multiplies<double>());
+        partialProduct[i] = std::accumulate(variables, variables + i, 1., std::multiplies<double>());
         norm += partialProduct[i];
       }
       for( unsigned int i=0; i<parNum_+1; ++i ) {
@@ -136,8 +134,8 @@ public:
       delete[] partialProduct;
     }
 
-    vector<double> allRelativeCrossSections;
-    vector<int>::const_iterator it = resfind.begin();
+    std::vector<double> allRelativeCrossSections;
+    std::vector<int>::const_iterator it = resfind.begin();
     int smallerVectorIndex = 0;
     for( ; it != resfind.end(); ++it ) {
       if( *it == 0 ) {
@@ -158,8 +156,8 @@ protected:
    * Also sets the lock on resonances. If only one of the resonances in the range is fitted its relative cross section will be 1 and it will not
    * be fitted. If there are more than one only those that are fitted will have the relative cross section parameters unlocked during the fit.
    */
-  // void computeRelativeCrossSections(const double crossSection[], const vector<int> resfind, const unsigned int minRes, const unsigned int maxRes)
-  void computeRelativeCrossSections(const vector<double> & crossSection, const vector<int> & resfind)
+  // void computeRelativeCrossSections(const double crossSection[], const std::vector<int> resfind, const unsigned int minRes, const unsigned int maxRes)
+  void computeRelativeCrossSections(const std::vector<double> & crossSection, const std::vector<int> & resfind)
   {
     relativeCrossSectionVec_.clear();
     double normalization = 0.;
@@ -188,8 +186,8 @@ protected:
   }
 
   // Data members
-  vector<double> relativeCrossSectionVec_;
-  vector<double> vars_;
+  std::vector<double> relativeCrossSectionVec_;
+  std::vector<double> vars_;
   unsigned int parNum_;
   unsigned int numberOfResonances_;
 };

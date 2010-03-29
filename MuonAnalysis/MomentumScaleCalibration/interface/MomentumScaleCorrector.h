@@ -45,7 +45,7 @@ class MomentumScaleCorrector : public BaseFunction
    */
   MomentumScaleCorrector( const MuScleFitDBobject * dbObject ) : BaseFunction( dbObject )
   {
-    vector<int>::const_iterator id = functionId_.begin();
+    std::vector<int>::const_iterator id = functionId_.begin();
     for( ; id != functionId_.end(); ++id ) {
       scaleFunctionVec_.push_back( scaleFunctionService( *id ) );
     }
@@ -98,7 +98,7 @@ class MomentumScaleCorrector : public BaseFunction
   void readParameters( TString fileName );
 
   scaleFunctionBase<double * > ** scaleFunction_;
-  vector<scaleFunctionBase<double * > * > scaleFunctionVec_;
+  std::vector<scaleFunctionBase<double * > * > scaleFunctionVec_;
 };
 
 #endif // MomentumScaleCorrector_h

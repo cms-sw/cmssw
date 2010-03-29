@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2010/03/15 12:19:42 $
- *  $Revision: 1.28 $
+ *  $Date: 2010/03/16 12:02:36 $
+ *  $Revision: 1.29 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -93,12 +93,12 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
 
   /// Template method used to fill the track collection starting from reco::muons or pat::muons
   template<typename T>
-  void takeSelectedMuonType(const T & muon, vector<reco::Track> & tracks);
+  void takeSelectedMuonType(const T & muon, std::vector<reco::Track> & tracks);
 
   /// Check if two lorentzVector are near in deltaR
   bool checkDeltaR( reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu );
   /// Fill the reco vs gen and reco vs sim comparison histograms
-  void fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recoMu, const string & inputName, const int charge );
+  void fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recoMu, const std::string & inputName, const int charge );
 
   /// Apply the smearing if needed using the function in MuScleFitUtils
   void applySmearing( reco::Particle::LorentzVector & mu );
@@ -146,12 +146,12 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   bool compareToSimTracks_;
   edm::InputTag simTracksCollection_;
   bool PATmuons_;
-  string genParticlesName_;
+  std::string genParticlesName_;
 
   // Input Root Tree file name. If empty events are read from the edm root file.
-  string inputRootTreeFileName_;
+  std::string inputRootTreeFileName_;
   // Output Root Tree file name. If not empty events are dumped to this file at the end of the last iteration.
-  string outputRootTreeFileName_;
+  std::string outputRootTreeFileName_;
   // Maximum number of events from root tree. It works in the same way as the maxEvents to configure a input source.
   int maxEventsFromRootTree_;
 };
@@ -168,8 +168,8 @@ std::vector<reco::LeafCandidate> MuScleFit::fillMuonCollection( const std::vecto
     // Apply smearing if needed, and then bias
     // ---------------------------------------
     MuScleFitUtils::goodmuon++;
-    if (debug_>0) cout <<setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon
-                       << ": initial value   Pt = " << mu.Pt() << endl;
+    if (debug_>0) std::cout <<std::setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon
+                       << ": initial value   Pt = " << mu.Pt() << std::endl;
 
     applySmearing(mu);
     applyBias(mu, track->charge());
@@ -183,9 +183,9 @@ std::vector<reco::LeafCandidate> MuScleFit::fillMuonCollection( const std::vecto
 }
 
 template<typename T>
-void MuScleFit::takeSelectedMuonType(const T & muon, vector<reco::Track> & tracks)
+void MuScleFit::takeSelectedMuonType(const T & muon, std::vector<reco::Track> & tracks)
 {
-  // cout<<"muon "<<muon->isGlobalMuon()<<muon->isStandAloneMuon()<<muon->isTrackerMuon()<<endl;
+  // std::cout<<"muon "<<muon->isGlobalMuon()<<muon->isStandAloneMuon()<<muon->isTrackerMuon()<<std::endl;
   //NNBB: one muon can be of many kinds at once but with the theMuonType_ we are sure
   // to avoid double counting of the same muon
   if(muon->isGlobalMuon() && theMuonType_==1)

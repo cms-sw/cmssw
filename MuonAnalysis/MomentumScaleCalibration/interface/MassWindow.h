@@ -4,8 +4,6 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 #include <vector>
 
-using namespace std;
-
 /**
  * Holds the information relative to a mass window: <br>
  * - central mass value <br>
@@ -21,7 +19,7 @@ class MassWindow
 {
 public:
   MassWindow(const double & centralMass, const double & lowerBound, const double & upperBound,
-             const vector<unsigned int> & indexes, backgroundFunctionBase * backgroundFunction) :
+             const std::vector<unsigned int> & indexes, backgroundFunctionBase * backgroundFunction) :
     centralMass_(centralMass), lowerBound_(lowerBound), upperBound_(upperBound), weightedEvents_(0.),
     indexes_(indexes), backgroundFunction_(backgroundFunction)
   {}
@@ -39,7 +37,7 @@ public:
   inline double upperBound() const {return upperBound_;}
   inline double events() const {return weightedEvents_;}
   inline backgroundFunctionBase * backgroundFunction() const {return backgroundFunction_;}
-  inline const vector<unsigned int> * indexes() const {return &indexes_;}
+  inline const std::vector<unsigned int> * indexes() const {return &indexes_;}
 protected:
   double centralMass_;
   double lowerBound_;
@@ -47,7 +45,7 @@ protected:
   // Number of events in the window
   double weightedEvents_;
   // Indexes of the resonances in this window
-  vector<unsigned int> indexes_;
+  std::vector<unsigned int> indexes_;
   backgroundFunctionBase * backgroundFunction_;
 };
 

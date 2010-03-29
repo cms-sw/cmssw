@@ -18,8 +18,8 @@
 ResolutionAnalyzer::ResolutionAnalyzer(const edm::ParameterSet& iConfig) :
   theMuonLabel_( iConfig.getParameter<edm::InputTag>( "MuonLabel" ) ),
   theMuonType_( iConfig.getParameter<int>( "MuonType" ) ),
-  theRootFileName_( iConfig.getUntrackedParameter<string>("OutputFileName") ),
-  theCovariancesRootFileName_( iConfig.getUntrackedParameter<string>("InputFileName") ),
+  theRootFileName_( iConfig.getUntrackedParameter<std::string>("OutputFileName") ),
+  theCovariancesRootFileName_( iConfig.getUntrackedParameter<std::string>("InputFileName") ),
   debug_( iConfig.getUntrackedParameter<bool>( "Debug" ) ),
   readCovariances_( iConfig.getUntrackedParameter<bool>( "ReadCovariances" ) )
 {
@@ -34,9 +34,9 @@ ResolutionAnalyzer::ResolutionAnalyzer(const edm::ParameterSet& iConfig) :
   // MuScleFitUtils::resolutionFunctionForVec = resolutionFunctionArrayForVec[resolFitType];
   MuScleFitUtils::resolutionFunctionForVec = resolutionFunctionVecService( resolFitType );
 
-  MuScleFitUtils::parResol = iConfig.getParameter<vector<double> >("parResol");
+  MuScleFitUtils::parResol = iConfig.getParameter<std::vector<double> >("parResol");
 
-  MuScleFitUtils::resfind = iConfig.getParameter<vector<int> >("ResFind");
+  MuScleFitUtils::resfind = iConfig.getParameter<std::vector<int> >("ResFind");
 
   outputFile_ = new TFile(theRootFileName_.c_str(), "RECREATE");
   outputFile_->cd();
@@ -52,7 +52,7 @@ ResolutionAnalyzer::~ResolutionAnalyzer()
   outputFile_->cd();
   writeHistoMap();
   outputFile_->Close();
-  cout << "Total analyzed events = " << eventCounter_ << endl;
+  std::cout << "Total analyzed events = " << eventCounter_ << std::endl;
 }
 
 
@@ -73,28 +73,28 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   try {
     iEvent.getByLabel ("source", evtMC);
   } catch (...) { 
-    cout << "HepMCProduct non existent" << endl;
+    std::cout << "HepMCProduct non existent" << std::endl;
   }
 
-  Handle<GenParticleCollection> genParticles; 
+  Handle<reco::GenParticleCollection> genParticles; 
   try {
     iEvent.getByLabel ("genParticles", genParticles);
-    if (debug_>0) cout << "Found genParticles" << endl;
+    if (debug_>0) std::cout << "Found genParticles" << std::endl;
   } catch (...) {
-    cout << "GenParticles non existent" << endl;
+    std::cout << "GenParticles non existent" << std::endl;
   }
 
   Handle<SimTrackContainer> simTracks;
   try {
     iEvent.getByLabel ("g4SimHits",simTracks);
   } catch (...) {
-    cout << "SimTracks not existent, not using them" << endl;
+    std::cout << "SimTracks not existent, not using them" << std::endl;
   }
 
   // Take the reco-muons, depending on the type selected in the cfg
   // --------------------------------------------------------------
 
-  vector<reco::LeafCandidate> muons;
+  std::vector<reco::LeafCandidate> muons;
 
   if (theMuonType_==1) { // GlobalMuons
     Handle<reco::MuonCollection> glbMuons;
@@ -118,21 +118,21 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     // -------------------------------------
     reco::Particle::LorentzVector recMu1 = reco::Particle::LorentzVector(0,0,0,0);
     reco::Particle::LorentzVector recMu2 = reco::Particle::LorentzVector(0,0,0,0);
-    pair<lorentzVector,lorentzVector> recoRes = MuScleFitUtils::findBestRecoRes(muons);
+    std::pair<lorentzVector,lorentzVector> recoRes = MuScleFitUtils::findBestRecoRes(muons);
     if (MuScleFitUtils::ResFound) {
       if (debug_>0) {
-        cout <<setprecision(9)<< "Pt after findbestrecores: " << (recoRes.first).Pt() << " " 
-             << (recoRes.second).Pt() << endl;
-        cout << "recMu1 = " << recMu1 << endl;
-        cout << "recMu2 = " << recMu2 << endl;
+        std::cout <<std::setprecision(9)<< "Pt after findbestrecores: " << (recoRes.first).Pt() << " " 
+             << (recoRes.second).Pt() << std::endl;
+        std::cout << "recMu1 = " << recMu1 << std::endl;
+        std::cout << "recMu2 = " << recMu2 << std::endl;
       }
       recMu1 = recoRes.first;
       recMu2 = recoRes.second;
       if (debug_>0) {
-        cout << "after recMu1 = " << recMu1 << endl;
-        cout << "after recMu2 = " << recMu2 << endl;
-        cout << "mu1.pt = " << recMu1.Pt() << endl;
-        cout << "mu2.pt = " << recMu2.Pt() << endl;
+        std::cout << "after recMu1 = " << recMu1 << std::endl;
+        std::cout << "after recMu2 = " << recMu2 << std::endl;
+        std::cout << "mu1.pt = " << recMu1.Pt() << std::endl;
+        std::cout << "mu2.pt = " << recMu2.Pt() << std::endl;
       }
     }
 
@@ -140,7 +140,7 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     // --------------------------------------------
 
     //first is always mu-, second is always mu+
-    pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> genMu = MuScleFitUtils::findGenMuFromRes(evtMC);
+    std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> genMu = MuScleFitUtils::findGenMuFromRes(evtMC);
   
     reco::Particle::LorentzVector genMother( genMu.first + genMu.second );
   
@@ -183,7 +183,7 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
   
     if( simTracks.isValid() ) {
-      pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> simMu = MuScleFitUtils::findSimMuFromRes(evtMC,simTracks);
+      std::pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> simMu = MuScleFitUtils::findSimMuFromRes(evtMC,simTracks);
       reco::Particle::LorentzVector simResonance( simMu.first+simMu.second );
       mapHisto_["SimResonance"]->Fill( simResonance );
       mapHisto_["DeltaSimResonanceMuons"]->Fill( simMu.first, simMu.second );
@@ -243,7 +243,7 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
           massResolutionVsPtEta_->Fill(pt2, eta2, diffMass, diffMass);
         }
         else {
-          cout << "Error, there is a nan: recoMass = " << recoMass << ", genMass = " << genMass << endl;
+          std::cout << "Error, there is a nan: recoMass = " << recoMass << ", genMass = " << genMass << std::endl;
         }
         // Fill with mass resolution from resolution function
         double massRes = MuScleFitUtils::massResolution(recMu1, recMu2, MuScleFitUtils::parResol);
@@ -482,7 +482,7 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   else {
 
     // Loop on the recMuons
-    vector<reco::LeafCandidate>::const_iterator recMuon = muons.begin();
+    std::vector<reco::LeafCandidate>::const_iterator recMuon = muons.begin();
     for ( ; recMuon!=muons.end(); ++recMuon ) {  
       int charge = recMuon->charge();
 
@@ -491,7 +491,7 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       // Find the matching MC muon
       const HepMC::GenEvent* Evt = evtMC->GetEvent();
       //Loop on generated particles
-      map<double, lorentzVector> genAssocMap;
+      std::map<double, lorentzVector> genAssocMap;
       HepMC::GenEvent::particle_const_iterator part = Evt->particles_begin();
       for( ; part!=Evt->particles_end(); ++part ) {
         if (fabs((*part)->pdg_id())==13 && (*part)->status()==1) {
@@ -503,7 +503,7 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
           // 13 for the muon (-1) and -13 for the antimuon (+1), thus pdg*charge = -13.
           // Only in this case we consider it matching.
-          if( ((*part)->pdg_id())*charge == -13 ) genAssocMap.insert(make_pair(deltaR, genMu));
+          if( ((*part)->pdg_id())*charge == -13 ) genAssocMap.insert(std::make_pair(deltaR, genMu));
         }
       }
       // Take the closest in deltaR
@@ -523,15 +523,15 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       // Find the matching simMu
       if( simTracks.isValid() ) {
-        map<double, lorentzVector> simAssocMap;
-        for ( vector<SimTrack>::const_iterator simMuon=simTracks->begin(); simMuon!=simTracks->end(); ++simMuon ) {
+	std::map<double, lorentzVector> simAssocMap;
+        for ( std::vector<SimTrack>::const_iterator simMuon=simTracks->begin(); simMuon!=simTracks->end(); ++simMuon ) {
           lorentzVector simMu = lorentzVector(simMuon->momentum().px(),simMuon->momentum().py(),
                                               simMuon->momentum().pz(),simMuon->momentum().e());
 
           double deltaR = sqrt(MuScleFitUtils::deltaPhi(recMu.Phi(),simMu.Phi()) * MuScleFitUtils::deltaPhi(recMu.Phi(),simMu.Phi()) +
                                ((recMu.Eta()-simMu.Eta()) * (recMu.Eta()-simMu.Eta())));
 
-          if( simMuon->charge()*charge == 1 ) simAssocMap.insert(make_pair(deltaR, simMu));
+          if( simMuon->charge()*charge == 1 ) simAssocMap.insert(std::make_pair(deltaR, simMu));
         }
         lorentzVector simMu(genAssocMap.begin()->second);
 
@@ -671,7 +671,7 @@ void ResolutionAnalyzer::fillHistoMap() {
 }
 
 void ResolutionAnalyzer::writeHistoMap() {
-  for (map<string, Histograms*>::const_iterator histo=mapHisto_.begin(); 
+  for (std::map<std::string, Histograms*>::const_iterator histo=mapHisto_.begin(); 
        histo!=mapHisto_.end(); histo++) {
     (*histo).second->Write();
   }
@@ -690,9 +690,9 @@ bool ResolutionAnalyzer::checkDeltaR(const reco::Particle::LorentzVector & genMu
   if(deltaR<0.01)
     return true;
   else if (debug_>0)
-    cout<<"Reco muon "<<recMu<<" with eta "<<recMu.Eta()<<" and phi "<<recMu.Phi()<<endl
-	<<" DOES NOT MATCH with generated muon from resonance: "<<endl
-	<<genMu<<" with eta "<<genMu.Eta()<<" and phi "<<genMu.Phi()<<endl;
+    std::cout<<"Reco muon "<<recMu<<" with eta "<<recMu.Eta()<<" and phi "<<recMu.Phi()<<std::endl
+	     <<" DOES NOT MATCH with generated muon from resonance: "<<std::endl
+	     <<genMu<<" with eta "<<genMu.Eta()<<" and phi "<<genMu.Phi()<<std::endl;
   return false;
 }
 

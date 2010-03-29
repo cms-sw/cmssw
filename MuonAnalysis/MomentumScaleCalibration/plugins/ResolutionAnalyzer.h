@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: ResolutionAnalyzer.h,v 1.9 2010/01/04 16:33:18 hegner Exp $
+// $Id: ResolutionAnalyzer.h,v 1.10 2010/03/04 09:15:47 demattia Exp $
 //
 //
 
@@ -63,10 +63,6 @@
 // class decleration
 //
 
-using namespace std;
-using namespace edm;
-using namespace reco;
-
 class ResolutionAnalyzer : public edm::EDAnalyzer {
 public:
   explicit ResolutionAnalyzer(const edm::ParameterSet&);
@@ -84,12 +80,12 @@ private:
       reco::Particle::LorentzVector mu(track->px(),track->py(),track->pz(),
 				       sqrt(track->p()*track->p() + MuScleFitUtils::mMu2));
       MuScleFitUtils::goodmuon++;
-      if (debug_>0) cout <<setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon 
-                        << ": initial value   Pt = " << mu.Pt() << endl;
+      if (debug_>0) std::cout <<std::setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon 
+			      << ": initial value   Pt = " << mu.Pt() << std::endl;
       reco::LeafCandidate muon(track->charge(),mu);
       // Store muon
       // ----------
-      muons.push_back (muon);
+      muons.push_back( muon );
     }
     return muons;
   } 
@@ -108,8 +104,8 @@ private:
   edm::InputTag theMuonLabel_;
 
   int theMuonType_;
-  string theRootFileName_;
-  string theCovariancesRootFileName_;
+  std::string theRootFileName_;
+  std::string theCovariancesRootFileName_;
   bool debug_;
   std::map<std::string, Histograms*> mapHisto_;
   TFile * outputFile_;

@@ -9,8 +9,6 @@
 #undef private
 // ------------------------------------------
 
-using namespace std;
-
 int main()
 {
   cout << "Testing MuScleFitUtils" << endl;

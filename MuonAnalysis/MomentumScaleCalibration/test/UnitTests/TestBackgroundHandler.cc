@@ -30,9 +30,9 @@ public:
     fill_n(back_inserter(rightWindowFactors), 3, 2);
 
     double tempResMass[] = {91.1876, 10.3552, 10.0233, 9.4603, 3.68609, 3.0969};
-    copy(tempResMass, tempResMass+6, ResMass);
+    std::copy(tempResMass, tempResMass+6, ResMass);
     double tempMassWindowHalfWidth[] = { 20., 0.5, 0.5, 0.5, 0.2, 0.2 };
-    copy(tempMassWindowHalfWidth, tempMassWindowHalfWidth+6, massWindowHalfWidth);
+    std::copy(tempMassWindowHalfWidth, tempMassWindowHalfWidth+6, massWindowHalfWidth);
 
     backgroundHandler_ = new BackgroundHandler(identifiers, leftWindowFactors, rightWindowFactors,
                                                ResMass, massWindowHalfWidth);
@@ -87,7 +87,7 @@ public:
     // backgroundFunctionBase * bkFun = backgroundHandler_->backgroundWindow_[0].backgroundFunction();
     double parval[] = {0., 0., 0., 0., 0.3, 0.8};
     double mass = 3.;
-    pair<double, double> result = backgroundHandler_->backgroundFunction( true, parval, 6, 5,
+    std::pair<double, double> result = backgroundHandler_->backgroundFunction( true, parval, 6, 5,
                                                                           resConsidered, ResMass, massWindowHalfWidth,
                                                                           1, mass, 1000 );
     double lowerBound = backgroundHandler_->backgroundWindow_[2].lowerBound();
@@ -99,13 +99,13 @@ public:
   void testSetParameters()
   {
     //double Start
-    //backgroundHandler_.setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double> & parBgr, const vector<int> & parBgrOrder, const int muonType)
+    //backgroundHandler_.setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double> & parBgr, const std::vector<int> & parBgrOrder, const int muonType)
 
   }
 
-  vector<int> identifiers;
-  vector<double> leftWindowFactors;
-  vector<double> rightWindowFactors;
+  std::vector<int> identifiers;
+  std::vector<double> leftWindowFactors;
+  std::vector<double> rightWindowFactors;
   double ResMass[6];
   double massWindowHalfWidth[6];
 

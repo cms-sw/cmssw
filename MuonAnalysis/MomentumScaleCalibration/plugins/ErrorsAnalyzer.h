@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: ErrorsAnalyzer.h,v 1.1 2010/03/24 15:15:19 demattia Exp $
+// $Id: ErrorsAnalyzer.h,v 1.2 2010/03/24 18:11:06 demattia Exp $
 //
 //
 
@@ -45,8 +45,6 @@
 // class declaration
 //
 
-using namespace std;
-
 class ErrorsAnalyzer : public edm::EDAnalyzer
 {
 public:
@@ -72,12 +70,12 @@ private:
   double etaMax_;
   bool debug_;
 
-  vector<double> parameters_;
-  vector<double> errors_;
-  vector<int> errorFactors_;
+  std::vector<double> parameters_;
+  std::vector<double> errors_;
+  std::vector<int> errorFactors_;
 
-  vector<double> valuePlusError_;
-  vector<double> valueMinusError_;
+  std::vector<double> valuePlusError_;
+  std::vector<double> valueMinusError_;
 
   TProfile * sigmaPtVsEta_;
   TProfile * sigmaPtVsEtaPlusErr_;

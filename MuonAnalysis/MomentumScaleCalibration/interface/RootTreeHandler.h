@@ -5,9 +5,7 @@
 
 #include <MuonAnalysis/MomentumScaleCalibration/interface/MuonPair.h>
 
-using namespace std;
-
-typedef vector<pair<lorentzVector,lorentzVector> > MuonPairVector;
+typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;
 
 /**
  * This class can be used to save all the muon pair (and gen muon pairs if any) to a root tree. <br>
@@ -65,14 +63,14 @@ public:
       if( (maxEvents != -1) && (nentries > maxEvents) ) nentries = maxEvents;
       for( Long64_t i=0; i<nentries; ++i ) {
         tree->GetEntry(i);
-        savedPair->push_back(make_pair(muonPair->mu1, muonPair->mu2));
+        savedPair->push_back(std::make_pair(muonPair->mu1, muonPair->mu2));
         if( genPair != 0 ) {
-          genPair->push_back(make_pair(genMuonPair->mu1, genMuonPair->mu2));
+          genPair->push_back(std::make_pair(genMuonPair->mu1, genMuonPair->mu2));
         }
       }
     }
     else {
-      cout << "ERROR: no file " << fileName << " found. Please, correct the file name or specify an empty field in the InputRootTreeFileName parameter to read events from the edm source." << endl;
+      std::cout << "ERROR: no file " << fileName << " found. Please, correct the file name or specify an empty field in the InputRootTreeFileName parameter to read events from the edm source." << std::endl;
       exit(1);
     }
     file->Close();

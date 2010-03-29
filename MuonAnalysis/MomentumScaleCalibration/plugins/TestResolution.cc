@@ -20,7 +20,7 @@
 TestResolution::TestResolution(const edm::ParameterSet& iConfig) :
   theMuonLabel_( iConfig.getParameter<edm::InputTag>( "MuonLabel" ) ),
   theMuonType_( iConfig.getParameter<int>( "MuonType" ) ),
-  theRootFileName_( iConfig.getUntrackedParameter<string>("OutputFileName") )
+  theRootFileName_( iConfig.getUntrackedParameter<std::string>("OutputFileName") )
 {
   //now do what ever initialization is needed
   outputFile_ = new TFile(theRootFileName_.c_str(), "RECREATE");
@@ -28,8 +28,8 @@ TestResolution::TestResolution(const edm::ParameterSet& iConfig) :
   sigmaPt_ = new TProfile("sigmaPtOverPt", "sigmaPt/Pt vs muon Pt", 1000, 0, 100);
   eventCounter_ = 0;
   // Create the corrector and set the parameters
-  resolutionFunction_.reset(new ResolutionFunction( iConfig.getUntrackedParameter<string>("ResolutionsIdentifier") ) );
-  cout << "resolutionFunction_ = " << &*resolutionFunction_ << endl;
+  resolutionFunction_.reset(new ResolutionFunction( iConfig.getUntrackedParameter<std::string>("ResolutionsIdentifier") ) );
+  std::cout << "resolutionFunction_ = " << &*resolutionFunction_ << std::endl;
 }
 
 
@@ -51,7 +51,7 @@ TestResolution::~TestResolution()
   sigmaPt_->Write();
   outputFile_->Close();
 
-  cout << "Total analyzed events = " << eventCounter_ << endl;
+  std::cout << "Total analyzed events = " << eventCounter_ << std::endl;
 }
 
 
@@ -71,7 +71,7 @@ void TestResolution::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // Take the reco-muons, depending on the type selected in the cfg
   // --------------------------------------------------------------
 
-  vector<reco::LeafCandidate> muons;
+  std::vector<reco::LeafCandidate> muons;
 
   if (theMuonType_==1) { // GlobalMuons
     Handle<reco::MuonCollection> glbMuons;
@@ -90,7 +90,7 @@ void TestResolution::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   // Loop on the recMuons
-  vector<reco::LeafCandidate>::const_iterator recMuon = muons.begin();
+  std::vector<reco::LeafCandidate>::const_iterator recMuon = muons.begin();
   for ( ; recMuon!=muons.end(); ++recMuon ) {  
 
     // Fill the histogram with uncorrected pt values

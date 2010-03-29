@@ -12,8 +12,6 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-using namespace std;
-
 class BackgroundFunction : public BaseFunction
 {
 public:
@@ -30,8 +28,8 @@ public:
     edm::FileInPath fileWithFullPath(identifier.Data());
     readParameters( fileWithFullPath.fullPath() );
 
-    vector<int>::const_iterator idIt = functionId_.begin();
-    for( ; idIt != functionId_.end(); ++idIt ) cout << "idIt = " << *idIt << endl;
+    std::vector<int>::const_iterator idIt = functionId_.begin();
+    for( ; idIt != functionId_.end(); ++idIt ) std::cout << "idIt = " << *idIt << std::endl;
   }
   /**
    * This constructor is used when reading parameters from the db.
@@ -41,7 +39,7 @@ public:
    */
   BackgroundFunction( const MuScleFitDBobject * dbObject ) : BaseFunction( dbObject )
   {
-    vector<int>::const_iterator id = functionId_.begin();
+    std::vector<int>::const_iterator id = functionId_.begin();
     for( ; id != functionId_.end(); ++id ) {
       // TODO: fix the values for the lower and upper limits
       backgroundFunctionVec_.push_back( backgroundFunctionService( *id , 0., 200. ) );
@@ -72,7 +70,7 @@ protected:
   void readParameters( TString fileName );
 
   backgroundFunctionBase ** backgroundFunction_;
-  vector<backgroundFunctionBase * > backgroundFunctionVec_;
+  std::vector<backgroundFunctionBase * > backgroundFunctionVec_;
 };
 
 #endif // BackgroundFunction_h

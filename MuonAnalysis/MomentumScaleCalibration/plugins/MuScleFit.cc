@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/03/22 18:34:48 $
-//  $Revision: 1.75 $
+//  $Date: 2010/03/23 13:44:11 $
+//  $Revision: 1.76 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -140,24 +140,20 @@
 	//#include "CondFormats/RecoMuonObjects/interface/MuScleFitLikelihoodPdf.h"
 	//#include "CondFormats/DataRecord/interface/MuScleFitLikelihoodPdfRcd.h"
 
-using namespace std;
-using namespace edm;
-using namespace reco; // For AODSIM MC objects
-
 // Constructor
 // -----------
-MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalEvents_(0)
+MuScleFit::MuScleFit( const edm::ParameterSet& pset ) : MuScleFitBase( pset ), totalEvents_(0)
 {
   MuScleFitUtils::debug = debug_;
-  if (debug_>0) cout << "[MuScleFit]: Constructor" << endl;
+  if (debug_>0) std::cout << "[MuScleFit]: Constructor" << std::endl;
 
   // Service parameters
   // ------------------
-  ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
+  edm::ParameterSet serviceParameters = pset.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
 
   if ((theMuonType_<1 || theMuonType_>5) && theMuonType_!=10) {
-    cout << "[MuScleFit]: Unknown muon type! Aborting." << endl;
+    std::cout << "[MuScleFit]: Unknown muon type! Aborting." << std::endl;
     abort();
   }
 
@@ -184,10 +180,10 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
   fastLoop = pset.getUntrackedParameter<bool>("FastLoop", true);
 
   // Selection of fits according to loop
-  MuScleFitUtils::doResolFit = pset.getParameter<vector<int> >("doResolFit");
-  MuScleFitUtils::doScaleFit = pset.getParameter<vector<int> >("doScaleFit");
-  MuScleFitUtils::doCrossSectionFit = pset.getParameter<vector<int> >("doCrossSectionFit");
-  MuScleFitUtils::doBackgroundFit = pset.getParameter<vector<int> >("doBackgroundFit");
+  MuScleFitUtils::doResolFit = pset.getParameter<std::vector<int> >("doResolFit");
+  MuScleFitUtils::doScaleFit = pset.getParameter<std::vector<int> >("doScaleFit");
+  MuScleFitUtils::doCrossSectionFit = pset.getParameter<std::vector<int> >("doCrossSectionFit");
+  MuScleFitUtils::doBackgroundFit = pset.getParameter<std::vector<int> >("doBackgroundFit");
 
   // Bias and smear types
   // --------------------
@@ -212,22 +208,22 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
 
   // Initial parameters values
   // -------------------------
-  MuScleFitUtils::parBias         = pset.getParameter<vector<double> >("parBias");
-  MuScleFitUtils::parSmear        = pset.getParameter<vector<double> >("parSmear");
-  MuScleFitUtils::parResol        = pset.getParameter<vector<double> >("parResol");
-  MuScleFitUtils::parScale        = pset.getParameter<vector<double> >("parScale");
-  MuScleFitUtils::parCrossSection = pset.getParameter<vector<double> >("parCrossSection");
-  MuScleFitUtils::parBgr          = pset.getParameter<vector<double> >("parBgr");
-  MuScleFitUtils::parResolFix        = pset.getParameter<vector<int> >("parResolFix");
-  MuScleFitUtils::parScaleFix        = pset.getParameter<vector<int> >("parScaleFix");
-  MuScleFitUtils::parCrossSectionFix = pset.getParameter<vector<int> >("parCrossSectionFix");
-  MuScleFitUtils::parBgrFix          = pset.getParameter<vector<int> >("parBgrFix");
-  MuScleFitUtils::parResolOrder        = pset.getParameter<vector<int> >("parResolOrder");
-  MuScleFitUtils::parScaleOrder        = pset.getParameter<vector<int> >("parScaleOrder");
-  MuScleFitUtils::parCrossSectionOrder = pset.getParameter<vector<int> >("parCrossSectionOrder");
-  MuScleFitUtils::parBgrOrder          = pset.getParameter<vector<int> >("parBgrOrder");
+  MuScleFitUtils::parBias         = pset.getParameter<std::vector<double> >("parBias");
+  MuScleFitUtils::parSmear        = pset.getParameter<std::vector<double> >("parSmear");
+  MuScleFitUtils::parResol        = pset.getParameter<std::vector<double> >("parResol");
+  MuScleFitUtils::parScale        = pset.getParameter<std::vector<double> >("parScale");
+  MuScleFitUtils::parCrossSection = pset.getParameter<std::vector<double> >("parCrossSection");
+  MuScleFitUtils::parBgr          = pset.getParameter<std::vector<double> >("parBgr");
+  MuScleFitUtils::parResolFix        = pset.getParameter<std::vector<int> >("parResolFix");
+  MuScleFitUtils::parScaleFix        = pset.getParameter<std::vector<int> >("parScaleFix");
+  MuScleFitUtils::parCrossSectionFix = pset.getParameter<std::vector<int> >("parCrossSectionFix");
+  MuScleFitUtils::parBgrFix          = pset.getParameter<std::vector<int> >("parBgrFix");
+  MuScleFitUtils::parResolOrder        = pset.getParameter<std::vector<int> >("parResolOrder");
+  MuScleFitUtils::parScaleOrder        = pset.getParameter<std::vector<int> >("parScaleOrder");
+  MuScleFitUtils::parCrossSectionOrder = pset.getParameter<std::vector<int> >("parCrossSectionOrder");
+  MuScleFitUtils::parBgrOrder          = pset.getParameter<std::vector<int> >("parBgrOrder");
 
-  MuScleFitUtils::resfind     = pset.getParameter<vector<int> >("resfind");
+  MuScleFitUtils::resfind     = pset.getParameter<std::vector<int> >("resfind");
   MuScleFitUtils::FitStrategy = pset.getParameter<int>("FitStrategy");
 
   // Option to skip unnecessary stuff
@@ -236,10 +232,10 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
 
   // Option to skip simTracks comparison
   compareToSimTracks_ = pset.getParameter<bool>("compareToSimTracks");
-  simTracksCollection_ = pset.getUntrackedParameter<InputTag>("SimTracksCollection", InputTag("g4SimHits"));
+  simTracksCollection_ = pset.getUntrackedParameter<edm::InputTag>("SimTracksCollection", edm::InputTag("g4SimHits"));
 
   PATmuons_ = pset.getUntrackedParameter<bool>("PATmuons", false);
-  genParticlesName_ = pset.getUntrackedParameter<string>("GenParticlesName", "genParticles");
+  genParticlesName_ = pset.getUntrackedParameter<std::string>("GenParticlesName", "genParticles");
 
   // This must be set to true if using events generated with Sherpa
   MuScleFitUtils::sherpa_ = pset.getUntrackedParameter<bool>("Sherpa", false);
@@ -268,7 +264,7 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
   // Generate array of gaussian-distributed numbers for smearing
   // -----------------------------------------------------------
   if (MuScleFitUtils::SmearType>0) {
-    cout << "[MuScleFit-Constructor]: Generating random values for smearing" << endl;
+    std::cout << "[MuScleFit-Constructor]: Generating random values for smearing" << std::endl;
     TF1 G("G", "[0]*exp(-0.5*pow(x,2))", -5., 5.);
     double norm = 1/sqrt(2*TMath::Pi());
     G.SetParameter (0,norm);
@@ -309,9 +305,9 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
   MuScleFitUtils::massWindowHalfWidth[2][4] = 0.2;
   MuScleFitUtils::massWindowHalfWidth[2][5] = 0.2;
 
-  MuScleFitUtils::backgroundHandler = new BackgroundHandler( pset.getParameter<vector<int> >("BgrFitType"),
-                                                             pset.getParameter<vector<double> >("LeftWindowFactor"),
-                                                             pset.getParameter<vector<double> >("RightWindowFactor"),
+  MuScleFitUtils::backgroundHandler = new BackgroundHandler( pset.getParameter<std::vector<int> >("BgrFitType"),
+                                                             pset.getParameter<std::vector<double> >("LeftWindowFactor"),
+                                                             pset.getParameter<std::vector<double> >("RightWindowFactor"),
                                                              MuScleFitUtils::ResMass,
                                                              MuScleFitUtils::massWindowHalfWidth[MuScleFitUtils::MuonTypeForCheckMassWindow] );
 
@@ -321,10 +317,10 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
   // MuScleFitUtils::resfind
 
   MuScleFitUtils::normalizeLikelihoodByEventNumber_ = pset.getUntrackedParameter<bool>("NormalizeLikelihoodByEventNumber", true);
-  if (debug_>0) cout << "End of MuScleFit constructor" << endl;
+  if (debug_>0) std::cout << "End of MuScleFit constructor" << std::endl;
 
-  inputRootTreeFileName_ = pset.getParameter<string>("InputRootTreeFileName");
-  outputRootTreeFileName_ = pset.getParameter<string>("OutputRootTreeFileName");
+  inputRootTreeFileName_ = pset.getParameter<std::string>("InputRootTreeFileName");
+  outputRootTreeFileName_ = pset.getParameter<std::string>("OutputRootTreeFileName");
   maxEventsFromRootTree_ = pset.getParameter<int>("MaxEventsFromRootTree");
 
   MuScleFitUtils::startWithSimplex_ = pset.getParameter<bool>("StartWithSimplex");
@@ -335,13 +331,13 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
 // Destructor
 // ----------
 MuScleFit::~MuScleFit () {
-  if (debug_>0) cout << "[MuScleFit]: Destructor" << endl;
-  cout << "Total number of analyzed events = " << totalEvents_ << endl;
+  if (debug_>0) std::cout << "[MuScleFit]: Destructor" << std::endl;
+  std::cout << "Total number of analyzed events = " << totalEvents_ << std::endl;
 
   if( !(outputRootTreeFileName_.empty()) ) {
     // Save the events to a root tree unless we are reading from the edm root file and the SavedPair size is different from the totalEvents_
     if( !(inputRootTreeFileName_.empty() && (int(MuScleFitUtils::SavedPair.size()) != totalEvents_)) ) {
-      cout << "Saving muon pairs to root tree" << endl;
+      std::cout << "Saving muon pairs to root tree" << std::endl;
       RootTreeHandler rootTreeHandler;
       if( MuScleFitUtils::speedup ) {
         rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair));
@@ -351,30 +347,30 @@ MuScleFit::~MuScleFit () {
       }
     }
     else {
-      cout << "ERROR: events in the vector = " << MuScleFitUtils::SavedPair.size() << " != totalEvents = " << totalEvents_ << endl;
+      std::cout << "ERROR: events in the vector = " << MuScleFitUtils::SavedPair.size() << " != totalEvents = " << totalEvents_ << std::endl;
     }
   }
 }
 
 // Begin job
 // ---------
-void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
+void MuScleFit::beginOfJob (const edm::EventSetup& eventSetup) {
 // void MuScleFit::beginOfJob () {
 
   //if(maxLoopNumber>1)
   readProbabilityDistributionsFromFile();
 
-  if (debug_>0) cout << "[MuScleFit]: beginOfJob" << endl;
+  if (debug_>0) std::cout << "[MuScleFit]: beginOfJob" << std::endl;
 
   // Create the root file
   // --------------------
   for (unsigned int i=0; i<(maxLoopNumber); i++) {
     char buffer [2]; // FIXME: the max number of loop has to be < 10, (otherwise not enough char)
     sprintf (buffer, "%d_", i);
-    string rootFileName = buffer + theRootFileName_;
+    std::string rootFileName = buffer + theRootFileName_;
     theFiles_.push_back (new TFile(rootFileName.c_str(), "RECREATE"));
   }
-  if (debug_>0) cout << "[MuScleFit]: Root file created" << endl;
+  if (debug_>0) std::cout << "[MuScleFit]: Root file created" << std::endl;
 
   plotter = new MuScleFitPlotter(theGenInfoRootFileName_);
   plotter->debug = debug_;
@@ -383,20 +379,20 @@ void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
 // End of job method
 // -----------------
 void MuScleFit::endOfJob () {
-  if (debug_>0) cout << "[MuScleFit]: endOfJob" << endl;
+  if (debug_>0) std::cout << "[MuScleFit]: endOfJob" << std::endl;
 }
 
 // New loop
 // --------
 void MuScleFit::startingNewLoop( unsigned int iLoop )
 {
-  if (debug_>0) cout << "[MuScleFit]: Starting loop # " << iLoop << endl;
+  if (debug_>0) std::cout << "[MuScleFit]: Starting loop # " << iLoop << std::endl;
 
   // Number of muons used
   // --------------------
   MuScleFitUtils::goodmuon = 0;
 
-  // Counters for problem cout-ing
+  // Counters for problem std::cout-ing
   // -----------------------------
   MuScleFitUtils::counter_resprob = 0;
 
@@ -434,21 +430,21 @@ edm::EDLooper::Status MuScleFit::endOfLoop( const edm::EventSetup& eventSetup, u
   if( fastLoop == true ) {
     for( ; iFastLoop<maxLoopNumber; ++iFastLoop ) {
 
-      cout << "Starting fast loop number " << iFastLoop << endl;
+      std::cout << "Starting fast loop number " << iFastLoop << std::endl;
 
       // In the first loop is called by the framework
       if( iFastLoop > 0 ) {
         startingNewLoop(iFastLoop);
       }
 
-      // vector<pair<lorentzVector,lorentzVector> >::const_iterator it = MuScleFitUtils::SavedPair.begin();
+      // std::vector<std::pair<lorentzVector,lorentzVector> >::const_iterator it = MuScleFitUtils::SavedPair.begin();
       // for( ; it != SavedPair.end(); ++it ) {
       while( iev<totalEvents_ ) {
-        cout << "Fast looping on event number " << iev << endl;
+        std::cout << "Fast looping on event number " << iev << std::endl;
         // This reads muons from SavedPair using iev to keep track of the event
         duringFastLoop();
       }
-      cout << "End of fast loop number " << iFastLoop << endl;
+      std::cout << "End of fast loop number " << iFastLoop << std::endl;
       endOfFastLoop(iFastLoop);
     }
   }
@@ -462,7 +458,7 @@ edm::EDLooper::Status MuScleFit::endOfLoop( const edm::EventSetup& eventSetup, u
 
 void MuScleFit::endOfFastLoop( const unsigned int iLoop )
 {
-  // cout<< "Inside endOfFastLoop, iLoop = " << iLoop << " and loopCounter = " << loopCounter << endl;
+  // std::cout<< "Inside endOfFastLoop, iLoop = " << iLoop << " and loopCounter = " << loopCounter << std::endl;
 
   if( loopCounter == 0 ) {
     // plotter->writeHistoMap();
@@ -470,7 +466,7 @@ void MuScleFit::endOfFastLoop( const unsigned int iLoop )
     delete plotter;
   }
 
-  cout << "Ending loop # " << iLoop << endl;
+  std::cout << "Ending loop # " << iLoop << std::endl;
 
   // Write the histos to file
   // ------------------------
@@ -496,15 +492,15 @@ void MuScleFit::endOfFastLoop( const unsigned int iLoop )
 
 // Stuff to do during loop
 // -----------------------
-edm::EDLooper::Status MuScleFit::duringLoop( const Event & event, const EventSetup& eventSetup )
+edm::EDLooper::Status MuScleFit::duringLoop( const edm::Event & event, const edm::EventSetup& eventSetup )
 {
 #ifdef USE_CALLGRIND
   CALLGRIND_START_INSTRUMENTATION;
 #endif
 
   if (debug_>0) {
-    cout << "[MuScleFit-duringLoop]: loopCounter = " << loopCounter
-	 << " Run: " << event.id().run() << " Event: " << event.id().event() << endl;
+    std::cout << "[MuScleFit-duringLoop]: loopCounter = " << loopCounter
+	 << " Run: " << event.id().run() << " Event: " << event.id().event() << std::endl;
   }
 
   // On the first iteration we read the bank, otherwise we fetch the information from the muon tree
@@ -515,7 +511,7 @@ edm::EDLooper::Status MuScleFit::duringLoop( const Event & event, const EventSet
   if( loopCounter == 0 ) {
 
     if( !fastLoop || inputRootTreeFileName_.empty() ) {
-      // cout << "Reading from edm event" << endl;
+      // std::cout << "Reading from edm event" << std::endl;
       selectMuons(event);
       duringFastLoop();
       ++totalEvents_;
@@ -530,43 +526,43 @@ edm::EDLooper::Status MuScleFit::duringLoop( const Event & event, const EventSet
 #endif
 }
 
-void MuScleFit::selectMuons(const Event & event)
+void MuScleFit::selectMuons(const edm::Event & event)
 {
   recMu1 = reco::Particle::LorentzVector(0,0,0,0);
   recMu2 = reco::Particle::LorentzVector(0,0,0,0);
 
-  vector<reco::LeafCandidate> muons;
+  std::vector<reco::LeafCandidate> muons;
   if( theMuonType_<4 || theMuonType_==10 ) { // Muons (glb,sta,trk)
-    vector<reco::Track> tracks;
+    std::vector<reco::Track> tracks;
     if( PATmuons_ == true ) {
-      Handle<pat::MuonCollection> allMuons;
+      edm::Handle<pat::MuonCollection> allMuons;
       event.getByLabel( theMuonLabel_, allMuons );
-      for( vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
+      for( std::vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
         takeSelectedMuonType(muon, tracks);
       }
       muons = fillMuonCollection(tracks);
     }
     else {
-      Handle<reco::MuonCollection> allMuons;
+      edm::Handle<reco::MuonCollection> allMuons;
       event.getByLabel (theMuonLabel_, allMuons);
-      for( vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
+      for( std::vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
         takeSelectedMuonType(muon, tracks);
       }
       muons = fillMuonCollection(tracks);
     }
   }
   else if(theMuonType_==4){  //CaloMuons
-    Handle<reco::CaloMuonCollection> caloMuons;
+    edm::Handle<reco::CaloMuonCollection> caloMuons;
     event.getByLabel (theMuonLabel_, caloMuons);
-    vector<reco::Track> tracks;
-    for (vector<reco::CaloMuon>::const_iterator muon = caloMuons->begin(); muon != caloMuons->end(); ++muon){
+    std::vector<reco::Track> tracks;
+    for (std::vector<reco::CaloMuon>::const_iterator muon = caloMuons->begin(); muon != caloMuons->end(); ++muon){
       tracks.push_back(*(muon->track()));
     }
     muons = fillMuonCollection(tracks);
   }
 
   else if (theMuonType_==5) { // Inner tracker tracks
-    Handle<reco::TrackCollection> tracks;
+    edm::Handle<reco::TrackCollection> tracks;
     event.getByLabel (theMuonLabel_, tracks);
     muons = fillMuonCollection(*tracks);
   }
@@ -577,26 +573,26 @@ void MuScleFit::selectMuons(const Event & event)
 
   // Find the two muons from the resonance, and set ResFound bool
   // ------------------------------------------------------------
-  pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes =
+  std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes =
     MuScleFitUtils::findBestRecoRes(muons);
   if (MuScleFitUtils::ResFound) {
     if (debug_>0) {
-      cout <<setprecision(9)<< "Pt after findbestrecores: " << (recMuFromBestRes.first).Pt() << " "
-           << (recMuFromBestRes.second).Pt() << endl;
-      cout << "recMu1 = " << recMu1 << endl;
-      cout << "recMu2 = " << recMu2 << endl;
+      std::cout <<std::setprecision(9)<< "Pt after findbestrecores: " << (recMuFromBestRes.first).Pt() << " "
+           << (recMuFromBestRes.second).Pt() << std::endl;
+      std::cout << "recMu1 = " << recMu1 << std::endl;
+      std::cout << "recMu2 = " << recMu2 << std::endl;
     }
     recMu1 = recMuFromBestRes.first;
     recMu2 = recMuFromBestRes.second;
     if (debug_>0) {
-      cout << "after recMu1 = " << recMu1 << endl;
-      cout << "after recMu2 = " << recMu2 << endl;
-      cout << "mu1.pt = " << recMu1.Pt() << endl;
-      cout << "mu2.pt = " << recMu2.Pt() << endl;
+      std::cout << "after recMu1 = " << recMu1 << std::endl;
+      std::cout << "after recMu2 = " << recMu2 << std::endl;
+      std::cout << "mu1.pt = " << recMu1.Pt() << std::endl;
+      std::cout << "mu2.pt = " << recMu2.Pt() << std::endl;
     }
-    MuScleFitUtils::SavedPair.push_back( make_pair( recMu1, recMu2 ) );
+    MuScleFitUtils::SavedPair.push_back( std::make_pair( recMu1, recMu2 ) );
   } else {
-    MuScleFitUtils::SavedPair.push_back( make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
+    MuScleFitUtils::SavedPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
   }
 
   // ------- //
@@ -607,9 +603,9 @@ void MuScleFit::selectMuons(const Event & event)
   if (!MuScleFitUtils::speedup) {
     // Find and store in histograms the generated and simulated resonance and muons
     // ----------------------------------------------------------------------------
-    Handle<HepMCProduct> evtMC;
-    Handle<SimTrackContainer> simTracks;
-    Handle<GenParticleCollection> genParticles;
+    edm::Handle<edm::HepMCProduct> evtMC;
+    edm::Handle<edm::SimTrackContainer> simTracks;
+    edm::Handle<reco::GenParticleCollection> genParticles;
 
     // Fill gen information only in the first loop
     ifHepMC=false;
@@ -624,7 +620,7 @@ void MuScleFit::selectMuons(const Event & event)
       ifHepMC = true;
     }
     else {
-      // cout << "HepMCProduct non existent. Trying with genParticles" << endl;
+      // std::cout << "HepMCProduct non existent. Trying with genParticles" << std::endl;
       event.getByLabel( genParticlesName_, genParticles );
       if( genParticles.isValid() ) {
 
@@ -632,19 +628,19 @@ void MuScleFit::selectMuons(const Event & event)
 
         plotter->fillGen1(genParticles);
         ifGenPart=true;
-        if (debug_>0) cout << "Found genParticles" << endl;
+        if (debug_>0) std::cout << "Found genParticles" << std::endl;
       }
       else {
-        // cout << "GenParticles non existent" << endl;
-        cout<<"ERROR "<<"non generation info and speedup true!!!!!!!!!!!!"<<endl;
+        // std::cout << "GenParticles non existent" << std::endl;
+        std::cout<<"ERROR "<<"non generation info and speedup true!!!!!!!!!!!!"<<std::endl;
         // Fill it in any case, otherwise it will not be in sync with the event number
-        MuScleFitUtils::genPair.push_back( make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
+        MuScleFitUtils::genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
       }
     }
 
     if(!(MuScleFitUtils::speedup) && debug_>0) {
-      cout << "genParticles:" << endl;
-      cout << MuScleFitUtils::genPair.back().first << " , " << MuScleFitUtils::genPair.back().second << endl;
+      std::cout << "genParticles:" << std::endl;
+      std::cout << MuScleFitUtils::genPair.back().first << " , " << MuScleFitUtils::genPair.back().second << std::endl;
     }
 
     if( compareToSimTracks_ ) {
@@ -660,10 +656,10 @@ void MuScleFit::selectMuons(const Event & event)
         }
       }
       else {
-        cout << "SimTracks not existent" << endl;
+        std::cout << "SimTracks not existent" << std::endl;
       }
       if( !simTracksFound ) {
-        MuScleFitUtils::simPair.push_back( make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
+        MuScleFitUtils::simPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
       }
     }
   }
@@ -671,7 +667,7 @@ void MuScleFit::selectMuons(const Event & event)
 
 void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
 {
-  cout << "Reading muon pairs from Root Tree in " << treeFileName << endl;
+  std::cout << "Reading muon pairs from Root Tree in " << treeFileName << std::endl;
   RootTreeHandler rootTreeHandler;
   if( MuScleFitUtils::speedup ) {
     rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPair));
@@ -681,7 +677,7 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
   }
   // Now loop on all the pairs and apply any smearing and bias if needed
   if( (MuScleFitUtils::SmearType != 0) || (MuScleFitUtils::BiasType != 0) ) {
-    vector<pair<lorentzVector,lorentzVector> >::iterator it = MuScleFitUtils::SavedPair.begin();
+    std::vector<std::pair<lorentzVector,lorentzVector> >::iterator it = MuScleFitUtils::SavedPair.begin();
     for( ; it != MuScleFitUtils::SavedPair.end(); ++it ) {
       // First is always mu-, second mu+
       applySmearing(it->first);
@@ -705,12 +701,12 @@ void MuScleFit::duringFastLoop()
   recMu2 = (MuScleFitUtils::SavedPair[iev].second);
   if (recMu1.Pt()>0 && recMu2.Pt()>0) {
     MuScleFitUtils::ResFound = true;
-    if (debug_>0) cout << "Ev = " << iev << ": found muons in tree with Pt = "
-                       << recMu1.Pt() << " " << recMu2.Pt() << endl;
+    if (debug_>0) std::cout << "Ev = " << iev << ": found muons in tree with Pt = "
+                       << recMu1.Pt() << " " << recMu2.Pt() << std::endl;
   }
 
-  if( debug_>0 ) cout << "About to start lik par correction and histo filling; ResFound is "
-		    << MuScleFitUtils::ResFound << endl;
+  if( debug_>0 ) std::cout << "About to start lik par correction and histo filling; ResFound is "
+		    << MuScleFitUtils::ResFound << std::endl;
   // If resonance found, do the hard work
   // ------------------------------------
   if( MuScleFitUtils::ResFound ) {
@@ -721,8 +717,8 @@ void MuScleFit::duringFastLoop()
     // otherwise the probability will be filled only for the resonance region.
     double weight = MuScleFitUtils::computeWeight( (recMu1+recMu2).mass(), iev, true );
     if (debug_>0) {
-      cout << "Loop #" << loopCounter << "Event #" << iev << ": before correction     Pt1 = "
-	   << recMu1.Pt() << " Pt2 = " << recMu2.Pt() << endl;
+      std::cout << "Loop #" << loopCounter << "Event #" << iev << ": before correction     Pt1 = "
+	   << recMu1.Pt() << " Pt2 = " << recMu2.Pt() << std::endl;
     }
     // For successive iterations, correct the muons only if the previous iteration was a scale fit.
     // --------------------------------------------------------------------------------------------
@@ -733,8 +729,8 @@ void MuScleFit::duringFastLoop()
       }
     }
     if (debug_>0) {
-      cout << "Loop #" << loopCounter << "Event #" << iev << ": after correction      Pt1 = "
-	   << recMu1.Pt() << " Pt2 = " << recMu2.Pt() << endl;
+      std::cout << "Loop #" << loopCounter << "Event #" << iev << ": after correction      Pt1 = "
+	   << recMu1.Pt() << " Pt2 = " << recMu2.Pt() << std::endl;
     }
 
     reco::Particle::LorentzVector bestRecRes( recMu1+recMu2 );
@@ -753,8 +749,8 @@ void MuScleFit::duringFastLoop()
     mapHisto_["hRecBestResVSMu"]->Fill (recMu1, bestRecRes, -1);
     mapHisto_["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1);
 
-    vector<double> * parval;
-    vector<double> initpar;
+    std::vector<double> * parval;
+    std::vector<double> initpar;
     // Store a pointer to the vector of parameters of the last iteration, or the initial
     // parameters if this is the first iteration
     if (loopCounter==0) {
@@ -792,7 +788,7 @@ void MuScleFit::duringFastLoop()
     // ATTENTION: this was done only when a matching was found. Moved it outside because, genInfo or not, we still want to see the resolution function
     // Fill also the resolution histogramsm using the resolution functions:
     // the parameters are those from the last iteration, as the muons up to this point have also the corrections from the same iteration.
-    // Need to use a different array (ForVec), containing functors able to operate on vector<double>
+    // Need to use a different array (ForVec), containing functors able to operate on std::vector<double>
     mapHisto_["hFunctionResolPt"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaPt(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
     mapHisto_["hFunctionResolCotgTheta"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
     mapHisto_["hFunctionResolPhi"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaPhi(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
@@ -802,13 +798,13 @@ void MuScleFit::duringFastLoop()
 
     // Compute likelihood histograms
     // -----------------------------
-    if( debug_ > 0 ) cout << "mass = " << bestRecRes.mass() << endl;
+    if( debug_ > 0 ) std::cout << "mass = " << bestRecRes.mass() << std::endl;
     if (weight!=0.) {
       double massResol;
       double prob;
       double deltalike;
       if (loopCounter==0) {
-	vector<double> initpar;
+	std::vector<double> initpar;
 	for (int i=0; i<(int)(MuScleFitUtils::parResol.size()); i++) {
 	  initpar.push_back(MuScleFitUtils::parResol[i]);
 	}
@@ -831,9 +827,9 @@ void MuScleFit::duringFastLoop()
 	prob      = MuScleFitUtils::massProb (bestRecRes.mass(), bestRecRes.Rapidity(),
                                               massResol, MuScleFitUtils::parvalue[loopCounter-1], true);
       }
-      if( debug_ > 0 ) cout << "inside weight: mass = " << bestRecRes.mass() << ", prob = " << prob << endl;
+      if( debug_ > 0 ) std::cout << "inside weight: mass = " << bestRecRes.mass() << ", prob = " << prob << std::endl;
       if (prob>0) {
-        if( debug_ > 0 ) cout << "inside prob: mass = " << bestRecRes.mass() << ", prob = " << prob << endl;
+        if( debug_ > 0 ) std::cout << "inside prob: mass = " << bestRecRes.mass() << ", prob = " << prob << std::endl;
 
 	deltalike = log(prob)*weight; // NB maximum likelihood --> deltalike is maximized
 	mapHisto_["hLikeVSMu"]->Fill(recMu1, deltalike);
@@ -884,7 +880,7 @@ void MuScleFit::duringFastLoop()
               mapHisto_["hMassResolutionVsPtEta"]->Fill(pt2, eta2, diffMass, diffMass);
             }
             else {
-              cout << "Error, there is a nan: recoMass = " << recoMass << ", genMass = " << genMass << endl;
+              std::cout << "Error, there is a nan: recoMass = " << recoMass << ", genMass = " << genMass << std::endl;
             }
           }
           // Fill with mass resolution from resolution function
@@ -895,7 +891,7 @@ void MuScleFit::duringFastLoop()
         }
 
         mapHisto_["hMass_P"]->Fill(bestRecRes.mass(), prob);
-        if( debug_ > 0 ) cout << "mass = " << bestRecRes.mass() << ", prob = " << prob << endl;
+        if( debug_ > 0 ) std::cout << "mass = " << bestRecRes.mass() << ", prob = " << prob << std::endl;
         mapHisto_["hMass_fine_P"]->Fill(bestRecRes.mass(), prob);
       }
     }
@@ -904,8 +900,8 @@ void MuScleFit::duringFastLoop()
   // Fill the pair
   // -------------
   if (loopCounter>0) {
-    if (debug_>0) cout << "[MuScleFit]: filling the pair" << endl;
-    MuScleFitUtils::SavedPair[iev] = make_pair( recMu1, recMu2 );
+    if (debug_>0) std::cout << "[MuScleFit]: filling the pair" << std::endl;
+    MuScleFitUtils::SavedPair[iev] = std::make_pair( recMu1, recMu2 );
   }
 
   iev++;
@@ -921,14 +917,16 @@ bool MuScleFit::checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle
   if(deltaR<0.01)
     return true;
   else
-    cout<<"Reco muon "<<recMu<<" with eta "<<recMu.Eta()<<" and phi "<<recMu.Phi()<<endl
-	<<" DOES NOT MATCH with generated muon from resonance: "<<endl
-	<<genMu<<" with eta "<<genMu.Eta()<<" and phi "<<genMu.Phi()<<endl;
+    std::cout<<"Reco muon "<<recMu<<" with eta "<<recMu.Eta()<<" and phi "<<recMu.Phi()<<std::endl
+	<<" DOES NOT MATCH with generated muon from resonance: "<<std::endl
+	<<genMu<<" with eta "<<genMu.Eta()<<" and phi "<<genMu.Phi()<<std::endl;
   return false;
 }
 
-void MuScleFit::fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recMu, const string & inputName, const int charge ) {
-  string name(inputName + "VSMu");
+void MuScleFit::fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recMu,
+					  const std::string & inputName, const int charge )
+{
+  std::string name(inputName + "VSMu");
   mapHisto_["hResolPt"+name]->Fill(recMu, (-genMu.Pt()+recMu.Pt())/genMu.Pt(), charge);
   mapHisto_["hResolTheta"+name]->Fill(recMu, (-genMu.Theta()+recMu.Theta()), charge);
   mapHisto_["hResolCotgTheta"+name]->Fill(recMu,(-cos(genMu.Theta())/sin(genMu.Theta())
@@ -946,8 +944,8 @@ void MuScleFit::applySmearing( reco::Particle::LorentzVector & mu )
 {
   if( MuScleFitUtils::SmearType>0 ) {
     mu = MuScleFitUtils::applySmearing( mu );
-    if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon
-                       << ": after smearing  Pt = " << mu.Pt() << endl;
+    if (debug_>0) std::cout << "Muon #" << MuScleFitUtils::goodmuon
+                       << ": after smearing  Pt = " << mu.Pt() << std::endl;
   }
 }
 
@@ -955,8 +953,8 @@ void MuScleFit::applyBias( reco::Particle::LorentzVector & mu, const int charge 
 {
   if( MuScleFitUtils::BiasType>0 ) {
     mu = MuScleFitUtils::applyBias( mu, charge );
-    if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon
-                       << ": after bias      Pt = " << mu.Pt() << endl;
+    if (debug_>0) std::cout << "Muon #" << MuScleFitUtils::goodmuon
+                       << ": after bias      Pt = " << mu.Pt() << std::endl;
   }
 }
 
@@ -966,23 +964,23 @@ void MuScleFit::checkParameters() {
 
   // Fits selection dimension check
   if( MuScleFitUtils::doResolFit.size() != maxLoopNumber ) {
-    cout << "[MuScleFit-Constructor]: wrong size of resolution fits selector = " << MuScleFitUtils::doResolFit.size() << endl;
-    cout << "it must have as many values as the number of loops, which is = " << maxLoopNumber << endl;
+    std::cout << "[MuScleFit-Constructor]: wrong size of resolution fits selector = " << MuScleFitUtils::doResolFit.size() << std::endl;
+    std::cout << "it must have as many values as the number of loops, which is = " << maxLoopNumber << std::endl;
     abort();
   }
   if( MuScleFitUtils::doScaleFit.size() != maxLoopNumber ) {
-    cout << "[MuScleFit-Constructor]: wrong size of scale fits selector = " << MuScleFitUtils::doScaleFit.size() << endl;
-    cout << "it must have as many values as the number of loops, which is = " << maxLoopNumber << endl;
+    std::cout << "[MuScleFit-Constructor]: wrong size of scale fits selector = " << MuScleFitUtils::doScaleFit.size() << std::endl;
+    std::cout << "it must have as many values as the number of loops, which is = " << maxLoopNumber << std::endl;
     abort();
   }
   if( MuScleFitUtils::doCrossSectionFit.size() != maxLoopNumber ) {
-    cout << "[MuScleFit-Constructor]: wrong size of cross section fits selector = " << MuScleFitUtils::doCrossSectionFit.size() << endl;
-    cout << "it must have as many values as the number of loops, which is = " << maxLoopNumber << endl;
+    std::cout << "[MuScleFit-Constructor]: wrong size of cross section fits selector = " << MuScleFitUtils::doCrossSectionFit.size() << std::endl;
+    std::cout << "it must have as many values as the number of loops, which is = " << maxLoopNumber << std::endl;
     abort();
   }
   if( MuScleFitUtils::doBackgroundFit.size() != maxLoopNumber ) {
-    cout << "[MuScleFit-Constructor]: wrong size of background fits selector = " << MuScleFitUtils::doBackgroundFit.size() << endl;
-    cout << "it must have as many values as the number of loops, which is = " << maxLoopNumber << endl;
+    std::cout << "[MuScleFit-Constructor]: wrong size of background fits selector = " << MuScleFitUtils::doBackgroundFit.size() << std::endl;
+    std::cout << "it must have as many values as the number of loops, which is = " << maxLoopNumber << std::endl;
     abort();
   }
 
@@ -1002,7 +1000,7 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::BiasType==12 && MuScleFitUtils::parBias.size()!=6) || // linear in pt and para in plus sin in phi with chg
       (MuScleFitUtils::BiasType==13 && MuScleFitUtils::parBias.size()!=8) || // linear in pt and para in plus sin in phi with chg
       MuScleFitUtils::BiasType<0 || MuScleFitUtils::BiasType>13) {
-    cout << "[MuScleFit-Constructor]: Wrong bias type or number of parameters: aborting!" << endl;
+    std::cout << "[MuScleFit-Constructor]: Wrong bias type or number of parameters: aborting!" << std::endl;
     abort();
   }
   // Smear parameters: dimension check
@@ -1014,36 +1012,36 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::SmearType==5  && MuScleFitUtils::parSmear.size()!=7) ||
       (MuScleFitUtils::SmearType==6  && MuScleFitUtils::parSmear.size()!=16) ||
       MuScleFitUtils::SmearType<0 || MuScleFitUtils::SmearType>6) {
-    cout << "[MuScleFit-Constructor]: Wrong smear type or number of parameters: aborting!" << endl;
+    std::cout << "[MuScleFit-Constructor]: Wrong smear type or number of parameters: aborting!" << std::endl;
     abort();
   }
   // Protect against bad size of parameters
   // --------------------------------------
   if (MuScleFitUtils::parResol.size()!=MuScleFitUtils::parResolFix.size() ||
       MuScleFitUtils::parResol.size()!=MuScleFitUtils::parResolOrder.size()) {
-    cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Resol: aborting!" << endl;
+    std::cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Resol: aborting!" << std::endl;
     abort();
   }
   if (MuScleFitUtils::parScale.size()!=MuScleFitUtils::parScaleFix.size() ||
       MuScleFitUtils::parScale.size()!=MuScleFitUtils::parScaleOrder.size()) {
-    cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Scale: aborting!" << endl;
+    std::cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Scale: aborting!" << std::endl;
     abort();
   }
   if (MuScleFitUtils::parCrossSection.size()!=MuScleFitUtils::parCrossSectionFix.size() ||
       MuScleFitUtils::parCrossSection.size()!=MuScleFitUtils::parCrossSectionOrder.size()) {
-    cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Bgr: aborting!" << endl;
+    std::cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Bgr: aborting!" << std::endl;
     abort();
   }
   if (MuScleFitUtils::parBgr.size()!=MuScleFitUtils::parBgrFix.size() ||
       MuScleFitUtils::parBgr.size()!=MuScleFitUtils::parBgrOrder.size()) {
-    cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Bgr: aborting!" << endl;
+    std::cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Bgr: aborting!" << std::endl;
     abort();
   }
 
   // Protect against an incorrect number of resonances
   // -------------------------------------------------
   if (MuScleFitUtils::resfind.size()!=6) {
-    cout << "[MuScleFit-Constructor]: resfind must have 6 elements (1 Z, 3 Y, 2 Psi): aborting!" << endl;
+    std::cout << "[MuScleFit-Constructor]: resfind must have 6 elements (1 Z, 3 Y, 2 Psi): aborting!" << std::endl;
     abort();
   }
 }

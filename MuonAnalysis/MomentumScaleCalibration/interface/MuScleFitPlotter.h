@@ -4,8 +4,8 @@
 /** \class MuScleFitPlotter
  *  Plotter of the muon info (sim,gen,rec)
  *
- *  $Date: 2010/03/04 09:15:41 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/03/16 12:01:33 $
+ *  $Revision: 1.10 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -29,7 +29,7 @@ class MuScleFitPlotter{
  public:
   // Constructor
   // -----------
-  MuScleFitPlotter(string);
+  MuScleFitPlotter(std::string);
 
   // Destructor
   // ----------
@@ -44,8 +44,8 @@ class MuScleFitPlotter{
   void fillRec(std::vector<reco::LeafCandidate>& muons);
 
   // Root tree specific
-  void fillRec( const vector<pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & savedPairs );
-  void fillGen( const vector<pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & genPairs );
+  void fillRec( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & savedPairs );
+  void fillGen( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & genPairs );
 
   void fillHistoMap();
   void writeHistoMap();

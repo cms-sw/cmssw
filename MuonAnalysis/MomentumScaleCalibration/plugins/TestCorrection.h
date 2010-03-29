@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: TestCorrection.h,v 1.5 2010/01/04 16:12:33 demattia Exp $
+// $Id: TestCorrection.h,v 1.6 2010/01/11 09:31:33 demattia Exp $
 //
 //
 
@@ -56,10 +56,6 @@
 // class decleration
 //
 
-using namespace std;
-using namespace edm;
-using namespace reco;
-
 class TestCorrection : public edm::EDAnalyzer, MuScleFitBase {
 public:
   explicit TestCorrection(const edm::ParameterSet&);
@@ -97,9 +93,9 @@ private:
 
   int eventCounter_;
 
-  auto_ptr<MomentumScaleCorrector> corrector_;
-  auto_ptr<ResolutionFunction> resolution_;
-  auto_ptr<BackgroundFunction> background_;
+  std::auto_ptr<MomentumScaleCorrector> corrector_;
+  std::auto_ptr<ResolutionFunction> resolution_;
+  std::auto_ptr<BackgroundFunction> background_;
 };
 
 #endif // TESTCORRECTION_HH
