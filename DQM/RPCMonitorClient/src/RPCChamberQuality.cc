@@ -126,7 +126,7 @@ void RPCChamberQuality::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 
 void RPCChamberQuality::analyze(const Event& iEvent, const EventSetup& c) {}
 
-void RPCChamberQuality::endJob() {
+void RPCChamberQuality::endRun(const Run& r, const EventSetup& c) {
   LogVerbatim ("rpceventsummary") <<"[RPCChamberQuality]: End Job, performing DQM client operation";
 
    MonitorElement * RpcEvents = NULL;

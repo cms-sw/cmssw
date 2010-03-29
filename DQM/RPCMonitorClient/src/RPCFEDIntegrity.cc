@@ -25,7 +25,7 @@ typedef std::map<std::pair<int, int>, int >::const_iterator IT;
 RPCFEDIntegrity::RPCFEDIntegrity(const ParameterSet& ps ) {
   LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Constructor";
 
-  rawCountsLabel_ = ps.getUntrackedParameter<InputTag>("RPCRawCountsInputTag");
+  rawCountsLabel_ = ps.getUntrackedParameter<InputTag>("RPCRawCountsInputTag", InputTag("hltMuonRPCDigis"));
   prefixDir_ = ps.getUntrackedParameter<string>("RPCPrefixDir", "RPC/FEDIntegrity");
   merge_ = ps.getUntrackedParameter<bool>("MergeRuns", false);
   minFEDNum_ =  ps.getUntrackedParameter<int>("MinimumFEDID", 790);
@@ -89,7 +89,7 @@ void RPCFEDIntegrity::analyze(const Event& iEvent, const EventSetup& c) {
   }
   recordTypes_ = myRecordTypes;
 
-  if ( myReadoutErrors != readoutErrors_ ){
+ if ( myReadoutErrors != readoutErrors_ ){
     map< pair<int,int>, int >::const_iterator itr;
     map< pair<int,int>, int >::const_iterator  itr2;
     for(itr = myReadoutErrors.begin(); itr!= myReadoutErrors.end(); itr++ ){
