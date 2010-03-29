@@ -324,21 +324,11 @@ namespace reco {
 
     reco::MuonRef  muonRef_;
 
-    /// reference to the corresponding pf displaced vertex where this track was created
-    reco::PFDisplacedVertexRef displacedVertexMotherRef_;
+    // unused data member only here for backward compatibility
+    reco::NuclearInteractionRef nuclearRef_;
 
-    /// reference to the corresponding pf displaced vertex which this track was created
-    reco::PFDisplacedVertexRef displacedVertexDaughterRef_;
-
-    // Reference to a mother conversion
+    // unused data member only here for backward compatibility
     reco::ConversionRef conversionRef_;
-
-    // Reference to a mother V0
-    reco::VertexCompositeCandidateRef v0Ref_;
-
-    // Old references necessary to read the data before CMSSW3_6_0_pre3
-    reco::NuclearInteractionRef nuclearRef_; 
-
 
     /// corrected ECAL energy
     float       ecalEnergy_;
@@ -384,6 +374,17 @@ namespace reco {
 
     /// position at ECAL entrance, from the PFRecTrack
     math::XYZPointF   positionAtECALEntrance_;
+
+
+    /// reference to the corresponding pf displaced vertex where this track was created
+    reco::PFDisplacedVertexRef displacedVertexMotherRef_;
+
+    /// reference to the corresponding pf displaced vertex which this track was created
+    reco::PFDisplacedVertexRef displacedVertexDaughterRef_;
+
+
+    // Reference to a mother V0
+    reco::VertexCompositeCandidateRef v0Ref_;
     
   };
 
