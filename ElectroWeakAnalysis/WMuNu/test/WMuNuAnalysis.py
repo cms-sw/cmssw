@@ -7,11 +7,11 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("wmnsel")
 process.maxEvents = cms.untracked.PSet(
       #input = cms.untracked.int32(-1)
-      input = cms.untracked.int32(100)
+      input = cms.untracked.int32(1000)
 )
 process.source = cms.Source("PoolSource",
        fileNames = cms.untracked.vstring(
-        'file:/data4/POWHEG/EWK_Subskim_Wmunu_Wplus-powheg.root'
+        'file:/data2/Wmunu_Summer09-MC_31X_V3_7TeV_AODSIM-v1/002861FD-899B-DE11-915E-000AE488BE67.root'
         )
 )
 
@@ -26,7 +26,7 @@ process.seltcMet.plotHistograms = cms.untracked.bool(True)
 process.MessageLogger = cms.Service("MessageLogger",
       debugModules = cms.untracked.vstring('selectCaloMetWMuNus','selectPfMetWMuNus','selectTcMetWMuNus'),
       cout = cms.untracked.PSet(
-            default = cms.untracked.PSet( limit = cms.untracked.int32(10) ),
+            default = cms.untracked.PSet( limit = cms.untracked.int32(100) ),
             threshold = cms.untracked.string('INFO')
             #threshold = cms.untracked.string('DEBUG')
       ),
