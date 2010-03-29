@@ -1,15 +1,13 @@
 from FWCore.GuiBrowsers.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import *
 
-path = "PhysicsTools.PatAlgos.tools.heavyIonTools"
-
 class ConfigureHeavyIons(ConfigToolBase):
 
     """ Configure all defaults for heavy ions
     """
     _label='configureHeavyIons'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+    
     def __init__(self):
         ConfigToolBase.__init__(self)        
         self._parameters=copy.deepcopy(self._defaultParameters)
@@ -36,7 +34,7 @@ class ProductionDefaults(ConfigToolBase):
     """
     _label='productionDefaults'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+    
     def __init__(self):
         ConfigToolBase.__init__(self)        
         self._parameters=copy.deepcopy(self._defaultParameters)
@@ -106,7 +104,7 @@ class SelectionDefaults(ConfigToolBase):
     """
     _label='selectionDefaults'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+    
     def __init__(self):
         ConfigToolBase.__init__(self)        
         self._parameters=copy.deepcopy(self._defaultParameters)

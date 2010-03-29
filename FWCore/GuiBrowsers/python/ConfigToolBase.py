@@ -1,6 +1,8 @@
 import copy
 import inspect
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.Mixins import *
+from os import path
 
 #### patches needed for deepcopy of sorted dicts ####
 
@@ -40,6 +42,15 @@ class ConfigToolBase(object) :
         self._description=self.__doc__
         self._comment = ''
         self.parAccepted=True
+        saveOrigin(self,1)
+        self._path = path.realpath(self._filename)        
+        self._path = self._path.split("/src/")
+        self._path = self._path[1].replace("/python","")
+        #self._path = "".join(self._path)
+        self._path = self._path.replace("/",".")
+        self._path = self._path.replace(".py","")
+
+
     def __call__(self,process):
         """ Call the instance 
         """

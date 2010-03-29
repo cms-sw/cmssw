@@ -1,6 +1,5 @@
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
-path = "PhysicsTools.PatAlgos.tools.metTools"
 
 class AddTcMET(ConfigToolBase):
 
@@ -8,7 +7,7 @@ class AddTcMET(ConfigToolBase):
     """
     _label='addTcMET'    
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+    
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'postfixLabel','TC', '')
@@ -55,7 +54,7 @@ class AddPfMET(ConfigToolBase):
     """
     _label='addPfMET'    
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+    
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'postfixLabel','PF', '')

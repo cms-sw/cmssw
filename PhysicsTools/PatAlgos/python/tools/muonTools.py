@@ -1,6 +1,5 @@
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
-path = "PhysicsTools.PatAlgos.tools.muonTools"
 
 class AddMuonUserIsolation(ConfigToolBase):
 
@@ -8,10 +7,10 @@ class AddMuonUserIsolation(ConfigToolBase):
     """
     _label='addMuonUserIsolation'    
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+    
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters,'isolationTypes',['All'],'List of predefined userIsolation types to be added; possible values are [\'Tracker\',\'Ecal\',\'Hcal\'] or just [\'All\']')
+        self.addParameter(self._defaultParameters,'isolationTypes',['All'],'List of predefined userIsolation types to be added; possible values are [\'Tracker\',\'Ecal\',\'Hcal\'] or just [\'All\']', allowedValues=['Tracker','Ecal','Hcal','All'])
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ''
 

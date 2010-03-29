@@ -2,14 +2,13 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 
 from PhysicsTools.PatAlgos.patEventContent_cff import *
 
-path = "PhysicsTools.PatAlgos.tools.trigTools"
 
 class SwitchOnTrigger(ConfigToolBase):    
     """ Enables trigger information in PAT
     """    
     _label='switchOnTrigger'    
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+    
     def __init__(self):
         ConfigToolBase.__init__(self)
         self._parameters=copy.deepcopy(self._defaultParameters)
@@ -39,7 +38,7 @@ class SwitchOnTriggerStandAlone(ConfigToolBase):
     """
     _label='switchOnTriggerStandAlone'    
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+    
     def __init__(self):
         ConfigToolBase.__init__(self)
         self._parameters=copy.deepcopy(self._defaultParameters)
@@ -69,7 +68,7 @@ class SwitchOnTriggerAll(ConfigToolBase):
     """
     _label='switchOnTriggerAll'    
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+    
     def __init__(self):
         ConfigToolBase.__init__(self)
         self._parameters=copy.deepcopy(self._defaultParameters)
@@ -93,7 +92,7 @@ class SwitchOnTriggerMatchEmbedding(ConfigToolBase):
     """
     _label='switchOnTriggerMatchEmbedding'    
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+    
     def __init__(self):
         ConfigToolBase.__init__(self)
         self._parameters=copy.deepcopy(self._defaultParameters)

@@ -4,8 +4,6 @@ from PhysicsTools.PatAlgos.tools.helpers import *
 
 
 
-path = "PhysicsTools.PatAlgos.tools.jetTools"
-
 
 def patchJetCorrFactors_(jetCorrFactors, newAlgo):
     """
@@ -81,7 +79,7 @@ class SwitchJECSet(ConfigToolBase):
     """
     _label='switchJECSet'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'newName',self._defaultValue,"new correction sample", Type=str)
@@ -122,7 +120,7 @@ class RunBTagging(ConfigToolBase):
     """
     _label='runBTagging'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue, 'input jet collection',Type=cms.InputTag)
@@ -269,7 +267,7 @@ class AddJetCollection(ConfigToolBase):
     """
     _label='addJetCollection'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue,'Input jet collection', cms.InputTag)
@@ -549,7 +547,7 @@ class SwitchJetCollection(ConfigToolBase):
     """
     _label='switchJetCollection'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue,'Input jet collection', cms.InputTag)
@@ -732,7 +730,7 @@ class AddJetID(ConfigToolBase):
     """
     _label='addJetID'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetSrc',self._defaultValue, "", Type=cms.InputTag)
@@ -776,7 +774,7 @@ class SetTagInfos(ConfigToolBase):
     """
     _label='setTagInfos'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'coll',"allLayer1Jets","jet collection to set tag infos for")

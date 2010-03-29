@@ -2,7 +2,6 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
-path = "PhysicsTools.PatAlgos.tools.coreTools"
 
 class RestrictInputToAOD(ConfigToolBase):
 
@@ -11,7 +10,7 @@ class RestrictInputToAOD(ConfigToolBase):
     """
     _label='restrictInputToAOD'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+   
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',['All'], "list of collection names; supported are 'Photons', 'Electrons',, 'Muons', 'Taus', 'Jets', 'METs', 'All'", allowedValues=['Photons','Electrons', 'Muons', 'Taus', 'Jets', 'METs', 'All'])
@@ -58,7 +57,7 @@ class RemoveMCMatching(ConfigToolBase):
     """
     _label='removeMCMatching'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+   
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", allowedValues=['Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
@@ -145,7 +144,7 @@ class RemoveAllPATObjectsBut(ConfigToolBase):
     """
     _label='removeAllPATObjectsBut'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+   
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',self._defaultValue, "list of collection names; supported are 'Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'", Type=list, allowedValues=['Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'])
@@ -185,7 +184,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
     """
     _label='removeSpecificPATObjects'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+   
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',self._defaultValue, "list of collection names; supported are 'Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'", Type=list, allowedValues=['Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'])
@@ -291,7 +290,7 @@ class RemoveCleaning(ConfigToolBase):
     """
     _label='removeCleaning'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+   
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'outputInProcess',True,"indicate whether there is an output module specified for the process (default is True)" )
@@ -338,7 +337,7 @@ class AddCleaning(ConfigToolBase):
     """
     _label='addCleaning'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+   
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'outputInProcess',True, "")

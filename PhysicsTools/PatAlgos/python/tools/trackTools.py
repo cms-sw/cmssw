@@ -1,6 +1,5 @@
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
-path = "PhysicsTools.PatAlgos.tools.trackTools"
 
 class MakeAODTrackCandidates(ConfigToolBase):
 
@@ -8,7 +7,7 @@ class MakeAODTrackCandidates(ConfigToolBase):
     """
     _label='makeAODTrackCandidates'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+    
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'label','TrackCands', "output collection will be <'patAOD'+label>")
@@ -72,7 +71,7 @@ class MakePATTrackCandidates(ConfigToolBase):
     """
     _label='makePATTrackCandidates'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+    
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'label','TrackCands', "output will be 'all/selectedLayer1'+label")
@@ -239,7 +238,7 @@ class MakeTrackCandidates(ConfigToolBase):
     """
     _label='makeTrackCandidates'
     _defaultParameters=dicttypes.SortedKeysDict()
-    _path = path
+    
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'label','TrackCands', "output collection will be <'patAOD'+label>")
