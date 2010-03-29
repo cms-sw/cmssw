@@ -109,11 +109,11 @@ EcalRecHit ESRecHitFitAlgo::reconstruct(const ESDataFrame& digi) const {
     if (status == 0) 
       rechit.setRecoFlag(EcalRecHit::kESGood);
     else if (status == 5) 
-      rechit.setRecoFlag(EcalRecHit::kESGoodRatioFor12);
+      rechit.setRecoFlag(EcalRecHit::kESBadRatioFor12);
     else if (status == 6) 
-      rechit.setRecoFlag(EcalRecHit::kESGoodRatioFor23Upper);
+      rechit.setRecoFlag(EcalRecHit::kESBadRatioFor23Upper);
     else if (status == 7) 
-      rechit.setRecoFlag(EcalRecHit::kESGoodRatioFor23Lower);
+      rechit.setRecoFlag(EcalRecHit::kESBadRatioFor23Lower);
     else if (status == 8) 
       rechit.setRecoFlag(EcalRecHit::kESTS1Largest);
     else if (status == 9) 
