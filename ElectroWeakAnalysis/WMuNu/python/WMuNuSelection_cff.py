@@ -13,9 +13,10 @@ selcorMet = cms.EDFilter("WMuNuSelector",
 
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
-      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
+      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
+      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
       JetTag = cms.untracked.InputTag("antikt5CaloJets"),
+      #JetTag = cms.untracked.InputTag("ak5CaloJets"), --> For Data!!
       WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus"),
 
       # Preselection! 
@@ -55,9 +56,10 @@ selpfMet = cms.EDFilter("WMuNuSelector",
 
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
-      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
+      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
+      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
       JetTag = cms.untracked.InputTag("antikt5CaloJets"),
+      #JetTag = cms.untracked.InputTag("ak5CaloJets"), --> For Data!!
       WMuNuCollectionTag = cms.untracked.InputTag("pfMetWMuNus"),
 
       # Preselection! 
@@ -98,9 +100,10 @@ seltcMet = cms.EDFilter("WMuNuSelector",
 
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
-      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
+      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
+      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
       JetTag = cms.untracked.InputTag("antikt5CaloJets"),
+      #JetTag = cms.untracked.InputTag("ak5CaloJets"), --> For Data!!
       WMuNuCollectionTag = cms.untracked.InputTag("tcMetWMuNus"),
 
       # Preselection! 

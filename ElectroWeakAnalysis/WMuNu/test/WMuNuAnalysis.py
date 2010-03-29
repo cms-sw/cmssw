@@ -1,0 +1,44 @@
+# WMuNuAnalysis configuration file
+# cfg file to use if you want "everything" on one go
+
+import FWCore.ParameterSet.Config as cms
+
+# Process, how many events, inout files, ...
+process = cms.Process("wmnsel")
+process.maxEvents = cms.untracked.PSet(
+      #input = cms.untracked.int32(-1)
+      input = cms.untracked.int32(100)
+)
+process.source = cms.Source("PoolSource",
+       fileNames = cms.untracked.vstring(
+        'file:/data4/POWHEG/EWK_Subskim_Wmunu_Wplus-powheg.root'
+        )
+)
+
+process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")  # standard cuts defined in cff file
+process.selcorMet.plotHistograms = cms.untracked.bool(True)   # --> "true" for plotting of histos
+process.selpfMet.plotHistograms = cms.untracked.bool(True)
+process.seltcMet.plotHistograms = cms.untracked.bool(True)
+ 
+#process.load("ElectroWeakAnalysis.WMuNu.wmunusValidation_cfi") #load validation sequence (for WMunu & ZMuMu)
+
+# Debug/info printouts
+process.MessageLogger = cms.Service("MessageLogger",
+      debugModules = cms.untracked.vstring('selectCaloMetWMuNus','selectPfMetWMuNus','selectTcMetWMuNus'),
+      cout = cms.untracked.PSet(
+            default = cms.untracked.PSet( limit = cms.untracked.int32(10) ),
+            threshold = cms.untracked.string('INFO')
+            #threshold = cms.untracked.string('DEBUG')
+      ),
+      destinations = cms.untracked.vstring('cout')
+)
+
+# Output histograms
+process.TFileService = cms.Service("TFileService", fileName = cms.string('WMuNu.root') )
+
+# Steering the process
+#process.path0 = cms.Path(process.wmunuval) # This creates extra validation folders, not strictly necesary for analysis
+process.path1 = cms.Path(process.selectCaloMetWMuNus)
+process.path2 = cms.Path(process.selectPfMetWMuNus)
+process.path3 = cms.Path(process.selectTcMetWMuNus)
+

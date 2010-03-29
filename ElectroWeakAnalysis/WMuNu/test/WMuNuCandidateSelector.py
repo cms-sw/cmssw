@@ -46,9 +46,10 @@ process.wmnOutput = cms.OutputModule("PoolOutputModule",
       fileName = cms.untracked.string('AOD_with_WCandidates.root')
 )
 
-# This Example uses only "corMetGlobalMuons". Modify to run over pf & tc Met
+# This Example uses only "corMetGlobalMuons". Modify to run over pf & tc Met (as "selectPfMetWMuNus")...
 process.path = cms.Path(process.selectCaloMetWMuNus)
 
+# Maybe you want to comment the following sentence ;-)... 
 process.end = cms.EndPath(process.wmnOutput)
 
 
