@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/03/23 19:21:26 $
- * $Revision: 1.30 $
+ * $Date: 2010/03/24 22:42:14 $
+ * $Revision: 1.31 $
  *
  */
 
@@ -18,6 +18,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <numeric>
 #include <math.h>
@@ -63,9 +64,11 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   resetPVNLumi_   = parameters_.getUntrackedParameter<int>("resetPVEveryNLumi",-1);
   deltaSigCut_    = parameters_.getUntrackedParameter<double>("deltaSignificanceCut",15);
   debug_          = parameters_.getUntrackedParameter<bool>("Debug");
+  onlineMode_     = parameters_.getUntrackedParameter<bool>("OnlineMode");
   tracksLabel_    = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<InputTag>("TrackCollection");
   min_Ntrks_      = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumInputTracks");
   maxZ_           = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumZ");
+  dcsTkFileName_  = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("DIPFileName");
 
   dbe_            = Service<DQMStore>().operator->();
   
@@ -79,7 +82,8 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   if (fitNLumi_ <= 0) fitNLumi_ = 1;
   nFits_ = beginLumiOfPVFit_ = endLumiOfPVFit_ = 0;
   maxZ_ = fabs(maxZ_);
-
+  for (int i=0;i<6;i++) dcsTk[i]=true;
+  lastlumi_ = 0;
 }
 
 
@@ -350,15 +354,15 @@ void BeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
 //--------------------------------------------------------
 void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				       const EventSetup& context) {
-  if (resetPVNLumi_ > 0 && countLumi_%resetPVNLumi_ == 0)
-    beginLumiOfPVFit_ = lumiSeg.luminosityBlock();
+  int nthlumi = lumiSeg.luminosityBlock();
+  if (beginLumiOfPVFit_ == 0) beginLumiOfPVFit_ = nthlumi;
 
-  countLumi_++;
-  if (debug_) cout << "Lumi: " << countLumi_ << endl;
+  if (debug_) cout << "Lumi: " << (onlineMode_ ? nthlumi : countLumi_) << endl;
 
   ftimestamp = lumiSeg.beginTime().value();
   tmpTime = ftimestamp >> 32;
-  if (countLumi_ == 1) {
+  if ((!onlineMode_ && countLumi_ == 0) ||
+      (onlineMode_ && lastlumi_ == 0)) {
     refTime =  tmpTime;
     char* eventTime = formatTime(tmpTime);
     TDatime da(eventTime);
@@ -374,6 +378,7 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
     hs["PVy_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
     hs["PVz_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
   }
+  for (int i=0;i<6;i++) dcsTk[i]=true;
 }
 
 // ----------------------------------------------------------
@@ -444,12 +449,73 @@ void BeamMonitor::analyze(const Event& iEvent,
     h_PVyz->Fill(pv[idx].z(),pv[idx].y());
   }
 
+  // Checking TK status
+  Handle<DcsStatusCollection> dcsStatus;
+  iEvent.getByLabel("scalersRawToDigi", dcsStatus);
+
+  for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
+       dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
+    if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcsTk[0]=false;
+    if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcsTk[1]=false;
+    if (!dcsStatusItr->ready(DcsStatus::TIBTID)) dcsTk[2]=false;
+    if (!dcsStatusItr->ready(DcsStatus::TOB))    dcsTk[3]=false;
+    if (!dcsStatusItr->ready(DcsStatus::TECp))   dcsTk[4]=false;
+    if (!dcsStatusItr->ready(DcsStatus::TECm))   dcsTk[5]=false;
+  }
+
+  if (countEvt_ == 1) // Initial TK dcs status
+    dumpTkDcsStatus(dcsTkFileName_);
+
 }
 
 
 //--------------------------------------------------------
 void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				     const EventSetup& iSetup) {
+  int nthlumi = lumiSeg.id().luminosityBlock();
+  if (onlineMode_ && (nthlumi <= lastlumi_)) return;
+
+  if (onlineMode_) { // filling LS gap
+    // FIXME: need to add protection for the case if the gap is at the resetting LS!
+    int LSgap_bs = nthlumi/fitNLumi_ - hs["x0_lumi"]->getTH1()->GetEntries();
+    int LSgap_pv = nthlumi/fitPVNLumi_ - hs["PVx_lumi"]->getTH1()->GetEntries();
+    if (nthlumi%fitNLumi_ == 0)
+      LSgap_bs--;
+    if (nthlumi%fitPVNLumi_ == 0)
+      LSgap_pv--;
+    for (int i=1;i < (nthlumi - lastlumi_);i++)
+      h_nTrk_lumi->ShiftFillLast(nthBSTrk_);
+
+    if (LSgap_bs >=1) { // filling previous fits if LS gap ever exists
+      for (int ig = 0; ig < LSgap_bs; ig++) {
+	hs["x0_lumi"]->ShiftFillLast( preBS.x0(), preBS.x0Error(), fitNLumi_ );
+	hs["y0_lumi"]->ShiftFillLast( preBS.y0(), preBS.y0Error(), fitNLumi_ );
+	hs["z0_lumi"]->ShiftFillLast( preBS.z0(), preBS.z0Error(), fitNLumi_ );
+	h_sigmaZ0_lumi->ShiftFillLast( preBS.sigmaZ(), preBS.sigmaZ0Error(), fitNLumi_ );
+      }
+    }
+    if (LSgap_pv >= 1) {
+      for (int ig = 0; ig < LSgap_pv; ig++) {
+	if (pvResults->getTH1()->GetEntries() > 0 ) {
+	  hs["PVx_lumi"]->ShiftFillLast( pvResults->getBinContent(1,6), pvResults->getBinContent(1,3), fitPVNLumi_ );
+	  hs["PVy_lumi"]->ShiftFillLast( pvResults->getBinContent(1,5), pvResults->getBinContent(1,2), fitPVNLumi_ );
+	  hs["PVz_lumi"]->ShiftFillLast( pvResults->getBinContent(1,4), pvResults->getBinContent(1,1), fitPVNLumi_ );
+	}
+	else {
+	  hs["PVx_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
+	  hs["PVy_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
+	  hs["PVz_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
+	}
+      }
+    }
+  }
+  else { // not online mode
+    h_nTrk_lumi->ShiftFillLast(nthBSTrk_);
+    countLumi_++;
+  }
+  lastlumi_ = nthlumi;
+
+  dumpTkDcsStatus(dcsTkFileName_);
 
   ftimestamp = lumiSeg.endTime().value();
   tmpTime = ftimestamp >> 32;
@@ -465,8 +531,23 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     scrollTH1(hs["PVz_time"]->getTH1(),refTime);
   }
 
-  if (fitPVNLumi_ > 0 && countLumi_%fitPVNLumi_ == 0) {
-    endLumiOfPVFit_ = lumiSeg.luminosityBlock();
+  bool doPVFit = false;
+
+  if (fitPVNLumi_ > 0) {
+    if (onlineMode_) {
+      if (nthlumi%fitPVNLumi_ == 0)
+	doPVFit = true;
+    }
+    else
+      if (countLumi_%fitPVNLumi_ == 0)
+	doPVFit = true;
+  }
+  else
+    doPVFit = true;
+
+  if (doPVFit) {
+    endLumiOfPVFit_ = nthlumi;
+    if (debug_) std::cout << "Do PV Fitting for LS = " << beginLumiOfPVFit_ << " to " << endLumiOfPVFit_ << std::endl;
     // Primary Vertex Fit:
     if (h_PVx[0]->getTH1()->GetEntries() >= 20) {
       pvResults->Reset();
@@ -554,16 +635,14 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     }
   }
 
-  if (resetPVNLumi_ > 0 && countLumi_%resetPVNLumi_ == 0) {
+  if (resetPVNLumi_ > 0 &&
+      ((onlineMode_ && nthlumi%resetPVNLumi_ == 0) ||
+       (!onlineMode_ && countLumi_%resetPVNLumi_ == 0))) {
     h_PVx[0]->Reset();
     h_PVy[0]->Reset();
     h_PVz[0]->Reset();
+    beginLumiOfPVFit_ = 0;
   }
-
-//   if (resetPVNLumi_ > 0 && countLumi_%(4*resetPVNLumi_) == 0) {
-//     h_PVxz->Reset();
-//     h_PVyz->Reset();
-//   }
 
   // Beam Spot Fit:
   vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
@@ -603,8 +682,15 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   }
   nthBSTrk_ = theBSvector.size(); // keep track of num of tracks filled so far
   if (debug_ && doFitting) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
+  
+  if (fitNLumi_ > 0) {
+    if (onlineMode_){
+      if (nthlumi%fitNLumi_!=0) return;
+    }
+    else      
+      if (countLumi_%fitNLumi_!=0) return;
+  }
 
-  if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
   if (doFitting) nFits_++;
 
   if (nthBSTrk_ >= min_Ntrks_) {
@@ -654,7 +740,6 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     fitResults->setBinContent(1,6,bs.x0());
     fitResults->setBinContent(1,5,bs.y0());
     fitResults->setBinContent(1,4,bs.z0());
-    fitResults->setBinContent(1,3,bs.sigmaZ());
     fitResults->setBinContent(1,3,bs.dxdz());
     fitResults->setBinContent(1,2,bs.dydz());
     fitResults->setBinContent(1,1,bs.sigmaZ());
@@ -710,7 +795,9 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     }
   }
 
-  if (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) {
+  if (resetFitNLumi_ > 0 && 
+      ((onlineMode_ && nthlumi%resetFitNLumi_ == 0) ||
+       (!onlineMode_ && countLumi_%resetFitNLumi_ == 0))) {
     if (debug_) cout << "Reset track collection for beam fit!!!" <<endl;
     resetHistos_ = true;
     nthBSTrk_ = 0;
@@ -728,7 +815,7 @@ void BeamMonitor::endRun(const Run& r, const EventSetup& context){
 //--------------------------------------------------------
 void BeamMonitor::endJob(const LuminosityBlock& lumiSeg, 
 			 const EventSetup& iSetup){
-  endLuminosityBlock(lumiSeg, iSetup);
+  if (!onlineMode_) endLuminosityBlock(lumiSeg, iSetup);
 }
 
 //--------------------------------------------------------
@@ -777,6 +864,32 @@ bool BeamMonitor::testScroll(time_t & tmpTime_, time_t & refTime_){
     }
   }
   return scroll_;
+}
+
+void BeamMonitor::dumpTkDcsStatus(std::string & fileName){
+  std::ofstream outFile;
+  std::string tmpname = fileName;
+  char index[10];
+  sprintf(index,"%s","_TkStatus");
+  tmpname.insert(fileName.length()-4,index);
+
+  outFile.open(tmpname.c_str());
+  outFile << "BPIX " << (dcsTk[0]?"On":"Off") << std::endl;
+  outFile << "FPIX " << (dcsTk[1]?"On":"Off") << std::endl;
+  outFile << "TIBTID " << (dcsTk[2]?"On":"Off") << std::endl;
+  outFile << "TOB " << (dcsTk[3]?"On":"Off") << std::endl;
+  outFile << "TECp " << (dcsTk[4]?"On":"Off") << std::endl;
+  outFile << "TECm " << (dcsTk[5]?"On":"Off") << std::endl;
+  bool AllTkOn = true;
+  for (int i=0; i<5; i++) {
+    if (!dcsTk[i]) {
+      AllTkOn = false;
+      break;
+    }
+  }
+  outFile << "WholeTrackerOn " << (AllTkOn?"Yes":"No") << std::endl;
+ 
+  outFile.close();
 }
 
 DEFINE_FWK_MODULE(BeamMonitor);

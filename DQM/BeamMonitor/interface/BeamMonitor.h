@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/03/03 21:28:13 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/03/23 19:21:26 $
+ *  $Revision: 1.18 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -20,6 +20,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
+#include <fstream>
 
 
 //
@@ -59,19 +60,23 @@ class BeamMonitor : public edm::EDAnalyzer {
 
   void scrollTH1(TH1 *, time_t);
   bool testScroll(time_t &, time_t &);
+  void dumpTkDcsStatus(std::string &);
 
   edm::ParameterSet parameters_;
   std::string monitorName_;
   edm::InputTag bsSrc_; // beam spot
   edm::InputTag tracksLabel_;
   edm::InputTag pvSrc_; // primary vertex
-  
+  std::string dcsTkFileName_;
+  std::ofstream fasciiDcsTkFile;
+
   int fitNLumi_;
   int fitPVNLumi_;
   int resetFitNLumi_;
   int resetPVNLumi_;
   int intervalInSec_;
   bool debug_;
+  bool onlineMode_;
   
   DQMStore* dbe_;
   BeamFitter * theBeamFitter;
@@ -80,6 +85,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   int countLumi_;      //counter
   int beginLumiOfPVFit_;
   int endLumiOfPVFit_;
+  int lastlumi_; // previous LS processed
   unsigned int nthBSTrk_;
   int nFitElements_;
   int nFits_;
@@ -88,12 +94,13 @@ class BeamMonitor : public edm::EDAnalyzer {
   double maxZ_;
 
   bool resetHistos_;
+  bool dcsTk[6];
   // ----------member data ---------------------------
   
   //   std::vector<BSTrkParameters> fBSvector;
   reco::BeamSpot refBS;
   reco::BeamSpot preBS;
-  
+
   // MonitorElements:
   MonitorElement * h_nTrk_lumi;
   MonitorElement * h_d0_phi0;

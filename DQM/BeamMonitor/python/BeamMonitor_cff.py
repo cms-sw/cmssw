@@ -10,6 +10,7 @@ dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                               fitPVEveryNLumi = cms.untracked.int32(1),
                               resetPVEveryNLumi = cms.untracked.int32(5),
                               Debug = cms.untracked.bool(False),
+                              OnlineMode = cms.untracked.bool(True),
                               BeamFitter = cms.PSet(
                                 Debug = cms.untracked.bool(False),
         			TrackCollection = cms.untracked.InputTag('generalTracks'),
