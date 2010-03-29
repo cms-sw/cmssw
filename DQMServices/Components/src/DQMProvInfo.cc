@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/03/28 15:42:32 $
- * $Revision: 1.14 $
+ * $Date: 2010/03/28 15:43:50 $
+ * $Revision: 1.15 $
  * $Author: ameyer $
  *
  */
@@ -11,16 +11,8 @@
 #include "DQMProvInfo.h"
 #include <TSystem.h>
 #include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-
-// Framework
-
-
-#include <stdio.h>
-#include <sstream>
-#include <math.h>
 
 const static int XBINS=2000;
 

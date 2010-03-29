@@ -5,13 +5,12 @@
  * \class DQMDcsInfoClient
  * \author Andreas Meyer
  *
- * $Date: 2010/03/25 16:10:25 $
+ * $Date: 2010/03/28 15:27:36 $
  * $Revision: 1.1 $
- * $Author:  ameyer $
+ * $Author: ameyer $
  *
 */
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/Run.h>

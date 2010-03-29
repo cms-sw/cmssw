@@ -2,8 +2,8 @@
  * \file DQMDcsInfo.cc
  * \author A.Meyer - DESY
  * Last Update:
- * $Date: 2010/02/25 19:05:23 $
- * $Revision: 1.12 $
+ * $Date: 2010/03/28 15:27:36 $
+ * $Revision: 1.1 $
  * $Author: ameyer $
  *
  */
@@ -82,8 +82,12 @@ DQMDcsInfo::makeDcsInfo(const edm::Event& e)
 {
 
   edm::Handle<DcsStatusCollection> dcsStatus;
-  e.getByLabel("scalersRawToDigi", dcsStatus);
-
+  if ( ! e.getByLabel("scalersRawToDigi", dcsStatus) )
+  {
+    for (int i=0;i<24;i++) dcs[i]=false;
+    return;
+  }
+  
   if ( ! dcsStatus.isValid() ) 
   {
     edm::LogWarning("DQMDcsInfo") << "scalersRawToDigi not found" ;
@@ -128,11 +132,15 @@ DQMDcsInfo::makeGtInfo(const edm::Event& e)
 {
 
   edm::Handle<L1GlobalTriggerReadoutRecord> gtrr_handle;
-  e.getByLabel("gtDigis", gtrr_handle);
-
+  if ( ! e.getByLabel("gtDigis", gtrr_handle) ) 
+  {
+    dcs[24]=false; // info not available: set to false
+    return;
+  }
+  
   if ( ! gtrr_handle.isValid() ) 
   {
-    edm::LogWarning("DQMDcsInfo") << "gtDigis not found" ;
+    edm::LogWarning("DQMDcsInfo") << " gtDigis not found" ;
     dcs[24]=false; // info not available: set to false
     return;
   }
@@ -143,7 +151,7 @@ DQMDcsInfo::makeGtInfo(const edm::Event& e)
     fdlWord = gtrr->gtFdlWord();
   else
   {
-    edm::LogWarning ("DQMDcsInfo: phys decl. bit not accessible !!!");
+    edm::LogWarning ("DQMDcsInfo") << " phys decl. bit not accessible !!!";
     dcs[24]=false; // info not available: set to false
     return;
   }

@@ -3,17 +3,13 @@
  * \file DQMDcsInfoClient.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2010/03/25 16:10:25 $
+ * $Date: 2010/03/28 15:27:36 $
  * $Revision: 1.1 $
  * $Author: ameyer $
  *
 */
 
 #include "DQMServices/Components/src/DQMDcsInfoClient.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "TRandom.h"
-#include <math.h>
 
 // -----------------------------
 //  constructors and destructor

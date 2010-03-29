@@ -4,15 +4,13 @@
 /*
  * \file DQMDcsInfo.h
  *
- * $Date: 2009/12/15 23:07:13 $
- * $Revision: 1.7 $
+ * $Date: 2010/03/28 15:27:36 $
+ * $Revision: 1.1 $
  * \author A.Meyer - DESY
  *
 */
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/Run.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
@@ -21,7 +19,6 @@
 
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
-
 
 class DQMDcsInfo: public edm::EDAnalyzer{
 

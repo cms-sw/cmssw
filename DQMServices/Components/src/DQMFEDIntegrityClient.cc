@@ -3,9 +3,9 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2009/12/15 08:59:49 $
- * $Revision: 1.17 $
- * $Author: dellaric $
+ * $Date: 2010/03/25 16:10:25 $
+ * $Revision: 1.18 $
+ * $Author: ameyer $
  *
  * Description: Summing up FED entries from all subdetectors.
  *
@@ -13,13 +13,6 @@
 
 #include "DQMServices/Components/src/DQMFEDIntegrityClient.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "TRandom.h"
-#include <math.h>
-
-using namespace std;
-using namespace edm;
-
 
 // -----------------------------
 //  constructors and destructor
@@ -33,11 +26,10 @@ DQMFEDIntegrityClient::DQMFEDIntegrityClient( const edm::ParameterSet& ps ) {
   fillOnEndRun = ps.getUntrackedParameter<bool>("fillOnEndRun",false);
   fillOnEndJob = ps.getUntrackedParameter<bool>("fillOnEndJob",false);
   fillOnEndLumi = ps.getUntrackedParameter<bool>("fillOnEndLumi",true);
-  moduleName = ps.getUntrackedParameter<string>("moduleName", "FED");
-  fedFolderName = ps.getUntrackedParameter<string>("fedFolderName", "FEDIntegrity");
+  moduleName = ps.getUntrackedParameter<std::string>("moduleName", "FED");
+  fedFolderName = ps.getUntrackedParameter<std::string>("fedFolderName", "FEDIntegrity");
 
 }
-
 
 DQMFEDIntegrityClient::~DQMFEDIntegrityClient() {
 
@@ -47,7 +39,7 @@ DQMFEDIntegrityClient::~DQMFEDIntegrityClient() {
 void DQMFEDIntegrityClient::initialize() {
 
   // get back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
 
 }
 
@@ -58,10 +50,10 @@ void DQMFEDIntegrityClient::beginJob() {
   XMIN  =   0.;
   XMAX  = 850.;
 
-  dbe_ = Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
 
   // ----------------------------------------------------------------------------------
-  string currentFolder = moduleName + "/" + fedFolderName ;
+  std::string currentFolder = moduleName + "/" + fedFolderName ;
   dbe_->setCurrentFolder(currentFolder.c_str());
 
   FedEntries  = dbe_->book1D("FedEntries",  "FED Entries",          NBINS, XMIN, XMAX);
@@ -165,7 +157,7 @@ void DQMFEDIntegrityClient::beginJob() {
 
 }
 
-void DQMFEDIntegrityClient::beginRun(const edm::Run& r, const EventSetup& context) {
+void DQMFEDIntegrityClient::beginRun(const edm::Run& r, const edm::EventSetup& context) {
 
 }
 
@@ -182,7 +174,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
   
   // dbe_->showDirStructure();
 
-  vector<string> entries;
+  std::vector<std::string> entries;
   entries.push_back("CSC/" + fedFolderName + "/FEDEntries");
   entries.push_back("DT/" + fedFolderName + "/FEDEntries");
   entries.push_back("EcalBarrel/" + fedFolderName + "/FEDEntries");
@@ -194,7 +186,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
   entries.push_back("RPC/" + fedFolderName + "/FEDEntries");
   entries.push_back("SiStrip/" + fedFolderName + "/FEDEntries");
 
-  for(vector<string>::const_iterator ent = entries.begin();
+  for(std::vector<std::string>::const_iterator ent = entries.begin();
                                       ent != entries.end(); ++ent) {
 
     if( !(dbe_->get(*ent)) ) {
@@ -228,7 +220,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
 
   int nSubsystems = 10;
 
-  vector<string> fatal;
+  std::vector<std::string> fatal;
   fatal.push_back("CSC/" + fedFolderName + "/FEDFatal");
   fatal.push_back("DT/" + fedFolderName + "/FEDFatal");
   fatal.push_back("EcalBarrel/" + fedFolderName + "/FEDFatal");
@@ -244,8 +236,8 @@ void DQMFEDIntegrityClient::fillHistograms(void){
 
   float sum = 0.;
 
-  vector<string>::const_iterator ent = entries.begin();
-  for(vector<string>::const_iterator fat = fatal.begin(); 
+  std::vector<std::string>::const_iterator ent = entries.begin();
+  for(std::vector<std::string>::const_iterator fat = fatal.begin(); 
                                       fat != fatal.end(); ++fat) {
 
     if( !(dbe_->get(*fat)) ) {
@@ -313,7 +305,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
 
   // FED Non Fatal
 
-  vector<string> nonfatal;
+  std::vector<std::string> nonfatal;
   nonfatal.push_back("CSC/" + fedFolderName + "/FEDNonFatal");
   nonfatal.push_back("DT/" + fedFolderName + "/FEDNonFatal");
   nonfatal.push_back("EcalBarrel/" + fedFolderName + "/FEDNonFatal");
@@ -325,7 +317,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
   nonfatal.push_back("RPC/" + fedFolderName + "/FEDNonFatal");
   nonfatal.push_back("SiStrip/" + fedFolderName + "/FEDNonFatal");
 
-  for(vector<string>::const_iterator non = nonfatal.begin(); 
+  for(std::vector<std::string>::const_iterator non = nonfatal.begin(); 
                                       non != nonfatal.end(); ++non) {
 
     if( !(dbe_->get(*non)) ) {
@@ -358,7 +350,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
 }
 
 
-void DQMFEDIntegrityClient::endRun(const Run& r, const EventSetup& context) {
+void DQMFEDIntegrityClient::endRun(const edm::Run& r, const edm::EventSetup& context) {
   if (fillOnEndRun) fillHistograms();
 }
 
