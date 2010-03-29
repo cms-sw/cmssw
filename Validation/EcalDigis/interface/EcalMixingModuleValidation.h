@@ -4,8 +4,8 @@
 /*
  * \file EcalMixingModuleValidation.h
  *
- * $Date: 2009/10/02 12:12:27 $
- * $Revision: 1.10 $
+ * $Date: 2010/01/04 15:10:59 $
+ * $Revision: 1.11 $
  * \author F. Cossutti
  *
 */
@@ -48,6 +48,16 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+
+#include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/ESIntercalibConstantsRcd.h"
+#include "CondFormats/ESObjects/interface/ESMIPToGeVConstant.h"
+#include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
+#include "CondFormats/ESObjects/interface/ESGain.h"
+#include "CondFormats/DataRecord/interface/ESGainRcd.h"
+#include "CondFormats/ESObjects/interface/ESPedestals.h"
+#include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
+#include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
 
 #include <iostream>
 #include <fstream>
@@ -133,7 +143,7 @@ private:
 
  const EcalSimParameterMap * theParameterMap;
  //const CaloVShape * theEcalShape;
- const ESShape * theESShape;
+ ESShape * theESShape;
  const EBShape *theEBShape;
  const EEShape *theEEShape;
 
@@ -158,6 +168,11 @@ private:
  
  // the pedestals
  const EcalPedestals * thePedestals;
+
+      int m_ESgain ;
+      const ESPedestals* m_ESpeds ;
+      const ESIntercalibConstants* m_ESmips ;
+      double m_ESeffwei ;
 
 };
 
