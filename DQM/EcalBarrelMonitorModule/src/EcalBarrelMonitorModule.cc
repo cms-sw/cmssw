@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2010/03/29 14:21:38 $
- * $Revision: 1.197 $
+ * $Date: 2010/03/29 14:58:00 $
+ * $Revision: 1.198 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -13,6 +13,7 @@
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
