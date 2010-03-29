@@ -338,7 +338,6 @@ namespace reco {
 
     // Old references necessary to read the data before CMSSW3_6_0_pre3
     reco::NuclearInteractionRef nuclearRef_; 
-    reco::VertexCompositeCandidateRef v0MotherRef_; 
 
 
     /// corrected ECAL energy
