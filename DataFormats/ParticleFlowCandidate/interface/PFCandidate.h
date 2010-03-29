@@ -20,7 +20,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
-
+// to be removed
+#include "DataFormats/VertexReco/interface/NuclearInteractionFwd.h"
 namespace reco {
   /**\class PFCandidate
      \brief Particle reconstructed by the particle flow algorithm.
@@ -334,6 +335,11 @@ namespace reco {
 
     // Reference to a mother V0
     reco::VertexCompositeCandidateRef v0Ref_;
+
+    // Old references necessary to read the data before CMSSW3_6_0_pre3
+    reco::NuclearInteractionRef nuclearRef_; 
+    reco::VertexCompositeCandidateRef v0MotherRef_; 
+
 
     /// corrected ECAL energy
     float       ecalEnergy_;
