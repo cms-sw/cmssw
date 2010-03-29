@@ -2,7 +2,7 @@
 
 
 #include <iostream>
-using namespace std;
+
 DTMuonMillepede::DTMuonMillepede(std::string path, int n_files,
 				 float MaxPt, float MinPt,
 				 int nPhihits, int nThetahits,
@@ -74,7 +74,7 @@ void DTMuonMillepede::calculationMillepede(int workingmode) {
     for (Int_t i=0;i<nentries;i++) {
       tali->GetEntry(i);
       
-      if (i%100000==0) cout << "Analyzing track number " << i << endl;
+      if (i%100000==0) std::cout << "Analyzing track number " << i << std::endl;
       
       //Basic cuts
       if(pt > ptMax || pt < ptMin) continue;

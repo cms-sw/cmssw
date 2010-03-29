@@ -33,7 +33,6 @@ TkAlCaRecoMonitor::TkAlCaRecoMonitor(const edm::ParameterSet& iConfig) {
 TkAlCaRecoMonitor::~TkAlCaRecoMonitor() { } 
 
 void TkAlCaRecoMonitor::beginJob() {
-  using namespace edm;
 
   std::string histname;  //for naming the histograms according to algorithm used
 
@@ -183,41 +182,40 @@ void TkAlCaRecoMonitor::beginJob() {
 // -- Analyse
 //
 void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
 
-  Handle<reco::TrackCollection> trackCollection;
+  edm::Handle<reco::TrackCollection> trackCollection;
   iEvent.getByLabel(trackProducer_, trackCollection);
   if (!trackCollection.isValid()){
-    LogError("Alignment")<<"invalid trackcollection encountered!";
+    edm::LogError("Alignment")<<"invalid trackcollection encountered!";
     return;
   }
 
-  Handle<reco::TrackCollection> referenceTrackCollection;
+  edm::Handle<reco::TrackCollection> referenceTrackCollection;
   iEvent.getByLabel(referenceTrackProducer_, referenceTrackCollection);
   if (!trackCollection.isValid()){
-    LogError("Alignment")<<"invalid reference track-collection encountered!";
+    edm::LogError("Alignment")<<"invalid reference track-collection encountered!";
     return;
   }
 
   edm::ESHandle<TrackerGeometry> geometry;
   iSetup.get<TrackerDigiGeometryRecord>().get(geometry);
   if(! geometry.isValid()){
-    LogError("Alignment")<<"invalid geometry found in event setup!";
+    edm::LogError("Alignment")<<"invalid geometry found in event setup!";
   }
 
   edm::ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
   if (!magneticField.isValid()){
-    LogError("Alignment")<<"invalid magnetic field configuration encountered!";
+    edm::LogError("Alignment")<<"invalid magnetic field configuration encountered!";
     return;
   }
 
-  Handle<reco::CaloJetCollection> jets;
+  edm::Handle<reco::CaloJetCollection> jets;
   if(runsOnReco_){
-    InputTag jetCollection = conf_.getParameter<edm::InputTag>("CaloJetCollection");
+    edm::InputTag jetCollection = conf_.getParameter<edm::InputTag>("CaloJetCollection");
     iEvent.getByLabel(jetCollection, jets);
     if(! jets.isValid()){
-      LogError("Alignment")<<"no jet collection found in event!";
+      edm::LogError("Alignment")<<"no jet collection found in event!";
     }
   }
   // fill only once - not yet in beginJob since no access to geometry
@@ -236,7 +234,7 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	if((*itJet).pt() > maxJetPt_ && dR < minJetDeltaR)
 	  minJetDeltaR = dR; 
 	
-	//LogInfo("Alignment") <<">  isolated: "<< isolated << " jetPt "<< (*itJet).pt() <<" deltaR: "<< deltaR(*(*it),(*itJet)) ;
+	//edm::LogInfo("Alignment") <<">  isolated: "<< isolated << " jetPt "<< (*itJet).pt() <<" deltaR: "<< deltaR(*(*it),(*itJet)) ;
       }
       minJetDeltaR_->Fill( minJetDeltaR );
     }
@@ -281,7 +279,7 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
       
       invariantMass_->Fill( mother.M() );
     }else{
-      LogInfo("Alignment")<<"wrong number of tracks trackcollection encountered: "<<(*trackCollection).size();
+      edm::LogInfo("Alignment")<<"wrong number of tracks trackcollection encountered: "<<(*trackCollection).size();
     }
   }
 }

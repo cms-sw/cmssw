@@ -2,7 +2,7 @@
 #define Alignment_MuonAlignmentAlgorithms_ReadPGInfo_H
 
 /** \class ReadPGInfo
- *  $Date$
+ *  $Date: 2010/02/25 11:33:32 $
  *  $Revision: 1.3 $
  *  \author Luca Scodellaro <Luca.Scodellaro@cern.ch>
  */
@@ -12,8 +12,6 @@
 #include <TMath.h>
 
 #define TOTALCHAMBERS 264
-
-using namespace std;
 
 class ReadPGInfo {
 

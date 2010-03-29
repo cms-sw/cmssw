@@ -31,9 +31,6 @@
         #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
 	 
 
-
-	using namespace std;
-
 	// Constructor ----------------------------------------------------------------
 
 	MuonMillepedeAlgorithm::MuonMillepedeAlgorithm(const edm::ParameterSet& cfg):
@@ -178,7 +175,7 @@
 	  edm::LogWarning("Alignment") << "[MuonMillepedeAlgorithm] Terminating";
 
 	  // iterate over alignment parameters
-	  for(vector<Alignable*>::const_iterator
+	  for(std::vector<Alignable*>::const_iterator
 	    it=theAlignables.begin(); it!=theAlignables.end(); it++) {
 	    Alignable* ali=(*it);
 	    // Alignment parameters
@@ -263,13 +260,13 @@
 	    {
 
 
-	      vector<const TransientTrackingRecHit*> hitvec;
-	      vector<TrajectoryStateOnSurface> tsosvec;
+	      std::vector<const TransientTrackingRecHit*> hitvec;
+	      std::vector<TrajectoryStateOnSurface> tsosvec;
 	      
-	      vector<TrajectoryMeasurement> measurements = traj->measurements();
+	      std::vector<TrajectoryMeasurement> measurements = traj->measurements();
 	     
 	      //In this loop the measurements and hits are extracted and put on two vectors 
-	      for (vector<TrajectoryMeasurement>::iterator im=measurements.begin();
+	      for (std::vector<TrajectoryMeasurement>::iterator im=measurements.begin();
 			 im!=measurements.end(); im++)
 	      {
 		TrajectoryMeasurement meas = *im;
@@ -288,15 +285,15 @@
 	      }
 	    
 	      // transform RecHit vector to AlignableDet vector
-	      vector <AlignableDetOrUnitPtr> alidetvec = 
+	      std::vector <AlignableDetOrUnitPtr> alidetvec = 
 		theAlignableDetAccessor->alignablesFromHits(hitvec);
 
 	      // get concatenated alignment parameters for list of alignables
 	      CompositeAlignmentParameters aap = 
 		theAlignmentParameterStore->selectParameters(alidetvec);
 
-	      vector<TrajectoryStateOnSurface>::const_iterator itsos=tsosvec.begin();
-	      vector<const TransientTrackingRecHit*>::const_iterator ihit=hitvec.begin();
+	      std::vector<TrajectoryStateOnSurface>::const_iterator itsos=tsosvec.begin();
+	      std::vector<const TransientTrackingRecHit*>::const_iterator ihit=hitvec.begin();
 
 	      
 	      //int ch_counter = 0;

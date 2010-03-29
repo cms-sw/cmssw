@@ -1,8 +1,8 @@
 /** \class MuonMillepedeTrackRefitter
  *  
  *
- *  $Date: 2009/12/15 15:07:16 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/02/24 09:09:10 $
+ *  $Revision: 1.3 $
  *  \author P. Martinez Ruiz del Arbol, IFCA (CSIC-UC)  <Pablo.Martinez@cern.ch>
  */
 
@@ -48,20 +48,15 @@
 #include <vector>
 #include "TH2D.h"
 
-using namespace std;
-using namespace edm;
-
-
-
 
 /// Constructor
-MuonMillepedeTrackRefitter::MuonMillepedeTrackRefitter( const ParameterSet& pset )
+MuonMillepedeTrackRefitter::MuonMillepedeTrackRefitter( const edm::ParameterSet& pset )
 {
   
   SACollectionTag = pset.getParameter<edm::InputTag>( "SATrackCollectionTag" );
   
   //Products
-  produces<vector<Trajectory> >();
+  produces<std::vector<Trajectory> >();
   produces<TrajTrackAssociationCollection>();
 
 }
@@ -72,7 +67,7 @@ MuonMillepedeTrackRefitter::~MuonMillepedeTrackRefitter()
 }
 
 
-void MuonMillepedeTrackRefitter::produce( Event & event, const EventSetup& eventSetup )
+void MuonMillepedeTrackRefitter::produce( edm::Event & event, const edm::EventSetup& eventSetup )
 {
  
   //Get collections from the event
@@ -80,26 +75,26 @@ void MuonMillepedeTrackRefitter::produce( Event & event, const EventSetup& event
   edm::Handle<reco::TrackCollection> tracksSA;
   event.getByLabel( SACollectionTag, tracksSA );
 
-  ESHandle<MagneticField> theMGField;
+  edm::ESHandle<MagneticField> theMGField;
   eventSetup.get<IdealMagneticFieldRecord>().get( theMGField );
 
-  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   eventSetup.get<GlobalTrackingGeometryRecord>().get( theTrackingGeometry );
 
-  RefProd<vector<Trajectory> > trajectoryCollectionRefProd 
-    = event.getRefBeforePut<vector<Trajectory> >();
+  edm::RefProd<std::vector<Trajectory> > trajectoryCollectionRefProd 
+    = event.getRefBeforePut<std::vector<Trajectory> >();
 
   //Allocate collection of tracks
-  auto_ptr<vector<Trajectory> > trajectoryCollection( new vector<Trajectory> );
+  std::auto_ptr<std::vector<Trajectory> > trajectoryCollection( new std::vector<Trajectory> );
   // Association map between Trajectory and Track
-  auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection );
+  std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection );
  
 
   //Create the propagator
  
   std::map<edm::Ref<std::vector<Trajectory> >::key_type, edm::Ref<reco::TrackCollection>::key_type> trajToTrack_map;
   
-  Ref<vector<Trajectory> >::key_type trajectoryIndex = 0;
+  edm::Ref<std::vector<Trajectory> >::key_type trajectoryIndex = 0;
      
   reco::TrackRef::key_type trackIndex = 0;
 

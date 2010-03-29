@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2009/03/16 17:58:55 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/01/04 18:24:37 $
+ *  $Revision: 1.9 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -46,11 +46,8 @@
 #include "TH2F.h"
 #include "TLorentzVector.h"
 
-using namespace std;
-using namespace edm;
-
 /// Constructor
-MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const ParameterSet& pset):
+MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const edm::ParameterSet& pset):
     hResidualLocalXDT_W(5),
     hResidualLocalPhiDT_W(5),
     hResidualLocalThetaDT_W(5),
@@ -84,7 +81,7 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const ParameterSet& pset):
     theRecHits4DTagDT = pset.getParameter<edm::InputTag>("RecHits4DDTCollectionTag");
     theRecHits4DTagCSC = pset.getParameter<edm::InputTag>("RecHits4DCSCCollectionTag");
   
-    theDataType = pset.getUntrackedParameter<string>("DataType");
+    theDataType = pset.getUntrackedParameter<std::string>("DataType");
     ptRangeMin = pset.getUntrackedParameter<double>("ptRangeMin");
     ptRangeMax = pset.getUntrackedParameter<double>("ptRangeMax");
     invMassRangeMin = pset.getUntrackedParameter<double>("invMassRangeMin");
@@ -109,7 +106,7 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const ParameterSet& pset):
     min4DTrackSegmentSize = pset.getUntrackedParameter<unsigned int>("min4DTrackSegmentSize");
   
     if(theDataType != "RealData" && theDataType != "SimData")
-        edm::LogError("MuonAlignmentAnalyzer")  << "Error in Data Type!!"<<endl;
+        edm::LogError("MuonAlignmentAnalyzer")  << "Error in Data Type!!"<<std::endl;
 
     numberOfSimTracks=0;
     numberOfSARecTracks=0;
@@ -700,22 +697,22 @@ void MuonAlignmentAnalyzer::beginJob(){
 void MuonAlignmentAnalyzer::endJob(){
 
 
-    edm::LogInfo("MuonAlignmentAnalyzer")  << "----------------- " << endl << endl;
+    edm::LogInfo("MuonAlignmentAnalyzer")  << "----------------- " << std::endl << std::endl;
 
     if(theDataType == "SimData")
-        edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of Sim tracks: " << numberOfSimTracks << endl << endl;
+        edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of Sim tracks: " << numberOfSimTracks << std::endl << std::endl;
 
     if(doSAplots)
-        edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of SA Reco tracks: " << numberOfSARecTracks << endl << endl;
+        edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of SA Reco tracks: " << numberOfSARecTracks << std::endl << std::endl;
 
     if(doGBplots)
-        edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of GB Reco tracks: " << numberOfGBRecTracks << endl << endl;
+        edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of GB Reco tracks: " << numberOfGBRecTracks << std::endl << std::endl;
 
     if(doResplots){
 
 //  delete thePropagator;
 
-        edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of Hits considered for residuals: " << numberOfHits << endl << endl;
+        edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of Hits considered for residuals: " << numberOfHits << std::endl << std::endl;
 
 
 
@@ -1339,7 +1336,7 @@ void MuonAlignmentAnalyzer::endJob(){
 }
  
 
-void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
+void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSetup& eventSetup){
     
     GlobalVector p1,p2;
     std::vector< double > simPar[4] ; //pt,eta,phi,charge
@@ -1353,11 +1350,11 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
         int i=0, ie=0,ib=0;
 
         // Get the SimTrack collection from the event
-        Handle<SimTrackContainer> simTracks;
+	edm::Handle<edm::SimTrackContainer> simTracks;
         event.getByLabel("g4SimHits",simTracks);
   
 
-        SimTrackContainer::const_iterator simTrack;
+	  edm::SimTrackContainer::const_iterator simTrack;
 
         for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
             if (abs((*simTrack).type()) == 13) {
@@ -1411,7 +1408,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
         double ich=0;
 
         // Get the RecTrack collection from the event
-        Handle<reco::TrackCollection> staTracks;
+	edm::Handle<reco::TrackCollection> staTracks;
         event.getByLabel(theSTAMuonTag, staTracks);
         numberOfSARecTracks += staTracks->size();
 
@@ -1494,7 +1491,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
     if(doGBplots){  
         // Get the RecTrack collection from the event
-        Handle<reco::TrackCollection> glbTracks;
+        edm::Handle<reco::TrackCollection> glbTracks;
         event.getByLabel(theGLBMuonTag, glbTracks);
         numberOfGBRecTracks += glbTracks->size();
 
@@ -1584,15 +1581,15 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
     if(doResplots){
 
-        ESHandle<MagneticField> theMGField;
+        edm::ESHandle<MagneticField> theMGField;
         eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
 
-        ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+	edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
         eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
 
         // Get the RecTrack collection from the event
-        Handle<reco::TrackCollection> staTracks;
+	edm::Handle<reco::TrackCollection> staTracks;
         event.getByLabel(theSTAMuonTag, staTracks);
 
         // Get the 4D DTSegments
@@ -1609,17 +1606,17 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
         intDVector indexCollectionDT;
         intDVector indexCollectionCSC;
 
-/*    cout << "<MuonAlignmentAnalyzer> List of DTSegments found in Local Reconstruction" << endl;
-      cout << "Number: " << all4DSegmentsDT->size() << endl;
+/*    std::cout << "<MuonAlignmentAnalyzer> List of DTSegments found in Local Reconstruction" << std::endl;
+      std::cout << "Number: " << all4DSegmentsDT->size() << std::endl;
       for (segmentDT = all4DSegmentsDT->begin(); segmentDT != all4DSegmentsDT->end(); ++segmentDT){
       const GeomDet* geomDet = theTrackingGeometry->idToDet((*segmentDT).geographicalId());
-      cout << "<MuonAlignmentAnalyzer> " << geomDet->toGlobal((*segmentDT).localPosition()) << endl;
-      cout << "<MuonAlignmentAnalyzer> Local " << (*segmentDT).localPosition() << std::endl;
+      std::cout << "<MuonAlignmentAnalyzer> " << geomDet->toGlobal((*segmentDT).localPosition()) << std::endl;
+      std::cout << "<MuonAlignmentAnalyzer> Local " << (*segmentDT).localPosition() << std::endl;
       }
-      cout << "<MuonAlignmentAnalyzer> List of CSCSegments found in Local Reconstruction" << endl;
+      std::cout << "<MuonAlignmentAnalyzer> List of CSCSegments found in Local Reconstruction" << std::endl;
       for (segmentCSC = all4DSegmentsCSC->begin(); segmentCSC != all4DSegmentsCSC->end(); ++segmentCSC){
       const GeomDet* geomDet = theTrackingGeometry->idToDet((*segmentCSC).geographicalId());
-      cout << "<MuonAlignmentAnalyzer>" << geomDet->toGlobal((*segmentCSC).localPosition()) << endl;
+      std::cout << "<MuonAlignmentAnalyzer>" << geomDet->toGlobal((*segmentCSC).localPosition()) << std::endl;
       }
 */   
         thePropagator = new SteppingHelixPropagator(&*theMGField, alongMomentum);
@@ -1662,10 +1659,10 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
                                 if(!destiny.isValid()|| !destiny.hasError()) continue;
 
-/*	    cout << "<MuonAlignmentAnalyzer> Segment: " << geomDet->toGlobal((*rechit)->localPosition()) << endl;
-  cout << "<MuonAlignmentAnalyzer> Segment local: " << (*rechit)->localPosition() << endl;
-  cout << "<MuonAlignmentAnalyzer> Predicted: " << destiny.freeState()->position() << endl;
-  cout << "<MuonAlignmentAnalyzer> Predicted local: " << destiny.localPosition() << endl;
+/*	    std::cout << "<MuonAlignmentAnalyzer> Segment: " << geomDet->toGlobal((*rechit)->localPosition()) << std::endl;
+  std::cout << "<MuonAlignmentAnalyzer> Segment local: " << (*rechit)->localPosition() << std::endl;
+  std::cout << "<MuonAlignmentAnalyzer> Predicted: " << destiny.freeState()->position() << std::endl;
+  std::cout << "<MuonAlignmentAnalyzer> Predicted local: " << destiny.localPosition() << std::endl;
 */
                                 const long rawId= (*rechit)->geographicalId().rawId();
                                 int position = -1;
@@ -1930,7 +1927,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
 
                             }else {
-                                edm::LogError("MuonAlignmentAnalyzer") <<" Error!! Exception in propagator catched" << endl;
+                                edm::LogError("MuonAlignmentAnalyzer") <<" Error!! Exception in propagator catched" << std::endl;
                                 continue;
                             }
 
@@ -1950,7 +1947,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
 }
 
-RecHitVector MuonAlignmentAnalyzer::doMatching(const reco::Track &staTrack, edm::Handle<DTRecSegment4DCollection> &all4DSegmentsDT, edm::Handle<CSCSegmentCollection> &all4DSegmentsCSC, intDVector *indexCollectionDT, intDVector *indexCollectionCSC, ESHandle<GlobalTrackingGeometry> &theTrackingGeometry) {
+RecHitVector MuonAlignmentAnalyzer::doMatching(const reco::Track &staTrack, edm::Handle<DTRecSegment4DCollection> &all4DSegmentsDT, edm::Handle<CSCSegmentCollection> &all4DSegmentsCSC, intDVector *indexCollectionDT, intDVector *indexCollectionCSC, edm::ESHandle<GlobalTrackingGeometry> &theTrackingGeometry) {
 
     DTRecSegment4DCollection::const_iterator segmentDT;
     CSCSegmentCollection::const_iterator segmentCSC;

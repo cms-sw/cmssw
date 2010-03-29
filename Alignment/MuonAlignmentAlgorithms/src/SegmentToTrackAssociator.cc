@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/12 10:24:00 $
+ *  $Date: 2008/12/12 18:02:18 $
  *  $Revision: 1.1 $
  *  \author P. Martinez - IFCA
  */
@@ -36,16 +36,11 @@
 
 #include <vector>
 
-using namespace edm;
-using namespace std;
-
-
-
-SegmentToTrackAssociator::SegmentToTrackAssociator( const ParameterSet& iConfig )
+SegmentToTrackAssociator::SegmentToTrackAssociator( const edm::ParameterSet& iConfig )
 {
 
-  theDTSegmentLabel = iConfig.getParameter<InputTag>( "segmentsDT" );
-  theCSCSegmentLabel = iConfig.getParameter<InputTag>( "segmentsCSC" );
+  theDTSegmentLabel = iConfig.getParameter<edm::InputTag>( "segmentsDT" );
+  theCSCSegmentLabel = iConfig.getParameter<edm::InputTag>( "segmentsCSC" );
     
 }
 
@@ -60,17 +55,17 @@ void SegmentToTrackAssociator::clear()
 }
 
 MuonTransientTrackingRecHit::MuonRecHitContainer
-  SegmentToTrackAssociator::associate( const Event& iEvent, const EventSetup& iSetup, const reco::Track& track, std::string TrackRefitterType)
+  SegmentToTrackAssociator::associate( const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track, std::string TrackRefitterType)
 {
 
   // The segment collections
-  Handle<DTRecSegment4DCollection> DTSegments;
+  edm::Handle<DTRecSegment4DCollection> DTSegments;
   iEvent.getByLabel(theDTSegmentLabel, DTSegments); 
 
-  Handle<CSCSegmentCollection> CSCSegments;
+  edm::Handle<CSCSegmentCollection> CSCSegments;
   iEvent.getByLabel(theCSCSegmentLabel, CSCSegments);
 
-  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get( theTrackingGeometry );
 	  
   MuonTransientTrackingRecHit::MuonRecHitContainer SelectedSegments;

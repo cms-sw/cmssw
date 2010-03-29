@@ -36,8 +36,6 @@
 #include "Alignment/MuonAlignmentAlgorithms/plugins/MuonDTLocalMillepedeAlgorithm.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
 
-using namespace std;
-
 // Constructor ----------------------------------------------------------------
 
 MuonDTLocalMillepedeAlgorithm::MuonDTLocalMillepedeAlgorithm(const edm::ParameterSet& cfg):

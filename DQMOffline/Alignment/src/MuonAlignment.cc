@@ -2,23 +2,19 @@
 /*
  *  DQM muon alignment analysis monitoring
  *
- *  $Date: 2009/06/25 06:55:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/12/18 20:44:50 $
+ *  $Revision: 1.5 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
 #include "DQMOffline/Alignment/interface/MuonAlignment.h"
-
-using namespace std;
-using namespace edm;
-
 
 
 MuonAlignment::MuonAlignment(const edm::ParameterSet& pSet) {
 
     metname = "MuonAlignment";
 
-    LogTrace(metname)<<"[MuonAlignment] Constructor called!"<<endl;
+    LogTrace(metname)<<"[MuonAlignment] Constructor called!"<<std::endl;
 
     parameters = pSet;
 
@@ -68,8 +64,8 @@ void MuonAlignment::beginJob() {
     LogTrace(metname)<<"[MuonAlignment] Parameters initialization";
   
     if(!(doDT || doCSC) ) { 
-        edm::LogError("MuonAlignment") <<" Error!! At least one Muon subsystem (DT or CSC) must be monitorized!!" << endl;
-        edm::LogError("MuonAlignment") <<" Please enable doDT or doCSC to True in your python cfg file!!!" << endl;
+        edm::LogError("MuonAlignment") <<" Error!! At least one Muon subsystem (DT or CSC) must be monitorized!!" << std::endl;
+        edm::LogError("MuonAlignment") <<" Please enable doDT or doCSC to True in your python cfg file!!!" << std::endl;
         exit(1);
     }
   
@@ -119,7 +115,7 @@ void MuonAlignment::beginJob() {
 
 	// variables for histos ranges	
 	double rangeX=0,rangeY=0;
-    string nameOfHistoLocalX,nameOfHistoLocalY,nameOfHistoLocalPhi,nameOfHistoLocalTheta;
+	std::string nameOfHistoLocalX,nameOfHistoLocalY,nameOfHistoLocalPhi,nameOfHistoLocalTheta;
 
 	for (int station = -4; station<5; station++){
 
@@ -149,9 +145,9 @@ void MuonAlignment::beginJob() {
 				
                         if(!((sector==13 || sector ==14) && station!=4)){
 					
-                            stringstream Wheel; Wheel<<wheel;
-                            stringstream Station; Station<<station;
-                            stringstream Sector; Sector<<sector;
+			    std::stringstream Wheel; Wheel<<wheel;
+                            std::stringstream Station; Station<<station;
+                            std::stringstream Sector; Sector<<sector;
 										
                             nameOfHistoLocalX="ResidualLocalX_W"+Wheel.str()+"MB"+Station.str()+"S"+Sector.str();
                             nameOfHistoLocalPhi= "ResidualLocalPhi_W"+Wheel.str()+"MB"+Station.str()+"S"+Sector.str();
@@ -188,9 +184,9 @@ void MuonAlignment::beginJob() {
 				
                         if( !( ((abs(station)==2 || abs(station)==3 || abs(station)==4) && ring==1 && chamber>18) || 
                                ((abs(station)==2 || abs(station)==3 || abs(station)==4) && ring>2)) ){
-                            stringstream Ring; Ring<<ring;
-                            stringstream Station; Station<<station;
-                            stringstream Chamber; Chamber<<chamber;
+                            std::stringstream Ring; Ring<<ring;
+                            std::stringstream Station; Station<<station;
+                            std::stringstream Chamber; Chamber<<chamber;
 					                                       
                             nameOfHistoLocalX="ResidualLocalX_ME"+Station.str()+"R"+Ring.str()+"C"+Chamber.str();
                             nameOfHistoLocalPhi= "ResidualLocalPhi_ME"+Station.str()+"R"+Ring.str()+"C"+Chamber.str();
@@ -227,23 +223,23 @@ void MuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     LogTrace(metname)<<"[MuonAlignment] Analysis of event # ";
   
-    ESHandle<MagneticField> theMGField;
+    edm::ESHandle<MagneticField> theMGField;
     iSetup.get<IdealMagneticFieldRecord>().get(theMGField);
 
-    ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
     iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
-  	ESHandle<Propagator> thePropagatorOpp;
+  	edm::ESHandle<Propagator> thePropagatorOpp;
   	iSetup.get<TrackingComponentsRecord>().get( "SmartPropagatorOpposite", thePropagatorOpp );
   
-  	ESHandle<Propagator> thePropagatorAlo;
+  	edm::ESHandle<Propagator> thePropagatorAlo;
  	iSetup.get<TrackingComponentsRecord>().get( "SmartPropagator", thePropagatorAlo );
 
-//	ESHandle<Propagator> thePropagator;
+//	edm::ESHandle<Propagator> thePropagator;
 //  	iSetup.get<TrackingComponentsRecord>().get( "SmartPropagatorAnyOpposite", thePropagator );
 
     // Get the RecoMuons collection from the event
-    Handle<reco::TrackCollection> muons;
+    edm::Handle<reco::TrackCollection> muons;
     iEvent.getByLabel(theMuonCollectionLabel, muons);
 
     // Get the 4D DTSegments
@@ -397,21 +393,21 @@ void MuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                             // Fill individual chamber histograms
 
 
-                            string nameOfHistoLocalX;
+                            std::string nameOfHistoLocalX;
 
 	
                             if(det==1 && doDT){ // DT
-                                stringstream Wheel; Wheel<<wheel;
-                                stringstream Station; Station<<station;
-                                stringstream Sector; Sector<<sector;
+                                std::stringstream Wheel; Wheel<<wheel;
+                                std::stringstream Station; Station<<station;
+                                std::stringstream Sector; Sector<<sector;
 					
                                 nameOfHistoLocalX="ResidualLocalX_W"+Wheel.str()+"MB"+Station.str()+"S"+Sector.str();
  
                             }
                             else if(det==2 && doCSC){ //CSC
-                                stringstream Ring; Ring<<ring;
-                                stringstream Station; Station<<station;
-                                stringstream Chamber; Chamber<<chamber;
+                                std::stringstream Ring; Ring<<ring;
+                                std::stringstream Station; Station<<station;
+                                std::stringstream Chamber; Chamber<<chamber;
 					                                       
                                 nameOfHistoLocalX="ResidualLocalX_ME"+Station.str()+"R"+Ring.str()+"C"+Chamber.str();
                             }		    
@@ -451,7 +447,7 @@ void MuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                             //delete thePropagator;
 
                         }else {
-                            edm::LogError("MuonAlignment") <<" Error!! Exception in propagator catched" << endl;
+		  	    edm::LogError("MuonAlignment") <<" Error!! Exception in propagator catched" << std::endl;
                             continue;
                         }
 
@@ -468,10 +464,10 @@ void MuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 //        delete thePropagator;
 
-//	else edm::LogError("MuonAlignment")<<"Error!! Specified MuonCollection "<< theMuonTrackCollectionLabel <<" is not present in event. ProductNotFound!!"<<endl;
+//	else edm::LogError("MuonAlignment")<<"Error!! Specified MuonCollection "<< theMuonTrackCollectionLabel <<" is not present in event. ProductNotFound!!"<<std::endl;
 }
 
-RecHitVector MuonAlignment::doMatching(const reco::Track &staTrack, edm::Handle<DTRecSegment4DCollection> &all4DSegmentsDT, edm::Handle<CSCSegmentCollection> &all4DSegmentsCSC, intDVector *indexCollectionDT, intDVector *indexCollectionCSC, ESHandle<GlobalTrackingGeometry> &theTrackingGeometry) {
+RecHitVector MuonAlignment::doMatching(const reco::Track &staTrack, edm::Handle<DTRecSegment4DCollection> &all4DSegmentsDT, edm::Handle<CSCSegmentCollection> &all4DSegmentsCSC, intDVector *indexCollectionDT, intDVector *indexCollectionCSC, edm::ESHandle<GlobalTrackingGeometry> &theTrackingGeometry) {
 
     DTRecSegment4DCollection::const_iterator segmentDT;
     CSCSegmentCollection::const_iterator segmentCSC;
@@ -599,8 +595,8 @@ void MuonAlignment::endJob(void) {
     bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
     std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
 
-    edm::LogInfo("MuonAlignment")  << "Number of Tracks considered for residuals: " << numberOfTracks << endl << endl;
-    edm::LogInfo("MuonAlignment")  << "Number of Hits considered for residuals: " << numberOfHits << endl << endl;
+    edm::LogInfo("MuonAlignment")  << "Number of Tracks considered for residuals: " << numberOfTracks << std::endl << std::endl;
+    edm::LogInfo("MuonAlignment")  << "Number of Hits considered for residuals: " << numberOfHits << std::endl << std::endl;
 
     if (doSummary){
         char binLabel[15];

@@ -94,10 +94,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   Nevt_++;  
 
-  using namespace edm;
-  using namespace reco;
-  using namespace std;
-
   //=======================================================
   // Initialize Root-tuple variables
   //=======================================================
@@ -108,21 +104,21 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   // Retrieve the Magnetic Field information
   //=======================================================
 
-  ESHandle<MagneticField> theMGField;
+  edm::ESHandle<MagneticField> theMGField;
   iSetup.get<IdealMagneticFieldRecord>().get( theMGField );
 
   //=======================================================
   // Retrieve the Tracking Geometry information
   //=======================================================
 
-  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get( theTrackingGeometry );
 
   //=======================================================
   // Retrieve the Track information
   //=======================================================
   
-  Handle<TrackCollection>  trackCollectionHandle;
+  edm::Handle<reco::TrackCollection>  trackCollectionHandle;
   iEvent.getByLabel(TrackCollectionTag_, trackCollectionHandle);
   
   //=======================================================
@@ -133,7 +129,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   double OfflineVertexX = 0.;
   double OfflineVertexY = 0.;
   double OfflineVertexZ = 0.;
-  Handle<VertexCollection> vertices;
+  edm::Handle<reco::VertexCollection> vertices;
   try {
     iEvent.getByLabel("offlinePrimaryVertices", vertices);
   } catch (...) {
@@ -152,7 +148,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   /*
     BeamSpot beamSpot;
-    Handle<BeamSpot> beamSpotHandle;
+    edm::Handle<BeamSpot> beamSpotHandle;
     iEvent.getByLabel("offlineBeamSpot", beamSpotHandle);
     
     if ( beamSpotHandle.isValid() )
@@ -185,7 +181,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
     std::cout<<"PrimaryVertexValidation::analyze() looping over "<<trackCollectionHandle->size()<< "tracks." <<std::endl;       
   
   unsigned int i = 0;   
-  for(TrackCollection::const_iterator track = trackCollectionHandle->begin(); track!= trackCollectionHandle->end(); ++track, ++i)
+  for(reco::TrackCollection::const_iterator track = trackCollectionHandle->begin(); track!= trackCollectionHandle->end(); ++track, ++i)
     {
       if ( nTracks_ >= nMaxtracks_ ) {
 	std::cout << " PrimaryVertexValidation::analyze() : Warning - Number of tracks: " << nTracks_ << " , greater than " << nMaxtracks_ << std::endl;
@@ -254,7 +250,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
       reco::TrackRef trackref(trackCollectionHandle,i);
       bool hasTheProbeFirstPixelLayerHit = false;
       hasTheProbeFirstPixelLayerHit = this->hasFirstLayerPixelHits(trackref);
-      TransientTrack theTTRef = TransientTrack(trackref, &*theMGField, theTrackingGeometry );
+      reco::TransientTrack theTTRef = reco::TransientTrack(trackref, &*theMGField, theTrackingGeometry );
       if (theTrackFilter_(theTTRef)&&hasTheProbeFirstPixelLayerHit){
 	isGoodTrack_[nTracks_]=1;
       }
@@ -270,7 +266,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  if( tk == trackref ) continue;
 	  bool hasTheTagFirstPixelLayerHit = false;
 	  hasTheTagFirstPixelLayerHit = this->hasFirstLayerPixelHits(tk);
-	  TransientTrack theTT = TransientTrack(tk, &*theMGField, theTrackingGeometry );
+	  reco::TransientTrack theTT = reco::TransientTrack(tk, &*theMGField, theTrackingGeometry );
 	  if (theTrackFilter_(theTT)&&hasTheTagFirstPixelLayerHit){
 	    transientTracks.push_back(theTT);
 	  }

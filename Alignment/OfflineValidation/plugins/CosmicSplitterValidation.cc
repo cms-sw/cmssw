@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: CosmicSplitterValidation.cc,v 1.9 2010/01/06 15:44:11 mussgill Exp $
+// $Id: CosmicSplitterValidation.cc,v 1.10 2010/02/20 20:54:53 wmtan Exp $
 //
 //
 
@@ -66,7 +66,6 @@
 //
 // class decleration
 //
-using namespace edm;
 
 class CosmicSplitterValidation : public edm::EDAnalyzer {
 public:

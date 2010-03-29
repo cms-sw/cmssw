@@ -7,8 +7,8 @@
  *  and residuals (base EDAnalyzer for Muon Alignment Offline DQM)
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2010/01/04 18:24:37 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/01/06 15:44:11 $
+ *  $Revision: 1.7 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -33,9 +33,6 @@ namespace edm {
 
 class TH1F;
 class TH2F;
-
-using namespace std;
-using namespace edm;
 
 typedef std::vector< std::vector<int> > intDVector;
 typedef std::vector<TrackingRecHit *> RecHitVector;

@@ -39,50 +39,47 @@
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-using namespace edm;
-using namespace reco;
 
 
-ResidualRefitting::ResidualRefitting( const ParameterSet & cfg ) :
-  outputFileName_		( cfg.getUntrackedParameter<string>("histoutputFile") ),
+ResidualRefitting::ResidualRefitting( const edm::ParameterSet & cfg ) :
+  outputFileName_		( cfg.getUntrackedParameter<std::string>("histoutputFile") ),
   PropagatorSource_		( cfg.getParameter<std::string>("propagator")), 
-  muons_     			( cfg.getParameter<InputTag>( "muons"		) ),
-  muonsRemake_			( cfg.getParameter<InputTag>("muonsRemake"	) ),			//This Feels Misalignment
-  muonsNoStation1_		( cfg.getParameter<InputTag>("muonsNoStation1") ),
-  muonsNoStation2_		( cfg.getParameter<InputTag>("muonsNoStation2") ),
-  muonsNoStation3_		( cfg.getParameter<InputTag>("muonsNoStation3") ),
-  muonsNoStation4_		( cfg.getParameter<InputTag>("muonsNoStation4") ),
+  muons_     			( cfg.getParameter<edm::InputTag>( "muons"		) ),
+  muonsRemake_			( cfg.getParameter<edm::InputTag>("muonsRemake"	) ),			//This Feels Misalignment
+  muonsNoStation1_		( cfg.getParameter<edm::InputTag>("muonsNoStation1") ),
+  muonsNoStation2_		( cfg.getParameter<edm::InputTag>("muonsNoStation2") ),
+  muonsNoStation3_		( cfg.getParameter<edm::InputTag>("muonsNoStation3") ),
+  muonsNoStation4_		( cfg.getParameter<edm::InputTag>("muonsNoStation4") ),
 
 /*
-  muonsNoPXBLayer1_		( cfg.getParameter<InputTag>("muonsNoPXBLayer1"	) ),
-  muonsNoPXBLayer2_		( cfg.getParameter<InputTag>("muonsNoPXBLayer1"	) ),
-  muonsNoPXBLayer3_		( cfg.getParameter<InputTag>("muonsNoPXBLayer1"	) ),
+  muonsNoPXBLayer1_		( cfg.getParameter<edm::InputTag>("muonsNoPXBLayer1"	) ),
+  muonsNoPXBLayer2_		( cfg.getParameter<edm::InputTag>("muonsNoPXBLayer1"	) ),
+  muonsNoPXBLayer3_		( cfg.getParameter<edm::InputTag>("muonsNoPXBLayer1"	) ),
 
-  muonsNoTIBLayer1_			( cfg.getParameter<InputTag>("muonsNoTIBLayer1"	) ),
-  muonsNoTIBLayer2_			( cfg.getParameter<InputTag>("muonsNoTIBLayer2"	) ),
-  muonsNoTIBLayer3_			( cfg.getParameter<InputTag>("muonsNoTIBLayer3"	) ),
-  muonsNoTIBLayer4_			( cfg.getParameter<InputTag>("muonsNoTIBLayer4"	) ),
+  muonsNoTIBLayer1_			( cfg.getParameter<edm::InputTag>("muonsNoTIBLayer1"	) ),
+  muonsNoTIBLayer2_			( cfg.getParameter<edm::InputTag>("muonsNoTIBLayer2"	) ),
+  muonsNoTIBLayer3_			( cfg.getParameter<edm::InputTag>("muonsNoTIBLayer3"	) ),
+  muonsNoTIBLayer4_			( cfg.getParameter<edm::InputTag>("muonsNoTIBLayer4"	) ),
 
-  muonsNoTOBLayer1_			( cfg.getParameter<InputTag>("muonsNoTOBLayer1"	) ),
-  muonsNoTOBLayer2_			( cfg.getParameter<InputTag>("muonsNoTOBLayer2"	) ),
-  muonsNoTOBLayer3_			( cfg.getParameter<InputTag>("muonsNoTOBLayer3"	) ),
-  muonsNoTOBLayer4_			( cfg.getParameter<InputTag>("muonsNoTOBLayer4"	) ),
-  muonsNoTOBLayer5_			( cfg.getParameter<InputTag>("muonsNoTOBLayer5"	) ),
-  muonsNoTOBLayer6_			( cfg.getParameter<InputTag>("muonsNoTOBLayer6"	) ),*/
+  muonsNoTOBLayer1_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer1"	) ),
+  muonsNoTOBLayer2_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer2"	) ),
+  muonsNoTOBLayer3_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer3"	) ),
+  muonsNoTOBLayer4_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer4"	) ),
+  muonsNoTOBLayer5_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer5"	) ),
+  muonsNoTOBLayer6_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer6"	) ),*/
   debug_				( cfg.getUntrackedParameter<bool>("doDebug"	) )
 {
 // service parameters
-	edm::ParameterSet serviceParameters = cfg.getParameter<ParameterSet>("ServiceParameters");
+	edm::ParameterSet serviceParameters = cfg.getParameter<edm::ParameterSet>("ServiceParameters");
   
 // the services
 	theService = new MuonServiceProxy(serviceParameters);
 	
 }  //The constructor
 
-void ResidualRefitting::analyze(const Event& event, const EventSetup& eventSetup) {
+void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
 	
 	if(debug_) printf("STARTING EVENT\n");
-	using namespace edm;
 
 	eventInfo_.evtNum_ = (int)event.id().run();
 	eventInfo_.runNum_ = (int)event.id().event();
@@ -90,13 +87,13 @@ void ResidualRefitting::analyze(const Event& event, const EventSetup& eventSetup
 	// Generator Collection
 
 // The original muon collection that is sitting in memory
-	edm::Handle<MuonCollection> muons;
+	edm::Handle<reco::MuonCollection> muons;
 
-	edm::Handle<TrackCollection> muonTracks;
-	edm::Handle<TrackCollection> muonsNoSt1;
-	edm::Handle<TrackCollection> muonsNoSt2;
-	edm::Handle<TrackCollection> muonsNoSt3;
-	edm::Handle<TrackCollection> muonsNoSt4;
+	edm::Handle<reco::TrackCollection> muonTracks;
+	edm::Handle<reco::TrackCollection> muonsNoSt1;
+	edm::Handle<reco::TrackCollection> muonsNoSt2;
+	edm::Handle<reco::TrackCollection> muonsNoSt3;
+	edm::Handle<reco::TrackCollection> muonsNoSt4;
 
 
 	event.getByLabel(muons_				, muons ); //set label to muons
@@ -433,7 +430,7 @@ void ResidualRefitting::NewTrackMeasurements(edm::Handle<reco::TrackCollection> 
 		FreeTrajectoryState recoStart = ResidualRefitting::freeTrajStateMuon(trackref);
 
 		int iTrackLink =  MatchTrackWithRecHits(muon,trackCollOrig);
-		reco::TrackRef ref = TrackRef(trackCollOrig, iTrackLink);
+		reco::TrackRef ref = reco::TrackRef(trackCollOrig, iTrackLink);
 
 		for (trackingRecHit_iterator rec1 = ref->recHitsBegin(); rec1!= ref->recHitsEnd(); rec1++, recCounter++) {
 

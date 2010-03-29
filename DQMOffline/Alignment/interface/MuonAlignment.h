@@ -6,8 +6,8 @@
  *
  *  DQM muon alignment analysis monitoring
  *
- *  $Date: 2009/12/18 20:44:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/02/11 00:11:11 $
+ *  $Revision: 1.3 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -61,9 +61,6 @@ namespace edm {
 }
 
 class TH1F;
-
-using namespace std;
-using namespace edm;
 
 typedef std::vector< std::vector<int> > intDVector;
 typedef std::vector<TrackingRecHit *> RecHitVector;

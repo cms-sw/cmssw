@@ -1,15 +1,13 @@
 /*
  *  DQM client for muon alignment summary
  *
- *  $Date: 2009/04/08 09:26:19 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/04/16 16:11:52 $
+ *  $Revision: 1.5 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
 #include "DQMOffline/Alignment/interface/MuonAlignmentSummary.h"
 
-using namespace std;
-using namespace edm;
 
 
 
@@ -29,8 +27,8 @@ MuonAlignmentSummary::MuonAlignmentSummary(const edm::ParameterSet& pSet) {
     topFolder << MEFolderName+"Alignment/Muon";
 
     if(!(doDT || doCSC) ) { 
-        edm::LogError("MuonAlignmentSummary") <<" Error!! At least one Muon subsystem (DT or CSC) must be monitorized!!" << endl;
-        edm::LogError("MuonAlignmentSummary") <<" Please enable doDT or doCSC to True in your python cfg file!!!" << endl;
+        edm::LogError("MuonAlignmentSummary") <<" Error!! At least one Muon subsystem (DT or CSC) must be monitorized!!" << std::endl;
+        edm::LogError("MuonAlignmentSummary") <<" Please enable doDT or doCSC to True in your python cfg file!!!" << std::endl;
         exit(1);
     }
   
@@ -135,21 +133,21 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
 				
                         if(!((sector==13 || sector ==14) && station!=4)){
 					
-                            stringstream Wheel; Wheel<<wheel;
-                            stringstream Station; Station<<station;
-                            stringstream Sector; Sector<<sector;
+			    std::stringstream Wheel; Wheel<<wheel;
+                            std::stringstream Station; Station<<station;
+                            std::stringstream Sector; Sector<<sector;
 										
-                            string nameOfHistoLocalX="ResidualLocalX_W"+Wheel.str()+"MB"+Station.str()+"S"+Sector.str();
-                            string nameOfHistoLocalPhi= "ResidualLocalPhi_W"+Wheel.str()+"MB"+Station.str()+"S"+Sector.str();
-                            string nameOfHistoLocalTheta= "ResidualLocalTheta_W"+Wheel.str()+"MB"+Station.str()+"S"+Sector.str();
-                            string nameOfHistoLocalY= "ResidualLocalY_W"+Wheel.str()+"MB"+Station.str()+"S"+Sector.str();
+                            std::string nameOfHistoLocalX="ResidualLocalX_W"+Wheel.str()+"MB"+Station.str()+"S"+Sector.str();
+                            std::string nameOfHistoLocalPhi= "ResidualLocalPhi_W"+Wheel.str()+"MB"+Station.str()+"S"+Sector.str();
+                            std::string nameOfHistoLocalTheta= "ResidualLocalTheta_W"+Wheel.str()+"MB"+Station.str()+"S"+Sector.str();
+                            std::string nameOfHistoLocalY= "ResidualLocalY_W"+Wheel.str()+"MB"+Station.str()+"S"+Sector.str();
                                           
-                            string path= topFolder.str()+
-                                "/DT/Wheel"+Wheel.str()+
+                            std::string path= topFolder.str()+
+			        "/DT/Wheel"+Wheel.str()+
                                 "/Station"+Station.str()+
                                 "/Sector"+Sector.str()+"/";
 					
-                            string histo = path+nameOfHistoLocalX;
+                            std::string histo = path+nameOfHistoLocalX;
 
                 			Int_t nstation=station - 1;
                 			Int_t nwheel=wheel+2;
@@ -243,16 +241,16 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
 				
                         if( !( ((abs(station)==2 || abs(station)==3 || abs(station)==4) && ring==1 && chamber>18) || 
                                 ((abs(station)==2 || abs(station)==3 || abs(station)==4) && ring>2)) ){
-                            stringstream Ring; Ring<<ring;
-                            stringstream Station; Station<<station;
-                            stringstream Chamber; Chamber<<chamber;
+                            std::stringstream Ring; Ring<<ring;
+                            std::stringstream Station; Station<<station;
+                            std::stringstream Chamber; Chamber<<chamber;
 					                                       
-                            string nameOfHistoLocalX="ResidualLocalX_ME"+Station.str()+"R"+Ring.str()+"C"+Chamber.str();
-                            string nameOfHistoLocalPhi= "ResidualLocalPhi_ME"+Station.str()+"R"+Ring.str()+"C"+Chamber.str();
-                            string nameOfHistoLocalTheta= "ResidualLocalTheta_ME"+Station.str()+"R"+Ring.str()+"C"+Chamber.str();
-                            string nameOfHistoLocalY= "ResidualLocalY_ME"+Station.str()+"R"+Ring.str()+"C"+Chamber.str();
+                            std::string nameOfHistoLocalX="ResidualLocalX_ME"+Station.str()+"R"+Ring.str()+"C"+Chamber.str();
+                            std::string nameOfHistoLocalPhi= "ResidualLocalPhi_ME"+Station.str()+"R"+Ring.str()+"C"+Chamber.str();
+                            std::string nameOfHistoLocalTheta= "ResidualLocalTheta_ME"+Station.str()+"R"+Ring.str()+"C"+Chamber.str();
+                            std::string nameOfHistoLocalY= "ResidualLocalY_ME"+Station.str()+"R"+Ring.str()+"C"+Chamber.str();
 
-                            string path = topFolder.str()+
+                            std::string path = topFolder.str()+
                                 "/CSC/Station"+Station.str()+
                                 "/Ring"+Ring.str()+
                                 "/Chamber"+Chamber.str()+"/";
@@ -261,7 +259,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
                             if(abs(station)==1) ybin=ring;
                             if (station>0) ybin=ybin+10;
                             else ybin = 11 -ybin;
-                            string histo = path +	nameOfHistoLocalX;			
+                            std::string histo = path +	nameOfHistoLocalX;			
                             MonitorElement * localX = dbe->get(histo);
                             if(localX){
 

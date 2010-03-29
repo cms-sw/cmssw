@@ -13,7 +13,7 @@
 //
 // Original Author:  Nicola De Filippis
 //         Created:  Thu Dec 14 13:13:32 CET 2006
-// $Id: ValidationMisalignedTracker.cc,v 1.2 2010/01/04 18:24:37 mussgill Exp $
+// $Id: ValidationMisalignedTracker.cc,v 1.3 2010/01/05 11:53:37 mussgill Exp $
 //
 //
 
@@ -33,10 +33,6 @@
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-
-using namespace edm;
-using namespace std;
-using namespace reco;
 
 //
 // constructors and destructor
@@ -77,14 +73,14 @@ ValidationMisalignedTracker::ValidationMisalignedTracker(const edm::ParameterSet
   selection_eff    = iConfig.getUntrackedParameter<bool>("selection_eff","false");
   selection_fake   = iConfig.getUntrackedParameter<bool>("selection_fake","true");
   ZmassSelection_  = iConfig.getUntrackedParameter<bool>("ZmassSelection","false");
-  simobject        = iConfig.getUntrackedParameter<string>("simobject","g4SimHits");
-  trackassociator  = iConfig.getUntrackedParameter<string>("TrackAssociator","ByHits");
+  simobject        = iConfig.getUntrackedParameter<std::string>("simobject","g4SimHits");
+  trackassociator  = iConfig.getUntrackedParameter<std::string>("TrackAssociator","ByHits");
   associators      = iConfig.getParameter< std::vector<std::string> >("associators");
   label            = iConfig.getParameter< std::vector<edm::InputTag> >("label");
   label_tp_effic   = iConfig.getParameter< edm::InputTag >("label_tp_effic");
   label_tp_fake    = iConfig.getParameter< edm::InputTag >("label_tp_fake");
 
-  rootfile_   = iConfig.getUntrackedParameter<string>("rootfile","myroot.root");
+  rootfile_   = iConfig.getUntrackedParameter<std::string>("rootfile","myroot.root");
   file_ = new TFile(rootfile_.c_str(),"RECREATE");
   
   // initialize the tree
@@ -240,11 +236,9 @@ ValidationMisalignedTracker::~ValidationMisalignedTracker()
 void
 ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-  
    if (watchTrackAssociatorRecord_.check(iSetup)) {
      associatore.clear();
-     ESHandle<TrackAssociatorBase> theAssociator;
+     edm::ESHandle<TrackAssociatorBase> theAssociator;
      for (unsigned int w=0;w<associators.size();w++) {
        iSetup.get<TrackAssociatorRecord>().get(associators[w], theAssociator);
        associatore.push_back( theAssociator.product() );
@@ -255,10 +249,10 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 
    // Monte Carlo Z selection
    skip=false;
-   vector<int> indmu;
+   std::vector<int> indmu;
    
    if ( selection_eff && ZmassSelection_){ 
-     Handle<HepMCProduct> evt;
+     edm::Handle<edm::HepMCProduct> evt;
      iEvent.getByLabel("source", evt);
      bool accepted = false;
      bool skip=false;
@@ -275,24 +269,24 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 	       for( HepMC::GenVertex::particle_iterator byaDaughter=(*aDaughter)->end_vertex()->particles_begin(HepMC::descendants); byaDaughter !=(*aDaughter)->end_vertex()->particles_end(HepMC::descendants);byaDaughter++){
 		 if ((*byaDaughter)->status()==1 && abs((*byaDaughter)->pdg_id())==13) {		   
 		   indmu.push_back((*byaDaughter)->barcode());
-		   cout << "Stable muon from Z with charge " <<  (*byaDaughter)->pdg_id()  << " and index "<< (*byaDaughter)->barcode() << endl;
+		   std::cout << "Stable muon from Z with charge " <<  (*byaDaughter)->pdg_id()  << " and index "<< (*byaDaughter)->barcode() << std::endl;
 		 }
 	       }
 	     }
 	     else {	       
 	       indmu.push_back((*aDaughter)->barcode());
-	       cout << "Stable muon from Z with charge " <<  (*aDaughter)->pdg_id() << " and index "<< (*aDaughter)->barcode() << endl; 
+	       std::cout << "Stable muon from Z with charge " <<  (*aDaughter)->pdg_id() << " and index "<< (*aDaughter)->barcode() << std::endl; 
 	     }	     
 	   }	 	   
 	 }
 	 if (!foundmuons){
-	   cout << "No muons from Z ...skip event" << endl;
+	   std::cout << "No muons from Z ...skip event" << std::endl;
 	   skip=true;
 	 } 
        }
      }     
      if ( !accepted) {
-       cout << "No Z particles in the event ...skip event" << endl;
+       std::cout << "No Z particles in the event ...skip event" << std::endl;
        skip=true;
      }   
    }
@@ -352,7 +346,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
       //get collections from the event
       //
 
-      InputTag algo = label[0];
+      edm::InputTag algo = label[0];
      
       edm::Handle<edm::View<reco::Track> > trackCollection;
       iEvent.getByLabel(algo, trackCollection);
@@ -377,7 +371,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
       //
 
       if (selection_eff && !skip ) {
-	cout << "Computing Efficiency" << endl;
+	std::cout << "Computing Efficiency" << std::endl;
 
 	edm::LogVerbatim("TrackValidator") << "\n# of TrackingParticles (before cuts): " << tPCeff.size() << "\n";
 	int ats = 0;
@@ -428,8 +422,8 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 
   
 	  if (abs(simulatedTrack->type())==13 && simulatedTrack->genpartIndex() != -1 ) {
-	    cout << " TRACCIA SIM DI MUONI " << endl;  
-	    cout << "Gen part " << simulatedTrack->genpartIndex()<< endl;
+	    std::cout << " TRACCIA SIM DI MUONI " << std::endl;  
+	    std::cout << "Gen part " << simulatedTrack->genpartIndex()<< std::endl;
 	    trackType=simulatedTrack->type();
 	    theta=simulatedTrack->momentum().theta();
 	    costheta=cos(theta);
@@ -441,23 +435,23 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 	    nhit=tp->matchedHit();
 	    
 
-	     cout << "3) Before assoc: SimTrack of type = " << simulatedTrack->type() 
-		    << " ,at eta = " << eta 
-		    << " ,with pt at vertex = " << simulatedTrack->momentum().pt() << " GeV/c"
-		    << " ,d0 =" << d0 
-		    << " ,z0 =" << z0 
-                    << " ,nhit=" << nhit
-		    << endl;
+	    std::cout << "3) Before assoc: SimTrack of type = " << simulatedTrack->type() 
+		      << " ,at eta = " << eta 
+		      << " ,with pt at vertex = " << simulatedTrack->momentum().pt() << " GeV/c"
+		      << " ,d0 =" << d0 
+		      << " ,z0 =" << z0 
+		      << " ,nhit=" << nhit
+		      << std::endl;
 
 	    if ( ZmassSelection_ ){
 	      if (abs(trackType)==13 && (simulatedTrack->genpartIndex()==indmu[0] || simulatedTrack->genpartIndex()==indmu[1] )) { 
-		cout << " TRACK sim of muons from Z " << endl;  
+		std::cout << " TRACK sim of muons from Z " << std::endl;  
 		flag=0;
 		count=countpart[0];
 		countpart[0]++;
 	      }
 	      else if (abs(trackType)==11) {
-		//cout << " TRACCIA SIM DI ELETTRONI " << endl;  
+		//std::cout << " TRACCIA SIM DI ELETTRONI " << std::endl;  
 		flag=1;
 		count=countpart[1];
 		countpart[1]++;
@@ -490,14 +484,14 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 
 		edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st << " with pt=" << t->pt() 
 						   << " associated with quality:" << rt.begin()->second <<"\n";
-		std::cout << "Reconstructed Track:" << t->pt()<< endl;
-		std::cout << "\tpT: " << t->pt()<< endl;
-		std::cout << "\timpact parameter:d0: " << t->d0()<< endl;
-		std::cout << "\timpact parameter:z0: " << t->dz()<< endl;
-		std::cout << "\tAzimuthal angle of point of closest approach:" << t->phi()<< endl;
-		std::cout << "\tcharge: " << t->charge()<< endl;
-		std::cout << "\teta: " << t->eta()<< endl;
-		std::cout << "\tnormalizedChi2: " << t->normalizedChi2()<< endl;
+		std::cout << "Reconstructed Track:" << t->pt()<< std::endl;
+		std::cout << "\tpT: " << t->pt()<< std::endl;
+		std::cout << "\timpact parameter:d0: " << t->d0()<< std::endl;
+		std::cout << "\timpact parameter:z0: " << t->dz()<< std::endl;
+		std::cout << "\tAzimuthal angle of point of closest approach:" << t->phi()<< std::endl;
+		std::cout << "\tcharge: " << t->charge()<< std::endl;
+		std::cout << "\teta: " << t->eta()<< std::endl;
+		std::cout << "\tnormalizedChi2: " << t->normalizedChi2()<< std::endl;
 
 		recnhit=t->numberOfValidHits();
 		recchiq=t->normalizedChi2();
@@ -512,13 +506,13 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 		recd0=t->d0();
 		recz0=t->dz();
 
-		cout << "5) After call to associator: the best match has " 
-		     << recnhit << " hits, Chi2 = " 
-		     << recchiq << ", pt at vertex = " 
-		     << recpt << " GeV/c, " 
-		     << ", recd0 = " << recd0 
-		     << ", recz0= " << recz0
-		     << endl;
+		std::cout << "5) After call to associator: the best match has " 
+			  << recnhit << " hits, Chi2 = " 
+			  << recchiq << ", pt at vertex = " 
+			  << recpt << " GeV/c, " 
+			  << ", recd0 = " << recd0 
+			  << ", recz0= " << recz0
+			  << std::endl;
 
 
 		respt=recpt - pt;
@@ -529,21 +523,21 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 		rescottheta=reccottheta-cottheta;
 		eff=1;
 
-		cout << "6) Transverse momentum residual=" << respt 
-		     << " ,d0 residual=" << resd0 
-		     << " ,z0 residual=" << resz0 
-		     << " with eff=" << eff << endl;
+		std::cout << "6) Transverse momentum residual=" << respt 
+			  << " ,d0 residual=" << resd0 
+			  << " ,z0 residual=" << resz0 
+			  << " with eff=" << eff << std::endl;
 		
 		if ( ZmassSelection_ ){
 		  
 		  if (abs(trackType)==13) { 
-		    cout << " TRACCIA RECO DI MUONI " << endl;  
+		    std::cout << " TRACCIA RECO DI MUONI " << std::endl;  
 		    flagrec=0;
 		    countrec=countpartrec[0];
 		    countpartrec[0]++;
 		  }
 		  else if (abs(trackType)==11) {
-		    cout << " TRACCIA RECO DI ELETTRONI " << endl;  
+		    std::cout << " TRACCIA RECO DI ELETTRONI " << std::endl;  
 		    flagrec=1;
 		    countrec=countpartrec[1];
 		    countpartrec[1]++;
@@ -558,10 +552,10 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 		  if (abs(trackType)==11) recene[flagrec][countrec]=sqrt(recp[flagrec][countrec]*recp[flagrec][countrec]+0.0005*0.0005);
 		}
 		
-		cout << "7) Transverse momentum reconstructed =" << recpt 
-		     << " at  eta= " << receta 
-		     << " and phi= " << recphi 
-		     << endl;
+		std::cout << "7) Transverse momentum reconstructed =" << recpt 
+			  << " at  eta= " << receta 
+			  << " and phi= " << recphi 
+			  << std::endl;
 		
 	      }
 	    }
@@ -586,12 +580,12 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 	      flagrec=100;	      
 	    }
 	    
-	    cout << "Eff=" << eff << endl;
+	    std::cout << "Eff=" << eff << std::endl;
 	       
 	       // simulated muons
 	       
-	       cout <<"Flag is" << flag << endl;
-	       cout <<"RecFlag is" << flagrec << endl;
+	       std::cout <<"Flag is" << flag << std::endl;
+	       std::cout <<"RecFlag is" << flagrec << std::endl;
 	       
 	       if (countpart[0]==2 && flag==0) {
 		 mzmu=sqrt(
@@ -600,7 +594,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 			   (py[0][0]+py[0][1])*(py[0][0]+py[0][1])-
 			   (pz[0][0]+pz[0][1])*(pz[0][0]+pz[0][1])
 			   );
-		 cout << "Mzmu " << mzmu << endl;
+		 std::cout << "Mzmu " << mzmu << std::endl;
 	         ptzmu=sqrt(
 			   (px[0][0]+px[0][1])*(px[0][0]+px[0][1])+
 			   (py[0][0]+py[0][1])*(py[0][0]+py[0][1])
@@ -612,8 +606,8 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 		 thetazmu=atan2(ptzmu,(pz[0][0]+pz[0][1]));
 		 etazmu=-log(tan(thetazmu*3.14/360.));
                  yzmu=0.5*log((enezmu+pLzmu)/(enezmu-pLzmu));
-	         mxptmu=max( ptmu[0][0], ptmu[0][1]);
-	         minptmu=min( ptmu[0][0], ptmu[0][1]);
+	         mxptmu=std::max( ptmu[0][0], ptmu[0][1]);
+	         minptmu=std::min( ptmu[0][0], ptmu[0][1]);
 	       }
 	       else {
 		 mzmu=-100.;
@@ -636,7 +630,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 			      (recpy[0][0]+recpy[0][1])*(recpy[0][0]+recpy[0][1])-
 			      (recpz[0][0]+recpz[0][1])*(recpz[0][0]+recpz[0][1])
 			      );
-		 cout << "RecMzmu " << recmzmu << endl;
+		 std::cout << "RecMzmu " << recmzmu << std::endl;
                  recptzmu=sqrt(
 			       (recpx[0][0]+recpx[0][1])*(recpx[0][0]+recpx[0][1])+
 			       (recpy[0][0]+recpy[0][1])*(recpy[0][0]+recpy[0][1])
@@ -648,8 +642,8 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 		 recthetazmu=atan2(recptzmu,(recpz[0][0]+recpz[0][1]));
 		 recetazmu=-log(tan(recthetazmu*3.14/360.));
                  recyzmu=0.5*log((recenezmu+recpLzmu)/(recenezmu-recpLzmu));
-		 recmxptmu=max(recptmu[0][0], recptmu[0][1]);
-                 recminptmu=min( recptmu[0][0], recptmu[0][1]);
+		 recmxptmu=std::max(recptmu[0][0], recptmu[0][1]);
+                 recminptmu=std::min( recptmu[0][0], recptmu[0][1]);
 	       }
 	       else {
 		 recmzmu=-100.;
@@ -674,7 +668,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
       // Fake Rate
       // 
       if (selection_fake ) {
-	cout << "Computing Fake Rate" << endl;
+	std::cout << "Computing Fake Rate" << std::endl;
 
 	fakeeta = 0.,faketheta=0.,fakephi=0.,fakept=0.,fakecottheta=0.,fakecostheta=0.;
 	faked0=0.,fakez0=0.;
@@ -715,7 +709,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 	  fakerecd0=track->d0();
 	  fakerecz0=track->dz();
 	  	  
-	  cout << "1) Before assoc: TkRecTrack at eta = " << fakereceta << std::endl;
+	  std::cout << "1) Before assoc: TkRecTrack at eta = " << fakereceta << std::endl;
 	  std::cout << "Track number "<< i << std::endl ;
 	  std::cout << "\tPT: " << track->pt()<< std::endl;
 	  std::cout << "\timpact parameter:d0: " << track->d0()<< std::endl;
@@ -769,13 +763,13 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 	      fakept=fakeassocTrack->momentum().pt();
 	      fakenhit=tpr->matchedHit();
 
-	      cout << "4) After call to associator: the best SimTrack match is of type" << fakeassocTrack->type() 
-		   << " ,at eta = " << fakeeta 
-		   << " and phi = " << fakephi  
-		   << " ,with pt at vertex = " << fakept << " GeV/c" 
-		   << " ,d0 global = " << faked0 
-		   << " ,z0 = " << fakez0
-		   << endl;
+	      std::cout << "4) After call to associator: the best SimTrack match is of type" << fakeassocTrack->type() 
+			<< " ,at eta = " << fakeeta 
+			<< " and phi = " << fakephi  
+			<< " ,with pt at vertex = " << fakept << " GeV/c" 
+			<< " ,d0 global = " << faked0 
+			<< " ,z0 = " << fakez0
+			<< std::endl;
 	      fake=1;
 
 	      fakerespt=fakerecpt-fakept;
@@ -820,7 +814,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 // ------------ method called once each job just after ending the event loop  ------------
 void ValidationMisalignedTracker::endJob() {
 
-  cout << "\t Misalignment analysis completed \n" << endl;  
+  std::cout << "\t Misalignment analysis completed \n" << std::endl;  
 
 }
 
