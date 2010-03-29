@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.40 2010/03/28 20:37:54 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.41 2010/03/29 11:54:48 dinardo Exp $
 //
 //
 
@@ -337,14 +337,17 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
 	  if (counterVx < minNentries) goodData = -2;
-	  else if (isnan(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
-	  if (goodData == 0)
+	  else
 	    {
-	      det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
-		Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
-		Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
-	      if (det < 0.) goodData = -1;
+	      if (isnan(edm) == true) goodData = -1;
+	      else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	      if (goodData == 0)
+		{
+		  det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+		    Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+		    Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+		  if (det < 0.) goodData = -1;
+		}
 	    }
 
 	  if ((goodData == 0) && (edm < bestEdm)) { bestEdm = edm; bestMovementX = i; }
@@ -393,14 +396,17 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
 	  if (counterVx < minNentries) goodData = -2;
-	  else if (isnan(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
-	  if (goodData == 0)
+	  else
 	    {
-	      det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
-		Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
-		Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
-	      if (det < 0.) goodData = -1;
+	      if (isnan(edm) == true) goodData = -1;
+	      else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	      if (goodData == 0)
+		{
+		  det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+		    Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+		    Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+		  if (det < 0.) goodData = -1;
+		}
 	    }
 
 	  if ((goodData == 0) && (edm < bestEdm)) { bestEdm = edm; bestMovementY = i; }
@@ -450,14 +456,17 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
 	  if (counterVx < minNentries) goodData = -2;
-	  else if (isnan(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
-	  if (goodData == 0)
+	  else
 	    {
-	      det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
-		Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
-		Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
-	      if (det < 0.) goodData = -1;
+	      if (isnan(edm) == true) goodData = -1;
+	      else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	      if (goodData == 0)
+		{
+		  det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+		    Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+		    Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+		  if (det < 0.) goodData = -1;
+		}
 	    }
 
 	  if ((goodData == 0) && (edm < bestEdm)) { bestEdm = edm; bestMovementZ = i; }
@@ -496,14 +505,17 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
       if (counterVx < minNentries) goodData = -2;
-      else if (isnan(edm) == true) goodData = -1;
-      else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
-      if (goodData == 0)
+      else
 	{
-	  det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
-	    Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
-	    Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
-	  if (det < 0.) goodData = -1;
+	  if (isnan(edm) == true) goodData = -1;
+	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	  if (goodData == 0)
+	    {
+	      det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+		Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+		Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+	      if (det < 0.) goodData = -1;
+	    }
 	}
       if ((goodData != 0) && (goodData != -2))
 	{
@@ -540,14 +552,17 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
 	  if (counterVx < minNentries) goodData = -2;
-	  else if (isnan(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
-	  if (goodData == 0)
+	  else
 	    {
-	      det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
-		Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
-		Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
-	      if (det < 0.) goodData = -1;
+	      if (isnan(edm) == true) goodData = -1;
+	      else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	      if (goodData == 0)
+		{
+		  det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+		    Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+		    Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+		  if (det < 0.) goodData = -1;
+		}
 	    }
 	  if ((goodData != 0) && (goodData != -2))
 	    {
@@ -584,14 +599,17 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	      Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
 	      if (counterVx < minNentries) goodData = -2;
-	      else if (isnan(edm) == true) goodData = -1;
-	      else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
-	      if (goodData == 0)
+	      else
 		{
-		  det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
-		    Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
-		    Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
-		  if (det < 0.) goodData = -1;
+		  if (isnan(edm) == true) goodData = -1;
+		  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+		  if (goodData == 0)
+		    {
+		      det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+			Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+			Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+		      if (det < 0.) goodData = -1;
+		    }
 		}
 	      if ((goodData != 0) && (goodData != -2))
 		{
@@ -628,14 +646,17 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 		  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
 		  if (counterVx < minNentries) goodData = -2;
-		  else if (isnan(edm) == true) goodData = -1;
-		  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
-		  if (goodData == 0)
+		  else
 		    {
-		      det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
-			Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
-			Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
-		      if (det < 0.) goodData = -1;
+		      if (isnan(edm) == true) goodData = -1;
+		      else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+		      if (goodData == 0)
+			{
+			  det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+			    Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+			    Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+			  if (det < 0.) goodData = -1;
+			}
 		    }
 		}
 	    }
@@ -816,6 +837,7 @@ void Vx3DHLTAnalyzer::beginLuminosityBlock(const LuminosityBlock& lumiBlock,
     {
       beginTimeOfFit = lumiBlock.beginTime().value();
       beginLumiOfFit = lumiBlock.luminosityBlock();
+      lumiCounter++;
     }
   else if (lumiBlock.luminosityBlock() > beginLumiOfFit) lumiCounter++;
 }
