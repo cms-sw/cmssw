@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.12 $'),
+    version = cms.untracked.string('$Revision: 1.13 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -153,6 +153,13 @@ process.dtSkim=cms.Path(process.muonDTDigis+process.hltDTActivityFilter)
 ############################ L1 Muon bits #################################
 
 process.l1RequestPhAlgos = process.hltLevel1GTSeed.clone()
+# False allows to read directly from L1 instead fo candidate ObjectMap
+process.l1RequestPhAlgos.L1UseL1TriggerObjectMaps = cms.bool(False)
+    #
+    # option used forL1UseL1TriggerObjectMaps = False only
+    # number of BxInEvent: 1: L1A=0; 3: -1, L1A=0, 1; 5: -2, -1, L1A=0, 1, 
+# online is used 5
+process.l1RequestPhAlgos.L1NrBxInEvent = cms.int32(5)
 
 # Request the or of the following bits: from 54 to 62 and 106-107
 
