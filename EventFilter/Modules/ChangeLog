@@ -1,0 +1,12 @@
+2010-03-05 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-07-04
+	* fixes for correct updating of DQM histos to SM
+	
+2010-02-17  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-07-02
+	* add python directory
+	* add cfi.py file for FUShmDQMOutputService
+	
+

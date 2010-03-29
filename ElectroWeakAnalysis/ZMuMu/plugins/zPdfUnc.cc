@@ -11,7 +11,7 @@ private:
   edm::InputTag   gen_, pdfweights_;
   unsigned int pdfmember_ , nbinsMass_, nbinsPt_, nbinsAng_ ;
   double massMax_, ptMax_, angMax_;
-  double  accPtMin_,accMassMin_,accMassMax_, accEtaMin_, accEtaMax_,  accMassMinDenominator_ ;
+  double  accPtMin_,accMassMin_,accMassMax_, accEtaMin_, accEtaMax_;
   TH1F *h_nZ_;
   TH1F *h_mZMC_, *h_ptZMC_, *h_phiZMC_, *h_thetaZMC_, *h_etaZMC_, *h_rapidityZMC_;
   TH1F *hardpt, *softpt, * hardeta, *softeta;
@@ -59,7 +59,6 @@ zPdfUnc::zPdfUnc(const ParameterSet& pset) :
   accMassMax_(pset.getUntrackedParameter<double>("accMassMax")),
   accEtaMin_(pset.getUntrackedParameter<double>("accEtaMin")),
   accEtaMax_(pset.getUntrackedParameter<double>("accEtaMax")),
-  accMassMinDenominator_(pset.getUntrackedParameter<double>("accMassMinDenominator")),
   isMCatNLO_(pset.getUntrackedParameter<bool>("isMCatNLO")),
   filename_(pset.getUntrackedParameter<std::string>("outfilename")) { 
   cout << ">>> Z Histogrammer constructor" << endl;
@@ -131,11 +130,20 @@ void zPdfUnc::analyze(const edm::Event& event, const edm::EventSetup& setup) {
     }
 
   cout << "finally I selected " << muons.size() << " muons" << endl;
+
  
+
+
+
 // if there are at least two muons, 
    // calculate invarant mass of first two and fill it into histogram
+  
+ 
 
-  double inv_mass = 0.0;
+
+
+
+ double inv_mass = 0.0;
    double Zpt_ = 0.0;
    double Zeta_ = 0.0;
    double Ztheta_ = 0.0;
@@ -148,8 +156,7 @@ void zPdfUnc::analyze(const edm::Event& event, const edm::EventSetup& setup) {
      math::XYZTLorentzVector mom2(muons[1].p4());
      tot_momentum += mom2;
      inv_mass = sqrt(tot_momentum.mass2());
-
-   Zpt_=tot_momentum.pt();
+     Zpt_=tot_momentum.pt();
      Zeta_ = tot_momentum.eta();
      Ztheta_ = tot_momentum.theta();
      Zphi_ = tot_momentum.phi();
@@ -161,38 +168,41 @@ void zPdfUnc::analyze(const edm::Event& event, const edm::EventSetup& setup) {
      
     double weight_sign = weight;
       //double weight_sign = 1.    ;
-    // fill the denominator numbers only if mass>accMassMinDenominator and go on in that case
-    if (inv_mass > accMassMinDenominator_ ) {  
       h_mZMC_->Fill(inv_mass,weight_sign);
       h_ptZMC_->Fill(Zpt_,weight_sign);
       h_etaZMC_->Fill(Zeta_,weight_sign);
       h_thetaZMC_->Fill(Ztheta_,weight_sign);
       h_phiZMC_->Fill(Zphi_,weight_sign);
       h_rapidityZMC_-> Fill (Zrapidity_,weight_sign );    
-    
+
       double pt1 = muons[0].pt();
       double pt2 = muons[1].pt();
       double eta1 = muons[0].eta();
       double eta2 = muons[1].eta();
-      if(pt1>pt2) {
-	hardpt->Fill(pt1,weight_sign);
-	softpt->Fill(pt2,weight_sign);
-	hardeta->Fill(eta1,weight_sign);
-	softeta->Fill(eta2,weight_sign);
-      } else {
-	hardpt->Fill(pt2,weight_sign);
-	softpt->Fill(pt1,weight_sign);       
-	hardeta->Fill(eta2,weight_sign);
-	softeta->Fill(eta1,weight_sign);
-      }
       
-      //evaluating the geometric acceptance  
-      if ( pt1 >= accPtMin_  && pt2 >= accPtMin_ &&  fabs(eta1)>= accEtaMin_  && fabs(eta2) >= accEtaMin_ && fabs(eta1)<= accEtaMax_  && fabs(eta2) <= accEtaMax_ && inv_mass>= accMassMin_ && inv_mass<= accMassMax_)  {
-	nAcc_ ++;
-	nAccReW_ +=weight; 
-      }  
-    }
+
+
+     if(pt1>pt2) {
+       hardpt->Fill(pt1,weight_sign);
+       softpt->Fill(pt2,weight_sign);
+       hardeta->Fill(eta1,weight_sign);
+       softeta->Fill(eta2,weight_sign);
+     } else {
+       hardpt->Fill(pt2,weight_sign);
+       softpt->Fill(pt1,weight_sign);       
+       hardeta->Fill(eta2,weight_sign);
+       softeta->Fill(eta1,weight_sign);
+     }
+   
+
+   //evaluating the geometric acceptance  
+   if ( pt1 >= accPtMin_  && pt2 >= accPtMin_ &&  fabs(eta1)>= accEtaMin_  && fabs(eta2) >= accEtaMin_ && fabs(eta1)<= accEtaMax_  && fabs(eta2) <= accEtaMax_ && inv_mass>= accMassMin_ && inv_mass<= accMassMax_) {
+nAcc_ ++;
+nAccReW_ +=weight; 
+ }  
+	  
    }
+
 } 
   
 
@@ -200,7 +210,7 @@ void zPdfUnc::endJob() {
   cout << " number of events accepted :" << nAcc_ << endl;
   cout << " number of events accepted reweigthed :" << nAccReW_ << endl;
   double nev = h_mZMC_->GetEntries();
-  double nev_weigthed = h_mZMC_->Integral( ) ;
+  double nev_weigthed = h_mZMC_->Integral(0,nbinsMass_ +1 ) ;
   cout << " number of total events :" << nev   << endl;
     cout << " number of total weighted events :" << nev_weigthed << endl;
  cout << " number of cases in which BothMuHasZHasGrandMa :" << nBothMuHasZHasGrandMa_  << endl;
@@ -212,7 +222,7 @@ void zPdfUnc::endJob() {
   cout << " geometric acceptance reweighted: " << eff_rew << "+/-" << err_rew << endl; 
 
   ofstream myfile;
-  myfile.open(filename_.c_str(), std::ios::app);  
+  myfile.open(filename_.c_str(), std::ios::app);
   myfile<< eff << " "<< eff_rew << " " << nev << " " << nev_weigthed << endl ;
   myfile.close(); 
 }

@@ -1,18 +1,18 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2009/09/14 15:14:53 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/09/11 19:56:31 $
+ *  $Revision: 1.12 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 #else
 #include "HcalHTRData.h"
-const int HcalHTRData::CHANNELS_PER_SPIGOT         = 24;
-const int HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL = 20;
 #endif
 #include <string.h>
 #include <stdio.h>
+const int HcalHTRData::CHANNELS_PER_SPIGOT         = 24;
+const int HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL = 20;
 
 HcalHTRData::HcalHTRData() : m_formatVersion(-2), m_rawLength(0), m_rawConst(0), m_ownData(0) { }
 HcalHTRData::HcalHTRData(const unsigned short* data, int length) {
@@ -116,12 +116,9 @@ void HcalHTRData::determineStaticLengths(int& headerWords, int& trailerWords) co
   if (m_formatVersion==-1) {
     headerWords=6;
     trailerWords=12;
-  } else if (m_formatVersion<5) {
-    headerWords=8;
-    trailerWords=4; // minimum, may be more...
   } else {
     headerWords=8;
-    trailerWords=12; // minimum, may be more...
+    trailerWords=4; // minimum, may be more...
   }
 }
 
@@ -274,22 +271,6 @@ void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int o
   }
   m_ownData[m_rawLength-2]=m_rawLength/2; // 32-bit words
   m_ownData[m_rawLength-1]=(L1Anumber&0xFF)<<8;
-}
-
-void HcalHTRData::packUnsuppressed(const bool* mp) {
-  if (m_formatVersion<4) return;
-
-  for (int fiber=1; fiber<=8; fiber++) {
-    for (int fiberchan=0; fiberchan<=2; fiberchan++) {
-      int linchan=(fiber-1)*3+fiberchan;
-
-      unsigned short& val=m_ownData[m_rawLength-12+(linchan/8)];
-      if (mp[linchan]) val|=1<<(linchan%8);
-    }
-  }
-  
-  // set the unsupressed bit
-  m_ownData[6]|=0x8000;
 }
 
 unsigned int HcalHTRData::getOrbitNumber() const { 

@@ -5,7 +5,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MassWindow.h"
 
 using namespace std;
 
@@ -24,12 +23,8 @@ public:
   BackgroundHandler( const vector<int> & identifiers,
                      const vector<double> & leftWindowFactors,
                      const vector<double> & rightWindowFactors,
-                     const double * ResMass,
-                     const double * massWindowHalfWidth );
+                     const double * ResMass );
   ~BackgroundHandler();
-
-  /// Initialize the parNums to be used in the shifts of parval
-  void initializeParNums();
 
   /// Returns the total number of parameters used for the regions
   inline int regionsParNum()
@@ -37,14 +32,7 @@ public:
     return parNumsResonances_[0];
   }
 
-  /// Check if the mass value is inside the given background region
-  bool checkBackgroundWindow(const double & mass, const int iRegion)
-  {
-    return backgroundWindow_[iRegion].isIn(mass);
-  }
-
-  void countEventsInAllWindows(const vector<std::pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> > & muonPairs,
-                               const double & weight);
+  void countEventsInBackgroundWindows(const vector<std::pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> > & muonPairs, const double & weight);
 
   /// Sets initial parameters for all the functions
   void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double> & parBgr, const vector<int> & parBgrOrder, const int muonType);
@@ -65,12 +53,11 @@ public:
   /**
    * Computes the rescaled parameters from the regions functions to the
    * resonances functions. It takes into account the difference in intervals
-   * and rescales the parameters so that the fraction of events is correctly accounted for. <br>
+   * and rescales the parameters so that the fraction of events is correctly accounter for. <br>
    * It uses the list of all muon pairs to compute the number of events in each resonance window.
    */
-  void rescale( vector<double> & parBgr, const double * ResMass, const double * massWindowHalfWidth,
-                const vector<std::pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> > & muonPairs,
-                const double & weight = 1. );
+  void rescale( vector<double> & parBgr, const double * ResMass, const double massWindowHalfWidth[][3], const int muonType,
+                const vector<std::pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> > & muonPairs, const double & weight = 1. );
 
   /**
    * Returns the background fraction parameter (parBgr[0], but shifted to the correct function) and
@@ -82,6 +69,11 @@ public:
                                            const bool * resConsidered, const double * ResMass, const double ResHalfWidth[],
                                            const int MuonType, const double & mass, const int nbins );
 private:
+  /// Performs the rescaling of parameters for a single resonance
+  double applyRescale( TF1* backgroundFunctionForIntegral, const double backgroundWindowEvents, const double resonanceWindowEvents,
+                       const double & leftRegionWidth, const double & rightRegionWidth,
+                       const double & leftResonanceWidth, const double & rightResonanceWidth ) const;
+
   /// Used to check the consistency of passed parameters
   void consistencyCheck( const vector<int> & identifiers,
                          const vector<double> & leftWindowFactors,
@@ -91,7 +83,6 @@ private:
   // - for the Upsilons region we use the Upsilon
   // - for the J/Psi and Psi2S region we use the J/Psi
   int regToResHW_[3];
-
   // Correspondence between resonances and regions:
   // - Z -> region 0
   // - Uspilons -> region 1
@@ -100,7 +91,7 @@ private:
 
   // Used in the shifts of the parval
   // Contains 0 as the first number and Sum_0^(ires-1)(parNum(i)) for the rest,
-  // so that calling parNums[ires] returns the sum of the number of parameters
+  // so that calling parNums[ires] returns the sub of the number of parameters
   // of the previous functions (0 if none) and allows to shift the parval to the
   // parameters of the actual function.
   int parNumsRegions_[3];
@@ -108,11 +99,19 @@ private:
   // before the parResonances).
   int parNumsResonances_[6];
 
+  // Holds the mass values used as the center of each region.
+  double resMassForRegion_[3];
+  // Holds the mass values for the resonances
+  double resMassForResonance_[6];
+
+  vector<backgroundFunctionBase*> backgroundFunctionsForRegions_;
+  vector<backgroundFunctionBase*> backgroundFunctionsForResonances_;
+
+  // Using double because weights are taken into account and the sum of event_i*weight is a double
+  vector<double> regionWindowEvents_;
+  vector<double> resonanceWindowEvents_;
   vector<double> leftWindowFactors_;
   vector<double> rightWindowFactors_;
-
-  vector<MassWindow> resonanceWindow_;
-  vector<MassWindow> backgroundWindow_;
 };
 
 #endif // BackgroundHandler_h

@@ -27,6 +27,7 @@ process.csc2DRecHits.readBadChambers = cms.bool(False)
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source("PoolSource",
   fileNames  = cms.untracked.vstring(
+#       '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/124/371/8CDF17C6-F9EA-DE11-ACD7-0030486730C6.root'
        '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/124/294/FE7337DE-25EA-DE11-A2D0-001D09F28EC1.root',
        '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/124/294/EE33041A-36EA-DE11-AE1E-001D09F23A20.root',
        '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/124/294/BE36112B-31EA-DE11-8312-001D09F251BD.root',
@@ -69,9 +70,11 @@ process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/data/csc_referen
 process.load("DQM.Integration.test.environment_cfi")
 process.dqmEnv.subSystemFolder    = "CSC"
 
-process.DQM.collectorHost = 'pccmsdqm02.cern.ch'
-#process.DQM.collectorHost = 'localhost'
-process.dqmSaver.dirName = '.'
+process.DQM.collectorPort = 9190
+process.DQM.collectorHost = 'cms-uflap03.dyndns.cern.ch'
+process.dqmSaver.convention = "Online"
+process.dqmSaver.dirName = "/tmp/valdo"
+process.dqmSaver.producer = "DQM"
 
 #-----------------------------
 # Magnetic Field

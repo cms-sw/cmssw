@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2008/12/03 15:03:16 $
- * $Revision: 1.74 $
+ * $Date: 2009/10/26 17:33:48 $
+ * $Revision: 1.75 $
  * \author A. Ghezzi
  *
  */
@@ -678,7 +678,6 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   Handle<EBDigiCollection> digis;
   e.getByLabel(EBDigiCollection_, digis);
   int nebd = digis->size();
-  //  LogDebug("EBBeamCaloTask") << "event " << ievt_ << " digi collection size " << nebd;
 
   meBBNumCaloCryRead_->Fill(nebd);
 
@@ -720,11 +719,6 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     if(abs(deta_c) >1 || abs(dphi_c) >1){continue;}
     int i_in_array = deta_c -3*dphi_c + 4;
-
-
-    //LogDebug("EBBeamCaloTask") << " det id = " << id;
-    //LogDebug("EBBeamCaloTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
-    //LogDebug("EBBeamCaloTask") << " deta, dphi, i_in_array, i_toBeRead " << deta_c  << " " <<  dphi_c << " " <<i_in_array<<" "<<i_toBeRead;
 
     if( i_in_array < 0 || i_in_array > 8 ){continue;}
 
@@ -805,11 +799,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     int deta_c= ie - eta_c;
     int dphi_c= ip - phi_c;
 
-
     int i_in_array = deta_c -3*dphi_c + 4;
-    //LogDebug("EBBeamCaloTask") << " rechits det id = " << id;
-    //LogDebug("EBBeamCaloTask") << " rechits sm, ieta, iphi " << ism << " " << ie << " " << ip;
-    //LogDebug("EBBeamCaloTask") << " rechits deta, dphi, i_in_array" << deta_c  << " " <<  dphi_c << " " <<i_in_array;
 
     float R_ene = hitItr->amplitude();
     if ( R_ene <= 0. ) R_ene = 0.0;
@@ -821,8 +811,6 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     meEBBCaloBeamCentered_->Fill(deta_c,dphi_c,R_ene);
 
     if( i_in_array < 0 || i_in_array > 8 ){continue;}
-
-    //LogDebug("EBBeamCaloTask") <<"In the array, cry: "<<ic<<" rec ene: "<<R_ene;
 
     if(i_in_array == 4){cryInBeamEne = R_ene;}
     if(! tb_moving){meBBCaloEne_[i_in_array]->Fill(R_ene);}

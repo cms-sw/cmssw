@@ -303,12 +303,12 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     if(numberOfDigi>50) numberOfDigi=50; //overflow
     
     os.str("");
-    os<<"NumberOfDigi_"<<nameRoll;
+    os<<"Multiplicity_"<<nameRoll;
     if(meMap[os.str()])   meMap[os.str()]->Fill(numberOfDigi);   
     
     if(detId.region()==0) NumberOfDigis_for_Barrel -> Fill(numberOfDigi);
-    else  if(detId.region()==-1) NumberOfDigis_for_EndcapPositive -> Fill(numberOfDigi);
-    else  if(detId.region()==1)  NumberOfDigis_for_EndcapNegative -> Fill(numberOfDigi);
+    else  if(detId.region()==1) NumberOfDigis_for_EndcapPositive -> Fill(numberOfDigi);
+    else  if(detId.region()==-1)  NumberOfDigis_for_EndcapNegative -> Fill(numberOfDigi);
                                 
     // Fill RecHit MEs   
     if(recHitCollection.first!=recHitCollection.second ){   
@@ -371,6 +371,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       }/// end loop on RPCRecHits for given roll
       
       if(dqmexpert) {	 
+
 	os.str("");
 	os<<"NumberOfClusters_"<<nameRoll;
 	if(meMap[os.str()])

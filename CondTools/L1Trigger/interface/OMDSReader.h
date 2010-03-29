@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sun Mar  2 01:36:06 CET 2008
-// $Id: OMDSReader.h,v 1.11 2008/12/15 21:07:16 wsun Exp $
+// $Id: OMDSReader.h,v 1.12 2009/03/18 22:12:20 wsun Exp $
 //
 
 // system include files
@@ -90,6 +90,8 @@ namespace l1t
 	  std::vector< std::string > m_columnNames ;
 	  std::vector< coral::AttributeList > m_attributeLists ;
 	} ;
+
+    OMDSReader() ;
 
     OMDSReader( const std::string& connectString,
 		const std::string& authenticationPath ) ;
@@ -200,6 +202,9 @@ namespace l1t
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+
+      void connect( const std::string& connectString,
+		    const std::string& authenticationPath ) ;
 
    private:
       OMDSReader(const OMDSReader&); // stop default

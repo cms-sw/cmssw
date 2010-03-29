@@ -4,15 +4,14 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2009/10/13 17:00:26 $
- * $Revision: 1.23 $
+ * $Date: 2009/10/26 17:33:51 $
+ * $Revision: 1.24 $
  *
 */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 

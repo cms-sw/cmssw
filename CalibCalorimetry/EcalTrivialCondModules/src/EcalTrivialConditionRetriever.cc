@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.46 2010/01/20 16:28:32 fra Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.41 2009/06/24 09:46:07 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -14,7 +14,6 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 //#include "DataFormats/Provenance/interface/Timestamp.h"
 
@@ -261,31 +260,6 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
                   setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalChannelStatus );
           }
           findingRecord<EcalChannelStatusRcd>();
-  }
-  // DCS Tower status
-  producedEcalDCSTowerStatus_ = ps.getUntrackedParameter<bool>("producedEcalDCSTowerStatus",true);
-  if ( producedEcalDCSTowerStatus_ ) {
-    setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalDCSTowerStatus );
-    findingRecord<EcalDCSTowerStatusRcd>();
-  }
-  // DAQ Tower status
-  producedEcalDAQTowerStatus_ = ps.getUntrackedParameter<bool>("producedEcalDAQTowerStatus",true);
-  if ( producedEcalDAQTowerStatus_ ) {
-    setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalDAQTowerStatus );
-    findingRecord<EcalDAQTowerStatusRcd>();
-  }
-
-  // trigger channel status
-  producedEcalTrgChannelStatus_ = ps.getUntrackedParameter<bool>("producedEcalTrgChannelStatus",true);
-  trgChannelStatusFile_ = ps.getUntrackedParameter<std::string>("trgChannelStatusFile","");
-
-  if ( producedEcalTrgChannelStatus_ ) {
-          if ( trgChannelStatusFile_ != "" ) { // if file provided read channel map
-                  setWhatProduced( this, &EcalTrivialConditionRetriever::getTrgChannelStatusFromConfiguration );
-          } else { // set all channels to working -- FIXME might be changed
-                  setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalTrgChannelStatus );
-          }
-          findingRecord<EcalTPGCrystalStatusRcd>();
   }
 
   //Tell Finder what records we find
@@ -1614,215 +1588,6 @@ EcalTrivialConditionRetriever::produceEcalChannelStatus( const EcalChannelStatus
 {
 
         std::auto_ptr<EcalChannelStatus>  ical = std::auto_ptr<EcalChannelStatus>( new EcalChannelStatus() );
-        // barrel
-        for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
-                if(ieta==0) continue;
-                for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-                        if (EBDetId::validDetId(ieta,iphi)) {
-                                EBDetId ebid(ieta,iphi);
-                                ical->setValue( ebid, 0 );
-                        }
-                }
-        }
-        // endcap
-        for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
-                for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
-                        // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-                        if (EEDetId::validDetId(iX,iY,1)) {
-                                EEDetId eedetidpos(iX,iY,1);
-                                ical->setValue( eedetidpos, 0 );
-                        }
-                        if (EEDetId::validDetId(iX,iY,-1)) {
-                                EEDetId eedetidneg(iX,iY,-1);
-                                ical->setValue( eedetidneg, 0 );
-                        }
-                }
-        }
-        return ical;
-}
-// --------------------------------------------------------------------------------
-
-std::auto_ptr<EcalDCSTowerStatus>
-EcalTrivialConditionRetriever::produceEcalDCSTowerStatus( const EcalDCSTowerStatusRcd& )
-{
-
-        std::auto_ptr<EcalDCSTowerStatus>  ical = std::auto_ptr<EcalDCSTowerStatus>( new EcalDCSTowerStatus() );
-
-	int status(0);
-	
-        // barrel
-	int iz=0;
-        for(int k=0 ; k<2; k++ ) {
-	  if(k==0) iz=-1;
-	  if(k==1) iz=+1;
-	  for(int i=1 ; i<73; i++) {
-	    for(int j=1 ; j<18; j++) {
-	      if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,j,i )){
-		EcalTrigTowerDetId ebid(iz,EcalBarrel,j,i);
-
-		ical->setValue( ebid, status );
-	      }
-	    }
-	  }
-	}
-
-
-        // endcap
-        for(int k=0 ; k<2; k++ ) {
-	  if(k==0) iz=-1;
-	  if(k==1) iz=+1;
-	  for(int i=1 ; i<21; i++) {
-	    for(int j=1 ; j<21; j++) {
-	      if (EcalScDetId::validDetId(i,j,iz )){
-		EcalScDetId eeid(i,j,iz);
-		ical->setValue( eeid, status );
-	      }
-	    }
-	  }
-	}
-
-        return ical;
-}
-// --------------------------------------------------------------------------------
-
-std::auto_ptr<EcalDAQTowerStatus>
-EcalTrivialConditionRetriever::produceEcalDAQTowerStatus( const EcalDAQTowerStatusRcd& )
-{
-
-        std::auto_ptr<EcalDAQTowerStatus>  ical = std::auto_ptr<EcalDAQTowerStatus>( new EcalDAQTowerStatus() );
-
-	int status(0);
-	
-        // barrel
-	int iz=0;
-        for(int k=0 ; k<2; k++ ) {
-	  if(k==0) iz=-1;
-	  if(k==1) iz=+1;
-	  for(int i=1 ; i<73; i++) {
-	    for(int j=1 ; j<18; j++) {
-	      if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,j,i )){
-		EcalTrigTowerDetId ebid(iz,EcalBarrel,j,i);
-
-		ical->setValue( ebid, status );
-	      }
-	    }
-	  }
-	}
-
-
-        // endcap
-        for(int k=0 ; k<2; k++ ) {
-	  if(k==0) iz=-1;
-	  if(k==1) iz=+1;
-	  for(int i=1 ; i<21; i++) {
-	    for(int j=1 ; j<21; j++) {
-	      if (EcalScDetId::validDetId(i,j,iz )){
-		EcalScDetId eeid(i,j,iz);
-		ical->setValue( eeid, status );
-	      }
-	    }
-	  }
-	}
-
-        return ical;
-}
-// --------------------------------------------------------------------------------
-
-std::auto_ptr<EcalTPGCrystalStatus>
-EcalTrivialConditionRetriever::getTrgChannelStatusFromConfiguration (const EcalTPGCrystalStatusRcd&)
-{
-  std::auto_ptr<EcalTPGCrystalStatus> ecalStatus = std::auto_ptr<EcalTPGCrystalStatus>( new EcalTPGCrystalStatus() );
-  
-
-  // start by setting all statuses to 0
-  
-  // barrel
-  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
-    if(ieta==0) continue;
-    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-      if (EBDetId::validDetId(ieta,iphi)) {
-	EBDetId ebid(ieta,iphi);
-	ecalStatus->setValue( ebid, 0 );
-      }
-    }
-  }
-  // endcap
-  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
-    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
-      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-      if (EEDetId::validDetId(iX,iY,1)) {
-	EEDetId eedetidpos(iX,iY,1);
-	ecalStatus->setValue( eedetidpos, 0 );
-      }
-      if (EEDetId::validDetId(iX,iY,-1)) {
-	EEDetId eedetidneg(iX,iY,-1);
-	ecalStatus->setValue( eedetidneg, 0 );
-      }
-    }
-  }
-  
-  
-  
-  // overwrite the statuses which are in the file
-  
-  edm::LogInfo("EcalTrivialConditionRetriever") << "Reading channel statuses from file " << edm::FileInPath(channelStatusFile_).fullPath().c_str() ;
-  std::ifstream statusFile(edm::FileInPath(channelStatusFile_).fullPath().c_str());
-  if ( !statusFile.good() ) {
-    edm::LogError ("EcalTrivialConditionRetriever") 
-      << "*** Problems opening file: " << channelStatusFile_ ;
-    throw cms::Exception ("Cannot open ECAL channel status file") ;
-  }
-  
-  std::string EcalSubDet;
-  std::string str;
-  int hashIndex(0);
-  int status(0);
-  
-  while (!statusFile.eof()) 
-    {
-      statusFile >> EcalSubDet;
-      if (EcalSubDet!=std::string("EB") && EcalSubDet!=std::string("EE"))
-	{
-	  std::getline(statusFile,str);
-	  continue;
-	}
-      else
-	{
-	  statusFile>> hashIndex >> status;
-	}
-      // std::cout << EcalSubDet << " " << hashIndex << " " << status;
-      
-      if(EcalSubDet==std::string("EB"))
-	{
-	  EBDetId ebid = EBDetId::unhashIndex(hashIndex);
-	  ecalStatus->setValue( ebid, status );
-	}
-      else if(EcalSubDet==std::string("EE"))
-	{
-	  EEDetId eedetid = EEDetId::unhashIndex(hashIndex);
-	  ecalStatus->setValue( eedetid, status );
-	}
-      else
-	{
-	  edm::LogError ("EcalTrivialConditionRetriever") 
-	    << " *** " << EcalSubDet << " is neither EB nor EE ";
-	}
-      
-    }
-  // the file is supposed to be in the form  -- FIXME
-  
-  
-  statusFile.close();
-  return ecalStatus;
-}
-
-
-
-std::auto_ptr<EcalTPGCrystalStatus>
-EcalTrivialConditionRetriever::produceEcalTrgChannelStatus( const EcalTPGCrystalStatusRcd& )
-{
-
-        std::auto_ptr<EcalTPGCrystalStatus>  ical = std::auto_ptr<EcalTPGCrystalStatus>( new EcalTPGCrystalStatus() );
         // barrel
         for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
                 if(ieta==0) continue;

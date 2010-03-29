@@ -7,7 +7,7 @@
 // Package:    PatAlgos
 // Class:      pat::PATTriggerEventProducer
 //
-// $Id: PATTriggerEventProducer.h,v 1.3 2009/04/01 10:45:52 vadler Exp $
+// $Id: PATTriggerEventProducer.h,v 1.4 2010/01/12 19:29:45 vadler Exp $
 //
 /**
   \class    pat::PATTriggerEventProducer PATTriggerEventProducer.h "PhysicsTools/PatAlgos/plugins/PATTriggerEventProducer.h"
@@ -16,7 +16,7 @@
    [...]
 
   \author   Volker Adler
-  \version  $Id: PATTriggerEventProducer.h,v 1.3 2009/04/01 10:45:52 vadler Exp $
+  \version  $Id: PATTriggerEventProducer.h,v 1.4 2010/01/12 19:29:45 vadler Exp $
 */
 
 
@@ -26,18 +26,10 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-
-#include "DataFormats/PatCandidates/interface/TriggerObject.h"
-#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-#include "DataFormats/PatCandidates/interface/TriggerFilter.h"
-#include "DataFormats/PatCandidates/interface/TriggerPath.h"
-#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 
 
 namespace pat {
@@ -47,13 +39,15 @@ namespace pat {
     public:
 
       explicit PATTriggerEventProducer( const edm::ParameterSet & iConfig );
-      ~PATTriggerEventProducer();
+      ~PATTriggerEventProducer() {};
 
     private:
 
+      virtual void beginRun( edm::Run & iRun, const edm::EventSetup & iSetup );
       virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
 
       HLTConfigProvider            hltConfig_;
+      bool                         hltConfigInit_;
       std::string                  nameProcess_;
       edm::InputTag                tagTriggerResults_;
       edm::InputTag                tagTriggerProducer_;

@@ -118,27 +118,67 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
 Level1TriggerScalers::~Level1TriggerScalers() { } 
 
 double Level1TriggerScalers::rateLS(unsigned int counts)
-{ 
-  unsigned long long counts64 = (unsigned long long)counts;
-  return(rateLS(counts64));
-}
+{ return(rateLS(counts,firstShortLSRun));}
 
 double Level1TriggerScalers::rateLS(unsigned long long counts)
+{ return(rateLS(counts,firstShortLSRun));}
+
+double Level1TriggerScalers::rateLS(unsigned int counts,
+				    int runNumber)
 { 
-  double rate = ((double)counts) / 93.4281216;
+  unsigned long long counts64 = (unsigned long long)counts;
+  return(rateLS(counts64,runNumber));
+}
+
+double Level1TriggerScalers::rateLS(unsigned long long counts,
+				    int runNumber)
+{ 
+  double rate;
+  if (( runNumber >= firstShortLSRun ) || ( runNumber <= 1 ))
+  {
+    rate = ((double)counts) / 93.24163832335329;
+  }
+  else
+  {
+    rate = ((double)counts) / 23.31040958083832;
+  }
   return(rate);
 }
 
 double Level1TriggerScalers::percentLS(unsigned long long counts)
+{ return(percentLS(counts,firstShortLSRun));}
+
+double Level1TriggerScalers::percentLS(unsigned long long counts,
+				       int runNumber)
 { 
-  double percent = ((double)counts) / 37371248.64;
+  double percent;
+  if (( runNumber >= firstShortLSRun ) || ( runNumber <= 1 ))
+  {
+    percent = ((double)counts) /  9342812.16;
+  }
+  else
+  {
+    percent = ((double)counts) / 37371248.64;
+  }
   if ( percent > 100.0000 ) { percent = 100.0;}
   return(percent);
 }
 
 double Level1TriggerScalers::percentLSActive(unsigned long long counts)
+{ return(percentLSActive(counts,firstShortLSRun));}
+
+double Level1TriggerScalers::percentLSActive(unsigned long long counts,
+				       int runNumber)
 { 
-  double percent = ((double)counts) / 29444014.08;
+  double percent;
+  if (( runNumber >= firstShortLSRun ) || ( runNumber <= 1 ))
+  {
+    percent = ((double)counts) /  7361003.52;
+  }
+  else
+  {
+    percent = ((double)counts) / 29444014.08;
+  }
   if ( percent > 100.0000 ) { percent = 100.0;}
   return(percent);
 }

@@ -8,8 +8,6 @@
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/Common>
-<use name=CommonTools/Utils>
-<use name=PhysicsTools/UtilAlgos>
 <export>
    <lib name=PhysicsToolsTagAndProbe>
 </export>

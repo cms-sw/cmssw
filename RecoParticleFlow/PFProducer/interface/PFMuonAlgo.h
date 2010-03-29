@@ -38,7 +38,9 @@ class PFMuonAlgo {
   static bool isTrackerTightMuon( const reco::MuonRef& muonRef );
   
   static bool isTrackerLooseMuon( const reco::MuonRef& muonRef );
-
+  
+  static void printMuonProperties( const reco::MuonRef& muonRef );
+  
  private:
 
 };

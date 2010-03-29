@@ -15,13 +15,15 @@ template < class T >
 class Cluster1DMerger
 {
 public:
-    Cluster1DMerger ( const WeightEstimator<T> & );
+    Cluster1DMerger ( const WeightEstimator<T> &,   const math::XYZPoint & bs = math::XYZPoint(0.,0.,0.) );
+    void setBeamSpot(const math::XYZPoint & bs) { theBS = bs; }
     ~Cluster1DMerger();
     Cluster1DMerger ( const Cluster1DMerger & );
     Cluster1D<T> operator() ( const Cluster1D<T> & first,
                             const Cluster1D<T> & second ) const;
 private:
     WeightEstimator<T> * theEstimator;
+    math::XYZPoint theBS;
 };
 
 /*
@@ -30,7 +32,7 @@ private:
 
 template <class T>
 Cluster1DMerger<T>::Cluster1DMerger
-( const WeightEstimator<T> & est ) : theEstimator ( est.clone() )
+( const WeightEstimator<T> & est, const math::XYZPoint & bs ) : theEstimator ( est.clone() ), theBS(bs)
 {}
 
 template <class T>
@@ -41,7 +43,7 @@ Cluster1DMerger<T>::~Cluster1DMerger()
 
 template <class T>
 Cluster1DMerger<T>::Cluster1DMerger ( const Cluster1DMerger & other ) :
-        theEstimator ( other.theEstimator->clone() )
+        theEstimator ( other.theEstimator->clone() ), theBS(other.theBS)
 {}
 
 template <class T>
@@ -73,7 +75,7 @@ Cluster1D<T> Cluster1DMerger<T>::operator() ( const Cluster1D<T> & first,
       float err2 = tracks[i]->dzError(); err2 *= err2;    
       
       if (err2 != 0){
-	sumUp += tracks[i]->dz() * 1/err2; // error-weighted average of Z at IP
+	sumUp += tracks[i]->dz(theBS) * 1/err2; // error-weighted average of Z at IP
 	sumDown += 1/err2;
       }
       err += sqrt( err2 );

@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.14 2010/01/22 14:19:38 mommsen Exp $
+// $Id: Configuration.h,v 1.16 2010/02/09 14:50:19 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -87,9 +87,12 @@ namespace stor
   {
     unsigned int _commandQueueSize;
     unsigned int _dqmEventQueueSize;
+    unsigned int _dqmEventQueueMemoryLimitMB;
     unsigned int _fragmentQueueSize;
+    unsigned int _fragmentQueueMemoryLimitMB;
     unsigned int _registrationQueueSize;
     unsigned int _streamQueueSize;
+    unsigned int _streamQueueMemoryLimitMB;
   };
 
   /**
@@ -111,8 +114,6 @@ namespace stor
    */
   struct ResourceMonitorParams
   {
-    bool _isProductionSystem; // indicates if the SM is running in production system.
-                              // If set to false, certain checks/alarms are disabled. 
     std::string _sataUser;    // user name to log into SATA controller
 
     struct WorkerParams
@@ -123,11 +124,23 @@ namespace stor
     };
     WorkerParams _injectWorkers;
     WorkerParams _copyWorkers;
+  };
 
-    ResourceMonitorParams() :
+  /**
+   * Data structure to hold configuration parameters
+   * that are used to enable sentinel alarms
+   */
+  struct AlarmParams
+  {
+    bool _isProductionSystem;      // indicates if the SM is running in production system.
+                                   // If set to false, certain checks/alarms are disabled. 
+    unsigned int _errorEvents;     // number of recent error events triggering an alarm
+    unsigned int _unwantedEvents;  // number of unwanted events triggering an alarm
+
+    AlarmParams() :
     _isProductionSystem(false) {}; // Initialize default to false here. This struct is
-                                   // used in the ResourceMonitorCollection before the
-                                   // actual values are set during the configure transition.
+                                   // used before the actual values are set during the
+                                   // configure transition.
   };
 
   /**
@@ -144,8 +157,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.14 $
-   * $Date: 2010/01/22 14:19:38 $
+   * $Revision: 1.16 $
+   * $Date: 2010/02/09 14:50:19 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -209,6 +222,13 @@ namespace stor
      * cache from the infospace (see the updateAllParams() method).
      */
     struct ResourceMonitorParams getResourceMonitorParams() const;
+
+    /**
+     * Returns a copy of the alarm parameters.  These values
+     * will be current as of the most recent global update of the local
+     * cache from the infospace (see the updateAllParams() method).
+     */
+    struct AlarmParams getAlarmParams() const;
 
     /**
      * Updates the local copy of all configuration parameters from
@@ -277,6 +297,7 @@ namespace stor
     void setQueueConfigurationDefaults();
     void setWorkerThreadDefaults();
     void setResourceMonitorDefaults();
+    void setAlarmDefaults();
 
     void setupDiskWritingInfoSpaceParams(xdata::InfoSpace* infoSpace);
     void setupDQMProcessingInfoSpaceParams(xdata::InfoSpace* infoSpace);
@@ -284,6 +305,7 @@ namespace stor
     void setupQueueConfigurationInfoSpaceParams(xdata::InfoSpace* infoSpace);
     void setupWorkerThreadInfoSpaceParams(xdata::InfoSpace* infoSpace);
     void setupResourceMonitorInfoSpaceParams(xdata::InfoSpace* infoSpace);
+    void setupAlarmInfoSpaceParams(xdata::InfoSpace* infoSpace);
 
     void updateLocalDiskWritingData();
     void updateLocalDQMProcessingData();
@@ -291,7 +313,8 @@ namespace stor
     void updateLocalQueueConfigurationData();
     void updateLocalWorkerThreadData();
     void updateLocalResourceMonitorData();
-    void updateLocalRunNumber();
+    void updateLocalAlarmData();
+    void updateLocalRunNumberData();
 
     struct DiskWritingParams _diskWriteParamCopy;
     struct DQMProcessingParams _dqmParamCopy;
@@ -299,6 +322,7 @@ namespace stor
     struct QueueConfigurationParams _queueConfigParamCopy;
     struct WorkerThreadParams _workerThreadParamCopy;
     struct ResourceMonitorParams _resourceMonitorParamCopy;
+    struct AlarmParams _alarmParamCopy;
 
     mutable boost::mutex _generalMutex;
 
@@ -339,9 +363,12 @@ namespace stor
 
     xdata::UnsignedInteger32 _commandQueueSize;
     xdata::UnsignedInteger32 _dqmEventQueueSize;
+    xdata::UnsignedInteger32 _dqmEventQueueMemoryLimitMB;
     xdata::UnsignedInteger32 _fragmentQueueSize;
+    xdata::UnsignedInteger32 _fragmentQueueMemoryLimitMB;
     xdata::UnsignedInteger32 _registrationQueueSize;
     xdata::UnsignedInteger32 _streamQueueSize;
+    xdata::UnsignedInteger32 _streamQueueMemoryLimitMB;
 
     xdata::Double _FPdeqWaitTime;
     xdata::Double _DWdeqWaitTime;
@@ -349,7 +376,6 @@ namespace stor
     xdata::Double _staleFragmentTimeOut;
     xdata::Double _monitoringSleepSec;
 
-    xdata::Boolean _isProductionSystem;
     xdata::String _sataUser;
     xdata::String _injectWorkersUser;
     xdata::String _injectWorkersCommand;
@@ -357,6 +383,10 @@ namespace stor
     xdata::String _copyWorkersUser;
     xdata::String _copyWorkersCommand;
     xdata::Integer _nCopyWorkers;
+
+    xdata::Boolean _isProductionSystem;
+    xdata::UnsignedInteger32 _errorEvents;
+    xdata::UnsignedInteger32 _unwantedEvents;
 
     mutable boost::mutex _evtStrCfgMutex;
     mutable boost::mutex _errStrCfgMutex;

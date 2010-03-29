@@ -4,7 +4,7 @@
 // Note: this class is no longer used in the StorageManager, but is still
 // required by the SMProxyServer (Remi Mommsen, May 5, 2009)
 //
-// $Id$
+// $Id: DQMServiceManager.h,v 1.6 2009/06/10 08:15:21 dshpakov Exp $
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -66,6 +66,7 @@ namespace stor
       bool          archiveDQM_;
       int           archiveInterval_;
       int           nUpdates_;
+      int           sentEvents_;
       std::string   filePrefix_;
       int           purgeTime_;
       int           readyTime_;

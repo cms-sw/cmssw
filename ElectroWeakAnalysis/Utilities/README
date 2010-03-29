@@ -87,7 +87,7 @@ src/ISRWeightProducer.cc (IN PROGRESS)
   "src/SimpleSystematicsAnalyzer.cc". A test example is 
   "test/SimpleSystematicsAnalyzer.py".
 
-src/WeakEffectsWeightProducer.cc
+src/WeakWeakEffectsWeightProducer.cc
 ====================================
 - Writes into the data structure a product containing the event weight ("double") 
 to take into account Weak effects in Drell-Yan production when using PYTHIA. It 
@@ -115,25 +115,6 @@ src/FSRWeightProducer.cc (IN PROGRESS)
   Example of usage:
 
       process.fsrWeight = cms.EDProducer("FSRWeightProducer",
-            GenTag = cms.untracked.InputTag("generator"),
-      )
-
-- This weight information can be processed via the Analyzer
-  "src/SimpleSystematicsAnalyzer.cc". A test example is 
-  "test/SimpleSystematicsAnalyzer.py".
-
-
-src/ISRGammaWeightProducer.cc (IN PROGRESS)
-===========================================
-- Writes into the data structure a product containing the event weight ("double")
-  for estimating uncertainties due to missing initial state QED radiation terms in 
-  PYTHIA for W->l nu and Z->ll. It assumes PYTHIA6 as input. The logic is taken 
-  from hep-ph/9812455, which is the one used for QCD matrix-element reweighting
-  in W/Z inclusive production. PYTHIA8 should already include this QED ISR 
-  reweighting.
-  Example of usage:
-
-      process.isrGammaWeight = cms.EDProducer("ISRGammaWeightProducer",
             GenTag = cms.untracked.InputTag("generator"),
       )
 

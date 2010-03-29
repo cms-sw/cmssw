@@ -5,15 +5,14 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitWorkerGlobal.h,v 1.4 2009/10/19 19:00:58 theofil Exp $
-  *  $Date: 2009/10/19 19:00:58 $
-  *  $Revision: 1.4 $
+  *  $Id: EcalUncalibRecHitWorkerGlobal.h,v 1.3 2009/04/09 13:41:29 ferriff Exp $
+  *  $Date: 2009/04/09 13:41:29 $
+  *  $Revision: 1.3 $
   *  \author R. Bruneliere - A. Zabi
   */
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecWeightsAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecChi2Algo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRatioMethodAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitLeadingEdgeAlgo.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -81,7 +80,6 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 std::vector<double> eePulseShape_;
                 EcalUncalibRecHitLeadingEdgeAlgo<EBDataFrame> leadingEdgeMethod_barrel_;
                 EcalUncalibRecHitLeadingEdgeAlgo<EEDataFrame> leadingEdgeMethod_endcap_;
-
 };
 
 #endif

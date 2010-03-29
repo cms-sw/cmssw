@@ -110,9 +110,9 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
   trkIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("TrackConeOuterRadiusA_Endcap") );
   trkIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("TrackConeInnerRadiusA_Endcap") ) ;
   trkIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("isolationtrackThresholdA_Endcap") );
-  trkIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("isolationtrackEtaSliceA_Endcap") );
   trkIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("longImpactParameterA_Endcap") );
   trkIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("transImpactParameterA_Endcap") );
+  trkIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("isolationtrackEtaSliceA_Endcap") );
 
 
   ecalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("EcalRecHitInnerRadiusA_Endcap") );

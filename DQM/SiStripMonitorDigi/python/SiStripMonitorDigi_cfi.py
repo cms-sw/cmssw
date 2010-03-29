@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # SiStripMonitorDigi
-SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
+SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
                                   
     # add digi producers same way as Domenico in SiStripClusterizer
     DigiProducersList = cms.VPSet(cms.PSet( DigiLabel = cms.string('ZeroSuppressed'), DigiProducer = cms.string('siStripDigis') ), 

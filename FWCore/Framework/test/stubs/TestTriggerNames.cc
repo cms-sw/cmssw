@@ -9,7 +9,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 

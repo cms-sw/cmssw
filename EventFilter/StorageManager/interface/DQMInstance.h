@@ -1,4 +1,4 @@
-// $Id: DQMInstance.h,v 1.12 2009/09/16 11:04:22 mommsen Exp $
+// $Id: DQMInstance.h,v 1.16 2010/03/04 16:58:35 mommsen Exp $
 /// @file: DQMInstance.h 
 
 #ifndef StorageManager_DQMInstance_h
@@ -8,32 +8,37 @@
 #include <vector>
 #include <map>
 
-#include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/MessageService/interface/MessageServicePresence.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "IOPool/Streamer/interface/DQMEventMessage.h"
 
 #include "TFile.h"
-#include "TTimeStamp.h"
 #include "TObject.h"
+#include "TTimeStamp.h"
 
 namespace stor 
 {
-
+  
   /**
    * A single DQM folder holding several histograms
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/09/16 11:04:22 $
+   * $Revision: 1.16 $
+   * $Date: 2010/03/04 16:58:35 $
    */
 
   class DQMFolder
   {
-    public:
-      DQMFolder();
-     ~DQMFolder();
-      std::map<std::string, TObject *> dqmObjects_;
+  public:
+    DQMFolder();
+    ~DQMFolder();
+    void addObjects(std::vector<TObject *>);
+    void fillObjectVector(std::vector<TObject*>&) const;
+    unsigned int writeObjects() const;
+
+    static std::string getSafeMEName(TObject *object);
+
+  public: // old SM Proxy code relies on public access
+    typedef std::map<std::string, TObject *> DQMObjectsMap;
+    DQMObjectsMap dqmObjects_;
   }; 
 
 
@@ -42,37 +47,42 @@ namespace stor
    * A collection of DQM Folders under the same top-level name.
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/09/16 11:04:22 $
+   * $Revision: 1.16 $
+   * $Date: 2010/03/04 16:58:35 $
    */
 
   class DQMGroup
   {
-    public:
-      DQMGroup(int readyTime, int expectedUpdates);
-     ~DQMGroup();
-      std::map<std::string, DQMFolder *> dqmFolders_;
-      int getNUpdates()             { return(nUpdates_);}
-      int getReadyTime()            { return(readyTime_);}
-      int getLastEvent()            { return(lastEvent_);}
-      void setLastEvent(int lastEvent);
-      TTimeStamp * getFirstUpdate() { return(firstUpdate_);}
-      TTimeStamp * getLastUpdate()  { return(lastUpdate_);}
-      TTimeStamp * getLastServed()  { return(lastServed_);}
-      bool isReady(int currentTime);
-      bool wasServedSinceUpdate()   { return(wasServedSinceUpdate_);}
-      void setServedSinceUpdate();
-      void setLastServed()          { lastServed_->Set();}
+  public:
+    DQMGroup(const time_t readyTime, const unsigned int expectedUpdates);
+    ~DQMGroup();
 
-    protected:
-      TTimeStamp            *firstUpdate_;
-      TTimeStamp            *lastUpdate_;
-      TTimeStamp            *lastServed_;
-      int                    nUpdates_;
-      int                    readyTime_;
-      int                    expectedUpdates_;
-      int                    lastEvent_;
-      bool                   wasServedSinceUpdate_;
+    void addEvent(std::auto_ptr<DQMEvent::TObjectTable>);
+    size_t populateTable(DQMEvent::TObjectTable&) const;
+    unsigned int fillFile(TFile*, const TString& runString) const;
+
+    inline unsigned int getNUpdates() const    { return(nUpdates_);}
+    inline TTimeStamp * getFirstUpdate() const { return(firstUpdate_);}
+    inline TTimeStamp * getLastUpdate() const  { return(lastUpdate_);}
+    inline TTimeStamp * getLastServed() const  { return(lastServed_);}
+    inline bool wasServedSinceUpdate() const   { return(wasServedSinceUpdate_);}
+    inline void setServedSinceUpdate()         { wasServedSinceUpdate_ = true; }
+    inline bool isReady(time_t now) const      { return ( isComplete() || isStale(now) ); }
+    inline bool isComplete() const             { return ( expectedUpdates_ == nUpdates_ ); }
+    bool isStale(time_t now) const;
+
+  public: // old SM Proxy code relies on public access
+    typedef std::map<std::string, DQMFolder *> DQMFoldersMap;
+    DQMFoldersMap dqmFolders_;
+    
+  private:
+    TTimeStamp            *firstUpdate_;
+    TTimeStamp            *lastUpdate_;
+    TTimeStamp            *lastServed_;
+    unsigned int           nUpdates_;
+    const time_t           readyTime_;
+    const unsigned int     expectedUpdates_;
+    bool                   wasServedSinceUpdate_;
   }; 
 
 
@@ -82,63 +92,62 @@ namespace stor
    * collated DQM groups
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/09/16 11:04:22 $
+   * $Revision: 1.16 $
+   * $Date: 2010/03/04 16:58:35 $
    */
 
   class DQMInstance
   {
-    public:
-      DQMInstance(int runNumber, 
-		  int lumiSection, 
-		  int instance,
-		  int purgeTime,
-                  int readyTime,
-                  int expectedUpdates);
+  public:
+    DQMInstance(const int runNumber,
+                const int lumiSection,
+                const int updateNumber,
+                const time_t purgeTime,
+                const time_t readyTime,
+                const unsigned int expectedUpdates);
 
-     ~DQMInstance();
+    ~DQMInstance();
 
-      int getRunNumber()            { return(runNumber_);}
-      int getLastEvent()            { return(lastEvent_);}
-      int getLumiSection()          { return(lumiSection_);}
-      int getInstance()             { return(instance_);}
-      int getPurgeTime()            { return(purgeTime_);}
-      int getReadyTime()            { return(readyTime_);}
+    inline int getRunNumber() const    { return(runNumber_);}
+    inline int getLumiSection() const  { return(lumiSection_);}
+    inline int getUpdateNumber() const { return(updateNumber_);}
+    inline time_t getPurgeTime() const { return(purgeTime_);}
+    inline time_t getReadyTime() const { return(readyTime_);}
 
-      TTimeStamp * getFirstUpdate() { return(firstUpdate_);}
-      TTimeStamp * getLastUpdate()  { return(lastUpdate_);}
-      int updateObject(std::string groupName,
-		       std::string objectDirectory,
-		       TObject   * object,
-		       int         eventNumber);
-      double writeFile(std::string filePrefix, bool endRunFlag);
-      DQMGroup * getDQMGroup(std::string groupName);
-      bool isReady(int currentTime);
-      bool isStale(int currentTime);
-      std::map<std::string, DQMGroup *> dqmGroups_;
+    inline TTimeStamp * getFirstUpdate() const { return(firstUpdate_);}
+    inline TTimeStamp * getLastUpdate() const  { return(lastUpdate_);}
 
-      static std::string getSafeMEName(TObject *object);
+    bool isReady() const;
+    bool isStale(time_t now) const;
 
-    protected:  
-      int                    runNumber_;
-      int                    lastEvent_;
-      int                    lumiSection_;
-      int                    instance_;
-      TTimeStamp            *firstUpdate_;
-      TTimeStamp            *lastUpdate_;
-      int                    nUpdates_;
-      int                    purgeTime_;
-      int                    readyTime_;
-      int                    expectedUpdates_;
-  }; 
+    void addEvent(const std::string topFolderName, std::auto_ptr<DQMEvent::TObjectTable>);
+    double writeFile(std::string filePrefix, bool endRunFlag) const;
+    DQMGroup * getDQMGroup(std::string groupName) const;
+
+  protected:
+    typedef std::map<std::string, DQMGroup *> DQMGroupsMap;
+    DQMGroupsMap dqmGroups_;
+
+  private:
+    const int              runNumber_;
+    const int              lumiSection_;
+    const int              updateNumber_;
+    TTimeStamp            *firstUpdate_;
+    TTimeStamp            *lastUpdate_;
+    unsigned int           nUpdates_;
+    const time_t           purgeTime_;
+    const time_t           readyTime_;
+    const unsigned int     expectedUpdates_;
+  };
 
   class DQMGroupDescriptor
+  // only used by DQMServiceManager which is used by old SM proxy server
   {
-    public:
-      DQMGroupDescriptor(DQMInstance *instance,DQMGroup *group);
-     ~DQMGroupDescriptor();
-      DQMInstance *instance_;
-      DQMGroup    *group_;
+  public:
+    DQMGroupDescriptor(DQMInstance *instance,DQMGroup *group);
+    ~DQMGroupDescriptor();
+    DQMInstance *instance_;
+    DQMGroup    *group_;
   };
 }
 

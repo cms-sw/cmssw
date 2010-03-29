@@ -7,8 +7,8 @@
 
 /** \class HcalPacker
   *  
-  * $Date: 2007/02/19 04:05:40 $
-  * $Revision: 1.1 $
+  * $Date: $
+  * $Revision: $
   * \author J. Mans - Minnesota
   */
 class HcalPacker {
@@ -30,7 +30,7 @@ public:
 	    FEDRawData& output);
 private:
   int findSamples(const DetId& did, const Collections& inputs,
-		  unsigned short* buffer, int &presamples, bool& zsUS, bool& zsMP);
+		  unsigned short* buffer, int &presamples);
 };
 
 #endif

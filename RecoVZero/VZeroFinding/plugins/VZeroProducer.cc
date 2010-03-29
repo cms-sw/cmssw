@@ -9,20 +9,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
-using namespace std;
-using namespace edm;
-
 /*****************************************************************************/
-VZeroProducer::VZeroProducer(const ParameterSet& pset)
+VZeroProducer::VZeroProducer(const edm::ParameterSet& pset)
   : pset_(pset)
 {
-  LogInfo("VZeroProducer") << " constructor";
+  edm::LogInfo("VZeroProducer") << " constructor";
   produces<reco::VZeroCollection>();
 
   // Get track level cuts
@@ -35,31 +29,24 @@ VZeroProducer::VZeroProducer(const ParameterSet& pset)
 /*****************************************************************************/
 VZeroProducer::~VZeroProducer()
 {
-  LogInfo("VZeroProducer") << " destructor";
+  edm::LogInfo("VZeroProducer") << " destructor";
 }
 
 /*****************************************************************************/
-void VZeroProducer::produce(Event& ev, const EventSetup& es)
+void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
-  // Get beam spot
-  edm::Handle<reco::BeamSpot>          beamSpotHandle; 
-  ev.getByLabel("offlineBeamSpot",     beamSpotHandle);
-  const reco::BeamSpot * theBeamSpot = beamSpotHandle.product();
-
   // Get tracks
-  Handle<reco::TrackCollection> trackCollection;
-  ev.getByLabel(pset_.getParameter<InputTag>("trackCollection"),
-                                              trackCollection);
+  edm::Handle<reco::TrackCollection> trackCollection;
+  ev.getByLabel("allTracks",  trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
 
   // Get primary vertices
-  Handle<reco::VertexCollection> vertexCollection;
-  ev.getByLabel(pset_.getParameter<InputTag>("vertexCollection"),
-                                              vertexCollection);
+  edm::Handle<reco::VertexCollection> vertexCollection;
+  ev.getByLabel("pixelVertices",      vertexCollection);
   const reco::VertexCollection* vertices = vertexCollection.product();
 
   // Find vzeros
-  VZeroFinder theFinder(es,pset_, *theBeamSpot);
+  VZeroFinder theFinder(es,pset_);
 
   // Selection based on track impact parameter
   reco::TrackRefVector positives;
@@ -67,12 +54,12 @@ void VZeroProducer::produce(Event& ev, const EventSetup& es)
 
   for(unsigned int i=0; i<tracks.size(); i++)
   {
-    double dt = fabs(tracks[i].dxy(theBeamSpot->position()));
-
-    if(tracks[i].charge() > 0 && dt > minImpactPositiveDaughter)
+    if(tracks[i].charge() > 0 &&
+       fabs(tracks[i].d0()) > minImpactPositiveDaughter)
       positives.push_back(reco::TrackRef(trackCollection, i));
 
-    if(tracks[i].charge() < 0 && dt > minImpactNegativeDaughter)
+    if(tracks[i].charge() < 0 &&
+       fabs(tracks[i].d0()) > minImpactNegativeDaughter)
       negatives.push_back(reco::TrackRef(trackCollection, i));
   }
 
@@ -80,7 +67,7 @@ void VZeroProducer::produce(Event& ev, const EventSetup& es)
        << " +" << positives.size()
        << " -" << negatives.size();
 
-  auto_ptr<reco::VZeroCollection> result(new reco::VZeroCollection);
+  std::auto_ptr<reco::VZeroCollection> result(new reco::VZeroCollection);
 
   // Check all combination of positives and negatives
   if(positives.size() > 0 && negatives.size() > 0)

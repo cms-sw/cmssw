@@ -26,6 +26,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/RoadSearchSeed/interface/RoadSearchSeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "HLTrigger/special/interface/HLTEcalResonanceFilter.h"
 
 
 DEFINE_FWK_MODULE(HLTPixlMBFilt);
@@ -59,3 +60,4 @@ DEFINE_FWK_MODULE(HLTTrackWithHits);
 DEFINE_FWK_MODULE(HLTTriggerTypeFilter);
 
 DEFINE_FWK_MODULE(HLTDTROMonitorFilter);
+DEFINE_FWK_MODULE(HLTEcalResonanceFilter);

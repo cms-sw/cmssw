@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
+// $Id: DQMEventStore.h,v 1.6 2010/03/03 15:21:45 mommsen Exp $
 /// @file: DQMEventStore.h 
 
 #ifndef StorageManager_DQMEventStore_h
@@ -31,8 +31,8 @@ namespace stor {
    * into DQMEventMsgViews.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/08/28 16:41:49 $
+   * $Revision: 1.6 $
+   * $Date: 2010/03/03 15:21:45 $
    */
   
   class DQMEventStore
@@ -113,7 +113,6 @@ namespace stor {
     std::stack<DQMEventRecord::GroupRecord> _recordsReadyToServe;
     
     std::vector<unsigned char> _tempEventArea;
-    
   };
   
 } // namespace stor

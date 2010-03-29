@@ -23,7 +23,7 @@ public:
   virtual ~RPCFEDIntegrity();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& iSetup);
+  void beginJob();
 
   //Begin Run
    void beginRun(const edm::Run& r, const edm::EventSetup& c);

@@ -3,16 +3,17 @@
 
 /** \class CSCValidation
  *
- * Package to validate local CSC reconstruction:
+ * Simple package to validate local CSC reconstruction:
  *    DIGIS
  *    recHits
  *    segments
- *    L1 trigger
- *    CSC STA muons
- *    Various efficiencies
  *
- * Responsible:
- *    Andy Kubik, Northwestern University
+ * This program merely unpacks collections and fills
+ * a few simple histograms.  The idea is to compare
+ * the histograms for one offline release and another
+ * and look for unexpected differences.
+ *
+ * Michael Schmitt, Northwestern University, July 2007
  */
 
 // user include files
@@ -116,7 +117,8 @@ private:
                       edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments);
   void  doStripDigis(edm::Handle<CSCStripDigiCollection> strips);
   void  doWireDigis(edm::Handle<CSCWireDigiCollection> wires);
-  void  doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::ESHandle<CSCGeometry> cscGeom);
+  void  doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,edm::Handle<CSCStripDigiCollection> strips,
+                  edm::ESHandle<CSCGeometry> cscGeom);
   void  doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<edm::PSimHitContainer> simHits);
   void  doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips);
   void  doSegments(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
@@ -128,16 +130,16 @@ private:
   void  doCalibrations(const edm::EventSetup& eventSetup);
   void  doAFEBTiming(const CSCWireDigiCollection &);
   void  doCompTiming(const CSCComparatorDigiCollection &);
-  void  doADCTiming(const CSCRecHit2DCollection  &);
+  void  doADCTiming(const CSCStripDigiCollection &, const CSCRecHit2DCollection  &);
   void  doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
                     edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips);
   bool  doTrigger(edm::Handle<L1MuGMTReadoutCollection> pCollection);
   void  doStandalone(edm::Handle<reco::TrackCollection> saMuons);
 
   // some useful functions
-  bool   filterEvents(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
-                      edm::Handle<reco::TrackCollection> saMuons);
+  bool   filterEvents(edm::Handle<CSCRecHit2DCollection> recHits);
   float  fitX(CLHEP::HepMatrix sp, CLHEP::HepMatrix ep);
+  float  getTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   float  getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   float  getthisSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   int    getWidth(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
@@ -182,19 +184,8 @@ private:
   std::string rootFileName;
   bool detailedAnalysis;
   bool useDigis;
-
-  // filters
-  bool useQualityFilter;
-  bool useTriggerFilter;
-
-  // quality filter parameters
-  double pMin;
-  double chisqMax;
-  int    nCSCHitsMin, nCSCHitsMax;
-  double lengthMin, lengthMax;
-  double deltaPhiMax;
-  double polarMin, polarMax;
-
+  bool useTrigger;
+  bool filterCSCEvents;
 
   edm::InputTag stripDigiTag;
   edm::InputTag wireDigiTag;
@@ -205,9 +196,7 @@ private:
   edm::InputTag l1aTag;
   edm::InputTag simHitTag;
 
-  // module on/off switches
   bool makeOccupancyPlots;
-  bool makeTriggerPlots;
   bool makeStripPlots;
   bool makeWirePlots;
   bool makeRecHitPlots;

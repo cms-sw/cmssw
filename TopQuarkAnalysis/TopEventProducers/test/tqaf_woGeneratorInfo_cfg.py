@@ -38,10 +38,10 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 from PhysicsTools.PatAlgos.tools.jetTools import *
 process.patDefaultSequence.remove(process.ak5JetID)
 addJetID(process,
-         cms.InputTag('sisCone5CaloJets'),
+         "sisCone5CaloJets",
          'sc5')
 switchJetCollection(process, 
-                    cms.InputTag('sisCone5CaloJets'),
+                    cms.InputTag("sisCone5CaloJets"),
                     doJTA            = True,           
                     doBTagging       = True,           
                     jetCorrLabel     = ('SC5','Calo'),
@@ -53,7 +53,7 @@ switchJetCollection(process,
 
 ## remove MC specific stuff in PAT
 from PhysicsTools.PatAlgos.tools.coreTools import *
-removeMCMatching(process, "All")
+removeMCMatching(process, ["All"])
 
 ## std sequence for TQAF
 process.load("TopQuarkAnalysis.TopEventProducers.tqafSequences_cff")
@@ -83,7 +83,7 @@ process.outpath = cms.EndPath(process.out)
 from PhysicsTools.PatAlgos.patEventContent_cff import *
 process.out.outputCommands += patTriggerEventContent
 process.out.outputCommands += patExtraAodEventContent
-process.out.outputCommands += patEventContentNoLayer1Cleaning
+process.out.outputCommands += patEventContentNoCleaning
 
 ## TQAF content
 from TopQuarkAnalysis.TopEventProducers.tqafEventContent_cff import *

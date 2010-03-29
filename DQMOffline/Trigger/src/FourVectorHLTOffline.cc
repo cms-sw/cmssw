@@ -1,8 +1,8 @@
-// $Id: FourVectorHLTOffline.cc,v 1.59 2009/12/18 20:44:53 wmtan Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.60 2010/01/27 15:01:10 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
-
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include <map>
 #include <utility>
@@ -188,7 +188,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    }
   }
   triggerResults_ = triggerResults;
-  TriggerNames triggerNames(*triggerResults);  
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);  
   int npath = triggerResults->size();
 
   edm::Handle<TriggerEvent> triggerObj;
@@ -441,7 +441,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   name.push_back("Rest");
   name.push_back("Special");
   
-  fillHltMatrix(name);
+  fillHltMatrix(name, triggerNames);
 
 
   // Loop over diag paths
@@ -1556,9 +1556,8 @@ void FourVectorHLTOffline::setupHltMatrix(std::string label, vector<std::string>
 
 }
 
-void FourVectorHLTOffline::fillHltMatrix(vector<std::string> name) {
-
-TriggerNames triggerNames(*triggerResults_);
+void FourVectorHLTOffline::fillHltMatrix(vector<std::string> name,
+                                         const edm::TriggerNames & triggerNames) {
 
 string fullPathToME; 
 

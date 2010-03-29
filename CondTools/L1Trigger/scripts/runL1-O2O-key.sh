@@ -6,16 +6,20 @@ export TNS_ADMIN=/nfshome0/popcondev/conddb
 
 xflag=0
 oflag=0
-while getopts 'xoh' OPTION
+cflag=0
+while getopts 'xoch' OPTION
   do
   case $OPTION in
       x) xflag=1
           ;;
       o) oflag=1
           ;;
+      c) cflag=1
+          ;;
       h) echo "Usage: [-x] [-o] tsckey tagbase"
 	  echo "  -x: write to ORCON instead of sqlite file"
 	  echo "  -o: overwrite keys"
+	  echo "  -c: copy non-O2O payloads from ORCON"
 	  exit
 	  ;;
   esac
@@ -31,10 +35,15 @@ if [ ${oflag} -eq 1 ]
     overwrite="overwriteKeys=1"
 fi
 
+if [ ${cflag} -eq 1 ]
+    then
+    copyorcon="copyNonO2OPayloads=1 copyDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T copyDBAuth=/nfshome0/popcondev/conddb"
+fi
+
 if [ ${xflag} -eq 0 ]
     then
     echo "Writing to sqlite_file:l1config.db instead of ORCON."
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} tagBase=${tagbase}_hlt outputDBConnect=sqlite_file:l1config.db ${overwrite} outputDBAuth=. logTransactions=0 print
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} tagBase=${tagbase}_hlt outputDBConnect=sqlite_file:l1config.db ${overwrite} ${copyorcon} outputDBAuth=. logTransactions=0 print
     o2ocode=$?
     if [ ${o2ocode} -eq 0 ]
 	then
@@ -59,7 +68,7 @@ if [ ${xflag} -eq 0 ]
     fi
 else
     echo "Writing to cms_orcon_prod."
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb ${overwrite} print
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb ${overwrite} ${copyorcon} print
     o2ocode=$?
     if [ ${o2ocode} -eq 0 ]
 	then

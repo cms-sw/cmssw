@@ -24,7 +24,7 @@ class DDTBH4Algo : public DDAlgorithm {
 		  const DDStringArguments & sArgs,
 		  const DDStringVectorArguments & vsArgs);
 
-  void execute(DDCompactView& cpv);
+  void execute();
 
       DDMaterial ddmat(  const std::string& s ) const ;
       DDName     ddname( const std::string& s ) const ;

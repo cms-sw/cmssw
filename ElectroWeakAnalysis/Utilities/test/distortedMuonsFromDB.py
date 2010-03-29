@@ -30,10 +30,11 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.poolDBESSource1 = cms.ESSource("PoolDBESSource",
       BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
       DBParameters = cms.PSet(
-            messageLevel = cms.untracked.int32(2)
+            messageLevel = cms.untracked.int32(2),
+            authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
       ),
       timetype = cms.untracked.string('runnumber'),
-      connect = cms.string('frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS'),
+      connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_PHYSICSTOOLS'),
       toGet = cms.VPSet(
             cms.PSet(
                   record = cms.string('MuScleFitDBobjectRcd'),
@@ -45,10 +46,11 @@ process.poolDBESSource1 = cms.ESSource("PoolDBESSource",
 process.poolDBESSource2 = cms.ESSource("PoolDBESSource",
       BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
       DBParameters = cms.PSet(
-            messageLevel = cms.untracked.int32(2)
+            messageLevel = cms.untracked.int32(2),
+            authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
       ),
       timetype = cms.untracked.string('runnumber'),
-      connect = cms.string('frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS'),
+      connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_PHYSICSTOOLS'),
       toGet = cms.VPSet(
             cms.PSet(
                   record = cms.string('MuScleFitDBobjectRcd'),
@@ -60,10 +62,11 @@ process.poolDBESSource2 = cms.ESSource("PoolDBESSource",
 process.poolDBESSource3 = cms.ESSource("PoolDBESSource",
       BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
       DBParameters = cms.PSet(
-            messageLevel = cms.untracked.int32(2)
+            messageLevel = cms.untracked.int32(2),
+            authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
       ),
       timetype = cms.untracked.string('runnumber'),
-      connect = cms.string('frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS'),
+      connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_PHYSICSTOOLS'),
       toGet = cms.VPSet(
             cms.PSet(
                   record = cms.string('MuScleFitDBobjectRcd'),

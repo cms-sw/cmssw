@@ -1,4 +1,4 @@
-//$Id: AlarmHandler.cc,v 1.7 2009/09/29 07:55:33 mommsen Exp $
+//$Id: AlarmHandler.cc,v 1.8 2009/09/29 08:04:58 mommsen Exp $
 /// @file: AlarmHandler.cc
 
 
@@ -175,6 +175,24 @@ void AlarmHandler::revokeAlarm
 
   #endif
 
+}
+
+
+void AlarmHandler::clearAllAlarms()
+{
+  if (!_alarmInfoSpace) return;
+
+  boost::mutex::scoped_lock sl( _mutex );
+
+  typedef std::map<std::string, xdata::Serializable*, std::less<std::string> > alarmList;
+  alarmList alarms = _alarmInfoSpace->match(".*");
+  for (alarmList::const_iterator it = alarms.begin(), itEnd = alarms.end();
+       it != itEnd; ++it)
+  {
+    sentinel::utils::Alarm* alarm = dynamic_cast<sentinel::utils::Alarm*>(it->second);
+    _alarmInfoSpace->fireItemRevoked(it->first, _app);
+    delete alarm;
+  }
 }
 
 

@@ -173,4 +173,4 @@ void BeamSpotFakeConditions::setIntervalFor(const edm::eventsetup::EventSetupRec
 				    edm::IOVSyncValue::endOfTime());
 }
 
-DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(BeamSpotFakeConditions);
+DEFINE_FWK_EVENTSETUP_SOURCE(BeamSpotFakeConditions);

@@ -17,6 +17,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/Scalers>
 
 <use name=Geometry/EcalMapping>
 <use name=DataFormats/TrackReco>
@@ -30,6 +31,8 @@
 <use name=HLTrigger/HLTcore>
 
 <use name=DataFormats/HcalRecHit>
+<use name=RecoEcal/EgammaCoreTools>
+<use name=DataFormats/EgammaReco>
 <flags EDM_PLUGIN=1>
 <export>
    <use name=FWCore/Framework>

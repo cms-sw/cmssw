@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.66 2009/09/14 14:13:59 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.67 2010/01/24 20:27:09 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -263,7 +263,8 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 						GlobalTH2Parameters.getParameter<int32_t>("Nbinsy"),
   					        GlobalTH2Parameters.getParameter<double>("ymin"),
 						GlobalTH2Parameters.getParameter<double>("ymax"));
-      GlobalApvCycleDBxTH2->setAxisTitle("Delta Bunch Crossing vs APV Cycle",1);
+      GlobalApvCycleDBxTH2->setAxisTitle("APV Cycle (Corrected Absolute Bx % 70)",1);
+      GlobalApvCycleDBxTH2->setAxisTitle("Delta Bunch Crossing Cycle",2);
     }
   }//end of if
 
@@ -783,7 +784,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
 							    Parameters.getParameter<double>("ymin"),
 							    Parameters.getParameter<double>("ymax"),
 							    "" );
-      subdetMEs.SubDetClusterApvProf->setAxisTitle("absolute Bx mod(70)",1);
+      subdetMEs.SubDetClusterApvProf->setAxisTitle("Apv Cycle (Corrected Absolute Bx % 70)",1);
     }
     
     // Total Number of Clusters vs ApvCycle - 2D 
@@ -806,7 +807,9 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
 						      Parameters.getParameter<int32_t>("Nbinsy"),
 						      Parameters.getParameter<double>("ymin"),
 						      h2ymax);
-      subdetMEs.SubDetClusterApvTH2->setAxisTitle("absolute Bx mod(70)",1);
+      subdetMEs.SubDetClusterApvTH2->setAxisTitle("Apv Cycle (Corrected Absolute Bx % 70))",1);
+      subdetMEs.SubDetClusterApvTH2->setAxisTitle("Total # of Clusters",2);
+
     }
     // Total Number of Cluster vs DeltaBxCycle - Profile
     if(subdetswitchdbxcycleprofon){
@@ -821,7 +824,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
 							    Parameters.getParameter<double>("ymin"),
 							    Parameters.getParameter<double>("ymax"),
 							    "" );
-      subdetMEs.SubDetClusterApvProf->setAxisTitle("Delta Bunch Crossing Cycle",1);
+      subdetMEs.SubDetClusterDBxCycleProf->setAxisTitle("Delta Bunch Crossing Cycle",1);
     }
     // DeltaBx vs ApvCycle - 2DProfile
     if(subdetswitchapvcycledbxprof2on){
@@ -838,10 +841,9 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
 							    Parameters.getParameter<double>("zmin"),
 							    Parameters.getParameter<double>("zmax"),
                                                             "" );
-      subdetMEs.SubDetClusterApvProf->setAxisTitle("Delta Bunch Crossing vs APV Cycle",1);
+      subdetMEs.SubDetApvDBxProf2->setAxisTitle("APV Cycle (Corrected Absolute Bx % 70)",1);
+      subdetMEs.SubDetApvDBxProf2->setAxisTitle("Delta Bunch Crossing Cycle",2);
     }
-
-
     SubDetMEsMap[label]=subdetMEs;
   }
 }

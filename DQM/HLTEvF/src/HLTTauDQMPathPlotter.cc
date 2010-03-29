@@ -211,7 +211,7 @@ LVColl HLTTauDQMPathPlotter::getFilterCollection(size_t filterID,int id,const tr
 	      VRl1em obj;
 	      trigEv.getObjects(filterID,id,obj);
 	      for(size_t i=0;i<obj.size();++i)
-		if(&obj[i])
+		if(obj.at(i).isAvailable())
 		    out.push_back(obj[i]->p4());
 	    }
 
@@ -220,7 +220,7 @@ LVColl HLTTauDQMPathPlotter::getFilterCollection(size_t filterID,int id,const tr
 	      VRl1muon obj;
 	      trigEv.getObjects(filterID,id,obj);
 	      for(size_t i=0;i<obj.size();++i)
-		if(&obj[i])
+		if(obj.at(i).isAvailable())
 
 		    out.push_back(obj[i]->p4());
 	    }
@@ -231,7 +231,7 @@ LVColl HLTTauDQMPathPlotter::getFilterCollection(size_t filterID,int id,const tr
 	      VRmuon obj;
 	      trigEv.getObjects(filterID,id,obj);
 	      for(size_t i=0;i<obj.size();++i)
-		if(&obj[i])
+		if(obj.at(i).isAvailable())
 
 		    out.push_back(obj[i]->p4());
 	    }
@@ -241,7 +241,7 @@ LVColl HLTTauDQMPathPlotter::getFilterCollection(size_t filterID,int id,const tr
 	      VRelectron obj;
 	      trigEv.getObjects(filterID,id,obj);
 	      for(size_t i=0;i<obj.size();++i)
-		if(&obj[i])
+		if(obj.at(i).isAvailable())
 		    out.push_back(obj[i]->p4());
 	    }
 
@@ -250,11 +250,11 @@ LVColl HLTTauDQMPathPlotter::getFilterCollection(size_t filterID,int id,const tr
 	      VRl1jet obj;
 	      trigEv.getObjects(filterID,id,obj);
 	      for(size_t i=0;i<obj.size();++i)
-		if(&obj[i])
+		if(obj.at(i).isAvailable())
 		    out.push_back(obj[i]->p4());
 	      trigEv.getObjects(filterID,trigger::TriggerL1CenJet,obj);
 	      for(size_t i=0;i<obj.size();++i)
-		if(&obj[i])
+		if(obj.at(i).isAvailable())
 		    out.push_back(obj[i]->p4());
 
 	    }
@@ -264,7 +264,7 @@ LVColl HLTTauDQMPathPlotter::getFilterCollection(size_t filterID,int id,const tr
 	      VRjet obj;
 	      trigEv.getObjects(filterID,id,obj);
 	      for(size_t i=0;i<obj.size();++i)
-		if(&obj[i])
+		if(obj.at(i).isAvailable())
 		    out.push_back(obj[i]->p4());
 	    }
 

@@ -39,7 +39,7 @@ RPCMon_SS_Dbx_Global::~RPCMon_SS_Dbx_Global(){
   dbe_=0;
 }
 
-void RPCMon_SS_Dbx_Global::beginJob(const EventSetup& iSetup){
+void RPCMon_SS_Dbx_Global::beginJob(){
  LogVerbatim ("rpcmonitorerror") << "[RPCMon_SS_Dbx_Global]: Begin job ";
  dbe_ = Service<DQMStore>().operator->();
 }

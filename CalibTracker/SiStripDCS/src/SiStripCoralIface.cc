@@ -18,7 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // constructor
-SiStripCoralIface::SiStripCoralIface( std::string connectionString , std::string authenticationPath, const bool debug) : m_connect(connectionString), debug_(debug) {
+SiStripCoralIface::SiStripCoralIface (std::string connectionString , std::string authenticationPath) : m_connect(connectionString) {
   session=new cond::DBSession;
   session->configuration().setAuthenticationMethod(cond::XML);
   session->configuration().setMessageLevel(cond::Debug);
@@ -47,8 +47,7 @@ void  SiStripCoralIface::initialize() {
 void SiStripCoralIface::doQuery(std::string queryType, coral::TimeStamp startTime, coral::TimeStamp endTime, std::vector<coral::TimeStamp> &vec_changedate, 
 				std::vector<float> &vec_actualValue, std::vector<std::string> &vec_dpname)
 {
-  //  coral::IQuery* query = m_coraldb->coralSessionProxy().nominalSchema().newQuery();
-  coral::IQuery* query = m_coraldb->coralSessionProxy().schema("CMS_TRK_DCS_PVSS_COND").newQuery();
+  coral::IQuery* query = m_coraldb->coralSessionProxy().nominalSchema().newQuery();
   std::string condition;
 
   LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] table to be accessed: " << queryType;
@@ -83,7 +82,7 @@ void SiStripCoralIface::doQuery(std::string queryType, coral::TimeStamp startTim
   int numberRow=0;
   while( cursor.next() ){
     const coral::AttributeList& row = cursor.currentRow();
-    if( debug_ ) row.toOutputStream( std::cout ) << std::endl;
+    //    row.toOutputStream( std::cout ) << std::endl;
     numberRow++;
     if (queryType == "STATUSCHANGE") {
       coral::TimeStamp ts =  row["CHANGE_DATE"].data<coral::TimeStamp>();
@@ -109,8 +108,8 @@ void SiStripCoralIface::doQuery(std::string queryType, coral::TimeStamp startTim
 void SiStripCoralIface::doSettingsQuery(coral::TimeStamp startTime, coral::TimeStamp endTime, std::vector<coral::TimeStamp> &vec_changedate,
 					std::vector<float> &vec_settings, std::vector<std::string> &vec_dpname, std::vector<uint32_t> &vec_dpid) 
 {
-  //  coral::IQuery* query = m_coraldb->coralSessionProxy().nominalSchema().newQuery();
-  coral::IQuery* query = m_coraldb->coralSessionProxy().schema("CMS_TRK_DCS_PVSS_COND").newQuery();
+  coral::IQuery* query = m_coraldb->coralSessionProxy().nominalSchema().newQuery();
+  
   query->addToOutputList("FWCAENCHANNEL.CHANGE_DATE","CHANGE_DATE");
   query->addToOutputList("FWCAENCHANNEL.SETTINGS_V0","VSET");
   query->addToOutputList("FWCAENCHANNEL.DPID","DPID");
@@ -132,7 +131,7 @@ void SiStripCoralIface::doSettingsQuery(coral::TimeStamp startTime, coral::TimeS
   int numberRow=0;
   while( cursor.next() ){
     const coral::AttributeList& row = cursor.currentRow();
-    if( debug_ ) row.toOutputStream( std::cout ) << std::endl;
+    //    row.toOutputStream( std::cout ) << std::endl;
     numberRow++;
     coral::TimeStamp ts =  row["CHANGE_DATE"].data<coral::TimeStamp>();
     vec_changedate.push_back(ts);
@@ -149,8 +148,8 @@ void SiStripCoralIface::doSettingsQuery(coral::TimeStamp startTime, coral::TimeS
 
 void SiStripCoralIface::doNameQuery(std::vector<std::string> &vec_dpname, std::vector<uint32_t> &vec_dpid) 
 {
-  //coral::IQuery* query = m_coraldb->coralSessionProxy().nominalSchema().newQuery();
-  coral::IQuery* query = m_coraldb->coralSessionProxy().schema("CMS_TRK_DCS_PVSS_COND").newQuery();
+  coral::IQuery* query = m_coraldb->coralSessionProxy().nominalSchema().newQuery();
+  
   query->addToOutputList("DP_NAME2ID.DPNAME","DPNAME");
   query->addToOutputList("DP_NAME2ID.ID","DPID");
   query->addToTableList("DP_NAME2ID");

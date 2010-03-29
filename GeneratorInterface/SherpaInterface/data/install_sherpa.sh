@@ -9,13 +9,13 @@
 #               SHERPA patches/fixes [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2009/12/07
-#  version:     2.9
+#  date:        2008/12/09
+#  version:     2.4
 #
 
 print_help() {
     echo "" && \
-    echo "install_sherpa version 2.9" && echo && \
+    echo "install_sherpa version 2.4" && echo && \
     echo "options: -v  version    define SHERPA version ( "${SHERPAVER}" )" && \
     echo "         -d  path       define (SHERPA) installation directory" && \
     echo "                         -> ( "${IDIR}" )" && \
@@ -30,19 +30,16 @@ print_help() {
     echo "         -L  options    special LHAPDF options ( "${OPTLHAPDF}" )" && \
     echo "         -P             link (softlink) LHAPDF sets ( "${LINKPDF}" )" && \
     echo "                         or do a hardcopy if not set" && \
+    echo "         -T             enable multithreading [V >= 1.1.0] ( "${MULTITHR}" )" && \
     echo "         -W  location   (web)location of SHERPA tarball ( "${SHERPAWEBLOCATION}" )" && \
     echo "         -S  filename   file name of SHERPA tarball ( "${SHERPAFILE}" )" && \
     echo "         -C  level      cleaning level of SHERPA installation ("${LVLCLEAN}" )" && \
     echo "                         -> 0: nothing, 1: +objects, 2: +sourcecode" && \
-    echo "         -T             enable multithreading [V >= 1.1.0]" && \
-    echo "         -A             enable analysis [V >= 1.2.0]" && \
     echo "         -D             debug flag, compile with '-g' option ("${FLGDEBUG}" )" && \
     echo "         -I             installation flag ( "${FLGINSTL}" )" && \
-    echo "                         -> use './TOOLS/makeinstall'" && \
-    echo "                         -> instead of 'configure/make/make install'" && \
-    echo "         -X             create XML file for tool override in CMSSW ( "${FLGXMLFL}" )" && \
-    echo "         -Z             use multiple CPU cores if available ( "${FLGMCORE}" )" && \
-    echo "         -K             keep SHERPA source code tree after installation ( "${FGLKEEPT}" )" && \
+    echo "                         -> use 'configure/make/make install' instead" && \
+    echo "                         -> of 'TOOLS/makeinstall'" && \
+    echo "         -X             create XML file for tool override in CMSSW" && \
     echo "         -h             display this help and exit" && echo
 }
 
@@ -53,11 +50,11 @@ HDIR=`pwd`
 
 # dummy setup (if all options are missing)
 IDIR="/tmp"                # installation directory
-SHERPAVER="1.2.0"          # SHERPA version to be installed
+SHERPAVER="1.1.2"          # SHERPA version to be installed
 SHCFLAGS=" "               # SHERPA compiler flags
 SHMFLAGS=" -t"             # SHERPA 'make' flags
 HEPMC="FALSE"              # install HepMC2
-HVER="2.05.00"             # HepMC2 version  to be installed
+HVER="2.04.00"             # HepMC2 version  to be installed
 OPTHEPMC=""                # special HepMC2 installation options
 LHAPDF="FALSE"             # install LHAPDF
 OPTLHAPDF=""               # special LHAPDF installation options
@@ -74,18 +71,15 @@ LVLCLEAN=0                 # cleaning level (0-2)
 FLGDEBUG="FALSE"           # debug flag for compilation
 FLGINSTL="FALSE"           # installation flag
 FLGXMLFL="FALSE"           # create XML tool definition file for SCRAM?
-FGLKEEPT="FALSE"           # keep SHERPA source code tree?
-FLGMCORE="FALSE"           # use multiple cores for compilation
 
 
 # get & evaluate options
-while getopts :v:d:m:l:p:F:W:S:C:M:L:fPTADIXZKh OPT
+while getopts :v:d:m:l:p:F:W:S:C:M:L:fPTDIXh OPT
 do
   case $OPT in
   v) SHERPAVER=$OPTARG ;;
   d) IDIR=$OPTARG ;;
-  f) FLAGS=TRUE &&
-      OPTHEPMC=${OPTHEPMC}" -f" && OPTLHAPDF=${OPTLHAPDF}" -f" ;;
+  f) FLAGS=TRUE ;;
   F) FIXES=TRUE && FDIR=$OPTARG ;;
   m) HEPMC=TRUE && HVER=$OPTARG ;;
   M) OPTHEPMC=${OPTHEPMC}" "$OPTARG ;;
@@ -95,18 +89,13 @@ do
   p) PATCHES=TRUE && PDIR=$OPTARG ;;
   T) SHCFLAGS=${SHCFLAGS}" --enable-multithread" &&
       SHMFLAGS=${SHMFLAGS}" --copt --enable-multithread" ;;
-  A) SHCFLAGS=${SHCFLAGS}" --enable-analysis" &&
-      SHMFLAGS=${SHMFLAGS}" --copt --enable-analysis" ;;
   W) SHERPAWEBLOCATION=$OPTARG ;;
   S) SHERPAFILE=$OPTARG ;;
   C) LVLCLEAN=$OPTARG ;;
-  D) FLGDEBUG=TRUE &&
-      OPTHEPMC=${OPTHEPMC}" -D" && OPTLHAPDF=${OPTLHAPDF}" -D" ;;
+  D) FLGDEBUG=TRUE ;;
   I) FLGINSTL=TRUE ;;
   X) FLGXMLFL=TRUE &&
       OPTHEPMC=${OPTHEPMC}" -X" && OPTLHAPDF=${OPTLHAPDF}" -X" ;;
-  Z) FLGMCORE=TRUE ;;
-  K) FLGKEEPT=TRUE ;;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -124,6 +113,7 @@ done
 
 # set up file names
 MSI=$HDIR                            # main installation directory
+###shpatchfile="sherpa_patches.tgz"     # patches for current SHERPA version
 shpatchfile="sherpa_patches_"${SHERPAVER}".tgz" # official patches for current SHERPA version
 shfixfile="sherpa_fixes_"${SHERPAVER}".tgz"     # fixes for current SHERPA version
 shshifile="install_sherpa.sh"        # this script
@@ -131,32 +121,22 @@ shhmifile="install_hepmc2.sh"        # script for HepMC2 installation
 shlhifile="install_lhapdf.sh"        # script for LHAPDF installation
 
 
-# analyze SHERPA version
-va=`echo ${SHERPAVER} | cut -f1 -d"."`
-vb=`echo ${SHERPAVER} | cut -f2 -d"."`
-vc=`echo ${SHERPAVER} | cut -f3 -d"."`
-
-#http://www.hepforge.org/archive/sherpa/SHERPA-MC-1.2.0.tar.gz
 # set SHERPA (HepMC2,LHAPDF) download location
 if [ "$SHERPAWEBLOCATION" = "" ]; then
   SHERPAWEBLOCATION="http://www.hepforge.org/archive/sherpa"
   FLOC=" "
 else
-  if [ -e ${SHERPAWEBLOCATION} ]; then   # is the location a local subdirectory?
-    if [ -d ${SHERPAWEBLOCATION} ]; then
-      cd ${SHERPAWEBLOCATION}; SHERPAWEBLOCATION=`pwd`; cd ${HDIR}
-##      SHERPAWEBLOCATION=$PWD"/"${SHERPAWEBLOCATION}
-    fi
-  fi
   FLOC=" -W "${SHERPAWEBLOCATION}
 fi
 if [ "$SHERPAFILE" = "" ]; then
   SHERPAFILE="Sherpa-"${SHERPAVER}".tar.gz"
-  if [ $va -ge 1 ] && [ $vb -ge 2 ]; then
-    SHERPAFILE="SHERPA-MC-"${SHERPAVER}".tar.gz"
-  fi
 fi
 
+
+# analyze SHERPA version
+va=`echo ${SHERPAVER} | cut -f1 -d"."`
+vb=`echo ${SHERPAVER} | cut -f2 -d"."`
+vc=`echo ${SHERPAVER} | cut -f3 -d"."`
 
 # make SHERPA version a global variable
 export SHERPAVER=${SHERPAVER}
@@ -178,9 +158,7 @@ echo "  -> SHERPA file name: '"${SHERPAFILE}"'"
 echo "  -> cleaning level: '"${LVLCLEAN}"'"
 echo "  -> debugging mode: '"${FLGDEBUG}"'"
 echo "  -> CMSSW override: '"${FLGXMLFL}"'"
-echo "  -> keep sources:   '"${FLGKEEPT}"'"
-echo "  -> use makeinstall: '"${FLGINSTL}"'"
-echo "  -> use multiple CPU cores: '"${FLGMCORE}"'"
+echo "  -> use conf/make/make: '"${FLGINSTL}"'"
 echo "  -> HepMC2: '"${HEPMC}"', version '"${HVER}"'"
 echo "  ->   options: "${OPTHEPMC}
 echo "  -> LHAPDF: '"${LHAPDF}"', version '"${LVER}"'"
@@ -190,8 +168,14 @@ echo "  -> link PDFsets: '"${LINKPDF}"'"
 
 # forward flags to HepMC2/LHAPDF
 IFLG=" "
+if [ "$FLAGS" = "TRUE" ]; then
+  IFLG=" -f"
+fi
 if [ ${LVLCLEAN} -gt 0 ]; then
   IFLG=${IFLG}" -C "${LVLCLEAN}
+fi
+if [ "$FLGDEBUG" = "TRUE" ]; then
+  IFLG=${IFLG}" -D"
 fi
 
 
@@ -199,61 +183,16 @@ fi
 export SHERPADIR=${IDIR}"/SHERPA-MC-"${SHERPAVER}
 export SHERPAIDIR=${IDIR}"/SHERPA_"${SHERPAVER}
 
-if [ "$HEPMC" = "TRUE" ] && [ "$HVER" = "CMSSW" ]; then
-  if [ ! "$CMSSW_BASE" = "" ]; then
-    newdir=""
-    cd $CMSSW_BASE &&
-    newdir=`scramv1 tool info hepmc | grep BASE | cut -f 2 -d "="`
-    if [ "${newdir}" = "" ]; then
-      echo " <E> no 'hepmc' tool defined in CMSSW, are you sure that"
-      echo " <E>  1. the command 'scramv1' is available ?"
-      echo " <E>  2. the path to your CMSSW is correct ?"
-      echo " <E>  3. there exists a HEPMC2 package in your CMSSW ?"
-      exit 0
-    else
-      HEPMC2DIR=${newdir}
-    fi
-    cd ${HDIR}
-  else
-    echo " "
-  fi
-fi
-
-if [ "$LHAPDF" = "TRUE" ] && [ "$LVER" = "CMSSW" ]; then
-  if [ ! "$CMSSW_BASE" = "" ]; then
-    newdir=""
-    cd $CMSSW_BASE &&
-    newdir=`scramv1 tool info lhapdf | grep BASE | cut -f 2 -d "="`
-    if [ "${newdir}" = "" ]; then
-      echo " <E> no 'lhapdf' tool defined in CMSSW, are you sure that"
-      echo " <E>  1. the command 'scramv1' is available ?"
-      echo " <E>  2. the path to your CMSSW is correct ?"
-      echo " <E>  3. there exists a LHAPDF package in your CMSSW ?"
-      exit 0
-    else
-      LHAPDFDIR=${newdir}
-    fi
-    cd ${HDIR}
-  else
-    echo " "
-  fi
-fi
-
-
-
 
 # check HepMC2 installation (if required)
 if [ "$HEPMC" = "TRUE" ]; then
-  OPTHEPMC=${OPTHEPMC}" -v "${HVER}" -d "${IDIR}" "${IFLG}
-  if [ "${FLGMCORE}" = "TRUE" ]; then
-    OPTHEPMC=${OPTHEPMC}" -Z"
-  fi
+  OPTHEPMC=${OPTHEPMC}" -v "${HVER}" -d "${IDIR}
   if [ ! "$HEPMC2DIR" = "" ]; then
     echo " -> HepMC2 directory is: "${HEPMC2DIR}
     if [ ! -e ${HEPMC2DIR} ]; then
       echo " -> ... and does not exist: installing HepMC2..."
-      echo " -> ... with command "${MSI}/${shhmifile} ${FLOC} ${OPTHEPMC}
-      ${MSI}/${shhmifile} ${FLOC} ${OPTHEPMC}
+      echo " -> ... with command "${MSI}/${shhmifile} ${IFLG} ${FLOC} ${OPTHEPMC}
+      ${MSI}/${shhmifile} ${IFLG} ${FLOC} ${OPTHEPMC}
     else
       echo " -> ... and exists: Installation cancelled!"
     fi
@@ -261,30 +200,33 @@ if [ "$HEPMC" = "TRUE" ]; then
     export HEPMC2IDIR=${IDIR}"/HEPMC_"${HVER}
     echo " -> no HepMC2 directory specified, trying installation"
     echo "     into "${HEPMC2IDIR}
-    echo "     with command "${MSI}/${shhmifile} ${FLOC} ${OPTHEPMC}
-    ${MSI}/${shhmifile} ${FLOC} ${OPTHEPMC}
+    echo "     with command "${MSI}/${shhmifile} ${IFLG} ${FLOC} ${OPTHEPMC}
+    ${MSI}/${shhmifile} ${IFLG} ${FLOC} ${OPTHEPMC}
     export HEPMC2DIR=${HEPMC2IDIR}
   fi
-  SHCFLAGS=${SHCFLAGS}" --enable-hepmc2="${HEPMC2DIR}
-  SHMFLAGS=${SHMFLAGS}" --copt --enable-hepmc2="${HEPMC2DIR}
+###FIXME
+  if [ "${SHERPAVER}" = "1.0.11" ]; then
+    SHCFLAGS=${SHCFLAGS}" --enable-hepmc2"
+    SHMFLAGS=${SHMFLAGS}" --copt --enable-hepmc2"
+  else
+    SHCFLAGS=${SHCFLAGS}" --enable-hepmc2="${HEPMC2DIR}
+    SHMFLAGS=${SHMFLAGS}" --copt --enable-hepmc2="${HEPMC2DIR}
+  fi
+###FIXME
 fi
-
 
 
 # check LHAPDF installation (if required)
 PATCHLHAPDF=FALSE
 FIXLHAPDF=FALSE
 if [ "$LHAPDF" = "TRUE" ]; then
-  OPTLHAPDF=${OPTLHAPDF}" -v "${LVER}" -d "${IDIR}" "${IFLG}
-  if [ "${FLGMCORE}" = "TRUE" ]; then
-    OPTLHAPDF=${OPTLHAPDF}" -Z"
-  fi
+  OPTLHAPDF=${OPTLHAPDF}" -v "${LVER}" -d "${IDIR}
   if [ ! "$LHAPDFDIR" = "" ]; then
     echo " -> LHAPDF directory is: "${LHAPDFDIR}
     if [ ! -e ${LHAPDFDIR} ]; then
       echo " -> ... and does not exist: installing LHAPDF..."
-      echo " -> ... with command "${MSI}/${shlhifile} ${FLOC} ${OPTLHAPDF}
-      ${MSI}/${shlhifile} ${FLOC} ${OPTLHAPDF}
+      echo " -> ... with command "${MSI}/${shlhifile} ${IFLG} ${FLOC} ${OPTLHAPDF}
+      ${MSI}/${shlhifile} ${IFLG} ${FLOC} ${OPTLHAPDF}
     else
       echo " -> ... and exists: Installation cancelled!"
     fi
@@ -292,14 +234,21 @@ if [ "$LHAPDF" = "TRUE" ]; then
     export LHAPDFIDIR=${IDIR}"/LHAPDF_"${LVER}
     echo " -> no LHAPDF directory specified, trying installation"
     echo "     into "${LHAPDFIDIR}
-    echo "     with command "${MSI}/${shlhifile} ${FLOC} ${OPTLHAPDF}
-    ${MSI}/${shlhifile} ${FLOC} ${OPTLHAPDF}
+    echo "     with command "${MSI}/${shlhifile} ${IFLG} ${FLOC} ${OPTLHAPDF}
+    ${MSI}/${shlhifile} ${IFLG} ${FLOC} ${OPTLHAPDF}
     export LHAPDFDIR=${LHAPDFIDIR}
   fi
   PATCHLHAPDF=TRUE
   FIXLHAPDF=TRUE
-  SHCFLAGS=${SHCFLAGS}" --enable-lhapdf="${LHAPDFDIR}
-  SHMFLAGS=${SHMFLAGS}" --copt --enable-lhapdf="${LHAPDFDIR}
+ ###FIXME
+  if [ "${SHERPAVER}" = "1.0.11" ]; then
+    SHCFLAGS=${SHCFLAGS}" --enable-lhapdf"
+    SHMFLAGS=${SHMFLAGS}" --copt --enable-lhapdf"
+  else
+    SHCFLAGS=${SHCFLAGS}" --enable-lhapdf="${LHAPDFDIR}
+    SHMFLAGS=${SHMFLAGS}" --copt --enable-lhapdf="${LHAPDFDIR}
+  fi
+###FIXME
 fi
 
 
@@ -327,7 +276,6 @@ cd ${HDIR}
 
 # add compiler & linker flags
 M_CFLAGS=""
-M_FCFLAGS=""
 M_FFLAGS=""
 M_CXXFLAGS=""
 M_LDFLAGS=""
@@ -337,7 +285,6 @@ CF32BIT=""
 if [ "$FLAGS" = "TRUE" ]; then
   CF32BIT="-m32"
   M_CFLAGS="CFLAGS="${CF32BIT}
-  M_FCFLAGS="FCFLAGS="${CF32BIT}
   M_FFLAGS="FFLAGS="${CF32BIT}
   M_CXXFLAGS="CXXFLAGS="${CF32BIT}
   M_LDFLAGS="LDFLAGS="${CF32BIT}
@@ -350,26 +297,14 @@ if [ "$FLGDEBUG" = "TRUE" ]; then
   M_FFLGS2=${M_FFLGS2}" --f "${CFDEBUG}
   M_CXXFLGS2=${M_CXXFLGS2}" --cxx "${CFDEBUG}
 fi
-#CONFFLG=${M_CFLAGS}" "${M_FFLAGS}" "${M_CXXFLAGS}" "${M_LDFLAGS}
-CONFFLG=${M_CFLAGS}" "${M_FCFLAGS}" "${M_FFLAGS}" "${M_CXXFLAGS}" "${M_LDFLAGS}
+CONFFLG=${M_CFLAGS}" "${M_FFLAGS}" "${M_CXXFLAGS}" "${M_LDFLAGS}
 if [ "$FLAGS" = "TRUE" ]; then
   M_CFLAGS=" --copt "${M_CFLAGS}
   M_LDFLAGS=" --copt "${M_LDFLAGS}
 fi
-#MAKEFLG=${M_CFLAGS}" "${M_LDFLAGS}" "${M_CXXFLGS2}" "${M_FFLGS2}
-MAKEFLG=${M_CFLAGS}" "${M_FCFLAGS}" "${M_LDFLAGS}" "${M_CXXFLGS2}" "${M_FFLGS2}
+MAKEFLG=${M_CFLAGS}" "${M_LDFLAGS}" "${M_CXXFLGS2}" "${M_FFLGS2}
 SHCFLAGS=${SHCFLAGS}" "${CONFFLG}
 SHMFLAGS=${SHMFLAGS}" "${MAKEFLG}
-
-POPTS=""
-if [ "$FLGMCORE" = "TRUE" ]; then
-    nprc=`cat /proc/cpuinfo | grep  -c processor`
-    let nprc=$nprc+1
-    if [ $nprc -gt 2 ]; then
-      echo " <I> multiple CPU cores detected: "$nprc"-1"
-      POPTS=" -j"$nprc" "
-    fi
-fi
 
 
 
@@ -425,7 +360,7 @@ if [ -e ${SHERPADIR}/bin/Sherpa ]; then
   ./TOOLS/makeinstall --clean-up
 fi
 
-if [ "$FLGINSTL" = "FALSE" ]; then
+if [ "$FLGINSTL" = "TRUE" ]; then
 #  if [ "$FIXES" = "TRUE" ] && [ "${SHERPAVER}" = "1.1.2" ]; then
   if [ "$FIXES" = "TRUE" ]; then
 # fix: 06.01.2009
@@ -441,20 +376,16 @@ if [ "$FLGINSTL" = "FALSE" ]; then
   ./configure --prefix=${SHERPAIDIR} ${SHCFLAGS} > ../sherpa_install.log 2>&1
   echo "-> making SHERPA with flags: "${CONFFLG}
   echo "make "${CONFFLG} >> ../sherpa_configr.cmd
-  make ${POPTS} ${CONFFLG} >> ../sherpa_install.log 2>&1
+  make ${CONFFLG} >> ../sherpa_install.log 2>&1
   echo "-> making install SHERPA with flags: "${CONFFLG}
   echo "make install "${CONFFLG} >> ../sherpa_configr.cmd
   make install ${CONFFLG} >> ../sherpa_install.log 2>&1
   cd ${HDIR}
-  if [ "$FLGKEEPT" = "TRUE" ]; then
-    echo "-> keeping source code..."
-  else
-    rm -rf ${SHERPADIR}
-  fi
+  rm -rf ${SHERPADIR}
 else
   echo " -> installing SHERPA with flags: "${SHMFLAGS}
   echo "./TOOLS/makeinstall "${SHMFLAGS} > ../sherpa_install.cmd
-  ./TOOLS/makeinstall ${POPTS} ${SHMFLAGS}
+  ./TOOLS/makeinstall ${SHMFLAGS}
   if [ ${LVLCLEAN} -gt 0 ]; then 
     echo " -> cleaning up SHERPA installation, level: "${LVLCLEAN}" ..."
     if [ ${LVLCLEAN} -ge 1 ]; then  # normal cleanup (objects)
@@ -481,10 +412,8 @@ cd ${HDIR}
 if [ "$FLAGS" = "TRUE" ]; then
   echo " <W> setting 32bit flags in 'makelibs' script !!!"
 ### FIXME (use CMSSW script to make gcc 32-bit compatible?)
-#    CNFFLG="CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
-#    MKEFLG="CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=\"-O2 -m32\" LDFLAGS=-m32"
-    CNFFLG="CFLAGS=-m32 FCFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
-    MKEFLG="CFLAGS=-m32 FCFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=\"-O2 -m32\" LDFLAGS=-m32"
+    CNFFLG="CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
+    MKEFLG="CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=\"-O2 -m32\" LDFLAGS=-m32"
     sed -e "s/configure/configure ${CNFFLG}/" < ${SHERPADIR}/share/SHERPA-MC/makelibs > ${SHERPADIR}/share/SHERPA-MC/makelibs.tmp
     rm ${SHERPADIR}/share/SHERPA-MC/makelibs
     sed -e "s/-j2 \"CXXFLAGS=-O2\"/-j2 ${MKEFLG}/" < ${SHERPADIR}/share/SHERPA-MC/makelibs.tmp > ${SHERPADIR}/share/SHERPA-MC/makelibs
@@ -513,8 +442,7 @@ cd ${HDIR}
 
 # create XML file for SCRAM
 if [ "${FLGXMLFL}" = "TRUE" ]; then
-#  xmlfile=sherpa.xml
-  xmlfile="sherpa_"${SHERPAVER}".xml"
+  xmlfile=sherpa.xml
   echo " <I> creating Sherpa tool definition XML file"
   if [ -e ${xmlfile} ]; then rm ${xmlfile}; fi; touch ${xmlfile}
   echo "  <tool name=\"Sherpa\" version=\""${SHERPAVER}"\">" >> ${xmlfile}
@@ -528,107 +456,15 @@ if [ "${FLGXMLFL}" = "TRUE" ]; then
   echo "      <Environment name=\"SHERPA_BASE\" value=\""${SHERPADIR}"\"/>" >> ${xmlfile}
   echo "      <Environment name=\"BINDIR\" default=\"\$SHERPA_BASE/bin\"/>" >> ${xmlfile}
   echo "      <Environment name=\"LIBDIR\" default=\"\$SHERPA_BASE/lib/SHERPA-MC\"/>" >> ${xmlfile}
-  echo "      <Environment name=\"INCLUDE\" default=\"\$SHERPA_BASE/include/SHERPA-MC\"/>" >> ${xmlfile}
+  echo "      <Environment name=\"INCLUDE\" default=\"\$SHERPA_BASE/include\"/>" >> ${xmlfile}
   echo "    </client>" >> ${xmlfile}
-  echo "    <runtime name=\"LD_LIBRARY_PATH\" value=\"\$SHERPA_BASE/lib/SHERPA-MC\" type=\"path\"/>" >> ${xmlfile}
   echo "    <runtime name=\"CMSSW_FWLITE_INCLUDE_PATH\" value=\"\$SHERPA_BASE/include\" type=\"path\"/>" >> ${xmlfile}
   echo "    <runtime name=\"SHERPA_SHARE_PATH\" value=\"\$SHERPA_BASE/share/SHERPA-MC\" type=\"path\"/>" >> ${xmlfile}
   echo "    <runtime name=\"SHERPA_INCLUDE_PATH\" value=\"\$SHERPA_BASE/include/SHERPA-MC\" type=\"path\"/>" >> ${xmlfile}
   echo "    <use name=\"HepMC\"/>" >> ${xmlfile}
   echo "    <use name=\"lhapdf\"/>" >> ${xmlfile}
   echo "  </tool>" >> ${xmlfile}
-  if [ ! "$PWD" = "${HDIR}" ]; then
-    mv ${xmlfile} ${HDIR}/
-  fi
-
-  if [ ! "$CMSSW_BASE" = "" ]; then
-    cd $CMSSW_BASE
-    tmpsha=`scramv1 tool info sherpa | grep "SHERPA_BASE" | cut -f2 -d"="`
-    tmpxml=`find $CMSSW_BASE/config/ -type f -name sherpa.xml -printf %h`
-    echo " <I>"
-    echo " <I> SHERPA version currently being used: "${tmpsha}
-    echo " <I> ...defined in "${tmpxml}
-    cd ${tmpxml}; tmpxml=$PWD; cd ${HDIR}
-    echo " <I>"
-    echo " <I> If you want to override this version with the freshly produced "${xmlfile}","
-    echo " <I> ...please type (something like) the following commands:"
-    echo " <I>"
-    echo "       cd $CMSSW_BASE"
-    echo "       scramv1 tool remove sherpa"
-    echo "       cp ${HDIR}/${xmlfile} ${tmpxml}/"
-    echo "       scramv1 setup sherpa"
-    echo "       cd -"
-    echo " <I>"
-  fi
-
-fi
-cd ${HDIR}
-
-
-### write these override commands into a script
-if [ "${FLGXMLFL}" = "TRUE" ]; then
-  if [ `echo $SHELL | grep -c -i csh` -gt 0 ]; then # (t)csh
-    overrscr="Z_OVERRIDE.csh"
-    shelltype="#!/bin/csh"
-    setvarcmd="set "
-    exportcmd="setenv "
-    exporteqs=" "
-  elif [ `echo $SHELL | grep -c -i bash` -gt 0 ]; then # bash
-    overrscr="Z_OVERRIDE.sh"
-    shelltype="#!/bin/bash"
-    setvarcmd=""
-    exportcmd="export "
-    exporteqs="="
-  else
-    echo " <E> unknown shell type, stopping"
-    exit 1
-  fi
-
-  if [ -e ${overrscr} ]; then
-    rm ${overrscr}
-  fi
-  touch ${overrscr}
-  echo ${shelltype} >> ${overrscr}
-  echo "cd \$CMSSW_BASE" >> ${overrscr}
-  lxmlfile="lhapdf_"${LVER}".xml"
-  if [ "$LHAPDF" = "TRUE" ] && [ -e ${HDIR}/${lxmlfile} ]; then
-    echo "scramv1 tool remove lhapdf" >> ${overrscr}
-#    echo ${setvarcmd}"tmpxml=\`find \$CMSSW_BASE/config/ -type f -name lhapdf.xml -printf %h\`" >> ${overrscr}
-#    echo "cp ${HDIR}/${lxmlfile} \${tmpxml}/" >> ${overrscr}
-    echo ${setvarcmd}"tmpxml=\`find \$CMSSW_BASE/config/ -type f -name lhapdf.xml\`" >> ${overrscr}
-    echo "cp ${HDIR}/${lxmlfile} \${tmpxml}" >> ${overrscr}
-    echo "scramv1 setup lhapdf" >> ${overrscr}
-#    echo "rm \${tmpxml}/lhapdf.xml" >> ${overrscr}
-    echo ${setvarcmd}"newlibpath=\`find ${HEPMC2DIR}/ -name \\*.\*a -printf %h\\\\\n | head -1\`" >> ${overrscr}
-    echo ${exportcmd}"LD_LIBRARY_PATH"${exporteqs}"\${newlibpath}:\$LD_LIBRARY_PATH" >> ${overrscr}
-  fi
-  hxmlfile="hepmc_"${HVER}".xml"
-  if [ "$HEPMC" = "TRUE" ] && [ -e ${HDIR}/${hxmlfile} ]; then
-    echo "scramv1 tool remove hepmc" >> ${overrscr}
-#    echo ${setvarcmd}"tmpxml=\`find \$CMSSW_BASE/config/ -type f -name hepmc.xml -printf %h\`" >> ${overrscr}
-#    echo "cp ${HDIR}/${hxmlfile} \${tmpxml}/" >> ${overrscr}
-    echo ${setvarcmd}"tmpxml=\`find \$CMSSW_BASE/config/ -type f -name hepmc.xml\`" >> ${overrscr}
-    echo "cp ${HDIR}/${hxmlfile} \${tmpxml}" >> ${overrscr}
-    echo "scramv1 setup hepmc" >> ${overrscr}
-#    echo "rm \${tmpxml}/hepmc.xml" >> ${overrscr}
-    echo ${setvarcmd}"newlibpath=\`find ${LHAPDFDIR}/ -name \\*.\*a -printf %h\\\\\n | head -1\`" >> ${overrscr}
-    echo ${exportcmd}"LD_LIBRARY_PATH"${exporteqs}"\${newlibpath}:\$LD_LIBRARY_PATH" >> ${overrscr}
-  fi
-  sxmlfile=${xmlfile}
-  echo "scramv1 tool remove sherpa" >> ${overrscr}
-#  echo ${setvarcmd}"tmpxml=\`find \$CMSSW_BASE/config/ -type f -name sherpa.xml -printf %h\`" >> ${overrscr}
-#  echo "cp ${HDIR}/${sxmlfile} \${tmpxml}/" >> ${overrscr}
-  echo ${setvarcmd}"tmpxml=\`find \$CMSSW_BASE/config/ -type f -name sherpa.xml\`" >> ${overrscr}
-  echo "cp ${HDIR}/${sxmlfile} \${tmpxml}" >> ${overrscr}
-  echo "scramv1 setup sherpa" >> ${overrscr}
-#  echo "rm \${tmpxml}/sherpa.xml" >> ${overrscr}
-  echo ${setvarcmd}"newlibpath=\`find ${SHERPADIR}/ -name \\*.so -printf %h\\\\\n | head -1\`" >> ${overrscr}
-  echo ${exportcmd}"LD_LIBRARY_PATH"${exporteqs}"\${newlibpath}:\$LD_LIBRARY_PATH" >> ${overrscr}
-  echo "cd -" >> ${overrscr}
-  chmod u+x ${overrscr}
-
-  echo " <I> ===> you can find these override commands collected in the script "${overrscr}
-  echo " <I> ===> just type 'source ./"${overrscr}"'"
+  mv ${xmlfile} ${HDIR}/
 fi
 
 
@@ -643,5 +479,11 @@ echo " <I>  -> before using SHERPA please define"
 echo " <I>  -> export LHAPATH="${pdfdir}
 fi
 echo " <I> SHERPA version "${SHERPAVER}" installed in "${SHERPADIR}
+
+
+
+
+
+
 
 

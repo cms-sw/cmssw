@@ -1,9 +1,7 @@
-#ifndef RPCCalibration_RPCFakeCalibration_H
-#define RPCCalibration_RPCFakeCalibration_H
+#ifndef CalibTracker_RPCCalibration_RPCFakeCalibration_H
+#define CalibTracker_RPCCalibration_RPCFakeCalibration_H
 
-#include "CondFormats/RPCObjects/interface/RPCClusterSize.h"
 #include "CalibMuon/RPCCalibration/interface/RPCPerformanceESSource.h"
-//#include "CalibMuon/RPCCalibration/interface/RPCClusterSizeESSource.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
@@ -16,7 +14,7 @@ class RPCCalibSetUp;
 /** 
     @class RPCFakeCalibration
     @brief Fake source of RPCStripNoises object.
-    @author R. Trentadue, B. Pavlov
+    @author R. Trentadue
 */
 
 class RPCFakeCalibration : public RPCPerformanceESSource {
@@ -32,7 +30,6 @@ private:
 
   RPCStripNoises* makeNoise();
 
-  RPCClusterSize* makeCls();
 
 private:
 
@@ -42,4 +39,4 @@ private:
 };
 
 
-#endif // RPCCalibration_RPCFakeCalibration_H
+#endif // CalibTracker_RPCCalibration_RPCFakeCalibration_H

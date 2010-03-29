@@ -9,9 +9,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2008
-///  $Revision: 1.1 $
-///  $Date: 2008/10/14 07:40:04 $
-///  (last update by $Author: flucke $)
+///  $Revision$
+///  $Date$
+///  (last update by $Author$)
 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 
@@ -39,12 +39,11 @@ public:
 
   /// Produce the reference trajectories.
   virtual const ReferenceTrajectoryCollection 
-  trajectories(const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks,
-	       const reco::BeamSpot &beamSpot) const;
+  trajectories(const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks) const;
 
   virtual const ReferenceTrajectoryCollection 
   trajectories(const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks,
-	       const ExternalPredictionCollection &external, const reco::BeamSpot &beamSpot) const;
+	       const ExternalPredictionCollection &external) const;
 
   virtual DualKalmanFactory* clone() const { return new DualKalmanFactory(*this); }
 
@@ -88,8 +87,7 @@ DualKalmanFactory::~DualKalmanFactory() {}
 //-----------------------------------------------------------------------------------------------
 const DualKalmanFactory::ReferenceTrajectoryCollection
 DualKalmanFactory::trajectories(const edm::EventSetup &setup,
-				const ConstTrajTrackPairCollection &tracks,
-				const reco::BeamSpot &beamSpot) const
+				const ConstTrajTrackPairCollection &tracks) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -109,8 +107,7 @@ DualKalmanFactory::trajectories(const edm::EventSetup &setup,
 							  magneticField.product(),
 							  this->materialEffects(),
 							  this->propagationDirection(),
-							  theMass, beamSpot,
-							  theResidMethod));
+							  theMass, theResidMethod));
       trajectories.push_back(ptr);
     }
     ++itTracks;
@@ -121,10 +118,9 @@ DualKalmanFactory::trajectories(const edm::EventSetup &setup,
 
 //-----------------------------------------------------------------------------------------------
 const DualKalmanFactory::ReferenceTrajectoryCollection
-DualKalmanFactory::trajectories(const edm::EventSetup &setup,
-				const ConstTrajTrackPairCollection &tracks,
-				const ExternalPredictionCollection &external,
-				const reco::BeamSpot &beamSpot) const
+DualKalmanFactory::trajectories( const edm::EventSetup & setup,
+				     const ConstTrajTrackPairCollection& tracks,
+				     const ExternalPredictionCollection& external ) const
 {
   ReferenceTrajectoryCollection trajectories;
 

@@ -18,7 +18,8 @@ cleanPatElectronsTriggerMatch = cms.EDProducer( "PATTriggerMatchElectronEmbedder
 # Embedding in muons
 cleanPatMuonsTriggerMatch = cms.EDProducer( "PATTriggerMatchMuonEmbedder",
     src     = cms.InputTag( "cleanPatMuons" ),
-    matches = cms.VInputTag( "muonTriggerMatchHLTIsoMu3"
+    matches = cms.VInputTag( "muonTriggerMatchL1Muon"
+                           , "muonTriggerMatchHLTIsoMu3"
                            , "muonTriggerMatchHLTMu3"
                            , "muonTriggerMatchHLTDoubleMu3"
                            )

@@ -6,6 +6,7 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace std;
 using namespace edm;
@@ -15,29 +16,48 @@ using namespace l1extra;
 HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfig):
   candTag( iConfig.getParameter<edm::InputTag>("CandTag") ),
   previousCandTag( iConfig.getParameter<edm::InputTag>("PreviousCandTag") ),
-  etaBoundaries( iConfig.getParameter<vector<double> >("EtaBoundaries") ),
-  minPts( iConfig.getParameter<vector<double> >("MinPts") ),
-  qualityBitMasks( iConfig.getParameter<vector<int> >("QualityBitMasks") ),
   minN( iConfig.getParameter<int>("MinN") ),
   saveTag( iConfig.getUntrackedParameter<bool>("SaveTag",false) ) 
 {
-  LogDebug("HLTMuonL1RegionalFilter")<<dumpParameters();
+  const vector<ParameterSet> cuts = iConfig.getParameter<vector<ParameterSet> >("Cuts");
+  size_t ranges = cuts.size();
+  if(ranges==0){
+    throw edm::Exception(errors::Configuration) << "Please provide at least one PSet in the Cuts VPSet!";
+  }
+  etaBoundaries.reserve(ranges+1);
+  minPts.reserve(ranges);
+  qualityBitMasks.reserve(ranges);
+  for(size_t i=0; i<ranges; i++){
+    //set the eta range
+    vector<double> etaRange = cuts[i].getParameter<vector<double> >("EtaRange");
+    if(etaRange.size() != 2 || etaRange[0] >= etaRange[1]){
+      throw edm::Exception(errors::Configuration) << "EtaRange must have two non-equal values in increasing order!";
+    }
+    if(i==0){
+      etaBoundaries.push_back( etaRange[0] );
+    }else if(etaBoundaries[i] != etaRange[0]){
+      throw edm::Exception(errors::Configuration) << "EtaRanges must be disjoint without gaps and listed in increasing eta order!";
+    }
+    etaBoundaries.push_back( etaRange[1] );
 
-  //check constrains
-  if(etaBoundaries.size() < 2){
-    LogError("HLTMuonL1RegionalFilter")<<"Problem with configuration: EtaBoundaries.size() < 2; you need at least 2 boundaries to specify a region";
-  }
-  if(minPts.size() != etaBoundaries.size()-1){
-    LogError("HLTMuonL1RegionalFilter")<<"Problem with configuration: MinPts.size() != EtaBoundaries.size()-1; you need to specify a minPt for each region";
-  }
-  if(qualityBitMasks.size() != etaBoundaries.size()-1){
-    LogError("HLTMuonL1RegionalFilter")<<"Problem with configuration: QualityBitMasks.size() != EtaBoundaries.size()-1); you need to specify a quality mask for each region";
-  }
-  for(size_t r=0; r<etaBoundaries.size()-1; r++){
-    if(etaBoundaries[r] >= etaBoundaries[r+1]){
-      LogError("HLTMuonL1RegionalFilter")<<"Problem with configuration: EtaBoundaries are not in increasing order";
+    //set the minPt
+    minPts.push_back( cuts[i].getParameter<double>("MinPt") );
+
+    //set the quality bit mask
+    qualityBitMasks.push_back( 0 );
+    vector<uint> qualities = cuts[i].getParameter<vector<uint> >("QualityBits");
+    for(size_t j=0; j<qualities.size(); j++){
+      if(qualities[j] > 7){
+        throw edm::Exception(errors::Configuration) << "QualityBits must smaller than 8!";
+      }
+      qualityBitMasks[i] |= 1 << qualities[j];
+    }
+    if(qualityBitMasks[i] == 0){
+      qualityBitMasks[i] = 255;
     }
   }
+
+  LogDebug("HLTMuonL1RegionalFilter")<<dumpParameters();
 
   //register the product
   produces<trigger::TriggerFilterObjectWithRefs>();
@@ -77,7 +97,7 @@ bool HLTMuonL1RegionalFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
     float eta   =  muon->eta();
     int region = -1;
     for(size_t r=0; r<etaBoundaries.size()-1; r++){
-      if(etaBoundaries[r]<eta && eta<=etaBoundaries[r+1]){
+      if(etaBoundaries[r]<=eta && eta<=etaBoundaries[r+1]){
         region = r;
         break;
       }

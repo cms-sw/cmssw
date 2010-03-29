@@ -50,7 +50,7 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
   superclusterCollection_ = ps.getParameter<std::string>("superclusterCollection");
   hitproducer_ = ps.getParameter<std::string>("ecalhitproducer");
   hitcollection_ =ps.getParameter<std::string>("ecalhitcollection");
-   
+
   //Setup for core tools objects.
   std::map<std::string,double> providedParameters;  
   providedParameters.insert(std::make_pair("LogWeighted",ps.getParameter<bool>("posCalc_logweight")));
@@ -66,14 +66,12 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
                                    ps.getParameter<double>("ethresh"),
                                    ps.getParameter<double>("eseed"),
                                    ps.getParameter<double>("ewing"),
-				   ps.getParameter<std::vector<int> >("RecHitFlagToBeExcluded"),
                                    posCalculator_,
                                    //dynamicPhiRoad,
 				   debugL,
 			           ps.getParameter<bool>("dynamicEThresh"),
                                    ps.getParameter<double>("eThreshA"),
-                                   ps.getParameter<double>("eThreshB")
-                                   );
+                                   ps.getParameter<double>("eThreshB"));
                                    //bremRecoveryPset,
 
   // get brem recovery parameters

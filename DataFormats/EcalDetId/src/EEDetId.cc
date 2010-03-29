@@ -297,44 +297,36 @@ EEDetId::iquadrant() const
    return -1;
 }  
 
-int 
-EEDetId::isc() const
-{ 
-   return isc( 1 + ( ix() - 1 )/nCrys,
-	       1 + ( iy() - 1 )/nCrys ) ; 
-}
-
-int 
-EEDetId::isc( int jx, int jy ) 
+int EEDetId::isc() const 
 {
-   if( 0  < jx &&
-       21 > jx &&
-       0  < jy &&
-       21 > jy    )
-   {
-      const int iquad (  ( 10<jx && 10<jy ? 1 :
-			   ( 11>jx && 10<jy ? 2 :
-			     ( 11>jx && 11>jy ? 3 : 4 ) ) ) ) ;
+   /*
+    *  Return SC number from (x,y) coordinates.
+    *
+    *  Author    : B W Kennedy
+    *  Version   : 1.00
+    *  Created   : 5 May 2006
+    *  Last Mod  :
+    *
+    *  Input     : ix, iy - (x,y) position of crystal
+    */
   
-      const int iCol = ( 1 == iquad || 4 == iquad ? jx - 10 : 11 - jx ) ;
-      const int iRow = ( 1 == iquad || 2 == iquad ? jy - 10 : 11 - jy ) ;
+   int iCol = int((ixQuadrantOne() - 1)/nCrys) + 1;
+   int iRow = int((iyQuadrantOne() - 1)/nCrys) + 1;
+   int nSCinQuadrant = QuadColLimits[nCols];
+   int iSC;
+  
+   if (iRow <= iYoffset[iCol]) 
+      return -1;
+   else 
+      iSC = QuadColLimits[iCol-1] + iRow - iYoffset[iCol];
 
-      static int nSCinQuadrant = ISC_MAX/4;
-
-      const int yOff ( iYoffset[iCol] ) ;
-
-      const int qOff ( nSCinQuadrant*( iquad - 1 ) ) ;
-
-      const int iscOne ( QuadColLimits[iCol-1] + iRow - yOff ) ;
-
-      return ( yOff                >= iRow   ? -1 : 
-	       ( QuadColLimits[iCol] <  iscOne ? -2 :
-		 iscOne + qOff ) ) ;
-   }
-   else
-   {
-      return -3 ; // bad inputs
-   }
+   if (iSC > QuadColLimits[iCol]) 
+      return -2;
+  
+   if (iSC>0) 
+      iSC += nSCinQuadrant*(iquadrant()-1);
+  
+   return iSC;
 }  
 
 int EEDetId::ic() const 

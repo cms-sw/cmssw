@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2008/12/03 15:03:17 $
- * $Revision: 1.28 $
+ * $Date: 2009/10/26 17:33:51 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -160,9 +160,6 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
       float xix = ix - 0.5;
       float xiy = iy - 0.5;
-
-      LogDebug("EEPedestalOnlineTask") << " det id = " << id;
-      LogDebug("EEPedestalOnlineTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       EEDataFrame dataframe = (*digiItr);
 

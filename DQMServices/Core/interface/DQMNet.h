@@ -59,7 +59,6 @@ public:
   static const uint32_t DQM_PROP_RECEIVED	= 0x00020000;
   static const uint32_t DQM_PROP_LUMI		= 0x00040000;
   static const uint32_t DQM_PROP_DEAD		= 0x00080000;
-  static const uint32_t DQM_PROP_STALE		= 0x00100000;
 
   static const uint32_t DQM_MSG_HELLO		= 0;
   static const uint32_t DQM_MSG_UPDATE_ME	= 1;
@@ -158,7 +157,6 @@ public:
   void			delay(int delay);
   void			startLocalServer(int port);
   void			startLocalServer(const char *path);
-  void			staleObjectWaitLimit(lat::TimeSpan time);
   void			updateToCollector(const std::string &host, int port);
   void			listenToCollector(const std::string &host, int port);
   void			shutdown(void);
@@ -328,8 +326,6 @@ private:
   sig_atomic_t		shutdown_;
 
   int			delay_;
-  lat::TimeSpan		waitStale_;
-  lat::TimeSpan		waitMax_;
   bool			flush_;
 
   // copying is not available

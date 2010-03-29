@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.39 2009/12/18 20:44:50 wmtan Exp $
+// $Id: FourVectorHLTOffline.h,v 1.41 2010/02/17 17:49:54 wmtan Exp $
 //
 //
 
@@ -54,7 +54,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
@@ -96,6 +95,9 @@
 #include <fstream>
 #include <vector>
 
+namespace edm {
+   class TriggerNames;
+}
 
 typedef std::multimap<float,int> fimmap ;
 typedef std::set<fimmap , less<fimmap> > mmset;
@@ -117,7 +119,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       // EndRun
       void endRun(const edm::Run& run, const edm::EventSetup& c);
-      void fillHltMatrix(vector<std::string>);
+      void fillHltMatrix(vector<std::string>, const edm::TriggerNames & triggerNames);
       void setupHltMatrix(std::string label, vector<std::string>  paths);
       void setupHltLsPlots();
       void setupHltBxPlots();

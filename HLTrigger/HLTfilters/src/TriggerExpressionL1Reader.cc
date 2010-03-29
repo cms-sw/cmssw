@@ -14,12 +14,9 @@
 namespace triggerExpression {
 
 // define the result of the module from the L1 reults
-bool L1Reader::operator()(const Data & data) {
+bool L1Reader::operator()(const Data & data) const {
   if (not data.hasL1T())
     return false;
-
-  if (data.l1tConfigurationUpdated())
-    init(data);
 
   typedef std::pair<std::string, unsigned int> value_type;
   BOOST_FOREACH(const value_type & trigger, m_triggers)
@@ -62,7 +59,7 @@ void L1Reader::init(const Data & data) {
       if (data.shouldThrow())
         throw cms::Exception("Configuration") << "requested L1 trigger \"" << m_pattern << "\" does not exist in the current L1 menu";
       else
-        edm::LogInfo("Configuration") << "requested L1 trigger \"" << m_pattern << "\" does not exist in the current L1 menu";
+        edm::LogWarning("Configuration") << "requested L1 trigger \"" << m_pattern << "\" does not exist in the current L1 menu";
   } else {
     // expand wildcards in the pattern 
     bool match = false;
@@ -80,7 +77,7 @@ void L1Reader::init(const Data & data) {
       if (data.shouldThrow())
         throw cms::Exception("Configuration") << "requested pattern \"" << m_pattern <<  "\" does not match any L1 trigger in the current menu";
       else
-        edm::LogInfo("Configuration") << "requested pattern \"" << m_pattern <<  "\" does not match any L1 trigger in the current menu";
+        edm::LogWarning("Configuration") << "requested pattern \"" << m_pattern <<  "\" does not match any L1 trigger in the current menu";
     }
   }
 

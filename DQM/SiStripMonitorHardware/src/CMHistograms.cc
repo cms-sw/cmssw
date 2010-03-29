@@ -65,7 +65,7 @@ void CMHistograms::fillHistograms(std::vector<CMvalues> aVec, float aTime, unsig
 
     CMvalues lVal = aVec.at(iEle);
 
-    if (lVal.Medians.first >= 500 || lVal.Medians.second >= 500) {
+    if (lVal.Medians.first >= 1024 || lVal.Medians.second >= 1024) {
       std::cout << "----- WARNING ! New max found: " << lVal.Medians.first << " " << lVal.Medians.second << " " << __FILE__ << " " << __LINE__ << std::endl;
     }
 
@@ -121,7 +121,7 @@ void CMHistograms::bookTopLevelHistograms(DQMStore* dqm)
   medianAPV1vsAPV0_ = book2DHistogram("MedianAPV1vsAPV0",
 				      "MedianAPV1vsAPV0",
 				      "median APV1 vs APV0",
-				      250,0,500,250,0,500,
+				      250,0,1024,250,0,1024,
 				      "median APV0","median APV1");
 
   medianAPV0minusAPV1_ = bookHistogram("MedianAPV0minusAPV1",

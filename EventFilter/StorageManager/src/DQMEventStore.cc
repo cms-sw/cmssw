@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.cc,v 1.5 2009/08/28 16:41:26 mommsen Exp $
+// $Id: DQMEventStore.cc,v 1.9 2010/03/04 17:34:59 mommsen Exp $
 /// @file: DQMEventStore.cc
 
 #include "TROOT.h"
@@ -107,7 +107,6 @@ void DQMEventStore::addNextAvailableDQMGroupToReadyToServe(const std::string gro
   
   if ( record )
   {  
-    record->getDQMGroup(groupName)->setServedSinceUpdate();
     _recordsReadyToServe.push(
       record->populateAndGetGroup( groupName )
     );
@@ -151,11 +150,10 @@ DQMEventStore::getNewestReadyDQMEventRecord(const std::string groupName) const
        ++it)
   {
     DQMGroup *group = it->second->getDQMGroup(groupName);
-    if ( group && group->isReady( now.GetSec() ) )
+    if ( group && group->isReady( now.GetSec() ) && ! group->wasServedSinceUpdate() )
     {
       TTimeStamp *groupTime = group->getLastUpdate();
-      if ( ( groupTime->GetSec() > maxTime ) &&
-        ( ! group->wasServedSinceUpdate() ) )
+      if ( groupTime->GetSec() > maxTime )
       {
         maxTime = groupTime->GetSec();
         readyRecord = it->second;
@@ -171,18 +169,19 @@ void DQMEventStore::writeAndPurgeStaleDQMInstances()
 {
   TTimeStamp now;
   now.Set();
+  time_t nowSec = now.GetSec();
   
   for (
     DQMEventRecordMap::iterator it = _store.begin();
     it != _store.end();
   )
   {
-    if ( it->second->isStale( now.GetSec() ) )
+    if ( it->second->isReady() || it->second->isStale(nowSec) )
     {
-      if ( _dqmParams._archiveDQM && it->second->isReady( now.GetSec() ) &&
-        (_dqmParams._archiveIntervalDQM > 0 &&
-          (it->second->getLumiSection() % 
-            static_cast<int>(_dqmParams._archiveIntervalDQM)) == 0) )
+      if ( _dqmParams._archiveDQM &&
+           _dqmParams._archiveIntervalDQM > 0 &&
+           ((it->second->getLumiSection() % 
+             static_cast<int>(_dqmParams._archiveIntervalDQM)) == 0) )
       {
         // The instance is written to file when it is ready and intermediate
         // histograms are written and the lumi section matches the
@@ -212,6 +211,7 @@ void DQMEventStore::writeLatestReadyDQMInstance() const
 {
   TTimeStamp now;
   now.Set();
+  time_t nowSec = now.GetSec();
   
   // Iterate over map in reverse sense. Thus, we encounter the
   // newest instance first
@@ -219,7 +219,7 @@ void DQMEventStore::writeLatestReadyDQMInstance() const
     itEnd = _store.rend();
   while ( it != itEnd )
   {
-    if ( it->second->isReady( now.GetSec() ) )
+    if ( it->second->isReady() || it->second->isStale(nowSec) )
     {
       it->second->writeFile(_dqmParams._filePrefixDQM, true);
       break;

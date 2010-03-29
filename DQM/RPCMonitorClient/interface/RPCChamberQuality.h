@@ -1,19 +1,5 @@
 #ifndef RPCChamberQuality_H
-#define RPCChamberQuality_H
-
-/****************************************
-*****************************************
-**                                     **
-**  Class RPCClusterSizeTest           **
-**  DQM Event Summary module for RPCs  **
-**                                     **
-**  $Date: 2009/10/29 22:50:23 $       **
-**  $Revision: 1.4 $                   **
-**  David Lomidze                      **
-**  INFN di Napoli                     **
-**                                     **
-*****************************************   
-****************************************/                 
+#define RPCChamberQuality_H               
         
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -43,21 +29,21 @@ public:
   virtual ~RPCChamberQuality();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& iSetup);
+  void beginJob();
 
   //Begin Run
-   void beginRun(const edm::Run& r, const edm::EventSetup& c);
+   void beginRun(const edm::Run& , const edm::EventSetup& );
    //End Run
-   void endRun(const edm::Run& r, const edm::EventSetup& c);
+   void endRun(const edm::Run& , const edm::EventSetup& );
   
   /// Begin Lumi block 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+  void beginLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& ) ;
 
   /// Analyze  
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
+  void analyze(const edm::Event& , const edm::EventSetup& );
 
   /// End Lumi Block
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+  void endLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& );
  
   ///end Job
   //  void endJob(void);

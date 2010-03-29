@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.26 2009/08/10 17:52:34 emanuele Exp $
+// $Id: Numbers.h,v 1.28 2010/02/15 21:54:09 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.26 $
-  \date $Date: 2009/08/10 17:52:34 $
+  \version $Revision: 1.28 $
+  \date $Date: 2010/02/15 21:54:09 $
 */
 
 #ifndef Numbers_H
@@ -14,12 +14,14 @@
 #include <string>
 #include <stdexcept>
 #include <vector>
+#include <map>
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
+class DetId;
 class EBDetId;
 class EEDetId;
 
@@ -93,11 +95,11 @@ class Numbers {
 
   static int icEE( const int ism, const int ix, const int iy ) throw( std::runtime_error );
 
-  static std::vector<DetId> crystals( const EcalSubdetector subdet, int itcc, int itt ) throw( std::runtime_error );
+  static std::vector<DetId>* crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
 
-  static std::vector<DetId> crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
+  static std::vector<DetId>* crystals( const EcalElectronicsId& id ) throw( std::runtime_error );
 
-  static std::vector<DetId> crystals( const EcalElectronicsId& id ) throw( std::runtime_error );
+  static std::vector<DetId>* crystals( int idcc, int itt ) throw( std::runtime_error );
 
   static int RtHalf(const EBDetId& id);
 
@@ -115,6 +117,9 @@ private:
 
   static const EcalElectronicsMapping* map;
   static const EcalTrigTowerConstituentsMap* mapTT;
+
+  static std::map<int, std::vector<DetId> > crystalsTCC_;
+  static std::map<int, std::vector<DetId> > crystalsDCC_;
 
 };
 

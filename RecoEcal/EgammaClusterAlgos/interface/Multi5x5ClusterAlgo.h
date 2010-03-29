@@ -34,10 +34,9 @@ class Multi5x5ClusterAlgo
   Multi5x5ClusterAlgo() {
   }
 
-  Multi5x5ClusterAlgo(double ebst, double ecst, std::vector<int> v_chstatus, const PositionCalc& posCalc, VerbosityLevel the_verbosity = pERROR) : 
-    ecalBarrelSeedThreshold(ebst), ecalEndcapSeedThreshold(ecst),  v_chstatus_(v_chstatus), verbosity(the_verbosity) {
+  Multi5x5ClusterAlgo(double ebst, double ecst, const PositionCalc& posCalc, VerbosityLevel the_verbosity = pERROR) : 
+    ecalBarrelSeedThreshold(ebst), ecalEndcapSeedThreshold(ecst), verbosity(the_verbosity) {
     posCalculator_ = posCalc;
-    std::sort( v_chstatus_.begin(), v_chstatus_.end() );
   }
 
   virtual ~Multi5x5ClusterAlgo()
@@ -62,7 +61,7 @@ class Multi5x5ClusterAlgo
   typedef math::XYZPoint Point;
 
  private: 
-  
+
   //algo to compute position of clusters
   PositionCalc posCalculator_;
 
@@ -90,9 +89,6 @@ class Multi5x5ClusterAlgo
 
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters_v;
-
-  // recHit flag to be excluded from seeding
-  std::vector<int> v_chstatus_;
 
   // The verbosity level
   VerbosityLevel verbosity;

@@ -8,8 +8,8 @@
  *    - use or ignore the L1 trigger mask
  *    - only look at a subset of the L1 bits
  * 
- *  $Date: 2009/11/17 14:03:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/11/19 06:21:37 $
+ *  $Revision: 1.5 $
  *
  *  \author Andrea Bocci
  *
@@ -19,7 +19,7 @@
 
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"

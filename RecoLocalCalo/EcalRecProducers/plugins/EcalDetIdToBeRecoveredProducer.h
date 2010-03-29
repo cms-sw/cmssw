@@ -22,7 +22,7 @@
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+//#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 
 class EcalDetIdToBeRecoveredProducer : public edm::EDProducer {
@@ -39,7 +39,7 @@ class EcalDetIdToBeRecoveredProducer : public edm::EDProducer {
                 //std::string eeRechitCollection_; // secondary name to be given to EE collection of hits
 
                 const EcalChannelStatusMap * chStatus_;
-                const EcalElectronicsMapping * ecalMapping_;
+                //const EcalElectronicsMapping * ecalMapping_;
                 edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
 
                 /*

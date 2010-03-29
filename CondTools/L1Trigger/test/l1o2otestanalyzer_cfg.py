@@ -58,23 +58,27 @@ initCondDBSource( process,
                   tagBase = options.tagBase,
                   includeRSTags = options.printRSKeys )
 
+from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
+outputDB = cms.Service("PoolDBOutputService",
+                       CondDBSetup,
+                       # BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+                       connect = cms.string(options.inputDBConnect),
+                       toPut = cms.VPSet(cms.PSet(
+    record = cms.string("L1TriggerKeyRcd"),
+    tag = cms.string("L1TriggerKey_" + options.tagBase)),
+                                         cms.PSet(
+    record = cms.string("L1TriggerKeyListRcd"),
+    tag = cms.string("L1TriggerKeyList_" + options.tagBase))
+                                         ))
+outputDB.DBParameters.authenticationPath = options.inputDBAuth
+
 # PoolDBOutputService for printing out ESRecords
 if options.printRSKeys == 1:
-    from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
-    outputDB = cms.Service("PoolDBOutputService",
-                           CondDBSetup,
-                           BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-                           connect = cms.string(options.inputDBConnect),
-                           toPut = cms.VPSet(cms.PSet(
-        record = cms.string("L1TriggerKeyRcd"),
-        tag = cms.string("L1TriggerKey_" + options.tagBase))
-                                             ))
-    outputDB.DBParameters.authenticationPath = options.inputDBAuth
-
     from CondTools.L1Trigger.L1RSSubsystemParams_cfi import initL1RSSubsystems
     initL1RSSubsystems( tagBase = options.tagBase )
     outputDB.toPut.extend(initL1RSSubsystems.params.recordInfo)
-    process.add_(outputDB)
+
+process.add_(outputDB)
     
 # Source of events
 process.maxEvents = cms.untracked.PSet(

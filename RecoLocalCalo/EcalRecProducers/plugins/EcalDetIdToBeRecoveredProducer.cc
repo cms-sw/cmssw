@@ -11,7 +11,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+//#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
@@ -57,9 +57,9 @@ EcalDetIdToBeRecoveredProducer::~EcalDetIdToBeRecoveredProducer()
 
 void EcalDetIdToBeRecoveredProducer::beginRun(edm::Run & run, const edm::EventSetup& es)
 {
-        edm::ESHandle< EcalElectronicsMapping > pEcalMapping;
-        es.get<EcalMappingRcd>().get(pEcalMapping);
-        ecalMapping_ = pEcalMapping.product();
+        //edm::ESHandle< EcalElectronicsMapping > pEcalMapping;
+        //es.get<EcalMappingRcd>().get(pEcalMapping);
+        //ecalMapping_ = pEcalMapping.product();
 
         edm::ESHandle< EcalChannelStatusMap > pChStatus;
         es.get<EcalChannelStatusRcd>().get(pChStatus);
@@ -68,13 +68,6 @@ void EcalDetIdToBeRecoveredProducer::beginRun(edm::Run & run, const edm::EventSe
         es.get<IdealGeometryRecord>().get(ttMap_);
 }
 
-// fuction return true if "coll" have "item"
-template <typename CollT, typename ItemT>
-bool include(const CollT& coll, const ItemT& item)
-{
-  typename CollT::const_iterator res = std::find( coll.begin(), coll.end(), item );
-  return ( res != coll.end() );
-}
 
 void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
@@ -170,12 +163,12 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
         EBDetIdCollection ebSrpDetId;
         EcalTrigTowerDetIdCollection ebSrpTTDetId;
         for ( EBSrFlagCollection::const_iterator it = ebSrFlags->begin(); it != ebSrFlags->end(); ++it ) {
-                const int flag = it->value();
+                int flag = it->value();
                 if ( flag == EcalSrFlag::SRF_FULL || ( flag == EcalSrFlag::SRF_FORCED_MASK) ) {
-                        const EcalTrigTowerDetId ttId = it->id();
+                        EcalTrigTowerDetId ttId = it->id();
                         ebSrpTTDetId.push_back( ttId );
                         //std::vector<DetId> vid = ecalMapping_->dccTowerConstituents( ttId.iDCC(), ttId.iTT() );
-                        const std::vector<DetId> vid = ttMap_->constituentsOf( ttId );
+                        std::vector<DetId> vid = ttMap_->constituentsOf( ttId );
                         //ebSrpDetId.insert( ebSrpDetId.end(), vid.begin(), vid.end() );
                         for ( std::vector<DetId>::const_iterator itId = vid.begin(); itId != vid.end(); ++itId ) {
                                 ebSrpDetId.push_back( *itId );
@@ -186,20 +179,20 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
         EEDetIdCollection eeSrpDetId;
         //EcalTrigTowerDetIdCollection eeSrpTTDetId;
         for ( EESrFlagCollection::const_iterator it = eeSrFlags->begin(); it != eeSrFlags->end(); ++it ) {
-                const int flag = it->value();
+                int flag = it->value();
                 if ( flag == EcalSrFlag::SRF_FULL || ( flag == EcalSrFlag::SRF_FORCED_MASK) ) {
                         //EcalTrigTowerDetId ttId = it->id();
                         //eeSrpTTDetId.push_back( ttId );
-                        const EcalScDetId scId( it->id() );
+                        EcalScDetId scId( it->id() );
                         // not clear how to get the vector of DetId constituents of a SC...
                         //////////EcalElectronicsId eId( scId.rawId() );
                         //std::vector<DetId> vid = ecalMapping_->dccTowerConstituents( eId.dccId(), eId.towerId() );
                         std::vector<DetId> vid;
                         for(int dx=1; dx<=5; ++dx){
                                 for(int dy=1; dy<=5; ++dy){
-                                        const int ix = (scId.ix()-1)*5 + dx;
-                                        const int iy = (scId.iy()-1)*5 + dy;
-                                        const int iz = scId.zside();
+                                        int ix = (scId.ix()-1)*5 + dx;
+                                        int iy = (scId.iy()-1)*5 + dy;
+                                        int iz = scId.zside();
                                         if(EEDetId::validDetId(ix, iy, iz)){
                                                 vid.push_back(EEDetId(ix, iy, iz));
                                         }
@@ -228,17 +221,23 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
         for ( std::vector<edm::Handle<EBDetIdCollection> >::const_iterator it = ebDetIdColls.begin(); it != ebDetIdColls.end(); ++it )
         {
                 const EBDetIdCollection * idc = it->product();
-                for ( EBDetIdCollection::const_iterator jt = idc->begin(); jt != idc->end(); ++jt )
-                  if (include(ebSrpDetId, *jt))
-                    ebDetIdToRecover->insert( *jt );
+                for ( EBDetIdCollection::const_iterator jt = idc->begin(); jt != idc->end(); ++jt ) {
+                        EBDetIdCollection::const_iterator res = std::find( ebSrpDetId.begin(), ebSrpDetId.end(), *jt );
+                        if ( res != ebSrpDetId.end() ) {
+                                ebDetIdToRecover->insert( *jt );
+                        }
+                }
         }
         // -- Endcap
         for ( std::vector<edm::Handle<EEDetIdCollection> >::const_iterator it = eeDetIdColls.begin(); it != eeDetIdColls.end(); ++it )
         {
                 const EEDetIdCollection * idc = it->product();
-                for ( EEDetIdCollection::const_iterator jt = idc->begin(); jt != idc->end(); ++jt )
-                  if (include(eeSrpDetId, *jt))
-                    eeDetIdToRecover->insert( *jt );
+                for ( EEDetIdCollection::const_iterator jt = idc->begin(); jt != idc->end(); ++jt ) {
+                        EEDetIdCollection::const_iterator res = std::find( eeSrpDetId.begin(), eeSrpDetId.end(), *jt );
+                        if ( res != eeSrpDetId.end() ) {
+                                eeDetIdToRecover->insert( *jt );
+                        }
+                }
         }
 
         /* 
@@ -250,7 +249,7 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
         for ( EBDetIdCollection::const_iterator itId = ebSrpDetId.begin(); itId != ebSrpDetId.end(); ++itId ) {
                 EcalChannelStatusMap::const_iterator chit = chStatus_->find( *itId );
                 if ( chit != chStatus_->end() ) {
-                        const int flag = (*chit).getStatusCode() & 0x001F;
+                        int flag = (*chit).getStatusCode() & 0x001F;
                         if ( flag >= 10 && flag <= 12) { // FIXME -- avoid hardcoded values...
                                 ebDetIdToRecover->insert( *itId );
                         } else if ( flag == 13 || flag == 14 ) { // FIXME -- avoid hardcoded values...
@@ -277,59 +276,6 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
                                 << (*itId).rawId()
                                 << "! something wrong with EcalChannelStatus in your DB? ";
                 }
-        }
-        
-        
-        // loop over electronics id associated with TT and SC
-        for (size_t t = 0; t < ttColls.size(); ++t) {
-          const EcalElectronicsIdCollection& coll = *(ttColls[t]);
-
-          for (size_t i = 0; i < coll.size(); ++i)
-          {
-            const EcalElectronicsId elId = coll[i];
-            const EcalSubdetector subdet = elId.subdet();
-            const DetId detId = ecalMapping_->getDetId(elId);
-            
-            if (subdet == EcalBarrel) { // elId pointing to TT
-              // get list of crystals corresponding to TT
-              const EcalTrigTowerDetId ttId(detId);
-              const std::vector<DetId>& vid = ttMap_->constituentsOf(ttId);
-              
-              for (size_t j = 0; j < vid.size(); ++j) {
-                const EBDetId ebdi(vid[i]);
-                if (include(ebSrpDetId, ebdi)) {
-                  ebDetIdToRecover->insert(ebdi);
-                  ebTTDetIdToRecover->insert(ebdi.tower());
-                }
-              }
-            }
-            else if (subdet == EcalEndcap) { // elId pointing to SC
-              // extract list of crystals corresponding to SC
-              const EcalScDetId scId(detId);
-              std::vector<DetId> vid;
-              for(int dx=1; dx<=5; ++dx) {
-                for(int dy=1; dy<=5; ++dy) {
-                  const int ix = (scId.ix()-1)*5 + dx;
-                  const int iy = (scId.iy()-1)*5 + dy;
-                  const int iz = scId.zside();
-                  if(EEDetId::validDetId(ix, iy, iz))
-                    vid.push_back(EEDetId(ix, iy, iz));
-                }
-              }
-              
-              for (size_t j = 0; j < vid.size(); ++j) {
-                const EEDetId eedi(vid[i]);
-                if (include(eeSrpDetId, eedi)) {
-                  eeDetIdToRecover->insert(eedi);
-                  eeSCDetIdToRecover->insert(EcalScDetId(eedi));
-                }
-              }
-            }
-            else
-              edm::LogWarning("EcalDetIdToBeRecoveredProducer")
-                << "Incorrect EcalSubdetector = " << subdet
-                << " in EcalElectronicsIdCollection collection ";
-          }
         }
 
         // return the collections

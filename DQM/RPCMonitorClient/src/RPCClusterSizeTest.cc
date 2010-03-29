@@ -203,7 +203,7 @@ void RPCClusterSizeTest::clientOperation(EventSetup const& iSetup) {
   for (unsigned int  i = 0 ; i<myClusterMe_.size();i++){
     
     myMe = myClusterMe_[i];
-    if (!myMe)continue;
+    if (!myMe || myMe->getEntries()==0 )continue;
 
     
     detId=myDetIds_[i];

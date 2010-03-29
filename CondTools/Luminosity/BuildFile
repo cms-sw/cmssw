@@ -1,4 +1,8 @@
 <use name=CondCore/DBCommon>
+<use name=CondCore/DBOutputService>
+<use name=CondCore/IOVService>
+<use name=CondCore/MetaDataService>
+<use name=CondCore/PopCon>
 <use name=CondFormats/Luminosity>
 <use name=DataFormats/Provenance>
 <use name=FWCore/Framework>

@@ -103,17 +103,6 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
         gainRatios[1] = aGain->gain12Over6();
         gainRatios[2] = aGain->gain6Over1()*aGain->gain12Over6();
 
-	// compute the right bin of the pulse shape using time calibration constants
-	EcalTimeCalibConstantMap::const_iterator it = itime->find( detid );
-	EcalTimeCalibConstant itimeconst = 0;
-	if( it != itime->end() ) {
-		  itimeconst = (*it);
-	} else {
-		  edm::LogError("EcalRecHitError") << "No time intercalib const found for xtal "
-		  << detid.rawId()
-		  << "! something wrong with EcalTimeCalibConstants in your DB? ";
-	}
-
 
         // === amplitude computation ===
         int leadingSample = -1;
@@ -136,6 +125,17 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                         uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), 4095*12*sratio, 0, 0, 0);
                         uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kSaturated );
                 } else {
+                        // compute the right bin of the pulse shape using time calibration constants
+                        // -- for the moment this is not used
+                        EcalTimeCalibConstantMap::const_iterator it = itime->find( detid );
+                        EcalTimeCalibConstant itimeconst = 0;
+                        if( it != itime->end() ) {
+                                itimeconst = (*it);
+                        } else {
+                                edm::LogError("EcalRecHitError") << "No time intercalib const found for xtal "
+                                        << detid.rawId()
+                                        << "! something wrong with EcalTimeCalibConstants in your DB? ";
+                        }
                         // float clockToNsConstant = 25.;
                         // reconstruct the rechit
                         if (detid.subdetId()==EcalEndcap) {
@@ -177,9 +177,14 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 
                 const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
                 const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
+//                const EcalWeightSet::EcalChi2WeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
+//                const EcalWeightSet::EcalChi2WeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
 
                 weights[0] = &mat1;
                 weights[1] = &mat2;
+
+//                chi2mat[0] = &mat3;
+//                chi2mat[1] = &mat4;
 
                 // get uncalibrated recHit from weights
 		if (detid.subdetId()==EcalEndcap) {
@@ -213,51 +218,6 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                         uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kOutOfTime );
                                 }
                 }
-		    
-		// === chi2express ===
-		if (detid.subdetId()==EcalEndcap) {
-		      
-		    double amplitude = uncalibRecHit.amplitude();
-		    double amplitudeOutOfTime = uncalibRecHit.outOfTimeEnergy();
-		    double timePulse= uncalibRecHit.jitter()*25.0; // multiply by 25 to translate ADC clocks to ns
-		
-		    EcalUncalibRecHitRecChi2Algo<EEDataFrame>chi2expressEE_(
-				  					    *itdg, 
-				  					    amplitude, 
-				  					    itimeconst, 
-				  					    amplitudeOutOfTime, 
-				  					    timePulse, 
-				  					    pedVec, 
-				  					    pedRMSVec, 
-				  					    gainRatios, 
-				  					    testbeamEEShape
-		    );
-		    double chi2 = chi2expressEE_.chi2();
-		    uncalibRecHit.setChi2(chi2);
-		    double chi2OutOfTime = chi2expressEE_.chi2OutOfTime();
-		    uncalibRecHit.setOutOfTimeChi2(chi2OutOfTime);
-
-		} else {
-		    double amplitude = uncalibRecHit.amplitude();
-		    double amplitudeOutOfTime = uncalibRecHit.outOfTimeEnergy();
-		    double timePulse= uncalibRecHit.jitter()*25.0; // multiply by 25 to translate ADC clocks to ns
-		  
-		    EcalUncalibRecHitRecChi2Algo<EBDataFrame>chi2expressEB_(
-		  							    *itdg, 
-		  							    amplitude, 
-		  							    itimeconst, 
-		  							    amplitudeOutOfTime, 
-		  							    timePulse, 
-		  							    pedVec, 
-		 							    pedRMSVec, 
-		  							    gainRatios, 
-		  							    testbeamEBShape
-		    );
-		    double chi2 = chi2expressEB_.chi2();
-		    uncalibRecHit.setChi2(chi2);
-		    double chi2OutOfTime = chi2expressEB_.chi2OutOfTime();
-		    uncalibRecHit.setOutOfTimeChi2(chi2OutOfTime);
-		}
         }
 
 

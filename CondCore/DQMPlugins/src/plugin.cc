@@ -1,4 +1,4 @@
-#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "CondCore/ESSources/interface/registration_macros.h"
 #include "CondFormats/DQMObjects/interface/DQMSummary.h"
 #include "CondFormats/DataRecord/interface/DQMSummaryRcd.h"
 DEFINE_SEAL_MODULE();
@@ -6,8 +6,8 @@ REGISTER_PLUGIN(DQMSummaryRcd, DQMSummary);
 #include "CondFormats/DQMObjects/interface/HDQMSummary.h"
 #include "CondFormats/DataRecord/interface/HDQMSummaryRcd.h"
 REGISTER_PLUGIN(HDQMSummaryRcd, HDQMSummary);
-#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
+#include "CondFormats/Common/interface/FileBlob.h"
 #include "CondFormats/DataRecord/interface/DQMReferenceHistogramRootFileRcd.h"
-REGISTER_PLUGIN(DQMReferenceHistogramRootFileRcd, GeometryFile);
+REGISTER_PLUGIN(DQMReferenceHistogramRootFileRcd, FileBlob);
 #include "CondFormats/DataRecord/interface/DQMXMLFileRcd.h"
-REGISTER_PLUGIN(DQMXMLFileRcd, GeometryFile);
+REGISTER_PLUGIN(DQMXMLFileRcd, FileBlob);

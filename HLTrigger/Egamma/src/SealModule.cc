@@ -32,31 +32,31 @@
 #include "HLTrigger/Egamma/interface/HLTEgammaTriggerFilterObjectWrapper.h"
 #include "HLTrigger/Egamma/interface/HLTElectronEtFilter.h"
 
-DEFINE_SEAL_MODULE();
+
 DEFINE_FWK_MODULE(HLTEgammaGenericFilter);
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaEtFilter);
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaDoubleEtFilter);
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaEcalIsolFilter);
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaHcalIsolFilter);
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaHcalDBCFilter);
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaHOEFilter);
-DEFINE_ANOTHER_FWK_MODULE(HLTPhotonTrackIsolFilter);
-DEFINE_ANOTHER_FWK_MODULE(HLTElectronPixelMatchFilter);
-DEFINE_ANOTHER_FWK_MODULE(HLTPMMassFilter);
-DEFINE_ANOTHER_FWK_MODULE(HLTPMDocaFilter);
+DEFINE_FWK_MODULE(HLTEgammaEtFilter);
+DEFINE_FWK_MODULE(HLTEgammaDoubleEtFilter);
+DEFINE_FWK_MODULE(HLTEgammaEcalIsolFilter);
+DEFINE_FWK_MODULE(HLTEgammaHcalIsolFilter);
+DEFINE_FWK_MODULE(HLTEgammaHcalDBCFilter);
+DEFINE_FWK_MODULE(HLTEgammaHOEFilter);
+DEFINE_FWK_MODULE(HLTPhotonTrackIsolFilter);
+DEFINE_FWK_MODULE(HLTElectronPixelMatchFilter);
+DEFINE_FWK_MODULE(HLTPMMassFilter);
+DEFINE_FWK_MODULE(HLTPMDocaFilter);
 
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaL1MatchFilterRegional);
-DEFINE_ANOTHER_FWK_MODULE(HLTElectronEoverpFilterRegional);
-DEFINE_ANOTHER_FWK_MODULE(HLTElectronTrackIsolFilterRegional);
+DEFINE_FWK_MODULE(HLTEgammaL1MatchFilterRegional);
+DEFINE_FWK_MODULE(HLTElectronEoverpFilterRegional);
+DEFINE_FWK_MODULE(HLTElectronTrackIsolFilterRegional);
 
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaDoubleEtPhiFilter);
+DEFINE_FWK_MODULE(HLTEgammaDoubleEtPhiFilter);
 
-DEFINE_ANOTHER_FWK_MODULE(HLTElectronGenericFilter);
-DEFINE_ANOTHER_FWK_MODULE(HLTElectronOneOEMinusOneOPFilterRegional);
-DEFINE_ANOTHER_FWK_MODULE(HLTElectronDetaDphiFilter);
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaClusterShapeFilter);
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaL1MatchFilterPairs);
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaEtFilterPairs);
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaCaloIsolFilterPairs);
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaTriggerFilterObjectWrapper);
-DEFINE_ANOTHER_FWK_MODULE(HLTElectronEtFilter);
+DEFINE_FWK_MODULE(HLTElectronGenericFilter);
+DEFINE_FWK_MODULE(HLTElectronOneOEMinusOneOPFilterRegional);
+DEFINE_FWK_MODULE(HLTElectronDetaDphiFilter);
+DEFINE_FWK_MODULE(HLTEgammaClusterShapeFilter);
+DEFINE_FWK_MODULE(HLTEgammaL1MatchFilterPairs);
+DEFINE_FWK_MODULE(HLTEgammaEtFilterPairs);
+DEFINE_FWK_MODULE(HLTEgammaCaloIsolFilterPairs);
+DEFINE_FWK_MODULE(HLTEgammaTriggerFilterObjectWrapper);
+DEFINE_FWK_MODULE(HLTElectronEtFilter);

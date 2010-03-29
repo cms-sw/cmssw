@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcdigidqm = cms.EDFilter("RPCMonitorDigi",
+rpcdigidqm = cms.EDAnalyzer("RPCMonitorDigi",
     moduleLogName = cms.untracked.string('DigiModule'),
     dqmexpert = cms.untracked.bool(False),
     DigiEventsInterval = cms.untracked.int32(500),

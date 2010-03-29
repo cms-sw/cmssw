@@ -55,7 +55,7 @@ void RPCMonitorLinkSynchro::endLuminosityBlock(const LuminosityBlock& ls, const 
 //  me_linksMostNoisy->update();
 }
 
-void RPCMonitorLinkSynchro::beginJob(const edm::EventSetup&)
+void RPCMonitorLinkSynchro::beginJob()
 {
   DQMStore* dmbe = edm::Service<DQMStore>().operator->();
   dmbe->setCurrentFolder("RPC/FEDIntegrity/");

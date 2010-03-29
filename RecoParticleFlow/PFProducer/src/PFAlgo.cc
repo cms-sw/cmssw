@@ -586,6 +586,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	std::cout << elements[iTrack] << std::endl; 
       
       // Is it a "tight" muon ?
+
       bool thisIsAMuon = PFMuonAlgo::isMuon(elements[iTrack]);
       if ( thisIsAMuon ) trackMomentum = 0.;
        
@@ -1229,7 +1230,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // Create a PF Candidate right away if the track is a tight muon
       reco::MuonRef muonRef = elements[iTrack].muonRef();
       bool thisIsAMuon = PFMuonAlgo::isMuon(elements[iTrack]);
-      bool thisIsALooseMuon = PFMuonAlgo::isLooseMuon(elements[iTrack]);
+      bool thisIsALooseMuon = false;
+
+      if(!thisIsAMuon) {
+	thisIsALooseMuon = PFMuonAlgo::isLooseMuon(elements[iTrack]);
+      }
       if ( thisIsAMuon ) {
 	if ( debug_ ) { 
 	  std::cout << "\t\tThis track is identified as a muon - remove it from the stack" << std::endl;
@@ -1526,12 +1531,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  if ( !active[iTrack] ) continue;
 	  // Only muons
 	  if ( !it->second.second ) continue;
-	  // Consider only muons with pt>20 (maybe put this selection in isLooseMuon?)
 
 	  bool isTrack = elements[it->second.first].muonRef()->isTrackerMuon();
 	  double trackMomentum = elements[it->second.first].trackRef()->p();
-	  /* // 20 GeV cut on loose muon selection
 	  double trackPt = elements[it->second.first].trackRef()->pt();
+	  /* // 20 GeV cut on loose muon selection, now in PFMuon Algo
 	  if(PFMuonAlgo::isGlobalLooseMuon( elements[it->second.first].muonRef() )) {
 	    double muonPt = elements[it->second.first].muonRef()->combinedMuon()->pt();
 	    double staPt = elements[it->second.first].muonRef()->standAloneMuon()->pt();
@@ -1583,14 +1587,18 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    else if ( staPt > 20. && staPtError < trackPtError && staPtError < muonPtError ) 
 	      globalCorr = staMomentum/trackMomentum;
 	    (*pfCandidates_)[tmpi].rescaleMomentum(globalCorr);
-	    if (debug_) std::cout << "\tElement  " << elements[iTrack] << std::endl 
-				<< "PFAlgo: particle type set to muon (global, loose)" << std::endl; 
+	    if (debug_) 
+	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
+			<< "PFAlgo: particle type set to muon (global, loose), pT = " <<elements[it->second.first].muonRef()->pt()<< std::endl; 
+	      //PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef());
 	  }
 	  else{
-	    if (debug_) std::cout << "\tElement  " << elements[iTrack] << std::endl 
-				<< "PFAlgo: particle type set to muon (tracker, loose)" << std::endl; 
+	    if (debug_)
+	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
+			<< "PFAlgo: particle type set to muon (tracker, loose), pT = " <<elements[it->second.first].muonRef()->pt()<< std::endl; 
+	    //PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef());
 	  }
-
+	  
 	  // Remove it from the block
 	  const math::XYZPointF& chargedPosition = 
 	    dynamic_cast<const reco::PFBlockElementTrack*>(&elements[it->second.first])->positionAtECALEntrance();
@@ -2368,6 +2376,8 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   double pz = track.pz();
   double energy = sqrt(track.p()*track.p() + 0.13957*0.13957);
 
+ 
+
   // Except if it is a muon, of course !
   bool thisIsAMuon = PFMuonAlgo::isMuon(elt);
   bool thisIsAGlobalTightMuon = PFMuonAlgo::isGlobalTightMuon(elt);
@@ -2417,9 +2427,10 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
       particleType = reco::PFCandidate::mu;
       pfCandidates_->back().setParticleType( particleType );
       if (debug_) {
-	if(thisIsAGlobalTightMuon) cout << "PFAlgo: particle type set to muon (tight, global)" << endl; 
-	else cout << "PFAlgo: particle type set to muon (tight, tracker)" << endl; 
-      }
+	if(thisIsAGlobalTightMuon) cout << "PFAlgo: particle type set to muon (global, tight), pT = " <<muonRef->pt()<< endl; 
+	else	cout << "PFAlgo: particle type set to muon (tracker, tight), pT = " <<muonRef->pt()<< endl;
+	//PFMuonAlgo::printMuonProperties( muonRef );
+       }
     }
   }
 

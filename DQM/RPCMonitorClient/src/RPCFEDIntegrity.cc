@@ -40,7 +40,7 @@ RPCFEDIntegrity::~RPCFEDIntegrity(){
   //  dbe_=0;
 }
 
-void RPCFEDIntegrity::beginJob(const EventSetup& iSetup){
+void RPCFEDIntegrity::beginJob(){
  LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Begin job ";
  dbe_ = Service<DQMStore>().operator->();
 }

@@ -18,29 +18,12 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_5_0_pre2/RelValZMM/GEN-SIM-RECO/STARTUP3X_V14-v1/0009/DE021237-8FED-DE11-A452-0030486792AC.root'
-    )
+	'/store/data/Commissioning10/Cosmics/RECO/v3/000/127/155/005F9301-2E16-DF11-B60B-0030487CD6B4.root'
+        )                           
 )
 
-process.rpcPointProducer = cms.EDProducer('RPCPointProducer',
-  incldt = cms.untracked.bool(True),
-  inclcsc = cms.untracked.bool(True),
 
-  debug = cms.untracked.bool(True),
-
-  rangestrips = cms.untracked.double(4.),
-  rangestripsRB4 = cms.untracked.double(4.),
-  MinCosAng = cms.untracked.double(0.85),
-  MaxD = cms.untracked.double(80.0),
-  MaxDrb4 = cms.untracked.double(150.0),
-  ExtrapolatedRegion = cms.untracked.double(0.6), #in stripl/2 in Y and stripw*nstrips/2 in X
-
-  cscSegments = cms.untracked.string('cscSegments'),
-  dt4DSegments = cms.untracked.string('dt4DSegments'),
-
-# cscSegments = cms.untracked.string('hltCscSegments'),
-# dt4DSegments = cms.untracked.string('hltDt4DSegments'),
-)
+process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cfi")
 
 process.out = cms.OutputModule("PoolOutputModule",
   outputCommands = cms.untracked.vstring('drop *',

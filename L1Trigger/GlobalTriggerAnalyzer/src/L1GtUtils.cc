@@ -242,6 +242,9 @@ void L1GtUtils::getInputTag(const edm::Event& iEvent,
     bool foundL1GtRecord = false;
     bool foundL1GtReadoutRecord = false;
 
+    edm::LogVerbatim("L1GtUtils") << "\nTry to get AllProvenance for event "
+            << iEvent.id().event() << std::endl;
+
     iEvent.getAllProvenance(provenances);
 
     //edm::LogVerbatim("L1GtUtils") << "\n" << "Event contains "

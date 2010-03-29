@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2009/11/20 20:51:25 $
- * $Revision: 1.122 $
+ * $Date: 2010/01/25 21:12:25 $
+ * $Revision: 1.123 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,8 +19,6 @@
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
-
-#include <DataFormats/EcalDetId/interface/EBDetId.h>
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
 

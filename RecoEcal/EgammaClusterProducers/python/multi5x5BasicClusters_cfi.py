@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEcal.EgammaClusterProducers.ecalRecHitFlags_cfi import *
-
 # Multi5x5 BasicCluster producer
 multi5x5BasicClusters = cms.EDProducer("Multi5x5ClusterProducer",
 
@@ -27,15 +25,7 @@ multi5x5BasicClusters = cms.EDProducer("Multi5x5ClusterProducer",
     barrelHitCollection = cms.string('EcalRecHitsEB'),
     posCalc_t0_barl = cms.double(7.4),
     endcapClusterCollection = cms.string('multi5x5EndcapBasicClusters'),
-    IslandBarrelSeedThr = cms.double(0.5),
-    # recHit flags to be excluded from seeding
-    RecHitFlagToBeExcluded = cms.vint32(
-        ecalRecHitFlag_kFaultyHardware,
-        ecalRecHitFlag_kPoorCalib,
-        ecalRecHitFlag_kSaturated,
-        ecalRecHitFlag_kLeadingEdgeRecovered,
-        ecalRecHitFlag_kNeighboursRecovered,
-        ecalRecHitFlag_kTowerRecovered,
-        ecalRecHitFlag_kDead
-    )
+    IslandBarrelSeedThr = cms.double(0.5)
 )
+
+

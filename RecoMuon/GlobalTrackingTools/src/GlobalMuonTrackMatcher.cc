@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2009/10/31 01:37:41 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/09/16 16:43:35 $
+ *  $Revision: 1.19 $
  *  
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -43,11 +43,6 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include <TH1.h>
-#include <TFile.h>
-
 using namespace std;
 using namespace reco;
 
@@ -76,65 +71,6 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par,
   theQual_2= par.getParameter<double>("Quality_2");
   theQual_3= par.getParameter<double>("Quality_3");
   theOutPropagatorName = par.getParameter<string>("Propagator");
-
-  useTFileService_ = par.getUntrackedParameter<bool>("UseTFileService",false);
-
-
-  if(useTFileService_) {
-    edm::Service<TFileService> fs;
-    TFileDirectory subDir = fs->mkdir( "trackMatcher" );
-    h_pt = subDir.make<TH1F>( "h_pt"  , "p_{t}", 100,  0., 100. );
-    h_nTk = subDir.make<TH1F>( "h_nTk" , "n Tk" , 21 , -0.5, 20.5 );
-
-    h_distance_0 = subDir.make<TH1F>("h_distance_0","distance",100,0,50);
-    h_chi2_0 = subDir.make<TH1F>("h_chi2_0","chi2",100,0,500);
-    h_loc_chi2_0 = subDir.make<TH1F>("h_loc_chi2_0","loc_chi2",100,0,0.001);
-    h_deltaR_0 = subDir.make<TH1F>("h_deltaR_0","deltaR",100,0,10);
-
-    h_distance_a1 = subDir.make<TH1F>("h_distance_a1","distance a1",100,0,50);
-    h_loc_chi2_a1 = subDir.make<TH1F>("h_loc_chi2_a1","loc_chi2 a1",100,0,5);
-
-    h_chi2_a2 = subDir.make<TH1F>("h_chi2_a2","chi2 a2",100,0,500);
-    h_distance_a2 = subDir.make<TH1F>("h_distance_a2","distance a2",100,0,50);
-
-    h_distance_a3 = subDir.make<TH1F>("h_distance_a3","distance a3",100,0,50);
-    h_deltaR_a3 = subDir.make<TH1F>("h_deltaR_a3","deltaR a3",100,0,10);
-
-    h_deltaEta_b = subDir.make<TH1F>("h_deltaEta_b","deltaEta b",10,0,4);
-    h_deltaPhi_b = subDir.make<TH1F>("h_deltaPhi_b","deltaPhi b",30,0,3);
-
-    h_nMatch = subDir.make<TH1F>("h_nMatch","nMatch",11,-0.5,10.5);
-    h_nClean = subDir.make<TH1F>("h_nClean","nClean",11,-0.5,10.5);
-
-    h_nCands = subDir.make<TH1F>("h_nCands","nCands",11,-0.5,10.5);
-    h_na1 = subDir.make<TH1F>("h_na1","na1",11,-0.5,10.5);
-    h_na2 = subDir.make<TH1F>("h_na2","na2",11,-0.5,10.5);
-    h_na3 = subDir.make<TH1F>("h_na3","na3",11,-0.5,10.5);
-    h_nb = subDir.make<TH1F>("h_nb","nb",11,-0.5,10.5);
-  } else {
-    h_pt = 0;
-    h_nTk = 0;
-    h_distance_0 = 0;
-    h_chi2_0 = 0;
-    h_loc_chi2_0 = 0;
-    h_deltaR_0 = 0;
-    h_distance_a1 = 0;
-    h_loc_chi2_a1 = 0;
-    h_chi2_a2 = 0;
-    h_distance_a2 = 0;
-    h_distance_a3 = 0;
-    h_deltaR_a3 = 0;
-    h_deltaEta_b = 0;
-    h_deltaPhi_b = 0;
-    h_nMatch = 0;
-    h_nClean = 0;
-    h_nCands = 0;
-    h_na1 = 0;
-    h_na2 = 0;
-    h_na3 = 0;
-    h_nb = 0;
-  }
-
 }
 
 
@@ -248,20 +184,14 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
   
   if ( tracks.empty() ) return result;
   
-  if(h_nTk) h_nTk->Fill(tracks.size());
-
   typedef std::pair<TrackCand, TrajectoryStateOnSurface> TrackCandWithTSOS;
   vector<TrackCandWithTSOS> cands;
-  int iiTk = 1;
+  
   TrajectoryStateOnSurface muonTSOS;
-
-  LogTrace(category) << "   ***" << endl << "STA Muon pT "<< sta.second->pt(); 
-  LogTrace(category) << "   Tk in Region " << tracks.size() << endl;
-
-  for (vector<TrackCand>::const_iterator is = tracks.begin(); is != tracks.end(); ++is,iiTk++) {
+  
+  for (vector<TrackCand>::const_iterator is = tracks.begin(); is != tracks.end(); ++is) {
     // propagate to a common surface 
     std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> tsosPair = convertToTSOSMuHit(sta,*is);
-    LogTrace(category) << "    Tk " << iiTk << " of " << tracks.size() << "  ConvertToMuHitSurface muon isValid " << tsosPair.first.isValid() << " tk isValid " << tsosPair.second.isValid() << endl;
     if(tsosPair.first.isValid()) muonTSOS = tsosPair.first;
     cands.push_back(TrackCandWithTSOS(*is,tsosPair.second));
   }
@@ -273,9 +203,9 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
   double min_r_pos = 999999;
   bool passes[1000] = {false};
   int jj=0;
-  if(h_nCands) h_nCands->Fill(cands.size());
-  int iTkCand = 1;
-  for (vector<TrackCandWithTSOS>::const_iterator ii = cands.begin(); ii != cands.end(); ++ii,jj++,iTkCand++) {
+  
+  
+  for (vector<TrackCandWithTSOS>::const_iterator ii = cands.begin(); ii != cands.end(); ++ii,jj++) {
     
     // tracks that are able not able propagate to a common surface
     if(!muonTSOS.isValid() || !(*ii).second.isValid()) continue;
@@ -285,49 +215,20 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     double chi2 = match_Chi2(muonTSOS,(*ii).second);
     double loc_chi2 = match_dist(muonTSOS,(*ii).second);
     double deltaR = match_Rpos(muonTSOS,(*ii).second);
-
-    if(h_distance_0) h_distance_0->Fill(distance);
-    if(h_chi2_0) h_chi2_0->Fill(chi2);
-    if(h_loc_chi2_0) h_loc_chi2_0->Fill(loc_chi2);
-    if(h_deltaR_0) h_deltaR_0->Fill(deltaR);
-
-    LogTrace(category) << "   iTk " << iTkCand << " of " << cands.size() << " eta " << (*ii).second.globalPosition().eta() << " phi " << (*ii).second.globalPosition().phi() << endl; 
-    LogTrace(category) << "    distance " << distance << " distance cut " << " " << endl;
-    LogTrace(category) << "    chi2 " << chi2 << " chi2 cut " << " " << endl;
-    LogTrace(category) << "    loc_chi2 " << loc_chi2 << " locChi2 cut " << " " << endl;
-    LogTrace(category) << "    deltaR " << deltaR << " deltaR cut " << " " << endl;   
+    
     
     if( (*ii).second.globalMomentum().perp()<thePt_threshold1){
-      LogTrace(category) << "    Enters  a1" << endl;
-      if(h_na1) h_na1->Fill(1);
-      if(abs((*ii).second.globalMomentum().eta()<1.2) && h_chi2_a1) h_chi2_a1->Fill(chi2);
-      if(h_distance_a1) h_distance_a1->Fill(distance);
-      if(h_loc_chi2_a1) h_loc_chi2_a1->Fill(loc_chi2);
       if( ( chi2>0 && abs((*ii).second.globalMomentum().eta())<1.2 && chi2<theChi2_1 ) || (distance>0 && distance<theDeltaD_1 && loc_chi2>0 && loc_chi2<theLocChi2) ){
-	LogTrace(category) << "    Passes a1" << endl;
-	if(h_na1) h_na1->Fill(2);
         result.push_back((*ii).first);
         passes[jj]=true;
       }
     }else if((*ii).second.globalMomentum().perp()<thePt_threshold2){
-      LogTrace(category) << "    Enters a2" << endl;
-      if(h_na2) h_na2->Fill(1);
-      if(h_chi2_a2) h_chi2_a2->Fill(chi2);
-      if(h_distance_a2) h_distance_a2->Fill(distance);
       if( ( chi2>0 && chi2< theChi2_2 ) || (distance>0 && distance<theDeltaD_2) ){
-	LogTrace(category) << "    Passes a2" << endl;
-	if(h_na2) h_na2->Fill(2);
 	result.push_back((*ii).first);
 	passes[jj] = true;
       }
     }else{
-      LogTrace(category) << "    Enters a3" << endl;
-      if(h_na3) h_na3->Fill(1);
-      if(h_distance_a3) h_distance_a3->Fill(distance);
-      if(h_deltaR_a3) h_deltaR_a3->Fill(deltaR);
       if( distance>0 && distance<theDeltaD_3 && deltaR>0 && deltaR<theDeltaR_1){
-	LogTrace(category) << "    Passes a3" << endl;
-	if(h_na3) h_na3->Fill(2);
 	result.push_back((*ii).first);
         passes[jj]=true;
       }
@@ -346,25 +247,18 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
   jj=0;
   
   if ( result.empty() ) {
-    LogTrace(category) << "   Stage 1 returned 0 results";
+    LogDebug(category) << "First cuts returned 0 results";
     for (vector<TrackCandWithTSOS>::const_iterator is = cands.begin(); is != cands.end(); ++is,jj++) {
+      
       double deltaR = match_Rpos(muonTSOS,(*is).second);
-
-      if (muonTSOS.isValid() && (*is).second.isValid()) {
-	if(h_nb) h_nb->Fill(1);
+      
+      if (muonTSOS.isValid() && (*is).second.isValid()) 
 	// check matching between tracker and muon tracks using dEta cut looser then dPhi cut 
-	if(h_deltaEta_b) h_deltaEta_b->Fill((*is).second.globalPosition().eta()-muonTSOS.globalPosition().eta());
-	if(h_deltaPhi_b) h_deltaPhi_b->Fill(deltaPhi((*is).second.globalPosition().phi(),muonTSOS.globalPosition().phi()));
-
-	LogTrace(category) << "    Stage 2 deltaR " << deltaR << " deltaEta " << fabs((*is).second.globalPosition().eta()-muonTSOS.globalPosition().eta()<1.5*theDeltaR_2) << " deltaPhi " << (fabs(deltaPhi((*is).second.globalPosition().phi(),muonTSOS.globalPosition().phi()))<theDeltaR_2) << endl;
-
         if(fabs((*is).second.globalPosition().eta()-muonTSOS.globalPosition().eta()<1.5*theDeltaR_2)
-	   &&fabs(deltaPhi((*is).second.globalPosition().phi(),muonTSOS.globalPosition().phi()))<theDeltaR_2){
-	  if(h_nb) h_nb->Fill(2);
+        &&fabs(deltaPhi((*is).second.globalPosition().phi(),muonTSOS.globalPosition().phi()))<theDeltaR_2){
 	  result.push_back((*is).first);
 	  passes[jj]=true;
 	}
-      }
       
       if(passes[jj]){
         double distance = match_d(muonTSOS,(*is).second);
@@ -381,23 +275,12 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     
   }  
 
-  for(vector<TrackCand>::const_iterator iTk=result.begin();
-      iTk != result.end(); ++iTk) {
-    LogTrace(category) << "   -----" << endl 
-			      << "selected pt " << iTk->second->pt() 
-			      << " eta " << iTk->second->eta() 
-			      << " phi " << iTk->second->phi() << endl; 
-  }
-
-  if(h_nMatch) h_nMatch->Fill(result.size());
 
   if(result.size()<2)
     return result;
   else
     result.clear();
   
-  LogTrace(category) << "   Cleaning matched candiates" << endl;
-
   // re-initialize mask counter
   jj=0;
   
@@ -433,14 +316,7 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     }
     
   }
-  if(h_nClean) h_nClean->Fill(result.size());
-  for(vector<TrackCand>::const_iterator iTk=result.begin();
-      iTk != result.end(); ++iTk) {
-    LogTrace(category) << "   -----" << endl 
-			      << "selected pt " << iTk->second->pt() 
-			      << " eta " << iTk->second->eta() 
-			      << " phi " << iTk->second->phi() << endl; 
-  }
+
  
   return result;
 }
@@ -484,16 +360,16 @@ GlobalMuonTrackMatcher::convertToTSOSTk(const TrackCand& staCand,
     TrajectoryStateOnSurface newTkTsosFromTk, newTkTsosFromMu;
     if ( tkTsosFromMu.isValid() ) newTkTsosFromTk = theService->propagator(theOutPropagatorName)->propagate(outerTkTsos,tkTsosFromMu.surface());
     same1 = samePlane(newTkTsosFromTk,tkTsosFromMu);
-    LogTrace(category) << "Propagating to same tracker surface (Mu):" << same1;
+    LogDebug(category) << "Propagating to same tracker surface (Mu):" << same1;
     if ( !same1 ) {
       if ( tkTsosFromTk.isValid() ) newTkTsosFromMu = theService->propagator(theOutPropagatorName)->propagate(impactMuTSOS,tkTsosFromTk.surface());
       same2 = samePlane(newTkTsosFromMu,tkTsosFromTk);
-      LogTrace(category) << "Propagating to same tracker surface (Tk):" << same2;
+      LogDebug(category) << "Propagating to same tracker surface (Tk):" << same2;
     }
     if (same1) tkTsosFromTk = newTkTsosFromTk;
     else if (same2) tkTsosFromMu = newTkTsosFromMu;
     else  {
-      LogTrace(category) << "Could not propagate Muon and Tracker track to the same tracker bound!";
+      LogDebug(category) << "Could not propagate Muon and Tracker track to the same tracker bound!";
       return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(empty, empty);
     }
   }
@@ -530,7 +406,7 @@ GlobalMuonTrackMatcher::convertToTSOSMuHit(const TrackCand& staCand,
   }
     
   if ( !innerMuTSOS.isValid() || !outerTkTsos.isValid() ) {
-    LogTrace(category) << "A TSOS validity problem! MuTSOS " << innerMuTSOS.isValid() << " TkTSOS " << outerTkTsos.isValid();
+    LogDebug(category) << "A TSOS validity problem! MuTSOS " << innerMuTSOS.isValid() << " TkTSOS " << outerTkTsos.isValid();
     return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(empty,empty);
   }
   
@@ -538,7 +414,7 @@ GlobalMuonTrackMatcher::convertToTSOSMuHit(const TrackCand& staCand,
   TrajectoryStateOnSurface tkAtMu = theService->propagator(theOutPropagatorName)->propagate(*outerTkTsos.freeState(),refSurface);
   
   if ( !tkAtMu.isValid() ) {
-    LogTrace(category) << "Could not propagate Muon and Tracker track to the same muon hit surface!";
+    LogDebug(category) << "Could not propagate Muon and Tracker track to the same muon hit surface!";
     return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(empty,empty);    
   }
   
@@ -578,7 +454,7 @@ GlobalMuonTrackMatcher::convertToTSOSTkHit(const TrackCand& staCand,
   }
 
   if ( !impactMuTSOS.isValid() || !outerTkTsos.isValid() ) {
-    LogTrace(category) << "A TSOS validity problem! MuTSOS " << impactMuTSOS.isValid() << " TkTSOS " << outerTkTsos.isValid();
+    LogDebug(category) << "A TSOS validity problem! MuTSOS " << impactMuTSOS.isValid() << " TkTSOS " << outerTkTsos.isValid();
     return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(empty,empty);
   }
 
@@ -586,7 +462,7 @@ GlobalMuonTrackMatcher::convertToTSOSTkHit(const TrackCand& staCand,
   TrajectoryStateOnSurface muAtTk = theService->propagator(theOutPropagatorName)->propagate(*impactMuTSOS.freeState(),refSurface);
   
   if ( !muAtTk.isValid() ) {
-    LogTrace(category) << "Could not propagate Muon and Tracker track to the same tracker hit surface!";
+    LogDebug(category) << "Could not propagate Muon and Tracker track to the same tracker hit surface!";
     return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(empty,empty);    
   }
 
@@ -627,13 +503,13 @@ GlobalMuonTrackMatcher::match_Chi2(const TrajectoryStateOnSurface& tsos1,
                                    const TrajectoryStateOnSurface& tsos2) const {
   
   const string category = "GlobalMuonTrackMatcher";
-  //LogTrace(category) << "match_Chi2 sanity check: " << tsos1.isValid() << " " << tsos2.isValid();
+  LogDebug(category) << "match_Chi2 sanity check: " << tsos1.isValid() << " " << tsos2.isValid();
   if ( !tsos1.isValid() || !tsos2.isValid() ) return -1.;
   
   AlgebraicVector5 v(tsos1.localParameters().vector() - tsos2.localParameters().vector());
   AlgebraicSymMatrix55 m(tsos1.localError().matrix() + tsos2.localError().matrix());
   
-  //LogTrace(category) << "match_Chi2 vector v " << v;
+  LogDebug(category) << "vector v " << v;
 
   bool ierr = !m.Invert();
  
@@ -644,7 +520,7 @@ GlobalMuonTrackMatcher::match_Chi2(const TrajectoryStateOnSurface& tsos1,
  
   double est = ROOT::Math::Similarity(v,m);
  
-  //LogTrace(category) << "Chi2 " << est;
+  LogDebug(category) << "Chi2 " << est;
 
   return est;
 
@@ -744,7 +620,7 @@ GlobalMuonTrackMatcher::match_dist(const TrajectoryStateOnSurface& sta,
   v[1] = tk.localDirection().y() - sta.localDirection().y();
   
   if ( !m.Invert() ) {
-    LogTrace(category) << "Error inverting local matrix ";
+    LogDebug(category) << "Error inverting local matrix ";
     return -1;
   }
   

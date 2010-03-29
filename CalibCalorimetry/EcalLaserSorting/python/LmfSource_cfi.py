@@ -6,6 +6,7 @@ source = cms.Source("LmfSource",
   orderedRead = cms.bool(True),
   watchFileList = cms.bool(False),
   fileListName = cms.string("fileList.txt"),
+  inputDir = cms.string(""),
   nSecondsToSleep = cms.int32(5),
   verbosity = cms.untracked.int32(0)
 )

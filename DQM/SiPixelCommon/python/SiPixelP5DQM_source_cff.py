@@ -30,13 +30,15 @@ SiPixelRecHitSource.isPIB = False
 # Pixel Track Monitoring
 from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_cfi import *
 SiPixelTrackResidualSource.saveFile = False
+SiPixelTrackResidualSource.TrackCandidateProducer = cms.string('newTrackCandidateMaker')
+SiPixelTrackResidualSource.trajectoryInput = cms.InputTag('generalTracks')
 from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_Cosmics_cfi import *
 SiPixelTrackResidualSource_Cosmics.saveFile = False
 SiPixelTrackResidualSource_Cosmics.TrackCandidateProducer = cms.string('ckfTrackCandidatesP5')
 SiPixelTrackResidualSource_Cosmics.trajectoryInput = cms.string('ctfWithMaterialTracksP5')
-#MC
-SiPixelTrackResidualSource.TrackCandidateProducer = cms.string('newTrackCandidateMaker')
-SiPixelTrackResidualSource.trajectoryInput = cms.InputTag('generalTracks')
+from DQM.SiPixelMonitorTrack.SiPixelMonitorEfficiency_cfi import *
+SiPixelHitEfficiencySource.saveFile = False
+SiPixelHitEfficiencySource.trajectoryInput = cms.InputTag('generalTracks') 
 
 ##online/offline
 #RawDataErrors
@@ -91,6 +93,13 @@ SiPixelTrackResidualSource_Cosmics.phiOn = False
 SiPixelTrackResidualSource_Cosmics.bladeOn = False
 SiPixelTrackResidualSource_Cosmics.diskOn = False
 SiPixelTrackResidualSource_Cosmics.ringOn = False
+SiPixelHitEfficiencySource.modOn = True
+SiPixelHitEfficiencySource.ladOn = False
+SiPixelHitEfficiencySource.layOn = False
+SiPixelHitEfficiencySource.phiOn = False
+SiPixelHitEfficiencySource.bladeOn = False
+SiPixelHitEfficiencySource.diskOn = False
+SiPixelHitEfficiencySource.ringOn = False
 
 #DQM service
 dqmInfo = cms.EDFilter("DQMEventInfo",
@@ -100,7 +109,7 @@ dqmInfo = cms.EDFilter("DQMEventInfo",
 #FED integrity
 from DQM.SiPixelMonitorRawData.SiPixelMonitorHLT_cfi import *
 
-siPixelP5DQM_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource + dqmInfo)
+siPixelP5DQM_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource + SiPixelHitEfficiencySource + dqmInfo)
 
 siPixelP5DQM_cosmics_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource_Cosmics + dqmInfo)
 

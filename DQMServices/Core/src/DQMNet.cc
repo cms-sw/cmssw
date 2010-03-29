@@ -526,7 +526,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       if (o)
       {
 	o->lastreq = Time::current().ns();
-	if ((o->rawdata.empty() || (o->flags & DQM_PROP_STALE))
+	if (o->rawdata.empty()
 	    && (o->flags & DQM_PROP_TYPE_MASK) > DQM_PROP_TYPE_SCALAR)
 	  waitForData(p, name, "", owner);
 	else
@@ -666,20 +666,13 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       o->flags = words[2] | DQM_PROP_NEW | DQM_PROP_RECEIVED;
       o->tag = words[5];
       o->version = ((uint64_t) words[4] << 32 | words[3]);
+      o->rawdata.clear();
       o->scalar.clear();
       o->qdata.clear();
       if ((o->flags & DQM_PROP_TYPE_MASK) <= DQM_PROP_TYPE_SCALAR)
-      {
-	o->rawdata.clear();
         o->scalar.insert(o->scalar.end(), objdata, qdata);
-      }
-      else if (datalen)
-      {
-	o->rawdata.clear();
+      else
         o->rawdata.insert(o->rawdata.end(), objdata, qdata);
-      }
-      else if (! o->rawdata.empty())
-	o->flags |= DQM_PROP_STALE;
       o->qdata.insert(o->qdata.end(), qdata, enddata);
 
       // If we had an object for this one already and this is a list
@@ -1065,8 +1058,6 @@ DQMNet::DQMNet (const std::string &appname /* = "" */)
     communicate_ ((pthread_t) -1),
     shutdown_ (0),
     delay_ (1000),
-    waitStale_ (0, 0, 0, 0, 500000000 /* 500 ms */),
-    waitMax_ (0, 0, 0, 5 /* seconds */, 0),
     flush_ (false)
 {
   // Create a pipe for the local DQM to tell the communicator
@@ -1101,16 +1092,6 @@ void
 DQMNet::delay(int delay)
 {
   delay_ = delay;
-}
-
-/// Set the time limit for waiting updates to stale objects.
-/// Once limit has been exhausted whatever data exists is returned.
-/// Applies only when data has been received, another time limit is
-/// applied when no data payload has been received at all.
-void
-DQMNet::staleObjectWaitLimit(lat::TimeSpan time)
-{
-  waitStale_ = time;
 }
 
 /// Start a server socket for accessing this DQM node remotely.  Must
@@ -1381,30 +1362,12 @@ DQMNet::run(void)
     updatePeerMasks();
 
     // Release peers that have been waiting for data for too long.
-    Time waitold = now - waitMax_;
-    Time waitstale = now - waitStale_;
+    Time waitold = now - TimeSpan(0, 0, 2 /* minutes */, 0, 0);
     for (WaitList::iterator i = waiting_.begin(), e = waiting_.end(); i != e; )
     {
-      Object *o = findObject(0, i->name);
-
-      // If we have (stale) object data, wait only up to stale limit.
-      // Otherwise if we have no data at all, wait up to the max limit.
+      // If the peer has waited for too long, send something.
       if (i->time < waitold)
-      {
-        logme ()
-	  << "WARNING: source not responding in " << (waitMax_.ns() * 1e-9)
-	  << "s to retrieval, releasing '" << i->name << "' from wait, have "
-	  << o->rawdata.size() << " data available\n";
-	releaseFromWait(i++, o);
-      }
-      else if (i->time < waitstale && o && (o->flags & DQM_PROP_STALE))
-      {
-        logme ()
-	  << "WARNING: source not responding in " << (waitStale_.ns() * 1e-9)
-	  << "s to update, releasing '" << i->name << "' from wait, have "
-	  << o->rawdata.size() << " data available\n";
-	releaseFromWait(i++, o);
-      }
+	releaseFromWait(i++, findObject(0, i->name));
 
       // Keep it for now.
       else

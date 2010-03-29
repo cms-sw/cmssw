@@ -298,6 +298,9 @@ namespace h {
 
 #define CONFIG_HISTONAMES_SEQ_02 \
   \
+  (( EMU_EVENT_DISPLAY_ANODE, "Event_Display_Anode" )) \
+  (( EMU_EVENT_DISPLAY_CATHODE, "Event_Display_Cathode" )) \
+  (( EMU_EVENT_DISPLAY_XY, "Event_Display_XY" )) \
   (( PAR_REPORT_SUMMARY, "reportSummary" )) \
   (( PAR_CSC_SIDEMINUS, "CSC_SideMinus" )) \
   (( PAR_CSC_SIDEMINUS_STATION01, "CSC_SideMinus_Station01" )) \

@@ -405,7 +405,7 @@ namespace edm
       if (got) {
 	playbackInfo_H->getEventStartInfo(vectorEventIDs_,s);
       }else{
-	LogWarning("MixingModule")<<"\n\nAttention: No CrossingFramePlaybackInfoExtended on the input file, but playback option set!!!!!!!\nAttention: Job is executed without playback, please change the input file if you really want playback!!!!!!!";
+        throw cms::Exception("MixingProductNotFound") << " No CrossingFramePlaybackInfoExtended on the input file, but playback option set!!!!! Please change the input file if you really want playback!!!!!!"  << endl;    
       }
     }
   }
