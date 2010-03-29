@@ -65,8 +65,6 @@ class CaloHitRespoNew
 
       const CaloSamples& operator[]( unsigned int i ) const ;
 
-      CaloSamples& operator[]( unsigned int i ) ;
-
    protected:
 
       CaloSamples* findSignal( const DetId& detId ) ;

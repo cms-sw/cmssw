@@ -130,13 +130,6 @@ CaloHitRespoNew::samplesSize() const
    return m_vSamp.size() ;
 }
 
-CaloSamples& 
-CaloHitRespoNew::operator[]( unsigned int i ) 
-{
-   assert( i < m_vSamp.size() ) ;
-   return m_vSamp[ i ] ;
-}
-
 void 
 CaloHitRespoNew::setupSamples( const DetId& detId )
 {
