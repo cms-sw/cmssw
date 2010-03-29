@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.39 2010/03/28 18:47:29 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.40 2010/03/28 20:37:54 dinardo Exp $
 //
 //
 
@@ -1028,9 +1028,9 @@ void Vx3DHLTAnalyzer::beginJob()
     {
       dbe->setCurrentFolder("BeamPixel");
 
-      Vx_X = dbe->book1D("Vertex_X", "Primary Vertex X Coordinate Distribution", (int)(xRange/xStep), -xRange/2., xRange/2.);
-      Vx_Y = dbe->book1D("Vertex_Y", "Primary Vertex Y Coordinate Distribution", (int)(yRange/yStep), -yRange/2., yRange/2.);
-      Vx_Z = dbe->book1D("Vertex_Z", "Primary Vertex Z Coordinate Distribution", (int)(zRange/zStep), -zRange/2., zRange/2.);
+      Vx_X = dbe->book1D("vertex x", "Primary Vertex X Coordinate Distribution", (int)(xRange/xStep), -xRange/2., xRange/2.);
+      Vx_Y = dbe->book1D("vertex y", "Primary Vertex Y Coordinate Distribution", (int)(yRange/yStep), -yRange/2., yRange/2.);
+      Vx_Z = dbe->book1D("vertex z", "Primary Vertex Z Coordinate Distribution", (int)(zRange/zStep), -zRange/2., zRange/2.);
 
       Vx_X->setAxisTitle("Primary Vertices X [cm]",1);
       Vx_X->setAxisTitle("Entries [#]",2);
@@ -1103,27 +1103,27 @@ void Vx3DHLTAnalyzer::beginJob()
       sZlumi->getTH1()->GetYaxis()->SetTitleSize(0.04);
       sZlumi->getTH1()->GetYaxis()->SetLabelSize(0.03);
 
-      dxdzlumi = dbe->book1D("dxdz vs lumi", "dxdz vs. Lumisection", 50, 0.5, 50.5);
-      dydzlumi = dbe->book1D("dydz vs lumi", "dydz vs. Lumisection", 50, 0.5, 50.5);
+      dxdzlumi = dbe->book1D("dxdz vs lumi", "dX/dZ vs. Lumisection", 50, 0.5, 50.5);
+      dydzlumi = dbe->book1D("dydz vs lumi", "dY/dZ vs. Lumisection", 50, 0.5, 50.5);
 
       dxdzlumi->setAxisTitle("Lumisection [#]",1);
-      dxdzlumi->setAxisTitle("dxdz [deg]",2);
+      dxdzlumi->setAxisTitle("dX/dZ [rad]",2);
       dxdzlumi->getTH1()->SetOption("E1");
       dxdzlumi->getTH1()->GetXaxis()->SetTitleSize(0.04);
       dxdzlumi->getTH1()->GetXaxis()->SetLabelSize(0.03);
       dxdzlumi->getTH1()->GetYaxis()->SetTitleSize(0.04);
       dxdzlumi->getTH1()->GetYaxis()->SetLabelSize(0.03);
       dydzlumi->setAxisTitle("Lumisection [#]",1);
-      dydzlumi->setAxisTitle("dydz [deg]",2);
+      dydzlumi->setAxisTitle("dY/dZ [rad]",2);
       dydzlumi->getTH1()->SetOption("E1");
       dydzlumi->getTH1()->GetXaxis()->SetTitleSize(0.04);
       dydzlumi->getTH1()->GetXaxis()->SetLabelSize(0.03);
       dydzlumi->getTH1()->GetYaxis()->SetTitleSize(0.04);
       dydzlumi->getTH1()->GetYaxis()->SetLabelSize(0.03);
 
-      Vx_ZX = dbe->book2D("Vertex_ZX", "Primary Vertex ZX Coordinate Distributions", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(xRange/xStep/10.), -xRange/2., xRange/2.);
-      Vx_ZY = dbe->book2D("Vertex_ZY", "Primary Vertex ZY Coordinate Distributions", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(yRange/yStep/10.), -yRange/2., yRange/2.);
-      Vx_XY = dbe->book2D("Vertex_XY", "Primary Vertex XY Coordinate Distributions", (int)(xRange/xStep/10.), -xRange/2., xRange/2., (int)(yRange/yStep/10.), -yRange/2., yRange/2.);
+      Vx_ZX = dbe->book2D("vertex zx", "Primary Vertex ZX Coordinate Distribution", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(xRange/xStep/10.), -xRange/2., xRange/2.);
+      Vx_ZY = dbe->book2D("vertex zy", "Primary Vertex ZY Coordinate Distribution", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(yRange/yStep/10.), -yRange/2., yRange/2.);
+      Vx_XY = dbe->book2D("vertex xy", "Primary Vertex XY Coordinate Distribution", (int)(xRange/xStep/10.), -xRange/2., xRange/2., (int)(yRange/yStep/10.), -yRange/2., yRange/2.);
 
       Vx_ZX->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZX->setAxisTitle("Primary Vertices X [cm]",2);
@@ -1147,7 +1147,7 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_XY->getTH1()->GetYaxis()->SetTitleSize(0.04);
       Vx_XY->getTH1()->GetYaxis()->SetLabelSize(0.03);
 
-      Vx_ZX_profile = dbe->bookProfile("ZX profile","ZX Profile", (int)(zRange/zStep/20.), -zRange/2., zRange/2., (int)(xRange/xStep/20.), -xRange/2., xRange/2., "");
+      Vx_ZX_profile = dbe->bookProfile("zx profile","ZX Profile", (int)(zRange/zStep/20.), -zRange/2., zRange/2., (int)(xRange/xStep/20.), -xRange/2., xRange/2., "");
       Vx_ZX_profile->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZX_profile->setAxisTitle("Primary Vertices X [cm]",2);
       Vx_ZX_profile->getTH1()->GetXaxis()->SetTitleSize(0.04);
@@ -1155,7 +1155,7 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_ZX_profile->getTH1()->GetYaxis()->SetTitleSize(0.04);
       Vx_ZX_profile->getTH1()->GetYaxis()->SetLabelSize(0.03);
 
-      Vx_ZY_profile = dbe->bookProfile("ZY profile","ZY Profile", (int)(zRange/zStep/20.), -zRange/2., zRange/2., (int)(yRange/yStep/20.), -yRange/2., yRange/2., "");
+      Vx_ZY_profile = dbe->bookProfile("zy profile","ZY Profile", (int)(zRange/zStep/20.), -zRange/2., zRange/2., (int)(yRange/yStep/20.), -yRange/2., yRange/2., "");
       Vx_ZY_profile->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZY_profile->setAxisTitle("Primary Vertices Y [cm]",2);
       Vx_ZY_profile->getTH1()->GetXaxis()->SetTitleSize(0.04);
@@ -1163,24 +1163,24 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_ZY_profile->getTH1()->GetYaxis()->SetTitleSize(0.04);
       Vx_ZY_profile->getTH1()->GetYaxis()->SetLabelSize(0.03);
 
-      hitCounter = dbe->book1D("pixelHits vs lumi", "# pixel-hits vs. Lumisection", 50, 0.5, 50.5);
+      hitCounter = dbe->book1D("pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", 50, 0.5, 50.5);
 
       hitCounter->setAxisTitle("Lumisection [#]",1);
-      hitCounter->setAxisTitle("# pixel-hits [#]",2);
+      hitCounter->setAxisTitle("# Pixel-Hits [#]",2);
       hitCounter->getTH1()->SetOption("E1");
       hitCounter->getTH1()->GetXaxis()->SetTitleSize(0.04);
       hitCounter->getTH1()->GetXaxis()->SetLabelSize(0.03);
       hitCounter->getTH1()->GetYaxis()->SetTitleSize(0.04);
       hitCounter->getTH1()->GetYaxis()->SetLabelSize(0.03);
 
-      fitResults = dbe->book2D("fitResults","Results of beam fit", 2, 0., 2., 8, 0., 8.);
+      fitResults = dbe->book2D("fit results","Results of Beam Spot Fit", 2, 0., 2., 8, 0., 8.);
       fitResults->setAxisTitle("Fitted Beam Spot [cm]", 1);
       fitResults->setBinLabel(8, "X0", 2);
       fitResults->setBinLabel(7, "Y0", 2);
       fitResults->setBinLabel(6, "Z0", 2);
       fitResults->setBinLabel(5, "sigmaZ0", 2);
-      fitResults->setBinLabel(4, "dxdz", 2);
-      fitResults->setBinLabel(3, "dydz", 2);
+      fitResults->setBinLabel(4, "dX/dZ", 2);
+      fitResults->setBinLabel(3, "dY/dZ", 2);
       fitResults->setBinLabel(2, "BeamWidthX", 2);
       fitResults->setBinLabel(1, "BeamWidthY", 2);
       fitResults->setBinLabel(1, "Value", 1);
@@ -1194,7 +1194,7 @@ void Vx3DHLTAnalyzer::beginJob()
       dbe->setCurrentFolder("BeamPixel/EventInfo");
       reportSummary = dbe->bookFloat("reportSummary");
       reportSummary->Fill(0.);
-      reportSummaryMap = dbe->book2D("reportSummaryMap","Beam Pixel Summary Map", 1, 0., 1., 1, 0., 1.);
+      reportSummaryMap = dbe->book2D("reportSummaryMap","Pixel-Vertices Beam Spot Summary Map", 1, 0., 1., 1, 0., 1.);
       reportSummaryMap->Fill(0.5, 0.5, 0.);
       dbe->setCurrentFolder("BeamPixel/EventInfo/reportSummaryContents");
 
