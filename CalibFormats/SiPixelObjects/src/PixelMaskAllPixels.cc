@@ -18,7 +18,6 @@
 #include <map>
 #include <iostream>
 #include <assert.h>
-#include <stdexcept>
 
 using namespace pos;
 using namespace std;
@@ -104,7 +103,7 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::string filename):
 
 	if (!in.good()){
 	    std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
-	    throw std::runtime_error("Failed to open file "+filename);
+	    assert(0);
 	}
 	
 	std::string tag;
@@ -274,15 +273,15 @@ void PixelMaskAllPixels::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>ROC Mask Bits</RUN_TYPE>"                                                 << std::endl ; 
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                         << std::endl ; 
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ; 
-  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                       << std::endl ; 
+  *outstream << "   <COMMENT_DESCRIPTION>ROC Mask Bits</COMMENT_DESCRIPTION>"                           << std::endl ; 
+  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                      << std::endl ; 
+  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                               << std::endl ; 
   *outstream << "  </RUN>"                                                                              << std::endl ; 
   *outstream << " </HEADER>"                                                                            << std::endl ; 
   *outstream << ""                                                                                      << std::endl ; 
   *outstream << " <DATA_SET>"                                                                           << std::endl ;
   *outstream << ""                                                                                      << std::endl ;
-  *outstream << "  <VERSION>"             << version      << "</VERSION>"                               << std::endl ;
-  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"		        << std::endl ;
-  *outstream << "  <CREATED_BY_USER>"     << getAuthor()  << "</CREATED_BY_USER>"  		        << std::endl ;
+  *outstream << "  <VERSION>" << version << "</VERSION>"                                                << std::endl ;
   *outstream << ""                                                                                      << std::endl ;
   *outstream << "  <PART>"                                                                              << std::endl ;
   *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                            << std::endl ;      

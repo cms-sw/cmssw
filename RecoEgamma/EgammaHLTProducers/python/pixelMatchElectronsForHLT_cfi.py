@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 # produce electrons based on matched pixel hits
-# $Id: pixelMatchElectronsForHLT_cfi.py,v 1.2 2008/04/21 03:26:07 rpw Exp $
+# $Id: pixelMatchElectronsForHLT_cfi.py,v 1.3 2008/07/02 16:12:04 ghezzi Exp $
 #
-pixelMatchElectronsForHLT = cms.EDFilter("EgammaHLTPixelMatchElectronProducers",
+pixelMatchElectronsForHLT = cms.EDProducer("EgammaHLTPixelMatchElectronProducers",
     # needed for CkfTrajectoryBuilder
     # propagatorAlong = cms.string('PropagatorWithMaterial'),
     # nested parameter set for TransientInitialStateEstimator

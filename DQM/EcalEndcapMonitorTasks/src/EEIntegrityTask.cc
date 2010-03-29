@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2009/06/23 06:47:36 $
- * $Revision: 1.46 $
+ * $Date: 2009/10/26 17:33:51 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
  */
@@ -423,11 +423,11 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( *idItr );
 
-      vector<DetId> crystals = Numbers::crystals( *idItr );
+      vector<DetId>* crystals = Numbers::crystals( *idItr );
 
-      for ( unsigned int i=0; i<crystals.size(); i++ ) {
+      for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
-      EEDetId id = crystals[i];
+      EEDetId id = (*crystals)[i];
 
       int ix = id.ix();
       int iy = id.iy();
@@ -459,11 +459,11 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( *idItr );
 
-      vector<DetId> crystals = Numbers::crystals( *idItr );
+      vector<DetId>* crystals = Numbers::crystals( *idItr );
 
-      for ( unsigned int i=0; i<crystals.size(); i++ ) {
+      for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
-      EEDetId id = crystals[i];
+      EEDetId id = (*crystals)[i];
 
       int ix = id.ix();
       int iy = id.iy();

@@ -36,7 +36,7 @@ ReadMeFromFile::~ReadMeFromFile(){
   dbe_ = 0;
 }
 
-void ReadMeFromFile::beginJob(const EventSetup& iSetup){}
+void ReadMeFromFile::beginJob(){}
 
 void ReadMeFromFile::beginRun(const Run& r, const EventSetup& iSetup){
   LogVerbatim ("readfile") << "[ReadMeFromFile]: Begin run";

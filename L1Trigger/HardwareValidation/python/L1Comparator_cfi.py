@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1compare = cms.EDFilter("L1Comparator",
+l1compare = cms.EDProducer("L1Comparator",
     ETPsourceData = cms.InputTag("ecalDigis", "EcalTriggerPrimitives"),
     ETPsourceEmul = cms.InputTag("valEcalTriggerPrimitiveDigis"),
     HTPsourceData = cms.InputTag("hcalDigis"),

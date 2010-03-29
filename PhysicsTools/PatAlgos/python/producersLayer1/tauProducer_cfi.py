@@ -27,11 +27,23 @@ patTaus = cms.EDProducer("PATTauProducer",
       userFunctionLabels = cms.vstring()
     ),
 
-    # embedding objects
+    # embedding objects (for Calo- and PFTaus)
     embedLeadTrack       = cms.bool(False), ## embed in AOD externally stored leading track
     embedSignalTracks    = cms.bool(False), ## embed in AOD externally stored signal tracks
     embedIsolationTracks = cms.bool(False), ## embed in AOD externally stored isolation tracks
-                           
+    # embedding objects (for PFTaus only)
+    embedLeadPFCand = cms.bool(False), ## embed in AOD externally stored leading PFCandidate
+    embedLeadPFChargedHadrCand = cms.bool(False), ## embed in AOD externally stored leading PFChargedHadron candidate
+    embedLeadPFNeutralCand = cms.bool(False), ## embed in AOD externally stored leading PFNeutral Candidate
+    embedSignalPFCands = cms.bool(False), ## embed in AOD externally stored signal PFCandidates
+    embedSignalPFChargedHadrCands = cms.bool(False), ## embed in AOD externally stored signal PFChargedHadronCandidates
+    embedSignalPFNeutralHadrCands = cms.bool(False), ## embed in AOD externally stored signal PFNeutralHadronCandidates
+    embedSignalPFGammaCands = cms.bool(False), ## embed in AOD externally stored signal PFGammaCandidates
+    embedIsolationPFCands = cms.bool(False), ## embed in AOD externally stored isolation PFCandidates
+    embedIsolationPFChargedHadrCands = cms.bool(False), ## embed in AOD externally stored isolation PFChargedHadronCandidates
+    embedIsolationPFNeutralHadrCands = cms.bool(False), ## embed in AOD externally stored isolation PFNeutralHadronCandidates
+    embedIsolationPFGammaCands = cms.bool(False), ## embed in AOD externally stored isolation PFGammaCandidates
+
     # embed IsoDeposits
     isoDeposits = cms.PSet(
         pfAllParticles = cms.InputTag("tauIsoDepositPFCandidates"),

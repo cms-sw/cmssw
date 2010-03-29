@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.13 2010/02/01 11:42:21 mommsen Exp $
+// $Id: FileHandler.cc,v 1.14 2010/02/01 14:08:31 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -34,7 +34,9 @@ _diskWritingParams(dwParams),
 _maxFileSize(maxFileSize),
 _logPath(dwParams._filePath+"/log"),
 _logFile(logFile(dwParams)),
-_cmsver(edm::getReleaseVersion())
+_cmsver(edm::getReleaseVersion()),
+_adlerstream(0),
+_adlerindex(0)
 {
   // stripp quotes if present
   if(_cmsver[0]=='"') _cmsver=_cmsver.substr(1,_cmsver.size()-2);

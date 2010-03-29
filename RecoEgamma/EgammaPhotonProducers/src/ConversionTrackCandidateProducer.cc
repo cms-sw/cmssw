@@ -100,21 +100,17 @@ void  ConversionTrackCandidateProducer::beginRun (edm::Run& r , edm::EventSetup 
   theNavigationSchool_ = nav.product();
 
   // get the Out In Seed Finder  
-  edm::LogInfo("ConversionTrackCandidateProducer") << " get the OutInSeedFinder" << "\n";
   theOutInSeedFinder_ = new OutInConversionSeedFinder (  conf_ );
   
   // get the Out In Track Finder
-  edm::LogInfo("ConversionTrackCandidateProducer") << " get the OutInTrackFinder" << "\n";
   theOutInTrackFinder_ = new OutInConversionTrackFinder ( theEventSetup, conf_  );
 
   
   // get the In Out Seed Finder  
-  edm::LogInfo("ConversionTrackCandidateProducer") << " get the InOutSeedFinder" << "\n";
   theInOutSeedFinder_ = new InOutConversionSeedFinder ( conf_ );
   
   
   // get the In Out Track Finder
-  edm::LogInfo("ConversionTrackCandidateProducer") << " get the InOutTrackFinder" << "\n";
   theInOutTrackFinder_ = new InOutConversionTrackFinder ( theEventSetup, conf_  );
 
 
@@ -135,7 +131,6 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   
   using namespace edm;
   nEvt_++;
-  edm::LogInfo("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer Analyzing event number: " << theEvent.id() << " Global Counter " << nEvt_ << "\n";
   //  std::cout << "ConversionTrackCandidateProducer Analyzing event number " <<   theEvent.id() <<  " Global Counter " << nEvt_ << "\n";
   
 
@@ -227,12 +222,10 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   // put all products in the event
  // Barrel
  //std::cout  << "ConversionTrackCandidateProducer Putting in the event " << (*outInTrackCandidate_p).size() << " Out In track Candidates " << "\n";
- edm::LogInfo("ConversionTrackCandidateProducer") << "Number of outInTrackCandidates: " <<  (*outInTrackCandidate_p).size() << "\n";
  const edm::OrphanHandle<TrackCandidateCollection> refprodOutInTrackC = theEvent.put( outInTrackCandidate_p, OutInTrackCandidateCollection_ );
  //std::cout  << "ConversionTrackCandidateProducer  refprodOutInTrackC size  " <<  (*(refprodOutInTrackC.product())).size()  <<  "\n";
  //
  //std::cout  << "ConversionTrackCandidateProducer Putting in the event  " << (*inOutTrackCandidate_p).size() << " In Out track Candidates " <<  "\n";
- edm::LogInfo("ConversionTrackCandidateProducer") << "Number of inOutTrackCandidates: " <<  (*inOutTrackCandidate_p).size() << "\n";
  const edm::OrphanHandle<TrackCandidateCollection> refprodInOutTrackC = theEvent.put( inOutTrackCandidate_p, InOutTrackCandidateCollection_ );
  //std::cout  << "ConversionTrackCandidateProducer  refprodInOutTrackC size  " <<  (*(refprodInOutTrackC.product())).size()  <<  "\n";
 

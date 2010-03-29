@@ -7,7 +7,7 @@ class AddTcMET(ConfigToolBase):
     """ Add track corrected MET collection to patEventContent
     """
     _label='addTcMET'    
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -54,7 +54,7 @@ class AddPfMET(ConfigToolBase):
     """ Add pflow MET collection to patEventContent
     """
     _label='addPfMET'    
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)

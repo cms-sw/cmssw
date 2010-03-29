@@ -5,8 +5,9 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h" 
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
@@ -177,7 +178,10 @@ PFBlockProducer::produce(Event& iEvent,
 
   // get PFNuclearInteractions
   }
-  Handle< reco::PFNuclearInteractionCollection > pfNuclears;
+  //---------- Gouzevitch
+  //  Handle< reco::PFNuclearInteractionCollection > pfNuclears; 
+  Handle< reco::PFDisplacedTrackerVertexCollection > pfNuclears; 
+
   if( useNuclear_ ) {
     found = iEvent.getByLabel(inputTagPFNuclear_, pfNuclears);
 

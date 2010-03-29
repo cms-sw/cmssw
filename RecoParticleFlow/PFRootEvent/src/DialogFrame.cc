@@ -130,14 +130,15 @@ void DialogFrame::createCmdFrame()
 
   // create threshold fields
   TGNumberFormat::ELimit lim = TGNumberFormat::kNELLimitMinMax;  
+  float limit=100;
   for (int i=0;i<6;++i){
     thresholdS_[i] = new TGDoubleHSlider(gr1,100,kDoubleScaleNo,ENER+i);
     thresholdS_[i]->Associate(this);
-    thresholdS_[i]->SetRange(0,10);
+    thresholdS_[i]->SetRange(0,limit);
    
     threshEntry_[i] = new TGNumberEntryField(gr1,EN+i,0);
     threshEntry_[i]->Associate(this);
-    threshEntry_[i]->SetLimits(lim,0,10);
+    threshEntry_[i]->SetLimits(lim,0,limit);
     threshEntry_[i]->SetFormat((TGNumberFormat::EStyle)2);
   }
   thresholdS_[0]->SetPosition((float) display_->hitEnMin_,(float) display_->hitEnMin_);

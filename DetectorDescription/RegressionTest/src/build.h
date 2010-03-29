@@ -2,7 +2,7 @@
 #define DDD_RegressionTest_h
 
 #include <string>
-#include <DetectorDescription/Core/interface/DDCompactView.h>
+
 // will define a small setup using not XML
 // but only DDCore-calls
 

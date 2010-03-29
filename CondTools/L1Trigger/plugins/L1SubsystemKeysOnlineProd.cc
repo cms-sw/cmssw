@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Aug 21 20:00:59 CEST 2008
-// $Id: L1SubsystemKeysOnlineProd.cc,v 1.4 2008/12/15 23:00:19 wsun Exp $
+// $Id: L1SubsystemKeysOnlineProd.cc,v 1.5 2010/02/01 22:00:03 wsun Exp $
 //
 //
 
@@ -26,6 +26,7 @@
 #include "CondTools/L1Trigger/plugins/L1SubsystemKeysOnlineProd.h"
 
 #include "CondTools/L1Trigger/interface/Exception.h"
+#include "CondTools/L1Trigger/interface/DataWriter.h"
 
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
@@ -83,13 +84,16 @@ L1SubsystemKeysOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
    boost::shared_ptr<L1TriggerKey> pL1TriggerKey ;
 
    // Get L1TriggerKeyList
-   const L1TriggerKeyListRcd& keyListRcd =
-     iRecord.getRecord< L1TriggerKeyListRcd >() ;
-   edm::ESHandle< L1TriggerKeyList > keyList ;
-   keyListRcd.get( keyList ) ;
+   L1TriggerKeyList keyList ;
+   l1t::DataWriter dataWriter ;
+   if( !dataWriter.fillLastTriggerKeyList( keyList ) )
+     {
+       edm::LogError( "L1-O2O" )
+	 << "Problem getting last L1TriggerKeyList" ;
+     }
 
    // If L1TriggerKeyList does not contain TSC key, token is empty
-   if( keyList->token( m_tscKey ) == std::string() ||
+   if( keyList.token( m_tscKey ) == std::string() ||
        m_forceGeneration )
      {
        // Instantiate new L1TriggerKey

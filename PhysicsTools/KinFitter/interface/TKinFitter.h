@@ -128,8 +128,10 @@ private :
   TMatrixD _C33;     // Matrix C33
   TMatrixD _C33T;    // Matrix C33T
 
-  TMatrixD _deltaA;  // The correction vector deltaA for unmeasured particles of the last iteration
-  TMatrixD _deltaY;  // The correction vector deltaY for measured particles of the last iteration
+  TMatrixD _deltaA;  // The correction vector deltaA for unmeasured particles of the current iteration
+  TMatrixD _deltaY;  // The correction vector deltaY for measured particles of the current iteration
+  TMatrixD _deltaAstar; // The correction vector deltaA for unmeasured particles of the previous iteration
+  TMatrixD _deltaYstar; // The correction vector deltaY for measured particles of the previous iteration
   TMatrixD _lambda;  // The column vector of Lagrange multiplicators (likelihood L = S + 2 sum_i lambda_i * f_i)
   TMatrixD _lambdaT; // The row vector of Lagrange multiplicators (likelihood L = S + 2 sum_i lambda_i * f_i)
 

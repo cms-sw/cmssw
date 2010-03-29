@@ -28,27 +28,17 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-
-#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/zmm/testZMuMuSubSkim_1.root",
-#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/zmm/testZMuMuSubSkim_2.root",
-#    "rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_1.root",
-#    "rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_2.root",
-#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_3.root",
-#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_4.root",
-#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_5.root",
-#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_6.root",
-#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/TTbar/testZMuMuSubSkim_1.root",
-
-    )
+"file:../../Skimming/test/testZMuMuSubskim.root")
 )
+
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("Analysis_zmm_10TeV_SameCharge.root")
+    fileName = cms.string("Analysis_zmm.root")
 )
 
 zSelection = cms.PSet(
-    cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & abs(daughter(0).eta)<2.1 & abs(daughter(1).eta)<2.1 & mass > 20"),
+    cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & abs(daughter(0).eta)<2.1 & abs(daughter(1).eta)<2.1 & mass > 0"),
     isoCut = cms.double(3.),
     ptThreshold = cms.untracked.double("1.5"),
     etEcalThreshold = cms.untracked.double("0.2"),
@@ -561,8 +551,8 @@ process.initialGoodZToMuMuPath = cms.Path(
 addModulesFromTemplate(
     process.goodZToMuMu +
     process.goodZToMuMuAtLeast1HLT+
-    process.goodZToMuMuPlots +
-    process.globalMuQualityCutsAnalysis,
+    process.goodZToMuMuPlots ,
+#    process.globalMuQualityCutsAnalysis,
     "goodZToMuMu", "goodZToMuMu",
     "double")
 
@@ -588,8 +578,8 @@ addModulesFromTemplate(
     process.dimuonsGlobalSameCharge+
     process.goodZToMuMuSameCharge +
     process.goodZToMuMuSameChargeAtLeast1HLT+
-    process.goodZToMuMuSameChargeAtLeast1HLTPlots +
-    process.globalMuQualityCutsAnalysisSameCharge,
+    process.goodZToMuMuSameChargeAtLeast1HLTPlots ,
+#    process.globalMuQualityCutsAnalysisSameCharge,
     "goodZToMuMuSameCharge", "goodZToMuMuSameCharge",
     "double")
 

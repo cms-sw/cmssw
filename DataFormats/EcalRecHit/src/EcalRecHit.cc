@@ -7,11 +7,13 @@
 
 #include <iostream>
 
-EcalRecHit::EcalRecHit() : CaloRecHit() {
+EcalRecHit::EcalRecHit() : CaloRecHit(), flagBits_(0) {
 }
 
-EcalRecHit::EcalRecHit(const DetId& id, float energy, float time, uint32_t flags) :
-  CaloRecHit(id,energy,time,flags) {
+EcalRecHit::EcalRecHit(const DetId& id, float energy, float time, uint32_t flags, uint32_t flagBits) :
+  CaloRecHit(id,energy,time,flags),
+  flagBits_(flagBits)
+{
 }
 
 bool EcalRecHit::isRecovered() const {
@@ -103,7 +105,7 @@ void EcalRecHit::setChi2( float chi2 )
 
 void EcalRecHit::setOutOfTimeEnergy( float energy )
 {
-        if ( energy > 0 ) {
+        if ( energy > 0.001 ) {
                 uint16_t exponent = lround(floor(log10(energy)))+3;
                 uint16_t significand = lround(energy/pow(10,exponent-5));
                 // use 13 bits (3 exponent, 10 significand)

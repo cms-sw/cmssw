@@ -3,9 +3,9 @@
 /** \class PhotonCoreProducer
  **  
  **
- **  $Id: PhotonCoreProducer.h,v 1.1 2009/03/25 11:18:31 nancy Exp $ 
- **  $Date: 2009/03/25 11:18:31 $ 
- **  $Revision: 1.1 $
+ **  $Id: PhotonCoreProducer.h,v 1.2 2010/01/07 17:18:44 nancy Exp $ 
+ **  $Date: 2010/01/07 17:18:44 $ 
+ **  $Revision: 1.2 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -62,8 +62,7 @@ class PhotonCoreProducer : public edm::EDProducer {
   edm::InputTag scHybridBarrelCollection_;
   edm::InputTag scIslandEndcapCollection_;
 
-  std::string conversionProducer_;
-  std::string conversionCollection_;
+  edm::InputTag conversionProducer_;
 
   double minSCEt_;
   bool validConversions_;

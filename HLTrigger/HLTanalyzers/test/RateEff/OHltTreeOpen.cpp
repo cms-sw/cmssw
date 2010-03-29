@@ -570,45 +570,24 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
     }      
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SC10_LW_L1R") == 0) {         
-    float Et = 15.; 
-    int L1iso = 0;  
-    float Tiso = 9999.;  
-    float Hiso = 9999.; 
-    int rc = 0; 
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      for (int i=0;i<NohEleLW;i++) {  
-        if ( ohEleEtLW[i] > Et) {  
-	  if( TMath::Abs(ohEleEtaLW[i]) < 2.65) {
-	    if ( ohEleHisoLW[i] < Hiso || ohEleHisoLW[i]/ohEleEtLW[i] < 0.05) { 
-	      if (ohEleNewSCLW[i]==1) { 
-		if (ohElePixelSeedsLW[i]>0) { 
-		  if ( (ohEleTisoLW[i] < Tiso && ohEleTisoLW[i] != -999.) || (Tiso == 9999.) ){ 
-		    if ( ohEleL1isoLW[i] >= L1iso ) {  // L1iso is 0 or 1  
-		      if( ohEleLWL1Dupl[i] == false) { // remove double-counted L1 SCs
-			for(int j=0;j<NohEleLW && j != i;j++) { 
-			  if(ohEleEtLW[j] > 10.) { 
-			    if(TMath::Abs(ohEleEtaLW[j]) < 2.65) {
-			      if(ohEleEt[i] != ohEleEtLW[j])
-				rc++;        
-			    }
-			  }
-			}
-		      }
-		    } 
-		  } 
-		} 
-	      } 
-	    } 
-	  } 
-	} 
+    int rc = 0;
+
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1LWElectronPassed(15.,0,9999.,9999.)>=1) {
+	// Loop over all oh photons
+	for (int i=0;i<NohPhot;i++) {
+	  if ( ohPhotEt[i] > 10) {
+	    if( ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs
+	      rc++;
+	  }
+	}
       }
     }
-    
-    if(rc >= 1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }         
+
+    if(rc > 1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
     }
   }  
-  
   
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleEle10_LW_L1R") == 0) {   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 

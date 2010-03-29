@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiPixelHitEfficiencySource = cms.EDFilter("SiPixelHitEfficiencySource",
+SiPixelHitEfficiencySource = cms.EDAnalyzer("SiPixelHitEfficiencySource",
     src = cms.InputTag("siPixelHitEfficiency"),
     debug = cms.untracked.bool(False),                          
     saveFile = cms.untracked.bool(True),

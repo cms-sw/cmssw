@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2009/10/26 17:33:48 $
- * $Revision: 1.113 $
+ * $Date: 2009/11/29 12:30:10 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  *
 */
@@ -248,13 +248,8 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
       }
 
-      LogDebug("EBCosmicTask") << " det id = " << id;
-      LogDebug("EBCosmicTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
-
       float xval = hitItr->energy();
       if ( xval <= 0. ) xval = 0.0;
-
-      LogDebug("EBCosmicTask") << " hit energy " << xval;
 
       // look for the seeds
       float e3x3 = 0.;

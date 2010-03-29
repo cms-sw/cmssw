@@ -2,7 +2,7 @@ from PyQt4.QtCore import Qt, SIGNAL, SLOT
 from PyQt4.QtGui import QDialog, QPalette, QVBoxLayout, QLabel, QPushButton, QDialogButtonBox, QSizePolicy
 from PyQt4.QtSvg import QSvgWidget 
 
-from Vispa.Main.Directories import *
+from Vispa.Main.Directories import websiteUrl
 import logging
 
 class AboutDialog(QDialog):

@@ -15,7 +15,7 @@ public:
     m_triggers()
   { }
 
-  bool operator()(const Data & data);
+  bool operator()(const Data & data) const;
   
   void init(const Data & data);
 

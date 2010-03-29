@@ -4,7 +4,7 @@
 // Note: this class is no longer used in the StorageManager, but is still
 // required by the SMProxyServer (Remi Mommsen, May 5, 2009)
 //
-// $Id$
+// $Id: DQMServiceManager.h,v 1.7 2010/03/04 16:58:35 mommsen Exp $
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -36,7 +36,8 @@ namespace stor
                                bool archiveDQM = false,
                                int archiveInterval = 0,
                                bool useCompression = true,
-                               int compressionLevel = 1);
+                               int compressionLevel = 1,
+                               int expectedUpdates = std::numeric_limits<unsigned int>::max());
      ~DQMServiceManager(); 
     
       void manageDQMEventMsg(DQMEventMsgView& msg);
@@ -44,6 +45,7 @@ namespace stor
       DQMGroupDescriptor * getBestDQMGroupDescriptor(std::string groupName);
       void setPurgeTime(int purgeTime) { purgeTime_ = purgeTime;}
       void setReadyTime(int readyTime) { readyTime_ = readyTime;}
+      void setExpectedUpdates(int expectedUpdates) { expectedUpdates_ = expectedUpdates;}
       void setFilePrefix(std::string filePrefix)
       { filePrefix_ = filePrefix;}
 
@@ -66,9 +68,11 @@ namespace stor
       bool          archiveDQM_;
       int           archiveInterval_;
       int           nUpdates_;
+      int           sentEvents_;
       std::string   filePrefix_;
       int           purgeTime_;
       int           readyTime_;
+      int           expectedUpdates_;
       int  writeAndPurgeDQMInstances(bool purgeAll=false);
       std::vector<DQMInstance *>    dqmInstances_;
 

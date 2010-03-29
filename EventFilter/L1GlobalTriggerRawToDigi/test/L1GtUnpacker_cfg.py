@@ -10,61 +10,109 @@ process = cms.Process('TestL1GtUnpacker')
 
 ###################### user choices ######################
 
+# (pre)release (cycle) used to produce the event samples
+#cmsRunRelease = 'CMSSW_3_6_X'
+cmsRunRelease = 'CMSSW_3_5_X'
 
-# choose (pre)release
-useRelease = 'CMSSW_3_3_6'
+# choose (pre)release used to produce the event samples
+sampleFromRelease = 'CMSSW_3_5_2'
+#sampleFromRelease = 'CMSSW_3_3_6'
+#sampleFromRelease = 'CMSSW_2_2_12'
 
-# choose the type of sample used (True for RelVal, False for data)
-#useRelValSample = True 
+# choose the type of sample used:
+#   True for RelVal
+#   False for data
+
+# default value
+useRelValSample = True
+#
+# comment/uncomment the next line to choose sample type 
+# (un-commented selects data)
 useRelValSample=False 
 
-# actual GlobalTag must be appropriate for the sample use
+# change to True to use local files
+#     the type of file should match the choice of useRelValSample or data
+#     useGlobalTag must be defined here
+
+useLocalFiles = False 
+#useLocalFiles = True 
 
 if useRelValSample == True :
     
-    if useRelease == 'CMSSW_2_2_12' :
-        
-        useGlobalTag = 'IDEAL_V12'
-        #useGlobalTag='STARTUP_V11'
+    globalTag = 'MC'
+    #globalTag = 'START'
     
-    elif useRelease == 'CMSSW_3_1_1' :
-         #useGlobalTag = 'MC_31X_V2'
-         useGlobalTag = 'STARTUP31X_V1'
-
-    elif useRelease == 'CMSSW_3_3_6' :
-        useGlobalTag = 'MC_3XY_V9A'
-        #useGlobalTag='STARTUP3X_V8I'
-    else :
-        print 'Error: release ', useRelease, ' not defined.'    
-        sys.exit()
- 
     # RelVals 
     useSample = 'RelValTTbar'
-       
-else :
-    # 22X
-    #useGlobalTag = 'CRAFT_ALL_V12'
     
-    # 31X
-    #useGlobalTag = 'CRAFT0831X_V1'
- 
-    # 333
-    runNumber = 123596
-    #runNumber == 116035
+else :
 
-    useGlobalTag = 'GR09_P_V7'
-     
+    #runNumber = 123596
+    #runNumber = 116035
+    #runNumber = 121560
+    runNumber = 127715
 
 # change to True to use local files
-#     the type of file should match the choice of useRelValSample and useGlobalTag
+#     the type of file should match the choice of useRelValSample
+#     useGlobalTag must be defined here
+
 useLocalFiles = False 
+#useLocalFiles = True 
+
+if (useLocalFiles == True) :
+    useGlobalTag = 'GR09_P_V8_34X'
+    dataType = 'RECO'
+    
+# number of events to be run (-1 for all)
+maxNumberEvents = 10
+#maxNumberEvents = -1
 
 ###################### end user choices ###################
 
 
+
+
+# global tags for the release used to run
+if (useRelValSample == True) and (useLocalFiles == False) :
+    
+    if cmsRunRelease == 'CMSSW_3_5_X' :
+        if globalTag == 'MC' :
+            useGlobalTag = 'MC_3XY_V21'
+        else :
+            useGlobalTag = 'START3X_V21'
+    elif cmsRunRelease == 'CMSSW_3_4_1' :
+        if globalTag == 'MC' :
+            useGlobalTag = 'MC_3XY_V15'
+        else :
+            useGlobalTag = 'STARTUP3X_V15'
+    elif cmsRunRelease == 'CMSSW_3_3_6' :
+        if globalTag == 'MC' :
+            useGlobalTag = 'MC_3XY_V9B'
+        else :
+            useGlobalTag = 'STARTUP3X_V8M'
+    else :
+        print 'Error: no global tag defined for release ', cmsRunRelease, ' used with RelVal sample'
+        sys.exit()
+   
+elif (useRelValSample == False) and (useLocalFiles == False) :
+    # global tag
+    
+    if cmsRunRelease == 'CMSSW_3_5_X' :
+        useGlobalTag = 'GR10_P_V2'
+    elif cmsRunRelease == 'CMSSW_3_4_1' :
+        useGlobalTag = 'GR09_P_V8_34X'
+    elif cmsRunRelease == 'CMSSW_3_3_6' :
+        useGlobalTag = 'GR09_P_V8'
+    else :
+        print 'Error: no global tag defined for release ', cmsRunRelease, ' used with data sample'
+        sys.exit()
+else :
+       print 'Using local file(s) with global tag ',  useGlobalTag, ' and release ', cmsRunRelease
+     
+
 # number of events to be processed and source file
 process.maxEvents = cms.untracked.PSet(
-    input=cms.untracked.int32(10)
+    input=cms.untracked.int32(maxNumberEvents)
 )
 
 readFiles = cms.untracked.vstring()
@@ -73,12 +121,28 @@ process.source = cms.Source ('PoolSource', fileNames=readFiles, secondaryFileNam
 
 # type of sample used (True for RelVal, False for data)
 
-if useRelValSample == True :
+if (useRelValSample == True) and (useLocalFiles == False) :
     if useGlobalTag.count('IDEAL') or useGlobalTag.count('MC') :
 
-        if (useRelease == 'CMSSW_3_3_6') and (useSample == 'RelValTTbar') :
+        if (sampleFromRelease == 'CMSSW_3_5_2') and (useSample == 'RelValTTbar') :
+
+            dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_3_5_2-MC_3XY_V21-v1/GEN-SIM-DIGI-RAW-HLTDEBUG')
+            print '   Running on ', useSample, ' sample produced with ', sampleFromRelease, '. Global tag used to run: ', useGlobalTag  
+        
+            readFiles.extend( [
+                '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V21-v1/0016/FAA58A57-3D1E-DF11-87A5-001731A283DF.root',
+                '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V21-v1/0016/E64BA05D-3A1E-DF11-8861-00261894380D.root',
+                '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V21-v1/0016/D80D18C7-311E-DF11-93E9-0018F3D09676.root',
+                '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V21-v1/0016/D27E27EA-391E-DF11-852C-0017319EB92B.root',
+                '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V21-v1/0016/CC8E2952-391E-DF11-8EE5-0018F3D096D8.root',
+                '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V21-v1/0016/CACE2BE1-371E-DF11-906C-001731AF685D.root',
+                '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V21-v1/0016/B6A6D3D4-3C1E-DF11-BCBC-001731AF68B9.root'
+                ]);
+
+        elif (sampleFromRelease == 'CMSSW_3_3_6') and (useSample == 'RelValTTbar') :
 
             dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_3_3_6-MC_3XY_V9A-v1/GEN-SIM-DIGI-RAW-HLTDEBUG')
+            print '   Running on ', useSample, ' sample produced with ', sampleFromRelease, '. Global tag used to run: ', useGlobalTag  
         
             readFiles.extend([
                 '/store/relval/CMSSW_3_3_6/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0009/F6C6F406-3CE4-DE11-8F12-00304867BEE4.root',
@@ -87,9 +151,10 @@ if useRelValSample == True :
                 '/store/relval/CMSSW_3_3_6/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0009/A6ACEC91-3CE4-DE11-A6FB-00261894390E.root'
                ]);
 
-        elif (useRelease == 'CMSSW_2_2_12') and (useSample == 'RelValTTbar') :
+        elif (sampleFromRelease == 'CMSSW_2_2_12') and (useSample == 'RelValTTbar') :
 
             dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_2_2_4_IDEAL_V11_v1/GEN-SIM-DIGI-RAW-HLTDEBUG')
+            print '   Running on ', useSample, ' sample produced with ', sampleFromRelease, '. Global tag used to run: ', useGlobalTag  
         
             readFiles.extend([
                 '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V11_v1/0000/02697009-5CF3-DD11-A862-001D09F2423B.root',
@@ -99,17 +164,33 @@ if useRelValSample == True :
                 ]);
 
         else :
-            print 'Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.'    
+            print 'Error: no files for ', useSample, ' sample produced with ', sampleFromRelease, ' and global tag ', useGlobalTag, ' defined.'    
             sys.exit()
 
         secFiles.extend([
             ])
 
-    elif useGlobalTag.count('STARTUP') :
+    elif useGlobalTag.count('START') :
 
-        if (useRelease == 'CMSSW_3_3_6') and (useSample == 'RelValTTbar') :
+        if (sampleFromRelease == 'CMSSW_3_5_2') and (useSample == 'RelValTTbar') :
+
+            dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_3_5_2-START3X_V21-v1/GEN-SIM-DIGI-RAW-HLTDEBUG')
+            print '   Running on ', useSample, ' sample produced with ', sampleFromRelease, '. Global tag used to run: ', useGlobalTag  
+        
+            readFiles.extend( [
+                '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V21-v1/0016/FE2573D6-381E-DF11-9B55-001731AF678D.root',
+                '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V21-v1/0016/F687B04E-331E-DF11-B1C3-0018F3D0960E.root',
+                '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V21-v1/0016/D2E9E5C7-2D1E-DF11-AA1D-003048679296.root',
+                '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V21-v1/0016/D0B6CCE8-321E-DF11-ABEE-001A92971BD6.root',
+                '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V21-v1/0016/AE6887CC-2C1E-DF11-90DD-001A928116E0.root',
+                '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V21-v1/0016/9E058FDD-361E-DF11-A10F-0017313F02F2.root',
+                '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V21-v1/0016/9098C5D7-2B1E-DF11-8AD9-001A92971AD8.root'
+                ]);
+
+        elif (sampleFromRelease == 'CMSSW_3_3_6') and (useSample == 'RelValTTbar') :
 
             dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_3_3_6-STARTUP3X_V8H-v1/GEN-SIM-DIGI-RAW-HLTDEBUG')
+            print '   Running on ', useSample, ' sample produced with ', sampleFromRelease, '. Global tag used to run: ', useGlobalTag  
         
             readFiles.extend([
                 '/store/relval/CMSSW_3_3_6/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8H-v1/0009/E44B9490-3BE4-DE11-962B-0026189437FD.root',
@@ -117,9 +198,10 @@ if useRelValSample == True :
                 '/store/relval/CMSSW_3_3_6/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8H-v1/0009/6827DCDF-9EE4-DE11-8A58-002618943920.root'
                ]);
 
-        elif (useRelease == 'CMSSW_2_2_12') and (useSample == 'RelValTTbar') :
+        elif (sampleFromRelease == 'CMSSW_2_2_12') and (useSample == 'RelValTTbar') :
             
             dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_2_2_4_STARTUP_V8_v1/GEN-SIM-DIGI-RAW-HLTDEBUG')
+            print '   Running on ', useSample, ' sample produced with ', sampleFromRelease, '. Global tag used to run: ', useGlobalTag  
         
             readFiles.extend([
                 '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V8_v1/0000/069AA022-5BF3-DD11-9A56-001617E30D12.root',
@@ -129,7 +211,7 @@ if useRelValSample == True :
                 ]);
 
         else :
-            print 'Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.'    
+            print 'Error: no files for ', useSample, ' sample produced with ', sampleFromRelease, ' and global tag ', useGlobalTag, ' defined.'    
             sys.exit()
 
         secFiles.extend([
@@ -138,12 +220,13 @@ if useRelValSample == True :
         print 'Error: Global Tag ', useGlobalTag, ' not defined.'    
         sys.exit()
 
-else : 
+elif (useRelValSample == False) and (useLocalFiles == False) :
 
     # data
 
     if runNumber == 123596 :
         dataset = '/Cosmics/BeamCommissioning09-v1/RAW'
+        print '   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag 
     
         readFiles.extend( [
             '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/123/596/8E21B4C8-74E2-DE11-ABAA-000423D999CA.root' 
@@ -164,13 +247,41 @@ else :
         secFiles.extend([
             ])
         
+    elif runNumber == 121560 :
+        dataset = '/Cosmics/Commissioning09-v3/RAW'
+        print '   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag 
+    
+        readFiles.extend( [                        
+            '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/121/560/DC089E4B-5ED4-DE11-A179-000423D98FBC.root'
+            ]);                                                                                               
+
+        secFiles.extend([
+            ])
+
+    elif runNumber == 127715 :
+        dataset = '/Cosmics/Commissioning10-v3/RAW'
+        print '   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag 
+    
+        readFiles.extend( [                        
+            '/store/data/Commissioning10/Cosmics/RAW/v3/000/127/715/FCB12D5F-6C18-DF11-AB4B-000423D174FE.root'
+            ]);                                                                                               
+
+        secFiles.extend([
+            ])
+
     else :
         print 'Error: run ', runNumber, ' not defined.'    
         sys.exit()
-        
+else :
+    readFiles.extend( [                        
+        'file:/afs/cern.ch/user/g/ghete/scratch0/CmsswTestFiles/testGt_L1GtUnpacker_source.root'
+        ]);                                                                                               
 
-if useLocalFiles :
-    readFiles = 'file:/afs/cern.ch/user/g/ghete/scratch0/CmsswTestFiles/testGt_L1GtUnpacker_source.root'
+    secFiles.extend([
+        ])
+
+    print 'Local file(s) ', readFiles
+        
 
 
 # load and configure modules via Global Tag

@@ -39,7 +39,6 @@ class DDExpandedView
 public:
   //! std::vector of sibling numbers
   typedef std::vector<int> nav_type;
-  typedef std::pair<int const *, size_t> NavRange;
   
   //! Constructs an expanded-view based on the compact-view
   DDExpandedView(const DDCompactView &);
@@ -60,9 +59,7 @@ public:
   
   //! transversed the DDExpandedView according to the given stack of sibling numbers
   bool goTo(const nav_type &);
-  bool goTo(NavRange);
-  bool goTo(int const * newpos, size_t sz);
-
+  
   //! return the stack of sibling numbers which indicates the current position in the DDExpandedView
   nav_type navPos() const;
   
@@ -138,11 +135,5 @@ protected:
   //std::map<std::string,std::string> dummySpecifics_;    
 };
 
-std::ostream & printNavType(std::ostream &, int const * n, size_t sz);
-inline std::ostream & operator<<(std::ostream & os, const DDExpandedView::nav_type & n) {
-    return printNavType(os,&n.front(),n.size());
-}
-inline std::ostream & operator<<(std::ostream & os, const DDExpandedView::NavRange & n) {
-    return printNavType(os,n.first,n.second);
-}
+std::ostream & operator<<(std::ostream &, const DDExpandedView::nav_type &);
 #endif

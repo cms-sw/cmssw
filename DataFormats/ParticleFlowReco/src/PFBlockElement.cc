@@ -33,9 +33,10 @@ std::ostream& reco::operator<<( std::ostream& out,
         const reco::PFBlockElementTrack& et =
           dynamic_cast<const reco::PFBlockElementTrack &>( element );
         et.Dump(out);
-        if( et.trackType(PFBlockElement::T_FROM_NUCL) ) out<<" from nucl;";
-        if( et.trackType(PFBlockElement::T_TO_NUCL) ) out<<" to nucl;";
+        if( et.trackType(PFBlockElement::T_FROM_DISP) ) out<<" from displaced;";
+        if( et.trackType(PFBlockElement::T_TO_DISP) ) out<<" to displaced;";
 	if( et.trackType(PFBlockElement::T_FROM_GAMMACONV) ) out<<" from gammaconv;";  
+	if( et.trackType(PFBlockElement::T_FROM_V0) ) out<<" from v0 decay;";  
         break;
       }
     case PFBlockElement::ECAL:

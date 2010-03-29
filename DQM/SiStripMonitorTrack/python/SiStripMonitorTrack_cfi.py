@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # MonitorTrackGlobal
-SiStripMonitorTrack = cms.EDFilter(
+SiStripMonitorTrack = cms.EDAnalyzer(
     "SiStripMonitorTrack",
     
     TrackProducer = cms.string('generalTracks'),

@@ -151,7 +151,6 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
   counter++;
   LogInfo (nameInLog) <<"[RPCMonitorDigi]: Beginning analyzing event " << counter;
   
-  RPCEvents -> Fill(1);
 
   /// Digis
   Handle<RPCDigiCollection> rpcdigis;
@@ -163,6 +162,8 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 
   map<int,int> bxMap;
  
+  if(rpcdigis->begin()!=rpcdigis->end())  RPCEvents -> Fill(1);
+
   //Loop on digi collection
   for( RPCDigiCollection::DigiRangeIterator collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
   
@@ -303,12 +304,12 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     if(numberOfDigi>50) numberOfDigi=50; //overflow
     
     os.str("");
-    os<<"NumberOfDigi_"<<nameRoll;
+    os<<"Multiplicity_"<<nameRoll;
     if(meMap[os.str()])   meMap[os.str()]->Fill(numberOfDigi);   
     
     if(detId.region()==0) NumberOfDigis_for_Barrel -> Fill(numberOfDigi);
-    else  if(detId.region()==-1) NumberOfDigis_for_EndcapPositive -> Fill(numberOfDigi);
-    else  if(detId.region()==1)  NumberOfDigis_for_EndcapNegative -> Fill(numberOfDigi);
+    else  if(detId.region()==1) NumberOfDigis_for_EndcapPositive -> Fill(numberOfDigi);
+    else  if(detId.region()==-1)  NumberOfDigis_for_EndcapNegative -> Fill(numberOfDigi);
                                 
     // Fill RecHit MEs   
     if(recHitCollection.first!=recHitCollection.second ){   
@@ -371,12 +372,13 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       }/// end loop on RPCRecHits for given roll
       
       if(dqmexpert) {	 
+	if(numberOfHits>20) numberOfHits=20;
 	os.str("");
 	os<<"NumberOfClusters_"<<nameRoll;
 	if(meMap[os.str()])
 	  meMap[os.str()]->Fill(numbOfClusters);
 	
-	if(numberOfHits>5) numberOfHits=16;////////////!!!!!!!!!!!!!!!!!!!!!!!	
+
 	os.str("");
 	os<<"RecHitCounter_"<<nameRoll;
 	if(meMap[os.str()])

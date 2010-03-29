@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Nov  6 23:00:43 CET 2008
-// $Id: L1O2OTestAnalyzer.cc,v 1.5 2009/05/06 02:02:11 wsun Exp $
+// $Id: L1O2OTestAnalyzer.cc,v 1.6 2009/12/17 23:43:58 wmtan Exp $
 //
 //
 
@@ -108,16 +108,23 @@ L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    if( m_printL1TriggerKeyList )
      {
-       ESHandle< L1TriggerKeyList > pList ;
-       iSetup.get< L1TriggerKeyListRcd >().get( pList ) ;
+//        ESHandle< L1TriggerKeyList > pList ;
+//        iSetup.get< L1TriggerKeyListRcd >().get( pList ) ;
+       L1TriggerKeyList pList ;
+       l1t::DataWriter dataWriter ;
+       if( !dataWriter.fillLastTriggerKeyList( pList ) )
+	 {
+	   edm::LogError( "L1-O2O" )
+	     << "Problem getting last L1TriggerKeyList" ;
+	 }
 
-       std::cout << "Found " << pList->tscKeyToTokenMap().size() << " TSC keys:"
+       std::cout << "Found " << pList.tscKeyToTokenMap().size() << " TSC keys:"
 		 << std::endl ;
 
        L1TriggerKeyList::KeyToToken::const_iterator iTSCKey =
-	 pList->tscKeyToTokenMap().begin() ;
+	 pList.tscKeyToTokenMap().begin() ;
        L1TriggerKeyList::KeyToToken::const_iterator eTSCKey =
-	 pList->tscKeyToTokenMap().end() ;
+	 pList.tscKeyToTokenMap().end() ;
        for( ; iTSCKey != eTSCKey ; ++iTSCKey )
 	 {
 	   std::cout << iTSCKey->first ;
@@ -130,9 +137,9 @@ L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        std::cout << std::endl ;
 
        L1TriggerKeyList::RecordToKeyToToken::const_iterator iRec =
-	 pList->recordTypeToKeyToTokenMap().begin() ;
+	 pList.recordTypeToKeyToTokenMap().begin() ;
        L1TriggerKeyList::RecordToKeyToToken::const_iterator eRec =
-	 pList->recordTypeToKeyToTokenMap().end() ;
+	 pList.recordTypeToKeyToTokenMap().end() ;
        for( ; iRec != eRec ; ++iRec )
 	 {
 	   const L1TriggerKeyList::KeyToToken& keyTokenMap = iRec->second ;
@@ -159,7 +166,7 @@ L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        try
 	 {
 	   ESHandle< L1TriggerKey > pKey ;
-	   iSetup.get< L1TriggerKeyRcd >().get( pKey ) ;
+ 	   iSetup.get< L1TriggerKeyRcd >().get( pKey ) ;
 
 	   std::cout << std::endl ;
 	   std::cout << "Current TSC key = " << pKey->tscKey()
@@ -200,8 +207,16 @@ L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    if( m_printESRecords )
      {
-       ESHandle< L1TriggerKeyList > pList ;
-       iSetup.get< L1TriggerKeyListRcd >().get( pList ) ;
+//        ESHandle< L1TriggerKeyList > pList ;
+//        iSetup.get< L1TriggerKeyListRcd >().get( pList ) ;
+
+       L1TriggerKeyList pList ;
+       l1t::DataWriter dataWriter ;
+       if( !dataWriter.fillLastTriggerKeyList( pList ) )
+	 {
+	   edm::LogError( "L1-O2O" )
+	     << "Problem getting last L1TriggerKeyList" ;
+	 }
 
        // Start log string, convert run number into string
        unsigned long long run = iEvent.id().run() ;
@@ -225,11 +240,11 @@ L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 	   if( *iRec == "L1TriggerKeyRcd" )
 	     {
-	       key = pList->tscKey( payloadToken ) ;
+	       key = pList.tscKey( payloadToken ) ;
 	     }
 	   else
 	     {
-	       key = pList->objectKey( *iRec, payloadToken ) ;
+	       key = pList.objectKey( *iRec, payloadToken ) ;
 	     }
 
 	   std::cout << *iRec << " " << key ;

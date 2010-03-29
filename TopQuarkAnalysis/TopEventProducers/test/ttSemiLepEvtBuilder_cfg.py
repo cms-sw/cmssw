@@ -55,6 +55,9 @@ addTtSemiLepHypotheses(process,
                        )
 #removeTtSemiLepHypGenMatch(process)
 
+#process.kinFitTtSemiLepEventHypothesis.match = "findTtSemiLepJetCombGeom"
+#process.kinFitTtSemiLepEventHypothesis.useOnlyMatch = True
+
 ## change maximum number of jets taken into account per event (default: 4)
 #setForAllTtSemiLepHypotheses(process, "maxNJets", 5)
 
@@ -81,7 +84,7 @@ process.outpath = cms.EndPath(process.out)
 from PhysicsTools.PatAlgos.patEventContent_cff import *
 process.out.outputCommands += patTriggerEventContent
 process.out.outputCommands += patExtraAodEventContent
-process.out.outputCommands += patEventContentNoLayer1Cleaning
+process.out.outputCommands += patEventContentNoCleaning
 ## TQAF content
 from TopQuarkAnalysis.TopEventProducers.tqafEventContent_cff import *
 process.out.outputCommands += tqafEventContent

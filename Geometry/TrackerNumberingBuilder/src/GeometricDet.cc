@@ -78,15 +78,14 @@ GeometricDet::~GeometricDet(){
 }
 
 // for use outside CMSSW framework only since it asks for a default DDCompactView...
-GeometricDet::GeometricDet(DDnav_type const & navtype, GeometricEnumType type) : 
-  _ddd(navtype.begin(),navtype.end()), _type(type){ 
+GeometricDet::GeometricDet(nav_type const & navtype, GeometricEnumType type) : _ddd(navtype), _type(type){ 
   //
   // I need to find the params by myself :(
   //
   _fromDD = true;
   DDCompactView cpv; // bad, bad, bad!
   DDExpandedView ev(cpv);
-  ev.goTo(navtype);
+  ev.goTo(_ddd);
   _params = ((ev.logicalPart()).solid()).parameters();
   _trans = ev.translation();
   _phi = _trans.Phi();
@@ -94,7 +93,7 @@ GeometricDet::GeometricDet(DDnav_type const & navtype, GeometricEnumType type) :
   _rot = ev.rotation();
   _shape = ((ev.logicalPart()).solid()).shape();
   _ddname = ((ev.logicalPart()).ddname()).name();
-  _parents = GeoHistory(ev.geoHistory().begin(),ev.geoHistory().end()) ;
+  _parents = ev.geoHistory();
   _volume   = ((ev.logicalPart()).solid()).volume();
   _density  = ((ev.logicalPart()).material()).density();
   //  _weight  = (ev.logicalPart()).weight();
@@ -117,7 +116,7 @@ GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) : _type(t
   // Set by hand the _ddd
   //
   _fromDD = true;
-  _ddd = nav_type(fv->navPos().begin(),fv->navPos().end() );
+  _ddd = fv->navPos();
   _params = ((fv->logicalPart()).solid()).parameters();  
   _trans = fv->translation();
   _phi = _trans.Phi();
@@ -125,7 +124,7 @@ GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) : _type(t
   _rot = fv->rotation();
   _shape = ((fv->logicalPart()).solid()).shape();
   _ddname = ((fv->logicalPart()).ddname()).name();
-  _parents = GeoHistory(fv->geoHistory().begin(),fv->geoHistory().end()) ;
+  _parents = fv->geoHistory();
   _volume   = ((fv->logicalPart()).solid()).volume();  
   _density  = ((fv->logicalPart()).material()).density();
   //  _weight   = (fv->logicalPart()).weight();  
@@ -152,12 +151,12 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) :
   _rho(_trans.Rho()),
   _rot(fv->rotation()),
   _shape(((fv->logicalPart()).solid()).shape()),
-  _ddd(fv->navPos().begin(),fv->navPos().end()),
+  _ddd(fv->navPos()),
   _ddname(((fv->logicalPart()).ddname()).name()),
   _type(type),
   _params(((fv->logicalPart()).solid()).parameters()),
 
-  _parents(fv->geoHistory().begin(),fv->geoHistory().end()),
+  _parents(fv->geoHistory()),
   _volume(((fv->logicalPart()).solid()).volume()),
   _density(((fv->logicalPart()).material()).density()),
   //  _weight   = (fv->logicalPart()).weight();
@@ -176,76 +175,71 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) :
 {
 }
 
-// PGeometricDet is persistent version... make it... then come back here and make the
-// constructor.
-GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumType type) :
-  _trans(onePGD._x, onePGD._y, onePGD._z),
-  _phi(onePGD._phi), //_trans.Phi()),
-  _rho(onePGD._rho), //_trans.Rho()),
-  _rot(onePGD._a11, onePGD._a12, onePGD._a13, 
-       onePGD._a21, onePGD._a22, onePGD._a23,
-       onePGD._a31, onePGD._a32, onePGD._a33),
-  _shape(DDSolidShapesName::index(onePGD._shape)),
-  _ddd(),
-  _ddname(onePGD._name, onePGD._ns),//, "fromdb");
-  _type(type),
-  _params(),
-  _geographicalID(onePGD._geographicalID),
-  _parents(), // will remain empty... hate wasting the space but want all methods to work.
-  _volume(onePGD._volume),
-  _density(onePGD._density),
-  _weight(onePGD._weight),
-  _copy(onePGD._copy),
-  _material(onePGD._material),
-  _radLength(onePGD._radLength),
-  _xi(onePGD._xi),
-  _pixROCRows(onePGD._pixROCRows),
-  _pixROCCols(onePGD._pixROCCols),
-  _pixROCx(onePGD._pixROCx),
-  _pixROCy(onePGD._pixROCy),
-  _stereo(onePGD._stereo),
-  _siliconAPVNum(onePGD._siliconAPVNum),
-  _fromDD(false)
- {
+GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumType type) : _type(type) {
+  // PGeometricDet is persistent version... make it... then come back here and make the
+  // constructor.
+  _fromDD = false;
+  //  _ddd = std::vector<int>(); // basically empty nav_type!
+  if(onePGD._shape==1||onePGD._shape==3){ //The parms vector is neede only in the case of box or trap shape
+    _params.push_back(onePGD._params0);
+    _params.push_back(onePGD._params1);
+    _params.push_back(onePGD._params2);
+    _params.push_back(onePGD._params3);
+    _params.push_back(onePGD._params4);
+    _params.push_back(onePGD._params5);
+    _params.push_back(onePGD._params6);
+    _params.push_back(onePGD._params7);
+    _params.push_back(onePGD._params8);
+    _params.push_back(onePGD._params9);
+    _params.push_back(onePGD._params10);
+  }
+  _trans = DDTranslation(onePGD._x, onePGD._y, onePGD._z);
+  _phi = onePGD._phi;//_trans.Phi();
+  _rho = onePGD._rho;//_trans.Rho();
+  _rot = DDRotationMatrix(onePGD._a11, onePGD._a12, onePGD._a13, 
+			  onePGD._a21, onePGD._a22, onePGD._a23,
+			  onePGD._a31, onePGD._a32, onePGD._a33);
+  _shape = DDSolidShape(onePGD._shape);
+  //  std::cout << "name = " << onePGD._name;
+  _ddname = DDName(onePGD._name, onePGD._ns);//, "fromdb");
+  //  std::cout << "DDName = " << _ddname << std::endl;
+  _parents = DDGeoHistory(); // will remain empty... hate wasting the space but want all methods to work.
+  _volume = onePGD._volume;
+  _density = onePGD._density;
+  _weight = onePGD._weight;
+  _copy = onePGD._copy;
+  _material = onePGD._material;
+  _radLength = onePGD._radLength;
+  _xi = onePGD._xi;
+  _pixROCRows = onePGD._pixROCRows;
+  _pixROCCols = onePGD._pixROCCols;
+  _pixROCx = onePGD._pixROCx;
+  _pixROCy = onePGD._pixROCy;
+  _stereo =  onePGD._stereo;
+  _siliconAPVNum = onePGD._siliconAPVNum;
 
-  
- if(onePGD._shape==1||onePGD._shape==3){ //The parms vector is neede only in the case of box or trap shape
-   _params.reserve(11);
-   _params.push_back(onePGD._params0);
-   _params.push_back(onePGD._params1);
-   _params.push_back(onePGD._params2);
-   _params.push_back(onePGD._params3);
-   _params.push_back(onePGD._params4);
-   _params.push_back(onePGD._params5);
-   _params.push_back(onePGD._params6);
-   _params.push_back(onePGD._params7);
-   _params.push_back(onePGD._params8);
-   _params.push_back(onePGD._params9);
-   _params.push_back(onePGD._params10);
- }
- 
- _ddd.reserve(onePGD._numnt);
- _ddd.push_back(onePGD._nt0);
- _ddd.push_back(onePGD._nt1);
- _ddd.push_back(onePGD._nt2);
- _ddd.push_back(onePGD._nt3);
- if ( onePGD._numnt > 4 ) {
-   _ddd.push_back(onePGD._nt4);
-   if ( onePGD._numnt > 5 ) {
-     _ddd.push_back(onePGD._nt5);
-     if ( onePGD._numnt > 6 ) {
-       _ddd.push_back(onePGD._nt6);
-       if ( onePGD._numnt > 7 ) {
-	 _ddd.push_back(onePGD._nt7);
-	 if ( onePGD._numnt > 8 ) {
-	   _ddd.push_back(onePGD._nt8);
-	   if ( onePGD._numnt > 9 ) {
-	     _ddd.push_back(onePGD._nt9);
-	     if ( onePGD._numnt > 10 ) {
-	       _ddd.push_back(onePGD._nt10);
-	     }}}}}}
- }
- 
+  _geographicalID = DetId(onePGD._geographicalID);
+  _ddd.push_back(onePGD._nt0);
+  _ddd.push_back(onePGD._nt1);
+  _ddd.push_back(onePGD._nt2);
+  _ddd.push_back(onePGD._nt3);
+  if ( onePGD._numnt > 4 ) {
+    _ddd.push_back(onePGD._nt4);
+    if ( onePGD._numnt > 5 ) {
+      _ddd.push_back(onePGD._nt5);
+      if ( onePGD._numnt > 6 ) {
+	_ddd.push_back(onePGD._nt6);
+	if ( onePGD._numnt > 7 ) {
+	  _ddd.push_back(onePGD._nt7);
+	  if ( onePGD._numnt > 8 ) {
+	    _ddd.push_back(onePGD._nt8);
+	    if ( onePGD._numnt > 9 ) {
+	      _ddd.push_back(onePGD._nt9);
+	      if ( onePGD._numnt > 10 ) {
+		_ddd.push_back(onePGD._nt10);
+	      }}}}}}
+  }
+
 }
 
 GeometricDet::ConstGeometricDetContainer GeometricDet::deepComponents() const {

@@ -12,8 +12,6 @@
 
 //#include "DQMServices/Core/interface/DQMStore.h"
 
-
-using namespace std;
 class Comp2RefChi2;			typedef Comp2RefChi2 Comp2RefChi2ROOT;
 class Comp2RefKolmogorov;		typedef Comp2RefKolmogorov Comp2RefKolmogorovROOT;
 class Comp2RefEqualH;			typedef Comp2RefEqualH Comp2RefEqualHROOT;
@@ -29,6 +27,7 @@ class FlatOccupancy1d;			typedef FlatOccupancy1d RuleFlatOccupancy1d; typedef Fl
 class FixedFlatOccupancy1d;		typedef FixedFlatOccupancy1d RuleFixedFlatOccupancy1d; typedef FixedFlatOccupancy1d FixedFlatOccupancy1dROOT;
 class CSC01;				typedef CSC01 RuleCSC01; typedef CSC01 CSC01ROOT;
 class AllContentAlongDiagonal;		typedef AllContentAlongDiagonal RuleAllContentAlongDiagonal; typedef AllContentAlongDiagonal AllContentAlongDiagonalROOT;
+class CompareToMedian;                        typedef CompareToMedian CompareToMedianROOT;
 
 /** Base class for quality tests run on Monitoring Elements;
 
@@ -587,6 +586,57 @@ protected:
   double epsilon_obs;
   double S_fail_obs, S_pass_obs;
   int result;
+};
+
+//======================== CompareToMedian ====================//
+class CompareToMedian : public SimpleTest
+{
+public:
+  //Initialize for TProfile, colRings
+  CompareToMedian(const std::string &name) : SimpleTest(name,true){
+    this->_min = 0.2;
+    this->_max = 3.0;
+    this->_emptyBins = 0;
+    this->_maxMed = 10;
+    this->_minMed = 0;
+    this->nBins = 0;
+    reset();
+    setAlgoName( getAlgoName() );
+  };
+
+  ~CompareToMedian(){};
+
+  static std::string getAlgoName(void) { return "CompareToMedian"; }
+
+  float runTest(const MonitorElement *me);
+  void setMin(float min){_min = min;};
+  void setMax(float max){_max = max;};
+  void setEmptyBins(int eB){eB > 0 ? _emptyBins = 1 : _emptyBins = 0;};
+  void setMaxMedian(float max){_maxMed = max;};
+  void setMinMedian(float min){_minMed = min;};
+
+protected :
+  void setMessage(void){
+    std::ostringstream message;
+    message << "Test " << qtname_ << " (" << algoName_
+            << "): Entry fraction within range = " << prob_;
+    message_ = message.str();
+  }
+
+private :
+  float _min, _max;      //Test values
+  int _emptyBins;        //use empty bins
+  float _maxMed,_minMed; //Global max for median&mean
+
+  int nBinsX, nBinsY; //Dimensions of hystogram
+
+  int nBins; //Number of (non empty) bins
+
+  //Vector contain bin values
+  std::vector<float> binValues;
+
+  void reset(){binValues.clear();};
+
 };
 
 //==================== AllContentAlongDiagonal   =========================//

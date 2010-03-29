@@ -2,7 +2,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorForTrackerHits.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-#include "DataFormats/Math/interface/invertPosDefMatrix.h"
 
 std::pair<bool,double> 
 Chi2MeasurementEstimatorForTrackerHits::estimate(
@@ -18,7 +17,7 @@ Chi2MeasurementEstimatorForTrackerHits::estimate(
         }
         AlgebraicVector2     r = asSVector<2>(aRecHit.parameters())      - tsosMeasuredParameters_;
         AlgebraicSymMatrix22 R = asSMatrix<2>(aRecHit.parametersError()) + tsosMeasuredError_;
-	invertPosDefMatrix(R);
+        R.Invert();
         return returnIt( ROOT::Math::Similarity(r, R) );
 }
 

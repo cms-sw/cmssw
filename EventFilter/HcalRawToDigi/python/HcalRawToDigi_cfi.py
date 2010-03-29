@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # This version is intended for unpacking standard production data
-hcalDigis = cms.EDFilter("HcalRawToDigi",
+hcalDigis = cms.EDProducer("HcalRawToDigi",
     # Flag to enable unpacking of ZDC channels (default = false)
     UnpackZDC = cms.untracked.bool(True),
     # Flag to enable unpacking of TTP channels (default = false)

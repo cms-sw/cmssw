@@ -2064,12 +2064,15 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel){
 	  MonitorElement * me = bei->get(full_path);
 	  if (!me) continue;
 	  float missingHits = me->getEntries();
+	  //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"missingHits= "<<missingHits<<endl;
 	  string new_path = full_path.replace(full_path.find("missing"),7,"valid");
 	  me = bei->get(new_path);
 	  if (!me) continue;
 	  float validHits = me->getEntries();
+	  //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"validHits= "<<validHits<<endl;
 	  float hitEfficiency = -1.;
 	  if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
+	  //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"hitEfficiency= "<<hitEfficiency<<endl;
 	  int binx = 0; int biny = 0;
 	  if(currDir.find("Shell_m")!=string::npos){ binx = 1;}else{ binx = 2;}
 	  if(dname.find("01")!=string::npos){ biny = 1;}else if(dname.find("02")!=string::npos){ biny = 2;}
@@ -2091,6 +2094,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel){
 	  if(currDir.find("Layer_1")!=string::npos){
 	    HitEfficiency_L1 = bei->get("Pixel/Barrel/HitEfficiency_L1");
 	    if(HitEfficiency_L1) HitEfficiency_L1->setBinContent(binx, biny,(float)hitEfficiency);
+	    //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"setting bin ("<<binx<<","<<biny<<") with "<<(float)hitEfficiency<<endl;
 	  }else if(currDir.find("Layer_2")!=string::npos){
 	    HitEfficiency_L2 = bei->get("Pixel/Barrel/HitEfficiency_L2");
 	    if(HitEfficiency_L2) HitEfficiency_L2->setBinContent(binx, biny,(float)hitEfficiency);

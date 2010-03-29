@@ -23,6 +23,7 @@ using namespace edm;
 
 
 class TCTauCorrector :  public JetCorrector {
+
     public:
 	TCTauCorrector();
         TCTauCorrector(const edm::ParameterSet& fParameters);
@@ -44,6 +45,7 @@ class TCTauCorrector :  public JetCorrector {
 	double efficiency();
 	int    allTauCandidates();
 	int    statistics();
+	int    algoComponent();
 
     private:
         void init();

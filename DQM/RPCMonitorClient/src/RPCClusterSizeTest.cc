@@ -16,6 +16,7 @@ RPCClusterSizeTest::RPCClusterSizeTest(const ParameterSet& ps ){
   prescaleFactor_ =  ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms/");
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+  numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 }
 
 RPCClusterSizeTest::~RPCClusterSizeTest(){ dbe_=0;}
@@ -92,17 +93,17 @@ void RPCClusterSizeTest::endRun(const Run& r, const EventSetup& c,vector<Monitor
     if (w>0) offset --; //used to skip case equale to zero
 
     histoName.str("");   
-    histoName<<"ClusterSizeIn1Bin_Roll_vs_Sector_Disk"<<w;       // ClusterSize in first bin norm. by Entries (2D Roll vs Sector)   
+    histoName<<"ClusterSizeIn1Bin_Ring_vs_Segment_Disk"<<w;       // ClusterSize in first bin norm. by Entries (2D Roll vs Sector)   
     me = 0;
     me = dbe_->get(globalFolder_ + histoName.str()) ;
     if ( 0!=me){
       dbe_->removeElement(me->getName());
     }
     
-    CLSDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  6, 0.5, 6.5, 54, 0.5, 54.5);
-    rpcUtils.labelXAxisSector(  CLSDisk[w+offset]);
-    rpcUtils.labelYAxisRoll(   CLSDisk[w+offset], 1, w);
-    
+    CLSDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5); 
+    rpcUtils.labelXAxisSegment(CLSDisk[w+offset]);
+    rpcUtils.labelYAxisRing(CLSDisk[w+offset], numberOfRings_);
+        
     histoName.str("");
     histoName<<"ClusterSizeIn1Bin_Distribution_Disk"<<w;       //  ClusterSize in first bin, distribution
     me = 0;
@@ -114,16 +115,16 @@ void RPCClusterSizeTest::endRun(const Run& r, const EventSetup& c,vector<Monitor
     
     
     histoName.str("");
-    histoName<<"ClusterSizeMean_Roll_vs_Sector_Disk"<<w;       // Avarage ClusterSize (2D Roll vs Sector)   
+    histoName<<"ClusterSizeMean_Ring_vs_Segment_Disk"<<w;       // Avarage ClusterSize (2D Roll vs Sector)   
     me = 0;
     me = dbe_->get(globalFolder_ + histoName.str()) ;
     if ( 0!=me){
       dbe_->removeElement(me->getName());
     }
     
-    MEANDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  6, 0.5, 6.5, 54, 0.5, 54.5);    
-    rpcUtils.labelXAxisSector(  MEANDisk[w+offset]);
-    rpcUtils.labelYAxisRoll(MEANDisk[w+offset], 1, w);
+    MEANDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+    rpcUtils.labelXAxisSegment(MEANDisk[w+offset]);
+    rpcUtils.labelYAxisRing(MEANDisk[w+offset], numberOfRings_);
     
     histoName.str("");
     histoName<<"ClusterSizeMean_Distribution_Disk"<<w;       //  Avarage ClusterSize Distribution
@@ -203,7 +204,7 @@ void RPCClusterSizeTest::clientOperation(EventSetup const& iSetup) {
   for (unsigned int  i = 0 ; i<myClusterMe_.size();i++){
     
     myMe = myClusterMe_[i];
-    if (!myMe)continue;
+    if (!myMe || myMe->getEntries()==0 )continue;
 
     
     detId=myDetIds_[i];
@@ -234,21 +235,34 @@ void RPCClusterSizeTest::clientOperation(EventSetup const& iSetup) {
       
     }
 
+  
+    int xBin,yBin;
     
+    if (detId.region()==0){//Barrel
+      
+      rpcdqm::utils rollNumber;
+      yBin = rollNumber.detId2RollNr(detId);
+      xBin = detId.sector();
+    }else {//Endcap
+      
+      //get segment number
+      RPCGeomServ RPCServ(detId);
+      xBin = RPCServ.segment();
+      (numberOfRings_ == 3 ? yBin= detId.ring()*3-detId.roll()+1 : yBin= (detId.ring()-1)*3-detId.roll()+1);
+    }
     
-    rpcdqm::utils rollNumber;
-    int nr = rollNumber.detId2RollNr(detId);
+    // Normalization -> # of Entries in first Bin normalaized by total Entries
     
-    float NormCLS = myMe->getBinContent(1)/myMe->getEntries(); // Normalization -> # of Entries in first Bin normalaized by total Entries
+    float NormCLS = myMe->getBinContent(1)/myMe->getEntries();
     float meanCLS = myMe->getMean();
     
-    if (CLS)  CLS -> setBinContent(detId.sector(), nr, NormCLS);
-    
-    if(MEAN)   MEAN -> setBinContent(detId.sector(), nr, meanCLS);
+    if (CLS)  CLS -> setBinContent(xBin,yBin, NormCLS);
+    if(MEAN)   MEAN -> setBinContent(xBin, yBin, meanCLS);
     
     if(MEAND) MEAND->Fill(meanCLS);
     if(CLSD)   CLSD->Fill(NormCLS);
-  }
+    
+  }//End loop on chambers
 } 
 
 void  RPCClusterSizeTest::endJob(void) {}

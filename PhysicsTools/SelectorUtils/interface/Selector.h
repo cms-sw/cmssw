@@ -10,11 +10,12 @@
   The user can then turn individual cuts on and off at will. 
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.1 2009/12/21 19:27:08 srappocc Exp $
+  \version  $Id: Selector.h,v 1.3 2010/02/10 20:06:25 srappocc Exp $
 */
 
 
 #include "PhysicsTools/SelectorUtils/interface/strbitset.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <fstream>
 #include <functional>
 
@@ -36,8 +37,8 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
     intCuts_.clear(); 
     doubleCuts_.clear();
     cutFlow_.clear();
+    retInternal_ = getBitTemplate();
   }
-
   virtual ~Selector() {}
 
   /// This is the registration of an individual cut string
@@ -47,6 +48,7 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
     // bits_ does that.
     cutFlow_.push_back( cut_flow_item(s,0) );
   }
+
 
   /// This is the registration of an individual cut string, with an int cut value
   virtual void push_back( std::string s, int cut) {
@@ -68,6 +70,15 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
 
   /// This provides the interface for base classes to select objects
   virtual bool operator()( T const & t, std::strbitset & ret ) = 0;
+
+  /// This provides an alternative signature without the second ret
+  virtual bool operator()( T const & t )
+  {
+    retInternal_.set(false);
+    operator()(t, retInternal_);
+    setIgnored(retInternal_);
+    return (bool)retInternal_;
+  }
   
   /// Set a given selection cut, on or off
   void set(std::string s, bool val = true) {
@@ -106,6 +117,15 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
   /// ignore the cut at index "s"
   bool ignoreCut( std::string s ) const {
     return bits_[s] == false;
+  }
+
+  /// set the bits to ignore from a vector
+  void setIgnoredCuts( std::vector<std::string> const & bitsToIgnore ) {
+    for ( std::vector<std::string>::const_iterator ignoreBegin = bitsToIgnore.begin(),
+	    ignoreEnd = bitsToIgnore.end(), ibit = ignoreBegin;
+	  ibit != ignoreEnd; ++ibit ) {
+      set(*ibit, false );
+    }
   }
 
   /// Passing cuts
@@ -175,6 +195,7 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
 
  protected:
   std::strbitset bits_;        //!< the bitset indexed by strings
+  std::strbitset retInternal_; //!< internal ret if users don't care about return bits
   int_map        intCuts_;     //!< the int-value cut map
   double_map     doubleCuts_;  //!< the double-value cut map
   cut_flow_map   cutFlow_;     //!< map of cut flows in "human" order

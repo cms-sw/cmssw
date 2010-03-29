@@ -143,6 +143,40 @@ namespace cscdqm {
   }
   
   /**
+   * @brief  Return global chamber index on his geometric location
+   * @param  side Side (1,2)
+   * @param  station Station
+   * @param  ring Ring\
+   * @param  chamber Chamber position
+   * @return Global chamber index starting 1. If chamber is not existing - returns 0
+   */
+  unsigned int Detector::GlobalChamberIndex(unsigned int side, unsigned int station, unsigned int ring, unsigned int chamber) const {
+    Address adr, iadr;
+    adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = true;
+    adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
+    adr.side = side;
+    adr.station = station;
+    adr.ring = ring;
+    adr.chamber = chamber;
+    iadr = adr;
+
+    unsigned int i = 1;
+    for (iadr.side = 1; iadr.side <= N_SIDES; iadr.side++) { 
+      for (iadr.station = 1; iadr.station <= N_STATIONS; iadr.station++) {
+        for (iadr.ring = 1; iadr.ring <= NumberOfRings(iadr.station); iadr.ring++) { 
+          for (iadr.chamber = 1; iadr.chamber <= NumberOfChambers(iadr.station, iadr.ring); iadr.chamber++) {
+            if (iadr == adr) {
+              return i;
+            }
+            i += 1;
+          }
+        }
+      }
+    }
+    return 0;
+  }
+
+  /**
    * @brief  Calculate address area in eta/phi space
    * @param  adr Address
    * @return Area that is being covered by address

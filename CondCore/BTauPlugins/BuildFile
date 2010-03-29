@@ -5,3 +5,12 @@
 <use name=CondFormats/PhysicsToolsObjects>
 <use name=CondFormats/DataRecord>
 <flags EDM_PLUGIN=1>
+<export>
+   <lib name=CondCoreBTauPlugins>
+   <use name=FWCore/Framework>
+   <use name=FWCore/PluginManager>
+   <use name=CondCore/ESSources>
+   <use name=CondFormats/BTauObjects>
+   <use name=CondFormats/PhysicsToolsObjects>
+   <use name=CondFormats/DataRecord>
+</export>

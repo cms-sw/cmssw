@@ -76,20 +76,20 @@ void DDEcalPreshowerAlgoTB::initialize(const DDNumericArguments & nArgs,
   LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB info: end initialize" ;
 }
 
-void DDEcalPreshowerAlgoTB::execute(DDCompactView& cpv) {
+void DDEcalPreshowerAlgoTB::execute() {
 
   LogDebug("HCalGeom") << "******** DDEcalPreshowerAlgoTB execute!";
 
   // creates all the tube-like layers of the preshower
-  doLayers(cpv);
+  doLayers();
   // places the wedges and silicon strip detectors in their x and y layer
-  doWedges(cpv);
+  doWedges();
   // places the slicon strips in active silicon wafers
-  doSens(cpv);
+  doSens();
   
 }
 
-void DDEcalPreshowerAlgoTB::doLayers(DDCompactView& cpv) {
+void DDEcalPreshowerAlgoTB::doLayers() {
   //double sum_z=0;
   double zpos = -thickness_/2.;
   for(size_t i = 0; i<rminVec.size(); ++i) {
@@ -135,7 +135,7 @@ void DDEcalPreshowerAlgoTB::doLayers(DDCompactView& cpv) {
       DDLogicalPart layer = DDLogicalPart(ddname,material,solid);
 
       DDTranslation tran=DDTranslation(trabsorbx+TotSFXshift,trabsorby+TotSFYshift, zpos);
-      cpv.position(layer, parent(), 1, tran, DDRotation());
+      DDpos(layer, parent(), 1, tran, DDRotation());
       LogDebug("HCalGeom") <<"DDEcalPreshowerAlgoTB debug : Child "
 			   << layer << " Copy 1 in " << parent().name()
 			   << " with translation " << tran
@@ -146,7 +146,7 @@ void DDEcalPreshowerAlgoTB::doLayers(DDCompactView& cpv) {
   
 }
 
-void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
+void DDEcalPreshowerAlgoTB::doWedges() {
 
   LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : doWedges()";
   int nx(0), ny(0), icopy(0), icopyt(0);
@@ -177,7 +177,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       // place the wedge
       if (go==1) {
 	tran = DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name1), parent(), icopyt, tran, rot1);
+	DDpos(DDLogicalPart(name1), parent(), icopyt, tran, rot1);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name1 << " copy = " << icopy << " (" 
 			     << icopyt << ") in Mother " << parent().name()
@@ -187,7 +187,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       ypos = ypos + ywedge_ceramic_diff;
       if (go==1) {
 	tran = DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
+	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name2 << " copy = " << icopy << " (" 
 			     << icopyt << ") in Mother " << parent().name()
@@ -208,7 +208,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       zpos = zlead1_ + wedge_offset;      
       if(go==1) {
 	tran = DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name1), parent(), icopyt, tran, rot1);
+	DDpos(DDLogicalPart(name1), parent(), icopyt, tran, rot1);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name1 << " copy = " << icopy << " (" 
 			     << icopyt << ") in Mother " << parent().name()
@@ -218,7 +218,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       ypos = ypos + ywedge_ceramic_diff;
       if (go==1) {
 	tran =  DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
+	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name2 << " copy = " << icopy << " (" 
 			     << icopyt << ") in Mother " << parent().name()
@@ -246,7 +246,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       zpos = zlead1_ + wedge_offset;
       if (go==1) {
 	tran =  DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name1), parent(), icopyt, tran, rot1);
+	DDpos(DDLogicalPart(name1), parent(), icopyt, tran, rot1);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name1 << " copy = " << icopy << " (" 
 			     << icopyt << ") in Mother " << parent().name()
@@ -256,7 +256,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       ypos = ypos - ywedge_ceramic_diff;
       if (go==1) {
 	tran =  DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
+	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name2 << " copy = " << icopy << " (" 
 			     << icopyt << ") in Mother " << parent().name()
@@ -277,7 +277,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       zpos = zlead1_ + wedge_offset;      
       if (go==1) {
 	tran =  DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name1), parent(), icopyt, tran, rot1);
+	DDpos(DDLogicalPart(name1), parent(), icopyt, tran, rot1);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name1 << " copy = " << icopy << " (" 
 			     << icopyt << ") in Mother " << parent().name()
@@ -287,7 +287,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       ypos = ypos - ywedge_ceramic_diff;
       if (go==1) {
 	tran =  DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
+	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name2 << " copy = " << icopy << " (" 
 			     << icopyt << ") in Mother " << parent().name()
@@ -318,7 +318,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       zpos = zlead2_ + wedge_offset;
       if (go==1) {
 	tran =  DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name1), parent(), icopy+nxt, tran, rot1);
+	DDpos(DDLogicalPart(name1), parent(), icopy+nxt, tran, rot1);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name1 << " copy = " << icopy << " (" 
 			     << icopyt+nxt << ") in Mother " << parent().name()
@@ -328,7 +328,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       xpos = xpos - ywedge_ceramic_diff;
       if (go==1) {
 	tran =  DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
+	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name2 << " copy = " << icopy << " (" 
 			     << icopyt << ") in Mother " << parent().name()
@@ -350,7 +350,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       zpos = zlead2_ + wedge_offset;
       if (go==1) {
 	tran =  DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name1), parent(), icopyt+nxt, tran, rot1);
+	DDpos(DDLogicalPart(name1), parent(), icopyt+nxt, tran, rot1);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name1 << " copy = " << icopy << " (" 
 			     << icopyt+nxt << ") in Mother " << parent().name()
@@ -360,7 +360,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       xpos = xpos - ywedge_ceramic_diff;
       if (go==1) {
 	tran =  DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
+	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name2 << " copy = " << icopy << " (" 
 			     << icopyt << ") in Mother " << parent().name()
@@ -387,7 +387,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       zpos = zlead2_ + wedge_offset;
       if (go==1) {
 	tran =  DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name1), parent(), icopyt+nxt, tran, rot1);
+	DDpos(DDLogicalPart(name1), parent(), icopyt+nxt, tran, rot1);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name1 << " copy = " << icopy << " (" 
 			     << icopyt+nxt << ") in Mother " << parent().name()
@@ -397,7 +397,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       xpos = xpos + ywedge_ceramic_diff;
       if (go==1) {
 	tran =  DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
+	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name2 << " copy = " << icopy << " (" 
 			     << icopyt << ") in Mother " << parent().name()
@@ -419,7 +419,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       zpos = zlead2_ + wedge_offset;
       if (go==1) {
 	tran =  DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name1), parent(), icopyt+nxt, tran, rot1);
+	DDpos(DDLogicalPart(name1), parent(), icopyt+nxt, tran, rot1);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name1 << " copy = " << icopy << " (" 
 			     << icopyt+nxt << ") in Mother " << parent().name()
@@ -429,7 +429,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
       xpos = xpos + ywedge_ceramic_diff;
       if (go==1) {
 	tran =  DDTranslation(xpos,ypos,zpos);
-	cpv.position(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
+	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
 	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
 			     << name2 << " copy = " << icopy << " (" 
 			     << icopyt << ") in Mother " << parent().name()
@@ -440,7 +440,7 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
 
 }
 
-void DDEcalPreshowerAlgoTB::doSens(DDCompactView& cpv) {
+void DDEcalPreshowerAlgoTB::doSens() {
 
   double xpos(0), ypos(0);
   DDTranslation tran;
@@ -452,14 +452,14 @@ void DDEcalPreshowerAlgoTB::doSens(DDCompactView& cpv) {
   for(size_t i = 0; i<32; ++i) {
     xpos = -waf_active/2. + i*waf_active/32. + waf_active/64.;
     tran = DDTranslation(xpos,0., 0.);
-    cpv.position(DDLogicalPart(child1), mother1, i+1, tran, rot);
+    DDpos(DDLogicalPart(child1), mother1, i+1, tran, rot);
     LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " << child1
 			 << "\ncopy number " << i+1 << " in " << mother1
 			 << " translation "<< tran << " rotation " << rot;
       
     ypos = -waf_active/2. + i*waf_active/32. + waf_active/64.;
     tran = DDTranslation(0.,ypos, 0.);
-    cpv.position(DDLogicalPart(child2), mother2, i+1, tran, rot);
+    DDpos(DDLogicalPart(child2), mother2, i+1, tran, rot);
     LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " << child2
 			 << "\ncopy number " << i+1 << " in " << mother2
 			 << " translation "<< tran << " rotation " << rot;

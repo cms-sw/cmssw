@@ -2,21 +2,24 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("REPROD")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MC_31X_V3::All'
+process.GlobalTag.globaltag = 'MC_3XY_V25::All'
 #process.load("Configuration.StandardSequences.FakeConditions_cff")
 
-process.Timing =cms.Service("Timing")
+# process.Timing =cms.Service("Timing")
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(30)
+    input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-      'file:../../../Validation/RecoParticleFlow/test/reco_QCDForPF_Full_001.root'),
+      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW360pre2/reco_QCDForPF_Full_4.root'
+      ),
+    #eventsToProcess = cms.untracked.VEventRange('1:160-1:172'),
     secondaryFileNames = cms.untracked.vstring(),
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
@@ -80,7 +83,8 @@ process.genReReco = cms.Sequence(process.generator+
 process.p = cms.Path(process.localReReco+
                      process.globalReReco+
                      process.pfReReco+
-                     process.genReReco)
+                     process.genReReco
+                     )
 
 # And the output.
 process.outpath = cms.EndPath(process.display)
@@ -88,8 +92,8 @@ process.outpath = cms.EndPath(process.display)
 # And the logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options = cms.untracked.PSet(
-    makeTriggerResults = cms.untracked.bool(True),
-    wantSummary = cms.untracked.bool(True),
+    makeTriggerResults = cms.untracked.bool(False),
+    wantSummary = cms.untracked.bool(False),
     Rethrow = cms.untracked.vstring('Unknown', 
         'ProductNotFound', 
         'DictionaryNotFound', 
@@ -110,6 +114,6 @@ process.options = cms.untracked.PSet(
         'NotFound')
 )
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
 

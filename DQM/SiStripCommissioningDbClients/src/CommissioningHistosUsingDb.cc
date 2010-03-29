@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.22 2010/02/02 18:36:28 lowette Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.20 2009/11/10 14:49:02 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -116,7 +116,6 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
       << "[CommissioningHistosUsingDb::" << __func__ << "]"
       << " Starting from partition " << ip->first
       << " with versions:\n" << std::dec
-      << "   Conn: " << ip->second.cabVersion().first << "." << ip->second.cabVersion().second << "\n"
       << "   FED:  " << ip->second.fedVersion().first  << "." << ip->second.fedVersion().second << "\n"
       << "   FEC:  " << ip->second.fecVersion().first  << "." << ip->second.fecVersion().second << "\n"
       << "   Mask: " << ip->second.maskVersion().first << "." << ip->second.maskVersion().second;
@@ -173,10 +172,7 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
             << "[CommissioningHistosUsingDb::" << __func__ << "]"
             << " Created new version for partition " << ip->first
             << ". Current state:\n" << std::dec
-            << "   Conn: " << (*istate)->getConnectionVersionMajorId() << "." << (*istate)->getConnectionVersionMinorId() << "\n"
-            << "   FED:  " << (*istate)->getFedVersionMajorId()  << "." << (*istate)->getFedVersionMinorId() << "\n"
-            << "   FEC:  " << (*istate)->getFecVersionMajorId()  << "." << (*istate)->getFecVersionMinorId() << "\n"
-            << "   Mask: " << (*istate)->getMaskVersionMajorId() << "." << (*istate)->getMaskVersionMinorId();
+            << "   FED:  " << (*istate)->getFedVersionMajorId() << "." << (*istate)->getFedVersionMinorId();
         }
       }
     }
@@ -329,12 +325,7 @@ void CommissioningHistosUsingDb::buildDetInfo() {
       dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
       if ( !dcu ) { continue; }
       if ( dcu->getDcuType() != "FEH" ) { continue; }
-
-      // S.L. 29/1/2010
-      // HARDCODED!!! We have a broken module, known from Pisa integration tests
-      // We could really use a better solutin for this than hardcode it!!!
-      if ( dcu->getDcuHardId() == 16448250 ) continue; // fake dcu (0xfafafa)
-
+      
       // Find TkDcuInfo object corresponding to given DCU description
       SiStripConfigDb::DcuDetIdsV::const_iterator idet = dets.end();
       idet = SiStripConfigDb::findDcuDetId( dets.begin(), dets.end(), dcu->getDcuHardId() );

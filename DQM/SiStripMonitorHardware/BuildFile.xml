@@ -1,0 +1,12 @@
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DQMServices/Core"/>
+<use   name="DataFormats/SiStripCommon"/>
+<use   name="DataFormats/FEDRawData"/>
+<use   name="CondFormats/SiStripObjects"/>
+<use   name="EventFilter/SiStripRawToDigi"/>
+<use   name="DQM/SiStripCommon"/>
+<export>
+  <lib   name="1"/>
+</export>

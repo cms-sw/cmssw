@@ -10,6 +10,7 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import Scenario
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER
 import FWCore.ParameterSet.Config as cms
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
@@ -28,24 +29,27 @@ class cosmics(Scenario):
     """
 
 
-    def promptReco(self, globalTag, skims =[], writeTiers = ['RECO','ALCA']):
+    def promptReco(self, globalTag, writeTiers = ['RECO','ALCARECO']):
         """
         _promptReco_
 
         Cosmic data taking prompt reco
 
         """
-        if len(skims) >0:
-          step = ',ALCAPRODUCER:'
-          for skim in skims:
-              step += (skim+"+")
-          step = step.rstrip('+')
-        else:
-          step = ''   
+
+        skims = ['TkAlBeamHalo',
+                 'MuAlBeamHaloOverlaps',
+                 'MuAlBeamHalo',
+                 'TkAlCosmics0T',
+                 'MuAlStandAloneCosmics',
+                 'MuAlGlobalCosmics',
+                 'MuAlCalIsolatedMu',
+                 'HcalCalHOCosmics']
+        step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "cosmics"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -64,7 +68,7 @@ class cosmics(Scenario):
         cb.prepare()
 
         for tier in writeTiers: 
-          addOutputModule(process, tier, "RECO")        
+          addOutputModule(process, tier, tier)        
  
         return process
 

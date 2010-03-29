@@ -52,6 +52,13 @@ namespace reco {
     /// \return id
     int trackId() const {return trackId_;}
 
+
+    /// \add PFRecTrackRef from conv Brems
+    void addConvBremPFRecTrackRef(const reco::PFRecTrackRef& pfrectracksref);
+
+    /// \return vector of PFRecTrackRef from Conv Brem
+    const std::vector<reco::PFRecTrackRef>& convBremPFRecTrackRef() const {return assoPFRecTrack_;}
+
   private:
     /// reference to corresponding gsf track
     reco::GsfTrackRef     gsfTrackRef_;
@@ -62,7 +69,8 @@ namespace reco {
     /// vector of PFBrem (empty for KF tracks)
     std::vector<reco::PFBrem> pfBremVec_;
 
-
+    /// vector of PFRecTrackRef from conv Brems
+    std::vector<reco::PFRecTrackRef> assoPFRecTrack_;
     
     /// track id
     int trackId_;

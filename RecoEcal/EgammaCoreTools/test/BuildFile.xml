@@ -1,0 +1,24 @@
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="hepmc"/>
+<use   name="clhep"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<library   file="testEcalClusterTools.cc" name="testEcalClusterTools">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="testEcalClusterLazyTools.cc" name="testEcalClusterLazyTools">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="testEcalClusterFunctions.cc" name="testEcalClusterFunctions">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="testEcalClusterSeverityAlgo.cc" name="testEcalClusterSeverityAlgo">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="filterProbClusters.cc" name="filterProbClusters">
+  <flags   EDM_PLUGIN="1"/>
+</library>

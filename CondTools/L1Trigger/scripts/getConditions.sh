@@ -33,17 +33,19 @@ fi
 ln -sf /nfshome0/centraltspro/secure/authentication.xml .
 
 source /nfshome0/cmssw2/scripts/setup.sh
+export SCRAM_ARCH=slc5_ia32_gcc434
 eval `scramv1 run -sh`
 
 echo "`date` : initializing sqlite file"
-$CMSSW_BASE/src/CondTools/L1Trigger/test/bootstrap.com -l
+#$CMSSW_BASE/src/CondTools/L1Trigger/test/bootstrap.com -l
+$CMSSW_BASE/src/CondTools/L1Trigger/test/bootstrap.com
 
 # copy default objects
 cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadCondDB_cfg.py tagBase=${tagbase}_hlt inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb
 cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteIOVDummy_cfg.py tagBase=${tagbase}_hlt
 
 echo "`date` : writing TSC payloads"
-$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-key.sh ${key} ${tagbase}
+$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-key.sh -c ${key} ${tagbase}
 o2ocode=$?
 
 if [ ${o2ocode} -eq 0 ]

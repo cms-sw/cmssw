@@ -103,119 +103,29 @@ void HDQMInspector::accessDB()
 
 void  HDQMInspector::setBlackList(std::string const & ListItems)
 {
-
-  // Run over entire input string
-  for (std::string::const_iterator Pos = ListItems.begin(); Pos != ListItems.end(); ) {
-
-    // The rest of the string
-    std::string Remainder(Pos, ListItems.end());
-
-    // This entry will be from the beginning of the remainder to either a ","
-    // or the end of the string
-    std::string Entry = Remainder.substr(0, Remainder.find(","));
-
-    // If we find a "-" we know it's a blacklist range
-    if ( Entry.find("-") ) {
-
-      // Get the first and last runs from this range
-      int const FirstRun = atoi( Entry.substr(0, Entry.find("-")).c_str() );
-      int const LastRun  = atoi( Entry.substr(Entry.find("-")+1).c_str() );
-
-      // If you entered it stupidly we're going to stop here.
-      if (FirstRun > LastRun) {
-        std::cerr << "ERROR: FirstRun > LastRun in blackList" << std::endl;
-        exit(1);
-      }
-
-      // For now the simplest thing to do is fill in gaps including each end
-      for (int i = FirstRun; i <= LastRun; ++i) {
-        blackList.push_back(i);
-      }
-
-    } else {
-      // If we didn't see a "-" just add it to the list
-      blackList.push_back( atoi(Entry.c_str()) );
-    }
-
-    // This is to make sure we are in the correct position as we go on.
-    Pos += Entry.size();
-    if (Pos != ListItems.end()) {
-      Pos += 1;
-    }
-
-  }
-
-  // sort the list for faster searching later
-  std::sort(blackList.begin(), blackList.end());
-
-  return;
-}
-
-void  HDQMInspector::setWhiteList(std::string const & ListItems)
-{
-
-  // Run over entire input string
-  for (std::string::const_iterator Pos = ListItems.begin(); Pos != ListItems.end(); ) {
-
-    // The rest of the string
-    std::string Remainder(Pos, ListItems.end());
-
-    // This entry will be from the beginning of the remainder to either a ","
-    // or the end of the string
-    std::string Entry = Remainder.substr(0, Remainder.find(","));
-
-    // If we find a "-" we know it's a whitelist range
-    if ( Entry.find("-") ) {
-
-      // Get the first and last runs from this range
-      int const FirstRun = atoi( Entry.substr(0, Entry.find("-")).c_str() );
-      int const LastRun  = atoi( Entry.substr(Entry.find("-")+1).c_str() );
-
-      // If you entered it stupidly we're going to stop here.
-      if (FirstRun > LastRun) {
-        std::cerr << "ERROR: FirstRun > LastRun in WhiteList" << std::endl;
-        exit(1);
-      }
-
-      // For now the simplest thing to do is fill in gaps including each end
-      for (int i = FirstRun; i <= LastRun; ++i) {
-        whiteList.push_back(i);
-      }
-
-    } else {
-      // If we didn't see a "-" just add it to the list
-      whiteList.push_back( atoi(Entry.c_str()) );
-    }
-
-    // This is to make sure we are in the correct position as we go on.
-    Pos += Entry.size();
-    if (Pos != ListItems.end()) {
-      Pos += 1;
-    }
-
-  }
-
-  // sort the list for faster searching later
-  std::sort(whiteList.begin(), whiteList.end());
-
-  return;
+   std::string::size_type oldloc = 0; 
+   std::string::size_type loc = ListItems.find( ",", oldloc );
+   
+   while( loc != std::string::npos ) {
+     blackList.push_back(atoi((ListItems.substr(oldloc,loc-oldloc)).c_str()));
+     oldloc=loc+1;
+     loc=ListItems.find( ",", oldloc );
+     }
+   
+   blackList.push_back(atoi((ListItems.substr(oldloc,loc-oldloc)).c_str()));
+   std::cout << std::endl; 
 }
 
 bool  HDQMInspector::isListed(unsigned int run, std::vector<unsigned int>& vList)
 {
-  // This routine expectes a sorted list and returns true if the run is in the list,
-  // false otherwise
-
-  // Binary search is much faster, but you MUST give it a sorted list.
-  if (std::binary_search(vList.begin(), vList.end(), run)) {
-    if(iDebug) {
-      std::cout << "\n Run "<< run << " is listed !!\n" << std::endl;
+   bool isListed = false;
+   for(unsigned int i=0; i<vList.size();i++){
+     if(run== vList.at(i)){ 
+      isListed = true;
+      if(iDebug) std::cout << "\n Run "<< run << " is black listed !!\n" << std::endl;
+     }
     }
-    return true;
-  }
-
-  return false;
-
+   return isListed;
 }
 
 
@@ -316,15 +226,9 @@ void HDQMInspector::createTrend(std::string ListItems, std::string CanvasName, i
   }
   const HDQMSummary* reference;
   while((reference = Iterator->next())) { 
-
-
-    // Check the run and black and white lists
-    if(Iterator->getStartTime()<firstRun || Iterator->getStartTime()>lastRun || isListed(reference->getRunNr(), blackList)) {
+   
+    if(Iterator->getStartTime()<firstRun || Iterator->getStartTime()>lastRun || isListed(reference->getRunNr(), blackList))
       continue;
-    }
-    if (whiteList.size() > 0 && !isListed(reference->getRunNr(), whiteList)) {
-      continue;
-    }
 
     if(vDetIdItemListCut.size()){
       for(size_t ij=0;ij!=vDetIdItemListCut.size();++ij){
@@ -410,7 +314,7 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
     std::cout <<  "TkRegion " << vdetId_[i] << " " << vlistItems_[i] << std::endl;
 
     if(vlistItems_.at(i).find("Summary")!= std::string::npos) vlistItems_.at(i).replace(vlistItems_.at(i).find("Summary_"),8,"");
-    if(vlistItems_.at(i).find(fSep)!= std::string::npos) vlistItems_.at(i).replace(vlistItems_.at(i).find(fSep),fSep.size(),"_");
+    if(vlistItems_.at(i).find("@")!= std::string::npos) vlistItems_.at(i).replace(vlistItems_.at(i).find("@"),1,"_");
     
  
     std::stringstream ss;
@@ -423,7 +327,7 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
     }
 
     
-    bool const itemForIntegration = fHDQMInspectorConfig ? fHDQMInspectorConfig->computeIntegral(vlistItems_[i]) : false;
+    bool const itemForIntegration = fHDQMInspectorConfig->computeIntegral(vlistItems_[i]);
    
     int addShift=0;
     for(size_t j=0;j<vRun_.size();++j){
@@ -678,11 +582,11 @@ void HDQMInspector::unpackConditions( std::string& Conditions, std::vector<DetId
   sprintf(copyConditions,"%s",Conditions.c_str());
   pch = strtok (copyConditions,delimiters);
   while (pch != NULL){
-    if(strstr(pch,fSep.c_str())!=NULL){
+    if(strstr(pch,"@")!=NULL){
       DetIdItemList detiditemlist;
       std::string itemD(pch);
-      detiditemlist.detid=atol(itemD.substr(0,itemD.find(fSep)).c_str());
-      detiditemlist.items.push_back(itemD.substr(itemD.find(fSep)+fSep.size())); // dhidas update +.size instead of "1"
+      detiditemlist.detid=atol(itemD.substr(0,itemD.find("@")).c_str());
+      detiditemlist.items.push_back(itemD.substr(itemD.find("@")+1));
       if (iDebug) {
         std::cout << "Found a Condition " << detiditemlist.items.back() << " for detId " << detiditemlist.detid << std::endl;
       }
@@ -715,11 +619,8 @@ bool HDQMInspector::ApplyConditions(std::string& Conditions, std::vector<DetIdIt
       //scientific precision doesn't work in HDQMExpressionEvaluator...
       //sprintf(condCVal,"%g",vdetIdItemList[ic].values[jc]);
       sprintf(condCVal,"%f",vdetIdItemList[ic].values[jc]);
-      sprintf(singleCondition,"%d%s%s",vdetIdItemList[ic].detid,fSep.c_str(),vdetIdItemList[ic].items[jc].c_str());
-      //printf("dhidas %d  %s  %s\n",vdetIdItemList[ic].detid,fSep.c_str(),vdetIdItemList[ic].items[jc].c_str());
-      //printf("dhidas %s %s\n", cConditions, singleCondition);
+      sprintf(singleCondition,"%d@%s",vdetIdItemList[ic].detid,vdetIdItemList[ic].items[jc].c_str());
       char* fpos = strstr(cConditions,singleCondition);
-      //printf("dhidas %s %s %i\n", fpos, condCVal, strlen(condCVal));
       strncpy(fpos,condCVal,strlen(condCVal));
       memset(fpos+strlen(condCVal),' ',strlen(singleCondition)-strlen(condCVal));
       //std::cout << "fpos " << fpos << " len condCVal " << strlen(condCVal) << " strlen(singleCondition) " << strlen(singleCondition) << " len cConditions " << strlen(cConditions)<<std::endl;
@@ -754,9 +655,9 @@ bool HDQMInspector::ApplyConditions(std::string& Conditions, std::vector<DetIdIt
 void HDQMInspector::setItems(std::string itemD)
 {
   DetIdItemList detiditemlist;
-  detiditemlist.detid=atol(itemD.substr(0,itemD.find(fSep)).c_str());
+  detiditemlist.detid=atol(itemD.substr(0,itemD.find("@")).c_str());
 
-  std::string item=itemD.substr(itemD.find(fSep)+fSep.size());
+  std::string item=itemD.substr(itemD.find("@")+1);
   detiditemlist.items.push_back(item);
 
   if(iDebug)

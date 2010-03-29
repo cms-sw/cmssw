@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-EcalRawToRecHitFacility = cms.EDFilter("EcalRawToRecHitFacility",
+EcalRawToRecHitFacility = cms.EDProducer("EcalRawToRecHitFacility",
     sourceTag = cms.InputTag("rawDataCollector"),
     workerName = cms.string('')
 )

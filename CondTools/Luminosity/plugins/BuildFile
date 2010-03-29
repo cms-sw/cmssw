@@ -1,6 +1,5 @@
 <use name=CondTools/Luminosity>
 <library file=LumiSectionDataPopCon.cc name=LumiSectionDataPopCon>
-        <use name=CondCore/PopCon>
         <flags EDM_PLUGIN=1>
 </library>
 <library file=DummySource.cc name=CondToolsLuminosityDummySource>

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.20 2010/01/29 17:47:28 dstrom Exp $
+// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.17 2008/03/17 17:37:10 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 
@@ -465,7 +465,6 @@ sistrip::Monitorable SiStripEnumsAndStrings::monitorable( const std::string& mon
   else if ( mon.find( sistrip::pedestalsSpread_ ) != std::string::npos ) { return sistrip::PEDESTALS_SPREAD; }
   else if ( mon.find( sistrip::pedestalsMax_ ) != std::string::npos ) { return sistrip::PEDESTALS_MAX; }
   else if ( mon.find( sistrip::pedestalsMin_ ) != std::string::npos ) { return sistrip::PEDESTALS_MIN; }
-
   // noiseKS must come before the more general noiseAllStrips, since it contains that string
   else if ( mon.find( sistrip::noiseGausAllStrips_ ) != std::string::npos ) { return sistrip::NOISE_GAUS_ALL_STRIPS; }
   else if ( mon.find( sistrip::noiseKSAllStrips_ ) != std::string::npos ) { return sistrip::NOISE_KS_ALL_STRIPS; }

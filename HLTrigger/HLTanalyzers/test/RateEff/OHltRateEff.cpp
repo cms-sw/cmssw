@@ -141,8 +141,8 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   vector< vector<float> >coMa;
   vector<float> coDen;
   float DenEff=0.;
-  Int_t nbinpt = 150; Float_t ptmin = 0.0; Float_t ptmax = 150.0;
-  Int_t nbineta = 15; Float_t etamin = -5.0; Float_t etamax = 5.0;
+  Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 10.0;
+  Int_t nbineta = 30; Float_t etamin = -3.0; Float_t etamax = 3.0;
   TH1F *h1 = new TH1F("h1","pTnum",nbinpt,ptmin,ptmax);
   TH1F *h2 = new TH1F("h2","pTden",nbinpt,ptmin,ptmax);
   TH1F *h3 = new TH1F("h3","etanum",nbineta,etamin,etamax);
@@ -267,8 +267,8 @@ void calcEff(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   vector< vector<float> >coMa;
   vector<float> coDen;
   //  float DenEff=0.;
-  Int_t nbinpt = 150; Float_t ptmin = 0.0; Float_t ptmax = 150.0;
-  Int_t nbineta = 60; Float_t etamin = -5.0; Float_t etamax = 5.0;
+  Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 15.0;
+  Int_t nbineta = 30; Float_t etamin = -3.0; Float_t etamax = 3.0;
 
   vector<float> ftmp;
   for (int i=0;i<ntrig;i++) { // Init

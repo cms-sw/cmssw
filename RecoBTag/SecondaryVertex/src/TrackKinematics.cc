@@ -48,16 +48,6 @@ TrackKinematics::TrackKinematics(const Vertex &vertex) :
 	}
 }
 
-TrackKinematics &TrackKinematics::operator += (const TrackKinematics &other)
-{
-	n += other.n;
-	sumWeights += other.sumWeights;
-	sum += other.sum;
-	weightedSum += other.weightedSum;
-
-	return *this;
-}
-
 void TrackKinematics::add(const Track &track, double weight)
 {
 	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > vec;

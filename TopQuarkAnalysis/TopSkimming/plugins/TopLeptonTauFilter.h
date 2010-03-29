@@ -8,7 +8,7 @@
  * default eta thresholds (lepton and jets) set to 3
  * At least two leptons and two jets present for each channel
  *
- * $Date: 2007/07/12 09:18:45 $
+ * $Date: 2007/08/07 10:50:13 $
  * $Revision: 1.1 $
  *
  * \author Michele Gallinaro and Nuno Almeida - LIP
@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"    
+#include "FWCore/Utilities/interface/InputTag.h"    
 
 class TopLeptonTauFilter : public edm::EDFilter 
 {

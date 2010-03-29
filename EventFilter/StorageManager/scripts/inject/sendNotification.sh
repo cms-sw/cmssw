@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: sendNotification.sh,v 1.7 2008/11/06 00:42:49 loizides Exp $
+# $Id: sendNotification.sh,v 1.8 2008/11/06 21:02:07 loizides Exp $
 
 # error dir and file
 errordir=/tmp
@@ -33,9 +33,9 @@ if test -z "$T0_BASE_DIR"; then
     export T0_NOTIFY=${T0ROOT}/operations/sendNotification.pl
 fi
 
-res=`${T0_NOTIFY} --config $T0_CONFIG $@ 2>&1 | grep "Connection established (3)"`
+res=`${T0_NOTIFY} --config $T0_CONFIG $@ 2>&1 | grep "Connection established (2)"`
 if test -z "$res"; then
-    echo "#Error: Most likely CopyManager is not running (cmsusr3)" >> $errorfile
+    echo "#Error: Most likely CopyManager is not running" >> $errorfile
     echo $0 $@ >> $errorfile
     exit 0;
 fi

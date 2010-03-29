@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -28,7 +29,7 @@ class SiStripTrivialClusterSource : public edm::EDProducer {
   SiStripTrivialClusterSource(const edm::ParameterSet&);
   ~SiStripTrivialClusterSource();
   
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginRun( edm::Run&, const edm::EventSetup& );
   virtual void endJob();
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
