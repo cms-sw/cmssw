@@ -49,10 +49,10 @@ print CFGFILE "import FWCore.ParameterSet.Config as cms\n";
 #print CFGFILE "source = cms.Source (\"NewEventStreamFileReader\",fileNames = readFiles, secondaryFileNames = secFiles)\n"; 
 #     print CFGFILE "readFiles.extend( (\n"; 
 if ($string_ eq "dat") {
-     print CFGFILE "source = cms.Source (\"PoolSource\",\n";
+     print CFGFILE "source = cms.Source (\"NewEventStreamFileReader\",\n";
 }
 if ($string_ eq "root") {
-     print CFGFILE "source = cms.Source (\"NewEventStreamFileReader\",\n";
+     print CFGFILE "source = cms.Source (\"PoolSource\",\n";
 }
      print CFGFILE "fileNames = cms.untracked.vstring(\n"; 
 #process.source = cms.Source("PoolSource",
