@@ -118,7 +118,7 @@ process.EWK_MuHLTFilter.HLTPaths=["HLT_MinBiasBSC_OR", "HLT_L1Mu", "HLT_L1MuOpen
 process.load ('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
 process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
-process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('40 OR  41')
+process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND  (40 OR  41) AND NOT (bit 36 OR bit 37 OR bit 38 OR bit 39)')
 
 process.options = cms.untracked.PSet(
         SkipEvent = cms.untracked.vstring('ProductNotFound'),
@@ -126,28 +126,28 @@ process.options = cms.untracked.PSet(
         )
 
 #  Merge CaloMuons into the collection of reco::Muons
-from RecoMuon.MuonIdentification.calomuons_cfi import calomuons;
-process.muons = cms.EDProducer("CaloMuonMerger",
-    muons = cms.InputTag("muons"), # half-dirty thing. it works aslong as we're the first module using muons in the path
-    caloMuons = cms.InputTag("calomuons"),
-    minCaloCompatibility = calomuons.minCaloCompatibility)
+#from RecoMuon.MuonIdentification.calomuons_cfi import calomuons;
+#process.muons = cms.EDProducer("CaloMuonMerger",
+#    muons = cms.InputTag("muons"), # half-dirty thing. it works aslong as we're the first module using muons in the path
+#    caloMuons = cms.InputTag("calomuons"),
+#    minCaloCompatibility = calomuons.minCaloCompatibility)
 
 ## And re-make isolation, as we can't use the one in AOD because our collection is different
-process.load('RecoMuon.MuonIsolationProducers.muIsolation_cff')
+#process.load('RecoMuon.MuonIsolationProducers.muIsolation_cff')
 
 
 
 # Muon filter
 process.goodMuons = cms.EDFilter("MuonViewRefSelector",
   src = cms.InputTag("muons"),
-  cut = cms.string('pt > 0.5 && ( isGlobalMuon=1 || (isTrackerMuon =1  && numberOfMatches>=1 ) || isStandAloneMuon=1)'), # also || (isCaloMuon=1) ??
+  cut = cms.string('pt > 1.0 && ( isGlobalMuon=1 || (isTrackerMuon =1  && numberOfMatches>=1 ) || isStandAloneMuon=1)'), # also || (isCaloMuon=1) ??
   filter = cms.bool(True)                                
 )
 
 # require at least two tracks with pt>.5, to hopefully remove further cosmic contaminations  
 process.tracks = cms.EDFilter("TrackSelector",
   src=cms.InputTag("generalTracks"),
-  cut = cms.string('pt > 0.5'),
+  cut = cms.string('abs(dxy)<0.5 && pt > 1.0 && hitPattern().numberOfValidPixelHits>0'),
   filter = cms.bool(True)                                
 )
 
@@ -162,6 +162,10 @@ process.dimuonsAOD = cms.EDFilter("CandViewShallowCloneCombiner",
     cut = cms.string('mass > 0'),
     decay = cms.string('goodMuons@+ goodMuons@-')
 )
+
+
+# For creaton of WMuNu Candidates
+process.load("ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi")
 
 
 # Output module configuration
@@ -183,7 +187,8 @@ EWK_MuSkimEventSelection = cms.PSet(
 
 dimuonsEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
-    'keep *_dimuonsAOD_*_*'
+    'keep *_dimuonsAOD_*_*',
+    'keep recoWMuNuCandidates_*_*_*'
     )
  )
 
@@ -213,7 +218,8 @@ process.EWK_MuSkimPath = cms.Path(
   process.goodMuons +
   process.tracks +
   process.tracksFilter +
-  process.dimuonsAOD
+  process.dimuonsAOD +
+  process.allWmuNus
 )
 
 
