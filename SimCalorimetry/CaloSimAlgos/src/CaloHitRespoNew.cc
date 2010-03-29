@@ -117,10 +117,24 @@ CaloHitRespoNew::setRandomEngine( CLHEP::HepRandomEngine& engine )
    m_RandPoisson = new CLHEP::RandPoissonQ( engine ) ;
 }
 
-CaloHitRespoNew::VecSam&
-CaloHitRespoNew::samples()
+const CaloSamples& 
+CaloHitRespoNew::operator[]( unsigned int i ) const 
 {
-   return m_vSamp ;
+   assert( i < m_vSamp.size() ) ;
+   return m_vSamp[ i ] ;
+}
+
+unsigned int 
+CaloHitRespoNew::samplesSize() const
+{
+   return m_vSamp.size() ;
+}
+
+CaloSamples& 
+CaloHitRespoNew::operator[]( unsigned int i ) 
+{
+   assert( i < m_vSamp.size() ) ;
+   return m_vSamp[ i ] ;
 }
 
 void 

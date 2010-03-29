@@ -61,11 +61,15 @@ class CaloHitRespoNew
 
       virtual void run( MixCollection<PCaloHit>& hits ) ;
 
-      CaloSamples* findSignal( const DetId& detId ) ;
+      unsigned int samplesSize() const ;
 
-      VecSam& samples() ;
+      const CaloSamples& operator[]( unsigned int i ) const ;
+
+      CaloSamples& operator[]( unsigned int i ) ;
 
    protected:
+
+      CaloSamples* findSignal( const DetId& detId ) ;
 
       virtual void putAnalogSignal( const PCaloHit& inputHit) ;
 
