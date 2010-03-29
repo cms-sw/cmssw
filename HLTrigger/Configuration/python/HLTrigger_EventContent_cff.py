@@ -34,10 +34,8 @@ HLTriggerAOD = cms.PSet(
 HLTDebugRAW = cms.PSet(
     outputCommands = cms.vstring('drop *_hlt*_*_*', 
         'keep *_hltAlCaEtaRecHitsFilter_*_*', 
-        'keep *_hltAlCaEtaRegRecHits_*_*', 
         'keep *_hltAlCaPhiSymStream_*_*', 
         'keep *_hltAlCaPi0RecHitsFilter_*_*', 
-        'keep *_hltAlCaPi0RegRecHits_*_*', 
         'keep *_hltBLifetimeL25AssociatorStartupU_*_*', 
         'keep *_hltBLifetimeL25AssociatorStartup_*_*', 
         'keep *_hltBLifetimeL25BJetTagsStartupU_*_*', 
@@ -248,10 +246,8 @@ HLTDebugRAW = cms.PSet(
 HLTDebugFEVT = cms.PSet(
     outputCommands = cms.vstring('drop *_hlt*_*_*', 
         'keep *_hltAlCaEtaRecHitsFilter_*_*', 
-        'keep *_hltAlCaEtaRegRecHits_*_*', 
         'keep *_hltAlCaPhiSymStream_*_*', 
         'keep *_hltAlCaPi0RecHitsFilter_*_*', 
-        'keep *_hltAlCaPi0RegRecHits_*_*', 
         'keep *_hltBLifetimeL25AssociatorStartupU_*_*', 
         'keep *_hltBLifetimeL25AssociatorStartup_*_*', 
         'keep *_hltBLifetimeL25BJetTagsStartupU_*_*', 
