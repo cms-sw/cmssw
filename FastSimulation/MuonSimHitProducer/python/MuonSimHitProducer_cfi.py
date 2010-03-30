@@ -11,11 +11,8 @@ MuonSimHits = cms.EDProducer("MuonSimHitProducer",
     MUONS = cms.PSet(
         # The muon simtrack's must be taken from there
         simModuleLabel = cms.string('famosSimHits'),
-        MaxEta = cms.double(2.4),
         # The reconstruted tracks must be taken from there
         trackModuleLabel = cms.string('generalTracks'),
-        # Simulate  only simtracks in this eta range
-        MinEta = cms.double(-2.4),
         # What is to be produced // Dummy, for now:
         ProduceL1Muons = cms.untracked.bool(False),
         simModuleProcess = cms.string('MuonSimTracks'),
