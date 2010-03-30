@@ -1,12 +1,8 @@
-
-using namespace std;
-
 #include <iostream>
 #include "PhysicsTools/KinFitter/interface/TSLToyGen.h"
 #include "TMatrixD.h" 
 #include "PhysicsTools/KinFitter/interface/TFitConstraintM.h"
 #include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"
-//#include "PhysicsTools/KinFitter/interface/TFitConstraintE.h"
 #include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
 #include "TH1.h"
 #include "TMath.h"
@@ -66,7 +62,7 @@ Bool_t TSLToyGen::doToyExperiments( Int_t nbExperiments ) {
   // define fitter
   TKinFitter fitter;
 
-  vector<TAbsFitParticle*> ParVec(0);
+  std::vector<TAbsFitParticle*> ParVec(0);
   ParVec.push_back(_breco);
   ParVec.push_back(_lepton);
   ParVec.push_back(_X);
@@ -93,7 +89,7 @@ Bool_t TSLToyGen::doToyExperiments( Int_t nbExperiments ) {
   _Y4S += _iniNeutrino->getIni4Vec()->Vect();
   //_Y4S.SetXYZ(-0.1212, -0.0033, 5.8784);
   Double_t EY4S = TMath::Sqrt( _Y4S.Mag2() + 10.58*10.58 );
-  //  cout << "_Y4S : " <<_Y4S.x() << " / " << _Y4S.y() << " / " << _Y4S.z() << " / " <<EY4S<< endl;
+  //  std::cout << "_Y4S : " <<_Y4S.x() << " / " << _Y4S.y() << " / " << _Y4S.z() << " / " <<EY4S<< std::endl;
 
   TFitConstraintEp pXCons( "pX", "pX", &ParVec, TFitConstraintEp::pX, _Y4S.x() );
   TFitConstraintEp pYCons( "pY", "pY", &ParVec, TFitConstraintEp::pY, _Y4S.y() );
@@ -124,34 +120,34 @@ Bool_t TSLToyGen::doToyExperiments( Int_t nbExperiments ) {
   fitter.setVerbosity(0);
 
   if( _printPartIni ) {
-    cout << endl
-   	 << "----------------------------------" << endl;
-    cout << "--- PRINTING INITIAL PARTICLES ---" << endl;
-    cout << "----------------------------------" << endl ;
+    std::cout << std::endl
+	      << "----------------------------------" << std::endl;
+    std::cout << "--- PRINTING INITIAL PARTICLES ---" << std::endl;
+    std::cout << "----------------------------------" << std::endl ;
     _iniBreco->print();
     _iniLepton->print();
     _iniX->print();
     _iniNeutrino->print();
-    cout << endl << endl;
+    std::cout << std::endl << std::endl;
   }
  
   if( _printConsIni ) {
-    cout << endl
-	 << "-------------------------------------------------" << endl;
-    cout << "INITIAL CONSTRAINTS " << endl ;
-    cout << "-------------------------------------------------" << endl;
-    cout << "     M: " << MCons.getCurrentValue()
-	 << "  MPDG: " << MPDGCons.getCurrentValue()
-	 << "    px: " << pXCons.getCurrentValue()  
-	 << "    py: " << pYCons.getCurrentValue()
-	 << "    pz: " << pZCons.getCurrentValue() 
-	 << "     E: " << ECons.getCurrentValue() << endl << endl;
+    std::cout << std::endl
+	      << "-------------------------------------------------" << std::endl;
+    std::cout << "INITIAL CONSTRAINTS " << std::endl ;
+    std::cout << "-------------------------------------------------" << std::endl;
+    std::cout << "     M: " << MCons.getCurrentValue()
+	      << "  MPDG: " << MPDGCons.getCurrentValue()
+	      << "    px: " << pXCons.getCurrentValue()  
+	      << "    py: " << pYCons.getCurrentValue()
+	      << "    pz: " << pZCons.getCurrentValue() 
+	      << "     E: " << ECons.getCurrentValue() << std::endl << std::endl;
   }
 
   // Check initial constraints
   if (  _doCheckConstraintsTruth ) {
     if (fitter.getF() > fitter.getMaxF()) {
-      //cout << "Initial constraints are not fulfilled." << endl;
+      //std::cout << "Initial constraints are not fulfilled." << std::endl;
       return false;
     }
   }
@@ -165,10 +161,10 @@ Bool_t TSLToyGen::doToyExperiments( Int_t nbExperiments ) {
     smearParticles();
 
     if( _printSmearedPartBefore ) {
-      cout <<  endl  
-	   << "-------------------------------------------------------" << endl ;
-      cout << "--- PRINTING SMEARED PARTICLES BEFORE FIT FOR experiment # " <<i+1 << endl;
-      cout << "-------------------------------------------------------" << endl;
+      std::cout <<  std::endl  
+		<< "-------------------------------------------------------" << std::endl ;
+      std::cout << "--- PRINTING SMEARED PARTICLES BEFORE FIT FOR experiment # " <<i+1 << std::endl;
+      std::cout << "-------------------------------------------------------" << std::endl;
       _breco->print();
       _lepton->print();
       _X->print();
@@ -177,37 +173,37 @@ Bool_t TSLToyGen::doToyExperiments( Int_t nbExperiments ) {
     
   
     if( _printConsBefore ) {
-      cout << endl
-	   << "-------------------------------------------------" << endl;
-      cout << "INITIAL (SMEARED) CONSTRAINTS FOR experiment # "<< i+1 << endl ;
-      cout << "-------------------------------------------------" << endl;
-      cout << "     M: " << MCons.getCurrentValue() 
-	   << "    px: " << pXCons.getCurrentValue()  
-	   << "    py: " << pYCons.getCurrentValue()
-	   << "    pz: " << pZCons.getCurrentValue() 
-	   << "     E: " << ECons.getCurrentValue() << endl << endl;
+      std::cout << std::endl
+		<< "-------------------------------------------------" << std::endl;
+      std::cout << "INITIAL (SMEARED) CONSTRAINTS FOR experiment # "<< i+1 << std::endl ;
+      std::cout << "-------------------------------------------------" << std::endl;
+      std::cout << "     M: " << MCons.getCurrentValue() 
+		<< "    px: " << pXCons.getCurrentValue()  
+		<< "    py: " << pYCons.getCurrentValue()
+		<< "    pz: " << pZCons.getCurrentValue() 
+		<< "     E: " << ECons.getCurrentValue() << std::endl << std::endl;
     }
     
     fitter.fit();
     
     if( _printConsAfter) {
-      cout << endl
-	   << "-------------------------------------------------" << endl;
-      cout << " CONSTRAINTS AFTER FIT FOR experiment # "<< i+1 << endl ;
-      cout << "-------------------------------------------------" << endl;
-      cout << "     M: " << MCons.getCurrentValue() 
-	   << "  MPDG: " << MPDGCons.getCurrentValue()
-	   << "    px: " << pXCons.getCurrentValue()  
-	   << "    py: " << pYCons.getCurrentValue()
-	   << "    pz: " << pZCons.getCurrentValue() 
-	   << "     E: " << ECons.getCurrentValue() << endl << endl;
+      std::cout << std::endl
+		<< "-------------------------------------------------" << std::endl;
+      std::cout << " CONSTRAINTS AFTER FIT FOR experiment # "<< i+1 << std::endl ;
+      std::cout << "-------------------------------------------------" << std::endl;
+      std::cout << "     M: " << MCons.getCurrentValue() 
+		<< "  MPDG: " << MPDGCons.getCurrentValue()
+		<< "    px: " << pXCons.getCurrentValue()  
+		<< "    py: " << pYCons.getCurrentValue()
+		<< "    pz: " << pZCons.getCurrentValue() 
+		<< "     E: " << ECons.getCurrentValue() << std::endl << std::endl;
     }
     
     if( _printPartAfter ) {
-      cout <<  endl  
-	   << "--------------------------------------------------------" << endl ;
-      cout << "--- PRINTING PARTICLES AFTER FIT FOR experiment # "<< i+1 << endl;
-      cout << "--------------------------------------------------------" << endl;
+      std::cout <<  std::endl  
+		<< "--------------------------------------------------------" << std::endl ;
+      std::cout << "--- PRINTING PARTICLES AFTER FIT FOR experiment # "<< i+1 << std::endl;
+      std::cout << "--------------------------------------------------------" << std::endl;
       _breco->print();
       _lepton->print();
       _X->print();
@@ -226,9 +222,9 @@ Bool_t TSLToyGen::doToyExperiments( Int_t nbExperiments ) {
     }
 
     if (i % 176 == 0) {
-      cout << "\r";  
-      cout <<" ------ "<< (Double_t) i/nbExperiments*100. << " % PROCESSED ------";
-      cout.flush();
+      std::cout << "\r";  
+      std::cout <<" ------ "<< (Double_t) i/nbExperiments*100. << " % PROCESSED ------";
+      std::cout.flush();
     }    
   }
   

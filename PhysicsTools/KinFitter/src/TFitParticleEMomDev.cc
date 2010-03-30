@@ -22,8 +22,6 @@
 // corresponding to the measured momentum and mass.
 //
 
-using namespace std;
-
 #include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEMomDev.h"

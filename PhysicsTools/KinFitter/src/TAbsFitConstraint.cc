@@ -10,8 +10,6 @@
 // Abstract base class for fit constraints
 //
 
-using namespace std;
-
 #include "PhysicsTools/KinFitter/interface/TAbsFitConstraint.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -138,15 +136,15 @@ const TMatrixD* TAbsFitConstraint::getCovMatrixDeltaAlpha() {
 TString TAbsFitConstraint::getInfoString() {
   // Collect information to be used for printout
 
-  stringstream info;
-  info << scientific << setprecision(6);
+  std::stringstream info;
+  info << std::scientific << std::setprecision(6);
 
-  info << "__________________________" << endl
-       << endl;
-  info <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
+  info << "__________________________" << std::endl
+       << std::endl;
+  info <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << std::endl;
   
-  info << "initial value: " << getInitValue() << endl;
-  info << "current value: " << getCurrentValue() << endl;
+  info << "initial value: " << getInitValue() << std::endl;
+  info << "current value: " << getCurrentValue() << std::endl;
 
   return info.str();
 

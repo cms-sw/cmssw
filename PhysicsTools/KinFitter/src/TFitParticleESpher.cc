@@ -15,8 +15,6 @@
 // E(fit) =  d * E_meas
 //
 
-using namespace std;
-
 #include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleESpher.h"

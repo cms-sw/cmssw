@@ -10,9 +10,6 @@
 // Class to perform kinematic fit with non-linear constraints
 //
 
-
-using namespace std;
-
 #include <iostream>
 #include <iomanip>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -1191,26 +1188,26 @@ void TKinFitter::print() {
     Int_t nParP = particle->getNPar();
     const TMatrixD* par = particle->getParCurr();
     const TMatrixD* covP = particle->getCovMatrix();
-    log << setw(3) << setiosflags(ios::right) << iP;
-    log << setw(15) << setiosflags(ios::right) << particle->GetName();
-    log << setw(3) << " ";
+    log << std::setw(3) << setiosflags(std::ios::right) << iP;
+    log << std::setw(15) << setiosflags(std::ios::right) << particle->GetName();
+    log << std::setw(3) << " ";
     for (int iPar = 0; iPar < nParP; iPar++) {
       if (iPar > 0) {
-	log << setiosflags(ios::right) << setw(21) << " ";
+	log << setiosflags(std::ios::right) << std::setw(21) << " ";
       }
       TString colstr = "";
       colstr += parIndex;
       colstr += ":";
-      log << setw(4) << colstr;
-      log << setw(2) << " ";   
-      log << setiosflags(ios::left) << setiosflags(ios::scientific) << setprecision(3);
-      log << setw(15) << (*par)(iPar, 0);
+      log << std::setw(4) << colstr;
+      log << std::setw(2) << " ";   
+      log << setiosflags(std::ios::left) << setiosflags(std::ios::scientific) << std::setprecision(3);
+      log << std::setw(15) << (*par)(iPar, 0);
       if(_nbIter > 0 && _status < 10) {
-	log << setw(15) << TMath::Sqrt( _yaVFit(iPar, iPar) );
+	log << std::setw(15) << TMath::Sqrt( _yaVFit(iPar, iPar) );
       } else {
-	log << setw(15) << " ";
+	log << std::setw(15) << " ";
       }
-      log << setw(15) << TMath::Sqrt( (*covP)(iPar, iPar) );
+      log << std::setw(15) << TMath::Sqrt( (*covP)(iPar, iPar) );
       log << "\n";
       parIndex++;
     }
@@ -1223,24 +1220,24 @@ void TKinFitter::print() {
     TAbsFitParticle* particle = _unmeasParticles[iP];
     Int_t nParP = particle->getNPar();
     const TMatrixD* par = particle->getParCurr();
-    log << setw(3) << setiosflags(ios::right) << iP;
-    log << setw(15) << particle->GetName();
-    log << setw(3) << " ";
+    log << std::setw(3) << setiosflags(std::ios::right) << iP;
+    log << std::setw(15) << particle->GetName();
+    log << std::setw(3) << " ";
     for (int iPar = 0; iPar < nParP; iPar++) {
       if (iPar > 0) {
-	log << setiosflags(ios::right) << setw(21) << " ";
+	log << setiosflags(std::ios::right) << std::setw(21) << " ";
       }
       TString colstr = "";
       colstr += parIndex;
       colstr += ":";
-      log << setw(4) << colstr;
-      log << setw(2) << " ";
-      log << setiosflags(ios::left) << setiosflags(ios::scientific) << setprecision(3);
-      log << setw(15) << (*par)(iPar, 0);
+      log << std::setw(4) << colstr;
+      log << std::setw(2) << " ";
+      log << setiosflags(std::ios::left) << setiosflags(std::ios::scientific) << std::setprecision(3);
+      log << std::setw(15) << (*par)(iPar, 0);
       if(_nbIter > 0 && _status < 10) {
-	log << setw(15) << TMath::Sqrt( _yaVFit(iPar+_nParB, iPar+_nParB) );
+	log << std::setw(15) << TMath::Sqrt( _yaVFit(iPar+_nParB, iPar+_nParB) );
       } else {
-	log << setw(15) << " ";
+	log << std::setw(15) << " ";
       }
       log << "\n";
       parIndex++;
@@ -1279,8 +1276,8 @@ void TKinFitter::printMatrix(const TMatrixD &matrix, const TString name) {
 
   Int_t sw = (70-name.Length())/2;
  
-  log << setfill('=') << setw(sw) << "=  " << name << setw(sw) << left << "  ="  << "\n"
-      << setfill(' ') << right << "\n";
+  log << std::setfill('=') << std::setw(sw) << "=  " << name << std::setw(sw) << std::left << "  ="  << "\n"
+      << std::setfill(' ') << std::right << "\n";
 
   log << nRows << "x" << nCols << " matrix is as follows \n";
 
@@ -1288,13 +1285,13 @@ void TKinFitter::printMatrix(const TMatrixD &matrix, const TString name) {
     log << "\n"
 	<< "     |";
     for (Int_t iCol = iSheet; iCol < iSheet+colsPerSheet && iCol < nCols; iCol++)
-      log << setw(8) << iCol << "    |";
+      log << std::setw(8) << iCol << "    |";
     log << "\n"
 	<< topbar << " \n";
     for(Int_t iRow = 0; iRow < nRows; iRow++) {
-      log << setw(4) << iRow << " |";
+      log << std::setw(4) << iRow << " |";
       for (Int_t iCol = iSheet; iCol < iSheet+colsPerSheet && iCol < nCols; iCol++)
-	log << setw(12) << matrix(iRow, iCol) << " ";
+	log << std::setw(12) << matrix(iRow, iCol) << " ";
       log << "\n";
     }
   }

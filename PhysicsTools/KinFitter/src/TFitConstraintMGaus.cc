@@ -10,8 +10,6 @@
 // Fit constraint: mass conservation ( m_i - m_j - alpha * MassConstraint == 0 )
 //
 
-using namespace std;
-
 #include <iostream>
 #include <iomanip>
 #include "PhysicsTools/KinFitter/interface/TFitConstraintMGaus.h"
@@ -31,8 +29,8 @@ TFitConstraintMGaus::TFitConstraintMGaus()
 
 }
 
-TFitConstraintMGaus::TFitConstraintMGaus(vector<TAbsFitParticle*>* ParList1,
-					 vector<TAbsFitParticle*>* ParList2, 
+TFitConstraintMGaus::TFitConstraintMGaus(std::vector<TAbsFitParticle*>* ParList1,
+					 std::vector<TAbsFitParticle*>* ParList2, 
 					 Double_t Mass,
 					 Double_t Width)
   : TFitConstraintM(ParList1, ParList2, Mass ) 
@@ -44,8 +42,8 @@ TFitConstraintMGaus::TFitConstraintMGaus(vector<TAbsFitParticle*>* ParList1,
 }
 
 TFitConstraintMGaus::TFitConstraintMGaus(const TString &name, const TString &title,
-					 vector<TAbsFitParticle*>* ParList1,
-					 vector<TAbsFitParticle*>* ParList2, 
+					 std::vector<TAbsFitParticle*>* ParList1,
+					 std::vector<TAbsFitParticle*>* ParList2, 
 					 Double_t Mass,
 					 Double_t Width)
   : TFitConstraintM( name, title, ParList1, ParList2, Mass )
@@ -127,19 +125,19 @@ TMatrixD* TFitConstraintMGaus::getDerivativeAlpha() {
 TString TFitConstraintMGaus::getInfoString() {
   // Collect information to be used for printout
 
-  stringstream info;
-  info << scientific << setprecision(6);
+  std::stringstream info;
+  info << std::scientific << std::setprecision(6);
 
-  info << "__________________________" << endl
-       << endl;
-  info << "OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
+  info << "__________________________" << std::endl
+       << std::endl;
+  info << "OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << std::endl;
 
-  info << "initial value: " << getInitValue() << endl;
-  info << "current value: " << getCurrentValue() << endl;
-  info << "mean mass: " << _TheMassConstraint << endl;
-  info << "width: " << _width << endl;
-  info << "initial mass: " << _iniparameters(0,0)*_TheMassConstraint  << endl;
-  info << "current mass: " << _parameters(0,0)*_TheMassConstraint  << endl;
+  info << "initial value: " << getInitValue() << std::endl;
+  info << "current value: " << getCurrentValue() << std::endl;
+  info << "mean mass: " << _TheMassConstraint << std::endl;
+  info << "width: " << _width << std::endl;
+  info << "initial mass: " << _iniparameters(0,0)*_TheMassConstraint  << std::endl;
+  info << "current mass: " << _parameters(0,0)*_TheMassConstraint  << std::endl;
 
   return info.str();
 

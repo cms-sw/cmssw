@@ -15,8 +15,6 @@
 // E = Sqrt( |p|^2 + m^2 )
 //
 
-using namespace std;
-
 #include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleMCCart.h"

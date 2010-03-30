@@ -10,8 +10,6 @@
 // Fit constraint: mass conservation ( m_i - m_j - MassConstraint == 0 )
 //
 
-using namespace std;
-
 #include <iostream>
 #include <iomanip>
 #include "PhysicsTools/KinFitter/interface/TFitConstraintM.h"
@@ -33,8 +31,8 @@ TFitConstraintM::TFitConstraintM()
 
 }
 
-TFitConstraintM::TFitConstraintM(vector<TAbsFitParticle*>* ParList1,
-				 vector<TAbsFitParticle*>* ParList2, Double_t Mass)
+TFitConstraintM::TFitConstraintM(std::vector<TAbsFitParticle*>* ParList1,
+				 std::vector<TAbsFitParticle*>* ParList2, Double_t Mass)
   : TAbsFitConstraint() 
   ,_ParList1(0)
   ,_ParList2(0)
@@ -61,8 +59,8 @@ TFitConstraintM::TFitConstraintM(vector<TAbsFitParticle*>* ParList1,
 }
 
 TFitConstraintM::TFitConstraintM(const TString &name, const TString &title,
-				 vector<TAbsFitParticle*>* ParList1,
-				 vector<TAbsFitParticle*>* ParList2, Double_t Mass)
+				 std::vector<TAbsFitParticle*>* ParList1,
+				 std::vector<TAbsFitParticle*>* ParList2, Double_t Mass)
   : TAbsFitConstraint(name, title) 
   ,_ParList1(0)
   ,_ParList2(0) 
@@ -225,7 +223,7 @@ Double_t TFitConstraintM::getCurrentValue() {
 }
  
 
-Bool_t TFitConstraintM::OnList(vector<TAbsFitParticle*>* List,
+Bool_t TFitConstraintM::OnList(std::vector<TAbsFitParticle*>* List,
 			       TAbsFitParticle* particle) {
   // Checks whether list contains given particle
 
@@ -238,7 +236,7 @@ Bool_t TFitConstraintM::OnList(vector<TAbsFitParticle*>* List,
   return ok;
 }
 
-Double_t TFitConstraintM::CalcMass(vector<TAbsFitParticle*>* List, Bool_t IniVal) {
+Double_t TFitConstraintM::CalcMass(std::vector<TAbsFitParticle*>* List, Bool_t IniVal) {
   // Calculates initial/current invariant mass of provided list of particles
 
   TLorentzVector P(0., 0., 0., 0.);
@@ -257,16 +255,16 @@ Double_t TFitConstraintM::CalcMass(vector<TAbsFitParticle*>* List, Bool_t IniVal
 TString TFitConstraintM::getInfoString() {
   // Collect information to be used for printout
 
-  stringstream info;
-  info << scientific << setprecision(6);
+  std::stringstream info;
+  info << std::scientific << std::setprecision(6);
 
-  info << "__________________________" << endl
-       << endl;
-  info <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
+  info << "__________________________" << std::endl
+       << std::endl;
+  info <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << std::endl;
 
-  info << "initial value: " << getInitValue() << endl;
-  info << "current value: " << getCurrentValue() << endl;
-  info << "mass: " << _TheMassConstraint << endl;
+  info << "initial value: " << getInitValue() << std::endl;
+  info << "current value: " << getCurrentValue() << std::endl;
+  info << "mass: " << _TheMassConstraint << std::endl;
 
   return info.str();
 

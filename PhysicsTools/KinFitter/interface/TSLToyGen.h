@@ -1,9 +1,5 @@
-
-using namespace std;
-
 #ifndef TSLToyGen_hh
 #define TSLToyGen_hh
-
 
 #include <vector>
 #include "TObject.h"
@@ -71,10 +67,10 @@ protected:
 
 private :
   
-  vector<TAbsFitParticle*> _inimeasParticles;    // vector that contains all true measured particles
-  vector<TAbsFitParticle*> _iniunmeasParticles;  // vector that contains all true unmeasured particles
-  vector<TAbsFitParticle*> _measParticles;    // vector that contains all smeared measured particles
-  vector<TAbsFitParticle*> _unmeasParticles;  // vector that contains all smeared unmeasured particles
+  std::vector<TAbsFitParticle*> _inimeasParticles;    // vector that contains all true measured particles
+  std::vector<TAbsFitParticle*> _iniunmeasParticles;  // vector that contains all true unmeasured particles
+  std::vector<TAbsFitParticle*> _measParticles;    // vector that contains all smeared measured particles
+  std::vector<TAbsFitParticle*> _unmeasParticles;  // vector that contains all smeared unmeasured particles
   TVector3 _Y4S;
   
   TAbsFitParticle* _iniBreco;

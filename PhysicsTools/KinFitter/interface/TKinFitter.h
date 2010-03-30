@@ -1,9 +1,5 @@
-
-using namespace std;
-
 #ifndef TKinFitter_h
 #define TKinFitter_h
-
 
 #include <vector>
 #include "TMatrixD.h"
@@ -141,9 +137,9 @@ private :
   Int_t _nParA;     // Number of unmeasured parameters
   Int_t _nParB;     // Number of measured parameters
 
-  vector<TAbsFitConstraint*> _constraints;    // vector with constraints
-  vector<TAbsFitParticle*> _measParticles;    // vector with measured particles
-  vector<TAbsFitParticle*> _unmeasParticles;  // vector with unmeasured particles
+  std::vector<TAbsFitConstraint*> _constraints;    // vector with constraints
+  std::vector<TAbsFitParticle*> _measParticles;    // vector with measured particles
+  std::vector<TAbsFitParticle*> _unmeasParticles;  // vector with unmeasured particles
 
   Int_t _status;        // Status of the last fit;_
   Int_t _nbIter;        // number of iteration performed in the fit

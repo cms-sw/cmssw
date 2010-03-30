@@ -1,6 +1,3 @@
-
-using namespace std;
-
 #ifndef TFitConstraintEp_hh
 #define TFitConstraintEp_hh
 
@@ -8,7 +5,6 @@ using namespace std;
 #include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
 #include "TMatrixD.h"
 #include <vector>
-
 
 class TFitConstraintEp: public TAbsFitConstraint {
 
@@ -23,12 +19,12 @@ public :
 
   TFitConstraintEp( );
 
-  TFitConstraintEp(  vector<TAbsFitParticle*>* particles, 
+  TFitConstraintEp(  std::vector<TAbsFitParticle*>* particles, 
 		     TFitConstraintEp::component thecomponent, 
 		     Double_t constraint = 0.);
 
   TFitConstraintEp(  const TString &name, const TString &title,
-		     vector<TAbsFitParticle*>* particles, 
+		     std::vector<TAbsFitParticle*>* particles, 
 		     TFitConstraintEp::component thecomponent, 
 		     Double_t constraint = 0.);
   virtual ~TFitConstraintEp();
@@ -51,7 +47,7 @@ protected :
 
 
 private:
-  vector<TAbsFitParticle*> _particles;    // Vector containing constrained particles
+  std::vector<TAbsFitParticle*> _particles;    // Vector containing constrained particles
   Double_t _constraint;                   // Value of constraint
   TFitConstraintEp::component _component; // 4vector component to be constrained
 

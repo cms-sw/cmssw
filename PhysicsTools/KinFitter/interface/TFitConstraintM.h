@@ -1,14 +1,11 @@
-using namespace std;
-
 #ifndef TFitConstraintM_hh
 #define TFitConstraintM_hh
-
 
 #include "PhysicsTools/KinFitter/interface/TAbsFitConstraint.h"
 #include <vector>
 
 #include "TMatrixD.h"
-//class TMatrixD;
+
 class TAbsFitParticle;
 
 class TFitConstraintM: public TAbsFitConstraint {
@@ -16,12 +13,12 @@ class TFitConstraintM: public TAbsFitConstraint {
 public :
 
   TFitConstraintM();
-  TFitConstraintM(vector<TAbsFitParticle*>* ParList1,
-		  vector<TAbsFitParticle*>* ParList2,
+  TFitConstraintM(std::vector<TAbsFitParticle*>* ParList1,
+		  std::vector<TAbsFitParticle*>* ParList2,
 		  Double_t Mass = 0);
   TFitConstraintM(const TString &name, const TString &title,
-		  vector<TAbsFitParticle*>* ParList1,
-		  vector<TAbsFitParticle*>* ParList2,
+		  std::vector<TAbsFitParticle*>* ParList1,
+		  std::vector<TAbsFitParticle*>* ParList2,
 		  Double_t Mass = 0);
 
   virtual ~TFitConstraintM();
@@ -42,16 +39,16 @@ public :
   virtual Double_t getInitValue();
   virtual Double_t getCurrentValue();
 
-  Bool_t OnList(vector<TAbsFitParticle*>* List, TAbsFitParticle* particle);
-  Double_t CalcMass(vector<TAbsFitParticle*>* List, Bool_t IniVal);
+  Bool_t OnList(std::vector<TAbsFitParticle*>* List, TAbsFitParticle* particle);
+  Double_t CalcMass(std::vector<TAbsFitParticle*>* List, Bool_t IniVal);
 
   virtual TString getInfoString();
   virtual void print(); 
 
 protected :
   
-  vector<TAbsFitParticle*> _ParList1;   // Vector containing first list of constrained particles ( sum[ m_i ] - sum[ m_j ] == 0 )
-  vector<TAbsFitParticle*> _ParList2;   // Vector containing second list of constrained particles ( sum[ m_i ] - sum[ m_j ] == 0 )
+  std::vector<TAbsFitParticle*> _ParList1;   // Vector containing first list of constrained particles ( sum[ m_i ] - sum[ m_j ] == 0 )
+  std::vector<TAbsFitParticle*> _ParList2;   // Vector containing second list of constrained particles ( sum[ m_i ] - sum[ m_j ] == 0 )
   Double_t _TheMassConstraint;
   
   ClassDef(TFitConstraintM, 1)   // Fit constraint: mass conservation

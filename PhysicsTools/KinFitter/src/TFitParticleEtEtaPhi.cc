@@ -16,8 +16,6 @@
 // E =  EtCoshEta
 //
 
-using namespace std;
-
 #include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEtEtaPhi.h"

@@ -15,8 +15,6 @@
 // E = Sqrt( |p|^2 + d^2*m^2 )
 //
 
-using namespace std;
-
 #include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleCart.h"
@@ -59,7 +57,7 @@ TFitParticleCart::TFitParticleCart(TLorentzVector* pini, const TMatrixD* theCovM
 }
 
 TFitParticleCart::TFitParticleCart(const TString &name, const TString &title, 
-			   TLorentzVector* pini, const TMatrixD* theCovMatrix)
+				   TLorentzVector* pini, const TMatrixD* theCovMatrix)
   :TAbsFitParticle(name, title)  
 {
   init(pini, theCovMatrix);

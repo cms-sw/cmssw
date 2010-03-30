@@ -10,8 +10,6 @@
 // Fit constraint: energy and momentum conservation
 //
 
-using namespace std;
-
 #include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -33,7 +31,7 @@ TFitConstraintEp::TFitConstraintEp()
   ,_component(TFitConstraintEp::pX)
 {}
 
-TFitConstraintEp::TFitConstraintEp(vector<TAbsFitParticle*>* particles, 
+TFitConstraintEp::TFitConstraintEp(std::vector<TAbsFitParticle*>* particles, 
 				   TFitConstraintEp::component thecomponent, 
 				   Double_t constraint)
   :TAbsFitConstraint()
@@ -55,7 +53,7 @@ TFitConstraintEp::TFitConstraintEp(vector<TAbsFitParticle*>* particles,
 }
 
 TFitConstraintEp::TFitConstraintEp(const TString &name, const TString &title,
-				   vector<TAbsFitParticle*>* particles, 
+				   std::vector<TAbsFitParticle*>* particles, 
 				   TFitConstraintEp::component thecomponent, 
 				   Double_t constraint)
   :TAbsFitConstraint(name, title)
@@ -151,17 +149,17 @@ Double_t TFitConstraintEp::getCurrentValue() {
 TString TFitConstraintEp::getInfoString() {
   // Collect information to be used for printout
 
-  stringstream info;
-  info << scientific << setprecision(6);
+  std::stringstream info;
+  info << std::scientific << std::setprecision(6);
 
-  info << "__________________________" << endl
-       << endl;
-  info << "OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
+  info << "__________________________" << std::endl
+       << std::endl;
+  info << "OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << std::endl;
 
-  info << "initial value: " << getInitValue() << endl;
-  info << "current value: " << getCurrentValue() << endl;
-  info << "component: " << _component << endl;
-  info << "constraint: " << _constraint << endl;
+  info << "initial value: " << getInitValue() << std::endl;
+  info << "current value: " << getCurrentValue() << std::endl;
+  info << "component: " << _component << std::endl;
+  info << "constraint: " << _constraint << std::endl;
 
   return info.str();
 

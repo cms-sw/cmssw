@@ -10,9 +10,6 @@
 // Abstract base class for particles to be used with kinematic fitter
 //
 
-
-using namespace std;
-
 #include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -66,34 +63,34 @@ TString
 TAbsFitParticle::getInfoString() {
   // Collect information to be used for printout
 
-  stringstream info;
-  info << scientific << setprecision(6);
+  std::stringstream info;
+  info << std::scientific << std::setprecision(6);
 
-  info << "__________________________" << endl
-       << endl;
+  info << "__________________________" << std::endl
+       << std::endl;
 
-  info << "OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
+  info << "OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << std::endl;
 
-  info << setw(22) << "initial parameters:"  << setw(5) << " " << setw(20) << "current parameters:" << endl;
+  info << std::setw(22) << "initial parameters:"  << std::setw(5) << " " << std::setw(20) << "current parameters:" << std::endl;
   for (int i = 0; i< _nPar ;i++){
     info << "par[" << i << "] = "
-	 << setw(18) << (*getParIni())(i,0) 
-	 << setw(20) << (*getParCurr())(i,0) << endl;
+	 << std::setw(18) << (*getParIni())(i,0) 
+	 << std::setw(20) << (*getParCurr())(i,0) << std::endl;
   }
 
-  info << setw(22) << "initial 4vector:" << setw(5) << " " << setw(20) << "current 4vector:" << endl;
+  info << std::setw(22) << "initial 4vector:" << std::setw(5) << " " << std::setw(20) << "current 4vector:" << std::endl;
   for (int i = 0; i< 4 ;i++){
     info << "p[" << i << "] = "
-	 << setw(20) << (*getIni4Vec())[i] 
-	 << setw(20) << (*getCurr4Vec())[i] << endl;
+	 << std::setw(20) << (*getIni4Vec())[i] 
+	 << std::setw(20) << (*getCurr4Vec())[i] << std::endl;
    }
   info << "mass = " 
-       << setw(20) << (*getIni4Vec()).M() 
-       << setw(20) << (*getCurr4Vec()).M() << endl;
+       << std::setw(20) << (*getIni4Vec()).M() 
+       << std::setw(20) << (*getCurr4Vec()).M() << std::endl;
 
-   info << "u1  = " << _u1.X() << ", " << _u1.Y() << ", " << _u1.Z() << endl;
-   info << "u2  = " << _u2.X() << ", " << _u2.Y() << ", " << _u2.Z() << endl;
-   info << "u3  = " << _u3.X() << ", " << _u3.Y() << ", " << _u3.Z() << endl;
+   info << "u1  = " << _u1.X() << ", " << _u1.Y() << ", " << _u1.Z() << std::endl;
+   info << "u2  = " << _u2.X() << ", " << _u2.Y() << ", " << _u2.Z() << std::endl;
+   info << "u3  = " << _u3.X() << ", " << _u3.Y() << ", " << _u3.Z() << std::endl;
 
    return info.str();
 

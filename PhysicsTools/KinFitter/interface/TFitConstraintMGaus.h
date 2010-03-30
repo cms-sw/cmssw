@@ -1,5 +1,3 @@
-using namespace std;
-
 #ifndef TFitConstraintMGaus_hh
 #define TFitConstraintMGaus_hh
 
@@ -7,7 +5,6 @@ using namespace std;
 
 #include <vector>
 
-//class TMatrixD;
 class TAbsFitParticle;
 
 class TFitConstraintMGaus: public TFitConstraintM {
@@ -15,12 +12,12 @@ class TFitConstraintMGaus: public TFitConstraintM {
 public :
 
   TFitConstraintMGaus();
-  TFitConstraintMGaus(vector<TAbsFitParticle*>* ParList1,
-		      vector<TAbsFitParticle*>* ParList2,
+  TFitConstraintMGaus(std::vector<TAbsFitParticle*>* ParList1,
+		      std::vector<TAbsFitParticle*>* ParList2,
 		      Double_t Mass = 0, Double_t Width = 0);
   TFitConstraintMGaus(const TString &name, const TString &title,
-		      vector<TAbsFitParticle*>* ParList1,
-		      vector<TAbsFitParticle*>* ParList2,
+		      std::vector<TAbsFitParticle*>* ParList1,
+		      std::vector<TAbsFitParticle*>* ParList2,
 		      Double_t Mass = 0, Double_t Width = 0);
 
   virtual ~TFitConstraintMGaus();
