@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: PVFitter.h,v 1.1 2010/03/12 21:45:35 yumiceva Exp $
+ version $Id: PVFitter.h,v 1.2 2010/03/24 22:36:42 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -50,6 +50,13 @@ class PVFitter {
   void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
   void resetRefTime() { freftime[0] = freftime[1] = 0; }
   void dumpTxtFile();
+  void resetAll() {
+    resetLSRange();
+    resetRefTime();
+    pvStore_.clear();
+    hPVx->Reset();
+    hPVy->Reset();
+  };
   reco::BeamSpot getBeamSpot() { return fbeamspot; }
   int* getFitLSRange() {
     int *tmp=new int[2];

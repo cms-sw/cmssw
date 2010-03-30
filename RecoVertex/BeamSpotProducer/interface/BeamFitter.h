@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.25 2010/03/20 14:40:56 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.26 2010/03/23 22:16:10 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -46,6 +46,7 @@ class BeamFitter {
   void resetTotTrk() { ftotal_tracks=0; }
   void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
   void resetRefTime() { freftime[0] = freftime[1] = 0; }
+  void resetPVFitter() { MyPVFitter->resetAll(); }
   void dumpTxtFile(std::string &,bool);
   void dumpBWTxtFile(std::string &);
   void write2DB();

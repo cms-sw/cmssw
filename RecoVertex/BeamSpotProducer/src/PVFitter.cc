@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: PVFitter.cc,v 1.3 2010/03/24 22:36:42 jengbou Exp $
+   version $Id: PVFitter.cc,v 1.4 2010/03/26 04:25:46 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -282,12 +282,6 @@ bool PVFitter::runFitter() {
       fbeamspot.setBeamWidthY( fwidthY );
       
     }
-    
-    pvStore_.clear();
-    
-    hPVx->Reset();
-    hPVy->Reset();
-    
     return true;
 }
 

@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.45 2010/03/24 22:36:42 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.46 2010/03/26 04:25:46 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -164,7 +164,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
 
   // Primary vertex fitter
   MyPVFitter = new PVFitter(iConfig);
-
+  MyPVFitter->resetAll();
 }
 
 BeamFitter::~BeamFitter() {
