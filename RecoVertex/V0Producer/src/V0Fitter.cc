@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.45 2010/02/26 23:19:55 drell Exp $
+// $Id: V0Fitter.cc,v 1.46 2010/03/30 20:25:50 drell Exp $
 //
 //
 
@@ -166,17 +166,17 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       TransientTrack tmpTk( *tmpRef, &(*bFieldHandle), globTkGeomHandle );
       TrajectoryStateTransform theTransform;
       FreeTrajectoryState initialFTS = theTransform.initialFreeState(*tmpRef, magField);
-      //TSCBLBuilderNoMaterial blsBuilder;
-      //TrajectoryStateClosestToBeamLine tscb( blsBuilder(initialFTS, *theBeamSpotHandle) );
-      TSCPBuilderNoMaterial tscpBuilder;
-      TrajectoryStateClosestToPoint tscp( tscpBuilder(initialFTS, bestPriVtxPosition) );
+      TSCBLBuilderNoMaterial blsBuilder;
+      TrajectoryStateClosestToBeamLine tscb( blsBuilder(initialFTS, *theBeamSpotHandle) );
+      //TSCPBuilderNoMaterial tscpBuilder;
+      //TrajectoryStateClosestToPoint tscp( tscpBuilder(initialFTS, bestPriVtxPosition) );
       
-      //if( tscb.isValid() ) {
-      //if( tscb.transverseImpactParameter().significance() > impactParameterSigCut ) {
-      if( tscp.isValid() ) {
-	Measurement1D d0Sig( tscp.perigeeParameters().transverseImpactParameter(),
-			     tscp.perigeeError().transverseImpactParameterError() );
-	if( d0Sig.significance() > impactParameterSigCut ) {
+      if( tscb.isValid() ) {
+	if( tscb.transverseImpactParameter().significance() > impactParameterSigCut ) {
+	//if( tscp.isValid() ) {
+	//Measurement1D d0Sig( tscp.perigeeParameters().transverseImpactParameter(),
+	//		     tscp.perigeeError().transverseImpactParameterError() );
+	//if( d0Sig.significance() > impactParameterSigCut ) {
 	  theTrackRefs.push_back( tmpRef );
 	  theTransTracks.push_back( tmpTk );
 	}
