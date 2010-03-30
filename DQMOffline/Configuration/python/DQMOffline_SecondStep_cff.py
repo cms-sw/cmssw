@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from CondTools.DQM.DQMReferenceHistogramRootFileEventSetupAnalyzer_cfi import *
 from DQMServices.Components.DQMMessageLoggerClient_cfi import *
+from DQMServices.Components.DQMDcsInfoClient_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_client_offline_cff import *
 from DQM.HcalMonitorModule.hcal_dqm_client_fileT0_cff import *
@@ -13,7 +14,8 @@ from DQM.CSCMonitorModule.csc_dqm_offlineclient_collisions_cff import *
 from DQM.EcalPreshowerMonitorClient.es_dqm_client_offline_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 
-DQMOffline_SecondStep_PreDPG = cms.Sequence( ecal_dqm_client_offline *
+DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
+                                             ecal_dqm_client_offline *
                                              hcalOfflineDQMClient *
                                              SiStripOfflineDQMClient *
                                              sipixelEDAClient *
