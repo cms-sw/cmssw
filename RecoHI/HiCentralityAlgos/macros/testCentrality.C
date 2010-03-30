@@ -13,7 +13,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
