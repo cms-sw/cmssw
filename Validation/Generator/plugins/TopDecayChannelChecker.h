@@ -102,7 +102,7 @@ class TopDecayChannelChecker : public edm::EDAnalyzer {
   /// logging
   unsigned int evts_;
   /// DQM service
-  DQMStore* dqmStore_;
+  DQMStore* store_;
   /// histogram container
   std::map<std::string, MonitorElement*> hists_;
 };

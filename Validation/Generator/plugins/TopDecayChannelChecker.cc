@@ -19,7 +19,7 @@ TopDecayChannelChecker::TopDecayChannelChecker(const edm::ParameterSet& cfg):
   evts_(0)
 {
   // register the DQM Service
-  dqmStore_ = edm::Service<DQMStore>().operator->();
+  store_ = edm::Service<DQMStore>().operator->();
 }
 
 /// destructor
@@ -349,30 +349,30 @@ TopDecayChannelChecker::dumpDecayChain(const edm::View<reco::GenParticle>& src) 
 void 
 TopDecayChannelChecker::beginJob()
 {
-  dqmStore_->setCurrentFolder("TopDecayChannelChecker");
+  store_->setCurrentFolder("TopDecayChannelDQM");
 
   // top decay channel
-  hists_["TopDecayChannel"] = dqmStore_->book1D("TopDecayChannel" , "TopDecayChannel" , 4, 0., 4.);
+  hists_["TopDecayChannel"] = store_->book1D("TopDecayChannel" , "TopDecayChannel" , 4, 0., 4.);
   hists_["TopDecayChannel"]->getTH1()->SetOption("TEXT");
   hists_["TopDecayChannel"]->getTH1()->GetXaxis()->SetBinLabel(1 , "Full Hadronic");
   hists_["TopDecayChannel"]->getTH1()->GetXaxis()->SetBinLabel(2 , "Single Lepton");
   hists_["TopDecayChannel"]->getTH1()->GetXaxis()->SetBinLabel(3 , "Di Lepton"    );
   hists_["TopDecayChannel"]->getTH1()->GetXaxis()->SetBinLabel(4 , "Other/Error"  );
   // number of W bosons found in the decay chain
-  hists_["TopDecayWBosons"] = dqmStore_->book1D("TopDecayWBosons" , "TopDecayWBosons" , 3, 0., 3.);
+  hists_["TopDecayWBosons"] = store_->book1D("TopDecayWBosons" , "TopDecayWBosons" , 3, 0., 3.);
   hists_["TopDecayWBosons" ]->getTH1()->SetOption("TEXT");
   hists_["TopDecayWBosons" ]->getTH1()->GetXaxis()->SetBinLabel(1 , "0 WBoson(s)" );
   hists_["TopDecayWBosons" ]->getTH1()->GetXaxis()->SetBinLabel(2 , "1 WBoson(s)" );
   hists_["TopDecayWBosons" ]->getTH1()->GetXaxis()->SetBinLabel(3 , "2 WBoson(s)" );
   // lepton flavours in the semi-leptonic decay
-  hists_["SemiLeptonType" ] = dqmStore_->book1D("SemiLeptonType"  , "SemiLeptonType"  , 4, 0., 4.);
+  hists_["SemiLeptonType" ] = store_->book1D("SemiLeptonType"  , "SemiLeptonType"  , 4, 0., 4.);
   hists_["SemiLeptonType" ]->getTH1()->SetOption("TEXT");
   hists_["SemiLeptonType" ]->getTH1()->GetXaxis()->SetBinLabel(1 , "Electron"     );
   hists_["SemiLeptonType" ]->getTH1()->GetXaxis()->SetBinLabel(2 , "Muon"         );
   hists_["SemiLeptonType" ]->getTH1()->GetXaxis()->SetBinLabel(3 , "Tau"          );
   hists_["SemiLeptonType" ]->getTH1()->GetXaxis()->SetBinLabel(4 , "Other/Error"  );
   // lepton flavours in the full-leptonic decay
-  hists_["FullLeptonType" ] = dqmStore_->book1D("FullLeptonType"  , "FullLeptonType"  , 7, 0., 7.);
+  hists_["FullLeptonType" ] = store_->book1D("FullLeptonType"  , "FullLeptonType"  , 7, 0., 7.);
   hists_["FullLeptonType" ]->getTH1()->SetOption("TEXT");
   hists_["FullLeptonType" ]->getTH1()->GetXaxis()->SetBinLabel(1 , "Elec-Muon"    );
   hists_["FullLeptonType" ]->getTH1()->GetXaxis()->SetBinLabel(2 , "Elec-Tau "    );
@@ -382,7 +382,7 @@ TopDecayChannelChecker::beginJob()
   hists_["FullLeptonType" ]->getTH1()->GetXaxis()->SetBinLabel(6 , "Tau -Tau "    );
   hists_["FullLeptonType" ]->getTH1()->GetXaxis()->SetBinLabel(7 , "Other/Error"  );
   // prongs in subsequent leptonic/hadronic tau decays 
-  hists_["TauDecayMode"   ] = dqmStore_->book1D("TauDecayMode"   , "TauDecayMode"    , 5, 0., 5.);
+  hists_["TauDecayMode"   ] = store_->book1D("TauDecayMode"   , "TauDecayMode"    , 5, 0., 5.);
   hists_["TauDecayMode"   ]->getTH1()->SetOption("TEXT");
   hists_["TauDecayMode"   ]->getTH1()->GetXaxis()->SetBinLabel(1 , "One-Prong"    );
   hists_["TauDecayMode"   ]->getTH1()->GetXaxis()->SetBinLabel(2 , "Three-Prong"  );
@@ -390,7 +390,7 @@ TopDecayChannelChecker::beginJob()
   hists_["TauDecayMode"   ]->getTH1()->GetXaxis()->SetBinLabel(4 , "Lepton(Muon)" );
   hists_["TauDecayMode"   ]->getTH1()->GetXaxis()->SetBinLabel(5 , "Other"        );
   // flavors of quarks originating from the top quark
-  hists_["TopDecayQuark"  ] = dqmStore_->book1D("TopDecayQuark"   , "TopDecayQuark"   , 4, 0., 4.);
+  hists_["TopDecayQuark"  ] = store_->book1D("TopDecayQuark"   , "TopDecayQuark"   , 4, 0., 4.);
   hists_["TopDecayQuark"  ]->getTH1()->SetOption("TEXT");
   hists_["TopDecayQuark"  ]->getTH1()->GetXaxis()->SetBinLabel(1 , "b-Quark"      );
   hists_["TopDecayQuark"  ]->getTH1()->GetXaxis()->SetBinLabel(2 , "s-Quark"      );
@@ -403,7 +403,7 @@ void
 TopDecayChannelChecker::endJob() 
 {
   // save files
-  dqmStore_->save(outputFile_);
+  //store_->save(outputFile_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
