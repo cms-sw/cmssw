@@ -1,4 +1,4 @@
-#include "TEveBoxSet.h"
+#include "TEveBox.h"
 #include "TEveCompound.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
@@ -22,13 +22,11 @@ namespace fireworks {
 				corners[5].fX,  corners[5].fY, corners[5].fZ, 	 
 				corners[4].fX,  corners[4].fY, corners[4].fZ}; 	 
 
-      // FIXME: We do not need to make a box set per hit
-      // but rather one box set per collection...
-      TEveBoxSet* recHit = new TEveBoxSet("Rec Hit"); 	 
-      recHit->Reset(TEveBoxSet::kBT_FreeBox, kTRUE, 1);
+      TEveBox* recHit = new TEveBox("Rec Hit"); 	 
       recHit->SetPickable(true);
-      recHit->AddBox(box);
-      recHit->DigitColor(iItem->defaultDisplayProperties().color());
+      recHit->SetVertices(box);
+      recHit->SetDrawFrame(false);
+      recHit->SetMainColor(iItem->defaultDisplayProperties().color());
 	    
       oItemHolder.AddElement(recHit);
    }
@@ -52,13 +50,11 @@ namespace fireworks {
 				 corners[6].fX,  corners[6].fY, corners[6].fZ,
 				 corners[7].fX,  corners[7].fY, corners[7].fZ};
 
-      // FIXME: We do not need to make a box set per hit
-      // but rather one box set per collection...
-      TEveBoxSet* recHit = new TEveBoxSet("Rec Hit"); 	 
-      recHit->Reset(TEveBoxSet::kBT_FreeBox, kTRUE, 1); 	 
+      TEveBox* recHit = new TEveBox("Rec Hit"); 	 
       recHit->SetPickable(true);
-      recHit->AddBox(box);
-      recHit->DigitColor(iItem->defaultDisplayProperties().color());
+      recHit->SetVertices(box);
+      recHit->SetDrawFrame(false);
+      recHit->SetMainColor(iItem->defaultDisplayProperties().color());
 	    
       oItemHolder.AddElement(recHit);
    }

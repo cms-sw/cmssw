@@ -36,7 +36,7 @@ FWHORecHit3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** prod
    TEveElementList* tList = *product;
 
    if(0 == tList) {
-      tList = new TEveElementList(iItem->name().c_str(), "hbheRechits", true);
+      tList = new TEveElementList(iItem->name().c_str(), "hoRechits", true);
       *product = tList;
       tList->SetMainColor(iItem->defaultDisplayProperties().color());
       gEve->AddElement(tList);
@@ -82,4 +82,4 @@ FWHORecHit3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** prod
    }
 }
 
-REGISTER_FW3DDATAPROXYBUILDER(FWHORecHit3DProxyBuilder, HORecHit, "HO RecHit");
+REGISTER_FW3DDATAPROXYBUILDER(FWHORecHit3DProxyBuilder, HORecHitCollection, "HO RecHit");
