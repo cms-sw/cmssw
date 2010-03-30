@@ -548,8 +548,8 @@ TtSemiEvtSolution TtSemiLepKinFitter::addKinFitInfo(TtSemiEvtSolution* asol)
 }
 
 /// change format from TMatrixD to specially sorted vector<float>
-vector<float> TtSemiLepKinFitter::translateCovM(TMatrixD& inMatrix){
-  vector<float> outMatrix; 
+std::vector<float> TtSemiLepKinFitter::translateCovM(TMatrixD& inMatrix){
+  std::vector<float> outMatrix; 
   for(int ii=0; ii<inMatrix.GetNrows(); ii++){
     for(int jj=0; jj<inMatrix.GetNcols(); jj++) outMatrix.push_back(inMatrix(ii,jj));
   }

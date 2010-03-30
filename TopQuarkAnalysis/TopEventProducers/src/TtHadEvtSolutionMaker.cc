@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc,v 1.18.4.2 2009/11/06 13:21:31 eschliec Exp $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.20 2009/11/16 16:29:30 eschliec Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -99,7 +99,7 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
 		    // Make event solutions for all possible combinations of the 4 light
 		    // jets and 2 possible b-jets, not including the option of the b's being swapped. 
 		    // Hadp,Hadq is one pair, Hadj,Hadk the other
-		    vector<TtHadEvtSolution> asol;
+		    std::vector<TtHadEvtSolution> asol;
 		    asol.resize(3);
 		    //[p][q][b] and [j][k][bbar]
                     asol[0].setJetCorrectionScheme(jetCorrScheme_);
@@ -190,7 +190,7 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
 	int bestSolutionChangeW2Q = -999;
 	edm::Handle<TtGenEvent> genEvt;
 	iEvent.getByLabel ("genEvt",genEvt); 
-	vector<const reco::Candidate*> quarks;
+	std::vector<const reco::Candidate*> quarks;
 	const reco::Candidate & genp  = *(genEvt->daughterQuarkOfWPlus());
 	const reco::Candidate & genq  = *(genEvt->daughterQuarkBarOfWPlus());
 	const reco::Candidate & genb  = *(genEvt->b());
@@ -203,7 +203,7 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
 	quarks.push_back( &genj );       
 	quarks.push_back( &genk );   
 	quarks.push_back( &genbbar );
-	vector<const reco::Candidate*> jets;         
+	std::vector<const reco::Candidate*> jets;         
 	for(size_t s=0; s<evtsols->size(); s++) {
 	  jets.clear();     
 	  const reco::Candidate & jetp  = (*evtsols)[s].getRecHadp();

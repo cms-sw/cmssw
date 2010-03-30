@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.41 2009/01/13 12:45:33 snaumann Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.42 2009/04/29 13:29:11 snaumann Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -189,7 +189,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
       iEvent.getByLabel ("genEvt",genEvt); 
       if (genEvt->numberOfBQuarks() == 2 &&   // FIXME: in rare cases W->bc decay, resulting in a wrong filled genEvt leading to a segmentation fault
           genEvt->numberOfLeptons() == 1) {   // FIXME: temporary solution to avoid crash in JetPartonMatching for non semi-leptonic events
-        vector<const reco::Candidate*> quarks;
+	std::vector<const reco::Candidate*> quarks;
         const reco::Candidate & genp  = *(genEvt->hadronicDecayQuark());
         const reco::Candidate & genq  = *(genEvt->hadronicDecayQuarkBar());
         const reco::Candidate & genbh = *(genEvt->hadronicDecayB());
@@ -198,7 +198,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
         quarks.push_back( &genq );
         quarks.push_back( &genbh );
         quarks.push_back( &genbl );
-        vector<const reco::Candidate*> recjets;  
+	std::vector<const reco::Candidate*> recjets;  
         for(size_t s=0; s<evtsols->size(); s++) {
           recjets.clear();
           const reco::Candidate & jetp  = (*evtsols)[s].getRecHadp();

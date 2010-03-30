@@ -1,5 +1,5 @@
 //
-// $Id: StKinFitter.cc,v 1.4 2008/05/29 20:52:24 rwolf Exp $
+// $Id: StKinFitter.cc,v 1.5 2008/11/14 19:18:19 rwolf Exp $
 //
 
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"
@@ -312,31 +312,31 @@ void StKinFitter::setupFitter() {
   
   // FIXME: replace by messagelogger!!!
   
-  cout<<endl<<endl<<"+++++++++++ KINFIT SETUP ++++++++++++"<<endl;
-  cout<<"  jet parametrisation:     ";
-  if(jetParam_ == EMom) cout<<"EMomDev"<<endl;
-  if(jetParam_ == EtEtaPhi) cout<<"EtEtaPhi"<<endl;
-  if(jetParam_ == EtThetaPhi) cout<<"EtThetaPhi"<<endl;
-  cout<<"  lepton parametrisation:  ";
-  if(lepParam_ == EMom) cout<<"EScaledMomDev"<<endl;
-  if(lepParam_ == EtEtaPhi) cout<<"EtEtaPhi"<<endl;
-  if(lepParam_ == EtThetaPhi) cout<<"EtThetaPhi"<<endl;
-  cout<<"  met parametrisation:     ";
-  if(metParam_ == EMom) cout<<"EScaledMomDev"<<endl;
-  if(metParam_ == EtEtaPhi) cout<<"EtEtaPhi"<<endl;
-  if(metParam_ == EtThetaPhi) cout<<"EtThetaPhi"<<endl;
-  cout<<"  constraints:  "<<endl;
+  std::cout<<std::endl<<std::endl<<"+++++++++++ KINFIT SETUP ++++++++++++"<<std::endl;
+  std::cout<<"  jet parametrisation:     ";
+  if(jetParam_ == EMom) std::cout<<"EMomDev"<<std::endl;
+  if(jetParam_ == EtEtaPhi) std::cout<<"EtEtaPhi"<<std::endl;
+  if(jetParam_ == EtThetaPhi) std::cout<<"EtThetaPhi"<<std::endl;
+  std::cout<<"  lepton parametrisation:  ";
+  if(lepParam_ == EMom) std::cout<<"EScaledMomDev"<<std::endl;
+  if(lepParam_ == EtEtaPhi) std::cout<<"EtEtaPhi"<<std::endl;
+  if(lepParam_ == EtThetaPhi) std::cout<<"EtThetaPhi"<<std::endl;
+  std::cout<<"  met parametrisation:     ";
+  if(metParam_ == EMom) std::cout<<"EScaledMomDev"<<std::endl;
+  if(metParam_ == EtEtaPhi) std::cout<<"EtEtaPhi"<<std::endl;
+  if(metParam_ == EtThetaPhi) std::cout<<"EtThetaPhi"<<std::endl;
+  std::cout<<"  constraints:  "<<std::endl;
   for(unsigned int i=0; i<constraints_.size(); i++){
-    if(constraints_[i] == 1) cout<<"    - hadronic W-mass"<<endl;
-    if(constraints_[i] == 2) cout<<"    - leptonic W-mass"<<endl;
-    if(constraints_[i] == 3) cout<<"    - hadronic top mass"<<endl;
-    if(constraints_[i] == 4) cout<<"    - leptonic top mass"<<endl;
-    if(constraints_[i] == 5) cout<<"    - neutrino mass"<<endl;
+    if(constraints_[i] == 1) std::cout<<"    - hadronic W-mass"<<std::endl;
+    if(constraints_[i] == 2) std::cout<<"    - leptonic W-mass"<<std::endl;
+    if(constraints_[i] == 3) std::cout<<"    - hadronic top mass"<<std::endl;
+    if(constraints_[i] == 4) std::cout<<"    - leptonic top mass"<<std::endl;
+    if(constraints_[i] == 5) std::cout<<"    - neutrino mass"<<std::endl;
   }
-  cout<<"Max. number of iterations: "<<maxNrIter_<<endl;
-  cout<<"Max. deltaS: "<<maxDeltaS_<<endl;
-  cout<<"Max. F: "<<maxF_<<endl;
-  cout<<"++++++++++++++++++++++++++++++++++++++++++++"<<endl<<endl<<endl;
+  std::cout<<"Max. number of iterations: "<<maxNrIter_<<std::endl;
+  std::cout<<"Max. deltaS: "<<maxDeltaS_<<std::endl;
+  std::cout<<"Max. F: "<<maxF_<<std::endl;
+  std::cout<<"++++++++++++++++++++++++++++++++++++++++++++"<<std::endl<<std::endl<<std::endl;
   
   theFitter_ = new TKinFitter("TtFit", "TtFit");
 
@@ -390,8 +390,8 @@ void StKinFitter::setupFitter() {
   
 }
 
-vector<float> StKinFitter::translateCovM(TMatrixD &V){
-  vector<float> covM; 
+std::vector<float> StKinFitter::translateCovM(TMatrixD &V){
+  std::vector<float> covM; 
   for(int ii=0; ii<V.GetNrows(); ii++){
     for(int jj=0; jj<V.GetNcols(); jj++) covM.push_back(V(ii,jj));
   }
