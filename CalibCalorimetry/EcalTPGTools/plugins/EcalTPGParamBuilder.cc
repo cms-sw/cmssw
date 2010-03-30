@@ -36,6 +36,7 @@
 #include <TF1.h>
 #include <TH2F.h>
 #include <TFile.h>
+#include <TNtuple.h>
 #include <iomanip>
 #include <fstream>
 
@@ -237,6 +238,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   TH1F * hshapeEB = new TH1F("shapeEB", "shapeEB", 250, 0., 10.) ;
   TH1F * hshapeEE = new TH1F("shapeEE", "shapeEE", 250, 0., 10.) ;
 
+  string branch("fed:tcc:tower:stripInTower:xtalInStrip:CCU:VFE:xtalInVFE:xtalInCCU:ieta:iphi:ix:iy:iz:hashedId:ic:ietaTT:iphiTT") ;
+  TNtuple *ntuple = new TNtuple("tpgmap","TPG geometry map",branch.c_str()) ;
+
+
 
   ////////////////////////////
   // Initialization section //
@@ -404,8 +409,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
   }
 
-
-
   /////////////////////////////////////////
   // Compute linearization coeff section //
   /////////////////////////////////////////
@@ -441,10 +444,18 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int xtalInVFE = Id.xtalId() ;
     int xtalWithinCCUid = 5*(VFEid-1) + xtalInVFE -1 ; // Evgueni expects [0,24]
          
-    (*geomFile_)<<"dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC
-		<<" stripInTower="<<stripInTower<<" xtalInStrip="<<xtalInStrip
-		<<" CCUid="<<CCUid<<" VFEid="<<VFEid<<" xtalInVFE="<<xtalInVFE
-		<<" xtalWithinCCUid="<<xtalWithinCCUid<<" ieta="<<id.ieta()<<" iphi="<<id.iphi()<<endl ;
+    (*geomFile_)<<"dccNb = "<<dccNb<<" tccNb = "<<tccNb<<" towerInTCC = "<<towerInTCC
+		<<" stripInTower = "<<stripInTower<<" xtalInStrip = "<<xtalInStrip
+		<<" CCUid = "<<CCUid<<" VFEid = "<<VFEid<<" xtalInVFE = "<<xtalInVFE
+		<<" xtalWithinCCUid = "<<xtalWithinCCUid<<" ieta = "<<id.ieta()<<" iphi = "<<id.iphi()
+		<<" xtalhashedId = "<<id.hashedIndex()<<" xtalNb = "<<id.ic()
+		<<" ietaTT = "<<towid.ieta()<<" iphiTT = "<<towid.iphi()<<endl ;
+
+    float val[] = {dccNb+600,tccNb,towerInTCC,stripInTower,
+		   xtalInStrip,CCUid,VFEid,xtalInVFE,xtalWithinCCUid,id.ieta(),id.iphi(),
+		   -999,-999,towid.ieta()/abs(towid.ieta()),id.hashedIndex(),
+		   id.ic(),towid.ieta(),towid.iphi()} ;
+    ntuple->Fill(val) ;    
     
     if (tccNb == 37 && stripInTower == 3 && xtalInStrip == 3 && (towerInTCC-1)%4==0) {
       int etaSlice = towid.ietaAbs() ;
@@ -627,10 +638,18 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int xtalInVFE = Id.xtalId() ;
     int xtalWithinCCUid = 5*(VFEid-1) + xtalInVFE -1 ; // Evgueni expects [0,24]
 
-    (*geomFile_)<<"dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC
-		<<" stripInTower="<<stripInTower<<" xtalInStrip="<<xtalInStrip
-		<<" CCUid="<<CCUid<<" VFEid="<<VFEid<<" xtalInVFE="<<xtalInVFE
-		<<" xtalWithinCCUid="<<xtalWithinCCUid<<" ix="<<id.ix()<<" iy="<<id.iy()<<endl ;
+    (*geomFile_)<<"dccNb = "<<dccNb<<" tccNb = "<<tccNb<<" towerInTCC = "<<towerInTCC
+		<<" stripInTower = "<<stripInTower<<" xtalInStrip = "<<xtalInStrip
+		<<" CCUid = "<<CCUid<<" VFEid = "<<VFEid<<" xtalInVFE = "<<xtalInVFE
+		<<" xtalWithinCCUid = "<<xtalWithinCCUid<<" ix = "<<id.ix()<<" iy = "<<id.iy()
+		<<" xtalhashedId = "<<id.hashedIndex()<<" xtalNb = "<<id.isc()
+		<<" ietaTT = "<<towid.ieta()<<" iphiTT = "<<towid.iphi()<<endl ;
+
+    float val[] = {dccNb+600,tccNb,towerInTCC,stripInTower,
+		   xtalInStrip,CCUid,VFEid,xtalInVFE,xtalWithinCCUid,-999,-999,
+		   id.ix(),id.iy(),towid.ieta()/abs(towid.ieta()),id.hashedIndex(),
+		   id.ic(),towid.ieta(),towid.iphi()} ;
+    ntuple->Fill(val) ;    
      
     if ((tccNb == 76 || tccNb == 94) && stripInTower == 1 && xtalInStrip == 3 && (towerInTCC-1)%4==0) {
       int etaSlice = towid.ietaAbs() ;
@@ -1163,9 +1182,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // last we insert the FE_CONFIG_MAIN table 
  if (writeToDB_) {
    
-   /*int conf_id_=db_->writeToConfDB_TPGMain(ped_conf_id_,lin_conf_id_, lut_conf_id_, fgr_conf_id_, 
+   int conf_id_=db_->writeToConfDB_TPGMain(ped_conf_id_,lin_conf_id_, lut_conf_id_, fgr_conf_id_, 
 					sli_conf_id_, wei_conf_id_, bxt_conf_id_, btt_conf_id_, tag_, version_) ;
-   */
+   
  }
 
 
@@ -1247,6 +1266,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   tpgFactor->Write() ;
   hshapeEB->Write() ;
   hshapeEE->Write() ;
+  ntuple->Write() ;
   saving.Close () ;
 
 }
@@ -1452,6 +1472,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
   double sumf2 = 0. ;
   for (uint sample = 0 ; sample<nSample_ ; sample++) {
     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
+    //time -= 12. ;
     sumf += shape(time)/max ;
     sumf2 += shape(time)/max * shape(time)/max ;
     for (int subtime = 0 ; subtime<25 ; subtime++) histo->Fill(float(sample*25. + subtime)/25., shape(time+subtime)) ;
@@ -1461,6 +1482,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
   double * weight = new double[nSample_] ;
   for (uint sample = 0 ; sample<nSample_ ; sample++) {
     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
+    //time -= 12. ;
     weight[sample] = lambda*shape(time)/max + gamma ;
   }
 
@@ -1513,6 +1535,23 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
       iweight[index] -- ; 
     } 
   }
+
+  // let's check again
+  isumw  = 0 ;  
+  for (uint sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
+  imax = (uint)(pow(2.,int(complement2_))-1) ;
+  isumw = (isumw & imax ) ;
+  ampl = 0. ;
+  for (uint sample = 0 ; sample<nSample_ ; sample++) {
+     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
+     double new_weight = uncodeWeight(iweight[sample], complement2_) ;
+     ampl += new_weight*shape(time) ;
+     std::cout<<"weight unbiased after integer conversion="<<new_weight<<" shape="<<shape(time)<<std::endl ;
+  }
+  std::cout<<"Weights: sum="<<isumw<<std::endl ;
+  std::cout<<"Weights: sum (weight*shape) = "<<ampl<<std::endl ;
+
+
 
   std::vector<unsigned int> theWeights ;
   for (uint sample = 0 ; sample<nSample_ ; sample++) theWeights.push_back(iweight[sample]) ;
