@@ -49,10 +49,16 @@ double getDistInCM(double eta1, double phi1, double eta2, double phi2)
   double theta1=2*atan(exp(-eta1));
   double theta2=2*atan(exp(-eta2));
   if (fabs(eta1)<1.479) Rec=129; //radius of ECAL barrel
-  else Rec=317; //distance from IP to ECAL endcap
+  else Rec=tan(theta1)*317; //distance from IP to ECAL endcap
+
   //|vect| times tg of acos(scalar product)
-  dR=fabs((Rec/sin(theta1))*tan(acos(sin(theta1)*sin(theta2)*(sin(phi1)*sin(phi2)+cos(phi1)*cos(phi2))+cos(theta1)*cos(theta2))));
-  return dR;
+  double angle=acos((sin(theta1)*sin(theta2)*(sin(phi1)*sin(phi2)+cos(phi1)*cos(phi2))+cos(theta1)*cos(theta2)));
+  if (angle<acos(-1)/2)
+    {
+      dR=fabs((Rec/sin(theta1))*tan(angle));
+      return dR;
+    }
+  else return 1000;
 }
 
 double getDist(double eta1, double phi1, double eta2, double phi2)
@@ -253,7 +259,8 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   ///////////////////////////////
   
   ///vector of used hits:
-  std::vector<int> usedHits;
+  std::vector<int> usedHitsHC;
+  std::vector<int> usedHitsEC;
   ///
 
   // main loop over input tracks
@@ -347,7 +354,6 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	double ecClustR=0;
 	double ecClustN=0;
 	double ecOutRingR=0;
-	usedHits.clear();
 
 	//get index of ECAL crystal hit by track
 	std::vector<const EcalRecHit*> crossedECids=info.crossedEcalRecHits;
@@ -414,13 +420,13 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		hitHashedIndex=did.hashedIndex();
 		if (fabs(did.iy()-etaIDcenter)<=matrixSize_/2&&fabs(did.ix()-phiIDcenter)<=matrixSize_/2) ecClustN+=ehit->energy();
 	      }
-	    for (uint32_t i=0; i<usedHits.size(); i++)
+	    for (uint32_t i=0; i<usedHitsEC.size(); i++)
 	      {
-		if (usedHits[i]==hitHashedIndex) hitIsUsed=true;
+		if (usedHitsEC[i]==hitHashedIndex) hitIsUsed=true;
 	      }
 
 	    if (hitIsUsed) continue; //skip if used
-	    usedHits.push_back(hitHashedIndex);
+	    usedHitsEC.push_back(hitHashedIndex);
 	    /////////////////////////////////
 	    
 	    if(dHit<1.)  
@@ -429,8 +435,6 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	      }   
 	  }
 
-	usedHits.clear();
-	
 	//check neutrals 
         if (ecOutRingR<m_ecalCut) noNeutrals=true;
 	else noNeutrals=false;
@@ -467,12 +471,12 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	    //check that this hit was not considered before and push it into usedHits
 	    bool hitIsUsed=false;
 	    int hitHashedIndex=hhit->id().hashed_index();
-	    for (uint32_t i=0; i<usedHits.size(); i++)
+	    for (uint32_t i=0; i<usedHitsHC.size(); i++)
 	      {
-		if (usedHits[i]==hitHashedIndex) hitIsUsed=true;
+		if (usedHitsHC[i]==hitHashedIndex) hitIsUsed=true;
 	      }
 	    if (hitIsUsed) continue;
-	    usedHits.push_back(hitHashedIndex);
+	    usedHitsHC.push_back(hitHashedIndex);
 	    ////////////
 	    
 	    GlobalPoint posH = geo->getPosition((*hhit).detid());
