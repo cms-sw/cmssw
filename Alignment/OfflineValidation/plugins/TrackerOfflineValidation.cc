@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.32 2010/01/06 15:44:11 mussgill Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.33 2010/03/22 11:21:49 jdraeger Exp $
 //
 //
 
@@ -910,13 +910,17 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 void 
 TrackerOfflineValidation::endJob()
 {
+  std::cout<<&tkGeom_<<std::endl;
+  
+  if (&tkGeom_) return;
   AlignableTracker aliTracker(&(*tkGeom_));
+  
   AlignableObjectId aliobjid;
-
+  
   static const int kappadiffindex = this->GetIndex(vTrackHistos_,"h_diff_curvature");
   vTrackHistos_[kappadiffindex]->Add(vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_neg")],
 				     vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_pos")],-1,1);
-
+ 
   // Collate Information for Subdetectors
   // create summary histogramms recursively
   std::vector<TrackerOfflineValidation::SummaryContainer> vTrackerprofiles;
@@ -930,12 +934,13 @@ TrackerOfflineValidation::endJob()
   edm::Service<TFileService> fs;
   
   TTree *tree = fs->make<TTree>("TkOffVal","TkOffVal");
+ 
   TkOffTreeVariables *treeMemPtr = new TkOffTreeVariables;
   // We create branches for all members of 'TkOffTreeVariables' (even if not needed).
   // This works because we have a dictionary for 'TkOffTreeVariables'
   // (see src/classes_def.xml and src/classes.h):
   tree->Branch("TkOffTreeVariables", &treeMemPtr); // address of pointer!
-
+ 
   this->fillTree(*tree, mPxbResiduals_, *treeMemPtr, *tkGeom_);
   this->fillTree(*tree, mPxeResiduals_, *treeMemPtr, *tkGeom_);
   this->fillTree(*tree, mTibResiduals_, *treeMemPtr, *tkGeom_);
@@ -944,6 +949,7 @@ TrackerOfflineValidation::endJob()
   this->fillTree(*tree, mTecResiduals_, *treeMemPtr, *tkGeom_);
 
   delete treeMemPtr; treeMemPtr = 0;
+
 }
 
 
