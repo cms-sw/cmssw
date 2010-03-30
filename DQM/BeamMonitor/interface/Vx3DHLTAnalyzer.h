@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.13 2010/03/28 15:56:18 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.14 2010/03/28 20:38:16 dinardo Exp $
 //
 //
 
@@ -75,7 +75,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       virtual unsigned int HitCounter(const edm::Event& iEvent);
       virtual char* formatTime(const time_t t);
       virtual int MyFit(vector<double>* vals);
-      virtual void reset();
+      virtual void reset(string ResetType);
       virtual void writeToFile(vector<double>* vals,
 			       edm::TimeValue_t BeginTimeOfFit,
 			       edm::TimeValue_t EndTimeOfFit,
@@ -145,6 +145,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       edm::TimeValue_t endTimeOfFit;
       unsigned int beginLumiOfFit;
       unsigned int endLumiOfFit;
+      unsigned int lastLumiOfFit;
       double minVxDoF;
       bool internalDebug;
 };
