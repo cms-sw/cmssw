@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/03/29 04:23:51 $
- * $Revision: 1.33 $
+ * $Date: 2010/03/30 19:23:15 $
+ * $Revision: 1.34 $
  *
  */
 
@@ -31,11 +31,12 @@ using namespace edm;
 
 static char * formatTime( const time_t t )  {
 #define CET (+1)
+#define CEST (+2)
 
   static  char ts[] = "yyyy-Mm-dd hh:mm:ss     ";
   tm * ptm;
   ptm = gmtime ( &t );
-  sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", ptm->tm_year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CET)%24, ptm->tm_min, ptm->tm_sec);
+  sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", ptm->tm_year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
 
 #ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
   unsigned int b = strlen(ts);
