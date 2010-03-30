@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.44 2010/02/25 17:26:32 drell Exp $
+// $Id: V0Fitter.cc,v 1.45 2010/02/26 23:19:55 drell Exp $
 //
 //
 
@@ -27,6 +27,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
@@ -118,6 +120,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Handles for tracks, B-field, and tracker geometry
   Handle<reco::TrackCollection> theTrackHandle;
   Handle<reco::BeamSpot> theBeamSpotHandle;
+  Handle<reco::VertexCollection> thePriVtxHandle;
   ESHandle<MagneticField> bFieldHandle;
   ESHandle<TrackerGeometry> trackerGeomHandle;
   ESHandle<GlobalTrackingGeometry> globTkGeomHandle;
@@ -127,6 +130,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //  from the EventSetup
   iEvent.getByLabel(recoAlg, theTrackHandle);
   iEvent.getByLabel(std::string("offlineBeamSpot"), theBeamSpotHandle);
+  iEvent.getByLabel(std::string("offlinePrimaryVertices"), thePriVtxHandle);
   if( !theTrackHandle->size() ) return;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeomHandle);
@@ -134,6 +138,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   trackerGeom = trackerGeomHandle.product();
   magField = bFieldHandle.product();
+
+  VertexCollection::const_iterator theBestPriVtx = thePriVtxHandle->begin();
+  GlobalPoint bestPriVtxPosition( theBestPriVtx->position().x(),
+				  theBestPriVtx->position().y(),
+				  theBestPriVtx->position().z() );
+  Vertex::CovarianceMatrix bestPriVtxCov = theBestPriVtx->covariance();
 
   // Fill vectors of TransientTracks and TrackRefs after applying preselection cuts.
   for(unsigned int indx = 0; indx < theTrackHandle->size(); indx++) {
@@ -156,11 +166,17 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       TransientTrack tmpTk( *tmpRef, &(*bFieldHandle), globTkGeomHandle );
       TrajectoryStateTransform theTransform;
       FreeTrajectoryState initialFTS = theTransform.initialFreeState(*tmpRef, magField);
-      TSCBLBuilderNoMaterial blsBuilder;
-      TrajectoryStateClosestToBeamLine tscb( blsBuilder(initialFTS, *theBeamSpotHandle) );
+      //TSCBLBuilderNoMaterial blsBuilder;
+      //TrajectoryStateClosestToBeamLine tscb( blsBuilder(initialFTS, *theBeamSpotHandle) );
+      TSCPBuilderNoMaterial tscpBuilder;
+      TrajectoryStateClosestToPoint tscp( tscpBuilder(initialFTS, bestPriVtxPosition) );
       
-      if( tscb.isValid() ) {
-	if( tscb.transverseImpactParameter().significance() > impactParameterSigCut ) {
+      //if( tscb.isValid() ) {
+      //if( tscb.transverseImpactParameter().significance() > impactParameterSigCut ) {
+      if( tscp.isValid() ) {
+	Measurement1D d0Sig( tscp.perigeeParameters().transverseImpactParameter(),
+			     tscp.perigeeError().transverseImpactParameterError() );
+	if( d0Sig.significance() > impactParameterSigCut ) {
 	  theTrackRefs.push_back( tmpRef );
 	  theTransTracks.push_back( tmpTk );
 	}
@@ -287,15 +303,23 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       GlobalPoint vtxPos(theVtx.x(), theVtx.y(), theVtx.z());
 
-      GlobalPoint beamSpotPos(theBeamSpotHandle->position().x(),
-			      theBeamSpotHandle->position().y(),
-			      theBeamSpotHandle->position().z());
+      //GlobalPoint beamSpotPos(theBeamSpotHandle->position().x(),
+      //       		      theBeamSpotHandle->position().y(),
+      //		      theBeamSpotHandle->position().z());
 
-      SMatrixSym3D totalCov = theBeamSpotHandle->covariance3D() + theVtx.covariance();
-      SVector3 distanceVector(vtxPos.x() - beamSpotPos.x(),
-			      vtxPos.y() - beamSpotPos.y(),
-			      0.);//so that we get radial values only, 
+      // Old functionality, uses BeamSpot for vertex significance cut
+      //SMatrixSym3D totalCov = theBeamSpotHandle->covariance3D() + theVtx.covariance();
+      //SVector3 distanceVector(vtxPos.x() - beamSpotPos.x(),
+      //		      vtxPos.y() - beamSpotPos.y(),
+      //		      0.);//so that we get radial values only, 
                                   //since z beamSpot uncertainty is huge
+
+      // Using primary vertex for 2D vertex significance cut
+      SMatrixSym3D totalCov = bestPriVtxCov + theVtx.covariance();
+      SVector3 distanceVector( vtxPos.x() - bestPriVtxPosition.x(),
+			       vtxPos.y() - bestPriVtxPosition.y(),
+			       0. );
+      GlobalPoint beamSpotPos = bestPriVtxPosition;
 
       double rVtxMag = ROOT::Math::Mag(distanceVector);
       double sigmaRvtxMag = sqrt(ROOT::Math::Similarity(totalCov, distanceVector)) / rVtxMag;
