@@ -284,10 +284,10 @@ controlFpe(bool divByZero, bool invalid, bool overFlow,
 #endif
 
   int flags = 0;
-  if (!divByZero) flags |= FE_DIVBYZERO;
-  if (!invalid)   flags |= FE_INVALID;
-  if (!overFlow)  flags |= FE_OVERFLOW;
-  if (!underFlow) flags |= FE_UNDERFLOW;
+  if (divByZero) flags |= FE_DIVBYZERO;
+  if (invalid)   flags |= FE_INVALID;
+  if (overFlow)  flags |= FE_OVERFLOW;
+  if (underFlow) flags |= FE_UNDERFLOW;
   feenableexcept(flags);
 }
 
