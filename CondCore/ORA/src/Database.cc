@@ -1,0 +1,252 @@
+#include "CondCore/ORA/interface/Database.h"
+#include "CondCore/ORA/interface/Transaction.h"
+#include "CondCore/ORA/interface/Exception.h"
+#include "CondCore/ORA/interface/Handle.h"
+#include "DatabaseSession.h"
+#include "DatabaseContainer.h"
+#include "TransactionCache.h"
+#include "ContainerSchema.h"
+#include "IDatabaseSchema.h"
+#include "ClassUtils.h"
+
+namespace ora {
+  
+  std::string nameFromClass( const Reflex::Type& contType ){
+    return contType.Name( Reflex::SCOPED );
+  }
+  
+  Container getContainerFromSession( const std::string& name, const Reflex::Type& contType, DatabaseSession& session ){
+    Handle<DatabaseContainer> contHandle = session.containerHandle( name );
+    if( !contHandle ){
+      if( session.configuration().properties().getFlag( Configuration::automaticDatabaseCreation()) ||
+          session.configuration().properties().getFlag( Configuration::automaticContainerCreation() ) ){
+        contHandle = session.createContainer( name, contType );
+      } else {
+        throwException("Container \""+name+"\" does not exist in the database.",
+                       "Database::insertItem");
+      }
+    }
+
+    return Container( contHandle );
+  }
+}
+
+std::string ora::Database::nameForContainer( const std::type_info& typeInfo ){
+  Reflex::Type contType = ClassUtils::lookupDictionary( typeInfo );
+  return nameFromClass( contType );
+}
+
+ora::Database::Database():
+  m_configuration(),
+  m_session(0),
+  m_transaction(0){
+  m_session.reset( new DatabaseSession( m_configuration ) );
+  m_transaction.reset( new Transaction( *m_session ));
+}
+
+ora::Database::Database(boost::shared_ptr<ConnectionPool>& connectionPool):
+  m_configuration(),
+  m_session(0),
+  m_transaction(0){
+  m_session.reset( new DatabaseSession( connectionPool, m_configuration ) );
+  m_transaction.reset( new Transaction( *m_session )) ;
+}
+
+ora::Database::~Database(){
+  disconnect();
+}
+
+ora::Configuration& ora::Database::configuration(){
+  return m_configuration;
+}
+
+bool ora::Database::connect( const std::string& connectionString,
+                             bool readOnly){
+  return m_session->connect( connectionString, readOnly );
+}
+
+void ora::Database::disconnect(){
+  m_session->disconnect();
+}
+
+bool ora::Database::isConnected() {
+  return m_session->isConnected();
+}
+
+const std::string& ora::Database::connectionString() {
+  return m_session->connectionString();
+}
+
+ora::Transaction& ora::Database::transaction(){
+  if(!m_session->isConnected()) {
+    throwException("No database storage connected.","Database::transaction");
+  }
+  return *m_transaction;
+}
+
+void ora::Database::checkTransaction(){
+  if(!m_session->isConnected()) {
+    throwException("No database storage connected.","Database::checkTransaction");
+  }
+  if(!m_transaction->isActive()) {
+    throwException("Transaction is not active.","Database::checkTransaction");
+  }  
+}
+
+bool ora::Database::exists(){
+  checkTransaction();
+  return m_session->exists();
+}
+
+bool ora::Database::create(){
+  bool created = false;
+  if( !exists()){
+    m_session->create();
+    created = true;
+  }
+  return created;
+}
+
+bool ora::Database::drop(){
+  bool dropped = false;
+  if( exists()){
+    open();
+    const std::map<int, Handle<DatabaseContainer> >& conts = m_session->containers();
+    for(std::map<int, Handle<DatabaseContainer> >::const_iterator iC = conts.begin();
+        iC != conts.end(); iC++ ){
+      iC->second->drop();
+    }
+    m_session->drop();
+    dropped = true;
+  }
+  return dropped;
+}
+
+void ora::Database::open( bool writingAccess ){
+  checkTransaction();
+  if( !m_session->exists() ){
+    if( writingAccess && m_configuration.properties().getFlag( Configuration::automaticDatabaseCreation() ) ){
+      m_session->create();
+    } else {
+      throwException("Database does not exists in \""+m_session->connectionString()+"\"","Database::open");
+    }
+  }
+  m_session->open();
+}
+
+std::set< std::string > ora::Database::containers() {
+  open();
+  std::set< std::string > contList;
+  const std::map<int, Handle<DatabaseContainer> >& conts = m_session->containers();
+  for(std::map<int, Handle<DatabaseContainer> >::const_iterator iC = conts.begin();
+      iC != conts.end(); iC++ ){
+    contList.insert( iC->second->name() );
+  }
+  return contList;
+}
+
+ora::Container ora::Database::createContainer( const std::string& name,
+                                               const std::type_info& typeInfo ){
+  open();
+  if( m_session->containerHandle( name ) ){
+    throwException("Container with name \""+name+"\" already exists in the database.",
+                   "Database::createContainer");
+  }
+  Reflex::Type contType = ClassUtils::lookupDictionary( typeInfo );
+  Handle<DatabaseContainer> cont = m_session->createContainer( name, contType );
+  return Container( cont );
+}
+
+ora::Container ora::Database::createContainer( const std::type_info& typeInfo ){
+  open();
+  Reflex::Type contType = ClassUtils::lookupDictionary( typeInfo );
+  std::string name = nameFromClass( contType );
+  if( m_session->containerHandle( name ) ){
+    throwException("Container with name \""+name+"\" already exists in the database.",
+                   "Database::createContainer");
+  }  
+  Handle<DatabaseContainer> cont = m_session->createContainer( name, contType );
+  return Container( cont );
+}
+
+ora::Container ora::Database::getContainer( const std::string& containerName,
+                                            const std::type_info&  typeInfo){
+  open( true );
+  Reflex::Type objType = ClassUtils::lookupDictionary( typeInfo );
+  return getContainerFromSession( containerName, objType, *m_session );
+}
+
+ora::Container ora::Database::getContainer( const std::type_info& typeInfo ){
+  open( true );
+  Reflex::Type objType = ClassUtils::lookupDictionary( typeInfo );
+  std::string contName = nameFromClass( objType );
+  return getContainerFromSession( contName, objType, *m_session);
+}
+
+bool ora::Database::dropContainer( const std::string& name ){
+  open();
+  if( !m_session->containerHandle( name ) ){
+    return false;
+  }  
+  m_session->dropContainer( name );
+  return true;
+}
+
+ora::Container ora::Database::containerHandle( const std::string& name ){
+  open();
+  Handle<DatabaseContainer> cont = m_session->containerHandle( name );
+  if( !cont ){
+    throwException("Container \""+name+"\" does not exist in the database.",
+                   "Database::containerHandle");
+  }
+  return Container( cont );
+}
+
+ora::Container ora::Database::containerHandle( int contId ){
+  open();
+  Handle<DatabaseContainer> cont = m_session->containerHandle( contId );
+  if( !cont ){
+    std::stringstream messg;
+    messg << "Container with id=" << contId << " not found in the database.";
+    throwException(messg.str(),
+                   "DatabaseSession::containerHandle");
+  }
+  return Container( cont );
+}
+
+ora::Object ora::Database::fetchItem(const OId& oid){
+  Container cont = containerHandle( oid.containerId() );
+  return cont.fetchItem( oid.itemId() );
+}
+
+ora::OId ora::Database::insertItem(const std::string& containerName,
+                                   const Object& dataObject ){
+  open( true );
+  Container cont  = getContainerFromSession( containerName, dataObject.type(), *m_session );
+  int itemId = cont.insertItem( dataObject );
+  return OId( cont.id(), itemId );
+}
+
+void ora::Database::updateItem(const OId& oid,
+                               const Object& dataObject ){
+  open();
+  Container cont = containerHandle( oid.containerId() );
+  cont.updateItem( oid.itemId(), dataObject );
+}
+
+void ora::Database::erase(const OId& oid){
+  open();
+  Container cont = containerHandle( oid.containerId() );
+  cont.erase( oid.itemId() );
+}
+
+void ora::Database::flush(){
+  open();
+  const std::map<int,Handle<DatabaseContainer> >& containers = m_session->containers();
+  for( std::map<int,Handle<DatabaseContainer> >::const_iterator iCont = containers.begin();
+       iCont != containers.end(); ++iCont ){
+    iCont->second->flush();
+  }
+}
+
+

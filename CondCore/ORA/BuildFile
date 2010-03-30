@@ -1,0 +1,18 @@
+<use name=boost>
+<use name=CoralCommon>
+<use name=CoralKernel>
+<use name=RelationalAccess>
+<use name=FWCore/Framework>
+<use name=CondCore/DBCommon>
+
+<export>
+  <use name=boost>
+  <use name=FWCore/Framework>
+  <use name=CoralCommon>
+  <use name=CoralKernel>
+  <use name=RelationalAccess>
+
+ <use  name=CondFormats/Common>
+
+  <lib name=CondCoreORA>
+</export>

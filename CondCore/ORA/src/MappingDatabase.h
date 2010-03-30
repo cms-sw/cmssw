@@ -1,0 +1,81 @@
+#ifndef INCLUDE_ORA_MAPPINGDATABASE_H
+#define INCLUDE_ORA_MAPPINGDATABASE_H
+
+#include "Sequences.h"
+//
+#include <string>
+#include <map>
+#include <vector>
+#include <set>
+
+namespace Reflex{
+  class Type;
+}
+
+namespace ora {
+
+  class IDatabaseSchema;
+  class MappingTree;
+  class MappingElement;
+  class MappingRawData;
+  class MappingRawElement;
+
+    /**
+       @class MappingDatabase MappingDatabase.h
+       Utility class to manage the object-relational mappings for the C++ classes.
+    */
+  class MappingDatabase {
+
+    public:
+
+    static std::string versionOfClass( const Reflex::Type& dictionary );
+    public:
+    /// Constructor
+    explicit MappingDatabase( IDatabaseSchema& schema );
+
+    /// Destructor
+    ~MappingDatabase();
+
+    std::string newMappingVersionForContainer( const std::string& className );
+    
+    std::string newMappingVersionForDependentClass( const std::string& containerName, const std::string& className );
+
+    bool getMappingByVersion( const std::string& version, MappingTree& destination  );
+    
+    void removeMapping( const std::string& version );
+
+    bool getMappingForContainer( const Reflex::Type& containerClass, int containerId, MappingTree& destination  );
+
+    bool getBaseMappingForContainer( const std::string& className, int containerId, MappingTree& destination  );
+
+    bool getDependentMappingsForContainer( int containerId, std::vector<MappingElement>& destination  );
+
+    void insertClassVersion( const Reflex::Type& dictionaryEntry, int dependencyIndex, int containerId, const std::string& mappingVersion, bool asBase=false );
+
+    void setMappingVersionForClass( const Reflex::Type& dictionaryEntry, int containerId, const std::string& mappingVersion , bool dependency=false);
+
+    void storeMapping( const MappingTree& mappingStructure );
+    
+    bool getMappingVersionsForContainer( int containerId, std::set<std::string>& versionList );
+    
+    void clear();
+    
+    private:
+    void buildElement( MappingElement& parentElement, const std::string& scopeName,
+                       std::map<std::string,std::vector<MappingRawElement> >& innerElements );
+    void unfoldElement( const MappingElement& element, MappingRawData& destination );
+
+    private:
+      
+    /// The schema in use
+    IDatabaseSchema& m_schema;
+    NamedSequence m_mappingSequence;
+    std::set<std::string> m_versions;
+    bool m_isLoaded;
+    bool m_writingEnabled;
+
+  };
+
+}
+
+#endif
