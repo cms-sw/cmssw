@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.14 2010/02/25 18:56:00 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.15 2010/03/18 19:06:09 amagnan Exp $
 //
 
 #include <sstream>
@@ -156,7 +156,7 @@ SiStripCMMonitorPlugin::SiStripCMMonitorPlugin(const edm::ParameterSet& iConfig)
 
  cmHists_.initialise(iConfig,pDebugStream);
 
- doTkHistoMap_ = cmHists_.isTkHistoMapEnabled(cmHists_.tkHistoMapName());
+ doTkHistoMap_ = cmHists_.tkHistoMapEnabled();
 
  CommonModes_.clear();
  CommonModesAPV0minusAPV1_.clear();

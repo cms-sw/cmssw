@@ -25,69 +25,69 @@ void
 SPYHistograms::initialise(const edm::ParameterSet& iConfig,
 			  std::ostringstream* pDebugStream){
 
-  getConfigForHistogram("nNoData",iConfig,pDebugStream);
-  getConfigForHistogram("nLowRange",iConfig,pDebugStream);
-  getConfigForHistogram("nHighRange",iConfig,pDebugStream);
-  getConfigForHistogram("nMinZero",iConfig,pDebugStream);
-  getConfigForHistogram("nMaxSat",iConfig,pDebugStream);
-  getConfigForHistogram("nLowPb",iConfig,pDebugStream);
-  getConfigForHistogram("nHighPb",iConfig,pDebugStream);
-  getConfigForHistogram("nOutOfSync",iConfig,pDebugStream);
-  getConfigForHistogram("nOtherPbs",iConfig,pDebugStream);
-  getConfigForHistogram("nApvErrorBit",iConfig,pDebugStream);
-  getConfigForHistogram("nApvAddressError",iConfig,pDebugStream);
-  getConfigForHistogram("nNegativePeds",iConfig,pDebugStream);
+  getConfigForHistogram(nNoData_,"nNoData",iConfig,pDebugStream);
+  getConfigForHistogram(nLowRange_,"nLowRange",iConfig,pDebugStream);
+  getConfigForHistogram(nHighRange_,"nHighRange",iConfig,pDebugStream);
+  getConfigForHistogram(nMinZero_,"nMinZero",iConfig,pDebugStream);
+  getConfigForHistogram(nMaxSat_,"nMaxSat",iConfig,pDebugStream);
+  getConfigForHistogram(nLowPb_,"nLowPb",iConfig,pDebugStream);
+  getConfigForHistogram(nHighPb_,"nHighPb",iConfig,pDebugStream);
+  getConfigForHistogram(nOutOfSync_,"nOutOfSync",iConfig,pDebugStream);
+  getConfigForHistogram(nOtherPbs_,"nOtherPbs",iConfig,pDebugStream);
+  getConfigForHistogram(nApvErrorBit_,"nApvErrorBit",iConfig,pDebugStream);
+  getConfigForHistogram(nApvAddressError_,"nApvAddressError",iConfig,pDebugStream);
+  getConfigForHistogram(nNegativePeds_,"nNegativePeds",iConfig,pDebugStream);
 
-  getConfigForHistogram("nNoDatavsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nLowRangevsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nHighRangevsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nMinZerovsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nMaxSatvsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nLowPbvsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nHighPbvsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nOutOfSyncvsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nOtherPbsvsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nApvErrorBitvsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nApvAddressErrorvsTime",iConfig,pDebugStream);
-  getConfigForHistogram("nNegativePedsvsTime",iConfig,pDebugStream);
+  getConfigForHistogram(nNoDatavsTime_,"nNoDatavsTime",iConfig,pDebugStream);
+  getConfigForHistogram(nLowRangevsTime_,"nLowRangevsTime",iConfig,pDebugStream);
+  getConfigForHistogram(nHighRangevsTime_,"nHighRangevsTime",iConfig,pDebugStream);
+  getConfigForHistogram(nMinZerovsTime_,"nMinZerovsTime",iConfig,pDebugStream);
+  getConfigForHistogram(nMaxSatvsTime_,"nMaxSatvsTime",iConfig,pDebugStream);
+  getConfigForHistogram(nLowPbvsTime_,"nLowPbvsTime",iConfig,pDebugStream);
+  getConfigForHistogram(nHighPbvsTime_,"nHighPbvsTime",iConfig,pDebugStream);
+  getConfigForHistogram(nOutOfSyncvsTime_,"nOutOfSyncvsTime",iConfig,pDebugStream);
+  getConfigForHistogram(nOtherPbsvsTime_,"nOtherPbsvsTime",iConfig,pDebugStream);
+  getConfigForHistogram(nApvErrorBitvsTime_,"nApvErrorBitvsTime",iConfig,pDebugStream);
+  getConfigForHistogram(nApvAddressErrorvsTime_,"nApvAddressErrorvsTime",iConfig,pDebugStream);
+  getConfigForHistogram(nNegativePedsvsTime_,"nNegativePedsvsTime",iConfig,pDebugStream);
 
-  getConfigForHistogram("meanDigitalLowvsTime",iConfig,pDebugStream);
+  getConfigForHistogram(meanDigitalLowvsTime_,"meanDigitalLowvsTime",iConfig,pDebugStream);
 
 
-  getConfigForHistogram("NoData",iConfig,pDebugStream);
-  getConfigForHistogram("LowRange",iConfig,pDebugStream);
-  getConfigForHistogram("HighRange",iConfig,pDebugStream);
-  getConfigForHistogram("MinZero",iConfig,pDebugStream);
-  getConfigForHistogram("MaxSat",iConfig,pDebugStream);
-  getConfigForHistogram("LowPb",iConfig,pDebugStream);
-  getConfigForHistogram("HighPb",iConfig,pDebugStream);
-  getConfigForHistogram("OutOfSync",iConfig,pDebugStream);
-  getConfigForHistogram("OtherPbs",iConfig,pDebugStream);
-  getConfigForHistogram("ApvErrorBit",iConfig,pDebugStream);
-  getConfigForHistogram("ApvAddressError",iConfig,pDebugStream);
-  getConfigForHistogram("NegativePeds",iConfig,pDebugStream);
+  getConfigForHistogram(noData_,"NoData",iConfig,pDebugStream);
+  getConfigForHistogram(lowRange_,"LowRange",iConfig,pDebugStream);
+  getConfigForHistogram(highRange_,"HighRange",iConfig,pDebugStream);
+  getConfigForHistogram(minZero_,"MinZero",iConfig,pDebugStream);
+  getConfigForHistogram(maxSat_,"MaxSat",iConfig,pDebugStream);
+  getConfigForHistogram(lowPb_,"LowPb",iConfig,pDebugStream);
+  getConfigForHistogram(highPb_,"HighPb",iConfig,pDebugStream);
+  getConfigForHistogram(outOfSync_,"OutOfSync",iConfig,pDebugStream);
+  getConfigForHistogram(otherPbs_,"OtherPbs",iConfig,pDebugStream);
+  getConfigForHistogram(apvErrorBit_,"ApvErrorBit",iConfig,pDebugStream);
+  getConfigForHistogram(apvAddressError_,"ApvAddressError",iConfig,pDebugStream);
+  getConfigForHistogram(negativePeds_,"NegativePeds",iConfig,pDebugStream);
 
-  getConfigForHistogram("FrameRange",iConfig,pDebugStream);
-  getConfigForHistogram("FrameMin",iConfig,pDebugStream);
-  getConfigForHistogram("FrameMax",iConfig,pDebugStream);
-  getConfigForHistogram("Baseline",iConfig,pDebugStream);
+  getConfigForHistogram(frameRange_,"FrameRange",iConfig,pDebugStream);
+  getConfigForHistogram(frameMin_,"FrameMin",iConfig,pDebugStream);
+  getConfigForHistogram(frameMax_,"FrameMax",iConfig,pDebugStream);
+  getConfigForHistogram(baseline_,"Baseline",iConfig,pDebugStream);
 
-  getConfigForHistogram("NoDataDetailed",iConfig,pDebugStream);
-  getConfigForHistogram("LowRangeDetailed",iConfig,pDebugStream);
-  getConfigForHistogram("HighRangeDetailed",iConfig,pDebugStream);
-  getConfigForHistogram("MinZeroDetailed",iConfig,pDebugStream);
-  getConfigForHistogram("MaxSatDetailed",iConfig,pDebugStream);
-  getConfigForHistogram("LowPbDetailed",iConfig,pDebugStream);
-  getConfigForHistogram("HighPbDetailed",iConfig,pDebugStream);
-  getConfigForHistogram("OutOfSyncDetailed",iConfig,pDebugStream);
-  getConfigForHistogram("OtherPbsDetailed",iConfig,pDebugStream);
-  getConfigForHistogram("ApvErrorBitDetailed",iConfig,pDebugStream);
-  getConfigForHistogram("ApvAddressErrorDetailed",iConfig,pDebugStream);
-  getConfigForHistogram("NegativePedsDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(noDataDetailed_,"NoDataDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(lowRangeDetailed_,"LowRangeDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(highRangeDetailed_,"HighRangeDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(minZeroDetailed_,"MinZeroDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(maxSatDetailed_,"MaxSatDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(lowPbDetailed_,"LowPbDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(highPbDetailed_,"HighPbDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(outOfSyncDetailed_,"OutOfSyncDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(otherPbsDetailed_,"OtherPbsDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(apvErrorBitDetailed_,"ApvErrorBitDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(apvAddressErrorDetailed_,"ApvAddressErrorDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(negativePedsDetailed_,"NegativePedsDetailed",iConfig,pDebugStream);
 
-  getConfigForHistogram("PositionOfFirstHeaderBitDetailed",iConfig,pDebugStream);
-  getConfigForHistogram("PositionOfFirstTrailerBitDetailed",iConfig,pDebugStream);
-  getConfigForHistogram("DistanceHeaderTrailerDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(positionOfFirstHeaderBitDetailed_,"PositionOfFirstHeaderBitDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(positionOfFirstTrailerBitDetailed_,"PositionOfFirstTrailerBitDetailed",iConfig,pDebugStream);
+  getConfigForHistogram(distanceHeaderTrailerDetailed_,"DistanceHeaderTrailerDetailed",iConfig,pDebugStream);
 
 }
 
@@ -192,57 +192,57 @@ void SPYHistograms::fillDetailedHistograms(const Errors & aErr,
   }
 
   if (aErr.hasNoData) {
-    fillHistogram(noDataDetailed_[aFedId],aFedChannel);
+    fillHistogram(noDataDetailedMap_[aFedId],aFedChannel);
     //fillHistogram(noData_,24*aFedId+static_cast<unsigned int>(aFedChannel/4.));
     fillHistogram(noData_,static_cast<unsigned int>(aFedChannel/4.));
   }
 
   if (aErr.hasLowRange) { 
-    fillHistogram(lowRangeDetailed_[aFedId],aFedChannel);
+    fillHistogram(lowRangeDetailedMap_[aFedId],aFedChannel);
   }
   if (aErr.hasHighRange) { 
-    fillHistogram(highRangeDetailed_[aFedId],aFedChannel);
+    fillHistogram(highRangeDetailedMap_[aFedId],aFedChannel);
   }
   if (aErr.hasMinZero) {
-    fillHistogram(minZeroDetailed_[aFedId],aFedChannel);
+    fillHistogram(minZeroDetailedMap_[aFedId],aFedChannel);
   }
   if (aErr.hasMaxSat) {
-    fillHistogram(maxSatDetailed_[aFedId],aFedChannel);
+    fillHistogram(maxSatDetailedMap_[aFedId],aFedChannel);
   }
   if (aErr.hasLowPb) {
-    fillHistogram(lowPbDetailed_[aFedId],aFedChannel);
+    fillHistogram(lowPbDetailedMap_[aFedId],aFedChannel);
   }
   if (aErr.hasHighPb) {
-    fillHistogram(highPbDetailed_[aFedId],aFedChannel);
+    fillHistogram(highPbDetailedMap_[aFedId],aFedChannel);
   }
   if (aErr.hasOOS) {
-    fillHistogram(outOfSyncDetailed_[aFedId],aFedChannel);
+    fillHistogram(outOfSyncDetailedMap_[aFedId],aFedChannel);
   }
   if (aErr.hasOtherPbs) {
-    fillHistogram(otherPbsDetailed_[aFedId],aFedChannel);
+    fillHistogram(otherPbsDetailedMap_[aFedId],aFedChannel);
   }
   if (aErr.hasErrorBit0) {
-    fillHistogram(apvErrorBitDetailed_[aFedId],2*aFedChannel);
+    fillHistogram(apvErrorBitDetailedMap_[aFedId],2*aFedChannel);
   }
   if (aErr.hasErrorBit1) {
-    fillHistogram(apvErrorBitDetailed_[aFedId],2*aFedChannel+1);
+    fillHistogram(apvErrorBitDetailedMap_[aFedId],2*aFedChannel+1);
   }
   if (aErr.hasAPVAddressError0) {
-    fillHistogram(apvAddressErrorDetailed_[aFedId],2*aFedChannel);
+    fillHistogram(apvAddressErrorDetailedMap_[aFedId],2*aFedChannel);
   }
   if (aErr.hasAPVAddressError1) {
-    fillHistogram(apvAddressErrorDetailed_[aFedId],2*aFedChannel+1);
+    fillHistogram(apvAddressErrorDetailedMap_[aFedId],2*aFedChannel+1);
   }
   if (aErr.hasNegPeds) {
-    fillHistogram(negativePedsDetailed_[aFedId],aFedChannel);
+    fillHistogram(negativePedsDetailedMap_[aFedId],aFedChannel);
   }
 
-  fillHistogram(positionOfFirstHeaderBitDetailed_[aFedId],aFrame.firstHeaderBit);
-  fillHistogram(positionOfFirstTrailerBitDetailed_[aFedId],aFrame.firstTrailerBit);
+  fillHistogram(positionOfFirstHeaderBitDetailedMap_[aFedId],aFrame.firstHeaderBit);
+  fillHistogram(positionOfFirstTrailerBitDetailedMap_[aFedId],aFrame.firstTrailerBit);
   if (aFrame.firstTrailerBit != sistrip::SPY_SAMPLES_PER_CHANNEL &&
       aFrame.firstHeaderBit != sistrip::SPY_SAMPLES_PER_CHANNEL)
-    fillHistogram(distanceHeaderTrailerDetailed_[aFedId],aFrame.firstTrailerBit-aFrame.firstHeaderBit);
-  else fillHistogram(distanceHeaderTrailerDetailed_[aFedId],0);
+    fillHistogram(distanceHeaderTrailerDetailedMap_[aFedId],aFrame.firstTrailerBit-aFrame.firstHeaderBit);
+  else fillHistogram(distanceHeaderTrailerDetailedMap_[aFedId],0);
 }
 
 
@@ -259,272 +259,266 @@ void SPYHistograms::bookTopLevelHistograms(DQMStore* dqm)
   histosBooked_.resize(siStripFedIdMax+1,false);
 
 
-  for (std::map<std::string,HistogramConfig>::iterator iC = histogramConfig_.begin(); iC != histogramConfig_.end(); iC++){
-
-    LogDebug("SPYHistograms") << " -- Config name : " << iC->first << ", isEnabled = " << iC->second.enabled << std::endl;
-  }
-
-
   //book histos
-  nNoData_ = bookHistogram("nNoData","nNoData",
-			   ";n_{noData};n_{entries}",
-			   "n_{noData}");
+  bookHistogram(nNoData_,"nNoData",
+		";n_{noData};n_{entries}",
+		"n_{noData}");
 
-  nLowRange_ = bookHistogram("nLowRange","nLowRange",
-			     ";n_{LowRange};n_{entries}",
-			     "n_{LowRange}");
+  bookHistogram(nLowRange_,"nLowRange",
+		";n_{LowRange};n_{entries}",
+		"n_{LowRange}");
 
-  nHighRange_ = bookHistogram("nHighRange","nHighRange",
-			      ";n_{HighRange};n_{entries}",
-			      "n_{HighRange}");
+  bookHistogram(nHighRange_,"nHighRange",
+		";n_{HighRange};n_{entries}",
+		"n_{HighRange}");
 
-  nMinZero_ = bookHistogram("nMinZero","nMinZero",
-			    ";n_{MinZero};n_{entries}",
-			    "n_{MinZero}");
+  bookHistogram(nMinZero_,"nMinZero",
+		";n_{MinZero};n_{entries}",
+		"n_{MinZero}");
 
-  nMaxSat_ = bookHistogram("nMaxSat","nMaxSat",
-			   ";n_{MaxSat};n_{entries}",
-			   "n_{MaxSat}");
+  bookHistogram(nMaxSat_,"nMaxSat",
+		";n_{MaxSat};n_{entries}",
+		"n_{MaxSat}");
   
-  nLowPb_ = bookHistogram("nLowPb","nLowPb",
-			       ";n_{lowPb};n_{entries}",
-			       "n_{lowPb}");
+  bookHistogram(nLowPb_,"nLowPb",
+		";n_{lowPb};n_{entries}",
+		"n_{lowPb}");
 
-  nHighPb_ = bookHistogram("nHighPb","nHighPb",
-				";n_{highPb};n_{entries}",
-				"n_{highPb}");
+  bookHistogram(nHighPb_,"nHighPb",
+		";n_{highPb};n_{entries}",
+		"n_{highPb}");
   
-  nOutOfSync_ = bookHistogram("nOutOfSync","nOutOfSync",
-			      ";n_{OOS};n_{entries}",
-			      "n_{OOS}");
+  bookHistogram(nOutOfSync_,"nOutOfSync",
+		";n_{OOS};n_{entries}",
+		"n_{OOS}");
 
-  nOtherPbs_ = bookHistogram("nOtherPbs","nOtherPbs",
-			     ";n_{OtherPbs};n_{entries}",
-			     "n_{OtherPbs}");
+  bookHistogram(nOtherPbs_,"nOtherPbs",
+		";n_{OtherPbs};n_{entries}",
+		"n_{OtherPbs}");
 
-  nApvErrorBit_ = bookHistogram("nApvErrorBit","nApvErrorBit",
-				";n_{APVerror};n_{entries}",
-				"n_{APVerror}"
-				);
+  bookHistogram(nApvErrorBit_,"nApvErrorBit",
+		";n_{APVerror};n_{entries}",
+		"n_{APVerror}"
+		);
 
-  nApvAddressError_ = bookHistogram("nApvAddressError","nApvAddressError",
-				    ";n_{APVAddressError};n_{entries}",
-				    "n_{APVAddressError}"
-				    );
+  bookHistogram(nApvAddressError_,"nApvAddressError",
+		";n_{APVAddressError};n_{entries}",
+		"n_{APVAddressError}"
+		);
 
-  nNegativePeds_ = bookHistogram("nNegativePeds","nNegativePeds",
-				 ";n_{negPeds};n_{entries}",
-				 "n_{negPeds}"
-				 );
+  bookHistogram(nNegativePeds_,"nNegativePeds",
+		";n_{negPeds};n_{entries}",
+		"n_{negPeds}"
+		);
   
 
 
-  noData_ = bookHistogram("NoData","NoData",
-			  ";delayFPGA;n_{noData}",
-			  //24*(siStripFedIdMax+1)-24*siStripFedIdMin,
-			  //24*siStripFedIdMin,24*(siStripFedIdMax+1),
-			  24,0,24,
-			  "delayFPGA index"
-			  );
+  bookHistogram(noData_,"NoData",
+		";delayFPGA;n_{noData}",
+		//24*(siStripFedIdMax+1)-24*siStripFedIdMin,
+		//24*siStripFedIdMin,24*(siStripFedIdMax+1),
+		24,0,24,
+		"delayFPGA index"
+		);
 
-  lowRange_ = bookHistogram("LowRange","LowRange",
-			     ";fedId;n_{LowRange}",
-			     siStripFedIdMax-siStripFedIdMin+1,
-			     siStripFedIdMin-0.5,siStripFedIdMax+0.5,
-			     "FED-ID"
-			     );
+  bookHistogram(lowRange_,"LowRange",
+		";fedId;n_{LowRange}",
+		siStripFedIdMax-siStripFedIdMin+1,
+		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
+		"FED-ID"
+		);
   
-  highRange_ = bookHistogram("HighRange","HighRange",
-			     ";fedId;n_{HighRange}",
-			     siStripFedIdMax-siStripFedIdMin+1,
-			     siStripFedIdMin-0.5,siStripFedIdMax+0.5,
-			     "FED-ID"
-			     );
+  bookHistogram(highRange_,"HighRange",
+		";fedId;n_{HighRange}",
+		siStripFedIdMax-siStripFedIdMin+1,
+		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
+		"FED-ID"
+		);
 
-  minZero_ = bookHistogram("MinZero","MinZero",
-			   ";fedId;n_{MinZero}",
-			   siStripFedIdMax-siStripFedIdMin+1,
-			   siStripFedIdMin-0.5,siStripFedIdMax+0.5,
-			   "FED-ID"
-			   );
+  bookHistogram(minZero_,"MinZero",
+		";fedId;n_{MinZero}",
+		siStripFedIdMax-siStripFedIdMin+1,
+		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
+		"FED-ID"
+		);
 
-  maxSat_ = bookHistogram("MaxSat","MaxSat",
-			  ";fedId;n_{MaxSat}",
-			  siStripFedIdMax-siStripFedIdMin+1,
-			  siStripFedIdMin-0.5,siStripFedIdMax+0.5,
-			  "FED-ID"
-			  );
+  bookHistogram(maxSat_,"MaxSat",
+		";fedId;n_{MaxSat}",
+		siStripFedIdMax-siStripFedIdMin+1,
+		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
+		"FED-ID"
+		);
   
-  lowPb_ = bookHistogram("LowPb","LowPb",
-			       ";fedId;n_{lowPb}",
-			      siStripFedIdMax-siStripFedIdMin+1,
-			      siStripFedIdMin-0.5,siStripFedIdMax+0.5,
-			      "FED-ID"
-			      );
+  bookHistogram(lowPb_,"LowPb",
+		";fedId;n_{lowPb}",
+		siStripFedIdMax-siStripFedIdMin+1,
+		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
+		"FED-ID"
+		);
 
-  highPb_ = bookHistogram("HighPb","HighPb",
-				";fedId;n_{highPb}",
-			       siStripFedIdMax-siStripFedIdMin+1,
-			       siStripFedIdMin-0.5,siStripFedIdMax+0.5,
-			       "FED-ID"
-			       );
+  bookHistogram(highPb_,"HighPb",
+		";fedId;n_{highPb}",
+		siStripFedIdMax-siStripFedIdMin+1,
+		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
+		"FED-ID"
+		);
   
-  outOfSync_ = bookHistogram("OutOfSync","OutOfSync",
-			      ";fedId;n_{OOS}",
-			     siStripFedIdMax-siStripFedIdMin+1,
-			     siStripFedIdMin-0.5,siStripFedIdMax+0.5,
-			     "FED-ID"
-			     );
+  bookHistogram(outOfSync_,"OutOfSync",
+		";fedId;n_{OOS}",
+		siStripFedIdMax-siStripFedIdMin+1,
+		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
+		"FED-ID"
+		);
 
-  otherPbs_ = bookHistogram("OtherPbs","OtherPbs",
-			     ";fedId;n_{OtherPbs}",
-			    siStripFedIdMax-siStripFedIdMin+1,
-			    siStripFedIdMin-0.5,siStripFedIdMax+0.5,
-			    "FED-ID"
-			    );
+  bookHistogram(otherPbs_,"OtherPbs",
+		";fedId;n_{OtherPbs}",
+		siStripFedIdMax-siStripFedIdMin+1,
+		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
+		"FED-ID"
+		);
 
-  apvErrorBit_ = bookHistogram("ApvErrorBit","ApvErrorBit",
-				";fedId;n_{APVerror}",
-			       siStripFedIdMax-siStripFedIdMin+1,
-			       siStripFedIdMin-0.5,siStripFedIdMax+0.5,
-			       "FED-ID"
-			       );
+  bookHistogram(apvErrorBit_,"ApvErrorBit",
+		";fedId;n_{APVerror}",
+		siStripFedIdMax-siStripFedIdMin+1,
+		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
+		"FED-ID"
+		);
 
-  apvAddressError_ = bookHistogram("ApvAddressError","ApvAddressError",
-				    ";fedId;n_{APVAddressError}",
-				   siStripFedIdMax-siStripFedIdMin+1,
-				   siStripFedIdMin-0.5,siStripFedIdMax+0.5,
-				   "FED-ID"
-				   );
+  bookHistogram(apvAddressError_,"ApvAddressError",
+		";fedId;n_{APVAddressError}",
+		siStripFedIdMax-siStripFedIdMin+1,
+		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
+		"FED-ID"
+		);
 
-  negativePeds_ = bookHistogram("NegativePeds","NegativePeds",
-				 ";fedId;n_{negPeds}",
-				siStripFedIdMax-siStripFedIdMin+1,
-				siStripFedIdMin-0.5,siStripFedIdMax+0.5,
-				"FED-ID"
-				);
+  bookHistogram(negativePeds_,"NegativePeds",
+		";fedId;n_{negPeds}",
+		siStripFedIdMax-siStripFedIdMin+1,
+		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
+		"FED-ID"
+		);
   
-  frameRange_ = bookHistogram("FrameRange","FrameRange",
-			      ";range;n_{entries}",
-			      1024,0,1024,
-			      "range (adc counts)");
+  bookHistogram(frameRange_,"FrameRange",
+		";range;n_{entries}",
+		1024,0,1024,
+		"range (adc counts)");
 
-  frameMin_ = bookHistogram("FrameMin","FrameMin",
-			    ";Zero-light level;n_{entries}",
-			    800,0,800,
-			    "Zero-light level (adc counts)");
+  bookHistogram(frameMin_,"FrameMin",
+		";Zero-light level;n_{entries}",
+		800,0,800,
+		"Zero-light level (adc counts)");
 
-  frameMax_ = bookHistogram("FrameMax","FrameMax",
-			    ";Tick height;n_{entries}",
-			    824,200,1024,
-			    "Tick height (adc counts)");
+  bookHistogram(frameMax_,"FrameMax",
+		";Tick height;n_{entries}",
+		824,200,1024,
+		"Tick height (adc counts)");
 
-  baseline_ = bookHistogram("Baseline","Baseline",
-			    ";Baseline;n_{entries}",
-			    1024,0,1024,
-			    "Baseline (adc counts)");
+  bookHistogram(baseline_,"Baseline",
+		";Baseline;n_{entries}",
+		1024,0,1024,
+		"Baseline (adc counts)");
 
 
 
   //book histos
  
-  nNoDatavsTime_ = bookProfile("nNoDatavsTime","nNoDatavsTime",
-			       ";time;n_{noData}",
-			       0,
-			       42241,//total number of channels 
-			       "Time",
-			       "n_{noData}");
+  bookProfile(nNoDatavsTime_,"nNoDatavsTime",
+	      ";time;n_{noData}",
+	      0,
+	      42241,//total number of channels 
+	      "Time",
+	      "n_{noData}");
 
-  nLowRangevsTime_ = bookProfile("nLowRangevsTime","nLowRangevsTime",
-				 ";time;n_{LowRange}",
-				 0,
-				 42241,//total number of channels 
-				 "Time",
-				 "n_{LowRange}");
+  bookProfile(nLowRangevsTime_,"nLowRangevsTime",
+	      ";time;n_{LowRange}",
+	      0,
+	      42241,//total number of channels 
+	      "Time",
+	      "n_{LowRange}");
 
-  nHighRangevsTime_ = bookProfile("nHighRangevsTime","nHighRangevsTime",
-				  ";time;n_{HighRange}",
-				  0,
-				  42241,//total number of channels 
-				  "Time",
-				  "n_{HighRange}");
+  bookProfile(nHighRangevsTime_,"nHighRangevsTime",
+	      ";time;n_{HighRange}",
+	      0,
+	      42241,//total number of channels 
+	      "Time",
+	      "n_{HighRange}");
 
 
-  nMinZerovsTime_ = bookProfile("nMinZerovsTime","nMinZerovsTime",
-				";time;n_{MinZero}",
-				0,
-				42241,//total number of channels 
-				"Time",
-				"n_{MinZero}");
+  bookProfile(nMinZerovsTime_,"nMinZerovsTime",
+	      ";time;n_{MinZero}",
+	      0,
+	      42241,//total number of channels 
+	      "Time",
+	      "n_{MinZero}");
 
-  nMaxSatvsTime_ = bookProfile("nMaxSatvsTime","nMaxSatvsTime",
-			       ";time;n_{MaxSat}",
-			       0,
-			       42241,//total number of channels 
-			       "Time",
-			       "n_{MaxSat}");
+  bookProfile(nMaxSatvsTime_,"nMaxSatvsTime",
+	      ";time;n_{MaxSat}",
+	      0,
+	      42241,//total number of channels 
+	      "Time",
+	      "n_{MaxSat}");
   
-  nLowPbvsTime_ = bookProfile("nLowPbvsTime","nLowPbvsTime",
-				   ";time;n_{lowPb}",
-				   0,
-				   42241,//total number of channels 
-				   "Time",
-				   "n_{lowPb}");
+  bookProfile(nLowPbvsTime_,"nLowPbvsTime",
+	      ";time;n_{lowPb}",
+	      0,
+	      42241,//total number of channels 
+	      "Time",
+	      "n_{lowPb}");
 
-  nHighPbvsTime_ = bookProfile("nHighPbvsTime","nHighPbvsTime",
-				";time;n_{highPb}",
-				    0,
-				    42241,//total number of channels 
-				    "Time",
-				    "n_{highPb}");
+  bookProfile(nHighPbvsTime_,"nHighPbvsTime",
+	      ";time;n_{highPb}",
+	      0,
+	      42241,//total number of channels 
+	      "Time",
+	      "n_{highPb}");
 
  
-  nOutOfSyncvsTime_ = bookProfile("nOutOfSyncvsTime","nOutOfSyncvsTime",
-				  ";time;n_{OOS}",
-				  0,
-				  42241,//total number of channels 
-				  "Time",
-				  "n_{OOS}");
+  bookProfile(nOutOfSyncvsTime_,"nOutOfSyncvsTime",
+	      ";time;n_{OOS}",
+	      0,
+	      42241,//total number of channels 
+	      "Time",
+	      "n_{OOS}");
 
-  nOtherPbsvsTime_ = bookProfile("nOtherPbsvsTime","nOtherPbsvsTime",
-				 ";time;n_{OtherPbs}",
-				 0,
-				 42241,//total number of channels 
-				 "Time",
-				 "n_{OtherPbs}");
+  bookProfile(nOtherPbsvsTime_,"nOtherPbsvsTime",
+	      ";time;n_{OtherPbs}",
+	      0,
+	      42241,//total number of channels 
+	      "Time",
+	      "n_{OtherPbs}");
 
-  nApvErrorBitvsTime_ = bookProfile("nApvErrorBitvsTime","nApvErrorBitvsTime",
-				    ";time;n_{APVerror}",
-				    0,
-				    42241,//total number of channels 
-				    "Time",
-				    "n_{APVerror}");
+  bookProfile(nApvErrorBitvsTime_,"nApvErrorBitvsTime",
+	      ";time;n_{APVerror}",
+	      0,
+	      42241,//total number of channels 
+	      "Time",
+	      "n_{APVerror}");
 
-  nApvAddressErrorvsTime_ = bookProfile("nApvAddressErrorvsTime","nApvAddressErrorvsTime",
-					";time;n_{APVAddressError}",
-					0,
-					42241,//total number of channels 
-					"Time",
-					"n_{APVAddressError}");
+  bookProfile(nApvAddressErrorvsTime_,"nApvAddressErrorvsTime",
+	      ";time;n_{APVAddressError}",
+	      0,
+	      42241,//total number of channels 
+	      "Time",
+	      "n_{APVAddressError}");
 
-  nNegativePedsvsTime_ = bookProfile("nNegativePedsvsTime","nNegativePedsvsTime",
-				     ";time;n_{negPeds}",
-				     0,
-				     42241,//total number of channels 
-				     "Time",
-				     "n_{negPeds}");
+  bookProfile(nNegativePedsvsTime_,"nNegativePedsvsTime",
+	      ";time;n_{negPeds}",
+	      0,
+	      42241,//total number of channels 
+	      "Time",
+	      "n_{negPeds}");
 
   
 
   //book histos
 
 
-  meanDigitalLowvsTime_ = bookProfile("meanDigitalLowvsTime","meanDigitalLowvsTime",
-				     ";time;meanDigitalLow",
-				     0,
-				     800,//maximum for digitalLow 
-				     "Time",
-				     "meanDigitalLow");
+  bookProfile(meanDigitalLowvsTime_,"meanDigitalLowvsTime",
+	      ";time;meanDigitalLow",
+	      0,
+	      800,//maximum for digitalLow 
+	      "Time",
+	      "meanDigitalLow");
 
 
 
@@ -547,18 +541,18 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 
     //only if at least one error corresponds to enabled histo....
     if (!doAll && !(
-		   (aErr.hasNoData && histogramConfig_["NoDataDetailed"].enabled) ||
-		   (aErr.hasLowRange && histogramConfig_["LowRangeDetailed"].enabled) ||
-		   (aErr.hasHighRange && histogramConfig_["HighRangeDetailed"].enabled) ||
-		   (aErr.hasMinZero && histogramConfig_["MinZeroDetailed"].enabled) ||
-		   (aErr.hasMaxSat && histogramConfig_["MaxSatDetailed"].enabled) ||
-		   (aErr.hasLowPb && histogramConfig_["LowPbDetailed"].enabled) ||
-		   (aErr.hasHighPb && histogramConfig_["HighPbDetailed"].enabled) ||
-		   (aErr.hasOOS && histogramConfig_["OutOfSyncDetailed"].enabled) ||
-		   (aErr.hasOtherPbs && histogramConfig_["OtherPbsDetailed"].enabled) ||
-		   ((aErr.hasErrorBit0 ||aErr.hasErrorBit1)  && histogramConfig_["ApvErrorBitDetailed"].enabled) ||
-		   ((aErr.hasAPVAddressError0 || aErr.hasAPVAddressError1) && histogramConfig_["ApvAddressErrorDetailed"].enabled) ||
-		   (aErr.hasNegPeds && histogramConfig_["NegativePedsDetailed"].enabled)
+		   (aErr.hasNoData && noDataDetailed_.enabled) ||
+		   (aErr.hasLowRange && lowRangeDetailed_.enabled) ||
+		   (aErr.hasHighRange && highRangeDetailed_.enabled) ||
+		   (aErr.hasMinZero && minZeroDetailed_.enabled) ||
+		   (aErr.hasMaxSat && maxSatDetailed_.enabled) ||
+		   (aErr.hasLowPb && lowPbDetailed_.enabled) ||
+		   (aErr.hasHighPb && highPbDetailed_.enabled) ||
+		   (aErr.hasOOS && outOfSyncDetailed_.enabled) ||
+		   (aErr.hasOtherPbs && otherPbsDetailed_.enabled) ||
+		   ((aErr.hasErrorBit0 ||aErr.hasErrorBit1)  && apvErrorBitDetailed_.enabled) ||
+		   ((aErr.hasAPVAddressError0 || aErr.hasAPVAddressError1) && apvAddressErrorDetailed_.enabled) ||
+		   (aErr.hasNegPeds && negativePedsDetailed_.enabled)
 		   )
 	) return;
     
@@ -570,100 +564,127 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
     dqm_->setCurrentFolder(fedKey.path());
     
 
-    noDataDetailed_[fedId] = bookHistogram("NoDataDetailed","NoDataForFED"+fedIdStream.str(),
-					   "No data for FED ID "+fedIdStream.str(),
-					   sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
-					   "Channel Index"
-					   );
+    bookHistogram(noDataDetailed_,
+		  noDataDetailedMap_[fedId],
+		  "NoDataForFED"+fedIdStream.str(),
+		  "No data for FED ID "+fedIdStream.str(),
+		  sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
+		  "Channel Index"
+		  );
 
-    lowRangeDetailed_[fedId] = bookHistogram("LowRangeDetailed","LowRangeForFED"+fedIdStream.str(),
-					     "Max-min<VAL for FED ID "+fedIdStream.str(),
-					     sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
-					     "Channel Index"
-					     );
+    bookHistogram(lowRangeDetailed_,
+		  lowRangeDetailedMap_[fedId],
+		  "LowRangeForFED"+fedIdStream.str(),
+		  "Max-min<VAL for FED ID "+fedIdStream.str(),
+		  sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
+		  "Channel Index"
+		  );
 
-    highRangeDetailed_[fedId] = bookHistogram("HighRangeDetailed","HighRangeForFED"+fedIdStream.str(),
-					      "Max-min>VAL for FED ID "+fedIdStream.str(),
-					      sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
-					      "Channel Index"
-					      );
+    bookHistogram(highRangeDetailed_,
+		  highRangeDetailedMap_[fedId],
+		  "HighRangeForFED"+fedIdStream.str(),
+		  "Max-min>VAL for FED ID "+fedIdStream.str(),
+		  sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
+		  "Channel Index"
+		  );
 
-    minZeroDetailed_[fedId] = bookHistogram("MinZeroDetailed","MinZeroForFED"+fedIdStream.str(),
-					    "min=0 for FED ID "+fedIdStream.str(),
-					    sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
-					    "Channel Index"
-					    );
+    bookHistogram(minZeroDetailed_,
+		  minZeroDetailedMap_[fedId],
+		  "MinZeroForFED"+fedIdStream.str(),
+		  "min=0 for FED ID "+fedIdStream.str(),
+		  sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
+		  "Channel Index"
+		  );
 
-    maxSatDetailed_[fedId] = bookHistogram("MaxSatDetailed","MaxSatForFED"+fedIdStream.str(),
-					   "max=1023 for FED ID "+fedIdStream.str(),
-					   sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
-					   "Channel Index"
-					   );
+    bookHistogram(maxSatDetailed_,
+		  maxSatDetailedMap_[fedId],
+		  "MaxSatForFED"+fedIdStream.str(),
+		  "max=1023 for FED ID "+fedIdStream.str(),
+		  sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
+		  "Channel Index"
+		  );
 
-    lowPbDetailed_[fedId] = bookHistogram("LowPbDetailed","LowPbForFED"+fedIdStream.str(),
-					  "Pb with digitalLow for FED ID "+fedIdStream.str(),
-					  sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
-					  "Channel Index"
-					  );
+    bookHistogram(lowPbDetailed_,
+		  lowPbDetailedMap_[fedId],
+		  "LowPbForFED"+fedIdStream.str(),
+		  "Pb with digitalLow for FED ID "+fedIdStream.str(),
+		  sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
+		  "Channel Index"
+		  );
 
-    highPbDetailed_[fedId] = bookHistogram("HighPbDetailed","HighPbForFED"+fedIdStream.str(),
-					   "Pb with digitalHigh for FED ID "+fedIdStream.str(),
-					   sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
-					   "Channel Index"
-					   );
+    bookHistogram(highPbDetailed_,
+		  highPbDetailedMap_[fedId],
+		  "HighPbForFED"+fedIdStream.str(),
+		  "Pb with digitalHigh for FED ID "+fedIdStream.str(),
+		  sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
+		  "Channel Index"
+		  );
 
-    outOfSyncDetailed_[fedId] = bookHistogram("OutOfSyncDetailed","OutOfSyncForFED"+fedIdStream.str(),
-					      "Out-of-sync for FED ID "+fedIdStream.str(),
-					      sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
-					      "Channel Index"
-					      );
+    bookHistogram(outOfSyncDetailed_,
+		  outOfSyncDetailedMap_[fedId],
+		  "OutOfSyncForFED"+fedIdStream.str(),
+		  "Out-of-sync for FED ID "+fedIdStream.str(),
+		  sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
+		  "Channel Index"
+		  );
 
-    otherPbsDetailed_[fedId] = bookHistogram("OtherPbsDetailed","OtherPbsForFED"+fedIdStream.str(),
-					     "Other issues for FED ID "+fedIdStream.str(),
-					     sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
-					     "Channel Index"
-					     );
+    bookHistogram(otherPbsDetailed_,
+		  otherPbsDetailedMap_[fedId],
+		  "OtherPbsForFED"+fedIdStream.str(),
+		  "Other issues for FED ID "+fedIdStream.str(),
+		  sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
+		  "Channel Index"
+		  );
 
-    apvErrorBitDetailed_[fedId] = bookHistogram("ApvErrorBitDetailed","ApvErrorBitForFED"+fedIdStream.str(),
-						"APV error for FED ID "+fedIdStream.str(),
-						2*sistrip::FEDCH_PER_FED,0,2*sistrip::FEDCH_PER_FED,
-						"APV Index"
-						);
+    bookHistogram(apvErrorBitDetailed_,
+		  apvErrorBitDetailedMap_[fedId],
+		  "ApvErrorBitForFED"+fedIdStream.str(),
+		  "APV error for FED ID "+fedIdStream.str(),
+		  2*sistrip::FEDCH_PER_FED,0,2*sistrip::FEDCH_PER_FED,
+		  "APV Index"
+		  );
 
-    apvAddressErrorDetailed_[fedId] = bookHistogram("ApvAddressErrorDetailed","ApvAddressErrorForFED"+fedIdStream.str(),
-						    "APV address error for FED ID "+fedIdStream.str(),
-						    2*sistrip::FEDCH_PER_FED,0,2*sistrip::FEDCH_PER_FED,
-						    "APV Index"
-						    );
+    bookHistogram(apvAddressErrorDetailed_,
+		  apvAddressErrorDetailedMap_[fedId],
+		  "ApvAddressErrorForFED"+fedIdStream.str(),
+		  "APV address error for FED ID "+fedIdStream.str(),
+		  2*sistrip::FEDCH_PER_FED,0,2*sistrip::FEDCH_PER_FED,
+		  "APV Index"
+		  );
 
-    negativePedsDetailed_[fedId] = bookHistogram("NegativePedsDetailed","NegativePedsForFED"+fedIdStream.str(),
-						 "Negative ped subtr for FED ID "+fedIdStream.str(),
-						 sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
-						 "Channel Index"
-						 );
+    bookHistogram(negativePedsDetailed_,
+		  negativePedsDetailedMap_[fedId],
+		  "NegativePedsForFED"+fedIdStream.str(),
+		  "Negative ped subtr for FED ID "+fedIdStream.str(),
+		  sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
+		  "Channel Index"
+		  );
 
 
 
-    positionOfFirstHeaderBitDetailed_[fedId] = bookHistogram("PositionOfFirstHeaderBitDetailed",
-							     "PositionOfFirstHeaderBitForFED"+fedIdStream.str(),
-							     "FED ID "+fedIdStream.str(),
-							     300,0,300,
-							     "first header bit"
-							     );
+    bookHistogram(positionOfFirstHeaderBitDetailed_,
+		  positionOfFirstHeaderBitDetailedMap_[fedId],
+		  "PositionOfFirstHeaderBitForFED"+fedIdStream.str(),
+		  "FED ID "+fedIdStream.str(),
+		  300,0,300,
+		  "first header bit"
+		  );
 
-    positionOfFirstTrailerBitDetailed_[fedId] = bookHistogram("PositionOfFirstTrailerBitDetailed",
-							      "PositionOfFirstTrailerBitForFED"+fedIdStream.str(),
-							      "FED ID "+fedIdStream.str(),
-							      15,285,300,
-							      "first trailer bit"
-							      );
+    bookHistogram(positionOfFirstTrailerBitDetailed_,
+		  positionOfFirstTrailerBitDetailedMap_[fedId],
+		  "PositionOfFirstTrailerBitForFED"+fedIdStream.str(),
+		  "FED ID "+fedIdStream.str(),
+		  15,285,300,
+		  "first trailer bit"
+		  );
 					    
-    distanceHeaderTrailerDetailed_[fedId] = bookHistogram("DistanceHeaderTrailerDetailed",
-							  "DistanceHeaderTrailerForFED"+fedIdStream.str(),
-							  "FED ID "+fedIdStream.str(),
-							  300,0,300,
-							  "trailer - header"
-							  );
+    bookHistogram(distanceHeaderTrailerDetailed_,
+		  distanceHeaderTrailerDetailedMap_[fedId],
+		  "DistanceHeaderTrailerForFED"+fedIdStream.str(),
+		  "FED ID "+fedIdStream.str(),
+		  300,0,300,
+		  "trailer - header"
+		  );
 
 
     histosBooked_[fedId] = true;

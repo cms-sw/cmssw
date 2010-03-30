@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.34 2010/03/23 16:25:29 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.35 2010/03/26 13:52:45 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -132,7 +132,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   
   fedHists_.initialise(iConfig,pDebugStream);
 
-  doTkHistoMap_ = fedHists_.isTkHistoMapEnabled(fedHists_.tkHistoMapName());
+  doTkHistoMap_ = fedHists_.tkHistoMapEnabled();
 
   doMedHists_ = fedHists_.cmHistosEnabled();
 
