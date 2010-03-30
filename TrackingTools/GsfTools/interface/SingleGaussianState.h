@@ -28,7 +28,7 @@ public:
   SingleGaussianState(const Vector& aMean,
 			 const Matrix& aCovariance, 
 			 double aWeight = 1.) : 
-    theWeight(aWeight), theMean(aMean), theCovariance(aCovariance),
+    theCovariance(aCovariance), theMean(aMean), theWeight(aWeight), 
     theHasWeightMatrix(false) {
 //     ++instances_;++maxInstances_;
   }
