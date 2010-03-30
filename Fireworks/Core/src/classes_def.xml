@@ -35,6 +35,7 @@
   <class name="FWViewBase"/>
   <class name="FWTableView"/>
   <class name="FWTriggerTableView"/>
+  <class name="FWL1TriggerTableView"/>
   <class name="FWGUIEventFilter"/>
   <class name="FWGUIEventSelector"/>
   <class name="CmsShowModelPopupDetailViewButtonAdapter"/>

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.149 2010/03/25 18:20:25 matevz Exp $
+// $Id: CmsShowMain.cc,v 1.150 2010/03/26 20:20:20 matevz Exp $
 //
 
 // system include files
@@ -43,6 +43,7 @@
 #include "Fireworks/Core/interface/FWGlimpseViewManager.h"
 #include "Fireworks/Core/interface/FWTableViewManager.h"
 #include "Fireworks/Core/interface/FWTriggerTableViewManager.h"
+#include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FW3DViewManager.h"
 
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
@@ -558,6 +559,10 @@ CmsShowMain::setupViewManagers()
    boost::shared_ptr<FWTriggerTableViewManager> triggerTableViewManager( new FWTriggerTableViewManager(m_guiManager.get()) );
    m_configurationManager->add(std::string("TriggerTables"), triggerTableViewManager.get());
    m_viewManager->add( triggerTableViewManager );
+
+   boost::shared_ptr<FWL1TriggerTableViewManager> l1TriggerTableViewManager( new FWL1TriggerTableViewManager(m_guiManager.get()) );
+   m_configurationManager->add(std::string("L1TriggerTables"), l1TriggerTableViewManager.get());
+   m_viewManager->add( l1TriggerTableViewManager );
 
    boost::shared_ptr<FWViewManagerBase> plain3DViewManager( new FW3DViewManager(m_guiManager.get()) );
    plain3DViewManager->setGeom(&m_detIdToGeo);
