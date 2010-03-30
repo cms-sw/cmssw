@@ -9,7 +9,7 @@ process.MessageLogger.cerr.threshold = 'INFO'
 ## define input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/data/CMSSW_3_2_7/Cosmics/RECO/CRAFT09_R_V4_CollisionsSeq-v1/0001/F834D959-F9B1-DE11-8996-001A92810AB2.root'    
+    '/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_InterestingEvents-Dec19thSkim_341_v1/0005/B641315C-ACED-DE11-82E1-0030486792B6.root'
     )
 )
 ## define maximal number of events to loop over
@@ -25,7 +25,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('CRAFT09_R_V10::All')
+process.GlobalTag.globaltag = cms.string('GR09_R_36X_V3::All')
 
 #-------------------------------------------------
 # PAT and TQAF configuration
@@ -33,23 +33,6 @@ process.GlobalTag.globaltag = cms.string('CRAFT09_R_V10::All')
 
 ## std sequence for PAT
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
-## switch to sisCone5
-from PhysicsTools.PatAlgos.tools.jetTools import *
-process.patDefaultSequence.remove(process.ak5JetID)
-addJetID(process,
-         cms.InputTag("sisCone5CaloJets"),
-         'sc5')
-switchJetCollection(process, 
-                    cms.InputTag("sisCone5CaloJets"),
-                    doJTA            = True,           
-                    doBTagging       = True,           
-                    jetCorrLabel     = ('SC5','Calo'),
-                    doType1MET       = True,          
-                    genJetCollection = cms.InputTag("sisCone5GenJets"),
-                    doJetID          = True,
-                    jetIdLabel       = "sc5"
-                    ) 
 
 ## remove MC specific stuff in PAT
 from PhysicsTools.PatAlgos.tools.coreTools import *
