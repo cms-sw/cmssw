@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/03/29 03:00:09 $
- * $Revision: 1.32 $
+ * $Date: 2010/03/29 04:23:51 $
+ * $Revision: 1.33 $
  *
  */
 
@@ -78,6 +78,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   theBeamFitter->resetTrkVector();
   theBeamFitter->resetLSRange();
   theBeamFitter->resetRefTime();
+  theBeamFitter->resetPVFitter();
 
   if (fitNLumi_ <= 0) fitNLumi_ = 1;
   nFits_ = beginLumiOfPVFit_ = endLumiOfPVFit_ = 0;
@@ -797,6 +798,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     theBeamFitter->resetTrkVector();
     theBeamFitter->resetLSRange();
     theBeamFitter->resetRefTime();
+    theBeamFitter->resetPVFitter();
   }
 }
 
