@@ -15,7 +15,7 @@
 using edm::LogInfo;
 using edm::LogWarning;
 
-#define SECS_PER_LUMI_SECTION 93.3
+#define SECS_PER_LUMI_SECTION 23.31040958083832;
 const int kPerHisto = 20;
 const int kNumAlgoHistos = MAX_ALGOS/kPerHisto; // this hasta be w/o remainders
 const int kNumTTHistos = MAX_TT/kPerHisto; // this hasta be w/o remainders
@@ -83,6 +83,10 @@ L1ScalersClient::L1ScalersClient(const edm::ParameterSet& ps):
 
   totAlgoPrevCount=0UL;
   totTtPrevCount=0UL;
+
+  std::string algodir = "/AlgoRates";
+  dbe_->setCurrentFolder(folderName_ + algodir);
+
   for (int i = 0; i < MAX_ALGOS; ++i ) {
     l1AlgoScalerCounters_[i] = 0UL;
     l1AlgoRateHistories_[i] = 0; // not really needed but ...
@@ -93,6 +97,10 @@ L1ScalersClient::L1ScalersClient(const edm::ParameterSet& ps):
   }
 
 // book individual bit rates vs lumi for technical trigger bits.
+
+  std::string techdir = "/TechRates";
+  dbe_->setCurrentFolder(folderName_ + techdir);
+
   for (int i = 0; i < MAX_TT; ++i ) {
     l1TechTrigScalerCounters_[i] = 0UL;
     l1TechTrigRateHistories_[i] = 0; // not really needed but ...
@@ -103,6 +111,9 @@ L1ScalersClient::L1ScalersClient(const edm::ParameterSet& ps):
   }
 
   // split l1 scalers up into groups of 20, assuming total of 140 bits
+  std::string algodir2 = "/AlgoBits";
+  dbe_->setCurrentFolder(folderName_ + algodir2);
+
   char metitle1[40]; //histo name
   char mename1[40]; //ME name
   for( int k = 0; k < kNumAlgoHistos; k++ ) {
@@ -116,6 +127,10 @@ L1ScalersClient::L1ScalersClient(const edm::ParameterSet& ps):
   }
 
   // split l1 scalers up into groups of 20, assuming total of 80 technical bits
+
+  std::string techdir2 = "/TechBits";
+  dbe_->setCurrentFolder(folderName_ + techdir2);
+
   char metitle2[40]; //histo name
   char mename2[40]; //ME name
   for( int k = 0; k < kNumTTHistos; k++ ) {
@@ -172,7 +187,7 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   // get EvF data
 
   MonitorElement *algoScalers = dbe_->get(folderName_+std::string("/l1AlgoBits"));
-  MonitorElement *ttScalers = dbe_->get(folderName_+std::string("/l1TechAlgoBits"));
+  MonitorElement *ttScalers = dbe_->get(folderName_+std::string("/l1TechBits"));
   
   if ( algoScalers == 0 || ttScalers ==0) {
     LogInfo("Status") << "cannot get l1 scalers histogram, bailing out.";
@@ -273,7 +288,7 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     l1AlgoRateHistories_[i-1]->setBinContent(nL, rate);
   }
   // selected ----------------- start
-  MonitorElement *techBx = dbe_->get(folderName_+std::string("/l1TechAlgoBits_Vs_Bx"));
+  MonitorElement *techBx = dbe_->get(folderName_+std::string("/l1TechBits_Vs_Bx"));
   // selected ----------------- end
 
   for ( int i = 1; i <= nttbits; ++i ) { // bins start at 1
