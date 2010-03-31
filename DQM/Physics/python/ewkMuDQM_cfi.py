@@ -12,7 +12,7 @@ ewkMuDQM = cms.EDAnalyzer("EwkMuDQM",
 
 
       # Main cuts ->
-      MuonTrig = cms.untracked.string("HLT_Mu9"),
+      MuonTrig = cms.untracked.vstring("HLT_L2Mu9"),
       UseTrackerPt = cms.untracked.bool(True),
       PtCut = cms.untracked.double(25.0),
       EtaCut = cms.untracked.double(2.1),
@@ -26,7 +26,7 @@ ewkMuDQM = cms.EDAnalyzer("EwkMuDQM",
       AcopCut = cms.untracked.double(2.),
 
       # Muon quality cuts ->
-      DxyCut = cms.untracked.double(0.2),
+      DxyCut = cms.untracked.double(0.5),
       NormalizedChi2Cut = cms.untracked.double(10.),
       TrackerHitsCut = cms.untracked.int32(11),
       IsAlsoTrackerMuon = cms.untracked.bool(True),
