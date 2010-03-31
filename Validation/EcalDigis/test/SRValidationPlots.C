@@ -20,22 +20,31 @@ void fixcolz(){
  */
 void SRValidationPlots(TString inputfile = "srvalid_hists.root",
                        const char* ext = ".gif",
-                       int mode = 1111){
+                       int mode_ = 1111){
   Plot p;
-  p.run(inputfile, ext, mode);
+  p.run(inputfile, ext, mode_);
 }
 
 struct Plot{
 
-  bool sim = false;
-  bool rec = false;
-  bool barrel; //set in ctor from mode
-  bool endcap;//set in ctor from mode
-  bool autoLog  = false;
+  bool sim;
+  bool rec;
+  bool barrel;
+  bool endcap;
+  bool autoLog;
   
   static TH1* h1Dummy;
   
   int mode = 1111;
+
+  Plot(){
+    sim = false;
+    rec = true;
+    autoLog = true; //false;
+    mode = 1111;
+    barrel = true; //overwritten in run(...)
+    endcap = true; //overwritten in run(...)
+  }
   
   int digit(int num, int idigit){
     for(int i = 0; i< idigit; ++i) num /= 10;
@@ -46,11 +55,12 @@ struct Plot{
            const char* ext = ".gif",
            int mode_ = 1111){
 
+    mode = mode_;
+
     barrel = digit(mode, 1) || digit(mode, 2);
 
     endcap = digit(mode, 0) || digit(mode, 3);
 
-    mode = mode_;
     gROOT ->Reset();
 
     gStyle->SetOptStat(111100);
@@ -79,7 +89,7 @@ struct Plot{
     plotAndSave("h2ChOcc", ext, "colz", false, false, 3);//("hChOcc", ext, "colz");
     plotAndSave("hEbEMean", ext);
     if(sim) plotAndSave("hEbNoZsRecVsSimE", ext, "colz");
-    plotAndSave("hEbNoise", ext, "", true);
+    if(sim) plotAndSave("hEbNoise", ext, "", true);
     if(rec) plotAndSave("hEbRecE", ext, "", true);
     if(rec) plotAndSave("hEbRecEHitXtal", ext);
     if(rec && sim) plotAndSave("hEbRecVsSimE", ext, "colz");
@@ -267,4 +277,3 @@ struct Plot{
     }
   }
 };
-
