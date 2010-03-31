@@ -62,47 +62,48 @@ namespace mathSSE {
     }
   };
   
-  inline float dot(Vec3F a, Vec3F b) {
-    float s;
-    _mm_store_ss(&s,_mm_dot_ps(a.vec,b.vec));
-    return s;
-  }
-  
-  inline Vec3F cross(Vec3F a, Vec3F b) {
-    Vec3F res(_mm_cross_ps(a.vec,b.vec));
-    res.arr[1] *= -1.f;
-    return res;
-  }
-  
-  
-  inline Vec3F operator+(Vec3F a, Vec3F b) {
-    return  _mm_add_ps(a.vec,b.vec);
-  }
-  
-  inline Vec3F operator-(Vec3F a, Vec3F b) {
-    return  _mm_sub_ps(a.vec,b.vec);
-  }
-  
-  inline Vec3F operator*(Vec3F a, Vec3F b) {
-    return  _mm_mul_ps(a.vec,b.vec);
-  }
-  
-  inline Vec3F operator/(Vec3F a, Vec3F b) {
-    return  _mm_div_ps(a.vec,b.vec);
-  }
-  
-  inline Vec3F operator*(float a, Vec3F b) {
-    return  _mm_mul_ps(_mm_set1_ps(a),b.vec);
-  }
-  
-  inline Vec3F operator*(Vec3F b,float a) {
-    return  _mm_mul_ps(_mm_set1_ps(a),b.vec);
-  }
-  
-  
 }
 
+
+inline float dot(mathSSE::Vec3F a, mathSSE::Vec3F b) {
+  float s;
+  _mm_store_ss(&s,_mm_dot_ps(a.vec,b.vec));
+  return s;
+}
+
+inline mathSSE::Vec3F cross(mathSSE::Vec3F a, mathSSE::Vec3F b) {
+  mathSSE::Vec3F res(_mm_cross_ps(a.vec,b.vec));
+  res.arr[1] *= -1.f;
+  return res;
+}
+
+
+inline mathSSE::Vec3F operator+(mathSSE::Vec3F a, mathSSE::Vec3F b) {
+  return  _mm_add_ps(a.vec,b.vec);
+}
+
+inline mathSSE::Vec3F operator-(mathSSE::Vec3F a, mathSSE::Vec3F b) {
+  return  _mm_sub_ps(a.vec,b.vec);
+}
+
+inline mathSSE::Vec3F operator*(mathSSE::Vec3F a, mathSSE::Vec3F b) {
+  return  _mm_mul_ps(a.vec,b.vec);
+}
+
+inline mathSSE::Vec3F operator/(mathSSE::Vec3F a, mathSSE::Vec3F b) {
+  return  _mm_div_ps(a.vec,b.vec);
+}
+
+inline mathSSE::Vec3F operator*(float a, mathSSE::Vec3F b) {
+  return  _mm_mul_ps(_mm_set1_ps(a),b.vec);
+}
+
+inline mathSSE::Vec3F operator*(mathSSE::Vec3F b,float a) {
+  return  _mm_mul_ps(_mm_set1_ps(a),b.vec);
+}
+
+
 #include <iosfwd>
-std::ostream & operator<<(std::ostream & out,  mathSSE::Vec3F const & v);
+std::ostream & operator<<(std::ostream & out, mathSSE::Vec3F const & v);
 
 #endif // DataFormat_Math_SSEVec_H
