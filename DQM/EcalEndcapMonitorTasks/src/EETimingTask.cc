@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2010/03/12 11:37:47 $
- * $Revision: 1.59 $
+ * $Date: 2010/03/27 20:08:01 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  *
 */
@@ -63,7 +63,7 @@ EETimingTask::EETimingTask(const edm::ParameterSet& ps){
   }
 
   meTimeDelta_ = 0;
-  meDTimeVsDEnergy_ = 0;
+  meTimeDelta2D_ = 0;
 
 }
 
@@ -117,7 +117,7 @@ void EETimingTask::reset(void) {
   }
 
   if ( meTimeDelta_ ) meTimeDelta_->Reset();
-  if ( meDTimeVsDEnergy_ ) meTimeDelta_->Reset();
+  if ( meTimeDelta2D_ ) meTimeDelta2D_->Reset();
 
 }
 
@@ -204,10 +204,10 @@ void EETimingTask::setup(void){
     meTimeDelta_ = dqmStore_->book1D(histo, histo, 100, -3., 3.);
     meTimeDelta_->setAxisTitle("time (ns)", 1);
 
-    sprintf(histo, "EETMT timing min vs Et min");
-    meDTimeVsDEnergy_ = dqmStore_->book2D(histo, histo, 30, 0., 3., 30, -50., 50.);
-    meDTimeVsDEnergy_->setAxisTitle("min(E_{T}^{EE+},E_{T}^{EE-}) (GeV)", 1);
-    meDTimeVsDEnergy_->setAxisTitle("min(time^{EE+},time^{EE-}) (ns)", 2);
+    sprintf(histo, "EETMT timing EE+ vs EE-");
+    meTimeDelta2D_ = dqmStore_->book2D(histo, histo, 50, -50., 50., 50, -50., 50.);
+    meTimeDelta2D_->setAxisTitle("EE- average time (ns)", 1);
+    meTimeDelta2D_->setAxisTitle("EE+ average time (ns)", 2);
 
   }
 
@@ -251,8 +251,8 @@ void EETimingTask::cleanup(void){
     if ( meTimeDelta_ ) dqmStore_->removeElement( meTimeDelta_->getName() );
     meTimeDelta_ = 0;
 
-    if ( meDTimeVsDEnergy_ ) dqmStore_->removeElement( meDTimeVsDEnergy_->getName() );
-    meDTimeVsDEnergy_ = 0;
+    if ( meTimeDelta2D_ ) dqmStore_->removeElement( meTimeDelta2D_->getName() );
+    meTimeDelta2D_ = 0;
 
   }
 
@@ -315,10 +315,7 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   const EcalChannelStatus *chStatus = pChannelStatus.product();
 
   float sumTime_hithr[2] = {0.,0.};
-  float wsumTime_lowthr[2] = {0.,0};
-  float wsum[2] = {0.,0.};
   int n_hithr[2] = {0,0};
-  int n_lowthr[2] = {0,0};
 
   edm::Handle<EcalRecHitCollection> hits;
 
@@ -378,42 +375,24 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && dbStatus == 0 ) {
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_[iz] ) meTimeAmpliSummary_[iz]->Fill(xval, yval);
-
-        if ( et > 0.300 ) {
-
-          wsum[iz] += et;
-          wsumTime_lowthr[iz] += hitItr->time() * et;
-          n_lowthr[iz]++;
-
-          if ( et > 0.600 ) {
-            if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval+50.);
-            if ( meTime ) meTime->Fill(yval);
-            if ( meTimeSummary1D_[iz] ) meTimeSummary1D_[iz]->Fill(yval);
-
-            if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(xix, xiy, yval+50.);
-            if ( meTimeSummaryMapProjEta_[iz] ) meTimeSummaryMapProjEta_[iz]->Fill(eta, yval);
-            if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(phi, yval);
-
-            sumTime_hithr[iz] += yval;
-            n_hithr[iz]++;
-          }
-        
+        if ( et > 0.600 ) {
+          if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval+50.);
+          if ( meTime ) meTime->Fill(yval);
+          if ( meTimeSummary1D_[iz] ) meTimeSummary1D_[iz]->Fill(yval);
+          
+          if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(xix, xiy, yval+50.);
+          if ( meTimeSummaryMapProjEta_[iz] ) meTimeSummaryMapProjEta_[iz]->Fill(eta, yval);
+          if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(phi, yval);
+          
+          sumTime_hithr[iz] += yval;
+          n_hithr[iz]++;
         }
+      } // good rh for timing
+    } // loop over rh
 
-      }
-    }
-
-    float mean_hithr[2], mean_lowthr[2];
-    for ( int i=0; i<2; i++ ) {
-      if ( n_hithr[i] > 0 ) mean_hithr[i] = sumTime_hithr[i] / n_hithr[i];
-      if ( wsum[i] > 0 ) mean_lowthr[i] = wsumTime_lowthr[i] / wsum[i];
-    }
-
-    if ( meTimeDelta_ && n_hithr[0] > 0 && n_lowthr[0] > 1 && n_hithr[1] > 0 && n_lowthr[1] > 1 ) meTimeDelta_->Fill( mean_hithr[1] - mean_hithr[0] );
-    if ( meDTimeVsDEnergy_ && n_lowthr[0] > 0 && n_lowthr[1] > 0 ) {
-      float mintime = TMath::Min(wsumTime_lowthr[0], wsumTime_lowthr[1]);
-      float minEt = TMath::Min(wsum[0], wsum[1]);
-      meDTimeVsDEnergy_->Fill(minEt,mintime);
+    if (n_hithr[0] > 0 && n_hithr[1] > 0 ) {
+      if ( meTimeDelta_ ) meTimeDelta_->Fill( sumTime_hithr[1]/n_hithr[1] - sumTime_hithr[0]/n_hithr[0] );
+      if ( meTimeDelta2D_ ) meTimeDelta2D_->Fill( sumTime_hithr[1]/n_hithr[1], sumTime_hithr[0]/n_hithr[0] );
     }
 
   } else {
