@@ -261,11 +261,22 @@ inline Basic3DVector<T> operator*(T t, const Basic3DVector<T>& v) {
   return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t);
 }
 
+template <class T, typename S>
+inline Basic3DVector<T> operator*(S t,  const Basic3DVector<T>& v) {
+  return static_cast<T>(t)*v;
+}
+
+template <class T, typename S>
+inline Basic3DVector<T> operator*(const Basic3DVector<T>& v, S t) {
+  return static_cast<T>(t)*v;
+}
+
+
 /** Division by scalar, does not change the precision of the vector.
  *  The return type is the same as the type of the vector argument.
  */
-template <class T>
-inline Basic3DVector<T> operator/( const Basic3DVector<T>& v, T s) {
+template <class T, typename S>
+inline Basic3DVector<T> operator/( const Basic3DVector<T>& v, S s) {
   T t = T(1)/s;
   return v*t;
 }

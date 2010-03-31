@@ -81,11 +81,12 @@ inline Basic3DVectorF operator*(const Basic3DVectorF& lh, Basic3DVectorF::Scalar
   return  Basic3DVectorF(rh*l.v);
 }
 
+/*
 template <> 
 inline Basic3DVectorF operator/(const Basic3DVectorF& lh, Basic3DVectorF::ScalarType rh) {
   makeVec3FC l(lh);
   return  Basic3DVectorF((Basic3DVectorF::ScalarType(1)/rh)*l.v);
 }
-
+*/
 
 #endif // GeometryVector_Basic3DVectorFSSE_h

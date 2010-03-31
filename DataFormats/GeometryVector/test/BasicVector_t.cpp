@@ -3,7 +3,7 @@
 #include<iostream>
 
 // this is a test,
-using namespace mathSSE;
+// using namespace mathSSE;
 
 void addScaleddiff(Basic3DVectorF&res, float s,  Basic3DVectorF const & a, Basic3DVectorF const & b) {
   res += s*(a-b);
@@ -34,7 +34,7 @@ int main() {
   std::cout << norm(x) << std::endl; 
 
 
-  Basic3DVectorF  z = cross(x,y);
+  Basic3DVectorF  z = x.cross(y);
   std::cout << z << std::endl;
 
   Basic3DVectorF  vx(2.0,4.0,5.0);
