@@ -102,4 +102,4 @@ namespace mathSSE {
   
 }
 
-#endif DataFormat_Math_SSEVec_H
+#endif // DataFormat_Math_SSEVec_H

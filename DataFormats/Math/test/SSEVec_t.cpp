@@ -35,6 +35,12 @@ template<typename T>
 struct BaVec { 
   typedef BaVec<T> self;
 
+  BaVec() : 
+    theX(0), theY(0), theZ(0), theW(0){}
+
+  BaVec(float f1, float f2, float f3) : 
+    theX(f1), theY(f2), theZ(f3), theW(0){}
+
   self & operator+=(self const & rh) {
     return *this;
   }
@@ -75,8 +81,17 @@ int main() {
   std::cout << dot(x,y) << std::endl; 
   std::cout << dotSimple(x,y) << std::endl;
 
+  __asm__ ("#A cross");
   Vec3F z = cross(x,y);
+  __asm__ ("#A cout");
   std::cout << z.arr[0] << ", "<< z.arr[1] << ", "<< z.arr[2] << std::endl;
-  std::cout << z.oldVec.theX << ", "<<  z.oldVec.theY << ", "<<  z.oldVec.theZ << std::endl;
+
+  BaVecF vx(2.0,4.0,5.0);
+  BaVecF vy(-3.0,2.0,-5.0);
+  __asm__ ("#A BaVec+=");
+  vx+=vy;
+  __asm__ ("#A cout");
+  std::cout << vx.theX << ", "<<  vy.theY << ", "<<  vy.theZ << std::endl;
+
 
 }
