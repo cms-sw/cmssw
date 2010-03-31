@@ -1,16 +1,16 @@
-# /dev/CMSSW_3_6_0/pre4/1E31/V4 (CMSSW_3_6_X_2010-03-20-0900_HLT1)
+# /dev/CMSSW_3_6_0/pre4/1E31/V7 (CMSSW_3_6_X_2010-03-20-0900_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/1E31/V4')
+  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/1E31/V7')
 )
 
 streams = cms.PSet( 
   Offline = cms.vstring(  ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   Calibration = cms.vstring( 'TestEnables' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
@@ -21,18 +21,18 @@ streams = cms.PSet(
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   EventDisplay = cms.vstring(  ),
   A = cms.vstring( 'RandomTriggers',
+    'Cosmics',
     'HcalHPDNoise',
     'HcalNZS',
-    'Cosmics',
-    'ZeroBias',
-    'MinimumBias' ),
+    'MinimumBias',
+    'ZeroBias' ),
   DQM = cms.vstring(  )
 )
 datasets = cms.PSet( 
-  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
   RPCMonitor = cms.vstring( 'AlCa_RPCMuonNormalisation',
     'AlCa_RPCMuonNoHits',
     'AlCa_RPCMuonNoTriggers' ),
+  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
   TestEnables = cms.vstring(  ),
   EcalLaser = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
@@ -86,15 +86,14 @@ datasets = cms.PSet(
     'HLT_Mu3_L2Mu0',
     'HLT_Mu5_L2Mu0' ),
   RandomTriggers = cms.vstring(  ),
-  HcalHPDNoise = cms.vstring(  ),
-  HcalNZS = cms.vstring( 'HLT_HcalPhiSym' ),
   Cosmics = cms.vstring( 'HLT_TrackerCosmics',
     'HLT_RPCBarrelCosmics',
     'HLT_CSCBeamHaloRing2or3',
     'HLT_CSCBeamHaloOverlapRing2',
     'HLT_CSCBeamHaloOverlapRing1',
     'HLT_CSCBeamHalo' ),
-  ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
+  HcalHPDNoise = cms.vstring(  ),
+  HcalNZS = cms.vstring( 'HLT_HcalPhiSym' ),
   MinimumBias = cms.vstring( 'HLT_DoubleMu0',
     'HLT_DoubleMu3',
     'HLT_Mu5',
@@ -126,7 +125,8 @@ datasets = cms.PSet(
     'HLT_L1MET20',
     'HLT_Mu0_L2Mu0',
     'HLT_Mu3_L2Mu0',
-    'HLT_Mu5_L2Mu0' )
+    'HLT_Mu5_L2Mu0' ),
+  ZeroBias = cms.vstring( 'HLT_ZeroBias' )
 )
 
 MCJetCorrectorIcone5Unit = cms.ESSource( "LXXXCorrectionService",
@@ -7366,7 +7366,7 @@ hltL1sMinBiasEcal = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 5 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG1 OR L1_SingleEG2 OR L1_DoubleEG1" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG2 OR L1_DoubleEG1" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -7949,7 +7949,7 @@ hltL1sHcalNZS1E31 = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 5 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_MinBias_HTT10 OR L1_SingleJet15 OR L1_SingleJet30 OR L1_SingleJet50 OR L1_SingleJet70 OR L1_SingleJet100 OR L1_SingleTauJet30 OR L1_SingleTauJet40 OR L1_SingleTauJet60 OR L1_SingleTauJet80 OR L1_SingleIsoEG5 OR L1_SingleIsoEG8 OR L1_SingleIsoEG10 OR L1_SingleIsoEG15 OR L1_SingleEG1 OR L1_SingleEG2 OR L1_SingleEG5 OR L1_SingleEG8 OR L1_SingleEG10 OR L1_SingleEG12 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleMuOpen OR L1_SingleMu0 OR L1_SingleMu3 OR L1_SingleMu5 OR L1_SingleMu7 OR L1_SingleMu10 OR L1_SingleMu14 OR L1_SingleMu20" ),
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_SingleJet15 OR L1_SingleJet30 OR L1_SingleJet50 OR L1_SingleJet70 OR L1_SingleJet100 OR L1_SingleTauJet30 OR L1_SingleTauJet40 OR L1_SingleTauJet60 OR L1_SingleTauJet80 OR L1_SingleIsoEG5 OR L1_SingleIsoEG8 OR L1_SingleIsoEG10 OR L1_SingleIsoEG15 OR L1_SingleEG2 OR L1_SingleEG5 OR L1_SingleEG8 OR L1_SingleEG10 OR L1_SingleEG12 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleMuOpen OR L1_SingleMu0 OR L1_SingleMu3 OR L1_SingleMu5 OR L1_SingleMu7 OR L1_SingleMu10 OR L1_SingleMu14 OR L1_SingleMu20" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -7961,7 +7961,7 @@ hltL1sAlCaEcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 5 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_SingleEG1 OR L1_SingleEG2 OR L1_SingleEG5 OR L1_DoubleEG1 OR L1_SingleHfBitCountsRing1_1 OR L1_DoubleHfBitCountsRing1_P1N1 OR L1_SingleHfRingEtSumsRing1_4 OR L1_DoubleHfRingEtSumsRing1_P4N4 OR L1_SingleHfRingEtSumsRing2_4 OR L1_DoubleHfRingEtSumsRing2_P4N4" ),
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_SingleEG2 OR L1_SingleEG5 OR L1_DoubleEG1 OR L1_SingleHfBitCountsRing1_1 OR L1_DoubleHfBitCountsRing1_P1N1 OR L1_SingleHfRingEtSumsRing1_4 OR L1_DoubleHfRingEtSumsRing1_P4N4 OR L1_SingleHfRingEtSumsRing2_4 OR L1_DoubleHfRingEtSumsRing2_P4N4" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
