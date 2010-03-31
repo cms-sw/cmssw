@@ -7,7 +7,7 @@ Grid3D::Grid3D( const Grid1D& ga, const Grid1D& gb, const Grid1D& gc,
   grida_(ga), gridb_(gb), gridc_(gc) {
   data_.reserve(data.size());
   //FIXME use a std algo
-  for (int i=0; i<=data.size(); ++i)
+  for (size_t i=0; i<=data.size(); ++i)
     data_.push_back(ValueType(data[i].x(),data[i].y(),data[i].z()));
   stride1_ = gridb_.nodes() * gridc_.nodes();
   stride2_ = gridc_.nodes();

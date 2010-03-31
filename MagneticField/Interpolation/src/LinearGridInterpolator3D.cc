@@ -74,13 +74,13 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
   int s3 = grid.stride3(); 
   //chances are this is more numerically precise this way
   ValueType result = ((1.f-s)*(1.f-t)*u)*(grid(ind      +s3) - grid(ind      ));
-  result +=          ((1.f-s)*     t *u)*(grid(ind   +s2+s3) - grid(ind   +s2));
-  result +=          (s      *(1.f-t)*u)*(grid(ind+s1   +s3) - grid(ind+s1   ));
-  result +=          (s      *     t *u)*(grid(ind+s1+s2+s3) - grid(ind+s1+s2)); 
-  result +=          (        (1.f-s)*t)*(grid(ind   +s2   ) - grid(ind      ));
-  result +=          (      s        *t)*(grid(ind+s1+s2   ) - grid(ind+s1   ));
-  result +=          (                s)*(grid(ind+s1      ) - grid(ind      ));
-  result +=                                                    grid(ind      );
+  result =  result + ((1.f-s)*     t *u)*(grid(ind   +s2+s3) - grid(ind   +s2));
+  result =  result + (s      *(1.f-t)*u)*(grid(ind+s1   +s3) - grid(ind+s1   ));
+  result =  result + (s      *     t *u)*(grid(ind+s1+s2+s3) - grid(ind+s1+s2)); 
+  result =  result + (        (1.f-s)*t)*(grid(ind   +s2   ) - grid(ind      ));
+  result =  result + (      s        *t)*(grid(ind+s1+s2   ) - grid(ind+s1   ));
+  result =  result + (                s)*(grid(ind+s1      ) - grid(ind      ));
+  result =  result                                             grid(ind      );
 
   //   ValueType result = (1-s)*(1-t)*u*(grid(i,  j,  k+1) - grid(i,  j,  k));
   //   result +=          (1-s)*   t *u*(grid(i,  j+1,k+1) - grid(i,  j+1,k));
