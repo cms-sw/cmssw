@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.1 2010/02/19 19:23:37 srappocc Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.3 2010/03/25 03:35:21 srappocc Exp $
 */
 
 
@@ -119,7 +119,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       nef = pfJet->neutralEmEnergyFraction();
     }
 
-    if ( ignoreCut("CHF") || (std::abs(jet.eta()) < 2.4 && chf > cut("CHF", double())) ) {
+    if ( ignoreCut("CHF") || (std::abs(jet.eta()) <= 2.4 && chf > cut("CHF", double())) || (std::abs(jet.eta()) > 2.4) ) {
       passCut( ret, "CHF");
 
       if ( ignoreCut("NHF") || nhf < cut("NHF", double()) ) {
