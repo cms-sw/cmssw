@@ -29,10 +29,12 @@ PFBlockAlgo::PFBlockAlgo() :
 
 
 void PFBlockAlgo::setParameters( std::vector<double>& DPtovPtCut,
-				 std::vector<unsigned int>& NHitCut ) {
+				 std::vector<unsigned int>& NHitCut,
+				 bool useConvBremPFRecTracks ) {
   
   DPtovPtCut_    = DPtovPtCut;
   NHitCut_       = NHitCut;
+  useConvBremPFRecTracks_ = useConvBremPFRecTracks;
   double strip_pitch = 0.19;
   double strip_length = 6.1;
   resPSpitch_    = strip_pitch/sqrt(12.);
@@ -459,6 +461,33 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       } else {
 	dist = -1.;
       }
+      
+      
+      if(useConvBremPFRecTracks_) {
+	if(lowEl->isLinkedToDisplacedVertex()){
+	  vector<PFRecTrackRef> pfrectrack_vec = GsfEl->GsftrackRefPF()->convBremPFRecTrackRef();
+	  if(pfrectrack_vec.size() > 0){
+	    for(unsigned int iconv = 0; iconv <  pfrectrack_vec.size(); iconv++) {
+	      if( lowEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) {
+		// use track ref
+		if(kftrackref == (*pfrectrack_vec[iconv]).trackRef()) {		
+		  dist = 0.001;
+		}
+	      }	
+	      else{
+		// use the track base ref
+		reco::TrackBaseRef newTrackBaseRef((*pfrectrack_vec[iconv]).trackRef());
+		reco::TrackBaseRef elemTrackBaseRef(kftrackref);	      
+		if(newTrackBaseRef == elemTrackBaseRef){
+		  dist = 0.001;
+		} 
+	      }
+	    }
+	  }
+	}
+      }
+ 
+
       break;      
     }
 	 

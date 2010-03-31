@@ -87,6 +87,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   
   useConvBremGsfTracks_ = iConfig.getParameter<bool>("useConvBremGsfTracks");
 
+  bool useConvBremPFRecTracks = iConfig.getParameter<bool>("useConvBremPFRecTracks");
+
   useV0_ = iConfig.getParameter<bool>("useV0");
 
   produces<reco::PFBlockCollection>();
@@ -102,7 +104,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
      = iConfig.getParameter<std::vector<unsigned> >("pf_NHit_Cut");   
 
   pfBlockAlgo_.setParameters( DPtovPtCut,
-			      NHitCut );
+			      NHitCut,
+			      useConvBremPFRecTracks );
   
   pfBlockAlgo_.setDebug(debug_);
 
