@@ -8,17 +8,19 @@
 *  \author T. Todorov
  */
 
-#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
+// #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
+#include "DataFormats/Math/interface/SSEVec.h"
 #include "MagneticField/Interpolation/src/Grid1D.h"
 #include <vector>
 
 class Grid3D {
 public:
 
-  typedef Basic3DVector<float>   ValueType;
-  typedef float   Scalar;
+  //  typedef Basic3DVector<float>   ValueType;
   // typedef double   Scalar;
-
+  typedef mathSSE::Vec3F ValueType;
+  typedef float   Scalar;
+ 
   Grid3D() {}
 
   Grid3D( const Grid1D& ga, const Grid1D& gb, const Grid1D& gc,
@@ -27,19 +29,9 @@ public:
      data_.swap(data);
      stride1_ = gridb_.nodes() * gridc_.nodes();
      stride2_ = gridc_.nodes();
-
-     fillSub();
+    fillSub();
   }
 
-#ifdef SUBGRID
-  const ValueType& operator()( int i, int j, int k) const {
-    return m_newdata[newIndex(i,j,k)];
-  }
-#else
-  const ValueType& operator()( int i, int j, int k) const {
-    return data_[index(i,j,k)];
-  }
-#endif
 
   int index(int i, int j, int k) const {return i*stride1_ + j*stride2_ + k;}
   int stride1() const { return stride1_;}
@@ -68,27 +60,6 @@ private:
   int stride1_;
   int stride2_;
 
-
-  void fillSub();
-
-#ifdef SUBGRID
-  const int subSize = 4;
-  std::vector<ValueType> m_newdata;
-  int m_subStride1;
-  int m_subStride2;
-  void fillSub();
-
-  int newIndex(int i, int j, int k) const {
-    // find submatrix
-    int si = i/subSize;
-    int sj = j/subSize;
-    int sk = k/subSize;
-    // location in submatrix
-    int l =  (k -sk*subSize)  + subSize*( (j -sj*subSize) + subSize*(i -si*subSize) );
-    return l + si*m_subStride1+sj*sunStride2+sk;
-  }
-
-#endif
 
 };
 

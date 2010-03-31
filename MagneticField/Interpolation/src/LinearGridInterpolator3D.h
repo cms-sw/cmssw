@@ -5,14 +5,15 @@
  *
  *  Linear interpolation in a regular 3D grid.
  *
- *  $Date: 2009/08/17 09:24:09 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/02/10 14:56:39 $
+ *  $Revision: 1.7 $
  *  \author T. Todorov 
  */
 
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "MagneticField/Interpolation/src/Grid1D.h"
 #include "MagneticField/Interpolation/src/Grid3D.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #ifdef DEBUG_LinearGridInterpolator3D
 #include <iostream>
@@ -25,13 +26,14 @@ public:
 
   typedef Grid3D::ValueType ValueType;
   typedef Grid3D::Scalar Scalar;
+  typedef Basic3DVector<float>   ReturnType;
 
   LinearGridInterpolator3D( const Grid3D& g) :
     grid(g), grida(g.grida()), gridb(g.gridb()), gridc(g.gridc()) {}
 
   void throwGridInterpolator3DException(void);
   
-  ValueType interpolate( Scalar a, Scalar b, Scalar c); 
+  ReturnType interpolate( Scalar a, Scalar b, Scalar c); 
   //  Value operator()( Scalar a, Scalar b, Scalar c) {return interpolate(a,b,c);}
 
 private:
