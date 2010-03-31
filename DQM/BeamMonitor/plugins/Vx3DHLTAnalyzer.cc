@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.46 2010/03/30 09:17:19 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.47 2010/03/31 20:07:19 dinardo Exp $
 //
 //
 
@@ -1079,9 +1079,9 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_Z->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_Z->setAxisTitle("Entries [#]",2);
  
-      mXlumi = dbe->book1D("muX vs lumi", "\\mu_{x} vs. Lumisection", 50, 0.5, 50.5);
-      mYlumi = dbe->book1D("muY vs lumi", "\\mu_{y} vs. Lumisection", 50, 0.5, 50.5);
-      mZlumi = dbe->book1D("muZ vs lumi", "\\mu_{z} vs. Lumisection", 50, 0.5, 50.5);
+      mXlumi = dbe->book1D("muX vs lumi", "\\mu_{x} vs. Lumisection", 100, 0.5, 100.5);
+      mYlumi = dbe->book1D("muY vs lumi", "\\mu_{y} vs. Lumisection", 100, 0.5, 100.5);
+      mZlumi = dbe->book1D("muZ vs lumi", "\\mu_{z} vs. Lumisection", 100, 0.5, 100.5);
 
       mXlumi->setAxisTitle("Lumisection [#]",1);
       mXlumi->setAxisTitle("\\mu_{x} [cm]",2);
@@ -1093,9 +1093,9 @@ void Vx3DHLTAnalyzer::beginJob()
       mZlumi->setAxisTitle("\\mu_{z} [cm]",2);
       mZlumi->getTH1()->SetOption("E1");
 
-      sXlumi = dbe->book1D("sigmaX vs lumi", "\\sigma_{x} vs. Lumisection", 50, 0.5, 50.5);
-      sYlumi = dbe->book1D("sigmaY vs lumi", "\\sigma_{y} vs. Lumisection", 50, 0.5, 50.5);
-      sZlumi = dbe->book1D("sigmaZ vs lumi", "\\sigma_{z} vs. Lumisection", 50, 0.5, 50.5);
+      sXlumi = dbe->book1D("sigmaX vs lumi", "\\sigma_{x} vs. Lumisection", 100, 0.5, 100.5);
+      sYlumi = dbe->book1D("sigmaY vs lumi", "\\sigma_{y} vs. Lumisection", 100, 0.5, 100.5);
+      sZlumi = dbe->book1D("sigmaZ vs lumi", "\\sigma_{z} vs. Lumisection", 100, 0.5, 100.5);
 
       sXlumi->setAxisTitle("Lumisection [#]",1);
       sXlumi->setAxisTitle("\\sigma_{x} [cm]",2);
@@ -1107,8 +1107,8 @@ void Vx3DHLTAnalyzer::beginJob()
       sZlumi->setAxisTitle("\\sigma_{z} [cm]",2);
       sZlumi->getTH1()->SetOption("E1");
 
-      dxdzlumi = dbe->book1D("dxdz vs lumi", "dX/dZ vs. Lumisection", 50, 0.5, 50.5);
-      dydzlumi = dbe->book1D("dydz vs lumi", "dY/dZ vs. Lumisection", 50, 0.5, 50.5);
+      dxdzlumi = dbe->book1D("dxdz vs lumi", "dX/dZ vs. Lumisection", 100, 0.5, 100.5);
+      dydzlumi = dbe->book1D("dydz vs lumi", "dY/dZ vs. Lumisection", 100, 0.5, 100.5);
 
       dxdzlumi->setAxisTitle("Lumisection [#]",1);
       dxdzlumi->setAxisTitle("dX/dZ [rad]",2);
