@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.33 2010/03/22 11:21:49 jdraeger Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.34 2010/03/30 13:14:52 jdraeger Exp $
 //
 //
 
@@ -910,9 +910,8 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 void 
 TrackerOfflineValidation::endJob()
 {
-  std::cout<<&tkGeom_<<std::endl;
-  
-  if (&tkGeom_) return;
+  if (!tkGeom_.product()) return;
+
   AlignableTracker aliTracker(&(*tkGeom_));
   
   AlignableObjectId aliobjid;
