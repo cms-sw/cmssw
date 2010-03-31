@@ -178,7 +178,7 @@ void  RPCFEDIntegrity::reset(void){
   if(dbe_){
     for(unsigned int i = 0; i<histoName_.size(); i++){
       me = 0;
-      me = dbe_->get(prefixDir_ +histoName_[i]);
+      me = dbe_->get(prefixDir_ +"/"+ histoName_[i]);
       if(0!=me ) me->Reset();
     }
   }
