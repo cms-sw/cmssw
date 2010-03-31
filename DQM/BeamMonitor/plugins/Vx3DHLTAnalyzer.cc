@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.45 2010/03/30 07:37:09 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.46 2010/03/30 09:17:19 dinardo Exp $
 //
 //
 
@@ -1153,8 +1153,8 @@ void Vx3DHLTAnalyzer::beginJob()
       fitResults->setBinLabel(5, "sigmaZ0", 2);
       fitResults->setBinLabel(4, "dX/dZ", 2);
       fitResults->setBinLabel(3, "dY/dZ", 2);
-      fitResults->setBinLabel(2, "BeamWidthX", 2);
-      fitResults->setBinLabel(1, "BeamWidthY", 2);
+      fitResults->setBinLabel(2, "sigmaX0", 2);
+      fitResults->setBinLabel(1, "sigmaY0", 2);
       fitResults->setBinLabel(1, "Value", 1);
       fitResults->setBinLabel(2, "Stat. Error", 1);
       fitResults->getTH1()->SetOption("text");
@@ -1186,7 +1186,7 @@ void Vx3DHLTAnalyzer::beginJob()
 }
 
 
-void Vx3DHLTAnalyzer::endJob() { reset("whole"); }
+void Vx3DHLTAnalyzer::endJob() { reset("scratch"); }
 
 
 // Define this as a plug-in
