@@ -10,6 +10,7 @@
   <use   name="MagneticField/Engine"/>
   <use   name="MagneticField/Records"/>
   <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CondFormats/Alignment"/>
   <use   name="CondCore/DBOutputService"/>
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/DetId"/>
