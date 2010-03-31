@@ -476,15 +476,14 @@ class PFRootEventManager {
   ///Muons branch
   TBranch*   muonsBranch_; 
   
-  ///Nuclear interaction branch
-  TBranch*   nuclearBranch_; 
-
   ///Conversions branch
   TBranch*   conversionBranch_; 
 
   ///V0 branch
   TBranch*   v0Branch_;
 
+  ///PFDisplacedVertex branch
+  TBranch*   pfDisplacedVertexBranch_; 
 
   /// true particles branch
   TBranch*   trueParticlesBranch_;          
@@ -590,14 +589,14 @@ class PFRootEventManager {
   /// muons
     reco::MuonCollection  muons_;
 
-  /// nuclear interactions
-  reco::PFDisplacedTrackerVertexCollection nuclear_;
-
   /// conversions
   reco::PFConversionCollection conversion_;
   
   /// V0
   reco::PFV0Collection v0_;
+
+  /// PFDisplacedVertex
+  reco::PFDisplacedTrackerVertexCollection pfDisplacedTrackerVertex_;
 
   /// true particles
   reco::PFSimParticleCollection trueParticles_;
@@ -711,7 +710,7 @@ class PFRootEventManager {
   PFAlgo          pfAlgo_;
 
   // ------------------- benchmarks -------------------------------
-
+  
   /// PFJet Benchmark
   PFJetBenchmark PFJetBenchmark_;
 
@@ -824,14 +823,14 @@ class PFRootEventManager {
   /// Fastsim or fullsim
   bool  fastsim_;
 
-  /// Use of nuclear interaction in PFAlgo
-  bool   useNuclear_;
-
   /// Use of conversions in PFAlgo 
-  bool   useConversions_;  
+  bool   usePFConversions_;  
 
   /// Use of V0 in PFAlgo
-  bool   useV0_;
+  bool   usePFV0s_;
+
+  /// Use of PFDisplacedVertex in PFAlgo
+  bool   usePFDisplacedVertexs_;
 
   /// Use Secondary Gsf Tracks
   bool useConvBremGsfTracks_;

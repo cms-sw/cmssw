@@ -1072,18 +1072,22 @@ void PFRootEventManager::readOptions(const char* file,
   bool rejectTracks_Bad = true;
   bool rejectTracks_Step45 = true;
   bool usePFConversions = false;   // set true to use PFConversions
-  bool usePFNuclearInteractions = false;
-  bool usePFDecays = false;
+  bool usePFDisplacedVertexs = false;
+  bool usePFV0s = false;
 
 
   options_->GetOpt("particle_flow", "usePFConversions", usePFConversions);
 
+  options_->GetOpt("particle_flow", "usePFV0s", usePFV0s);
+
+  options_->GetOpt("particle_flow", "usePFDisplacedVertexs", usePFDisplacedVertexs);
+
   try { 
     pfAlgo_.setDisplacedVerticesParameters(rejectTracks_Bad,
 					  rejectTracks_Step45,
-					  usePFNuclearInteractions,
+					  usePFDisplacedVertexs,
  					  usePFConversions,
-	 				  usePFDecays);
+	 				  usePFV0s);
   }
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo Conversions parameters: "
@@ -1455,24 +1459,12 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : muon_branch not found : " 
         <<muonbranchname<< endl; 
   } 
-  //nuclear
-  useNuclear_=false;
-   options_->GetOpt("particle_flow", "useNuclear", useNuclear_);
-   if( useNuclear_ ) {
 
-  string nuclearbranchname;
-  options_->GetOpt("root","nuclear_branch",nuclearbranchname); 
-  nuclearBranch_= tree_->GetBranch(nuclearbranchname.c_str());
-  if(!nuclearBranch_) { 
-    cerr<<"PFRootEventManager::ReadOptions : nuclear_branch not found : " 
-        <<nuclearbranchname<< endl; 
-  } 
-  }
   //conversion
 
-   useConversions_=false;
-   options_->GetOpt("particle_flow", "usePFConversions", useConversions_);
-   if( useConversions_ ) {
+   usePFConversions_=false;
+   options_->GetOpt("particle_flow", "usePFConversions", usePFConversions_);
+   if( usePFConversions_ ) {
      string conversionbranchname;
      options_->GetOpt("root","conversion_branch",conversionbranchname); 
      conversionBranch_= tree_->GetBranch(conversionbranchname.c_str());
@@ -1484,18 +1476,37 @@ void PFRootEventManager::connect( const char* infilename ) {
 
   //V0
 
-  useV0_=false;
-  options_->GetOpt("particle_flow", "useV0", useV0_);
-  if( useV0_ ) {
+   usePFV0s_=false;
+   options_->GetOpt("particle_flow", "usePFV0s", usePFV0s_);
+   if( usePFV0s_ ) {
     
-    string V0branchname;
-    options_->GetOpt("root","V0_branch",V0branchname); 
-    v0Branch_= tree_->GetBranch(V0branchname.c_str());
+    string v0branchname;
+    options_->GetOpt("root","V0_branch",v0branchname); 
+    v0Branch_= tree_->GetBranch(v0branchname.c_str());
     if(!v0Branch_) { 
       cerr<<"PFRootEventManager::ReadOptions : V0_branch not found : " 
-	  <<V0branchname<< endl; 
+	  <<v0branchname<< endl; 
     } 
   }
+
+
+  //Displaced Vertexs
+
+  usePFDisplacedVertexs_=false;
+  options_->GetOpt("particle_flow", "usePFDisplacedVertexs", 
+		   usePFDisplacedVertexs_);
+  if( usePFDisplacedVertexs_ ) {
+    
+    string pfDisplacedVertexbranchname;
+    options_->GetOpt("root","PFDisplacedVertex_branch",pfDisplacedVertexbranchname); 
+    pfDisplacedVertexBranch_= tree_->GetBranch(pfDisplacedVertexbranchname.c_str());
+    if(!pfDisplacedVertexBranch_) { 
+      cerr<<"PFRootEventManager::ReadOptions : PFDisplacedVertex_branch not found : " 
+	  <<pfDisplacedVertexbranchname<< endl; 
+    } 
+  }
+
+
 
 
   string trueParticlesbranchname;
@@ -1677,9 +1688,9 @@ void PFRootEventManager::setAddresses() {
   if( gsfrecTracksBranch_ ) gsfrecTracksBranch_->SetAddress(&gsfrecTracks_);
   if( convBremGsfrecTracksBranch_ ) convBremGsfrecTracksBranch_->SetAddress(&convBremGsfrecTracks_);
   if( muonsBranch_ ) muonsBranch_->SetAddress(&muons_); 
-  if( nuclearBranch_ ) nuclearBranch_->SetAddress(&nuclear_); 
   if( conversionBranch_ ) conversionBranch_->SetAddress(&conversion_); 
   if( v0Branch_ ) v0Branch_->SetAddress(&v0_);
+  if( pfDisplacedVertexBranch_ ) pfDisplacedVertexBranch_->SetAddress(&pfDisplacedTrackerVertex_);
 
   if( trueParticlesBranch_ ) trueParticlesBranch_->SetAddress(&trueParticles_);
   if( MCTruthBranch_ ) { 
@@ -1804,7 +1815,7 @@ bool PFRootEventManager::processEntry(int entry) {
     cout<<"number of gsfrecTracks         : "<<gsfrecTracks_.size()<<endl;
     cout<<"number of convBremGsfrecTracks : "<<convBremGsfrecTracks_.size()<<endl;
     cout<<"number of muons                : "<<muons_.size()<<endl;
-    cout<<"number of nuclear ints         : "<<nuclear_.size()<<endl;
+    cout<<"number of displaced vertices   : "<<pfDisplacedTrackerVertex_.size()<<endl;
     cout<<"number of conversions          : "<<conversion_.size()<<endl;
     cout<<"number of v0                   : "<<v0_.size()<<endl;
     cout<<"number of stdTracks            : "<<stdTracks_.size()<<endl;
@@ -2058,14 +2069,18 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(muonsBranch_) {
     muonsBranch_->GetEntry(entry);
   }
-  if(nuclearBranch_) {
-    nuclearBranch_->GetEntry(entry);
-  }
+
+
   if(conversionBranch_) {
     conversionBranch_->GetEntry(entry);
   }
+
   if(v0Branch_) {
     v0Branch_->GetEntry(entry);
+  }
+
+  if(pfDisplacedVertexBranch_) {
+    pfDisplacedVertexBranch_->GetEntry(entry);
   }
 
   if(genParticlesforJetsBranch_) {
@@ -2661,7 +2676,7 @@ void PFRootEventManager::particleFlow() {
   edm::OrphanHandle< reco::MuonCollection > muonh( &muons_, 
 						   edm::ProductID(6) );
 
-  edm::OrphanHandle< reco::PFDisplacedTrackerVertexCollection > nuclh( &nuclear_, 
+  edm::OrphanHandle< reco::PFDisplacedTrackerVertexCollection > displacedh( &pfDisplacedTrackerVertex_, 
                                                           edm::ProductID(7) );
 
   edm::OrphanHandle< reco::PFConversionCollection > convh( &conversion_, 
@@ -2669,6 +2684,7 @@ void PFRootEventManager::particleFlow() {
 
   edm::OrphanHandle< reco::PFV0Collection > v0( &v0_, 
 						edm::ProductID(9) );
+
 
   edm::OrphanHandle< reco::VertexCollection > vertexh( &primaryVertices_, 
 						       edm::ProductID(10) );  
@@ -2689,7 +2705,7 @@ void PFRootEventManager::particleFlow() {
   fillClusterMask( psMask, *clustersPS_ );
   
   pfBlockAlgo_.setInput( trackh, gsftrackh, convBremGsftrackh,
-			 muonh,nuclh,convh,v0,
+			 muonh, displacedh, convh, v0,
 			 ecalh, hcalh, hfemh, hfhadh, psh,
 			 trackMask,gsftrackMask,
 			 ecalMask, hcalMask, hfemMask, hfhadMask, psMask );
