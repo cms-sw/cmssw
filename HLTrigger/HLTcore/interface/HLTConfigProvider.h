@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/03/16 08:13:42 $
- *  $Revision: 1.24 $
+ *  $Date: 2010/03/17 07:15:17 $
+ *  $Revision: 1.25 $
  *
  *  \author Martin Grunewald
  *
@@ -22,6 +22,7 @@
 #include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
+#include "boost/shared_ptr.hpp"
 #include<string>
 #include<vector>
 
@@ -164,7 +165,7 @@ class HLTConfigProvider {
     hltL1GTSeeds_(),
     streamNames_(), streamIndex_(), streamContents_(),
     datasetNames_(), datasetIndex_(), datasetContents_(),
-    hltPrescaleTable_(), l1GtUtils_() { }
+    hltPrescaleTable_(), l1GtUtils_(new L1GtUtils()) { }
 
  private:
 
@@ -189,7 +190,7 @@ class HLTConfigProvider {
   std::vector<std::vector<std::string> > datasetContents_;
 
   trigger::HLTPrescaleTable hltPrescaleTable_;
-  L1GtUtils l1GtUtils_;
+  boost::shared_ptr<L1GtUtils> l1GtUtils_;
 
 };
 #endif

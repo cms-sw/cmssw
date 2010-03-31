@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/03/16 08:13:43 $
- *  $Revision: 1.44 $
+ *  $Date: 2010/03/17 07:15:17 $
+ *  $Revision: 1.45 $
  *
  *  \author Martin Grunewald
  *
@@ -158,7 +158,8 @@ bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& proces
 
 bool HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const edm::EventSetup& iSetup, const std::string& processName, bool& changed) {
   const bool result(init(iHistory,processName,changed));
-  l1GtUtils_.retrieveL1EventSetup(iSetup);
+  /// defer iSetup access to when actually needed:
+  /// l1GtUtils_->retrieveL1EventSetup(iSetup);
   return result;
 }
 
@@ -264,7 +265,7 @@ void HLTConfigProvider::clear()
    datasetIndex_.clear();
 
    hltPrescaleTable_ = HLTPrescaleTable();
-   l1GtUtils_        = L1GtUtils();
+   *l1GtUtils_       = L1GtUtils();
 
    return;
 }
@@ -666,11 +667,11 @@ const std::map<std::string,std::vector<unsigned int> >& HLTConfigProvider::presc
 
 int HLTConfigProvider::prescaleSet(const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // return hltPrescaleTable_.set();
-  // l1GtUtils_.retrieveL1EventSetup(iSetup);
+  l1GtUtils_->retrieveL1EventSetup(iSetup);
   int errorTech(0);
-  const int psfsiTech(l1GtUtils_.prescaleFactorSetIndex(iEvent,"TechnicalTriggers",errorTech));
+  const int psfsiTech(l1GtUtils_->prescaleFactorSetIndex(iEvent,"TechnicalTriggers",errorTech));
   int errorPhys(0);
-  const int psfsiPhys(l1GtUtils_.prescaleFactorSetIndex(iEvent,"PhysicsAlgorithms",errorPhys));
+  const int psfsiPhys(l1GtUtils_->prescaleFactorSetIndex(iEvent,"PhysicsAlgorithms",errorPhys));
   assert(psfsiTech==psfsiPhys);
   if ( (errorTech==0) && (errorPhys==0) &&
        (psfsiTech>=0) && (psfsiPhys>=0) && (psfsiTech==psfsiPhys) ) {
