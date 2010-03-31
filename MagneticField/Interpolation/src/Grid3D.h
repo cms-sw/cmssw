@@ -8,7 +8,7 @@
 *  \author T. Todorov
  */
 
-// #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "DataFormats/Math/interface/SSEVec.h"
 #include "MagneticField/Interpolation/src/Grid1D.h"
 #include <vector>
@@ -16,7 +16,7 @@
 class Grid3D {
 public:
 
-  //  typedef Basic3DVector<float>   ValueType;
+  typedef Basic3DVector<float>  ReturnType;
   // typedef double   Scalar;
   typedef mathSSE::Vec3F ValueType;
   typedef float   Scalar;
@@ -29,8 +29,10 @@ public:
      data_.swap(data);
      stride1_ = gridb_.nodes() * gridc_.nodes();
      stride2_ = gridc_.nodes();
-    fillSub();
   }
+
+  Grid3D( const Grid1D& ga, const Grid1D& gb, const Grid1D& gc,
+	  std::vector<ReturnType>& data);
 
 
   int index(int i, int j, int k) const {return i*stride1_ + j*stride2_ + k;}
@@ -39,6 +41,11 @@ public:
   int stride3() const { return 1;}
   const ValueType& operator()(int i) const {
     return data_[i];
+  }
+
+  ReturnType operator(int i, int j, int k) const {
+    const ValueType& resut = (*this)(index(i,j,k));
+    return ReturnType(result.arr[0],result.arr[1],result.arr[2]);
   }
 
   const Grid1D& grida() const {return grida_;}
