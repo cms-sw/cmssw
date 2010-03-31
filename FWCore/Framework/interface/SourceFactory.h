@@ -1,5 +1,5 @@
-#ifndef Framework_SourceFactory_h
-#define Framework_SourceFactory_h
+#ifndef FWCore_Framework_SourceFactory_h
+#define FWCore_Framework_SourceFactory_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: SourceFactory.h,v 1.17 2006/12/26 03:13:41 wmtan Exp $
 //
 
 // system include files
@@ -72,9 +71,6 @@ namespace edm {
 }
 
 #define DEFINE_FWK_EVENTSETUP_SOURCE(type) \
-DEFINE_EDM_PLUGIN (edm::eventsetup::SourcePluginFactory,edm::eventsetup::SourceMaker<type>,#type)
-
-#define DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(type) \
 DEFINE_EDM_PLUGIN (edm::eventsetup::SourcePluginFactory,edm::eventsetup::SourceMaker<type>,#type)
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef Framework_LooperFactory_h
-#define Framework_LooperFactory_h
+#ifndef FWCore_Framework_LooperFactory_h
+#define FWCore_Framework_LooperFactory_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: LooperFactory.h,v 1.6 2007/04/09 23:13:18 chrjones Exp $
 //
 
 // system include files
@@ -98,9 +97,6 @@ namespace edm {
 }
 
 #define DEFINE_FWK_LOOPER(type) \
-DEFINE_EDM_PLUGIN (edm::eventsetup::LooperPluginFactory,edm::eventsetup::LooperMaker<type>,#type)
-
-#define DEFINE_ANOTHER_FWK_LOOPER(type) \
 DEFINE_EDM_PLUGIN (edm::eventsetup::LooperPluginFactory,edm::eventsetup::LooperMaker<type>,#type)
 
 #endif

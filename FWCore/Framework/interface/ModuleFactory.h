@@ -1,5 +1,5 @@
-#ifndef Framework_ModuleFactory_h
-#define Framework_ModuleFactory_h
+#ifndef FWCore_Framework_ModuleFactory_h
+#define FWCore_Framework_ModuleFactory_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:31 EDT 2005
-// $Id: ModuleFactory.h,v 1.12 2007/04/09 23:13:18 chrjones Exp $
 //
 
 // system include files
@@ -46,9 +45,6 @@ namespace edm {
 }
 
 #define DEFINE_FWK_EVENTSETUP_MODULE(type) \
-DEFINE_EDM_PLUGIN (edm::eventsetup::ModulePluginFactory,edm::eventsetup::ModuleMaker<type>,#type)
-
-#define DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(type) \
 DEFINE_EDM_PLUGIN (edm::eventsetup::ModulePluginFactory,edm::eventsetup::ModuleMaker<type>,#type)
 
 #endif
