@@ -884,10 +884,12 @@ namespace edm {
     
     schedule_->beginJob(es);
     if (!allModuleNames().empty()) {
-      cms::Exception exception("Modules still calling beginJob(EventSetup):\n");
+      cms::Exception exception("The following modules still define beginJob(EventSetup):\n");
       for (std::set<std::string>::const_iterator it = allModuleNames().begin(), itEnd = allModuleNames().end(); it != itEnd; ++it) {
 	exception << *it << "\n";
       }
+      exception << "beginJob(EventSetup) is obsolete. It should be replaced by beginJob() (no arguments).\n";
+      exception << "If the module needs EventSetup, EventSetup must be provided by a different function (e.g. beginRun()).\n";
       throw exception;
     }
     actReg_->postBeginJobSignal_();
