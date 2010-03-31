@@ -44,7 +44,7 @@ public:
   }
 
   ReturnType operator()(int i, int j, int k) const {
-    const ValueType& resut = (*this)(index(i,j,k));
+    const ValueType& result = (*this)(index(i,j,k));
     return ReturnType(result.arr[0],result.arr[1],result.arr[2]);
   }
 
