@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.16 2010/03/19 13:24:05 mommsen Exp $
+// $Id: FileHandler.cc,v 1.17 2010/03/19 17:33:54 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -114,7 +114,7 @@ void FileHandler::updateDatabase() const
       << " --CHECKSUMIND "  << hex << _adlerindex
       << "\n";
 
-  _dbFileHandler->writeOld( oss.str() );
+  _dbFileHandler->writeOld( _lastEntry, oss.str() );
 }
 
 
@@ -144,7 +144,7 @@ void FileHandler::insertFileInDatabase() const
       << " --CHECKSUMIND 0"
       << "\n";
 
-  _dbFileHandler->writeOld( oss.str() );
+  _dbFileHandler->writeOld( _firstEntry, oss.str() );
 }
 
 

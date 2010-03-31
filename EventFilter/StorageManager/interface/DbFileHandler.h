@@ -1,4 +1,4 @@
-// $Id: DbFileHandler.h,v 1.2 2010/03/19 17:34:06 mommsen Exp $
+// $Id: DbFileHandler.h,v 1.3 2010/03/25 09:55:27 mommsen Exp $
 /// @file: DbFileHandler.h 
 
 #ifndef StorageManager_DbFileHandler_h
@@ -19,8 +19,8 @@ namespace stor {
    * Handle the file used to pass information into SM database
    *
    * $Author: mommsen $
-   * $Revision: 1.2 $
-   * $Date: 2010/03/19 17:34:06 $
+   * $Revision: 1.3 $
+   * $Date: 2010/03/25 09:55:27 $
    */
 
   class DbFileHandler
@@ -39,7 +39,7 @@ namespace stor {
     /**
      * Write the string into the db file. Close the file after each write.
      */
-    void writeOld(const std::string&);
+    void writeOld(const utils::time_point_t&, const std::string&);
 
     /**
      * Write the string into the db file and prefix it with the report header.
@@ -50,9 +50,9 @@ namespace stor {
     
   private:
     
-    void openFile(std::ofstream&) const;
+    void openFile(std::ofstream&, const utils::time_point_t&) const;
 
-    void addReportHeader(std::ostream&) const;
+    void addReportHeader(std::ostream&, const utils::time_point_t&) const;
 
     //Prevent copying of the DbFileHandler
     DbFileHandler(DbFileHandler const&);

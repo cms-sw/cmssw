@@ -1,4 +1,4 @@
-// $Id: DbFileHandler.cc,v 1.2 2010/03/19 17:33:54 mommsen Exp $
+// $Id: DbFileHandler.cc,v 1.3 2010/03/25 09:55:18 mommsen Exp $
 /// @file: DbFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/DbFileHandler.h>
@@ -14,10 +14,10 @@ _runNumber(0)
 {}
 
 
-void DbFileHandler::writeOld(const string& str)
+void DbFileHandler::writeOld(const utils::time_point_t& timestamp, const string& str)
 {
   std::ofstream outputFile;
-  openFile(outputFile);
+  openFile(outputFile, timestamp);
   outputFile << str.c_str();
   outputFile.close();
 }
@@ -25,9 +25,11 @@ void DbFileHandler::writeOld(const string& str)
 
 void DbFileHandler::write(const string& str)
 {
+  const utils::time_point_t timestamp = utils::getCurrentTime();
+
   std::ofstream outputFile;
-  openFile(outputFile);
-  addReportHeader(outputFile);
+  openFile(outputFile, timestamp);
+  addReportHeader(outputFile, timestamp);
   outputFile << str.c_str();
   outputFile << endl;
   outputFile.close();
@@ -44,20 +46,18 @@ void DbFileHandler::configure(const unsigned int runNumber, const DiskWritingPar
 
 
 
-void DbFileHandler::openFile(std::ofstream& outputFile) const
+void DbFileHandler::openFile
+(
+  std::ofstream& outputFile,
+  const utils::time_point_t& timestamp
+) const
 {
-  time_t rawtime = time(0);
-  tm * ptm;
-  ptm = localtime(&rawtime);
-
   string dbPath(_dwParams._filePath+"/log");
   utils::checkDirectory(dbPath);
 
   ostringstream dbfilename;
   dbfilename << dbPath << "/"
-             << setfill('0') << setw(4) << ptm->tm_year+1900
-             << setfill('0') << setw(2) << ptm->tm_mon+1
-             << setfill('0') << setw(2) << ptm->tm_mday
+             << utils::dateStamp(timestamp)
              << "-" << _dwParams._hostName
              << "-" << _dwParams._smInstanceString
              << ".log";
@@ -66,9 +66,13 @@ void DbFileHandler::openFile(std::ofstream& outputFile) const
 }
 
 
-void DbFileHandler::addReportHeader(std::ostream& msg) const
+void DbFileHandler::addReportHeader
+(
+  std::ostream& msg,
+  const utils::time_point_t& timestamp
+) const
 {
-  msg << "Timestamp:" << static_cast<int>(utils::getCurrentTime())
+  msg << "Timestamp:" << static_cast<int>(timestamp)
     << "\trun:" << _runNumber << "\t";
 }
 
