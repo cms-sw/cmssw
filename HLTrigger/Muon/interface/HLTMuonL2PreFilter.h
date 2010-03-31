@@ -12,11 +12,6 @@
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
 
 class HLTMuonL2PreFilter : public HLTFilter {
 
@@ -26,17 +21,17 @@ class HLTMuonL2PreFilter : public HLTFilter {
     virtual bool filter(edm::Event&, const edm::EventSetup&);
 
   private:
-    /// checks if a L2 muon was seed by a fired L1 
-    bool isTriggeredByLevel1(reco::TrackRef& l2muon, std::vector<l1extra::L1MuonParticleRef>& firedL1muons);
-
-    /// input tag of the beam spot product
+    /// input tag of the beam spot
     edm::InputTag beamSpotTag_ ;
 
-    /// input tag identifying the product containing muons
+    /// input tag of L2 muons
     edm::InputTag candTag_;
 
-    /// input tag identifying the product containing refs to muons passing the previous level
+    /// input tag of the preceeding L1 filter in the path
     edm::InputTag previousCandTag_;
+
+    /// input tag of the map from the L2 seed to the sister L2 seeds of cleaned tracks
+    edm::InputTag seedMapTag_;
 
     /// minimum number of muons to fire the trigger
     int minN_;

@@ -7,6 +7,7 @@
  */
 
 #include "HLTrigger/Muon/interface/HLTMuonL2PreFilter.h"
+#include "HLTrigger/Muon/interface/HLTMuonL2ToL1Map.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -14,26 +15,17 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeed.h"
-#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 //
 // constructors and destructor
 //
-using namespace std;
-using namespace edm;
-using namespace reco;
-using namespace trigger;
-using namespace l1extra;
 
-HLTMuonL2PreFilter::HLTMuonL2PreFilter(const ParameterSet& iConfig):
-  beamSpotTag_( iConfig.getParameter< edm::InputTag >("BeamSpotTag") ),
-  candTag_( iConfig.getParameter<InputTag >("CandTag") ),
-  previousCandTag_( iConfig.getParameter<InputTag >("PreviousCandTag") ),
+HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig):
+  beamSpotTag_( iConfig.getParameter<edm::InputTag>("BeamSpotTag") ),
+  candTag_( iConfig.getParameter<edm::InputTag >("CandTag") ),
+  previousCandTag_( iConfig.getParameter<edm::InputTag >("PreviousCandTag") ),
+  seedMapTag_( iConfig.getParameter<edm::InputTag >("SeedMapTag") ),
   minN_( iConfig.getParameter<int>("MinN") ),
   maxEta_( iConfig.getParameter<double>("MaxEta") ),
   minNhits_( iConfig.getParameter<int>("MinNhits") ),
@@ -41,8 +33,10 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const ParameterSet& iConfig):
   maxDz_( iConfig.getParameter<double>("MaxDz") ),
   minPt_( iConfig.getParameter<double>("MinPt") ),
   nSigmaPt_( iConfig.getParameter<double>("NSigmaPt") ), 
-  saveTag_( iConfig.getUntrackedParameter<bool>("SaveTag", false) ) 
+  saveTag_( iConfig.getUntrackedParameter<bool>("SaveTag", false) )
 {
+  using namespace std;
+
   // dump parameters for debugging
   if(edm::isDebugEnabled()){
     ostringstream ss;
@@ -50,6 +44,7 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const ParameterSet& iConfig):
     ss<<"    BeamSpotTag = "<<beamSpotTag_.encode()<<endl;
     ss<<"    CandTag = "<<candTag_.encode()<<endl;
     ss<<"    PreviousCandTag = "<<previousCandTag_.encode()<<endl;
+    ss<<"    SeedMapTag = "<<seedMapTag_.encode()<<endl;
     ss<<"    MinN = "<<minN_<<endl;
     ss<<"    MaxEta = "<<maxEta_<<endl;
     ss<<"    MinNhits = "<<minNhits_<<endl;
@@ -62,7 +57,7 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const ParameterSet& iConfig):
   }
 
   //register your products
-  produces<TriggerFilterObjectWithRefs>();
+  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTMuonL2PreFilter::~HLTMuonL2PreFilter()
@@ -74,12 +69,17 @@ HLTMuonL2PreFilter::~HLTMuonL2PreFilter()
 //
 
 // ------------ method called to produce the data  ------------
-bool
-HLTMuonL2PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
+bool HLTMuonL2PreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.
+
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
+  using namespace trigger;
+  using namespace l1extra;
 
   // The filter object
   auto_ptr<TriggerFilterObjectWithRefs> filterproduct(new TriggerFilterObjectWithRefs(path(), module()));
@@ -91,24 +91,21 @@ HLTMuonL2PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
   Handle<RecoChargedCandidateCollection> allMuons;
   iEvent.getByLabel(candTag_, allMuons);
 
-  // get hold of muons that fired the previous level
-  Handle<TriggerFilterObjectWithRefs> previousLevelCands;
-  iEvent.getByLabel(previousCandTag_, previousLevelCands);
-  vector<L1MuonParticleRef> prevMuons;
-  previousLevelCands->getObjects(TriggerL1Mu, prevMuons);
-
   // get hold of the beam spot
   Handle<BeamSpot> beamSpotHandle;
   iEvent.getByLabel(beamSpotTag_, beamSpotHandle);
   BeamSpot::Point beamSpot = beamSpotHandle->position();
-  
+
+  // get the L2 to L1 map object for this event
+  HLTMuonL2ToL1Map mapL2ToL1(previousCandTag_, seedMapTag_, iEvent);
+
   // look at all allMuons,  check cuts and add to filter object
   int n = 0;
   for(RecoChargedCandidateCollection::const_iterator cand=allMuons->begin(); cand!=allMuons->end(); cand++){
     TrackRef mu = cand->get<TrackRef>();
 
     // check if this muon passed previous level 
-    if(!isTriggeredByLevel1(mu, prevMuons)) continue;
+    if(!mapL2ToL1.isTriggeredByL1(mu)) continue;
 
     // eta cut
     if(fabs(mu->eta()) > maxEta_) continue;
@@ -130,8 +127,10 @@ HLTMuonL2PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
     if(abspar0 > 0) ptLx += nSigmaPt_*mu->error(0)/abspar0*pt;
     if(ptLx < minPt_) continue;
 
-    n++;
+    // add the good candidate to the filter object
     filterproduct->addObject(TriggerMuon, RecoChargedCandidateRef(Ref<RecoChargedCandidateCollection>(allMuons, cand-allMuons->begin())));
+
+    n++;
   }
 
   // filter decision
@@ -140,7 +139,7 @@ HLTMuonL2PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
   // dump event for debugging
   if(edm::isDebugEnabled()){
     ostringstream ss;
-    ss<<"L2muon#"
+    ss<<"L2mu#"
       <<'\t'<<"q*pt"<<'\t' //scientific is too wide
       <<'\t'<<"q*ptLx"<<'\t' //scientific is too wide
       <<'\t'<<"eta"
@@ -148,15 +147,13 @@ HLTMuonL2PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
       <<'\t'<<"nHits"
       <<'\t'<<"dr"<<'\t' //scientific is too wide
       <<'\t'<<"dz"<<'\t' //scientific is too wide
+      <<'\t'<<"L1seed#"
       <<'\t'<<"isPrev"
       <<'\t'<<"isFired"
       <<endl;
-    ss<<"---------------------------------------------------------------------------------------------------------------"<<endl;
-    vector<RecoChargedCandidateRef> firedMuons;
-    filterproduct->getObjects(TriggerMuon, firedMuons);
+    ss<<"-----------------------------------------------------------------------------------------------------------------------"<<endl;
     for (RecoChargedCandidateCollection::const_iterator cand = allMuons->begin(); cand != allMuons->end(); cand++) {
       TrackRef mu = cand->get<TrackRef>();
-      bool isFired = find(firedMuons.begin(), firedMuons.end(), RecoChargedCandidateRef(Ref<RecoChargedCandidateCollection>(allMuons, cand-allMuons->begin()))) != firedMuons.end();
       ss<<setprecision(2)
         <<cand-allMuons->begin()
         <<'\t'<<scientific<<mu->charge()*mu->pt()
@@ -166,11 +163,14 @@ HLTMuonL2PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
         <<'\t'<<mu->numberOfValidHits()
         <<'\t'<<scientific<<mu->d0()
         <<'\t'<<scientific<<mu->dz()
-        <<'\t'<<isTriggeredByLevel1(mu, prevMuons)
-        <<'\t'<<isFired
+        <<'\t'<<mapL2ToL1.getL1Keys(mu)
+        <<'\t'<<mapL2ToL1.isTriggeredByL1(mu);
+      vector<RecoChargedCandidateRef> firedMuons;
+      filterproduct->getObjects(TriggerMuon, firedMuons);
+      ss<<'\t'<<(find(firedMuons.begin(), firedMuons.end(), RecoChargedCandidateRef(Ref<RecoChargedCandidateCollection>(allMuons, cand-allMuons->begin()))) != firedMuons.end())
         <<endl;
     }
-    ss<<"---------------------------------------------------------------------------------------------------------------"<<endl;
+    ss<<"-----------------------------------------------------------------------------------------------------------------------"<<endl;
     ss<<"Decision of filter is "<<accept<<", number of muons passing = "<<filterproduct->muonSize();
     LogDebug("HLTMuonL2PreFilter")<<ss.str();
   }
@@ -179,19 +179,5 @@ HLTMuonL2PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
   iEvent.put(filterproduct);
    
   return accept;
-}
-
-bool HLTMuonL2PreFilter::isTriggeredByLevel1(TrackRef& mu, vector<L1MuonParticleRef>& l1Muons)
-{
-  bool ok=false;
-  edm::Ref<L2MuonTrajectorySeedCollection> l2seedRef = mu->seedRef().castTo<edm::Ref<L2MuonTrajectorySeedCollection> >();
-  l1extra::L1MuonParticleRef l1FromSeed = l2seedRef->l1Particle();
-  for (unsigned int i=0; i<l1Muons.size(); i++) {
-    if (l1FromSeed == l1Muons[i]){
-      ok=true;
-      break;
-    }
-  }
-  return ok;
 }
 
