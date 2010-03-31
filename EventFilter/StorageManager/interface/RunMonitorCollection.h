@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.h,v 1.8 2010/02/16 09:58:20 mommsen Exp $
+// $Id: RunMonitorCollection.h,v 1.9 2010/03/16 17:55:43 mommsen Exp $
 /// @file: RunMonitorCollection.h 
 
 #ifndef StorageManager_RunMonitorCollection_h
@@ -21,8 +21,8 @@ namespace stor {
    * in the current run
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2010/02/16 09:58:20 $
+   * $Revision: 1.9 $
+   * $Date: 2010/03/16 17:55:43 $
    */
   
   class RunMonitorCollection : public MonitorCollection
@@ -104,26 +104,19 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
-    struct UnwantedEventKey
-    {
-      uint32 outputModuleId;
-      uint32 hltTriggerCount;
-      std::vector<unsigned char> bitList;
-
-      UnwantedEventKey(const I2OChain&);
-      bool operator<(UnwantedEventKey const& other) const;
-    };
-    struct UnwantedEventValue
+    struct UnwantedEvent
     {
       uint32 count;
       uint32 previousCount;
       std::string alarmName;
+      uint32 hltTriggerCount;
+      std::vector<unsigned char> bitList;
 
-      UnwantedEventValue();
+      UnwantedEvent(const I2OChain&);
 
       static uint32 nextId;
     };
-    typedef std::map<UnwantedEventKey, UnwantedEventValue> UnwantedEventsMap;
+    typedef std::map<uint32, UnwantedEvent> UnwantedEventsMap;
     UnwantedEventsMap _unwantedEventsMap;
     mutable boost::mutex _unwantedEventMapLock;
 

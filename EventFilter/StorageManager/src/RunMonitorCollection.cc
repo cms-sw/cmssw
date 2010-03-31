@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.cc,v 1.8 2010/02/16 09:58:54 mommsen Exp $
+// $Id: RunMonitorCollection.cc,v 1.9 2010/03/16 17:55:57 mommsen Exp $
 /// @file: RunMonitorCollection.cc
 
 #include <string>
@@ -90,21 +90,22 @@ void RunMonitorCollection::addUnwantedEvent(const I2OChain& ioc)
 {
   _unwantedEventIDsReceived.addSample(ioc.eventNumber());
 
-  UnwantedEventKey key(ioc);
+  uint32 outputModuleId = ioc.outputModuleId();
 
   boost::mutex::scoped_lock sl(_unwantedEventMapLock);
 
-  UnwantedEventsMap::iterator pos = _unwantedEventsMap.lower_bound(key);
+  UnwantedEventsMap::iterator pos = _unwantedEventsMap.lower_bound(outputModuleId);
 
-  if(pos != _unwantedEventsMap.end() && !(_unwantedEventsMap.key_comp()(key, pos->first)))
+  if(pos != _unwantedEventsMap.end() &&
+    !(_unwantedEventsMap.key_comp()(outputModuleId, pos->first)))
   {
     // key already exists
     ++(pos->second.count);
   }
   else
   {
-    UnwantedEventValue newVal;
-    _unwantedEventsMap.insert(pos, UnwantedEventsMap::value_type(key, newVal));
+    UnwantedEvent newEvent(ioc);
+    _unwantedEventsMap.insert(pos, UnwantedEventsMap::value_type(outputModuleId, newEvent));
   }
 }
 
@@ -155,16 +156,16 @@ void RunMonitorCollection::alarmUnwantedEvents(UnwantedEventsMap::value_type& va
     msg << "Received " << val.second.count << " events"
       << " not tagged for any stream or consumer."
       << " Output module " << 
-      _sharedResources->_initMsgCollection->getOutputModuleName(val.first.outputModuleId)
-      << " (id " << val.first.outputModuleId << ")"
+      _sharedResources->_initMsgCollection->getOutputModuleName(val.first)
+      << " (id " << val.first << ")"
       << " HLT trigger bits: ";
 
     // This code snipped taken from evm:EventSelector::acceptEvent
     int byteIndex = 0;
     int subIndex  = 0;
-    for (unsigned int pathIndex = 0; pathIndex < val.first.hltTriggerCount; ++pathIndex)
+    for (unsigned int pathIndex = 0; pathIndex < val.second.hltTriggerCount; ++pathIndex)
     {
-      int state = val.first.bitList[byteIndex] >> (subIndex * 2);
+      int state = val.second.bitList[byteIndex] >> (subIndex * 2);
       state &= 0x3;
       msg << state << " ";
       ++subIndex;
@@ -187,36 +188,17 @@ void RunMonitorCollection::alarmUnwantedEvents(UnwantedEventsMap::value_type& va
 }
 
 
-RunMonitorCollection::UnwantedEventKey::UnwantedEventKey(const I2OChain& ioc)
-{
-  outputModuleId = ioc.outputModuleId();
-  hltTriggerCount = ioc.hltTriggerCount();
-  ioc.hltTriggerBits(bitList);
-}
-
-
-bool RunMonitorCollection::UnwantedEventKey::operator<(UnwantedEventKey const& other) const
-{
-  if ( outputModuleId != other.outputModuleId ) return outputModuleId < other.outputModuleId;
-  if ( hltTriggerCount != other.hltTriggerCount ) return hltTriggerCount < other.hltTriggerCount;
-
-  for (unsigned int i = 0 ; i < bitList.size() ; ++i)
-  {
-    if ( bitList[i] != other.bitList[i] ) return bitList[i] < other.bitList[i];
-  }
-  return false;
-}
-
-
-RunMonitorCollection::UnwantedEventValue::UnwantedEventValue()
+RunMonitorCollection::UnwantedEvent::UnwantedEvent(const I2OChain& ioc)
   : count(1), previousCount(0)
 {
   std::ostringstream str;
   str << "UnwantedEvent_" << nextId++;
   alarmName = str.str();
+  hltTriggerCount = ioc.hltTriggerCount();
+  ioc.hltTriggerBits(bitList);
 }
 
-uint32 RunMonitorCollection::UnwantedEventValue::nextId(0);
+uint32 RunMonitorCollection::UnwantedEvent::nextId(0);
 
 
 /// emacs configuration
