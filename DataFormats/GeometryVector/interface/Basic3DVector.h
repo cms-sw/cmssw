@@ -52,7 +52,7 @@ public:
 
   // constructor from Vec3F
   Basic3DVector(mathSSE::Vec3F const& v) :
-    theX(v.arr[0]), theY(v.arr[1]), theZ(v.arr[2]),, theW(0) {}
+    theX(v.arr[0]), theY(v.arr[1]), theZ(v.arr[2]), theW(0) {}
 
 
   /// construct from cartesian coordinates

@@ -18,16 +18,16 @@ struct makeVec3FC {
 };
 
 
-template <> 
-inline Basic3DVectorF&  Basic3DVectorF::operator+= ( const Basic3DVectorF& rh) {
+template <> template <>
+inline Basic3DVectorF&  Basic3DVectorF::operator+=<float> ( const Basic3DVectorF& rh) {
   makeVec3FC v(rh);
   makeVec3F s(*this);
   s.v = s.v + v.v;
   return *this;
 }
 
-template <> 
-inline Basic3DVectorF& Basic3DVectorF::operator-= ( const Basic3DVectorF& rh) {
+template <> template <>
+inline Basic3DVectorF& Basic3DVectorF::operator-=<float> ( const Basic3DVectorF& rh) {
   makeVec3FC v(rh);
   makeVec3F s(*this);
   s.v = s.v - v.v;
