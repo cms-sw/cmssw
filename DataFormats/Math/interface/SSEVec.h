@@ -66,12 +66,14 @@ namespace mathSSE {
 
 
 inline float dot(mathSSE::Vec3F a, mathSSE::Vec3F b) {
+  using  mathSSE::_mm_dot_ps;
   float s;
   _mm_store_ss(&s,_mm_dot_ps(a.vec,b.vec));
   return s;
 }
 
 inline mathSSE::Vec3F cross(mathSSE::Vec3F a, mathSSE::Vec3F b) {
+  using  mathSSE::_mm_cross_ps;
   mathSSE::Vec3F res(_mm_cross_ps(a.vec,b.vec));
   res.arr[1] *= -1.f;
   return res;

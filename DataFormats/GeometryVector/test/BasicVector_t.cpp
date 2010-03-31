@@ -42,5 +42,8 @@ int main() {
   vx+=vy;
   std::cout << vx << std::endl;
 
+  Basic3DVectorF z(1.,1.,1);
+  addScaleddiff(z,0.1,vx,vy);
+  std::cout << z << std::endl;
 
 }
