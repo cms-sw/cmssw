@@ -6,12 +6,14 @@
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
 
-<use name=RecoVertex/KalmanVertexFit>
+<use name=RecoVertex/VertexTools>
+<use name=RecoVertex/LinearizationPointFinders>
 <use name=TrackingTools/TransientTrack>
 
 <export>
  <lib name=AlignmentTwoBodyDecay>
- <use name=RecoVertex/KalmanVertexFit>
+ <use name=RecoVertex/VertexTools>
+ <use name=RecoVertex/LinearizationPointFinders>
  <use name=TrackingTools/TransientTrack>
  <use name=FWCore/Framework>
  <use name=FWCore/Utilities>
