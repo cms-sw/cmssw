@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/03/28 15:43:50 $
- * $Revision: 1.15 $
+ * $Date: 2010/03/29 18:34:06 $
+ * $Revision: 1.16 $
  * $Author: ameyer $
  *
  */
@@ -70,6 +70,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   reportSummaryMap_->setBinLabel(23,"TECm",2);  
   reportSummaryMap_->setBinLabel(24,"CASTOR",2);
   reportSummaryMap_->setBinLabel(25,"PhysDecl",2);
+  reportSummaryMap_->setBinLabel(26,"Valid",2);
   reportSummaryMap_->setAxisTitle("Luminosity Section");
 
   // initialize
@@ -99,13 +100,30 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
   }
   if (nlumi <= lastlumi_ ) return;
 
-  // set to -1 in case there was a jump or no previous fill
-  reportSummaryMap_->setBinContent(nlumi,25+1,1.);
+
+  // set to previous in case there was a jump or no previous fill
   for (int l=lastlumi_+1;l<nlumi;l++)
-    for (int i=0;i<25;i++)
-      reportSummaryMap_->setBinContent(l,i+1,-1.);
+  {
+    if (lastlumi_ > 0 && reportSummaryMap_->getBinContent(lastlumi_,25+1) == 1) 
+    {
+      reportSummaryMap_->setBinContent(l,25+1,0.);
+      for (int i=0;i<25;i++)
+      {
+	  float lastvalue = reportSummaryMap_->getBinContent(lastlumi_,i+1);
+	  reportSummaryMap_->setBinContent(l,i+1,lastvalue);
+      }
+    }
+    else
+    {
+      reportSummaryMap_->setBinContent(l,25+1,0.);
+      for (int i=0;i<25;i++)
+	reportSummaryMap_->setBinContent(l,i+1,-1.);
+    }
+  }
+
       
   // fill dcs vs lumi
+  reportSummaryMap_->setBinContent(nlumi,25+1,1.);
   for (int i=0;i<24;i++)
   {
     if (dcs24[i])
@@ -114,7 +132,8 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
       reportSummaryMap_->setBinContent(nlumi,i+1,0.);
 
     // set next lumi to -1 for better visibility
-    reportSummaryMap_->setBinContent(nlumi+1,i+1,-1.);
+    if (nlumi < XBINS)
+      reportSummaryMap_->setBinContent(nlumi+1,i+1,-1.);
     dcs24[i]=true;
   }
 
