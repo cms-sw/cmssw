@@ -92,11 +92,11 @@ classicTauIDSources = [
 
 # Tau Neural Classifier Discriminators
 tancTauIDSources = [
-    ("byTaNC", "shrinkingConePFTauDiscriminationByTaNC"),
-    ("byTaNCfrOnePercent", "shrinkingConePFTauDiscriminationByTaNCfrOnePercent"),
-    ("byTaNCfrHalfPercent", "shrinkingConePFTauDiscriminationByTaNCfrHalfPercent"),
-    ("byTaNCfrQuarterPercent", "shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"),
-    ("byTaNCfrTenthPercent", "shrinkingConePFTauDiscriminationByTaNCfrTenthPercent") ]
+    ("byTaNC", "DiscriminationByTaNC"),
+    ("byTaNCfrOnePercent", "DiscriminationByTaNCfrOnePercent"),
+    ("byTaNCfrHalfPercent", "DiscriminationByTaNCfrHalfPercent"),
+    ("byTaNCfrQuarterPercent", "DiscriminationByTaNCfrQuarterPercent"),
+    ("byTaNCfrTenthPercent", "DiscriminationByTaNCfrTenthPercent") ]
 # Hadron-plus-strip(s) (HPS) Tau Discriminators
 hpsTauIDSources = [
     ("leadingTrackFinding", "DiscriminationByDecayModeFinding"),
