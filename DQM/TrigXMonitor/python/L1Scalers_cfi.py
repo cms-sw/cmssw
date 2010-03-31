@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: L1Scalers_cfi.py,v 1.7 2010/02/16 17:04:29 wmtan Exp $
+# $Id: L1Scalers_cfi.py,v 1.8 2010/03/31 22:19:35 wteo Exp $
 
 l1s = cms.EDAnalyzer("L1Scalers",
-                   l1GtData = cms.InputTag("l1GtUnpack","","DQM"),
+                   l1GtData = cms.InputTag("l1GtUnpack","","HLT"),
                    dqmFolder = cms.untracked.string("L1T/L1Scalers_EvF"),
                    verbose = cms.untracked.bool(False),
                    firstFED = cms.untracked.uint32(0),
