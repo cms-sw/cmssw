@@ -28,6 +28,8 @@
 <use   name="TrackingTools/TrajectoryParametrization"/>
 <use   name="RecoVertex/VertexPrimitives"/>
 <use   name="RecoVertex/AdaptiveVertexFit"/>
+<use   name="TrackingTools/IPTools"/>
+<use   name="DataFormats/VertexReco"/>
 <use   name="rootcore"/>
 <export>
   <lib   name="1"/>

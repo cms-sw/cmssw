@@ -10,13 +10,13 @@ from RecoParticleFlow.PFTracking.particleFlowDisplacedVertex_cff import *
 
 
 
-particleFlowTrackWithDisplacedVertex =cms.Sequence(
-    pfTrackElec*
+particleFlowTrackWithDisplacedVertex =cms.Sequence(   
     pfConversions*
     pfV0*
     particleFlowDisplacedVertexCandidate*
     particleFlowDisplacedVertex*
-    pfDisplacedTrackerVertex
+    pfDisplacedTrackerVertex*
+    pfTrackElec
     )
 
 

@@ -16,6 +16,7 @@ class PFTrackTransformer;
 class GsfTrack;
 class MagneticField;
 class TrackerGeometry;
+class ConvBremPFTrackFinder;
 
 /// \brief Abstract
 /*!
@@ -64,11 +65,22 @@ class PFElecTkProducer : public edm::EDProducer {
       edm::ParameterSet conf_;
       edm::InputTag gsfTrackLabel_;
       edm::InputTag pfTrackLabel_;
+      edm::InputTag primVtxLabel_;
+      edm::InputTag pfEcalClusters_;
+      edm::InputTag pfNuclear_;
+      edm::InputTag pfConv_;
+      edm::InputTag pfV0_;
+      bool useNuclear_;
+      bool useConversions_;
+      bool useV0_;
+
 
       ///PFTrackTransformer
       PFTrackTransformer *pfTransformer_;     
       const MultiTrajectoryStateMode *mtsMode_;
       MultiTrajectoryStateTransform  mtsTransform_;
+      ConvBremPFTrackFinder *convBremFinder_;
+
 
       ///Trajectory of GSfTracks in the event?
       bool trajinev_;
@@ -81,6 +93,10 @@ class PFElecTkProducer : public edm::EDProducer {
       double detaGsfSC_;
       double dphiGsfSC_;
       double maxPtConvReco_;
-
+      
+      /// Conv Brem Finder
+      bool useConvBremFinder_;
+      double mvaConvBremFinderID_;
+      std::string path_mvaWeightFileConvBrem_;
 };
 #endif

@@ -15,7 +15,18 @@ pfTrackElec = cms.EDProducer("PFElecTkProducer",
     TTRHBuilder = cms.string('WithTrackAngle'),
     GsfTrackModuleLabel = cms.InputTag("electronGsfTracks"),
     Propagator = cms.string('fwdElectronPropagator'),
-    PFRecTrackLabel = cms.InputTag("trackerDrivenElectronSeeds")
+    PFRecTrackLabel = cms.InputTag("trackerDrivenElectronSeeds"),
+    PFEcalClusters  = cms.InputTag("particleFlowClusterECAL"),                 
+    PrimaryVertexLabel = cms.InputTag("offlinePrimaryVertices"),                         
+    useConvBremFinder  = cms.bool(True),
+    pf_convBremFinderID_mvaCut =  cms.double(-0.3),
+    pf_convBremFinderID_mvaWeightFile = cms.string('RecoParticleFlow/PFTracking/data/MVAnalysis_BDT.weights_convBremFinder_24Mar.txt'),   
+    PFNuclear = cms.InputTag("pfDisplacedTrackerVertex"),
+    PFConversions = cms.InputTag("pfConversions"),
+    PFV0 = cms.InputTag("pfV0"),
+    useNuclear = cms.bool(False),
+    useV0 = cms.bool(False), 
+    useConversions = cms.bool(False)                             
 )
 
 
