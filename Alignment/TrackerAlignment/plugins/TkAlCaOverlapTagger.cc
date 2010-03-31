@@ -50,9 +50,6 @@ class TkAlCaOverlapTagger : public edm::EDProducer {
   int layerFromId (const DetId& id) const;
 };
 
-using namespace edm;
-using namespace reco;
-
 TkAlCaOverlapTagger::TkAlCaOverlapTagger(const edm::ParameterSet& iConfig):
   src_( iConfig.getParameter<edm::InputTag>("src") ),
   srcClust_( iConfig.getParameter<edm::InputTag>("Clustersrc") ),
