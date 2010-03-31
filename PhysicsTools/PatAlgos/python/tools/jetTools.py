@@ -762,7 +762,7 @@ class AddJetID(ConfigToolBase):
         ## replace jet id sequence
         process.load("RecoJets.JetProducers.ak5JetID_cfi")
         setattr( process, jetIdLabel, process.ak5JetID.clone(src = jetSrc))
-        process.makePatJets.replace( process.patJetPartonMatch, getattr(process,jetIdLabel) + process.patJetPartonMatch )
+        process.makePatJets.replace( process.patJets, getattr(process,jetIdLabel) + process.patJets )
     
            
 addJetID=AddJetID()
