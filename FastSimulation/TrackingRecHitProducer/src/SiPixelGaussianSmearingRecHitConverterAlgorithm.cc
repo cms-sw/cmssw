@@ -185,6 +185,11 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   int	xbin = (int)xhit;
   float yfrac= yhit - (float)ybin;
   float xfrac= xhit - (float)xbin;
+  //Protect againt ybin, xbin being outside of range [0-39]
+  if( ybin < 0 )    ybin = 0;
+  if( ybin > 39 )   ybin = 39;
+  if( xbin < 0 )    xbin = 0;
+  if( xbin > 39 )   xbin = 39; 
 
   //Variables for SiPixelTemplate output
   //qBin -- normalized pixel charge deposition
@@ -192,9 +197,8 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   //Single pixel cluster projection possibility
   float ny1_frac, ny2_frac, nx1_frac, nx2_frac;
   bool singlex = false, singley = false;
-  templ.qbin_dist(tempId, cotalpha, cotbeta, qbin_frac, ny1_frac, ny2_frac, nx1_frac, nx2_frac );
-  //Obsolete functionality
   templ.interpolate(tempId, cotalpha, cotbeta);
+  templ.qbin_dist(tempId, cotalpha, cotbeta, qbin_frac, ny1_frac, ny2_frac, nx1_frac, nx2_frac );
   int  nqbin;
 
   double xsizeProbability = random->flatShoot();
@@ -227,7 +231,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 
   //Store interpolated pixel cluster profile
   //BYSIZE, BXSIZE, const definition from SiPixelTemplate
-  float ytempl[41][BYSIZE], xtempl[41][BXSIZE];
+  float ytempl[41][BYSIZE] = {{0}}, xtempl[41][BXSIZE] = {{0}} ;
   templ.ytemp(0, 40, ytempl);
   templ.xtemp(0, 40, xtempl);
 
@@ -245,22 +249,12 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   const float qThreshold = templ.s50()*2.0;
 
   //Cut away pixels below readout threshold
-  std::vector<bool> xCluster( BXSIZE, false );
-  std::vector<bool> yCluster( BYSIZE, false );
-  for( int i=0; i<BYSIZE; ++i ){
-    if( ytemp[i] > qThreshold )
-      yCluster[i] = true;
-  }
-  for( int i=0; i<BXSIZE; ++i ){
-    if( xtemp[i] > qThreshold )
-      xCluster[i] = true;
-  }
- 
   //For cluster lengths calculation
   int offsetX1=0, offsetX2=0, offsetY1=0, offsetY2=0;
   int firstY, lastY, firstX, lastX;
   for( firstY = 0; firstY < BYSIZE; ++firstY ) {
-    if( yCluster[firstY] )
+    bool yCluster = ytemp[firstY] > qThreshold ;
+    if( yCluster )
     {
       offsetY1 = BHY -firstY;
       break;
@@ -268,7 +262,8 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   }
   for( lastY = firstY; lastY < BYSIZE; ++lastY )
   {
-    if( !yCluster[lastY] )
+    bool yCluster = ytemp[lastY] > qThreshold ;
+    if( !yCluster )
     {
       lastY = lastY - 1;
       offsetY2 = lastY - BHY;
@@ -277,13 +272,15 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   }
 
   for( firstX = 0; firstX < BXSIZE; ++firstX )  {
-    if( xCluster[firstX] ) {
+    bool xCluster = xtemp[firstX] > qThreshold ;
+    if( xCluster ) {
       offsetX1 = BHX - firstX;
       break;
     }
   }
   for( lastX = firstX; lastX < BXSIZE; ++ lastX ) {
-    if( !xCluster[lastX] ) {
+    bool xCluster = xtemp[lastX] > qThreshold ;
+    if( !xCluster ) {
       lastX = lastX - 1;
       offsetX2 = lastX - BHX;
       break;
