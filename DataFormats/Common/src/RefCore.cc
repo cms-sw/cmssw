@@ -90,9 +90,7 @@ namespace edm {
 
   void
   RefCore::RefCoreTransients::setProductGetter(EDProductGetter const* prodGetter) const {
-    if (!transient_) {
-      prodGetter_ = prodGetter;
-    }
+    prodGetter_ = prodGetter;
   }
 
 //   void
