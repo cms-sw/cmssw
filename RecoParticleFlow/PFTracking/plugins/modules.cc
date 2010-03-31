@@ -10,7 +10,6 @@
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexCandidateProducer.h"
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexProducer.h"
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedTrackerVertexProducer.h"
-<<<<<<< modules.cc
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexSelector.cc"
 #include "RecoParticleFlow/PFTracking/plugins/SimVertexSelector.cc"
 
