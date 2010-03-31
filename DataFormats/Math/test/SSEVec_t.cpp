@@ -84,14 +84,14 @@ int main() {
   __asm__ ("#A cross");
   Vec3F z = cross(x,y);
   __asm__ ("#A cout");
-  std::cout << z.arr[0] << ", "<< z.arr[1] << ", "<< z.arr[2] << std::endl;
+  std::cout << z << std::endl;
 
   BaVecF vx(2.0,4.0,5.0);
   BaVecF vy(-3.0,2.0,-5.0);
   __asm__ ("#A BaVec+=");
   vx+=vy;
   __asm__ ("#A cout");
-  std::cout << vx.theX << ", "<<  vy.theY << ", "<<  vy.theZ << std::endl;
+  std::cout << vx.theX << ", "<<  vx.theY << ", "<<  vx.theZ << std::endl;
 
 
 }

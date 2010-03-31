@@ -102,4 +102,7 @@ namespace mathSSE {
   
 }
 
+#include <iosfwd>
+ostream & operator<<(ostream & out,  mathSSE::Vec3F const & v);
+
 #endif // DataFormat_Math_SSEVec_H
