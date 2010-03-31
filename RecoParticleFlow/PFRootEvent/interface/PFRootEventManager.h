@@ -835,6 +835,8 @@ class PFRootEventManager {
   /// Use Secondary Gsf Tracks
   bool useConvBremGsfTracks_;
 
+  /// Use Conv Brem KF Tracks
+  bool useConvBremPFRecTracks_;
 
   // MC Truth tools              ---------------------------------------
 

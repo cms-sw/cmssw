@@ -5,7 +5,7 @@ root outtree 1
 //colin	mode 1
 
 root file ../../Configuration/test/display.root
-//root file display.root
+
 // filter ------------------------------------------------------------
 
 // filter   nparticles  1
@@ -377,6 +377,7 @@ particle_flow   calibPFSCEle_endcap  0.9995 -12.313 2.8784 -1.057e-04 10.282 3.0
 
 // PF Converted Bremsstrahlung recovery
 particle_flow   useConvBremGsfTracks    0
+particle_flow   useConvBremPFRecTracks  1
 
 
 // rejectTracks_Bad

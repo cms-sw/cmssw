@@ -848,7 +848,8 @@ void PFRootEventManager::readOptions(const char* file,
 
   try {
     pfBlockAlgo_.setParameters( DPtovPtCut, 
-				NHitCut); 
+				NHitCut,
+				useConvBremPFRecTracks_); 
   }  
   catch( std::exception& err ) {
     cerr<<"exception setting PFBlockAlgo parameters: "
@@ -1450,6 +1451,9 @@ void PFRootEventManager::connect( const char* infilename ) {
     } 
   }
   
+  useConvBremPFRecTracks_ = false;
+  options_->GetOpt("particle_flow", "useConvBremPFRecTracks", useConvBremPFRecTracks_);
+
 
   //muons
   string muonbranchname;
