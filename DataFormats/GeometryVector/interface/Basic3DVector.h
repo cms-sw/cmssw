@@ -21,22 +21,22 @@ public:
     
   /** default constructor uses default constructor of T to initialize the 
    *  components. For built-in floating-point types this means initialization 
-   * to zero
+   * to zero??? (force init to 0)
    */
-  Basic3DVector() : theX( T()), theY( T()), theZ( T()) {}
+  Basic3DVector() : theX(0), theY(0), theZ(0), theW(0) {}
 
   /// Copy constructor from same type. Should not be needed but for gcc bug 12685
   Basic3DVector( const Basic3DVector & p) : 
-    theX(p.x()), theY(p.y()), theZ(p.z()) {}
+    theX(p.x()), theY(p.y()), theZ(p.z()), theW(0) {}
 
   /// Copy constructor and implicit conversion from Basic3DVector of different precision
   template <class U>
   Basic3DVector( const Basic3DVector<U> & p) : 
-    theX(p.x()), theY(p.y()), theZ(p.z()) {}
+    theX(p.x()), theY(p.y()), theZ(p.z()), theW(0) {}
 
   /// constructor from 2D vector (X and Y from 2D vector, z set to zero)
   Basic3DVector( const Basic2DVector<T> & p) : 
-    theX(p.x()), theY(p.y()), theZ(0) {}
+    theX(p.x()), theY(p.y()), theZ(0), theW(0) {}
 
   /** Explicit constructor from other (possibly unrelated) vector classes 
    *  The only constraint on the argument type is that it has methods
@@ -48,16 +48,16 @@ public:
    */
   template <class OtherPoint> 
   explicit Basic3DVector( const OtherPoint& p) : 
-    theX(p.x()), theY(p.y()), theZ(p.z()) {}
+    theX(p.x()), theY(p.y()), theZ(p.z()), theW(0) {}
 
   // constructor from Vec3F
   Basic3DVector(mathSSE::Vec3F const& v) :
-    theX(v.arr[0]), theY(v.arr[1]), theZ(v.arr[2]) {}
+    theX(v.arr[0]), theY(v.arr[1]), theZ(v.arr[2]),, theW(0) {}
 
 
   /// construct from cartesian coordinates
   Basic3DVector( const T& x, const T& y, const T& z) : 
-    theX(x), theY(y), theZ(z) {}
+    theX(x), theY(y), theZ(z), theW(0) {}
 
   /** Deprecated construct from polar coordinates, use 
    *  <BR> Basic3DVector<T>( Basic3DVector<T>::Polar( theta, phi, r))
@@ -250,27 +250,28 @@ inline typename PreciseFloatType<T,U>::Type operator*( const Basic3DVector<T>& v
 /** Multiplication by scalar, does not change the precision of the vector.
  *  The return type is the same as the type of the vector argument.
  */
-template <class T, class Scalar>
-inline Basic3DVector<T> operator*( const Basic3DVector<T>& v, Scalar s) {
-  T t = static_cast<T>(s);
+template <class T>
+inline Basic3DVector<T> operator*( const Basic3DVector<T>& v, T t) {
   return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t);
 }
 
 /// Same as operator*( Vector, Scalar)
-template <class T, class Scalar>
-inline Basic3DVector<T> operator*( Scalar s, const Basic3DVector<T>& v) {
-  T t = static_cast<T>(s);
+template <class T>
+inline Basic3DVector<T> operator*(T t, const Basic3DVector<T>& v) {
   return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t);
 }
 
 /** Division by scalar, does not change the precision of the vector.
  *  The return type is the same as the type of the vector argument.
  */
-template <class T, class Scalar>
-inline Basic3DVector<T> operator/( const Basic3DVector<T>& v, Scalar s) {
-  T t = static_cast<T>(Scalar(1)/s);
-  return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t);
+template <class T>
+inline Basic3DVector<T> operator/( const Basic3DVector<T>& v, T s) {
+  T t = T(1)/s;
+  return v*t;
 }
+
+#include "DataFormats/GeometryVector/interface/Basic3DVectorFSSE.icc"
+
 
 #endif // GeometryVector_Basic3DVector_h
 

@@ -1,6 +1,8 @@
 <use name=rootmath>
 <use name=rootrflx>
+<use   name="DataFormats/Math"/>
 <export>
   <lib name=DataFormatsGeometryVector>
   <use name=rootmath>
+  <use   name="DataFormats/Math"/>
 </export>
