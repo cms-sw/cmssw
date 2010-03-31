@@ -7,9 +7,6 @@
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayDerivatives.h"
 //#include "DataFormats/CLHEP/interface/Migration.h"
 
-using namespace std;
-
-
 TwoBodyDecayEstimator::TwoBodyDecayEstimator( const edm::ParameterSet & config )
 {
   const edm::ParameterSet & estimatorConfig = config.getParameter< edm::ParameterSet >( "EstimatorParameters" );
@@ -125,10 +122,10 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
   int checkInversion = 0;
 
   TwoBodyDecayDerivatives tpeDerivatives( linearizationPoint[TwoBodyDecayParameters::mass], vm.secondaryMass() );
-  pair< AlgebraicMatrix, AlgebraicMatrix > derivatives = tpeDerivatives.derivatives( linearizationPoint );
+  std::pair< AlgebraicMatrix, AlgebraicMatrix > derivatives = tpeDerivatives.derivatives( linearizationPoint );
 
   TwoBodyDecayModel decayModel( linearizationPoint[TwoBodyDecayParameters::mass], vm.secondaryMass() );
-  pair< AlgebraicVector, AlgebraicVector > linCartMomenta = decayModel.cartesianSecondaryMomenta( linearizationPoint );
+  std::pair< AlgebraicVector, AlgebraicVector > linCartMomenta = decayModel.cartesianSecondaryMomenta( linearizationPoint );
 
   // first track
   AlgebraicMatrix matA1 = asHepMatrix( linTrack1->positionJacobian() );

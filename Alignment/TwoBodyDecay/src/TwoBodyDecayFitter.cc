@@ -1,9 +1,5 @@
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayFitter.h"
 
-
-using namespace std;
-
-
 TwoBodyDecayFitter::TwoBodyDecayFitter( const edm::ParameterSet & config ) :
   theVertexFinder( new DefaultLinearizationPointFinder() ),
   theLinPointFinder( new TwoBodyDecayLinearizationPointFinder( config ) ),
@@ -29,7 +25,7 @@ const TwoBodyDecay TwoBodyDecayFitter::estimate( const vector< reco::TransientTr
   GlobalPoint linVertex = theVertexFinder->getLinearizationPoint( tracks );
 
   // create linearized track states
-  vector< RefCountedLinearizedTrackState > linTracks;
+  std::vector< RefCountedLinearizedTrackState > linTracks;
   linTracks.push_back( theLinTrackStateFactory.linearizedTrackState( linVertex, tracks[0] ) );
   linTracks.push_back( theLinTrackStateFactory.linearizedTrackState( linVertex, tracks[1] ) );
 
@@ -41,7 +37,7 @@ const TwoBodyDecay TwoBodyDecayFitter::estimate( const vector< reco::TransientTr
 }
 
 
-const TwoBodyDecay TwoBodyDecayFitter::estimate( const vector< reco::TransientTrack >& tracks,
+const TwoBodyDecay TwoBodyDecayFitter::estimate( const std::vector< reco::TransientTrack >& tracks,
 						 const std::vector< TrajectoryStateOnSurface >& tsos,
 						 const TwoBodyDecayVirtualMeasurement& vm ) const
 {
@@ -52,7 +48,7 @@ const TwoBodyDecay TwoBodyDecayFitter::estimate( const vector< reco::TransientTr
   GlobalPoint linVertex = theVertexFinder->getLinearizationPoint( freeTrajStates );
 
   // create linearized track states
-  vector< RefCountedLinearizedTrackState > linTracks;
+  std::vector< RefCountedLinearizedTrackState > linTracks;
   linTracks.push_back( theLinTrackStateFactory.linearizedTrackState( linVertex, tracks[0], tsos[0] ) );
   linTracks.push_back( theLinTrackStateFactory.linearizedTrackState( linVertex, tracks[1], tsos[1] ) );
 
