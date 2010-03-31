@@ -80,7 +80,7 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
   result =  result + (        (1.f-s)*t)*(grid(ind   +s2   ) - grid(ind      ));
   result =  result + (      s        *t)*(grid(ind+s1+s2   ) - grid(ind+s1   ));
   result =  result + (                s)*(grid(ind+s1      ) - grid(ind      ));
-  result =  result                                             grid(ind      );
+  result =  result +                                           grid(ind      );
 
   //   ValueType result = (1-s)*(1-t)*u*(grid(i,  j,  k+1) - grid(i,  j,  k));
   //   result +=          (1-s)*   t *u*(grid(i,  j+1,k+1) - grid(i,  j+1,k));
