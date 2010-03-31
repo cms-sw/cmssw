@@ -12,3 +12,5 @@
 </bin>
 <bin   file="FastMath_t.cpp" name="DataFormatsFastMath_t">
 </bin>
+<bin   file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
+</bin>
