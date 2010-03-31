@@ -26,6 +26,9 @@ namespace {
 
     edm::helpers::KeyVal<edm::RefProd<std::vector<L2MuonTrajectorySeed> >, edm::RefProd<std::vector<L2MuonTrajectorySeed> > >  h;
     edm::AssociationMap<edm::OneToMany<L2MuonTrajectorySeedCollection, L2MuonTrajectorySeedCollection> > amcc;
+    edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>,std::vector<L2MuonTrajectorySeed>,unsigned int> > > wamcc;
+    std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >,edm::RefVector<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > > > mamcc;
+    edm::helpers::KeyVal<edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >,edm::RefVector<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > > hamcc;
 
     std::vector<L3MuonTrajectorySeed> v12;
     L3MuonTrajectorySeedCollection c12;
