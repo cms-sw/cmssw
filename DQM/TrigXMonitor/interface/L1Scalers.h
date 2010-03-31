@@ -1,7 +1,7 @@
 // -*-c++-*-
 #ifndef L1Scalers_H
 #define L1Scalers_H
-// $Id: L1Scalers.h,v 1.11 2010/02/11 00:11:06 wmtan Exp $
+// $Id: L1Scalers.h,v 1.12 2010/02/18 18:18:36 wittich Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -45,9 +45,15 @@ public:
 private:
   DQMStore * dbe_;
   int nev_; // Number of events processed
-  
+
   bool verbose_;
   edm::InputTag l1GtDataSource_; // L1 Scalers
+  
+  bool denomIsTech_;
+  unsigned int denomBit_;
+  std::vector<unsigned int> algoSelected_;
+  std::vector<unsigned int> techSelected_;
+
   std::string folderName_; // dqm folder name
   MonitorElement *l1scalers_;
   MonitorElement *l1techScalers_;
@@ -65,6 +71,13 @@ private:
   MonitorElement *nLumiBlock_;
   MonitorElement *l1AlgoCounter_;  //for total Algo Rate
   MonitorElement *l1TtCounter_;    //for total TT Rate
+
+  //timing plots
+  std::vector<MonitorElement* > algoBxDiff_;
+  std::vector<MonitorElement* > techBxDiff_;
+  std::vector<MonitorElement* > algoBxDiffLumi_;
+  std::vector<MonitorElement* > techBxDiffLumi_;
+
   // Hacks for early running
 //   MonitorElement *pixFedSize_;
 //   MonitorElement *hfEnergy_;
@@ -74,13 +87,17 @@ private:
   //total Rates
   unsigned int rateAlgoCounter_;  //for total Algo Rate
   unsigned int rateTtCounter_;     //for total TT Rate
-  
+ 
+
   edm::InputTag fedRawCollection_;
 
   std::vector<int> maskedList_;
   edm::InputTag HcalRecHitCollection_;
   // END HACK
 
+  int earliestDenom_;
+  std::vector<int> earliestTech_;
+  std::vector<int> earliestAlgo_;
 
 };
 

@@ -1,4 +1,4 @@
-// $Id: L1Scalers.cc,v 1.18 2009/11/20 00:39:12 lorenzo Exp $
+// $Id: L1Scalers.cc,v 1.19 2010/02/18 18:18:36 wittich Exp $
 #include <iostream>
 
 
@@ -36,6 +36,10 @@ L1Scalers::L1Scalers(const edm::ParameterSet &ps):
   dbe_(0), nev_(0),
   verbose_(ps.getUntrackedParameter < bool > ("verbose", false)),
   l1GtDataSource_( ps.getParameter< edm::InputTag >("l1GtData")),
+  denomIsTech_(ps.getUntrackedParameter <bool> ("denomIsTech", true)),
+  denomBit_(ps.getUntrackedParameter <unsigned int> ("denomBit", 40)),
+  algoSelected_(ps.getUntrackedParameter<std::vector<unsigned int> >("algoMonitorBits")),
+  techSelected_(ps.getUntrackedParameter<std::vector<unsigned int> >("techMonitorBits")),
   folderName_( ps.getUntrackedParameter< std::string>("dqmFolder", 
 					  std::string("L1T/L1Scalers_EvF"))),
   l1scalers_(0),
@@ -85,9 +89,9 @@ void L1Scalers::beginJob(void)
                                     "Correlations",
 				   128, -0.5, 127.5,
 				   128, -0.5, 127.5);
-    l1techScalers_ = dbe_->book1D("l1TechAlgoBits", "L1 Tech. Trigger Bits",
+    l1techScalers_ = dbe_->book1D("l1TechBits", "L1 Tech. Trigger Bits",
 				  64, -0.5, 63.5);
-    l1techScalersBx_ = dbe_->book2D("l1TechAlgoBits_Vs_Bx", "L1 Technical "
+    l1techScalersBx_ = dbe_->book2D("l1TechBits_Vs_Bx", "L1 Technical "
 				    "Trigger "
 				    "Bits vs Bunch Number",
 				    3600, -0.5, 3599.5, 64, -0.5, 63.5);
@@ -104,11 +108,40 @@ void L1Scalers::beginJob(void)
 
     nLumiBlock_ = dbe_->bookInt("nLumiBlock");
 
-
 //  l1 total rate
     
     l1AlgoCounter_ = dbe_->bookInt("l1AlgoCounter");
     l1TtCounter_ = dbe_->bookInt("l1TtCounter");
+
+
+    int maxNbins = 1001;
+
+    //timing plots
+    std::stringstream sdenom;
+    if(denomIsTech_) sdenom << "tech" ;
+    else sdenom << "algo" ;
+
+    dbe_->setCurrentFolder(folderName_ + "/Synch");
+    algoBxDiff_.clear();
+    algoBxDiff_.clear();
+    algoBxDiffLumi_.clear();
+    techBxDiffLumi_.clear();
+    for(uint ibit = 0; ibit < algoSelected_.size(); ibit++){
+      std::stringstream ss;
+      ss << algoSelected_[ibit] << "_" << sdenom.str() << denomBit_;
+      algoBxDiff_.push_back(dbe_->book1D("BX_diff_algo"+ ss.str(),"BX_diff_algo"+ ss.str(),9,-4,5));
+      algoBxDiffLumi_.push_back(dbe_->book2D("BX_diffvslumi_algo"+ ss.str(),"BX_diff_algo"+ss.str(),maxNbins,-0.5,double(maxNbins)-0.5,9,-4,5));
+      algoBxDiffLumi_[ibit]->setAxisTitle("Lumi Section", 1);
+    }
+    for(uint ibit = 0; ibit < techSelected_.size(); ibit++){
+      std::stringstream ss;
+      ss << techSelected_[ibit] << "_" << sdenom.str() << denomBit_;
+      techBxDiff_.push_back(dbe_->book1D("BX_diff_tech"+ ss.str(),"BX_diff_tech"+ ss.str(),9,-4,5));
+      techBxDiffLumi_.push_back(dbe_->book2D("BX_diffvslumi_tech"+ ss.str(),"BX_diff_tech"+ss.str(),maxNbins,-0.5,double(maxNbins)-0.5,9,-4,5));
+      techBxDiffLumi_[ibit]->setAxisTitle("Lumi Section", 1);
+    }
+
+
 
     // early triggers
 //     pixFedSize_ = dbe_->book1D("pixFedSize", "Size of Pixel FED data",
@@ -129,6 +162,7 @@ void L1Scalers::endJob(void)
 void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
 {
   nev_++;
+
   LogDebug("Status") << "L1Scalers::analyze  event " << nev_ ;
 
   int myGTFEbx = -1;
@@ -145,65 +179,124 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
     // DEBUG
     //gtRecord->print(std::cout);
     // DEBUG
-
+    
     L1GtfeWord gtfeWord = gtRecord->gtfeWord();
     int gtfeBx = gtfeWord.bxNr();
     bxNum_->Fill(gtfeBx);
     myGTFEbx = gtfeBx;
-
+    
     // First, the default
     // vector of bool
     for(int iebx=0; iebx<=4; iebx++) {
+
       DecisionWord gtDecisionWord = gtRecord->decisionWord(iebx-2);
-//    DecisionWord gtDecisionWord = gtRecord->decisionWord();
-    if ( ! gtDecisionWord.empty() ) { // if board not there this is zero
-       // loop over dec. bit to get total rate (no overlap)
-       for ( int i = 0; i < 128; ++i ) {
-         if ( gtDecisionWord[i] ) {
-	   rateAlgoCounter_++;
-           l1AlgoCounter_->Fill(rateAlgoCounter_);
-	   break;
-	 }
-       }
-      // loop over decision bits
-      for ( int i = 0; i < 128; ++i ) {
-	if ( gtDecisionWord[i] ) {
-	  l1scalers_->Fill(i);
-	  l1scalersBx_->Fill(gtfeBx-2+iebx,i);
-	  for ( int j = i + 1; j < 128; ++j ) {
-	    if ( gtDecisionWord[j] ) {
-	      l1Correlations_->Fill(i,j);
-	      l1Correlations_->Fill(j,i);
+      //    DecisionWord gtDecisionWord = gtRecord->decisionWord();
+      if ( ! gtDecisionWord.empty() ) { // if board not there this is zero
+	// loop over dec. bit to get total rate (no overlap)
+	for ( uint i = 0; i < gtDecisionWord.size(); ++i ) {
+	  if ( gtDecisionWord[i] ) {
+	    rateAlgoCounter_++;
+	    l1AlgoCounter_->Fill(rateAlgoCounter_);
+	    break;
+	  }
+	}
+	// loop over decision bits
+	for ( uint i = 0; i < gtDecisionWord.size(); ++i ) {
+	  if ( gtDecisionWord[i] ) {
+	    l1scalers_->Fill(i);
+	    l1scalersBx_->Fill(gtfeBx-2+iebx,i);
+	    for ( uint j = i + 1; j < gtDecisionWord.size(); ++j ) {
+	      if ( gtDecisionWord[j] ) {
+		l1Correlations_->Fill(i,j);
+		l1Correlations_->Fill(j,i);
+	      }
 	    }
 	  }
 	}
-      }
-    }   
-    }
+      }//!empty 
+    }//bx
+
     // loop over technical triggers
     // vector of bool again. 
+
+
     for(int iebx=0; iebx<=4; iebx++) {
       TechnicalTriggerWord tw = gtRecord->technicalTriggerWord(iebx-2);
-//    TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
-    if ( ! tw.empty() ) {
-       // loop over dec. bit to get total rate (no overlap)
-      for ( int i = 0; i < 64; ++i ) {
-         if ( tw[i] ) {
-	   rateTtCounter_++;
-           l1TtCounter_->Fill(rateTtCounter_);
-	   break;
-	 }
-       }	 
-      for ( int i = 0; i < 64; ++i ) {
-	if ( tw[i] ) {
-	  l1techScalers_->Fill(i);
-	  l1techScalersBx_->Fill(gtfeBx-2+iebx, i);
-	}
-      } 
-    } // ! tw.empty
-    }
-  } // getbylabel succeeded
+      //    TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
+      if ( ! tw.empty() ) {
+	// loop over dec. bit to get total rate (no overlap)
+	for ( uint i = 0; i < tw.size(); ++i ) {
+	  if ( tw[i] ) {
+	    rateTtCounter_++;
+	    l1TtCounter_->Fill(rateTtCounter_);
+	    break;
+	  }
+	}	 
+	for ( uint i = 0; i < tw.size(); ++i ) {
+	  if ( tw[i] ) {
+	    l1techScalers_->Fill(i);
+	    l1techScalersBx_->Fill(gtfeBx-2+iebx, i);
+	  }
+	} 
+      } // ! tw.empty
+    }//bx
 
+
+    //timing plots
+    earliestDenom_ = -1;
+    earliestAlgo_.clear();
+    earliestTech_.clear();
+    for(uint i=0; i < techSelected_.size(); i++) earliestTech_.push_back(-1);
+    for(uint i=0; i < algoSelected_.size(); i++) earliestAlgo_.push_back(-1);
+
+    for(int iebx=0; iebx<=4; iebx++) {
+      TechnicalTriggerWord tw = gtRecord->technicalTriggerWord(iebx-2);
+      DecisionWord gtDecisionWord = gtRecord->decisionWord(iebx-2);
+
+      if(denomIsTech_){
+	if ( ! tw.empty() ) {
+	  if( denomBit_ < tw.size() ){	
+	    if( tw[denomBit_] && earliestDenom_==-1 ) earliestDenom_ = iebx; 
+	  }
+
+	  for(uint ibit = 0; ibit < techSelected_.size(); ibit++){	  
+	    if(techSelected_[ibit] < tw.size()){
+	      if(tw[techSelected_[ibit]] && earliestTech_[ibit] == -1) earliestTech_[ibit] = iebx;
+	    }
+	  }
+	  
+	  if(!gtDecisionWord.empty()){	    
+	    for(uint ibit = 0; ibit < algoSelected_.size(); ibit++){	  
+	      if(algoSelected_[ibit] < gtDecisionWord.size()){
+		if(gtDecisionWord[algoSelected_[ibit]] && earliestAlgo_[ibit] == -1) earliestAlgo_[ibit] = iebx;
+	      }
+	    }
+	  }
+
+	}//!empty
+      }//denomIsTech
+    }//bx
+
+    //calculated bx difference
+    if(earliestDenom_ != -1){
+      for(uint ibit = 0; ibit < techSelected_.size(); ibit++){	  
+	if(earliestTech_[ibit] != -1){
+	  int diff = earliestTech_[ibit] - earliestDenom_ ;
+	  techBxDiff_[ibit]->Fill(diff);
+	  techBxDiffLumi_[ibit]->Fill(e.luminosityBlock(), diff);
+	}
+      }
+      for(uint ibit = 0; ibit < algoSelected_.size(); ibit++){	  
+	if(earliestAlgo_[ibit] != -1){
+	  int diff = earliestAlgo_[ibit] - earliestDenom_ ;
+	  algoBxDiff_[ibit]->Fill(diff);
+	  algoBxDiffLumi_[ibit]->Fill(e.luminosityBlock(), diff);
+	}
+      }
+    }
+
+  } // getbylabel succeeded
+  
 
 //   // HACK
 //   // getting very basic uncalRH
