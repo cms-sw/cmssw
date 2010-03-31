@@ -1,4 +1,4 @@
-//$Id: Utils.cc,v 1.10 2010/01/28 13:38:47 mommsen Exp $
+//$Id: Utils.cc,v 1.11 2010/02/01 11:56:11 mommsen Exp $
 /// @file: Utils.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -73,6 +73,19 @@ namespace stor
                    << std::setfill('0') << std::setw(2) << ptm->tm_min       << slash
                    << std::setfill('0') << std::setw(2) << ptm->tm_sec;
       return timeStampStr.str();
+    }
+
+
+    std::string dateStamp(time_point_t theTime)
+    {
+      time_t rawtime = (time_t)theTime;
+      tm * ptm;
+      ptm = localtime(&rawtime);
+      std::ostringstream dateStampStr;
+      dateStampStr << std::setfill('0') << std::setw(4) << ptm->tm_year+1900
+                   << std::setfill('0') << std::setw(2) << ptm->tm_mon+1
+                   << std::setfill('0') << std::setw(2) << ptm->tm_mday;
+      return dateStampStr.str();
     }
 
     
