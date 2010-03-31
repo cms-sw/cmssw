@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.cc,v 1.13 2009/02/24 18:13:10 castello Exp $
+// $Id: TrackHitFilter.cc,v 1.14 2009/12/14 22:21:49 wmtan Exp $
 //
 //
 
@@ -40,12 +40,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
-
-
-
-using namespace edm;
-using namespace reco;
-
 //
 // constructors and destructor
 //
@@ -63,8 +57,8 @@ TrackHitFilter::TrackHitFilter(const edm::ParameterSet& iConfig):
 {
 
    //register your products, and/or set an "alias" label
-  produces<TrackCollection>();
-  produces<TrackExtraCollection>();
+  produces<reco::TrackCollection>();
+  produces<reco::TrackExtraCollection>();
   produces<TrackingRecHitCollection>();
  
 }
@@ -78,20 +72,20 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
    //Read track collection from the Event
-   Handle<TrackCollection> trackAllHits;
+   edm::Handle<reco::TrackCollection> trackAllHits;
    iEvent.getByLabel(theSrc,trackAllHits);
 
    // Create empty Track, TrackExtra and TrackingRecHits collections
-   std::auto_ptr<TrackCollection> trackSelectedHits( new TrackCollection() );
-   std::auto_ptr<TrackExtraCollection> txSelectedHits( new TrackExtraCollection() );
+   std::auto_ptr<reco::TrackCollection> trackSelectedHits( new reco::TrackCollection() );
+   std::auto_ptr<reco::TrackExtraCollection> txSelectedHits( new reco::TrackExtraCollection() );
    std::auto_ptr<TrackingRecHitCollection> trhSelectedHits( new TrackingRecHitCollection() );
 
    //get references
    TrackingRecHitRefProd rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
-   TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<TrackExtraCollection>();
-   TrackRefProd rTracks = iEvent.getRefBeforePut<TrackCollection>();
-   edm::Ref<TrackExtraCollection>::key_type idx = 0;
-   edm::Ref<TrackExtraCollection>::key_type hidx = 0;
+   reco::TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
+   reco::TrackRefProd rTracks = iEvent.getRefBeforePut<reco::TrackCollection>();
+   edm::Ref<reco::TrackExtraCollection>::key_type idx = 0;
+   edm::Ref<reco::TrackExtraCollection>::key_type hidx = 0;
 
    TrackerAlignableId* TkMap = new TrackerAlignableId();
    
@@ -102,9 +96,11 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::vector<unsigned int> allHits;
 
    // first iteration : count hits
-   for( TrackCollection::const_iterator iTrack = trackAllHits->begin(); iTrack != trackAllHits->end(); ++iTrack ) {
+   for( reco::TrackCollection::const_iterator iTrack = trackAllHits->begin();
+	iTrack != trackAllHits->end();
+	++iTrack ) {
        
-     const Track * trk = &(*iTrack);
+     const reco::Track * trk = &(*iTrack);
      
      unsigned int allhits = 0;
      unsigned int acchits = 0;
@@ -132,18 +128,21 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    nTr = 0;
    // second iteration : store tracks
-   for( TrackCollection::const_iterator iTrack2 = trackAllHits->begin(); iTrack2 != trackAllHits->end(); ++iTrack2 ) {
+   for( reco::TrackCollection::const_iterator iTrack2 = trackAllHits->begin();
+	iTrack2 != trackAllHits->end();
+	++iTrack2 ) {
        
      if (accHits.at(nTr) >= theMinHits) {
-       const Track * trk = &(*iTrack2);
-       Track * myTrk = new Track(*trk);
+       const reco::Track * trk = &(*iTrack2);
+       reco::Track * myTrk = new reco::Track(*trk);
        PropagationDirection seedDir = trk->seedDirection();
-       myTrk->setExtra( TrackExtraRef( rTrackExtras, idx ++ ) );
-       TrackExtra * tx = new TrackExtra( trk->outerPosition(), trk->outerMomentum(), 
-					   trk->outerOk(), trk->innerPosition(), 
-					   trk->innerMomentum(), trk->innerOk(),
-					   trk->outerStateCovariance(), trk->outerDetId(),
-					   trk->innerStateCovariance(), trk->innerDetId() , seedDir ) ;	
+       myTrk->setExtra( reco::TrackExtraRef( rTrackExtras, idx ++ ) );
+       reco::TrackExtra * tx = new reco::TrackExtra( trk->outerPosition(), trk->outerMomentum(), 
+						     trk->outerOk(), trk->innerPosition(), 
+						     trk->innerMomentum(), trk->innerOk(),
+						     trk->outerStateCovariance(), trk->outerDetId(),
+						     trk->innerStateCovariance(), trk->innerDetId() ,
+						     seedDir ) ;	
 
        unsigned int i = 0; 
        for (trackingRecHit_iterator iHit = trk->recHitsBegin(); iHit != trk->recHitsEnd(); iHit++) {
