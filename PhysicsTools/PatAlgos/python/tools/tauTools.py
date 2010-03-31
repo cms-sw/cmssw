@@ -91,14 +91,14 @@ classicTauIDSources = [
     ("againstMuon", "DiscriminationAgainstMuon") ]
 
 # Tau Neural Classifier Discriminators
-tancIDSources = [
+tancTauIDSources = [
     ("byTaNC", "shrinkingConePFTauDiscriminationByTaNC"),
     ("byTaNCfrOnePercent", "shrinkingConePFTauDiscriminationByTaNCfrOnePercent"),
     ("byTaNCfrHalfPercent", "shrinkingConePFTauDiscriminationByTaNCfrHalfPercent"),
     ("byTaNCfrQuarterPercent", "shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"),
     ("byTaNCfrTenthPercent", "shrinkingConePFTauDiscriminationByTaNCfrTenthPercent") ]
 # Hadron-plus-strip(s) (HPS) Tau Discriminators
-hpsIDSources = [
+hpsTauIDSources = [
     ("leadingTrackFinding", "DiscriminationByDecayModeFinding"),
     ("byLooseIsolation", "DiscriminationByLooseIsolation"),
     ("byMediumIsolation", "DiscriminationByMediumIsolation"),
@@ -118,7 +118,7 @@ def switchToPFTauFixedCone(process,
 def switchToPFTauHPS(process, 
                      pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
                      pfTauLabelNew = cms.InputTag('hpsPFTauProducer')):
-    _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'hpsPFTau', hpsIDSources)
+    _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'hpsPFTau', hpsTauIDSources)
     # PFTauDecayMode objects produced only for shrinking cone reco::PFTaus
     process.patTaus.addDecayMode = cms.bool(False)
     ## adapt cleanPatTaus
@@ -131,7 +131,7 @@ def switchToPFTauShrinkingCone(process,
 
     shrinkingIDSources = copy.copy(classicTauIDSources)
     # Only shrinkingCone has associated TaNC discriminators, so add them here
-    shrinkingIDSources.extend(tauIDSources)
+    shrinkingIDSources.extend(tancTauIDSources)
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'shrinkingConePFTau', shrinkingIDSources)
 
 # Select switcher by string
