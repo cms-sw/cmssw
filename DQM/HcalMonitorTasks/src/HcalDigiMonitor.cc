@@ -387,7 +387,7 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   edm::Handle<edm::TriggerResults> hltRes;
   if (!(e.getByLabel(hltresultsLabel_,hltRes)))
     {
-      if (debug_>0) edm::LogWarning("HcalRecHitMonitor")<<" Could not get HLT results with tag "<<hltresultsLabel_<<std::endl;
+      if (debug_>0) edm::LogWarning("HcalDigiMonitor")<<" Could not get HLT results with tag "<<hltresultsLabel_<<std::endl;
     }
   else
     {
@@ -768,12 +768,13 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 
   bool digi_error=false;
 
-  std::vector<double>  pedSubtractedADC;
-  pedSubtractedADC.clear();
-  for (int i=0;i<digi.size();++i)
+  const int DigiSize=digi.size();
+  const int pedSubADCsize=sizeof(pedSubtractedADC_)/sizeof(double);
+
+  for (int i=0;i<DigiSize;++i)
     {
       int thisCapid = digi.sample(i).capid();
-      if (thisCapid<4) ++h.capid[thisCapid];
+      if (thisCapid>=0 && thisCapid<4) ++h.capid[thisCapid];
 
       if (makeDiagnostics_)
 	{
@@ -792,17 +793,7 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 	    }
 	  ++h.dverr[static_cast<int>(2*digi.sample(i).er()+digi.sample(i).dv())];
 	} // if (makeDiagnostics_)
-      if (PedestalsByCapId_.find(digi.id())!=PedestalsByCapId_.end())
-	{
-	  pedSubtractedADC.push_back(digi.sample(i).adc()-PedestalsByCapId_[digi.id()][thisCapid]);
-	  ADCcount+=digi.sample(i).adc()-PedestalsByCapId_[digi.id()][thisCapid];
-	}
-      else
-	{
-	  pedSubtractedADC.push_back(digi.sample(i).adc()-3);
-	  ADCcount+=digi.sample(i).adc()-3; // default pedestal subtraction of 3 ADC counts
-	}
-      if (digi.sample(i).adc()<200) ++h.adc[digi.sample(i).adc()];
+
       h.count_shape[i]+=digi.sample(i).adc();
       
       // Calculate ADC sum of adjacent samples -- still necessary?
@@ -814,6 +805,25 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 	    ++h.tssumplus[tssum+5][i];
 	  else
 	    ++h.tssumminus[tssum+5][i];
+	}
+
+      if (digi.sample(i).adc()<0) ++h.adc[0];
+      else if (digi.sample(i).adc()<200) ++h.adc[digi.sample(i).adc()];
+      else ++h.adc[199];
+
+      if (i>=pedSubADCsize) continue; // don't exceed maximum array length when checking digis
+
+      pedSubtractedADC_[i]=0; //reset counters
+      std::map<HcalDetId, std::vector<double> >::iterator  foundID = PedestalsByCapId_.find(digi.id());
+      if (foundID!=PedestalsByCapId_.end())
+	{
+	  pedSubtractedADC_[i]=digi.sample(i).adc()-(foundID->second)[thisCapid];
+	  ADCcount+=digi.sample(i).adc()-(foundID->second)[thisCapid];
+	}
+      else
+	{
+	  pedSubtractedADC_[i]=digi.sample(i).adc()-3;
+	  ADCcount+=digi.sample(i).adc()-3; // default pedestal subtraction of 3 ADC counts
 	}
     } // for (int i=0;i<digi.size();++i)
   
@@ -834,7 +844,7 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
       return err;
     }
 
-  // require minimum ADC count for occupancy; this doesn't do anything?
+  if (ADCcount<0) ADCcount=0;
   if (ADCcount<199)
     ++h.adcsum[ADCcount];
   else
@@ -847,8 +857,8 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
       h.ThreshCount->Fill(0,1);
       if (digi.id().subdet()!=HcalOuter || isSiPM(iEta,iPhi, iDepth)==false)
 	{
-	  for (unsigned int i=0;i<pedSubtractedADC.size();++i)
-	    h.count_shapeThresh[i]+=pedSubtractedADC[i];
+	  for (int i=0;i<pedSubADCsize;++i)
+	    h.count_shapeThresh[i]+=pedSubtractedADC_[i];
 	}
     }
 
@@ -911,6 +921,7 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 	    HFtiming_occupancy2D->Fill(iEta,myiphi,1);
 	} //maxtime>-1
     } // if HcalForward
+
   return err;
 } // template <class DIGI> int HcalDigiMonitor::process_Digi
 
@@ -980,6 +991,7 @@ void HcalDigiMonitor::fill_Nevents()
   for (int i=0;i<200;++i)
     {
       if (hbHists.adc[i]>0) hbHists.ADC->Fill(i, hbHists.adc[i]);
+
       if (heHists.adc[i]>0) heHists.ADC->Fill(i, heHists.adc[i]);
       if (hoHists.adc[i]>0) hoHists.ADC->Fill(i, hoHists.adc[i]);
       if (hfHists.adc[i]>0) hfHists.ADC->Fill(i, hfHists.adc[i]);
@@ -1371,7 +1383,7 @@ void HcalDigiMonitor::zeroCounters()
 
 void HcalDigiMonitor::UpdateHists(DigiHists& h)
 {
-  // call update command for all histograms (should make them update when running in online DQM?
+  // call update command for all histograms (should make them update when running in online DQM?)
   h.shape->update();
   h.shapeThresh->update();
   h.presample->update();

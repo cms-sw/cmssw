@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2010/03/25 20:53:27 $
-  * $Revision: 1.59 $
+  * $Date: 2010/03/26 09:58:32 $
+  * $Revision: 1.60 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -199,6 +199,8 @@ private:  ///Methods, variables accessible only within class code
 
   // Should be able to make this a vector of ints, right?
   std::map<HcalDetId, std::vector<double> > PedestalsByCapId_;
+
+  double pedSubtractedADC_[10]; // stores ped-subtracted ADCs for each digi time slice;  use this instead of a vector because of memory allocation issues
 };
 
 float bins_cellcount_new[]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5,
