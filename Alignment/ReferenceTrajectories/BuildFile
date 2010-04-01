@@ -1,4 +1,3 @@
-<use name=Alignment/CommonAlignmentAlgorithm>
 <use name=Alignment/TwoBodyDecay>
 <use name=DataFormats/CLHEP>
 <use name=DataFormats/GeometrySurface>
