@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.53 2010/04/01 13:34:27 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.54 2010/04/01 16:37:30 dinardo Exp $
 //
 //
 
@@ -1196,7 +1196,7 @@ void Vx3DHLTAnalyzer::beginJob()
       fitResults->setBinLabel(4, "dY/dZ", 2);
       fitResults->setBinLabel(3, "sigmaX0", 2);
       fitResults->setBinLabel(2, "sigmaY0", 2);
-      fitResults->setBinLabel(1, "# vertices", 2);
+      fitResults->setBinLabel(1, "Vertices", 2);
       fitResults->setBinLabel(1, "Value", 1);
       fitResults->setBinLabel(2, "Stat. Error", 1);
       fitResults->getTH1()->SetOption("text");
