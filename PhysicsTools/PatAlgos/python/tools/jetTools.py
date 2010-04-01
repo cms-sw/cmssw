@@ -2,9 +2,6 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
-
-
-
 def patchJetCorrFactors_(jetCorrFactors, newAlgo):
     """
     ------------------------------------------------------------------
@@ -79,7 +76,6 @@ class SwitchJECSet(ConfigToolBase):
     """
     _label='switchJECSet'
     _defaultParameters=dicttypes.SortedKeysDict()
-
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'newName',self._defaultValue,"new correction sample", Type=str)
@@ -120,11 +116,11 @@ class RunBTagging(ConfigToolBase):
     """
     _label='runBTagging'
     _defaultParameters=dicttypes.SortedKeysDict()
-
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue, 'input jet collection',Type=cms.InputTag)
         self.addParameter(self._defaultParameters,'label',self._defaultValue, 'postfix label to identify new sequence/modules', Type=str)
+        self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence (do not confuse with 'label')")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -133,18 +129,24 @@ class RunBTagging(ConfigToolBase):
  
     def __call__(self,process,
                  jetCollection     = None,
-                 label             = None) :
+                 label             = None,
+                 postfix           = None) :
         if  jetCollection is None:
             jetCollection=self._defaultParameters['jetCollection'].value
         if  label is None:
             label=self._defaultParameters['label'].value
+        if postfix  is None:
+            postfix=self._defaultParameters['postfix'].value
         self.setParameter('jetCollection',jetCollection)
         self.setParameter('label',label)
+        self.setParameter('postfix',postfix)
+
         return self.apply(process) 
         
     def apply(self, process):
         jetCollection=self._parameters['jetCollection'].value
         label=self._parameters['label'].value
+        postfix=self._parameters['postfix'].value
 
         if hasattr(process, "addAction"):
             process.disableRecording()
@@ -177,7 +179,7 @@ class RunBTagging(ConfigToolBase):
         ## of crab. In this case the postfix label is skiped,
         ## otherwise a postfix label is added as for the other
         ## labels
-        jtaLabel = 'jetTracksAssociatorAtVertex'
+        jtaLabel = 'jetTracksAssociatorAtVertex'+postfix
         
         if (not label == 'AOD'):
             jtaLabel  += label
@@ -267,7 +269,6 @@ class AddJetCollection(ConfigToolBase):
     """
     _label='addJetCollection'
     _defaultParameters=dicttypes.SortedKeysDict()
-
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue,'Input jet collection', cms.InputTag)
@@ -547,7 +548,6 @@ class SwitchJetCollection(ConfigToolBase):
     """
     _label='switchJetCollection'
     _defaultParameters=dicttypes.SortedKeysDict()
-
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue,'Input jet collection', cms.InputTag)
@@ -558,6 +558,7 @@ class SwitchJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'genJetCollection',cms.InputTag("ak5GenJets"), "GenJet collection to match to")
         self.addParameter(self._defaultParameters,'doJetID',True, "add jetId variables to the added jet collection")
         self.addParameter(self._defaultParameters,'jetIdLabel',"ak5", " specify the label prefix of the xxxJetID object; in general it is the jet collection tag like ak5, kt4 sc5, aso. For more information have a look to SWGuidePATTools#add_JetCollection")
+        self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
         
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
@@ -573,7 +574,8 @@ class SwitchJetCollection(ConfigToolBase):
                  doType1MET         = None,
                  genJetCollection   = None,
                  doJetID            = None,
-                 jetIdLabel         = None):
+                 jetIdLabel         = None,
+                 postfix            = None):
                  
         if jetCollection  is None:
             jetCollection=self._defaultParameters['jetCollection'].value
@@ -591,6 +593,8 @@ class SwitchJetCollection(ConfigToolBase):
             doJetID=self._defaultParameters['doJetID'].value
         if jetIdLabel  is None:
             jetIdLabel=self._defaultParameters['jetIdLabel'].value
+        if postfix  is None:
+            postfix=self._defaultParameters['postfix'].value
 
         self.setParameter('jetCollection',jetCollection)
         self.setParameter('doJTA',doJTA)
@@ -600,6 +604,7 @@ class SwitchJetCollection(ConfigToolBase):
         self.setParameter('genJetCollection',genJetCollection)
         self.setParameter('doJetID',doJetID)
         self.setParameter('jetIdLabel',jetIdLabel)
+        self.setParameter('postfix',postfix)
         
         self.apply(process) 
         
@@ -612,18 +617,19 @@ class SwitchJetCollection(ConfigToolBase):
         genJetCollection=self._parameters['genJetCollection'].value
         doJetID=self._parameters['doJetID'].value
         jetIdLabel=self._parameters['jetIdLabel'].value
+        postfix=self._parameters['postfix'].value
 
 
         ## save label of old input jet collection
-        oldLabel = process.patJets.jetSource;
+        oldLabel = applyPostfix(process, "patJets", postfix).jetSource;
     
         ## replace input jet collection for generator matches
-        process.patJetPartonMatch.src        = jetCollection
-        process.patJetGenJetMatch.src        = jetCollection
-        process.patJetGenJetMatch.matched    = genJetCollection
-        process.patJetPartonAssociation.jets = jetCollection
+	applyPostfix(process, "patJetPartonMatch", postfix).src = jetCollection
+	applyPostfix(process, "patJetGenJetMatch", postfix).src = jetCollection
+	applyPostfix(process, "patJetGenJetMatch", postfix).matched = genJetCollection
+	applyPostfix(process, "patJetPartonAssociation", postfix).jets = jetCollection
         ## replace input jet collection for pat jet production
-        process.patJets.jetSource         = jetCollection
+	applyPostfix(process, "patJets", postfix).jetSource = jetCollection
     
         ## make VInputTag from strings
         def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
@@ -631,44 +637,53 @@ class SwitchJetCollection(ConfigToolBase):
         if (doJTA or doBTagging):
             ## replace jet track association
             process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
-            from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
-            process.jetTracksAssociatorAtVertex = ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection)
-            process.makePatJets.replace(process.patJetCharge, process.jetTracksAssociatorAtVertex+process.patJetCharge)
-            process.patJetCharge.src = 'jetTracksAssociatorAtVertex'
-            process.patJets.trackAssociationSource = 'jetTracksAssociatorAtVertex'
+            from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex            
+            setattr(process, "jetTracksAssociatorAtVertex"+postfix, ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection)) 
+            getattr(process, "patDefaultSequence"+postfix).replace(
+                applyPostfix(process, "patJetCharge", postfix),
+                getattr(process, "jetTracksAssociatorAtVertex" + postfix) #module with postfix that is not n patDefaultSequence
+                + applyPostfix(process, "patJetCharge", postfix)
+                )
+
+            applyPostfix(process, "patJetCharge", postfix).src = 'jetTracksAssociatorAtVertex'+postfix
+            applyPostfix(process, "patJets", postfix).trackAssociationSource = 'jetTracksAssociatorAtVertex'+postfix
         else:
             ## remove the jet track association from the std
             ## sequence
-            process.makePatJets.remove(process.patJetCharge)
+            removeIfInSequence(process,  "patJetCharge",  "patDefaultSequence", postfix)
             ## switch embedding of track association and jet
             ## charge estimate to 'False'
-            process.patJets.addAssociatedTracks = False
-            process.patJets.addJetCharge = False
+            applyPostfix(process, "patJets", postfix).addAssociatedTracks = False
+            applyPostfix(process, "patJets", postfix).addJetCharge = False
 
         if (doBTagging):
             ## replace b tagging sequence; add postfix label 'AOD' as crab will
             ## crash when confronted with empy labels
-            (btagSeq, btagLabels) = runBTagging(process, jetCollection, 'AOD')
+            (btagSeq, btagLabels) = runBTagging(process, jetCollection, 'AOD',postfix)
             ## add b tagging sequence before running the allLayer1Jets modules
-            process.makePatJets.replace(process.jetTracksAssociatorAtVertex, process.jetTracksAssociatorAtVertex+btagSeq)
+            getattr(process, "patDefaultSequence"+postfix).replace(
+                getattr( process,"jetTracksAssociatorAtVertex"+postfix),
+                getattr( process,"jetTracksAssociatorAtVertex"+postfix) + btagSeq
+                )
 
             ## replace corresponding tags for pat jet production
-            process.patJets.trackAssociationSource = btagLabels['jta']
-            process.patJets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
-            process.patJets.discriminatorSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['jetTags']  ] )
+            applyPostfix(process, "patJets", postfix).trackAssociationSource = btagLabels['jta']
+            applyPostfix(process, "patJets", postfix).tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
+            applyPostfix(process, "patJets", postfix).discriminatorSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['jetTags']  ] )
         else:
             ## remove b tagging from the std sequence
-            process.makePatJets.remove(process.secondaryVertexNegativeTagInfos)
-            process.makePatJets.remove(process.simpleSecondaryVertexNegativeBJetTags)
+            removeIfInSequence(process,  "secondaryVertexNegativeTagInfos",  "patDefaultSequence", postfix)
+            removeIfInSequence(process,  "simpleSecondaryVertexNegativeBJetTags",  "patDefaultSequence", postfix)
+
             ## switch embedding of b tagging for pat
             ## jet production to 'False'
-            process.patJets.addBTagInfo = False
+            applyPostfix(process, "patJets", postfix).addBTagInfo = False
 
         if (doJetID):
             jetIdLabelNew = jetIdLabel + 'JetID'
-            process.patJets.jetIDMap = cms.InputTag( jetIdLabelNew )
+            applyPostfix(process, "patJets", postfix).jetIDMap = cms.InputTag( jetIdLabelNew )
         else:
-            process.patJets.addJetID = cms.bool(False)
+            applyPostfix(process, "patJets", postfix).addJetID = cms.bool(False)
 
             
         if (jetCorrLabel!=None):
@@ -683,8 +698,8 @@ class SwitchJetCollection(ConfigToolBase):
                 raise ValueError, "In switchJetCollection 'jetCorrLabel' must be 'None', or of type ('Algo','Type')"
 
             ## switch JEC parameters to the new jet collection
-            process.patJetCorrFactors.jetSource = jetCollection            
-            switchJECParameters(process.patJetCorrFactors, jetCorrLabel[0], jetCorrLabel[1], oldAlgo='AK5',oldType='Calo')
+            applyPostfix(process, "patJetCorrFactors", postfix).jetSource = jetCollection            
+            switchJECParameters(applyPostfix(process, "patJetCorrFactors", postfix), jetCorrLabel[0], jetCorrLabel[1], oldAlgo='AK5',oldType='Calo')
 
             ## switch type1MET corrections off for PFJets
             if( jetCollection.__str__().find('PFJets')>=0 ):
@@ -711,14 +726,14 @@ class SwitchJetCollection(ConfigToolBase):
                 ## configure the type1MET correction the following muonMET
                 ## corrections have the corMetType1Icone5 as input and are
                 ## automatically correct  
-                process.metJESCorAK5CaloJet.inputUncorJetsLabel = jetCollection.value()
-                process.metJESCorAK5CaloJet.corrector = 'L2L3JetCorrector%s%s' % jetCorrLabel
+                applyPostfix(process, "metJESCorAK5CaloJet", postfix).inputUncorJetsLabel = jetCollection.value()
+                applyPostfix(process, "metJESCorAK5CaloJet", postfix).corrector = 'L2L3JetCorrector%s%s' % jetCorrLabel
         else:
             ## remove the jetCorrFactors from the std sequence
-            process.patJetMETCorrections.remove(process.jetCorrFactors)
+	    removeFromSequence(process, process.jetCorrFactors, postfix)
             ## switch embedding of jetCorrFactors off
             ## for pat jet production
-            process.patJets.addJetCorrFactors = False
+            applyPostfix(process, "patJets", postfix).addJetCorrFactors = False
         
 
 switchJetCollection=SwitchJetCollection()
@@ -730,7 +745,6 @@ class AddJetID(ConfigToolBase):
     """
     _label='addJetID'
     _defaultParameters=dicttypes.SortedKeysDict()
-
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetSrc',self._defaultValue, "", Type=cms.InputTag)
@@ -762,8 +776,7 @@ class AddJetID(ConfigToolBase):
         ## replace jet id sequence
         process.load("RecoJets.JetProducers.ak5JetID_cfi")
         setattr( process, jetIdLabel, process.ak5JetID.clone(src = jetSrc))
-        process.makePatJets.replace( process.patJets, getattr(process,jetIdLabel) + process.patJets )
-    
+        process.makePatJets.replace( process.patJets, getattr(process,jetIdLabel) + process.patJets )    
            
 addJetID=AddJetID()
 
@@ -774,7 +787,6 @@ class SetTagInfos(ConfigToolBase):
     """
     _label='setTagInfos'
     _defaultParameters=dicttypes.SortedKeysDict()
-
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'coll',"allLayer1Jets","jet collection to set tag infos for")
