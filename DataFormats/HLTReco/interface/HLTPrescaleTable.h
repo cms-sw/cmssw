@@ -5,8 +5,8 @@
  *
  *  The single EDProduct containing the HLT Prescale Table
  *
- *  $Date: 2010/03/11 12:35:33 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/04/01 17:38:56 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -75,7 +75,7 @@ namespace trigger
     }
 
     /// merge rule - just checking equality
-    bool isProductEqual(const HLTPrescaleTable& that) {
+    bool isProductEqual(const HLTPrescaleTable& that) const {
       return ((set()==that.set()) && (labels()==that.labels()) && (table()==that.table()));
     }
 
