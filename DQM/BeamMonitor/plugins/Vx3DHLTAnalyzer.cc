@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.47 2010/03/31 20:07:19 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.48 2010/03/31 20:12:45 dinardo Exp $
 //
 //
 
@@ -1019,34 +1019,52 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 
       fitResults->setAxisTitle(histTitle.str().c_str(), 1);
       
-      fitResults->setBinContent(1, 8, vals[0]);
-      fitResults->setBinContent(1, 7, vals[1]);
-      fitResults->setBinContent(1, 6, vals[2]);
-      fitResults->setBinContent(1, 5, vals[3]);
-      fitResults->setBinContent(1, 4, vals[4]);
-      fitResults->setBinContent(1, 3, vals[5]);
-      fitResults->setBinContent(1, 2, vals[6]);
-      fitResults->setBinContent(1, 1, vals[7]);
+      fitResults->setBinContent(1, 9, vals[0]);
+      fitResults->setBinContent(1, 8, vals[1]);
+      fitResults->setBinContent(1, 7, vals[2]);
+      fitResults->setBinContent(1, 6, vals[3]);
+      fitResults->setBinContent(1, 5, vals[4]);
+      fitResults->setBinContent(1, 4, vals[5]);
+      fitResults->setBinContent(1, 3, vals[6]);
+      fitResults->setBinContent(1, 2, vals[7]);
+      fitResults->setBinContent(1, 1, counterVx);
       
-      fitResults->setBinContent(2, 8, sqrt(vals[8]));
-      fitResults->setBinContent(2, 7, sqrt(vals[9]));
-      fitResults->setBinContent(2, 6, sqrt(vals[10]));
-      fitResults->setBinContent(2, 5, sqrt(vals[11]));
-      fitResults->setBinContent(2, 4, sqrt(vals[12]));
-      fitResults->setBinContent(2, 3, sqrt(vals[13]));
-      fitResults->setBinContent(2, 2, sqrt(vals[14]));
-      fitResults->setBinContent(2, 1, sqrt(vals[15]));
+      fitResults->setBinContent(2, 9, sqrt(vals[8]));
+      fitResults->setBinContent(2, 8, sqrt(vals[9]));
+      fitResults->setBinContent(2, 7, sqrt(vals[10]));
+      fitResults->setBinContent(2, 6, sqrt(vals[11]));
+      fitResults->setBinContent(2, 5, sqrt(vals[12]));
+      fitResults->setBinContent(2, 4, sqrt(vals[13]));
+      fitResults->setBinContent(2, 3, sqrt(vals[14]));
+      fitResults->setBinContent(2, 2, sqrt(vals[15]));
+      fitResults->setBinContent(2, 1, 0.0);
 
       mXlumi->ShiftFillLast(vals[0], sqrt(vals[8]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      mXlumi->getTH1()->Fit("pol1","Q");
+      mXlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
       mYlumi->ShiftFillLast(vals[1], sqrt(vals[9]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      mYlumi->getTH1()->Fit("pol1","Q");
+      mYlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
       mZlumi->ShiftFillLast(vals[2], sqrt(vals[10]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      mZlumi->getTH1()->Fit("pol1","Q");
+      mZlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
       
       sXlumi->ShiftFillLast(vals[6], sqrt(vals[14]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      sXlumi->getTH1()->Fit("pol1","Q");
+      sXlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
       sYlumi->ShiftFillLast(vals[7], sqrt(vals[15]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      sYlumi->getTH1()->Fit("pol1","Q");
+      sYlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
       sZlumi->ShiftFillLast(vals[3], sqrt(vals[11]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      sZlumi->getTH1()->Fit("pol1","Q");
+      sZlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
       
-      dxdzlumi->ShiftFillLast(vals[4], 0.0005, (int)(lumiCounter/nLumiReset)*nLumiReset);
-      dydzlumi->ShiftFillLast(vals[5], 0.0005, (int)(lumiCounter/nLumiReset)*nLumiReset);
+      dxdzlumi->ShiftFillLast(vals[4], 0.0002, (int)(lumiCounter/nLumiReset)*nLumiReset);
+      dxdzlumi->getTH1()->Fit("pol1","Q");
+      dxdzlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
+      dydzlumi->ShiftFillLast(vals[5], 0.0002, (int)(lumiCounter/nLumiReset)*nLumiReset);
+      dydzlumi->getTH1()->Fit("pol1","Q");
+      dydzlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
       
       vals.clear();
     }
@@ -1145,16 +1163,17 @@ void Vx3DHLTAnalyzer::beginJob()
       hitCounter->setAxisTitle("# Pixel-Hits [#]",2);
       hitCounter->getTH1()->SetOption("E1");
 
-      fitResults = dbe->book2D("fit results","Results of Beam Spot Fit", 2, 0., 2., 8, 0., 8.);
+      fitResults = dbe->book2D("fit results","Results of Beam Spot Fit", 2, 0., 2., 9, 0., 9.);
       fitResults->setAxisTitle("Fitted Beam Spot [cm]", 1);
-      fitResults->setBinLabel(8, "X0", 2);
-      fitResults->setBinLabel(7, "Y0", 2);
-      fitResults->setBinLabel(6, "Z0", 2);
-      fitResults->setBinLabel(5, "sigmaZ0", 2);
-      fitResults->setBinLabel(4, "dX/dZ", 2);
-      fitResults->setBinLabel(3, "dY/dZ", 2);
-      fitResults->setBinLabel(2, "sigmaX0", 2);
-      fitResults->setBinLabel(1, "sigmaY0", 2);
+      fitResults->setBinLabel(9, "X0", 2);
+      fitResults->setBinLabel(8, "Y0", 2);
+      fitResults->setBinLabel(7, "Z0", 2);
+      fitResults->setBinLabel(6, "sigmaZ0", 2);
+      fitResults->setBinLabel(5, "dX/dZ", 2);
+      fitResults->setBinLabel(4, "dY/dZ", 2);
+      fitResults->setBinLabel(3, "sigmaX0", 2);
+      fitResults->setBinLabel(2, "sigmaY0", 2);
+      fitResults->setBinLabel(1, "# vertices", 2);
       fitResults->setBinLabel(1, "Value", 1);
       fitResults->setBinLabel(2, "Stat. Error", 1);
       fitResults->getTH1()->SetOption("text");
