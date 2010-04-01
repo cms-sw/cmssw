@@ -1,0 +1,44 @@
+<library file="DisplayGeom.cc" name="FireworksDisplayGeomPlugin">
+	<use name="FWCore/Framework"/>
+	<use name="Fireworks/Geometry"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="EveDisplayPlugin.cc" name="FireworksGeometryPlugins">
+	<use name="Geometry/Records"/>
+	<use name="Fireworks/Geometry"/>
+	<use name="rootgpad"/>
+	<lib name="Eve"/>
+	<lib name="Geom"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="DisplayGeomFromDDD.cc" name="FireworksGeometryDisplayGeomFromDDDPlugin">
+	<use name="Geometry/Records"/>
+	<use name="DetectorDescription/Core"/>
+	<use name="Fireworks/Geometry"/>
+	<lib name="Geom"/>
+	<use name="rootcore"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="DumpGeom.cc" name="FireworksGeometryDumpGeomPlugin">
+	<use name="Geometry/Records"/>
+	<use name="DetectorDescription/Core"/>
+	<use name="Fireworks/Geometry"/>
+	<lib name="Geom"/>
+	<use name="rootcore"/>
+        <use name="FWCore/Framework"/>
+        <use name="FWCore/PluginManager"/>
+        <use name="FWCore/ParameterSet"/>
+        <use name="Geometry/MuonNumbering"/>
+        <use name="Geometry/TrackerNumberingBuilder"/>
+        <use name="Geometry/CaloGeometry"/>
+        <use name="Geometry/EcalAlgo"/>
+        <use name="Geometry/EcalCommonData"/>
+        <use name="DataFormats/HcalDetId"/>
+        <use name="DataFormats/EcalDetId"/>
+        <use name="Geometry/CSCGeometryBuilder"/>
+        <use name="rootgpad"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
