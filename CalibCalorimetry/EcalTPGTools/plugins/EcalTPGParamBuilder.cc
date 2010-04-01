@@ -143,7 +143,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   FG_highRatio_EB_ = pSet.getParameter<double>("FG_highRatio_EB") ;
   FG_lut_EB_ = pSet.getParameter<unsigned int>("FG_lut_EB") ;
   FG_Threshold_EE_ = pSet.getParameter<double>("FG_Threshold_EE") ;
-  FG_lut_strip_EE_ = pSet.getParameter<unsigned long>("FG_lut_strip_EE") ;
+  FG_lut_strip_EE_ = pSet.getParameter<unsigned int>("FG_lut_strip_EE") ;
   FG_lut_tower_EE_ = pSet.getParameter<unsigned int>("FG_lut_tower_EE") ;
 }
 
