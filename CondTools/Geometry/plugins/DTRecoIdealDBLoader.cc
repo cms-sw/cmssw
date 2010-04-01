@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
@@ -45,7 +46,7 @@ DTRecoIdealDBLoader::beginRun( const edm::Run&, edm::EventSetup const& es)
     return;
   }
 
-  edm::ESHandle<DDCompactView> pDD;
+  edm::ESTransientHandle<DDCompactView> pDD;
   edm::ESHandle<MuonDDDConstants> pMNDC;
   es.get<IdealGeometryRecord>().get(label_, pDD );
   es.get<MuonNumberingRecord>().get( pMNDC );
