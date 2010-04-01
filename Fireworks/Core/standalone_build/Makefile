@@ -1,7 +1,7 @@
 # -*-make-*-
 #  Autors:   Dmytro Kovalskyi
 #            Johannes Muelmenstaedt
-# 
+#
 
 # debug
 ifndef VERBOSE
@@ -14,7 +14,7 @@ ifeq ($(shell uname), Linux)
 		COMPILERFLAGS := -Wall -O2 -m32 -fPIC
 		SO_EXT := so
 		MAKESHAREDLIB := -shared
-else 
+else
 	ifeq ($(shell uname), Darwin)
 		CC := c++-4.0
 		COMPILERFLAGS := -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -arch i386 -Wall -O2 -fPIC
@@ -58,13 +58,12 @@ clean: cleandisplay
 
 cleanall: cleancore cleandisplay
 
-cleancore: 
+cleancore:
 	$(QUIET) echo "removing temporary core objects and output library..."; \
 	rm -rf tmp/cms; rm libCMSDataFormats.$(SO_EXT); echo "done"
 
-cleandisplay: 
+cleandisplay:
 	$(QUIET) echo "removing temporary project objects and output libraries..."; \
 	rm -rf tmp/src; rm libCMSShow.$(SO_EXT); \
 	if [ $(shell uname) == "Darwin" ]; then rm -rf lib$(LibProject).$(SO_EXT).dSYM; fi; \
 	echo "done"
-

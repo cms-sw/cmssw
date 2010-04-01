@@ -1,7 +1,7 @@
 # -*-make-*-
 #  Autors:   Dmytro Kovalskyi
 #            Johannes Muelmenstaedt
-# 
+#
 
 
 include core.mk
@@ -32,7 +32,7 @@ CoreDictionaryObjects  = $(CoreDictionarySources:.cpp=.do)
 
 LibCore = CMSDataFormats
 
-all: core 
+all: core
 
 core:   lib$(LibCore).$(SO_EXT) tmp/lib$(LibCore).$(SO_EXT).out
 
@@ -42,10 +42,9 @@ lib$(LibCore).$(SO_EXT): $(CoreObjects) $(CoreObjectsC) $(CoreRootDicObjects) $(
 	$(CoreObjects) $(CoreObjectsC) $(CoreRootDicObjects) $(CoreDictionaryObjects)
 
 ######################################################################################
-# 
+#
 #                General rules for making object files
-# 
+#
 ######################################################################################
 
 include common.mk
-

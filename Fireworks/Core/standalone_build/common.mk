@@ -1,7 +1,7 @@
 ######################################################################################
-# 
+#
 #                General rules for making object files
-# 
+#
 ######################################################################################
 # get object files
 tmp/%.o:   %.cc
@@ -18,12 +18,12 @@ tmp/%.co:   %.c
 tmp/%.cpp:  %.h %_def.xml
 	$(QUIET) echo "generating dictionaries based on $*_def.xml"; \
 	mkdir -p $(dir $@); \
-	$(FWROOTSYS)/bin/genreflex $*.h -s $*_def.xml -o $@ $(INCLUDE) --gccxmlpath=external/gccxml/bin --gccxmlopt="--gccxml-cxxflags '-m32' --gccxml-compiler $(CC)" 
+	$(FWROOTSYS)/bin/genreflex $*.h -s $*_def.xml -o $@ $(INCLUDE) --gccxmlpath=external/gccxml/bin --gccxmlopt="--gccxml-cxxflags '-m32' --gccxml-compiler $(CC)"
 # dictionary creation
 
 # dictionary creation
 # NOTE: for some reason I needed to add the original
-#   LinkDef file contect to the generated dictionary code to be 
+#   LinkDef file contect to the generated dictionary code to be
 #   able to compile
 tmp/%LinkDef.cc:  %LinkDef.h
 	$(QUIET) echo "generating ROOT dictionaries based on $<"; \

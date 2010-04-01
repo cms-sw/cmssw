@@ -17,8 +17,8 @@ CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 # linker flags
 ifeq ($(shell uname), Linux)
         ExecLibs = -lEve -lGuiHtml -lRIO -lNet -L./ -l$(LibProject)
-        ExtraProjectLibs = -L./ -l$(LibCore) 
-else 
+        ExtraProjectLibs = -L./ -l$(LibCore)
+else
    ifeq ($(shell uname), Darwin)
       ExecLibs = -lEve -lRint -lRGL -lCore -lGUI  -lNet -L./ -L/usr/X11R6/lib -l$(LibProject) -l$(LibCore) -lCore
       ExtraProjectLibs =  -L/usr/X11R6/lib -lGL -lGLU -L./ -l$(LibCore) \
@@ -68,9 +68,9 @@ lib$(LibProject).$(SO_EXT): $(ProjectObjects) $(ProjectRootDicObjects) $(Project
 	-o lib$(LibProject).$(SO_EXT) $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects)
 
 ######################################################################################
-# 
+#
 #                General rules for making object files
-# 
+#
 ######################################################################################
 
 include common.mk
