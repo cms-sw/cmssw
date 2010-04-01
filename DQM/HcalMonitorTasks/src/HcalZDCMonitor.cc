@@ -109,13 +109,13 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
             // integrated charge over 10 time samples
             sprintf(title, "h_ZDCP_EMChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Plus EM Section Charge for channel %i", i + 1);
-            h_ZDCP_EM_Charge[i] = m_dbe->book1D(title, name, 1010, -100., 10000.);
+            h_ZDCP_EM_Charge[i] = m_dbe->book1D(title, name, 1010, -300., 30000.);
 	    h_ZDCP_EM_Charge[i]->setAxisTitle("Charge {fC}",1);
 	    h_ZDCP_EM_Charge[i]->setAxisTitle("Events",2);
             // integrated charge over 10 time samples
             sprintf(title, "h_ZDCM_EMChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Minus EM Section Charge for channel %i", i + 1);
-            h_ZDCM_EM_Charge[i] = m_dbe->book1D(title, name, 1010, -100., 10000.);
+            h_ZDCM_EM_Charge[i] = m_dbe->book1D(title, name, 1010, -300., 30000.);
 	    h_ZDCM_EM_Charge[i]->setAxisTitle("Charge {fC}",1);
 	    h_ZDCM_EM_Charge[i]->setAxisTitle("Events",2);
             // charge weighted time slice
@@ -148,13 +148,13 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
             // integrated charge over 10 time samples 
             sprintf(title, "h_ZDCP_HADChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Plus HAD Section Charge for channel %i", i + 1);
-            h_ZDCP_HAD_Charge[i] = m_dbe->book1D(title, name, 1010, -100., 10000.);
+            h_ZDCP_HAD_Charge[i] = m_dbe->book1D(title, name, 1010, -300., 30000.);
 	    h_ZDCP_HAD_Charge[i]->setAxisTitle("Charge {fC}",1);
 	    h_ZDCP_HAD_Charge[i]->setAxisTitle("Events",2);
             // integrated charge over 10 time samples 
             sprintf(title, "h_ZDCM_HADChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Minus HAD Section Charge for channel %i", i + 1);
-            h_ZDCM_HAD_Charge[i] = m_dbe->book1D(title, name, 1010, -100., 10000.);
+            h_ZDCM_HAD_Charge[i] = m_dbe->book1D(title, name, 1010, -300., 30000.);
 	    h_ZDCM_HAD_Charge[i]->setAxisTitle("Charge {fC}",1);
 	    h_ZDCM_HAD_Charge[i]->setAxisTitle("Events",2);
             // charge weighted time slice 
