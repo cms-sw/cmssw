@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.49 2010/04/01 08:23:59 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.50 2010/04/01 10:20:50 dinardo Exp $
 //
 //
 
@@ -1040,47 +1040,32 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       fitResults->setBinContent(2, 1, 0.0);
 
       // Linear fit to the historical plots
-      TF1* myLinFit = new TF1("mypol1","pol1");
+      TF1* myLinFit = new TF1("myLinFit","pol1");
+      myLinFit->SetLineColor(2);
 
       mXlumi->ShiftFillLast(vals[0], sqrt(vals[8]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      mXlumi->getTH1()->Fit("mypol1","Q");
-      myLinFit->SetLineColor(2);
-      myLinFit->Clear();
+      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
 
       mYlumi->ShiftFillLast(vals[1], sqrt(vals[9]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      mYlumi->getTH1()->Fit("mypol1","Q");
-      myLinFit->SetLineColor(2);
-      myLinFit->Clear();
+      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
 
       mZlumi->ShiftFillLast(vals[2], sqrt(vals[10]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      mZlumi->getTH1()->Fit("mypol1","Q");
-      myLinFit->SetLineColor(2);
-      myLinFit->Clear();
+      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
       
       sXlumi->ShiftFillLast(vals[6], sqrt(vals[14]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      sXlumi->getTH1()->Fit("mypol1","Q");
-      myLinFit->SetLineColor(2);
-      myLinFit->Clear();
+      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
 
       sYlumi->ShiftFillLast(vals[7], sqrt(vals[15]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      sYlumi->getTH1()->Fit("mypol1","Q");
-      myLinFit->SetLineColor(2);
-      myLinFit->Clear();
+      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
 
       sZlumi->ShiftFillLast(vals[3], sqrt(vals[11]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      sZlumi->getTH1()->Fit("mypol1","Q");
-      myLinFit->SetLineColor(2);
-      myLinFit->Clear();
+      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
       
       dxdzlumi->ShiftFillLast(vals[4], 0.0002, (int)(lumiCounter/nLumiReset)*nLumiReset);
-      dxdzlumi->getTH1()->Fit("mypol1","Q");
-      myLinFit->SetLineColor(2);
-      myLinFit->Clear();
+      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
 
       dydzlumi->ShiftFillLast(vals[5], 0.0002, (int)(lumiCounter/nLumiReset)*nLumiReset);
-      dydzlumi->getTH1()->Fit("mypol1","Q");
-      myLinFit->SetLineColor(2);
-      myLinFit->Clear();
+      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
       
       delete myLinFit;
 
@@ -1115,9 +1100,9 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_Z->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_Z->setAxisTitle("Entries [#]",2);
  
-      mXlumi = dbe->book1D("muX vs lumi", "\\mu_{x} vs. Lumisection", 100, 0.5, 100.5);
-      mYlumi = dbe->book1D("muY vs lumi", "\\mu_{y} vs. Lumisection", 100, 0.5, 100.5);
-      mZlumi = dbe->book1D("muZ vs lumi", "\\mu_{z} vs. Lumisection", 100, 0.5, 100.5);
+      mXlumi = dbe->book1D("muX vs lumi", "\\mu_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      mYlumi = dbe->book1D("muY vs lumi", "\\mu_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      mZlumi = dbe->book1D("muZ vs lumi", "\\mu_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
 
       mXlumi->setAxisTitle("Lumisection [#]",1);
       mXlumi->setAxisTitle("\\mu_{x} [cm]",2);
@@ -1129,9 +1114,9 @@ void Vx3DHLTAnalyzer::beginJob()
       mZlumi->setAxisTitle("\\mu_{z} [cm]",2);
       mZlumi->getTH1()->SetOption("E1");
 
-      sXlumi = dbe->book1D("sigmaX vs lumi", "\\sigma_{x} vs. Lumisection", 100, 0.5, 100.5);
-      sYlumi = dbe->book1D("sigmaY vs lumi", "\\sigma_{y} vs. Lumisection", 100, 0.5, 100.5);
-      sZlumi = dbe->book1D("sigmaZ vs lumi", "\\sigma_{z} vs. Lumisection", 100, 0.5, 100.5);
+      sXlumi = dbe->book1D("sigmaX vs lumi", "\\sigma_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      sYlumi = dbe->book1D("sigmaY vs lumi", "\\sigma_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      sZlumi = dbe->book1D("sigmaZ vs lumi", "\\sigma_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
 
       sXlumi->setAxisTitle("Lumisection [#]",1);
       sXlumi->setAxisTitle("\\sigma_{x} [cm]",2);
@@ -1143,8 +1128,8 @@ void Vx3DHLTAnalyzer::beginJob()
       sZlumi->setAxisTitle("\\sigma_{z} [cm]",2);
       sZlumi->getTH1()->SetOption("E1");
 
-      dxdzlumi = dbe->book1D("dxdz vs lumi", "dX/dZ vs. Lumisection", 100, 0.5, 100.5);
-      dydzlumi = dbe->book1D("dydz vs lumi", "dY/dZ vs. Lumisection", 100, 0.5, 100.5);
+      dxdzlumi = dbe->book1D("dxdz vs lumi", "dX/dZ vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      dydzlumi = dbe->book1D("dydz vs lumi", "dY/dZ vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
 
       dxdzlumi->setAxisTitle("Lumisection [#]",1);
       dxdzlumi->setAxisTitle("dX/dZ [rad]",2);
@@ -1175,7 +1160,7 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_ZY_profile->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZY_profile->setAxisTitle("Primary Vertices Y [cm]",2);
 
-      hitCounter = dbe->book1D("pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", 50, 0.5, 50.5);
+      hitCounter = dbe->book1D("pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
 
       hitCounter->setAxisTitle("Lumisection [#]",1);
       hitCounter->setAxisTitle("# Pixel-Hits [#]",2);
@@ -1216,6 +1201,7 @@ void Vx3DHLTAnalyzer::beginJob()
   reset("scratch");
   maxLumiIntegration   = 100;
   minVxDoF             = 4.;
+  nBinsHistoricalPlot  = 100;
   internalDebug        = false;
   considerVxCovariance = true;
 

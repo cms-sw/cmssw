@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.14 2010/03/28 20:38:16 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.15 2010/03/30 09:17:30 dinardo Exp $
 //
 //
 
@@ -146,6 +146,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       unsigned int beginLumiOfFit;
       unsigned int endLumiOfFit;
       unsigned int lastLumiOfFit;
+      int nBinsHistoricalPlot;
       double minVxDoF;
       bool internalDebug;
 };
