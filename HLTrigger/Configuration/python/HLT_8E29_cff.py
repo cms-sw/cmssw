@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/pre4/8E29/V9 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
+# /dev/CMSSW_3_6_0/pre4/8E29/V11 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/8E29/V9')
+  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/8E29/V11')
 )
 
 streams = cms.PSet( 
@@ -132,19 +132,7 @@ datasets = cms.PSet(
     'HLT_Mu3_L2Mu0',
     'HLT_Mu5_L2Mu0' ),
   RandomTriggers = cms.vstring(  ),
-  MinimumBias = cms.vstring( 'HLT_Jet15U',
-    'HLT_BTagMu_Jet10U',
-    'HLT_DoubleMu0',
-    'HLT_DoubleMu3',
-    'HLT_Mu3',
-    'HLT_Mu5',
-    'HLT_Mu9',
-    'HLT_IsoMu3',
-    'HLT_L2Mu9',
-    'HLT_L2Mu11',
-    'HLT_DoubleJet15U_ForwardBackward',
-    'HLT_HighMult40',
-    'HLT_IsoTrackHB_8E29',
+  MinimumBias = cms.vstring( 'HLT_IsoTrackHB_8E29',
     'HLT_IsoTrackHE_8E29',
     'HLT_HighMultiplicityBSC',
     'HLT_ForwardBSC',
@@ -205,7 +193,19 @@ datasets = cms.PSet(
     'HLT_DiJetAve15U_8E29',
     'HLT_FwdJet20U',
     'HLT_Jet50U',
-    'HLT_Jet30U' ),
+    'HLT_Jet30U',
+    'HLT_Jet15U',
+    'HLT_BTagMu_Jet10U',
+    'HLT_DoubleMu0',
+    'HLT_DoubleMu3',
+    'HLT_Mu3',
+    'HLT_Mu5',
+    'HLT_Mu9',
+    'HLT_IsoMu3',
+    'HLT_L2Mu9',
+    'HLT_L2Mu11',
+    'HLT_DoubleJet15U_ForwardBackward',
+    'HLT_HighMult40' ),
   Cosmics = cms.vstring( 'HLT_TrackerCosmics',
     'HLT_RPCBarrelCosmics',
     'HLT_CSCBeamHaloRing2or3',

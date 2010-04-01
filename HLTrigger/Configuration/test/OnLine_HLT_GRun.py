@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_0/pre4/GRun/V9 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
+# /dev/CMSSW_3_6_0/pre4/GRun/V11 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/GRun/V9')
+  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/GRun/V11')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -24,13 +24,13 @@ process.streams = cms.PSet(
   HLTDQM = cms.vstring(  ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   DQM = cms.vstring(  ),
+  EventDisplay = cms.vstring(  ),
   A = cms.vstring( 'RandomTriggers',
     'MinimumBias',
     'Cosmics',
     'HcalHPDNoise',
     'HcalNZS',
-    'ZeroBias' ),
-  EventDisplay = cms.vstring(  )
+    'ZeroBias' )
 )
 process.datasets = cms.PSet( 
   TestEnables = cms.vstring( 'HLT_Calibration' ),
