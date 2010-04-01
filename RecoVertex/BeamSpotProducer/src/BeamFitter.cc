@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.46 2010/03/26 04:25:46 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.47 2010/03/30 19:18:13 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -387,6 +387,7 @@ bool BeamFitter::runFitter() {
   sprintf(fbeginTimeOfFit,"%s",fbeginTime);
   const char* fendTime = formatTime(freftime[1]);
   sprintf(fendTimeOfFit,"%s",fendTime);
+  if (freftime[0] == 0 || freftime[1] == 0 || fbeginLumiOfFit == -1 || fendLumiOfFit == -1) return false;
 
   bool fit_ok = false;
   // default fit to extract beam spot info
