@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/pre4/1E31/V8 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
+# /dev/CMSSW_3_6_0/pre4/1E31/V9 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/1E31/V8')
+  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/1E31/V9')
 )
 
 streams = cms.PSet( 
@@ -45,11 +45,7 @@ datasets = cms.PSet(
     'HLT_ZeroBias',
     'HLT_L1SingleEG5',
     'HLT_L1DoubleMuOpen' ),
-  OfflineMonitor = cms.vstring( 'HLT_Mu5_Track0_Jpsi',
-    'HLT_Mu0_L2Mu0',
-    'HLT_Mu3_L2Mu0',
-    'HLT_Mu5_L2Mu0',
-    'HLT_DoubleMu0',
+  OfflineMonitor = cms.vstring( 'HLT_DoubleMu0',
     'HLT_Mu9',
     'HLT_Mu5',
     'HLT_L2Mu11',
@@ -84,7 +80,11 @@ datasets = cms.PSet(
     'HLT_Mu0_Track0_Jpsi',
     'HLT_Mu3_L1MuOpen',
     'HLT_Mu3_Track0_Jpsi',
-    'HLT_Mu5_L1MuOpen' ),
+    'HLT_Mu5_L1MuOpen',
+    'HLT_Mu5_Track0_Jpsi',
+    'HLT_Mu0_L2Mu0',
+    'HLT_Mu3_L2Mu0',
+    'HLT_Mu5_L2Mu0' ),
   RandomTriggers = cms.vstring(  ),
   MinimumBias = cms.vstring( 'HLT_HighMultiplicityBSC',
     'HLT_ForwardBSC',
