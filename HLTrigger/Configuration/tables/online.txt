@@ -132,8 +132,9 @@ HLT_L1_BPTX_MinusOnly
 HLT_L1_BPTX_PlusOnly
 HLT_L1_BscMinBiasOR_BptxPlusORMinus
 HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX
-HLT_L1_BSC
 HLT_L1_HFtech
+HLT_L1Tech_BSC_halo
+HLT_L1Tech_BSC_halo_forPhysicsBackground
 HLT_L1Tech_HCAL_HF_coincidence_PM
 HLT_L2Mu0_NoVertex
 HLT_TkMu3_NoVertex
