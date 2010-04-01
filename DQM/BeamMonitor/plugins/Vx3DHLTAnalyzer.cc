@@ -1049,42 +1049,42 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       mXlumi->ShiftFillLast(vals[0], sqrt(vals[8]), (int)(lumiCounter/nLumiReset)*nLumiReset);
       myLinFit->SetParameter(0, mXlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      if ((int)mXlumi->getTH1()->Fit("myLinFit","RS") == 0) myLinFit->Clear();
+      mXlumi->getTH1()->Fit("myLinFit","QR");
 
       mYlumi->ShiftFillLast(vals[1], sqrt(vals[9]), (int)(lumiCounter/nLumiReset)*nLumiReset);
       myLinFit->SetParameter(0, mYlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      if ((int)mYlumi->getTH1()->Fit("myLinFit","RS") == 0) myLinFit->Clear();
+      mYlumi->getTH1()->Fit("myLinFit","QR");
 
       mZlumi->ShiftFillLast(vals[2], sqrt(vals[10]), (int)(lumiCounter/nLumiReset)*nLumiReset);
       myLinFit->SetParameter(0, mZlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      if ((int)mZlumi->getTH1()->Fit("myLinFit","RS") == 0) myLinFit->Clear();
+      mZlumi->getTH1()->Fit("myLinFit","QR");
 
       sXlumi->ShiftFillLast(vals[6], sqrt(vals[14]), (int)(lumiCounter/nLumiReset)*nLumiReset);
       myLinFit->SetParameter(0, sXlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      if ((int)sXlumi->getTH1()->Fit("myLinFit","RS") == 0) myLinFit->Clear();
+      sXlumi->getTH1()->Fit("myLinFit","QR");
 
       sYlumi->ShiftFillLast(vals[7], sqrt(vals[15]), (int)(lumiCounter/nLumiReset)*nLumiReset);
       myLinFit->SetParameter(0, sYlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      if ((int)sYlumi->getTH1()->Fit("myLinFit","RS") == 0) myLinFit->Clear();
+      sYlumi->getTH1()->Fit("myLinFit","QR");
 
       sZlumi->ShiftFillLast(vals[3], sqrt(vals[11]), (int)(lumiCounter/nLumiReset)*nLumiReset);
       myLinFit->SetParameter(0, sZlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      if ((int)sZlumi->getTH1()->Fit("myLinFit","RS") == 0) myLinFit->Clear();
+      sZlumi->getTH1()->Fit("myLinFit","QR");
 
       dxdzlumi->ShiftFillLast(vals[4], 0.0002, (int)(lumiCounter/nLumiReset)*nLumiReset);
       myLinFit->SetParameter(0, dxdzlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      if ((int)dxdzlumi->getTH1()->Fit("myLinFit","RS") == 0) myLinFit->Clear();
+      dxdzlumi->getTH1()->Fit("myLinFit","QR");
 
       dydzlumi->ShiftFillLast(vals[5], 0.0002, (int)(lumiCounter/nLumiReset)*nLumiReset);
       myLinFit->SetParameter(0, dydzlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
-      if ((int)dydzlumi->getTH1()->Fit("myLinFit","RS") == 0) myLinFit->Clear();
+      dydzlumi->getTH1()->Fit("myLinFit","QR");
       
       delete myLinFit;
 
