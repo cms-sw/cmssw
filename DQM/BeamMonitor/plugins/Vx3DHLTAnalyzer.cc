@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.48 2010/03/31 20:12:45 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.49 2010/04/01 08:23:59 dinardo Exp $
 //
 //
 
@@ -1039,33 +1039,51 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       fitResults->setBinContent(2, 2, sqrt(vals[15]));
       fitResults->setBinContent(2, 1, 0.0);
 
+      // Linear fit to the historical plots
+      TF1* myLinFit = new TF1("mypol1","pol1");
+
       mXlumi->ShiftFillLast(vals[0], sqrt(vals[8]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      mXlumi->getTH1()->Fit("pol1","Q");
-      mXlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
+      mXlumi->getTH1()->Fit("mypol1","Q");
+      myLinFit->SetLineColor(2);
+      myLinFit->Clear();
+
       mYlumi->ShiftFillLast(vals[1], sqrt(vals[9]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      mYlumi->getTH1()->Fit("pol1","Q");
-      mYlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
+      mYlumi->getTH1()->Fit("mypol1","Q");
+      myLinFit->SetLineColor(2);
+      myLinFit->Clear();
+
       mZlumi->ShiftFillLast(vals[2], sqrt(vals[10]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      mZlumi->getTH1()->Fit("pol1","Q");
-      mZlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
+      mZlumi->getTH1()->Fit("mypol1","Q");
+      myLinFit->SetLineColor(2);
+      myLinFit->Clear();
       
       sXlumi->ShiftFillLast(vals[6], sqrt(vals[14]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      sXlumi->getTH1()->Fit("pol1","Q");
-      sXlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
+      sXlumi->getTH1()->Fit("mypol1","Q");
+      myLinFit->SetLineColor(2);
+      myLinFit->Clear();
+
       sYlumi->ShiftFillLast(vals[7], sqrt(vals[15]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      sYlumi->getTH1()->Fit("pol1","Q");
-      sYlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
+      sYlumi->getTH1()->Fit("mypol1","Q");
+      myLinFit->SetLineColor(2);
+      myLinFit->Clear();
+
       sZlumi->ShiftFillLast(vals[3], sqrt(vals[11]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      sZlumi->getTH1()->Fit("pol1","Q");
-      sZlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
+      sZlumi->getTH1()->Fit("mypol1","Q");
+      myLinFit->SetLineColor(2);
+      myLinFit->Clear();
       
       dxdzlumi->ShiftFillLast(vals[4], 0.0002, (int)(lumiCounter/nLumiReset)*nLumiReset);
-      dxdzlumi->getTH1()->Fit("pol1","Q");
-      dxdzlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
+      dxdzlumi->getTH1()->Fit("mypol1","Q");
+      myLinFit->SetLineColor(2);
+      myLinFit->Clear();
+
       dydzlumi->ShiftFillLast(vals[5], 0.0002, (int)(lumiCounter/nLumiReset)*nLumiReset);
-      dydzlumi->getTH1()->Fit("pol1","Q");
-      dydzlumi->getTH1()->GetFunction("pol1")->SetLineColor(2);
+      dydzlumi->getTH1()->Fit("mypol1","Q");
+      myLinFit->SetLineColor(2);
+      myLinFit->Clear();
       
+      delete myLinFit;
+
       vals.clear();
     }
   else if (nLumiReset == 0)
