@@ -15,6 +15,9 @@ def customise(process):
     
     ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
+    ### prevent bias in pixel vertex
+    process.pixelVertices.useBeamConstraint = False
+    
     ### pixelTracks
     #---- replaces ----
     process.pixelTracks.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
