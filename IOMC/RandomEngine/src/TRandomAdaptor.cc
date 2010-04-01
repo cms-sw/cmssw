@@ -52,6 +52,13 @@ std::vector<unsigned long> TRandomAdaptor::put () const {
     // Get the next 32 bits of data from the buffer
     uint32_t value32 = *reinterpret_cast<uint32_t *>(bufferPtr + i * itemSize);
 
+    if (i == numItems - 1) {
+      int nBytes = buffer.Length() % itemSize;
+      if (nBytes == 1) value32 &= 0xffu;
+      else if (nBytes == 2) value32 &= 0xffffu;
+      else if (nBytes == 3) value32 &= 0xffffffu;
+    }
+
     // Push it into the vector in an unsigned long which may be 32 or 64 bits
     v.push_back(static_cast<unsigned long>(value32));
   }

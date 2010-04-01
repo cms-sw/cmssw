@@ -227,6 +227,18 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
   iRegistry.watchPreModuleEndJob(this,&RandomNumberGeneratorService::preModuleEndJob);
   iRegistry.watchPostModuleEndJob(this,&RandomNumberGeneratorService::postModuleEndJob);
 
+  iRegistry.watchPreModuleBeginRun(this,&RandomNumberGeneratorService::preModuleBeginRun);
+  iRegistry.watchPostModuleBeginRun(this,&RandomNumberGeneratorService::postModuleBeginRun);
+
+  iRegistry.watchPreModuleEndRun(this,&RandomNumberGeneratorService::preModuleEndRun);
+  iRegistry.watchPostModuleEndRun(this,&RandomNumberGeneratorService::postModuleEndRun);
+
+  iRegistry.watchPreModuleBeginLumi(this,&RandomNumberGeneratorService::preModuleBeginLumi);
+  iRegistry.watchPostModuleBeginLumi(this,&RandomNumberGeneratorService::postModuleBeginLumi);
+
+  iRegistry.watchPreModuleEndLumi(this,&RandomNumberGeneratorService::preModuleEndLumi);
+  iRegistry.watchPostModuleEndLumi(this,&RandomNumberGeneratorService::postModuleEndLumi);
+
   // the default for the stack is to point to the 'end' of our map which is used to define not set
   engineStack_.push_back(engineMap_.end());
   currentEngine_ = engineMap_.end();
@@ -547,6 +559,108 @@ RandomNumberGeneratorService::preModuleEndJob(const ModuleDescription& iDesc)
 void 
 RandomNumberGeneratorService::postModuleEndJob(const ModuleDescription&)
 {
+  pop();
+}
+
+void
+RandomNumberGeneratorService::preModuleBeginRun(ModuleDescription const& iDesc){
+  push(iDesc.moduleLabel());
+
+  if (currentEngine_ != engineMap_.end()) {
+    engineStateStack_.push_back(currentEngine_->second->put());
+  }
+}
+
+void
+RandomNumberGeneratorService::postModuleBeginRun(ModuleDescription const& iDesc) {
+  if (currentEngine_ != engineMap_.end()) {
+    // Must be commented out for now because there are modules that
+    // are generating random numbers during beginRun.
+    // if (engineStateStack_.back() != currentEngine_->second->put()) {
+    //   throw edm::Exception(edm::errors::LogicError)
+    //     << "It is illegal to generate random numbers during beginRun because \n"
+    //        "that makes it very difficult to reproduce the processing of individual\n"
+    //        "events.  Random numbers were generated in beginRun in the module with\n"
+    //        "class name \"" << iDesc.moduleName() << "\"\n"
+    //        "and module label \"" << iDesc.moduleLabel() << "\"\n";
+    // }
+    engineStateStack_.pop_back();
+  }
+  pop();
+}
+
+void
+RandomNumberGeneratorService::preModuleEndRun(ModuleDescription const& iDesc){
+  push(iDesc.moduleLabel());
+
+  if (currentEngine_ != engineMap_.end()) {
+    engineStateStack_.push_back(currentEngine_->second->put());
+  }
+}
+
+void
+RandomNumberGeneratorService::postModuleEndRun(ModuleDescription const& iDesc) {
+  if (currentEngine_ != engineMap_.end()) {
+    if (engineStateStack_.back() != currentEngine_->second->put()) {
+      throw edm::Exception(edm::errors::LogicError)
+        << "It is illegal to generate random numbers during endRun because \n"
+           "that makes it very difficult to reproduce the processing of individual\n"
+           "events.  Random numbers were generated in endRun in the module with\n"
+	   "class name \"" << iDesc.moduleName() << "\"\n"
+	   "and module label \"" << iDesc.moduleLabel() << "\"\n";
+    }
+    engineStateStack_.pop_back();
+  }
+  pop();
+}
+
+void
+RandomNumberGeneratorService::preModuleBeginLumi(ModuleDescription const& iDesc){
+  push(iDesc.moduleLabel());
+
+  if (currentEngine_ != engineMap_.end()) {
+    engineStateStack_.push_back(currentEngine_->second->put());
+  }
+}
+
+void
+RandomNumberGeneratorService::postModuleBeginLumi(ModuleDescription const& iDesc) {
+  if (currentEngine_ != engineMap_.end()) {
+    if (engineStateStack_.back() != currentEngine_->second->put()) {
+      throw edm::Exception(edm::errors::LogicError)
+        << "It is illegal to generate random numbers during beginLumi because \n"
+           "that makes it very difficult to reproduce the processing of individual\n"
+           "events.  Random numbers were generated in beginLumi in the module with\n"
+	   "class name \"" << iDesc.moduleName() << "\"\n"
+	   "and module label \"" << iDesc.moduleLabel() << "\"\n";
+    }
+    engineStateStack_.pop_back();
+  }
+  pop();
+}
+
+void
+RandomNumberGeneratorService::preModuleEndLumi(ModuleDescription const& iDesc){
+  push(iDesc.moduleLabel());
+
+  if (currentEngine_ != engineMap_.end()) {
+    engineStateStack_.push_back(currentEngine_->second->put());
+  }
+}
+
+void
+RandomNumberGeneratorService::postModuleEndLumi(ModuleDescription const& iDesc) {
+  if (currentEngine_ != engineMap_.end()) {
+    if (engineStateStack_.back() != currentEngine_->second->put()) {
+      throw edm::Exception(edm::errors::LogicError)
+        << "It is illegal to generate random numbers during endLumi because \n"
+           "that makes it very difficult to reproduce the processing of individual\n"
+           "events.  Random numbers were generated in endLumi in the module with\n"
+	   "class name \"" << iDesc.moduleName() << "\"\n"
+	   "and module label \"" << iDesc.moduleLabel() << "\"\n";
+    }
+    engineStateStack_.pop_back();
+  }
   pop();
 }
 

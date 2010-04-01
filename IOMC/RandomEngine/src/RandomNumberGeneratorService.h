@@ -78,6 +78,16 @@ namespace edm {
       void preModuleEndJob(const ModuleDescription& iDesc);
       void postModuleEndJob(const ModuleDescription& iDesc);
 
+      void preModuleBeginRun(ModuleDescription const& description);
+      void postModuleBeginRun(ModuleDescription const& description);
+      void preModuleEndRun(ModuleDescription const& description);
+      void postModuleEndRun(ModuleDescription const& description);
+
+      void preModuleBeginLumi(ModuleDescription const& description);
+      void postModuleBeginLumi(ModuleDescription const& description);
+      void preModuleEndLumi(ModuleDescription const& description);
+      void postModuleEndLumi(ModuleDescription const& description);
+
       virtual const std::vector<std::string>& getCachedLabels() const;
       virtual const std::vector<std::vector<uint32_t> >& getCachedStates() const;
       virtual const std::vector<std::vector<uint32_t> >& getCachedSeeds() const;
@@ -139,6 +149,11 @@ namespace edm {
 
       std::vector<std::string> labelStack_;
       std::string currentLabel_;
+
+      // This is only used for beginRun, beginLumi, endRun, and
+      // endLumi in the check that prevents random numbers from
+      // being thrown in those methods.
+      std::vector<std::vector<unsigned long> > engineStateStack_;
 
       // This holds the module label used in a previous process
       // to store the state of the random number engines.  The
