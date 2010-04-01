@@ -23,7 +23,7 @@ process.load('Configuration/StandardSequences/AlCaRecoStreams_cff')
 process.load('Configuration/EventContent/AlCaRecoOutput_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     annotation = cms.untracked.string('rereco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -155,6 +155,9 @@ process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 
 ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
+### prevent bias in pixel vertex
+process.pixelVertices.useBeamConstraint = False
+
 ### pixelTracks
 #---- replaces ----
 process.pixelTracks.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
@@ -207,11 +210,10 @@ process.zdcreco.firstSample = 4
 process.zdcreco.samplesToAdd = 3
 
 ## EGAMMA
-
 process.gsfElectrons.applyPreselection = cms.bool(False)
-process.photons.minSCEtBarrel = 1.
-process.photons.minSCEtEndcap =1.
-process.photonCore.minSCEt = 1.
+process.photons.minSCEtBarrel = 2.
+process.photons.minSCEtEndcap =2.
+process.photonCore.minSCEt = 2.
 process.conversionTrackCandidates.minSCEt =1.
 process.conversions.minSCEt =1.
 process.trackerOnlyConversions.AllowTrackBC = cms.bool(False)
