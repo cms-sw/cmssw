@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.191 2010/03/25 14:57:22 matevz Exp $
+// $Id: FWGUIManager.cc,v 1.192 2010/03/26 20:20:21 matevz Exp $
 
 //
 
@@ -1242,7 +1242,7 @@ void FWGUIManager::eventIdChanged()
 void
 FWGUIManager::finishUpColorChange()
 {
-   gEve->FullRedraw3D(kFALSE,kTRUE);
+   gEve->FullRedraw3D();
 }
 //______________________________________________________________________________
 
