@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/03/30 19:23:15 $
- * $Revision: 1.34 $
+ * $Date: 2010/03/30 19:37:47 $
+ * $Revision: 1.35 $
  *
  */
 
@@ -350,105 +350,120 @@ void BeamMonitor::beginJob() {
 
 //--------------------------------------------------------
 void BeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
-  
+
+  ftimestamp = r.beginTime().value();
+  tmpTime = ftimestamp >> 32;
+  refTime =  tmpTime;
+  char* eventTime = formatTime(tmpTime);
+  TDatime da(eventTime);
+  if (debug_) {
+    std::cout << "TimeOffset = ";
+    da.Print();
+  }
+  hs["x0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+  hs["y0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+  hs["z0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+  h_sigmaZ0_time->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+  hs["PVx_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+  hs["PVy_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+  hs["PVz_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+
 }
 
 //--------------------------------------------------------
 void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				       const EventSetup& context) {
-  int nthlumi = lumiSeg.luminosityBlock();
+  const int nthlumi = lumiSeg.luminosityBlock();
+  //if (debug_)
+  cout << "Begin of Lumi: " << nthlumi << endl;
+
   if (beginLumiOfPVFit_ == 0) beginLumiOfPVFit_ = nthlumi;
 
-  if (debug_) cout << "Lumi: " << (onlineMode_ ? nthlumi : countLumi_) << endl;
-
-  ftimestamp = lumiSeg.beginTime().value();
-  tmpTime = ftimestamp >> 32;
-  if ((!onlineMode_ && countLumi_ == 0) ||
-      (onlineMode_ && lastlumi_ == 0)) {
-    refTime =  tmpTime;
-    char* eventTime = formatTime(tmpTime);
-    TDatime da(eventTime);
-    if (debug_) {
-      std::cout << "TimeOffset = ";
-      da.Print();
-    }
-    hs["x0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-    hs["y0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-    hs["z0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-    h_sigmaZ0_time->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-    hs["PVx_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-    hs["PVy_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-    hs["PVz_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-  }
+  if (onlineMode_ && (nthlumi <= lastlumi_)) return;
   for (int i=0;i<6;i++) dcsTk[i]=true;
+  lastlumi_ = nthlumi;
+  countLumi_++;
 }
 
 // ----------------------------------------------------------
 void BeamMonitor::analyze(const Event& iEvent, 
 			  const EventSetup& iSetup ) {
-  countEvt_++;
-  theBeamFitter->readEvent(iEvent);
-  Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
-  refBS = *recoBeamSpotHandle;
+  bool readEvent_ = true;
+  const int nthlumi = iEvent.luminosityBlock();
+  if (onlineMode_ && (nthlumi < lastlumi_)) {
+    readEvent_ = false;
+    if (debug_) std::cout << "Spilt event from previous lumi section!!!" << std::endl;
+  }
+  if (onlineMode_ && (nthlumi > lastlumi_)) {
+    readEvent_ = false;
+    if (debug_) std::cout << "Spilt event from next lumi section!!!" << std::endl;
+  }
 
-  dbe_->setCurrentFolder(monitorName_+"Fit/");
-  const char* tmpfile;
-  TH1F * tmphisto;
-  tmpfile = (cutFlowTable->getName()).c_str();
-  tmphisto = static_cast<TH1F *>((theBeamFitter->getCutFlow())->Clone("tmphisto"));
-  cutFlowTable->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
-  if (countEvt_ == 1) // SetLabel just once
-    for(int n=0; n < tmphisto->GetNbinsX(); n++)
-      cutFlowTable->setBinLabel(n+1,tmphisto->GetXaxis()->GetBinLabel(n+1),1);
+  if (readEvent_) {
+    countEvt_++;
+    theBeamFitter->readEvent(iEvent);
+    Handle<reco::BeamSpot> recoBeamSpotHandle;
+    iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+    refBS = *recoBeamSpotHandle;
 
-  cutFlowTable = dbe_->book1D(tmpfile,tmphisto);
+    dbe_->setCurrentFolder(monitorName_+"Fit/");
+    const char* tmpfile;
+    TH1F * tmphisto;
+    tmpfile = (cutFlowTable->getName()).c_str();
+    tmphisto = static_cast<TH1F *>((theBeamFitter->getCutFlow())->Clone("tmphisto"));
+    cutFlowTable->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
+    if (countEvt_ == 1) // SetLabel just once
+      for(int n=0; n < tmphisto->GetNbinsX(); n++)
+	cutFlowTable->setBinLabel(n+1,tmphisto->GetXaxis()->GetBinLabel(n+1),1);
+
+    cutFlowTable = dbe_->book1D(tmpfile,tmphisto);
   
-  Handle<reco::TrackCollection> TrackCollection;
-  iEvent.getByLabel(tracksLabel_, TrackCollection);
-  const reco::TrackCollection *tracks = TrackCollection.product();
-  for ( reco::TrackCollection::const_iterator track = tracks->begin();
-	track != tracks->end(); ++track ) {    
-    h_trkPt->Fill(track->pt());
-    h_trkVz->Fill(track->vz());
-  }
-
-  edm::Handle< edm::View<reco::Vertex> > recVtxs;
-  iEvent.getByLabel(pvSrc_, recVtxs);
-  const edm::View<reco::Vertex> &pv = *recVtxs;
-
-  int nGoodPV=0;
-  int idx=0;
-  double sum=0.0;
-
-  for (size_t ipv = 0; ipv != pv.size(); ++ipv) {
-    double sum_ntracks=0.0;
-    int ntracks=0;
-
-    if (pv[ipv].isFake()) continue;
-    h_nVtx->Fill(recVtxs->size()*1.);
-    for (reco::Vertex::trackRef_iterator it = pv[ipv].tracks_begin(); it != pv[ipv].tracks_end(); it++) {
-      sum+= pv[ipv].trackWeight(*it);
-      ntracks++;
+    Handle<reco::TrackCollection> TrackCollection;
+    iEvent.getByLabel(tracksLabel_, TrackCollection);
+    const reco::TrackCollection *tracks = TrackCollection.product();
+    for ( reco::TrackCollection::const_iterator track = tracks->begin();
+	  track != tracks->end(); ++track ) {    
+      h_trkPt->Fill(track->pt());
+      h_trkVz->Fill(track->vz());
     }
 
-    if(ntracks>0){sum_ntracks=(sum/(float)ntracks);}
-    else{sum_ntracks=0.0;}
+    edm::Handle< edm::View<reco::Vertex> > recVtxs;
+    iEvent.getByLabel(pvSrc_, recVtxs);
+    const edm::View<reco::Vertex> &pv = *recVtxs;
+
+    int nGoodPV=0;
+    int idx=0;
+    double sum=0.0;
+
+    for (size_t ipv = 0; ipv != pv.size(); ++ipv) {
+      double sum_ntracks=0.0;
+      int ntracks=0;
+
+      if (pv[ipv].isFake()) continue;
+      h_nVtx->Fill(recVtxs->size()*1.);
+      for (reco::Vertex::trackRef_iterator it = pv[ipv].tracks_begin(); it != pv[ipv].tracks_end(); it++) {
+	sum+= pv[ipv].trackWeight(*it);
+	ntracks++;
+      }
+
+      if(ntracks>0){sum_ntracks=(sum/(float)ntracks);}
+      else{sum_ntracks=0.0;}
     
-    if (sum_ntracks > 0.5 && pv[ipv].ndof() > 2) {
-      nGoodPV++;
-      idx=ipv;
-      if (debug_) std::cout << "Which PV passes selection? # " << idx << std::endl;
+      if (sum_ntracks > 0.5 && pv[ipv].ndof() > 2) {
+	nGoodPV++;
+	idx=ipv;
+	if (debug_) std::cout << "Which PV passes selection? # " << idx << std::endl;
+      }
     }
-  }
 
-  if (nGoodPV == 1) { // Temporary, select only events contain one good PV
-    if (debug_) std::cout << "Which PV is selected? # " << idx << std::endl;
-    h_PVx[0]->Fill(pv[idx].x());
-    h_PVy[0]->Fill(pv[idx].y());
-    h_PVz[0]->Fill(pv[idx].z());
-    h_PVxz->Fill(pv[idx].z(),pv[idx].x());
-    h_PVyz->Fill(pv[idx].z(),pv[idx].y());
+    if (nGoodPV == 1) { // Temporary, select only events contain one good PV
+      if (debug_) std::cout << "Which PV is selected? # " << idx << std::endl;
+      h_PVx[0]->Fill(pv[idx].x());
+      h_PVy[0]->Fill(pv[idx].y());
+      h_PVz[0]->Fill(pv[idx].z());
+      h_PVxz->Fill(pv[idx].z(),pv[idx].x());
+      h_PVyz->Fill(pv[idx].z(),pv[idx].y());
+    }
   }
 
   // Checking TK status
@@ -475,40 +490,44 @@ void BeamMonitor::analyze(const Event& iEvent,
 void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				     const EventSetup& iSetup) {
   int nthlumi = lumiSeg.id().luminosityBlock();
-  if (onlineMode_ && (nthlumi <= lastlumi_)) return;
+  //if (debug_)
+  cout << "Lumi of the last event before endLuminosityBlock: " << nthlumi << endl;
+  if (onlineMode_ && (nthlumi < lastlumi_)) return;
+  if (nthlumi != lastlumi_) nthlumi = lastlumi_;
+  cout << "Lumi of the current fit: " << nthlumi << endl;
 
   if (onlineMode_) { // filling LS gap
     // FIXME: need to add protection for the case if the gap is at the resetting LS!
-    int LSgap_bs = nthlumi/fitNLumi_ - hs["x0_lumi"]->getTH1()->GetEntries();
-    int LSgap_pv = nthlumi/fitPVNLumi_ - hs["PVx_lumi"]->getTH1()->GetEntries();
+    const int countLS_bs = hs["x0_lumi"]->getTH1()->GetEntries();
+    const int countLS_pv = hs["PVx_lumi"]->getTH1()->GetEntries();
+    if (debug_) std::cout << "countLS_bs = " << countLS_bs << " ; countLS_pv = " << countLS_pv << std::endl;
+    int LSgap_bs = nthlumi/fitNLumi_ - countLS_bs;
+    int LSgap_pv = nthlumi/fitPVNLumi_ - countLS_pv;
     if (nthlumi%fitNLumi_ == 0)
       LSgap_bs--;
     if (nthlumi%fitPVNLumi_ == 0)
       LSgap_pv--;
-    for (int i=1;i < (nthlumi - lastlumi_);i++)
+    if (debug_) std::cout << "LSgap_bs = " << LSgap_bs << " ; LSgap_pv = " << LSgap_pv << std::endl;
+    // filling previous fits if LS gap ever exists
+    for (int ig = 0; ig < LSgap_bs; ig++) {
+      hs["x0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
+      hs["y0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
+      hs["z0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
+      h_sigmaZ0_lumi->ShiftFillLast( 0., 0., fitNLumi_ );
+    }
+    for (int ig = 0; ig < LSgap_pv; ig++) {
+      hs["PVx_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
+      hs["PVy_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
+      hs["PVz_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
+    }
+    const int previousLS = h_nTrk_lumi->getTH1()->GetEntries();
+    for (int i=1;i < (nthlumi - previousLS);i++)
       h_nTrk_lumi->ShiftFillLast(nthBSTrk_);
-
-    if (LSgap_bs >=1) { // filling previous fits if LS gap ever exists
-      for (int ig = 0; ig < LSgap_bs; ig++) {
-	hs["x0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
-	hs["y0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
-	hs["z0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
-	h_sigmaZ0_lumi->ShiftFillLast( 0., 0., fitNLumi_ );
-      }
-    }
-    if (LSgap_pv >= 1) {
-      for (int ig = 0; ig < LSgap_pv; ig++) {
-	hs["PVx_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
-	hs["PVy_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
-	hs["PVz_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
-      }
-    }
   }
   else { // not online mode
     h_nTrk_lumi->ShiftFillLast(nthBSTrk_);
-    countLumi_++;
   }
-  lastlumi_ = nthlumi;
+  //lastlumi_ = nthlumi;
 
   dumpTkDcsStatus(dcsTkFileName_);
 
@@ -677,7 +696,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   }
   nthBSTrk_ = theBSvector.size(); // keep track of num of tracks filled so far
   if (debug_ && doFitting) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
-  
+
   if (fitNLumi_ > 0) {
     if (onlineMode_){
       if (nthlumi%fitNLumi_!=0) return;
