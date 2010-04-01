@@ -143,7 +143,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   FG_highRatio_EB_ = pSet.getParameter<double>("FG_highRatio_EB") ;
   FG_lut_EB_ = pSet.getParameter<unsigned int>("FG_lut_EB") ;
   FG_Threshold_EE_ = pSet.getParameter<double>("FG_Threshold_EE") ;
-  FG_lut_strip_EE_ = pSet.getParameter<unsigned int>("FG_lut_strip_EE") ;
+  FG_lut_strip_EE_ = pSet.getParameter<unsigned long>("FG_lut_strip_EE") ;
   FG_lut_tower_EE_ = pSet.getParameter<unsigned int>("FG_lut_tower_EE") ;
 }
 
@@ -238,7 +238,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   TH1F * hshapeEB = new TH1F("shapeEB", "shapeEB", 250, 0., 10.) ;
   TH1F * hshapeEE = new TH1F("shapeEE", "shapeEE", 250, 0., 10.) ;
 
-  string branch("fed:tcc:tower:stripInTower:xtalInStrip:CCU:VFE:xtalInVFE:xtalInCCU:ieta:iphi:ix:iy:iz:hashedId:ic:ietaTT:iphiTT") ;
+  string branch("fed:tcc:tower:stripInTower:xtalInStrip:CCU:VFE:xtalInVFE:xtalInCCU:ieta:iphi:ix:iy:iz:hashedId:ic:ietaTT:iphiTT:TCCch") ;
   TNtuple *ntuple = new TNtuple("tpgmap","TPG geometry map",branch.c_str()) ;
 
 
@@ -422,9 +422,36 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   map<int, linStruc> linEtaSlice ;
   map< vector<int>, linStruc > linMap ;
 
+  // count number of strip per tower
+  int NbOfStripPerTCC[108][68] ; 
+  for (int i=0 ; i<108 ; i++)
+    for (int j=0 ; j<68 ; j++) 
+      NbOfStripPerTCC[i][j] = 0 ;
+  const std::vector<DetId> & ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
+  const std::vector<DetId> & eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
+  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
+    EBDetId id(*it) ;
+    const EcalTrigTowerDetId towid= id.tower();
+    const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
+    int tccNb = theMapping_->TCCid(towid) ;
+    int towerInTCC = theMapping_->iTT(towid) ;
+    int stripInTower = elId.pseudoStripId() ;  
+    if (stripInTower>NbOfStripPerTCC[tccNb-1][towerInTCC-1]) NbOfStripPerTCC[tccNb-1][towerInTCC-1] = stripInTower ;
+  }
+  for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
+    EEDetId id(*it) ;
+    const EcalTrigTowerDetId towid= (*eTTmap_).towerOf(id) ;
+    const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
+    int tccNb = theMapping_->TCCid(towid) ;
+    int towerInTCC = theMapping_->iTT(towid) ; 
+    int stripInTower = elId.pseudoStripId() ;
+    if (stripInTower>NbOfStripPerTCC[tccNb-1][towerInTCC-1]) NbOfStripPerTCC[tccNb-1][towerInTCC-1] = stripInTower ;
+  }
+
+
+
   // loop on EB xtals
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== barrel crystals ====== "<<std::endl ;
-  const std::vector<DetId>& ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
 
   // special case of eta slices
   for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
@@ -451,11 +478,13 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 		<<" xtalhashedId = "<<id.hashedIndex()<<" xtalNb = "<<id.ic()
 		<<" ietaTT = "<<towid.ieta()<<" iphiTT = "<<towid.iphi()<<endl ;
 
+    int TCCch = towerInTCC ;
     float val[] = {dccNb+600,tccNb,towerInTCC,stripInTower,
 		   xtalInStrip,CCUid,VFEid,xtalInVFE,xtalWithinCCUid,id.ieta(),id.iphi(),
 		   -999,-999,towid.ieta()/abs(towid.ieta()),id.hashedIndex(),
-		   id.ic(),towid.ieta(),towid.iphi()} ;
-    ntuple->Fill(val) ;    
+		   id.ic(),towid.ieta(),towid.iphi(), TCCch} ;
+    ntuple->Fill(val) ;
+    
     
     if (tccNb == 37 && stripInTower == 3 && xtalInStrip == 3 && (towerInTCC-1)%4==0) {
       int etaSlice = towid.ietaAbs() ;
@@ -618,7 +647,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
   // loop on EE xtals
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== endcap crystals ====== "<<std::endl ;
-  const std::vector<DetId> & eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
   
   // special case of eta slices
   for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
@@ -645,11 +673,14 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 		<<" xtalhashedId = "<<id.hashedIndex()<<" xtalNb = "<<id.isc()
 		<<" ietaTT = "<<towid.ieta()<<" iphiTT = "<<towid.iphi()<<endl ;
 
+    int TCCch = stripInTower ;
+    for (int j=0 ; j<towerInTCC-1 ; j++) TCCch += NbOfStripPerTCC[tccNb-1][j] ;
     float val[] = {dccNb+600,tccNb,towerInTCC,stripInTower,
 		   xtalInStrip,CCUid,VFEid,xtalInVFE,xtalWithinCCUid,-999,-999,
 		   id.ix(),id.iy(),towid.ieta()/abs(towid.ieta()),id.hashedIndex(),
-		   id.ic(),towid.ieta(),towid.iphi()} ;
+		   id.ic(),towid.ieta(),towid.iphi(),TCCch} ;
     ntuple->Fill(val) ;    
+
      
     if ((tccNb == 76 || tccNb == 94) && stripInTower == 1 && xtalInStrip == 3 && (towerInTCC-1)%4==0) {
       int etaSlice = towid.ietaAbs() ;
@@ -959,7 +990,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }
 
   // endcap
-  uint threshold, lut_strip, lut_tower ;
+  uint threshold, lut_tower ;
+  uint lut_strip;
   computeFineGrainEEParameters(threshold, lut_strip, lut_tower) ; 
 
   // and here we store the fgr part
@@ -1268,7 +1300,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   hshapeEE->Write() ;
   ntuple->Write() ;
   saving.Close () ;
-
 }
 
 void EcalTPGParamBuilder::beginJob()
