@@ -11,6 +11,7 @@ import FWCore.ParameterSet.Config as cms
 ##### L1 selections #####
 from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff import *
 from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed
+from L1Trigger.Skimmer.l1Filter_cfi import l1Filter
 
 # tech bit 0 - BPTX coincidence
 bptxAnd = hltLevel1GTSeed.clone(
@@ -25,9 +26,8 @@ bscOr = hltLevel1GTSeed.clone(
     )
 
 # algo bit 124 - BSC OR + BPTX OR
-bscOrBptxOr = hltLevel1GTSeed.clone(
-    L1TechTriggerSeeding = cms.bool(False),
-    L1SeedsLogicalExpression = cms.string('L1_BscMinBiasOR_BptxPlusORMinus')
+bscOrBptxOr = l1Filter.clone(
+    algorithms = cms.vstring("L1_BscMinBiasOR_BptxPlusORMinus")
     )
 
 
