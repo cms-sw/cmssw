@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.50 2010/04/01 10:20:50 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.51 2010/04/01 12:07:58 dinardo Exp $
 //
 //
 
@@ -1085,6 +1085,8 @@ void Vx3DHLTAnalyzer::beginJob()
   DQMStore* dbe = 0;
   dbe = Service<DQMStore>().operator->();
  
+  nBinsHistoricalPlot = 100;
+
   if ( dbe ) 
     {
       dbe->setCurrentFolder("BeamPixel");
@@ -1201,7 +1203,6 @@ void Vx3DHLTAnalyzer::beginJob()
   reset("scratch");
   maxLumiIntegration   = 100;
   minVxDoF             = 4.;
-  nBinsHistoricalPlot  = 100;
   internalDebug        = false;
   considerVxCovariance = true;
 
