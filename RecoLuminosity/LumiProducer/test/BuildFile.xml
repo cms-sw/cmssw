@@ -43,6 +43,10 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="testSiteService.cc" name="testSiteService">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="genLumiRaw.cc" name="genLumiRaw">
   <use name="rootcore"/>	
   <use name="RecoLuminosity/LumiProducer"/>
