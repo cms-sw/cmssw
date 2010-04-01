@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.13 $'),
+    version = cms.untracked.string('$Revision: 1.14 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -13,34 +13,13 @@ process.configurationMetadata = cms.untracked.PSet(
 # This is for testing purposes.
 #
 #
-# run 123151 lumisection 14
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-# run 124120
-# run 124120 lumi section <40
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Mar24thReReco_PreProduction_v2/0101/E61F175C-C337-DF11-AC54-00261894393D.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Mar24thReReco_PreProduction_v2/0101/E0D21B99-C537-DF11-9A0B-0026189438BF.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Mar24thReReco_PreProduction_v2/0101/D0A74E6B-C937-DF11-B25E-002618FDA211.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Mar24thReReco_PreProduction_v2/0101/C42B2E73-D337-DF11-95D1-001A928116B0.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Mar24thReReco_PreProduction_v2/0101/A827FD5B-C337-DF11-949D-0026189438CF.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Mar24thReReco_PreProduction_v2/0101/A4E4B175-C837-DF11-AE54-00261894396D.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Mar24thReReco_PreProduction_v2/0101/8AE7496C-C937-DF11-B9A3-002618943863.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Mar24thReReco_PreProduction_v2/0101/36BFC724-DD37-DF11-960B-0018F3D0965A.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Mar24thReReco_PreProduction_v2/0101/00CA545F-C337-DF11-AF31-002618FDA25B.root'),
+# run 132440
+'/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/440/26C8DED9-0E3C-DF11-9D83-0030487CD7B4.root'),
                            secondaryFileNames = cms.untracked.vstring(
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/F6ADE109-6BE8-DE11-9680-000423D991D4.root',
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/ECF0E939-68E8-DE11-A59D-003048D2C1C4.root',
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/E2071E9D-6EE8-DE11-AD98-0016177CA7A0.root',
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/DC0FA50D-6BE8-DE11-8A92-000423D94E70.root',
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/BCDF0152-6FE8-DE11-A0F1-000423D986C4.root',
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/AE6B4236-6DE8-DE11-8C73-001D09F2512C.root',
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/6E2A54FD-74E8-DE11-B9BC-0030487C5CFA.root',
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/5CED3D29-72E8-DE11-89BA-001D09F23C73.root',
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/54E4CD5C-6AE8-DE11-9CC3-000423D99A8E.root',
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/4A01877F-6CE8-DE11-8CA7-000423DD2F34.root',
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/1CBED2C8-70E8-DE11-A173-001D09F29533.root',
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/1C6E94B1-75E8-DE11-9F9E-0030487D1BCC.root',
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/0E586CFE-6FE8-DE11-90CB-001617C3B6C6.root')
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/132/440/CEF82055-F13B-DF11-BF11-000423D9989E.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/132/440/1CF54554-F13B-DF11-8BFB-000423D98BC4.root')
 )
 
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
@@ -320,11 +299,31 @@ process.outHSCP = cms.OutputModule("PoolOutputModule",
 
 #===========================================================
 
+#################################logerrorharvester############################################
+process.load("FWCore.Modules.logErrorFilter_cfi")
+
+process.logerrorpath=cms.Path(process.logErrorFilter)
+
+process.outlogerr = cms.OutputModule("PoolOutputModule",
+                               outputCommands =  process.FEVTEventContent.outputCommands,
+                               fileName = cms.untracked.string('/tmp/malgeri/logerror_filter.root'),
+                               dataset = cms.untracked.PSet(
+                                  dataTier = cms.untracked.string('RAW-RECO'),
+                                  filterName = cms.untracked.string('Skim_logerror')),
+                               
+                               SelectEvents = cms.untracked.PSet(
+    SelectEvents = cms.vstring("logerrorpath")
+    ))
+
+
+
+#===========================================================
+
 process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.bkgout+process.outHSCP+process.ecalrechitfilter_out)
+process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.bkgout+process.outHSCP+process.ecalrechitfilter_out+process.outlogerr)
 
 
 
