@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.51 2010/04/01 12:07:58 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.52 2010/04/01 12:13:13 dinardo Exp $
 //
 //
 
@@ -1040,32 +1040,32 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       fitResults->setBinContent(2, 1, 0.0);
 
       // Linear fit to the historical plots
-      TF1* myLinFit = new TF1("myLinFit","pol1");
+      TF1* myLinFit = new TF1("myLinFit", "[0] + [1]*x", mXlumi->getTH1()->GetXaxis()->GetXmin(), mXlumi->getTH1()->GetXaxis()->GetXmax());
       myLinFit->SetLineColor(2);
 
       mXlumi->ShiftFillLast(vals[0], sqrt(vals[8]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
+      if ((int)mXlumi->getTH1()->Fit("myLinFit","QRS") == 0) myLinFit->Clear();
 
       mYlumi->ShiftFillLast(vals[1], sqrt(vals[9]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
+      if ((int)mYlumi->getTH1()->Fit("myLinFit","QRS") == 0) myLinFit->Clear();
 
       mZlumi->ShiftFillLast(vals[2], sqrt(vals[10]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
-      
+      if ((int)mZlumi->getTH1()->Fit("myLinFit","QRS") == 0) myLinFit->Clear();
+
       sXlumi->ShiftFillLast(vals[6], sqrt(vals[14]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
+      if ((int)sXlumi->getTH1()->Fit("myLinFit","QRS") == 0) myLinFit->Clear();
 
       sYlumi->ShiftFillLast(vals[7], sqrt(vals[15]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
+      if ((int)sYlumi->getTH1()->Fit("myLinFit","QRS") == 0) myLinFit->Clear();
 
       sZlumi->ShiftFillLast(vals[3], sqrt(vals[11]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
-      
+      if ((int)sZlumi->getTH1()->Fit("myLinFit","QRS") == 0) myLinFit->Clear();
+
       dxdzlumi->ShiftFillLast(vals[4], 0.0002, (int)(lumiCounter/nLumiReset)*nLumiReset);
-      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
+      if ((int)dxdzlumi->getTH1()->Fit("myLinFit","QRS") == 0) myLinFit->Clear();
 
       dydzlumi->ShiftFillLast(vals[5], 0.0002, (int)(lumiCounter/nLumiReset)*nLumiReset);
-      if ((int)mXlumi->getTH1()->Fit("myLinFit","QR", "", 2., (double)nBinsHistoricalPlot-1.) == 0) myLinFit->Clear();
+      if ((int)dydzlumi->getTH1()->Fit("myLinFit","QRS") == 0) myLinFit->Clear();
       
       delete myLinFit;
 
