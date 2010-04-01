@@ -24,7 +24,7 @@ process.load('Configuration/EventContent/EventContent_cff')
 #process.Tracer=cms.Service("Tracer")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('promptCollisionReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -81,6 +81,9 @@ process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 
 
 ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
+
+### prevent bias in pixel vertex
+process.pixelVertices.useBeamConstraint = False
 
 ### pixelTracks
 #---- replaces ----
