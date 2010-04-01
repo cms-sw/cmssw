@@ -6,7 +6,11 @@ process = cms.Process("PrintGeom")
 process.load("Geometry.CMSCommonData.trackerSimGeometryXML_cfi")
 # choose an upgrade geometry
 #process.load("SLHCUpgradeSimulations.Geometry.hybrid_cmsIdealGeometryXML_cff")
-process.load("SLHCUpgradeSimulations.Geometry.longbarrel_cmsIdealGeometryXML_cff")
+#process.load("SLHCUpgradeSimulations.Geometry.longbarrel_cmsIdealGeometryXML_cff")
+process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_cff")
+
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.globaltag = 'MC_31X_V8::All'
 
 process.TrackerGeometricDetESModule = cms.ESProducer("TrackerGeometricDetESModule",
     fromDDD = cms.bool(True)
@@ -38,12 +42,13 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 #process.load("Configuration.StandardSequences.Generator_cff")
 
 process.load("FastSimulation/Configuration/FlatPtMuonGun_cfi")
+process.generator.PGunParameters.PartID[0] = 13
 # replace FlatRandomPtGunSource.PGunParameters.PartID={13}
-process.FlatRandomPtGunSource.PGunParameters.MinPt = 9.99
-process.FlatRandomPtGunSource.PGunParameters.MaxPt = 10.0
-process.FlatRandomPtGunSource.PGunParameters.MinEta = -2.4
-process.FlatRandomPtGunSource.PGunParameters.MaxEta = 2.4
-process.FlatRandomPtGunSource.AddAntiParticle = cms.untracked.bool(False)
+process.generator.PGunParameters.MinPt = 0.9
+process.generator.PGunParameters.MaxPt = 50.0
+process.generator.PGunParameters.MinEta = -2.4
+process.generator.PGunParameters.MaxEta = 2.4
+process.generator.AddAntiParticle = False
 
 #process.source = cms.Source("EmptySource")
 
@@ -80,8 +85,8 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
-#process.p1 = cms.Path(process.generator*process.g4SimHits)
-process.p1 = cms.Path(process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
+#process.p1 = cms.Path(process.g4SimHits)
 
 process.g4SimHits.Physics.type            = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.UseMagneticField        = False
@@ -95,6 +100,11 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 #        LVNames2Dump   = cms.untracked.vstring('PixelBarrelLayer0','PixelBarrelLayer1','PixelBarrelLayer2'),
 #        Radius2Use     = cms.untracked.vdouble(44.2558, 73.1232, 101.776),
 #        Z2Use          = cms.untracked.vdouble(567.8, 567.8, 567.8),
+# Phase 1 geometry
+        LVNames2Dump   = cms.untracked.vstring('PixelBarrelLayer0','PixelBarrelLayer1','PixelBarrelLayer2',
+                                               'PixelBarrelLayer3','BEAM'),
+        Radius2Use     = cms.untracked.vdouble(38.7995, 67.8557, 108.92, 159.958, 30.0),
+        Z2Use          = cms.untracked.vdouble(567.8, 567.8, 567.8, 567.8, 567.8),
 # Hybrid geometry
 #        LVNames2Dump   = cms.untracked.vstring('PixelBarrelLayer0','PixelBarrelLayer1','PixelBarrelLayer2',
 #                                               'PixelBarrelLayer3','PixelBarrelLayerStack0','PixelBarrelLayerStack1','BEAM',
@@ -104,17 +114,17 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 #        Z2Use          = cms.untracked.vdouble(567.8, 567.8, 567.8, 567.8, 3185.2, 4185.2, 567.8,
 #                                               2168.86, 2168.86, 2168.86, 2168.86),
 # Longbarrel
-        LVNames2Dump   = cms.untracked.vstring('PixelBarrelLayer0','PixelBarrelLayer1','PixelBarrelLayer2',
-                                               'PixelBarrelLayer3','PixelBarrelLayerStack0','PixelBarrelLayerStack1',
-                                               'PixelBarrelLayerStack2','PixelBarrelLayerStack3','PixelBarrelLayerStack4',
-                                               'PixelBarrelLayerStack5','PixelBarrelLayerStack6','PixelBarrelLayerStack7',
-                                               'PixelBarrelLayerStack8','PixelBarrelLayerStack9'),
-        Radius2Use     = cms.untracked.vdouble(38.9544, 67.9106, 108.943, 159.990, 321.882, 361.684,
-                                               481.283, 521.189, 643.973, 683.920, 803.791, 843.756, 
-                                               985.655, 1025.63),
-        Z2Use          = cms.untracked.vdouble( 567.8,  567.8,  567.8,  567.8, 4185.2, 4185.2,
-                                               5385.2, 5385.2, 1196.0, 1196.0, 1196.0, 1196.0,
-                                               5385.2, 5385.2),
+#        LVNames2Dump   = cms.untracked.vstring('PixelBarrelLayer0','PixelBarrelLayer1','PixelBarrelLayer2',
+#                                               'PixelBarrelLayer3','PixelBarrelLayerStack0','PixelBarrelLayerStack1',
+#                                               'PixelBarrelLayerStack2','PixelBarrelLayerStack3','PixelBarrelLayerStack4',
+#                                               'PixelBarrelLayerStack5','PixelBarrelLayerStack6','PixelBarrelLayerStack7',
+#                                               'PixelBarrelLayerStack8','PixelBarrelLayerStack9'),
+#        Radius2Use     = cms.untracked.vdouble(38.9544, 67.9106, 108.943, 159.990, 321.882, 361.684,
+#                                               481.283, 521.189, 643.973, 683.920, 803.791, 843.756, 
+#                                               985.655, 1025.63),
+#        Z2Use          = cms.untracked.vdouble( 567.8,  567.8,  567.8,  567.8, 4185.2, 4185.2,
+#                                               5385.2, 5385.2, 1196.0, 1196.0, 1196.0, 1196.0,
+#                                               5385.2, 5385.2),
 	DumpMaterial   = cms.untracked.bool(False),
 	DumpLVList     = cms.untracked.bool(False),
 	DumpLV         = cms.untracked.bool(False),
