@@ -13,7 +13,7 @@ ewkElecDQM = cms.EDAnalyzer("EwkElecDQM",
 
       # Main cuts ->
 #      MuonTrig = cms.untracked.string("HLT_Mu9"),
-      ElecTrig = cms.untracked.vstring("HLT_Ele10_LW_L1R","HLT_Ele10_SW_L1R"), 
+      ElecTrig = cms.untracked.vstring("HLT_Ele10_LW_L1R","HLT_Ele10_SW_L1R","HLT_Photon15_L1R"), 
 #      UseTrackerPt = cms.untracked.bool(True), # ??
 #      PtCut = cms.untracked.double(25.0),
       PtCut = cms.untracked.double(10.0),
