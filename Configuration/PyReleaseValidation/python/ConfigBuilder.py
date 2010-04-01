@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
-
-__version__ = "$Revision: 1.161 $"
+__version__ = "$Revision: 1.167 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -29,6 +28,8 @@ defaultOptions.name = "NO NAME GIVEN"
 defaultOptions.evt_type = ""
 defaultOptions.filein = []
 defaultOptions.customisation_file = ""
+defaultOptions.particleTable = 'pythiapdt'
+defaultOptions.particleTableList = ['pythiapdt','pdt']
 
 # the pile up map
 pileupMap = {'156BxLumiPileUp': 6.9,
@@ -287,7 +288,7 @@ class ConfigBuilder(object):
         if "FASTSIM" in self._options.step:
             self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
 
-            if "STARTUP" in conditions:
+            if "START" in conditions:
                 self.executeAndRemember("# Apply ECAL/HCAL miscalibration")
 	        self.executeAndRemember("process.ecalRecHit.doMiscalib = True")
 	        self.executeAndRemember("process.hbhereco.doMiscalib = True")
@@ -339,6 +340,13 @@ class ConfigBuilder(object):
 		sys.exit(-1)
 		
         self.loadAndRemember('Configuration/StandardSequences/Services_cff')
+        if self._options.particleTable not in defaultOptions.particleTableList:
+            print 'Invalid particle table provided. Options are:'
+            print defaultOptions.particleTable
+            sys.exit(-1)
+        else:
+            self.loadAndRemember('SimGeneral.HepPDTESSource.'+self._options.particleTable+'_cfi')
+        
 	self.loadAndRemember('FWCore/MessageService/MessageLogger_cfi')
 
 	self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreams_cff"    
@@ -354,6 +362,7 @@ class ConfigBuilder(object):
 	self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
 	self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
 	self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
+	self.L1HwValDefaultCFF = "Configuration/StandardSequences/L1HwVal_cff"
 	self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOffline_cff"
 	self.HARVESTINGDefaultCFF="Configuration/StandardSequences/Harvesting_cff"
 	self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
@@ -384,6 +393,7 @@ class ConfigBuilder(object):
 	self.L1RecoDefaultSeq='L1Reco'
 	self.RECODefaultSeq='reconstruction'
 	self.POSTRECODefaultSeq=None
+	self.L1HwValDefaultSeq='L1HwVal'
 	self.DQMDefaultSeq='DQMOffline'
 	self.FASTSIMDefaultSeq='all'
 	self.VALIDATIONDefaultSeq='validation'
@@ -652,6 +662,16 @@ class ConfigBuilder(object):
         self.schedule.append(self.process.raw2digi_step)
         return
 
+    def prepare_L1HwVal(self, sequence = 'L1HwVal'):
+        ''' Enrich the schedule with L1 HW validation '''
+	if ( len(sequence.split(','))==1 ):
+            self.loadAndRemember(self.L1HwValDefaultCFF)
+        else:
+            self.loadAndRemember(sequence.split(',')[0])
+	self.process.l1hwval_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+	self.schedule.append( self.process.l1hwval_step )
+        return
+						
     def prepare_L1Reco(self, sequence = "L1Reco"):
         ''' Enrich the schedule with L1 reconstruction '''
         if ( len(sequence.split(','))==1 ):
@@ -824,7 +844,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.161 $"),
+              (version=cms.untracked.string("$Revision: 1.167 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

@@ -1,8 +1,8 @@
 /*
  * \file QualityTester.cc
  *
- * $Date: 2010/01/26 20:55:24 $
- * $Revision: 1.16 $
+ * $Date: 2010/01/27 13:11:38 $
+ * $Revision: 1.17 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -27,9 +27,9 @@ QualityTester::QualityTester(const ParameterSet& ps)
   Label                   = ps.getUntrackedParameter<string>("label","");
   reportThreshold = ps.getUntrackedParameter<string>("reportThreshold", "");
   testInEventloop = ps.getUntrackedParameter<bool>("testInEventloop",false);
-  qtestOnEndRun   = ps.getUntrackedParameter<bool>("qtestOnEndRun",false);
+  qtestOnEndRun   = ps.getUntrackedParameter<bool>("qtestOnEndRun",true);
   qtestOnEndJob   = ps.getUntrackedParameter<bool>("qtestOnEndJob",false);
-  qtestOnEndLumi  = ps.getUntrackedParameter<bool>("qtestOnEndLumi",true);
+  qtestOnEndLumi  = ps.getUntrackedParameter<bool>("qtestOnEndLumi",false);
   verboseQT       = ps.getUntrackedParameter<bool>("verboseQT", true);
 
   bei = &*edm::Service<DQMStore>();

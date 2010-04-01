@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltMonBTagIPClient = cms.EDFilter('HLTMonBTagClient',
+hltMonBTagIPClient = cms.EDAnalyzer('HLTMonBTagClient',
     monitorName             = cms.string('HLT/HLTMonBJet'),
     pathName                = cms.string('HLT_BTagIP_Jet50U'),
     storeROOT               = cms.untracked.bool(False),

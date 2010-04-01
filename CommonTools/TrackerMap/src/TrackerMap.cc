@@ -632,15 +632,17 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
 //print_total = true represent in color the total stored in the module
 //print_total = false represent in color the average  
 void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,int width, int height){
+  
   std::string filetype=s,outputfilename=s;
   vector<TPolyLine*> vp;
-  
   TGaxis *axis = 0 ;
-  filetype.erase(0,filetype.find(".")+1);
-  outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
+  size_t found=filetype.find_last_of(".");
+  filetype=filetype.substr(found+1);
+  found=outputfilename.find_last_of(".");
+  outputfilename=outputfilename.substr(0,found);
+ //outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
   temporary_file=true;
   if(filetype=="svg")temporary_file=false;
-
   ostringstream outs;
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".coor";
@@ -658,6 +660,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     }
   }
   }
+  
   if(minvalue>=maxvalue){
   minvalue=9999999.;
   maxvalue=-9999999.;
@@ -697,10 +700,12 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
       }
     }
   }
+  
   if(!temporary_file){
     *savefile << "</svg:g>"<<endl;
     *savefile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"300\" y=\"0\">"<<title<<"</svg:text>"<<endl;
   }
+  
   if(printflag)drawPalette(savefile);
   if(!temporary_file){
     *savefile << "</svg:svg>"<<endl;
@@ -716,6 +721,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     cout << "Executing " << command1 << endl;
     system(command1);
   }
+  
   if (temporary_file){ // create root trackermap image
     int red,green,blue,npoints,colindex,ncolor;
     double x[4],y[4];
@@ -731,6 +737,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     ColorList colorList;
     ColorList::iterator pos;
     TColor *col, *c;
+    cout<<"tempfilename "<<tempfilename<<endl;
     while(!tempfile.eof()) {
       tempfile  >> red >> green  >> blue >> npoints; 
       colindex=red+green*1000+blue*1000000;
@@ -741,14 +748,17 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
 	tempfile >> x[i] >> y[i];  
       }
     }
+   
     if(ncolor>0 && ncolor<10000){
       Int_t colors[10000];
       for(int i=0;i<ncolor;i++){colors[i]=i+100;}
       gStyle->SetPalette(ncolor,colors);
     }
+    
     tempfile.clear();
     tempfile.seekg(0,ios::beg);
     cout << "created palette with " << ncolor << " colors" << endl;
+  
     while(!tempfile.eof()) {//create polylines
       tempfile  >> red >> green  >> blue >> npoints; 
       for (int i=0;i<npoints;i++){
@@ -809,8 +819,9 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     arphi.Draw();
     MyC->Update();
     if(filetype=="png"){
-      std::cout << "printing " << std::endl;
+      
       string filename = outputfilename + ".png";
+      cout << "printing " <<filename<< endl;
       MyC->Print(filename.c_str());
     }
     if(filetype=="jpg"){
@@ -1169,7 +1180,7 @@ void TrackerMap::drawHV3(int rack,int numcrate_inrack , bool print_total, TmPsu*
     if(psu->greenHV3>255)psu->greenHV3=255;
     if(psu->blueHV3>255)psu->blueHV3=255;
     if(temporary_file)*svgfile << psu->redHV3 << " " << psu->greenHV3 << " " << psu->blueHV3 << " ";
-    else *svgfile <<"<svg:polygon detid=\""<<psu->idex<<"\" count=\""<<psu->countHV3 <<"\" value=\""<<psu->valueHV3<<"\" id=\""<< psu->id*10+3 <<"\" cmodid=\""<<psu->cmodid_HV3<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"easyCrate/easyBoard "<<psu->getPsuCrate()<<"/"<<psu->getPsuBoard()<<" connected to "<<s<<" \" fill=\"rgb("<<psu->redHV3<<","<<psu->greenHV3<<","<<psu->blueHV3<<")\" points=\"";
+    else *svgfile <<"<svg:polygon detid=\""<<psu->idex<<"\" count=\""<<psu->countHV3 <<"\" value=\""<<psu->valueHV3<<"\" id=\""<< psu->idex*10+3 <<"\" cmodid=\""<<psu->cmodid_HV3<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"easyCrate/easyBoard "<<psu->getPsuCrate()<<"/"<<psu->getPsuBoard()<<" connected to "<<s<<" \" fill=\"rgb("<<psu->redHV3<<","<<psu->greenHV3<<","<<psu->blueHV3<<")\" points=\"";
   }
 
 if(temporary_file)*svgfile << np << " ";
@@ -1186,9 +1197,10 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
  if(enableFecProcessing){
   std::string filetype=s,outputfilename=s;
   vector<TPolyLine*> vp;
-   
-  filetype.erase(0,filetype.find(".")+1);
-  outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
+  size_t found=filetype.find_last_of(".");
+  filetype=filetype.substr(found+1);
+  found=outputfilename.find_last_of(".");
+  outputfilename=outputfilename.substr(0,found); 
   temporary_file=true;
   if(filetype=="xml"||filetype=="svg")temporary_file=false;
   ostringstream outs;
@@ -1208,6 +1220,8 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
         if(ccu->count > 0 || ccu->red!=-1) { useCcuValue=true; break;}
       }
     }
+ 
+  
   if(!useCcuValue)//store mean of connected modules value{
     for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
     TmCcu *  ccu= i_ccu->second;
@@ -1238,7 +1252,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
       }
    }
   
- 
+
   
   if(!print_total){
     for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
@@ -1249,6 +1263,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
         }
     }
   }
+ 
   if(minvalue>=maxvalue){
 
     minvalue=9999999.;
@@ -1261,7 +1276,10 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
         }
     }
   }
-     if(filetype=="svg"){
+
+
+  
+ if(filetype=="svg"){
       saveAsSingleLayer=false;
       ostringstream outs;
     outs << outputfilename<<".svg";
@@ -1291,13 +1309,17 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
          }
     ncrate=crate;
     deffecwindow(ncrate);
+ 
     for ( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
       TmCcu *  ccu= i_ccu->second;
-      if(ccu->getCcuCrate() == crate){
+      if(ccu!=0){
+        if(ccu->getCcuCrate() == crate){
               
 	      drawCcu(crate,ccu->getCcuSlot()-2,print_total,ccu,savefile,useCcuValue);
+        }
       }
     }
+ 
    if(!temporary_file){
     if(filetype=="xml"){
     *savefile << "</g> </svg> <text id=\"currentElementText\" x=\"40\" y=\"30\"> " << endl;
@@ -1418,8 +1440,10 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
   std::string filetype=s,outputfilename=s;
   vector<TPolyLine*> vp;
   
-  filetype.erase(0,filetype.find(".")+1);
-  outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
+  size_t found=filetype.find_last_of(".");
+  filetype=filetype.substr(found+1);
+  found=outputfilename.find_last_of(".");
+  outputfilename=outputfilename.substr(0,found);
 
   temporary_file=true;
   
@@ -1682,9 +1706,10 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   std::string filetype=s,outputfilename=s;
   vector<TPolyLine*> vp;
   
-  filetype.erase(0,filetype.find(".")+1);
-  outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
-
+  size_t found=filetype.find_last_of(".");
+  filetype=filetype.substr(found+1);
+  found=outputfilename.find_last_of(".");
+  outputfilename=outputfilename.substr(0,found);
   
   temporary_file=true;
   
@@ -1929,8 +1954,11 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
   std::string filetype=s,outputfilename=s;
   vector<TPolyLine*> vp;
   
-  filetype.erase(0,filetype.find(".")+1);
-  outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
+  size_t found=filetype.find_last_of(".");
+  filetype=filetype.substr(found+1);
+  found=outputfilename.find_last_of(".");
+  outputfilename=outputfilename.substr(0,found);
+  
   temporary_file=true;
   if(filetype=="xml"||filetype=="svg")temporary_file=false;
   ostringstream outs;
@@ -2550,7 +2578,6 @@ void TrackerMap::setText(int layer, int ring, int nmod, string s){
   }
   else cout << "**************************error in SvgModuleMap **************";
 } 
-
 
 void TrackerMap::build(){
   //  ifstream* infile;

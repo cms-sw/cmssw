@@ -43,7 +43,7 @@ public:
 
 private:
 
-    virtual void beginJob(const edm::EventSetup&) ;
+    virtual void beginJob() ;
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     virtual void endJob();
 
@@ -280,7 +280,7 @@ QualityCutsAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& set
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-QualityCutsAnalyzer::beginJob(const edm::EventSetup& setup)
+QualityCutsAnalyzer::beginJob()
 {
     histogram_data_.resize(6);
 }

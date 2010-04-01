@@ -15,7 +15,6 @@
 #include <KeySymbols.h>
 
 #include "Fireworks/Core/interface/CmsAnnotation.h"
-#include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
 CmsAnnotation::CmsAnnotation(TGLViewerBase *parent, Float_t posx, Float_t posy) :
    TGLOverlayElement(TGLOverlayElement::kUser),
@@ -24,7 +23,7 @@ CmsAnnotation::CmsAnnotation(TGLViewerBase *parent, Float_t posx, Float_t posy) 
    fMouseX(0),  fMouseY(0),
    fDrag(kNone),
    fParent(0),
-   fSize(0.2),
+   fSize(0.15),
    fActive(false)
 {
    // Constructor.
@@ -51,57 +50,30 @@ CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
 
    bool whiteBg = rnrCtx.ColorSet().Background().GetColorIndex() == kWhite;
    UInt_t& ttid = whiteBg ? ttid_white : ttid_black;
-   if ( whiteBg == false && ttid == 0 )
+   if ( ttid == 0 )
    {
-      std::string mipmaps[3] = {"CMSLogoBlackBg.png", "CMSLogoBlackBgM.png", "CMSLogoBlackBgS.png" };
-     TImage* imgs[3];
-     for (int i = 0; i < 3; i++)
-        imgs[i] = TImage::Open(FWCheckBoxIcon::coreIcondir()+mipmaps[i]);     
-      
-      glGenTextures(1, &ttid);
-      glBindTexture(GL_TEXTURE_2D, ttid);
-      
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL,0);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 2);
-      
-      
-      glPixelStorei(GL_UNPACK_ALIGNMENT,  1);
-      glPixelStorei(GL_UNPACK_SWAP_BYTES, 1);
-      
-      for (int i=0; i < 3; i++)
-         glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, imgs[i]->GetWidth(), imgs[i]->GetHeight(), 0,
-                   GL_BGRA, GL_UNSIGNED_BYTE, imgs[i]->GetArgbArray()); 
-      
-      glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
-     
-      for (int i=0; i < 3; i++)
-         delete imgs[i];
-   }
-   else if (whiteBg && ttid == 0)
-   {
-      const char* path = Form(FWCheckBoxIcon::coreIcondir()+"CMSLogoWhiteBg.png");
+      const char* path = Form("$(CMSSW_BASE)/src/Fireworks/Core/icons/CMSLogo%sBg.png", whiteBg ? "White" : "Black");
       TImage* img = TImage::Open(path);
+      // !!!!! Check if 0 !!!!!
 
-      glGenTextures(1, &ttid);      
+      glGenTextures(1, &ttid);
+
       glBindTexture(GL_TEXTURE_2D, ttid);
-      
+
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      
+
+
       glPixelStorei(GL_UNPACK_ALIGNMENT,  1);
       glPixelStorei(GL_UNPACK_SWAP_BYTES, 1);
-      
+
       gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, img->GetWidth(), img->GetHeight(), GL_BGRA, GL_UNSIGNED_BYTE, img->GetArgbArray());
-      
+
       glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
-      
-      delete img;      
+
+      delete img;
    }
 
 

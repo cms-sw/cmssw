@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.6 2009/08/24 14:31:11 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.7 2009/12/16 14:44:43 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef StorageManager_StreamsMonitorCollection_h
@@ -26,8 +26,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/08/24 14:31:11 $
+   * $Revision: 1.7 $
+   * $Date: 2009/12/16 14:44:43 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -37,6 +37,7 @@ namespace stor {
     struct StreamRecord
     {
       std::string streamName;       // name of the stream
+      double fractionToDisk;        // fraction of events written to disk
       MonitoredQuantity fileCount;  // number of files written for this stream
       MonitoredQuantity volume;     // data in MBytes stored in this stream
       MonitoredQuantity bandwidth;  // bandwidth in MBytes for this stream

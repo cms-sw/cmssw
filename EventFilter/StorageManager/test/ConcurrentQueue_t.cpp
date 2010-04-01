@@ -132,8 +132,11 @@ class testConcurrentQueue : public CppUnit::TestFixture
   CPPUNIT_TEST(enq_timing);
   CPPUNIT_TEST(change_capacity);
   CPPUNIT_TEST(failiffull);
+  CPPUNIT_TEST(failiffull_memlimit);
   CPPUNIT_TEST(keepnewest);
+  CPPUNIT_TEST(keepnewest_memlimit);
   CPPUNIT_TEST(rejectnewest);
+  CPPUNIT_TEST(rejectnewest_memlimit);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -148,8 +151,11 @@ public:
   void enq_timing();
   void change_capacity();
   void failiffull();
+  void failiffull_memlimit();
   void keepnewest();
+  void keepnewest_memlimit();
   void rejectnewest();
+  void rejectnewest_memlimit();
 
 private:
   // No data members yet.
@@ -317,6 +323,20 @@ testConcurrentQueue::failiffull()
 }
 
 void
+testConcurrentQueue::failiffull_memlimit()
+{
+  std::cerr << "\nConcurrentQueue_t::failiffull_memlimit\n";
+  stor::ConcurrentQueue<int, stor::FailIfFull<int> > q(5,sizeof(int)); //memory for one int only
+  CPPUNIT_ASSERT(q.enq_nowait(1));
+  CPPUNIT_ASSERT(!q.enq_nowait(2));
+  CPPUNIT_ASSERT(q.size() == 1);
+  CPPUNIT_ASSERT(q.used() == sizeof(int));
+  int value;
+  CPPUNIT_ASSERT(q.deq_nowait(value));
+  CPPUNIT_ASSERT(value==1);
+}
+
+void
 testConcurrentQueue::keepnewest()
 {
   std::cerr << "\nConcurrentQueue_t::keepnewest\n";
@@ -330,6 +350,20 @@ testConcurrentQueue::keepnewest()
 }
 
 void
+testConcurrentQueue::keepnewest_memlimit()
+{
+  std::cerr << "\nConcurrentQueue_t::keepnewest_memlimit\n";
+  stor::ConcurrentQueue<int, stor::KeepNewest<int> > q(5,sizeof(int)); //memory for one int only
+  q.enq_nowait(1);
+  q.enq_nowait(2);
+  CPPUNIT_ASSERT(q.size() == 1);
+  CPPUNIT_ASSERT(q.used() == sizeof(int));
+  int value;
+  CPPUNIT_ASSERT(q.deq_nowait(value));
+  CPPUNIT_ASSERT(value == 2);
+}
+
+void
 testConcurrentQueue::rejectnewest()
 {
   std::cerr << "\nConcurrentQueue_t::rejectnewest\n";
@@ -337,6 +371,20 @@ testConcurrentQueue::rejectnewest()
   q.enq_nowait(1);
   q.enq_nowait(2);
   CPPUNIT_ASSERT(q.size() == 1);
+  int value;
+  CPPUNIT_ASSERT(q.deq_nowait(value));
+  CPPUNIT_ASSERT(value == 1);
+}
+
+void
+testConcurrentQueue::rejectnewest_memlimit()
+{
+  std::cerr << "\nConcurrentQueue_t::rejectnewest_memlimit\n";
+  stor::ConcurrentQueue<int, stor::RejectNewest<int> > q(5,sizeof(int)); //memory for one int only
+  q.enq_nowait(1);
+  q.enq_nowait(2);
+  CPPUNIT_ASSERT(q.size() == 1);
+  CPPUNIT_ASSERT(q.used() == sizeof(int));
   int value;
   CPPUNIT_ASSERT(q.deq_nowait(value));
   CPPUNIT_ASSERT(value == 1);

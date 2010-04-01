@@ -1,12 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
 HLTMuonL1RegionalFilter = cms.EDFilter( "HLTMuonL1RegionalFilter",
-                                CandTag = cms.InputTag( "hltL1extraParticles" ),
-                                PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu20" ),
-                                EtaBoundaries = cms.vdouble( -2.5, -1.6, 1.6, 2.5 ),
-                                MinPts = cms.vdouble( 20, 20, 20 ),
-                                QualityBitMasks = cms.vint32( 192, 128, 192 ),
-                                MinN = cms.int32( 1 ),
-                                SaveTag = cms.untracked.bool( True )
+    CandTag = cms.InputTag( "hltL1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu20" ),
+    MinN = cms.int32( 1 ),
+    SaveTag = cms.untracked.bool( True ),
+    Cuts = cms.VPSet(
+        cms.PSet(
+            EtaRange = cms.vdouble( -2.5, -1.6 ),
+            MinPt  = cms.double( 20 ),
+            QualityBits = cms.vuint32( 6, 7 )
+        ),
+        cms.PSet(
+            EtaRange = cms.vdouble( -1.6,  1.6 ),
+            MinPt  = cms.double( 20 ),
+            QualityBits = cms.vuint32( 7 )
+        ),
+        cms.PSet(
+            EtaRange = cms.vdouble(  1.6,  2.5 ),
+            MinPt  = cms.double( 20 ),
+            QualityBits = cms.vuint32( 6, 7 )
+        )
+    )
 )
 

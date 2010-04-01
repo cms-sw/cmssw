@@ -2,7 +2,7 @@
 #define FastSimulation_Tracking_FastTrackMerger_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <vector>
 #include <string>

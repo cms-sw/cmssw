@@ -37,14 +37,14 @@ process.source = cms.Source("PoolSource",
 )
 
 ###  DQM Source program (in DQMServices/Examples/src/DQMSourceExample.cc)
-process.dqmSource   = cms.EDFilter("DQMSourceExample",
+process.dqmSource   = cms.EDAnalyzer("DQMSourceExample",
         monitorName = cms.untracked.string('YourSubsystemName'),
         prescaleEvt = cms.untracked.int32(1),
         prescaleLS  =  cms.untracked.int32(1)                    
                                    )
 
 ### run the quality tests as defined in QualityTests.xml
-process.qTester = cms.EDFilter("QualityTester",
+process.qTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/HLTEvF/test/JetMETQualityTests.xml'),
     prescaleFactor = cms.untracked.int32(1),                               
     testInEventloop = cms.untracked.bool(True),

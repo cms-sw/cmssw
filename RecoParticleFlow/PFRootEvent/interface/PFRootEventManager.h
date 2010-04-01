@@ -33,7 +33,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
-#include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
@@ -327,17 +327,23 @@ class PFRootEventManager {
   // expand environment variable in a string
   std::string  expand(const std::string& oldString) const;
 
-  /// print a rechit
+  /// print rechits
+  void printRecHits(const reco::PFRecHitCollection& rechits, 
+		    const PFClusterAlgo& clusterAlgo,
+		    std::ostream& out = std::cout) const;
+
   void   printRecHit(const reco::PFRecHit& rh, unsigned index, 
                      const char* seed="    ",
                      std::ostream& out = std::cout) const;
   
-  /// print a cluster
+  /// print clusters
+  void   printClusters(const reco::PFClusterCollection& clusters,
+                      std::ostream& out = std::cout) const;
+
   void   printCluster(const reco::PFCluster& cluster,
                       std::ostream& out = std::cout) const;
 
-  
-
+ 
   /// print the HepMC truth
   void printGenParticles(std::ostream& out = std::cout,
                          int maxNLines = -1) const;
@@ -585,7 +591,7 @@ class PFRootEventManager {
     reco::MuonCollection  muons_;
 
   /// nuclear interactions
-  reco::PFNuclearInteractionCollection nuclear_;
+  reco::PFDisplacedTrackerVertexCollection nuclear_;
 
   /// conversions
   reco::PFConversionCollection conversion_;
@@ -729,25 +735,30 @@ class PFRootEventManager {
 
   /// print rechits yes/no
   bool                     printRecHits_;
+  double                   printRecHitsEMin_;
 
   /// print clusters yes/no
   bool                     printClusters_;
+  double                   printClustersEMin_;
 
   /// print PFBlocks yes/no
   bool                     printPFBlocks_;
 
   /// print PFCandidates yes/no
   bool                     printPFCandidates_; 
+  double                   printPFCandidatesPtMin_; 
 
   /// print PFJets yes/no
   bool                     printPFJets_;
-  double                   printPFPt_;
+  double                   printPFJetsPtMin_;
   
   /// print true particles yes/no
   bool                     printSimParticles_;
+  double                   printSimParticlesPtMin_;
 
   /// print MC truth  yes/no
   bool                     printGenParticles_;
+  double                   printGenParticlesPtMin_;
 
   // print MC truth matching with PFCandidate yes/no
   bool                     printMCTruthMatching_;

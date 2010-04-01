@@ -562,7 +562,7 @@ DoHLTTau = cms.Path(HLTBeginSequence +
                     OpenHLTCaloTausCreatorSequence +
                     openhltL2TauJets +
                     openhltL2TauIsolationProducer +
-                    openhltL2TauRelaxingIsolationSelector +
+#                    openhltL2TauRelaxingIsolationSelector +
                     HLTDoLocalPixelSequence +
                     HLTRecopixelvertexingSequence +
                     OpenHLTL25TauTrackReconstructionSequence +
@@ -649,7 +649,6 @@ DoHLTAlCaECALPhiSym = cms.Path(
 
 DoHLTMinBiasPixelTracks = cms.Path(
     HLTBeginSequence + 
-    hltL1sZeroBias + 
 #    hltPreMinBiasPixelSingleTrack +
     hltSiPixelDigis + 
     hltSiPixelClusters + 

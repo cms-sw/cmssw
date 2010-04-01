@@ -22,11 +22,12 @@ class TagProbeFitTreeAnalyzer : public edm::EDAnalyzer{
 };
 
 TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
-  fitter( pset.getUntrackedParameter<string>("InputFileName",""),
-          pset.getUntrackedParameter<string>("InputDirectoryName",""),
-          pset.getUntrackedParameter<string>("InputTreeName",""),
-          pset.getUntrackedParameter<string>("OutputFileName",""),
-          pset.getUntrackedParameter<bool>("SaveWorkspace",false)
+  fitter( pset.getUntrackedParameter<string>("InputFileName", ""),
+          pset.getUntrackedParameter<string>("InputDirectoryName", ""),
+          pset.getUntrackedParameter<string>("InputTreeName", ""),
+          pset.getUntrackedParameter<string>("OutputFileName", ""),
+          pset.getUntrackedParameter<uint>("NumCPU", 1),
+          pset.getUntrackedParameter<bool>("SaveWorkspace", false)
   )
 {
   const ParameterSet variables = pset.getUntrackedParameter<ParameterSet>("Variables");
@@ -69,19 +70,35 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
 }
 
 void TagProbeFitTreeAnalyzer::calculateEfficiency(string name, const edm::ParameterSet& pset){
+  vector<string> effCatState = pset.getUntrackedParameter<vector<string> >("EfficiencyCategoryAndState");
+  if(effCatState.size() != 2){
+    cout<<"EfficiencyCategoryAndState must specify a category and a state of that category"<<endl;
+    exit(1);
+  }
+
+  vector<string> unbinnedVariables = pset.getUntrackedParameter<vector<string> >("UnbinnedVariables", vector<string>());
+
+  const ParameterSet binVars = pset.getUntrackedParameter<ParameterSet>("BinnedVariables", ParameterSet());
   map<string, vector<double> >binnedVariables;
-  vector<string> variableNames = pset.getParameterNamesForType<vector<double> >(false);
+  vector<string> variableNames = binVars.getParameterNamesForType<vector<double> >(false);
   for (vector<string>::const_iterator var = variableNames.begin(); var != variableNames.end(); var++) {
-    vector<double> binning = pset.getUntrackedParameter<vector<double> >(*var);
+    vector<double> binning = binVars.getUntrackedParameter<vector<double> >(*var);
     binnedVariables[*var] = binning;
   }
   map<string, vector<string> >mappedCategories;
-  vector<string> categoryNames = pset.getParameterNamesForType<vector<string> >(false);
+  vector<string> categoryNames = binVars.getParameterNamesForType<vector<string> >(false);
   for (vector<string>::const_iterator var = categoryNames.begin(); var != categoryNames.end(); var++) {
-    vector<string> map = pset.getUntrackedParameter<vector<string> >(*var);
+    vector<string> map = binVars.getUntrackedParameter<vector<string> >(*var);
     mappedCategories[*var] = map;
   }
-  fitter.calculateEfficiency(name, pset.getUntrackedParameter<string>("pdf"), binnedVariables, mappedCategories, true);
+
+  vector<string> binToPDFmap = pset.getUntrackedParameter<vector<string> >("BinToPDFmap", vector<string>());
+  if((binToPDFmap.size() > 0) && (binToPDFmap.size()%2 == 0)){
+    cout<<"BinToPDFmap must have odd size, first string is the default, followed by binRegExp - PDFname pairs!"<<endl;
+    exit(2);
+  }
+
+  fitter.calculateEfficiency(name, effCatState[0], effCatState[1], unbinnedVariables, binnedVariables, mappedCategories, binToPDFmap, true);
 }
 
 //define this as a plug-in

@@ -45,7 +45,7 @@ class CSCCrosstalkDBConditions: public edm::ESProducer, public edm::EventSetupRe
 // to workaround plugin library
 inline CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
 {
-  const int MAX_SIZE = 273024;
+  const int MAX_SIZE = 217728;
   const int SLOPE_FACTOR=10000000;
   const int INTERCEPT_FACTOR=100000;
   const int MAX_SHORT= 32767;
@@ -53,19 +53,25 @@ inline CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
 
   int db_index,new_index;
   float db_slope_right,db_slope_left,db_intercept_right;
-  float db_intercept_left;
+  float db_intercept_left, db_chi2_right,db_chi2_left;
   std::vector<int> db_index_id;
   std::vector<float> db_slope_r;
   std::vector<float> db_intercept_r;
+  std::vector<float> db_chi2_r;
   std::vector<float> db_slope_l;
   std::vector<float> db_intercept_l;
+  std::vector<float> db_chi2_l;
   float new_slope_right,new_slope_left,new_intercept_right;
-  float new_intercept_left;
-   std::vector<int> new_index_id;
-   std::vector<float> new_slope_r;
+  float new_intercept_left, new_chi2_right,new_chi2_left;
+  std::vector<int> new_cham_id;
+  std::vector<int> new_index_id;
+  std::vector<int> new_strips;
+  std::vector<float> new_slope_r;
   std::vector<float> new_intercept_r;
+  std::vector<float> new_chi2_r;
   std::vector<float> new_slope_l;
   std::vector<float> new_intercept_l;
+  std::vector<float> new_chi2_l;
     
   int counter;
   int db_nrlines=0;
@@ -79,12 +85,14 @@ inline CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
   }
   
   while (!dbdata.eof() ) { 
-    dbdata >> db_index >> db_slope_right >> db_intercept_right >> db_slope_left >> db_intercept_left ;
+    dbdata >> db_index >> db_slope_right >> db_intercept_right >> db_chi2_right >> db_slope_left >> db_intercept_left >> db_chi2_left ;
     db_index_id.push_back(db_index);
     db_slope_r.push_back(db_slope_right);
     db_slope_l.push_back(db_slope_left);
     db_intercept_r.push_back(db_intercept_right);
     db_intercept_l.push_back(db_intercept_left);
+    db_chi2_r.push_back(db_chi2_right);
+    db_chi2_l.push_back(db_chi2_left); 
     db_nrlines++;
   }
   dbdata.close();
@@ -97,12 +105,14 @@ inline CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
   }
   
   while (!newdata.eof() ) { 
-    newdata >> new_index >> new_slope_right >> new_intercept_right >> new_slope_left >> new_intercept_left; 
+    newdata >> new_index >> new_slope_right >> new_intercept_right >> new_chi2_right >> new_slope_left >> new_intercept_left >> new_chi2_left ; 
     new_index_id.push_back(new_index);
     new_slope_r.push_back(new_slope_right);
     new_slope_l.push_back(new_slope_left);
     new_intercept_r.push_back(new_intercept_right);
     new_intercept_l.push_back(new_intercept_left);
+    new_chi2_r.push_back(new_chi2_right);
+    new_chi2_l.push_back(new_chi2_left);
     new_nrlines++;
   }
   newdata.close();
@@ -131,13 +141,6 @@ inline CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
 	//std::cout<<" counter "<<counter <<" dbindex "<<new_index_id[k]<<" dbslope " <<db_slope_r[k]<<" new slope "<<new_slope_r[k]<<std::endl;
       }  
     }
-
-     if (counter>217728){
-      itemvector[counter].xtalk_slope_right = int (db_slope_r[i]);
-      itemvector[counter].xtalk_slope_left = int (db_slope_l[i]);
-      itemvector[counter].xtalk_intercept_right = int (db_intercept_r[i]);
-      itemvector[counter].xtalk_intercept_left = int (db_intercept_l[i]);
-     }
   }
   
   return cndbcrosstalk;

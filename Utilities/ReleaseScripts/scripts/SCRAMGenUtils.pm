@@ -208,6 +208,13 @@ sub readCache()
   else{die "Unable to find Cache/CacheUtilities.pm PERL module.";}
 }
 
+sub writeCache()
+{
+  eval ("use Cache::CacheUtilities");
+  if(!$@){return &Cache::CacheUtilities::write(shift,shift);}
+  else{die "Unable to find Cache/CacheUtilities.pm PERL module.";}
+}
+
 sub getScramArch ()
 {
   if($SCRAM_ARCH eq "")
@@ -438,7 +445,7 @@ sub readHashCache ()
   if ($binary)
   {
    $cache = eval "retrieve(\"$file\")";
-   die "Cache load error: ",$EVAL_ERROR,"\n", if ($EVAL_ERROR);
+   die "Cache load error: ",$@,"\n", if ($@);
   }
   else
   {
@@ -454,6 +461,7 @@ sub readHashCache ()
   }
   return $cache;
 }
+
 ################################################
 # Find SCRAM based release area
 ################################################
@@ -1482,7 +1490,7 @@ sub scramToolSymbolCache ()
       if(-f $lib)
       {
 	$count++;
-	if (($count%40)==0){print STDERR ".";}
+	if (($count%100)==0){print STDERR ".";}
 	&symbolCacheFork($lib,$p,$dir,$jobs);
 	last;
       }
@@ -1499,7 +1507,7 @@ sub searchBaseToolPaths ()
   if(exists $cache->{SETUP}{$tool})
   {
     my $c=$cache->{SETUP}{$tool};
-    if($c->{$var}){foreach my $d (@{$c->{$var}}){push @$paths,$d;}}
+    if(exists $c->{$var}){foreach my $d (@{$c->{$var}}){push @$paths,$d;}}
     if(exists $c->{USE}){foreach my $u (@{$c->{USE}}){&searchBaseToolPaths($cache,lc($u),$var,$paths);}}
     if (($var eq "LIBDIR") && (scalar(@$paths)==0) && ((!exists $c->{SCRAM_COMPILER}) || ($c->{SCRAM_COMPILER}==0)))
     {push @$paths,"/lib64","/usr/lib64","/lib","/usr/lib";}
@@ -1516,19 +1524,19 @@ sub symbolCacheFork ()
   my $lname=basename($lib);
   my $pk=$tool;$pk=~s/\///g;
   my $cfile="${dir}/${lname}.${pk}";
-  if ((stat($cfile)) && ((stat(_))[9] == $t1)){return 0;}
+  if ((stat($cfile)) && ((stat(_))[9] == $t1)){$Cache->{SYMBOL_CACHE_UPDATED}=$t1; return 0;}
   my $jobs=shift;
   if ($jobs > 1)
   {
     my $pid=&forkProcess($jobs);
-    if($pid==0){&symbolCache($lib,$cfile,$t1,$tool,$lname);exit 0;}
+    if($pid==0){&_symbolCache($lib,$cfile,$t1,$tool,$lname);exit 0;}
   }
-  else{&symbolCache($lib,$cfile,$t1,$tool,$lname);}
-  $ENV{SYMBOL_CACHE_UPDATED}="yes";
+  else{&_symbolCache($lib,$cfile,$t1,$tool,$lname);}
+  $Cache->{SYMBOL_CACHE_UPDATED}=$t1;
   return 1;
 }
 
-sub symbolCache ()
+sub _symbolCache ()
 {
   my $lib=shift;
   my $cfile=shift;
@@ -1538,10 +1546,11 @@ sub symbolCache ()
   my $shared="";
   if($lib=~/\.so$/){$shared="-D";}
   my $c={};
+  my $fil="[A-Za-z]";
   foreach my $line (`nm $shared $lib`)
   {
     chomp $line;
-    if($line=~/\s+(T|V|W|B|D)\s+(.+)$/){$c->{$2}{$tool}=$lname;}
+    if($line=~/\s+($fil)\s+(.+)$/){$c->{$tool}{$lname}{$1}{$2}=1;}
   }
   &writeHashCache($c,$cfile);
   utime($time,$time,$cfile);
@@ -1550,12 +1559,18 @@ sub symbolCache ()
 sub mergeSymbols ()
 {
   my $dir=shift;
-  my $file=shift;
+  my $file=shift || "";
+  my $filter=shift || "T|R|V|W|B|D";
   my $cache={};
   if(-d $dir)
   {
-    print STDERR "Merging symbols ....";
-    if (!exists $ENV{SYMBOL_CACHE_UPDATED}){print STDERR "\n";return &readHashCache("${dir}/${file}");}
+    print STDERR "Merging symbols $dir ($filter) ....";
+    my $ltime=0;
+    if ($file ne "")
+    {
+      $ltime=$Cache->{SYMBOL_CACHE_UPDATED} || time;
+      if ((stat($file)) && ((stat(_))[9] == $ltime)){print STDERR "\n";return &readHashCache($file);}
+    }
     my $count=0;
     my $r;
     opendir($r,$dir) || die "Can not open directory for reading: $dir\n";
@@ -1563,11 +1578,27 @@ sub mergeSymbols ()
     {
       if ($f=~/^\./){next;}
       $count++;
-      if(($count%40)==0){print STDERR ".";}
+      if(($count%100)==0){print STDERR ".";}
       my $c=&readHashCache("${dir}/${f}");
-      foreach my $s (keys %$c){foreach my $t (keys %{$c->{$s}}){$cache->{$s}{$t}=$c->{$s}{$t};}}
+      foreach my $t (keys %$c)
+      {
+        foreach my $l (keys %{$c->{$t}})
+	{
+          foreach my $x (keys %{$c->{$t}{$l}})
+	  {
+	    if ($x=~/^$filter$/)
+	    {
+	      foreach my $s (keys %{$c->{$t}{$l}{$x}}){$cache->{$s}{$t}{$l}=$x;}
+	    }
+	  }
+	}
+      }
     }
-    &writeHashCache($cache,"${dir}/${file}");
+    if ($file ne "")
+    {
+      &writeHashCache($cache,"$file");
+      utime($ltime,$ltime,$file);
+    }
   }
   print STDERR "\n";
   return $cache;
@@ -1576,7 +1607,9 @@ sub mergeSymbols ()
 sub cppFilt ()
 {
   my $s=shift;
+  if (exists $Cache->{CPPFLIT}{$s}){return $Cache->{CPPFLIT}{$s};}
   my $s1=`c++filt $s`; chomp $s1;
+  $Cache->{CPPFLIT}{$s}=$s1;
   return $s1;
 }
 
@@ -1626,6 +1659,7 @@ sub waitForChild ()
   }
   $Cache->{FORK}{running}=$running;
 }
+
 ######################################################
 sub makeRequest ()
 {

@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 // forward declarations
 class L1GtfeWord;
@@ -67,6 +67,8 @@ private:
     /// unpack trailer word
     void unpackTrailer(const unsigned char*, FEDTrailer&);
 
+    /// produce empty products in case of problems
+    void produceEmptyProducts(edm::Event&);
 
     /// dump FED raw data
     void dumpFedRawData(const unsigned char*, int, std::ostream&);

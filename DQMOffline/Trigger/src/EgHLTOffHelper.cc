@@ -4,7 +4,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
@@ -139,7 +139,7 @@ int OffHelper::makeOffEvt(const edm::Event& edmEvent,const edm::EventSetup& setu
   if(errCode==0) errCode = getHandles(edmEvent,setup);
   if(errCode==0) errCode = fillOffEleVec(offEvent.eles());
   if(errCode==0) errCode = fillOffPhoVec(offEvent.phos());
-  if(errCode==0) errCode =  setTrigInfo(offEvent);
+  if(errCode==0) errCode =  setTrigInfo(edmEvent, offEvent);
   if(errCode==0) offEvent.setJets(recoJets_);
   return errCode;
 }
@@ -397,14 +397,14 @@ void OffHelper::fillClusShapeData(const reco::Photon& pho,OffPho::ClusShapeData&
   }
 }  
 
-int OffHelper::setTrigInfo(egHLT::OffEvt& offEvent)
+int OffHelper::setTrigInfo(const edm::Event & edmEvent, egHLT::OffEvt& offEvent)
 {
   TrigCodes::TrigBitSet evtTrigBits = trigTools::getFiltersPassed(hltFiltersUsedWithNrCandsCut_,trigEvt_.product(),hltTag_);
   //the l1 prescale paths dont have a filter with I can figure out if it passed or failed with so have to use TriggerResults
   if(l1PreScaledPaths_.size()==l1PreScaledFilters_.size()){ //check to ensure both vectors have same number of events incase of screw ups     
-    trigNames_.init(*trigResults_); //only used here...
+    const edm::TriggerNames & triggerNames = edmEvent.triggerNames(*trigResults_);
     for(size_t pathNr=0;pathNr<l1PreScaledPaths_.size();pathNr++){ //now we have to check the prescaled l1 trigger paths
-      unsigned int pathIndex = trigNames_.triggerIndex(l1PreScaledPaths_[pathNr]);
+      unsigned int pathIndex = triggerNames.triggerIndex(l1PreScaledPaths_[pathNr]);
       if(pathIndex<trigResults_->size() && trigResults_->accept(pathIndex)){
 	evtTrigBits |=TrigCodes::getCode(l1PreScaledFilters_[pathNr]);
       }    

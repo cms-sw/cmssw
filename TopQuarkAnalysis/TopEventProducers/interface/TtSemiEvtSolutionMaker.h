@@ -1,12 +1,12 @@
 //
-// $Id: TtSemiEvtSolutionMaker.h,v 1.19 2008/04/11 12:00:24 rwolf Exp $
+// $Id: TtSemiEvtSolutionMaker.h,v 1.20 2008/08/28 00:38:50 rwolf Exp $
 //
 
 #ifndef TopEventProducers_TtSemiEvtSolutionMaker_h
 #define TopEventProducers_TtSemiEvtSolutionMaker_h
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"

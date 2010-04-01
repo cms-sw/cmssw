@@ -43,7 +43,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_3XY_V15::All"
+process.GlobalTag.globaltag = "MC_3XY_V24::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -102,23 +102,23 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 ##from Kevin
 ##from Kevin
-process.zeroStepHighPurity = cms.EDFilter("QualityFilter",
+process.zeroStepHighPurity = cms.EDProducer("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("zeroStepTracksWithQuality")
                                            )
-process.firstStepHighPurity = cms.EDFilter("QualityFilter",
+process.firstStepHighPurity = cms.EDProducer("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("preMergingFirstStepTracksWithQuality")
                                            )
-process.fourthStepHighPurity = cms.EDFilter("QualityFilter",
+process.fourthStepHighPurity = cms.EDProducer("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("pixellessStep")
                                            )
-process.fifthStepHighPurity = cms.EDFilter("QualityFilter",
+process.fifthStepHighPurity = cms.EDProducer("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("tobtecStep")
                                            )
-process.generalTracksHighPurity = cms.EDFilter("QualityFilter",
+process.generalTracksHighPurity = cms.EDProducer("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("generalTracks")
                                            )
@@ -169,7 +169,8 @@ process.fevt = cms.OutputModule(
       'keep *_newTrackCandidateMaker_*_*',
       "keep SimTracks_*_*_*",
       "keep SimVertexs_*_*_*",
-      "keep edmHepMCProduct_*_*_*"
+      "keep edmHepMCProduct_*_*_*",
+      "keep recoTrackExtras_*_*_*"   
       )
 )
 

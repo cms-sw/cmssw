@@ -45,80 +45,73 @@ Tests with same datasets as release validation
   <var name="DQM_PREFIX" value="DQM_V0001_R000000001">
   
   <environment name="Pt35">
-    <var name="TEST_DATASET" value="SingleElectronPt35">
-    <var name="DBS_SAMPLE" value="RelVal${TEST_DATASET}">
+    <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
     <executable name="dbs_discovery.py">
     <var name="TEST_HISTOS_FILE" value="cmsRun.Pt35.olog.electronHistos.root">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
     <!executable name="root" args="-b -l -q eleListHistos.C">
-    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${TEST_DATASET}__${DBS_RELEASE}-${DBS_COND}__DQMOFFLINE.root">
+    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${DBS_SAMPLE}__${DBS_RELEASE}-${DBS_COND}__DQMOFFLINE.root">
     <var name="PUB_OUTPUT_DIR" value="${PUB_OUTPUT_DIR}/${DBS_SAMPLE}">
     <var name="PUB_COMMENT" value="${PUB_COMMENT} and sample ${DBS_SAMPLE}.">
     <executable name="root" args="-b -l -n -q elePublishHistos.C">
   </environment>
   
   <environment name="QcdPt80Pt120">
-    <var name="TEST_DATASET" value="QcdPt80Pt120">
     <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
-    <!var name="DBS_TIER_SECONDARY" value="-RAW">
     <executable name="dbs_discovery.py">
     <var name="TEST_HISTOS_FILE" value="cmsRun.QcdPt80Pt120.olog.electronHistos.root">
-    <executable name="cmsRun" args="EgammaAnalyzers_cfg.py">
-    <executable name="cmsRun" args="EgammaOfflineClients_cfg.py">
+    <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
+    <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
     <!executable name="root" args="-b -l -q eleListHistos.C">
-    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${TEST_DATASET}__${DBS_RELEASE}-${DBS_COND}__DQMOFFLINE.root">
+    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${DBS_SAMPLE}__${DBS_RELEASE}-${DBS_COND}__DQMOFFLINE.root">
     <var name="PUB_OUTPUT_DIR" value="${PUB_OUTPUT_DIR}/${DBS_SAMPLE}">
     <var name="PUB_COMMENT" value="${PUB_COMMENT} and sample ${DBS_SAMPLE}.">
     <executable name="root" args="-b -l -n -q elePublishHistos.C">
   </environment>
   
   <environment name="Pt10">
-    <var name="TEST_DATASET" value="SingleElectronPt10">
-    <var name="DBS_SAMPLE" value="RelVal${TEST_DATASET}">
+    <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
     <executable name="dbs_discovery.py">
     <var name="TEST_HISTOS_FILE" value="cmsRun.Pt10.olog.electronHistos.root">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
     <!executable name="root" args="-b -l -q eleListHistos.C">
-    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${TEST_DATASET}__${DBS_RELEASE}-${DBS_COND}__DQMOFFLINE.root">
+    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${DBS_SAMPLE}__${DBS_RELEASE}-${DBS_COND}__DQMOFFLINE.root">
     <var name="PUB_OUTPUT_DIR" value="${PUB_OUTPUT_DIR}/${DBS_SAMPLE}">
     <var name="PUB_COMMENT" value="${PUB_COMMENT} and sample ${DBS_SAMPLE}.">
     <executable name="root" args="-b -l -n -q elePublishHistos.C">
   </environment>
   
   <environment name="TTbar">
-    <var name="TEST_DATASET" value="TTbar">
-    <var name="DBS_SAMPLE" value="RelVal${TEST_DATASET}">
+    <var name="DBS_SAMPLE" value="RelValTTbar">
     <executable name="dbs_discovery.py">
     <var name="TEST_HISTOS_FILE" value="cmsRun.TTbar.olog.electronHistos.root">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
     <!executable name="root" args="-b -l -q eleListHistos.C">
-    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${TEST_DATASET}__${DBS_RELEASE}-${DBS_COND}__DQMOFFLINE.root">
+    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${DBS_SAMPLE}__${DBS_RELEASE}-${DBS_COND}__DQMOFFLINE.root">
     <var name="PUB_OUTPUT_DIR" value="${PUB_OUTPUT_DIR}/${DBS_SAMPLE}">
     <var name="PUB_COMMENT" value="${PUB_COMMENT} and sample ${DBS_SAMPLE}.">
     <executable name="root" args="-b -l -n -q elePublishHistos.C">
   </environment>
   
   <environment name="ZEEIdeal">
-    <var name="TEST_DATASET" value="ZEE">
-    <var name="DBS_SAMPLE" value="RelVal${TEST_DATASET}">
+    <var name="DBS_SAMPLE" value="RelValZEE">
     <!--var name="DBS_COND" value="MC"-->
     <executable name="dbs_discovery.py">
     <var name="TEST_HISTOS_FILE" value="cmsRun.ZEEIdeal.olog.electronHistos.root">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
     <!executable name="root" args="-b -l -q eleListHistos.C">
-    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${TEST_DATASET}__${DBS_RELEASE}-${DBS_COND}__DQMOFFLINE.root">
+    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${DBS_SAMPLE}__${DBS_RELEASE}-${DBS_COND}__DQMOFFLINE.root">
     <var name="PUB_OUTPUT_DIR" value="${PUB_OUTPUT_DIR}/${DBS_SAMPLE}Ideal">
     <var name="PUB_COMMENT" value="${PUB_COMMENT} and sample ${DBS_SAMPLE} Ideal.">
     <executable name="root" args="-b -l -n -q elePublishHistos.C">
   </environment>
   
   <environment name="ZEEStartup">
-    <var name="TEST_DATASET" value="ZEE">
-    <var name="DBS_SAMPLE" value="RelVal${TEST_DATASET}">
+    <var name="DBS_SAMPLE" value="RelValZEE">
     <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
     <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
     <!--var name="DBS_COND" value="STARTUP"-->
@@ -127,7 +120,7 @@ Tests with same datasets as release validation
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
     <!executable name="root" args="-b -l -q eleListHistos.C">
-    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${TEST_DATASET}__${DBS_RELEASE}-${DBS_COND}__DQMOFFLINE.root">
+    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${DBS_SAMPLE}__${DBS_RELEASE}-${DBS_COND}__DQMOFFLINE.root">
     <var name="PUB_OUTPUT_DIR" value="${PUB_OUTPUT_DIR}/${DBS_SAMPLE}Startup">
     <var name="PUB_COMMENT" value="${PUB_COMMENT} and sample ${DBS_SAMPLE} Startup.">
     <executable name="root" args="-b -l -n -q elePublishHistos.C">

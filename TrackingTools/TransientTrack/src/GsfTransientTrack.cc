@@ -94,6 +94,7 @@ void GsfTransientTrack::setTrackingGeometry(const edm::ESHandle<GlobalTrackingGe
 void GsfTransientTrack::setBeamSpot(const BeamSpot& beamSpot)
 {
   theBeamSpot = beamSpot;
+  blStateAvailable = false;
 }
 
 

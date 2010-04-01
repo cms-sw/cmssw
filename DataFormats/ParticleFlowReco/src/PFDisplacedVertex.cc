@@ -48,6 +48,28 @@ PFDisplacedVertex::nKindTracks(VertexTrackType T) const {
 }
 
 
+const size_t 
+PFDisplacedVertex::trackPosition(const reco::TrackBaseRef& originalTrack) const {
+
+  size_t pos = -1;
+  
+  const Track refittedTrack = PFDisplacedVertex::refittedTrack(originalTrack);
+
+  std::vector<Track> refitTrks = refittedTracks();
+  for (size_t i = 0; i < refitTrks.size(); i++){
+    if ( fabs(refitTrks[i].pt() - refittedTrack.pt()) < 1.e-5 ){
+      pos = i;
+      continue;
+    }
+    
+  }
+  //  cout << "pos = " << pos << endl;
+
+  return pos;
+
+}
+
+
 const math::XYZTLorentzVector 
 PFDisplacedVertex::momentum(string massHypo, VertexTrackType T, bool useRefitted, double mass) const {
 
@@ -75,10 +97,12 @@ PFDisplacedVertex::momentum(string massHypo, VertexTrackType T, bool useRefitted
 				      sqrt(m2 + p2));
       } else {
 
-	double p2 = refittedTracks()[i].innerMomentum().Mag2();
-	P += math::XYZTLorentzVector (refittedTracks()[i].innerMomentum().x(),
-				      refittedTracks()[i].innerMomentum().y(),
-				      refittedTracks()[i].innerMomentum().z(),
+	//	cout << "m2 " << m2 << endl; 
+
+	double p2 = refittedTracks()[i].momentum().Mag2();
+	P += math::XYZTLorentzVector (refittedTracks()[i].momentum().x(),
+				      refittedTracks()[i].momentum().y(),
+				      refittedTracks()[i].momentum().z(),
 				      sqrt(m2 + p2));
 
 
@@ -112,7 +136,48 @@ PFDisplacedVertex::getMass2(string massHypo, double mass) const {
 
 }
 
-std::ostream& operator<<( std::ostream& out, const PFDisplacedVertex& co ){
-  return out;
+void PFDisplacedVertex::Dump( ostream& out ) const {
+  if(! out ) return;
+
+  out << "" << endl;
+  out << "==================== This is a Displaced Vertex ===============" << endl;
+
+  out << " Vertex chi2 = " << chi2() << " ndf = " << ndof()<< " normalised chi2 = " << normalizedChi2()<< endl;
+
+  out << " The vertex Fitted Position is: x = " << position().x()
+      << " y = " << position().y()
+      << " rho = " << position().rho() 
+      << " z = " << position().z() 
+      << endl;
+  
+  out<< "\t--- Structure ---  " << endl;
+  out<< "Number of tracks: "  << nTracks() 
+     << " nPrimary " << nPrimaryTracks()
+     << " nMerged " << nMergedTracks()
+     << " nSecondary " << nSecondaryTracks() << endl;
+              
+  vector <PFDisplacedVertex::PFTrackHitFullInfo> pattern = trackHitFullInfos();
+  vector <PFDisplacedVertex::VertexTrackType> trackType = trackTypes();
+  for (unsigned i = 0; i < pattern.size(); i++){
+    out << "track " << i 
+	<< " type = " << trackType[i]
+	<< " nHit BeforeVtx = " << pattern[i].first.first 
+	<< " AfterVtx = " << pattern[i].second.first
+	<< " MissHit BeforeVtx = " << pattern[i].first.second
+	<< " AfterVtx = " << pattern[i].second.second
+	<< endl;
+  }
+
+
+  out << "Primary P: E " << primaryMomentum((string) "MASSLESS", false).E() 
+      << " Pt = " << primaryMomentum((string) "MASSLESS", false).Pt() 
+      << " Pz = " << primaryMomentum((string) "MASSLESS", false).Pz()
+      << " M = "  << primaryMomentum((string) "MASSLESS", false).M() << endl;
+
+  out << "Secondary P: E " << secondaryMomentum((string) "PI", true).E() 
+      << " Pt = " << secondaryMomentum((string) "PI", true).Pt() 
+      << " Pz = " << secondaryMomentum((string) "PI", true).Pz()
+      << " M = "  << secondaryMomentum((string) "PI", true).M() << endl;
+  out << "" << endl;
 }
 

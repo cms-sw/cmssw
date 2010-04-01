@@ -1,4 +1,5 @@
 #include "ElectroWeakAnalysis/ZEE/interface/ErsatzMEt.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 ErsatzMEt::ErsatzMEt(const edm::ParameterSet& ps)
 {
@@ -452,16 +453,16 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	}	
 
 	const edm::TriggerResults* HltRes = pTriggerResults.product();
-	TriggerNames_.init(*HltRes);
+	const edm::TriggerNames & triggerNames = evt.triggerNames(*HltRes);
 	if(HLTPathCheck_)
 	{
 		for(uint itrig = 0; itrig < HltRes->size(); ++itrig)
 		{
-			std::string nom = TriggerNames_.triggerName(itrig);
+			std::string nom = triggerNames.triggerName(itrig);
 			edm::LogInfo("")<< itrig <<" : Name = "<< nom <<"\t Accepted = "<< HltRes->accept(itrig);
 		}
 	}
-	if(HltRes->accept(34) ==0) edm::LogError("")<<"Event did not pass "<< TriggerNames_.triggerName(34)<<"!";
+	if(HltRes->accept(34) ==0) edm::LogError("")<<"Event did not pass "<< triggerNames.triggerName(34)<<"!";
 	if(HltRes->accept(34) !=0)
 	{
 	std::vector<reco::GsfElectronRef> UniqueElectrons;

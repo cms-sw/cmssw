@@ -2,12 +2,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleDecaySelector.cc,v 1.2 2008/12/05 20:50:47 hegner Exp $
+ * \version $Id: GenParticleDecaySelector.cc,v 1.3 2010/01/11 13:26:23 hegner Exp $
  *
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 

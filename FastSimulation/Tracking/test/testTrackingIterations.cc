@@ -730,5 +730,5 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(testTrackingIterations);
+
+DEFINE_FWK_MODULE(testTrackingIterations);

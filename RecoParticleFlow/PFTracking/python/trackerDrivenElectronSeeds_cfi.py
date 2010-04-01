@@ -34,7 +34,10 @@ trackerDrivenElectronSeeds = cms.EDProducer("GoodSeedProducer",
     HOverPLead_maxValue = cms.double(0.05),
     HcalWindow=cms.double(0.184),                       
     ClusterThreshold = cms.double(0.5),
-    UsePreShower =cms.bool(False)                       
+    UsePreShower =cms.bool(False),
+    PreIdLabel = cms.string('preid'),
+    ProducePreId = cms.untracked.bool(True),
+    PtThresholdSavePreId = cms.untracked.double(1.0)  
 )
 
 

@@ -174,12 +174,9 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       }else{
 	LogTrace("TrackFitters") << "THE Precise HIT IS VALID: updating currTsos" << "\n";
 	currTsos = updator()->update(predTsos, *preciseHit);
-	//check for valid hits with no det (refitter with constraints)
-	if (preciseHit->det()) myTraj.push(TM(predTsos, currTsos, preciseHit,
-					      estimator()->estimate(predTsos, *preciseHit).second,
-					      theGeometry->idToLayer(preciseHit->geographicalId())  ));
-	else myTraj.push(TM(predTsos, currTsos, preciseHit,
-			    estimator()->estimate(predTsos, *preciseHit).second));
+	myTraj.push(TM(predTsos, currTsos, preciseHit,
+		       estimator()->estimate(predTsos, *preciseHit).second,
+		       theGeometry->idToLayer(preciseHit->geographicalId())  ));
 
       }
     } else {

@@ -55,7 +55,7 @@ public:
  
  
   int numberOfDisks_;
-
+  int  numberOfRings_;
   MonitorElement * DEADWheel[5];
   MonitorElement * DEADDisk[10]; 
 

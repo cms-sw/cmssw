@@ -117,6 +117,13 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
 				<< *line << "\"." << std::endl;
 	}
 
+    if(pythiaPylistVerbosity > 10) {
+      if(pythiaPylistVerbosity == 11 || pythiaPylistVerbosity == 13)
+        pythia->settings.listAll();
+      if(pythiaPylistVerbosity == 12 || pythiaPylistVerbosity == 13)
+        pythia->particleData.listAll();
+    }
+
 	pythia->init(2212, 2212, comEnergy);
 
 	pythia->settings.listChanged();
@@ -149,6 +156,13 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
             throw cms::Exception("PythiaError")
                 << "Pythia 8 did not accept \""
                 << *line << "\"." << std::endl;
+    }
+
+    if(pythiaPylistVerbosity > 10) {
+      if(pythiaPylistVerbosity == 11 || pythiaPylistVerbosity == 13)
+        pythia->settings.listAll();
+      if(pythiaPylistVerbosity == 12 || pythiaPylistVerbosity == 13)
+        pythia->particleData.listAll();
     }
 
     if(LHEInputFileName != string()) {

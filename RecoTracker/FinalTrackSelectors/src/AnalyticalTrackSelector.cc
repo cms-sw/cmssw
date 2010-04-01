@@ -182,29 +182,15 @@ bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const
    if (nlayers3D < min_3Dlayers_) return false;
    if (nlayersLost > max_lostLayers_) return false;
 
-   double chi2n =  tk.normalizedChi2();
-
-   int count1dhits = 0;
-   for (trackingRecHit_iterator ith = tk.recHitsBegin(), edh = tk.recHitsEnd(); ith != edh; ++ith) {
-     const TrackingRecHit * hit = ith->get();
-     DetId detid = hit->geographicalId();
-     if (hit->isValid()) {
-       if (typeid(*hit) == typeid(SiStripRecHit1D)) ++count1dhits;
-     }
-   }
-   if (count1dhits > 0) {
-     double chi2 = tk.chi2();
-     double ndof = tk.ndof();
-     chi2n = (chi2+count1dhits)/double(ndof+count1dhits);
-   }
-   // For each 1D rechit, the chi^2 and ndof is increased by one.  This is a way of retaining approximately
-   // the same normalized chi^2 distribution as with 2D rechits.
-   if (chi2n > chi2n_par_*nlayers) return false;
-
    // Get track parameters
-   double pt = tk.pt(), eta = tk.eta();
+   double pt = tk.pt(),eta = tk.eta(), chi2n =  tk.normalizedChi2();
    double d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(),
      dz = tk.dz(vertexBeamSpot.position()), dzE =  tk.dzError();
+
+   // optimized cuts adapted to the track nlayers, pt, eta:
+   // cut on chiquare/ndof 
+   if (chi2n > chi2n_par_*nlayers) return false;
+
 
    // parametrized d0 resolution for the track pt
    double nomd0E = sqrt(res_par_[0]*res_par_[0]+(res_par_[1]/max(pt,1e-9))*(res_par_[1]/max(pt,1e-9)));

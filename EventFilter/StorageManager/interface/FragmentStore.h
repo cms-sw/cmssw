@@ -1,4 +1,4 @@
-// $Id: FragmentStore.h,v 1.5 2009/07/20 13:06:10 mommsen Exp $
+// $Id: FragmentStore.h,v 1.6 2009/08/12 14:56:30 biery Exp $
 /// @file: FragmentStore.h 
 
 #ifndef StorageManager_FragmentStore_h
@@ -19,16 +19,17 @@ namespace stor {
    *
    * Uses a map of I2OChains to store incomplete events.
    *
-   * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Author: biery $
+   * $Revision: 1.6 $
+   * $Date: 2009/08/12 14:56:30 $
    */
   
   class FragmentStore
   {
   public:
     
-    FragmentStore() {};
+    FragmentStore()
+    { clear(); }
 
     /**
      * Adds fragments of the I2OChain to the fragment store.
@@ -65,22 +66,29 @@ namespace stor {
     /**
      * Clears all fragments hold by the fragment store
      */
-    void clear()
-    { _store.clear(); }
+    inline void clear()
+    { _store.clear(); _memoryUsed = 0; }
 
 
     /**
      * Checks if the fragment store is empty
      */
-    bool empty()
+    inline bool empty() const
     { return _store.empty(); }
 
 
     /**
      * Returns the number of events in the fragment store (complete or not).
      */
-    unsigned int size()
+    inline unsigned int size() const
     { return _store.size(); }
+
+
+    /**
+     * Returns the total memory occupied by the events in the fragment store
+     */
+    inline size_t memoryUsed() const
+    { return _memoryUsed; }
 
     
   private:
@@ -92,7 +100,8 @@ namespace stor {
     typedef std::map<FragKey, I2OChain> fragmentMap;
     fragmentMap _store;
     
-    
+    size_t _memoryUsed;
+
   };
   
 } // namespace stor

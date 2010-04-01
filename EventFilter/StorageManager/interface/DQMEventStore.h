@@ -1,11 +1,11 @@
-// $Id: DQMEventStore.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
+// $Id: DQMEventStore.h,v 1.7 2010/03/06 08:38:37 mommsen Exp $
 /// @file: DQMEventStore.h 
 
 #ifndef StorageManager_DQMEventStore_h
 #define StorageManager_DQMEventStore_h
 
 #include <map>
-#include <stack>
+#include <queue>
 
 #include "boost/shared_ptr.hpp"
 
@@ -31,8 +31,8 @@ namespace stor {
    * into DQMEventMsgViews.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/08/28 16:41:49 $
+   * $Revision: 1.7 $
+   * $Date: 2010/03/06 08:38:37 $
    */
   
   class DQMEventStore
@@ -109,11 +109,9 @@ namespace stor {
 
     typedef std::map<DQMKey, DQMEventRecordPtr> DQMEventRecordMap;
     DQMEventRecordMap _store;
-    // Always serve the freshest record entry
-    std::stack<DQMEventRecord::GroupRecord> _recordsReadyToServe;
+    std::queue<DQMEventRecord::GroupRecord> _recordsReadyToServe;
     
     std::vector<unsigned char> _tempEventArea;
-    
   };
   
 } // namespace stor

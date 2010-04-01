@@ -8,8 +8,6 @@ import FWCore.ParameterSet.Config as cms
 #
 # as these are used in Configuration/EventContent
 #
-# All else is internal and should not be used directly by non-HLT users.
-#
 HLTriggerRAW = cms.PSet(
     outputCommands = cms.vstring('drop *_hlt*_*_*', 
         'keep *_hltL1GtObjectMap_*_*', 
@@ -35,8 +33,10 @@ HLTriggerAOD = cms.PSet(
 
 HLTDebugRAW = cms.PSet(
     outputCommands = cms.vstring('drop *_hlt*_*_*', 
+        'keep *_hltAlCaEtaRecHitsFilter_*_*', 
         'keep *_hltAlCaEtaRegRecHits_*_*', 
         'keep *_hltAlCaPhiSymStream_*_*', 
+        'keep *_hltAlCaPi0RecHitsFilter_*_*', 
         'keep *_hltAlCaPi0RegRecHits_*_*', 
         'keep *_hltBLifetimeL25AssociatorStartupU_*_*', 
         'keep *_hltBLifetimeL25AssociatorStartup_*_*', 
@@ -237,6 +237,7 @@ HLTDebugRAW = cms.PSet(
         'keep *_hltTowerMakerForMuons_*_*', 
         'keep FEDRawDataCollection_rawDataCollector_*_*', 
         'keep FEDRawDataCollection_source_*_*', 
+        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*', 
         'keep L1MuGMTCands_hltGtDigis_*_*', 
         'keep L1MuGMTReadoutCollection_hltGtDigis_*_*', 
         'keep edmTriggerResults_*_*_*', 
@@ -246,8 +247,10 @@ HLTDebugRAW = cms.PSet(
 
 HLTDebugFEVT = cms.PSet(
     outputCommands = cms.vstring('drop *_hlt*_*_*', 
+        'keep *_hltAlCaEtaRecHitsFilter_*_*', 
         'keep *_hltAlCaEtaRegRecHits_*_*', 
         'keep *_hltAlCaPhiSymStream_*_*', 
+        'keep *_hltAlCaPi0RecHitsFilter_*_*', 
         'keep *_hltAlCaPi0RegRecHits_*_*', 
         'keep *_hltBLifetimeL25AssociatorStartupU_*_*', 
         'keep *_hltBLifetimeL25AssociatorStartup_*_*', 
@@ -448,6 +451,7 @@ HLTDebugFEVT = cms.PSet(
         'keep *_hltTowerMakerForMuons_*_*', 
         'keep FEDRawDataCollection_rawDataCollector_*_*', 
         'keep FEDRawDataCollection_source_*_*', 
+        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*', 
         'keep L1MuGMTCands_hltGtDigis_*_*', 
         'keep L1MuGMTReadoutCollection_hltGtDigis_*_*', 
         'keep edmTriggerResults_*_*_*', 

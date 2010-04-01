@@ -70,11 +70,6 @@ bool VertexFilter::operator () (const Vertex &pv,
 	if (svTracks.size() < multiplicityMin)
 		return false;
 
-	// invalid errors
-
-	if (sv.dist2d().error() < 0 || sv.dist3d().error() < 0)
-		return false;
-
 	// flight distance limits (value and significance, 2d and 3d)
 
 	if (sv.dist2d().value()        < distVal2dMin ||

@@ -449,7 +449,13 @@ void HcalDetDiagNoiseMonitor::processEvent(const edm::Event& iEvent, const edm::
 
      // met collection
      edm::Handle<CaloMETCollection> metHandle;
-     iEvent.getByLabel(MetSource_, metHandle);
+
+     if (!iEvent.getByLabel(MetSource_, metHandle))
+       {
+	 if (fVerbosity) LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  CaloMET collection with handle "<<MetSource_<<" not found!";
+	 return;
+       }
+
      const CaloMETCollection *metCol = metHandle.product();
      const CaloMET met = metCol->front();
 

@@ -97,7 +97,7 @@ void SiPixelInformationExtractor::readConfiguration() { }
 void SiPixelInformationExtractor::getSingleModuleHistos(DQMStore * bei, 
                                                         const multimap<string, string>& req_map, 
 							xgi::Output * out){
-cout<<"In SiPixelInformationExtractor::getSingleModuleHistos: "<<endl;
+//cout<<"In SiPixelInformationExtractor::getSingleModuleHistos: "<<endl;
   vector<string> hlist;
   getItemList(req_map,"histo", hlist);
 
@@ -132,7 +132,7 @@ cout<<"In SiPixelInformationExtractor::getSingleModuleHistos: "<<endl;
       theME = me->getName();
       string temp_s ; 
       if(theME.find("siPixel")!=string::npos || theME.find("ctfWithMaterialTracks")!=string::npos) { temp_s = theME.substr(0,theME.find_first_of("_")); }
-      cout<<"should be the variable name: temp_s= "<<temp_s<<endl;
+      //cout<<"should be the variable name: temp_s= "<<temp_s<<endl;
       if (temp_s == (*ih)) {
 	string full_path = path + "/" + me->getName();
 	histoPlotter_->setNewPlot(full_path, opt, width, height);
@@ -318,46 +318,37 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(DQMStore * bei,
 //cout<<"entering SiPixelInformationExtractor::fillModuleAndHistoList"<<endl;
   string currDir = bei->pwd();
   //cout<<"currDir= "<<currDir<<endl;
-  if (currDir.find("Module_") != string::npos ||
-      currDir.find("FED_") != string::npos)  {
-    if (histos.size() == 0) {
-      
-
+  if(currDir.find("Module_") != string::npos){
+    if(histos.size() == 0){
       vector<string> contents = bei->getMEs();
-          
-      for (vector<string>::const_iterator it = contents.begin();
-	   it != contents.end(); it++) {
+      for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) {
 	string hname          = (*it).substr(0, (*it).find("_siPixel"));
-	if (hname==" ") hname = (*it).substr(0, (*it).find("_ctfWithMaterialTracks"));
+	if(hname==" ") hname = (*it).substr(0, (*it).find("_generalTracks"));
         string fullpathname   = bei->pwd() + "/" + (*it); 
        // cout<<"fullpathname="<<fullpathname<<endl;
         MonitorElement * me   = bei->get(fullpathname);
-	
         string htype          = "undefined" ;
-        if (me) 
-	{
-	 htype = me->getRootObject()->IsA()->GetName() ;
-	}
+        if(me) htype = me->getRootObject()->IsA()->GetName() ;
 	//cout<<"hname="<<hname<<endl;
 	//if(htype=="TH1F" || htype=="TH1D"){
-          histos[hname] = htype ;
-          string mId=" ";
-	  if(hname.find("ndigis")                !=string::npos) mId = (*it).substr((*it).find("ndigis_siPixelDigis_")+20, 9);
-	  if(mId==" " && hname.find("nclusters") !=string::npos) mId = (*it).substr((*it).find("nclusters_siPixelClusters_")+26, 9);
-          if(mId==" " && hname.find("residualX") !=string::npos) mId = (*it).substr((*it).find("residualX_ctfWithMaterialTracks_")+32, 9);
-          if(mId==" " && hname.find("NErrors") !=string::npos) mId = (*it).substr((*it).find("NErrors_siPixelDigis_")+21, 9);
-          if(mId==" " && hname.find("ClustX") !=string::npos) mId = (*it).substr((*it).find("ClustX_siPixelRecHit_")+21, 9);
-          if(mId==" " && hname.find("pixelAlive") !=string::npos) mId = (*it).substr((*it).find("pixelAlive_siPixelCalibDigis_")+29, 9);
-          if(mId==" " && hname.find("Gain1d") !=string::npos) mId = (*it).substr((*it).find("Gain1d_siPixelCalibDigis_")+25, 9);
-          if(mId!=" ") modules.push_back(mId);
-          //cout<<"mId="<<mId<<endl;
+        histos[hname] = htype ;
+        string mId=" ";
+	if(hname.find("ndigis") 	       !=string::npos) mId = (*it).substr((*it).find("ndigis_siPixelDigis_")+20, 9);
+	if(mId==" " && hname.find("nclusters") !=string::npos) mId = (*it).substr((*it).find("nclusters_siPixelClusters_")+26, 9);
+        if(mId==" " && hname.find("residualX") !=string::npos) mId = (*it).substr((*it).find("residualX_ctfWithMaterialTracks_")+32, 9);
+        if(mId==" " && hname.find("NErrors") !=string::npos) mId = (*it).substr((*it).find("NErrors_siPixelDigis_")+21, 9);
+        if(mId==" " && hname.find("ClustX") !=string::npos) mId = (*it).substr((*it).find("ClustX_siPixelRecHit_")+21, 9);
+        if(mId==" " && hname.find("pixelAlive") !=string::npos) mId = (*it).substr((*it).find("pixelAlive_siPixelCalibDigis_")+29, 9);
+        if(mId==" " && hname.find("Gain1d") !=string::npos) mId = (*it).substr((*it).find("Gain1d_siPixelCalibDigis_")+25, 9);
+        if(mId!=" ") modules.push_back(mId);
+        //cout<<"mId="<<mId<<endl;
 	//}
       }    
     }
   } else {  
     vector<string> subdirs = bei->getSubdirs();
-    for (vector<string>::const_iterator it = subdirs.begin();
-	 it != subdirs.end(); it++) {
+    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+      if((bei->pwd()).find("Barrel")==string::npos && (bei->pwd()).find("Endcap")==string::npos) bei->goUp();
       bei->cd(*it);
       fillModuleAndHistoList(bei, modules, histos);
       bei->goUp();

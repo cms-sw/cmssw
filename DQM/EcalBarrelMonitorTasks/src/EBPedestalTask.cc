@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2009/08/23 20:59:51 $
- * $Revision: 1.96 $
+ * $Date: 2009/10/26 17:33:48 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  *
 */
@@ -415,9 +415,6 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_STD ||
                runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
 
-      LogDebug("EBPedestalTask") << " det id = " << id;
-      LogDebug("EBPedestalTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
-
       EBDataFrame dataframe = (*digiItr);
 
       for (int i = 0; i < 10; i++) {
@@ -538,9 +535,6 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_STD ||
                runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
-
-      LogDebug("EBPedestalTask") << " det id = " << pnItr->id();
-      LogDebug("EBPedestalTask") << " sm, num " << ism << " " << num;
 
       for (int i = 0; i < 50; i++) {
 

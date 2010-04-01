@@ -1,3 +1,10 @@
+2010-02-17  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-17-10
+	* add python directory
+	* add cfi.py files for ModuleWebRegistry, MicroStateService, and
+	TimeProfierService
+
 2010-02-02  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-17-09

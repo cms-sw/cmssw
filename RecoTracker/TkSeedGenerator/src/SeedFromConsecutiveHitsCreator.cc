@@ -130,6 +130,7 @@ const TrajectorySeed * SeedFromConsecutiveHitsCreator::buildSeed(
     if (!checkHit(state,newtth,es)) return 0;
 
     updatedState =  updator.update(state, *newtth);
+    if (!updatedState.isValid()) return 0;
     
     seedHits.push_back(newtth->hit()->clone());
   } 

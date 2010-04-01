@@ -6,7 +6,8 @@ simHcalDigis = cms.EDFilter("HcalRealisticZS",
     HBlevel = cms.int32(-999),
     HElevel = cms.int32(-999),
     HOlevel = cms.int32(-999),
-    HFlevel = cms.int32(-999)
+    HFlevel = cms.int32(-999),
+    useConfigZSvalues = cms.int32(1)
 )
 
 

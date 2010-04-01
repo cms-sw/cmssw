@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2009/10/26 17:33:48 $
- * $Revision: 1.94 $
+ * $Date: 2010/02/12 21:57:31 $
+ * $Revision: 1.96 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -18,6 +18,7 @@
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalBarrelMonitorTasks/interface/EBTriggerTowerTask.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 using namespace cms;
 using namespace edm;
@@ -381,8 +382,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     int ntrigs = hltResults->size();
     if ( ntrigs!=0 ) {
 
-      TriggerNames triggerNames;
-      triggerNames.init( *hltResults );
+      const edm::TriggerNames & triggerNames = e.triggerNames(*hltResults);
 
       for ( int itrig = 0; itrig != ntrigs; ++itrig ) {
         std::string trigName = triggerNames.triggerName(itrig);
@@ -493,14 +493,17 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
             }
           }
 
-          if ( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) good = false;
+          if ( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
+            good = false;
+          }
           
-          if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) goodVeto = false;
+          if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
+            goodVeto = false;
+          }
 
         }
 
-      }
-      else {
+      } else {
         good = false;
         goodVeto = false;
       }

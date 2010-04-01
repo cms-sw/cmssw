@@ -2,6 +2,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include <DataFormats/Common/interface/OwnVector.h>
 #include <DataFormats/Common/interface/ClonePolicy.h>
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "Math/Cartesian3D.h"
@@ -30,8 +31,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"  //Daniele
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"  //Daniele
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
-#
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
 #include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
@@ -53,6 +54,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidateFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexSeedFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
+
+#include "DataFormats/ParticleFlowReco/interface/PreId.h"
+#include "DataFormats/ParticleFlowReco/interface/PreIdFwd.h"
 
 #include <map>
 
@@ -106,6 +110,14 @@ namespace {
     edm::Ref<std::vector<reco::PFNuclearInteraction> >        dummy24;
     edm::RefProd<std::vector<reco::PFNuclearInteraction> >    dummy25;
     edm::RefVector<std::vector<reco::PFNuclearInteraction> >  dummy26;
+
+    reco::PFDisplacedTrackerVertex                                dummy21a;
+    std::vector<reco::PFDisplacedTrackerVertex>                   dummy22a;
+    edm::Wrapper<std::vector<reco::PFDisplacedTrackerVertex> >    dummy23a;
+    edm::Ref<std::vector<reco::PFDisplacedTrackerVertex> >        dummy24a;
+    edm::RefProd<std::vector<reco::PFDisplacedTrackerVertex> >    dummy25a;
+    edm::RefVector<std::vector<reco::PFDisplacedTrackerVertex> >  dummy26a;
+
 
     reco::PFConversionCollection dummy27;
     edm::Wrapper<reco::PFConversionCollection> dummy28;
@@ -182,5 +194,13 @@ namespace {
 
     std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> > dummy1013;
 
+
+    /* For PreID */
+    reco::PreId dummy81;
+    std::vector<reco::PreId> dummy82;
+    edm::Ref< std::vector<reco::PreId> >  dummy85;
+    edm::Wrapper<std::vector<reco::PreId> > dummy83;
+    edm::Wrapper<edm::ValueMap<reco::PreIdRef> > dummy84;
+    edm::Ref<std::vector<reco::PreId>,reco::PreId,edm::refhelper::FindUsingAdvance<std::vector<reco::PreId>,reco::PreId> > dummy86;
   };
 }

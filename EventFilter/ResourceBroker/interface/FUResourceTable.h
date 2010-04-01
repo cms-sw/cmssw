@@ -228,6 +228,7 @@ namespace evf {
     UInt_t             nbSentError_;
     UInt_t             nbSentDqm_;
     UInt_t             nbPendingSMDiscards_;
+    UInt_t             nbPendingSMDqmDiscards_;
     UInt_t             nbDiscarded_;
     UInt_t             nbLost_;
     

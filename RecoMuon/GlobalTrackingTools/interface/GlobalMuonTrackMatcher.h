@@ -15,8 +15,8 @@
  * matches, then it makes a comparison of the TSOS local direction.
  *
  *
- *  $Date: 2009/02/24 18:53:55 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/12/15 08:46:09 $
+ *  $Revision: 1.8 $
  *
  *  \author Edwin Antillon      Purdue University
  *  \author Chang Liu           Purdue University
@@ -29,7 +29,6 @@
 class TrajectoryStateOnSurface;
 class MuonServiceProxy;
 class Trajectory;
-class TH1F;
 
 namespace edm {class ParameterSet;}
 
@@ -84,8 +83,7 @@ class GlobalMuonTrackMatcher {
     bool samePlane(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
 
   private:
-    bool useTFileService_;
-
+    
     double theMinP;
     double theMinPt;
     double thePt_threshold1;
@@ -108,15 +106,6 @@ class GlobalMuonTrackMatcher {
     const MuonServiceProxy* theService;
     std::string theOutPropagatorName;
 
-    TH1F *h_pt, *h_nTk;
-    TH1F *h_distance_0, *h_chi2_0, *h_loc_chi2_0, *h_deltaR_0;
-    TH1F *h_distance_a1, *h_loc_chi2_a1, *h_chi2_a1;
-    TH1F *h_chi2_a2, *h_distance_a2;
-    TH1F *h_distance_a3, *h_deltaR_a3;
-    TH1F *h_deltaEta_b, *h_deltaPhi_b;
-    TH1F *h_nMatch, *h_nClean;
-    TH1F *h_nCands, *h_na1, *h_na2, *h_na3;
-    TH1F *h_nb;
 };
 
 #endif

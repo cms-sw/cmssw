@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/11/15 12:52:10 $
- * $Revision: 1.44 $
+ * $Date: 2009/11/15 12:56:36 $
+ * $Revision: 1.45 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -598,11 +598,11 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
       int ismt = Numbers::iSM( TPdigi->id() );
 
-      vector<DetId> crystals = Numbers::crystals( TPdigi->id() );
+      vector<DetId>* crystals = Numbers::crystals( TPdigi->id() );
 
-      for ( unsigned int i=0; i<crystals.size(); i++ ) {
+      for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
-        EEDetId id = crystals[i];
+        EEDetId id = (*crystals)[i];
 
         int ix = id.ix();
         int iy = id.iy();
@@ -626,7 +626,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
         float xiy = iy-0.5;
 
         if ( ((TPdigi->ttFlag() & 0x3) == 1 || (TPdigi->ttFlag() & 0x3) == 3)
-             && nCryTT[itcc-1][itt-1] != (int)crystals.size() ) EETTFMismatch_[iz]->Fill(xix, xiy);
+             && nCryTT[itcc-1][itt-1] != (int)crystals->size() ) EETTFMismatch_[iz]->Fill(xix, xiy);
 
       }
 

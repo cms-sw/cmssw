@@ -117,7 +117,7 @@ void ApvTimingAnalysis::refTime( const float& time, const float& targetDelay ) {
 // ----------------------------------------------------------------------------
 // 
 uint16_t ApvTimingAnalysis::frameFindingThreshold() const { 
-  if ( ( getErrorCodes().empty() || getErrorCodes()[0] == "TickMarkRecovered" ) &&
+  if ( getErrorCodes().empty() &&
        time_   < sistrip::valid_ &&
        base_   < sistrip::valid_ && 
        peak_   < sistrip::valid_ && 
@@ -132,7 +132,7 @@ uint16_t ApvTimingAnalysis::frameFindingThreshold() const {
 // ----------------------------------------------------------------------------
 // 
 bool ApvTimingAnalysis::foundTickMark() const {
-  return ( ( getErrorCodes().empty() || getErrorCodes()[0] == "TickMarkRecovered") &&
+  return ( getErrorCodes().empty() &&
 	   time_   < sistrip::valid_ &&
 	   base_   < sistrip::valid_ &&
 	   peak_   < sistrip::valid_ &&
@@ -143,7 +143,7 @@ bool ApvTimingAnalysis::foundTickMark() const {
 // ----------------------------------------------------------------------------
 // 
 bool ApvTimingAnalysis::isValid() const {
-  return ( ( getErrorCodes().empty() || getErrorCodes()[0] == "TickMarkRecovered" ) &&
+  return ( getErrorCodes().empty() &&
 	   time_   < sistrip::valid_ &&
 	   base_   < sistrip::valid_ &&
 	   peak_   < sistrip::valid_ &&
