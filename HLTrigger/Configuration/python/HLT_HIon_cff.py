@@ -1,14 +1,15 @@
-# /dev/CMSSW_3_6_0/pre4/HIon/V11 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
+# /dev/CMSSW_3_6_0/pre4/HIon/V12 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/HIon/V11')
+  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/HIon/V12')
 )
 
 streams = cms.PSet( 
-  Offline = cms.vstring(  ),
+  HLTDQM = cms.vstring(  ),
+  DQM = cms.vstring(  ),
   Calibration = cms.vstring( 'TestEnables' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
@@ -17,16 +18,15 @@ streams = cms.PSet(
   Express = cms.vstring( 'ExpressPhysics' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  HLTDQM = cms.vstring(  ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
-  DQM = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
   A = cms.vstring( 'RandomTriggers',
-    'MinimumBias',
-    'Cosmics',
     'HcalHPDNoise',
     'HcalNZS',
-    'ZeroBias' )
+    'ZeroBias',
+    'MinimumBias',
+    'Cosmics' ),
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  Offline = cms.vstring(  )
 )
 datasets = cms.PSet( 
   TestEnables = cms.vstring(  ),
@@ -37,13 +37,13 @@ datasets = cms.PSet(
   ExpressPhysics = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
-  OfflineMonitor = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
-  MinimumBias = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
-  ZeroBias = cms.vstring(  )
+  ZeroBias = cms.vstring(  ),
+  MinimumBias = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
+  OfflineMonitor = cms.vstring(  )
 )
 
 MCJetCorrectorIcone5Unit = cms.ESSource( "LXXXCorrectionService",
