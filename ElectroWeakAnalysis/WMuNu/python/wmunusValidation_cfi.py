@@ -9,13 +9,13 @@ corMet = cms.EDFilter("WMuNuValidator",
       MuonTag = cms.untracked.InputTag("muons"),
       METTag = cms.untracked.InputTag("corMetGlobalMuons"),
       METIncludesMuons = cms.untracked.bool(True),
-      #JetTag = cms.untracked.InputTag("ak5CaloJets"), -->For Data!!
-      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
-
+      JetTag = cms.untracked.InputTag("ak5CaloJets"),
+      
       # Main cuts ->
       MuonTrig = cms.untracked.string("HLT_Mu9"),
       PtCut = cms.untracked.double(25.0),
-      EtaCut = cms.untracked.double(2.1),
+      EtaMinCut = cms.untracked.double(0.),
+      EtaMaxCut = cms.untracked.double(2.1),
       IsRelativeIso = cms.untracked.bool(True),
       IsCombinedIso = cms.untracked.bool(False),
       IsoCut03 = cms.untracked.double(0.1),
@@ -26,7 +26,7 @@ corMet = cms.EDFilter("WMuNuValidator",
       AcopCut = cms.untracked.double(2.),
 
       # Muon quality cuts ->
-      DxyCut = cms.untracked.double(0.2),
+      DxyCut = cms.untracked.double(0.5),
       NormalizedChi2Cut = cms.untracked.double(10.),
       TrackerHitsCut = cms.untracked.int32(11),
       IsAlsoTrackerMuon = cms.untracked.bool(True),
@@ -49,13 +49,13 @@ pfMet = cms.EDFilter("WMuNuValidator",
       MuonTag = cms.untracked.InputTag("muons"),
       METTag = cms.untracked.InputTag("pfMet"),
       METIncludesMuons = cms.untracked.bool(True),
-      #JetTag = cms.untracked.InputTag("ak5CaloJets"), -->For Data!!
-      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
+      JetTag = cms.untracked.InputTag("ak5CaloJets"),
 
       # Main cuts ->
       MuonTrig = cms.untracked.string("HLT_Mu9"),
       PtCut = cms.untracked.double(25.0),
-      EtaCut = cms.untracked.double(2.1),
+      EtaMaxCut = cms.untracked.double(2.1),
+      EtaMinCut = cms.untracked.double(0.),
       IsRelativeIso = cms.untracked.bool(True),
       IsCombinedIso = cms.untracked.bool(False),
       IsoCut03 = cms.untracked.double(0.1),
@@ -66,7 +66,7 @@ pfMet = cms.EDFilter("WMuNuValidator",
       AcopCut = cms.untracked.double(2.),
 
       # Muon quality cuts ->
-      DxyCut = cms.untracked.double(0.2),
+      DxyCut = cms.untracked.double(0.5),
       NormalizedChi2Cut = cms.untracked.double(10.),
       TrackerHitsCut = cms.untracked.int32(11),
       IsAlsoTrackerMuon = cms.untracked.bool(True),
@@ -89,13 +89,13 @@ tcMet = cms.EDFilter("WMuNuValidator",
       MuonTag = cms.untracked.InputTag("muons"),
       METTag = cms.untracked.InputTag("tcMet"),
       METIncludesMuons = cms.untracked.bool(True),
-      #JetTag = cms.untracked.InputTag("ak5CaloJets"), -->For Data!!
-      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
+      JetTag = cms.untracked.InputTag("ak5CaloJets"),
 
       # Main cuts ->
       MuonTrig = cms.untracked.string("HLT_Mu9"),
       PtCut = cms.untracked.double(25.0),
-      EtaCut = cms.untracked.double(2.1),
+      EtaMaxCut = cms.untracked.double(2.1),
+      EtaMinCut = cms.untracked.double(0.),
       IsRelativeIso = cms.untracked.bool(True),
       IsCombinedIso = cms.untracked.bool(False),
       IsoCut03 = cms.untracked.double(0.1),
@@ -106,7 +106,7 @@ tcMet = cms.EDFilter("WMuNuValidator",
       AcopCut = cms.untracked.double(2.),
 
       # Muon quality cuts ->
-      DxyCut = cms.untracked.double(0.2),
+      DxyCut = cms.untracked.double(0.5),
       NormalizedChi2Cut = cms.untracked.double(10.),
       TrackerHitsCut = cms.untracked.int32(11),
       IsAlsoTrackerMuon = cms.untracked.bool(True),

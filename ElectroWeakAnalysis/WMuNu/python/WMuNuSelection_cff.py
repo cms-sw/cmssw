@@ -1,4 +1,4 @@
-import FWCore.ParameterSet.Config as cms
+#import FWCore.ParameterSet.Config as cms
 
 from ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi import *
 
@@ -15,8 +15,7 @@ selcorMet = cms.EDFilter("WMuNuSelector",
       MuonTag = cms.untracked.InputTag("muons"),
       #TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
-      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
-      #JetTag = cms.untracked.InputTag("ak5CaloJets"), --> For Data!!
+      JetTag = cms.untracked.InputTag("ak5CaloJets"),
       WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus"),
 
       # Preselection! 
@@ -58,8 +57,7 @@ selpfMet = cms.EDFilter("WMuNuSelector",
       MuonTag = cms.untracked.InputTag("muons"),
       #TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
-      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
-      #JetTag = cms.untracked.InputTag("ak5CaloJets"), --> For Data!!
+      JetTag = cms.untracked.InputTag("ak5CaloJets"),
       WMuNuCollectionTag = cms.untracked.InputTag("pfMetWMuNus"),
 
       # Preselection! 
@@ -102,8 +100,7 @@ seltcMet = cms.EDFilter("WMuNuSelector",
       MuonTag = cms.untracked.InputTag("muons"),
       #TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
-      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
-      #JetTag = cms.untracked.InputTag("ak5CaloJets"), --> For Data!!
+      JetTag = cms.untracked.InputTag("ak5CaloJets"),
       WMuNuCollectionTag = cms.untracked.InputTag("tcMetWMuNus"),
 
       # Preselection! 

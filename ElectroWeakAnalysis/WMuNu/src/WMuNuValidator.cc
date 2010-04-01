@@ -36,7 +36,9 @@ private:
 
   const std::string muonTrig_;
   double ptCut_;
-  double etaCut_;
+  double etaMinCut_;
+  double etaMaxCut_;
+
   bool isRelativeIso_;
   bool isCombinedIso_;
   double isoCut03_;
@@ -107,7 +109,8 @@ WMuNuValidator::WMuNuValidator( const ParameterSet & cfg ) :
       // Main cuts 
       muonTrig_(cfg.getUntrackedParameter<std::string> ("MuonTrig", "HLT_Mu9")),
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
-      etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.1)),
+      etaMinCut_(cfg.getUntrackedParameter<double>("EtaMinCut", 0)),
+      etaMaxCut_(cfg.getUntrackedParameter<double>("EtaMaxCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
       isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", false)),
       isoCut03_(cfg.getUntrackedParameter<double>("IsoCut03", 0.1)),
@@ -157,11 +160,11 @@ void WMuNuValidator::init_histograms() {
       for (int i=0; i<2; ++i) {
             snprintf(chname, 255, "PT%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Muon transverse momentum [GeV]");
-            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,100.);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,50.);
 
             snprintf(chname, 255, "ETA%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Muon pseudo-rapidity");
-            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,50,-2.5,2.5);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,50,-2.51,2.51);
 
             snprintf(chname, 255, "DXY%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Muon transverse distance to beam spot [cm]");
@@ -169,7 +172,7 @@ void WMuNuValidator::init_histograms() {
 
             snprintf(chname, 255, "CHI2%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Normalized Chi2, inner track fit");
-            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,100.);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,20.);
 
             snprintf(chname, 255, "NHITS%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Number of hits, inner track");
@@ -210,15 +213,15 @@ void WMuNuValidator::init_histograms() {
 
             snprintf(chname, 255, "MT%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Transverse mass (%s) [GeV]", metTag_.label().data());
-            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,150,0.,300.);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,100.);
 
             snprintf(chname, 255, "MET%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Missing transverse energy (%s) [GeV]", metTag_.label().data());
-            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,200.);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,100.);
 
             snprintf(chname, 255, "ACOP%s", chsuffix[i].data());
             snprintf(chtitle, 255, "MU-MET (%s) acoplanarity", metTag_.label().data());
-            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,50,0.,M_PI);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,10,0.,M_PI);
 
             snprintf(chname, 255, "NZ1%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Z rejection: number of muons above %.2f GeV", ptThrForZ1_);
@@ -244,7 +247,7 @@ void WMuNuValidator::init_histograms() {
             snprintf(chtitle, 255, "DiMuonSaSaMass");
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0,200);
       }
-            h1_["PTZCUT_LASTCUT"]=  subDir[1]->make<TH1D>("PTZCUT_LASTCUT","Global pt for Muons in Z",100,0.,100.);
+            h1_["PTZCUT_LASTCUT"]=  subDir[1]->make<TH1D>("PTZCUT_LASTCUT","Global pt for Muons in Z",100,0.,50.);
 
 }
 
@@ -471,7 +474,7 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             double eta = mu.eta();
             LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;;
             if (pt>ptCut_) muon_sel[0] = true; 
-            if (fabs(eta)<etaCut_) muon_sel[1] = true; 
+            if (eta>etaMinCut_ && eta<etaMaxCut_) muon_sel[1] = true; 
 
             if (pt<ptThrForZ1_) { muon4Z = false;}
             //if (fabs(eta)>=etaCut_) { muon4Z = false;}
