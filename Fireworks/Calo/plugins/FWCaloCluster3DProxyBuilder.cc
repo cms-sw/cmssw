@@ -29,6 +29,9 @@ void
 FWCaloCluster3DProxyBuilder::build(const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder) const
 {
    std::vector<std::pair<DetId, float> > clusterDetIds = iData.hitsAndFractions ();
+   Color_t color = item()->defaultDisplayProperties().color();
+   Float_t scale = 10.0; 	// FIXME: The scale should be taken form somewhere else
+   
    for(std::vector<std::pair<DetId, float> >::iterator id = clusterDetIds.begin (), idend = clusterDetIds.end ();
        id != idend; ++id)
    {
@@ -36,11 +39,8 @@ FWCaloCluster3DProxyBuilder::build(const reco::CaloCluster& iData, unsigned int 
       if( corners.empty() ) {
 	 continue;
       }
-      Float_t scale = 10.0; 	// FIXME: The scale should be taken form somewhere else
-      Float_t energy = (*id).second;
-      Float_t eScale = scale * energy;
 
-      fireworks::drawEcalHit3D(corners, item(), oItemHolder, eScale);
+      fireworks::drawEnergyTower3D(corners, (*id).second * scale, color, oItemHolder);
    }
 }
 

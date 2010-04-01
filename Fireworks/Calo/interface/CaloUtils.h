@@ -2,8 +2,12 @@
 #define Fireworks_Calo_CaloUtils_h
 
 namespace fireworks {
-   void drawCaloHit3D(std::vector<TEveVector> &corners, const FWEventItem* iItem, class TEveElement &oItemHolder, Float_t scaleFraction);
-   void drawEcalHit3D(std::vector<TEveVector> &corners, const FWEventItem* iItem, class TEveElement &oItemHolder, Float_t scale);
+   void addBox(const std::vector<TEveVector> &corners, Color_t color, class TEveElement &oItemHolder);
+   void addInvertedBox(const std::vector<TEveVector> &corners, Color_t color, class TEveElement &oItemHolder);
+   void drawEnergyScaledBox3D(std::vector<TEveVector> &corners, Float_t scale, Color_t color, class TEveElement &oItemHolder);
+   void drawTransverseEnergyScaledBox3D(std::vector<TEveVector> &corners, Float_t scale, Color_t color, class TEveElement &oItemHolder);
+   void drawEnergyTower3D(std::vector<TEveVector> &corners, Float_t scale, Color_t color, class TEveElement &oItemHolder);
+   void drawTransverseEnergyTower3D(std::vector<TEveVector> &corners, Float_t scale, Color_t color, class TEveElement &oItemHolder);
 }
 
 #endif

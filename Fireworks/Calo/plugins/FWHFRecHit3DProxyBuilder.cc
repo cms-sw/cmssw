@@ -58,13 +58,12 @@ FWHFRecHit3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** prod
       if ((*it).energy() > m_maxEnergy)
 	m_maxEnergy = (*it).energy();
    }
-   Float_t maxEnergy = m_maxEnergy;
+   Color_t color = iItem->defaultDisplayProperties().color();
    
    unsigned int index = 0;
    for(it = collection->begin(); it != itEnd; ++it, ++index)
    {
       Float_t energy = (*it).energy();
-      Float_t scaleFraction = energy / maxEnergy;
 
       std::stringstream s;
       s << "HF RecHit " << index << ", energy: " << energy << " GeV";
@@ -78,7 +77,7 @@ FWHFRecHit3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** prod
 	return;
       }
    
-      fireworks::drawCaloHit3D(corners, iItem, *compund, scaleFraction);
+      fireworks::drawEnergyScaledBox3D(corners, energy / m_maxEnergy, color, *compund);
    }
 }
 

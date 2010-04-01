@@ -34,10 +34,8 @@ FWEcalRecHit3DProxyBuilder::build(const EcalRecHit& iData, unsigned int iIndex, 
      return;
    }
    Float_t scale = 10.0; 	// FIXME: The scale should be taken form somewhere else
-   Float_t energy = iData.energy();
-   Float_t eScale = scale * energy;
 
-   fireworks::drawEcalHit3D(corners, item(), oItemHolder, eScale);
+   fireworks::drawEnergyTower3D(corners, iData.energy() * scale, item()->defaultDisplayProperties().color(), oItemHolder);
 }
 
 REGISTER_FW3DDATAPROXYBUILDER(FWEcalRecHit3DProxyBuilder, EcalRecHit, "Ecal RecHit");
