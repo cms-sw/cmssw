@@ -33,6 +33,7 @@ ESFEDIntegrityTask::ESFEDIntegrityTask(const ParameterSet& ps) {
   dqmStore_ = Service<DQMStore>().operator->();
 
   prefixME_      = ps.getUntrackedParameter<string>("prefixME", "");
+  fedDirName_    = ps.getUntrackedParameter<string>("FEDDirName", "FEDIntegrity");
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
   mergeRuns_     = ps.getUntrackedParameter<bool>("mergeRuns", false);
   debug_         = ps.getUntrackedParameter<bool>("debug", false);
@@ -56,8 +57,8 @@ void ESFEDIntegrityTask::beginJob(void) {
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/FEDIntegrity");
-    dqmStore_->rmdir(prefixME_ + "/FEDIntegrity");
+    dqmStore_->setCurrentFolder(prefixME_ + "/" + fedDirName_);
+    dqmStore_->rmdir(prefixME_ + "/" + fedDirName_);
   }
 
 }

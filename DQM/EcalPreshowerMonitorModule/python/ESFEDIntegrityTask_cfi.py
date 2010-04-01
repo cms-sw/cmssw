@@ -5,6 +5,7 @@ ecalPreshowerFEDIntegrityTask = cms.EDAnalyzer('ESFEDIntegrityTask',
                                                ESDCCCollections = cms.InputTag("ecalPreshowerDigis"),
                                                ESKChipCollections = cms.InputTag("ecalPreshowerDigis"),
                                                FEDRawDataCollection = cms.InputTag("source"),
-                                               OutputFile = cms.untracked.string("")
+                                               OutputFile = cms.untracked.string(""),
+                                               FEDDirName =cms.untracked.string("FEDIntegrity")
                                                )
 

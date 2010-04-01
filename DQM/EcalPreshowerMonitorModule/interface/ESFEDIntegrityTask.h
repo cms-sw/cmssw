@@ -49,6 +49,7 @@ class ESFEDIntegrityTask : public edm::EDAnalyzer {
   DQMStore* dqmStore_;
   
   std::string prefixME_;
+  std::string fedDirName_;
   bool enableCleanup_;
   bool mergeRuns_;
   bool debug_;
