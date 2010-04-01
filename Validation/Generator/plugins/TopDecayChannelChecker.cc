@@ -349,7 +349,7 @@ TopDecayChannelChecker::dumpDecayChain(const edm::View<reco::GenParticle>& src) 
 void 
 TopDecayChannelChecker::beginJob()
 {
-  dqmStore_->setCurrentFolder("Physics/Top/TopDecayChannelDQM");
+  store_->setCurrentFolder("Physics/Top/TopDecayChannelDQM");
 
   // top decay channel
   hists_["TopDecayChannel"] = store_->book1D("TopDecayChannel" , "TopDecayChannel" , 4, 0., 4.);
