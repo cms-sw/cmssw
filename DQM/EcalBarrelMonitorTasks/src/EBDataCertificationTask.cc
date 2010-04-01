@@ -61,12 +61,10 @@ void EBDataCertificationTask::beginJob(void){
 
     sprintf(histo, "CertificationSummary");
     meEBDataCertificationSummary_ = dqmStore_->bookFloat(histo);
-    meEBDataCertificationSummary_->setLumiFlag();
     meEBDataCertificationSummary_->Fill(-1.0);
 
     sprintf(histo, "CertificationSummaryMap");
     meEBDataCertificationSummaryMap_ = dqmStore_->book2D(histo,histo, 72, 0., 72., 34, 0., 34.);
-    meEBDataCertificationSummaryMap_->setLumiFlag();
     meEBDataCertificationSummaryMap_->setAxisTitle("jphi", 1);
     meEBDataCertificationSummaryMap_->setAxisTitle("jeta", 2);
     
@@ -75,7 +73,6 @@ void EBDataCertificationTask::beginJob(void){
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
       meEBDataCertification_[i] = dqmStore_->bookFloat(histo);
-      meEBDataCertification_[i]->setLumiFlag();
       meEBDataCertification_[i]->Fill(-1.0);
     }
 
