@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/pre4/HIon/V7 (CMSSW_3_6_X_2010-03-20-0900_HLT1)
+# /dev/CMSSW_3_6_0/pre4/HIon/V8 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/HIon/V7')
+  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/HIon/V8')
 )
 
 streams = cms.PSet( 
@@ -19,14 +19,14 @@ streams = cms.PSet(
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   HLTDQM = cms.vstring(  ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
+  DQM = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
   A = cms.vstring( 'RandomTriggers',
+    'MinimumBias',
     'Cosmics',
     'HcalHPDNoise',
     'HcalNZS',
-    'MinimumBias',
-    'ZeroBias' ),
-  DQM = cms.vstring(  )
+    'ZeroBias' )
 )
 datasets = cms.PSet( 
   TestEnables = cms.vstring(  ),
@@ -39,10 +39,10 @@ datasets = cms.PSet(
   AlCaPhiSymEcal = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
+  MinimumBias = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
-  MinimumBias = cms.vstring(  ),
   ZeroBias = cms.vstring(  )
 )
 
@@ -1036,10 +1036,10 @@ hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     ignoreL1Mask = cms.bool( True ),
     invert = cms.bool( False ),
-    bunchCrossings = cms.vint32( 0, -1, 1, -2, 2 ),
     physicsLoBits = cms.uint64( 0x1 ),
     physicsHiBits = cms.uint64( 0x40000 ),
-    technicalBits = cms.uint64( 0x0 )
+    technicalBits = cms.uint64( 0x0 ),
+    bunchCrossings = cms.vint32( 0, -1, 1, -2, 2 )
 )
 hltOfflineBeamSpot = cms.EDProducer( "BeamSpotProducer" )
 hltPreFirstPath = cms.EDFilter( "HLTPrescaler" )
