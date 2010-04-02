@@ -67,15 +67,13 @@
 #include "G4SynchrotronRadiationInMat.hh"
 
 CMSEmStandardPhysicsSync::CMSEmStandardPhysicsSync(const G4String& name,  const HepPDT::ParticleDataTable * table_, G4int ver, G4bool type, std::string reg, G4double charge_):
-  G4VPhysicsConstructor(name), verbose(ver), srType(type), region(reg), monopolePhysics(0) {
+  G4VPhysicsConstructor(name), verbose(ver), srType(type), region(reg) {
   G4LossTableManager::Instance();
-  if (table_->particle("Monopole")) 
-    monopolePhysics = new CMSMonopolePhysics(table_->particle("Monopole"), 
-					     charge_, ver);
+  monopolePhysics = new CMSMonopolePhysics(table_, charge_, ver);
 }
 
 CMSEmStandardPhysicsSync::~CMSEmStandardPhysicsSync() {
-  if (monopolePhysics) delete monopolePhysics;
+  delete monopolePhysics;
 }
 
 void CMSEmStandardPhysicsSync::ConstructParticle() {
