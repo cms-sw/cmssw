@@ -209,6 +209,7 @@ bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData,
     fedErrors_.BadFEDCRCs = true;
     return false;
   } else if (!bufferBase->checkCRC()) {
+    failUnpackerFEDCheck_ = true;
     fedErrors_.BadDAQCRCs = true;
     return false;
   }
@@ -221,6 +222,7 @@ bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData,
   //if so then do DAQ header/trailer checks
   //if these fail then buffer may be incomplete and checking contents doesn't make sense
   else if (!bufferBase->doDAQHeaderAndTrailerChecks()) {
+    failUnpackerFEDCheck_ = true;
     fedErrors_.BadDAQPacket = true;
     return false;
   }
@@ -230,6 +232,7 @@ bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData,
   if ( !(bufferBase->checkBufferFormat() && 
 	 bufferBase->checkHeaderType() && 
 	 bufferBase->checkReadoutMode()) ) {
+    failUnpackerFEDCheck_ = true;
     fedErrors_.InvalidBuffers = true;
     //do not return false if debug printout of the buffer done below...
     if (!printDebug() || aPrintDebug<3 ) return false;
@@ -237,6 +240,7 @@ bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData,
 
   //FE unit overflows
   if (!bufferBase->checkNoFEOverflows()) { 
+    failUnpackerFEDCheck_ = true;
     fedErrors_.FEsOverflow = true;
     //do not return false if debug printout of the buffer done below...
     if (!printDebug() || aPrintDebug<3 ) return false;
@@ -302,8 +306,8 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
   std::auto_ptr<const sistrip::FEDBuffer> buffer;
   buffer.reset(new sistrip::FEDBuffer(aFedData.data(),aFedData.size(),true));
 
-  //fill unpackerFEDcheck
-  if (!buffer->doChecks()) failUnpackerFEDCheck_= true;
+  //fill remaining unpackerFEDcheck
+  if (!buffer->checkChannelLengths()) failUnpackerFEDCheck_= true;
 
   //payload checks, only if none of the above error occured
   if (!this->anyFEDErrors()) {
