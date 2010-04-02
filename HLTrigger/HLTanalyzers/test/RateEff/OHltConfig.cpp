@@ -225,24 +225,40 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
     TString ss0 = "menu.triggers.["; ss0 +=i; ss0=ss0+"].[0]";
     Setting &tt0 = cfg.lookup(ss0.Data());
     stmp = tt0;
-    
-    TString ss3 = "menu.triggers.["; ss3 +=i; ss3=ss3+"].[1]";
-    Setting &tt3 = cfg.lookup(ss3.Data());
-    seedstmp = tt3;
+    //cout << "Trigger: " << stmp << endl;
 
-    
-    //cout << stmp << endl;
-    TString ss1 = "menu.triggers.["; ss1 +=i; ss1=ss1+"].[2]";
-    Setting &tt1 = cfg.lookup(ss1.Data());
-    itmp = tt1;
-    //cout << itmp << endl;
-    TString ss2 = "menu.triggers.["; ss2 +=i; ss2=ss2+"].[3]";
-    Setting &tt2 = cfg.lookup(ss2.Data());
-    ftmp = tt2;
-    //cout << ftmp << endl;
+    if (isL1Menu){
+      
+      TString ss1 = "menu.triggers.["; ss1 +=i; ss1=ss1+"].[1]";
+      Setting &tt1 = cfg.lookup(ss1.Data());
+      itmp = tt1;
+      //cout << itmp << endl;
+      TString ss2 = "menu.triggers.["; ss2 +=i; ss2=ss2+"].[2]";
+      Setting &tt2 = cfg.lookup(ss2.Data());
+      ftmp = tt2;
+      //cout << ftmp << endl;
 
-    //omenu->AddTrigger(stmp,itmp,ftmp);
-    omenu->AddTrigger(stmp,seedstmp,itmp,ftmp);
+      omenu->AddTrigger(stmp,itmp,ftmp);
+      omenu->AddL1forPreLoop(stmp,itmp);
+    } else {
+
+      TString ss3 = "menu.triggers.["; ss3 +=i; ss3=ss3+"].[1]";
+      Setting &tt3 = cfg.lookup(ss3.Data());
+      seedstmp = tt3;
+      //cout << "Seed: " << seedstmp << endl;
+
+      TString ss1 = "menu.triggers.["; ss1 +=i; ss1=ss1+"].[2]";
+      Setting &tt1 = cfg.lookup(ss1.Data());
+      itmp = tt1;
+      //cout << "Prescale: "<< itmp << endl;
+      TString ss2 = "menu.triggers.["; ss2 +=i; ss2=ss2+"].[3]";
+      Setting &tt2 = cfg.lookup(ss2.Data());
+      ftmp = tt2;
+      //cout << "SampleSize: "<< ftmp << endl;
+
+      omenu->AddTrigger(stmp,seedstmp,itmp,ftmp);
+
+    }
   }
 
   Setting &lm = cfg.lookup("menu.L1triggers");
@@ -263,7 +279,6 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
     }
     omenu->AddL1forPreLoop(stmp,itmp);
   }
-  
 
   /**********************************/
 }
