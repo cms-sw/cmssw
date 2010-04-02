@@ -55,8 +55,11 @@ namespace reco {
     // other accessors
     //
 
-    // returns a reference to a vector of HcalNoiseHPDs
+    // returns a vector of HcalNoiseHPDs
+    // this is expensive and deprecated.  One should use the iterator accessor method instead (provided below)
     const std::vector<HcalNoiseHPD> HPDs(void) const;
+    inline std::vector<HcalNoiseHPD>::const_iterator HPDsBegin(void) const { return hpds_.begin(); }
+    inline std::vector<HcalNoiseHPD>::const_iterator HPDsEnd(void) const { return hpds_.end(); }
 
     // return HPD with the highest rechit energy in the RBX
     // individual rechits only contribute if they have E>threshold

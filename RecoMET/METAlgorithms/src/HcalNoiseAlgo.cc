@@ -10,9 +10,8 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
   e10ts_ = rbx.allChargeTotal();
 
   // # of hits
-  std::vector<reco::HcalNoiseHPD> hpds=rbx.HPDs();
   numHPDHits_ = 0;
-  for(std::vector<reco::HcalNoiseHPD>::const_iterator it1=hpds.begin(); it1!=hpds.end(); ++it1) {
+  for(std::vector<reco::HcalNoiseHPD>::const_iterator it1=rbx.HPDsBegin(); it1!=rbx.HPDsEnd(); ++it1) {
     int nhpdhits=it1->numRecHits(minRecHitE);
     if(numHPDHits_ < nhpdhits) numHPDHits_ = nhpdhits;
   }
@@ -27,7 +26,7 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
   maxLowEHitTime_ = maxHighEHitTime_ = -99999.;
   lowEHitTimeSqrd_ = highEHitTimeSqrd_ = 0;
   numLowEHits_ = numHighEHits_ = 0;
-  for(std::vector<reco::HcalNoiseHPD>::const_iterator it1=hpds.begin(); it1!=hpds.end(); ++it1) {
+  for(std::vector<reco::HcalNoiseHPD>::const_iterator it1=rbx.HPDsBegin(); it1!=rbx.HPDsEnd(); ++it1) {
     edm::RefVector<HBHERecHitCollection> rechits=it1->recHits();
     for(edm::RefVector<HBHERecHitCollection>::const_iterator it2=rechits.begin(); it2!=rechits.end(); ++it2) {
       float energy=(*it2)->energy();
@@ -49,7 +48,7 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
 
   // emf
   HPDEMF_ = 999.;
-  for(std::vector<reco::HcalNoiseHPD>::const_iterator it1=hpds.begin(); it1!=hpds.end(); ++it1) {
+  for(std::vector<reco::HcalNoiseHPD>::const_iterator it1=rbx.HPDsBegin(); it1!=rbx.HPDsEnd(); ++it1) {
     double emf=it1->caloTowerEmFraction();
     if(HPDEMF_ > emf) emf = HPDEMF_;
   }
@@ -58,7 +57,7 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
   // calotowers
   rbxtowers_.clear();
   JoinCaloTowerRefVectorsWithoutDuplicates join;
-  for(std::vector<reco::HcalNoiseHPD>::const_iterator it1=hpds.begin(); it1!=hpds.end(); ++it1) {
+  for(std::vector<reco::HcalNoiseHPD>::const_iterator it1=rbx.HPDsBegin(); it1!=rbx.HPDsEnd(); ++it1) {
     join(rbxtowers_, it1->caloTowers());
   }
 
