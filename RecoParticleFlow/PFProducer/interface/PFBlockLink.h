@@ -15,6 +15,7 @@ class PFBlockLink {
   /// possible types. WARNING: have a look at PFBlockElement
   enum Type {
     NONE=0,
+    ECALandECAL=0x8,
     TRACKandECAL=0x9,
     TRACKandHCAL=0x11,
     ECALandHCAL=0x18,

@@ -36,6 +36,13 @@
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFBlockLink.h"
 
@@ -207,7 +214,10 @@ class PFBlockAlgo {
   /// test association between HFEM and HFHAD, by rechit
   double testHFEMAndHFHADByRecHit( const reco::PFCluster& clusterHFEM, 
 				   const reco::PFCluster& clusterHFHAD)  const;
-  
+
+ /// test association by Supercluster between two ECAL
+  double testLinkBySuperCluster(const reco::PFClusterRef & elt1,
+				const reco::PFClusterRef & elt2) const;   
 
   /// computes a chisquare
   double computeDist( double eta1, double phi1, 
@@ -270,7 +280,16 @@ class PFBlockAlgo {
   
   /// PS resolution along strip
   double resPSlength_;
- 
+
+   /// list of superclusters 
+  std::vector<const reco::SuperCluster *> superClusters_;
+
+  /// SC corresponding to the PF cluster
+  //  std::map<reco::PFClusterRef,int>  pfcRefSCMap_;
+  std::vector<int> pfcSCVec_;
+
+  /// PF clusters corresponding to a given SC
+  std::vector<std::vector<reco::PFClusterRef> > scpfcRefs_;
   /// if true, debug printouts activated
   bool   debug_;
   
@@ -330,6 +349,10 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
   convBremPFRecTracks.clear();
   std::vector<reco::PFRecTrackRef> primaryKF_GSF;
   primaryKF_GSF.clear();
+  // Super cluster mapping
+  superClusters_.clear();
+  scpfcRefs_.clear();
+  pfcSCVec_.clear();
 
   if(gsftrackh.isValid() ) {
     const  reco::GsfPFRecTrackCollection PFGsfProd = *(gsftrackh.product());
@@ -339,9 +362,22 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       reco::GsfPFRecTrackRef refgsf(gsftrackh,i );   
    
       if((refgsf).isNull()) continue;
+      reco::GsfTrackRef gsf=refgsf->gsfTrackRef();
+
+      // retrieve and save the SC if ECAL-driven - Florian
+      if(gsf->extra().isAvailable() && gsf->extra()->seedRef().isAvailable()) {
+	reco::ElectronSeedRef seedRef=  gsf->extra()->seedRef().castTo<reco::ElectronSeedRef>();
+	// check that the seed is valid
+	if(seedRef.isAvailable() && seedRef->isEcalDriven()) {
+	  reco::SuperClusterRef scRef = seedRef->caloCluster().castTo<reco::SuperClusterRef>();
+	  if(scRef.isNonnull())   {	      
+	    superClusters_.push_back(&(*scRef));	      
+	  }
+	}
+      }
 
       reco::PFBlockElement* gsfEl;
-        
+      
       const  std::vector<reco::PFTrajectoryPoint> 
 	PfGsfPoint =  PFGsfProd[i].trajectoryPoints();
   
@@ -401,6 +437,8 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	
       }
     }
+    // set the vector to the right size so to allow random access
+    scpfcRefs_.resize(superClusters_.size());
   }
 
 
@@ -744,6 +782,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
 
   if(ecalh.isValid() ) {
+    pfcSCVec_.resize(ecalh->size(),-1);
     for(unsigned i=0;i<ecalh->size(); i++)  {
 
       // this ecal cluster has been disabled
@@ -755,6 +794,13 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
         = new reco::PFBlockElementCluster( ref,
 					   reco::PFBlockElement::ECAL);
       elements_.push_back( te );
+      // Now mapping with Superclusters
+      int scindex= ClusterClusterMapping::checkOverlap(*ref,superClusters_);
+
+      if(scindex>=0) 	{
+	  pfcSCVec_[ref.key()]=scindex;
+	  scpfcRefs_[scindex].push_back(ref);
+	}
     }
   }
 

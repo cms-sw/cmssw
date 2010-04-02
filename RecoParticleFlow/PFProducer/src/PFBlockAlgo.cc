@@ -293,8 +293,12 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 
   if( type1==type2 ) {
     // cannot link 2 elements of the same type. 
-    // except if the elements are 2 tracks
-    if( type1!=PFBlockElement::TRACK && type1!=PFBlockElement::GSF) return;
+    // except if the elements are 2 tracks or 2 ECAL
+    if( type1!=PFBlockElement::TRACK && type1!=PFBlockElement::GSF &&
+	type1!=PFBlockElement::ECAL) {
+      return;
+    }
+
     // cannot link two primary tracks  (except if they come from a V0)
     if( type1 ==PFBlockElement::TRACK) {
       if ( !el1->isLinkedToDisplacedVertex() || !el2->isLinkedToDisplacedVertex()) 
@@ -417,6 +421,20 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
+
+  case PFBlockLink::ECALandECAL:
+      {
+	
+	PFClusterRef  ecal1ref = lowEl->clusterRef();
+	PFClusterRef  ecal2ref = highEl->clusterRef();
+	assert( !ecal1ref.isNull() );
+	assert( !ecal2ref.isNull() );
+	if(debug_)
+	  cout << " PFBlockLink::ECALandECAL" << endl;
+	dist = testLinkBySuperCluster(ecal1ref,ecal2ref);
+	break;
+      }
+
   case PFBlockLink::ECALandGSF:
     {
       PFClusterRef  clusterref = lowEl->clusterRef();
@@ -707,6 +725,46 @@ PFBlockAlgo::testECALAndHCAL(const PFCluster& ecal,
 
   // Need to implement a link by RecHit
   return -1.;
+}
+
+double
+PFBlockAlgo::testLinkBySuperCluster(const PFClusterRef& ecal1, 
+				    const PFClusterRef& ecal2)  const {
+  
+  //  cout<<"entering testECALAndECAL "<< pfcRefSCMap_.size() << endl;
+  
+  double dist = -1;
+  
+  // the first one is not in any super cluster
+  int testindex=pfcSCVec_[ecal1.key()];
+  if(testindex == -1.) return dist;
+  //  if(itcheck==pfcRefSCMap_.end()) return dist;
+  // now retrieve the of PFclusters in this super cluster  
+
+  const std::vector<reco::PFClusterRef> & thePFClusters(scpfcRefs_[testindex]);
+  
+  unsigned npf=thePFClusters.size();
+  for(unsigned i=0;i<npf;++i)
+    {
+      if(thePFClusters[i]==ecal2) // yes they are in the same SC 
+	{
+	  dist=computeDist( ecal1->positionREP().Eta(),
+			    ecal1->positionREP().Phi(), 
+			    ecal2->positionREP().Eta(), 
+			    ecal2->positionREP().Phi() );
+//	  std::cout << " DETA " << fabs(ecal1->positionREP().Eta()-ecal2->positionREP().Eta()) << std::endl;
+//	  if(fabs(ecal1->positionREP().Eta()-ecal2->positionREP().Eta())>0.2)
+//	    {
+//	      std::cout <<  " Super Cluster " <<  *(superClusters_[testindex]) << std::endl;
+//	      std::cout <<  " Cluster1 " <<  *ecal1 << std::endl;
+//	      std::cout <<  " Cluster2 " <<  *ecal2 << std::endl;
+//	      ClusterClusterMapping::checkOverlap(*ecal1,superClusters_,0.01,true);
+//	      ClusterClusterMapping::checkOverlap(*ecal2,superClusters_,0.01,true);
+//	    }
+	  return dist;
+	}
+    }
+  return dist;
 }
 
 
@@ -1578,4 +1636,4 @@ PFBlockAlgo::checkDisplacedVertexLinks( reco::PFBlock& block ) const {
   */
 }
 
-
+  
