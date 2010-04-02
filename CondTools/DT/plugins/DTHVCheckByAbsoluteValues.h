@@ -5,7 +5,7 @@
  *  Description: 
  *
  *
- *  $Date: 2009-12-10 17:12:44 $
+ *  $Date: 2010/01/18 18:36:32 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -53,7 +53,13 @@ class DTHVCheckByAbsoluteValues: public DTHVAbstractCheck {
   /** Operations
    */
   /// check HV status
-  virtual int checkCurrentStatus( int part, int type, float value );
+//  virtual int checkCurrentStatus( int part, int type, float value );
+  virtual int checkCurrentStatus( 
+//              const std::pair<int,timedMeasurement>& entry,
+              int dpId, int rawId, int type, float value,
+              const std::map<int,timedMeasurement>& snapshotValues,
+              const std::map<int,int>& aliasMap,
+              const std::map<int,int>& layerMap  );
 
  private:
 
