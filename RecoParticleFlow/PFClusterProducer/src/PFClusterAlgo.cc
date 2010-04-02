@@ -378,6 +378,8 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
   // Loop on hpd's
   std::map<int, std::vector<unsigned> >::iterator neighbour1;
   std::map<int, std::vector<unsigned> >::iterator neighbour2;
+  std::map<int, std::vector<unsigned> >::iterator neighbour0;
+  std::map<int, std::vector<unsigned> >::iterator neighbour3;
   unsigned size1 = 0;
   unsigned size2 = 0;
   for ( std::map<int, std::vector<unsigned> >::iterator ithpd = hpds.begin();
@@ -408,17 +410,42 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
     else if ( ithpd->first == 136 ) neighbour2 = hpds.find(101);
     else if ( ithpd->first == -136 ) neighbour2 = hpds.find(-101);
     else neighbour2 = ithpd->first > 0 ? hpds.find(ithpd->first+1) : hpds.find(ithpd->first-1) ;
-    
+
+    if ( neighbour1 != hpds.end() ) { 
+      if ( neighbour1->first == 1 ) neighbour0 = hpds.find(72);
+      else if ( neighbour1->first == -1 ) neighbour0 = hpds.find(-72);
+      else if ( neighbour1->first == 101 ) neighbour0 = hpds.find(136);
+      else if ( neighbour1->first == -101 ) neighbour0 = hpds.find(-136);
+      else neighbour0 = neighbour1->first > 0 ? hpds.find(neighbour1->first-1) : hpds.find(neighbour1->first+1) ;
+    } 
+
+    if ( neighbour2 != hpds.end() ) { 
+      if ( neighbour2->first == 72 ) neighbour3 = hpds.find(1);
+      else if ( neighbour2->first == -72 ) neighbour3 = hpds.find(-1);
+      else if ( neighbour2->first == 136 ) neighbour3 = hpds.find(101);
+      else if ( neighbour2->first == -136 ) neighbour3 = hpds.find(-101);
+      else neighbour3 = neighbour2->first > 0 ? hpds.find(neighbour2->first+1) : hpds.find(neighbour2->first-1) ;
+    }
+
     size1 = neighbour1 != hpds.end() ? neighbour1->second.size() : 0;
     size2 = neighbour2 != hpds.end() ? neighbour2->second.size() : 0;
+
+    // Also treat the case of two neighbouring HPD's not in the same RBX
+    if ( size1 > 10 ) { 
+      if ( ( abs(neighbour1->first) > 100 && neighbour1->second.size() > 15 ) || 
+	   ( abs(neighbour1->first) < 100 && neighbour1->second.size() > 12 ) ) 
+	size1 = neighbour0 != hpds.end() ? neighbour0->second.size() : 0;
+    }
+    if ( size2 > 10 ) { 
+      if ( ( abs(neighbour2->first) > 100 && neighbour2->second.size() > 15 ) || 
+	   ( abs(neighbour2->first) < 100 && neighbour2->second.size() > 12 ) ) 
+	size2 = neighbour3 != hpds.end() ? neighbour3->second.size() : 0;
+    }
     
-    //if ( ( abs(ithpd->first) > 100 && ithpd->second.size() > 13 ) || 
-    //     ( abs(ithpd->first) < 100 && ithpd->second.size() > 11 ) )
-    //  if ( (float)(size1 + size2)/(float)ithpd->second.size() < 0.5 ) 
     if ( ( abs(ithpd->first) > 100 && ithpd->second.size() > 15 ) || 
          ( abs(ithpd->first) < 100 && ithpd->second.size() > 12 ) )
       if ( (float)(size1 + size2)/(float)ithpd->second.size() < 1.0 ) {
-	/*
+	/* 
 	std::cout << "HPD numero " << ithpd->first 
 		  << " has " << ithpd->second.size() << " hits in it !" << std::endl
 		  << "Neighbours : " << size1 << " " << size2
