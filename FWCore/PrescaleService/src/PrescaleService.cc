@@ -10,6 +10,8 @@
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <set>
 #include <algorithm>
@@ -63,7 +65,7 @@ namespace edm {
       nLvl1Index_ = lvl1Labels_.size();
       vpsetPrescales_ = iPS.getParameter<std::vector<ParameterSet> >("prescaleTable");
       std::string lvl1DefaultLabel=
-	iPS.getUntrackedParameter<std::string>("lvl1DefaultLabel","");
+	iPS.getUntrackedParameter<std::string>("lvl1DefaultLabel");
       for (unsigned int i=0; i < lvl1Labels_.size(); ++i) {
 	if (lvl1Labels_[i] == lvl1DefaultLabel) iLvl1IndexDefault_ = i;
       }
@@ -157,6 +159,36 @@ namespace edm {
       return (it == prescaleTable_.end()) ? 1 : it->second[lvl1Index];
     }
     
+    //______________________________________________________________________________
+    void PrescaleService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+      edm::ParameterSetDescription desc;
+
+      std::vector<std::string> defaultVector;
+      defaultVector.push_back(std::string("default"));
+      desc.add<std::vector<std::string> >("lvl1Labels", defaultVector);
+
+
+      // This default vector<ParameterSet> will be used when
+      // the configuration does not include this parameter and
+      // it also gets written into the generated cfi file.
+      std::vector<edm::ParameterSet> defaultVPSet;
+      edm::ParameterSet pset0;
+      pset0.addParameter<std::string>("pathName", std::string("HLTPath"));
+      std::vector<unsigned> defaultVectorU;
+      defaultVectorU.push_back(1u);
+      pset0.addParameter<std::vector<unsigned> >("prescales", defaultVectorU);
+      defaultVPSet.push_back(pset0);
+
+      edm::ParameterSetDescription validator;
+      validator.add<std::string>("pathName");
+      validator.add<std::vector<unsigned int> >("prescales");
+
+      desc.addVPSet("prescaleTable", validator, defaultVPSet);
+
+      desc.addUntracked<std::string>("lvl1DefaultLabel", std::string("default"));
+
+      descriptions.add("PrescaleService", desc);
+    }
 
   } // namespace service
 } // namespace edm

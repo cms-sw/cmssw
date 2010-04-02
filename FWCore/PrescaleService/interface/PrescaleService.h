@@ -18,6 +18,8 @@ namespace edm {
   class EventID;
   class EventSetup;
   class Timestamp;
+  class ConfigurationDescriptions;
+
   namespace service {
 
     class PrescaleService : public edm::serviceregistry::SaveConfiguration
@@ -53,6 +55,8 @@ namespace edm {
       unsigned int getLvl1IndexDefault() const {return iLvl1IndexDefault_;}
       const VString_t& getLvl1Labels() const {return lvl1Labels_;}
       const PrescaleTable_t& getPrescaleTable() const {return prescaleTable_;}
+
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
       //
