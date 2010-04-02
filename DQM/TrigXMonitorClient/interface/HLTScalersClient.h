@@ -2,9 +2,13 @@
 // 
 // Client class for HLT Scalers module.
 // 
-// $Id: HLTScalersClient.h,v 1.12 2010/03/16 22:19:19 wittich Exp $
+// $Id: HLTScalersClient.h,v 1.13 2010/03/17 20:56:18 wittich Exp $
 
 // $Log: HLTScalersClient.h,v $
+// Revision 1.13  2010/03/17 20:56:18  wittich
+// Check for good updates based on mergeCount values
+// add code for rates normalized per FU
+//
 // Revision 1.12  2010/03/16 22:19:19  wittich
 // updates for per-LS normalization for variable
 // number of FU's sending information back to the clients.
@@ -175,7 +179,7 @@ private:
   std::vector<MonitorElement*> hltCurrentRate_;
   MonitorElement *hltRate_; // global rate - any accept
   MonitorElement *hltCount_; // globalCounts
-  MonitorElement *hltCountN_; // globalCounts normalized
+  //  MonitorElement *hltCountN_; // globalCounts normalized
   MonitorElement *updates_;
   MonitorElement *mergeCount_;
 

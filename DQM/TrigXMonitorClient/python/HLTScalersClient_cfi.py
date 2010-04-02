@@ -1,8 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 # HLT scalers client. wittich 8/08
-# $Id: HLTScalersClient_cfi.py,v 1.4 2010/02/16 17:04:31 wmtan Exp $
+# $Id: HLTScalersClient_cfi.py,v 1.5 2010/03/17 20:56:18 wittich Exp $
 # $Log: HLTScalersClient_cfi.py,v $
+# Revision 1.5  2010/03/17 20:56:18  wittich
+# Check for good updates based on mergeCount values
+# add code for rates normalized per FU
+#
 # Revision 1.4  2010/02/16 17:04:31  wmtan
 # Framework header migrations
 #
@@ -23,6 +27,7 @@ hltsClient = cms.EDAnalyzer("HLTScalersClient",
   rateIntegWindow = cms.untracked.uint32(3),
   processName = cms.string("HLT"),
   debugDump = cms.untracked.bool(False),
-  replacePartialUpdates = cms.untracked.bool(True)
+  replacePartialUpdates = cms.untracked.bool(True),
+  maxFU = cms.untracked.uint32(4704)
 )
 
