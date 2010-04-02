@@ -3,6 +3,7 @@
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
+#include "SimG4Core/Physics/interface/G4Monopole.hh"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -30,7 +31,6 @@ MonopoleSteppingAction::~MonopoleSteppingAction() {}
 
 void MonopoleSteppingAction::update(const BeginOfJob* job) {
 
-  edm::LogInfo("SimG4CoreWatcher") << "MonopoleSteppingAction::Enter Begin of Job\n";
   const edm::EventSetup* iSetup = (*job)();
   edm::ESHandle<MagneticField> bFieldH;
   iSetup->get<IdealMagneticFieldRecord>().get(bFieldH);
@@ -39,16 +39,19 @@ void MonopoleSteppingAction::update(const BeginOfJob* job) {
   bZ = (bField->inTesla(p)).z();
   edm::LogInfo("SimG4CoreWatcher") << "Magnetic Field (X): " 
 				   << (bField->inTesla(p)).x() << " Y: "
-				   << (bField->inTesla(p)).y() << " Z: " << bZ;
+				   << (bField->inTesla(p)).y() << " Z: "
+				   << bZ;
 }
 
 void MonopoleSteppingAction::update(const BeginOfRun* ) {
 
   G4ParticleTable * partTable = G4ParticleTable::GetParticleTable();
+  magCharge = CLHEP::e_SI/CLHEP::fine_structure_const * 0.5;
   for (int ii= 0; ii < partTable->size(); ii++) {
     G4ParticleDefinition * particle = partTable->GetParticle(ii);
     std::string particleName = (particle->GetParticleName()).substr(0,8);
-    if (strcmp(particleName.c_str(),"monopole") == 0) {
+    if (strcmp(particleName.c_str(),"Monopole") == 0) {
+      magCharge = CLHEP::e_SI*((G4Monopole*)(particle))->MagneticCharge();
       pdgCode.push_back(particle->GetPDGEncoding());
     }
   }
@@ -61,11 +64,11 @@ void MonopoleSteppingAction::update(const BeginOfRun* ) {
   cMevToJ   = CLHEP::e_SI/CLHEP::eV;
   cMeVToKgMByS = CLHEP::e_SI*CLHEP::meter/(CLHEP::eV*CLHEP::c_light*CLHEP::second);
   cInMByS   = CLHEP::c_light*CLHEP::second/CLHEP::meter;
-  magCharge = CLHEP::e_SI/CLHEP::fine_structure_const * 0.5;
-  if (bZ < 0.0) bZ  = 3.8; // in Tesla (later take from ES)
-  edm::LogInfo("SimG4CoreWatcher") << "MonopoleSeppingAction Constants " 
-				   << cMevToJ << ", " << cMeVToKgMByS
-				   << ", " << cInMByS << ", " << magCharge;
+  edm::LogInfo("SimG4CoreWatcher") << "MonopoleSeppingAction Constants:" 
+				   << " MevToJoules  = " << cMevToJ 
+				   << ", MevToKgm/s  = " << cMeVToKgMByS
+				   << ", c in m/s    = " << cInMByS 
+				   << ", mag. charge = " << magCharge;
 }
 
 void MonopoleSteppingAction::update(const BeginOfTrack * trk) {
@@ -85,9 +88,9 @@ void MonopoleSteppingAction::update(const BeginOfTrack * trk) {
       dirzStart  = aTrack->GetMomentumDirection().z();
       LogDebug("SimG4CoreWatcher") << "MonopoleSeppingAction Track " 
 				   << code << " Flag " << actOnTrack
-				   << "(px,py,pz,E) = (" << pxStart/GeV
+				   << " (px,py,pz,E) = (" << pxStart/GeV
 				   << ", " << pyStart/GeV << ", "
-				   << pzStart/GeV << ", " << eStart/GeV << ")";
+				   <<pzStart/GeV <<", " <<eStart/GeV <<")";
     }
   }
 }
@@ -111,25 +114,35 @@ void MonopoleSteppingAction::update(const G4Step* aStep) {
       double        zStep   = aTrack->GetPosition().z()-lStep*dirStep.z();
       double        vStep   = aTrack->GetVelocity();
       initialPosition       = G4ThreeVector(xStep,yStep,zStep);
-      tStep                 = lStep/vStep;
+      tStep                 = (vStep > 0. ? (lStep/vStep) : 0.);
       double        eStep   = aTrack->GetTotalEnergy();
       eT                    = eStep*dirStep.perp();
       pT                    = aTrack->GetMomentum().perp();
       pZ                    = aTrack->GetMomentum().z();
     }
     LogDebug("SimG4CoreWatcher") << "MonopoleSeppingAction: tStep " <<tStep
-				 << " eT " << eT << " pT " <<pT << " pZ " <<pZ;
-    eT = eT*cMevToJ;
-    pT = pT*cMeVToKgMByS;
-    pZ = pZ*cMeVToKgMByS;
-    tStep /= second;
+				 << " eT " << eT << " pT " << pT << " pZ " 
+				 << pZ;
+    double eT1 = eT*cMevToJ;
+    double pT1 = pT*cMeVToKgMByS;
+    double pZ1 = pZ*cMeVToKgMByS;
+    double ts1 = tStep/CLHEP::second;
+    double eT2 = (eT1 > 0. ? (1./eT1) : 0.);
     double fac0 = magCharge*bZ*cInMByS;
-    double fac2 = pZ*cInMByS/eT;
-    double fac1 = fac0*cInMByS*tStep/eT + fac2;
+    double fac2 = pZ1*cInMByS*eT2;
+    double fac1 = fac0*cInMByS*ts1*eT2 + fac2;
+    double fact1 = (eT1/fac0)*std::sqrt(1+fac1*fac1)-std::sqrt(1+fac2*fac2);
+    double fact2 = (pT1/(magCharge*bZ)*(asinh(fac1+fac2)-asinh(fac2)));
+    LogDebug("SimG4CoreWatcher") << "MonopoleSeppingAction: Factor eT = "
+				 << eT << " " << eT1 << " " << eT2
+				 << ", pT = " << pT << " " << pT1
+				 << ", pZ = " << pZ << " " << pZ1
+				 << ", time = " << tStep << " " << ts1
+				 << ", Factors " << fac0 << " " << fac1 
+				 << " " << fac2 << ", Final ones " 
+				 << fact1 << " " << fact2;
     G4ThreeVector ez(0,0,1), et(std::sqrt(0.5),std::sqrt(0.5),0);
-    G4ThreeVector displacement = 
-      (((eT/fac0)*(std::sqrt(1+fac1*fac1)-std::sqrt(1+fac2*fac2)))*ez +
-       (pT/(magCharge*bZ)*(asinh(fac1+fac2)-asinh(fac2)))*et)*CLHEP::m;
+    G4ThreeVector displacement = (fact1*ez + fact2*et)*CLHEP::m;
     
     LogDebug("SimG4CoreWatcher") << "MonopoleSeppingAction: Initial " 
 				 << initialPosition << " Displacement "
