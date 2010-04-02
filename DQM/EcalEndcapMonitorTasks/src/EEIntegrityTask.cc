@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2010/03/12 11:34:35 $
- * $Revision: 1.50 $
+ * $Date: 2010/03/27 20:08:01 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
  */
@@ -141,7 +141,7 @@ void EEIntegrityTask::setup(void){
     // bin 0 contains the number of processed events in the lumi (for normalization)
     sprintf(histo, "EEIT weighted integrity errors by lumi");
     meIntegrityErrorsByLumi = dqmStore_->book1D(histo, histo, 18, 1., 19.);
-    meIntegrityErrorsByLumi->setLumiFlag();
+//    meIntegrityErrorsByLumi->setLumiFlag();
     for (int i = 0; i < 18; i++) {
       meIntegrityErrorsByLumi->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }

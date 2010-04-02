@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2010/03/12 11:34:35 $
- * $Revision: 1.29 $
+ * $Date: 2010/03/27 20:08:01 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -192,7 +192,7 @@ void EEStatusFlagsTask::setup(void){
     // bin 0 contains the number of processed events in the lumi (for normalization)
     sprintf(histo, "EESFT weighted frontend errors by lumi");
     meFEchErrorsByLumi_ = dqmStore_->book1D(histo, histo, 18, 1., 19.);
-    meFEchErrorsByLumi_->setLumiFlag();
+//    meFEchErrorsByLumi_->setLumiFlag();
     for (int i = 0; i < 18; i++) {
       meFEchErrorsByLumi_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
