@@ -27,6 +27,8 @@
 
 <use name=DataFormats/L1Trigger>
 
+<use name=DataFormats/TrackerRecHit2D>
+
 <use name=root>
 <use name=HLTrigger/HLTcore>
 
