@@ -52,7 +52,7 @@ public:
 
 public:
 
-    // constructor
+    /// constructor
     L1GtTriggerMenuLite();
 
     L1GtTriggerMenuLite(const std::string&, const L1TriggerMap&,
@@ -61,14 +61,23 @@ public:
             const std::vector<std::vector<int> >&,
             const std::vector<std::vector<int> >&);
 
-    // copy constructor
+    /// copy constructor
     L1GtTriggerMenuLite(const L1GtTriggerMenuLite&);
 
     // destructor
     virtual ~L1GtTriggerMenuLite();
 
-    // assignment operator
+    /// assignment operator
     L1GtTriggerMenuLite& operator=(const L1GtTriggerMenuLite&);
+
+    /// equal operator
+    bool operator==(const L1GtTriggerMenuLite&) const;
+
+    /// unequal operator
+    bool operator!=(const L1GtTriggerMenuLite&) const;
+
+    /// merge rule: test on isProductEqual
+    bool isProductEqual(const L1GtTriggerMenuLite&) const;
 
 public:
 

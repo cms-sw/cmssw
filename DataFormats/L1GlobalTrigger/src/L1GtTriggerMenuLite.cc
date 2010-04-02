@@ -137,6 +137,72 @@ L1GtTriggerMenuLite& L1GtTriggerMenuLite::operator=(
 
 }
 
+// equal operator
+bool L1GtTriggerMenuLite::operator==(const L1GtTriggerMenuLite& rhs) const {
+
+    if (m_triggerMenuInterface != rhs.m_triggerMenuInterface) {
+        return false;
+    }
+
+    if (m_triggerMenuName != rhs.m_triggerMenuName) {
+        return false;
+    }
+
+    if (m_triggerMenuImplementation != rhs.m_triggerMenuImplementation) {
+        return false;
+    }
+
+    if (m_scaleDbKey != rhs.m_scaleDbKey) {
+        return false;
+    }
+
+    if (m_algorithmMap != rhs.m_algorithmMap) {
+        return false;
+    }
+
+    if (m_algorithmAliasMap != rhs.m_algorithmAliasMap) {
+        return false;
+    }
+
+    if (m_technicalTriggerMap != rhs.m_technicalTriggerMap) {
+        return false;
+    }
+
+    if (m_triggerMaskAlgoTrig != rhs.m_triggerMaskAlgoTrig) {
+        return false;
+    }
+
+    if (m_triggerMaskTechTrig != rhs.m_triggerMaskTechTrig) {
+        return false;
+    }
+
+    if (m_prescaleFactorsAlgoTrig != rhs.m_prescaleFactorsAlgoTrig) {
+        return false;
+    }
+
+    if (m_prescaleFactorsTechTrig != rhs.m_prescaleFactorsTechTrig) {
+        return false;
+    }
+
+    // all members identical
+    return true;
+
+}
+
+// unequal operator
+bool L1GtTriggerMenuLite::operator!=(const L1GtTriggerMenuLite& otherObj) const {
+
+    return !(otherObj == *this);
+
+}
+
+// merge rule: test on isProductEqual
+bool L1GtTriggerMenuLite::isProductEqual(const L1GtTriggerMenuLite& otherObj) const {
+
+    return (otherObj == *this);
+}
+
+
 // set the trigger menu name
 void L1GtTriggerMenuLite::setGtTriggerMenuInterface(
         const std::string& menuInterface) {
