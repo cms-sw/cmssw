@@ -77,8 +77,12 @@ hltHcalMETNoiseFilter = cms.EDFilter(
     # set to 0 if you want to accept all events
     severity = cms.int32(1),
 
+    # if there are more than maxNumRBXs RBXs in the event, the event passes the trigger
+    maxNumRBXs = cms.int32(2),
+    
     # consider the top N=numRBXsToConsider RBXs by energy in the event
-    numRBXsToConsider = cms.int32(4),
+    # this number should be <= maxNumRBXs
+    numRBXsToConsider = cms.int32(2),
 
     # require coincidence between the High-Level (EMF) filter and the other filters
     needHighLevelCoincidence = cms.bool(True),

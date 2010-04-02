@@ -12,7 +12,7 @@
 //
 // Original Author:  Leonard Apanasevich
 //         Created:  Wed Mar 25 16:01:27 CDT 2009
-// $Id: HLTHcalMETNoiseFilter.cc,v 1.6 2010/03/25 21:15:26 johnpaul Exp $
+// $Id: HLTHcalMETNoiseFilter.cc,v 1.7 2010/03/26 16:18:55 johnpaul Exp $
 //
 //
 
@@ -34,6 +34,7 @@ HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig)
   : noisealgo_(iConfig),
     HcalNoiseRBXCollectionTag_(iConfig.getParameter<edm::InputTag>("HcalNoiseRBXCollection")),
     severity_(iConfig.getParameter<int> ("severity")),
+    maxNumRBXs_(iConfig.getParameter<int>("maxNumRBXs")),
     numRBXsToConsider_(iConfig.getParameter<int>("numRBXsToConsider")),
     needHighLevelCoincidence_(iConfig.getParameter<bool>("needHighLevelCoincidence")),
     useLooseRatioFilter_(iConfig.getParameter<bool>("useLooseRatioFilter")),
@@ -73,6 +74,10 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 		 << HcalNoiseRBXCollectionTag_ << "." << std::endl;
     return true;
   }
+
+  // reject events with too many RBXs
+  if(static_cast<int>(rbxs_h->size())>maxNumRBXs_) return true;
+
 
   // create a sorted set of the RBXs, ordered by energy
   noisedataset_t data;

@@ -3,7 +3,7 @@
 
 /** \class HLTHcalNoiseFilter
  *
- *  \author Leonard Apanasevich (UIC)
+ *  \author Leonard Apanasevich (UIC), John Paul Chou (Brown)
  *
  */
 
@@ -23,6 +23,7 @@ class HLTHcalMETNoiseFilter : public HLTFilter {
   // parameters
   edm::InputTag HcalNoiseRBXCollectionTag_;
   int severity_;
+  int maxNumRBXs_;
   int numRBXsToConsider_;
   bool needHighLevelCoincidence_;
   bool useLooseRatioFilter_;
