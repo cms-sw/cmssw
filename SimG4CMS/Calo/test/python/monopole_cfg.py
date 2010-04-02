@@ -15,7 +15,7 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('G4cout','G4cerr','SimG4CoreApplication'),
+    categories = cms.untracked.vstring('G4cout','G4cerr','SimG4CoreWatcher'),
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
 #        threshold = cms.untracked.string('DEBUG'),
@@ -25,7 +25,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        SimG4CoreApplication = cms.untracked.PSet(
+        SimG4CoreWatcher = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
         G4cerr = cms.untracked.PSet(
@@ -149,7 +149,7 @@ process.g4SimHits.Watchers = cms.VPSet(
       type      = cms.string('TrackingVerboseAction')
    ),
    cms.PSet(
-      ChangeFromFirstStep = cms.untracked.bool(False),
+      ChangeFromFirstStep = cms.untracked.bool(True),
       type      = cms.string('MonopoleSteppingAction')
    )
 )
