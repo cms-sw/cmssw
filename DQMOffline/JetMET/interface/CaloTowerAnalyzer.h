@@ -42,6 +42,27 @@ private:
   bool hltselection_;
   std::string FolderName_;
   int Nevents;
+
+
+  MonitorElement* hCT_Nevents;
+  MonitorElement* hCT_et_ieta_iphi;
+  MonitorElement* hCT_emEt_ieta_iphi;
+  MonitorElement* hCT_hadEt_ieta_iphi;
+  MonitorElement* hCT_outerEt_ieta_iphi;
+  MonitorElement* hCT_Occ_ieta_iphi;
+  MonitorElement* hCT_etvsieta;
+  MonitorElement* hCT_Minetvsieta;
+  MonitorElement* hCT_Maxetvsieta;
+  MonitorElement* hCT_emEtvsieta;
+  MonitorElement* hCT_hadEtvsieta;
+  MonitorElement* hCT_outerEtvsieta;
+  MonitorElement* hCT_Occvsieta;
+  MonitorElement* hCT_SETvsieta;
+  MonitorElement* hCT_METvsieta;
+  MonitorElement* hCT_METPhivsieta;
+  MonitorElement* hCT_MExvsieta;
+  MonitorElement* hCT_MEyvsieta;
+  std::vector<MonitorElement*> hCT_NEvents_HLT;
 };
 
 #endif
