@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/03/23 19:21:26 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/03/29 03:00:08 $
+ *  $Revision: 1.19 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -40,19 +40,15 @@ class BeamMonitor : public edm::EDAnalyzer {
   // BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
   
-  // Fake Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) ;
   
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 			    const edm::EventSetup& context) ;
   
-  // DQM Client Diagnostic
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 			  const edm::EventSetup& c);
-  
   // EndRun
   void endRun(const edm::Run& r, const edm::EventSetup& c);
-  
   // Endjob
   void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
   
@@ -60,15 +56,12 @@ class BeamMonitor : public edm::EDAnalyzer {
 
   void scrollTH1(TH1 *, time_t);
   bool testScroll(time_t &, time_t &);
-  void dumpTkDcsStatus(std::string &);
 
   edm::ParameterSet parameters_;
   std::string monitorName_;
   edm::InputTag bsSrc_; // beam spot
   edm::InputTag tracksLabel_;
   edm::InputTag pvSrc_; // primary vertex
-  std::string dcsTkFileName_;
-  std::ofstream fasciiDcsTkFile;
 
   int fitNLumi_;
   int fitPVNLumi_;
@@ -94,7 +87,6 @@ class BeamMonitor : public edm::EDAnalyzer {
   double maxZ_;
 
   bool resetHistos_;
-  bool dcsTk[6];
   // ----------member data ---------------------------
   
   //   std::vector<BSTrkParameters> fBSvector;

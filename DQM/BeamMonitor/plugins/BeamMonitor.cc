@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/03/30 19:37:47 $
- * $Revision: 1.35 $
+ * $Date: 2010/04/01 21:07:14 $
+ * $Revision: 1.36 $
  *
  */
 
@@ -18,7 +18,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
-#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <numeric>
 #include <math.h>
@@ -69,7 +68,6 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   tracksLabel_    = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<InputTag>("TrackCollection");
   min_Ntrks_      = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumInputTracks");
   maxZ_           = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumZ");
-  dcsTkFileName_  = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("DIPFileName");
 
   dbe_            = Service<DQMStore>().operator->();
   
@@ -84,7 +82,6 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   if (fitNLumi_ <= 0) fitNLumi_ = 1;
   nFits_ = beginLumiOfPVFit_ = endLumiOfPVFit_ = 0;
   maxZ_ = fabs(maxZ_);
-  for (int i=0;i<6;i++) dcsTk[i]=true;
   lastlumi_ = 0;
 }
 
@@ -380,7 +377,6 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
   if (beginLumiOfPVFit_ == 0) beginLumiOfPVFit_ = nthlumi;
 
   if (onlineMode_ && (nthlumi <= lastlumi_)) return;
-  for (int i=0;i<6;i++) dcsTk[i]=true;
   lastlumi_ = nthlumi;
   countLumi_++;
 }
@@ -466,23 +462,6 @@ void BeamMonitor::analyze(const Event& iEvent,
     }
   }
 
-  // Checking TK status
-  Handle<DcsStatusCollection> dcsStatus;
-  iEvent.getByLabel("scalersRawToDigi", dcsStatus);
-
-  for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
-       dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
-    if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcsTk[0]=false;
-    if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcsTk[1]=false;
-    if (!dcsStatusItr->ready(DcsStatus::TIBTID)) dcsTk[2]=false;
-    if (!dcsStatusItr->ready(DcsStatus::TOB))    dcsTk[3]=false;
-    if (!dcsStatusItr->ready(DcsStatus::TECp))   dcsTk[4]=false;
-    if (!dcsStatusItr->ready(DcsStatus::TECm))   dcsTk[5]=false;
-  }
-
-  if (countEvt_ == 1) // Initial TK dcs status
-    dumpTkDcsStatus(dcsTkFileName_);
-
 }
 
 
@@ -528,8 +507,6 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     h_nTrk_lumi->ShiftFillLast(nthBSTrk_);
   }
   //lastlumi_ = nthlumi;
-
-  dumpTkDcsStatus(dcsTkFileName_);
 
   ftimestamp = lumiSeg.endTime().value();
   tmpTime = ftimestamp >> 32;
@@ -879,32 +856,6 @@ bool BeamMonitor::testScroll(time_t & tmpTime_, time_t & refTime_){
     }
   }
   return scroll_;
-}
-
-void BeamMonitor::dumpTkDcsStatus(std::string & fileName){
-  std::ofstream outFile;
-  std::string tmpname = fileName;
-  char index[10];
-  sprintf(index,"%s","_TkStatus");
-  tmpname.insert(fileName.length()-4,index);
-
-  outFile.open(tmpname.c_str());
-  outFile << "BPIX " << (dcsTk[0]?"On":"Off") << std::endl;
-  outFile << "FPIX " << (dcsTk[1]?"On":"Off") << std::endl;
-  outFile << "TIBTID " << (dcsTk[2]?"On":"Off") << std::endl;
-  outFile << "TOB " << (dcsTk[3]?"On":"Off") << std::endl;
-  outFile << "TECp " << (dcsTk[4]?"On":"Off") << std::endl;
-  outFile << "TECm " << (dcsTk[5]?"On":"Off") << std::endl;
-  bool AllTkOn = true;
-  for (int i=0; i<5; i++) {
-    if (!dcsTk[i]) {
-      AllTkOn = false;
-      break;
-    }
-  }
-  outFile << "WholeTrackerOn " << (AllTkOn?"Yes":"No") << std::endl;
- 
-  outFile.close();
 }
 
 DEFINE_FWK_MODULE(BeamMonitor);
