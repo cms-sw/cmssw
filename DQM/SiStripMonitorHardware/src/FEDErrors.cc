@@ -4,6 +4,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h" 
 
 #include "EventFilter/SiStripRawToDigi/interface/PipeAddrToTimeLookupTable.h"
 
@@ -14,6 +15,25 @@
 
 FEDErrors::FEDErrors()
 {
+  //initialiseLumiBlock();
+  initialiseEvent();
+}
+
+FEDErrors::~FEDErrors()
+{
+
+}
+
+void FEDErrors::initialiseLumiBlock() {
+  lumiErr_.nTotal.clear();
+  lumiErr_.nErrors.clear();
+  //6 subdetectors: 
+  //TECB,TECF,TIB,TIDB,TIDF,TOB
+  lumiErr_.nTotal.resize(6,0);
+  lumiErr_.nErrors.resize(6,0);
+}
+
+void FEDErrors::initialiseEvent() {
   fedID_ = 0;
   failUnpackerFEDCheck_ = false;
 
@@ -70,17 +90,13 @@ FEDErrors::FEDErrors()
   apvErrors_.clear();
 
   chErrors_.clear();
-
 }
 
-FEDErrors::~FEDErrors()
-{
 
-}
 
-void FEDErrors::initialise(const unsigned int aFedID,
-			   const SiStripFedCabling* aCabling,
-			   const bool initVars)
+void FEDErrors::initialiseFED(const unsigned int aFedID,
+			      const SiStripFedCabling* aCabling,
+			      const bool initVars)
 {
   fedID_ = aFedID;
   failUnpackerFEDCheck_ = false;
@@ -110,11 +126,37 @@ void FEDErrors::initialise(const unsigned int aFedID,
       unsigned int lDetid = detid_[iCh];
     
       if (lDetid && lDetid != sistrip::invalid32_ && connected_[iCh]) {
-	unsigned int lSubid = DetId(lDetid).subdetId();
+	unsigned int lSubid = 6;
 	// 3=TIB, 4=TID, 5=TOB, 6=TEC (TECB here)
-	if (lSubid == 6){
-	  TECDetId lId(lDetid);
-	  if (lId.side() == 2) lSubid = 7; //TECF
+	switch(DetId(lDetid).subdetId()) {
+	case 3:
+	  lSubid = 2;
+	  break;
+
+	case 4:
+	  {
+	    TIDDetId lTidId(lDetid);
+	    if (lTidId.side() == 2) lSubid = 4; //TIDF
+	    else lSubid = 3; //TIDB
+	    break;
+	  }
+
+	case 5:
+	  lSubid = 5;
+	  break;
+
+	case 6:
+	  {
+	    TECDetId lTecId(lDetid);
+	    if (lTecId.side() == 2) lSubid = 1; //TECF
+	    else lSubid = 0; //TECB
+	    break;
+	  }
+
+	default:
+	  lSubid = 6;
+	  break;
+
 	}
 	subDetId_[lFeNumber] = lSubid;
 	//if (iCh%12==0) std::cout << fedID_ << " " << lFeNumber << " " << subDetId_[lFeNumber] << std::endl;
@@ -710,7 +752,10 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
       hasBeenProcessed = true;
     }
 
-    if ( lFailFED || isBadFE || isBadChan) {
+    bool lHasErr = lFailFED || isBadFE || isBadChan;
+    incrementLumiErrors(lHasErr,subDetId_[feNumber]);
+
+    if ( lHasErr ) {
       nBad++;
       aNBadChannels++;
       //define as active channel if channel locked AND not from an unlocked FE.
@@ -731,6 +776,22 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
   }
 
 
+}
+
+void FEDErrors::incrementLumiErrors(const bool hasError,
+				    const unsigned int aSubDet){
+  if (!lumiErr_.nTotal.size()) return;
+  if (aSubDet > lumiErr_.nTotal.size()) {
+    edm::LogError("SiStripMonitorHardware") << " -- FED " << fedID_ 
+					    << ", invalid subdetid : " << aSubDet
+					    << ", size of lumiErr : " 
+					    << lumiErr_.nTotal.size()
+					    << std::endl;
+  }
+  else {
+    if (hasError) lumiErr_.nErrors[aSubDet]++;
+    lumiErr_.nTotal[aSubDet]++;
+  }
 }
 
 void FEDErrors::processDet(const uint32_t aPrevId,
@@ -848,6 +909,10 @@ std::vector<FEDErrors::APVLevelErrors> & FEDErrors::getAPVLevelErrors()
 std::vector<std::pair<unsigned int,bool> > & FEDErrors::getBadChannels()
 {
   return chErrors_;
+}
+
+const FEDErrors::LumiErrors & FEDErrors::getLumiErrors(){
+  return lumiErr_;
 }
 
 void FEDErrors::addBadFE(const FEDErrors::FELevelErrors & aFE)

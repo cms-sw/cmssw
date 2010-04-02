@@ -63,6 +63,7 @@ public:
 			  bool fullDebug
 			  );
 
+  void fillLumiHistograms(const FEDErrors::LumiErrors & aLumErr);
 
   bool cmHistosEnabled();
 
@@ -177,6 +178,8 @@ private:
 
   HistogramConfig tkMapConfig_;
   TkHistoMap *tkmapFED_;
+
+  HistogramConfig lumiErrorFraction_;
 
 
 };//class

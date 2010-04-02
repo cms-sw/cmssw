@@ -94,6 +94,8 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram(medianAPV0_,"MedianAPV0",iConfig,pDebugStream);
   getConfigForHistogram(medianAPV1_,"MedianAPV1",iConfig,pDebugStream);
 
+  getConfigForHistogram(lumiErrorFraction_,"ErrorFractionByLumiBlock",iConfig,pDebugStream);
+
 }
 
 void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLevelCounters, 
@@ -243,6 +245,15 @@ if ( (badStatusBitsDetailed_.enabled && aAPVErr.APVStatusBit) ||
   if (aAPVErr.APVError) fillHistogram(apvErrorDetailedMap_[aFedId],lChId);
   if (aAPVErr.APVAddressError) fillHistogram(apvAddressErrorDetailedMap_[aFedId],lChId);
 }
+
+
+
+void FEDHistograms::fillLumiHistograms(const FEDErrors::LumiErrors & aLumErr){
+  for (unsigned int iD(0); iD<aLumErr.nTotal.size(); iD++){
+    if (aLumErr.nTotal[iD] > 0) fillHistogram(lumiErrorFraction_,iD,static_cast<float>(aLumErr.nErrors[iD])/aLumErr.nTotal[iD]);
+  }
+}
+
 
 
 bool FEDHistograms::cmHistosEnabled() {
@@ -568,6 +579,12 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 	      "Time",
 	      "# channels out-of-sync"
 	      );
+
+  bookHistogram(lumiErrorFraction_,
+		"lumiErrorFraction",
+		"Fraction of error per lumi section vs subdetector",
+		6,0,6,
+		"SubDetId");
 
 
   //book map after, as it creates a new folder...

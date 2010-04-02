@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.15 2010/03/18 19:06:09 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.16 2010/03/30 16:35:50 amagnan Exp $
 //
 
 #include <sstream>
@@ -211,7 +211,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
     const FEDRawData& fedData = rawDataCollection.FEDData(fedId);
 
     //create an object to fill all errors
-    lFedErrors.initialise(fedId,cabling_);
+    lFedErrors.initialiseFED(fedId,cabling_);
 
     //Do detailed check
     //first check if data exists
