@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/10 13:25:31 $
- *  $Revision: 1.35 $
+ *  $Date: 2010/03/25 11:02:42 $
+ *  $Revision: 1.36 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -280,7 +280,7 @@ void CaloMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=
     me[DirName+"/CaloEmEtInHF"]           = _dbe->book1D("METTask_CaloEmEtInHF" ,"METTask_CaloEmEtInHF" ,100,0,2000);
     me[DirName+"/CaloEmEtInHF"]->setAxisTitle("EM Et [GeV]",1);
     me[DirName+"/CaloEmEtInEE"]           = _dbe->book1D("METTask_CaloEmEtInEE" ,"METTask_CaloEmEtInEE" ,100,0,2000);
-    me[DirName+"/CaloEmEtInEE"]->setAxisTitle("EM Et [GeV],1");
+    me[DirName+"/CaloEmEtInEE"]->setAxisTitle("EM Et [GeV]",1);
     me[DirName+"/CaloEmEtInEB"]           = _dbe->book1D("METTask_CaloEmEtInEB" ,"METTask_CaloEmEtInEB" ,100,0,2000);
     me[DirName+"/CaloEmEtInEB"]->setAxisTitle("EM Et [GeV]",1);
 

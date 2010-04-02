@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/10 13:25:31 $
- *  $Revision: 1.22 $
+ *  $Date: 2010/03/25 11:03:15 $
+ *  $Revision: 1.23 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -255,21 +255,21 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
 
   if (theMETCollectionLabel.label() == "tcMet" ) {
     me[DirName+"/htrkPt"]    = _dbe->book1D("METTask_trackPt", "METTask_trackPt", 50, 0, 500);
-    me[DirName+"/htrkEta"]   = _dbe->book1D("METTask_trackEta", "METTask_trackEta", 50, -2.5, 2.5);
+    me[DirName+"/htrkEta"]   = _dbe->book1D("METTask_trackEta", "METTask_trackEta", 60, -3.0, 3.0);
     me[DirName+"/htrkNhits"] = _dbe->book1D("METTask_trackNhits", "METTask_trackNhits", 50, 0, 50);
     me[DirName+"/htrkChi2"]  = _dbe->book1D("METTask_trackNormalizedChi2", "METTask_trackNormalizedChi2", 20, 0, 20);
     me[DirName+"/htrkD0"]    = _dbe->book1D("METTask_trackD0", "METTask_trackd0", 50, -1, 1);
     me[DirName+"/helePt"]    = _dbe->book1D("METTask_electronPt", "METTask_electronPt", 50, 0, 500);
-    me[DirName+"/heleEta"]   = _dbe->book1D("METTask_electronEta", "METTask_electronEta", 50, -2.5, 2.5);
+    me[DirName+"/heleEta"]   = _dbe->book1D("METTask_electronEta", "METTask_electronEta", 60, -3.0, 3.0);
     me[DirName+"/heleHoE"]   = _dbe->book1D("METTask_electronHoverE", "METTask_electronHoverE", 25, 0, 0.5);
     me[DirName+"/hmuPt"]     = _dbe->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
-    me[DirName+"/hmuEta"]    = _dbe->book1D("METTask_muonEta", "METTask_muonEta", 50, -2.5, 2.5);
+    me[DirName+"/hmuEta"]    = _dbe->book1D("METTask_muonEta", "METTask_muonEta", 60, -3.0, 3.0);
     me[DirName+"/hmuNhits"]  = _dbe->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
     me[DirName+"/hmuChi2"]   = _dbe->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
     me[DirName+"/hmuD0"]     = _dbe->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
   } else if (theMETCollectionLabel.label() == "corMetGlobalMuons" ) {
     me[DirName+"/hmuPt"]    = _dbe->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
-    me[DirName+"/hmuEta"]   = _dbe->book1D("METTask_muonEta", "METTask_muonEta", 50, -2.5, 2.5);
+    me[DirName+"/hmuEta"]   = _dbe->book1D("METTask_muonEta", "METTask_muonEta", 60, -3.0, 3.0);
     me[DirName+"/hmuNhits"] = _dbe->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
     me[DirName+"/hmuChi2"]  = _dbe->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
     me[DirName+"/hmuD0"]    = _dbe->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
