@@ -261,25 +261,26 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
     }
   }
 
-  Setting &lm = cfg.lookup("menu.L1triggers");
-  const int lnm = (const int)lm.getLength();
-  //cout << lnm << endl;
-  for (int i=0;i<lnm;i++) {
-    TString ss0 = "menu.L1triggers.["; ss0 +=i; ss0=ss0+"].[0]";
-    Setting &tt0 = cfg.lookup(ss0.Data());
-    stmp = tt0;
-    //cout << stmp << endl;
-    if (doL1preloop) {
-      TString ss1 = "menu.L1triggers.["; ss1 +=i; ss1=ss1+"].[1]";
-      Setting &tt1 = cfg.lookup(ss1.Data());
-      itmp = tt1;
-      //cout << itmp << endl;
-    } else {
-      itmp = 1;
+  if (! isL1Menu){
+    Setting &lm = cfg.lookup("menu.L1triggers");
+    const int lnm = (const int)lm.getLength();
+    //cout << lnm << endl;
+    for (int i=0;i<lnm;i++) {
+      TString ss0 = "menu.L1triggers.["; ss0 +=i; ss0=ss0+"].[0]";
+      Setting &tt0 = cfg.lookup(ss0.Data());
+      stmp = tt0;
+      //cout << stmp << endl;
+      if (doL1preloop) {
+	TString ss1 = "menu.L1triggers.["; ss1 +=i; ss1=ss1+"].[1]";
+	Setting &tt1 = cfg.lookup(ss1.Data());
+	itmp = tt1;
+	//cout << itmp << endl;
+      } else {
+	itmp = 1;
+      }
+      omenu->AddL1forPreLoop(stmp,itmp);
     }
-    omenu->AddL1forPreLoop(stmp,itmp);
   }
-
   /**********************************/
 }
 
