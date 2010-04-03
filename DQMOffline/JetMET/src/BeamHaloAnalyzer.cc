@@ -78,193 +78,193 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     dqm->setCurrentFolder(FolderName+"/EcalHaloData");
     if(StandardDQM)
       {
-	ME["EcalHaloData_PhiWedgeMultiplicity"] = dqm->book1D("EcalHaloData_PhiWedgeMultiplicity","",20, -0.5, 19.5);
-	ME["EcalHaloData_PhiWedgeConstituents"] = dqm->book1D("EcalHaloData_PhiWedgeConstituents","",20,-0.5, 19.5);
-	//	ME["EcalHaloData_PhiWedgeiPhi"]         = dqm->book1D("EcalHaloData_PhiWedgeiPhi","", 360, 0.5, 360.5) ;
-	ME["EcalHaloData_PhiWedgeZDirectionConfidence"] = dqm->book1D("EcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
-	ME["EcalHaloData_SuperClusterShowerShapes"]  = dqm->book2D("EcalHaloData_SuperClusterShowerShapes","", 25,0.0, TMath::Pi(), 25,0.0, 2.0);
-	ME["EcalHaloData_SuperClusterEnergy"] = dqm->book1D("EcalHaloData_SuperClusterEnergy","",50,-0.5,99.5); 
-	ME["EcalHaloData_SuperClusterNHits"] = dqm->book1D("EcalHaloData_SuperClusterNHits", "", 20, -0.5, 19.5);
+	hEcalHaloData_PhiWedgeMultiplicity = dqm->book1D("EcalHaloData_PhiWedgeMultiplicity","",20, -0.5, 19.5);
+	hEcalHaloData_PhiWedgeConstituents = dqm->book1D("EcalHaloData_PhiWedgeConstituents","",20,-0.5, 19.5);
+	//	hEcalHaloData_PhiWedgeiPhi         = dqm->book1D("EcalHaloData_PhiWedgeiPhi","", 360, 0.5, 360.5) ;
+	hEcalHaloData_PhiWedgeZDirectionConfidence = dqm->book1D("EcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
+	hEcalHaloData_SuperClusterShowerShapes  = dqm->book2D("EcalHaloData_SuperClusterShowerShapes","", 25,0.0, TMath::Pi(), 25,0.0, 2.0);
+	hEcalHaloData_SuperClusterEnergy = dqm->book1D("EcalHaloData_SuperClusterEnergy","",50,-0.5,99.5); 
+	hEcalHaloData_SuperClusterNHits = dqm->book1D("EcalHaloData_SuperClusterNHits", "", 20, -0.5, 19.5);
       }
     else
       {
-	ME["EcalHaloData_PhiWedgeMultiplicity"] = dqm->book1D("EcalHaloData_PhiWedgeMultiplicity","",20, -0.5, 19.5);
-	ME["EcalHaloData_PhiWedgeEnergy"]       = dqm->book1D("EcalHaloData_PhiWedgeEnergy","", 50,-0.5,199.5);
-	ME["EcalHaloData_PhiWedgeConstituents"] = dqm->book1D("EcalHaloData_PhiWedgeConstituents","",20,-0.5, 19.5);
-	ME["EcalHaloData_PhiWedgeMinTime"]      = dqm->book1D("EcalHaloData_PhiWedgeMinTime","", 100, -225.0, 225.0);
-	ME["EcalHaloData_PhiWedgeMaxTime"]      = dqm->book1D("EcalHaloData_PhiWedgeMaxTime","", 100, -225.0, 225.0);
-	ME["EcalHaloData_PhiWedgeiPhi"]         = dqm->book1D("EcalHaloData_PhiWedgeiPhi","", 360, 0.5, 360.5) ;
-	ME["EcalHaloData_PhiWedgePlusZDirectionConfidence"] = dqm->book1D("EcalHaloData_PlusZDirectionConfidence","",  50, 0., 1.0);
-	ME["EcalHaloData_PhiWedgeZDirectionConfidence"] = dqm->book1D("EcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
-	ME["EcalHaloData_PhiWedgeMinVsMaxTime"] = dqm->book2D("EcalHaloData_PhiWedgeMinVsMaxTime","", 50,-100.0, 100.0, 50, -100.0, 100.0);
-	ME["EcalHaloData_SuperClusterShowerShapes"]  = dqm->book2D("EcalHaloData_SuperClusterShowerShapes","", 25,0.0, TMath::Pi(), 25,0.0, 2.0);
-	ME["EcalHaloData_SuperClusterEnergy"] = dqm->book1D("EcalHaloData_SuperClusterEnergy","",100,-0.5,99.5); 
-	ME["EcalHaloData_SuperClusterNHits"] = dqm->book1D("EcalHaloData_SuperClusterNHits", "", 20, -0.5, 19.5);
-	ME["EcalHaloData_SuperClusterPhiVsEta"] = dqm->book2D("EcalHaloData_SuperClusterPhiVsEta","",60, -3.0, 3.0,72, -TMath::Pi(), TMath::Pi());  
+	hEcalHaloData_PhiWedgeMultiplicity = dqm->book1D("EcalHaloData_PhiWedgeMultiplicity","",20, -0.5, 19.5);
+	hEcalHaloData_PhiWedgeEnergy       = dqm->book1D("EcalHaloData_PhiWedgeEnergy","", 50,-0.5,199.5);
+	hEcalHaloData_PhiWedgeConstituents = dqm->book1D("EcalHaloData_PhiWedgeConstituents","",20,-0.5, 19.5);
+	hEcalHaloData_PhiWedgeMinTime      = dqm->book1D("EcalHaloData_PhiWedgeMinTime","", 100, -225.0, 225.0);
+	hEcalHaloData_PhiWedgeMaxTime      = dqm->book1D("EcalHaloData_PhiWedgeMaxTime","", 100, -225.0, 225.0);
+	hEcalHaloData_PhiWedgeiPhi         = dqm->book1D("EcalHaloData_PhiWedgeiPhi","", 360, 0.5, 360.5) ;
+	hEcalHaloData_PhiWedgePlusZDirectionConfidence = dqm->book1D("EcalHaloData_PlusZDirectionConfidence","",  50, 0., 1.0);
+	hEcalHaloData_PhiWedgeZDirectionConfidence = dqm->book1D("EcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
+	hEcalHaloData_PhiWedgeMinVsMaxTime = dqm->book2D("EcalHaloData_PhiWedgeMinVsMaxTime","", 50,-100.0, 100.0, 50, -100.0, 100.0);
+	hEcalHaloData_SuperClusterShowerShapes  = dqm->book2D("EcalHaloData_SuperClusterShowerShapes","", 25,0.0, TMath::Pi(), 25,0.0, 2.0);
+	hEcalHaloData_SuperClusterEnergy = dqm->book1D("EcalHaloData_SuperClusterEnergy","",100,-0.5,99.5); 
+	hEcalHaloData_SuperClusterNHits = dqm->book1D("EcalHaloData_SuperClusterNHits", "", 20, -0.5, 19.5);
+	hEcalHaloData_SuperClusterPhiVsEta = dqm->book2D("EcalHaloData_SuperClusterPhiVsEta","",60, -3.0, 3.0,72, -TMath::Pi(), TMath::Pi());  
       }
 
     // HcalHaloData
     dqm->setCurrentFolder(FolderName+"/HcalHaloData");    
     if( StandardDQM )
       { 
-	ME["HcalHaloData_PhiWedgeMultiplicity"] = dqm->book1D("HcalHaloData_PhiWedgeMultiplicity","", 20, -0.5, 19.5);
-	ME["HcalHaloData_PhiWedgeConstituents"] = dqm->book1D("HcalHaloData_PhiWedgeConstituents","", 20,-0.5, 19.5);
-	//ME["HcalHaloData_PhiWedgeiPhi"]         = dqm->book1D("HcalHaloData_PhiWedgeiPhi","", 72, 0.5,72.5);
-	ME["HcalHaloData_PhiWedgeZDirectionConfidence"] = dqm->book1D("HcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
+	hHcalHaloData_PhiWedgeMultiplicity = dqm->book1D("HcalHaloData_PhiWedgeMultiplicity","", 20, -0.5, 19.5);
+	hHcalHaloData_PhiWedgeConstituents = dqm->book1D("HcalHaloData_PhiWedgeConstituents","", 20,-0.5, 19.5);
+	//hHcalHaloData_PhiWedgeiPhi         = dqm->book1D("HcalHaloData_PhiWedgeiPhi","", 72, 0.5,72.5);
+	hHcalHaloData_PhiWedgeZDirectionConfidence = dqm->book1D("HcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
       }
     else
       {
-	ME["HcalHaloData_PhiWedgeMultiplicity"] = dqm->book1D("HcalHaloData_PhiWedgeMultiplicity","", 20, -0.5, 19.5);
-	ME["HcalHaloData_PhiWedgeEnergy"]       = dqm->book1D("HcalHaloData_PhiWedgeEnergy", "", 50,-0.5,199.5);
-	ME["HcalHaloData_PhiWedgeConstituents"] = dqm->book1D("HcalHaloData_PhiWedgeConstituents","", 20,-0.5, 19.5);
-	ME["HcalHaloData_PhiWedgeiPhi"]         = dqm->book1D("HcalHaloData_PhiWedgeiPhi","", 72, 0.5,72.5);
-	ME["HcalHaloData_PhiWedgeMinTime"]      = dqm->book1D("HcalHaloData_PhiWedgeMinTime", "", 50, -100.0, 100.0);
-	ME["HcalHaloData_PhiWedgeMaxTime"]      = dqm->book1D("HcalHaloData_PhiWedgeMaxTime", "", 50, -100.0, 100.0);
-	ME["HcalHaloData_PhiWedgePlusZDirectionConfidence"] = dqm->book1D("HcalHaloData_PlusZDirectionConfidence","",  50, 0., 1.0);
-	ME["HcalHaloData_PhiWedgeZDirectionConfidence"] = dqm->book1D("HcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
-	ME["HcalHaloData_PhiWedgeMinVsMaxTime"] = dqm->book2D("HcalHaloData_PhiWedgeMinVsMaxTime","" , 50,-100.0, 100.0, 50, -100.0, 100.0);
+	hHcalHaloData_PhiWedgeMultiplicity = dqm->book1D("HcalHaloData_PhiWedgeMultiplicity","", 20, -0.5, 19.5);
+	hHcalHaloData_PhiWedgeEnergy       = dqm->book1D("HcalHaloData_PhiWedgeEnergy", "", 50,-0.5,199.5);
+	hHcalHaloData_PhiWedgeConstituents = dqm->book1D("HcalHaloData_PhiWedgeConstituents","", 20,-0.5, 19.5);
+	hHcalHaloData_PhiWedgeiPhi         = dqm->book1D("HcalHaloData_PhiWedgeiPhi","", 72, 0.5,72.5);
+	hHcalHaloData_PhiWedgeMinTime      = dqm->book1D("HcalHaloData_PhiWedgeMinTime", "", 50, -100.0, 100.0);
+	hHcalHaloData_PhiWedgeMaxTime      = dqm->book1D("HcalHaloData_PhiWedgeMaxTime", "", 50, -100.0, 100.0);
+	hHcalHaloData_PhiWedgePlusZDirectionConfidence = dqm->book1D("HcalHaloData_PlusZDirectionConfidence","",  50, 0., 1.0);
+	hHcalHaloData_PhiWedgeZDirectionConfidence = dqm->book1D("HcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
+	hHcalHaloData_PhiWedgeMinVsMaxTime = dqm->book2D("HcalHaloData_PhiWedgeMinVsMaxTime","" , 50,-100.0, 100.0, 50, -100.0, 100.0);
       }
 
     // CSCHaloData
     dqm->setCurrentFolder(FolderName+"/CSCHaloData");
     if( StandardDQM ) 
       {
-	ME["CSCHaloData_TrackMultiplicity"]  = dqm->book1D("CSCHaloData_TrackMultiplicity", "", 15, -0.5, 14.5);
-	ME["CSCHaloData_TrackMultiplicityMEPlus"]  = dqm->book1D("CSCHaloData_TrackMultiplicityMEPlus", "", 15, -0.5, 14.5);
-	ME["CSCHaloData_TrackMultiplicityMEMinus"]  = dqm->book1D("CSCHaloData_TrackMultiplicityMEMinus", "", 15, -0.5, 14.5);
-	ME["CSCHaloData_InnerMostTrackHitR"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitR", "", 70, 99.5, 799.5);
-	ME["CSCHaloData_InnerMostTrackHitPhi"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
-	ME["CSCHaloData_L1HaloTriggersMEPlus"]  = dqm->book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
-	ME["CSCHaloData_L1HaloTriggersMEMinus"]  = dqm->book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
-	ME["CSCHaloData_L1HaloTriggers"]  = dqm->book1D("CSCHaloData_L1HaloTriggers", "", 10, -0.5, 9.5);
-	ME["CSCHaloData_HLHaloTriggers"]  = dqm->book1D("CSCHaloData_HLHaloTriggers", "", 2, -0.5, 1.5);
-	ME["CSCHaloData_NOutOfTimeTriggersvsL1HaloExists"]  = dqm->book2D("CSCHaloData_NOutOfTimeTriggersvsL1HaloExists", "", 20, -0.5, 19.5, 2, -0.5, 1.5);
-	ME["CSCHaloData_NOutOfTimeTriggersMEPlus"]  = dqm->book1D("CSCHaloData_NOutOfTimeTriggersMEPlus", "", 20, -0.5, 19.5);
-	ME["CSCHaloData_NOutOfTimeTriggersMEMinus"]  = dqm->book1D("CSCHaloData_NOutOfTimeTriggersMEMinus", "", 20, -0.5, 19.5);
-	ME["CSCHaloData_NOutOfTimeTriggers"]  = dqm->book1D("CSCHaloData_NOutOfTimeTriggers", "", 20, -0.5, 19.5);
-	ME["CSCHaloData_NOutOfTimeHits"]  = dqm->book1D("CSCHaloData_NOutOfTimeHits", "", 60, -0.5, 59.5);
+	hCSCHaloData_TrackMultiplicity  = dqm->book1D("CSCHaloData_TrackMultiplicity", "", 15, -0.5, 14.5);
+	hCSCHaloData_TrackMultiplicityMEPlus  = dqm->book1D("CSCHaloData_TrackMultiplicityMEPlus", "", 15, -0.5, 14.5);
+	hCSCHaloData_TrackMultiplicityMEMinus  = dqm->book1D("CSCHaloData_TrackMultiplicityMEMinus", "", 15, -0.5, 14.5);
+	hCSCHaloData_InnerMostTrackHitR  = dqm->book1D("CSCHaloData_InnerMostTrackHitR", "", 70, 99.5, 799.5);
+	hCSCHaloData_InnerMostTrackHitPhi  = dqm->book1D("CSCHaloData_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
+	hCSCHaloData_L1HaloTriggersMEPlus  = dqm->book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
+	hCSCHaloData_L1HaloTriggersMEMinus  = dqm->book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
+	hCSCHaloData_L1HaloTriggers  = dqm->book1D("CSCHaloData_L1HaloTriggers", "", 10, -0.5, 9.5);
+	hCSCHaloData_HLHaloTriggers  = dqm->book1D("CSCHaloData_HLHaloTriggers", "", 2, -0.5, 1.5);
+	hCSCHaloData_NOutOfTimeTriggersvsL1HaloExists  = dqm->book2D("CSCHaloData_NOutOfTimeTriggersvsL1HaloExists", "", 20, -0.5, 19.5, 2, -0.5, 1.5);
+	hCSCHaloData_NOutOfTimeTriggersMEPlus  = dqm->book1D("CSCHaloData_NOutOfTimeTriggersMEPlus", "", 20, -0.5, 19.5);
+	hCSCHaloData_NOutOfTimeTriggersMEMinus  = dqm->book1D("CSCHaloData_NOutOfTimeTriggersMEMinus", "", 20, -0.5, 19.5);
+	hCSCHaloData_NOutOfTimeTriggers  = dqm->book1D("CSCHaloData_NOutOfTimeTriggers", "", 20, -0.5, 19.5);
+	hCSCHaloData_NOutOfTimeHits  = dqm->book1D("CSCHaloData_NOutOfTimeHits", "", 60, -0.5, 59.5);
       }
     else 
       {
-	ME["CSCHaloData_TrackMultiplicity"]  = dqm->book1D("CSCHaloData_TrackMultiplicity", "", 15, -0.5, 14.5);
-	ME["CSCHaloData_TrackMultiplicityMEPlus"]  = dqm->book1D("CSCHaloData_TrackMultiplicityMEPlus", "", 15, -0.5, 14.5);
-	ME["CSCHaloData_TrackMultiplicityMEMinus"]  = dqm->book1D("CSCHaloData_TrackMultiplicityMEMinus", "", 15, -0.5, 14.5);
-	ME["CSCHaloData_InnerMostTrackHitXY"]  = dqm->book2D("CSCHaloData_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
-	ME["CSCHaloData_InnerMostTrackHitR"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitR", "", 400, -0.5, 799.5);
-	ME["CSCHaloData_InnerMostTrackHitRPlusZ"] = dqm->book2D("CSCHaloData_InnerMostTrackHitRPlusZ","", 400 , 400, 1200, 400, -0.5, 799.5 );
-	ME["CSCHaloData_InnerMostTrackHitRMinusZ"] = dqm->book2D("CSCHaloData_InnerMostTrackHitRMinusZ","", 400 , -1200, -400, 400, -0.5, 799.5 );
-	ME["CSCHaloData_InnerMostTrackHitiPhi"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
-	ME["CSCHaloData_InnerMostTrackHitPhi"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
-	ME["CSCHaloData_L1HaloTriggersMEPlus"]  = dqm->book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
-	ME["CSCHaloData_L1HaloTriggersMEMinus"]  = dqm->book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
-	ME["CSCHaloData_L1HaloTriggers"]  = dqm->book1D("CSCHaloData_L1HaloTriggers", "", 10, -0.5, 9.5);
-	ME["CSCHaloData_HLHaloTriggers"]  = dqm->book1D("CSCHaloData_HLHaloTriggers", "", 2, -0.5, 1.5);
-	ME["CSCHaloData_NOutOfTimeTriggersvsL1HaloExists"]  = dqm->book2D("CSCHaloData_NOutOfTimeTriggersvsL1HaloExists", "", 20, -0.5, 19.5, 2, -0.5, 1.5);
-	ME["CSCHaloData_NOutOfTimeTriggers"]  = dqm->book1D("CSCHaloData_NOutOfTimeTriggers", "", 20, -0.5, 19.5);
-	ME["CSCHaloData_NOutOfTimeHits"]  = dqm->book1D("CSCHaloData_NOutOfTimeHits", "", 60, -0.5, 59.5);
+	hCSCHaloData_TrackMultiplicity  = dqm->book1D("CSCHaloData_TrackMultiplicity", "", 15, -0.5, 14.5);
+	hCSCHaloData_TrackMultiplicityMEPlus  = dqm->book1D("CSCHaloData_TrackMultiplicityMEPlus", "", 15, -0.5, 14.5);
+	hCSCHaloData_TrackMultiplicityMEMinus  = dqm->book1D("CSCHaloData_TrackMultiplicityMEMinus", "", 15, -0.5, 14.5);
+	hCSCHaloData_InnerMostTrackHitXY  = dqm->book2D("CSCHaloData_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
+	hCSCHaloData_InnerMostTrackHitR  = dqm->book1D("CSCHaloData_InnerMostTrackHitR", "", 400, -0.5, 799.5);
+	hCSCHaloData_InnerMostTrackHitRPlusZ = dqm->book2D("CSCHaloData_InnerMostTrackHitRPlusZ","", 400 , 400, 1200, 400, -0.5, 799.5 );
+	hCSCHaloData_InnerMostTrackHitRMinusZ = dqm->book2D("CSCHaloData_InnerMostTrackHitRMinusZ","", 400 , -1200, -400, 400, -0.5, 799.5 );
+	hCSCHaloData_InnerMostTrackHitiPhi  = dqm->book1D("CSCHaloData_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
+	hCSCHaloData_InnerMostTrackHitPhi  = dqm->book1D("CSCHaloData_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
+	hCSCHaloData_L1HaloTriggersMEPlus  = dqm->book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
+	hCSCHaloData_L1HaloTriggersMEMinus  = dqm->book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
+	hCSCHaloData_L1HaloTriggers  = dqm->book1D("CSCHaloData_L1HaloTriggers", "", 10, -0.5, 9.5);
+	hCSCHaloData_HLHaloTriggers  = dqm->book1D("CSCHaloData_HLHaloTriggers", "", 2, -0.5, 1.5);
+	hCSCHaloData_NOutOfTimeTriggersvsL1HaloExists  = dqm->book2D("CSCHaloData_NOutOfTimeTriggersvsL1HaloExists", "", 20, -0.5, 19.5, 2, -0.5, 1.5);
+	hCSCHaloData_NOutOfTimeTriggers  = dqm->book1D("CSCHaloData_NOutOfTimeTriggers", "", 20, -0.5, 19.5);
+	hCSCHaloData_NOutOfTimeHits  = dqm->book1D("CSCHaloData_NOutOfTimeHits", "", 60, -0.5, 59.5);
       }
 
     // GlobalHaloData
     dqm->setCurrentFolder(FolderName+"/GlobalHaloData");
     if(!StandardDQM)
       {
-	ME["GlobalHaloData_MExCorrection"]  = dqm->book1D("GlobalHaloData_MExCorrection", "" , 200, -200., 200.);
-	ME["GlobalHaloData_MEyCorrection"]  = dqm->book1D("GlobalHaloData_MEyCorrection", "" , 200, -200., 200.);
-	ME["GlobalHaloData_SumEtCorrection"] = dqm->book1D("GlobalHaloData_SumEtCorrection", "" , 200, -0.5, 399.5);
-	ME["GlobalHaloData_HaloCorrectedMET"] = dqm->book1D("GlobalHaloData_HaloCorrectedMET", "" , 500, -0.5, 1999.5);
-	ME["GlobalHaloData_RawMETMinusHaloCorrectedMET"] = dqm->book1D("GlobalHaloData_RawMETMinusHaloCorrectedMET","" , 250, -500., 500.);
-	ME["GlobalHaloData_RawMETOverSumEt"]  = dqm->book1D("GlobalHaloData_RawMETOverSumEt","" , 100, 0.0, 1.0);
-	ME["GlobalHaloData_MatchedHcalPhiWedgeMultiplicity"] = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeMultiplicity","", 15, -0.5, 14.5);    
-	ME["GlobalHaloData_MatchedHcalPhiWedgeEnergy"]       = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeEnergy", "", 50,-0.5,199.5);
-	ME["GlobalHaloData_MatchedHcalPhiWedgeConstituents"] = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeConstituents","", 20,-0.5, 19.5);
-	ME["GlobalHaloData_MatchedHcalPhiWedgeiPhi"]         = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeiPhi","", 1, 0.5,72.5);
-	ME["GlobalHaloData_MatchedHcalPhiWedgeMinTime"]      = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeMinTime", "", 50, -100.0, 100.0);
-	ME["GlobalHaloData_MatchedHcalPhiWedgeMaxTime"]      = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeMaxTime", "", 50, -100.0, 100.0);
-	ME["GlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence"] = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence","",  120, -1.2, 1.2);
-	ME["GlobalHaloData_MatchedEcalPhiWedgeMultiplicity"] = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMultiplicity","", 15, -0.5, 14.5);
-	ME["GlobalHaloData_MatchedEcalPhiWedgeEnergy"]       = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeEnergy", "", 50,-0.5,199.5);
-	ME["GlobalHaloData_MatchedEcalPhiWedgeConstituents"] = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeConstituents","", 20,-0.5, 19.5);
-	ME["GlobalHaloData_MatchedEcalPhiWedgeiPhi"]         = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeiPhi","", 360, 0.5,360.5);
-	ME["GlobalHaloData_MatchedEcalPhiWedgeMinTime"]      = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMinTime", "", 50, -100.0, 100.0);
-	ME["GlobalHaloData_MatchedEcalPhiWedgeMaxTime"]      = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMaxTime", "", 50, -100.0, 100.0);
-	ME["GlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence"] = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence","",  120, 1.2, 1.2);
+	hGlobalHaloData_MExCorrection  = dqm->book1D("GlobalHaloData_MExCorrection", "" , 200, -200., 200.);
+	hGlobalHaloData_MEyCorrection  = dqm->book1D("GlobalHaloData_MEyCorrection", "" , 200, -200., 200.);
+	hGlobalHaloData_SumEtCorrection = dqm->book1D("GlobalHaloData_SumEtCorrection", "" , 200, -0.5, 399.5);
+	hGlobalHaloData_HaloCorrectedMET = dqm->book1D("GlobalHaloData_HaloCorrectedMET", "" , 500, -0.5, 1999.5);
+	hGlobalHaloData_RawMETMinusHaloCorrectedMET = dqm->book1D("GlobalHaloData_RawMETMinusHaloCorrectedMET","" , 250, -500., 500.);
+	hGlobalHaloData_RawMETOverSumEt  = dqm->book1D("GlobalHaloData_RawMETOverSumEt","" , 100, 0.0, 1.0);
+	hGlobalHaloData_MatchedHcalPhiWedgeMultiplicity = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeMultiplicity","", 15, -0.5, 14.5);    
+	hGlobalHaloData_MatchedHcalPhiWedgeEnergy       = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeEnergy", "", 50,-0.5,199.5);
+	hGlobalHaloData_MatchedHcalPhiWedgeConstituents = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeConstituents","", 20,-0.5, 19.5);
+	hGlobalHaloData_MatchedHcalPhiWedgeiPhi         = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeiPhi","", 1, 0.5,72.5);
+	hGlobalHaloData_MatchedHcalPhiWedgeMinTime      = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeMinTime", "", 50, -100.0, 100.0);
+	hGlobalHaloData_MatchedHcalPhiWedgeMaxTime      = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeMaxTime", "", 50, -100.0, 100.0);
+	hGlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence","",  120, -1.2, 1.2);
+	hGlobalHaloData_MatchedEcalPhiWedgeMultiplicity = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMultiplicity","", 15, -0.5, 14.5);
+	hGlobalHaloData_MatchedEcalPhiWedgeEnergy       = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeEnergy", "", 50,-0.5,199.5);
+	hGlobalHaloData_MatchedEcalPhiWedgeConstituents = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeConstituents","", 20,-0.5, 19.5);
+	hGlobalHaloData_MatchedEcalPhiWedgeiPhi         = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeiPhi","", 360, 0.5,360.5);
+	hGlobalHaloData_MatchedEcalPhiWedgeMinTime      = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMinTime", "", 50, -100.0, 100.0);
+	hGlobalHaloData_MatchedEcalPhiWedgeMaxTime      = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMaxTime", "", 50, -100.0, 100.0);
+	hGlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence","",  120, 1.2, 1.2);
       }
     // BeamHaloSummary 
     dqm->setCurrentFolder(FolderName+"/BeamHaloSummary");
 
-    ME["BeamHaloSummary_Id"] = dqm->book1D("BeamHaloSumamry_Id", "", 11, 0.5,11.5);
-    ME["BeamHaloSummary_Id"] ->setBinLabel(1,"CSC Loose");
-    ME["BeamHaloSummary_Id"] ->setBinLabel(2,"CSC Tight");
-    ME["BeamHaloSummary_Id"] ->setBinLabel(3,"Ecal Loose");
-    ME["BeamHaloSummary_Id"] ->setBinLabel(4,"Ecal Tight");
-    ME["BeamHaloSummary_Id"] ->setBinLabel(5,"Hcal Loose");
-    ME["BeamHaloSummary_Id"] ->setBinLabel(6,"Hcal Tight");
-    ME["BeamHaloSummary_Id"] ->setBinLabel(7,"Global Loose");
-    ME["BeamHaloSummary_Id"] ->setBinLabel(8,"Global Tight");
-    ME["BeamHaloSummary_Id"] ->setBinLabel(9,"Event Loose");
-    ME["BeamHaloSummary_Id"] ->setBinLabel(10,"Event Tight");
-    ME["BeamHaloSummary_Id"] ->setBinLabel(11,"Nothing");
+    hBeamHaloSummary_Id = dqm->book1D("BeamHaloSumamry_Id", "", 11, 0.5,11.5);
+    hBeamHaloSummary_Id ->setBinLabel(1,"CSC Loose");
+    hBeamHaloSummary_Id ->setBinLabel(2,"CSC Tight");
+    hBeamHaloSummary_Id ->setBinLabel(3,"Ecal Loose");
+    hBeamHaloSummary_Id ->setBinLabel(4,"Ecal Tight");
+    hBeamHaloSummary_Id ->setBinLabel(5,"Hcal Loose");
+    hBeamHaloSummary_Id ->setBinLabel(6,"Hcal Tight");
+    hBeamHaloSummary_Id ->setBinLabel(7,"Global Loose");
+    hBeamHaloSummary_Id ->setBinLabel(8,"Global Tight");
+    hBeamHaloSummary_Id ->setBinLabel(9,"Event Loose");
+    hBeamHaloSummary_Id ->setBinLabel(10,"Event Tight");
+    hBeamHaloSummary_Id ->setBinLabel(11,"Nothing");
     if(!StandardDQM)
       {
-	ME["BeamHaloSummary_BXN"] = dqm->book2D("BeamHaloSummary_BXN", "",11, 0.5, 11.5, 4000, -0.5,3999.5);
-	ME["BeamHaloSummary_BXN"] ->setBinLabel(1,"CSC Loose");
-	ME["BeamHaloSummary_BXN"] ->setBinLabel(2,"CSC Tight");
-	ME["BeamHaloSummary_BXN"] ->setBinLabel(3,"Ecal Loose");
-	ME["BeamHaloSummary_BXN"] ->setBinLabel(4,"Ecal Tight");
-	ME["BeamHaloSummary_BXN"] ->setBinLabel(5,"Hcal Loose");
-	ME["BeamHaloSummary_BXN"] ->setBinLabel(6,"Hcal Tight");
-	ME["BeamHaloSummary_BXN"] ->setBinLabel(7,"Global Loose");
-	ME["BeamHaloSummary_BXN"] ->setBinLabel(8,"Global Tight");
-	ME["BeamHaloSummary_BXN"] ->setBinLabel(9,"Event Loose");
-	ME["BeamHaloSummary_BXN"] ->setBinLabel(10,"Event Tight");
-	ME["BeamHaloSummary_BXN"] ->setBinLabel(11,"Nothing");
+	hBeamHaloSummary_BXN = dqm->book2D("BeamHaloSummary_BXN", "",11, 0.5, 11.5, 4000, -0.5,3999.5);
+	hBeamHaloSummary_BXN ->setBinLabel(1,"CSC Loose");
+	hBeamHaloSummary_BXN ->setBinLabel(2,"CSC Tight");
+	hBeamHaloSummary_BXN ->setBinLabel(3,"Ecal Loose");
+	hBeamHaloSummary_BXN ->setBinLabel(4,"Ecal Tight");
+	hBeamHaloSummary_BXN ->setBinLabel(5,"Hcal Loose");
+	hBeamHaloSummary_BXN ->setBinLabel(6,"Hcal Tight");
+	hBeamHaloSummary_BXN ->setBinLabel(7,"Global Loose");
+	hBeamHaloSummary_BXN ->setBinLabel(8,"Global Tight");
+	hBeamHaloSummary_BXN ->setBinLabel(9,"Event Loose");
+	hBeamHaloSummary_BXN ->setBinLabel(10,"Event Tight");
+	hBeamHaloSummary_BXN ->setBinLabel(11,"Nothing");
       }
     // Extra
     dqm->setCurrentFolder(FolderName+"/ExtraHaloData");
     if(StandardDQM)
       {
-	ME["Extra_CSCTrackInnerOuterDPhi"] = dqm->book1D("Extra_CSCTrackInnerOuterDPhi","",100, 0, TMath::Pi() );
-	ME["Extra_CSCTrackInnerOuterDEta"] = dqm->book1D("Extra_CSCTrackInnerOuterDEta","", 100, 0, 3.0 );
-	ME["Extra_CSCTrackChi2Ndof"]  = dqm->book1D("Extra_CSCTrackChi2Ndof","", 25, 0, 10);
-	ME["Extra_CSCTrackNHits"]     = dqm->book1D("Extra_CSCTrackNHits","", 75,0, 75);
-	ME["Extra_CSCActivityWithMET"]= dqm->book2D("Extra_CSCActivityWithMET", "", 4, 0.5, 4.5, 4, 0.5, 4.5);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(1,"Track",1);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(1,"Track",2);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(2, "Segments",1);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(2, "Segments",2);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(3, "RecHits", 1);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(3, "RecHits", 2);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(4, "Nothing", 1);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(4, "Nothing", 2);
-	ME["Extra_InnerMostTrackHitR"]  = dqm->book1D("Extra_InnerMostTrackHitR", "", 70, 99.5, 799.5);
-	ME["Extra_InnerMostTrackHitPhi"]  = dqm->book1D("Extra_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
+	hExtra_CSCTrackInnerOuterDPhi = dqm->book1D("Extra_CSCTrackInnerOuterDPhi","",100, 0, TMath::Pi() );
+	hExtra_CSCTrackInnerOuterDEta = dqm->book1D("Extra_CSCTrackInnerOuterDEta","", 100, 0, 3.0 );
+	hExtra_CSCTrackChi2Ndof  = dqm->book1D("Extra_CSCTrackChi2Ndof","", 25, 0, 10);
+	hExtra_CSCTrackNHits     = dqm->book1D("Extra_CSCTrackNHits","", 75,0, 75);
+	hExtra_CSCActivityWithMET= dqm->book2D("Extra_CSCActivityWithMET", "", 4, 0.5, 4.5, 4, 0.5, 4.5);
+	hExtra_CSCActivityWithMET->setBinLabel(1,"Track",1);
+	hExtra_CSCActivityWithMET->setBinLabel(1,"Track",2);
+	hExtra_CSCActivityWithMET->setBinLabel(2, "Segments",1);
+	hExtra_CSCActivityWithMET->setBinLabel(2, "Segments",2);
+	hExtra_CSCActivityWithMET->setBinLabel(3, "RecHits", 1);
+	hExtra_CSCActivityWithMET->setBinLabel(3, "RecHits", 2);
+	hExtra_CSCActivityWithMET->setBinLabel(4, "Nothing", 1);
+	hExtra_CSCActivityWithMET->setBinLabel(4, "Nothing", 2);
+	hExtra_InnerMostTrackHitR  = dqm->book1D("Extra_InnerMostTrackHitR", "", 70, 99.5, 799.5);
+	hExtra_InnerMostTrackHitPhi  = dqm->book1D("Extra_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
       }
     else 
       {
-	ME["Extra_CSCActivityWithMET"]= dqm->book2D("Extra_CSCActivityWithMET", "", 4, 0.5, 4.5, 4, 0.5, 4.5);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(1,"Track",1);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(1,"Track",2);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(2, "Segments",1);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(2, "Segments",2);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(3, "RecHits", 1);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(3, "RecHits", 2);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(4, "Nothing", 1);
-	ME["Extra_CSCActivityWithMET"]->setBinLabel(4, "Nothing", 2);
-	ME["Extra_HcalToF"]  = dqm->book2D("Extra_HcalToF","" , 83,-41.5,41.5 , 1000, -125., 125.); 
-	ME["Extra_HcalToF_HaloId"]  = dqm->book2D("Extra_HcalToF_HaloId","", 83,-41.5,41.5 , 1000, -125., 125.); 
-	ME["Extra_EcalToF"]  = dqm->book2D("Extra_EcalToF","",  171,-85.5,85.5 , 2000, -225., 225.); 
-	ME["Extra_EcalToF_HaloId"]  = dqm->book2D("Extra_EcalToF_HaloId","",  171,-85.5,85.5 , 2000, -225., 225.); 
-	ME["Extra_CSCTrackInnerOuterDPhi"] = dqm->book1D("Extra_CSCTrackInnerOuterDPhi","",100, 0, TMath::Pi() );
-	ME["Extra_CSCTrackInnerOuterDEta"] = dqm->book1D("Extra_CSCTrackInnerOuterDEta","", 100, 0, TMath::Pi() );
-	ME["Extra_CSCTrackChi2Ndof"]  = dqm->book1D("Extra_CSCTrackChi2Ndof","", 100, 0, 10);
-	ME["Extra_CSCTrackNHits"]     = dqm->book1D("Extra_CSCTrackNHits","", 75,0, 75);
-	ME["Extra_InnerMostTrackHitXY"]  = dqm->book2D("Extra_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
-	ME["Extra_InnerMostTrackHitR"]  = dqm->book1D("Extra_InnerMostTrackHitR", "", 400, -0.5, 799.5);
-	ME["Extra_InnerMostTrackHitRPlusZ"] = dqm->book2D("Extra_InnerMostTrackHitRPlusZ","", 400 , 400, 1200, 400, -0.5, 799.5 );
-	ME["Extra_InnerMostTrackHitRMinusZ"] = dqm->book2D("Extra_InnerMostTrackHitRMinusZ","", 400 , -1200, -400, 400, -0.5, 799.5 );
-	ME["Extra_InnerMostTrackHitiPhi"]  = dqm->book1D("Extra_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
-	ME["Extra_InnerMostTrackHitPhi"]  = dqm->book1D("Extra_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
-	ME["Extra_BXN"] = dqm->book1D("Extra_BXN", "BXN Occupancy", 4000, 0.5, 4000.5);
+	hExtra_CSCActivityWithMET= dqm->book2D("Extra_CSCActivityWithMET", "", 4, 0.5, 4.5, 4, 0.5, 4.5);
+	hExtra_CSCActivityWithMET->setBinLabel(1,"Track",1);
+	hExtra_CSCActivityWithMET->setBinLabel(1,"Track",2);
+	hExtra_CSCActivityWithMET->setBinLabel(2, "Segments",1);
+	hExtra_CSCActivityWithMET->setBinLabel(2, "Segments",2);
+	hExtra_CSCActivityWithMET->setBinLabel(3, "RecHits", 1);
+	hExtra_CSCActivityWithMET->setBinLabel(3, "RecHits", 2);
+	hExtra_CSCActivityWithMET->setBinLabel(4, "Nothing", 1);
+	hExtra_CSCActivityWithMET->setBinLabel(4, "Nothing", 2);
+	hExtra_HcalToF  = dqm->book2D("Extra_HcalToF","" , 83,-41.5,41.5 , 1000, -125., 125.); 
+	hExtra_HcalToF_HaloId  = dqm->book2D("Extra_HcalToF_HaloId","", 83,-41.5,41.5 , 1000, -125., 125.); 
+	hExtra_EcalToF  = dqm->book2D("Extra_EcalToF","",  171,-85.5,85.5 , 2000, -225., 225.); 
+	hExtra_EcalToF_HaloId  = dqm->book2D("Extra_EcalToF_HaloId","",  171,-85.5,85.5 , 2000, -225., 225.); 
+	hExtra_CSCTrackInnerOuterDPhi = dqm->book1D("Extra_CSCTrackInnerOuterDPhi","",100, 0, TMath::Pi() );
+	hExtra_CSCTrackInnerOuterDEta = dqm->book1D("Extra_CSCTrackInnerOuterDEta","", 100, 0, TMath::Pi() );
+	hExtra_CSCTrackChi2Ndof  = dqm->book1D("Extra_CSCTrackChi2Ndof","", 100, 0, 10);
+	hExtra_CSCTrackNHits     = dqm->book1D("Extra_CSCTrackNHits","", 75,0, 75);
+	hExtra_InnerMostTrackHitXY  = dqm->book2D("Extra_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
+	hExtra_InnerMostTrackHitR  = dqm->book1D("Extra_InnerMostTrackHitR", "", 400, -0.5, 799.5);
+	hExtra_InnerMostTrackHitRPlusZ = dqm->book2D("Extra_InnerMostTrackHitRPlusZ","", 400 , 400, 1200, 400, -0.5, 799.5 );
+	hExtra_InnerMostTrackHitRMinusZ = dqm->book2D("Extra_InnerMostTrackHitRMinusZ","", 400 , -1200, -400, 400, -0.5, 799.5 );
+	hExtra_InnerMostTrackHitiPhi  = dqm->book1D("Extra_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
+	hExtra_InnerMostTrackHitPhi  = dqm->book1D("Extra_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
+	hExtra_BXN = dqm->book1D("Extra_BXN", "BXN Occupancy", 4000, 0.5, 4000.5);
       }
   }
 }
@@ -340,20 +340,20 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             }
 	  float dphi = TMath::Abs( outermost_phi - innermost_phi );
 	  float deta = TMath::Abs( outermost_eta - innermost_eta );
-	  ME["Extra_CSCTrackInnerOuterDPhi"] -> Fill( dphi );
-	  ME["Extra_CSCTrackInnerOuterDEta"] -> Fill( deta ); 
-	  ME["Extra_CSCTrackChi2Ndof"]  -> Fill(cosmic->normalizedChi2() );
-	  ME["Extra_CSCTrackNHits"]     -> Fill(cosmic->numberOfValidHits() );
-	  ME["Extra_InnerMostTrackHitR"]  ->Fill(innermost_r);
-	  ME["Extra_InnerMostTrackHitPhi"] ->Fill(innermost_phi);	  
+	  hExtra_CSCTrackInnerOuterDPhi -> Fill( dphi );
+	  hExtra_CSCTrackInnerOuterDEta -> Fill( deta ); 
+	  hExtra_CSCTrackChi2Ndof  -> Fill(cosmic->normalizedChi2() );
+	  hExtra_CSCTrackNHits     -> Fill(cosmic->numberOfValidHits() );
+	  hExtra_InnerMostTrackHitR  ->Fill(innermost_r);
+	  hExtra_InnerMostTrackHitPhi ->Fill(innermost_phi);	  
 	  if( !StandardDQM )
 	    {
-	      ME["Extra_InnerMostTrackHitXY"]  ->Fill(innermost_x, innermost_y);
-	      ME["Extra_InnerMostTrackHitiPhi"] ->Fill(Phi_To_iPhi(innermost_phi));	      
+	      hExtra_InnerMostTrackHitXY  ->Fill(innermost_x, innermost_y);
+	      hExtra_InnerMostTrackHitiPhi ->Fill(Phi_To_iPhi(innermost_phi));	      
 	      if(innermost_z > 0 ) 
-		ME["Extra_InnerMostTrackHitRPlusZ"] ->Fill(innermost_z, innermost_r);
+		hExtra_InnerMostTrackHitRPlusZ ->Fill(innermost_z, innermost_r);
 	      else 
-		ME["Extra_InnerMostTrackHitRMinusZ"] ->Fill(innermost_z, innermost_r);
+		hExtra_InnerMostTrackHitRMinusZ ->Fill(innermost_z, innermost_r);
 	    }
 	}
     }
@@ -418,7 +418,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  EBDetId EcalId ( id.rawId() );
 	  int ieta = EcalId.ieta() ;
 	  if(!StandardDQM)
-	    ME["Extra_EcalToF"] ->Fill(ieta, iEBRecHit->time() );
+	    hExtra_EcalToF ->Fill(ieta, iEBRecHit->time() );
 	  EBHits++;
 	}
     }
@@ -434,7 +434,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if( iHBHERecHit->energy() < 1.) continue;
 	  HcalDetId id = HcalDetId( iHBHERecHit->id() );
 	  if(!StandardDQM)
-	    ME["Extra_HcalToF"]->Fill( id.ieta(), iHBHERecHit->time() ) ;
+	    hExtra_HcalToF->Fill( id.ieta(), iHBHERecHit->time() ) ;
 	}
     }
 
@@ -459,28 +459,28 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  float r = TMath::Sqrt( i->x()*i->x() + i->y()*i->y() );
 	  if( !StandardDQM )
 	    {
-	      ME["CSCHaloData_InnerMostTrackHitXY"]->Fill( i->x(), i->y() );
-	      ME["CSCHaloData_InnerMostTrackHitiPhi"]  ->Fill( Phi_To_iPhi( i->phi())); 
+	      hCSCHaloData_InnerMostTrackHitXY->Fill( i->x(), i->y() );
+	      hCSCHaloData_InnerMostTrackHitiPhi  ->Fill( Phi_To_iPhi( i->phi())); 
 	      if( i->z() > 0 ) 
-		ME["CSCHaloData_InnerMostTrackHitRPlusZ"] ->Fill(i->z(), r) ;
+		hCSCHaloData_InnerMostTrackHitRPlusZ ->Fill(i->z(), r) ;
 	      else
-		ME["CSCHaloData_InnerMostTrackHitRMinusZ"] ->Fill(i->z(), r) ;
+		hCSCHaloData_InnerMostTrackHitRMinusZ ->Fill(i->z(), r) ;
 	    }
-	  ME["CSCHaloData_InnerMostTrackHitR"]  ->Fill(r);
-	  ME["CSCHaloData_InnerMostTrackHitPhi"]  ->Fill( i->phi()); 
+	  hCSCHaloData_InnerMostTrackHitR  ->Fill(r);
+	  hCSCHaloData_InnerMostTrackHitPhi  ->Fill( i->phi()); 
 	}
-      ME["CSCHaloData_L1HaloTriggersMEPlus"]   -> Fill ( CSCData.NumberOfHaloTriggers(HaloData::plus) );
-      ME["CSCHaloData_L1HaloTriggersMEMinus"]  -> Fill ( CSCData.NumberOfHaloTriggers(HaloData::minus));
-      ME["CSCHaloData_L1HaloTriggers"]  -> Fill ( CSCData.NumberOfHaloTriggers(HaloData::both));
-      ME["CSCHaloData_HLHaloTriggers"]  -> Fill ( CSCData.CSCHaloHLTAccept());
-      ME["CSCHaloData_TrackMultiplicityMEPlus"] ->Fill ( CSCData.NumberOfHaloTracks(HaloData::plus) );
-      ME["CSCHaloData_TrackMultiplicityMEMinus"] ->Fill ( CSCData.NumberOfHaloTracks(HaloData::minus) );
-      ME["CSCHaloData_TrackMultiplicity"]->Fill( CSCData.GetTracks().size() );
-      ME["CSCHaloData_NOutOfTimeTriggersMEPlus"]->Fill( CSCData.NOutOfTimeTriggers(HaloData::plus) );
-      ME["CSCHaloData_NOutOfTimeTriggersMEMinus"]->Fill( CSCData.NOutOfTimeTriggers(HaloData::minus) );
-      ME["CSCHaloData_NOutOfTimeTriggers"]->Fill( CSCData.NOutOfTimeTriggers(HaloData::both) );
-      ME["CSCHaloData_NOutOfTimeHits"]->Fill( CSCData.NOutOfTimeHits() );
-      ME["CSCHaloData_NOutOfTimeTriggersvsL1HaloExists"]->Fill( CSCData.NOutOfTimeTriggers(HaloData::both), CSCData.NumberOfHaloTriggers(HaloData::both) >0 );
+      hCSCHaloData_L1HaloTriggersMEPlus   -> Fill ( CSCData.NumberOfHaloTriggers(HaloData::plus) );
+      hCSCHaloData_L1HaloTriggersMEMinus  -> Fill ( CSCData.NumberOfHaloTriggers(HaloData::minus));
+      hCSCHaloData_L1HaloTriggers  -> Fill ( CSCData.NumberOfHaloTriggers(HaloData::both));
+      hCSCHaloData_HLHaloTriggers  -> Fill ( CSCData.CSCHaloHLTAccept());
+      hCSCHaloData_TrackMultiplicityMEPlus ->Fill ( CSCData.NumberOfHaloTracks(HaloData::plus) );
+      hCSCHaloData_TrackMultiplicityMEMinus ->Fill ( CSCData.NumberOfHaloTracks(HaloData::minus) );
+      hCSCHaloData_TrackMultiplicity->Fill( CSCData.GetTracks().size() );
+      hCSCHaloData_NOutOfTimeTriggersMEPlus->Fill( CSCData.NOutOfTimeTriggers(HaloData::plus) );
+      hCSCHaloData_NOutOfTimeTriggersMEMinus->Fill( CSCData.NOutOfTimeTriggers(HaloData::minus) );
+      hCSCHaloData_NOutOfTimeTriggers->Fill( CSCData.NOutOfTimeTriggers(HaloData::both) );
+      hCSCHaloData_NOutOfTimeHits->Fill( CSCData.NOutOfTimeHits() );
+      hCSCHaloData_NOutOfTimeTriggersvsL1HaloExists->Fill( CSCData.NOutOfTimeTriggers(HaloData::both), CSCData.NumberOfHaloTriggers(HaloData::both) >0 );
     }
 
   //Get EcalHaloData 
@@ -494,18 +494,18 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{                                                                                                                                                     
 	  if(!StandardDQM ) 
 	    {
-	      ME["EcalHaloData_PhiWedgeEnergy"]->Fill( iWedge->Energy() );
-	      ME["EcalHaloData_PhiWedgeMinTime"]     ->Fill( iWedge->MinTime() );
-	      ME["EcalHaloData_PhiWedgeMaxTime"]     ->Fill( iWedge->MaxTime() );
-	      ME["EcalHaloData_PhiWedgeMinVsMaxTime"]->Fill(iWedge->MinTime() , iWedge->MaxTime() ) ;
-	      ME["EcalHaloData_PhiWedgePlusZDirectionConfidence"]->Fill( iWedge->PlusZDirectionConfidence() );
-	      ME["EcalHaloData_PhiWedgeiPhi"]->Fill(iWedge->iPhi() ) ;
+	      hEcalHaloData_PhiWedgeEnergy->Fill( iWedge->Energy() );
+	      hEcalHaloData_PhiWedgeMinTime     ->Fill( iWedge->MinTime() );
+	      hEcalHaloData_PhiWedgeMaxTime     ->Fill( iWedge->MaxTime() );
+	      hEcalHaloData_PhiWedgeMinVsMaxTime->Fill(iWedge->MinTime() , iWedge->MaxTime() ) ;
+	      hEcalHaloData_PhiWedgePlusZDirectionConfidence->Fill( iWedge->PlusZDirectionConfidence() );
+	      hEcalHaloData_PhiWedgeiPhi->Fill(iWedge->iPhi() ) ;
 	    }
-	  ME["EcalHaloData_PhiWedgeZDirectionConfidence"] ->Fill( iWedge->ZDirectionConfidence() );
-	  ME["EcalHaloData_PhiWedgeConstituents"]->Fill( iWedge->NumberOfConstituents() ) ;
+	  hEcalHaloData_PhiWedgeZDirectionConfidence ->Fill( iWedge->ZDirectionConfidence() );
+	  hEcalHaloData_PhiWedgeConstituents->Fill( iWedge->NumberOfConstituents() ) ;
 	}      
 
-      ME["EcalHaloData_PhiWedgeMultiplicity"]->Fill( EcalWedges.size() );
+      hEcalHaloData_PhiWedgeMultiplicity->Fill( EcalWedges.size() );
 
       edm::ValueMap<float> vm_Angle = EcalData.GetShowerShapesAngle();
       edm::ValueMap<float> vm_Roundness = EcalData.GetShowerShapesRoundness();
@@ -515,13 +515,13 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  edm::Ref<SuperClusterCollection> cluster(EcalData.GetSuperClusters(), n );
 	  float angle = vm_Angle[cluster];
 	  float roundness = vm_Roundness[cluster];
-	  ME["EcalHaloData_SuperClusterShowerShapes"]->Fill(angle, roundness);
-	  ME["EcalHaloData_SuperClusterNHits"]->Fill( cluster->size() );
-	  ME["EcalHaloData_SuperClusterEnergy"]->Fill(cluster->energy() );
+	  hEcalHaloData_SuperClusterShowerShapes->Fill(angle, roundness);
+	  hEcalHaloData_SuperClusterNHits->Fill( cluster->size() );
+	  hEcalHaloData_SuperClusterEnergy->Fill(cluster->energy() );
 
 	  if(!StandardDQM)
 	    {
-	      ME["EcalHaloData_SuperClusterPhiVsEta"]->Fill(cluster->eta() ,cluster->phi() );
+	      hEcalHaloData_SuperClusterPhiVsEta->Fill(cluster->eta() ,cluster->phi() );
 	    }
 	}
     }
@@ -533,21 +533,21 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     {
       const HcalHaloData HcalData = (*TheHcalHaloData.product());                                                                
       std::vector<PhiWedge> HcalWedges = HcalData.GetPhiWedges();                                                                                   
-      ME["HcalHaloData_PhiWedgeMultiplicity"] ->Fill( HcalWedges.size() );
+      hHcalHaloData_PhiWedgeMultiplicity ->Fill( HcalWedges.size() );
       for(std::vector<PhiWedge>::const_iterator iWedge = HcalWedges.begin() ; iWedge != HcalWedges.end(); iWedge ++ )                               
 	{
 	  if( !StandardDQM ) 
 	    {
-	      ME["HcalHaloData_PhiWedgeEnergy"]       ->Fill( iWedge->Energy() );
-	      ME["HcalHaloData_PhiWedgeMinTime"]      ->Fill( iWedge->MinTime() );
-	      ME["HcalHaloData_PhiWedgeMaxTime"]      ->Fill( iWedge->MaxTime() );
-	      ME["HcalHaloData_PhiWedgePlusZDirectionConfidence"] ->Fill( iWedge->PlusZDirectionConfidence() );
-	      ME["HcalHaloData_PhiWedgeMinVsMaxTime"]  ->Fill( iWedge->MinTime() , iWedge->MaxTime() );
-	      ME["HcalHaloData_PhiWedgeiPhi"]         ->Fill( iWedge->iPhi() );
+	      hHcalHaloData_PhiWedgeEnergy       ->Fill( iWedge->Energy() );
+	      hHcalHaloData_PhiWedgeMinTime      ->Fill( iWedge->MinTime() );
+	      hHcalHaloData_PhiWedgeMaxTime      ->Fill( iWedge->MaxTime() );
+	      hHcalHaloData_PhiWedgePlusZDirectionConfidence ->Fill( iWedge->PlusZDirectionConfidence() );
+	      hHcalHaloData_PhiWedgeMinVsMaxTime  ->Fill( iWedge->MinTime() , iWedge->MaxTime() );
+	      hHcalHaloData_PhiWedgeiPhi         ->Fill( iWedge->iPhi() );
 	    }	  
 	  
-	  ME["HcalHaloData_PhiWedgeConstituents"] ->Fill( iWedge->NumberOfConstituents() );
-	  ME["HcalHaloData_PhiWedgeZDirectionConfidence"] ->Fill( iWedge->ZDirectionConfidence() );
+	  hHcalHaloData_PhiWedgeConstituents ->Fill( iWedge->NumberOfConstituents() );
+	  hHcalHaloData_PhiWedgeZDirectionConfidence ->Fill( iWedge->ZDirectionConfidence() );
 	}
     }
   
@@ -568,27 +568,27 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      
 	      // Get BeamHalo Corrected CaloMET 
 	      const CaloMET CorrectedMET = GlobalData.GetCorrectedCaloMET(*RawMET);
-	      ME["GlobalHaloData_MExCorrection"]  ->Fill( GlobalData.DeltaMEx() );
-	      ME["GlobalHaloData_MEyCorrection"]  ->Fill( GlobalData.DeltaMEy() );
-	      ME["GlobalHaloData_HaloCorrectedMET"]->Fill(CorrectedMET.pt() );
-	      ME["GlobalHaloData_RawMETMinusHaloCorrectedMET"] ->Fill( RawMET->pt() - CorrectedMET.pt() );
+	      hGlobalHaloData_MExCorrection  ->Fill( GlobalData.DeltaMEx() );
+	      hGlobalHaloData_MEyCorrection  ->Fill( GlobalData.DeltaMEy() );
+	      hGlobalHaloData_HaloCorrectedMET->Fill(CorrectedMET.pt() );
+	      hGlobalHaloData_RawMETMinusHaloCorrectedMET ->Fill( RawMET->pt() - CorrectedMET.pt() );
 	      if( RawMET->sumEt() )
-		ME["GlobalHaloData_RawMETOverSumEt"] ->Fill( RawMET->pt() / RawMET->sumEt() ); 
+		hGlobalHaloData_RawMETOverSumEt ->Fill( RawMET->pt() / RawMET->sumEt() ); 
 	      
 	    }                
 	  
 	  // Get Matched Hcal Phi Wedges
 	  std::vector<PhiWedge> HcalWedges = GlobalData.GetMatchedHcalPhiWedges();
-	  ME["GlobalHaloData_MatchedHcalPhiWedgeMultiplicity"] ->Fill(HcalWedges.size());
+	  hGlobalHaloData_MatchedHcalPhiWedgeMultiplicity ->Fill(HcalWedges.size());
 	  // Loop over Matched Hcal Phi Wedges
 	  for( std::vector<PhiWedge>::const_iterator iWedge = HcalWedges.begin() ; iWedge != HcalWedges.end() ; iWedge ++ )
 	    {
-	      ME["GlobalHaloData_MatchedHcalPhiWedgeEnergy"]       ->Fill( iWedge->Energy() );
-	      ME["GlobalHaloData_MatchedHcalPhiWedgeConstituents"] ->Fill( iWedge->NumberOfConstituents());
-	      ME["GlobalHaloData_MatchedHcalPhiWedgeiPhi"]         ->Fill( iWedge->iPhi() );
-	      ME["GlobalHaloData_MatchedHcalPhiWedgeMinTime"]      ->Fill( iWedge->MinTime() );
-	      ME["GlobalHaloData_MatchedHcalPhiWedgeMaxTime"]      ->Fill( iWedge->MaxTime() );
-	      ME["GlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence"] ->Fill( iWedge->ZDirectionConfidence() ) ;
+	      hGlobalHaloData_MatchedHcalPhiWedgeEnergy       ->Fill( iWedge->Energy() );
+	      hGlobalHaloData_MatchedHcalPhiWedgeConstituents ->Fill( iWedge->NumberOfConstituents());
+	      hGlobalHaloData_MatchedHcalPhiWedgeiPhi         ->Fill( iWedge->iPhi() );
+	      hGlobalHaloData_MatchedHcalPhiWedgeMinTime      ->Fill( iWedge->MinTime() );
+	      hGlobalHaloData_MatchedHcalPhiWedgeMaxTime      ->Fill( iWedge->MaxTime() );
+	      hGlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence ->Fill( iWedge->ZDirectionConfidence() ) ;
 	      if( TheHBHERecHits.isValid() )
 		{
 		  for( HBHERecHitCollection::const_iterator iHBHERecHit = TheHBHERecHits->begin(); iHBHERecHit != TheHBHERecHits->end(); iHBHERecHit++)  
@@ -600,22 +600,22 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		      
 		      float time = iHBHERecHit->time();
 		      int ieta = id.ieta();
-		      ME["Extra_HcalToF_HaloId"] ->Fill( ieta, time );
+		      hExtra_HcalToF_HaloId ->Fill( ieta, time );
 		    }
 		}
 	    }
 
 	  // Get Matched Hcal Phi Wedges
 	  std::vector<PhiWedge> EcalWedges = GlobalData.GetMatchedEcalPhiWedges();
-	  ME["GlobalHaloData_MatchedEcalPhiWedgeMultiplicity"] ->Fill(EcalWedges.size());
+	  hGlobalHaloData_MatchedEcalPhiWedgeMultiplicity ->Fill(EcalWedges.size());
 	  for( std::vector<PhiWedge>::const_iterator iWedge = EcalWedges.begin() ; iWedge != EcalWedges.end() ; iWedge ++ )
 	    {
-	      ME["GlobalHaloData_MatchedEcalPhiWedgeEnergy"]       ->Fill(iWedge->Energy());
-	      ME["GlobalHaloData_MatchedEcalPhiWedgeConstituents"] ->Fill(iWedge->NumberOfConstituents());
-	      ME["GlobalHaloData_MatchedEcalPhiWedgeiPhi"]         ->Fill(iWedge->iPhi());
-	      ME["GlobalHaloData_MatchedEcalPhiWedgeMinTime"]      ->Fill(iWedge->MinTime());
-	      ME["GlobalHaloData_MatchedEcalPhiWedgeMaxTime"]      ->Fill(iWedge->MaxTime());
-	      ME["GlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence"] ->Fill( iWedge->ZDirectionConfidence() ) ;
+	      hGlobalHaloData_MatchedEcalPhiWedgeEnergy       ->Fill(iWedge->Energy());
+	      hGlobalHaloData_MatchedEcalPhiWedgeConstituents ->Fill(iWedge->NumberOfConstituents());
+	      hGlobalHaloData_MatchedEcalPhiWedgeiPhi         ->Fill(iWedge->iPhi());
+	      hGlobalHaloData_MatchedEcalPhiWedgeMinTime      ->Fill(iWedge->MinTime());
+	      hGlobalHaloData_MatchedEcalPhiWedgeMaxTime      ->Fill(iWedge->MaxTime());
+	      hGlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence ->Fill( iWedge->ZDirectionConfidence() ) ;
 	      if( TheEBRecHits.isValid() ) 
 		{
 		  for( EBRecHitCollection::const_iterator iEBRecHit = TheEBRecHits->begin() ; iEBRecHit != TheEBRecHits->end(); iEBRecHit++ )
@@ -626,7 +626,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		      int iPhi = EcalId.iphi() ;
 		      iPhi = (iPhi-1)/5 + 1;
 		      if( iPhi != iWedge->iPhi() ) continue;
-		      ME["Extra_EcalToF_HaloId"] ->Fill(EcalId.ieta(), iEBRecHit->time() );
+		      hExtra_EcalToF_HaloId ->Fill(EcalId.ieta(), iEBRecHit->time() );
 		    }
 		}
 	    }
@@ -642,62 +642,62 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
       if( TheSummary.CSCLooseHaloId() ) 
 	{
-	  ME["BeamHaloSummary_Id"] ->Fill(1);
-	  if(!StandardDQM) ME["BeamHaloSummary_BXN"] -> Fill( 1, BXN );
+	  hBeamHaloSummary_Id ->Fill(1);
+	  if(!StandardDQM) hBeamHaloSummary_BXN -> Fill( 1, BXN );
 	  if(Dump)*out << std::setw(15) << "CSCLoose" << std::setw(15) << Run << std::setw(15) << Lumi << std::setw(15) << TheEventNumber << std::endl;
 	}
       if( TheSummary.CSCTightHaloId() ) 
 	{
-	  ME["BeamHaloSummary_Id"] ->Fill(2);
-	  if(!StandardDQM)ME["BeamHaloSummary_BXN"] -> Fill( 2, BXN );
+	  hBeamHaloSummary_Id ->Fill(2);
+	  if(!StandardDQM)hBeamHaloSummary_BXN -> Fill( 2, BXN );
 	}
       if( TheSummary.EcalLooseHaloId() )
 	{
-	  ME["BeamHaloSummary_Id"] ->Fill(3);
-	  if(!StandardDQM) ME["BeamHaloSummary_BXN"] -> Fill( 3, BXN );
+	  hBeamHaloSummary_Id ->Fill(3);
+	  if(!StandardDQM) hBeamHaloSummary_BXN -> Fill( 3, BXN );
 	  if(Dump) *out << std::setw(15) << "EcalLoose" << std::setw(15) << Run << std::setw(15) << Lumi << std::setw(15) << TheEventNumber << std::endl;
 	}
       if( TheSummary.EcalTightHaloId() ) 
 	{
-	  ME["BeamHaloSummary_Id"] ->Fill(4);
-	  if(!StandardDQM)ME["BeamHaloSummary_BXN"] -> Fill( 4, BXN );
+	  hBeamHaloSummary_Id ->Fill(4);
+	  if(!StandardDQM)hBeamHaloSummary_BXN -> Fill( 4, BXN );
 	}
       if( TheSummary.HcalLooseHaloId() ) 
 	{
-	  ME["BeamHaloSummary_Id"] ->Fill(5);
-	  if(!StandardDQM) ME["BeamHaloSummary_BXN"] -> Fill( 5, BXN );
+	  hBeamHaloSummary_Id ->Fill(5);
+	  if(!StandardDQM) hBeamHaloSummary_BXN -> Fill( 5, BXN );
 	  if(Dump) *out << std::setw(15) << "HcalLoose" << std::setw(15) << Run << std::setw(15) << Lumi << std::setw(15) << TheEventNumber << std::endl;
 	}
       if( TheSummary.HcalTightHaloId() ) 
 	{
-	  ME["BeamHaloSummary_Id"] ->Fill(6);
-	  if(!StandardDQM)ME["BeamHaloSummary_BXN"] -> Fill( 6, BXN );
+	  hBeamHaloSummary_Id ->Fill(6);
+	  if(!StandardDQM)hBeamHaloSummary_BXN -> Fill( 6, BXN );
 	}
       if( TheSummary.GlobalLooseHaloId()) 
 	{
-	  ME["BeamHaloSummary_Id"] ->Fill(7);
-	  if(!StandardDQM)ME["BeamHaloSummary_BXN"] -> Fill( 7, BXN );
+	  hBeamHaloSummary_Id ->Fill(7);
+	  if(!StandardDQM)hBeamHaloSummary_BXN -> Fill( 7, BXN );
 	  if(Dump) *out << std::setw(15) << "GlobalLoose" << std::setw(15) << Run << std::setw(15) << Lumi << std::setw(15) << TheEventNumber << std::endl;
 	}
       if( TheSummary.GlobalTightHaloId() )
 	{
-	  ME["BeamHaloSummary_Id"] ->Fill(8);	
-	  if(!StandardDQM)ME["BeamHaloSummary_BXN"] -> Fill( 8, BXN );
+	  hBeamHaloSummary_Id ->Fill(8);	
+	  if(!StandardDQM)hBeamHaloSummary_BXN -> Fill( 8, BXN );
 	}
       if( TheSummary.LooseId() ) 
 	{
-	  ME["BeamHaloSummary_Id"] ->Fill(9);
-	  if(!StandardDQM)ME["BeamHaloSummary_BXN"] -> Fill( 9, BXN );
+	  hBeamHaloSummary_Id ->Fill(9);
+	  if(!StandardDQM)hBeamHaloSummary_BXN -> Fill( 9, BXN );
 	}
       if( TheSummary.TightId() )
 	{
-	  ME["BeamHaloSummary_Id"] ->Fill(10);
-	  if(!StandardDQM)ME["BeamHaloSummary_BXN"] -> Fill( 10, BXN );
+	  hBeamHaloSummary_Id ->Fill(10);
+	  if(!StandardDQM)hBeamHaloSummary_BXN -> Fill( 10, BXN );
 	}
       if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() && !TheSummary.CSCLooseHaloId() && !TheSummary.GlobalLooseHaloId() )
 	{
-	  ME["BeamHaloSummary_Id"] ->Fill(11);
-	  if(!StandardDQM)ME["BeamHaloSummary_BXN"] -> Fill( 11, BXN );
+	  hBeamHaloSummary_Id ->Fill(11);
+	  if(!StandardDQM)hBeamHaloSummary_BXN -> Fill( 11, BXN );
 	}
     }
 
@@ -715,59 +715,59 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if( TheHaloOrigin > 0 )
 	    {
 	      if( CSCTrackPlus && CSCTrackMinus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(1,1);
+		hExtra_CSCActivityWithMET->Fill(1,1);
 	      else if( CSCTrackPlus && CSCSegmentMinus) 
-		ME["Extra_CSCActivityWithMET"]->Fill(1,2);
+		hExtra_CSCActivityWithMET->Fill(1,2);
 	      else if( CSCTrackPlus && CSCRecHitMinus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(1,3);
+		hExtra_CSCActivityWithMET->Fill(1,3);
 	      else if( CSCTrackPlus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(1,4);
+		hExtra_CSCActivityWithMET->Fill(1,4);
 	      else if( CSCSegmentPlus && CSCTrackMinus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(2,1);
+		hExtra_CSCActivityWithMET->Fill(2,1);
 	      else if( CSCSegmentPlus && CSCSegmentMinus )
-		ME["Extra_CSCActivityWithMET"]-> Fill(2,2);
+		hExtra_CSCActivityWithMET-> Fill(2,2);
 	      else if( CSCSegmentPlus && CSCRecHitMinus   )
-		ME["Extra_CSCActivityWithMET"]-> Fill(2,3);
+		hExtra_CSCActivityWithMET-> Fill(2,3);
 	      else if( CSCSegmentPlus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(2,4 );
+		hExtra_CSCActivityWithMET->Fill(2,4 );
 	      else if( CSCRecHitPlus && CSCTrackMinus  ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(3,1);
+		hExtra_CSCActivityWithMET->Fill(3,1);
 	      else if( CSCRecHitPlus && CSCSegmentMinus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(3,2);
+		hExtra_CSCActivityWithMET->Fill(3,2);
 	      else if( CSCRecHitPlus && CSCRecHitMinus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(3,3);
+		hExtra_CSCActivityWithMET->Fill(3,3);
 	      else if( CSCRecHitPlus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(3,4);
+		hExtra_CSCActivityWithMET->Fill(3,4);
 	      else 
-		ME["Extra_CSCActivityWithMET"]->Fill(4,4);
+		hExtra_CSCActivityWithMET->Fill(4,4);
 	    }
 	  else if( TheHaloOrigin < 0 )
 	    {
 	      if( CSCTrackMinus && CSCTrackPlus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(1,1);
+		hExtra_CSCActivityWithMET->Fill(1,1);
 	      else if( CSCTrackMinus && CSCSegmentPlus)
-		ME["Extra_CSCActivityWithMET"]->Fill(1,2);
+		hExtra_CSCActivityWithMET->Fill(1,2);
 	      else if( CSCTrackMinus && CSCRecHitPlus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(1,3);
+		hExtra_CSCActivityWithMET->Fill(1,3);
 	      else if( CSCTrackMinus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(1,4);
+		hExtra_CSCActivityWithMET->Fill(1,4);
 	      else if( CSCSegmentMinus && CSCTrackPlus) 
-		ME["Extra_CSCActivityWithMET"]->Fill(2,1);
+		hExtra_CSCActivityWithMET->Fill(2,1);
 	      else if( CSCSegmentMinus && CSCSegmentPlus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(2,2 );
+		hExtra_CSCActivityWithMET->Fill(2,2 );
 	      else if( CSCSegmentMinus && CSCRecHitPlus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(2,3);
+		hExtra_CSCActivityWithMET->Fill(2,3);
 	      else if( CSCSegmentMinus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(2,4);
+		hExtra_CSCActivityWithMET->Fill(2,4);
 	      else if( CSCRecHitMinus && CSCTrackPlus )
-		ME["Extra_CSCActivityWithMET"]->Fill(3,1 );
+		hExtra_CSCActivityWithMET->Fill(3,1 );
 	      else if( CSCRecHitMinus && CSCSegmentPlus )
-		ME["Extra_CSCActivityWithMET"]->Fill(3,2 );
+		hExtra_CSCActivityWithMET->Fill(3,2 );
 	      else if( CSCRecHitMinus && CSCRecHitPlus ) 
-		ME["Extra_CSCActivityWithMET"]->Fill(3,3);
+		hExtra_CSCActivityWithMET->Fill(3,3);
 	      else if( CSCRecHitMinus )
-		ME["Extra_CSCActivityWithMET"]->Fill(3,4);
-	      else ME["Extra_CSCActivityWithMET"]->Fill(4,4);
+		hExtra_CSCActivityWithMET->Fill(3,4);
+	      else hExtra_CSCActivityWithMET->Fill(4,4);
 	    }
 	}
     }

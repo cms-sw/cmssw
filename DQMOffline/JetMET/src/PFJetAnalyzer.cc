@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/04 16:31:53 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/03/25 11:03:30 $
+ *  $Revision: 1.12 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -99,54 +99,54 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
   mPhiVSEta                     = dbe->book2D("PhiVSEta", "PhiVSEta", 50, etaMin, etaMax, 24, phiMin, phiMax);
 
   // Low and high pt trigger paths
-  mPt_Lo                  = dbe->book1D("Pt_Lo", "Pt Lo", 100, 0, 100);
-  mEta_Lo                 = dbe->book1D("Eta_Lo", "Eta Lo", etaBin, etaMin, etaMax);
-  mPhi_Lo                 = dbe->book1D("Phi_Lo", "Phi Lo", phiBin, phiMin, phiMax);
+  mPt_Lo                  = dbe->book1D("Pt_Lo", "Pt (Pass Low Pt Jet Trigger)", 100, 0, 100);
+  mEta_Lo                 = dbe->book1D("Eta_Lo", "Eta (Pass Low Pt Jet Trigger)", etaBin, etaMin, etaMax);
+  mPhi_Lo                 = dbe->book1D("Phi_Lo", "Phi (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
 
-  mPt_Hi                  = dbe->book1D("Pt_Hi", "Pt Hi", 100, 0, 300);
-  mEta_Hi                 = dbe->book1D("Eta_Hi", "Eta Hi", etaBin, etaMin, etaMax);
-  mPhi_Hi                 = dbe->book1D("Phi_Hi", "Phi Hi", phiBin, phiMin, phiMax);
+  mPt_Hi                  = dbe->book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 100, 0, 300);
+  mEta_Hi                 = dbe->book1D("Eta_Hi", "Eta (Pass Hi Pt Jet Trigger)", etaBin, etaMin, etaMax);
+  mPhi_Hi                 = dbe->book1D("Phi_Hi", "Phi (Pass Hi Pt Jet Trigger)", phiBin, phiMin, phiMax);
 
   mE                       = dbe->book1D("E", "E", eBin, eMin, eMax);
   mP                       = dbe->book1D("P", "P", pBin, pMin, pMax);
   mMass                    = dbe->book1D("Mass", "Mass", 100, 0, 25);
   mNJets                   = dbe->book1D("NJets", "Number of Jets", 100, 0, 100);
 
-  mPt_Barrel_Lo            = dbe->book1D("Pt_Barrel_Lo", "Pt Barrel Lo", 100, 0, 100);
-  mEta_Barrel_Lo           = dbe->book1D("Eta_Barrel_Lo", "Eta Barrel Lo", etaBin, etaMin, etaMax);
-  mPhi_Barrel_Lo           = dbe->book1D("Phi_Barrel_Lo", "Phi Barrel Lo", phiBin, phiMin, phiMax);
-  mConstituents_Barrel_Lo  = dbe->book1D("Constituents_Barrel_Lo", "Constituents Barrel Lo", 100, 0, 100);
-  mHFrac_Barrel_Lo         = dbe->book1D("HFrac_Barrel_Lo", "HFrac Barrel Lo", 100, 0, 1);
+  mPt_Barrel_Lo            = dbe->book1D("Pt_Barrel_Lo", "Pt Barrel (Pass Low Pt Jet Trigger)", 100, 0, 100);
+  mEta_Barrel_Lo           = dbe->book1D("Eta_Barrel_Lo", "Eta Barrel (Pass Low Pt Jet Trigger)", etaBin, etaMin, etaMax);
+  mPhi_Barrel_Lo           = dbe->book1D("Phi_Barrel_Lo", "Phi Barrel (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
+  mConstituents_Barrel_Lo  = dbe->book1D("Constituents_Barrel_Lo", "Constituents Barrel (Pass Low Pt Jet Trigger)", 100, 0, 100);
+  mHFrac_Barrel_Lo         = dbe->book1D("HFrac_Barrel_Lo", "HFrac Barrel (Pass Low Pt Jet Trigger)", 100, 0, 1);
 
-  mPt_EndCap_Lo            = dbe->book1D("Pt_EndCap_Lo", "Pt EndCap Lo", 100, 0, 100);
-  mEta_EndCap_Lo           = dbe->book1D("Eta_EndCap_Lo", "Eta EndCap Lo", etaBin, etaMin, etaMax);
-  mPhi_EndCap_Lo           = dbe->book1D("Phi_EndCap_Lo", "Phi EndCap Lo", phiBin, phiMin, phiMax);
-  mConstituents_EndCap_Lo  = dbe->book1D("Constituents_EndCap_Lo", "Constituents EndCap Lo", 100, 0, 100);
-  mHFrac_EndCap_Lo         = dbe->book1D("HFrac_Endcap_Lo", "HFrac EndCap Lo", 100, 0, 1);
+  mPt_EndCap_Lo            = dbe->book1D("Pt_EndCap_Lo", "Pt EndCap (Pass Low Pt Jet Trigger)", 100, 0, 100);
+  mEta_EndCap_Lo           = dbe->book1D("Eta_EndCap_Lo", "Eta EndCap (Pass Low Pt Jet Trigger)", etaBin, etaMin, etaMax);
+  mPhi_EndCap_Lo           = dbe->book1D("Phi_EndCap_Lo", "Phi EndCap (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
+  mConstituents_EndCap_Lo  = dbe->book1D("Constituents_EndCap_Lo", "Constituents EndCap (Pass Low Pt Jet Trigger)", 100, 0, 100);
+  mHFrac_EndCap_Lo         = dbe->book1D("HFrac_Endcap_Lo", "HFrac EndCap (Pass Low Pt Jet Trigger)", 100, 0, 1);
 
-  mPt_Forward_Lo           = dbe->book1D("Pt_Forward_Lo", "Pt Forward Lo", 100, 0, 100);
-  mEta_Forward_Lo          = dbe->book1D("Eta_Forward_Lo", "Eta Forward Lo", etaBin, etaMin, etaMax);
-  mPhi_Forward_Lo          = dbe->book1D("Phi_Forward_Lo", "Phi Forward Lo", phiBin, phiMin, phiMax);
-  mConstituents_Forward_Lo = dbe->book1D("Constituents_Forward_Lo", "Constituents Forward Lo", 100, 0, 100);
-  mHFrac_Forward_Lo        = dbe->book1D("HFrac_Forward_Lo", "HFrac Forward Lo", 100, 0, 1);
+  mPt_Forward_Lo           = dbe->book1D("Pt_Forward_Lo", "Pt Forward (Pass Low Pt Jet Trigger)", 100, 0, 100);
+  mEta_Forward_Lo          = dbe->book1D("Eta_Forward_Lo", "Eta Forward (Pass Low Pt Jet Trigger)", etaBin, etaMin, etaMax);
+  mPhi_Forward_Lo          = dbe->book1D("Phi_Forward_Lo", "Phi Forward (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
+  mConstituents_Forward_Lo = dbe->book1D("Constituents_Forward_Lo", "Constituents Forward (Pass Low Pt Jet Trigger)", 100, 0, 100);
+  mHFrac_Forward_Lo        = dbe->book1D("HFrac_Forward_Lo", "HFrac Forward (Pass Low Pt Jet Trigger)", 100, 0, 1);
 
-  mPt_Barrel_Hi            = dbe->book1D("Pt_Barrel_Hi", "Pt Barrel Hi", 100, 0, 300);
-  mEta_Barrel_Hi           = dbe->book1D("Eta_Barrel_Hi", "Eta Barrel Hi", etaBin, etaMin, etaMax);
-  mPhi_Barrel_Hi           = dbe->book1D("Phi_Barrel_Hi", "Phi Barrel Hi", phiBin, phiMin, phiMax);
-  mConstituents_Barrel_Hi  = dbe->book1D("Constituents_Barrel_Hi", "Constituents Barrel Hi", 100, 0, 100);
-  mHFrac_Barrel_Hi         = dbe->book1D("HFrac_Barrel_Hi", "HFrac Barrel Hi", 100, 0, 1);
+  mPt_Barrel_Hi            = dbe->book1D("Pt_Barrel_Hi", "Pt Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 300);
+  mEta_Barrel_Hi           = dbe->book1D("Eta_Barrel_Hi", "Eta Barrel (Pass Hi Pt Jet Trigger)", etaBin, etaMin, etaMax);
+  mPhi_Barrel_Hi           = dbe->book1D("Phi_Barrel_Hi", "Phi Barrel (Pass Hi Pt Jet Trigger)", phiBin, phiMin, phiMax);
+  mConstituents_Barrel_Hi  = dbe->book1D("Constituents_Barrel_Hi", "Constituents Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 100);
+  mHFrac_Barrel_Hi         = dbe->book1D("HFrac_Barrel_Hi", "HFrac Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 1);
 
-  mPt_EndCap_Hi            = dbe->book1D("Pt_EndCap_Hi", "Pt EndCap Hi", 100, 0, 300);
-  mEta_EndCap_Hi           = dbe->book1D("Eta_EndCap_Hi", "Eta EndCap Hi", etaBin, etaMin, etaMax);
-  mPhi_EndCap_Hi           = dbe->book1D("Phi_EndCap_Hi", "Phi EndCap Hi", phiBin, phiMin, phiMax);
-  mConstituents_EndCap_Hi  = dbe->book1D("Constituents_EndCap_Hi", "Constituents EndCap Hi", 100, 0, 100);
-  mHFrac_EndCap_Hi         = dbe->book1D("HFrac_EndCap_Hi", "HFrac EndCap Hi", 100, 0, 1);
+  mPt_EndCap_Hi            = dbe->book1D("Pt_EndCap_Hi", "Pt EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 300);
+  mEta_EndCap_Hi           = dbe->book1D("Eta_EndCap_Hi", "Eta EndCap (Pass Hi Pt Jet Trigger)", etaBin, etaMin, etaMax);
+  mPhi_EndCap_Hi           = dbe->book1D("Phi_EndCap_Hi", "Phi EndCap (Pass Hi Pt Jet Trigger)", phiBin, phiMin, phiMax);
+  mConstituents_EndCap_Hi  = dbe->book1D("Constituents_EndCap_Hi", "Constituents EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 100);
+  mHFrac_EndCap_Hi         = dbe->book1D("HFrac_EndCap_Hi", "HFrac EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 1);
 
-  mPt_Forward_Hi           = dbe->book1D("Pt_Forward_Hi", "Pt Forward Hi", 100, 0, 300);
-  mEta_Forward_Hi          = dbe->book1D("Eta_Forward_Hi", "Eta Forward Hi", etaBin, etaMin, etaMax);
-  mPhi_Forward_Hi          = dbe->book1D("Phi_Forward_Hi", "Phi Forward Hi", phiBin, phiMin, phiMax);
-  mConstituents_Forward_Hi = dbe->book1D("Constituents_Forward_Hi", "Constituents Forward Hi", 100, 0, 100);
-  mHFrac_Forward_Hi        = dbe->book1D("HFrac_Forward_Hi", "HFrac Forward Hi", 100, 0, 1);
+  mPt_Forward_Hi           = dbe->book1D("Pt_Forward_Hi", "Pt Forward (Pass Hi Pt Jet Trigger)", 100, 0, 300);
+  mEta_Forward_Hi          = dbe->book1D("Eta_Forward_Hi", "Eta Forward (Pass Hi Pt Jet Trigger)", etaBin, etaMin, etaMax);
+  mPhi_Forward_Hi          = dbe->book1D("Phi_Forward_Hi", "Phi Forward (Pass Hi Pt Jet Trigger)", phiBin, phiMin, phiMax);
+  mConstituents_Forward_Hi = dbe->book1D("Constituents_Forward_Hi", "Constituents Forward (Pass Hi Pt Jet Trigger)", 100, 0, 100);
+  mHFrac_Forward_Hi        = dbe->book1D("HFrac_Forward_Hi", "HFrac Forward (Pass Hi Pt Jet Trigger)", 100, 0, 1);
 
   mPhi_Barrel              = dbe->book1D("Phi_Barrel", "Phi_Barrel", phiBin, phiMin, phiMax);
   mE_Barrel                = dbe->book1D("E_Barrel", "E_Barrel", eBin, eMin, eMax);

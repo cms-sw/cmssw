@@ -77,29 +77,29 @@ void HCALRecHitAnalyzer::BookHistos(){
   if (dbe_) {
 
     dbe_->setCurrentFolder(FolderName_+"/geometry");
-    me["hHCAL_ieta_iphi_HBMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HBMap","",83,-41,42,72,1,73); 
-    me["hHCAL_ieta_iphi_HEMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HEMap","",83,-41,42,72,1,73); 
-    me["hHCAL_ieta_iphi_HFMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HFMap","",83,-41,42,72,1,73); 
-    me["hHCAL_ieta_iphi_HOMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HOMap","",83,-41,42,72,1,73); 
-    me["hHCAL_ieta_iphi_etaMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_etaMap","",83,-41,42,72,1,73);
-    me["hHCAL_ieta_iphi_phiMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_phiMap","",83,-41,42,72,1,73);
-    me["hHCAL_ieta_detaMap"] = dbe_->book1D("METTask_HCAL_ieta_detaMap","",83,-41,42);
-    me["hHCAL_ieta_dphiMap"] = dbe_->book1D("METTask_HCAL_ieta_dphiMap","",83,-41,42);  
+    hHCAL_ieta_iphi_HBMap = dbe_->book2D("METTask_HCAL_ieta_iphi_HBMap","",83,-41,42,72,1,73); 
+    hHCAL_ieta_iphi_HEMap = dbe_->book2D("METTask_HCAL_ieta_iphi_HEMap","",83,-41,42,72,1,73); 
+    hHCAL_ieta_iphi_HFMap = dbe_->book2D("METTask_HCAL_ieta_iphi_HFMap","",83,-41,42,72,1,73); 
+    hHCAL_ieta_iphi_HOMap = dbe_->book2D("METTask_HCAL_ieta_iphi_HOMap","",83,-41,42,72,1,73); 
+    hHCAL_ieta_iphi_etaMap = dbe_->book2D("METTask_HCAL_ieta_iphi_etaMap","",83,-41,42,72,1,73);
+    hHCAL_ieta_iphi_phiMap = dbe_->book2D("METTask_HCAL_ieta_iphi_phiMap","",83,-41,42,72,1,73);
+    hHCAL_ieta_detaMap = dbe_->book1D("METTask_HCAL_ieta_detaMap","",83,-41,42);
+    hHCAL_ieta_dphiMap = dbe_->book1D("METTask_HCAL_ieta_dphiMap","",83,-41,42);  
 
     // Initialize bins for geometry to -999 because z = 0 is a valid entry 
     for (int i = 1; i <= 83; i++) {
 
-      me["hHCAL_ieta_detaMap"]->setBinContent(i,-999);
-      me["hHCAL_ieta_dphiMap"]->setBinContent(i,-999);
+      hHCAL_ieta_detaMap->setBinContent(i,-999);
+      hHCAL_ieta_dphiMap->setBinContent(i,-999);
 
       for (int j = 1; j <= 72; j++) {
 
-	me["hHCAL_ieta_iphi_HBMap"]->setBinContent(i,j,0);
-	me["hHCAL_ieta_iphi_HEMap"]->setBinContent(i,j,0);
-	me["hHCAL_ieta_iphi_HFMap"]->setBinContent(i,j,0);
-	me["hHCAL_ieta_iphi_HOMap"]->setBinContent(i,j,0);
-        me["hHCAL_ieta_iphi_etaMap"]->setBinContent(i,j,-999);
-        me["hHCAL_ieta_iphi_phiMap"]->setBinContent(i,j,-999);
+	hHCAL_ieta_iphi_HBMap->setBinContent(i,j,0);
+	hHCAL_ieta_iphi_HEMap->setBinContent(i,j,0);
+	hHCAL_ieta_iphi_HFMap->setBinContent(i,j,0);
+	hHCAL_ieta_iphi_HOMap->setBinContent(i,j,0);
+        hHCAL_ieta_iphi_etaMap->setBinContent(i,j,-999);
+        hHCAL_ieta_iphi_phiMap->setBinContent(i,j,-999);
 
       }
 
@@ -108,43 +108,43 @@ void HCALRecHitAnalyzer::BookHistos(){
     //    dbe_->setCurrentFolder("RecoMETV/MET_HCAL/data");
     dbe_->setCurrentFolder(FolderName_);
     //--Store number of events used
-    me["hHCAL_Nevents"]          = dbe_->book1D("METTask_HCAL_Nevents","",1,0,1);  
+    hHCAL_Nevents          = dbe_->book1D("METTask_HCAL_Nevents","",1,0,1);  
     //--Data integrated over all events and stored by HCAL(ieta,iphi) 
 
-    me["hHCAL_D1_energy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D1_energy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D2_energy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D2_energy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D3_energy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D3_energy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D4_energy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D4_energy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D1_energy_ieta_iphi = dbe_->book2D("METTask_HCAL_D1_energy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D2_energy_ieta_iphi = dbe_->book2D("METTask_HCAL_D2_energy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D3_energy_ieta_iphi = dbe_->book2D("METTask_HCAL_D3_energy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D4_energy_ieta_iphi = dbe_->book2D("METTask_HCAL_D4_energy_ieta_iphi","",83,-41,42,72,1,73);  
     
-    me["hHCAL_D1_Minenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D1_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D2_Minenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D2_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D3_Minenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D3_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D4_Minenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D4_Minenergy_ieta_iphi","",83,-41,42,72,1,73); 
+    hHCAL_D1_Minenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D1_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D2_Minenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D2_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D3_Minenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D3_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D4_Minenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D4_Minenergy_ieta_iphi","",83,-41,42,72,1,73); 
     
-    me["hHCAL_D1_Maxenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D1_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D2_Maxenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D2_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D3_Maxenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D3_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D4_Maxenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D4_Maxenergy_ieta_iphi","",83,-41,42,72,1,73); 
+    hHCAL_D1_Maxenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D1_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D2_Maxenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D2_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D3_Maxenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D3_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D4_Maxenergy_ieta_iphi = dbe_->book2D("METTask_HCAL_D4_Maxenergy_ieta_iphi","",83,-41,42,72,1,73); 
     
     // need to initialize those
     for (int i=1; i<=83; i++)
       for (int j=1; j<=73; j++)
 	{
-	  me["hHCAL_D1_Maxenergy_ieta_iphi"]->setBinContent(i,j,-999);
-	  me["hHCAL_D2_Maxenergy_ieta_iphi"]->setBinContent(i,j,-999);
-	  me["hHCAL_D3_Maxenergy_ieta_iphi"]->setBinContent(i,j,-999);
-	  me["hHCAL_D4_Maxenergy_ieta_iphi"]->setBinContent(i,j,-999);
+	  hHCAL_D1_Maxenergy_ieta_iphi->setBinContent(i,j,-999);
+	  hHCAL_D2_Maxenergy_ieta_iphi->setBinContent(i,j,-999);
+	  hHCAL_D3_Maxenergy_ieta_iphi->setBinContent(i,j,-999);
+	  hHCAL_D4_Maxenergy_ieta_iphi->setBinContent(i,j,-999);
 
-	  me["hHCAL_D1_Minenergy_ieta_iphi"]->setBinContent(i,j, 14000);
-	  me["hHCAL_D2_Minenergy_ieta_iphi"]->setBinContent(i,j, 14000);
-	  me["hHCAL_D3_Minenergy_ieta_iphi"]->setBinContent(i,j, 14000);
-	  me["hHCAL_D4_Minenergy_ieta_iphi"]->setBinContent(i,j, 14000);
+	  hHCAL_D1_Minenergy_ieta_iphi->setBinContent(i,j, 14000);
+	  hHCAL_D2_Minenergy_ieta_iphi->setBinContent(i,j, 14000);
+	  hHCAL_D3_Minenergy_ieta_iphi->setBinContent(i,j, 14000);
+	  hHCAL_D4_Minenergy_ieta_iphi->setBinContent(i,j, 14000);
 	}
 
-    me["hHCAL_D1_Occ_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D1_Occ_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D2_Occ_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D2_Occ_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D3_Occ_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D3_Occ_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D4_Occ_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D4_Occ_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D1_Occ_ieta_iphi = dbe_->book2D("METTask_HCAL_D1_Occ_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D2_Occ_ieta_iphi = dbe_->book2D("METTask_HCAL_D2_Occ_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D3_Occ_ieta_iphi = dbe_->book2D("METTask_HCAL_D3_Occ_ieta_iphi","",83,-41,42,72,1,73);  
+    hHCAL_D4_Occ_ieta_iphi = dbe_->book2D("METTask_HCAL_D4_Occ_ieta_iphi","",83,-41,42,72,1,73);  
     //--Data over eta-rings
     
     
@@ -152,99 +152,99 @@ void HCALRecHitAnalyzer::BookHistos(){
 
     if(finebinning_)
       {
-	me["hHCAL_D1_energyvsieta"] = dbe_->book2D("METTask_HCAL_D1_energyvsieta","",83,-41,42,20101,-100,2001);  
-	me["hHCAL_D2_energyvsieta"] = dbe_->book2D("METTask_HCAL_D2_energyvsieta","",83,-41,42,20101,-100,2001);
-	me["hHCAL_D3_energyvsieta"] = dbe_->book2D("METTask_HCAL_D3_energyvsieta","",83,-41,42,20101,-100,2001);
-	me["hHCAL_D4_energyvsieta"] = dbe_->book2D("METTask_HCAL_D4_energyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D1_energyvsieta = dbe_->book2D("METTask_HCAL_D1_energyvsieta","",83,-41,42,20101,-100,2001);  
+	hHCAL_D2_energyvsieta = dbe_->book2D("METTask_HCAL_D2_energyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D3_energyvsieta = dbe_->book2D("METTask_HCAL_D3_energyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D4_energyvsieta = dbe_->book2D("METTask_HCAL_D4_energyvsieta","",83,-41,42,20101,-100,2001);
 	
-	me["hHCAL_D1_Minenergyvsieta"] = dbe_->book2D("METTask_HCAL_D1_Minenergyvsieta","",83,-41,42,20101,-100,2001);  
-	me["hHCAL_D2_Minenergyvsieta"] = dbe_->book2D("METTask_HCAL_D2_Minenergyvsieta","",83,-41,42,20101,-100,2001);
-	me["hHCAL_D3_Minenergyvsieta"] = dbe_->book2D("METTask_HCAL_D3_Minenergyvsieta","",83,-41,42,20101,-100,2001);
-	me["hHCAL_D4_Minenergyvsieta"] = dbe_->book2D("METTask_HCAL_D4_Minenergyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D1_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D1_Minenergyvsieta","",83,-41,42,20101,-100,2001);  
+	hHCAL_D2_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D2_Minenergyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D3_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D3_Minenergyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D4_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D4_Minenergyvsieta","",83,-41,42,20101,-100,2001);
 	
-	me["hHCAL_D1_Maxenergyvsieta"] = dbe_->book2D("METTask_HCAL_D1_Maxenergyvsieta","",83,-41,42,20101,-100,2001);  
-	me["hHCAL_D2_Maxenergyvsieta"] = dbe_->book2D("METTask_HCAL_D2_Maxenergyvsieta","",83,-41,42,20101,-100,2001);
-	me["hHCAL_D3_Maxenergyvsieta"] = dbe_->book2D("METTask_HCAL_D3_Maxenergyvsieta","",83,-41,42,20101,-100,2001);
-	me["hHCAL_D4_Maxenergyvsieta"] = dbe_->book2D("METTask_HCAL_D4_Maxenergyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D1_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D1_Maxenergyvsieta","",83,-41,42,20101,-100,2001);  
+	hHCAL_D2_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D2_Maxenergyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D3_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D3_Maxenergyvsieta","",83,-41,42,20101,-100,2001);
+	hHCAL_D4_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D4_Maxenergyvsieta","",83,-41,42,20101,-100,2001);
 	
 	// Integrated over phi
-	me["hHCAL_D1_Occvsieta"] = dbe_->book2D("METTask_HCAL_D1_Occvsieta","",83,-41,42,73,0,73);
-	me["hHCAL_D2_Occvsieta"] = dbe_->book2D("METTask_HCAL_D2_Occvsieta","",83,-41,42,73,0,73);
-	me["hHCAL_D3_Occvsieta"] = dbe_->book2D("METTask_HCAL_D3_Occvsieta","",83,-41,42,73,0,73);
-	me["hHCAL_D4_Occvsieta"] = dbe_->book2D("METTask_HCAL_D4_Occvsieta","",83,-41,42,73,0,73);
+	hHCAL_D1_Occvsieta = dbe_->book2D("METTask_HCAL_D1_Occvsieta","",83,-41,42,73,0,73);
+	hHCAL_D2_Occvsieta = dbe_->book2D("METTask_HCAL_D2_Occvsieta","",83,-41,42,73,0,73);
+	hHCAL_D3_Occvsieta = dbe_->book2D("METTask_HCAL_D3_Occvsieta","",83,-41,42,73,0,73);
+	hHCAL_D4_Occvsieta = dbe_->book2D("METTask_HCAL_D4_Occvsieta","",83,-41,42,73,0,73);
 	
-	me["hHCAL_D1_SETvsieta"] = dbe_->book2D("METTask_HCAL_D1_SETvsieta","",83,-41,42,20001,0,2001); 
-	me["hHCAL_D2_SETvsieta"] = dbe_->book2D("METTask_HCAL_D2_SETvsieta","",83,-41,42,20001,0,2001); 
-	me["hHCAL_D3_SETvsieta"] = dbe_->book2D("METTask_HCAL_D3_SETvsieta","",83,-41,42,20001,0,2001); 
-	me["hHCAL_D4_SETvsieta"] = dbe_->book2D("METTask_HCAL_D4_SETvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D1_SETvsieta = dbe_->book2D("METTask_HCAL_D1_SETvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D2_SETvsieta = dbe_->book2D("METTask_HCAL_D2_SETvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D3_SETvsieta = dbe_->book2D("METTask_HCAL_D3_SETvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D4_SETvsieta = dbe_->book2D("METTask_HCAL_D4_SETvsieta","",83,-41,42,20001,0,2001); 
 	
-	me["hHCAL_D1_METvsieta"] = dbe_->book2D("METTask_HCAL_D1_METvsieta","",83,-41,42,20001,0,2001); 
-	me["hHCAL_D2_METvsieta"] = dbe_->book2D("METTask_HCAL_D2_METvsieta","",83,-41,42,20001,0,2001); 
-	me["hHCAL_D3_METvsieta"] = dbe_->book2D("METTask_HCAL_D3_METvsieta","",83,-41,42,20001,0,2001); 
-	me["hHCAL_D4_METvsieta"] = dbe_->book2D("METTask_HCAL_D4_METvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D1_METvsieta = dbe_->book2D("METTask_HCAL_D1_METvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D2_METvsieta = dbe_->book2D("METTask_HCAL_D2_METvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D3_METvsieta = dbe_->book2D("METTask_HCAL_D3_METvsieta","",83,-41,42,20001,0,2001); 
+	hHCAL_D4_METvsieta = dbe_->book2D("METTask_HCAL_D4_METvsieta","",83,-41,42,20001,0,2001); 
 	
-	me["hHCAL_D1_METPhivsieta"]      = dbe_->book2D("METTask_HCAL_D1_METPhivsieta","",83,-41,42, 80, -4,4);  
-	me["hHCAL_D2_METPhivsieta"]      = dbe_->book2D("METTask_HCAL_D2_METPhivsieta","",83,-41,42, 80, -4,4);  
-	me["hHCAL_D3_METPhivsieta"]      = dbe_->book2D("METTask_HCAL_D3_METPhivsieta","",83,-41,42, 80, -4,4);  
-	me["hHCAL_D4_METPhivsieta"]      = dbe_->book2D("METTask_HCAL_D4_METPhivsieta","",83,-41,42, 80, -4,4);  
+	hHCAL_D1_METPhivsieta      = dbe_->book2D("METTask_HCAL_D1_METPhivsieta","",83,-41,42, 80, -4,4);  
+	hHCAL_D2_METPhivsieta      = dbe_->book2D("METTask_HCAL_D2_METPhivsieta","",83,-41,42, 80, -4,4);  
+	hHCAL_D3_METPhivsieta      = dbe_->book2D("METTask_HCAL_D3_METPhivsieta","",83,-41,42, 80, -4,4);  
+	hHCAL_D4_METPhivsieta      = dbe_->book2D("METTask_HCAL_D4_METPhivsieta","",83,-41,42, 80, -4,4);  
 	
-	me["hHCAL_D1_MExvsieta"]         = dbe_->book2D("METTask_HCAL_D1_MExvsieta","",83,-41,42, 10001,-500,501);  
-	me["hHCAL_D2_MExvsieta"]         = dbe_->book2D("METTask_HCAL_D2_MExvsieta","",83,-41,42, 10001,-500,501);  
-	me["hHCAL_D3_MExvsieta"]         = dbe_->book2D("METTask_HCAL_D3_MExvsieta","",83,-41,42, 10001,-500,501);  
-	me["hHCAL_D4_MExvsieta"]         = dbe_->book2D("METTask_HCAL_D4_MExvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D1_MExvsieta         = dbe_->book2D("METTask_HCAL_D1_MExvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D2_MExvsieta         = dbe_->book2D("METTask_HCAL_D2_MExvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D3_MExvsieta         = dbe_->book2D("METTask_HCAL_D3_MExvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D4_MExvsieta         = dbe_->book2D("METTask_HCAL_D4_MExvsieta","",83,-41,42, 10001,-500,501);  
 	
-	me["hHCAL_D1_MEyvsieta"]         = dbe_->book2D("METTask_HCAL_D1_MEyvsieta","",83,-41,42, 10001,-500,501);  
-	me["hHCAL_D2_MEyvsieta"]         = dbe_->book2D("METTask_HCAL_D2_MEyvsieta","",83,-41,42, 10001,-500,501);  
-	me["hHCAL_D3_MEyvsieta"]         = dbe_->book2D("METTask_HCAL_D3_MEyvsieta","",83,-41,42, 10001,-500,501);  
-	me["hHCAL_D4_MEyvsieta"]         = dbe_->book2D("METTask_HCAL_D4_MEyvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D1_MEyvsieta         = dbe_->book2D("METTask_HCAL_D1_MEyvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D2_MEyvsieta         = dbe_->book2D("METTask_HCAL_D2_MEyvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D3_MEyvsieta         = dbe_->book2D("METTask_HCAL_D3_MEyvsieta","",83,-41,42, 10001,-500,501);  
+	hHCAL_D4_MEyvsieta         = dbe_->book2D("METTask_HCAL_D4_MEyvsieta","",83,-41,42, 10001,-500,501);  
       }
     else
       {
-	me["hHCAL_D1_energyvsieta"] = dbe_->book2D("METTask_HCAL_D1_energyvsieta","",83,-41,42,1000,-10,1990);
-        me["hHCAL_D2_energyvsieta"] = dbe_->book2D("METTask_HCAL_D2_energyvsieta","",83,-41,42,1000,-10,1990);
-        me["hHCAL_D3_energyvsieta"] = dbe_->book2D("METTask_HCAL_D3_energyvsieta","",83,-41,42,1000,-10,1990);
-        me["hHCAL_D4_energyvsieta"] = dbe_->book2D("METTask_HCAL_D4_energyvsieta","",83,-41,42,1000,-10,1990);
+	hHCAL_D1_energyvsieta = dbe_->book2D("METTask_HCAL_D1_energyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D2_energyvsieta = dbe_->book2D("METTask_HCAL_D2_energyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D3_energyvsieta = dbe_->book2D("METTask_HCAL_D3_energyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D4_energyvsieta = dbe_->book2D("METTask_HCAL_D4_energyvsieta","",83,-41,42,1000,-10,1990);
 
-        me["hHCAL_D1_Minenergyvsieta"] = dbe_->book2D("METTask_HCAL_D1_Minenergyvsieta","",83,-41,42,1000,-10,1990);
-        me["hHCAL_D2_Minenergyvsieta"] = dbe_->book2D("METTask_HCAL_D2_Minenergyvsieta","",83,-41,42,1000,-10,1990);
-        me["hHCAL_D3_Minenergyvsieta"] = dbe_->book2D("METTask_HCAL_D3_Minenergyvsieta","",83,-41,42,1000,-10,1990);
-        me["hHCAL_D4_Minenergyvsieta"] = dbe_->book2D("METTask_HCAL_D4_Minenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D1_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D1_Minenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D2_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D2_Minenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D3_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D3_Minenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D4_Minenergyvsieta = dbe_->book2D("METTask_HCAL_D4_Minenergyvsieta","",83,-41,42,1000,-10,1990);
 
-        me["hHCAL_D1_Maxenergyvsieta"] = dbe_->book2D("METTask_HCAL_D1_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
-        me["hHCAL_D2_Maxenergyvsieta"] = dbe_->book2D("METTask_HCAL_D2_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
-        me["hHCAL_D3_Maxenergyvsieta"] = dbe_->book2D("METTask_HCAL_D3_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
-        me["hHCAL_D4_Maxenergyvsieta"] = dbe_->book2D("METTask_HCAL_D4_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D1_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D1_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D2_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D2_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D3_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D3_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
+        hHCAL_D4_Maxenergyvsieta = dbe_->book2D("METTask_HCAL_D4_Maxenergyvsieta","",83,-41,42,1000,-10,1990);
 
         // Integrated over phi                                                                                                                                                                                 
-        me["hHCAL_D1_Occvsieta"] = dbe_->book2D("METTask_HCAL_D1_Occvsieta","",83,-41,42,73,0,73);
-        me["hHCAL_D2_Occvsieta"] = dbe_->book2D("METTask_HCAL_D2_Occvsieta","",83,-41,42,73,0,73);
-        me["hHCAL_D3_Occvsieta"] = dbe_->book2D("METTask_HCAL_D3_Occvsieta","",83,-41,42,73,0,73);
-        me["hHCAL_D4_Occvsieta"] = dbe_->book2D("METTask_HCAL_D4_Occvsieta","",83,-41,42,73,0,73);
+        hHCAL_D1_Occvsieta = dbe_->book2D("METTask_HCAL_D1_Occvsieta","",83,-41,42,73,0,73);
+        hHCAL_D2_Occvsieta = dbe_->book2D("METTask_HCAL_D2_Occvsieta","",83,-41,42,73,0,73);
+        hHCAL_D3_Occvsieta = dbe_->book2D("METTask_HCAL_D3_Occvsieta","",83,-41,42,73,0,73);
+        hHCAL_D4_Occvsieta = dbe_->book2D("METTask_HCAL_D4_Occvsieta","",83,-41,42,73,0,73);
 
-        me["hHCAL_D1_SETvsieta"] = dbe_->book2D("METTask_HCAL_D1_SETvsieta","",83,-41,42,1000,0,2000);
-        me["hHCAL_D2_SETvsieta"] = dbe_->book2D("METTask_HCAL_D2_SETvsieta","",83,-41,42,1000,0,2000);
-        me["hHCAL_D3_SETvsieta"] = dbe_->book2D("METTask_HCAL_D3_SETvsieta","",83,-41,42,1000,0,2000);
-        me["hHCAL_D4_SETvsieta"] = dbe_->book2D("METTask_HCAL_D4_SETvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D1_SETvsieta = dbe_->book2D("METTask_HCAL_D1_SETvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D2_SETvsieta = dbe_->book2D("METTask_HCAL_D2_SETvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D3_SETvsieta = dbe_->book2D("METTask_HCAL_D3_SETvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D4_SETvsieta = dbe_->book2D("METTask_HCAL_D4_SETvsieta","",83,-41,42,1000,0,2000);
 
-        me["hHCAL_D1_METvsieta"] = dbe_->book2D("METTask_HCAL_D1_METvsieta","",83,-41,42,1000,0,2000);
-        me["hHCAL_D2_METvsieta"] = dbe_->book2D("METTask_HCAL_D2_METvsieta","",83,-41,42,1000,0,2000);
-        me["hHCAL_D3_METvsieta"] = dbe_->book2D("METTask_HCAL_D3_METvsieta","",83,-41,42,1000,0,2000);
-        me["hHCAL_D4_METvsieta"] = dbe_->book2D("METTask_HCAL_D4_METvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D1_METvsieta = dbe_->book2D("METTask_HCAL_D1_METvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D2_METvsieta = dbe_->book2D("METTask_HCAL_D2_METvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D3_METvsieta = dbe_->book2D("METTask_HCAL_D3_METvsieta","",83,-41,42,1000,0,2000);
+        hHCAL_D4_METvsieta = dbe_->book2D("METTask_HCAL_D4_METvsieta","",83,-41,42,1000,0,2000);
 
-	me["hHCAL_D1_METPhivsieta"]      = dbe_->book2D("METTask_HCAL_D1_METPhivsieta","",83,-41,42, 80, -4,4);
-        me["hHCAL_D2_METPhivsieta"]      = dbe_->book2D("METTask_HCAL_D2_METPhivsieta","",83,-41,42, 80, -4,4);
-        me["hHCAL_D3_METPhivsieta"]      = dbe_->book2D("METTask_HCAL_D3_METPhivsieta","",83,-41,42, 80, -4,4);
-        me["hHCAL_D4_METPhivsieta"]      = dbe_->book2D("METTask_HCAL_D4_METPhivsieta","",83,-41,42, 80, -4,4);
+	hHCAL_D1_METPhivsieta      = dbe_->book2D("METTask_HCAL_D1_METPhivsieta","",83,-41,42, 80, -4,4);
+        hHCAL_D2_METPhivsieta      = dbe_->book2D("METTask_HCAL_D2_METPhivsieta","",83,-41,42, 80, -4,4);
+        hHCAL_D3_METPhivsieta      = dbe_->book2D("METTask_HCAL_D3_METPhivsieta","",83,-41,42, 80, -4,4);
+        hHCAL_D4_METPhivsieta      = dbe_->book2D("METTask_HCAL_D4_METPhivsieta","",83,-41,42, 80, -4,4);
 
-        me["hHCAL_D1_MExvsieta"]         = dbe_->book2D("METTask_HCAL_D1_MExvsieta","",83,-41,42, 500,-500,500);
-        me["hHCAL_D2_MExvsieta"]         = dbe_->book2D("METTask_HCAL_D2_MExvsieta","",83,-41,42, 500,-500,500);
-        me["hHCAL_D3_MExvsieta"]         = dbe_->book2D("METTask_HCAL_D3_MExvsieta","",83,-41,42, 500,-500,500);
-        me["hHCAL_D4_MExvsieta"]         = dbe_->book2D("METTask_HCAL_D4_MExvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D1_MExvsieta         = dbe_->book2D("METTask_HCAL_D1_MExvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D2_MExvsieta         = dbe_->book2D("METTask_HCAL_D2_MExvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D3_MExvsieta         = dbe_->book2D("METTask_HCAL_D3_MExvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D4_MExvsieta         = dbe_->book2D("METTask_HCAL_D4_MExvsieta","",83,-41,42, 500,-500,500);
 
-        me["hHCAL_D1_MEyvsieta"]         = dbe_->book2D("METTask_HCAL_D1_MEyvsieta","",83,-41,42, 500,-500,500);
-        me["hHCAL_D2_MEyvsieta"]         = dbe_->book2D("METTask_HCAL_D2_MEyvsieta","",83,-41,42, 500,-500,500);
-        me["hHCAL_D3_MEyvsieta"]         = dbe_->book2D("METTask_HCAL_D3_MEyvsieta","",83,-41,42, 500,-500,500);
-        me["hHCAL_D4_MEyvsieta"]         = dbe_->book2D("METTask_HCAL_D4_MEyvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D1_MEyvsieta         = dbe_->book2D("METTask_HCAL_D1_MEyvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D2_MEyvsieta         = dbe_->book2D("METTask_HCAL_D2_MEyvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D3_MEyvsieta         = dbe_->book2D("METTask_HCAL_D3_MEyvsieta","",83,-41,42, 500,-500,500);
+        hHCAL_D4_MEyvsieta         = dbe_->book2D("METTask_HCAL_D4_MEyvsieta","",83,-41,42, 500,-500,500);
 
       }
 
@@ -267,24 +267,24 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   const CaloSubdetectorGeometry* HOgeom;
   const CaloSubdetectorGeometry* HFgeom;
 
-  try {
-
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    const CaloGeometry cG = *pG;
-
-    HBgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
-    HEgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
-    HOgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalOuter);
-    HFgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalForward);
-
-  } catch (...) {
-
-    edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Setup Handle, Aborting Task "
-         << "HCALRecHitAnalyzer::FillGeometry!\n"; return;
-
-  }
-
+  edm::ESHandle<CaloGeometry> pG;
+  iSetup.get<CaloGeometryRecord>().get(pG);
+  
+  if (!pG.isValid() )
+    {
+      edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Setup Handle, Aborting Task "
+				 << "HCALRecHitAnalyzer::FillGeometry!\n"; 
+      return;
+    }
+  
+  const CaloGeometry cG = *pG;
+  
+  HBgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+  HEgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
+  HOgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalOuter);
+  HFgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalForward);
+    
+  
   // ==========================================================
   // Fill Histograms!
   // ==========================================================
@@ -311,10 +311,10 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
     double Calo_eta = cell->getPosition().eta();
     double Calo_phi = cell->getPosition().phi();
 
-    if (me["hHCAL_ieta_iphi_etaMap"]->getBinContent(Calo_ieta,Calo_iphi) == -999) {
+    if (hHCAL_ieta_iphi_etaMap->getBinContent(Calo_ieta,Calo_iphi) == -999) {
 
-      me["hHCAL_ieta_iphi_etaMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
-      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi*180.0/M_PI);
+      hHCAL_ieta_iphi_etaMap->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
+      hHCAL_ieta_iphi_phiMap->setBinContent(Calo_ieta,Calo_iphi,Calo_phi*180.0/M_PI);
 
     }
 
@@ -346,9 +346,9 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
     double Calo_phi = cell->getPosition().phi();
 
     // HCAL to HE eta, phi map comparison
-    if (me["hHCAL_ieta_iphi_etaMap"]->getBinContent(Calo_ieta,Calo_iphi) == -999) {
-      me["hHCAL_ieta_iphi_etaMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
-      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi*180.0/M_PI);
+    if (hHCAL_ieta_iphi_etaMap->getBinContent(Calo_ieta,Calo_iphi) == -999) {
+      hHCAL_ieta_iphi_etaMap->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
+      hHCAL_ieta_iphi_phiMap->setBinContent(Calo_ieta,Calo_iphi,Calo_phi*180.0/M_PI);
     } 
 
     if (Calo_ieta > HEmax_ieta) HEmax_ieta = Calo_ieta;
@@ -379,9 +379,9 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
     double Calo_phi = cell->getPosition().phi();
 
     // HCAL to HF eta, phi map comparison
-    if (me["hHCAL_ieta_iphi_etaMap"]->getBinContent(Calo_ieta,Calo_iphi) == -999) {
-      me["hHCAL_ieta_iphi_etaMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
-      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi*180.0/M_PI);
+    if (hHCAL_ieta_iphi_etaMap->getBinContent(Calo_ieta,Calo_iphi) == -999) {
+      hHCAL_ieta_iphi_etaMap->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
+      hHCAL_ieta_iphi_phiMap->setBinContent(Calo_ieta,Calo_iphi,Calo_phi*180.0/M_PI);
     } 
 
     if (Calo_ieta > HFmax_ieta) HFmax_ieta = Calo_ieta;
@@ -412,9 +412,9 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
     double Calo_phi = cell->getPosition().phi();
 
     // HCAL to HO eta, phi map comparison
-    if (me["hHCAL_ieta_iphi_etaMap"]->getBinContent(Calo_ieta,Calo_iphi) == -999) {
-      me["hHCAL_ieta_iphi_etaMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
-      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi*180.0/M_PI);
+    if (hHCAL_ieta_iphi_etaMap->getBinContent(Calo_ieta,Calo_iphi) == -999) {
+      hHCAL_ieta_iphi_etaMap->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
+      hHCAL_ieta_iphi_phiMap->setBinContent(Calo_ieta,Calo_iphi,Calo_phi*180.0/M_PI);
     } 
 
     if (Calo_ieta > HOmax_ieta) HOmax_ieta = Calo_ieta;
@@ -429,8 +429,8 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   for (int ieta = 1; ieta < 42 ; ieta++) {
     
     int ieta_ = 42 + ieta;
-    double eta = me["hHCAL_ieta_iphi_etaMap"]->getBinContent(ieta_,3);
-    double phi = me["hHCAL_ieta_iphi_phiMap"]->getBinContent(ieta_,3);
+    double eta = hHCAL_ieta_iphi_etaMap->getBinContent(ieta_,3);
+    double phi = hHCAL_ieta_iphi_phiMap->getBinContent(ieta_,3);
     double deta = 2.0*(eta-currentLowEdge_eta);
     deta = ((float)((int)(1.0E3*deta + 0.5)))/1.0E3;
     double dphi = 2.0*phi;
@@ -445,10 +445,10 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
     // BS: This is WRONG...need to correct overlap 
     if (ieta == 29) currentLowEdge_eta = 2.964;
 
-    me["hHCAL_ieta_detaMap"]->setBinContent(ieta_,deta); // positive rings
-    me["hHCAL_ieta_dphiMap"]->setBinContent(ieta_,dphi); // positive rings
-    me["hHCAL_ieta_detaMap"]->setBinContent(42-ieta,deta); // negative rings
-    me["hHCAL_ieta_dphiMap"]->setBinContent(42-ieta,dphi); // negative rings
+    hHCAL_ieta_detaMap->setBinContent(ieta_,deta); // positive rings
+    hHCAL_ieta_dphiMap->setBinContent(ieta_,dphi); // positive rings
+    hHCAL_ieta_detaMap->setBinContent(42-ieta,deta); // negative rings
+    hHCAL_ieta_dphiMap->setBinContent(42-ieta,dphi); // negative rings
 
   } // end loop over ieta
 
@@ -466,7 +466,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
 void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     Nevents++;
-    me["hHCAL_Nevents"]->Fill(0);
+    hHCAL_Nevents->Fill(0);
   // ==========================================================
   // Retrieve!
   // ==========================================================
@@ -534,8 +534,8 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     Int_t ieta = det.ieta();
     Int_t iphi = det.iphi();
     int EtaRing = 41 + ieta; // this counts from 0    
-    double eta = me["hHCAL_ieta_iphi_etaMap"]->getBinContent(EtaRing+1,iphi);
-    double phi = me["hHCAL_ieta_iphi_phiMap"]->getBinContent(EtaRing+1,iphi);
+    double eta = hHCAL_ieta_iphi_etaMap->getBinContent(EtaRing+1,iphi);
+    double phi = hHCAL_ieta_iphi_phiMap->getBinContent(EtaRing+1,iphi);
     double theta = 2*TMath::ATan(exp(-1*eta));
     double ET = Energy*TMath::Sin(theta);
     HcalSubdetector HcalNum = det.subdet();
@@ -556,13 +556,13 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	
 	switch (depth) {
 	case 1:
-	  me["hHCAL_D1_Occ_ieta_iphi"]->Fill(ieta,iphi);
+	  hHCAL_D1_Occ_ieta_iphi->Fill(ieta,iphi);
 	  break;
 	case 2:
-	  me["hHCAL_D2_Occ_ieta_iphi"]->Fill(ieta,iphi);
+	  hHCAL_D2_Occ_ieta_iphi->Fill(ieta,iphi);
 	  break;
 	case 3:
-	  me["hHCAL_D3_Occ_ieta_iphi"]->Fill(ieta,iphi);
+	  hHCAL_D3_Occ_ieta_iphi->Fill(ieta,iphi);
 	  break;
 	} // end switch
       }
@@ -574,31 +574,31 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     
     switch (depth) {
     case 1:
-      me["hHCAL_D1_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);           
-      me["hHCAL_D1_energyvsieta"]->Fill(ieta,Energy);    
-      if (Energy>me["hHCAL_D1_Maxenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D1_Maxenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
-      if (Energy<me["hHCAL_D1_Minenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D1_Minenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
+      hHCAL_D1_energy_ieta_iphi->Fill(ieta,iphi,Energy);           
+      hHCAL_D1_energyvsieta->Fill(ieta,Energy);    
+      if (Energy>hHCAL_D1_Maxenergy_ieta_iphi->getBinContent(EtaRing+1, iphi)) 
+	hHCAL_D1_Maxenergy_ieta_iphi->setBinContent(EtaRing+1, iphi, Energy);
+      if (Energy<hHCAL_D1_Minenergy_ieta_iphi->getBinContent(EtaRing+1, iphi)) 
+	hHCAL_D1_Minenergy_ieta_iphi->setBinContent(EtaRing+1, iphi, Energy);
       
       break;
     case 2:
-      me["hHCAL_D2_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
+      hHCAL_D2_energy_ieta_iphi->Fill(ieta,iphi,Energy);
       
-      me["hHCAL_D2_energyvsieta"]->Fill(ieta,Energy);
-      if (Energy>me["hHCAL_D2_Maxenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D2_Maxenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
-      if (Energy<me["hHCAL_D2_Minenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D2_Minenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
+      hHCAL_D2_energyvsieta->Fill(ieta,Energy);
+      if (Energy>hHCAL_D2_Maxenergy_ieta_iphi->getBinContent(EtaRing+1, iphi)) 
+	hHCAL_D2_Maxenergy_ieta_iphi->setBinContent(EtaRing+1, iphi, Energy);
+      if (Energy<hHCAL_D2_Minenergy_ieta_iphi->getBinContent(EtaRing+1, iphi)) 
+	hHCAL_D2_Minenergy_ieta_iphi->setBinContent(EtaRing+1, iphi, Energy);
       break;
     case 3:
-      me["hHCAL_D3_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
+      hHCAL_D3_energy_ieta_iphi->Fill(ieta,iphi,Energy);
       
-      me["hHCAL_D3_energyvsieta"]->Fill(ieta,Energy);
-      if (Energy>me["hHCAL_D3_Maxenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D3_Maxenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
-      if (Energy<me["hHCAL_D3_Minenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D3_Minenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
+      hHCAL_D3_energyvsieta->Fill(ieta,Energy);
+      if (Energy>hHCAL_D3_Maxenergy_ieta_iphi->getBinContent(EtaRing+1, iphi)) 
+	hHCAL_D3_Maxenergy_ieta_iphi->setBinContent(EtaRing+1, iphi, Energy);
+      if (Energy<hHCAL_D3_Minenergy_ieta_iphi->getBinContent(EtaRing+1, iphi)) 
+	hHCAL_D3_Minenergy_ieta_iphi->setBinContent(EtaRing+1, iphi, Energy);
       break;
     } // end switch
     
@@ -616,16 +616,16 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       
       switch (jDepth+1) {
       case 1:
-	me["hHCAL_D1_Maxenergyvsieta"]->Fill(iEtaRing-41, HBHEMaxEnergy_EtaRing[iEtaRing][jDepth]);
-	me["hHCAL_D1_Minenergyvsieta"]->Fill(iEtaRing-41, HBHEMinEnergy_EtaRing[iEtaRing][jDepth]);
+	hHCAL_D1_Maxenergyvsieta->Fill(iEtaRing-41, HBHEMaxEnergy_EtaRing[iEtaRing][jDepth]);
+	hHCAL_D1_Minenergyvsieta->Fill(iEtaRing-41, HBHEMinEnergy_EtaRing[iEtaRing][jDepth]);
 	break;
       case 2:
-        me["hHCAL_D2_Maxenergyvsieta"]->Fill(iEtaRing-41, HBHEMaxEnergy_EtaRing[iEtaRing][jDepth]);
-        me["hHCAL_D2_Minenergyvsieta"]->Fill(iEtaRing-41, HBHEMinEnergy_EtaRing[iEtaRing][jDepth]);
+        hHCAL_D2_Maxenergyvsieta->Fill(iEtaRing-41, HBHEMaxEnergy_EtaRing[iEtaRing][jDepth]);
+        hHCAL_D2_Minenergyvsieta->Fill(iEtaRing-41, HBHEMinEnergy_EtaRing[iEtaRing][jDepth]);
         break;
       case 3:
-        me["hHCAL_D3_Maxenergyvsieta"]->Fill(iEtaRing-41, HBHEMaxEnergy_EtaRing[iEtaRing][jDepth]);
-        me["hHCAL_D3_Minenergyvsieta"]->Fill(iEtaRing-41, HBHEMinEnergy_EtaRing[iEtaRing][jDepth]);
+        hHCAL_D3_Maxenergyvsieta->Fill(iEtaRing-41, HBHEMaxEnergy_EtaRing[iEtaRing][jDepth]);
+        hHCAL_D3_Minenergyvsieta->Fill(iEtaRing-41, HBHEMinEnergy_EtaRing[iEtaRing][jDepth]);
         break;
       }
       
@@ -633,28 +633,28 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	
 	switch (jDepth+1) {
 	case 1:
-	  me["hHCAL_D1_METPhivsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Phi());
-	  me["hHCAL_D1_MExvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Px());
-	  me["hHCAL_D1_MEyvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Py());
-	  me["hHCAL_D1_METvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Pt());
-	  me["hHCAL_D1_SETvsieta"]->Fill(iEtaRing-41, HBHESET_EtaRing[iEtaRing][jDepth]);
-	  me["hHCAL_D1_Occvsieta"]->Fill(iEtaRing-41, HBHENActiveCells[iEtaRing][jDepth]);
+	  hHCAL_D1_METPhivsieta->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Phi());
+	  hHCAL_D1_MExvsieta->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Px());
+	  hHCAL_D1_MEyvsieta->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Py());
+	  hHCAL_D1_METvsieta->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Pt());
+	  hHCAL_D1_SETvsieta->Fill(iEtaRing-41, HBHESET_EtaRing[iEtaRing][jDepth]);
+	  hHCAL_D1_Occvsieta->Fill(iEtaRing-41, HBHENActiveCells[iEtaRing][jDepth]);
 	  break;
 	case 2:
-	  me["hHCAL_D2_METPhivsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Phi());
-	  me["hHCAL_D2_MExvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Px());
-	  me["hHCAL_D2_MEyvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Py());
-	  me["hHCAL_D2_METvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Pt());
-	  me["hHCAL_D2_SETvsieta"]->Fill(iEtaRing-41, HBHESET_EtaRing[iEtaRing][jDepth]);
-	  me["hHCAL_D2_Occvsieta"]->Fill(iEtaRing-41, HBHENActiveCells[iEtaRing][jDepth]);
+	  hHCAL_D2_METPhivsieta->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Phi());
+	  hHCAL_D2_MExvsieta->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Px());
+	  hHCAL_D2_MEyvsieta->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Py());
+	  hHCAL_D2_METvsieta->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Pt());
+	  hHCAL_D2_SETvsieta->Fill(iEtaRing-41, HBHESET_EtaRing[iEtaRing][jDepth]);
+	  hHCAL_D2_Occvsieta->Fill(iEtaRing-41, HBHENActiveCells[iEtaRing][jDepth]);
 	  break;
 	case 3:
-	  me["hHCAL_D3_METPhivsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Phi());
-	  me["hHCAL_D3_MExvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Px());
-	  me["hHCAL_D3_MEyvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Py());
-	  me["hHCAL_D3_METvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Pt());
-	  me["hHCAL_D3_SETvsieta"]->Fill(iEtaRing-41, HBHESET_EtaRing[iEtaRing][jDepth]);
-	  me["hHCAL_D3_Occvsieta"]->Fill(iEtaRing-41, HBHENActiveCells[iEtaRing][jDepth]);
+	  hHCAL_D3_METPhivsieta->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Phi());
+	  hHCAL_D3_MExvsieta->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Px());
+	  hHCAL_D3_MEyvsieta->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Py());
+	  hHCAL_D3_METvsieta->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Pt());
+	  hHCAL_D3_SETvsieta->Fill(iEtaRing-41, HBHESET_EtaRing[iEtaRing][jDepth]);
+	  hHCAL_D3_Occvsieta->Fill(iEtaRing-41, HBHENActiveCells[iEtaRing][jDepth]);
 	  break;
 	} //switch
       } //activering
@@ -693,8 +693,8 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     Int_t ieta = det.ieta();
     Int_t iphi = det.iphi();
     int EtaRing = 41+ieta; // this counts from 0    
-    double eta = me["hHCAL_ieta_iphi_etaMap"]->getBinContent(EtaRing+1,iphi);
-    double phi = me["hHCAL_ieta_iphi_phiMap"]->getBinContent(EtaRing+1,iphi);
+    double eta = hHCAL_ieta_iphi_etaMap->getBinContent(EtaRing+1,iphi);
+    double phi = hHCAL_ieta_iphi_phiMap->getBinContent(EtaRing+1,iphi);
     double theta = 2*TMath::ATan(exp(-1*eta));
     double ET = Energy*TMath::Sin(theta);
     TLorentzVector v_; 
@@ -708,7 +708,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	v_.SetPtEtaPhiE(ET, 0, phi, ET);
 	vHOMET_EtaRing[EtaRing]-=v_;
       
-	me["hHCAL_D4_Occ_ieta_iphi"]->Fill(ieta,iphi);
+	hHCAL_D4_Occ_ieta_iphi->Fill(ieta,iphi);
       }
 
     if (Energy > HOMaxEnergy_EtaRing[EtaRing])
@@ -716,29 +716,29 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     if (Energy < HOMinEnergy_EtaRing[EtaRing])
       HOMinEnergy_EtaRing[EtaRing] = Energy;
     
-    me["hHCAL_D4_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
+    hHCAL_D4_energy_ieta_iphi->Fill(ieta,iphi,Energy);
     
-    me["hHCAL_D4_energyvsieta"]->Fill(ieta,Energy);     
-    if (Energy>me["hHCAL_D4_Maxenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D4_Maxenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
-      if (Energy<me["hHCAL_D4_Minenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D4_Minenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
+    hHCAL_D4_energyvsieta->Fill(ieta,Energy);     
+    if (Energy>hHCAL_D4_Maxenergy_ieta_iphi->getBinContent(EtaRing+1, iphi)) 
+	hHCAL_D4_Maxenergy_ieta_iphi->setBinContent(EtaRing+1, iphi, Energy);
+      if (Energy<hHCAL_D4_Minenergy_ieta_iphi->getBinContent(EtaRing+1, iphi)) 
+	hHCAL_D4_Minenergy_ieta_iphi->setBinContent(EtaRing+1, iphi, Energy);
                                                                                                                                                    
   } // end loop over HORecHit's
 
   // Fill eta-ring MET quantities
   for (int iEtaRing=0; iEtaRing<83; iEtaRing++) {
-    me["hHCAL_D4_Maxenergyvsieta"]->Fill(iEtaRing-41, HOMaxEnergy_EtaRing[iEtaRing]);
-    me["hHCAL_D4_Minenergyvsieta"]->Fill(iEtaRing-41, HOMinEnergy_EtaRing[iEtaRing]);
+    hHCAL_D4_Maxenergyvsieta->Fill(iEtaRing-41, HOMaxEnergy_EtaRing[iEtaRing]);
+    hHCAL_D4_Minenergyvsieta->Fill(iEtaRing-41, HOMinEnergy_EtaRing[iEtaRing]);
 
     if (HOActiveRing[iEtaRing]) {
 
-      me["hHCAL_D4_METPhivsieta"]->Fill(iEtaRing-41, vHOMET_EtaRing[iEtaRing].Phi());
-      me["hHCAL_D4_MExvsieta"]->Fill(iEtaRing-41, vHOMET_EtaRing[iEtaRing].Px());
-      me["hHCAL_D4_MEyvsieta"]->Fill(iEtaRing-41, vHOMET_EtaRing[iEtaRing].Py());
-      me["hHCAL_D4_METvsieta"]->Fill(iEtaRing-41, vHOMET_EtaRing[iEtaRing].Pt());
-      me["hHCAL_D4_SETvsieta"]->Fill(iEtaRing-41, HOSET_EtaRing[iEtaRing]);
-      me["hHCAL_D4_Occvsieta"]->Fill(iEtaRing-41, HONActiveCells[iEtaRing]);
+      hHCAL_D4_METPhivsieta->Fill(iEtaRing-41, vHOMET_EtaRing[iEtaRing].Phi());
+      hHCAL_D4_MExvsieta->Fill(iEtaRing-41, vHOMET_EtaRing[iEtaRing].Px());
+      hHCAL_D4_MEyvsieta->Fill(iEtaRing-41, vHOMET_EtaRing[iEtaRing].Py());
+      hHCAL_D4_METvsieta->Fill(iEtaRing-41, vHOMET_EtaRing[iEtaRing].Pt());
+      hHCAL_D4_SETvsieta->Fill(iEtaRing-41, HOSET_EtaRing[iEtaRing]);
+      hHCAL_D4_Occvsieta->Fill(iEtaRing-41, HONActiveCells[iEtaRing]);
 
     }
 
@@ -779,8 +779,8 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     Int_t ieta = det.ieta();
     Int_t iphi = det.iphi();
     int EtaRing = 41+ieta; // this counts from 0    
-    double eta = me["hHCAL_ieta_iphi_etaMap"]->getBinContent(EtaRing+1,iphi);
-    double phi = me["hHCAL_ieta_iphi_phiMap"]->getBinContent(EtaRing+1,iphi);
+    double eta = hHCAL_ieta_iphi_etaMap->getBinContent(EtaRing+1,iphi);
+    double phi = hHCAL_ieta_iphi_phiMap->getBinContent(EtaRing+1,iphi);
     double theta = 2*TMath::ATan(exp(-1*eta));
     double ET = Energy*TMath::Sin(theta);
 
@@ -795,10 +795,10 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	
 	switch (depth) {
 	case 1:
-	  me["hHCAL_D1_Occ_ieta_iphi"]->Fill(ieta,iphi);
+	  hHCAL_D1_Occ_ieta_iphi->Fill(ieta,iphi);
 	  break;
 	case 2:
-	  me["hHCAL_D2_Occ_ieta_iphi"]->Fill(ieta,iphi);
+	  hHCAL_D2_Occ_ieta_iphi->Fill(ieta,iphi);
 	  break;
 	  
 	}
@@ -812,22 +812,22 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     switch (depth) {
     case 1:
-      me["hHCAL_D1_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
+      hHCAL_D1_energy_ieta_iphi->Fill(ieta,iphi,Energy);
       
-      me["hHCAL_D1_energyvsieta"]->Fill(ieta,Energy);  
-      if (Energy>me["hHCAL_D1_Maxenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D1_Maxenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
-      if (Energy<me["hHCAL_D1_Minenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D1_Minenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy); 
+      hHCAL_D1_energyvsieta->Fill(ieta,Energy);  
+      if (Energy>hHCAL_D1_Maxenergy_ieta_iphi->getBinContent(EtaRing+1, iphi)) 
+	hHCAL_D1_Maxenergy_ieta_iphi->setBinContent(EtaRing+1, iphi, Energy);
+      if (Energy<hHCAL_D1_Minenergy_ieta_iphi->getBinContent(EtaRing+1, iphi)) 
+	hHCAL_D1_Minenergy_ieta_iphi->setBinContent(EtaRing+1, iphi, Energy); 
       break;
     case 2:
-      me["hHCAL_D2_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
+      hHCAL_D2_energy_ieta_iphi->Fill(ieta,iphi,Energy);
       
-      me["hHCAL_D2_energyvsieta"]->Fill(ieta,Energy);  
-      if (Energy>me["hHCAL_D2_Maxenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D2_Maxenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
-      if (Energy<me["hHCAL_D2_Minenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D2_Minenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
+      hHCAL_D2_energyvsieta->Fill(ieta,Energy);  
+      if (Energy>hHCAL_D2_Maxenergy_ieta_iphi->getBinContent(EtaRing+1, iphi)) 
+	hHCAL_D2_Maxenergy_ieta_iphi->setBinContent(EtaRing+1, iphi, Energy);
+      if (Energy<hHCAL_D2_Minenergy_ieta_iphi->getBinContent(EtaRing+1, iphi)) 
+	hHCAL_D2_Minenergy_ieta_iphi->setBinContent(EtaRing+1, iphi, Energy);
       break;
     }
 
@@ -838,12 +838,12 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     for (int jDepth=0; jDepth<2; jDepth++) {
       switch (jDepth+1) {
       case 1:
-        me["hHCAL_D1_Maxenergyvsieta"]->Fill(iEtaRing-41, HFMaxEnergy_EtaRing[iEtaRing][jDepth]);
-        me["hHCAL_D1_Minenergyvsieta"]->Fill(iEtaRing-41, HFMinEnergy_EtaRing[iEtaRing][jDepth]);
+        hHCAL_D1_Maxenergyvsieta->Fill(iEtaRing-41, HFMaxEnergy_EtaRing[iEtaRing][jDepth]);
+        hHCAL_D1_Minenergyvsieta->Fill(iEtaRing-41, HFMinEnergy_EtaRing[iEtaRing][jDepth]);
         break;
       case 2:
-        me["hHCAL_D2_Maxenergyvsieta"]->Fill(iEtaRing-41, HFMaxEnergy_EtaRing[iEtaRing][jDepth]);
-        me["hHCAL_D2_Minenergyvsieta"]->Fill(iEtaRing-41, HFMinEnergy_EtaRing[iEtaRing][jDepth]);
+        hHCAL_D2_Maxenergyvsieta->Fill(iEtaRing-41, HFMaxEnergy_EtaRing[iEtaRing][jDepth]);
+        hHCAL_D2_Minenergyvsieta->Fill(iEtaRing-41, HFMinEnergy_EtaRing[iEtaRing][jDepth]);
         break;
       }
 
@@ -853,22 +853,22 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	switch (jDepth+1) {
 	case 1:
 
-	  me["hHCAL_D1_METPhivsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Phi());
-	  me["hHCAL_D1_MExvsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Px());
-	  me["hHCAL_D1_MEyvsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Py());
-	  me["hHCAL_D1_METvsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Pt());
-	  me["hHCAL_D1_SETvsieta"]->Fill(iEtaRing-41, HFSET_EtaRing[iEtaRing][jDepth]);
-	  me["hHCAL_D1_Occvsieta"]->Fill(iEtaRing-41, HFNActiveCells[iEtaRing][jDepth]);
+	  hHCAL_D1_METPhivsieta->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Phi());
+	  hHCAL_D1_MExvsieta->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Px());
+	  hHCAL_D1_MEyvsieta->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Py());
+	  hHCAL_D1_METvsieta->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Pt());
+	  hHCAL_D1_SETvsieta->Fill(iEtaRing-41, HFSET_EtaRing[iEtaRing][jDepth]);
+	  hHCAL_D1_Occvsieta->Fill(iEtaRing-41, HFNActiveCells[iEtaRing][jDepth]);
 	  break;
 
 	case 2:
 
-	  me["hHCAL_D2_METPhivsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Phi());
-	  me["hHCAL_D2_MExvsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Px());
-	  me["hHCAL_D2_MEyvsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Py());
-	  me["hHCAL_D2_METvsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Pt());
-	  me["hHCAL_D2_SETvsieta"]->Fill(iEtaRing-41, HFSET_EtaRing[iEtaRing][jDepth]);
-	  me["hHCAL_D2_Occvsieta"]->Fill(iEtaRing-41, HFNActiveCells[iEtaRing][jDepth]);
+	  hHCAL_D2_METPhivsieta->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Phi());
+	  hHCAL_D2_MExvsieta->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Px());
+	  hHCAL_D2_MEyvsieta->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Py());
+	  hHCAL_D2_METvsieta->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Pt());
+	  hHCAL_D2_SETvsieta->Fill(iEtaRing-41, HFSET_EtaRing[iEtaRing][jDepth]);
+	  hHCAL_D2_Occvsieta->Fill(iEtaRing-41, HFNActiveCells[iEtaRing][jDepth]);
 	  break;
 
 	}
