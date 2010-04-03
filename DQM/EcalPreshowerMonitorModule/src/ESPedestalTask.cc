@@ -131,40 +131,38 @@ void ESPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
   runNum_ = e.id().run();
   
   Handle<ESDigiCollection> digis;
-  try {
-    e.getByLabel(digilabel_, digis);
-  } catch ( cms::Exception &e ) {
-    LogDebug("") << "Error! can't get digi collection !" << std::endl;
-  }
+  e.getByLabel(digilabel_, digis);
   
   runtype_ = 1; // Let runtype_ = 1
   
   // Digis
   int zside, plane, ix, iy, strip, iz;
-  for (ESDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr) {
-    
-    ESDataFrame dataframe = (*digiItr);
-    ESDetId id = dataframe.id();
-    
-    zside = id.zside();
-    plane = id.plane();
-    ix    = id.six();
-    iy    = id.siy();
-    strip = id.strip();
-    iz = (zside==1) ? 0:1;
-
-    if (meADC_[senCount_[iz][plane-1][ix-1][iy-1]][strip-1]) {
-      if(runtype_ == 1){		
-	meADC_[senCount_[iz][plane-1][ix-1][iy-1]][strip-1]->Fill(dataframe.sample(0).adc());
-	meADC_[senCount_[iz][plane-1][ix-1][iy-1]][strip-1]->Fill(dataframe.sample(1).adc());
-	meADC_[senCount_[iz][plane-1][ix-1][iy-1]][strip-1]->Fill(dataframe.sample(2).adc());
-      } else if(runtype_ == 3) {
-	meADC_[senCount_[iz][plane-1][ix-1][iy-1]][strip-1]->Fill(dataframe.sample(1).adc());
-      }
-    }	
-
+  if (digis.isValid()) {
+    for (ESDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr) {
+      
+      ESDataFrame dataframe = (*digiItr);
+      ESDetId id = dataframe.id();
+      
+      zside = id.zside();
+      plane = id.plane();
+      ix    = id.six();
+      iy    = id.siy();
+      strip = id.strip();
+      iz = (zside==1) ? 0:1;
+      
+      if (meADC_[senCount_[iz][plane-1][ix-1][iy-1]][strip-1]) {
+	if(runtype_ == 1){		
+	  meADC_[senCount_[iz][plane-1][ix-1][iy-1]][strip-1]->Fill(dataframe.sample(0).adc());
+	  meADC_[senCount_[iz][plane-1][ix-1][iy-1]][strip-1]->Fill(dataframe.sample(1).adc());
+	  meADC_[senCount_[iz][plane-1][ix-1][iy-1]][strip-1]->Fill(dataframe.sample(2).adc());
+	} else if(runtype_ == 3) {
+	  meADC_[senCount_[iz][plane-1][ix-1][iy-1]][strip-1]->Fill(dataframe.sample(1).adc());
+	}
+      }	
+      
+    }
   }
-  
+ 
 }
 
 DEFINE_FWK_MODULE(ESPedestalTask);

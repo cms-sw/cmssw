@@ -112,21 +112,16 @@ void ESDcsInfoTask::analyze(const Event& e, const EventSetup& c){
    float ESmDcsStatus = 0;
 
    Handle<DcsStatusCollection> dcsStatus;
-   try{
-      e.getByLabel(dcsStatuslabel_, dcsStatus);
+   e.getByLabel(dcsStatuslabel_, dcsStatus);
+   if (dcsStatus.isValid()) {
+     for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
+       ESpDcsStatus = dcsStatusItr->ready(DcsStatus::ESp);
+       ESmDcsStatus = dcsStatusItr->ready(DcsStatus::ESm);
+     }
 
-      for(DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) 
-      {
-	 ESpDcsStatus = dcsStatusItr->ready(DcsStatus::ESp);
-	 ESmDcsStatus = dcsStatusItr->ready(DcsStatus::ESm);
-      }
-
-   } catch ( cms::Exception &e  ) {
-      LogDebug("") << "Error! can't get dcsStatus collection !" << std::endl;
+     ESpDcsStatus = (ESpDcsStatus + float(ievt_-1)*meESDcsActiveMap_->getBinContent(1))/float(ievt_);	
+     ESmDcsStatus = (ESmDcsStatus + float(ievt_-1)*meESDcsActiveMap_->getBinContent(2))/float(ievt_);
    }
-
-   ESpDcsStatus = (ESpDcsStatus + float(ievt_-1)*meESDcsActiveMap_->getBinContent(1))/float(ievt_);	
-   ESmDcsStatus = (ESmDcsStatus + float(ievt_-1)*meESDcsActiveMap_->getBinContent(2))/float(ievt_);
 
    meESDcsActiveMap_->setBinContent(1, ESpDcsStatus);	
    meESDcsActiveMap_->setBinContent(2, ESmDcsStatus);
