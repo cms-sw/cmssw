@@ -68,6 +68,7 @@ namespace cond {
 
     if (!ok) {
       m_element.set(cond::invalidTime,cond::invalidTime,"");
+      m_token.clear();
       if (m_doThrow)
         throw cond::Exception("Condition Payload loader: invalid data");
     }

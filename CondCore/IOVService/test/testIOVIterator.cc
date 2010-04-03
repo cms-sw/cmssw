@@ -8,6 +8,8 @@
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
+#include "CondCore/IOVService/interface/KeyList.h"
+
 #include <iostream>
 #include <algorithm>
 #include <boost/bind.hpp>
@@ -182,6 +184,16 @@ int main(){
       printT(data,63);
       for (long i=0; i<data.iov().size()+2; i+=2) 
 	printN(data,i);
+      /*
+      // test Keylist
+      cond::KeyList kl;
+      kl.init(data);
+      std::vector<unsigned long long> v(3); v[0]=21; v[1]=3; v[2]=[54];
+      kl.load(v);
+      for (size_t i=0; i<v.size();++i) {
+	
+      }
+      */
     }
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;

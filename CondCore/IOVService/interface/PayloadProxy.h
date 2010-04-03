@@ -92,7 +92,7 @@ namespace cond {
     IOVProxy m_iov;
     IOVElementProxy m_element;
 
-  private:
+  protected:
     // current loaded payload
     std::string  m_token;
 
@@ -121,6 +121,7 @@ namespace cond {
         
     virtual void invalidateCache() {
       m_data.clear();
+      m_token.clear(); // in base....
     }
 
 
