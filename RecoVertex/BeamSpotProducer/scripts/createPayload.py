@@ -18,9 +18,9 @@
    A very simple script to handle payload for beam spot results
 
    usage: %prog -d <data file/directory> -t <tag name>
-   -c, --copy : Only copy files from input directory to test/workflow/
-   -d, --data    = DATA: data file, or directory with data files.
-   -t, --tag     = TAG: tag name.
+   -c, --copy   : Only copy files from input directory to test/workflow/files/
+   -d, --data   = DATA: Data file, or directory with data files.
+   -t, --tag    = TAG: Database tag name.
    -u, --upload : Upload files to offline drop box via scp.
    
    Francisco Yumiceva (yumiceva@fnal.gov)
@@ -31,10 +31,16 @@
 
 import sys,os
 import commands, re, time
-
+import datetime
 #_______________OPTIONS________________
 import optparse
 
+workflowdir             = 'test/workflow/'
+workflowdirLastPayloads = workflowdir + 'lastPayloads/'
+workflowdirTmp          = workflowdir + 'tmp/'
+workflowdirArchive      = workflowdir + 'archive/'
+optionstring            = ''
+tagType                 = ''
 USAGE = re.compile(r'(?s)\s*usage: (.*?)(\n[ \t]*\n|$)')
 
 def nonzero(self): # will become the nonzero method of optparse.Values
@@ -47,13 +53,13 @@ optparse.Values.__nonzero__ = nonzero # dynamically fix optparse.Values
 
 class ParsingError(Exception): pass
 
-optionstring=""
 
 def exit(msg=""):
     raise SystemExit(msg or optionstring.replace("%prog",sys.argv[0]))
 
 def parse(docstring, arglist=None):
     global optionstring
+    global tagType
     optionstring = docstring
     match = USAGE.search(optionstring)
     if not match: raise ParsingError("Cannot find the option string")
@@ -74,72 +80,145 @@ def parse(docstring, arglist=None):
         raise ParsingError("Cannot parse the option string correctly")
     return p.parse_args(arglist)
 
+def copyToWorkflowdir(path):
+    global workflowdirArchive
+    lsCommand      = ''
+    cpCommand      = ''
+    listoffiles    = []
+    tmplistoffiles = []
+    if path.find('castor') != -1:
+    	print "Getting files from castor ..."
+    	lsCommand = 'ns'
+    	cpCommand = 'rf'
+    elif not os.path.exists(path):
+        exit("ERROR: File or directory " + path + " doesn't exist") 
+
+    if path[len(path)-4:len(path)] != '.txt':
+ 	if path[len(path)-1] != '/':
+ 	    path = path + '/'
+	
+ 	aCommand  = lsCommand  + 'ls '+ path + " | grep .txt"
+
+ 	tmpstatus = commands.getstatusoutput( aCommand )
+ 	tmplistoffiles = tmpstatus[1].split('\n')
+        if len(tmplistoffiles) == 1:
+            if tmplistoffiles[0] == '':
+                exit('ERROR: No files found in directory ' + path)
+            if tmplistoffiles[0].find('No such file or directory') != -1:
+                exit("ERROR: File or directory " + path + " doesn't exist") 
+            
+    else:
+        tmplistoffiles.append(path[path.rfind('/')+1:len(path)])
+	path = path[0:path.rfind('/')+1]
+
+ 
+    archiveName = path
+    if path == './':
+        archiveName = os.getcwd() + '/'
+        archiveName = archiveName[archiveName[:len(archiveName)-1].rfind('/')+1:len(archiveName)]
+    if path[:len(path)-1].rfind('/') != -1:
+        archiveName = path[path[:len(path)-1].rfind('/')+1:len(path)]
+
+    workflowdirArchive = workflowdirArchive + archiveName
+    if tagType != '' :
+        workflowdirArchive = workflowdirArchive[:len(workflowdirArchive)-1] + '_' + tagType + '/'
+    if not os.path.isdir(workflowdirArchive):
+    	os.mkdir(workflowdirArchive)
+    else:
+#        tmpTime = str(datetime.datetime.now())
+#        tmpTime = tmpTime.replace(' ','-')
+#        tmpTime = tmpTime.replace('.','-')
+#        workflowdirArchive = workflowdirArchive[:len(workflowdirArchive)-1] + '_' + tmpTime + '/'
+#        os.mkdir(workflowdirArchive)
+        for n in range(1,100000):
+            tryDir = workflowdirArchive[:len(workflowdirArchive)-1] + '_' + str(n) + '/'
+            if not os.path.isdir(tryDir):
+                workflowdirArchive = tryDir
+                os.mkdir(workflowdirArchive)
+                break
+            elif n == 100000-1:
+                exit('ERROR: Unbelievable! do you ever clean ' + workflowdir + '?. I think you have to remove some directories!') 
+                 
+    for ifile in tmplistoffiles:
+    	if ifile.find('.txt') != -1:
+    	    listoffiles.append( workflowdirArchive + ifile )
+    	    # copy to local disk
+    	    aCommand = cpCommand + 'cp '+ path + ifile + " " + workflowdirArchive
+    	    print " >> " + aCommand
+    	    tmpstatus = commands.getstatusoutput( aCommand )
+    return listoffiles
+
+def mkWorkflowdir():
+    global workflowdir
+    global workflowdirLastPayloads
+    global workflowdirTmp
+    global workflowdirArchive
+    if not os.path.isdir(workflowdir):
+	print "Making " + workflowdir + " directory..."
+	os.mkdir(workflowdir)
+
+    if not os.path.isdir(workflowdirLastPayloads):
+    	os.mkdir(workflowdirLastPayloads)
+    else:
+    	os.system("rm -f "+ workflowdirLastPayloads + "*")
+       
+    if not os.path.isdir(workflowdirTmp):
+    	os.mkdir(workflowdirTmp)
+    else:
+    	os.system("rm -f "+ workflowdirTmp + "*")
+
+    if not os.path.isdir(workflowdirArchive):
+    	os.mkdir(workflowdirArchive)
+
 #__________END_OPTIONS_______________________________________________
 
 if __name__ == '__main__':
-
     #if len(sys.argv) < 2:
 #	print "\n [usage] createPayload <beamspot file> <tag name> <IOV since> <IOV till=-1=inf> <IOV comment> <destDB=oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT>"
 	#print " e.g. createPayload BeamFitResults_template.txt BeamSpotObjects_2009_v1_express 122745 \"\" \"beam spot for early collisions\" \"oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT\"\n"
 	#sys.exit()
 
+    workflowdir             = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/test/workflow/"
+    workflowdirLastPayloads = workflowdir + "lastPayloads/"
+    workflowdirTmp          = workflowdir + "tmp/"
+    workflowdirArchive      = workflowdir + "archive/"
+     
      # COMMAND LINE OPTIONS
     #################################
     option,args = parse(__doc__)
     if not args and not option: exit()
 
-    tagname = ''
-    if not option.tag and not option.data:
-	print " need to provide DB tag name and beam spot data"
+    if ( (option.data and option.tag) or (option.data and option.copy)):
+        mkWorkflowdir()
+    
+    if not option.data:
+	print "ERROR: You must provide the data file or the a directory with data files"
 	exit()
 
+    if option.copy:
+      copyToWorkflowdir(option.data)
+      exit("Files copied in " + workflowdirArchive)
+    
     tagname = ''
     if option.tag:
 	tagname = option.tag
+        if tagname.find("offline") != -1:
+            tagType = "offline"
+        elif tagname.find("prompt") != -1:
+            tagType = "prompt"
+        elif tagname.find("express") != -1:
+            tagType = "hlt"
+        else:
+            print "I am assuming your tag ifs for the offline database..."
+            tagType = "offline"
 
-    workflowdir = 'test/workflow/'
-    if not os.path.isdir(workflowdir):
-	print " make directory to store temporal files in "+ workflowdir
-	os.mkdir(workflowdir)
-    else:
-	print workflowdir + " directory already exists. Notice that we will use files from this directory."
+    else:	
+	print "ERROR: You must provide the database tag name"
+	exit()
+
 	
-    
-    listoffiles = []
+    listoffiles = copyToWorkflowdir(option.data)
 
-    # get list of data files
-    if option.data.find('castor') != -1:
-	print " get files from castor ..."
-	acommand = 'nsls '+ option.data
-	tmpstatus = commands.getstatusoutput( acommand )
-	tmplistoffiles = tmpstatus[1].split('\n')
-	dir = ''
-	if len(tmplistoffiles) > 1:
-	    dir = '/'
-	for ifile in tmplistoffiles:
-	    if ifile.find('.txt') != -1:
-		listoffiles.append( workflowdir + ifile )
-		# copy to local disk
-		acommand = 'rfcp '+ option.data + dir + ifile + " "+ workflowdir+"/."
-		print " >> "+ acommand
-		tmpstatus = commands.getstatusoutput( acommand )
-
-    elif os.path.isdir( option.data ):
-	print" get files from directory "+ option.data
-	acommand = 'ls '+ option.data
-	tmpstatus = commands.getstatusoutput( acommand )
-	tmplistoffiles = tmpstatus[1].split('\n')
-	dir = option.data
-	if option.data[len(option.data)-1] != '/':
-	    dir = dir + '/'
-	for ifile in tmplistoffiles:
-	    if ifile.find('.txt') != -1:
-		listoffiles.append( dir + ifile )
-    else:
-	listoffiles.append( option.data )
-	
-
-   
     # sort list of data files in chronological order
     sortedlist = {}
 
@@ -153,12 +232,12 @@ if __name__ == '__main__':
 	for line in tmpfile:
 	    if line.find('Runnumber') != -1:
 		arun = line.split()[1]
+	    if line.find("EndTimeOfFit") != -1:
+		atime = time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z")
 	    if line.find("LumiRange") != -1:
 		alumis = line.strip('LumiRange ')
 	    if line.find('Type') != -1 and line.split()[1] == '0':
 		skip = True		
-	    if line.find("EndTimeOfFit") != -1:
-		atime = time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z")
 	if skip:
 	    print " zero fit result, skip file " + beam_file + " with time stamp:"
 	    print " run " + arun + " lumis " + alumis
@@ -171,7 +250,9 @@ if __name__ == '__main__':
     keys.sort()
 
     # write combined data file
-    allbeam_file = workflowdir + tagname + "_all_IOVs.txt"
+    if not os.path.isdir(workflowdirArchive + "AllIOVs"):
+        os.mkdir(workflowdirArchive + "AllIOVs")
+    allbeam_file = workflowdirArchive + "AllIOVs/" + tagname + "_all_IOVs.txt"
     allfile = open( allbeam_file, 'w')
     print " merging all results into file: " + allbeam_file
 
@@ -185,10 +266,12 @@ if __name__ == '__main__':
 	destDB = 'oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT'
 	iov_comment = 'Beam spot position'
 	
-	suffix = "_"+str(nfile)
-	writedb_template = "test/write2DB_template.py"
-	readdb_template = "test/readDB_template.py"
-	sqlite_file = "sqlite_file:"+ workflowdir + tagname + suffix +".db"
+	suffix = "_" + str(nfile)
+	writedb_template = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/test/write2DB_template.py"
+	readdb_template  = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/test/readDB_template.py"
+        sqlite_file_name = tagname + suffix
+	sqlite_file   = workflowdirTmp + sqlite_file_name + '.db'
+	metadata_file = workflowdirTmp + sqlite_file_name + '.txt'
 	nfile = nfile + 1
     #### WRITE sqlite file
 	
@@ -196,7 +279,7 @@ if __name__ == '__main__':
 
 	print "read input beamspot file: " + beam_file
 	tmpfile = open(beam_file)
-	beam_file_tmp = beam_file+".tmp"
+        beam_file_tmp = workflowdirTmp + beam_file[beam_file.rfind('/')+1:] + ".tmp"
 	newtmpfile = open(beam_file_tmp,"w")
 	for line in tmpfile:
 	    if line.find("Runnumber") != -1:
@@ -213,12 +296,11 @@ if __name__ == '__main__':
         
 	beam_file = beam_file_tmp
 
-	writedb_out = workflowdir+"write2DB_"+tagname+suffix+".py"
-
+	writedb_out = workflowdirTmp + "write2DB_" + tagname + suffix + ".py"
 	wfile = open(writedb_template)
 	wnewfile = open(writedb_out,'w')
 	
-	writedb_tags = [('SQLITEFILE',sqlite_file),
+	writedb_tags = [('SQLITEFILE','sqlite_file:' + sqlite_file),
 			('TAGNAME',tagname),
 			('BEAMSPOTFILE',beam_file)]
     
@@ -231,23 +313,23 @@ if __name__ == '__main__':
 	    wnewfile.write(line)
 
 	wnewfile.close()
-	print "write sqlite file ..."
+	print "writing sqlite file ..."
     #os.system("cmsRun "+ writedb_out)
         
 	status_wDB = commands.getstatusoutput('cmsRun '+ writedb_out)
     #print status_wDB[1]
-	commands.getstatusoutput('rm ' + beam_file)
-
+	commands.getstatusoutput('rm -f ' + beam_file)
+	os.system("rm "+ writedb_out)
     ##### READ and check sqlite file
 	
 	print "read back sqlite file to check content ..."
     
-	readdb_out = "readDB_"+tagname+".py"
+	readdb_out = workflowdirTmp + "readDB_" + tagname + ".py"
     
 	rfile = open(readdb_template)
 	rnewfile = open(readdb_out,'w')
     
-	readdb_tags = [('SQLITEFILE',sqlite_file),
+	readdb_tags = [('SQLITEFILE','sqlite_file:' + sqlite_file),
 		       ('TAGNAME',tagname)]
 
 	for line in rfile:
@@ -263,43 +345,54 @@ if __name__ == '__main__':
     
 	outtext = status_rDB[1]
 	print outtext
+	os.system("rm "+ readdb_out)
 
     #### CREATE payload files for dropbox
             
         print " create payload card for dropbox ..."
-        sqlitefile = sqlite_file.strip("sqlite_file")
-        sqlitefile = sqlitefile.replace(":","")
-        sqlitefile = sqlitefile.strip(".db")
-        dropbox_file = sqlitefile+".txt"
-        dfile = open(dropbox_file,'w')
+        dfile = open(metadata_file,'w')
         
         dfile.write('destDB '+ destDB +'\n')
-        dfile.write('inputtag' +'\n')
         dfile.write('tag '+ tagname +'\n')
+        dfile.write('inputtag' +'\n')
         dfile.write('since ' + iov_since +'\n')
-        dfile.write('till ' + iov_till +'\n')
-        dfile.write('usertext ' + "\""+ iov_comment +"\"" +'\n')
+#        dfile.write('till ' + iov_till +'\n')
+        dfile.write('Timetype runnumber\n')
+        dfile.write('IOVCheck ' + tagType + '\n')
+        dfile.write('usertext ' + iov_comment +'\n')
         
         dfile.close()
         
         uuid = commands.getstatusoutput('uuidgen -t')[1]
+        final_sqlite_file_name = sqlite_file_name + '@' + uuid
         
-        
-        commands.getstatusoutput('mv '+sqlitefile+".db "+sqlitefile+"@"+uuid+".db")
-        commands.getstatusoutput('mv '+sqlitefile+".txt "+sqlitefile+"@"+uuid+".txt")
+        if not os.path.isdir(workflowdirArchive + 'payloads'):
+            os.mkdir(workflowdirArchive + 'payloads')
+        commands.getstatusoutput('cp ' + sqlite_file   + ' ' + workflowdirArchive + 'payloads/' + final_sqlite_file_name + '.db')
+        commands.getstatusoutput('cp ' + metadata_file + ' ' + workflowdirArchive + 'payloads/' + final_sqlite_file_name + '.txt')
 
-        print sqlitefile+"@"+uuid+".db"
-        print sqlitefile+"@"+uuid+".txt"
+        commands.getstatusoutput('mv ' + sqlite_file   + ' ' + workflowdirLastPayloads + final_sqlite_file_name + '.db')
+        commands.getstatusoutput('mv ' + metadata_file + ' ' + workflowdirLastPayloads + final_sqlite_file_name + '.txt')
+
+        print workflowdirLastPayloads + final_sqlite_file_name + '.db'
+        print workflowdirLastPayloads + final_sqlite_file_name + '.txt'
         
         if option.upload:
             print " scp files to offline Drop Box"
-            commands.getstatusoutput("scp " + sqlitefile+"@"+uuid+".db  webcondvm.cern.ch:/DropBox")
-            commands.getstatusoutput("scp " + sqlitefile+"@"+uuid+".txt webcondvm.cern.ch:/DropBox")
-        
+#            shellScriptName = 'dropBoxOffline_test.sh'
+#            shellScript     = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/scripts/" + shellScriptName
+#            if not os.path.exists(shellScript) :
+#                wgetStatus = commands.getstatusoutput("wget http://condb.web.cern.ch/condb/DropBoxOffline/" + shellScriptName )
+#                if os.path.exists(shellScriptName) :
+#                    if not os.path.exists(shellScript):
+#                        os.system("mv -f " + shellScriptName + " " + shellScript)
+#                else:
+#                    exit("Can't get the shell script to upload payloads. Check this twiki page: https://twiki.cern.ch/twiki/bin/viewauth/CMS/DropBoxOffline")
+           commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/DropBox_test")
+           commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/DropBox_test")
+
         print " done. Clean up."
     #### CLEAN up
-	os.system("rm "+ writedb_out)
-	os.system("rm "+ readdb_out)
 	
 	#print "DONE.\n"
 	#print "Files ready to be move to beamspot dropbox:"
