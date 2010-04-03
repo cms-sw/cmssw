@@ -34,7 +34,7 @@ dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                                 TrackQuality = cms.untracked.vstring(), ## loose, tight, highPurity...; for all qualities, leave it blank
 			        InputBeamWidth = cms.untracked.double(-1.0), ## if -1 use the value calculated by the analyzer
 				FractionOfFittedTrks = cms.untracked.double(0.9),
-                                MinimumInputTracks = cms.untracked.int32(50),
+                                MinimumInputTracks = cms.untracked.int32(150),
 				deltaSignificanceCut = cms.untracked.double(10)
                                 ),
                               PVFitter = cms.PSet(

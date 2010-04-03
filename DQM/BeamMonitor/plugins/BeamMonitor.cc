@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/04/01 21:07:14 $
- * $Revision: 1.36 $
+ * $Date: 2010/04/02 12:26:02 $
+ * $Revision: 1.37 $
  *
  */
 
@@ -684,16 +684,6 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 
   if (doFitting) nFits_++;
 
-  if (nthBSTrk_ >= min_Ntrks_) {
-    TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.15,3.15);
-    f1->SetLineColor(4);
-    h_d0_phi0->getTProfile()->Fit("f1","QR");
-
-    TF1 *fgaus = new TF1("fgaus","gaus");
-    fgaus->SetLineColor(4);
-    h_trk_z0->getTH1()->Fit("fgaus","QLRM","",-1*maxZ_,maxZ_);
-  }
-
   if (doFitting && theBeamFitter->runFitter()){
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
     preBS = bs;
@@ -722,6 +712,24 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     h_y0->Fill( bs.y0());
     h_z0->Fill( bs.z0());
     h_sigmaZ0->Fill( bs.sigmaZ());
+
+    if (nthBSTrk_ >= 2*min_Ntrks_) {
+      double amp = sqrt(bs.x0()*bs.x0()+bs.y0()*bs.y0());
+      double alpha = atan2(bs.y0(),bs.x0());
+      TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.14,3.14);
+      f1->SetParameters(amp,alpha);
+      f1->SetParLimits(1,amp-0.1,amp+0.1);
+      f1->SetParLimits(2,alpha-0.577,alpha+0.577);
+      f1->SetLineColor(4);
+      h_d0_phi0->getTProfile()->Fit("f1","QR");
+
+      double mean = bs.z0();
+      double width = bs.sigmaZ();
+      TF1 *fgaus = new TF1("fgaus","gaus");
+      fgaus->SetParameters(mean,width);
+      fgaus->SetLineColor(4);
+      h_trk_z0->getTH1()->Fit("fgaus","QLRM","",mean-3*width,mean+3*width);
+    }
 
     fitResults->Reset();
     int * LSRange = theBeamFitter->getFitLSRange();
@@ -752,20 +760,25 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       summaryContent_[2] += 1.;
 //     }
   }
-  else { // FIXME: temporarily fill in previous fitted results
-    if(theBeamFitter->runFitter()){} // Dump fake beam spot for DIP
+  else {
+    if (theBeamFitter->runFitter()) {} // Dump fake beam spot for DIP
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
     if (debug_) {
       cout << "[BeamMonitor] No fitting \n" << endl;
       cout << "[BeamMonitor] Output fake beam spot for DIP \n" << endl;
       cout << bs << endl;
-      cout << "[BeamMonitor] Fill histograms with previous good fitted results:" << endl;
-      cout << preBS << endl;
+//       cout << "[BeamMonitor] Fill histograms with previous fitted results:" << endl;
+//       if (nFits_ == 0) preBS.setType(reco::BeamSpot::Fake);
+//       cout << preBS << endl;
     }
-    h_sigmaZ0_lumi->ShiftFillLast( preBS.sigmaZ(), preBS.sigmaZ0Error(), fitNLumi_ );
-    hs["x0_lumi"]->ShiftFillLast( preBS.x0(), preBS.x0Error(), fitNLumi_ );
-    hs["y0_lumi"]->ShiftFillLast( preBS.y0(), preBS.y0Error(), fitNLumi_ );
-    hs["z0_lumi"]->ShiftFillLast( preBS.z0(), preBS.z0Error(), fitNLumi_ );
+    h_sigmaZ0_lumi->ShiftFillLast( bs.sigmaZ(), bs.sigmaZ0Error(), fitNLumi_ );
+    hs["x0_lumi"]->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
+    hs["y0_lumi"]->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
+    hs["z0_lumi"]->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
+//     h_sigmaZ0_lumi->ShiftFillLast( preBS.sigmaZ(), preBS.sigmaZ0Error(), fitNLumi_ );
+//     hs["x0_lumi"]->ShiftFillLast( preBS.x0(), preBS.x0Error(), fitNLumi_ );
+//     hs["y0_lumi"]->ShiftFillLast( preBS.y0(), preBS.y0Error(), fitNLumi_ );
+//     hs["z0_lumi"]->ShiftFillLast( preBS.z0(), preBS.z0Error(), fitNLumi_ );
   }
   
   // Fill summary report
