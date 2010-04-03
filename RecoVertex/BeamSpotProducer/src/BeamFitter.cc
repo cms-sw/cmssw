@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.47 2010/03/30 19:18:13 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.48 2010/04/01 21:10:04 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -399,12 +399,12 @@ bool BeamFitter::runFitter() {
     BSFitter *myalgo = new BSFitter( fBSvector );
     myalgo->SetMaximumZ( trk_MaxZ_ );
     myalgo->SetConvergence( convergence_ );
-    myalgo->SetMinimumNTrks(min_Ntrks_);
+    myalgo->SetMinimumNTrks( min_Ntrks_ );
     if (inputBeamWidth_ > 0 ) myalgo->SetInputBeamWidth( inputBeamWidth_ );
 
     fbeamspot = myalgo->Fit();
 
-    if ( fbeamspot.type() != 0 && MyPVFitter->runFitter() ) {
+    if ( fbeamspot.type() != 0 && MyPVFitter->runFitter() ) { // Run PVFitter if d0-phi fit returns non zero results
 
       fbeamspot.setBeamWidthX( MyPVFitter->getWidthX() );
       fbeamspot.setBeamWidthY( MyPVFitter->getWidthY() );
@@ -424,15 +424,22 @@ bool BeamFitter::runFitter() {
       reco::BeamSpot tmpbs(reco::BeamSpot::Point(fbeamspot.x0(), fbeamspot.y0(),
                                                  MyPVFitter->getBeamSpot().z0() ),
                            MyPVFitter->getBeamSpot().sigmaZ() ,
-                     fbeamspot.dxdz(),
-                     fbeamspot.dydz(),
-                     fbeamspot.BeamWidthX(),
-                     matrix,
-                     fbeamspot.type() );
+			   fbeamspot.dxdz(),
+			   fbeamspot.dydz(),
+			   fbeamspot.BeamWidthX(),
+			   matrix,
+			   fbeamspot.type() );
       tmpbs.setBeamWidthY( fbeamspot.BeamWidthY() );
 
       fbeamspot = tmpbs;
       
+    }
+    else{ // PVFitter returns false
+      fbeamspot.setType(reco::BeamSpot::Unknown);
+      //       if (fbeamspot.type() == 2)
+      // 	fbeamspot.setType(reco::BeamSpot::BadPVFit); // bad PV fit ==> FIXME: Add type to BeamSpot.h?
+      //       else
+      // 	fbeamspot.setType(reco::BeamSpot::Bad); // bad d0-phi and PV fits ==> FIXME: Add type to BeamSpot.h?
     }
 
     if(writeTxt_ && fasciiFile.is_open()) dumpTxtFile(outputTxt_,true); // all reaults
@@ -442,7 +449,7 @@ bool BeamFitter::runFitter() {
     h1z = (TH1F*) myalgo->GetVzHisto();
 
     delete myalgo;
-    if ( fbeamspot.type() != 0 ) {// not Fake
+    if ( fbeamspot.type() != 0 ) {// save all results except for Fake (all 0.)
       fit_ok = true;
       if (saveBeamFit_){
 	fx = fbeamspot.x0();
@@ -465,7 +472,7 @@ bool BeamFitter::runFitter() {
       }
     }
   }
-  else{
+  else{ // tracks <= 1
     fbeamspot.setType(reco::BeamSpot::Fake);
     if(debug_) std::cout << "Not enough good tracks selected! No beam fit!" << std::endl;
     if(writeTxt_ && fasciiFile.is_open()) dumpTxtFile(outputTxt_,true);  // all results

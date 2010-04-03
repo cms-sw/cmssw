@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.19 2010/03/17 20:31:28 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.20 2010/03/20 14:40:56 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -38,6 +38,7 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
   theBeamFitter->resetLSRange();
   theBeamFitter->resetCutFlow();
   theBeamFitter->resetRefTime();
+  theBeamFitter->resetPVFitter();
 
   ftotalevents = 0;
   ftmprun0 = ftmprun = -1;
@@ -119,6 +120,7 @@ BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 		theBeamFitter->resetLSRange();
 		theBeamFitter->resetCutFlow();
 		theBeamFitter->resetRefTime();
+		theBeamFitter->resetPVFitter();
 		countLumi_=0;
 	}
 
