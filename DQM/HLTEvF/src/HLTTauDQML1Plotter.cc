@@ -190,11 +190,6 @@ void
 HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,const std::vector<LVColl>& refC)
 {
 
-  using namespace std;
-  using namespace edm;
-  using namespace reco;
-  using namespace l1extra;
-
   //  if(!doRefAnalysis)
   //    inputEvents_->Fill(0.5);
 
@@ -232,10 +227,10 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
   //Analyze L1 Objects(Tau+Jets)
-  edm::Handle<L1JetParticleCollection> taus;
-  edm::Handle<L1JetParticleCollection> jets;
-  edm::Handle<L1EmParticleCollection>  electrons;
-  edm::Handle<L1MuonParticleCollection>  muons;
+  edm::Handle<l1extra::L1JetParticleCollection> taus;
+  edm::Handle<l1extra::L1JetParticleCollection> jets;
+  edm::Handle<l1extra::L1EmParticleCollection>  electrons;
+  edm::Handle<l1extra::L1MuonParticleCollection>  muons;
 
 
   LVColl pathTaus;
@@ -297,7 +292,7 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		secondTauEt_->Fill((*taus)[0].pt());
 
 	    }
-	  for(L1JetParticleCollection::const_iterator i = taus->begin();i!=taus->end();++i)
+	  for(l1extra::L1JetParticleCollection::const_iterator i = taus->begin();i!=taus->end();++i)
 	    {
 	      l1taus.push_back(i->p4());
 	      if(!doRefAnalysis_)
@@ -313,7 +308,7 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
     if(gotL1Jets)
       if(jets->size()>0)
-	for(L1JetParticleCollection::const_iterator i = jets->begin();i!=jets->end();++i)
+	for(l1extra::L1JetParticleCollection::const_iterator i = jets->begin();i!=jets->end();++i)
 	  {	
 	    l1jets.push_back(i->p4());
 	    if(!doRefAnalysis_)
@@ -329,7 +324,7 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     if(gotL1Electrons)
       if(electrons->size()>0)
-	for(L1EmParticleCollection::const_iterator i = electrons->begin();i!=electrons->end();++i)
+	for(l1extra::L1EmParticleCollection::const_iterator i = electrons->begin();i!=electrons->end();++i)
 	  {
 	    l1electrons.push_back(i->p4());
 	    l1electronEt_->Fill(i->et());
@@ -341,7 +336,7 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     if(gotL1Muons)
       if(muons->size()>0)
-	for(L1MuonParticleCollection::const_iterator i = muons->begin();i!=muons->end();++i)
+	for(l1extra::L1MuonParticleCollection::const_iterator i = muons->begin();i!=muons->end();++i)
 	  {
 	    l1muons.push_back(i->p4());
 	    l1muonEt_->Fill(i->et());

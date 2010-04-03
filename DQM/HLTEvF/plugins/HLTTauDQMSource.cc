@@ -1,10 +1,5 @@
 #include "DQM/HLTEvF/interface/HLTTauDQMSource.h"
 
-using namespace std;
-using namespace edm;
-using namespace reco;
-using namespace l1extra;
-using namespace trigger;
 
 //
 // constructors and destructor
@@ -91,20 +86,27 @@ HLTTauDQMSource::beginJob(){
 }
 
 //--------------------------------------------------------
-void HLTTauDQMSource::beginRun(const edm::Run& r, const EventSetup& context) {
+void HLTTauDQMSource::beginRun(const edm::Run& r, const edm::EventSetup& context) {
 
 }
 
 //--------------------------------------------------------
-void HLTTauDQMSource::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
-				      const EventSetup& context) {
+void HLTTauDQMSource::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+					   const edm::EventSetup& context) {
   
 }
 
 // ----------------------------------------------------------
 void 
-HLTTauDQMSource::analyze(const Event& iEvent, const EventSetup& iSetup )
+HLTTauDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {  
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
+  using namespace l1extra;
+  using namespace trigger;
+
+
   //Apply the prescaler
   if(counterEvt_ > prescaleEvt_)
     {
@@ -178,11 +180,11 @@ HLTTauDQMSource::analyze(const Event& iEvent, const EventSetup& iSetup )
 
 
 //--------------------------------------------------------
-void HLTTauDQMSource::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
-				    const EventSetup& context) {
+void HLTTauDQMSource::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+					 const edm::EventSetup& context) {
 }
 //--------------------------------------------------------
-void HLTTauDQMSource::endRun(const Run& r, const EventSetup& context){
+void HLTTauDQMSource::endRun(const edm::Run& r, const edm::EventSetup& context){
 }
 //--------------------------------------------------------
 void HLTTauDQMSource::endJob(){

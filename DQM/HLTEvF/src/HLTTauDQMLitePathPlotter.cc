@@ -97,14 +97,6 @@ HLTTauDQMLitePathPlotter::~HLTTauDQMLitePathPlotter()
 void
 HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,const std::vector<LVColl>& refC)
 {
-  using namespace std;
-  using namespace edm;
-  using namespace reco;
-  using namespace l1extra;
-  using namespace trigger;
-
-
-
 
   std::vector<bool> isGoodReferenceEvent;
 
@@ -138,7 +130,7 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  isGoodReferenceEvent.push_back(false);
     }
 
-  Handle<TriggerEvent> trigEv;
+  edm::Handle<trigger::TriggerEvent> trigEv;
   //get The triggerEvent
      bool gotTEV =true;
      try {
@@ -285,11 +277,10 @@ HLTTauDQMLitePathPlotter::match(const LV& jet,const LVColl& McInfo,double dr)
 LVColl 
 HLTTauDQMLitePathPlotter::getObjectCollection(int id,const trigger::TriggerEvent& trigEv)
 {
-  using namespace edm;
-  using namespace trigger;
 
 
-      TriggerObjectCollection triggerObjects;
+
+        trigger::TriggerObjectCollection triggerObjects;
 	triggerObjects = trigEv.getObjects();
 
 	LVColl out;
@@ -308,20 +299,20 @@ HLTTauDQMLitePathPlotter::getObjectCollection(int id,const trigger::TriggerEvent
 LVColl 
 HLTTauDQMLitePathPlotter::getFilterCollection(size_t index,int id,const trigger::TriggerEvent& trigEv)
 {
-  using namespace trigger;
+
 
   //Create output Collection
   LVColl out;
       //get All the final trigger objects
-      const TriggerObjectCollection& TOC(trigEv.getObjects());
+     const trigger::TriggerObjectCollection& TOC(trigEv.getObjects());
      
       //filter index
       if(index!=trigEv.sizeFilters())
 	{
-	  const Keys& KEYS = trigEv.filterKeys(index);
+	  const trigger::Keys& KEYS = trigEv.filterKeys(index);
 	  for(size_t i = 0;i<KEYS.size();++i)
 	    {
-	      const TriggerObject& TO(TOC[KEYS[i]]);
+	      const trigger::TriggerObject& TO(TOC[KEYS[i]]);
 	      LV a(TO.px(),TO.py(),TO.pz(),sqrt(TO.px()*TO.px()+TO.py()*TO.py()+TO.pz()*TO.pz()));
 		out.push_back(a);
 	    }
