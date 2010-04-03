@@ -9,6 +9,7 @@
 <use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/CaloTowers>
+<use name=DataFormats/L1GlobalTrigger>
 <use name=Fireworks/TableWidget>
 <use name=FWCore/PluginManager>
 <use name=boost_program_options>
