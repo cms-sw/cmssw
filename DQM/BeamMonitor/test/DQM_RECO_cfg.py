@@ -18,7 +18,7 @@ process.source = cms.Source("PoolSource",
 
 '/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/BAEF02C0-0BED-DE11-9EBA-00261894392F.root',
 '/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/A461CC43-03ED-DE11-8E44-00304867BFF2.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/8A29D1B9-07ED-DE11-BDFD-002618943843.root'
+'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/BAEF02C0-0BED-DE11-9EBA-00261894392F.root'
 
     )
     , duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
@@ -41,7 +41,7 @@ process.noScraping= cms.EDFilter("FilterOutScraping",
     thresh = cms.untracked.double(0.20)
 )
 
-#process.dqmBeamMonitor.Debug = True
+process.dqmBeamMonitor.Debug = True
 #process.dqmBeamMonitor.BeamFitter.Debug = True
 process.dqmBeamMonitor.BeamFitter.WriteAscii = True
 process.dqmBeamMonitor.BeamFitter.AsciiFileName = 'BeamFitResults.txt'
@@ -49,11 +49,21 @@ process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
 process.dqmBeamMonitor.BeamFitter.DIPFileName = 'BeamFitResults.txt'
 #process.dqmBeamMonitor.BeamFitter.SaveFitResults = True
 process.dqmBeamMonitor.BeamFitter.OutputFileName = 'BeamFitResults.root'
+process.dqmBeamMonitor.resetEveryNLumi = 10
+process.dqmBeamMonitor.resetPVEveryNLumi = 5
 
-process.pp = cms.Path(process.hltLevel1GTSeed*process.dqmBeamMonitor+process.dqmBeamCondMonitor+process.dqmEnv+process.dqmSaver)
+### TKStatus
+process.dqmTKStatus = cms.EDFilter("TKStatus",
+	BeamFitter = cms.PSet(
+	DIPFileName = process.dqmBeamMonitor.BeamFitter.DIPFileName
+	)
+)
+###
+
+process.pp = cms.Path(process.dqmTKStatus*process.hltLevel1GTSeed*process.dqmBeamMonitor+process.dqmBeamCondMonitor+process.dqmEnv+process.dqmSaver)
 
 process.DQMStore.verbose = 0
-process.DQM.collectorHost = 'cmslpc15.fnal.gov'
+process.DQM.collectorHost = 'cmslpc17.fnal.gov'
 process.DQM.collectorPort = 9190
 process.dqmSaver.dirName = '.'
 process.dqmSaver.producer = 'Playback'
