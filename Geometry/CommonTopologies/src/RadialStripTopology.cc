@@ -107,12 +107,12 @@ MeasurementError RadialStripTopology::measurementError(const LocalPoint& p,  con
     t(yAxisOrientation() * p.x() / yHitToInter),   // tan(strip angle) 
     cs(t/(1+t*t)), s2(t*cs), c2(1-s2),             // rotation matrix
 
-    T( angularWidth() * std::sqrt( std::pow(p.x(),2) + std::pow(yHitToInter,2)) ), // tangential measurement unit (local pitch)
-    R( detHeight() / std::sqrt(c2) ),                                    // radial measurement unit (strip length) 
+    T2( 1./(std::pow(angularWidth(),2) * ( std::pow(p.x(),2) + std::pow(yHitToInter,2)) )), // 1./tangential measurement unit (local pitch) ^2
+    R2( c2/std::pow(detHeight(),2) ),                                    // 1./ radial measurement unit (strip length) ^2
 
-    uu(       ( c2*e.xx() - 2*cs*e.xy() + s2*e.yy() )   / (T*T) ),
-    vv(       ( s2*e.xx() + 2*cs*e.xy() + c2*e.yy() )   / (R*R) ),
-    uv( ( cs*( e.xx() - e.yy() ) + e.xy()*( c2 - s2 ) ) / (T*R) );
+    uu(       ( c2*e.xx() - 2*cs*e.xy() + s2*e.yy() )   * T2 ),
+    vv(       ( s2*e.xx() + 2*cs*e.xy() + c2*e.yy() )   * R2 ),
+	uv( ( cs*( e.xx() - e.yy() ) + e.xy()*( c2 - s2 ) )  * std::sqrt (T2*R2) );
   
   return MeasurementError(uu, uv, vv);
 }
