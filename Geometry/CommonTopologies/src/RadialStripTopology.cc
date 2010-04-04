@@ -12,7 +12,7 @@ RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r, in
   theYAxisOrientation(yAx), yCentre( yMid) {   
   // Angular offset of extreme edge of detector, so that angle is
   // zero for a strip lying along local y axis = long symmetry axis of plane of strips
-  thePhiOfOneEdge = -(theNumberOfStrips/2.) * theAngularWidth * yAx;
+  thePhiOfOneEdge = -(0.5*theNumberOfStrips) * theAngularWidth * yAx;
   
   LogTrace("RadialStripTopology") << "RadialStripTopology: constructed with"
         << " strips = " << ns
@@ -26,38 +26,44 @@ RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r, in
 }    
 
 int RadialStripTopology::channel(const LocalPoint& lp) const { return   std::min( int( strip(lp) ), theNumberOfStrips-1 ) ;}
-int RadialStripTopology::nearestStrip(const LocalPoint & lp) const {   return std::min( nstrips(), static_cast<int>( std::max(float(0), strip(lp)) ) + 1);}
-float RadialStripTopology::stripAngle(float strip) const { return   phiOfOneEdge() + yAxisOrientation() * strip * angularWidth() ;}
-float RadialStripTopology::yDistanceToIntersection( float y ) const { return   yAxisOrientation()*y + originToIntersection() ;}
-float RadialStripTopology::localStripLength(const LocalPoint& lp) const {  return detHeight() * sqrt(1. + pow( lp.x()/yDistanceToIntersection(lp.y()), 2) );}
-float RadialStripTopology::xOfStrip(int strip, float y) const { return   
-    yAxisOrientation() * yDistanceToIntersection( y ) * tan( stripAngle(static_cast<float>(strip) - 0.5 ) );}
 
-float RadialStripTopology::
-strip(const LocalPoint& lp) const {
+int RadialStripTopology::nearestStrip(const LocalPoint & lp) const {   return std::min( nstrips(), static_cast<int>( std::max(float(0), strip(lp)) ) + 1);}
+
+float RadialStripTopology::stripAngle(float strip) const { return   phiOfOneEdge() + yAxisOrientation() * strip * angularWidth() ;}
+
+float RadialStripTopology::yDistanceToIntersection( float y ) const { return   yAxisOrientation()*y + originToIntersection() ;}
+
+float RadialStripTopology::localStripLength(const LocalPoint& lp) const {  
+  return detHeight() * std::sqrt(1.f + std::pow( lp.x()/yDistanceToIntersection(lp.y()), 2) );
+}
+
+float RadialStripTopology::xOfStrip(int strip, float y) const { return   
+    yAxisOrientation() * yDistanceToIntersection( y ) * std::tan( stripAngle(static_cast<float>(strip) - 0.5 ) );}
+
+float RadialStripTopology::strip(const LocalPoint& lp) const {
   const float   // phi is measured from y axis --> sign of angle is sign of x * yAxisOrientation --> use atan2(x,y), not atan2(y,x)
-    phi( atan2( lp.x(), yDistanceToIntersection( lp.y() ) )),
+    phi( std::atan2( lp.x(), yDistanceToIntersection( lp.y() ) )),
     aStrip( ( phi - yAxisOrientation() * phiOfOneEdge() )/angularWidth());
   return  std::max(float(0), std::min( (float)nstrips(), aStrip ));
 }
 
 LocalPoint RadialStripTopology::
 localPosition(float strip) const {
-  return LocalPoint( yAxisOrientation() * originToIntersection() * tan( stripAngle(strip) ), 0.0 );
+  return LocalPoint( yAxisOrientation() * originToIntersection() * tan( stripAngle(strip) ), 0 );
 }
 
 LocalPoint RadialStripTopology::
 localPosition(const MeasurementPoint& mp) const {
   const float  // y = (L/cos(phi))*mp.y()*cos(phi) 
     y( mp.y()*detHeight()  +  yCentreOfStripPlane() ),
-    x( yAxisOrientation() * yDistanceToIntersection( y ) * tan ( stripAngle( mp.x() ) ) );
+    x( yAxisOrientation() * yDistanceToIntersection( y ) * std::tan ( stripAngle( mp.x() ) ) );
   return LocalPoint( x, y );
 }
 
 MeasurementPoint RadialStripTopology::
 measurementPosition(const LocalPoint& lp) const {
   const float // phi is [pi/2 - conventional local phi], use atan2(x,y) rather than atan2(y,x)
-    phi( yAxisOrientation() * atan2( lp.x(), yDistanceToIntersection( lp.y() ) ));
+    phi( yAxisOrientation() * std::atan2( lp.x(), yDistanceToIntersection( lp.y() ) ));
   return MeasurementPoint( yAxisOrientation()*( phi-phiOfOneEdge() ) / angularWidth(),
 			   ( lp.y() - yCentreOfStripPlane() )        / detHeight() );
 }
@@ -68,8 +74,8 @@ localError(float strip, float stripErr2) const {
     t(tan(stripAngle(strip))),
     cs(t/(1+t*t)), s2(t*cs), c2(1-s2),  // rotation matrix
 
-    tt( stripErr2 * pow( centreToIntersection()*angularWidth() ,2) / c2 ), // tangential sigma^2
-    rr( pow(detHeight(), 2) / (12*c2) ),                                   // radial sigma^2( uniform prob density along strip)
+    tt( stripErr2 * std::pow( centreToIntersection()*angularWidth() ,2) / c2 ), // tangential sigma^2
+    rr( std::pow(detHeight(), 2) / (12.f*c2) ),                                   // radial sigma^2( uniform prob density along strip)
 
     xx( c2*tt + s2*rr  ),
     yy( s2*tt + c2*rr  ),
@@ -81,7 +87,7 @@ localError(float strip, float stripErr2) const {
 LocalError RadialStripTopology::
 localError(const MeasurementPoint& mp, const MeasurementError& me) const {
   const double
-    phi(stripAngle(mp.x())), t(tan(phi)), c1(cos(phi)),
+    phi(stripAngle(mp.x())), t(std::tan(phi)), c1(std::cos(phi)),
     cs(t/(1+t*t)), s2(t*cs), c2(1-s2), // rotation matrix
 
     T( angularWidth() * ( centreToIntersection() + yAxisOrientation()*mp.y()*detHeight()) / c1 ), // tangential measurement unit (local pitch)
@@ -104,8 +110,8 @@ measurementError(const LocalPoint& p,  const LocalError& e) const {
     t(yAxisOrientation() * p.x() / yHitToInter),   // tan(strip angle) 
     cs(t/(1+t*t)), s2(t*cs), c2(1-s2),             // rotation matrix
 
-    T( angularWidth() * sqrt( pow(p.x(),2) + pow(yHitToInter,2)) ), // tangential measurement unit (local pitch)
-    R( detHeight() / sqrt(c2) ),                                    // radial measurement unit (strip length) 
+    T( angularWidth() * std::sqrt( std::pow(p.x(),2) + std::pow(yHitToInter,2)) ), // tangential measurement unit (local pitch)
+    R( detHeight() / std::sqrt(c2) ),                                    // radial measurement unit (strip length) 
 
     uu(       ( c2*e.xx() - 2*cs*e.xy() + s2*e.yy() )   / (T*T) ),
     vv(       ( s2*e.xx() + 2*cs*e.xy() + c2*e.yy() )   / (R*R) ),
@@ -120,8 +126,8 @@ localPitch(const LocalPoint& lp) const {  // The local pitch is the local x widt
   const int istrip = std::min(nstrips(), static_cast<int>(strip(lp)) + 1); // which strip number
   const float fangle = stripAngle(static_cast<float>(istrip) - 0.5); // angle of strip centre
   return
-    yDistanceToIntersection( lp.y() ) * sin(angularWidth()) /
-    ( cos(fangle-0.5*angularWidth()) * cos(fangle+0.5*angularWidth()) );
+    yDistanceToIntersection( lp.y() ) * std::sin(angularWidth()) /
+    ( std::cos(fangle-0.5*angularWidth()) * std::cos(fangle+0.5*angularWidth()) );
 }
     
 
