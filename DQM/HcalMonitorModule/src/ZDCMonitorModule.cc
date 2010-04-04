@@ -276,9 +276,6 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
       rawOK_=false;
       edm::LogWarning("ZDCMonitorModule")<<" Unpacker Report Digi Collection "<<inputLabelDigi_<<" not available";
     }
-  if (rawOK_ && !report.isValid()) {
-    rawOK_=false;
-  }
   if (rawOK_)
     {
       if(!fedsListed_){
@@ -342,10 +339,6 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
       if (debug_>1) std::cout <<"<ZDCMonitorModule> COULDN'T GET ZDC DIGI"<<std::endl;
       //edm::LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" zdc_digi not available";
     }
-  if (!zdc_digi.isValid()) {
-    digiOK_=false;
-    if (debug_>1) std::cout <<"<ZDCMonitorModule> DIGI OK FAILED FOR ZDC"<<std::endl;
-  }
   if (digiOK_) ++ievt_digi_;
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -359,8 +352,6 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
       if (debug_>0) 
 	edm::LogWarning("ZDCMonitorModule")<< inputLabelRecHitZDC_<<" not available"; 
     }
-  if (!zdc_hits.isValid()) 
-        zdchitOK_ = false;
   if (zdchitOK_) ++ievt_rechit_;
 
 

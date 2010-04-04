@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy
 //         Created:  Thu Mar 27 08:12:02 CET 2008
-// $Id: HcalTimingMonitorModule.cc,v 1.7 2009/12/18 20:44:47 wmtan Exp $
+// $Id: HcalTimingMonitorModule.cc,v 1.8 2010/03/25 11:17:15 temple Exp $
 //
 //
 
@@ -300,28 +300,28 @@ int TRIGGER=0;
    if (counterEvt_%prescaleEvt_!=0)  return;
 
    run_number=iEvent.id().run();
-   try{	
-     // Check GCT trigger bits
-     edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
-     iEvent.getByLabel( L1ADataLabel, gtRecord);
-     const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();
-     const DecisionWord         dWord = gtRecord->decisionWord();
-     //bool HFselfTrigger   = tWord.at(9);
-     //bool HOselfTrigger   = tWord.at(11);
-     bool GCTTrigger1      = dWord.at(GCTTriggerBit1_);     
-     bool GCTTrigger2      = dWord.at(GCTTriggerBit2_);     
-     bool GCTTrigger3      = dWord.at(GCTTriggerBit3_);     
-     bool GCTTrigger4      = dWord.at(GCTTriggerBit4_);     
-     bool GCTTrigger5      = dWord.at(GCTTriggerBit5_);     
-     if(GCTTrigger1 || GCTTrigger2 || GCTTrigger3 || GCTTrigger4 || GCTTrigger5){ TrigGCT++; TRIGGER=+TRIG_GCT; }
-   }catch(...){ };
+   // Check GCT trigger bits
+   edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
+   
+   if (!iEvent.getByLabel( L1ADataLabel, gtRecord))
+     return;
+   const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();
+   const DecisionWord         dWord = gtRecord->decisionWord();
+   //bool HFselfTrigger   = tWord.at(9);
+   //bool HOselfTrigger   = tWord.at(11);
+   bool GCTTrigger1      = dWord.at(GCTTriggerBit1_);     
+   bool GCTTrigger2      = dWord.at(GCTTriggerBit2_);     
+   bool GCTTrigger3      = dWord.at(GCTTriggerBit3_);     
+   bool GCTTrigger4      = dWord.at(GCTTriggerBit4_);     
+   bool GCTTrigger5      = dWord.at(GCTTriggerBit5_);     
+   if(GCTTrigger1 || GCTTrigger2 || GCTTrigger3 || GCTTrigger4 || GCTTrigger5){ TrigGCT++; TRIGGER=+TRIG_GCT; }
+   
    /////////////////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////////////////
-   try{	 
-   	// define trigger trigger source (example from GMT group)
-   	edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle; 
-   	iEvent.getByLabel(L1ADataLabel,gmtrc_handle);
-   	L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
+   // define trigger trigger source (example from GMT group)
+   edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle; 
+   if (!iEvent.getByLabel(L1ADataLabel,gmtrc_handle)) return;
+   L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
    
   	int idt   =0;
    	int icsc  =0;
@@ -406,113 +406,119 @@ int TRIGGER=0;
   	if(ncsc[1]>0 ) { TrigCSC++;   TRIGGER=+TRIG_CSC;  }
   	if(ndt[1]>0  ) { TrigDT++;    TRIGGER=+TRIG_DT;   }
   	if(nrpcb[1]>0) { TrigRPC++;   TRIGGER=+TRIG_RPC;  }
-   }catch(...){ };
+
    /////////////////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////////////////   
    if(counterEvt_<100){
-      try{
-         edm::Handle<HBHEDigiCollection> hbhe; 
-         iEvent.getByType(hbhe);
-         for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
-             eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
-             if(digi->id().subdet()==HcalBarrel) HBcnt++;
-             if(digi->id().subdet()==HcalEndcap) HEcnt++;
-	     for(int i=0;i<nTS;i++)
-	        if(digi->sample(i).adc()<20) set_hbhe(eta,phi,depth,digi->sample(i).capid(),adc2fC[digi->sample(i).adc()]);
-         }   
-       }catch(...){}      
-      try{
-         edm::Handle<HODigiCollection> ho; 
-         iEvent.getByType(ho);
-         for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
-             eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
-             HOcnt++;
-	     for(int i=0;i<nTS;i++)
+     edm::Handle<HBHEDigiCollection> hbhe; 
+     if (iEvent.getByType(hbhe)!=0)
+       {
+	 for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
+	   eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
+	   if(digi->id().subdet()==HcalBarrel) HBcnt++;
+	   if(digi->id().subdet()==HcalEndcap) HEcnt++;
+	   for(int i=0;i<nTS;i++)
+	     if(digi->sample(i).adc()<20) set_hbhe(eta,phi,depth,digi->sample(i).capid(),adc2fC[digi->sample(i).adc()]);
+	 } 
+       }  
+     edm::Handle<HODigiCollection> ho; 
+     if (iEvent.getByType(ho)!=0);
+     {
+       for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
+	 eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
+	 HOcnt++;
+	 for(int i=0;i<nTS;i++)
 	        if(digi->sample(i).adc()<20) set_ho(eta,phi,depth,digi->sample(i).capid(),adc2fC[digi->sample(i).adc()]);
-         }   
-      }catch(...){}  
-      try{
-         edm::Handle<HFDigiCollection> hf;
-         iEvent.getByType(hf);
+       }   
+     } // if
+
+     edm::Handle<HFDigiCollection> hf;
+     if (iEvent.getByType(hf)!=0)
+       {
          for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
-             eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
-	     HFcnt++;
-	     for(int i=0;i<nTS;i++) 
-	        if(digi->sample(i).adc()<20) set_hf(eta,phi,depth,digi->sample(i).capid(),adc2fC[digi->sample(i).adc()]);
+	   eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
+	   HFcnt++;
+	   for(int i=0;i<nTS;i++) 
+	     if(digi->sample(i).adc()<20) set_hf(eta,phi,depth,digi->sample(i).capid(),adc2fC[digi->sample(i).adc()]);
          }   
-      }catch(...){}     
-   }else{///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+       }
+   } // if (counterEvt<100)
+   else{
+     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       double data[10];
-      try{
-         edm::Handle<HBHEDigiCollection> hbhe; 
-         iEvent.getByType(hbhe);
-         for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
-             eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
-	     if(nTS>10) nTS=10;
-	     if(digi->id().subdet()==HcalBarrel) HBcnt++;
-	     if(digi->id().subdet()==HcalEndcap) HEcnt++;
-	     double energy=0;
-	     for(int i=0;i<nTS;i++){
-	        data[i]=adc2fC[digi->sample(i).adc()]-get_ped_hbhe(eta,phi,depth,digi->sample(i).capid());
-		energy+=data[i];
-	     }
-	     if(digi->id().subdet()==HcalBarrel) HBEnergy->Fill(energy); 
-	     if(digi->id().subdet()==HcalEndcap) HEEnergy->Fill(energy); 
-	     if(!isSignal(data,nTS)) continue;
-	     for(int i=0;i<nTS;i++){
-	         if(data[i]>-1.0){
-	           if(digi->id().subdet()==HcalBarrel && (TRIGGER|TRIG_DT)==TRIG_DT)             HBShapeDT->Fill(i,data[i]);
-	           if(digi->id().subdet()==HcalBarrel && (TRIGGER|TRIG_RPC)==TRIG_RPC)           HBShapeRPC->Fill(i,data[i]);
-	           if(digi->id().subdet()==HcalBarrel && (TRIGGER|TRIG_GCT)==TRIG_GCT)           HBShapeGCT->Fill(i,data[i]); 
-	           if(digi->id().subdet()==HcalEndcap && (TRIGGER|TRIG_CSC)==TRIG_CSC && eta>0)  HEShapeCSCp->Fill(i,data[i]);
-	           if(digi->id().subdet()==HcalEndcap && (TRIGGER|TRIG_CSC)==TRIG_CSC && eta<0)  HEShapeCSCm->Fill(i,data[i]);   
-		 }  
-	     }
-	     double Time=GetTime(data,nTS);
-	     if(digi->id().subdet()==HcalBarrel){
-	         if(CosmicsCorr_) Time+=(7.5*sin((phi*5.0)/180.0*3.14159))/25.0;
-	         if((TRIGGER&TRIG_DT)==TRIG_DT)  HBTimeDT ->Fill(GetTime(data,nTS));
-	         if((TRIGGER&TRIG_RPC)==TRIG_RPC) HBTimeRPC->Fill(GetTime(data,nTS));
-	         if((TRIGGER&TRIG_GCT)==TRIG_GCT) HBTimeGCT->Fill(GetTime(data,nTS));
-	     }else{
-	         if(CosmicsCorr_) Time+=(3.5*sin((phi*5.0)/180.0*3.14159))/25.0; 
-	         if(digi->id().subdet()==HcalEndcap && (TRIGGER&TRIG_CSC)==TRIG_CSC && eta>0) HETimeCSCp->Fill(Time);
-	         if(digi->id().subdet()==HcalEndcap && (TRIGGER&TRIG_CSC)==TRIG_CSC && eta<0) HETimeCSCm->Fill(Time);  
-	     }
-         }    
-       }catch(...){} 
-      try{
-         edm::Handle<HODigiCollection> ho; 
-         iEvent.getByType(ho);
-         for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
-             eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
-	     if(nTS>10) nTS=10;
-             HOcnt++; 
-	     double energy=0;
-	     for(int i=0;i<nTS;i++){
-	        data[i]=adc2fC[digi->sample(i).adc()]-get_ped_ho(eta,phi,depth,digi->sample(i).capid());
-	        energy+=data[i];
-	     }     
-	     HOEnergy->Fill(energy); 
-	     if(!isSignal(data,nTS)) continue;
-	     for(int i=0;i<nTS;i++){
-	       if(data[i]>-1.0){
-	         if((TRIGGER&TRIG_DT)==TRIG_DT)    HOShapeDT->Fill(i,data[i]);
-	         if((TRIGGER&TRIG_RPC)==TRIG_RPC)  HOShapeRPC->Fill(i,data[i]);
-	         if((TRIGGER&TRIG_GCT)==TRIG_GCT)  HOShapeGCT->Fill(i,data[i]); 	     
-	       }
-	     }  
-	     double Time=GetTime(data,nTS);
-	     if(CosmicsCorr_) Time+=(12.0*sin((phi*5.0)/180.0*3.14159))/25.0;    
-	     if((TRIGGER&TRIG_DT)==TRIG_DT)   HOTimeDT->Fill(Time);
-	     if((TRIGGER&TRIG_RPC)==TRIG_RPC) HOTimeRPC->Fill(Time);
-	     if((TRIGGER&TRIG_GCT)==TRIG_GCT) HOTimeGCT->Fill(Time);
-         }   
-      }catch(...){}  
-      try{
-         edm::Handle<HFDigiCollection> hf; 
-         iEvent.getByType(hf);
-         for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
+      
+      edm::Handle<HBHEDigiCollection> hbhe; 
+      if (iEvent.getByType(hbhe)!=0)
+	{
+	  for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
+	    eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
+	    if(nTS>10) nTS=10;
+	    if(digi->id().subdet()==HcalBarrel) HBcnt++;
+	    if(digi->id().subdet()==HcalEndcap) HEcnt++;
+	    double energy=0;
+	    for(int i=0;i<nTS;i++){
+	      data[i]=adc2fC[digi->sample(i).adc()]-get_ped_hbhe(eta,phi,depth,digi->sample(i).capid());
+	      energy+=data[i];
+	    }
+	    if(digi->id().subdet()==HcalBarrel) HBEnergy->Fill(energy); 
+	    if(digi->id().subdet()==HcalEndcap) HEEnergy->Fill(energy); 
+	    if(!isSignal(data,nTS)) continue;
+	    for(int i=0;i<nTS;i++){
+	      if(data[i]>-1.0){
+		if(digi->id().subdet()==HcalBarrel && (TRIGGER|TRIG_DT)==TRIG_DT)             HBShapeDT->Fill(i,data[i]);
+		if(digi->id().subdet()==HcalBarrel && (TRIGGER|TRIG_RPC)==TRIG_RPC)           HBShapeRPC->Fill(i,data[i]);
+		if(digi->id().subdet()==HcalBarrel && (TRIGGER|TRIG_GCT)==TRIG_GCT)           HBShapeGCT->Fill(i,data[i]); 
+		if(digi->id().subdet()==HcalEndcap && (TRIGGER|TRIG_CSC)==TRIG_CSC && eta>0)  HEShapeCSCp->Fill(i,data[i]);
+		if(digi->id().subdet()==HcalEndcap && (TRIGGER|TRIG_CSC)==TRIG_CSC && eta<0)  HEShapeCSCm->Fill(i,data[i]);   
+	      }  
+	    }
+	    double Time=GetTime(data,nTS);
+	    if(digi->id().subdet()==HcalBarrel){
+	      if(CosmicsCorr_) Time+=(7.5*sin((phi*5.0)/180.0*3.14159))/25.0;
+	      if((TRIGGER&TRIG_DT)==TRIG_DT)  HBTimeDT ->Fill(GetTime(data,nTS));
+	      if((TRIGGER&TRIG_RPC)==TRIG_RPC) HBTimeRPC->Fill(GetTime(data,nTS));
+	      if((TRIGGER&TRIG_GCT)==TRIG_GCT) HBTimeGCT->Fill(GetTime(data,nTS));
+	    }else{
+	      if(CosmicsCorr_) Time+=(3.5*sin((phi*5.0)/180.0*3.14159))/25.0; 
+	      if(digi->id().subdet()==HcalEndcap && (TRIGGER&TRIG_CSC)==TRIG_CSC && eta>0) HETimeCSCp->Fill(Time);
+	      if(digi->id().subdet()==HcalEndcap && (TRIGGER&TRIG_CSC)==TRIG_CSC && eta<0) HETimeCSCm->Fill(Time);  
+	    }
+	  }    
+	} // if (...)
+
+      edm::Handle<HODigiCollection> ho; 
+      if (iEvent.getByType(ho)!=0)
+	{
+	  for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
+	    eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
+	    if(nTS>10) nTS=10;
+	    HOcnt++; 
+	    double energy=0;
+	    for(int i=0;i<nTS;i++){
+	      data[i]=adc2fC[digi->sample(i).adc()]-get_ped_ho(eta,phi,depth,digi->sample(i).capid());
+	      energy+=data[i];
+	    }     
+	    HOEnergy->Fill(energy); 
+	    if(!isSignal(data,nTS)) continue;
+	    for(int i=0;i<nTS;i++){
+	      if(data[i]>-1.0){
+		if((TRIGGER&TRIG_DT)==TRIG_DT)    HOShapeDT->Fill(i,data[i]);
+		if((TRIGGER&TRIG_RPC)==TRIG_RPC)  HOShapeRPC->Fill(i,data[i]);
+		if((TRIGGER&TRIG_GCT)==TRIG_GCT)  HOShapeGCT->Fill(i,data[i]); 	     
+	      }
+	    }  
+	    double Time=GetTime(data,nTS);
+	    if(CosmicsCorr_) Time+=(12.0*sin((phi*5.0)/180.0*3.14159))/25.0;    
+	    if((TRIGGER&TRIG_DT)==TRIG_DT)   HOTimeDT->Fill(Time);
+	    if((TRIGGER&TRIG_RPC)==TRIG_RPC) HOTimeRPC->Fill(Time);
+	    if((TRIGGER&TRIG_GCT)==TRIG_GCT) HOTimeGCT->Fill(Time);
+	  }   
+	}// if (ho)
+
+      edm::Handle<HFDigiCollection> hf; 
+      if (iEvent.getByType(hf))
+	{
+	  for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
             eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	    if(nTS>10) nTS=10;
             HFcnt++; 
@@ -532,7 +538,7 @@ int TRIGGER=0;
 	    if((TRIGGER&TRIG_CSC)==TRIG_CSC && eta>0) HFTimeCSCp->Fill(GetTime(data,nTS)); 
  	    if((TRIGGER&TRIG_CSC)==TRIG_CSC && eta<0) HFTimeCSCm->Fill(GetTime(data,nTS)); 
         }   
-      }catch(...){}  
+	} // if (hf)
    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    }

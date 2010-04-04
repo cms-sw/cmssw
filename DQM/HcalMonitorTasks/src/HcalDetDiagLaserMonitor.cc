@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Wed Mar  3 12:14:16 CET 2010
-// $Id: HcalDetDiagLaserMonitor.cc,v 1.9 2010/03/25 16:47:28 temple Exp $
+// $Id: HcalDetDiagLaserMonitor.cc,v 1.10 2010/03/26 21:46:23 wmtan Exp $
 //
 //
 
@@ -613,13 +613,13 @@ float ave_t,ave_e,ave_t_r,ave_e_r;
    std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
    for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
      DetId detid=emap->lookup(*eid);
+     if (detid.det()!=DetId::Hcal) continue;
      int eta=0,phi=0,depth=0;
-     try{
+
        HcalDetId hid(detid);
        eta=hid.ieta();
        phi=hid.iphi();
        depth=hid.depth();
-     }catch(...){ continue; }
      int e=CalcEtaBin(sd,eta,depth)+1;
      if(detid.subdetId()==HcalBarrel && sd==HcalBarrel){
 	double val=0,rms=0,time=0,time_rms=0,VAL=0,RMS=0,TIME=0,TIME_RMS=0;
@@ -700,13 +700,14 @@ float ave_t,ave_e,ave_t_r,ave_e_r;
    }
    for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
      DetId detid=emap->lookup(*eid);
+     if (detid.det()!=DetId::Hcal) continue;
+
      int eta=0,phi=0,depth=0;
-     try{
-       HcalDetId hid(detid);
-       eta=hid.ieta();
-       phi=hid.iphi();
-       depth=hid.depth();
-     }catch(...){ continue; }
+     HcalDetId hid(detid);
+     eta=hid.ieta();
+     phi=hid.iphi();
+     depth=hid.depth();
+   
      if(detid.subdetId()==HcalBarrel){
         if(hb_data[eta+42][phi-1][depth-1].nBadTime>0){
            int e=CalcEtaBin(HcalBarrel,eta,depth)+1; 
@@ -1331,14 +1332,15 @@ char   Subdet[10],str[500];
       std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
       for(std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
          DetId detid=emap->lookup(*eid);
+	 if (detid.det()!=DetId::Hcal) continue;
+
          int eta,phi,depth; 
          std::string subdet="";
-         try{
-           HcalDetId hid(detid);
-           eta=hid.ieta();
-           phi=hid.iphi();
-           depth=hid.depth(); 
-         }catch(...){ continue; } 
+	 HcalDetId hid(detid);
+	 eta=hid.ieta();
+	 phi=hid.iphi();
+	 depth=hid.depth(); 
+         
          double e=0,e_rms=0,t=0,t_rms=0;
          if(detid.subdetId()==HcalBarrel){
              subdet="HB";
@@ -1403,14 +1405,13 @@ double amp,rms,time,time_rms;
 int Eta,Phi,Depth;
 char subdet[10];
 TFile *f;
-      try{ 
-         f = new TFile(ReferenceData.c_str(),"READ");
-      }catch(...){ return ;}
-      if(!f->IsOpen()) return ;
-      TObjString *STR=(TObjString *)f->Get("run number");
-      
-      if(STR){ std::string Ref(STR->String()); ReferenceRun=Ref;}
-      
+ f = new TFile(ReferenceData.c_str(),"READ");
+ 
+ if(!f->IsOpen()) return ;
+ TObjString *STR=(TObjString *)f->Get("run number");
+ 
+ if(STR){ std::string Ref(STR->String()); ReferenceRun=Ref;}
+ 
       TTree*  t=(TTree*)f->Get("HCAL Laser data");
       if(!t) return;
       t->SetBranchAddress("Subdet",   subdet);

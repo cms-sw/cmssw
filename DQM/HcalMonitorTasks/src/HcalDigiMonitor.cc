@@ -769,6 +769,7 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
   bool digi_error=false;
 
   const int DigiSize=digi.size();
+  for (int i=0;i<10;++i) pedSubtractedADC_[i]=0;
   const int pedSubADCsize=sizeof(pedSubtractedADC_)/sizeof(double);
 
   std::map<HcalDetId, std::vector<double> >::iterator  foundID = PedestalsByCapId_.find(digi.id());
@@ -814,7 +815,6 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 
       if (i>=pedSubADCsize) continue; // don't exceed maximum array length when checking digis
 
-      pedSubtractedADC_[i]=0; //reset counters
       if (foundID!=PedestalsByCapId_.end())
 	{
 	  pedSubtractedADC_[i]=digi.sample(i).adc()-(foundID->second)[thisCapid];

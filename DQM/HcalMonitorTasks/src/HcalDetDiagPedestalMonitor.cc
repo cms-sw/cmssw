@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Tue Mar  9 12:59:18 CET 2010
-// $Id: HcalDetDiagPedestalMonitor.cc,v 1.11 2010/03/25 16:47:28 temple Exp $
+// $Id: HcalDetDiagPedestalMonitor.cc,v 1.12 2010/03/26 21:46:24 wmtan Exp $
 //
 //
 // user include files
@@ -596,13 +596,14 @@ void HcalDetDiagPedestalMonitor::CheckStatus(){
    std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
    for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++) {
      DetId detid=emap->lookup(*eid);
+     if (detid.det()!=DetId::Hcal) continue;
      int eta=0,phi=0,depth=0;
-     try{
-       HcalDetId hid(detid);
-       eta=hid.ieta();
-       phi=hid.iphi();
-       depth=hid.depth(); 
-     }catch(...){ continue; } 
+
+     HcalDetId hid(detid);
+     eta=hid.ieta();
+     phi=hid.iphi();
+     depth=hid.depth(); 
+
      int sd=detid.subdetId();
      if(sd==HcalBarrel){
           int ovf=hb_data[eta+42][phi-1][depth-1][0].get_overflow();
@@ -997,14 +998,14 @@ char   Subdet[10],str[500];
       std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
       for(std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
          DetId detid=emap->lookup(*eid);
+	 if (detid.det()!=DetId::Hcal) continue;
          int eta,phi,depth; 
          std::string subdet="";
-         try{
-           HcalDetId hid(detid);
-           eta=hid.ieta();
-           phi=hid.iphi();
-           depth=hid.depth(); 
-         }catch(...){ continue; } 
+	 HcalDetId hid(detid);
+	 eta=hid.ieta();
+	 phi=hid.iphi();
+	 depth=hid.depth(); 
+      
          double ped[4]={0,0,0,0},rms[4]={0,0,0,0};
          if(detid.subdetId()==HcalBarrel){
              subdet="HB";
@@ -1073,61 +1074,59 @@ char   Subdet[10],str[500];
 }
 
 void HcalDetDiagPedestalMonitor::LoadReference(){
-double ped[4],rms[4];
-int Eta,Phi,Depth;
-char subdet[10];
-TFile *f;
-      try{ 
-         f = new TFile(ReferenceData.c_str(),"READ");
-      }catch(...){ return ;}
-      if(!f->IsOpen()) return ;
-      TObjString *STR=(TObjString *)f->Get("run number");
-      
-      if(STR){ std::string Ref(STR->String()); ReferenceRun=Ref;}
-      
-      TTree*  t=(TTree*)f->Get("HCAL Pedestal data");
-      if(!t) return;
-      t->SetBranchAddress("Subdet",   subdet);
-      t->SetBranchAddress("eta",      &Eta);
-      t->SetBranchAddress("phi",      &Phi);
-      t->SetBranchAddress("depth",    &Depth);
-      t->SetBranchAddress("cap0_ped", &ped[0]);
-      t->SetBranchAddress("cap0_rms", &rms[0]);
-      t->SetBranchAddress("cap1_ped", &ped[1]);
-      t->SetBranchAddress("cap1_rms", &rms[1]);
-      t->SetBranchAddress("cap2_ped", &ped[2]);
-      t->SetBranchAddress("cap2_rms", &rms[2]);
-      t->SetBranchAddress("cap3_ped", &ped[3]);
-      t->SetBranchAddress("cap3_rms", &rms[3]);
-      for(int ievt=0;ievt<t->GetEntries();ievt++){
-         t->GetEntry(ievt);
-	 if(strcmp(subdet,"HB")==0){
-	    hb_data[Eta+42][Phi-1][Depth-1][0].set_reference(ped[0],rms[0]);
-	    hb_data[Eta+42][Phi-1][Depth-1][1].set_reference(ped[1],rms[1]);
-	    hb_data[Eta+42][Phi-1][Depth-1][2].set_reference(ped[2],rms[2]);
-	    hb_data[Eta+42][Phi-1][Depth-1][3].set_reference(ped[3],rms[3]);
-	 }
-	 if(strcmp(subdet,"HE")==0){
-	    he_data[Eta+42][Phi-1][Depth-1][0].set_reference(ped[0],rms[0]);
-	    he_data[Eta+42][Phi-1][Depth-1][1].set_reference(ped[1],rms[1]);
-	    he_data[Eta+42][Phi-1][Depth-1][2].set_reference(ped[2],rms[2]);
-	    he_data[Eta+42][Phi-1][Depth-1][3].set_reference(ped[3],rms[3]);
-	 }
-	 if(strcmp(subdet,"HO")==0){
-	    ho_data[Eta+42][Phi-1][Depth-1][0].set_reference(ped[0],rms[0]);
-	    ho_data[Eta+42][Phi-1][Depth-1][1].set_reference(ped[1],rms[1]);
-	    ho_data[Eta+42][Phi-1][Depth-1][2].set_reference(ped[2],rms[2]);
-	    ho_data[Eta+42][Phi-1][Depth-1][3].set_reference(ped[3],rms[3]);
-	 }
-	 if(strcmp(subdet,"HF")==0){
-	    hf_data[Eta+42][Phi-1][Depth-1][0].set_reference(ped[0],rms[0]);
-	    hf_data[Eta+42][Phi-1][Depth-1][1].set_reference(ped[1],rms[1]);
-	    hf_data[Eta+42][Phi-1][Depth-1][2].set_reference(ped[2],rms[2]);
-	    hf_data[Eta+42][Phi-1][Depth-1][3].set_reference(ped[3],rms[3]);
-	 }
-      }
-      f->Close();
-      IsReference=true;
+  double ped[4],rms[4];
+  int Eta,Phi,Depth;
+  char subdet[10];
+  TFile *f;
+  f = new TFile(ReferenceData.c_str(),"READ");
+  if(!f->IsOpen()) return ;
+  TObjString *STR=(TObjString *)f->Get("run number");
+  
+  if(STR){ std::string Ref(STR->String()); ReferenceRun=Ref;}
+  
+  TTree*  t=(TTree*)f->Get("HCAL Pedestal data");
+  if(!t) return;
+  t->SetBranchAddress("Subdet",   subdet);
+  t->SetBranchAddress("eta",      &Eta);
+  t->SetBranchAddress("phi",      &Phi);
+  t->SetBranchAddress("depth",    &Depth);
+  t->SetBranchAddress("cap0_ped", &ped[0]);
+  t->SetBranchAddress("cap0_rms", &rms[0]);
+  t->SetBranchAddress("cap1_ped", &ped[1]);
+  t->SetBranchAddress("cap1_rms", &rms[1]);
+  t->SetBranchAddress("cap2_ped", &ped[2]);
+  t->SetBranchAddress("cap2_rms", &rms[2]);
+  t->SetBranchAddress("cap3_ped", &ped[3]);
+  t->SetBranchAddress("cap3_rms", &rms[3]);
+  for(int ievt=0;ievt<t->GetEntries();ievt++){
+    t->GetEntry(ievt);
+    if(strcmp(subdet,"HB")==0){
+      hb_data[Eta+42][Phi-1][Depth-1][0].set_reference(ped[0],rms[0]);
+      hb_data[Eta+42][Phi-1][Depth-1][1].set_reference(ped[1],rms[1]);
+      hb_data[Eta+42][Phi-1][Depth-1][2].set_reference(ped[2],rms[2]);
+      hb_data[Eta+42][Phi-1][Depth-1][3].set_reference(ped[3],rms[3]);
+    }
+    if(strcmp(subdet,"HE")==0){
+      he_data[Eta+42][Phi-1][Depth-1][0].set_reference(ped[0],rms[0]);
+      he_data[Eta+42][Phi-1][Depth-1][1].set_reference(ped[1],rms[1]);
+      he_data[Eta+42][Phi-1][Depth-1][2].set_reference(ped[2],rms[2]);
+      he_data[Eta+42][Phi-1][Depth-1][3].set_reference(ped[3],rms[3]);
+    }
+    if(strcmp(subdet,"HO")==0){
+      ho_data[Eta+42][Phi-1][Depth-1][0].set_reference(ped[0],rms[0]);
+      ho_data[Eta+42][Phi-1][Depth-1][1].set_reference(ped[1],rms[1]);
+      ho_data[Eta+42][Phi-1][Depth-1][2].set_reference(ped[2],rms[2]);
+      ho_data[Eta+42][Phi-1][Depth-1][3].set_reference(ped[3],rms[3]);
+    }
+    if(strcmp(subdet,"HF")==0){
+      hf_data[Eta+42][Phi-1][Depth-1][0].set_reference(ped[0],rms[0]);
+      hf_data[Eta+42][Phi-1][Depth-1][1].set_reference(ped[1],rms[1]);
+      hf_data[Eta+42][Phi-1][Depth-1][2].set_reference(ped[2],rms[2]);
+      hf_data[Eta+42][Phi-1][Depth-1][3].set_reference(ped[3],rms[3]);
+    }
+  }
+  f->Close();
+  IsReference=true;
 } 
 
 void HcalDetDiagPedestalMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c){}

@@ -493,35 +493,34 @@ void HcalDetDiagLEDMonitor::fillHistos(){
          if(sd==3 && eta>-29 && eta<29) continue;
          double ave =get_energy(subdet[sd],eta,phi,depth,1);
          double ref =get_energy(subdet[sd],eta,phi,depth,2);
-         try{
-	    HcalDetId *detid=0;
-            if(sd==0) detid=new HcalDetId(HcalBarrel,eta,phi,depth);
-            if(sd==1) detid=new HcalDetId(HcalEndcap,eta,phi,depth);
-            if(sd==2) detid=new HcalDetId(HcalOuter,eta,phi,depth);
-            if(sd==3) detid=new HcalDetId(HcalForward,eta,phi,depth);
-	    HcalFrontEndId    lmap_entry=lmap->getHcalFrontEndId(*detid);
-	    int rbx; 
-	    if(sd==0 || sd==1 || sd==3){
-	       sscanf(&(lmap_entry.rbx().c_str())[3],"%d",&rbx);
-	    }else{
-	       if(abs(eta)<5) sscanf(&(lmap_entry.rbx().c_str())[3],"%d",&rbx);
-	       if(abs(eta)>=5) sscanf(&(lmap_entry.rbx().c_str())[4],"%d",&rbx);	       
-	    }
-	    if(ave>0 && ref>0){
-	       if(sd==0 && eta>0){ hbp[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhbp[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==0 && eta<0){ hbm[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhbm[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==1 && eta>0){ hep[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhep[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==1 && eta<0){ hem[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhem[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==3 && eta>0){ hfp[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhfp[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==3 && eta<0){ hfm[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhfm[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==2 && abs(eta)<5){ ho0[rbx-1][lmap_entry.rm()-1]+=ave/ref; nho0[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==2 && eta>=5 && eta<=10){ ho1p[rbx-1][lmap_entry.rm()-1]+=ave/ref; nho1p[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==2 && eta>=11 && eta<=15){ ho2p[rbx-1][lmap_entry.rm()-1]+=ave/ref; nho2p[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==2 && eta>=-10 && eta<=-5){ ho1m[rbx-1][lmap_entry.rm()-1]+=ave/ref; nho1m[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==2 && eta>=-15 && eta<=-11){ ho2m[rbx-1][lmap_entry.rm()-1]+=ave/ref; nho2m[rbx-1][lmap_entry.rm()-1]++; }
-	    }
-	    delete detid;
-	 }catch(...){ continue;}
+       
+	 HcalDetId *detid=0;
+	 if(sd==0) detid=new HcalDetId(HcalBarrel,eta,phi,depth);
+	 if(sd==1) detid=new HcalDetId(HcalEndcap,eta,phi,depth);
+	 if(sd==2) detid=new HcalDetId(HcalOuter,eta,phi,depth);
+	 if(sd==3) detid=new HcalDetId(HcalForward,eta,phi,depth);
+	 HcalFrontEndId    lmap_entry=lmap->getHcalFrontEndId(*detid);
+	 int rbx; 
+	 if(sd==0 || sd==1 || sd==3){
+	   sscanf(&(lmap_entry.rbx().c_str())[3],"%d",&rbx);
+	 }else{
+	   if(abs(eta)<5) sscanf(&(lmap_entry.rbx().c_str())[3],"%d",&rbx);
+	   if(abs(eta)>=5) sscanf(&(lmap_entry.rbx().c_str())[4],"%d",&rbx);	       
+	 }
+	 if(ave>0 && ref>0){
+	   if(sd==0 && eta>0){ hbp[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhbp[rbx-1][lmap_entry.rm()-1]++; }
+	   if(sd==0 && eta<0){ hbm[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhbm[rbx-1][lmap_entry.rm()-1]++; }
+	   if(sd==1 && eta>0){ hep[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhep[rbx-1][lmap_entry.rm()-1]++; }
+	   if(sd==1 && eta<0){ hem[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhem[rbx-1][lmap_entry.rm()-1]++; }
+	   if(sd==3 && eta>0){ hfp[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhfp[rbx-1][lmap_entry.rm()-1]++; }
+	   if(sd==3 && eta<0){ hfm[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhfm[rbx-1][lmap_entry.rm()-1]++; }
+	   if(sd==2 && abs(eta)<5){ ho0[rbx-1][lmap_entry.rm()-1]+=ave/ref; nho0[rbx-1][lmap_entry.rm()-1]++; }
+	   if(sd==2 && eta>=5 && eta<=10){ ho1p[rbx-1][lmap_entry.rm()-1]+=ave/ref; nho1p[rbx-1][lmap_entry.rm()-1]++; }
+	   if(sd==2 && eta>=11 && eta<=15){ ho2p[rbx-1][lmap_entry.rm()-1]+=ave/ref; nho2p[rbx-1][lmap_entry.rm()-1]++; }
+	   if(sd==2 && eta>=-10 && eta<=-5){ ho1m[rbx-1][lmap_entry.rm()-1]+=ave/ref; nho1m[rbx-1][lmap_entry.rm()-1]++; }
+	   if(sd==2 && eta>=-15 && eta<=-11){ ho2m[rbx-1][lmap_entry.rm()-1]+=ave/ref; nho2m[rbx-1][lmap_entry.rm()-1]++; }
+	 }
+	 delete detid;
       }	
   }  
   for(int i=0;i<18;i++)for(int j=0;j<4;j++){
@@ -661,40 +660,38 @@ char   Subdet[10],str[500];
 
 void HcalDetDiagLEDMonitor::LoadReference(){
 double led,rms;
-int Eta,Phi,Depth;
-char subdet[10];
-TFile *f;
-   if(UseDB==false){
-      try{ 
-         f = new TFile(ReferenceData.c_str(),"READ");
-      }catch(...){ return ;}
-      if(!f->IsOpen()) return ;
-      TObjString *STR=(TObjString *)f->Get("run number");
+ int Eta,Phi,Depth;
+ char subdet[10];
+ TFile *f;
+ if(UseDB==false){
+   f = new TFile(ReferenceData.c_str(),"READ");
+   if(!f->IsOpen()) return ;
+   TObjString *STR=(TObjString *)f->Get("run number");
       
-      if(STR){ std::string Ref(STR->String()); ReferenceRun=Ref;}
+   if(STR){ std::string Ref(STR->String()); ReferenceRun=Ref;}
       
-      TTree*  t=(TTree*)f->Get("HCAL LED data");
-      if(!t) return;
-      t->SetBranchAddress("Subdet",   subdet);
-      t->SetBranchAddress("eta",      &Eta);
-      t->SetBranchAddress("phi",      &Phi);
-      t->SetBranchAddress("depth",    &Depth);
-      t->SetBranchAddress("led",      &led);
-      t->SetBranchAddress("rms",      &rms);
-      for(int ievt=0;ievt<t->GetEntries();ievt++){
-         t->GetEntry(ievt);
-	 if(strcmp(subdet,"HB")==0) hb_data[Eta+42][Phi-1][Depth-1]->set_reference(led,rms);
-	 if(strcmp(subdet,"HE")==0) he_data[Eta+42][Phi-1][Depth-1]->set_reference(led,rms);
-	 if(strcmp(subdet,"HO")==0) ho_data[Eta+42][Phi-1][Depth-1]->set_reference(led,rms);
-	 if(strcmp(subdet,"HF")==0) hf_data[Eta+42][Phi-1][Depth-1]->set_reference(led,rms);
-	 if(strcmp(subdet,"CALIB_HB")==0) calib_data[1][Eta+2][Phi-1]->set_reference(led,rms);
-	 if(strcmp(subdet,"CALIB_HE")==0) calib_data[2][Eta+2][Phi-1]->set_reference(led,rms);
-	 if(strcmp(subdet,"CALIB_HO")==0) calib_data[3][Eta+2][Phi-1]->set_reference(led,rms);
-	 if(strcmp(subdet,"CALIB_HF")==0) calib_data[4][Eta+2][Phi-1]->set_reference(led,rms);
-      }
-      f->Close();
-      IsReference=true;
+   TTree*  t=(TTree*)f->Get("HCAL LED data");
+   if(!t) return;
+   t->SetBranchAddress("Subdet",   subdet);
+   t->SetBranchAddress("eta",      &Eta);
+   t->SetBranchAddress("phi",      &Phi);
+   t->SetBranchAddress("depth",    &Depth);
+   t->SetBranchAddress("led",      &led);
+   t->SetBranchAddress("rms",      &rms);
+   for(int ievt=0;ievt<t->GetEntries();ievt++){
+     t->GetEntry(ievt);
+     if(strcmp(subdet,"HB")==0) hb_data[Eta+42][Phi-1][Depth-1]->set_reference(led,rms);
+     if(strcmp(subdet,"HE")==0) he_data[Eta+42][Phi-1][Depth-1]->set_reference(led,rms);
+     if(strcmp(subdet,"HO")==0) ho_data[Eta+42][Phi-1][Depth-1]->set_reference(led,rms);
+     if(strcmp(subdet,"HF")==0) hf_data[Eta+42][Phi-1][Depth-1]->set_reference(led,rms);
+     if(strcmp(subdet,"CALIB_HB")==0) calib_data[1][Eta+2][Phi-1]->set_reference(led,rms);
+     if(strcmp(subdet,"CALIB_HE")==0) calib_data[2][Eta+2][Phi-1]->set_reference(led,rms);
+     if(strcmp(subdet,"CALIB_HO")==0) calib_data[3][Eta+2][Phi-1]->set_reference(led,rms);
+     if(strcmp(subdet,"CALIB_HF")==0) calib_data[4][Eta+2][Phi-1]->set_reference(led,rms);
    }
+   f->Close();
+   IsReference=true;
+ } // if (UseDB==false)
 } 
 void HcalDetDiagLEDMonitor::CheckStatus(){
   ChannelStatusMissingChannels.Reset();
@@ -708,13 +705,14 @@ void HcalDetDiagLEDMonitor::CheckStatus(){
    std::vector <HcalElectronicsId> AllElIds = emap.allElectronicsIdPrecision();
    for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++) {
       DetId detid=emap.lookup(*eid);
+      if (detid.det()!=DetId::Hcal) continue;
       int eta=0,phi=0,depth=0;
-      try{
-        HcalDetId hid(detid);
-        eta=hid.ieta();
-        phi=hid.iphi();
-        depth=hid.depth(); 
-      }catch(...){ continue; } 
+      
+      HcalDetId hid(detid);
+      eta=hid.ieta();
+      phi=hid.iphi();
+      depth=hid.depth(); 
+      
       double AVE_TIME=Time->getMean();
       if(detid.subdetId()==HcalBarrel){
 	 int stat=hb_data[eta+42][phi-1][depth-1]->get_statistics()+

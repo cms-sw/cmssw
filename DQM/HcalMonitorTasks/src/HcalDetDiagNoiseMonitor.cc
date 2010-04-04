@@ -767,20 +767,25 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
        for(std::vector<std::vector<HcalNoiseHPD>::iterator>::iterator itofit=hpditervec.begin();itofit!=hpditervec.end(); ++itofit) {nid.push_back((*itofit)->idnumber());}
        if(nid.size() > 0) {
          double HighestEnergyMatch = 0;
-         for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) {
-           HcalNoiseRBX rbx = (*rit);
-           std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
-           for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) {
-             HcalNoiseHPD hpd=(*hit);
-             for(int iii=0; iii < (int)(nid.size()); iii++) {
-               if((nid.at(iii) == (int)(hpd.idnumber())) && (hpd.recHitEnergy(1.0) > HighestEnergyMatch)) {
-                 HighestEnergyMatch = hpd.recHitEnergy(1.0);
-                 nidd.clear();
-                 nidd.push_back(hpd.idnumber());
-               }
-             }
-           }
-         }
+         for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) 
+	   {
+	     HcalNoiseRBX rbx = (*rit);
+	     std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
+	     for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) 
+	       //for(std::vector<HcalNoiseHPD>::const_iterator hit=rbx.HPDsBegin(); hit!=rbx.HPDsEnd(); ++hit) 
+	       {
+		 HcalNoiseHPD hpd=(*hit);
+		 for(int iii=0; iii < (int)(nid.size()); iii++) 
+		   {
+		     if((nid.at(iii) == (int)(hpd.idnumber())) && (hpd.recHitEnergy(1.0) > HighestEnergyMatch))
+		       {
+			 HighestEnergyMatch = hpd.recHitEnergy(1.0);
+			 nidd.clear();
+			 nidd.push_back(hpd.idnumber());
+		       }
+		   }
+	       }
+	   }
        }
      }
 
@@ -1162,9 +1167,7 @@ TFile *f;
 int    RM_INDEX;
 double VAL;
    if(UseDB==false){
-      try{ 
-         f = new TFile(ReferenceData.c_str(),"READ");
-      }catch(...){ return ;}
+     f = new TFile(ReferenceData.c_str(),"READ");
       if(!f->IsOpen()){ return ;}
       TObjString *STR=(TObjString *)f->Get("run number");
       
