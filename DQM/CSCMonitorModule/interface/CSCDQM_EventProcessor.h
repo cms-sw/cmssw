@@ -97,8 +97,8 @@ namespace cscdqm {
       void preProcessEvent();
 
       const bool getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
-      void setEmuEventDisplayBit(const uint32_t eventNumber, MonitorObject*& mo, const unsigned int x, const unsigned int y, const unsigned int bit);
-      void resetEmuEventDisplays(const uint32_t eventNumber);
+      void setEmuEventDisplayBit(MonitorObject*& mo, const unsigned int x, const unsigned int y, const unsigned int bit);
+      void resetEmuEventDisplays();
 
       /** Pointer to Global Configuration */
       Configuration* config;

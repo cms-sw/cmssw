@@ -28,10 +28,10 @@ namespace cscdqm {
    * @param  y Y bin number
    * @param  bit bit number to set
    */
-  void EventProcessor::setEmuEventDisplayBit(const uint32_t eventNumber, MonitorObject*& mo, const unsigned int x, const unsigned int y, const unsigned int bit) {
+  void EventProcessor::setEmuEventDisplayBit(MonitorObject*& mo, const unsigned int x, const unsigned int y, const unsigned int bit) {
     if (mo && x) {
-      resetEmuEventDisplays(eventNumber);
-      int bitset = (int) mo->GetBinContent(x + 1, y);
+      resetEmuEventDisplays();
+      int bitset = (int) mo->GetBinContent(x, y);
       bitset |= 1 << bit;
       mo->SetBinContent(x, y, bitset);
     }
@@ -41,24 +41,21 @@ namespace cscdqm {
   /**
    * @brief  Reset Emu level EventDisplay histograms once per event
    */
-  void EventProcessor::resetEmuEventDisplays(const uint32_t eventNumber) {
+  void EventProcessor::resetEmuEventDisplays() {
     if (!EmuEventDisplayWasReset) {
 
       // Reseting EMU level Event displays
       MonitorObject* mo = 0;
       if (getEMUHisto(h::EMU_EVENT_DISPLAY_ANODE, mo)) {
         mo->getTH1Lock()->Reset("");
-        mo->SetBinContent(1, 1, eventNumber);
       }
 
       if (getEMUHisto(h::EMU_EVENT_DISPLAY_CATHODE, mo)) {
         mo->getTH1Lock()->Reset("");
-        mo->SetBinContent(1, 1, eventNumber);
       }
 
       if (getEMUHisto(h::EMU_EVENT_DISPLAY_XY, mo)) {
         mo->getTH1Lock()->Reset("");
-        mo->SetBinContent(1, 1, eventNumber);
       }
 
       EmuEventDisplayWasReset = true;
@@ -607,8 +604,8 @@ namespace cscdqm {
 
               if (mo_EventDisplay) {
                 mo_EventDisplay->SetBinContent(nLayer + 3, wg - 1, tbin + 1);
-                setEmuEventDisplayBit(dmbHeader->l1a(), mo_Emu_EventDisplay_Anode,     glChamberIndex, wg - 1, nLayer - 1);
-                setEmuEventDisplayBit(dmbHeader->l1a(), mo_Emu_EventDisplay_XY,        glChamberIndex, wg - 1, nLayer - 1);
+                setEmuEventDisplayBit(mo_Emu_EventDisplay_Anode, glChamberIndex, wg - 1, nLayer - 1);
+                setEmuEventDisplayBit(mo_Emu_EventDisplay_XY, glChamberIndex, wg - 1, nLayer - 1);
               }
 
               if (CheckLayerALCT) {
@@ -1120,8 +1117,8 @@ namespace cscdqm {
 
                 if (mo_EventDisplay) {
                   mo_EventDisplay->SetBinContent(nLayer + 11, hstrip, tbin_clct + 1);
-                  setEmuEventDisplayBit(dmbHeader->l1a(), mo_Emu_EventDisplay_Anode, glChamberIndex, 160 + hstrip, nLayer - 1);
-                  setEmuEventDisplayBit(dmbHeader->l1a(), mo_Emu_EventDisplay_XY, glChamberIndex, 160 + hstrip, nLayer - 1);
+                  setEmuEventDisplayBit(mo_Emu_EventDisplay_Anode, glChamberIndex, 160 + hstrip, nLayer - 1);
+                  setEmuEventDisplayBit(mo_Emu_EventDisplay_XY, glChamberIndex, 160 + hstrip, nLayer - 1);
                 }
 
                 if(CheckLayerCLCT) {
@@ -1553,7 +1550,7 @@ namespace cscdqm {
                     peak_sca_charge += ((timeSample[nCFEB][peak_sample+1][nLayer-1][nStrip-1]->adcCounts)&0xFFF)-pedestal;
                   }
                   mo_EventDisplay->SetBinContent(nLayer + 17, nCFEB * 16 + nStrip - 1, peak_sca_charge);
-                  setEmuEventDisplayBit(dmbHeader->l1a(), mo_Emu_EventDisplay_Cathode, glChamberIndex, nCFEB * 16 + nStrip - 1, nLayer - 1);
+                  setEmuEventDisplayBit(mo_Emu_EventDisplay_Cathode, glChamberIndex, nCFEB * 16 + nStrip - 1, nLayer - 1);
                 }
               }
 
