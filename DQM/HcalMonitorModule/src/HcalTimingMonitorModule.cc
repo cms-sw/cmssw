@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy
 //         Created:  Thu Mar 27 08:12:02 CET 2008
-// $Id: HcalTimingMonitorModule.cc,v 1.8 2010/03/25 11:17:15 temple Exp $
+// $Id: HcalTimingMonitorModule.cc,v 1.9 2010/04/04 15:49:24 temple Exp $
 //
 //
 
@@ -411,7 +411,8 @@ int TRIGGER=0;
    /////////////////////////////////////////////////////////////////////////////////////////   
    if(counterEvt_<100){
      edm::Handle<HBHEDigiCollection> hbhe; 
-     if (iEvent.getByType(hbhe)!=0)
+     iEvent.getByType(hbhe);
+     if (hbhe.isValid())
        {
 	 for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
 	   eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
@@ -422,7 +423,8 @@ int TRIGGER=0;
 	 } 
        }  
      edm::Handle<HODigiCollection> ho; 
-     if (iEvent.getByType(ho)!=0);
+     iEvent.getByType(ho);
+     if (ho.isValid())
      {
        for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
 	 eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
@@ -433,7 +435,8 @@ int TRIGGER=0;
      } // if
 
      edm::Handle<HFDigiCollection> hf;
-     if (iEvent.getByType(hf)!=0)
+     iEvent.getByType(hf);
+     if (hf.isValid())
        {
          for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
 	   eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
@@ -448,7 +451,8 @@ int TRIGGER=0;
       double data[10];
       
       edm::Handle<HBHEDigiCollection> hbhe; 
-      if (iEvent.getByType(hbhe)!=0)
+      iEvent.getByType(hbhe);
+      if (hbhe.isValid())
 	{
 	  for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
 	    eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
@@ -487,7 +491,8 @@ int TRIGGER=0;
 	} // if (...)
 
       edm::Handle<HODigiCollection> ho; 
-      if (iEvent.getByType(ho)!=0)
+      iEvent.getByType(ho);
+      if (ho.isValid())
 	{
 	  for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
 	    eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
@@ -516,7 +521,8 @@ int TRIGGER=0;
 	}// if (ho)
 
       edm::Handle<HFDigiCollection> hf; 
-      if (iEvent.getByType(hf))
+      iEvent.getByType(hf);
+      if (hf.isValid())
 	{
 	  for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
             eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
