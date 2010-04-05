@@ -512,7 +512,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("RECO");
+  topaaa.addValue("");
   topaa.addKeyValue("processName", topaaa);
 }
 {
