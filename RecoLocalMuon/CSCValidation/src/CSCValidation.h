@@ -33,6 +33,37 @@
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCAnodeData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCRPCData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
+#include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
+#include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
+#include <EventFilter/CSCRawToDigi/interface/CSCMonitorInterface.h>
+#include "FWCore/ServiceRegistry/interface/Service.h"
+//FEDRawData
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
@@ -133,6 +164,13 @@ private:
                     edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips);
   bool  doTrigger(edm::Handle<L1MuGMTReadoutCollection> pCollection);
   void  doStandalone(edm::Handle<reco::TrackCollection> saMuons);
+  void  doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
+                         edm::Handle<CSCALCTDigiCollection> alcts, edm::Handle<CSCCLCTDigiCollection> clcts,
+                         edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts,
+                         edm::Handle<L1MuGMTReadoutCollection> pCollection, edm::ESHandle<CSCGeometry> cscGeom,
+                         const edm::EventSetup& eventSetup, const edm::Event &event);
+
+
 
   // some useful functions
   bool   filterEvents(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
@@ -143,6 +181,7 @@ private:
   int    getWidth(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   void   findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips);
   int    chamberSerial( CSCDetId id );
+  int    ringSerial( CSCDetId id );
 
   // these functions handle Stoyan's efficiency code
   void  fillEfficiencyHistos(int bin, int flag);
@@ -204,6 +243,9 @@ private:
   edm::InputTag saMuonTag;
   edm::InputTag l1aTag;
   edm::InputTag simHitTag;
+  edm::InputTag alctDigiTag;
+  edm::InputTag clctDigiTag;
+  edm::InputTag corrlctDigiTag;
 
   // module on/off switches
   bool makeOccupancyPlots;
@@ -223,6 +265,7 @@ private:
   bool makeRHNoisePlots;
   bool makeCalibPlots;
   bool makeStandalonePlots;
+  bool makeTimeMonitorPlots;
 
   // The histo managing object
   CSCValHists *histos;
