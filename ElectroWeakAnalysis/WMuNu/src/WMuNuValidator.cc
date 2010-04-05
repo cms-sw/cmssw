@@ -249,6 +249,11 @@ void WMuNuValidator::init_histograms() {
       }
             h1_["PTZCUT_LASTCUT"]=  subDir[1]->make<TH1D>("PTZCUT_LASTCUT","Global pt for Muons in Z",100,0.,50.);
 
+            h1_["NMuons_LASTCUT"] = subDir[1]->make<TH1D>("NMuons_LASTCUT", "Number of Muons in the event, after ALL cuts", 10, -0.5, 9.5);
+            h1_["NMuons_BEFORECUTS"] = subDir[0]->make<TH1D>("NMuons_BEFORECUTS", "Number of Muons in the event, Before cuts", 10, -0.5, 9.5);
+
+            
+
 }
 
 void WMuNuValidator::fill_histogram(const char* name, const double& var) {
@@ -421,7 +426,7 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
       fill_histogram("NZ1_BEFORECUTS",nmuonsForZ1);
       fill_histogram("NZ2_BEFORECUTS",nmuonsForZ2);
-      
+      fill_histogram("NMuons_BEFORECUTS",muonCollectionSize);      
       // Jet collection
       Handle<View<Jet> > jetCollection;
       if (!ev.getByLabel(jetTag_, jetCollection)) {
@@ -600,15 +605,17 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
                         met_hist_done = true;
                   if (!muon_sel[10] || flags_passed==NFLAGS) 
                         fill_histogram("ACOP_LASTCUT",acop);
-                  if (!muon_sel[11] || flags_passed==NFLAGS) 
+                  if (!muon_sel[11] || flags_passed==NFLAGS){ 
                         if (!nz1_hist_done) fill_histogram("NZ1_LASTCUT",nmuonsForZ1);
                         nz1_hist_done = true;
-                  if (!muon_sel[11] || flags_passed==NFLAGS) 
                         if (!nz2_hist_done) fill_histogram("NZ2_LASTCUT",nmuonsForZ2);
                         nz2_hist_done = true;
+                  }
+                  if ( flags_passed==NFLAGS ) fill_histogram("NMuons_LASTCUT",muonCollectionSize); 
                   if (!muon_sel[12] || flags_passed==NFLAGS) 
                         if (!njets_hist_done) fill_histogram("NJETS_LASTCUT",njets);
                         njets_hist_done = true;
+                        
               }
 
             // The cases in which the event is rejected as a Z are considered independently:
