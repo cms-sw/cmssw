@@ -57,11 +57,11 @@ namespace mathSSE {
   union Vec3<float> {
     __m128 vec;
     float __attribute__ ((aligned(16))) arr[4];
-    OldVec<float> oldVec;
+    OldVec<float> o;
     
     Vec3(__m128 ivec) : vec(ivec) {}
 
-    Vec3(OldVec<float> const & ivec) : oldVec(ivec) {}
+    Vec3(OldVec<float> const & ivec) : o(ivec) {}
     
     Vec3() {
       vec = _mm_setzero_ps();
@@ -77,7 +77,7 @@ namespace mathSSE {
   union Vec3<double> {
     __m128d vec[2];
     double __attribute__ ((aligned(16))) arr[4];
-    OldVec<double> oldVec;
+    OldVec<double> o;
     
     Vec3(__m128d ivec[]) {
       vec[0] = ivec[0];
@@ -93,11 +93,11 @@ namespace mathSSE {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=0;
     }
     
-    Vec3(OldVec<double> const & ivec) : oldVec(ivec) {}
+    Vec3(OldVec<double> const & ivec) : o(ivec) {}
 
   };
-
-    typedef Vec3<double> Vec3D;
+  
+  typedef Vec3<double> Vec3D;
 
 }
 

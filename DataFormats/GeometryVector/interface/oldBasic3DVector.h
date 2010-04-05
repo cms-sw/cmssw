@@ -1,5 +1,5 @@
-#ifndef GeometryVector_newBasic3DVector_h
-#define GeometryVector_newBasic3DVector_h
+#ifndef GeometryVector_oldBasic3DVector_h
+#define GeometryVector_oldBasic3DVector_h
 
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
 #include "DataFormats/GeometryVector/interface/Theta.h"
@@ -23,22 +23,20 @@ public:
    *  components. For built-in floating-point types this means initialization 
    * to zero??? (force init to 0)
    */
-  Basic3DVector() {}
+  Basic3DVector() : theX(0), theY(0), theZ(0), theW(0) {}
 
   /// Copy constructor from same type. Should not be needed but for gcc bug 12685
   Basic3DVector( const Basic3DVector & p) : 
-    v(p.x(),p.y(),p.z()) {}
+    theX(p.x()), theY(p.y()), theZ(p.z()), theW(0) {}
 
   /// Copy constructor and implicit conversion from Basic3DVector of different precision
   template <class U>
   Basic3DVector( const Basic3DVector<U> & p) : 
-    v(p.x(),p.y(),p.z()) {}
-
+    theX(p.x()), theY(p.y()), theZ(p.z()), theW(0) {}
 
   /// constructor from 2D vector (X and Y from 2D vector, z set to zero)
   Basic3DVector( const Basic2DVector<T> & p) : 
-    v(p.x(),p.y(),p.z()) {}
-
+    theX(p.x()), theY(p.y()), theZ(0), theW(0) {}
 
   /** Explicit constructor from other (possibly unrelated) vector classes 
    *  The only constraint on the argument type is that it has methods
@@ -50,15 +48,16 @@ public:
    */
   template <class OtherPoint> 
   explicit Basic3DVector( const OtherPoint& p) : 
-        v(p.x(),p.y(),p.z()) {}
-
+    theX(p.x()), theY(p.y()), theZ(p.z()), theW(0) {}
 
   // constructor from Vec3
-  Basic3DVector(mathSSE::Vec3<T> const& iv) : v(iv){}
+  template<typename U>
+  Basic3DVector(mathSSE::Vec3<U> const& iv) :
+    theX(iv.arr[0]), theY(iv.arr[1]), theZ(iv.arr[2]), theW(0) {}
 
   /// construct from cartesian coordinates
   Basic3DVector( const T& x, const T& y, const T& z) : 
-    v(x,y,z){}
+    theX(x), theY(y), theZ(z), theW(0) {}
 
   /** Deprecated construct from polar coordinates, use 
    *  <BR> Basic3DVector<T>( Basic3DVector<T>::Polar( theta, phi, r))
@@ -68,17 +67,17 @@ public:
   Basic3DVector( const Geom::Theta<U>& theta, 
 		 const Geom::Phi<U>& phi, const T& r) {
     Polar p( theta.value(), phi.value(), r);
-    v.o.theX = p.x(); v.o.theY = p.y(); v.o.theZ = p.z();
+    theX = p.x(); theY = p.y(); theZ = p.z();
   }
 
   /// Cartesian x coordinate
-  T x() const { return v.o.theX;}
+  T x() const { return theX;}
 
   /// Cartesian y coordinate
-  T y() const { return v.o.theY;}
+  T y() const { return theY;}
 
   /// Cartesian z coordinate
-  T z() const { return v.o.theZ;}
+  T z() const { return theZ;}
 
   /// The vector magnitude squared. Equivalent to vec.dot(vec)
   T mag2() const { return  x()*x() + y()*y()+z()*z();}
@@ -130,9 +129,9 @@ public:
    */
   template <class U> 
   Basic3DVector& operator+= ( const Basic3DVector<U>& p) {
-    v.o.theX += p.x();
-    v.o.theY += p.y();
-    v.o.theZ += p.z();
+    theX += p.x();
+    theY += p.y();
+    theZ += p.z();
     return *this;
   } 
 
@@ -140,9 +139,9 @@ public:
    */
   template <class U> 
   Basic3DVector& operator-= ( const Basic3DVector<U>& p) {
-    v.o.theX -= p.x();
-    v.o.theY -= p.y();
-    v.o.theZ -= p.z();
+    theX -= p.x();
+    theY -= p.y();
+    theZ -= p.z();
     return *this;
   } 
 
@@ -151,18 +150,18 @@ public:
 
   /// Scaling by a scalar value (multiplication)
   Basic3DVector& operator*= ( T t) {
-    v.o.theX *= t;
-    v.o.theY *= t;
-    v.o.theZ *= t;
+    theX *= t;
+    theY *= t;
+    theZ *= t;
     return *this;
   } 
 
   /// Scaling by a scalar value (division)
   Basic3DVector& operator/= ( T t) {
     t = T(1)/t;
-    v.o.theX *= t;
-    v.o.theY *= t;   
-    v.o.theZ *= t;
+    theX *= t;
+    theY *= t;   
+    theZ *= t;
     return *this;
   } 
 
@@ -201,8 +200,14 @@ public:
 								x()*v.y() - v.x()*y());
   }
 
-public:
+private:
+#ifdef USE_SSE
   mathSSE::Vec3<T> v;
+#else
+  T theX;
+  T theY;
+  T theZ;
+  T theW;
 #endif
 }  __attribute__ ((aligned (16)));
 
@@ -284,9 +289,6 @@ inline Basic3DVector<T> operator/( const Basic3DVector<T>& v, S s) {
 typedef Basic3DVector<float> Basic3DVectorF;
 typedef Basic3DVector<double> Basic3DVectorD;
 
-#ifdef USE_SSE
-#include "DataFormats/GeometryVector/interface/Basic3DVectorFSSE.icc"
-#endif
 
 #endif // GeometryVector_Basic3DVector_h
 
