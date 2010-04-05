@@ -1,3 +1,8 @@
+// this is a real nasty trick...
+#include "DataFormats/GeometryVector/interface/oldBasic3DVector.h"
+#define GeometryVector_Basic3DVector_h
+//
+
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/Point2DBase.h"
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"

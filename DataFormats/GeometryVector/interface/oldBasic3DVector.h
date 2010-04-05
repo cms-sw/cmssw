@@ -201,14 +201,10 @@ public:
   }
 
 private:
-#ifdef USE_SSE
-  mathSSE::Vec3<T> v;
-#else
   T theX;
   T theY;
   T theZ;
   T theW;
-#endif
 }  __attribute__ ((aligned (16)));
 
 
