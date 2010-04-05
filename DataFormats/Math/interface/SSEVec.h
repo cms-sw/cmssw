@@ -48,20 +48,57 @@ namespace mathSSE {
   }
 
 
-  union Vec3F {
+  template<typename T>
+  struct OldVec { T  theX; T  theY; T  theZ; T  theW;}  __attribute__ ((aligned (16)));
+  
+  template<typename T> union Vec3{};
+
+  template<>
+  union Vec3<float> {
     __m128 vec;
     float __attribute__ ((aligned(16))) arr[4];
+    OldVec<float> oldVec;
     
-    Vec3F(__m128 ivec) : vec(ivec) {}
+    Vec3(__m128 ivec) : vec(ivec) {}
+
+    Vec3(OldVec<float> const & ivec) : oldVec(ivec) {}
     
-    Vec3F() {
+    Vec3() {
       vec = _mm_setzero_ps();
     }
-    Vec3F(float f1, float f2, float f3) {
+    Vec3(float f1, float f2, float f3) {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=0;
     }
   };
   
+  typedef Vec3<float> Vec3F;
+
+  template<>
+  union Vec3<double> {
+    __m128d vec[2];
+    double __attribute__ ((aligned(16))) arr[4];
+    OldVec<double> oldVec;
+    
+    Vec3(__m128d ivec[]) {
+      vec[0] = ivec[0];
+      vec[1] = ivec[1];
+    }
+    
+    Vec3() {
+      vec[0] = _mm_setzero_pd();
+      vec[1] = _mm_setzero_pd();
+    }
+
+    Vec3(double f1, double f2, double f3) {
+      arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=0;
+    }
+    
+    Vec3(OldVec<double> const & ivec) : oldVec(ivec) {}
+
+  };
+
+    typedef Vec3<double> Vec3D;
+
 }
 
 

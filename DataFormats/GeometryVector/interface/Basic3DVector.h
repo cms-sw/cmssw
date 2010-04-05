@@ -50,10 +50,15 @@ public:
   explicit Basic3DVector( const OtherPoint& p) : 
     theX(p.x()), theY(p.y()), theZ(p.z()), theW(0) {}
 
-  // constructor from Vec3F
-  Basic3DVector(mathSSE::Vec3F const& v) :
-    theX(v.arr[0]), theY(v.arr[1]), theZ(v.arr[2]), theW(0) {}
+  // constructor from Vec3
 
+#ifdef USE_SSE
+  Basic3DVector(mathSSE::Vec3<T> const& iv) : v(iv){}
+#else
+  template<typename U>
+  Basic3DVector(mathSSE::Vec3<U> const& iv) :
+    theX(iv.arr[0]), theY(iv.arr[1]), theZ(iv.arr[2]), theW(0) {}
+#endif
 
   /// construct from cartesian coordinates
   Basic3DVector( const T& x, const T& y, const T& z) : 
@@ -201,10 +206,14 @@ public:
   }
 
 private:
+#ifdef USE_SSE
+  mathSSE::Vec3<T> v;
+#else
   T theX;
   T theY;
   T theZ;
   T theW;
+#endif
 }  __attribute__ ((aligned (16)));
 
 
@@ -281,8 +290,9 @@ inline Basic3DVector<T> operator/( const Basic3DVector<T>& v, S s) {
   return v*t;
 }
 
+#ifdef USE_SSE
 #include "DataFormats/GeometryVector/interface/Basic3DVectorFSSE.icc"
-
+#endif
 
 #endif // GeometryVector_Basic3DVector_h
 

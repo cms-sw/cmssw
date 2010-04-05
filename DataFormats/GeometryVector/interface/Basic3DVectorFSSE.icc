@@ -8,77 +8,53 @@
 
 typedef Basic3DVector<float> Basic3DVectorF;
 
-struct makeVec3F {
-  makeVec3F(Basic3DVectorF & bv) : v(reinterpret_cast<mathSSE::Vec3F&>(bv)){}
-  mathSSE::Vec3F & v;
-};
-struct makeVec3FC {
-  makeVec3FC(Basic3DVectorF const & bv) : v(reinterpret_cast<mathSSE::Vec3F const&>(bv)){}
-   mathSSE::Vec3F const & v;
-};
-
-
 template <> template <>
 inline Basic3DVectorF&  Basic3DVectorF::operator+=<float> ( const Basic3DVectorF& rh) {
-  makeVec3FC v(rh);
-  makeVec3F s(*this);
-  s.v = s.v + v.v;
+  v = v + rh.v;
   return *this;
 }
 
 template <> template <>
 inline Basic3DVectorF& Basic3DVectorF::operator-=<float> ( const Basic3DVectorF& rh) {
-  makeVec3FC v(rh);
-  makeVec3F s(*this);
-  s.v = s.v - v.v;
+  v = v - rh.v;
   return *this;
 }
 
 template <> 
 inline Basic3DVectorF& Basic3DVectorF::operator*= ( Basic3DVectorF::ScalarType rh) {
-  makeVec3F s(*this);
-  s.v = rh*s.v;
+  v = rh*v;
   return *this;
 }
 
 template <> 
 inline Basic3DVectorF& Basic3DVectorF::operator/= ( Basic3DVectorF::ScalarType rh) {
-  makeVec3F s(*this);
-  s.v = (Basic3DVectorF::ScalarType(1)/rh)*s.v;
+  v = (Basic3DVectorF::ScalarType(1)/rh)*v;
   return *this;
 }
 
 template <> 
 inline Basic3DVectorF operator+( const Basic3DVectorF& rh, const Basic3DVectorF& lh) {
-  makeVec3FC r(rh);
-  makeVec3FC l(lh);
-  return  Basic3DVectorF(r.v + l.v);
+  return  Basic3DVectorF(rh.v + lh.v);
 }
 
 template <> 
 inline Basic3DVectorF operator-( const Basic3DVectorF& rh, const Basic3DVectorF& lh) {
-  makeVec3FC r(rh);
-  makeVec3FC l(lh);
-  return  Basic3DVectorF(r.v - l.v);
+  return  Basic3DVectorF(rh.v - lh.v);
 }
 
 template <> 
 inline Basic3DVectorF::ScalarType operator*( const Basic3DVectorF& rh, const Basic3DVectorF& lh) {
-  makeVec3FC r(rh);
-  makeVec3FC l(lh);
-  return  dot(r.v,l.v);
+  return  dot(rh.v,lh.v);
 }
 
 template <> 
 inline Basic3DVectorF operator*(Basic3DVectorF::ScalarType rh, const Basic3DVectorF& lh) {
-  makeVec3FC l(lh);
-  return  Basic3DVectorF(rh*l.v);
+  return  Basic3DVectorF(rh*lh.v);
 }
 
 template <> 
 inline Basic3DVectorF operator*(const Basic3DVectorF& lh, Basic3DVectorF::ScalarType rh) {
-  makeVec3FC l(lh);
-  return  Basic3DVectorF(rh*l.v);
+  return  Basic3DVectorF(rh*lh.v);
 }
 
 /*
