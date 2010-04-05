@@ -1,11 +1,16 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2009/11/19 14:39:15 $
- * $Revision: 1.46 $
+ * $Date: 2010/04/02 16:32:42 $
+ * $Revision: 1.47 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.47  2010/04/02 16:32:42  tapper
+ * 1. Changed GCT unpacker settings to unpack 5 BXs.
+ * 2. Changed L1TGCT to plot only central BX distributions but all 5 BXs for timing plots.
+ * 3. Made labels more descriptive in GCT emulator expert DQM.
+ *
  * Revision 1.46  2009/11/19 14:39:15  puigh
  * modify beginJob
  *
@@ -303,17 +308,13 @@ void L1TGCT::beginJob(void)
 					  PHIBINS, PHIMIN, PHIMAX); 
   
     l1GctHFRing1PosEtaNegEta_ = dbe->book2D("HFRing1Corr", "HF RING1 CORRELATION NEG POS ETA",
-                                            JETETABINS, JETETAMIN, JETETAMAX,
-                                            PHIBINS, PHIMIN, PHIMAX); 
+                                            R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX); 
     l1GctHFRing2PosEtaNegEta_ = dbe->book2D("HFRing2Corr", "HF RING2 CORRELATION NEG POS ETA",
-                                            JETETABINS, JETETAMIN, JETETAMAX,
-                                            PHIBINS, PHIMIN, PHIMAX); 
+                                            R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
     l1GctHFRing1TowerCountPosEtaNegEta_ = dbe->book2D("HFRing1TowerCountCorr", "HF RING1 TOWER COUNT CORRELATION NEG POS ETA",
-                                                      JETETABINS, JETETAMIN, JETETAMAX,
-                                                      PHIBINS, PHIMIN, PHIMAX);
+                                                      R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
     l1GctHFRing2TowerCountPosEtaNegEta_ = dbe->book2D("HFRing2TowerCountCorr", "HF RING2 TOWER COUNT CORRELATION NEG POS ETA",
-                                                      JETETABINS, JETETAMIN, JETETAMAX,
-                                                      PHIBINS, PHIMIN, PHIMAX); 
+                                                      R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
 
     //HF Ring stuff
     l1GctHFRing1TowerCountPosEta_ = dbe->book1D("HFRing1TowerCountPosEta", "POS ETA RING1 HFRING BIT", R3BINS, R3MIN, R3MAX);
@@ -328,8 +329,8 @@ void L1TGCT::beginJob(void)
     l1GctHFRingRatioPosEta_  = dbe->book1D("HFRingRatioPosEta", "RING RATIO POS ETA", R5BINS, R5MIN, R5MAX);
     l1GctHFRingRatioNegEta_  = dbe->book1D("HFRingRatioNegEta", "RING RATIO NEG ETA", R5BINS, R5MIN, R5MAX);
 
-    l1GctHFRingTowerCountOccBx_ = dbe->book2D("HFRingTowerCountOccBx", "HFRING BIT PER BX",BXBINS,BXMIN,BXMAX,R3BINS, R3MIN, R3MAX);
-    l1GctHFRingETSumOccBx_ = dbe->book2D("HFRingETSumOccBx", "HFRING ET SUM PER BX",BXBINS,BXMIN,BXMAX,R3BINS, R3MIN, R3MAX);
+    l1GctHFRingTowerCountOccBx_ = dbe->book2D("HFRingTowerCountOccBx", "HF RING BIT PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
+    l1GctHFRingETSumOccBx_ = dbe->book2D("HFRingETSumOccBx", "HF RING ET SUM PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
     
     // Rank histograms
     l1GctCenJetsRank_  = dbe->book1D("CenJetsRank", "CENTRAL JET RANK", R6BINS, R6MIN, R6MAX);
