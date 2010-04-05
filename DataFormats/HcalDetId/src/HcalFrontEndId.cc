@@ -18,17 +18,17 @@ HcalFrontEndId::HcalFrontEndId(const std::string& rbx,int rm,int pixel,int rmfib
   if (adc<0 || adc>5) return;
 
   int num=-1;
-  if      (rbx.substr(0,3)=="HBM")  { num=0         + atoi(rbx.substr(3,2).c_str())-1; }
-  else if (rbx.substr(0,3)=="HBP")  { num=18        + atoi(rbx.substr(3,2).c_str())-1; }
-  else if (rbx.substr(0,3)=="HEM")  { num=18*2      + atoi(rbx.substr(3,2).c_str())-1; }
-  else if (rbx.substr(0,3)=="HEP")  { num=18*3      + atoi(rbx.substr(3,2).c_str())-1; }
-  else if (rbx.substr(0,4)=="HO2M") { num=18*4      + atoi(rbx.substr(4,2).c_str())-1; }
-  else if (rbx.substr(0,4)=="HO1M") { num=18*4+12   + atoi(rbx.substr(4,2).c_str())-1; }
-  else if (rbx.substr(0,3)=="HO0")  { num=18*4+12*2 + atoi(rbx.substr(3,2).c_str())-1; }
-  else if (rbx.substr(0,4)=="HO1P") { num=18*4+12*3 + atoi(rbx.substr(4,2).c_str())-1; }
-  else if (rbx.substr(0,4)=="HO2P") { num=18*4+12*4 + atoi(rbx.substr(4,2).c_str())-1; }
-  else if (rbx.substr(0,3)=="HFM")  { num=18*4+12*5 + atoi(rbx.substr(3,2).c_str())-1; }
-  else if (rbx.substr(0,3)=="HFP")  { num=18*4+12*6 + atoi(rbx.substr(3,2).c_str())-1; }
+  if      (!rbx.compare(0,3,"HBM" ))  { num=0         + atoi(rbx.substr(3,2).c_str())-1; }
+  else if (!rbx.compare(0,3,"HBP" ))  { num=18        + atoi(rbx.substr(3,2).c_str())-1; }
+  else if (!rbx.compare(0,3,"HEM" ))  { num=18*2      + atoi(rbx.substr(3,2).c_str())-1; }
+  else if (!rbx.compare(0,3,"HEP" ))  { num=18*3      + atoi(rbx.substr(3,2).c_str())-1; }
+  else if (!rbx.compare(0,4,"HO2M"))  { num=18*4      + atoi(rbx.substr(4,2).c_str())-1; }
+  else if (!rbx.compare(0,4,"HO1M"))  { num=18*4+12   + atoi(rbx.substr(4,2).c_str())-1; }
+  else if (!rbx.compare(0,3,"HO0" ))  { num=18*4+12*2 + atoi(rbx.substr(3,2).c_str())-1; }
+  else if (!rbx.compare(0,4,"HO1P"))  { num=18*4+12*3 + atoi(rbx.substr(4,2).c_str())-1; }
+  else if (!rbx.compare(0,4,"HO2P"))  { num=18*4+12*4 + atoi(rbx.substr(4,2).c_str())-1; }
+  else if (!rbx.compare(0,3,"HFM" ))  { num=18*4+12*5 + atoi(rbx.substr(3,2).c_str())-1; }
+  else if (!rbx.compare(0,3,"HFP" ))  { num=18*4+12*6 + atoi(rbx.substr(3,2).c_str())-1; }
   else return;
 
   hcalFrontEndId_|=((adc+1)&0x7);
