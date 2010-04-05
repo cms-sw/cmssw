@@ -6,8 +6,6 @@
 //
 
 
-typedef Basic3DVector<float> Basic3DVectorF;
-
 template <> template <>
 inline Basic3DVectorF&  Basic3DVectorF::operator+=<float> ( const Basic3DVectorF& rh) {
   v = v + rh.v;
