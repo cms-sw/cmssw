@@ -203,7 +203,6 @@ public:
 
 public:
   mathSSE::Vec3<T> v;
-#endif
 }  __attribute__ ((aligned (16)));
 
 
