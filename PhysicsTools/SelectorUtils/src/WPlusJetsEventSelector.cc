@@ -56,6 +56,10 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
 
   dR_ = 0.3;
 
+  if ( params.exists("cutsToIgnore") )
+    setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
+	
+
   retInternal_ = getBitTemplate();
 }
 
