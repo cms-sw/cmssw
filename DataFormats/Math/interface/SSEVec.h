@@ -51,7 +51,16 @@ namespace mathSSE {
   template<typename T>
   struct OldVec { T  theX; T  theY; T  theZ; T  theW;}  __attribute__ ((aligned (16)));
   
-  template<typename T> union Vec3{};
+  template<typename T> union Vec3{
+    Vec3() {
+      arr[0] = 0; arr[1] = 0; arr[2] = 0; arr[3]=0;
+    }
+    Vec3(float f1, float f2, float f3) {
+      arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=0;
+    }
+    T __attribute__ ((aligned(16))) arr[4];
+    OldVec<T> o;
+  };
 
   template<>
   union Vec3<float> {
