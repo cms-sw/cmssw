@@ -283,9 +283,8 @@ inline Basic3DVector<T> operator/( const Basic3DVector<T>& v, S s) {
 typedef Basic3DVector<float> Basic3DVectorF;
 typedef Basic3DVector<double> Basic3DVectorD;
 
-#ifdef USE_SSE
 #include "DataFormats/GeometryVector/interface/Basic3DVectorFSSE.icc"
-#endif
+
 
 #endif // GeometryVector_Basic3DVector_h
 

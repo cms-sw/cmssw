@@ -3,7 +3,6 @@
 
 #ifdef USE_SSE
 #include "DataFormats/GeometryVector/interface/newBasic3DVector.h"
-#include "DataFormats/GeometryVector/interface/Basic3DVectorFSSE.icc"
 #else
 #include "DataFormats/GeometryVector/interface/oldBasic3DVector.h"
 #endif
