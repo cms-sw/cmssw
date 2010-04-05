@@ -63,4 +63,5 @@ int main() {
     Basic3DVectorD vz(1.,1.,1);
     addScaleddiff(vz,0.1,vx,vy);
     std::cout << vz << std::endl;
+ }
 }
