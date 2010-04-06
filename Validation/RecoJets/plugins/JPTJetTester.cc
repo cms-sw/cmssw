@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.2 2010/03/24 01:20:26 hatake Exp $
+// $Id: JPTJetTester.cc,v 1.3 2010/03/26 01:27:54 hatake Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -176,12 +176,12 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     mMultiplicityPionOutVertexInCalo = dbe->book1D("MultiplicityPionInVertexInCalo","MultiplicityPionOutVertexInCalo",100,0.,100.);
 
     mMultiplicityMuonInVertexInCalo  = dbe->book1D("MultiplicityMuonInVertexInCalo","MultiplicityMuonInVertexInCalo",100,0.,100.);
-    mMultiplicityMuonInVertexOutCalo = dbe->book1D("MultiplicityMuonInVertexInCalo","MultiplicityMuonInVertexOutCalo",100,0.,100.);
-    mMultiplicityMuonOutVertexInCalo = dbe->book1D("MultiplicityMuonInVertexInCalo","MultiplicityMuonOutVertexInCalo",100,0.,100.);
+    mMultiplicityMuonInVertexOutCalo = dbe->book1D("MultiplicityMuonInVertexOutCalo","MultiplicityMuonInVertexOutCalo",100,0.,100.);
+    mMultiplicityMuonOutVertexInCalo = dbe->book1D("MultiplicityMuonOutVertexInCalo","MultiplicityMuonOutVertexInCalo",100,0.,100.);
 
     mMultiplicityElecInVertexInCalo  = dbe->book1D("MultiplicityElecInVertexInCalo","MultiplicityElecInVertexInCalo",100,0.,100.);
-    mMultiplicityElecInVertexOutCalo = dbe->book1D("MultiplicityElecInVertexInCalo","MultiplicityElecInVertexOutCalo",100,0.,100.);
-    mMultiplicityElecOutVertexInCalo = dbe->book1D("MultiplicityElecInVertexInCalo","MultiplicityElecOutVertexInCalo",100,0.,100.);
+    mMultiplicityElecInVertexOutCalo = dbe->book1D("MultiplicityElecInVertexOutCalo","MultiplicityElecInVertexOutCalo",100,0.,100.);
+    mMultiplicityElecOutVertexInCalo = dbe->book1D("MultiplicityElecOutVertexInCalo","MultiplicityElecOutVertexInCalo",100,0.,100.);
     /*
     mMaxEInEmTowers   = dbe->book1D("MaxEInEmTowers", "MaxEInEmTowers", 100, 0, 100); 
     mMaxEInHadTowers  = dbe->book1D("MaxEInHadTowers", "MaxEInHadTowers", 100, 0, 100); 
