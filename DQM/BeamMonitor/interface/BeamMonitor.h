@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/03/29 03:00:08 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/04/02 12:26:02 $
+ *  $Revision: 1.20 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -54,6 +54,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   
  private:
 
+  void FitAndFill(const edm::LuminosityBlock& lumiSeg,int&,int&,int&);
   void scrollTH1(TH1 *, time_t);
   bool testScroll(time_t &, time_t &);
 
@@ -79,6 +80,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   int beginLumiOfPVFit_;
   int endLumiOfPVFit_;
   int lastlumi_; // previous LS processed
+  int nextlumi_; // next LS of Fit
   unsigned int nthBSTrk_;
   int nFitElements_;
   int nFits_;

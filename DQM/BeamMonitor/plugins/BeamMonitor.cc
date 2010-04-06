@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/04/02 12:26:02 $
- * $Revision: 1.37 $
+ * $Date: 2010/04/03 10:06:48 $
+ * $Revision: 1.38 $
  *
  */
 
@@ -83,6 +83,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   nFits_ = beginLumiOfPVFit_ = endLumiOfPVFit_ = 0;
   maxZ_ = fabs(maxZ_);
   lastlumi_ = 0;
+  nextlumi_ = 0;
 }
 
 
@@ -370,15 +371,25 @@ void BeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
 //--------------------------------------------------------
 void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				       const EventSetup& context) {
-  const int nthlumi = lumiSeg.luminosityBlock();
-  //if (debug_)
-  cout << "Begin of Lumi: " << nthlumi << endl;
+  int nthlumi = lumiSeg.luminosityBlock();
 
   if (beginLumiOfPVFit_ == 0) beginLumiOfPVFit_ = nthlumi;
 
-  if (onlineMode_ && (nthlumi <= lastlumi_)) return;
-  lastlumi_ = nthlumi;
+  if (onlineMode_ && (nthlumi < nextlumi_)) return;
+
+  if (onlineMode_) {
+    if (nthlumi > nextlumi_) {
+      if (countLumi_ != 0) FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
+      nextlumi_ = nthlumi;
+      cout << "Next Lumi to Fit: " << nextlumi_ << endl;
+    }
+  }
+  else{
+    FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
+  }
   countLumi_++;
+  //if (debug_)
+  cout << "Begin of Lumi: " << nthlumi << endl;
 }
 
 // ----------------------------------------------------------
@@ -386,11 +397,11 @@ void BeamMonitor::analyze(const Event& iEvent,
 			  const EventSetup& iSetup ) {
   bool readEvent_ = true;
   const int nthlumi = iEvent.luminosityBlock();
-  if (onlineMode_ && (nthlumi < lastlumi_)) {
+  if (onlineMode_ && (nthlumi < nextlumi_)) {
     readEvent_ = false;
-    if (debug_) std::cout << "Spilt event from previous lumi section!!!" << std::endl;
+    if (debug_) std::cout << "Spilt event from previous lumi section!" << std::endl;
   }
-  if (onlineMode_ && (nthlumi > lastlumi_)) {
+  if (onlineMode_ && (nthlumi > nextlumi_)) {
     readEvent_ = false;
     if (debug_) std::cout << "Spilt event from next lumi section!!!" << std::endl;
   }
@@ -471,20 +482,28 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   int nthlumi = lumiSeg.id().luminosityBlock();
   //if (debug_)
   cout << "Lumi of the last event before endLuminosityBlock: " << nthlumi << endl;
-  if (onlineMode_ && (nthlumi < lastlumi_)) return;
-  if (nthlumi != lastlumi_) nthlumi = lastlumi_;
-  cout << "Lumi of the current fit: " << nthlumi << endl;
+  //if (onlineMode_ && lastlumi_ >= nthlumi) return;
+  //lastlumi_ = nthlumi;
+}
+
+//--------------------------------------------------------
+void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &nextlumi,int &nthlumi){
+  if (onlineMode_ && (nthlumi <= nextlumi)) return;
+
+  int currentlumi = nextlumi;
+  cout << "Lumi of the current fit: " << currentlumi << endl;
+  lastlumi = currentlumi;
 
   if (onlineMode_) { // filling LS gap
     // FIXME: need to add protection for the case if the gap is at the resetting LS!
     const int countLS_bs = hs["x0_lumi"]->getTH1()->GetEntries();
     const int countLS_pv = hs["PVx_lumi"]->getTH1()->GetEntries();
     if (debug_) std::cout << "countLS_bs = " << countLS_bs << " ; countLS_pv = " << countLS_pv << std::endl;
-    int LSgap_bs = nthlumi/fitNLumi_ - countLS_bs;
-    int LSgap_pv = nthlumi/fitPVNLumi_ - countLS_pv;
-    if (nthlumi%fitNLumi_ == 0)
+    int LSgap_bs = currentlumi/fitNLumi_ - countLS_bs;
+    int LSgap_pv = currentlumi/fitPVNLumi_ - countLS_pv;
+    if (currentlumi%fitNLumi_ == 0)
       LSgap_bs--;
-    if (nthlumi%fitPVNLumi_ == 0)
+    if (currentlumi%fitPVNLumi_ == 0)
       LSgap_pv--;
     if (debug_) std::cout << "LSgap_bs = " << LSgap_bs << " ; LSgap_pv = " << LSgap_pv << std::endl;
     // filling previous fits if LS gap ever exists
@@ -500,13 +519,12 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       hs["PVz_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
     }
     const int previousLS = h_nTrk_lumi->getTH1()->GetEntries();
-    for (int i=1;i < (nthlumi - previousLS);i++)
+    for (int i=1;i < (currentlumi - previousLS);i++)
       h_nTrk_lumi->ShiftFillLast(nthBSTrk_);
   }
   else { // not online mode
     h_nTrk_lumi->ShiftFillLast(nthBSTrk_);
   }
-  //lastlumi_ = nthlumi;
 
   ftimestamp = lumiSeg.endTime().value();
   tmpTime = ftimestamp >> 32;
@@ -526,7 +544,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 
   if (fitPVNLumi_ > 0) {
     if (onlineMode_) {
-      if (nthlumi%fitPVNLumi_ == 0)
+      if (currentlumi%fitPVNLumi_ == 0)
 	doPVFit = true;
     }
     else
@@ -537,7 +555,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     doPVFit = true;
 
   if (doPVFit) {
-    endLumiOfPVFit_ = nthlumi;
+    endLumiOfPVFit_ = currentlumi;
     if (debug_) std::cout << "Do PV Fitting for LS = " << beginLumiOfPVFit_ << " to " << endLumiOfPVFit_ << std::endl;
     // Primary Vertex Fit:
     if (h_PVx[0]->getTH1()->GetEntries() >= 20) {
@@ -627,7 +645,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   }
 
   if (resetPVNLumi_ > 0 &&
-      ((onlineMode_ && nthlumi%resetPVNLumi_ == 0) ||
+      ((onlineMode_ && currentlumi%resetPVNLumi_ == 0) ||
        (!onlineMode_ && countLumi_%resetPVNLumi_ == 0))) {
     h_PVx[0]->Reset();
     h_PVy[0]->Reset();
@@ -676,7 +694,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 
   if (fitNLumi_ > 0) {
     if (onlineMode_){
-      if (nthlumi%fitNLumi_!=0) return;
+      if (currentlumi%fitNLumi_!=0) return;
     }
     else      
       if (countLumi_%fitNLumi_!=0) return;
@@ -800,7 +818,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   }
 
   if (resetFitNLumi_ > 0 && 
-      ((onlineMode_ && nthlumi%resetFitNLumi_ == 0) ||
+      ((onlineMode_ && currentlumi%resetFitNLumi_ == 0) ||
        (!onlineMode_ && countLumi_%resetFitNLumi_ == 0))) {
     if (debug_) cout << "Reset track collection for beam fit!!!" <<endl;
     resetHistos_ = true;
