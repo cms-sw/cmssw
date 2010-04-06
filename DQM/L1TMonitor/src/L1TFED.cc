@@ -1,8 +1,8 @@
 /*
  * \file L1TFED.cc
  *
- * $Date: 2009/11/19 14:39:01 $
- * $Revision: 1.13 $
+ * $Date: 2010/04/01 01:05:19 $
+ * $Revision: 1.14 $
  * \author J. Berryhill
  *
  */
@@ -51,7 +51,7 @@ L1TFED::L1TFED(const ParameterSet& ps)
     dbe->setCurrentFolder(directory_);
   }
 
-
+  stableROConfig_ = ps.getUntrackedParameter<bool>("stableROConfig", true);
 }
 
 L1TFED::~L1TFED()
@@ -158,7 +158,7 @@ void L1TFED::analyze(const Event& e, const EventSetup& c)
         } else {
         
          if(verbose_) cout << "empty fed " << i << endl;
-	 fedfatal->Fill(i);
+	 if(stableROConfig_) fedfatal->Fill(i);
         
 	}
    }
