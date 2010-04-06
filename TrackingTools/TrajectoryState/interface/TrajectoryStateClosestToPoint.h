@@ -54,7 +54,7 @@ public:
    * are defined.
    */ 
 
-  const GlobalPoint referencePoint() const {
+  const GlobalPoint & referencePoint() const {
     if(!isValid()) throw TrajectoryStateException(
 	"TrajectoryStateClosestToPoint is invalid and cannot return any parameters");
     return theRefPoint;
