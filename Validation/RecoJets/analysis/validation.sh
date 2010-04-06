@@ -55,6 +55,12 @@ if [ -n $title ]; then
                 # AntiKt PF
 		elif [ ${FOLDER[${i}]} = ${FOLDER[8]} ]; then
 		    cp html/htmlTemplate_PF.html $title/${FOLDER[${i}]}
+                # JPT IC5
+		elif [ ${FOLDER[${i}]} = ${FOLDER[2]} ]; then
+		    cp html/JPT.html $title/${FOLDER[${i}]}
+                # JPT AK5
+		elif [ ${FOLDER[${i}]} = ${FOLDER[9]} ]; then
+		    cp html/JPT.html $title/${FOLDER[${i}]}
 		else
 		    cp html/htmlTemplate.html $title/${FOLDER[${i}]}
 		fi
