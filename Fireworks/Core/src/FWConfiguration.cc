@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 22 15:54:29 EST 2008
-// $Id: FWConfiguration.cc,v 1.3 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWConfiguration.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -187,7 +187,14 @@ addToCode(const std::string& iParentVariable,
       for(FWConfiguration::StringValues::const_iterator it = iConfig.stringValues()->begin();
           it != iConfig.stringValues()->end();
           ++it) {
-         oTo<<"  "<<newVar<<".addValue(\""<<*it<<"\");\n";
+         //make sure to escape any quotations embedded in the string
+         std::string value = *it;
+         std::string::size_type index=0;
+         while (std::string::npos != (index=value.find('"',index))) {
+            value.insert(index,1,'\\');
+            ++index; ++index;
+         }
+         oTo<<"  "<<newVar<<".addValue(\""<<value<<"\");\n";
       }
    }
    if(iConfig.keyValues()) {
