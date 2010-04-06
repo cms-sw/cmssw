@@ -1,3 +1,13 @@
+2010-04-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-09-02
+	* Use the same time object for file timestamps in database log file
+	  and for the file name.
+	* Add simple unit test for time retrieval and time stamp generation.
+	* Lump unwanted event alarms by output module, i.e. do not 
+	  generate an alarm for each trigger bit combination.
+	* Increase default DQM event queue limit to 3072 entries.
+
 2010-03-25 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-09-01
