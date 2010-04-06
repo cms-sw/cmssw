@@ -85,19 +85,19 @@
 #include <string>
 #include <map>
 #include <stack>
-#include <fenv.h>
 
 namespace edm {
 
    class ParameterSet;
    struct ActivityRegistry;
    class ModuleDescription;
+   class ConfigurationDescriptions;
 
    namespace service {
 
       class EnableFloatingPointExceptions {
       public:
-	typedef int fpu_flags_type;
+         typedef int fpu_flags_type;
          EnableFloatingPointExceptions(ParameterSet const& pset,
                                        ActivityRegistry & registry);
 
@@ -121,6 +121,8 @@ namespace edm {
          void preModule(ModuleDescription const& description);
          void postModule(ModuleDescription const& description);
 
+         static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
       private:
          typedef std::string String;
          typedef ParameterSet PSet;
@@ -132,20 +134,19 @@ namespace edm {
                           char const* debugInfo);
 
          void controlFpe(bool divByZero, bool invalid, bool overFlow,
-                         bool underFlow, bool precisionDouble,
-                         fpu_flags_type & result) const;
+                         bool underFlow, bool precisionDouble) const;
 
          void echoState() const;
          void establishDefaultEnvironment(bool precisionDouble);
          void establishModuleEnvironments(PSet const& pset, bool precisionDouble);
 
 
-	fpu_flags_type fpuState_;
-	fpu_flags_type defaultState_;
-	fpu_flags_type OSdefault_;
-	std::map<String, fpu_flags_type> stateMap_;
-	std::stack<fpu_flags_type> stateStack_;
-	bool reportSettings_;
+         fpu_flags_type fpuState_;
+         fpu_flags_type defaultState_;
+         fpu_flags_type OSdefault_;
+         std::map<String, fpu_flags_type> stateMap_;
+         std::stack<fpu_flags_type> stateStack_;
+         bool reportSettings_;
       };
    }
 }

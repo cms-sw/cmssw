@@ -15,7 +15,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/AllowedLabelsDescription.h"
 
+#include <fenv.h>
 #include <fpu_control.h>
 #include <vector>
 
@@ -59,7 +63,7 @@ EnableFloatingPointExceptions(ParameterSet const& pset,
 
   stateStack_.push(defaultState_);
   fpuState_ = defaultState_;
-  fpuState_ = fegetexcept();
+  feenableexcept(defaultState_);
 
   // Note that we must watch all of the transitions even if there are no module specific settings.
   // This is because the floating point environment may be modified by code outside of this service.
@@ -251,8 +255,7 @@ postActions(ModuleDescription const& description, char const* debugInfo) {
 void
 EnableFloatingPointExceptions::
 controlFpe(bool divByZero, bool invalid, bool overFlow, 
-           bool underFlow, bool precisionDouble,
-           fpu_flags_type & result) const {
+           bool underFlow, bool precisionDouble) const {
 
   //unsigned short int FE_PRECISION = 1<<5;
   //unsigned short int suppress;
@@ -321,7 +324,7 @@ EnableFloatingPointExceptions::echoState() const {
 
 void EnableFloatingPointExceptions::
 establishDefaultEnvironment(bool precisionDouble) {
-  controlFpe(false, false, false, false, precisionDouble, fpuState_);
+  controlFpe(false, false, false, false, precisionDouble);
   fpuState_  = fegetexcept();
   if(reportSettings_) {
     edm::LogVerbatim("FPE_Enable") << "\nSettings for default";
@@ -351,7 +354,7 @@ establishModuleEnvironments(PSet const& pset, bool precisionDouble) {
     bool enableInvalidEx    = secondary.getUntrackedParameter<bool>("enableInvalidEx",   false);
     bool enableOverFlowEx   = secondary.getUntrackedParameter<bool>("enableOverFlowEx",  false);
     bool enableUnderFlowEx  = secondary.getUntrackedParameter<bool>("enableUnderFlowEx", false);
-    controlFpe(enableDivByZeroEx, enableInvalidEx, enableOverFlowEx, enableUnderFlowEx, precisionDouble, fpuState_);
+    controlFpe(enableDivByZeroEx, enableInvalidEx, enableOverFlowEx, enableUnderFlowEx, precisionDouble);
     fpuState_ = fegetexcept();
     if(reportSettings_) {
       edm::LogVerbatim("FPE_Enable") << "\nSettings for module " << *it;
@@ -363,4 +366,23 @@ establishModuleEnvironments(PSet const& pset, bool precisionDouble) {
       stateMap_[*it] =  fpuState_;
     }
   }
+}
+
+void EnableFloatingPointExceptions::
+fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.addUntracked<bool>("reportSettings", false);
+  desc.addUntracked<bool>("setPrecisionDouble", true);
+
+  edm::ParameterSetDescription validator;
+  validator.addUntracked<bool>("enableDivByZeroEx", false);
+  validator.addUntracked<bool>("enableInvalidEx",   false);
+  validator.addUntracked<bool>("enableOverFlowEx",  false);
+  validator.addUntracked<bool>("enableUnderFlowEx", false);
+
+  edm::AllowedLabelsDescription<edm::ParameterSetDescription> node("moduleNames", validator, false);
+  desc.addNode(node);
+
+  descriptions.add("EnableFloatingPointExceptions", desc);
 }
