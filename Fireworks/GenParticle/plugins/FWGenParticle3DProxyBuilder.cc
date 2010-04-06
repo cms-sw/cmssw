@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWGenParticle3DProxyBuilder.cc,v 1.4 2010/03/02 20:23:20 chrjones Exp $
+// $Id: FWGenParticle3DProxyBuilder.cc,v 1.5 2010/04/06 20:19:49 amraktad Exp $
 // 
 
 
@@ -23,7 +23,9 @@
 #include "TEveVSDStructs.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
+
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
@@ -32,7 +34,7 @@
 class TEveTrack;
 class TEveTrackPropagator;
 
-class FWGenParticle3DProxyBuilder : public  FWProxyBuilderBase {
+class FWGenParticle3DProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GenParticle> {
 
 public:
    FWGenParticle3DProxyBuilder();
@@ -45,9 +47,8 @@ private:
    FWGenParticle3DProxyBuilder(const FWGenParticle3DProxyBuilder&); // stop default
 
    const FWGenParticle3DProxyBuilder& operator=(const FWGenParticle3DProxyBuilder&); // stop default
-
-   virtual void build(const FWEventItem* iItem,
-                      TEveElementList** product);
+   
+   void build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
 
    // ---------- member data --------------------------------
    TDatabasePDG* m_pdg;
@@ -61,46 +62,15 @@ FWGenParticle3DProxyBuilder::FWGenParticle3DProxyBuilder()
    m_pdg = new TDatabasePDG();
 }
 
-void FWGenParticle3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
-{ 
-   reco::GenParticleCollection const * genParticles=0;
-   iItem->get(genParticles);
-   if(0 == genParticles ) return;
-
-   (*product)->DestroyElements();
-   TEveElementList* tlist = *product;
-
-   int index=0;
-   TEveRecTrack t;
-   t.fBeta = 1.;
-   reco::GenParticleCollection::const_iterator it = genParticles->begin(),
-      end = genParticles->end();
-   for( ; it != end; ++it,++index) {
-      t.fP = TEveVector(it->px(),
-                        it->py(),
-                        it->pz());
-      t.fV = TEveVector(it->vx(),
-                        it->vy(),
-                        it->vz());
-      t.fSign = it->charge();
-
-      TEveTrack* track = new TEveTrack(&t, context().getTrackPropagator());
-     
-      char s[1024];
-      TParticlePDG* pID = m_pdg->GetParticle(it->pdgId());
-      if ( pID )
-         sprintf(s,"gen %s, Pt: %0.1f GeV", pID->GetName(), it->pt());
-      else
-         sprintf(s,"gen pdg %d, Pt: %0.1f GeV", it->pdgId(), it->pt());
-
-      track->SetMainColor(iItem->defaultDisplayProperties().color());
-      track->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
-      track->SetTitle(s);
-      track->MakeTrack();
-      tlist->AddElement(track);
-      tlist->ProjectChild(track);
-   }
+void
+FWGenParticle3DProxyBuilder::build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder) const
+{
+   TEveTrack* trk = fireworks::prepareTrack( iData, context().getTrackPropagator(), item()->defaultDisplayProperties().color() ); 
+   
+   trk->MakeTrack();
+   oItemHolder.AddElement( trk );
+   
 }
 
-REGISTER_FWPROXYBUILDER(FWGenParticle3DProxyBuilder,reco::GenParticleCollection,"GenParticles", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWGenParticle3DProxyBuilder,reco::GenParticle,"GenParticles", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
 
