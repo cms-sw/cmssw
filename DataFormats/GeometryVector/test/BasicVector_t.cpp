@@ -13,6 +13,17 @@ void addScaleddiff(Basic3DVectorD&res, float s,  Basic3DVectorD const & a, Basic
   res += s*(a-b);
 } 
 
+void multiSum(Basic3DVectorF&res, float s,  Basic3DVectorF const & a, Basic3DVectorF const & b) {
+  res = s*(a-b) + s*(a+b);
+} 
+
+void multiSum(Basic3DVectorD&res, float s,  Basic3DVectorD const & a, Basic3DVectorD const & b) {
+  res = s*(a-b) + s*(a+b);
+} 
+
+
+
+
 
 float dotV(  Basic3DVectorF const & a,  Basic3DVectorF const & b) {
   return a*b;
