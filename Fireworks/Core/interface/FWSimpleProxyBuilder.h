@@ -1,38 +1,38 @@
-#ifndef Fireworks_Core_FW3DSimpleProxyBuilder_h
-#define Fireworks_Core_FW3DSimpleProxyBuilder_h
+#ifndef Fireworks_Core_FWSimpleProxyBuilder_h
+#define Fireworks_Core_FWSimpleProxyBuilder_h
 // -*- C++ -*-
 //
 // Package:     Core
-// Class  :     FW3DSimpleProxyBuilder
+// Class  :     FWSimpleProxyBuilder
 //
-/**\class FW3DSimpleProxyBuilder FW3DSimpleProxyBuilder.h Fireworks/Core/interface/FW3DSimpleProxyBuilder.h
+/**\class FWSimpleProxyBuilder FWSimpleProxyBuilder.h Fireworks/Core/interface/FWSimpleProxyBuilder.h
 
    Description: <one line class summary>
 
-   Usage:
+   Usage:s
     <usage>
 
  */
 //
-// Original Author:  Chris Jones
-//         Created:  Tue Dec  2 09:46:36 EST 2008
-// $Id: FW3DSimpleProxyBuilder.h,v 1.2 2009/01/23 21:35:40 amraktad Exp $
+// Original Author:  Chris Jones, AljaMrak-Tadel
+//         Created:  Tue March 28  2 09:46:36 EST 2010
+// $Id: FWSimpleProxyBuilder.h,v 1.3 2010/03/04 21:37:22 chrjones Exp $
 //
 
 // system include files
 #include <typeinfo>
 
 // user include files
-#include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWSimpleProxyHelper.h"
 
 // forward declarations
 
-class FW3DSimpleProxyBuilder : public FW3DDataProxyBuilder {
+class FWSimpleProxyBuilder : public FWProxyBuilderBase {
 
 public:
-   FW3DSimpleProxyBuilder(const std::type_info& iType);
-   virtual ~FW3DSimpleProxyBuilder();
+   FWSimpleProxyBuilder(const std::type_info& iType);
+   virtual ~FWSimpleProxyBuilder();
 
    // ---------- const member functions ---------------------
 
@@ -43,9 +43,9 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FW3DSimpleProxyBuilder(const FW3DSimpleProxyBuilder&); // stop default
+   FWSimpleProxyBuilder(const FWSimpleProxyBuilder&); // stop default
 
-   const FW3DSimpleProxyBuilder& operator=(const FW3DSimpleProxyBuilder&); // stop default
+   const FWSimpleProxyBuilder& operator=(const FWSimpleProxyBuilder&); // stop default
 
    virtual void itemChangedImp(const FWEventItem*);
    virtual void build(const FWEventItem* iItem,

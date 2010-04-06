@@ -1,50 +1,52 @@
-#ifndef Fireworks_Core_FW3DDataProxyBuilder_h
-#define Fireworks_Core_FW3DDataProxyBuilder_h
+#ifndef Fireworks_Core_FWProxyBuilderBase_h
+#define Fireworks_Core_FWProxyBuilderBase_h
 // -*- C++ -*-
 //
 // Package:     Core
-// Class  :     FW3DDataProxyBuilder
-//
-/**\class FW3DDataProxyBuilder FW3DDataProxyBuilder.h Fireworks/Core/interface/FW3DDataProxyBuilder.h
+// Class  :     FWProxyBuilderBase
+// 
+/**\class FWProxyBuilderBase FWProxyBuilderBase.h Fireworks/Core/interface/FWProxyBuilderBase.h
 
-   Description: <one line class summary>
+ Description: [one line class summary]
 
-   Usage:
+ Usage:
     <usage>
 
- */
+*/
 //
-// Original Author:
-//         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FW3DDataProxyBuilder.h,v 1.6 2010/01/21 21:01:35 amraktad Exp $
+// Original Author:  Chris Jones, Alja Mrak-Tadel
+//         Created:  Thu Mar 18 14:12:12 CET 2010
+// $Id$
 //
 
 // system include files
-#include <vector>
 
 // user include files
-#include "Fireworks/Core/interface/FW3DDataProxyBuilderFactory.h"
-#include "Fireworks/Core/interface/FWModelChangeSignal.h"
+
+// user include files
 #include "Fireworks/Core/interface/FWEvePtr.h"
+#include "Fireworks/Core/interface/FWViewType.h"
+#include "Fireworks/Core/interface/FWProxyBuilderFactory.h"
+#include "Fireworks/Core/interface/FWModelChangeSignal.h"
 #include "Fireworks/Core/interface/FWModelIdFromEveSelector.h"
 
 // forward declarations
+
 class FWEventItem;
 class TEveElementList;
 class TEveElement;
 class FWModelId;
-class TEveCaloDataHist;
 
 namespace fireworks {
    class Context;
 }
 
-class FW3DDataProxyBuilder
+class FWProxyBuilderBase
 {
 
 public:
-   FW3DDataProxyBuilder();
-   virtual ~FW3DDataProxyBuilder();
+   FWProxyBuilderBase();
+   virtual ~FWProxyBuilderBase();
 
    // ---------- const member functions ---------------------
 
@@ -62,8 +64,15 @@ public:
    void modelChanges(const FWModelIds&);
    void itemChanged(const FWEventItem*);
 
-   ///If TEveCaloDataHist is set in this routine then the TEveCalo3D must be added to the scene
-   virtual void addToScene(TEveElement&, TEveCaloDataHist**);
+   bool canHandle(const FWEventItem&);//note pass FWEventItem to see if type and container match
+   void attachToScene(const FWViewType&, const std::string& purpose, TEveElementList* sceneHolder);
+   void releaseFromSceneGraph(const FWViewType&);
+   bool willHandleInteraction();
+   void setInteractionList(std::vector<TEveCompound* > const *, std::string& purpose);
+
+   // getters
+   int layer() const;
+   TEveElementList* getProduct();
 
 protected:
    const FWEventItem* item() const {
@@ -73,36 +82,33 @@ protected:
    std::vector<FWModelIdFromEveSelector>& ids() {
       return m_ids;
    }
-
+   
    //Override this if you need to special handle selection or other changes
-   virtual void modelChanges(const FWModelIds&, TEveElement*);
    virtual bool specialModelChangeHandling(const FWModelId&, TEveElement*);
    virtual void applyChangesToAllModels(TEveElement* iElements);
-   virtual void itemChangedImp(const FWEventItem*);
 
+   virtual void itemChangedImp(const FWEventItem*);
    virtual void itemBeingDestroyed(const FWEventItem*);
 
+   virtual void modelChanges(const FWModelIds&, TEveElement*);
+
 private:
+   FWProxyBuilderBase(const FWProxyBuilderBase&); // stop default
+   const FWProxyBuilderBase& operator=(const FWProxyBuilderBase&); // stop default
+
    virtual void build(const FWEventItem* iItem,
                       TEveElementList** product) = 0 ;
 
-
-
    void applyChangesToAllModels();
-
-   FW3DDataProxyBuilder(const FW3DDataProxyBuilder&);    // stop default
-
-   const FW3DDataProxyBuilder& operator=(const FW3DDataProxyBuilder&);    // stop default
 
    // ---------- member data --------------------------------
    const FWEventItem* m_item;
-   FWEvePtr<TEveElementList> m_elementHolder;   //Used as a smart pointer for the item created by the builder
+   TEveElementList* m_elementHolder;   //Used as a smart pointer for the item created by the builder
    std::vector<FWModelIdFromEveSelector> m_ids;
 
    bool m_modelsChanged;
    bool m_haveViews;
    bool m_mustBuild;
 };
-
 
 #endif

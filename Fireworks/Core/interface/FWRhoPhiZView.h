@@ -16,12 +16,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.29 2010/03/16 11:51:53 amraktad Exp $
+// $Id: FWRhoPhiZView.h,v 1.30 2010/03/16 14:52:46 amraktad Exp $
 //
 
 // system include files
 #include <string>
-#include "TEveProjections.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEveView.h"
@@ -35,52 +34,44 @@ class TGLMatrix;
 class TEveCalo2D;
 class TEveProjectionAxes;
 class TEveWindowSlot;
-class FWRhoPhiZViewManager;
-
+class FWColorManager;
 
 class FWRhoPhiZView : public FWEveView
 {
-
 public:
-   FWRhoPhiZView(TEveWindowSlot* iParent,
-                 const std::string& iTypeName,
-                 const TEveProjection::EPType_e& iProjType);
+   FWRhoPhiZView(TEveWindowSlot* iParent, FWViewType::EType);
    virtual ~FWRhoPhiZView();
 
    // ---------- const member functions ---------------------
-   const std::string& typeName() const;
 
    virtual void addTo(FWConfiguration&) const;
    virtual void setFrom(const FWConfiguration&);
 
    // ---------- member functions ---------------------------
-   void resetCamera();
-   void destroyElements();
-   void replicateGeomElement(TEveElement*);
-   void showProjectionAxes( );
-   void eventEnd();
+   virtual void setGeometry( const DetIdToMatrix* geom, FWColorManager&);
 
    //returns the new element created from this import
-   TEveElement* importElements(TEveElement* iProjectableChild, float iLayer, TEveElement* iProjectedParent=0);
+   
+   void eventEnd();
+   void importElements(TEveElement* iProjectableChild, float iLayer, TEveElement* iProjectedParent=0);
 
 private:
+   FWRhoPhiZView(const FWRhoPhiZView&);    // stop default
+   const FWRhoPhiZView& operator=(const FWRhoPhiZView&);    // stop default 
+
    void doDistortion();
    void doCompression(bool);
-   void doZoom(double);
+   // void doZoom(double);
+
    void updateCaloParameters();
    void updateScaleParameters();
    void updateCalo(TEveElement*, bool dataChanged = false);
    void updateCaloLines(TEveElement*);
 
-   FWRhoPhiZView(const FWRhoPhiZView&);    // stop default
-
-   const FWRhoPhiZView& operator=(const FWRhoPhiZView&);    // stop default
-
+   void showProjectionAxes( );
    // ---------- member data --------------------------------
    FWEvePtr<TEveProjectionManager> m_projMgr;
-   TEveProjection::EPType_e m_projType;
-   std::vector<TEveElement*> m_geom;
-   std::string m_typeName;
+
    double m_caloScale;
    FWEvePtr<TEveProjectionAxes> m_axes;
 
@@ -96,9 +87,6 @@ private:
    FWBoolParameter*   m_showHF;
    FWBoolParameter*   m_showEndcaps;
 
-   // camera parameters
-   double*    m_cameraZoom;
-   TGLMatrix* m_cameraMatrix;
 };
 
 

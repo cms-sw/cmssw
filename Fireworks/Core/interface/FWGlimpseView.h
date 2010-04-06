@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWGlimpseView.h,v 1.13 2009/11/03 16:56:38 amraktad Exp $
+// $Id: FWGlimpseView.h,v 1.14 2010/03/16 11:51:53 amraktad Exp $
 //
 
 // system include files
@@ -30,7 +30,6 @@
 class TEveViewer;
 class TEveScene;
 class TEveElementList;
-class TGLMatrix;
 class FWEveValueScaler;
 class TEveWindowSlot;
 class TEveGeoShape;
@@ -38,38 +37,30 @@ class TEveGeoShape;
 class FWGlimpseView : public FWEveView
 {
 public:
-   FWGlimpseView(TEveWindowSlot*, TEveElementList*, FWEveValueScaler*);
+   FWGlimpseView(TEveWindowSlot*, TEveScene*);
    virtual ~FWGlimpseView();
 
    // ---------- const member functions ---------------------
-   const std::string& typeName() const;
 
    virtual void addTo(FWConfiguration&) const;
    virtual void setFrom(const FWConfiguration&);
 
    // ---------- static member functions --------------------
-   static const std::string& staticTypeName();
 
 private:
    FWGlimpseView(const FWGlimpseView&);    // stop default
-
    const FWGlimpseView& operator=(const FWGlimpseView&);    // stop default
 
-   void updateScale( double scale );
+   void createAxis();
    void showAxes( );
    void showCylinder( );
 
    // ---------- member data --------------------------------
    TEveGeoShape*  m_cylinder;
 
-   TGLMatrix* m_cameraMatrix;
-   TGLMatrix* m_cameraMatrixBase;
-   Double_t*  m_cameraFOV;
-
    // FWDoubleParameter m_scaleParam;
    FWBoolParameter   m_showAxes;
    FWBoolParameter   m_showCylinder;
-   FWEveValueScaler* m_scaler;
 };
 
 

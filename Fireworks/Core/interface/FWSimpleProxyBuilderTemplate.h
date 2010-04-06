@@ -1,11 +1,11 @@
-#ifndef Fireworks_Core_FWGlimpseSimpleProxyBuilderTemplate_h
-#define Fireworks_Core_FWGlimpseSimpleProxyBuilderTemplate_h
+#ifndef Fireworks_Core_FWSimpleProxyBuilderTemplate_h
+#define Fireworks_Core_FWSimpleProxyBuilderTemplate_h
 // -*- C++ -*-
 //
 // Package:     Core
-// Class  :     FWGlimpseSimpleProxyBuilderTemplate
+// Class  :     FWSimpleProxyBuilderTemplate
 //
-/**\class FWGlimpseSimpleProxyBuilderTemplate FWGlimpseSimpleProxyBuilderTemplate.h Fireworks/Core/interface/FWGlimpseSimpleProxyBuilderTemplate.h
+/**\class FWSimpleProxyBuilderTemplate FWSimpleProxyBuilderTemplate.h Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h
 
    Description: <one line class summary>
 
@@ -16,25 +16,25 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 11:20:00 EST 2008
-// $Id: FWGlimpseSimpleProxyBuilderTemplate.h,v 1.1 2008/12/02 21:11:52 chrjones Exp $
+// $Id: FWSimpleProxyBuilderTemplate.h,v 1.2 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
 
 // user include files
-#include "Fireworks/Core/interface/FWGlimpseSimpleProxyBuilder.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilder.h"
 
 // forward declarations
 
 template <typename T>
-class FWGlimpseSimpleProxyBuilderTemplate : public FWGlimpseSimpleProxyBuilder {
+class FWSimpleProxyBuilderTemplate : public FWSimpleProxyBuilder {
 
 public:
-   FWGlimpseSimpleProxyBuilderTemplate() :
-      FWGlimpseSimpleProxyBuilder(typeid(T)) {
+   FWSimpleProxyBuilderTemplate() :
+      FWSimpleProxyBuilder(typeid(T)) {
    }
 
-   //virtual ~FWGlimpseSimpleProxyBuilderTemplate();
+   //virtual ~FWSimpleProxyBuilderTemplate();
 
    // ---------- const member functions ---------------------
 
@@ -43,9 +43,9 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FWGlimpseSimpleProxyBuilderTemplate(const FWGlimpseSimpleProxyBuilderTemplate&); // stop default
+   FWSimpleProxyBuilderTemplate(const FWSimpleProxyBuilderTemplate&); // stop default
 
-   const FWGlimpseSimpleProxyBuilderTemplate& operator=(const FWGlimpseSimpleProxyBuilderTemplate&); // stop default
+   const FWSimpleProxyBuilderTemplate& operator=(const FWSimpleProxyBuilderTemplate&); // stop default
 
    virtual void build(const void*iData, unsigned int iIndex, TEveElement& oItemHolder) const
    {

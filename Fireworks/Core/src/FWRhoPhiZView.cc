@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.59 2010/03/16 11:51:54 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.60 2010/03/16 14:52:46 amraktad Exp $
 //
 
 // system include files
@@ -27,71 +27,28 @@
 #include "TEveScene.h"
 #include "TEveViewer.h"
 
-#include "TEveCalo.h"
-
-#include "TEveScalableStraightLineSet.h"
-
+#include "TEveProjections.h"
 #include "TEveProjectionManager.h"
 #include "TEveProjectionBases.h"
 #include "TEvePolygonSetProjected.h"
 #include "TEveProjections.h"
 #include "TEveProjectionAxes.h"
+#include "TEveScalableStraightLineSet.h"
 
+#include "TEveCalo.h" // ??
 
 // user include files
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
-#include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/interface/FWRPZViewGeometry.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
-
-//
-// constants, enums and typedefs
-//
-static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFrom, TEveElement* iParent) {
-   static const TEveException eh("FWRhoPhiZView::doReplication ");
-   TEveElement  *new_re = 0;
-   TEveProjected   *new_pr = 0;
-   TEveProjected *pble   = dynamic_cast<TEveProjected*>(iFrom);
-   //std::cout << typeid(*iFrom).name() <<std::endl;
-   if (pble)
-   {
-      new_re = (TEveElement*) TClass::GetClass( typeid(*iFrom) )->New();
-      assert(0!=new_re);
-      new_pr = dynamic_cast<TEveProjected*>(new_re);
-      assert(0!=new_pr);
-      new_pr->SetProjection(iMgr, pble->GetProjectable());
-      new_pr->SetDepth(iMgr->GetCurrentDepth());
-
-      new_re->SetMainTransparency(iFrom->GetMainTransparency());
-      new_re->SetMainColor(iFrom->GetMainColor());
-      if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(new_re) )
-         poly->SetLineColor(dynamic_cast<TEvePolygonSetProjected*>(iFrom)->GetLineColor());
-
-   }
-   else
-   {
-      new_re = new TEveElementList;
-   }
-   new_re->SetElementNameTitle(iFrom->GetElementName(),
-                               iFrom->GetElementTitle());
-   new_re->SetRnrSelf     (iFrom->GetRnrSelf());
-   new_re->SetRnrChildren(iFrom->GetRnrChildren());
-   new_re->SetPickable(iFrom->IsPickable());
-   iParent->AddElement(new_re);
-
-   for (TEveElement::List_i i=iFrom->BeginChildren(); i!=iFrom->EndChildren(); ++i)
-      doReplication(iMgr,*i, new_re);
-   return new_re;
-}
 
 //
 // constructors and destructor
 //
-FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, const TEveProjection::EPType_e& iProjType) :
+FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    FWEveView(iParent),
-   m_projType(iProjType),
-   m_typeName(iName),
    m_caloScale(1),
    m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
    m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
@@ -100,42 +57,45 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    m_caloFixedScale(this,"Calo scale (GeV/meter)",2.,0.001,100.),
    m_caloAutoScale(this,"Calo auto scale",false),
    m_showHF(0),
-   m_showEndcaps(0),
-   m_cameraZoom(0),
-   m_cameraMatrix(0)
+   m_showEndcaps(0)
 {
-   scene()->SetElementName(typeName().c_str());
-   viewer()->SetElementName(typeName().c_str());
+   setType(id);
 
-   m_projMgr.reset(new TEveProjectionManager(iProjType));
+   TEveProjection::EPType_e projType = (id == FWViewType::kRhoZ) ? TEveProjection::kPT_RhoZ : TEveProjection::kPT_RPhi;
+
+   m_projMgr.reset(new TEveProjectionManager(projType));
    m_projMgr->SetImportEmpty(kTRUE);
-   if ( iProjType == TEveProjection::kPT_RPhi ) {
-      // compression
+   if ( id == FWViewType::kRhoPhi) {
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 1.0);
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 300, 0.2);
-      // projection specific parameters
-      m_showEndcaps = new FWBoolParameter(this,"Show calo endcaps", true);
-      m_showEndcaps->changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloParameters, this) );
-      m_showHF = new FWBoolParameter(this,"Show HF", true);
-      m_showHF->changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloParameters, this) );
    } else {
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 1.0);
       m_projMgr->GetProjection()->AddPreScaleEntry(1, 310, 1.0);
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 370, 0.2);
       m_projMgr->GetProjection()->AddPreScaleEntry(1, 580, 0.2);
    }
-   gEve->AddToListTree(m_projMgr.get(),kTRUE); // debug
-
-  
-   scene()->AddElement(m_projMgr.get());
    
+   TEveScene* projScene =  gEve->SpawnNewScene(Form("Scene %s", FWViewType::idToName(id).c_str()));
+   setEventScene(projScene);
+   viewer()->AddScene(projScene);
+
+   // camera  
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(viewerGL()->CurrentCamera()) ) ) {
-      m_cameraZoom = &(camera->fZoom);
-      m_cameraMatrix = const_cast<TGLMatrix*>(&(camera->GetCamTrans()));
       camera->SetZoomMax(1e6);
    }
 
+   m_axes.reset(new TEveProjectionAxes(m_projMgr.get()));
+   m_showProjectionAxes.changed_.connect(boost::bind(&FWRhoPhiZView::showProjectionAxes,this));
+   eventScene()->AddElement(m_axes.get());
+   
+   // signals
+   if ( id == FWViewType::kRhoPhi ) {
+      m_showEndcaps = new FWBoolParameter(this,"Show calo endcaps", true);
+      m_showEndcaps->changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloParameters, this) );
+      m_showHF = new FWBoolParameter(this,"Show HF", true);
+      m_showHF->changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloParameters, this) );
+   }
    m_caloDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
    m_muonDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
    m_compressMuon.changed_.connect(boost::bind(&FWRhoPhiZView::doCompression,this,_1));
@@ -150,25 +110,20 @@ FWRhoPhiZView::~FWRhoPhiZView()
 }
 
 //
-// assignment operators
-//
-// const FWRhoPhiZView& FWRhoPhiZView::operator=(const FWRhoPhiZView& rhs)
-// {
-//   //An exception safe implementation is
-//   FWRhoPhiZView temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
 // member functions
 //
 
 void
+FWRhoPhiZView::setGeometry(const DetIdToMatrix* geom,  FWColorManager& colMng)
+{
+   FWRPZViewGeometry* geo = new FWRPZViewGeometry(geom, &colMng);
+   m_projMgr->ImportElements(geo->getGeoElements(typeId()), geoScene());
+}
+
+void
 FWRhoPhiZView::doDistortion()
 {
-   if ( m_projType == TEveProjection::kPT_RPhi ) {
+   if ( typeId() == FWViewType::kRhoPhi ) {
       m_projMgr->GetProjection()->ChangePreScaleEntry(0,1,m_caloDistortion.value());
       m_projMgr->GetProjection()->ChangePreScaleEntry(0,2,m_muonDistortion.value());
    } else {
@@ -191,49 +146,6 @@ FWRhoPhiZView::doCompression(bool flag)
    gEve->Redraw3D();
 }
 
-
-void
-FWRhoPhiZView::resetCamera()
-{
-   //this is needed to get EVE to transfer the TEveElements to GL so the camera reset will work
-   scene()->Repaint();
-   viewer()->Redraw(kTRUE);
-}
-
-void
-FWRhoPhiZView::destroyElements()
-{
-   m_projMgr->DestroyElements();
-   std::for_each(m_geom.begin(),m_geom.end(),
-                 boost::bind(&TEveProjectionManager::AddElement,
-                             m_projMgr.get(),
-                             _1));
-}
-void
-FWRhoPhiZView::replicateGeomElement(TEveElement* iChild)
-{ 
-   m_geom.push_back(doReplication(m_projMgr.get(),iChild,m_projMgr.get()));
-   m_projMgr->AssertBBox();
-   m_projMgr->ProjectChildrenRecurse(m_geom.back());
-}
-
-//returns the new element created from this import
-TEveElement*
-FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer, TEveElement* iProjectedParent)
-{
-   float oldLayer = m_projMgr->GetCurrentDepth();
-   m_projMgr->SetCurrentDepth(iLayer);
-   //make sure current depth is reset even if an exception is thrown
-   boost::shared_ptr<TEveProjectionManager> sentry(m_projMgr.get(),
-                                                   boost::bind(&TEveProjectionManager::SetCurrentDepth,
-                                                               _1,oldLayer));
-   m_projMgr->ImportElements(iChildren,iProjectedParent);
-   TEveElement* lastChild = m_projMgr->LastChild();
-   updateCalo( lastChild, true );
-   updateCaloLines( lastChild );
-
-   return lastChild;
-}
 
 void
 FWRhoPhiZView::updateCalo(TEveElement* iParent, bool dataChanged)
@@ -282,72 +194,43 @@ FWRhoPhiZView::updateCaloLines(TEveElement* iParent)
    }
 }
 
-
 void
-FWRhoPhiZView::setFrom(const FWConfiguration& iFrom)
+FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer, TEveElement* iProjectedParent)
 {
-   // take care of parameters
-   FWEveView::setFrom(iFrom);
-
-   // retrieve camera parameters
-   // zoom
-   assert(m_cameraZoom);
-   std::string zoomName("cameraZoom"); zoomName += typeName();
-   assert( 0!=iFrom.valueForKey(zoomName) );
-   std::istringstream s(iFrom.valueForKey(zoomName)->value());
-   s>>(*m_cameraZoom);
-
-   // transformation matrix
-   assert(m_cameraMatrix);
-   std::string matrixName("cameraMatrix");
-   for ( unsigned int i = 0; i < 16; ++i ) {
-      std::ostringstream os;
-      os << i;
-      const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + typeName() );
-      assert( value );
-      std::istringstream s(value->value());
-      s>>((*m_cameraMatrix)[i]);
+   float oldLayer = m_projMgr->GetCurrentDepth();
+   m_projMgr->SetCurrentDepth(iLayer);
+   //make sure current depth is reset even if an exception is thrown
+   boost::shared_ptr<TEveProjectionManager> sentry(m_projMgr.get(),
+                                                   boost::bind(&TEveProjectionManager::SetCurrentDepth,
+                                                               _1,oldLayer));
+   if (iProjectedParent)
+   {
+      m_projMgr->ImportElements(iChildren,iProjectedParent);
    }
-   viewerGL()->RequestDraw();
+   else
+   {
+      m_projMgr->ImportElements(iChildren,  eventScene());
+      // printf("Import elements %s to scene %s chaged [%d]\n", iChildren->GetElementName(), eventScene()->GetElementName(), eventScene()->IsChanged());
+   }
 }
 
-
-//
-// const member functions
-//
-
-const std::string&
-FWRhoPhiZView::typeName() const
-{
-   return m_typeName;
-}
 
 void
 FWRhoPhiZView::addTo(FWConfiguration& iTo) const
 {
-   // take care of parameters
    FWEveView::addTo(iTo);
-
-   // store camera parameters
-   // zoom
-   assert(m_cameraZoom);
-   std::ostringstream s;
-   s<<(*m_cameraZoom);
-   std::string name("cameraZoom");
-   iTo.addKeyValue(name+typeName(),FWConfiguration(s.str()));
-
-   // transformation matrix
-   assert(m_cameraMatrix);
-   std::string matrixName("cameraMatrix");
-   for ( unsigned int i = 0; i < 16; ++i ) {
-      std::ostringstream osIndex;
-      osIndex << i;
-      std::ostringstream osValue;
-      osValue << (*m_cameraMatrix)[i];
-      iTo.addKeyValue(matrixName+osIndex.str()+typeName(),FWConfiguration(osValue.str()));
-   }
+   TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(viewerGL()->CurrentCamera()) );
+   addToOrthoCamera(camera, iTo);
 }
 
+void
+FWRhoPhiZView::setFrom(const FWConfiguration& iFrom)
+{
+   FWEveView::setFrom(iFrom);
+   
+   TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(viewerGL()->CurrentCamera()) );
+   setFromOrthoCamera(camera, iFrom);
+}
 
 
 void
@@ -355,14 +238,12 @@ FWRhoPhiZView::updateScaleParameters()
 {
    updateCalo(m_projMgr.get());
    updateCaloLines(m_projMgr.get());
-   gEve->Redraw3D();
 }
 
 void
 FWRhoPhiZView::updateCaloParameters()
 {
    updateCalo(m_projMgr.get());
-   gEve->Redraw3D();
 }
 
 void FWRhoPhiZView::showProjectionAxes( )
@@ -382,6 +263,6 @@ FWRhoPhiZView::eventEnd()
    FWEveView::eventEnd();
    if (m_caloAutoScale.value())
       updateScaleParameters();
-
+   
 }
 
