@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 hltMuonValidator = cms.EDAnalyzer("HLTMuonValidator",
 
     hltProcessName = cms.string("HLT"),
-    hltPathsToCheck = cms.vstring("HLT_[^H_]*Mu[^_]*$"),
+    hltPathsToCheck = cms.vstring("HLT_[^H_]*Mu[^_]*$",
+                                  "NoFilters"),
 
     genParticleLabel = cms.string("genParticles"       ),
         recMuonLabel = cms.string("muons"              ),
