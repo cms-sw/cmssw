@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Wed Mar  3 12:14:16 CET 2010
-// $Id: HcalDetDiagLaserMonitor.cc,v 1.10 2010/03/26 21:46:23 wmtan Exp $
+// $Id: HcalDetDiagLaserMonitor.cc,v 1.11 2010/04/04 15:49:24 temple Exp $
 //
 //
 
@@ -421,8 +421,11 @@ void HcalDetDiagLaserMonitor::analyze(const edm::Event& iEvent, const edm::Event
 
 int  eta,phi,depth,nTS;
 static bool HBHEseq,HOseq,HFseq;
-static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksHF;
-   if(ievt_==-1){ ievt_=0;HBHEseq=HOseq=HFseq=false; lastHBHEorbit=lastHOorbit=lastHForbit=-1;nChecksHBHE=nChecksHO=nChecksHF=0; }
+static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksHF,ievt_hbhe,ievt_ho,ievt_hf;
+   if(ievt_==-1){ 
+       ievt_=0;HBHEseq=HOseq=HFseq=false; lastHBHEorbit=lastHOorbit=lastHForbit=-1;nChecksHBHE=nChecksHO=nChecksHF=0; 
+       ievt_hbhe=0,ievt_ho=0,ievt_hf=0;
+   }
 
    if(!dbe_) return; 
    bool LaserEvent=false;
@@ -437,27 +440,30 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
        LocalRun=true;
    }
    if(!LocalRun && Online_){
-      if(HBHEseq && (orbit-lastHBHEorbit)>(11223*10)){
+      if(HBHEseq && (orbit-lastHBHEorbit)>(11223*10) && ievt_hbhe>40){
          HBHEseq=false;
          fillHistos(HcalBarrel);
          fillProblems(HcalBarrel);
          fillProblems(HcalEndcap);
          nChecksHBHE++;
+         ievt_hbhe=0;
          for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++) hb_data[i][j][k].reset();
          for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++) he_data[i][j][k].reset();
       }
-      if(HOseq && (orbit-lastHOorbit)>(11223*10)){
+      if(HOseq && (orbit-lastHOorbit)>(11223*10) && ievt_ho>40){
          HOseq=false;
          fillHistos(HcalOuter);
          fillProblems(HcalOuter);
          nChecksHO++; 
+         ievt_ho=0;
          for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++) ho_data[i][j][k].reset();
       }
-      if(HFseq && (orbit-lastHForbit)>(11223*10)){
+      if(HFseq && (orbit-lastHForbit)>(11223*10) && ievt_hf>40){
          HFseq=false;
          fillHistos(HcalForward);
          fillProblems(HcalForward);
          nChecksHF++; 
+         ievt_hf=0;
          if(nChecksHF==1 || (nChecksHF>1 && ((nChecksHF-1)%12)==0)){
              SaveReference();
          }
@@ -474,9 +480,9 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
           const FEDRawData& fedData = rawdata->FEDData(i) ;
           if ( fedData.size() < 24 ) continue ;
           int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ;
-	  if(value==hc_HBHEHPD){ HBHEseq=true; HOseq=HFseq=false; lastHBHEorbit=orbit; }
-	  if(value==hc_HOHPD){   HOseq=true; HBHEseq=HFseq=false; lastHOorbit=orbit;   }
-	  if(value==hc_HFPMT){   HFseq=true; HBHEseq=HOseq=false; lastHForbit=orbit;   }
+	  if(value==hc_HBHEHPD){ HBHEseq=true; HOseq=HFseq=false; lastHBHEorbit=orbit; ievt_hbhe++; }
+	  if(value==hc_HOHPD){   HOseq=true; HBHEseq=HFseq=false; lastHOorbit=orbit;   ievt_ho++;   }
+	  if(value==hc_HFPMT){   HFseq=true; HBHEseq=HOseq=false; lastHForbit=orbit;   ievt_hf++;   }
           
           if(value==hc_HBHEHPD || value==hc_HOHPD || value==hc_HFPMT){ LaserEvent=true; break;}
 	  if(value==hc_RADDAM){ LaserEvent=true; LaserRaddam=true; break;} 
