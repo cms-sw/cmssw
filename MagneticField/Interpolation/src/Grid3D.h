@@ -45,7 +45,7 @@ public:
 
   ReturnType operator()(int i, int j, int k) const {
     const ValueType& result = (*this)(index(i,j,k));
-    return ReturnType(result.arr[0],result.arr[1],result.arr[2]);
+    return ReturnType(result);
   }
 
   const Grid1D& grida() const {return grida_;}
