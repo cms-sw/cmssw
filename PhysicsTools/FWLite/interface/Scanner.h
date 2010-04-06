@@ -11,6 +11,12 @@
 #include <TClass.h>
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
+#include <RooFit.h>
+#include <RooArgList.h>
+#include <RooDataSet.h>
+#include <RooRealVar.h>
+#include <RooCategory.h>
+
 #include "PhysicsTools/FWLite/interface/ScannerHelpers.h"
 #endif
 
@@ -467,6 +473,91 @@ namespace fwlite {
                 graph->SetNameTitle(gname, (strlen(cut) ? yexpr+":"+xexpr+"{"+cut+"}" : yexpr+":"+xexpr)); 
                 return drawGraph(xexpr,yexpr,cut,drawopt,graph);
             }
+
+
+   //------------------------------------------------------------------------------------------------------------------------------------
+            /** Fill a RooDataSet.
+             *  - Real variables are defined just like in the scan() command; a list separated by ":" (see also setExpressionSeparator()); 
+             *  - Boolean variables are defined just like cuts, and are created as RooCategory with two states: pass(1) and fail(0).
+             *  For each variable, the name is taken from the expression itself, or can be specified manuall by using the notation "@name=expr"
+             *  Note: the dataset contains one entry per item, irrespectively of how entries are distributed among events.
+             */
+            RooDataSet *fillDataSet(const char *realvars, const char *boolvars, const char *cut="", const char *name="data") {
+                helper::ScannerBase scanner(objType); 
+                scanner.setIgnoreExceptions(ignoreExceptions_);
+
+                RooArgList vars;
+                TObjArray  *exprArray = TString(realvars).Tokenize(exprSep_);
+                TObjArray  *catArray  = TString(boolvars).Tokenize(exprSep_);
+                int nreals = exprArray->GetEntries();
+                int nbools  = catArray->GetEntries();
+                for (int i = 0; i < nreals; ++i) {
+                    TString str = ((TObjString *)(*exprArray)[i])->GetString();
+                    std::string lb = str.Data();
+                    std::string ex = str.Data();
+                    if ((ex[0] == '@') && (ex.find('=') != std::string::npos)) {
+                        lb = lb.substr(1,ex.find('=')-1); 
+                        ex = ex.substr(ex.find('=')+1);    
+                    }
+                    if (!scanner.addExpression(ex.c_str())) {
+                        std::cerr << "Filed to define real variable '" << lb << "', expr = '" << ex << "'" << std::endl;
+                        return 0;
+                    }
+                    // FIXME: I have to leave it dangling on the HEAP otherwise ROOT segfaults...
+                    RooRealVar *var = new RooRealVar(lb.c_str(),lb.c_str(), 0.0);
+                    vars.add(*var);
+                }
+                for (int i = 0; i < nbools; ++i) {
+                    TString str = ((TObjString *)(*catArray)[i])->GetString();
+                    std::string lb = str.Data();
+                    std::string ex = str.Data();
+                    if ((ex[0] == '@') && (ex.find('=') != std::string::npos)) {
+                        lb = lb.substr(1,ex.find('=')-1); 
+                        ex = ex.substr(ex.find('=')+1);    
+                    }
+                    if (!scanner.addExtraCut(ex.c_str())) {
+                        std::cerr << "Filed to define bool variable '" << lb << "', cut = '" << ex << "'" << std::endl;
+                        return 0;
+                    }
+                    RooCategory *cat = new RooCategory(lb.c_str(), lb.c_str());
+                    cat->defineType("fail",0);
+                    cat->defineType("pass",1);
+                    vars.add(*cat);
+                }
+
+                RooDataSet *ds = new RooDataSet(name, name, vars);
+
+                if (strlen(cut)) scanner.setCut(cut);
+                int iev = 0;
+                for (event_->toBegin(); !event_->atEnd(); ++iev, ++(*event_)) {
+                    if (maxEvents_ > -1 && iev > maxEvents_) break;
+                    if (!selectEvent(*event_)) continue;
+                    handle_.getByLabel(*event_, label_.c_str(), instance_.c_str(), process_.c_str());
+                    if (handle_.failedToGet()) {
+                        if (ignoreExceptions_) continue;
+                    } 
+                    const Collection & vals = *handle_;
+                    for (size_t j = 0, n = vals.size(); j < n; ++j) {
+                        if (!scanner.test(&vals[j])) continue;
+                        for (int i = 0; i < nreals; ++i) {
+                            RooRealVar *var = (RooRealVar *)vars.at(i);
+                            var->setVal(scanner.eval(&vals[j], i));
+                        }
+                        for (int i = 0; i < nbools; ++i) {
+                            RooCategory *cat = (RooCategory*) vars.at(i+nreals);
+                            cat->setIndex(int(scanner.test(&vals[j], i+1))); // 0 is the event selection cut
+                        }
+                        ds->add(vars);
+                    }
+                }
+    
+                delete exprArray;
+                delete catArray;
+
+                return ds;
+            }
+  
+
 
             void setPrintFullEventId(bool printIt=true) { printFullEventId_ = printIt; }
             void setExpressionSeparator(TString separator) { exprSep_ = separator; }
