@@ -486,9 +486,7 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
       bu_->sendDiscard(buResourceId);
       sendAllocate();
     }
-    else {
-      bufRef->release();
-    }
+    bufRef->release(); // this should now be safe re: appendToSuperFrag as corrupted blocks will be removed... 
   }
   
   return eventComplete;

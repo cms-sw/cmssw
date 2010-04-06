@@ -34,6 +34,7 @@ namespace evf {
     void   processDataBlock(MemRef_t* bufRef) throw (evf::Exception);
     void   checkDataBlockPayload(MemRef_t* bufRef) throw (evf::Exception);
     void   appendBlockToSuperFrag(MemRef_t* bufRef);
+    void   removeLastAppendedBlockFromSuperFrag();
     
     void   superFragSize()        throw (evf::Exception);
     void   fillSuperFragPayload() throw (evf::Exception);
