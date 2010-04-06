@@ -1,6 +1,6 @@
 /** \file HLTMuonValidator.cc
- *  $Date: 2010/02/14 19:19:48 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/03/10 17:06:48 $
+ *  $Revision: 1.17 $
  */
 
 
@@ -168,11 +168,11 @@ HLTMuonValidator::initializeHists(vector<string> sources)
       stepLabels_[path].push_back("L3Iso");
     }
 
-    string l1Name = path + "_L1Quality";
-    elements_[l1Name.c_str()] = 
-      dbe_->book1D("L1Quality", "Quality of L1 Muons", 8, 0, 8);
-    for (size_t i = 0; i < 8; i++)
-      elements_[l1Name.c_str()]->setBinLabel(i + 1, Form("%i", i));
+//     string l1Name = path + "_L1Quality";
+//     elements_[l1Name.c_str()] = 
+//       dbe_->book1D("L1Quality", "Quality of L1 Muons", 8, 0, 8);
+//     for (size_t i = 0; i < 8; i++)
+//       elements_[l1Name.c_str()]->setBinLabel(i + 1, Form("%i", i));
 
     for (size_t i = 0; i < sources.size(); i++) {
       string source = sources[i];
@@ -395,8 +395,8 @@ HLTMuonValidator::analyzePath(const string & path,
         for (size_t k = 0; k < candsPassingL1.size(); k++) 
           if (identical(matches[j].candL1, & * candsPassingL1[k])) {
             hasMatch[step][j] = true;
-            int l1Quality = matches[j].candL1->gmtMuonCand().quality();
-            elements_[path + "_L1Quality"]->Fill(l1Quality);
+//             int l1Quality = matches[j].candL1->gmtMuonCand().quality();
+//             elements_[path + "_L1Quality"]->Fill(l1Quality);
           }
       }
       else if (level >= 2) {
