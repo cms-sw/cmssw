@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.54 2010/04/01 16:37:30 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.57 2010/04/01 18:36:24 dinardo Exp $
 //
 //
 
@@ -1104,7 +1104,7 @@ void Vx3DHLTAnalyzer::beginJob()
   DQMStore* dbe = 0;
   dbe = Service<DQMStore>().operator->();
  
-  nBinsHistoricalPlot = 100;
+  nBinsHistoricalPlot = 80;
 
   if ( dbe ) 
     {
