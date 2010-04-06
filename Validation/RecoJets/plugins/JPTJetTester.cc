@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.3 2010/03/26 01:27:54 hatake Exp $
+// $Id: JPTJetTester.cc,v 1.4 2010/04/06 19:59:28 chjeong Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -172,8 +172,8 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     mPtFractionElecOutVertexInCalo = dbe->book1D("PtFractionElecOutVertexInCalo","PtFractionElecOutVertexInCalo",51,0.,1.02);
     //
     mMultiplicityPionInVertexInCalo  = dbe->book1D("MultiplicityPionInVertexInCalo","MultiplicityPionInVertexInCalo",100,0.,100.);
-    mMultiplicityPionInVertexOutCalo = dbe->book1D("MultiplicityPionInVertexInCalo","MultiplicityPionInVertexOutCalo",100,0.,100.);
-    mMultiplicityPionOutVertexInCalo = dbe->book1D("MultiplicityPionInVertexInCalo","MultiplicityPionOutVertexInCalo",100,0.,100.);
+    mMultiplicityPionInVertexOutCalo = dbe->book1D("MultiplicityPionInVertexOutCalo","MultiplicityPionInVertexOutCalo",100,0.,100.);
+    mMultiplicityPionOutVertexInCalo = dbe->book1D("MultiplicityPionOutVertexInCalo","MultiplicityPionOutVertexInCalo",100,0.,100.);
 
     mMultiplicityMuonInVertexInCalo  = dbe->book1D("MultiplicityMuonInVertexInCalo","MultiplicityMuonInVertexInCalo",100,0.,100.);
     mMultiplicityMuonInVertexOutCalo = dbe->book1D("MultiplicityMuonInVertexOutCalo","MultiplicityMuonInVertexOutCalo",100,0.,100.);
