@@ -48,7 +48,7 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
 
   /// Called at beginning of job
   virtual void beginJob();
-  virtual void beginRun(edm::Run const &, edm::EventSetup const &);
+  virtual void beginRun(edm::Run const &, edm::EventSetup const &){}
 
   /// Called at end of job
   virtual void endJob();
@@ -166,9 +166,9 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   
   // parametrized energy cut EE+ : e_cut = ap + eta_ring*b
   //                         EE- : e_cut = ap + eta_ring*b
-  float ap_;
-  float am_;
-  float b_;
+  double ap_;
+  double am_;
+  double b_;
 
   int eventSet_;
   /// threshold in channel status beyond which channel is marked bad

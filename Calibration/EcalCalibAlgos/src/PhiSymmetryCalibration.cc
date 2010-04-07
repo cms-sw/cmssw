@@ -71,9 +71,9 @@ PhiSymmetryCalibration::PhiSymmetryCalibration(const edm::ParameterSet& iConfig)
   endcapHits_( iConfig.getParameter< std::string > ("endcapHitCollection") ),
   eCut_barl_( iConfig.getParameter< double > ("eCut_barrel") ),
   eCut_endc_( iConfig.getParameter< double > ("eCut_endcap") ),
-  ap_( iConfig.getParameter< float > ("ap") ),
-  am_( iConfig.getParameter< float > ("am") ),
-  b_( iConfig.getParameter< float > ("b") ), 
+  ap_( iConfig.getParameter< double > ("ap") ),
+  am_( iConfig.getParameter< double > ("am") ),
+  b_( iConfig.getParameter< double > ("b") ), 
 
   eventSet_( iConfig.getParameter< int > ("eventSet") ),
   statusThreshold_(iConfig.getUntrackedParameter<int>("statusThreshold",1000)),
