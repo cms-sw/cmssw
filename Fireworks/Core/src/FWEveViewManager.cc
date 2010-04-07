@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.1 2010/04/06 20:00:36 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.2 2010/04/07 16:56:20 amraktad Exp $
 //
 
 // system include files
@@ -192,7 +192,11 @@ FWEveViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 
 void
 FWEveViewManager::newItem(const FWEventItem* iItem)
-{
+{ 
+   if(0==m_selectionManager) {
+      //std::cout <<"got selection manager"<<std::endl;
+      m_selectionManager = iItem->selectionManager();
+   }
    makeProxyBuilderFor(iItem);
 }
 
@@ -403,6 +407,7 @@ FWEveViewManager::selectionRemoved(TEveElement* iElement)
 void
 FWEveViewManager::selectionCleared()
 {
+   printf("selection manager \n");
    if(0!= m_selectionManager) {
       m_selectionManager->clearSelection();
    }
