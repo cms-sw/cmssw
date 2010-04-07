@@ -20,6 +20,7 @@
    usage: %prog -d <data file/directory> -t <tag name>
    -c, --copy   : Only copy files from input directory to test/workflow/files/
    -d, --data   = DATA: Data file, or directory with data files.
+   -o, --overwrite : Overwrite results files when copying.
    -t, --tag    = TAG: Database tag name.
    -u, --upload : Upload files to offline drop box via scp.
    
@@ -145,7 +146,12 @@ def copyToWorkflowdir(path):
     	    # copy to local disk
     	    aCommand = cpCommand + 'cp '+ path + ifile + " " + workflowdirArchive
     	    print " >> " + aCommand
-    	    tmpstatus = commands.getstatusoutput( aCommand )
+            if os.path.isfile(workflowdirArchive+"/"+ifile) and option.overwrite:
+                print "    File already exists in destination. We will overwrite it."
+            else:
+                print "    File already exists in destination. Keep original file."
+                continue
+            tmpstatus = commands.getstatusoutput( aCommand )
     return listoffiles
 
 def mkWorkflowdir():
@@ -204,9 +210,9 @@ if __name__ == '__main__':
 	tagname = option.tag
         if tagname.find("offline") != -1:
             tagType = "offline"
-        elif tagname.find("prompt") != -1:
+        elif tagname.find("prompt") != -1 or tagname.find("express") != -1 :
             tagType = "prompt"
-        elif tagname.find("express") != -1:
+        elif tagname.find("hlt") != -1:
             tagType = "hlt"
         else:
             print "I am assuming your tag ifs for the offline database..."
@@ -286,6 +292,11 @@ if __name__ == '__main__':
 		iov_since = line.split()[1]
 		iov_till = iov_since
 	    elif line.find("BeginTimeOfFit") == -1 and line.find("EndTimeOfFit") == -1 and line.find("LumiRange") == -1:
+                if line.find("sigmaZ0") != -1:
+                    line = "sigmaZ0 10\n"
+                if line.find("Cov(3,j)") != -1:
+                    line = "Cov(3,j) 0 0 0 2.5e-05 0 0 0\n"
+                print line    
 		newtmpfile.write(line)
             allfile.write(line)
         
@@ -388,8 +399,8 @@ if __name__ == '__main__':
 #                        os.system("mv -f " + shellScriptName + " " + shellScript)
 #                else:
 #                    exit("Can't get the shell script to upload payloads. Check this twiki page: https://twiki.cern.ch/twiki/bin/viewauth/CMS/DropBoxOffline")
-           commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/DropBox_test")
-           commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/DropBox_test")
+            commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/DropBox_test")
+            commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/DropBox_test")
 
         print " done. Clean up."
     #### CLEAN up

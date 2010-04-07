@@ -69,6 +69,8 @@ process.d0_phi_analyzer.BeamFitter.MaximumImpactParameter = 1.0
 process.d0_phi_analyzer.BeamFitter.TrackAlgorithm =  cms.untracked.vstring()
 process.d0_phi_analyzer.BeamFitter.InputBeamWidth = -1 # 0.0400
 process.d0_phi_analyzer.BeamFitter.Debug = True
+
+process.d0_phi_analyzer.PVFitter.Apply3DFit = True
 #########################
 
 process.d0_phi_analyzer.BeamFitter.AsciiFileName = 'BeamFit_RunBased_Workflow.txt'
@@ -77,5 +79,5 @@ process.d0_phi_analyzer.BeamFitter.OutputFileName = 'BeamFit_RunBased_Workflow.r
 process.d0_phi_analyzer.BeamFitter.SaveNtuple = True
 
 # fit as function of lumi sections
-process.d0_phi_analyzer.BSAnalyzerParameters.fitEveryNLumi = 10
+process.d0_phi_analyzer.BSAnalyzerParameters.fitEveryNLumi = -1
 process.d0_phi_analyzer.BSAnalyzerParameters.resetEveryNLumi = -1
