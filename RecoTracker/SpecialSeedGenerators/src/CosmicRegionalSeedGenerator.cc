@@ -33,18 +33,20 @@ CosmicRegionalSeedGenerator::CosmicRegionalSeedGenerator(edm::ParameterSet const
   m_deltaEta     = regionPSet.getParameter<double>("deltaEtaRegion");
   m_deltaPhi     = regionPSet.getParameter<double>("deltaPhiRegion");
 
-  edm::ParameterSet hltPSet = conf_.getParameter<edm::ParameterSet>("HLTPSet");
-  hltTag_                   = hltPSet.getParameter<edm::InputTag>("hltTag");
-  triggerSummaryLabel_      = hltPSet.getParameter<std::string>("triggerSummaryLabel");
-  thePropagatorName_        = hltPSet.getParameter<std::string>("thePropagatorName");
-  seeding_                  = hltPSet.getParameter<std::string>("seeding");
+  edm::ParameterSet toolsPSet  = conf_.getParameter<edm::ParameterSet>("ToolsPSet");
+  triggerSummaryLabel_         = toolsPSet.getParameter<std::string>("triggerSummaryLabel");
+  thePropagatorName_           = toolsPSet.getParameter<std::string>("thePropagatorName");
+  regionBase_                  = toolsPSet.getParameter<std::string>("regionBase");
 
-  edm::ParameterSet collectionsForSeedingPSet = conf_.getParameter<edm::ParameterSet>("CollectionsForSeedingPSet");
-  l2MuonsRecoTracksCollection_ = collectionsForSeedingPSet.getParameter<edm::InputTag>("l2MuonsRecoTracksCollection");
-  staMuonsCollection_          = collectionsForSeedingPSet.getParameter<edm::InputTag>("staMuonsCollection");
+  edm::ParameterSet collectionsPSet = conf_.getParameter<edm::ParameterSet>("CollectionsPSet");
+  l2MuonsCollection_           = collectionsPSet.getParameter<edm::InputTag>("l2MuonsCollection");
+  l2MuonsRecoTracksCollection_ = collectionsPSet.getParameter<edm::InputTag>("l2MuonsRecoTracksCollection");
+  staMuonsCollection_          = collectionsPSet.getParameter<edm::InputTag>("staMuonsCollection");
+  cosmicMuonsCollection_       = collectionsPSet.getParameter<edm::InputTag>("cosmicMuonsCollection");
 
-  edm::LogInfo ("CosmicRegionalSeedGenerator") << "L2 muons collection :/n " << l2MuonsRecoTracksCollection_ << "\n"
-					       << "Stand alone muons collection :/n " << staMuonsCollection_;
+  edm::LogInfo ("CosmicRegionalSeedGenerator") << "L2 muons collection : " << l2MuonsRecoTracksCollection_ << "\n"
+					       << "Stand alone muons collection : " << staMuonsCollection_ << "\n"
+					       << "Cosmic muon collection: " << cosmicMuonsCollection_;
 
 }
    
@@ -60,7 +62,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
   //________________________________________
 
       
-  if(seeding_=="seedOnL2") {
+  if(regionBase_=="seedOnL2") {
 
 
     //get collections
@@ -83,7 +85,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
     es.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
 
     //get the index of the HLT_TrackerCosmics
-    const int index = triggerObj->filterIndex(hltTag_);
+    const int index = triggerObj->filterIndex(l2MuonsCollection_);
       
     //debug collections
     for (int i = 0; i< triggerObj->sizeFilters(); ++i ) 
@@ -178,7 +180,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 
 
       
-  if(seeding_=="seedOnL2MuonRecoTrack") {
+  if(regionBase_=="seedOnL2MuonRecoTrack") {
 
       
     //get collections
@@ -326,13 +328,17 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 
 
 
+
+
+
+
   //________________________________________
   //
   //Seeding on Sta muon (MC && Datas)
   //________________________________________
 
 
-  if(seeding_=="seedOnStaMuon") {
+  if(regionBase_=="seedOnStaMuon"||regionBase_=="") {
 
     LogDebug("CosmicRegionalSeedGenerator") << "Seeding on stand alone muons ";
 
@@ -341,7 +347,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 
     //get the muon collection
     edm::Handle<reco::MuonCollection> staMuonsHandle;
-    event.getByLabel("muons",staMuonsHandle);
+    event.getByLabel(staMuonsCollection_,staMuonsHandle);
     if (!staMuonsHandle.isValid())
       {
 	edm::LogError("CosmicRegionalSeedGenerator") << "Error::No muons collection in the event";
@@ -360,54 +366,6 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
     //const TrackerGeometry& theTracker(*theTrackerGeometry);
     DetId outerid;
     
-    /*
-    //for debug - get the cosmic track reco
-    edm::Handle<reco::TrackCollection> recoTrackHandle;
-    event.getByLabel("ctfWithMaterialTracksP5",recoTrackHandle);
-    if (recoTrackHandle.isValid()) {
-      LogDebug("CosmicRegionalSeedGenerator") << "# Ctf tracks = " << recoTrackHandle->size();
-      for (reco::TrackCollection::const_iterator recoTrack = recoTrackHandle->begin(); recoTrack != recoTrackHandle->end(); ++recoTrack)
-	{
-	  LogDebug("CosmicRegionalSeedGenerator") << "Reconstructed track info at the farest hit position: \n"
-						  << " # rec hits = " << recoTrack->recHitsSize() << "\n "
-						  << "Position = " << recoTrack->outerPosition()  << "\n "   
-						  << "Momentum = " << recoTrack->outerMomentum() << "\n "
-						  << "Eta = " << recoTrack->outerEta() << "\n "
-						  << "Phi = " << recoTrack->outerPhi()<< "\n " 
-						  << "Reference point of the reco tracks = " << recoTrack->referencePoint();
-	  if (recoTrack->recHitsSize() == 0) continue;
-	  for ( trackingRecHit_iterator itp = recoTrack->recHitsBegin(); itp != recoTrack->recHitsEnd(); ++itp) 
-	    {
-	  
-	      if (!(*itp)->isValid()) continue;
-	      StripSubdetector detid = (StripSubdetector) (*itp)->geographicalId();
-	      if (detid.subdetId() == (int) StripSubdetector::TOB)
-		{
-		  TOBDetId tobId(detid);
-		  GlobalPoint recHitpos = theTrackerGeometry->idToDet((*itp)->geographicalId())->surface().toGlobal((*itp)->localPosition());
-		  const StripGeomDetUnit *theGeomDet = dynamic_cast<const StripGeomDetUnit*> ( theTrackerGeometry->idToDet(detid) );
-		  int id = theGeomDet->geographicalId().rawId();
-		  LogDebug("CosmicRegionalSeedGenerator") << "Rec hit found in TOB on layer " << tobId.layer() << "\n"
-							  << "Raw Id = " << id << "\n"
-							  << "At position = " << recHitpos << "\n"
-							  << "R   = " << recHitpos.perp() << "\n"
-							  << "Eta = " << recHitpos.eta() << "\n"
-							  << "Phi = " << recHitpos.phi();
-		}
-	      else 
-		{
-		  LogDebug("CosmicRegionalSeedGenerator") << "No Rec hit usefull for the seeding \n " 
-							  << "SubDet = " << detid.subdetId();
-		}
-	      
-	    }//end loop on rec hits
-	}//end loop on recoTracks
-    }//end if isValid()
-    else {
-      LogDebug("CosmicRegionalSeedGenerator") << "No Reconstructed track info";
-      return result;
-    }
-    */
 
     //definition of the region
     //+++++++++++++++++++++++++
@@ -503,10 +461,133 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 
   }//end if SeedOnStaMuon
 
+
+
+
+
+  //________________________________________
+  //
+  //Seeding on cosmic muons (MC && Datas)
+  //________________________________________
+
+
+  if(regionBase_=="seedOnCosmicMuon") {
+
+    LogDebug("CosmicRegionalSeedGenerator") << "Seeding on cosmic muons tracks";
+
+    //get collections
+    //+++++++++++++++
+
+    //get the muon collection
+    edm::Handle<reco::TrackCollection> cosmicMuonsHandle;
+    event.getByLabel(cosmicMuonsCollection_,cosmicMuonsHandle);
+    if (!cosmicMuonsHandle.isValid())
+      {
+	edm::LogError("CosmicRegionalSeedGenerator") << "Error::No muons collection in the event";
+	return result;
+      }
+
+    LogDebug("CosmicRegionalSeedGenerator") << "Cosmic Muons collection size = " << cosmicMuonsHandle->size();
+
+    //get the propagator 
+    edm::ESHandle<Propagator> thePropagator;
+    es.get<TrackingComponentsRecord>().get(thePropagatorName_, thePropagator); // thePropagatorName = "AnalyticalPropagator"
+
+    //get tracker geometry
+    edm::ESHandle<TrackerGeometry> theTrackerGeometry;
+    es.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
+    //const TrackerGeometry& theTracker(*theTrackerGeometry);
+    DetId outerid;
+    
+
+    //definition of the region
+    //+++++++++++++++++++++++++
+
+    int nmuons = 0;
+    for (reco::TrackCollection::const_iterator cosmicMuon = cosmicMuonsHandle->begin();  cosmicMuon != cosmicMuonsHandle->end();  ++cosmicMuon) {
+
+      nmuons++;
+            
+      //initial position, momentum, charge
+      
+      GlobalPoint initialRegionPosition(cosmicMuon->referencePoint().x(), cosmicMuon->referencePoint().y(), cosmicMuon->referencePoint().z());
+      GlobalVector initialRegionMomentum(cosmicMuon->momentum().x(), cosmicMuon->momentum().y(), cosmicMuon->momentum().z());
+      int charge = (int) cosmicMuon->charge();
+   
+      LogDebug("CosmicRegionalSeedGenerator") << "Initial region - Reference point of the sta muon: \n " 
+					      << "Position = " << initialRegionPosition << "\n "
+					      << "Momentum = " << initialRegionMomentum << "\n "
+					      << "Eta = " << initialRegionPosition.eta() << "\n "
+					      << "Phi = " << initialRegionPosition.phi() << "\n "
+					      << "Charge = " << charge;
+   
+      //propagation on the last layers of TOB
+      if ( cosmicMuon->outerPosition().y()>0 ) initialRegionMomentum *=-1;
+      GlobalTrajectoryParameters glb_parameters(initialRegionPosition,
+						initialRegionMomentum,
+						charge,
+						thePropagator->magneticField());
+      FreeTrajectoryState fts(glb_parameters);
+      StateOnTrackerBound onBounds(thePropagator.product());
+      TrajectoryStateOnSurface outer = onBounds(fts);
+      
+      if (!outer.isValid()) 
+	{
+	  edm::LogError("CosmicRegionalSeedGenerator") << "Trajectory state on surface not valid" ;
+	  continue;
+	}
+
+
+      //final position & momentum
+      GlobalPoint  regionPosition = outer.globalPosition();
+      GlobalVector regionMom      = outer.globalMomentum();
+      
+      LogDebug("CosmicRegionalSeedGenerator") << "Region after propagation: \n "
+					      << "Position = " << outer.globalPosition() << "\n "
+					      << "Momentum = " << outer.globalMomentum() << "\n "
+					      << "R = " << regionPosition.perp() << " ---- z = " << regionPosition.z() << "\n "
+					      << "Eta = " << outer.globalPosition().eta() << "\n "
+					      << "Phi = " << outer.globalPosition().phi();
+      
+
+      //step back
+      double stepBack = 1;
+      GlobalPoint  center = regionPosition + stepBack * regionMom.unit();
+      GlobalVector v = stepBack * regionMom.unit();
+      LogDebug("CosmicRegionalSeedGenerator") << "Step back vector =  " << v << "\n";
+      
+	
+      //definition of the region
+      CosmicTrackingRegion *etaphiRegion = new CosmicTrackingRegion((-1)*regionMom,
+								    center,
+								    m_ptMin,
+								    m_rVertex,
+								    m_zVertex,
+								    m_deltaEta,
+								    m_deltaPhi,
+								    0
+								    );
+      
+      result.push_back(etaphiRegion);      
+
+      LogDebug("CosmicRegionalSeedGenerator")   << "Final CosmicTrackingRegion \n "
+						<< "Position = "<< center << "\n "
+						<< "Direction = "<< etaphiRegion->direction() << "\n "
+						<< "Distance from the region on the layer = " << (regionPosition -center).mag() << "\n "
+						<< "Eta = " << center.eta() << "\n "
+						<< "Phi = " << center.phi();
+      
+
+    }//end loop on muons
+
+  }//end if SeedOnStaMuon
+
+
+
+
+
   return result;
 
 
 }
-
-
 

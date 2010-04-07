@@ -1,34 +1,24 @@
-#include <cmath>
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicTrackingRegion.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/EtaPhiMeasurementEstimator.h"
 #include "RecoTracker/TkTrackingRegions/interface/OuterEstimator.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "RecoTracker/TkTrackingRegions/interface/HitRCheck.h"
-#include "RecoTracker/TkTrackingRegions/interface/HitZCheck.h"
-#include "RecoTracker/TkTrackingRegions/interface/HitEtaCheck.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-
-#include "../interface/EtaPhiMeasurementEstimator.h"
-#include "TrackingTools/TrackAssociator/interface/DetIdInfo.h"
 
 template <class T> T sqr( T t) {return t*t;}
 

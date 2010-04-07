@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -25,7 +25,7 @@
 #include "DQM/HLTEvF/interface/FourVectorHLT.h"
  
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
@@ -56,18 +56,22 @@ class CosmicRegionalSeedGenerator : public TrackingRegionProducer {
 
  private:
   edm::ParameterSet conf_;
+
+  edm::InputTag m_tp_label;
   float m_ptMin;
   float m_rVertex;
   float m_zVertex;
   float m_deltaEta;
   float m_deltaPhi;
-  edm::InputTag m_tp_label;
-  edm::InputTag hltTag_;
-  std::string triggerSummaryLabel_;
-  std::string thePropagatorName_;
-  std::string seeding_;
+
+  edm::InputTag l2MuonsCollection_;
   edm::InputTag l2MuonsRecoTracksCollection_;
   edm::InputTag staMuonsCollection_;
+  edm::InputTag cosmicMuonsCollection_;
+
+  std::string triggerSummaryLabel_;
+  std::string thePropagatorName_;
+  std::string regionBase_;
 };
 
 #endif
