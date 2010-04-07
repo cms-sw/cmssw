@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.13 2010/01/12 08:20:24 querten Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.14 2010/01/21 08:05:39 querten Exp $
 //
 //
 
@@ -70,6 +70,11 @@ DeDxDiscriminatorProducer::DeDxDiscriminatorProducer(const edm::ParameterSet& iC
    MaxTrackEta         = iConfig.getUntrackedParameter<double>  ("maxTrackEta"        ,  5.0);
    MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  255);
    MinTrackHits        = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"       ,  3);
+
+   useCalibration      = iConfig.getParameter<bool>("UseCalibration");
+   m_calibrationPath   = iConfig.getParameter<string>("calibrationPath");
+
+   Prob_ChargePath = NULL;
 }
 
 
@@ -103,7 +108,7 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run & run, const edm::EventSetup&
    double zmin = DeDxMap_.rangeZ().min;
    double zmax = DeDxMap_.rangeZ().max;
 
-//   if(Prob_ChargePath)delete Prob_ChargePath;
+   if(Prob_ChargePath)delete Prob_ChargePath;
    Prob_ChargePath  = new TH3D ("Prob_ChargePath"     , "Prob_ChargePath" , DeDxMap_.numberOfBinsX(), xmin, xmax, DeDxMap_.numberOfBinsY() , ymin, ymax, DeDxMap_.numberOfBinsZ(), zmin, zmax);
 
    
@@ -205,6 +210,9 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run & run, const edm::EventSetup&
       }
    }
  
+
+   MakeCalibrationMap();
+
 }
 
 void  DeDxDiscriminatorProducer::endJob()
@@ -265,7 +273,7 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
 	 double Prob;
          if(sistripsimplehit)
          {           
-	     Prob = GetProbability((sistripsimplehit->cluster()).get(), trajState);	                 if(Prob>=0) vect_probs.push_back(Prob);             
+	     Prob = GetProbability((sistripsimplehit->cluster()).get(), trajState);	                    if(Prob>=0) vect_probs.push_back(Prob);             
              if(ClusterSaturatingStrip((sistripsimplehit->cluster()).get())>0)NClusterSaturating++;
          }else if(sistripmatchedhit){
              Prob = GetProbability((sistripmatchedhit->monoHit()->cluster()).get(), trajState);             if(Prob>=0) vect_probs.push_back(Prob);
@@ -298,11 +306,17 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
 
 int DeDxDiscriminatorProducer::ClusterSaturatingStrip(const SiStripCluster*   cluster){
-//   const SiStripCluster*   cluster        = (sistripsimplehit->cluster()).get();
    const vector<uint8_t>&  ampls          = cluster->amplitudes();
 
+   stModInfo* MOD                         = NULL;
+   if(useCalibration)MOD                  = MODsColl[cluster->geographicalId()];
+
    int SaturatingStrip = 0;
-   for(unsigned int i=0;i<ampls.size();i++){if(ampls[i]>=254)SaturatingStrip++;}
+   for(unsigned int i=0;i<ampls.size();i++){
+      int StripCharge = ampls[i];
+      if(MOD){StripCharge = (int)(StripCharge / MOD->Gain);}
+      if(StripCharge>=254)SaturatingStrip++;
+   }
    return SaturatingStrip;
 }
 
@@ -325,7 +339,21 @@ double DeDxDiscriminatorProducer::GetProbability(const SiStripCluster*   cluster
 
 
    // Find Probability for this given Charge and Path
-   double charge = DeDxDiscriminatorTools::charge(ampls);
+   double charge = 0;
+   if(useCalibration){
+      for(unsigned int i=0;i<ampls.size();i++){
+         int CalibratedCharge = ampls[i];
+         CalibratedCharge = (int)(CalibratedCharge / MOD->Gain);
+         if(CalibratedCharge>=1024){
+            CalibratedCharge = 255;
+         }else if(CalibratedCharge>254){
+            CalibratedCharge = 254;
+         }
+         charge+=CalibratedCharge;
+      }
+   }else{
+      charge = DeDxDiscriminatorTools::charge(ampls);
+   }
    double path   = DeDxDiscriminatorTools::path(cosine,MOD->Thickness);
 
    int    BinX   = Prob_ChargePath->GetXaxis()->FindBin(trajState.localMomentum().mag());
@@ -390,6 +418,29 @@ double DeDxDiscriminatorProducer::ComputeDiscriminator(std::vector<double>& vect
    return estimator;
 }
 
+
+void DeDxDiscriminatorProducer::MakeCalibrationMap(){
+   if(!useCalibration)return;
+
+
+   TChain* t1 = new TChain("SiStripCalib/APVGain");
+   t1->Add(m_calibrationPath.c_str());
+
+   unsigned int  tree_DetId;
+   unsigned char tree_APVId;
+   double        tree_Gain;
+
+   t1->SetBranchAddress("DetId"             ,&tree_DetId      );
+   t1->SetBranchAddress("APVId"             ,&tree_APVId      );
+   t1->SetBranchAddress("Gain"              ,&tree_Gain       );
+
+   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
+       t1->GetEntry(ientry);
+       stModInfo* MOD  = MODsColl[tree_DetId];
+       MOD->Gain = tree_Gain;
+   }
+
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(DeDxDiscriminatorProducer);
