@@ -266,23 +266,41 @@ L1GctRegion L1GctHardwareJetFinder::makeProtoJet(L1GctRegion localMax) {
       unsigned index = column*COL_OFFSET + row;
       etCluster += m_inputRegions.at(index).et();
       ovrFlowOr |= m_inputRegions.at(index).overFlow();
+      // Distinguish between central and tau-flagged jets. Two versions of the algorithm.
       if (m_useImprovedTauAlgo) {
 
-	if ((row==(localEta+N_EXTRA_REGIONS_ETA00)) && (column==localPhi)) {
-	  // central region - check the tau veto
-	  tauVetoOr |= m_inputRegions.at(index).tauVeto();
-	} else {
-	  // other regions - check the tau veto if required
-	  if (!m_ignoreTauVetoBitsForIsolation) {
-	    tauVetoOr |= m_inputRegions.at(index).tauVeto();
-	  }
-	  // check the region energy against the isolation threshold
+//===========================================================================================
+// "Old" version of improved tau algorithm tests the tau veto for the central region always
+// 	if ((row==(localEta+N_EXTRA_REGIONS_ETA00)) && (column==localPhi)) {
+// 	  // central region - check the tau veto
+// 	  tauVetoOr |= m_inputRegions.at(index).tauVeto();
+// 	} else {
+// 	  // other regions - check the tau veto if required
+// 	  if (!m_ignoreTauVetoBitsForIsolation) {
+// 	    tauVetoOr |= m_inputRegions.at(index).tauVeto();
+// 	  }
+// 	  // check the region energy against the isolation threshold
+// 	  if (m_inputRegions.at(index).et() >= m_tauIsolationThreshold) {
+// 	    rgnsAboveIsoThreshold++;
+// 	  }
+// 	}
+//===========================================================================================
+
+        // In the hardware, the ignoreTauVetoBitsForIsolation switch ignores all the veto bits,
+        // including the one for the central region.
+	if (!(row==(localEta+N_EXTRA_REGIONS_ETA00)) && (column==localPhi)) {
+	  // non-central region - check the region energy against the isolation threshold
 	  if (m_inputRegions.at(index).et() >= m_tauIsolationThreshold) {
 	    rgnsAboveIsoThreshold++;
 	  }
 	}
+	// all regions - check the tau veto if required
+	if (!m_ignoreTauVetoBitsForIsolation) {
+	  tauVetoOr |= m_inputRegions.at(index).tauVeto();
+	}
+	// End of improved tau algorithm
       } else {
-	// original tau algorithm
+	// Original tau algorithm
 	tauVetoOr |= m_inputRegions.at(index).tauVeto();
       }
     }
