@@ -2,6 +2,16 @@
 # $CMSSW_RELEASE_BASE/src/HLTrigger/Configuration/test/getHLT.py --offline --data orcoff:/cdaq/physics/firstCollisions10/v3.0/HLT_7TeV/V1 OFFLINE 
 from OnData_HLT_OFFLINE import *
 
+# add this path to run muon HLT reconstruction independently from the filters
+process.muonRECO = cms.Path( process.HLTBeginSequence
+    +process.HLTL2muonrecoSequence
+    +process.HLTL2muonisorecoSequence
+    +process.HLTL3muonrecoSequence
+    +process.HLTL3muonisorecoSequence
+    +process.HLTMuTrackJpsiPixelRecoSequence
+    +process.HLTMuTrackJpsiTrackRecoSequence
+)
+
 # make a filter on the muonTracksSkim, l1MuBitsSkim bits available from the muon skim (SKIM)
 process.filter =cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","SKIM"),
