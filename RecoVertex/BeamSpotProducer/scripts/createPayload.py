@@ -21,6 +21,7 @@
    -c, --copy   : Only copy files from input directory to test/workflow/files/
    -d, --data   = DATA: Data file, or directory with data files.
    -o, --overwrite : Overwrite results files when copying.
+   -n, --newarchive : Create a new archive directory when copying.
    -t, --tag    = TAG: Database tag name.
    -u, --upload : Upload files to offline drop box via scp.
    
@@ -125,7 +126,7 @@ def copyToWorkflowdir(path):
         workflowdirArchive = workflowdirArchive[:len(workflowdirArchive)-1] + '_' + tagType + '/'
     if not os.path.isdir(workflowdirArchive):
     	os.mkdir(workflowdirArchive)
-    else:
+    elif(option.newarchive):
 #        tmpTime = str(datetime.datetime.now())
 #        tmpTime = tmpTime.replace(' ','-')
 #        tmpTime = tmpTime.replace('.','-')
@@ -142,15 +143,16 @@ def copyToWorkflowdir(path):
                  
     for ifile in tmplistoffiles:
     	if ifile.find('.txt') != -1:
+            if os.path.isfile(workflowdirArchive+"/"+ifile):
+                if option.overwrite:
+                    print "File " + ifile + " already exists in destination. We will overwrite it."
+                else:
+                    print "File " + ifile + " already exists in destination. Keep original file."
+                    continue
     	    listoffiles.append( workflowdirArchive + ifile )
     	    # copy to local disk
     	    aCommand = cpCommand + 'cp '+ path + ifile + " " + workflowdirArchive
     	    print " >> " + aCommand
-            if os.path.isfile(workflowdirArchive+"/"+ifile) and option.overwrite:
-                print "    File already exists in destination. We will overwrite it."
-            else:
-                print "    File already exists in destination. Keep original file."
-                continue
             tmpstatus = commands.getstatusoutput( aCommand )
     return listoffiles
 
@@ -210,8 +212,10 @@ if __name__ == '__main__':
 	tagname = option.tag
         if tagname.find("offline") != -1:
             tagType = "offline"
-        elif tagname.find("prompt") != -1 or tagname.find("express") != -1 :
+        elif tagname.find("prompt") != -1:
             tagType = "prompt"
+        elif tagname.find("express") != -1 :
+            tagType = "express"
         elif tagname.find("hlt") != -1:
             tagType = "hlt"
         else:
@@ -259,7 +263,9 @@ if __name__ == '__main__':
     if not os.path.isdir(workflowdirArchive + "AllIOVs"):
         os.mkdir(workflowdirArchive + "AllIOVs")
     allbeam_file = workflowdirArchive + "AllIOVs/" + tagname + "_all_IOVs.txt"
-    allfile = open( allbeam_file, 'w')
+#    if os.path.isfile(allbeam_file):
+        
+    allfile = open( allbeam_file, 'a')
     print " merging all results into file: " + allbeam_file
 
     
@@ -296,7 +302,6 @@ if __name__ == '__main__':
                     line = "sigmaZ0 10\n"
                 if line.find("Cov(3,j)") != -1:
                     line = "Cov(3,j) 0 0 0 2.5e-05 0 0 0\n"
-                print line    
 		newtmpfile.write(line)
             allfile.write(line)
         
@@ -369,13 +374,16 @@ if __name__ == '__main__':
         dfile.write('since ' + iov_since +'\n')
 #        dfile.write('till ' + iov_till +'\n')
         dfile.write('Timetype runnumber\n')
-        dfile.write('IOVCheck ' + tagType + '\n')
+        checkType = tagType
+        if tagType == "express":
+            checkType = "prompt"
+        dfile.write('IOVCheck ' + checkType + '\n')
         dfile.write('usertext ' + iov_comment +'\n')
         
         dfile.close()
         
         uuid = commands.getstatusoutput('uuidgen -t')[1]
-        final_sqlite_file_name = sqlite_file_name + '@' + uuid
+        final_sqlite_file_name = tagname + '@' + uuid
         
         if not os.path.isdir(workflowdirArchive + 'payloads'):
             os.mkdir(workflowdirArchive + 'payloads')
@@ -399,8 +407,8 @@ if __name__ == '__main__':
 #                        os.system("mv -f " + shellScriptName + " " + shellScript)
 #                else:
 #                    exit("Can't get the shell script to upload payloads. Check this twiki page: https://twiki.cern.ch/twiki/bin/viewauth/CMS/DropBoxOffline")
-            commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/DropBox_test")
-            commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/DropBox_test")
+            commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/DropBox")
+            commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/DropBox")
 
         print " done. Clean up."
     #### CLEAN up
