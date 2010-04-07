@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.58 2010/04/06 11:12:09 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.59 2010/04/06 11:23:50 dinardo Exp $
 //
 //
 
@@ -1076,12 +1076,12 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       myLinFit->SetParameter(1, 0.0);
       sZlumi->getTH1()->Fit("myLinFit","QR");
 
-      dxdzlumi->ShiftFillLast(vals[4], 0.0001, (int)(lumiCounter/nLumiReset)*nLumiReset);
+      dxdzlumi->ShiftFillLast(vals[4], (vals[4] != 0.) ? 0.0001 : 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
       myLinFit->SetParameter(0, dxdzlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       dxdzlumi->getTH1()->Fit("myLinFit","QR");
 
-      dydzlumi->ShiftFillLast(vals[5], 0.0001, (int)(lumiCounter/nLumiReset)*nLumiReset);
+      dydzlumi->ShiftFillLast(vals[5], (vals[5] != 0.) ? 0.0001 : 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
       myLinFit->SetParameter(0, dydzlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       dydzlumi->getTH1()->Fit("myLinFit","QR");
@@ -1222,7 +1222,7 @@ void Vx3DHLTAnalyzer::beginJob()
   reset("scratch");
   maxLumiIntegration   = 100;
   minVxDoF             = 4.;
-  internalDebug        = false;
+  internalDebug        = true;
   considerVxCovariance = true;
 
   pi = 3.141592653589793238;
