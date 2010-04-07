@@ -18,7 +18,7 @@ class VertexState;
 /** Class containing a measurement of a vertex.
  */
 
-class BasicVertexState  : private ReferenceCounted {
+class BasicVertexState  : public ReferenceCounted {
 
 public:
 
