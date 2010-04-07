@@ -19,7 +19,10 @@ FWViewContextMenuHandlerGL::init(FWViewContextMenuHandlerBase::MenuEntryAdder& a
 {
    adder.addEntry("Add Annotation");
    if (m_pickCameraCenter)
+   {
       adder.addEntry("Set Camera Center");
+      adder.addEntry("Reset Camera Center");
+   }
 }
 
 void 
@@ -34,24 +37,33 @@ FWViewContextMenuHandlerGL::select(int iEntryIndex, const FWModelId &id, int iX,
    v->CurrentCamera().WindowToViewport(pnt);
    pnt = v->CurrentCamera().ViewportToWorld(pnt);
 
-   
-   if (iEntryIndex == kAnnotate)
+   switch (iEntryIndex)
    {
-      TGFrame* f = v->GetGLWidget();
-      Window_t wdummy;
-      Int_t x, y;
-      gVirtualX->TranslateCoordinates(gClient->GetDefaultRoot()->GetId(), f->GetId(), iX, iY, x, y, wdummy);
+      case kAnnotate:
+      {
+         TGFrame* f = v->GetGLWidget();
+         Window_t wdummy;
+         Int_t x, y;
+         gVirtualX->TranslateCoordinates(gClient->GetDefaultRoot()->GetId(), f->GetId(), iX, iY, x, y, wdummy);
 
-      const char* txt = Form("%s %d", id.item()->name().c_str(), id.index());   
-      TGLAnnotation* an = new TGLAnnotation(v, txt,  x*1.f/f->GetWidth(), 1 - y*1.f/f->GetHeight(), pnt);
-      an->SetUseColorSet(true);
-      an->SetTextSize(0.03);
-   }
-   else if (iEntryIndex == kCameraCenter)
-   {
-      
-      v->CurrentCamera().SetExternalCenter(true);
-      v->SetDrawCameraCenter(true);
-      v->CurrentCamera().SetCenterVec(pnt.X(), pnt.Y(), pnt.Z());
+         const char* txt = Form("%s %d", id.item()->name().c_str(), id.index());   
+         TGLAnnotation* an = new TGLAnnotation(v, txt,  x*1.f/f->GetWidth(), 1 - y*1.f/f->GetHeight(), pnt);
+         an->SetUseColorSet(true);
+         an->SetTextSize(0.03);
+         break;
+      }
+      case kCameraCenter:
+      {
+         v->CurrentCamera().SetExternalCenter(true);
+         v->SetDrawCameraCenter(true);
+         v->CurrentCamera().SetCenterVec(pnt.X(), pnt.Y(), pnt.Z());
+         break;
+      }
+      case kResetCameraCenter:
+      {
+         v->CurrentCamera().SetExternalCenter(false);
+         v->SetDrawCameraCenter(false);
+         break;
+      }
    }
 }

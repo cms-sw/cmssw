@@ -9,7 +9,7 @@ class FWModelId;
 class FWViewContextMenuHandlerGL
 {
 public:
-   enum GLViewerAction { kAnnotate, kCameraCenter, kNone };
+   enum GLViewerAction { kAnnotate, kCameraCenter, kResetCameraCenter, kNone };
 
    FWViewContextMenuHandlerGL(TEveViewer* v);
    virtual ~FWViewContextMenuHandlerGL() {}
