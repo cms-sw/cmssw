@@ -3,7 +3,7 @@
 // Package:     Core
 // Class  :     FWGenParticle3DProxyBuilder
 //
-/**\class FWGenParticle3DProxyBuilder FWGenParticle3DProxyBuilder.h Fireworks/Core/interface/FWGenParticle3DProxyBuilder.h
+/**\class FWGenParticle3DProxyBuilder FWGenParticle3DProxyBuilder.h Fireworks/GenParticle/interface/FWGenParticle3DProxyBuilder.h
 
    Description: <one line class summary>
 
@@ -14,21 +14,18 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWGenParticle3DProxyBuilder.cc,v 1.6 2010/04/06 22:24:40 amraktad Exp $
+// $Id: FWGenParticle3DProxyBuilder.cc,v 1.7 2010/04/07 14:15:06 amraktad Exp $
 // 
 
 #include "TDatabasePDG.h"
+#include "TEveTrack.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Tracks/interface/TrackUtils.h"
-
+#include "Fireworks/Candidates/interface/CandidateUtils.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-
-class TEveTrack;
-class TEveTrackPropagator;
 
 class FWGenParticle3DProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GenParticle> {
 
@@ -71,7 +68,7 @@ FWGenParticle3DProxyBuilder::build(const reco::GenParticle& iData, unsigned int 
    else
       sprintf(s,"gen pdg %d, Pt: %0.1f GeV", iData.pdgId(), iData.pt());
 
-   TEveTrack* trk = fireworks::prepareTrack( iData, context().getTrackPropagator(), item()->defaultDisplayProperties().color() );    
+   TEveTrack* trk = fireworks::prepareCandidate( iData, context().getTrackPropagator(), item()->defaultDisplayProperties().color() );    
    trk->MakeTrack();
    trk->SetTitle(s);
    oItemHolder.AddElement( trk );
