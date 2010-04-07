@@ -65,7 +65,11 @@ int cond::DuplicateIOVUtilities::execute(){
   std::string destiovtoken("");
   cond::TimeType iovtype;
   std::string timetypestr("");
-    
+   
+  if(debug){
+    std::cout << "source tag " << sourceTag << std::endl;
+    std::cout << "dest   tag  " << destTag << std::endl;
+  }  
     
   // find tag
   {
@@ -91,7 +95,8 @@ int cond::DuplicateIOVUtilities::execute(){
     }
     destDb.transaction().commit();
     if(debug){
-      std::cout<<"iov token "<< iovtoken<<std::endl;
+      std::cout<<"source iov token "<< iovtoken<<std::endl;
+      std::cout<<"dest   iov token "<< destiovtoken<<std::endl;
       std::cout<<"iov type "<<  timetypestr<<std::endl;
     }
   }
@@ -107,6 +112,7 @@ int cond::DuplicateIOVUtilities::execute(){
   
   int size=0;
   bool newIOV = destiovtoken.empty();
+  /* we allow multiple iov pointing to the same payload...
   if (!newIOV) {
     // to be streamlined
     cond::IOVProxy iov( destDb,destiovtoken,false,true);
@@ -123,6 +129,7 @@ int cond::DuplicateIOVUtilities::execute(){
       return 0;
     }
   }
+  */
 
   std::auto_ptr<cond::Logger> logdb;
   if(doLog){
@@ -154,7 +161,7 @@ int cond::DuplicateIOVUtilities::execute(){
     transaction.commit();
   } else {
     //append it
-    cond::IOVEditor editor(destdb,destiovtoken);
+    cond::IOVEditor editor(destDb,destiovtoken);
     cond::DbScopedTransaction transaction(destDb);
     transaction.start(false);
     editor.append(since,payload);
