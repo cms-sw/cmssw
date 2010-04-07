@@ -51,7 +51,7 @@ cond::DuplicateIOVUtilities::~DuplicateIOVUtilities(){
 int cond::DuplicateIOVUtilities::execute(){
 
   std::string sourceTag = getOptionValue<std::string>("tag");
-  std::string destTag("");
+  std::string destTag(sourceTag);
   if(hasOptionValue("destTag")) destTag = getOptionValue<std::string>("destTag");
   cond::Time_t from = getOptionValue<cond::Time_t>("fromTime");
   cond::Time_t since = getOptionValue<cond::Time_t>("sinceTime");
@@ -145,20 +145,20 @@ int cond::DuplicateIOVUtilities::execute(){
 
   // create if does not exist;
   if (newIOV) {
-    std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor());
+    cond::IOVEditor editor(destDb);
     cond::DbScopedTransaction transaction(destDb);
     transaction.start(false);
-    editor->create(iovtype);
-    destiovtoken=editor->token();
-    editor->append(since,payload);
+    editor.create(iovtype);
+    destiovtoken=editor.token();
+    editor.append(since,payload);
     transaction.commit();
   } else {
     //append it
-    std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor(destiovtoken));
+    cond::IOVEditor editor(destdb,destiovtoken);
     cond::DbScopedTransaction transaction(destDb);
     transaction.start(false);
-    editor->append(since,payload);
-    editor->stamp(cond::userInfo(),false);
+    editor.append(since,payload);
+    editor.stamp(cond::userInfo(),false);
     transaction.commit();
   }
 
