@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id$
+// $Id: FWEveView.cc,v 1.5 2010/04/06 20:00:36 amraktad Exp $
 //
 
 
@@ -47,7 +47,8 @@
 //
 
 FWEveView::FWEveView(TEveWindowSlot* iParent) :
-   m_type(FWViewType::k3D),
+   FWViewBase(2),
+   m_type(FWViewType::kSize),
    m_viewer(0),
    m_eventScene(0),
    m_geoScene(0),
@@ -204,6 +205,11 @@ FWEveView::addTo(FWConfiguration& iTo) const
 void
 FWEveView::setFrom(const FWConfiguration& iFrom)
 {
+   if (version() != iFrom.version())
+   {
+      fwLog(fwlog::kWarning) << "Skiping configuration. Version do not mach in view " << typeName() << std::endl;
+      return;
+   }
    // take care of parameters
    FWConfigurableParameterizable::setFrom(iFrom);
    {

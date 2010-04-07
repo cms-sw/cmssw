@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:45 CET 2010
-// $Id$
+// $Id: FWEveViewManager.h,v 1.1 2010/04/06 20:00:35 amraktad Exp $
 //
 
 // system include files
@@ -81,12 +81,13 @@ private:
    FWEveViewManager(const FWEveViewManager&); // stop default
    const FWEveViewManager& operator=(const FWEveViewManager&); // stop default
 
-   FWViewBase* create3DView     (TEveWindowSlot* iParent);
-   FWViewBase* createLegoView   (TEveWindowSlot* iParent);
-   FWViewBase* createGlimpseView(TEveWindowSlot* iParent);
-   FWViewBase* createRhoPhiView (TEveWindowSlot* iParent);
-   FWViewBase* createRhoZView   (TEveWindowSlot* iParent);
-   FWEveView*  finishViewCreate (boost::shared_ptr<FWEveView>);
+   FWViewBase* create3DRecHitView  (TEveWindowSlot* iParent);
+   FWViewBase* create3DEView       (TEveWindowSlot* iParent);
+   FWViewBase* createLegoView      (TEveWindowSlot* iParent);
+   FWViewBase* createGlimpseView   (TEveWindowSlot* iParent);
+   FWViewBase* createRhoPhiView    (TEveWindowSlot* iParent);
+   FWViewBase* createRhoZView      (TEveWindowSlot* iParent);
+   FWEveView*  finishViewCreate    (boost::shared_ptr<FWEveView>);
 
    void makeProxyBuilderFor(const FWEventItem* iItem);
    void beingDestroyed(const FWViewBase*);

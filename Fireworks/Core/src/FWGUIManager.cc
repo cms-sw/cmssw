@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.192 2010/03/26 20:20:21 matevz Exp $
+// $Id: FWGUIManager.cc,v 1.193 2010/04/01 17:27:54 amraktad Exp $
 
 //
 
@@ -60,6 +60,7 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
+#include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 
@@ -1004,7 +1005,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       TEveWindow* ew = (*it).eveWindow;
       if (ew) {
          FWViewBase* wb = m_viewMap[ew];
-         FWConfiguration tempWiew(1);
+         FWConfiguration tempWiew(wb->version());
          wb->addTo(tempWiew);
          views.addKeyValue(wb->typeName(), tempWiew, true);
          FWConfiguration tempArea(cfgVersion);
@@ -1109,8 +1110,9 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       {
          float weight = atof((areaIt->second).valueForKey("weight")->value().c_str());
          TEveWindowSlot* slot = ( m_viewMap.size() || (primSlot == 0) ) ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot;
-
-          ViewMap_i lastViewIt = createView(it->first, slot);
+         std::string name = it->first;
+         if (name == "3D") name = FWViewType::k3DRecHitName;
+         ViewMap_i lastViewIt = createView(name, slot);
          lastViewIt->second->setFrom(it->second);
 
          bool  undocked = atof((areaIt->second).valueForKey("undocked")->value().c_str());
@@ -1130,7 +1132,9 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    else
    {  // create views with same weight in old version
       for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
-         createView(it->first, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot);
+         std::string name = it->first;
+         if (name == "3D") name = FWViewType::k3DRecHitName;
+         createView(name, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot);
          ViewMap_i lastViewIt = m_viewMap.end(); lastViewIt--;
          lastViewIt->second->setFrom(it->second);
       }
