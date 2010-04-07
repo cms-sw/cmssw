@@ -16,8 +16,8 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ) :c
   config_                 = ps.getParameter<std::vector<edm::ParameterSet> >("MonitorSetup");
   configType_             = ps.getParameter<std::vector<std::string> >("ConfigType");
   doRefAnalysis_          = ps.getParameter<bool>("doMatching");
-  NPtBins_                = ps.getUntrackedParameter<int>("PtHistoBins",50);
-  NEtaBins_               = ps.getUntrackedParameter<int>("EtaHistoBins",20);
+  NPtBins_                = ps.getUntrackedParameter<int>("PtHistoBins",20);
+  NEtaBins_               = ps.getUntrackedParameter<int>("EtaHistoBins",25);
   NPhiBins_               = ps.getUntrackedParameter<int>("PhiHistoBins",32);
   EtMax_                  = ps.getUntrackedParameter<double>("EtHistoMax",100);
   L1MatchDr_              = ps.getUntrackedParameter<double>("L1MatchDeltaR",0.5);
