@@ -23,7 +23,8 @@ PF2PATEventContent = cms.PSet(
     # MET
     'keep *_pfMET_*_*',
     # Trigger
-    'keep *_TriggerResults_*_*'
+    'keep *_TriggerResults_*_*',
+    'keep *_hltTriggerSummaryAOD_*_*'
     )
 )
 
@@ -40,7 +41,8 @@ PATEventContent = cms.PSet(
     'keep patTaus_selectedLayer1Taus_*_*',
 # iso deposits are embedded in the pat objects, and do not need to be kept
 #    'keep recoIsoDepositedmValueMap_iso*_*_*',
-    'keep *_TriggerResults_*_*'
+    'keep *_TriggerResults_*_*',
+    'keep *_hltTriggerSummaryAOD_*_*'
     )
 )
 
@@ -96,6 +98,9 @@ prunedAODForPF2PATEventContent = cms.PSet(
         'drop *_hfRecoEcalCandidate_*_*',
         'drop recoSuperClusters_*_*_*',
         'keep *_pfElectronTranslator_*_*',
-        'keep recoSuperClusters_corrected*_*_*'
+        'keep recoSuperClusters_corrected*_*_*',
+         'keep *_TriggerResults_*_*',
+    'keep *_hltTriggerSummaryAOD_*_*'
+
         )
 )
