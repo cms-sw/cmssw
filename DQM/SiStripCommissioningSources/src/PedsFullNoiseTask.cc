@@ -24,8 +24,8 @@ PedsFullNoiseTask::PedsFullNoiseTask(DQMStore * dqm, const FedChannelConnection 
   edm::ParameterSet params = pset.getParameter<edm::ParameterSet>("PedsFullNoiseParameters");
   nskip_ = params.getParameter<int>("NrEvToSkipAtStart");
   skipped_ = false,
-  ntempstab_ = params.getParameter<int>("NrEvUntilStable");
-  tempstable_ = false;
+  nevpeds_ = params.getParameter<int>("NrEvForPeds");
+  pedsdone_ = false;
   nadcnoise_ = params.getParameter<int>("NrPosBinsNoiseHist");
 }
 
@@ -157,28 +157,29 @@ void PedsFullNoiseTask::fill( const SiStripEventSummary & summary,
   static uint32_t firstev = summary.event();
 
   // skipping events
-  if (summary.event() - firstev < nskip_) return;
-  // when all events are skipped
-  if (!skipped_ && summary.event() - firstev >= nskip_) {
-    skipped_ = true;
-    if (nskip_ > 0) LogTrace(sistrip::mlDqmSource_) << "[PedsFullNoiseTask::" << __func__ << "]"
-      << " Done skipping events. Now starting rough pedestals.";
-  }
-
-  // while stabilizing temperature...
-  if (summary.event() - firstev < ntempstab_ + nskip_) {
-    // estimate peds roughly
-    for ( uint16_t istrip = 0; istrip < nstrips_; ++istrip ) {
-      updateHistoSet( pedroughhist_, istrip, digis.data[istrip].adc() );
+  if (!skipped_) {
+    if (summary.event() - firstev < nskip_) {
+      return;
+    } else { // when all events are skipped
+      skipped_ = true;
+      if (nskip_ > 0) LogTrace(sistrip::mlDqmSource_) << "[PedsFullNoiseTask::" << __func__ << "]"
+                                                      << " Done skipping events. Now starting pedestals.";
     }
-    return;
   }
 
-  // when temperature has stabilized
-  if (!tempstable_ && summary.event() - firstev >= ntempstab_ + nskip_) {
-    tempstable_ = true;
-    LogTrace(sistrip::mlDqmSource_) << "[PedsFullNoiseTask::" << __func__ << "]"
-      << " Rough pedestals done. Now starting noise measurements.";
+  // determine pedestals - decoupled from noise determination
+  if (!pedsdone_) {
+    if (summary.event() - firstev < nskip_ + nevpeds_) {
+      // estimate peds roughly
+      for ( uint16_t istrip = 0; istrip < nstrips_; ++istrip ) {
+        updateHistoSet( pedroughhist_, istrip, digis.data[istrip].adc() );
+      }
+      return;
+    } else { // when pedestals are done
+      pedsdone_ = true;
+      LogTrace(sistrip::mlDqmSource_) << "[PedsFullNoiseTask::" << __func__ << "]"
+                                      << " Rough pedestals done. Now starting noise measurements.";
+    }
   }
 
   // Calc common mode for both APVs
@@ -188,46 +189,51 @@ void PedsFullNoiseTask::fill( const SiStripEventSummary & summary,
     adc.clear(); adc.reserve(128);
     for ( uint16_t ibin = 0; ibin < 128; ibin++ ) { 
       if ( (iapv*128)+ibin < nbins ) { 
-        adc.push_back( digis.data[(iapv*128)+ibin].adc() );
+        adc.push_back( digis.data.at((iapv*128)+ibin).adc() );
       }
     }
     sort( adc.begin(), adc.end() ); 
     // take median as common mode
     uint16_t index = adc.size()%2 ? adc.size()/2 : adc.size()/2-1;
-    if ( !adc.empty() ) cm[iapv] = (uint32_t) adc[index];
+    cm[iapv] = adc[index];
   }
   updateHistoSet( cmhist_[0], cm[0] );
   updateHistoSet( cmhist_[1], cm[1] );
 
   // 1D noise profile - see also further processing in the update() method
   for ( uint16_t istrip = 0; istrip < nstrips_; ++istrip ) {
-    // calculate the noise in the old way, by subtracting the common mode
-    float noiseval = static_cast<float>( digis.data.at(istrip).adc() ) - static_cast<float>( cm[istrip/128] );
+    // calculate the noise in the old way, by subtracting the common mode, but without pedestal subtraction
+    int16_t noiseval = static_cast<int16_t>(digis.data.at(istrip).adc()) - static_cast<int16_t>(cm[istrip/128]);
     updateHistoSet( noiseprof_, istrip, noiseval );
   }
 
   // 2D noise histogram and pedestal
   TH2S * hist = (TH2S *) noisehist_.histo()->getTH2S();
   // calculate pedestal and noise and store in the histograms
-  std::vector<float> noisevals; noisevals.resize(128, 0);
+  std::vector<int16_t> noisevals;
+  std::vector<int16_t> noisevalssorted;
   for ( uint16_t iapv = 0; iapv < 2; ++iapv ) { 
-    float totadc = 0;
+    noisevals.clear(); noisevals.reserve(128);
+    noisevalssorted.clear();
     for ( uint16_t ibin = 0; ibin < 128; ++ibin ) {
       uint16_t istrip = (iapv*128)+ibin;
       // store the pedestal
       updateHistoSet( pedhist_, istrip, digis.data.at(istrip).adc() );
       // calculate the noise wrt the rough pedestal estimate
-      noisevals[ibin] = digis.data.at(istrip).adc() - 1.*pedroughhist_.vSumOfContents_.at(istrip)/pedroughhist_.vNumOfEntries_.at(istrip);
-      // now we still have a possible constant shift of the adc values with respect to 0, so we prepare to calculate the mean of this shift
-      totadc += noisevals[ibin];
+      noisevals[ibin] = static_cast<int16_t>(digis.data.at(istrip).adc()) - static_cast<int16_t>(1.*pedroughhist_.vSumOfContents_.at(istrip)/pedroughhist_.vNumOfEntries_.at(istrip));
+      // now we still have a possible constant shift of the adc values with respect to 0, so we prepare to calculate the median of this shift
+      noisevalssorted.push_back( noisevals[ibin] );
     }
+    // get index for median determination for remaining CM subtraction
+    sort( noisevalssorted.begin(), noisevalssorted.end() ); 
+    uint16_t index = noisevalssorted.size()%2 ? noisevalssorted.size()/2 : noisevalssorted.size()/2-1;
     // now loop again to calculate the CM+pedestal subtracted noise values
     for ( uint16_t ibin = 0; ibin < 128; ++ibin ) {
       uint16_t istrip = (iapv*128)+ibin;
       // subtract the remaining common mode after subtraction of the rough pedestals
-      float noiseval = noisevals[ibin] - totadc/128;
+      int16_t noiseval = noisevals[ibin] - noisevalssorted[index];
       // retrieve the linear binnr through the histogram
-      short binnr = hist->GetBin((short) (noiseval+nadcnoise_), istrip+1);
+      uint32_t binnr = hist->GetBin(noiseval+nadcnoise_, istrip+1);
       // store the noise value in the 2D histo
       updateHistoSet( noisehist_, binnr ); // no value, so weight 1
     }
