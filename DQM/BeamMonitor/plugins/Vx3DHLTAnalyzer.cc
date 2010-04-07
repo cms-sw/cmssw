@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.60 2010/04/07 09:20:05 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.61 2010/04/07 09:24:31 dinardo Exp $
 //
 //
 
@@ -875,7 +875,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       vector<double> vals;
       stringstream histTitle;
 
-      hitCounter->ShiftFillLast(totalHits, sqrt(totalHits), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      hitCounter->ShiftFillLast(totalHits, sqrt(totalHits), nLumiReset);
 
       if (dataFromFit == true)
 	{
@@ -1046,42 +1046,42 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       myLinFit->SetParName(0,"Intercept");
       myLinFit->SetParName(1,"Slope");
 
-      mXlumi->ShiftFillLast(vals[0], sqrt(vals[8]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      mXlumi->ShiftFillLast(vals[0], sqrt(vals[8]), nLumiReset);
       myLinFit->SetParameter(0, mXlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       mXlumi->getTH1()->Fit("myLinFit","QR");
 
-      mYlumi->ShiftFillLast(vals[1], sqrt(vals[9]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      mYlumi->ShiftFillLast(vals[1], sqrt(vals[9]), nLumiReset);
       myLinFit->SetParameter(0, mYlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       mYlumi->getTH1()->Fit("myLinFit","QR");
 
-      mZlumi->ShiftFillLast(vals[2], sqrt(vals[10]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      mZlumi->ShiftFillLast(vals[2], sqrt(vals[10]), nLumiReset);
       myLinFit->SetParameter(0, mZlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       mZlumi->getTH1()->Fit("myLinFit","QR");
 
-      sXlumi->ShiftFillLast(vals[6], sqrt(vals[14]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      sXlumi->ShiftFillLast(vals[6], sqrt(vals[14]), nLumiReset);
       myLinFit->SetParameter(0, sXlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       sXlumi->getTH1()->Fit("myLinFit","QR");
 
-      sYlumi->ShiftFillLast(vals[7], sqrt(vals[15]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      sYlumi->ShiftFillLast(vals[7], sqrt(vals[15]), nLumiReset);
       myLinFit->SetParameter(0, sYlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       sYlumi->getTH1()->Fit("myLinFit","QR");
 
-      sZlumi->ShiftFillLast(vals[3], sqrt(vals[11]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      sZlumi->ShiftFillLast(vals[3], sqrt(vals[11]), nLumiReset);
       myLinFit->SetParameter(0, sZlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       sZlumi->getTH1()->Fit("myLinFit","QR");
 
-      dxdzlumi->ShiftFillLast(vals[4], (vals[4] != 0.) ? 0.0001 : 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
+      dxdzlumi->ShiftFillLast(vals[4], (vals[4] != 0.) ? 0.0001 : 0.0, nLumiReset);
       myLinFit->SetParameter(0, dxdzlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       dxdzlumi->getTH1()->Fit("myLinFit","QR");
 
-      dydzlumi->ShiftFillLast(vals[5], (vals[5] != 0.) ? 0.0001 : 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
+      dydzlumi->ShiftFillLast(vals[5], (vals[5] != 0.) ? 0.0001 : 0.0, nLumiReset);
       myLinFit->SetParameter(0, dydzlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       dydzlumi->getTH1()->Fit("myLinFit","QR");
