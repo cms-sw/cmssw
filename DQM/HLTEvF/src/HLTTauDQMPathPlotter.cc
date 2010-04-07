@@ -11,7 +11,9 @@ HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& ps,bool ref)
   nTriggeredTaus_(ps.getUntrackedParameter<std::vector<unsigned> >("NTriggeredTaus")),
   nTriggeredLeptons_(ps.getUntrackedParameter<std::vector<unsigned> >("NTriggeredLeptons")),
   doRefAnalysis_(ref),
-  matchDeltaR_(ps.getUntrackedParameter<std::vector<double> >("MatchDeltaR"))
+  matchDeltaR_(ps.getUntrackedParameter<std::vector<double> >("MatchDeltaR")),
+  refTauPt_(ps.getUntrackedParameter<double>("refTauPt",20)),
+  refLeptonPt_(ps.getUntrackedParameter<double>("refLeptonPt",15))
 {
   //initialize 
 
@@ -81,19 +83,18 @@ HLTTauDQMPathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    }
 	  else
 	    {
-	      double et=0.;
-	      double eta=0.;
-	    
+	      int highPtTaus=0;
 	      for(size_t j = 0;j<refC[0].size();++j)
 		{
-		  if((refC[0])[j].Et()>et)
-		    {
-		      et=(refC[0])[j].Et();
-		      eta = (refC[0])[j].Eta();
-		    }
-		
+		  if((refC[0])[j].Et()>refTauPt_)
+		    highPtTaus++;
+		}
+	      if(highPtTaus<nTriggeredTaus_[0])
+		{
+		  tau_ok = false;
 		}
 	 
+
 	    }
   
 	  //lepton reference
@@ -102,8 +103,20 @@ HLTTauDQMPathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	      {
 		lepton_ok = false;
 	      }
-    
-      
+	    else
+	      {
+		int highPtLeptons=0;
+		for(size_t j = 0;j<refC[1].size();++j)
+		  {
+		    if((refC[1])[j].Et()>refLeptonPt_)
+		      highPtLeptons++;
+		  }
+		if(highPtLeptons<nTriggeredLeptons_[0])
+		  {
+		    lepton_ok = false;
+		  }
+	 
+	      }
 	  if(lepton_ok&&tau_ok)
 	    {
 	      accepted_events_matched->Fill(0.5);
@@ -139,9 +152,8 @@ HLTTauDQMPathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		{
 		      LVColl leptons = getFilterCollection(ID,LeptonType_[i],*trigEv);
 		      LVColl taus = getFilterCollection(ID,TauType_[i],*trigEv);
-
 		      //Fired
-		      
+  
 		      if(leptons.size()>=nTriggeredLeptons_[i+1] && taus.size()>=nTriggeredTaus_[i+1])
 			{
 			  accepted_events->Fill(i+0.5);

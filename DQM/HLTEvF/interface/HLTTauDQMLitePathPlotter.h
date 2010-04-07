@@ -26,13 +26,13 @@ bachtis@hep.wisc.edu
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+
 typedef math::XYZTLorentzVectorD   LV;
 typedef std::vector<LV>            LVColl;
 
-
 class HLTTauDQMLitePathPlotter  {
-  
  public:
+  
    HLTTauDQMLitePathPlotter(const edm::ParameterSet&,int,int,int,double,bool,double);
   ~HLTTauDQMLitePathPlotter();
   void analyze(const edm::Event&, const edm::EventSetup&, const std::vector<LVColl>&);
@@ -91,7 +91,21 @@ class HLTTauDQMLitePathPlotter  {
   int binsEta_;
   int binsPhi_;
 
+  double refTauPt_;
+  double refLeptonPt_;
 
+  class LVSorter {
+  public:
+    LVSorter()  {}
+    ~LVSorter() {}
+    
+    bool operator()(LV p1, LV p2)
+    {
+      return p1.Et() < p2.Et();
+    }
+      
+
+  };
 
 
 };

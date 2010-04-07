@@ -15,7 +15,9 @@ HLTTauDQMLitePathPlotter::HLTTauDQMLitePathPlotter(const edm::ParameterSet& ps,i
   maxEt_(maxpt),
   binsEt_(etbins),
   binsEta_(etabins),
-  binsPhi_(phibins)
+  binsPhi_(phibins),
+  refTauPt_(ps.getUntrackedParameter<double>("refTauPt",20)),
+  refLeptonPt_(ps.getUntrackedParameter<double>("refLeptonPt",15))
 {
   //initialize 
 
@@ -101,6 +103,18 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
   std::vector<bool> isGoodReferenceEvent;
 
 
+  LV highestRefTau(0.,0.,0.,0.0001);
+  LVColl triggeredTaus;
+
+  if(refC[0].size()>0)
+    {
+      for(unsigned int i=0;i<refC[0].size();++i)
+	if((refC[0])[i].pt()>highestRefTau.pt())
+	  highestRefTau = (refC[0])[i];
+    }
+
+
+
   //Fill ref collection for the filters
   if(doRefAnalysis_)
     for(size_t i=0;i<filter_.size();++i)
@@ -112,12 +126,41 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  {
 	    tau_ok = false;
 	  }
+	  else
+	    {
+	      int highPtTaus=0;
+	      for(size_t j = 0;j<refC[0].size();++j)
+		{
+		  if((refC[0])[j].Et()>refTauPt_)
+		    highPtTaus++;
+		}
+	      if(highPtTaus<nTriggeredTaus_[i])
+		{
+		  tau_ok = false;
+		}
+	 
+
+	    }
 
   
       //lepton reference
 	if(refC[1].size()<nTriggeredLeptons_[i])
 	  {
 	    lepton_ok = false;
+	  }
+	else
+	  {
+	    int highPtLeptons=0;
+	    for(size_t j = 0;j<refC[1].size();++j)
+	      {
+		if((refC[1])[j].Et()>refLeptonPt_)
+		  highPtLeptons++;
+	      }
+	    if(highPtLeptons<nTriggeredLeptons_[i])
+	      {
+		lepton_ok = false;
+	      }
+	    
 	  }
     
       
@@ -155,11 +198,15 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
 		{
 		      LVColl leptons = getFilterCollection(ID,LeptonType_[i],*trigEv);
 		      LVColl taus = getFilterCollection(ID,TauType_[i],*trigEv);
+
+		      //if this is the single tau trigger copy the collection for the turn on
+		      if(nTriggeredTaus_[i]==1&&nTriggeredLeptons_[i]==0)
+			triggeredTaus=taus;
+			
+
 		      //Fired
-		      
 		      if(leptons.size()>=nTriggeredLeptons_[i] && taus.size()>=nTriggeredTaus_[i])
 			{
-
 			  accepted_events->Fill(i+0.5);
 			  //Now do the matching only though if we have a good reference event
 
@@ -208,38 +255,35 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
 	
 
 
-	  //Do the object thing
+	  //Do the object thing for the highest tau!
 
-	  LVColl taus = getObjectCollection(15,*trigEv);
-	  if(!doRefAnalysis_)
-	  for(unsigned int tau=0;tau<taus.size();++tau)
-	    if(taus[tau].pt()>5.0)
+	  if(triggeredTaus.size()>0)
 	    {
-		  tauEt->Fill(taus[tau].pt());
-		  tauEta->Fill(taus[tau].eta());
-		  tauPhi->Fill(taus[tau].phi());
-	    }
+	      LV highestTriggeredTau(0.,0.,0.,0.0001);
+	      for(unsigned int i=0;i<triggeredTaus.size();++i)
+		if(triggeredTaus[i].pt()>highestTriggeredTau.pt())
+		  highestTriggeredTau = triggeredTaus[i];
+      
+	    
+	      tauEt->Fill(highestTriggeredTau.pt());
+	      tauEta->Fill(highestTriggeredTau.eta());
+	      tauPhi->Fill(highestTriggeredTau.phi());
 
 
-	  if(doRefAnalysis_)
-	    for(unsigned int tau=0;tau<refC[0].size();++tau)
-	    {
-	          tauEtEffDenom->Fill((refC[0])[tau].pt());
-	          tauEtaEffDenom->Fill((refC[0])[tau].eta());
-	          tauPhiEffDenom->Fill((refC[0])[tau].phi());
+	      if(doRefAnalysis_&&highestRefTau.pt()>5.)
+		{
+	          tauEtEffDenom->Fill(highestRefTau.pt());
+	          tauEtaEffDenom->Fill(highestRefTau.eta());
+	          tauPhiEffDenom->Fill(highestRefTau.phi());
 
-		  std::pair<bool,LV> m=match((refC[0])[tau],taus,matchDeltaR_); 
-		  if(m.first)
+
+		  if(ROOT::Math::VectorUtil::DeltaR(highestRefTau,highestTriggeredTau)<matchDeltaR_)
 		    {
-		      tauEt->Fill(m.second.pt());
-		      tauEta->Fill(m.second.eta());
-		      tauPhi->Fill(m.second.phi());
-
-		      tauEtEffNum->Fill((refC[0])[tau].pt());
-		      tauEtaEffNum->Fill((refC[0])[tau].eta());
-		      tauPhiEffNum->Fill((refC[0])[tau].phi());
-
+		      tauEtEffNum->Fill(highestRefTau.pt());
+		      tauEtaEffNum->Fill(highestRefTau.eta());
+		      tauPhiEffNum->Fill(highestRefTau.phi());
 		    }
+		}
 	    }
 	}
     }
@@ -285,7 +329,7 @@ HLTTauDQMLitePathPlotter::getObjectCollection(int id,const trigger::TriggerEvent
 
 	LVColl out;
 	for(unsigned int i=0;i<triggerObjects.size();++i)
-	  //	  if(abs(triggerObjects[i].id()) == id)
+	   if(abs(triggerObjects[i].id()) == id)
 	   {
 	     LV a(triggerObjects[i].px(),triggerObjects[i].py(),triggerObjects[i].pz(),triggerObjects[i].energy());
 	     out.push_back(a);
