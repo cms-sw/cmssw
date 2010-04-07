@@ -14,13 +14,10 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWGenParticle3DProxyBuilder.cc,v 1.5 2010/04/06 20:19:49 amraktad Exp $
+// $Id: FWGenParticle3DProxyBuilder.cc,v 1.6 2010/04/06 22:24:40 amraktad Exp $
 // 
 
-
-#include "TEveTrack.h"
 #include "TDatabasePDG.h"
-#include "TEveVSDStructs.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
@@ -29,7 +26,6 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-
 
 class TEveTrack;
 class TEveTrackPropagator;
@@ -51,25 +47,34 @@ private:
    void build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
 
    // ---------- member data --------------------------------
-   TDatabasePDG* m_pdg;
+   static TDatabasePDG* s_pdg;
 };
 
 //______________________________________________________________________________
 
+TDatabasePDG* FWGenParticle3DProxyBuilder::s_pdg = 0;
+
 FWGenParticle3DProxyBuilder::FWGenParticle3DProxyBuilder()
- :m_pdg(0)
 {
-   m_pdg = new TDatabasePDG();
 }
 
 void
 FWGenParticle3DProxyBuilder::build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
-   TEveTrack* trk = fireworks::prepareTrack( iData, context().getTrackPropagator(), item()->defaultDisplayProperties().color() ); 
-   
+   if (!s_pdg)
+      s_pdg = new TDatabasePDG();
+ 
+   char s[1024];
+   TParticlePDG* pID = s_pdg->GetParticle(iData.pdgId());
+   if ( pID )
+      sprintf(s,"gen %s, Pt: %0.1f GeV", pID->GetName(), iData.pt());
+   else
+      sprintf(s,"gen pdg %d, Pt: %0.1f GeV", iData.pdgId(), iData.pt());
+
+   TEveTrack* trk = fireworks::prepareTrack( iData, context().getTrackPropagator(), item()->defaultDisplayProperties().color() );    
    trk->MakeTrack();
+   trk->SetTitle(s);
    oItemHolder.AddElement( trk );
-   
 }
 
 REGISTER_FWPROXYBUILDER(FWGenParticle3DProxyBuilder,reco::GenParticle,"GenParticles", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
