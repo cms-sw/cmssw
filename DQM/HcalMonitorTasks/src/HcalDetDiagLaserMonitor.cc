@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Wed Mar  3 12:14:16 CET 2010
-// $Id: HcalDetDiagLaserMonitor.cc,v 1.12 2010/04/06 08:14:11 dma Exp $
+// $Id: HcalDetDiagLaserMonitor.cc,v 1.13 2010/04/08 10:59:20 dma Exp $
 //
 //
 
@@ -622,11 +622,13 @@ float ave_t,ave_e,ave_t_r,ave_e_r;
      DetId detid=emap->lookup(*eid);
      if (detid.det()!=DetId::Hcal) continue;
      HcalGenericDetId gid(emap->lookup(*eid));
-     if(!(!(gid.null()) && 
-            (gid.genericSubdet()==HcalGenericDetId::HcalGenBarrel ||
-             gid.genericSubdet()==HcalGenericDetId::HcalGenEndcap  ||
-             gid.genericSubdet()==HcalGenericDetId::HcalGenForward ||
-             gid.genericSubdet()==HcalGenericDetId::HcalGenOuter))) continue;
+     if (gid.null()) 
+       continue;
+     if (gid.genericSubdet()!=HcalGenericDetId::HcalGenBarrel &&
+	 gid.genericSubdet()!=HcalGenericDetId::HcalGenEndcap  &&
+	 gid.genericSubdet()!=HcalGenericDetId::HcalGenForward &&
+	 gid.genericSubdet()!=HcalGenericDetId::HcalGenOuter)
+       continue;
      int eta=0,phi=0,depth=0;
      HcalDetId hid(detid);
      eta=hid.ieta();
@@ -715,11 +717,14 @@ float ave_t,ave_e,ave_t_r,ave_e_r;
      DetId detid=emap->lookup(*eid);
      if (detid.det()!=DetId::Hcal) continue;
      HcalGenericDetId gid(emap->lookup(*eid));
-     if(!(!(gid.null()) && 
-            (gid.genericSubdet()==HcalGenericDetId::HcalGenBarrel ||
-             gid.genericSubdet()==HcalGenericDetId::HcalGenEndcap  ||
-             gid.genericSubdet()==HcalGenericDetId::HcalGenForward ||
-             gid.genericSubdet()==HcalGenericDetId::HcalGenOuter))) continue;
+     if (gid.null()) 
+       continue;
+     if (gid.genericSubdet()!=HcalGenericDetId::HcalGenBarrel &&
+	 gid.genericSubdet()!=HcalGenericDetId::HcalGenEndcap  &&
+	 gid.genericSubdet()!=HcalGenericDetId::HcalGenForward &&
+	 gid.genericSubdet()!=HcalGenericDetId::HcalGenOuter)
+       continue;
+
      int eta=0,phi=0,depth=0;
      HcalDetId hid(detid);
      eta=hid.ieta();
@@ -1351,11 +1356,13 @@ char   Subdet[10],str[500];
          DetId detid=emap->lookup(*eid);
 	 if (detid.det()!=DetId::Hcal) continue;
          HcalGenericDetId gid(emap->lookup(*eid));
-         if(!(!(gid.null()) && 
-            (gid.genericSubdet()==HcalGenericDetId::HcalGenBarrel ||
-             gid.genericSubdet()==HcalGenericDetId::HcalGenEndcap  ||
-             gid.genericSubdet()==HcalGenericDetId::HcalGenForward ||
-             gid.genericSubdet()==HcalGenericDetId::HcalGenOuter))) continue;
+	 if (gid.null()) 
+	   continue;
+	 if (gid.genericSubdet()!=HcalGenericDetId::HcalGenBarrel &&
+	     gid.genericSubdet()!=HcalGenericDetId::HcalGenEndcap  &&
+	     gid.genericSubdet()!=HcalGenericDetId::HcalGenForward &&
+	     gid.genericSubdet()!=HcalGenericDetId::HcalGenOuter)
+	   continue;
          int eta,phi,depth; 
          std::string subdet="";
 	 HcalDetId hid(detid);
