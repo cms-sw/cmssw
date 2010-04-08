@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.193 2010/04/01 17:27:54 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.194 2010/04/07 16:56:20 amraktad Exp $
 
 //
 
@@ -1110,9 +1110,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       {
          float weight = atof((areaIt->second).valueForKey("weight")->value().c_str());
          TEveWindowSlot* slot = ( m_viewMap.size() || (primSlot == 0) ) ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot;
-         std::string name = it->first;
-         if (name == "3D") name = FWViewType::k3DRecHitName;
-         ViewMap_i lastViewIt = createView(name, slot);
+         ViewMap_i lastViewIt = createView(it->first, slot);
          lastViewIt->second->setFrom(it->second);
 
          bool  undocked = atof((areaIt->second).valueForKey("undocked")->value().c_str());
@@ -1132,9 +1130,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    else
    {  // create views with same weight in old version
       for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
-         std::string name = it->first;
-         if (name == "3D") name = FWViewType::k3DRecHitName;
-         createView(name, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot);
+         createView(it->first, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot);
          ViewMap_i lastViewIt = m_viewMap.end(); lastViewIt--;
          lastViewIt->second->setFrom(it->second);
       }
