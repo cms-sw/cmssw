@@ -12,6 +12,7 @@ class DQMStore;
 class FedChannelConnection;
 class SiStripEventSummary;
 class SiStripRawDigi;
+class TH2S;
 
 /**
    @class PedsFullNoiseTask
@@ -30,10 +31,11 @@ class PedsFullNoiseTask : public CommissioningTask {
                        const edm::DetSet<SiStripRawDigi> &);
     virtual void update();
 
-    // analysis histograms
-    HistoSet pedhist_, pedroughhist_, noiseprof_;
-    std::vector<HistoSet> cmhist_;
+    // analysis histograms and related variables
+    HistoSet pedhist_, noiseprof_;
     CompactHistoSet noisehist_;
+    TH2S * hist2d_;
+    std::vector<int16_t> peds_;
     // keeps track of whether desired number of events were skipped
     bool skipped_;
     // number of events to skip
@@ -46,6 +48,8 @@ class PedsFullNoiseTask : public CommissioningTask {
     uint16_t nadcnoise_;
     // number of strips per apv
     uint16_t nstrips_;
+    // whether to fill the old-style noise profile
+    bool fillnoiseprofile_;
 
 };
 
