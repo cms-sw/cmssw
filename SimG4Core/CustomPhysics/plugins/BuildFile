@@ -1,0 +1,4 @@
+<library file="*.cc" name=SimG4CoreCustomPhysicsPlugins>
+ <use name=SimG4Core/CustomPhysics>
+ <Flags EDM_PLUGIN=1>
+</library>
