@@ -36,7 +36,8 @@ process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND ( 40 OR 41 
 ## reco PV
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR09_R_35X_V3::All'
+process.GlobalTag.globaltag = 'GR10_P_V2::All'
+
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
