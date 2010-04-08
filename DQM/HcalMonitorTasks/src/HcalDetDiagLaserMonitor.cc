@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Wed Mar  3 12:14:16 CET 2010
-// $Id: HcalDetDiagLaserMonitor.cc,v 1.11 2010/04/04 15:49:24 temple Exp $
+// $Id: HcalDetDiagLaserMonitor.cc,v 1.12 2010/04/06 08:14:11 dma Exp $
 //
 //
 
@@ -49,6 +49,7 @@
 
 #include "TFile.h"
 #include "TTree.h"
+#include "TSystem.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
@@ -620,12 +621,18 @@ float ave_t,ave_e,ave_t_r,ave_e_r;
    for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
      DetId detid=emap->lookup(*eid);
      if (detid.det()!=DetId::Hcal) continue;
+     HcalGenericDetId gid(emap->lookup(*eid));
+     if(!(!(gid.null()) && 
+            (gid.genericSubdet()==HcalGenericDetId::HcalGenBarrel ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenEndcap  ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenForward ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenOuter))) continue;
      int eta=0,phi=0,depth=0;
+     HcalDetId hid(detid);
+     eta=hid.ieta();
+     phi=hid.iphi();
+     depth=hid.depth();
 
-       HcalDetId hid(detid);
-       eta=hid.ieta();
-       phi=hid.iphi();
-       depth=hid.depth();
      int e=CalcEtaBin(sd,eta,depth)+1;
      if(detid.subdetId()==HcalBarrel && sd==HcalBarrel){
 	double val=0,rms=0,time=0,time_rms=0,VAL=0,RMS=0,TIME=0,TIME_RMS=0;
@@ -707,7 +714,12 @@ float ave_t,ave_e,ave_t_r,ave_e_r;
    for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
      DetId detid=emap->lookup(*eid);
      if (detid.det()!=DetId::Hcal) continue;
-
+     HcalGenericDetId gid(emap->lookup(*eid));
+     if(!(!(gid.null()) && 
+            (gid.genericSubdet()==HcalGenericDetId::HcalGenBarrel ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenEndcap  ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenForward ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenOuter))) continue;
      int eta=0,phi=0,depth=0;
      HcalDetId hid(detid);
      eta=hid.ieta();
@@ -932,7 +944,6 @@ void HcalDetDiagLaserMonitor::fillHistos(int sd){
       hfTimeRMS->Reset();
       hf_time_rbx->Reset();
    }
-
    if(sd==HcalBarrel || sd==HcalEndcap){
      // HB histograms
      for(int eta=-16;eta<=16;eta++) for(int phi=1;phi<=72;phi++){ 
@@ -1339,7 +1350,12 @@ char   Subdet[10],str[500];
       for(std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
          DetId detid=emap->lookup(*eid);
 	 if (detid.det()!=DetId::Hcal) continue;
-
+         HcalGenericDetId gid(emap->lookup(*eid));
+         if(!(!(gid.null()) && 
+            (gid.genericSubdet()==HcalGenericDetId::HcalGenBarrel ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenEndcap  ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenForward ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenOuter))) continue;
          int eta,phi,depth; 
          std::string subdet="";
 	 HcalDetId hid(detid);
@@ -1411,6 +1427,7 @@ double amp,rms,time,time_rms;
 int Eta,Phi,Depth;
 char subdet[10];
 TFile *f;
+ if(gSystem->AccessPathName(ReferenceData.c_str())) return;
  f = new TFile(ReferenceData.c_str(),"READ");
  
  if(!f->IsOpen()) return ;

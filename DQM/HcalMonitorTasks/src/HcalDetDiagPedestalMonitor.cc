@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Tue Mar  9 12:59:18 CET 2010
-// $Id: HcalDetDiagPedestalMonitor.cc,v 1.13 2010/04/04 15:49:25 temple Exp $
+// $Id: HcalDetDiagPedestalMonitor.cc,v 1.14 2010/04/06 08:13:53 dma Exp $
 //
 //
 // user include files
@@ -44,6 +44,7 @@
 
 #include "TFile.h"
 #include "TTree.h"
+#include "TSystem.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -597,6 +598,12 @@ void HcalDetDiagPedestalMonitor::CheckStatus(){
    for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++) {
      DetId detid=emap->lookup(*eid);
      if (detid.det()!=DetId::Hcal) continue;
+     HcalGenericDetId gid(emap->lookup(*eid));
+     if(!(!(gid.null()) && 
+            (gid.genericSubdet()==HcalGenericDetId::HcalGenBarrel ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenEndcap  ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenForward ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenOuter))) continue;
      int eta=0,phi=0,depth=0;
 
      HcalDetId hid(detid);
@@ -999,6 +1006,12 @@ char   Subdet[10],str[500];
       for(std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
          DetId detid=emap->lookup(*eid);
 	 if (detid.det()!=DetId::Hcal) continue;
+         HcalGenericDetId gid(emap->lookup(*eid));
+         if(!(!(gid.null()) && 
+            (gid.genericSubdet()==HcalGenericDetId::HcalGenBarrel ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenEndcap  ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenForward ||
+             gid.genericSubdet()==HcalGenericDetId::HcalGenOuter))) continue;
          int eta,phi,depth; 
          std::string subdet="";
 	 HcalDetId hid(detid);
@@ -1078,6 +1091,7 @@ void HcalDetDiagPedestalMonitor::LoadReference(){
   int Eta,Phi,Depth;
   char subdet[10];
   TFile *f;
+  if(gSystem->AccessPathName(ReferenceData.c_str())) return;
   f = new TFile(ReferenceData.c_str(),"READ");
   if(!f->IsOpen()) return ;
   TObjString *STR=(TObjString *)f->Get("run number");
