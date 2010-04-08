@@ -24,9 +24,10 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
-void TracksRecHitsUtil::buildTracksRecHits(const FWEventItem* iItem, 
-					   TEveElementList** product,
-					   bool showHits, bool showModules)
+void
+TracksRecHitsUtil::buildTracksRecHits(const FWEventItem* iItem, 
+				      TEveElementList** product,
+				      bool showHits, bool showModules)
 {
    TEveElementList* tList = *product;
    if ( !tList && *product ) {
@@ -49,16 +50,14 @@ void TracksRecHitsUtil::buildTracksRecHits(const FWEventItem* iItem,
    if(0 == tracks ) return;
 
    int index=0;
-   for(reco::TrackCollection::const_iterator it = tracks->begin();
-       it != tracks->end(); ++it,++index) {
+   for(reco::TrackCollection::const_iterator it = tracks->begin(), itEnd = tracks->end();
+       it != itEnd; ++it,++index) {
       TEveElementList* trkList = new TEveElementList(Form("track%d",index));
       gEve->AddElement(trkList,tList);
       if (showHits)    addHits(*it, iItem, trkList, false);
       if (showModules) addModules(*it, iItem, trkList, false);
    }
-
 }
-
 
 void
 TracksRecHitsUtil::addHits(const reco::Track& track,
@@ -87,21 +86,21 @@ TracksRecHitsUtil::addHits(const reco::Track& track,
     TEveElementList* strips = new TEveElementList("Strips");
     trkList->AddElement(strips);
     fireworks::addSiStripClusters(iItem, track, strips, iItem->defaultDisplayProperties().color(), addNearbyHits);
-    
 }
 
 void
 TracksRecHitsUtil::addModules(const reco::Track& track,
-                           const FWEventItem* iItem,
-                           TEveElement* trkList,
-                           bool addLostHits)
+			      const FWEventItem* iItem,
+			      TEveElement* trkList,
+			      bool addLostHits)
 {
    try {
-     std::set<unsigned int> ids;
-      for(trackingRecHit_iterator recIt = track.recHitsBegin(); recIt != track.recHitsEnd(); ++recIt){
+      std::set<unsigned int> ids;
+      for(trackingRecHit_iterator recIt = track.recHitsBegin(), recItEnd = track.recHitsEnd();
+	  recIt != recItEnd; ++recIt) {
          DetId detid = (*recIt)->geographicalId();
          if (!addLostHits && !(*recIt)->isValid()) continue;
-         if(detid.rawId() != 0){
+         if(detid.rawId() != 0) {
             TString name("");
 	    switch (detid.det())
 	      {
@@ -177,8 +176,8 @@ TracksRecHitsUtil::addModules(const reco::Track& track,
                   shape->SetTitle(name + ULong_t(detid.rawId()));
                   trkList->AddElement(shape);
                } else {
-		 std::cout << "Failed to get shape extract for a tracking rec hit: " << 
-		   "\n" << FWDetIdInfo::info(detid) << std::endl;
+		  std::cout << "Failed to get shape extract for a tracking rec hit: "
+			    << "\n" << FWDetIdInfo::info(detid) << std::endl;
                }
             }
          }  // if the hit isValid().

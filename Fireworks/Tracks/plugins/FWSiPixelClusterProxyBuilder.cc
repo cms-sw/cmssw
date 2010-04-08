@@ -1,20 +1,12 @@
 // -*- C++ -*-
 //
-// Package:     Core
-// Class  :     SiPixelProxyPlain3DBuilder
+// Package:     Tracks
+// Class  :     FWSiPixelClusterProxyBuilder
 //
-/**\class SiPixelProxyPlain3DBuilder SiPixelProxyPlain3DBuilder.h Fireworks/Core/interface/SiPixelProxyPlain3DBuilder.h
-
-   Description: <one line class summary>
-
-   Usage:
-    <usage>
-
- */
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelCluster3DProxyBuilder.cc,v 1.1.2.1 2010/03/03 10:02:36 mccauley Exp $
+// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.2 2010/03/11 14:21:47 mccauley Exp $
 //
 
 // system include files
@@ -25,27 +17,29 @@
 
 // user include files
 #include "Fireworks/Tracks/interface/TrackUtils.h"
-#include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
+// FIXME: If it's in src, it is private and should not be used...
 #include "Fireworks/Core/src/changeElementAndChildren.h"
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
-class FWSiPixelCluster3DProxyBuilder : public FW3DDataProxyBuilder
+class FWSiPixelClusterProxyBuilder : public FWProxyBuilderBase
 {
 public:
-   FWSiPixelCluster3DProxyBuilder() {
+   FWSiPixelClusterProxyBuilder() {
    }
-   virtual ~FWSiPixelCluster3DProxyBuilder() {
+   virtual ~FWSiPixelClusterProxyBuilder() {
    }
+
    REGISTER_PROXYBUILDER_METHODS();
 private:
    virtual void build(const FWEventItem* iItem, TEveElementList** product);
-   FWSiPixelCluster3DProxyBuilder(const FWSiPixelCluster3DProxyBuilder&);    // stop default
-   const FWSiPixelCluster3DProxyBuilder& operator=(const FWSiPixelCluster3DProxyBuilder&);    // stop default
+   FWSiPixelClusterProxyBuilder(const FWSiPixelClusterProxyBuilder&);    // stop default
+   const FWSiPixelClusterProxyBuilder& operator=(const FWSiPixelClusterProxyBuilder&);    // stop default
    void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
    void applyChangesToAllModels(TEveElement* iElements);
 
@@ -54,7 +48,7 @@ protected:
    virtual Mode getMode() { return Clusters; }
 };
 
-void FWSiPixelCluster3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+void FWSiPixelClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
    Color_t color = iItem->defaultDisplayProperties().color();
@@ -136,13 +130,13 @@ void FWSiPixelCluster3DProxyBuilder::build(const FWEventItem* iItem, TEveElement
 }
 
 void
-FWSiPixelCluster3DProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+FWSiPixelClusterProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    applyChangesToAllModels(iElements);
 }
 
 void
-FWSiPixelCluster3DProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
+FWSiPixelClusterProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    if(0!=iElements && item() && item()->size()) {
       //make the bad assumption that everything is being changed indentically
@@ -154,14 +148,15 @@ FWSiPixelCluster3DProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-class FWSiPixelClusterMod3DProxyBuilder : public FWSiPixelCluster3DProxyBuilder {
+class FWSiPixelClusterModProxyBuilder : public FWSiPixelClusterProxyBuilder {
 public:
-   FWSiPixelClusterMod3DProxyBuilder() {}
-    ~FWSiPixelClusterMod3DProxyBuilder() {}
+   FWSiPixelClusterModProxyBuilder() {}
+    ~FWSiPixelClusterModProxyBuilder() {}
+
    REGISTER_PROXYBUILDER_METHODS();
 protected:
     virtual Mode getMode() { return Modules; }
 };
 
-REGISTER_FW3DDATAPROXYBUILDER(FWSiPixelCluster3DProxyBuilder,SiPixelClusterCollectionNew,"SiPixel");
-REGISTER_FW3DDATAPROXYBUILDER(FWSiPixelClusterMod3DProxyBuilder,SiPixelClusterCollectionNew,"SiPixelDets");
+REGISTER_FWPROXYBUILDER(FWSiPixelClusterProxyBuilder,SiPixelClusterCollectionNew,"SiPixel", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWSiPixelClusterModProxyBuilder,SiPixelClusterCollectionNew,"SiPixelDets", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

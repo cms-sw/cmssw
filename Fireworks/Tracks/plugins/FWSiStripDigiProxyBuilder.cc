@@ -1,34 +1,36 @@
 #include "TEveManager.h"
 #include "TEveCompound.h"
 #include "TEveGeoNode.h"
-#include "TEveStraightLineSet.h"
+#include "TEvePointSet.h"
 
 #include "Fireworks/Tracks/interface/TrackUtils.h"
-#include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
+// FIXME: If it's in src, it is private and should not be used...
 #include "Fireworks/Core/src/changeElementAndChildren.h"
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
-class FWSiStripDigi3DProxyBuilder : public FW3DDataProxyBuilder
+class FWSiStripDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
-  FWSiStripDigi3DProxyBuilder() {}
-  virtual ~FWSiStripDigi3DProxyBuilder() {}
+  FWSiStripDigiProxyBuilder() {}
+  virtual ~FWSiStripDigiProxyBuilder() {}
+
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   virtual void build(const FWEventItem* iItem, TEveElementList** product);
-  FWSiStripDigi3DProxyBuilder(const FWSiStripDigi3DProxyBuilder&);    
-  const FWSiStripDigi3DProxyBuilder& operator=(const FWSiStripDigi3DProxyBuilder&);
+  FWSiStripDigiProxyBuilder(const FWSiStripDigiProxyBuilder&);    
+  const FWSiStripDigiProxyBuilder& operator=(const FWSiStripDigiProxyBuilder&);
   void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
   void applyChangesToAllModels(TEveElement* iElements);
 };
 
-void FWSiStripDigi3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+void FWSiStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
   TEveElementList* tList = *product;
 
@@ -84,13 +86,13 @@ void FWSiStripDigi3DProxyBuilder::build(const FWEventItem* iItem, TEveElementLis
 }
 
 void
-FWSiStripDigi3DProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+FWSiStripDigiProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    applyChangesToAllModels(iElements);
 }
 
 void
-FWSiStripDigi3DProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
+FWSiStripDigiProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    if( 0 != iElements && item() && item()->size() ) 
    {
@@ -102,4 +104,4 @@ FWSiStripDigi3DProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-REGISTER_FW3DDATAPROXYBUILDER(FWSiStripDigi3DProxyBuilder,edm::DetSetVector<SiStripDigi>,"SiStripDigi");
+REGISTER_FWPROXYBUILDER(FWSiStripDigiProxyBuilder,edm::DetSetVector<SiStripDigi>,"SiStripDigi", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

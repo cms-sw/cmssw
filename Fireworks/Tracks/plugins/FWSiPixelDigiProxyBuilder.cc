@@ -1,32 +1,34 @@
 #include "TEveManager.h"
 #include "TEveCompound.h"
-#include "TEveGeoNode.h"
-#include "TEveStraightLineSet.h"
+#include "TEvePointSet.h"
+#include "TEveVSDStructs.h"
 
-#include "Fireworks/Tracks/interface/TrackUtils.h"
-#include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/src/changeElementAndChildren.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
-class FWSiPixelDigiRPZProxyBuilder : public FWRPZDataProxyBuilder
+class FWSiPixelDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
-  FWSiPixelDigiRPZProxyBuilder() {}
-  virtual ~FWSiPixelDigiRPZProxyBuilder() {}
+  FWSiPixelDigiProxyBuilder() {}
+  virtual ~FWSiPixelDigiProxyBuilder() {}
+
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   virtual void build(const FWEventItem* iItem, TEveElementList** product);
-  FWSiPixelDigiRPZProxyBuilder(const FWSiPixelDigiRPZProxyBuilder&);    
-  const FWSiPixelDigiRPZProxyBuilder& operator=(const FWSiPixelDigiRPZProxyBuilder&);
+  FWSiPixelDigiProxyBuilder(const FWSiPixelDigiProxyBuilder&);    
+  const FWSiPixelDigiProxyBuilder& operator=(const FWSiPixelDigiProxyBuilder&);
+  void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
+  void applyChangesToAllModels(TEveElement* iElements);
 };
 
-void FWSiPixelDigiRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+void FWSiPixelDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
   TEveElementList* tList = *product;
 
@@ -55,13 +57,12 @@ void FWSiPixelDigiRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
         it != end; ++it )
   {
     edm::DetSet<PixelDigi> ds = *it;
-    
     const uint32_t& detID = ds.id;
     DetId detid(detID);              
-    
+         
     for ( edm::DetSet<PixelDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end();
           idigi != idigiEnd; ++idigi )
-    { 
+    {
       TEveCompound* compound = new TEveCompound("si pixel digi compound", "siPixelDigis");
       compound->OpenCompound();
       tList->AddElement(compound);
@@ -69,7 +70,7 @@ void FWSiPixelDigiRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
       TEvePointSet* pointSet = new TEvePointSet();
       pointSet->SetMarkerSize(2);
       pointSet->SetMarkerStyle(2);
-      pointSet->SetMarkerColor(2);
+      pointSet->SetMarkerColor(46);
       compound->AddElement(pointSet);
 
       //int adc = static_cast<int>((*idigi).adc());
@@ -82,9 +83,28 @@ void FWSiPixelDigiRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
       TVector3 point;
       fireworks::localSiPixel(point, row, column, detid, iItem);
       pointSet->SetNextPoint(point.x(), point.y(), point.z());
-      
+  
     } // end of iteration over digis in range   
   } // end of iteration over the DetSetVector
 }
 
-REGISTER_FWRPZDATAPROXYBUILDERBASE(FWSiPixelDigiRPZProxyBuilder,edm::DetSetVector<PixelDigi>,"SiPixelDigi");
+void
+FWSiPixelDigiProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+{
+   applyChangesToAllModels(iElements);
+}
+
+void
+FWSiPixelDigiProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
+{
+   if( 0 != iElements && item() && item()->size() ) 
+   {
+      const FWEventItem::ModelInfo info(item()->defaultDisplayProperties(),false);
+      changeElementAndChildren(iElements, info);
+      iElements->SetRnrSelf(info.displayProperties().isVisible());
+      iElements->SetRnrChildren(info.displayProperties().isVisible());
+      iElements->ElementChanged();
+   }
+}
+
+REGISTER_FWPROXYBUILDER(FWSiPixelDigiProxyBuilder,edm::DetSetVector<PixelDigi>,"SiPixelDigi", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
