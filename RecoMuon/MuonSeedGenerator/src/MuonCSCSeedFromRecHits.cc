@@ -155,7 +155,7 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
           }
 
           // get the position and direction from the higher-quality segment
-          ConstMuonRecHitPointer bestSeg = bestSegment();
+          ConstMuonRecHitPointer bestSeg = bestEndcapHit(theRhits);
           seed = createSeed(pt, sigmapt, bestSeg);
 
           //std::cout << "FITTED TIMESPT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
@@ -194,14 +194,14 @@ int MuonCSCSeedFromRecHits::segmentQuality(ConstMuonRecHitPointer  segment) cons
 
 
 MuonCSCSeedFromRecHits::ConstMuonRecHitPointer
-MuonCSCSeedFromRecHits::bestSegment() const
+MuonCSCSeedFromRecHits::bestEndcapHit(const MuonRecHitContainer & endcapHits) const
 {
   MuonRecHitPointer me1=0, meit=0;
   float dPhiGloDir = .0;                            //  +v
   float bestdPhiGloDir = M_PI;                      //  +v
   int quality1 = 0, quality = 0;        //  +v  I= 5,6-p. / II= 4p.  / III= 3p.
 
-  for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
+  for ( MuonRecHitContainer::const_iterator iter = endcapHits.begin(); iter!= endcapHits.end(); iter++ ){
     if ( !(*iter)->isCSC() ) continue;
 
     // tmp compar. Glob-Dir for the same tr-segm:
@@ -252,7 +252,7 @@ MuonCSCSeedFromRecHits::bestSegment() const
 void MuonCSCSeedFromRecHits::makeDefaultSeed(TrajectorySeed & seed) const
 {
   //Search ME1  ...
-  ConstMuonRecHitPointer me1= bestSegment();
+  ConstMuonRecHitPointer me1= bestEndcapHit(theRhits);
   bool good=false;
 
   if(me1 && me1->isValid() )

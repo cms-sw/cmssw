@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2009/10/30 18:53:30 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/03/07 17:19:49 $
+ *  $Revision: 1.16 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -79,13 +79,13 @@ TrajectorySeed MuonDTSeedFromRecHits::seed() const {
   LogTrace(metname) << " Seed Pt: " << ptmean << " +/- " << sptmean << endl;
   
   // take the best candidate
-  ConstMuonRecHitPointer last = best_cand();
+  ConstMuonRecHitPointer last = bestBarrelHit(theRhits);
   return createSeed(ptmean, sptmean,last);
 }
 
 
 MuonDTSeedFromRecHits::ConstMuonRecHitPointer 
-MuonDTSeedFromRecHits::best_cand() const {
+MuonDTSeedFromRecHits::bestBarrelHit(const MuonRecHitContainer & barrelHits) const {
 
   int alt_npt = 0;
   int best_npt = 0;
@@ -93,8 +93,8 @@ MuonDTSeedFromRecHits::best_cand() const {
   MuonRecHitPointer best = 0;
   MuonRecHitPointer alter=0;
 
-  for (MuonRecHitContainer::const_iterator iter=theRhits.begin();
-       iter!=theRhits.end(); iter++ ) {
+  for (MuonRecHitContainer::const_iterator iter=barrelHits.begin();
+       iter!=barrelHits.end(); iter++ ) {
 
     bool hasZed = ((*iter)->projectionMatrix()[1][1]==1);
 

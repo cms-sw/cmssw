@@ -13,6 +13,8 @@ public:
 
   virtual TrajectorySeed seed() const;
 
+  ConstMuonRecHitPointer bestEndcapHit(const MuonRecHitContainer & endcapHits) const;
+
 private:
 
   void fillConstants(int chamberType1, int chamberType2, double c1, double c2);
@@ -29,7 +31,6 @@ private:
   bool createDefaultEndcapSeed(ConstMuonRecHitPointer last,TrajectorySeed & seed) const;
   float computeDefaultPt(ConstMuonRecHitPointer muon) const;
   int segmentQuality(ConstMuonRecHitPointer muon) const;
-  ConstMuonRecHitPointer  bestSegment() const;
 
   void analyze() const;
 
