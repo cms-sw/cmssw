@@ -1,13 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-import DQMServices.Components.DQMEnvironment_cfi
-dqmEnvL1T = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-dqmEnvL1T.subSystemFolder = 'L1T'
-
-import DQMServices.Components.DQMEnvironment_cfi
-dqmEnvHLT = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-dqmEnvHLT.subSystemFolder = 'HLT'
-
 # L1 -----------------------------------
 from DQM.L1TMonitor.L1TGT_readout_cff import *
 from DQM.L1TMonitor.L1TGCT_readout_cff import *
@@ -28,11 +20,20 @@ l1tgct.gctIsoEmSource = 'gctDigis:isoEm:'
 l1tgct.gctNonIsoEmSource = 'gctDigis:nonIsoEm:'
 l1trct.rctSource = 'gctDigis::'
 
+import DQMServices.Components.DQMEnvironment_cfi
+dqmEnvL1T = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
+dqmEnvL1T.subSystemFolder = 'L1T'
+
 l1tmonitor = cms.Sequence(l1tgt*l1tgmt*l1trpctf*l1tcsctf*l1tdttf*l1trct*l1tgct*l1tfed*dqmEnvL1T)
 
 # L1 Emulator -----------------------------------
 from DQM.L1TMonitor.L1TDEMON_cfi import *
-l1temumonitor = cms.Sequence(l1demon) 
+
+import DQMServices.Components.DQMEnvironment_cfi
+dqmEnvL1TEmu = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
+dqmEnvL1TEmu.subSystemFolder = 'L1T'
+
+l1temumonitor = cms.Sequence(l1demon*dqmEnvL1TEmu) 
 
 # HLT Online -----------------------------------
 # AlCa
@@ -58,8 +59,12 @@ from DQM.HLTEvF.HLTMonTau_cfi import *
 # *hltMonJetMET makes a log file, need to learn how to turn it off
 # *hltMonEleBits causes SegmentFaults in HARVESTING(step3) in inlcuded in step2
 
-#onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonEleBits*hltMonMuBits*hltMonTauReco*hltMonBTagIPSource*hltMonBTagMuSource)
-onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonMuBits*hltMonTauReco)
+import DQMServices.Components.DQMEnvironment_cfi
+dqmEnvHLTOnline = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
+dqmEnvHLTOnline.subSystemFolder = 'HLT'
+
+#onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonEleBits*hltMonMuBits*hltMonTauReco*hltMonBTagIPSource*hltMonBTagMuSource*dqmEnvHLTOnline)
+onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonMuBits*hltMonTauReco*dqmEnvHLTOnline)
 
 # HLT Offline -----------------------------------
 
@@ -79,7 +84,11 @@ from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
 # TnP
 from DQMOffline.Trigger.TnPEfficiency_cff import *
 
-#offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*topElectronHLTOffDQMSource*muonFullOfflineDQM*quadJetAna*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency)
+import DQMServices.Components.DQMEnvironment_cfi
+dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
+dqmEnvHLT.subSystemFolder = 'HLT'
+
+#offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*topElectronHLTOffDQMSource*muonFullOfflineDQM*quadJetAna*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency*dqmEnvHLT)
 
 # Remove topElectronHLTOffDQMSource
 # remove quadJetAna
