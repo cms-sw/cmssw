@@ -28,11 +28,14 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source("PoolSource",
   fileNames  = cms.untracked.vstring(
 
-    '/store/data/Commissioning10/Cosmics/RAW/v4/000/132/440/72DAEFC2-1A3C-DF11-A352-0030487A195C.root',
-    '/store/data/Commissioning10/Cosmics/RAW/v4/000/131/884/DE3D970A-3437-DF11-A61A-000423D98EA8.root',
-    '/store/data/Commissioning10/Cosmics/RAW/v4/000/131/884/D8FEA60B-3B37-DF11-8343-000423D98B5C.root',
-    '/store/data/Commissioning10/Cosmics/RAW/v4/000/131/884/9823CFD2-2F37-DF11-8FC3-0030487C635A.root',
-    '/store/data/Commissioning10/Cosmics/RAW/v4/000/131/884/56D6D791-2437-DF11-911C-000423D98B6C.root'
+    '/store/data/Commissioning10/Cosmics/RAW/v4/000/132/601/4218B1F6-5940-DF11-BA79-0030487CD178.root',
+    '/store/data/Commissioning10/Cosmics/RAW/v4/000/132/601/F0BEA43D-8440-DF11-BD1B-000423D6C8E6.root',
+
+    #'/store/data/Commissioning10/Cosmics/RAW/v4/000/132/440/72DAEFC2-1A3C-DF11-A352-0030487A195C.root',
+    #'/store/data/Commissioning10/Cosmics/RAW/v4/000/131/884/DE3D970A-3437-DF11-A61A-000423D98EA8.root',
+    #'/store/data/Commissioning10/Cosmics/RAW/v4/000/131/884/D8FEA60B-3B37-DF11-8343-000423D98B5C.root',
+    #'/store/data/Commissioning10/Cosmics/RAW/v4/000/131/884/9823CFD2-2F37-DF11-8FC3-0030487C635A.root',
+    #'/store/data/Commissioning10/Cosmics/RAW/v4/000/131/884/56D6D791-2437-DF11-911C-000423D98B6C.root'
 
   ),
   #skipEvents = cms.untracked.uint32(1129)
@@ -47,6 +50,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 #process.DQMStore.referenceFileName = '/home/dqmdevlocal/reference/csc_reference.root'
 process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/data/csc_reference_collisions.root'
+#process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/data/csc_reference_cosmics.root'
 #process.DQMStore.referenceFileName = '/nfshome0/valdo/CMSSW_2_1_0/src/DQM/CSCMonitorModule/data/csc_reference.root'
 
 #----------------------------
@@ -56,9 +60,9 @@ process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/data/csc_referen
 process.load("DQM.Integration.test.environment_cfi")
 process.dqmEnv.subSystemFolder    = "CSC"
 
-process.DQM.collectorPort = 19190
-#process.DQM.collectorHost = 'cms-uflap03.dyndns.cern.ch'
-process.DQM.collectorHost = 'localhost'
+process.DQM.collectorPort = 9190
+process.DQM.collectorHost = 'cms-uflap03.dyndns.cern.ch'
+#process.DQM.collectorHost = 'localhost'
 process.dqmSaver.convention = "Online"
 process.dqmSaver.dirName = "/tmp/valdo"
 process.dqmSaver.producer = "DQM"
