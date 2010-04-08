@@ -175,9 +175,16 @@ void BasicSingleTrajectoryState::checkGlobalParameters() const {
     // calculate global parameters from local
     GlobalPoint  x = surface().toGlobal(theLocalParameters.position());
     GlobalVector p = surface().toGlobal(theLocalParameters.momentum());
-    theFreeState.replaceWith(new FreeTrajectoryState(x, p, 
-						     theLocalParameters.charge(),
-						     theField));
+    // replace in place
+    FreeTrajectoryState * fts = &(*theFreeState);
+    if (fts) { 
+        fts->~FreeTrajectoryState();
+        new(fts) FreeTrajectoryState(x, p, theLocalParameters.charge(), theField);
+    }else {
+      theFreeState.replaceWith(new FreeTrajectoryState(x, p,
+                                                       theLocalParameters.charge(),
+                                                       theField));
+    } 
   }
 }
 
