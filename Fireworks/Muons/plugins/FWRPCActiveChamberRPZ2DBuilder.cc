@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWRPCActiveChamberRPZ2DBuilder.cc,v 1.2 2009/01/23 21:35:46 amraktad Exp $
+// $Id: FWRPCActiveChamberRPZ2DBuilder.cc,v 1.3 2009/10/27 01:43:29 dmytro Exp $
 //
 
 
@@ -16,7 +16,8 @@
 #include "TEveCompound.h"
 #include "TEvePointSet.h"
 
-#include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
+//#include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/src/changeElementAndChildren.h"
@@ -31,7 +32,7 @@
 #include "Fireworks/Core/src/changeElementAndChildren.h"
 
 
-class FWRPCActiveChamberRPZ2DBuilder : public FWRPZ2DDataProxyBuilder
+class FWRPCActiveChamberRPZ2DBuilder : public FWProxyBuilderBase //FWRPZ2DDataProxyBuilder
 {
 
 public:
@@ -48,6 +49,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
+   virtual void build(const FWEventItem* iItem, TEveElementList** product);
+
    virtual void buildRhoPhi(const FWEventItem* iItem,
                             TEveElementList** product);
 
@@ -82,6 +85,12 @@ void FWRPCActiveChamberRPZ2DBuilder::buildRhoPhi(const FWEventItem* iItem, TEveE
 void FWRPCActiveChamberRPZ2DBuilder::buildRhoZ(const FWEventItem* iItem, TEveElementList** product)
 {
    build(iItem, product, false);
+}
+
+void
+FWRPCActiveChamberRPZ2DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+{
+   build(iItem, product, true);
 }
 
 void FWRPCActiveChamberRPZ2DBuilder::build(const FWEventItem* iItem,
@@ -194,4 +203,4 @@ FWRPCActiveChamberRPZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-REGISTER_FWRPZDATAPROXYBUILDERBASE(FWRPCActiveChamberRPZ2DBuilder,RPCRecHitCollection,"RPCHits");
+REGISTER_FWPROXYBUILDER(FWRPCActiveChamberRPZ2DBuilder, RPCRecHitCollection,"RPCHits", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

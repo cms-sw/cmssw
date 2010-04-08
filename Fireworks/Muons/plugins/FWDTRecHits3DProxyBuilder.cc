@@ -6,13 +6,13 @@
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 
 using namespace DTEnums;
 
-class FWDTRecHits3DProxyBuilder : public FW3DDataProxyBuilder
+class FWDTRecHits3DProxyBuilder : public FWProxyBuilderBase
 {
 public:
    FWDTRecHits3DProxyBuilder(void) 
@@ -106,6 +106,6 @@ FWDTRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pro
    tList->AddElement(compund);
 }
 
-REGISTER_FW3DDATAPROXYBUILDER(FWDTRecHits3DProxyBuilder, DTRecHitCollection, "DT Rec Hits");
+REGISTER_FWPROXYBUILDER(FWDTRecHits3DProxyBuilder, DTRecHitCollection, "DT Rec Hits", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegments3DProxyBuilder.cc,v 1.2 2010/02/26 10:28:40 eulisse Exp $
+// $Id: FWCSCSegments3DProxyBuilder.cc,v 1.3 2010/03/10 10:34:14 yana Exp $
 //
 
 // system include files
@@ -19,7 +19,7 @@
 #include "TEveCompound.h"
 
 // user include files
-#include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/FW3DView.h"
@@ -28,11 +28,9 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-//#include "DataFormats/MuonDetId/interface/CSCChamberId.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 
-class FWCSCSegments3DProxyBuilder : public FW3DDataProxyBuilder
+class FWCSCSegments3DProxyBuilder : public FWProxyBuilderBase
 {
 
 public:
@@ -153,6 +151,6 @@ FWCSCSegments3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** p
    }
 }
 
-REGISTER_FW3DDATAPROXYBUILDER(FWCSCSegments3DProxyBuilder,CSCSegmentCollection,"CSC-segments");
+REGISTER_FWPROXYBUILDER(FWCSCSegments3DProxyBuilder,CSCSegmentCollection,"CSC-segments", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
 
 

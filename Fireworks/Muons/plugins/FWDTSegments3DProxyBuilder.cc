@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWDTSegments3DProxyBuilder.cc,v 1.1 2009/05/14 20:29:26 yanjuntu Exp $
+// $Id: FWDTSegments3DProxyBuilder.cc,v 1.2 2010/03/01 09:46:33 eulisse Exp $
 //
 
 // system include files
@@ -20,10 +20,9 @@
 #include "TEvePointSet.h"
 
 // user include files
-#include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
-#include "Fireworks/Core/interface/FW3DView.h"
 #include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
@@ -33,7 +32,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
-class FWDTSegments3DProxyBuilder : public FW3DDataProxyBuilder
+class FWDTSegments3DProxyBuilder : public FWProxyBuilderBase
 {
 
 public:
@@ -152,6 +151,6 @@ FWDTSegments3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
 
 }
 
-REGISTER_FW3DDATAPROXYBUILDER(FWDTSegments3DProxyBuilder,DTRecSegment4DCollection,"DT-segments");
+REGISTER_FWPROXYBUILDER(FWDTSegments3DProxyBuilder, DTRecSegment4DCollection, "DT-segments", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
 
 

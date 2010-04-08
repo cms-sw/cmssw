@@ -5,11 +5,11 @@
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 
-class FWCSCRecHits3DProxyBuilder : public FW3DDataProxyBuilder
+class FWCSCRecHits3DProxyBuilder : public FWProxyBuilderBase
 {
 public:
    FWCSCRecHits3DProxyBuilder(void) 
@@ -106,6 +106,6 @@ FWCSCRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
    }
 }
 
-REGISTER_FW3DDATAPROXYBUILDER(FWCSCRecHits3DProxyBuilder, CSCRecHit2DCollection, "CSC Rec Hits");
+REGISTER_FWPROXYBUILDER(FWCSCRecHits3DProxyBuilder, CSCRecHit2DCollection, "CSC Rec Hits", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
 
 
