@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Mar 26 12:25:02 CET 2010
-// $Id: FWViewType.cc,v 1.2 2010/04/07 16:56:20 amraktad Exp $
+// $Id: FWViewType.cc,v 1.3 2010/04/07 17:11:09 amraktad Exp $
 //
 
 // system include files
@@ -28,8 +28,8 @@
 
 std::string   FWViewType::kRhoPhiName   = "Rho Phi";
 std::string   FWViewType::kRhoZName     = "Rho Z";
-std::string   FWViewType::k3DRecHitName = "3D Crystal Rec Hits";
-std::string   FWViewType::k3DEName      = "3D Tower Energy";
+std::string   FWViewType::k3DRecHitName = "iSpy";
+std::string   FWViewType::k3DEName      = "3D";
 std::string   FWViewType::kLegoName     = "3D Lego";
 std::string   FWViewType::kGlimpseName  = "Glimpse";
 
