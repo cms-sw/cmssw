@@ -1,4 +1,6 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonOverlapSeedFromRecHits.h"
+#include "RecoMuon/MuonSeedGenerator/src/MuonDTSeedFromRecHits.h"
+#include "RecoMuon/MuonSeedGenerator/src/MuonCSCSeedFromRecHits.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -41,6 +43,7 @@ std::vector<TrajectorySeed> MuonOverlapSeedFromRecHits::seeds() const
     }
   }
 
+  ConstMuonRecHitPointer bestSegment = bestHit(barrelHits, endcapHits);
   for ( MuonRecHitContainer::const_iterator barrelHitItr = barrelHits.begin(),
         lastBarrelHit = barrelHits.end();
         barrelHitItr != lastBarrelHit; ++barrelHitItr)
@@ -50,7 +53,7 @@ std::vector<TrajectorySeed> MuonOverlapSeedFromRecHits::seeds() const
       endcapHitItr != lastEndcapHit; ++endcapHitItr)
     {
       TrajectorySeed seed;
-      bool good = makeSeed(*barrelHitItr, *endcapHitItr, seed);
+      bool good = makeSeed(*barrelHitItr, *endcapHitItr, bestSegment, seed);
       if(good) result.push_back(seed);
       // try just one seed
       return result;
@@ -68,6 +71,7 @@ std::vector<TrajectorySeed> MuonOverlapSeedFromRecHits::seeds() const
 bool
 MuonOverlapSeedFromRecHits::makeSeed(MuonTransientTrackingRecHit::ConstMuonRecHitPointer barrelHit,
                                      MuonTransientTrackingRecHit::ConstMuonRecHitPointer endcapHit,
+                                     MuonTransientTrackingRecHit::ConstMuonRecHitPointer bestSegment,
                                      TrajectorySeed & result) const
 {
   std::vector<double> pts = thePtExtractor->pT_extract(barrelHit, endcapHit);
@@ -89,12 +93,34 @@ MuonOverlapSeedFromRecHits::makeSeed(MuonTransientTrackingRecHit::ConstMuonRecHi
       }
     }
 
-    // use the endcap hit, since segments at the edge of the barrel
-    // might just be 2D
-    result = createSeed(pt, sigmapt, endcapHit);
+    result = createSeed(pt, sigmapt, bestSegment);
     //std::cout << "OVERLAPFITTED PT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
     return true;
   }
   return false;
 }
+
+MuonTransientTrackingRecHit::ConstMuonRecHitPointer 
+MuonOverlapSeedFromRecHits::bestHit(
+  const MuonTransientTrackingRecHit::MuonRecHitContainer & barrelHits, 
+  const MuonTransientTrackingRecHit::MuonRecHitContainer & endcapHits) const
+{
+  MuonDTSeedFromRecHits dtSeeder;
+  MuonCSCSeedFromRecHits cscSeeder;
+
+  ConstMuonRecHitPointer result;
+  if(barrelHits.size() > endcapHits.size()) 
+  {
+    result = dtSeeder.bestBarrelHit(barrelHits);
+    if (result->dimension() == 2) result = cscSeeder.bestEndcapHit(endcapHits);
+  }
+  else
+  {
+    result = cscSeeder.bestEndcapHit(endcapHits);
+  }
+  return result;
+}
+
+
+
 

@@ -14,7 +14,13 @@ public:
 
   bool makeSeed(MuonTransientTrackingRecHit::ConstMuonRecHitPointer barrelHit,
                 MuonTransientTrackingRecHit::ConstMuonRecHitPointer endcapHit,
+                MuonTransientTrackingRecHit::ConstMuonRecHitPointer bestSegment,
                 TrajectorySeed & result) const;
+
+private:
+  ConstMuonRecHitPointer bestHit(
+    const MuonRecHitContainer & barrelHits,
+    const MuonRecHitContainer & endcapHits) const;
 
 };
 
