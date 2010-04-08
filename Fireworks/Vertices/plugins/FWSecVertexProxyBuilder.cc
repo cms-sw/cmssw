@@ -1,47 +1,42 @@
 // -*- C++ -*-
-// $Id: FWSecVertex3DProxyBuilder.cc,v 1.3 2010/01/21 21:02:12 amraktad Exp $
+// $Id: FWSecVertexProxyBuilder.cc,v 1.4 2010/01/22 20:10:57 amraktad Exp $
 //
 #include <vector>
 
 #include "TMatrixDEigen.h"
 #include "TMatrixDSym.h"  
 #include "TDecompSVD.h"
-#include "TVectorD.h"
 #include "TEveTrans.h"
 #include "TEveTrack.h"
-#include "TEveTrackPropagator.h"
-#include "TEveBoxSet.h"
 #include "TGeoSphere.h"
+#include "TGeoMatrix.h"
 #include "TEveGeoNode.h"
 #include "TEveVSDStructs.h"
 
 // include files
-#include "Fireworks/Core/interface/FW3DSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWEvePtr.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
 
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 
-
-class FWSecVertex3DProxyBuilder : public FW3DSimpleProxyBuilderTemplate<reco::SecondaryVertexTagInfo>  {
+class FWSecVertexProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::SecondaryVertexTagInfo>  {
    
 public:
-   FWSecVertex3DProxyBuilder(){}
-   virtual ~FWSecVertex3DProxyBuilder(){}
+   FWSecVertexProxyBuilder(){}
+   virtual ~FWSecVertexProxyBuilder(){}
+  
    REGISTER_PROXYBUILDER_METHODS();
  
 private:
-   FWSecVertex3DProxyBuilder(const FWSecVertex3DProxyBuilder&); // stop default
-   const FWSecVertex3DProxyBuilder& operator=(const FWSecVertex3DProxyBuilder&); // stop default
+   FWSecVertexProxyBuilder(const FWSecVertexProxyBuilder&); // stop default
+   const FWSecVertexProxyBuilder& operator=(const FWSecVertexProxyBuilder&); // stop default
    
    // ---------- member data --------------------------------
    void build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
 };
 
 void 
-FWSecVertex3DProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex,TEveElement& oItemHolder) const
+FWSecVertexProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    TEvePointSet* pointSet = new TEvePointSet();
@@ -83,9 +78,8 @@ FWSecVertex3DProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsi
 
       pointSet->SetNextPoint( v.x(), v.y(), v.z() );
 
-
-      for(reco::Vertex::trackRef_iterator it = v.tracks_begin() ; 
-          it != v.tracks_end()  ; ++it)
+      for(reco::Vertex::trackRef_iterator it = v.tracks_begin(), itEnd = v.tracks_end(); 
+          it != itEnd; ++it)
       {
          const reco::Track & track = *it->get();
          TEveRecTrack t;
@@ -98,9 +92,8 @@ FWSecVertex3DProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsi
          trk->MakeTrack();
          oItemHolder.AddElement( trk );
       }
-
    }
    oItemHolder.AddElement( pointSet );
 }
 
-REGISTER_FW3DDATAPROXYBUILDER(FWSecVertex3DProxyBuilder,reco::SecondaryVertexTagInfo,"SecVertex");
+REGISTER_FWPROXYBUILDER(FWSecVertexProxyBuilder, reco::SecondaryVertexTagInfo, "SecVertex", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
