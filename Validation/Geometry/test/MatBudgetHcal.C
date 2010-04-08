@@ -1256,6 +1256,81 @@ void efficiencyPlot(TString fileName="matbdg_HCAL.root", TString type="All",
   }
 }  
 
+void etaPhiFwdPlot(TString fileName="matbdg_Fwd.root", TString plot="IntLen", 
+		   int first=0, int last=9, int drawLeg=1, bool debug=false) {
+
+  TFile* hcalFile = new TFile(fileName);
+  hcalFile->cd("g4SimHits");
+  setStyle();
+
+  TString xtit = TString("#eta");
+  TString ytit = "none";
+  int ymin = 0, ymax = 20, istart = 200;
+  double xh = 0.90, xl=0.1;
+  if (plot.CompareTo("RadLen") == 0) {
+    ytit = TString("Material Budget (X_{0})");
+    ymin = 0;  ymax = 400; istart = 100;
+  } else if (plot.CompareTo("StepLen") == 0) {
+    ytit = TString("Material Budget (Step Length)");
+    ymin = 0;  ymax = 20000; istart = 300; xh = 0.70, xl=0.15;
+  } else {
+    ytit = TString("Material Budget (#lambda)");
+    ymin = 0;  ymax = 30; istart = 200;
+  }
+
+  int index[10] = {9, 0, 1, 2, 3, 8, 4, 7, 5, 6};
+  std::string label[10] = {"Empty", "Beam Pipe", "Tracker", "EM Calorimeter",
+			   "Hadron Calorimeter", "Muon System", 
+			   "Forward Hadron Calorimeter", "Shielding", "TOTEM",
+			   "CASTOR"};
+  
+  TLegend *leg = new TLegend(xl, 0.75, xl+0.3, 0.90);
+  leg->SetBorderSize(1); leg->SetFillColor(10); leg->SetMargin(0.25);
+  leg->SetTextSize(0.018);
+
+  int nplots=0;
+  TProfile *prof[nlaymax];
+  for (int ii=last; ii>=first; ii--) {
+    char hname[10], title[50];
+    sprintf(hname, "%i", istart+index[ii]);
+    gDirectory->GetObject(hname,prof[nplots]);
+    prof[nplots]->GetXaxis()->SetTitle(xtit);
+    prof[nplots]->GetYaxis()->SetTitle(ytit);
+    prof[nplots]->GetYaxis()->SetRangeUser(ymin, ymax);
+    prof[nplots]->SetLineColor(colorLayer[ii]);
+    prof[nplots]->SetFillColor(colorLayer[ii]);
+    if (xh < 0.8) 
+      prof[nplots]->GetYaxis()->SetTitleOffset(1.7);
+    sprintf(title, "%s", label[ii].c_str());
+    leg->AddEntry(prof[nplots], title, "lf");
+    if (debug) {
+      int    nbinX = prof[nplots]->GetNbinsX();
+      double xmin  = prof[nplots]->GetXaxis()->GetXmin();
+      double xmax  = prof[nplots]->GetXaxis()->GetXmax();
+      double dx    = (xmax - xmin)/nbinX;
+      cout << "Hist " << ii;
+      for (int ibx=0; ibx<nbinX; ibx++) {
+	double xx1  = xmin + ibx*dx;
+	double cont = prof[nplots]->GetBinContent(ibx+1);
+	cout << " | " << ibx << "(" << xx1 << ":" << (xx1+dx) << ") " << cont;
+      }
+      cout << "\n";
+    }
+    nplots++;
+  }
+
+  TString cname = "c_" + plot + xtit;
+  TCanvas *cc1 = new TCanvas(cname, cname, 700, 600);
+  if (xh < 0.8) {
+    cc1->SetLeftMargin(0.15); cc1->SetRightMargin(0.05);
+  }
+
+  prof[0]->Draw("h");
+  for(int i=1; i<nplots; i++)
+    prof[i]->Draw("h sames");
+  if (drawLeg > 0) leg->Draw("sames");
+}
+
 void setStyle () {
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
