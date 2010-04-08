@@ -14,8 +14,8 @@ HcalNoiseParameterSet = cms.PSet(
     # define energy threshold for loose/tight/high level cuts
     minERatio = cms.double(50.0),
     minEZeros = cms.double(10.0),
-    minEEMF = cms.double(20.0),
-    
+    minEEMF = cms.double(50.0),
+
     # define problematic RBX
     pMinE = cms.double(100.0),
     pMinRatio = cms.double(0.75),
@@ -33,7 +33,7 @@ HcalNoiseParameterSet = cms.PSet(
 
     # define loose noise cuts
     lMinRatio = cms.double(0.70),
-    lMaxRatio = cms.double(0.95),
+    lMaxRatio = cms.double(0.96),
     lMinHPDHits = cms.int32(17),
     lMinRBXHits = cms.int32(999),
     lMinHPDNoOtherHits = cms.int32(10),
@@ -45,7 +45,7 @@ HcalNoiseParameterSet = cms.PSet(
 
     # define tight noise cuts
     tMinRatio = cms.double(0.73),
-    tMaxRatio = cms.double(0.85),
+    tMaxRatio = cms.double(0.92),
     tMinHPDHits = cms.int32(16),
     tMinRBXHits = cms.int32(50),
     tMinHPDNoOtherHits = cms.int32(9),
