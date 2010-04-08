@@ -124,20 +124,20 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 			
 {
     // Local variables 
-	static int i, j, k, minbin, binl, binh, binq, midpix, fypix, nypix, lypix, logypx;
-    static int fxpix, nxpix, lxpix, logxpx, shifty, shiftx, nyzero[TYSIZE];
-	static int nclusx, nclusy;
-	static int deltaj, jmin, jmax, fxbin, lxbin, fybin, lybin, djy, djx;
-	static int fypix2D, lypix2D, fxpix2D, lxpix2D;
-	static float sythr, sxthr, rnorm, delta, sigma, sigavg, pseudopix, qscale, q50;
-	static float ss2, ssa, sa2, ssba, saba, sba2, rat, fq, qtotal, qpixel;
-	static float originx, originy, qfy, qly, qfx, qlx, bias, maxpix, minmax;
-	static double chi2x, meanx, chi2y, meany, chi2ymin, chi2xmin, chi21max;
-	static double hchi2, hndof, prvav, mpv, sigmaQ, kappa, xvav, beta2;
-	static float ytemp[41][BYSIZE], xtemp[41][BXSIZE], ysum[BYSIZE], xsum[BXSIZE], ysort[BYSIZE], xsort[BXSIZE];
-	static float chi2ybin[41], chi2xbin[41], ysig2[BYSIZE], xsig2[BXSIZE];
-	static bool yd[BYSIZE], xd[BXSIZE], anyyd, anyxd, calc_probQ, use_VVIObj;
-	static float ysize, xsize;
+	int i, j, k, minbin, binl, binh, binq, midpix, fypix, nypix, lypix, logypx;
+        int fxpix, nxpix, lxpix, logxpx, shifty, shiftx, nyzero[TYSIZE];
+        int nclusx, nclusy;
+	int deltaj, jmin, jmax, fxbin, lxbin, fybin, lybin, djy, djx;
+	int fypix2D, lypix2D, fxpix2D, lxpix2D;
+	float sythr, sxthr, rnorm, delta, sigma, sigavg, pseudopix, qscale, q50;
+	float ss2, ssa, sa2, ssba, saba, sba2, rat, fq, qtotal, qpixel;
+	float originx, originy, qfy, qly, qfx, qlx, bias, maxpix, minmax;
+	double chi2x, meanx, chi2y, meany, chi2ymin, chi2xmin, chi21max;
+	double hchi2, hndof, prvav, mpv, sigmaQ, kappa, xvav, beta2;
+	float ytemp[41][BYSIZE], xtemp[41][BXSIZE], ysum[BYSIZE], xsum[BXSIZE], ysort[BYSIZE], xsort[BXSIZE];
+	float chi2ybin[41], chi2xbin[41], ysig2[BYSIZE], xsig2[BXSIZE];
+	bool yd[BYSIZE], xd[BXSIZE], anyyd, anyxd, calc_probQ, use_VVIObj;
+	float ysize, xsize;
 	const float probmin={1.110223e-16};
 	const float probQmin={1.e-5};
 	
