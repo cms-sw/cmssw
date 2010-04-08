@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.151 2010/03/30 05:47:11 yana Exp $
+// $Id: CmsShowMain.cc,v 1.152 2010/04/06 20:00:35 amraktad Exp $
 //
 
 // system include files
@@ -435,7 +435,6 @@ void CmsShowMain::draw()
    m_guiManager->updateStatus("loading event ...");
 
    m_viewManager->eventBegin();
-   m_eiManager->setGeom(&m_detIdToGeo);
    m_eiManager->newEvent(m_navigator->getCurrentEvent());
    m_viewManager->eventEnd();
 
@@ -536,6 +535,7 @@ CmsShowMain::loadGeometry()
    m_guiManager->updateStatus("Loading geometry...");
    m_detIdToGeo.loadGeometry( m_geomFileName.c_str() );
    m_detIdToGeo.loadMap( m_geomFileName.c_str() );
+   m_context->setGeom(&m_detIdToGeo);
 }
 
 void
@@ -544,7 +544,7 @@ CmsShowMain::setupViewManagers()
    m_guiManager->updateStatus("Setting up view manager...");
 
    boost::shared_ptr<FWViewManagerBase> eveViewManager( new FWEveViewManager(m_guiManager.get()) );
-   eveViewManager->setGeom(&m_detIdToGeo);
+   eveViewManager->setContext(m_context.get());
    m_viewManager->add(eveViewManager);
 
    boost::shared_ptr<FWTableViewManager> tableViewManager( new FWTableViewManager(m_guiManager.get()) );

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id: Context.h,v 1.5 2009/04/07 13:58:31 chrjones Exp $
+// $Id: Context.h,v 1.6 2010/01/21 21:01:30 amraktad Exp $
 //
 
 // system include files
@@ -25,11 +25,14 @@
 
 // forward declarations
 class TEveTrackPropagator;
+class TEveCaloDataHist;
+
 class FWModelChangeManager;
 class FWSelectionManager;
 class FWEventItemsManager;
 class FWColorManager;
 class FWMagField;
+class DetIdToMatrix;
 
 namespace fireworks {
 class Context {
@@ -41,6 +44,8 @@ public:
            FWColorManager* iColorM);
    virtual ~Context();
 
+   void  setGeom(const DetIdToMatrix* x) { m_geom = x; }
+ 
    // ---------- const member functions ---------------------
    FWModelChangeManager* modelChangeManager() const {
       return m_changeManager;
@@ -56,11 +61,13 @@ public:
    FWColorManager* colorManager() const {
       return m_colorManager;
    }
-   // ---------- static member functions --------------------
-
 
    TEveTrackPropagator* getTrackPropagator() const { return m_propagator; }
    FWMagField*          getField()           const { return m_magField; }
+
+   TEveCaloDataHist*    getCaloData()  const { return m_caloData; }
+
+  const  DetIdToMatrix*  getGeom()  const { return m_geom; }   
 
    // ---------- member functions ---------------------------
 
@@ -74,8 +81,12 @@ private:
    FWEventItemsManager  *m_eventItemsManager;
    FWColorManager       *m_colorManager;
 
+   const DetIdToMatrix  *m_geom;
+
    TEveTrackPropagator  *m_propagator;
    FWMagField           *m_magField;
+
+   TEveCaloDataHist     *m_caloData;
 };
 }
 

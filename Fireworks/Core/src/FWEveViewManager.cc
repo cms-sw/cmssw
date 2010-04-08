@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.2 2010/04/07 16:56:20 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.3 2010/04/07 18:29:23 amraktad Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-
+#include "Fireworks/Core/interface/Context.h"
 
 #include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
@@ -42,6 +42,7 @@
 
 
 class DetIdToMatrix;
+
 //
 //
 // constants, enums and typedefs
@@ -282,7 +283,7 @@ FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
    }
 
 
-   view->setGeometry(detIdToGeo(), colorManager());
+   view->setGeometry(context().getGeom(), colorManager());
    view->beingDestroyed_.connect(boost::bind(&FWEveViewManager::beingDestroyed,this,_1));
    gEve->Redraw3D();
    
@@ -407,7 +408,6 @@ FWEveViewManager::selectionRemoved(TEveElement* iElement)
 void
 FWEveViewManager::selectionCleared()
 {
-   printf("selection manager \n");
    if(0!= m_selectionManager) {
       m_selectionManager->clearSelection();
    }

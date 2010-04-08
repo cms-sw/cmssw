@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id: FWViewManagerBase.cc,v 1.12 2009/04/07 14:02:32 chrjones Exp $
+// $Id: FWViewManagerBase.cc,v 1.13 2009/04/07 21:33:29 chrjones Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@
 // constructors and destructor
 //
 FWViewManagerBase::FWViewManagerBase() :
-   m_detIdToGeo(0),
+   m_context(0),
    m_changeManager(0),
    m_colorManager(0)
 {
@@ -155,11 +155,6 @@ FWViewManagerBase::colorManager() const
    return *m_colorManager;
 }
 
-const DetIdToMatrix*
-FWViewManagerBase::detIdToGeo() const
-{
-   return m_detIdToGeo;
-}
 
 //
 // static member functions
