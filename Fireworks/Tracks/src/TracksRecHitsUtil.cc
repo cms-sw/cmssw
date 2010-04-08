@@ -20,7 +20,6 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "Fireworks/Core/interface/FWDetIdInfo.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
@@ -177,7 +176,7 @@ TracksRecHitsUtil::addModules(const reco::Track& track,
                   trkList->AddElement(shape);
                } else {
 		  std::cout << "Failed to get shape extract for a tracking rec hit: "
-			    << "\n" << FWDetIdInfo::info(detid) << std::endl;
+			    << "\n" << fireworks::info(detid) << std::endl;
                }
             }
          }  // if the hit isValid().

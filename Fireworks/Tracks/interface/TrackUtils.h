@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.9 2010/01/26 17:55:15 amraktad Exp $
+// $Id: TrackUtils.h,v 1.10 2010/04/07 15:23:47 yana Exp $
 //
 
 // system include files
@@ -81,6 +81,12 @@ namespace fireworks {
 			  Color_t color, int size );
    double estimateField( const reco::Track& track, bool highQuality = false );
    double estimateField( double vx1, double vy1, double vx2, double vy2, double px, double py );
+
+  // Helper functions to get human readable informationa about given DetId
+  // (copied from TrackingTools/TrackAssociator)
+   std::string info( const DetId& );
+   std::string info( const std::set<DetId>& );
+   std::string info( const std::vector<DetId>& );
 }
 
 #endif // Fireworks_Tracks_TrackUtils_h
