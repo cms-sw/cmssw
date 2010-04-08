@@ -187,5 +187,6 @@ class cosmics(Scenario):
         process.source.fileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName
-        
+        process.dqmSaver.saveByLumiSection = 1
+
         return process
