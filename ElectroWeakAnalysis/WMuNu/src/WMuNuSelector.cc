@@ -218,22 +218,6 @@ void WMuNuSelector::endJob() {
       double eiso = niso/all;
       double esel = nsel/all;
 
-      h1_["hCutFlowSummary"]->Fill(1.,nall);
-      h1_["hCutFlowSummary"]->Fill(2.,ncands);
-      h1_["hCutFlowSummary"]->Fill(3.,ntrig);
-      h1_["hCutFlowSummary"]->Fill(4.,nZ);
-      h1_["hCutFlowSummary"]->Fill(5.,npresel);
-      h1_["hCutFlowSummary"]->Fill(6.,nPt);
-      h1_["hCutFlowSummary"]->Fill(7.,nkin);
-      h1_["hCutFlowSummary"]->Fill(8.,nid);
-      h1_["hCutFlowSummary"]->Fill(9.,nacop);
-      h1_["hCutFlowSummary"]->Fill(10.,niso);
-      h1_["hCutFlowSummary"]->Fill(11.,nsel);
-
-
-
-
-
       LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
       LogVerbatim("") << "Total number of events analyzed                          : " << nall << " [events]";
       LogVerbatim("") << "Total number of events with WMuNuCandidates              : " << ncands << " [events]";
@@ -266,6 +250,7 @@ void WMuNuSelector::endJob() {
 
 bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       nall++;
+      h1_["hCutFlowSummary"]->Fill(1.);
 
       // Repeat Pre-Selection Cuts just in case...
       // Muon collection
@@ -340,6 +325,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       }
 
       ncands++;
+      h1_["hCutFlowSummary"]->Fill(2.);
  
       if(WMuNuCollection->size() < 1) {LogTrace("")<<"No WMuNu Candidates in the Event!"; return 0;}
       if(WMuNuCollection->size() > 1) {LogTrace("")<<"This event contains more than one W Candidate";}  
@@ -358,12 +344,15 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       if (!trigger_fired) {LogTrace("")<<"Event did not fire the Trigger"; return 0;}
       ntrig++;
+      h1_["hCutFlowSummary"]->Fill(3.);
 
       if (nmuonsForZ1>=1 && nmuonsForZ2>=2) {LogTrace("")<<"Z Candidate!!"; return 0;}
       nZ++;
+      h1_["hCutFlowSummary"]->Fill(4.);
 
       if (njets>nJetMax_) {LogTrace("")<<"NJets > threshold";  return 0;}
       npresel++;
+      h1_["hCutFlowSummary"]->Fill(5.);
 
 
       if(plotHistograms_){
@@ -390,11 +379,14 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (pt<ptCut_) return 0;
                   if(plotHistograms_){ h1_["hEtaMu_sel"]->Fill(eta);}
 
-            nPt++; 
+            nPt++;
+            h1_["hCutFlowSummary"]->Fill(6.);
+
+ 
             if (fabs(eta)>etaCut_) return 0;
 
             nkin++;
-
+            h1_["hCutFlowSummary"]->Fill(7.);
 
             // d0, chi2, nhits quality cuts
             double dxy = gm->dxy(beamSpotHandle->position());
@@ -415,6 +407,8 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (!mu.isTrackerMuon()) return 0;
 
             nid++;
+
+            h1_["hCutFlowSummary"]->Fill(8.);
 
             // Acoplanarity cuts
             double acop = WMuNu.acop();
@@ -459,12 +453,14 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (acop>=acopCut_) return 0;
 
             nacop++;
+            h1_["hCutFlowSummary"]->Fill(9.);
+
+
 
             if (!iso) return 0;
 
             niso++;
-
-
+            h1_["hCutFlowSummary"]->Fill(10.);
 
 
             if(plotHistograms_){
@@ -478,6 +474,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
            LogTrace("") << ">>>> Event ACCEPTED";
             nsel++;
+            h1_["hCutFlowSummary"]->Fill(11.);
 
 
             // (To be continued ;-) )

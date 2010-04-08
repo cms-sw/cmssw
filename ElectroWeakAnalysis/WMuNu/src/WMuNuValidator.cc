@@ -109,7 +109,7 @@ WMuNuValidator::WMuNuValidator( const ParameterSet & cfg ) :
       // Main cuts 
       muonTrig_(cfg.getUntrackedParameter<std::string> ("MuonTrig", "HLT_Mu9")),
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
-      etaMinCut_(cfg.getUntrackedParameter<double>("EtaMinCut", 0)),
+      etaMinCut_(cfg.getUntrackedParameter<double>("EtaMinCut", -2.1)),
       etaMaxCut_(cfg.getUntrackedParameter<double>("EtaMaxCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
       isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", false)),
