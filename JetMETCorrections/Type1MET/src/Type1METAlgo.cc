@@ -55,7 +55,7 @@ namespace {
     // ---------------- which are above the given threshold.  This requires that the
     // ---------------- uncorrected jets be matched with the corrected jets.
     for( CaloJetCollection::const_iterator jet = uncorJet.begin(); jet != uncorJet.end(); ++jet) {
-      if( jet->pt() > jetPTthreshold && jet->emEnergyFraction() < jetEMfracLimit ) {
+      if( jet->pt()*corrector.correction(*jet) > jetPTthreshold && jet->emEnergyFraction() < jetEMfracLimit ) {
 	double corr = corrector.correction (*jet) - 1.; // correction itself
 	DeltaPx +=  jet->px() * corr;
 	DeltaPy +=  jet->py() * corr;
