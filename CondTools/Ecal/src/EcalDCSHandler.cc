@@ -18,7 +18,7 @@ popcon::EcalDCSHandler::EcalDCSHandler(const edm::ParameterSet & ps)
         m_user= ps.getParameter<std::string>("OnlineDBUser");
         m_pass= ps.getParameter<std::string>("OnlineDBPassword");
 
-        std::cout << m_sid<<"/"<<m_user<<"/"<<m_pass<<std::endl;
+        std::cout << m_sid<<"/"<<m_user<<std::endl;
 
 
 }
@@ -89,45 +89,42 @@ uint16_t popcon::EcalDCSHandler::OffDBStatus( uint16_t dbStatus , int pos ) {
   return hv_off_dbstatus;
 }  
 
-uint16_t  popcon::EcalDCSHandler::updateHV( RunDCSHVDat* hv, uint16_t dbStatus) const {
+uint16_t  popcon::EcalDCSHandler::updateHV( RunDCSHVDat* hv, uint16_t dbStatus, int mode) const {
+  // mode ==0 EB ,  mode==1 EE Anode , mode==2 EE Dynode 
+
   uint16_t result=0; 
   uint16_t hv_on_dbstatus=0;
   uint16_t hv_nomi_on_dbstatus=0;
-  uint16_t hv_time_on_dbstatus=0;
+
   if(  hv->getStatus()==RunDCSHVDat::HVNOTNOMINAL ) hv_nomi_on_dbstatus=1; 
   if(  hv->getStatus()==RunDCSHVDat::HVOFF ) hv_on_dbstatus=1; 
-  //  if(  hv->getTimeStatus()<0 ) hv_time_on_dbstatus=1; // information not updated 
-   
-  
 
-  uint16_t hv_off_dbstatus = ( dbStatus & (1 << EcalDCSTowerStatusHelper::HVSTATUS ) ) ;
-  // uint16_t hv_time_off_dbstatus = 0; // ( dbStatus & (1 << EcalDCSTowerStatusHelper::HVTIMESTATUS ) ) ;
-  uint16_t hv_nomi_off_dbstatus = ( dbStatus & (1 << EcalDCSTowerStatusHelper::HVNOMINALSTATUS ) ) ;
-  if(hv_off_dbstatus>0) hv_off_dbstatus=1;
-  //  if(hv_time_off_dbstatus>0) hv_time_off_dbstatus=1;
-  if(hv_nomi_off_dbstatus>0) hv_nomi_off_dbstatus=1;
 
   
   uint16_t temp=0;
-  for (int i=0; i<16; i++) {
-    if( i!= EcalDCSTowerStatusHelper::HVSTATUS && i!= EcalDCSTowerStatusHelper::HVTIMESTATUS && i!=EcalDCSTowerStatusHelper::HVNOMINALSTATUS ) {
-      temp = temp | (1<<i) ;  
-    } else if( i== EcalDCSTowerStatusHelper::HVTIMESTATUS) {
-      //      temp = temp | ( 0 << EcalDCSTowerStatusHelper::HVTIMESTATUS );
-    } else if( i== EcalDCSTowerStatusHelper::HVNOMINALSTATUS) {
-      temp = temp | ( 0 << EcalDCSTowerStatusHelper::HVNOMINALSTATUS );
-    } else if ( i== EcalDCSTowerStatusHelper::HVSTATUS) {
-      temp = temp | ( 0 << EcalDCSTowerStatusHelper::HVSTATUS );
-    } 
+
+  if(mode == 0 | mode ==1) {
+    for (int i=0; i<16; i++) {
+      if( i!= EcalDCSTowerStatusHelper::HVSTATUS &&  i!=EcalDCSTowerStatusHelper::HVNOMINALSTATUS  ) {
+	temp = temp | (1<<i) ;  
+      } else {
+	temp = temp | (0<<i);
+      } 
+    }
+    result=  dbStatus & temp  ;
+    result=  ( result | (  hv_on_dbstatus << EcalDCSTowerStatusHelper::HVSTATUS ) )   | ( hv_nomi_on_dbstatus << EcalDCSTowerStatusHelper::HVNOMINALSTATUS )    ;
+  } else {
+    for (int i=0; i<16; i++) {
+      if( i!=EcalDCSTowerStatusHelper::HVEEDNOMINALSTATUS &&  i!= EcalDCSTowerStatusHelper::HVEEDSTATUS ) {
+	temp = temp | (1<<i) ;  
+      } else {
+	temp = temp | (0<<i);
+      } 
+    }
+    result=  dbStatus & temp  ;
+    result= ( result | ( hv_on_dbstatus << EcalDCSTowerStatusHelper::HVEEDSTATUS )) |  (  hv_nomi_on_dbstatus << EcalDCSTowerStatusHelper::HVEEDNOMINALSTATUS )   ;
   }
 
-
-   result=  dbStatus & temp  ;
-   result= ( ( result | ( hv_time_on_dbstatus << EcalDCSTowerStatusHelper::HVTIMESTATUS )) |  (  hv_on_dbstatus << EcalDCSTowerStatusHelper::HVSTATUS ) )   | ( hv_nomi_on_dbstatus << EcalDCSTowerStatusHelper::HVNOMINALSTATUS );
-
-   //   std::cout << "HV status "<<hv_on_dbstatus<<"/"<<hv_time_on_dbstatus<<"/"<<hv_nomi_on_dbstatus<<
-   // "HV before status "<<hv_off_dbstatus<<"/"<<hv_time_off_dbstatus<<"/"<<hv_nomi_off_dbstatus<<" res="<< result<< endl;
-   
   return result; 
 }
 
@@ -136,40 +133,28 @@ uint16_t  popcon::EcalDCSHandler::updateLV( RunDCSLVDat* lv, uint16_t dbStatus) 
   uint16_t result=0; 
   uint16_t lv_on_dbstatus=0;
   uint16_t lv_nomi_on_dbstatus=0;
-  uint16_t lv_time_on_dbstatus=0;
   if(  lv->getStatus()==RunDCSLVDat::LVNOTNOMINAL ) lv_nomi_on_dbstatus=1; 
   if(  lv->getStatus()==RunDCSLVDat::LVOFF ) lv_on_dbstatus=1; 
-  if(  lv->getTimeStatus()<0 ) lv_time_on_dbstatus=1; // information not updated 
-   
-  
 
   uint16_t lv_off_dbstatus = ( dbStatus & (1 << EcalDCSTowerStatusHelper::LVSTATUS ) ) ;
-  uint16_t lv_time_off_dbstatus = ( dbStatus & (1 << EcalDCSTowerStatusHelper::LVTIMESTATUS ) ) ;
   uint16_t lv_nomi_off_dbstatus = ( dbStatus & (1 << EcalDCSTowerStatusHelper::LVNOMINALSTATUS ) ) ;
   if(lv_off_dbstatus>0) lv_off_dbstatus=1;
-  if(lv_time_off_dbstatus>0) lv_time_off_dbstatus=1;
   if(lv_nomi_off_dbstatus>0) lv_nomi_off_dbstatus=1;
 
   
   uint16_t temp=0;
   for (int i=0; i<16; i++) {
-    if( i!= EcalDCSTowerStatusHelper::LVSTATUS && i!= EcalDCSTowerStatusHelper::LVTIMESTATUS && i!=EcalDCSTowerStatusHelper::LVNOMINALSTATUS ) {
+    if( i!= EcalDCSTowerStatusHelper::LVSTATUS &&  i!=EcalDCSTowerStatusHelper::LVNOMINALSTATUS ) {
       temp = temp | (1<<i) ;  
-    } else if( i== EcalDCSTowerStatusHelper::LVTIMESTATUS) {
-      temp = temp | ( 0 << EcalDCSTowerStatusHelper::LVTIMESTATUS );
-    } else if( i== EcalDCSTowerStatusHelper::LVNOMINALSTATUS) {
-      temp = temp | ( 0 << EcalDCSTowerStatusHelper::LVNOMINALSTATUS );
-    } else if ( i== EcalDCSTowerStatusHelper::LVSTATUS) {
-      temp = temp | ( 0 << EcalDCSTowerStatusHelper::LVSTATUS );
+    } else {
+      temp = temp | ( 0 << i );
     } 
   }
 
 
    result=  dbStatus & temp  ;
-   result= ( ( result | ( lv_time_on_dbstatus << EcalDCSTowerStatusHelper::LVTIMESTATUS )) |  (  lv_on_dbstatus << EcalDCSTowerStatusHelper::LVSTATUS ) )   | ( lv_nomi_on_dbstatus << EcalDCSTowerStatusHelper::LVNOMINALSTATUS );
+   result=  ( result | (  lv_on_dbstatus << EcalDCSTowerStatusHelper::LVSTATUS ) )   | ( lv_nomi_on_dbstatus << EcalDCSTowerStatusHelper::LVNOMINALSTATUS ) ;
 
-   std::cout << "LV status "<<lv_on_dbstatus<<"/"<<lv_time_on_dbstatus<<"/"<<lv_nomi_on_dbstatus<<
-     "LV before status "<<lv_off_dbstatus<<"/"<<lv_time_off_dbstatus<<"/"<<lv_nomi_off_dbstatus<<" res="<< result<< endl;
   
   return result; 
 }
@@ -203,7 +188,6 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline( const map<EcalLogicID, Ru
       int i2=limits[2];
       int j=limits[3];
 
-
       for(int ik=i1; ik<=i2; ik++){ 
 	if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,j,ik )){
 	  EcalTrigTowerDetId ebid(iz,EcalBarrel,j,ik);
@@ -213,7 +197,8 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline( const map<EcalLogicID, Ru
 	  if ( it != dcs_temp->end() ) {
 	    dbStatus = it->getStatusCode();
 	  }
-	  uint16_t new_dbStatus= updateHV(&hv, dbStatus); 
+	  int modo=0;
+	  uint16_t new_dbStatus= updateHV(&hv, dbStatus, modo); 
 	  if(new_dbStatus != dbStatus ) result=true; 
 
 	  dcs_temp->setValue( ebid, new_dbStatus );
@@ -224,12 +209,113 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline( const map<EcalLogicID, Ru
 	  } 
 	}
       }
+      delete [] limits; 
+    } else {
+      // endcaps 
+      int dee= ecid.getID1() ;
+      int chan= ecid.getID2();
+      
+      int* limits=0;
+      limits=  HVEELogicIDToDetID(dee,chan);
+      int iz=limits[0];
+      int i1=limits[1];
+      int i2=limits[2];
+      int j1=limits[3];
+      int j2=limits[4];
 
+      int ex_x[6];
+      int ex_y[6];
+      if(dee==1 ) {
+	ex_x[0]=4;	ex_y[0]=8;
+	ex_x[1]=4;	ex_y[1]=9;
+	ex_x[2]=4;	ex_y[2]=10;
+	ex_x[3]=5;	ex_y[3]=9;
+	ex_x[4]=5;	ex_y[4]=10;
+	ex_x[5]=6;	ex_y[5]=10;
+      } else if(dee==2) {
+	ex_x[0]=17;	ex_y[0]=11;
+	ex_x[1]=17;	ex_y[1]=12;
+	ex_x[2]=17;	ex_y[2]=13;
+	ex_x[3]=16;	ex_y[3]=11;
+	ex_x[4]=16;	ex_y[4]=12;
+	ex_x[5]=15;	ex_y[5]=11;
+      } else if(dee==3) {
+	ex_x[0]=17;	ex_y[0]=8;
+	ex_x[1]=17;	ex_y[1]=9;
+	ex_x[2]=17;	ex_y[2]=10;
+	ex_x[3]=16;	ex_y[3]=9;
+	ex_x[4]=16;	ex_y[4]=10;
+	ex_x[5]=15;	ex_y[5]=10;
+      } else if(dee==4) {
+	ex_x[0]=4;	ex_y[0]=11;
+	ex_x[1]=4;	ex_y[1]=12;
+	ex_x[2]=4;	ex_y[2]=13;
+	ex_x[3]=5;	ex_y[3]=11;
+	ex_x[4]=5;	ex_y[4]=12;
+	ex_x[5]=6;	ex_y[5]=11;
+      }
+
+      int modo=1;
+      if(ecid.getName()=="EE_HVD_channel") modo=2;
+
+      for(int ik=i1; ik<=i2; ik++){ 
+	for(int ip=j1; ip<=j2; ip++){
+	  bool not_excluded=true;
+	  if(chan==2 ) { // channel 2 has half a dee minus 6 towers
+	    for (int l=0; l<6; l++){
+	      if(ik== ex_x[l] && ip== ex_y[l] ) not_excluded=false;
+	    }
+	  }
+	  if(not_excluded){
+	    if (EcalScDetId::validDetId(ik,ip,iz)){
+	      EcalScDetId eeid(ik,ip,iz);
+	      EcalDCSTowerStatus::const_iterator it =dcs_temp->find(eeid.rawId());
+	  
+	      uint16_t dbStatus = 0;
+	      if ( it != dcs_temp->end() ) {
+		dbStatus = it->getStatusCode();
+	      }
+	      // FIXME - UPDATE HV A and D
+	      uint16_t new_dbStatus= updateHV(&hv, dbStatus, modo); 
+	      if(new_dbStatus != dbStatus ) result=true; 
+	      
+	      dcs_temp->setValue( eeid, new_dbStatus );
+	      
+	      if(new_dbStatus != dbStatus) {
+		std::cout <<"Dee/chan:"<<dee<<"/"<<chan <<" new db status ="<< new_dbStatus << " old  "<<dbStatus<<" HV: "<< hv.getHV()<<"/"<<hv.getHVNominal()<<std::endl;
+		
+	      } 
+	    }
+	  }
+	}
+      }
+      if(chan==1){ // channel 1 has half a dee plus 6 more towers 
+	for (int l=0; l<6; l++){
+	  int ik=ex_x[l];
+	  int ip=ex_y[l];
+	  if (EcalScDetId::validDetId(ik,ip,iz)){
+	    EcalScDetId eeid(ik,ip,iz);
+	    EcalDCSTowerStatus::const_iterator it =dcs_temp->find(eeid.rawId());
+	    
+	    uint16_t dbStatus = 0;
+	    if ( it != dcs_temp->end() ) {
+	      dbStatus = it->getStatusCode();
+	    }
+	    uint16_t new_dbStatus= updateHV(&hv, dbStatus,modo); 
+	    if(new_dbStatus != dbStatus ) result=true; 
+	    
+	    dcs_temp->setValue( eeid, new_dbStatus );
+	    
+	    if(new_dbStatus != dbStatus) {
+	      std::cout <<"Dee/chan:"<<dee<<"/"<<chan <<" new db status ="<< new_dbStatus << " old  "<<dbStatus<<" HV: "<< hv.getHV()<<"/"<<hv.getHVNominal()<<std::endl;
+	      
+	    } 
+	  }
+	}
+      }
+      
       delete [] limits; 
 
-
-    } else {
-      // endcaps to be done 
     }
   }
   return result; 
@@ -262,6 +348,53 @@ int popcon::EcalDCSHandler::detIDToLogicID(int iz, int i, int j) {
 
   return hv_chan;
 
+}
+
+
+
+int * popcon::EcalDCSHandler::HVEELogicIDToDetID(int dee, int chan) const {
+  int iz=-1;
+  if(dee==1 || dee==2) iz=1;
+  int ix1=1;
+  int ix2=1;
+  int iy1=1;
+  int iy2=1;
+
+  if(dee==1 && chan==1) {
+    ix1=1; ix2=10;
+    iy1=11; iy2=20;
+  } else if(dee==2 && chan==1) {
+    ix1=11; ix2=20;
+    iy1=1; iy2=10;
+  } else if(dee==3 && chan==1) {
+    ix1=11; ix2=20;
+    iy1=11; iy2=20;
+  } else if(dee==4 && chan==1) {
+    ix1=1; ix2=10;
+    iy1=1; iy2=10;
+  } else if(dee==1 && chan==2) {
+    ix1=1; ix2=10;
+    iy1=11; iy2=20;
+  } else if(dee==2 && chan==2) {
+    ix1=11; ix2=20;
+    iy1=11; iy2=20;
+  } else if(dee==3 && chan==2) {
+    ix1=11; ix2=20;
+    iy1=1; iy2=10;
+  } else if(dee==4 && chan==2) {
+    ix1=1; ix2=10;
+    iy1=11; iy2=20;
+  }
+
+  int *result = new int[5];
+  
+  result[0]=iz;
+  result[1]=ix1;
+  result[2]=ix2;
+  result[3]=iy1;
+  result[4]=iy2;
+  return result; 
+  
 }
 
 int * popcon::EcalDCSHandler::HVLogicIDToDetID(int sm, int chan) const {
@@ -340,7 +473,7 @@ int * popcon::EcalDCSHandler::LVLogicIDToDetID(int sm, int chan) const {
 	    i1=1 ; 
 	    i2=2 ; 
 	  }
-	} else { // EB minus phi turns as HV numbering 
+	} else { // EB minus phi turns as LV numbering 
 	  if(ch2==chan) { 
 	    i1=1 ; 
 	    i2=2 ; 
@@ -368,7 +501,7 @@ int * popcon::EcalDCSHandler::LVLogicIDToDetID(int sm, int chan) const {
 }
 
 
-bool popcon::EcalDCSHandler::insertLVDataSetToOffline( const map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp ) const
+bool popcon::EcalDCSHandler::insertLVDataSetToOffline( const map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp , std::vector<EcalLogicID> my_EELVchan ) const
 {
   bool result= false; 
   if (dataset->size() == 0) {
@@ -409,6 +542,13 @@ bool popcon::EcalDCSHandler::insertLVDataSetToOffline( const map<EcalLogicID, Ru
 	    uint16_t new_dbStatus= updateLV(&lv, dbStatus); 
 	    if(new_dbStatus != dbStatus ) result=true; 
 	    dcs_temp->setValue( ebid, new_dbStatus );
+
+	  if(new_dbStatus != dbStatus) {
+	    std::cout <<"SM/chan:"<<sm<<"/"<<chan <<" new db status ="<< new_dbStatus << " old  "<<dbStatus<<" LV: "<< lv.getLV()<<"/"<<lv.getLVNominal()<<std::endl;
+	    
+	  } 
+
+
 	  }
 	}
       }
@@ -417,9 +557,62 @@ bool popcon::EcalDCSHandler::insertLVDataSetToOffline( const map<EcalLogicID, Ru
       
     } else {
 	
-	// endcaps to be done 
+	// endcaps 
+      int dee= ecid.getID1() ;
+      int chan= ecid.getID2();
+      int n=my_EELVchan.size();
+     
+
+	for (int ixt=0; ixt<n; ixt++) {
+
+
+	if(my_EELVchan[ixt].getID1()==dee && my_EELVchan[ixt].getID2()==chan){
+
+
+	  int ilogic=my_EELVchan[ixt].getLogicID();
+	  int iz= (ilogic/1000000)-2010;
+	  if(iz==0) iz=-1;
+	  if(iz==2) iz=1;
+	  if(iz != 1 && iz!= -1) std::cout<< "BAD z"<< std::endl; 
+	  
+	  int iy=ilogic- int(ilogic/1000)*1000;
+	  
+	  int ix=(ilogic- int(ilogic/1000000)*1000000 -iy)/1000;
+	  
+	  int ixtower=  ((ix-1)/5) +1;
+	  int iytower=  ((iy-1)/5) +1;
+	  
+	  if(ixtower<1 || ixtower>20 || iytower <1 || iytower >20) 
+	    std::cout<< "BAD x/y"<<ilogic<<"/"<< ixtower<<"/"<<iytower<< std::endl;
+
+	  
+	  if (EcalScDetId::validDetId(ixtower,iytower,iz )){
+	    EcalScDetId eeid(ixtower,iytower,iz );
+	    EcalDCSTowerStatus::const_iterator it =dcs_temp->find(eeid.rawId());
+	    uint16_t dbStatus = 0;
+	    if ( it != dcs_temp->end() ) {
+	      dbStatus = it->getStatusCode();
+	    }
+
+            uint16_t new_dbStatus= updateLV(&lv, dbStatus);
+            if(new_dbStatus != dbStatus ) result=true;
+            dcs_temp->setValue( eeid, new_dbStatus );
+
+	  if(new_dbStatus != dbStatus) {
+	    std::cout <<"Dee/chan:"<<dee<<"/"<<chan <<" new db status ="<< new_dbStatus << " old  "<<dbStatus<<" LV: "<< lv.getLV()<<"/"<<lv.getLVNominal()<<std::endl;
+	    
+	  } 
+
+
+
+          }
+
+	}
 	
-	
+      } 
+
+
+      // end of endcaps 
     }
 
 
@@ -443,7 +636,7 @@ void popcon::EcalDCSHandler::getNewObjects()
 	Ref dcs_db = lastPayload();
 	std::cout << "retrieved last payload "  << endl;
 	
-	// we copy the last valid record to a temporary object peds
+	// we copy the last valid record to a temporary object 
 	EcalDCSTowerStatus* dcs_temp = new EcalDCSTowerStatus();
 
         // barrel
@@ -497,23 +690,39 @@ void popcon::EcalDCSHandler::getNewObjects()
 	// now read the actual status from the online DB
 
 
-	cout << "Retrieving DCS status from ONLINE DB ... " << endl;
 	econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
 	cout << "Connection done" << endl;
 	
 	if (!econn)
 	  {
-	    cout << " Problem with OMDS: connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<endl;
+	    cout << " Problem with OMDS: connection parameters " <<m_sid <<"/"<<m_user<<endl;
 	    throw cms::Exception("OMDS not available");
 	  } 
 
 
 
+	cout << "Retrieving last run from ONLINE DB ... " << endl;
+	map<EcalLogicID, RunDat> rundat;
+	RunIOV rp ;
+	run_t runmax=10000000;
+	string location_p5="P5_Co";
+	econn->fetchValidDataSet(&rundat , &rp, location_p5 ,runmax);
 	
+	run_t irun=rp.getRunNumber();
+	
+	
+	if(max_since< irun) { 
 
-	if(max_since<=1) { 
 
+	  // get the map of the EE LV channels to EE crystals 
 
+	  cout << "Retrieving endcap channel list from ONLINE DB ... " << endl;
+	  
+	  std::vector<EcalLogicID> my_EELVchan= econn->getEcalLogicIDSetOrdered( "EE_crystal_number", 1,4,
+						 1, 200, EcalLogicID::NULLID, EcalLogicID::NULLID,
+						 "EE_LV_channel", 12 ) ;
+
+	  cout << "done endcap channel list  ... " << endl;
 
 	  // retrieve from last value data record 	
 	  // always call this method at first run
@@ -540,36 +749,45 @@ void popcon::EcalDCSHandler::getNewObjects()
 	  if(lot_of_printout) printLVDataSet(&dataset_lv);
 	  
 	  bool somediff_hv= insertHVDataSetToOffline(&dataset, dcs_temp );
-	  bool somediff_lv= insertLVDataSetToOffline(&dataset_lv, dcs_temp );
+	  bool somediff_lv= insertLVDataSetToOffline(&dataset_lv, dcs_temp, my_EELVchan );
 	  
 	  if(somediff_hv || somediff_lv) {
 	    
 
-	    Tm t_now_gmt;
-	    t_now_gmt.setToCurrentGMTime();
-	    uint64_t tsincetemp= t_now_gmt.microsTime()/1000000 ;
-	    uint64_t tsince = tsincetemp<< 32; 
-
-	    cout << "Generating popcon record for time " << tsincetemp << "..." << flush;
-    
-	    m_to_transfer.push_back(std::make_pair((EcalDCSTowerStatus*)dcs_temp,tsince));
+	    /*	    Tm t_now_gmt;
+		    t_now_gmt.setToCurrentGMTime();
+		    uint64_t tsincetemp= t_now_gmt.microsTime()/1000000 ;
+		    uint64_t tsince = tsincetemp<< 32; 
+		    cout << "Generating popcon record for time " << tsincetemp << "..." << flush;
 	    
-	    ss << "Time=" << t_now_gmt.str() << "_DCSchanged_"<<endl; 
+	    */
+
+	    cout << "Generating popcon record for run " << irun << "..." << flush;
+    
+	    // this is for timestamp
+	    //	    m_to_transfer.push_back(std::make_pair((EcalDCSTowerStatus*)dcs_temp,tsince));
+	    //	    ss << "Time=" << t_now_gmt.str() << "_DCSchanged_"<<endl; 
+
+	    // this is for run number 
+	    m_to_transfer.push_back(std::make_pair((EcalDCSTowerStatus*)dcs_temp,irun));
+	    ss << "Run=" << irun << "_DCSchanged_"<<endl; 
+
 	    m_userTextLog = ss.str()+";";
 
 	  } else {
 
-	    Tm t_now_gmt;
-            t_now_gmt.setToCurrentGMTime();
+	    // Tm t_now_gmt;
+            // t_now_gmt.setToCurrentGMTime();
 
 	    cout<< "Run DCS record was the same as previous run " << endl;
-	    ss << "Time=" << t_now_gmt.str() << "_DCSunchanged_"<<endl; 
+	    ss << "Run=" << irun << "_DCSchanged_"<<endl; 
 	    m_userTextLog = ss.str()+";";
 	    
 	    delete dcs_temp; 
 	    
 	  }
-	  
+
+	  /*	  
 	  
 	} else {
 	  
@@ -665,11 +883,17 @@ void popcon::EcalDCSHandler::getNewObjects()
 
 
 	    }
+	    }
 
-	  }
+
+	
 	  std::cout << " num DCS = "<< num_dcs << std::endl; 
-	  }
+	}
+
+
+
 	  delete dcs_temp;
+	  */
 	  
 	}
 
