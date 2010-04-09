@@ -367,6 +367,22 @@ if __name__ == '__main__':
 		tmpbeam.sigmaZ = line.split()[1]
 		#tmpbeam.sigmaZerr = line.split()[5]
 		tmpbeamsize += 1
+            if line.find('dxdz') != -1:
+		tmpbeam.dxdz = line.split()[1]
+		#tmpbeam.dxdzerr = line.split()[4]
+		tmpbeamsize += 1
+	    if line.find('dydz') != -1:
+		tmpbeam.dydz = line.split()[1]
+		#tmpbeam.dydzerr = line.split()[4]
+		tmpbeamsize += 1
+	    if line.find('BeamWidthX') != -1:
+		tmpbeam.beamWidthX = line.split()[1]
+		#tmpbeam.beamWidthXerr = line.split()[6]
+		tmpbeamsize += 1
+	    if line.find('BeamWidthY') != -1:
+		tmpbeam.beamWidthY = line.split()[1]
+		#tmpbeam.beamWidthYerr = line.split()[6]
+		tmpbeamsize += 1
 	    if line.find('Cov(0,j)') != -1:
 		tmpbeam.Xerr = str(math.sqrt( float( line.split()[1] ) ) )
 		tmpbeamsize += 1
@@ -378,6 +394,16 @@ if __name__ == '__main__':
 		tmpbeamsize += 1
 	    if line.find('Cov(3,j)') != -1:
 		tmpbeam.sigmaZerr = str(math.sqrt( float( line.split()[4] ) ) )
+		tmpbeamsize += 1
+            if line.find('Cov(4,j)') != -1:
+		tmpbeam.dxdzerr = str(math.sqrt( float( line.split()[5] ) ) )
+		tmpbeamsize += 1
+	    if line.find('Cov(5,j)') != -1:
+		tmpbeam.dydzerr = str(math.sqrt( float( line.split()[6] ) ) )
+		tmpbeamsize += 1
+	    if line.find('Cov(6,j)') != -1:
+		tmpbeam.beamWidthXerr = str(math.sqrt( float( line.split()[7] ) ) )
+                tmpbeam.beamWidthYerr = tmpbeam.beamWidthXerr
 		tmpbeamsize += 1
 	    if line.find('LumiRange')  != -1 and IOVbase=="lumibase":
 	    #tmpbeam.IOVfirst = line.split()[6].strip(',')
@@ -393,7 +419,7 @@ if __name__ == '__main__':
             if line.find('EndTimeOfFit') != -1 and IOVbase =="timebase":
 		tmpbeam.IOVlast = time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
 		tmpbeamsize += 1
-	    if tmpbeamsize == 9:
+	    if tmpbeamsize == 16:
 		if int(tmpbeam.IOVfirst) >= firstRun and int(tmpbeam.IOVlast) <= lastRun:
 		    listbeam.append(tmpbeam)
 		tmpbeamsize = 0
@@ -502,7 +528,7 @@ if __name__ == '__main__':
         graphlist.append( TH1F("name","title",len(listbeam),0,len(listbeam)) )
         
 	graphlist[ig].SetName(graphnamelist[ig])
-        graphlist[ig].SetTitle(graphnamelist[ig])
+        graphlist[ig].SetTitle(graphtitlelist[ig])
 	ipoint = 0
 	for ii in range(0,len(listbeam)):
 	    
@@ -554,6 +580,7 @@ if __name__ == '__main__':
 	graphlist[ig].GetYaxis().SetTitle(graphYaxis[ig])
         #graphlist[ig].Fit('pol1')
 	cvlist[ig].Update()
+        #cvlist[ig].Print(graphnamelist[ig]+".png")
         if option.wait:
             raw_input( 'Press ENTER to continue\n ' )
         #graphlist[0].Print('all')
