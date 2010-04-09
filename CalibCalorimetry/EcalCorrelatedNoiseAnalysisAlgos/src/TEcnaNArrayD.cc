@@ -1,21 +1,33 @@
-//----------Author's Name:F.X. Gentit  DAPNIA/SPP CEN Saclay
+//----------Author's Name:F.X. Gentit + modifs by B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA sofware
-//----------Modified:07/06/2007
+//----------Modified:17/03/2010
 
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TNArrayD.h"
-//#include "Riostream.h"
+#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNArrayD.h"
+#include "Riostream.h"
 
-ClassImp(TNArrayD)
+ClassImp(TEcnaNArrayD)
 //______________________________________________________________________________
 //
-// TNArrayD  ROOT class for multidimensional arrays of Double_t
+// TEcnaNArrayD  ROOT class for multidimensional arrays of Double_t
 //
 //   up to dimension 6
 //   book one place more for overflow
 //   detects overflow
 //
-TNArrayD::TNArrayD(const TNArrayD &orig) {
+
+TEcnaNArrayD::TEcnaNArrayD(){
+//constructor without argument
+
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
+
+  Init();
+}
+
+TEcnaNArrayD::TEcnaNArrayD(const TEcnaNArrayD &orig) {
 //copy constructor
+
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
+
   fNd = orig.fNd;
   fN1 = orig.fN1;
   fN2 = orig.fN2;
@@ -27,8 +39,11 @@ TNArrayD::TNArrayD(const TNArrayD &orig) {
   fA  = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = orig.fA[i];
 }
-TNArrayD::TNArrayD(Int_t n1) {
+TEcnaNArrayD::TEcnaNArrayD(Int_t n1) {
 //constructor for a 1 dimensional array of size n1. Array is put to 0
+
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
+
   const Double_t zero = 0.0;
   Init();
   fNd  = 1;
@@ -37,8 +52,11 @@ TNArrayD::TNArrayD(Int_t n1) {
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-TNArrayD::TNArrayD(Int_t n1,Int_t n2) {
+TEcnaNArrayD::TEcnaNArrayD(Int_t n1,Int_t n2) {
 //constructor for a 2 dimensional array of sizes n1,n2. Array is put to 0
+
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
+
   const Double_t zero = 0.0;
   Init();
   fNd = 2;
@@ -48,8 +66,11 @@ TNArrayD::TNArrayD(Int_t n1,Int_t n2) {
   fA  = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-TNArrayD::TNArrayD(Int_t n1,Int_t n2,Int_t n3) {
+TEcnaNArrayD::TEcnaNArrayD(Int_t n1,Int_t n2,Int_t n3) {
 //constructor 3 dimensional array of sizes n1,n2,n3. Array is put to 0
+
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
+
   const Double_t zero = 0.0;
   Init();
   fNd  = 3;
@@ -60,8 +81,11 @@ TNArrayD::TNArrayD(Int_t n1,Int_t n2,Int_t n3) {
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-TNArrayD::TNArrayD(Int_t n1,Int_t n2,Int_t n3,Int_t n4) {
+TEcnaNArrayD::TEcnaNArrayD(Int_t n1,Int_t n2,Int_t n3,Int_t n4) {
 //constructor for a 4 dimensional array of sizes n1,n2,n3,n4. Array is put to 0
+
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
+
   const Double_t zero = 0.0;
   Init();
   fNd  = 4;
@@ -73,8 +97,11 @@ TNArrayD::TNArrayD(Int_t n1,Int_t n2,Int_t n3,Int_t n4) {
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-TNArrayD::TNArrayD(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5) {
+TEcnaNArrayD::TEcnaNArrayD(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5) {
 //constructor for a 5 dimensional array of sizes n1,n2,n3,n4,n5. Array is put to 0
+
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
+
   const Double_t zero = 0.0;
   Init();
   fNd  = 5;
@@ -87,8 +114,11 @@ TNArrayD::TNArrayD(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5) {
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-TNArrayD::TNArrayD(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5,Int_t n6) {
+TEcnaNArrayD::TEcnaNArrayD(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5,Int_t n6) {
 //constructor for a 6 dimensional array of sizes n1,n2,n3,n4,n5,n6. Array is put to 0
+
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
+
   const Double_t zero = 0.0;
   Init();
   fNd  = 6;
@@ -102,16 +132,20 @@ TNArrayD::TNArrayD(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5,Int_t n6) {
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-TNArrayD::~TNArrayD() {
+TEcnaNArrayD::~TEcnaNArrayD() {
 //destructor
+
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          DESTROY OBJECT: this = " << this << endl;
+
   Clean();
 }
-void TNArrayD::Clean() {
+void TEcnaNArrayD::Clean() {
 //
   if (fA) delete [] fA;
   Init();
 }
-void TNArrayD::Init() {
+void TEcnaNArrayD::Init()
+{
 //Initialization
   fNd  = 0;
   fN1  = 1;
@@ -123,41 +157,41 @@ void TNArrayD::Init() {
   fNL  = 0;
   fA   = 0;
 }
-inline Int_t TNArrayD::OneDim(Int_t i1) const {
+inline Int_t TEcnaNArrayD::OneDim(Int_t i1) const {
 //Index from 1 dimension to 1 dimension
   if ((i1>=fNL - 1) || (i1<0)) {
     i1 = fNL - 1;
     Error("OneDim","Index outside bounds");
-    //cout << "i1  = " << i1
-    // << "; fNL = " << fNL << endl;
+    cout << "i1  = " << i1
+    << "; fNL = " << fNL << endl;
   }
   return i1;
 }
-inline Int_t TNArrayD::OneDim(Int_t i1,Int_t i2) const {
+inline Int_t TEcnaNArrayD::OneDim(Int_t i1,Int_t i2) const {
 //Index from 2 dimension to 1 dimension
   Int_t i;
   i = i1 + fN1*i2;
   if ((i>=fNL - 1) || (i<0)) {
     i = fNL - 1;
     Error("OneDim","Index outside bounds");
-    //cout << "i1  = " << i1  << ", i2 = "  << i2
-    //	 << "; fN1 = " << fN1 << ", fNL = " << fNL << endl;
+    cout << "i1  = " << i1  << ", i2 = "  << i2
+    	 << "; fN1 = " << fN1 << ", fNL = " << fNL << endl;
   }
   return i;
 }
-inline Int_t TNArrayD::OneDim(Int_t i1,Int_t i2,Int_t i3) const {
+inline Int_t TEcnaNArrayD::OneDim(Int_t i1,Int_t i2,Int_t i3) const {
 //Index from 3 dimension to 1 dimension
   Int_t i;
   i = i1 + fN1*(i2 + fN2*i3);
   if ((i>=fNL - 1) || (i<0)) {
     i = fNL - 1;
     Error("OneDim","Index outside bounds");
-    //cout << "i1  = " << i1  << ", i2 = "  << i2  << ", i3 = "  << i3
-    // << "; fN1 = " << fN1 << ", fN2 = " << fN2 << ", fNL = " << fNL << endl;
+    cout << "i1  = " << i1  << ", i2 = "  << i2  << ", i3 = "  << i3
+	 << "; fN1 = " << fN1 << ", fN2 = " << fN2 << ", fNL = " << fNL << endl;
   }
   return i;
 }
-inline Int_t TNArrayD::OneDim(Int_t i1,Int_t i2,Int_t i3,Int_t i4) const {
+inline Int_t TEcnaNArrayD::OneDim(Int_t i1,Int_t i2,Int_t i3,Int_t i4) const {
 //Index from 4 dimension to 1 dimension
   Int_t i;
   i = i1 + fN1*(i2 + fN2*(i3 + fN3*i4));
@@ -167,7 +201,7 @@ inline Int_t TNArrayD::OneDim(Int_t i1,Int_t i2,Int_t i3,Int_t i4) const {
   }
   return i;
 }
-inline Int_t TNArrayD::OneDim(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5) const {
+inline Int_t TEcnaNArrayD::OneDim(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5) const {
 //Index from 5 dimension to 1 dimension
   Int_t i;
   i = i1 + fN1*(i2 + fN2*(i3 + fN3*(i4 + fN4*i5)));
@@ -177,7 +211,7 @@ inline Int_t TNArrayD::OneDim(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5) cons
   }
   return i;
 }
-inline Int_t TNArrayD::OneDim(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t i6) const {
+inline Int_t TEcnaNArrayD::OneDim(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t i6) const {
 //Index from 6 dimension to 1 dimension
   Int_t i;
   i = i1 + fN1*(i2 + fN2*(i3 + fN3*(i4 + fN4*(i5 + fN5*i6))));
@@ -187,7 +221,7 @@ inline Int_t TNArrayD::OneDim(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t
   }
   return i;
 }
-void TNArrayD::ReSet(Int_t n1) {
+void TEcnaNArrayD::ReSet(Int_t n1) {
 //Reset this to be 1 dimensional of dimension n1
   const Double_t zero = 0.0;
   Clean();
@@ -197,7 +231,7 @@ void TNArrayD::ReSet(Int_t n1) {
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-void TNArrayD::ReSet(Int_t n1,Int_t n2) {
+void TEcnaNArrayD::ReSet(Int_t n1,Int_t n2) {
 //Reset this to be 2 dimensional of dimension n1,n2
   const Double_t zero = 0.0;
   Clean();
@@ -208,7 +242,7 @@ void TNArrayD::ReSet(Int_t n1,Int_t n2) {
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-void TNArrayD::ReSet(Int_t n1,Int_t n2,Int_t n3) {
+void TEcnaNArrayD::ReSet(Int_t n1,Int_t n2,Int_t n3) {
 //Reset this to be 3 dimensional of dimension n1,n2,n3
   const Double_t zero = 0.0;
   Clean();
@@ -220,7 +254,7 @@ void TNArrayD::ReSet(Int_t n1,Int_t n2,Int_t n3) {
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-void TNArrayD::ReSet(Int_t n1,Int_t n2,Int_t n3,Int_t n4) {
+void TEcnaNArrayD::ReSet(Int_t n1,Int_t n2,Int_t n3,Int_t n4) {
 //Reset this to be 4 dimensional of dimension n1,n2,n3,n4
   const Double_t zero = 0.0;
   Clean();
@@ -233,7 +267,7 @@ void TNArrayD::ReSet(Int_t n1,Int_t n2,Int_t n3,Int_t n4) {
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-void TNArrayD::ReSet(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5) {
+void TEcnaNArrayD::ReSet(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5) {
 //Reset this to be 5 dimensional of dimension n1,n2,n3,n4,n5
   const Double_t zero = 0.0;
   Clean();
@@ -247,7 +281,7 @@ void TNArrayD::ReSet(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5) {
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-void TNArrayD::ReSet(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5,Int_t n6) {
+void TEcnaNArrayD::ReSet(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5,Int_t n6) {
 //Reset this to be 6 dimensional of dimension n1,n2,n3,n4,n5,n6
   const Double_t zero = 0.0;
   Clean();
@@ -262,58 +296,58 @@ void TNArrayD::ReSet(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5,Int_t n6) {
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-const Double_t &TNArrayD::operator()(Int_t i1) const {
+const Double_t &TEcnaNArrayD::operator()(Int_t i1) const {
   Int_t i;
   i = OneDim(i1);
   return fA[i];
 }
-const Double_t &TNArrayD::operator()(Int_t i1,Int_t i2) const {
+const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2) const {
   Int_t i;
   i = OneDim(i1,i2);
   return fA[i];
 }
-const Double_t &TNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3) const {
+const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3) const {
   Int_t i;
   i = OneDim(i1,i2,i3);
   return fA[i];
 }
-const Double_t &TNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4) const {
+const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4) const {
   Int_t i;
   i = OneDim(i1,i2,i3,i4);
   return fA[i];
 }
-const Double_t &TNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5) const {
+const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5) const {
   Int_t i;
   i = OneDim(i1,i2,i3,i4,i5);
   return fA[i];
 }
-const Double_t &TNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t i6) const {
+const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t i6) const {
   Int_t i;
   i = OneDim(i1,i2,i3,i4,i5,i6);
   return fA[i];
 }
-Double_t &TNArrayD::operator()(Int_t i1)
+Double_t &TEcnaNArrayD::operator()(Int_t i1)
 {
-   return (Double_t&)((*(const TNArrayD *)this)(i1));
+   return (Double_t&)((*(const TEcnaNArrayD *)this)(i1));
 }
-Double_t &TNArrayD::operator()(Int_t i1,Int_t i2)
+Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2)
 {
-   return (Double_t&)((*(const TNArrayD *)this)(i1,i2));
+   return (Double_t&)((*(const TEcnaNArrayD *)this)(i1,i2));
 }
-Double_t &TNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3)
+Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3)
 {
-   return (Double_t&)((*(const TNArrayD *)this)(i1,i2,i3));
+   return (Double_t&)((*(const TEcnaNArrayD *)this)(i1,i2,i3));
 }
-Double_t &TNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4)
+Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4)
 {
-   return (Double_t&)((*(const TNArrayD *)this)(i1,i2,i3,i4));
+   return (Double_t&)((*(const TEcnaNArrayD *)this)(i1,i2,i3,i4));
 }
-Double_t &TNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5)
+Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5)
 {
-   return (Double_t&)((*(const TNArrayD *)this)(i1,i2,i3,i4,i5));
+   return (Double_t&)((*(const TEcnaNArrayD *)this)(i1,i2,i3,i4,i5));
 }
-Double_t &TNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t i6)
+Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t i6)
 {
-   return (Double_t&)((*(const TNArrayD *)this)(i1,i2,i3,i4,i5,i6));
+   return (Double_t&)((*(const TEcnaNArrayD *)this)(i1,i2,i3,i4,i5,i6));
 }
 

@@ -1,16 +1,16 @@
 
-//////////////////////////////////////////////////////////////////////////
-//                                                                      //
-// TNArrayD  ROOT class for multidimensional arrays of Double_t         //
-//                                                                      //
-//                                                                      //
-//////////////////////////////////////////////////////////////////////////
-#ifndef ROOT_TNArrayD
-#define ROOT_TNArrayD
+//////////////////////////////////////////////////////////////////////////////
+//                                                                          //
+// TEcnaNArrayD  ROOT class for multidimensional arrays of Double_t         //
+//                                                                          //
+//                                                                          //
+//////////////////////////////////////////////////////////////////////////////
+#ifndef ROOT_TEcnaNArrayD
+#define ROOT_TEcnaNArrayD
 
 #include "TObject.h"
 
-class TNArrayD : public TObject {
+class TEcnaNArrayD : public TObject {
 
 protected:
 
@@ -35,15 +35,15 @@ protected:
 
 public:
 
-  TNArrayD() { Init(); }
-  TNArrayD(const TNArrayD&);
-  TNArrayD(Int_t);
-  TNArrayD(Int_t,Int_t);
-  TNArrayD(Int_t,Int_t,Int_t);
-  TNArrayD(Int_t,Int_t,Int_t,Int_t);
-  TNArrayD(Int_t,Int_t,Int_t,Int_t,Int_t);
-  TNArrayD(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t);
-  virtual ~TNArrayD();
+  TEcnaNArrayD();
+  TEcnaNArrayD(const TEcnaNArrayD&);
+  TEcnaNArrayD(Int_t);
+  TEcnaNArrayD(Int_t,Int_t);
+  TEcnaNArrayD(Int_t,Int_t,Int_t);
+  TEcnaNArrayD(Int_t,Int_t,Int_t,Int_t);
+  TEcnaNArrayD(Int_t,Int_t,Int_t,Int_t,Int_t);
+  TEcnaNArrayD(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t);
+  virtual ~TEcnaNArrayD();
   void     Clean();
   Double_t GetOverFlow() const { return fA[fNL-1]; }
   void     ReSet(Int_t);
@@ -64,6 +64,6 @@ public:
   Double_t &operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4);
   Double_t &operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5);
   Double_t &operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t i6);
-  ClassDef(TNArrayD,1) //ROOT class for multidimensional arrays of Double_t
+  ClassDef(TEcnaNArrayD,1) //ROOT class for multidimensional arrays of Double_t
 };
 #endif
