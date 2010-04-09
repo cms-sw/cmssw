@@ -32,6 +32,7 @@ namespace edm {
       virtual RefVectorHolder<REFV> * cloneEmpty() const;
       void setRefs(REFV const& refs);
       virtual void reallyFillView(void const*, ProductID const&, std::vector<void const*> &);
+      virtual size_t keyForIndex(size_t idx) const;
 
     private:
       typedef typename RefVectorHolderBase::const_iterator_imp const_iterator_imp;
@@ -163,7 +164,13 @@ namespace edm {
       refs_ = refs;
     }
 
-    // Free swap function
+     template <typename REFV>
+     inline
+     size_t RefVectorHolder<REFV>::keyForIndex(size_t idx) const {
+        return refs_[idx].key();
+     }
+     
+     // Free swap function
     template <typename REFV>
     inline
     void
