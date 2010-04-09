@@ -103,7 +103,7 @@ uint16_t  popcon::EcalDCSHandler::updateHV( RunDCSHVDat* hv, uint16_t dbStatus, 
   
   uint16_t temp=0;
 
-  if(mode == 0 | mode ==1) {
+  if(mode == 0 || mode == 1) {
     for (int i=0; i<16; i++) {
       if( i!= EcalDCSTowerStatusHelper::HVSTATUS &&  i!=EcalDCSTowerStatusHelper::HVNOMINALSTATUS  ) {
 	temp = temp | (1<<i) ;  
