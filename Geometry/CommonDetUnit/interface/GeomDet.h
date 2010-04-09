@@ -4,8 +4,8 @@
 /** \class GeomDet
  *  Base class for GeomDetUnit and for composite GeomDet s. 
  *
- *  $Date: 2006/07/25 09:45:00 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/03/09 00:40:39 $
+ *  $Revision: 1.11 $
  */
 
 
@@ -71,7 +71,7 @@ public:
   } 
 
   /// The label of this GeomDet
-  virtual DetId geographicalId() const = 0;
+  DetId geographicalId() const { return m_detId; }
 
   /// Which subdetector
   virtual SubDetector subDetector() const = 0;  
@@ -88,10 +88,18 @@ public:
   virtual const GeomDet* component(DetId id) const {return 0;}
 
 
+  protected:
+
+    void setDetId(DetId id) {
+      m_detId = id;
+    }
+
 private:
 
   ReferenceCountingPointer<BoundPlane>  thePlane;
   AlignmentPositionError*               theAlignmentPositionError;
+  DetId m_detId;
+
 
   /// Alignment part of interface, available only to friend 
   friend class DetPositioner;

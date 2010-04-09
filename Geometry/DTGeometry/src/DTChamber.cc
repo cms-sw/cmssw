@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/14 14:45:17 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/04/28 10:23:47 $
+ *  $Revision: 1.6 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  */
 
@@ -21,6 +21,7 @@
 DTChamber::DTChamber(DTChamberId id, const ReferenceCountingPointer<BoundPlane>& plane) :
   GeomDet(plane), 
   theId(id) {
+  setDetId(id);
 }
 
 /* Destructor */ 
@@ -30,9 +31,6 @@ DTChamber::~DTChamber() {
 }
 
 /* Operations */ 
-DetId DTChamber::geographicalId() const {
-  return theId;
-}
 
 DTChamberId DTChamber::id() const {
   return theId;

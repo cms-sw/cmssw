@@ -10,8 +10,8 @@
  *  The chamber is composed by 2 or three DTSuperLayer, which in turn are 
  *  composed by four DTLayer each.
  *
- *  $Date: 2006/07/14 14:45:16 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/07/25 09:54:11 $
+ *  $Revision: 1.6 $
  *  \author S. Lacaprara, N. Amapane
  */
 
@@ -31,9 +31,6 @@ class DTChamber : public GeomDet {
 
     /// Destructor
     virtual ~DTChamber();
-
-    /// Return the DetId of this chamber
-    virtual DetId geographicalId() const;
 
     /// Return the DTChamberId of this chamber
     DTChamberId id() const;

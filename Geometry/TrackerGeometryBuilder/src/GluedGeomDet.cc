@@ -10,15 +10,12 @@ GluedGeomDet::GluedGeomDet( BoundPlane* sp,const GeomDetUnit* monoDet, const Geo
   GeomDet(sp),theMonoDet(monoDet),theStereoDet(stereoDet){
   child.push_back(theMonoDet);
   child.push_back(theStereoDet);
+  StripSubdetector subdet(theMonoDet->geographicalId().rawId());
+  setDetId(subdet.glued());
 }
 
 GluedGeomDet::~GluedGeomDet()
 {}
-
-DetId GluedGeomDet::geographicalId() const {
-  StripSubdetector subdet(theMonoDet->geographicalId().rawId());
-  return DetId(subdet.glued());
-}
 
 std::vector<const GeomDet*> GluedGeomDet::components() const {
   return child;

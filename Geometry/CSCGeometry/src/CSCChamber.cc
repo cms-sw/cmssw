@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/22 09:46:37 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/14 14:37:20 $
+ *  $Revision: 1.4 $
  */
 
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>
@@ -38,9 +38,9 @@ void CSCChamber::addComponent( int n, const CSCLayer* gd ) {
     edm::LogError("CSC") << "Each chamber has only SIX layers.";
 }
 
-const CSCLayer* CSCChamber::layer(CSCDetId id) const {
-  if (id.chamberId()!=theId) return 0; // not in this chamber
-  return layer(id.layer());
+const CSCLayer* CSCChamber::layer(CSCDetId iid) const {
+  if (iid.chamberId()!=id()) return 0; // not in this chamber
+  return layer(iid.layer());
 }
   
 const CSCLayer* CSCChamber::layer(int ilay) const{

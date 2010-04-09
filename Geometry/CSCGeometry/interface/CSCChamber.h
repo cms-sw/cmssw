@@ -24,17 +24,17 @@ class CSCChamber : public GeomDet {
 public:
 
   CSCChamber( const BoundPlane::BoundPlanePointer bp, CSCDetId id, const CSCChamberSpecs* specs ) :
-  GeomDet( bp ), theId( id ), theChamberSpecs( specs ), 
-    theComponents(6,(const CSCLayer*)0) {}
+  GeomDet( bp ),  theChamberSpecs( specs ), 
+    theComponents(6,(const CSCLayer*)0) {
+    setDetId(id);
+  }
 
   ~CSCChamber();
 
   const GeomDetType& type() const { return *(specs()); }
 
-  DetId geographicalId() const { return theId; } //@@ Slices base
-
   /// Get the (concrete) DetId.
-  CSCDetId id() const { return theId; }
+  CSCDetId id() const { return geographicalId(); }
 
   // Which subdetector
   virtual SubDetector subDetector() const {return GeomDetEnumerators::CSC;}
@@ -65,7 +65,6 @@ public:
 
 private:
 
-  CSCDetId theId;
   const CSCChamberSpecs* theChamberSpecs;
   std::vector< const CSCLayer* > theComponents; // the 6 CSCLayers comprising a CSCChamber; are owned by this class
 };

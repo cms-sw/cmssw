@@ -8,8 +8,8 @@
  *  A chamber is a GeomDet.
  *  The chamber is composed by 2 or 3 Roll (GeomDetUnit).
  *
- *  $Date: 2006/09/21 15:33:47 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/28 10:31:32 $
+ *  $Revision: 1.2 $
  *  \author R. Trentadue
  */
 
@@ -24,9 +24,6 @@ class RPCChamber : public GeomDet {
   RPCChamber(RPCDetId id, const ReferenceCountingPointer<BoundPlane>& plane);
   /// Destructor
   virtual ~RPCChamber();
-
-  /// Return the DetId of this chamber
-  virtual DetId geographicalId() const;
 
   /// Return the RPCChamberId of this chamber
   RPCDetId id() const;

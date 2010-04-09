@@ -9,7 +9,7 @@
  *  The individual channes are modelled by DTTopology.
  *
  *  $date   : 13/01/2006 16:43:17 CET $
- *  $Revision: 1.1 $
+ *  $Revision: 1.2 $
  *  \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -45,9 +45,6 @@ class DTLayer : public GeomDetUnit {
     const GeomDetType& type() const;
 
     const DTTopology& specificTopology() const;
-
-    /// Return the DetId of this SL
-    virtual DetId geographicalId() const;
 
     /// Return the DetId of this SL
     DTLayerId id() const;

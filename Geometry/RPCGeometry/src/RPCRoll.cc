@@ -5,7 +5,9 @@
 
 RPCRoll::RPCRoll(RPCDetId id, BoundPlane::BoundPlanePointer bp, RPCRollSpecs* rrs) :
   GeomDetUnit(bp), _id(id),_rrs(rrs)
-{}
+{
+  setDetId(id);
+}
 
 RPCRoll::~RPCRoll()
 {
@@ -16,12 +18,6 @@ const  RPCRollSpecs*
 RPCRoll::specs() const
 {
   return _rrs;
-}
-
-DetId
-RPCRoll::geographicalId() const
-{
-  return _id;
 }
 
 RPCDetId

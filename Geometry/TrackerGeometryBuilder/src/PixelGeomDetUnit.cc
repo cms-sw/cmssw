@@ -7,7 +7,9 @@
 
 PixelGeomDetUnit::PixelGeomDetUnit( BoundPlane* sp, PixelGeomDetType* type,const GeometricDet* gd): GeomDetUnit(sp),
 												 theType(type),theGD(gd)
-{}
+{
+  setDetId(theGD->geographicalID());
+}
 
 
 const GeomDetType& PixelGeomDetUnit::type() const { return *theType;}
@@ -19,4 +21,3 @@ const PixelTopology& PixelGeomDetUnit::specificTopology() const {
   return specificType().specificTopology();
 }
 
-DetId PixelGeomDetUnit::geographicalId() const {return theGD->geographicalID();}
