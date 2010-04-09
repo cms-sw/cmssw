@@ -5,6 +5,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
@@ -184,8 +185,7 @@ int MuonCSCSeedFromRecHits::segmentQuality(ConstMuonRecHitPointer  segment) cons
   if ( nhits == 4 ) quality = 3 + Nchi2;
   if ( nhits == 3 ) quality = 5 + Nchi2;
 
-  float dPhiGloDir = fabs ( segment->globalPosition().phi() - segment->globalDirection().phi() );
-  if ( dPhiGloDir > M_PI   )  dPhiGloDir = 2.*M_PI - dPhiGloDir;
+  float dPhiGloDir = fabs ( deltaPhi(segment->globalPosition().phi(), segment->globalDirection().phi()) );
 
   if ( dPhiGloDir > .2 ) ++quality;
   return quality;
@@ -210,9 +210,7 @@ MuonCSCSeedFromRecHits::bestEndcapHit(const MuonRecHitContainer & endcapHits) co
 
     quality = segmentQuality(meit);
 
-    dPhiGloDir = fabs ( meit->globalPosition().phi() - meit->globalDirection().phi() );
-    if ( dPhiGloDir > M_PI   )  dPhiGloDir = 2.*M_PI - dPhiGloDir;
-
+    dPhiGloDir = fabs ( deltaPhi(meit->globalPosition().phi(), meit->globalDirection().phi()) );
 
     if(!me1){
       me1 = meit;
@@ -286,12 +284,10 @@ void MuonCSCSeedFromRecHits::analyze() const
 
       CSCDetId cscId1((*iter)->geographicalId().rawId());
       CSCDetId cscId2((*iter2)->geographicalId().rawId());
-      double dphi = (**iter).globalPosition().phi() - (**iter2).globalPosition().phi();
-      if(dphi > M_PI) dphi -= 2*M_PI;
-      if(dphi < -M_PI) dphi += 2*M_PI;
+      double dphi = deltaPhi((**iter).globalPosition().phi(), (**iter2).globalPosition().phi());
 
-      int type1 = CSCChamberSpecs::whatChamberType(cscId1.station(), cscId1.ring());
-      int type2 = CSCChamberSpecs::whatChamberType(cscId2.station(), cscId2.ring());
+      int type1 = cscId1.iChamberType();
+      int type2 = cscId2.iChamberType();
 
       // say the lower station first
       if(type1 < type2)

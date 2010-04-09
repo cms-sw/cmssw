@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2010/03/07 17:19:49 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/04/08 23:40:33 $
+ *  $Revision: 1.17 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -18,6 +18,7 @@
 //#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 //#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 //#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
@@ -197,9 +198,7 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
     GlobalPoint pos = (*iter)->globalPosition();
     GlobalVector dir = (*iter)->globalDirection();
 
-    float dphi = -pos.phi()+dir.phi();
-    if(dphi>M_PI) dphi -= 2*M_PI;
-    if(dphi<-M_PI) dphi += 2*M_PI;
+    float dphi = deltaPhi(dir.phi(), pos.phi());
     int ch = (dphi<0) ? 1 : -1;
 
     if( stat==1 ) {
@@ -270,10 +269,7 @@ void MuonDTSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
 
       GlobalVector globalDir1 = (*iter)->globalDirection();
       GlobalVector globalDir2 = (*iter2)->globalDirection();
-      float dphi = -globalDir1.phi()+globalDir2.phi();
-      // Maybe these aren't necessary with Geom::Phi
-      if(dphi>M_PI) dphi -= 2*M_PI;
-      if(dphi<-M_PI) dphi += 2*M_PI;
+      float dphi = deltaPhi(globalDir2.phi(), -globalDir1.phi());
       // assume we're going inward, so + dphi means + charge
       int ch = (dphi > 0) ? 1 : -1;
 
