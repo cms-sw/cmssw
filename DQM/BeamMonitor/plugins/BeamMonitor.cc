@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/04/06 16:48:45 $
- * $Revision: 1.39 $
+ * $Date: 2010/04/09 16:22:22 $
+ * $Revision: 1.40 $
  *
  */
 
@@ -510,6 +510,8 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
   int currentlumi = nextlumi;
   cout << "Lumi of the current fit: " << currentlumi << endl;
   lastlumi = currentlumi;
+  endLumiOfBSFit_ = currentlumi;
+  endLumiOfPVFit_ = currentlumi;
 
   if (onlineMode_) { // filling LS gap
     // FIXME: need to add protection for the case if the gap is at the resetting LS!
@@ -570,7 +572,6 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     doPVFit = true;
 
   if (doPVFit) {
-    endLumiOfPVFit_ = currentlumi;
 
     if (debug_) std::cout << "Do PV Fitting for LS = " << beginLumiOfPVFit_ << " to " << endLumiOfPVFit_ << std::endl;
     // Primary Vertex Fit:
@@ -721,7 +722,6 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     nFits_++;
     int * fitLS = theBeamFitter->getFitLSRange();
     if (debug_) std::cout << "[BeamFitter] Do BeamSpot Fit for LS = " << fitLS[0] << " to " << fitLS[1] << std::endl;
-    endLumiOfBSFit_ = currentlumi;
     if (debug_) std::cout << "[BeamMonitor] Do BeamSpot Fit for LS = " << beginLumiOfBSFit_ << " to " << endLumiOfBSFit_ << std::endl;
     //theBeamFitter->setFitLSRange(beginLumiOfBSFit_,endLumiOfBSFit_); // Testing, overwrite Fit LS
     //theBeamFitter->setRefTime(refBStime[0],refBStime[1]); // Testing, overwrite Fit time
