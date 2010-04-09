@@ -27,13 +27,10 @@ regionalCosmicMuonSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
         precise        = cms.bool( True ),
         ),
       ToolsPSet = cms.PSet(
-        triggerSummaryLabel         = cms.string("hltTriggerSummaryAOD"),
         thePropagatorName           = cms.string("AnalyticalPropagator"),
         regionBase                  = cms.string("")
         ),
       CollectionsPSet = cms.PSet(
-        l2MuonsCollection           = cms.InputTag("hltDiMuonL2PreFiltered0"),
-        l2MuonsRecoTracksCollection = cms.InputTag("hltL2Muons"),
         staMuonsCollection          = cms.InputTag("muons"),
         cosmicMuonsCollection       = cms.InputTag("cosmicMuons")
         )
@@ -63,7 +60,7 @@ regionalCosmicMuonSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
 
     ClusterCheckPSet = cms.PSet (
       MaxNumberOfCosmicClusters = cms.double( 50000 ),
-      ClusterCollectionLabel = cms.InputTag( "hltSiStripClusters" ),
+      ClusterCollectionLabel = cms.InputTag( "siStripClusters" ),
       doClusterCheck = cms.bool( False )
     ) ,
 
