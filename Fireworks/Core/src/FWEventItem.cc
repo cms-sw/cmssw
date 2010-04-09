@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.40 2010/02/18 21:51:27 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.41 2010/03/04 21:31:47 chrjones Exp $
 //
 
 // system include files
@@ -661,6 +661,10 @@ FWEventItem::errorMessage() const
    return m_errorMessage;
 }
 
+const DetIdToMatrix* 
+FWEventItem::getGeom() const {
+   return m_context->getGeom();
+}
 //
 // static member functions
 //
