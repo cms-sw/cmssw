@@ -5,6 +5,11 @@
 
 #include "xdata/String.h"
 #include "xdata/UnsignedInteger32.h"
+#include "xdata/ActionListener.h"
+
+#include "xoap/MessageReference.h"
+#include "xoap/MessageFactory.h"
+#include "xoap/Method.h"
 
 #include "xgi/Utils.h"
 #include "xgi/Input.h"
@@ -46,7 +51,8 @@ namespace evf {
   typedef std::map<std::string,internal::fu> fmap;
   typedef fmap::iterator ifmap;
   
-  class iDie : public xdaq::Application
+  class iDie : public xdaq::Application,
+    public xdata::ActionListener
   {
   public:
     //
@@ -75,6 +81,14 @@ namespace evf {
     void postEntry(xgi::Input*in,xgi::Output*out)
       throw (xgi::exception::Exception);
     
+    // *fake* fsm soap command callback
+    xoap::MessageReference fsmCallback(xoap::MessageReference msg)
+      throw (xoap::exception::Exception);
+
+    // xdata:ActionListener interface
+    void actionPerformed(xdata::Event& e);
+
+
   private:
     //
     // private member functions
@@ -94,7 +108,7 @@ namespace evf {
     xdata::UnsignedInteger32        instance_;
     xdata::String                   hostname_;
     xdata::UnsignedInteger32        runNumber_;
-
+    xdata::String                   configString_;
     fmap                            fus_;
 
     std::vector<std::vector<internal::path> > paths_;

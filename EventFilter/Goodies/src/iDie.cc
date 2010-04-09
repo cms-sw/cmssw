@@ -2,6 +2,8 @@
 
 #include "EventFilter/Utilities/interface/CurlUtils.h"
 
+#include "xdaq/NamespaceURI.h"
+
 #include "xoap/SOAPEnvelope.h"
 #include "xoap/SOAPBody.h"
 #include "xoap/domutils.h"
@@ -20,7 +22,7 @@
 #include "TCanvas.h"
 
 
-using namespace std;
+
 using namespace evf;
 
 
@@ -44,6 +46,12 @@ iDie::iDie(xdaq::ApplicationStub *s)
   instance_=getApplicationDescriptor()->getInstance();
   hostname_=getApplicationDescriptor()->getContextDescriptor()->getURL();
   
+  //soap interface
+  xoap::bind(this,&evf::iDie::fsmCallback,"Configure",XDAQ_NS_URI);
+  xoap::bind(this,&evf::iDie::fsmCallback,"Enable",   XDAQ_NS_URI);
+  xoap::bind(this,&evf::iDie::fsmCallback,"Stop",     XDAQ_NS_URI);
+  xoap::bind(this,&evf::iDie::fsmCallback,"Halt",     XDAQ_NS_URI);
+
   // web interface
   xgi::bind(this,&evf::iDie::defaultWeb,"Default"    );
   xgi::bind(this,&evf::iDie::summaryTable,"summary"  );
@@ -54,8 +62,11 @@ iDie::iDie(xdaq::ApplicationStub *s)
   xgi::bind(this,&evf::iDie::postEntry, "postEntry"  );
   //  gui_->setSmallAppIcon("/evf/images/Hilton.gif");
   //  gui_->setLargeAppIcon("/evf/images/Hilton.gif");
-  
 
+  xdata::InfoSpace *ispace = getApplicationInfoSpace();
+  ispace->fireItemAvailable("parameterSet",         &configString_                );
+  ispace->fireItemAvailable("runNumber",            &runNumber_                   );
+  getApplicationInfoSpace()->addItemChangedListener("runNumber",              this);
 }
 
 
@@ -64,7 +75,82 @@ iDie::~iDie()
 {
 }
 
+//______________________________________________________________________________
+void iDie::actionPerformed(xdata::Event& e)
+{
+  
+  if (e.type()=="ItemChangedEvent" ) {
+    std::string item = dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
+    
+    if ( item == "runNumber") {
+      LOG4CPLUS_WARN(getApplicationLogger(),
+		     "New Run was started - iDie will reset");
+      reset();
+    }
+    
+  }
+}
 
+//______________________________________________________________________________
+xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
+  throw (xoap::exception::Exception)
+{
+  
+  xoap::SOAPPart     part    =msg->getSOAPPart();
+  xoap::SOAPEnvelope env     =part.getEnvelope();
+  xoap::SOAPBody     body    =env.getBody();
+  DOMNode           *node    =body.getDOMNode();
+  DOMNodeList       *bodyList=node->getChildNodes();
+  DOMNode           *command =0;
+  std::string             commandName;
+  
+  for (unsigned int i=0;i<bodyList->getLength();i++) {
+    command = bodyList->item(i);
+    if(command->getNodeType() == DOMNode::ELEMENT_NODE) {
+      commandName = xoap::XMLCh2String(command->getLocalName());
+      break;
+    }
+  }
+  
+  if (commandName.empty()) {
+    XCEPT_RAISE(xoap::exception::Exception,"Command not found.");
+  }
+  
+  // fire appropriate event and create according response message
+  try {
+
+    // response string
+    xoap::MessageReference reply = xoap::createMessage();
+    xoap::SOAPEnvelope envelope  = reply->getSOAPPart().getEnvelope();
+    xoap::SOAPName responseName  = envelope.createName(commandName+"Response",
+						       "xdaq",XDAQ_NS_URI);
+    xoap::SOAPBodyElement responseElem =
+      envelope.getBody().addBodyElement(responseName);
+    
+    std::string state;
+    // generate correct return state string
+    if(commandName == "Configure") state = "Ready";
+    else if(commandName == "Enable") state = "Enabled";
+    else if(commandName == "Stop") state = "Ready";
+    else if(commandName == "Halt") state = "Halted";
+    else state = "BOH";
+
+    xoap::SOAPName    stateName     = envelope.createName("state",
+							  "xdaq",XDAQ_NS_URI);
+    xoap::SOAPElement stateElem     = responseElem.addChildElement(stateName);
+    xoap::SOAPName    attributeName = envelope.createName("stateName",
+							  "xdaq",XDAQ_NS_URI);
+    stateElem.addAttribute(attributeName,state);
+    
+    return reply;
+  }
+  catch (toolbox::fsm::exception::Exception & e) {
+    XCEPT_RETHROW(xoap::exception::Exception,"invalid command.",e);
+  }	
+  
+
+
+}
 
 //______________________________________________________________________________
 void iDie::defaultWeb(xgi::Input *in,xgi::Output *out)
@@ -211,8 +297,8 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
 	totalCores_++;
 	std::string st = el1[0].getValue();
 	std::string sig; 
-	size_t psig = st.find_first_of("signal");
-	if(psig != string::npos)
+	size_t psig = st.find("signal");
+	if(psig != std::string::npos)
 	  sig = st.substr(psig,10);
 	std::cout << "postEntry string " << st << std::endl;
 	std::string host = cgi.getEnvironment().getRemoteHost();

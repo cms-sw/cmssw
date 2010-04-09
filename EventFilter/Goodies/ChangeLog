@@ -1,5 +1,10 @@
 2010-03-23 Emilio Meschi <emilio.meschi@cern.ch>
 
+	* tag V00-00-02
+	* addded fake FSM for use with runcontrol
+	
+2010-03-23 Emilio Meschi <emilio.meschi@cern.ch>
+
 	* tag V00-00-01
 	* add BuildFile and fix typos/warnings etc
 
