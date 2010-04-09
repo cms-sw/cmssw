@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: checkdeps,v 1.8 2009/09/28 07:33:58 muzaffar Exp $
+# $Id: checkdeps,v 1.9 2009/10/22 12:41:06 muzaffar Exp $
 #
 # Created by: David Lange
 #             LLNL
@@ -51,47 +51,42 @@ if ((!$checkpython) && (!$checkheader)) {
     $checkheader=1;
 }
 
-if ( $ENV{'LOCALRT'} eq "" ) {
-    print "Please setup the scram runtime environment before running this script\n";
-    exit;
-}
+# make sure cvs is setup
+die "ERROR: CVS not set. Do |project CMSSW| first\n" unless(defined $ENV{"CVSROOT"});
 
-if ( $ENV{'CMSSW_RELEASE_BASE'} eq "" ) {
-    print "Please setup the scram runtime environment before running this script\n";
-    exit;
-}
+my $localtop=&getLocalTop();
+die "ERROR: Could not find developers area base path. Please run this script from a developer area.\n" if ($localtop eq "");
 
-if ( $ENV{'CVSROOT'} eq "" ) {
-    print "Please setup the CVS environment before running this script (likely |project CMSSW|)\n";
-    exit;
-}
+my $releasetop=&getReleaseTop($localtop);
+die "ERROR: Could not find release base path. Please run this script from a developer area.\n" if ($releasetop eq "");
 
-if ( !(-e "$ENV{'CMSSW_RELEASE_BASE'}/etc/dependencies/usedby.out.gz") ) {
-    print "This release appears not to support the functionality of this script (170pre4 and higher). Sorry\n";
-    exit;
-}
+my $taglist = "${releasetop}/src/PackageList.cmssw";
+die "ERROR: Cannot find release package/tag list at $taglist\n" if (!-e $taglist);
 
-#check that addpkg is ok...
-my $isaddpkg=`which addpkg`;
-if ( $isaddpkg =~ /Command not found/) {
-    print "This script relies on addpkg, which appears not to be in your path\n";
-    print "Perhaps something is wrong with this release or your run time\n";
-    print "environment is not set correctly?\n";
-    exit 1;
+if ($runAddpkg) {
+    my $isaddpkg=`which addpkg 2>&1`;
+    if ($? != 0) {
+        print "ERROR: Could not find \"addpkg\" in path.\n",
+	      "  This script relies on addpkg, which appears not to be in your path\n",
+              "  Perhaps something is wrong with this release or your run time\n",
+              "  environment is not set correctly?\n";
+        exit 1;
+    }
 }
 
 my %vals=();
 if ($checkheader){
-    &readDependencyInfo("$ENV{'CMSSW_RELEASE_BASE'}/etc/dependencies/usedby.out.gz",\%vals);
+    my $depfile = "${releasetop}/etc/dependencies/usedby.out.gz";
+    die "ERROR: This release appears not to support the functionality of this script (170pre4 and higher). Sorry\n" if (!-e "$depfile");
+    &readDependencyInfo("$depfile",\%vals);
 }
 
 if ($checkpython) {
-    if (-e "$ENV{'CMSSW_RELEASE_BASE'}/etc/dependencies/pyusedby.out.gz") {
-        &readDependencyInfo("$ENV{'CMSSW_RELEASE_BASE'}/etc/dependencies/pyusedby.out.gz",\%vals);
-    }
+    my $depfile = "${releasetop}/etc/dependencies/pyusedby.out.gz";
+    &readDependencyInfo("$depfile",\%vals) if (-e "$depfile");
 }
 
-chdir("$ENV{'LOCALRT'}/src");
+chdir("${localtop}/src");
 my @f1 = `ls`;
 my $maindir=cwd;
 
@@ -115,15 +110,15 @@ for my $f (@f1) {
   }
 }
 
+my $tags=&readTags($taglist);
 my @changedFiles;
 
 foreach my $package (@packages) {
     next if ($package =~/^UserCode.*/);
+    next if (!exists $tags->{$package});
     chdir("$maindir");
     chdir("$package");
-    my $reltag=`addpkg -q $package`;
-    my @sp1=split(' ',$reltag);
-    $reltag=$sp1[1];
+    my $reltag=$tags->{$package};
     my $diffs=`cvs -q -n update -r $reltag`;
     my @diffs=split('\n',$diffs);
     foreach my $diff (@diffs) {
@@ -188,4 +183,49 @@ sub readDependencyInfo()
     }
   }
   close($ref);
+}
+
+sub readTags(){
+    my ($taglist)=@_;
+    my $cache={};
+    my $ref;
+    if (open($ref,$taglist)) {
+        while(my $l=<$ref>) {
+            chomp $l;
+	    if ($l=~/^\s*(#.*|)$/){next;}
+	    my ($pk,$tag)=split '\s+', $l;
+	    $cache->{$pk}=$tag;
+        }
+	close($ref);
+    }
+    else {
+      die "ERROR: Can not open file for reading: $taglist\n";
+    }
+    return $cache;
+}
+
+sub getLocalTop(){
+    use File::Basename;
+    my $dir=getcwd;
+    my $subdir=".SCRAM";
+    while((!-d "${dir}/${subdir}") && ($dir!~/^[\.\/]$/)){$dir=dirname($dir);}
+    if(-d "${dir}/${subdir}"){return $dir;}
+    return ""; 
+}
+
+sub getReleaseTop(){
+    my ($dev)=@_;
+    &setArch();
+    my $reltop="";
+    if (-f "${dev}/.SCRAM/$ENV{SCRAM_ARCH}/Environment"){
+        $reltop=`cat ${dev}/.SCRAM/$ENV{SCRAM_ARCH}/Environment | grep '^RELEASETOP=' | sed 's|RELEASETOP=||'`; chomp $reltop;
+    }
+    return $reltop;
+}
+
+sub setArch(){
+    if (!defined $ENV{SCRAM_ARCH}){
+        my $arch=`scram arch`; chomp $arch;
+        $ENV{SCRAM_ARCH}=$arch;
+    }
 }
