@@ -1,13 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                      //
-//                                    WMuNuTriggerValidation                                                                    //
-//                                                                                                                      //    
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                      //      
-//    Basic plots before & after cuts (without Candidate formalism)                                                     //
-//    Intended for a prompt validation of samples.                                                                      // 
-//                                                                                                                      //      
-//    Use in combination with WMuNuTriggerValidationMacro (in bin/WMuNuTriggerValidationMacro.cpp)                                      //
+//                                    WMuNuTriggerValidation                                                            //
+//          Intended for a prompt validation of the muon triggers used in EWK samples.                                  // 
 //                                                                                                                      //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
