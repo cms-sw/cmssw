@@ -57,6 +57,7 @@ class CosmicRegionalSeedGenerator : public TrackingRegionProducer {
  private:
   edm::ParameterSet conf_;
 
+  edm::ParameterSet regionPSet_;
   float m_ptMin;
   float m_rVertex;
   float m_zVertex;

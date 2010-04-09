@@ -60,10 +60,21 @@ public:
 			float deltaEta, float deltaPhi,
 			float dummy = 0.)			
     : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), 
-			  rVertex, zVertex)
-
+			  rVertex, zVertex),
+    measurementTrackerName_("")
     { }
- 
+
+    CosmicTrackingRegion(const GlobalVector & dir,
+			 const GlobalPoint & vertexPos,
+			 float ptMin, float rVertex, float zVertex,
+			 float deltaEta, float deltaPhi,
+			 const edm::ParameterSet & extra)
+      : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin),
+			    rVertex, zVertex)
+      {
+	measurementTrackerName_ = extra.getParameter<std::string>("measuremnentTrackerName");
+      }
+      
 
 
   /// allowed eta range [eta_min, eta_max] interval
@@ -93,7 +104,7 @@ public:
 
 private:
 
-
+   std::string measurementTrackerName_;
 };
 
 #endif

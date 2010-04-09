@@ -25,7 +25,7 @@ CosmicRegionalSeedGenerator::CosmicRegionalSeedGenerator(edm::ParameterSet const
 {
   edm::LogInfo ("CosmicRegionalSeedGenerator") << "Begin Run:: Constructing  CosmicRegionalSeedGenerator";
 
-  edm::ParameterSet regionPSet = conf_.getParameter<edm::ParameterSet>("RegionPSet");
+  regionPSet_ = conf_.getParameter<edm::ParameterSet>("RegionPSet");
   m_ptMin        = regionPSet.getParameter<double>("ptMin");
   m_rVertex      = regionPSet.getParameter<double>("rVertex");
   m_zVertex      = regionPSet.getParameter<double>("zVertex");
@@ -164,7 +164,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 								    m_zVertex,
 								    m_deltaEta,
 								    m_deltaPhi,
-								    0
+								    regionPset_
 								    );
       
       result.push_back(etaphiRegion);      
@@ -285,7 +285,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 								    m_zVertex,
 								    m_deltaEta,
 								    m_deltaPhi,
-								    0
+								    regionPset_
 								    );
       
       result.push_back(etaphiRegion);      
