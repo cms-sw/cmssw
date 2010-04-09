@@ -102,7 +102,7 @@ TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::Event& ev,
 
   //measurement tracker (find hits)
   edm::ESHandle<MeasurementTracker> measurementTrackerESH;
-  es.get<CkfComponentsRecord>().get(measurementTrackerESH);
+  es.get<CkfComponentsRecord>().get(measurementTrackerName_,measurementTrackerESH);
   const MeasurementTracker * measurementTracker = measurementTrackerESH.product(); 
   measurementTracker->update(ev);
   LayerMeasurements lm(measurementTracker);
