@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/04/03 10:06:48 $
- * $Revision: 1.38 $
+ * $Date: 2010/04/06 16:48:45 $
+ * $Revision: 1.39 $
  *
  */
 
@@ -80,7 +80,8 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   theBeamFitter->resetPVFitter();
 
   if (fitNLumi_ <= 0) fitNLumi_ = 1;
-  nFits_ = beginLumiOfPVFit_ = endLumiOfPVFit_ = 0;
+  nFits_ = beginLumiOfBSFit_ = endLumiOfBSFit_ = beginLumiOfPVFit_ = endLumiOfPVFit_ = 0;
+  refBStime[0] = refBStime[1] = refPVtime[0] = refPVtime[1] = 0;
   maxZ_ = fabs(maxZ_);
   lastlumi_ = 0;
   nextlumi_ = 0;
@@ -243,14 +244,16 @@ void BeamMonitor::beginJob() {
   cutFlowTable = dbe_->book1D("cutFlowTable","Cut flow table of track selection", 9, 0, 9 );
 
   // Results of previous good fit:
-  fitResults=dbe_->book2D("fitResults","Results of previous good beam fit",2,0,2,6,0,6);
+  fitResults=dbe_->book2D("fitResults","Results of previous good beam fit",2,0,2,8,0,8);
   fitResults->setAxisTitle("Fitted Beam Spot (cm)",1);
-  fitResults->setBinLabel(6,"x_{0}",2);
-  fitResults->setBinLabel(5,"y_{0}",2);
-  fitResults->setBinLabel(4,"z_{0}",2);
-  fitResults->setBinLabel(3,"dx/dz",2);
-  fitResults->setBinLabel(2,"dy/dz",2);
-  fitResults->setBinLabel(1,"#sigma_{Z0}",2);
+  fitResults->setBinLabel(8,"x_{0}",2);
+  fitResults->setBinLabel(7,"y_{0}",2);
+  fitResults->setBinLabel(6,"z_{0}",2);
+  fitResults->setBinLabel(5,"#sigma_{Z}",2);
+  fitResults->setBinLabel(4,"#frac{dx}{dz} (rad)",2);
+  fitResults->setBinLabel(3,"#frac{dy}{dz} (rad)",2);
+  fitResults->setBinLabel(2,"#sigma_{X}",2);
+  fitResults->setBinLabel(1,"#sigma_{Y}",2);
   fitResults->setBinLabel(1,"Mean",1);
   fitResults->setBinLabel(2,"Stat. Error",1);
   fitResults->getTH1()->SetOption("text");
@@ -298,9 +301,9 @@ void BeamMonitor::beginJob() {
   pvResults->setBinLabel(6,"PVx",2);
   pvResults->setBinLabel(5,"PVy",2);
   pvResults->setBinLabel(4,"PVz",2);
-  pvResults->setBinLabel(3,"#sigma x",2);
-  pvResults->setBinLabel(2,"#sigma y",2);
-  pvResults->setBinLabel(1,"#sigma z",2);
+  pvResults->setBinLabel(3,"#sigma_{X}",2);
+  pvResults->setBinLabel(2,"#sigma_{Y}",2);
+  pvResults->setBinLabel(1,"#sigma_{Z}",2);
   pvResults->setBinLabel(1,"Mean",1);
   pvResults->setBinLabel(2,"Stat. Error",1);
   pvResults->getTH1()->SetOption("text");
@@ -372,8 +375,15 @@ void BeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
 void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				       const EventSetup& context) {
   int nthlumi = lumiSeg.luminosityBlock();
+  const edm::TimeValue_t fbegintimestamp = lumiSeg.beginTime().value();
+  const std::time_t ftmptime = fbegintimestamp >> 32;
 
-  if (beginLumiOfPVFit_ == 0) beginLumiOfPVFit_ = nthlumi;
+  if (countLumi_ == 0) {
+    beginLumiOfBSFit_ = beginLumiOfPVFit_ = nthlumi;
+    refBStime[0] = refPVtime[0] = ftmptime;
+  }
+  if (beginLumiOfPVFit_ == 0) beginLumiOfPVFit_ = nextlumi_;
+  if (beginLumiOfBSFit_ == 0) beginLumiOfBSFit_ = nextlumi_;
 
   if (onlineMode_ && (nthlumi < nextlumi_)) return;
 
@@ -382,10 +392,14 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
       if (countLumi_ != 0) FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
       nextlumi_ = nthlumi;
       cout << "Next Lumi to Fit: " << nextlumi_ << endl;
+      if (refBStime[0] == 0) refBStime[0] = ftmptime;
+      if (refPVtime[0] == 0) refPVtime[0] = ftmptime;
     }
   }
   else{
     FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
+    if (refBStime[0] == 0) refBStime[0] = ftmptime;
+    if (refPVtime[0] == 0) refPVtime[0] = ftmptime;
   }
   countLumi_++;
   //if (debug_)
@@ -482,8 +496,11 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   int nthlumi = lumiSeg.id().luminosityBlock();
   //if (debug_)
   cout << "Lumi of the last event before endLuminosityBlock: " << nthlumi << endl;
-  //if (onlineMode_ && lastlumi_ >= nthlumi) return;
-  //lastlumi_ = nthlumi;
+
+  if (onlineMode_ && nthlumi < nextlumi_) return;
+  const edm::TimeValue_t fendtimestamp = lumiSeg.endTime().value();
+  const std::time_t fendtime = fendtimestamp >> 32;
+  tmpTime = refBStime[1] = refPVtime[1] = fendtime;
 }
 
 //--------------------------------------------------------
@@ -526,8 +543,6 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     h_nTrk_lumi->ShiftFillLast(nthBSTrk_);
   }
 
-  ftimestamp = lumiSeg.endTime().value();
-  tmpTime = ftimestamp >> 32;
   if (debug_) std::cout << "Time lapsed since last LS = " << tmpTime - refTime << std:: endl;
 
   if (testScroll(tmpTime,refTime)) {
@@ -556,6 +571,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
   if (doPVFit) {
     endLumiOfPVFit_ = currentlumi;
+
     if (debug_) std::cout << "Do PV Fitting for LS = " << beginLumiOfPVFit_ << " to " << endLumiOfPVFit_ << std::endl;
     // Primary Vertex Fit:
     if (h_PVx[0]->getTH1()->GetEntries() >= 20) {
@@ -651,6 +667,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     h_PVy[0]->Reset();
     h_PVz[0]->Reset();
     beginLumiOfPVFit_ = 0;
+    refPVtime[0] = 0;
   }
 
   // Beam Spot Fit:
@@ -700,7 +717,15 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       if (countLumi_%fitNLumi_!=0) return;
   }
 
-  if (doFitting) nFits_++;
+  if (doFitting) {
+    nFits_++;
+    int * fitLS = theBeamFitter->getFitLSRange();
+    if (debug_) std::cout << "[BeamFitter] Do BeamSpot Fit for LS = " << fitLS[0] << " to " << fitLS[1] << std::endl;
+    endLumiOfBSFit_ = currentlumi;
+    if (debug_) std::cout << "[BeamMonitor] Do BeamSpot Fit for LS = " << beginLumiOfBSFit_ << " to " << endLumiOfBSFit_ << std::endl;
+    //theBeamFitter->setFitLSRange(beginLumiOfBSFit_,endLumiOfBSFit_); // Testing, overwrite Fit LS
+    //theBeamFitter->setRefTime(refBStime[0],refBStime[1]); // Testing, overwrite Fit time
+  }
 
   if (doFitting && theBeamFitter->runFitter()){
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
@@ -754,19 +779,23 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     char tmpTitle[50];
     sprintf(tmpTitle,"%s %i %s %i","Fitted Beam Spot (cm) of LS: ",LSRange[0]," to ",LSRange[1]);
     fitResults->setAxisTitle(tmpTitle,1);
-    fitResults->setBinContent(1,6,bs.x0());
-    fitResults->setBinContent(1,5,bs.y0());
-    fitResults->setBinContent(1,4,bs.z0());
-    fitResults->setBinContent(1,3,bs.dxdz());
-    fitResults->setBinContent(1,2,bs.dydz());
-    fitResults->setBinContent(1,1,bs.sigmaZ());
+    fitResults->setBinContent(1,8,bs.x0());
+    fitResults->setBinContent(1,7,bs.y0());
+    fitResults->setBinContent(1,6,bs.z0());
+    fitResults->setBinContent(1,5,bs.sigmaZ());
+    fitResults->setBinContent(1,4,bs.dxdz());
+    fitResults->setBinContent(1,3,bs.dydz());
+    fitResults->setBinContent(1,2,bs.BeamWidthX());
+    fitResults->setBinContent(1,1,bs.BeamWidthY());
 
-    fitResults->setBinContent(2,6,bs.x0Error());
-    fitResults->setBinContent(2,5,bs.y0Error());
-    fitResults->setBinContent(2,4,bs.z0Error());
-    fitResults->setBinContent(2,3,bs.dxdzError());
-    fitResults->setBinContent(2,2,bs.dydzError());
-    fitResults->setBinContent(2,1,bs.sigmaZ0Error());
+    fitResults->setBinContent(2,8,bs.x0Error());
+    fitResults->setBinContent(2,7,bs.y0Error());
+    fitResults->setBinContent(2,6,bs.z0Error());
+    fitResults->setBinContent(2,5,bs.sigmaZ0Error());
+    fitResults->setBinContent(2,4,bs.dxdzError());
+    fitResults->setBinContent(2,3,bs.dydzError());
+    fitResults->setBinContent(2,2,bs.BeamWidthXError());
+    fitResults->setBinContent(2,1,bs.BeamWidthYError());
 
 //     if (fabs(refBS.x0()-bs.x0())/bs.x0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[0] += 1.;
@@ -779,6 +808,11 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 //     }
   }
   else {
+    if (!doFitting) {
+      // Overwrite Fit LS and fit time when no event processed or no track selected
+      theBeamFitter->setFitLSRange(beginLumiOfBSFit_,endLumiOfBSFit_);
+      theBeamFitter->setRefTime(refBStime[0],refBStime[1]);
+    }
     if (theBeamFitter->runFitter()) {} // Dump fake beam spot for DIP
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
     if (debug_) {
@@ -827,6 +861,8 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     theBeamFitter->resetLSRange();
     theBeamFitter->resetRefTime();
     theBeamFitter->resetPVFitter();
+    beginLumiOfBSFit_ = 0;
+    refBStime[0] = 0;
   }
 }
 

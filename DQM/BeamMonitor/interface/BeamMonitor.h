@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/04/02 12:26:02 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/04/06 16:48:45 $
+ *  $Revision: 1.21 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -77,10 +77,14 @@ class BeamMonitor : public edm::EDAnalyzer {
   
   int countEvt_;       //counter
   int countLumi_;      //counter
+  int beginLumiOfBSFit_;
+  int endLumiOfBSFit_;
   int beginLumiOfPVFit_;
   int endLumiOfPVFit_;
   int lastlumi_; // previous LS processed
   int nextlumi_; // next LS of Fit
+  std::time_t refBStime[2];
+  std::time_t refPVtime[2];
   unsigned int nthBSTrk_;
   int nFitElements_;
   int nFits_;
