@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegments3DProxyBuilder.cc,v 1.3 2010/03/10 10:34:14 yana Exp $
+// $Id: FWCSCSegments3DProxyBuilder.cc,v 1.4 2010/04/08 13:09:32 yana Exp $
 //
 
 // system include files
@@ -22,7 +22,6 @@
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
-#include "Fireworks/Core/interface/FW3DView.h"
 #include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
@@ -151,6 +150,6 @@ FWCSCSegments3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** p
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWCSCSegments3DProxyBuilder,CSCSegmentCollection,"CSC-segments", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWCSCSegments3DProxyBuilder,CSCSegmentCollection,"CSC-segments", FWViewType::k3DBit | FWViewType::kRPZBit);
 
 
