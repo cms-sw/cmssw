@@ -2,8 +2,6 @@
 
 void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"){
 
-   TCanvas *myc = new TCanvas("myc","",800,600);
-
    TString ref_file = "pi50scan"+ref_vers+"_ECALHCAL_CaloTowers.root";
    TString val_file = "pi50scan"+val_vers+"_ECALHCAL_CaloTowers.root";
       
@@ -12,6 +10,7 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    
    // service variables
    //
+   //Profiles
    const int Nprof   = 9;
 
    TProfile* f1_prof[Nprof];
@@ -19,15 +18,33 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
 
    char *labelp[Nprof];
 
+   //1D Histos
+   const int Nhist1  = 3;
+
+   TH1F* f1_hist1[Nhist1];
+   TH1F* f2_hist1[Nhist1];
+
+   char *label1[Nhist1];
+
+   //Labels
+   //Profiles
    labelp[0] = &"CaloTowersTask_emean_vs_ieta_E1.gif";
    labelp[1] = &"CaloTowersTask_emean_vs_ieta_H1.gif";
    labelp[2] = &"CaloTowersTask_emean_vs_ieta_EH1.gif";
+
    labelp[3] = &"RecHitsTask_emean_vs_ieta_E.gif";
    labelp[4] = &"RecHitsTask_emean_vs_ieta_H.gif";
    labelp[5] = &"RecHitsTask_emean_vs_ieta_EH.gif";
+
    labelp[6] = &"SimHitsTask_emean_vs_ieta_E.gif";
    labelp[7] = &"SimHitsTask_emean_vs_ieta_H.gif";
    labelp[8] = &"SimHitsTask_emean_vs_ieta_EH.gif";
+
+   //1D Histos
+   label1[0] = &"N_calotowers_HB.gif";
+   label1[1] = &"N_calotowers_HE.gif";
+   label1[2] = &"N_calotowers_HF.gif";
+   
 
    f1.cd("DQMData/CaloTowersV/CaloTowersTask");
    gDirectory->pwd();
@@ -35,6 +52,9 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    f1_prof[1] = emean_vs_ieta_H1;
    f1_prof[2] = emean_vs_ieta_EH1;
 
+   f1_hist1[0] = CaloTowersTask_number_of_fired_towers_HB;
+   f1_hist1[1] = CaloTowersTask_number_of_fired_towers_HE;
+   f1_hist1[2] = CaloTowersTask_number_of_fired_towers_HF;
    
    f1.cd("DQMData/HcalRecHitsV/HcalRecHitTask");
    f1_prof[3] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E;
@@ -52,6 +72,10 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    f2_prof[1] = emean_vs_ieta_H1;
    f2_prof[2] = emean_vs_ieta_EH1;
 
+   f2_hist1[0] = CaloTowersTask_number_of_fired_towers_HB;
+   f2_hist1[1] = CaloTowersTask_number_of_fired_towers_HE;
+   f2_hist1[2] = CaloTowersTask_number_of_fired_towers_HF;
+
    f2.cd("DQMData/HcalRecHitsV/HcalRecHitTask");
    f2_prof[3] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E;
    f2_prof[4] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths;
@@ -62,7 +86,7 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    f2_prof[7] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths;
    f2_prof[8] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_EH;
 
-   //
+   //Profiles
    f1_prof[0]->GetXaxis()->SetTitle("CaloTowers eE (GeV) vs ieta 1 Tower");
    f1_prof[1]->GetXaxis()->SetTitle("CaloTowers hE (GeV) vs ieta 1 Tower");
    f1_prof[2]->GetXaxis()->SetTitle("CaloTowers eE+hE (GeV) vs ieta 1 Tower");
@@ -72,6 +96,11 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    f1_prof[6]->GetXaxis()->SetTitle("SimHits eE (GeV) vs ieta R = 0.3 Cone");
    f1_prof[7]->GetXaxis()->SetTitle("SimHits hE (GeV) vs ieta R = 0.3 Cone");
    f1_prof[8]->GetXaxis()->SetTitle("SimHits eE+hE (GeV) vs ieta R = 0.3 Cone");
+
+   //1D Histos
+   f1_hist1[0]->GetXaxis()->SetTitle("Number of HB CaloTowers");
+   f1_hist1[1]->GetXaxis()->SetTitle("Number of HE CaloTowers");
+   f1_hist1[2]->GetXaxis()->SetTitle("Number of HF CaloTowers");
 
    //
    f1_prof[0]->SetMaximum(20.);
@@ -95,9 +124,74 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    // hist1->GetXaxis()->SetNdivisions(-21);
    // hist1->GetYaxis()->SetNdivisions(-1003);
 
+   f1_hist1[0]->GetXaxis()->SetRangeUser(0.,100.);
+   f2_hist1[0]->GetXaxis()->SetRangeUser(0.,100.);
+
+   f1_hist1[1]->GetXaxis()->SetRangeUser(0.,150.);
+   f2_hist1[1]->GetXaxis()->SetRangeUser(0.,150.);
+
+   f1_hist1[2]->GetXaxis()->SetRangeUser(0.,20.);
+   f2_hist1[2]->GetXaxis()->SetRangeUser(0.,20.);
+
+   //  1D-histo
+
+   for (int i = 0; i < Nhist1; i++){
+
+     TCanvas *myc = new TCanvas("myc","",800,600);
+     gStyle->SetOptStat(1111);
+     
+     f1_hist1[i]->SetStats(kTRUE);   // stat box  
+     f2_hist1[i]->SetStats(kTRUE);  
+
+     f1_hist1[i]->SetTitle("");
+     f2_hist1[i]->SetTitle("");
+     
+     f1_hist1[i]->SetLineWidth(2); 
+     f2_hist1[i]->SetLineWidth(2); 
+     
+     // diffferent histo colors and styles
+     f1_hist1[i]->SetLineColor(41);
+     f1_hist1[i]->SetLineStyle(1); 
+     
+     f2_hist1[i]->SetLineColor(43);
+     f2_hist1[i]->SetLineStyle(2);  
+     
+     //Set maximum to the larger of the two
+     if (f1_hist1[i]->GetMaximum() < f2_hist1[i]->GetMaximum()) f1_hist1[i]->SetMaximum(1.05 * f2_hist1[i]->GetMaximum());
+
+     TLegend *leg = new TLegend(0.2, 0.91, 0.6, 0.99, "","brNDC");
+
+     leg->SetBorderSize(2);
+     //  leg->SetFillColor(51); // see new color definition above
+     leg->SetFillStyle(1001); //
+     leg->AddEntry(f1_hist1[i],"CMSSW_"+ref_vers,"l");
+     leg->AddEntry(f2_hist1[i],"CMSSW_"+val_vers,"l");
+
+
+     TPaveStats *ptstats = new TPaveStats(0.85,0.86,0.98,0.98,"brNDC");
+     ptstats->SetTextColor(41);
+     f1_hist1[i]->GetListOfFunctions()->Add(ptstats);
+     ptstats->SetParent(f1_hist1[i]->GetListOfFunctions());
+     TPaveStats *ptstats = new TPaveStats(0.85,0.74,0.98,0.86,"brNDC");
+     ptstats->SetTextColor(43);
+     f2_hist1[i]->GetListOfFunctions()->Add(ptstats);
+     ptstats->SetParent(f2_hist1[i]->GetListOfFunctions());
+         
+     f1_hist1[i]->Draw(""); // "stat"   
+     f2_hist1[i]->Draw("hist sames");   
+     
+     leg->Draw();   
+     
+     myc->SaveAs(label1[i]);
+
+     if(myc) delete myc;
+   }     
+
 
   //  Profiles
   for (int i = 0; i < Nprof; i++){
+
+    TCanvas *myc = new TCanvas("myc","",800,600);
 
     f1_prof[i]->SetStats(kFALSE);   
     f2_prof[i]->SetStats(kFALSE); 
@@ -135,7 +229,10 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
      
      myc->SaveAs(labelp[i]);
 
+     if(myc) delete myc;
   }
+
+  TCanvas *myc = new TCanvas("myc","",800,600);
 
   TProfile* ratio1 = f2_prof[2]->Clone();
   ratio1->Divide(f1_prof[2]);
