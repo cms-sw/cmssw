@@ -26,8 +26,8 @@
    -f, --final   = FINAL: Last run.
    -n, --noplot : Only extract beam spot data, plots are not created..
    -o, --output  = OUTPUT: filename of ROOT file with plots.
-   -t, --tag     = TAG: tag name.
-   -I, --IOVbase = IOVBASE: options: runbase(default), lumibase
+   -t, --tag     = TAG: Database tag name.
+   -I, --IOVbase = IOVBASE: options: runbase(default), lumibase, timebase
    -w, --wait : Pause script after plotting a new histograms.
    
    Francisco Yumiceva (yumiceva@fnal.gov)
@@ -51,7 +51,7 @@ except:
         sys.exit()
 
 from ROOT import TFile, TGraphErrors, TGaxis
-from ROOT import TCanvas
+from ROOT import TCanvas, TH1F
 
 #_______________OPTIONS________________
 import optparse
@@ -94,6 +94,13 @@ def parse(docstring, arglist=None):
     except (IndexError,ValueError):
         raise ParsingError("Cannot parse the option string correctly")
     return p.parse_args(arglist)
+
+def cmp_list(a,b):
+    if a.IOVfirst < b.IOVfirst: return -1
+    if a.IOVfirst == b.IOVfirst: return 0
+    if a.IOVfirst > b.IOVfirst: return 1
+
+
 
 #__________END_OPTIONS_______________________________________________
 
@@ -449,7 +456,29 @@ if __name__ == '__main__':
 
     # MAKE PLOTS
     ###################################
-   
+
+    listbeam.sort( cmp = cmp_list )
+    
+    # first clean list of data for consecutive duplicates and bad fits
+    tmpremovelist = []
+    for ii in range(0,len(listbeam)):
+        
+        ibeam = listbeam[ii]
+        datax = ibeam.IOVfirst
+        #print str(ii) + "  " +datax
+        if datax == '1':
+            print " skip IOV = "+ str(ibeam.IOVfirst) + " to " + str(ibeam.IOVlast)
+            tmpremovelist.append(ibeam)
+        
+        if ii < len(listbeam) -1:
+            #print listbeam[ii+1].IOVfirst
+            if datax == listbeam[ii+1].IOVfirst:
+                print " duplicate IOV = "+datax+", keep only last duplicate entry"
+                tmpremovelist.append(ibeam)
+
+    for itmp in tmpremovelist:
+        listbeam.remove(itmp)
+    
     TGaxis.SetMaxDigits(8)
 
     graphlist = []
@@ -469,7 +498,9 @@ if __name__ == '__main__':
 
     for ig in range(0,8):
 	cvlist.append( TCanvas(graphnamelist[ig],graphtitlelist[ig], 800, 600) )
-	graphlist.append( TGraphErrors( len(listbeam) ) )
+	#graphlist.append( TGraphErrors( len(listbeam) ) )
+        graphlist.append( TH1F("name","title",len(listbeam),0,len(listbeam)) )
+        
 	graphlist[ig].SetName(graphnamelist[ig])
         graphlist[ig].SetTitle(graphnamelist[ig])
 	ipoint = 0
@@ -504,23 +535,24 @@ if __name__ == '__main__':
 		datayerr = ibeam.beamWidthYerr
 
             datax = ibeam.IOVfirst
+            #print datax
+	    #graphlist[ig].SetPoint(ipoint, float(datax), float(datay) )
+	    #graphlist[ig].SetPointError(ipoint, float(dataxerr), float(datayerr) )
+            graphlist[ig].GetXaxis().SetBinLabel(ipoint +1 , str(datax) )
+            graphlist[ig].SetBinContent(ipoint +1, float(datay) )
+            graphlist[ig].SetBinError(ipoint +1, float(datayerr) )
 
-	    if datax == '1':
-		print " skip in plot IOV = "+ str(ibeam.IOVfirst) + " to " + str(ibeam.IOVlast)
-		graphlist[ig].Set( len(listbeam) -1 )
-		continue
-	    #print str(ipoint) + " x = " + str(datax) + " y = " + str(datay)
-	    graphlist[ig].SetPoint(ipoint, float(datax), float(datay) )
-	    graphlist[ig].SetPointError(ipoint, float(dataxerr), float(datayerr) )
-	    ipoint += 1
+            ipoint += 1
 
 
 	if IOVbase=="timebase":
             graphlist[ig].GetXaxis().SetTimeDisplay(1);
-            graphlist[ig].GetXaxis().SetTimeFormat("%Y.%m.%d %H:%M:%S")
-	graphlist[ig].Draw('AP')
+            graphlist[ig].GetXaxis().SetTimeFormat("#splitline{%Y/%m/%d}{%H:%M}")
+	#graphlist[ig].Draw('AP')
+        graphlist[ig].Draw('P E1 X0')
 	graphlist[ig].GetXaxis().SetTitle(graphXaxis)
 	graphlist[ig].GetYaxis().SetTitle(graphYaxis[ig])
+        #graphlist[ig].Fit('pol1')
 	cvlist[ig].Update()
         if option.wait:
             raw_input( 'Press ENTER to continue\n ' )
