@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Core
-// Class  :     FWRhoPhiZView
+// Class  :     FWRPZView
 //
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.60 2010/03/16 14:52:46 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.61 2010/04/06 20:00:36 amraktad Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@
 #include "TEveCalo.h" // ??
 
 // user include files
-#include "Fireworks/Core/interface/FWRhoPhiZView.h"
+#include "Fireworks/Core/interface/FWRPZView.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWRPZViewGeometry.h"
@@ -47,7 +47,7 @@
 //
 // constructors and destructor
 //
-FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent, FWViewType::EType id) :
+FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    FWEveView(iParent),
    m_caloScale(1),
    m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
@@ -86,24 +86,24 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    }
 
    m_axes.reset(new TEveProjectionAxes(m_projMgr.get()));
-   m_showProjectionAxes.changed_.connect(boost::bind(&FWRhoPhiZView::showProjectionAxes,this));
+   m_showProjectionAxes.changed_.connect(boost::bind(&FWRPZView::showProjectionAxes,this));
    eventScene()->AddElement(m_axes.get());
    
    // signals
    if ( id == FWViewType::kRhoPhi ) {
       m_showEndcaps = new FWBoolParameter(this,"Show calo endcaps", true);
-      m_showEndcaps->changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloParameters, this) );
+      m_showEndcaps->changed_.connect(  boost::bind(&FWRPZView::updateCaloParameters, this) );
       m_showHF = new FWBoolParameter(this,"Show HF", true);
-      m_showHF->changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloParameters, this) );
+      m_showHF->changed_.connect(  boost::bind(&FWRPZView::updateCaloParameters, this) );
    }
-   m_caloDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
-   m_muonDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
-   m_compressMuon.changed_.connect(boost::bind(&FWRhoPhiZView::doCompression,this,_1));
-   m_caloFixedScale.changed_.connect( boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
-   m_caloAutoScale.changed_.connect(  boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
+   m_caloDistortion.changed_.connect(boost::bind(&FWRPZView::doDistortion,this));
+   m_muonDistortion.changed_.connect(boost::bind(&FWRPZView::doDistortion,this));
+   m_compressMuon.changed_.connect(boost::bind(&FWRPZView::doCompression,this,_1));
+   m_caloFixedScale.changed_.connect( boost::bind(&FWRPZView::updateScaleParameters, this) );
+   m_caloAutoScale.changed_.connect(  boost::bind(&FWRPZView::updateScaleParameters, this) );
 }
 
-FWRhoPhiZView::~FWRhoPhiZView()
+FWRPZView::~FWRPZView()
 {
    m_axes.destroyElement();
    m_projMgr.destroyElement();
@@ -114,14 +114,14 @@ FWRhoPhiZView::~FWRhoPhiZView()
 //
 
 void
-FWRhoPhiZView::setGeometry(const DetIdToMatrix* geom,  FWColorManager& colMng)
+FWRPZView::setGeometry(const DetIdToMatrix* geom,  FWColorManager& colMng)
 {
    FWRPZViewGeometry* geo = new FWRPZViewGeometry(geom, &colMng);
    m_projMgr->ImportElements(geo->getGeoElements(typeId()), geoScene());
 }
 
 void
-FWRhoPhiZView::doDistortion()
+FWRPZView::doDistortion()
 {
    if ( typeId() == FWViewType::kRhoPhi ) {
       m_projMgr->GetProjection()->ChangePreScaleEntry(0,1,m_caloDistortion.value());
@@ -138,7 +138,7 @@ FWRhoPhiZView::doDistortion()
 }
 
 void
-FWRhoPhiZView::doCompression(bool flag)
+FWRPZView::doCompression(bool flag)
 {
    m_projMgr->GetProjection()->SetUsePreScale(flag);
    m_projMgr->UpdateName();
@@ -148,7 +148,7 @@ FWRhoPhiZView::doCompression(bool flag)
 
 
 void
-FWRhoPhiZView::updateCalo(TEveElement* iParent, bool dataChanged)
+FWRPZView::updateCalo(TEveElement* iParent, bool dataChanged)
 {
    TEveElementIter child(iParent);
    while ( TEveElement* element = child.current() )
@@ -177,7 +177,7 @@ FWRhoPhiZView::updateCalo(TEveElement* iParent, bool dataChanged)
 }
 
 void
-FWRhoPhiZView::updateCaloLines(TEveElement* iParent)
+FWRPZView::updateCaloLines(TEveElement* iParent)
 {
    TEveElementIter child(iParent);
    while ( TEveElement* element = child.current() )
@@ -195,7 +195,7 @@ FWRhoPhiZView::updateCaloLines(TEveElement* iParent)
 }
 
 void
-FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer, TEveElement* iProjectedParent)
+FWRPZView::importElements(TEveElement* iChildren, float iLayer, TEveElement* iProjectedParent)
 {
    float oldLayer = m_projMgr->GetCurrentDepth();
    m_projMgr->SetCurrentDepth(iLayer);
@@ -216,7 +216,7 @@ FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer, TEveElement*
 
 
 void
-FWRhoPhiZView::addTo(FWConfiguration& iTo) const
+FWRPZView::addTo(FWConfiguration& iTo) const
 {
    FWEveView::addTo(iTo);
    TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(viewerGL()->CurrentCamera()) );
@@ -224,7 +224,7 @@ FWRhoPhiZView::addTo(FWConfiguration& iTo) const
 }
 
 void
-FWRhoPhiZView::setFrom(const FWConfiguration& iFrom)
+FWRPZView::setFrom(const FWConfiguration& iFrom)
 {
    FWEveView::setFrom(iFrom);
    
@@ -234,19 +234,19 @@ FWRhoPhiZView::setFrom(const FWConfiguration& iFrom)
 
 
 void
-FWRhoPhiZView::updateScaleParameters()
+FWRPZView::updateScaleParameters()
 {
    updateCalo(m_projMgr.get());
    updateCaloLines(m_projMgr.get());
 }
 
 void
-FWRhoPhiZView::updateCaloParameters()
+FWRPZView::updateCaloParameters()
 {
    updateCalo(m_projMgr.get());
 }
 
-void FWRhoPhiZView::showProjectionAxes( )
+void FWRPZView::showProjectionAxes( )
 {   
    if ( !m_axes ) return; // just in case
    if ( m_showProjectionAxes.value() )
@@ -258,7 +258,7 @@ void FWRhoPhiZView::showProjectionAxes( )
 
 
 void
-FWRhoPhiZView::eventEnd()
+FWRPZView::eventEnd()
 {
    FWEveView::eventEnd();
    if (m_caloAutoScale.value())

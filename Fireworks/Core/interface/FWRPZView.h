@@ -1,11 +1,11 @@
-#ifndef Fireworks_Core_FWRhoPhiZView_h
-#define Fireworks_Core_FWRhoPhiZView_h
+#ifndef Fireworks_Core_FWRPZView_h
+#define Fireworks_Core_FWRPZView_h
 // -*- C++ -*-
 //
 // Package:     Core
-// Class  :     FWRhoPhiZView
+// Class  :     FWRPZView
 //
-/**\class FWRhoPhiZView FWRhoPhiZView.h Fireworks/Core/interface/FWRhoPhiZView.h
+/**\class FWRPZView FWRPZView.h Fireworks/Core/interface/FWRPZView.h
 
    Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.30 2010/03/16 14:52:46 amraktad Exp $
+// $Id: FWRPZView.h,v 1.31 2010/04/06 20:00:35 amraktad Exp $
 //
 
 // system include files
@@ -36,11 +36,11 @@ class TEveProjectionAxes;
 class TEveWindowSlot;
 class FWColorManager;
 
-class FWRhoPhiZView : public FWEveView
+class FWRPZView : public FWEveView
 {
 public:
-   FWRhoPhiZView(TEveWindowSlot* iParent, FWViewType::EType);
-   virtual ~FWRhoPhiZView();
+   FWRPZView(TEveWindowSlot* iParent, FWViewType::EType);
+   virtual ~FWRPZView();
 
    // ---------- const member functions ---------------------
 
@@ -56,8 +56,8 @@ public:
    void importElements(TEveElement* iProjectableChild, float iLayer, TEveElement* iProjectedParent=0);
 
 private:
-   FWRhoPhiZView(const FWRhoPhiZView&);    // stop default
-   const FWRhoPhiZView& operator=(const FWRhoPhiZView&);    // stop default 
+   FWRPZView(const FWRPZView&);    // stop default
+   const FWRPZView& operator=(const FWRPZView&);    // stop default 
 
    void doDistortion();
    void doCompression(bool);

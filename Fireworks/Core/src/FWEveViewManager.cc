@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.3 2010/04/07 18:29:23 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.4 2010/04/08 19:45:25 amraktad Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@
 #include "Fireworks/Core/interface/FW3DEnergyView.h"
 #include "Fireworks/Core/interface/FWGlimpseView.h"
 #include "Fireworks/Core/interface/FWEveLegoView.h"
-#include "Fireworks/Core/interface/FWRhoPhiZView.h"
+#include "Fireworks/Core/interface/FWRPZView.h"
 
 
 class DetIdToMatrix;
@@ -169,7 +169,7 @@ FWEveViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
                      for (EveViewVec_it i = m_views[viewType].begin(); i!=  m_views[viewType].end(); ++i)
                      {
                         // printf("add new builder prouct for projected view\n");
-                        FWRhoPhiZView* rpzView = dynamic_cast<FWRhoPhiZView*> (i->get());
+                        FWRPZView* rpzView = dynamic_cast<FWRPZView*> (i->get());
                         rpzView->importElements(builder->getProduct(), builder->layer());
                         
                      }
@@ -223,7 +223,7 @@ FWViewBase*
 FWEveViewManager::createRhoPhiView(TEveWindowSlot* iParent)
 {
    FWViewType::EType t = FWViewType::kRhoPhi;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWRhoPhiZView(iParent, t)));
+   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWRPZView(iParent, t)));
    return finishViewCreate(m_views[t].back());   
 }
 
@@ -231,7 +231,7 @@ FWViewBase*
 FWEveViewManager::createRhoZView(TEveWindowSlot* iParent)
 { 
    FWViewType::EType t = FWViewType::kRhoZ;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWRhoPhiZView(iParent, t)));
+   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWRPZView(iParent, t)));
    return finishViewCreate(m_views[t].back());   
 }
 
@@ -278,7 +278,7 @@ FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
    // import elements for projected views
    if (typeId == FWViewType::kRhoPhi || typeId == FWViewType::kRhoZ )
    { 
-      FWRhoPhiZView* rpzView = (FWRhoPhiZView*)(view.get());
+      FWRPZView* rpzView = (FWRPZView*)(view.get());
       rpzView->importElements(m_scenes[typeId], 0);
    }
 
