@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include <vector>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class OuterEstimator;
 class BarrelDetLayer;

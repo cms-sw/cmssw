@@ -26,11 +26,11 @@ CosmicRegionalSeedGenerator::CosmicRegionalSeedGenerator(edm::ParameterSet const
   edm::LogInfo ("CosmicRegionalSeedGenerator") << "Begin Run:: Constructing  CosmicRegionalSeedGenerator";
 
   regionPSet_ = conf_.getParameter<edm::ParameterSet>("RegionPSet");
-  m_ptMin        = regionPSet.getParameter<double>("ptMin");
-  m_rVertex      = regionPSet.getParameter<double>("rVertex");
-  m_zVertex      = regionPSet.getParameter<double>("zVertex");
-  m_deltaEta     = regionPSet.getParameter<double>("deltaEtaRegion");
-  m_deltaPhi     = regionPSet.getParameter<double>("deltaPhiRegion");
+  m_ptMin        = regionPSet_.getParameter<double>("ptMin");
+  m_rVertex      = regionPSet_.getParameter<double>("rVertex");
+  m_zVertex      = regionPSet_.getParameter<double>("zVertex");
+  m_deltaEta     = regionPSet_.getParameter<double>("deltaEtaRegion");
+  m_deltaPhi     = regionPSet_.getParameter<double>("deltaPhiRegion");
 
   edm::ParameterSet toolsPSet  = conf_.getParameter<edm::ParameterSet>("ToolsPSet");
   thePropagatorName_           = toolsPSet.getParameter<std::string>("thePropagatorName");
@@ -164,7 +164,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 								    m_zVertex,
 								    m_deltaEta,
 								    m_deltaPhi,
-								    regionPset_
+								    regionPSet_
 								    );
       
       result.push_back(etaphiRegion);      
@@ -285,7 +285,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 								    m_zVertex,
 								    m_deltaEta,
 								    m_deltaPhi,
-								    regionPset_
+								    regionPSet_
 								    );
       
       result.push_back(etaphiRegion);      
