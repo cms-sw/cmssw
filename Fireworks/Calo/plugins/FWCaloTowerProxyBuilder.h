@@ -1,11 +1,11 @@
-#ifndef Fireworks_Calo_FWCaloTower3DProxyBuilder_h
-#define Fireworks_Calo_FWCaloTower3DProxyBuilder_h
+#ifndef Fireworks_Calo_FWCaloTowerProxyBuilder_h
+#define Fireworks_Calo_FWCaloTowerProxyBuilder_h
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     FWCaloTower3DProxyBuilderBase
+// Class  :     FWCaloTowerProxyBuilderBase
 //
-/**\class FWCaloTower3DProxyBuilderBase FWCaloTower3DProxyBuilderBase.h Fireworks/Calo/interface/FWCaloTower3DProxyBuilderBase.h
+/**\class FWCaloTowerProxyBuilderBase FWCaloTowerProxyBuilderBase.h Fireworks/Calo/interface/FWCaloTowerProxyBuilderBase.h
 
    Description: <one line class summary>
 
@@ -16,23 +16,23 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:08 EST 2008
-// $Id: FWCaloTower3DProxyBuilder.h,v 1.2 2009/01/23 21:35:40 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.h,v 1.3 2009/10/21 14:06:13 amraktad Exp $
 //
 
 #include "Rtypes.h"
 #include <string>
 
-#include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 class TH2F;
 
-class FWCaloTower3DProxyBuilderBase : public FW3DDataProxyBuilder {
+class FWCaloTowerProxyBuilderBase : public FWProxyBuilderBase {
 
 public:
-   FWCaloTower3DProxyBuilderBase();
-   virtual ~FWCaloTower3DProxyBuilderBase();
+   FWCaloTowerProxyBuilderBase();
+   virtual ~FWCaloTowerProxyBuilderBase();
 
    // ---------- const member functions ---------------------
    virtual const std::string histName() const = 0;
@@ -41,12 +41,11 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   virtual void addToScene(TEveElement&, TEveCaloDataHist**);
 
 private:
-   FWCaloTower3DProxyBuilderBase(const FWCaloTower3DProxyBuilderBase&); // stop default
+   FWCaloTowerProxyBuilderBase(const FWCaloTowerProxyBuilderBase&); // stop default
 
-   const FWCaloTower3DProxyBuilderBase& operator=(const FWCaloTower3DProxyBuilderBase&); // stop default
+   const FWCaloTowerProxyBuilderBase& operator=(const FWCaloTowerProxyBuilderBase&); // stop default
 
 
    virtual void build(const FWEventItem* iItem,
@@ -59,21 +58,22 @@ private:
 
    // ---------- member data --------------------------------
    TEveCaloDataHist* m_caloData;
-   Bool_t            m_ownData;
    TH2F* m_hist;
    Int_t m_sliceIndex;
    const CaloTowerCollection* m_towers;
+
+   TEveCaloDataHist* caloData() const;
 };
 
 //
 // Ecal
 //
 
-class FWECalCaloTower3DProxyBuilder : public FWCaloTower3DProxyBuilderBase {
+class FWECalCaloTowerProxyBuilder : public FWCaloTowerProxyBuilderBase {
 public:
-   FWECalCaloTower3DProxyBuilder() {
+   FWECalCaloTowerProxyBuilder() {
    }
-   virtual ~FWECalCaloTower3DProxyBuilder() {
+   virtual ~FWECalCaloTowerProxyBuilder() {
    }
 
    // ---------- const member functions ---------------------
@@ -87,8 +87,8 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
 private:
-   FWECalCaloTower3DProxyBuilder(const FWECalCaloTower3DProxyBuilder&); // stop default
-   const FWECalCaloTower3DProxyBuilder& operator=(const FWECalCaloTower3DProxyBuilder&); // stop default
+   FWECalCaloTowerProxyBuilder(const FWECalCaloTowerProxyBuilder&); // stop default
+   const FWECalCaloTowerProxyBuilder& operator=(const FWECalCaloTowerProxyBuilder&); // stop default
 };
 
 
@@ -96,11 +96,11 @@ private:
 // Ecal
 //
 
-class FWHCalCaloTower3DProxyBuilder : public FWCaloTower3DProxyBuilderBase {
+class FWHCalCaloTowerProxyBuilder : public FWCaloTowerProxyBuilderBase {
 public:
-   FWHCalCaloTower3DProxyBuilder() {
+   FWHCalCaloTowerProxyBuilder() {
    }
-   virtual ~FWHCalCaloTower3DProxyBuilder(){
+   virtual ~FWHCalCaloTowerProxyBuilder(){
    }
 
    // ---------- const member functions ---------------------
@@ -114,9 +114,9 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
 private:
-   FWHCalCaloTower3DProxyBuilder(const FWHCalCaloTower3DProxyBuilder&); // stop default
+   FWHCalCaloTowerProxyBuilder(const FWHCalCaloTowerProxyBuilder&); // stop default
 
-   const FWHCalCaloTower3DProxyBuilder& operator=(const FWHCalCaloTower3DProxyBuilder&); // stop default
+   const FWHCalCaloTowerProxyBuilder& operator=(const FWHCalCaloTowerProxyBuilder&); // stop default
 };
 
 
