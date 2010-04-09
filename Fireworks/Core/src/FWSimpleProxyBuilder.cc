@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Tue March 28 09:46:41 EST 2010
-// $Id: FWSimpleProxyBuilder.cc,v 1.3 2010/03/04 21:37:23 chrjones Exp $
+// $Id: FWSimpleProxyBuilder.cc,v 1.1 2010/04/06 20:00:36 amraktad Exp $
 //
 
 // system include files
@@ -75,7 +75,11 @@ void
 FWSimpleProxyBuilder::build(const FWEventItem* iItem,
                             TEveElementList** product)
 {
-   (*product)->DestroyElements();
+   if(0==*product) {
+      *product = new TEveElementList();
+   } else {
+      (*product)->DestroyElements();
+   }
    
    size_t size = iItem->size();
    for(int index = 0; index < static_cast<int>(size); ++index) {

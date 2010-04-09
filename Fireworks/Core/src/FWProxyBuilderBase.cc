@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id$
+// $Id: FWProxyBuilderBase.cc,v 1.1 2010/04/06 20:00:36 amraktad Exp $
 //
 
 // system include files
@@ -100,17 +100,14 @@ FWProxyBuilderBase::build()
       if(notFirstTime) {
          //we know the type since it is enforced in this routine so static_cast is safe
          newElements = static_cast<TEveElementList*>(*(m_elementHolder->BeginChildren()));
-         newElements->DestroyElements();
-      }
-      else {
-         // this MUST be added before new child of newElements are projected
-         newElements = new TEveElementList("subProduct");
-         m_elementHolder->AddElement(newElements);
-         m_elementHolder->ProjectChild(newElements); 
       }
             
       build(m_item, &newElements);
-      
+      if(!notFirstTime && newElements) {
+         m_elementHolder->AddElement(newElements);
+         m_elementHolder->ProjectChild(newElements);
+      }
+
       if(static_cast<int>(m_item->size()) == newElements->NumChildren() ) {
          int index=0;
          int largestIndex = m_ids.size();
@@ -119,7 +116,7 @@ FWProxyBuilderBase::build()
          }
          std::vector<FWModelIdFromEveSelector>::iterator itId = m_ids.begin();
          for(TEveElement::List_i it = newElements->BeginChildren(),
-             itEnd = newElements->EndChildren();
+                itEnd = newElements->EndChildren();
              it != itEnd;
              ++it,++itId,++index) {
             if(largestIndex<=index) {
