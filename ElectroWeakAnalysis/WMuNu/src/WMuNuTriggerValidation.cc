@@ -114,7 +114,7 @@ WMuNuTriggerValidation::WMuNuTriggerValidation( const ParameterSet & cfg ) :
       dxyCut_(cfg.getUntrackedParameter<double>("DxyCut", 0.2)),
       normalizedChi2Cut_(cfg.getUntrackedParameter<double>("NormalizedChi2Cut", 10.)),
       trackerHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),
-      muonHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut", 1)),
+      muonHitsCut_(cfg.getUntrackedParameter<int>("MuonHitsCut", 0)),
       isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true))
 {
 }
@@ -228,7 +228,7 @@ void WMuNuTriggerValidation::FillTurnOnCurve(std::string TriggerTag){
 
 void WMuNuTriggerValidation::endJob() {
     LogTrace("")<<"Analized "<<nall<<" events"<<endl;
-    if (nall!=0){
+    if (nall>0){
     for (int i=0; i<numberOfHLTTriggers; i++) {
             FillTurnOnCurve( HLTTriggers[i].data());
             FillEfficiencyPlots(HLTTriggers[i].data(), "PT");
@@ -260,6 +260,7 @@ bool WMuNuTriggerValidation::HLTMatch(edm::Handle<trigger::TriggerEvent> trigger
 
 
 bool WMuNuTriggerValidation::filter (Event & ev, const EventSetup &) {
+
       nall++;
       // Muon collection
       Handle<View<Muon> > muonCollection;
@@ -277,28 +278,41 @@ bool WMuNuTriggerValidation::filter (Event & ev, const EventSetup &) {
       }
   
       // Trigger
-      Handle<TriggerResults> triggerResults;
-      if (!ev.getByLabel(trigTag_, triggerResults)) {
+      Handle<TriggerResults> triggerResultsHandle;
+      if (!ev.getByLabel(trigTag_, triggerResultsHandle)) {
             LogError("") << ">>> TRIGGER collection does not exist !!!";
             return false;
       }
-      const edm::TriggerNames & triggerNames = ev.triggerNames(*triggerResults);
+
+      const edm::TriggerResults& triggerResults = (*triggerResultsHandle);
+      edm::TriggerNames triggerNames;
+      triggerNames.init(triggerResults);
+      LogTrace("") << ">>>>> HLT bits fired in the event:\n";
+      for (unsigned int bit=0; bit<triggerResults.size(); ++bit) {
+            if (triggerResults.accept(bit)) {
+                  LogTrace("") << "\t Bit "<< bit <<" : "<<triggerNames.triggerName(bit).data();
+            }
+      }
+
       //bool MuonL1TriggersFired[numberOfL1Triggers];
-      bool MuonHLTTriggersFired[numberOfHLTTriggers];
+      bool MuonHLTTriggersFired[10];
       char histoname[256] = "";
       for (int j=0; j<numberOfHLTTriggers; j++){
-                  MuonHLTTriggersFired[j]=false;
-                  int itrigHLT = triggerNames.triggerIndex(HLTTriggers[j]);
-                        if (triggerResults->accept(itrigHLT)) {
-                                    MuonHLTTriggersFired[j] = true;
+            MuonHLTTriggersFired[j]=false;
+                  for (unsigned int i=0; i<triggerResults.size(); i++) {
+                        std::string trigName = triggerNames.triggerName(i);
+                        if ( trigName == HLTTriggers[j] && triggerResults.accept(i)) {
+                              MuonHLTTriggersFired[j] = true;
                         }
+                  }   
       }
-       edm::Handle<trigger::TriggerEvent> triggerObj;
-       ev.getByLabel(trigEv_,triggerObj);
-       if(!triggerObj.isValid()) {
+
+      edm::Handle<trigger::TriggerEvent> triggerObj;
+      if(!ev.getByLabel(trigEv_,triggerObj)){
               LogTrace("") << "Summary HLT objects not found, skipping event";
                return false;
        } 
+
 
       bool muon_sel=true;
 
@@ -320,10 +334,10 @@ bool WMuNuTriggerValidation::filter (Event & ev, const EventSetup &) {
             double validmuonhits=gm->hitPattern().numberOfValidMuonHits();
             double trackerHits = gm->hitPattern().numberOfValidTrackerHits(); 
             
-//            if (fabs(dxy)>=dxyCut_) muon_sel = false; 
-//            if (validmuonhits<=muonHitsCut_) muon_sel = false;
-//            if (normalizedChi2<=normalizedChi2Cut_) muon_sel = false;                       
-//            if (trackerHits<=trackerHitsCut_) muon_sel = false; 
+            if (fabs(dxy)>=dxyCut_) muon_sel = false; 
+            if (validmuonhits<=muonHitsCut_) muon_sel = false;
+            if (normalizedChi2>normalizedChi2Cut_) muon_sel = false;                       
+            if (trackerHits<=trackerHitsCut_) muon_sel = false; 
             if (!mu.isTrackerMuon()) muon_sel = false; 
 
             // Other cuts?
