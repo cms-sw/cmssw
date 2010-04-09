@@ -18,7 +18,6 @@ regionalCosmicMuonSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
    RegionFactoryPSet = cms.PSet(                                 
       ComponentName = cms.string( "CosmicRegionalSeedGenerator" ),
       RegionPSet = cms.PSet(
-        tp_label       = cms.InputTag("mergedtruth","MergedTrackTruth"),
         ptMin          = cms.double( 1.0 ),
         rVertex        = cms.double( 5 ),
         zVertex        = cms.double( 5 ),
@@ -31,7 +30,7 @@ regionalCosmicMuonSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
         regionBase                  = cms.string("")
         ),
       CollectionsPSet = cms.PSet(
-        staMuonsCollection          = cms.InputTag("muons"),
+        muonsCollection          = cms.InputTag("muons"),
         cosmicMuonsCollection       = cms.InputTag("cosmicMuons")
         )
     ),

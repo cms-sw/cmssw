@@ -26,7 +26,6 @@ CosmicRegionalSeedGenerator::CosmicRegionalSeedGenerator(edm::ParameterSet const
   edm::LogInfo ("CosmicRegionalSeedGenerator") << "Begin Run:: Constructing  CosmicRegionalSeedGenerator";
 
   edm::ParameterSet regionPSet = conf_.getParameter<edm::ParameterSet>("RegionPSet");
-  m_tp_label     = regionPSet.getParameter<edm::InputTag>("tp_label"); 
   m_ptMin        = regionPSet.getParameter<double>("ptMin");
   m_rVertex      = regionPSet.getParameter<double>("rVertex");
   m_zVertex      = regionPSet.getParameter<double>("zVertex");
@@ -34,16 +33,14 @@ CosmicRegionalSeedGenerator::CosmicRegionalSeedGenerator(edm::ParameterSet const
   m_deltaPhi     = regionPSet.getParameter<double>("deltaPhiRegion");
 
   edm::ParameterSet toolsPSet  = conf_.getParameter<edm::ParameterSet>("ToolsPSet");
-  triggerSummaryLabel_         = toolsPSet.getParameter<std::string>("triggerSummaryLabel");
   thePropagatorName_           = toolsPSet.getParameter<std::string>("thePropagatorName");
   regionBase_                  = toolsPSet.getParameter<std::string>("regionBase");
 
   edm::ParameterSet collectionsPSet = conf_.getParameter<edm::ParameterSet>("CollectionsPSet");
-  staMuonsCollection_          = collectionsPSet.getParameter<edm::InputTag>("staMuonsCollection");
+  muonsCollection_          = collectionsPSet.getParameter<edm::InputTag>("muonsCollection");
   cosmicMuonsCollection_       = collectionsPSet.getParameter<edm::InputTag>("cosmicMuonsCollection");
 
-  edm::LogInfo ("CosmicRegionalSeedGenerator") << "L2 muons collection : " << l2MuonsRecoTracksCollection_ << "\n"
-					       << "Stand alone muons collection : " << staMuonsCollection_ << "\n"
+  edm::LogInfo ("CosmicRegionalSeedGenerator") << "Stand alone muons collection : " << muonsCollection_ << "\n"
 					       << "Cosmic muon collection: " << cosmicMuonsCollection_;
 
 }
@@ -69,15 +66,15 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
     //+++++++++++++++
 
     //get the muon collection
-    edm::Handle<reco::MuonCollection> staMuonsHandle;
-    event.getByLabel(staMuonsCollection_,staMuonsHandle);
-    if (!staMuonsHandle.isValid())
+    edm::Handle<reco::MuonCollection> muonsHandle;
+    event.getByLabel(muonsCollection_,muonsHandle);
+    if (!muonsHandle.isValid())
       {
 	edm::LogError("CosmicRegionalSeedGenerator") << "Error::No muons collection in the event";
 	return result;
       }
 
-    LogDebug("CosmicRegionalSeedGenerator") << "Muons collection size = " << staMuonsHandle->size();
+    LogDebug("CosmicRegionalSeedGenerator") << "Muons collection size = " << muonsHandle->size();
 
     //get the propagator 
     edm::ESHandle<Propagator> thePropagator;
@@ -94,7 +91,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
     //+++++++++++++++++++++++++
 
     int nmuons = 0;
-    for (reco::MuonCollection::const_iterator staMuon = staMuonsHandle->begin();  staMuon != staMuonsHandle->end();  ++staMuon) {
+    for (reco::MuonCollection::const_iterator staMuon = muonsHandle->begin();  staMuon != muonsHandle->end();  ++staMuon) {
 
       //select sta muons
       if (!staMuon->isStandAloneMuon()) {

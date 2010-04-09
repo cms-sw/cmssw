@@ -57,7 +57,6 @@ class CosmicRegionalSeedGenerator : public TrackingRegionProducer {
  private:
   edm::ParameterSet conf_;
 
-  edm::InputTag m_tp_label;
   float m_ptMin;
   float m_rVertex;
   float m_zVertex;
@@ -66,7 +65,7 @@ class CosmicRegionalSeedGenerator : public TrackingRegionProducer {
 
   edm::InputTag l2MuonsCollection_;
   edm::InputTag l2MuonsRecoTracksCollection_;
-  edm::InputTag staMuonsCollection_;
+  edm::InputTag muonsCollection_;
   edm::InputTag cosmicMuonsCollection_;
 
   std::string triggerSummaryLabel_;
