@@ -24,6 +24,7 @@ regionalCosmicMuonSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
         deltaEtaRegion = cms.double( 0.1 ),
         deltaPhiRegion = cms.double( 0.1 ),
         precise        = cms.bool( True ),
+        measurementTrackerName = cms.string('')
         ),
       ToolsPSet = cms.PSet(
         thePropagatorName           = cms.string("AnalyticalPropagator"),
