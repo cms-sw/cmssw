@@ -128,7 +128,7 @@ parser.add_option("--weightAlignment",
 parser.add_option("--minAlignmentSegments",
                   help="minimum number of segments required to align a chamber",
                   type="int",
-                  default=30,
+                  default=5,
                   dest="minAlignmentHits")
 parser.add_option("--combineME11",
                   help="treat ME1/1a and ME1/1b as the same objects",
@@ -363,7 +363,7 @@ fi
 
     bsubfile.append("echo %salign.sh" % directory)
     bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -w \"%s\" align.sh" % (director, " && ".join(bsubnames)))
-    #bsubfile.append("cd ..")
+    bsubfile.append("cd ..")
     bsubnames = []
     last_align = "%s_align" % director
     
