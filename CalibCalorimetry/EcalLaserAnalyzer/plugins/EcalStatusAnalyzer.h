@@ -38,13 +38,16 @@ class EcalStatusAnalyzer: public edm::EDAnalyzer{
   std::map <int,int> isFedLasCreated;
   std::map <int,int> isFedTPCreated;
   std::map <int,int> isFedPedCreated;
+  std::map <int,int> isFedLedCreated;
 
   std::vector<int> fedIDsLas;
   std::vector<int> fedIDsTP;
   std::vector<int> fedIDsPed;
+  std::vector<int> fedIDsLed;
   std::vector<int> dccIDsLas;
   std::vector<int> dccIDsTP;
   std::vector<int> dccIDsPed;
+  std::vector<int> dccIDsLed;
 
   std::string   _dataType;
   
@@ -68,6 +71,9 @@ class EcalStatusAnalyzer: public edm::EDAnalyzer{
   std::map<int, unsigned long long> timeStampBegPed;
   std::map<int, unsigned long long> timeStampEndPed;
 
+  std::map<int, unsigned long long> timeStampBegLed;
+  std::map<int, unsigned long long> timeStampEndLed;
+
   std::map<int, short> MGPAGainLas;
   std::map<int, short> MEMGainLas;
 
@@ -76,6 +82,9 @@ class EcalStatusAnalyzer: public edm::EDAnalyzer{
 
   std::map<int, short> MGPAGainPed;
   std::map<int, short> MEMGainPed;
+
+  std::map<int, short> MGPAGainLed;
+  std::map<int, short> MEMGainLed;
 
   std::map<int, int > laserPowerBlue;
   std::map<int, int > laserFilterBlue;
@@ -89,6 +98,11 @@ class EcalStatusAnalyzer: public edm::EDAnalyzer{
   std::map<int, int> nBlueLas;
   std::map<int, int> nRedLas;
   std::map<int, int> runTypeLas;
+
+  std::map<int, int> nEvtsLed;
+  std::map<int, int> nBlueLed;
+  std::map<int, int> nRedLed;
+  std::map<int, int> runTypeLed;
 
   std::map<int, int> nEvtsTP;
   std::map<int, int> runTypeTP;
