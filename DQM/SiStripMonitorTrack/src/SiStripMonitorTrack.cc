@@ -116,7 +116,7 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
     int nTot=0;
     std::string name;
     for (int i=0;i<4;++i){ // loop over TIB, TID, TOB, TEC
-      name=flags[j]+"_"+SubDet[i];      
+      name=flags[j]+"_in_"+SubDet[i];      
       iLayerME = LayerMEsMap.find(name);
       if(iLayerME!=LayerMEsMap.end()) {
 	if(flags[j]=="OnTrack" && NClus[i][j]){
@@ -221,7 +221,7 @@ void SiStripMonitorTrack::book()
     for (int j=0;j<off_Flag;j++){ // Loop on onTrack, offTrack
       folder_organizer.setDetectorFolder(0);
       dbe->cd("SiStrip/MechanicalView/"+iter->first.first);
-      string name = flags[j] + "_" + iter->first.first;
+      string name = flags[j] + "_in_" + iter->first.first;
       bookSubDetMEs(name, flags[j]); //for subdets
     }//end loop on onTrack,offTrack
   }  
