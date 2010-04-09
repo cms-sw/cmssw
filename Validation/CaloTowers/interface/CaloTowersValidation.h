@@ -48,7 +48,7 @@ class CaloTowersValidation : public edm::EDAnalyzer {
 
   typedef math::RhoEtaPhiVector Vector;
 
-  std::string theCaloTowerCollectionLabel;
+  edm::InputTag theCaloTowerCollectionLabel;
 
   int isub;
   int nevent;

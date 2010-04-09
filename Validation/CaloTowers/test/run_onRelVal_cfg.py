@@ -22,7 +22,7 @@ process.source = cms.Source("PoolSource",
 
 process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
     outputFile = cms.untracked.string('CaloTowersValidationRelVal.root'),
-    CaloTowerCollectionLabel = cms.untracked.string('towerMaker'),
+    CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
     hcalselector = cms.untracked.string('all'),
     mc = cms.untracked.string('no')
 )

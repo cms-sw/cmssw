@@ -3,7 +3,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
-  theCaloTowerCollectionLabel(conf.getUntrackedParameter<std::string>("CaloTowerCollectionLabel"))
+  theCaloTowerCollectionLabel(conf.getUntrackedParameter<edm::InputTag>("CaloTowerCollectionLabel"))
 {
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
