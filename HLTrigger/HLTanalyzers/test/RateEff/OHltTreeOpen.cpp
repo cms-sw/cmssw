@@ -492,7 +492,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       double massMaxTrack[2] = {3.4, 11.0};
       double DzMuonTrack = 0.5;
       bool   checkChargeTrack = true;
-      if(OpenHlt1MuonPassed(0.,3.,3.,2.,0)>=1 && //check the L3 muon
+      if((OpenHlt1MuonPassed(0.,3.,3.,2.,0)>=1) && //check the L3 muon
          OpenHltMuPixelPassed(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix) && //check the L3Mu + pixel
          OpenHltMuTrackPassed(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack)) { //check the L3Mu + tracker track
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
@@ -526,7 +526,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       double massMaxTrack[1] = {11.0};
       double DzMuonTrack = 0.5;
       bool   checkChargeTrack = true;
-      if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1 && //check the L3 muon
+      if((OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1) && //check the L3 muon
          OpenHltMuPixelPassed_Ups(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 4) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_Ups(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 4)) { 
 	//check the L3Mu + tracker track
@@ -561,7 +561,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       double massMaxTrack[1] = {3.4};
       double DzMuonTrack = 0.5;
       bool   checkChargeTrack = true;
-      if(OpenHlt1MuonPassed(0.,0.,0.,2.,0)>=1 && //check the L3 muon
+      if((OpenHlt1MuonPassed(0.,0.,0.,2.,0)>=1) && //check the L3 muon
          OpenHltMuPixelPassed_JPsi(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 0) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_JPsi(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 0)) { 
 	//check the L3Mu + tracker track
@@ -596,7 +596,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       double massMaxTrack[1] = {3.4};
       double DzMuonTrack = 0.5;
       bool   checkChargeTrack = true;
-      if(OpenHlt1MuonPassed(0.,3.,3.,2.,0)>=1 && //check the L3 muon
+      if((OpenHlt1MuonPassed(0.,3.,3.,2.,0)>=1) && //check the L3 muon
          OpenHltMuPixelPassed_JPsi(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 1) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_JPsi(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack,1)) { 
 	//check the L3Mu + tracker track
@@ -631,7 +631,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       double massMaxTrack[1] = {3.4};
       double DzMuonTrack = 0.5;
       bool   checkChargeTrack = true;
-      if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1 && //check the L3 muon
+      if((OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1) && //check the L3 muon
          OpenHltMuPixelPassed_JPsi(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 2) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_JPsi(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 2)) { 
 	//check the L3Mu + tracker track
@@ -666,7 +666,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       double massMaxTrack[1] = {3.4};
       double DzMuonTrack = 0.5;
       bool   checkChargeTrack = true;
-      if(OpenHlt1MuonPassed(0.,3.,3.,2.,0)>=1 && //check the L3 muons
+      if((OpenHlt1MuonPassed(0.,3.,3.,2.,0)>=1) && //check the L3 muons
          OpenHltMuPixelPassed_JPsi(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 4) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_JPsi(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 4)) { //check the L3Mu + tracker track
   if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
@@ -2925,7 +2925,6 @@ int OHltTree::OpenHltMuTrackPassed(double ptTrack, double pTrack, double etaTrac
 
 int OHltTree::OpenHltMuPixelPassed_JPsi(double ptPix, double pPix, double etaPix, double DxyPix, double DzPix, int NHitsPix, double normChi2Pix, double *massMinPix, double *massMaxPix, double DzMuonPix, bool checkChargePix, int histIndex)
 {
-
   //   printf("in OpenHltMuPixelPassed_JPsi \n\n");
   const double muMass = 0.105658367;
   TLorentzVector pix4Mom, mu4Mom, onia4Mom;
@@ -2947,12 +2946,12 @@ int OHltTree::OpenHltMuPixelPassed_JPsi(double ptPix, double pPix, double etaPix
   for(int iP = 0; iP < NohOniaPixel; iP++){
 
     countCut = 0;
-    hEta[histIndex][0][countCut]->Fill(ohOniaPixelEta[iP]);
-    hPt[histIndex][0][countCut]->Fill(ohOniaPixelPt[iP]);
-    hHits[histIndex][0][countCut]->Fill(ohOniaPixelHits[iP]);
-    hNormChi2[histIndex][0][countCut]->Fill(ohOniaPixelNormChi2[iP]);
-    hDxy[histIndex][0][countCut]->Fill(ohOniaPixelDr[iP]);
-    hDz[histIndex][0][countCut]->Fill(ohOniaPixelDz[iP]);
+    //    hEta[histIndex][0][countCut]->Fill(ohOniaPixelEta[iP]);
+    //    hPt[histIndex][0][countCut]->Fill(ohOniaPixelPt[iP]);
+    //    hHits[histIndex][0][countCut]->Fill(ohOniaPixelHits[iP]);
+    //    hNormChi2[histIndex][0][countCut]->Fill(ohOniaPixelNormChi2[iP]);
+    //    hDxy[histIndex][0][countCut]->Fill(ohOniaPixelDr[iP]);
+    //    hDz[histIndex][0][countCut]->Fill(ohOniaPixelDz[iP]);
 
     //select those that survive the kinematical and
     //topological selection cuts
@@ -2960,7 +2959,7 @@ int OHltTree::OpenHltMuPixelPassed_JPsi(double ptPix, double pPix, double etaPix
     if(ohOniaPixelPt[iP] < ptPix) continue; //pT cut
 
     double momThisPix = ohOniaPixelPt[iP] * cosh(ohOniaPixelEta[iP]);
-    hP[histIndex][0][countCut]->Fill(momThisPix);
+    //    hP[histIndex][0][countCut]->Fill(momThisPix);
     countCut++;
 
     if(momThisPix < pPix) continue; //momentum cut
@@ -2969,13 +2968,13 @@ int OHltTree::OpenHltMuPixelPassed_JPsi(double ptPix, double pPix, double etaPix
     if(fabs(ohOniaPixelDr[iP]) > DxyPix) continue; //Dr cut
     if(fabs(ohOniaPixelDz[iP]) > DzPix) continue;
 
-    hEta[histIndex][0][countCut]->Fill(ohOniaPixelEta[iP]);
-    hPt[histIndex][0][countCut]->Fill(ohOniaPixelPt[iP]);
-    hHits[histIndex][0][countCut]->Fill(ohOniaPixelHits[iP]);
-    hNormChi2[histIndex][0][countCut]->Fill(ohOniaPixelNormChi2[iP]);
-    hDxy[histIndex][0][countCut]->Fill(ohOniaPixelDr[iP]);
-    hDz[histIndex][0][countCut]->Fill(ohOniaPixelDz[iP]);
-    hP[histIndex][0][countCut]->Fill(momThisPix);
+    //    hEta[histIndex][0][countCut]->Fill(ohOniaPixelEta[iP]);
+    //    hPt[histIndex][0][countCut]->Fill(ohOniaPixelPt[iP]);
+    //    hHits[histIndex][0][countCut]->Fill(ohOniaPixelHits[iP]);
+    //    hNormChi2[histIndex][0][countCut]->Fill(ohOniaPixelNormChi2[iP]);
+    //    hDxy[histIndex][0][countCut]->Fill(ohOniaPixelDr[iP]);
+    //    hDz[histIndex][0][countCut]->Fill(ohOniaPixelDz[iP]);
+    //    hP[histIndex][0][countCut]->Fill(momThisPix);
     countCut++;
 
     pix4Mom.SetPtEtaPhiM(ohOniaPixelPt[iP], ohOniaPixelEta[iP], ohOniaPixelPhi[iP], muMass);
@@ -2991,47 +2990,46 @@ int OHltTree::OpenHltMuPixelPassed_JPsi(double ptPix, double pPix, double etaPix
       //       printf("mu[%d]-pixel[%d] inv. mass %f\n",
       //           L3MuCandIDForOnia[iMu], iP, oniaMass);
       countOniaCut = 0;
-      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
-      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
       countOniaCut++;
 
       if(oniaMass < massMinPix[0] || oniaMass > massMaxPix[0]) continue; //mass cut
-
-      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
-      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
       countOniaCut++;
 
       if(checkChargePix)
         if(ohMuL3Chg[iMu] == ohOniaPixelChg[iP]) continue; //charge cut
 
-      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
-      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
       countOniaCut++;
 
       if(fabs(ohMuL3Dz[iMu] - ohOniaPixelDz[iP]) > DzMuonPix) continue;
 
-      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
-      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
 
       //store the surviving pixel-muon combinations:
       if(iNPix < 10){
@@ -3044,7 +3042,7 @@ int OHltTree::OpenHltMuPixelPassed_JPsi(double ptPix, double pPix, double etaPix
     }
   }
 
-  hNCand[histIndex][0]->Fill(iNPix);
+  //  hNCand[histIndex][0]->Fill(iNPix);
   return iNPix;
 }
 
@@ -3063,7 +3061,6 @@ int OHltTree::OpenHltMuTrackPassed_JPsi(double ptTrack, double pTrack, double et
       nComb++;
 
   //   printf("OpenHltMuTrackPassed_JPsi: %d incoming pixels and %d tracks\n", nComb, NohOniaTrack);
-
   Int_t countCut = 0, countOniaCut = 0;
   //1.) loop over the Tracker tracks
   for(int iT = 0; iT < NohOniaTrack; iT++){
@@ -3071,19 +3068,19 @@ int OHltTree::OpenHltMuTrackPassed_JPsi(double ptTrack, double pTrack, double et
     //select those that survive the kinematical and
     //topological selection cuts
     countCut = 0;
-    hEta[histIndex][1][countCut]->Fill(ohOniaTrackEta[iT]);
-    hPt[histIndex][1][countCut]->Fill(ohOniaTrackPt[iT]);
-    hHits[histIndex][1][countCut]->Fill(ohOniaTrackHits[iT]);
-    hNormChi2[histIndex][1][countCut]->Fill(ohOniaTrackNormChi2[iT]);
-    hDxy[histIndex][1][countCut]->Fill(ohOniaTrackDr[iT]);
-    hDz[histIndex][1][countCut]->Fill(ohOniaTrackDz[iT]);
+    //    hEta[histIndex][1][countCut]->Fill(ohOniaTrackEta[iT]);
+    //    hPt[histIndex][1][countCut]->Fill(ohOniaTrackPt[iT]);
+    //    hHits[histIndex][1][countCut]->Fill(ohOniaTrackHits[iT]);
+    //    hNormChi2[histIndex][1][countCut]->Fill(ohOniaTrackNormChi2[iT]);
+    //    hDxy[histIndex][1][countCut]->Fill(ohOniaTrackDr[iT]);
+    //    hDz[histIndex][1][countCut]->Fill(ohOniaTrackDz[iT]);
 
     if(fabs(ohOniaTrackEta[iT]) > etaTrack) continue; //eta cut
     if(ohOniaTrackPt[iT] < ptTrack) continue; //pT cut
     double momThisTrack = ohOniaTrackPt[iT] * cosh(ohOniaTrackEta[iT]);
     //     printf("track[%d] has eta %f, pT %f and mom %f\n",
     //         iT, ohOniaTrackEta[iT], ohOniaTrackPt[iT], momThisTrack);
-    hP[histIndex][1][countCut]->Fill(momThisTrack);
+    //    hP[histIndex][1][countCut]->Fill(momThisTrack);
     countCut++;
 
     if(momThisTrack < pTrack) continue; //momentum cut
@@ -3092,13 +3089,13 @@ int OHltTree::OpenHltMuTrackPassed_JPsi(double ptTrack, double pTrack, double et
     if(fabs(ohOniaTrackDr[iT]) > DxyTrack) continue; //Dr cut
     if(fabs(ohOniaTrackDz[iT]) > DzTrack) continue;
 
-    hEta[histIndex][1][countCut]->Fill(ohOniaTrackEta[iT]);
-    hPt[histIndex][1][countCut]->Fill(ohOniaTrackPt[iT]);
-    hHits[histIndex][1][countCut]->Fill(ohOniaTrackHits[iT]);
-    hNormChi2[histIndex][1][countCut]->Fill(ohOniaTrackNormChi2[iT]);
-    hDxy[histIndex][1][countCut]->Fill(ohOniaTrackDr[iT]);
-    hDz[histIndex][1][countCut]->Fill(ohOniaTrackDz[iT]);
-    hP[histIndex][1][countCut]->Fill(momThisTrack);
+    //    hEta[histIndex][1][countCut]->Fill(ohOniaTrackEta[iT]);
+    //    hPt[histIndex][1][countCut]->Fill(ohOniaTrackPt[iT]);
+    //    hHits[histIndex][1][countCut]->Fill(ohOniaTrackHits[iT]);
+    //    hNormChi2[histIndex][1][countCut]->Fill(ohOniaTrackNormChi2[iT]);
+    //    hDxy[histIndex][1][countCut]->Fill(ohOniaTrackDr[iT]);
+    //    hDz[histIndex][1][countCut]->Fill(ohOniaTrackDz[iT]);
+    //    hP[histIndex][1][countCut]->Fill(momThisTrack);
     countCut++;
 
     //     printf("track %d surviving kinematical pre-selection\n", iT);
@@ -3133,45 +3130,45 @@ int OHltTree::OpenHltMuTrackPassed_JPsi(double ptTrack, double pTrack, double et
       //           L3MuPixCandIDForJPsi[iPix], iT, oniaMass);
 
       countOniaCut = 0;
-      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
-      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
       countOniaCut++;
 
       if(oniaMass < massMinTrack[0] || oniaMass > massMaxTrack[0]) continue; //mass cut
-      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
-      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
       countOniaCut++;
 
       if(checkChargeTrack)
         if(ohMuL3Chg[L3MuPixCandIDForJPsi[iPix]] == ohOniaTrackChg[iT]) continue; //charge cut
 
-      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
-      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
       countOniaCut++;
 
       if(fabs(ohMuL3Dz[L3MuPixCandIDForJPsi[iPix]] - ohOniaTrackDz[iT]) > DzMuonTrack) continue; //deltaZ cut
-      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
-      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
 
       //store the surviving track-muon combinations:
       if(iNTrack < 10)
@@ -3180,7 +3177,7 @@ int OHltTree::OpenHltMuTrackPassed_JPsi(double ptTrack, double pTrack, double et
     }
   }
 
-  hNCand[histIndex][1]->Fill(iNTrack);
+  //  hNCand[histIndex][1]->Fill(iNTrack);
   return iNTrack;
 }
 
@@ -3208,12 +3205,12 @@ int OHltTree::OpenHltMuPixelPassed_Ups(double ptPix, double pPix, double etaPix,
   for(int iP = 0; iP < NohOniaPixel; iP++){
 
     countCut = 0;
-    hEta[histIndex][0][countCut]->Fill(ohOniaPixelEta[iP]);
-    hPt[histIndex][0][countCut]->Fill(ohOniaPixelPt[iP]);
-    hHits[histIndex][0][countCut]->Fill(ohOniaPixelHits[iP]);
-    hNormChi2[histIndex][0][countCut]->Fill(ohOniaPixelNormChi2[iP]);
-    hDxy[histIndex][0][countCut]->Fill(ohOniaPixelDr[iP]);
-    hDz[histIndex][0][countCut]->Fill(ohOniaPixelDz[iP]);
+    //    hEta[histIndex][0][countCut]->Fill(ohOniaPixelEta[iP]);
+    //    hPt[histIndex][0][countCut]->Fill(ohOniaPixelPt[iP]);
+    //    hHits[histIndex][0][countCut]->Fill(ohOniaPixelHits[iP]);
+    //    hNormChi2[histIndex][0][countCut]->Fill(ohOniaPixelNormChi2[iP]);
+    //    hDxy[histIndex][0][countCut]->Fill(ohOniaPixelDr[iP]);
+    //    hDz[histIndex][0][countCut]->Fill(ohOniaPixelDz[iP]);
 
     //select those that survive the kinematical and
     //topological selection cuts
@@ -3221,7 +3218,7 @@ int OHltTree::OpenHltMuPixelPassed_Ups(double ptPix, double pPix, double etaPix,
     if(ohOniaPixelPt[iP] < ptPix) continue; //pT cut
     double momThisPix = ohOniaPixelPt[iP] * cosh(ohOniaPixelEta[iP]);
 
-    hP[histIndex][0][countCut]->Fill(momThisPix);
+    //    hP[histIndex][0][countCut]->Fill(momThisPix);
     countCut++;
 
     if(momThisPix < pPix) continue; //momentum cut
@@ -3230,13 +3227,13 @@ int OHltTree::OpenHltMuPixelPassed_Ups(double ptPix, double pPix, double etaPix,
     if(fabs(ohOniaPixelDr[iP]) > DxyPix) continue; //Dr cut
     if(fabs(ohOniaPixelDz[iP]) > DzPix) continue;
 
-    hEta[histIndex][0][countCut]->Fill(ohOniaPixelEta[iP]);
-    hPt[histIndex][0][countCut]->Fill(ohOniaPixelPt[iP]);
-    hHits[histIndex][0][countCut]->Fill(ohOniaPixelHits[iP]);
-    hNormChi2[histIndex][0][countCut]->Fill(ohOniaPixelNormChi2[iP]);
-    hDxy[histIndex][0][countCut]->Fill(ohOniaPixelDr[iP]);
-    hDz[histIndex][0][countCut]->Fill(ohOniaPixelDz[iP]);
-    hP[histIndex][0][countCut]->Fill(momThisPix);
+    //    hEta[histIndex][0][countCut]->Fill(ohOniaPixelEta[iP]);
+    //    hPt[histIndex][0][countCut]->Fill(ohOniaPixelPt[iP]);
+    //    hHits[histIndex][0][countCut]->Fill(ohOniaPixelHits[iP]);
+    //    hNormChi2[histIndex][0][countCut]->Fill(ohOniaPixelNormChi2[iP]);
+    //    hDxy[histIndex][0][countCut]->Fill(ohOniaPixelDr[iP]);
+    //    hDz[histIndex][0][countCut]->Fill(ohOniaPixelDz[iP]);
+    //    hP[histIndex][0][countCut]->Fill(momThisPix);
     countCut++;
 
     pix4Mom.SetPtEtaPhiM(ohOniaPixelPt[iP], ohOniaPixelEta[iP], ohOniaPixelPhi[iP], muMass);
@@ -3250,46 +3247,46 @@ int OHltTree::OpenHltMuPixelPassed_Ups(double ptPix, double pPix, double etaPix,
       double oniaMass = onia4Mom.M();
 
       countOniaCut = 0;
-      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
-      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
       countOniaCut++;
 
       if(oniaMass < massMinPix[0] || oniaMass > massMaxPix[0]) continue; //mass cut
 
-      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
-      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
       countOniaCut++;
 
       if(checkChargePix)
         if(ohMuL3Chg[iMu] == ohOniaPixelChg[iP]) continue; //charge cut
 
-      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
-      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
       countOniaCut++;
 
       if(fabs(ohMuL3Dz[iMu] - ohOniaPixelDz[iP]) > DzMuonPix) continue;
-      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
-      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaMass[histIndex][0][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaP[histIndex][0][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEtaPt[histIndex][0][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][0][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
 
       //store the surviving pixel-muon combinations:
       if(iNPix < 10){
@@ -3303,7 +3300,7 @@ int OHltTree::OpenHltMuPixelPassed_Ups(double ptPix, double pPix, double etaPix,
   }
 
   //   hNPixelCand->Fill(iNPix);
-  hNCand[histIndex][0]->Fill(iNPix);
+  //  hNCand[histIndex][0]->Fill(iNPix);
   return iNPix;
 }
 
@@ -3327,12 +3324,12 @@ int OHltTree::OpenHltMuTrackPassed_Ups(double ptTrack, double pTrack, double eta
     //select those that survive the kinematical and
     //topological selection cuts
     countCut++;
-    hEta[histIndex][1][countCut]->Fill(ohOniaTrackEta[iT]);
-    hPt[histIndex][1][countCut]->Fill(ohOniaTrackPt[iT]);
-    hHits[histIndex][1][countCut]->Fill(ohOniaTrackHits[iT]);
-    hNormChi2[histIndex][1][countCut]->Fill(ohOniaTrackNormChi2[iT]);
-    hDxy[histIndex][1][countCut]->Fill(ohOniaTrackDr[iT]);
-    hDz[histIndex][1][countCut]->Fill(ohOniaTrackDz[iT]);
+    //    hEta[histIndex][1][countCut]->Fill(ohOniaTrackEta[iT]);
+    //    hPt[histIndex][1][countCut]->Fill(ohOniaTrackPt[iT]);
+    //    hHits[histIndex][1][countCut]->Fill(ohOniaTrackHits[iT]);
+    //    hNormChi2[histIndex][1][countCut]->Fill(ohOniaTrackNormChi2[iT]);
+    //    hDxy[histIndex][1][countCut]->Fill(ohOniaTrackDr[iT]);
+    //    hDz[histIndex][1][countCut]->Fill(ohOniaTrackDz[iT]);
 
     if(fabs(ohOniaTrackEta[iT]) > etaTrack) continue; //eta cut
     if(ohOniaTrackPt[iT] < ptTrack) continue; //pT cut
@@ -3340,7 +3337,7 @@ int OHltTree::OpenHltMuTrackPassed_Ups(double ptTrack, double pTrack, double eta
     //     printf("track[%d] has eta %f, pT %f and mom %f\n",
     //         iT, ohOniaTrackEta[iT], ohOniaTrackPt[iT], momThisTrack);
 
-    hP[histIndex][1][countCut]->Fill(momThisTrack);
+    //    hP[histIndex][1][countCut]->Fill(momThisTrack);
     countCut++;
 
     if(momThisTrack < pTrack) continue; //momentum cut
@@ -3349,13 +3346,13 @@ int OHltTree::OpenHltMuTrackPassed_Ups(double ptTrack, double pTrack, double eta
     if(fabs(ohOniaTrackDr[iT]) > DxyTrack) continue; //Dr cut
     if(fabs(ohOniaTrackDz[iT]) > DzTrack) continue;
 
-    hEta[histIndex][1][countCut]->Fill(ohOniaTrackEta[iT]);
-    hPt[histIndex][1][countCut]->Fill(ohOniaTrackPt[iT]);
-    hHits[histIndex][1][countCut]->Fill(ohOniaTrackHits[iT]);
-    hNormChi2[histIndex][1][countCut]->Fill(ohOniaTrackNormChi2[iT]);
-    hDxy[histIndex][1][countCut]->Fill(ohOniaTrackDr[iT]);
-    hDz[histIndex][1][countCut]->Fill(ohOniaTrackDz[iT]);
-    hP[histIndex][1][countCut]->Fill(momThisTrack);
+    //    hEta[histIndex][1][countCut]->Fill(ohOniaTrackEta[iT]);
+    //    hPt[histIndex][1][countCut]->Fill(ohOniaTrackPt[iT]);
+    //    hHits[histIndex][1][countCut]->Fill(ohOniaTrackHits[iT]);
+    //    hNormChi2[histIndex][1][countCut]->Fill(ohOniaTrackNormChi2[iT]);
+    //    hDxy[histIndex][1][countCut]->Fill(ohOniaTrackDr[iT]);
+    //    hDz[histIndex][1][countCut]->Fill(ohOniaTrackDz[iT]);
+    //    hP[histIndex][1][countCut]->Fill(momThisTrack);
 
     //     printf("track %d surviving kinematical pre-selection\n", iT);
     //2.) loop over the pixels candidates to see whether the track
@@ -3390,13 +3387,13 @@ int OHltTree::OpenHltMuTrackPassed_Ups(double ptTrack, double pTrack, double eta
       //           L3MuPixCandIDForUps[iPix], iT, oniaMass);
 
       countOniaCut = 0;
-      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
-      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
       countOniaCut++;
 
       if(oniaMass < massMinTrack[0] || oniaMass > massMaxTrack[0]) continue; //mass cut
@@ -3404,36 +3401,36 @@ int OHltTree::OpenHltMuTrackPassed_Ups(double ptTrack, double pTrack, double eta
       //       printf("surviving: mu[%d]-track[%d] inv. mass %f\n",
       //           L3MuPixCandIDForUps[iPix], iT, oniaMass);
 
-      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
-      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
       countOniaCut++;
 
       if(checkChargeTrack)
         if(ohMuL3Chg[L3MuPixCandIDForUps[iPix]] == ohOniaTrackChg[iT]) continue; //charge cut
 
-      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
-      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
       countOniaCut++;
 
       if(fabs(ohMuL3Dz[L3MuPixCandIDForUps[iPix]] - ohOniaTrackDz[iT]) > DzMuonTrack) continue; //deltaZ cut
 
-      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
-      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
-      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
-      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
-      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
-      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
-      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEta[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta());
+      //      hOniaRap[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity());
+      //      hOniaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Pt());
+      //      hOniaMass[histIndex][1][countOniaCut]->Fill(onia4Mom.M());
+      //      hOniaP[histIndex][1][countOniaCut]->Fill(sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
+      //      hOniaEtaPt[histIndex][1][countOniaCut]->Fill(onia4Mom.Eta(),onia4Mom.Pt());
+      //      hOniaRapP[histIndex][1][countOniaCut]->Fill(onia4Mom.Rapidity(),sqrt(pow(onia4Mom.Px(),2)+pow(onia4Mom.Py(),2)+pow(onia4Mom.Pz(),2)));
 
       //store the surviving track-muon combinations:
       if(iNTrack < 10)
@@ -3446,7 +3443,7 @@ int OHltTree::OpenHltMuTrackPassed_Ups(double ptTrack, double pTrack, double eta
   //   if(iNTrack > 0)
   //     printf("found %d final candidates!!!\n", iNTrack);
 
-  hNCand[histIndex][1]->Fill(iNTrack);
+  //  hNCand[histIndex][1]->Fill(iNTrack);
   return iNTrack;
 }
 
