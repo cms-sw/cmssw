@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.7 2010/02/24 19:11:55 amraktad Exp $
+// $Id: Context.cc,v 1.8 2010/04/08 19:45:25 amraktad Exp $
 //
 
 // system include files
@@ -56,13 +56,24 @@ Context::Context(FWModelChangeManager* iCM,
    m_propagator->SetMagFieldObj(m_magField);
    m_propagator->IncDenyDestroy();
 
+
+   // calo data
    m_caloData = new TEveCaloDataHist();
    m_caloData->IncDenyDestroy();
-   Bool_t status = TH1::AddDirectoryStatus();
-   TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
-   TH2F* background = new TH2F("background","", 82, fw3dlego::xbins, 72/1, -3.1416, 3.1416);
-   TH1::AddDirectory(status);
-   m_caloData->AddHistogram(background);
+
+   // for (int i= 0; i < 3; ++i)
+   {
+      Bool_t status = TH1::AddDirectoryStatus();
+      TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
+      TH2F* dummy = new TH2F("background",
+                             "background",
+                             82, fw3dlego::xbins,
+                             72, -M_PI, M_PI);
+
+      TH1::AddDirectory(status);
+      Int_t sliceIndex = m_caloData->AddHistogram(dummy);
+      (m_caloData)->RefSliceInfo(sliceIndex).Setup("background", 0., 0);
+   }
 }
 
 

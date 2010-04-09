@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.73 2010/04/06 20:00:36 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.74 2010/04/09 17:23:57 amraktad Exp $
 //
 
 // system include files
@@ -22,7 +22,6 @@
 #include "TGLOrthoCamera.h"
 #include "TGLWidget.h"
 
-#include "TEveManager.h"
 #include "TEveElement.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
@@ -36,6 +35,7 @@
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/FWEveLegoView.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/Context.h"
 
 
@@ -95,7 +95,7 @@ void FWEveLegoView::setGeometry(fireworks::Context& context)
    {   
       m_lego = new TEveCaloLego(data);
       m_lego->InitMainTrans();
-      m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::TwoPi());
+      m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::Pi());
       m_lego->Set2DMode(TEveCaloLego::kValSize);
       m_lego->SetDrawNumberCellPixels(20);
       data->GetEtaBins()->SetTitleFont(120);
@@ -116,6 +116,7 @@ void FWEveLegoView::setGeometry(fireworks::Context& context)
       boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
       boundaries->AddLine(-2.964,-3.1416,0.001,-2.964,3.1416,0.001);
       boundaries->AddLine(2.964,-3.1416,0.001,2.964,3.1416,0.001);
+      boundaries->SetLineColor(context.colorManager()->geomColor(kFWLegoBoundraryColorIndex));
       m_lego->AddElement(boundaries);
    }
    geoScene()->AddElement(m_lego);
