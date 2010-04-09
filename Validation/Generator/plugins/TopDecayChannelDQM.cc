@@ -1,9 +1,9 @@
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "Validation/Generator/plugins/TopDecayChannelChecker.h"
+#include "Validation/Generator/plugins/TopDecayChannelDQM.h"
 
 
 /// static const string for status check in  
-/// TopCecayChannelChecker::search functions
+/// TopCecayChannelDQM::search functions
 static const std::string kGenParticles = "genParticles";
 
 // maximal number of daughters 
@@ -12,8 +12,7 @@ static const unsigned int kMAX=5;
 
 
 /// constructor
-TopDecayChannelChecker::TopDecayChannelChecker(const edm::ParameterSet& cfg):
-  outputFile_( cfg.getParameter<std::string>( "outputFile" ) ),
+TopDecayChannelDQM::TopDecayChannelDQM(const edm::ParameterSet& cfg):
   log_( cfg.getParameter<unsigned int>( "logEvents"  ) ),
   src_( cfg.getParameter<edm::InputTag>( "src"  ) ), 
   evts_(0)
@@ -23,15 +22,15 @@ TopDecayChannelChecker::TopDecayChannelChecker(const edm::ParameterSet& cfg):
 }
 
 /// destructor
-TopDecayChannelChecker::~TopDecayChannelChecker()
+TopDecayChannelDQM::~TopDecayChannelDQM()
 {
   // free memory
   //delete dqmStore_;
 }
 
 /// check the decay chain for different shower types
-TopDecayChannelChecker::ShowerType
-TopDecayChannelChecker::showerType(const edm::View<reco::GenParticle>& parts) const
+TopDecayChannelDQM::ShowerType
+TopDecayChannelDQM::showerType(const edm::View<reco::GenParticle>& parts) const
 {
   for(edm::View<reco::GenParticle>::const_iterator top=parts.begin(); top!=parts.end(); ++top){
     if(top->pdgId()==6 && top->status()==3){
@@ -62,7 +61,7 @@ TopDecayChannelChecker::showerType(const edm::View<reco::GenParticle>& parts) co
 
 /// all that needs to done during the event loop
 void
-TopDecayChannelChecker::analyze(const edm::Event& event, const edm::EventSetup& setup)
+TopDecayChannelDQM::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
   // recieve particle listing
   edm::Handle<edm::View<reco::GenParticle> > src; 
@@ -118,7 +117,7 @@ TopDecayChannelChecker::analyze(const edm::Event& event, const edm::EventSetup& 
     }
   }
   if(evts_<log_){
-    edm::LogWarning log("TopDecayChannelChecker");
+    edm::LogWarning log("TopDecayChannelDQM");
     log << "----------------------" << "\n"
 	<< " iTop    : " << iTop    << "\n"
 	<< " iBeauty : " << iBeauty << "\n"
@@ -233,7 +232,7 @@ TopDecayChannelChecker::analyze(const edm::Event& event, const edm::EventSetup& 
 
 /// count the number of charged particles for tau decays
 unsigned int 
-TopDecayChannelChecker::countProngs(const reco::Candidate& part) const
+TopDecayChannelDQM::countProngs(const reco::Candidate& part) const
 {
   // if stable, return 1 or 0
   if(part.status()==1){
@@ -249,7 +248,7 @@ TopDecayChannelChecker::countProngs(const reco::Candidate& part) const
 
 /// check tau decay to be leptonic, 1-prong or 3-prong
 int
-TopDecayChannelChecker::tauDecay(const reco::Candidate& tau) const
+TopDecayChannelDQM::tauDecay(const reco::Candidate& tau) const
 {
   bool leptonic = false;
   unsigned int nch = 0;
@@ -276,7 +275,7 @@ TopDecayChannelChecker::tauDecay(const reco::Candidate& tau) const
 
 /// search for particle with pdgId (for top)
 bool
-TopDecayChannelChecker::search(edm::View<reco::GenParticle>::const_iterator& part, int pdgId, const std::string& inputType) const
+TopDecayChannelDQM::search(edm::View<reco::GenParticle>::const_iterator& part, int pdgId, const std::string& inputType) const
 {
   if(inputType==kGenParticles){
     return (abs(part->pdgId())==pdgId && part->status()==3) ? true : false;
@@ -288,7 +287,7 @@ TopDecayChannelChecker::search(edm::View<reco::GenParticle>::const_iterator& par
 
 /// search for particle with pdgId (overloaded for top daughters)
 bool
-TopDecayChannelChecker::search(reco::GenParticle::const_iterator& part, int pdgId, const std::string& inputType) const
+TopDecayChannelDQM::search(reco::GenParticle::const_iterator& part, int pdgId, const std::string& inputType) const
 {
   if(inputType==kGenParticles){
     return (abs(part->pdgId())==pdgId && part->status()==3) ? true : false;
@@ -299,7 +298,7 @@ TopDecayChannelChecker::search(reco::GenParticle::const_iterator& part, int pdgI
 }
 
 void 
-TopDecayChannelChecker::dumpDecayChain(const edm::View<reco::GenParticle>& src) const
+TopDecayChannelDQM::dumpDecayChain(const edm::View<reco::GenParticle>& src) const
 {
   edm::LogWarning log("DumpDecayChain");
   log << "\n   idx   pdg   stat      px          py         pz             mass          daughter pdg's  "
@@ -347,7 +346,7 @@ TopDecayChannelChecker::dumpDecayChain(const edm::View<reco::GenParticle>& src) 
 
 /// all that needs to be done at the beginning of a run
 void 
-TopDecayChannelChecker::beginJob()
+TopDecayChannelDQM::beginJob()
 {
   store_->setCurrentFolder("Physics/Top/TopDecayChannelDQM");
 
@@ -400,11 +399,9 @@ TopDecayChannelChecker::beginJob()
 
 /// all that needs to be done at the end of a run 
 void 
-TopDecayChannelChecker::endJob() 
+TopDecayChannelDQM::endJob() 
 {
-  // save files
-  //store_->save(outputFile_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(TopDecayChannelChecker);
+DEFINE_FWK_MODULE(TopDecayChannelDQM);

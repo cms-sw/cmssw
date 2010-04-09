@@ -19,7 +19,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 /**
-   \class   TopDecayChannelChecker TopDecayChannelChecker.h "Validation/Generator/plugins/TopDecayChannelChecker.h"
+   \class   TopDecayChannelDQM TopDecayChannelDQM.h "Validation/Generator/plugins/TopDecayChannelDQM.h"
 
    \brief   Plugin to monitor the properties of top monte carlo samples on generator level
 
@@ -54,7 +54,7 @@
 */
 
 
-class TopDecayChannelChecker : public edm::EDAnalyzer {
+class TopDecayChannelDQM : public edm::EDAnalyzer {
 
  public:
   /// classification of potential shower types: 
@@ -65,9 +65,9 @@ class TopDecayChannelChecker : public edm::EDAnalyzer {
   
  public:
   /// constructor
-  explicit TopDecayChannelChecker(const edm::ParameterSet& cfg);
+  explicit TopDecayChannelDQM(const edm::ParameterSet& cfg);
   /// destructor
-  ~TopDecayChannelChecker();
+  ~TopDecayChannelDQM();
      
  private:
   /// all that needs to be done at the beginning of a run
@@ -90,8 +90,6 @@ class TopDecayChannelChecker : public edm::EDAnalyzer {
   void dumpDecayChain(const edm::View<reco::GenParticle>& src) const;
 
  private:
-  /// this will be the name of the output file 
-  std::string outputFile_;
   /// number of events for which to print the 
   /// full decay chain to the log output
   unsigned int log_;
