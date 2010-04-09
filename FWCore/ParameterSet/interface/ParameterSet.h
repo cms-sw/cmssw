@@ -293,7 +293,7 @@ namespace edm {
   }
 
   // Free function to retrieve a parameter set, given the parameter set ID.
-  ParameterSet
+  const ParameterSet&
   getParameterSet(ParameterSetID const& id);
 
   // specializations

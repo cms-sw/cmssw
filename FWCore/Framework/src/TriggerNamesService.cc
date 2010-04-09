@@ -49,20 +49,19 @@ namespace edm {
 
       // Get the parameter set containing the trigger names from the parameter set registry
       // using the ID from TriggerResults as the key used to find it.
-      ParameterSet pset;
+      ParameterSet const* pset=0;
       pset::Registry* psetRegistry = pset::Registry::instance();
-      if (psetRegistry->getMapped(triggerResults.parameterSetID(),
-                                  pset)) {
+      if (0 != (pset=psetRegistry->getMapped(triggerResults.parameterSetID()))) {
 
         // Check to make sure the parameter set contains
         // a Strings parameter named "trigger_paths".
         // We do not want to throw an exception if it is not there
         // for reasons of backward compatibility
-        Strings psetNames = pset.getParameterNamesForType<Strings>();
+        Strings psetNames = pset->getParameterNamesForType<Strings>();
         std::string name("@trigger_paths");
 	if (search_all(psetNames, name)) {
           // It is there, get it
-          trigPaths = pset.getParameter<Strings>("@trigger_paths");
+          trigPaths = pset->getParameter<Strings>("@trigger_paths");
 
           // This should never happen
           if (trigPaths.size() != triggerResults.size()) {
