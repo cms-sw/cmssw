@@ -145,156 +145,16 @@ bool MuonResiduals6DOFFitter::fit(Alignable *ali) {
   initialize_table();  // if not already initialized
   sumofweights();
 
-  double residx_sum = 0.;
-  double residx_sum2 = 0.;
-  double residx_N = 0.;
-  double residy_sum = 0.;
-  double residy_sum2 = 0.;
-  double residy_N = 0.;
-  double resslopex_sum = 0.;
-  double resslopex_sum2 = 0.;
-  double resslopex_N = 0.;
-  double resslopey_sum = 0.;
-  double resslopey_sum2 = 0.;
-  double resslopey_N = 0.;
-  int N = 0;
-
-  double alphax_1 = 0.;
-  double alphax_x = 0.;
-  double alphax_y = 0.;
-  double alphax_xx = 0.;
-  double alphax_xy = 0.;
-  double alphay_1 = 0.;
-  double alphay_x = 0.;
-  double alphay_y = 0.;
-  double alphay_xx = 0.;
-  double alphay_xy = 0.;
-
-  for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
-    const double residX = (*resiter)[MuonResiduals6DOFFitter::kResidX];
-    const double residY = (*resiter)[MuonResiduals6DOFFitter::kResidY];
-    const double resslopeX = (*resiter)[MuonResiduals6DOFFitter::kResSlopeX];
-    const double resslopeY = (*resiter)[MuonResiduals6DOFFitter::kResSlopeY];
-    const double redchi2 = (*resiter)[MuonResiduals6DOFFitter::kRedChi2];
-    double weight = 1./redchi2;
-    if (!m_weightAlignment) weight = 1.;
-
-    if (!m_weightAlignment  ||  TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
-
-      if (fabs(residX) < 10.) {   // 10 cm
-	residx_sum += weight * residX;
-	residx_sum2 += weight * residX * residX;
-	residx_N += weight;
-      }
-
-      if (fabs(residY) < 10.) {   // 10 cm
-	residy_sum += weight * residY;
-	residy_sum2 += weight * residY * residY;
-	residy_N += weight;
-      }
-
-      if (fabs(resslopeX) < 1.) {    // 1 rad
-	resslopex_sum += weight * resslopeX;
-	resslopex_sum2 += weight * resslopeX * resslopeX;
-	resslopex_N += weight;
-      }
-
-      if (fabs(resslopeY) < 1.) {    // 1 rad
-	resslopey_sum += weight * resslopeY;
-	resslopey_sum2 += weight * resslopeY * resslopeY;
-	resslopey_N += weight;
-      }
-
-      if (fabs(residX) < 10.  &&  fabs(residY) < 10.  &&  fabs(resslopeX) < 1.  &&  fabs(resslopeY) < 1.) N++;
-
-      // linear fit to residual versus resslope; 5 mrad is known to be the linear core region for X
-      if (fabs(residX) < 10.  &&  fabs(resslopeX) < 0.005) {
-	alphax_1 += weight;
-	alphax_x += weight * resslopeX;
-	alphax_y += weight * residX;
-	alphax_xx += weight * resslopeX * resslopeX;
-	alphax_xy += weight * resslopeX * residX;
-      }
-
-      // linear fit to residual versus resslope; 30 mrad is known to be the linear core region for Y
-      if (fabs(residY) < 10.  &&  fabs(resslopeY) < 0.030) {
-	alphay_1 += weight;
-	alphay_x += weight * resslopeY;
-	alphay_y += weight * residY;
-	alphay_xx += weight * resslopeY * resslopeY;
-	alphay_xy += weight * resslopeY * residY;
-      }
-    }
-  }
-
-  double residx_mean = residx_sum/residx_N;
-  double residx_stdev = sqrt(residx_sum2/residx_N - pow(residx_sum/residx_N, 2));
-  double residy_mean = residy_sum/residy_N;
-  double residy_stdev = sqrt(residy_sum2/residy_N - pow(residy_sum/residy_N, 2));
-  double resslopex_mean = resslopex_sum/resslopex_N;
-  double resslopex_stdev = sqrt(resslopex_sum2/resslopex_N - pow(resslopex_sum/resslopex_N, 2));
-  double resslopey_mean = resslopey_sum/resslopey_N;
-  double resslopey_stdev = sqrt(resslopey_sum2/resslopey_N - pow(resslopey_sum/resslopey_N, 2));
-  double alphax_estimate = (alphax_1*alphax_xy - alphax_x*alphax_y) / (alphax_1 * alphax_xx - alphax_x*alphax_x);
-  double alphay_estimate = (alphay_1*alphay_xy - alphay_x*alphay_y) / (alphay_1 * alphay_xx - alphay_x*alphay_x);
-
-  residx_sum = 0.;
-  residx_sum2 = 0.;
-  residx_N = 0.;
-  residy_sum = 0.;
-  residy_sum2 = 0.;
-  residy_N = 0.;
-  resslopex_sum = 0.;
-  resslopex_sum2 = 0.;
-  resslopex_N = 0.;
-  resslopey_sum = 0.;
-  resslopey_sum2 = 0.;
-  resslopey_N = 0.;
-
-  for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
-    const double resslopeX = (*resiter)[MuonResiduals6DOFFitter::kResSlopeX];
-    const double resslopeY = (*resiter)[MuonResiduals6DOFFitter::kResSlopeY];
-    const double residX = (*resiter)[MuonResiduals6DOFFitter::kResidX] - alphax_estimate * resslopeX;
-    const double residY = (*resiter)[MuonResiduals6DOFFitter::kResidY] - alphay_estimate * resslopeY;
-    const double redchi2 = (*resiter)[MuonResiduals6DOFFitter::kRedChi2];
-    double weight = 1./redchi2;
-    if (!m_weightAlignment) weight = 1.;
-
-    if (!m_weightAlignment  ||  TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
-      if (fabs(residX - residx_mean) < 2.5*residx_stdev) {
-	residx_sum += weight * residX;
-	residx_sum2 += weight * residX * residX;
-	residx_N += weight;
-      }
-
-      if (fabs(residY - residy_mean) < 2.5*residy_stdev) {
-	residy_sum += weight * residY;
-	residy_sum2 += weight * residY * residY;
-	residy_N += weight;
-      }
-
-      if (fabs(resslopeX - resslopex_mean) < 2.5*resslopex_stdev) {
-	resslopex_sum += weight * resslopeX;
-	resslopex_sum2 += weight * resslopeX * resslopeX;
-	resslopex_N += weight;
-      }
-
-      if (fabs(resslopeY - resslopey_mean) < 2.5*resslopey_stdev) {
-	resslopey_sum += weight * resslopeY;
-	resslopey_sum2 += weight * resslopeY * resslopeY;
-	resslopey_N += weight;
-      }
-    }
-  }
-
-  residx_mean = residx_sum/residx_N;
-  residx_stdev = sqrt(residx_sum2/residx_N - pow(residx_sum/residx_N, 2));
-  residy_mean = residy_sum/residy_N;
-  residy_stdev = sqrt(residy_sum2/residy_N - pow(residy_sum/residy_N, 2));
-  resslopex_mean = resslopex_sum/resslopex_N;
-  resslopex_stdev = sqrt(resslopex_sum2/resslopex_N - pow(resslopex_sum/resslopex_N, 2));
-  resslopey_mean = resslopey_sum/resslopey_N;
-  resslopey_stdev = sqrt(resslopey_sum2/resslopey_N - pow(resslopey_sum/resslopey_N, 2));
+  double residx_mean = 0;
+  double residy_mean = 0;
+  double resslopex_mean = 0;
+  double resslopey_mean = 0;
+  double residx_stdev = 0.5;
+  double residy_stdev = 3.0;
+  double resslopex_stdev = 0.005;
+  double resslopey_stdev = 0.03;
+  double alphax_estimate = 0;
+  double alphay_estimate = 0;
 
   std::vector<int> num;
   std::vector<std::string> name;

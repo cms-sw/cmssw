@@ -108,92 +108,11 @@ bool MuonResiduals5DOFFitter::fit(Alignable *ali) {
   initialize_table();  // if not already initialized
   sumofweights();
 
-  double resid_sum = 0.;
-  double resid_sum2 = 0.;
-  double resid_N = 0.;
-  double resslope_sum = 0.;
-  double resslope_sum2 = 0.;
-  double resslope_N = 0.;
-  int N = 0;
-
-  double alpha_1 = 0.;
-  double alpha_x = 0.;
-  double alpha_y = 0.;
-  double alpha_xx = 0.;
-  double alpha_xy = 0.;
-
-  for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
-    const double residual = (*resiter)[MuonResiduals5DOFFitter::kResid];
-    const double resslope = (*resiter)[MuonResiduals5DOFFitter::kResSlope];
-    const double redchi2 = (*resiter)[MuonResiduals5DOFFitter::kRedChi2];
-    double weight = 1./redchi2;
-    if (!m_weightAlignment) weight = 1.;
-
-    if (!m_weightAlignment  ||  TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
-      if (fabs(residual) < 10.) {   // 10 cm
-	resid_sum += weight * residual;
-	resid_sum2 += weight * residual * residual;
-	resid_N += weight;
-      }
-
-      if (fabs(resslope) < 1.) {    // 1 rad
-	resslope_sum += weight * resslope;
-	resslope_sum2 += weight * resslope * resslope;
-	resslope_N += weight;
-      }
-
-      if (fabs(residual) < 10.  &&  fabs(resslope) < 1.) N++;
-
-      // linear fit to residual versus resslope; 5 mrad is known to be the linear core region
-      if (fabs(residual) < 10.  &&  fabs(resslope) < 0.005) {
-	alpha_1 += weight;
-	alpha_x += weight * resslope;
-	alpha_y += weight * residual;
-	alpha_xx += weight * resslope * resslope;
-	alpha_xy += weight * resslope * residual;
-      }
-    }
-  }
-
-  double resid_mean = resid_sum/resid_N;
-  double resid_stdev = sqrt(resid_sum2/resid_N - pow(resid_sum/resid_N, 2));
-  double resslope_mean = resslope_sum/resslope_N;
-  double resslope_stdev = sqrt(resslope_sum2/resslope_N - pow(resslope_sum/resslope_N, 2));
-  double alpha_estimate = (alpha_1*alpha_xy - alpha_x*alpha_y) / (alpha_1 * alpha_xx - alpha_x*alpha_x);
-
-  resid_sum = 0.;
-  resid_sum2 = 0.;
-  resid_N = 0.;
-  resslope_sum = 0.;
-  resslope_sum2 = 0.;
-  resslope_N = 0.;
-
-  for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
-    const double resslope = (*resiter)[MuonResiduals5DOFFitter::kResSlope];
-    const double residual = (*resiter)[MuonResiduals5DOFFitter::kResid] - alpha_estimate * resslope;
-    const double redchi2 = (*resiter)[MuonResiduals5DOFFitter::kRedChi2];
-    double weight = 1./redchi2;
-    if (!m_weightAlignment) weight = 1.;
-
-    if (!m_weightAlignment  ||  TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
-      if (fabs(residual - resid_mean) < 2.5*resid_stdev) {
-	resid_sum += weight * residual;
-	resid_sum2 += weight * residual * residual;
-	resid_N += weight;
-      }
-
-      if (fabs(resslope - resslope_mean) < 2.5*resslope_stdev) {
-	resslope_sum += weight * resslope;
-	resslope_sum2 += weight * resslope * resslope;
-	resslope_N += weight;
-      }
-    }
-  }
-
-  resid_mean = resid_sum/resid_N;
-  resid_stdev = sqrt(resid_sum2/resid_N - pow(resid_sum/resid_N, 2));
-  resslope_mean = resslope_sum/resslope_N;
-  resslope_stdev = sqrt(resslope_sum2/resslope_N - pow(resslope_sum/resslope_N, 2));
+  double resid_mean = 0;
+  double resslope_mean = 0;
+  double resid_stdev = 0.5;
+  double resslope_stdev = 0.005;
+  double alpha_estimate = 0;
 
   std::vector<int> num;
   std::vector<std::string> name;
