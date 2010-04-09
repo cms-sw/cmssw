@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DViewBase.h,v 1.18 2010/04/06 20:00:34 amraktad Exp $
+// $Id: FW3DViewBase.h,v 1.1 2010/04/07 16:56:20 amraktad Exp $
 //
 
 // system include files
@@ -50,7 +50,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   virtual void setGeometry( const DetIdToMatrix* geom, FWColorManager&);
+   virtual void setGeometry(fireworks::Context&);
 
    // To be fixed.
    void updateGlobalSceneScaleParameters();

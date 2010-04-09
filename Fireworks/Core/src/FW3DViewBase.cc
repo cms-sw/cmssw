@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.32 2010/04/06 20:00:35 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.1 2010/04/07 16:56:20 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -29,6 +29,7 @@
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FW3DViewGeometry.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
+#include "Fireworks/Core/interface/Context.h"
 
 
 //
@@ -63,18 +64,15 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, TEveScene* eventScene) :
 
    //camera
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
-   
-   // m_caloFixedScale.changed_.connect(boost::bind(&FW3DViewBase::updateGlobalSceneScaleParameters, this));
-   // m_caloAutoScale .changed_.connect(boost::bind(&FW3DViewBase::updateGlobalSceneScaleParameters, this));
 }
 
 FW3DViewBase::~FW3DViewBase()
 {
 }
 
-void FW3DViewBase::setGeometry(const DetIdToMatrix* geom,  FWColorManager& /*colMng*/)
+void FW3DViewBase::setGeometry(fireworks::Context& context)
 {
-   m_geometry = new FW3DViewGeometry(geom);
+   m_geometry = new FW3DViewGeometry(context.getGeom());
    geoScene()->AddElement(m_geometry);
    
    m_showMuonBarrel.changed_.connect(boost::bind(&FW3DViewGeometry::showMuonBarrel,m_geometry,_1));
@@ -85,6 +83,7 @@ void FW3DViewBase::setGeometry(const DetIdToMatrix* geom,  FWColorManager& /*col
    m_showTrackerEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerEndcap,m_geometry,_1));
    m_geomTransparency.changed_.connect(boost::bind(&FW3DViewGeometry::setTransparency,m_geometry, _1));
    m_showWireFrame.changed_.connect(boost::bind(&FW3DViewBase::showWireFrame,this, _1));
+
 }
 
 void
@@ -115,45 +114,6 @@ FW3DViewBase::setFrom(const FWConfiguration& iFrom)
 
 }
 
-//==============================================================================
-
-#include "TEveCalo.h"
-#include "Fireworks/Core/interface/fwLog.h"
-#include "TEveScalableStraightLineSet.h"
-
-void FW3DViewBase::updateGlobalSceneScaleParameters()
-{
-   TEveElement *els = eventScene()->FirstChild();
-   TEveCalo3D  *c3d = 0;
-   for (TEveElement::List_i i = els->BeginChildren(); i != els->EndChildren(); ++i)
-   {
-      c3d = dynamic_cast<TEveCalo3D*>(*i);
-      if (c3d)
-      {
-         c3d->SetMaxValAbs( 150 / m_caloFixedScale.value() );
-         c3d->SetScaleAbs ( ! m_caloAutoScale.value() );
-         break;
-      }
-   }
-   if (c3d == 0)
-   {
-      fwLog(fwlog::kWarning) << "TEveCalo3D not found!" << std::endl;
-      return;
-   }
-   double scale = c3d->GetValToHeight();
-   TEveElementIter child(els);
-   while ( TEveElement* el = child.current() )
-   {
-      if ( TEveScalableStraightLineSet* line = dynamic_cast<TEveScalableStraightLineSet*>(el) )
-      {
-         line->SetScale( scale );
-         line->ElementChanged();
-      }
-      child.next();
-   }
-   c3d->ElementChanged();
-   gEve->Redraw3D();
-}
 
 
 

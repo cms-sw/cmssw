@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr  7 14:41:26 CEST 2010
-// $Id$
+// $Id: FW3DEnergyView.h,v 1.1 2010/04/07 16:56:20 amraktad Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 #include "Fireworks/Core/interface/FW3DViewBase.h"
 
 // forward declarations
+class TEveCalo3D;
 
 class FW3DEnergyView: public FW3DViewBase
 {
@@ -32,6 +33,8 @@ public:
    FW3DEnergyView(TEveWindowSlot*, TEveScene*);
    virtual ~FW3DEnergyView();
 
+   virtual void setGeometry(fireworks::Context&);
+   
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------
@@ -44,6 +47,7 @@ private:
    const FW3DEnergyView& operator=(const FW3DEnergyView&); // stop default
 
    // ---------- member data --------------------------------
+   TEveCalo3D* m_calo;
 };
 
 

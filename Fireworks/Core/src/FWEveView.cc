@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.5 2010/04/06 20:00:36 amraktad Exp $
+// $Id: FWEveView.cc,v 1.6 2010/04/07 16:56:20 amraktad Exp $
 //
 
 
@@ -41,6 +41,12 @@
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/Context.h"
+
+namespace fireworks
+{
+class Context;
+}
 
 //
 // constructors and destructor
@@ -183,6 +189,7 @@ FWEveView::setType(FWViewType::EType t)
 
    // update viewer name for debug purposes
    m_viewer->SetElementName(Form("Viewer_%s", typeName().c_str()));
+   m_viewer->SetElementName(Form("GeoScene_%s", typeName().c_str()));
 }
 
 //-------------------------------------------------------------------------------

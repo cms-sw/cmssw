@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id$
+// $Id: FWEveView.h,v 1.4 2010/04/06 20:00:35 amraktad Exp $
 //
 
 
@@ -38,6 +38,11 @@ class FWViewContextMenuHandlerGL;
 class DetIdToMatrix;
 class FWColorManager;
 
+namespace fireworks
+{
+class Context;
+}
+
 class FWEveView : public FWViewBase
 {
 public:
@@ -52,7 +57,7 @@ public:
    virtual void setBackgroundColor(Color_t);
    virtual void eventEnd();
 
-   virtual void setGeometry( const DetIdToMatrix* geom,  FWColorManager&) {}
+   virtual void setGeometry(fireworks::Context&) {}
 
    // ---------- const member functions --------------------- 
 

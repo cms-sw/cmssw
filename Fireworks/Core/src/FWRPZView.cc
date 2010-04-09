@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.61 2010/04/06 20:00:36 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.1 2010/04/09 14:52:09 amraktad Exp $
 //
 
 // system include files
@@ -35,7 +35,7 @@
 #include "TEveProjectionAxes.h"
 #include "TEveScalableStraightLineSet.h"
 
-#include "TEveCalo.h" // ??
+#include "TEveCalo.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZView.h"
@@ -43,6 +43,7 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWRPZViewGeometry.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
+#include "Fireworks/Core/interface/Context.h"
 
 //
 // constructors and destructor
@@ -114,10 +115,34 @@ FWRPZView::~FWRPZView()
 //
 
 void
-FWRPZView::setGeometry(const DetIdToMatrix* geom,  FWColorManager& colMng)
+FWRPZView::setGeometry(fireworks::Context& context)
 {
-   FWRPZViewGeometry* geo = new FWRPZViewGeometry(geom, &colMng);
+   // detector
+   FWRPZViewGeometry* geo = new FWRPZViewGeometry(context.getGeom(), context.colorManager());
    m_projMgr->ImportElements(geo->getGeoElements(typeId()), geoScene());
+
+   // calo
+   TEveCaloData* data = context.getCaloData();
+   TEveCalo3D* calo3d = 0;
+   for (TEveElement::List_i i= data->BeginChildren(); i!= data->EndChildren(); ++i)
+   {
+      calo3d = dynamic_cast<TEveCalo3D*>(*i);
+      if (calo3d) break;
+   }
+   // create if not exist
+   if (calo3d == 0)
+   {
+      TEveCaloData* data = context.getCaloData();
+      calo3d = new TEveCalo3D(data);
+      calo3d->SetMaxTowerH( 150 );
+      calo3d->SetScaleAbs( false );
+      calo3d->SetBarrelRadius(129);
+      calo3d->SetEndCapPos(310);
+      calo3d->SetFrameTransparency(80);
+      gEve->AddElement(calo3d);
+   }
+
+   m_projMgr->ImportElements(calo3d, geoScene());
 }
 
 void

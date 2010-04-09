@@ -9,13 +9,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.72 2010/03/28 21:36:59 matevz Exp $
+// $Id: FWEveLegoView.cc,v 1.73 2010/04/06 20:00:36 amraktad Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
 
-#include "TAttAxis.h"
+#include "TAxis.h"
 
 #include "TGLViewer.h"
 #include "TGLPerspectiveCamera.h"
@@ -36,6 +36,7 @@
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/FWEveLegoView.h"
+#include "Fireworks/Core/interface/Context.h"
 
 
 //
@@ -63,25 +64,8 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveScene* eventScene) :
    setType(FWViewType::kLego);
    setEventScene(eventScene);
 
-   FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL());
-   viewerGL()->SetEventHandler(eh);
+   viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
 
-   if (eventScene->HasChildren())
-   {
-      m_lego =  dynamic_cast<TEveCaloLego*>( eventScene->FirstChild());
-      if (m_lego) {
-         m_overlay = new TEveCaloLegoOverlay();
-         m_overlay->SetShowPlane(kFALSE);
-         m_overlay->SetShowPerspective(kFALSE);
-         m_overlay->GetAttAxis()->SetLabelSize(0.02);
-         viewerGL()->AddOverlayElement(m_overlay);
-         m_overlay->SetCaloLego(m_lego);
-         m_overlay->SetShowScales(1); //temporary
-         m_overlay->SetScalePosition(0.8, 0.6);
-         eh->SetLego(m_lego);
-      }
-   }
-   
    m_autoRebin.changed_.connect(boost::bind(&FWEveLegoView::setAutoRebin,this));
    m_pixelsPerBin.changed_.connect(boost::bind(&FWEveLegoView::setPixelsPerBin,this));
    m_plotEt.changed_.connect(boost::bind(&FWEveLegoView::plotEt,this));
@@ -94,7 +78,60 @@ FWEveLegoView::~FWEveLegoView()
 {
 }
 
+void FWEveLegoView::setGeometry(fireworks::Context& context)
+{ 
+   // get lego if exist
+   TEveCaloData* data = context.getCaloData();
+   for (TEveElement::List_i i = data->BeginChildren(); i!= data->EndChildren(); ++i)
+   {
+      if( dynamic_cast<TEveCaloLego*>(*i))
+      {
+         m_lego = dynamic_cast<TEveCaloLego*>(*i);
+         break;
+      }
+   }
+   // else create 
+   if (m_lego == 0)
+   {   
+      m_lego = new TEveCaloLego(data);
+      m_lego->InitMainTrans();
+      m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::TwoPi());
+      m_lego->Set2DMode(TEveCaloLego::kValSize);
+      m_lego->SetDrawNumberCellPixels(20);
+      data->GetEtaBins()->SetTitleFont(120);
+      data->GetEtaBins()->SetTitle("h");
+      data->GetPhiBins()->SetTitleFont(120);
+      data->GetPhiBins()->SetTitle("f");
+      data->GetPhiBins()->SetLabelSize(0.02);
+      data->GetEtaBins()->SetLabelSize(0.02);
+      data->GetPhiBins()->SetTitleSize(0.03);
+      data->GetEtaBins()->SetTitleSize(0.03);
 
+      // add calorimeter boundaries
+      TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
+      boundaries->SetPickable(kFALSE);
+      boundaries->SetLineWidth(2);
+      boundaries->SetLineStyle(7);
+      boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
+      boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
+      boundaries->AddLine(-2.964,-3.1416,0.001,-2.964,3.1416,0.001);
+      boundaries->AddLine(2.964,-3.1416,0.001,2.964,3.1416,0.001);
+      m_lego->AddElement(boundaries);
+   }
+   geoScene()->AddElement(m_lego);
+   
+   FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL());
+   eh->SetLego(m_lego);     
+   viewerGL()->SetEventHandler(eh);
+  
+   m_overlay = new TEveCaloLegoOverlay();
+   m_overlay->SetCaloLego(m_lego);
+   m_overlay->SetShowPlane(kFALSE);
+   m_overlay->SetScalePosition(0.8, 0.6);
+   m_overlay->SetShowScales(1); //temporary
+   viewerGL()->AddOverlayElement(m_overlay);
+}
+   
 void
 FWEveLegoView::setAutoRebin()
 {
@@ -167,7 +204,10 @@ FWEveLegoView::setFrom(const FWConfiguration& iFrom)
       if (iFrom.version() > 1 ) setFromPerspectiveCamera(camera, typeName(), iFrom);
    }
 
-   viewerGL()->ResetCamerasAfterNextUpdate();
+
+   {
+      viewerGL()->ResetCamerasAfterNextUpdate();
+   }
    
 }
 
