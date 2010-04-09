@@ -106,7 +106,7 @@ void SiPixelRawDataErrorSource::endJob(void){
 void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
-//std::cout<<"Event number: "<<eventNo<<std::endl;
+  //std::cout<<"Event number: "<<eventNo<<std::endl;
   // get input data
   edm::Handle< edm::DetSetVector<SiPixelRawDataError> >  input;
   iEvent.getByLabel( src_, input );
@@ -115,13 +115,11 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
 
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter;
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter2;
-
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
     (*struct_iter).second->fill(*input, reducedSet, modOn, ladOn, bladeOn);
     
   }
-
   for (struct_iter2 = theFEDStructure.begin() ; struct_iter2 != theFEDStructure.end() ; struct_iter2++) {
     
     (*struct_iter2).second->fillFED(*input);
@@ -198,6 +196,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
   fedIds.first = 0;
   fedIds.second = 39;
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
+    //std::cout<<"Adding FED module: "<<fedId<<std::endl;
     uint32_t id = static_cast<uint32_t> (fedId);
     SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id);
     theFEDStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
