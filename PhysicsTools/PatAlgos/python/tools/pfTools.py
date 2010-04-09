@@ -124,7 +124,7 @@ def reconfigurePF2PATTaus(process,
    # Get the prototype of tau producer to make, i.e. fixedConePFTauProducer
    producerName = producerFromType(tauType)
    # Set as the source for the pf2pat taus (pfTaus) selector
-   applyPostfix(process,"patTaus", postfix).tauSource = producerName
+   applyPostfix(process,"pfTaus", postfix).src = producerName
    # Start our pf2pat taus base sequence
    setattr(process,"pfTausBaseSequence"+postfix, cms.Sequence(getattr(process,
       producerName+postfix)))
@@ -174,7 +174,7 @@ def reconfigurePF2PATTaus(process,
 
 
 def adaptPFTaus(process,tauType = 'shrinkingConePFTau', postfix = ""):
-    oldTaus =  applyPostfix(process,"pfTaus", postfix).src
+    oldTaus =  applyPostfix(process,"patTaus", postfix).tauSource
 
     # Set up the collection used as a preselection to use this tau type    
     reconfigurePF2PATTaus(process, tauType, postfix=postfix)
@@ -198,7 +198,7 @@ def adaptPFTaus(process,tauType = 'shrinkingConePFTau', postfix = ""):
 #helper function for PAT on PF2PAT sample
 def tauTypeInPF2PAT(process,tauType='shrinkingConePFTau'): 
     process.load("PhysicsTools.PFCandProducer.pfTaus_cff")
-    process.patTaus.src = cms.InputTag(tauType+'Producer')
+    process.pfTaus.src = cms.InputTag(tauType+'Producer')
             
 
 def addPFCandidates(process,src,patLabel='PFParticles',cut="",postfix=""):
@@ -260,7 +260,7 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='IC5', postfix =
     process.allPfJets = jetAlgo( algo );    
     switchJetCollection(process,
                         input,
-                        jetIdLabel = 'ak5',
+                        jetIdLabel = algo,
                         doJTA=True,
 #FIXME b-tagging broken in 36X at the moment
 #it is missing some electron collection
