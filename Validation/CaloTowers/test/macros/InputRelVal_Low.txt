@@ -1,7 +1,7 @@
                                   CaloTowersTask_MET_HB   1	           HB_CaloTowers_MET_HB.gif	1	0	60.	0	-1	1D	Stat	Chi2	Log	2	1	       HB Calo MET (GeV)
-                                  CaloTowersTask_SET_HB   1	           HB_CaloTowers_SET_HB.gif	1	0	60.	0	-1	1D	Stat	Chi2	Log	2	1	       HB Calo SET (GeV)	
-                          CaloTowersTask_energy_ECAL_HB   1	HB_CaloTowers_Energy_in_ECAL_HB.gif	1	0	120.	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers ECAL energy (GeV)
-                          CaloTowersTask_energy_HCAL_HB   1	HB_CaloTowers_Energy_in_HCAL_HB.gif	1	0	60.	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers HCAL energy (GeV)
+                                  CaloTowersTask_SET_HB   1	           HB_CaloTowers_SET_HB.gif	1	0	100.	0	-1	1D	Stat	Chi2	Log	2	1	       HB Calo SET (GeV)	
+                          CaloTowersTask_energy_ECAL_HB   1	HB_CaloTowers_Energy_in_ECAL_HB.gif	1	-10.	120.	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers ECAL energy (GeV)
+                          CaloTowersTask_energy_HCAL_HB   1	HB_CaloTowers_Energy_in_HCAL_HB.gif	1	-10.	80.	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers HCAL energy (GeV)
             CaloTowersTask_energy_HcalPlusEcalPlusHO_HB   0
                          CaloTowersTask_energy_OUTER_HB   0
     CaloTowersTask_energy_of_ECAL_component_of_tower_HB   0
@@ -19,9 +19,9 @@
                     CaloTowersTask_HAD_Energy_Timing_HB   1  HB_CaloTowers_HAD_Energy_Timing_HB.gif	1	0	30.	0	-1	TM	noStat	noChi2	NoLog	53	42	       HB CaloTowers HAD Timing vs Energy
             CaloTowersTask_HAD_Energy_Timing_profile_HB
                                   CaloTowersTask_MET_HE   1	           HE_CaloTowers_MET_HE.gif	1	0	60.	0	-1	1D	Stat	Chi2	Log	2	1	       HE Calo MET (GeV)
-                                  CaloTowersTask_SET_HE   1	           HE_CaloTowers_SET_HE.gif	1	0	60.	0	-1	1D	Stat	Chi2	Log	2	1	       HE Calo SET (GeV)
-                          CaloTowersTask_energy_ECAL_HE   1	HE_CaloTowers_Energy_in_ECAL_HE.gif	1	0	400.	0	-1	1D	Stat	Chi2	Log	2	1	       HE CaloTowers ECAL energy (GeV)
-                          CaloTowersTask_energy_HCAL_HE   1	HE_CaloTowers_Energy_in_HCAL_HE.gif	1	0	300.	0	-1	1D	Stat	Chi2	Log	2	1	       HE CaloTowers HCAL energy (GeV)
+                                  CaloTowersTask_SET_HE   1	           HE_CaloTowers_SET_HE.gif	1	0	100.	0	-1	1D	Stat	Chi2	Log	2	1	       HE Calo SET (GeV)
+                          CaloTowersTask_energy_ECAL_HE   1	HE_CaloTowers_Energy_in_ECAL_HE.gif	1	-10.	400.	0	-1	1D	Stat	Chi2	Log	2	1	       HE CaloTowers ECAL energy (GeV)
+                          CaloTowersTask_energy_HCAL_HE   1	HE_CaloTowers_Energy_in_HCAL_HE.gif	1	-10.	300.	0	-1	1D	Stat	Chi2	Log	2	1	       HE CaloTowers HCAL energy (GeV)
             CaloTowersTask_energy_HcalPlusEcalPlusHO_HE   0
                          CaloTowersTask_energy_OUTER_HE   0
     CaloTowersTask_energy_of_ECAL_component_of_tower_HE   0
@@ -39,7 +39,7 @@
                     CaloTowersTask_HAD_Energy_Timing_HE   1  HE_CaloTowers_HAD_Energy_Timing_HE.gif	1	0	60.	0	-1	TM	noStat	noChi2	NoLog	53	42	       HE CaloTowers HAD Timing vs Energy
             CaloTowersTask_HAD_Energy_Timing_profile_HE
                                   CaloTowersTask_MET_HF   1	           HF_CaloTowers_MET_HF.gif	2	0	100	0	-1	1D	Stat	Chi2	Log	2	1	       HF Calo MET (GeV)
-                                  CaloTowersTask_SET_HF   1	           HF_CaloTowers_SET_HF.gif	2	0	40.	0	-1	1D	Stat	Chi2	Log	2	1	       HF Calo SET (GeV)
+                                  CaloTowersTask_SET_HF   1	           HF_CaloTowers_SET_HF.gif	2	0	120.	0	-1	1D	Stat	Chi2	Log	2	1	       HF Calo SET (GeV)
                           CaloTowersTask_energy_ECAL_HF   1	HF_CaloTowers_Energy_in_ECAL_HF.gif	5	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HF CaloTowers ECAL energy (GeV)
                           CaloTowersTask_energy_HCAL_HF   1	HF_CaloTowers_Energy_in_HCAL_HF.gif	5	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HF CaloTowers HCAL energy (GeV)
             CaloTowersTask_energy_HcalPlusEcalPlusHO_HF   0
@@ -65,7 +65,7 @@
                     HcalRecHitTask_RecHit_StatusWord_HO   1	                  HO_StatusWord.gif	1	0	-1	0	-1	1D	NoStat	noChi2	noLog	41	42	       HO status word
                     HcalRecHitTask_energy_of_rechits_HB   1	              RecHits_energy_HB.gif	1	0	20.	0	-1	1D	Statrv	Chi2	Log	2	1		HB RecHits energy (GeV)
                     HcalRecHitTask_energy_of_rechits_HE   1	              RecHits_energy_HE.gif	1	0	60.	0	-1	1D	Statrv	Chi2	Log	2	1		HE RecHits energy (GeV)
-                    HcalRecHitTask_energy_of_rechits_HF   1	              RecHits_energy_HF.gif	10	0	300.	0	-1	1D	Statrv	Chi2	Log	2	1		HF RecHits energy (GeV)
+                    HcalRecHitTask_energy_of_rechits_HF   1	              RecHits_energy_HF.gif	10	0	400.	0	-1	1D	Statrv	Chi2	Log	2	1		HF RecHits energy (GeV)
                     HcalRecHitTask_energy_of_rechits_HO   1	              RecHits_energy_HO.gif	1	0	20.	0	-1	1D	Statrv	Chi2	Log	2	1		HO RecHits energy (GeV)
                                HcalRecHitTask_timing_HB   1	              RecHits_timing_HB.gif	2	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HB RecHits timing
                                HcalRecHitTask_timing_HE   1	              RecHits_timing_HE.gif	2	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HE RecHits timing
