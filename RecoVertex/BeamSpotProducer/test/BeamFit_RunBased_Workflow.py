@@ -77,7 +77,7 @@ process.d0_phi_analyzer.PVFitter.Apply3DFit = True
 process.d0_phi_analyzer.BeamFitter.AsciiFileName = 'BeamFit_RunBased_Workflow.txt'
 process.d0_phi_analyzer.BeamFitter.AppendRunToFileName = False
 process.d0_phi_analyzer.BeamFitter.OutputFileName = 'BeamFit_RunBased_Workflow.root' 
-process.d0_phi_analyzer.BeamFitter.SaveNtuple = True
+#process.d0_phi_analyzer.BeamFitter.SaveNtuple = True
 
 # fit as function of lumi sections
 process.d0_phi_analyzer.BSAnalyzerParameters.fitEveryNLumi = -1

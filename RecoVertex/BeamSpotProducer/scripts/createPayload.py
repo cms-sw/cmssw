@@ -285,6 +285,7 @@ if __name__ == '__main__':
 	sqlite_file   = workflowdirTmp + sqlite_file_name + '.db'
 	metadata_file = workflowdirTmp + sqlite_file_name + '.txt'
 	nfile = nfile + 1
+               
     #### WRITE sqlite file
 	
 	beam_file = sortedlist[key]
@@ -304,7 +305,7 @@ if __name__ == '__main__':
                     line = "Cov(3,j) 0 0 0 2.5e-05 0 0 0\n"
 		newtmpfile.write(line)
             allfile.write(line)
-        
+              
 	tmpfile.close()
 	newtmpfile.close()
         if option.copy:
@@ -333,6 +334,14 @@ if __name__ == '__main__':
     #os.system("cmsRun "+ writedb_out)
         
 	status_wDB = commands.getstatusoutput('cmsRun '+ writedb_out)
+
+        #### Merge sqlite files
+        print " merge sqlite file ..."
+        acmd = "cmscond_export_iov -d sqlite_file:"+workflowdirArchive+"payloads/Combined.db -s sqlite_file:"+sqlite_file+ " -i "+tagname+" -t "+tagname+" -l sqlite_file:"+workflowdirTmp+"log.db"+" -b "+iov_since+" -e "+iov_since
+        print acmd
+        std = commands.getstatusoutput(acmd)
+        print std[1]
+                                        
     #print status_wDB[1]
 	commands.getstatusoutput('rm -f ' + beam_file)
 	os.system("rm "+ writedb_out)
