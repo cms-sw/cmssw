@@ -32,16 +32,16 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type)
    ///
    /// Pixel Barrel
    ///
-   else if(DetId::DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+   else if(DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
 
      //for endcap types there is nothing to do: 
      if(type>3 && type!=7) return true;
 
      std::string subDetectorFolder = "Barrel";
-     PixelBarrelName::Shell DBshell = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).shell();
-     int DBlayer  = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).layerName();
-     int DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).ladderName();
-     int DBmodule = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).moduleName();
+     PixelBarrelName::Shell DBshell = PixelBarrelName(DetId(rawdetid)).shell();
+     int DBlayer  = PixelBarrelName(DetId(rawdetid)).layerName();
+     int DBladder = PixelBarrelName(DetId(rawdetid)).ladderName();
+     int DBmodule = PixelBarrelName(DetId(rawdetid)).moduleName();
      
      char slayer[80];  sprintf(slayer, "Layer_%i",   DBlayer);
      char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
@@ -56,7 +56,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type)
      }
      if(type<2){
        sfolder << "/" << sladder;
-       if ( PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).isHalfModule() ) sfolder <<"H"; 
+       if ( PixelBarrelName(DetId(rawdetid)).isHalfModule() ) sfolder <<"H"; 
        else sfolder <<"F";
      }
      if(type==0) sfolder << "/" <<smodule;
@@ -70,17 +70,17 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type)
    ///
    /// Pixel Endcap
    ///
-   else if(DetId::DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+   else if(DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
 
      //for barrel types there is nothing to do: 
      if(type>0 && type < 4) return true;
 
      std::string subDetectorFolder = "Endcap";
-     PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).halfCylinder();
-      int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).diskName();
-      int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).bladeName();
-      int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).pannelName();
-      int module = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).plaquetteName();
+     PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(rawdetid)).halfCylinder();
+      int disk   = PixelEndcapName(DetId(rawdetid)).diskName();
+      int blade  = PixelEndcapName(DetId(rawdetid)).bladeName();
+      int panel  = PixelEndcapName(DetId(rawdetid)).pannelName();
+      int module = PixelEndcapName(DetId(rawdetid)).plaquetteName();
 
       char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
       char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
@@ -133,12 +133,12 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t& rawdetid,
   //std::cout<<"rawdetis: "<<rawdetid<<" , path= "<<path<<std::endl;
   if(rawdetid == 0) {
     return;
-  }else if(DetId::DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+  }else if(DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
     std::string subDetectorFolder = "Barrel";
-    PixelBarrelName::Shell DBshell = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).shell();
-    int DBlayer  = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).layerName();
-    int DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).ladderName();
-    int DBmodule = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).moduleName();
+    PixelBarrelName::Shell DBshell = PixelBarrelName(DetId(rawdetid)).shell();
+    int DBlayer  = PixelBarrelName(DetId(rawdetid)).layerName();
+    int DBladder = PixelBarrelName(DetId(rawdetid)).ladderName();
+    int DBmodule = PixelBarrelName(DetId(rawdetid)).moduleName();
     
     //char sshell[80];  sprintf(sshell, "Shell_%i",   DBshell);
     char slayer[80];  sprintf(slayer, "Layer_%i",   DBlayer);
@@ -147,24 +147,24 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t& rawdetid,
     
     std::ostringstream sfolder;
     sfolder << rootFolder << "/" << subDetectorFolder << "/Shell_" <<DBshell << "/" << slayer << "/" << sladder;
-    if ( PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).isHalfModule() ) sfolder <<"H"; 
+    if ( PixelBarrelName(DetId(rawdetid)).isHalfModule() ) sfolder <<"H"; 
     else sfolder <<"F";
     sfolder << "/" <<smodule;
     path = sfolder.str().c_str();
    
     //path = path + "/" + subDetectorFolder + "/" + sshell + "/" + slayer + "/" + sladder;
-    //if(PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).isHalfModule() )
+    //if(PixelBarrelName(DetId(rawdetid)).isHalfModule() )
     //  path = path + "H"; 
     //else path = path + "F";
     //path = path + "/" + smodule;
 
-  }else if(DetId::DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+  }else if(DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
     std::string subDetectorFolder = "Endcap";
-    PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).halfCylinder();
-    int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).diskName();
-    int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).bladeName();
-    int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).pannelName();
-    int module = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).plaquetteName();
+    PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(rawdetid)).halfCylinder();
+    int disk   = PixelEndcapName(DetId(rawdetid)).diskName();
+    int blade  = PixelEndcapName(DetId(rawdetid)).bladeName();
+    int panel  = PixelEndcapName(DetId(rawdetid)).pannelName();
+    int module = PixelEndcapName(DetId(rawdetid)).plaquetteName();
 
     //char shc[80];  sprintf(shc,  "HalfCylinder_%i",side);
     char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
