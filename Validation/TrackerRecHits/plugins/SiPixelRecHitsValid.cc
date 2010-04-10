@@ -392,7 +392,7 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit& recHit, const PSimHit&
     { // flipped
       for (unsigned int i=0; i<3; i++) 
 	{
-	  if (PXBDetId::PXBDetId(detId).layer() == i+1) 
+	  if (PXBDetId(detId).layer() == i+1) 
 	    {
 	      recHitXResFlippedLadderLayers[i]->Fill(res_x);
 	      recHitXPullFlippedLadderLayers[i]->Fill(pull_x);
@@ -403,7 +403,7 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit& recHit, const PSimHit&
     {
       for (unsigned int i=0; i<3; i++) 
 	{
-	  if (PXBDetId::PXBDetId(detId).layer() == i+1) 
+	  if (PXBDetId(detId).layer() == i+1) 
 	    {
 	      recHitXResNonFlippedLadderLayers[i]->Fill(res_x);
 	      recHitXPullNonFlippedLadderLayers[i]->Fill(pull_x);
@@ -417,26 +417,26 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit& recHit, const PSimHit&
   // fill module dependent info
   for (unsigned int i=0; i<8; i++) 
     {
-      if (PXBDetId::PXBDetId(detId).module() == i+1) 
+      if (PXBDetId(detId).module() == i+1) 
 	{
 	  int sizeY = (*clust).sizeY();
 	  clustYSizeModule[i]->Fill(sizeY);
 	  
-	  if (PXBDetId::PXBDetId(detId).layer() == 1) 
+	  if (PXBDetId(detId).layer() == 1) 
 	    {
 	      float charge = (*clust).charge();
 	      clustChargeLayer1Modules[i]->Fill(charge);
 	      recHitYResLayer1Modules[i]->Fill(res_y);
 	      recHitYPullLayer1Modules[i]->Fill(pull_y);
 	    }
-	  else if (PXBDetId::PXBDetId(detId).layer() == 2) 
+	  else if (PXBDetId(detId).layer() == 2) 
 	    {
 	      float charge = (*clust).charge();
 	      clustChargeLayer2Modules[i]->Fill(charge);
 	      recHitYResLayer2Modules[i]->Fill(res_y);
 	      recHitYPullLayer2Modules[i]->Fill(pull_y);
 	    }
-	  else if (PXBDetId::PXBDetId(detId).layer() == 3) 
+	  else if (PXBDetId(detId).layer() == 3) 
 	    {
 	      float charge = (*clust).charge();
 	      clustChargeLayer3Modules[i]->Fill(charge);
@@ -446,9 +446,9 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit& recHit, const PSimHit&
 	}
     }
   int sizeX = (*clust).sizeX();
-  if (PXBDetId::PXBDetId(detId).layer() == 1) clustXSizeLayer[0]->Fill(sizeX);
-  if (PXBDetId::PXBDetId(detId).layer() == 2) clustXSizeLayer[1]->Fill(sizeX);
-  if (PXBDetId::PXBDetId(detId).layer() == 3) clustXSizeLayer[2]->Fill(sizeX);
+  if (PXBDetId(detId).layer() == 1) clustXSizeLayer[0]->Fill(sizeX);
+  if (PXBDetId(detId).layer() == 2) clustXSizeLayer[1]->Fill(sizeX);
+  if (PXBDetId(detId).layer() == 3) clustXSizeLayer[2]->Fill(sizeX);
 }
 
 void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHit & simHit, 
@@ -520,9 +520,9 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHi
   // fill plaquette dependent info
   for (unsigned int i=0; i<7; i++) 
     {
-      if (PXFDetId::PXFDetId(detId).module() == i+1) 
+      if (PXFDetId(detId).module() == i+1) 
 	{
-	  if (PXFDetId::PXFDetId(detId).disk() == 1) 
+	  if (PXFDetId(detId).disk() == 1) 
 	    {
 	      int sizeX = (*clust).sizeX();
 	      clustXSizeDisk1Plaquettes[i]->Fill(sizeX);
@@ -560,7 +560,7 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHi
 	} // end if module
       else if (PXFDetId(detId).panel() == 2 && (PXFDetId(detId).module()+4) == i+1) 
 	{
-	  if (PXFDetId::PXFDetId(detId).disk() == 1) 
+	  if (PXFDetId(detId).disk() == 1) 
 	    {
 	      int sizeX = (*clust).sizeX();
 	      clustXSizeDisk1Plaquettes[i]->Fill(sizeX);
