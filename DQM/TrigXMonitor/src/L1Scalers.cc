@@ -1,4 +1,4 @@
-// $Id: L1Scalers.cc,v 1.19 2010/02/18 18:18:36 wittich Exp $
+// $Id: L1Scalers.cc,v 1.20 2010/03/31 22:10:53 wteo Exp $
 #include <iostream>
 
 
@@ -38,8 +38,8 @@ L1Scalers::L1Scalers(const edm::ParameterSet &ps):
   l1GtDataSource_( ps.getParameter< edm::InputTag >("l1GtData")),
   denomIsTech_(ps.getUntrackedParameter <bool> ("denomIsTech", true)),
   denomBit_(ps.getUntrackedParameter <unsigned int> ("denomBit", 40)),
-  algoSelected_(ps.getUntrackedParameter<std::vector<unsigned int> >("algoMonitorBits")),
-  techSelected_(ps.getUntrackedParameter<std::vector<unsigned int> >("techMonitorBits")),
+  algoSelected_(ps.getUntrackedParameter<std::vector<unsigned int> >("algoMonitorBits", std::vector<unsigned int>())),
+  techSelected_(ps.getUntrackedParameter<std::vector<unsigned int> >("techMonitorBits", std::vector<unsigned int>())),
   folderName_( ps.getUntrackedParameter< std::string>("dqmFolder", 
 					  std::string("L1T/L1Scalers_EvF"))),
   l1scalers_(0),
