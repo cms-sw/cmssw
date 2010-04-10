@@ -765,7 +765,7 @@ void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid,flo
   SiStripHistoId hidmanager1;
   std::string layer_id = flag + "_" +hidmanager1.getSubdetid(detid,flag_ring); 
 
-  std::string subdet_id = flag + "_"+folder_organizer.GetSubDetAndLayer(detid,flag_ring).first;
+  std::string subdet_id = flag + "_in_" +folder_organizer.GetSubDetAndLayer(detid,flag_ring).first;
 
   float    StoN     = cluster->signalOverNoise();
   float    noise    = cluster->noiseRescaledByGain();
