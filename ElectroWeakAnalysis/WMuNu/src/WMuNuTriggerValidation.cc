@@ -27,7 +27,6 @@ public:
   void FillEfficiencyPlots(std::string TriggerTag, std::string Type);
 
 private:
-  bool fastOption_;
   edm::InputTag trigTag_;
   edm::InputTag trigEv_;
 
@@ -46,6 +45,8 @@ private:
   int trackerHitsCut_;
   int muonHitsCut_;
   bool isAlsoTrackerMuon_;
+
+  double dRCut_;
 
   unsigned int nall;
 
@@ -76,6 +77,7 @@ private:
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "DataFormats/Common/interface/View.h"
   
@@ -83,14 +85,12 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-const int numberOfHLTTriggers=6;
-std::string HLTTriggers[numberOfHLTTriggers]={"HLT_L1DoubleMuOpen","HLT_L1Mu", "HLT_L1Mu20","HLT_L1MuOpen","HLT_L2Mu11","HLT_L2Mu9"};
+const int numberOfHLTTriggers=8;
+std::string HLTTriggers[numberOfHLTTriggers]={"HLT_L1DoubleMuOpen","HLT_L1Mu", "HLT_L1Mu20","HLT_L1MuOpen","HLT_L2Mu11","HLT_L2Mu9", "HLT_L2Mu0", "HLT_L2Mu3"};
 
-std::string hltpath[numberOfHLTTriggers]={"hltDoubleMuLevel1PathL1OpenFiltered::HLT","hltL1MuL1Filtered0::HLT", "hltL1Mu20L1Filtered20::HLT","hltL1MuOpenL1Filtered0::HLT","hltL2Mu11L2Filtered11::HLT","hltL2Mu9Filtered9::HLT"};
+std::string hltpath[numberOfHLTTriggers]={"hltDoubleMuLevel1PathL1OpenFiltered::HLT","hltL1MuL1Filtered0::HLT", "hltL1Mu20L1Filtered20::HLT","hltL1MuOpenL1Filtered0::HLT","hltL2Mu11L2Filtered11::HLT","hltL2Mu9L2Filtered9::HLT", "hltL2Mu0L2Filtered0::HLT","hltSingleMu3L2Filtered3::HLT"};
 
 WMuNuTriggerValidation::WMuNuTriggerValidation( const ParameterSet & cfg ) :
-      fastOption_(cfg.getUntrackedParameter<bool> ("FastOption", false)),
-
       // Input collections
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       trigEv_(cfg.getUntrackedParameter<edm::InputTag> ("triggerEvent",edm::InputTag("hltTriggerSummaryAOD::HLT"))),
@@ -109,7 +109,13 @@ WMuNuTriggerValidation::WMuNuTriggerValidation( const ParameterSet & cfg ) :
       normalizedChi2Cut_(cfg.getUntrackedParameter<double>("NormalizedChi2Cut", 10.)),
       trackerHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),
       muonHitsCut_(cfg.getUntrackedParameter<int>("MuonHitsCut", 0)),
-      isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true))
+      isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true)),
+
+      // dR cut for trigger
+
+      dRCut_(cfg.getUntrackedParameter<double>("DRCut", 0.3))
+
+
 {
 }
 
@@ -135,41 +141,61 @@ void WMuNuTriggerValidation::init_histograms() {
             // Filling standard histograms (before and after triggers)
             snprintf(chname, 255, "PT_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "PT of Muons passing %s",HLTTriggers[i].data());
-            h1_[chname] = subDir[0]->make<TH1D>(chname,chtitle,100,0.,100.);
+            h1_[chname] = subDir[0]->make<TH1D>(chname,chtitle,50,0.,50.);
+            h1_[chname] ->SetLineColor(i);
 
             snprintf(chname, 255, "ETA_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "ETA of Muons passing %s",HLTTriggers[i].data());
-            h1_[chname] = subDir[0]->make<TH1D>(chname,chtitle,100,-2.5,2.5);
+            h1_[chname] = subDir[0]->make<TH1D>(chname,chtitle,50,-2.5,2.5);
+            h1_[chname] ->SetLineColor(i);
 
             snprintf(chname, 255, "PHI_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "PHI of Muons passing %s",HLTTriggers[i].data());
-            h1_[chname] = subDir[0]->make<TH1D>(chname,chtitle,100,-M_PI,M_PI);
+            h1_[chname] = subDir[0]->make<TH1D>(chname,chtitle,50,-M_PI,M_PI);
+            h1_[chname] ->SetLineColor(i);
 
 
             // Efficiency plots (so #triggered / #all for each bin) 
             snprintf(chname, 255, "Effi_PT_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "Efficiency vs PT of Muons passing %s",HLTTriggers[i].data());
-            h1_[chname] = subDir[1]->make<TH1D>(chname,chtitle,100,0.,100.);
+            h1_[chname] = subDir[1]->make<TH1D>(chname,chtitle,50,0.,50.);
+            h1_[chname] ->GetYaxis()->SetRangeUser(0,1.02);
+            h1_[chname] ->SetMarkerStyle(20);
+            h1_[chname] ->SetMarkerColor(i);
+            h1_[chname] ->SetLineColor(i);
 
             snprintf(chname, 255, "Effi_ETA_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "Efficiency vs ETA of Muons passing %s",HLTTriggers[i].data());
-            h1_[chname] = subDir[1]->make<TH1D>(chname,chtitle,100,-2.5,2.5);
+            h1_[chname] = subDir[1]->make<TH1D>(chname,chtitle,50,-2.5,2.5);
+            h1_[chname] ->GetYaxis()->SetRangeUser(0,1.02);
+            h1_[chname] ->SetMarkerStyle(20);
+            h1_[chname] ->SetMarkerColor(i);
+            h1_[chname] ->SetLineColor(i);
 
             snprintf(chname, 255, "Effi_PHI_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "Efficiency vs PHI of Muons passing %s",HLTTriggers[i].data());
-            h1_[chname] = subDir[1]->make<TH1D>(chname,chtitle,100,-M_PI,M_PI);
+            h1_[chname] = subDir[1]->make<TH1D>(chname,chtitle,50,-M_PI,M_PI);
+            h1_[chname] ->GetYaxis()->SetRangeUser(0,1.02);
+            h1_[chname] ->SetMarkerStyle(20);
+            h1_[chname] ->SetMarkerColor(i);
+            h1_[chname] ->SetLineColor(i);
 
             // Turn-On curves (so #triggered / # all but cumulative for pt>PtBin)
 
             snprintf(chname, 255, "TurnOn_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "Turn-On Curve for %s",HLTTriggers[i].data());
-            h1_[chname] = subDir[2]->make<TH1D>(chname,chtitle,100,0.,100.);
+            h1_[chname] = subDir[2]->make<TH1D>(chname,chtitle,50,0.,50.);
+            h1_[chname] ->GetYaxis()->SetRangeUser(0,1.02);
+            h1_[chname] ->SetMarkerStyle(21);
+            h1_[chname] ->SetMarkerColor(i);
+            h1_[chname] ->SetLineColor(i);
 
 
-            // Turn-On curves (so #triggered / # all but cumulative for pt>PtBin)
+            // Matching 
             snprintf(chname, 255, "dR_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "dR between muon and triggerobject %s",HLTTriggers[i].data());
             h1_[chname] = subDir[0]->make<TH1D>(chname,chtitle,200,0,2.);
+            h1_[chname] ->SetLineColor(i);
 
 
 
@@ -178,9 +204,9 @@ void WMuNuTriggerValidation::init_histograms() {
 
 
       // Plots without cuts (for normalization)
-      h1_["PT_AllMuons"] = subDir[0]->make<TH1D>("PT_AllMuons","Muon Pt",100,0.,100.);
-      h1_["ETA_AllMuons"] = subDir[0]->make<TH1D>("ETA_AllMuons","Muon Eta",100,-2.5,2.5);
-      h1_["PHI_AllMuons"] = subDir[0]->make<TH1D>("PHI_AllMuons","Muon Phi",100,-M_PI,M_PI);
+      h1_["PT_AllMuons"] = subDir[0]->make<TH1D>("PT_AllMuons","Muon Pt",50,0.,50.);
+      h1_["ETA_AllMuons"] = subDir[0]->make<TH1D>("ETA_AllMuons","Muon Eta",50,-2.5,2.5);
+      h1_["PHI_AllMuons"] = subDir[0]->make<TH1D>("PHI_AllMuons","Muon Phi",50,-M_PI,M_PI);
 
 
 }
@@ -189,37 +215,53 @@ void WMuNuTriggerValidation::FillEfficiencyPlots(std::string TriggerTag, std::st
 
       // Divide histograms before and after applying the trigger (for now consider errors binomial)
       char chname[256] = "";
-      for (int i=0; i<101; i++){
+      for (int i=0; i<51; i++){
          snprintf(chname, 255, "%s_%s",Type.data(), TriggerTag.data());
-         double numerator= h1_[chname] -> GetBinContent(i);
+         Double_t numerator= h1_[chname] -> GetBinContent(i);
+         Double_t num_e = h1_[chname] ->GetBinError(i);
+
          snprintf(chname, 255, "%s_AllMuons",Type.data());
-         double denominator= h1_[chname] -> GetBinContent(i);
-         double effi=0, effiError=0;     
+         Double_t denominator= h1_[chname] -> GetBinContent(i);
+         Double_t den_e = h1_[chname] ->GetBinError(i);
+
+         Double_t effi=0, effiError=0;     
 
          if (denominator!=0) {
-            effi=numerator/denominator;
-            effiError=sqrt(effi*(1-effi)/denominator);   
             snprintf(chname, 255, "Effi_%s_%s", Type.data(),TriggerTag.data());
+            effi=numerator/denominator; 
+                        if(effi==0){effi=0.001;} // Just to try to represent in the plot the entries with 0 efficiency
+            h1_[chname] -> SetBinContent(i,effi);
 
-            h1_[chname] -> SetBinContent(i,effi); 
+//          effiError=sqrt(effi*(1-effi)/denominator);   // binomial errors --> if eff=0 error = 0 --> no!
+            Double_t den2= denominator*denominator;
+            effiError = sqrt((num_e*num_e*den2 + den_e*den_e*numerator*numerator)/(den2*den2));  // This is what root does by "Divide(h1)"
+
             h1_[chname] -> SetBinError(i,effiError);
+
          }    
       } 
 
+
 }
+
 
 void WMuNuTriggerValidation::FillTurnOnCurve(std::string TriggerTag){
 
       char chname[256] = "";
-      for (int i=0; i<101; i++){
+      for (int i=0; i<51; i++){
          snprintf(chname, 255, "PT_%s", TriggerTag.data());
          double numerator= h1_[chname] -> Integral(i,-1);
+         double num_e = sqrt(numerator);   
          double denominator= h1_["PT_AllMuons"] -> Integral(i,-1);
+         double den_e = sqrt(denominator);
          double effi=0, effiError=0;
 
          if (denominator!=0) {
             effi=numerator/denominator;
-            effiError=sqrt(effi*(1-effi)/denominator);
+//            effiError=sqrt(effi*(1-effi)/denominator);
+            Double_t den2= denominator*denominator;
+            effiError = sqrt((num_e*num_e*den2 + den_e*den_e*numerator*numerator)/(den2*den2));
+
             snprintf(chname, 255, "TurnOn_%s", TriggerTag.data());
             h1_[chname] -> SetBinContent(i,effi);
             h1_[chname] -> SetBinError(i,effiError);
@@ -242,21 +284,23 @@ void WMuNuTriggerValidation::endJob() {
 }
 
 double WMuNuTriggerValidation::HLTMatch(edm::Handle<trigger::TriggerEvent> triggerObj, const Muon& mu, std::string hltFilterTag_){
-       double minDR=100000.;
+       double minDR=50000.;
 
        const trigger::TriggerObjectCollection & toc(triggerObj->getObjects());
        //LogDebug("")<<"TriggerObject Size: "<<triggerObj->sizeFilters();  
        for ( size_t ia = 0; ia < triggerObj->sizeFilters(); ++ ia) {
-            //LogDebug("")<<"Tags: "<< triggerObj->filterTag(ia);
+            LogDebug("")<<"Tags: "<< triggerObj->filterTag(ia);
             if( triggerObj->filterTag(ia)  == hltFilterTag_) {
                   const trigger::Keys & k = triggerObj->filterKeys(ia);
                   for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-                        double pttrig= toc[*ki].pt();
+                        //double pttrig= toc[*ki].pt();
                         double etatrig=toc[*ki].eta();
                         double phitrig=toc[*ki].phi();
-                        Geom::Phi<double> deltaphi(phitrig-mu.phi());
-                        double dRtrig=sqrt(pow(etatrig-mu.eta(),2)+pow(deltaphi.value(),2));
+                        double etamu=mu.outerTrack()->eta(); //Should be "innerPosition()" but that is not saved in the AODRED...
+                        double phimu=mu.outerTrack()->phi();
+                        double dRtrig= fabs(etamu-etatrig);//=deltaR(etamu,phimu, etatrig, phitrig);
                         if(dRtrig < minDR ) {minDR=dRtrig;}
+
                   }
             }
        }
@@ -328,6 +372,8 @@ bool WMuNuTriggerValidation::filter (Event & ev, const EventSetup &) {
             if (!mu.isGlobalMuon()) continue;
             if (mu.globalTrack().isNull()) continue;
             if (mu.innerTrack().isNull()) continue;
+            if (mu.outerTrack().isNull()) continue;
+
             reco::TrackRef gm = mu.globalTrack();
 
             double pt = mu.pt();
@@ -363,7 +409,7 @@ bool WMuNuTriggerValidation::filter (Event & ev, const EventSetup &) {
                         double dR=HLTMatch(triggerObj,mu,hltpath[j]);
                         snprintf(histoname, 255, "dR_%s", HLTTriggers[j].data());
                         h1_[histoname]->Fill(dR);
-                                    if(dR<0.5){
+                                    if(dR<dRCut_){
                                     snprintf(histoname, 255, "PT_%s", HLTTriggers[j].data());
                                     h1_[histoname]->Fill(pt);
                                     snprintf(histoname, 255, "ETA_%s", HLTTriggers[j].data());
