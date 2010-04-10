@@ -24,7 +24,7 @@ which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
 <var name="VAL_NEW_RELEASE" value="360pre5">
-<var name="VAL_REF_RELEASE" value="360pre4">
+<var name="VAL_REF_RELEASE" value="360pre3">
 <var name="VAL_COMMENT" value="No electron code change.">
 
 Oval is able to check the output channel of an execution and compare it with a reference output.
