@@ -1,8 +1,8 @@
 /*
  * \file HcalMonitorClient.cc
  * 
- * $Date: 2010/03/25 09:43:42 $
- * $Revision: 1.92.2.22 $
+ * $Date: 2010/03/25 11:02:26 $
+ * $Revision: 1.93 $
  * \author J. Temple
  * 
  */
@@ -459,7 +459,7 @@ void HcalMonitorClient::writeHtml()
 
   for (unsigned int i=0;i<clients_.size();++i)
     {
-      if (clients_[i]->validHtmlOutput()==true)
+      if (clients_[i]->validHtmlOutput()==true){
 	clients_[i]->htmlOutput(htmlDir);
       // Always print thes out?  Or only when validHtmlOutput is true? 
       htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << std::endl;
@@ -469,6 +469,7 @@ void HcalMonitorClient::writeHtml()
       else if(clients_[i]->hasOther_Temp()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << std::endl;
       else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << std::endl;
       htmlFile << "</tr></table>" << std::endl;
+      }
     }
 
   // Add call to reportSummary html output
