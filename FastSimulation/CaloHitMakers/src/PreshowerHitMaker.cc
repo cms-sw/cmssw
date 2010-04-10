@@ -97,7 +97,8 @@ PreshowerHitMaker::addHit(double r,double phi,unsigned layer)
   //  std::cout << " Layer " << layer << " " << point << std::endl;
   DetId strip = myCalorimeter->getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(point.x(),point.y(),point.z()),layer);
 
-  float spote=0.000095+0.000021*theGenerator->landau();
+  float meanspot=(layer==1) ? mip1_ : mip2_; 
+  float spote = meanspot + 0.000021*theGenerator->landau();
 
   if(!strip.null())
     {

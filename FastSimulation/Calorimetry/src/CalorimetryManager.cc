@@ -327,6 +327,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 					  layer2entrance,
 					  dir2,
 					  aLandauGenerator);
+      myPreshower->setMipEnergy(mipValues_[0],mipValues_[1]);
     }
 
   // The ECAL Properties
@@ -1260,6 +1261,7 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   RTFactor_ = ECALparameters.getParameter<double>("RTFactor");
   radiusFactor_ = ECALparameters.getParameter<double>("RadiusFactor");
   radiusPreshowerCorrections_ = ECALparameters.getParameter<std::vector<double> >("RadiusPreshowerCorrections");
+  mipValues_ = ECALparameters.getParameter<std::vector<double> >("MipsinGeV");
   simulatePreshower_ = ECALparameters.getParameter<bool>("SimulatePreshower");
 
   if(gridSize_ <1) gridSize_= 7;
@@ -1291,6 +1293,11 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
 	}
       LogInfo("FastCalotimetry") << "Radius correction factor " << radiusFactor_ << std::endl;
       LogInfo("FastCalorimetry") << std::endl;
+      if(mipValues_.size()>2) 	{
+	LogInfo("FastCalorimetry") << "Improper number of parameters for the preshower ; using 95keV" << std::endl;
+	mipValues_.clear();
+	mipValues_.resize(2,0.000095);
+	}
     }
 
   LogInfo("FastCalorimetry") << " FrontLeakageProbability : " << pulledPadSurvivalProbability_ << std::endl;

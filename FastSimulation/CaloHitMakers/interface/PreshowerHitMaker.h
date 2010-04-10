@@ -21,8 +21,10 @@ class PreshowerHitMaker : public CaloHitMaker
 		    const LandauFluctuationGenerator* aGenerator);
 
   ~PreshowerHitMaker() {;}
-  
+  // currently deprecated 
   inline void setSpotEnergy(double e) { spotEnergy=e;} 
+  // for tuning
+  inline void setMipEnergy(double e1, double e2) { mip1_=e1 ; mip2_=e2;} 
   bool addHit(double r,double phi,unsigned layer=0);
   const std::map<unsigned,float>& getHits() { return hitMap_ ;} ;
 
@@ -41,7 +43,7 @@ class PreshowerHitMaker : public CaloHitMaker
   double invcostheta2y;
   double x1,y1,z1;
   double x2,y2,z2;
-
+  double mip1_,mip2_;
 
   /// The Landau Fluctuation generator
   const LandauFluctuationGenerator*  theGenerator;
