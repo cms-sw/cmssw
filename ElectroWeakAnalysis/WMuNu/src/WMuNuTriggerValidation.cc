@@ -22,7 +22,7 @@ public:
   virtual void beginJob();
   virtual void endJob();
   void init_histograms();
-  bool HLTMatch(edm::Handle<trigger::TriggerEvent> triggerObj,const reco::Muon&, std::string);
+  double HLTMatch(edm::Handle<trigger::TriggerEvent> triggerObj,const reco::Muon&, std::string);
   void FillTurnOnCurve(std::string TriggerTag);
   void FillEfficiencyPlots(std::string TriggerTag, std::string Type);
 
@@ -86,7 +86,7 @@ using namespace reco;
 const int numberOfHLTTriggers=6;
 std::string HLTTriggers[numberOfHLTTriggers]={"HLT_L1DoubleMuOpen","HLT_L1Mu", "HLT_L1Mu20","HLT_L1MuOpen","HLT_L2Mu11","HLT_L2Mu9"};
 
-std::string hltpath[numberOfHLTTriggers]={"hltDoubleMuLevel1PathL1OpenFiltered::HLT","hltL1MuL1Filtered0::HLT", "hltL1Mu20L1Filtered20::HLT","hltL1MuOpenL1Filtered0::HLT","hltL2Mu11L2Filtered9::HLT","hltSingleMu9L2Filtered9::HLT"};
+std::string hltpath[numberOfHLTTriggers]={"hltDoubleMuLevel1PathL1OpenFiltered::HLT","hltL1MuL1Filtered0::HLT", "hltL1Mu20L1Filtered20::HLT","hltL1MuOpenL1Filtered0::HLT","hltL2Mu11L2Filtered11::HLT","hltMu9L2Filtered9::HLT"};
 
 WMuNuTriggerValidation::WMuNuTriggerValidation( const ParameterSet & cfg ) :
       fastOption_(cfg.getUntrackedParameter<bool> ("FastOption", false)),
@@ -164,6 +164,15 @@ void WMuNuTriggerValidation::init_histograms() {
             snprintf(chname, 255, "TurnOn_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "Turn-On Curve for %s",HLTTriggers[i].data());
             h1_[chname] = subDir[2]->make<TH1D>(chname,chtitle,100,0.,100.);
+
+
+            // Turn-On curves (so #triggered / # all but cumulative for pt>PtBin)
+            snprintf(chname, 255, "dR_%s", HLTTriggers[i].data());
+            snprintf(chtitle, 255, "dR between muon and triggerobject %s",HLTTriggers[i].data());
+            h1_[chname] = subDir[0]->make<TH1D>(chname,chtitle,1000,-1.,1.);
+
+
+
  
       }
 
@@ -232,11 +241,13 @@ void WMuNuTriggerValidation::endJob() {
     }
 }
 
-bool WMuNuTriggerValidation::HLTMatch(edm::Handle<trigger::TriggerEvent> triggerObj, const Muon& mu, std::string hltFilterTag_){
-       bool haytrigger=false;
+double WMuNuTriggerValidation::HLTMatch(edm::Handle<trigger::TriggerEvent> triggerObj, const Muon& mu, std::string hltFilterTag_){
+       double minDR=100000.;
 
-       const trigger::TriggerObjectCollection & toc(triggerObj->getObjects()); 
+       const trigger::TriggerObjectCollection & toc(triggerObj->getObjects());
+       LogTrace("")<<"TriggerObject Size: "<<triggerObj->sizeFilters();  
        for ( size_t ia = 0; ia < triggerObj->sizeFilters(); ++ ia) {
+            LogTrace("")<<"Tags: "<< triggerObj->filterTag(ia);
             if( triggerObj->filterTag(ia)  == hltFilterTag_) {
                   const trigger::Keys & k = triggerObj->filterKeys(ia);
                   for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
@@ -244,12 +255,13 @@ bool WMuNuTriggerValidation::HLTMatch(edm::Handle<trigger::TriggerEvent> trigger
                         double etatrig=toc[*ki].eta();
                         double phitrig=toc[*ki].phi();
                         Geom::Phi<double> deltaphi(phitrig-mu.phi());
-                        if(sqrt(pow(etatrig-mu.eta(),2)+pow(deltaphi.value(),2)) < 1 ) {haytrigger=true;break;}
+                        double dRtrig=sqrt(pow(etatrig-mu.eta(),2)+pow(deltaphi.value(),2));
+                        if(dRtrig < minDR ) {minDR=dRtrig;}
                   }
             }
        }
 
-      return haytrigger;
+      return minDR;
 }
 
 
@@ -348,8 +360,10 @@ bool WMuNuTriggerValidation::filter (Event & ev, const EventSetup &) {
 
             for (int j=0; j<numberOfHLTTriggers; j++){
                   if(MuonHLTTriggersFired[j]){
-                        bool matchedMu=true;//HLTMatch(triggerObj,mu,hltpath[j]);
-                                    if(matchedMu){
+                        double dR=HLTMatch(triggerObj,mu,hltpath[j]);
+                        snprintf(histoname, 255, "dR_%s", HLTTriggers[j].data());
+                        h1_[histoname]->Fill(dR);
+                                    if(dR<0.2){
                                     snprintf(histoname, 255, "PT_%s", HLTTriggers[j].data());
                                     h1_[histoname]->Fill(pt);
                                     snprintf(histoname, 255, "ETA_%s", HLTTriggers[j].data());
