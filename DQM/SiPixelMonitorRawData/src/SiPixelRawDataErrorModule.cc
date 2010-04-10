@@ -88,11 +88,11 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
   std::string hid;
   // Get collection name and instantiate Histo Id builder
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
-  bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
-  bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
+  bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+  bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
   if(barrel){
-    isHalfModule = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).isHalfModule(); 
+    isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
   }
 
   // Get DQM interface
@@ -138,7 +138,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     }
     delete theHistogramId;
   } else if(type==1 && barrel){
-    uint32_t DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).ladderName();
+    uint32_t DBladder = PixelBarrelName(DetId(id_)).ladderName();
     char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
     hid = src.label() + "_" + sladder;
     if(isHalfModule) hid += "H";
@@ -171,7 +171,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
       meROCNmbrLad_ = theDMBE->bookInt("ROCNmbr_"+hid);
     }
   } else if(type==4 && endcap){
-    uint32_t blade= PixelEndcapName::PixelEndcapName(DetId::DetId(id_)).bladeName();
+    uint32_t blade= PixelEndcapName(DetId(id_)).bladeName();
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hid = src.label() + "_" + sblade;
     // Types of errors
@@ -281,14 +281,14 @@ void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
 //
 void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>& input, bool reducedSet, bool modon, bool ladon, bool bladeon) {
 //std::cout<<"Entering SiPixelRawDataErrorModule::fill: "<<std::endl;
-  bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
-  bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
+  bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+  bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
   uint32_t DBladder = 0;
   if(barrel){
-    isHalfModule = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).isHalfModule(); 
-    DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).ladderName();
-//    int FedId = DetId::DetId(id_).getFedId();                  // FED the error came from
+    isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
+    DBladder = PixelBarrelName(DetId(id_)).ladderName();
+//    int FedId = DetId(id_).getFedId();                  // FED the error came from
 
   }
   
