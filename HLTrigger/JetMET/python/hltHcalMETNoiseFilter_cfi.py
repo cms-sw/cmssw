@@ -21,7 +21,7 @@ HcalNoiseParameterSet = cms.PSet(
     minEEMF = cms.double(20.0),
     
     # define problematic RBX
-    pMinE = cms.double(100.0),
+    pMinE = cms.double(10.0),
     pMinRatio = cms.double(0.75),
     pMaxRatio = cms.double(0.90),
     pMinHPDHits = cms.int32(10),
@@ -64,7 +64,7 @@ HcalNoiseParameterSet = cms.PSet(
     hlMaxRBXEMF = cms.double(0.01)
     )
 
-
+ 
 hltHcalMETNoiseFilter = cms.EDFilter(
     "HLTHcalMETNoiseFilter",
 
@@ -78,11 +78,11 @@ hltHcalMETNoiseFilter = cms.EDFilter(
     severity = cms.int32(1),
 
     # if there are more than maxNumRBXs RBXs in the event, the event passes the trigger
-    maxNumRBXs = cms.int32(2),
+    maxNumRBXs = cms.int32(1),
     
     # consider the top N=numRBXsToConsider RBXs by energy in the event
     # this number should be <= maxNumRBXs
-    numRBXsToConsider = cms.int32(2),
+    numRBXsToConsider = cms.int32(1),
 
     # require coincidence between the High-Level (EMF) filter and the other filters
     needHighLevelCoincidence = cms.bool(True),

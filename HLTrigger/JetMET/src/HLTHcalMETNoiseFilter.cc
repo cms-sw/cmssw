@@ -78,7 +78,6 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
   // reject events with too many RBXs
   if(static_cast<int>(rbxs_h->size())>maxNumRBXs_) return true;
 
-
   // create a sorted set of the RBXs, ordered by energy
   noisedataset_t data;
   for(HcalNoiseRBXCollection::const_iterator it=rbxs_h->begin(); it!=rbxs_h->end(); ++it) {
@@ -104,8 +103,8 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
     else if(useTightZerosFilter_ && !noisealgo_.passTightZeros(*it)) passFilter=false;
     else if(useTightTimingFilter_ && !noisealgo_.passTightTiming(*it)) passFilter=false;
 
-    if(needHighLevelCoincidence_ && !noisealgo_.passHighLevelNoiseFilter(*it) && passFilter) return false;
-    if(!needHighLevelCoincidence_ && passFilter) return false;
+    if(needHighLevelCoincidence_ && !noisealgo_.passHighLevelNoiseFilter(*it) && !passFilter) return false;
+    if(!needHighLevelCoincidence_ && !passFilter) return false;
   }
 
   // no problems found
