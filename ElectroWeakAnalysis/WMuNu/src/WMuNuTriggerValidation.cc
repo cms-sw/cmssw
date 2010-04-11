@@ -10,6 +10,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "TH1D.h"
+#include "TH2D.h"
+
 #include <map>
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
@@ -51,6 +53,7 @@ private:
   unsigned int nall;
 
   std::map<std::string,TH1D*> h1_;
+  std::map<std::string,TH2D*> h2_;
 
 
 };
@@ -85,10 +88,10 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-const int numberOfHLTTriggers=8;
-std::string HLTTriggers[numberOfHLTTriggers]={"HLT_L1DoubleMuOpen","HLT_L1Mu", "HLT_L1Mu20","HLT_L1MuOpen","HLT_L2Mu11","HLT_L2Mu9", "HLT_L2Mu0", "HLT_L2Mu3"};
+const int numberOfHLTTriggers=6;
+std::string HLTTriggers[numberOfHLTTriggers]={"HLT_L1DoubleMuOpen","HLT_L1Mu", "HLT_L1Mu20","HLT_L1MuOpen","HLT_L2Mu11","HLT_L2Mu9"};
 
-std::string hltpath[numberOfHLTTriggers]={"hltDoubleMuLevel1PathL1OpenFiltered::HLT","hltL1MuL1Filtered0::HLT", "hltL1Mu20L1Filtered20::HLT","hltL1MuOpenL1Filtered0::HLT","hltL2Mu11L2Filtered11::HLT","hltL2Mu9L2Filtered9::HLT", "hltL2Mu0L2Filtered0::HLT","hltSingleMu3L2Filtered3::HLT"};
+std::string hltpath[numberOfHLTTriggers]={"hltDoubleMuLevel1PathL1OpenFiltered::HLT","hltL1MuL1Filtered0::HLT", "hltL1Mu20L1Filtered20::HLT","hltL1MuOpenL1Filtered0::HLT","hltL2Mu11L2Filtered11::HLT","hltL2Mu9L2Filtered9::HLT"};
 
 WMuNuTriggerValidation::WMuNuTriggerValidation( const ParameterSet & cfg ) :
       // Input collections
@@ -136,23 +139,35 @@ void WMuNuTriggerValidation::init_histograms() {
       char chname[256] = "";
       char chtitle[256] = "";
 
+      //const int nbins = 20;
+      //double pt_bin[21] = {0, 1, 2, 3, 3.5,4,4.5,5,5.5,6,6.5, 7, 8, 9, 10, 11, 12, 13, 14, 20, 25};
+
+
       for (int i=0; i<numberOfHLTTriggers; i++) {
 
             // Filling standard histograms (before and after triggers)
             snprintf(chname, 255, "PT_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "PT of Muons passing %s",HLTTriggers[i].data());
             h1_[chname] = subDir[0]->make<TH1D>(chname,chtitle,50,0.,50.);
-            h1_[chname] ->SetLineColor(i);
+            h1_[chname] ->SetLineColor(kAzure+i);
 
             snprintf(chname, 255, "ETA_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "ETA of Muons passing %s",HLTTriggers[i].data());
             h1_[chname] = subDir[0]->make<TH1D>(chname,chtitle,50,-2.5,2.5);
-            h1_[chname] ->SetLineColor(i);
+            h1_[chname] ->SetLineColor(kAzure+i);
 
             snprintf(chname, 255, "PHI_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "PHI of Muons passing %s",HLTTriggers[i].data());
             h1_[chname] = subDir[0]->make<TH1D>(chname,chtitle,50,-M_PI,M_PI);
-            h1_[chname] ->SetLineColor(i);
+            h1_[chname] ->SetLineColor(kAzure+i);
+
+            snprintf(chname, 255, "ETA_PHI_%s", HLTTriggers[i].data());
+            snprintf(chtitle, 255, "ETA and PHI distribution of Muons passing %s",HLTTriggers[i].data());
+            h2_[chname] = subDir[0]->make<TH2D>(chname,chtitle,50,-2.5,2.5, 50,-M_PI,M_PI);
+            h2_[chname] ->SetMarkerStyle(20);
+            h2_[chname] ->SetMarkerColor(kAzure+i);
+            h2_[chname] ->SetLineColor(kAzure+i);
+
 
 
             // Efficiency plots (so #triggered / #all for each bin) 
@@ -161,8 +176,8 @@ void WMuNuTriggerValidation::init_histograms() {
             h1_[chname] = subDir[1]->make<TH1D>(chname,chtitle,50,0.,50.);
             h1_[chname] ->GetYaxis()->SetRangeUser(0,1.02);
             h1_[chname] ->SetMarkerStyle(20);
-            h1_[chname] ->SetMarkerColor(i);
-            h1_[chname] ->SetLineColor(i);
+            h1_[chname] ->SetMarkerColor(kAzure+i);
+            h1_[chname] ->SetLineColor(kAzure+i);
 
             snprintf(chname, 255, "Effi_ETA_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "Efficiency vs ETA of Muons passing %s",HLTTriggers[i].data());
@@ -170,7 +185,7 @@ void WMuNuTriggerValidation::init_histograms() {
             h1_[chname] ->GetYaxis()->SetRangeUser(0,1.02);
             h1_[chname] ->SetMarkerStyle(20);
             h1_[chname] ->SetMarkerColor(i);
-            h1_[chname] ->SetLineColor(i);
+            h1_[chname] ->SetLineColor(kAzure+i);
 
             snprintf(chname, 255, "Effi_PHI_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "Efficiency vs PHI of Muons passing %s",HLTTriggers[i].data());
@@ -178,7 +193,7 @@ void WMuNuTriggerValidation::init_histograms() {
             h1_[chname] ->GetYaxis()->SetRangeUser(0,1.02);
             h1_[chname] ->SetMarkerStyle(20);
             h1_[chname] ->SetMarkerColor(i);
-            h1_[chname] ->SetLineColor(i);
+            h1_[chname] ->SetLineColor(kAzure+i);
 
             // Turn-On curves (so #triggered / # all but cumulative for pt>PtBin)
 
@@ -188,14 +203,14 @@ void WMuNuTriggerValidation::init_histograms() {
             h1_[chname] ->GetYaxis()->SetRangeUser(0,1.02);
             h1_[chname] ->SetMarkerStyle(21);
             h1_[chname] ->SetMarkerColor(i);
-            h1_[chname] ->SetLineColor(i);
+            h1_[chname] ->SetLineColor(kAzure+i);
 
 
             // Matching 
             snprintf(chname, 255, "dR_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "dR between muon and triggerobject %s",HLTTriggers[i].data());
             h1_[chname] = subDir[0]->make<TH1D>(chname,chtitle,200,0,2.);
-            h1_[chname] ->SetLineColor(i);
+            h1_[chname] ->SetLineColor(kAzure+i);
 
 
 
@@ -208,6 +223,7 @@ void WMuNuTriggerValidation::init_histograms() {
       h1_["ETA_AllMuons"] = subDir[0]->make<TH1D>("ETA_AllMuons","Muon Eta",50,-2.5,2.5);
       h1_["PHI_AllMuons"] = subDir[0]->make<TH1D>("PHI_AllMuons","Muon Phi",50,-M_PI,M_PI);
 
+      h2_["ETA_PHI_AllMuons"] = subDir[0]->make<TH2D>("ETA_PHI_AllMuons","Muon distribution in eta, phi",50,-2.5,2.5, 50,-M_PI,M_PI);
 
 }
 
@@ -402,7 +418,7 @@ bool WMuNuTriggerValidation::filter (Event & ev, const EventSetup &) {
             h1_["PT_AllMuons"]->Fill(pt);
             h1_["ETA_AllMuons"]->Fill(eta);
             h1_["PHI_AllMuons"]->Fill(phi);
-
+            h2_["ETA_PHI_AllMuons"]->Fill(eta,phi);
 
             for (int j=0; j<numberOfHLTTriggers; j++){
                   if(MuonHLTTriggersFired[j]){
@@ -416,6 +432,8 @@ bool WMuNuTriggerValidation::filter (Event & ev, const EventSetup &) {
                                     h1_[histoname]->Fill(eta);
                                     snprintf(histoname, 255, "PHI_%s", HLTTriggers[j].data());
                                     h1_[histoname]->Fill(phi);
+                                    snprintf(histoname, 255, "ETA_PHI_%s", HLTTriggers[j].data());
+                                    h2_[histoname]->Fill(eta,phi);
                                     }
                   }
             }

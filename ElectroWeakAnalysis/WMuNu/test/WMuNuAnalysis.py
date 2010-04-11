@@ -11,7 +11,10 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
        fileNames = cms.untracked.vstring(
-        'file:/data2/Wmunu_Summer09-MC_31X_V3_7TeV_AODSIM-v1/002861FD-899B-DE11-915E-000AE488BE67.root'
+#        'file:/data2/Wmunu_Summer09-MC_31X_V3_7TeV_AODSIM-v1/002861FD-899B-DE11-915E-000AE488BE67.root'
+         'file:" 
+
+
         )
 )
 
