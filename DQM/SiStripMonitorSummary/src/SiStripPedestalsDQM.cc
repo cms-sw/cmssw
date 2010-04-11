@@ -56,20 +56,9 @@ void SiStripPedestalsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
   int nStrip =  reader->getNumberOfApvsAndStripLength(selDetId_).first*128;
   
   for( int istrip=0;istrip<nStrip;++istrip){
-    try{      
       if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
         selModME_.ProfileDistr->Fill(istrip+1,pedestalHandle_->getPed(istrip,pedRange));
       }
-    } 
-    catch(cms::Exception& e){
-      edm::LogError("SiStripPedestalsDQM")          
-	<< "[SiStripPedestalsDQM::fillMEsForDet] cms::Exception accessing pedestalHandle_->getPed(istrip,pedRange) for strip "  
-	<< istrip 
-	<< " and detid " 
-	<< selDetId_  
-	<< " :  " 
-	<< e.what() ;
-    }
   }// istrip
   
 }    
@@ -163,20 +152,9 @@ void SiStripPedestalsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
  
     for( int istrip=0;istrip<nStrip;++istrip){
     
-      try{ 
 	if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
 	  selME_.SummaryOfProfileDistr->Fill(istrip+1,pedestalHandle_->getPed(istrip,pedRange));
 	}
-      }
-      catch(cms::Exception& e){
-	edm::LogError("SiStripPedestalsDQM")          
-	  << "[SiStripPedestalsDQM::fillMEsForLayer] cms::Exception accessing pedestalHandle_->getPed(istrip,pedRange) for strip "  
-	  << istrip 
-	  << " and detid " 
-	  << selDetId_  
-	  << " :  " 
-	  << e.what() ;
-      }
 
       //fill the TkMap
     if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
@@ -202,18 +180,7 @@ void SiStripPedestalsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
   
     for( int istrip=0;istrip<nStrip;++istrip){
     
-      try{
 	meanPedestal = meanPedestal + pedestalHandle_->getPed(istrip,pedRange);
-      }
-      catch(cms::Exception& e){
-	edm::LogError("SiStripNoisesDQM")          
-	  << "[SiStripNoisesDQM::fillMEsForLayer] cms::Exception accessing pedestalHandle_->getPed(istrip,pedRange) for strip "  
-	  << istrip 
-	  << "and detid " 
-	  << selDetId_  
-	  << " :  " 
-	  << e.what() ;      
-      }
     
     }//istrip
   
