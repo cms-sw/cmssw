@@ -116,7 +116,7 @@ WMuNuTriggerValidation::WMuNuTriggerValidation( const ParameterSet & cfg ) :
 
       // dR cut for trigger
 
-      dRCut_(cfg.getUntrackedParameter<double>("DRCut", 0.3))
+      dRCut_(cfg.getUntrackedParameter<double>("DRCut", 0.3))// For now it is only dEta!! Not dR...
 
 
 {
@@ -139,8 +139,8 @@ void WMuNuTriggerValidation::init_histograms() {
       char chname[256] = "";
       char chtitle[256] = "";
 
-      //const int nbins = 20;
-      //double pt_bin[21] = {0, 1, 2, 3, 3.5,4,4.5,5,5.5,6,6.5, 7, 8, 9, 10, 11, 12, 13, 14, 20, 25};
+      const int nbins = 20;
+      double pt_bin[21] = {0, 1, 2, 3, 3.5,4,4.5,5,5.5,6,6.5, 7, 8, 9, 10, 11, 12, 13, 14, 20, 25};
 
 
       for (int i=0; i<numberOfHLTTriggers; i++) {
@@ -148,7 +148,7 @@ void WMuNuTriggerValidation::init_histograms() {
             // Filling standard histograms (before and after triggers)
             snprintf(chname, 255, "PT_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "PT of Muons passing %s",HLTTriggers[i].data());
-            h1_[chname] = subDir[0]->make<TH1D>(chname,chtitle,50,0.,50.);
+            h1_[chname] = subDir[0]->make<TH1D>(chname,chtitle,nbins,pt_bin);//,50,0.,50.);
             h1_[chname] ->SetLineColor(kAzure+i);
 
             snprintf(chname, 255, "ETA_%s", HLTTriggers[i].data());
@@ -173,7 +173,7 @@ void WMuNuTriggerValidation::init_histograms() {
             // Efficiency plots (so #triggered / #all for each bin) 
             snprintf(chname, 255, "Effi_PT_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "Efficiency vs PT of Muons passing %s",HLTTriggers[i].data());
-            h1_[chname] = subDir[1]->make<TH1D>(chname,chtitle,50,0.,50.);
+            h1_[chname] = subDir[1]->make<TH1D>(chname,chtitle,nbins,pt_bin);//50,0.,50.);
             h1_[chname] ->GetYaxis()->SetRangeUser(0,1.02);
             h1_[chname] ->SetMarkerStyle(20);
             h1_[chname] ->SetMarkerColor(kAzure+i);
@@ -199,7 +199,7 @@ void WMuNuTriggerValidation::init_histograms() {
 
             snprintf(chname, 255, "TurnOn_%s", HLTTriggers[i].data());
             snprintf(chtitle, 255, "Turn-On Curve for %s",HLTTriggers[i].data());
-            h1_[chname] = subDir[2]->make<TH1D>(chname,chtitle,50,0.,50.);
+            h1_[chname] = subDir[2]->make<TH1D>(chname,chtitle,nbins,pt_bin);//50,0.,50.);
             h1_[chname] ->GetYaxis()->SetRangeUser(0,1.02);
             h1_[chname] ->SetMarkerStyle(21);
             h1_[chname] ->SetMarkerColor(i);
@@ -219,7 +219,7 @@ void WMuNuTriggerValidation::init_histograms() {
 
 
       // Plots without cuts (for normalization)
-      h1_["PT_AllMuons"] = subDir[0]->make<TH1D>("PT_AllMuons","Muon Pt",50,0.,50.);
+      h1_["PT_AllMuons"] = subDir[0]->make<TH1D>("PT_AllMuons","Muon Pt",nbins,pt_bin);//50,0.,50.);
       h1_["ETA_AllMuons"] = subDir[0]->make<TH1D>("ETA_AllMuons","Muon Eta",50,-2.5,2.5);
       h1_["PHI_AllMuons"] = subDir[0]->make<TH1D>("PHI_AllMuons","Muon Phi",50,-M_PI,M_PI);
 
@@ -231,7 +231,10 @@ void WMuNuTriggerValidation::FillEfficiencyPlots(std::string TriggerTag, std::st
 
       // Divide histograms before and after applying the trigger (for now consider errors binomial)
       char chname[256] = "";
-      for (int i=0; i<51; i++){
+      int nbins=0;
+      if(Type=="PT") {nbins=21;} else{nbins=51;}
+
+      for (int i=0; i<nbins; i++){
          snprintf(chname, 255, "%s_%s",Type.data(), TriggerTag.data());
          Double_t numerator= h1_[chname] -> GetBinContent(i);
          Double_t num_e = h1_[chname] ->GetBinError(i);
@@ -264,7 +267,7 @@ void WMuNuTriggerValidation::FillEfficiencyPlots(std::string TriggerTag, std::st
 void WMuNuTriggerValidation::FillTurnOnCurve(std::string TriggerTag){
 
       char chname[256] = "";
-      for (int i=0; i<51; i++){
+      for (int i=0; i<21; i++){
          snprintf(chname, 255, "PT_%s", TriggerTag.data());
          double numerator= h1_[chname] -> Integral(i,-1);
          double num_e = sqrt(numerator);   
