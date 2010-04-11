@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.36 2009/10/15 14:23:44 rwolf Exp $
+// $Id: PATElectronProducer.cc,v 1.37 2009/10/15 17:17:26 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -475,13 +475,30 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
   }
 
   for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
-    anElectron.setIsoDeposit(isoDepositLabels_[j].first, 
-			     (*deposits[j])[candPtrForIsolation]);
+    if( isoDepositLabels_[j].first==pat::TrackIso ||
+	isoDepositLabels_[j].first==pat::EcalIso ||
+	isoDepositLabels_[j].first==pat::HcalIso ) {
+
+      anElectron.setIsoDeposit(isoDepositLabels_[j].first, 
+ 			       (*deposits[j])[candPtrForGenMatch]);
+    }
+    else {
+      anElectron.setIsoDeposit(isoDepositLabels_[j].first, 
+ 			       (*deposits[j])[candPtrForIsolation]);
+    }
   }
   
   for (size_t j = 0; j<isolationValues.size(); ++j) {
-    anElectron.setIsolation(isolationValueLabels_[j].first,
-			    (*isolationValues[j])[candPtrForIsolation]);
+    if( isolationValueLabels_[j].first==pat::TrackIso ||
+	isolationValueLabels_[j].first==pat::EcalIso ||
+	isolationValueLabels_[j].first==pat::HcalIso ) {
+      anElectron.setIsolation(isolationValueLabels_[j].first,
+ 			      (*isolationValues[j])[candPtrForGenMatch]);
+    }
+    else {
+      anElectron.setIsolation(isolationValueLabels_[j].first,
+ 			      (*isolationValues[j])[candPtrForIsolation]);
+    }
   }
 }
 
@@ -527,7 +544,7 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
   isoDepositsPSet.addOptional<edm::InputTag>("tracker"); 
   isoDepositsPSet.addOptional<edm::InputTag>("ecal");
   isoDepositsPSet.addOptional<edm::InputTag>("hcal");
-  isoDepositsPSet.addOptional<edm::InputTag>("particle");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfAllParticles");
   isoDepositsPSet.addOptional<edm::InputTag>("pfChargedHadrons");
   isoDepositsPSet.addOptional<edm::InputTag>("pfNeutralHadrons");
   isoDepositsPSet.addOptional<edm::InputTag>("pfPhotons");
@@ -539,7 +556,7 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
   isolationValuesPSet.addOptional<edm::InputTag>("tracker"); 
   isolationValuesPSet.addOptional<edm::InputTag>("ecal");
   isolationValuesPSet.addOptional<edm::InputTag>("hcal");
-  isolationValuesPSet.addOptional<edm::InputTag>("particle");
+  isolationValuesPSet.addOptional<edm::InputTag>("pfAllParticles");
   isolationValuesPSet.addOptional<edm::InputTag>("pfChargedHadrons");
   isolationValuesPSet.addOptional<edm::InputTag>("pfNeutralHadrons");
   isolationValuesPSet.addOptional<edm::InputTag>("pfPhotons");
