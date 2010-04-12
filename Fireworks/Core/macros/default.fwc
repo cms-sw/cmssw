@@ -895,174 +895,174 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("topView3D Lego", topaaaa);
+  topaaa.addKeyValue("topViewLego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("-0.441787");
-  topaaa.addKeyValue("cameraMatrix03D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix0Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("-0.525262");
-  topaaa.addKeyValue("cameraMatrix13D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix1Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0.727274");
-  topaaa.addKeyValue("cameraMatrix23D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix2Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix33D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix3Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0.765299");
-  topaaa.addKeyValue("cameraMatrix43D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix4Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("-0.643675");
-  topaaa.addKeyValue("cameraMatrix53D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix5Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix63D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix6Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix73D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix7Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0.468127");
-  topaaa.addKeyValue("cameraMatrix83D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix8Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0.55658");
-  topaaa.addKeyValue("cameraMatrix93D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix9Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0.686349");
-  topaaa.addKeyValue("cameraMatrix103D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix10Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix113D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix11Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("-11.1838");
-  topaaa.addKeyValue("cameraMatrix123D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix12Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("-13.5005");
-  topaaa.addKeyValue("cameraMatrix133D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix13Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("20.8196");
-  topaaa.addKeyValue("cameraMatrix143D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix14Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("1");
-  topaaa.addKeyValue("cameraMatrix153D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrix15Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("-1");
-  topaaa.addKeyValue("cameraMatrixBase03D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase0Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase13D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase1Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase23D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase2Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase33D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase3Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase43D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase4Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("-1");
-  topaaa.addKeyValue("cameraMatrixBase53D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase5Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase63D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase6Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase73D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase7Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase83D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase8Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase93D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase9Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("1");
-  topaaa.addKeyValue("cameraMatrixBase103D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase10Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase113D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase11Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase123D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase12Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase133D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase13Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrixBase143D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase14Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("1");
-  topaaa.addKeyValue("cameraMatrixBase153D Lego", topaaaa);
+  topaaa.addKeyValue("cameraMatrixBase15Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("17.9601");
-  topaaa.addKeyValue("3D Lego FOV", topaaaa);
+  topaaa.addKeyValue("Lego FOV", topaaaa);
 }
-  topaa.addKeyValue("3D Lego", topaaa);
+  topaa.addKeyValue("Lego", topaaa);
 }
 {
   FWConfiguration topaaa(2);
@@ -1849,7 +1849,7 @@ FWConfiguration* fwConfig() {
   topaaaa.addValue("0");
   topaaa.addKeyValue("undocked", topaaaa);
 }
-  topaa.addKeyValue("3D Lego", topaaa);
+  topaa.addKeyValue("Lego", topaaa);
 }
 {
   FWConfiguration topaaa(2);

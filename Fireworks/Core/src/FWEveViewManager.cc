@@ -256,7 +256,7 @@ FWEveViewManager::createGlimpseView(TEveWindowSlot* iParent)
 FWEveView*
 FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
 {
-   view->setGeometry(context());
+   view->setContext(context());
 
    // printf("new view %s added \n", view->typeName().c_str());
    int typeId = view->typeId();

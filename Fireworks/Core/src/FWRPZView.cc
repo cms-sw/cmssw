@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.1 2010/04/09 14:52:09 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.2 2010/04/09 17:23:57 amraktad Exp $
 //
 
 // system include files
@@ -16,11 +16,9 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 
-#define private public
-#include "TGLOrthoCamera.h"
-#undef private
 #include "TClass.h"
 #include "TGLViewer.h"
+#include "TGLScenePad.h"
 
 #include "TEveManager.h"
 #include "TEveElement.h"
@@ -115,8 +113,10 @@ FWRPZView::~FWRPZView()
 //
 
 void
-FWRPZView::setGeometry(fireworks::Context& context)
+FWRPZView::setContext(fireworks::Context& context)
 {
+   geoScene()->GetGLScene()->SetSelectable(kTRUE);
+
    // detector
    FWRPZViewGeometry* geo = new FWRPZViewGeometry(context.getGeom(), context.colorManager());
    m_projMgr->ImportElements(geo->getGeoElements(typeId()), geoScene());
@@ -139,10 +139,9 @@ FWRPZView::setGeometry(fireworks::Context& context)
       calo3d->SetBarrelRadius(129);
       calo3d->SetEndCapPos(310);
       calo3d->SetFrameTransparency(80);
-      gEve->AddElement(calo3d);
    }
 
-   m_projMgr->ImportElements(calo3d, geoScene());
+   m_projMgr->ImportElements(calo3d, eventScene());
 }
 
 void

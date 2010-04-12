@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.23 2010/04/06 20:00:34 amraktad Exp $
+// $Id: FWEveLegoView.h,v 1.24 2010/04/09 17:23:57 amraktad Exp $
 //
 
 // system include files
@@ -43,7 +43,7 @@ public:
    FWEveLegoView(TEveWindowSlot*, TEveScene*);
    virtual ~FWEveLegoView();
 
-   virtual void setGeometry(fireworks::Context&);
+   virtual void setContext(fireworks::Context&);
    virtual void setFrom(const FWConfiguration&);
 
    // ---------- const member functions ---------------------

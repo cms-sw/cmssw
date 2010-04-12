@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.1 2010/04/09 14:52:09 amraktad Exp $
+// $Id: FWRPZView.h,v 1.2 2010/04/09 17:23:57 amraktad Exp $
 //
 
 // system include files
@@ -47,7 +47,7 @@ public:
    virtual void addTo(FWConfiguration&) const;
 
    // ---------- member functions ---------------------------
-   virtual void setGeometry(fireworks::Context&);
+   virtual void setContext(fireworks::Context&);
    virtual void setFrom(const FWConfiguration&);
 
    //returns the new element created from this import

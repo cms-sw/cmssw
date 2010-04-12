@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.74 2010/04/09 17:23:57 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.75 2010/04/09 19:49:28 amraktad Exp $
 //
 
 // system include files
@@ -23,6 +23,7 @@
 #include "TGLWidget.h"
 
 #include "TEveElement.h"
+#include "TEveManager.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "TEveCalo.h"
@@ -63,6 +64,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveScene* eventScene) :
 {
    setType(FWViewType::kLego);
    setEventScene(eventScene);
+   viewer()->AddScene(eventScene);
 
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
 
@@ -78,7 +80,7 @@ FWEveLegoView::~FWEveLegoView()
 {
 }
 
-void FWEveLegoView::setGeometry(fireworks::Context& context)
+void FWEveLegoView::setContext(fireworks::Context& context)
 { 
    // get lego if exist
    TEveCaloData* data = context.getCaloData();
@@ -98,6 +100,7 @@ void FWEveLegoView::setGeometry(fireworks::Context& context)
       m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::Pi());
       m_lego->Set2DMode(TEveCaloLego::kValSize);
       m_lego->SetDrawNumberCellPixels(20);
+      gEve->AddElement(m_lego);
       data->GetEtaBins()->SetTitleFont(120);
       data->GetEtaBins()->SetTitle("h");
       data->GetPhiBins()->SetTitleFont(120);
@@ -119,8 +122,8 @@ void FWEveLegoView::setGeometry(fireworks::Context& context)
       boundaries->SetLineColor(context.colorManager()->geomColor(kFWLegoBoundraryColorIndex));
       m_lego->AddElement(boundaries);
    }
-   geoScene()->AddElement(m_lego);
-   
+   eventScene()->AddElement(m_lego);
+
    FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL());
    eh->SetLego(m_lego);     
    viewerGL()->SetEventHandler(eh);
@@ -186,27 +189,30 @@ FWEveLegoView::setFrom(const FWConfiguration& iFrom)
 {
    FWEveView::setFrom(iFrom);
 
-   bool topView = viewerGL()->CurrentCamera().IsOrthographic();
-   std::string stateName("topView"); stateName += typeName();
-   assert( 0!=iFrom.valueForKey(stateName) );
-   std::istringstream s(iFrom.valueForKey(stateName)->value());
-   s >> topView;
-   
-   if (topView)
+   if (iFrom.version() > 1)
    {
-      viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-      TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(viewerGL()->RefCamera(TGLViewer::kCameraOrthoXOY)) );
-      if (iFrom.version() > 1 )  setFromOrthoCamera(camera, iFrom);
+      bool topView = true;
+      std::string stateName("topView"); stateName += typeName();
+      assert( 0 != iFrom.valueForKey(stateName));
+      std::istringstream s(iFrom.valueForKey(stateName)->value());
+      s >> topView;
+   
+      if (topView)
+      {
+         viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+         TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(viewerGL()->RefCamera(TGLViewer::kCameraOrthoXOY)) );
+         setFromOrthoCamera(camera, iFrom);
+      }
+      else
+      {
+         viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+         TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->RefCamera(TGLViewer::kCameraPerspXOY)));
+         setFromPerspectiveCamera(camera, typeName(), iFrom);
+      }
    }
    else
    {
-      viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
-      TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->RefCamera(TGLViewer::kCameraPerspXOY)));
-      if (iFrom.version() > 1 ) setFromPerspectiveCamera(camera, typeName(), iFrom);
-   }
-
-
-   {
+      // reset camera if version not supported    
       viewerGL()->ResetCamerasAfterNextUpdate();
    }
    

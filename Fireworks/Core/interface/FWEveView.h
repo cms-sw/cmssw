@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.4 2010/04/06 20:00:35 amraktad Exp $
+// $Id: FWEveView.h,v 1.5 2010/04/09 17:23:57 amraktad Exp $
 //
 
 
@@ -57,7 +57,7 @@ public:
    virtual void setBackgroundColor(Color_t);
    virtual void eventEnd();
 
-   virtual void setGeometry(fireworks::Context&) {}
+   virtual void setContext(fireworks::Context&) {}
 
    // ---------- const member functions --------------------- 
 

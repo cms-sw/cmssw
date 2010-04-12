@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.194 2010/04/07 16:56:20 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.195 2010/04/08 21:39:38 amraktad Exp $
 
 //
 
@@ -1110,7 +1110,9 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       {
          float weight = atof((areaIt->second).valueForKey("weight")->value().c_str());
          TEveWindowSlot* slot = ( m_viewMap.size() || (primSlot == 0) ) ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot;
-         ViewMap_i lastViewIt = createView(it->first, slot);
+         std::string name = it->first;
+         if (name == "3D Lego") name = FWViewType::kLegoName; 	 
+         ViewMap_i lastViewIt = createView(name, slot);
          lastViewIt->second->setFrom(it->second);
 
          bool  undocked = atof((areaIt->second).valueForKey("undocked")->value().c_str());
@@ -1130,7 +1132,10 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    else
    {  // create views with same weight in old version
       for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
-         createView(it->first, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot);
+         std::string name = it->first; 	          createView(it->first, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot);
+         if (name == "3D Lego") name = FWViewType::kLegoName; 	 
+         createView(name, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot); 	 
+
          ViewMap_i lastViewIt = m_viewMap.end(); lastViewIt--;
          lastViewIt->second->setFrom(it->second);
       }

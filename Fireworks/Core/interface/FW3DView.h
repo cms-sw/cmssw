@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr  7 14:41:26 CEST 2010
-// $Id: FW3DView.h,v 1.2 2010/04/09 17:23:57 amraktad Exp $
+// $Id: FW3DView.h,v 1.20 2010/04/12 10:09:15 amraktad Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@ public:
    FW3DView(TEveWindowSlot*, TEveScene*);
    virtual ~FW3DView();
 
-   virtual void setGeometry(fireworks::Context&);
+   virtual void setContext(fireworks::Context&);
    
    // ---------- const member functions ---------------------
 

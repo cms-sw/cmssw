@@ -8,15 +8,15 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.2 2010/04/09 17:23:57 amraktad Exp $
+// $Id: FW3DView.cc,v 1.34 2010/04/12 10:09:17 amraktad Exp $
 //
 
 // system include files
 
 // user include files
+#include "TGLScenePad.h"
 #include "TEveCalo.h"
 #include "TEveScene.h"
-// #include "TEveManager.h"
 
 #include "Fireworks/Core/interface/FW3DView.h"
 #include "Fireworks/Core/interface/Context.h"
@@ -63,8 +63,10 @@ FW3DView::~FW3DView()
 //
 // member functions
 //
-void FW3DView::setGeometry(fireworks::Context& context)
+void FW3DView::setContext(fireworks::Context& context)
 { 
+   FW3DViewBase::setContext(context);
+  
    TEveCaloData* data = context.getCaloData();
    for (TEveElement::List_i i = data->BeginChildren(); i!= data->EndChildren(); ++i)
    {
@@ -86,7 +88,7 @@ void FW3DView::setGeometry(fireworks::Context& context)
       m_calo->SetFrameTransparency(80);
    }
 
-   geoScene()->AddElement(m_calo);
+   eventScene()->AddElement(m_calo);
 }
 //
 // const member functions
