@@ -1,11 +1,11 @@
 #ifndef Fireworks_Core_FW3DEnergyView_h
-#define Fireworks_Core_FW3DEnergyView_h
+#define Fireworks_Core_FW3DView_h
 // -*- C++ -*-
 //
 // Package:     Core
-// Class  :     FW3DEnergyView
+// Class  :     FW3DView
 // 
-/**\class FW3DEnergyView FW3DEnergyView.h Fireworks/Core/interface/FW3DEnergyView.h
+/**\class FW3DView FW3DView.h Fireworks/Core/interface/FW3DView.h
 
  Description: [one line class summary]
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr  7 14:41:26 CEST 2010
-// $Id: FW3DEnergyView.h,v 1.1 2010/04/07 16:56:20 amraktad Exp $
+// $Id: FW3DView.h,v 1.2 2010/04/09 17:23:57 amraktad Exp $
 //
 
 // system include files
@@ -27,11 +27,11 @@
 // forward declarations
 class TEveCalo3D;
 
-class FW3DEnergyView: public FW3DViewBase
+class FW3DView: public FW3DViewBase
 {
 public:
-   FW3DEnergyView(TEveWindowSlot*, TEveScene*);
-   virtual ~FW3DEnergyView();
+   FW3DView(TEveWindowSlot*, TEveScene*);
+   virtual ~FW3DView();
 
    virtual void setGeometry(fireworks::Context&);
    
@@ -42,9 +42,9 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FW3DEnergyView(const FW3DEnergyView&); // stop default
+   FW3DView(const FW3DView&); // stop default
 
-   const FW3DEnergyView& operator=(const FW3DEnergyView&); // stop default
+   const FW3DView& operator=(const FW3DView&); // stop default
 
    // ---------- member data --------------------------------
    TEveCalo3D* m_calo;

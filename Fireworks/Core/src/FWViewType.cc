@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Mar 26 12:25:02 CET 2010
-// $Id: FWViewType.cc,v 1.3 2010/04/07 17:11:09 amraktad Exp $
+// $Id: FWViewType.cc,v 1.4 2010/04/08 21:40:37 amraktad Exp $
 //
 
 // system include files
@@ -28,7 +28,7 @@
 
 std::string   FWViewType::kRhoPhiName   = "Rho Phi";
 std::string   FWViewType::kRhoZName     = "Rho Z";
-std::string   FWViewType::k3DRecHitName = "iSpy";
+std::string   FWViewType::kISpyName = "iSpy";
 std::string   FWViewType::k3DEName      = "3D";
 std::string   FWViewType::kLegoName     = "3D Lego";
 std::string   FWViewType::kGlimpseName  = "Glimpse";
@@ -82,14 +82,14 @@ FWViewType::idToName(int id)
 
    switch(id)
    {
-      case k3DRecHit:
-         return  k3DRecHitName;
-      case k3DE:
-         return  k3DEName;
       case kRhoPhi:
          return  kRhoPhiName;
       case kRhoZ:
          return  kRhoZName;
+      case kISpy:
+         return  kISpyName;
+      case k3DE:
+         return  k3DEName;
       case kGlimpse:
          return  kGlimpseName;
       case kLego:

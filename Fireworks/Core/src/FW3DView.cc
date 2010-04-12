@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     cmsShow36
-// Class  :     FW3DEnergyView
+// Class  :     FW3DView
 // 
 // Implementation:
 //     [Notes on implementation]
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DEnergyView.cc,v 1.1 2010/04/07 16:56:20 amraktad Exp $
+// $Id: FW3DView.cc,v 1.2 2010/04/09 17:23:57 amraktad Exp $
 //
 
 // system include files
@@ -18,7 +18,7 @@
 #include "TEveScene.h"
 // #include "TEveManager.h"
 
-#include "Fireworks/Core/interface/FW3DEnergyView.h"
+#include "Fireworks/Core/interface/FW3DView.h"
 #include "Fireworks/Core/interface/Context.h"
 
 //
@@ -32,29 +32,29 @@
 //
 // constructors and destructor
 //
-FW3DEnergyView::FW3DEnergyView(TEveWindowSlot* w, TEveScene* s):
+FW3DView::FW3DView(TEveWindowSlot* w, TEveScene* s):
    FW3DViewBase(w, s),
    m_calo(0)
 {
    setType(FWViewType::k3DE);
 }
 
-// FW3DEnergyView::FW3DEnergyView(const FW3DEnergyView& rhs)
+// FW3DView::FW3DView(const FW3DView& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FW3DEnergyView::~FW3DEnergyView()
+FW3DView::~FW3DView()
 {
 }
 
 //
 // assignment operators
 //
-// const FW3DEnergyView& FW3DEnergyView::operator=(const FW3DEnergyView& rhs)
+// const FW3DView& FW3DView::operator=(const FW3DView& rhs)
 // {
 //   //An exception safe implementation is
-//   FW3DEnergyView temp(rhs);
+//   FW3DView temp(rhs);
 //   swap(rhs);
 //
 //   return *this;
@@ -63,7 +63,7 @@ FW3DEnergyView::~FW3DEnergyView()
 //
 // member functions
 //
-void FW3DEnergyView::setGeometry(fireworks::Context& context)
+void FW3DView::setGeometry(fireworks::Context& context)
 { 
    TEveCaloData* data = context.getCaloData();
    for (TEveElement::List_i i = data->BeginChildren(); i!= data->EndChildren(); ++i)

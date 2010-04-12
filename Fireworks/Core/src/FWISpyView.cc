@@ -1,20 +1,20 @@
 // -*- C++ -*-
 //
 // Package:     cmsShow36
-// Class  :     FW3DRecHitView
+// Class  :     FWISpyView
 // 
 // Implementation:
 //     [Notes on implementation]
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Wed Apr  7 14:40:31 CEST 2010
-// $Id$
+// $Id: FWISpyView.cc,v 1.1 2010/04/07 16:56:20 amraktad Exp $
 //
 
 // system include files
 
 // user include files
-#include "Fireworks/Core/interface/FW3DRecHitView.h"
+#include "Fireworks/Core/interface/FWISpyView.h"
 
 
 //
@@ -28,28 +28,28 @@
 //
 // constructors and destructor
 //
-FW3DRecHitView::FW3DRecHitView(TEveWindowSlot* w, TEveScene* s):
+FWISpyView::FWISpyView(TEveWindowSlot* w, TEveScene* s):
    FW3DViewBase(w, s)
 {
-   setType(FWViewType::k3DRecHit);
+   setType(FWViewType::kISpy);
 }
 
-// FW3DRecHitView::FW3DRecHitView(const FW3DRecHitView& rhs)
+// FWISpyView::FWISpyView(const FWISpyView& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FW3DRecHitView::~FW3DRecHitView()
+FWISpyView::~FWISpyView()
 {
 }
 
 //
 // assignment operators
 //
-// const FW3DRecHitView& FW3DRecHitView::operator=(const FW3DRecHitView& rhs)
+// const FWISpyView& FWISpyView::operator=(const FWISpyView& rhs)
 // {
 //   //An exception safe implementation is
-//   FW3DRecHitView temp(rhs);
+//   FWISpyView temp(rhs);
 //   swap(rhs);
 //
 //   return *this;

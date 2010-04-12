@@ -1,11 +1,11 @@
-#ifndef Fireworks_Core_FW3DRecHitView_h
-#define Fireworks_Core_FW3DRecHitView_h
+#ifndef Fireworks_Core_FWISpyView_h
+#define Fireworks_Core_FWISpyView_h
 // -*- C++ -*-
 //
 // Package:     Core
-// Class  :     FW3DRecHitView
+// Class  :     FWISpyView
 // 
-/**\class FW3DRecHitView FW3DRecHitView.h Fireworks/Core/interface/FW3DRecHitView.h
+/**\class FWISpyView FWISpyView.h Fireworks/Core/interface/FWISpyView.h
 
  Description: [one line class summary]
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr  7 14:41:32 CEST 2010
-// $Id$
+// $Id: FWISpyView.h,v 1.1 2010/04/07 16:56:20 amraktad Exp $
 //
 
 // system include files
@@ -26,12 +26,12 @@
 
 // forward declarations
 
-class FW3DRecHitView : public FW3DViewBase
+class FWISpyView : public FW3DViewBase
 {
 
 public:
-   FW3DRecHitView(TEveWindowSlot*, TEveScene*);
-   virtual ~FW3DRecHitView();
+   FWISpyView(TEveWindowSlot*, TEveScene*);
+   virtual ~FWISpyView();
 
    // ---------- const member functions ---------------------
 
@@ -40,9 +40,9 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FW3DRecHitView(const FW3DRecHitView&); // stop default
+   FWISpyView(const FWISpyView&); // stop default
 
-   const FW3DRecHitView& operator=(const FW3DRecHitView&); // stop default
+   const FWISpyView& operator=(const FWISpyView&); // stop default
 
    // ---------- member data --------------------------------
 

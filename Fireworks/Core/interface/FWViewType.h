@@ -16,20 +16,20 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Mar 22 12:08:40 CET 2010
-// $Id: FWViewType.h,v 1.1 2010/04/06 20:00:35 amraktad Exp $
+// $Id: FWViewType.h,v 1.2 2010/04/07 16:56:20 amraktad Exp $
 //
 #include <string>
 
 class  FWViewType
 {
 public:
-   enum EType { kRhoPhi, kRhoZ, k3DRecHit, k3DE, kLego, kGlimpse, kSize };
+   enum EType { kRhoPhi, kRhoZ, kISpy, k3DE, kLego, kGlimpse, kSize };
 
    enum EBit
    {
       kRhoPhiBit   = 1 << kRhoPhi,
       kRhoZBit     = 1 << kRhoZ,
-      k3DRecHitBit = 1 << k3DRecHit,
+      kISpyBit = 1 << kISpy,
       k3DEBit      = 1 << k3DE,
       kLegoBit     = 1 << kLego,
       kGlimpseBit  = 1 << kGlimpse
@@ -37,11 +37,11 @@ public:
 
    // shorcuts
    const static int kRPZBit = kRhoPhiBit | kRhoZBit;
-   const static int k3DBit  = k3DRecHitBit | k3DEBit;
+   const static int k3DBit  = kISpyBit | k3DEBit;
 
    static  std::string  kRhoPhiName;
    static  std::string  kRhoZName;
-   static  std::string  k3DRecHitName;
+   static  std::string  kISpyName;
    static  std::string  k3DEName;
    static  std::string  kLegoName;
    static  std::string  kGlimpseName;

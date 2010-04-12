@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:45 CET 2010
-// $Id: FWEveViewManager.h,v 1.1 2010/04/06 20:00:35 amraktad Exp $
+// $Id: FWEveViewManager.h,v 1.2 2010/04/07 16:56:20 amraktad Exp $
 //
 
 // system include files
@@ -81,8 +81,8 @@ private:
    FWEveViewManager(const FWEveViewManager&); // stop default
    const FWEveViewManager& operator=(const FWEveViewManager&); // stop default
 
-   FWViewBase* create3DRecHitView  (TEveWindowSlot* iParent);
-   FWViewBase* create3DEView       (TEveWindowSlot* iParent);
+   FWViewBase* createISpyView  (TEveWindowSlot* iParent);
+   FWViewBase* create3DView       (TEveWindowSlot* iParent);
    FWViewBase* createLegoView      (TEveWindowSlot* iParent);
    FWViewBase* createGlimpseView   (TEveWindowSlot* iParent);
    FWViewBase* createRhoPhiView    (TEveWindowSlot* iParent);

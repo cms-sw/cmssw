@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.5 2010/04/09 14:52:09 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.6 2010/04/09 17:23:57 amraktad Exp $
 //
 
 // system include files
@@ -35,8 +35,8 @@
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWProxyBuilderFactory.h"
 
-#include "Fireworks/Core/interface/FW3DRecHitView.h"
-#include "Fireworks/Core/interface/FW3DEnergyView.h"
+#include "Fireworks/Core/interface/FWISpyView.h"
+#include "Fireworks/Core/interface/FW3DView.h"
 #include "Fireworks/Core/interface/FWGlimpseView.h"
 #include "Fireworks/Core/interface/FWEveLegoView.h"
 #include "Fireworks/Core/interface/FWRPZView.h"
@@ -106,8 +106,8 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
    FWGUIManager::ViewBuildFunctor f[FWViewType::kSize];
    f[FWViewType::kRhoPhi   ] = boost::bind(&FWEveViewManager::createRhoPhiView   , this, _1);
    f[FWViewType::kRhoZ     ] = boost::bind(&FWEveViewManager::createRhoZView     , this, _1);
-   f[FWViewType::k3DRecHit ] = boost::bind(&FWEveViewManager::create3DRecHitView , this, _1);
-   f[FWViewType::k3DE      ] = boost::bind(&FWEveViewManager::create3DEView      , this, _1);
+   f[FWViewType::kISpy     ] = boost::bind(&FWEveViewManager::createISpyView     , this, _1);
+   f[FWViewType::k3DE      ] = boost::bind(&FWEveViewManager::create3DView       , this, _1);
    f[FWViewType::kLego     ] = boost::bind(&FWEveViewManager::createLegoView     , this, _1);
    f[FWViewType::kGlimpse  ] = boost::bind(&FWEveViewManager::createGlimpseView  , this, _1);
 
@@ -205,18 +205,18 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
 //______________________________________________________________________________
 
 FWViewBase*
-FWEveViewManager::create3DRecHitView(TEveWindowSlot* iParent)
+FWEveViewManager::createISpyView(TEveWindowSlot* iParent)
 {
-   FWViewType::EType t = FWViewType::k3DRecHit;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FW3DRecHitView(iParent, m_scenes[t])));
+   FWViewType::EType t = FWViewType::kISpy;
+   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWISpyView(iParent, m_scenes[t])));
    return finishViewCreate(m_views[t].back());   
 }
 
 FWViewBase*
-FWEveViewManager::create3DEView(TEveWindowSlot* iParent)
+FWEveViewManager::create3DView(TEveWindowSlot* iParent)
 {
    FWViewType::EType t = FWViewType::k3DE;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FW3DEnergyView(iParent, m_scenes[t])));
+   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FW3DView(iParent, m_scenes[t])));
    return finishViewCreate(m_views[t].back());   
 }
 
