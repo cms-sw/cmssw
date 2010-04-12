@@ -3,7 +3,7 @@
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
 #             11 September 2006
-#  $Id: addpkg,v 1.17 2009/10/22 12:40:26 muzaffar Exp $
+#  $Id: addpkg,v 1.18 2010/04/09 08:43:25 muzaffar Exp $
 #
 use strict;
 use warnings;
@@ -26,7 +26,7 @@ GetOptions("file|f=s" => \$file,
 #-- main start here
 
 my $cvsOpt="";
-my $tags=undef;
+my $reltags=undef;
 $cvsOpt="-Q" if ( defined $quiet);
 
 if( defined $doHelp )   {  usage(); exit 0;}
@@ -63,7 +63,6 @@ else{
     }
 
     # read in packages and tags from file
-    my %tags;
     open INFILE, "<$file";
 
     chdir("${localtop}/src");
@@ -196,9 +195,9 @@ sub addTag {
 #right tag
     $tagaction = "release";
     my $code=0;
-    if (!defined $tags){$tags=&readTags($taglist);}
-    foreach my $thepack (keys %$tags) {
-        my $thetag = $tags->{$thepack};
+    if (!defined $reltags){$reltags=&readTags($taglist);}
+    foreach my $thepack (keys %$reltags) {
+        my $thetag = $reltags->{$thepack};
 	(my $thesubsys,my $thesubpack)= split('/',$thepack);
 	if ( ($thepack eq $package) || ( ($isSubsystem==1) && ($thesubsys eq $package) ) ) { 
 	    $tagrel = $thetag; 
