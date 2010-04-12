@@ -196,6 +196,8 @@ def SetStyle():
     ROOT.gStyle.SetLineWidth(1)
     #ROOT.gStyle.SetLineStyleString(2,"[12 12]") // postscript dashes
 
+    ROOT.gStyle.SetMarkerSize(0.4)
+    
     # do not display any of the standard histogram decorations
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0) #("m")
@@ -523,7 +525,7 @@ if __name__ == '__main__':
     cvlist = []
 
     for ig in range(0,8):
-	cvlist.append( TCanvas(graphnamelist[ig],graphtitlelist[ig], 800, 600) )
+	cvlist.append( TCanvas(graphnamelist[ig],graphtitlelist[ig], 1800, 600) )
 	#graphlist.append( TGraphErrors( len(listbeam) ) )
         graphlist.append( TH1F("name","title",len(listbeam),0,len(listbeam)) )
         
@@ -580,7 +582,8 @@ if __name__ == '__main__':
 	graphlist[ig].GetYaxis().SetTitle(graphYaxis[ig])
         #graphlist[ig].Fit('pol1')
 	cvlist[ig].Update()
-        #cvlist[ig].Print(graphnamelist[ig]+".png")
+        cvlist[ig].SetGrid()
+        cvlist[ig].Print(graphnamelist[ig]+".png")
         if option.wait:
             raw_input( 'Press ENTER to continue\n ' )
         #graphlist[0].Print('all')
