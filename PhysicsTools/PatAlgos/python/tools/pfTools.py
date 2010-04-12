@@ -262,9 +262,7 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='IC5', postfix =
                         input,
                         jetIdLabel = algo,
                         doJTA=True,
-#FIXME b-tagging broken in 36X at the moment
-#it is missing some electron collection
-                        doBTagging=False,
+                        doBTagging=True,
                         jetCorrLabel=( algo, 'PF' ), 
                         doType1MET=False,
                         genJetCollection = genJetCollection,
