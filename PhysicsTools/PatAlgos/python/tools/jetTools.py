@@ -187,14 +187,14 @@ class RunBTagging(ConfigToolBase):
         ipTILabel = 'impactParameterTagInfos'     + label
         svTILabel = 'secondaryVertexTagInfos'     + label
         #nvTILabel = 'secondaryVertexNegativeTagInfos'     + label
-        seTILabel = 'softElectronTagInfos'        + label
+        #seTILabel = 'softElectronTagInfos'        + label
         smTILabel = 'softMuonTagInfos'            + label
     
         ## produce tag infos
         setattr( process, ipTILabel, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag(jtaLabel)) )
         setattr( process, svTILabel, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
         #setattr( process, nvTILabel, nbtag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
-        setattr( process, seTILabel, btag.softElectronTagInfos.clone(jets = jetCollection) )
+        #setattr( process, seTILabel, btag.softElectronTagInfos.clone(jets = jetCollection) )
         setattr( process, smTILabel, btag.softMuonTagInfos.clone(jets = jetCollection) )
 
         ## make VInputTag from strings
@@ -209,15 +209,16 @@ class RunBTagging(ConfigToolBase):
         #setattr( process, 'simpleSecondaryVertexNegativeBJetTags'+label, nbtag.simpleSecondaryVertexNegativeBJetTags.clone(tagInfos = vit(nvTILabel)) )
         setattr( process, 'combinedSecondaryVertexBJetTags'+label, btag.combinedSecondaryVertexBJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
         setattr( process, 'combinedSecondaryVertexMVABJetTags'+label, btag.combinedSecondaryVertexMVABJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
-        setattr( process, 'softElectronByPtBJetTags'+label, btag.softElectronByPtBJetTags.clone(tagInfos = vit(seTILabel)) )
-        setattr( process, 'softElectronByIP3dBJetTags'+label, btag.softElectronByIP3dBJetTags.clone(tagInfos = vit(seTILabel)) )
+        #setattr( process, 'softElectronByPtBJetTags'+label, btag.softElectronByPtBJetTags.clone(tagInfos = vit(seTILabel)) )
+        #setattr( process, 'softElectronByIP3dBJetTags'+label, btag.softElectronByIP3dBJetTags.clone(tagInfos = vit(seTILabel)) )
         setattr( process, 'softMuonBJetTags'+label, btag.softMuonBJetTags.clone(tagInfos = vit(smTILabel)) )
         setattr( process, 'softMuonByPtBJetTags'+label, btag.softMuonByPtBJetTags.clone(tagInfos = vit(smTILabel)) )
         setattr( process, 'softMuonByIP3dBJetTags'+label, btag.softMuonByIP3dBJetTags.clone(tagInfos = vit(smTILabel)) )
         
         ## define vector of (output) labels
         labels = { 'jta'      : jtaLabel, 
-                   'tagInfos' : (ipTILabel,svTILabel,seTILabel,smTILabel), 
+                   #'tagInfos' : (ipTILabel,svTILabel,seTILabel,smTILabel),
+                   'tagInfos' : (ipTILabel,svTILabel,smTILabel), 
                    'jetTags'  : [ (x + label) for x in ('jetBProbabilityBJetTags',
                                                         'jetProbabilityBJetTags',
                                                         'trackCountingHighPurBJetTags',
@@ -226,8 +227,8 @@ class RunBTagging(ConfigToolBase):
                                                         #'simpleSecondaryVertexNegativeBJetTags',
                                                         'combinedSecondaryVertexBJetTags',
                                                         'combinedSecondaryVertexMVABJetTags',
-                                                        'softElectronByPtBJetTags',
-                                                        'softElectronByIP3dBJetTags',
+                                                        #'softElectronByPtBJetTags',
+                                                        #'softElectronByIP3dBJetTags',
                                                         'softMuonBJetTags',
                                                         'softMuonByPtBJetTags',
                                                         'softMuonByIP3dBJetTags'
@@ -504,7 +505,8 @@ class AddJetCollection(ConfigToolBase):
             if( jetCollection.__str__().find('PFJets')>=0 ):
                 print '================================================='
                 print 'Type1MET corrections are switched off for PFJets.'
-                print 'Users are recommened to use pfMET together with'
+                print 'of type %s%s.' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
+                print 'Users are recommened to use pfMET together with  '
                 print 'PFJets.'
                 print '================================================='            
                 doType1MET=False
@@ -704,9 +706,10 @@ class SwitchJetCollection(ConfigToolBase):
             if( jetCollection.__str__().find('PFJets')>=0 ):
                 print '================================================='
                 print 'Type1MET corrections are switched off for PFJets.'
-                print 'Users are recommened to use pfMET together with'
+                print 'of type %s%s.' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
+                print 'Users are recommened to use pfMET together with  '
                 print 'PFJets.'
-                print '================================================='            
+                print '================================================='                   
                 doType1MET=False
 
             ## redo the type1MET correction for the new jet collection
@@ -722,8 +725,8 @@ class SwitchJetCollection(ConfigToolBase):
                                           )
                              )
                 ## configure the type1MET correction the following muonMET
-                ## corrections have the corMetType1Icone5 as input and are
-                ## automatically correct  
+                ## corrections have the metJESCorAK5CaloJet as input and 
+                ## are automatically correct  
                 applyPostfix(process, "metJESCorAK5CaloJet", postfix).inputUncorJetsLabel = jetCollection.value()
                 applyPostfix(process, "metJESCorAK5CaloJet", postfix).corrector = '%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
         else:
