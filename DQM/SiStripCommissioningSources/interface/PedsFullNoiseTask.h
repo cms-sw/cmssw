@@ -36,6 +36,7 @@ class PedsFullNoiseTask : public CommissioningTask {
     CompactHistoSet noisehist_;
     TH2S * hist2d_;
     std::vector<int16_t> peds_;
+    std::vector<float> pedsfl_;
     // keeps track of whether desired number of events were skipped
     bool skipped_;
     // number of events to skip
@@ -50,6 +51,10 @@ class PedsFullNoiseTask : public CommissioningTask {
     uint16_t nstrips_;
     // whether to fill the old-style noise profile
     bool fillnoiseprofile_;
+    // for expert debugging only! - whether to use average instead of median CM
+    bool useavgcm_;
+    // for expert debugging only! - whether to use float pedestals instead of rounded int's
+    bool usefloatpeds_;
 
 };
 
