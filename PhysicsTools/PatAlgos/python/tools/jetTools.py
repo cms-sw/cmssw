@@ -369,7 +369,7 @@ class AddJetCollection(ConfigToolBase):
         jetIdLabel=self._parameters['jetIdLabel'].value
         standardAlgo=self._parameters['standardAlgo'].value
         standardType=self._parameters['standardType'].value
-     
+
         ## define common label for pre pat jet 
         ## creation steps in makePatJets    
         #label=standardAlgo+standardType
@@ -493,7 +493,7 @@ class AddJetCollection(ConfigToolBase):
                 raise ValueError, "In addJetCollection 'jetCorrLabel' must be set to 'None' (without quotes)"
             ## check for the correct format
             if type(jetCorrLabel) != type(('AK5','Calo')): 
-                raise ValueError, "In switchJetCollection 'jetCorrLabel' must be 'None', or of type ('Algo','Type')"
+                raise ValueError, "In addJetCollection 'jetCorrLabel' must be 'None', or of type ('Algo','Type')"
 
             ## add clone of jetCorrFactors
             addClone('patJetCorrFactors', jetSource = jetCollection)
@@ -513,19 +513,18 @@ class AddJetCollection(ConfigToolBase):
             if (doType1MET):
                 ## in case there is no jet correction service in the paths add it
                 ## as L2L3 if possible, as combined from L2 and L3 otherwise
-                if not hasattr( process, 'L2L3JetCorrector%s%s' % jetCorrLabel ):
-                    setattr( process, 
-                             'L2L3JetCorrector%s%s' % jetCorrLabel, 
+                if not hasattr( process, '%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]) ):
+                    setattr( process, '%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]),
                              cms.ESSource("JetCorrectionServiceChain",
-                                          correctors = cms.vstring('L2RelativeJetCorrector%s%s' % jetCorrLabel,
-                                                                   'L3AbsoluteJetCorrector%s%s' % jetCorrLabel),
-                                          label= cms.string('L2L3JetCorrector%s%s' % jetCorrLabel)
+                                          correctors = cms.vstring('%s%sL2Relative' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]),
+                                                                   '%s%sL3Absolute' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
+                                                                   )
                                           )
                              )
                 ## add a clone of the type1MET correction
                 ## and the following muonMET correction  
                 addClone('metJESCorAK5CaloJet', inputUncorJetsLabel = jetCollection.value(),
-                         corrector = cms.string('L2L3JetCorrector%s%s' % jetCorrLabel)
+                         corrector = cms.string('%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]))
                          )
                 addClone('metJESCorAK5CaloJetMuons', uncorMETInputTag = cms.InputTag(newLabel('metJESCorAK5CaloJet')))
                 addClone('patMETs', metSource = cms.InputTag(newLabel('metJESCorAK5CaloJetMuons')))
@@ -714,20 +713,19 @@ class SwitchJetCollection(ConfigToolBase):
             if (doType1MET):
                 ## in case there is no jet correction service in the paths add it
                 ## as L2L3 if possible, as combined from L2 and L3 otherwise
-                if (not hasattr( process, 'L2L3JetCorrector%s%s' % jetCorrLabel )):
-                    setattr( process, 
-                             'L2L3JetCorrector%s%s' % jetCorrLabel, 
+                if not hasattr( process, '%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]) ):
+                    setattr( process, '%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]),
                              cms.ESSource("JetCorrectionServiceChain",
-                                          correctors = cms.vstring('L2RelativeJetCorrector%s%s' % jetCorrLabel,
-                                                                   'L3AbsoluteJetCorrector%s%s' % jetCorrLabel),
-                                          label = cms.string('L2L3JetCorrector%s%s' % jetCorrLabel)
+                                          correctors = cms.vstring('%s%sL2Relative' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]),
+                                                                   '%s%sL3Absolute' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
+                                                                   )
                                           )
                              )
                 ## configure the type1MET correction the following muonMET
                 ## corrections have the corMetType1Icone5 as input and are
                 ## automatically correct  
                 applyPostfix(process, "metJESCorAK5CaloJet", postfix).inputUncorJetsLabel = jetCollection.value()
-                applyPostfix(process, "metJESCorAK5CaloJet", postfix).corrector = 'L2L3JetCorrector%s%s' % jetCorrLabel
+                applyPostfix(process, "metJESCorAK5CaloJet", postfix).corrector = '%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
         else:
             ## remove the jetCorrFactors from the std sequence
 	    removeFromSequence(process, process.jetCorrFactors, postfix)
