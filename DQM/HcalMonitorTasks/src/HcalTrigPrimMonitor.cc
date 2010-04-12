@@ -186,28 +186,40 @@ HcalTrigPrimMonitor::processEvent (
             int emulFG(emul_tp->sample(i).fineGrain());
 
             int diff = abs(dataEt - emulEt);
+            bool fill_corr_ZS = true;
             
             if (diff == 0) {
                if (dataFG != emulFG) {
                   mismatchedFG_noZS = true;
                   problem_et[0][isHF][kMismatchedFG]->Fill(dataEt);
 
-                  mismatchedFG_ZS = true;
-                  problem_et[1][isHF][kMismatchedFG]->Fill(dataEt);
+                  // exclude mismatched FG when HF TP < ZS_AlarmThreshold
+                  if (isHF == 1 && dataEt <= ZSAlarmThreshold_.at(abs(ieta))) {
+                     // Do not fill ZS correlation plots.
+                     fill_corr_ZS = false;
+                  }
+                  else {
+                     mismatchedFG_ZS = true;
+                     problem_et[1][isHF][kMismatchedFG]->Fill(dataEt);
+                  }
                } // matched et but not fg
             }
             else {
                mismatchedEt_noZS = true;
-               if (diff > ZSAlarmThreshold_.at(abs(ieta))) 
+               if (diff > ZSAlarmThreshold_.at(abs(ieta))) {
                   mismatchedEt_ZS = true;
+                  fill_corr_ZS = false;
+               }
             } // mismatche et
 
             // Correlation plots
             tp_corr[0][isHF]->Fill(dataEt, emulEt);
             fg_corr[0][isHF]->Fill(dataFG, emulFG);
 
-            tp_corr[1][isHF]->Fill(dataEt, emulEt);
-            fg_corr[1][isHF]->Fill(dataFG, emulFG);
+            if (fill_corr_ZS) {
+               tp_corr[1][isHF]->Fill(dataEt, emulEt);
+               fg_corr[1][isHF]->Fill(dataFG, emulFG);
+            }
          }//for tp sample
 
          // Fill Problem Map and error counts
