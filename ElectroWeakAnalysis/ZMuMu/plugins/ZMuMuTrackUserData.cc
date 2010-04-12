@@ -31,22 +31,49 @@ private:
   void produce( edm::Event &, const edm::EventSetup & );
   
   InputTag src_,beamSpot_, primaryVertices_;
+  double ptThreshold_, etEcalThreshold_, etHcalThreshold_ ,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_;
   double alpha_, beta_; 
   template<typename T>
-  double isolation(const T & t, double alpha, double beta, bool relIso);
+  vector<double> isolation(const T & t, double ptThreshold, double etEcalThreshold, double etHcalThreshold , double dRVetoTrk, double dRTrk, double dREcal , double dRHcal,  double alpha, double beta);
+
 };
 
 template<typename T>
-double ZMuMuTrackUserData::isolation(const T & t, double alpha, double beta, bool relIso = false) {
+vector<double> ZMuMuTrackUserData::isolation(const T & t, double ptThreshold, double etEcalThreshold, double etHcalThreshold , double dRVetoTrk, double dRTrk, double dREcal , double dRHcal,  double alpha, double beta) {
 
-  double isovalueTrk  = t.trackIso();
-  double isovalueEcal = t.ecalIso();
-  double isovalueHcal = t.hcalIso();
+  vector<double> iso;
+  const pat::IsoDeposit * trkIso = t.isoDeposit(pat::TrackIso);
+  const pat::IsoDeposit * ecalIso = t.isoDeposit(pat::EcalIso);
+  const pat::IsoDeposit * hcalIso = t.isoDeposit(pat::HcalIso);  
+  
+  Direction dir = Direction(t.eta(), t.phi());
+
+   
+  pat::IsoDeposit::AbsVetos vetosTrk;
+  vetosTrk.push_back(new ConeVeto( dir, dRVetoTrk ));
+  vetosTrk.push_back(new ThresholdVeto( ptThreshold ));
+  
+  pat::IsoDeposit::AbsVetos vetosEcal;
+  vetosEcal.push_back(new ConeVeto( dir, 0.));
+  vetosEcal.push_back(new ThresholdVeto( etEcalThreshold ));
+  
+  pat::IsoDeposit::AbsVetos vetosHcal;
+  vetosHcal.push_back(new ConeVeto( dir, 0. ));
+  vetosHcal.push_back(new ThresholdVeto( etHcalThreshold ));
+  
+  double isovalueTrk = (trkIso->sumWithin(dRTrk,vetosTrk));
+  double isovalueEcal = (ecalIso->sumWithin(dREcal,vetosEcal));
+  double isovalueHcal = (hcalIso->sumWithin(dRHcal,vetosHcal));
+
+  iso.push_back(isovalueTrk);
+  iso.push_back(isovalueEcal);
+  iso.push_back(isovalueHcal);
 
   //double iso =  isovalueTrk + isovalueEcal + isovalueHcal;
-  double iso = alpha*( ((1+beta)/2*isovalueEcal) + ((1-beta)/2*isovalueHcal) ) + ((1-alpha)*isovalueTrk);
+  double combIso = alpha*( ((1+beta)/2*isovalueEcal) + ((1-beta)/2*isovalueHcal) ) + ((1-alpha)*isovalueTrk);
   // inserire anche questo nell'ntupla
-  if(relIso) iso /= t.pt();
+  double relIso = combIso /= t.pt();
+  iso.push_back(relIso);
   return iso;
 }
 
@@ -54,8 +81,15 @@ ZMuMuTrackUserData::ZMuMuTrackUserData( const ParameterSet & cfg ):
   src_( cfg.getParameter<InputTag>( "src" ) ),
   beamSpot_(cfg.getParameter<InputTag>( "beamSpot" ) ),
   primaryVertices_(cfg.getParameter<InputTag>( "primaryVertices" ) ),
+  ptThreshold_(cfg.getParameter<double >("ptThreshold") ),
+  etEcalThreshold_(cfg.getParameter<double >("etEcalThreshold") ),
+  etHcalThreshold_(cfg.getParameter<double >("etHcalThreshold") ),
+  dRVetoTrk_(cfg.getParameter<double >("dRVetoTrk") ),
+  dRTrk_(cfg.getParameter<double >("dRTrk") ),
+  dREcal_(cfg.getParameter<double >("dREcal") ),
+  dRHcal_(cfg.getParameter<double >("dRHcal") ),
   alpha_(cfg.getParameter<double>("alpha") ),
-    beta_(cfg.getParameter<double>("beta") ){
+  beta_(cfg.getParameter<double>("beta") ){
   produces<std::vector<pat::GenericParticle> >();
 }
 
@@ -73,10 +107,12 @@ void ZMuMuTrackUserData::produce( Event & evt, const EventSetup & ) {
   auto_ptr<vector<pat::GenericParticle> > tkColl( new vector<pat::GenericParticle> (*tracks) );
   for (unsigned int i = 0; i< tkColl->size();++i){
     pat::GenericParticle & tk = (*tkColl)[i];
-    float iso = isolation(tk,alpha_, beta_);
-    float relIso = isolation(tk,alpha_, beta_, true);
-    tk.setIsolation(pat::User1Iso, iso);
-    tk.setIsolation(pat::User2Iso, relIso);
+    vector<double> iso = isolation(tk,ptThreshold_, etEcalThreshold_, etHcalThreshold_ ,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_, alpha_, beta_);
+    tk.setIsolation(pat::User1Iso, iso[0]);
+    tk.setIsolation(pat::User2Iso, iso[1]);
+    tk.setIsolation(pat::User3Iso, iso[2]);
+    tk.setIsolation(pat::User4Iso, iso[3]);
+    tk.setIsolation(pat::User5Iso, iso[4]);
     float zDaudxyFromBS = 10000 ;
     float zDaudzFromBS = 10000;
     float zDaudxyFromPV = 10000;
