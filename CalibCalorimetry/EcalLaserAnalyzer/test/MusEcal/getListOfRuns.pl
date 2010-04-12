@@ -29,7 +29,7 @@ elsif( $lastRun eq "" )
 }
 
 
-open( LREDLIST,  ">${listdir}/runlist_Red_Laser")    || die "cannot open output file\n";
+open( LREDLIST,  ">${listdir}/runlist_IRed_Laser")    || die "cannot open output file\n";
 open( LBLUELIST, ">${listdir}/runlist_Blue_Laser")   || die "cannot open output file\n";
 open( TPLIST,    ">${listdir}/runlist_Test_Pulse")   || die "cannot open output file\n";
 
@@ -93,12 +93,12 @@ foreach my $rundir (@runsdir)
         if( $theLine =~ /MPGA_GAIN = (.*)/ ){ $mgpagain = $1; }
         if( $theLine =~ /MEM_GAIN  = (.*)/ ){ $memgain = $1; }
         if( $theLine =~ /blue laser/ ){ $curcolor = "BLUE"; }
-        if( $theLine =~ /red laser/ ){  $curcolor = "RED"; }
+        if( $theLine =~ /red laser/ ){  $curcolor = "IRED"; }
 
         if( $theLine =~ /events = (.*)/ ){
             if( $curcolor eq "BLUE" ){
                 $blueevents = $1;
-            }elsif ( $curcolor eq "RED" ){
+            }elsif ( $curcolor eq "IRED" ){
 		$redevents = $1;
             }
         }
@@ -106,14 +106,14 @@ foreach my $rundir (@runsdir)
         if( $theLine =~ /power  = (.*)/ ){
             if( $curcolor eq "BLUE" ){
                 $bluepower = $1;
-            }elsif ( $curcolor eq "RED" ){
+            }elsif ( $curcolor eq "IRED" ){
                 $redpower = $1;
             }
         }
         if( $theLine =~ /filter = (.*)/ ){
             if( $curcolor eq "BLUE" ){
                 $bluefilter = $1;
-            }elsif ( $curcolor eq "RED" ){
+            }elsif ( $curcolor eq "IRED" ){
                 $redfilter = $1;
             }
         }
@@ -121,7 +121,7 @@ foreach my $rundir (@runsdir)
         if( $theLine =~ /delay  = (.*)/ ){
             if( $curcolor eq "BLUE" ){
                 $bluedelay = $1;
-            }elsif ( $curcolor eq "RED" ){
+            }elsif ( $curcolor eq "IRED" ){
                 $reddelay = $1;
             }
         }
