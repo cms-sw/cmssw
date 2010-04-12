@@ -1,6 +1,6 @@
 from  xml.dom.minidom import parse,parseString,getDOMImplementation,Node
         
-class frontierconfigParser(object):
+class cacheconfigParser(object):
     def __init__(self):
         self.__configstr=''
         self.__configfile=''
@@ -42,7 +42,7 @@ class frontierconfigParser(object):
         return self.__parameterDict
 if __name__ == '__main__':
     mydocstr="""<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
-    p=frontierconfigParser()
+    p=cacheconfigParser()
     p.parseString(mydocstr)
     print 'proxies'
     print p.proxylist()
