@@ -185,25 +185,30 @@ void WMuNuSelector::beginJob() {
      h1_["hIsoTotN_sel"]                 =fs->make<TH1D>("isoTotN_sel","(Sum pT + Cal)/pT",1000,0.,10.);
      h1_["hIsoTot_sel"]                  =fs->make<TH1D>("isoTot_sel","(Sum pT + Cal)",200,0.,100.);
   
-     h2_["hTMass_PtSum_inclusive"]       =fs->make<TH2D>("TMass_PtSum_inclusive","Rec. Transverse Mass (GeV) vs Sum pT (GeV)",200,0.,100.,200,0,200);
-     h2_["hTMass_PtSumNorm_inclusive"]   =fs->make<TH2D>("TMass_PtSumNorm_inclusive","Rec. Transverse Mass (GeV) vs Sum Pt / Pt", 1000,0,10,200,0,200);
-     h2_["hTMass_TotIsoNorm_inclusive"]=fs->make<TH2D>("TMass_TotIsoNorm_inclusive","Rec. Transverse Mass (GeV) vs (Sum Pt + Cal)/Pt", 10000,0,10,200,0,200);
+     h2_["hTMass_PtSum"]       =fs->make<TH2D>("TMass_PtSum","Rec. Transverse Mass (GeV) vs Sum pT (GeV)",200,0.,100.,200,0,200);
+     h2_["hTMass_PtSumNorm"]   =fs->make<TH2D>("TMass_PtSumNorm","Rec. Transverse Mass (GeV) vs Sum Pt / Pt", 1000,0,10,200,0,200);
+     h2_["hTMass_TotIsoNorm"]=fs->make<TH2D>("TMass_TotIsoNorm","Rec. Transverse Mass (GeV) vs (Sum Pt + Cal)/Pt", 10000,0,10,200,0,200);
      
-     h2_["hMET_PtSum_inclusive"]         =fs->make<TH2D>("MET_PtSum_inclusive","Missing Transverse Energy (GeV) vs Sum Pt (GeV)",200,0.,100.,200,0,200);
-     h2_["hMET_PtSumNorm_inclusive"]     =fs->make<TH2D>("MET_PtSumNorm_inclusive","Missing Transverse Energy (GeV) vs Sum Pt/Pt",1000,0,10,200,0,200);
-     h2_["hMET_TotIsoNorm_inclusive"] =fs->make<TH2D>("MET_TotIsoNorm_inclusive","Missing Transverse Energy (GeV) vs (SumPt + Cal)/Pt",10000,0,10,200,0,200);
+     h2_["hMET_PtSum"]         =fs->make<TH2D>("MET_PtSum","Missing Transverse Energy (GeV) vs Sum Pt (GeV)",200,0.,100.,200,0,200);
+     h2_["hMET_PtSumNorm"]     =fs->make<TH2D>("MET_PtSumNorm","Missing Transverse Energy (GeV) vs Sum Pt/Pt",1000,0,10,200,0,200);
+     h2_["hMET_TotIsoNorm"] =fs->make<TH2D>("MET_TotIsoNorm","Missing Transverse Energy (GeV) vs (SumPt + Cal)/Pt",10000,0,10,200,0,200);
 
-     h2_["hTMass_Pt_inclusive"]   =fs->make<TH2D>("TMass_Pt_inclusive","Rec. Transverse Mass (GeV) vs Pt (GeV)", 100,0,100,200,0,200);
-     h2_["hTMass_Eta_inclusive"]   =fs->make<TH2D>("TMass_Eta_inclusive","Rec. Transverse Mass (GeV) vs Eta ", 50,-2.1,2.1,200,0,200);
+     h2_["hEta_Pt"]     =fs->make<TH2D>("Eta_Pt","Eta vs Pt",100,0,100, 50,-2.1,2.1);
 
-     h2_["hMET_Pt_inclusive"]   =fs->make<TH2D>("MET_Pt_inclusive","MET (GeV) vs  Pt (GeV)   ", 100,0,100,200,0,200);
-     h2_["hMET_Eta_inclusive"]   =fs->make<TH2D>("MET_Eta_inclusive","MET (GeV) vs Eta", 50,-2.1,2.1,200,0,200);
+     h2_["hPt_PtSumNorm"]   =fs->make<TH2D>("Pt_PtSumNorm","Pt( GeV) vs Sum Pt / Pt", 1000,0,10,100,0,100);
+     h2_["hPt_TotIsoNorm"]=fs->make<TH2D>("Pt_TotIsoNorm","Pt (GeV) vs (Sum Pt + Cal)/Pt", 10000,0,10,100,0,100);
 
-     h3_["hMET_Eta_Pt_inclusive"]   =fs->make<TH3D>("MET_Eta_Pt_inclusive","MET (GeV) vs Eta vs Pt (GeV)", 100,0,100,50,-2.1,2.1,200,0,200);
-     h3_["hTMass_Eta_Pt_inclusive"]   =fs->make<TH3D>("TMass_Eta_Pt_inclusive","TMass (GeV) vs Eta vs Pt (GeV)", 100,0,100,50,-2.1,2.1,200,0,200);
+     h2_["hEta_PtSumNorm"]     =fs->make<TH2D>("Eta_PtSumNorm","Eta vs Sum Pt/Pt",1000,0,10, 50,-2.1,2.1);
+     h2_["hEta_TotIsoNorm"] =fs->make<TH2D>("Eta_TotIsoNorm","Eta vs (SumPt + Cal)/Pt",10000,0,10, 50,-2.1,2.1);
 
+     h2_["hTMass_Pt"]   =fs->make<TH2D>("TMass_Pt","Rec. Transverse Mass (GeV) vs Pt (GeV)", 100,0,100,200,0,200);
+     h2_["hTMass_Eta"]   =fs->make<TH2D>("TMass_Eta","Rec. Transverse Mass (GeV) vs Eta ", 50,-2.1,2.1,200,0,200);
 
+     h2_["hMET_Pt"]   =fs->make<TH2D>("MET_Pt","MET (GeV) vs  Pt (GeV)   ", 100,0,100,200,0,200);
+     h2_["hMET_Eta"]   =fs->make<TH2D>("MET_Eta","MET (GeV) vs Eta", 50,-2.1,2.1,200,0,200);
 
+     //h3_["hMET_Eta_Pt"]   =fs->make<TH3D>("MET_Eta_Pt","MET (GeV) vs Eta vs Pt (GeV)", 100,0,100,50,-2.1,2.1,200,0,200);
+     //h3_["hTMass_Eta_Pt"]   =fs->make<TH3D>("TMass_Eta_Pt","TMass (GeV) vs Eta vs Pt (GeV)", 100,0,100,50,-2.1,2.1,200,0,200);
 
      h1_["hCutFlowSummary"]             = fs->make<TH1D>("CutFlowSummary", "Cut-flow Summary(number of events AFTER each cut)", 11, 0.5, 11.5);
      h1_["hCutFlowSummary"] ->GetXaxis()->SetBinLabel(1, "Total");
@@ -392,7 +397,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << "\t... Muon pt, eta: " << pt << " [GeV], " << eta;
                   if(plotHistograms_){ h1_["hPtMu_sel"]->Fill(pt);}
             if (pt<ptCut_) return 0;
-                  if(plotHistograms_){ h1_["hEtaMu_sel"]->Fill(eta);}
+                  if(plotHistograms_){ h1_["hEtaMu_sel"]->Fill(eta); h2_["hEta_Pt"]->Fill(pt,eta);}
 
             nPt++;
             h1_["hCutFlowSummary"]->Fill(6.);
@@ -456,12 +461,18 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
             // Plot 2D Histograms before final cuts
                   if(plotHistograms_ && acop<acopCut_){
-                  h2_["hTMass_PtSum_inclusive"]->Fill(SumPt,massT);
-                  h2_["hTMass_PtSumNorm_inclusive"]->Fill(SumPt/pt,massT);
-                  h2_["hTMass_TotIsoNorm_inclusive"]->Fill((SumPt+Cal)/pt,massT);
-                  h2_["hMET_PtSum_inclusive"]->Fill(SumPt,met_et);
-                  h2_["hMET_PtSumNorm_inclusive"]->Fill(SumPt/pt,met_et);
-                  h2_["hMET_TotIsoNorm_inclusive"]->Fill((SumPt+Cal)/pt,met_et);
+                  h2_["hTMass_PtSum"]->Fill(SumPt,massT);
+                  h2_["hTMass_PtSumNorm"]->Fill(SumPt/pt,massT);
+                  h2_["hTMass_TotIsoNorm"]->Fill((SumPt+Cal)/pt,massT);
+                  h2_["hMET_PtSum"]->Fill(SumPt,met_et);
+                  h2_["hMET_PtSumNorm"]->Fill(SumPt/pt,met_et);
+                  h2_["hMET_TotIsoNorm"]->Fill((SumPt+Cal)/pt,met_et);
+
+                  h2_["hPt_PtSumNorm"]->Fill(SumPt/pt,pt);
+                  h2_["hPt_TotIsoNorm"]->Fill((SumPt+Cal)/pt,pt);
+                  h2_["hEta_PtSumNorm"]->Fill(SumPt/pt,eta);
+                  h2_["hEta_TotIsoNorm"]->Fill((SumPt+Cal)/pt,eta);
+
                   }
 
             if(plotHistograms_){ h1_["hAcop_sel"]->Fill(acop);}
@@ -482,14 +493,14 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
                   h1_["hMET_sel"]->Fill(met_et);
                   h1_["hTMass_sel"]->Fill(massT);
 
-                  h2_["hTMass_Pt_inclusive"]->Fill(pt,massT),
-                  h2_["hTMass_Eta_inclusive"]->Fill(eta,massT);   
+                  h2_["hTMass_Pt"]->Fill(pt,massT),
+                  h2_["hTMass_Eta"]->Fill(eta,massT);   
    
-                  h2_["hMET_Pt_inclusive"]->Fill(pt,met_et);
-                  h2_["hMET_Eta_inclusive"]->Fill(eta,met_et);
+                  h2_["hMET_Pt"]->Fill(pt,met_et);
+                  h2_["hMET_Eta"]->Fill(eta,met_et);
    
-                  h3_["hMET_Eta_Pt_inclusive"]->Fill(pt,eta,met_et);  
-                  h3_["hTMass_Eta_Pt_inclusive"]->Fill(pt,eta,massT);
+                  //h3_["hMET_Eta_Pt"]->Fill(pt,eta,met_et);  
+                  //h3_["hTMass_Eta_Pt"]->Fill(pt,eta,massT);
             }
 
 

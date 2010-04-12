@@ -315,7 +315,7 @@ double WMuNuTriggerValidation::HLTMatch(edm::Handle<trigger::TriggerEvent> trigg
                         //double pttrig= toc[*ki].pt();
                         double etatrig=toc[*ki].eta();
                         double phitrig=toc[*ki].phi();
-                        double etamu=mu.outerTrack()->eta(); //Should be "innerPosition()" but that is not saved in the AODRED...
+                        double etamu=mu.outerTrack()->eta(); //Should be "innerPosition()", but it gave me problems on one file of the skim 
                         double phimu=mu.outerTrack()->phi();
                         double dRtrig= fabs(etamu-etatrig);//=deltaR(etamu,phimu, etatrig, phitrig);
                         if(dRtrig < minDR ) {minDR=dRtrig;}
