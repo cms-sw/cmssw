@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.23 2010/01/22 14:20:04 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.24 2010/02/09 14:56:31 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -30,8 +30,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.23 $
-   * $Date: 2010/01/22 14:20:04 $
+   * $Revision: 1.24 $
+   * $Date: 2010/02/09 14:56:31 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -119,6 +119,7 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
+    void addDisk(const std::string&);
     void addOtherDisks();
     void emitDiskAlarm(DiskUsagePtr, error_t);
     void emitDiskSpaceAlarm(DiskUsagePtr);
