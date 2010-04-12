@@ -56,7 +56,7 @@ class connectstrParser(object):
         result+='/'+schemaname
         return result
 if __name__ == '__main__':
-    import frontierconfigParser
+    import cacheconfigParser
     o='oracle://cms_orcoff_prep/CMS_LUMI_DEV_OFFLINE'
     parser=connectstrParser(o)
     parser.parse()
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     print parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo()
     if parser.needsitelocalinfo():
         sitelocalconfig='/afs/cern.ch/user/x/xiezhen/w1/lumical/CMSSW_3_5_0_pre5/src/RecoLuminosity/LumiDB/site-local-config.xml'
-        frontierparser=frontierconfigParser.frontierconfigParser()
+        frontierparser=cacheconfigParser.cacheconfigParser()
         frontierparser.parse(sitelocalconfig)
         print 'full frontier string'
         print parser.fullfrontierStr(parser.schemaname(),frontierparser.parameterdict())
