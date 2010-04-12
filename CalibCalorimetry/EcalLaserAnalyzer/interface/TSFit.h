@@ -11,9 +11,7 @@
 #define  dimoutpar 10   
 #define  npar_moni  4
 
-#include "TObject.h"
-
-class TSFit : public TObject {
+class TSFit {
 private :
   /*
     nbs = nb of samples in sample data array[sdim]   nbs<=sdim  

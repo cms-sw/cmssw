@@ -1,9 +1,7 @@
 #ifndef TMarkov_H
 #define TMarkov_H
 
-#include "TObject.h"
-
-class TMarkov: public TObject 
+class TMarkov
 {
 
  private:	

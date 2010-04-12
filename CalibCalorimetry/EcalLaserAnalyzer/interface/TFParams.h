@@ -21,7 +21,6 @@
 #include "TPaveLabel.h"
 #include "TProfile.h"
 #include "TVirtualX.h"
-#include "TObject.h"
 //#include "TMatrixD.h"
 #define  SDIM2     10 /* number of samples for cristal */
 #define  PLSHDIM 650  /* size of the pulse shape array */
@@ -44,7 +43,7 @@
 #define nbmax_cell 1000
 
 
- class TFParams : public TObject {
+ class TFParams {
 
  private:
 
@@ -63,7 +62,7 @@
  public:
 
  TFParams( int size = SDIM2, int size_sh = PLSHDIM );
-~TFParams(){};
+ virtual ~TFParams();
 double fitpj(double **, double *,double ** , double noise_val, int debug) ;
  void set_const( int ,int ,int ,double ,double ,int);
  void produit_mat(matrice,matrice,matrice) ;
@@ -87,8 +86,12 @@ double fitpj(double **, double *,double ** , double noise_val, int debug) ;
  double inverpj(int,double g[dimmat][dimmat],double ginv[dimmat][dimmat]);
  double inv3x3(double a[3][3] , double b[3][3] ) ;
  double pulseShapepj( Double_t *, Double_t * ) ;
+ double dpulseShapepj_dam( Double_t *, Double_t * ) ; 
+ double dpulseShapepj_dtm( Double_t *, Double_t * ) ; 
  double pulseShapepj2( Double_t *, Double_t * ) ;
- double lastShape( Double_t *, Double_t * ) ;
+ double lastShape( Double_t *, Double_t * ) ; 
+ double dlastShape_dam( Double_t *, Double_t * ) ; 
+ double dlastShape_dtm( Double_t *, Double_t * ) ; 
  double lastShape2( Double_t *, Double_t * ) ;
  double mixShape( Double_t *, Double_t * ) ;
  double computePulseWidth( int, double, double) ;

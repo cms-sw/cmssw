@@ -21,15 +21,20 @@
 #ifndef PulseFitWithFunction_H
 #define PulseFitWithFunction_H
 
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFit.h>
+//#include <CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFit.h>
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFits.h"
+#include <string>
 
 using namespace std;
-
-class PulseFitWithFunction: public TObject 
+class TFParams;
+class PulseFitWithFunction: public PulseFits 
 {
  public:
   // Default Constructor, mainly for Root
   PulseFitWithFunction() ;
+
+  // Constructor, mainly for Root
+  PulseFitWithFunction( string ) ;
 
   // Destructor: Does nothing
   virtual ~PulseFitWithFunction() ;
@@ -65,6 +70,7 @@ class PulseFitWithFunction: public TObject
   
   int fNsamples ; // maximum number of samples into framelegth
 
+  string  fEcalPart;
   double  fAlpha_laser ;
   double  fBeta_laser ;
   double  fAlpha_beam ;
@@ -74,14 +80,11 @@ class PulseFitWithFunction: public TObject
   int     fNb_iter ; // maximum number of iterations
   int     fNum_samp_bef_max  ; // number of samples before maximum sample
   int     fNum_samp_after_max  ; // number of samples after  maximum sample
- 
-  double Fit_electronic(int, double *,double ) ;
-  void Fit_parab(double *,int,int,double * ) ;
-  double Electronic_shape(double) ;
-  
-  
+  TFParams *fPJ;
 
-  //  ClassDef(PulseFitWithFunction,1)     //!< The processed part of the class is persistant
+  double Fit_electronic(int, double *, double ) ;
+  
+  //ClassDef(PulseFitWithFunction,1)     //!< The processed part of the class is persistant
 } ;
 
 #endif

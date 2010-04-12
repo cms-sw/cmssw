@@ -1,10 +1,9 @@
 #ifndef TMom_H
 #define TMom_H
 
-#include "TObject.h"
 #include<vector>
 
-class TMom: public TObject 
+class TMom
 {
 
  private:

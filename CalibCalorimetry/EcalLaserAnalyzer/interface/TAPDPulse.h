@@ -1,10 +1,9 @@
 #ifndef TAPDPulse_H
 #define TAPDPulse_H
 
-#include "TObject.h"
 #include<vector>
 
-class TAPDPulse: public TObject 
+class TAPDPulse 
 {
 
  private:
@@ -20,6 +19,8 @@ class TAPDPulse: public TObject
   double _ratiomaxcutlow;
   double _ratiomincutlow;
   double _ratiomincuthigh;
+  double _pulsemaxcutlow;
+  double _pulsemaxcuthigh;
   
 
   double *adc_;
@@ -29,7 +30,7 @@ class TAPDPulse: public TObject
   int iadcMax_;
   double pedestal_;
 
-  void init(int, int, int, int, int, int, int, int, double, double, double );
+  void init(int, int, int, int, int, int, int, int, double, double, double, double, double );
 
  public:
 
@@ -38,7 +39,7 @@ class TAPDPulse: public TObject
   TAPDPulse();
 
   // Constructor
-  TAPDPulse(int, int, int, int, int, int, int, int, double, double, double);
+  TAPDPulse(int, int, int, int, int, int, int, int, double, double, double, double, double);
 
   // Destructor: Does nothing
   virtual ~TAPDPulse();
@@ -52,6 +53,7 @@ class TAPDPulse: public TObject
   bool isTimingQualOK();
   bool areFitSamplesOK();
   bool isPulseOK();
+  bool isPulseMaxOK();
   bool arePulseRatioOK();
   bool isPulseRatioMaxOK();
   bool isPulseRatioMinOK();

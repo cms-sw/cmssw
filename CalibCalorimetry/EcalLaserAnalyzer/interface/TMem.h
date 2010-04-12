@@ -1,11 +1,10 @@
 #ifndef TMem_H
 #define TMem_H
 
-#include "TObject.h"
 #include<vector>
 using namespace std;
 
-class TMem: public TObject 
+class TMem 
 {
 
  private:
