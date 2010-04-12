@@ -23,14 +23,15 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
 				     std::vector<int> severityToExclude,
 				     double severityRecHitThreshold,
 				     int severitySpikeId,
-				     double severitySpikeThreshold
+				     double severitySpikeThreshold,
+				     bool excludeFromCluster
 				     ) :
   
   eb_st(eb_str), phiSteps_(step), 
   eThres_(ethres), eThresA_(eThresA), eThresB_(eThresB),
   Eseed(eseed),  Ewing(ewing), 
   dynamicEThres_(dynamicEThres), debugLevel_(debugLevel),
-  v_chstatus_(v_chstatus), v_severitylevel_(severityToExclude),severityRecHitThreshold_(severityRecHitThreshold), severitySpikeThreshold_(severitySpikeThreshold)
+  v_chstatus_(v_chstatus), v_severitylevel_(severityToExclude),severityRecHitThreshold_(severityRecHitThreshold), severitySpikeThreshold_(severitySpikeThreshold), excludeFromCluster_(excludeFromCluster)
   
   
 {
@@ -61,6 +62,8 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
 {
   //clear vector of seeds
   seeds.clear();
+  //clear flagged crystals
+  excludedCrys_.clear();
   //clear map of supercluster/basiccluster association
   clustered_.clear();
   //clear set of used detids
@@ -117,8 +120,11 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
 	  uint32_t rhFlag = (*it).recoFlag();
 	  if (debugLevel_==pDEBUG) std::cout << "rhFlag: " << rhFlag << std::endl;
 	  std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(), rhFlag );
-	  if ( vit != v_chstatus_.end() ) continue; // the recHit has to be excluded from seeding
-
+	  if ( vit != v_chstatus_.end() ){
+	    if (excludeFromCluster_)
+	      excludedCrys_.insert(it->id());
+	    continue; // the recHit has to be excluded from seeding
+	  }
 	  int severityFlag =  EcalSeverityLevelAlgo::severityLevel( it->id(), 
 								  (*recHits_), 
 								  (*chStatus),
@@ -131,7 +137,11 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
 	  }
 	  
 	  
-	  if (sit!=v_severitylevel_.end()) continue;
+	  if (sit!=v_severitylevel_.end()){ 
+	    if (excludeFromCluster_)
+	      excludedCrys_.insert(it->id());
+	    continue;
+	  }
 	  seeds.push_back(*it);
 	  if ( debugLevel_ == pDEBUG ){
 	    std::cout << "Seed ET: " << ET << std::endl;
@@ -576,7 +586,7 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
 
 	if (center_it!=recHits_->end()){
 		EcalRecHit SeedHit = *center_it;
-		if (useddetids.find(center) == useddetids.end()){ 
+		if (useddetids.find(center) == useddetids.end() && excludedCrys_.find(center)==excludedCrys_.end()){ 
 			Etot += SeedHit.energy();
 			cells.push_back(SeedHit);
 		}
@@ -586,7 +596,7 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
 	EcalRecHitCollection::const_iterator eta1_it = recHits_->find(ieta1);
 	if (eta1_it !=recHits_->end()){
 		EcalRecHit UpEta = *eta1_it;
-		if (useddetids.find(ieta1) == useddetids.end()){
+		if (useddetids.find(ieta1) == useddetids.end() && excludedCrys_.find(ieta1)==excludedCrys_.end()){
 			Etot+=UpEta.energy();
 			cells.push_back(UpEta);
 		}
@@ -600,7 +610,7 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
 	EcalRecHitCollection::const_iterator eta2_it = recHits_->find(ieta2);
 	if (eta2_it !=recHits_->end()){
 		EcalRecHit DownEta = *eta2_it;
-		if (useddetids.find(ieta2)==useddetids.end()){
+		if (useddetids.find(ieta2)==useddetids.end() && excludedCrys_.find(ieta2)==excludedCrys_.end()){
 			Etot+=DownEta.energy();
 			cells.push_back(DownEta);
 		}
@@ -620,7 +630,7 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
 		EcalRecHitCollection::const_iterator eta3_it = recHits_->find(ieta3);
 		if (eta3_it != recHits_->end()){
 			EcalRecHit DownEta2 = *eta3_it;
-			if (useddetids.find(ieta3)==useddetids.end()){
+			if (useddetids.find(ieta3)==useddetids.end() && excludedCrys_.find(ieta3)==excludedCrys_.end()){
 				Etot+=DownEta2.energy();
 				cells.push_back(DownEta2);
 			}
@@ -634,7 +644,7 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
 		EcalRecHitCollection::const_iterator eta4_it = recHits_->find(ieta4);
 		if (eta4_it != recHits_->end()){
 			EcalRecHit UpEta2 = *eta4_it;
-			if (useddetids.find(ieta4) == useddetids.end()){
+			if (useddetids.find(ieta4) == useddetids.end() && excludedCrys_.find(ieta4)==excludedCrys_.end()){
 				Etot+=UpEta2.energy();
 				cells.push_back(UpEta2);
 			}

@@ -106,6 +106,9 @@ class HybridClusterAlgo
   EcalSeverityLevelAlgo::SpikeId spId_;
   float severitySpikeThreshold_;
 
+  bool excludeFromCluster_;
+  std::set<DetId> excludedCrys_;
+
  public:
    enum DebugLevel { pDEBUG = 0, pINFO = 1, pERROR = 2 }; 
   
@@ -127,7 +130,8 @@ class HybridClusterAlgo
 		    std::vector<int> severityToExclude=std::vector<int>(999),
 		    double severityRecHitThreshold=0.08,
 		    int severitySpikeId=1,
-		    double severitySpikeThreshold=0
+		    double severitySpikeThreshold=0,
+		    bool excludeFromCluster=false
 		    );
 //                    const edm::ParameterSet &bremRecoveryPset,
 

@@ -77,7 +77,8 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
 				   ps.getParameter<std::vector<int> >("RecHitSeverityToBeExcluded"),
 				   ps.getParameter<double>("severityRecHitThreshold"),
 				   ps.getParameter<int>("severitySpikeId"),
-				   ps.getParameter<double>("severitySpikeThreshold")
+				   ps.getParameter<double>("severitySpikeThreshold"),
+				   ps.getParameter<bool>("excludeFlagged")
                                    );
                                    //bremRecoveryPset,
 
