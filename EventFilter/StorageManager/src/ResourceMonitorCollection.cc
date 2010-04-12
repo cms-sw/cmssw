@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.31 2010/02/09 14:54:55 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.32 2010/03/02 10:45:56 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -45,25 +45,32 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
 
   _nLogicalDisks = std::max(dwParams._nLogicalDisk, 1);
   _diskUsageList.clear();
-  _diskUsageList.reserve(_nLogicalDisks+dwParams._otherDiskPaths.size());
+  _diskUsageList.reserve(_nLogicalDisks+dwParams._otherDiskPaths.size()+1);
 
   for (unsigned int i=0; i<_nLogicalDisks; ++i) {
 
-    DiskUsagePtr diskUsage( new DiskUsage() );
-    diskUsage->pathName = dwParams._filePath;
+    std::ostringstream pathName;
+    pathName << dwParams._filePath;
     if( dwParams._nLogicalDisk > 0 ) {
-      std::ostringstream oss;
-      oss << "/" << std::setfill('0') << std::setw(2) << i; 
-      diskUsage->pathName += oss.str();
+      pathName << "/" << std::setfill('0') << std::setw(2) << i; 
     }
-    retrieveDiskSize(diskUsage);
-    _diskUsageList.push_back(diskUsage);
+    addDisk(pathName.str());
   }
+  addDisk(dwParams._dbFilePath);
 
   if ( _alarmParams._isProductionSystem )
   {
     addOtherDisks();
   }
+}
+
+
+void ResourceMonitorCollection::addDisk(const std::string& pathname)
+{
+  DiskUsagePtr diskUsage( new DiskUsage() );
+  diskUsage->pathName = pathname;
+  retrieveDiskSize(diskUsage);
+  _diskUsageList.push_back(diskUsage);
 }
 
 
@@ -75,10 +82,7 @@ void ResourceMonitorCollection::addOtherDisks()
         it != itEnd;
         ++it)
   {
-    DiskUsagePtr diskUsage( new DiskUsage() );
-    diskUsage->pathName = (*it);
-    retrieveDiskSize(diskUsage);
-    _diskUsageList.push_back(diskUsage);
+    addDisk(*it);
   }
 }
 

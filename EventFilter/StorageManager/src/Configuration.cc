@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.29 2010/03/08 11:54:53 mommsen Exp $
+// $Id: Configuration.cc,v 1.30 2010/03/31 12:31:58 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -171,6 +171,7 @@ namespace stor
     _diskWriteParamCopy._streamConfiguration = "";
     _diskWriteParamCopy._fileName = "storageManager";
     _diskWriteParamCopy._filePath = "/tmp";
+    _diskWriteParamCopy._dbFilePath = ""; // use default _filePath+"/log"
     _diskWriteParamCopy._otherDiskPaths.clear();
     _diskWriteParamCopy._fileCatalog = "summaryCatalog.txt";
     _diskWriteParamCopy._setupLabel = "Data";
@@ -283,6 +284,7 @@ namespace stor
     _streamConfiguration = _diskWriteParamCopy._streamConfiguration;
     _fileName = _diskWriteParamCopy._fileName;
     _filePath = _diskWriteParamCopy._filePath;
+    _dbFilePath = _diskWriteParamCopy._dbFilePath;
     _fileCatalog = _diskWriteParamCopy._fileCatalog;
     _setupLabel = _diskWriteParamCopy._setupLabel;
     _nLogicalDisk = _diskWriteParamCopy._nLogicalDisk;
@@ -302,6 +304,7 @@ namespace stor
     infoSpace->fireItemAvailable("STparameterSet", &_streamConfiguration);
     infoSpace->fireItemAvailable("fileName", &_fileName);
     infoSpace->fireItemAvailable("filePath", &_filePath);
+    infoSpace->fireItemAvailable("dbFilePath", &_dbFilePath);
     infoSpace->fireItemAvailable("otherDiskPaths", &_otherDiskPaths);
     infoSpace->fireItemAvailable("fileCatalog", &_fileCatalog);
     infoSpace->fireItemAvailable("setupLabel", &_setupLabel);
@@ -453,6 +456,10 @@ namespace stor
 
     _diskWriteParamCopy._fileName = _fileName;
     _diskWriteParamCopy._filePath = _filePath;
+    if ( _dbFilePath.value_.empty() )
+      _diskWriteParamCopy._dbFilePath = _filePath.value_ + "/log";
+    else
+      _diskWriteParamCopy._dbFilePath = _dbFilePath;
     _diskWriteParamCopy._fileCatalog = _fileCatalog;
     _diskWriteParamCopy._setupLabel = _setupLabel;
     _diskWriteParamCopy._nLogicalDisk = _nLogicalDisk;
