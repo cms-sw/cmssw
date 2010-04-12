@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: checkdeps,v 1.9 2009/10/22 12:41:06 muzaffar Exp $
+# $Id: checkdeps,v 1.10 2010/04/09 08:53:01 muzaffar Exp $
 #
 # Created by: David Lange
 #             LLNL
@@ -18,16 +18,20 @@ use Cwd;
 
 #if any argument, print help and exit 
 
-my $runAddpkg=0;
+my $cvsOpt="";
+my $checkout=0;
 my $checkpython=0;
 my $checkheader=0;
  
 foreach my $arg (@ARGV) {
     if ( $arg eq "-a" ) {
-	$runAddpkg=1;
+	$checkout=1;
     }
     elsif ( $arg eq "-p" ) {
 	$checkpython=1;
+    }
+    elsif ( $arg eq "-q" ) {
+	$cvsOpt="$cvsOpt -Q";
     }
     elsif ( $arg eq "-h" ) {
 	$checkheader=1;
@@ -41,7 +45,8 @@ foreach my $arg (@ARGV) {
 	print "\nUsage: \n";
 	print "   -p look for python modules and their dependencies (ON by default)\n";
 	print "   -h look for header files and their dependencies   (ON by default)\n";
-	print "   -a will checkout the packages into your development area (done by addpkg)\n\n";
+	print "   -a will add/checkout the packages into your development area\n";
+	print "   -q will pass -Q option to cvs to make it quiet\n\n";
 	exit;
     }
 }
@@ -62,17 +67,6 @@ die "ERROR: Could not find release base path. Please run this script from a deve
 
 my $taglist = "${releasetop}/src/PackageList.cmssw";
 die "ERROR: Cannot find release package/tag list at $taglist\n" if (!-e $taglist);
-
-if ($runAddpkg) {
-    my $isaddpkg=`which addpkg 2>&1`;
-    if ($? != 0) {
-        print "ERROR: Could not find \"addpkg\" in path.\n",
-	      "  This script relies on addpkg, which appears not to be in your path\n",
-              "  Perhaps something is wrong with this release or your run time\n",
-              "  environment is not set correctly?\n";
-        exit 1;
-    }
-}
 
 my %vals=();
 if ($checkheader){
@@ -128,6 +122,7 @@ foreach my $package (@packages) {
 	}
     }
 }
+chdir("${localtop}/src");
 
 my %recompileList;
 foreach my $file (@changedFiles) {
@@ -145,7 +140,7 @@ foreach my $file (@changedFiles) {
 
 my @t=sort(keys %recompileList);
 my $len=scalar(@t);
-if ( $runAddpkg == 0 ) {
+if ( $checkout == 0 ) {
     print "Packages to check out and compile: $len\n";
 }
 else{
@@ -154,12 +149,15 @@ else{
 
 my $exitcode=0;
 if ( $len > 0 ) {
-    foreach my $i (@t) {
-	print "$i (",join(", ",sort keys %{$recompileList{$i}}),")\n";
+    foreach my $pk (@t) {
+	print "$pk (",join(", ",sort keys %{$recompileList{$pk}}),")\n";
     }
-    if ( $runAddpkg == 1 ) {
-	foreach my $i (@t) {
-	    system("addpkg $i");
+    if ( $checkout == 1 ) {
+	chdir("$maindir");
+	foreach my $pk (@t) {
+	    my $tag = $tags->{$pk};
+	    print ">> Checking out $tag $pk\n";
+	    system("cvs $cvsOpt co -r $tag $pk");
 	    $exitcode+=$?;
 	}
     }
