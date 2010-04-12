@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.11 2009/11/25 20:25:58 chrjones Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.1 2010/04/09 19:46:22 amraktad Exp $
 //
 
 // system includes
@@ -21,7 +21,7 @@
 #include "TEveManager.h"
 #include "TEveSelection.h"
 
-#include "Fireworks/Core/src/Context.h"
+#include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
