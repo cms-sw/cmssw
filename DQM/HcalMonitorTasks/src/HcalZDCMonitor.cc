@@ -271,10 +271,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	    fData[i]=digi[i].nominal_fC();
 	  }
       
-	if (!isGood(fData, 10, 0.001))
-	  continue; // Decide the signal quality !!!!! How should we set the cut ? Ask ZDCers. 
-      
-	double fTSMean = getTime(fData, fSum);
+	double fTSMean = getTime(fData, 4, 6, fSum); // tsmin = 4, tsmax = 6.
 	//std::cout << "Side= " << iSide << " Section= " << iSection << " Channel= " << iChannel << "\tCharge\t" << fSum <<std::endl; 
       
 	if (iSection == 1) 
@@ -350,7 +347,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
       } // loop on rechits
     
 } // end of event processing 
-
+/*
 bool HcalZDCMonitor::isGood(std::vector<double>fData, double fCut, double fPercentage) {
   bool dec = false;
   int ts_max = -1;
@@ -365,7 +362,8 @@ bool HcalZDCMonitor::isGood(std::vector<double>fData, double fCut, double fPerce
     dec = true;
   return dec;
 } // bool HcalZDCMonitor::isGood
-
+*/
+/*
 int HcalZDCMonitor::getTSMax(std::vector<double>fData) 
 {
   int ts_max = -100;
@@ -379,31 +377,24 @@ int HcalZDCMonitor::getTSMax(std::vector<double>fData)
   }
   return ts_max;
 } // int HcalZDCMonitor::getTSMax()
-
-double HcalZDCMonitor::getTime(std::vector<double>fData, double &fSum) {
-  int ts_max = getTSMax(fData);
-  double Time = 0,
-    SumT = 0;             // ,MaxT=-10;
-  
-  if (ts_max >= 0) {
-    Time = ts_max * fData[ts_max];
-    SumT = fData[ts_max];
-    if (ts_max > 0) {
-      Time += (ts_max - 1) * fData[ts_max - 1];
-      SumT += fData[ts_max - 1];
-    }
-    if (ts_max < (int)(fData.size() - 1)) {
-      Time += (ts_max + 1) * fData[ts_max + 1];
-      SumT += fData[ts_max + 1];
-    }
-            Time = Time / SumT;
+*/
+double HcalZDCMonitor::getTime(std::vector<double>fData, unsigned int ts_min, unsigned int ts_max, double &fSum) {
+  double weightedTime = 0.;
+  double SumT = 0.; 
+  double Time = -999.;
+ 
+  for (unsigned int ts=ts_min; ts<=ts_max; ++ts) {
+    weightedTime += ts * fData[ts];
+    SumT += fData[ts];
   }
-  if (SumT > 0.)
-    fSum = SumT;
-  
-  return Time;
-}
+  if (SumT > 0.) {
+    Time = weightedTime / SumT;
+  }
 
+  fSum = SumT;
+  return Time; // if (Time == -999;) then do something.
+
+} //double HcalZDCMonitor::getTime()
 
 void HcalZDCMonitor::endLuminosityBlock() 
 {
