@@ -1,13 +1,14 @@
 /* 
  *  \class TCalibData
  *
- *  $Date: 2009/06/02 12:55:21 $
+ *  $Date: 2010/04/12 08:38:39 $
  *  \author: Patrice Verrecchia - CEA/Saclay
  */
 
 
 #include <iostream>
 #include <sstream>
+#include <cassert>
 #include <TFile.h>
 #include <TH2D.h>
 #include <TTree.h>
@@ -18,7 +19,7 @@
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/MEEEGeom.h>
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TCalibData.h>
 
-#include <assert.h>
+
 //ClassImp(TCalibData)
 
 // Default Constructor...
@@ -216,7 +217,7 @@ bool TCalibData::readTaus(){
       int nread=0;
 
       int pnOffset[NMEMEE];
-      for(int imm=0;imm<_nmemEE;imm++){
+      for(unsigned int imm=0;imm<_nmemEE;imm++){
 	pnOffset[imm]=0;
       }
       
@@ -483,7 +484,7 @@ pair<double,double> TCalibData::tauPN( int ipn , int imem ){
 
     int jmem=0; int found=0;
     
-    for(int jmm=0;jmm<_nmemEE;jmm++){
+    for(unsigned int jmm=0;jmm<_nmemEE;jmm++){
       if(mems[jmm]==imem){
 	jmem=jmm;
 	found=1;
@@ -529,7 +530,7 @@ double TCalibData::qmaxPN( int iPN, int imem ){
     
     int jmem=0; int found=0;
     
-    for(int jmm=0;jmm<_nmemEE;jmm++){
+    for(unsigned int jmm=0;jmm<_nmemEE;jmm++){
       if(mems[jmm]==imem){
 	jmem=jmm;
 	found=1;
@@ -603,7 +604,7 @@ vector<double> TCalibData::linPN( int iPN, int gain , int imem ){
 
     int jmem=0; int found=0;
     
-    for(int jmm=0;jmm<_nmemEE;jmm++){
+    for(unsigned int jmm=0;jmm<_nmemEE;jmm++){
       if(mems[jmm]==imem){
 	jmem=jmm;
 	found=1;

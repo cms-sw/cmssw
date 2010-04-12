@@ -1,5 +1,4 @@
 #define MENLS_cxx
-#include <assert.h>
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/MENLS.h"
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEGeom.h"
 #include <cassert>
