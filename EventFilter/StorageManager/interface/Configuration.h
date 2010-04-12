@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.17 2010/02/18 14:46:19 mommsen Exp $
+// $Id: Configuration.h,v 1.18 2010/04/12 12:05:43 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -37,6 +37,7 @@ namespace stor
     int _nLogicalDisk;
     int _maxFileSizeMB;
     double _highWaterMark;
+    double _failHighWaterMark;
     utils::duration_t _lumiSectionTimeOut;
     utils::duration_t _errorEventsTimeOut;
     utils::duration_t _fileClosingTestInterval;
@@ -158,8 +159,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.17 $
-   * $Date: 2010/02/18 14:46:19 $
+   * $Revision: 1.18 $
+   * $Date: 2010/04/12 12:05:43 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -343,6 +344,7 @@ namespace stor
     xdata::Integer _nLogicalDisk;
     xdata::Integer _maxFileSize;
     xdata::Double _highWaterMark;
+    xdata::Double _failHighWaterMark;
     xdata::Double _lumiSectionTimeOut;
     xdata::Double _errorEventsTimeOut;
     xdata::Integer _fileClosingTestInterval;

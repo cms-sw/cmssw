@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.30 2010/03/31 12:31:58 mommsen Exp $
+// $Id: Configuration.cc,v 1.31 2010/04/12 12:05:01 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -177,7 +177,8 @@ namespace stor
     _diskWriteParamCopy._setupLabel = "Data";
     _diskWriteParamCopy._nLogicalDisk = 0;
     _diskWriteParamCopy._maxFileSizeMB = 0;
-    _diskWriteParamCopy._highWaterMark = 0.9;
+    _diskWriteParamCopy._highWaterMark = 90;
+    _diskWriteParamCopy._failHighWaterMark = 95;
     _diskWriteParamCopy._lumiSectionTimeOut = 45.0;
     _diskWriteParamCopy._errorEventsTimeOut = 300.0;
     _diskWriteParamCopy._fileClosingTestInterval = 5.0;
@@ -290,6 +291,7 @@ namespace stor
     _nLogicalDisk = _diskWriteParamCopy._nLogicalDisk;
     _maxFileSize = _diskWriteParamCopy._maxFileSizeMB;
     _highWaterMark = _diskWriteParamCopy._highWaterMark;
+    _failHighWaterMark = _diskWriteParamCopy._failHighWaterMark;
     _lumiSectionTimeOut = _diskWriteParamCopy._lumiSectionTimeOut;
     _errorEventsTimeOut = _diskWriteParamCopy._errorEventsTimeOut;
     _fileClosingTestInterval =
@@ -311,6 +313,7 @@ namespace stor
     infoSpace->fireItemAvailable("nLogicalDisk", &_nLogicalDisk);
     infoSpace->fireItemAvailable("maxFileSize", &_maxFileSize);
     infoSpace->fireItemAvailable("highWaterMark", &_highWaterMark);
+    infoSpace->fireItemAvailable("failHighWaterMark", &_failHighWaterMark);
     infoSpace->fireItemAvailable("lumiSectionTimeOut", &_lumiSectionTimeOut);
     infoSpace->fireItemAvailable("errorEventsTimeOut", &_errorEventsTimeOut);
     infoSpace->fireItemAvailable("fileClosingTestInterval",
@@ -465,6 +468,7 @@ namespace stor
     _diskWriteParamCopy._nLogicalDisk = _nLogicalDisk;
     _diskWriteParamCopy._maxFileSizeMB = _maxFileSize;
     _diskWriteParamCopy._highWaterMark = _highWaterMark;
+    _diskWriteParamCopy._failHighWaterMark = _failHighWaterMark;
     _diskWriteParamCopy._lumiSectionTimeOut = _lumiSectionTimeOut;
     _diskWriteParamCopy._errorEventsTimeOut = _errorEventsTimeOut;
     _diskWriteParamCopy._fileClosingTestInterval = _fileClosingTestInterval;
