@@ -38,6 +38,11 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
          label  = cms.string('L2Relative_AK5PF') 
       ), 
       cms.PSet( 
+         record = cms.string('L2Relative_AK5TRK'), 
+         tag    = cms.string('L2Relative_AK5TRK'), 
+         label  = cms.string('L2Relative_AK5TRK') 
+      ), 
+      cms.PSet( 
          record = cms.string('L2Relative_AK7Calo'), 
          tag    = cms.string('L2Relative_AK7Calo'), 
          label  = cms.string('L2Relative_AK7Calo') 
@@ -96,6 +101,11 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
          record = cms.string('L3Absolute_AK5PF'), 
          tag    = cms.string('L3Absolute_AK5PF'), 
          label  = cms.string('L3Absolute_AK5PF') 
+      ), 
+      cms.PSet( 
+         record = cms.string('L3Absolute_AK5TRK'), 
+         tag    = cms.string('L3Absolute_AK5TRK'), 
+         label  = cms.string('L3Absolute_AK5TRK') 
       ), 
       cms.PSet( 
          record = cms.string('L3Absolute_AK7Calo'), 
@@ -429,6 +439,11 @@ process.dbWriterL2RelativeAK5PF = cms.EDAnalyzer('JetCorrectorDBWriter',
    option       = cms.untracked.string(''), 
    label        = cms.untracked.string('L2Relative_AK5PF') 
 ) 
+process.dbWriterL2RelativeAK5TRK = cms.EDAnalyzer('JetCorrectorDBWriter', 
+   inputTxtFile = cms.untracked.string('Summer09_7TeV_ReReco332_L2Relative_AK5TRK.txt'), 
+   option       = cms.untracked.string(''), 
+   label        = cms.untracked.string('L2Relative_AK5TRK') 
+) 
 process.dbWriterL2RelativeAK7Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    inputTxtFile = cms.untracked.string('Summer09_7TeV_ReReco332_L2Relative_AK7Calo.txt'), 
    option       = cms.untracked.string(''), 
@@ -488,6 +503,11 @@ process.dbWriterL3AbsoluteAK5PF = cms.EDAnalyzer('JetCorrectorDBWriter',
    inputTxtFile = cms.untracked.string('Summer09_7TeV_ReReco332_L3Absolute_AK5PF.txt'), 
    option       = cms.untracked.string(''), 
    label        = cms.untracked.string('L3Absolute_AK5PF') 
+) 
+process.dbWriterL3AbsoluteAK5TRK = cms.EDAnalyzer('JetCorrectorDBWriter', 
+   inputTxtFile = cms.untracked.string('Summer09_7TeV_ReReco332_L3Absolute_AK5TRK.txt'), 
+   option       = cms.untracked.string(''), 
+   label        = cms.untracked.string('L3Absolute_AK5TRK') 
 ) 
 process.dbWriterL3AbsoluteAK7Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    inputTxtFile = cms.untracked.string('Summer09_7TeV_ReReco332_L3Absolute_AK7Calo.txt'), 
@@ -796,6 +816,7 @@ process.dbWriterL2RelativeIC5PF *
 process.dbWriterL2RelativeAK5JPT * 
 process.dbWriterL2RelativeAK5Calo * 
 process.dbWriterL2RelativeAK5PF * 
+process.dbWriterL2RelativeAK5TRK * 
 process.dbWriterL2RelativeAK7Calo * 
 process.dbWriterL2RelativeAK7PF * 
 process.dbWriterL2RelativeKT4Calo * 
@@ -808,6 +829,7 @@ process.dbWriterL3AbsoluteIC5PF *
 process.dbWriterL3AbsoluteAK5JPT * 
 process.dbWriterL3AbsoluteAK5Calo * 
 process.dbWriterL3AbsoluteAK5PF * 
+process.dbWriterL3AbsoluteAK5TRK * 
 process.dbWriterL3AbsoluteAK7Calo * 
 process.dbWriterL3AbsoluteAK7PF * 
 process.dbWriterL3AbsoluteKT4Calo * 
