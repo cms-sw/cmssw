@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Thu Mar 11 12:19:07 CEST 2010
-// $Id: HSCP_TreeBuilder.cc,v 1.1 2010/04/07 09:28:18 querten Exp $
+// $Id: HSCP_TreeBuilder.cc,v 1.1 2010/04/12 11:06:45 querten Exp $
 //
 
 
@@ -523,37 +523,6 @@ HSCP_TreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //Muon_quality       [NMuons] = muon->quality();
         Muon_qualityValid  [NMuons] = muon->isQualityValid();
         Muon_charge        [NMuons] = muon->charge();
-        TrackRef innertrack = muon->innerTrack();
-        if(innertrack.isNonnull()){ 
-        Muon_TrackIndex    [NMuons] = innertrack.key();
-        Muon_Track_pt      [NMuons] = innertrack->pt ();
-        Muon_Track_eta     [NMuons] = innertrack->eta();
-        Muon_Track_phi     [NMuons] = innertrack->phi();
-        }else{
-        Muon_TrackIndex    [NMuons] = -1;
-        Muon_Track_pt      [NMuons] = -1;
-        Muon_Track_eta     [NMuons] = -1;
-        Muon_Track_phi     [NMuons] = -1;
-        }
-/*
-        TrackRef debugtrack = muon->innerTrack();
-
-        edm::Handle<reco::TrackCollection> trackCollectionHandleDEBUG;
-        try { iEvent.getByLabel(m_tracksTag,trackCollectionHandleDEBUG); } catch (...) {;}
-        reco::TrackCollection trackCollectionDEBUG = *trackCollectionHandleDEBUG.product();
-
-        printf("ID  = %i @ %i,%i VS %i,%i\n",debugtrack.key(),debugtrack.id().processIndex(), debugtrack.id().productIndex(),trackCollectionHandleDEBUG.id().processIndex(),debugtrack.id().productIndex() );
-        if(debugtrack.isNonnull()){
-        reco::TrackRef track  = reco::TrackRef( trackCollectionHandleDEBUG, debugtrack.key() );
-        printf("PROC= %i vs %i\n",debugtrack.id().processIndex(),track.id().processIndex());
-        printf("PROD= %i vs %i\n",debugtrack.id().productIndex(),track.id().productIndex());
-        printf("KEY = %i vs %i\n",debugtrack.key (),track. key());
-        printf("PT  = %f vs %f\n",debugtrack->pt (),track->pt ());
-        printf("ETA = %f vs %f\n",debugtrack->eta(),track->eta());
-        printf("PHI = %f vs %f\n",debugtrack->phi(),track->phi());
-        }
-*/
-
         Muon_dt_IBeta      [NMuons] = timeMapDT [muon].inverseBeta();
         Muon_dt_IBeta_err  [NMuons] = timeMapDT [muon].inverseBetaErr();
         Muon_dt_fIBeta     [NMuons] = timeMapDT [muon].freeInverseBeta();
@@ -567,12 +536,22 @@ HSCP_TreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         Muon_cb_fIBeta     [NMuons] = timeMapCmb[muon].freeInverseBeta();
         Muon_cb_fIBeta_err [NMuons] = timeMapCmb[muon].freeInverseBetaErr();
 
+        TrackRef innertrack = muon->innerTrack();
+        if(innertrack.isNonnull()){ 
+           Muon_TrackIndex    [NMuons] = innertrack.key();
+           Muon_Track_pt      [NMuons] = innertrack->pt ();
+           Muon_Track_eta     [NMuons] = innertrack->eta();
+           Muon_Track_phi     [NMuons] = innertrack->phi();
+        }else{
+           Muon_TrackIndex    [NMuons] = -1;
+           Muon_Track_pt      [NMuons] = -1;
+           Muon_Track_eta     [NMuons] = -1;
+           Muon_Track_phi     [NMuons] = -1;
+        }
+
         NMuons++;
       }
    }
-
-
-
 
 
    if(reccordTrackInfo){
