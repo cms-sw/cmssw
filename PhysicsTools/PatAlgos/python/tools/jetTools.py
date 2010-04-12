@@ -731,7 +731,7 @@ class SwitchJetCollection(ConfigToolBase):
                 applyPostfix(process, "metJESCorAK5CaloJet", postfix).corrector = '%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
         else:
             ## remove the jetCorrFactors from the std sequence
-	    removeFromSequence(process, process.jetCorrFactors, postfix)
+            process.patJetMETCorrections.remove(process.patJetCorrFactors)
             ## switch embedding of jetCorrFactors off
             ## for pat jet production
             applyPostfix(process, "patJets", postfix).addJetCorrFactors = False
