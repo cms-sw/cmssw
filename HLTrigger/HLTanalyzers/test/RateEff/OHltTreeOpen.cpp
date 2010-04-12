@@ -46,29 +46,19 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   /* Single Jet */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1SingleCenJet") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      int rc = 0;
-      for(int i=0;i<NL1CenJet;i++) if(L1CenJetEt[i] >= 0.0) rc++;
-      if(rc > 0)
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1SingleForJet") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      int rc = 0;
-      for(int i=0;i<NL1ForJet;i++) if(L1ForJetEt[i] >= 0.0) rc++;
-      if(rc > 0)
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1SingleTauJet") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      int rc = 0;
-      for(int i=0;i<NL1Tau;i++) if(L1TauEt[i] >= 0.0) rc++;
-      if(rc > 0)
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
     }
   }
-
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Jet6") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }   
