@@ -2,12 +2,8 @@
 #define CondTools_L1Trigger_DataManager_h
 
 #include "FWCore/Framework/interface/DataKeyTags.h"
-
-#include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/Connection.h"
-/* #include "CondCore/DBCommon/interface/CoralTransaction.h" */
-/* #include "CondCore/DBCommon/interface/PoolTransaction.h" */
-
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
 #include <string>
@@ -40,8 +36,8 @@ class DataManager
         edm::eventsetup::TypeTag findType (const std::string & type) const;
 
         // Database connection management
-	cond::DBSession * session;
-	cond::Connection * connection ;
+	cond::DbSession * session;
+	cond::DbConnection * connection ;
 };
 
 }

@@ -1,5 +1,14 @@
 #!/bin/sh
 
+# This script reads the online conditions for a specified L1KEY, writes them
+# to a sqlite file (l1config.db), and assigns them an infinite IOV starting
+# at run 10.
+
+# Runs 1-10 will have default conditions which are copies the most recently
+# valid payloads in ORCON (i.e. for run 4294967295).  For subsystems that
+# are not in the specified L1KEY, these default conditions will be valid for
+# 1-inf.
+
 tagbase=CRAFT09
 
 nflag=0

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Mar  2 01:46:46 CET 2008
-// $Id: OMDSReader.cc,v 1.11 2009/03/18 23:08:24 wsun Exp $
+// $Id: OMDSReader.cc,v 1.12 2010/02/16 21:56:37 wsun Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
 #include "RelationalAccess/ITableDescription.h"
 #include "RelationalAccess/IColumn.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 
 //
 // constants, enums and typedefs
@@ -35,16 +36,14 @@ namespace l1t
 // constructors and destructor
 //
   OMDSReader::OMDSReader()
-    : DataManager(),
-      m_coralTransaction( 0 )
+    : DataManager()
   {}
 
   OMDSReader::OMDSReader( const std::string& connectString,
 			  const std::string& authenticationPath )
     : DataManager( connectString, authenticationPath, true )
   {
-    m_coralTransaction = &( connection->coralTransaction() ) ;
-    m_coralTransaction->start( true ) ;
+    session->transaction().start( true ) ;
   }
 
   void
@@ -52,8 +51,7 @@ namespace l1t
 		       const std::string& authenticationPath )
   {
     DataManager::connect( connectString, authenticationPath, true ) ;
-    m_coralTransaction = &( connection->coralTransaction() ) ;
-    m_coralTransaction->start( true ) ;
+    session->transaction().start( true ) ;
   }
 
 // OMDSReader::OMDSReader(const OMDSReader& rhs)
@@ -95,8 +93,8 @@ OMDSReader::~OMDSReader()
     const std::string& conditionRHSName ) const
   {
     coral::ISchema& schema = schemaName.empty() ?
-      m_coralTransaction->nominalSchema() :
-      m_coralTransaction->coralSessionProxy().schema( schemaName ) ;
+      session->nominalSchema() :
+      session->schema( schemaName ) ;
 
     coral::ITable& table = schema.tableHandle( tableName ) ;
 
@@ -169,8 +167,8 @@ OMDSReader::~OMDSReader()
     const std::string& tableName ) const
   {
     coral::ISchema& schema = schemaName.empty() ?
-      m_coralTransaction->nominalSchema() :
-      m_coralTransaction->coralSessionProxy().schema( schemaName ) ;
+      session->nominalSchema() :
+      session->schema( schemaName ) ;
 
     coral::ITable& table = schema.tableHandle( tableName ) ;
     const coral::ITableDescription& tableDesc = table.description() ;
@@ -199,8 +197,8 @@ OMDSReader::~OMDSReader()
     const std::string& conditionRHSName ) const
   {
     coral::ISchema& schema = schemaName.empty() ?
-      m_coralTransaction->nominalSchema() :
-      m_coralTransaction->coralSessionProxy().schema( schemaName ) ;
+      session->nominalSchema() :
+      session->schema( schemaName ) ;
 
     //    coral::IView& view = schema.viewHandle( viewName ) ;
 
@@ -282,8 +280,8 @@ OMDSReader::~OMDSReader()
     const std::string& viewName ) const
   {
     coral::ISchema& schema = schemaName.empty() ?
-      m_coralTransaction->nominalSchema() :
-      m_coralTransaction->coralSessionProxy().schema( schemaName ) ;
+      session->nominalSchema() :
+      session->schema( schemaName ) ;
 
     std::set< std::string > views = schema.listViews ();
     std::vector< std::string > names ;
