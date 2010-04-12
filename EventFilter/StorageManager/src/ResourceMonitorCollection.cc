@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.33 2010/04/12 12:05:01 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.34 2010/04/12 15:25:05 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -67,6 +67,8 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
 
 void ResourceMonitorCollection::addDisk(const std::string& pathname)
 {
+  if ( pathname.empty() ) return;
+
   DiskUsagePtr diskUsage( new DiskUsage() );
   diskUsage->pathName = pathname;
   retrieveDiskSize(diskUsage);
