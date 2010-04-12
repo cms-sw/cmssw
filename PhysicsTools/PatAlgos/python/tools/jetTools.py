@@ -205,7 +205,8 @@ class RunBTagging(ConfigToolBase):
         setattr( process, 'jetProbabilityBJetTags' +label, btag.jetProbabilityBJetTags.clone (tagInfos = vit(ipTILabel)) )
         setattr( process, 'trackCountingHighPurBJetTags'+label, btag.trackCountingHighPurBJetTags.clone(tagInfos = vit(ipTILabel)) )
         setattr( process, 'trackCountingHighEffBJetTags'+label, btag.trackCountingHighEffBJetTags.clone(tagInfos = vit(ipTILabel)) )
-        setattr( process, 'simpleSecondaryVertexBJetTags'+label, btag.simpleSecondaryVertexBJetTags.clone(tagInfos = vit(svTILabel)) )
+        setattr( process, 'simpleSecondaryVertexHighEffBJetTags'+label, btag.simpleSecondaryVertexHighEffBJetTags.clone(tagInfos = vit(svTILabel)) )
+        setattr( process, 'simpleSecondaryVertexHighPurBJetTags'+label, btag.simpleSecondaryVertexHighPurBJetTags.clone(tagInfos = vit(svTILabel)) )
         #setattr( process, 'simpleSecondaryVertexNegativeBJetTags'+label, nbtag.simpleSecondaryVertexNegativeBJetTags.clone(tagInfos = vit(nvTILabel)) )
         setattr( process, 'combinedSecondaryVertexBJetTags'+label, btag.combinedSecondaryVertexBJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
         setattr( process, 'combinedSecondaryVertexMVABJetTags'+label, btag.combinedSecondaryVertexMVABJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
@@ -223,8 +224,10 @@ class RunBTagging(ConfigToolBase):
                                                         'jetProbabilityBJetTags',
                                                         'trackCountingHighPurBJetTags',
                                                         'trackCountingHighEffBJetTags',
-                                                        'simpleSecondaryVertexBJetTags',
+                                                        ##'simpleSecondaryVertexBJetTags',
                                                         #'simpleSecondaryVertexNegativeBJetTags',
+                                                        'simpleSecondaryVertexHighEffBJetTags',
+                                                        'simpleSecondaryVertexHighPurBJetTags',
                                                         'combinedSecondaryVertexBJetTags',
                                                         'combinedSecondaryVertexMVABJetTags',
                                                         #'softElectronByPtBJetTags',
