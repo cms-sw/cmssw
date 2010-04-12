@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id: TestOutliers.cc,v 1.7 2009/05/27 07:14:02 fabiocos Exp $
+// $Id: TestOutliers.cc,v 1.8 2010/02/11 00:14:39 wmtan Exp $
 //
 //
 
@@ -181,7 +181,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByLabel("offlineBeamSpot",beamSpot); 
 
-  hitAssociator = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
+  hitAssociator = new TrackerHitAssociator(iEvent);
 
   theAssociatorOld = new TrackAssociatorByHits(psetold);
   theAssociatorOut = new TrackAssociatorByHits(psetout);
