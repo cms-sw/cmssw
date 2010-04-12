@@ -46,7 +46,7 @@ class TCalibData;
 // "EE" geometry 
 #define NCRYSEE    830   // Number of crystals per EE supermodule
 #define NMODEE     22     // Number of EE submodules
-#define NMEMEE     2 
+#define NMEM       2 
 
 #define NSIDES     2     // Number of sides
 #define NREFCHAN   2     // Ref number for APDB
@@ -174,7 +174,7 @@ class EcalLightAnalyzer: public edm::EDAnalyzer{
   bool gotLasShapeForPN[nColor][NSIDES];
 
   double _corrPNEB[NPN][nColor][NSIDES];
-  double _corrPNEE[NPN][NMEMEE][nColor][NSIDES];
+  double _corrPNEE[NPN][NMEM][nColor][NSIDES];
 
 
   double shapes[NSAMPSHAPES];

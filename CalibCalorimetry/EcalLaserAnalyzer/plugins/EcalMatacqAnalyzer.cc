@@ -1,7 +1,7 @@
  /* 
  *  \class EcalMatacqAnalyzer
  *
- *  $Date: 2009/06/02 12:55:19 $
+ *  $Date: 2010/04/09 14:42:15 $
  *  primary author: Gautier Hamel De Monchenault - CEA/Saclay
  *  author: Julie Malcles - CEA/Saclay
  */
@@ -663,18 +663,18 @@ void EcalMatacqAnalyzer::endJob()
   //=====================
 
   double laser1[N_samples], laser2[1500];
-  int iret=0, nbin=1500;
+  int  nbin=1500;
   double FW_50[NCOL][NSIDES], FW_10[NCOL][NSIDES], FW_05[NCOL][NSIDES]; // from mean shape
 
   for (unsigned int icol=0;icol<nCol;icol++){
-    for(int iside=0; iside<nSide; iside++){
+    for(unsigned int iside=0; iside<nSide; iside++){
       
       for(int ibin=0; ibin<N_samples; ibin++) laser1[ibin] = shapeMarcTmp[icol][iside]->GetBinContent(ibin+1);
       
       // Extract the signal and extend it up "nbin" ns
       int ifirst=-1;
       int posmax=100;
-      int ilast=0, imax=0;
+      int imax=0;
       double las_max=0., las_ped=0.;;
       for(int i=0; i<N_samples; i++)
 	{
@@ -708,11 +708,11 @@ void EcalMatacqAnalyzer::endJob()
       for(iMarcFirst=posmax; iMarcFirst>=0 && laser2[iMarcFirst]>1./1000.; iMarcFirst--);
       
       double nphotMarc=0;
-      for(int i=iMarcFirst;i<iMarcFirst+_nsamplesshape;i++){
+      for(unsigned int i=iMarcFirst;i<iMarcFirst+_nsamplesshape;i++){
 	nphotMarc+=laser2[i];
       }
       
-      for(int i=0;i<_nsamplesshape;i++){
+      for(unsigned int i=0;i<_nsamplesshape;i++){
 	shapeMarc[icol][iside]->SetBinContent(i+1,laser2[i]/nphotMarc);
       }
       
@@ -757,8 +757,8 @@ void EcalMatacqAnalyzer::endJob()
       double w50=g50-f50;
       double w10=g10-f10;
       double w05=g05-f05;
-      double w01=g01-f01;
-      double rt10_90=f90-f10;
+      //      double w01=g01-f01;
+      //      double rt10_90=f90-f10;
       
       FW_50[icol][iside]=w50;
       FW_10[icol][iside]=w10;
@@ -898,7 +898,7 @@ void EcalMatacqAnalyzer::endJob()
 	}
       }
       
-      for( unsigned int i=_presampleshape;i<shapeMatTmp[iCol][iSide]->GetNbinsX();i++){
+      for(unsigned int i=_presampleshape;i< (unsigned) shapeMatTmp[iCol][iSide]->GetNbinsX();i++){
 	height=shapeMatTmp[iCol][iSide]->GetBinContent(i)-bl;
 	if(height>norm) norm=height;	
       }

@@ -1,7 +1,7 @@
 /* 
  *  \class EcalLightAnalyzer
  *
- *  $Date: 2009/06/02 12:55:19 $
+ *  $Date: 2010/04/09 13:48:04 $
  *  primary author: Julie Malcles - CEA/Saclay
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */
@@ -93,7 +93,6 @@ _ecalPart(        iConfig.getUntrackedParameter< std::string  >( "ecalPart",    
 _fedid(           iConfig.getUntrackedParameter< int          >( "fedID",            -999 ) ),
 _saveallevents(   iConfig.getUntrackedParameter< bool         >( "saveAllEvents",   false ) ),
 _debug(           iConfig.getUntrackedParameter< int          >( "debug",              0  ) ),
-_t0shapes(        iConfig.getUntrackedParameter< double       >( "t0shapes",             10. ) ), 
 
 // LASER/LED AB:
 _fitab(           iConfig.getUntrackedParameter< bool         >( "fitAB",           false ) ),
@@ -102,6 +101,8 @@ _fitab(           iConfig.getUntrackedParameter< bool         >( "fitAB",       
 
 _nsamplesshapes(                                                                NSAMPSHAPES ),
 _npresamplesshapes(                                                                      50 ), 
+_t0shapes(        iConfig.getUntrackedParameter< double       >( "t0shapes",          10. ) ), 
+
 
 // COMMON:
 nCrys(                                                                               NCRYSEB),
@@ -183,7 +184,7 @@ nGainAPD(                                                                     NG
       gotLasShapeForPN[icc][iss]=false;
       for(unsigned int j=0;j<NPN;j++){
 	_corrPNEB[j][icc][iss]=-1.;
-	for(unsigned int i=0;i<NMEMEE;i++){
+	for(unsigned int i=0;i<NMEM;i++){
 	  _corrPNEE[j][i][icc][iss]=-1.;
 	}
       }
@@ -1629,6 +1630,7 @@ void EcalLightAnalyzer::endJob() {
 
 	
 	if(_debug==2) cout<<" getConvolutionPN " <<mempn.second<<"  " <<mempn.first<<"  " <<iColor<<"  " <<side<< endl;
+
 	shapeCorPN=getConvolutionPN( mempn.second, mempn.first, iColor, side );
 	
 
@@ -1703,8 +1705,8 @@ bool EcalLightAnalyzer::getMatacq() {
     int nbin=250;
     double shapeval[250];
     
-    for (int icol=0;icol<colors.size();icol++){
-      for (int iside=0;iside<sides.size();iside++){
+    for (unsigned int icol=0;icol<colors.size();icol++){
+      for (unsigned int iside=0;iside<sides.size();iside++){
 	stringstream hname;
 	hname<<"pulseShape"<<icol<<"_" <<iside; 
 	
@@ -1748,7 +1750,7 @@ bool EcalLightAnalyzer::getMatacq() {
 	    doesMatShapeExist=1;
 	    
 	    double nphot=0.;
-	    for(int is=0; is<_nsamplesshapes; is++) nphot+=laserShape[icol][iside]->GetBinContent(is+1);
+	    for(unsigned int is=0; is<_nsamplesshapes; is++) nphot+=laserShape[icol][iside]->GetBinContent(is+1);
 	    if(nphot>0) laserShape[icol][iside]->Scale(1.0/nphot);
 	  }
 	}
@@ -1991,12 +1993,18 @@ void EcalLightAnalyzer::getLaserShapeForPN(int icol, int iside ) {
 }
 
 double EcalLightAnalyzer::getConvolutionPN(int iPN, int imem, int icol, int iside ) {
-  
-  
+
+  int jmem=0;  
   if (_ecalPart == "EB") {
     if( _corrPNEB[iPN][icol][iside]>0.0 ) return _corrPNEB[iPN][icol][iside];
+    
   }else{
-    if( _corrPNEE[iPN][imem][icol][iside]>0.0 ) return _corrPNEE[iPN][imem][icol][iside];
+    
+    int lmr=ME::lmr(_fedid, iside );
+    pair<int,int> mems=ME::memFromLmr( lmr );
+    if(imem==mems.first) jmem=0;
+    if(imem==mems.second) jmem=1;
+    if( _corrPNEE[iPN][jmem][icol][iside]>0.0 ) return _corrPNEE[iPN][jmem][icol][iside];
   }
 
   if(!gotLasShapeForPN[icol][iside]){
@@ -2043,10 +2051,10 @@ double EcalLightAnalyzer::getConvolutionPN(int iPN, int imem, int icol, int isid
   if (_ecalPart == "EB") {
     _corrPNEB[iPN][icol][iside]=qmax;
   }else{
-    _corrPNEE[iPN][imem][icol][iside]=qmax;
+    _corrPNEE[iPN][jmem][icol][iside]=qmax;
   }
   return qmax;
-
+  
 }
 
 
