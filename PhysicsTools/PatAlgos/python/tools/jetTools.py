@@ -224,7 +224,6 @@ class RunBTagging(ConfigToolBase):
                                                         'jetProbabilityBJetTags',
                                                         'trackCountingHighPurBJetTags',
                                                         'trackCountingHighEffBJetTags',
-                                                        ##'simpleSecondaryVertexBJetTags',
                                                         #'simpleSecondaryVertexNegativeBJetTags',
                                                         'simpleSecondaryVertexHighEffBJetTags',
                                                         'simpleSecondaryVertexHighPurBJetTags',
