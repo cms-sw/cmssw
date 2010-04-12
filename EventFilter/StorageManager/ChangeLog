@@ -1,10 +1,21 @@
+2010-04-12 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-10-00
+	* Make the db log file path configurable (still defaults to
+	  filePath+"/log").
+	* Add db log file path to the disks to be monitored.
+	* Add a 'failHighWaterMark' configuration parameter (default 95%).
+	  If any of the disks not listed in 'otherDiskPaths' is going beyond
+	  this disk usage (in %), the SM will go into Failed state.
+	* Use disk usage in % rather than fractional part for 'highWaterMark'.
+
 2010-04-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-09-02
 	* Use the same time object for file timestamps in database log file
 	  and for the file name.
 	* Add simple unit test for time retrieval and time stamp generation.
-	* Lump unwanted event alarms by output module, i.e. do not 
+	* Lump unwanted event alarms by output module, i.e. do not
 	  generate an alarm for each trigger bit combination.
 	* Increase default DQM event queue limit to 3072 entries.
 
