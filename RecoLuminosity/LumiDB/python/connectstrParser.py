@@ -1,4 +1,3 @@
-#import xml.dom.minidom
 import re
 class connectstrParser(object):
     def __init__(self,connectstr):
@@ -47,10 +46,17 @@ class connectstrParser(object):
         if len(parameterDict)==0:
             raise 'empty frontier parameters, cannot construct full connect string'
         result='frontier://'
-        for k,v in parameterDict:
-            result+='('+k+'='+v+')'
+        for k,v in parameterDict.items():
+            ##if attr name=url, concatenate; if attrname=value discard
+            for (attrname,attrvalue) in v:
+                if attrname=='url':
+                    result+='('+k+'url='+attrvalue+')'
+                else:
+                    result+='('+k+'='+attrvalue+')'
         result+='/'+schemaname
+        return result
 if __name__ == '__main__':
+    import frontierconfigParser
     o='oracle://cms_orcoff_prep/CMS_LUMI_DEV_OFFLINE'
     parser=connectstrParser(o)
     parser.parse()
@@ -71,7 +77,15 @@ if __name__ == '__main__':
     parser=connectstrParser(f4)
     parser.parse()
     print parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo()
+    if parser.needsitelocalinfo():
+        sitelocalconfig='/afs/cern.ch/user/x/xiezhen/w1/lumical/CMSSW_3_5_0_pre5/src/RecoLuminosity/LumiDB/site-local-config.xml'
+        frontierparser=frontierconfigParser.frontierconfigParser()
+        frontierparser.parse(sitelocalconfig)
+        print 'full frontier string'
+        print parser.fullfrontierStr(parser.schemaname(),frontierparser.parameterdict())
     f5='frontier://LumiPrep(otherparameter=value)/CMS_LUMI_DEV_OFFLINE'
     parser=connectstrParser(f5)
     parser.parse()
     print parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo()
+    
+    
