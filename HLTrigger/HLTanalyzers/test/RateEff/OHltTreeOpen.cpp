@@ -44,11 +44,46 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   // Check OpenHLT trigger
 
   /* Single Jet */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1SingleCenJet") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      int rc = 0;
+      for(int i=0;i<NL1CenJet;i++) if(L1CenJetEt[i] >= 0.0) rc++;
+      if(rc > 0)
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1SingleForJet") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      int rc = 0;
+      for(int i=0;i<NL1ForJet;i++) if(L1ForJetEt[i] >= 0.0) rc++;
+      if(rc > 0)
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1SingleTauJet") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      int rc = 0;
+      for(int i=0;i<NL1Tau;i++) if(L1TauEt[i] >= 0.0) rc++;
+      if(rc > 0)
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+    }
+  }
+
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Jet6") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }   
     }    
   }    
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Jet10") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      int rc = 0;
+      for(int i=0;i<NL1CenJet;i++) if(L1CenJetEt[i] >= 10.0) rc++;
+      for(int i=0;i<NL1ForJet;i++) if(L1ForJetEt[i] >= 10.0) rc++;
+      for(int i=0;i<NL1Tau   ;i++) if(L1TauEt   [i] >= 10.0) rc++;
+      if(rc > 0)
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+    }
+  }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Jet15") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }   
@@ -117,8 +152,29 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       } 
     } 
   } 
- 
-  /* DiJetAve */
+
+  /* Double Jet */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleJet15U_ForwardBackward") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      int rc = 0;
+      
+      // Loop over all oh jets, select events where both pT of a pair are above threshold and in HF+ and HF-
+      for (int i=0;i<NrecoJetCal;i++) {
+	if(recoJetCalPt[i] > 15.0 && recoJetCalEta[i] > 3.0 && recoJetCalEta[i] < 5.0) {  // Jet pT/eta cut
+	  for (int j=0;j<NrecoJetCal && j!=i;j++) {
+	    if(recoJetCalPt[j] > 15.0 && recoJetCalEta[j] > -5.0 && recoJetCalEta[j] < -3.0) {  // Jet pT/eta cut
+	      rc++;
+	    }
+	  }
+	}      
+	if(rc > 0)
+	  {
+	    if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+	  }
+      }
+    }
+  }
+/* DiJetAve */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve15") == 0) {   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHltDiJetAvePassed(15.)>=1) {   
@@ -1197,7 +1253,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   }
 
    
-    /* Photons */
+  /* Photons */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Photon5") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(true) { // passthrough     
@@ -1205,6 +1261,13 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }     
     }     
   }      
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_EgammaSuperClusterOnly_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1PhotonPassed(5.,0,999.,999.,999.,999.)>=1) { // added track iso!
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon15_L1R") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHlt1PhotonPassed(15.,0,999.,999.,999.,999.)>=1) { // added track iso!
