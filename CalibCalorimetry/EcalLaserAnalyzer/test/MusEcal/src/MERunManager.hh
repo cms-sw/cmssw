@@ -90,6 +90,7 @@ public:
 
   // recursive flag setting 
   void setFlag( MEChannel* leaf, ME::Time time, int var, bool flag ); 
+  
 
   void refresh();
 

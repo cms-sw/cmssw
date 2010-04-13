@@ -144,6 +144,7 @@ METimeInterval::get( ME::Time time, unsigned level )
 METimeInterval*
 METimeInterval::first( unsigned level )
 {
+
   if( _level<level ) 
     {
       if( _below ) return _below->first( level ); 

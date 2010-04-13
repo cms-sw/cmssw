@@ -56,10 +56,13 @@ class MERunPanel;
 class MEChanPanel;
 class MELeafPanel;
 class MEMultiVarPanel;
+class METwoVarPanel;
+class MEIntervals;
 
 class MusEcalGUI : public TGMainFrame, public MECanvasHolder, public MusEcal
 {
   enum { iHIST, iVS_CHANNEL, iMAP };
+  bool _write;
 
 public:
 
@@ -120,6 +123,11 @@ private:
   friend class MEMultiVarPanel;
   void createMultiVarPanel();
 
+  // twoVar panel
+  METwoVarPanel* _fTwoVarPanel;
+  friend class METwoVarPanel;
+  void createTwoVarPanel();
+
   // draw functions
   int _ihtype;
   int _icateg;
@@ -136,13 +144,26 @@ private:
   void leafPlot(     int opt=0 );
   void multiVarPlot( int opt=0 );
 
+  // correlation plots
+  void correlation2Var( int var0, int var1, int zoom0=-1, int zoom1=-1, int fitDegree=1, int opt=0);
+  void intervalPlot( MEIntervals* intervals_ );
+  void distancePlot( );
+  //void correctionPlot( );
+
+  // draw intervals on history plots
+  bool _drawIntervals;
+  void drawIntervals( MEIntervals*, double ymin, double ymax,  unsigned int t0_=0 );
+
+  // interval building with plotting
+  //virtual void buildMtqIntervals( int type , int opt=0);
+  
   // normalize history?
   bool _normalize;  // FIXME: was in MusEcal
   
   // current type of history plot
   enum { iHistoryVsTime, iHistoryProjection };
   int _historyType;
-
+  
   friend class MEPlotWindow;
   std::map< TString, MEPlotWindow* > _window;
   MEPlotWindow* getWindow( TString, int opt, int w, int h );
@@ -179,7 +200,7 @@ private:
   TGPopupMenu* f_APD_Menu;
   TGPopupMenu* f_PN_Menu;
   TGPopupMenu* f_MTQ_Menu;
-  TGPopupMenu* f_APD_Hist_Menu[ME::iSizeC];
+  TGPopupMenu* f_APD_Hist_Menu[ME::iSizeC][2];
   TGPopupMenu* f_PN_Hist_Menu[ME::iSizeC]; 
   TGPopupMenu* f_MTQ_Hist_Menu[ME::iSizeC];
 
@@ -197,7 +218,7 @@ private:
   TGPopupMenu* f_History_Menu;
   TGPopupMenu* f_History_L_Menu;
   TGPopupMenu* f_History_TPV_Menu;
-  TGPopupMenu* f_History_LV_Menu[ME::iSizeC]; 
+  TGPopupMenu* f_History_LV_Menu[ME::iSizeC][2]; 
 
   // Frames
   TGHorizontalFrame*   fHFrame1;    // Horizontal frame up
