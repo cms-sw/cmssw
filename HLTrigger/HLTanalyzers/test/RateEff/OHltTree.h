@@ -410,6 +410,13 @@ public :
   Int_t           L1_TripleJet30; 
   Int_t           L1_ZeroBias;  
   Int_t           L1_ZeroBias_Ext;  
+  Int_t           L1_SingleCenJet2;
+  Int_t           L1_SingleCenJet4;
+  Int_t           L1_SingleForJet2;
+  Int_t           L1_SingleForJet4;
+  Int_t           L1_SingleTauJet2;
+  Int_t           L1_SingleTauJet4;
+  Int_t           L1_DoubleForJet10_EtaOpp;
 
   // ccla - L1 Technical bits (06Dec09)
   Int_t           L1Tech_BPTX_minus_v0;
@@ -491,6 +498,13 @@ public :
   Int_t           OpenL1_Mu3EG5; 
   Int_t           OpenL1_EG5_HTT100; 
   Int_t           OpenL1_SingleMu30;  
+  Int_t           OpenL1_SingleCenJet2; 
+  Int_t           OpenL1_SingleCenJet4; 
+  Int_t           OpenL1_SingleForJet2; 
+  Int_t           OpenL1_SingleForJet4; 
+  Int_t           OpenL1_SingleTauJet2; 
+  Int_t           OpenL1_SingleTauJet4; 
+
 
   // JH - 1E31 MC menu
   Int_t           HLT_L1Jet15; 
@@ -1196,6 +1210,14 @@ public :
   TBranch        *b_L1_TripleJet30;   //! 
   TBranch        *b_L1_ZeroBias;   //!
   TBranch        *b_L1_ZeroBias_Ext;   //!
+  TBranch        *b_L1_SingleCenJet2;   //!    
+  TBranch        *b_L1_SingleCenJet4;   //!    
+  TBranch        *b_L1_SingleForJet2;   //!    
+  TBranch        *b_L1_SingleForJet4;   //!    
+  TBranch        *b_L1_SingleTauJet2;   //!    
+  TBranch        *b_L1_SingleTauJet4;   //!    
+  TBranch        *b_L1_DoubleForJet10_EtaOpp;   //!    
+
 
   // ccla - L1 Technical bits  (06Dec09)
   TBranch        *b_L1Tech_BPTX_minus_v0;   //!
@@ -2434,6 +2456,13 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_TripleJet30", &L1_TripleJet30, &b_L1_TripleJet30); 
   fChain->SetBranchAddress("L1_ZeroBias", &L1_ZeroBias, &b_L1_ZeroBias);
   fChain->SetBranchAddress("L1_ZeroBias_Ext", &L1_ZeroBias_Ext, &b_L1_ZeroBias_Ext);
+  fChain->SetBranchAddress("L1_SingleCenJet2", &L1_SingleCenJet2, &b_L1_SingleCenJet2);
+  fChain->SetBranchAddress("L1_SingleCenJet4", &L1_SingleCenJet4, &b_L1_SingleCenJet4);
+  fChain->SetBranchAddress("L1_SingleForJet2", &L1_SingleForJet2, &b_L1_SingleForJet2);
+  fChain->SetBranchAddress("L1_SingleForJet4", &L1_SingleForJet4, &b_L1_SingleForJet4);
+  fChain->SetBranchAddress("L1_SingleTauJet2", &L1_SingleTauJet2, &b_L1_SingleTauJet2);
+  fChain->SetBranchAddress("L1_SingleTauJet4", &L1_SingleTauJet4, &b_L1_SingleTauJet4);
+  fChain->SetBranchAddress("L1_DoubleForJet10_EtaOpp", &L1_DoubleForJet10_EtaOpp, &b_L1_DoubleForJet10_EtaOpp);
 
   // ccla - L1 Technical bits  (06Dec09)
   fChain->SetBranchAddress("L1Tech_BPTX_minus.v0", &L1Tech_BPTX_minus_v0, &b_L1Tech_BPTX_minus_v0);
@@ -2873,6 +2902,13 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_TripleJet30", &map_BitOfStandardHLTPath["L1_TripleJet30"], &b_L1_TripleJet30); 
   fChain->SetBranchAddress("L1_ZeroBias", &map_BitOfStandardHLTPath["L1_ZeroBias"], &b_L1_ZeroBias);
   fChain->SetBranchAddress("L1_ZeroBias_Ext", &map_BitOfStandardHLTPath["L1_ZeroBias_Ext"], &b_L1_ZeroBias_Ext);
+  fChain->SetBranchAddress("L1_SingleCenJet2", &map_BitOfStandardHLTPath["L1_SingleCenJet2"], &b_L1_SingleCenJet2); 
+  fChain->SetBranchAddress("L1_SingleCenJet4", &map_BitOfStandardHLTPath["L1_SingleCenJet4"], &b_L1_SingleCenJet4); 
+  fChain->SetBranchAddress("L1_SingleForJet2", &map_BitOfStandardHLTPath["L1_SingleForJet2"], &b_L1_SingleForJet2); 
+  fChain->SetBranchAddress("L1_SingleForJet4", &map_BitOfStandardHLTPath["L1_SingleForJet4"], &b_L1_SingleForJet4); 
+  fChain->SetBranchAddress("L1_SingleTauJet2", &map_BitOfStandardHLTPath["L1_SingleTauJet2"], &b_L1_SingleTauJet2); 
+  fChain->SetBranchAddress("L1_SingleTauJet4", &map_BitOfStandardHLTPath["L1_SingleTauJet4"], &b_L1_SingleTauJet4); 
+  fChain->SetBranchAddress("L1_DoubleForJet10_EtaOpp", &map_BitOfStandardHLTPath["L1_DoubleForJet10_EtaOpp"], &b_L1_DoubleForJet10_EtaOpp); 
 
   fChain->SetBranchAddress("L1_DoubleMuTopBottom", &map_BitOfStandardHLTPath["L1_DoubleMuTopBottom"], &b_L1_DoubleMuTopBottom); 
   fChain->SetBranchAddress("L1_DoubleEG05_TopBottom", &map_BitOfStandardHLTPath["L1_DoubleEG05_TopBottom"], &b_L1_DoubleEG05_TopBottom);  
@@ -3423,6 +3459,34 @@ void OHltTree::SetOpenL1Bits()
     OpenL1_SingleMu30 = 0;  
    
   map_BitOfStandardHLTPath["OpenL1_SingleMu30"] = OpenL1_SingleMu30;   
+
+  OpenL1_SingleCenJet2 = 0; 
+  OpenL1_SingleCenJet4 = 0; 
+  OpenL1_SingleForJet2 = 0; 
+  OpenL1_SingleForJet4 = 0; 
+  OpenL1_SingleTauJet2 = 0; 
+  OpenL1_SingleTauJet4 = 0; 
+
+  if(L1CenJetEt[0] > 2.0)
+    OpenL1_SingleCenJet2 = 1;
+  if(L1CenJetEt[0] > 4.0) 
+    OpenL1_SingleCenJet4 = 1; 
+  if(L1ForJetEt[0] > 2.0) 
+    OpenL1_SingleForJet2 = 1; 
+  if(L1ForJetEt[0] > 4.0)  
+    OpenL1_SingleForJet4 = 1;  
+  if(L1TauEt[0] > 2.0) 
+    OpenL1_SingleTauJet2 = 1; 
+  if(L1TauEt[0] > 4.0)  
+    OpenL1_SingleTauJet4 = 1;  
+
+
+  map_BitOfStandardHLTPath["OpenL1_SingleCenJet2"] = OpenL1_SingleCenJet2; 
+  map_BitOfStandardHLTPath["OpenL1_SingleCenJet4"] = OpenL1_SingleCenJet4; 
+  map_BitOfStandardHLTPath["OpenL1_SingleForJet2"] = OpenL1_SingleForJet2; 
+  map_BitOfStandardHLTPath["OpenL1_SingleForJet4"] = OpenL1_SingleForJet4; 
+  map_BitOfStandardHLTPath["OpenL1_SingleTauJet2"] = OpenL1_SingleTauJet2; 
+  map_BitOfStandardHLTPath["OpenL1_SingleTauJet4"] = OpenL1_SingleTauJet4; 
 
 }
 
