@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.8 2010/04/08 19:45:25 amraktad Exp $
+// $Id: Context.cc,v 1.9 2010/04/09 19:49:28 amraktad Exp $
 //
 
 // system include files
 
 // user include files
 #include "TH2.h"
+#include "TMath.h"
 #include "TEveTrackPropagator.h"
 #include "TEveCaloData.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
@@ -68,7 +69,7 @@ Context::Context(FWModelChangeManager* iCM,
       TH2F* dummy = new TH2F("background",
                              "background",
                              82, fw3dlego::xbins,
-                             72, -M_PI, M_PI);
+                             72, -1*TMath::Pi(), TMath::Pi());
 
       TH1::AddDirectory(status);
       Int_t sliceIndex = m_caloData->AddHistogram(dummy);
