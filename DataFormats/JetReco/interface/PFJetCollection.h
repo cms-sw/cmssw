@@ -1,10 +1,12 @@
 // F.R.
-// $Id: PFJetCollection.h,v 1.3 2007/08/20 17:53:30 fedor Exp $
+// $Id: PFJetCollection.h,v 1.4.6.2 2010/02/08 21:09:29 srappocc Exp $
 #ifndef JetReco_PFJetCollection_h
 #define JetReco_PFJetCollection_h
 
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/FwdRef.h"
+#include "DataFormats/Common/interface/FwdPtr.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
 #include "DataFormats/JetReco/interface/PFJet.h" //INCLUDECHECKER:SKIP
@@ -15,7 +17,11 @@ namespace reco {
   typedef std::vector<PFJet> PFJetCollection;
   /// edm references
   typedef edm::Ref<PFJetCollection> PFJetRef;
+  typedef edm::FwdRef<PFJetCollection> PFJetFwdRef;
+  typedef edm::FwdPtr<PFJet> PFJetFwdPtr;
   typedef edm::RefVector<PFJetCollection> PFJetRefVector;
   typedef edm::RefProd<PFJetCollection> PFJetRefProd;
+  typedef std::vector<edm::FwdRef<PFJetCollection> > PFJetFwdRefVector;
+  typedef std::vector<edm::FwdPtr<PFJet> > PFJetFwdPtrVector;
 }
 #endif

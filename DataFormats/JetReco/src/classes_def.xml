@@ -16,6 +16,12 @@
       <field name="transientMap_" transient="true"/>
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<reco::CaloJetCollection>,edm::RefProd<std::vector<reco::Track> > >"/>
+  <class name="edm::FwdRef<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >"/>
+  <class name="reco::CaloJetFwdRefVector"/>
+  <class name="edm::Wrapper<reco::CaloJetFwdRefVector>"/>
+  <class name="edm::FwdPtr<reco::CaloJet>"/>
+  <class name="reco::CaloJetFwdPtrVector"/>
+  <class name="edm::Wrapper<reco::CaloJetFwdPtrVector>"/>
 
   <class name="reco::JPTJet"/>
   <class name="reco::JPTJet::Specific"/>
@@ -42,6 +48,12 @@
   <class name="edm::Wrapper<reco::PFJetRefVector>"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> > >" />
   <class name="reco::JetTrackMatch<std::vector<reco::PFJet> >"/>
+  <class name="edm::FwdRef<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >"/>
+  <class name="reco::PFJetFwdRefVector"/>
+  <class name="edm::Wrapper<reco::PFJetFwdRefVector>"/>
+  <class name="edm::FwdPtr<reco::PFJet>"/>
+  <class name="reco::PFJetFwdPtrVector"/>
+  <class name="edm::Wrapper<reco::PFJetFwdPtrVector>"/>
 
   <class name="reco::GenJet"/>
   <class name="reco::GenJet::Specific"/>
@@ -53,6 +65,12 @@
   <class name="edm::Wrapper<reco::GenJetRefVector>"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::GenJet>,reco::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenJet>,reco::GenJet> > >" />
   <class name="reco::JetTrackMatch<std::vector<reco::GenJet> >"/>
+  <class name="edm::FwdRef<std::vector<reco::GenJet>,reco::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenJet>,reco::GenJet> >"/>
+  <class name="reco::GenJetFwdRefVector"/>
+  <class name="edm::Wrapper<reco::GenJetFwdRefVector>"/>
+  <class name="edm::FwdPtr<reco::GenJet>"/>
+  <class name="reco::GenJetFwdPtrVector"/>
+  <class name="edm::Wrapper<reco::GenJetFwdPtrVector>"/>
 
   <class name="reco::BasicJet"/>
   <class name="std::vector<reco::BasicJet>"/>
@@ -60,8 +78,15 @@
   <class name="edm::Ref<std::vector<reco::BasicJet>,reco::BasicJet,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicJet>,reco::BasicJet> >"/>
   <class name="edm::RefProd<std::vector<reco::BasicJet> >"/>
   <class name="edm::Wrapper<std::vector<reco::BasicJet> >"/>
+  <class name="edm::Wrapper<reco::BasicJetRefVector>"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::BasicJet>,reco::BasicJet,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicJet>,reco::BasicJet> > >" />
   <class name="reco::JetTrackMatch<std::vector<reco::BasicJet> >"/>
+  <class name="edm::FwdRef<std::vector<reco::BasicJet>,reco::BasicJet,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicJet>,reco::BasicJet> >"/>
+  <class name="reco::BasicJetFwdRefVector"/>
+  <class name="edm::Wrapper<reco::BasicJetFwdRefVector>"/>
+  <class name="edm::FwdPtr<reco::BasicJet>"/>
+  <class name="reco::BasicJetFwdPtrVector"/>
+  <class name="edm::Wrapper<reco::BasicJetFwdPtrVector>"/>
 
   <class name="reco::TrackJet">
     <field name="dau" transient="true"/>
@@ -73,9 +98,15 @@
   <class name="edm::Ref<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> >"/>
   <class name="edm::RefProd<std::vector<reco::TrackJet> >"/>
   <class name="edm::Wrapper<std::vector<reco::TrackJet> >"/>
+  <class name="edm::Wrapper<reco::TrackJetRefVector>"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> > >" />
   <class name="reco::JetTrackMatch<std::vector<reco::TrackJet> >"/>
- 
+  <class name="edm::FwdRef<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> >"/>
+  <class name="reco::TrackJetFwdRefVector"/>
+  <class name="edm::Wrapper<reco::TrackJetFwdRefVector>"/>
+  <class name="edm::FwdPtr<reco::TrackJet>"/>
+  <class name="reco::TrackJetFwdPtrVector"/>
+  <class name="edm::Wrapper<reco::TrackJetFwdPtrVector>"/>
 
 
   <class pattern="edm::AssociationVector<*>">
