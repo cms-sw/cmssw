@@ -80,27 +80,27 @@ void popcon::L1RPCHwConfigSourceHandler::getNewObjects()
 void popcon::L1RPCHwConfigSourceHandler::ConnectOnlineDB(string connect, string authPath)
 {
   cout << "L1RPCHwConfigSourceHandler: connecting to " << connect << "..." << flush;
-  session = new cond::DBSession();
-  session->configuration().setAuthenticationMethod(cond::XML);
-  session->configuration().setAuthenticationPath( authPath ) ;
-  session->open() ;
-  connection = new cond::Connection( connect ) ;
-  connection->connect( session ) ;
-  coralTr = & (connection->coralTransaction()) ;
+  connection = new cond::DbConnection() ;
+//  session->configuration().setAuthenticationMethod(cond::XML);
+  connection->configuration().setAuthenticationPath( authPath ) ;
+  connection->configure();
+  session = new cond::DbSession(connection->createSession());
+  session->open(connect,true) ;
   cout << "Done." << endl;
 }
 
 void popcon::L1RPCHwConfigSourceHandler::DisconnectOnlineDB()
 {
-  connection->disconnect() ;
+  connection->close() ;
   delete connection ;
+  session->close();
   delete session ;
 }
 
 void popcon::L1RPCHwConfigSourceHandler::readHwConfig1()
 {
-  coralTr->start( true );
-  coral::ISchema& schema = coralTr->nominalSchema();
+  session->transaction().start( true );
+  coral::ISchema& schema = session->nominalSchema();
   std::string condition="";
   coral::AttributeList conditionData;
   cout << endl <<"L1RPCHwConfigSourceHandler: start to build L1RPC Hw Config..." << flush << endl << endl;
@@ -224,7 +224,6 @@ void popcon::L1RPCHwConfigSourceHandler::readHwConfig1()
   }
   delete query4;
 
-  coralTr->commit();
 }
 
 int popcon::L1RPCHwConfigSourceHandler::Compare2Configs(Ref set1, L1RPCHwConfig* set2)
