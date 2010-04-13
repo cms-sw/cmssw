@@ -70,6 +70,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                      || flags == EcalRecHitWorkerRecover::EE_VFE 
                      ) {
                         EcalRecHit hit( detId, 0., 0., EcalRecHit::kDead );
+                        hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
                         insertRecHit( hit, result);
                         return true;
                 } 
@@ -78,6 +79,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         std::vector<DetId> vid = ttMap_->constituentsOf( ttDetId );
                         for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
                                 EcalRecHit hit( (*dit), 0., 0., EcalRecHit::kDead );
+                                hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
                                 insertRecHit( hit, result );
                         }
                         return true;
@@ -98,6 +100,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         }
                         for ( size_t i = 0; i < eeC.size(); ++i ) {
                                 EcalRecHit hit( eeC[i], 0., 0., EcalRecHit::kDead );
+                                hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
                                 insertRecHit( hit, result );
                         }
                         return true;
@@ -114,14 +117,17 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                 EcalRecHitCollection::const_iterator ti = result.find( detId );
                 if ( hit.energy() != 0 ) {
                         hit.setFlags( EcalRecHit::kNeighboursRecovered );
+                        hit.setFlagBits( (0x1 << EcalRecHit::kNeighboursRecovered) ) ;
                 } else {
                         // recovery failed
                         hit.setFlags( EcalRecHit::kDead );
+                        hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
                 }
                 insertRecHit( hit, result );
         } else if ( flags == EcalRecHitWorkerRecover::EB_VFE ) {
                 // recover as dead VFE
                 EcalRecHit hit( detId, 0., 0., EcalRecHit::kDead );
+                hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
                 // recovery not implemented
                 insertRecHit( hit, result );
         } else if ( flags == EcalRecHitWorkerRecover::EB_FE ) {
@@ -148,6 +154,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                 theta = ebGeom_->getGeometry(*dit)->getPosition().theta();
                                 float tpEt  = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
                                 EcalRecHit hit( *dit, tpEt / (float)vid.size() / sin(theta), 0., EcalRecHit::kTowerRecovered );
+                                hit.setFlagBits( (0x1 << EcalRecHit::kTowerRecovered) ) ;
                                 insertRecHit( hit, result );
                         }
                 } else {
@@ -155,6 +162,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         std::vector<DetId> vid = ttMap_->constituentsOf( ttDetId );
                         for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
                                 EcalRecHit hit( detId, 0., 0., EcalRecHit::kDead );
+                                hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
                                 EcalRecHitCollection::iterator it = result.find( *dit );
                                 insertRecHit( hit, result );
                         }
@@ -234,6 +242,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         // assign the energy to the SC crystals
                         for ( size_t i = 0; i < eeC.size(); ++i ) {
                                 EcalRecHit hit( eeC[i], 0., 0., EcalRecHit::kDead );
+                                hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
                                 if ( !killDeadChannels_ ) {
                                         // not yet validated
                                         // hit = EcalRecHit( eeC[i], totE / (float)eeC.size(), 0., EcalRecHit::kTowerRecovered );

@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitSimpleAlgo.h,v 1.8 2010/02/08 22:48:22 ferriff Exp $
-  *  $Date: 2010/02/08 22:48:22 $
-  *  $Revision: 1.8 $
+  *  $Id: EcalRecHitSimpleAlgo.h,v 1.9 2010/02/08 23:26:18 ferriff Exp $
+  *  $Date: 2010/02/08 23:26:18 $
+  *  $Revision: 1.9 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -46,19 +46,46 @@ class EcalRecHitSimpleAlgo : public EcalRecHitAbsAlgo {
     float clockToNsConstant = 25;
     float energy = uncalibRH.amplitude()*adcToGeVConstant_*intercalibConstant;
     float time   = uncalibRH.jitter() * clockToNsConstant + timeIntercalib;
-    uint32_t recoFlag = flags;
-    if (uncalibRH.isSaturated()) recoFlag = EcalRecHit::kSaturated;
 
     EcalRecHit rh( uncalibRH.id(), energy, time );
-    rh.setRecoFlag( recoFlag );
     rh.setChi2( uncalibRH.chi2() );
     rh.setOutOfTimeEnergy( uncalibRH.outOfTimeEnergy() * adcToGeVConstant_ * intercalibConstant );
     rh.setOutOfTimeChi2( uncalibRH.outOfTimeChi2() );
-    if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kOutOfTime ) {
-            rh.setRecoFlag( EcalRecHit::kOutOfTime );
+
+
+    // Now fill both recoFlag and the new flagBits
+    uint32_t flagbits(0);
+    uint32_t recoFlag = flags; // so far contains only v_DB_reco_flags_[ statusCode ] from the worker
+                               // for the time being ignore them in flagBits
+
+    if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kLeadingEdgeRecovered ) { 
+            recoFlag = EcalRecHit::kLeadingEdgeRecovered; 
+            flagbits |=  (0x1 << EcalRecHit::kLeadingEdgeRecovered); 
+
+    } else if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kSaturated ) { 
+            // leading edge recovery failed - still keep the information 
+            // about the saturation and do not flag as dead 
+            recoFlag = EcalRecHit::kSaturated; 
+            // and at some point may try the recovery with the neighbours 
+            flagbits |=  (0x1 << EcalRecHit::kSaturated); 
+
+    } else if( uncalibRH.isSaturated() ) {
+            recoFlag = EcalRecHit::kSaturated;
+            flagbits |=  (0x1 << EcalRecHit::kSaturated); 
+
+    } else if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kOutOfTime ) {
+            recoFlag =  EcalRecHit::kOutOfTime;
+            flagbits |=  (0x1 << EcalRecHit::kOutOfTime); 
+
     } else if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kFake ) {
-            rh.setRecoFlag( EcalRecHit::kFake );
+            recoFlag =  EcalRecHit::kFake;
+            flagbits |=  (0x1 << EcalRecHit::kFake); 
     }
+
+    // now set both the reco flag and the new flagBits_
+    rh.setRecoFlag( recoFlag );
+    rh.setFlagBits( flagbits );
+
     return rh;
   }
 
