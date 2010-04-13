@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:12 CET 2010
-// $Id$
+// $Id: FWProxyBuilderBase.h,v 1.1 2010/04/06 20:00:35 amraktad Exp $
 //
 
 // system include files
@@ -64,11 +64,11 @@ public:
    void modelChanges(const FWModelIds&);
    void itemChanged(const FWEventItem*);
 
-   bool canHandle(const FWEventItem&);//note pass FWEventItem to see if type and container match
-   void attachToScene(const FWViewType&, const std::string& purpose, TEveElementList* sceneHolder);
-   void releaseFromSceneGraph(const FWViewType&);
-   bool willHandleInteraction();
-   void setInteractionList(std::vector<TEveCompound* > const *, std::string& purpose);
+   virtual bool canHandle(const FWEventItem&);//note pass FWEventItem to see if type and container match
+   virtual void attachToScene(const FWViewType&, const std::string& purpose, TEveElementList* sceneHolder);
+   virtual void releaseFromSceneGraph(const FWViewType&);
+   virtual bool willHandleInteraction();
+   virtual void setInteractionList(std::vector<TEveCompound* > const *, std::string& purpose);
 
    // getters
    int layer() const;
