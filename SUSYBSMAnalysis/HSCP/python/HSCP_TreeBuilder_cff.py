@@ -70,6 +70,9 @@ dedxASmi.Formula = cms.untracked.uint32(3)
 HSCP_TreeBuilder = cms.EDProducer("HSCP_TreeBuilder",
    tracks                  = cms.InputTag("TrackRefitter"),
    dEdxDiscrim             = cms.VInputTag("dedxHarm2", "dedxNPHarm2", "dedxCHarm2", "dedxCNPHarm2", "dedxProd", "dedxSmi" ,"dedxASmi"),
+   muons                   = cms.InputTag("muons"),
+   muontiming              = cms.InputTag("muons"),
+
 
    minTrackMomentum   = cms.untracked.double  (0.0),
    minTrackTMomentum  = cms.untracked.double  (0.0),

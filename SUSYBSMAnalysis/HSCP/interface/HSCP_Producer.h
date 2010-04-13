@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCP_Producer.cc,v 1.10 2009/08/25 10:16:07 carrillo Exp $
+// $Id: HSCP_Producer.h,v 1.1 2010/04/12 15:42:01 querten Exp $
 
 
 // system include files
@@ -29,12 +29,15 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/TrackReco/interface/DeDxData.h"
+#include "CommonTools/UtilAlgos/interface/DeltaR.h"
+
+
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "SUSYBSMAnalysis/HSCP/interface/Beta_Calculator_TK.h"
+#include "SUSYBSMAnalysis/HSCP/interface/Beta_Calculator_MUON.h"
 #include "SUSYBSMAnalysis/HSCP/interface/Beta_Calculator_RPC.h"
 #include "SUSYBSMAnalysis/HSCP/interface/Beta_Calculator_ECAL.h"
-#include "RecoTracker/DeDx/interface/DeDxEstimatorProducer.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
@@ -60,17 +63,18 @@ class HSCP_Producer : public edm::EDProducer {
     virtual void produce(edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;
 
+    std::vector<HSCParticle> getHSCPSeedCollection(edm::Handle<reco::TrackCollection>& trackCollectionHandle,  edm::Handle<reco::MuonCollection>& muonCollectionHandle);
+
+
+
     // ----------member data ---------------------------
     edm::InputTag m_trackTag;
-    edm::InputTag m_trackDeDxEstimatorTag;
     edm::InputTag m_muonsTag;
-    edm::InputTag m_muonsTOFTag;
-    std::vector<HSCParticle> associate(susybsm::DeDxBetaCollection& ,const MuonTOFCollection&);
-    void addBetaFromRPC(HSCParticle&);
-    void addBetaFromEcal(HSCParticle&, edm::Handle<reco::TrackCollection>&, edm::Event&, const edm::EventSetup&);
     float minTkP, minDtP, maxTkBeta, minDR, maxInvPtDiff, maxChi2;
-    unsigned int minTkHits, minTkMeas;
+    unsigned int minTkHits;
 
+    Beta_Calculator_TK*   beta_calculator_TK;
+    Beta_Calculator_MUON* beta_calculator_MUON;
     Beta_Calculator_RPC*  beta_calculator_RPC;
     Beta_Calculator_ECAL* beta_calculator_ECAL;
 };

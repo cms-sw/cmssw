@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCP_Producer.cc,v 1.10 2009/08/25 10:16:07 carrillo Exp $
+// $Id: HSCP_Producer.cc,v 1.1 2010/04/12 15:42:01 querten Exp $
 //
 //
 
@@ -26,10 +26,8 @@ HSCP_Producer::HSCP_Producer(const edm::ParameterSet& iConfig) {
   using namespace std;
 
   // the input collections
-  m_trackDeDxEstimatorTag = iConfig.getParameter<edm::InputTag>("trackDeDxEstimator");
   m_trackTag = iConfig.getParameter<edm::InputTag>("tracks");
   m_muonsTag = iConfig.getParameter<edm::InputTag>("muons");
-  m_muonsTOFTag = iConfig.getParameter<edm::InputTag>("muonsTOF");
 
   // the parameters
   minTkP=iConfig.getParameter<double>("minTkP"); // 30
@@ -39,7 +37,6 @@ HSCP_Producer::HSCP_Producer(const edm::ParameterSet& iConfig) {
   maxInvPtDiff=iConfig.getParameter<double>("maxInvPtDiff"); //0.005
   maxChi2=iConfig.getParameter<double>("maxTkChi2"); //5
   minTkHits=iConfig.getParameter<uint32_t>("minTkHits"); //9
-  minTkMeas=iConfig.getParameter<uint32_t>("minTkMeas"); //9
 
   beta_calculator_RPC  = new Beta_Calculator_RPC (iConfig);
   beta_calculator_ECAL = new Beta_Calculator_ECAL(iConfig);
@@ -67,46 +64,44 @@ HSCP_Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace std;
   using namespace susybsm;
 
-  // information from the muon system: TOF
-  Handle<MuonTOFCollection> betaRecoH;
-  iEvent.getByLabel(m_muonsTOFTag,betaRecoH);
-  const MuonTOFCollection & dtInfos  =  *betaRecoH.product();
 
-  // information from the tracker: dE/dx
-  Handle<DeDxDataValueMap> dedxH;
-  iEvent.getByLabel(m_trackDeDxEstimatorTag,dedxH);
-  const ValueMap<DeDxData> dEdxTrack = *dedxH.product();
+  // information from the muons
+  edm::Handle<reco::MuonCollection> muonCollectionHandle;
+  iEvent.getByLabel("muons",muonCollectionHandle);
+
+  // information from the tracks
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByLabel(m_trackTag,trackCollectionHandle);
-  DeDxBetaCollection   tkInfos;
-  for(unsigned int i=0; i<trackCollectionHandle->size(); i++){
-    reco::TrackRef track  = reco::TrackRef( trackCollectionHandle, i );
-    const DeDxData& dedx = dEdxTrack[track];
-    if(track->normalizedChi2()     <  maxChi2   && 
-       track->numberOfValidHits()  >= minTkHits && 
-       dedx.numberOfMeasurements() >= minTkMeas    ) {
-      float k=0.4;  //919/2.75*0.0012;
-      //float k2=0.432; //919/2.55*0.0012;
-      tkInfos.push_back(DeDxBeta(track,dedx,k));
-    }
-  }
-  
+
+
   // creates the output collection
-  susybsm::HSCParticleCollection * hscp = new susybsm::HSCParticleCollection; 
+  susybsm::HSCParticleCollection* hscp = new susybsm::HSCParticleCollection; 
   std::auto_ptr<susybsm::HSCParticleCollection> result(hscp);
-  
-  // match TOF and dE/dx info
-  *hscp=associate(tkInfos,dtInfos);
+
+  // Fill the output collection with HSCP Candidate (the candiate only contains ref to muon AND/OR track object)
+  *hscp = getHSCPSeedCollection(trackCollectionHandle, muonCollectionHandle);
+
+
+  // compute the TRACKER contribution
+  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
+    beta_calculator_TK->addInfoToCandidate(*hscpcandidate,  iEvent,iSetup);
+  }
+
+  // compute the MUON contribution
+  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
+    beta_calculator_MUON->addInfoToCandidate(*hscpcandidate,  iEvent,iSetup);
+  }
 
   // compute the RPC contribution
   for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
       beta_calculator_RPC->addInfoToCandidate(*hscpcandidate, iSetup);
   }
 
-  // add the ecal contribution
+  // compute the ECAL contribution
   for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
     beta_calculator_ECAL->addInfoToCandidate(*hscpcandidate,trackCollectionHandle,iEvent,iSetup);
   }
+
   // output result
   iEvent.put(result); 
 }
@@ -121,82 +116,79 @@ void
 HSCP_Producer::endJob() {
 }
 
-std::vector<HSCParticle> HSCP_Producer::associate( DeDxBetaCollection& tks ,const MuonTOFCollection& dtsInput ) {
-  
-  // the output collection
-  std::vector<HSCParticle> result;
-  
-  // make a local copy of the MuonTOFCollection so that we can remove elements 
-  std::vector<MuonTOF> dts;
-  std::copy (dtsInput.begin(),dtsInput.end(), std::back_inserter (dts));
+std::vector<HSCParticle> HSCP_Producer::getHSCPSeedCollection(edm::Handle<reco::TrackCollection>& trackCollectionHandle,  edm::Handle<reco::MuonCollection>& muonCollectionHandle)
+{
+   std::vector<HSCParticle> HSCPCollection;
 
-  // loop on tracker measurements and try to associate a muon from the MuonTOFCollection
-  LogDebug("matching") << "number of track measurements: " << tks.size();
-  float minTkInvBeta2=1./(maxTkBeta*maxTkBeta);
-  for(size_t i=0;i<tks.size();i++) {
-    LogDebug("matching") << "Pt = " << tks[i].track()->pt() 
-                         << "; 1/beta2 = " << tks[i].invBeta2();
-    if( tks[i].track().isNonnull() && tks[i].track()->pt() > minTkP && tks[i].invBeta2() >= minTkInvBeta2 ) {
-      LogDebug("matching") << "Found one candidate using the tracker.";
-      float min=1000;
-      int found = -1;
-      for(size_t j=0;j<dts.size();j++) {
-        if(dts[j].first->combinedMuon().isNonnull()) {
-          float invDT=1./dts[j].first->combinedMuon()->pt();
-          float invTK=1./tks[i].track()->pt();
-          if(fabs(invDT-invTK) > maxInvPtDiff) continue;
-          float deltaR=ROOT::Math::VectorUtil::DeltaR(dts[j].first->combinedMuon()->momentum(), tks[i].track()->momentum());
-          if(deltaR > minDR || deltaR > min) continue;
-          min=deltaR;
-          found = j;
-	  LogDebug("matching") << "Tracker candidate is associated to muon candidate " << j;
-        }
+   // Store a local vector of track ref (that can be modified if matching)
+   std::vector<reco::TrackRef> tracks;
+   for(unsigned int i=0; i<trackCollectionHandle->size(); i++){
+      tracks.push_back(reco::TrackRef( trackCollectionHandle, i ) );
+   }
+
+   // Loop on muons and create Muon HSCP Candidate
+   for(unsigned int m=0; m<muonCollectionHandle->size(); m++){
+      reco::MuonRef muon  = reco::MuonRef( muonCollectionHandle, m );
+
+      // Check if the muon match any track in order to create a Muon+Track HSCP Candidate
+      float dRMin=1000; int found = -1;
+      for(unsigned int t=0; t<tracks.size();t++) {
+         reco::TrackRef track  = tracks[t];
+         if( fabs( (1.0/muon->pt())-(1.0/track->pt())) > maxInvPtDiff) continue;
+         float dR = deltaR(muon->momentum(), track->momentum());
+         if(dR <= minDR && dR < dRMin){ dRMin=dR; found = t;}
       }
+
       HSCParticle candidate;
-      candidate.setTk(tks[i]);
-      if(found>=0) {
-        candidate.setDt(dts[found]);
-        dts.erase(dts.begin()+found);
-      } else {
-        LogDebug("matching") << "No associated muon candidate found at eta = " << tks[i].track()->eta();
+      candidate.setMuon(muon);
+      if(found>=0){
+        candidate.setTrack(tracks[found]);
+        tracks.erase(tracks.begin()+found);
       }
-      result.push_back(candidate);
-    }
-  }
+      HSCPCollection.push_back(candidate);
+   }
 
-  // loop on the remaining muons and try to associate a trakcer measurement.
-  // There should be none, unless two tracks match the same muon
-  LogDebug("matching") << "number of remaining muon measurements: " << dts.size();
-  for(size_t i=0;i<dts.size();i++) {
-    if(dts[i].first->combinedMuon().isNonnull() && dts[i].first->combinedMuon()->pt() > minDtP ) {
-      LogDebug("matching") << "Found one candidate using the dts.";
-      float min=1000;
-      int found = -1;
-      for(size_t j=0;j<tks.size();j++) {
-        if( tks[j].track().isNonnull() ) {
-          float invDT=1./dts[i].first->combinedMuon()->pt();
-          float invTK=1./tks[j].track()->pt();
-          if(fabs(invDT-invTK) > maxInvPtDiff) continue;
-          float deltaR=ROOT::Math::VectorUtil::DeltaR(dts[i].first->combinedMuon()->momentum(), tks[j].track()->momentum());
-          if(deltaR > minDR || deltaR > min) continue;
-          min=deltaR;
-          found = j;
-	  LogDebug("matching") << "Muon candidate is associated to tracker candidate " << j << ". At least two muons associated to the same track ?";
-        }
-      }
+   // Loop on tracks not matching muon and create Track HSCP Candidate
+   for(unsigned int i=0; i<trackCollectionHandle->size(); i++){
       HSCParticle candidate;
-      candidate.setDt(dts[i]);
-      if(found>=0 ) {
-        candidate.setTk(tks[found]);
-      }
-      result.push_back(candidate);
-    }
-  }
+      candidate.setTrack(tracks[i]);
+      HSCPCollection.push_back(candidate);
+   }
 
-  // returns the result
-  LogDebug("matching") << "Matching between trakcer and dt information over.";
-  return result;
+   return HSCPCollection;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HSCP_Producer);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
