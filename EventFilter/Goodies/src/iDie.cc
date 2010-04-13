@@ -299,7 +299,7 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
 	std::string sig; 
 	size_t psig = st.find("signal");
 	if(psig != std::string::npos)
-	  sig = st.substr(psig,10);
+	  sig = st.substr(psig,9);
 	std::cout << "postEntry string " << st << std::endl;
 	std::string host = cgi.getEnvironment().getRemoteHost();
 	std::transform(host.begin(), host.end(),
