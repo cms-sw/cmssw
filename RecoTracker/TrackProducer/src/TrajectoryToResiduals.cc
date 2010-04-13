@@ -3,6 +3,8 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 reco::TrackResiduals trajectoryToResiduals (const Trajectory &trajectory,
 					    enum reco::TrackResiduals::ResidualType type) 
 {
