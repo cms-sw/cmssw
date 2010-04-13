@@ -59,22 +59,43 @@ const long long SiPixelRawDataErrorModule::TRLRBGN_mask = ~(~(long long)(0) << T
 //
 // Constructors
 //
-SiPixelRawDataErrorModule::SiPixelRawDataErrorModule() : id_(0),
-					 ncols_(416),
-					 nrows_(160) { _debug_ = false;}
+SiPixelRawDataErrorModule::SiPixelRawDataErrorModule() : 
+  id_(0),
+  ncols_(416),
+  nrows_(160) 
+{ 
+  _debug_ = false;
+  for(int i=0; i!=40; i++) for(int j=0; j!=37; j++){
+    FedChNErrArray[i][j]=0; 
+    FedChLErrArray[i][j]=0; 
+    if(j<15) FedETypeNErrArray[i][j]=0;
+  }
+}
 //
 SiPixelRawDataErrorModule::SiPixelRawDataErrorModule(const uint32_t& id) : 
   id_(id),
   ncols_(416),
   nrows_(160)
-{ _debug_ = false;
+{ 
+  _debug_ = false;
+  for(int i=0; i!=40; i++) for(int j=0; j!=37; j++){
+    FedChNErrArray[i][j]=0; 
+    FedChLErrArray[i][j]=0; 
+    if(j<15) FedETypeNErrArray[i][j]=0;
+  }
 }
 //
 SiPixelRawDataErrorModule::SiPixelRawDataErrorModule(const uint32_t& id, const int& ncols, const int& nrows) : 
   id_(id),
   ncols_(ncols),
   nrows_(nrows)
-{ _debug_ = false;
+{ 
+  _debug_ = false;
+  for(int i=0; i!=40; i++) for(int j=0; j!=37; j++){
+    FedChNErrArray[i][j]=0; 
+    FedChLErrArray[i][j]=0; 
+    if(j<15) FedETypeNErrArray[i][j]=0;
+  }
 } 
 //
 // Destructor
@@ -298,7 +319,6 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
   if( isearch != input.end() ) {  // Not at empty iterator
     
     unsigned int numberOfErrors = 0;
-    int FedChNErrArray[40][37]={{0}}, FedChLErrArray[40][37]={{0}}, FedETypeNErrArray[40][15]={{0}};
     
     // Look at errors now
     edm::DetSet<SiPixelRawDataError>::const_iterator  di;
@@ -619,7 +639,6 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
     unsigned int numberOfErrors = 0;
     
     // Look at FED errors now
-    int FedChNErrArray[40][37]={{0}}, FedChLErrArray[40][37]={{0}}, FedETypeNErrArray[40][15]={{0}};
     int TBMType;
     edm::DetSet<SiPixelRawDataError>::const_iterator  di;
     for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
