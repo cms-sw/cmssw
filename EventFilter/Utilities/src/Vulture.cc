@@ -27,8 +27,8 @@ namespace evf{
 
   const std::string Vulture::FS="/tmp";
 
-  Vulture::Vulture(bool push) :
-      wlCtrl_(0)
+  Vulture::Vulture(bool push) 
+    : wlCtrl_(0)
     , asCtrl_(0)
     , running_(false)
     , wlProwl_(0)
@@ -44,19 +44,42 @@ namespace evf{
     , sq_(0) // this is only defined in the forked process
     , started_(-1)
     , stopped_(-1)
+    , handicapped_(false)
   {
     // create command file for gdb
     FILE *outf = fopen("/tmp/vulture.cmd","w");
     fprintf(outf,"where\n");
     fclose(outf);
+  }
+  
+  Vulture::~Vulture()
+  {
+    delete mq_;
+    if(sq_ != 0) delete sq_;
+    if(poster_ != 0) delete poster_;
+  }
+
+  pid_t Vulture::makeProcess(){
+
     pid_t retval = fork();
     if(retval==0){ // we are in the forked process
       int success = prctl( PR_SET_DUMPABLE, 0 );
-      if(success != 0) ::exit(-1);
+      if(success != 0){
+	std::cout << "Vulture::could not set process undumpable" << std::endl;
+	handicapped_ = true;
+      }
       success = prctl( PR_SET_PDEATHSIG, SIGKILL );
-      if(success != 0) ::exit(-1);
+      if(success != 0){
+	std::cout << "Vulture::could not set process death signal" << std::endl;
+	handicapped_ = true;	
+      }
       tmp_ = opendir(FS.c_str());
       success = prctl ( PR_SET_NAME , "vulture");
+      if(success != 0){
+	std::cout << "Vulture::could not set process name" << std::endl;
+	handicapped_ = true;	
+      }
+
       try{
 	pt::PeerTransport * ptr =
 	  pt::getPeerTransportAgent()->getPeerTransport("http","soap",pt::Receiver);
@@ -65,7 +88,7 @@ namespace evf{
       catch (pt::exception::PeerTransportNotFound & e ){
 	//do nothing here since we don't know what to do... ?
       }
-      freopen("/dev/null","w",stderr);
+      //      freopen("/dev/null","w",stderr);
       sq_ = new SlaveQueue(vulture_queue_offset);
       // start the ctrl workloop
       try {
@@ -79,23 +102,16 @@ namespace evf{
 	wlCtrl_->submit(asCtrl_);
       }
       catch (xcept::Exception& e) {
-	std::string msg = "Failed to start workloop 'Ctrl'.";
-	::exit(-1);
+	std::cout << "Vulture:constructor - could not start workloop 'Ctrl' for process " << retval << std::endl;
       }
     }
     else{
       vulturePid_ = retval;
     }
+    return retval;
+
 
   }
-  
-  Vulture::~Vulture()
-  {
-    delete mq_;
-    if(sq_ != 0) delete sq_;
-    if(poster_ != 0) delete poster_;
-  }
-
 
   int Vulture::hasStarted(){
     if(started_<0){
@@ -127,7 +143,7 @@ namespace evf{
 
     //communicate start-of-run to Vulture
     vulture_start_message stamsg;
-    strncpy(stamsg.url_,url.c_str(),url.length()); 
+    strcpy(stamsg.url_,url.c_str()); 
     stamsg.run_ = run;
     MsgBuf msg1(sizeof(vulture_start_message),MSQM_VULTURE_TYPE_STA);
     memcpy(msg1->mtext,&stamsg,sizeof(vulture_start_message));
@@ -179,9 +195,14 @@ namespace evf{
 
   bool Vulture::control(toolbox::task::WorkLoop*wl)
   {
+
     MsgBuf msg;
     unsigned long mtype = MSQM_MESSAGE_TYPE_NOP;
-    try{mtype = sq_->rcv(msg);}catch(evf::Exception &e){::exit(-1);}
+    try{mtype = sq_->rcv(msg);}catch(evf::Exception &e){
+      std::cout << "Vulture::exception on msgrcv for control, bailing out of control workloop - good bye" << std::endl;
+      return false;
+    }
+    mtype = msg->mtype;
     switch(mtype){
     case MSQM_VULTURE_TYPE_STA:
       {
@@ -191,13 +212,17 @@ namespace evf{
 	if(poster_->check(sta->run_)){
 	  try{
 	    startProwling();
+	    MsgBuf msg1(0,MSQS_VULTURE_TYPE_ACK) ;
+	    sq_->post(msg1);
 	  }
 	  catch(evf::Exception &e)
 	    {
+	      std::cout << "Vulture::start - exception in starting prowling workloop " << e.what() << std::endl;
 	      //@EM ToDo generate some message here
 	    }	  
 	}else{
-	  ::exit(0);
+	  std::cout << "Vulture::start - could not contact iDie - chech Url - will not start prowling loop" << std::endl;
+	  prowling_ = false;
 	}
       
 	break;
