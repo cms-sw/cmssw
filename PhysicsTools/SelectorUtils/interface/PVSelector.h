@@ -43,6 +43,8 @@ public:
     return (bool)ret;
   }
 
+  using EventSelector::operator();
+
   edm::Handle<std::vector<reco::Vertex> > const & vertices() const { return h_primVtx; }
 
 private:
