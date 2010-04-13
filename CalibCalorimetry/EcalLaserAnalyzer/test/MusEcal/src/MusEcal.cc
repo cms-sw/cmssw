@@ -2466,7 +2466,7 @@ MusEcal::buildPNIntervals( std::vector<int>& iapdopn , MEChannel *leaf )
   // push_back first time 
   //if(time.size()>0) times.push_back(time[0]);
 
-  for (int j=0;j<valPNA.size();j++){
+  for (unsigned int j=0;j<valPNA.size();j++){
     
     double rmsArel=0.0;
     double rmsBrel=0.0;
@@ -3570,7 +3570,7 @@ MEVarVector* MusEcal::chooseNormalization( MEChannel* leaf_ ){
   enorm.push_back(0.0);
   fnorm.push_back(true);
   
-  for(int j=1; j<normbeg.size();j++){
+  for(unsigned int j=1; j<normbeg.size();j++){
 
     double m2=normend[j-1];
     double m1=normbeg[j];
@@ -3628,12 +3628,12 @@ MEVarVector* MusEcal::chooseNormalization( MEChannel* leaf_ ){
     }  
   } 
   if(_debug){
-    for(int j=0; j<norm.size();j++){ 
+    for(unsigned int j=0; j<norm.size();j++){ 
       cout<<"MYNORMS PN before prod: "<<j<<" "<< norm[j]<< endl;
     }
   }
   
-  for(int j=1; j<norm.size();j++){
+  for(unsigned int j=1; j<norm.size();j++){
     
     if(fnorm[j]){
       norm[j]*=norm[j-1];
@@ -3653,7 +3653,7 @@ MEVarVector* MusEcal::chooseNormalization( MEChannel* leaf_ ){
   //   }
 
   if(_debug){
-    for(int j=0; j<norm.size();j++){
+    for(unsigned int j=0; j<norm.size();j++){
       cout<<"MYNORMS PN after prod: "<<j<<" "<< norm[j]<< endl;
     }
   }
@@ -3666,7 +3666,7 @@ MEVarVector* MusEcal::chooseNormalization( MEChannel* leaf_ ){
   // loop on the varvec entries
   interval_=0;
   int firsttime=0;
-  for(int itime=0;itime<time.size();itime++){
+  for(unsigned int itime=0;itime<time.size();itime++){
     for(unsigned int ime=firsttime;ime<metimes.size();ime++){
       if(metimes[ime]==time[itime]){
 	times.push_back(itime);
@@ -3905,7 +3905,7 @@ MusEcal::rabouteNLS( METimeInterval* intervals,
   enorm.push_back(0.0);
   fnorm.push_back(true);
 
-  for(int j=1; j<normbeg.size();j++){
+  for(unsigned int j=1; j<normbeg.size();j++){
     
     if(_debug) cout<< " NORMS "<<j-1<<" BEGj:" <<normbeg[j]<<" "<<flagbeg[j]<<" ENDj-1:"<<normend[j-1]<<" "<<flagend[j-1] <<endl;
     
@@ -3956,11 +3956,11 @@ MusEcal::rabouteNLS( METimeInterval* intervals,
     }  
   }
   if(_debug) {
-    for(int j=0; j<norm.size();j++){
+    for(unsigned int j=0; j<norm.size();j++){
       cout<<"RAB MYNORMS before prod: "<<j<<" "<< norm[j]<<" "<<fnorm[j]<< endl;
     }
   }
-  for(int j=1; j<norm.size();j++){
+  for(unsigned int j=1; j<norm.size();j++){
     if(fnorm[j]){
       norm[j]*=norm[j-1];
       enorm[j]*=norm[j-1];
@@ -3972,7 +3972,7 @@ MusEcal::rabouteNLS( METimeInterval* intervals,
   }
   
   if(_debug) {
-    for(int j=0; j<norm.size();j++){
+    for(unsigned int j=0; j<norm.size();j++){
       cout<<"RAB MYNORMS after prod: "<<j<<" "<< norm[j]<<" "<< fnorm[j]<<endl;
     }
   }
@@ -3983,7 +3983,7 @@ MusEcal::rabouteNLS( METimeInterval* intervals,
   // loop on the varvec entries
   interval_=0;
   int firsttime=0;
-  for(int itime=0;itime<time.size();itime++){
+  for(unsigned int itime=0;itime<time.size();itime++){
     for(unsigned int ime=firsttime;ime<metimes.size();ime++){
       if(metimes[ime]==time[itime]){ 
 	
@@ -4308,8 +4308,8 @@ TH2*
 MusEcal::getEBExtraHistogram(int ivar)
 {
 
-  TH2* h2_;
-
+  TH2* h2_=0;
+  
   if(ivar > ME::iSizeMID){
     cout<<" getEBExtraHistograms: variable is not valid. has to be less than "<<ME::iSizeMID<< endl;
     return h2_;
@@ -4328,8 +4328,6 @@ MusEcal::getEBExtraHistogram(int ivar)
   _eb_h->GetXaxis()->CenterTitle();
   _eb_h->GetYaxis()->SetTitle("iphi");
   _eb_h->GetYaxis()->CenterTitle();
-  
-  int type = _type;
   
   TString varName_;
   varName_=ME::MIDPrimVar[ivar];

@@ -140,7 +140,7 @@ MEVarVector::getTimeValFlagAndNorm( int ii,
   
   getTimeValAndFlag( ii, time, val, flag , interval);
   double normS=0.0; int normC=0;
-  for(int i=0;i<time.size();i++){
+  for(unsigned int i=0;i<time.size();i++){
     if(flag[i]) {
       normS+=double(val[i]);
       normC++;
@@ -176,7 +176,7 @@ MEVarVector::getNormsInInterval(int ii, unsigned int nbuf, unsigned int nave,
   
   double normbeg=0.0;
   bool flagbeg=true;
-  int cbeg=0;
+  unsigned int cbeg=0;
   std::vector< ME::Time > time;
   std::vector< float > val;
   std::vector< bool > flag;
@@ -185,7 +185,7 @@ MEVarVector::getNormsInInterval(int ii, unsigned int nbuf, unsigned int nave,
 
   getTimeValAndFlag( ii, time, val, flag, timeInterval);
   
-  for(int jj=nbuf;jj<time.size();jj++){
+  for(unsigned int jj=nbuf;jj<time.size();jj++){
     if(flag[jj] && cbeg<nave){
       normbeg+=val[jj];
       cbeg++;
@@ -203,7 +203,7 @@ MEVarVector::getNormsInInterval(int ii, unsigned int nbuf, unsigned int nave,
    
   double normend=0.0;
   bool flagend=true;
-  int cend=0;
+  unsigned int cend=0;
   for(int jj=time.size()-nbuf;jj>=0;jj--){
     if(flag[jj] && cend<nave){
       normend+=val[jj];
@@ -237,7 +237,7 @@ MEVarVector::getNormsInInterval(int ivar,int irms, int inevt,
   double normbeg=0.0;
   double enormbeg=0.0;
   bool flagbeg=true;
-  int    cbeg=0;
+  unsigned int    cbeg=0;
   double sbeg=0;
   std::vector< ME::Time > time;
   std::vector< float > val;
@@ -260,7 +260,7 @@ MEVarVector::getNormsInInterval(int ivar,int irms, int inevt,
   //cout<< "getnormsininterval size check: "<<val.size()<<" "<<rms.size()<<" "<<nevt.size()<<" "<<time.size()<<endl;
 
 
-  for(int jj=nbuf;jj<time.size();jj++){
+  for(unsigned int jj=nbuf;jj<time.size();jj++){
     
     //if(cbeg<nave) cout<< " check  time:"<<time[jj]<<" valbeg[" <<jj<<"]=" <<val[jj]<<"  rms=" <<rms[jj]<<"  nevt=" <<
     // nevt[jj]<<" flag="<< flag[jj]<<" cbeg="<<cbeg<<" ivar=" <<ivar<<" irms=" <<irms<<" inevt=" <<inevt;
@@ -297,12 +297,12 @@ MEVarVector::getNormsInInterval(int ivar,int irms, int inevt,
   double normend=0.0;
   double enormend=0.0;
   bool flagend=true;
-  int cend=0;
+  unsigned int cend=0;
   double send=0;
   wi=0.0;
   err=0.0;
 
-  for(int jj=time.size()-nbuf;jj>=0;jj--){
+  for(unsigned int jj=time.size()-nbuf;jj>=0;jj--){
     if(flag[jj] && nevt[jj] >100.0 && rms[jj]>0.0 && cend<nave){ 
       err=rms[jj]/sqrt(nevt[jj]);
       wi=1/err;
