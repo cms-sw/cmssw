@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.61 2010/04/07 09:24:31 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.62 2010/04/07 09:46:18 dinardo Exp $
 //
 //
 
@@ -997,7 +997,6 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, 3);
 	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
 
-	  reportSummary->Fill(1.0);
 	  numberGoodFits++;
 
 	  histTitle << "Fitted Beam Spot [cm] (Lumi start: " << beginLumiOfFit << " - Lumi end: " << endLumiOfFit << ")";
@@ -1009,12 +1008,11 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, -1);
 	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
 
-	  reportSummary->Fill(.95);
-
 	  if (goodData == -2) { reset("whole"); histTitle << "Fitted Beam Spot [cm] (not enough statistics)"; }
 	  else { histTitle << "Fitted Beam Spot [cm] (problems)"; if (lumiCounter == maxLumiIntegration) reset("whole"); }
 	}
 
+      reportSummary->Fill(numberFits != 0 ? (double)numberGoodFits/(double)numberFits : 0.0);
       reportSummaryMap->Fill(0.5, 0.5, numberFits != 0 ? (double)numberGoodFits/(double)numberFits : 0.0);
 
       fitResults->setAxisTitle(histTitle.str().c_str(), 1);
