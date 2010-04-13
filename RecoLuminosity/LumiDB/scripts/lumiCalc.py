@@ -1,18 +1,20 @@
 #!/usr/bin/env python
-VERSION='1.02'
+VERSION='1.03'
 import os,sys
 import coral
-from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser,hltTrgSeedMapper
+from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser
 
 class constants(object):
     def __init__(self):
         self.LUMIUNIT='e27 [cm^-2]'
-        self.NORM=16700
+        self.NORM=16700.0
         self.LUMIVERSION='0001'
         self.BEAMMODE='stable' #possible choices stable,quiet,either
         self.VERBOSE=False
         self.LSLENGTH=0
-        
+    def defaultfrontierConfigString(self):
+        return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
+    
 class resultPrinter(object):
     def __init__(self):
         self.total_width=80
@@ -566,12 +568,34 @@ def main():
     parser.add_argument('-b',dest='beammode',action='store',help='beam mode, optional for delivered action, default "stable", choices "stable","quiet","either"')
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional for all, default 0001')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity, default to all')
+    parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
     parser.add_argument('action',choices=['delivered','recorded'],help='lumi calculation types')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
     args=parser.parse_args()
     connectstring=args.connect
+    connectparser=connectstrParser.connectstrParser(connectstring)
+    connectparser.parse()
+    usedefaultfrontierconfig=False
+    cacheconfigpath=''
+    if connectparser.needsitelocalinfo():
+        if not args.siteconfpath:
+            cacheconfigpath=os.environ['CMS_PATH']
+            if cacheconfigpath:
+                cacheconfigpath=os.path.join(cacheconfigpath,'SITECONF','local','JobConfig','site-local-config.xml')
+            else:
+                usedefaultfrontierconfig=True
+        else:
+            cacheconfigpath=args.siteconfpath
+            cacheconfigpath=os.path.join(cacheconfigpath,'site-local-config.xml')
+        p=cacheconfigParser.cacheconfigParser()
+        if usedefaultfrontierconfig:
+            p.parseString(c.defaultfrontierConfigString)
+        else:
+            p.parse(cacheconfigpath)
+        connectstring=connectparser.fullfrontierStr(connectparser.schemaname(),p.parameterdict())
+    #print 'connectstring',connectstring
     runnumber=0
     svc = coral.ConnectionService()
     isverbose=False
@@ -587,7 +611,7 @@ def main():
     if args.authpath and len(args.authpath)!=0:
         os.environ['CORAL_AUTH_PATH']=args.authpath
     if args.normfactor:
-        c.NORM=args.normfactor
+        c.NORM=float(args.normfactor)
     if args.lumiversion:
         c.LUMIVERSION=args.lumiversion
     if args.beammode:
