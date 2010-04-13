@@ -12,7 +12,7 @@
 //
 // Original Author:  Leonard Apanasevich
 //         Created:  Wed Mar 25 16:01:27 CDT 2009
-// $Id: HLTHcalMETNoiseFilter.cc,v 1.7 2010/03/26 16:18:55 johnpaul Exp $
+// $Id: HLTHcalMETNoiseFilter.cc,v 1.9 2010/04/11 18:45:17 johnpaul Exp $
 //
 //
 
@@ -70,8 +70,9 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<HcalNoiseRBXCollection> rbxs_h;
   iEvent.getByLabel(HcalNoiseRBXCollectionTag_,rbxs_h);
   if(!rbxs_h.isValid()) {
-    LogDebug("") << "HLTHcalMETNoiseFilter: Could not find HcalNoiseRBXCollection product named "
-		 << HcalNoiseRBXCollectionTag_ << "." << std::endl;
+    throw edm::Exception(edm::errors::ProductNotFound)
+      << "HLTHcalMETNoiseFilter: Could not find HcalNoiseRBXCollection product named "
+      << HcalNoiseRBXCollectionTag_ << "." << std::endl;
     return true;
   }
 
@@ -102,7 +103,7 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
     else if(useTightHitsFilter_ && !noisealgo_.passTightHits(*it)) passFilter=false;
     else if(useTightZerosFilter_ && !noisealgo_.passTightZeros(*it)) passFilter=false;
     else if(useTightTimingFilter_ && !noisealgo_.passTightTiming(*it)) passFilter=false;
-
+    
     if(needHighLevelCoincidence_ && !noisealgo_.passHighLevelNoiseFilter(*it) && !passFilter) return false;
     if(!needHighLevelCoincidence_ && !passFilter) return false;
   }
