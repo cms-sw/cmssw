@@ -2041,9 +2041,9 @@ DQMStore::save(const std::string &filename,
 
   f.Close();
 
-#if !WITHOUT_CMS_FRAMEWORK
   if (outputFileRecreate_)
   {
+#if !WITHOUT_CMS_FRAMEWORK
     // Report the file to job report service.
     edm::Service<edm::JobReport> jr;
     if (jr.isAvailable())
@@ -2053,9 +2053,9 @@ DQMStore::save(const std::string &filename,
       info["FileClass"] = "DQM";
       jr->reportAnalysisFile(filename, info);
     }
+#endif
     outputFileRecreate_=false;
   }
-#endif
 
   // Maybe make some noise.
   if (verbose_)
