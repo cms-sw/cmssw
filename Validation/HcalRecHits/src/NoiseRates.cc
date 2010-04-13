@@ -32,9 +32,9 @@ NoiseRates::NoiseRates(const edm::ParameterSet& iConfig)
   }
 
   // set parameters
-  rbxCollName_      = iConfig.getParameter<std::string>("rbxCollName");
-  minRBXEnergy_     = iConfig.getParameter<double>("minRBXEnergy");
-  minHitEnergy_     = iConfig.getParameter<double>("minHitEnergy");
+  rbxCollName_      = iConfig.getUntrackedParameter<edm::InputTag>("rbxCollName");
+  minRBXEnergy_     = iConfig.getUntrackedParameter<double>("minRBXEnergy");
+  minHitEnergy_     = iConfig.getUntrackedParameter<double>("minHitEnergy");
 
   // book histograms
 

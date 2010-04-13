@@ -26,6 +26,12 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   sign_         = conf.getUntrackedParameter<std::string>("sign", "*");
   mc_           = conf.getUntrackedParameter<std::string>("mc", "yes");
   famos_        = conf.getUntrackedParameter<bool>("Famos", false);
+
+  //Collections
+  theHBHERecHitCollectionLabel = conf.getUntrackedParameter<edm::InputTag>("HBHERecHitCollectionLabel");
+  theHFRecHitCollectionLabel   = conf.getUntrackedParameter<edm::InputTag>("HFRecHitCollectionLabel");
+  theHORecHitCollectionLabel   = conf.getUntrackedParameter<edm::InputTag>("HORecHitCollectionLabel");
+
   //  std::cout << "*** famos_ = " << famos_ << std::endl; 
 
   subdet_ = 5;
@@ -1695,143 +1701,118 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
   if( subdet_ == 1 || subdet_ == 2  || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
     
     //HBHE
-    std::vector<edm::Handle<HBHERecHitCollection> > hbhecoll;
-    ev.getManyByType(hbhecoll);
-
-    std::vector<edm::Handle<HBHERecHitCollection> >::iterator i;
+    edm::Handle<HBHERecHitCollection> hbhecoll;
+    ev.getByLabel(theHBHERecHitCollectionLabel, hbhecoll);
     
-    int count = 0;
-    for (i=hbhecoll.begin(); i!=hbhecoll.end(); i++) {
+    for (HBHERecHitCollection::const_iterator j=hbhecoll->begin(); j != hbhecoll->end(); j++) {
+      HcalDetId cell(j->id());
+      const CaloCellGeometry* cellGeometry =
+	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+      double eta  = cellGeometry->getPosition().eta () ;
+      double phi  = cellGeometry->getPosition().phi () ;
+      double zc   = cellGeometry->getPosition().z ();
+      int sub     = cell.subdet();
+      int depth   = cell.depth();
+      int inteta  = cell.ieta();
+      if(inteta > 0) inteta -= 1;
+      int intphi  = cell.iphi()-1;
+      double en   = j->energy();
+      double t    = j->time();
+      int stwd    = j->flags();
       
-      count ++;  
-    //      std::cout << "*** HBHE collection No. " <<  count << std::endl;     
-      if ( count == 1) {
-      for (HBHERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
-	HcalDetId cell(j->id());
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	double eta  = cellGeometry->getPosition().eta () ;
-	double phi  = cellGeometry->getPosition().phi () ;
-        double zc   = cellGeometry->getPosition().z ();
-	int sub     = cell.subdet();
-	int depth   = cell.depth();
-	int inteta  = cell.ieta();
-	if(inteta > 0) inteta -= 1;
-	int intphi  = cell.iphi()-1;
-	double en   = j->energy();
-	double t    = j->time();
-	int stwd    = j->flags();
-
-	if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
+      if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
 	
-	  csub.push_back(sub);
-	  cen.push_back(en);
-	  ceta.push_back(eta);
-	  cphi.push_back(phi);
-	  ctime.push_back(t);
-	  cieta.push_back(inteta);
-	  ciphi.push_back(intphi);
-	  cdepth.push_back(depth);
-	  cz.push_back(zc);
-	  cstwd.push_back(stwd);
-	}
-      }
-
+	csub.push_back(sub);
+	cen.push_back(en);
+	ceta.push_back(eta);
+	cphi.push_back(phi);
+	ctime.push_back(t);
+	cieta.push_back(inteta);
+	ciphi.push_back(intphi);
+	cdepth.push_back(depth);
+	cz.push_back(zc);
+	cstwd.push_back(stwd);
       }
     }
+    
   }
 
   if( subdet_ == 4 || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
 
     //HF
-    std::vector<edm::Handle<HFRecHitCollection> > hfcoll;
-    ev.getManyByType(hfcoll);
-    std::vector<edm::Handle<HFRecHitCollection> >::iterator ihf;
+    edm::Handle<HFRecHitCollection> hfcoll;
+    ev.getByLabel(theHFRecHitCollectionLabel, hfcoll);
 
-    int count = 0;
-    for (ihf=hfcoll.begin(); ihf!=hfcoll.end(); ihf++) {      
-      count++;
-      if(count == 1) {
-      for (HFRecHitCollection::const_iterator j=(*ihf)->begin(); j!=(*ihf)->end(); j++) {
-	HcalDetId cell(j->id());
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	double eta   = cellGeometry->getPosition().eta () ;
-	double phi   = cellGeometry->getPosition().phi () ;
-        double zc     = cellGeometry->getPosition().z ();
-	int sub      = cell.subdet();
-	int depth    = cell.depth();
-	int inteta   = cell.ieta();
-	if(inteta > 0) inteta -= 1;
-	int intphi   = cell.iphi()-1;
-	double en    = j->energy();
-	double t     = j->time();
-	int stwd     = j->flags();
-
-	if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
+    for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); j++) {
+      HcalDetId cell(j->id());
+      const CaloCellGeometry* cellGeometry =
+	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+      double eta   = cellGeometry->getPosition().eta () ;
+      double phi   = cellGeometry->getPosition().phi () ;
+      double zc     = cellGeometry->getPosition().z ();
+      int sub      = cell.subdet();
+      int depth    = cell.depth();
+      int inteta   = cell.ieta();
+      if(inteta > 0) inteta -= 1;
+      int intphi   = cell.iphi()-1;
+      double en    = j->energy();
+      double t     = j->time();
+      int stwd     = j->flags();
+      
+      if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
 	
-	  csub.push_back(sub);
-	  cen.push_back(en);
-	  ceta.push_back(eta);
-	  cphi.push_back(phi);
-	  ctime.push_back(t);
-	  cieta.push_back(inteta);
-	  ciphi.push_back(intphi);
-	  cdepth.push_back(depth);
-	  cz.push_back(zc);
-       	  cstwd.push_back(stwd);
-	}
-      }
+	csub.push_back(sub);
+	cen.push_back(en);
+	ceta.push_back(eta);
+	cphi.push_back(phi);
+	ctime.push_back(t);
+	cieta.push_back(inteta);
+	ciphi.push_back(intphi);
+	cdepth.push_back(depth);
+	cz.push_back(zc);
+	cstwd.push_back(stwd);
       }
     }
   }
 
   //HO
-
   if( subdet_ == 3 || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
   
-    std::vector<edm::Handle<HORecHitCollection> > hocoll;
-    ev.getManyByType(hocoll);
-    std::vector<edm::Handle<HORecHitCollection> >::iterator iho;
+    edm::Handle<HORecHitCollection> hocoll;
+    ev.getByLabel(theHORecHitCollectionLabel, hocoll);
     
-    int count = 0;
-    for (iho=hocoll.begin(); iho!=hocoll.end(); iho++) {
-      count++;
-      if (count == 1) {
-      for (HORecHitCollection::const_iterator j=(*iho)->begin(); j!=(*iho)->end(); j++) {
-	HcalDetId cell(j->id());
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	double eta   = cellGeometry->getPosition().eta () ;
-	double phi   = cellGeometry->getPosition().phi () ;
-        double zc    = cellGeometry->getPosition().z ();
-	int sub      = cell.subdet();
-	int depth    = cell.depth();
-	int inteta   = cell.ieta();
-	if(inteta > 0) inteta -= 1;
-	int intphi   = cell.iphi()-1;
-	double t     = j->time();
-	double en    = j->energy();
-	int stwd     = j->flags();
-
-	if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
-	  csub.push_back(sub);
-	  cen.push_back(en);
-	  ceta.push_back(eta);
-	  cphi.push_back(phi);
-	  ctime.push_back(t);
-	  cieta.push_back(inteta);
-	  ciphi.push_back(intphi);
-	  cdepth.push_back(depth);
-	  cz.push_back(zc);
-	  cstwd.push_back(stwd);
-	}
-      }
+    for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); j++) {
+      HcalDetId cell(j->id());
+      const CaloCellGeometry* cellGeometry =
+	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+      double eta   = cellGeometry->getPosition().eta () ;
+      double phi   = cellGeometry->getPosition().phi () ;
+      double zc    = cellGeometry->getPosition().z ();
+      int sub      = cell.subdet();
+      int depth    = cell.depth();
+      int inteta   = cell.ieta();
+      if(inteta > 0) inteta -= 1;
+      int intphi   = cell.iphi()-1;
+      double t     = j->time();
+      double en    = j->energy();
+      int stwd     = j->flags();
+      
+      if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
+	csub.push_back(sub);
+	cen.push_back(en);
+	ceta.push_back(eta);
+	cphi.push_back(phi);
+	ctime.push_back(t);
+	cieta.push_back(inteta);
+	ciphi.push_back(intphi);
+	cdepth.push_back(depth);
+	cz.push_back(zc);
+	cstwd.push_back(stwd);
       }
     }
-  }      
-  
+  }
 }
+
 double HcalRecHitsValidation::dR(double eta1, double phi1, double eta2, double phi2) { 
   double PI = 3.1415926535898;
   double deltaphi= phi1 - phi2;

@@ -64,6 +64,11 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   std::string mc_;
   bool        famos_;
 
+  //RecHit Collection input tags
+  edm::InputTag theHBHERecHitCollectionLabel;
+  edm::InputTag theHFRecHitCollectionLabel;
+  edm::InputTag theHORecHitCollectionLabel;
+
   // choice of subdetector in config : noise/HB/HE/HO/HF/ALL (0/1/2/3/4/5)
   int subdet_;
 

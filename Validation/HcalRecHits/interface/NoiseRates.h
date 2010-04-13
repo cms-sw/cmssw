@@ -51,7 +51,7 @@ class NoiseRates : public edm::EDAnalyzer {
   std::string outputFile_;
 
   // parameters
-  std::string rbxCollName_;            // label for the rbx collection
+  edm::InputTag rbxCollName_;          // label for the rbx collection
   double minRBXEnergy_;                // RBX energy threshold
   double minHitEnergy_;                // RecHit energy threshold
 
