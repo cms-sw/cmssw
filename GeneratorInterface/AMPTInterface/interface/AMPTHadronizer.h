@@ -48,6 +48,7 @@ namespace gen
     HepMC::GenParticle*	                        build_ampt( int index, int barcode );	
     HepMC::GenVertex*                           build_ampt_vertex(int i, int id);
     bool					get_particles(HepMC::GenEvent* evt);
+    bool                                        ampt_init(const edm::ParameterSet &pset);
     bool                                        call_amptset(double efrm, std::string frame, std::string proj, 
                                                             std::string targ, int iap, int izp, int iat, int izt);
     //    inline double			        nuclear_radius() const;
@@ -67,10 +68,44 @@ namespace gen
     int               izp_;
     int               iat_;
     int               izt_;    
-
-//    unsigned int      maxEventsToPrint_;      // Events to print if verbosity  
-//    unsigned int      pythiaPylistVerbosity_; // pythia verbosity; def=1 
-
+    int               amptmode_;
+    int               ntmax_;
+    double            dt_;
+    double            stringFragA_;
+    double            stringFragB_;       
+    bool              popcornmode_;
+    double            popcornpar_;
+    bool              shadowingmode_;
+    bool              quenchingmode_;
+    double            quenchingpar_;
+    double            pthard_;
+    double            mu_;
+    int               izpc_;
+    double            alpha_;
+    double            dpcoal_;
+    double            drcoal_;
+    bool              ks0decay_;
+    bool              phidecay_;
+    int               ihjsed_;
+    int               hjseed_;
+    int               partseed_;               
+    int               deuteronmode_;
+    int               deuteronfactor_;
+    int               deuteronxsec_;
+    double            minijetpt_;
+    int               maxmiss_;
+    int               doInitialAndFinalRadiation_;
+    int               ktkick_;
+    int               diquarkembedding_;
+    double            diquarkpx_;
+    double            diquarkpy_;
+    double            diquarkx_;
+    double            diquarky_;
+    int               nsembd_;
+    double            psembd_;
+    double            tmaxembd_;
+    bool              shadowingmodflag_; 
+    double            shadowingfactor_;   
     double            phi0_;                  // Event plane angle
     double            sinphi0_;
     double            cosphi0_;

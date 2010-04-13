@@ -52,4 +52,138 @@ extern "C" {
 }
 #define hparnt hparnt_
 
+extern "C" {
+  extern struct{
+    int mstu[200];
+    float paru[200];
+    int mstj[200];
+    float parj[200];
+  }ludat1_;
+}   
+#define ludat1 ludat1_ 
+
+extern "C" {
+  extern struct{
+    int nevent;
+    int isoft;
+    int isflag;
+    int izpc;
+  }anim_;
+}
+#define anim anim_
+
+extern "C" {
+  extern struct{
+    float dpcoal;
+    float drcoal;
+    float ecritl;
+  }coal_;
+}
+#define coal coal_
+
+extern "C" {
+  extern struct{
+    float xmp; 
+    float xmu; 
+    float alpha;
+    float rscut2;
+    float cutof2;
+  }para2_;
+}
+#define para2 para2_
+
+extern "C" {
+  extern struct{
+    int ioscar;
+    int nsmbbbar;
+    int nsmmeson; 
+  }para7_;
+}
+#define para7 para7_
+
+extern "C" {
+  extern struct{
+    int idpert;
+    int npertd;
+    int idxsec;
+  }para8_;
+}
+#define para8 para8_
+
+extern "C" {
+  extern struct{
+    int iseedp;
+    int ihjsed;
+    int nseedr; 
+  }rndm3_;
+}
+#define rndm3 rndm3_
+
+extern "C" {
+  extern struct{
+    float masspr;
+    float massta;
+    int iseed;
+    int iavoid;
+    float dt;
+  }input1_;
+}
+#define input1 input1_
+
+extern "C" {
+  extern struct{
+    int ilab;
+    int manyb;
+    int ntmax;
+    int icoll;
+    int insys;
+    int ipot;
+    int mode; 
+    int imomen;
+    int nfreq;
+    int icflow;
+    int icrho;
+    int icou;
+    int kpoten;
+    int kmul; 
+  }input2_;
+}
+#define input2 input2_
+
+extern "C" {
+  extern struct{
+    int nsav;
+    int iksdcy;
+  }resdcy_;
+}
+#define resdcy resdcy_
+
+extern "C" {
+  extern struct{
+    int iphidcy;
+    float pttrig;
+    int ntrig;
+    int maxmiss;
+  }phidcy_;
+}
+#define phidcy phidcy_
+
+extern "C" {
+  extern struct{
+    int iembed;
+    float pxqembd;
+    float pyqembd;
+    float xembd;
+    float yembd;
+  }embed_;
+}
+#define embed embed_
+
+extern "C" {
+  extern struct{
+    int ipop;
+  }popcorn_;
+}
+#define popcorn popcorn_ 
+
 #endif

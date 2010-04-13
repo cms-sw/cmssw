@@ -1,8 +1,6 @@
 <use name=hepmc>
 <use name=boost>
 <use name=GeneratorInterface/Core>
-#<use name=GeneratorInterface/Pythia6Interface>
-#<use name=GeneratorInterface/PyquenInterface>
 <use name=FWCore/Framework>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=GeneratorInterface/ExternalDecays>

@@ -55,6 +55,39 @@ AMPTHadronizer::AMPTHadronizer(const ParameterSet &pset) :
     izp_(pset.getParameter<int>("izp")),
     iat_(pset.getParameter<int>("iat")),
     izt_(pset.getParameter<int>("izt")),
+    amptmode_(pset.getParameter<int>("amptmode")),
+    ntmax_(pset.getParameter<int>("ntmax")),
+    dt_(pset.getParameter<double>("dt")),
+    stringFragA_(pset.getParameter<double>("stringFragA")),
+    stringFragB_(pset.getParameter<double>("stringFragB")),
+    popcornmode_(pset.getParameter<bool>("popcornmode")),
+    popcornpar_(pset.getParameter<double>("popcornpar")),
+    shadowingmode_(pset.getParameter<bool>("shadowingmode")),
+    quenchingmode_(pset.getParameter<bool>("quenchingmode")),
+    quenchingpar_(pset.getParameter<double>("quenchingpar")),
+    pthard_(pset.getParameter<double>("pthard")),
+    mu_(pset.getParameter<double>("mu")),
+    izpc_(pset.getParameter<int>("izpc")),
+    alpha_(pset.getParameter<double>("alpha")),
+    dpcoal_(pset.getParameter<double>("dpcoal")),
+    drcoal_(pset.getParameter<double>("drcoal")),
+    ks0decay_(pset.getParameter<bool>("ks0decay")),
+    phidecay_(pset.getParameter<bool>("phidecay")),
+    ihjsed_(pset.getParameter<int>("ihjsed")),
+    hjseed_(pset.getParameter<int>("hjseed")),
+    partseed_(pset.getParameter<int>("partseed")),
+    deuteronmode_(pset.getParameter<int>("deuteronmode")),          
+    deuteronfactor_(pset.getParameter<int>("deuteronfactor")),
+    deuteronxsec_(pset.getParameter<int>("deuteronxsec")),
+    minijetpt_(pset.getParameter<double>("minijetpt")),
+    maxmiss_(pset.getParameter<int>("maxmiss")),
+    doInitialAndFinalRadiation_(pset.getParameter<int>("doInitialAndFinalRadiation")),
+    ktkick_(pset.getParameter<int>("ktkick")),
+    diquarkembedding_(pset.getParameter<int>("diquarkembedding")),
+    diquarkpx_(pset.getParameter<double>("diquarkpx")),
+    diquarkpy_(pset.getParameter<double>("diquarkpy")),
+    diquarkx_(pset.getParameter<double>("diquarkx")),
+    diquarky_(pset.getParameter<double>("diquarky")),
     phi0_(0.),
     sinphi0_(0.),
     cosphi0_(1.),
@@ -102,8 +135,6 @@ HepMC::GenParticle* AMPTHadronizer::build_ampt(int index, int barcode)
    double x0 = hmain2.patt[0][index];
    double y0 = hmain2.patt[1][index];
 
-   //cout<<"px="<<x0<<" py="<<y0<<" pz="<<hmain2.patt[2][index]<<" mass="<<sqrt(hmain2.patt[3][index]*hmain2.patt[3][index]-hmain2.patt[2][index]*hmain2.patt[2][index]-x0*x0-y0*y0);
-
    double x = x0*cosphi0_-y0*sinphi0_;
    double y = y0*cosphi0_+x0*sinphi0_;
 
@@ -140,8 +171,6 @@ bool AMPTHadronizer::generatePartonsAndHadronize()
    HepMC::GenEvent *evt = new HepMC::GenEvent();
    get_particles(evt); 
 
-   //   evt->set_signal_process_id(pypars.msti[0]);      // type of the process
-   //   evt->set_event_scale(pypars.pari[16]);           // Q^2
    add_heavy_ion_rec(evt);
 
    event().reset(evt);
@@ -221,24 +250,57 @@ bool AMPTHadronizer::call_amptset(double efrm, std::string frame, std::string pr
    return true;
 }
 
+bool AMPTHadronizer::ampt_init(const ParameterSet &pset)
+{
+    anim.isoft=amptmode_;
+    input2.ntmax=ntmax_;
+    input1.dt=dt_;
+    ludat1.parj[40]=stringFragA_;
+    ludat1.parj[41]=stringFragB_;
+    popcorn.ipop=popcornmode_;
+    ludat1.parj[4]=popcornpar_;
+    hparnt.ihpr2[5]=shadowingmode_;
+    hparnt.ihpr2[3]=quenchingmode_;
+    hparnt.hipr1[13]=quenchingpar_;
+    hparnt.hipr1[7]=pthard_;
+    para2.xmu=mu_;
+    anim.izpc=izpc_;
+    para2.alpha=alpha_;
+    coal.dpcoal=dpcoal_;
+    coal.drcoal=drcoal_;
+    resdcy.iksdcy=ks0decay_;
+    phidcy.iphidcy=phidecay_;
+    rndm3.ihjsed=ihjsed_;
+    rndm3.nseedr=hjseed_;
+    rndm3.iseedp=partseed_;
+    para8.idpert=deuteronmode_;
+    para8.npertd=deuteronfactor_;
+    para8.idxsec=deuteronxsec_;
+    phidcy.pttrig=minijetpt_;
+    phidcy.maxmiss=maxmiss_;
+    hparnt.ihpr2[1]=doInitialAndFinalRadiation_;
+    hparnt.ihpr2[4]=ktkick_;
+    embed.iembed=diquarkembedding_;
+    embed.pxqembd=diquarkpx_;
+    embed.pyqembd=diquarkpy_;
+    embed.xembd=diquarkx_;
+    embed.yembd=diquarky_;
+
+    return true;
+}
+
 //_____________________________________________________________________
 bool AMPTHadronizer::initializeForInternalPartons(){
 
-  //initialize pythia5
-  /*
-  if(0){
-    std::string dumstr = "";
-    call_pygive(dumstr);
-  }
-  */
+   // ampt running options
+   ampt_init(pset_);
 
    // initialize ampt
-   LogInfo("AMPTinAction") << "##### Calling HIJSET(" << efrm_ << "," <<frame_<<","<<proj_<<","<<targ_<<","<<iap_<<","<<izp_<<","<<iat_<<","<<izt_<<") ####";
+   LogInfo("AMPTinAction") << "##### Calling AMPTSET(" << efrm_ << "," <<frame_<<","<<proj_<<","<<targ_<<","<<iap_<<","<<izp_<<","<<iat_<<","<<izt_<<") ####";
 
    call_amptset(efrm_,frame_,proj_,targ_,iap_,izp_,iat_,izt_);
 
    return true;
-
 }
 
 bool AMPTHadronizer::declareStableParticles( std::vector<int> pdg )
