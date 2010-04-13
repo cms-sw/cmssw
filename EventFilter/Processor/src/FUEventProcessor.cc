@@ -104,7 +104,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , asSummarize_(0)
   , wlSummarizeActive_(false)
   , superSleepSec_(1)
-  , iDieUrl_("http://fuval-c2f12-14")
+  , iDieUrl_("none")
   , vulture_(0)
   , vp_(0)
 {
@@ -256,7 +256,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   pthread_mutex_init(&pickup_lock_,0);
 
   std::ostringstream ost;
-  ost  << "<div id=\"ve\">2.2.1 (" << edm::getReleaseVersion() <<")</div>"
+  ost  << "<div id=\"ve\">2.2.3 (" << edm::getReleaseVersion() <<")</div>"
        << "<div id=\"ou\">" << outPut_.toString() << "</div>"
        << "<div id=\"sh\">" << hasShMem_.toString() << "</div>"
        << "<div id=\"mw\">" << hasModuleWebRegistry_.toString() << "</div>"
@@ -282,7 +282,18 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
       << " " << buf->release << " " << buf->version << " " << buf->machine << "</div>";
   updaterStatic_ = ost.str();
   startSupervisorLoop();  
+
   if(vulture_==0) vulture_ = new Vulture(true);
+
+  ////////////////////////////////  
+
+  AppDescSet_t setOfiDie=
+    getApplicationContext()->getDefaultZone()->
+    getApplicationDescriptors("evf::iDie");
+  
+  for (AppDescIter_t it=setOfiDie.begin();it!=setOfiDie.end();++it)
+    if ((*it)->getInstance()==0) // there has to be only one instance of iDie
+      iDieUrl_ = (*it)->getContextDescriptor()->getURL() + "/" + (*it)->getURN();
 }
 //___________here ends the *huge* constructor___________________________________
 
@@ -366,8 +377,11 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
     fsm_.fireFailed("Unknown Exception",this);
   }
 
+  if(vulture_!=0 && vp_ == 0) vp_ = vulture_->makeProcess();
   return false;
 }
+
+
 
 
 //______________________________________________________________________________
@@ -506,7 +520,7 @@ void FUEventProcessor::actionPerformed(xdata::Event& e)
 		     <<"in this version of the code");
     }
   }
-
+  
 }
 
 //______________________________________________________________________________
@@ -1612,7 +1626,7 @@ void FUEventProcessor::updater(xgi::Input *in,xgi::Output *out)
   else
     *out << "<div id=\"hlt\">Not yet...</div>" << std::endl;  
   *out << "<div id=\"sq\">" << squidPresent_.toString() << "</div>"
-       << "<div id=\"vwl\">" << (supervising_ ? "Active" : "not initialized") << "</div>"
+       << "<div id=\"vwl\">" << (supervising_ ? "Active" : "Not Initialized") << "</div>"
        << "<div id=\"mwl\">" << evtProcessor_.wlMonitoring() << "</div>";
   if(nbProcessed != 0 && nbAccepted != 0)
     {
@@ -1625,7 +1639,18 @@ void FUEventProcessor::updater(xgi::Input *in,xgi::Output *out)
 	   << "<div id=\"ac\">" << 0 << "</div>";
     }
 
-  *out<< "<div id=\"swl\">" << (wlScalersActive_ ? "active" : "inactive") << "</div>";
+  *out<< "<div id=\"swl\">" << (wlScalersActive_ ? "Active" : "Inactive") << "</div>";
+  *out<< "<div id=\"idi\">" << iDieUrl_.value_ << "</div>";
+  if(vp_!=0){
+    *out << "<div id=\"vpi\">" << (unsigned int) vp_ << "</div>";
+    if(vulture_->hasStarted()>=0)
+      *out<< "<div id=\"vul\">Prowling</div>";
+    else
+      *out<< "<div id=\"vul\">Dead</div>";
+  }
+  else{
+    *out<< "<div id=\"vul\">" << (vulture_==0 ? "Nope" : "Hatching") << "</div>";
+  }    
   if(evtProcessor_)
     *out << "<div id=\"ll\">" << evtProcessor_.lastLumi().ls
 	 << "," << evtProcessor_.lastLumi().proc << "," << evtProcessor_.lastLumi().acc << "</div>";
