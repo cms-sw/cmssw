@@ -8,27 +8,27 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronGlimpseProxyBuilder.cc,v 1.2 2009/01/06 22:46:19 chrjones Exp $
+// $Id: FWElectronGlimpseProxyBuilder.cc,v 1.3 2009/01/23 21:35:46 amraktad Exp $
 //
 
 // system include files
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 // user include files
-#include "Fireworks/Core/interface/FWGlimpseSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+//#include "Fireworks/Core/interface/FWGlimpseSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
-#include "Fireworks/Candidates/interface/addStraightLineSegment.h"
+#include "Fireworks/Candidates/interface/CandidateUtils.h"
 
-class FWElectronGlimpseProxyBuilder : public FWGlimpseSimpleProxyBuilderTemplate<reco::GsfElectron> {
+class FWElectronGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GsfElectron> {
 
 public:
-   FWElectronGlimpseProxyBuilder();
-   //virtual ~FWElectronGlimpseProxyBuilder();
-
-   // ---------- const member functions ---------------------
-
-   // ---------- static member functions --------------------
+   FWElectronGlimpseProxyBuilder()
+     : m_scaler(0)
+     {}
+  
+   virtual ~FWElectronGlimpseProxyBuilder() {}
 
    // ---------- member functions ---------------------------
    REGISTER_PROXYBUILDER_METHODS();
@@ -40,45 +40,17 @@ private:
 
    virtual void build(const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
 
-   // ---------- member data --------------------------------
+   // FIXME: It's not a part of a standard FWSimpleProxyBuilderTemplate:
+   void setScaler(FWEveValueScaler* iScaler) {
+      m_scaler = iScaler;
+   }
+   // FIXME: It's not a part of a standard FWSimpleProxyBuilderTemplate:
+   FWEveValueScaler* scaler() const {
+      return m_scaler;
+   }
 
+   FWEveValueScaler* m_scaler;
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-FWElectronGlimpseProxyBuilder::FWElectronGlimpseProxyBuilder()
-{
-}
-
-// FWElectronGlimpseProxyBuilder::FWElectronGlimpseProxyBuilder(const FWElectronGlimpseProxyBuilder& rhs)
-// {
-//    // do actual copying here;
-// }
-
-//FWElectronGlimpseProxyBuilder::~FWElectronGlimpseProxyBuilder()
-//{
-//}
-
-//
-// assignment operators
-//
-// const FWElectronGlimpseProxyBuilder& FWElectronGlimpseProxyBuilder::operator=(const FWElectronGlimpseProxyBuilder& rhs)
-// {
-//   //An exception safe implementation is
-//   FWElectronGlimpseProxyBuilder temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
@@ -86,20 +58,14 @@ FWElectronGlimpseProxyBuilder::FWElectronGlimpseProxyBuilder()
 void
 FWElectronGlimpseProxyBuilder::build(const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
-   FWEveScalableStraightLineSet* marker = new FWEveScalableStraightLineSet("","");
+   FWEveScalableStraightLineSet* marker = new FWEveScalableStraightLineSet("", "");
    marker->SetLineWidth(2);
-   fw::addStraightLineSegment( marker, &iData, 1.0 );
+   fireworks::addStraightLineSegment( marker, &iData, 1.0 );
    oItemHolder.AddElement(marker);
    //add to scaler at end so that it can scale the line after all ends have been added
+   // FIXME: It's not a part of a standard FWSimpleProxyBuilderTemplate: the scaler is not set!
+   assert(scaler());
    scaler()->addElement(marker);
 }
 
-//
-// const member functions
-//
-
-//
-// static member functions
-//
-
-REGISTER_FWGLIMPSEDATAPROXYBUILDER(FWElectronGlimpseProxyBuilder,std::vector<reco::GsfElectron>,"Electrons");
+REGISTER_FWPROXYBUILDER(FWElectronGlimpseProxyBuilder, std::vector<reco::GsfElectron>, "Electrons", FWViewType::kGlimpse);
