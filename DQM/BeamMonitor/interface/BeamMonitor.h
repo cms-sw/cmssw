@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/04/06 16:48:45 $
- *  $Revision: 1.21 $
+ *  $Date: 2010/04/09 16:22:21 $
+ *  $Revision: 1.22 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -91,6 +91,9 @@ class BeamMonitor : public edm::EDAnalyzer {
   double deltaSigCut_;
   unsigned int min_Ntrks_;
   double maxZ_;
+  unsigned int minNrVertices_;
+  double minVtxNdf_;
+  double minVtxWgt_;
 
   bool resetHistos_;
   // ----------member data ---------------------------

@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/04/09 16:22:22 $
- * $Revision: 1.40 $
+ * $Date: 2010/04/09 18:24:58 $
+ * $Revision: 1.41 $
  *
  */
 
@@ -12,6 +12,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -68,6 +69,9 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   tracksLabel_    = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<InputTag>("TrackCollection");
   min_Ntrks_      = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumInputTracks");
   maxZ_           = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumZ");
+  minNrVertices_  = parameters_.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<unsigned int>("minNrVerticesForFit");
+  minVtxNdf_      = parameters_.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexNdf");
+  minVtxWgt_      = parameters_.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexMeanWeight");
 
   dbe_            = Service<DQMStore>().operator->();
   
@@ -85,6 +89,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   maxZ_ = fabs(maxZ_);
   lastlumi_ = 0;
   nextlumi_ = 0;
+
 }
 
 
@@ -438,7 +443,7 @@ void BeamMonitor::analyze(const Event& iEvent,
 	cutFlowTable->setBinLabel(n+1,tmphisto->GetXaxis()->GetBinLabel(n+1),1);
 
     cutFlowTable = dbe_->book1D(tmpfile,tmphisto);
-  
+
     Handle<reco::TrackCollection> TrackCollection;
     iEvent.getByLabel(tracksLabel_, TrackCollection);
     const reco::TrackCollection *tracks = TrackCollection.product();
@@ -448,44 +453,25 @@ void BeamMonitor::analyze(const Event& iEvent,
       h_trkVz->Fill(track->vz());
     }
 
-    edm::Handle< edm::View<reco::Vertex> > recVtxs;
-    iEvent.getByLabel(pvSrc_, recVtxs);
-    const edm::View<reco::Vertex> &pv = *recVtxs;
+    //------ Primary Vertices
+    edm::Handle< reco::VertexCollection > PVCollection;
 
-    int nGoodPV=0;
-    int idx=0;
-    double sum=0.0;
-
-    for (size_t ipv = 0; ipv != pv.size(); ++ipv) {
-      double sum_ntracks=0.0;
-      int ntracks=0;
-
-      if (pv[ipv].isFake()) continue;
-      h_nVtx->Fill(recVtxs->size()*1.);
-      for (reco::Vertex::trackRef_iterator it = pv[ipv].tracks_begin(); it != pv[ipv].tracks_end(); it++) {
-	sum+= pv[ipv].trackWeight(*it);
-	ntracks++;
+    if (iEvent.getByLabel(pvSrc_, PVCollection )) {
+      int nPVcount = 0;
+      for (reco::VertexCollection::const_iterator pv = PVCollection->begin(); pv != PVCollection->end(); ++pv) {
+	//--- vertex selection
+	if (pv->isFake() || pv->tracksSize()==0)  continue;
+	nPVcount++; // count non fake pv
+	if (pv->ndof() < minVtxNdf_ || (pv->ndof()+3.)/pv->tracksSize() < 2*minVtxWgt_)  continue;
+	h_PVx[0]->Fill(pv->x());
+	h_PVy[0]->Fill(pv->y());
+	h_PVz[0]->Fill(pv->z());
+	h_PVxz->Fill(pv->z(),pv->x());
+	h_PVyz->Fill(pv->z(),pv->y());
       }
-
-      if(ntracks>0){sum_ntracks=(sum/(float)ntracks);}
-      else{sum_ntracks=0.0;}
-    
-      if (sum_ntracks > 0.5 && pv[ipv].ndof() > 2) {
-	nGoodPV++;
-	idx=ipv;
-	if (debug_) std::cout << "Which PV passes selection? # " << idx << std::endl;
-      }
+      if (nPVcount>0) h_nVtx->Fill(nPVcount*1.);
     }
-
-    if (nGoodPV == 1) { // Temporary, select only events contain one good PV
-      if (debug_) std::cout << "Which PV is selected? # " << idx << std::endl;
-      h_PVx[0]->Fill(pv[idx].x());
-      h_PVy[0]->Fill(pv[idx].y());
-      h_PVz[0]->Fill(pv[idx].z());
-      h_PVxz->Fill(pv[idx].z(),pv[idx].x());
-      h_PVyz->Fill(pv[idx].z(),pv[idx].y());
-    }
-  }
+  }//end of read event
 
 }
 
@@ -575,7 +561,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
     if (debug_) std::cout << "Do PV Fitting for LS = " << beginLumiOfPVFit_ << " to " << endLumiOfPVFit_ << std::endl;
     // Primary Vertex Fit:
-    if (h_PVx[0]->getTH1()->GetEntries() >= 20) {
+    if (h_PVx[0]->getTH1()->GetEntries() > minNrVertices_) {
       pvResults->Reset();
       char tmpTitle[50];
       sprintf(tmpTitle,"%s %i %s %i","Fitted Primary Vertex (cm) of LS: ",beginLumiOfPVFit_," to ",endLumiOfPVFit_);
