@@ -504,6 +504,7 @@ public :
   Int_t           OpenL1_SingleForJet4; 
   Int_t           OpenL1_SingleTauJet2; 
   Int_t           OpenL1_SingleTauJet4; 
+  Int_t           OpenL1_DoubleForJet10_EtaOpp; 
 
 
   // JH - 1E31 MC menu
@@ -3480,7 +3481,6 @@ void OHltTree::SetOpenL1Bits()
   if(L1TauEt[0] > 4.0)  
     OpenL1_SingleTauJet4 = 1;  
 
-
   map_BitOfStandardHLTPath["OpenL1_SingleCenJet2"] = OpenL1_SingleCenJet2; 
   map_BitOfStandardHLTPath["OpenL1_SingleCenJet4"] = OpenL1_SingleCenJet4; 
   map_BitOfStandardHLTPath["OpenL1_SingleForJet2"] = OpenL1_SingleForJet2; 
@@ -3488,6 +3488,20 @@ void OHltTree::SetOpenL1Bits()
   map_BitOfStandardHLTPath["OpenL1_SingleTauJet2"] = OpenL1_SingleTauJet2; 
   map_BitOfStandardHLTPath["OpenL1_SingleTauJet4"] = OpenL1_SingleTauJet4; 
 
+
+  OpenL1_DoubleForJet10_EtaOpp = 0;
+  map_BitOfStandardHLTPath["OpenL1_DoubleForJet10_EtaOpp"] = OpenL1_DoubleForJet10_EtaOpp;
+  Int_t hfjetplus=0;
+  Int_t hfjetminus=0;
+  for (Int_t i = 0; i < NL1ForJet;i++)
+    {
+      if(L1ForJetEt[i] > 10.0 && L1ForJetEta[i] > 3.0)
+	hfjetplus++;
+      if(L1ForJetEt[i] > 10.0 && L1ForJetEta[i] < -3.0)
+	hfjetminus++;
+    }
+  if(hfjetplus > 0 && hfjetminus > 0)
+    OpenL1_DoubleForJet10_EtaOpp = 1;
 }
 
 
