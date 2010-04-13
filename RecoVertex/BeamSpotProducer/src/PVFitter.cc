@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: PVFitter.cc,v 1.5 2010/03/30 19:18:13 jengbou Exp $
+   version $Id: PVFitter.cc,v 1.6 2010/04/03 10:17:13 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -54,6 +54,7 @@ PVFitter::PVFitter(const edm::ParameterSet& iConfig)
   //writeTxt_          = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("WriteAscii");
   //outputTxt_         = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<std::string>("AsciiFileName");
 
+  maxNrVertices_     = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<unsigned int>("maxNrStoredVertices");
   minNrVertices_     = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<unsigned int>("minNrVerticesForFit");
   minVtxNdf_         = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexNdf");
   maxVtxNormChi2_    = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("maxVertexNormChi2");
@@ -63,7 +64,8 @@ PVFitter::PVFitter(const edm::ParameterSet& iConfig)
   maxVtxZ_           = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("maxVertexZ");
   errorScale_        = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("errorScale");
   sigmaCut_          = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("nSigmaCut");
-
+  // preset quality cut to "infinite"
+  dynamicQualityCut_ = 1.e30;
 
   hPVx = new TH2F("hPVx","PVx vs PVz distribution",200,-maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_);
   hPVy = new TH2F("hPVy","PVy vs PVz distribution",200,-maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_);
@@ -130,10 +132,23 @@ void PVFitter::readEvent(const edm::Event& iEvent)
           if ( pv->isFake() || pv->tracksSize()==0 )  return;
           if ( pv->ndof() < minVtxNdf_ || (pv->ndof()+3.)/pv->tracksSize()<2*minVtxWgt_ )  return;
           //---
-          
+
           hPVx->Fill( pv->x(), pv->z() );
           hPVy->Fill( pv->y(), pv->z() );
 
+	  //
+	  // 3D fit section
+	  //
+	  // apply additional quality cut
+	  if ( pvQuality(*pv)>dynamicQualityCut_ )  return;
+	  // if store exceeds max. size: reduce size and apply new quality cut
+	  if ( pvStore_.size()>=maxNrVertices_ ) {
+	    compressStore();
+	    if ( pvQuality(*pv)>dynamicQualityCut_ )  return;
+	  }
+	  //
+	  // copy PV to store
+	  //
           BeamSpotFitPVData pvData;
           pvData.position[0] = pv->x();
           pvData.position[1] = pv->y();
@@ -219,18 +234,25 @@ bool PVFitter::runFitter() {
       minuitx.SetParameter(6,"dxdz",0.,0.0002,-0.1,0.1);
       minuitx.SetParameter(7,"dydz",0.,0.0002,-0.1,0.1);
       minuitx.SetParameter(8,"ez",1.,0.1,0.,30.);
-      minuitx.SetParameter(9,"scale",0.9,0.1,0.5,2.);
+      minuitx.SetParameter(9,"scale",errorScale_,errorScale_/10.,errorScale_/2.,errorScale_*2.);
       //
       // first iteration without correlations
       //
+      int ierr(0);
       minuitx.FixParameter(4);
       minuitx.FixParameter(6);
       minuitx.FixParameter(7);
       minuitx.FixParameter(9);
       minuitx.SetMaxIterations(100);
-      minuitx.SetPrintLevel(3);
+//       minuitx.SetPrintLevel(3);
+      minuitx.SetPrintLevel(0);
       minuitx.CreateMinimizer();
-      minuitx.Minimize();
+      ierr = minuitx.Minimize();
+      if ( ierr ) {
+	if ( debug_ )
+	  std::cout << "3D beam spot fit failed in 1st iteration" << std::endl;
+	return false;
+      }
       //
       // refit with harder selection on vertices
       //
@@ -240,17 +262,29 @@ bool PVFitter::runFitter() {
 		     minuitx.GetParameter(1)+sigmaCut_*minuitx.GetParameter(5),
 		     minuitx.GetParameter(2)-sigmaCut_*minuitx.GetParameter(8),
 		     minuitx.GetParameter(2)+sigmaCut_*minuitx.GetParameter(8));
-      minuitx.Minimize();
+      ierr = minuitx.Minimize();
+      if ( ierr ) {
+	if ( debug_ )
+	  std::cout << "3D beam spot fit failed in 2nd iteration" << std::endl;
+	return false;
+      }
       //
       // refit with correlations
       //
       minuitx.ReleaseParameter(4);
       minuitx.ReleaseParameter(6);
       minuitx.ReleaseParameter(7);
-      minuitx.Minimize();
+      ierr = minuitx.Minimize();
+      if ( ierr ) {
+	if ( debug_ )
+	  std::cout << "3D beam spot fit failed in 3rd iteration" << std::endl;
+	return false;
+      }
       // refit with floating scale factor
       //   minuitx.ReleaseParameter(9);
       //   minuitx.Minimize();
+
+      minuitx.PrintResults(0,0);
 
       fwidthX = minuitx.GetParameter(3);
       fwidthY = minuitx.GetParameter(5);
@@ -320,5 +354,60 @@ void PVFitter::dumpTxtFile(){
   fasciiFile << "BetaStar " << fbeamspot.betaStar() << std::endl;
 
 */
+}
+
+
+void
+PVFitter::compressStore ()
+{
+  //
+  // fill vertex qualities
+  //
+  pvQualities_.resize(pvStore_.size());
+  for ( unsigned int i=0; i<pvStore_.size(); ++i )  pvQualities_[i] = pvQuality(pvStore_[i]);
+  sort(pvQualities_.begin(),pvQualities_.end());
+  //
+  // Set new quality cut to median. This cut will be used to reduce the
+  // number of vertices in the store and also apply to all new vertices
+  // until the next reset
+  //
+  dynamicQualityCut_ = pvQualities_[pvQualities_.size()/2];
+  //
+  // remove all vertices failing the cut from the store
+  //   (to be moved to a more efficient memory management!)
+  //
+  unsigned int iwrite(0);
+  for ( unsigned int i=0; i<pvStore_.size(); ++i ) {
+    if ( pvQuality(pvStore_[i])>dynamicQualityCut_ )  continue;
+    if ( i!=iwrite )  pvStore_[iwrite] = pvStore_[i];
+    ++iwrite;
+  }
+  pvStore_.resize(iwrite);
+  if ( debug_ ) std::cout << "Reduced primary vertex store size to "
+			  << pvStore_.size() << " ; new dynamic quality cut = " 
+			  << dynamicQualityCut_ << std::endl;
+
+}
+
+double
+PVFitter::pvQuality (const reco::Vertex& pv) const
+{
+  //
+  // determinant of the transverse part of the PV covariance matrix
+  //
+  return 
+    pv.covariance(0,0)*pv.covariance(1,1)-
+    pv.covariance(0,1)*pv.covariance(0,1);
+}
+
+double
+PVFitter::pvQuality (const BeamSpotFitPVData& pv) const
+{
+  //
+  // determinant of the transverse part of the PV covariance matrix
+  //
+  double ex = pv.posError[0];
+  double ey = pv.posError[1];
+  return ex*ex*ey*ey*(1-pv.posCorr[0]*pv.posCorr[0]);
 }
 
