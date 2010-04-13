@@ -10,7 +10,7 @@
   The user can then turn individual cuts on and off at will. 
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.4 2010/03/10 17:26:55 srappocc Exp $
+  \version  $Id: Selector.h,v 1.6 2010/03/22 03:54:31 wmtan Exp $
 */
 
 
@@ -191,6 +191,21 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
       }
       out << buff << std::endl;
     } 
+  }
+
+  /// Print the cuts being considered
+  void printActiveCuts(std::ostream & out) const { 
+    bool already_printed_one = false;
+    for ( cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(),
+	    cutsEnd = cutFlow_.end(), icut = cutsBegin;
+	  icut != cutsEnd; ++icut ) {
+      if ( considerCut( icut->first ) ) {
+	if( already_printed_one ) out << ", ";
+	out << icut->first;
+	already_printed_one = true;
+      }
+    } 
+    out << std::endl;
   }
 
  protected:
