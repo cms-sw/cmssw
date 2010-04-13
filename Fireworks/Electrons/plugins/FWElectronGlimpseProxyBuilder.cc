@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronGlimpseProxyBuilder.cc,v 1.3 2009/01/23 21:35:46 amraktad Exp $
+// $Id: FWElectronGlimpseProxyBuilder.cc,v 1.4 2010/04/13 12:59:51 yana Exp $
 //
 
 // system include files
@@ -64,8 +64,8 @@ FWElectronGlimpseProxyBuilder::build(const reco::GsfElectron& iData, unsigned in
    oItemHolder.AddElement(marker);
    //add to scaler at end so that it can scale the line after all ends have been added
    // FIXME: It's not a part of a standard FWSimpleProxyBuilderTemplate: the scaler is not set!
-   assert(scaler());
-   scaler()->addElement(marker);
+//    assert(scaler());
+//    scaler()->addElement(marker);
 }
 
 REGISTER_FWPROXYBUILDER(FWElectronGlimpseProxyBuilder, std::vector<reco::GsfElectron>, "Electrons", FWViewType::kGlimpse);
