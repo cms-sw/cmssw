@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_0/pre4/HIon/V14 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
+# /dev/CMSSW_3_6_0/pre4/HIon/V16 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/HIon/V14')
+  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/HIon/V16')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -13,24 +13,30 @@ process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'Product
   'TooFewProducts' ) )
 process.streams = cms.PSet( 
   Offline = cms.vstring(  ),
-  HLTDQM = cms.vstring(  ),
-  DQM = cms.vstring(  ),
   Calibration = cms.vstring( 'TestEnables' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
-  RPCMON = cms.vstring( 'RPCMonitor' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   EventDisplay = cms.vstring(  ),
-  A = cms.vstring( 'RandomTriggers',
+  A = cms.vstring( 'JetMETTauMonitor',
+    'JetMETTau',
+    'Mu',
+    'EGMonitor',
+    'MinimumBias',
+    'EG',
+    'RandomTriggers',
     'HcalHPDNoise',
     'HcalNZS',
     'ZeroBias',
-    'MinimumBias',
+    'MuMonitor',
     'Cosmics' ),
-  HLTMON = cms.vstring( 'OfflineMonitor' )
+  DQM = cms.vstring(  ),
+  HLTDQM = cms.vstring(  ),
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  RPCMON = cms.vstring( 'RPCMonitor' )
 )
 process.datasets = cms.PSet( 
   TestEnables = cms.vstring(  ),
@@ -38,16 +44,22 @@ process.datasets = cms.PSet(
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
-  RPCMonitor = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  ),
+  JetMETTauMonitor = cms.vstring(  ),
+  JetMETTau = cms.vstring(  ),
+  Mu = cms.vstring(  ),
+  EGMonitor = cms.vstring(  ),
+  MinimumBias = cms.vstring(  ),
+  EG = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
-  MinimumBias = cms.vstring(  ),
+  MuMonitor = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
-  OfflineMonitor = cms.vstring(  )
+  OfflineMonitor = cms.vstring(  ),
+  RPCMonitor = cms.vstring(  )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -541,10 +553,11 @@ process.ESUnpackerWorkerESProducer = cms.ESProducer( "ESUnpackerWorkerESProducer
   DCCDataUnpacker = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) ),
   RHAlgo = cms.PSet( 
     Type = cms.string( "ESRecHitWorker" ),
-    ESGain = cms.int32( 1 ),
+    ESGain = cms.int32( 2 ),
     ESMIPkeV = cms.double( 81.08 ),
-    ESMIPADC = cms.double( 9.0 ),
-    ESBaseline = cms.int32( 1000 )
+    ESMIPADC = cms.double( 55.0 ),
+    ESBaseline = cms.int32( 0 ),
+    ESRecoAlgo = cms.untracked.int32( 1 )
   )
 )
 process.EcalBarrelGeometryEP = cms.ESProducer( "EcalBarrelGeometryEP",
