@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id$
+// $Id: ZmumuPFEmbedder.cc,v 1.1 2010/03/17 16:14:10 fruboes Exp $
 //
 //
 
@@ -38,6 +38,9 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+
+#include <DataFormats/Math/interface/deltaR.h>
 //
 // class decleration
 //
@@ -50,10 +53,12 @@ class ZmumuPFEmbedder : public edm::EDProducer {
    private:
       virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produceTrackColl(edm::Event&, const std::vector< reco::PFCandidate > & toBeAdded );
       virtual void endJob() ;
       
       double _etaMax;
       double _ptMin;
+      edm::InputTag _tracks;
       
       // ----------member data ---------------------------
 };
@@ -72,12 +77,16 @@ class ZmumuPFEmbedder : public edm::EDProducer {
 //
 ZmumuPFEmbedder::ZmumuPFEmbedder(const edm::ParameterSet& iConfig)
   : _etaMax(iConfig.getUntrackedParameter<double>("etaMax")),
-    _ptMin(iConfig.getUntrackedParameter<double>("ptMin"))
+    _ptMin(iConfig.getUntrackedParameter<double>("ptMin")),
+    _tracks(iConfig.getParameter<edm::InputTag>("tracks"))
 {
 
    //register your products
    produces< std::vector< reco::Muon >  >("zMusExtracted"); // 
    produces< std::vector< reco::PFCandidate >  >("forMixing"); // 
+   produces<reco::TrackCollection>();
+
+   
  //  produces< edm::RefToBaseVector< reco::Candidate >  >(); // 
   // Yp    produces< std::vector< reco::RecoCandidate >  >();
   //  produces< std::vector< reco::CompositeRefCandidate >  >();
@@ -109,7 +118,7 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace reco;
 
-  
+   std::cout << "#######"  << std::endl;
    Handle<PFCandidateCollection> pfIn;
    iEvent.getByLabel("particleFlow",pfIn);
    // iterate over pf, choose 2 muons
@@ -151,9 +160,9 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
 
-  Handle<reco::VertexCollection> primaryVertices;
-  iEvent.getByLabel("offlinePrimaryVertices", primaryVertices);
-  const reco::Vertex vtx = *(primaryVertices->begin());
+   Handle<reco::VertexCollection> primaryVertices;
+   iEvent.getByLabel("offlinePrimaryVertices", primaryVertices);
+   const reco::Vertex vtx = *(primaryVertices->begin());
   
    std::vector< reco::PFCandidate >::iterator itTBA = toBeAdded.begin();
    
@@ -163,6 +172,7 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        pOut->push_back(mu); //xxx
    }
 
+   produceTrackColl(iEvent, toBeAdded);
    iEvent.put(pOut, "zMusExtracted");
    iEvent.put(forMix, "forMixing");
 
@@ -170,6 +180,42 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
 }
 
+
+// produces clean track collection wo muon tracks.
+void ZmumuPFEmbedder::produceTrackColl(edm::Event & iEvent, const std::vector< reco::PFCandidate > & toBeAdded )
+{
+   edm::Handle<reco::TrackCollection> tks;
+   iEvent.getByLabel( _tracks, tks);
+
+   std::auto_ptr< reco::TrackCollection  > newCol(new reco::TrackCollection );
+
+   double epsilon = 0.00001;
+   int nMatched = 0;
+   
+   for ( reco::TrackCollection::const_iterator it = tks->begin() ; it != tks->end(); ++it) 
+   {
+     bool ok = true;
+     for ( std::vector< reco::PFCandidate >::const_iterator itTBA = toBeAdded.begin();
+                                                            itTBA != toBeAdded.end();
+                                                            ++itTBA)
+     {
+       const reco::MuonRef& muonRef = itTBA->muonRef();
+       //( muonRef.isNonnull() );
+       reco::TrackRef track = muonRef->innerTrack();
+       double dr = reco::deltaR( *it, *track);
+       //std::cout << "TTTT " << dr << std::endl;
+       if (dr < epsilon) {
+         ++ nMatched;
+         ok = false;
+       }
+     }
+     if (ok)  newCol->push_back(*it);  
+   }
+   if (nMatched!=2) std::cout << "TTT ARGGGHGH " << nMatched << std::endl;
+
+   iEvent.put(newCol);
+
+}
 // ------------ method called once each job just before starting event loop  ------------
 void 
 ZmumuPFEmbedder::beginJob()

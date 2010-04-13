@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("EXAMPLE")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1000) )
 
 process.TFileService = cms.Service("TFileService",  fileName = cms.string("histo.root")          )
 
@@ -69,7 +69,8 @@ process.MessageLogger.destinations = cms.untracked.vstring('log')
 #process.dimuonsGlobal = cms.EDProducer('Dummy')
 process.dimuonsGlobal = cms.EDProducer('ZmumuPFEmbedder',
     etaMax = cms.untracked.double(2.2),
-    ptMin = cms.untracked.double(10)
+    ptMin = cms.untracked.double(10),
+    tracks = cms.InputTag("generalTracks")
 )
 
 process.OUTPUT = cms.OutputModule("PoolOutputModule",

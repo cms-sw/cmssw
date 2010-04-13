@@ -25,7 +25,10 @@ process.GlobalTag.globaltag = 'STARTUP31X_V4::All' # 31x
 process.source = cms.Source("PoolSource",
         #skipBadFiles = cms.untracked.bool(True),
         skipEvents = cms.untracked.uint32(0),
-        fileNames = cms.untracked.vstring('file:/tmp/fruboes/Zmumu/s2_FASTSIM.root')
+        fileNames = cms.untracked.vstring(
+#'file:/tmp/fruboes/Zmumu/step2a_RAW2DIGI_RECO.root'
+               'file:/tmp/fruboes/Zmumu/s2_FASTSIM.root'
+        )
 #fileNames = cms.untracked.vstring(),
 #inputCommands = cms.untracked.vstring(
 #            "keep recoPFCandidates_dimuonsGlobal_*_*",

@@ -21,17 +21,21 @@ process.load('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
 process.load('FastSimulation/Configuration/CommonInputs_cff')
 process.load('FastSimulation/Configuration/EventContent_cff')
 
+#process.offlinePrimaryVertices*process.offlinePrimaryVerticesWithBS
+#process.MessageLogger = cms.Service("MessageLogger",
+#        logDBG = cms.untracked.PSet( threshold = cms.untracked.string("DEBUG") ),
+#        debugModules = cms.untracked.vstring("offlinePrimaryVertices"),
+#        destinations = cms.untracked.vstring('logDBG')
+# )
 
-
-process.famosSimulationSequence.remove(process.offlineBeamSpot)
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.151 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('-s nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-10)
+    input = cms.untracked.int32(-12)
 )
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound')
@@ -91,6 +95,8 @@ process.misalignedCSCGeometry.applyAlignment = True
 process.GlobalTag.globaltag = 'STARTUP31X_V4::All' # 31x
 #process.GlobalTag.globaltag = 'MC_31X_V5::All' # 31x
 
+process.famosSimulationSequence.remove(process.offlineBeamSpot)
+
 # Path and EndPath definitions
 process.reconstruction = cms.Path(process.reconstructionWithFamos)
 process.out_step = cms.EndPath(process.output)
@@ -99,3 +105,78 @@ process.out_step = cms.EndPath(process.output)
 process.schedule = cms.Schedule()
 process.schedule.extend(process.HLTSchedule)
 process.schedule.extend([process.reconstruction,process.out_step])
+
+process.tmfTracks = cms.EDProducer("RecoTracksMixer",
+    trackCol1 = cms.InputTag("dimuonsGlobal"),
+    trackCol2 = cms.InputTag("generalTracks","","HLT2")
+)  
+
+#process.offlinePrimaryVerticesWithBS.TrackLabel = cms.InputTag("tmfTracks")
+#process.offlinePrimaryVertices.TrackLabel = cms.InputTag("tmfTracks")
+  
+
+#####################################  
+#####################################  
+from FWCore.ParameterSet.Modules import _Module
+class SeqVisitor(object):
+    def __init__(self, lookFor):
+       self.lookFor=lookFor
+       self.nextInChain="NONE"
+       self.catch=0
+       self.found=0
+
+    def prepareSearch(self): # this should be called on beggining of each iteration 
+       self.found=0 
+       
+    def setLookFor(self, lookFor):
+       self.lookFor = lookFor
+       
+    def giveNext(self):
+       return self.nextInChain
+       
+    def enter(self,visitee):
+       if isinstance(visitee, _Module):
+          if self.catch == 1:
+             self.catch=0
+             self.nextInChain=visitee
+             self.found=1
+          if visitee == self.lookFor:
+             self.catch=1
+         
+    def leave(self,visitee):
+           pass
+                                            
+##############################  
+##############################  
+
+#for i in process.schedule:
+#for  p in process.sequences:
+for p in process.paths:
+   i =  getattr(process,p)
+   target = process.generalTracks
+   source = process.tmfTracks 
+   
+   seqVis = SeqVisitor(source)
+   seqVis.prepareSearch()
+   seqVis.setLookFor(target)
+   i.visit(seqVis) # finds next module in path after self.lookFor
+   
+    #   if ( seqVis.found == 1 ):
+    #     print " Visitting: " + i.label()
+  
+   while ( seqVis.catch != 1 and seqVis.found == 1 ): # the module we are looking for is allready at the end of path
+     target = seqVis.giveNext()
+     #     print "Replaceing " + target.label() + " with " + source.label()
+     i.replace(target, source) # replace target with source 
+     seqVis.prepareSearch()
+     seqVis.setLookFor(source)
+     i.visit(seqVis) # finds next module in path after "source"
+     source = target # prepare to replace module we have just found  with the module we have overwritten
+     
+   if (seqVis.catch==1):
+     seqVis.catch=0
+     #     print "Adding " + source.label() + " to path"
+     i.__iadd__(source)
+       
+
+
