@@ -9,6 +9,14 @@
 	  this disk usage (in %), the SM will go into Failed state.
 	* Use disk usage in % rather than fractional part for 'highWaterMark'.
 
+2010-04-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-09-03
+	* Use the thread safe version localtime_r instead of localtime which
+	  uses a static struct internally.
+	* Fix order of configuration of ResourceMonitorCollection to assure
+	  that the correct alarm parameters are set before disks are checked.
+
 2010-04-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-09-02
