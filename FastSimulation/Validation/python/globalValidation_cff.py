@@ -17,8 +17,6 @@ from Validation.RecoMuon.muonValidationFastSim_cff import *
 from Validation.MuonIsolation.MuIsoVal_cff import *
 from Validation.MuonIdentification.muonIdVal_cff import *
 
-from Validation.RecoMuon.muonValidationHLTFastSim_cff import *
-
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 
 #from PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi import * 
@@ -26,13 +24,24 @@ from DQMOffline.RecoB.dqmAnalyzer_cff import *
 #bTagValidation.jetMCSrc = 'IC5byValAlgo'
 #bTagValidation.etaRanges = cms.vdouble(0.0, 1.1, 2.4)
 
-globalValidation = cms.Sequence(trackingParticles+trackingTruthValid
+globalValidation = cms.Sequence(trackingParticles
+                                +trackingTruthValid
                                 +tracksValidation
                                 +METRelValSequence
-                                +recoMuonValidationFastSim+muIsoVal_seq+muonIdValDQMSeq
-                                +recoMuonValidationHLTFastSim_seq
+                                +recoMuonValidationFastSim
+                                +muIsoVal_seq
+                                +muonIdValDQMSeq
                                 +bTagPlots
                                # +myPartons
                                # +iterativeCone5Flavour
                                # +bTagValidation
+                                )
+
+globalValidation_preprod = cms.Sequence(trackingParticles
+                                +trackingTruthValid
+                                +tracksValidation
+                                +METRelValSequence
+                                +recoMuonValidationFastSim
+                                +muIsoVal_seq
+                                +muonIdValDQMSeq
                                 )
