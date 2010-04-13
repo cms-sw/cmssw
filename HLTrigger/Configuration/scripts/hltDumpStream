@@ -236,9 +236,15 @@ def getEndPath(output):
 
 
 def dumpStream(stream):
+  unassigned = [ ]
+  missing    = [ ]
+
   print 'stream', stream
   out = 'hltOutput%s' % stream
   end = getEndPath(out)
+  if end:
+    output = eval('process.hltOutput%s' % stream)
+    unassigned = [ path for path in output.SelectEvents.SelectEvents ]
 
   pds = process.streams.__dict__[stream]
   pds.sort()
@@ -249,8 +255,21 @@ def dumpStream(stream):
       paths.sort()
       for path in paths:
         print dumpPath(path, out, end)
+        # look for unassigned paths - not that a path can only appear in a single dataset per stream
+        if path in unassigned:
+          unassigned.remove( path )
+        else:
+          missing.insert( path )
     else:
-      print '        *** not found ***' 
+      print '        *** not found ***'
+  if unassigned:
+    print '    *** unassigned paths ***'
+    for path in unassigned:
+      print dumpPath(path, out, end)
+  if missing:
+    print '    *** missing paths in the output module ***'
+    for path in missing:
+      print dumpPath(path, out, end)
 
 
 def dumpOutput(stream):
@@ -271,9 +290,3 @@ streams.sort()
 
 for stream in streams:
   dumpStream(stream)
-
-# process the DQM outputs (for which no stream is defined)
-nostreams = [ 'DQM', 'HLTDQM', 'EventDisplay' ]
-
-for stream in nostreams:
-  dumpOutput(stream)
