@@ -7,7 +7,7 @@
   * electron did indeed come from a conversion
   * \author Puneeth Kalavase, University Of California, Santa Barbara
   *
-  * \version $Id: ConversionFinder.h,v 1.5 2010/04/12 07:47:29 kalavase Exp $
+  * \version $Id: ConversionFinder.h,v 1.6 2010/04/13 00:24:33 kalavase Exp $
   *
   */
 
@@ -43,10 +43,10 @@ class ConversionFinder {
 				   const double bFieldAtOrigin,
 				   const double minFracSharedHits = 0.45);
   /*
-    cuts tuned for high pt ( pt > 20 GeV )electrons
+    cuts tuned for high pt ( pt > 20 GeV ) electrons 
     fnc must be called after getConversionInfo is called
   */
-  bool isFromConversion(double maxAbsDist = 0.2, double maxAbsDcot = 0.02);
+  bool isFromConversion(double maxAbsDist = 0.02, double maxAbsDcot = 0.02);
   const reco::Track* getElectronTrack(const reco::GsfElectron& electron, const float minFracSharedHits = 0.45);
   //function below is only for backwards compatibility 
   static std::pair<double, double> getConversionInfo(math::XYZTLorentzVector trk1_p4, 
