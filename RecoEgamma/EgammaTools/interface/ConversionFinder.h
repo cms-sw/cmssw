@@ -7,7 +7,7 @@
   * electron did indeed come from a conversion
   * \author Puneeth Kalavase, University Of California, Santa Barbara
   *
-  * \version $Id: ConversionFinder.h,v 1.4 2009/11/18 20:40:25 kalavase Exp $
+  * \version $Id: ConversionFinder.h,v 1.5 2010/04/12 07:47:29 kalavase Exp $
   *
   */
 
@@ -48,6 +48,13 @@ class ConversionFinder {
   */
   bool isFromConversion(double maxAbsDist = 0.2, double maxAbsDcot = 0.02);
   const reco::Track* getElectronTrack(const reco::GsfElectron& electron, const float minFracSharedHits = 0.45);
+  //function below is only for backwards compatibility 
+  static std::pair<double, double> getConversionInfo(math::XYZTLorentzVector trk1_p4, 
+						     int trk1_q, float trk1_d0, 
+						     math::XYZTLorentzVector trk2_p4,
+						     int trk2_q, float trk2_d0,
+						     float bFieldAtOrigin);
+  
  private:
   ConversionInfo convInfo_;
 };

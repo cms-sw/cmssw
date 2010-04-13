@@ -96,7 +96,7 @@ ConversionInfo ConversionFinder::getConversionInfo(const reco::GsfElectron& gsfE
 
   double d = sqrt(pow(xEl-xCand, 2) + pow(yEl-yCand , 2));
   double dist = d - (rEl + rCand);
-  double dcot = 1./tan(el_tk_p4.theta()) - 1/tan(cand_p4.theta());
+  double dcot = 1./tan(el_tk_p4.theta()) - 1./tan(cand_p4.theta());
   
   //get the point of conversion
   double xa1 = xEl   + (xCand-xEl) * rEl/d;
@@ -138,6 +138,36 @@ const reco::Track* ConversionFinder::getElectronTrack(const reco::GsfElectron& e
     return (const reco::Track*)electron.closestCtfTrackRef().get();
   
   return (const reco::Track*)(electron.gsfTrack().get());
+}
+
+//------------------------------------------------------------------------------------
+// Exists here for backwards compatibility only. Provides only the dist and dcot
+std::pair<double, double> ConversionFinder::getConversionInfo(LorentzVector trk1_p4, 
+							      int trk1_q, float trk1_d0, 
+							      LorentzVector trk2_p4,
+							      int trk2_q, float trk2_d0,
+							      float bFieldAtOrigin) {
+  
+  
+  double tk1Curvature = -0.3*bFieldAtOrigin*(trk1_q/trk1_p4.pt())/100.;
+  double rTk1 = fabs(1./tk1Curvature);
+  double xTk1 = -1.*(1./tk1Curvature - trk1_d0)*sin(trk1_p4.phi());
+  double yTk1 = (1./tk1Curvature - trk1_d0)*cos(trk1_p4.phi());
+
+  
+  double tk2Curvature = -0.3*bFieldAtOrigin*(trk2_q/trk2_p4.pt())/100.;
+  double rTk2 = fabs(1./tk2Curvature);
+  double xTk2 = -1.*(1./tk2Curvature - trk2_d0)*sin(trk2_p4.phi());
+  double yTk2 = (1./tk2Curvature - trk2_d0)*cos(trk2_p4.phi());
+
+	 
+  double dist = sqrt(pow(xTk1-xTk2, 2) + pow(yTk1-yTk2 , 2));
+  dist = dist - (rTk1 + rTk2);
+
+  double dcot = 1./tan(trk1_p4.theta()) - 1./tan(trk2_p4.theta());
+
+  return std::make_pair(dist, dcot);
+  
 }
 
 
