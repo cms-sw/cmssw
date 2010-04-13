@@ -263,10 +263,12 @@ def dumpStream(stream):
     else:
       print '        *** not found ***'
   if unassigned:
+    unassigned.sort()
     print '    *** unassigned paths ***'
     for path in unassigned:
       print dumpPath(path, out, end)
   if missing:
+    missing.sort()
     print '    *** missing paths in the output module ***'
     for path in missing:
       print dumpPath(path, out, end)
