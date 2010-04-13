@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.4 2010/03/23 16:10:18 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.5 2010/03/23 18:18:01 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -56,6 +56,14 @@ from the configuration file, the DB is not implemented yet)
 #include <memory>
 #include <vector>
 #include <cstring>
+
+#include <xercesc/dom/DOM.hpp>
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/XMLString.hpp>
+
+#include "boost/filesystem/path.hpp"
+#include "boost/filesystem/operations.hpp"
 namespace edm {
   class EventSetup;
 }
@@ -86,17 +94,133 @@ private:
 
   std::string m_connectStr;
   std::string m_lumiversion;
+  std::string m_siteconfpath;
+  const std::string servletTranslation(const std::string& servlet) const;
+  std::string x2s(const XMLCh* input)const;
+  XMLCh* s2x(const std::string& input)const;
+  std::string toParentString(const xercesc::DOMNode &nodeToConvert)const;
 };
 
 //
 // constructors and destructor
 //
+
+std::string 
+LumiProducer::x2s(const XMLCh *toTranscode)const{
+  std::string tmp(xercesc::XMLString::transcode(toTranscode));
+  return tmp;
+}
+
+XMLCh*  
+LumiProducer::s2x( const std::string& temp )const{
+  XMLCh* buff = xercesc::XMLString::transcode(temp.c_str());    
+  return  buff;
+}
+
+std::string
+LumiProducer::toParentString(const xercesc::DOMNode &nodeToConvert)const{
+  std::ostringstream oss;
+  xercesc::DOMNodeList *childList = nodeToConvert.getChildNodes();
+
+  unsigned int numNodes = childList->getLength ();
+  for (unsigned int i = 0; i < numNodes; ++i){
+    xercesc::DOMNode *childNode = childList->item(i);
+    if (childNode->getNodeType() != xercesc::DOMNode::ELEMENT_NODE)
+      continue;
+    xercesc::DOMElement *child = static_cast < xercesc::DOMElement *> (childNode);
+    xercesc::DOMNamedNodeMap *attributes = child->getAttributes();
+    unsigned int numAttributes = attributes->getLength ();
+    for (unsigned int j = 0; j < numAttributes; ++j){
+      xercesc::DOMNode *attributeNode = attributes->item(j);
+      if (attributeNode->getNodeType() != xercesc::DOMNode::ATTRIBUTE_NODE)
+	continue;
+      xercesc::DOMAttr *attribute = static_cast <xercesc::DOMAttr *> (attributeNode);
+      
+      oss << "(" << x2s(child->getTagName()) << 
+	x2s(attribute->getName()) << "=" << 
+	x2s(attribute->getValue()) << ")";
+    }
+  }
+  return oss.str();
+}
+
+const std::string
+LumiProducer::servletTranslation(const std::string& servlet) const{
+  std::string frontierConnect;
+  std::string realconnect;
+  xercesc::XMLPlatformUtils::Initialize();  
+  std::auto_ptr< xercesc::XercesDOMParser > parser(new xercesc::XercesDOMParser);
+  try{
+    parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
+    parser->setDoNamespaces(false);
+    parser->parse(m_siteconfpath.c_str());
+    xercesc::DOMDocument* doc=parser->getDocument();
+    if(!doc){
+      return "";
+    }
+   
+    xercesc::DOMNodeList *frontierConnectList=doc->getElementsByTagName(s2x("frontier-connect"));
+    if (frontierConnectList->getLength()>0){
+      xercesc::DOMElement *frontierConnectElement=static_cast < xercesc::DOMElement *> (frontierConnectList->item (0));
+      frontierConnect = toParentString(*frontierConnectElement);
+    }
+    // Replace the last component of every "serverurl=" piece (up to the
+    //   next close-paren) with the servlet
+    std::string::size_type nextparen = 0;
+    std::string::size_type serverurl, lastslash;
+    std::string complexstr = "";
+    while ((serverurl=frontierConnect.find("(serverurl=", nextparen)) != std::string::npos){
+      realconnect.append(frontierConnect, nextparen, serverurl - nextparen);
+      nextparen=frontierConnect.find(')', serverurl);
+      lastslash=frontierConnect.rfind('/', nextparen);
+      realconnect.append(frontierConnect,serverurl,lastslash-serverurl+1);
+      realconnect.append(servlet);
+    }
+    realconnect.append(frontierConnect, nextparen,frontierConnect.length()-nextparen);
+  }catch(xercesc::DOMException &e){
+  }
+  return realconnect;
+}
+
+LumiProducer::
 LumiProducer::LumiProducer(const edm::ParameterSet& iConfig)
 {
   // register your products
   produces<LumiSummary, edm::InLumi>();
   produces<LumiDetails, edm::InLumi>();
-  m_connectStr=iConfig.getParameter<std::string>("connect");
+  std::string connectStr=iConfig.getParameter<std::string>("connect");
+  const std::string fproto("frontier://");
+  //test if need frontier servlet site-local translation  
+  if(connectStr.substr(0,fproto.length())==fproto){
+    std::string::size_type startservlet=fproto.length();
+    std::string::size_type endservlet=connectStr.find("(",startservlet);
+    if(endservlet==std::string::npos){
+      endservlet=connectStr.rfind('/',connectStr.length());
+    }
+    std::string servlet=connectStr.substr(startservlet,endservlet-startservlet);
+    if( (servlet !="")&& (servlet.find_first_of(":/)[]")==std::string::npos)){
+      if(servlet=="cms_conditions_data") servlet="";
+      
+      std::string siteconfpath=iConfig.getUntrackedParameter<std::string>("siteconfpath","");
+      if(siteconfpath.length()==0){
+	std::string url=(boost::filesystem::path("SITECONF")/boost::filesystem::path("local")/boost::filesystem::path("JobConfig")/boost::filesystem::path("site-local-config.xml")).string();
+	char * tmp = getenv ("CMS_PATH");
+	if(tmp){
+	  m_siteconfpath = (boost::filesystem::path(tmp)/boost::filesystem::path(url)).string();
+	}
+      }else{
+	if(!boost::filesystem::exists(boost::filesystem::path(siteconfpath))){
+	  throw cms::Exception("Non existing path ")<<siteconfpath;
+	}
+	m_siteconfpath = (boost::filesystem::path(siteconfpath)/boost::filesystem::path("site-local-config.xml")).string();
+      }
+      //std::cout<<"servlet : "<<servlet<<std::endl;
+      m_connectStr=fproto+servletTranslation(servlet)+connectStr.substr(endservlet);
+    }else{
+      m_connectStr=connectStr;
+    }
+  }
+  //std::cout<<"connect string "<< m_connectStr<<std::endl;
   m_lumiversion=iConfig.getUntrackedParameter<std::string>("lumiversion","0001");
 }
 
@@ -130,7 +254,7 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock,
   unsigned int luminum=iLBlock.luminosityBlock();
   edm::Service<lumi::service::DBService> mydbservice;
   if( !mydbservice.isAvailable() ){
-    std::cout<<"Service is unavailable"<<std::endl;
+    //std::cout<<"Service is unavailable"<<std::endl;
     return;
   }
   coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
@@ -160,10 +284,13 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock,
     lumiBindVariables.extend("runnumber",typeid(unsigned int));
     lumiBindVariables.extend("cmslsnum",typeid(unsigned int));
     lumiBindVariables.extend("lumiversion",typeid(std::string));
+    //lumiBindVariables.extend("cmsalive",typeid(bool));
 
     lumiBindVariables["runnumber"].data<unsigned int>()=runnumber;
     lumiBindVariables["cmslsnum"].data<unsigned int>()=luminum;
     lumiBindVariables["lumiversion"].data<std::string>()=m_lumiversion;
+    //lumiBindVariables["cmsalive"].data<bool>()=true;
+
     coral::AttributeList lumiOutput;
     lumiOutput.extend("cmslsnum",typeid(unsigned int));
     lumiOutput.extend("lumisummary_id",typeid(unsigned long long));
@@ -183,6 +310,7 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock,
     lumiQuery->addToOutputList("NUMORBIT");
     lumiQuery->addToOrderList("CMSLSNUM");
     lumiQuery->setCondition("RUNNUM =:runnumber AND LUMIVERSION=:lumiversion AND CMSLSNUM =:cmslsnum",lumiBindVariables);
+    //lumiQuery->setCondition("RUNNUM=:runnumber AND LUMIVERSION=:lumiversion AND CMSLSNUM=:cmslsnum AND CMSALIVE=:cmsalive",lumiBindVariables);
     lumiQuery->defineOutput(lumiOutput);
     coral::ICursor& lumicursor=lumiQuery->execute();
     unsigned long long lumisummary_id=0;

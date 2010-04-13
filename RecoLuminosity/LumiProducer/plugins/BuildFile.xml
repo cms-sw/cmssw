@@ -66,5 +66,6 @@
   <use name="FWCore/PluginManager"/>
   <use name="DataFormats/Provenance"/>
   <use name="DataFormats/Luminosity"/>
+  <use name="xerces-c"/>
   <flags EDM_PLUGIN="1"/>
 </library>
