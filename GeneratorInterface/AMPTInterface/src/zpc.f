@@ -162,7 +162,7 @@ c
 
         implicit double precision (a-h, o-z)
 
-        external ran1
+cc        external ran1
 
         character*50 str
 
@@ -431,7 +431,7 @@ cc      SAVE /lor/
 cc      SAVE /rndm3/
         SAVE   
 
-        external ran1
+cc        external ran1
 
         iseed=iseedp
         incmul = 4000
@@ -506,7 +506,7 @@ c       check if it's necessary to adjust array size 'adarr'
         
         implicit double precision (a-h, o-z)
 
-        external ran1
+cc        external ran1
         common /rndm3/ iseedp
 cc      SAVE /rndm3/
         SAVE   
@@ -525,7 +525,7 @@ cc      SAVE /rndm3/
         
         implicit double precision (a-h, o-z)
 
-        external ran1
+c        external ran1
 
         common /ilist3/ size1, size2, size3, v1, v2, v3, size
 cc      SAVE /ilist3/
@@ -545,7 +545,7 @@ cc      SAVE /rndm3/
         
         implicit double precision (a-h, o-z)
 
-        external ran1
+cc        external ran1
 
         common /ilist3/ size1, size2, size3, v1, v2, v3, size
 cc      SAVE /ilist3/
@@ -571,7 +571,7 @@ c       knowing the temperature of the local thermal distribution temp
         
         implicit double precision (a-h, o-z)
         
-        external ran1
+cc        external ran1
 
         common /para2/ xmp, xmu, alpha, rscut2, cutof2
 cc      SAVE /para2/
@@ -603,7 +603,7 @@ c       from the magnitude of the momentum e
         
         implicit double precision (a-h,o-z)
         
-        external ran1
+cc        external ran1
         
         parameter (pi = 3.14159265358979d0)
         common /rndm3/ iseedp
@@ -769,7 +769,7 @@ c
         subroutine inirec
 
         implicit double precision (a-h, o-z)
-        external ran1
+cc        external ran1
         parameter (MAXPTN=400001)
         common /para1/ mul
 cc      SAVE /para1/
@@ -2131,7 +2131,7 @@ c       this subroutine is used to get \hat{t} for a particular processes
 cc      SAVE /para2/
         common/anim/nevent,isoft,isflag,izpc
 cc      SAVE /anim/
-        external ran1
+cc        external ran1
         common /rndm3/ iseedp
 cc      SAVE /rndm3/
         SAVE   
@@ -6519,7 +6519,7 @@ c       and declare external ftime1
 clin-8/19/02
         implicit double precision (a-h, o-z)
 
-        external ran1
+cc        external ran1
 
         parameter (hbarc = 0.197327054d0)
 
@@ -6605,55 +6605,54 @@ c     around the unit vector (xn1, xn2, xn3)
       return
       end
 
-      double precision function ran1(idum)
+c      double precision function ran1(idum)
 
-*     return a uniform random deviate between 0.0 and 1.0. set idum to 
-*     any negative value to initialize or reinitialize the sequence.
+c*     return a uniform random deviate between 0.0 and 1.0. set idum to 
+c*     any negative value to initialize or reinitialize the sequence.
 
-      implicit double precision (a-h, o-z)
+c      implicit double precision (a-h, o-z)
 
-      dimension r(97)
+c      dimension r(97)
 
-      common /rndm1/ number
+c      common /rndm1/ number
 cc      SAVE /rndm1/
-      parameter (m1 = 259200, ia1 = 7141, ic1 = 54773, rm1 = 1d0 / m1)
-      parameter (m2 = 134456, ia2 = 8121, ic2 = 28411, rm2 = 1d0 / m2)
-      parameter (m3 = 243000, ia3 = 4561, ic3 = 51349)
+c      parameter (m1 = 259200, ia1 = 7141, ic1 = 54773, rm1 = 1d0 / m1)
+c      parameter (m2 = 134456, ia2 = 8121, ic2 = 28411, rm2 = 1d0 / m2)
+c      parameter (m3 = 243000, ia3 = 4561, ic3 = 51349)
 clin-6/23/00 save ix1-3:
 clin-10/30/02 r unsaved, causing wrong values for ran1 when compiled with f77:
 cc      SAVE ix1,ix2,ix3,r
-      SAVE   
-      data iff/0/
+c      SAVE   
+c      data iff/0/
 
-      if (idum .lt. 0 .or. iff .eq. 0) then
-         iff = 1
-         ix1 = mod(ic1 - idum, m1)
-         ix1 = mod(ia1 * ix1 + ic1, m1)
-         ix2 = mod(ix1, m2)
-         ix1 = mod(ia1 * ix1 + ic1, m1)
-         ix3 = mod(ix1, m3)
-         do 11 j = 1, 97
-            ix1 = mod(ia1 * ix1 + ic1, m1)
-            ix2 = mod(ia2 * ix2 + ic2, m2)
-            r(j) = (dble(ix1) + dble(ix2) * rm2) * rm1
- 11         continue
-         idum = 1
-      end if
-      ix1 = mod(ia1 * ix1 + ic1, m1)
-      ix2 = mod(ia2 * ix2 + ic2, m2)
-      ix3 = mod(ia3 * ix3 + ic3, m3)
+c      if (idum .lt. 0 .or. iff .eq. 0) then
+c         iff = 1
+c         ix1 = mod(ic1 - idum, m1)
+c         ix1 = mod(ia1 * ix1 + ic1, m1)
+c         ix2 = mod(ix1, m2)
+c         ix1 = mod(ia1 * ix1 + ic1, m1)
+c         ix3 = mod(ix1, m3)
+c         do 11 j = 1, 97
+c            ix1 = mod(ia1 * ix1 + ic1, m1)
+c            ix2 = mod(ia2 * ix2 + ic2, m2)
+c            r(j) = (dble(ix1) + dble(ix2) * rm2) * rm1
+c 11         continue
+c         idum = 1
+c      end if
+c      ix1 = mod(ia1 * ix1 + ic1, m1)
+c      ix2 = mod(ia2 * ix2 + ic2, m2)
+c      ix3 = mod(ia3 * ix3 + ic3, m3)
 clin-7/01/02       j = 1 + (97 * i x 3) / m3
-      j=1+(97*ix3)/m3
+c      j=1+(97*ix3)/m3
 clin-4/2008:
 c      if (j .gt. 97 .or. j .lt. 1) pause
-      if (j .gt. 97 .or. j .lt. 1) print *, 'In zpc ran1, j<1 or j>97',j
-      ran1 = r(j)
-      r(j) = (dble(ix1) + dble(ix2) * rm2) * rm1
+c      if (j .gt. 97 .or. j .lt. 1) print *, 'In zpc ran1, j<1 or j>97',j
+c      ran1 = r(j)
+c      r(j) = (dble(ix1) + dble(ix2) * rm2) * rm1
 
 clin-6/23/00 check random number generator:
-      number = number + 1
+c      number = number + 1
 c      if(number.le.100000) write(99,*) 'number, ran1=', number,ran1
 
-      return
-      end
-
+c      return
+c      end

@@ -30,7 +30,7 @@ c     initialization value for parton cascade:
       common /para2/ xmp, xmu, alpha, rscut2, cutof2
       common /para7/ ioscar,nsmbbbar,nsmmeson
       common /para8/ idpert,npertd,idxsec
-      common /rndm3/ iseedp,ihjsed,nseedr
+      common /rndm3/ iseedp
 c     initialization value for hadron cascade:
       COMMON /RUN/ NUM
       common/input1/ MASSPR,MASSTA,ISEED,IAVOID,DT
@@ -121,7 +121,7 @@ c     initialization value for parton cascade:
       common /para2/ xmp, xmu, alpha, rscut2, cutof2
       common /para7/ ioscar,nsmbbbar,nsmmeson
       common /para8/ idpert,npertd,idxsec
-      common /rndm3/ iseedp,ihjsed,nseedr
+      common /rndm3/ iseedp
 c     initialization value for hadron cascade:
       COMMON /RUN/ NUM
       common/input1/ MASSPR,MASSTA,ISEED,IAVOID,DT
@@ -172,9 +172,7 @@ c
      &10X,'#                06/25/2009                      #'/1X,
      &10X,'##################################################'/1X,
      &10X,' ')
-      if(ihjsed.eq.11) then
-         nseed=nseedr
-      endif
+
 c     an odd number is needed for the random number generator:
       if(mod(NSEED,2).eq.0) NSEED=NSEED+1
 c     9/26/03 random number generator for f77 compiler:

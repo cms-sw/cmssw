@@ -41,6 +41,15 @@ extern "C"
   }
 }
 
+extern "C"
+{
+  double gen::ran1_(int *idummy)
+  {
+    if(0) idummy = idummy;
+    return _amptRandomEngine->flat();
+  }
+}
+
 AMPTHadronizer::AMPTHadronizer(const ParameterSet &pset) :
     BaseHadronizer(pset),
     evt(0), 
@@ -73,9 +82,6 @@ AMPTHadronizer::AMPTHadronizer(const ParameterSet &pset) :
     drcoal_(pset.getParameter<double>("drcoal")),
     ks0decay_(pset.getParameter<bool>("ks0decay")),
     phidecay_(pset.getParameter<bool>("phidecay")),
-    ihjsed_(pset.getParameter<int>("ihjsed")),
-    hjseed_(pset.getParameter<int>("hjseed")),
-    partseed_(pset.getParameter<int>("partseed")),
     deuteronmode_(pset.getParameter<int>("deuteronmode")),          
     deuteronfactor_(pset.getParameter<int>("deuteronfactor")),
     deuteronxsec_(pset.getParameter<int>("deuteronxsec")),
@@ -270,9 +276,6 @@ bool AMPTHadronizer::ampt_init(const ParameterSet &pset)
     coal.drcoal=drcoal_;
     resdcy.iksdcy=ks0decay_;
     phidcy.iphidcy=phidecay_;
-    rndm3.ihjsed=ihjsed_;
-    rndm3.nseedr=hjseed_;
-    rndm3.iseedp=partseed_;
     para8.idpert=deuteronmode_;
     para8.npertd=deuteronfactor_;
     para8.idxsec=deuteronxsec_;

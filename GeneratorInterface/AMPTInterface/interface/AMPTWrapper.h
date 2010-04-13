@@ -112,15 +112,6 @@ extern "C" {
 
 extern "C" {
   extern struct{
-    int iseedp;
-    int ihjsed;
-    int nseedr; 
-  }rndm3_;
-}
-#define rndm3 rndm3_
-
-extern "C" {
-  extern struct{
     float masspr;
     float massta;
     int iseed;

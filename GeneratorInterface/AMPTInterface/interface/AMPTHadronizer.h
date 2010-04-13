@@ -24,7 +24,11 @@ namespace gen
   extern "C" {
     double ranart_(int*);
   }
-  
+
+  extern "C" {
+    double ran1_(int*);
+  }
+
   class AMPTHadronizer : public BaseHadronizer {
   public:
     AMPTHadronizer(const edm::ParameterSet &);
@@ -49,8 +53,7 @@ namespace gen
     HepMC::GenVertex*                           build_ampt_vertex(int i, int id);
     bool					get_particles(HepMC::GenEvent* evt);
     bool                                        ampt_init(const edm::ParameterSet &pset);
-    bool                                        call_amptset(double efrm, std::string frame, std::string proj, 
-                                                            std::string targ, int iap, int izp, int iat, int izt);
+    bool                                        call_amptset(double efrm, std::string frame, std::string proj, std::string targ, int iap, int izp, int iat, int izt);
     //    inline double			        nuclear_radius() const;
     void                                        rotateEvtPlane();
 
@@ -86,9 +89,6 @@ namespace gen
     double            drcoal_;
     bool              ks0decay_;
     bool              phidecay_;
-    int               ihjsed_;
-    int               hjseed_;
-    int               partseed_;               
     int               deuteronmode_;
     int               deuteronfactor_;
     int               deuteronxsec_;
@@ -110,15 +110,7 @@ namespace gen
     double            sinphi0_;
     double            cosphi0_;
     bool              rotate_;                // Switch to rotate event plane
-
-    //    unsigned int      shadowingswitch_;       // shadowing switcher
-                                              // 1-ON, 0-OFF
-    //    double            signn_;                 // inelastic nucleon nucleon cross section [mb]
-                                              // DEFAULT= 58 mb
-    //    CLHEP::HepRandomEngine* fRandomEngine;
-//    Pythia6Service* pythia6Service_;
   };
-
 } /*end namespace*/
 
 #endif
