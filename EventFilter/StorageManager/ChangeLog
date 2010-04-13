@@ -1,3 +1,9 @@
+2010-04-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-10-01
+	* Use the thread safe version localtime_r instead of localtime which
+	  uses a static struct internally.
+
 2010-04-12 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-10-00
@@ -8,6 +14,8 @@
 	  If any of the disks not listed in 'otherDiskPaths' is going beyond
 	  this disk usage (in %), the SM will go into Failed state.
 	* Use disk usage in % rather than fractional part for 'highWaterMark'.
+	* Fix order of configuration of ResourceMonitorCollection to assure
+	  that the correct alarm parameters are set before disks are checked.
 
 2010-04-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
