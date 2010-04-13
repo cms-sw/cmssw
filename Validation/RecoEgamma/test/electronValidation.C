@@ -304,12 +304,12 @@ while (histo_file2>>histo_path>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
      {
       if (err==1)
        {
-        if (histo_ref!=0) histo_new->Draw("same E1 P") ;
+        if (histo_ref!=0) histo_new->Draw("sames E1 P") ;
         else histo_new->Draw("E1 P") ;
        }
       else
        {
-        if (histo_ref!=0) histo_new->Draw("same hist") ;
+        if (histo_ref!=0) histo_new->Draw("sames hist") ;
         else histo_new->Draw("hist") ;
        }
      }
@@ -326,8 +326,8 @@ while (histo_file2>>histo_path>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
       h_res->SetLineColor(2) ;
       h_res->SetMarkerColor(2) ;
       h_res->SetLineWidth(3) ;
-      if (err==1) h_res ->Draw("same E1 P") ;
-      else  h_res ->Draw("same hist") ;
+      if (err==1) h_res ->Draw("sames E1 P") ;
+      else  h_res ->Draw("sames hist") ;
      }
     std::cout<<histo_name
       <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
