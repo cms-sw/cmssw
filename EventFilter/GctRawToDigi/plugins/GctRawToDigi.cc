@@ -297,8 +297,8 @@ void GctRawToDigi::addError(const unsigned code) {
     return;
   }
 
-  // print message on first instance of this error
-  if (errorCounters_.at(code) == 0) {
+  // print message on first instance of this error and if verbose flag set to true
+  if (errorCounters_.at(code) == 0 && verbose_) {
     std::ostringstream os;
     if (code == 1) os << "FED record empty or too short";
     else if (code == 2) os << "Unknown raw data version";
@@ -329,10 +329,11 @@ void GctRawToDigi::endJob()
   for (unsigned i=0; i<MAX_ERR_CODE+1; ++i) {
     total+=errorCounters_.at(i);
     os << "Error " << i << " (" << errorCounters_.at(i) << ")";
+    if(i < MAX_ERR_CODE) { os << ", "; }
   }
    
   if (total>0) {
-    edm::LogError("GCT") << "Encountered " << total << " unpacking errors. " << os;
+    edm::LogError("GCT") << "Encountered " << total << " unpacking errors: " << os.str();
   }  
 }
 
