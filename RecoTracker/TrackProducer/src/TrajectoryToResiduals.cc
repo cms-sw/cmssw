@@ -23,8 +23,20 @@ reco::TrackResiduals trajectoryToResiduals (const Trajectory &trajectory,
 	  if (!i->recHit()->isValid()||i->recHit()->det()==0) 
 	       continue;
 	  TrajectoryStateCombiner combine;
+	  if (!i->forwardPredictedState().isValid() || !i->backwardPredictedState().isValid())
+	    {
+	      edm::LogError("InvalideState")<<"one of the step is invalid";
+	      continue;
+	    }
+
 	  TrajectoryStateOnSurface combo = combine(i->forwardPredictedState(),
 						   i->backwardPredictedState());
+	  
+	  if (!combo.isValid()){
+	    edm::LogError("InvalideState")<<"the combined state is invalid";
+	    continue;
+	  }
+
 	  LocalPoint combo_localpos = combo.localPosition();
 	  LocalError combo_localerr = combo.localError().positionError();
 	  LocalPoint dethit_localpos = i->recHit()->localPosition();     
