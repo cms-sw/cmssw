@@ -20,12 +20,12 @@ process.source = cms.Source("EmptySource",
 )
 
 process.DBService=cms.Service("DBService",
-           authPath=cms.untracked.string('/afs/cern.ch/user/x/xiezhen')
+           authPath=cms.untracked.string('/afs/cern.ch/cms/DB/lumi')
 )
 process.lumiProducer=cms.EDProducer("LumiProducer",
-#           connect=cms.string('oracle://devdb10/cms_xiezhen_dev'),
+           connect=cms.string('oracle://cms_orcoff_prep/cms_lumi_dev_offline'),
 #           connect=cms.string('frontier://cmsfrontier.cern.ch:8000/LumiPrep/CMS_LUMI_DEV_OFFLINE'),
-           connect=cms.string('frontier://LumiPrep/CMS_LUMI_DEV_OFFLINE'),                         
+#           connect=cms.string('frontier://LumiPrep/CMS_LUMI_DEV_OFFLINE'),                         
 #           siteconfpath=cms.untracked.string('/afs/cern.ch/user/x/xiezhen/w1/lumical/CMSSW_3_5_0_pre5/src/RecoLuminosity/LumiProducer'),
            lumiversion=cms.untracked.string('0001') 
 )

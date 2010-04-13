@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.5 2010/03/23 18:18:01 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.6 2010/04/13 16:29:04 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -219,6 +219,8 @@ LumiProducer::LumiProducer(const edm::ParameterSet& iConfig)
     }else{
       m_connectStr=connectStr;
     }
+  }else{
+    m_connectStr=connectStr;
   }
   //std::cout<<"connect string "<< m_connectStr<<std::endl;
   m_lumiversion=iConfig.getUntrackedParameter<std::string>("lumiversion","0001");
