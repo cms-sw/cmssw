@@ -1,6 +1,6 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.156 
+# Revision: 1.168 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 # with command line options: GeneratorInterface/AMPTInterface/amptDefault_cfi.py -s GEN --conditions auto:mc --datatier GEN --eventcontent RAWSIM -n 1 --no_exec
 import FWCore.ParameterSet.Config as cms
@@ -9,6 +9,7 @@ process = cms.Process('GEN')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
 process.load('Configuration.StandardSequences.GeometryExtended_cff')
@@ -20,40 +21,15 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('AMPT generator'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/AMPTInterface/python/amptDefault_cfi.py,v $')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1)
 )
 process.options = cms.untracked.PSet(
-    Rethrow = cms.untracked.vstring('OtherCMS', 
-        'StdException', 
-        'Unknown', 
-        'BadAlloc', 
-        'BadExceptionType', 
-        'ProductNotFound', 
-        'DictionaryNotFound', 
-        'InsertFailure', 
-        'Configuration', 
-        'LogicError', 
-        'UnimplementedFeature', 
-        'InvalidReference', 
-        'NullPointerError', 
-        'NoProductSpecified', 
-        'EventTimeout', 
-        'EventCorruption', 
-        'ScheduleExecutionFailure', 
-        'EventProcessorFailure', 
-        'FileInPathError', 
-        'FileOpenError', 
-        'FileReadError', 
-        'FatalRootError', 
-        'MismatchedInputFiles', 
-        'ProductDoesNotSupportViews', 
-        'ProductDoesNotSupportPtr', 
-        'NotFound')
+
 )
 # Input source
 process.source = cms.Source("EmptySource")
@@ -75,7 +51,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'MC_3XY_V18::All'
+process.GlobalTag.globaltag = 'MC_3XY_V25::All'
 process.generator = cms.EDFilter("AMPTGeneratorFilter",
     diquarky = cms.double(0.0),
     diquarkx = cms.double(0.0),
@@ -115,13 +91,13 @@ process.generator = cms.EDFilter("AMPTGeneratorFilter",
     frame = cms.string('CMS'),
     targ = cms.string('A'),
     izp = cms.int32(82),
-    bMin = cms.double(13),
+    bMin = cms.double(0),
     firstEvent = cms.untracked.uint32(1),
     izt = cms.int32(82),
     proj = cms.string('A'),
     comEnergy = cms.double(2760.0),
     iat = cms.int32(208),
-    bMax = cms.double(13),
+    bMax = cms.double(30),
     iap = cms.int32(208)
 )
 
