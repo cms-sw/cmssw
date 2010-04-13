@@ -95,18 +95,25 @@ def parse(docstring, arglist=None):
         raise ParsingError("Cannot parse the option string correctly")
     return p.parse_args(arglist)
 
-def cmp_list(a,b):
-    if a.IOVfirst < b.IOVfirst: return -1
-    if a.IOVfirst == b.IOVfirst: return 0
-    if a.IOVfirst > b.IOVfirst: return 1
+def cmp_list_run(a,b):
+    if int(a.IOVfirst) < int(b.IOVfirst): return -1
+    if int(a.IOVfirst) == int(b.IOVfirst): return 0
+    if int(a.IOVfirst) > int(b.IOVfirst): return 1
 
+def cmp_list_lumi(a,b):
+    if int(a.Run) < int(b.Run): return -1
+    if int(a.Run) == int(b.Run):
+	if int(a.IOVfirst) < int(b.IOVfirst): return -1
+	if int(a.IOVfirst) == int(b.IOVfirst): return 0
+	if int(a.IOVfirst) > int(b.IOVfirst): return 1
+    if int(a.Run) > int(b.Run) : return 1
 
 
 #__________END_OPTIONS_______________________________________________
 
 class BeamSpot:
     def __init__(self):
-        self.type = ""
+        self.Type = -1
         self.X = 0.
 	self.Xerr = 0.
         self.Y = 0.
@@ -128,7 +135,9 @@ class BeamSpot:
 	self.betastar = 0.
 	self.IOVfirst = 0
 	self.IOVlast = 0
+	self.Run = 0
     def Reset(self):
+	self.Type = -1
 	self.X = self.Y = self.Z = 0.
 	self.Xerr = self.Yerr = self.Zerr = 0.
 	self.sigmaZ = self.sigmaZerr = 0.
@@ -138,7 +147,7 @@ class BeamSpot:
 	self.beamWidthXerr = self.beamWidthYerr = 0.
 	self.EmittanceX = self.EmittanceY = self.betastar = 0.
 	self.IOVfirst = self.IOVlast = 0
-
+	self.Run = 0
 class IOV:
     def __init__(self):
 	self.since = 1
@@ -240,22 +249,26 @@ if __name__ == '__main__':
     getDBdata = True
     if option.data:
         getDBdata = False
-    
-    firstRun = 1
-    lastRun  = 4999999999
-
-    if option.initial:
-        firstRun = int(option.initial)
-    if option.final:
-        lastRun = int(option.final)
-    
+   
     IOVbase = 'runbase'
     if option.IOVbase:
         if option.IOVbase != "runbase" and option.IOVbase != "lumibase" and option.IOVbase != "timebase":
             print "\n\n unknown iov base option: "+ option.IOVbase +" \n\n\n"
             exit()
-        IOVbase = option.IOVbase
+	IOVbase = option.IOVbase
     
+    firstRun = "1"
+    lastRun  = "4999999999"
+    if IOVbase == "lumibase":
+	firstRun = "1:1"
+	lastRun = "4999999999:4999999999"
+    
+    if option.initial:
+        firstRun = option.initial
+    if option.final:
+        lastRun = option.final
+    
+   
     # GET IOVs
     ################################
 
@@ -304,10 +317,10 @@ if __name__ == '__main__':
         for iIOV in iovlist:
             passiov = False
 	    #print "since = " + str(iIOV.since) + " till = "+ str(iIOV.till)
-            if iIOV.since >= firstRun and lastRun < 0 and iIOV.since <= firstRun:
+            if iIOV.since >= int(firstRun) and int(lastRun) < 0 and iIOV.since <= int(firstRun):
                 print " IOV: " + str(iIOV.since)
                 passiov = True
-            if iIOV.since >= firstRun and lastRun > 0 and iIOV.till < lastRun:
+            if iIOV.since >= int(firstRun) and int(lastRun) > 0 and iIOV.till < int(lastRun):
                 print " IOV: " + str(iIOV.since) + " to " + str(iIOV.till)
                 passiov = True
             if passiov:
@@ -350,7 +363,10 @@ if __name__ == '__main__':
     if inputfiletype ==1:
 	
 	for line in tmpfile:
-	
+
+	    if line.find('Type') != -1:
+		tmpbeam.Type = int(line.split()[1])
+		tmpbeamsize += 1
 	    if line.find('X0') != -1:
 		tmpbeam.X = line.split()[1]
 		#tmpbeam.Xerr = line.split()[4]
@@ -412,18 +428,35 @@ if __name__ == '__main__':
 		tmpbeam.IOVfirst = line.split()[1]
 		tmpbeam.IOVlast = line.split()[3]
 		tmpbeamsize += 1
-            if line.find('Runnumber') != -1 and IOVbase =="runbase":
-                tmpbeam.IOVfirst = line.split()[1]
-		tmpbeam.IOVlast = line.split()[1]
-		tmpbeamsize += 1
+            if line.find('Runnumber') != -1:
+		tmpbeam.Run = line.split()[1]
+		if IOVbase == "runbase":
+		    tmpbeam.IOVfirst = line.split()[1]
+		    tmpbeam.IOVlast = line.split()[1]
+		    tmpbeamsize += 1
             if line.find('BeginTimeOfFit') != -1 and IOVbase =="timebase":
                 tmpbeam.IOVfirst =  time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
             if line.find('EndTimeOfFit') != -1 and IOVbase =="timebase":
 		tmpbeam.IOVlast = time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
 		tmpbeamsize += 1
-	    if tmpbeamsize == 16:
-		if int(tmpbeam.IOVfirst) >= firstRun and int(tmpbeam.IOVlast) <= lastRun:
-		    listbeam.append(tmpbeam)
+	    if tmpbeamsize == 17:
+		if IOVbase=="lumibase":
+		    tmprunfirst = int(firstRun.split(":")[0])
+		    tmprunlast  = int(lastRun.split(":")[0])
+		    tmplumifirst = int(firstRun.split(":")[1])
+		    tmplumilast  = int(lastRun.split(":")[1])
+		    if (int(tmpbeam.Run) >= tmprunfirst and int(tmpbeam.IOVfirst) >= tmplumifirst) and (int(tmpbeam.Run) <= tmprunlast and int(tmpbeam.IOVlast) <= tmplumilast):
+			if tmpbeam.Type != 2:
+			    print "invalid fit, skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)
+			else:
+			    listbeam.append(tmpbeam)
+
+		elif int(tmpbeam.IOVfirst) >= int(firstRun) and int(tmpbeam.IOVlast) <= int(lastRun):
+		    if tmpbeam.Type != 2:
+			print "invalid fit, skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)
+		    else:
+			listbeam.append(tmpbeam)
+	
 		tmpbeamsize = 0
 		tmpbeam = BeamSpot()
     else:
@@ -473,7 +506,7 @@ if __name__ == '__main__':
 		tmpbeamsize += 1
 	    if tmpbeamsize == 9:
             #print " from object " + str(tmpbeam.X)
-		if int(tmpbeam.IOVfirst) >= firstRun and int(tmpbeam.IOVlast) <= lastRun:
+		if int(tmpbeam.IOVfirst) >= int(firstRun) and int(tmpbeam.IOVlast) <= int(lastRun):
 		    listbeam.append(tmpbeam)
 		tmpbeamsize = 0
 		tmpbeam = BeamSpot()
@@ -484,8 +517,10 @@ if __name__ == '__main__':
 
     # MAKE PLOTS
     ###################################
-
-    listbeam.sort( cmp = cmp_list )
+    if IOVbase == "lumibase":
+	listbeam.sort( cmp = cmp_list_lumi )
+    else:
+	listbeam.sort( cmp = cmp_list_run )
     
     # first clean list of data for consecutive duplicates and bad fits
     tmpremovelist = []
@@ -500,7 +535,11 @@ if __name__ == '__main__':
         
         if ii < len(listbeam) -1:
             #print listbeam[ii+1].IOVfirst
-            if datax == listbeam[ii+1].IOVfirst:
+	    if IOVbase =="lumibase":
+		if ibeam.Run == listbeam[ii+1].Run and ibeam.IOVfirst == listbeam[ii+1].IOVfirst:
+		    print " duplicate IOV = "+datax+", keep only last duplicate entry"
+		    tmpremovelist.append(ibeam)
+	    elif datax == listbeam[ii+1].IOVfirst:
                 print " duplicate IOV = "+datax+", keep only last duplicate entry"
                 tmpremovelist.append(ibeam)
 
@@ -563,6 +602,8 @@ if __name__ == '__main__':
 		datayerr = ibeam.beamWidthYerr
 
             datax = ibeam.IOVfirst
+	    if IOVbase=="lumibase":
+		datax = str(ibeam.Run) + ":" + str(ibeam.IOVfirst)
             #print datax
 	    #graphlist[ig].SetPoint(ipoint, float(datax), float(datay) )
 	    #graphlist[ig].SetPointError(ipoint, float(dataxerr), float(datayerr) )
