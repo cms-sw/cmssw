@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.10 2010/04/07 15:23:47 yana Exp $
+// $Id: TrackUtils.h,v 1.11 2010/04/08 12:03:10 yana Exp $
 //
 
 // system include files
@@ -79,6 +79,17 @@ namespace fireworks {
 			      Color_t color, int size );
    void addTrackerHits3D( std::vector<TVector3> &points, class TEveElementList *tList,
 			  Color_t color, int size );
+   void
+   addHits(const reco::Track& track,
+	   const FWEventItem* iItem,
+	   TEveElement* trkList,
+	   bool addNearbyHits);
+   void
+   addModules(const reco::Track& track,
+	      const FWEventItem* iItem,
+	      TEveElement* trkList,
+	      bool addLostHits);
+
    double estimateField( const reco::Track& track, bool highQuality = false );
    double estimateField( double vx1, double vy1, double vx2, double vy2, double px, double py );
 

@@ -3,13 +3,13 @@
 //
 
 // user include files
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Tracks/interface/TracksRecHitsUtil.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
-class FWTracksRecHitsProxyBuilder : public FWProxyBuilderBase
+class FWTracksRecHitsProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
 {
 public:
    FWTracksRecHitsProxyBuilder() {
@@ -19,19 +19,19 @@ public:
   
    REGISTER_PROXYBUILDER_METHODS();
 private:
-   virtual void build(const FWEventItem* iItem, TEveElementList** product);
+   void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
 
    FWTracksRecHitsProxyBuilder(const FWTracksRecHitsProxyBuilder&);    // stop default
    const FWTracksRecHitsProxyBuilder& operator=(const FWTracksRecHitsProxyBuilder&);    // stop default
 };
 
 void
-FWTracksRecHitsProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWTracksRecHitsProxyBuilder::build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder) const
 {
-   TracksRecHitsUtil::buildTracksRecHits(iItem, product, true, false);
+   fireworks::addHits(iData, item(), &oItemHolder, false);
 }
 
-class FWTracksModulesProxyBuilder : public FWProxyBuilderBase
+class FWTracksModulesProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
 {
 public:
    FWTracksModulesProxyBuilder() {
@@ -41,17 +41,17 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
 private:
-   virtual void build(const FWEventItem* iItem, TEveElementList** product);
+   void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
 
    FWTracksModulesProxyBuilder(const FWTracksModulesProxyBuilder&);    // stop default
    const FWTracksModulesProxyBuilder& operator=(const FWTracksModulesProxyBuilder&);    // stop default
 };
 
 void
-FWTracksModulesProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWTracksModulesProxyBuilder::build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder) const
 {
-   TracksRecHitsUtil::buildTracksRecHits(iItem, product, false, true);
+   fireworks::addModules(iData, item(), &oItemHolder, false);
 }
 
-REGISTER_FWPROXYBUILDER(FWTracksRecHitsProxyBuilder,reco::TrackCollection,"TrackHits", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
-REGISTER_FWPROXYBUILDER(FWTracksModulesProxyBuilder,reco::TrackCollection,"TrackDets", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWTracksRecHitsProxyBuilder, reco::Track, "TrackHits", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWTracksModulesProxyBuilder, reco::Track, "TrackDets", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
