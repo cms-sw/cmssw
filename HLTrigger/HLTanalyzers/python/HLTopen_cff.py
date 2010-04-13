@@ -657,8 +657,3 @@ DoHLTMinBiasPixelTracks = cms.Path(
     hltSiPixelRecHits +
     hltPixelTracksForMinBias +
     hltPixelCands)
-
-hltPixelTrackCands = cms.EDProducer( "ConcreteChargedCandidateProducer",
-    src = cms.InputTag( "hltPixelTracks" ),
-    particleType = cms.string( "mu-" )
-)
