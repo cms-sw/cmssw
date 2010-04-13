@@ -68,16 +68,6 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
                 edm::LogError("EcalRecHitError") << "Flag " << statusCode 
                         << " in DB exceed the allowed range of " << v_DB_reco_flags_.size();
         }
-        // update flags coming from EcalUncalibRecHit
-        uint32_t uflag = uncalibRH.recoFlag();
-        if ( uflag == EcalUncalibratedRecHit::kLeadingEdgeRecovered ) {
-                recoFlag = EcalRecHit::kLeadingEdgeRecovered;
-        } else if ( uflag == EcalUncalibratedRecHit::kSaturated ) {
-                // leading edge recovery failed - still keep the information
-                // about the saturation and do not flag as dead
-                recoFlag = EcalRecHit::kSaturated;
-                // and at some point may try the recovery with the neighbours
-        }
 
         const EcalIntercalibConstantMap& icalMap = ical->getMap();  
         if ( detid.subdetId() == EcalEndcap ) {
