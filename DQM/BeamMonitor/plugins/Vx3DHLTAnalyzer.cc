@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.63 2010/04/13 08:25:07 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.64 2010/04/13 10:10:45 dinardo Exp $
 //
 //
 
@@ -163,18 +163,13 @@ unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
 }
 
 
-char* Vx3DHLTAnalyzer::formatTime(const time_t t)
+char* Vx3DHLTAnalyzer::formatTime (const time_t& t)
 {
-  static char ts[] = "yyyy.Mm.dd hh:mm:ss TZN     ";
-  strftime(ts, strlen(ts)+1, "%Y.%m.%d %H:%M:%S %Z", gmtime(&t));
+  struct tm* ptm;
+  ptm = gmtime(&t);
+  static char ts[32];
+  strftime(ts,sizeof(ts),"%Y.%m.%d %H:%M:%S %Z",ptm);
 
-#ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
-  // Strip trailing blanks that would come when the time zone is not as
-  // long as the maximum allowed
-  unsigned int b = strlen(ts);
-  while (ts[--b] == ' ') ts[b] = 0;
-#endif
-  
   return ts;
 }
 

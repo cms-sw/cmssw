@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.16 2010/04/01 12:08:10 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.17 2010/04/13 10:10:58 dinardo Exp $
 //
 //
 
@@ -73,7 +73,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual unsigned int HitCounter(const edm::Event& iEvent);
-      virtual char* formatTime(const time_t t);
+      virtual char* formatTime(const time_t& t);
       virtual int MyFit(vector<double>* vals);
       virtual void reset(string ResetType);
       virtual void writeToFile(vector<double>* vals,
