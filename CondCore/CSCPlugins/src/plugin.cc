@@ -43,6 +43,8 @@
 #include "CondFormats/DataRecord/interface/CSCReadoutMappingRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCL1TPParameters.h"
 #include "CondFormats/DataRecord/interface/CSCL1TPParametersRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
+#include "CondFormats/DataRecord/interface/CSCDBL1TPParametersRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCDQM_DCSData.h"
 #include "CondFormats/DataRecord/interface/CSCDCSDataRcd.h"
 
@@ -65,4 +67,5 @@ REGISTER_PLUGIN(CSCBadWiresRcd,CSCBadWires);
 REGISTER_PLUGIN(CSCIdentifierRcd,CSCIdentifier);
 REGISTER_PLUGIN(CSCReadoutMappingRcd,CSCReadoutMapping);
 REGISTER_PLUGIN(CSCL1TPParametersRcd,CSCL1TPParameters);
+REGISTER_PLUGIN(CSCDBL1TPParametersRcd,CSCDBL1TPParameters);
 REGISTER_PLUGIN(CSCDCSDataRcd,  cscdqm::DCSData);

@@ -62,3 +62,4 @@ namespace {
 #include "CondFormats/CSCObjects/interface/CSCReadoutMapping.h"
 #include "CondFormats/CSCObjects/interface/CSCTriggerMapping.h"
 #include "CondFormats/CSCObjects/interface/CSCL1TPParameters.h"
+#include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
