@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2010/03/27 20:07:59 $
- * $Revision: 1.106 $
+ * $Date: 2010/03/27 20:17:50 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1249,11 +1249,14 @@ void EEPedestalClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int itt = ecid.getID2();
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int itt = ecid.getID2();
 
         if ( itt > 70 ) continue;
 
@@ -1282,11 +1285,14 @@ void EEPedestalClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int itt = ecid.getID2();
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int itt = ecid.getID2();
 
         if ( itt > 70 ) continue;
 
@@ -1315,11 +1321,14 @@ void EEPedestalClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int itt = ecid.getID2();
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int itt = ecid.getID2();
 
         if ( itt > 70 ) continue;
 
@@ -1355,11 +1364,14 @@ void EEPedestalClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_LM_PN") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int i = ecid.getID2() - 1;
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int i = ecid.getID2() - 1;
 
         UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
 
@@ -1371,11 +1383,14 @@ void EEPedestalClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_LM_PN") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int i = ecid.getID2() - 1;
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int i = ecid.getID2() - 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
 

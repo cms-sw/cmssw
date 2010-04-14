@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2010/03/27 20:07:59 $
- * $Revision: 1.114 $
+ * $Date: 2010/03/27 20:11:09 $
+ * $Revision: 1.115 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1602,11 +1602,14 @@ void EELedClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int itt = ecid.getID2();
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int itt = ecid.getID2();
 
         if ( itt > 70 ) continue;
 
@@ -1643,11 +1646,14 @@ void EELedClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_LM_PN") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int i = ecid.getID2() - 1;
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int i = ecid.getID2() - 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
@@ -1660,11 +1666,14 @@ void EELedClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_LM_PN") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int i = ecid.getID2() - 1;
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int i = ecid.getID2() - 1;
 
         UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );

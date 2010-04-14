@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2010/02/16 10:53:18 $
- * $Revision: 1.103 $
+ * $Date: 2010/03/27 20:07:59 $
+ * $Revision: 1.104 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -988,11 +988,14 @@ void EEIntegrityClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int itt = ecid.getID2();
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int itt = ecid.getID2();
 
         if ( itt > 70 ) continue;
 
@@ -1028,12 +1031,14 @@ void EEIntegrityClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_mem_channel") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int ic = ecid.getID2();
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
 
+        int ic = ecid.getID2();
         int ie = (ic-1)/5+1;
         int ip = (ic-1)%5+1;
 
@@ -1054,11 +1059,14 @@ void EEIntegrityClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_mem_TT") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int itt = ecid.getID2();
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int itt = ecid.getID2();
 
         for ( int ie = 5*(itt-68-1)+1; ie <= 5*(itt-68); ie++ ) {
           for ( int ip = 1; ip <= 5; ip++ ) {

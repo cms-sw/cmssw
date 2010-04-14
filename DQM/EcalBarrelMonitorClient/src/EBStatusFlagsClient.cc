@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2010/03/27 20:07:57 $
- * $Revision: 1.36 $
+ * $Date: 2010/04/14 15:13:26 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -220,20 +220,18 @@ void EBStatusFlagsClient::analyze(void) {
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter != superModules_.end()) {
+        if (iter == superModules_.end()) continue;
 
-          int itt = ecid.getID2();
+        int itt = ecid.getID2();
+        int iet = (itt-1)/4 + 1;
+        int ipt = (itt-1)%4 + 1;
 
-          int iet = (itt-1)/4 + 1;
-          int ipt = (itt-1)%4 + 1;
+        if ( itt > 70 ) continue;
 
-          if ( itt > 70 ) continue;
-
-          if ( itt >= 1 && itt <= 68 ) {
-            if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( iet, ipt, 0.01 );
-          } else if ( itt == 69 || itt == 70 ) {
-            if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( itt-68, 1, 0.01 );
-          }
+        if ( itt >= 1 && itt <= 68 ) {
+          if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( iet, ipt, 0.01 );
+        } else if ( itt == 69 || itt == 70 ) {
+          if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( itt-68, 1, 0.01 );
         }
 
       }
