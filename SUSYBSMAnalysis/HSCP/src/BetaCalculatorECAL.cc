@@ -1,4 +1,4 @@
-#include "SUSYBSMAnalysis/HSCP/interface/Beta_Calculator_ECAL.h"
+#include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorECAL.h"
 
 
 Beta_Calculator_ECAL::Beta_Calculator_ECAL(const edm::ParameterSet& iConfig){

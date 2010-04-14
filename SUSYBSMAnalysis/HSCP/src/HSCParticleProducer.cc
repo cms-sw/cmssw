@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    HSCP_Producer
-// Class:      HSCP_Producer
+// Package:    HSCParticleProducer
+// Class:      HSCParticleProducer
 // 
-/**\class HSCP_Producer HSCP_Producer.cc SUSYBSMAnalysis/HSCP_Producer/src/HSCP_Producer.cc
+/**\class HSCParticleProducer HSCParticleProducer.cc SUSYBSMAnalysis/HSCParticleProducer/src/HSCParticleProducer.cc
 
  Description: Producer for HSCP candidates, merging tracker dt information and rpc information
 
@@ -14,14 +14,14 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCP_Producer.cc,v 1.3 2010/04/14 08:05:35 querten Exp $
+// $Id: HSCParticleProducer.cc,v 1.4 2010/04/14 09:53:20 querten Exp $
 //
 //
 
 // user include files
-#include "SUSYBSMAnalysis/HSCP/interface/HSCP_Producer.h"
+#include "SUSYBSMAnalysis/HSCP/interface/HSCParticleProducer.h"
 
-HSCP_Producer::HSCP_Producer(const edm::ParameterSet& iConfig) {
+HSCParticleProducer::HSCParticleProducer(const edm::ParameterSet& iConfig) {
   using namespace edm;
   using namespace std;
 
@@ -54,7 +54,7 @@ HSCP_Producer::HSCP_Producer(const edm::ParameterSet& iConfig) {
   produces<susybsm::HSCParticleCollection >();
 }
 
-HSCP_Producer::~HSCP_Producer() {
+HSCParticleProducer::~HSCParticleProducer() {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 }
@@ -65,7 +65,7 @@ HSCP_Producer::~HSCP_Producer() {
 
 // ------------ method called to produce the data  ------------
 void
-HSCP_Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+HSCParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   using namespace edm;
   using namespace reco;
@@ -117,15 +117,15 @@ HSCP_Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HSCP_Producer::beginJob() {
+HSCParticleProducer::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-HSCP_Producer::endJob() {
+HSCParticleProducer::endJob() {
 }
 
-std::vector<HSCParticle> HSCP_Producer::getHSCPSeedCollection(edm::Handle<reco::TrackCollection>& trackCollectionHandle,  edm::Handle<reco::MuonCollection>& muonCollectionHandle)
+std::vector<HSCParticle> HSCParticleProducer::getHSCPSeedCollection(edm::Handle<reco::TrackCollection>& trackCollectionHandle,  edm::Handle<reco::MuonCollection>& muonCollectionHandle)
 {
    std::vector<HSCParticle> HSCPCollection;
 
@@ -214,7 +214,7 @@ std::vector<HSCParticle> HSCP_Producer::getHSCPSeedCollection(edm::Handle<reco::
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HSCP_Producer);
+DEFINE_FWK_MODULE(HSCParticleProducer);
 
 
 

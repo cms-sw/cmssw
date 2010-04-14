@@ -1,4 +1,4 @@
-#include "SUSYBSMAnalysis/HSCP/interface/Beta_Calculator_MUON.h"
+#include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorMUON.h"
 
 Beta_Calculator_MUON::Beta_Calculator_MUON(const edm::ParameterSet& iConfig){
   m_muonsTOFTag = iConfig.getParameter<edm::InputTag>("muontiming");

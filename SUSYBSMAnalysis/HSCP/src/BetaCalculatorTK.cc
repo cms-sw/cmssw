@@ -1,4 +1,4 @@
-#include "SUSYBSMAnalysis/HSCP/interface/Beta_Calculator_TK.h"
+#include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorTK.h"
 
 Beta_Calculator_TK::Beta_Calculator_TK(const edm::ParameterSet& iConfig){
   m_trackDeDxEstimatorTag = iConfig.getParameter<edm::InputTag>("dEdXEstimator");

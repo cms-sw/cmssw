@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    HSCP_Producer
-// Class:      HSCP_Producer
+// Package:    HSCParticleProducer
+// Class:      HSCParticleProducer
 // 
-/**\class HSCP_Producer HSCP_Producer.h SUSYBSMAnalysis/HSCP_Producer/interface/HSCP_Producer.h
+/**\class HSCParticleProducer HSCParticleProducer.h SUSYBSMAnalysis/HSCParticleProducer/interface/HSCParticleProducer.h
 
  Description: Producer for HSCP candidates, merging tracker dt information and rpc information
 
@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCP_Producer.h,v 1.2 2010/04/13 16:15:31 querten Exp $
+// $Id: HSCParticleProducer.h,v 1.3 2010/04/14 08:05:35 querten Exp $
 
 
 // system include files
@@ -34,10 +34,10 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "SUSYBSMAnalysis/HSCP/interface/Beta_Calculator_TK.h"
-#include "SUSYBSMAnalysis/HSCP/interface/Beta_Calculator_MUON.h"
-#include "SUSYBSMAnalysis/HSCP/interface/Beta_Calculator_RPC.h"
-#include "SUSYBSMAnalysis/HSCP/interface/Beta_Calculator_ECAL.h"
+#include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorTK.h"
+#include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorMUON.h"
+#include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorRPC.h"
+#include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorECAL.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
@@ -53,10 +53,10 @@
 // class decleration
 //
 using namespace susybsm;
-class HSCP_Producer : public edm::EDProducer {
+class HSCParticleProducer : public edm::EDProducer {
   public:
-    explicit HSCP_Producer(const edm::ParameterSet&);
-    ~HSCP_Producer();
+    explicit HSCParticleProducer(const edm::ParameterSet&);
+    ~HSCParticleProducer();
 
   private:
     virtual void beginJob() ;

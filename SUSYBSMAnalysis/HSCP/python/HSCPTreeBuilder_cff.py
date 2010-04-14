@@ -67,7 +67,7 @@ dedxASmi.Formula = cms.untracked.uint32(3)
 
 
 
-HSCP_TreeBuilder = cms.EDProducer("HSCP_TreeBuilder",
+HSCPTreeBuilder = cms.EDProducer("HSCPTreeBuilder",
    tracks                  = cms.InputTag("TrackRefitter"),
    dEdxDiscrim             = cms.VInputTag("dedxHarm2", "dedxNPHarm2", "dedxCHarm2", "dedxCNPHarm2", "dedxProd", "dedxSmi" ,"dedxASmi"),
    muons                   = cms.InputTag("muons"),
@@ -87,7 +87,7 @@ HSCP_TreeBuilder = cms.EDProducer("HSCP_TreeBuilder",
    reccordGenInfo     = cms.untracked.bool(False),
 )
 
-HSCP_TreeBuilderSeq = cms.Sequence(dedxHarm2 + dedxCHarm2 + dedxNPHarm2 + dedxCNPHarm2 + dedxProd + dedxSmi + dedxASmi + HSCP_TreeBuilder );
+HSCPTreeBuilderSeq = cms.Sequence(dedxHarm2 + dedxCHarm2 + dedxNPHarm2 + dedxCNPHarm2 + dedxProd + dedxSmi + dedxASmi + HSCPTreeBuilder );
 
 
 

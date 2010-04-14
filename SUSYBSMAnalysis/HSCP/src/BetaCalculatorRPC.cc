@@ -1,4 +1,4 @@
-#include "SUSYBSMAnalysis/HSCP/interface/Beta_Calculator_RPC.h"
+#include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorRPC.h"
 
 Beta_Calculator_RPC::Beta_Calculator_RPC(const edm::ParameterSet& iConfig){
 }
