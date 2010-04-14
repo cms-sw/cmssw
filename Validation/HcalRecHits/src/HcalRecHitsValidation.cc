@@ -386,9 +386,8 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
     // ************** HB **********************************
     if (subdet_ == 1 || subdet_ == 5 ){
 
-      // added by lhx
       sprintf(histo, "HcalRecHitTask_severityLevel_HB");
-      sevLvl_HB = dbe_->book1D(histo, histo, 25, 0, 25); // end by lhx
+      sevLvl_HB = dbe_->book1D(histo, histo, 25, 0, 25); 
       
       if(etype_ == 1 && subdet_ == 1 ) { 
         if(imc != 0) {
@@ -450,9 +449,8 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
     // ********************** HE ************************************
     if ( subdet_ == 2 || subdet_ == 5 ){
 
-      // added by lhx
       sprintf(histo, "HcalRecHitTask_severityLevel_HE");
-      sevLvl_HE = dbe_->book1D(histo, histo, 25, 0, 25); // end by lhx
+      sevLvl_HE = dbe_->book1D(histo, histo, 25, 0, 25); 
       
       if(etype_ == 1 && subdet_ == 2 ) { 
 	
@@ -515,9 +513,8 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
     // ************** HO ****************************************
     if ( subdet_ == 3 || subdet_ == 5  ){
 
-      // added by lhx
       sprintf(histo, "HcalRecHitTask_severityLevel_HO");
-      sevLvl_HO = dbe_->book1D(histo, histo, 25, 0, 25); // end by lhx
+      sevLvl_HO = dbe_->book1D(histo, histo, 25, 0, 25); 
       
       if(etype_ == 1 && subdet_ == 3) { 
         if (imc != 0) {
@@ -559,9 +556,8 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
     // ********************** HF ************************************
     if ( subdet_ == 4 || subdet_ == 5 ){
 
-      // added by lhx
       sprintf(histo, "HcalRecHitTask_severityLevel_HF");
-      sevLvl_HF = dbe_->book1D(histo, histo, 25, 0, 25); // end by lhx
+      sevLvl_HF = dbe_->book1D(histo, histo, 25, 0, 25); 
 
       if(etype_ == 1 &&  subdet_ == 4) { 
 
@@ -1020,7 +1016,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   //   previously was:  c.get<IdealGeometryRecord>().get (geometry);
   c.get<CaloGeometryRecord>().get (geometry);
 
-  // added by lhx
   // HCAL channel status map ****************************************
   edm::ESHandle<HcalChannelQuality> hcalChStatus;
   c.get<HcalChannelQualityRcd>().get( hcalChStatus );
@@ -1028,12 +1023,11 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   // Assignment of severity levels **********************************
   edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
   c.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
-  theHcalSevLvlComputer = hcalSevLvlComputerHndl.product(); // end by lhx
+  theHcalSevLvlComputer = hcalSevLvlComputerHndl.product(); 
 
   // Fill working vectors of HCAL RecHits quantities 
   fillRecHitsTmp(subdet_, ev); 
 
-  // added by lhx 
   // HB   
   if( subdet_ ==5 || subdet_ == 1 ){ 
      for(unsigned int iv=0; iv<hcalHBSevLvlVec.size(); iv++){
@@ -1057,7 +1051,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
      for(unsigned int iv=0; iv<hcalHFSevLvlVec.size(); iv++){
         sevLvl_HF->Fill(hcalHFSevLvlVec[iv]);
      }
-  } // end by lhx
+  } 
 
   //  std::cout << "*** 3" << std::endl; 
 
@@ -1748,11 +1742,10 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
   cdepth.clear();
   cz.clear();
   cstwd.clear();
-  // added by lhx
   hcalHBSevLvlVec.clear();
   hcalHESevLvlVec.clear();
   hcalHFSevLvlVec.clear();
-  hcalHOSevLvlVec.clear(); // end by lhx
+  hcalHOSevLvlVec.clear(); 
 
   if( subdet_ == 1 || subdet_ == 2  || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
     
@@ -1776,13 +1769,12 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       double t    = j->time();
       int stwd    = j->flags();
       
-     // added by lhx
       int serivityLevel = hcalSevLvl( (CaloRecHit*) &*j );
       if( cell.subdet()==HcalBarrel ){
          hcalHBSevLvlVec.push_back(serivityLevel);
       }else if (cell.subdet()==HcalEndcap ){
          hcalHESevLvlVec.push_back(serivityLevel);
-      } // end by lhx
+      } 
       
       if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
 	
@@ -1823,11 +1815,10 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       double t     = j->time();
       int stwd     = j->flags();
 
-      // added by lhx
       int serivityLevel = hcalSevLvl( (CaloRecHit*) &*j );
       if( cell.subdet()==HcalForward ){
          hcalHFSevLvlVec.push_back(serivityLevel);
-      } // end by lhx
+      } 
 
       if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
 	
@@ -1867,11 +1858,10 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       double en    = j->energy();
       int stwd     = j->flags();
 
-      // added by lhx
       int serivityLevel = hcalSevLvl( (CaloRecHit*) &*j );
       if( cell.subdet()==HcalOuter ){
          hcalHOSevLvlVec.push_back(serivityLevel);
-      } // end by lhx
+      } 
       
       if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
 	csub.push_back(sub);
@@ -1930,7 +1920,6 @@ double HcalRecHitsValidation::dPhiWsign(double phi1, double phi2) {
 
 }
 
-// added by lhx
 int HcalRecHitsValidation::hcalSevLvl(const CaloRecHit* hit){
 
    const DetId id = hit->detid();
@@ -1942,7 +1931,7 @@ int HcalRecHitsValidation::hcalSevLvl(const CaloRecHit* hit){
 
    return severityLevel;
 
-} // end by lhx
+} 
 
 DEFINE_FWK_MODULE(HcalRecHitsValidation);
 

@@ -92,7 +92,6 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   int iz;
   int imc;
 
-  // added by lhx
   // for checking the status of ECAL and HCAL channels stored in the DB 
   const HcalChannelQuality* theHcalChStatus;
   // calculator of severety level for HCAL
@@ -104,7 +103,7 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   MonitorElement* sevLvl_HB;
   MonitorElement* sevLvl_HE;
   MonitorElement* sevLvl_HF;
-  MonitorElement* sevLvl_HO; // end by lhx
+  MonitorElement* sevLvl_HO; 
 
   // RecHits counters
   MonitorElement* Nhb;
