@@ -3,7 +3,7 @@
 
 #include "GeneratorInterface/ExternalDecays/interface/EvtGenInterface.h"
 #include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
-// #include "GeneratorInterface/ExternalDecays/interface/PhotosInterface.h"
+#include "GeneratorInterface/ExternalDecays/interface/PhotosInterface.h"
 
 #include "HepMC/GenEvent.h"
 
@@ -13,8 +13,8 @@ using namespace edm;
 ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
    : fIsInitialized(false),
      fTauolaInterface(0),
-     fEvtGenInterface(0)
-     // ,fPhotosInterface(0)
+     fEvtGenInterface(0),
+     fPhotosInterface(0)
 {
     
     std::vector<std::string> extGenNames =
@@ -31,12 +31,12 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       {
          fTauolaInterface = new gen::TauolaInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
       }
-/*
+
       else if ( curSet == "Photos" )
       {
          fPhotosInterface = new gen::PhotosInterface();
       }
-*/
+
     }
 
 }
@@ -45,7 +45,7 @@ ExternalDecayDriver::~ExternalDecayDriver()
 {
    if ( fEvtGenInterface ) delete fEvtGenInterface;
    if ( fTauolaInterface ) delete fTauolaInterface;
-   //if ( fPhotosInterface ) delete fPhotosInterface;
+   if ( fPhotosInterface ) delete fPhotosInterface;
 }
 
 HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
@@ -65,13 +65,13 @@ HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
       if ( !evt ) return 0;
    }
    
-/*
+
    if ( fPhotosInterface )
    {
       evt = fPhotosInterface->apply( evt );
       if ( !evt ) return 0;
    }
-*/
+
          
    return evt;
 }
@@ -97,12 +97,12 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
                fPDGs.push_back( *i );
    }
    
-/*
+
    if ( fPhotosInterface )
    {
       fPhotosInterface->init();
    }
-*/
+
    
    fIsInitialized = true;
    

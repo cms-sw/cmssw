@@ -74,7 +74,7 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
    
    // cross-check printout HepMC::GenEvent
    //
-   evt->print();
+   //evt->print();
    
    // int numPartBefore = HepMC::HEPEVT_Wrapper::number_entries();
    // HepMC::HEPEVT_Wrapper::print_hepevt();
@@ -194,14 +194,14 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
       HepMC::HEPEVT_Wrapper::set_number_entries( nentries );
 
       // cross-check printout HEPEVT
-      HepMC::HEPEVT_Wrapper::print_hepevt();
+      // HepMC::HEPEVT_Wrapper::print_hepevt();
      
       // OK, 1-level vertex is formed - now, call PHOTOS
       //
       photos_( index ) ;
       
       // another cross-check printout HEPEVT - after photos
-      HepMC::HEPEVT_Wrapper::print_hepevt();
+      // HepMC::HEPEVT_Wrapper::print_hepevt();
 
 
       // now check if something has been generated
@@ -288,7 +288,7 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
    }
 
    // cross-check printout MODIFIED HepMC::GenEvent
-   evt->print();
+   // evt->print();
 
    // return conv.read_next_event();
    return evt;
