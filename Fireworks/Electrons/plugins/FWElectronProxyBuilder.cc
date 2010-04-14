@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.1 2010/04/13 12:59:51 yana Exp $
+// $Id: FWElectronProxyBuilder.cc,v 1.2 2010/04/13 13:58:04 yana Exp $
 //
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
@@ -44,12 +44,10 @@ FWElectronProxyBuilder::build(const reco::GsfElectron& iData, unsigned int iInde
    TEveTrack* track(0);
    if( iData.gsfTrack().isAvailable() )
       track = fireworks::prepareTrack( *(iData.gsfTrack()),
-				       context().getTrackPropagator(),
-				       item()->defaultDisplayProperties().color() );
+				       context().getTrackPropagator());
    else
       track = fireworks::prepareCandidate( iData,
-					   context().getTrackPropagator(),
-					   item()->defaultDisplayProperties().color() );
+					   context().getTrackPropagator());
    track->MakeTrack();
    oItemHolder.AddElement( track );
 }

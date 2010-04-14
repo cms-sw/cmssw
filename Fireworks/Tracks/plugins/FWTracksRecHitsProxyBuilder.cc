@@ -12,12 +12,11 @@
 class FWTracksRecHitsProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
 {
 public:
-   FWTracksRecHitsProxyBuilder() {
-   }
-   virtual ~FWTracksRecHitsProxyBuilder() {
-   }
+   FWTracksRecHitsProxyBuilder() {}
+   virtual ~FWTracksRecHitsProxyBuilder() {}
   
    REGISTER_PROXYBUILDER_METHODS();
+  
 private:
    void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
 
@@ -34,12 +33,11 @@ FWTracksRecHitsProxyBuilder::build(const reco::Track& iData, unsigned int iIndex
 class FWTracksModulesProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
 {
 public:
-   FWTracksModulesProxyBuilder() {
-   }
-   virtual ~FWTracksModulesProxyBuilder() {
-   }
+   FWTracksModulesProxyBuilder() {}
+   virtual ~FWTracksModulesProxyBuilder() {}
 
    REGISTER_PROXYBUILDER_METHODS();
+  
 private:
    void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
 
@@ -53,5 +51,5 @@ FWTracksModulesProxyBuilder::build(const reco::Track& iData, unsigned int iIndex
    fireworks::addModules(iData, item(), &oItemHolder, false);
 }
 
-REGISTER_FWPROXYBUILDER(FWTracksRecHitsProxyBuilder, reco::Track, "TrackHits", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
-REGISTER_FWPROXYBUILDER(FWTracksModulesProxyBuilder, reco::Track, "TrackDets", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWTracksRecHitsProxyBuilder, reco::Track, "TrackHits", FWViewType::k3DBit | FWViewType::kRPZBit);
+REGISTER_FWPROXYBUILDER(FWTracksModulesProxyBuilder, reco::Track, "TrackDets", FWViewType::k3DBit | FWViewType::kRPZBit);

@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.11 2010/04/08 12:03:10 yana Exp $
+// $Id: TrackUtils.h,v 1.12 2010/04/13 08:52:21 yana Exp $
 //
 
 // system include files
@@ -58,7 +58,6 @@ namespace fireworks {
 
    TEveTrack* prepareTrack( const reco::Track& track,
 			    TEveTrackPropagator* propagator,
-			    Color_t color,
 			    const std::vector<TEveVector>& extraRefPoints = std::vector<TEveVector>() );
  
    void pixelLocalXY( const double mpx, const double mpy, const DetId& id,

@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.16 2010/01/22 19:54:13 amraktad Exp $
+// $Id: FWMuonBuilder.cc,v 1.17 2010/04/08 13:09:33 yana Exp $
 //
 
 // system include files
@@ -228,8 +228,7 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
    {
       TEveTrack* trk = fireworks::prepareTrack(*(muon->innerTrack()),
 					       m_trackerPropagator.get(),
-					       iItem->defaultDisplayProperties().color(),
-						   getRecoTrajectoryPoints(muon,iItem) );
+					       getRecoTrajectoryPoints(muon,iItem) );
       trk->MakeTrack();
       tList->AddElement( trk );
       if ( ! tracksOnly )
@@ -259,7 +258,6 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
       }
       TEveTrack* trk = fireworks::prepareTrack(*(muon->globalTrack()),
                                                m_trackerPropagator.get(),
-                                               iItem->defaultDisplayProperties().color(),
                                                extraPoints);
       trk->MakeTrack();
       tList->AddElement( trk );
@@ -269,8 +267,7 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
    if ( muon->innerTrack().isAvailable() )
    {
       TEveTrack* trk = fireworks::prepareTrack(*(muon->innerTrack()),
-                                               m_trackerPropagator.get(),
-                                               iItem->defaultDisplayProperties().color());
+                                               m_trackerPropagator.get());
       trk->MakeTrack();
       tList->AddElement( trk );
       return;
@@ -279,8 +276,7 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
    if ( muon->outerTrack().isAvailable() )
    {
       TEveTrack* trk = fireworks::prepareTrack(*(muon->outerTrack()),
-                                               m_trackerPropagator.get(),
-                                               iItem->defaultDisplayProperties().color());
+                                               m_trackerPropagator.get());
       trk->MakeTrack();
       tList->AddElement( trk );
       return;
@@ -289,8 +285,7 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
    // if got that far it means we have nothing but a candidate
    // show it anyway.
    TEveTrack* trk = fireworks::prepareCandidate(*muon,
-						m_trackerPropagator.get(),
-						iItem->defaultDisplayProperties().color());
+						m_trackerPropagator.get());
    trk->MakeTrack();
    tList->AddElement( trk );
 }

@@ -8,8 +8,7 @@ namespace fireworks {
 
    TEveTrack*
    prepareCandidate(const reco::Candidate& track,
-		    TEveTrackPropagator* propagator,
-		    Color_t color)
+		    TEveTrackPropagator* propagator)
    {
       TEveRecTrack t;
       t.fBeta = 1.;
@@ -17,7 +16,6 @@ namespace fireworks {
       t.fV = TEveVector( track.vertex().x(), track.vertex().y(), track.vertex().z() );
       t.fSign = track.charge();
       TEveTrack* trk = new TEveTrack(&t, propagator);
-      trk->SetMainColor(color);
       return trk;
    }
   

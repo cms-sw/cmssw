@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.17 2010/04/08 12:03:11 yana Exp $
+// $Id: TrackUtils.cc,v 1.18 2010/04/13 08:52:22 yana Exp $
 //
 
 // system include files
@@ -61,7 +61,6 @@ namespace fireworks {
   TEveTrack*
   prepareTrack(const reco::Track& track,
 	       TEveTrackPropagator* propagator,
-	       Color_t color,
 	       const std::vector<TEveVector>& extraRefPoints)
   {
     // To make use of all available information, we have to order states
@@ -108,7 +107,6 @@ namespace fireworks {
       t.fP = refStates.front().momentum;
       TEveTrack* trk = new TEveTrack(&t,propagator);
       trk->SetBreakProjectedTracks(TEveTrack::kBPTAlways);
-      trk->SetMainColor(color);
       for( unsigned int i(1); i<refStates.size()-1; ++i) {
 	if ( refStates[i].valid )
 	  trk->AddPathMark( TEvePathMark( TEvePathMark::kReference, refStates[i].position, refStates[i].momentum ) );
@@ -127,7 +125,6 @@ namespace fireworks {
       t.fP = refStates.back().momentum * (-1);
       TEveTrack* trk = new TEveTrack(&t,propagator);
       trk->SetBreakProjectedTracks(TEveTrack::kBPTAlways);
-      trk->SetMainColor(color);
       unsigned int i(refStates.size()-1);
       for(; i>0; --i) {
 	if ( refStates[i].valid )
@@ -149,7 +146,6 @@ namespace fireworks {
     t.fP = refStates[i].momentum;
     TEveTrack* trk = new TEveTrack(&t,propagator);
     trk->SetBreakProjectedTracks(TEveTrack::kBPTAlways);
-    trk->SetMainColor(color);
 
     for( unsigned int j(i+1); j<refStates.size()-1; ++j) {
       if ( refStates[i].valid )

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 09:56:09 EST 2008
-// $Id: FWCandidateProxyBuilder.cc,v 1.1 2010/04/07 08:05:46 yana Exp $
+// $Id: FWCandidateProxyBuilder.cc,v 1.2 2010/04/07 14:16:40 yana Exp $
 //
 
 #include "TEveTrack.h"
@@ -40,7 +40,7 @@ private:
 void 
 FWCandidateProxyBuilder::build(const reco::Candidate& iData, unsigned int iIndex, TEveElement& oItemHolder) const
 {
-   TEveTrack* trk = fireworks::prepareCandidate( iData, context().getTrackPropagator(), item()->defaultDisplayProperties().color() ); 
+   TEveTrack* trk = fireworks::prepareCandidate( iData, context().getTrackPropagator() ); 
    
    trk->MakeTrack();
    oItemHolder.AddElement( trk );

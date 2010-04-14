@@ -10,12 +10,11 @@ class TEveStraightLineSet;
 namespace fireworks {
   
    TEveTrack* prepareCandidate( const reco::Candidate& track,
-				TEveTrackPropagator* propagator,
-				Color_t color);
+				TEveTrackPropagator* propagator);
 
-  void addStraightLineSegment( TEveStraightLineSet* marker,
-			       reco::Candidate const* cand,
-			       double scale_factor = 2);
+   void addStraightLineSegment( TEveStraightLineSet* marker,
+				reco::Candidate const* cand,
+				double scale_factor = 2);
 }
 
 #endif // CANDIDATES_CANDIDATE_UTILS_H
