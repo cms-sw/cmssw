@@ -457,18 +457,21 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
     if( trigger_on_ME1a || trigger_on_ME1b || trigger_on_ME2 || trigger_on_ME3 || trigger_on_ME4 || trigger_on_MB1a || trigger_on_MB1d )
         for(std::vector<csctf::TrackStub>::iterator itr=stub_vec_filtered.begin(); itr!=stub_vec_filtered.end(); itr++){
               int station = itr->station()-1;
-              int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(itr->getDetId().rawId()));
-              int mpc = ( subSector ? subSector-1 : station+1 );
-              if( (mpc==0&&trigger_on_ME1a) || (mpc==1&&trigger_on_ME1b) ||
-                  (mpc==2&&trigger_on_ME2)  || (mpc==3&&trigger_on_ME3)  ||
-                  (mpc==4&&trigger_on_ME4)  ||
-                  (mpc==5&& ( (trigger_on_MB1a&&subSector%2==1) || (trigger_on_MB1d&&subSector%2==0) ) ) ){
-                  int bx = itr->getBX() - m_minBX;
-                  if( bx<0 || bx>=7 ) edm::LogWarning("CSCTFTrackBuilder::buildTracks()") << " LCT BX is out of ["<<m_minBX<<","<<m_maxBX<<") range: "<<itr->getBX();
-                  else
-                     if( itr->isValid() ) myStubContainer[bx].push_back(*itr);
-              }
-        }
+							if(station != 4)
+              {
+								int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(itr->getDetId().rawId()));
+              	int mpc = ( subSector ? subSector-1 : station+1 );
+              	if( (mpc==0&&trigger_on_ME1a) || (mpc==1&&trigger_on_ME1b) ||
+                	  (mpc==2&&trigger_on_ME2)  || (mpc==3&&trigger_on_ME3)  ||
+                	  (mpc==4&&trigger_on_ME4)  ||
+                	  (mpc==5&& ( (trigger_on_MB1a&&subSector%2==1) || (trigger_on_MB1d&&subSector%2==0) ) ) ){
+                	  int bx = itr->getBX() - m_minBX;
+                	  if( bx<0 || bx>=7 ) edm::LogWarning("CSCTFTrackBuilder::buildTracks()") << " LCT BX is out of ["<<m_minBX<<","<<m_maxBX<<") range: "<<itr->getBX();
+                	  else
+                	     if( itr->isValid() ) myStubContainer[bx].push_back(*itr);
+              	}
+        			}
+				}
 
     // Core's input was loaded in a relative time window BX=[0-7)
     // To relate it to time window of tracks (centred at BX=0) we introduce a shift:
