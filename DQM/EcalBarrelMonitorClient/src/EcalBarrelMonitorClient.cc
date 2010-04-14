@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/03/28 14:04:36 $
- * $Revision: 1.482 $
+ * $Date: 2010/04/14 13:12:09 $
+ * $Revision: 1.483 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1002,8 +1002,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   if ( maskFile_.size() != 0 ) {
     try {
       if ( verbose_ ) std::cout << "Fetching masked channels from file ..." << std::endl;
-      std::string file = edm::FileInPath(maskFile_).fullPath();
-      EcalErrorMask::readFile(file, debug_);
+      EcalErrorMask::readFile(maskFile_, debug_);
       if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
       cerr << e.what() << std::endl;
