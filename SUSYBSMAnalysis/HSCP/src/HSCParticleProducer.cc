@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.4 2010/04/14 09:53:20 querten Exp $
+// $Id: HSCParticleProducer.cc,v 1.12 2010/04/14 13:05:03 querten Exp $
 //
 //
 
@@ -42,7 +42,7 @@ HSCParticleProducer::HSCParticleProducer(const edm::ParameterSet& iConfig) {
   minDR           = iConfig.getParameter<double>  ("minDR");        // 0.1
   maxInvPtDiff    = iConfig.getParameter<double>  ("maxInvPtDiff"); // 0.005
 
-  maxTkBeta       = iConfig.getParameter<double>  ("maxTkBeta");    // 0.9; 
+  minTkdEdx       = iConfig.getParameter<double>  ("minTkdEdx");    // 4.0; 
   maxMuBeta       = iConfig.getParameter<double>  ("maxMuBeta");    // 0.9; 
 
   if(useBetaFromTk  )beta_calculator_TK   = new Beta_Calculator_TK  (iConfig);
@@ -98,6 +98,15 @@ HSCParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
     beta_calculator_MUON->addInfoToCandidate(*hscpcandidate,  iEvent,iSetup);
   }}
+
+  // cleanup the collection based on MUON AND/OR TK Beta
+  for(int i=0;i<(int)hscp->size();i++) {
+     susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin() + i;
+     if( (hscpcandidate->Dt().invBeta>0 && 1.0/hscpcandidate->Dt().invBeta > maxMuBeta) && hscpcandidate->Tk().dedx() < minTkdEdx){
+        hscp->erase(hscpcandidate);
+        i--;
+     }
+  }
 
   // compute the RPC contribution
   if(useBetaFromRpc){

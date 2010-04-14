@@ -102,19 +102,24 @@ process.HSCParticleProducer = cms.EDProducer("HSCParticleProducer",
    minDR              = cms.double(0.1),
    maxInvPtDiff       = cms.double(0.005),
 
-   maxTkBeta          = cms.double(0.9),
+   minTkdEdx          = cms.double(2.0),
    maxMuBeta          = cms.double(0.9),
 
 )
 
 
+process.HSCParticleSelector = cms.EDProducer("HSCParticleSelector",
+   source             = cms.InputTag("HSCParticleProducer"),
 
+   minTkdEdx          = cms.double(4.0),
+   maxMuBeta          = cms.double(0.9),
+)
 
 process.TFileService = cms.Service("TFileService",
         fileName = cms.string('tfile_out.root')
 )
 
-process.p = cms.Path(process.offlineBeamSpot + process.TrackRefitter + process.dedxHarm2 + process.dedxNPHarm2 + process.HSCParticleProducer)
+process.p = cms.Path(process.offlineBeamSpot + process.TrackRefitter + process.dedxHarm2 + process.dedxNPHarm2 + process.HSCParticleProducer + process.HSCParticleSelector)
 
 process.OUT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring("drop *", "keep *_*_*_EXOHSCPAnalysis"),
