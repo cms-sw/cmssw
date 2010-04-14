@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/03/27 20:30:37 $
- * $Revision: 1.481 $
+ * $Date: 2010/03/28 14:04:36 $
+ * $Revision: 1.482 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -114,6 +115,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( maskFile_.size() != 0 ) {
+      maskFile_ = edm::FileInPath(maskFile_).fullPath();
       std::cout << " maskFile is '" << maskFile_ << "'" << std::endl;
     }
   }
@@ -1000,7 +1002,8 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   if ( maskFile_.size() != 0 ) {
     try {
       if ( verbose_ ) std::cout << "Fetching masked channels from file ..." << std::endl;
-      EcalErrorMask::readFile(maskFile_, debug_);
+      std::string file = edm::FileInPath(maskFile_).fullPath();
+      EcalErrorMask::readFile(file, debug_);
       if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
       cerr << e.what() << std::endl;
