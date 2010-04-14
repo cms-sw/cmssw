@@ -134,6 +134,7 @@ HLT_L1_BPTX_MinusOnly
 HLT_L1_BPTX_PlusOnly
 HLT_L1_BscMinBiasOR_BptxPlusORMinus
 HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX
+HLT_L1_BscMinBiasOR_BeamGas
 HLT_L1_HFtech
 HLT_L1Tech_BSC_halo
 HLT_L1Tech_BSC_halo_forPhysicsBackground
