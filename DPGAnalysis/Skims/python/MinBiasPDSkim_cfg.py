@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.15 $'),
+    version = cms.untracked.string('$Revision: 1.16 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -25,7 +25,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000)
 )
 
 
@@ -227,29 +227,6 @@ process.collout = cms.OutputModule("PoolOutputModule",
         SelectEvents = cms.vstring('goodvertex','l1tcollpath')
     )
 )
-##################################beam backg filter#################################################
-process.L1T1bkgcross=process.hltLevel1GTSeed.clone()
-process.L1T1bkgcross.L1TechTriggerSeeding = cms.bool(True)
-process.L1T1bkgcross.L1SeedsLogicalExpression = cms.string('0 AND NOT (40 OR 41) AND ((36 OR 37 OR 38 OR 39) OR (42 AND NOT 43) OR (43 AND NOT 42))')
-
-process.l1tbkgcrosspath = cms.Path(process.L1T1bkgcross)
-
-process.L1T1bkgnocross=process.hltLevel1GTSeed.clone()
-process.L1T1bkgnocross.L1TechTriggerSeeding = cms.bool(True)
-process.L1T1bkgnocross.L1SeedsLogicalExpression = cms.string('NOT 0 AND NOT 7 AND (36 OR 37 OR 38 OR 39 OR 40 OR 41 OR 42 OR 43 OR 8 OR 9 OR 10)')
-
-process.l1tbkgnocrosspath = cms.Path(process.L1T1bkgnocross)
-
-process.bkgout = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/malgeri/bkg.root'),
-    outputCommands = process.FEVTEventContent.outputCommands,
-    dataset = cms.untracked.PSet(
-    	      dataTier = cms.untracked.string('RAW-RECO'),
-    	      filterName = cms.untracked.string('BEAMBKG')),
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('l1tbkgcrosspath','l1tbkgnocrosspath')
-    )
-)
 
 
 ##################################filter_rechit for ECAL############################################
@@ -294,76 +271,7 @@ process.outHSCP = cms.OutputModule("PoolOutputModule",
                                SelectEvents = cms.untracked.PSet(
     SelectEvents = cms.vstring("HSCP")
     ))
-
-###########################################################################################
-#------------------------------------------
-# parameters for the PFGCollisions+Background skim (skim1)
-#------------------------------------------
-
-process.L1PFGcollback=process.hltLevel1GTSeed.clone()
-process.L1PFGcollback.L1TechTriggerSeeding = cms.bool(True)
-process.L1PFGcollback.L1SeedsLogicalExpression = cms.string('(36 OR 37 OR 38 OR 39 OR 40 OR 41 OR 42 OR 43 OR 8 OR 9 OR 10 OR 32 OR 33) AND NOT 7')
-
-
-
-process.Tkon = cms.EDFilter("PhysDecl",
-applyfilter = cms.untracked.bool(True),
-debugOn = cms.untracked.bool(False),
-HLTriggerResults = cms.InputTag("TriggerResults","","HLT")
-) 
-
-#### the path
-process.pfgskim1 = cms.Path(process.L1PFGcollback*process.Tkon)
-
-
-
-#### output 
-process.outputpfgskim1 = cms.OutputModule("PoolOutputModule",
-    outputCommands = process.FEVTEventContent.outputCommands,
-    fileName = cms.untracked.string("/tmp/malgeri/Collisionsandbackground.root"),
-    dataset = cms.untracked.PSet(
-      dataTier = cms.untracked.string('RAW-RECO'),
-      filterName = cms.untracked.string('Collisionsandbackground')
-    ),
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('pfgskim1'))
-)
-
-###########################################################################################
-#------------------------------------------
-# parameters for the PFGCollisions skim (skim2)
-#------------------------------------------
-
-process.L1PFGcoll=process.hltLevel1GTSeed.clone()
-process.L1PFGcoll.L1TechTriggerSeeding = cms.bool(True)
-process.L1PFGcoll.L1SeedsLogicalExpression = cms.string('(36 OR 37 OR 38 OR 39 OR 40 OR 41 OR 42 OR 43 OR 8 OR 9 OR 10 OR 32 OR 33) AND 0')
-
-
-process.pixprob = cms.EDFilter("FilterScrapingPixelProbability",
-                                apply_filter                 = cms.untracked.bool( True  ),
-                                select_collision             = cms.untracked.bool( True ),
-                                select_pkam                  = cms.untracked.bool( False ),
-                                select_other                 = cms.untracked.bool( False ),
-                                low_probability              = cms.untracked.double( 0.0 ),
-                                low_probability_fraction_cut = cms.untracked.double( 0.4 )
-                                )
-
-#### the path
-process.pfgskim2 = cms.Path(process.L1PFGcoll*process.Tkon*process.pixprob)
-
-
-
-#### output 
-process.outputpfgskim2 = cms.OutputModule("PoolOutputModule",
-    outputCommands = process.FEVTEventContent.outputCommands,
-    fileName = cms.untracked.string("/tmp/malgeri/Collisions.root"),
-    dataset = cms.untracked.PSet(
-      dataTier = cms.untracked.string('RAW-RECO'),
-      filterName = cms.untracked.string('Collisions')
-    ),
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('pfgskim2'))
-)
-
-###########################################################################################
+ 
 ###########################################################################################
 #------------------------------------------
 # parameters for the PFGCollisions skim (skim3)
@@ -389,8 +297,8 @@ process.skimmingpixback = cms.EDFilter("FilterScrapingPixelProbability",
 
 
 #### the path
-process.pfgskim3cross = cms.Path(process.L1PFGbackcross*process.Tkon*process.skimmingpixback)
-process.pfgskim3noncross = cms.Path(process.L1PFGbacknoncross*process.Tkon)
+process.pfgskim3cross = cms.Path(process.L1PFGbackcross*process.skimmingpixback)
+process.pfgskim3noncross = cms.Path(process.L1PFGbacknoncross)
 
 
 
@@ -400,7 +308,7 @@ process.outputpfgskim3 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("/tmp/malgeri/Background.root"),
     dataset = cms.untracked.PSet(
       dataTier = cms.untracked.string('RAW-RECO'),
-      filterName = cms.untracked.string('Background')
+      filterName = cms.untracked.string('BEAMBKGV2')
     ),
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('pfgskim3cross','pfgskim3noncross'))
 )
@@ -434,7 +342,7 @@ process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.bkgout+process.outHSCP+process.ecalrechitfilter_out+process.outputpfgskim1+process.outputpfgskim2+process.outputpfgskim3+process.outlogerr)
+process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.outHSCP+process.ecalrechitfilter_out+process.outputpfgskim3+process.outlogerr)
 
 
 
