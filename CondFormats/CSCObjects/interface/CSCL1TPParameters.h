@@ -76,29 +76,30 @@ class CSCL1TPParameters
 
   /** returns CLCT min_separation */
   inline unsigned int clctMinSeparation() const {return m_clct_min_separation;}
-
+ 
+  //included in new object CSCDBL1xxx
   /** returns TMB mpc_block_me1a */
-  inline unsigned int tmbMpcBlockMe1a() const {return m_tmb_mpc_block_me1a;}
+  // inline unsigned int tmbMpcBlockMe1a() const {return m_tmb_mpc_block_me1a;}
 
   /** returns TMB alct_trig_enable */
-  inline unsigned int tmbAlctTrigEnable() const
-                                           {return m_tmb_alct_trig_enable;}
+  // inline unsigned int tmbAlctTrigEnable() const
+  //                                          {return m_tmb_alct_trig_enable;}
 
   /** returns TMB clct_trig_enable */
-  inline unsigned int tmbClctTrigEnable() const
-                                           {return m_tmb_clct_trig_enable;}
-
+  // inline unsigned int tmbClctTrigEnable() const
+  //                                      {return m_tmb_clct_trig_enable;}
+					   //
   /** returns TMB match_trig_enable */
-  inline unsigned int tmbMatchTrigEnable() const
-                                           {return m_tmb_match_trig_enable;}
+					   // inline unsigned int tmbMatchTrigEnable() const
+					   //                                         {return m_tmb_match_trig_enable;}
 
   /** returns TMB match_trig_window_size */
-  inline unsigned int tmbMatchTrigWindowSize() const
-                                         {return m_tmb_match_trig_window_size;}
+  //inline unsigned int tmbMatchTrigWindowSize() const
+  //                                       {return m_tmb_match_trig_window_size;}
 
   /** returns TMB tmb_l1a_window_size */
-  inline unsigned int tmbTmbL1aWindowSize() const
-                                           {return m_tmb_tmb_l1a_window_size;}
+  //inline unsigned int tmbTmbL1aWindowSize() const
+  //                                         {return m_tmb_tmb_l1a_window_size;}
 
   /** sets ALCT fifo_tbins */
   void setAlctFifoTbins(const unsigned int theValue) {
