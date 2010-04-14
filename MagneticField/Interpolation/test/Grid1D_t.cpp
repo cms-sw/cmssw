@@ -20,6 +20,7 @@ bool testGrid1D( Grid1D const & grid)  {
 
 #include<iostream>
 #include<cstdlib>
+#include<cstdio>
 
 void print(Grid1D grid,  Grid1D::Scalar a) {
   Grid1D::Scalar f;

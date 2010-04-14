@@ -6,7 +6,6 @@
 #include "DataFormats/GeometryVector/interface/Phi.h"
 #include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
-#include "DataFormats/Math/interface/SSEVec.h"
 #include <iosfwd>
 #include <cmath>
 
@@ -50,11 +49,12 @@ public:
   explicit Basic3DVector( const OtherPoint& p) : 
     theX(p.x()), theY(p.y()), theZ(p.z()), theW(0) {}
 
+   /*
   // constructor from Vec3
   template<typename U>
   Basic3DVector(mathSSE::Vec3<U> const& iv) :
     theX(iv.arr[0]), theY(iv.arr[1]), theZ(iv.arr[2]), theW(0) {}
-
+  */
   /// construct from cartesian coordinates
   Basic3DVector( const T& x, const T& y, const T& z) : 
     theX(x), theY(y), theZ(z), theW(0) {}
