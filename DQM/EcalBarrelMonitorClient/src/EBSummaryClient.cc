@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/03/28 09:21:48 $
- * $Revision: 1.207 $
+ * $Date: 2010/04/14 14:54:29 $
+ * $Revision: 1.208 $
  * \author G. Della Ricca
  *
 */
@@ -1949,7 +1949,6 @@ void EBSummaryClient::analyze(void) {
         else if(val_po==2 || val_ls==2 || val_tm==2 || val_sf==2 || val_ee==2) xval=2;
         else xval=1;
 
-std::cout << 104 << std::endl;
         // if the SM is entirely not read, the masked channels
         // are reverted back to yellow
         float iEntries=0;
@@ -1969,7 +1968,6 @@ std::cout << 104 << std::endl;
             }
           }
         }
-std::cout << 105 << std::endl;
 
         if ( iEntries==0 ) {
           xval=2;
