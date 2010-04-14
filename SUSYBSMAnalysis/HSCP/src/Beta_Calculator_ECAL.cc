@@ -2,7 +2,9 @@
 
 
 Beta_Calculator_ECAL::Beta_Calculator_ECAL(const edm::ParameterSet& iConfig){
-   parameters_.loadParameters( iConfig ); 
+   edm::ParameterSet trkParameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+   parameters_.loadParameters( trkParameters ); 
+   trackAssociator_.useDefaultPropagator();
 }
 
 

@@ -11,7 +11,11 @@
    <class name="edm::Wrapper<susybsm::MuonTOFCollection>"/>
    <class name="std::vector<std::pair<edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> >,susybsm::DriftTubeTOF> >"/>
    <class name="std::vector<susybsm::DriftTubeTOF>"/>
+   <class name="susybsm::RPCHit4D"/>
+   <class name="std::vector<susybsm::RPCHit4D>"/>
    <class name="susybsm::DeDxBeta"/>
+   <class name="susybsm::CaloBetaMeasurement"/>
+   <class name="susybsm::RPCBetaMeasurement"/>
    <class name="susybsm::HSCParticleCollection"/>
    <class name="susybsm::HSCParticleRef"/>
    <class name="susybsm::HSCParticleRefProd"/>

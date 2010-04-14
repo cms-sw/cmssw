@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCP_Producer.h,v 1.1 2010/04/12 15:42:01 querten Exp $
+// $Id: HSCP_Producer.h,v 1.2 2010/04/13 16:15:31 querten Exp $
 
 
 // system include files
@@ -59,19 +59,30 @@ class HSCP_Producer : public edm::EDProducer {
     ~HSCP_Producer();
 
   private:
-    virtual void beginJob(const edm::EventSetup&) ;
+    virtual void beginJob() ;
     virtual void produce(edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;
 
     std::vector<HSCParticle> getHSCPSeedCollection(edm::Handle<reco::TrackCollection>& trackCollectionHandle,  edm::Handle<reco::MuonCollection>& muonCollectionHandle);
 
-
-
     // ----------member data ---------------------------
     edm::InputTag m_trackTag;
     edm::InputTag m_muonsTag;
-    float minTkP, minDtP, maxTkBeta, minDR, maxInvPtDiff, maxChi2;
+
+    bool         useBetaFromTk;
+    bool         useBetaFromMuon;
+    bool         useBetaFromRpc;
+    bool         useBetaFromEcal;
+
+    float        minTkP;
+    float        maxTkChi2;
     unsigned int minTkHits;
+    float        minMuP;
+    float        minDR;
+    float        maxInvPtDiff;
+
+    float        maxTkBeta;
+    float        maxMuBeta;
 
     Beta_Calculator_TK*   beta_calculator_TK;
     Beta_Calculator_MUON* beta_calculator_MUON;

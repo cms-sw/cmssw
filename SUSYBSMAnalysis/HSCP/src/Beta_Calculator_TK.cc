@@ -1,13 +1,14 @@
 #include "SUSYBSMAnalysis/HSCP/interface/Beta_Calculator_TK.h"
 
 Beta_Calculator_TK::Beta_Calculator_TK(const edm::ParameterSet& iConfig){
-  m_trackDeDxEstimatorTag = iConfig.getParameter<edm::InputTag>("trackDeDxEstimator");
-  minTkMeas=iConfig.getParameter<uint32_t>("minTkMeas"); //9
+  m_trackDeDxEstimatorTag = iConfig.getParameter<edm::InputTag>("dEdXEstimator");
 }
 
 
 void Beta_Calculator_TK::addInfoToCandidate(HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   if(!candidate.isTrack())return;
+
    edm::Handle<DeDxDataValueMap> dedxH;
    iEvent.getByLabel(m_trackDeDxEstimatorTag,dedxH);
    const ValueMap<DeDxData> dEdxTrack = *dedxH.product();

@@ -30,7 +30,6 @@ class  Beta_Calculator_TK{
       void  addInfoToCandidate(HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup);
 
       edm::InputTag m_trackDeDxEstimatorTag;
-      unsigned int minTkMeas;
 };
 
 
