@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2010/03/27 20:11:09 $
- * $Revision: 1.126 $
+ * $Date: 2010/04/14 16:13:39 $
+ * $Revision: 1.127 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2533,6 +2533,8 @@ void EELaserClient::analyze(void) {
 
         for ( unsigned int i=0; i<superModules_.size(); i++ ) {
           int ism = superModules_[i];
+          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+          if (iter == superModules_.end()) continue;
           if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
             int jx = 101 - ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);

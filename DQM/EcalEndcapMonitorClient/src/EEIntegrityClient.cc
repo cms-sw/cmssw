@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2010/03/27 20:07:59 $
- * $Revision: 1.104 $
+ * $Date: 2010/04/14 16:13:39 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -961,6 +961,8 @@ void EEIntegrityClient::analyze(void) {
 
         for ( unsigned int i=0; i<superModules_.size(); i++ ) {
           int ism = superModules_[i];
+          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+          if (iter == superModules_.end()) continue;
           if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
             int jx = 101 - ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
