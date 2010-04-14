@@ -21,17 +21,20 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=RecoMuon/TrackingTools>
 <use name=RecoMuon/GlobalTrackFinder>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/Vertex>
 <use name=TrackingTools/TransientTrack>
 <use name=root>
 <use name=rootcore>
+<use name=rootinteractive>
 <use name=AnalysisDataFormats/SUSYBSMObjects>
 <use name=TrackingTools/TrackAssociator>
 <use name=Geometry/EcalMapping>
 <use name=SimGeneral/HepPDTRecord>
 <use name=CommonTools/UtilAlgos>
+<use name=hepmc>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=SUSYBSMAnalysisHSCP>
