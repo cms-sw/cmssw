@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2010/03/15 09:45:52 $
- * $Revision: 1.32 $
+ * $Date: 2010/03/16 17:46:49 $
+ * $Revision: 1.33 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -152,7 +152,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 
 
      // Get the histos for FED integrity
-     string fedIntegrityFolder = "DT/FEDIntegrity_SM/";
+     string fedIntegrityFolder = "DT/FEDIntegrity/";
      MonitorElement * hFEDEntry = dbe->get(fedIntegrityFolder+"FEDEntries");
      MonitorElement * hFEDFatal = dbe->get(fedIntegrityFolder+"FEDFatal");
      MonitorElement * hFEDNonFatal = dbe->get(fedIntegrityFolder+"FEDNonFatal");

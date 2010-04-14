@@ -1,9 +1,8 @@
-
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2010/03/12 18:33:51 $
- * $Revision: 1.63 $
+ * $Date: 2010/03/15 09:40:03 $
+ * $Revision: 1.64 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -20,6 +19,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <math.h>
 #include <fstream>
@@ -51,17 +51,21 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
   // Plot quantities about SC
   getSCInfo = ps.getUntrackedParameter<bool>("getSCInfo", false);
 
-  // flag to toggle the creation of only the summaries (for HLT running)
-  bool hltMode = ps.getUntrackedParameter<bool>("hltMode", false);
+  string processingMode = ps.getUntrackedParameter<string>("processingMode","Online");
 
-  // flag to toggle the creation of only the summaries (for HLT running)
-  bool offlineMode = ps.getUntrackedParameter<bool>("offlineMode", false);
-
-  mode = 0;
-  if(offlineMode) {
+  // processing mode flag to select plots to be produced and basedirs CB vedi se farlo meglio...
+  if (processingMode == "Online") {
+    mode = 0;
+  } else if(processingMode == "SM") {
     mode = 1;
-  } else if(hltMode) {
+  } else if (processingMode == "Offline") {
     mode = 2;
+  } else if (processingMode == "HLT") {
+    mode = 3;
+  } else {
+    throw cms::Exception("MissingParameter")
+      << "[DTDataIntegrityTask]: processingMode :" << processingMode 
+      << " invalid! Must be Online, SM, Offline or HLT !" << endl;
   }
 
 }
@@ -95,8 +99,7 @@ void DTDataIntegrityTask::postEndJob(){
 
 void DTDataIntegrityTask::bookHistos(const int fedMin, const int fedMax) {
   // Standard FED integrity histos
-  if(mode != 2) dbe->setCurrentFolder("DT/FEDIntegrity_SM/");
-  else dbe->setCurrentFolder("DT/FEDIntegrity/");
+  dbe->setCurrentFolder(topFolder(true));
 
   int nFED = (fedMax - fedMin)+1;
 
@@ -105,7 +108,7 @@ void DTDataIntegrityTask::bookHistos(const int fedMin, const int fedMax) {
   hFEDNonFatal = dbe->book1D("FEDNonFatal","# NON fatal errors DT FED",nFED,fedMin,fedMax+1);
 
 
-  dbe->setCurrentFolder(topFolder());
+  dbe->setCurrentFolder(topFolder(false));
   hTTSSummary = dbe->book2D("TTSSummary","Summary Status TTS",nFED,fedMin,fedMax+1,9,1,10);
   hTTSSummary->setAxisTitle("FED",1);
   hTTSSummary->setBinLabel(1,"ROS PAF",2);	
@@ -157,7 +160,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   // DDU Histograms
   if (folder == "DDU") {
 
-    dbe->setCurrentFolder(topFolder() + "FED" + dduID_s.str());
+    dbe->setCurrentFolder(topFolder(false) + "FED" + dduID_s.str());
 
     histoType = "EventLenght";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
@@ -194,7 +197,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histo->setBinLabel(11,"ROS 11",2);	
     histo->setBinLabel(12,"ROS 12",2);
 
-    if(mode != 0) return;
+    if(mode > 1) return;
 
     histoType = "TTSValues";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
@@ -247,7 +250,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
   // ROS Histograms
   if ( folder == "ROS_S" ) { // The summary of the error of the ROS on the same FED
-    dbe->setCurrentFolder(topFolder());
+    dbe->setCurrentFolder(topFolder(false));
 
     histoType = "ROSSummary";
     histoName = "FED" + dduID_s.str() + "_ROSSummary";
@@ -293,13 +296,13 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   }
 
   if ( folder == "ROS" ) {
-    dbe->setCurrentFolder(topFolder() + "FED" + dduID_s.str() + "/" + folder + rosID_s.str());
+    dbe->setCurrentFolder(topFolder(false) + "FED" + dduID_s.str() + "/" + folder + rosID_s.str());
 
 
     histoType = "ROSError";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSError";
     histoTitle = histoName + " (ROBID error summary)";
-    if(mode == 0)
+    if(mode <= 1)
       (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoTitle,17,0,17,26,0,26);
     else
       (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoTitle,11,0,11,26,0,26);
@@ -317,7 +320,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histo->setBinLabel(9,"Ch. blocked",1);
     histo->setBinLabel(10,"Ev. Id. Mis.",1);
     histo->setBinLabel(11,"CEROS blocked",1);
-    if(mode == 0) {
+    if(mode <= 1) {
       // TDC error bins
       histo->setBinLabel(12,"TDC Fatal",1);
       histo->setBinLabel(13,"TDC RO FIFO ov.",1);
@@ -353,7 +356,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histo->setBinLabel(25,"ROB24",2);
     histo->setBinLabel(26,"SC",2);
 
-    if(mode != 0) return;
+    if(mode > 1) return;
 
     histoType = "ROSEventLenght";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSEventLenght";
@@ -420,7 +423,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
     histoType = "ROB_mean";
     histoName = "FED" + dduID_s.str() + "_" + "ROS" + rosID_s.str() + "_ROB_mean";
-    string fullName = topFolder() + "FED" + dduID_s.str() + "/" + folder + rosID_s.str()+ "/" + histoName;    
+    string fullName = topFolder(false) + "FED" + dduID_s.str() + "/" + folder + rosID_s.str()+ "/" + histoName;    
     names.insert (pair<std::string,std::string> (histoType,string(fullName)));   
     (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoName,25,0,25,100,0,100);
     (rosHistos[histoType])[code.getROSID()]->setAxisTitle("ROB #",1);
@@ -436,7 +439,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
 //   if ( folder == "TDCError") {
 
-//     dbe->setCurrentFolder(topFolder() + "FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
+//     dbe->setCurrentFolder(topFolder(false) + "FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
 
 //     histoType = "TDCError";
 //     histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB"+robID_s.str()+"_TDCError";
@@ -458,7 +461,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   // SC Histograms
   if ( folder == "SC" ) {
     // The plots are per wheel
-    dbe->setCurrentFolder(topFolder() + "FED" + dduID_s.str());
+    dbe->setCurrentFolder(topFolder(false) + "FED" + dduID_s.str());
 
     // SC data Size
     histoType = "SCSizeVsROSSize";
@@ -512,7 +515,7 @@ void DTDataIntegrityTask::bookHistosROS25(DTROChainCoding code) {
 //       code.setROB(robId);
 //       bookHistos( string("TDCError"), code);
 //     }
-    if(mode == 0)
+    if(mode <= 1)
       if(getSCInfo)
 	bookHistos( string("SC"), code);
 }
@@ -534,7 +537,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
   // Summary of all ROB errors
   MonitorElement* ROSError = 0;
-  if(mode < 2) ROSError = rosHistos["ROSError"][code.getROSID()];
+  if(mode <= 2) ROSError = rosHistos["ROSError"][code.getROSID()];
 
   // L1A ids to be checked against FED one
   rosL1AIdsPerFED[ddu].insert(data.getROSHeader().TTCEventCounter());
@@ -572,7 +575,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
        eventErrorFlag = true;
     }
     
-    if(mode < 2) {
+    if(mode <= 2) {
       // Fill the ROB Summary (1 per ROS) histo
       if ((*error_it).robID() != 31) {
 	ROSError->Fill((*error_it).errorType(),(*error_it).robID());
@@ -614,21 +617,21 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
       if ((*debug_it).dontRead()){  
 	debugROSSummary = 11;
 	debugROSError   = 8;
-	if (mode < 2) channelsInCEROS((*debug_it).cerosIdCerosStatus(),(*debug_it).dontRead(),debugBins);
+	if (mode <= 2) channelsInCEROS((*debug_it).cerosIdCerosStatus(),(*debug_it).dontRead(),debugBins);
       } if ((*debug_it).evIdMis()){
 	hasEvIdMis = true;
-	if (mode < 2) channelsInCEROS((*debug_it).cerosIdCerosStatus(),(*debug_it).evIdMis(),evIdMisBins);
+	if (mode <= 2) channelsInCEROS((*debug_it).cerosIdCerosStatus(),(*debug_it).evIdMis(),evIdMisBins);
       }
     } else if ((*debug_it).debugType() == 4 &&
 	       (*debug_it).cerosIdRosStatus()){
       debugROSSummary = 13;
       debugROSError   = 10;
-      if (mode < 2) channelsInROS((*debug_it).cerosIdRosStatus(),debugBins);
+      if (mode <= 2) channelsInROS((*debug_it).cerosIdRosStatus(),debugBins);
     }
  
     if (debugROSSummary) {
       ROSSummary->Fill(debugROSSummary,code.getROS());
-      if (mode < 2) {
+      if (mode <= 2) {
 	vector<int>::const_iterator channelIt  = debugBins.begin();
 	vector<int>::const_iterator channelEnd = debugBins.end();
 	for (;channelIt!=channelEnd;++channelIt) {
@@ -639,7 +642,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     
     if (hasEvIdMis) {
       ROSSummary->Fill(12,code.getROS());
-      if (mode < 2) {
+      if (mode <= 2) {
 	vector<int>::const_iterator channelIt  = evIdMisBins.begin();
 	vector<int>::const_iterator channelEnd = evIdMisBins.end();
 	for (;channelIt!=channelEnd;++channelIt) {
@@ -690,12 +693,12 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
       eventErrorFlag = true;
       
       // fill ROB Summary plot for that particular ROS
-      if(mode < 2) ROSError->Fill(7,robheader.robID());
+      if(mode <= 2) ROSError->Fill(7,robheader.robID());
     }
   }
 
 
-  if(mode == 0) { // produce only when not in HLT 
+  if(mode <= 1) { // produce only when not in HLT 
     // ROB Trailer
     for (vector<DTROBTrailerWord>::const_iterator robt_it = data.getROBTrailers().begin();
 	 robt_it != data.getROBTrailers().end(); robt_it++) { // loop over ROB trailers 
@@ -731,7 +734,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
       eventErrorFlag = true;
 
       // fill ROB Summary plot for that particular ROS
-      if(mode < 2) ROSError->Fill(6,(*tdc_it).first);
+      if(mode <= 2) ROSError->Fill(6,(*tdc_it).first);
     }
   }
 
@@ -810,15 +813,15 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
       eventErrorFlag = true;
     }
 
-    if(mode < 2) {
+    if(mode <= 2) {
       ROSError->Fill(tdcError_ROSError,(*tdc_it).first);
-      if(mode == 0)
+      if(mode <= 1)
 	rosHistos["TDCError"][code.getROSID()]->Fill(tdcError_TDCHisto+6*((*tdc_it).second).tdcID(),(*tdc_it).first);
     }
   }
 
   // Read SC data
-  if (mode == 0 && getSCInfo) {
+  if (mode <= 1 && getSCInfo) {
     // SC Data
 
     // NumberOf16bitWords counts the # of words + 1 subheader
@@ -947,7 +950,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     ttsCodeValue = 7;
   }
   }
-  if(mode == 0) dduHistos["TTSValues"][code.getDDUID()]->Fill(ttsCodeValue);
+  if(mode <= 1) dduHistos["TTSValues"][code.getDDUID()]->Fill(ttsCodeValue);
   if(ttsSummaryBin != -1) {
     hTTSSummary->Fill(ddu, ttsSummaryBin);
   }
@@ -967,7 +970,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     if(rosList & 0x1) {
       rosPositions.insert(i);
       //9th BIN FROM LIST OF ROS in 2nd status word
-      if(mode < 2) hROSStatus->Fill(8,i,1);
+      if(mode <= 2) hROSStatus->Fill(8,i,1);
     }
     rosList >>= 1;
   }
@@ -976,7 +979,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   for (vector<DTDDUFirstStatusWord>::const_iterator fsw_it = data.getFirstStatusWord().begin();
        fsw_it != data.getFirstStatusWord().end(); fsw_it++) {
     // assuming association one-to-one between DDU channel and ROS
-    if(mode < 2) {
+    if(mode <= 2) {
       hROSStatus->Fill(0,channel,(*fsw_it).channelEnabled());
       hROSStatus->Fill(1,channel,(*fsw_it).timeout());
       hROSStatus->Fill(2,channel,(*fsw_it).eventTrailerLost());
@@ -989,7 +992,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     // check that the enabled channel was also in the read-out
     if((*fsw_it).channelEnabled() == 1 &&
        rosPositions.find(channel) == rosPositions.end()) {
-      if(mode < 2) hROSStatus->Fill(9,channel,1);
+      if(mode <= 2) hROSStatus->Fill(9,channel,1);
       // error code 1
       hFEDFatal->Fill(code.getDDUID());
       hCorruptionSummary->Fill(code.getDDUID(), 1);
@@ -1010,7 +1013,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 	if ((*debug_it).debugType() == 0 && (*debug_it).debugMessage() != header.bxID()) { // check the BX
 	  int ros = (*rosControlData).getROSID();
 	  // fill the error bin
-	  if(mode < 2) hROSStatus->Fill(11,ros-1);
+	  if(mode <= 2) hROSStatus->Fill(11,ros-1);
 	  // error code 2
 	  hFEDFatal->Fill(code.getDDUID());
 	  hCorruptionSummary->Fill(code.getDDUID(), 2);
@@ -1039,7 +1042,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
       int ROSHeader_TTCCount = ((*rosControlData).getROSHeader()).TTCEventCounter();
       if(ROSHeader_TTCCount != header.lvl1ID()-1) {
 	int ros = (*rosControlData).getROSID();
-	if(mode < 2) hROSStatus->Fill(10,ros-1);
+	if(mode <= 2) hROSStatus->Fill(10,ros-1);
 	// error code 4
 	hFEDFatal->Fill(code.getDDUID());
 	hCorruptionSummary->Fill(code.getDDUID(), 4);
@@ -1052,7 +1055,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   //   if(fedEvtLenght > 16000) fedEvtLenght = 16000; // overflow bin
   dduHistos["EventLenght"][code.getDDUID()]->Fill(fedEvtLenght);
 
-  if(mode != 0) return;
+  if(mode > 1) return;
 
 
   // size of the list of ROS in the Read-Out
@@ -1143,11 +1146,14 @@ void DTDataIntegrityTask::fedNonFatal(int dduID) {
   hFEDNonFatal->Fill(dduID);
 }
 
+std::string DTDataIntegrityTask::topFolder(bool isFEDIntegrity) const {
 
+  string folder = isFEDIntegrity ? "DT/FEDIntegrity" : "DT/00-DataIntegrity";
+  string tag = (mode==1) ? "_SM/" : (mode==3) ? "_EvF/" : "/";
+  folder += tag;
 
-std::string DTDataIntegrityTask::topFolder() const {
-  if(mode == 2) return string("DT/00-DataIntegrity_EvF/");
-  return string("DT/00-DataIntegrity/");
+  return folder;
+
 }
 
 void DTDataIntegrityTask::channelsInCEROS(int cerosId, int chMask, vector<int>& channels ){
