@@ -20,6 +20,7 @@
    usage: %prog -d <data file/directory> -t <tag name>
    -c, --copy   : Only copy files from input directory to test/workflow/files/
    -d, --data   = DATA: Data file, or directory with data files.
+   -I, --IOVbase = IOVBASE: options: runbase(default), lumibase, timebase
    -o, --overwrite : Overwrite results files when copying.
    -n, --newarchive : Create a new archive directory when copying.
    -t, --tag    = TAG: Database tag name.
@@ -180,6 +181,27 @@ def mkWorkflowdir():
 
 #__________END_OPTIONS_______________________________________________
 
+# lumi tools CondCore/Utilities/python/timeUnitHelper.py
+def pack(high,low):
+    """pack high,low 32bit unsigned int to one unsigned 64bit long long
+       Note:the print value of result number may appear signed, if the sign bit is used.
+    """
+    h=high<<32
+    return (h|low)
+
+def unpack(i):
+    """unpack 64bit unsigned long long into 2 32bit unsigned int, return tuple (high,low)
+    """
+    high=i>>32
+    low=i&0xFFFFFFFF
+    return(high,low)
+
+def unpackLumiid(i):
+    """unpack 64bit lumiid to dictionary {'run','lumisection'}
+    """
+    j=unpack(i)
+    return {'run':j[0],'lumisection':j[1]}
+
 if __name__ == '__main__':
     #if len(sys.argv) < 2:
 #	print "\n [usage] createPayload <beamspot file> <tag name> <IOV since> <IOV till=-1=inf> <IOV comment> <destDB=oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT>"
@@ -226,7 +248,13 @@ if __name__ == '__main__':
 	print "ERROR: You must provide the database tag name"
 	exit()
 
-	
+    IOVbase = 'runbase'
+    if option.IOVbase:
+        if option.IOVbase != "runbase" and option.IOVbase != "lumibase" and option.IOVbase != "timebase":
+            print "\n\n unknown iov base option: "+ option.IOVbase +" \n\n\n"
+            exit()
+	IOVbase = option.IOVbase
+    
     listoffiles = copyToWorkflowdir(option.data)
 
     # sort list of data files in chronological order
@@ -294,10 +322,15 @@ if __name__ == '__main__':
 	tmpfile = open(beam_file)
         beam_file_tmp = workflowdirTmp + beam_file[beam_file.rfind('/')+1:] + ".tmp"
 	newtmpfile = open(beam_file_tmp,"w")
+	tmp_run = ""
+	tmp_lumi = ""
 	for line in tmpfile:
 	    if line.find("Runnumber") != -1:
 		iov_since = line.split()[1]
 		iov_till = iov_since
+		tmp_run = line.split()[1]
+	    elif line.find("LumiRange") != -1:
+		tmp_lumi = line.split()[1]
 	    elif line.find("BeginTimeOfFit") == -1 and line.find("EndTimeOfFit") == -1 and line.find("LumiRange") == -1:
                 if line.find("sigmaZ0") != -1:
                     line = "sigmaZ0 10\n"
@@ -305,7 +338,11 @@ if __name__ == '__main__':
                     line = "Cov(3,j) 0 0 0 2.5e-05 0 0 0\n"
 		newtmpfile.write(line)
             allfile.write(line)
-              
+	
+	# pack run number and lumi section
+	if IOVbase = "lumibase":
+	    iov_since = iov_till = pack(tmp_run, tmp_lumi)
+
 	tmpfile.close()
 	newtmpfile.close()
         if option.copy:
