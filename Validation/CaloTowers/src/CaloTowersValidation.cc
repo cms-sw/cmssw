@@ -76,7 +76,6 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   sprintf  (histo, "CaloTowersTask_map_Nentries" );
   mapEnergy_N = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
 
-  // added by lhx 
   // XXX: ECAL 0-25 [0-26, 26 bins]   HCAL 0-4 [0-5, 5 bins]
   sprintf  (histo, "number_of_bad_cells_Ecal_EB");
   numBadCellsEcal_EB = dbe_->book1D(histo, histo, 26, 0, 26);
@@ -89,7 +88,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   sprintf  (histo, "number_of_problematic_cells_Ecal_EB");
   numPrbCellsEcal_EB = dbe_->book1D(histo, histo, 26, 0, 26);
   sprintf  (histo, "number_of_problematic_cells_Ecal_EE");
-  numPrbCellsEcal_EE = dbe_->book1D(histo, histo, 26, 0, 26); // end by lhx
+  numPrbCellsEcal_EE = dbe_->book1D(histo, histo, 26, 0, 26); 
 
   sprintf  (histo, "CaloTowersTask_map_occupancy" );
   occupancy_map = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
@@ -98,13 +97,12 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
 
 
   if( isub == 1 || isub == 0) {
-    // added by lhx
     sprintf  (histo, "number_of_bad_cells_Hcal_HB");
     numBadCellsHcal_HB = dbe_->book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_recovered_cells_Hcal_HB");
     numRcvCellsHcal_HB = dbe_->book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_problematic_cells_Hcal_HB");
-    numPrbCellsHcal_HB = dbe_->book1D(histo, histo, 5, 0, 5); // end by lhx
+    numPrbCellsHcal_HB = dbe_->book1D(histo, histo, 5, 0, 5); 
   
     sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HB") ;
     meEnergyHcalvsEcal_HB    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
@@ -166,13 +164,12 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   }
 
   if( isub == 2 || isub == 0) {
-    // added by lhx
     sprintf  (histo, "number_of_bad_cells_Hcal_HE");
     numBadCellsHcal_HE = dbe_->book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_recovered_cells_Hcal_HE");
     numRcvCellsHcal_HE = dbe_->book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_problematic_cells_Hcal_HE");
-    numPrbCellsHcal_HE = dbe_->book1D(histo, histo, 5, 0, 5); // end by lhx
+    numPrbCellsHcal_HE = dbe_->book1D(histo, histo, 5, 0, 5); 
 
     sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HE") ;
     meEnergyHcalvsEcal_HE    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
@@ -235,13 +232,12 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
 
 
   if( isub == 3 || isub == 0) {
-    // added by lhx
     sprintf  (histo, "number_of_bad_cells_Hcal_HF");
     numBadCellsHcal_HF = dbe_->book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_recovered_cells_Hcal_HF");
     numRcvCellsHcal_HF = dbe_->book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_problematic_cells_Hcal_HF");
-    numPrbCellsHcal_HF = dbe_->book1D(histo, histo, 5, 0, 5); // end by lhx
+    numPrbCellsHcal_HF = dbe_->book1D(histo, histo, 5, 0, 5); 
 
     sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HF") ;
     meEnergyHcalvsEcal_HF    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
@@ -478,14 +474,13 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     double had_tm = cal->hcalTime();
     double em_tm  = cal->ecalTime();
 
-    // added by lhx
     int numBadEcalCells = cal->numBadEcalCells();
     int numRcvEcalCells = cal->numRecoveredEcalCells();
     int numPrbEcalCells = cal->numProblematicEcalCells();
 
     int numBadHcalCells = cal->numBadHcalCells();
     int numRcvHcalCells = cal->numRecoveredHcalCells();
-    int numPrbHcalCells = cal->numProblematicHcalCells(); // end by lhx
+    int numPrbHcalCells = cal->numProblematicHcalCells(); 
 
     math::RhoEtaPhiVector mom(cal->et(), cal->eta(), cal->phi());
 			      //  Vector mom  = cal->momentum(); 
@@ -496,7 +491,6 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     if(ieta > 0) ieta -= 1;
     int iphi = idT.iphi();
 
-    // added by lhx
     // ecal:  0 EcalBarrel  1 EcalEndcap
     // hcal:  0 hcalBarrel  1 HcalEndcap  2 HcalForward
     std::vector<int> inEcals(2), inHcals(3);
@@ -522,7 +516,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
        numBadCellsEcal_EE->Fill(numBadEcalCells);
        numRcvCellsEcal_EE->Fill(numRcvEcalCells);
        numPrbCellsEcal_EE->Fill(numPrbEcalCells);
-    } // end by lhx
+    } 
     
     if (imc != 0){
       double r    = dR(eta_MC, phi_MC, etaT, phiT);
@@ -552,11 +546,11 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 
     if((isub == 0 || isub == 1) 
        && (fabs(etaT) <  etaMax[0] && fabs(etaT) >= etaMin[0] )) {
-      if( inHcals[0] ){
-        numBadCellsHcal_HB->Fill(numBadHcalCells);
-        numRcvCellsHcal_HB->Fill(numRcvHcalCells);
-        numPrbCellsHcal_HB->Fill(numPrbHcalCells);
-      }
+
+      numBadCellsHcal_HB->Fill(numBadHcalCells);
+      numRcvCellsHcal_HB->Fill(numRcvHcalCells);
+      numPrbCellsHcal_HB->Fill(numPrbHcalCells);
+
       mapEnergy_HB     -> Fill(double(ieta), double(iphi), en); 
       mapEnergyHcal_HB -> Fill(double(ieta), double(iphi), eH); 
       mapEnergyEcal_HB -> Fill(double(ieta), double(iphi), eE); 
@@ -590,11 +584,11 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
    
     if((isub == 0 || isub == 2) 
        && (fabs(etaT) <  etaMax[1] && fabs(etaT) >= etaMin[1] )) {
-      if( inHcals[1] ){
-        numBadCellsHcal_HE->Fill(numBadHcalCells);
-        numRcvCellsHcal_HE->Fill(numRcvHcalCells);
-        numPrbCellsHcal_HE->Fill(numPrbHcalCells);
-      }
+     
+      numBadCellsHcal_HE->Fill(numBadHcalCells);
+      numRcvCellsHcal_HE->Fill(numRcvHcalCells);
+      numPrbCellsHcal_HE->Fill(numPrbHcalCells);
+    
       mapEnergy_HE     -> Fill(double(ieta), double(iphi), en); 
       mapEnergyHcal_HE -> Fill(double(ieta), double(iphi), eH); 
       mapEnergyEcal_HE -> Fill(double(ieta), double(iphi), eE); 
@@ -628,11 +622,11 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 
     if((isub == 0 || isub == 3) 
        && (fabs(etaT) <  etaMax[2] && fabs(etaT) >= etaMin[2] )) {
-      if( inHcals[2] ){
-        numBadCellsHcal_HF->Fill(numBadHcalCells);
-        numRcvCellsHcal_HF->Fill(numRcvHcalCells);
-        numPrbCellsHcal_HF->Fill(numPrbHcalCells);
-      } 
+      
+      numBadCellsHcal_HF->Fill(numBadHcalCells);
+      numRcvCellsHcal_HF->Fill(numRcvHcalCells);
+      numPrbCellsHcal_HF->Fill(numPrbHcalCells);
+     
       mapEnergy_HF     -> Fill(double(ieta), double(iphi), en); 
       mapEnergyHcal_HF -> Fill(double(ieta), double(iphi), eH); 
       mapEnergyEcal_HF -> Fill(double(ieta), double(iphi), eE); 
