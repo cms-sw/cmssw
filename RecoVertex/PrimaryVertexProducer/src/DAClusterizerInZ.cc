@@ -189,7 +189,7 @@ double DAClusterizerInZ::update(
       k->z=znew;
     }else{
       edm::LogInfo("sumw") <<  "invalid sum of weights in fit: " << k->sw << endl;
-      cout << " a cluster melted away ?  pk=" << k->pk <<  " sumw=" << k->sw <<  endl;
+      if(verbose_){cout << " a cluster melted away ?  pk=" << k->pk <<  " sumw=" << k->sw <<  endl;}
     }
 
     //k->pk *= k->se / sumpi; 
