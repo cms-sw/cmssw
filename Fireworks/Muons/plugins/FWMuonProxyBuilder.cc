@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:28:07 EST 2008
-// $Id: FWMuonProxyBuilder.cc,v 1.1 2010/04/08 14:58:45 yana Exp $
+// $Id: FWMuonProxyBuilder.cc,v 1.1 2010/04/14 12:09:25 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -86,11 +86,9 @@ public:
 
 private:
    FWMuonLegoProxyBuilder(const FWMuonLegoProxyBuilder&); // stop default
-
    const FWMuonLegoProxyBuilder& operator=(const FWMuonLegoProxyBuilder&); // stop default
 
-   // ---------- member data --------------------------------
-   void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
+   virtual void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
 
    mutable FWMuonBuilder m_builder;
 };
@@ -103,7 +101,6 @@ FWMuonLegoProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEve
  
    points->SetMarkerStyle(2);
    points->SetMarkerSize(0.2);
-   points->SetMarkerColor(  item()->defaultDisplayProperties().color() );
     
    // get ECAL position of the propagated trajectory if available
    if( iData.isEnergyValid() && iData.calEnergy().ecal_position.r()>100 ) {
