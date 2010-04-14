@@ -126,6 +126,7 @@ void Beta_Calculator_RPC::addInfoToCandidate(HSCParticle& candidate, const edm::
   } else return; 
   for(trackingRecHit_iterator recHit = start; recHit != stop; ++recHit) {
     if ( (*recHit)->geographicalId().subdetId() != MuonSubdetId::RPC ) continue;
+    if ( (*recHit)->geographicalId().det() != DetId::Muon  ) continue;
     if (!(*recHit)->isValid()) continue;
     RPCDetId rollId = (RPCDetId)(*recHit)->geographicalId();
     RPCGeomServ rpcsrv(rollId);
