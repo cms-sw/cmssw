@@ -13,14 +13,14 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
 
   //Service variables
   //CaloTowers
-  const int CT_nHistTot = 61;
-  const int CT_nHist1   = 22;
+  const int CT_nHistTot = 61+15;
+  const int CT_nHist1   = 22+15;
   const int CT_nHist2   = 6;
   const int CT_nProf    = 6;
   
   //RecHits
-  const int RH_nHistTot = 95; 
-  const int RH_nHist1   = 24;
+  const int RH_nHistTot = 95+4; 
+  const int RH_nHist1   = 24+4;
   const int RH_nHist2   = 4;
   const int RH_nProfInd = 12;
 

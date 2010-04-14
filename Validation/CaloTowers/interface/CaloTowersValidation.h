@@ -78,6 +78,24 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   MonitorElement*  mapEnergy_EH;
   MonitorElement*  mapEnergy_N;
 
+  // added by lhx for number of bad, recovered and problematic Ecal and Hcal cells
+  MonitorElement* numBadCellsEcal_EB;
+  MonitorElement* numBadCellsEcal_EE;
+  MonitorElement* numRcvCellsEcal_EB;
+  MonitorElement* numRcvCellsEcal_EE;
+  MonitorElement* numPrbCellsEcal_EB;
+  MonitorElement* numPrbCellsEcal_EE;
+
+  MonitorElement* numBadCellsHcal_HB;
+  MonitorElement* numBadCellsHcal_HE;
+  MonitorElement* numBadCellsHcal_HF;
+  MonitorElement* numRcvCellsHcal_HB;
+  MonitorElement* numRcvCellsHcal_HE;
+  MonitorElement* numRcvCellsHcal_HF;
+  MonitorElement* numPrbCellsHcal_HB;
+  MonitorElement* numPrbCellsHcal_HE;
+  MonitorElement* numPrbCellsHcal_HF; // end by lhx
+
   // HB
   MonitorElement* meEnergyHcalvsEcal_HB;
   MonitorElement* meEnergyHO_HB; 

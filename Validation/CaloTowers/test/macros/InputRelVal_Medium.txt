@@ -1,5 +1,20 @@
+                            number_of_bad_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numBadCells.gif     1       0       26      0       -1      1D      Stat    Chi2    Log     2       1              bad cells number EB
+                            number_of_bad_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numBadCells.gif     1       0       26      0       -1      1D      Stat    Chi2    Log     2       1              bad cells number EE
+                            number_of_bad_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              bad cells number HB
+                            number_of_bad_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              bad cells number HE
+                            number_of_bad_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              bad cells number HF
+                      number_of_recovered_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numRcvCells.gif     1       0       26      0       -1      1D      Stat    Chi2    Log     2       1              recovered cells number EB
+                      number_of_recovered_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numRcvCells.gif     1       0       26      0       -1      1D      Stat    Chi2    Log     2       1              recovered cells number EE
+                      number_of_recovered_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              recovered cells number HB
+                      number_of_recovered_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              recovered cells number HE
+                      number_of_recovered_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              recovered cells number HF
+                    number_of_problematic_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numPrbCells.gif     1       0       26      0       -1      1D      Stat    Chi2    Log     2       1              problematic cells number EB
+                    number_of_problematic_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numPrbCells.gif     1       0       26      0       -1      1D      Stat    Chi2    Log     2       1              problematic cells number EE
+                    number_of_problematic_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              problematic cells number HB
+                    number_of_problematic_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              problematic cells number HE
+                    number_of_problematic_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              problematic cells number HF
                                   CaloTowersTask_MET_HB   1	           HB_CaloTowers_MET_HB.gif	8	0	800	0	-1	1D	Stat	Chi2	Log	2	1	       HB Calo MET (GeV)
-                                  CaloTowersTask_SET_HB   1	           HB_CaloTowers_SET_HB.gif	20	0	2200	0	-1	1D	Stat	Chi2	Log	2	1	       HB Calo SET (GeV)	
+                                  CaloTowersTask_SET_HB   1	           HB_CaloTowers_SET_HB.gif	20	0	2200	0	-1	1D	Stat	Chi2	Log	2	1	       Barrel CaloTowers SET (GeV)	
                           CaloTowersTask_energy_ECAL_HB   1	HB_CaloTowers_Energy_in_ECAL_HB.gif	10	0	1500	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers ECAL energy (GeV)
                           CaloTowersTask_energy_HCAL_HB   1	HB_CaloTowers_Energy_in_HCAL_HB.gif	10	0	2000	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers HCAL energy (GeV)
             CaloTowersTask_energy_HcalPlusEcalPlusHO_HB   0
@@ -19,7 +34,7 @@
                     CaloTowersTask_HAD_Energy_Timing_HB   1  HB_CaloTowers_HAD_Energy_Timing_HB.gif	1	0	600	0	-1	TM	noStat	noChi2	NoLog	53	42	       HB CaloTowers HAD Timing vs Energy
             CaloTowersTask_HAD_Energy_Timing_profile_HB
                                   CaloTowersTask_MET_HE   1	           HE_CaloTowers_MET_HE.gif	5	0	700	0	-1	1D	Stat	Chi2	Log	2	1	       HE Calo MET (GeV)
-                                  CaloTowersTask_SET_HE   1	           HE_CaloTowers_SET_HE.gif	20	0	1000	0	-1	1D	Stat	Chi2	Log	2	1	       HE Calo SET (GeV)
+                                  CaloTowersTask_SET_HE   1	           HE_CaloTowers_SET_HE.gif	20	0	1000	0	-1	1D	Stat	Chi2	Log	2	1	       Endcap CaloTowers SET (GeV)
                           CaloTowersTask_energy_ECAL_HE   1	HE_CaloTowers_Energy_in_ECAL_HE.gif	5	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HE CaloTowers ECAL energy (GeV)
                           CaloTowersTask_energy_HCAL_HE   1	HE_CaloTowers_Energy_in_HCAL_HE.gif	5	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HE CaloTowers HCAL energy (GeV)
             CaloTowersTask_energy_HcalPlusEcalPlusHO_HE   0
@@ -39,7 +54,7 @@
                     CaloTowersTask_HAD_Energy_Timing_HE   1  HE_CaloTowers_HAD_Energy_Timing_HE.gif	1	0	1500	0	-1	TM	noStat	noChi2	NoLog	53	42	       HE CaloTowers HAD Timing vs Energy
             CaloTowersTask_HAD_Energy_Timing_profile_HE
                                   CaloTowersTask_MET_HF   1	           HF_CaloTowers_MET_HF.gif	2	0	200	0	-1	1D	Stat	Chi2	Log	2	1	       HF Calo MET (GeV)
-                                  CaloTowersTask_SET_HF   1	           HF_CaloTowers_SET_HF.gif	2	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HF Calo SET (GeV)
+                                  CaloTowersTask_SET_HF   1	           HF_CaloTowers_SET_HF.gif	2	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       Forward CaloTowers SET (GeV)
                           CaloTowersTask_energy_ECAL_HF   1	HF_CaloTowers_Energy_in_ECAL_HF.gif	5	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HF CaloTowers ECAL energy (GeV)
                           CaloTowersTask_energy_HCAL_HF   1	HF_CaloTowers_Energy_in_HCAL_HF.gif	5	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HF CaloTowers HCAL energy (GeV)
             CaloTowersTask_energy_HcalPlusEcalPlusHO_HF   0
@@ -89,6 +104,10 @@
                                                    N_HE   1	                           N_HE.gif	10	0	500	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HE RecHits
                                                    N_HF   1	                           N_HF.gif	10	0	600	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HF RecHits
                                                    N_HO   1	                           N_HO.gif	10	0	600	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HO RecHits
+                        HcalRecHitTask_severityLevel_HB   1                    severityLevel_HB.gif     1       0       25      0       -1      1D      Stat    Chi2    Log     2       1                 severityLevel HB
+                        HcalRecHitTask_severityLevel_HE   1                    severityLevel_HE.gif     1       0       25      0       -1      1D      Stat    Chi2    Log     2       1                 severityLevel HE
+                        HcalRecHitTask_severityLevel_HF   1                    severityLevel_HF.gif     1       0       25      0       -1      1D      Stat    Chi2    Log     2       1                 severityLevel HF
+                        HcalRecHitTask_severityLevel_HO   1                    severityLevel_HO.gif     1       0       25      0       -1      1D      Stat    Chi2    Log     2       1                 severityLevel HO
                                             RMS_seq_HB1   0
                                             RMS_seq_HB2   0
                                             RMS_seq_HE1   0
