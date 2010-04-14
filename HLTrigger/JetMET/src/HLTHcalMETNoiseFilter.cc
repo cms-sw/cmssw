@@ -12,7 +12,7 @@
 //
 // Original Author:  Leonard Apanasevich
 //         Created:  Wed Mar 25 16:01:27 CDT 2009
-// $Id: HLTHcalMETNoiseFilter.cc,v 1.9 2010/04/11 18:45:17 johnpaul Exp $
+// $Id: HLTHcalMETNoiseFilter.cc,v 1.10 2010/04/13 23:15:29 johnpaul Exp $
 //
 //
 
@@ -70,9 +70,8 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<HcalNoiseRBXCollection> rbxs_h;
   iEvent.getByLabel(HcalNoiseRBXCollectionTag_,rbxs_h);
   if(!rbxs_h.isValid()) {
-    throw edm::Exception(edm::errors::ProductNotFound)
-      << "HLTHcalMETNoiseFilter: Could not find HcalNoiseRBXCollection product named "
-      << HcalNoiseRBXCollectionTag_ << "." << std::endl;
+    edm::LogError("DataNotFound") << "HLTHcalMETNoiseFilter: Could not find HcalNoiseRBXCollection product named "
+				  << HcalNoiseRBXCollectionTag_ << "." << std::endl;
     return true;
   }
 
@@ -104,8 +103,20 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
     else if(useTightZerosFilter_ && !noisealgo_.passTightZeros(*it)) passFilter=false;
     else if(useTightTimingFilter_ && !noisealgo_.passTightTiming(*it)) passFilter=false;
     
-    if(needHighLevelCoincidence_ && !noisealgo_.passHighLevelNoiseFilter(*it) && !passFilter) return false;
-    if(!needHighLevelCoincidence_ && !passFilter) return false;
+    if((needHighLevelCoincidence_ && !noisealgo_.passHighLevelNoiseFilter(*it) && !passFilter) ||
+       (!needHighLevelCoincidence_ && !passFilter)) {
+      LogDebug("") << "HLTHcalMETNoiseFilter debug: Found a noisy RBX: "
+		   << "energy=" << it->energy() << "; "
+		   << "ratio=" << it->ratio() << "; "
+		   << "# RBX hits=" << it->numRBXHits() << "; "
+		   << "# HPD hits=" << it->numHPDHits() << "; "
+		   << "# Zeros=" << it->numZeros() << "; "
+		   << "min time=" << it->minHighEHitTime() << "; "
+		   << "max time=" << it->maxHighEHitTime() << "; "
+		   << "RBX EMF=" << it->RBXEMF()
+		   << std::endl;
+      return false;
+    }
   }
 
   // no problems found
