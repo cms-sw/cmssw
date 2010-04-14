@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCP_Producer.cc,v 1.2 2010/04/13 16:15:31 querten Exp $
+// $Id: HSCP_Producer.cc,v 1.3 2010/04/14 08:05:35 querten Exp $
 //
 //
 
@@ -72,34 +72,20 @@ HSCP_Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace std;
   using namespace susybsm;
 
-  std::cout<<"TEST1\n";
-
   // information from the muons
   edm::Handle<reco::MuonCollection> muonCollectionHandle;
   iEvent.getByLabel("muons",muonCollectionHandle);
-
-  std::cout<<"TEST2\n";
 
   // information from the tracks
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByLabel(m_trackTag,trackCollectionHandle);
 
-  std::cout<<"TEST3\n";
-
-
   // creates the output collection
   susybsm::HSCParticleCollection* hscp = new susybsm::HSCParticleCollection; 
   std::auto_ptr<susybsm::HSCParticleCollection> result(hscp);
 
-  std::cout<<"TEST4\n";
-
-
   // Fill the output collection with HSCP Candidate (the candiate only contains ref to muon AND/OR track object)
   *hscp = getHSCPSeedCollection(trackCollectionHandle, muonCollectionHandle);
-
-
-  std::cout<<"TEST5\n";
-
 
   // compute the TRACKER contribution
   if(useBetaFromTk){
@@ -107,16 +93,11 @@ HSCP_Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     beta_calculator_TK->addInfoToCandidate(*hscpcandidate,  iEvent,iSetup);
   }}
 
-  std::cout<<"TEST6\n";
-
-
   // compute the MUON contribution
   if(useBetaFromMuon){
   for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
     beta_calculator_MUON->addInfoToCandidate(*hscpcandidate,  iEvent,iSetup);
   }}
-
-  std::cout<<"TEST7\n";
 
   // compute the RPC contribution
   if(useBetaFromRpc){
@@ -124,21 +105,14 @@ HSCP_Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       beta_calculator_RPC->addInfoToCandidate(*hscpcandidate, iSetup);
   }}
 
-  std::cout<<"TEST8\n";
-
   // compute the ECAL contribution
   if(useBetaFromEcal){
   for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
     beta_calculator_ECAL->addInfoToCandidate(*hscpcandidate,trackCollectionHandle,iEvent,iSetup);
   }}
 
-  std::cout<<"TEST9\n";
-
   // output result
   iEvent.put(result); 
-
-  std::cout<<"TEST10\n";
-
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -153,12 +127,7 @@ HSCP_Producer::endJob() {
 
 std::vector<HSCParticle> HSCP_Producer::getHSCPSeedCollection(edm::Handle<reco::TrackCollection>& trackCollectionHandle,  edm::Handle<reco::MuonCollection>& muonCollectionHandle)
 {
-  std::cout<<"MATCH1\n";
-
    std::vector<HSCParticle> HSCPCollection;
-
-  std::cout<<"MATCH2\n";
-
 
    // Store a local vector of track ref (that can be modified if matching)
    std::vector<reco::TrackRef> tracks;
@@ -168,13 +137,39 @@ std::vector<HSCParticle> HSCP_Producer::getHSCPSeedCollection(edm::Handle<reco::
       tracks.push_back( track );
    }
 
-  std::cout<<"MATCH3\n";
+   // Loop on muons with inner track ref and create Muon HSCP Candidate
+   for(unsigned int m=0; m<muonCollectionHandle->size(); m++){
+      reco::MuonRef muon  = reco::MuonRef( muonCollectionHandle, m );
+      if(muon->p()<minMuP )continue;
+      TrackRef innertrack = muon->innerTrack();
+      if(innertrack.isNull())continue;
 
+      // Check if the inner track match any track in order to create a Muon+Track HSCP Candidate
+      // Matching is needed because input track collection and muon inner track may lightly differs due to track refit
+      float dRMin=1000; int found = -1;
+      for(unsigned int t=0; t<tracks.size();t++) {
+         reco::TrackRef track  = tracks[t];
+         if( fabs( (1.0/innertrack->pt())-(1.0/track->pt())) > maxInvPtDiff) continue;
+         float dR = deltaR(innertrack->momentum(), track->momentum());
+         if(dR <= minDR && dR < dRMin){ dRMin=dR; found = t;}           
+      }
 
-   // Loop on muons and create Muon HSCP Candidate
+      HSCParticle candidate;
+      candidate.setMuon(muon);
+      if(found>=0){
+//        printf("MUON with Inner Track Matching --> DR = %6.2f (%6.2f %+6.2f %+6.2f):(%6.2f %+6.2f %+6.2f) vs (%6.2f %+6.2f %+6.2f)\n",dRMin,muon->pt(), muon->eta(), muon->phi(), innertrack->pt(), innertrack->eta(), innertrack->phi(), tracks[found]->pt(), tracks[found]->eta(), tracks[found]->phi() );
+        candidate.setTrack(tracks[found]);
+        tracks.erase(tracks.begin()+found);
+      }
+      HSCPCollection.push_back(candidate);
+   }
+
+   // Loop on muons without inner tracks and create Muon HSCP Candidate
    for(unsigned int m=0; m<muonCollectionHandle->size(); m++){
       reco::MuonRef muon  = reco::MuonRef( muonCollectionHandle, m );
       if(muon->p()<minMuP)continue;
+      TrackRef innertrack = muon->innerTrack();
+      if(innertrack.isNonnull())continue;
 
       // Check if the muon match any track in order to create a Muon+Track HSCP Candidate
       float dRMin=1000; int found = -1;
@@ -188,16 +183,12 @@ std::vector<HSCParticle> HSCP_Producer::getHSCPSeedCollection(edm::Handle<reco::
       HSCParticle candidate;
       candidate.setMuon(muon);
       if(found>=0){
-        std::cout<<"MATCH_E1\n";
+//        printf("MUON without Inner Track Matching --> DR = %6.2f (%6.2f %+6.2f %+6.2f) vs (%6.2f %+6.2f %+6.2f)\n",dRMin,muon->pt(), muon->eta(), muon->phi(), tracks[found]->pt(), tracks[found]->eta(), tracks[found]->phi() );
         candidate.setTrack(tracks[found]);
-        std::cout<<"MATCH_E2\n";
         tracks.erase(tracks.begin()+found);
-        std::cout<<"MATCH_E3\n";
       }
       HSCPCollection.push_back(candidate);
    }
-
-  std::cout<<"MATCH4\n";
 
    // Loop on tracks not matching muon and create Track HSCP Candidate
    for(unsigned int i=0; i<tracks.size(); i++){
@@ -205,8 +196,6 @@ std::vector<HSCParticle> HSCP_Producer::getHSCPSeedCollection(edm::Handle<reco::
       candidate.setTrack(tracks[i]);
       HSCPCollection.push_back(candidate);
    }
-
-  std::cout<<"MATCH5\n";
 
    return HSCPCollection;
 }
