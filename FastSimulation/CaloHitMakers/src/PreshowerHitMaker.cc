@@ -11,6 +11,7 @@
 #include <cmath>
 
 typedef ROOT::Math::Plane3D Plane3D;
+typedef ROOT::Math::Transform3DPJ::Point Point;
 
 // LandauFluctuationGenerator PreshowerHitMaker::theGenerator=LandauFluctuationGenerator();
 
@@ -29,6 +30,8 @@ PreshowerHitMaker::PreshowerHitMaker(
   theGenerator(aGenerator)
 {
   double dummyt;
+  anglecorrection1_ = 0.;
+  anglecorrection2_ = 0.;
    // Check if the entrance points are really on the wafers
   // Layer 1 
   layer1valid_ = (layer1entrance.Mag2()>0.);
@@ -38,21 +41,20 @@ PreshowerHitMaker::PreshowerHitMaker(
       Plane3D plan1(0.,0.,1.,-z*myCalorimeter->preshowerZPosition(1));
 
       psLayer1Entrance_ = intersect(plan1,layer1entrance,layer1entrance+layer1dir,dummyt,false);
-      x1=psLayer1Entrance_.x();
-      y1=psLayer1Entrance_.y();
-      z1=psLayer1Entrance_.z();
-      XYZVector dirx(psLayer1Entrance_.x(),0,psLayer1Entrance_.z());
-      XYZVector diry(0,psLayer1Entrance_.y(),psLayer1Entrance_.z());
-      dirx=dirx.Unit();
-      diry=diry.Unit();
-      
-      double denom = fabs(dirx.Dot(XYZVector(0,0,1.)));
-      invcostheta1x = 1.e9;
-      if(fabs(denom) > 0.) invcostheta1x = 1./denom;
-      
-      denom = fabs(diry.Dot(XYZVector(0,0,1.)));
-      invcostheta1y = 1.e9;
-      if(fabs(denom) > 0.) invcostheta1y = 1./denom;
+
+      XYZVector zaxis(0,0,1);
+      XYZVector planeVec1=(zaxis.Cross(layer1dir)).Unit();
+      locToGlobal1_=Transform3D(Point(0,0,0),
+				Point(0,0,1),
+				Point(1,0,0),
+				(Point)psLayer1Entrance_,
+				(Point)(psLayer1Entrance_+layer1dir),
+				(Point)(psLayer1Entrance_+planeVec1));
+
+      anglecorrection1_ = fabs(zaxis.Dot(layer1dir));
+      if(anglecorrection1_!=0.) anglecorrection1_ = 1./anglecorrection1_;
+      //      std::cout << " Layer 1 entrance " << psLayer1Entrance_ << std::endl;
+      //      std::cout << " Layer 1 corr " << anglecorrection1_ << std::endl;
     }
 
   // Layer 2
@@ -63,22 +65,20 @@ PreshowerHitMaker::PreshowerHitMaker(
       Plane3D plan2(0.,0.,1.,-z*myCalorimeter->preshowerZPosition(2));
       
       psLayer2Entrance_ = intersect(plan2,layer2entrance,layer2entrance+layer2dir,dummyt,false);
-      x2=psLayer2Entrance_.x();
-      y2=psLayer2Entrance_.y();
-      z2=psLayer2Entrance_.z();
-      XYZVector dirx = XYZVector(psLayer2Entrance_.x(),0,psLayer2Entrance_.z());
-      XYZVector diry = XYZVector(0,psLayer2Entrance_.y(),psLayer2Entrance_.z());
-      dirx=dirx.Unit();
-      diry=diry.Unit();
+
+      XYZVector zaxis(0,0,1);
+      XYZVector planeVec2=(zaxis.Cross(layer2dir)).Unit();
+      locToGlobal2_=Transform3D(Point(0,0,0),
+				Point(0,0,1),
+				Point(1,0,0),
+			       (Point)psLayer2Entrance_,
+			       (Point)(psLayer2Entrance_+layer2dir),
+			       (Point)(psLayer2Entrance_+planeVec2));
       
-      
-      double denom = fabs(dirx.Dot(XYZVector(0,0,1.)));
-      invcostheta2x = 1.e9;
-      if(fabs(denom) > 0.) invcostheta2x = 1./denom;
-      
-      denom = fabs(diry.Dot(XYZVector(0,0,1.)));
-      invcostheta2y = 1.e9;
-      if(fabs(denom) > 0.) invcostheta2y = 1./denom;      
+      anglecorrection2_ = fabs(zaxis.Dot(layer2dir));
+      if(anglecorrection2_!=0.) anglecorrection2_ = 1./anglecorrection2_;
+      //      std::cout << " Layer 2 entrance " << psLayer2Entrance_ << std::endl;
+      //      std::cout << " Layer 2 corr " << anglecorrection2_ << std::endl;
     }
   //  theGenerator=LandauFluctuationGenerator();
 }
@@ -90,15 +90,18 @@ PreshowerHitMaker::addHit(double r,double phi,unsigned layer)
   if((layer==1&&!layer1valid_)||((layer==2&&!layer2valid_))) return false;
 
   r*=moliereRadius;
-  XYZPoint point = (layer==1) ? 
-    XYZPoint(x1+r*invcostheta1x*std::cos(phi),y1+r*invcostheta1y*std::sin(phi),z1) : 
-    XYZPoint(x2+r*invcostheta2x*std::cos(phi),y2+r*invcostheta2y*std::sin(phi),z2);
-  
+  XYZPoint point (r*std::cos(phi),r*std::sin(phi),0.);
+  point =  (layer==1) ? locToGlobal1_((Point)point) : locToGlobal2_((Point)point);
+  //  std::cout << "  Point " << point  << std::endl;
+  int z=(point.z()>0) ? 1: -1;
+  point = XYZPoint(point.x(),point.y(),z*myCalorimeter->preshowerZPosition(layer));
+  //  std::cout << "r " << r << "  Point after " << point  << std::endl;
   //  std::cout << " Layer " << layer << " " << point << std::endl;
   DetId strip = myCalorimeter->getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(point.x(),point.y(),point.z()),layer);
 
   float meanspot=(layer==1) ? mip1_ : mip2_; 
   float spote = meanspot + 0.000021*theGenerator->landau();
+  spote *= ( (layer==1) ? anglecorrection1_ : anglecorrection2_ );
 
   if(!strip.null())
     {
@@ -111,9 +114,11 @@ PreshowerHitMaker::addHit(double r,double phi,unsigned layer)
 	}
       else
 	{
-	  cellitr->second+=spotEnergy;
+	  cellitr->second+=spote;
 	}  
+      //      std::cout << " found " << stripNumber << " " << spote <<std::endl;
       return true;
     }
+  //  std::cout << "  Could not find a cell " << point << std::endl;
   return false;
 }

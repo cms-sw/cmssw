@@ -2,6 +2,7 @@
 #define PreshowerHitMaker_h
 
 #include "FastSimulation/CaloHitMakers/interface/CaloHitMaker.h"
+#include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
 
 class CaloGeometryHelper;
 class LandauFluctuationGenerator;
@@ -12,21 +13,22 @@ class PreshowerHitMaker : public CaloHitMaker
 
   typedef math::XYZVector XYZVector;
   typedef math::XYZVector XYZPoint;
+  typedef ROOT::Math::Transform3DPJ Transform3D;
 
   PreshowerHitMaker(CaloGeometryHelper * calo, 
 		    const XYZPoint & , 
-		    const XYZVector& ,
+		    const XYZVector& , 
 		    const XYZPoint& ,
 		    const XYZVector&,
 		    const LandauFluctuationGenerator* aGenerator);
 
-  ~PreshowerHitMaker() {;}
-  // currently deprecated 
+  ~PreshowerHitMaker() {;} 
+  
   inline void setSpotEnergy(double e) { spotEnergy=e;} 
-  // for tuning
-  inline void setMipEnergy(double e1, double e2) { mip1_=e1 ; mip2_=e2;} 
   bool addHit(double r,double phi,unsigned layer=0);
   const std::map<unsigned,float>& getHits() { return hitMap_ ;} ;
+ // for tuning
+  inline void setMipEnergy(double e1, double e2) { mip1_=e1 ; mip2_=e2;} 
 
 
  private:
@@ -37,12 +39,10 @@ class PreshowerHitMaker : public CaloHitMaker
   XYZVector psLayer2Dir_;
   bool layer1valid_;
   bool layer2valid_;
-  double invcostheta1x;
-  double invcostheta1y;
-  double invcostheta2x;
-  double invcostheta2y;
-  double x1,y1,z1;
-  double x2,y2,z2;
+  Transform3D locToGlobal1_;
+  Transform3D locToGlobal2_;
+  float anglecorrection1_;
+  float anglecorrection2_;
   double mip1_,mip2_;
 
   /// The Landau Fluctuation generator
