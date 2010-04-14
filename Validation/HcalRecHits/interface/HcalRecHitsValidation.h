@@ -39,6 +39,21 @@
 #include <cmath>
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
+// channel status
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+
+// severity level assignment for HCAL
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
+
+// severity level assignment for ECAL
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+
 
 class HcalRecHitsValidation : public edm::EDAnalyzer {
  public:
@@ -76,6 +91,20 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   int etype_;
   int iz;
   int imc;
+
+  // added by lhx
+  // for checking the status of ECAL and HCAL channels stored in the DB 
+  const HcalChannelQuality* theHcalChStatus;
+  // calculator of severety level for HCAL
+  const HcalSeverityLevelComputer* theHcalSevLvlComputer;
+  int hcalSevLvl(const CaloRecHit* hit);
+
+  std::vector<int> hcalHBSevLvlVec, hcalHESevLvlVec, hcalHFSevLvlVec, hcalHOSevLvlVec;
+
+  MonitorElement* sevLvl_HB;
+  MonitorElement* sevLvl_HE;
+  MonitorElement* sevLvl_HF;
+  MonitorElement* sevLvl_HO; // end by lhx
 
   // RecHits counters
   MonitorElement* Nhb;

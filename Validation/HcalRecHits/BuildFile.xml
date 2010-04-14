@@ -11,6 +11,11 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/HcalObjects"/>
+<use   name="RecoLocalCalo/HcalRecAlgos"/>
+<use   name="RecoLocalCalo/EcalRecAlgos"/>
 <use   name="clhep"/>
 <use   name="hepmc"/>
 <export>
