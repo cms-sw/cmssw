@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:     Core
-// Class  :     FWGenParticle3DProxyBuilder
+// Class  :     FWGenParticleProxyBuilder
 //
-/**\class FWGenParticle3DProxyBuilder FWGenParticle3DProxyBuilder.h Fireworks/GenParticle/interface/FWGenParticle3DProxyBuilder.h
+/**\class FWGenParticleProxyBuilder 
 
    Description: <one line class summary>
 
@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWGenParticle3DProxyBuilder.cc,v 1.7 2010/04/07 14:15:06 amraktad Exp $
+// $Id: FWGenParticleProxyBuilder.cc,v 1.8 2010/04/07 14:24:38 yana Exp $
 // 
 
 #include "TDatabasePDG.h"
@@ -27,19 +27,19 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
-class FWGenParticle3DProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GenParticle> {
+class FWGenParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GenParticle> {
 
 public:
-   FWGenParticle3DProxyBuilder();
-   virtual ~FWGenParticle3DProxyBuilder() {}
+   FWGenParticleProxyBuilder() {}
+   virtual ~FWGenParticleProxyBuilder() {}
 
    // ---------- member functions ---------------------------
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWGenParticle3DProxyBuilder(const FWGenParticle3DProxyBuilder&); // stop default
+   FWGenParticleProxyBuilder(const FWGenParticleProxyBuilder&); // stop default
 
-   const FWGenParticle3DProxyBuilder& operator=(const FWGenParticle3DProxyBuilder&); // stop default
+   const FWGenParticleProxyBuilder& operator=(const FWGenParticleProxyBuilder&); // stop default
    
    void build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
 
@@ -49,14 +49,10 @@ private:
 
 //______________________________________________________________________________
 
-TDatabasePDG* FWGenParticle3DProxyBuilder::s_pdg = 0;
-
-FWGenParticle3DProxyBuilder::FWGenParticle3DProxyBuilder()
-{
-}
+TDatabasePDG* FWGenParticleProxyBuilder::s_pdg = 0;
 
 void
-FWGenParticle3DProxyBuilder::build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder) const
+FWGenParticleProxyBuilder::build(const reco::GenParticle& iData, unsigned int iIndex, TEveElement& oItemHolder) const
 {
    if (!s_pdg)
       s_pdg = new TDatabasePDG();
@@ -68,11 +64,11 @@ FWGenParticle3DProxyBuilder::build(const reco::GenParticle& iData, unsigned int 
    else
       sprintf(s,"gen pdg %d, Pt: %0.1f GeV", iData.pdgId(), iData.pt());
 
-   TEveTrack* trk = fireworks::prepareCandidate( iData, context().getTrackPropagator(), item()->defaultDisplayProperties().color() );    
+   TEveTrack* trk = fireworks::prepareCandidate( iData, context().getTrackPropagator() );    
    trk->MakeTrack();
    trk->SetTitle(s);
    oItemHolder.AddElement( trk );
 }
 
-REGISTER_FWPROXYBUILDER(FWGenParticle3DProxyBuilder,reco::GenParticle,"GenParticles", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWGenParticleProxyBuilder, reco::GenParticle, "GenParticles", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
 
