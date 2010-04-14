@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/03/27 20:30:37 $
- * $Revision: 1.206 $
+ * $Date: 2010/03/28 09:21:48 $
+ * $Revision: 1.207 $
  * \author G. Della Ricca
  *
 */
@@ -1899,8 +1899,8 @@ void EBSummaryClient::analyze(void) {
         float val_po = mePedestalOnline_->getBinContent(ipx,iex);
         float val_tm = meTiming_->getBinContent(ipx,iex);
         float val_sf = meStatusFlags_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
-	// float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
-	float val_ee = 1;
+        // float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
+        float val_ee = 1;
 
         // combine all the available wavelenghts in unique laser status
         // for each laser turn dark color and yellow into bright green
@@ -1949,6 +1949,7 @@ void EBSummaryClient::analyze(void) {
         else if(val_po==2 || val_ls==2 || val_tm==2 || val_sf==2 || val_ee==2) xval=2;
         else xval=1;
 
+std::cout << 104 << std::endl;
         // if the SM is entirely not read, the masked channels
         // are reverted back to yellow
         float iEntries=0;
@@ -1968,6 +1969,7 @@ void EBSummaryClient::analyze(void) {
             }
           }
         }
+std::cout << 105 << std::endl;
 
         if ( iEntries==0 ) {
           xval=2;
