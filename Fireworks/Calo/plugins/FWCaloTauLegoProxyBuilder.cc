@@ -3,7 +3,7 @@
 //
 
 // include files
-#include "Fireworks/Core/interface/FW3DLegoSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "TEveElement.h"
 #include "TColor.h"
@@ -17,7 +17,7 @@
 #include "DataFormats/TauReco/interface/CaloTauFwd.h"
 
 
-class FWCaloTauLegoProxyBuilder : public FW3DLegoSimpleProxyBuilderTemplate<reco::CaloTau> {
+class FWCaloTauLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::CaloTau> {
    
 public:
    FWCaloTauLegoProxyBuilder(){}
@@ -52,4 +52,4 @@ FWCaloTauLegoProxyBuilder::build(const reco::CaloTau& iData, unsigned int iIndex
   tList.AddElement(container);
 }
 
-REGISTER_FW3DLEGODATAPROXYBUILDER(FWCaloTauLegoProxyBuilder,reco::CaloTau,"CaloTau");
+REGISTER_FWPROXYBUILDER(FWCaloTauLegoProxyBuilder,reco::CaloTau,"CaloTau", FWViewType::kLego);

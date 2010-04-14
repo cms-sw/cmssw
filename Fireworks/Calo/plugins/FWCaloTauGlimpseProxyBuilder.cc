@@ -1,9 +1,9 @@
 // -*- C++ -*-
-// $Id: FWGlimpseProxyBuilder 2009/04/27 Yanjun Tu $
+// $Id: FWCaloTauGlimpseProxyBuilder.cc,v 1.1 2009/05/04 23:57:42 yanjuntu Exp $
 //
 
 // include files
-#include "Fireworks/Core/interface/FWGlimpseSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauFwd.h"
@@ -20,7 +20,7 @@
 #include "Fireworks/Calo/interface/FWGlimpseEveJet.h"
 // #include "TEvePointSet.h"
 
-class FWCaloTauGlimpseProxyBuilder : public FWGlimpseSimpleProxyBuilderTemplate<reco::CaloTau> {
+class FWCaloTauGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::CaloTau> {
    
 public:
    FWCaloTauGlimpseProxyBuilder(){}
@@ -50,4 +50,4 @@ FWCaloTauGlimpseProxyBuilder::build(const reco::CaloTau& tau, unsigned int iInde
   tList.AddElement(cone);
 }
 
-REGISTER_FWGLIMPSEDATAPROXYBUILDER(FWCaloTauGlimpseProxyBuilder,reco::CaloTau,"CaloTau");
+REGISTER_FWPROXYBUILDER(FWCaloTauGlimpseProxyBuilder,reco::CaloTau,"CaloTau", FWViewType::kGlimpse);

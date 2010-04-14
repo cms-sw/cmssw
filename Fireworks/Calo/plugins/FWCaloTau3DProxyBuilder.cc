@@ -1,16 +1,16 @@
 // -*- C++ -*-
-// $Id: FW3DProxyBuilder. 2009/04/27 13:58:53 Yanjun Tu Exp $
+// $Id: FWCaloTau3DProxyBuilder.cc,v 1.1 2009/05/04 23:57:42 yanjuntu Exp $
 //
 
 // include files
-#include "Fireworks/Core/interface/FW3DSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Calo/interface/FW3DEveJet.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauFwd.h"
 
 
-class FWCaloTau3DProxyBuilder : public FW3DSimpleProxyBuilderTemplate<reco::CaloTau>  {
+class FWCaloTau3DProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::CaloTau>  {
    
 public:
    FWCaloTau3DProxyBuilder(){}
@@ -50,4 +50,4 @@ FWCaloTau3DProxyBuilder::buildTau3D(const FWEventItem* iItem,
   container.AddElement( cone );
 }
 
-REGISTER_FW3DDATAPROXYBUILDER(FWCaloTau3DProxyBuilder,reco::CaloTau,"CaloTau");
+REGISTER_FWPROXYBUILDER(FWCaloTau3DProxyBuilder,reco::CaloTau,"CaloTau", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

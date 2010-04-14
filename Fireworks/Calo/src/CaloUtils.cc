@@ -4,7 +4,7 @@
 
 namespace fireworks {
 
-   void addBox(const std::vector<TEveVector> &corners, Color_t color, class TEveElement &oItemHolder)
+   void addBox(const std::vector<TEveVector> &corners, class TEveElement &oItemHolder)
    {
       const Float_t box[8*3] = { corners[0].fX,  corners[0].fY, corners[0].fZ, 
 				 corners[1].fX,  corners[1].fY, corners[1].fZ, 
@@ -19,12 +19,11 @@ namespace fireworks {
       eveBox->SetPickable(true);
       eveBox->SetVertices(box);
       eveBox->SetDrawFrame(false);
-      eveBox->SetMainColor(color);
 	    
       oItemHolder.AddElement(eveBox);
    }
 
-   void addInvertedBox(const std::vector<TEveVector> &corners, Color_t color, class TEveElement &oItemHolder)
+   void addInvertedBox(const std::vector<TEveVector> &corners, class TEveElement &oItemHolder)
    {
       const Float_t box[8*3] = {corners[3].fX,  corners[3].fY, corners[3].fZ, 	 
 				corners[2].fX,  corners[2].fY, corners[2].fZ, 	 
@@ -39,12 +38,11 @@ namespace fireworks {
       eveBox->SetPickable(true);
       eveBox->SetVertices(box);
       eveBox->SetDrawFrame(false);
-      eveBox->SetMainColor(color);
 	    
       oItemHolder.AddElement(eveBox);
    }
 
-   void drawEnergyScaledBox3D(std::vector<TEveVector> &corners, Float_t scale, Color_t color, class TEveElement &oItemHolder)
+   void drawEnergyScaledBox3D(std::vector<TEveVector> &corners, Float_t scale, class TEveElement &oItemHolder)
    {
       TEveVector centre = corners[0] + corners[1] + corners[2] + corners[3] + corners[4] + corners[5] + corners[6] + corners[7];
       centre.Set(centre.fX / 8.0, centre.fY / 8.0, centre.fZ / 8.0);
@@ -53,10 +51,10 @@ namespace fireworks {
       for(size_t i = 0; i < 8; ++i)
 	corners[i] = centre + (corners[i]-centre)*scale;
       
-      addInvertedBox(corners, color, oItemHolder);
+      addInvertedBox(corners, oItemHolder);
    }
 
-   void drawTransverseEnergyScaledBox3D(std::vector<TEveVector> &corners, Float_t scale, Color_t color, class TEveElement &oItemHolder)
+   void drawTransverseEnergyScaledBox3D(std::vector<TEveVector> &corners, Float_t scale, class TEveElement &oItemHolder)
    {
       TEveVector centre = corners[0] + corners[1] + corners[2] + corners[3] + corners[4] + corners[5] + corners[6] + corners[7];
       centre.Set(centre.fX / 8.0, centre.fY / 8.0, centre.fZ / 8.0);
@@ -68,10 +66,10 @@ namespace fireworks {
       for(size_t i = 0; i < 8; ++i)
 	corners[i] = centre + (corners[i]-centre)*et;
       
-      addInvertedBox(corners, color, oItemHolder);
+      addInvertedBox(corners, oItemHolder);
    }
   
-   void drawEnergyTower3D(std::vector<TEveVector> &corners, Float_t scale, Color_t color, class TEveElement &oItemHolder)
+   void drawEnergyTower3D(std::vector<TEveVector> &corners, Float_t scale, class TEveElement &oItemHolder)
    {
       // Coordinates of a back face scaled 
       for(size_t i = 4; i < 8; ++i)
@@ -80,10 +78,10 @@ namespace fireworks {
 	diff.Normalize();
 	corners[i] = corners[i] + (diff * scale);
       }
-      addBox(corners, color, oItemHolder);
+      addBox(corners, oItemHolder);
    }
   
-   void drawTransverseEnergyTower3D(std::vector<TEveVector> &corners, Float_t scale, Color_t color, class TEveElement &oItemHolder)
+   void drawTransverseEnergyTower3D(std::vector<TEveVector> &corners, Float_t scale, class TEveElement &oItemHolder)
    {
       TEveVector centre = corners[0] + corners[1] + corners[2] + corners[3] + corners[4] + corners[5] + corners[6] + corners[7];
       centre.Set(centre.fX / 8.0, centre.fY / 8.0, centre.fZ / 8.0);
@@ -98,6 +96,6 @@ namespace fireworks {
 	diff.Normalize();
 	corners[i] = corners[i] + (diff * et);
       }
-      addBox(corners, color, oItemHolder);
+      addBox(corners, oItemHolder);
    }
 }

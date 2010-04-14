@@ -1,20 +1,20 @@
-#include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Calo/interface/CaloUtils.h"
-#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
+#include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "TEveCompound.h"
 #include "TEveManager.h"
 
-class FWHBHERecHit3DProxyBuilder : public FW3DDataProxyBuilder
+class FWHORecHitProxyBuilder : public FWProxyBuilderBase
 {
 public:
-   FWHBHERecHit3DProxyBuilder(void)
-     : m_maxEnergy(0.85)
+   FWHORecHitProxyBuilder(void) 
+     : m_maxEnergy(1.0)
     {}
   
-   virtual ~FWHBHERecHit3DProxyBuilder(void) 
+   virtual ~FWHORecHitProxyBuilder(void) 
     {}
 
    REGISTER_PROXYBUILDER_METHODS();
@@ -25,18 +25,18 @@ private:
    Float_t m_maxEnergy;
 
    // Disable default copy constructor
-   FWHBHERecHit3DProxyBuilder(const FWHBHERecHit3DProxyBuilder&);
+   FWHORecHitProxyBuilder(const FWHORecHitProxyBuilder&);
    // Disable default assignment operator
-   const FWHBHERecHit3DProxyBuilder& operator=(const FWHBHERecHit3DProxyBuilder&);
+   const FWHORecHitProxyBuilder& operator=(const FWHORecHitProxyBuilder&);
 };
 
 void
-FWHBHERecHit3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWHORecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
 
    if(0 == tList) {
-      tList = new TEveElementList(iItem->name().c_str(), "hbheRechits", true);
+      tList = new TEveElementList(iItem->name().c_str(), "hoRechits", true);
       *product = tList;
       tList->SetMainColor(iItem->defaultDisplayProperties().color());
       gEve->AddElement(tList);
@@ -44,31 +44,30 @@ FWHBHERecHit3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       tList->DestroyElements();
    }
 
-   const HBHERecHitCollection* collection = 0;
+   const HORecHitCollection* collection = 0;
    iItem->get(collection);
 
    if(0 == collection)
    {
       return;
    }
-   std::vector<HBHERecHit>::const_iterator it = collection->begin();
-   std::vector<HBHERecHit>::const_iterator itEnd = collection->end();
+   std::vector<HORecHit>::const_iterator it = collection->begin();
+   std::vector<HORecHit>::const_iterator itEnd = collection->end();
    for(; it != itEnd; ++it)
    {
       if ((*it).energy() > m_maxEnergy)
 	m_maxEnergy = (*it).energy();
    }
-   Color_t color = iItem->defaultDisplayProperties().color();
-   
+
    unsigned int index = 0;
    for(it = collection->begin(); it != itEnd; ++it, ++index)
    {
       Float_t energy = (*it).energy();
-
+   
       std::stringstream s;
-      s << "HBHE RecHit " << index << ", energy: " << energy << " GeV";
+      s << "HO RecHit " << index << ", energy: " << energy << " GeV";
 
-      TEveCompound* compund = new TEveCompound("hbhe compound", s.str().c_str());
+      TEveCompound* compund = new TEveCompound("ho compound", s.str().c_str());
       compund->OpenCompound();
       tList->AddElement(compund);
       
@@ -76,9 +75,9 @@ FWHBHERecHit3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       if( corners.empty() ) {
 	return;
       }
-   
-      fireworks::drawEnergyScaledBox3D(corners, energy / m_maxEnergy, color, *compund);
+
+      fireworks::drawEnergyScaledBox3D(corners, energy / m_maxEnergy, *compund);
    }
 }
 
-REGISTER_FW3DDATAPROXYBUILDER(FWHBHERecHit3DProxyBuilder, HBHERecHitCollection, "HBHE RecHit");
+REGISTER_FWPROXYBUILDER(FWHORecHitProxyBuilder, HORecHitCollection, "HO RecHit", FWViewType::kISpy);
