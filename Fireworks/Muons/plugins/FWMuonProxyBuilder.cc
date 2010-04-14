@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Muons
-// Class  :     FWMuonsProxyBuilder
+// Class  :     FWMuonProxyBuilder
 //
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:28:07 EST 2008
-// $Id: FWMuonsProxyBuilder.cc,v 1.3 2010/04/08 13:09:33 yana Exp $
+// $Id: FWMuonProxyBuilder.cc,v 1.1 2010/04/08 14:58:45 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -20,18 +20,18 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-class FWMuonsProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>  {
+class FWMuonProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>  {
 
 public:
-   FWMuonsProxyBuilder() {}
-   virtual ~FWMuonsProxyBuilder() {}
+   FWMuonProxyBuilder() {}
+   virtual ~FWMuonProxyBuilder() {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWMuonsProxyBuilder(const FWMuonsProxyBuilder&); // stop default
+   FWMuonProxyBuilder(const FWMuonProxyBuilder&); // stop default
 
-   const FWMuonsProxyBuilder& operator=(const FWMuonsProxyBuilder&); // stop default
+   const FWMuonProxyBuilder& operator=(const FWMuonProxyBuilder&); // stop default
 
    // ---------- member data --------------------------------
    void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
@@ -40,7 +40,7 @@ private:
 };
 
 void
-FWMuonsProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const
+FWMuonProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const
 {
    m_builder.buildMuon(item(), &iData, &oItemHolder, true, false);
    
@@ -49,18 +49,18 @@ FWMuonsProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveEle
    // m_builder.buildMuon(item(), &iData, &oItemHolder, false, false);
 }
 
-class FWMuonsRhoPhiProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>  {
+class FWMuonRhoPhiProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>  {
 
 public:
-   FWMuonsRhoPhiProxyBuilder() {}
-   virtual ~FWMuonsRhoPhiProxyBuilder() {}
+   FWMuonRhoPhiProxyBuilder() {}
+   virtual ~FWMuonRhoPhiProxyBuilder() {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWMuonsRhoPhiProxyBuilder(const FWMuonsRhoPhiProxyBuilder&); // stop default
+   FWMuonRhoPhiProxyBuilder(const FWMuonRhoPhiProxyBuilder&); // stop default
 
-   const FWMuonsRhoPhiProxyBuilder& operator=(const FWMuonsRhoPhiProxyBuilder&); // stop default
+   const FWMuonRhoPhiProxyBuilder& operator=(const FWMuonRhoPhiProxyBuilder&); // stop default
 
    // ---------- member data --------------------------------
    void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
@@ -69,25 +69,25 @@ private:
 };
 
 void
-FWMuonsRhoPhiProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const
+FWMuonRhoPhiProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const
 {
    // To build in RhoPhi we should simply disable the Endcap drawing
    // by passing a false flag to a muon builder:
    m_builder.buildMuon(item(), &iData, &oItemHolder, false, false);
 }
 
-class FWMuonsLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>  {
+class FWMuonLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>  {
 
 public:
-   FWMuonsLegoProxyBuilder() {}
-   virtual ~FWMuonsLegoProxyBuilder() {}
+   FWMuonLegoProxyBuilder() {}
+   virtual ~FWMuonLegoProxyBuilder() {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWMuonsLegoProxyBuilder(const FWMuonsLegoProxyBuilder&); // stop default
+   FWMuonLegoProxyBuilder(const FWMuonLegoProxyBuilder&); // stop default
 
-   const FWMuonsLegoProxyBuilder& operator=(const FWMuonsLegoProxyBuilder&); // stop default
+   const FWMuonLegoProxyBuilder& operator=(const FWMuonLegoProxyBuilder&); // stop default
 
    // ---------- member data --------------------------------
    void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
@@ -96,7 +96,7 @@ private:
 };
 
 void
-FWMuonsLegoProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const
+FWMuonLegoProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const
 {
    TEvePointSet* points = new TEvePointSet("points");
    oItemHolder.AddElement(points);
@@ -141,6 +141,6 @@ FWMuonsLegoProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEv
 //
 // static member functions
 //
-REGISTER_FWPROXYBUILDER(FWMuonsProxyBuilder, reco::Muon, "Muons", FWViewType::k3DBit | FWViewType::kRhoZBit);
-REGISTER_FWPROXYBUILDER(FWMuonsRhoPhiProxyBuilder, reco::Muon, "Muons", FWViewType::kRhoPhiBit);
-REGISTER_FWPROXYBUILDER(FWMuonsLegoProxyBuilder, reco::Muon, "Muons", FWViewType::kLegoBit);
+REGISTER_FWPROXYBUILDER(FWMuonProxyBuilder, reco::Muon, "Muons", FWViewType::k3DBit | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWMuonRhoPhiProxyBuilder, reco::Muon, "Muons", FWViewType::kRhoPhiBit);
+REGISTER_FWPROXYBUILDER(FWMuonLegoProxyBuilder, reco::Muon, "Muons", FWViewType::kLegoBit);
