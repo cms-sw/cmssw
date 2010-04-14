@@ -40,5 +40,13 @@ namespace {
     reco::PileUpPFCandidateRefVector puc_rv;
     edm::Wrapper<std::vector<reco::PileUpPFCandidate> > puw1;
     reco::PileUpPFCandidatePtr bla5;     
+
+    reco::PFCandidateFwdRef c_fr;
+    edm::reftobase::Holder<reco::Candidate, reco::PFCandidateFwdRef> bla1f; 
+    edm::reftobase::RefHolder<reco::PFCandidateFwdRef> bla2f; 
+    reco::PFCandidateFwdPtr fbla3;     
+    std::vector<reco::PFCandidateFwdRef> bla33f;     
+    std::vector<reco::PFCandidateFwdPtr> bla33fv; 
+    
   };
 }
