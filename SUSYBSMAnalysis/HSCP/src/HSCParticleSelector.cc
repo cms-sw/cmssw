@@ -8,6 +8,7 @@
 #include "DataFormats/Common/interface/View.h"
 
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
+#include "SUSYBSMAnalysis/HSCP/interface/CandidateSelector.h"
 
 //
 // class declaration
@@ -24,8 +25,7 @@ class HSCParticleSelector : public edm::EDProducer {
 
       edm::InputTag sourceTag_;
 
-      float minTkdEdx;
-      float maxMuBeta;
+      std::vector<CandidateSelector*> Selectors;
 };
 
 
@@ -35,12 +35,14 @@ HSCParticleSelector::HSCParticleSelector(const edm::ParameterSet& iConfig)
    // What is being produced
    produces<susybsm::HSCParticleCollection >();
 
-    // Input products
+   // Input products
    sourceTag_     = iConfig.getParameter<edm::InputTag> ("source");
 
-    // matching criteria products
-   minTkdEdx      = iConfig.getParameter<double>  ("minTkdEdx");    // 4.0; 
-   maxMuBeta      = iConfig.getParameter<double>  ("maxMuBeta");    // 0.9; 
+   // Load all the selections
+   std::vector<edm::ParameterSet> SelectionParameters = iConfig.getParameter<std::vector<edm::ParameterSet> >("SelectionParameters");
+   for(unsigned int i=0;i<SelectionParameters.size();i++){
+      Selectors.push_back(new CandidateSelector(SelectionParameters[i]) );
+   }
 } 
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -71,15 +73,15 @@ void HSCParticleSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       susybsm::HSCParticleCollection* output = new susybsm::HSCParticleCollection;
       std::auto_ptr<susybsm::HSCParticleCollection> result(output);
 
-      // cleanup the collection based on MUON AND/OR TK Beta
-      for(susybsm::HSCParticleCollection::iterator hscpcandidate = Source.begin(); hscpcandidate < Source.end(); ++hscpcandidate) {
-         if( hscpcandidate->Tk().dedx() < minTkdEdx)continue;
-         if( hscpcandidate->Dt().invBeta>0 && 1.0/hscpcandidate->Dt().invBeta > maxMuBeta)continue;
-
-         susybsm::HSCParticle* newhscp = new susybsm::HSCParticle(*hscpcandidate);
-         output->push_back(*newhscp);
+      // cleanup the collection based on the input selection
+      for(susybsm::HSCParticleCollection::iterator hscpcandidate = Source.begin(); hscpcandidate < Source.end(); ++hscpcandidate){
+         bool decision = false;
+         for(unsigned int i=0;i<Selectors.size();i++){decision |= Selectors[i]->isSelected(*hscpcandidate);}
+         if(decision){
+            susybsm::HSCParticle* newhscp = new susybsm::HSCParticle(*hscpcandidate);
+            output->push_back(*newhscp);
+         }
       }
-
       iEvent.put(result);
 }
 

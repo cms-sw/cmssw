@@ -9,17 +9,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include <vector>
 
-namespace susybsm {
+#include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 
- class CaloBetaMeasurement
-  {
-   public:
-     float hcalenergy, ecalenergy, hoenergy;
-     float ecal3by3dir, ecal5by5dir;
-     float hcal3by3dir, hcal5by5dir;
-     float trkisodr;
-     float ecaltime, ecalbeta;
-  };
+namespace susybsm {
  
  class RPCHit4D
   {
@@ -39,151 +31,90 @@ namespace susybsm {
      std::vector<RPCHit4D> hits;
      float beta;
   };
- 
- class TimeMeasurement
+
+ class CaloBetaMeasurement
   {
    public:
-     bool isLeft;
-     bool isPhi;
-     float posInLayer;
-     float distIP;
-     int station;
-     DetId driftCell;
+     float hcalenergy, ecalenergy, hoenergy;
+     float ecal3by3dir, ecal5by5dir;
+     float hcal3by3dir, hcal5by5dir;
+     float trkisodr;
+     float ecaltime, ecalbeta;
   };
-
- class DriftTubeTOF
-  {
-   public:
-     float invBeta;
-     float invBetaErr;
-     float invBetaFree;
-     float invBetaFreeErr;
-     float vertexTime;
-     float vertexTimeErr;
-     int nStations;
-     int nHits;
-     std::vector<TimeMeasurement> timeMeasurements;
-  };
-
- typedef  edm::AssociationVector<reco::MuonRefProd,std::vector<DriftTubeTOF> >  MuonTOFCollection;
- typedef  MuonTOFCollection::value_type MuonTOF;
- typedef  edm::Ref<MuonTOFCollection> MuonTOFRef;
- typedef  edm::RefProd<MuonTOFCollection> MuonTOFRefProd;
- typedef  edm::RefVector<MuonTOFCollection> MuonTOFRefVector;
-
- class DeDxBeta 
-  {
-   public:
-      DeDxBeta() { nDeDxHits_ = 0; }
-      DeDxBeta(const reco::TrackRef& tk, float dedx, float dedxe, float k, int hits):
-        track_(tk),dedx_(dedx),dedxerr_(dedxe),k_(k),nDeDxHits_(hits) {}
-      DeDxBeta(const reco::TrackRef& tk, const reco::DeDxData& data, float k):track_(tk),k_(k) {
-        dedx_ = data.dEdx();
-	dedxerr_ = data.dEdxError();
-	nDeDxHits_ = data.numberOfMeasurements();
-      }
-      float dedx() const { return dedx_; }
-      float dedxError() const { return dedxerr_; }
-      float invBeta2() const { return k_*dedx(); }
-      float invBeta2err() const { return k_*dedxError(); }
-      float beta() const { return 1./sqrt(k_*dedx()); }
-      float nDedxHits() const { return nDeDxHits_; }
-      reco::TrackRef track() const { return track_; }
-
-   private:
-      reco::TrackRef track_;
-      float dedx_;
-      float dedxerr_;
-      float k_;
-      int nDeDxHits_;
-  }; 
-
- typedef std::vector<DeDxBeta> DeDxBetaCollection;
 
  class HSCParticle 
   {
    public:
       // constructor
-      HSCParticle():hasCalo(false),hasRpc(false),hasDt(false),hasTk(false),isMuon_(false), isTrack_(false) {}
+      HSCParticle(){
+         hasMuonRef_          = false;
+         hasTrackRef_         = false;
+         hasDedxEstim_        = false;
+         hasDedxDiscrim_      = false;
+         hasMuonTimeDt_       = false;
+         hasMuonTimeCsc_      = false;
+         hasMuonTimeCombined_ = false;
+         hasRpc_              = false;
+         hasCalo_             = false;
+      }
 
       // check available infos
-      bool  isMuon()      const { return isMuon_;    }
-      bool  isTrack()     const { return isTrack_;   }
-
+      bool  hasMuonRef()          const { return hasMuonRef_;          }
+      bool  hasTrackRef()         const { return hasTrackRef_;         }
+      bool  hasDedxEstim()        const { return hasDedxEstim_;        }
+      bool  hasDedxDiscrim()      const { return hasDedxDiscrim_;      }
+      bool  hasMuonTimeDt()       const { return hasMuonTimeDt_;       }
+      bool  hasMuonTimeCsc()      const { return hasMuonTimeCsc_;      }
+      bool  hasMuonTimeCombined() const { return hasMuonTimeCombined_; }
+      bool  hasRpcInfo()          const { return hasRpc_;              }
+      bool  hasCaloInfo()         const { return hasCalo_;             }
 
       // set infos
-      void  setMuon  (reco::MuonRef   data)  { muon_  = data; isMuon_  = true; }
-      void  setTrack (reco::TrackRef  data)  { track_ = data; isTrack_ = true; }
+      void setMuon             (const reco::MuonRef&       data) {muonRef_          = data; hasMuonRef_          = true;}
+      void setTrack            (const reco::TrackRef&      data) {trackRef_         = data; hasTrackRef_         = true;}
+      void setDedxEstimator    (const reco::DeDxData&      data) {dedxEstim_        = data; hasDedxEstim_        = true;}
+      void setDedxDiscriminator(const reco::DeDxData&      data) {dedxDiscrim_      = data; hasDedxDiscrim_      = true;}
+      void setMuonTimeDt       (const reco::MuonTimeExtra& data) {muonTimeDt_       = data; hasMuonTimeDt_       = true;}
+      void setMuonTimeCsc      (const reco::MuonTimeExtra& data) {muonTimeCsc_      = data; hasMuonTimeCsc_      = true;}
+      void setMuonTimeCombined (const reco::MuonTimeExtra& data) {muonTimeCombined_ = data; hasMuonTimeCombined_ = true;}
+      void setRpc              (const RPCBetaMeasurement&  data) {rpc_              = data; hasRpc_              = true;}
+      void setCalo             (const CaloBetaMeasurement& data) {calo_             = data; hasCalo_             = true;}
 
       // get infos
-      reco::TrackRef getTrack()              { return track_; }
-      reco::MuonRef  getMuon ()              { return muon_ ; }
+      reco::TrackRef             trackRef         () const { return trackRef_;        }
+      reco::MuonRef              muonRef          () const { return muonRef_;         }
+      const reco::DeDxData&      dedxEstimator    () const { return dedxEstim_;       }
+      const reco::DeDxData&      dedxDiscriminator() const { return dedxDiscrim_;     }
+      const reco::MuonTimeExtra& muonTimeDt       () const { return muonTimeDt_;      }
+      const reco::MuonTimeExtra& muonTimeCsc      () const { return muonTimeCsc_;     }
+      const reco::MuonTimeExtra& muonTimeCombined () const { return muonTimeCombined_;}
+      const RPCBetaMeasurement&  rpc              () const { return rpc_;             }
+      const CaloBetaMeasurement& calo             () const { return calo_;            }
 
+      // shortcut of long function
+      float p ()  const;
+      float pt()  const;
 
-      // check available infos
-      bool  hasCaloInfo() const { return hasCalo; }
-      bool  hasRpcInfo()  const { return hasRpc;  }
-      bool  hasDtInfo()   const { return hasDt;   }
-      bool  hasTkInfo()   const { return hasTk;   }
-      bool  emptyDTInfo() const { return  ( ! hasDt ) || (dt.nHits ==0  && dt.nStations ==0) ;  }
-      // set infos
-      void  setCalo(const CaloBetaMeasurement& data) { calo = data; hasCalo = true; }
-      void  setRpc(const RPCBetaMeasurement& data)   { rpc = data; hasRpc = true; }
-      void  setDt(const DriftTubeTOF& data)          { dt = data; hasDt = true; }
-      void  setTk(const DeDxBeta& data)              { tk = data; hasTk = true; }
-      // get infos
-      const CaloBetaMeasurement& Calo() const { return calo; }
-      const RPCBetaMeasurement&  Rpc()  const { return rpc; }
-      const DriftTubeTOF&        Dt()   const { return dt; }
-      const DeDxBeta&            Tk()   const { return tk; }
-      CaloBetaMeasurement&       Calo() { return calo; }
-      RPCBetaMeasurement&        Rpc()  { return rpc; }
-      DriftTubeTOF&              Dt()   { return dt; }
-      DeDxBeta&                  Tk()   { return tk; }
-      // physical quantities
-      float p()  const;
-      float pt() const;
-      float massTk()         const { return hasTkInfo() ? track_->p()*sqrt(tk.invBeta2()-1) : 0.; }
-      float massTkError()    const;
-      float massDt()         const { return hasDtInfo() ? muon_->track()->p()*sqrt(dt.invBeta*dt.invBeta-1) : 0.;}
-      float massDtError()    const;
-      float massAvg()        const { return (massTk()+massDt())/2.;}
-      float massAvgError()   const;
-      float massDtComb()     const { return hasDtInfo() ? muon_->combinedMuon()->p()*sqrt(dt.invBeta*dt.invBeta-1) : 0.;}
-      float massDtSta()      const { return hasDtInfo() ? muon_->standAloneMuon()->p()*sqrt(dt.invBeta*dt.invBeta-1) : 0.;}
-      float massDtAssoTk()   const { return hasTkInfo()&&hasDtInfo() ? tk.track()->p()*sqrt(dt.invBeta*dt.invBeta-1) : 0.;}
-      float massDtBest()     const { return hasDtInfo() ? p()*sqrt(dt.invBeta*dt.invBeta-1) : 0.;}
-      float massTkAssoComb() const { return hasTkInfo()&&hasDtInfo() ? muon_->combinedMuon()->p()*sqrt(tk.invBeta2()-1) : 0.;}
-      float betaTk()         const { return hasTkInfo() ? 1/sqrt(tk.invBeta2()) : 1.; }
-      float betaDt()         const { return hasDtInfo() ? 1/dt.invBeta : 1.; }
-      float betaAvg()        const { return 2./(sqrt(tk.invBeta2())+dt.invBeta); }
-      float compatibility()  const { return (sqrt(tk.invBeta2())-dt.invBeta)/
-                                            (sqrt(tk.invBeta2()/tk.nDedxHits())*0.1+dt.invBeta*0.1) ;}
-      float betaEcal()       const { return hasCaloInfo() ? Calo().ecalbeta : 1.; }
-      float betaRpc()        const { return hasRpcInfo() ? Rpc().beta : 1.; }
-      // check if tracks are available
-      bool  hasMuonTrack()         const { return hasDt && muon_->track().isNonnull(); }
-      bool  hasMuonStaTrack()      const { return hasDt && muon_->standAloneMuon().isNonnull(); }
-      bool  hasMuonCombinedTrack() const { return hasDt && muon_->combinedMuon().isNonnull(); }
-      bool  hasTrackerTrack()      const { return hasTk; }
-      // retreive the tracks (! no implicit protection. Call methods above first.)
-      const reco::Track& muonTrack()     const { return *muon_->track(); } 
-      const reco::Track& staTrack()      const { return *muon_->standAloneMuon(); } 
-      const reco::Track& combinedTrack() const { return *muon_->combinedMuon(); } 
-      const reco::Track& trackerTrack()  const { return *track_; } 
    private:
-      bool hasCalo;
-      bool hasRpc;
-      bool hasDt;
-      bool hasTk;
-      bool isMuon_;
-      bool isTrack_;
-      reco::TrackRef track_;
-      reco::MuonRef  muon_;
-      DriftTubeTOF  dt;
-      DeDxBeta tk;
-      RPCBetaMeasurement rpc;
-      CaloBetaMeasurement calo;
+      bool hasMuonRef_;
+      bool hasTrackRef_;
+      bool hasDedxEstim_;
+      bool hasDedxDiscrim_;
+      bool hasMuonTimeDt_;
+      bool hasMuonTimeCsc_;
+      bool hasMuonTimeCombined_;
+      bool hasRpc_;
+      bool hasCalo_;
+
+      reco::TrackRef      trackRef_;
+      reco::MuonRef       muonRef_;
+      reco::DeDxData      dedxEstim_;
+      reco::DeDxData      dedxDiscrim_;
+      reco::MuonTimeExtra muonTimeDt_;
+      reco::MuonTimeExtra muonTimeCsc_;
+      reco::MuonTimeExtra muonTimeCombined_;
+      RPCBetaMeasurement  rpc_;
+      CaloBetaMeasurement calo_;
   };
 
   typedef  std::vector<HSCParticle> HSCParticleCollection;

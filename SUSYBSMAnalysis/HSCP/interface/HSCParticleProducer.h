@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.h,v 1.1 2010/04/14 13:05:02 querten Exp $
+// $Id: HSCParticleProducer.h,v 1.2 2010/04/14 14:43:19 querten Exp $
 
 
 // system include files
@@ -38,6 +38,7 @@
 #include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorMUON.h"
 #include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorRPC.h"
 #include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorECAL.h"
+#include "SUSYBSMAnalysis/HSCP/interface/CandidateSelector.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
@@ -81,13 +82,12 @@ class HSCParticleProducer : public edm::EDProducer {
     float        minDR;
     float        maxInvPtDiff;
 
-    float        minTkdEdx;
-    float        maxMuBeta;
+    BetaCalculatorTK*   beta_calculator_TK;
+    BetaCalculatorMUON* beta_calculator_MUON;
+    BetaCalculatorRPC*  beta_calculator_RPC;
+    BetaCalculatorECAL* beta_calculator_ECAL;
 
-    Beta_Calculator_TK*   beta_calculator_TK;
-    Beta_Calculator_MUON* beta_calculator_MUON;
-    Beta_Calculator_RPC*  beta_calculator_RPC;
-    Beta_Calculator_ECAL* beta_calculator_ECAL;
+    std::vector<CandidateSelector*> Selectors;
 };
 
 

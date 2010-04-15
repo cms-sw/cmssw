@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    HSCP_TreeBuilder
-// Class:      HSCP_TreeBuilder
+// Package:    HSCPTreeBuilder
+// Class:      HSCPTreeBuilder
 // 
-/**\class HSCP_TreeBuilder HSCP_TreeBuilder.cc SUSYBSMAnalysis/HSCP/src/HSCP_TreeBuilder.cc
+/**\class HSCPTreeBuilder HSCPTreeBuilder.cc SUSYBSMAnalysis/HSCP/src/HSCPTreeBuilder.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Thu Mar 11 12:19:07 CEST 2010
-// $Id: HSCP_TreeBuilder.cc,v 1.3 2010/04/13 16:15:31 querten Exp $
+// $Id: HSCPTreeBuilder.cc,v 1.1 2010/04/14 13:05:03 querten Exp $
 //
 
 
@@ -117,10 +117,10 @@ using namespace __gnu_cxx;
 #define MAX_MUONS    10000
 #define MAX_GENS     10000
 
-class HSCP_TreeBuilder : public edm::EDFilter {
+class HSCPTreeBuilder : public edm::EDFilter {
 	public:
-		explicit HSCP_TreeBuilder(const edm::ParameterSet&);
-		~HSCP_TreeBuilder();
+		explicit HSCPTreeBuilder(const edm::ParameterSet&);
+		~HSCPTreeBuilder();
 
 
 	private:
@@ -254,7 +254,7 @@ class HSCP_TreeBuilder : public edm::EDFilter {
                 bool          reccordGenInfo;
 };
 
-HSCP_TreeBuilder::HSCP_TreeBuilder(const edm::ParameterSet& iConfig)
+HSCPTreeBuilder::HSCPTreeBuilder(const edm::ParameterSet& iConfig)
 {
    m_tracksTag         = iConfig.getParameter<InputTag>              ("tracks");
    m_dEdxDiscrimTag    = iConfig.getParameter<std::vector<InputTag> >("dEdxDiscrim");  
@@ -278,12 +278,12 @@ HSCP_TreeBuilder::HSCP_TreeBuilder(const edm::ParameterSet& iConfig)
 }
 
 
-HSCP_TreeBuilder::~HSCP_TreeBuilder()
+HSCPTreeBuilder::~HSCPTreeBuilder()
 {
 }
 
 void
-HSCP_TreeBuilder::beginJob()
+HSCPTreeBuilder::beginJob()
 {
    Track_dEdx     = new float       *[m_dEdxDiscrimTag.size()];
    Track_dEdx_NOS = new float       *[m_dEdxDiscrimTag.size()];
@@ -418,17 +418,17 @@ HSCP_TreeBuilder::beginJob()
 }
 
 void
-HSCP_TreeBuilder::endJob() 
+HSCPTreeBuilder::endJob() 
 {
 }
 
 
 
 bool
-HSCP_TreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    bool debug = false;
-   if (debug) cout << "I'm in HSCP_TreeBuilder::analyze!" << endl;
+   if (debug) cout << "I'm in HSCPTreeBuilder::analyze!" << endl;
 
 
    Event_EventNumber     = iEvent.id().event();
@@ -489,20 +489,22 @@ HSCP_TreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::vector<reco::MuonRef> MuonVector;
    if(reccordMuonInfo){
       edm::Handle<reco::MuonCollection> muonCollectionHandle;
-      try { iEvent.getByLabel(m_muonsTag,muonCollectionHandle);   } catch (...) {;}
+      iEvent.getByLabel(m_muonsTag,muonCollectionHandle);
       reco::MuonCollection muonCollection = *muonCollectionHandle.product();
 
       Handle<reco::MuonTimeExtraMap> timeMapDT_h;
-      try { iEvent.getByLabel("muontiming","dt",timeMapDT_h);    } catch (...) {;}
-      const reco::MuonTimeExtraMap & timeMapDT = *timeMapDT_h;
-
       Handle<reco::MuonTimeExtraMap> timeMapCSC_h;
-      try { iEvent.getByLabel("muontiming","csc",timeMapCSC_h);    } catch (...) {;}
-      const reco::MuonTimeExtraMap & timeMapCSC = *timeMapCSC_h;
-
       Handle<reco::MuonTimeExtraMap> timeMapCmb_h;
-      try { iEvent.getByLabel("muontiming","combined",timeMapCmb_h);    } catch (...) {;}
+
+      if(muonCollection.size()){
+         iEvent.getByLabel(m_muontimingTag.label(),"dt",timeMapDT_h);
+         iEvent.getByLabel(m_muontimingTag.label(),"csc",timeMapCSC_h);
+         iEvent.getByLabel(m_muontimingTag.label(),"combined",timeMapCmb_h);
+      }
+      const reco::MuonTimeExtraMap & timeMapDT = *timeMapDT_h;
+      const reco::MuonTimeExtraMap & timeMapCSC = *timeMapCSC_h;
       const reco::MuonTimeExtraMap & timeMapCmb = *timeMapCmb_h;
+
 
 
       NMuons = 0;
@@ -651,7 +653,7 @@ HSCP_TreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
-int HSCP_TreeBuilder::ClosestMuonIndex(reco::TrackRef track, std::vector<reco::MuonRef> muons){
+int HSCPTreeBuilder::ClosestMuonIndex(reco::TrackRef track, std::vector<reco::MuonRef> muons){
    double RMin      = 1000;
    int    MuonIndex = -1;
    for (unsigned int i=0; i<muons.size(); i++){
@@ -668,7 +670,7 @@ int HSCP_TreeBuilder::ClosestMuonIndex(reco::TrackRef track, std::vector<reco::M
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HSCP_TreeBuilder);
+DEFINE_FWK_MODULE(HSCPTreeBuilder);
 
 
 

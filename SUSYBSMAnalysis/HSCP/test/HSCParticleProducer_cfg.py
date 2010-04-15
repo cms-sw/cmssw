@@ -6,7 +6,7 @@ process = cms.Process("EXOHSCPAnalysis")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
 #number of Events to be skimmed.
 process.maxEvents = cms.untracked.PSet(
@@ -80,18 +80,24 @@ process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
 
+
+from SUSYBSMAnalysis.HSCP.HSCPSelections_cff import *
+
 process.HSCParticleProducer = cms.EDProducer("HSCParticleProducer",
    TrackAssociatorParameterBlock,
 
    useBetaFromTk      = cms.bool(True),
    useBetaFromMuon    = cms.bool(True),
-   useBetaFromRpc     = cms.bool(False),
+   useBetaFromRpc     = cms.bool(True),
    useBetaFromEcal    = cms.bool(False),
 
    tracks             = cms.InputTag("TrackRefitter"),
    muons              = cms.InputTag("muons"),
-   dEdXEstimator      = cms.InputTag("dedxNPHarm2"),
-   muontiming         = cms.InputTag("muons:combined"),
+   dedxEstimator      = cms.InputTag("dedxNPHarm2"),
+   dedxDiscriminator  = cms.InputTag("dedxNPHarm2"),
+   muontimingDt       = cms.InputTag("muons:dt"),
+   muontimingCsc      = cms.InputTag("muons:csc"),
+   muontimingCombined = cms.InputTag("muons:combined"),
 
    minTkP             = cms.double(2),
    maxTkChi2          = cms.double(5),
@@ -105,14 +111,19 @@ process.HSCParticleProducer = cms.EDProducer("HSCParticleProducer",
    minTkdEdx          = cms.double(2.0),
    maxMuBeta          = cms.double(0.9),
 
+   SelectionParameters = cms.VPSet(
+      HSCPSelectionDefault,
+   ),
 )
 
 
 process.HSCParticleSelector = cms.EDProducer("HSCParticleSelector",
-   source             = cms.InputTag("HSCParticleProducer"),
+   source = cms.InputTag("HSCParticleProducer"),
 
-   minTkdEdx          = cms.double(4.0),
-   maxMuBeta          = cms.double(0.9),
+   SelectionParameters = cms.VPSet(
+      HSCPSelectionHighdEdx, #THE OR OF THE TWO SELECTION WILL BE APPLIED
+      HSCPSelectionHighTOF,
+   ),
 )
 
 process.TFileService = cms.Service("TFileService",

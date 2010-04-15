@@ -1,27 +1,32 @@
 #include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorECAL.h"
 
-
-Beta_Calculator_ECAL::Beta_Calculator_ECAL(const edm::ParameterSet& iConfig){
+BetaCalculatorECAL::BetaCalculatorECAL(const edm::ParameterSet& iConfig){
    edm::ParameterSet trkParameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
    parameters_.loadParameters( trkParameters ); 
    trackAssociator_.useDefaultPropagator();
 }
 
 
-void Beta_Calculator_ECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<reco::TrackCollection>& tracks, edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<reco::TrackCollection>& tracks, edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // the calo info object
   CaloBetaMeasurement result;
   
   // select the track
   reco::Track track;
+  if(      candidate.hasMuonRef() && candidate.muonRef()->combinedMuon()  .isNonnull()){ track=*(candidate.muonRef()->combinedMuon());
+  }else if(candidate.hasMuonRef() && candidate.muonRef()->innerTrack()    .isNonnull()){ track=*(candidate.muonRef()->innerTrack());
+  }else if(candidate.hasMuonRef() && candidate.muonRef()->standAloneMuon().isNonnull()){ track=*(candidate.muonRef()->standAloneMuon());
+  }else return;
+/*
   if(candidate.hasMuonCombinedTrack()) {
     track = candidate.combinedTrack();
   } else if(candidate.hasTrackerTrack()) {
     track = candidate.trackerTrack();
   } else if(candidate.hasMuonStaTrack()) {
     track = candidate.staTrack();
-  } else return;
-  
+  } else return;  
+*/
+
   // compute the track isolation
   result.trkisodr=100;
   for(reco::TrackCollection::const_iterator ndTrack = tracks->begin(); ndTrack != tracks->end(); ++ndTrack) {

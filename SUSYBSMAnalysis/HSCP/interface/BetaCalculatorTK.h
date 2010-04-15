@@ -24,12 +24,13 @@ using namespace reco;
 using namespace susybsm;
 
 
-class  Beta_Calculator_TK{
+class  BetaCalculatorTK{
    public:
-      Beta_Calculator_TK(const edm::ParameterSet& iConfig);
+      BetaCalculatorTK(const edm::ParameterSet& iConfig);
       void  addInfoToCandidate(HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-      edm::InputTag m_trackDeDxEstimatorTag;
+      edm::InputTag m_dedxEstimatorTag;
+      edm::InputTag m_dedxDiscriminatorTag;
 };
 
 

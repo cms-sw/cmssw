@@ -21,9 +21,9 @@
 
 using namespace susybsm;
 
-class  Beta_Calculator_ECAL{
+class  BetaCalculatorECAL{
    public:
-      Beta_Calculator_ECAL(const edm::ParameterSet& iConfig);
+      BetaCalculatorECAL(const edm::ParameterSet& iConfig);
       void  addInfoToCandidate(HSCParticle& candidate, edm::Handle<reco::TrackCollection>& tracks, edm::Event& iEvent, const edm::EventSetup& iSetup);
 
    private:

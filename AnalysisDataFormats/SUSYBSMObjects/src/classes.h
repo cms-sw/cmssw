@@ -2,7 +2,7 @@
 namespace {
  namespace {
   susybsm::HSCParticle pa;
-  susybsm::DriftTubeTOF dtitof;
+/*  susybsm::DriftTubeTOF dtitof;
 
   susybsm::TimeMeasurement tm;
   std::vector<susybsm::TimeMeasurement> tmv;
@@ -14,12 +14,12 @@ namespace {
   edm::Wrapper<susybsm::MuonTOFCollection> wr;
   std::vector<std::pair<edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> >,susybsm::DriftTubeTOF> > a;
   std::vector<susybsm::DriftTubeTOF> b;
-  
+  */
   susybsm::RPCHit4D rpc4h;
   std::vector<susybsm::RPCHit4D> rpc4hv;
   susybsm::CaloBetaMeasurement calobeta;
   susybsm::RPCBetaMeasurement rpcbeta;
-  susybsm::DeDxBeta dedxbeta;
+//susybsm::DeDxBeta dedxbeta;
   susybsm::HSCParticleCollection hc;
   susybsm::HSCParticleRef hr;
   susybsm::HSCParticleRefProd hp;

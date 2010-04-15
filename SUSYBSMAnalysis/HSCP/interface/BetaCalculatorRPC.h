@@ -27,9 +27,9 @@
 
 using namespace susybsm;
 
-class  Beta_Calculator_RPC{
+class  BetaCalculatorRPC{
    public:
-      Beta_Calculator_RPC(const edm::ParameterSet& iConfig);
+      BetaCalculatorRPC(const edm::ParameterSet& iConfig);
       void  algo(std::vector<susybsm::RPCHit4D> HSCPRPCRecHits);
       void  addInfoToCandidate(HSCParticle& candidate, const edm::EventSetup& iSetup);
       float beta(){return betavalue;}

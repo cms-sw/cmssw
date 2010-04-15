@@ -23,12 +23,14 @@ using namespace reco;
 using namespace susybsm;
 
 
-class  Beta_Calculator_MUON{
+class  BetaCalculatorMUON{
    public:
-      Beta_Calculator_MUON(const edm::ParameterSet& iConfig);
+      BetaCalculatorMUON(const edm::ParameterSet& iConfig);
       void  addInfoToCandidate(HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-      edm::InputTag m_muonsTOFTag;
+      edm::InputTag m_muontiming_dt;
+      edm::InputTag m_muontiming_csc;
+      edm::InputTag m_muontiming_combined;
 };
 
 

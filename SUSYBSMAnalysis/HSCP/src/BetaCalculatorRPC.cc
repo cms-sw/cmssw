@@ -1,9 +1,9 @@
 #include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorRPC.h"
 
-Beta_Calculator_RPC::Beta_Calculator_RPC(const edm::ParameterSet& iConfig){
+BetaCalculatorRPC::BetaCalculatorRPC(const edm::ParameterSet& iConfig){
 }
 
-void Beta_Calculator_RPC::algo(std::vector<susybsm::RPCHit4D> HSCPRPCRecHits){
+void BetaCalculatorRPC::algo(std::vector<susybsm::RPCHit4D> HSCPRPCRecHits){
 
   int lastbx=-7;
   bool outOfTime = false;
@@ -11,7 +11,7 @@ void Beta_Calculator_RPC::algo(std::vector<susybsm::RPCHit4D> HSCPRPCRecHits){
   bool anydifferentzero = true;
   bool anydifferentone = true;
   
-  //std::cout<<"Inside Beta_Calculator_RPC \t \t Preliminar loop on the RPCHit4D!!!"<<std::endl;
+  //std::cout<<"Inside BetaCalculatorRPC \t \t Preliminar loop on the RPCHit4D!!!"<<std::endl;
 
   std::sort(HSCPRPCRecHits.begin(), HSCPRPCRecHits.end()); //Organizing them
 
@@ -22,7 +22,7 @@ void Beta_Calculator_RPC::algo(std::vector<susybsm::RPCHit4D> HSCPRPCRecHits){
     anydifferentone &= (!point->bx==1); //to check one knee withoutones
     lastbx = point->bx;
     //float r=point->gp.mag();
-    //std::cout<<"Inside Beta_Calculator_RPC \t \t  r="<<r<<" phi="<<point->gp.phi()<<" eta="<<point->gp.eta()<<" bx="<<point->bx<<" outOfTime"<<outOfTime<<" increasing"<<increasing<<" anydifferentzero"<<anydifferentzero<<std::endl;
+    //std::cout<<"Inside BetaCalculatorRPC \t \t  r="<<r<<" phi="<<point->gp.phi()<<" eta="<<point->gp.eta()<<" bx="<<point->bx<<" outOfTime"<<outOfTime<<" increasing"<<increasing<<" anydifferentzero"<<anydifferentzero<<std::endl;
   }
   
   bool Candidate = (outOfTime&&increasing);
@@ -40,7 +40,7 @@ void Beta_Calculator_RPC::algo(std::vector<susybsm::RPCHit4D> HSCPRPCRecHits){
     if(lastbx==-7){
       maginfirstknee = point->gp.mag();
     }else if((lastbx!=point->bx)){
-      //std::cout<<"Inside Beta_Calculator_RPC \t \t \t one knee between"<<lastbx<<point->bx<<std::endl;
+      //std::cout<<"Inside BetaCalculatorRPC \t \t \t one knee between"<<lastbx<<point->bx<<std::endl;
       maginknee=point->gp.mag();
       knees++;
     }
@@ -48,13 +48,13 @@ void Beta_Calculator_RPC::algo(std::vector<susybsm::RPCHit4D> HSCPRPCRecHits){
   }
       
   if(knees==0){
-    //std::cout<<"Inside Beta_Calculator_RPC \t \t \t \t knees="<<knees<<std::endl;
+    //std::cout<<"Inside BetaCalculatorRPC \t \t \t \t knees="<<knees<<std::endl;
     betavalue=maginfirstknee/(25.-delay+maginfirstknee/30.)/30.;
   }else if(knees==1){
     float betavalue1=0;
     float betavalue2=0;
-    //std::cout<<"Inside Beta_Calculator_RPC \t \t \t \t knees="<<knees<<std::endl;
-    //std::cout<<"Inside Beta_Calculator_RPC \t \t \t \t anydifferentzero="<<anydifferentzero<<" anydifferentone="<<anydifferentone<<std::endl;
+    //std::cout<<"Inside BetaCalculatorRPC \t \t \t \t knees="<<knees<<std::endl;
+    //std::cout<<"Inside BetaCalculatorRPC \t \t \t \t anydifferentzero="<<anydifferentzero<<" anydifferentone="<<anydifferentone<<std::endl;
     if(!anydifferentzero){
       betavalue=maginknee/(25-delay+maginknee/30.)/30.;
     }else if(!anydifferentone){//i.e non zeros and no ones
@@ -63,28 +63,28 @@ void Beta_Calculator_RPC::algo(std::vector<susybsm::RPCHit4D> HSCPRPCRecHits){
       betavalue1=maginknee/(25-delay+maginknee/30.)/30.;
       float dr =(maginknee-maginfirstknee);
       betavalue2 = dr/(25.-delay+dr/30.);
-      //std::cout<<"Inside Beta_Calculator_RPC \t \t \t \t \t not zero neither ones betavalue1="<<betavalue1<<" betavalue2="<<betavalue2<<std::endl;
+      //std::cout<<"Inside BetaCalculatorRPC \t \t \t \t \t not zero neither ones betavalue1="<<betavalue1<<" betavalue2="<<betavalue2<<std::endl;
       betavalue = (betavalue1 + betavalue2)*0.5;
     }
   }else if(knees==2){
-    //std::cout<<"Inside Beta_Calculator_RPC \t \t \t \t knees="<<knees<<std::endl;
+    //std::cout<<"Inside BetaCalculatorRPC \t \t \t \t knees="<<knees<<std::endl;
     knees=0;
     float betavalue1=0;
     float betavalue2=0;
     lastbx=-7;
-    //std::cout<<"Inside Beta_Calculator_RPC \t \t \t \t looping again on the RPCRecHits4D="<<knees<<std::endl;
+    //std::cout<<"Inside BetaCalculatorRPC \t \t \t \t looping again on the RPCRecHits4D="<<knees<<std::endl;
     for(std::vector<susybsm::RPCHit4D>::iterator point = HSCPRPCRecHits.begin(); point < HSCPRPCRecHits.end(); ++point) {
       if(lastbx==-7){
 	maginfirstknee = point->gp.mag();
       }else if((lastbx!=point->bx)){
-	//std::cout<<"Inside Beta_Calculator_RPC \t \t \t \t \t one knee between"<<lastbx<<point->bx<<std::endl;
+	//std::cout<<"Inside BetaCalculatorRPC \t \t \t \t \t one knee between"<<lastbx<<point->bx<<std::endl;
 	knees++;
 	if(knees==2){
 	  float maginsecondknee=point->gp.mag();
 	  betavalue1=maginknee/(25-delay+maginknee/30.)/30.;
 	  float dr =(maginknee-maginsecondknee);
 	  betavalue2 = dr/(25.+dr/30.);
-	  //std::cout<<"Inside Beta_Calculator_RPC \t \t \t \t \t betavalue1="<<betavalue1<<" betavalue2="<<betavalue2<<std::endl;
+	  //std::cout<<"Inside BetaCalculatorRPC \t \t \t \t \t betavalue1="<<betavalue1<<" betavalue2="<<betavalue2<<std::endl;
 	}
       }
       lastbx=point->bx;
@@ -93,21 +93,21 @@ void Beta_Calculator_RPC::algo(std::vector<susybsm::RPCHit4D> HSCPRPCRecHits){
   }
   
   if(Candidate){
-    //std::cout<<"Inside Beta_Calculator_RPC \t \t \t yes! We found an HSCPs let's try to estimate beta"<<std::endl;
+    //std::cout<<"Inside BetaCalculatorRPC \t \t \t yes! We found an HSCPs let's try to estimate beta"<<std::endl;
   }else{
-    //std::cout<<"Inside Beta_Calculator_RPC \t \t \t seems that there is no RPC HSCP Candidate in the set of RPC4DHit"<<std::endl;
+    //std::cout<<"Inside BetaCalculatorRPC \t \t \t seems that there is no RPC HSCP Candidate in the set of RPC4DHit"<<std::endl;
     betavalue = 1.;
   }
   
   if(HSCPRPCRecHits.size()==0){
-    //std::cout<<"Inside Beta_Calculator_RPC \t WARINNG EMPTY RPC4DRecHits CONTAINER!!!"<<std::endl;
+    //std::cout<<"Inside BetaCalculatorRPC \t WARINNG EMPTY RPC4DRecHits CONTAINER!!!"<<std::endl;
     betavalue = 1.;
   }
 }
 
 
 
-void Beta_Calculator_RPC::addInfoToCandidate(HSCParticle& candidate, const edm::EventSetup& iSetup) {
+void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate, const edm::EventSetup& iSetup) {
 
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
@@ -117,6 +117,16 @@ void Beta_Calculator_RPC::addInfoToCandidate(HSCParticle& candidate, const edm::
   RPCBetaMeasurement result;
   // so, loop on the RPC hits of the muon
   trackingRecHit_iterator start,stop;
+  reco::Track track;
+
+  if(      candidate.hasMuonRef() && candidate.muonRef()->combinedMuon()  .isNonnull()){ 
+     start = candidate.muonRef()->combinedMuon()->recHitsBegin();
+     stop  = candidate.muonRef()->combinedMuon()->recHitsEnd();    
+  }else if(candidate.hasMuonRef() && candidate.muonRef()->standAloneMuon().isNonnull()){ track=*(candidate.muonRef()->standAloneMuon());
+     start = candidate.muonRef()->standAloneMuon()->recHitsBegin();
+     stop  = candidate.muonRef()->standAloneMuon()->recHitsEnd();  
+  }else return;
+/*
   if(candidate.hasMuonCombinedTrack()) {
     start = candidate.combinedTrack().recHitsBegin();
     stop  = candidate.combinedTrack().recHitsEnd();
@@ -124,6 +134,7 @@ void Beta_Calculator_RPC::addInfoToCandidate(HSCParticle& candidate, const edm::
     start = candidate.staTrack().recHitsBegin();
     stop  = candidate.staTrack().recHitsEnd();
   } else return; 
+*/
   for(trackingRecHit_iterator recHit = start; recHit != stop; ++recHit) {
     if ( (*recHit)->geographicalId().subdetId() != MuonSubdetId::RPC ) continue;
     if ( (*recHit)->geographicalId().det() != DetId::Muon  ) continue;

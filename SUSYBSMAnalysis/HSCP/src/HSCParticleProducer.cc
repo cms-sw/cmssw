@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.12 2010/04/14 13:05:03 querten Exp $
+// $Id: HSCParticleProducer.cc,v 1.13 2010/04/14 14:43:19 querten Exp $
 //
 //
 
@@ -42,13 +42,16 @@ HSCParticleProducer::HSCParticleProducer(const edm::ParameterSet& iConfig) {
   minDR           = iConfig.getParameter<double>  ("minDR");        // 0.1
   maxInvPtDiff    = iConfig.getParameter<double>  ("maxInvPtDiff"); // 0.005
 
-  minTkdEdx       = iConfig.getParameter<double>  ("minTkdEdx");    // 4.0; 
-  maxMuBeta       = iConfig.getParameter<double>  ("maxMuBeta");    // 0.9; 
+  if(useBetaFromTk  )beta_calculator_TK   = new BetaCalculatorTK  (iConfig);
+  if(useBetaFromMuon)beta_calculator_MUON = new BetaCalculatorMUON(iConfig);
+  if(useBetaFromRpc )beta_calculator_RPC  = new BetaCalculatorRPC (iConfig);
+  if(useBetaFromEcal)beta_calculator_ECAL = new BetaCalculatorECAL(iConfig);
 
-  if(useBetaFromTk  )beta_calculator_TK   = new Beta_Calculator_TK  (iConfig);
-  if(useBetaFromMuon)beta_calculator_MUON = new Beta_Calculator_MUON(iConfig);
-  if(useBetaFromRpc )beta_calculator_RPC  = new Beta_Calculator_RPC (iConfig);
-  if(useBetaFromEcal)beta_calculator_ECAL = new Beta_Calculator_ECAL(iConfig);
+  // Load all the selections
+  std::vector<edm::ParameterSet> SelectionParameters = iConfig.getParameter<std::vector<edm::ParameterSet> >("SelectionParameters");
+  for(unsigned int i=0;i<SelectionParameters.size();i++){
+     Selectors.push_back(new CandidateSelector(SelectionParameters[i]) );
+  }
 
   // what I produce
   produces<susybsm::HSCParticleCollection >();
@@ -89,20 +92,22 @@ HSCParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // compute the TRACKER contribution
   if(useBetaFromTk){
-  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
+  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end(); ++hscpcandidate) {
     beta_calculator_TK->addInfoToCandidate(*hscpcandidate,  iEvent,iSetup);
   }}
 
   // compute the MUON contribution
   if(useBetaFromMuon){
-  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
+  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end(); ++hscpcandidate) {
     beta_calculator_MUON->addInfoToCandidate(*hscpcandidate,  iEvent,iSetup);
   }}
 
-  // cleanup the collection based on MUON AND/OR TK Beta
+  // cleanup the collection based on the input selection
   for(int i=0;i<(int)hscp->size();i++) {
      susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin() + i;
-     if( (hscpcandidate->Dt().invBeta>0 && 1.0/hscpcandidate->Dt().invBeta > maxMuBeta) && hscpcandidate->Tk().dedx() < minTkdEdx){
+     bool decision = false;
+     for(unsigned int s=0;s<Selectors.size();s++){decision |= Selectors[s]->isSelected(*hscpcandidate);}
+     if(!decision){
         hscp->erase(hscpcandidate);
         i--;
      }
@@ -110,13 +115,13 @@ HSCParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // compute the RPC contribution
   if(useBetaFromRpc){
-  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
+  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end(); ++hscpcandidate) {
       beta_calculator_RPC->addInfoToCandidate(*hscpcandidate, iSetup);
   }}
 
   // compute the ECAL contribution
   if(useBetaFromEcal){
-  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
+  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end(); ++hscpcandidate) {
     beta_calculator_ECAL->addInfoToCandidate(*hscpcandidate,trackCollectionHandle,iEvent,iSetup);
   }}
 
@@ -208,19 +213,6 @@ std::vector<HSCParticle> HSCParticleProducer::getHSCPSeedCollection(edm::Handle<
 
    return HSCPCollection;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HSCParticleProducer);
