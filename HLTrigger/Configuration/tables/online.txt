@@ -142,7 +142,6 @@ HLT_L2Mu0_NoVertex
 HLT_TkMu3_NoVertex
 HLT_EgammaSuperClusterOnly_L1R
 HLT_LogMonitor
-HLT_PhysicsDeclared
 HLT_HighMult40
 DQM_FEDIntegrity
 HLTriggerFinalPath
