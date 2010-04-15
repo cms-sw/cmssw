@@ -251,11 +251,14 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
   }// End 'if EE id exist'
   
   else{// in case EE did not exist
+ /*
+   // In EE we may have crystals with no valid EEDetId 
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("IncorrectBlock")
 	<<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
 	<<"\n An EEDetId was requested that does not exist";    
     }
+*/
   }
   
   
