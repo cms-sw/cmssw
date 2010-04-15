@@ -11,6 +11,7 @@
 #include "PhysicsTools/SelectorUtils/interface/ElectronVPlusJetsIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/MuonVPlusJetsIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 
@@ -27,6 +28,7 @@ class WPlusJetsEventSelector : public EventSelector {
   std::vector<reco::ShallowClonePtrCandidate> const & cleanedJets      () const { return cleanedJets_;      } 
   std::vector<reco::ShallowClonePtrCandidate> const & selectedElectrons() const { return selectedElectrons_;}
   std::vector<reco::ShallowClonePtrCandidate> const & selectedMuons    () const { return selectedMuons_;    }
+  reco::ShallowClonePtrCandidate const &              selectedMET      () const { return met_; }
  
  protected: 
 
@@ -44,12 +46,14 @@ class WPlusJetsEventSelector : public EventSelector {
   std::vector<reco::ShallowClonePtrCandidate> selectedMETs_;
   std::vector<reco::ShallowClonePtrCandidate> cleanedJets_;
   std::vector<reco::ShallowClonePtrCandidate> selectedElectrons2_;
+  reco::ShallowClonePtrCandidate              met_;
 
   MuonVPlusJetsIDSelectionFunctor      muonIdTight_;
   ElectronVPlusJetsIDSelectionFunctor  electronIdTight_;
   MuonVPlusJetsIDSelectionFunctor      muonIdLoose_;
   ElectronVPlusJetsIDSelectionFunctor  electronIdLoose_;
   JetIDSelectionFunctor                jetIdLoose_;
+  PFJetIDSelectionFunctor              pfjetIdLoose_;
 
   int minJets_;
   double dR_;
@@ -70,6 +74,8 @@ class WPlusJetsEventSelector : public EventSelector {
   double jetEtaMax_;
 
   double jetScale_;
+
+  double metMin_;
 
   
 };

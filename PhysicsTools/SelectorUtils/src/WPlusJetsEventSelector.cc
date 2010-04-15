@@ -17,6 +17,7 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   muonIdLoose_     (params.getParameter<edm::ParameterSet>("muonIdLoose") ),
   electronIdLoose_ (params.getParameter<edm::ParameterSet>("electronIdLoose") ),
   jetIdLoose_      (params.getParameter<edm::ParameterSet>("jetIdLoose") ),
+  pfjetIdLoose_    (params.getParameter<edm::ParameterSet>("pfjetIdLoose") ),
   minJets_         (params.getParameter<int> ("minJets") ),
   muPlusJets_      (params.getParameter<bool>("muPlusJets") ),
   ePlusJets_       (params.getParameter<bool>("ePlusJets") ),
@@ -30,7 +31,8 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   eleEtaMaxLoose_  (params.getParameter<double>("eleEtaMaxLoose")), 
   jetPtMin_        (params.getParameter<double>("jetPtMin")), 
   jetEtaMax_       (params.getParameter<double>("jetEtaMax")), 
-  jetScale_        (params.getParameter<double>("jetScale"))
+  jetScale_        (params.getParameter<double>("jetScale")),
+  metMin_          (params.getParameter<double>("metMin"))
 {
   // make the bitset
   push_back( "Inclusive"      );
@@ -134,6 +136,14 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
     }
   }
 
+
+  met_ = reco::ShallowClonePtrCandidate( edm::Ptr<pat::MET>( metHandle, 0),
+					 metHandle->at(0).charge(),
+					 metHandle->at(0).p4() );
+
+
+  std::strbitset ret1 = jetIdLoose_.getBitTemplate();
+  std::strbitset ret2 = pfjetIdLoose_.getBitTemplate();
   for ( std::vector<pat::Jet>::const_iterator jetBegin = jetHandle->begin(),
 	  jetEnd = jetHandle->end(), ijet = jetBegin;
 	ijet != jetEnd; ++ijet ) {
@@ -142,7 +152,10 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
 									       ijet->charge(),
 									       ijet->p4() * jetScale_ ) );
     
-    if ( scaledJet.pt() > jetPtMin_ && fabs(scaledJet.eta()) < jetEtaMax_ && jetIdLoose_(*ijet) ) {
+    bool passJetID = false;
+    if ( ijet->isCaloJet() ) passJetID = jetIdLoose_(*ijet);
+    else passJetID = pfjetIdLoose_(*ijet);
+    if ( scaledJet.pt() > jetPtMin_ && fabs(scaledJet.eta()) < jetEtaMax_ && passJetID ) {
       selectedJets_.push_back( scaledJet );
       if ( muPlusJets_ ) {
 	cleanedJets_.push_back( scaledJet );
@@ -160,6 +173,7 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
       }
     }
   }
+
 
 
   bool passTrig = false;
@@ -220,7 +234,7 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
 	  passCut(ret,"Tight Jet Cuts");
 	  
 
-	  bool metCut = true;
+	  bool metCut = met_.pt() > metMin_;
 	  if ( ignoreCut("MET Cut") ||
 	       metCut ) {
 	    passCut( ret, "MET Cut" );
