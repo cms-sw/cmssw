@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper,27 1-024,+41227672342,
 //         Created:  Wed Apr 14 14:27:52 CEST 2010
-// $Id: HSCPValidator.cc,v 1.1 2010/04/14 13:31:01 scooper Exp $
+// $Id: HSCPValidator.cc,v 1.2 2010/04/14 18:08:23 scooper Exp $
 //
 //
 
@@ -190,8 +190,7 @@ HSCPValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if(doGenPlots_)
     makeGenPlots(iEvent);
-  if(doSimDigiPlots_)
-  {
+  if(doSimDigiPlots_){
     makeSimDigiPlotsECAL(iEvent);
     makeSimDigiPlotsRPC(iEvent);
   }
@@ -239,6 +238,8 @@ void HSCPValidator::makeGenPlots(const edm::Event& iEvent)
     if(partIdItr==particleIds_.end())
       continue;
 
+    particleStatusHist_->Fill((*p)->status());
+
     if((*p)->status() != particleStatus_)
       continue;
 
@@ -253,7 +254,6 @@ void HSCPValidator::makeGenPlots(const edm::Event& iEvent)
     particlePHist_->Fill((*p)->momentum().mag());
     particlePtHist_->Fill((*p)->momentum().perp());
     particleMassHist_->Fill((*p)->generated_mass());
-    particleStatusHist_->Fill((*p)->status());
     float particleP = (*p)->momentum().mag();
     float particleM = (*p)->generated_mass();
     particleBetaHist_->Fill(particleP/sqrt(particleP*particleP+particleM*particleM));
@@ -552,7 +552,7 @@ void HSCPValidator::makeSimDigiPlotsRPC(const edm::Event& iEvent)
       int bx = 100;
       float minres = 3000.;
 
-      std::cout<<"DT  \t \t \t \t Getting RecHits in Roll Asociated"<<std::endl;
+      std::cout<<"\t \t \t \t Getting RecHits in Roll Asociated"<<std::endl;
 
       typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
       rangeRecHits recHitCollection =  rpcRecHits->get(rollId);
