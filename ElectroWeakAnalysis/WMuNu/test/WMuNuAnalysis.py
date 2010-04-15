@@ -16,15 +16,15 @@ process.source = cms.Source("PoolSource",
 )
 
 process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")  # standard cuts defined in cff file
-process.selcorMet.plotHistograms = cms.untracked.bool(True)   # --> "true" for plotting of histos
-process.selpfMet.plotHistograms = cms.untracked.bool(True)
-process.seltcMet.plotHistograms = cms.untracked.bool(True)
+#process.selcorMet.plotHistograms = cms.untracked.bool(True) 
+process.selpfMet.plotHistograms = cms.untracked.bool(True) # --> "true" for plotting of histos
+#process.seltcMet.plotHistograms = cms.untracked.bool(True)
  
 #process.load("ElectroWeakAnalysis.WMuNu.wmunusValidation_cfi") #load validation sequence (for WMunu & ZMuMu)
 
 # Debug/info printouts
 process.MessageLogger = cms.Service("MessageLogger",
-      debugModules = cms.untracked.vstring('selectCaloMetWMuNus','selectPfMetWMuNus','selectTcMetWMuNus'),
+      debugModules = cms.untracked.vstring('selectPfMetWMuNus'),
       cout = cms.untracked.PSet(
             default = cms.untracked.PSet( limit = cms.untracked.int32(100) ),
             threshold = cms.untracked.string('INFO')
@@ -38,7 +38,7 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string('WMuNu.
 
 # Steering the process
 #process.path0 = cms.Path(process.wmunuval) # This creates extra validation folders, not strictly necesary for analysis
-process.path1 = cms.Path(process.selectCaloMetWMuNus)
-process.path2 = cms.Path(process.selectPfMetWMuNus)
-process.path3 = cms.Path(process.selectTcMetWMuNus)
+process.path1 = cms.Path(process.selectPfMetWMuNus) #--> This is the default now!
+#process.path2 = cms.Path(process.selectTcMetWMuNus)
+#process.path3 = cms.Path(process.selectCaloMetWMuNus)
 
