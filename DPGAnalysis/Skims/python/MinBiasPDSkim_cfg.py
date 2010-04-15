@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.18 $'),
+    version = cms.untracked.string('$Revision: 1.19 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -25,7 +25,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 
@@ -311,6 +311,9 @@ process.outputpfgskim2 = cms.OutputModule("PoolOutputModule",
 # parameters for the PFGCollisions skim (skim3)
 #------------------------------------------
 
+process.load('HLTrigger.special.hltPhysicsDeclared_cfi')
+process.hltPhysicsDeclared.L1GtReadoutRecordTag = 'gtDigis'
+
 process.L1PFGbackcross=process.hltLevel1GTSeed.clone()
 process.L1PFGbackcross.L1TechTriggerSeeding = cms.bool(True)
 process.L1PFGbackcross.L1SeedsLogicalExpression = cms.string('0 AND (36 OR 37 OR 38 OR 39 OR 40 OR 41 OR 42 OR 43 OR 8 OR 9 OR 10 OR 32 OR 33)')
@@ -331,8 +334,8 @@ process.skimmingpixback = cms.EDFilter("FilterScrapingPixelProbability",
 
 
 #### the path
-process.pfgskim3cross = cms.Path(process.L1PFGbackcross*process.skimmingpixback)
-process.pfgskim3noncross = cms.Path(process.L1PFGbacknoncross)
+process.pfgskim3cross = cms.Path(process.hltPhysicsDeclared*process.L1PFGbackcross*process.skimmingpixback)
+process.pfgskim3noncross = cms.Path(process.hltPhysicsDeclared*process.L1PFGbacknoncross)
 
 
 
@@ -376,7 +379,7 @@ process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.outHSCP+process.ecalrechitfilter_out+process.outputpfgskim2+process.outputpfgskim3+process.outlogerr)
+#process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.outHSCP+process.ecalrechitfilter_out+process.outputpfgskim2+process.outputpfgskim3+process.outlogerr)
 
 
 
