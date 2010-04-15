@@ -1,4 +1,4 @@
-// $Id: RegistrationCollection.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
+// $Id: RegistrationCollection.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: RegistrationCollection.h 
 
 #ifndef StorageManager_RegistrationCollection_h
@@ -21,9 +21,9 @@ namespace stor
   /**
      Keep a collection of registered event and DQM event consumers.
 
-     $Author: dshpakov $
-     $Revision: 1.4 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.3 $
+     $Date: 2009/07/20 13:06:10 $
   */
 
   class RegistrationCollection
@@ -77,11 +77,6 @@ namespace stor
        Test if registration is allowed.
     */
     bool registrationIsAllowed() const;
-
-    /**
-       Test if consumer is a proxy.
-    */
-    bool isProxy( ConsumerID ) const;
 
   private:
 

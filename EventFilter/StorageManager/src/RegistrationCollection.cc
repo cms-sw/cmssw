@@ -1,4 +1,4 @@
-// $Id: RegistrationCollection.cc,v 1.5 2009/10/05 17:14:07 biery Exp $
+// $Id: RegistrationCollection.cc,v 1.6 2009/10/06 09:20:04 mommsen Exp $
 /// @file: RegistrationCollection.cc
 
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
@@ -111,25 +111,6 @@ bool RegistrationCollection::registrationIsAllowed() const
   return _registrationAllowed;
 }
 
-bool RegistrationCollection::isProxy( ConsumerID cid ) const
-{
-
-  boost::mutex::scoped_lock sl( _lock );
-
-  RegistrationMap::const_iterator pos = _consumers.find(cid);
-
-  if ( pos == _consumers.end() )
-  {
-    return false;
-  }
-
-  ConsRegPtr eventConsumer =
-    boost::dynamic_pointer_cast<EventConsumerRegistrationInfo>( pos->second );
-  if ( ! eventConsumer ) return false;
-
-  return eventConsumer->isProxyServer();
-
-}
 
 /// emacs configuration
 /// Local Variables: -
