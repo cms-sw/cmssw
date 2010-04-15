@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/03/22 18:33:43 $
- *  $Revision: 1.33 $
+ *  $Date: 2010/03/29 18:15:57 $
+ *  $Revision: 1.34 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -195,6 +195,7 @@ double MuScleFitUtils::ResGamma[] = {2.4952, 0.000020, 0.000032, 0.000054, 0.000
 // The histograms are read after the initialization of the BackgroundHandler (this can be improved so that
 // the background handler too could use the new values).
 // At this time the values are consistent.
+double MuScleFitUtils::ResMinMass[] = {-99, -99, -99, -99, -99, -99};
 double MuScleFitUtils::ResMass[] = {91.1876, 10.3552, 10.0233, 9.4603, 3.68609, 3.0969};
 // From Summer08 generator production TWiki: https://twiki.cern.ch/twiki/bin/view/CMS/ProductionSummer2008
 // - Z->mumu              1.233 nb
@@ -843,9 +844,10 @@ double MuScleFitUtils::probability( const double & mass, const double & massReso
   // ----------------------------------------------------
   // This must be done with respect to the width used in the computation of the probability distribution,
   // so that the bin 0 really matches the bin 0 of that distribution.
-  double fracMass = (mass-(ResMass[iRes]-ResHalfWidth[iRes]))/(2*ResHalfWidth[iRes]);
-  if (debug>1) std::cout << std::setprecision(9)<<"mass ResMass[iRes] ResHalfWidth[iRes] ResHalfWidth[iRes]"
-                    << mass << " "<<ResMass[iRes]<<" "<<ResHalfWidth[iRes]<<" "<<ResHalfWidth[iRes]<<std::endl;
+  //  double fracMass = (mass-(ResMass[iRes]-ResHalfWidth[iRes]))/(2*ResHalfWidth[iRes]);
+  double fracMass = (mass - ResMinMass[iRes])/(2*ResHalfWidth[iRes]);
+  if (debug>1) std::cout << std::setprecision(9)<<"mass ResMinMass[iRes] ResHalfWidth[iRes] ResHalfWidth[iRes]"
+                    << mass << " "<<ResMinMass[iRes]<<" "<<ResHalfWidth[iRes]<<" "<<ResHalfWidth[iRes]<<std::endl;
   int iMassLeft  = (int)(fracMass*(double)nbins);
   int iMassRight = iMassLeft+1;
   double fracMassStep = (double)nbins*(fracMass - (double)iMassLeft/(double)nbins);
@@ -856,16 +858,16 @@ double MuScleFitUtils::probability( const double & mass, const double & massReso
   // ---------------------------------------------------------------------------------
   if (iMassLeft<0) {
     edm::LogInfo("probability") << "WARNING: fracMass=" << fracMass << ", iMassLeft="
-                           << iMassLeft << "; mass = " << mass << " and bounds are " << ResMass[iRes]-ResHalfWidth[iRes]
-                           << ":" << ResMass[iRes]+ResHalfWidth[iRes] << " - iMassLeft set to 0" << std::endl;
+                           << iMassLeft << "; mass = " << mass << " and bounds are " << ResMinMass[iRes]
+                           << ":" << ResMinMass[iRes]+2*ResHalfWidth[iRes] << " - iMassLeft set to 0" << std::endl;
     iMassLeft  = 0;
     iMassRight = 1;
     insideProbMassWindow = false;
   }
   if (iMassRight>nbins) {
     edm::LogInfo("probability") << "WARNING: fracMass=" << fracMass << ", iMassRight="
-                           << iMassRight << "; mass = " << mass << " and bounds are " << ResMass[iRes]-ResHalfWidth[iRes]
-                           << ":" << ResMass[iRes]+ResHalfWidth[iRes] << " - iMassRight set to " << nbins-1 << std::endl;
+                           << iMassRight << "; mass = " << mass << " and bounds are " << ResMinMass[iRes]
+                           << ":" << ResMass[iRes]+2*ResHalfWidth[iRes] << " - iMassRight set to " << nbins-1 << std::endl;
     iMassLeft  = nbins-1;
     iMassRight = nbins;
     insideProbMassWindow = false;

@@ -5,8 +5,8 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2010/03/22 18:34:03 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/03/29 18:15:56 $
+ *  $Revision: 1.20 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -113,6 +113,7 @@ public:
   static double massWindowHalfWidth[3][6]; // parameter set by MuScleFitUtils
   static double ResGamma[6];     // parameter set by MuScleFitUtils
   static double ResMass[6];      // parameter set by MuScleFitUtils
+  static double ResMinMass[6];      // parameter set by MuScleFitBase
   static double crossSection[6];
   static const double mMu2;
   static const double muMass;
