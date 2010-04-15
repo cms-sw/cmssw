@@ -1,73 +1,51 @@
 // -*- C++ -*-
 //
-// Package:     Calo
-// Class  :     FWCSCSegments3DProxyBuilder
+// Package:     Muons
+// Class  :     FWCSCSegmentProxyBuilder
 //
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegments3DProxyBuilder.cc,v 1.4 2010/04/08 13:09:32 yana Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.5 2010/04/09 12:59:47 amraktad Exp $
 //
 
 // system include files
 #include "TEveManager.h"
-#include "TGeoTube.h"
-#include "TEveGeoNode.h"
 #include "TEveElement.h"
 #include "TEveCompound.h"
+#include "TEveStraightLineSet.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
-#include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
-#include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 
-class FWCSCSegments3DProxyBuilder : public FWProxyBuilderBase
+class FWCSCSegmentProxyBuilder : public FWProxyBuilderBase
 {
-
 public:
-   FWCSCSegments3DProxyBuilder();
-   virtual ~FWCSCSegments3DProxyBuilder();
-
-   // ---------- const member functions ---------------------
+   FWCSCSegmentProxyBuilder() {}
+   virtual ~FWCSCSegmentProxyBuilder() {}
+  
    REGISTER_PROXYBUILDER_METHODS();
 
-   // ---------- static member functions --------------------
 private:
-   virtual void build(const FWEventItem* iItem,
-                      TEveElementList** product);
+   FWCSCSegmentProxyBuilder(const FWCSCSegmentProxyBuilder&);    // stop default
+   const FWCSCSegmentProxyBuilder& operator=(const FWCSCSegmentProxyBuilder&);    // stop default
 
-   FWCSCSegments3DProxyBuilder(const FWCSCSegments3DProxyBuilder&);    // stop default
-
-   const FWCSCSegments3DProxyBuilder& operator=(const FWCSCSegments3DProxyBuilder&);    // stop default
-
-   // ---------- member data --------------------------------
+   virtual void build( const FWEventItem* iItem, TEveElementList** product );
 };
 
-//
-// constructors and destructor
-//
-FWCSCSegments3DProxyBuilder::FWCSCSegments3DProxyBuilder()
-{
-}
-
-FWCSCSegments3DProxyBuilder::~FWCSCSegments3DProxyBuilder()
-{
-}
-
 void
-FWCSCSegments3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWCSCSegmentProxyBuilder::build( const FWEventItem* iItem, TEveElementList** product )
 {
    TEveElementList* tList = *product;
 
-   if(0 == tList) {
+   if( 0 == tList) {
       tList =  new TEveElementList(iItem->name().c_str(),"cscSegments",true);
       *product = tList;
       tList->SetMainColor(iItem->defaultDisplayProperties().color());
@@ -79,16 +57,15 @@ FWCSCSegments3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** p
    const CSCSegmentCollection* segments = 0;
    iItem->get(segments);
 
-   if(0 == segments ) {
-      // std::cout <<"failed to get CSC segments"<<std::endl;
+   if( 0 == segments ) {
       return;
    }
    unsigned int index = 0;
-   for (  CSCSegmentCollection::id_iterator chamberId = segments->id_begin();
+   for(  CSCSegmentCollection::id_iterator chamberId = segments->id_begin();
           chamberId != segments->id_end(); ++chamberId, ++index )
    {
       const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( (*chamberId).rawId() );
-      if ( !matrix ) {
+      if( !matrix ) {
          std::cout << "ERROR: failed get geometry of CSC chamber with det id: " <<
          (*chamberId).rawId() << std::endl;
          continue;
@@ -99,7 +76,7 @@ FWCSCSegments3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** p
 
       CSCSegmentCollection::range range = segments->get(*chamberId);
       const double segmentLength = 15;
-      for (CSCSegmentCollection::const_iterator segment = range.first;
+      for( CSCSegmentCollection::const_iterator segment = range.first;
            segment!=range.second; ++segment)
       {
          TEveCompound* compund = new TEveCompound("csc compound", "cscSegments");
@@ -135,21 +112,21 @@ FWCSCSegments3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** p
          matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
          matrix->LocalToMaster( localSegmentCenterPoint, globalSegmentCenterPoint );
          matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
-         if ( globalSegmentInnerPoint[1] *globalSegmentOuterPoint[1] > 0 ) {
-            segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-                                globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+         if( globalSegmentInnerPoint[1] *globalSegmentOuterPoint[1] > 0 ) {
+	    segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+				 globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
          } else {
-            if ( fabs(globalSegmentInnerPoint[1]) > fabs(globalSegmentOuterPoint[1]) )
-               segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-                                   globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2] );
+            if( fabs(globalSegmentInnerPoint[1]) > fabs(globalSegmentOuterPoint[1]) )
+               segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+				    globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2] );
             else
-               segmentSet->AddLine(globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2],
-                                   globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+               segmentSet->AddLine( globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2],
+				    globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
          }
       }
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWCSCSegments3DProxyBuilder,CSCSegmentCollection,"CSC-segments", FWViewType::k3DBit | FWViewType::kRPZBit);
+REGISTER_FWPROXYBUILDER( FWCSCSegmentProxyBuilder, CSCSegmentCollection, "CSC Segments", FWViewType::k3DBit | FWViewType::kRhoPhiBit | FWViewType::kRhoZBit );
 
 

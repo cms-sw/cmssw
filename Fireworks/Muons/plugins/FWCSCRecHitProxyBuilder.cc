@@ -9,13 +9,13 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 
-class FWCSCRecHits3DProxyBuilder : public FWProxyBuilderBase
+class FWCSCRecHitProxyBuilder : public FWProxyBuilderBase
 {
 public:
-   FWCSCRecHits3DProxyBuilder(void) 
+   FWCSCRecHitProxyBuilder(void) 
     {}
   
-   virtual ~FWCSCRecHits3DProxyBuilder(void)
+   virtual ~FWCSCRecHitProxyBuilder(void)
     {}
   
    REGISTER_PROXYBUILDER_METHODS();
@@ -25,13 +25,13 @@ private:
                       TEveElementList** product);
 
    // Disable default copy constructor
-   FWCSCRecHits3DProxyBuilder(const FWCSCRecHits3DProxyBuilder&);
+   FWCSCRecHitProxyBuilder(const FWCSCRecHitProxyBuilder&);
    // Disable default assignment operator
-   const FWCSCRecHits3DProxyBuilder& operator=(const FWCSCRecHits3DProxyBuilder&);
+   const FWCSCRecHitProxyBuilder& operator=(const FWCSCRecHitProxyBuilder&);
 };
 
 void
-FWCSCRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWCSCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
 
@@ -106,6 +106,6 @@ FWCSCRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWCSCRecHits3DProxyBuilder, CSCRecHit2DCollection, "CSC Rec Hits", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER( FWCSCRecHitProxyBuilder, CSCRecHit2DCollection, "CSC RecHits", FWViewType::kISpyBit );
 
 
