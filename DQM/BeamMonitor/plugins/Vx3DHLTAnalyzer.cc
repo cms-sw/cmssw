@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.64 2010/04/13 10:10:45 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.65 2010/04/14 17:30:14 dinardo Exp $
 //
 //
 
@@ -104,7 +104,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 
       for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
 	
-	if ((it3DVx->isValid() == true) && (it3DVx->isFake() == false) && (it3DVx->ndof() >= minVxDoF) && ((it3DVx->ndof() + 3.)/it3DVx->tracksSize() < 2*minVxWgt))
+	if ((it3DVx->isValid() == true) && (it3DVx->isFake() == false) && ((it3DVx->ndof() >= minVxDoF) || ((it3DVx->ndof() + 3.)/it3DVx->tracksSize() < 2*minVxWgt)))
 	  {
 	    for (i = 0; i < DIM; i++)
 	      {
@@ -200,12 +200,12 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 	{
 	  if (considerVxCovariance == true)
 	    {
-	      K[0][0] = fabs(par[0]) + fabs(Vertices[i].Covariance[0][0]);
-	      K[1][1] = fabs(par[1]) + fabs(Vertices[i].Covariance[1][1]);
-	      K[2][2] = fabs(par[2]) + fabs(Vertices[i].Covariance[2][2]);
-	      K[0][1] = K[1][0] = par[3] + Vertices[i].Covariance[0][1];
-	      K[1][2] = K[2][1] = par[4] + Vertices[i].Covariance[1][2];
-	      K[0][2] = K[2][0] = par[5] + Vertices[i].Covariance[0][2];
+	      K[0][0] = fabs(par[0]) + VxErrCorr*VxErrCorr * fabs(Vertices[i].Covariance[0][0]);
+	      K[1][1] = fabs(par[1]) + VxErrCorr*VxErrCorr * fabs(Vertices[i].Covariance[1][1]);
+	      K[2][2] = fabs(par[2]) + VxErrCorr*VxErrCorr * fabs(Vertices[i].Covariance[2][2]);
+	      K[0][1] = K[1][0] = par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[0][1];
+	      K[1][2] = K[2][1] = par[4] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[1][2];
+	      K[0][2] = K[2][0] = par[5] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[0][2];
 	    }
 	  else
 	    {
@@ -1216,6 +1216,7 @@ void Vx3DHLTAnalyzer::beginJob()
   maxLumiIntegration   = 100;
   minVxDoF             = 4.;
   minVxWgt             = 1.;
+  VxErrCorr            = 1.0;
   internalDebug        = false;
   considerVxCovariance = true;
 
