@@ -90,7 +90,9 @@ getContentForCVS $MASTER
 for TABLE in $TABLES; do
   getConfigForCVS $(eval echo $TARGET) $TABLE
 done
-getDatasetsForCVS $(eval TABLE="GRun" echo $TARGET) HLTrigger_Datasets_cff.py
+for TABLE in "GRun"; do
+  getDatasetsForCVS $(eval echo $TARGET) HLTrigger_Datasets_cff.py
+done
 ls -l HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_cff.py
 mv -f HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_cff.py ../python
 echo

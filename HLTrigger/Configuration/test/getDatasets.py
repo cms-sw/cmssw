@@ -23,16 +23,16 @@ def extractDatasets(database, config):
   return hlt.process
 
 
-def dumpDataset(process, dataset):
+def dumpDataset(process, stream, dataset):
   if dataset in process.datasets.__dict__:
-    name = 'datasetSelector' + dataset
+    name = 'stream%s_dataset%s_selector' % (stream, dataset)
     dump = '''from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as %s
 %s.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 %s.l1tResults = cms.InputTag('')
 %s.throw      = cms.bool(False)
 %s.triggerConditions = %s
 
-''' % (dataset, dataset, dataset, dataset, dataset, process.datasets.__dict__[dataset])
+''' % (name, name, name, name, name, process.datasets.__dict__[dataset])
   else:
     dump = '''# dataset %s not found
 
@@ -72,6 +72,6 @@ import FWCore.ParameterSet.Config as cms
 
 if 'A' in process.streams.__dict__:
   for dataset in process.streams.__dict__['A']:
-    dump.write( dumpDataset(process, dataset) )
+    dump.write( dumpDataset(process, 'A', dataset) )
 
 dump.close()
