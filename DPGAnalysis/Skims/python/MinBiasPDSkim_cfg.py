@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.16 $'),
+    version = cms.untracked.string('$Revision: 1.17 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -271,7 +271,41 @@ process.outHSCP = cms.OutputModule("PoolOutputModule",
                                SelectEvents = cms.untracked.PSet(
     SelectEvents = cms.vstring("HSCP")
     ))
- 
+
+##########################################################################################
+#------------------------------------------
+# parameters for the PFGCollisions skim (skim2)
+#------------------------------------------
+
+process.L1PFGcoll=process.hltLevel1GTSeed.clone()
+process.L1PFGcoll.L1TechTriggerSeeding = cms.bool(True)
+process.L1PFGcoll.L1SeedsLogicalExpression = cms.string('(36 OR 37 OR 38 OR 39 OR 40 OR 41 OR 42 OR 43 OR 8 OR 9 OR 10 OR 32 OR 33) AND 0')
+
+
+process.pixprob = cms.EDFilter("FilterScrapingPixelProbability",
+                                apply_filter                 = cms.untracked.bool( True  ),
+                                select_collision             = cms.untracked.bool( True ),
+                                select_pkam                  = cms.untracked.bool( False ),
+                                select_other                 = cms.untracked.bool( False ),
+                                low_probability              = cms.untracked.double( 0.0 ),
+                                low_probability_fraction_cut = cms.untracked.double( 0.4 )
+                                )
+
+#### the path
+process.pfgskim2_a = cms.Path(process.L1PFGcoll*process.pixprob*~process.L1T1coll*~process.primaryVertexFilter)
+process.pfgskim2_b = cms.Path(process.L1PFGcoll*process.pixprob*~process.L1T1coll*~process.noscraping)
+
+#### output 
+process.outputpfgskim2 = cms.OutputModule("PoolOutputModule",
+    outputCommands = process.FEVTEventContent.outputCommands,
+    fileName = cms.untracked.string("/tmp/malgeri/PGFSkim2.root"),
+    dataset = cms.untracked.PSet(
+      dataTier = cms.untracked.string('RAW-RECO'),
+      filterName = cms.untracked.string('PFGSkim2')
+    ),
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('pfgskim2_a','pfgskim2_b'))
+)
+
 ###########################################################################################
 #------------------------------------------
 # parameters for the PFGCollisions skim (skim3)
@@ -342,7 +376,7 @@ process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.outHSCP+process.ecalrechitfilter_out+process.outputpfgskim3+process.outlogerr)
+process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.outHSCP+process.ecalrechitfilter_out+process.outputpfgskim2+process.outputpfgskim3+process.outlogerr)
 
 
 
