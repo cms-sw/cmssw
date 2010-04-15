@@ -250,7 +250,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     
   }// End 'if EE id exist'
   
-  else if (!zs_ ){// in case EE did not exist
+  else if (zs_ ){// in case EE did not exist
  
    // In EE we may have crystals with no valid EEDetId 
     if( ! DCCDataUnpacker::silentMode_ ){
