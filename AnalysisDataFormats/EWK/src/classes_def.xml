@@ -29,11 +29,51 @@
    <class name="edm::Wrapper<edm::RefToBaseVector<reco::WMuNuCandidate> >" />
    <class name="edm::reftobase::BaseVectorHolder<reco::WMuNuCandidate>" />
 
+   <class name="ewk::DiLeptonRefBaseCandidate"/>
+   <class name="std::vector<ewk::DiLeptonRefBaseCandidate>"/>
+   <class name="edm::Wrapper<std::vector<ewk::DiLeptonRefBaseCandidate> >"/>
+   <class name="edm::Ref<std::vector<ewk::DiLeptonRefBaseCandidate>,ewk::DiLeptonRefBaseCandidate,edm::refhelper::FindUsingAdvance<std::vector<ewk::DiLeptonRefBaseCandidate>,ewk::DiLeptonRefBaseCandidate> >"/>
+   <class name="edm::RefProd<std::vector<ewk::DiLeptonRefBaseCandidate> >"/>
+   <class name="edm::helpers::Key<edm::RefProd<std::vector<ewk::DiLeptonRefBaseCandidate> > >"/>
 
+   <class name="edm::RefToBase<ewk::DiLeptonRefBaseCandidate>" />
+   <class name="edm::reftobase::IndirectHolder<ewk::DiLeptonRefBaseCandidate>" />
+   <class name="edm::RefToBaseProd<ewk::DiLeptonRefBaseCandidate>" />
+   <class name="edm::RefToBaseVector<ewk::DiLeptonRefBaseCandidate>" />
+   <class name="edm::Wrapper<edm::RefToBaseVector<ewk::DiLeptonRefBaseCandidate> >" />
+   <class name="edm::reftobase::BaseVectorHolder<ewk::DiLeptonRefBaseCandidate>" />
+
+   <class name="ewk::LeptonMETRefBaseCandidate"/>
+   <class name="std::vector<ewk::LeptonMETRefBaseCandidate>"/>
+   <class name="edm::Wrapper<std::vector<ewk::LeptonMETRefBaseCandidate> >"/>
+   <class name="edm::Ref<std::vector<ewk::LeptonMETRefBaseCandidate>,ewk::LeptonMETRefBaseCandidate,edm::refhelper::FindUsingAdvance<std::vector<ewk::LeptonMETRefBaseCandidate>,ewk::LeptonMETRefBaseCandidate> >"/>
+   <class name="edm::RefProd<std::vector<ewk::LeptonMETRefBaseCandidate> >"/>
+   <class name="edm::helpers::Key<edm::RefProd<std::vector<ewk::LeptonMETRefBaseCandidate> > >"/>
+
+   <class name="edm::RefToBase<ewk::LeptonMETRefBaseCandidate>" />
+   <class name="edm::reftobase::IndirectHolder<ewk::LeptonMETRefBaseCandidate>" />
+   <class name="edm::RefToBaseProd<ewk::LeptonMETRefBaseCandidate>" />
+   <class name="edm::RefToBaseVector<ewk::LeptonMETRefBaseCandidate>" />
+   <class name="edm::Wrapper<edm::RefToBaseVector<ewk::LeptonMETRefBaseCandidate> >" />
+   <class name="edm::reftobase::BaseVectorHolder<ewk::LeptonMETRefBaseCandidate>" />
+
+   <class name="ewk::ZGammaRefBaseCandidate"/>
+   <class name="std::vector<ewk::ZGammaRefBaseCandidate>"/>
+   <class name="edm::Wrapper<std::vector<ewk::ZGammaRefBaseCandidate> >"/>
+   <class name="edm::Ref<std::vector<ewk::ZGammaRefBaseCandidate>,ewk::ZGammaRefBaseCandidate,edm::refhelper::FindUsingAdvance<std::vector<ewk::ZGammaRefBaseCandidate>,ewk::ZGammaRefBaseCandidate> >"/>
+   <class name="edm::RefProd<std::vector<ewk::ZGammaRefBaseCandidate> >"/>
+   <class name="edm::helpers::Key<edm::RefProd<std::vector<ewk::ZGammaRefBaseCandidate> > >"/>
+
+   <class name="edm::RefToBase<ewk::ZGammaRefBaseCandidate>" />
+   <class name="edm::reftobase::IndirectHolder<ewk::ZGammaRefBaseCandidate>" />
+   <class name="edm::RefToBaseProd<ewk::ZGammaRefBaseCandidate>" />
+   <class name="edm::RefToBaseVector<ewk::ZGammaRefBaseCandidate>" />
+   <class name="edm::Wrapper<edm::RefToBaseVector<ewk::ZGammaRefBaseCandidate> >" />
+   <class name="edm::reftobase::BaseVectorHolder<ewk::ZGammaRefBaseCandidate>" />
 
    <!-- 
-   <class name="edm::reftobase::BaseHolder<reco::WMuNuCandidatePtr>" />
-   <class name="edm::reftobase::IndirectVectorHolder<reco::WMuNuCandidatePtr>" />
+   <class name="edm::reftobase::BaseHolder<ewk::DiLeptonRefBaseCandidatePtr>" />
+   <class name="edm::reftobase::IndirectVectorHolder<ewk::DiLeptonRefBaseCandidatePtr>" />
  
     -->
  

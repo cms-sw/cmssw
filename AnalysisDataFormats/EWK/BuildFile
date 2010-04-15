@@ -6,6 +6,8 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
 
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/EgammaCandidates>
 
 <use name=CommonTools/CandUtils>
 <use name=CommonTools/UtilAlgos>
