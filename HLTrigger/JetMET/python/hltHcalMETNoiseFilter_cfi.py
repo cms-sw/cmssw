@@ -21,7 +21,7 @@ HcalNoiseParameterSet = cms.PSet(
     minEEMF = cms.double(20.0),
     
     # define problematic RBX
-    pMinE = cms.double(100.0),
+    pMinE = cms.double(10.0),
     pMinRatio = cms.double(0.75),
     pMaxRatio = cms.double(0.90),
     pMinHPDHits = cms.int32(10),
@@ -61,10 +61,10 @@ HcalNoiseParameterSet = cms.PSet(
 
     # define high level noise cuts
     hlMaxHPDEMF = cms.double(-999.),
-    hlMaxRBXEMF = cms.double(0.01)
+    hlMaxRBXEMF = cms.double(0.02)
     )
 
-
+ 
 hltHcalMETNoiseFilter = cms.EDFilter(
     "HLTHcalMETNoiseFilter",
 
@@ -72,7 +72,7 @@ hltHcalMETNoiseFilter = cms.EDFilter(
     HcalNoiseParameterSet,
 
     # collections to get
-    HcalNoiseRBXCollection = cms.InputTag("hcalnoise"),
+    HcalNoiseRBXCollection = cms.InputTag("hltHcalNoise"),
     
     # set to 0 if you want to accept all events
     severity = cms.int32(1),

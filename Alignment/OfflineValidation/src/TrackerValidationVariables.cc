@@ -231,7 +231,7 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	TrackerAlignableId ali1, ali2;
 	if(hit2->isValid() && 
 	   ali1.typeAndLayerFromDetId(hit->geographicalId()) == ali2.typeAndLayerFromDetId(hit2->geographicalId())  &&
-	   hit2->geographicalId().rawId() !=  SiStripDetId::SiStripDetId(IntRawDetID).partnerDetId()  
+	   hit2->geographicalId().rawId() !=  SiStripDetId(IntRawDetID).partnerDetId()  
 	   ) {	    
 	  
 	  float overlapPath_;
@@ -316,8 +316,6 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& iEvent,
     trackStruct.charge = RecoTrack->charge();
     trackStruct.d0 = RecoTrack->d0();
     trackStruct.dz = RecoTrack->dz();
-    trackStruct.numberOfValidHits = RecoTrack->numberOfValidHits();
-    trackStruct.numberOfLostHits = RecoTrack->numberOfLostHits();
     v_avtrackout.push_back(trackStruct);
   }
 

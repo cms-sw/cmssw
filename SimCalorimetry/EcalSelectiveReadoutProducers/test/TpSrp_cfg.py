@@ -27,10 +27,13 @@ process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
 process.load("CalibCalorimetry.Configuration.Ecal_FakeConditions_cff")
 
-process.load("SimCalorimetry.EcalSelectiveReadoutProducers.ecalDigis_cff")
+process.load("SimCalorimetry.EcalSelectiveReadoutProducers.ecalDigis_cfi")
 
 process.source = cms.Source("PoolSource",
+    debugFlag = cms.untracked.bool(True),
+    debugVebosity = cms.untracked.uint32(1),
     fileNames = cms.untracked.vstring('file://srp_validation_in.root') ##srp_validation_in.root'}
+
 )
 
 process.MessageLogger = cms.Service("MessageLogger",

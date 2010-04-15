@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Dec  9 17:01:03 CST 2009
-// $Id: RecordWriter.cc,v 1.2 2010/02/19 20:59:02 chrjones Exp $
+// $Id$
 //
 
 // system include files
@@ -70,7 +70,7 @@ RecordWriter::~RecordWriter()
 // member functions
 //
 void 
-RecordWriter::update(const void* iData, const std::type_info& iType, const char* iLabel)
+RecordWriter::update(void* iData, const std::type_info& iType, const char* iLabel)
 {
    const char* label = iLabel;
    if(0==iLabel) {
@@ -86,24 +86,13 @@ RecordWriter::update(const void* iData, const std::type_info& iType, const char*
       assert(t != ROOT::Reflex::Type());
       
       std::string className = t.Name(ROOT::Reflex::SCOPED|ROOT::Reflex::FINAL);
-      
-      //now find actual type
-      ROOT::Reflex::Object o(t,const_cast<void*>(iData));
-      ROOT::Reflex::Type trueType = o.DynamicType();
-      buffer.trueType_ = edm::TypeIDBase(trueType.TypeInfo());
-      std::string trueClassName = trueType.Name(ROOT::Reflex::SCOPED|ROOT::Reflex::FINAL);
-      
       buffer.branch_ = tree_->Branch((fwlite::format_type_to_mangled(className)+"__"+label).c_str(),
-                                     trueClassName.c_str(),
+                                     className.c_str(),
                                      &buffer.pBuffer_);
       idToBuffer_.insert(std::make_pair(std::make_pair(edm::TypeIDBase(iType),std::string(iLabel)),buffer));
       itFound = idToBuffer_.find(std::make_pair(edm::TypeIDBase(iType),
          std::string(iLabel)));
    }
-   ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(iType);
-   ROOT::Reflex::Object o(t,const_cast<void*>(iData));
-   ROOT::Reflex::Type trueType = o.DynamicType();
-   assert(edm::TypeIDBase(trueType.TypeInfo())==itFound->second.trueType_);
    itFound->second.branch_->SetAddress(&(itFound->second.pBuffer_));
    itFound->second.pBuffer_ = iData;
 }

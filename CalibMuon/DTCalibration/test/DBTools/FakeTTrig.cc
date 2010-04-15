@@ -1,8 +1,8 @@
  /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/19 09:51:31 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/11/17 14:41:18 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -48,7 +48,6 @@ FakeTTrig::FakeTTrig(const ParameterSet& pset) {
 
   // further configurable smearing
   smearing=pset.getUntrackedParameter<double>("smearing");
-  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
 
   // get random engine
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -73,7 +72,7 @@ void FakeTTrig::beginRun(const edm::Run&, const EventSetup& setup) {
 
   // Get the tTrig reference map
   if (ps.getUntrackedParameter<bool>("readDB", true)) 
-    setup.get<DTTtrigRcd>().get(dbLabel,tTrigMapRef);  
+    setup.get<DTTtrigRcd>().get(tTrigMapRef);  
 }
 
 void FakeTTrig::endJob() {

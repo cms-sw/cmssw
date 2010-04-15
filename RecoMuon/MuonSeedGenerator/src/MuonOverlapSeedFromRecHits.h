@@ -2,6 +2,7 @@
 #define MuonSeedGenerator_MuonOverlapSeedFromRecHits_h
 
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
+#include <map>
 
 class MuonOverlapSeedFromRecHits : public MuonSeedFromRecHits
 {
@@ -16,6 +17,22 @@ public:
                 MuonTransientTrackingRecHit::ConstMuonRecHitPointer endcapHit,
                 TrajectorySeed & result) const;
 
+  bool makeSeed2(MuonTransientTrackingRecHit::ConstMuonRecHitPointer barrelHit,
+                MuonTransientTrackingRecHit::ConstMuonRecHitPointer endcapHit,
+                TrajectorySeed & result) const;
+
+
+private:
+
+  void fillConstants(int dtStation, int cscChamberType, double c1, double c2);
+
+  // try to make something from a pair of layers with hits.
+  bool makeSeed(const MuonRecHitContainer & barrelHits, 
+                const MuonRecHitContainer & endcapHits,
+                TrajectorySeed & seed) const;
+
+  typedef std::map< std::pair<int, int>, std::pair<double, double> > ConstantsMap;
+  ConstantsMap theConstantsMap;
 };
 
 #endif

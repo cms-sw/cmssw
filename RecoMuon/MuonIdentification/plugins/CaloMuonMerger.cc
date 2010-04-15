@@ -1,5 +1,5 @@
 //
-// $Id: CaloMuonMerger.cc,v 1.2 2010/02/11 00:14:28 wmtan Exp $
+// $Id: CaloMuonMerger.cc,v 1.1 2009/09/06 23:13:18 dmytro Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Merges reco::CaloMuons and reco::Muons in a single reco::Muon collection
             
   \author   Giovanni Petrucciani
-  \version  $Id: CaloMuonMerger.cc,v 1.2 2010/02/11 00:14:28 wmtan Exp $
+  \version  $Id: CaloMuonMerger.cc,v 1.1 2009/09/06 23:13:18 dmytro Exp $
 */
 
 
@@ -44,17 +44,20 @@ CaloMuonMerger::CaloMuonMerger(const edm::ParameterSet & iConfig) :
 
 void 
 CaloMuonMerger::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
-    edm::Handle<std::vector<reco::Muon> > muons;
-    edm::Handle<std::vector<reco::CaloMuon> > caloMuons;
+    using namespace edm;
+    using namespace std;
+
+    Handle<vector<reco::Muon> > muons;
+    Handle<vector<reco::CaloMuon> > caloMuons;
 
     iEvent.getByLabel(muons_, muons);
     iEvent.getByLabel(caloMuons_, caloMuons);
 
-    std::auto_ptr<std::vector<reco::Muon> >  out(new std::vector<reco::Muon>());
+    auto_ptr<vector<reco::Muon> >  out(new vector<reco::Muon>());
     out->reserve(caloMuons->size() + muons->size());
 
     // copy reco::Muons, turning on the CaloCompatibility flag if possible
-    for (std::vector<reco::Muon>::const_iterator it = muons->begin(), ed = muons->end(); it != ed; ++it) {
+    for (vector<reco::Muon>::const_iterator it = muons->begin(), ed = muons->end(); it != ed; ++it) {
         out->push_back(*it);
         reco::Muon & mu = out->back();
         if (mu.track().isNonnull()) {
@@ -67,7 +70,7 @@ CaloMuonMerger::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     }
 
     // copy reco::CaloMuon 
-    for (std::vector<reco::CaloMuon>::const_iterator it = caloMuons->begin(), ed = caloMuons->end(); it != ed; ++it) {
+    for (vector<reco::CaloMuon>::const_iterator it = caloMuons->begin(), ed = caloMuons->end(); it != ed; ++it) {
         // make a reco::Muon
         reco::TrackRef track = it->track();
         double energy = sqrt(track->p() * track->p() + 0.011163691);

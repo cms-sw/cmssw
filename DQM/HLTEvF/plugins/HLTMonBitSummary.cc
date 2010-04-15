@@ -36,6 +36,8 @@
 #include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 #include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 
+using namespace edm;
+using namespace std;
 
 HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.getParameter<edm::InputTag> ("TriggerResultsTag")),
@@ -59,7 +61,7 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
   hltchange_ = false;
 
   dbe_ = NULL;
-  dbe_ = edm::Service < DQMStore > ().operator->();
+  dbe_ = Service < DQMStore > ().operator->();
   dbe_->setVerbose(0);
 
 }
@@ -109,13 +111,13 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
 	configSelector(HLTPathNamesConfigPreVal_, HLTPathNamesConfig_);
       }
       else{
-	edm::LogError("HLTMonBitSummary") << "HLTConfigProvider initialization with process name " 
-					  << processName << " failed." << std::endl;
+	LogError("HLTMonBitSummary") << "HLTConfigProvider initialization with process name " 
+				     << processName << " failed." << endl;
 	  }
     }
     
     //check if the two vectors have any common elements    
-    std::vector<int> removePaths;
+    vector<int> removePaths;
     for(size_t i=0; i<HLTPathNamesKey_.size(); ++i){
       for(size_t j=0; j<HLTPathNamesConfig_.size(); ++j){
 	if(HLTPathNamesConfig_[j] == HLTPathNamesKey_[i]) removePaths.push_back(i); 
@@ -139,11 +141,11 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
 
     
     if( (nValidTriggers_ != HLTPathsByName_.size() || hltchange_) && total_!=0 ){
-      edm::LogWarning("HLTMonBitSummary") << "A change in the HLT configuration has been found." 
-					  << std::endl
-					  << "BitSummary histograms do not support changing configurations."
-					  << std::endl
-					  << "Processing of events halted.";
+      LogWarning("HLTMonBitSummary") << "A change in the HLT configuration has been found." 
+				     << std::endl
+				     << "BitSummary histograms do not support changing configurations."
+				     << std::endl
+				     << "Processing of events halted.";
       configFlag_ = true;
     }
 
@@ -160,30 +162,30 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
 	  triggerFilterIndices_.clear();
 	  for( size_t i = 0; i < nValidConfigTriggers_; i++) {
 	    // create a row [triggername,filter1name, filter2name, etc.] 
-	    triggerFilters_.push_back(std::vector <std::string>());  
+	    triggerFilters_.push_back(vector <string>());  
 	    // create a row [0, filter1index, filter2index, etc.]
-	    triggerFilterIndices_.push_back(std::vector <uint>()); 
+	    triggerFilterIndices_.push_back(vector <uint>()); 
       
-	    std::vector<std::string> moduleNames = hltConfig_.moduleLabels( HLTPathNamesConfig_[i] ); 
+	    vector<string> moduleNames = hltConfig_.moduleLabels( HLTPathNamesConfig_[i] ); 
       
 	    triggerFilters_[i].push_back(HLTPathNamesConfig_[i]);//first entry is trigger name      
 	    triggerFilterIndices_[i].push_back(0);
       
 	    int numModule = 0, numFilters = 0;
-	    std::string moduleName, moduleType;
+	    string moduleName, moduleType;
 	    unsigned int moduleIndex;
       
 	    //print module name
-	    std::vector<std::string>::const_iterator iDumpModName;
+	    vector<string>::const_iterator iDumpModName;
 	    for (iDumpModName = moduleNames.begin();iDumpModName != moduleNames.end();iDumpModName++) {
 	      moduleName = *iDumpModName;
 	      moduleType = hltConfig_.moduleType(moduleName);
 	      moduleIndex = hltConfig_.moduleIndex(HLTPathNamesConfig_[i], moduleName);
 	      LogDebug ("HLTMonBitSummary") << "Module"      << numModule
-						 << " is called " << moduleName
-						 << " , type = "  << moduleType
-						 << " , index = " << moduleIndex
-						 << std::endl;
+					    << " is called " << moduleName
+					    << " , type = "  << moduleType
+					    << " , index = " << moduleIndex
+					    << endl;
 	      numModule++;
 	      for(size_t k = 0; k < filterTypes_.size(); k++) {
 		if(moduleType == filterTypes_[k]) {
@@ -197,8 +199,8 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
 	}
       }
       else{
-	edm::LogError("HLTMonBitSummary") << "HLTConfigProvider initialization has failed."
-					  << " Could not get filter names." << std::endl;
+	LogError("HLTMonBitSummary") << "HLTConfigProvider initialization has failed."
+				     << " Could not get filter names." << endl;
 	filterFlag_ = true;
       }
 
@@ -295,10 +297,10 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if(configFlag_) return;
      
   total_++;    
-  const std::string invalid("@@invalid@@");
+  const string invalid("@@invalid@@");
 
   // get hold of TriggerResults Object
-  edm::Handle<edm::TriggerResults> trh;
+  Handle<TriggerResults> trh;
   iEvent.getByLabel(inputTag_,trh);
   
   if (trh.failedToGet()) {

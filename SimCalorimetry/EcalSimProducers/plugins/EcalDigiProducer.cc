@@ -1,3 +1,4 @@
+
 #include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
@@ -10,6 +11,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -22,7 +25,10 @@
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
-#include <iostream>
+
+
+
+
 EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
    m_BarrelDigitizer ( 0 ) ,
    m_EndcapDigitizer ( 0 ) ,
@@ -31,7 +37,7 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
    m_ParameterMap    ( 0 ) ,
    m_EBShape         (   ) ,
    m_EEShape         (   ) ,
-   m_ESShape         (   ) ,
+   m_ESShape         ( 0 ) ,
    m_EBResponse      ( 0 ) ,
    m_EEResponse      ( 0 ) ,
    m_ESResponse      ( 0 ) ,
@@ -59,6 +65,7 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
    const int binOfMaximum                    = params.getParameter<int>        ("binOfMaximum");
    const bool doPhotostatistics              = params.getParameter<bool>       ("doPhotostatistics");
    const bool syncPhase                      = params.getParameter<bool>       ("syncPhase");
+   const int ESGain                          = params.getParameter<int>        ("ESGain");
    const bool cosmicsPhase                   = params.getParameter<bool>       ("cosmicsPhase");
    const double cosmicsShift                 = params.getParameter<double>     ("cosmicsShift");
    const std::vector<double> ebCorMatVec     = params.getParameter< std::vector<double> >("EBCorrelatedNoiseMatrix");
@@ -66,7 +73,13 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
    const bool applyConstantTerm              = params.getParameter<bool>       ("applyConstantTerm");
    const double rmsConstantTerm              = params.getParameter<double>     ("ConstantTerm");
    const bool addESNoise                     = params.getParameter<bool>       ("doESNoise");
+   const double ESNoiseSigma                 = params.getParameter<double>     ("ESNoiseSigma");
+   const int ESBaseline                      = params.getParameter<int>        ("ESBaseline");
+   const double ESMIPADC                     = params.getParameter<double>     ("ESMIPADC");
+   const double ESMIPkeV                     = params.getParameter<double>     ("ESMIPkeV");
    const int numESdetId                      = params.getParameter<int>        ("numESdetId");
+   const double zsThreshold                  = params.getParameter<double>     ("zsThreshold");
+   const std::string refFile                 = params.getParameter<std::string>("refHistosFile");
    m_doFast                                  = params.getParameter<bool>       ("doFast");
    m_EBs25notCont                            = params.getParameter<double>     ("EBs25notContainment");
    m_EEs25notCont                            = params.getParameter<double>     ("EEs25notContainment");
@@ -94,7 +107,8 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
 					     doPhotostatistics,
 					     syncPhase);
    
-   m_ESShape   = new ESShape();
+  
+   m_ESShape   = new ESShape(ESGain);
 
    m_EBResponse = new CaloHitResponse( m_ParameterMap, &m_EBShape );
    m_EEResponse = new CaloHitResponse( m_ParameterMap, &m_EEShape );
@@ -146,22 +160,34 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
 
    if (!m_doFast) 
    {
-     m_ESElectronicsSim     =
-       new ESElectronicsSim( addESNoise );
-     
-     m_ESDigitizer = new ESDigitizer( m_ESResponse, 
-				      m_ESElectronicsSim,
-				      addESNoise           );
+      m_ESElectronicsSim     =
+	 new ESElectronicsSim( addESNoise,
+			       ESNoiseSigma,
+			       ESGain, 
+			       ESBaseline,
+			       ESMIPADC,
+			       ESMIPkeV);
+      
+      m_ESDigitizer = new ESDigitizer( m_ESResponse, 
+				       m_ESElectronicsSim,
+				       addESNoise           );
    }
    else
-     {
-       m_ESElectronicsSimFast = 
-	 new ESElectronicsSimFast( addESNoise );
+   {
+      m_ESElectronicsSimFast = 
+	 new ESElectronicsSimFast( addESNoise,
+				   ESNoiseSigma,
+				   ESGain, 
+				   ESBaseline,
+				   ESMIPADC,
+				   ESMIPkeV); 
 
       m_ESDigitizerFast = new ESFastTDigitizer( m_ESResponse,
 						m_ESElectronicsSimFast,
 						addESNoise,
-						numESdetId);
+						numESdetId, 
+						zsThreshold, 
+						refFile);
    }
 }
 
@@ -362,38 +388,6 @@ EcalDigiProducer::checkCalibrations( const edm::EventSetup& eventSetup )
 			<< ", " << m_EEs25notCont ;
 
    m_Coder->setFullScaleEnergy( EBscale , EEscale ) ;
-
-   // ES condition objects
-   edm::ESHandle<ESGain> esgain_;
-   edm::ESHandle<ESMIPToGeVConstant> esMIPToGeV_;
-   edm::ESHandle<ESPedestals> esPedestals_;
-   edm::ESHandle<ESIntercalibConstants> esMIPs_;
-
-   eventSetup.get<ESGainRcd>().get(esgain_);
-   eventSetup.get<ESMIPToGeVConstantRcd>().get(esMIPToGeV_);
-   eventSetup.get<ESPedestalsRcd>().get(esPedestals_);
-   eventSetup.get<ESIntercalibConstantsRcd>().get(esMIPs_);
-
-   const ESGain *esgain = esgain_.product();
-   const ESPedestals *espeds = esPedestals_.product();
-   const ESIntercalibConstants *esmips = esMIPs_.product();
-   const ESMIPToGeVConstant *esMipToGeV = esMIPToGeV_.product();
-   int ESGain = (int) esgain->getESGain();  
-   double ESMIPToGeV = (ESGain == 1) ? esMipToGeV->getESValueLow() : esMipToGeV->getESValueHigh(); 
-
-   m_ESShape->setGain(ESGain);
-   if (!m_doFast) {
-     m_ESElectronicsSim->setGain(ESGain);
-     m_ESElectronicsSim->setPedestals(espeds);
-     m_ESElectronicsSim->setMIPs(esmips);
-     m_ESElectronicsSim->setMIPToGeV(ESMIPToGeV);
-   } else {
-     m_ESDigitizerFast->setGain(ESGain);
-     m_ESElectronicsSimFast->setGain(ESGain);
-     m_ESElectronicsSimFast->setPedestals(espeds);
-     m_ESElectronicsSimFast->setMIPs(esmips);
-     m_ESElectronicsSimFast->setMIPToGeV(ESMIPToGeV);
-   }
 }
 
 

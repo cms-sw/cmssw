@@ -195,7 +195,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   LogTrace("TestSmoothHits") << "new event" << std::endl;
 
   iEvent.getByLabel(srcName,theTCCollection ); 
-  hitAssociator = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
+  hitAssociator = new TrackerHitAssociator(iEvent);
 
   TrajectoryStateCombiner combiner;
 

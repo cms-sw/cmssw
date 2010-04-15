@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.47 2010/03/25 15:03:38 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.48 2010/03/27 09:18:09 rekovic Exp $
 //
 //
 
@@ -428,19 +428,19 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
            filterName_ = labelName;
            return;
          }
-         const std::string getPath(void ) const {
+         const std::string & getPath(void ) const {
            return pathName_;
          }
-         const std::string getl1Path(void ) const {
+         const std::string & getl1Path(void ) const {
            return l1pathName_;
          }
          const int getL1ModuleIndex(void ) const {
            return l1ModuleIndex_;
          }
-         const std::string getDenomPath(void ) const {
+         const std::string & getDenomPath(void ) const {
            return denomPathName_;
          }
-         const std::string getProcess(void ) const {
+         const std::string & getProcess(void ) const {
            return processName_;
          }
          const int getObjectType(void ) const {

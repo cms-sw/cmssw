@@ -20,22 +20,20 @@ public:
 	static const count_t nGlD = 3; // no of global derivs
 	static const count_t nLcD = 4; // no of local derivs
 	static const count_t nMsrmts = 8; // no of measurements per image
-	static const count_t nLcPars = 4; // no of local parameters
-	static const count_t nFidpoints = 4; // no of fiducial points
 	// Typedefs for pede
 	typedef int pede_label_t;
 	typedef float pede_deriv_t;
 
 	// Constructors
 	SurveyPxbImageLocalFit(): 
-		SurveyPxbImage(), a_(nLcPars,0), fidpoints_(nFidpoints), fitValidFlag_(false), derivsValidFlag_(false)
+		SurveyPxbImage(), a_(4,0), fidpoints_(4), fitValidFlag_(false), derivsValidFlag_(false)
 	{
 		initFidPoints();
 	};
 
 	//! Constructor from istringstream
 	SurveyPxbImageLocalFit(std::istringstream &iss): 
-	    SurveyPxbImage(iss), a_(nLcPars,0), fidpoints_(nFidpoints), fitValidFlag_(false), derivsValidFlag_(false)
+		SurveyPxbImage(iss), a_(4,0), fidpoints_(4), fitValidFlag_(false), derivsValidFlag_(false)
 	{
 		initFidPoints();
 	};
@@ -60,10 +58,7 @@ public:
 	const pede_deriv_t* getGlobalDerivsPtr(count_t i)      {return globalDerivsMatrix_.Array()+i*nGlD;};
 	const pede_label_t* getGlobalDerivsLabelPtr(count_t i) {return i<4 ? &labelVec1_[0] : &labelVec2_[0];};
 	const pede_deriv_t getResiduum(count_t i) { return (pede_deriv_t) r(i); };
-	const pede_deriv_t getSigma(count_t i) { return i%2 ? sigma_x_ : sigma_y_ ; };
-
-	void setLocalDerivsToZero(count_t i);
-	void setGlobalDerivsToZero(count_t i);
+	const pede_deriv_t getSigma(count_t i) { return i%2 ? sigma_u_ : sigma_v_ ; };
 
 private:
 	//! Local parameters
@@ -98,18 +93,10 @@ private:
 	//! Initialise the fiducial points
 	void initFidPoints()
 	{
-		fidpoints_[0] = coord_t(-0.91,-3.30);
-		fidpoints_[1] = coord_t(+0.91,-3.30);
-		fidpoints_[2] = coord_t(-0.91,+3.30);
-		fidpoints_[3] = coord_t(+0.91,+3.30);
-	}
-
-	//! Distance
-	value_t dist(coord_t p1, coord_t p2)
-	{
-	    value_t dx = p1.x()-p2.x();
-	    value_t dy = p1.y()-p2.y();
-	    return sqrt(dx*dx+dy*dy);
+		fidpoints_[0] = coord_t(-0.91,+3.30);
+		fidpoints_[1] = coord_t(+0.91,+3.30);
+		fidpoints_[2] = coord_t(+0.91,-3.30);
+		fidpoints_[3] = coord_t(-0.91,-3.30);
 	}
 	
 };

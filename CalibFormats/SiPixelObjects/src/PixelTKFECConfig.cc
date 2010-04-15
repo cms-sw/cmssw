@@ -10,7 +10,7 @@
 #include <sstream>
 #include <map>
 #include <assert.h>
-#include <stdexcept>
+
 
 using namespace pos;
 using namespace std;
@@ -63,7 +63,6 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> >& table
 	    }
 	}
     }//end for
-  /*
   for(unsigned int n=0; n<colNames.size(); n++)
     {
       if(colM.find(colNames[n]) == colM.end())
@@ -72,8 +71,7 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> >& table
 	  assert(0);
 	}
     }
-  */
-
+  
   for(unsigned int r = 1 ; r < tableMat.size() ; r++)    //Goes to every row of the Matrix
     {
       std::string TKFECID  = tableMat[r][colM["TRKFEC_NAME"]] ;
@@ -83,7 +81,7 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> >& table
       PixelTKFECParameters tmp;
       tmp.setTKFECParameters(TKFECID , crate , type, address);
       TKFECconfig_.push_back(tmp);
-      //      cout << "[PixelTKFECConfig::PixelTKFECConfig()]\tID: " << TKFECID << " crate: " << crate << " address: " << address << endl;
+      cout << "[PixelTKFECConfig::PixelTKFECConfig()]\tID: " << TKFECID << " crate: " << crate << " address: " << address << endl;
     }
 }// end contructor
 
@@ -93,15 +91,14 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> >& table
 PixelTKFECConfig::PixelTKFECConfig(std::string filename):
     PixelConfigBase(" "," "," "){
 
-    std::string mthn ="]\t[PixelTKFECConfig::PixelTKFECConfig()]\t\t\t    " ;
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-	std::cout << __LINE__ << mthn << "Could not open: " << filename << std::endl;
-	throw std::runtime_error("Failed to open file "+filename);
+	std::cout << "Could not open:"<<filename<<std::endl;
+	assert(0);
     }
     else {
-	std::cout << __LINE__ << mthn << "Opened: "         << filename << std::endl;
+	std::cout << "Opened:"<<filename<<std::endl;
     }
 
     std::string dummy;
@@ -287,15 +284,15 @@ void PixelTKFECConfig::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>Tracker FEC Parameters</RUN_TYPE>"                                          << std::endl ; 
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ; 
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ; 
-  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                         << std::endl ; 
+  *outstream << "   <COMMENT_DESCRIPTION>ROC MaxVsf Settings</COMMENT_DESCRIPTION>"                       << std::endl ; 
+  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                        << std::endl ; 
+  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                 << std::endl ; 
   *outstream << "  </RUN>"                                                                                << std::endl ; 
   *outstream << " </HEADER>"                                                                              << std::endl ; 
   *outstream << ""                                                                                        << std::endl ; 
   *outstream << " <DATA_SET>"                                                                             << std::endl ;
   *outstream << ""                                                                                        << std::endl ;
-  *outstream << "  <VERSION>"             << version      << "</VERSION>"                                 << std::endl ;
-  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			  << std::endl ;
-  *outstream << "  <CREATED_BY_USER>"   << getAuthor()  << "</CREATED_BY_USER>"			          << std::endl ;
+  *outstream << "  <VERSION>" << version << "</VERSION>"                                                  << std::endl ;
   *outstream << ""                                                                                        << std::endl ;
   *outstream << "  <PART>"                                                                                << std::endl ;
   *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                              << std::endl ;      

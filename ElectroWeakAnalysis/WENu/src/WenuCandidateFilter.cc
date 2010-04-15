@@ -26,18 +26,6 @@
  12Feb09  First Release of the code for CMSSW_2_2_X
  16Sep09  First Release for CMSSW_3_1_X
  09Dec09  Option to ignore trigger
- 23Feb10  Added options to use Conversion Rejection, Expected missing hits
-          and valid hit at first PXB
-          Added option to calculate these criteria and store them in the pat electron object
-          this is done by setting in the configuration the flags
-	  calculateValidFirstPXBHit = true
-          calculateConversionRejection = true
-          calculateExpectedMissinghits = true
-          Then the code calculates them and you can access all these from pat::Electron
-	  myElec.userInt("PassValidFirstPXBHit")      0 fail, 1 passes
-          myElec.userInt("PassConversionRejection")   0 fail, 1 passes
-          myElec.userInt("NumberOfExpectedMissingHits") the number of lost hits
- 01Mar10  2nd electron option to be isolated if requested by user
  Contact:
  Nikolaos.Rompotis@Cern.ch
  Imperial College London
@@ -74,12 +62,7 @@
 //#include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
-// for conversion finder
-#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
 //
 
 //
@@ -95,7 +78,7 @@ class WenuCandidateFilter : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       bool isInFiducial(double eta);
-  bool passEleIDCuts(pat::Electron *ele);
+      
       // ----------member data ---------------------------
   double ETCut_;
   double METCut_;
@@ -114,17 +97,6 @@ class WenuCandidateFilter : public edm::EDFilter {
   bool electronMatched2HLT_;
   double electronMatched2HLT_DR_;
   bool vetoSecondElectronEvents_;
-  bool useVetoSecondElectronID_;
-  std::string vetoSecondElectronIDType_;
-  std::string vetoSecondElectronIDSign_;
-  double vetoSecondElectronIDValue_;
-  bool useValidFirstPXBHit_;
-  bool calculateValidFirstPXBHit_;
-  bool useConversionRejection_;
-  bool calculateConversionRejection_;
-  bool useExpectedMissingHits_;
-  bool calculateExpectedMissingHits_;
-  int  maxNumberOfExpectedMissingHits_;
 };
 #endif
 //
@@ -153,33 +125,6 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   ETCut2ndEle_ = iConfig.getUntrackedParameter<double>("ETCut2ndEle",
 						       ETCut2ndEle_D);
   vetoSecondElectronEvents_ = iConfig.getUntrackedParameter<bool>("vetoSecondElectronEvents",false);
-  vetoSecondElectronIDType_ = iConfig.getUntrackedParameter<std::string>
-    ("vetoSecondElectronIDType", "NULL");
-  if (vetoSecondElectronIDType_ != "NULL") {
-    useVetoSecondElectronID_ = true;
-    vetoSecondElectronIDValue_ = iConfig.getUntrackedParameter<double>
-      ("vetoSecondElectronIDValue");
-    vetoSecondElectronIDSign_ = iConfig.getUntrackedParameter<std::string>
-      ("vetoSecondElectronIDSign","=");
-  }
-  else useVetoSecondElectronID_ = false;
-  //
-  // preselection criteria: hit pattern
-  useValidFirstPXBHit_ = 
-    iConfig.getUntrackedParameter<Bool_t>("useValidFirstPXBHit",false);
-  calculateValidFirstPXBHit_ = 
-    iConfig.getUntrackedParameter<Bool_t>("calculateValidFirstPXBHit",false);
-  useConversionRejection_ = 
-    iConfig.getUntrackedParameter<Bool_t>("useConversionRejection",false);
-  calculateConversionRejection_ =
-    iConfig.getUntrackedParameter<Bool_t>("calculateConversionRejection",false);
-  useExpectedMissingHits_ = 
-    iConfig.getUntrackedParameter<Bool_t>("useExpectedMissingHits",false);
-  calculateExpectedMissingHits_ = 
-    iConfig.getUntrackedParameter<Bool_t>("calculateExpectedMissingHits",false);
-  maxNumberOfExpectedMissingHits_ = 
-    iConfig.getUntrackedParameter<int>("maxNumberOfExpectedMissingHits",1);
-  //
   //
   //
   double BarrelMaxEta_D = 1.4442;
@@ -233,14 +178,8 @@ IsolFilter","","HLT");
   std::cout << "WenuCandidateFilter: ET  > " << ETCut_ << std::endl;
   std::cout << "WenuCandidateFilter: MET > " << METCut_ << std::endl;
   if (vetoSecondElectronEvents_) {
-    std::cout << "WenuCandidateFilter: VETO 2nd electron with ET > " 
-	      << ETCut2ndEle_ << std::endl;
-    if (useVetoSecondElectronID_) {
-      std::cout<<"WenuCandidateFilter: VETO 2nd ele ID "  
-	       << vetoSecondElectronIDType_ << vetoSecondElectronIDSign_
-	       << vetoSecondElectronIDValue_
-	       << std::endl;
-    }
+  std::cout << "WenuCandidateFilter: VETO 2nd electron with ET > " 
+	    << ETCut2ndEle_ << std::endl;
   }
   else {
     std::cout << "WenuCandidateFilter: No veto for 2nd electron applied " 
@@ -253,37 +192,6 @@ IsolFilter","","HLT");
   } else {
     std::cout << "WenuCandidateFilter: Electron Candidate NOT required to "
 	      << "match HLT object " << std::endl;
-  }
-  if (useValidFirstPXBHit_) {
-    std::cout << "WenuCandidateFilter: Electron Candidate required to have "
-              << "a valid hit in 1st PXB layer " << std::endl;
-  }
-  if (calculateValidFirstPXBHit_) {
-    std::cout << "WenuCandidateFilter: Info about whether there is a valid 1st layer PXB hit "
-	      << "will be stored: you can access that later by "
-	      << "myElec.userInt(\"PassValidFirstPXBHit\")==1" << std::endl;
-  }
-  if (useExpectedMissingHits_) {
-    std::cout << "WenuCandidateFilter: Electron Candidate required to have "
-	      << " less than " << maxNumberOfExpectedMissingHits_ 
-	      << " expected hits missing " << std::endl;
-    ;
-  }
-  if (calculateExpectedMissingHits_) {
-    std::cout << "WenuCandidateFilter: Missing Hits from expected inner layers "
-              << "will be calculated and stored: you can access them later by " 
-	      << "myElec.userInt(\"NumberOfExpectedMissingHits\")"   << std::endl;
-  }
-  if (useConversionRejection_) {
-    std::cout << "WenuCandidateFilter: Electron Candidate required to pass "
-	      << "EGAMMA Conversion Rejection criteria " << std::endl;
-  }
-  if (calculateConversionRejection_) {
-    std::cout << "WenuCandidateFilter: EGAMMA Conversion Rejection criteria "
-	      << "will be calculated and stored: you can access them later by " 
-	      << "demanding for a successful electron "
-	      << "myElec.userInt(\"PassConversionRejection\")==1"
-	      << std::endl;
   }
   std::cout << "WenuCandidateFilter: Fiducial Cut: " << std::endl;
   std::cout << "WenuCandidateFilter:    BarrelMax: "<<BarrelMaxEta_<<std::endl;
@@ -442,16 +350,15 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //
    // now search for a second Gsf electron with ET > ETCut2ndEle_
    if (event_elec_number>=2 && vetoSecondElectronEvents_) {
-     pat::Electron secElec = myElectrons[ sorted[1] ];
-     //std::cout << "Second Electron with ET=" << ETs[ sorted[1] ] << " and ID: " << passEleIDCuts(&secElec)  <<std::endl;
-     if (ETs[ sorted[1] ] > ETCut2ndEle_ && passEleIDCuts(&secElec)) {
+     if (ETs[ sorted[1] ] > ETCut2ndEle_) {
+       //std::cout<<"Second Electron with ET=" << ETs[ sorted[1] ]<<std::endl;
        delete [] sorted;  delete [] et;
        return false;  // RETURN if you have more that 1 electron with ET>cut
      }
    }
    //
    // get the most high-ET electron:
-   pat::Electron maxETelec = myElectrons[max_et_index];
+   const  pat::Electron maxETelec = myElectrons[max_et_index];
    //std::cout << "** selected ele phi: " << maxETelec.phi()
    //	     << ", eta=" << maxETelec.eta() << ", sihih="
    //	     << maxETelec.scSigmaIEtaIEta() << ", hoe=" 
@@ -460,71 +367,6 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //	     << ", hcalIso: " << maxETelec.hcalIso()
    //	     << std::endl;
    //
-   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   // special pre-selection requirements ^^^
-   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   // hit pattern and conversion rejection
-   if (useValidFirstPXBHit_ || calculateValidFirstPXBHit_) {
-     bool fail = 
-       not maxETelec.gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel();
-    if(useValidFirstPXBHit_ && fail) 
-      {
-	delete [] sorted;  delete [] et;
-	//std::cout << "Filter: there is no valid hit in 1st layer PXB" << std::endl;
-	return false;
-      }
-    if (calculateValidFirstPXBHit_) {
-      std::string vfpx("PassValidFirstPXBHit");
-      if (fail)
-	maxETelec.addUserInt(vfpx,0);
-      else
-      	maxETelec.addUserInt(vfpx,1);
-    }
-   }
-   if (useExpectedMissingHits_ || calculateExpectedMissingHits_) {
-     int numberOfLostInnerHits = (int) maxETelec.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
-     if (numberOfLostInnerHits > maxNumberOfExpectedMissingHits_
-	 && useExpectedMissingHits_) {
-       delete [] sorted;  delete [] et;
-       return false;
-     }
-     if (calculateExpectedMissingHits_) {
-       maxETelec.addUserInt("NumberOfExpectedMissingHits",numberOfLostInnerHits);
-     }
-   }
-   if (useConversionRejection_ || calculateConversionRejection_) {
-     // use of conversion rejection as it is implemented in egamma
-     // you have to get the general track collection to do that
-     // WARNING! you have to supply the correct B-field in Tesla
-     // the magnetic field
-     edm::ESHandle<MagneticField> magneticField;
-     iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-     const  MagneticField *mField = magneticField.product();
-     edm::Handle<reco::TrackCollection> ctfTracks;
-     if ( iEvent.getByLabel("generalTracks", ctfTracks) ) {
-       ConversionFinder cf;
-       const math::XYZPoint tpoint = maxETelec.gsfTrack()->referencePoint();
-       const GlobalPoint gp(tpoint.x(), tpoint.y(), tpoint.z());
-       double bfield = mField->inTesla(gp).mag();  
-       bool isConv = cf.isElFromConversion(maxETelec, ctfTracks, bfield);
-       //std::cout << "Filter: for this elec the conversion says " << isConv << std::endl;
-       if (isConv && useConversionRejection_) {
-       	 delete [] sorted;  delete [] et;
-       	 return false;	 
-       }
-       if (calculateConversionRejection_) {
-	 if (isConv) 
-	   maxETelec.addUserInt("PassConversionRejection",0);
-	 else
-	   maxETelec.addUserInt("PassConversionRejection",1);
-       }
-     } else {
-       std::cout << "WARNING! Track Collection with input name: generalTracks" 
-		 << " was not found. Conversion Rejection is not going to be"
-		 << " applied!!!" << std::endl;
-     }
-
-   }
    // these 3 objects have been declared outside the loop
    //const int nF(pHLT->sizeFilters());
    //const int iF = pHLT->filterIndex(hltpathFilter_);
@@ -649,32 +491,6 @@ bool WenuCandidateFilter::isInFiducial(double eta)
     return true;
   return false;
 
-}
-
-bool WenuCandidateFilter::passEleIDCuts(pat::Electron *ele)
-{
-  if (not useVetoSecondElectronID_)  return true;
-  if (not ele->isElectronIDAvailable(vetoSecondElectronIDType_)) {
-    std::cout << "WenuCandidateFilter: request ignored: 2nd electron ID type "
-	      << "not found in electron object" << std::endl;
-    return true;
-  }
-  if (vetoSecondElectronIDSign_ == ">") {
-    if (ele->electronID(vetoSecondElectronIDType_)>vetoSecondElectronIDValue_)
-      return true;
-    else return false;
-  }
-  else if (vetoSecondElectronIDSign_ == "<") {
-    if (ele->electronID(vetoSecondElectronIDType_)<vetoSecondElectronIDValue_)
-      return true;
-    else return false;
-  }
-  else {
-    if (fabs(ele->electronID(vetoSecondElectronIDType_)-
-	     vetoSecondElectronIDValue_) < 0.1)
-      return true;
-    else return false;    
-  }
 }
 
 //define this as a plug-in

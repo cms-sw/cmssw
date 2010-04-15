@@ -13,36 +13,18 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
-#include <iomanip>
-
 using namespace std;
 
-/**
- * Small function to simplify the creation of text in the TPaveText. <br>
- * It automatically writes the corret number of figures.
- */
-TString setText(const char * text, const double & num1, const char * divider = "", const double & num2 = 0)
-{
-  // cout << "text = " << text << ", num1 = " << num1 << ", divider = " << divider << ", num2 = " << num2 << endl;
-
-  // Counter gives the precision
-  int precision = 1;
-  int k=1;
-  while( int(num2*k) == 0 ) {
-    // cout << "int(num2*"<<k<<")/int("<<k<<") = " << int(num2*k)/int(k) << endl;
-    k*=10;
-    ++precision;
-  }
-
+/// Small function to simplify the creation of text in the TPaveText
+TString setText(const char * text, const double & num1, const char * divider = "", const double & num2 = 0) {
   stringstream numString;
   TString textString(text);
-  numString << setprecision(precision) << fixed << num1;
+  numString << num1;
   textString += numString.str();
   if( num2 != 0 ) {
     textString += divider;
     numString.str("");
-    if( string(text).find("ndf") != string::npos ) precision = 0;
-    numString << setprecision(precision) << fixed << num2;
+    numString << num2;
     textString += numString.str();
   }
   return textString;
@@ -432,8 +414,8 @@ void macroPlot( TString name, TString nameGen, const TString & nameFile1, const 
     if( grM_1->GetN() > 0 ) grM_1->Fit("fit1","", "", -3, 3);
     setTPaveText(fit1, paveText1);
 
-    TF1 *fit2 = new TF1("fit2","pol0",-3.2,3.2);
-    // TF1 *fit2 = new TF1("fit2",onlyParabolic,-3.2,3.2,2);
+    // TF1 *fit2 = new TF1("fit2","pol0",-3.2,3.2);
+    TF1 *fit2 = new TF1("fit2",onlyParabolic,-3.2,3.2,2);
     fit2->SetLineWidth(2);
     fit2->SetLineColor(2);
     if( grM_2->GetN() > 0 ) grM_2->Fit("fit2","", "", -3, 3);
@@ -449,37 +431,37 @@ void macroPlot( TString name, TString nameGen, const TString & nameFile1, const 
     }
   }
   /*****************SINUSOIDAL FIT (PHI)********************/
-//   if( name.Contains("Phi") ) {
-//     cout << "Fitting phi" << endl;
-//     TF1 *fit1 = new TF1("fit1",sinusoidal,-3.2,3.2,3);
-//     fit1->SetParameters(9.45,1,1);
-//     fit1->SetParNames("offset","amplitude","phase");
-//     fit1->SetLineWidth(2);
-//     fit1->SetLineColor(1);
-//     fit1->SetParLimits(2,-3.14,3.14);
-//     if( grM_1->GetN() > 0 ) grM_1->Fit("fit1","","",-3,3);
-//     setTPaveText(fit1, paveText1);
+  if( name.Contains("Phi") ) {
+    cout << "Fitting phi" << endl;
+    TF1 *fit1 = new TF1("fit1",sinusoidal,-3.2,3.2,3);
+    fit1->SetParameters(9.45,1,1);
+    fit1->SetParNames("offset","amplitude","phase");
+    fit1->SetLineWidth(2);
+    fit1->SetLineColor(1);
+    fit1->SetParLimits(2,-3.14,3.14);
+    if( grM_1->GetN() > 0 ) grM_1->Fit("fit1","","",-3,3);
+    setTPaveText(fit1, paveText1);
 
-//     TF1 *fit2 = new TF1("fit2",sinusoidal,-3.2,3.2,3);
-//     fit2->SetParameters(9.45,1,1);
-//     fit2->SetParNames("offset","amplitude","phase");
-//     fit2->SetLineWidth(2);
-//     fit2->SetLineColor(2);
-//     fit2->SetParLimits(2,-3.14,3.14);
-//     if( grM_2->GetN() > 0 ) grM_2->Fit("fit2","","",-3,3);
-//     setTPaveText(fit2, paveText2);
+    TF1 *fit2 = new TF1("fit2",sinusoidal,-3.2,3.2,3);
+    fit2->SetParameters(9.45,1,1);
+    fit2->SetParNames("offset","amplitude","phase");
+    fit2->SetLineWidth(2);
+    fit2->SetLineColor(2);
+    fit2->SetParLimits(2,-3.14,3.14);
+    if( grM_2->GetN() > 0 ) grM_2->Fit("fit2","","",-3,3);
+    setTPaveText(fit2, paveText2);
 
-//     if(genMass){
-//       TF1 *fit3 = new TF1("fit3",sinusoidal,-3.2,3.2,3);
-//       fit3->SetParameters(9.45,1,1);
-//       fit3->SetParNames("offset","amplitude","phase");
-//       fit3->SetLineWidth(2);
-//       fit3->SetLineColor(4);
-//       fit3->SetParLimits(2,-3.14,3.14);
-//       if( grM_Gen->GetN() > 0 ) grM_Gen->Fit("fit3","","",-3,3);
-//       setTPaveText(fit3, paveText3);
-//     }
-//   }
+    if(genMass){
+      TF1 *fit3 = new TF1("fit3",sinusoidal,-3.2,3.2,3);
+      fit3->SetParameters(9.45,1,1);
+      fit3->SetParNames("offset","amplitude","phase");
+      fit3->SetLineWidth(2);
+      fit3->SetLineColor(4);
+      fit3->SetParLimits(2,-3.14,3.14);
+      if( grM_Gen->GetN() > 0 ) grM_Gen->Fit("fit3","","",-3,3);
+      setTPaveText(fit3, paveText3);
+    }
+  }
   /*****************************************/ 
   if( name.Contains("Pt") ) {
     cout << "Fitting pt" << endl;

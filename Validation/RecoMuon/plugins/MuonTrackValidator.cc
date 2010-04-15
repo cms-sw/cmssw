@@ -357,44 +357,59 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
       //get collections from the event
       //
       edm::Handle<View<Track> >  trackCollection;
-      if(!event.getByLabel(label[www], trackCollection)&&ignoremissingtkcollection_)continue;
 
       reco::RecoToSimCollection recSimColl;
       reco::SimToRecoCollection simRecColl;
-      //associate tracks
-      if(UseAssociators){
-	edm::LogVerbatim("MuonTrackValidator") << "Analyzing " 
-					   << label[www].process()<<":"
-					   << label[www].label()<<":"
-					   << label[www].instance()<<" with "
-					   << associators[ww].c_str() <<"\n";
-	
-	LogTrace("MuonTrackValidator") << "Calling associateRecoToSim method" << "\n";
-	recSimColl=associator[ww]->associateRecoToSim(trackCollection,
-						      TPCollectionHfake,
-						      &event);
-	LogTrace("MuonTrackValidator") << "Calling associateSimToReco method" << "\n";
-	simRecColl=associator[ww]->associateSimToReco(trackCollection,
-						      TPCollectionHeff, 
-						      &event);
+      unsigned int trackCollectionSize = 0;
+
+      //      if(!event.getByLabel(label[www], trackCollection)&&ignoremissingtkcollection_) continue;
+      if(!event.getByLabel(label[www], trackCollection)&&ignoremissingtkcollection_) {
+
+	recSimColl.post_insert();
+	simRecColl.post_insert();
+
       }
-      else{
-	edm::LogVerbatim("MuonTrackValidator") << "Analyzing " 
-					   << label[www].process()<<":"
-					   << label[www].label()<<":"
-					   << label[www].instance()<<" with "
-					   << associatormap.process()<<":"
-					   << associatormap.label()<<":"
-					   << associatormap.instance()<<"\n";
+
+      else {
+
+	trackCollectionSize = trackCollection->size();
+	//associate tracks
+	if(UseAssociators){
+	  edm::LogVerbatim("MuonTrackValidator") << "Analyzing " 
+						 << label[www].process()<<":"
+						 << label[www].label()<<":"
+						 << label[www].instance()<<" with "
+						 << associators[ww].c_str() <<"\n";
 	
-	Handle<reco::SimToRecoCollection > simtorecoCollectionH;
-	event.getByLabel(associatormap,simtorecoCollectionH);
-	simRecColl= *(simtorecoCollectionH.product()); 
+	  LogTrace("MuonTrackValidator") << "Calling associateRecoToSim method" << "\n";
+	  recSimColl=associator[ww]->associateRecoToSim(trackCollection,
+							TPCollectionHfake,
+							&event);
+	  LogTrace("MuonTrackValidator") << "Calling associateSimToReco method" << "\n";
+	  simRecColl=associator[ww]->associateSimToReco(trackCollection,
+							TPCollectionHeff, 
+							&event);
+	}
+	else{
+	  edm::LogVerbatim("MuonTrackValidator") << "Analyzing " 
+						 << label[www].process()<<":"
+						 << label[www].label()<<":"
+						 << label[www].instance()<<" with "
+						 << associatormap.process()<<":"
+						 << associatormap.label()<<":"
+						 << associatormap.instance()<<"\n";
 	
-	Handle<reco::RecoToSimCollection > recotosimCollectionH;
-	event.getByLabel(associatormap,recotosimCollectionH);
-	recSimColl= *(recotosimCollectionH.product()); 
+	  Handle<reco::SimToRecoCollection > simtorecoCollectionH;
+	  event.getByLabel(associatormap,simtorecoCollectionH);
+	  simRecColl= *(simtorecoCollectionH.product()); 
+	
+	  Handle<reco::RecoToSimCollection > recotosimCollectionH;
+	  event.getByLabel(associatormap,recotosimCollectionH);
+	  recSimColl= *(recotosimCollectionH.product()); 
+	}
+
       }
+
       
       //
       //fill simulation histograms
@@ -611,10 +626,10 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 					 << label[www].process()<<":"
 					 << label[www].label()<<":"
 					 << label[www].instance()
-					 << ": " << trackCollection->size() << "\n";
+					 << ": " << trackCollectionSize << "\n";
       int at=0;
       int rT=0;
-      for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
+      for(View<Track>::size_type i=0; i<trackCollectionSize; ++i){
         bool Track_is_matched = false; 
 	RefToBase<Track> track(trackCollection, i);
 	rT++;
@@ -923,7 +938,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	catch (cms::Exception e){
 	  LogTrace("MuonTrackValidator") << "exception found: " << e.what() << "\n";
 	}
-      } // End of for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
+      } // End of for(View<Track>::size_type i=0; i<trackCollectionSize; ++i){
       if (at!=0) h_tracks[w]->Fill(at);
       h_fakes[w]->Fill(rT-at);
       edm::LogVerbatim("MuonTrackValidator") << "Total Simulated: " << st << "\n"

@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.36 2010/03/30 16:35:50 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.33 2010/03/23 13:13:05 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -29,7 +29,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -63,10 +62,6 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-				    const edm::EventSetup& context);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-				  const edm::EventSetup& context);
 
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
@@ -96,13 +91,8 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
 
   //add parameter to save computing time if TkHistoMap are not filled
   bool doTkHistoMap_;
-  bool doMedHists_;
 
   unsigned int nEvt_;
-
-  //FED errors
-  //need class member for lumi histograms
-  FEDErrors fedErrors_;
 
 };
 
@@ -141,9 +131,8 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   
   fedHists_.initialise(iConfig,pDebugStream);
 
-  doTkHistoMap_ = fedHists_.tkHistoMapEnabled();
+  doTkHistoMap_ = fedHists_.isTkHistoMapEnabled(fedHists_.tkHistoMapName());
 
-  doMedHists_ = fedHists_.cmHistosEnabled();
 
   if (printDebug_) {
     LogTrace("SiStripMonitorHardware") << debugStream.str();
@@ -182,7 +171,8 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
-  fedErrors_.initialiseEvent();
+  //FED errors
+  FEDErrors lFedErrors;
 
   //initialise map of fedId/bad channel number
   std::map<unsigned int,std::pair<unsigned short,unsigned short> > badChannelFraction;
@@ -203,38 +193,38 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     const FEDRawData& fedData = rawDataCollection.FEDData(fedId);
 
     //create an object to fill all errors
-    fedErrors_.initialiseFED(fedId,cabling_);
+    lFedErrors.initialise(fedId,cabling_);
     bool lFullDebug = false;
  
     //Do detailed check
     //first check if data exists
-    bool lDataExist = fedErrors_.checkDataPresent(fedData);
+    bool lDataExist = lFedErrors.checkDataPresent(fedData);
     if (!lDataExist) {
-      fedHists_.fillFEDHistograms(fedErrors_,lFullDebug);
+      fedHists_.fillFEDHistograms(lFedErrors,lFullDebug);
       continue;
     }
 
 
  
     //check for problems and fill detailed histograms
-    fedErrors_.fillFEDErrors(fedData,
+    lFedErrors.fillFEDErrors(fedData,
 			     lFullDebug,
 			     printDebug_,
 			     lNChannelMonitoring,
 			     lNChannelUnpacker,
-			     doMedHists_,
+			     fedHists_.cmHistosEnabled(),
 			     fedHists_.cmHistPointer(false),
 			     fedHists_.cmHistPointer(true)
 			     );
 
     //check filled in previous method.
-    bool lFailUnpackerFEDcheck = fedErrors_.failUnpackerFEDCheck();
+    bool lFailUnpackerFEDcheck = lFedErrors.failUnpackerFEDCheck();
 
-    fedErrors_.incrementFEDCounters();
-    fedHists_.fillFEDHistograms(fedErrors_,lFullDebug);
+    lFedErrors.incrementFEDCounters();
+    fedHists_.fillFEDHistograms(lFedErrors,lFullDebug);
 
 
-    bool lFailMonitoringFEDcheck = fedErrors_.failMonitoringFEDCheck();
+    bool lFailMonitoringFEDcheck = lFedErrors.failMonitoringFEDCheck();
     if (lFailMonitoringFEDcheck) lNTotBadFeds++;
 
 
@@ -267,7 +257,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 						<< ", TkHistoMap enabled but pointer is null." << std::endl;
     }
 
-    fedErrors_.fillBadChannelList(doTkHistoMap_,
+    lFedErrors.fillBadChannelList(doTkHistoMap_,
 				  fedHists_.tkHistoMapPointer(),
 				  lNTotBadChannels,
 				  lNTotBadActiveChannels);
@@ -342,8 +332,6 @@ SiStripFEDMonitorPlugin::beginJob()
   //   }
   
 
-
-
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -352,28 +340,6 @@ SiStripFEDMonitorPlugin::endJob()
 {
   if (writeDQMStore_) dqm_->save(dqmStoreFileName_);
 }
-
-
-
-void 
-SiStripFEDMonitorPlugin::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-					      const edm::EventSetup& context)
-{
-
-  fedErrors_.initialiseLumiBlock();
-
-}
-
-
-void 
-SiStripFEDMonitorPlugin::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-					    const edm::EventSetup& context)
-{
-  fedHists_.fillLumiHistograms(fedErrors_.getLumiErrors());
-}
-
-
-
 
 void SiStripFEDMonitorPlugin::updateCabling(const edm::EventSetup& eventSetup)
 {

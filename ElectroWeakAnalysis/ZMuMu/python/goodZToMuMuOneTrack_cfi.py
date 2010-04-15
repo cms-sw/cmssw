@@ -5,8 +5,6 @@ from ElectroWeakAnalysis.ZMuMu.zSelection_cfi import *
 zToMuGlobalMuOneTrack = cms.EDFilter(
     "CandViewRefSelector",
     cut = cms.string("daughter(0).isGlobalMuon = 1"),
-    ### added UserData
-###    src = cms.InputTag("userDataDimuonsOneTrack"),
     src = cms.InputTag("dimuonsOneTrack"),
     filter = cms.bool(True)
 )

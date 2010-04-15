@@ -3,13 +3,14 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexSmoother.h"
 
 #include "PhysicsTools/RecoAlgos/plugins/KalmanVertexFitter.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
@@ -135,10 +136,6 @@ PFDisplacedVertexFinder::findDisplacedVertices() {
 
   for(unsigned idv = 0; idv < tempDisplacedVertices.size(); idv++)
     if (!bLocked[idv]) displacedVertices_->push_back(tempDisplacedVertices[idv]);
-   
-  if (debug_) cout << "6) Label the Displaced Vertices" << endl;
-
-  labelVertices();
 
   if (debug_) cout << "========= End Find Displaced Vertices =========" << endl;
 
@@ -270,7 +267,8 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
   return true;
   }
 
-  if (debug_) displacedVertexSeed.Dump();
+
+  if (debug_) cout << "Seed Point in the tracker rho = " << rho << " z = "<< z << " nTracks = " << tracksToFit.size() << endl;
 
   int nStep45 = 0;
   int nNotIterative = 0;
@@ -291,7 +289,6 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     if (debug_) cout << "Seed point at rho > 25 cm but no step 4-5 tracks" << endl;
     return true;
   }
-
   // ----------------------------------------------- //
   // ---- Prepare transient track list is ready ---- //
   // ----------------------------------------------- //
@@ -300,8 +297,12 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
   //  AdaptiveVertexFitter theAdaptiveFitterRaw;
 
- 
-  AdaptiveVertexFitter theAdaptiveFitterRaw(GeometricAnnealing(sigmacut_, t_ini_, ratio_),
+  double sigmacut = 6;
+  double Tini = 256.;
+  double ratio = 0.25;
+
+  AdaptiveVertexFitter theAdaptiveFitterRaw(
+					    GeometricAnnealing(sigmacut, Tini, ratio),
 					    DefaultLinearizationPointFinder(),
 					    KalmanVertexUpdator<5>(), 
 					    KalmanVertexTrackCompatibilityEstimator<5>(), 
@@ -314,6 +315,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, seedPoint);
   }catch( cms::Exception& exception ){
     if(debug_) cout << "Fit Crashed" << endl;
+    //    cout << exception.what() << endl;
     return true;
   }
 
@@ -351,19 +353,8 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
       if (vertexTrackType != PFDisplacedVertex::T_NOT_FROM_VERTEX){
 
-	bool bGoodTrack = helper_.isTrackSelected(transTracksRaw[i].track(), vertexTrackType);
-
-	if (bGoodTrack){
-	  transTracks.push_back(transTracksRaw[i]);
-	  transTracksRef.push_back(transTracksRefRaw[i]);
-	} else {
-	  if (debug_)
-	    cout << "Track rejected nChi2 = " << transTracksRaw[i].track().normalizedChi2()
-		 << " pt = " <<  transTracksRaw[i].track().pt()
-		 << " dxy (wrt (0,0,0)) = " << transTracksRaw[i].track().dxy()
-		 << " nHits = " << transTracksRaw[i].track().numberOfValidHits()
-		 << " nOuterHits = " << transTracksRaw[i].track().trackerExpectedHitsOuter().numberOfHits() << endl;
-	} 
+	transTracks.push_back(transTracksRaw[i]);
+	transTracksRef.push_back(transTracksRefRaw[i]);
       } else {
 
 	if (debug_){ 
@@ -393,7 +384,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
   } else if(vtxFitter == string("AdaptiveVertexFitter")){
 
     AdaptiveVertexFitter theAdaptiveFitter( 
-					 GeometricAnnealing(sigmacut_, t_ini_, ratio_),
+					 GeometricAnnealing(sigmacut, Tini, ratio),
 					 DefaultLinearizationPointFinder(),
 					 KalmanVertexUpdator<5>(), 
 					 KalmanVertexTrackCompatibilityEstimator<5>(), 
@@ -571,15 +562,7 @@ PFDisplacedVertexFinder::selectVertices(const PFDisplacedVertexCollection& tempD
 
 }
 
-void 
-PFDisplacedVertexFinder::labelVertices(){
 
-  for(IDV idv = displacedVertices_->begin(); idv != displacedVertices_->end(); idv++){
-    PFDisplacedVertex::VertexType vertexType = helper_.identifyVertex(*idv);
-    (*idv).setVertexType(vertexType);
-  }
-
-}
 
 
 /// -------- Tools -------- ///
@@ -674,21 +657,14 @@ unsigned PFDisplacedVertexFinder::commonTracks(const PFDisplacedVertex& v1, cons
 
 }
 
+
 std::ostream& operator<<(std::ostream& out, const PFDisplacedVertexFinder& a) {
 
   if(! out) return out;
-  out << setprecision(3) << setw(5) << endl;
-  out << "" << endl;
-  out << " ====================================== " << endl;  
-  out << " ====== Displaced Vertex Finder ======= " << endl;
-  out << " ====================================== " << endl;  
-  out << " " << endl;  
+  
+  out<<"====== Displaced Vertex Finder ======= ";
+  out<<endl;
 
-  a.helper_.Dump();
-  out << "" << endl 
-      << " Adaptive Vertex Fitter parameters are :"<< endl 
-      << " sigmacut = " << a.sigmacut_ << " T_ini = " 
-      << a.t_ini_ << " ratio = " << a.ratio_ << endl << endl; 
 
   const std::auto_ptr< reco::PFDisplacedVertexCollection >& displacedVertices_
     = a.displacedVertices(); 
@@ -699,15 +675,13 @@ std::ostream& operator<<(std::ostream& out, const PFDisplacedVertexFinder& a) {
   }
   else{
 
-    out<<"Number of displacedVertices found : "<< displacedVertices_->size()<<endl<<endl;
-
-    int i = -1;
+    out<<"number of displacedVertices found : "<< displacedVertices_->size()<<endl;
+    out<<endl;
 
     for(PFDisplacedVertexFinder::IDV idv = displacedVertices_->begin(); 
-	idv != displacedVertices_->end(); idv++){
-      i++;
-      out << i << " "; idv->Dump(); out << "" << endl;
-    }
+	idv != displacedVertices_->end(); idv++)
+      idv->Dump();
+ 
   }
  
   return out;

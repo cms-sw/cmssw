@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2010/03/28 05:55:39 $
- * $Revision: 1.25 $
+ * $Date: 2009/10/02 12:12:27 $
+ * $Revision: 1.23 $
  * \author F. Cossutti
  *
 */
@@ -17,11 +17,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-//using namespace cms;
-//using namespace edm;
-//using namespace std;
+using namespace cms;
+using namespace edm;
+using namespace std;
 
-EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& ps):
+EcalMixingModuleValidation::EcalMixingModuleValidation(const ParameterSet& ps):
   HepMCLabel(ps.getParameter<std::string>("moduleLabelMC")),
   hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
   EBdigiCollection_(ps.getParameter<edm::InputTag>("EBdigiCollection")),
@@ -52,15 +52,13 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
 
   //theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
 
-/*
   int ESGain = ps.getParameter<int>("ESGain");
   double ESNoiseSigma = ps.getParameter<double> ("ESNoiseSigma");
   int ESBaseline = ps.getParameter<int>("ESBaseline");
   double ESMIPADC = ps.getParameter<double>("ESMIPADC");
   double ESMIPkeV = ps.getParameter<double>("ESMIPkeV");
-*/
 
-  theESShape = new ESShape();
+  theESShape = new ESShape(ESGain);
   theEBShape = new EBShape(); 
   theEEShape = new EEShape(); 
 
@@ -68,9 +66,8 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
   theEBResponse = new CaloHitResponse(theParameterMap, theEBShape);
   theEEResponse = new CaloHitResponse(theParameterMap, theEEShape);
 
-//  double effwei = 1.;
-
-/*
+  double effwei = 1.;
+ 
   if (ESGain == 0)
     effwei = 1.45;
   else if (ESGain == 1)
@@ -81,7 +78,7 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
   esBaseline_ = (double)ESBaseline;
   esADCtokeV_ = 1000000.*ESMIPADC/ESMIPkeV;
   esThreshold_ = 3.*effwei*ESNoiseSigma/esADCtokeV_;
-*/
+
   theMinBunch = -10;
   theMaxBunch = 10;
     
@@ -92,7 +89,7 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
   dbe_ = 0;
                                                                                                                                           
   // get hold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
                                                                                                                                           
   if ( dbe_ ) {
     if ( verbose_ ) {
@@ -202,7 +199,7 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
 
 EcalMixingModuleValidation::~EcalMixingModuleValidation(){}
 
-void EcalMixingModuleValidation::beginRun(edm::Run const &, edm::EventSetup const & c){
+void EcalMixingModuleValidation::beginRun(Run const &, EventSetup const & c){
 
   checkCalibrations(c);
 
@@ -295,20 +292,20 @@ void EcalMixingModuleValidation::bunchSumTest(std::vector<MonitorElement *> & th
 
 } 
 
-void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup const & c){
+void EcalMixingModuleValidation::analyze(Event const & e, EventSetup const & c){
 
   //LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
   checkPedestals(c);
 
-  std::vector<SimTrack> theSimTracks;
-  std::vector<SimVertex> theSimVertexes;
+  vector<SimTrack> theSimTracks;
+  vector<SimVertex> theSimVertexes;
 
-  edm::Handle<edm::HepMCProduct> MCEvt;
-  edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
-  edm::Handle<EBDigiCollection> EcalDigiEB;
-  edm::Handle<EEDigiCollection> EcalDigiEE;
-  edm::Handle<ESDigiCollection> EcalDigiES;
+  Handle<HepMCProduct> MCEvt;
+  Handle<CrossingFrame<PCaloHit> > crossingFrame;
+  Handle<EBDigiCollection> EcalDigiEB;
+  Handle<EEDigiCollection> EcalDigiEE;
+  Handle<ESDigiCollection> EcalDigiES;
 
   
   bool skipMC = false;
@@ -351,7 +348,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
 
   double theGunEnergy = 0.;
   if ( ! skipMC ) {
-     for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
+    for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
           p != MCEvt->GetEvent()->particles_end(); ++p ) {
       
       theGunEnergy = (*p)->momentum().e();
@@ -619,10 +616,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
 	  ESSample mySample = esdf[sample];
 	  
 	  esADCCounts[sample] = (mySample.adc()) ;
-	  esBaseline_ = m_ESpeds->find(esid)->getMean() ;
-	  const double factor ( esADCtokeV_/(*(m_ESmips->getMap().find(esid)) ) ) ;
-	  esThreshold_ = 3.*m_ESeffwei*( (*m_ESpeds->find(esid)).getRms())/factor;
-	  esADCAnalogSignal[sample] = (esADCCounts[sample]-esBaseline_)/factor;
+	  esADCAnalogSignal[sample] = (esADCCounts[sample]-esBaseline_)/esADCtokeV_;
 	}
 	LogDebug("DigiInfo") << "Preshower Digi for ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip();
 	for ( int i = 0; i < 3 ; i++ ) {
@@ -668,33 +662,6 @@ void  EcalMixingModuleValidation::checkCalibrations(edm::EventSetup const & even
   LogDebug("EcalDigi") << " Barrel GeV/ADC = " << barrelADCtoGeV_;
   const double endcapADCtoGeV_ = agc->getEEValue();
   LogDebug("EcalDigi") << " Endcap GeV/ADC = " << endcapADCtoGeV_;
-
-
-   // ES condition objects
-   edm::ESHandle<ESGain> esgain_;
-   edm::ESHandle<ESMIPToGeVConstant> esMIPToGeV_;
-   edm::ESHandle<ESPedestals> esPedestals_;
-   edm::ESHandle<ESIntercalibConstants> esMIPs_;
-
-   eventSetup.get<ESGainRcd>().get(esgain_);
-   eventSetup.get<ESMIPToGeVConstantRcd>().get(esMIPToGeV_);
-   eventSetup.get<ESPedestalsRcd>().get(esPedestals_);
-   eventSetup.get<ESIntercalibConstantsRcd>().get(esMIPs_);
-
-   const ESGain *esgain = esgain_.product();
-   m_ESpeds = esPedestals_.product();
-   m_ESmips = esMIPs_.product();
-   const ESMIPToGeVConstant *esMipToGeV = esMIPToGeV_.product();
-   m_ESgain = (int) esgain->getESGain();  
-   const double valESMIPToGeV = (m_ESgain == 1) ? esMipToGeV->getESValueLow() : esMipToGeV->getESValueHigh(); 
-
-   theESShape->setGain(m_ESgain);
-
-   esADCtokeV_ = 1000000.*valESMIPToGeV ;
- 
-   m_ESeffwei = ( 0 == m_ESgain ? 1.45 :
-		  ( 1 == m_ESgain ? 0.9066 :
-		    ( 2 == m_ESgain ? 0.8815 : 1.0 ) ) ) ;
 
 }
 

@@ -6,13 +6,10 @@ import FWCore.ParameterSet.Config as cms
 ### parameter set to be overloaded in the configuration file 
 
 
-from ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff import *
-
 from ElectroWeakAnalysis.ZMuMu.goodZToMuMu_cfi import *
 from ElectroWeakAnalysis.ZMuMu.goodZToMuMuSameCharge_cfi import *
 from ElectroWeakAnalysis.ZMuMu.nonIsolatedZToMuMu_cfi import *
 from ElectroWeakAnalysis.ZMuMu.goodZToMuMuOneTrack_cfi import *
-from ElectroWeakAnalysis.ZMuMu.goodZToMuMuOneTrackerMuon_cfi import *
 from ElectroWeakAnalysis.ZMuMu.goodZToMuMuOneStandAloneMuon_cfi import *
 
 ### for zmusta modelling...
@@ -27,10 +24,9 @@ zmumuSaMassHistogram = cms.EDAnalyzer(
     )
 
 
-### paths for loose cuts, not notIso ones, not 1HLT and 2HLT: only ZGolden, zMuSta, zMuTk, zMuTrackerMuon and ZGoldenSameCharge...
+### paths for loose cuts, not notIso ones, not 1HLT and 2HLT: only ZGolden, zMuSta, zMuTk and ZGoldenSameChar...
 
 goodZToMuMuPathLoose = cms.Path(
-    
     goodZToMuMuLoose +
     goodZToMuMuAtLeast1HLTLoose
     )
@@ -45,17 +41,6 @@ goodZToMuMu1HLTPathLoose = cms.Path(
     goodZToMuMu1HLTLoose
     )
 
-goodZToMuMuAB1HLTPathLoose=cms.Path(
-    goodZToMuMuNotFiltered+  ## not filtered
-    zToMuMuABLoose+
-    goodZToMuMuABLoose+
-    goodZToMuMuAB1HLTLoose
-)
-
-goodZToMuMuBB2HLTPathLoose=cms.Path(
-    zToMuMuBBLoose+
-    goodZToMuMuBB2HLTLoose 
-)
 
 goodZToMuMuSameChargePathLoose = cms.Path(
     dimuonsGlobalSameCharge+
@@ -80,7 +65,7 @@ goodZToMuMuSameChargePathLoose = cms.Path(
 
 
 goodZToMuMuOneStandAloneMuonPathLoose = cms.Path(
-### I should deny the tight zmumu, otherwise I cut to much.... 
+### I should deby the tight zmumu, otherwise I cut to much.... 
     ~goodZToMuMu + 
     zToMuMuOneStandAloneMuonLoose + 
     goodZToMuMuOneStandAloneMuonLoose +
@@ -88,18 +73,8 @@ goodZToMuMuOneStandAloneMuonPathLoose = cms.Path(
     )
 
 
-goodZToMuMuOneTrackerMuonPathLoose= cms.Path(
-    ### I should deny the tight zmumu, otherwise I cut to much.... 
-    ~goodZToMuMu +
-    zToMuMuOneTrackerMuonLoose + 
-    goodZToMuMuOneTrackerMuonLoose +
-    goodZToMuMuOneTrackerMuonFirstHLTLoose 
-)
-
-
-
 goodZToMuMuOneTrackPathLoose=cms.Path(
-    ### I should deny the tight zmumu, otherwise I cut to much.... 
+    ### I should deby the tight zmumu, otherwise I cut to much.... 
     ~goodZToMuMu +
     ~zToMuMuOneStandAloneMuon +
     zToMuGlobalMuOneTrack +
@@ -138,17 +113,6 @@ goodZToMuMu1HLTPath = cms.Path(
     goodZToMuMu1HLT
     )
 
-goodZToMuMuAB1HLTPath=cms.Path(
-    goodZToMuMuNotFiltered + ## not filtered
-    zToMuMuAB+
-    goodZToMuMuAB+
-    goodZToMuMuAB1HLT
-)
-
-goodZToMuMuBB2HLTPath=cms.Path(
-    zToMuMuBB+
-    goodZToMuMuBB2HLT 
-)
 
 
 goodZToMuMuSameChargePath = cms.Path(
@@ -201,12 +165,6 @@ goodZToMuMuOneStandAloneMuonPath = cms.Path(
     goodZToMuMuOneStandAloneMuonFirstHLT 
     )
 
-goodZToMuMuOneTrackerMuonPath= cms.Path(
-    ~goodZToMuMu +
-    zToMuMuOneTrackerMuon + 
-    goodZToMuMuOneTrackerMuon +
-    goodZToMuMuOneTrackerMuonFirstHLT
-)
 
 
 

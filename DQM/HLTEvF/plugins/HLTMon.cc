@@ -44,6 +44,9 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 
+using namespace edm;
+using namespace reco;
+
 HLTMon::HLTMon(const edm::ParameterSet& iConfig)
 {
 
@@ -53,15 +56,15 @@ HLTMon::HLTMon(const edm::ParameterSet& iConfig)
 
  dbe = NULL;
  if (iConfig.getUntrackedParameter < bool > ("DQMStore", false)) {
-   dbe = edm::Service < DQMStore > ().operator->();
+   dbe = Service < DQMStore > ().operator->();
    dbe->setVerbose(0);
  }
 
  outputFile_ =
    iConfig.getUntrackedParameter < std::string > ("outputFile", "");
  if (outputFile_.size() != 0) {
-   edm::LogInfo("HLTMon") << "L1T Monitoring histograms will be saved to " 
-			  << outputFile_ ;
+   LogInfo("HLTMon") << "L1T Monitoring histograms will be saved to " 
+			      << outputFile_ ;
  }
  else {
    outputFile_ = "L1TDQM.root";
@@ -124,7 +127,8 @@ HLTMon::~HLTMon()
 void
 HLTMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
+  using namespace edm;
+  using namespace trigger;
   nev_++;
   LogDebug("HLTMon")<< "HLTMon: analyze...." ;
 
@@ -231,7 +235,7 @@ HLTMon::beginJob()
 {
  nev_ = 0;
  DQMStore *dbe = 0;
- dbe = edm::Service < DQMStore > ().operator->();
+ dbe = Service < DQMStore > ().operator->();
 
  if (dbe) {
    dbe->setCurrentFolder(dirname_);
@@ -356,7 +360,7 @@ void
 HLTMon::endJob() {
 
 //     std::cout << "HLTMonElectron: end job...." << std::endl;
-  edm::LogInfo("HLTMon") << "analyzed " << nev_ << " events";
+  LogInfo("HLTMon") << "analyzed " << nev_ << " events";
 
   if (outputFile_.size() != 0 && dbe)
     dbe->save(outputFile_);

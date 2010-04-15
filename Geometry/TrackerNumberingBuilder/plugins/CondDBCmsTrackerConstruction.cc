@@ -21,42 +21,42 @@ const GeometricDet* CondDBCmsTrackerConstruction::construct(const PGeometricDet&
   int lev=1;
   GeometricDet* subdet = tracker;
   hier.push_back(subdet);
-    while ( pgd.pgeomdets_[tri]._level == 1 && tri < detMax ) {
+    while ( tri < detMax && pgd.pgeomdets_[tri]._level == 1 ) {
       subdet = new GeometricDet(pgd.pgeomdets_[tri], GeometricDet::GDEnumType(pgd.pgeomdets_[tri]._type));
       //std::cout << lev << " type " << pgd.pgeomdets_[tri]._type << " " << subdet->geographicalId() << std::endl;
       ++tri;
       hier.back()->addComponent(subdet);
       hier.push_back(subdet);
       ++lev;
-      while ( pgd.pgeomdets_[tri]._level == 2 && tri < detMax ) {
+      while ( tri < detMax && pgd.pgeomdets_[tri]._level == 2 ) {
 	subdet = new GeometricDet(pgd.pgeomdets_[tri], GeometricDet::GDEnumType(pgd.pgeomdets_[tri]._type));
 	//std::cout << lev << "\ttype " << pgd.pgeomdets_[tri]._type << " " << subdet->geographicalId() << std::endl;
 	++tri;
 	hier.back()->addComponent(subdet);
 	hier.push_back(subdet);
 	++lev;
-	while ( pgd.pgeomdets_[tri]._level == 3 && tri < detMax ) {
+	while ( tri < detMax && pgd.pgeomdets_[tri]._level == 3 ) {
 	  subdet = new GeometricDet(pgd.pgeomdets_[tri], GeometricDet::GDEnumType(pgd.pgeomdets_[tri]._type));
 	  //std::cout << lev << "\t\ttype " << pgd.pgeomdets_[tri]._type << " " << subdet->geographicalId() << std::endl;
 	  ++tri;
 	  hier.back()->addComponent(subdet);
 	  hier.push_back(subdet);
 	  ++lev;
-	  while ( pgd.pgeomdets_[tri]._level == 4 && tri < detMax ) {
+	  while ( tri < detMax && pgd.pgeomdets_[tri]._level == 4 ) {
 	    subdet = new GeometricDet(pgd.pgeomdets_[tri], GeometricDet::GDEnumType(pgd.pgeomdets_[tri]._type));
 	    //std::cout << lev << "\t\t\ttype " << pgd.pgeomdets_[tri]._type << " " << subdet->geographicalId() << std::endl;
 	    ++tri;
 	    hier.back()->addComponent(subdet);
 	    hier.push_back(subdet);
 	    ++lev;
-	    while ( pgd.pgeomdets_[tri]._level == 5 && tri < detMax ) {
+	    while ( tri < detMax && pgd.pgeomdets_[tri]._level == 5 ) {
 	      subdet = new GeometricDet(pgd.pgeomdets_[tri], GeometricDet::GDEnumType(pgd.pgeomdets_[tri]._type));
 	      //std::cout << lev << "\t\t\t\ttype " << pgd.pgeomdets_[tri]._type << " " << subdet->geographicalId() << std::endl;
 	      ++tri;
 	      hier.back()->addComponent(subdet);
 	      hier.push_back(subdet);
 	      ++lev;
-	      while ( pgd.pgeomdets_[tri]._level == 6 && tri < detMax ) {
+	      while ( tri < detMax && pgd.pgeomdets_[tri]._level == 6 ) {
 		subdet = new GeometricDet(pgd.pgeomdets_[tri], GeometricDet::GDEnumType(pgd.pgeomdets_[tri]._type));
 		//std::cout << lev << "\t\t\t\t\ttype " << pgd.pgeomdets_[tri]._type << " " << subdet->geographicalId() << std::endl;
 		++tri;

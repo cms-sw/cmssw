@@ -69,11 +69,6 @@ void TrackListCombiner::produce(edm::Event& ev, const edm::EventSetup& es)
 
     ev.getByLabel(*trackProducer, theTrajectoryCollection);
     ev.getByLabel(*trackProducer, theAssoMap);
-
-    LogTrace("MinBiasTracking")
-      << " [TrackListCombiner] " << *trackProducer
-      << " : " << theAssoMap->size();
-
     
     // The track collection iterators
     TrajTrackAssociationCollection::const_iterator anAssociation;  

@@ -77,13 +77,12 @@ class DiJetAnalyzer : public edm::EDAnalyzer {
       Int_t   iEtaHit;
       UInt_t  iPhiHit;
 
+      Float_t xTrkEcal;
+      Float_t yTrkEcal;
+      Float_t zTrkEcal;
       Float_t xTrkHcal;
       Float_t yTrkHcal;
       Float_t zTrkHcal;
-
-      Float_t PxTrkHcal;
-      Float_t PyTrkHcal;
-      Float_t PzTrkHcal;
 
       TClonesArray* cells;
 

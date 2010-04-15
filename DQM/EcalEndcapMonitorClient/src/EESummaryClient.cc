@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2010/03/27 20:30:37 $
- * $Revision: 1.195 $
+ * $Date: 2010/03/28 09:21:49 $
+ * $Revision: 1.196 $
  * \author G. Della Ricca
  *
 */
@@ -2624,8 +2624,8 @@ void EESummaryClient::analyze(void) {
         float val_po = mePedestalOnline_[0]->getBinContent(jx,jy);
         float val_tm = meTiming_[0]->getBinContent(jx,jy);
         float val_sf = meStatusFlags_[0]->getBinContent(jx,jy);
-	// float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy); // removed temporarily from the global summary
-	float val_ee = 1;
+        // float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy); // removed temporarily from the global summary
+        float val_ee = 1;
 
         // combine all the available wavelenghts in unique laser status
         // for each laser turn dark color and yellow into bright green
@@ -2747,7 +2747,7 @@ void EESummaryClient::analyze(void) {
         float val_tm = meTiming_[1]->getBinContent(jx,jy);
         float val_sf = meStatusFlags_[1]->getBinContent(jx,jy);
         // float val_ee = meTriggerTowerEmulError_[1]->getBinContent(jx,jy); // removed temporarily from the global summary
-	float val_ee = 1;
+        float val_ee = 1;
 
         // combine all the available wavelenghts in unique laser status
         // for each laser turn dark color and yellow into bright green
@@ -2819,15 +2819,19 @@ void EESummaryClient::analyze(void) {
         // if the SM is entirely not read, the masked channels
         // are reverted back in yellow
         float iEntries=0;
+
         for(int ism = 10; ism <= 18; ism++) {
-          if ( Numbers::validEE(ism, jx, jy) ) {
-            validCry = true;
-            for ( unsigned int i=0; i<clients_.size(); i++ ) {
-              EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
-              if ( eeic ) {
-                TH2F *h2 = eeic->h_[ism-1];
-                if ( h2 ) {
-                  iEntries = h2->GetEntries();
+          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+          if (iter != superModules_.end()) {
+            if ( Numbers::validEE(ism, jx, jy) ) {
+              validCry = true;
+              for ( unsigned int i=0; i<clients_.size(); i++ ) {
+                EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
+                if ( eeic ) {
+                  TH2F* h2 = eeic->h_[ism-1];
+                  if ( h2 ) {
+                    iEntries = h2->GetEntries();
+                  }
                 }
               }
             }

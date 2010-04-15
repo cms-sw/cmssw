@@ -30,7 +30,6 @@ class HistogramBase {
 public:
   
   struct HistogramConfig {
-    MonitorElement* monitorEle;
     bool enabled;
     unsigned int nBins;
     double min;
@@ -47,12 +46,6 @@ public:
 			  ) = 0;
 
   //fill a histogram if the pointer is not NULL (ie if it has been booked)
-  static void fillHistogram(HistogramConfig & histogram, 
-			    double value,
-			    double weight=1.
-			    );
-
-  //fill a histogram if the pointer is not NULL (ie if it has been booked)
   static void fillHistogram(MonitorElement* histogram, 
 			    double value,
 			    double weight=1.
@@ -64,99 +57,77 @@ public:
 			     float value
 			     );
  
+  bool isTkHistoMapEnabled(std::string aName);
+
   //if one of more histo map, return name and pointer
-  virtual bool tkHistoMapEnabled(unsigned int aIndex=0) = 0;
+  virtual std::string tkHistoMapName(unsigned int aIndex=0) = 0;
 
   virtual TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0) = 0;
 
   //load the config for a histogram from PSet called <configName>HistogramConfig (writes a debug message to stream if pointer is non-NULL)
-  void getConfigForHistogram(HistogramConfig & aConfig,
-			     const std::string& configName, 
+  void getConfigForHistogram(const std::string& configName, 
 			     const edm::ParameterSet& psetContainingConfigPSet,
 			     std::ostringstream* pDebugStream
 			     );
 
   //book an individual hiostogram if enabled in config
-  void bookHistogram(HistogramConfig & aConfig,
-		     const std::string& name, 
-		     const std::string& title,
-		     const unsigned int nBins, 
-		     const double min, 
-		     const double max,
-		     const std::string& xAxisTitle
-		     );
+  MonitorElement* bookHistogram(const std::string& configName,
+				const std::string& name, 
+				const std::string& title,
+                                const unsigned int nBins, 
+				const double min, 
+				const double max,
+                                const std::string& xAxisTitle
+				);
 
   //book an individual hiostogram if enabled in config
-  void bookHistogram(HistogramConfig & aConfig,
-		     MonitorElement * aHist,
-		     const std::string& name, 
-		     const std::string& title,
-		     const unsigned int nBins, 
-		     const double min, 
-		     const double max,
-		     const std::string& xAxisTitle
-		     );
-
-  //book an individual hiostogram if enabled in config
-  void book2DHistogram(HistogramConfig & aConfig,
-		       const std::string& name, 
-		       const std::string& title,
-		       const unsigned int nBins, 
-		       const double min, 
-		       const double max,
-		       const unsigned int nBinsY, 
-		       const double minY, 
-		       const double maxY,
-		       const std::string& xAxisTitle,
-		       const std::string& yAxisTitle
-		       );
-
-  //book an individual hiostogram if enabled in config
-  void book2DHistogram(HistogramConfig & aConfig,
-		       MonitorElement * aHist,
-		       const std::string& name, 
-		       const std::string& title,
-		       const unsigned int nBins, 
-		       const double min, 
-		       const double max,
-		       const unsigned int nBinsY, 
-		       const double minY, 
-		       const double maxY,
-		       const std::string& xAxisTitle,
-		       const std::string& yAxisTitle
-		       );
+  MonitorElement* book2DHistogram(const std::string& configName,
+				  const std::string& name, 
+				  const std::string& title,
+				  const unsigned int nBins, 
+				  const double min, 
+				  const double max,
+				  const unsigned int nBinsY, 
+				  const double minY, 
+				  const double maxY,
+				  const std::string& xAxisTitle,
+				  const std::string& yAxisTitle
+				  );
 
   //same but using binning from config
-  void bookHistogram(HistogramConfig & aConfig,
-		     const std::string& name, 
-		     const std::string& title, 
-		     const std::string& xAxisTitle
-		     );
+  MonitorElement* bookHistogram(const std::string& configName,
+				const std::string& name, 
+				const std::string& title, 
+				const std::string& xAxisTitle
+				);
 
-  void bookProfile(HistogramConfig & aConfig,
-		   const std::string& name,
-		   const std::string& title,
-		   const unsigned int nBins, 
-		   const double min, 
-		   const double max,
-		   const double minY, 
-		   const double maxY,
-		   const std::string& xAxisTitle,
-		   const std::string& yAxisTitle
-		   );
+  MonitorElement* bookProfile(const std::string& configName,
+			      const std::string& name,
+			      const std::string& title,
+			      const double minY, 
+			      const double maxY,
+			      const std::string& xAxisTitle,
+			      const std::string& yAxisTitle
+			      );
 
-  void bookProfile(HistogramConfig & aConfig,
-		   const std::string& name,
-		   const std::string& title,
-		   const double minY, 
-		   const double maxY,
-		   const std::string& xAxisTitle,
-		   const std::string& yAxisTitle
-		   );
+  MonitorElement* bookProfile(const std::string& configName,
+			      const std::string& name,
+			      const std::string& title,
+			      const unsigned int nBins, 
+			      const double min, 
+			      const double max,
+			      const double minY, 
+			      const double maxY,
+			      const std::string& xAxisTitle,
+			      const std::string& yAxisTitle
+			      );
 
 protected:
   
   DQMStore* dqm_;
+
+  //config for histograms (enabled? bins)
+  std::map<std::string,HistogramConfig> histogramConfig_;
 
 private:
 

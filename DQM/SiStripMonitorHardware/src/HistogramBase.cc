@@ -6,14 +6,6 @@
 
 
 
-void HistogramBase::fillHistogram(HistogramConfig & histogram, 
-				  double value, 
-				  double weight)
-{
-  if (histogram.monitorEle) histogram.monitorEle->Fill(value,weight);
-}
-
-
 void HistogramBase::fillHistogram(MonitorElement* histogram, 
 				  double value, 
 				  double weight)
@@ -23,7 +15,7 @@ void HistogramBase::fillHistogram(MonitorElement* histogram,
 
 
 
-void HistogramBase::fillTkHistoMap(TkHistoMap* aMap,
+void HistogramBase::fillTkHistoMap(TkHistoMap *aMap,
 				   uint32_t & detid,
 				   float value
 				   ){
@@ -31,17 +23,20 @@ void HistogramBase::fillTkHistoMap(TkHistoMap* aMap,
 }
 
 
-void HistogramBase::getConfigForHistogram(HistogramConfig & aConfig,
-					  const std::string& configName, 
+bool HistogramBase::isTkHistoMapEnabled(std::string aName){
+  return histogramConfig_[aName].enabled;
+}
+
+void HistogramBase::getConfigForHistogram(const std::string& configName, 
 					  const edm::ParameterSet& psetContainingConfigPSet, 
 					  std::ostringstream* pDebugStream
 					  )
 {
 
-  aConfig.monitorEle = 0;
-  aConfig.enabled = false;
-  aConfig.nBins = 0;
-  aConfig.min = aConfig.max = 0.;
+  HistogramConfig config;
+  config.enabled = false;
+  config.nBins = 0;
+  config.min = config.max = 0.;
 
   const std::string psetName = configName+std::string("HistogramConfig");
 
@@ -49,28 +44,28 @@ void HistogramBase::getConfigForHistogram(HistogramConfig & aConfig,
 
   if (psetContainingConfigPSet.exists(psetName)) {
     const edm::ParameterSet& pset = psetContainingConfigPSet.getUntrackedParameter<edm::ParameterSet>(psetName);
-    aConfig.enabled = (pset.exists("Enabled") ? pset.getUntrackedParameter<bool>("Enabled") : true);
-    if (aConfig.enabled) {
-      aConfig.nBins = (pset.exists("NBins") ? pset.getUntrackedParameter<unsigned int>("NBins") : 600);
-      aConfig.min = (pset.exists("Min") ? pset.getUntrackedParameter<double>("Min") : 0);
-      aConfig.max = (pset.exists("Max") ? pset.getUntrackedParameter<double>("Max") : 3600);
-      if (aConfig.nBins) {
+    config.enabled = (pset.exists("Enabled") ? pset.getUntrackedParameter<bool>("Enabled") : true);
+    if (config.enabled) {
+      config.nBins = (pset.exists("NBins") ? pset.getUntrackedParameter<unsigned int>("NBins") : 600);
+      config.min = (pset.exists("Min") ? pset.getUntrackedParameter<double>("Min") : 0);
+      config.max = (pset.exists("Max") ? pset.getUntrackedParameter<double>("Max") : 3600);
+      if (config.nBins) {
         if (pDebugStream) (*pDebugStream) << "[HistogramBase]\tHistogram: " << configName << "\tEnabled"
-                                          << "\tNBins: " << aConfig.nBins << "\tMin: " << aConfig.min << "\tMax: " << aConfig.max << std::endl;
+                                          << "\tNBins: " << config.nBins << "\tMin: " << config.min << "\tMax: " << config.max << std::endl;
       } else {
         if (pDebugStream) (*pDebugStream) << "[HistogramBase]\tHistogram: " << configName << "\tEnabled" << std::endl;
       }
     } else {
-      aConfig.enabled = false;
-      aConfig.nBins = 0;
-      aConfig.min = aConfig.max = 0.;
+      config.enabled = false;
+      config.nBins = 0;
+      config.min = config.max = 0.;
       if (pDebugStream) (*pDebugStream) << "[HistogramBase]\tHistogram: " << configName << "\tDisabled" << std::endl;
     }
   }
   else {
-    aConfig.enabled = false;
-    aConfig.nBins = 0;
-    aConfig.min = aConfig.max = 0.;
+    config.enabled = false;
+    config.nBins = 0;
+    config.min = config.max = 0.;
     if (pDebugStream) (*pDebugStream) << "[HistogramBase]\tHistogram: " << configName << "\tDisabled" << std::endl;
   }
 
@@ -78,161 +73,127 @@ void HistogramBase::getConfigForHistogram(HistogramConfig & aConfig,
   if (psetContainingConfigPSet.exists("TimeHistogramConfig") && isTimeHisto)
     {
       const edm::ParameterSet& pset = psetContainingConfigPSet.getUntrackedParameter<edm::ParameterSet>("TimeHistogramConfig");
-      aConfig.nBins = (pset.exists("NBins") ? pset.getUntrackedParameter<unsigned int>("NBins") : 600);
-      aConfig.min = (pset.exists("Min") ? pset.getUntrackedParameter<double>("Min") : 0);
-      aConfig.max = (pset.exists("Max") ? pset.getUntrackedParameter<double>("Max") : 3600);
+      config.nBins = (pset.exists("NBins") ? pset.getUntrackedParameter<unsigned int>("NBins") : 600);
+      config.min = (pset.exists("Min") ? pset.getUntrackedParameter<double>("Min") : 0);
+      config.max = (pset.exists("Max") ? pset.getUntrackedParameter<double>("Max") : 3600);
     } 
   
+  histogramConfig_[configName] = config;
 }
 
-void HistogramBase::bookHistogram(HistogramConfig & aConfig,
-				  const std::string& name, 
-				  const std::string& title,
-				  const unsigned int nBins, 
-				  const double min, 
-				  const double max,
-				  const std::string& xAxisTitle
-				  )
+MonitorElement* HistogramBase::bookHistogram(const std::string& configName,
+					     const std::string& name, 
+					     const std::string& title,
+					     const unsigned int nBins, 
+					     const double min, 
+					     const double max,
+					     const std::string& xAxisTitle
+					     )
 {
 
-  if (aConfig.enabled) {
-    aConfig.monitorEle = dqm_->book1D(name,title,nBins,min,max);
-    aConfig.monitorEle->setAxisTitle(xAxisTitle,1);
+  if (histogramConfig_[configName].enabled) {
+    MonitorElement* histo = dqm_->book1D(name,title,nBins,min,max);
+    histo->setAxisTitle(xAxisTitle,1);
+    return histo;
   } else {
-    aConfig.monitorEle = 0;
+    return NULL;
   }
 
 }
 
-void HistogramBase::bookHistogram(HistogramConfig & aConfig,
-				  MonitorElement* aHist,
-				  const std::string& name, 
-				  const std::string& title,
-				  const unsigned int nBins, 
-				  const double min, 
-				  const double max,
-				  const std::string& xAxisTitle
-				  )
+MonitorElement* HistogramBase::bookHistogram(const std::string& configName,
+					     const std::string& name, 
+					     const std::string& title, 
+					     const std::string& xAxisTitle
+					     )
 {
-
-  if (aConfig.enabled) {
-    aHist = dqm_->book1D(name,title,nBins,min,max);
-    aHist->setAxisTitle(xAxisTitle,1);
-  } else {
-    aHist = 0;
-  }
+  return bookHistogram(configName,name,title,histogramConfig_[configName].nBins,histogramConfig_[configName].min,histogramConfig_[configName].max,xAxisTitle);
 
 }
 
-void HistogramBase::bookHistogram(HistogramConfig & aConfig,
-				  const std::string& name, 
-				  const std::string& title, 
-				  const std::string& xAxisTitle
-				  )
+MonitorElement* HistogramBase::book2DHistogram(const std::string& configName,
+					       const std::string& name, 
+					       const std::string& title,
+					       const unsigned int nBins, 
+					       const double min, 
+					       const double max,
+					       const unsigned int nBinsY, 
+					       const double minY, 
+					       const double maxY,
+					       const std::string& xAxisTitle,
+					       const std::string& yAxisTitle
+					       )
 {
-  return bookHistogram(aConfig,name,title,aConfig.nBins,aConfig.min,aConfig.max,xAxisTitle);
-  
-}
-
-void HistogramBase::book2DHistogram(HistogramConfig & aConfig,
-				    const std::string& name, 
-				    const std::string& title,
-				    const unsigned int nBins, 
-				    const double min, 
-				    const double max,
-				    const unsigned int nBinsY, 
-				    const double minY, 
-				    const double maxY,
-				    const std::string& xAxisTitle,
-				    const std::string& yAxisTitle
-				    )
-{
-  if (aConfig.enabled) {
-    aConfig.monitorEle = dqm_->book2D(name,title,nBins,min,max,nBinsY,minY,maxY);
-    aConfig.monitorEle->setAxisTitle(xAxisTitle,1);
-    aConfig.monitorEle->setAxisTitle(yAxisTitle,2);
+  if (histogramConfig_[configName].enabled) {
+    MonitorElement* histo = dqm_->book2D(name,title,nBins,min,max,nBinsY,minY,maxY);
+    histo->setAxisTitle(xAxisTitle,1);
+    histo->setAxisTitle(yAxisTitle,2);
+    return histo;
   } else {
-    aConfig.monitorEle=NULL;
+    return NULL;
   }
 }
 
-
-void HistogramBase::book2DHistogram(HistogramConfig & aConfig,
-				    MonitorElement* aHist,
-				    const std::string& name, 
-				    const std::string& title,
-				    const unsigned int nBins, 
-				    const double min, 
-				    const double max,
-				    const unsigned int nBinsY, 
-				    const double minY, 
-				    const double maxY,
-				    const std::string& xAxisTitle,
-				    const std::string& yAxisTitle
-				    )
+MonitorElement* HistogramBase::bookProfile(const std::string& configName,
+					   const std::string& name,
+					   const std::string& title,
+					   const double minY, 
+					   const double maxY,
+					   const std::string& xAxisTitle,
+					   const std::string& yAxisTitle
+					   )
 {
-  if (aConfig.enabled) {
-    aHist = dqm_->book2D(name,title,nBins,min,max,nBinsY,minY,maxY);
-    aHist->setAxisTitle(xAxisTitle,1);
-    aHist->setAxisTitle(yAxisTitle,2);
+ 
+  if (histogramConfig_[configName].enabled) {
+    MonitorElement* histo = dqm_->bookProfile(name,
+					      title,
+					      histogramConfig_[configName].nBins,
+					      histogramConfig_[configName].min,
+					      histogramConfig_[configName].max,
+					      minY,
+					      maxY
+					      );
+
+    histo->setAxisTitle(xAxisTitle,1);
+    histo->setAxisTitle(yAxisTitle,2);
+    //automatically set the axis range: will accomodate new values keeping the same number of bins.
+    histo->getTProfile()->SetBit(TH1::kCanRebin);
+    return histo;
   } else {
-    aHist=NULL;
+    return NULL;
   }
-}
-
-
-void HistogramBase::bookProfile(HistogramConfig & aConfig,
-				const std::string& name,
-				const std::string& title,
-				const unsigned int nBins, 
-				const double min, 
-				const double max,
-				const double minY, 
-				const double maxY,
-				const std::string& xAxisTitle,
-				const std::string& yAxisTitle
-				)
-{
-  
-  if (aConfig.enabled) {
-    aConfig.monitorEle = dqm_->bookProfile(name,
-					   title,
-					   nBins,
-					   min,
-					   max,
-					   minY,
-					   maxY
-					   );
-    
-    aConfig.monitorEle->setAxisTitle(xAxisTitle,1);
-    aConfig.monitorEle->setAxisTitle(yAxisTitle,2);
-  } else {
-    aConfig.monitorEle = NULL;
-  }
-}
-
-void HistogramBase::bookProfile(HistogramConfig & aConfig,
-				const std::string& name,
-				const std::string& title,
-				const double minY, 
-				const double maxY,
-				const std::string& xAxisTitle,
-				const std::string& yAxisTitle
-				)
-{
-  
-  bookProfile(aConfig,
-	      name,
-	      title,
-	      aConfig.nBins,
-	      aConfig.min,
-	      aConfig.max,
-	      minY,
-	      maxY,
-	      xAxisTitle,
-	      yAxisTitle);
-
-  //automatically set the axis range: will accomodate new values keeping the same number of bins.
-  if (aConfig.monitorEle) aConfig.monitorEle->getTProfile()->SetBit(TH1::kCanRebin);
 }
  
+
+MonitorElement* HistogramBase::bookProfile(const std::string& configName,
+					   const std::string& name,
+					   const std::string& title,
+					   const unsigned int nBins, 
+					   const double min, 
+					   const double max,
+					   const double minY, 
+					   const double maxY,
+					   const std::string& xAxisTitle,
+					   const std::string& yAxisTitle
+					   )
+{
+ 
+  if (histogramConfig_[configName].enabled) {
+    MonitorElement* histo = dqm_->bookProfile(name,
+					      title,
+					      nBins,
+					      min,
+					      max,
+					      minY,
+					      maxY
+					      );
+
+    histo->setAxisTitle(xAxisTitle,1);
+    histo->setAxisTitle(yAxisTitle,2);
+    //automatically set the axis range: will accomodate new values keeping the same number of bins.
+    //histo->getTProfile()->SetBit(TH1::kCanRebin);
+    return histo;
+  } else {
+    return NULL;
+  }
+}

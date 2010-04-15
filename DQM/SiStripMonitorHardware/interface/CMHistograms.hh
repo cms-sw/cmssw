@@ -61,7 +61,7 @@ public:
 
   void bookAllFEDHistograms();
 
-  bool tkHistoMapEnabled(unsigned int aIndex=0);
+  std::string tkHistoMapName(unsigned int aIndex=0);
 
   TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0);
 
@@ -74,28 +74,23 @@ private:
 
   bool doFed_[500];
 
-  HistogramConfig tkMapConfig_;
+  std::string tkMapConfigName_;
   TkHistoMap *tkmapCM_[4];
 
-  HistogramConfig medianAPV1vsAPV0_;
-  HistogramConfig medianAPV0minusAPV1_;
+  MonitorElement *medianAPV1vsAPV0_;
+  MonitorElement *medianAPV0minusAPV1_;
 
-  HistogramConfig meanCMPerFedvsFedId_;
-  HistogramConfig meanCMPerFedvsTime_;
+  MonitorElement *meanCMPerFedvsFedId_;
+  MonitorElement *meanCMPerFedvsTime_;
 
   //CM-previous value for all APVs
-  HistogramConfig variationsPerFedvsFedId_;
-  HistogramConfig variationsPerFedvsTime_;
+  MonitorElement *variationsPerFedvsFedId_;
+  MonitorElement *variationsPerFedvsTime_;
 
-  HistogramConfig medianAPV1vsAPV0perFED_;
-  HistogramConfig medianAPV0minusAPV1perFED_;
-  HistogramConfig medianperChannel_;
-  HistogramConfig medianAPV0minusAPV1perChannel_;
-
-  std::map<unsigned int,MonitorElement* > medianAPV1vsAPV0perFEDMap_;
-  std::map<unsigned int,MonitorElement* > medianAPV0minusAPV1perFEDMap_;
-  std::map<unsigned int,std::vector<MonitorElement* > > medianperChannelMap_;
-  std::map<unsigned int,std::vector<MonitorElement* > > medianAPV0minusAPV1perChannelMap_;
+  std::map<unsigned int,MonitorElement*> medianAPV1vsAPV0perFED_;
+  std::map<unsigned int,MonitorElement*> medianAPV0minusAPV1perFED_;
+  std::map<unsigned int,std::vector<MonitorElement*> > medianperChannel_;
+  std::map<unsigned int,std::vector<MonitorElement*> > medianAPV0minusAPV1perChannel_;
 
 };//class
 

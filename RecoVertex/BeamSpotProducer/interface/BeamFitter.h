@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.26 2010/03/23 22:16:10 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.16 2010/02/11 00:11:56 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -21,8 +21,6 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
-#include "RecoVertex/BeamSpotProducer/interface/PVFitter.h"
-
 // ROOT
 #include "TFile.h"
 #include "TTree.h"
@@ -38,17 +36,12 @@ class BeamFitter {
 
   void readEvent(const edm::Event& iEvent);
 
-  bool runFitter();
-  bool runBeamWidthFitter();
-  reco::BeamSpot getBeamWidth() { return fbeamWidthFit; }
+  bool runFitter(); 
   void runAllFitter();
   void resetTrkVector() { fBSvector.clear(); }
   void resetTotTrk() { ftotal_tracks=0; }
   void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
-  void resetRefTime() { freftime[0] = freftime[1] = 0; }
-  void resetPVFitter() { MyPVFitter->resetAll(); }
-  void dumpTxtFile(std::string &,bool);
-  void dumpBWTxtFile(std::string &);
+  void dumpTxtFile();
   void write2DB();
   reco::BeamSpot getBeamSpot() { return fbeamspot; }
   std::vector<BSTrkParameters> getBSvector() { return fBSvector; }
@@ -68,18 +61,13 @@ class BeamFitter {
 
   std::vector<BSTrkParameters> fBSvector;
   reco::BeamSpot fbeamspot;
-  reco::BeamSpot fbeamWidthFit;
   BSFitter *fmyalgo;
   std::ofstream fasciiFile;
-  std::ofstream fasciiDIP;
 
   bool debug_;
-  bool appendRunTxt_;
   edm::InputTag tracksLabel_;
   bool writeTxt_;
-  bool writeDIPTxt_;
   std::string outputTxt_;
-  std::string outputDIPTxt_;
   double trk_MinpT_;
   double trk_MaxZ_;
   double trk_MaxEta_;
@@ -96,8 +84,7 @@ class BeamFitter {
   int ftotal_tracks;
   int min_Ntrks_;
   bool isMuon_;
-  bool fitted_;
-
+  
   // ntuple
   TH1F* h1z;
   bool saveNtuple_;
@@ -136,15 +123,14 @@ class BeamFitter {
   bool falgo;
   bool fpvValid;
   double fpvx, fpvy, fpvz;
-  std::time_t freftime[2];
   
   //beam fit results
   TTree* ftreeFit_;
   int frunFit;
   int fbeginLumiOfFit;
   int fendLumiOfFit;
-  char fbeginTimeOfFit[32];
-  char fendTimeOfFit[32];
+  char fbeginTimeOfFit[30];
+  char fendTimeOfFit[30];
   double fx;
   double fy;
   double fz;
@@ -157,18 +143,11 @@ class BeamFitter {
   double fsigmaZErr;
   double fdxdzErr;
   double fdydzErr;
-  double fwidthX;
-  double fwidthY;
-  double fwidthXErr;
-  double fwidthYErr;
 
   TH1F *h1ntrks;
   TH1F *h1vz_event;
   TH1F *h1cutFlow;
   int countPass[9];
-
-  PVFitter *MyPVFitter;
-
 };
 
 #endif

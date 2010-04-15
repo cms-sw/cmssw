@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/11 16:34:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/03 09:13:59 $
+ *  $Revision: 1.5 $
  *  \author A. Vilela Pereira
  */
 
@@ -19,16 +19,14 @@
 using namespace std;
 using namespace edm;
 
-DTTTrigMatchRPhi::DTTTrigMatchRPhi(const ParameterSet& pset) {
-  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
-}
+DTTTrigMatchRPhi::DTTTrigMatchRPhi(const ParameterSet& pset) {}
 
 DTTTrigMatchRPhi::~DTTTrigMatchRPhi() {}
 
 void DTTTrigMatchRPhi::setES(const EventSetup& setup) {
   // Get tTrig record from DB
   ESHandle<DTTtrig> tTrig;
-  setup.get<DTTtrigRcd>().get(dbLabel,tTrig);
+  setup.get<DTTtrigRcd>().get(tTrig);
   tTrigMap_ = &*tTrig;
 }
 

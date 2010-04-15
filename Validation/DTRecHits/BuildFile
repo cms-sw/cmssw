@@ -1,5 +1,4 @@
 <use name=FWCore/Framework>
-<use name=DQMServices/Core>
 <use name=DataFormats/DTRecHit>
 <use name=Geometry/Records>
 <use name=Geometry/DTGeometry>
@@ -7,7 +6,6 @@
 
 <export>
  <lib name=ValidationDTRecHits>
- <use name=DQMServices/Core>
  <use name=DataFormats/GeometryVector>
  <use name=DataFormats/DetId>
  <use name=DataFormats/MuonDetId>

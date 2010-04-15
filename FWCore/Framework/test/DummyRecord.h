@@ -5,7 +5,6 @@
  *  EDMProto
  *
  *  Created by Chris Jones on 4/4/05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
  *
  */
 

@@ -6,6 +6,9 @@
 
 #include <algorithm>
 
+using namespace std;
+
+
 TwoBodyDecayDerivatives::TwoBodyDecayDerivatives( double mPrimary, double mSecondary ) : 
   thePrimaryMass( mPrimary ), theSecondaryMass( mSecondary ) {}
 
@@ -13,22 +16,22 @@ TwoBodyDecayDerivatives::TwoBodyDecayDerivatives( double mPrimary, double mSecon
 TwoBodyDecayDerivatives::~TwoBodyDecayDerivatives() {}
 
 
-const std::pair< AlgebraicMatrix, AlgebraicMatrix >
+const pair< AlgebraicMatrix, AlgebraicMatrix >
 TwoBodyDecayDerivatives::derivatives( const TwoBodyDecay & tbd )  const
 {
   return derivatives( tbd.decayParameters() );
 }
 
-const std::pair< AlgebraicMatrix, AlgebraicMatrix >
+const pair< AlgebraicMatrix, AlgebraicMatrix >
 TwoBodyDecayDerivatives::derivatives( const TwoBodyDecayParameters & param )  const
 {
   // get the derivatives with respect to all parameters
-  std::pair< AlgebraicMatrix, AlgebraicMatrix > dqsdpx = this->dqsdpx( param );
-  std::pair< AlgebraicMatrix, AlgebraicMatrix > dqsdpy = this->dqsdpy( param );
-  std::pair< AlgebraicMatrix, AlgebraicMatrix > dqsdpz = this->dqsdpz( param );
-  std::pair< AlgebraicMatrix, AlgebraicMatrix > dqsdtheta = this->dqsdtheta( param );
-  std::pair< AlgebraicMatrix, AlgebraicMatrix > dqsdphi = this->dqsdphi( param );
-  std::pair< AlgebraicMatrix, AlgebraicMatrix > dqsdm = this->dqsdm( param );
+  pair< AlgebraicMatrix, AlgebraicMatrix > dqsdpx = this->dqsdpx( param );
+  pair< AlgebraicMatrix, AlgebraicMatrix > dqsdpy = this->dqsdpy( param );
+  pair< AlgebraicMatrix, AlgebraicMatrix > dqsdpz = this->dqsdpz( param );
+  pair< AlgebraicMatrix, AlgebraicMatrix > dqsdtheta = this->dqsdtheta( param );
+  pair< AlgebraicMatrix, AlgebraicMatrix > dqsdphi = this->dqsdphi( param );
+  pair< AlgebraicMatrix, AlgebraicMatrix > dqsdm = this->dqsdm( param );
 
   AlgebraicMatrix dqplusdz( 3, dimension );
   dqplusdz.sub( 1, px, dqsdpx.first );
@@ -46,19 +49,19 @@ TwoBodyDecayDerivatives::derivatives( const TwoBodyDecayParameters & param )  co
   dqminusdz.sub( 1, phi, dqsdphi.second );
   dqminusdz.sub( 1, mass, dqsdm.second );
 
-  return std::make_pair( dqplusdz, dqminusdz );
+  return make_pair( dqplusdz, dqminusdz );
 }
 
 
-const std::pair< AlgebraicMatrix, AlgebraicMatrix >
-TwoBodyDecayDerivatives::selectedDerivatives( const TwoBodyDecay & tbd, const std::vector< bool > & selector ) const
+const pair< AlgebraicMatrix, AlgebraicMatrix >
+TwoBodyDecayDerivatives::selectedDerivatives( const TwoBodyDecay & tbd, const vector< bool > & selector ) const
 {
   return selectedDerivatives( tbd.decayParameters(), selector );
 }
 
 
-const std::pair< AlgebraicMatrix, AlgebraicMatrix >
-TwoBodyDecayDerivatives::selectedDerivatives( const TwoBodyDecayParameters & param, const std::vector< bool > & selector ) const
+const pair< AlgebraicMatrix, AlgebraicMatrix >
+TwoBodyDecayDerivatives::selectedDerivatives( const TwoBodyDecayParameters & param, const vector< bool > & selector ) const
 {
   if ( selector.size() != dimension )
   {
@@ -66,12 +69,12 @@ TwoBodyDecayDerivatives::selectedDerivatives( const TwoBodyDecayParameters & par
 					<< "selector has bad dimension (size=" << selector.size() << ").";
   }
 
-  int nSelected = std::count( selector.begin(), selector.end(), true );
+  int nSelected = count( selector.begin(), selector.end(), true );
   int iSelected = 1;
 
   AlgebraicMatrix dqplusdz( 3, nSelected );
   AlgebraicMatrix dqminusdz( 3, nSelected );
-  std::pair< AlgebraicMatrix, AlgebraicMatrix > dqsdzi;
+  pair< AlgebraicMatrix, AlgebraicMatrix > dqsdzi;
 
   for ( unsigned int i = 1; i <= dimension; i++ )
   {
@@ -84,11 +87,11 @@ TwoBodyDecayDerivatives::selectedDerivatives( const TwoBodyDecayParameters & par
     }
   }
 
-  return std::make_pair( dqplusdz, dqminusdz );
+  return make_pair( dqplusdz, dqminusdz );
 }
 
 
-const std::pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqsdpx( const TwoBodyDecayParameters & param ) const
+const pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqsdpx( const TwoBodyDecayParameters & param ) const
 {
   double px = param[TwoBodyDecayParameters::px];
   double py = param[TwoBodyDecayParameters::py];
@@ -157,11 +160,11 @@ const std::pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqs
   dqminusdpx[2][0] += pz*dpminusdpx/p;
 
   // return result
-  return std::make_pair( dqplusdpx, dqminusdpx );
+  return make_pair( dqplusdpx, dqminusdpx );
 }
 
 
-const std::pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqsdpy( const TwoBodyDecayParameters & param ) const
+const pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqsdpy( const TwoBodyDecayParameters & param ) const
 {
   double px = param[TwoBodyDecayParameters::px];
   double py = param[TwoBodyDecayParameters::py];
@@ -230,11 +233,11 @@ const std::pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqs
   dqminusdpy[2][0] += pz*dpminusdpy/p;
 
   // return result
-  return std::make_pair( dqplusdpy, dqminusdpy );
+  return make_pair( dqplusdpy, dqminusdpy );
 }
 
 
-const std::pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqsdpz( const TwoBodyDecayParameters & param ) const
+const pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqsdpz( const TwoBodyDecayParameters & param ) const
 {
   double px = param[TwoBodyDecayParameters::px];
   double py = param[TwoBodyDecayParameters::py];
@@ -303,11 +306,11 @@ const std::pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqs
   dqminusdpz[2][0] += pz*dpminusdpz/p;
 
   // return result
-  return std::make_pair( dqplusdpz, dqminusdpz );
+  return make_pair( dqplusdpz, dqminusdpz );
 }
 
 
-const std::pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqsdtheta( const TwoBodyDecayParameters & param ) const
+const pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqsdtheta( const TwoBodyDecayParameters & param ) const
 {
   double px = param[TwoBodyDecayParameters::px];
   double py = param[TwoBodyDecayParameters::py];
@@ -348,11 +351,11 @@ const std::pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqs
   AlgebraicMatrix dqplusdtheta = rotMat*dpplusdtheta;
   AlgebraicMatrix dqminusdtheta = rotMat*dpminusdtheta;
 
-  return std::make_pair( dqplusdtheta, dqminusdtheta );
+  return make_pair( dqplusdtheta, dqminusdtheta );
 }
 
 
-const std::pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqsdphi( const TwoBodyDecayParameters & param ) const
+const pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqsdphi( const TwoBodyDecayParameters & param ) const
 {
   double px = param[TwoBodyDecayParameters::px];
   double py = param[TwoBodyDecayParameters::py];
@@ -386,11 +389,11 @@ const std::pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqs
   AlgebraicMatrix dqplusdphi = rotMat*dpplusdphi;
   AlgebraicMatrix dqminusdphi = rotMat*dpminusdphi;
 
-  return std::make_pair( dqplusdphi, dqminusdphi );
+  return make_pair( dqplusdphi, dqminusdphi );
 }
 
 
-const std::pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqsdm( const TwoBodyDecayParameters & param ) const
+const pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqsdm( const TwoBodyDecayParameters & param ) const
 {
   double px = param[TwoBodyDecayParameters::px];
   double py = param[TwoBodyDecayParameters::py];
@@ -429,11 +432,11 @@ const std::pair< AlgebraicMatrix, AlgebraicMatrix > TwoBodyDecayDerivatives::dqs
   AlgebraicMatrix dqplusdm = rotMat*dpplusdm;
   AlgebraicMatrix dqminusdm = rotMat*dpminusdm;
 
-  return std::make_pair( dqplusdm, dqminusdm );
+  return make_pair( dqplusdm, dqminusdm );
 }
 
 
-const std::pair< AlgebraicMatrix, AlgebraicMatrix >
+const pair< AlgebraicMatrix, AlgebraicMatrix >
 TwoBodyDecayDerivatives::dqsdzi( const TwoBodyDecayParameters & param, const DerivativeParameterName & i ) const
 {
   switch ( i )
@@ -461,5 +464,5 @@ TwoBodyDecayDerivatives::dqsdzi( const TwoBodyDecayParameters & param, const Der
 					<< "no decay parameter related to selector (" << i << ").";
   };
 
-  return std::make_pair( AlgebraicMatrix( 3, 1, 0 ), AlgebraicMatrix( 3, 1, 0 ) );
+  return make_pair( AlgebraicMatrix( 3, 1, 0 ), AlgebraicMatrix( 3, 1, 0 ) );
 }

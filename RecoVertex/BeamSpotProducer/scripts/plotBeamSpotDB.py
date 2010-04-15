@@ -17,17 +17,14 @@
    A very simple script to plot the beam spot data stored in condDB
 
    usage: %prog -t <tag name>
-   -a, --auth    = AUTH: DB authorization path. online(/nfshome0/popcondev/conddb).
    -b, --batch : Run ROOT in batch mode.
    -c, --create  = CREATE: name for beam spot data file.
    -d, --data    = DATA: input beam spot data file.
-   -D, --destDB  = DESTDB: destination DB string. online(oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT).
    -i, --initial = INITIAL: First run.
    -f, --final   = FINAL: Last run.
    -n, --noplot : Only extract beam spot data, plots are not created..
    -o, --output  = OUTPUT: filename of ROOT file with plots.
    -t, --tag     = TAG: tag name.
-   -I, --IOVbase = IOVBASE: options: runbase(default), lumibase
    -w, --wait : Pause script after plotting a new histograms.
    
    Francisco Yumiceva (yumiceva@fnal.gov)
@@ -37,7 +34,7 @@
 
 
 import os, string, re, sys, math
-import commands, time
+import commands
 
 try:
     import ROOT
@@ -136,10 +133,6 @@ class IOV:
     def __init__(self):
 	self.since = 1
 	self.till = 1
-        self.RunFirst = 1
-        self.RunLast  = 1
-        self.LumiFirst = 1
-        self.LumiLast = 1
 
 # ROOT STYLE
 #############################
@@ -240,13 +233,7 @@ if __name__ == '__main__':
     if option.final:
         lastRun = int(option.final)
     
-    IOVbase = 'runbase'
-    if option.IOVbase:
-        if option.IOVbase != "runbase" and option.IOVbase != "lumibase" and option.IOVbase != "timebase":
-            print "\n\n unknown iov base option: "+ option.IOVbase +" \n\n\n"
-            exit()
-        IOVbase = option.IOVbase
-    
+                                                
     # GET IOVs
     ################################
 
@@ -282,12 +269,6 @@ if __name__ == '__main__':
         #  GET DATA
         ################################
 
-        otherArgs = ''
-        if option.destDB:
-            otherArgs = option.destDB
-            if option.auth:
-                otherArgs = otherArgs + option.auth
-        
         print " get beam spot data from DB for IOVs. This can take a few minutes ..."
 
         tmpfile = open(datafilename,'w')
@@ -302,7 +283,7 @@ if __name__ == '__main__':
                 print " IOV: " + str(iIOV.since) + " to " + str(iIOV.till)
                 passiov = True
             if passiov:
-                acommand = 'getBeamSpotDB.py '+ tag + " " + str(iIOV.since) +otherArgs
+                acommand = 'getBeamSpotDB.py '+ tag + " " + str(iIOV.since)
                 status = commands.getstatusoutput( acommand )
                 tmpfile.write(status[1])
     
@@ -333,117 +314,56 @@ if __name__ == '__main__':
     tmpbeam = BeamSpot()
     tmpbeamsize = 0
 
-    inputfiletype = 0
-    if tmpfile.readline().find('Runnumber') != -1:
-	inputfiletype = 1
-    tmpfile.seek(0)
-
-    if inputfiletype ==1:
+    for line in tmpfile:
 	
-	for line in tmpfile:
-	
-	    if line.find('X0') != -1:
-		tmpbeam.X = line.split()[1]
-		#tmpbeam.Xerr = line.split()[4]
-		tmpbeamsize += 1
+	if line.find('X0') != -1:
+	    tmpbeam.X = line.split()[2]
+	    tmpbeam.Xerr = line.split()[4]
+	    tmpbeamsize += 1
             #print " x = " + str(tmpbeam.X)
-	    if line.find('Y0') != -1:
-		tmpbeam.Y = line.split()[1]
-		#tmpbeam.Yerr = line.split()[4]
-		tmpbeamsize += 1
+	if line.find('Y0') != -1:
+	    tmpbeam.Y = line.split()[2]
+	    tmpbeam.Yerr = line.split()[4]
+	    tmpbeamsize += 1
             #print " y =" + str(tmpbeam.Y)
-	    if line.find('Z0') != -1 and line.find('sigmaZ0') == -1:
-		tmpbeam.Z = line.split()[1]
-		#tmpbeam.Zerr = line.split()[4]
-		tmpbeamsize += 1
-	    if line.find('sigmaZ0') !=-1:
-		tmpbeam.sigmaZ = line.split()[1]
-		#tmpbeam.sigmaZerr = line.split()[5]
-		tmpbeamsize += 1
-	    if line.find('Cov(0,j)') != -1:
-		tmpbeam.Xerr = str(math.sqrt( float( line.split()[1] ) ) )
-		tmpbeamsize += 1
-	    if line.find('Cov(1,j)') != -1:
-		tmpbeam.Yerr = str(math.sqrt( float( line.split()[2] ) ) )
-		tmpbeamsize += 1
-	    if line.find('Cov(2,j)') != -1:
-		tmpbeam.Zerr = str(math.sqrt( float( line.split()[3] ) ) )
-		tmpbeamsize += 1
-	    if line.find('Cov(3,j)') != -1:
-		tmpbeam.sigmaZerr = str(math.sqrt( float( line.split()[4] ) ) )
-		tmpbeamsize += 1
-	    if line.find('LumiRange')  != -1 and IOVbase=="lumibase":
-	    #tmpbeam.IOVfirst = line.split()[6].strip(',')
-		tmpbeam.IOVfirst = line.split()[1]
-		tmpbeam.IOVlast = line.split()[3]
-		tmpbeamsize += 1
-            if line.find('Runnumber') != -1 and IOVbase =="runbase":
-                tmpbeam.IOVfirst = line.split()[1]
-		tmpbeam.IOVlast = line.split()[1]
-		tmpbeamsize += 1
-            if line.find('BeginTimeOfFit') != -1 and IOVbase =="timebase":
-                tmpbeam.IOVfirst =  time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
-            if line.find('EndTimeOfFit') != -1 and IOVbase =="timebase":
-		tmpbeam.IOVlast = time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
-		tmpbeamsize += 1
-	    if tmpbeamsize == 9:
-		if int(tmpbeam.IOVfirst) >= firstRun and int(tmpbeam.IOVlast) <= lastRun:
-		    listbeam.append(tmpbeam)
-		tmpbeamsize = 0
-		tmpbeam = BeamSpot()
-    else:
-
-	for line in tmpfile:
-	
-	    if line.find('X0') != -1:
-		tmpbeam.X = line.split()[2]
-		tmpbeam.Xerr = line.split()[4]
-		tmpbeamsize += 1
-            #print " x = " + str(tmpbeam.X)
-	    if line.find('Y0') != -1:
-		tmpbeam.Y = line.split()[2]
-		tmpbeam.Yerr = line.split()[4]
-		tmpbeamsize += 1
-            #print " y =" + str(tmpbeam.Y)
-	    if line.find('Z0') != -1 and line.find('Sigma Z0') == -1:
-		tmpbeam.Z = line.split()[2]
-		tmpbeam.Zerr = line.split()[4]
-		tmpbeamsize += 1
+	if line.find('Z0') != -1 and line.find('Sigma Z0') == -1:
+	    tmpbeam.Z = line.split()[2]
+	    tmpbeam.Zerr = line.split()[4]
+	    tmpbeamsize += 1
             #print " z =" + str(tmpbeam.Z)
-	    if line.find('Sigma Z0') !=-1:
-		tmpbeam.sigmaZ = line.split()[3]
-		tmpbeam.sigmaZerr = line.split()[5]
-		tmpbeamsize += 1
-	    if line.find('dxdz') != -1:
-		tmpbeam.dxdz = line.split()[2]
-		tmpbeam.dxdzerr = line.split()[4]
-		tmpbeamsize += 1
-	    if line.find('dydz') != -1:
-		tmpbeam.dydz = line.split()[2]
-		tmpbeam.dydzerr = line.split()[4]
-		tmpbeamsize += 1
-	    if line.find('Beam Width X') != -1:
-		tmpbeam.beamWidthX = line.split()[4]
-		tmpbeam.beamWidthXerr = line.split()[6]
-		tmpbeamsize += 1
-	    if line.find('Beam Width Y') != -1:
-		tmpbeam.beamWidthY = line.split()[4]
-		tmpbeam.beamWidthYerr = line.split()[6]
-		tmpbeamsize += 1
+	if line.find('Sigma Z0') !=-1:
+	    tmpbeam.sigmaZ = line.split()[3]
+	    tmpbeam.sigmaZerr = line.split()[5]
+	    tmpbeamsize += 1
+	if line.find('dxdz') != -1:
+	    tmpbeam.dxdz = line.split()[2]
+	    tmpbeam.dxdzerr = line.split()[4]
+	    tmpbeamsize += 1
+	if line.find('dydz') != -1:
+	    tmpbeam.dydz = line.split()[2]
+	    tmpbeam.dydzerr = line.split()[4]
+	    tmpbeamsize += 1
+	if line.find('Beam Width X') != -1:
+	    tmpbeam.beamWidthX = line.split()[4]
+	    tmpbeam.beamWidthXerr = line.split()[6]
+	    tmpbeamsize += 1
+	if line.find('Beam Width Y') != -1:
+	    tmpbeam.beamWidthY = line.split()[4]
+	    tmpbeam.beamWidthYerr = line.split()[6]
+	    tmpbeamsize += 1
 	#if line.find('Run ') != -1:
-	    if line.find('for runs')  != -1:
+        if line.find('for runs')  != -1:
 	    #tmpbeam.IOVfirst = line.split()[6].strip(',')
-		tmpbeam.IOVfirst = line.split()[2]
-		tmpbeam.IOVlast = line.split()[4]
-		tmpbeamsize += 1
-	    if tmpbeamsize == 9:
+            tmpbeam.IOVfirst = line.split()[2]
+            tmpbeam.IOVlast = line.split()[4]
+	    tmpbeamsize += 1
+	if tmpbeamsize == 9:
             #print " from object " + str(tmpbeam.X)
-		if int(tmpbeam.IOVfirst) >= firstRun and int(tmpbeam.IOVlast) <= lastRun:
-		    listbeam.append(tmpbeam)
-		tmpbeamsize = 0
-		tmpbeam = BeamSpot()
+            if int(tmpbeam.IOVfirst) >= firstRun and int(tmpbeam.IOVlast) <= lastRun:
+                listbeam.append(tmpbeam)
+            tmpbeamsize = 0
+	    tmpbeam = BeamSpot()
 	    
-
     print " got total number of IOVs = " + str(len(listbeam)) + " from file "+datafilename
     #print " run " + str(listbeam[3].IOVfirst ) + " " + str( listbeam[3].X )
 
@@ -453,21 +373,14 @@ if __name__ == '__main__':
     TGaxis.SetMaxDigits(8)
 
     graphlist = []
-    graphnamelist = ['X','Y','Z','SigmaZ','dxdz','dydz','beamWidthX', 'beamWidthY']
-    graphtitlelist = ['beam spot X','beam spot Y','beam spot Z','beam spot #sigma_Z','beam spot dX/dZ','beam spot dY/dZ','beam width X','beam width Y']
+    graphnamelist = ['X','Y','Z','SigmaZ','dxdz','dydz']
+    graphtitlelist = ['beam spot X','beam spot Y','beam spot Z','beam spot #sigma_Z','beam spot dX/dZ','beam spot dY/dZ']
     graphXaxis = 'Run number'
-    if IOVbase == 'runbase':
-        graphXaxis = "Run number"
-    if IOVbase == 'lumibase':
-        graphXaxis = 'Lumi section'
-    if IOVbase == 'timebase':
-        graphXaxis = "Time"
-    
-    graphYaxis = ['beam spot X [cm]','beam spot Y [cm]','beam spot Z [cm]', 'beam spot #sigma_{Z} [cm]', 'beam spot dX/dZ', 'beam spot dY/dZ','beam width X [cm]', 'beam width Y [cm]']
+    graphYaxis = ['beam spot X [cm]','beam spot Y [cm]','beam spot Z [cm]', 'beam spot #sigma_Z [cm]', 'beam spot dX/dZ', 'beam spot dY/dZ']
 
     cvlist = []
 
-    for ig in range(0,8):
+    for ig in range(0,6):
 	cvlist.append( TCanvas(graphnamelist[ig],graphtitlelist[ig], 800, 600) )
 	graphlist.append( TGraphErrors( len(listbeam) ) )
 	graphlist[ig].SetName(graphnamelist[ig])
@@ -496,15 +409,8 @@ if __name__ == '__main__':
 	    if graphnamelist[ig] == 'dydz':
 		datay = ibeam.dydz
 		datayerr = ibeam.dydzerr
-	    if graphnamelist[ig] == 'beamWidthX':
-		datay = ibeam.beamWidthX
-		datayerr = ibeam.beamWidthXerr
-	    if graphnamelist[ig] == 'beamWidthY':
-		datay = ibeam.beamWidthY
-		datayerr = ibeam.beamWidthYerr
-
-            datax = ibeam.IOVfirst
-
+	    
+	    datax = ibeam.IOVfirst
 	    if datax == '1':
 		print " skip in plot IOV = "+ str(ibeam.IOVfirst) + " to " + str(ibeam.IOVlast)
 		graphlist[ig].Set( len(listbeam) -1 )
@@ -514,10 +420,7 @@ if __name__ == '__main__':
 	    graphlist[ig].SetPointError(ipoint, float(dataxerr), float(datayerr) )
 	    ipoint += 1
 
-
-	if IOVbase=="timebase":
-            graphlist[ig].GetXaxis().SetTimeDisplay(1);
-            graphlist[ig].GetXaxis().SetTimeFormat("%Y.%m.%d %H:%M:%S")
+	
 	graphlist[ig].Draw('AP')
 	graphlist[ig].GetXaxis().SetTitle(graphXaxis)
 	graphlist[ig].GetYaxis().SetTitle(graphYaxis[ig])

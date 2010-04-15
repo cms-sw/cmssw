@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/01/29 12:36:58 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/01/16 11:11:46 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
@@ -23,7 +23,6 @@
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 
 #include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/ESTransientHandle.h>
 #include <FWCore/Framework/interface/ModuleFactory.h>
 
 #include <memory>
@@ -93,7 +92,7 @@ void DTGeometryESModule::geometryCallback_( const MuonNumberingRecord& record ) 
     edm::ESHandle<MuonDDDConstants> mdc;
     record.get( mdc );
 
-    edm::ESTransientHandle<DDCompactView> cpv;
+    edm::ESHandle<DDCompactView> cpv;
     record.getRecord<IdealGeometryRecord>().get(cpv);
 
     DTGeometryBuilderFromDDD builder;

@@ -4,9 +4,6 @@
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/Records>
-<use name=Geometry/CommonDetUnit> 
-<use name=SimDataFormats/CaloHit>
-<use name=RecoJets/JetAlgorithms>
 <export>
  <lib name=RecoJetsJetProducers>
  <use name=boost>

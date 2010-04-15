@@ -1,13 +1,14 @@
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
+path = "PhysicsTools.PatAlgos.tools.metTools"
 
 class AddTcMET(ConfigToolBase):
 
     """ Add track corrected MET collection to patEventContent
     """
     _label='addTcMET'    
-    _defaultParameters=dicttypes.SortedKeysDict()
-    
+    _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'postfixLabel','TC', '')
@@ -53,8 +54,8 @@ class AddPfMET(ConfigToolBase):
     """ Add pflow MET collection to patEventContent
     """
     _label='addPfMET'    
-    _defaultParameters=dicttypes.SortedKeysDict()
-    
+    _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'postfixLabel','PF', '')

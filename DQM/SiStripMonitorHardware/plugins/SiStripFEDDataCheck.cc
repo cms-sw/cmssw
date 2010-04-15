@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDDataCheck.cc,v 1.12 2010/03/18 19:06:09 amagnan Exp $
+// $Id: SiStripFEDDataCheck.cc,v 1.11 2010/03/03 18:13:37 amagnan Exp $
 //
 //
 #include <memory>
@@ -165,7 +165,7 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     //create an object to fill all errors
     //third param to false:save time by not initialising anything not used here
-    lFedErrors.initialiseFED(fedId,cabling_,false);
+    lFedErrors.initialise(fedId,cabling_,false);
 
 
     //check data exists

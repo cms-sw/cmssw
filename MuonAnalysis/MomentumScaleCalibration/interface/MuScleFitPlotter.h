@@ -4,16 +4,16 @@
 /** \class MuScleFitPlotter
  *  Plotter of the muon info (sim,gen,rec)
  *
- *  $Date: 2010/03/16 12:01:33 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/10/28 16:55:44 $
+ *  $Revision: 1.6 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
-// #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
+#include <CLHEP/Vector/LorentzVector.h>
 
 namespace edm {
   class ParameterSet;
@@ -29,7 +29,7 @@ class MuScleFitPlotter{
  public:
   // Constructor
   // -----------
-  MuScleFitPlotter(std::string);
+  MuScleFitPlotter(string);
 
   // Destructor
   // ----------
@@ -42,16 +42,11 @@ class MuScleFitPlotter{
   void fillSim(edm::Handle<edm::SimTrackContainer> simTracks);
   void fillGenSim(edm::Handle<edm::HepMCProduct> evtMC, edm::Handle<edm::SimTrackContainer> simTracks);
   void fillRec(std::vector<reco::LeafCandidate>& muons);
-
-  // Root tree specific
-  void fillRec( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & savedPairs );
-  void fillGen( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & genPairs );
-
   void fillHistoMap();
   void writeHistoMap();
 
   bool debug;
-
+  
  protected:
 
  private:
@@ -63,4 +58,4 @@ class MuScleFitPlotter{
 };
 #endif
 
-
+ 

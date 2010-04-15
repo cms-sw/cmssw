@@ -53,10 +53,9 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
  
-process.FaketTrig = cms.EDAnalyzer("FakeTTrig",
+process.FaketTrig = cms.EDFilter("FakeTTrig",
     useTofCorrection = cms.untracked.bool(False),
     useWirePropCorrection = cms.untracked.bool(False),
-    dbLabel = cms.untracked.string(''),
     vPropWire = cms.untracked.double(24.4),
     readDB = cms.untracked.bool(True),
     fakeTTrigPedestal = cms.untracked.double(500.0),  

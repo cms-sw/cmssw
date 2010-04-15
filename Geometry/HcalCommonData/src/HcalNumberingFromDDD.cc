@@ -373,7 +373,7 @@ std::vector<double> HcalNumberingFromDDD::getEtaTable() const {
 unsigned int HcalNumberingFromDDD::numberOfCells(HcalSubdetector subdet) const{
 
   unsigned int num = 0;
-  std::vector<HcalCellType::HcalCellType> cellTypes = HcalCellTypes(subdet);
+  std::vector<HcalCellType> cellTypes = HcalCellTypes(subdet);
   for (unsigned int i=0; i<cellTypes.size(); i++) {
     num += (unsigned int)(cellTypes[i].nPhiBins());
     if (cellTypes[i].nHalves() > 1) 
@@ -388,9 +388,9 @@ unsigned int HcalNumberingFromDDD::numberOfCells(HcalSubdetector subdet) const{
   return num;
 }
 
-std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes() const{
+std::vector<HcalCellType> HcalNumberingFromDDD::HcalCellTypes() const{
 
-  std::vector<HcalCellType::HcalCellType> cellTypes =HcalCellTypes(HcalBarrel);
+  std::vector<HcalCellType> cellTypes =HcalCellTypes(HcalBarrel);
 #ifdef DebugLog
   LogDebug ("HCalGeom") << "HcalNumberingFromDDD: " << cellTypes.size()
 			<< " cells of type HCal Barrel";
@@ -398,7 +398,7 @@ std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes() co
     LogDebug ("HCalGeom") << "Cell " << i << " " << cellTypes[i];
 #endif
 
-  std::vector<HcalCellType::HcalCellType> hoCells   =HcalCellTypes(HcalOuter);
+  std::vector<HcalCellType> hoCells   =HcalCellTypes(HcalOuter);
 #ifdef DebugLog
   LogDebug ("HCalGeom") << "HcalNumberingFromDDD: " << hoCells.size()
 			<< " cells of type HCal Outer";
@@ -407,7 +407,7 @@ std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes() co
 #endif
   cellTypes.insert(cellTypes.end(), hoCells.begin(), hoCells.end());
 
-  std::vector<HcalCellType::HcalCellType> heCells   =HcalCellTypes(HcalEndcap);
+  std::vector<HcalCellType> heCells   =HcalCellTypes(HcalEndcap);
 #ifdef DebugLog
   LogDebug ("HCalGeom") << "HcalNumberingFromDDD: " << heCells.size()
 			<< " cells of type HCal Endcap";
@@ -416,7 +416,7 @@ std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes() co
 #endif
   cellTypes.insert(cellTypes.end(), heCells.begin(), heCells.end());
 
-  std::vector<HcalCellType::HcalCellType> hfCells   =HcalCellTypes(HcalForward);
+  std::vector<HcalCellType> hfCells   =HcalCellTypes(HcalForward);
 #ifdef DebugLog
   LogDebug ("HCalGeom") << "HcalNumberingFromDDD: " << hfCells.size()
 			<< " cells of type HCal Forward";
@@ -428,9 +428,9 @@ std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes() co
   return cellTypes;
 }
 
-std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes(HcalSubdetector subdet) const {
+std::vector<HcalCellType> HcalNumberingFromDDD::HcalCellTypes(HcalSubdetector subdet) const {
 
-  std::vector<HcalCellType::HcalCellType> cellTypes;
+  std::vector<HcalCellType> cellTypes;
   if (subdet == HcalForward) {
     if (dzVcal < 0) return cellTypes;
   }
@@ -468,7 +468,7 @@ std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes(Hcal
       HcalCellType::HcalCell temp1 = cell(subdet0,zside,depth,eta,phi,cor);
       if (temp1.ok) {
 	int units = unitPhi (subdet0, eta);
-	HcalCellType::HcalCellType temp2(subdet, eta, phi, depth, temp1,
+	HcalCellType temp2(subdet, eta, phi, depth, temp1,
 					 shift, gain, nz, nmod, hsize, units);
 	if (subdet == HcalOuter && nOff.size() > 17) {
 	  if (eta == nOff[15]) {
@@ -634,7 +634,7 @@ void HcalNumberingFromDDD::initialize(std::string & name,
   }
 
 #ifdef DebugLog
-  std::vector<HcalCellType::HcalCellType> cellTypes = HcalCellTypes();
+  std::vector<HcalCellType> cellTypes = HcalCellTypes();
   LogDebug ("HCalGeom") << "HcalNumberingFromDDD: " << cellTypes.size()
 			<< " cells of type HCal (All)";
   for (unsigned int i=0; i<cellTypes.size(); i++)

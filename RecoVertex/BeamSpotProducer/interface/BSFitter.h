@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.h,v 1.9 2009/12/04 19:59:43 yumiceva Exp $
+ version $Id: BSFitter.h,v 1.8 2009/10/27 14:38:20 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -80,11 +80,9 @@ class BSFitter {
 	reco::BeamSpot Fit_ited0phi();
 		
 	reco::BeamSpot Fit_d_likelihood(double *inipar);
-	reco::BeamSpot Fit_d_z_likelihood(double *inipar, double *error_par);
+	reco::BeamSpot Fit_d_z_likelihood(double *inipar);
 	reco::BeamSpot Fit_dres_z_likelihood(double *inipar);
-
-    double scanPDF(double *init_pars,int & tracksFailed,int option);
-    
+	
 	double GetMinimum() {
 		return ff_minimum;
 	}
@@ -126,8 +124,7 @@ class BSFitter {
 	Double_t fsqrt2pi;
 		
 	std::vector < BSTrkParameters > fBSvector;
-    std::vector < BSTrkParameters > fBSvectorBW;
-    
+	
 	double fresolution_c0;
 	double fresolution_c1;
 	double fres_c0_err;

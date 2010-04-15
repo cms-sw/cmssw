@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.70 2010/03/23 22:18:07 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.71 2010/03/27 11:26:24 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -411,13 +411,8 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	for(uint iamp=0; iamp<ampls.size(); iamp++){
 	  if(ampls[iamp]>0){ // nonzero amplitude
 	    cluster_signal += ampls[iamp];
-	    try{
-	      if(!qualityHandle->IsStripBad(qualityRange, clusterIter->firstStrip()+iamp)){
-		noise = noiseHandle->getNoise(clusterIter->firstStrip()+iamp,detNoiseRange)/gainHandle->getStripGain(clusterIter->firstStrip()+iamp, detGainRange);
-	      }
-	    }
-	    catch(cms::Exception& e){
-	      edm::LogError("SiStripTkDQM|SiStripMonitorCluster|DB")<<" cms::Exception:  detid="<<detid<<" firstStrip="<<clusterIter->firstStrip()<<" iamp="<<iamp<<e.what();
+	    if(!qualityHandle->IsStripBad(qualityRange, clusterIter->firstStrip()+iamp)){
+	      noise = noiseHandle->getNoise(clusterIter->firstStrip()+iamp,detNoiseRange)/gainHandle->getStripGain(clusterIter->firstStrip()+iamp, detGainRange);
 	    }
 	    noise2 += noise*noise;
 	    nrnonzeroamplitudes++;

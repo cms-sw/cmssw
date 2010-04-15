@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/17 09:15:48 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/12/09 22:44:11 $
+ *  $Revision: 1.8 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -28,8 +28,6 @@ DTTTrigAnalyzer::DTTTrigAnalyzer(const ParameterSet& pset) {
   theFile->cd();
   //The k factor to compute ttrig
   //kfactor = pset.getUntrackedParameter<double>("kfactor",0);
-  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
-
 }
  
 DTTTrigAnalyzer::~DTTTrigAnalyzer(){  
@@ -38,7 +36,7 @@ DTTTrigAnalyzer::~DTTTrigAnalyzer(){
 
 void DTTTrigAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) {
   ESHandle<DTTtrig> tTrig;
-  eventSetup.get<DTTtrigRcd>().get(dbLabel,tTrig);
+  eventSetup.get<DTTtrigRcd>().get(tTrig);
   tTrigMap = &*tTrig;
   cout << "[DTTTrigAnalyzer] TTrig version: " << tTrig->version() << endl;
 }

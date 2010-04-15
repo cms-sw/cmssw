@@ -15,7 +15,7 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.h,v 1.10 2010/01/13 21:58:28 wmtan Exp $
+// $Id: EcalDigiToRaw.h,v 1.8 2010/01/04 17:36:21 ferriff Exp $
 //
 //
 
@@ -63,7 +63,6 @@ class EcalDigiToRaw : public edm::EDProducer {
 	int* GetOrbit() {return &orbit_number_ ;}
 	int* GetBX() {return &bx_ ;}
 	int* GetLV1() {return &lv1_ ;}
-	int* GetFOV() {return &dccFOV_ ;}
 	int* GetRunNumber() {return &runnumber_ ;}
 	bool GetDoBarrel() {return doBarrel_ ;}
 	bool GetDoEndCap() {return doEndCap_ ;}
@@ -87,7 +86,6 @@ class EcalDigiToRaw : public edm::EDProducer {
 	int runnumber_;
 	int bx_;
 	int lv1_;
-        int dccFOV_;
 
 	bool doTCC_;
 	bool doSR_;

@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "PhysicsTools/PFCandProducer/interface/PFMETAlgo.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 /**\class PFMET 
 \brief Computes the MET from a collection of PFCandidates. HF missing!
@@ -40,10 +40,17 @@ class PFMET : public edm::EDProducer {
 
  private:
  
-  /// Input PFCandidates
-  edm::InputTag       inputTagPFCandidates_;
 
-  pf2pat::PFMETAlgo   pfMETAlgo_;
+  
+  /// Input PFCandidates
+  edm::InputTag   inputTagPFCandidates_;
+  
+  /// HF calibration factor (in 31X applied by PFProducer)
+  double hfCalibFactor_;
+
+  /// verbose ?
+  bool   verbose_;
+
 };
 
 #endif

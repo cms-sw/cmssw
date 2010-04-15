@@ -84,8 +84,8 @@ class SPYHistograms: public HistogramBase {
 			      const unsigned int aFedId, 
 			      const unsigned int aFedChannel);
 
-  bool tkHistoMapEnabled(unsigned int aIndex=0){
-    return false;
+  std::string tkHistoMapName(unsigned int aIndex=0){
+    return "";
   };
 
   TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0){
@@ -98,88 +98,71 @@ class SPYHistograms: public HistogramBase {
  //histos
 
   //counting histograms (histogram of number of problems per event)
-  HistogramConfig nNoData_;
-  HistogramConfig nLowRange_;
-  HistogramConfig nHighRange_;
-  HistogramConfig nMinZero_;
-  HistogramConfig nMaxSat_;
-  HistogramConfig nLowPb_;
-  HistogramConfig nHighPb_;
-  HistogramConfig nOutOfSync_;
-  HistogramConfig nOtherPbs_;
-  HistogramConfig nApvErrorBit_;
-  HistogramConfig nApvAddressError_;
-  HistogramConfig nNegativePeds_;
+  MonitorElement *nNoData_;
+  MonitorElement *nLowRange_;
+  MonitorElement *nHighRange_;
+  MonitorElement *nMinZero_;
+  MonitorElement *nMaxSat_;
+  MonitorElement *nLowPb_;
+  MonitorElement *nHighPb_;
+  MonitorElement *nOutOfSync_;
+  MonitorElement *nOtherPbs_;
+  MonitorElement *nApvErrorBit_;
+  MonitorElement *nApvAddressError_;
+  MonitorElement *nNegativePeds_;
 
   //vsTime
-  HistogramConfig nNoDatavsTime_;
-  HistogramConfig nLowRangevsTime_;
-  HistogramConfig nHighRangevsTime_;
-  HistogramConfig nMinZerovsTime_;
-  HistogramConfig nMaxSatvsTime_;
-  HistogramConfig nLowPbvsTime_;
-  HistogramConfig nHighPbvsTime_;
-  HistogramConfig nOutOfSyncvsTime_;
-  HistogramConfig nOtherPbsvsTime_;
-  HistogramConfig nApvErrorBitvsTime_;
-  HistogramConfig nApvAddressErrorvsTime_;
-  HistogramConfig nNegativePedsvsTime_;
-  HistogramConfig meanDigitalLowvsTime_;
+  MonitorElement *nNoDatavsTime_;
+  MonitorElement *nLowRangevsTime_;
+  MonitorElement *nHighRangevsTime_;
+  MonitorElement *nMinZerovsTime_;
+  MonitorElement *nMaxSatvsTime_;
+  MonitorElement *nLowPbvsTime_;
+  MonitorElement *nHighPbvsTime_;
+  MonitorElement *nOutOfSyncvsTime_;
+  MonitorElement *nOtherPbsvsTime_;
+  MonitorElement *nApvErrorBitvsTime_;
+  MonitorElement *nApvAddressErrorvsTime_;
+  MonitorElement *nNegativePedsvsTime_;
+  MonitorElement *meanDigitalLowvsTime_;
 
  //top level histograms
-  HistogramConfig noData_;
-  HistogramConfig lowRange_;
-  HistogramConfig highRange_;
-  HistogramConfig minZero_;
-  HistogramConfig maxSat_;
-  HistogramConfig lowPb_;
-  HistogramConfig highPb_;
-  HistogramConfig outOfSync_;
-  HistogramConfig otherPbs_;
-  HistogramConfig apvErrorBit_;
-  HistogramConfig apvAddressError_;
-  HistogramConfig negativePeds_;
+  MonitorElement *noData_;
+  MonitorElement *lowRange_;
+  MonitorElement *highRange_;
+  MonitorElement *minZero_;
+  MonitorElement *maxSat_;
+  MonitorElement *lowPb_;
+  MonitorElement *highPb_;
+  MonitorElement *outOfSync_;
+  MonitorElement *otherPbs_;
+  MonitorElement *apvErrorBit_;
+  MonitorElement *apvAddressError_;
+  MonitorElement *negativePeds_;
 
-  HistogramConfig frameRange_;
-  HistogramConfig frameMin_;
-  HistogramConfig frameMax_;
-  HistogramConfig baseline_;
+  MonitorElement *frameRange_;
+  MonitorElement *frameMin_;
+  MonitorElement *frameMax_;
+  MonitorElement *baseline_;
 
 
   //FED level histograms
-  HistogramConfig  noDataDetailed_;
-  HistogramConfig  lowRangeDetailed_;
-  HistogramConfig  highRangeDetailed_;
-  HistogramConfig  minZeroDetailed_;
-  HistogramConfig  maxSatDetailed_;
-  HistogramConfig  lowPbDetailed_;
-  HistogramConfig  highPbDetailed_;
-  HistogramConfig  outOfSyncDetailed_;
-  HistogramConfig  otherPbsDetailed_;
-  HistogramConfig  apvErrorBitDetailed_;
-  HistogramConfig  apvAddressErrorDetailed_;
-  HistogramConfig  negativePedsDetailed_;
+  std::map<unsigned int,MonitorElement *> noDataDetailed_;
+  std::map<unsigned int,MonitorElement *> lowRangeDetailed_;
+  std::map<unsigned int,MonitorElement *> highRangeDetailed_;
+  std::map<unsigned int,MonitorElement *> minZeroDetailed_;
+  std::map<unsigned int,MonitorElement *> maxSatDetailed_;
+  std::map<unsigned int,MonitorElement *> lowPbDetailed_;
+  std::map<unsigned int,MonitorElement *> highPbDetailed_;
+  std::map<unsigned int,MonitorElement *> outOfSyncDetailed_;
+  std::map<unsigned int,MonitorElement *> otherPbsDetailed_;
+  std::map<unsigned int,MonitorElement *> apvErrorBitDetailed_;
+  std::map<unsigned int,MonitorElement *> apvAddressErrorDetailed_;
+  std::map<unsigned int,MonitorElement *> negativePedsDetailed_;
 
-  HistogramConfig  positionOfFirstHeaderBitDetailed_;
-  HistogramConfig  positionOfFirstTrailerBitDetailed_;
-  HistogramConfig  distanceHeaderTrailerDetailed_;
-
-  std::map<unsigned int,MonitorElement* > noDataDetailedMap_;
-  std::map<unsigned int,MonitorElement* > lowRangeDetailedMap_;
-  std::map<unsigned int,MonitorElement* > highRangeDetailedMap_;
-  std::map<unsigned int,MonitorElement* > minZeroDetailedMap_;
-  std::map<unsigned int,MonitorElement* > maxSatDetailedMap_;
-  std::map<unsigned int,MonitorElement* > lowPbDetailedMap_;
-  std::map<unsigned int,MonitorElement* > highPbDetailedMap_;
-  std::map<unsigned int,MonitorElement* > outOfSyncDetailedMap_;
-  std::map<unsigned int,MonitorElement* > otherPbsDetailedMap_;
-  std::map<unsigned int,MonitorElement* > apvErrorBitDetailedMap_;
-  std::map<unsigned int,MonitorElement* > apvAddressErrorDetailedMap_;
-  std::map<unsigned int,MonitorElement* > negativePedsDetailedMap_;
-
-  std::map<unsigned int,MonitorElement* > positionOfFirstHeaderBitDetailedMap_;
-  std::map<unsigned int,MonitorElement* > positionOfFirstTrailerBitDetailedMap_;
-  std::map<unsigned int,MonitorElement* > distanceHeaderTrailerDetailedMap_;
+  std::map<unsigned int,MonitorElement *> positionOfFirstHeaderBitDetailed_;
+  std::map<unsigned int,MonitorElement *> positionOfFirstTrailerBitDetailed_;
+  std::map<unsigned int,MonitorElement *> distanceHeaderTrailerDetailed_;
 
   std::vector<bool> histosBooked_;
 
