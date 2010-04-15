@@ -13,13 +13,12 @@ selcorMet = cms.EDFilter("WMuNuSelector",
 
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
-      JetTag = cms.untracked.InputTag("ak5CaloJets"),
+      JetTag = cms.untracked.InputTag("ak5CaloJets"), # CAREFUL --> If you run on Summer09 MC, this was called "antikt5CaloJets"
       WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus"),
 
       # Preselection! 
-      MuonTrig = cms.untracked.string("HLT_Mu9"),
+      MuonTrig = cms.untracked.string("HLT_L2Mu9"),
       PtThrForZ1 = cms.untracked.double(20.0),
       PtThrForZ2 = cms.untracked.double(10.0),
       EJetMin = cms.untracked.double(40.),
@@ -29,13 +28,13 @@ selcorMet = cms.EDFilter("WMuNuSelector",
       PtCut = cms.untracked.double(25.0),
       EtaCut = cms.untracked.double(2.1),
       IsRelativeIso = cms.untracked.bool(True),
-      IsCombinedIso = cms.untracked.bool(False),
-      IsoCut03 = cms.untracked.double(0.1),
+      IsCombinedIso = cms.untracked.bool(True), #--> Changed default to Combined Iso. A cut in 0.15 is equivalent (for signal)
+      IsoCut03 = cms.untracked.double(0.15),    # to a cut in TrackIso in 0.10
       MtMin = cms.untracked.double(50.0),
       MtMax = cms.untracked.double(200.0),
       MetMin = cms.untracked.double(-999999.),
       MetMax = cms.untracked.double(999999.),
-      AcopCut = cms.untracked.double(2.),
+      AcopCut = cms.untracked.double(999.),
 
       # Muon quality cuts ->
       DxyCut = cms.untracked.double(0.2),
@@ -55,13 +54,12 @@ selpfMet = cms.EDFilter("WMuNuSelector",
 
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
       JetTag = cms.untracked.InputTag("ak5CaloJets"),
       WMuNuCollectionTag = cms.untracked.InputTag("pfMetWMuNus"),
 
       # Preselection! 
-      MuonTrig = cms.untracked.string("HLT_Mu9"),
+      MuonTrig = cms.untracked.string("HLT_L2Mu9"),
       PtThrForZ1 = cms.untracked.double(20.0),
       PtThrForZ2 = cms.untracked.double(10.0),
       EJetMin = cms.untracked.double(40.),
@@ -78,7 +76,7 @@ selpfMet = cms.EDFilter("WMuNuSelector",
       MtMax = cms.untracked.double(200.0),
       MetMin = cms.untracked.double(-999999.),
       MetMax = cms.untracked.double(999999.),
-      AcopCut = cms.untracked.double(2.),
+      AcopCut = cms.untracked.double(999.),
 
       # Muon quality cuts ->
       DxyCut = cms.untracked.double(0.2),
@@ -98,13 +96,12 @@ seltcMet = cms.EDFilter("WMuNuSelector",
 
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
       JetTag = cms.untracked.InputTag("ak5CaloJets"),
       WMuNuCollectionTag = cms.untracked.InputTag("tcMetWMuNus"),
 
       # Preselection! 
-      MuonTrig = cms.untracked.string("HLT_Mu9"),
+      MuonTrig = cms.untracked.string("HLT_L2Mu9"),
       PtThrForZ1 = cms.untracked.double(20.0),
       PtThrForZ2 = cms.untracked.double(10.0),
       EJetMin = cms.untracked.double(40.),

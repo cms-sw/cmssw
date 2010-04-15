@@ -160,7 +160,7 @@ void WMuNuValidator::init_histograms() {
       for (int i=0; i<2; ++i) {
             snprintf(chname, 255, "PT%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Muon transverse momentum [GeV]");
-            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,50.);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,100.);
 
             snprintf(chname, 255, "ETA%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Muon pseudo-rapidity");
@@ -213,11 +213,11 @@ void WMuNuValidator::init_histograms() {
 
             snprintf(chname, 255, "MT%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Transverse mass (%s) [GeV]", metTag_.label().data());
-            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,100.);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,200,0.,200.);
 
             snprintf(chname, 255, "MET%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Missing transverse energy (%s) [GeV]", metTag_.label().data());
-            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,100.);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,200,0.,200.);
 
             snprintf(chname, 255, "ACOP%s", chsuffix[i].data());
             snprintf(chtitle, 255, "MU-MET (%s) acoplanarity", metTag_.label().data());

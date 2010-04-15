@@ -131,8 +131,8 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
       etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
-      isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", false)),
-      isoCut03_(cfg.getUntrackedParameter<double>("IsoCut03", 0.1)),
+      isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", true)),
+      isoCut03_(cfg.getUntrackedParameter<double>("IsoCut03", 0.15)),
       mtMin_(cfg.getUntrackedParameter<double>("MtMin", 50.)),
       mtMax_(cfg.getUntrackedParameter<double>("MtMax", 200.)),
       metMin_(cfg.getUntrackedParameter<double>("MetMin", -999999.)),
@@ -187,25 +187,25 @@ void WMuNuSelector::beginJob() {
   
      h2_["hTMass_PtSum"]       =fs->make<TH2D>("TMass_PtSum","Rec. Transverse Mass (GeV) vs Sum pT (GeV)",200,0.,100.,200,0,200);
      h2_["hTMass_PtSumNorm"]   =fs->make<TH2D>("TMass_PtSumNorm","Rec. Transverse Mass (GeV) vs Sum Pt / Pt", 1000,0,10,200,0,200);
-     h2_["hTMass_TotIsoNorm"]=fs->make<TH2D>("TMass_TotIsoNorm","Rec. Transverse Mass (GeV) vs (Sum Pt + Cal)/Pt", 10000,0,10,200,0,200);
+     h2_["hTMass_TotIsoNorm"]=fs->make<TH2D>("TMass_TotIsoNorm","Rec. Transverse Mass (GeV) vs (Sum Pt + Cal)/Pt", 1000,0,10,200,0,200);
      
      h2_["hMET_PtSum"]         =fs->make<TH2D>("MET_PtSum","Missing Transverse Energy (GeV) vs Sum Pt (GeV)",200,0.,100.,200,0,200);
      h2_["hMET_PtSumNorm"]     =fs->make<TH2D>("MET_PtSumNorm","Missing Transverse Energy (GeV) vs Sum Pt/Pt",1000,0,10,200,0,200);
-     h2_["hMET_TotIsoNorm"] =fs->make<TH2D>("MET_TotIsoNorm","Missing Transverse Energy (GeV) vs (SumPt + Cal)/Pt",10000,0,10,200,0,200);
+     h2_["hMET_TotIsoNorm"] =fs->make<TH2D>("MET_TotIsoNorm","Missing Transverse Energy (GeV) vs (SumPt + Cal)/Pt",1000,0,10,200,0,200);
 
      h2_["hEta_Pt"]     =fs->make<TH2D>("Eta_Pt","Eta vs Pt",100,0,100, 50,-2.1,2.1);
 
      h2_["hPt_PtSumNorm"]   =fs->make<TH2D>("Pt_PtSumNorm","Pt( GeV) vs Sum Pt / Pt", 1000,0,10,100,0,100);
-     h2_["hPt_TotIsoNorm"]=fs->make<TH2D>("Pt_TotIsoNorm","Pt (GeV) vs (Sum Pt + Cal)/Pt", 10000,0,10,100,0,100);
+     h2_["hPt_TotIsoNorm"]=fs->make<TH2D>("Pt_TotIsoNorm","Pt (GeV) vs (Sum Pt + Cal)/Pt", 1000,0,10,100,0,100);
 
-     h2_["hEta_PtSumNorm"]     =fs->make<TH2D>("Eta_PtSumNorm","Eta vs Sum Pt/Pt",1000,0,10, 50,-2.1,2.1);
-     h2_["hEta_TotIsoNorm"] =fs->make<TH2D>("Eta_TotIsoNorm","Eta vs (SumPt + Cal)/Pt",10000,0,10, 50,-2.1,2.1);
+     //h2_["hEta_PtSumNorm"]     =fs->make<TH2D>("Eta_PtSumNorm","Eta vs Sum Pt/Pt",1000,0,10, 50,-2.1,2.1);
+     //h2_["hEta_TotIsoNorm"] =fs->make<TH2D>("Eta_TotIsoNorm","Eta vs (SumPt + Cal)/Pt",10000,0,10, 50,-2.1,2.1);
 
      h2_["hTMass_Pt"]   =fs->make<TH2D>("TMass_Pt","Rec. Transverse Mass (GeV) vs Pt (GeV)", 100,0,100,200,0,200);
-     h2_["hTMass_Eta"]   =fs->make<TH2D>("TMass_Eta","Rec. Transverse Mass (GeV) vs Eta ", 50,-2.1,2.1,200,0,200);
+     //h2_["hTMass_Eta"]   =fs->make<TH2D>("TMass_Eta","Rec. Transverse Mass (GeV) vs Eta ", 50,-2.1,2.1,200,0,200);
 
      h2_["hMET_Pt"]   =fs->make<TH2D>("MET_Pt","MET (GeV) vs  Pt (GeV)   ", 100,0,100,200,0,200);
-     h2_["hMET_Eta"]   =fs->make<TH2D>("MET_Eta","MET (GeV) vs Eta", 50,-2.1,2.1,200,0,200);
+     //h2_["hMET_Eta"]   =fs->make<TH2D>("MET_Eta","MET (GeV) vs Eta", 50,-2.1,2.1,200,0,200);
 
      //h3_["hMET_Eta_Pt"]   =fs->make<TH3D>("MET_Eta_Pt","MET (GeV) vs Eta vs Pt (GeV)", 100,0,100,50,-2.1,2.1,200,0,200);
      //h3_["hTMass_Eta_Pt"]   =fs->make<TH3D>("TMass_Eta_Pt","TMass (GeV) vs Eta vs Pt (GeV)", 100,0,100,50,-2.1,2.1,200,0,200);
@@ -345,7 +345,8 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       }
 
       ncands++;
-      h1_["hCutFlowSummary"]->Fill(2.);
+
+       if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(2.);
  
       if(WMuNuCollection->size() < 1) {LogTrace("")<<"No WMuNu Candidates in the Event!"; return 0;}
       if(WMuNuCollection->size() > 1) {LogTrace("")<<"This event contains more than one W Candidate";}  
@@ -364,15 +365,15 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       if (!trigger_fired) {LogTrace("")<<"Event did not fire the Trigger"; return 0;}
       ntrig++;
-      h1_["hCutFlowSummary"]->Fill(3.);
+       if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(3.);
 
       if (nmuonsForZ1>=1 && nmuonsForZ2>=2) {LogTrace("")<<"Z Candidate!!"; return 0;}
       nZ++;
-      h1_["hCutFlowSummary"]->Fill(4.);
+       if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(4.);
 
       if (njets>nJetMax_) {LogTrace("")<<"NJets > threshold";  return 0;}
       npresel++;
-      h1_["hCutFlowSummary"]->Fill(5.);
+       if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(5.);
 
 
       if(plotHistograms_){
@@ -397,16 +398,16 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << "\t... Muon pt, eta: " << pt << " [GeV], " << eta;
                   if(plotHistograms_){ h1_["hPtMu_sel"]->Fill(pt);}
             if (pt<ptCut_) return 0;
-                  if(plotHistograms_){ h1_["hEtaMu_sel"]->Fill(eta); h2_["hEta_Pt"]->Fill(pt,eta);}
+                   if(plotHistograms_){ h1_["hEtaMu_sel"]->Fill(eta); h2_["hEta_Pt"]->Fill(pt,eta);}
 
             nPt++;
-            h1_["hCutFlowSummary"]->Fill(6.);
+                   if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(6.);
 
  
             if (fabs(eta)>etaCut_) return 0;
 
             nkin++;
-            h1_["hCutFlowSummary"]->Fill(7.);
+                   if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(7.);
 
             // d0, chi2, nhits quality cuts
             double dxy = gm->dxy(beamSpotHandle->position());
@@ -428,7 +429,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
             nid++;
 
-            h1_["hCutFlowSummary"]->Fill(8.);
+                   if(plotHistograms_)    h1_["hCutFlowSummary"]->Fill(8.);
 
             // Acoplanarity cuts
             double acop = WMuNu.acop();
@@ -470,8 +471,8 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
                   h2_["hPt_PtSumNorm"]->Fill(SumPt/pt,pt);
                   h2_["hPt_TotIsoNorm"]->Fill((SumPt+Cal)/pt,pt);
-                  h2_["hEta_PtSumNorm"]->Fill(SumPt/pt,eta);
-                  h2_["hEta_TotIsoNorm"]->Fill((SumPt+Cal)/pt,eta);
+                  //h2_["hEta_PtSumNorm"]->Fill(SumPt/pt,eta);
+                  //h2_["hEta_TotIsoNorm"]->Fill((SumPt+Cal)/pt,eta);
 
                   }
 
@@ -494,10 +495,10 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
                   h1_["hTMass_sel"]->Fill(massT);
 
                   h2_["hTMass_Pt"]->Fill(pt,massT),
-                  h2_["hTMass_Eta"]->Fill(eta,massT);   
+                  //h2_["hTMass_Eta"]->Fill(eta,massT);   
    
                   h2_["hMET_Pt"]->Fill(pt,met_et);
-                  h2_["hMET_Eta"]->Fill(eta,met_et);
+                  //h2_["hMET_Eta"]->Fill(eta,met_et);
    
                   //h3_["hMET_Eta_Pt"]->Fill(pt,eta,met_et);  
                   //h3_["hTMass_Eta_Pt"]->Fill(pt,eta,massT);
@@ -509,7 +510,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
            LogTrace("") << ">>>> Event ACCEPTED";
             nsel++;
-            h1_["hCutFlowSummary"]->Fill(11.);
+             if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(11.);
 
 
             // (To be continued ;-) )
