@@ -1,4 +1,3 @@
-
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
 from PhysicsTools.PatAlgos.patEventContent_cff import *
@@ -65,6 +64,7 @@ class SwitchOnTriggerStandAlone(ConfigToolBase):
         self.apply(process) 
         
     def toolCode(self, process):
+        outputInProcess=self._parameters['outputInProcess'].value
         ## add trigger modules to path
         process.load("PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff")
         process.patDefaultSequence += process.patTriggerSequence
@@ -101,6 +101,7 @@ class SwitchOnTriggerAll(ConfigToolBase):
         self.apply(process) 
         
     def toolCode(self, process):
+        outputInProcess=self._parameters['outputInProcess'].value
         switchOnTrigger( process )
         if ( outputInProcess ):
             process.out.outputCommands += patTriggerStandAloneEventContent
@@ -131,6 +132,7 @@ class SwitchOnTriggerMatchEmbedding(ConfigToolBase):
         self.apply(process) 
         
     def toolCode(self, process):
+        outputInProcess=self._parameters['outputInProcess'].value
         process.patTriggerSequence += process.patTriggerMatchEmbedder
         if ( outputInProcess ):
             process.out.outputCommands += patEventContentTriggerMatch
