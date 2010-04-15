@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-trackVertexArbitrator = cms.EDProducer("TrackReAssignment",
+trackVertexArbitrator = cms.EDProducer("TrackVertexArbitrator",
        beamSpot = cms.InputTag("offlineBeamSpot"),
        primaryVertices = cms.InputTag("offlinePrimaryVertices"),
        tracks = cms.InputTag("generalTracks"),

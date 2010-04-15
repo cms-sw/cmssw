@@ -190,10 +190,8 @@ for(std::vector<reco::Vertex>::const_iterator sv = secondaryVertices->begin();
                   {
 //                     if(w > 0.5 && isv.second.value() > ipv.second.value() ) std::cout << " - ";
   //                   else std::cout << "   ";
-
                      //add also the tracks used in previous fitting that are still closer to Sv than Pv 
                      if(w > 0.5 && isv.second.value() < ipv.second.value() && dR < dRCut) selTracks.push_back(tt);
-
                   }
 
     //              std::cout << "t : " << track-tracks->begin() <<  " w: " << w 
@@ -201,19 +199,15 @@ for(std::vector<reco::Vertex>::const_iterator sv = secondaryVertices->begin();
         //          << " pvip: " << ipv.second.significance() << " " << ipv.second.value()  << " dr: "   << dR << std::endl;
  
                 }
-
-           
-     
            }      
 
-              TransientVertex singleFitVertex;
-              singleFitVertex = theAdaptiveFitter.vertex(selTracks,ssv);
-              if(singleFitVertex.isValid())  recoVertices->push_back(singleFitVertex);
-
-
+           if(selTracks.size() >= 2)
+              { 
+             	 TransientVertex singleFitVertex;
+             	 singleFitVertex = theAdaptiveFitter.vertex(selTracks,ssv);
+              	if(singleFitVertex.isValid())  recoVertices->push_back(singleFitVertex);
+              } 
 	}
-       
-
 	event.put(recoVertices);
 }
 
