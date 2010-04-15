@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 
 #!/usr/bin/python
@@ -25,7 +26,7 @@ print files
 
 ROOT.gROOT.ProcessLine(".L ./plot_METDQM.C")
 ROOT.gROOT.ProcessLine(".L ./plot_jets_data_vs_MC.C")
-mettype = ['CaloMET','CaloMETNoHF','CaloMETHO','CaloMETNoHFHO','PfMET','TcMET','MuCorrMET']
+mettype = ['CaloMET','CaloMETNoHF''PfMET','TcMET','MuCorrMET']
         
 rmscanvas   = TCanvas("rmscanvas","rmsplots",1280,768)
 rmscanvas.Divide(2,2)
@@ -94,28 +95,28 @@ for index,file in enumerate(files):
             run = run.lstrip("0")
 
             
-            h_SumEt_rms.GetXaxis().SetBinLabel(index,run)
+            h_SumEt_rms.GetXaxis().SetBinLabel(index+1,run)
             h_SumEt_rms.GetXaxis().LabelsOption("v")
 
-            h_MET_rms.GetXaxis().SetBinLabel(index,run)
+            h_MET_rms.GetXaxis().SetBinLabel(index+1,run)
             h_MET_rms.GetXaxis().LabelsOption("v")
 
-            h_MEx_rms.GetXaxis().SetBinLabel(index,run)
+            h_MEx_rms.GetXaxis().SetBinLabel(index+1,run)
             h_MEx_rms.GetXaxis().LabelsOption("v")
 
-            h_MEy_rms.GetXaxis().SetBinLabel(index,run)
+            h_MEy_rms.GetXaxis().SetBinLabel(index+1,run)
             h_MEy_rms.GetXaxis().LabelsOption("v")
             
-            h_SumEt_mean.GetXaxis().SetBinLabel(index,run)
+            h_SumEt_mean.GetXaxis().SetBinLabel(index+1,run)
             h_SumEt_mean.GetXaxis().LabelsOption("v")
 
-            h_MET_mean.GetXaxis().SetBinLabel(index,run)
+            h_MET_mean.GetXaxis().SetBinLabel(index+1,run)
             h_MET_mean.GetXaxis().LabelsOption("v")
 
-            h_MEx_mean.GetXaxis().SetBinLabel(index,run)
+            h_MEx_mean.GetXaxis().SetBinLabel(index+1,run)
             h_MEx_mean.GetXaxis().LabelsOption("v")
 
-            h_MEy_mean.GetXaxis().SetBinLabel(index,run)
+            h_MEy_mean.GetXaxis().SetBinLabel(index+1,run)
             h_MEy_mean.GetXaxis().LabelsOption("v")
             
             # run the MET comparison plots
@@ -139,26 +140,26 @@ for index,file in enumerate(files):
                     hist = "DQMData/Run %s/JetMET/Run summary/MET/%s/BasicCleanup/METTask_CaloSumET"%(run,test)
                     rms  = rootfile.Get(hist).GetRMS()
                     mean = rootfile.Get(hist).GetMean()
-                    h_SumEt_rms.SetBinContent(index,rms)
-                    h_SumEt_mean.SetBinContent(index,mean)
+                    h_SumEt_rms.SetBinContent(index+1,rms)
+                    h_SumEt_mean.SetBinContent(index+1,mean)
                     
                     hist = "DQMData/Run %s/JetMET/Run summary/MET/%s/BasicCleanup/METTask_CaloMET"%(run,test)
                     rms  = rootfile.Get(hist).GetRMS()
                     mean = rootfile.Get(hist).GetMean()
-                    h_MET_rms.SetBinContent(index,rms)
-                    h_MET_mean.SetBinContent(index,mean)
+                    h_MET_rms.SetBinContent(index+1,rms)
+                    h_MET_mean.SetBinContent(index+1,mean)
                     
                     hist = "DQMData/Run %s/JetMET/Run summary/MET/%s/BasicCleanup/METTask_CaloMEx"%(run,test)
                     rms  = rootfile.Get(hist).GetRMS()
                     mean = rootfile.Get(hist).GetMean()
-                    h_MEx_rms.SetBinContent(index,rms)
-                    h_MEx_mean.SetBinContent(index,mean)
+                    h_MEx_rms.SetBinContent(index+1,rms)
+                    h_MEx_mean.SetBinContent(index+1,mean)
                     
                     hist = "DQMData/Run %s/JetMET/Run summary/MET/%s/BasicCleanup/METTask_CaloMEy"%(run,test)
                     rms  = rootfile.Get(hist).GetRMS()
                     mean = rootfile.Get(hist).GetMean()
-                    h_MEy_rms.SetBinContent(index,rms)
-                    h_MEy_mean.SetBinContent(index,mean)
+                    h_MEy_rms.SetBinContent(index+1,rms)
+                    h_MEy_mean.SetBinContent(index+1,mean)
 
                 plotdirectory = "DQMData/Run %s/JetMET/Run summary/MET/%s"%(run,test)
                 if (rootfile.GetDirectory(plotdirectory)):

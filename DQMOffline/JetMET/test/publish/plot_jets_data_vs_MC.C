@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int plot_jets_data_vs_MC(std::string filename, std::string reffile, int run, std::string outdir, std::string imgformat="gif") {
+int plot_jets_data_vs_MC(std::string filename, std::string reffile, int run, std::string outdir, std::string imgformat="png") {
 
   //-------------------------------
 

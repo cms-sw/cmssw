@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void plot_METDQM(std::string filename, std::string reffile, int run, std::string outdir, std::string METName="CaloMET", std::string imgformat="gif"){
+void plot_METDQM(std::string filename, std::string reffile, int run, std::string outdir, std::string METName="CaloMET", std::string imgformat="png"){
 
   //-------------------------------
 
@@ -103,7 +103,7 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     CT_et_ieta_iphi->SetMinimum(0.0);
     CT_et_ieta_iphi->Draw("colz");
 
-    sprintf(cjpgname,"%s%d/CaloTowers/CT_Et.pdf",outdir.c_str(),run);
+    sprintf(cjpgname,"%s%d/CaloTowers/CT_Et.%s",outdir.c_str(),run,imgformat.c_str());
     c_CT_Et->SaveAs(cjpgname);
 
     //-----
@@ -114,7 +114,7 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     CT_hadEt_ieta_iphi->SetMinimum(0.0);
     CT_hadEt_ieta_iphi->Draw("colz");
 
-    sprintf(cjpgname,"%s%d/CaloTowers/CT_hadEt.pdf",outdir.c_str(),run);
+    sprintf(cjpgname,"%s%d/CaloTowers/CT_hadEt.%s",outdir.c_str(),run,imgformat.c_str());
     c_CT_hadEt->SaveAs(cjpgname);
 
     //-----
@@ -125,7 +125,7 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     CT_emEt_ieta_iphi->SetMinimum(0.0);
     CT_emEt_ieta_iphi->Draw("colz");
 
-    sprintf(cjpgname,"%s%d/CaloTowers/CT_emEt.pdf",outdir.c_str(),run);
+    sprintf(cjpgname,"%s%d/CaloTowers/CT_emEt.%s",outdir.c_str(),run,imgformat.c_str());
     c_CT_emEt->SaveAs(cjpgname);
 
     //-----
@@ -136,7 +136,7 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     CT_Occ_ieta_iphi->SetMinimum(0.0);
     CT_Occ_ieta_iphi->Draw("colz");
 
-    sprintf(cjpgname,"%s%d/CaloTowers/CT_Occ.pdf",outdir.c_str(),run);
+    sprintf(cjpgname,"%s%d/CaloTowers/CT_Occ.%s",outdir.c_str(),run,imgformat.c_str());
     c_CT_Occ->SaveAs(cjpgname);
 
   }
