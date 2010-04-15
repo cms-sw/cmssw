@@ -29,6 +29,17 @@ else
   exit 1
 fi
 
+if [ -f "./getDatasets.py" ]; then
+  GETDATASETS="./getDatasets.py"
+elif [ -f "$CMSSW_BASE/src/$PACKAGE/test/getDatasets.py" ]; then
+  GETDATASETS="$CMSSW_BASE/src/$PACKAGE/test/getDatasets.py"
+elif [ -f "$CMSSW_RELEASE_BASE/src/$PACKAGE/test/getDatasets.py" ]; then
+  GETDATASETS="$CMSSW_RELEASE_BASE/src/$PACKAGE/test/getDatasets.py"
+else
+  echo "cannot find getDatasets.py, aborting"
+  exit 1
+fi
+
 function getConfigForCVS() {
   # for things in CMSSW CVS
   local CONFIG="$1"
@@ -45,6 +56,13 @@ function getContentForCVS() {
 
   $GETCONTENT $CONFIG
   rm -f hltOutput*_cff.py*
+}
+
+function getDatasetsForCVS() {
+  local CONFIG="$1"
+  local TARGET="$2"
+
+  $GETDATASETS $CONFIG $TARGET
 }
 
 function getConfigForOnline() {
@@ -72,8 +90,9 @@ getContentForCVS $MASTER
 for TABLE in $TABLES; do
   getConfigForCVS $(eval echo $TARGET) $TABLE
 done
-ls -l HLT_*_cff.py HLTrigger_EventContent_cff.py
-mv -f HLT_*_cff.py HLTrigger_EventContent_cff.py ../python
+getDatasetsForCVS $(eval TABLE="GRun" echo $TARGET) HLTrigger_Datasets_cff.py
+ls -l HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_cff.py
+mv -f HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_cff.py ../python
 echo
 
 # for things now also in CMSSW CVS:
