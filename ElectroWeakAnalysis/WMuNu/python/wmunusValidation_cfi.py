@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-corMet = cms.EDFilter("WMuNuValidator",
+wmnVal_corMet = cms.EDFilter("WMuNuValidator",
       # Fast selection flag (no histograms or book-keeping) ->
       FastOption = cms.untracked.bool(False),
 
@@ -40,7 +40,7 @@ corMet = cms.EDFilter("WMuNuValidator",
       NJetMax = cms.untracked.int32(999999)
 )
 
-pfMet = cms.EDFilter("WMuNuValidator",
+wmnVal_pfMet = cms.EDFilter("WMuNuValidator",
       # Fast selection flag (no histograms or book-keeping) ->
       FastOption = cms.untracked.bool(False),
 
@@ -80,7 +80,7 @@ pfMet = cms.EDFilter("WMuNuValidator",
       NJetMax = cms.untracked.int32(999999)
 )
 
-tcMet = cms.EDFilter("WMuNuValidator",
+wmnVal_tcMet = cms.EDFilter("WMuNuValidator",
       # Fast selection flag (no histograms or book-keeping) ->
       FastOption = cms.untracked.bool(False),
 
@@ -120,4 +120,4 @@ tcMet = cms.EDFilter("WMuNuValidator",
       NJetMax = cms.untracked.int32(999999)
 )
 
-wmunuval = cms.Sequence(corMet+tcMet+pfMet)
+wmunuVal = cms.Sequence(wmnVal_corMet+wmnVal_tcMet+wmnVal_pfMet)
