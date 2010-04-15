@@ -31,7 +31,7 @@
    <Parameter name="Neighbours"  value="1"          eval="true"/>
    <Parameter name="Neighbours"  value="1"          eval="true"/>
    <Parameter name="Neighbours"  value="1"          eval="true"/>
-   <Parameter name="Neighbours"  value="2"          eval="true"/>
+   <Parameter name="Neighbours"  value="4"          eval="true"/>
    <Parameter name="Neighbours"  value="1"          eval="true"/>
    <Parameter name="Inside"      value="BEAM"       eval="false"/>
    <Parameter name="Inside"      value="Tracker"    eval="false"/>
@@ -46,6 +46,8 @@
    <Parameter name="Inside"      value="MB"         eval="false"/>
    <Parameter name="Inside"      value="MB"         eval="false"/>
    <Parameter name="Inside"      value="BEAM2"      eval="false"/>
+   <Parameter name="Inside"      value="BSC2"       eval="false"/>
+   <Parameter name="Inside"      value="OQUA"       eval="false"/>
    <Parameter name="Inside"      value="NotFound"   eval="false"/>
    <Parameter name="Inside"      value="NotFound"   eval="false"/>
    <Parameter name="InsideLevel" value="3"          eval="true"/>
@@ -60,6 +62,8 @@
    <Parameter name="InsideLevel" value="4"          eval="true"/>
    <Parameter name="InsideLevel" value="4"          eval="true"/>
    <Parameter name="InsideLevel" value="4"          eval="true"/>
+   <Parameter name="InsideLevel" value="3"          eval="true"/>
+   <Parameter name="InsideLevel" value="3"          eval="true"/>
    <Parameter name="InsideLevel" value="3"          eval="true"/>
    <Parameter name="InsideLevel" value="3"          eval="true"/>
    <Parameter name="InsideLevel" value="3"          eval="true"/>
