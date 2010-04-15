@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotOnlineProducer.h,v 1.1 2010/02/25 13:30:35 yumiceva Exp $
+ version $Id: BeamSpotOnlineProducer.h,v 1.2 2010/03/02 17:29:47 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -32,7 +32,7 @@ class BeamSpotOnlineProducer: public edm::EDProducer {
 	~BeamSpotOnlineProducer();
 	
 	/// produce a beam spot class
-	virtual void produce(edm::Event& iEvent, const edm::EventSetup& );
+	virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   private:
 	
