@@ -15,21 +15,21 @@ SimG4Core/Application/test/runP-WithPionAndQGSP.cfg
 
 TO USE:
 
-in .cfg file:
+in _cfg.py file:
 
-      VPSet Watchers = {
-      {
-	       string type = "TrackingVerboseAction"
-	       untracked bool  DEBUG = false
-	       untracked bool  CheckForHighEtPhotons = false
-	       untracked int32 EventMin = 0
-	       untracked int32 EventMax = 6
-	       untracked int32 EventStep = 2
-	       untracked int32 TrackMin = 0
-	       untracked int32 TrackMax = 10000
-	       untracked int32 TrackStep = 100
-	       untracked int32 VerboseLevel = 1 
-      }	  }
+process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
+    CheckForHighEtPhotons = cms.untracked.bool(False),
+    G4Verbose    = cms.untracked.bool(False),
+    EventMin     = cms.untracked.int32(0),
+    EventMax     = cms.untracked.int32(6),
+    EventStep    = cms.untracked.int32(2),
+    TrackMin     = cms.untracked.int32(0),
+    TrackMax     = cms.untracked.int32(10000),
+    TrackStep    = cms.untracked.int32(100),
+    VerboseLevel = cms.untracked.int32(1),
+    DEBUG        = cms.untracked.bool(False),
+    type         = cms.string('TrackingVerboseAction')
+))
 
 
 

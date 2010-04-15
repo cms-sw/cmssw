@@ -4,10 +4,10 @@
 // Ported to CMSSW by: M. Stavrianakou  22.03.06
 // Description:
 // Modifications:
-// Class with the commands to switch on/off the verbosity of tracking and event, 
+// Class with the commands to switch on/off the verbosity of tracking and event
 // see TrackingVerboseAction for a detailed explanation
 // for a given range of tracks each 'n' tracks
-// the GEANT4 command '/tracking/verbose N' will be executed when the trackNo is
+// the GEANT4 command '/tracking/verbose N' will be executed when trackNo is
 //     fTVTrackMin <= trackNo <= fTVTrackMax
 // each fTVTrackStep tracks (starting at 1, not 0) and if the trackNo is
 //     fTVTrackMin <= trackNo <= fTVTrackMax
@@ -22,6 +22,8 @@
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
   
+#include "G4Step.hh"
+
 class BeginOfTrack;
 class EndOfTrack;
 class BeginOfEvent;
@@ -34,34 +36,37 @@ class TrackingVerboseAction :  public SimWatcher,
 			       public Observer<const BeginOfRun *>, 
 			       public Observer<const BeginOfEvent *>, 
 			       public Observer<const BeginOfTrack *>,
-			       public Observer<const EndOfTrack *>
-{
- public:
-    TrackingVerboseAction(edm::ParameterSet const & p);
-    ~TrackingVerboseAction();
-    void update(const BeginOfRun *);
-    void update(const BeginOfEvent *);
-    void update(const BeginOfTrack *);
-    void update(const EndOfTrack *);
+                               public Observer<const EndOfTrack *>,
+                               public Observer<const G4Step *> {
+
+public:
+  TrackingVerboseAction(edm::ParameterSet const & p);
+  ~TrackingVerboseAction();
+  void update(const BeginOfRun *);
+  void update(const BeginOfEvent *);
+  void update(const BeginOfTrack *);
+  void update(const EndOfTrack *);
+  void update(const G4Step*);
 private:
-    void setTrackingVerbose(int verblev);
-    bool checkTrackingVerbose(const G4Track*);
-    void printTrackInfo(const G4Track*);
+  void setTrackingVerbose(int verblev);
+  bool checkTrackingVerbose(const G4Track*);
+  void printTrackInfo(const G4Track*);
 private:
-    int  fLarge;
-    bool fDEBUG;
-    bool fHighEtPhotons;
-    int fTVTrackMin;
-    int fTVTrackMax;
-    int fTVTrackStep;
-    int fTVEventMin;
-    int fTVEventMax;
-    int fTVEventStep;
-    int fVerboseLevel;
-    bool fTrackingVerboseON;
-    bool fTkVerbThisEventON;
-    G4TrackingManager * theTrackingManager;
-    G4VSteppingVerbose* fVerbose;
+  int  fLarge;
+  bool fDEBUG;
+  bool fG4Verbose;
+  bool fHighEtPhotons;
+  int fTVTrackMin;
+  int fTVTrackMax;
+  int fTVTrackStep;
+  int fTVEventMin;
+  int fTVEventMax;
+  int fTVEventStep;
+  int fVerboseLevel;
+  bool fTrackingVerboseON;
+  bool fTkVerbThisEventON;
+  G4TrackingManager * theTrackingManager;
+  G4VSteppingVerbose* fVerbose;
 };
 
 #endif

@@ -20,9 +20,7 @@
 #include "G4TrackingManager.hh"
 #include "G4EventManager.hh"
 #include "G4VSteppingVerbose.hh"
-
-using std::cout;
-using std::endl;
+#include "G4UnitsTable.hh"
 
 TrackingVerboseAction::TrackingVerboseAction(edm::ParameterSet const & p) :
   theTrackingManager(0), fVerbose(0) {
@@ -30,6 +28,7 @@ TrackingVerboseAction::TrackingVerboseAction(edm::ParameterSet const & p) :
   fLarge = int(1E10);
   fDEBUG = p.getUntrackedParameter<bool>("DEBUG",false);
   fHighEtPhotons = p.getUntrackedParameter<bool>("CheckForHighEtPhotons",false);
+  fG4Verbose = p.getUntrackedParameter<bool>("G4Verbose",false);
 
   //----- Set which events are verbose
   fTVEventMin  = p.getUntrackedParameter<int>("EventMin",0);
@@ -48,7 +47,7 @@ TrackingVerboseAction::TrackingVerboseAction(edm::ParameterSet const & p) :
     G4cout << "TV: fTVTrackMin " << fTVTrackMin   << " fTVTrackMax "  <<  fTVTrackMax 
 	   <<  " fTVTrackStep "  << fTVTrackStep  << " fTVEventMin "  << fTVEventMin 
 	   << " fTVEventMax "    << fTVEventMax   << " fTVEventStep " << fTVEventStep 
-	   << " fVerboseLevel "  << fVerboseLevel << G4endl;
+	   << " fVerboseLevel "  << fVerboseLevel << " fG4Verbose " << fG4Verbose << G4endl;
   
   //----- Set verbosity off to start
   fTrackingVerboseON = false;
@@ -149,8 +148,8 @@ void TrackingVerboseAction::update(const BeginOfTrack * trk) {
 	    && aTrack->GetCreatorProcess()->GetProcessName() != "LCapture")
 	  G4cout << " KineE > 1 GeV !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << G4endl;
 	const G4VTouchable* touchable=aTrack->GetTouchable();
-	if (touchable!=0 && touchable->GetVolume()!=0 
-	    && touchable->GetVolume()->GetLogicalVolume()!=0) {
+	if (touchable!=0 && touchable->GetVolume()!=0 &&
+	    touchable->GetVolume()->GetLogicalVolume()!=0) {
 	  G4Material* material=touchable->GetVolume()->GetLogicalVolume()->GetMaterial();
 	  G4cout << "G4LCapture Gamma E(GeV) " 
 		 << aTrack->GetTotalEnergy()/GeV << "  "
@@ -234,6 +233,33 @@ void TrackingVerboseAction::update(const EndOfTrack * trk) {
       if (fDEBUG) G4cout << "TV: VERBOSEtt0 " << aTrack->GetTrackID()
 			 << G4endl;
     }
+  }
+}
+
+void TrackingVerboseAction::update(const G4Step* fStep) {
+  if ((!fG4Verbose) && (fTrackingVerboseON)) {
+    G4Track* fTrack = fStep->GetTrack();
+    G4cout << std::setw( 5) << fTrack->GetCurrentStepNumber() << " "
+	   << std::setw( 8) << G4BestUnit(fTrack->GetPosition().x() , "Length") << " "
+	   << std::setw( 8) << G4BestUnit(fTrack->GetPosition().y() , "Length") << " "
+	   << std::setw( 8) << G4BestUnit(fTrack->GetPosition().z() , "Length") << " "
+	   << std::setw( 9) << G4BestUnit(fTrack->GetKineticEnergy() , "Energy") << " "
+	   << std::setw( 8) << G4BestUnit(fStep->GetTotalEnergyDeposit(), "Energy") << " "
+	   << std::setw( 8) << G4BestUnit(fStep->GetStepLength() , "Length") << " "
+	   << std::setw( 9) << G4BestUnit(fTrack->GetTrackLength() , "Length") << " ";
+
+    // Put cut comment here
+    if( fTrack->GetNextVolume() != 0 ) {
+      G4cout << std::setw(11) << fTrack->GetNextVolume()->GetName() << " ";
+    } else {
+      G4cout << std::setw(11) << "OutOfWorld" << " ";
+    }
+    if(fStep->GetPostStepPoint()->GetProcessDefinedStep() != NULL){
+      G4cout << fStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
+    } else {
+      G4cout << "User Limit";
+    }
+    G4cout << G4endl;
   }
 }
 
