@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2010/03/07 16:58:36 $
- *  $Revision: 1.52 $
+ *  $Date: 2010/04/15 13:05:07 $
+ *  $Revision: 1.53 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -852,7 +852,11 @@ double CosmicMuonTrajectoryBuilder::t0(const DTRecSegment4D* dtseg) const {
    LogTrace(category_) << "phiHits " << phiHits;
    if ( phiHits > 5 ) {
      if(dtseg->phiSegment()->ist0Valid()) result = dtseg->phiSegment()->t0();
-     LogTrace(category_) << " Phi t0: " << dtseg->phiSegment()->t0() << " hits: " << phiHits;
+     if (dtseg->phiSegment()->ist0Valid()){
+       LogTrace(category_) << " Phi t0: " << dtseg->phiSegment()->t0() << " hits: " << phiHits;
+     } else {
+       LogTrace(category_) << " Phi t0 is invalid: " << dtseg->phiSegment()->t0() << " hits: " << phiHits;
+     }
    }
 
    return result;
