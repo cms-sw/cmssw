@@ -8,10 +8,11 @@ from CalibMuon.DTCalibration.DTCalibMuonSelection_cfi import *
 # AlCaReco for DT calibration
 ALCARECODtCalibHLTFilter = copy.deepcopy(hltHighLevel)
 
-ALCARECODtCalibHLTFilter.andOr = True ## choose logical OR between Triggerbits
+#ALCARECODtCalibHLTFilter.andOr = True ## choose logical OR between Triggerbits
+#ALCARECODtCalibHLTFilter.HLTPaths = ['HLT_L1MuOpen', 'HLT_L1Mu']
 ALCARECODtCalibHLTFilter.throw = False ## dont throw on unknown path names
 
-ALCARECODtCalibHLTFilter.HLTPaths = ['HLT_L1MuOpen', 'HLT_L1Mu']
+ALCARECODtCalibHLTFilter.eventSetupPathsKey = 'MuAlCalIsolatedMu'
 
 # Configuration for DT 4D segments without the wire propagation correction
 from RecoLocalMuon.DTSegment.DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB_cfi import *
