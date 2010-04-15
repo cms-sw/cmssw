@@ -9,7 +9,7 @@ wmnVal_corMet = cms.EDFilter("WMuNuValidator",
       MuonTag = cms.untracked.InputTag("muons"),
       METTag = cms.untracked.InputTag("corMetGlobalMuons"),
       METIncludesMuons = cms.untracked.bool(True),
-      JetTag = cms.untracked.InputTag("ak5CaloJets"),
+      JetTag = cms.untracked.InputTag("ak5CaloJets"),  # CAREFUL --> If you run on Summer09 MC, this was called "antikt5CaloJets"
       
       # Main cuts ->
       MuonTrig = cms.untracked.string("HLT_L2Mu9"),
@@ -23,7 +23,7 @@ wmnVal_corMet = cms.EDFilter("WMuNuValidator",
       MtMax = cms.untracked.double(200.0),
       MetMin = cms.untracked.double(-999999.),
       MetMax = cms.untracked.double(999999.),
-      AcopCut = cms.untracked.double(2.), 
+      AcopCut = cms.untracked.double(2.),     # Remember to take this out if you are looking for High-Pt Bosons! (V+Jets)
 
       # Muon quality cuts ->
       DxyCut = cms.untracked.double(0.2),
