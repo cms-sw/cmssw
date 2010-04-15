@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCaloTauProxyBuilder.cc,v 1.1 2010/04/14 15:52:19 yana Exp $
+// $Id: FWCaloTauProxyBuilder.cc,v 1.1 2010/04/15 12:45:02 yana Exp $
 //
 
 // system include files
@@ -111,5 +111,5 @@ FWCaloTauLegoProxyBuilder::build( const reco::CaloTau& iData, unsigned int iInde
 }
 
 REGISTER_FWPROXYBUILDER(FWCaloTauProxyBuilder, reco::CaloTau, "CaloTau", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
-REGISTER_FWPROXYBUILDER(FWCaloTauGlimpseProxyBuilder, reco::CaloTau, "CaloTau", FWViewType::kGlimpse);
-REGISTER_FWPROXYBUILDER(FWCaloTauLegoProxyBuilder, reco::CaloTau, "CaloTau", FWViewType::kLego);
+REGISTER_FWPROXYBUILDER(FWCaloTauGlimpseProxyBuilder, reco::CaloTau, "CaloTau", FWViewType::kGlimpseBit);
+REGISTER_FWPROXYBUILDER(FWCaloTauLegoProxyBuilder, reco::CaloTau, "CaloTau", FWViewType::kLegoBit);

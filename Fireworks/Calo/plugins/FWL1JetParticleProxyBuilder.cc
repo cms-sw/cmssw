@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1JetParticleProxyBuilder.cc,v 1.1 2010/04/14 15:52:18 yana Exp $
+// $Id: FWL1JetParticleProxyBuilder.cc,v 1.1 2010/04/15 10:04:39 yana Exp $
 //
 
 // system include files
@@ -101,4 +101,4 @@ FWL1JetParticleLegoProxyBuilder::build( const l1extra::L1JetParticle& iData, uns
 
 
 REGISTER_FWPROXYBUILDER(FWL1JetParticleProxyBuilder, l1extra::L1JetParticle, "L1JetParticle", FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
-REGISTER_FWPROXYBUILDER(FWL1JetParticleLegoProxyBuilder, l1extra::L1JetParticle, "L1JetParticle", FWViewType::kLego);
+REGISTER_FWPROXYBUILDER(FWL1JetParticleLegoProxyBuilder, l1extra::L1JetParticle, "L1JetParticle", FWViewType::kLegoBit);

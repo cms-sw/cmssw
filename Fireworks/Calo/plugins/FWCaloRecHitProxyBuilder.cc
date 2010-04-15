@@ -37,4 +37,4 @@ FWCaloRecHitProxyBuilder::build(const CaloRecHit& iData, unsigned int iIndex, TE
    fireworks::drawEnergyTower3D(corners, iData.energy() * scale, oItemHolder);
 }
 
-REGISTER_FWPROXYBUILDER(FWCaloRecHitProxyBuilder, CaloRecHit, "Calo RecHit", FWViewType::kISpy );
+REGISTER_FWPROXYBUILDER(FWCaloRecHitProxyBuilder, CaloRecHit, "Calo RecHit", FWViewType::kISpyBit );

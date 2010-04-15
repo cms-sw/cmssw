@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1EtMissParticleProxyBuilder.cc,v 1.1 2010/04/14 15:52:18 yana Exp $
+// $Id: FWL1EtMissParticleProxyBuilder.cc,v 1.1 2010/04/15 10:04:38 yana Exp $
 //
 
 // system include files
@@ -143,5 +143,5 @@ FWL1EtMissParticleLegoProxyBuilder::build( const l1extra::L1EtMissParticle& iDat
 }
 
 REGISTER_FWPROXYBUILDER(FWL1EtMissParticleProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
-REGISTER_FWPROXYBUILDER(FWL1EtMissParticleGlimpseProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kGlimpse);
-REGISTER_FWPROXYBUILDER(FWL1EtMissParticleLegoProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kLego);
+REGISTER_FWPROXYBUILDER(FWL1EtMissParticleGlimpseProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kGlimpseBit);
+REGISTER_FWPROXYBUILDER(FWL1EtMissParticleLegoProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kLegoBit);

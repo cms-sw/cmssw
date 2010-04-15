@@ -80,4 +80,4 @@ FWHBHERecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList** prod
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWHBHERecHitProxyBuilder, HBHERecHitCollection, "HBHE RecHit", FWViewType::kISpy);
+REGISTER_FWPROXYBUILDER( FWHBHERecHitProxyBuilder, HBHERecHitCollection, "HBHE RecHit", FWViewType::kISpyBit );

@@ -38,4 +38,4 @@ FWCaloClusterProxyBuilder::build(const reco::CaloCluster& iData, unsigned int iI
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWCaloClusterProxyBuilder, reco::CaloCluster, "Calo Cluster", FWViewType::kISpy );
+REGISTER_FWPROXYBUILDER(FWCaloClusterProxyBuilder, reco::CaloCluster, "Calo Cluster", FWViewType::kISpyBit );

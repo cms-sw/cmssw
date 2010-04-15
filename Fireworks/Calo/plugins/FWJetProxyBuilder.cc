@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.4 2009/04/16 17:08:31 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.1 2010/04/14 15:52:18 yana Exp $
 //
 #include "TEveStraightLineSet.h"
 
@@ -108,5 +108,5 @@ FWJetLegoProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
 }
 
 REGISTER_FWPROXYBUILDER(FWJetProxyBuilder, reco::Jet, "Jets", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
-REGISTER_FWPROXYBUILDER(FWJetGlimpseProxyBuilder, reco::Jet, "Jets", FWViewType::kGlimpse);
-REGISTER_FWPROXYBUILDER(FWJetLegoProxyBuilder, reco::Jet, "Jets", FWViewType::kLego);
+REGISTER_FWPROXYBUILDER(FWJetGlimpseProxyBuilder, reco::Jet, "Jets", FWViewType::kGlimpseBit);
+REGISTER_FWPROXYBUILDER(FWJetLegoProxyBuilder, reco::Jet, "Jets", FWViewType::kLegoBit);
