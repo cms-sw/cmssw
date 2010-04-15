@@ -22,8 +22,14 @@ hltMuonValidator = cms.EDAnalyzer("HLTMuonValidator",
     parametersEta      = cms.vdouble(48, -2.400, 2.400),
     parametersPhi      = cms.vdouble(50, -3.142, 3.142),
 
-    # set criteria for matching
-    cutsDr      = cms.vdouble(0.4, 0.4, 0.015),
+    # set criteria for matching at L1, L2, L3
+    cutsDr = cms.vdouble(0.4, 0.4, 0.015),
+    # parameters for attempting an L1 match using a propagator
+    maxDeltaPhi = cms.double(0.4),
+    maxDeltaR   = cms.double(0.4),
+    useSimpleGeometry = cms.bool(True),
+    useTrack = cms.string("none"),
+    useState = cms.string("atVertex"),
 
     # set cuts on generated and reconstructed muons
     genMuonCut  = cms.string("abs(pdgId) == 13 && status == 1"),
