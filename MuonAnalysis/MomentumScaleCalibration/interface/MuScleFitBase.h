@@ -17,14 +17,13 @@ class MuScleFitBase
 {
 public:
   MuScleFitBase(const edm::ParameterSet& iConfig) :
-    probabilitiesFileInPath_( iConfig.getUntrackedParameter<std::string>( "ProbabilitiesFileInPath" , "MuonAnalysis/MomentumScaleCalibration/test/Probs_new_Horace_CTEQ_1000.root" ) ),
+    probabilitiesFileInPath_( iConfig.getUntrackedParameter<std::string>( "ProbabilitiesFileInPath" , "MuonAnalysis/MomentumScaleCalibration/test/Probs_JPsiFSR.root" ) ),
     probabilitiesFile_( iConfig.getUntrackedParameter<std::string>( "ProbabilitiesFile" , "" ) ),
     theMuonType_( iConfig.getParameter<int>( "MuonType" ) ),
     theMuonLabel_( iConfig.getParameter<edm::InputTag>( "MuonLabel" ) ),
     theRootFileName_( iConfig.getUntrackedParameter<std::string>("OutputFileName") ),
     theGenInfoRootFileName_( iConfig.getUntrackedParameter<std::string>("OutputGenInfoFileName", "genSimRecoPlots.root") ),
-    debug_( iConfig.getUntrackedParameter<int>("debug",0) ),
-    useType_( iConfig.getUntrackedParameter<unsigned int>("UseType",0) )
+    debug_( iConfig.getUntrackedParameter<int>("debug",0) )
   {}
   virtual ~MuScleFitBase() {}
 protected:
@@ -47,8 +46,6 @@ protected:
   std::string theGenInfoRootFileName_;
 
   int debug_;
-
-  unsigned int useType_;
 
   /// Functor used to compute the normalization integral of probability functions
   class ProbForIntegral
