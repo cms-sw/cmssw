@@ -16,6 +16,12 @@ hltProcessName = "HLT"
 process.relvalMuonBits.TriggerResultsTag.setProcessName(hltProcessName)
 process.hltMuonValidator.hltProcessName = hltProcessName
 
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'START3X_V25::All'
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
