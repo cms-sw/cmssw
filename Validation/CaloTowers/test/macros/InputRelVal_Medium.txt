@@ -104,10 +104,10 @@
                                                    N_HE   1	                           N_HE.gif	10	0	500	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HE RecHits
                                                    N_HF   1	                           N_HF.gif	10	0	600	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HF RecHits
                                                    N_HO   1	                           N_HO.gif	10	0	600	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HO RecHits
-                        HcalRecHitTask_severityLevel_HB   1                    severityLevel_HB.gif     1       0       25      0       -1      1D      Stat    Chi2    Log     2       1                 severityLevel HB
-                        HcalRecHitTask_severityLevel_HE   1                    severityLevel_HE.gif     1       0       25      0       -1      1D      Stat    Chi2    Log     2       1                 severityLevel HE
-                        HcalRecHitTask_severityLevel_HF   1                    severityLevel_HF.gif     1       0       25      0       -1      1D      Stat    Chi2    Log     2       1                 severityLevel HF
-                        HcalRecHitTask_severityLevel_HO   1                    severityLevel_HO.gif     1       0       25      0       -1      1D      Stat    Chi2    Log     2       1                 severityLevel HO
+                        HcalRecHitTask_severityLevel_HB   1                    severityLevel_HB.gif     1       0       25      0       -1      1D      Statrv  Chi2    Log     2       1                 severityLevel HB
+                        HcalRecHitTask_severityLevel_HE   1                    severityLevel_HE.gif     1       0       25      0       -1      1D      Statrv  Chi2    Log     2       1                 severityLevel HE
+                        HcalRecHitTask_severityLevel_HF   1                    severityLevel_HF.gif     1       0       25      0       -1      1D      Statrv  Chi2    Log     2       1                 severityLevel HF
+                        HcalRecHitTask_severityLevel_HO   1                    severityLevel_HO.gif     1       0       25      0       -1      1D      Statrv  Chi2    Log     2       1                 severityLevel HO
                                             RMS_seq_HB1   0
                                             RMS_seq_HB2   0
                                             RMS_seq_HE1   0
