@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.2 2010/03/11 14:21:47 mccauley Exp $
+// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.1 2010/04/08 11:15:46 yana Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
 private:
-   virtual void build(const FWEventItem* iItem, TEveElementList** product);
+   virtual void build(const FWEventItem* iItem, TEveElementList* product);
    FWSiPixelClusterProxyBuilder(const FWSiPixelClusterProxyBuilder&);    // stop default
    const FWSiPixelClusterProxyBuilder& operator=(const FWSiPixelClusterProxyBuilder&);    // stop default
    void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
@@ -48,18 +48,11 @@ protected:
    virtual Mode getMode() { return Clusters; }
 };
 
-void FWSiPixelClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+//______________________________________________________________________________
+
+void FWSiPixelClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product)
 {
-   TEveElementList* tList = *product;
-   Color_t color = iItem->defaultDisplayProperties().color();
-   if(0 == tList) {
-      tList =  new TEveElementList(iItem->name().c_str(),"SiPixelCluster",true);
-      *product = tList;
-      tList->SetMainColor(color);
-      gEve->AddElement(tList);
-   } else {
-      tList->DestroyElements();
-   }
+   product->SetMainColor( iItem->defaultDisplayProperties().color());
 
    const SiPixelClusterCollectionNew* pixels=0;
    iItem->get(pixels);
@@ -83,49 +76,47 @@ void FWSiPixelClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
       list->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
 
       if (iItem->getGeom()) {
-          Mode m = getMode();
-          if (m == Clusters) {
-             const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( detid );
-             std::vector<TVector3> pixelPoints;
-             const edmNew::DetSet<SiPixelCluster> & clusters = *set;
-             for (edmNew::DetSet<SiPixelCluster>::const_iterator itc = clusters.begin(), edc = clusters.end(); itc != edc; ++itc) {
-                 fireworks::pushPixelCluster(pixelPoints, matrix, detid, *itc);
-             }
-             fireworks::addTrackerHits3D(pixelPoints, list, color, 1);
-          } else if (m == Modules) {
-             TEveGeoShape* shape = iItem->getGeom()->getShape( id );
-             if(0!=shape) {
-                shape->SetMainTransparency(50);
-                shape->SetMainColor( iItem->defaultDisplayProperties().color() );
-                shape->SetPickable(true);
-                list->AddElement(shape);
-             }
-          }
+         Mode m = getMode();
+         if (m == Clusters) {
+            const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( detid );
+            std::vector<TVector3> pixelPoints;
+            const edmNew::DetSet<SiPixelCluster> & clusters = *set;
+            for (edmNew::DetSet<SiPixelCluster>::const_iterator itc = clusters.begin(), edc = clusters.end(); itc != edc; ++itc) {
+               fireworks::pushPixelCluster(pixelPoints, matrix, detid, *itc);
+            }
+            fireworks::addTrackerHits3D(pixelPoints, list, iItem->defaultDisplayProperties().color(), 1);
+         } else if (m == Modules) {
+            TEveGeoShape* shape = iItem->getGeom()->getShape( id );
+            if(0!=shape) {
+               shape->SetMainTransparency(50);
+               shape->SetMainColor( iItem->defaultDisplayProperties().color() );
+               shape->SetPickable(true);
+               list->AddElement(shape);
+            }
+         }
 
       }
 
-      gEve->AddElement(list,tList);
-/////////////////////////////////////////////////////	   
-//LatB
-	   static int C2D=0;
-	   static int PRINT=0;
-	   if (C2D) {
-			if (PRINT) std::cout<<"SiPixelCluster  "<<index<<", "<<title<<std::endl;
-			TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
-			for(edmNew::DetSet<SiPixelCluster>::const_iterator ic = set->begin (); ic != set->end (); ++ic) { 
-				double lx = (*ic).x();
-				double ly = (*ic).y();
-				TVector3 point; fireworks::localSiPixel(point, lx, ly, id, iItem);
-				static const double dd = .5;
-				scposition->AddLine(point.X()-dd, point.Y(), point.Z(), point.X()+dd, point.Y(), point.Z());
-				scposition->AddLine(point.X(), point.Y()-dd, point.Z(), point.X(), point.Y()+dd, point.Z());
-				scposition->AddLine(point.X(), point.Y(), point.Z()-dd, point.X(), point.Y(), point.Z()+dd);
+      product->AddElement(list);
+      /////////////////////////////////////////////////////	   
+      //LatB
+      static int C2D=0;
+      static int PRINT=0;
+      if (C2D) {
+         if (PRINT) std::cout<<"SiPixelCluster  "<<index<<", "<<title<<std::endl;
+         TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
+         for(edmNew::DetSet<SiPixelCluster>::const_iterator ic = set->begin (); ic != set->end (); ++ic) { 
+            double lx = (*ic).x();
+            double ly = (*ic).y();
+            TVector3 point; fireworks::localSiPixel(point, lx, ly, id, iItem);
+            static const double dd = .5;
+            scposition->AddLine(point.X()-dd, point.Y(), point.Z(), point.X()+dd, point.Y(), point.Z());
+            scposition->AddLine(point.X(), point.Y()-dd, point.Z(), point.X(), point.Y()+dd, point.Z());
+            scposition->AddLine(point.X(), point.Y(), point.Z()-dd, point.X(), point.Y(), point.Z()+dd);
 
-				scposition->SetLineColor(kRed);
-			}
-			gEve->AddElement(scposition,tList);
-	   }
-/////////////////////////////////////////////////////	   
+            scposition->SetLineColor(kRed);
+         }
+      }
    }
 }
 

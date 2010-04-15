@@ -37,6 +37,7 @@ class CmsAnnotation;
 class FWViewContextMenuHandlerGL;
 class DetIdToMatrix;
 class FWColorManager;
+class FWViewContext;
 
 namespace fireworks
 {
@@ -71,6 +72,9 @@ public:
    TEveScene*  eventScene()  { return m_eventScene;  }
    TEveScene*  geoScene()    { return m_geoScene; }
    TGLViewer*  viewerGL() const;
+
+   TEveScene*     privateScene()   { return 0; } // TODO auto-scale
+   FWViewContext* getViewContext() { return 0; } // TODO auto-scale
 
 protected:
    void setType(FWViewType::EType t);

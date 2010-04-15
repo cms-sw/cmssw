@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.1 2010/04/09 19:46:22 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.2 2010/04/12 10:22:34 amraktad Exp $
 //
 
 // system includes
@@ -49,16 +49,11 @@ FWCaloTowerProxyBuilderBase::~FWCaloTowerProxyBuilderBase()
 
 void
 FWCaloTowerProxyBuilderBase::build(const FWEventItem* iItem,
-                                   TEveElementList** product)
+                                   TEveElementList* /*product*/)
 {
    m_towers=0;
    iItem->get(m_towers);
 
-   if(0==*product) {
-      //NOTE: the base class requires that something gets attached or else model changes willl not
-      // be propagated to the base class
-      *product = new TEveElementList();
-   }
 
    if(0==m_towers) {
       if(0!=m_hist) {
@@ -178,7 +173,7 @@ FWCaloTowerProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
       
       caloData()->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
       caloData()->CellSelectionChanged();
-	  caloData()->DataChanged();
+      caloData()->DataChanged();
 
    }
 }

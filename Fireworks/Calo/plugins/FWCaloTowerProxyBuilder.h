@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:08 EST 2008
-// $Id: FWCaloTowerProxyBuilder.h,v 1.3 2009/10/21 14:06:13 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.h,v 1.1 2010/04/09 19:46:22 amraktad Exp $
 //
 
 #include "Rtypes.h"
@@ -49,7 +49,7 @@ private:
 
 
    virtual void build(const FWEventItem* iItem,
-                      TEveElementList** product);
+                      TEveElementList* product);
 
 
    virtual void modelChanges(const FWModelIds&, TEveElement*);

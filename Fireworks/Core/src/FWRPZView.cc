@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.2 2010/04/09 17:23:57 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.3 2010/04/12 12:43:10 amraktad Exp $
 //
 
 // system include files
@@ -115,8 +115,6 @@ FWRPZView::~FWRPZView()
 void
 FWRPZView::setContext(fireworks::Context& context)
 {
-   geoScene()->GetGLScene()->SetSelectable(kTRUE);
-
    // detector
    FWRPZViewGeometry* geo = new FWRPZViewGeometry(context.getGeom(), context.colorManager());
    m_projMgr->ImportElements(geo->getGeoElements(typeId()), geoScene());

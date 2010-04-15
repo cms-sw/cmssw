@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, AljaMrak-Tadel
 //         Created:  Tue March 28  2 09:46:36 EST 2010
-// $Id: FWSimpleProxyBuilder.h,v 1.3 2010/03/04 21:37:22 chrjones Exp $
+// $Id: FWSimpleProxyBuilder.h,v 1.1 2010/04/06 20:00:35 amraktad Exp $
 //
 
 // system include files
@@ -49,7 +49,7 @@ private:
 
    virtual void itemChangedImp(const FWEventItem*);
    virtual void build(const FWEventItem* iItem,
-                      TEveElementList** product);
+                      TEveElementList* product);
    
    virtual bool specialModelChangeHandling(const FWModelId&, TEveElement*);
 

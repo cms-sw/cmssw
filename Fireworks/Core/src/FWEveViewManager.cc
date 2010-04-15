@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.6 2010/04/09 17:23:57 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.8 2010/04/12 12:43:10 amraktad Exp $
 //
 
 // system include files
@@ -43,7 +43,7 @@
 
 
 class DetIdToMatrix;
-
+class FWViewContext;
 //
 //
 // constants, enums and typedefs
@@ -150,7 +150,6 @@ FWEveViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
          FWProxyBuilderBase* builder = FWProxyBuilderFactory::get()->create(builderName);
          if (builder)
          {
-            
             // printf("FWEveViewManager::makeProxyBuilderFor NEW builder %s \n", builderName.c_str());
             
             boost::shared_ptr<FWProxyBuilderBase> pB( builder );
@@ -161,23 +160,39 @@ FWEveViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
             for (int viewType = 0;  viewType < FWViewType::kSize; ++viewType)
             {
                int viewBit = 1 << viewType;
-               if (viewBit == (viewBit & builderViewBit))
+
+               if (viewBit & builderViewBit)
                {   
-                  builder->attachToScene((FWViewType::EType)viewType, iItem->purpose(), m_scenes[viewType]);
-                  
-                  if (viewType == FWViewType::kRhoPhi || viewType == FWViewType::kRhoZ )
-                  {
-                     for (EveViewVec_it i = m_views[viewType].begin(); i!=  m_views[viewType].end(); ++i)
+                  if (builder->hasPerViewProduct())
+                  { 
+                     for (EveViewVec_it i = m_views[viewType].begin(); i!= m_views[viewType].end(); ++i)
                      {
-                        // printf("add new builder prouct for projected view\n");
-                        FWRPZView* rpzView = dynamic_cast<FWRPZView*> (i->get());
-                        rpzView->importElements(builder->getProduct(), builder->layer());
-                        
+                        TEveElementList* product = builder->createProduct((FWViewType::EType)viewType, i->get()->getViewContext());
+                        i->get()->privateScene()->AddElement(product);
+
+                        if (viewType == FWViewType::kRhoPhi || viewType == FWViewType::kRhoZ )
+                        {
+                           FWRPZView* rpzView = dynamic_cast<FWRPZView*> (i->get());
+                           rpzView->importElements(product, builder->layer());
+                        }
+                     }
+                  }
+                  else 
+                  {
+                     TEveElementList* product = builder->createProduct((FWViewType::EType)viewType, 0);
+                     m_scenes[viewType]->AddElement(product);
+
+                     for (EveViewVec_it i = m_views[viewType].begin(); i!= m_views[viewType].end(); ++i)
+                     { 
+                        if (viewType == FWViewType::kRhoPhi || viewType == FWViewType::kRhoZ )
+                        {
+                           FWRPZView* rpzView = dynamic_cast<FWRPZView*> (i->get());
+                           rpzView->importElements(product, builder->layer());
+                        }
                      }
                   }
                }
             }
-            
 
             m_builders[builderViewBit].push_back(pB);
             

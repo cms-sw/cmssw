@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.75 2010/04/09 19:49:28 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.76 2010/04/12 12:43:10 amraktad Exp $
 //
 
 // system include files
@@ -78,6 +78,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveScene* eventScene) :
 
 FWEveLegoView::~FWEveLegoView()
 {
+   if (m_lego) m_lego->DecDenyDestroy();
 }
 
 void FWEveLegoView::setContext(fireworks::Context& context)
@@ -100,7 +101,7 @@ void FWEveLegoView::setContext(fireworks::Context& context)
       m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::Pi());
       m_lego->Set2DMode(TEveCaloLego::kValSize);
       m_lego->SetDrawNumberCellPixels(20);
-      gEve->AddElement(m_lego);
+      m_lego->IncDenyDestroy();
       data->GetEtaBins()->SetTitleFont(120);
       data->GetEtaBins()->SetTitle("h");
       data->GetPhiBins()->SetTitleFont(120);

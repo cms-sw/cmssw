@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.2 2010/03/11 14:21:47 mccauley Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.1 2010/04/08 11:15:47 yana Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
 private:
-   virtual void build(const FWEventItem* iItem, TEveElementList** product);
+   virtual void build(const FWEventItem* iItem, TEveElementList* product);
    FWSiStripClusterProxyBuilder(const FWSiStripClusterProxyBuilder&);    // stop default
    const FWSiStripClusterProxyBuilder& operator=(const FWSiStripClusterProxyBuilder&);    // stop default
    void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
@@ -38,19 +38,8 @@ private:
 };
 
 
-void FWSiStripClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+void FWSiStripClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product)
 {
-   TEveElementList* tList = *product;
-
-   if(0 == tList) {
-      tList =  new TEveElementList(iItem->name().c_str(),"SiStripCluster",true);
-      *product = tList;
-      tList->SetMainColor(iItem->defaultDisplayProperties().color());
-      gEve->AddElement(tList);
-   } else {
-      tList->DestroyElements();
-   }
-
    const edmNew::DetSetVector<SiStripCluster>* clusters=0;
    iItem->get(clusters);
 
@@ -82,25 +71,25 @@ void FWSiStripClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
             list->AddElement(shape);
          }
       }
-      gEve->AddElement(list,tList);
-/////////////////////////////////////////////////////	   
-//LatB
-	   static int C2D=1;
-	   static int PRINT=0;
-	   if (C2D) {
-			if (PRINT) std::cout<<"SiStripCluster  "<<index<<", "<<title<<std::endl;
-			TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
-			for(edmNew::DetSet<SiStripCluster>::const_iterator ic = set->begin (); ic != set->end (); ++ic) { 
-				short fs = (*ic).firstStrip ();
-				double bc = (*ic).barycenter();
-				TVector3 point, pointA, pointB; fireworks::localSiStrip(point, pointA, pointB, bc, id, iItem);
-				if (PRINT) std::cout<<"SiStripCluster first strip "<<fs<<", bary center "<<bc<<", phi "<<point.Phi()<<std::endl;
-				scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
-				scposition->SetLineColor(kRed);
-			}
-			gEve->AddElement(scposition,tList);
-	   }
-/////////////////////////////////////////////////////	   
+      product->AddElement(list);
+      /////////////////////////////////////////////////////	   
+      //LatB
+      static int C2D=1;
+      static int PRINT=0;
+      if (C2D) {
+         if (PRINT) std::cout<<"SiStripCluster  "<<index<<", "<<title<<std::endl;
+         TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
+         for(edmNew::DetSet<SiStripCluster>::const_iterator ic = set->begin (); ic != set->end (); ++ic) { 
+            short fs = (*ic).firstStrip ();
+            double bc = (*ic).barycenter();
+            TVector3 point, pointA, pointB; fireworks::localSiStrip(point, pointA, pointB, bc, id, iItem);
+            if (PRINT) std::cout<<"SiStripCluster first strip "<<fs<<", bary center "<<bc<<", phi "<<point.Phi()<<std::endl;
+            scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
+            scposition->SetLineColor(kRed);
+         }
+         product->AddElement(scposition);
+      }
+      /////////////////////////////////////////////////////	   
 	   
    }
 }

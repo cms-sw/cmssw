@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  Chris Jones, Alja Mrak-Tadel
+// Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:12 CET 2010
-// $Id: FWProxyBuilderBase.h,v 1.1 2010/04/06 20:00:35 amraktad Exp $
+// $Id: FWProxyBuilderBase.h,v 1.2 2010/04/13 10:31:15 amraktad Exp $
 //
 
 // system include files
@@ -36,6 +36,7 @@ class FWEventItem;
 class TEveElementList;
 class TEveElement;
 class FWModelId;
+class FWViewContext;
 
 namespace fireworks {
    class Context;
@@ -43,8 +44,8 @@ namespace fireworks {
 
 class FWProxyBuilderBase
 {
-
 public:
+
    FWProxyBuilderBase();
    virtual ~FWProxyBuilderBase();
 
@@ -65,16 +66,39 @@ public:
    void itemChanged(const FWEventItem*);
 
    virtual bool canHandle(const FWEventItem&);//note pass FWEventItem to see if type and container match
-   virtual void attachToScene(const FWViewType&, const std::string& purpose, TEveElementList* sceneHolder);
+
+
+   virtual TEveElementList* createProduct(FWViewType::EType, FWViewContext*);
+   virtual bool hasSingleProduct();
+   virtual bool hasPerViewProduct();
+
    virtual void releaseFromSceneGraph(const FWViewType&);
    virtual bool willHandleInteraction();
    virtual void setInteractionList(std::vector<TEveCompound* > const *, std::string& purpose);
 
    // getters
    int layer() const;
-   TEveElementList* getProduct();
 
 protected:
+
+   struct Product
+   {
+      FWViewType::EType m_viewType;
+      FWViewContext*    m_viewContext;
+      TEveElementList*  m_elements;
+
+      Product(FWViewType::EType t, FWViewContext* c) : m_viewType(t), m_viewContext(c), m_elements(0)
+      {
+         m_elements = new TEveElementList("ProxyProduct");
+         m_elements->IncDenyDestroy();
+      }
+        
+      ~Product()
+      {
+         m_elements->DecDenyDestroy();
+      }
+   };
+
    const FWEventItem* item() const {
       return m_item;
    }
@@ -92,19 +116,26 @@ protected:
 
    virtual void modelChanges(const FWModelIds&, TEveElement*);
 
-private:
    FWProxyBuilderBase(const FWProxyBuilderBase&); // stop default
    const FWProxyBuilderBase& operator=(const FWProxyBuilderBase&); // stop default
 
-   virtual void build(const FWEventItem* iItem,
-                      TEveElementList** product) = 0 ;
+   virtual void build(const FWEventItem* iItem, TEveElementList* product);
+   virtual void buildViewType(const FWEventItem* iItem,TEveElementList* product, FWViewType::EType);
 
+   virtual void clean();
+   virtual void cleanLocal();
+
+private:
    void applyChangesToAllModels();
+   void cleanProduct(Product* p);
 
    // ---------- member data --------------------------------
+   typedef std::vector<Product*>::iterator Product_it;
+
    const FWEventItem* m_item;
-   TEveElementList* m_elementHolder;   //Used as a smart pointer for the item created by the builder
+
    std::vector<FWModelIdFromEveSelector> m_ids;
+   std::vector<Product*> m_products;
 
    bool m_modelsChanged;
    bool m_haveViews;

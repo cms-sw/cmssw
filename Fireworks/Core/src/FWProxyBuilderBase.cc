@@ -6,9 +6,9 @@
 // Implementation:
 //     [Notes on implementation]
 //
-// Original Author:  Chris Jones, Alja Mrak-Tadel
+// Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.1 2010/04/06 20:00:36 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.2 2010/04/09 10:58:24 amraktad Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 #include "Fireworks/Core/src/changeElementAndChildren.h"
 #include "Fireworks/Core/interface/setUserDataElementAndChildren.h"
 
+
 //
 // constants, enums and typedefs
 //
@@ -39,16 +40,16 @@
 // constructors and destructor
 //
 FWProxyBuilderBase::FWProxyBuilderBase():
-   m_item(0), m_elementHolder(0), m_modelsChanged(false), m_haveViews(false), m_mustBuild(true)
+   m_item(0), m_modelsChanged(false), m_haveViews(false), m_mustBuild(true)
 {
-   m_elementHolder = new TEveElementList();
-   m_elementHolder->SetElementName("BuilderBaseHolder");
-   m_elementHolder->IncDenyDestroy(); // el. should stay even not added to any scene
 }
 
 FWProxyBuilderBase::~FWProxyBuilderBase()
 {
-   m_elementHolder->DecDenyDestroy(); // auto destruct
+   for (Product_it i = m_products.begin(); i!= m_products.end(); i++)
+      delete (*i);
+
+   m_products.clear();
 }
 
 //
@@ -87,52 +88,79 @@ void
 FWProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
 {
    m_item=0;
-   m_elementHolder->RemoveElements();
+   m_products.clear();
    m_ids.clear();
 }
 
 void 
 FWProxyBuilderBase::build()
 {
-   if(0!= m_item) {
-      TEveElementList* newElements=0;
-      bool notFirstTime = m_elementHolder->NumChildren();
-      if(notFirstTime) {
-         //we know the type since it is enforced in this routine so static_cast is safe
-         newElements = static_cast<TEveElementList*>(*(m_elementHolder->BeginChildren()));
-      }
-            
-      build(m_item, &newElements);
-      if(!notFirstTime && newElements) {
-         m_elementHolder->AddElement(newElements);
-         m_elementHolder->ProjectChild(newElements);
-      }
+   if (m_item)
+   {
+      clean();
 
-      if(static_cast<int>(m_item->size()) == newElements->NumChildren() ) {
-         int index=0;
-         int largestIndex = m_ids.size();
-         if(m_ids.size()<m_item->size()) {
-            m_ids.resize(m_item->size());
+      bool initIds = true;
+      for (Product_it i = m_products.begin(); i != m_products.end(); ++i)
+      {
+         TEveElementList* elms = (*i)->m_elements;
+
+         if (hasSingleProduct())
+         {
+            build(m_item, elms);
          }
-         std::vector<FWModelIdFromEveSelector>::iterator itId = m_ids.begin();
-         for(TEveElement::List_i it = newElements->BeginChildren(),
-                itEnd = newElements->EndChildren();
-             it != itEnd;
-             ++it,++itId,++index) {
-            if(largestIndex<=index) {
-               *itId=FWModelId(m_item,index);
+         else
+         {
+            buildViewType(m_item, elms, (*i)->m_viewType);
+         }
+
+         // Project all children of current product.
+         // If product is not registered into any projection-manager,
+         // this does nothing.
+         // It might be cleaner to check view-type / supported view-types.
+         elms->ProjectAllChildren();
+
+         if (elms && static_cast<int>(m_item->size()) == elms->NumChildren())
+         {
+            if (initIds)
+            {
+               int largestIndex = m_ids.size();
+               if (m_ids.size()<m_item->size())
+               {
+                  m_ids.resize(m_item->size());
+               }
+
+               std::vector<FWModelIdFromEveSelector>::iterator itId = m_ids.begin();
+               for (int index = 0; index < elms->NumChildren(); ++itId,++index)
+               {
+                  if (index >= largestIndex)
+                  {
+                     *itId = FWModelId(m_item,index);
+                  }
+               }
+               initIds = false;
             }
-            fireworks::setUserDataElementAndChildren(*it,&(*itId));
+         
+        
+            std::vector<FWModelIdFromEveSelector>::iterator itId = m_ids.begin();
+            for (TEveElement::List_i it = elms->BeginChildren(),
+                    itEnd = elms->EndChildren();
+                 it != itEnd;
+                 ++it,++itId)
+            {
+               fireworks::setUserDataElementAndChildren(*it, &(*itId));
+            }
          }
       }
    }
-   m_mustBuild=false;
+   m_mustBuild = false;
 }
 
 void
 FWProxyBuilderBase::applyChangesToAllModels()
 {
-   applyChangesToAllModels(m_elementHolder->FirstChild());
+   for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
+      applyChangesToAllModels((*i)->m_elements);
+
    m_modelsChanged=false;
 }
 
@@ -144,31 +172,34 @@ FWProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
 }
 
 //______________________________________________________________________________
-
 void
 FWProxyBuilderBase::modelChanges(const FWModelIds& iIds,
-                                 TEveElement* iElements )
+                                 TEveElement* iElements)
 {
+   //   printf("modelChange %d %d \n", iElements->NumChildren() ,  m_item->size()); fflush(stdout);
    assert(m_item && static_cast<int>(m_item->size()) == iElements->NumChildren() && "can not use default modelChanges implementation");
+
    TEveElement::List_i itElement = iElements->BeginChildren();
    int index = 0;
-   for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();
-       it != itEnd;
-       ++it,++itElement,++index) {
+   for (FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();
+	it != itEnd;
+	++it,++itElement,++index)
+   {
       assert(itElement != iElements->EndChildren());
-      while(index < it->index()) {
+      while (index < it->index())
+      {
          ++itElement;
          ++index;
          assert(itElement != iElements->EndChildren());
       }
-      if(specialModelChangeHandling(*it,*itElement)) {
+      if (specialModelChangeHandling(*it,*itElement))
+      {
          fireworks::setUserDataElementAndChildren(*itElement,&(ids()[it->index()]));
       }
       const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
       changeElementAndChildren(*itElement, info);
       (*itElement)->SetRnrSelf(info.displayProperties().isVisible());
       (*itElement)->SetRnrChildren(info.displayProperties().isVisible());
-
       (*itElement)->ElementChanged();
    }
 }
@@ -176,27 +207,28 @@ FWProxyBuilderBase::modelChanges(const FWModelIds& iIds,
 void
 FWProxyBuilderBase::modelChanges(const FWModelIds& iIds)
 {
-   if(m_haveViews) {
-      if(0!=m_elementHolder->NumChildren()) {
-         modelChanges(iIds,*(m_elementHolder->BeginChildren()));
-      }
-      m_modelsChanged=false;
-   } else {
-      m_modelsChanged=true;
-   }
+  if(m_haveViews) {
+    for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
+    {
+      modelChanges(iIds, (*i)->m_elements);
+    }
+    m_modelsChanged=false;
+  } else {
+    m_modelsChanged=true;
+  }
 }
-//______________________________________________________________________________
 
+//______________________________________________________________________________
 void
 FWProxyBuilderBase::itemChanged(const FWEventItem* iItem)
 { 
-   itemChangedImp(iItem);
-   if(m_haveViews) {
-      build();
-   } else {
-      m_mustBuild=true;
-   }
-   m_modelsChanged=false;
+  itemChangedImp(iItem);
+  if(m_haveViews) {
+    build();
+  } else {
+    m_mustBuild=true;
+  }
+  m_modelsChanged=false;
 }
 
 void FWProxyBuilderBase::itemChangedImp(const FWEventItem*)
@@ -204,30 +236,56 @@ void FWProxyBuilderBase::itemChangedImp(const FWEventItem*)
 }
 
 //______________________________________________________________________________
-
 bool
 FWProxyBuilderBase::canHandle(const FWEventItem& item)
 {
-   if (m_item)
-      return (item.purpose() == m_item->purpose());
+  if (m_item)
+    return (item.purpose() == m_item->purpose());
 
-   return false;
+  return false;
 }
 
 //______________________________________________________________________________
-
-void
-FWProxyBuilderBase::attachToScene(const FWViewType& /*viewType*/, const std::string& /*purpose*/, TEveElementList* sceneHolder)
+bool
+FWProxyBuilderBase::hasPerViewProduct()
 {
-   // in trivial case ignore differences between view types
-   // in trivial case proxy covers only one purpose
-   sceneHolder->AddElement(m_elementHolder);
+  // by default all scenes are shared.
+  return false;
+}
+
+bool
+FWProxyBuilderBase::hasSingleProduct()
+{
+  // trivial projections use only one product
+  return true;
+}
+
+TEveElementList*
+FWProxyBuilderBase::createProduct(const FWViewType::EType viewType, FWViewContext* viewContext)
+{
+   if (hasSingleProduct() == false || m_products.empty())
+   {
+      m_products.push_back(new Product(viewType, viewContext));
+
+      if (viewContext)
+      {
+         // TODO viewContext.scaleChanged_connect(boost::bind(&FWProxyBuilderBase::setScale, this))
+      }
+
+      if (item()) 
+      {
+         // debug info for eve browser       
+         m_products.back()->m_elements->SetElementName(item()->name().c_str());
+      }
+   }
+
+   return m_products.back()->m_elements;
 }
 
 void
 FWProxyBuilderBase::releaseFromSceneGraph(const FWViewType&)
 {
-   // to do ...
+  // TODO ...
 }
 
 //______________________________________________________________________________
@@ -235,8 +293,8 @@ FWProxyBuilderBase::releaseFromSceneGraph(const FWViewType&)
 bool
 FWProxyBuilderBase::willHandleInteraction()
 {
-   // by default view manager handles interaction
-   return false;
+  // by default view manager handles interaction
+  return false;
 }
 
 void
@@ -248,13 +306,41 @@ FWProxyBuilderBase::setInteractionList(std::vector<TEveCompound* > const * inter
 bool
 FWProxyBuilderBase::specialModelChangeHandling(const FWModelId&, TEveElement*)
 {
-   return false;
+  return false;
 }
 
-TEveElementList*
-FWProxyBuilderBase::getProduct()
+void
+FWProxyBuilderBase::clean()
 {
-  return m_elementHolder;
+   // Cleans local common element list.
+   for (Product_it i = m_products.begin(); i != m_products.end(); ++i)
+   {
+      if ((*i)->m_elements)
+         (*i)->m_elements->DestroyElements();
+   }
+
+   cleanLocal();
+}
+
+void
+FWProxyBuilderBase::cleanLocal()
+{
+   // Cleans local common element list.
+}
+
+
+void
+FWProxyBuilderBase::build(const FWEventItem*, TEveElementList*)
+{
+   // TODO when design is complete this has to be abstract function
+   assert(false && "Function used but not implemented.");
+}
+
+void 
+FWProxyBuilderBase::buildViewType(const FWEventItem*, TEveElementList*, FWViewType::EType)
+{
+   // TODO when design is complete this has to be abstract function
+   assert(false && "Function used but not implemented.");
 }
 
 //

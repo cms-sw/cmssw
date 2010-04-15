@@ -8,53 +8,136 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.3 2010/04/14 11:53:41 yana Exp $
+// $Id: FWElectronProxyBuilder.cc,v 1.4 2010/04/15 13:52:25 yana Exp $
 //
-#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Core/interface/FWEvePtr.h"
+#include "TEveTrack.h"
+
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
+#include "Fireworks/Core/interface/FWViewType.h"
 
 #include "Fireworks/Candidates/interface/CandidateUtils.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
+#include "Fireworks/Electrons/interface/makeSuperCluster.h" 
+
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
-#include "TEveTrack.h"
 
-class FWElectronProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GsfElectron> {
+////////////////////////////////////////////////////////////////////////////////
+//
+//   3D and RPZ proxy builder with shared track list
+// 
+////////////////////////////////////////////////////////////////////////////////
+
+class FWElectronProxyBuilder : public FWProxyBuilderBase {
 
 public:
-   FWElectronProxyBuilder() {}
-   virtual ~FWElectronProxyBuilder() {}
+   FWElectronProxyBuilder() ;
+   virtual ~FWElectronProxyBuilder();
+
+   virtual bool hasSingleProduct() { return false; }
+   virtual void cleanLocal();
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
    FWElectronProxyBuilder(const FWElectronProxyBuilder&); // stop default
-
    const FWElectronProxyBuilder& operator=(const FWElectronProxyBuilder&); // stop default
 
-   virtual void build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
+   virtual void buildViewType(const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type);
+   TEveElementList* requestCommon(const reco::GsfElectronCollection* gsfElectrons);
+
+   TEveElementList* m_common;
 };
 
-void
-FWElectronProxyBuilder::build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder) const
+
+FWElectronProxyBuilder::FWElectronProxyBuilder():
+   m_common(0)
 {
-   TEveTrack* track(0);
-   if( iData.gsfTrack().isAvailable() )
-      track = fireworks::prepareTrack( *(iData.gsfTrack()),
-				       context().getTrackPropagator());
-   else
-      track = fireworks::prepareCandidate( iData,
-					   context().getTrackPropagator());
-   track->MakeTrack();
-   oItemHolder.AddElement( track );
+   m_common = new TEveElementList("common electron scene");
+   m_common->IncDenyDestroy();
 }
 
-class FWElectronGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GsfElectron> {
+FWElectronProxyBuilder::~FWElectronProxyBuilder()
+{
+   m_common->DecDenyDestroy();
+}
 
+TEveElementList*
+FWElectronProxyBuilder::requestCommon(const reco::GsfElectronCollection* gsfElectrons)
+{
+   if (m_common->HasChildren() == false && gsfElectrons->empty() == false)
+   {
+      for(reco::GsfElectronCollection::const_iterator it = gsfElectrons->begin() ; it != gsfElectrons->end(); ++it) 
+      {
+         TEveTrack* track(0);
+         if( (*it).gsfTrack().isAvailable() )
+            track = fireworks::prepareTrack( *((*it).gsfTrack()),
+                                             context().getTrackPropagator());
+         else
+            track = fireworks::prepareCandidate( (*it),
+                                                 context().getTrackPropagator());
+         track->MakeTrack();
+         track->SetMainColor(item()->defaultDisplayProperties().color());
+         m_common->AddElement( track );
+      }
+   }
+   return m_common;
+}
+
+void
+FWElectronProxyBuilder::cleanLocal()
+{
+   m_common->DestroyElements();
+}
+
+void
+FWElectronProxyBuilder::buildViewType(const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type)
+{
+   reco::GsfElectronCollection const * gsfElectrons =0;
+   iItem->get(gsfElectrons);
+   if (gsfElectrons == 0) return;
+
+
+   TEveElementList*   tracks = requestCommon(gsfElectrons);
+   TEveElement::List_i trkIt = tracks->BeginChildren();
+   Int_t idx = 0;
+   for( reco::GsfElectronCollection::const_iterator  elIt = gsfElectrons->begin(); elIt != gsfElectrons->end(); ++elIt, ++trkIt)
+   { 
+      const char* name  = Form("Electron %d", ++idx);
+      TEveElementList* comp = new TEveElementList(name, name);
+      comp->AddElement(*trkIt);
+      if (type == FWViewType::kRhoPhi)
+         fireworks::makeRhoPhiSuperCluster(*item(),
+                                           (*elIt).superCluster(),
+                                           (*elIt).phi(),
+                                           *comp);
+      else if (type == FWViewType::kRhoZ)
+         fireworks::makeRhoZSuperCluster(*item(),
+                                         (*elIt).superCluster(),
+                                         (*elIt).phi(),
+                                         *comp);
+      product->AddElement(comp);
+   }
+}
+
+REGISTER_FWPROXYBUILDER(FWElectronProxyBuilder, reco::GsfElectronCollection, "Electrons", FWViewType::k3DBit | FWViewType::kRPZBit);
+
+
+/*
+////////////////////////////////////////////////////////////////////////////////
+//
+//   GLIMPSE specific proxy builder
+// 
+////////////////////////////////////////////////////////////////////////////////
+
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
+
+class FWElectronGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GsfElectron> {
 public:
    FWElectronGlimpseProxyBuilder() {}
    virtual ~FWElectronGlimpseProxyBuilder() {}
@@ -81,6 +164,6 @@ FWElectronGlimpseProxyBuilder::build( const reco::GsfElectron& iData, unsigned i
 //    assert(scaler());
 //    scaler()->addElement(marker);
 }
-
-REGISTER_FWPROXYBUILDER(FWElectronProxyBuilder, reco::GsfElectron, "Electrons", FWViewType::k3DBit | FWViewType::kRPZBit);
 REGISTER_FWPROXYBUILDER(FWElectronGlimpseProxyBuilder, reco::GsfElectron, "Electrons", FWViewType::kGlimpseBit);
+
+*/

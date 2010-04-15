@@ -21,29 +21,16 @@ public:
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  virtual void build(const FWEventItem* iItem, TEveElementList** product);
+  virtual void build(const FWEventItem* iItem, TEveElementList* product);
   FWSiPixelDigiProxyBuilder(const FWSiPixelDigiProxyBuilder&);    
   const FWSiPixelDigiProxyBuilder& operator=(const FWSiPixelDigiProxyBuilder&);
   void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
   void applyChangesToAllModels(TEveElement* iElements);
 };
 
-void FWSiPixelDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+void FWSiPixelDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product)
 {
-  TEveElementList* tList = *product;
-
-  if( 0 == tList ) 
-  {
-    tList =  new TEveElementList(iItem->name().c_str(),"SiPixelDigi",true);
-    *product = tList;
-    tList->SetMainColor(iItem->defaultDisplayProperties().color());
-    gEve->AddElement(tList);
-  } 
-  
-  else 
-  {
-    tList->DestroyElements();
-  }
+  product->SetMainColor( iItem->defaultDisplayProperties().color());
 
   const edm::DetSetVector<PixelDigi>* digis = 0;
   iItem->get(digis);
@@ -65,7 +52,7 @@ void FWSiPixelDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
     {
       TEveCompound* compound = new TEveCompound("si pixel digi compound", "siPixelDigis");
       compound->OpenCompound();
-      tList->AddElement(compound);
+      product->AddElement(compound);
 
       TEvePointSet* pointSet = new TEvePointSet();
       pointSet->SetMarkerSize(2);
