@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.3 2009/12/01 23:27:54 chrjones Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.1 2010/04/14 15:52:19 yana Exp $
 //
 
 // system include files
@@ -114,6 +114,6 @@ FWMETLegoProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveE
    oItemHolder.AddElement( secondLine );
 }
 
-REGISTER_FWPROXYBUILDER(FWMETProxyBuilder, reco::MET, "recoMET", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
-REGISTER_FWPROXYBUILDER(FWMETGlimpseProxyBuilder, reco::MET, "recoMET", FWViewType::kGlimpse);
-REGISTER_FWPROXYBUILDER(FWMETLegoProxyBuilder, reco::MET, "recoMET", FWViewType::kLego);
+REGISTER_FWPROXYBUILDER(FWMETProxyBuilder, reco::MET, "MET", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWMETGlimpseProxyBuilder, reco::MET, "MET", FWViewType::kGlimpse);
+REGISTER_FWPROXYBUILDER(FWMETLegoProxyBuilder, reco::MET, "MET", FWViewType::kLego);
