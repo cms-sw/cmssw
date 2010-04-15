@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2009/03/25 10:05:43 $
- * $Revision: 1.37 $
+ * $Date: 2009/03/27 10:44:37 $
+ * $Revision: 1.38 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -348,7 +348,8 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
     } else if (step == 4) {
 
       const double vminf = seg->vDrift();   //  vdrift correction are recorded in the segment    
-      const double cminf = - seg->t0()*0.00543;
+      double cminf = 0.;
+      if(seg->ist0Valid()) cfmin = - seg->t0()*0.00543;
 
       //cout << "In updateHits: t0 = " << seg->t0() << endl;
       //cout << "In updateHits: vminf = " << vminf << endl;
@@ -394,7 +395,6 @@ void DTSegmentUpdator::calculateT0corr(DTRecSegment2D* seg) const {
   vector<double> d_drift;
   vector<float> x;
   vector<float> y;
-  vector<float> sigy;
   vector<int> lc;
 
   vector<DTRecHit1D> hits=seg->specificRecHits();
@@ -425,17 +425,15 @@ void DTSegmentUpdator::calculateT0corr(DTRecSegment2D* seg) const {
   }
 
   double chi2fit = 0.;
-  int nppar      = 0;
-  float aminf    = 0.;
-  float bminf    = 0.;
-  float cminf    = 0.; 
+  float cminf    = 0.;
   double vminf   = 0.;
 
   if ( nptfit > 2 ) {
     //NB chi2fit is normalized
-    Fit4Var(x,y,sigy,lc,d_drift,nptfit,nppar,aminf,bminf,cminf,vminf,chi2fit);
+    Fit4Var(x,y,lc,d_drift,nptfit,cminf,vminf,chi2fit);
 
-    const double t0cor = - cminf/0.00543 ; // in ns
+    double t0cor = -999.;
+    if(cminf > -998.) t0cor = - cminf/0.00543 ; // in ns
 
     //cout << "In calculateT0corr: t0 = " << t0cor << endl;
     //cout << "In calculateT0corr: vminf = " << vminf << endl;
@@ -448,22 +446,19 @@ void DTSegmentUpdator::calculateT0corr(DTRecSegment2D* seg) const {
 }
 
 
-void DTSegmentUpdator::Fit4Var(
-                               const vector<float>& xfit,
+void DTSegmentUpdator::Fit4Var(const vector<float>& xfit,
                                const vector<float>& yfit,
-                               const vector<float>& sigy,
                                const vector<int>& lfit,
                                const vector<double>& tfit,
                                const int nptfit,
-                               int& nppar,
-                               float& aminf,
-                               float& bminf,
                                float& cminf,
                                double& vminf,
                                double& chi2fit) const { 
 
   const double sigma = 0.0295;// errors can be inserted .just load them/that is the usual TB resolution value for DT chambers 
-  double delta = 0.;
+  double aminf = 0.;
+  double bminf = 0.;
+  int nppar = 0;
   double sx = 0.;
   double  sx2 = 0.;
   double sy = 0.;
@@ -490,7 +485,7 @@ void DTSegmentUpdator::Fit4Var(
   int nppar3 = 0;
   int nppar4 = 0;
 
-  cminf = 0.;
+  cminf = -999.;
   vminf = 0.;
 
   for (int j=0; j<nptfit; j++){
@@ -510,10 +505,7 @@ void DTSegmentUpdator::Fit4Var(
 
   } //end loop
 
-  delta = nptfit*sx2 - sx*sx;
-  // cout << delta << " " << nptfit << " " << sigma << endl;
-  //cout << "npfit"<< nptfit<< "delta"<< delta<<endl;
-  //cout << <<endl;
+  const double delta = nptfit*sx2 - sx*sx;
 
   double a = 0.;
   double b = 0.;	       
@@ -524,8 +516,8 @@ void DTSegmentUpdator::Fit4Var(
 
     //  cout << " NPAR=2 : slope = "<<b<< "    intercept = "<<a <<endl;
     for (int j=0; j<nptfit; j++){
-      double ypred = a + b*xfit[j];
-      double dy = (yfit[j] - ypred)/sigma;
+      const double ypred = a + b*xfit[j];
+      const double dy = (yfit[j] - ypred)/sigma;
       chi2fit = chi2fit + dy*dy;
     } //end loop chi2
   }
@@ -543,31 +535,31 @@ void DTSegmentUpdator::Fit4Var(
 
   if (nptfit >= 3) {
 
-    double d1 = sy;
-    double d2 = sxy;
-    double d3 = sly;
-    double c1 = sl;
-    double c2 = slx;
-    double c3 = sl2;
-    double b1 = sx;
-    double b2 = sx2;
-    double b3 = slx;
-    double a1 = nptfit;
-    double a2 = sx;
-    double a3 = sl;
+    const double d1 = sy;
+    const double d2 = sxy;
+    const double d3 = sly;
+    const double c1 = sl;
+    const double c2 = slx;
+    const double c3 = sl2;
+    const double b1 = sx;
+    const double b2 = sx2;
+    const double b3 = slx;
+    const double a1 = nptfit;
+    const double a2 = sx;
+    const double a3 = sl;
 
     //these parameters are not used in the 4-variables fit
-    double b4 = b2*a1-b1*a2;
-    double c4 = c2*a1-c1*a2;
-    double d4 = d2*a1-d1*a2;
-    double b5 = a1*b3-a3*b1;
-    double c5 = a1*c3-a3*c1;
-    double d5 = a1*d3-d1*a3;
-    double a6 = slt;
-    double b6 = sltx;
-    double c6 = st;
-    double v6 = st2;	
-    double d6 = slty;
+    const double b4 = b2*a1-b1*a2;
+    const double c4 = c2*a1-c1*a2;
+    const double d4 = d2*a1-d1*a2;
+    const double b5 = a1*b3-a3*b1;
+    const double c5 = a1*c3-a3*c1;
+    const double d5 = a1*d3-d1*a3;
+    const double a6 = slt;
+    const double b6 = sltx;
+    const double c6 = st;
+    const double v6 = st2;	
+    const double d6 = slty;
 
     if (((c5*b4-c4*b5)*b4*a1)!=0) {
       nppar = 3;
@@ -577,8 +569,8 @@ void DTSegmentUpdator::Fit4Var(
       aminf = (d1/a1 -cminf*c1/a1 -bminf*b1/a1);
 
       for (int j=0; j<nptfit; j++){
-        double ypred = aminf + bminf*xfit[j];
-        double dy = (yfit[j]-cminf*lfit[j] - ypred)/sigma;
+        const double ypred = aminf + bminf*xfit[j];
+        const double dy = (yfit[j]-cminf*lfit[j] - ypred)/sigma;
         chi2fit = chi2fit + dy*dy;
 
       } //end loop chi2
@@ -588,7 +580,7 @@ void DTSegmentUpdator::Fit4Var(
 
     }
     else {
-      cminf = 0.;
+      cminf = -999.;
       bminf = b;
       aminf = a;
       chi2fit3 = chi2fit;
@@ -634,9 +626,8 @@ void DTSegmentUpdator::Fit4Var(
 
         //  chi 2
         for (int j=0; j<nptfit; j++) {
-          //		        cout << "sigma " << sigma << endl;
-          double ypred = aminf + bminf*xfit[j];
-          double dy = (yfit[j]+vminf*lfit[j]*tfit[j]-cminf*lfit[j] -ypred)/sigma; 
+          const double ypred = aminf + bminf*xfit[j];
+          const double dy = (yfit[j]+vminf*lfit[j]*tfit[j]-cminf*lfit[j] -ypred)/sigma; 
           chi2fit = chi2fit + dy*dy;
 
         } //end loop chi2
