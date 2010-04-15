@@ -2464,22 +2464,27 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   //isFromNucl = false;
 
   if ( thisIsAMuon ) { 
-    //For Isolated muons, take the track pt if it's a tracker mu, and if not take the global, but never the stand-alone
-    if(thisIsAnIsolatedMuon){
-      if(!muonRef->isTrackerMuon()){
-	reco::TrackRef combinedMu = muonRef->combinedMuon();
-	px = combinedMu->px();
-	py = combinedMu->py();
-	pz = combinedMu->pz();
-	energy = sqrt(combinedMu->p()*combinedMu->p() + 0.1057*0.1057); 
+    
+    // assume that track pT is taken, may be overwritten below
+    energy = sqrt(track.p()*track.p() + 0.1057*0.1057);
+    
+    if(thisIsAGlobalTightMuon||thisIsAnIsolatedMuon){    
+
+      // If the global muon above 10 GeV and is a tracker muon take the global pT
+      // If it's not a tracker muon, choose between the global pT and the STA pT
+      // expcept if it's isolated, then never take the STA
+
+      if(muonRef->isTrackerMuon()){
+	if(sqrt(px*px+py*py) > 10){
+	  reco::TrackRef combinedMu = muonRef->combinedMuon(); 
+	  px = combinedMu->px();
+	  py = combinedMu->py();
+	  pz = combinedMu->pz();
+	  energy = sqrt(combinedMu->p()*combinedMu->p() + 0.1057*0.1057);   
+	}
       }
-      else{
-	energy = sqrt(track.p()*track.p() + 0.1057*0.1057);
-      }       
-    }
-    else if(thisIsAGlobalTightMuon){    
-      if(sqrt(px*px+py*py) > 10){
-	reco::TrackRef combinedMu = muonRef->isTrackerMuon() || 
+      else{  
+	reco::TrackRef combinedMu = thisIsAnIsolatedMuon ||
 	  muonRef->combinedMuon()->normalizedChi2() < muonRef->standAloneMuon()->normalizedChi2() ?
 	  muonRef->combinedMuon() : 
 	  muonRef->standAloneMuon() ;
@@ -2488,12 +2493,6 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 	pz = combinedMu->pz();
 	energy = sqrt(combinedMu->p()*combinedMu->p() + 0.1057*0.1057);   
       }
-      else{
-	energy = sqrt(track.p()*track.p() + 0.1057*0.1057);
-      }      
-    }
-    else{
-      energy = sqrt(track.p()*track.p() + 0.1057*0.1057);
     }
   } else if (isFromDisp) {
     if (debug_) cout << "Not refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
