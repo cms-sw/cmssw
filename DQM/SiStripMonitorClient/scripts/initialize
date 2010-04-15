@@ -70,10 +70,11 @@ print "make directories ...\n";
 # make cfg files
 #
 print "copy cfg files ...\n";
-
-
 copy("$dqm_dir/../data/layer.js",           "$dqm_int/TkMap/layer.js");
 copy("$dqm_dir/../data/crate.js",           "$dqm_int/TkMap/crate.js");
+copy("$dqm_dir/../data/feccrate.js",        "$dqm_int/TkMap/feccrate.js");
+copy("$dqm_dir/../data/rack.js",            "$dqm_int/TkMap/rack.js");
+copy("$dqm_dir/../data/rackhv.js",          "$dqm_int/TkMap/rackhv.js");
 copy("$dqm_dir/../data/jqviewer.js",        "$dqm_int/TkMap/jqviewer.js");
 copy("$dqm_dir/../data/viewerHeader.xhtml", "$dqm_int/TkMap/viewerHeader.xhtml");
 copy("$dqm_dir/../data/viewerTrailer.xhtml","$dqm_int/TkMap/viewerTrailer.xhtml");

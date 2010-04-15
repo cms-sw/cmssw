@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.27 2009/12/06 18:22:21 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.30 2010/02/17 22:53:25 wdd Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -12,7 +12,7 @@
 #include "DQM/HLTEvF/interface/FourVectorHLTOnline.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
@@ -161,7 +161,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
    }
   }
   triggerResults_=triggerResults;
-  TriggerNames triggerNames(*triggerResults);  
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
   int npath = triggerResults->size();
 
   edm::Handle<TriggerEvent> triggerObj;
@@ -201,8 +201,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     }
     TH2F * hist = ME->getTH2F();
-    fillHLTMatrix(hist);
-
+    fillHLTMatrix(hist, triggerNames);
   }
 
   // Fill HLTPassed Matrix bin (i,j) = (Any,Any)
@@ -935,17 +934,26 @@ FourVectorHLTOnline::endJob()
 void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
   LogDebug("FourVectorHLTOnline") << "beginRun, run " << run.id();
-// HLT config does not change within runs!
+
+  // HLT config does not change within runs!
+
+  bool changed=false;
  
-  if (!hltConfig_.init(processname_)) {
+  if (!hltConfig_.init(run, c, processname_, changed)) {
+
     processname_ = "FU";
-    if (!hltConfig_.init(processname_)){
-  LogDebug("FourVectorHLTOnline") << "HLTConfigProvider failed to initialize.";
+
+    if (!hltConfig_.init(run, c, processname_, changed)){
+
+      LogDebug("FourVectorHLTOffline") << "HLTConfigProvider failed to initialize.";
+
     }
+
     // check if trigger name in (new) config
-    //	cout << "Available TriggerNames are: " << endl;
-    //	hltConfig_.dump("Triggers");
-      }
+    //  cout << "Available TriggerNames are: " << endl;
+    //  hltConfig_.dump("Triggers");
+  }
+
 
 
   if (1)
@@ -1897,9 +1905,8 @@ void FourVectorHLTOnline::setupHLTMatrix(std::string name, vector<std::string> &
 
 }
 
-void FourVectorHLTOnline::fillHLTMatrix(TH2F* hist) {
-
-   TriggerNames triggerNames(*triggerResults_);
+void FourVectorHLTOnline::fillHLTMatrix(TH2F* hist,
+                                        const edm::TriggerNames & triggerNames) {
 
   // Fill HLTPassed Matrix bin (i,j) = (Any,Any)
   // --------------------------------------------------------

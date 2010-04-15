@@ -77,7 +77,7 @@ void DDTIBRadCableAlgo_MTCC::initialize(const DDNumericArguments & nArgs,
   
 }
 
-void DDTIBRadCableAlgo_MTCC::execute(DDCompactView& cpv) {
+void DDTIBRadCableAlgo_MTCC::execute() {
   
   LogDebug("TIBGeom") << "==>> Constructing DDTIBRadCableAlgo_MTCC...";
   DDName diskName = parent().name();
@@ -117,7 +117,7 @@ void DDTIBRadCableAlgo_MTCC::execute(DDCompactView& cpv) {
       DDLogicalPart suppLogic(DDName(name, idNameSpace), suppMatter, solid);
       
       DDTranslation r1(0, 0, (dz-diskDz));
-      cpv.position(DDName(name,idNameSpace), diskName, i+1, r1, DDRotation());
+      DDpos(DDName(name,idNameSpace), diskName, i+1, r1, DDRotation());
       LogDebug("TIBGeom") << "DDTIBRadCableAlgo_MTCC test: " 
 			  << DDName(name,idNameSpace) << " number " << i+1 
 			  << " positioned in " << diskName << " at " << r1 
@@ -140,7 +140,7 @@ void DDTIBRadCableAlgo_MTCC::execute(DDCompactView& cpv) {
       DDLogicalPart strucLogic(DDName(name, idNameSpace), strucMatter, solid);
       
       DDTranslation r2(0, 0, (dz-diskDz));
-      cpv.position(DDName(name,idNameSpace), diskName, i+1, r2, DDRotation());
+      DDpos(DDName(name,idNameSpace), diskName, i+1, r2, DDRotation());
       LogDebug("TIBGeom") << "DDTIBRadCableAlgo_MTCC test: " 
 			  << DDName(name,idNameSpace) << " number " << i+1 
 			  << " positioned in " << diskName 
@@ -177,7 +177,7 @@ void DDTIBRadCableAlgo_MTCC::execute(DDCompactView& cpv) {
       DDLogicalPart cableLogic(DDName(name, idNameSpace), cableMatter, solid);
       
       DDTranslation r3(0, 0, (diskDz-(i+0.5)*cableT));
-      cpv.position(DDName(name,idNameSpace), diskName, i+1, r3, DDRotation());
+      DDpos(DDName(name,idNameSpace), diskName, i+1, r3, DDRotation());
       LogDebug("TIBGeom") << "DDTIBRadCableAlgo_MTCC test: " 
 			  << DDName(name,idNameSpace) << " number " << i+1
 			  << " positioned in " << diskName << " at "
@@ -212,7 +212,7 @@ void DDTIBRadCableAlgo_MTCC::execute(DDCompactView& cpv) {
       DDLogicalPart strucLogic(DDName(name, idNameSpace), strucMatter, solid);
       
       DDTranslation r2(0, 0, (dz-diskDz));
-      cpv.position(DDName(name,idNameSpace), diskName, i+1, r2, DDRotation());
+      DDpos(DDName(name,idNameSpace), diskName, i+1, r2, DDRotation());
       LogDebug("TIBGeom") << "DDTIBRadCableAlgo_MTCC test: "
 			  << DDName(name,idNameSpace) << " number " << i+1 
 			  << " positioned in " << diskName 

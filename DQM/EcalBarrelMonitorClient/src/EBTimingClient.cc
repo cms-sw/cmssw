@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2009/12/11 16:13:17 $
- * $Revision: 1.96 $
+ * $Date: 2010/03/27 20:07:57 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  *
 */
@@ -33,11 +33,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBTimingClient::EBTimingClient(const ParameterSet& ps) {
+EBTimingClient::EBTimingClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -49,7 +45,7 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -57,7 +53,7 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -97,9 +93,9 @@ EBTimingClient::~EBTimingClient() {
 
 void EBTimingClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EBTimingClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EBTimingClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -108,7 +104,7 @@ void EBTimingClient::beginJob(void) {
 
 void EBTimingClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EBTimingClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EBTimingClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -118,7 +114,7 @@ void EBTimingClient::beginRun(void) {
 
 void EBTimingClient::endJob(void) {
 
-  if ( debug_ ) cout << "EBTimingClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EBTimingClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -126,7 +122,7 @@ void EBTimingClient::endJob(void) {
 
 void EBTimingClient::endRun(void) {
 
-  if ( debug_ ) cout << "EBTimingClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EBTimingClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -246,8 +242,8 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
     }
 
@@ -269,9 +265,9 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "crystal (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "crystal (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -303,11 +299,11 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonTimingCrystalDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonTimingCrystalDat ..." << std::endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
@@ -321,20 +317,12 @@ void EBTimingClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EBTimingClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EBTimingClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   uint64_t bits01 = 0;
   bits01 |= EcalErrorDictionary::getMask("PHYSICS_MEAN_TIMING_WARNING");
   bits01 |= EcalErrorDictionary::getMask("PHYSICS_RMS_TIMING_WARNING");
-
-#ifdef WITH_ECAL_COND_DB
-  map<EcalLogicID, RunCrystalErrorsDat> mask1;
-  map<EcalLogicID, RunTTErrorsDat> mask2;
-
-  EcalErrorMask::fetchDataSet(&mask1);
-  EcalErrorMask::fetchDataSet(&mask2);
-#endif
 
   char histo[200];
 
@@ -396,52 +384,64 @@ void EBTimingClient::analyze(void) {
 
         }
 
-        // masking
-
-#ifdef WITH_ECAL_COND_DB
-        if ( mask1.size() != 0 ) {
-          map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-          for (m = mask1.begin(); m != mask1.end(); m++) {
-
-            EcalLogicID ecid = m->first;
-
-            int ic = Numbers::indexEB(ism, ie, ip);
-
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
-              }
-            }
-
-          }
-        }
-#endif
-
-        // TT masking
-
-#ifdef WITH_ECAL_COND_DB
-        if ( mask2.size() != 0 ) {
-          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = mask2.begin(); m != mask2.end(); m++) {
-
-            EcalLogicID ecid = m->first;
-
-            int itt = Numbers::iSC(ism, EcalBarrel, ie, ip);
-
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
-              }
-            }
-
-          }
-        }
-#endif
-
       }
     }
 
   }
+
+#ifdef WITH_ECAL_COND_DB
+  if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
+    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int ic = ecid.getID2();
+        int ie = (ic-1)/20 + 1;
+        int ip = (ic-1)%20 + 1;
+
+        UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
+
+      }
+
+    }
+  }
+
+  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
+    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int itt = ecid.getID2();
+        int iet = (itt-1)/4 + 1;
+        int ipt = (itt-1)%4 + 1;
+
+        for ( int ie = 5*(iet-1)+1; ie <= 5*iet; ie++ ) {
+          for ( int ip = 5*(ipt-1)+1; ip <= 5*ipt; ip++ ) {
+            UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
+          }
+        }
+
+      }
+
+    }
+  }
+#endif
 
 }
 

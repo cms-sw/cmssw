@@ -11,23 +11,23 @@ DDExpandedView::DDExpandedView(const DDCompactView & cpv)
  : walker_(0),w2_(cpv.graph(),cpv.root()), trans_(DDTranslation()), rot_(DDRotationMatrix()),
    depth_(0), worldpos_(0)
 {
-  std::cout << "Building a DDExpandedView" << std::endl;
+    DCOUT('C', "Building a DDExpandedView" );
     DDRotation::StoreT::instance().setReadOnly(false);
-    worldpos_ = new DDPosData(DDTranslation(),DDRotation(),0);     
+    static DDPosData s_worldpos = DDPosData(DDTranslation(),DDRotation(),0);     
     DDRotation::StoreT::instance().setReadOnly(true);
     
-    //worldpos_ =  &s_worldpos;
+    worldpos_ =  &s_worldpos;
     //new DDPosData(trans_,DDRotation(DDName("","")),0);    
     //const DDLogicalPart & rt = cpv.root(); 
     
-    //    w2_ = DDCompactView::walker_type(cpv.graph(), rt);
+    // w2_ = DDCompactView::walker_type(cpv.graph(), rt);
     walker_ = &w2_;
     /*					     
 					    walker_ = new DDCompactView::walker_type(cpv.graph(), 
 					    rt);
     */    
-    std::cout << "Walker: current.first=" << (*walker_).current().first << std::endl;
-    std::cout << "Walker: current.second=" << (*walker_).current().second << std::endl;
+    DCOUT('C', "Walker: current.first=" << (*walker_).current().first);
+    DCOUT('C', "Walker: current.second=" << (*walker_).current().second);
 					     
     DDPosData * pd((*walker_).current().second);
     //    assert(pd);
@@ -305,8 +305,7 @@ void dump(const DDGeoHistory & h)
 }
 
 /** 
-   User specific data can be attac
-hed to single nodes or a selection of
+   User specific data can be attached to single nodes or a selection of
    nodes in the expanded view through the DDSpecifics interface.
       
    The resulting std::vector is of size 0 if no specific data was attached.
@@ -518,16 +517,7 @@ bool DDExpandedView::descend(const DDGeoHistory & sc)
 }
 
 
-bool DDExpandedView::goTo(const nav_type & newpos) {
-  return goTo(&newpos.front(),newpos.size());
-
-}
-
-bool DDExpandedView::goTo(NavRange newpos) {
-  return goTo(newpos.first,newpos.second);
-}
-
-bool DDExpandedView::goTo(int const * newpos, size_t sz)
+bool DDExpandedView:: goTo(const nav_type & newpos)
 {
   bool result(false);
   
@@ -540,7 +530,9 @@ bool DDExpandedView::goTo(int const * newpos, size_t sz)
   reset();
   
   // try to navigate down to the newpos
-  for (size_t i = 1; i < sz; ++i) {
+  nav_type::size_type sz = newpos.size();
+  nav_type::size_type i = 1;
+  for (; i < sz; ++i) {
     result = firstChild();
     if (result) {
       int pos = newpos[i];
@@ -584,9 +576,12 @@ DDExpandedView::nav_type DDExpandedView::copyNumbers() const
   return result;
 }
 
-std::ostream & printNavType(std::ostream & os, int const * n, size_t sz){
+
+std::ostream & operator<<(std::ostream & os, const DDExpandedView::nav_type & n)
+{
+  DDExpandedView::nav_type::const_iterator it = n.begin();
   os << '(' ;
-  for (int const * it=n; it != n+sz; ++it) {
+  for (; it != n.end(); ++it) {
     os << *it << ',';
   }
   os << ')';

@@ -47,6 +47,7 @@ public:
   
   std::string globalFolder_;
   int numberOfDisks_;
+  int numberOfRings_;
   int prescaleFactor_;
  
   DQMStore* dbe_;

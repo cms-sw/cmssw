@@ -17,7 +17,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Mon Jul 17 18:07:01 CEST 2006
-// $Id: AlCaElectronsProducer.h,v 1.10 2008/07/25 12:27:25 malberti Exp $
+// $Id: AlCaElectronsProducer.h,v 1.12 2010/01/06 17:46:42 presotto Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //PG #include "TH2.h"

@@ -4,8 +4,8 @@
 /*
  * \file L1TFED.h
  *
- * $Date: 2009/06/26 13:53:19 $
- * $Revision: 1.4 $
+ * $Date: 2010/04/01 21:04:18 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
 */
@@ -82,7 +82,8 @@ private:
   ofstream logFile_;
   edm::InputTag fedSource_;  
   edm::InputTag rawl_;
-
+  std::string directory_;
+  bool stableROConfig_;
 };
 
 #endif

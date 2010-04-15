@@ -1,10 +1,11 @@
-// $Id: DiskWriterResources.h,v 1.4 2009/09/16 13:30:47 mommsen Exp $
+// $Id: DiskWriterResources.h,v 1.6 2010/03/16 19:10:22 mommsen Exp $
 /// @file: DiskWriterResources.h 
 
 
 #ifndef EventFilter_StorageManager_DiskWriterResources_h
 #define EventFilter_StorageManager_DiskWriterResources_h
 
+#include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 
@@ -23,8 +24,8 @@ namespace stor
    * and need to be accessed from multiple threads.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/09/16 13:30:47 $
+   * $Revision: 1.6 $
+   * $Date: 2010/03/16 19:10:22 $
    */
 
   class DiskWriterResources
@@ -43,14 +44,16 @@ namespace stor
 
     /**
      * Requests that the DiskWriter streams be configured with the
-     * specified configurations.  Also allows a new dequeue timeout
-     * value to be specified. Existing stream configurations will be
-     * discarded. 
+     * specified configurations.  Also allows new DiskWritingParams,
+     * run number and dequeue timeout values to be specified.
+     * Existing stream configurations will be discarded. 
      */
     void requestStreamConfiguration
     (
       EvtStrConfigListPtr,
       ErrStrConfigListPtr,
+      DiskWritingParams,
+      unsigned int runNumber,
       double timeoutValue
     );
 
@@ -64,14 +67,16 @@ namespace stor
      * Checks if a request has been made to change the stream configuration
      * in the DiskWriter streams *and* clears any pending request.
      * Existing streams are purged.
-     * If doConfig is true, the supplied new configurations and a new dequeue
-     * timeout value should be used to configure a new set of DiskWriter streams.
+     * If doConfig is true, the supplied new configurations, new run number, and
+     * dequeue timeout value should be used to configure a new set of DiskWriter streams.
      */
     bool streamChangeRequested
     (
       bool& doConfig,
       EvtStrConfigListPtr&,
       ErrStrConfigListPtr&,
+      DiskWritingParams& dwParams,
+      unsigned int& runNumber,
       double& timeoutValue
     );
 
@@ -89,19 +94,6 @@ namespace stor
      * Indicates that the stream configuration change is done.
      */
     void streamChangeDone();
-
-    /**
-     * Requests that the DiskWriter closes all files for the 
-     * specified lumi section.
-     */
-    void requestLumiSectionClosure(const uint32_t lumiSection);
-
-    /**
-     * Checks if a request has been made to close all files for
-     * a lumi section. If it returns true, the argument contains
-     * the lumi section number to be closed.
-     */
-    bool lumiSectionClosureRequested(uint32_t& lumiSection);
 
     /**
      * Sets the DiskWriter "busy" status to the specified state.
@@ -122,15 +114,14 @@ namespace stor
 
     EvtStrConfigListPtr _requestedEventStreamConfig;
     ErrStrConfigListPtr _requestedErrorStreamConfig;
+    DiskWritingParams _requestedDiskWritingParams;
+    unsigned int _requestedRunNumber;
     double _requestedTimeout;
 
     bool _streamChangeInProgress;
     boost::condition _streamChangeCondition;
     
-    std::deque<uint32_t> lumiSectionsToClose;
-
     mutable boost::mutex _streamChangeMutex;
-    mutable boost::mutex _lumiSectionMutex;
   };
 
 }

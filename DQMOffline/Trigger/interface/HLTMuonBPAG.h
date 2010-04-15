@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/09/24 12:03:46 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/02/17 17:49:55 $
+ *  $Revision: 1.4 $
  *  
  *  \author  J. Slaunwhite (modified from above
  */
@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -72,7 +72,9 @@ public:
                MuonSelectionStruct inputSelection,
                MuonSelectionStruct inputTagSelection,
                std::string customName,
-               std::vector<std::string> validTriggers );
+               std::vector<std::string> validTriggers,
+               const edm::Run & currentRun,
+               const edm::EventSetup & currentEventSetup);
 
   // Operations
   void            begin  ( );

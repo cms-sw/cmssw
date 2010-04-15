@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/12/03 11:32:07 $
- *  $Revision: 1.43 $
- *  $Date: 2009/12/03 11:32:07 $
- *  $Revision: 1.43 $
+ *  $Date: 2010/02/26 21:35:49 $
+ *  $Revision: 1.45 $
+ *  $Date: 2010/02/26 21:35:49 $
+ *  $Revision: 1.45 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -81,11 +81,6 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include <TH1.h>
-#include <TFile.h>
-
 using namespace std;
 using namespace edm;
 
@@ -125,22 +120,9 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   theTECxScale = par.getParameter<double>("ScaleTECxFactor");
   theTECyScale = par.getParameter<double>("ScaleTECyFactor");
   thePtCut = par.getParameter<double>("PtCut");
+  thePCut = par.getParameter<double>("PCut");
 
   theCacheId_TRH = 0;
-
-  useTFileService_ = par.getUntrackedParameter<bool>("UseTFileService",false);
-
-  if(useTFileService_) {
-    edm::Service<TFileService> fs;
-    TFileDirectory subDir = fs->mkdir( "builderBase" );
-    h_nTkTrajs = subDir.make<TH1F>("h_nTkTrajs","N Tk Tracks sent to Builder per STA",21,-0.5,20.5);
-    h_nStaTkRefittedTrajs = subDir.make<TH1F>("h_nStaTkRefittedTrajs","N Refitted Trajectories per STA-TK Pair",21,-0.5,20.5);
-    h_staTkProb = subDir.make<TH1F>("h_staTkProb","#chi^{2} Probability for Leading STA-TK Pair",200,0,100);
-  } else {
-    h_nTkTrajs = 0;
-    h_nStaTkRefittedTrajs = 0;
-    h_staTkProb = 0;
-  }
 
 }
 
@@ -193,8 +175,6 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
   // tracker trajectory should be built and refit before this point
   if ( tkTrajs.empty() ) return CandidateContainer();
 
-  if(h_nTkTrajs) h_nTkTrajs->Fill(tkTrajs.size());
-
   // add muon hits and refit/smooth trajectories
   CandidateContainer refittedResult;
   ConstRecHitContainer muonRecHits = getTransientRecHits(*(staCand.second));
@@ -213,7 +193,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
 
     // cut on tracks with low momenta
     LogTrace(theCategory)<< "   Track p and pT " << (*it)->trackerTrack()->p() << " " << (*it)->trackerTrack()->pt();
-    if(  (*it)->trackerTrack()->p() < 2.5 || (*it)->trackerTrack()->pt() < thePtCut  ) continue;
+    if(  (*it)->trackerTrack()->p() < thePCut || (*it)->trackerTrack()->pt() < thePtCut  ) continue;
 
     ConstRecHitContainer trackerRecHits;
     if ((*it)->trackerTrack().isNonnull()) {
@@ -264,7 +244,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
     allRecHits.insert(allRecHits.end(), muonRecHits.begin(),muonRecHits.end());
     refitted1 = theGlbRefitter->refit( *(*it)->trackerTrack(), tTT, allRecHits,theMuonHitsOption);
     LogTrace(theCategory)<<"     This track-sta refitted to " << refitted1.size() << " trajectories";
-    if(h_nStaTkRefittedTrajs) h_nStaTkRefittedTrajs->Fill(refitted1.size());
+
     Trajectory *glbTrajectory1 = 0;
     if (!refitted1.empty()) glbTrajectory1 = new Trajectory(*(refitted1.begin()));
     else LogDebug(theCategory)<< "     Failed to load global track trajectory 1"; 
@@ -289,7 +269,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
   for (CandidateContainer::const_iterator iter=refittedResult.begin(); iter != refittedResult.end(); iter++) {
     double prob = trackProbability(*(*iter)->trajectory());
     LogTrace(theCategory)<<"   refitted-track-sta with pT " << (*iter)->trackerTrack()->pt() << " has probability " << prob;
-    if(h_staTkProb) h_staTkProb->Fill(prob);
+
     if (prob < minProb) {
       minProb = prob;
       tmpCand = (*iter);

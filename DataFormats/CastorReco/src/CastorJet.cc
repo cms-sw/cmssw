@@ -1,5 +1,4 @@
 #include "DataFormats/CastorReco/interface/CastorJet.h"
-#include "FWCore/Framework/interface/Event.h"
 
 using namespace reco;
 using namespace edm;

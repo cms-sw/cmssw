@@ -6,5 +6,6 @@ hltLevel1Activity = cms.EDFilter("HLTLevel1Activity",
     ignoreL1Mask   = cms.bool( False ),        # use L1 masks
     physicsLoBits  = cms.uint64( 0xFFFFFFFE ), # all physics bits except BPTX (L1_ZeroBias, bit 0)
     physicsHiBits  = cms.uint64( 0xFFFFFFFF ),
-    technicalBits  = cms.uint64( 0xFFFFFF00 )  # all technical bits except BPTX (bits 0-7)
+    technicalBits  = cms.uint64( 0xFFFFFF00 ), # all technical bits except BPTX (bits 0-7)
+    invert         = cms.bool( False )
 )

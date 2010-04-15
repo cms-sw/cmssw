@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2009/06/23 06:47:36 $
- * $Revision: 1.46 $
+ * $Date: 2010/03/27 20:08:01 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
  */
@@ -26,17 +26,13 @@
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEIntegrityTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EEIntegrityTask::EEIntegrityTask(const ParameterSet& ps){
+EEIntegrityTask::EEIntegrityTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -65,7 +61,7 @@ EEIntegrityTask::EEIntegrityTask(const ParameterSet& ps){
     meIntegrityMemTTId[i] = 0;
     meIntegrityMemTTBlockSize[i] = 0;
   }
-
+  meIntegrityErrorsByLumi = 0;
 }
 
 
@@ -84,7 +80,16 @@ void EEIntegrityTask::beginJob(void){
 
 }
 
-void EEIntegrityTask::beginRun(const Run& r, const EventSetup& c) {
+void EEIntegrityTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup) {
+
+  if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Reset();
+
+}
+
+void EEIntegrityTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
+}
+
+void EEIntegrityTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -92,7 +97,7 @@ void EEIntegrityTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EEIntegrityTask::endRun(const Run& r, const EventSetup& c) {
+void EEIntegrityTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -110,6 +115,7 @@ void EEIntegrityTask::reset(void) {
     if ( meIntegrityMemTTId[i] ) meIntegrityMemTTId[i]->Reset();
     if ( meIntegrityMemTTBlockSize[i] ) meIntegrityMemTTBlockSize[i]->Reset();
   }
+  if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Reset();
 
 }
 
@@ -124,9 +130,20 @@ void EEIntegrityTask::setup(void){
 
     // checking when number of towers in data different than expected from header
     sprintf(histo, "EEIT DCC size error");
-    meIntegrityDCCSize = dqmStore_->book1D(histo, histo, 18, 1, 19.);
+    meIntegrityDCCSize = dqmStore_->book1D(histo, histo, 18, 1., 19.);
     for (int i = 0; i < 18; i++) {
       meIntegrityDCCSize->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
+    // checking the number of integrity errors in each DCC for each lumi
+    // crystal integrity error is weighted by 1/850
+    // tower integrity error is weighted by 1/34
+    // bin 0 contains the number of processed events in the lumi (for normalization)
+    sprintf(histo, "EEIT weighted integrity errors by lumi");
+    meIntegrityErrorsByLumi = dqmStore_->book1D(histo, histo, 18, 1., 19.);
+//    meIntegrityErrorsByLumi->setLumiFlag();
+    for (int i = 0; i < 18; i++) {
+      meIntegrityErrorsByLumi->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     // checking when the gain is 0
@@ -235,6 +252,9 @@ void EEIntegrityTask::cleanup(void){
     if ( meIntegrityDCCSize ) dqmStore_->removeElement( meIntegrityDCCSize->getName() );
     meIntegrityDCCSize = 0;
 
+    if ( meIntegrityErrorsByLumi ) dqmStore_->removeElement( meIntegrityErrorsByLumi->getName() );
+    meIntegrityErrorsByLumi = 0;
+
     dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/Gain");
     for (int i = 0; i < 18; i++) {
       if ( meIntegrityGain[i] ) dqmStore_->removeElement( meIntegrityGain[i]->getName() );
@@ -297,19 +317,22 @@ void EEIntegrityTask::cleanup(void){
 
 void EEIntegrityTask::endJob(void){
 
-  LogInfo("EEIntegrityTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EEIntegrityTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
+void EEIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  Handle<EEDetIdCollection> ids0;
+  // fill bin 0 with number of events in the lumi
+  if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(0.);
+
+  edm::Handle<EEDetIdCollection> ids0;
 
   if ( e.getByLabel(EEDetIdCollection0_, ids0) ) {
 
@@ -317,7 +340,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( *idItr );
 
-      float xism = ism - 0.5;
+      float xism = ism + 0.5;
 
       if ( meIntegrityDCCSize ) meIntegrityDCCSize->Fill(xism);
 
@@ -325,11 +348,11 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-//    LogWarning("EEIntegrityTask") << EEDetIdCollection0_ << " not available";
+//    edm::LogWarning("EEIntegrityTask") << EEDetIdCollection0_ << " not available";
 
   }
 
-  Handle<EEDetIdCollection> ids1;
+  edm::Handle<EEDetIdCollection> ids1;
 
   if ( e.getByLabel(EEDetIdCollection1_, ids1) ) {
 
@@ -341,6 +364,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int iy = id.iy();
 
       int ism = Numbers::iSM( id );
+      float xism = ism + 0.5;
 
       if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
@@ -348,16 +372,17 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       float xiy = iy - 0.5;
 
       if ( meIntegrityGain[ism-1] ) meIntegrityGain[ism-1]->Fill(xix, xiy);
+      if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(xism, 1./850.);
 
     }
 
   } else {
 
-    LogWarning("EEIntegrityTask") << EEDetIdCollection1_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << EEDetIdCollection1_ << " not available";
 
   }
 
-  Handle<EEDetIdCollection> ids2;
+  edm::Handle<EEDetIdCollection> ids2;
 
   if ( e.getByLabel(EEDetIdCollection2_, ids2) ) {
 
@@ -369,6 +394,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int iy = id.iy();
 
       int ism = Numbers::iSM( id );
+      float xism = ism + 0.5;
 
       if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
@@ -376,16 +402,17 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       float xiy = iy - 0.5;
 
       if ( meIntegrityChId[ism-1] ) meIntegrityChId[ism-1]->Fill(xix, xiy);
+      if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(xism, 1./850.);
 
     }
 
   } else {
 
-    LogWarning("EEIntegrityTask") << EEDetIdCollection2_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << EEDetIdCollection2_ << " not available";
 
   }
 
-  Handle<EEDetIdCollection> ids3;
+  edm::Handle<EEDetIdCollection> ids3;
 
   if ( e.getByLabel(EEDetIdCollection3_, ids3) ) {
 
@@ -397,6 +424,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int iy = id.iy();
 
       int ism = Numbers::iSM( id );
+      float xism = ism + 0.5;
 
       if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
@@ -404,16 +432,17 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       float xiy = iy - 0.5;
 
       if ( meIntegrityGainSwitch[ism-1] ) meIntegrityGainSwitch[ism-1]->Fill(xix, xiy);
+      if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(xism, 1./850.);
 
     }
 
   } else {
 
-    LogWarning("EEIntegrityTask") << EEDetIdCollection3_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << EEDetIdCollection3_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids4;
+  edm::Handle<EcalElectronicsIdCollection> ids4;
 
   if ( e.getByLabel(EcalElectronicsIdCollection1_, ids4) ) {
 
@@ -422,12 +451,13 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       if ( Numbers::subDet( *idItr ) != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( *idItr );
+      float xism = ism + 0.5;
 
-      vector<DetId> crystals = Numbers::crystals( *idItr );
+      std::vector<DetId>* crystals = Numbers::crystals( *idItr );
 
-      for ( unsigned int i=0; i<crystals.size(); i++ ) {
+      for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
-      EEDetId id = crystals[i];
+      EEDetId id = (*crystals)[i];
 
       int ix = id.ix();
       int iy = id.iy();
@@ -438,6 +468,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       float xiy = iy - 0.5;
 
       if ( meIntegrityTTId[ism-1] ) meIntegrityTTId[ism-1]->Fill(xix, xiy);
+      if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(xism, 1./34.);
 
       }
 
@@ -445,11 +476,11 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids5;
+  edm::Handle<EcalElectronicsIdCollection> ids5;
 
   if ( e.getByLabel(EcalElectronicsIdCollection2_, ids5) ) {
 
@@ -458,12 +489,13 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       if ( Numbers::subDet( *idItr ) != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( *idItr );
+      float xism = ism + 0.5;
 
-      vector<DetId> crystals = Numbers::crystals( *idItr );
+      std::vector<DetId>* crystals = Numbers::crystals( *idItr );
 
-      for ( unsigned int i=0; i<crystals.size(); i++ ) {
+      for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
-      EEDetId id = crystals[i];
+      EEDetId id = (*crystals)[i];
 
       int ix = id.ix();
       int iy = id.iy();
@@ -474,6 +506,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       float xiy = iy - 0.5;
 
       if ( meIntegrityTTBlockSize[ism-1] ) meIntegrityTTBlockSize[ism-1]->Fill(xix, xiy);
+      if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(xism, 1./34.);
 
       }
 
@@ -481,11 +514,11 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids6;
+  edm::Handle<EcalElectronicsIdCollection> ids6;
 
   if ( e.getByLabel(EcalElectronicsIdCollection3_, ids6) ) {
 
@@ -504,11 +537,11 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids7;
+  edm::Handle<EcalElectronicsIdCollection> ids7;
 
   if ( e.getByLabel(EcalElectronicsIdCollection4_, ids7) ) {
 
@@ -527,11 +560,11 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids8;
+  edm::Handle<EcalElectronicsIdCollection> ids8;
 
   if (  e.getByLabel(EcalElectronicsIdCollection5_, ids8) ) {
 
@@ -557,11 +590,11 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection5_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection5_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids9;
+  edm::Handle<EcalElectronicsIdCollection> ids9;
 
   if ( e.getByLabel(EcalElectronicsIdCollection6_, ids9) ) {
 
@@ -587,7 +620,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection6_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection6_ << " not available";
 
   }
 

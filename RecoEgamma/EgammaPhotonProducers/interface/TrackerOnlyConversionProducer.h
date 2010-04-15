@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2010/01/22 16:59:35 $
- **  $Revision: 1.9 $
+ **  $Date: 2010/03/19 09:32:15 $
+ **  $Revision: 1.12 $
  **  \author H. Liu, UC of Riverside US
  **
  ***/
@@ -104,6 +104,9 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       bool checkVertex(const reco::TrackRef& tk_l, const reco::TrackRef& tk_r,
 	      const MagneticField* magField,
 	      reco::Vertex& the_vertex);
+      bool checkPhi(const reco::TrackRef& tk_l, const reco::TrackRef& tk_r,
+	      const TrackerGeometry* trackerGeom, const MagneticField* magField,
+	      const reco::Vertex& the_vertex);
 
       //check the closest BC, returns true for found a BC
       bool getMatchedBC(const std::multimap<double, reco::CaloClusterPtr>& bcMap, 
@@ -155,11 +158,12 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       double maxChi2Left_, maxChi2Right_;//5. 5. for track chi2 quality
       double minHitsLeft_, minHitsRight_;//5 2 for track hits quality 
 
-      double deltaCotTheta_, deltaPhi_, minApproach_;//0.02 0.2 for track pair open angle and > -0.1 cm
+      double deltaCotTheta_, deltaPhi_, minApproachLow_, minApproachHigh_;//0.02 0.2 for track pair open angle and > -0.1 cm
 
       double maxDistance_, maxOfInitialValue_;
       int maxNbrOfIterations_;//0.001, 1.4, 40 parameter for vertex
       double r_cut;//cross_r cut
+      double vtxChi2_;//vertex chi2 probablity cut
 
       bool allowSingleLeg_;//if single track conversion ?
       bool rightBC_;//if right leg requires matching BC?
@@ -178,15 +182,5 @@ inline const BoundPlane & recHitSurface( const TrackingRecHit & hit, const Track
 inline LocalVector toLocal( const reco::Track::Vector & v, const Surface & s ) {
     return s.toLocal( GlobalVector( v.x(), v.y(), v.z() ) );
 }
-
-inline double map_phi2(double phi) {
-    // map phi to [-pi,pi]
-    double result = phi;
-    if ( result < 1.0*Geom::pi() ) result = result + Geom::twoPi();
-    if ( result >= Geom::pi())  result = result - Geom::twoPi();
-    return result;
-}
-
-
 
 #endif

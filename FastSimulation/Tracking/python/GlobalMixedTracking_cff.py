@@ -9,7 +9,7 @@ import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 # reco::Tracks
 globalMixedWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 # Merging
-ctfWithMaterialTracks = cms.EDFilter("FastTrackMerger",
+ctfWithMaterialTracks = cms.EDProducer("FastTrackMerger",
     TrackProducers = cms.VInputTag(cms.InputTag("globalMixedTrackCandidates"), cms.InputTag("globalMixedWithMaterialTracks"))
 )
 

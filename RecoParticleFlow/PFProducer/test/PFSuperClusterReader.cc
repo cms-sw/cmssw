@@ -143,7 +143,7 @@ const reco::PFCandidate * PFSuperClusterReader::findPFCandidate(const reco::PFCa
   return result;
 }
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(PFSuperClusterReader);
+
+DEFINE_FWK_MODULE(PFSuperClusterReader);
 
 

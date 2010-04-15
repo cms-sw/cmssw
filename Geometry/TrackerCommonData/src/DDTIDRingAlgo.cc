@@ -55,7 +55,7 @@ void DDTIDRingAlgo::initialize(const DDNumericArguments & nArgs,
 		      << zICC[1]; 
 }
 
-void DDTIDRingAlgo::execute(DDCompactView& cpv) {
+void DDTIDRingAlgo::execute() {
 
   double theta = 90.*CLHEP::deg;
   double phiy  = 0.*CLHEP::deg;
@@ -107,7 +107,7 @@ void DDTIDRingAlgo::execute(DDCompactView& cpv) {
 		       theta, phiz);
     }
   
-   cpv.position(module, mother, i+1, trmod, rotation);
+    DDpos (module, mother, i+1, trmod, rotation);
     LogDebug("TIDGeom") << "DDTIDRingAlgo test: " << module << " number "
 			<< i+1 << " positioned in " << mother << " at "
 			<< trmod << " with " << rotation;
@@ -123,7 +123,7 @@ void DDTIDRingAlgo::execute(DDCompactView& cpv) {
       ypos = rICC*sin(phiz) + sICC*cos(phiz);
     }
     DDTranslation tricc(xpos, ypos, zpos);
-   cpv.position(icc, mother, i+1, tricc, rotation);
+    DDpos (icc, mother, i+1, tricc, rotation);
     LogDebug("TIDGeom") << "DDTIDRingAlgo test: " << icc << " number " 
 			<< i+1 << " positioned in " << mother << " at "
 			<< tricc << " with " << rotation;

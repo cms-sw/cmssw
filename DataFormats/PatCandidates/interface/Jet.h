@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.40 2009/10/13 13:19:30 auterman Exp $
+// $Id: Jet.h,v 1.42 2010/02/08 17:38:11 eschliec Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.40 2009/10/13 13:19:30 auterman Exp $
+  \version  $Id: Jet.h,v 1.42 2010/02/08 17:38:11 eschliec Exp $
 */
 
 
@@ -300,15 +300,26 @@ namespace pat {
       /// get a pointer to a Candididate constituent of the jet 
       /// needs to be re-implemented because of CaloTower embedding
       /// why are these functions not handling the PF constituents?
+      //virtual const reco::Candidate * daughter(size_t i) const {
+      //    return (embeddedCaloTowers_ ?  &caloTowers_[i] : reco::Jet::daughter(i));
+      //}
       virtual const reco::Candidate * daughter(size_t i) const {
-          return (embeddedCaloTowers_ ?  &caloTowers_[i] : reco::Jet::daughter(i));
+	if (isCaloJet()) return (embeddedCaloTowers_   ? &caloTowers_[i]   : reco::Jet::daughter(i));
+	if (isPFJet())   return (embeddedPFCandidates_ ? &pfCandidates_[i] : reco::Jet::daughter(i));
+	else return reco::Jet::daughter(i);
       }
+
       using reco::LeafCandidate::daughter; // avoid hiding the base implementation
       /// get the number of constituents 
       /// needs to be re-implemented because of CaloTower embedding
       /// why are these functions not handling the PF constituents?
+      //virtual size_t numberOfDaughters() const {
+      //    return (embeddedCaloTowers_ ? caloTowers_.size() : reco::Jet::numberOfDaughters() );
+      //}
       virtual size_t numberOfDaughters() const {
-          return (embeddedCaloTowers_ ? caloTowers_.size() : reco::Jet::numberOfDaughters() );
+	if (isCaloJet()) return (embeddedCaloTowers_   ? caloTowers_.size()   : reco::Jet::numberOfDaughters() );
+	if (isPFJet())   return (embeddedPFCandidates_ ? pfCandidates_.size() : reco::Jet::numberOfDaughters() );
+	else return reco::Jet::numberOfDaughters();
       }
 
 

@@ -59,10 +59,10 @@ int main(int argc, char* argv[])
 
   // acess branch of muons and elecs
   char muonName[50];
-  sprintf(muonName, "patMuons_selectedLayer1Muons__%s.obj", argv[2]);
+  sprintf(muonName, "patMuons_selectedPatMuons__%s.obj", argv[2]);
   TBranch* muons_ = events_->GetBranch( muonName ); assert( muons_!=0 );
   char elecName[50];
-  sprintf(elecName, "patElectrons_selectedLayer1Electrons__%s.obj", argv[2]);
+  sprintf(elecName, "patElectrons_selectedPatElectrons__%s.obj", argv[2]);
   TBranch* elecs_ = events_->GetBranch( elecName ); assert( elecs_!=0 );
   
   // loop over events and fill histograms

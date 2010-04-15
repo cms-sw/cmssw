@@ -199,11 +199,11 @@ void PFCandidate::setConversionRef(const reco::ConversionRef& ref) {
 
 
 
-void PFCandidate::setNuclearRef(const reco::NuclearInteractionRef& ref) {
+void PFCandidate::setDisplacedVertexRef(const reco::PFDisplacedVertexRef& ref, Flags type) {
 
   if( particleId_ != h ) {
     string err;
-    err += "PFCandidate::setNuclearRef: this is not a hadron! particleId_=";
+    err += "PFCandidate::setDisplacedVertexRef: this is not a hadron! particleId_=";
     char num[4];
     sprintf( num, "%d", particleId_);
     err += num;
@@ -211,16 +211,40 @@ void PFCandidate::setNuclearRef(const reco::NuclearInteractionRef& ref) {
     throw cms::Exception("InconsistentReference",
                          err.c_str() );
   }
-  else if(  !flag( T_FROM_NUCLINT ) && !flag( T_TO_NUCLINT ) ) {
+  else if(  !flag( T_FROM_DISP ) && !flag( T_TO_DISP ) ) {
     string err;
-    err += "PFCandidate::setNuclearRef: particule flag is neither T_FROM_NUCLINT nor T_TO_NUCLINT";
+    err += "PFCandidate::setDisplacedVertexRef: particule flag is neither T_FROM_DISP nor T_TO_DISP";
 
     throw cms::Exception("InconsistentReference",
                          err.c_str() );
   }
 
-  nuclearRef_ = ref;
+  if (type == T_TO_DISP && flag( T_TO_DISP )) displacedVertexDaughterRef_ = ref; 
+  else if (type == T_FROM_DISP && flag( T_FROM_DISP )) displacedVertexMotherRef_ = ref; 
+  else if ( (type == T_FROM_DISP && !flag( T_FROM_DISP )) 
+	    || 
+	    (type == T_TO_DISP && !flag( T_TO_DISP )) ){
+    string err;
+    err += "PFCandidate::setDisplacedVertexRef: particule flag is not switched on";
+
+    throw cms::Exception("InconsistentReference",
+                         err.c_str() );
+  }
+
 }
+
+
+void PFCandidate::setV0Ref(const reco::VertexCompositeCandidateRef& ref) {
+
+  v0Ref_ = ref;
+
+}
+
+
+
+
+
+
 
 
 void PFCandidate::rescaleMomentum( double rescaleFactor ) {
@@ -262,8 +286,8 @@ ostream& reco::operator<<(ostream& out,
      <<c.pt()<<"/"
      <<c.eta()<<"/"
      <<c.phi();
-  if( c.flag( PFCandidate::T_FROM_NUCLINT ) ) out<<", T_FROM_NUCL" << endl;
-  else if( c.flag( PFCandidate::T_TO_NUCLINT ) ) out<<", T_TO_NUCL" << endl;
+  if( c.flag( PFCandidate::T_FROM_DISP ) ) out<<", T_FROM_DISP" << endl;
+  else if( c.flag( PFCandidate::T_TO_DISP ) ) out<<", T_TO_DISP" << endl;
   else if( c.flag( PFCandidate::T_FROM_GAMMACONV ) ) out<<", T_FROM_GAMMACONV" << endl;
   else if( c.flag( PFCandidate::GAMMA_TO_GAMMACONV ) ) out<<", GAMMA_TO_GAMMACONV" << endl;
   

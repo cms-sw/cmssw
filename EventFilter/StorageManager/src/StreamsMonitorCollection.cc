@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.6 2009/08/24 14:31:52 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.11 2010/03/19 17:33:54 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -14,7 +14,7 @@ using namespace stor;
 StreamsMonitorCollection::StreamsMonitorCollection(const utils::duration_t& updateInterval) :
 MonitorCollection(updateInterval),
 _updateInterval(updateInterval),
-_timeWindowForRecentResults(300),
+_timeWindowForRecentResults(30),
 _allStreamsFileCount(updateInterval, _timeWindowForRecentResults),
 _allStreamsVolume(updateInterval, _timeWindowForRecentResults),
 _allStreamsBandwidth(updateInterval, _timeWindowForRecentResults)
@@ -34,10 +34,11 @@ StreamsMonitorCollection::getNewStreamRecord()
 }
 
 
-void StreamsMonitorCollection::StreamRecord::incrementFileCount()
+void StreamsMonitorCollection::StreamRecord::incrementFileCount(const uint32_t lumiSection)
 {
   fileCount.addSample(1);
   parentCollection->_allStreamsFileCount.addSample(1);
+  ++fileCountPerLS[lumiSection];
 }
 
 
@@ -46,6 +47,75 @@ void StreamsMonitorCollection::StreamRecord::addSizeInBytes(double size)
   size = size / (1024 * 1024);
   volume.addSample(size);
   parentCollection->_allStreamsVolume.addSample(size);
+}
+
+
+void StreamsMonitorCollection::StreamRecord::reportLumiSectionInfo
+(
+  const uint32_t& lumiSection,
+  std::string& str
+)
+{
+  std::ostringstream msg;
+  if (str.empty())
+  {
+    msg << "LS:" << lumiSection;
+  }
+  
+  unsigned int count = 0;
+  FileCountPerLumiSectionMap::iterator pos = fileCountPerLS.find(lumiSection);
+  if ( pos != fileCountPerLS.end() )
+  {
+    count = pos->second;
+    fileCountPerLS.erase(pos);
+  }
+  msg << "\t" << streamName << ":" << count;
+  str += msg.str();
+}
+
+
+void StreamsMonitorCollection::reportAllLumiSectionInfos(DbFileHandlerPtr dbFileHandler)
+{
+  boost::mutex::scoped_lock sl(_streamRecordsMutex);
+
+  UnreportedLS unreportedLS;
+  getListOfAllUnreportedLS(unreportedLS);
+
+  for (UnreportedLS::const_iterator it = unreportedLS.begin(),
+         itEnd = unreportedLS.end(); it != itEnd; ++it)
+  {
+    std::string lsEntry;
+    for (StreamRecordList::const_iterator 
+           stream = _streamRecords.begin(),
+           streamEnd = _streamRecords.end();
+         stream != streamEnd;
+         ++stream)
+    {
+      (*stream)->reportLumiSectionInfo((*it), lsEntry);
+    }
+    dbFileHandler->write(lsEntry);
+  }
+}
+
+
+void StreamsMonitorCollection::getListOfAllUnreportedLS(UnreportedLS& unreportedLS)
+{
+  // Have to loop over all streams as not every stream
+  // might have got an event for a given lumi section
+  for (StreamRecordList::const_iterator 
+         stream = _streamRecords.begin(),
+         streamEnd = _streamRecords.end();
+       stream != streamEnd;
+       ++stream)
+  {
+    for (StreamRecord::FileCountPerLumiSectionMap::const_iterator
+           lscount = (*stream)->fileCountPerLS.begin(),
+           lscountEnd = (*stream)->fileCountPerLS.end();
+         lscount != lscountEnd; ++lscount)
+    {
+      unreportedLS.insert(lscount->first);
+    }
+  }
 }
 
 
@@ -116,6 +186,8 @@ void StreamsMonitorCollection::do_updateInfoSpaceItems()
   _storedEvents = static_cast<xdata::UnsignedInteger32>(allStreamsVolumeStats.getSampleCount());
   _storedVolume = static_cast<xdata::Double>(allStreamsVolumeStats.getValueSum());
   _bandwidthToDisk = static_cast<xdata::Double>(allStreamsVolumeStats.getValueRate(MonitoredQuantity::RECENT));
+
+  boost::mutex::scoped_lock sl(_streamRecordsMutex);
 
   _streamNames.clear();
   _eventsPerStream.clear();

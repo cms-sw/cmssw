@@ -9,8 +9,8 @@ using namespace std;
 
 /** \class HcalDigiDump
       
-$Date: 2008/02/12 19:19:45 $
-$Revision: 1.14 $
+$Date: 2009/09/11 19:46:41 $
+$Revision: 1.15 $
 \author J. Mans - Minnesota
 */
 class HcalDigiDump : public edm::EDAnalyzer {
@@ -171,6 +171,6 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalDigiDump);
+
+DEFINE_FWK_MODULE(HcalDigiDump);
 

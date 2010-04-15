@@ -5,7 +5,7 @@ from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 from RecoEgamma.EgammaPhotonProducers.propAlongMomentumWithMaterialForElectrons_cfi import *
 from RecoEgamma.EgammaPhotonProducers.KFTrajectoryFitterForOutIn_cfi import *
 #TrackProducers
-softConversionOITracks = cms.EDFilter("TrackProducerWithSCAssociation",
+softConversionOITracks = cms.EDProducer("TrackProducerWithSCAssociation",
     src = cms.InputTag("softConversionTrackCandidates","softOITrackCandidates"),
     recoTrackSCAssociationCollection = cms.string('outInTrackClusterAssociationCollection'),
     producer = cms.string('softConversionTrackCandidates'),

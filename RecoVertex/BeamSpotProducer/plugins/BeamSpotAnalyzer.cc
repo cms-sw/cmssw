@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.13 2009/12/18 20:45:08 wmtan Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.17 2010/02/28 20:05:08 wmtan Exp $
 
 ________________________________________________________________**/
 
@@ -35,6 +35,7 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
   theBeamFitter = new BeamFitter(iConfig);
   theBeamFitter->resetTrkVector();
   theBeamFitter->resetLSRange();
+  theBeamFitter->resetCutFlow();
 
   ftotalevents = 0;
   ftmprun0 = ftmprun = -1;
@@ -76,6 +77,7 @@ BeamSpotAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
 	if ( countLumi_ == 0 || (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) ) {
 		ftmprun0 = lumiSeg.run();
+        ftmprun = ftmprun0;
 		ftmplumi0 = lumiSeg.id().luminosityBlock();
 	}
 	countLumi_++;
@@ -88,6 +90,8 @@ void
 BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 									 const edm::EventSetup& iSetup) {
 
+    ftmplumi = lumiSeg.id().luminosityBlock();
+    
 	if ( fitNLumi_ == -1 && resetFitNLumi_ == -1 ) return;
 	
 	if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
@@ -119,6 +123,7 @@ BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 		std::cout << "Reset track collection for beam fit" <<std::endl;
 		theBeamFitter->resetTrkVector();
 		theBeamFitter->resetLSRange();
+		theBeamFitter->resetCutFlow();
 		countLumi_=0;
 	}
 
@@ -160,4 +165,4 @@ BeamSpotAnalyzer::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_ANOTHER_FWK_MODULE(BeamSpotAnalyzer);
+DEFINE_FWK_MODULE(BeamSpotAnalyzer);

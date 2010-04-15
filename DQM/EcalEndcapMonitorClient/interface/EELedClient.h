@@ -4,8 +4,8 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2009/10/28 08:18:22 $
- * $Revision: 1.34 $
+ * $Date: 2010/03/04 13:56:00 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */
@@ -148,9 +148,9 @@ TProfile* i14_[18];
 
 // Quality check on crystals
 
-float percentVariation_;
-float amplitudeThreshold_; 
-float rmsThresholdRelative_;
+float percentVariation01_, percentVariation03_;
+float amplitudeThreshold01_, amplitudeThreshold03_; 
+float rmsThreshold01_, rmsThreshold03_;
 
 // Quality check on PNs
 

@@ -16,7 +16,7 @@ public:
   virtual ~testEvtLoop();
 
 private:  
-  virtual void beginJob(const edm::EventSetup& );
+  virtual void beginJob();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
   virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, 
@@ -49,7 +49,7 @@ void testEvtLoop::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
 }
 // -----------------------------------------------------------------
 
-void testEvtLoop::beginJob(const edm::EventSetup& c){
+void testEvtLoop::beginJob(){
   std::cout<<"testEvtLoop::beginJob"<<std::endl;
 }
 

@@ -24,23 +24,14 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 
-#process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
-process.load("JetMETCorrections.Configuration.ZSPOffsetJetCorrections219_cff")
-#process.load("JetMETCorrections.Configuration.ZSPJetCorrections31X_cff")
+process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
 ### For 219, file from RelVal
 process.source = cms.Source("PoolSource",
-fileNames = cms.untracked.vstring(
-'/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V10-v1/0003/0AC2D5EB-0FBE-DE11-ABF3-001A92971B04.root',
-'/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V10-v1/0003/463F475D-97BD-DE11-9144-002618943904.root',
-'/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V10-v1/0003/9665C087-96BD-DE11-9BFB-0018F3D095F0.root',
-'/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V10-v1/0003/E62FC377-9DBD-DE11-9D23-0018F3D0962C.root',
-'/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V10-v1/0003/F460F09A-9ABD-DE11-80C7-003048678F06.root',
-'/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V10-v1/0003/FEE2FF9C-C0BD-DE11-8DFA-002618943861.root'
-)
+fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V10-v1/0003/0AC2D5EB-0FBE-DE11-ABF3-001A92971B04.root')
 )
 
 #process.myjetplustrack = cms.EDFilter("JetPlusTrackAnalysis",

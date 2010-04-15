@@ -1,4 +1,4 @@
-// $Id: Utils.h,v 1.6 2009/08/20 13:40:03 mommsen Exp $
+// $Id: Utils.h,v 1.7 2009/08/26 15:16:02 mommsen Exp $
 /// @file: Utils.h 
 
 #ifndef StorageManager_Utils_h
@@ -21,8 +21,8 @@ namespace stor {
      * Collection of utility functions used in the storage manager
      *
      * $Author: mommsen $
-     * $Revision: 1.6 $
-     * $Date: 2009/08/20 13:40:03 $
+     * $Revision: 1.7 $
+     * $Date: 2009/08/26 15:16:02 $
      */
 
     /**
@@ -71,6 +71,12 @@ namespace stor {
        may or may not depend on the actual formatting
     */
     std::string timeStamp(time_point_t);
+
+    /**
+       Converts a time_point_t into a string containing only the date.
+       Note: the string formatting is used for file db log file name
+    */
+    std::string dateStamp(time_point_t);
 
     /**
        Returns an identifier string composed of class name and instance

@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/10/21 16:08:24 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/11/03 10:10:03 $
+ *  $Revision: 1.6 $
  *  \author Philippe Gras CEA/Saclay
  */
 
@@ -39,6 +39,7 @@ LmfSource::LmfSource(const ParameterSet& pset,
   orderedRead_(pset.getParameter<bool>("orderedRead")),
   watchFileList_(pset.getParameter<bool>("watchFileList")),
   fileListName_(pset.getParameter<std::string>("fileListName")),
+  inputDir_(pset.getParameter<std::string>("inputDir")),
   nSecondsToSleep_(pset.getParameter<int>("nSecondsToSleep")),
   verbosity_(pset.getUntrackedParameter<int>("verbosity"))
 {
@@ -46,7 +47,7 @@ LmfSource::LmfSource(const ParameterSet& pset,
   produces<FEDRawDataCollection>();
   // open fileListName
   if (watchFileList_) {
-    fileList_.open(fileListName_.c_str());
+    fileList_.open( fileListName_.c_str() );
     if (fileList_.fail()) {
       throw cms::Exception("FileListOpenError")
         << "Failed to open input file " << fileListName_ << "\n";
@@ -62,7 +63,7 @@ bool LmfSource::readFileHeader(){
 
   if(verbosity_) cout << "[LmfSource]"
                    << "Opening file #" << (iFile_+1) << " '"
-                   << fileNames_[iFile_] << "'\n";
+                   << currentFileName_ << "'\n";
   
   in_.read((char*)&fileHeader_[0], fileHeaderSize*sizeof(uint32_t));
 
@@ -89,7 +90,7 @@ bool LmfSource::readFileHeader(){
   if(!(id[0]=='L' && id[1] == 'M'
        && id[2] == 'F')){
     throw cms::Exception("FileReadError")
-      << fileNames_[iFile_] << " is not a file in LMF format!";
+      << currentFileName_ << " is not a file in LMF format!";
   }
   dataFormatVers_ = id[3];
   if(verbosity_) cout << "[LmfSource]"
@@ -98,7 +99,7 @@ bool LmfSource::readFileHeader(){
   if(dataFormatVers_ > maxDataFormatVersion_
      || dataFormatVers_ < minDataFormatVersion_){
     throw cms::Exception("FileReadError")
-      << fileNames_[iFile_] << ": LMF format version " << (int) dataFormatVers_
+      << currentFileName_ << ": LMF format version " << (int) dataFormatVers_
       << " is not supported by this release of LmfSource module";
   }
 
@@ -138,22 +139,22 @@ bool LmfSource::openFile(int iFile){
   if(watchFileList_) {
     for ( ;; ) {
       // read the first field of the line, which must be the filename
-      std::string fileName;
-      fileList_ >> fileName;
+      fileList_ >> currentFileName_;
+      currentFileName_ = inputDir_ + "/" + currentFileName_;
       if (!fileList_.fail()) {
         // skip the rest of the line
         std::string tmp_buffer;
         std::getline(fileList_, tmp_buffer);
         if(verbosity_) cout << "[LmfSource]"
-          << "Opening file " << fileName << "\n";
-        in_.open(fileName.c_str());
+          << "Opening file " << currentFileName_ << "\n";
+        in_.open(currentFileName_.c_str());
         if (!in_.fail()) {
           // file was successfully open
           return true;
         } else {
           // skip file
           edm::LogError("FileOpenError")
-            << "Failed to open input file " << fileName << ". Skipping file\n";
+            << "Failed to open input file " << currentFileName_ << ". Skipping file\n";
           in_.close();
           in_.clear();
         }
@@ -166,12 +167,13 @@ bool LmfSource::openFile(int iFile){
     }
   } else {
     if(iFile > (int)fileNames_.size()-1) return false;
+    currentFileName_ = fileNames_[iFile];
     if(verbosity_) cout << "[LmfSource]"
-      << "Opening file " << fileNames_[iFile] << "\n";
-    in_.open(fileNames_[iFile].c_str());
+      << "Opening file " << currentFileName_ << "\n";
+    in_.open(currentFileName_.c_str());
     if(in_.fail()){
       throw cms::Exception("FileOpenError")
-        << "Failed to open input file " << fileNames_[iFile] << "\n";
+        << "Failed to open input file " << currentFileName_ << "\n";
     }
   }
   return true;
@@ -194,7 +196,7 @@ bool LmfSource::nextEventWithinFile(){
     in_.seekg(pos);
     if(in_.bad()){
       cout << "[LmfSource] Problem while reading file "
-           << fileNames_[iFile_] << ". Problem with event index table?\n";
+           << currentFileName_ << ". Problem with event index table?\n";
       return false;
     }
     ++iEventInFile_;
@@ -288,7 +290,7 @@ bool LmfSource::readEventWithinFile(bool doSkip){
   in_.read((char*)&header_[0], evtHeadSize32[iv]*4);
   if(in_.bad()){//reading error other than eof
     throw cms::Exception("FileReadError")
-      << "Error while reading from file " << fileNames_[iFile_];
+      << "Error while reading from file " << currentFileName_;
   }
   if(in_.eof()) return false;
 
@@ -355,7 +357,7 @@ bool LmfSource::readEventWithinFile(bool doSkip){
     if(eventSize8 > maxEventSize_){
       throw cms::Exception("FileReadError")
         << "Size of event fragment (FED block) read from "
-        << " data of file " << fileNames_[iFile_]
+        << " data of file " << currentFileName_
         << "is unexpctively large (" << (eventSize8 >>10)
         << " kByte). "
         << "This must be an error (corrupted file?)\n";
@@ -371,7 +373,7 @@ bool LmfSource::readEventWithinFile(bool doSkip){
     if(toRead8<0){
       throw cms::Exception("FileReadError")
         << "Event size error while reading an event from file "
-        << fileNames_[iFile_] << "\n";
+        << currentFileName_ << "\n";
     }
     
     if(doSkip){//event to skip
@@ -381,7 +383,7 @@ bool LmfSource::readEventWithinFile(bool doSkip){
       in_.seekg(toRead8, ios::cur);
       if(in_.bad()){//reading error other than eof
         throw cms::Exception("FileReadError")
-          << "Error while reading from file " << fileNames_[iFile_];
+          << "Error while reading from file " << currentFileName_;
       }
     } else{
       //reads FED data:
@@ -396,7 +398,7 @@ bool LmfSource::readEventWithinFile(bool doSkip){
       
       if(in_.bad()){//reading error other than eof
         throw cms::Exception("FileReadError")
-          << "Error while reading from file " << fileNames_[iFile_];
+          << "Error while reading from file " << currentFileName_;
       }
     
       if(verbosity_ && data_.size()>16){
@@ -468,9 +470,10 @@ void LmfSource::checkFileNames(){
 }
 
 void LmfSource::readIndexTable(){
+
   stringstream errMsg;
   errMsg << "Error while reading event index table of file "
-         << fileNames_[iFile_] << ". Try to read it with "
+         << currentFileName_ << ". Try to read it with "
          << "option orderedRead disabled.\n";
 
   if(indexTablePos_==0) throw cms::Exception("LmfSource") << errMsg.str();
@@ -485,10 +488,11 @@ void LmfSource::readIndexTable(){
   if(nevts>maxEvents_){
     throw cms::Exception("LmfSource")
       << "Number of events indicated in event index of file "
-      << fileNames_[iFile_] << " is unexpectively large. File cannot be "
+      << currentFileName_ << " is unexpectively large. File cannot be "
       << "read in time-ordered event mode. See orderedRead parmater of "
       << "LmfSource module.\n";
   }
+  //if(in_.bad()) throw cms::Exception("LmfSource") << errMsg.str();
   if(in_.bad()) throw cms::Exception("LmfSource") << errMsg.str();
   indexTable_.resize(nevts);
   in_.read((char*)&indexTable_[0], nevts*sizeof(IndexRecord));

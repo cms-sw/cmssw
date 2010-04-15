@@ -17,7 +17,7 @@ d0_par2 = ( 1.0, 4.0 ),
 dz_par2 = ( 1.0, 4.0 )
 )
 
-foufilter = cms.EDFilter("QualityFilter",
+foufilter = cms.EDProducer("QualityFilter",
     TrackQuality = cms.string('highPurity'),
     recTracks = cms.InputTag("fouStep")
 )

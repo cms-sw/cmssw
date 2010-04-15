@@ -37,6 +37,7 @@ class ConfigEditorTabController(BrowserTabController):
         self._thread = None
         self._originalSizes=[100,1,200]
         self._toolDialog=None
+        self.setEditable(False)
         
         self._configMenu = self.plugin().application().createPluginMenu('&Config')
         self._configToolBar = self.plugin().application().createPluginToolBar('&Config')
@@ -293,7 +294,8 @@ class ConfigEditorTabController(BrowserTabController):
         
         text_file = open(filename, "w")
         text_file.write(self.toolDataAccessor().topLevelObjects()[0].dumpPython()[1])
-        text_file.write(self.dataAccessor().process().dumpHistory(False))
+        if self.dataAccessor().process():
+            text_file.write(self.dataAccessor().process().dumpHistory(False))
         text_file.close()
         return True
 
@@ -320,6 +322,7 @@ class ConfigEditorTabController(BrowserTabController):
             self.setFilename(None)
             self.updateLabel()
         self.tab().createEditor()
+        self.setEditable(True)
         self.tab().verticalSplitter().setSizes(self._originalSizes)
 
         self._importAction = self.plugin().application().createAction('&Import configuration...', self.importButtonClicked, "F2")

@@ -14,7 +14,7 @@
 //
 // Original Author:  Dan Duggan
 //         Created:  
-// $Id: SiPixelMuonHLT.cc,v 1.3 2009/11/19 14:02:40 duggan Exp $
+// $Id: SiPixelMuonHLT.cc,v 1.4 2009/12/18 20:44:50 wmtan Exp $
 //
 //////////////////////////////////////////////////////////
 #include "DQM/SiPixelMonitorClient/interface/SiPixelMuonHLT.h"
@@ -171,7 +171,7 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  LocalPoint clustlp = topol->localPosition (MeasurementPoint(clust->x(),clust->y()));
 	  GlobalPoint clustgp = PixGeom->surface ().toGlobal (clustlp);
 	  if(PixGeom->geographicalId().subdetId() == 1){ //1 Defines a barrel hit
-	    int clustLay = PXBDetId::PXBDetId(detID).layer();
+	    int clustLay = PXBDetId(detID).layer();
 	    //Eta-Phi
 	    MEContainerAllBarrelEtaPhi[0]->Fill(clustgp.eta(),clustgp.phi());
 	    MEContainerAllBarrelZPhi[0]->Fill(clustgp.z(),clustgp.phi());
@@ -190,8 +190,8 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  }
 	  /////Endcap Pixels ///////
 	  if(PixGeom->geographicalId().subdetId() == 2){ //2 Defines a Endcap hit
-	    int clustDisk  = PXFDetId::PXFDetId(detID).disk();
-	    if( PXFDetId::PXFDetId(detID).side() == 2)
+	    int clustDisk  = PXFDetId(detID).disk();
+	    if( PXFDetId(detID).side() == 2)
 	      clustDisk = clustDisk +2;//neg z disks have ID 3 and 4
 	    MEContainerAllEndcapXY[0]->Fill(clustgp.x(),clustgp.y());
 	    MEContainerAllEndcapXY[clustDisk]->Fill(clustgp.x(),clustgp.y());
@@ -254,7 +254,7 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 		  GlobalPoint clustgp = PixGeom->surface ().toGlobal (clustlp);
 		  if(l3tk->recHit(hit)->geographicalId().subdetId() == 1){ //1 Defines a barrel hit
 		    //get the cluster position in local coordinates (cm)	  
-		    int clustLay = PXBDetId::PXBDetId(detID).layer();
+		    int clustLay = PXBDetId(detID).layer();
 		    MEContainerOnTrackBarrelEtaPhi[0]->Fill(clustgp.eta(),clustgp.phi());
 		    MEContainerOnTrackBarrelZPhi[0]->Fill(clustgp.z(),clustgp.phi());
 		    MEContainerOnTrackBarrelEtaPhi[clustLay]->Fill(clustgp.eta(),clustgp.phi());
@@ -269,8 +269,8 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 		    ++NBarrel[clustLay];
 		  }//subdet ==1
 		  if(l3tk->recHit(hit)->geographicalId().subdetId() == 2){ //2 Defines a Endcap hit
-		    int clustDisk  = PXFDetId::PXFDetId(detID).disk();
-		    if( PXFDetId::PXFDetId(detID).disk() == 2)
+		    int clustDisk  = PXFDetId(detID).disk();
+		    if( PXFDetId(detID).disk() == 2)
 		      clustDisk = clustDisk +2;
 		    MEContainerOnTrackEndcapXY[0]->Fill(clustgp.x(),clustgp.y());
 		    MEContainerOnTrackEndcapXY[clustDisk]->Fill(clustgp.x(),clustgp.y());

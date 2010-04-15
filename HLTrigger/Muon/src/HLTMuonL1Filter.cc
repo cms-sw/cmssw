@@ -17,36 +17,51 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
-
+#include "FWCore/Utilities/interface/EDMException.h"
 
 //
 // constructors and destructor
 //
 HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) :
-   candTag_   (iConfig.getParameter< edm::InputTag > ("CandTag")),
-   previousCandTag_   (iConfig.getParameter< edm::InputTag > ("PreviousCandTag")),
-   max_Eta_   (iConfig.getParameter<double> ("MaxEta")),
-   min_Pt_ (iConfig.getParameter<double> ("MinPt")),
-   //   min_Quality_    (iConfig.getParameter<int> ("MinQuality")),
-   selectQualities_ (iConfig.getParameter<std::vector<int> >("SelectQualities")),
-   min_N_ (iConfig.getParameter<int> ("MinN")),
-   saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag",false)) 
+  candTag_( iConfig.getParameter<edm::InputTag>("CandTag") ),
+  previousCandTag_( iConfig.getParameter<edm::InputTag>("PreviousCandTag") ),
+  maxEta_( iConfig.getParameter<double>("MaxEta") ),
+  minPt_( iConfig.getParameter<double>("MinPt") ),
+  minN_( iConfig.getParameter<int>("MinN") ),
+  saveTag_( iConfig.getUntrackedParameter<bool>("SaveTag",false) ) 
 {
+  using namespace std;
 
-  std::stringstream ss;
-  for (uint i=0;i!=selectQualities_.size();++i)
-    ss<<" "<<selectQualities_[i];
-   LogDebug("HLTMuonL1Filter")
-      << " CandTag/MaxEta/MinPt/Qualities/MinN : " 
-      << candTag_.encode()
-      << " " << max_Eta_
-      << " " << min_Pt_
-     //<< " " << min_Quality_
-      <<ss.str()
-      << " " << min_N_;
+  //set the quality bit mask
+  qualityBitMask_ = 0;
+  vector<int> selectQualities = iConfig.getParameter<vector<int> >("SelectQualities");
+  for(size_t i=0; i<selectQualities.size(); i++){
+    if(selectQualities[i] > 7){
+      throw edm::Exception(edm::errors::Configuration) << "QualityBits must be smaller than 8!";
+    }
+    qualityBitMask_ |= 1<<selectQualities[i];
+  }
+ 
+  // dump parameters for debugging
+  if(edm::isDebugEnabled()){
+    ostringstream ss;
+    ss<<"Constructed with parameters:"<<endl;
+    ss<<"    CandTag = "<<candTag_.encode()<<endl;
+    ss<<"    PreviousCandTag = "<<previousCandTag_.encode()<<endl;
+    ss<<"    MaxEta = "<<maxEta_<<endl;
+    ss<<"    MinPt = "<<minPt_<<endl;
+    ss<<"    SelectQualities =";
+    for(size_t i=0; i<8; i++){
+      if((qualityBitMask_>>i) % 2) ss<<" "<<i;
+    }
+    ss<<endl;
+    ss<<"    MinN = "<<minN_<<endl;
+    ss<<"    SaveTag = "<<saveTag_;
+    LogDebug("HLTMuonL1Filter")<<ss.str();
+  }
 
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
+  //register your products
+  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTMuonL1Filter::~HLTMuonL1Filter()
@@ -61,93 +76,81 @@ HLTMuonL1Filter::~HLTMuonL1Filter()
 bool
 HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace std;
-   using namespace edm;
-   using namespace trigger;
-   using namespace l1extra;
+  using namespace std;
+  using namespace edm;
+  using namespace trigger;
+  using namespace l1extra;
 
-   // All HLT filters must create and fill an HLT filter object,
-   // recording any reconstructed physics objects satisfying (or not)
-   // this HLT filter, and place it in the Event.
+  // All HLT filters must create and fill an HLT filter object,
+  // recording any reconstructed physics objects satisfying (or not)
+  // this HLT filter, and place it in the Event.
 
-   // The filter object
-   auto_ptr<TriggerFilterObjectWithRefs>
-     filterproduct (new TriggerFilterObjectWithRefs(path(),module()));
+  // The filter object
+  auto_ptr<TriggerFilterObjectWithRefs> filterproduct(new TriggerFilterObjectWithRefs(path(), module()));
 
-   // get hold of muons
-   Handle<L1MuonParticleCollection> mucands;
-   iEvent.getByLabel (candTag_, mucands);
+  // get hold of all muons
+  Handle<L1MuonParticleCollection> allMuons;
+  iEvent.getByLabel(candTag_, allMuons);
 
-   Handle<TriggerFilterObjectWithRefs> previousLevelCands;
-   iEvent.getByLabel (previousCandTag_ ,previousLevelCands);
-   vector<L1MuonParticleRef> l1mu;
-   previousLevelCands->getObjects(TriggerL1Mu,l1mu);
+  // get hold of muons that fired the previous level
+  Handle<TriggerFilterObjectWithRefs> previousLevelCands;
+  iEvent.getByLabel(previousCandTag_, previousLevelCands);
+  vector<L1MuonParticleRef> prevMuons;
+  previousLevelCands->getObjects(TriggerL1Mu, prevMuons);
    
-   // look at all mucands,  check cuts and add to filter object
-   int n = 0;
-   for (unsigned int i=0; i<mucands->size(); i++) {
-     L1MuonParticleRef muon(mucands,i);
-      LogDebug("HLTMuonL1Filter") 
-            << " Muon in loop: q*pt= " << muon->charge()*muon->pt() 
-            << ", eta= " << muon->eta();
+  // look at all muon candidates, check cuts and add to filter object
+  int n = 0;
+  for(size_t i = 0; i < allMuons->size(); i++){
+    L1MuonParticleRef muon(allMuons, i);
 
-      if (!triggerByPreviousLevel(muon, l1mu)) continue;
+    //check if triggered by the previous level
+    if(find(prevMuons.begin(), prevMuons.end(), muon) == prevMuons.end()) continue;
 
-      float eta   =  muon->eta();
-      if (fabs(eta)>max_Eta_) continue;
-      float pt    =  muon->pt();
-      if (pt<min_Pt_) continue;
+    //check maxEta cut
+    if(fabs(muon->eta()) > maxEta_) continue;
 
-      int quality =  999;
-      if ( !muon->gmtMuonCand().empty() ) {
-            quality = muon->gmtMuonCand().quality();
-      }
-      LogDebug("HLTMuonL1Filter") 
-            << " Muon in loop, quality= " << quality;
-      //if (quality<min_Quality_) continue;
-      if (selectQualities_.size()!=0){
-	bool rejectDueToQuality=true;
-	for (uint iQ=0;iQ!=selectQualities_.size();++iQ){
-	  if (quality == selectQualities_[iQ]){
-	    rejectDueToQuality=false;
-	    break;
-	  }
-	}
-	if (rejectDueToQuality) continue; //skip this L1
-      }
-	    
+    //check pT cut
+    if(muon->pt() < minPt_) continue;
 
-      n++;
-      filterproduct->addObject(TriggerL1Mu,muon);
-   }
-   if(saveTag_)filterproduct->addCollectionTag(candTag_);
+    //check quality cut
+    if(qualityBitMask_){
+      int quality = muon->gmtMuonCand().empty() ? 0 : (1 << muon->gmtMuonCand().quality());
+      if((quality & qualityBitMask_) == 0) continue;
+    }
 
-   vector<L1MuonParticleRef> vref;
-   filterproduct->getObjects(TriggerL1Mu,vref);
-   for (unsigned int i=0; i<vref.size(); i++) {
-      L1MuonParticleRef mu = L1MuonParticleRef(vref[i]);
-      LogDebug("HLTMuonL1Filter")
-           << " Muon passing filter: pt= " << mu->pt() << ", eta: " 
-            << mu->eta();
-   }
-
-   // filter decision
-   const bool accept (n >= min_N_);
-
-   // put filter object into the Event
-   iEvent.put(filterproduct);
-
-   LogDebug("HLTMuonL1Filter") << " >>>>> Result of HLTMuonL1Filter is " << accept << ", number of muons passing thresholds= " << n; 
-
-   return accept;
-}
-
-bool HLTMuonL1Filter::triggerByPreviousLevel(const l1extra::L1MuonParticleRef & muon, const std::vector<l1extra::L1MuonParticleRef> & vcands){
-  bool ok=false;
-  uint i=0;
-  uint i_max=vcands.size();
-  for (;i!=i_max;++i){
-    if (muon == vcands[i]){ ok=true; break;}
+    //we have a good candidate
+    n++;
+    filterproduct->addObject(TriggerL1Mu,muon);
   }
-  return ok;
+
+  if(saveTag_) filterproduct->addCollectionTag(candTag_);
+
+  // filter decision
+  const bool accept(n >= minN_);
+
+  // dump event for debugging
+  if(edm::isDebugEnabled()){
+    ostringstream ss;
+    ss.precision(2);
+    ss<<"L1mu#"<<'\t'<<"q*pt"<<'\t'<<'\t'<<"eta"<<'\t'<<"phi"<<'\t'<<"quality"<<'\t'<<"isPrev"<<'\t'<<"isFired"<<endl;
+    ss<<"---------------------------------------------------------------"<<endl;
+
+    vector<L1MuonParticleRef> firedMuons;
+    filterproduct->getObjects(TriggerL1Mu, firedMuons);
+    for(size_t i=0; i<allMuons->size(); i++){
+      L1MuonParticleRef mu(allMuons, i);
+      int quality = mu->gmtMuonCand().empty() ? 0 : mu->gmtMuonCand().quality();
+      bool isPrev = find(prevMuons.begin(), prevMuons.end(), mu) != prevMuons.end();
+      bool isFired = find(firedMuons.begin(), firedMuons.end(), mu) != firedMuons.end();
+      ss<<i<<'\t'<<scientific<<mu->charge()*mu->pt()<<'\t'<<fixed<<mu->eta()<<'\t'<<mu->phi()<<'\t'<<quality<<'\t'<<isPrev<<'\t'<<isFired<<endl;
+    }
+    ss<<"---------------------------------------------------------------"<<endl;
+    LogDebug("HLTMuonL1Filter")<<ss.str()<<"Decision of filter is "<<accept<<", number of muons passing = "<<filterproduct->l1muonSize();
+  }
+
+  // put filter object into the Event
+  iEvent.put(filterproduct);
+
+  return accept;
 }
+

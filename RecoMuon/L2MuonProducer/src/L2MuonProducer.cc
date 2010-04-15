@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2007/12/17 17:23:05 $
- *   $Revision: 1.22 $
+ *   $Date: 2010/03/02 14:04:18 $
+ *   $Revision: 1.24 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -28,6 +28,7 @@
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -38,6 +39,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
+#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
 
 #include <string>
 
@@ -65,7 +67,8 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
 
   // instantiate the concrete trajectory builder in the Track Finder
   theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters, theService),
-				       new MuonTrackLoader(trackLoaderParameters, theService));
+				       new MuonTrackLoader(trackLoaderParameters, theService),
+				       new MuonTrajectoryCleaner(true));
   
   produces<reco::TrackCollection>();
   produces<reco::TrackCollection>("UpdatedAtVtx");
@@ -75,13 +78,15 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
 
   produces<std::vector<Trajectory> >();
   produces<TrajTrackAssociationCollection>();
+
+  produces<edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>, std::vector<L2MuonTrajectorySeed> > > >();
 }
   
 /// destructor
 L2MuonProducer::~L2MuonProducer(){
   LogTrace("Muon|RecoMuon|L2eMuonProducer")<<"L2MuonProducer destructor called"<<endl;
-  if (theService) delete theService;
-  if (theTrackFinder) delete theTrackFinder;
+  delete theService;
+  delete theTrackFinder;
 }
 
 

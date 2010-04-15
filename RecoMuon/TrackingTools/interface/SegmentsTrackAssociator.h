@@ -7,8 +7,8 @@
  *  tool which take as input a muon track and return a vector 
  *  with the segments used to fit it
  *
- *  $Date: 2008/07/16 10:38:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/01/29 14:50:46 $
+ *  $Revision: 1.1 $
  *  \author C. Botta, G. Mila - INFN Torino
  */
 
@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"

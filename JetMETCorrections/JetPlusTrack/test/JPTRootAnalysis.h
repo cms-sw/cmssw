@@ -27,12 +27,6 @@ public :
    Double_t        EtZSP1;
    Double_t        EtJPT1;
    Double_t        DRMAXgjet1;
-
-   Double_t        EtaZSP1;
-   Double_t        PhiZSP1;
-   Double_t        EtaJPT1;
-   Double_t        PhiJPT1;
-
    Double_t        EtaGen2;
    Double_t        PhiGen2;
    Double_t        EtaRaw2;
@@ -42,11 +36,6 @@ public :
    Double_t        EtZSP2;
    Double_t        EtJPT2;
    Double_t        DRMAXgjet2;
-
-   Double_t        EtaZSP2;
-   Double_t        PhiZSP2;
-   Double_t        EtaJPT2;
-   Double_t        PhiJPT2;
 
    // List of branches
    TBranch        *b_EtaGen1;   //!
@@ -58,12 +47,6 @@ public :
    TBranch        *b_EtZSP1;   //!
    TBranch        *b_EtJPT1;   //!
    TBranch        *b_DRMAXgjet1;   //!
-
-   TBranch        *b_EtaZSP1;
-   TBranch        *b_PhiZSP1;
-   TBranch        *b_EtaJPT1;
-   TBranch        *b_PhiJPT1;
-
    TBranch        *b_EtaGen2;   //!
    TBranch        *b_PhiGen2;   //!
    TBranch        *b_EtaRaw2;   //!
@@ -73,11 +56,6 @@ public :
    TBranch        *b_EtZSP2;   //!
    TBranch        *b_EtJPT2;   //!
    TBranch        *b_DRMAXgjet2;   //!
-
-   TBranch        *b_EtaZSP2;
-   TBranch        *b_PhiZSP2;
-   TBranch        *b_EtaJPT2;
-   TBranch        *b_PhiJPT2;
 
    JPTRootAnalysis(TTree *tree=0);
    virtual ~JPTRootAnalysis();
@@ -173,12 +151,6 @@ void JPTRootAnalysis::Init(TTree *tree)
    fChain->SetBranchAddress("EtZSP1", &EtZSP1, &b_EtZSP1);
    fChain->SetBranchAddress("EtJPT1", &EtJPT1, &b_EtJPT1);
    fChain->SetBranchAddress("DRMAXgjet1", &DRMAXgjet1, &b_DRMAXgjet1);
-
-   fChain->SetBranchAddress("EtaZSP1", &EtaZSP1, &b_EtaZSP1);
-   fChain->SetBranchAddress("PhiZSP1", &PhiZSP1, &b_PhiZSP1);
-   fChain->SetBranchAddress("EtaJPT1", &EtaJPT1, &b_EtaJPT1);
-   fChain->SetBranchAddress("PhiJPT1", &PhiJPT1, &b_PhiJPT1);
-
    fChain->SetBranchAddress("EtaGen2", &EtaGen2, &b_EtaGen2);
    fChain->SetBranchAddress("PhiGen2", &PhiGen2, &b_PhiGen2);
    fChain->SetBranchAddress("EtaRaw2", &EtaRaw2, &b_EtaRaw2);
@@ -188,12 +160,6 @@ void JPTRootAnalysis::Init(TTree *tree)
    fChain->SetBranchAddress("EtZSP2", &EtZSP2, &b_EtZSP2);
    fChain->SetBranchAddress("EtJPT2", &EtJPT2, &b_EtJPT2);
    fChain->SetBranchAddress("DRMAXgjet2", &DRMAXgjet2, &b_DRMAXgjet2);
-
-   fChain->SetBranchAddress("EtaZSP2", &EtaZSP2, &b_EtaZSP2);
-   fChain->SetBranchAddress("PhiZSP2", &PhiZSP2, &b_PhiZSP2);
-   fChain->SetBranchAddress("EtaJPT2", &EtaJPT2, &b_EtaJPT2);
-   fChain->SetBranchAddress("PhiJPT2", &PhiJPT2, &b_PhiJPT2);
-
    Notify();
 }
 

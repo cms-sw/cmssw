@@ -568,6 +568,10 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "useCornerCells_Hcal",
                    useCornerCellsHcal);
 
+  bool cleanRBXandHPDs = false;
+  options_->GetOpt("clustering", "cleanRBXandHPDs_Hcal",
+                   cleanRBXandHPDs);
+
   double posCalcP1Hcal 
     = threshHcalBarrel<threshHcalEndcap ? threshHcalBarrel:threshHcalEndcap;
 //   options_->GetOpt("clustering", "posCalc_p1_Hcal", 
@@ -602,6 +606,7 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoHCAL_.setPosCalcP1( posCalcP1Hcal );
 
   clusterAlgoHCAL_.setUseCornerCells( useCornerCellsHcal );
+  clusterAlgoHCAL_.setCleanRBXandHPDs( cleanRBXandHPDs );
 
   clusterAlgoHCAL_.enableDebugging( clusteringDebug ); 
 
@@ -1064,11 +1069,21 @@ void PFRootEventManager::readOptions(const char* file,
   }
 
 
+  bool rejectTracks_Bad = true;
+  bool rejectTracks_Step45 = true;
   bool usePFConversions = false;   // set true to use PFConversions
+  bool usePFNuclearInteractions = false;
+  bool usePFDecays = false;
+
+
   options_->GetOpt("particle_flow", "usePFConversions", usePFConversions);
 
   try { 
-    pfAlgo_.setPFConversionParameters(usePFConversions);
+    pfAlgo_.setDisplacedVerticesParameters(rejectTracks_Bad,
+					  rejectTracks_Step45,
+					  usePFNuclearInteractions,
+ 					  usePFConversions,
+	 				  usePFDecays);
   }
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo Conversions parameters: "
@@ -1180,27 +1195,37 @@ void PFRootEventManager::readOptions(const char* file,
   // print flags -------------
 
   printRecHits_ = false;
+  printRecHitsEMin_ = 0.;
   options_->GetOpt("print", "rechits", printRecHits_ );
+  options_->GetOpt("print", "rechits_emin", printRecHitsEMin_ );
   
   printClusters_ = false;
+  printClustersEMin_ = 0.;
   options_->GetOpt("print", "clusters", printClusters_ );
-  
+  options_->GetOpt("print", "clusters_emin", printClustersEMin_ );
+
   printPFBlocks_ = false;
   options_->GetOpt("print", "PFBlocks", printPFBlocks_ );
   
   printPFCandidates_ = true;
+  printPFCandidatesPtMin_ = 0.;
   options_->GetOpt("print", "PFCandidates", printPFCandidates_ );
+  options_->GetOpt("print", "PFCandidates_ptmin", printPFCandidatesPtMin_ );
   
   printPFJets_ = true;
-  printPFPt_ = 0.;
+  printPFJetsPtMin_ = 0.;
   options_->GetOpt("print", "jets", printPFJets_ );
-  options_->GetOpt("print", "ptjets", printPFPt_ );
+  options_->GetOpt("print", "jets_ptmin", printPFJetsPtMin_ );
  
   printSimParticles_ = true;
+  printSimParticlesPtMin_ = 0.;
   options_->GetOpt("print", "simParticles", printSimParticles_ );
+  options_->GetOpt("print", "simParticles_ptmin", printSimParticlesPtMin_ );
 
   printGenParticles_ = true;
+  printGenParticlesPtMin_ = 0.;
   options_->GetOpt("print", "genParticles", printGenParticles_ );
+  options_->GetOpt("print", "genParticles_ptmin", printGenParticlesPtMin_ );
 
   //MCTruthMatching Tool set to false by default
   //can only be used with fastsim and the UnFoldedMode set to true
@@ -2636,7 +2661,7 @@ void PFRootEventManager::particleFlow() {
   edm::OrphanHandle< reco::MuonCollection > muonh( &muons_, 
 						   edm::ProductID(6) );
 
-  edm::OrphanHandle< reco::PFNuclearInteractionCollection > nuclh( &nuclear_, 
+  edm::OrphanHandle< reco::PFDisplacedTrackerVertexCollection > nuclh( &nuclear_, 
                                                           edm::ProductID(7) );
 
   edm::OrphanHandle< reco::PFConversionCollection > convh( &conversion_, 
@@ -3426,73 +3451,29 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
 
 
   if( printRecHits_ ) {
-    out<<"ECAL RecHits =============================================="<<endl;
-    for(unsigned i=0; i<rechitsECAL_.size(); i++) {
-      string seedstatus = "    ";
-      if(clusterAlgoECAL_.isSeed(i) ) 
-        seedstatus = "SEED";
-      printRecHit(rechitsECAL_[i], i, seedstatus.c_str(), out );
-    }
-    out<<endl;
-    out<<"HCAL RecHits =============================================="<<endl;
-    for(unsigned i=0; i<rechitsHCAL_.size(); i++) {
-      string seedstatus = "    ";
-      if(clusterAlgoHCAL_.isSeed(i) ) 
-        seedstatus = "SEED";
-      printRecHit(rechitsHCAL_[i], i, seedstatus.c_str(), out);
-    }
-    out<<endl;
-    out<<"HFEM RecHits =============================================="<<endl;
-    for(unsigned i=0; i<rechitsHFEM_.size(); i++) {
-      string seedstatus = "    ";
-      if(clusterAlgoHFEM_.isSeed(i) ) 
-        seedstatus = "SEED";
-      printRecHit(rechitsHFEM_[i], i, seedstatus.c_str(), out);
-    }
-    out<<endl;
+    out<<"ECAL RecHits ==============================================="<<endl;
+    printRecHits(rechitsECAL_, clusterAlgoECAL_, out );             out<<endl;
+    out<<"HCAL RecHits ==============================================="<<endl;
+    printRecHits(rechitsHCAL_, clusterAlgoHCAL_, out );             out<<endl;
+    out<<"HFEM RecHits ==============================================="<<endl;
+    printRecHits(rechitsHFEM_, clusterAlgoHFEM_, out );             out<<endl;
     out<<"HFHAD RecHits =============================================="<<endl;
-    for(unsigned i=0; i<rechitsHFHAD_.size(); i++) {
-      string seedstatus = "    ";
-      if(clusterAlgoHFHAD_.isSeed(i) ) 
-        seedstatus = "SEED";
-      printRecHit(rechitsHFHAD_[i], i, seedstatus.c_str(), out);
-    }
-    out<<endl;
-    out<<"PS RecHits ================================================"<<endl;
-    for(unsigned i=0; i<rechitsPS_.size(); i++) {
-      string seedstatus = "    ";
-      if(clusterAlgoPS_.isSeed(i) ) 
-        seedstatus = "SEED";
-      printRecHit(rechitsPS_[i], i, seedstatus.c_str(), out);
-    }
-    out<<endl;
+    printRecHits(rechitsHFHAD_, clusterAlgoHFHAD_, out );           out<<endl;
+    out<<"PS RecHits ================================================="<<endl;
+    printRecHits(rechitsPS_, clusterAlgoPS_, out );                 out<<endl;
   }
+
   if( printClusters_ ) {
     out<<"ECAL Clusters ============================================="<<endl;
-    for(unsigned i=0; i<clustersECAL_->size(); i++) {
-      printCluster((*clustersECAL_)[i], out);
-    }    
-    out<<endl;
+    printClusters( *clustersECAL_, out);                           out<<endl;
     out<<"HCAL Clusters ============================================="<<endl;
-    for(unsigned i=0; i<clustersHCAL_->size(); i++) {
-      printCluster((*clustersHCAL_)[i], out);
-    }    
-    out<<endl;
+    printClusters( *clustersHCAL_, out);                           out<<endl;
     out<<"HFEM Clusters ============================================="<<endl;
-    for(unsigned i=0; i<clustersHFEM_->size(); i++) {
-      printCluster((*clustersHFEM_)[i], out);
-    }    
-    out<<endl;
-    out<<"HFHAD Clusters ============================================="<<endl;
-    for(unsigned i=0; i<clustersHFHAD_->size(); i++) {
-      printCluster((*clustersHFHAD_)[i], out);
-    }    
-    out<<endl;
+    printClusters( *clustersHFEM_, out);                           out<<endl;
+    out<<"HFHAD Clusters ============================================"<<endl;
+    printClusters( *clustersHFHAD_, out);                          out<<endl;
     out<<"PS Clusters   ============================================="<<endl;
-    for(unsigned i=0; i<clustersPS_->size(); i++) {
-      printCluster((*clustersPS_)[i], out);
-    }    
-    out<<endl;
+    printClusters( *clustersPS_, out);                             out<<endl;
   }
   bool printTracks = true;
   if( printTracks) {
@@ -3508,6 +3489,8 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
   if(printPFCandidates_) {
     out<<"Particle Flow Candidates =================================="<<endl;
     for(unsigned i=0; i<pfCandidates_->size(); i++) {
+      const PFCandidate& pfc = (*pfCandidates_)[i];
+      if(pfc.pt()>printPFCandidatesPtMin_)
       out<<i<<" " <<(*pfCandidates_)[i]<<endl;
     }    
     out<<endl;
@@ -3551,13 +3534,13 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
     out<<"Jets  ====================================================="<<endl;
     out<<"Particle Flow: "<<endl;
     for(unsigned i=0; i<pfJets_.size(); i++) {      
-      if (pfJets_[i].pt() > printPFPt_ )
+      if (pfJets_[i].pt() > printPFJetsPtMin_ )
 	out<<i<<pfJets_[i].print()<<endl;
     }    
     out<<endl;
     out<<"Generated: "<<endl;
     for(unsigned i=0; i<genJets_.size(); i++) {
-      if (genJets_[i].pt() > printPFPt_ )
+      if (genJets_[i].pt() > printPFJetsPtMin_ )
 	out<<i<<genJets_[i].print()<<endl;
       // <<" invisible energy = "<<genJets_[i].invisibleEnergy()<<endl;
     }        
@@ -3572,8 +3555,16 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
     out<<"Sim Particles  ==========================================="<<endl;
 
     for(unsigned i=0; i<trueParticles_.size(); i++) {
-      if( trackInsideGCut( trueParticles_[i]) ) 
-        out<<"\t"<<trueParticles_[i]<<endl;
+      if( trackInsideGCut( trueParticles_[i]) ){ 
+
+	const reco::PFSimParticle& ptc = trueParticles_[i];
+
+	// get trajectory at start point
+	const reco::PFTrajectoryPoint& tp0 = ptc.extrapolatedPoint( 0 );
+
+	if(tp0.momentum().pt()>printSimParticlesPtMin_)
+	  out<<"\t"<<trueParticles_[i]<<endl;
+      }
     }   
  
     //print a detailed list of PFSimParticles matching
@@ -3790,6 +3781,8 @@ PFRootEventManager::printGenParticles(std::ostream& out,
                                       p->momentum().pz(),
                                       p->momentum().e() );
 
+    if(momentum1.pt()<printGenParticlesPtMin_) continue;
+
     int vertexId1 = 0;
 
     if ( !p->production_vertex() && p->pdg_id() == 2212 ) continue;
@@ -3866,6 +3859,16 @@ PFRootEventManager::printGenParticles(std::ostream& out,
   }
 }
 
+void PFRootEventManager::printRecHits(const reco::PFRecHitCollection& rechits, const PFClusterAlgo& clusterAlgo, ostream& out) const{
+
+    for(unsigned i=0; i<rechits.size(); i++) {
+      string seedstatus = "    ";
+      if(clusterAlgo.isSeed(i) ) 
+        seedstatus = "SEED";
+      printRecHit(rechits[i], i, seedstatus.c_str(), out);
+    }
+    return;
+}
 
 void  PFRootEventManager::printRecHit(const reco::PFRecHit& rh,
 				      unsigned index,  
@@ -3873,14 +3876,23 @@ void  PFRootEventManager::printRecHit(const reco::PFRecHit& rh,
                                       ostream& out) const {
 
   if(!out) return;
-  
   double eta = rh.position().Eta();
   double phi = rh.position().Phi();
+  double energy = rh.energy();
 
-  
+  if(energy<printRecHitsEMin_)  return;
+
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
   if( !cutg || cutg->IsInside( eta, phi ) ) 
-    out<<index<<"\t"<<seedstatus<<" "<<rh<<endl;;
+    out<<index<<"\t"<<seedstatus<<" "<<rh<<endl; 
+}
+
+void PFRootEventManager::printClusters(const reco::PFClusterCollection& clusters,
+                                       ostream& out ) const {  
+  for(unsigned i=0; i<clusters.size(); i++) {
+    printCluster(clusters[i], out);
+  }
+  return;
 }
 
 void  PFRootEventManager::printCluster(const reco::PFCluster& cluster,
@@ -3890,6 +3902,9 @@ void  PFRootEventManager::printCluster(const reco::PFCluster& cluster,
 
   double eta = cluster.position().Eta();
   double phi = cluster.position().Phi();
+  double energy = cluster.energy();
+
+  if(energy<printClustersEMin_)  return;
 
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
   if( !cutg || cutg->IsInside( eta, phi ) ) 

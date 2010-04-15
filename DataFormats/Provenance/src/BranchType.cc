@@ -225,5 +225,8 @@ namespace edm {
     std::string const& luminosityBlockTreeName() {
       return lumis;
     }
+    std::string const& runTreeName() {
+      return runs;
+    }
   }
 }

@@ -21,8 +21,9 @@ namespace evf{
       , restart_countdown_(0)
       , save_nbp_(0)
       , save_nba_(0)
-      {
-      }
+      , save_ndqm_(0)
+      , save_scalers_(0)
+      {}
     SubProcess(int ind, pid_t pid)
       : ind_(ind)
       , pid_(pid)
@@ -32,7 +33,11 @@ namespace evf{
       , restart_countdown_(0)
       , save_nbp_(0)
       , save_nba_(0)
+      , save_ndqm_(0)
+      , save_scalers_(0)
       {
+	mqm_->drain();
+	mqs_->drain();
       }
     SubProcess(const SubProcess &b)
       : ind_(b.ind_)
@@ -42,7 +47,6 @@ namespace evf{
       , mqs_(b.mqs_)
       , restart_countdown_(b.restart_countdown_)
       {
-
       }
     SubProcess &operator=(const SubProcess &b)
       {
@@ -53,8 +57,9 @@ namespace evf{
 	mqs_=b.mqs_;
 	save_nbp_ = b.save_nbp_;
 	save_nba_ = b.save_nba_;
+	save_ndqm_ = b.save_ndqm_;
+        save_scalers_ = b.save_scalers_;
 	restart_countdown_=b.restart_countdown_;
-
 	return *this;
       }
     virtual ~SubProcess()
@@ -62,10 +67,14 @@ namespace evf{
       }
     void disconnect()
       {
+	mqm_->drain();
+	mqs_->drain();
 	mqs_->disconnect();
 	mqm_->disconnect();
 	save_nbp_ = 0;
 	save_nba_ = 0;
+	save_ndqm_ = 0;
+	save_scalers_ = 0;
       }
     void setStatus(int st){
       alive_ = st;
@@ -74,6 +83,8 @@ namespace evf{
 	  //save counters after last update
 	  save_nbp_= prg_.nbp;
 	  save_nba_= prg_.nba;
+	  save_ndqm_ = prg_.dqm;
+	  save_scalers_ = prg_.trp;
 	}
     }
     int queueId(){return (mqm_.get()!=0 ? mqm_->id() : 0);}
@@ -92,6 +103,8 @@ namespace evf{
 	prg_.nba = p->nba + save_nba_;
 	prg_.Ms  = p->Ms;
 	prg_.ms  = p->ms;
+	prg_.dqm = p->dqm + save_ndqm_;
+	prg_.trp = p->trp + save_scalers_;
       }
     int post(MsgBuf &ptr, bool isMonitor)
       {
@@ -116,6 +129,8 @@ namespace evf{
       }
     int forkNew()
       {
+	mqm_->drain();
+	mqs_->drain();
 	pid_t retval = -1;
 	retval = fork();
 	if(retval>0)
@@ -145,6 +160,8 @@ namespace evf{
     static const unsigned int monitor_queue_offset_ = 200;
     int save_nbp_;
     int save_nba_;
+    unsigned int save_ndqm_;
+    unsigned int save_scalers_;
   };
 
 

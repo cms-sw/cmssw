@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,6 +32,10 @@ class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::EDProducer
   virtual ~EgammaHLTRegionalPixelSeedGeneratorProducers();
 
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
+
+  virtual void beginRun(edm::Run &run, const edm::EventSetup& es);
+  virtual void endRun(edm::Run &run, const edm::EventSetup& es);
+
 
  private:
   edm::ParameterSet conf_;

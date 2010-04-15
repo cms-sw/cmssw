@@ -30,13 +30,15 @@ SiPixelRecHitSource.isPIB = False
 # Pixel Track Monitoring
 from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_cfi import *
 SiPixelTrackResidualSource.saveFile = False
+SiPixelTrackResidualSource.TrackCandidateProducer = cms.string('newTrackCandidateMaker')
+SiPixelTrackResidualSource.trajectoryInput = cms.InputTag('generalTracks')
 from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_Cosmics_cfi import *
 SiPixelTrackResidualSource_Cosmics.saveFile = False
 SiPixelTrackResidualSource_Cosmics.TrackCandidateProducer = cms.string('ckfTrackCandidatesP5')
 SiPixelTrackResidualSource_Cosmics.trajectoryInput = cms.string('ctfWithMaterialTracksP5')
-#MC
-SiPixelTrackResidualSource.TrackCandidateProducer = cms.string('newTrackCandidateMaker')
-SiPixelTrackResidualSource.trajectoryInput = cms.InputTag('generalTracks')
+from DQM.SiPixelMonitorTrack.SiPixelMonitorEfficiency_cfi import *
+SiPixelHitEfficiencySource.saveFile = False
+SiPixelHitEfficiencySource.trajectoryInput = cms.InputTag('generalTracks') 
 
 ##online/offline
 #RawDataErrors
@@ -54,7 +56,7 @@ SiPixelDigiSource.phiOn = False
 SiPixelDigiSource.bladeOn = False
 SiPixelDigiSource.diskOn = False
 SiPixelDigiSource.ringOn = False
-SiPixelDigiSource.bigEventSize = 1000
+SiPixelDigiSource.bigEventSize = 2600
 #Cluster
 SiPixelClusterSource.modOn = True
 SiPixelClusterSource.twoDimOn = True
@@ -65,6 +67,7 @@ SiPixelClusterSource.phiOn = False
 SiPixelClusterSource.bladeOn = False
 SiPixelClusterSource.diskOn = False
 SiPixelClusterSource.ringOn = False
+SiPixelClusterSource.bigEventSize = 180
 #RecHit
 SiPixelRecHitSource.modOn = True
 SiPixelRecHitSource.twoDimOn = True
@@ -91,16 +94,24 @@ SiPixelTrackResidualSource_Cosmics.phiOn = False
 SiPixelTrackResidualSource_Cosmics.bladeOn = False
 SiPixelTrackResidualSource_Cosmics.diskOn = False
 SiPixelTrackResidualSource_Cosmics.ringOn = False
+SiPixelHitEfficiencySource.modOn = True
+SiPixelHitEfficiencySource.ladOn = False
+SiPixelHitEfficiencySource.layOn = False
+SiPixelHitEfficiencySource.phiOn = False
+SiPixelHitEfficiencySource.bladeOn = False
+SiPixelHitEfficiencySource.diskOn = False
+SiPixelHitEfficiencySource.ringOn = False
 
 #DQM service
-dqmInfo = cms.EDFilter("DQMEventInfo",
+dqmInfo = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('Pixel')
 )
 
 #FED integrity
 from DQM.SiPixelMonitorRawData.SiPixelMonitorHLT_cfi import *
+SiPixelHLTSource.DirName = cms.string('Pixel/FEDIntegrity/')
 
-siPixelP5DQM_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource + dqmInfo)
+siPixelP5DQM_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource + SiPixelHitEfficiencySource + dqmInfo)
 
 siPixelP5DQM_cosmics_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource_Cosmics + dqmInfo)
 

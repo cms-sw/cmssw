@@ -966,6 +966,17 @@
         <TestName activate="true">EB_Occupancy_RechitsThr_Comp2RefKolmogorov</TestName>
 </LINK>
 
+<QTEST name="EB_Occupancy_RechitsSpectrum_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.60</PARAM>
+        <PARAM name="warning">0.80</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT rec hit spectrum">
+        <TestName activate="true">EB_Occupancy_RechitsSpectrum_Comp2RefKolmogorov</TestName>
+</LINK>
+
 <QTEST name="EB_Occupancy_TP_Comp2RefKolmogorov">
         <TYPE>Comp2RefKolmogorov</TYPE>
         <PARAM name="testparam">0</PARAM>

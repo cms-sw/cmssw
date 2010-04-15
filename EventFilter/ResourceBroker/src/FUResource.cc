@@ -150,8 +150,7 @@ void FUResource::process(MemRef_t* bufRef)
       LOG4CPLUS_ERROR(log_,"EVENT LOST:"
 		      <<xcept::stdformat_exception_history(e));
       fatalError_=true;
-      bufRef->setNextReference(next); //what is this ???!?!?! - why ? - 
-      // see if removing this fixes problem with crashing RB
+      itBufRef->setNextReference(next); 
     }
     
     itBufRef=next;
@@ -321,6 +320,7 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
 	 <<" evtNumber:"<<evtNumber_
 	 <<" buResourceId:"<<buResourceId_
 	 <<" iSuperFrag:"<<iSuperFrag_;
+      removeLastAppendedBlockFromSuperFrag();
       XCEPT_RETHROW(evf::Exception,oss.str(),e);
     }
     
@@ -458,6 +458,28 @@ void FUResource::appendBlockToSuperFrag(MemRef_t* bufRef)
   else {
     superFragTail_->setNextReference(bufRef);
     superFragTail_=bufRef;
+  }
+  return;
+}
+
+//______________________________________________________________________________
+void FUResource::removeLastAppendedBlockFromSuperFrag()
+{
+  if (0==superFragHead_) {
+    //nothing to do... why did we get here then ???
+  }
+  else if(superFragHead_==superFragTail_){
+    superFragHead_ = 0; 
+    superFragTail_ = 0;
+  }
+  else{
+    MemRef_t *next = 0;
+    MemRef_t *current = superFragHead_;
+    while((next=current->getNextReference()) != superFragTail_){
+      //get to the next-to-last block
+    }
+    superFragTail_ = current;
+    current->setNextReference(0);
   }
   return;
 }

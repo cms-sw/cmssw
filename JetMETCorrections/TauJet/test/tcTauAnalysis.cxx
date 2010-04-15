@@ -50,7 +50,6 @@ void tcTauAnalysis(){
         tauTree->SetBranchAddress("PFTau_ltrackPt",&PFTau_ltrackPt);
         tauTree->SetBranchAddress("PFTau_d_isol",&PFTau_d_isol);
 
-//        tauTree->SetBranchAddress("",&);
 
 	int nMCTaus   = 0,
 	    nCaloTaus = 0,
@@ -93,10 +92,6 @@ void tcTauAnalysis(){
 			h_CaloTau_dEta->Fill(CaloTau_eta - MCTau_eta);
 			h_CaloTau_dPhi->Fill(deltaPhi(CaloTau_phi,MCTau_phi));
 			h_CaloTau_dEtRatio->Fill(CaloTau_pt/MCTau_pt);
-if(deltaPhi(CaloTau_phi,MCTau_phi) > 0.5) {
-	cout << "mctau   " << MCTau_pt << " " << MCTau_eta << " " << MCTau_phi << endl;
-	cout << "calotau " << CaloTau_pt << " " << CaloTau_eta << " " << CaloTau_phi << endl; 
-}
 		}
 		if(TCTau_pt > tau_pt_cut && fabs(TCTau_eta) < tau_eta_cut && CaloTau_d_isol != 0) {
 			nTCTaus++;
@@ -129,8 +124,8 @@ if(deltaPhi(CaloTau_phi,MCTau_phi) > 0.5) {
 	cout << " Isolated PFTaus   " << nPFTaus << endl;
 	cout << endl;
 
-	TH1F* h_tcTauEff = (TH1F*) (inFile->Get("h_tcTauEff"));
-	cout << " TCTau algorithm efficiency " << h_tcTauEff->GetBinContent(3) << endl;
+	//TH1F* h_tcTauEff = (TH1F*) (inFile->Get("h_tcTauEff"));
+	//cout << " TCTau algorithm efficiency " << h_tcTauEff->GetBinContent(3) << endl;
 
         cout << endl;
         cout << " Fraction of jets in abs(dEt) < 0.1, reco::CaloTau                  " << double(nCaloTausIn01Counter)/nCaloTaus << endl;

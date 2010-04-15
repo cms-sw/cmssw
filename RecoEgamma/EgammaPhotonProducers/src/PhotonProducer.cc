@@ -32,11 +32,10 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 
   // use onfiguration file to setup input/output collection names
 
-  photonCoreProducer_   = conf_.getParameter<std::string>("photonCoreProducer");
+  photonCoreProducer_   = conf_.getParameter<edm::InputTag>("photonCoreProducer");
   barrelEcalHits_   = conf_.getParameter<edm::InputTag>("barrelEcalHits");
   endcapEcalHits_   = conf_.getParameter<edm::InputTag>("endcapEcalHits");
   vertexProducer_   = conf_.getParameter<std::string>("primaryVertexProducer");
-  PhotonCoreCollection_ = conf_.getParameter<std::string>("photonCollection");
   hcalTowers_ = conf_.getParameter<edm::InputTag>("hcalTowers");
   hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
   highEt_        = conf_.getParameter<double>("highEt");
@@ -175,7 +174,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   if ( usePrimaryVertex_ ) {
     theEvent.getByLabel(vertexProducer_, vertexHandle);
     if (!vertexHandle.isValid()) {
-      edm::LogError("PhotonProducer") << "Error! Can't get the product primary Vertex Collection "<< "\n";
+      edm::LogWarning("PhotonProducer") << "Error! Can't get the product primary Vertex Collection "<< "\n";
       validVertex=false;
     }
     if (validVertex) vertexCollection = *(vertexHandle.product());

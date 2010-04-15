@@ -4,7 +4,7 @@ from RecoParticleFlow.PFTracking.convBremSeeds_cfi import *
 
 
 ##CLUSTERS
-gsClusters = cms.EDFilter("TrackClusterRemover",
+gsClusters = cms.EDProducer("TrackClusterRemover",
     oldClusterRemovalInfo = cms.InputTag("fourthClusters"),
     trajectories = cms.InputTag("fourthWithMaterialTracks"),
     pixelClusters = cms.InputTag("fourthClusters"),

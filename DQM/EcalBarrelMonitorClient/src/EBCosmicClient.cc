@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2009/10/28 08:18:21 $
- * $Revision: 1.121 $
+ * $Date: 2010/01/25 21:12:24 $
+ * $Revision: 1.122 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -28,11 +29,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBCosmicClient::EBCosmicClient(const ParameterSet& ps) {
+EBCosmicClient::EBCosmicClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -44,7 +41,7 @@ EBCosmicClient::EBCosmicClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -52,7 +49,7 @@ EBCosmicClient::EBCosmicClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -76,9 +73,9 @@ EBCosmicClient::~EBCosmicClient() {
 
 void EBCosmicClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EBCosmicClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EBCosmicClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -87,7 +84,7 @@ void EBCosmicClient::beginJob(void) {
 
 void EBCosmicClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EBCosmicClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EBCosmicClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -97,7 +94,7 @@ void EBCosmicClient::beginRun(void) {
 
 void EBCosmicClient::endJob(void) {
 
-  if ( debug_ ) cout << "EBCosmicClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EBCosmicClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -105,7 +102,7 @@ void EBCosmicClient::endJob(void) {
 
 void EBCosmicClient::endRun(void) {
 
-  if ( debug_ ) cout << "EBCosmicClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EBCosmicClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -156,7 +153,7 @@ void EBCosmicClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EBCosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EBCosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   char histo[200];

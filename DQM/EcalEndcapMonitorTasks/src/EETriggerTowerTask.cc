@@ -1,12 +1,14 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.62 $
+ * $Date: 2010/03/28 17:41:13 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
 */
+
+#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,22 +21,21 @@
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalEndcapMonitorTasks/interface/EETriggerTowerTask.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+#include <iostream>
 
 const int EETriggerTowerTask::nTTEta = 20;
 const int EETriggerTowerTask::nTTPhi = 20;
 const int EETriggerTowerTask::nSM = 18;
 
-EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
+EETriggerTowerTask::EETriggerTowerTask(const edm::ParameterSet& ps) {
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
@@ -67,15 +68,15 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
   reserveArray(meEmulMatch_);
   reserveArray(meVetoEmulError_);
 
-  realCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionReal");
-  emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
-  EEDigiCollection_ = ps.getParameter<InputTag>("EEDigiCollection");
-  HLTResultsCollection_ = ps.getParameter<InputTag>("HLTResultsCollection");
+  realCollection_ =  ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollectionReal");
+  emulCollection_ =  ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollectionEmul");
+  EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
+  HLTResultsCollection_ = ps.getParameter<edm::InputTag>("HLTResultsCollection");
 
   HLTCaloHLTBit_ = ps.getUntrackedParameter<std::string>("HLTCaloHLTBit", "");
   HLTMuonHLTBit_ = ps.getUntrackedParameter<std::string>("HLTMuonHLTBit", "");
 
-  outputFile_ = ps.getUntrackedParameter<string>("OutputRootFile", "");
+  outputFile_ = ps.getUntrackedParameter<std::string>("OutputRootFile", "");
 
   LogDebug("EETriggerTowerTask") << "REAL     digis: " << realCollection_;
   LogDebug("EETriggerTowerTask") << "EMULATED digis: " << emulCollection_;
@@ -104,7 +105,7 @@ void EETriggerTowerTask::beginJob(void){
 
 }
 
-void EETriggerTowerTask::beginRun(const Run& r, const EventSetup& c) {
+void EETriggerTowerTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -112,7 +113,7 @@ void EETriggerTowerTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EETriggerTowerTask::endRun(const Run& r, const EventSetup& c) {
+void EETriggerTowerTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -156,7 +157,7 @@ void EETriggerTowerTask::setup(void){
            (prefixME_ + "/EETriggerTowerTask/Emulated").c_str(), true);
   }
   else {
-    LogError("EETriggerTowerTask") << "Bad DQMStore, cannot book MonitorElements.";
+    edm::LogError("EETriggerTowerTask") << "Bad DQMStore, cannot book MonitorElements.";
   }
 }
 
@@ -333,19 +334,19 @@ void EETriggerTowerTask::cleanup(void) {
 
 void EETriggerTowerTask::endJob(void){
 
-  LogInfo("EETriggerTowerTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EETriggerTowerTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
+void EETriggerTowerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  Handle<EcalTrigPrimDigiCollection> realDigis;
+  edm::Handle<EcalTrigPrimDigiCollection> realDigis;
 
   if ( e.getByLabel(realCollection_, realDigis) ) {
 
@@ -358,21 +359,21 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meVetoReal_);
 
   } else {
-    LogWarning("EETriggerTowerTask") << realCollection_ << " not available";
+    edm::LogWarning("EETriggerTowerTask") << realCollection_ << " not available";
   }
 
-  Handle<EcalTrigPrimDigiCollection> emulDigis;
+  edm::Handle<EcalTrigPrimDigiCollection> emulDigis;
 
   if ( e.getByLabel(emulCollection_, emulDigis) ) {
 
-    Handle<TriggerResults> hltResults;
+    edm::Handle<edm::TriggerResults> hltResults;
 
     if ( !e.getByLabel(HLTResultsCollection_, hltResults) ) {
-      HLTResultsCollection_ = InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "HLT");
+      HLTResultsCollection_ = edm::InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "HLT");
     }
 
     if ( !e.getByLabel(HLTResultsCollection_, hltResults) ) {
-      HLTResultsCollection_ = InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "FU");
+      HLTResultsCollection_ = edm::InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "FU");
     }
 
     if ( e.getByLabel(HLTResultsCollection_, hltResults) ) {
@@ -385,21 +386,21 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                     hltResults);
 
     } else {
-      LogWarning("EETriggerTowerTask") << HLTResultsCollection_ << " not available";
+      edm::LogWarning("EETriggerTowerTask") << HLTResultsCollection_ << " not available";
     }
 
   } else {
-    LogWarning("EETriggerTowerTask") << emulCollection_ << " not available";
+    edm::LogWarning("EETriggerTowerTask") << emulCollection_ << " not available";
   }
 
 }
 
 void
-EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiCollection>& digis,
+EETriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTrigPrimDigiCollection>& digis,
                                   array1& meEtMap,
                                   array1& meVeto,
-                                  const Handle<EcalTrigPrimDigiCollection>& compDigis,
-                                  const Handle<TriggerResults> & hltResults ) {
+                                  const edm::Handle<EcalTrigPrimDigiCollection>& compDigis,
+                                  const edm::Handle<edm::TriggerResults> & hltResults ) {
 
   int bx = e.bunchCrossing();
   int nTP[2];
@@ -411,12 +412,9 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     for (int itt = 0; itt < 41; itt++) readoutCrystalsInTower[itcc][itt] = 0;
   }
 
-  bool validCompDigis = false;
-  if ( compDigis.isValid() ) validCompDigis = true;
+  if ( compDigis.isValid() ) {
 
-  if ( validCompDigis ) {
-
-    Handle<EEDigiCollection> crystalDigis;
+    edm::Handle<EEDigiCollection> crystalDigis;
 
     if ( e.getByLabel(EEDigiCollection_, crystalDigis) ) {
 
@@ -435,7 +433,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       }
 
     } else {
-      LogWarning("EETriggerTowerTask") << EEDigiCollection_ << " not available";
+      edm::LogWarning("EETriggerTowerTask") << EEDigiCollection_ << " not available";
     }
 
   }
@@ -448,8 +446,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     int ntrigs = hltResults->size();
     if ( ntrigs!=0 ) {
 
-      TriggerNames triggerNames;
-      triggerNames.init( *hltResults );
+      const edm::TriggerNames & triggerNames = e.triggerNames(*hltResults);
 
       for ( int itrig = 0; itrig != ntrigs; ++itrig ) {
         std::string trigName = triggerNames.triggerName(itrig);
@@ -462,7 +459,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       }
 
     } else {
-      LogWarning("EBTriggerTowerTask") << " zero size trigger names in input TriggerResults";
+      edm::LogWarning("EBTriggerTowerTask") << " zero size trigger names in input TriggerResults";
     }
 
   }
@@ -475,25 +472,27 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     int itt = Numbers::iTT( tpdigiItr->id() );
     int itcc = Numbers::iTCC( tpdigiItr->id() );
 
+    std::vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
+
     float xvalEt = tpdigiItr->compressedEt();
     float xvalVeto = 0.5 + tpdigiItr->fineGrain();
 
     bool good = true;
     bool goodVeto = true;
-    bool matchSample[6];
-    for (int j=0; j<6; j++) matchSample[j] = false;
-    bool matchedAny=false;
 
-    int compDigiEt = -1;
     int compDigiInterest = -1;
 
-    if ( validCompDigis ) {
+    bool matchSample[6];
+    for (int j=0; j<6; j++) matchSample[j]=false;
+
+    if ( compDigis.isValid() ) {
 
       if ( ismt >= 1 && ismt <= 9 ) {
         if ( meEtSpectrumEmul_[0] ) meEtSpectrumEmul_[0]->Fill( xvalEt );
       } else {
         if ( meEtSpectrumEmul_[1] ) meEtSpectrumEmul_[1]->Fill( xvalEt );
       }
+
       float maxEt = 0;
       int maxTPIndex = -1;
       for (int j=0; j<5; j++) {
@@ -503,6 +502,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
           maxTPIndex = j+1;
         }
       }
+
       if ( ismt >= 1 && ismt <= 9 ) {
         if ( meEtSpectrumEmulMax_[0] ) meEtSpectrumEmulMax_[0]->Fill( maxEt );
         if ( meEmulMatchMaxIndex1D_[0] && maxEt > 0 ) meEmulMatchMaxIndex1D_[0]->Fill( maxTPIndex );
@@ -513,57 +513,116 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
       EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( tpdigiItr->id().rawId() );
       if ( compDigiItr != compDigis->end() ) {
-        //        LogDebug("EETriggerTowerTask") << "found corresponding digi! "<< *compDigiItr;
-        compDigiEt = compDigiItr->compressedEt();
+        int compDigiEt = compDigiItr->compressedEt();
         compDigiInterest = (compDigiItr->ttFlag() & 0x3);
+
         if ( ismt >= 1 && ismt <= 9 ) {
-
+          if ( compDigiEt > 0 ) nTP[0]++;
           if ( meEtSpectrumReal_[0] ) meEtSpectrumReal_[0]->Fill( compDigiEt );
-
-          if ( meEtBxReal_[0] && compDigiItr->compressedEt() > 0 ) meEtBxReal_[0]->Fill( bx, compDigiItr->compressedEt() );
-
-          if ( compDigiItr->compressedEt() > 0 ) nTP[0]++;
-
+          if ( meEtBxReal_[0] && compDigiEt > 0 ) meEtBxReal_[0]->Fill( bx, compDigiEt );
         } else {
-
+          if ( compDigiEt > 0 ) nTP[1]++;
           if ( meEtSpectrumReal_[1] ) meEtSpectrumReal_[1]->Fill( compDigiEt );
-
-          if ( meEtBxReal_[1] && compDigiItr->compressedEt() > 0 ) meEtBxReal_[1]->Fill( bx, compDigiItr->compressedEt() );
-
-          if ( compDigiItr->compressedEt() > 0 ) nTP[1]++;
-
-        }
-        if ( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
-          //          LogDebug("EETriggerTowerTask") << "but it is different...";
-          good = false;
+          if ( meEtBxReal_[1] && compDigiEt > 0 ) meEtBxReal_[1]->Fill( bx, compDigiEt );
         }
 
         // compare the 5 TPs with different time-windows
         // sample 0 means no match, 1-5: sample of the TP that matches
+        matchSample[0]=false;
+        bool matchedAny=false;
+
         for (int j=0; j<5; j++) {
-          if ((*tpdigiItr)[j].compressedEt() == compDigiItr->compressedEt() ) {
+          if ((*tpdigiItr)[j].compressedEt() == compDigiEt ) {
             matchSample[j+1]=true;
             matchedAny=true;
+          } else {
+            matchSample[j+1]=false;
           }
         }
+
         if (!matchedAny) matchSample[0]=true;
-        if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
-          //          LogDebug("EETriggerTowerTask") << "but fine grain veto is different...";
-          goodVeto = false;
-        }
+
+        // check if the tower has been readout completely and if it is medium or high interest
+        if (readoutCrystalsInTower[itcc-1][itt-1] == int(crystals->size()) &&
+            (compDigiInterest == 1 || compDigiInterest == 3) && compDigiEt > 0) {
+
+          if ( tpdigiItr->compressedEt() != compDigiEt ) {
+            good = false;
+          }
+          if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
+            goodVeto = false;
+          }
+
+          for (int j=0; j<6; j++) {
+            if (matchSample[j]) {
+
+              int index = ( j==0 ) ? -1 : j;
+
+              if ( ismt >= 1 && ismt <= 9 ) {
+                meEmulMatchIndex1D_[0]->Fill(index+0.5);
+              } else {
+                meEmulMatchIndex1D_[1]->Fill(index+0.5);
+              }
+
+              for ( unsigned int i=0; i<crystals->size(); i++ ) {
+
+                EEDetId id = (*crystals)[i];
+
+                int ix = id.ix();
+                int iy = id.iy();
+
+                if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+
+                float xix = ix-0.5;
+                float xiy = iy-0.5;
+
+                meEmulMatch_[ismt-1]->Fill(xix, xiy, j+0.5);
+                if ( ismt >= 1 && ismt <= 9 ) {
+                  if ( meTCCTimingCalo_[0] && caloTrg ) meTCCTimingCalo_[0]->Fill( itcc, index+0.5 );
+                  if ( meTCCTimingMuon_[0] && muonTrg ) meTCCTimingMuon_[0]->Fill( itcc, index+0.5 );
+                } else {
+                  if ( meTCCTimingCalo_[1] && caloTrg ) meTCCTimingCalo_[1]->Fill( itcc, index+0.5 );
+                  if ( meTCCTimingMuon_[1] && muonTrg ) meTCCTimingMuon_[1]->Fill( itcc, index+0.5 );
+                }
+
+              } // loop on crystals
+
+            }
+          }
+
+        } // check readout
+
       } else {
         good = false;
         goodVeto = false;
       }
-    }
 
-    vector<DetId> crystals = Numbers::crystals( tpdigiItr->id() );
+      for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
-    int crystalsInTower = crystals.size();
+        EEDetId id = (*crystals)[i];
 
-    for ( unsigned int i=0; i<crystals.size(); i++ ) {
+        int ix = id.ix();
+        int iy = id.iy();
 
-      EEDetId id = crystals[i];
+        if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+
+        float xix = ix-0.5;
+        float xiy = iy-0.5;
+
+        if (!good ) {
+          if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xix, xiy);
+        }
+        if (!goodVeto) {
+          if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xix, xiy);
+        }
+
+      } // loop on crystals
+
+    } // compDigis.isValid
+
+    for ( unsigned int i=0; i<crystals->size(); i++ ) {
+
+      EEDetId id = (*crystals)[i];
 
       int ix = id.ix();
       int iy = id.iy();
@@ -574,52 +633,11 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       float xiy = iy-0.5;
 
       if ( meEtMap[ismt-1] ) meEtMap[ismt-1]->Fill(xix, xiy, xvalEt);
-
       if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xix, xiy, xvalVeto);
 
-      if ( validCompDigis ) {
+    } // loop on crystals
 
-        //        if (readoutCrystalsInTower[itcc-1][itt-1]==crystalsInTower && compDigiEt > 0) {
-        if (readoutCrystalsInTower[itcc-1][itt-1]==crystalsInTower &&
-            (compDigiInterest == 1 || compDigiInterest == 3) ) {
-          
-          for (int j=0; j<6; j++) {
-            if (matchSample[j]) {
-
-              meEmulMatch_[ismt-1]->Fill(xix, xiy, j+0.5);
-
-              int index = ( j==0 ) ? -1 : j;
-
-              if ( ismt >= 1 && ismt <= 9 ) {
-                if ( meTCCTimingCalo_[0] && caloTrg ) meTCCTimingCalo_[0]->Fill( itcc, index+0.5 );
-
-                if ( meTCCTimingMuon_[0] && muonTrg ) meTCCTimingMuon_[0]->Fill( itcc, index+0.5 );
-
-                meEmulMatchIndex1D_[0]->Fill(index+0.5);
-              } else {
-                if ( meTCCTimingCalo_[1] && caloTrg ) meTCCTimingCalo_[1]->Fill( itcc, index+0.5 );
-
-                if ( meTCCTimingMuon_[1] && muonTrg ) meTCCTimingMuon_[1]->Fill( itcc, index+0.5 );
-
-                meEmulMatchIndex1D_[1]->Fill(index+0.5);
-              }
-
-            }
-          }
-
-          if (!good ) {
-            if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xix, xiy);
-          }
-          if (!goodVeto) {
-            if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xix, xiy);
-          }
-          
-        }
-
-      }
-
-    } // loop over crystalsInTower
-  } // loop over TPs
+  } // loop on TP
 
   if ( meOccupancyBxReal_[0] ) meOccupancyBxReal_[0]->Fill( bx, nTP[0] );
   if ( meOccupancyBxReal_[1] ) meOccupancyBxReal_[1]->Fill( bx, nTP[1] );

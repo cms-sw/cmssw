@@ -149,18 +149,18 @@ void HcalDataFormatClient::analyze(void){
 	  val = HalfHTRDataCorruptionIndicators_->GetBinContent(fed3offset+xbin,
 								spg3offset+ybin);
 	  if (val) {
-	    if ((xbin==3) && (ybin==3)) { //the LW bin for the spigots
-	      if (val>8) { //Special leniency for this bit
-		HalfHTRDataCorruptionIndicators_->SetBinContent(fed3offset+xbin,
-								spg3offset+ybin,
-								(float)val-8.0 );
-	      } else {
-		HalfHTRDataCorruptionIndicators_->SetBinContent(fed3offset+xbin,
-								spg3offset+ybin,
-								0.0);
-	      }
-	    }
-	    else 
+	    //\\if ((xbin==3) && (ybin==3)) { //the LW bin for the spigots Removed 2010.02.16 jmsj
+	    //\\  if (val>8) { //Special leniency for this bit
+	    //\\	HalfHTRDataCorruptionIndicators_->SetBinContent(fed3offset+xbin,
+	    //\\							spg3offset+ybin,
+	    //\\							(float)val-8.0 );
+	    //\\  } else {
+	    //\\	HalfHTRDataCorruptionIndicators_->SetBinContent(fed3offset+xbin,
+	    //\\							spg3offset+ybin,
+	    //\\							0.0);
+	    //\\  }
+	    //\\}
+	    //\\else 
 	      HalfHTRDataCorruptionIndicators_->SetBinContent(fed3offset+xbin,
 							      spg3offset+ybin,
 							      (float)val );

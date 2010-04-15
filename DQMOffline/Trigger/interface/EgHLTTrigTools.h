@@ -6,6 +6,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+class HLTConfigProvider;
+
 namespace egHLT {
   
   namespace trigTools {
@@ -14,14 +16,14 @@ namespace egHLT {
     int getMinNrObjsRequiredByFilter(const std::string& filterName); //slow function, call at begin job and cache results
 
     //reads hlt config and works out which are the active last filters stored in trigger summary, is sorted
-    void getActiveFilters(std::vector<std::string>& activeFilters,const std::string& hltTag);
+    void getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<std::string>& activeFilters);
     //filters a list of filternames removing any filters which are not in active filters, assumes active filters is sorted
     void filterInactiveTriggers(std::vector<std::string>& namesToFilter,const std::vector<std::string>& activeFilters);
     //filters a list of filterName1:filterName2 removing any entry for which either filter is not in activeFilters, assumes active filters is sorted
     void filterInactiveTightLooseTriggers(std::vector<std::string>& namesToFilter,const std::vector<std::string>& activeFilters);
 
-    void translateFiltersToPathNames(const std::vector<std::string>& filters,std::vector<std::string>& paths,const std::string& hltTag);
-    std::string getL1SeedFilterOfPath(const std::string& path,const std::string& hltTag);
+    void translateFiltersToPathNames(const HLTConfigProvider& hltConfig,const std::vector<std::string>& filters,std::vector<std::string>& paths);
+    std::string getL1SeedFilterOfPath(const HLTConfigProvider& hltConfig,const std::string& path);
 
     //looks for string Et and then looks for a number after that (currently the standard of all E/g triggers)
     //returns 0 if unsuccessful

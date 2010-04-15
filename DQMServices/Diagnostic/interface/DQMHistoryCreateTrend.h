@@ -8,8 +8,6 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 
-using namespace std;
-
 /**
  * Simple functor used to create trends.
  */
@@ -22,7 +20,7 @@ class DQMHistoryCreateTrend
    * This is because we do not want to mix them for some misconfiguration.
    */
   void operator()(const DQMHistoryTrendsConfig & trend);
-  inline void setDB(string dbName, string dbTag, string dbUser="", string dbPassword="", string dbBlob="") {
+  inline void setDB(std::string dbName, std::string dbTag, std::string dbUser="", std::string dbPassword="", std::string dbBlob="") {
     inspector_->setDB(dbName, dbTag, dbUser, dbPassword, dbBlob);
   }
   inline void setDebug(const int i) {
@@ -31,10 +29,10 @@ class DQMHistoryCreateTrend
   inline void setDoStat(const int i) {
     inspector_->setDoStat(i);
   }
-  inline void setBlackList(const string & listItems) {
+  inline void setBlackList(const std::string & listItems) {
     inspector_->setBlackList(listItems);
   }
-  inline void setWhiteList(const string & listItems) {
+  inline void setWhiteList(const std::string & listItems) {
     inspector_->setWhiteList(listItems);
   }
   inline void closeFile() {

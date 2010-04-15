@@ -13,7 +13,7 @@
 //
 // Original Author:  Mike Case
 //         Created:  Fri Jan 16 01:45:49 CET 2009
-// $Id: XMLIdealGeometryESProducer.cc,v 1.9 2010/01/26 21:49:28 case Exp $
+// $Id: XMLIdealGeometryESProducer.cc,v 1.8.2.2 2010/02/03 21:53:00 case Exp $
 //
 //
 
@@ -27,7 +27,6 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
@@ -63,6 +62,14 @@ private:
   // ----------member data ---------------------------
   std::string rootDDName_; // this must be the form namespace:name
   std::string label_;
+    // 2009-07-09 memory patch
+    // for copying and protecting DD Store's after parsing is complete.
+    DDI::Store<DDName, DDI::Material*> matStore_;
+    DDI::Store<DDName, DDI::Solid*> solidStore_;
+    DDI::Store<DDName, DDI::LogicalPart*> lpStore_;
+    DDI::Store<DDName, DDI::Specific*> specStore_;
+    DDI::Store<DDName, DDRotationMatrix*> rotStore_;    
+
 };
 
 //
@@ -78,7 +85,7 @@ private:
 //
 XMLIdealGeometryESProducer::XMLIdealGeometryESProducer(const edm::ParameterSet& iConfig)
   :   rootDDName_(iConfig.getParameter<std::string>("rootDDName")),
-      label_(iConfig.getUntrackedParameter<std::string>("label","GeometryExtended"))
+      label_(iConfig.getParameter<std::string>("label"))
 {
    //the following line is needed to tell the framework what
    // data is being produced
@@ -106,17 +113,35 @@ XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord)
 {
    using namespace edm::es;
 
-   edm::ESTransientHandle<GeometryFile> gdd;
+   edm::ESHandle<GeometryFile> gdd;
    iRecord.getRecord<GeometryFileRcd>().get( label_, gdd );
+//    if ( gdd.isValid() ) {
+//      std::cout << "gdd.isValid()" << std::endl; 
+//      if (gdd.product() != 0) {
+//        std::cout << "object address is not zero" << std::endl;
+//      } else {
+//        std::cout << "object address is zero" << std::endl;
+//      }
+//    } else {
+//      std::cout << "gdd is NOT valid" << std::endl;
+//    }
+   DDCompactView cpv;
+   DDLParser parser(cpv); //* parser = DDLParser::instance();
+   parser.getDDLSAX2FileHandler()->setUserNS(true);
+   // 2009-07-09 memory patch
+   parser.clearFiles();
+
+   // unlock the memory stores
+   DDMaterial::StoreT::instance().setReadOnly(false);
+   DDSolid::StoreT::instance().setReadOnly(false);
+   DDLogicalPart::StoreT::instance().setReadOnly(false);
+   DDSpecifics::StoreT::instance().setReadOnly(false);
+   DDRotation::StoreT::instance().setReadOnly(false);
 
    DDName ddName(rootDDName_);
    DDLogicalPart rootNode(ddName);
    DDRootDef::instance().set(rootNode);
-   ReturnType returnValue(new DDCompactView(rootNode));
-   DDLParser parser(*returnValue);
-   parser.getDDLSAX2FileHandler()->setUserNS(true);
-   parser.clearFiles();
-   
+      
    std::vector<unsigned char>* tb = (*gdd).getUncompressedBlob();
    
    parser.parse(*tb, tb->size()); 
@@ -124,8 +149,30 @@ XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord)
    delete tb;
    
    std::cout << "In XMLIdealGeometryESProducer::produce" << std::endl;
-   returnValue->lockdown();
+  // at this point we should have a valid store of DDObjects and we will move these
+  // to the local storage area using swaps with the existing Singleton<Store...>'s
+  // NOTE TO SELF:  this is similar to the below explicit copy of the graph of the
+  // DDCompactView at this point with this XMLIdealGeometryESSource so as not to
+  // share the Store's anymore.
+  // 2009-07-09 memory patch
+   DDMaterial::StoreT::instance().swap(matStore_);
+   DDSolid::StoreT::instance().swap(solidStore_);
+   DDLogicalPart::StoreT::instance().swap(lpStore_);
+   DDSpecifics::StoreT::instance().swap(specStore_);
+   DDRotation::StoreT::instance().swap(rotStore_);
 
+   DDMaterial::StoreT::instance().setReadOnly(true);
+   DDSolid::StoreT::instance().setReadOnly(true);
+   DDLogicalPart::StoreT::instance().setReadOnly(true);
+   DDSpecifics::StoreT::instance().setReadOnly(true);
+   DDRotation::StoreT::instance().setReadOnly(true);
+
+   std::auto_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
+
+   //copy the graph from the global one
+   //   DDCompactView globalOne;
+   returnValue->swap(cpv);//globalOne);
+   
    return returnValue ;
 }
 

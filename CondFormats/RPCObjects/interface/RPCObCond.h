@@ -1,11 +1,3 @@
-/*
- * Payload definition(s): Current (RPCObImon), High Voltage (RPCObVmon), Chamber Status (RPCObStatus) 
- *
- *  $Date: 2009/11/10 12:20:23 $
- *  $Revision: 1.17 $
- *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
- */
-
 #ifndef RPCObCond_h
 #define RPCObCond_h
 #include <vector>

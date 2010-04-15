@@ -24,19 +24,7 @@ namespace evf{
 	  XCEPT_RAISE(evf::Exception, "failed to get message queue");
 	}
 	// it may be necessary to drain the queue here if it already exists !!! 
-	status();
-	if(occup_>0)
-	  std::cout << "message queue contains " << occup_ << "leftover messages, going to drain " 
-		    << std::endl;
-	//drain the queue before using it
-	MsgBuf msg;
-	while(occup_>0)
-	  {
-	    msgrcv(queue_id_, msg.ptr_, msg.msize()+1, 0, 0);
-	    status();
-	    std::cout << "drained one message, occupancy now " << occup_ << std::endl;
-	  }
-	    
+	drain();
       }
     ~MasterQueue()
       {
@@ -96,6 +84,20 @@ namespace evf{
 	return status_;
       }
     int occupancy()const{return occup_;}
+    void drain(){
+      status();
+      if(occup_>0)
+	std::cout << "message queue contains " << occup_ << "leftover messages, going to drain " 
+		  << std::endl;
+      //drain the queue before using it
+      MsgBuf msg;
+      while(occup_>0)
+	{
+	  msgrcv(queue_id_, msg.ptr_, msg.msize()+1, 0, 0);
+	  status();
+	  std::cout << "drained one message, occupancy now " << occup_ << std::endl;
+	}
+    }
     pid_t pidOfLastSend()const{return pidOfLastSend_;}
     pid_t pidOfLastReceive()const{return pidOfLastReceive_;}
   private:

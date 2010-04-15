@@ -5,9 +5,9 @@
 #include "Validation/RecoParticleFlow/plugins/PFMETFilter.h"
 #include "Validation/RecoParticleFlow/plugins/PFJetFilter.h"
 
-DEFINE_SEAL_MODULE();
 
-DEFINE_ANOTHER_FWK_MODULE (PFTester) ;
-DEFINE_ANOTHER_FWK_MODULE (GenericBenchmarkAnalyzer) ;
-DEFINE_ANOTHER_FWK_MODULE (PFJetFilter) ;
-DEFINE_ANOTHER_FWK_MODULE (PFMETFilter) ;
+
+DEFINE_FWK_MODULE (PFTester) ;
+DEFINE_FWK_MODULE (GenericBenchmarkAnalyzer) ;
+DEFINE_FWK_MODULE (PFJetFilter) ;
+DEFINE_FWK_MODULE (PFMETFilter) ;

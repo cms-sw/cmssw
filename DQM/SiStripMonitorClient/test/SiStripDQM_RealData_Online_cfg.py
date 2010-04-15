@@ -100,7 +100,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #--------------------------
 # Quality Test
 #--------------------------
-process.qTester = cms.EDFilter("QualityTester",
+process.qTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config.xml'),
     prescaleFactor = cms.untracked.int32(1),                               
     getQualityTestsFromFile = cms.untracked.bool(True)
@@ -112,7 +112,7 @@ process.load("DQM.Integration.test.environment_playback_cfi")
 process.dqmEnv.subSystemFolder    = "SiStrip"
 process.dqmSaver.saveByMinute     = 120
 process.dqmSaver.dirName  = cms.untracked.string(".")
-process.dqmEnvTr = cms.EDFilter("DQMEventInfo",
+process.dqmEnvTr = cms.EDAnalyzer("DQMEventInfo",
                        subSystemFolder = cms.untracked.string('Tracking'),
                        eventRateWindow = cms.untracked.double(0.5),
                        eventInfoFolder = cms.untracked.string('EventInfo')

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-particleFlowRecHitECAL = cms.EDFilter("PFRecHitProducerECAL",
+particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducerECAL",
     # is navigation able to cross the barrel-endcap border?
     crossBarrelEndcapBorder = cms.bool(False),
     # verbosity 
@@ -10,7 +10,10 @@ particleFlowRecHitECAL = cms.EDFilter("PFRecHitProducerECAL",
     # cell threshold in ECAL barrel 
     thresh_Barrel = cms.double(0.08),
     # cell threshold in ECAL endcap 
-    thresh_Endcap = cms.double(0.3)
+    thresh_Endcap = cms.double(0.3),
+    # Cleaning with timing
+    timing_Cleaning = cms.bool(True),
+    thresh_Cleaning = cms.double(2.0)
 )
 
 

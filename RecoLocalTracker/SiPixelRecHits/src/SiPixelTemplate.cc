@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.cc  Version 8.12 
+//  SiPixelTemplate.cc  Version 7.00 
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -42,20 +42,8 @@
 //
 //
 //  V7.00 - Decouple BPix and FPix information into separate templates
-//  Add methods to facilitate improved cluster splitting
-//  Fix small charge scaling bug (affects FPix only)
-//  Change y-slice used for the x-template to be closer to the actual cotalpha-cotbeta point 
-//  (there is some weak breakdown of x-y factorization in the FPix after irradiation)
 //
 //
-//  V8.00 - Add method to calculate a simple 2D template
-//  Reorganize the interpolate method to extract header info only once per ID
-//  V8.01 - Improve simple template normalization
-//  V8.05 - Change qbin normalization to work better after irradiation
-//  V8.10 - Add Vavilov distribution interpolation
-//  V8.11 - Renormalize the x-templates for Guofan's cluster size calculation
-//  V8.12 - Technical fix to qavg issue.
-
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
 //
@@ -71,23 +59,19 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
-#include <list>
-
 
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/SimplePixel.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#define LOGERROR(x) LogError(x)
-#define LOGINFO(x) LogInfo(x)
+#define LOGERROR(x) edm::LogError(x)
+#define LOGINFO(x) edm::LogInfo(x)
 #define ENDL " "
 #include "FWCore/Utilities/interface/Exception.h"
-using namespace edm;
+//using namespace edm;
 #else
 #include "SiPixelTemplate.h"
-#include "SimplePixel.h"
 #define LOGERROR(x) std::cout << x << ": "
 #define LOGINFO(x) std::cout << x << ": "
 #define ENDL std::endl
@@ -105,7 +89,6 @@ bool SiPixelTemplate::pushfile(int filenum)
     
     // Local variables 
     int i, j, k, l;
-	float qavg_avg;
 	const char *tempfile;
 	//	char title[80]; remove this
     char c;
@@ -154,7 +137,7 @@ bool SiPixelTemplate::pushfile(int filenum)
 		
 		in_file >> theCurrentTemp.head.ID  >> theCurrentTemp.head.templ_version >> theCurrentTemp.head.Bfield >> theCurrentTemp.head.NTy >> theCurrentTemp.head.NTyx >> theCurrentTemp.head.NTxx
 		>> theCurrentTemp.head.Dtype >> theCurrentTemp.head.Vbias >> theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.qscale
-		>> theCurrentTemp.head.s50 >> theCurrentTemp.head.lorywidth >> theCurrentTemp.head.lorxwidth >> theCurrentTemp.head.ysize >> theCurrentTemp.head.xsize >> theCurrentTemp.head.zsize;
+		>> theCurrentTemp.head.s50 >> theCurrentTemp.head.lorywidth >> theCurrentTemp.head.lorxwidth >> theCurrentTemp.head.xsize >> theCurrentTemp.head.ysize >> theCurrentTemp.head.zsize;
 		
 		if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
 		
@@ -221,14 +204,12 @@ bool SiPixelTemplate::pushfile(int filenum)
 				
 			}
 			
-			qavg_avg = 0.;
 			for (j=0; j<9; ++j) {
 				
-				for (k=0; k<TXSIZE; ++k) {in_file >> theCurrentTemp.enty[i].xtemp[j][k]; qavg_avg += theCurrentTemp.enty[i].xtemp[j][k];} 
+				for (k=0; k<TXSIZE; ++k) {in_file >> theCurrentTemp.enty[i].xtemp[j][k];} 
 				
 				if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 7, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
 			}
-			theCurrentTemp.enty[i].qavg_avg = qavg_avg/9.;
 			
 			for (j=0; j<4; ++j) {
 				
@@ -296,11 +277,11 @@ bool SiPixelTemplate::pushfile(int filenum)
 			} 
 			
 			in_file >> theCurrentTemp.enty[i].chi2yavgone >> theCurrentTemp.enty[i].chi2yminone >> theCurrentTemp.enty[i].chi2xavgone >> theCurrentTemp.enty[i].chi2xminone >> theCurrentTemp.enty[i].qmin2
-			>> theCurrentTemp.enty[i].mpvvav >> theCurrentTemp.enty[i].sigmavav >> theCurrentTemp.enty[i].kappavav >> theCurrentTemp.enty[i].qavg_spare >> theCurrentTemp.enty[i].spare[0];
+			>> theCurrentTemp.enty[i].mpvvav >> theCurrentTemp.enty[i].sigmavav >> theCurrentTemp.enty[i].kappavav >> theCurrentTemp.enty[i].spare[0] >> theCurrentTemp.enty[i].spare[1];
 			
 			if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 15, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
 			
-			in_file >> theCurrentTemp.enty[i].spare[1] >> theCurrentTemp.enty[i].spare[2] >> theCurrentTemp.enty[i].spare[3] >> theCurrentTemp.enty[i].qbfrac[0] >> theCurrentTemp.enty[i].qbfrac[1]
+			in_file >> theCurrentTemp.enty[i].spare[2] >> theCurrentTemp.enty[i].spare[3] >> theCurrentTemp.enty[i].spare[4] >> theCurrentTemp.enty[i].qbfrac[0] >> theCurrentTemp.enty[i].qbfrac[1]
 			>> theCurrentTemp.enty[i].qbfrac[2] >> theCurrentTemp.enty[i].fracyone >> theCurrentTemp.enty[i].fracxone >> theCurrentTemp.enty[i].fracytwo >> theCurrentTemp.enty[i].fracxtwo;
 			//		theCurrentTemp.enty[i].qbfrac[3] = 1. - theCurrentTemp.enty[i].qbfrac[0] - theCurrentTemp.enty[i].qbfrac[1] - theCurrentTemp.enty[i].qbfrac[2];
 			
@@ -364,14 +345,12 @@ bool SiPixelTemplate::pushfile(int filenum)
 					if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 22, no template load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
 				}
 				
-				qavg_avg = 0.;
 				for (j=0; j<9; ++j) {
 					
-					for (l=0; l<TXSIZE; ++l) {in_file >> theCurrentTemp.entx[k][i].xtemp[j][l]; qavg_avg += theCurrentTemp.entx[k][i].xtemp[j][l];} 
+					for (l=0; l<TXSIZE; ++l) {in_file >> theCurrentTemp.entx[k][i].xtemp[j][l];} 
 					
 					if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 23, no template load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
 				}
-				theCurrentTemp.entx[k][i].qavg_avg = qavg_avg/9.;
 				
 				for (j=0; j<4; ++j) {
 					
@@ -439,11 +418,11 @@ bool SiPixelTemplate::pushfile(int filenum)
 				}
 				
 				in_file >> theCurrentTemp.entx[k][i].chi2yavgone >> theCurrentTemp.entx[k][i].chi2yminone >> theCurrentTemp.entx[k][i].chi2xavgone >> theCurrentTemp.entx[k][i].chi2xminone >> theCurrentTemp.entx[k][i].qmin2
-				>> theCurrentTemp.entx[k][i].mpvvav >> theCurrentTemp.entx[k][i].sigmavav >> theCurrentTemp.entx[k][i].kappavav >> theCurrentTemp.entx[k][i].qavg_spare >> theCurrentTemp.entx[k][i].spare[0];
+				>> theCurrentTemp.entx[k][i].mpvvav >> theCurrentTemp.entx[k][i].sigmavav >> theCurrentTemp.entx[k][i].kappavav >> theCurrentTemp.entx[k][i].spare[0] >> theCurrentTemp.entx[k][i].spare[1];
 				
 				if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 31, no template load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
 				
-				in_file >> theCurrentTemp.entx[k][i].spare[1] >> theCurrentTemp.entx[k][i].spare[2] >> theCurrentTemp.entx[k][i].spare[3] >> theCurrentTemp.entx[k][i].qbfrac[0] >> theCurrentTemp.entx[k][i].qbfrac[1]
+				in_file >> theCurrentTemp.entx[k][i].spare[2] >> theCurrentTemp.entx[k][i].spare[3] >> theCurrentTemp.entx[k][i].spare[4] >> theCurrentTemp.entx[k][i].qbfrac[0] >> theCurrentTemp.entx[k][i].qbfrac[1]
 				>> theCurrentTemp.entx[k][i].qbfrac[2] >> theCurrentTemp.entx[k][i].fracyone >> theCurrentTemp.entx[k][i].fracxone >> theCurrentTemp.entx[k][i].fracytwo >> theCurrentTemp.entx[k][i].fracxtwo;
 				//		theCurrentTemp.entx[k][i].qbfrac[3] = 1. - theCurrentTemp.entx[k][i].qbfrac[0] - theCurrentTemp.entx[k][i].qbfrac[1] - theCurrentTemp.entx[k][i].qbfrac[2];
 				
@@ -486,7 +465,6 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
     
 	// Local variables 
 	int i, j, k, l;
-	float qavg_avg;
 	//	const char *tempfile;
 	const int code_version={16};
 	
@@ -518,7 +496,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 		
 		db >> theCurrentTemp.head.ID  >> theCurrentTemp.head.templ_version >> theCurrentTemp.head.Bfield >> theCurrentTemp.head.NTy >> theCurrentTemp.head.NTyx >> theCurrentTemp.head.NTxx
 		>> theCurrentTemp.head.Dtype >> theCurrentTemp.head.Vbias >> theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.qscale
-		>> theCurrentTemp.head.s50 >> theCurrentTemp.head.lorywidth >> theCurrentTemp.head.lorxwidth >> theCurrentTemp.head.ysize >> theCurrentTemp.head.xsize >> theCurrentTemp.head.zsize;
+		>> theCurrentTemp.head.s50 >> theCurrentTemp.head.lorywidth >> theCurrentTemp.head.lorxwidth >> theCurrentTemp.head.xsize >> theCurrentTemp.head.ysize >> theCurrentTemp.head.zsize;
 		
 		if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
 		
@@ -529,7 +507,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 		<< ", 1/2 threshold " << theCurrentTemp.head.s50 << ", y Lorentz Width " << theCurrentTemp.head.lorywidth << ", x Lorentz width " << theCurrentTemp.head.lorxwidth    
 		<< ", pixel x-size " << theCurrentTemp.head.xsize << ", y-size " << theCurrentTemp.head.ysize << ", zsize " << theCurrentTemp.head.zsize << ENDL;
 		
-		if(theCurrentTemp.head.templ_version < code_version) {LOGERROR("SiPixelTemplate") << "code expects version " << code_version << ", no template load" << ENDL; return false;}
+		if(theCurrentTemp.head.templ_version < code_version) {LOGERROR("SiPixelTemplate") << "code expects version " << code_version << ", found version " << theCurrentTemp.head.templ_version << ", no template load" << ENDL; return false;}
 		
 		// next, loop over all barrel y-angle entries   
 		
@@ -586,14 +564,12 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 				
 			}
 			
-			qavg_avg = 0.;
 			for (j=0; j<9; ++j) {
 				
-				for (k=0; k<TXSIZE; ++k) {db >> theCurrentTemp.enty[i].xtemp[j][k]; qavg_avg += theCurrentTemp.enty[i].xtemp[j][k];} 
+				for (k=0; k<TXSIZE; ++k) {db >> theCurrentTemp.enty[i].xtemp[j][k];} 
 				
 				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 7, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
 			}
-			theCurrentTemp.enty[i].qavg_avg = qavg_avg/9.;
 			
 			for (j=0; j<4; ++j) {
 				
@@ -662,11 +638,11 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 			
 			
 			db >> theCurrentTemp.enty[i].chi2yavgone >> theCurrentTemp.enty[i].chi2yminone >> theCurrentTemp.enty[i].chi2xavgone >> theCurrentTemp.enty[i].chi2xminone >> theCurrentTemp.enty[i].qmin2
-			>> theCurrentTemp.enty[i].mpvvav >> theCurrentTemp.enty[i].sigmavav >> theCurrentTemp.enty[i].kappavav >> theCurrentTemp.enty[i].qavg_spare >> theCurrentTemp.enty[i].spare[0];
+			>> theCurrentTemp.enty[i].mpvvav >> theCurrentTemp.enty[i].sigmavav >> theCurrentTemp.enty[i].kappavav >> theCurrentTemp.enty[i].spare[0] >> theCurrentTemp.enty[i].spare[1];
 			
 			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 15, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
 			
-			db >> theCurrentTemp.enty[i].spare[1] >> theCurrentTemp.enty[i].spare[2] >> theCurrentTemp.enty[i].spare[3] >> theCurrentTemp.enty[i].qbfrac[0] >> theCurrentTemp.enty[i].qbfrac[1]
+			db >> theCurrentTemp.enty[i].spare[2] >> theCurrentTemp.enty[i].spare[3] >> theCurrentTemp.enty[i].spare[4] >> theCurrentTemp.enty[i].qbfrac[0] >> theCurrentTemp.enty[i].qbfrac[1]
 			>> theCurrentTemp.enty[i].qbfrac[2] >> theCurrentTemp.enty[i].fracyone >> theCurrentTemp.enty[i].fracxone >> theCurrentTemp.enty[i].fracytwo >> theCurrentTemp.enty[i].fracxtwo;
 			//			theCurrentTemp.enty[i].qbfrac[3] = 1. - theCurrentTemp.enty[i].qbfrac[0] - theCurrentTemp.enty[i].qbfrac[1] - theCurrentTemp.enty[i].qbfrac[2];
 			
@@ -730,14 +706,12 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 22, no template load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
 				}
 				
-				qavg_avg = 0.;
 				for (j=0; j<9; ++j) {
 					
-					for (l=0; l<TXSIZE; ++l) {db >> theCurrentTemp.entx[k][i].xtemp[j][l]; qavg_avg += theCurrentTemp.entx[k][i].xtemp[j][l];} 
+					for (l=0; l<TXSIZE; ++l) {db >> theCurrentTemp.entx[k][i].xtemp[j][l];} 
 					
 					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 23, no template load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
 				}
-				theCurrentTemp.entx[k][i].qavg_avg = qavg_avg/9.;
 				
 				for (j=0; j<4; ++j) {
 					
@@ -806,11 +780,11 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 				
 				
 				db >> theCurrentTemp.entx[k][i].chi2yavgone >> theCurrentTemp.entx[k][i].chi2yminone >> theCurrentTemp.entx[k][i].chi2xavgone >> theCurrentTemp.entx[k][i].chi2xminone >> theCurrentTemp.entx[k][i].qmin2
-				>> theCurrentTemp.entx[k][i].mpvvav >> theCurrentTemp.entx[k][i].sigmavav >> theCurrentTemp.entx[k][i].kappavav >> theCurrentTemp.entx[k][i].qavg_spare >> theCurrentTemp.entx[k][i].spare[0];
+				>> theCurrentTemp.entx[k][i].mpvvav >> theCurrentTemp.entx[k][i].sigmavav >> theCurrentTemp.entx[k][i].kappavav >> theCurrentTemp.entx[k][i].spare[0] >> theCurrentTemp.entx[k][i].spare[1];
 				
 				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 31, no template load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
 				
-				db >> theCurrentTemp.entx[k][i].spare[1] >> theCurrentTemp.entx[k][i].spare[2] >> theCurrentTemp.entx[k][i].spare[3] >> theCurrentTemp.entx[k][i].qbfrac[0] >> theCurrentTemp.entx[k][i].qbfrac[1]
+				db >> theCurrentTemp.entx[k][i].spare[2] >> theCurrentTemp.entx[k][i].spare[3] >> theCurrentTemp.entx[k][i].spare[4] >> theCurrentTemp.entx[k][i].qbfrac[0] >> theCurrentTemp.entx[k][i].qbfrac[1]
 				>> theCurrentTemp.entx[k][i].qbfrac[2] >> theCurrentTemp.entx[k][i].fracyone >> theCurrentTemp.entx[k][i].fracxone >> theCurrentTemp.entx[k][i].fracytwo >> theCurrentTemp.entx[k][i].fracxtwo;
 				//				theCurrentTemp.entx[k][i].qbfrac[3] = 1. - theCurrentTemp.entx[k][i].qbfrac[0] - theCurrentTemp.entx[k][i].qbfrac[1] - theCurrentTemp.entx[k][i].qbfrac[2];
 				
@@ -847,7 +821,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
     // Local variables 
     int i, j;
 	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx;
-	float yratio, yxratio, xxratio, sxmax, qcorrect, qxtempcor, symax, chi2xavgone, chi2xminone, cotb, cotalpha0, cotbeta0;
+	float yratio, yxratio, xxratio, sxmax, qcorrect, symax, chi2xavgone, chi2xminone, cotb;
 	bool flip_y;
 //	std::vector <float> xrms(4), xgsig(4), xrmsc2m(4), xgsigc2m(4);
 	std::vector <float> chi2xavg(4), chi2xmin(4);
@@ -869,23 +843,8 @@ if(id != id_current || cotalpha != cota_current || cotbeta != cotb_current) {
 	      if(id == thePixelTemp[i].head.ID) {
 	   
 	         index_id = i;
-		      id_current = id;
-				
-// Copy the charge scaling factor to the private variable     
-				
-				pqscale = thePixelTemp[index_id].head.qscale;
-				
-// Copy the pseudopixel signal size to the private variable     
-				
-				ps50 = thePixelTemp[index_id].head.s50;
-				
-// Pixel sizes to the private variables     
-				
-				pxsize = thePixelTemp[index_id].head.xsize;
-				pysize = thePixelTemp[index_id].head.ysize;
-				pzsize = thePixelTemp[index_id].head.zsize;
-				
-				break;
+		     id_current = id;
+		     break;
           }
 	    }
      }
@@ -904,8 +863,7 @@ if(id != id_current || cotalpha != cota_current || cotbeta != cotb_current) {
 	
 //	qcorrect corrects the cot(alpha)=0 cluster charge for non-zero cot(alpha)	
 
-	cotalpha0 =  thePixelTemp[index_id].enty[0].cotalpha;
-    qcorrect=(float)sqrt((double)((1.+cotbeta*cotbeta+cotalpha*cotalpha)/(1.+cotbeta*cotbeta+cotalpha0*cotalpha0)));
+    qcorrect=(float)sqrt((double)((1.+cotbeta*cotbeta+cotalpha*cotalpha)/(1.+cotbeta*cotbeta)));
 	
 // for some cosmics, the ususal gymnastics are incorrect   
 	if(thePixelTemp[index_id].head.Dtype == 0) {
@@ -921,6 +879,14 @@ if(id != id_current || cotalpha != cota_current || cotbeta != cotb_current) {
 			flip_y = true;
 		}	
 	}
+		
+// Copy the charge scaling factor to the private variable     
+		
+	pqscale = thePixelTemp[index_id].head.qscale;
+		
+// Copy the pseudopixel signal size to the private variable     
+		
+	ps50 = thePixelTemp[index_id].head.s50;
 		
 	Ny = thePixelTemp[index_id].head.NTy;
 	Nyx = thePixelTemp[index_id].head.NTyx;
@@ -983,13 +949,7 @@ if(id != id_current || cotalpha != cota_current || cotbeta != cotb_current) {
 	pqmin *= qcorrect;
 	pqmin2 = (1. - yratio)*thePixelTemp[index_id].enty[ilow].qmin2 + yratio*thePixelTemp[index_id].enty[ihigh].qmin2;
 	pqmin2 *= qcorrect;
-	pmpvvav = (1. - yratio)*thePixelTemp[index_id].enty[ilow].mpvvav + yratio*thePixelTemp[index_id].enty[ihigh].mpvvav;
-	pmpvvav *= qcorrect;
-	psigmavav = (1. - yratio)*thePixelTemp[index_id].enty[ilow].sigmavav + yratio*thePixelTemp[index_id].enty[ihigh].sigmavav;
-	pkappavav = (1. - yratio)*thePixelTemp[index_id].enty[ilow].kappavav + yratio*thePixelTemp[index_id].enty[ihigh].kappavav;
 	pclsleny = fminf(thePixelTemp[index_id].enty[ilow].clsleny, thePixelTemp[index_id].enty[ihigh].clsleny);
-	pqavg_avg = (1. - yratio)*thePixelTemp[index_id].enty[ilow].qavg_avg + yratio*thePixelTemp[index_id].enty[ihigh].qavg_avg;
-	pqavg_avg *= qcorrect;
 	for(i=0; i<2 ; ++i) {
 		for(j=0; j<5 ; ++j) {
 // Charge loss switches sides when cot(beta) changes sign
@@ -1210,30 +1170,17 @@ if(id != id_current || cotalpha != cota_current || cotbeta != cotb_current) {
 			  
 // Interpolate and build the x-template 
 	
-//	qxtempcor corrects the total charge to the actual track angles (not actually needed for the template fits, but useful for Guofan)
-	
-	cotbeta0 =  thePixelTemp[index_id].entx[iyhigh][0].cotbeta;
-	qxtempcor=(float)sqrt((double)((1.+cotbeta*cotbeta+cotalpha*cotalpha)/(1.+cotbeta0*cotbeta0+cotalpha*cotalpha)));
-	
 	for(i=0; i<9; ++i) {
 		pxtemp[i][0] = 0.;
 		pxtemp[i][1] = 0.;
 		pxtemp[i][BXM2] = 0.;
 		pxtemp[i][BXM1] = 0.;
 		for(j=0; j<TXSIZE; ++j) {
-//  Take next largest x-slice for the x-template (it reduces bias in the forward direction after irradiation)
-//		   pxtemp[i][j+2]=(1. - xxratio)*thePixelTemp[index_id].entx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entx[imaxx][ihigh].xtemp[i][j];
-//		   pxtemp[i][j+2]=(1. - xxratio)*thePixelTemp[index_id].entx[iyhigh][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entx[iyhigh][ihigh].xtemp[i][j];
-         pxtemp[i][j+2]=qxtempcor*((1. - xxratio)*thePixelTemp[index_id].entx[iyhigh][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entx[iyhigh][ihigh].xtemp[i][j]);
+		   pxtemp[i][j+2]=(1. - xxratio)*thePixelTemp[index_id].entx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entx[imaxx][ihigh].xtemp[i][j];
 		}
 	}
-	
-	plorywidth = thePixelTemp[index_id].head.lorywidth;
-	if(locBz > 0.) {plorywidth = -plorywidth;}
-	plorxwidth = thePixelTemp[index_id].head.lorxwidth;
-	
+
   }
-	
   return success;
 } // interpolate
 
@@ -1341,64 +1288,6 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta)
 } // End ysigma2
 
 
-// ************************************************************************************************************ 
-//! Return y error (squared) for an input signal and yindex
-//! Add large Q scaling for use in cluster splitting.
-//! \param qpixel - (input) pixel charge
-//! \param index - (input) y-index index of pixel
-//! \param ysig2 - (output) square error
-// ************************************************************************************************************ 
-void SiPixelTemplate::ysigma2(float qpixel, int index, float& ysig2)
-
-{
-    // Interpolate using quantities already stored in the private variables
-    
-    // Local variables 
-	float sigi, sigi2, sigi3, sigi4, symax, qscale, err2;
-	
-    // Make sure that input is OK
-    
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-    if(index < 2 || index >= BYM2) {
-		throw cms::Exception("DataCorrupt") << "SiPixelTemplate::ysigma2 called with index = " << index << std::endl;
-	}
-#else
-	assert(index > 1 && index < BYM2);
-#endif
-	
-	// Define the maximum signal to use in the parameterization 
-	
-	symax = psymax;
-	if(psymax > psyparmax) {symax = psyparmax;}
-	
-	// Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
-	
-			if(qpixel < symax) {
-				sigi = qpixel;
-				qscale = 1.;
-			} else {
-				sigi = symax;
-				qscale = qpixel/symax;
-			}
-			sigi2 = sigi*sigi; sigi3 = sigi2*sigi; sigi4 = sigi3*sigi;
-			if(index <= BHY) {
-				err2 = (1.-pyratio)*
-				(pyparl[0][0]+pyparl[0][1]*sigi+pyparl[0][2]*sigi2+pyparl[0][3]*sigi3+pyparl[0][4]*sigi4)
-				+ pyratio*
-				(pyparh[0][0]+pyparh[0][1]*sigi+pyparh[0][2]*sigi2+pyparh[0][3]*sigi3+pyparh[0][4]*sigi4);
-			} else {
-				err2 = (1.-pyratio)*
-				(pyparl[1][0]+pyparl[1][1]*sigi+pyparl[1][2]*sigi2+pyparl[1][3]*sigi3+pyparl[1][4]*sigi4)
-				+ pyratio*
-			    (pyparh[1][0]+pyparh[1][1]*sigi+pyparh[1][2]*sigi2+pyparh[1][3]*sigi3+pyparh[1][4]*sigi4);
-			}
-			ysig2 =qscale*err2;
-			if(ysig2 <= 0.) {LOGERROR("SiPixelTemplate") << "neg y-error-squared, id = " << id_current << ", index = " << index_id << 
-			", cot(alpha) = " << cota_current << ", cot(beta) = " << cotb_current <<  ", sigi = " << sigi << ENDL;}
-	
-	return;
-	
-} // End ysigma2
 
 
 
@@ -1804,7 +1693,7 @@ void SiPixelTemplate::ysigma2(float qpixel, int index, float& ysig2)
 // Calculate the size of the shift in pixels needed to span the entire cluster
 
     float diff = fabsf(nypix - pclsleny)/2. + 1.;
-	int nshift = (int)diff;
+	int nshift = (int) diff;
 	if((diff - nshift) > 0.5) {++nshift;}
 
 // Calculate the number of bins needed to specify each hit range
@@ -1896,7 +1785,7 @@ void SiPixelTemplate::ysigma2(float qpixel, int index, float& ysig2)
 // Calculate the size of the shift in pixels needed to span the entire cluster
 
     float diff = fabsf(nxpix - pclslenx)/2. + 1.;
-	int nshift = (int)diff;
+	int nshift = (int) diff;
 	if((diff - nshift) > 0.5) {++nshift;}
 
 // Calculate the number of bins needed to specify each hit range
@@ -1995,7 +1884,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
     int i, binq;
 	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx;
 	float yratio, yxratio, xxratio;
-	float acotb, qscale, qavg, qmin, qmin2, fq, qtotal, qcorrect, cotb, cotalpha0;
+	float acotb, qscale, qavg, qmin, qmin2, fq, qtotal, qcorrect, cotb;
 	float yavggen[4], yrmsgen[4], xavggen[4], xrmsgen[4];
 	bool flip_y;
 	
@@ -2031,10 +1920,8 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
 	
 //	qcorrect corrects the cot(alpha)=0 cluster charge for non-zero cot(alpha)	
 
-	//	qcorrect corrects the cot(alpha)=0 cluster charge for non-zero cot(alpha)	
-	
-	cotalpha0 =  thePixelTemp[index_id].enty[0].cotalpha;
-    qcorrect=(float)sqrt((double)((1.+cotbeta*cotbeta+cotalpha*cotalpha)/(1.+cotbeta*cotbeta+cotalpha0*cotalpha0)));
+    qcorrect=(float)sqrt((double)((1.+cotbeta*cotbeta+cotalpha*cotalpha)/(1.+cotbeta*cotbeta)));
+
 				
 	// for some cosmics, the ususal gymnastics are incorrect   
 	
@@ -2314,7 +2201,7 @@ void SiPixelTemplate::temperrors(int id, float cotalpha, float cotbeta, int qBin
     // Interpolate for a new set of track angles 
     
     // Local variables 
-    int i;
+	int i;
 	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx;
 	float yratio, yxratio, xxratio;
 	float acotb, cotb;
@@ -2518,7 +2405,7 @@ void SiPixelTemplate::qbin_dist(int id, float cotalpha, float cotbeta, float qbi
     // Interpolate for a new set of track angles 
     
     // Local variables 
-    int i;
+	int i;
 	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx;
 	float yratio, yxratio, xxratio;
 	float acotb, cotb;
@@ -2690,297 +2577,4 @@ void SiPixelTemplate::qbin_dist(int id, float cotalpha, float cotbeta, float qbi
     return;
 	
 } // qbin
-
-// *************************************************************************************************************************************
-//! Make simple 2-D templates from track angles set in interpolate and hit position.      
-
-//! \param       xhit - (input) x-position of hit relative to the lower left corner of pixel[1][1] (to allow for the "padding" of the two-d clusters in the splitter)
-//! \param       yhit - (input) y-position of hit relative to the lower left corner of pixel[1][1] 
-//! \param    ydouble - (input) STL vector of 21 element array to flag a double-pixel starting at cluster[1][1]
-//! \param    xdouble - (input) STL vector of 11 element array to flag a double-pixel starting at cluster[1][1]
-//! \param template2d - (output) 2d template of size matched to the cluster.  Input must be zeroed since charge is added only.
-// *************************************************************************************************************************************
-
-bool SiPixelTemplate::simpletemplate2D(float xhit, float yhit, std::vector<bool>& ydouble, std::vector<bool>& xdouble, float template2d[BXM2][BYM2])
-{
-	
-	// Local variables
-	
-	static float x0, y0, xf, yf, xi, yi, sf, si, s0, qpix, slopey, slopex, ds;
-	static int i, j, jpix0, ipix0, jpixf, ipixf, jpix, ipix, nx, ny, anx, any, jmax, imax;
-	float qtotal;
-	//	double path;
-	std::list<SimplePixel> list;
-	std::list<SimplePixel>::iterator listIter, listEnd;	
-	
-	// Calculate the entry and exit points for the line charge from the track
-	
-	x0 = xhit - 0.5*pzsize*cota_current;
-	y0 = yhit - 0.5*pzsize*cotb_current;
-	
-	jpix0 = floor(x0/pxsize)+1;
-	ipix0 = floor(y0/pysize)+1;
-	
-	if(jpix0 < 0 || jpix0 > BXM3) {return false;}
-	if(ipix0 < 0 || ipix0 > BYM3) {return false;}
-	
-	xf = xhit + 0.5*pzsize*cota_current + plorxwidth;
-	yf = yhit + 0.5*pzsize*cotb_current + plorywidth;
-	
-	jpixf = floor(xf/pxsize)+1;
-	ipixf = floor(yf/pysize)+1;
-	
-	if(jpixf < 0 || jpixf > BXM3) {return false;}
-	if(ipixf < 0 || ipixf > BYM3) {return false;}
-	
-// total charge length 
-	
-	sf = sqrt((xf-x0)*(xf-x0) + (yf-y0)*(yf-y0));
-	if((xf-x0) != 0.) {slopey = (yf-y0)/(xf-x0);} else { slopey = 1.e10;}
-	if((yf-y0) != 0.) {slopex = (xf-x0)/(yf-y0);} else { slopex = 1.e10;}
-	
-// use average charge in this direction
-	
-	qtotal = pqavg_avg;
-	
-	SimplePixel element;
-	element.s = sf;
-	element.x = xf;
-	element.y = yf;
-	element.i = ipixf;
-	element.j = jpixf;
-	element.btype = 0;
-	list.push_back(element);
-	
-	//  nx is the number of x interfaces crossed by the line charge	
-	
-	nx = jpixf - jpix0;
-	anx = abs(nx);
-	if(anx > 0) {
-		if(nx > 0) {
-			for(j=jpix0; j<jpixf; ++j) {
-				xi = pxsize*j;
-				yi = slopey*(xi-x0) + y0;
-				ipix = (int)(yi/pysize)+1;
-				si = sqrt((xi-x0)*(xi-x0) + (yi-y0)*(yi-y0));
-				element.s = si;
-				element.x = xi;
-				element.y = yi;
-				element.i = ipix;
-				element.j = j;
-				element.btype = 1;
-				list.push_back(element);
-			}
-		} else {
-			for(j=jpix0; j>jpixf; --j) {
-				xi = pxsize*(j-1);
-				yi = slopey*(xi-x0) + y0;
-				ipix = (int)(yi/pysize)+1;
-				si = sqrt((xi-x0)*(xi-x0) + (yi-y0)*(yi-y0));
-				element.s = si;
-				element.x = xi;
-				element.y = yi;
-				element.i = ipix;
-				element.j = j;
-				element.btype = 1;
-				list.push_back(element);
-			}
-		}
-	}
-	
-	ny = ipixf - ipix0;
-	any = abs(ny);
-	if(any > 0) {
-		if(ny > 0) {
-			for(i=ipix0; i<ipixf; ++i) {
-				yi = pysize*i;
-				xi = slopex*(yi-y0) + x0;
-				jpix = (int)(xi/pxsize)+1;
-				si = sqrt((xi-x0)*(xi-x0) + (yi-y0)*(yi-y0));
-				element.s = si;
-				element.x = xi;
-				element.y = yi;
-				element.i = i;
-				element.j = jpix;
-				element.btype = 2;
-				list.push_back(element);
-			}
-		} else {
-			for(i=ipix0; i>ipixf; --i) {
-				yi = pysize*(i-1);
-				xi = slopex*(yi-y0) + x0;
-				jpix = (int)(xi/pxsize)+1;
-				si = sqrt((xi-x0)*(xi-x0) + (yi-y0)*(yi-y0));
-				element.s = si;
-				element.x = xi;
-				element.y = yi;
-				element.i = i;
-				element.j = jpix;
-				element.btype = 2;
-				list.push_back(element);
-			}
-		}
-	}
-	
-	imax = std::max(ipix0, ipixf);
-	jmax = std::max(jpix0, jpixf);
-	
-	// Sort the list according to the distance from the initial point
-	
-	list.sort();
-	
-	// Look for double pixels and adjust the list appropriately
-	
-	for(i=1; i<imax; ++i) {
-		if(ydouble[i-1]) {
-			listIter = list.begin();
-			if(ny > 0) {
-				while(listIter != list.end()) {
-					if(listIter->i == i && listIter->btype == 2) {
-						listIter = list.erase(listIter);
-						continue;
-					}
-					if(listIter->i > i) {
-						--(listIter->i);
-					}
-					++listIter;
-				}
-			} else {
-				while(listIter != list.end()) {
-					if(listIter->i == i+1 && listIter->btype == 2) {
-						listIter = list.erase(listIter);
-						continue;
-					}
-					if(listIter->i > i+1) {
-						--(listIter->i);
-					}
-					++listIter;
-				}				
-			}
-		}
-	}
-	
-	for(j=1; j<jmax; ++j) {
-		if(xdouble[j-1]) {
-			listIter = list.begin();
-			if(nx > 0) {
-				while(listIter != list.end()) {
-					if(listIter->j == j && listIter->btype == 1) {
-						listIter = list.erase(listIter);
-						continue;
-					}
-					if(listIter->j > j) {
-						--(listIter->j);
-					}
-					++listIter;
-				}
-			} else {
-				while(listIter != list.end()) {
-					if(listIter->j == j+1 && listIter->btype == 1) {
-						listIter = list.erase(listIter);
-						continue;
-					}
-					if(listIter->j > j+1) {
-						--(listIter->j);
-					}
-					++listIter;
-				}				
-			}
-		}
-	}
-	
-	// The list now contains the path lengths of the line charge in each pixel from (x0,y0).  Cacluate the lengths of the segments and the charge. 
-	
-	s0 = 0.;
-	listIter = list.begin();
-	listEnd = list.end();
-	for( ;listIter != listEnd; ++listIter) {
-		si = listIter->s;
-		ds = si - s0;
-		s0 = si;
-		j = listIter->j;
-		i = listIter->i;
-		if(sf > 0.) { qpix = qtotal*ds/sf;} else {qpix = qtotal;}
-		template2d[j][i] += qpix;
-	}
-	
-	return true;
-	
-}  // simpletemplate2D
-
-
-// ************************************************************************************************************ 
-//! Interpolate beta/alpha angles to produce Vavilov parameters for the charge distribution 
-//! \param mpv   - (output) the Vavilov most probable charge (well, not really the most probable esp at large kappa)
-//! \param sigma - (output) the Vavilov sigma parameter
-//! \param kappa - (output) the Vavilov kappa parameter [0.01 (Landau-like) < kappa < 10 (Gaussian-like)
-// ************************************************************************************************************ 
-void SiPixelTemplate::vavilov_pars(double& mpv, double& sigma, double& kappa)
-
-{
-	// Local variables 
-	int i;
-	int ilow, ihigh, Ny;
-	float yratio, cotb;
-	
-// Interpolate in cotbeta only for the correct total path length (converts cotalpha, cotbeta into an effective cotbeta) 
-	
-	cotb = sqrt(cotb_current*cotb_current + cota_current*cota_current);
-		
-// Copy the charge scaling factor to the private variable     
-	
-	Ny = thePixelTemp[index_id].head.NTy;
-	
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-	if(Ny < 2) {
-		throw cms::Exception("DataCorrupt") << "template ID = " << id_current << "has too few entries: Ny = " << Ny << std::endl;
-	}
-#else
-	assert(Ny > 1);
-#endif
-	
-// next, loop over all y-angle entries   
-	
-	ilow = 0;
-	yratio = 0.;
-	
-	if(cotb >= thePixelTemp[index_id].enty[Ny-1].cotbeta) {
-		
-		ilow = Ny-2;
-		yratio = 1.;
-		
-	} else {
-		
-		if(cotb >= thePixelTemp[index_id].enty[0].cotbeta) {
-			
-			for (i=0; i<Ny-1; ++i) { 
-				
-				if( thePixelTemp[index_id].enty[i].cotbeta <= cotb && cotb < thePixelTemp[index_id].enty[i+1].cotbeta) {
-					
-					ilow = i;
-					yratio = (cotb - thePixelTemp[index_id].enty[i].cotbeta)/(thePixelTemp[index_id].enty[i+1].cotbeta - thePixelTemp[index_id].enty[i].cotbeta);
-					break;			 
-				}
-			}
-		} 
-	}
-	
-	ihigh=ilow + 1;
-	
-// Interpolate Vavilov parameters
-	
-	pmpvvav = (1. - yratio)*thePixelTemp[index_id].enty[ilow].mpvvav + yratio*thePixelTemp[index_id].enty[ihigh].mpvvav;
-	psigmavav = (1. - yratio)*thePixelTemp[index_id].enty[ilow].sigmavav + yratio*thePixelTemp[index_id].enty[ihigh].sigmavav;
-	pkappavav = (1. - yratio)*thePixelTemp[index_id].enty[ilow].kappavav + yratio*thePixelTemp[index_id].enty[ihigh].kappavav;
-	
-// Copy to parameter list
-	
-	
-	mpv = (double)pmpvvav;
-	sigma = (double)psigmavav;
-	kappa = (double)pkappavav;
-	
-	return;
-	
-} // vavilov_pars
 

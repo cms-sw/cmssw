@@ -10,6 +10,7 @@ process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
+process.load('Configuration/StandardSequences/L1Reco_cff')
 process.load('Configuration/StandardSequences/ReconstructionCosmics_cff')
 process.load('DQMOffline/Configuration/DQMOfflineCosmics_cff')
 process.load('Configuration/StandardSequences/EndOfProcess_cff')
@@ -51,8 +52,8 @@ process.FEVT.outputCommands.append('keep *_eventAuxiliaryHistoryProducer_*_*')
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/rereco_CRAFT38T_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/rereco_CRAFT09_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT ReReco with Mag field at 3.8T')
 )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) ## default is false
@@ -60,6 +61,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) #
 # Path and EndPath definitions
 
 process.raw2digi_step = cms.Path(process.RawToDigi)
+process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstructionCosmics)
 process.dqmoffline_step = cms.Path(process.DQMOfflineCosmics)
 process.endjob_step = cms.Path(process.endOfProcess)
@@ -68,6 +70,6 @@ process.out_step = cms.EndPath(process.FEVT)
 # remove crashing modules
 process.dqmoffline_step.remove(process.hcalOfflineDQMSource)
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.dqmoffline_step,process.endjob_step,process.out_step)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.endjob_step,process.out_step)
 
 

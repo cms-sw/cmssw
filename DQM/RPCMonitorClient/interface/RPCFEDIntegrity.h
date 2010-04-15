@@ -23,7 +23,7 @@ public:
   virtual ~RPCFEDIntegrity();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& iSetup);
+  void beginJob();
 
   //Begin Run
    void beginRun(const edm::Run& r, const edm::EventSetup& c);
@@ -58,7 +58,7 @@ public:
   int FATAL_LIMIT;
 
   enum fedHisto{Entries, Fatal, NonFatal};
-
+  edm::InputTag rawCountsLabel_;
 
 
   std::map< std::pair<int,int>, int > readoutErrors_;

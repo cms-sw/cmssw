@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 8.10)
+//  SiPixelTemplateReco.cc (Version 7.00)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -28,15 +28,6 @@
 //  Change calling sequence to handle cot(beta)<0 for FPix cosmics
 //
 //  V7.00 - Decouple BPix and FPix information into separate templates
-//  Pass all containers by alias to prevent excessive cpu-usage (V7.01)
-//  Slightly modify search bin range to avoid problem with single pixel clusters + large Lorentz drift (V7.02)
-//
-//  V8.00 - Add 2D probabilities, take pixel sizes from the template
-//  V8.05 - Shift 2-D cluster to center on the buffer
-//  V8.06 - Add locBz to the 2-D template (causes failover to the simple template when the cotbeta-locBz correlation is incorrect ... ie for non-IP tracks)
-//        - include minimum value for prob2D (1.e-30)
-//  V8.07 - Tune 2-d probability: consider only pixels above threshold and use threshold value for zero signal pixels (non-zero template)
-//  V8.10 - Remove 2-d probability for ineffectiveness and replace with simple cluster charge probability
 //
 //
 //  Created by Morris Swartz on 10/27/06.
@@ -50,14 +41,13 @@
 #include <utility>
 #include <iostream>
 // ROOT::Math has a c++ function that does the probability calc, but only in v5.12 and later
+//#include "Math/DistFunc.h"
 #include "TMath.h"
-#include "Math/DistFunc.h"
 // Use current version of gsl instead of ROOT::Math
 //#include <gsl/gsl_cdf.h>
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/VVIObj.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) edm::LogError(x)
 #define LOGDEBUG(x) LogDebug(x)
@@ -66,7 +56,6 @@ static int theVerboseLevel = 2;
 #include "FWCore/Utilities/interface/Exception.h"
 #else
 #include "SiPixelTemplateReco.h"
-#include "VVIObj.h"
 //static int theVerboseLevel = {2};
 #define LOGERROR(x) std::cout << x << ": "
 #define LOGDEBUG(x) std::cout << x << ": "
@@ -99,28 +88,18 @@ using namespace SiPixelTemplateReco;
 //!                              3 0.85 > Q/Q_avg > min1  [~30% of all hits]
 //!                              4 min1 > Q/Q_avg > min2  [~0.1% of all hits]
 //!                              5 min2 > Q/Q_avg         [~0.1% of all hits]
-//! \param      speed - (input) switch (-2->5) trading speed vs robustness
-//!                     -2       totally bombproof, searches the entire 41 bin range at full density (equiv to V2_4), 
-//!                              calculates Q probability w/ VVIObj (better but slower)
-//!                     -1       totally bombproof, searches the entire 41 bin range at full density (equiv to V2_4), 
-//!                              calculates Q probability w/ TMath::VavilovI (poorer but faster)
+//! \param      speed - (input) switch (0-4) trading speed vs robustness
 //!                      0       totally bombproof, searches the entire 41 bin range at full density (equiv to V2_4)
 //!                      1       faster, searches reduced 25 bin range (no big pix) + 33 bins (big pix at ends) at full density
 //!                      2       faster yet, searches same range as 1 but at 1/2 density
 //!                      3       fastest, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster)
-//!                      4       fastest w/ Q prob, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster), 
-//!                              calculates Q probability w/ VVIObj (better but slower)
-//!                      5       fastest w/ Q prob, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster),
-//!                              calculates Q probability w/ TMath::VavilovI (poorer but faster)
-//! \param    deadpix - (input)  bool to indicate that there are dead pixels to be included in the analysis
-//! \param    zeropix - (input)  vector of index pairs pointing to the dead pixels
-//! \param      probQ - (output) the Vavilov-distribution-based cluster charge probability
+//! \param    deadpix - (input) bool to indicate that there are dead pixels to be included in the analysis
+//! \param    zeropix - (input) vector of index pairs pointing to the dead pixels
 // *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, array_2d& clust, 
-		    std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
+int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, array_2d cluster, 
+		    std::vector<bool> ydouble, std::vector<bool> xdouble, 
 		    SiPixelTemplate& templ, 
-		    float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix, std::vector<std::pair<int, int> >& zeropix,
-			 float& probQ)
+		    float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix, std::vector<std::pair<int, int> > zeropix)
 			
 {
     // Local variables 
@@ -128,18 +107,16 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
     static int fxpix, nxpix, lxpix, logxpx, shifty, shiftx, nyzero[TYSIZE];
 	static int nclusx, nclusy;
 	static int deltaj, jmin, jmax, fxbin, lxbin, fybin, lybin, djy, djx;
-	static int fypix2D, lypix2D, fxpix2D, lxpix2D;
-	static float sythr, sxthr, rnorm, delta, sigma, sigavg, pseudopix, qscale, q50;
+	static float sythr, sxthr, rnorm, delta, sigma, sigavg, pseudopix, qscale;
 	static float ss2, ssa, sa2, ssba, saba, sba2, rat, fq, qtotal, qpixel;
 	static float originx, originy, qfy, qly, qfx, qlx, bias, maxpix, minmax;
 	static double chi2x, meanx, chi2y, meany, chi2ymin, chi2xmin, chi21max;
-	static double hchi2, hndof, prvav, mpv, sigmaQ, kappa, xvav, beta2;
+	static double hchi2, hndof;
 	static float ytemp[41][BYSIZE], xtemp[41][BXSIZE], ysum[BYSIZE], xsum[BXSIZE], ysort[BYSIZE], xsort[BXSIZE];
 	static float chi2ybin[41], chi2xbin[41], ysig2[BYSIZE], xsig2[BXSIZE];
-	static bool yd[BYSIZE], xd[BXSIZE], anyyd, anyxd, calc_probQ, use_VVIObj;
-	static float ysize, xsize;
+	static bool yd[BYSIZE], xd[BXSIZE], anyyd, anyxd;
+	const float ysize={150.}, xsize={100.};
 	const float probmin={1.110223e-16};
-	const float probQmin={1.e-5};
 	
 // The minimum chi2 for a valid one pixel cluster = pseudopixel contribution only
 
@@ -152,36 +129,10 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	   if (theVerboseLevel > 2) {LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha << ", cot(beta) = " << cotbeta<< ", local B_z = " << locBz << ", template ID = " << id << ", no reconstruction performed" << ENDL;}	
 	   return 20;
 	}
-	
-// Make a local copy of the cluster container so that we can muck with it
-	
-	array_2d cluster = clust;
-	
-// Check to see if Q probability is selected
-	
-	calc_probQ = false;
-	use_VVIObj = false;
-	if(speed < 0) {
-		calc_probQ = true;
-		if(speed < -1) use_VVIObj = true;
-		speed = 0;
-	}
-	
-	if(speed > 3) {
-		calc_probQ = true;
-		if(speed < 5) use_VVIObj = true;
-		speed = 3;
-	}
-	
-// Get pixel dimensions from the template (to allow multiple detectors in the future)
-	
-	xsize = templ.xsize();
-	ysize = templ.ysize();
    
 // Define size of pseudopixel
-	
-	q50 = templ.s50();
-	pseudopix = 0.2*q50;
+
+    pseudopix = 0.2*templ.s50();
 	
 // Get charge scaling factor
 
@@ -381,11 +332,6 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	   return 6; 
 	}
 	
-// Remember these numbers for later
-	
-	fypix2D = fypix;
-	lypix2D = lypix;
-	
 // next, center the cluster on pixel 12 if necessary   
 
 	midpix = (fypix+lypix)/2;
@@ -474,12 +420,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 
 	   return 7; 
 	}
-	
-// Remember these numbers for later
-	
-	fxpix2D = fxpix;
-	lxpix2D = lxpix;
-	        
+        
 // next, center the cluster on pixel 5 if necessary   
 
 	midpix = (fxpix+lxpix)/2;
@@ -563,7 +504,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 #else
     assert(speed >= 0 && speed < 4);
 #endif
-	fybin = 2; lybin = 38; fxbin = 2; lxbin = 38; djy = 1; djx = 1;
+	fybin = 0; lybin = 40; fxbin = 0; lxbin = 40; djy = 1; djx = 1;
     if(speed > 0) {
        fybin = 8; lybin = 32;
        if(yd[fypix]) {fybin = 4; lybin = 36;}
@@ -663,7 +604,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 			     sa2 += ytemp[j][i]*ytemp[j][i]/ysig2[i];
 		     }
 		     rat=ssa/ss2;
-		     if(rat <= 0.) {LOGERROR("SiPixelTemplateReco") << "illegal chi2ymin normalization (1) = " << rat << ENDL; rat = 1.;}
+		     if(rat <= 0.) {LOGERROR("SiPixelTemplateReco") << "illegal chi2ymin normalization = " << rat << ENDL; rat = 1.;}
 		     chi2ybin[j]=ss2-2.*ssa/rat+sa2/(rat*rat);
 		  }
 		  if(chi2ybin[j] < chi2ymin) {
@@ -694,6 +635,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	   }
 	   
 	   yrec = 0.5*(fypix+lypix-2*shifty+2.*originy)*ysize-delta;
+	   
 	   if(sigma <= 0.) {
 	      sigmay = 43.3;
 	   } else {
@@ -763,7 +705,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	   
 // Do goodness of fit test in y  
 	   
-	   if(rnorm <= 0.) {LOGERROR("SiPixelTemplateReco") << "illegal chi2y normalization (2) = " << rnorm << ENDL; rnorm = 1.;}
+	   if(rnorm <= 0.) {LOGERROR("SiPixelTemplateReco") << "illegal chi2y normalization = " << rnorm << ENDL; rnorm = 1.;}
 	   chi2y=ss2-2./rnorm*ssa-2./rnorm*rat*ssba+(sa2+2.*rat*saba+rat*rat*sba2)/(rnorm*rnorm)-templ.chi2ymin(binq);
 	   if(chi2y < 0.0) {chi2y = 0.0;}
 	   meany = templ.chi2yavg(binq);
@@ -835,7 +777,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 			     sa2 += xtemp[j][i]*xtemp[j][i]/xsig2[i];
 			 }
 		     rat=ssa/ss2;
-		     if(rat <= 0.) {LOGERROR("SiPixelTemplateReco") << "illegal chi2xmin normalization (1) = " << rat << ENDL; rat = 1.;}
+		     if(rat <= 0.) {LOGERROR("SiPixelTemplateReco") << "illegal chi2ymin normalization = " << rat << ENDL; rat = 1.;}
 		     chi2xbin[j]=ss2-2.*ssa/rat+sa2/(rat*rat);
 		  }
 		  if(chi2xbin[j] < chi2xmin) {
@@ -933,7 +875,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	   
 // Do goodness of fit test in x  
 	   
-	   if(rnorm <= 0.) {LOGERROR("SiPixelTemplateReco") << "illegal chi2x normalization (2) = " << rnorm << ENDL; rnorm = 1.;}
+	   if(rnorm <= 0.) {LOGERROR("SiPixelTemplateReco") << "illegal chi2x normalization = " << rnorm << ENDL; rnorm = 1.;}
 	   chi2x=ss2-2./rnorm*ssa-2./rnorm*rat*ssba+(sa2+2.*rat*saba+rat*rat*sba2)/(rnorm*rnorm)-templ.chi2xmin(binq);
 	   if(chi2x < 0.0) {chi2x = 0.0;}
 	   meanx = templ.chi2xavg(binq);
@@ -950,38 +892,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	if(proby < probmin) {proby = probmin;}
 	if(probx < probmin) {probx = probmin;}
 	
-//  Decide whether to generate a cluster charge probability
-	
-	if(calc_probQ) {
-		
-// Calculate the Vavilov probability that the cluster charge is OK
-	
-		templ.vavilov_pars(mpv, sigmaQ, kappa);
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-		if((sigmaQ <=0.) || (mpv <= 0.) || (kappa < 0.01) || (kappa > 9.9)) {
-			throw cms::Exception("DataCorrupt") << "SiPixelTemplateReco::Vavilov parameters mpv/sigmaQ/kappa = " << mpv << "/" << sigmaQ << "/" << kappa << std::endl;
-		}
-#else
-		assert((sigmaQ > 0.) && (mpv > 0.) && (kappa > 0.01) && (kappa < 10.));
-#endif
-		xvav = ((double)qtotal-mpv)/sigmaQ;
-		beta2 = 1.;
-		if(use_VVIObj) {			
-//  VVIObj is a private port of CERNLIB VVIDIS
-		   VVIObj vvidist(kappa, beta2, 1);
-		   prvav = vvidist.fcn(xvav);			
-		} else {
-//  Use faster but less accurate TMath Vavilov distribution function
-			prvav = TMath::VavilovI(xvav, kappa, beta2);
-      }
-		if(prvav > 0.5) prvav = 1. - prvav;
-		probQ = (float)(2.*prvav);
-		if(probQ < probQmin) {probQ = probQmin;}
-	} else {
-		probQ = -1;
-	}
-	
-	return 0;
+    return 0;
 } // PixelTempReco2D 
 
 // *************************************************************************************************************************************
@@ -1004,20 +915,16 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 //! \param      probx - (output) probability describing goodness-of-fit for x-reco
 //! \param       qbin - (output) index (0-4) describing the charge of the cluster
 //!                     [0: 1.5<Q/Qavg, 1: 1<Q/Qavg<1.5, 2: 0.85<Q/Qavg<1, 3: 0.95Qmin<Q<0.85Qavg, 4: Q<0.95Qmin]
-//! \param      speed - (input) switch (-1-4) trading speed vs robustness
-//!                     -1       totally bombproof, searches the entire 41 bin range at full density (equiv to V2_4), calculates Q probability
+//! \param      speed - (input) switch (0-4) trading speed vs robustness
 //!                      0       totally bombproof, searches the entire 41 bin range at full density (equiv to V2_4)
 //!                      1       faster, searches reduced 25 bin range (no big pix) + 33 bins (big pix at ends) at full density
 //!                      2       faster yet, searches same range as 1 but at 1/2 density
 //!                      3       fastest, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster)
-//!                      4       fastest w/ Q prob, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster), calculates Q probability
-//! \param      probQ - (output) the Vavilov-distribution-based cluster charge probability
 // *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, array_2d& cluster, 
-		    std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
+int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, array_2d cluster, 
+		    std::vector<bool> ydouble, std::vector<bool> xdouble, 
 		    SiPixelTemplate& templ, 
-		    float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
-			 float& probQ)
+		    float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed)
 			
 {
     // Local variables 
@@ -1025,7 +932,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	std::vector<std::pair<int, int> > zeropix;
     
 	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, cluster, ydouble, xdouble, templ, 
-		yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ);
+		yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix);
 
 } // PixelTempReco2D
 
@@ -1048,20 +955,16 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 //! \param      probx - (output) probability describing goodness-of-fit for x-reco
 //! \param       qbin - (output) index (0-4) describing the charge of the cluster
 //!                     [0: 1.5<Q/Qavg, 1: 1<Q/Qavg<1.5, 2: 0.85<Q/Qavg<1, 3: 0.95Qmin<Q<0.85Qavg, 4: Q<0.95Qmin]
-//! \param      speed - (input) switch (-1-4) trading speed vs robustness
-//!                     -1       totally bombproof, searches the entire 41 bin range at full density (equiv to V2_4), calculates Q probability
+//! \param      speed - (input) switch (0-4) trading speed vs robustness
 //!                      0       totally bombproof, searches the entire 41 bin range at full density (equiv to V2_4)
 //!                      1       faster, searches reduced 25 bin range (no big pix) + 33 bins (big pix at ends) at full density
 //!                      2       faster yet, searches same range as 1 but at 1/2 density
 //!                      3       fastest, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster)
-//!                      4       fastest w/ Q prob, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster), calculates Q probability
-//! \param      probQ - (output) the Vavilov-distribution-based cluster charge probability
 // *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, array_2d& cluster, 
-										 std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
+int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, array_2d cluster, 
+										 std::vector<bool> ydouble, std::vector<bool> xdouble, 
 										 SiPixelTemplate& templ, 
-										 float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
-										 float& probQ)
+										 float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed)
 
 {
     // Local variables 
@@ -1071,52 +974,6 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	if(cotbeta < 0.) {locBz = -locBz;}
     
 	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, cluster, ydouble, xdouble, templ, 
-												yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ);
-	
-} // PixelTempReco2D
-
-
-// *************************************************************************************************************************************
-//  Overload parameter list for compatibility with older versions
-//! Reconstruct the best estimate of the hit position for pixel clusters.      
-//! \param         id - (input) identifier of the template to use                                  
-//! \param   cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014) 
-//! \param    cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)  
-//! \param    cluster - (input) boost multi_array container of 7x21 array of pixel signals, 
-//!           origin of local coords (0,0) at center of pixel cluster[0][0].                      
-//! \param    ydouble - (input) STL vector of 21 element array to flag a double-pixel
-//! \param    xdouble - (input) STL vector of 7 element array to flag a double-pixel
-//! \param      templ - (input) the template used in the reconstruction
-//! \param       yrec - (output) best estimate of y-coordinate of hit in microns
-//! \param     sigmay - (output) best estimate of uncertainty on yrec in microns
-//! \param      proby - (output) probability describing goodness-of-fit for y-reco
-//! \param       xrec - (output) best estimate of x-coordinate of hit in microns
-//! \param     sigmax - (output) best estimate of uncertainty on xrec in microns
-//! \param      probx - (output) probability describing goodness-of-fit for x-reco
-//! \param       qbin - (output) index (0-4) describing the charge of the cluster
-//!                     [0: 1.5<Q/Qavg, 1: 1<Q/Qavg<1.5, 2: 0.85<Q/Qavg<1, 3: 0.95Qmin<Q<0.85Qavg, 4: Q<0.95Qmin]
-//! \param      speed - (input) switch (0-3) trading speed vs robustness
-//!                      0       totally bombproof, searches the entire 41 bin range at full density (equiv to V2_4)
-//!                      1       faster, searches reduced 25 bin range (no big pix) + 33 bins (big pix at ends) at full density
-//!                      2       faster yet, searches same range as 1 but at 1/2 density
-//!                      3       fastest, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster)
-// *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, array_2d& cluster, 
-													  std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
-													  SiPixelTemplate& templ, 
-													  float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed)
-
-{
-	// Local variables 
-	const bool deadpix = false;
-	std::vector<std::pair<int, int> > zeropix;
-	float locBz = -1.;
-	if(cotbeta < 0.) {locBz = -locBz;}
-	float probQ;
-	if(speed < 0) speed = 0;
-   if(speed > 3) speed = 3;
-	
-	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, cluster, ydouble, xdouble, templ, 
-															  yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ);
+												yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix);
 	
 } // PixelTempReco2D

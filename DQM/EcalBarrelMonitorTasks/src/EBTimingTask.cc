@@ -1,15 +1,14 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2009/12/08 10:35:46 $
- * $Revision: 1.52 $
+ * $Date: 2010/03/04 10:44:20 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -32,17 +31,13 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTimingTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBTimingTask::EBTimingTask(const ParameterSet& ps){
+EBTimingTask::EBTimingTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -80,7 +75,7 @@ void EBTimingTask::beginJob(void){
 
 }
 
-void EBTimingTask::beginRun(const Run& r, const EventSetup& c) {
+void EBTimingTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -88,7 +83,7 @@ void EBTimingTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBTimingTask::endRun(const Run& r, const EventSetup& c) {
+void EBTimingTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -207,20 +202,20 @@ void EBTimingTask::cleanup(void){
 
 void EBTimingTask::endJob(void){
 
-  LogInfo("EBTimingTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBTimingTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBTimingTask::analyze(const Event& e, const EventSetup& c){
+void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool isData = true;
   bool enable = false;
   int runType[36];
   for (int i=0; i<36; i++) runType[i] = -1;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -244,7 +239,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
   } else {
 
     isData = false; enable = true;
-    LogWarning("EBTimingTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EBTimingTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -259,7 +254,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
   c.get<EcalChannelStatusRcd>().get(pChannelStatus);
   const EcalChannelStatus *chStatus = pChannelStatus.product();
 
-  Handle<EcalRecHitCollection> hits;
+  edm::Handle<EcalRecHitCollection> hits;
 
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
@@ -290,9 +285,6 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
       }
 
-      LogDebug("EBTimingTask") << " det id = " << id;
-      LogDebug("EBTimingTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
-
       MonitorElement* meTime = 0;
       MonitorElement* meTimeMap = 0;
       MonitorElement* meTimeAmpli = 0;
@@ -304,13 +296,13 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
       float xval = hitItr->energy();
       float yval = hitItr->time();
 
-      LogDebug("EBTimingTask") << " hit amplitude " << xval;
-      LogDebug("EBTimingTask") << " hit jitter " << yval;
-
       uint32_t flag = hitItr->recoFlag();      
-      uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*hitItr), *chStatus );
+      // uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *hits, *chStatus );
+      EcalChannelStatus::const_iterator chsIt = chStatus->find( id );
+      uint16_t dbStatus = 0; // 0 = good
+      if ( chsIt != chStatus->end() ) dbStatus = chsIt->getStatusCode();
 
-      if ( flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
+      if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && dbStatus == 0 ) {
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_ ) meTimeAmpliSummary_->Fill(xval, yval);
 
@@ -331,7 +323,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBTimingTask") << EcalRecHitCollection_ << " not available";
+    edm::LogWarning("EBTimingTask") << EcalRecHitCollection_ << " not available";
 
   }
 

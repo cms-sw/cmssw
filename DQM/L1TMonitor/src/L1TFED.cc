@@ -1,8 +1,8 @@
 /*
  * \file L1TFED.cc
  *
- * $Date: 2009/09/15 08:56:29 $
- * $Revision: 1.12 $
+ * $Date: 2010/04/01 01:05:19 $
+ * $Revision: 1.14 $
  * \author J. Berryhill
  *
  */
@@ -44,12 +44,14 @@ L1TFED::L1TFED(const ParameterSet& ps)
   
   l1feds_ = ps.getParameter<std::vector<int> >("L1FEDS");
 
+  directory_ = ps.getUntrackedParameter<std::string>("FEDDirName","L1T/FEDIntegrity");
+
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1T/FEDIntegrity");
+    dbe->setCurrentFolder(directory_);
   }
 
-
+  stableROConfig_ = ps.getUntrackedParameter<bool>("stableROConfig", true);
 }
 
 L1TFED::~L1TFED()
@@ -66,14 +68,14 @@ void L1TFED::beginJob(void)
   dbe = Service<DQMStore>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("L1T/FEDIntegrity");
-    dbe->rmdir("L1T/FEDIntegrity");
+    dbe->setCurrentFolder(directory_);
+    dbe->rmdir(directory_);
   }
 
 
   if ( dbe ) 
   {
-    dbe->setCurrentFolder("L1T/FEDIntegrity");
+    dbe->setCurrentFolder(directory_);
     
     fedentries = dbe->book1D("FEDEntries", "Fed ID occupancy", l1feds_.size(), 0.,l1feds_.size() );	  
     fedfatal = dbe->book1D("FEDFatal", "Fed ID non present ", l1feds_.size(), 0., l1feds_.size());	  
@@ -156,7 +158,7 @@ void L1TFED::analyze(const Event& e, const EventSetup& c)
         } else {
         
          if(verbose_) cout << "empty fed " << i << endl;
-	 fedfatal->Fill(i);
+	 if(stableROConfig_) fedfatal->Fill(i);
         
 	}
    }

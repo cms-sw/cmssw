@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2009/12/08 10:34:44 $
- * $Revision: 1.81 $
+ * $Date: 2010/03/12 11:36:29 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -10,7 +10,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -36,17 +35,13 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBOccupancyTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
+EBOccupancyTask::EBOccupancyTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -62,6 +57,7 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
     meOccupancy_[i]    = 0;
     meOccupancyMem_[i] = 0;
     meEBRecHitEnergy_[i] = 0;
+    meSpectrum_[i] = 0;
   }
 
   meEBRecHitSpectrum_ = 0;
@@ -110,7 +106,7 @@ void EBOccupancyTask::beginJob(void){
 
 }
 
-void EBOccupancyTask::beginRun(const Run& r, const EventSetup& c) {
+void EBOccupancyTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -118,7 +114,7 @@ void EBOccupancyTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBOccupancyTask::endRun(const Run& r, const EventSetup& c) {
+void EBOccupancyTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -128,6 +124,7 @@ void EBOccupancyTask::reset(void) {
     if ( meOccupancy_[i] ) meOccupancy_[i]->Reset();
     if ( meOccupancyMem_[i] ) meOccupancyMem_[i]->Reset();
     if ( meEBRecHitEnergy_[i] ) meEBRecHitEnergy_[i]->Reset();
+    if ( meSpectrum_[i] ) meSpectrum_[i]->Reset();
   }
 
   if ( meEBRecHitSpectrum_ ) meEBRecHitSpectrum_->Reset();
@@ -181,11 +178,16 @@ void EBOccupancyTask::setup(void){
       dqmStore_->tag(meOccupancyMem_[i], i+1);
 
       sprintf(histo, "EBOT rec hit energy %s", Numbers::sEB(i+1).c_str());
-      meEBRecHitEnergy_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meEBRecHitEnergy_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 100, 0., 100., "s");
       meEBRecHitEnergy_[i]->setAxisTitle("ieta", 1);
       meEBRecHitEnergy_[i]->setAxisTitle("iphi", 2);
       meEBRecHitEnergy_[i]->setAxisTitle("energy (GeV)", 3);
       dqmStore_->tag(meEBRecHitEnergy_[i], i+1);
+
+      sprintf(histo, "EBOT energy spectrum %s", Numbers::sEB(i+1).c_str());
+      meSpectrum_[i] = dqmStore_->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrum_[i]->setAxisTitle("energy (GeV)", 1);
+      dqmStore_->tag(meSpectrum_[i], i+1);
     }
 
     sprintf(histo, "EBOT rec hit spectrum");
@@ -290,6 +292,8 @@ void EBOccupancyTask::cleanup(void){
       meOccupancyMem_[i] = 0;
       if ( meEBRecHitEnergy_[i] ) dqmStore_->removeElement( meEBRecHitEnergy_[i]->getName() );
       meEBRecHitEnergy_[i] = 0;
+      if ( meSpectrum_[i] ) dqmStore_->removeElement( meSpectrum_[i]->getName() );
+      meSpectrum_[i] = 0;
     }
 
     if ( meEBRecHitSpectrum_ ) dqmStore_->removeElement( meEBRecHitSpectrum_->getName() );
@@ -347,13 +351,13 @@ void EBOccupancyTask::cleanup(void){
 
 void EBOccupancyTask::endJob(void) {
 
-  LogInfo("EBOccupancyTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBOccupancyTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
+void EBOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
@@ -361,7 +365,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   int runType[36] = { notdata };
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if (  e.getByLabel(EcalRawDataCollection_, dcchs) ) {
     
@@ -389,10 +393,10 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EBOccupancyTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EBOccupancyTask") << EcalRawDataCollection_ << " not available";
   }
 
-  Handle<EBDigiCollection> digis;
+  edm::Handle<EBDigiCollection> digis;
 
   if ( e.getByLabel(EBDigiCollection_, digis) ) {
 
@@ -412,13 +416,10 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
-      LogDebug("EBOccupancyTask") << " det id = " << id;
-      LogDebug("EBOccupancyTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
-
       if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
-        LogWarning("EBOccupancyTask") << " det id = " << id;
-        LogWarning("EBOccupancyTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
-        LogWarning("EBOccupancyTask") << " xie, xip " << xie << " " << xip;
+        edm::LogWarning("EBOccupancyTask") << " det id = " << id;
+        edm::LogWarning("EBOccupancyTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
+        edm::LogWarning("EBOccupancyTask") << " xie, xip " << xie << " " << xip;
       }
 
       if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill(xie, xip);
@@ -459,11 +460,11 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBOccupancyTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EBOccupancyTask") << EBDigiCollection_ << " not available";
 
   }
 
-  Handle<EcalPnDiodeDigiCollection> PNs;
+  edm::Handle<EcalPnDiodeDigiCollection> PNs;
 
   if ( e.getByLabel(EcalPnDiodeDigiCollection_, PNs) ) {
 
@@ -492,7 +493,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBOccupancyTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EBOccupancyTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 
@@ -501,7 +502,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
   c.get<EcalChannelStatusRcd>().get(pChannelStatus);
   const EcalChannelStatus *chStatus = pChannelStatus.product();
 
-  Handle<EcalRecHitCollection> rechits;
+  edm::Handle<EcalRecHitCollection> rechits;
 
   if ( e.getByLabel(EcalRecHitCollection_, rechits) ) {
 
@@ -536,7 +537,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
         if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Fill( xebphi );
         
         uint32_t flag = rechitItr->recoFlag();      
-        uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*rechitItr), *chStatus );
+        uint32_t sev = EcalSeverityLevelAlgo::severityLevel( id, *rechits, *chStatus );
 
         if ( rechitItr->energy() > recHitEnergyMin_ && flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
           
@@ -544,12 +545,12 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
           if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Fill( xebeta );
           if ( meEBRecHitOccupancyProjPhiThr_ ) meEBRecHitOccupancyProjPhiThr_->Fill( xebphi );
           
-          if ( meEBRecHitEnergy_[ism-1] ) meEBRecHitEnergy_[ism-1]->Fill( xie, xip, rechitItr->energy() );
-
         }
 
-        if ( rechitItr->recoFlag() == EcalRecHit::kGood ) {
-          meEBRecHitSpectrum_->Fill( rechitItr->energy() );
+        if ( flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
+          if ( meEBRecHitEnergy_[ism-1] ) meEBRecHitEnergy_[ism-1]->Fill( xie, xip, rechitItr->energy() );
+          if ( meSpectrum_[ism-1] ) meSpectrum_[ism-1]->Fill( rechitItr->energy() );
+          if ( meEBRecHitSpectrum_ ) meEBRecHitSpectrum_->Fill( rechitItr->energy() );
         }
 
       }
@@ -557,11 +558,11 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBOccupancyTask") << EcalRecHitCollection_ << " not available";
+    edm::LogWarning("EBOccupancyTask") << EcalRecHitCollection_ << " not available";
 
   }
 
-  Handle<EcalTrigPrimDigiCollection> trigPrimDigis;
+  edm::Handle<EcalTrigPrimDigiCollection> trigPrimDigis;
 
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, trigPrimDigis) ) {
 
@@ -603,7 +604,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBOccupancyTask") << EcalTrigPrimDigiCollection_ << " not available";
+    edm::LogWarning("EBOccupancyTask") << EcalTrigPrimDigiCollection_ << " not available";
 
   }
 

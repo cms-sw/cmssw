@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.11 2010/01/07 14:56:20 mommsen Exp $
+// $Id: EventDistributor.cc,v 1.14 2010/02/18 11:23:28 mommsen Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -15,6 +15,7 @@
 #include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 #include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
+#include "EventFilter/StorageManager/interface/RunMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 
@@ -31,7 +32,6 @@ EventDistributor::~EventDistributor()
   clearStreams();
   clearConsumers();
 }
-
 
 void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
 {
@@ -70,38 +70,12 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
     _sharedResources->_eventConsumerQueueCollection->addEvent( ioc );
   }
 
-  if( unexpected && ioc.messageCode() == Header::EVENT &&
-    _sharedResources->_configuration->getResourceMonitorParams()._isProductionSystem
-  )
+  if( unexpected && ioc.messageCode() == Header::EVENT )
   {
-    std::ostringstream msg;
-    msg << "Event " << ioc.eventNumber()
-      << " is not tagged for any stream or consumer."
-      << " Output module id: " << ioc.outputModuleId();
-    
-    msg << " HLT trigger bits: ";
-    std::vector<unsigned char> bitList;
-    ioc.hltTriggerBits(bitList);
-    // This code snipped taken from evm:EventSelector::acceptEvent
-    int byteIndex = 0;
-    int subIndex  = 0;
-    for (unsigned int pathIndex = 0; pathIndex < ioc.hltTriggerCount(); ++pathIndex)
-    {
-      int state = bitList[byteIndex] >> (subIndex * 2);
-      state &= 0x3;
-      msg << state << " ";
-      ++subIndex;
-      if (subIndex == 4)
-      { ++byteIndex;
-        subIndex = 0;
-      }
-    }
-    
-    XCEPT_DECLARE( stor::exception::UnwantedEvent, xcept, msg.str() );
-    _sharedResources->_statisticsReporter->alarmHandler()->notifySentinel( AlarmHandler::ERROR,
-      xcept );
+    RunMonitorCollection& runMonColl =
+      _sharedResources->_statisticsReporter->getRunMonitorCollection();
+    runMonColl.addUnwantedEvent(ioc);
   }
-
 }
 
 void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
@@ -163,8 +137,8 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
       
       RunMonitorCollection& runMonCollection = _sharedResources->
         _statisticsReporter->getRunMonitorCollection();
-      runMonCollection.getRunNumbersSeenMQ().addSample(ioc.runNumber());
-      runMonCollection.getLumiSectionsSeenMQ().addSample(ioc.lumiSection());
+      runMonCollection.getRunNumbersSeenMQ().addSampleIfLarger(ioc.runNumber());
+      runMonCollection.getLumiSectionsSeenMQ().addSampleIfLarger(ioc.lumiSection());
       runMonCollection.getEventIDsReceivedMQ().addSample(ioc.eventNumber());
       
       DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
@@ -190,8 +164,13 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
       // Pass any DQM event to the DQM event processor, as it might write 
       // DQM histograms to disk which are not requested by any consumer
       // Put this here or in EventDistributor::addEventToRelevantQueues?
-      _sharedResources->_dqmEventQueue->enq_nowait( ioc );
-      
+      DQMEventQueue::size_type discardedDQMEvents =
+        _sharedResources->_dqmEventQueue->enq_nowait( ioc );
+
+      DQMEventMonitorCollection& dqmEventMonColl = _sharedResources->
+        _statisticsReporter->getDQMEventMonitorCollection();
+      dqmEventMonColl.getDiscardedDQMEventCountsMQ().addSample(discardedDQMEvents);
+
       DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
         _statisticsReporter->getDataSenderMonitorCollection();
       dataSenderMonColl.addDQMEventSample(ioc);
@@ -452,8 +431,8 @@ void EventDistributor::checkForStaleConsumers()
         }
 
     }
-
 }
+
 
 /// emacs configuration
 /// Local Variables: -

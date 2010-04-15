@@ -7,8 +7,8 @@
 
 /** \class HcalTTPDigi
   *  
-  * $Date: $
-  * $Revision: $
+  * $Date: 2009/09/11 19:46:40 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class HcalTTPDigi {
@@ -36,7 +36,10 @@ public:
     int algorithm() const { return algorithm_ ; }
     unsigned int fwVersion() const { return fwVersion_ ; }
     unsigned int pipelineLength() const { return lPipe_ ; } 
-    
+
+    bool operator==(const HcalTTPDigi& digi) const ;
+    bool operator!=(const HcalTTPDigi& digi) const { return !(*this == digi) ; } 
+
 private:
     int identifier_;
     int samples_, presamples_; 

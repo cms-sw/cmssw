@@ -19,12 +19,13 @@ class HLTMuonDimuonL2Filter : public HLTFilter {
       explicit HLTMuonDimuonL2Filter(const edm::ParameterSet&);
       ~HLTMuonDimuonL2Filter();
       virtual bool filter(edm::Event&, const edm::EventSetup&);
-      bool triggeredByLevel1(reco::TrackRef& track,std::vector<l1extra::L1MuonParticleRef>& vcands);
 
    private:
       edm::InputTag beamspotTag_ ;
       edm::InputTag candTag_;  // input tag identifying product contains muons
       edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
+      /// input tag of the map from the L2 seed to the sister L2 seeds of cleaned tracks
+      edm::InputTag seedMapTag_;
       
       bool   fast_Accept_;      // flag to save time: stop processing after identification of the first valid pair
       double max_Eta_;          // Eta cut

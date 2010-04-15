@@ -5,6 +5,9 @@
 #include <algorithm>
 const int EBDetId::kModuleBoundaries[4] = { 25, 45, 65, 85 };
 
+// pi / 180.
+const float EBDetId::crystalUnitToEta = 0.017453292519943295;
+
 EBDetId
 EBDetId::unhashIndex( int hi )  
 {
@@ -105,6 +108,58 @@ int EBDetId::numberBySM() const {
   return (ism()-1) * kCrystalsPerSM + ic() -1;
 }
 
+EBDetId EBDetId::offsetBy(int nrStepsEta, int nrStepsPhi ) const
+{
+        int newEta = ieta()+nrStepsEta;
+        if( newEta*ieta() <= 0 ) {
+                if( ieta() < 0 ) {
+                        newEta++;
+                } else if ( ieta() > 0 ) {
+                        newEta--;
+                }
+        }
+        int newPhi = iphi() + nrStepsPhi;
+        while ( newPhi>360 ) newPhi -= 360;
+        while ( newPhi<=0  ) newPhi += 360;
+
+        if( validDetId( newEta, newPhi ) ) {
+                return EBDetId( newEta, newPhi);
+        } else {
+                return EBDetId(0);
+        }
+}
+
+EBDetId EBDetId::switchZSide() const
+{
+        int newEta = ieta()*-1;
+        if( validDetId( newEta, iphi() ) ) {
+                return EBDetId( newEta, iphi() );
+        } else {
+                return EBDetId(0);
+        }
+}
+
+
+DetId EBDetId::offsetBy(const DetId startId, int nrStepsEta, int nrStepsPhi )
+{
+        if( startId.det() == DetId::Ecal && startId.subdetId() == EcalBarrel ) {
+                EBDetId ebStartId(startId);
+                return ebStartId.offsetBy( nrStepsEta, nrStepsPhi ).rawId();
+        } else {
+                return DetId(0);
+        }
+}
+
+DetId EBDetId::switchZSide( const DetId startId )
+{
+        if( startId.det() == DetId::Ecal && startId.subdetId() == EcalBarrel ) {
+                EBDetId ebStartId(startId);
+                return ebStartId.switchZSide().rawId();
+        } else {
+                return DetId(0);
+        }
+}
+
 //corrects for HB/EB differing iphi=1
 int EBDetId::tower_iphi() const { 
   int iphi_simple=((iphi()-1)/5)+1; 
@@ -143,6 +198,14 @@ int EBDetId::distancePhi(const EBDetId& a,const EBDetId& b)
     return abs(a.iphi()-b.iphi());
 }
 
+float EBDetId::approxEta( const DetId id ) {
+        if( id.subdetId() == EcalBarrel ) {
+                EBDetId ebId( id );
+                return ebId.approxEta();
+        } else {
+                return 0;
+        }
+}
   
 std::ostream& operator<<(std::ostream& s,const EBDetId& id) {
   return s << "(EB ieta " << id.ieta() << ", iphi" << id.iphi() 

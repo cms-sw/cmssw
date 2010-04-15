@@ -44,7 +44,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
   ## SET algorithm of STA muon
   #from RecoMuon.SeedGenerator.selectorSET_cff import *
-process.STAMuonAnalyzer = cms.EDFilter("STAMuonAnalyzer",
+process.STAMuonAnalyzer = cms.EDAnalyzer("STAMuonAnalyzer",
                                          #    DataType = cms.untracked.string('SimData'),
                                              DataType = cms.untracked.string('RealData'),
                                              StandAloneTrackCollectionLabel = cms.untracked.string('standAloneSETMuons'),

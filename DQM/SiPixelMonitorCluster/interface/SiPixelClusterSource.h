@@ -19,7 +19,7 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.15 2010/01/07 16:50:54 merkelp Exp $
+// $Id: SiPixelClusterSource.h,v 1.16 2010/01/11 16:18:43 merkelp Exp $
 
 #include <memory>
 
@@ -92,6 +92,11 @@
        bool ringOn, bladeOn, diskOn; 
        bool smileyOn; //cluster sizeY vs Cluster eta plot 
        bool firstRun;
+       int lumSec;
+       int nLumiSecs;
+       int nBigEvents;
+       MonitorElement* bigFpixClusterEventRate;
+       int bigEventSize;
 };
 
 #endif

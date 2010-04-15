@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-EcalRawToRecHitRoI = cms.EDFilter("EcalRawToRecHitRoI",
+EcalRawToRecHitRoI = cms.EDProducer("EcalRawToRecHitRoI",
     JetJobPSet = cms.VPSet(),
     CandJobPSet = cms.VPSet(),
     sourceTag = cms.InputTag("EcalRawToRecHitFacility"),
@@ -8,7 +8,10 @@ EcalRawToRecHitRoI = cms.EDFilter("EcalRawToRecHitRoI",
     type = cms.string('muon egamma jet candidate all'),
     MuonJobPSet = cms.PSet(
 
-    )
+    ),
+    doES = cms.bool(False),
+    sourceTag_es = cms.InputTag(''),
+    esInstance = cms.untracked.string('es')
 )
 
 
