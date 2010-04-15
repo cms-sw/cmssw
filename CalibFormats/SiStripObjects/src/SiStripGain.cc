@@ -6,98 +6,133 @@
 //     <Notes on implementation>
 // Original Author:  gbruno
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripGain.cc,v 1.9 2010/02/20 20:55:06 wmtan Exp $
+// $Id: SiStripGain.cc,v 1.10 2010/03/29 12:32:37 demattia Exp $
 
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include <sstream>
 
 void SiStripGain::multiply(const SiStripApvGain & apvgain, const double & factor)
 {
-  apvgain_.push_back(&apvgain);
-  norm_.push_back(factor);
+  // When inserting the first ApvGain
+  if( apvgain_ == 0 ) {
+    if( (factor != 1) && (factor != 0) ) {
+      fillNewGain( &apvgain, factor );
+    }
+    else {
+      // If the normalization factor is one, no need to create a new SiStripApvGain
+      apvgain_ = &apvgain;
+    }
+  }
+  else {
+    // There is already an ApvGain inside the SiStripGain. Multiply it by the new one and save the new pointer.
+    std::cout << "multiplication" << std::endl;
+    fillNewGain( apvgain_, 1., &apvgain, factor ); 
+  }
+  apvgainVector_.push_back(&apvgain);
+  normVector_.push_back(factor);
+}
+
+void SiStripGain::fillNewGain(const SiStripApvGain * apvgain, const double & factor,
+		 const SiStripApvGain * apvgain2, const double & factor2)
+{
+  SiStripApvGain * newApvGain = new SiStripApvGain;
+  edm::FileInPath fp("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+  SiStripDetInfoFileReader reader(fp.fullPath());
+  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo> DetInfos = reader.getAllData();
+
+  // Loop on the apvgain in input and fill the newApvGain with the values/factor.
+  std::vector<uint32_t> detIds;
+  apvgain->getDetIds(detIds);
+  std::vector<uint32_t>::const_iterator it = detIds.begin();
+  for( ; it != detIds.end(); ++it ) {
+
+    std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator detInfoIt = DetInfos.find(*it);
+    if( detInfoIt != DetInfos.end() ) {
+
+      std::vector<float> theSiStripVector;
+
+      // Loop on all the apvs and then on the strips
+      SiStripApvGain::Range range = apvgain->getRange(*it);
+
+      SiStripApvGain::Range range2;
+      if( apvgain2 != 0 ) {
+	range2 = apvgain2->getRange(*it);
+      }
+
+      for( int apv = 0; apv < detInfoIt->second.nApvs; ++apv ) {
+	float apvGainValue = apvgain->getApvGain( apv, range )/factor;
+
+	if( (apvgain2 != 0) && (factor2 != 0.) ) {
+	  apvGainValue *= apvgain2->getApvGain( apv, range2 )/factor2;
+	}
+
+	theSiStripVector.push_back(apvGainValue);
+      }
+      SiStripApvGain::Range inputRange(theSiStripVector.begin(), theSiStripVector.end());
+      if( ! newApvGain->put(*it, inputRange) ) {
+	edm::LogError("SiStripGain") << "detid already exists" << std::endl;
+      }
+    }
+  }
+  apvgain_ = newApvGain;
+  // Deletes the managed object and replaces it with the new one
+  apvgainAutoPtr_.reset(newApvGain);
+}
+
+float SiStripGain::getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range) const
+{
+  if( apvgain_ == 0 ) {
+    edm::LogError("SiStripGain::getStripGain") << "ERROR: no gain available. Returning gain = 1." << std::endl;
+    return 1.;
+  }
+  return( apvgain_->getStripGain(strip, range) );
 }
 
 float SiStripGain::getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range, const int index) const
 {
-  if( !(apvgain_.empty()) ) {
-    return (apvgain_[index]->getStripGain(strip, range))/(norm_[0]);
+  if( !(apvgainVector_.empty()) ) {
+    return( apvgainVector_[index]->getStripGain(strip, range) );
   }
-  else {
-    edm::LogError("SiStripGain::getStripGain") << "ERROR: no gain available. Returning gain = 1." << std::endl;
-    return 1.;
-  }
+  edm::LogError("SiStripGain::getStripGain") << "ERROR: no gain available. Returning gain = 1." << std::endl;
+  return 1.;
 }
 
-float SiStripGain::getStripGain(const uint16_t& strip, const std::vector<SiStripApvGain::Range>& rangeVector) const
+float SiStripGain::getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range) const
 {
-  if( !(apvgain_.empty()) ) {
-    double gain = 1.;
-    std::vector<SiStripApvGain::Range>::const_iterator range = rangeVector.begin();
-    int i = 0;
-    for( ; range != rangeVector.end(); ++range, ++i ) {
-      gain*=(apvgain_[i]->getStripGain(strip, *range))/(norm_[i]);
-    }
-    return gain;
-  }
-  else {
-    edm::LogError("SiStripGain::getStripGain") << "ERROR: no gain available. Returning gain = 1." << std::endl;
+  if( apvgain_ == 0 ) {
+    edm::LogError("SiStripGain::getApvGain") << "ERROR: no gain available. Returning gain = 1." << std::endl;
     return 1.;
   }
+  return( apvgain_->getApvGain(apv, range) );
 }
 
 float SiStripGain::getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range, const int index) const
 {
-  if( !(apvgain_.empty()) ) {
-    return (apvgain_[index]->getApvGain(apv, range))/(norm_[0]);
+  if( !(apvgainVector_.empty()) ) {
+    return (apvgainVector_[index]->getApvGain(apv, range))/(normVector_[index]);
   }
-  else {
-    edm::LogError("SiStripGain::getApvGain") << "ERROR: no gain available. Returning gain = 1." << std::endl;
-    return 1.;
-  }
-}
-
-float SiStripGain::getApvGain(const uint16_t& apv, const std::vector<SiStripApvGain::Range>& rangeVector) const
-{
-  if( !(apvgain_.empty()) ) {
-    // std::cout << "apvgain_.size() = " << apvgain_.size() << std::endl;
-    // std::cout << "apvgain_[0] = " << apvgain_[0]->getApvGain(apv, range) << std::endl;
-    double gain = 1.;
-    std::vector<SiStripApvGain::Range>::const_iterator range = rangeVector.begin();
-    int i = 0;
-    for( ; range != rangeVector.end(); ++range, ++i ) {
-      gain *= apvgain_[i]->getApvGain(apv, *range)/norm_[i];
-      // std::cout << "apvgain_["<<i<<"] = " << apvgain_[i]->getApvGain(apv, *range) << std::endl;
-    }
-    return gain;
-  }
-  else {
-    edm::LogError("SiStripGain::getApvGain") << "ERROR: no gain available. Returning gain = 1." << std::endl;
-    return 1.;
-  }
+  edm::LogError("SiStripGain::getApvGain") << "ERROR: no gain available. Returning gain = 1." << std::endl;
+  return 1.;
 }
 
 void SiStripGain::getDetIds(std::vector<uint32_t>& DetIds_) const
 {
   // ATTENTION: we assume the detIds are the same as those from the first gain
-  return apvgain_[0]->getDetIds(DetIds_);
+  return apvgain_->getDetIds(DetIds_);
+}
+
+const SiStripApvGain::Range SiStripGain::getRange(const uint32_t& DetId) const
+{
+  return apvgain_->getRange(DetId);
 }
 
 const SiStripApvGain::Range SiStripGain::getRange(const uint32_t& DetId, const int index) const
 {
-  return apvgain_[index]->getRange(DetId);
-}
-
-const std::vector<SiStripApvGain::Range> SiStripGain::getAllRanges(const uint32_t& DetId) const
-{
-  std::vector<SiStripApvGain::Range> allRanges;
-  std::vector<const SiStripApvGain*>::const_iterator apvGainIt = apvgain_.begin();
-  for( ; apvGainIt != apvgain_.end(); ++apvGainIt ) {
-    allRanges.push_back((*apvGainIt)->getRange(DetId));
-  }
-  return allRanges;
+  return apvgainVector_[index]->getRange(DetId);
 }
 
 void SiStripGain::printDebug(std::stringstream & ss) const
@@ -108,16 +143,13 @@ void SiStripGain::printDebug(std::stringstream & ss) const
   ss << "Number of detids " << detIds.size() << std::endl;
 
   for( ; detid != detIds.end(); ++detid ) {
-    std::vector<SiStripApvGain::Range> rangeVector = getAllRanges(*detid);
-    if( !rangeVector.empty() ) {
-      // SiStripApvGain::Range range = getRange(*detid);
-      int apv=0;
-      for( int it=0; it < rangeVector[0].second - rangeVector[0].first; ++it ) {
-        ss << "detid " << *detid << " \t"
-           << " apv " << apv++ << " \t"
-           << getApvGain(it,rangeVector) << " \t"
-           << std::endl;
-      }
+    SiStripApvGain::Range range = getRange(*detid);
+    int apv=0;
+    for( int it=0; it < range.second - range.first; ++it ) {
+      ss << "detid " << *detid << " \t"
+	 << " apv " << apv++ << " \t"
+	 << getApvGain(it,range) << " \t"
+	 << std::endl;
     }
   }
 }
@@ -130,11 +162,9 @@ void SiStripGain::printSummary(std::stringstream& ss) const
   getDetIds(detIds);
   std::vector<uint32_t>::const_iterator detid = detIds.begin();
   for( ; detid != detIds.end(); ++detid ) {
-    std::vector<SiStripApvGain::Range> rangeVector = getAllRanges(*detid);
-    if( !rangeVector.empty() ) {
-      for( int it=0; it < rangeVector[0].second - rangeVector[0].first; ++it ) {
-        summaryGain.add(*detid, getApvGain(it, rangeVector));
-      }
+    SiStripApvGain::Range range = getRange(*detid);
+    for( int it=0; it < range.second - range.first; ++it ) {
+      summaryGain.add(*detid, getApvGain(it, range));
     }
   }
   ss << "Summary of gain values:" << std::endl;

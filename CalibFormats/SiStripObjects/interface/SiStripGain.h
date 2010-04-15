@@ -14,7 +14,7 @@
  *
  * Original Author:  gbruno
  *         Created:  Wed Mar 22 12:24:20 CET 2006
- * $Id: SiStripGain.h,v 1.5 2009/11/16 10:06:20 demattia Exp $
+ * $Id: SiStripGain.h,v 1.6 2010/03/29 12:32:37 demattia Exp $
  *
  * Modifications by M. De Mattia (demattia@pd.infn.it) on 11/11/2009:
  * It now holds a std::vector of pointers to ApvGain and a std::vector of corresponding
@@ -39,6 +39,7 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include <vector>
+#include <memory>
 
 class SiStripGain
 {
@@ -46,7 +47,8 @@ class SiStripGain
   SiStripGain() {};
   virtual ~SiStripGain() {};
 
-  inline SiStripGain(const SiStripApvGain& apvgain, const double & factor)
+  inline SiStripGain(const SiStripApvGain& apvgain, const double & factor) :
+    apvgain_(0)
   {
     multiply(apvgain, factor);
   }
@@ -55,27 +57,24 @@ class SiStripGain
   void multiply(const SiStripApvGain & apvgain, const double & factor);
 
   // getters
+  // For the product of all apvGains
+  // -------------------------------
+  const SiStripApvGain::Range getRange(const uint32_t& detID) const;
+  float getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range) const;
+  float getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range) const;
+
+  // For a specific apvGain
+  // ----------------------
   /**
-   * This method is kept for compatibility, but it can also be used to get one particular
-   * set of gain values. By default it will return the first gain, so if there is only
-   * one it will work like the old version and the old code using it will work.
    * The second parameter allows to specify which gain to retrieve, considering that
    * they are in input order.
    * NOTE that no protection is inside the method (because we want to keep it very light)
    * therefore it is the caller duty to check that the index is in the correct range.
    */
-  const SiStripApvGain::Range getRange(const uint32_t& detID, const int index = 0) const;
-  /// Returns a std::vector of ranges for all the gains in the format expected by getStripGain and getApvGain.
-  const std::vector<SiStripApvGain::Range> getAllRanges(const uint32_t& DetId) const;
+  const SiStripApvGain::Range getRange(const uint32_t& detID, const int index) const;
+  float getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range, const int index) const;
+  float getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range, const int index) const;
 
-  /// Used to get the gain of a specific gain set
-  float getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range, const int index = 0) const;
-  /// Used to get the full gain (product of all the gains)
-  float getStripGain(const uint16_t& strip, const std::vector<SiStripApvGain::Range>& range) const;
-  /// Used to get the gain of a specific gain set
-  float getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range, const int index = 0) const;
-  /// Used to get the full gain (product of all the gains)
-  float getApvGain(const uint16_t& apv, const std::vector<SiStripApvGain::Range>& rangeVector) const;
   /// ATTENTION: we assume the detIds are the same as those from the first gain
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
 
@@ -84,13 +83,17 @@ class SiStripGain
 
  private:
 
+  void fillNewGain(const SiStripApvGain * apvgain, const double & factor,
+		   const SiStripApvGain * apvgain2 = 0, const double & factor2 = 1.);
   SiStripGain(const SiStripGain&); // stop default
   const SiStripGain& operator=(const SiStripGain&); // stop default
 
   // ---------- member data --------------------------------
 
-  std::vector<const SiStripApvGain *> apvgain_;
-  std::vector<double> norm_;
+  std::vector<const SiStripApvGain *> apvgainVector_;
+  std::vector<double> normVector_;
+  const SiStripApvGain * apvgain_;
+  std::auto_ptr<SiStripApvGain> apvgainAutoPtr_;
 };
 
 #endif
