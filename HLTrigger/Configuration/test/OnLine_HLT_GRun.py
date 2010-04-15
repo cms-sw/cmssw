@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_0/pre4/GRun/V18 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
+# /dev/CMSSW_3_6_0/pre4/GRun/V19 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/GRun/V18')
+  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/GRun/V19')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -19,7 +19,6 @@ process.streams = cms.PSet(
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   EventDisplay = cms.vstring(  ),
   A = cms.vstring( 'JetMETTauMonitor',
@@ -36,7 +35,8 @@ process.streams = cms.PSet(
     'HcalNZS' ),
   DQM = cms.vstring(  ),
   HLTDQM = cms.vstring(  ),
-  HLTMON = cms.vstring( 'OfflineMonitor' )
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  Express = cms.vstring( 'ExpressPhysics' )
 )
 process.datasets = cms.PSet( 
   LogMonitor = cms.vstring( 'HLT_LogMonitor' ),
@@ -47,16 +47,6 @@ process.datasets = cms.PSet(
   RPCMonitor = cms.vstring( 'AlCa_RPCMuonNormalisation',
     'AlCa_RPCMuonNoHits',
     'AlCa_RPCMuonNoTriggers' ),
-  ExpressPhysics = cms.vstring( 'HLT_MET100',
-    'HLT_L1MuOpen',
-    'HLT_L1Mu',
-    'HLT_ZeroBias',
-    'HLT_L1SingleEG2',
-    'HLT_L1SingleEG5',
-    'HLT_L1Tech_HCAL_HF_coincidence_PM',
-    'HLT_L1DoubleMuOpen',
-    'HLT_MinBiasBSC',
-    'HLT_Jet50U' ),
   AlCaP0 = cms.vstring( 'AlCa_EcalEta_8E29',
     'AlCa_EcalPi0_8E29' ),
   JetMETTauMonitor = cms.vstring( 'HLT_L1Jet10U_NoBPTX',
@@ -323,7 +313,17 @@ process.datasets = cms.PSet(
     'HLT_DoubleJet15U_ForwardBackward',
     'HLT_L2Mu5',
     'HLT_HighMult40',
-    'HLT_L1_BscMinBiasOR_BeamGas' )
+    'HLT_L1_BscMinBiasOR_BeamGas' ),
+  ExpressPhysics = cms.vstring( 'HLT_MET100',
+    'HLT_L1MuOpen',
+    'HLT_L1Mu',
+    'HLT_ZeroBias',
+    'HLT_L1SingleEG2',
+    'HLT_L1SingleEG5',
+    'HLT_L1Tech_HCAL_HF_coincidence_PM',
+    'HLT_L1DoubleMuOpen',
+    'HLT_MinBiasBSC',
+    'HLT_Jet50U' )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -9609,10 +9609,6 @@ process.hltSingleMu3L3PreFilterNoVtx = cms.EDFilter( "HLTMuonL3PreFilter",
     NSigmaPt = cms.double( 0.0 ),
     SaveTag = cms.untracked.bool( True )
 )
-process.hltPhysicsDeclared = cms.EDFilter( "HLTPhysicsDeclared",
-    invert = cms.bool( False ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
-)
 process.hltPreLogMonitor = cms.EDFilter( "HLTPrescaler" )
 process.hltLogMonitorFilter = cms.EDFilter( "HLTLogMonitorFilter",
     default_threshold = cms.uint32( 10 ),
@@ -11276,7 +11272,6 @@ process.HLT_L1_BPTX_MinusOnly = cms.Path( process.HLTBeginSequence + process.hlt
 process.HLT_L1_BPTX_PlusOnly = cms.Path( process.HLTBeginSequence + process.hltL1sL1BPTX + process.hltL1sL1BPTXPlusOnly + process.hltPreL1BPTXPlusOnly + process.HLTEndSequence )
 process.HLT_L2Mu0_NoVertex = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu0 + process.hltPreL2Mu0NoVertex + process.hltSingleMu0L1Filtered + process.HLTL2muonrecoSequenceNoVtx + process.hltSingleL2Mu0L2PreFilteredNoVtx + process.HLTEndSequence )
 process.HLT_TkMu3_NoVertex = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu0 + process.hltPreTkMu3NoVertex + process.hltSingleMu0L1Filtered + process.HLTL2muonrecoSequenceNoVtx + process.hltSingleMu3L2PreFilteredNoVtx + process.HLTL3muonrecoSequenceNoVtx + process.hltSingleMu3L3PreFilterNoVtx + process.HLTEndSequence )
-process.HLT_PhysicsDeclared = cms.Path( process.HLTBeginSequence + process.hltPhysicsDeclared + process.HLTEndSequence )
 process.HLT_LogMonitor = cms.Path( process.hltPreLogMonitor + process.hltLogMonitorFilter + process.HLTEndSequence )
 process.DQM_FEDIntegrity = cms.Path( process.HLTBeginSequence + process.hltPreFEDIntegrity + process.hltDTDQMEvF + process.hltEcalDigis + process.hltEBHltTask + process.hltEEHltTask + process.hltL1tfed + process.hltSiPixelDigisWithErrors + process.hltSiPixelHLTSource + process.hltSiStripFEDCheck + process.hltMuonRPCDigis + process.hltRPCFEDIntegrity + process.hltBoolDQMPath )
 process.HLTriggerFinalPath = cms.Path( process.hltTriggerSummaryAOD + process.hltPreTriggerSummaryRAW + process.hltTriggerSummaryRAW + process.hltBoolFinalPath )
