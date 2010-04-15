@@ -1,3 +1,4 @@
+
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
 from PhysicsTools.PatAlgos.patEventContent_cff import *
@@ -11,25 +12,33 @@ class SwitchOnTrigger(ConfigToolBase):
     
     def __init__(self):
         ConfigToolBase.__init__(self)
+        self.addParameter(self._defaultParameters,'outputInProcess',True, "indicate whether there is an output module specified for the process (default is\True)  ")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
     def getDefaultParameters(self):
         return self._defaultParameters
 
-    def __call__(self,process) :
+    def __call__(self,process,
+                  outputInProcess     = None) :
+        if  outputInProcess is None:
+            outputInProcess=self._defaultParameters['outputInProcess'].value
+        self.setParameter('outputInProcess',outputInProcess)
         self.apply(process) 
         
-    def toolCode(self, process):       
+    def toolCode(self, process):
+        outputInProcess=self._parameters['outputInProcess'].value
+         
         ## add trigger modules to path
         process.load("PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff")
         process.patDefaultSequence += process.patTriggerSequence
         ## configure pat trigger
         process.patTrigger.onlyStandAlone = False
         ## add trigger specific event content to PAT event content
-        process.out.outputCommands += patTriggerEventContent
-        for matchLabel in process.patTriggerEvent.patTriggerMatches:
-            process.out.outputCommands += [ 'keep patTriggerObjectsedmAssociation_patTriggerEvent_' + matchLabel + '_*' ]
+        if ( outputInProcess ):
+            process.out.outputCommands += patTriggerEventContent
+            for matchLabel in process.patTriggerEvent.patTriggerMatches:
+                process.out.outputCommands += [ 'keep patTriggerObjectsedmAssociation_patTriggerEvent_' + matchLabel + '_*' ]
 
 switchOnTrigger=SwitchOnTrigger()
 
@@ -41,13 +50,18 @@ class SwitchOnTriggerStandAlone(ConfigToolBase):
     
     def __init__(self):
         ConfigToolBase.__init__(self)
+        self.addParameter(self._defaultParameters,'outputInProcess',True, "indicate whether there is an output module specified for the process (default is\True)  ")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
     def getDefaultParameters(self):
         return self._defaultParameters
 
-    def __call__(self,process) :
+    def __call__(self,process,
+                 outputInProcess     = None) :
+        if  outputInProcess is None:
+            outputInProcess=self._defaultParameters['outputInProcess'].value
+        self.setParameter('outputInProcess',outputInProcess)
         self.apply(process) 
         
     def toolCode(self, process):
@@ -57,7 +71,8 @@ class SwitchOnTriggerStandAlone(ConfigToolBase):
         ## configure pat trigger
         process.patTrigger.onlyStandAlone = True
         process.patTriggerSequence.remove( process.patTriggerEvent )
-        process.out.outputCommands += patTriggerStandAloneEventContent
+        if ( outputInProcess ):
+            process.out.outputCommands += patTriggerStandAloneEventContent
 
       
         
@@ -71,18 +86,24 @@ class SwitchOnTriggerAll(ConfigToolBase):
     
     def __init__(self):
         ConfigToolBase.__init__(self)
+        self.addParameter(self._defaultParameters,'outputInProcess',True, "indicate whether there is an output module specified for the process (default is\True)  ")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
     def getDefaultParameters(self):
         return self._defaultParameters
 
-    def __call__(self,process) :
+    def __call__(self,process,
+                 outputInProcess     = None) :
+        if  outputInProcess is None:
+            outputInProcess=self._defaultParameters['outputInProcess'].value
+        self.setParameter('outputInProcess',outputInProcess)
         self.apply(process) 
         
     def toolCode(self, process):
         switchOnTrigger( process )
-        process.out.outputCommands += patTriggerStandAloneEventContent
+        if ( outputInProcess ):
+            process.out.outputCommands += patTriggerStandAloneEventContent
       
 
 switchOnTriggerAll=SwitchOnTriggerAll()
@@ -95,18 +116,24 @@ class SwitchOnTriggerMatchEmbedding(ConfigToolBase):
     
     def __init__(self):
         ConfigToolBase.__init__(self)
+        self.addParameter(self._defaultParameters,'outputInProcess',True, "indicate whether there is an output module specified for the process (default is\True)  ")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
     def getDefaultParameters(self):
         return self._defaultParameters
 
-    def __call__(self,process) :
+    def __call__(self,process,
+                 outputInProcess     = None) :
+        if  outputInProcess is None:
+            outputInProcess=self._defaultParameters['outputInProcess'].value
+        self.setParameter('outputInProcess',outputInProcess)
         self.apply(process) 
         
     def toolCode(self, process):
         process.patTriggerSequence += process.patTriggerMatchEmbedder
-        process.out.outputCommands += patEventContentTriggerMatch
+        if ( outputInProcess ):
+            process.out.outputCommands += patEventContentTriggerMatch
       
 
 switchOnTriggerMatchEmbedding=SwitchOnTriggerMatchEmbedding()
