@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/04/13 15:49:43 $
- * $Revision: 1.42 $
+ * $Date: 2010/04/13 17:07:51 $
+ * $Revision: 1.43 $
  *
  */
 
@@ -753,7 +753,8 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
   if (doFitting && theBeamFitter->runFitter()){
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
-    preBS = bs;
+    if (bs.type() > 0) // with good beamwidth fit
+      preBS = bs; // cache good fit results
     if (debug_) {
       cout << "\n RESULTS OF DEFAULT FIT:" << endl;
       cout << bs << endl;
@@ -784,8 +785,10 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     h_x0->Fill( bs.x0());
     h_y0->Fill( bs.y0());
     h_z0->Fill( bs.z0());
-    h_sigmaX0->Fill( bs.BeamWidthX());
-    h_sigmaY0->Fill( bs.BeamWidthY());
+    if (bs.type() > 0) { // with good beamwidth fit
+      h_sigmaX0->Fill( bs.BeamWidthX());
+      h_sigmaY0->Fill( bs.BeamWidthY());
+    }
     h_sigmaZ0->Fill( bs.sigmaZ());
 
     if (nthBSTrk_ >= 2*min_Ntrks_) {
@@ -817,8 +820,14 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     fitResults->setBinContent(1,5,bs.sigmaZ());
     fitResults->setBinContent(1,4,bs.dxdz());
     fitResults->setBinContent(1,3,bs.dydz());
-    fitResults->setBinContent(1,2,bs.BeamWidthX());
-    fitResults->setBinContent(1,1,bs.BeamWidthY());
+    if (bs.type() > 0) { // with good beamwidth fit
+      fitResults->setBinContent(1,2,bs.BeamWidthX());
+      fitResults->setBinContent(1,1,bs.BeamWidthY());
+    }
+    else { // fill cached widths
+      fitResults->setBinContent(1,2,preBS.BeamWidthX());
+      fitResults->setBinContent(1,1,preBS.BeamWidthY());
+    }
 
     fitResults->setBinContent(2,8,bs.x0Error());
     fitResults->setBinContent(2,7,bs.y0Error());
@@ -826,8 +835,14 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     fitResults->setBinContent(2,5,bs.sigmaZ0Error());
     fitResults->setBinContent(2,4,bs.dxdzError());
     fitResults->setBinContent(2,3,bs.dydzError());
-    fitResults->setBinContent(2,2,bs.BeamWidthXError());
-    fitResults->setBinContent(2,1,bs.BeamWidthYError());
+    if (bs.type() > 0) { // with good beamwidth fit
+      fitResults->setBinContent(2,2,bs.BeamWidthXError());
+      fitResults->setBinContent(2,1,bs.BeamWidthYError());
+    }
+    else { // fill cached width errors
+      fitResults->setBinContent(2,2,preBS.BeamWidthXError());
+      fitResults->setBinContent(2,1,preBS.BeamWidthYError());
+    }
 
 //     if (fabs(refBS.x0()-bs.x0())/bs.x0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[0] += 1.;
