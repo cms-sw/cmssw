@@ -39,9 +39,9 @@
 
 
 
-class TrackVertexArbitrato : public edm::EDProducer {
+class TrackVertexArbitrator : public edm::EDProducer {
     public:
-	TrackVertexArbitrato(const edm::ParameterSet &params);
+	TrackVertexArbitrator(const edm::ParameterSet &params);
 
 
 	virtual void produce(edm::Event &event, const edm::EventSetup &es);
@@ -59,7 +59,7 @@ class TrackVertexArbitrato : public edm::EDProducer {
 	double					dLenFraction;
 };
 
-TrackVertexArbitrato::TrackVertexArbitrato(const edm::ParameterSet &params) :
+TrackVertexArbitrator::TrackVertexArbitrator(const edm::ParameterSet &params) :
 	primaryVertexCollection(params.getParameter<edm::InputTag>("primaryVertices")),
 	secondaryVertexCollection(params.getParameter<edm::InputTag>("secondaryVertices")),
 	trackCollection(params.getParameter<edm::InputTag>("tracks")),
@@ -98,7 +98,7 @@ static double computeSharedTracks(const reco::Vertex &pv,
 	return (double)count / (double)total;
 }
 
-bool TrackVertexArbitrato::trackFilter(const reco::TrackRef &track) const
+bool TrackVertexArbitrator::trackFilter(const reco::TrackRef &track) const
 {
         if (track->hitPattern().trackerLayersWithMeasurement() < 4)
                 return false;
@@ -109,7 +109,7 @@ bool TrackVertexArbitrato::trackFilter(const reco::TrackRef &track) const
 }
 
 
-void TrackVertexArbitrato::produce(edm::Event &event, const edm::EventSetup &es)
+void TrackVertexArbitrator::produce(edm::Event &event, const edm::EventSetup &es)
 {
 	using namespace reco;
 
@@ -217,4 +217,4 @@ for(std::vector<reco::Vertex>::const_iterator sv = secondaryVertices->begin();
 	event.put(recoVertices);
 }
 
-DEFINE_FWK_MODULE(TrackVertexArbitrato);
+DEFINE_FWK_MODULE(TrackVertexArbitrator);
