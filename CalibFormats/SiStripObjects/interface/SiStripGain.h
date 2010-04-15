@@ -14,27 +14,20 @@
  *
  * Original Author:  gbruno
  *         Created:  Wed Mar 22 12:24:20 CET 2006
- * $Id: SiStripGain.h,v 1.6 2010/03/29 12:32:37 demattia Exp $
+ * $Id: SiStripGain.h,v 1.7 2010/04/15 12:47:38 demattia Exp $
  *
  * Modifications by M. De Mattia (demattia@pd.infn.it) on 11/11/2009:
  * It now holds a std::vector of pointers to ApvGain and a std::vector of corresponding
  * normalization factors. <br>
  * It returns the product of all the Gain/norm ratios. <br>
  * The multiply method allows to input additional gain records. <br>
- * ATTENTION: we take the list of detIds from the first gain and we assume
- * that is it the same for all the rest of the gains. <br>
+ * ATTENTION: the code assumes that the second tag has at least the same DetIds that the first tag and
+ * only the DetIds present in the first tag will be used. <br>
  * <br>
- * The getStripGain and getApvGain return the gain value for the selected range of a gain set
- * specified by index in the internal std::vector (default 0). This std::vector is built adding each
- * gain in sequence and retains this order, so the first set of gain input will be 0 ecc... <br>
- * Additional overloaded methods receive the full std::vector of ranges for all the gains and returns
- * the product of all gains/norm. <br>
- * The getRange method can be used to take the range for a given detId and index of the gain set
- * (default 0). <br>
- * The getAllRanges method can be used to take all the ranges for a given detId and pass them to
- * the getStripGain and getApvGain methods.
- * The ESProducer CalibTracker/SiStripESProducers/plugins/real/SiStripGainESProducerTemplate.h
- * handles the multiple inputs of gains and shows an example on how to use this class.
+ * There are two set of methods to access the gain value. The first one returns the products of all ApvGain/norm.
+ * The second set of methods take an additional integer paramter and return the corresponding ApvGain (without normalization).
+ * Note that no check is done inside these methods to see if the ApvGain really exists. It is responsibility of the
+ * user to not pass an index value that exceeds the number of ApvGains.
  */
 
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
