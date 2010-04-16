@@ -31,7 +31,7 @@ FamosCalorimetryBlock = cms.PSet(
         CalorimeterProperties = cms.PSet(
             # triplet for each p value:  p, k_e(p), k_h(p) ...
             RespCorrP = cms.vdouble(1.0, 1.0, 1.0, 1000.0, 1.0, 1.0),  
-            PreshowerLayer2_thickness = cms.double(0.38),
+            PreshowerLayer2_thickness = cms.double(0.399),
             ECALEndcap_LightCollection = cms.double(0.023),
             PreshowerLayer1_thickness = cms.double(1.6),
             PreshowerLayer1_mipsPerGeV = cms.double(35.7),
