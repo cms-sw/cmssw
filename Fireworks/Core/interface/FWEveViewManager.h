@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:45 CET 2010
-// $Id: FWEveViewManager.h,v 1.2 2010/04/07 16:56:20 amraktad Exp $
+// $Id: FWEveViewManager.h,v 1.3 2010/04/12 10:09:15 amraktad Exp $
 //
 
 // system include files
@@ -37,7 +37,6 @@ class FWViewBase;
 class FWEveView;
 class FWProxyBuilderBase;
 class FWGUIManager;
-class FWSelectionManager;
 
 class FWEveViewManager : public FWViewManagerBase
 {
@@ -89,15 +88,12 @@ private:
    FWViewBase* createRhoZView      (TEveWindowSlot* iParent);
    FWEveView*  finishViewCreate    (boost::shared_ptr<FWEveView>);
 
-   void makeProxyBuilderFor(const FWEventItem* iItem);
    void beingDestroyed(const FWViewBase*);
 
    bool haveViewForBit (int) const;
 
    // ---------- member data --------------------------------
    
-   FWSelectionManager*     m_selectionManager; // set via FWEventItem
-
    typedef  std::map<std::string,  std::vector<BuilderInfo> >  TypeToBuilder;
    
    typedef  std::vector<boost::shared_ptr<FWProxyBuilderBase> >  BuilderVec;   
@@ -110,7 +106,7 @@ private:
    std::map<int, BuilderVec> m_builders;
 
    std::vector< std::vector<boost::shared_ptr<FWEveView> > >  m_views;
-   std::vector<TEveScene*>  m_scenes;
+   std::vector<TEveElementList*>  m_products;
 
    // TODO ...
    // std::map<const FWEventItem*, std::vector<TEveCompund*> >  m_interactions;

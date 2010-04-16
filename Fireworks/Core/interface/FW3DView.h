@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr  7 14:41:26 CEST 2010
-// $Id: FW3DView.h,v 1.20 2010/04/12 10:09:15 amraktad Exp $
+// $Id: FW3DView.h,v 1.21 2010/04/12 12:43:09 amraktad Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@ class TEveCalo3D;
 class FW3DView: public FW3DViewBase
 {
 public:
-   FW3DView(TEveWindowSlot*, TEveScene*);
+   FW3DView(TEveWindowSlot*, FWViewType::EType);
    virtual ~FW3DView();
 
    virtual void setContext(fireworks::Context&);

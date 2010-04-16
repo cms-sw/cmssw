@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWGlimpseView.h,v 1.14 2010/03/16 11:51:53 amraktad Exp $
+// $Id: FWGlimpseView.h,v 1.15 2010/04/06 20:00:35 amraktad Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ class TEveGeoShape;
 class FWGlimpseView : public FWEveView
 {
 public:
-   FWGlimpseView(TEveWindowSlot*, TEveScene*);
+   FWGlimpseView(TEveWindowSlot*, FWViewType::EType);
    virtual ~FWGlimpseView();
 
    // ---------- const member functions ---------------------

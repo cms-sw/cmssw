@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DViewBase.h,v 1.2 2010/04/09 17:23:57 amraktad Exp $
+// $Id: FW3DViewBase.h,v 1.3 2010/04/12 12:43:09 amraktad Exp $
 //
 
 // system include files
@@ -39,7 +39,7 @@ class FWColorManager;
 class FW3DViewBase : public FWEveView
 {
 public:
-   FW3DViewBase(TEveWindowSlot*, TEveScene*);
+   FW3DViewBase(TEveWindowSlot*, FWViewType::EType);
    virtual ~FW3DViewBase();
 
    // ---------- const member functions ---------------------

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.37 2010/03/16 11:51:54 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.38 2010/04/06 20:00:36 amraktad Exp $
 //
 
 #include <boost/bind.hpp>
@@ -49,17 +49,14 @@
 //
 // constructors and destructorquery
 //
-FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, TEveScene* scene) :
-   FWEveView(iParent),
+FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, FWViewType::EType typeId) :
+   FWEveView(iParent, typeId),
    m_cylinder(0),
    m_showAxes(this, "Show Axes", true ),
    m_showCylinder(this, "Show Cylinder", true)
 {
-   setType(FWViewType::kGlimpse);
-   setEventScene(scene);
-   viewer()->AddScene(scene);
-
    createAxis();
+
    // made new wireframe scene
    TEveScene* wns = gEve->SpawnNewScene(Form("Wireframe Scene %s", typeName().c_str()));
    viewer()->AddScene(wns);

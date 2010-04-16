@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.6 2010/04/07 16:56:20 amraktad Exp $
+// $Id: FWEveView.cc,v 1.7 2010/04/09 17:23:57 amraktad Exp $
 //
 
 
@@ -52,9 +52,9 @@ class Context;
 // constructors and destructor
 //
 
-FWEveView::FWEveView(TEveWindowSlot* iParent) :
+FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type) :
    FWViewBase(2),
-   m_type(FWViewType::kSize),
+   m_type(type),
    m_viewer(0),
    m_eventScene(0),
    m_geoScene(0),
@@ -79,8 +79,12 @@ FWEveView::FWEveView(TEveWindowSlot* iParent) :
 #endif
    iParent->ReplaceWindow(m_viewer);
    gEve->GetViewers()->AddElement(m_viewer);
+
+   m_eventScene =  gEve->SpawnNewScene(Form("EventScene %s", typeName().c_str()));
+   m_viewer->AddScene(m_eventScene);
+
    // spawn geo scene
-   m_geoScene = gEve->SpawnNewScene("Viewer GeoScene");
+   m_geoScene = gEve->SpawnNewScene(Form("EventScene %s", typeName().c_str()));
    m_geoScene->GetGLScene()->SetSelectable(kFALSE);
    m_viewer->AddScene(m_geoScene);
    m_viewContextMenu.reset(new FWViewContextMenuHandlerGL(m_viewer));
@@ -173,23 +177,6 @@ void
 FWEveView::resetCamera()
 {
    viewerGL()->ResetCurrentCamera();
-}
-
-void
-FWEveView::setEventScene(TEveScene* eventScene)
-{
-   m_eventScene = eventScene;
-}
-
-
-void
-FWEveView::setType(FWViewType::EType t)
-{
-   m_type = FWViewType(t);
-
-   // update viewer name for debug purposes
-   m_viewer->SetElementName(Form("Viewer_%s", typeName().c_str()));
-   m_viewer->SetElementName(Form("GeoScene_%s", typeName().c_str()));
 }
 
 //-------------------------------------------------------------------------------

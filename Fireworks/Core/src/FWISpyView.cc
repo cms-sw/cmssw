@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Wed Apr  7 14:40:31 CEST 2010
-// $Id: FWISpyView.cc,v 1.1 2010/04/07 16:56:20 amraktad Exp $
+// $Id: FWISpyView.cc,v 1.1 2010/04/12 10:09:17 amraktad Exp $
 //
 
 // system include files
@@ -28,10 +28,9 @@
 //
 // constructors and destructor
 //
-FWISpyView::FWISpyView(TEveWindowSlot* w, TEveScene* s):
-   FW3DViewBase(w, s)
+FWISpyView::FWISpyView(TEveWindowSlot* slot, FWViewType::EType typeId):
+   FW3DViewBase(slot, typeId)
 {
-   setType(FWViewType::kISpy);
 }
 
 // FWISpyView::FWISpyView(const FWISpyView& rhs)

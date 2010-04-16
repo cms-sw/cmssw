@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr  7 14:41:32 CEST 2010
-// $Id: FWISpyView.h,v 1.1 2010/04/07 16:56:20 amraktad Exp $
+// $Id: FWISpyView.h,v 1.1 2010/04/12 10:09:15 amraktad Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@ class FWISpyView : public FW3DViewBase
 {
 
 public:
-   FWISpyView(TEveWindowSlot*, TEveScene*);
+   FWISpyView(TEveWindowSlot*, FWViewType::EType);
    virtual ~FWISpyView();
 
    // ---------- const member functions ---------------------

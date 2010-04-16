@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.76 2010/04/12 12:43:10 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.77 2010/04/15 20:15:15 amraktad Exp $
 //
 
 // system include files
@@ -51,8 +51,8 @@
 //
 // constructors and destructor
 //
-FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveScene* eventScene) :
-   FWEveView(iParent),
+FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, FWViewType::EType typeId) :
+   FWEveView(iParent, typeId),
    m_lego(0),
    m_overlay(0),
    m_plotEt(this,"Plot Et",true),   
@@ -62,10 +62,6 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveScene* eventScene) :
    m_legoFixedScale(this,"Lego scale GeV)",100.,1.,1000.),
    m_legoAutoScale (this,"Lego auto scale",true)
 {
-   setType(FWViewType::kLego);
-   setEventScene(eventScene);
-   viewer()->AddScene(eventScene);
-
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
 
    m_autoRebin.changed_.connect(boost::bind(&FWEveLegoView::setAutoRebin,this));

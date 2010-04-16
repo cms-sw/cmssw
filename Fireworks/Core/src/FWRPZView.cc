@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.3 2010/04/12 12:43:10 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.4 2010/04/15 20:15:15 amraktad Exp $
 //
 
 // system include files
@@ -47,7 +47,7 @@
 // constructors and destructor
 //
 FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
-   FWEveView(iParent),
+   FWEveView(iParent, id),
    m_caloScale(1),
    m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
    m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
@@ -58,8 +58,6 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_showHF(0),
    m_showEndcaps(0)
 {
-   setType(id);
-
    TEveProjection::EPType_e projType = (id == FWViewType::kRhoZ) ? TEveProjection::kPT_RhoZ : TEveProjection::kPT_RPhi;
 
    m_projMgr.reset(new TEveProjectionManager(projType));
@@ -74,9 +72,6 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
       m_projMgr->GetProjection()->AddPreScaleEntry(1, 580, 0.2);
    }
    
-   TEveScene* projScene =  gEve->SpawnNewScene(Form("Scene %s", FWViewType::idToName(id).c_str()));
-   setEventScene(projScene);
-   viewer()->AddScene(projScene);
 
    // camera  
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);

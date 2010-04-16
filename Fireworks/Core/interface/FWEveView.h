@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.5 2010/04/09 17:23:57 amraktad Exp $
+// $Id: FWEveView.h,v 1.7 2010/04/15 20:15:15 amraktad Exp $
 //
 
 
@@ -47,7 +47,7 @@ class Context;
 class FWEveView : public FWViewBase
 {
 public:
-   FWEveView(TEveWindowSlot*);
+   FWEveView(TEveWindowSlot*, FWViewType::EType);
    virtual ~FWEveView();
 
    virtual void addTo(FWConfiguration&) const;
@@ -69,7 +69,7 @@ public:
  //  const FWViewType& viewType() const { return m_viewType; }
 
    TEveViewer* viewer()      { return m_viewer; }
-   TEveScene*  eventScene()  { return m_eventScene;  }
+   TEveScene*  eventScene()  { return m_eventScene;}
    TEveScene*  geoScene()    { return m_geoScene; }
    TGLViewer*  viewerGL() const;
 
@@ -77,9 +77,6 @@ public:
    FWViewContext* getViewContext() { return 0; } // TODO auto-scale
 
 protected:
-   void setType(FWViewType::EType t);
-   void setEventScene(TEveScene* s);
-
    virtual void resetCamera();
    virtual void lineWidthChanged();
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.2 2010/04/09 17:23:57 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.3 2010/04/12 12:43:10 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -44,8 +44,8 @@
 //
 // constructors and destructor
 //
-FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, TEveScene* eventScene) :
-   FWEveView(iParent),
+FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
+   FWEveView(iParent, typeId),
    m_geometry(0),
    m_showMuonBarrel(this, "Show Muon Barrel", false ),
    m_showMuonEndcap(this, "Show Muon Endcap", false),
@@ -59,10 +59,6 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, TEveScene* eventScene) :
    m_caloFixedScale(this,"Calo scale (GeV/meter)",2.,0.001,100.),
    m_caloAutoScale (this,"Calo auto scale",true)
 {
-   setEventScene(eventScene);
-   viewer()->AddScene(eventScene);
-
-   //camera
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
 }
 

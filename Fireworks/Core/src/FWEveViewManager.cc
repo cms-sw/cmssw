@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.9 2010/04/15 20:15:15 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.10 2010/04/16 10:59:51 amraktad Exp $
 //
 
 // system include files
@@ -52,8 +52,7 @@ class FWViewContext;
 // constructors and destructor
 //
 FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
-   FWViewManagerBase(),
-   m_selectionManager(0)
+   FWViewManagerBase()
 {
      
    // builders
@@ -91,11 +90,12 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
    
    // create scene maps and view maps
 
-   m_scenes.resize(FWViewType::kSize);
+   m_products.resize(FWViewType::kSize);
    for (int viewType = 0;  viewType < FWViewType::kSize; ++viewType)
    {
       const char* sceneName = Form("Shared %s", FWViewType::idToName(viewType).c_str());
-      m_scenes[viewType] = gEve->SpawnNewScene(sceneName);
+      m_products[viewType] = new TEveElementList(sceneName);
+      m_products[viewType]->IncDenyDestroy();
    }
    m_views.resize(FWViewType::kSize); 
    
@@ -135,7 +135,7 @@ FWEveViewManager::~FWEveViewManager()
 //______________________________________________________________________________
 
 void
-FWEveViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
+FWEveViewManager::newItem(const FWEventItem* iItem)
 {
    TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->purpose());
    if (itFind != m_typeToBuilder.end())
@@ -180,7 +180,7 @@ FWEveViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
                   else 
                   {
                      TEveElementList* product = builder->createProduct((FWViewType::EType)viewType, 0);
-                     m_scenes[viewType]->AddElement(product);
+                     m_products[viewType]->AddElement(product);
 
                      for (EveViewVec_it i = m_views[viewType].begin(); i!= m_views[viewType].end(); ++i)
                      { 
@@ -207,23 +207,13 @@ FWEveViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
    } // loop purposes
 }
 
-void
-FWEveViewManager::newItem(const FWEventItem* iItem)
-{ 
-   if(0==m_selectionManager) {
-      //std::cout <<"got selection manager"<<std::endl;
-      m_selectionManager = iItem->selectionManager();
-   }
-   makeProxyBuilderFor(iItem);
-}
-
 //______________________________________________________________________________
 
 FWViewBase*
 FWEveViewManager::createISpyView(TEveWindowSlot* iParent)
 {
    FWViewType::EType t = FWViewType::kISpy;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWISpyView(iParent, m_scenes[t])));
+   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWISpyView(iParent, t)));
    return finishViewCreate(m_views[t].back());   
 }
 
@@ -231,7 +221,7 @@ FWViewBase*
 FWEveViewManager::create3DView(TEveWindowSlot* iParent)
 {
    FWViewType::EType t = FWViewType::k3D;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FW3DView(iParent, m_scenes[t])));
+   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FW3DView(iParent, t)));
    return finishViewCreate(m_views[t].back());   
 }
 
@@ -255,7 +245,7 @@ FWViewBase*
 FWEveViewManager::createLegoView(TEveWindowSlot* iParent)
 {
    FWViewType::EType t = FWViewType::kLego;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWEveLegoView(iParent, m_scenes[t])));
+   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWEveLegoView(iParent, t)));
    return finishViewCreate(m_views[t].back());
 }
 
@@ -263,7 +253,7 @@ FWViewBase*
 FWEveViewManager::createGlimpseView(TEveWindowSlot* iParent)
 {      
    FWViewType::EType t = FWViewType::kGlimpse;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWGlimpseView(iParent, m_scenes[t])));
+   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWGlimpseView(iParent, t)));
    return finishViewCreate(m_views[t].back());
 }
 
@@ -297,9 +287,12 @@ FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
    if (typeId == FWViewType::kRhoPhi || typeId == FWViewType::kRhoZ )
    { 
       FWRPZView* rpzView = (FWRPZView*)(view.get());
-      rpzView->importElements(m_scenes[typeId], 0);
+      rpzView->importElements(m_products[typeId], 0);
    }
-
+   else
+   {
+      view->eventScene()->AddElement(m_products[typeId]);
+   }
 
    view->beingDestroyed_.connect(boost::bind(&FWEveViewManager::beingDestroyed,this,_1));
    gEve->Redraw3D();
@@ -425,9 +418,7 @@ FWEveViewManager::selectionRemoved(TEveElement* iElement)
 void
 FWEveViewManager::selectionCleared()
 {
-   if(0!= m_selectionManager) {
-      m_selectionManager->clearSelection();
-   }
+   context().selectionManager()->clearSelection();
 }
 
 
