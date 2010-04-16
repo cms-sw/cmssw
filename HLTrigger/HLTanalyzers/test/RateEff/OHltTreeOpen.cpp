@@ -1610,6 +1610,11 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }        
     }          
   }          
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_MinBiasBSC_OR") == 0) { 
+    bool techTriggerBSCOR = (bool) L1Tech_BSC_minBias_OR_v0;
+    if(techTriggerBSCOR)
+      if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+  } 
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_MinBiasBSC") == 0) {
     bool techTriggerBSC1 = (bool) L1Tech_BSC_minBias_threshold1_v0;
     bool techTriggerBSC2 = (bool) L1Tech_BSC_minBias_threshold2_v0;
