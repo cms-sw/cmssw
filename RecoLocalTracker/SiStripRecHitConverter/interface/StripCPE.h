@@ -46,7 +46,7 @@ private:
   Param & fillParam(Param & p, const GeomDetUnit *  det);
   typedef  __gnu_cxx::hash_map< unsigned int, Param> Params;  
   Params m_Params;
-  vector<pair<float,float> > late;
+  std::vector<std::pair<float,float> > late;
 
 };
 #endif
