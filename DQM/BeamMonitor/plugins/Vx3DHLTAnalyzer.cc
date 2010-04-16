@@ -104,7 +104,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 
       for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
 	
-	if ((it3DVx->isValid() == true) && (it3DVx->isFake() == false) && ((it3DVx->ndof() >= minVxDoF) || ((it3DVx->ndof() + 3.)/it3DVx->tracksSize() < 2*minVxWgt)))
+	if ((it3DVx->isValid() == true) && (it3DVx->isFake() == false) && ((it3DVx->ndof() >= minVxDoF) && ((it3DVx->ndof() + 3.)/it3DVx->tracksSize() >= 2.*minVxWgt)))
 	  {
 	    for (i = 0; i < DIM; i++)
 	      {
@@ -264,16 +264,16 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
  
   if ((vals != NULL) && (vals->size() == nParams*2))
     {
-      double nSigmaXY    = 4.;
-      double nSigmaZ     = 4.;
+      double nSigmaXY    = 5.;
+      double nSigmaZ     = 5.;
       double varFactor   = 2./5.; // Take into account the difference between the RMS and sigma (RMS usually greater than sigma)
       double parDistance = 0.01;
       double det;
-      double bestEdm = 1.;
+      double bestEdm     = 1e-1;
       double deltaMean;
-      int bestMovementX = 1;
-      int bestMovementY = 1;
-      int bestMovementZ = 1;
+      int bestMovementX  = 1;
+      int bestMovementY  = 1;
+      int bestMovementZ  = 1;
       int goodData;
 
       double arglist[2];
@@ -1215,7 +1215,7 @@ void Vx3DHLTAnalyzer::beginJob()
   reset("scratch");
   maxLumiIntegration   = 100;
   minVxDoF             = 4.;
-  minVxWgt             = 1.;
+  minVxWgt             = 0.5;
   VxErrCorr            = 1.0;
   internalDebug        = false;
   considerVxCovariance = true;
