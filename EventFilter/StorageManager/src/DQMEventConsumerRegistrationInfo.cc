@@ -1,4 +1,4 @@
-// $Id: DQMEventConsumerRegistrationInfo.cc,v 1.4 2009/09/16 09:53:24 dshpakov Exp $
+// $Id: DQMEventConsumerRegistrationInfo.cc,v 1.5 2010/02/16 10:49:36 mommsen Exp $
 /// @file: DQMEventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
@@ -62,7 +62,7 @@ namespace stor
   }
 
   ConsumerID
-  DQMEventConsumerRegistrationInfo::do_consumerId() const
+  DQMEventConsumerRegistrationInfo::do_consumerID() const
   {
     return _common._consumerId;
   }

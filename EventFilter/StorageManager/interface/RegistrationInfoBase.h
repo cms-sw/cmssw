@@ -1,4 +1,4 @@
-// $Id: RegistrationInfoBase.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: RegistrationInfoBase.h,v 1.4 2010/02/16 10:49:52 mommsen Exp $
 /// @file: RegistrationInfoBase.h 
 
 #ifndef StorageManager_RegistrationInfoBase_h
@@ -22,8 +22,8 @@ namespace stor {
    * registration info objects.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.4 $
+   * $Date: 2010/02/16 10:49:52 $
    */
 
   class RegistrationInfoBase
@@ -36,6 +36,11 @@ namespace stor {
        containment-by-reference.
     */
     virtual ~RegistrationInfoBase() {};
+
+    /**
+       Return whether or not *this is a valid registration
+    */
+    bool isValid();
 
     /**
        Register the consumer represented by this registration with the
@@ -68,7 +73,7 @@ namespace stor {
     /**
        Returns the ID given to this consumer.
      */
-    ConsumerID consumerId() const;
+    ConsumerID consumerID() const;
 
     /**
        Set the consumer ID.
@@ -91,7 +96,7 @@ namespace stor {
     virtual QueueID do_queueId() const = 0;
     virtual void do_setQueueID(QueueID const& id) = 0;
     virtual std::string do_consumerName() const = 0;
-    virtual ConsumerID do_consumerId() const = 0;
+    virtual ConsumerID do_consumerID() const = 0;
     virtual void do_setConsumerID(ConsumerID const& id) = 0;
     virtual int do_queueSize() const = 0;
     virtual enquing_policy::PolicyTag do_queuePolicy() const = 0;
@@ -99,6 +104,12 @@ namespace stor {
   };
 
   typedef boost::shared_ptr<stor::RegistrationInfoBase> RegPtr;
+
+  inline
+  bool RegistrationInfoBase::isValid()
+  {
+    return consumerID().isValid();
+  }
 
   inline
   void RegistrationInfoBase::registerMe(EventDistributor* dist)
@@ -131,9 +142,9 @@ namespace stor {
   }
 
   inline
-  ConsumerID RegistrationInfoBase::consumerId() const
+  ConsumerID RegistrationInfoBase::consumerID() const
   {
-    return do_consumerId();
+    return do_consumerID();
   }
 
   inline

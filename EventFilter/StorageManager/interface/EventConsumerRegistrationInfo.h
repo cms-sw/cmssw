@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.h,v 1.7 2009/12/01 17:56:15 smorovic Exp $
+// $Id: EventConsumerRegistrationInfo.h,v 1.8 2010/02/16 10:49:52 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_EventConsumerRegistrationInfo_h
@@ -19,9 +19,9 @@ namespace stor
   /**
    * Holds the registration information from a event consumer.
    *
-   * $Author: smorovic $
-   * $Revision: 1.7 $
-   * $Date: 2009/12/01 17:56:15 $
+   * $Author: mommsen $
+   * $Revision: 1.8 $
+   * $Date: 2010/02/16 10:49:52 $
    */
 
   class EventConsumerRegistrationInfo: public RegistrationInfoBase
@@ -68,7 +68,7 @@ namespace stor
     virtual QueueID do_queueId() const;
     virtual void do_setQueueID(QueueID const& id);
     virtual std::string do_consumerName() const;
-    virtual ConsumerID do_consumerId() const;
+    virtual ConsumerID do_consumerID() const;
     virtual void do_setConsumerID(ConsumerID const& id);
     virtual int do_queueSize() const;
     virtual enquing_policy::PolicyTag do_queuePolicy() const;
@@ -89,7 +89,7 @@ namespace stor
 
   };
 
-  typedef boost::shared_ptr<stor::EventConsumerRegistrationInfo> ConsRegPtr;
+  typedef boost::shared_ptr<stor::EventConsumerRegistrationInfo> EventConsRegPtr;
 
   /**
      Print the given EventConsumerRegistrationInfo to the given

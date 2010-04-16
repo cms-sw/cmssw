@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.44 2010/02/16 10:49:37 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.45 2010/02/18 11:22:53 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -316,7 +316,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
 
         // ID:
         std::ostringstream cid_oss;
-        cid_oss << (*it)->consumerId();
+        cid_oss << (*it)->consumerID();
         XHTMLMaker::Node* cs_td_id = maker.addNode( "td", cs_tr, td_attr );
         maker.addText( cs_td_id, cid_oss.str() );
 
@@ -601,7 +601,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
 
         // ID:
         std::ostringstream cid_oss;
-        cid_oss << (*it)->consumerId();
+        cid_oss << (*it)->consumerID();
         XHTMLMaker::Node* cs_td_id = maker.addNode( "td", cs_tr, td_attr );
         maker.addText( cs_td_id, cid_oss.str() );
 

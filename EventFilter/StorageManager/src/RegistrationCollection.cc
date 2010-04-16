@@ -1,4 +1,4 @@
-// $Id: RegistrationCollection.cc,v 1.7 2010/04/15 16:05:45 mommsen Exp $
+// $Id: RegistrationCollection.cc,v 1.8 2010/04/16 12:31:58 mommsen Exp $
 /// @file: RegistrationCollection.cc
 
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
@@ -18,51 +18,42 @@ RegistrationCollection::~RegistrationCollection() {}
 
 ConsumerID RegistrationCollection::getConsumerID()
 {
-
   boost::mutex::scoped_lock sl( _lock );
-
+  
   if( !_registrationAllowed )
-    {
-      return ConsumerID(0);
-    }
-
-  _nextConsumerID++;
-  return _nextConsumerID;
-
+  {
+    return ConsumerID(0);
+  }
+  
+  return ++_nextConsumerID;
 }
 
 bool
-RegistrationCollection::addRegistrationInfo( const ConsumerID cid, const RegPtr ri )
+RegistrationCollection::addRegistrationInfo( const RegPtr ri )
 {
   boost::mutex::scoped_lock sl( _lock );
   if( _registrationAllowed )
+  {
+    ConsumerID cid = ri->consumerID();
+    RegistrationMap::iterator pos = _consumers.lower_bound(cid);
+    
+    if ( pos != _consumers.end() && !(_consumers.key_comp()(cid, pos->first)) )
     {
-      RegistrationMap::iterator pos = _consumers.lower_bound(cid);
-
-      // 05-Oct-2009, KAB - added a test of whether cid appears before
-      // pos->first in the map sort order.  Since lower_bound can return
-      // a non-end iterator even when cid is not in the map, we need to
-      // complete the test of whether cid is in the map.  (Another way to
-      // look at this is we need to implement the full test described in
-      // the efficientAddOrUpdates pattern suggested by Item 24 of
-      // 'Effective STL' by Scott Meyers.)
-      if ( pos != _consumers.end() && !(_consumers.key_comp()(cid, pos->first)) )
-      {
-        // The given ConsumerID already exists.
-        return false;
-      }
-
-      _consumers.insert( pos, RegistrationMap::value_type(cid, ri) );
-      return true;
-    }
-  else
-    {
+      // The given ConsumerID already exists.
       return false;
     }
+    
+    _consumers.insert( pos, RegistrationMap::value_type(cid, ri) );
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 
-RegPtr RegistrationCollection::getRegistrationInfo( const ConsumerID cid )
+RegPtr RegistrationCollection::getRegistrationInfo( const ConsumerID cid ) const
 {
   boost::mutex::scoped_lock sl( _lock );
   RegPtr regInfo;
@@ -81,7 +72,7 @@ void RegistrationCollection::getEventConsumers( ConsumerRegistrations& crs ) con
   for( RegistrationMap::const_iterator it = _consumers.begin();
        it != _consumers.end(); ++it )
     {
-      ConsRegPtr eventConsumer =
+      EventConsRegPtr eventConsumer =
         boost::dynamic_pointer_cast<EventConsumerRegistrationInfo>( it->second );
       if ( eventConsumer )
         crs.push_back( eventConsumer );

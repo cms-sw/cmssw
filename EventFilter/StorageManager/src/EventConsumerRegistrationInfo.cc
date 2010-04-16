@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.cc,v 1.7 2009/12/01 17:50:40 smorovic Exp $
+// $Id: EventConsumerRegistrationInfo.cc,v 1.8 2010/02/16 10:49:36 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
@@ -75,7 +75,7 @@ namespace stor
   }
 
   ConsumerID
-  EventConsumerRegistrationInfo::do_consumerId() const
+  EventConsumerRegistrationInfo::do_consumerID() const
   {
     return _common._consumerId;
   }
