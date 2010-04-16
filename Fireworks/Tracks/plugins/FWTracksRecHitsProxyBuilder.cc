@@ -51,5 +51,5 @@ FWTracksModulesProxyBuilder::build(const reco::Track& iData, unsigned int iIndex
    fireworks::addModules(iData, item(), &oItemHolder, false);
 }
 
-REGISTER_FWPROXYBUILDER(FWTracksRecHitsProxyBuilder, reco::Track, "TrackHits", FWViewType::k3DBit | FWViewType::kRPZBit);
-REGISTER_FWPROXYBUILDER(FWTracksModulesProxyBuilder, reco::Track, "TrackDets", FWViewType::k3DBit | FWViewType::kRPZBit);
+REGISTER_FWPROXYBUILDER(FWTracksRecHitsProxyBuilder, reco::Track, "TrackHits", FWViewType::k3DBits | FWViewType::kRPZBit);
+REGISTER_FWPROXYBUILDER(FWTracksModulesProxyBuilder, reco::Track, "TrackDets", FWViewType::k3DBits | FWViewType::kRPZBit);

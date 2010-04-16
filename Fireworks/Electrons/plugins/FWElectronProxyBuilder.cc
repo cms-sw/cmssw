@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.5 2010/04/15 20:15:16 amraktad Exp $
+// $Id: FWElectronProxyBuilder.cc,v 1.6 2010/04/16 10:27:28 amraktad Exp $
 //
 #include "TEveTrack.h"
 
@@ -124,7 +124,7 @@ FWElectronProxyBuilder::buildViewType(const FWEventItem* iItem, TEveElementList*
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWElectronProxyBuilder, reco::GsfElectronCollection, "Electrons", FWViewType::k3DBit | FWViewType::kRPZBit);
+REGISTER_FWPROXYBUILDER(FWElectronProxyBuilder, reco::GsfElectronCollection, "Electrons", FWViewType::k3DBits | FWViewType::kRPZBit);
 
 
 

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.1 2010/04/08 11:15:47 yana Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.2 2010/04/15 20:15:16 amraktad Exp $
 //
 
 // system include files
@@ -113,4 +113,4 @@ FWSiStripClusterProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWSiStripClusterProxyBuilder,edmNew::DetSetVector<SiStripCluster>,"SiStrip", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWSiStripClusterProxyBuilder,edmNew::DetSetVector<SiStripCluster>,"SiStrip", FWViewType::k3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

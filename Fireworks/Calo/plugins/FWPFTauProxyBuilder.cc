@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPFTauProxyBuilder.cc,v 1.1 2010/04/15 12:45:02 yana Exp $
+// $Id: FWPFTauProxyBuilder.cc,v 1.2 2010/04/15 13:19:32 yana Exp $
 //
 
 // system include files
@@ -110,6 +110,6 @@ FWPFTauLegoProxyBuilder::build( const reco::PFTau& iData, unsigned int iIndex, T
    oItemHolder.AddElement( container );
 }
 
-REGISTER_FWPROXYBUILDER(FWPFTauProxyBuilder, reco::PFTau, "PFTau", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWPFTauProxyBuilder, reco::PFTau, "PFTau", FWViewType::k3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
 REGISTER_FWPROXYBUILDER(FWPFTauGlimpseProxyBuilder, reco::PFTau, "PFTau", FWViewType::kGlimpseBit);
 REGISTER_FWPROXYBUILDER(FWPFTauLegoProxyBuilder, reco::PFTau, "PFTau", FWViewType::kLegoBit);

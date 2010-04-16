@@ -26,7 +26,7 @@
 // static data member definitions
 //
 
-std::string   FWViewType::k3DEName      = "3D";
+std::string   FWViewType::k3DName       = "3D";
 std::string   FWViewType::kRhoPhiName   = "Rho Phi";
 std::string   FWViewType::kRhoZName     = "Rho Z";
 std::string   FWViewType::kISpyName     = "iSpy";
@@ -82,8 +82,8 @@ FWViewType::idToName(int id)
 
    switch(id)
    {
-      case k3DE:
-         return  k3DEName;
+      case k3D:
+         return  k3DName;
       case kRhoPhi:
          return  kRhoPhiName;
       case kRhoZ:

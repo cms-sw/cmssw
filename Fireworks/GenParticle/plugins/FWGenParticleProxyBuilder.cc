@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWGenParticleProxyBuilder.cc,v 1.8 2010/04/07 14:24:38 yana Exp $
+// $Id: FWGenParticleProxyBuilder.cc,v 1.1 2010/04/14 11:52:12 yana Exp $
 // 
 
 #include "TDatabasePDG.h"
@@ -70,5 +70,5 @@ FWGenParticleProxyBuilder::build(const reco::GenParticle& iData, unsigned int iI
    oItemHolder.AddElement( trk );
 }
 
-REGISTER_FWPROXYBUILDER(FWGenParticleProxyBuilder, reco::GenParticle, "GenParticles", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWGenParticleProxyBuilder, reco::GenParticle, "GenParticles", FWViewType::k3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
 

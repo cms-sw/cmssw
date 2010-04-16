@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.34 2010/04/12 10:09:17 amraktad Exp $
+// $Id: FW3DView.cc,v 1.35 2010/04/12 12:43:10 amraktad Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ FW3DView::FW3DView(TEveWindowSlot* w, TEveScene* s):
    FW3DViewBase(w, s),
    m_calo(0)
 {
-   setType(FWViewType::k3DE);
+   setType(FWViewType::k3D);
 }
 
 // FW3DView::FW3DView(const FW3DView& rhs)

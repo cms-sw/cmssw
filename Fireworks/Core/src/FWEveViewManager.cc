@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.8 2010/04/12 12:43:10 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.9 2010/04/15 20:15:15 amraktad Exp $
 //
 
 // system include files
@@ -107,7 +107,7 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
    f[FWViewType::kRhoPhi   ] = boost::bind(&FWEveViewManager::createRhoPhiView   , this, _1);
    f[FWViewType::kRhoZ     ] = boost::bind(&FWEveViewManager::createRhoZView     , this, _1);
    f[FWViewType::kISpy     ] = boost::bind(&FWEveViewManager::createISpyView     , this, _1);
-   f[FWViewType::k3DE      ] = boost::bind(&FWEveViewManager::create3DView       , this, _1);
+   f[FWViewType::k3D       ] = boost::bind(&FWEveViewManager::create3DView       , this, _1);
    f[FWViewType::kLego     ] = boost::bind(&FWEveViewManager::createLegoView     , this, _1);
    f[FWViewType::kGlimpse  ] = boost::bind(&FWEveViewManager::createGlimpseView  , this, _1);
 
@@ -230,7 +230,7 @@ FWEveViewManager::createISpyView(TEveWindowSlot* iParent)
 FWViewBase*
 FWEveViewManager::create3DView(TEveWindowSlot* iParent)
 {
-   FWViewType::EType t = FWViewType::k3DE;
+   FWViewType::EType t = FWViewType::k3D;
    m_views[t].push_back(boost::shared_ptr<FWEveView> (new FW3DView(iParent, m_scenes[t])));
    return finishViewCreate(m_views[t].back());   
 }
