@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.cc,v 1.8 2010/02/16 10:49:36 mommsen Exp $
+// $Id: ConsumerUtils.cc,v 1.9 2010/04/16 12:31:58 mommsen Exp $
 /// @file: ConsumerUtils.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
@@ -28,17 +28,29 @@ using namespace stor;
 
 void ConsumerUtils::processConsumerRegistrationRequest(xgi::Input* in, xgi::Output* out) const
 {
-  // Get consumer ID if registration is allowed:
-  ConsumerID cid = _sharedResources->_registrationCollection->getConsumerID();
+  EventConsRegPtr reginfo = createEventConsumerRegistrationInfo(in,out);
 
-  if( !cid.isValid() )
+  if ( reginfo.get() != NULL && reginfo->isValid() &&
+       createEventConsumerQueue(reginfo) &&
+       addRegistrationInfo(reginfo) )
   {
-    writeNotReady( out );
-    return;
+    writeConsumerRegistration( out, reginfo->consumerID() );
   }
+  else
+  {  
+    writeNotReady( out );
+  }
+}
 
-  // Create registration info and set consumer ID:
-  ConsRegPtr reginfo;
+
+EventConsRegPtr ConsumerUtils::createEventConsumerRegistrationInfo(xgi::Input* in, xgi::Output* out) const
+{
+  EventConsRegPtr reginfo;
+  if ( _sharedResources.get() == NULL ) return reginfo;
+
+  ConsumerID cid = _sharedResources->_registrationCollection->getConsumerID();
+  if ( !cid.isValid() ) return reginfo;
+
   std::string errorMsg = "Error parsing an event consumer registration request";
   StatisticsReporter::AlarmHandlerPtr alarmHandler =
     _sharedResources->_statisticsReporter->alarmHandler();
@@ -56,7 +68,7 @@ void ConsumerUtils::processConsumerRegistrationRequest(xgi::Input* in, xgi::Outp
     alarmHandler->notifySentinel(AlarmHandler::ERROR, sentinelException);
     
     writeErrorString( out, errorMsg );
-    return;
+    return reginfo;
   }
   catch ( xcept::Exception& excpt )
   {
@@ -65,7 +77,7 @@ void ConsumerUtils::processConsumerRegistrationRequest(xgi::Input* in, xgi::Outp
     alarmHandler->notifySentinel(AlarmHandler::ERROR, sentinelException);
     
     writeErrorString( out, errorMsg + ": " + xcept::stdformat_exception_history(excpt) );
-    return;
+    return reginfo;
   }
   catch ( ... )
   {
@@ -76,41 +88,26 @@ void ConsumerUtils::processConsumerRegistrationRequest(xgi::Input* in, xgi::Outp
     alarmHandler->notifySentinel(AlarmHandler::ERROR, sentinelException);
     
     writeErrorString( out, errorMsg );
-    return;
+    return reginfo;
   }
   reginfo->setConsumerID( cid );
+  return reginfo;
+}
 
-  // Create queue and set queue ID:
+
+bool ConsumerUtils::createEventConsumerQueue(EventConsRegPtr reginfo) const
+{
   QueueID qid =
     _sharedResources->_eventConsumerQueueCollection->createQueue(
-      cid,
+      reginfo->consumerID(),
       reginfo->queuePolicy(),
       reginfo->queueSize(),
       reginfo->secondsToStale());
 
-  if( !qid.isValid() )
-  {
-    writeNotReady( out );
-    return;
-  }
+  if( !qid.isValid() ) return false;
   
   reginfo->setQueueID( qid );
-  
-  // Add registration to collection:
-  bool add_ok = 
-    _sharedResources->_registrationCollection->addRegistrationInfo( cid,
-                                                                    reginfo );
-  if( !add_ok )
-  {
-    writeNotReady( out );
-    return;
-  }
-
-  // Put registration on the queue:
-  _sharedResources->_registrationQueue->enq_wait( reginfo );
-  
-  // Reply to consumer:
-  writeConsumerRegistration( out, cid );
+  return true;
 }
 
 
@@ -123,7 +120,7 @@ void ConsumerUtils::processConsumerHeaderRequest(xgi::Input* in, xgi::Output* ou
     return;
   }
   
-  ConsRegPtr consRegPtr = boost::dynamic_pointer_cast<EventConsumerRegistrationInfo>(
+  EventConsRegPtr consRegPtr = boost::dynamic_pointer_cast<EventConsumerRegistrationInfo>(
     _sharedResources->_registrationCollection->getRegistrationInfo( cid ));
   if ( consRegPtr.get() == NULL )
   {
@@ -173,17 +170,28 @@ void ConsumerUtils::processConsumerEventRequest(xgi::Input* in, xgi::Output* out
 
 void ConsumerUtils::processDQMConsumerRegistrationRequest(xgi::Input* in, xgi::Output* out) const
 {
-  // Get consumer ID if registration is allowed:
-  ConsumerID cid = _sharedResources->_registrationCollection->getConsumerID();
-  
-  if( !cid.isValid() )
-  {
-    writeNotReady( out );
-    return;
-  }
+  DQMEventConsRegPtr reginfo = createDQMEventConsumerRegistrationInfo(in,out);
 
-  // Create registration info and set consumer ID:
-  stor::DQMEventConsRegPtr dqmreginfo;
+  if ( reginfo.get() != NULL && reginfo->isValid() &&
+       createDQMEventConsumerQueue(reginfo) &&
+       addRegistrationInfo(reginfo) )
+  {
+    writeConsumerRegistration( out, reginfo->consumerID() );
+  }
+  else
+  {  
+    writeNotReady( out );
+  }
+}
+
+DQMEventConsRegPtr ConsumerUtils::createDQMEventConsumerRegistrationInfo(xgi::Input* in, xgi::Output* out) const
+{
+  DQMEventConsRegPtr dqmreginfo;
+  if ( _sharedResources.get() == NULL ) return dqmreginfo;
+
+  ConsumerID cid = _sharedResources->_registrationCollection->getConsumerID();
+  if ( !cid.isValid() ) return dqmreginfo;
+
   std::string errorMsg = "Error parsing a DQM event consumer registration request";
   StatisticsReporter::AlarmHandlerPtr alarmHandler =
     _sharedResources->_statisticsReporter->alarmHandler();
@@ -201,7 +209,7 @@ void ConsumerUtils::processDQMConsumerRegistrationRequest(xgi::Input* in, xgi::O
     alarmHandler->notifySentinel(AlarmHandler::ERROR, sentinelException);
     
     writeErrorString( out, errorMsg );
-    return;
+    return dqmreginfo;
   }
   catch ( xcept::Exception& excpt )
   {
@@ -210,7 +218,7 @@ void ConsumerUtils::processDQMConsumerRegistrationRequest(xgi::Input* in, xgi::O
     alarmHandler->notifySentinel(AlarmHandler::ERROR, sentinelException);
     
     writeErrorString( out, errorMsg + ": " + xcept::stdformat_exception_history(excpt) );
-    return;
+    return dqmreginfo;
   }
   catch ( ... )
   {
@@ -221,41 +229,10 @@ void ConsumerUtils::processDQMConsumerRegistrationRequest(xgi::Input* in, xgi::O
     alarmHandler->notifySentinel(AlarmHandler::ERROR, sentinelException);
     
     writeErrorString( out, errorMsg );
-    return;
+    return dqmreginfo;
   }
   dqmreginfo->setConsumerID( cid );
-
-  // Create queue and set queue ID:
-  QueueID qid =
-    _sharedResources->_dqmEventConsumerQueueCollection->createQueue(
-      cid,
-      dqmreginfo->queuePolicy(),
-      dqmreginfo->queueSize(),
-      dqmreginfo->secondsToStale());
-
-  if( !qid.isValid() )
-  {
-    writeNotReady( out );
-    return;
-  }
-  
-  dqmreginfo->setQueueID( qid );
-
-  // Add registration to collection:
-  bool add_ok = 
-    _sharedResources->_registrationCollection->addRegistrationInfo( cid,
-                                                                    dqmreginfo );
-  if( !add_ok )
-  {
-    writeNotReady( out );
-    return;
-  }
-
-  // Put registration on the queue:
-  _sharedResources->_registrationQueue->enq_wait( dqmreginfo );
-
-  // Reply to consumer:
-  writeConsumerRegistration( out, cid );
+  return dqmreginfo;
 }
 
 
@@ -284,10 +261,34 @@ void ConsumerUtils::processDQMConsumerEventRequest(xgi::Input* in, xgi::Output* 
 }
 
 
+bool ConsumerUtils::createDQMEventConsumerQueue(DQMEventConsRegPtr reginfo) const
+{
+  QueueID qid =
+    _sharedResources->_dqmEventConsumerQueueCollection->createQueue(
+      reginfo->consumerID(),
+      reginfo->queuePolicy(),
+      reginfo->queueSize(),
+      reginfo->secondsToStale());
+
+  if( !qid.isValid() ) return false;
+  
+  reginfo->setQueueID( qid );
+  return true;
+}
+
+
+bool ConsumerUtils::addRegistrationInfo(const RegPtr reginfo) const
+{
+  if ( !_sharedResources->_registrationCollection->addRegistrationInfo( reginfo ) ) return false;
+
+  return _sharedResources->_registrationQueue->enq_timed_wait( reginfo, 5 );
+}
+
+
 ////////////////////////////////////////////
 //// Create consumer registration info: ////
 ////////////////////////////////////////////
-ConsRegPtr ConsumerUtils::parseEventConsumerRegistration(xgi::Input* in) const
+EventConsRegPtr ConsumerUtils::parseEventConsumerRegistration(xgi::Input* in) const
 {
   
   if( in == 0 )
@@ -398,7 +399,7 @@ ConsRegPtr ConsumerUtils::parseEventConsumerRegistration(xgi::Input* in) const
       pset.getUntrackedParameter<int>( "connectTrySleepTime", 10 );
   }
   
-  ConsRegPtr cr( new EventConsumerRegistrationInfo( max_conn_retr,
+  EventConsRegPtr cr( new EventConsumerRegistrationInfo( max_conn_retr,
                                                     conn_retr_interval,
                                                     name,
                                                     sel_events_new,

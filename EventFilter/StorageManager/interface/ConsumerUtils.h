@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.h,v 1.5 2010/02/16 10:49:52 mommsen Exp $
+// $Id: ConsumerUtils.h,v 1.6 2010/04/16 12:31:34 mommsen Exp $
 /// @file: ConsumerUtils.h 
 
 #ifndef StorageManager_ConsumerUtils_h
@@ -32,8 +32,8 @@ namespace stor
      Handles consumer requests and responses
 
      $Author: mommsen $
-     $Revision: 1.5 $
-     $Date: 2010/02/16 10:49:52 $
+     $Revision: 1.6 $
+     $Date: 2010/04/16 12:31:34 $
   */
 
   class ConsumerUtils
@@ -73,14 +73,40 @@ namespace stor
   private:
 
     /**
-      Parse consumer registration request:
+      Create the event consumer registration info for this request
     */
-    ConsRegPtr parseEventConsumerRegistration(xgi::Input*) const;
+    EventConsRegPtr createEventConsumerRegistrationInfo(xgi::Input*, xgi::Output*) const;
 
     /**
-      Parse DQM consumer registration request:
+      Parse consumer registration request
+    */
+    EventConsRegPtr parseEventConsumerRegistration(xgi::Input*) const;
+
+    /**
+      Create an event consumer queue. Returns true on success.
+    */
+    bool createEventConsumerQueue(EventConsRegPtr) const;
+
+    /**
+      Create the DQM event consumer registration info for this request
+    */
+    DQMEventConsRegPtr createDQMEventConsumerRegistrationInfo(xgi::Input*, xgi::Output*) const;
+
+    /**
+      Parse DQM consumer registration request
     */
     DQMEventConsRegPtr parseDQMEventConsumerRegistration(xgi::Input*) const;
+
+    /**
+      Create a DQM event consumer queue. Returns true on success.
+    */
+    bool createDQMEventConsumerQueue(DQMEventConsRegPtr) const;
+
+    /**
+      Add registration information to RegistrationCollection and
+      to registration queue. Return true on success.
+    */
+    bool addRegistrationInfo(const RegPtr) const;
 
     /**
       Send ID to consumer:
