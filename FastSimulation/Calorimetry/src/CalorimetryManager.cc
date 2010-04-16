@@ -432,7 +432,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
         {
 	  newRadiusFactor = a/(1.+b*maxdepth); 
 	}
-      
+      myGrid.setRadiusFactor(newRadiusFactor);
     }
   else // otherwise use the normal radius factor
     {
