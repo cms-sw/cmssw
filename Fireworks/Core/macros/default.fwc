@@ -609,12 +609,12 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaa(2);
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("63");
+  topaaa.addValue("32");
   topaa.addKeyValue("x", topaaa);
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("299");
+  topaaa.addValue("59");
   topaa.addKeyValue("y", topaaa);
 }
 {
@@ -2061,12 +2061,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("1067");
+  topaaaaa.addValue("1021");
   topaaaa.addKeyValue("x", topaaaaa);
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("314");
+  topaaaaa.addValue("69");
   topaaaa.addKeyValue("y", topaaaaa);
 }
 {
@@ -2123,12 +2123,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("1067");
+  topaaaaa.addValue("1024");
   topaaaa.addKeyValue("x", topaaaaa);
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("661");
+  topaaaaa.addValue("406");
   topaaaa.addKeyValue("y", topaaaaa);
 }
 {
