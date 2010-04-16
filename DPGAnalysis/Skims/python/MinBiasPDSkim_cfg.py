@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.19 $'),
+    version = cms.untracked.string('$Revision: 1.20 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -25,7 +25,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 
 
@@ -276,6 +276,8 @@ process.outHSCP = cms.OutputModule("PoolOutputModule",
 #------------------------------------------
 # parameters for the PFGCollisions skim (skim2)
 #------------------------------------------
+process.load('HLTrigger.special.hltPhysicsDeclared_cfi')
+process.hltPhysicsDeclared.L1GtReadoutRecordTag = 'gtDigis'
 
 process.L1PFGcoll=process.hltLevel1GTSeed.clone()
 process.L1PFGcoll.L1TechTriggerSeeding = cms.bool(True)
@@ -292,8 +294,8 @@ process.pixprob = cms.EDFilter("FilterScrapingPixelProbability",
                                 )
 
 #### the path
-process.pfgskim2_a = cms.Path(process.L1PFGcoll*process.pixprob*~process.L1T1coll*~process.primaryVertexFilter)
-process.pfgskim2_b = cms.Path(process.L1PFGcoll*process.pixprob*~process.L1T1coll*~process.noscraping)
+process.pfgskim2_a = cms.Path(process.hltPhysicsDeclared+process.L1PFGcoll*process.pixprob*~process.L1T1coll*~process.primaryVertexFilter)
+process.pfgskim2_b = cms.Path(process.hltPhysicsDeclared+process.L1PFGcoll*process.pixprob*~process.L1T1coll*~process.noscraping)
 
 #### output 
 process.outputpfgskim2 = cms.OutputModule("PoolOutputModule",
@@ -311,8 +313,6 @@ process.outputpfgskim2 = cms.OutputModule("PoolOutputModule",
 # parameters for the PFGCollisions skim (skim3)
 #------------------------------------------
 
-process.load('HLTrigger.special.hltPhysicsDeclared_cfi')
-process.hltPhysicsDeclared.L1GtReadoutRecordTag = 'gtDigis'
 
 process.L1PFGbackcross=process.hltLevel1GTSeed.clone()
 process.L1PFGbackcross.L1TechTriggerSeeding = cms.bool(True)
@@ -379,7 +379,7 @@ process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-#process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.outHSCP+process.ecalrechitfilter_out+process.outputpfgskim2+process.outputpfgskim3+process.outlogerr)
+process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.outHSCP+process.ecalrechitfilter_out+process.outputpfgskim2+process.outputpfgskim3+process.outlogerr)
 
 
 
