@@ -3,10 +3,7 @@
 
   <SpecParSection label="regions.xml" eval="true">
     <SpecPar name="hcal">
-      <PartSelector path="//HCal"   />
-      <PartSelector path="//HRCF"   />
-      <PartSelector path="//HB"     />
-      <PartSelector path="//HE"     />
+      <PartSelector path="//CALO"   />
       <PartSelector path="//MBAT"   />
       <PartSelector path="//MBBT.*" />
       <PartSelector path="//VCAL"   />

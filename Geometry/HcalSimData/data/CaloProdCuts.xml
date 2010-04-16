@@ -4,11 +4,20 @@
 <SpecParSection label="CaloRegions.xml" eval="true">
   <SpecPar name="calo">
     <PartSelector path="//CALO"   />
+    <PartSelector path="//MBAT"   />
+    <PartSelector path="//MBBT.*" />
     <Parameter name="CMSCutsRegion" value="CaloRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="1*mm"/>
     <Parameter name="ProdCutsForGamma"     value="1*mm"/>
-</SpecPar>
+  </SpecPar>
+  <SpecPar name="hfregion">
+    <PartSelector path="//VCAL"   />
+    <Parameter name="CMSCutsRegion" value="HFRegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="1*mm"/>
+    <Parameter name="ProdCutsForGamma"     value="1*mm"/>
+  </SpecPar>
 </SpecParSection>
 
 </DDDefinition>
