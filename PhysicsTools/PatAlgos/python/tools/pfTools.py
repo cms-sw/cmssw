@@ -276,9 +276,8 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='IC5', postfix =
 #-- Remove MC dependence ------------------------------------------------------
 def removeMCMatchingPF2PAT( process, postfix="" ):
     from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
-    getattr(process,"patDefaultSequence"+postfix).remove(
-        applyPostfix(process,genForPF2PATSequence,postfix))
-    removeMCMatching(process, ['All'])
+    removeIfInSequence(process,  "genForPF2PATSequence",  "patDefaultSequence", postfix)
+    removeMCMatching(process, ['All'],postfix)
 
 
 def usePF2PAT(process, runPF2PAT=True, jetAlgo='IC5', runOnMC=True, postfix = ""):
