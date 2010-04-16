@@ -328,47 +328,13 @@ def main():
         f=open(ifilename,'r')
         inputfilecontent=f.read()
         fileparsingResult=selectionParser.selectionParser(inputfilecontent)
-    #
-    #one common query on the number of orbits and check if the run is available in db
-    #
-    try:
-        session.transaction().start(True)
-        schema=session.nominalSchema()
-        query=schema.tableHandle(nameDealer.lumisummaryTableName()).newQuery()
-        query.addToOutputList("NUMORBIT","numorbit")
-        queryBind=coral.AttributeList()
-        queryBind.extend("runnum","unsigned int")
-        queryBind.extend("lumiversion","string")
-        if not fileparsingResult:
-            queryBind["runnum"].setData(int(runnumber))
-        else:
-            queryBind["runnum"].setData(int(fileparsingResult.runs()[0]))
-        queryBind["lumiversion"].setData(c.LUMIVERSION)
-        result=coral.AttributeList()
-        result.extend("numorbit","unsigned int")
-        query.defineOutput(result)
-        query.setCondition("RUNNUM =:runnum AND LUMIVERSION =:lumiversion",queryBind)
-        query.limitReturnedRows(1)
-        cursor=query.execute()
-        icount=0
-        while cursor.next():
-            c.LSLENGTH=lslengthsec(cursor.currentRow()['numorbit'].data(),3564)
-            icount=icount+1
-        del query
-        session.transaction().commit()
-        if icount==0:
-            print 'Requested run does not exist in LumiDB, do nothing...'
-            return
-    except Exception,e:
-        print str(e)
-        session.transaction().rollback()
-        del session
     lumidata=[]
     if args.action == 'delivered':
         if runnumber!=0:
             lumidata.append(deliveredLumiForRun(session,c,runnumber))
         else:
             lumidata=deliveredLumiForRange(session,c,fileparsingResult)
+        
         labels=[('%-*s'%(8,'run'),'%-*s'%(17,'n lumi sections'),'%-*s'%(10,'delivered'),'%-*s'%(10,'beam mode'))]
         print tablePrinter.indent(labels+lumidata,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,10) )
         
@@ -380,6 +346,7 @@ def main():
         else:
             lumidata=recordedLumiForRange(session,c,fileparsingResult)
     print lumidata
+    
     del session
     del svc
 if __name__=='__main__':
