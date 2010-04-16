@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:28:07 EST 2008
-// $Id: FWMuonProxyBuilder.cc,v 1.2 2010/04/14 15:53:26 yana Exp $
+// $Id: FWMuonProxyBuilder.cc,v 1.3 2010/04/16 10:29:09 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -36,7 +36,7 @@ private:
    const FWMuonProxyBuilder& operator=(const FWMuonProxyBuilder&); // stop default
 
    // ---------- member data --------------------------------
-   void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
+   virtual void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
 
    mutable FWMuonBuilder m_builder;
 };

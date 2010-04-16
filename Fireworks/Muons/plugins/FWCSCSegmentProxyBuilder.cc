@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegmentProxyBuilder.cc,v 1.1 2010/04/15 14:46:44 yana Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.2 2010/04/16 10:29:09 yana Exp $
 //
 
 // system include files
@@ -38,23 +38,12 @@ private:
    FWCSCSegmentProxyBuilder(const FWCSCSegmentProxyBuilder&);    // stop default
    const FWCSCSegmentProxyBuilder& operator=(const FWCSCSegmentProxyBuilder&);    // stop default
 
-   virtual void build( const FWEventItem* iItem, TEveElementList** product );
+   virtual void build( const FWEventItem* iItem, TEveElementList* product );
 };
 
 void
-FWCSCSegmentProxyBuilder::build( const FWEventItem* iItem, TEveElementList** product )
+FWCSCSegmentProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product )
 {
-   TEveElementList* tList = *product;
-
-   if( 0 == tList) {
-      tList =  new TEveElementList(iItem->name().c_str(), "cscSegments", true);
-      *product = tList;
-      tList->SetMainColor(iItem->defaultDisplayProperties().color());
-      gEve->AddElement(tList);
-   } else {
-      tList->DestroyElements();
-   }
-
    const CSCSegmentCollection* segments = 0;
    iItem->get(segments);
 
@@ -82,7 +71,7 @@ FWCSCSegmentProxyBuilder::build( const FWEventItem* iItem, TEveElementList** pro
       {
          TEveCompound* compund = new TEveCompound("csc compound", s.str().c_str() );
          compund->OpenCompound();
-         tList->AddElement(compund);
+         product->AddElement(compund);
 
          TEveStraightLineSet* segmentSet = new TEveStraightLineSet;
 	 fireworks::addSegment(*segment, matrix, *segmentSet);
@@ -95,6 +84,6 @@ FWCSCSegmentProxyBuilder::build( const FWEventItem* iItem, TEveElementList** pro
    }
 }
 
-REGISTER_FWPROXYBUILDER( FWCSCSegmentProxyBuilder, CSCSegmentCollection, "CSC Segments", FWViewType::k3DBit | FWViewType::kRhoPhiBit | FWViewType::kRhoZBit );
+REGISTER_FWPROXYBUILDER( FWCSCSegmentProxyBuilder, CSCSegmentCollection, "CSC Segments", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit | FWViewType::kRhoZBit );
 
 

@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWRPCRecHitProxyBuilder.cc,v 1.1 2010/04/16 10:29:09 yana Exp $
+// $Id: FWRPCRecHitProxyBuilder.cc,v 1.2 2010/04/16 13:11:30 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -34,23 +34,12 @@ private:
    FWRPCRecHitProxyBuilder(const FWRPCRecHitProxyBuilder&);    // stop default
    const FWRPCRecHitProxyBuilder& operator=(const FWRPCRecHitProxyBuilder&);    // stop default
   
-   virtual void build(const FWEventItem* iItem, TEveElementList** product);
+   virtual void build(const FWEventItem* iItem, TEveElementList* product);
 };
 
 void
-FWRPCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWRPCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product)
 {
-   TEveElementList* tList = *product;
-
-   if( 0 == tList ) {
-      tList =  new TEveElementList( iItem->name().c_str(), "rpcRecHits", true);
-      *product = tList;
-      tList->SetMainColor(iItem->defaultDisplayProperties().color());
-      gEve->AddElement(tList);
-   } else {
-      tList->DestroyElements();
-   }
-
    const RPCRecHitCollection* hits = 0;
    iItem->get(hits);
 
@@ -82,7 +71,7 @@ FWRPCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList** produ
       {
          TEveCompound* compund = new TEveCompound("rpc compound", title );
          compund->OpenCompound();
-         tList->AddElement(compund);
+         product->AddElement(compund);
 
 	 Double_t localPoint[3];
 	 Double_t globalPoint[3];
@@ -112,4 +101,4 @@ FWRPCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList** produ
    }
 }
 
-REGISTER_FWPROXYBUILDER( FWRPCRecHitProxyBuilder, RPCRecHitCollection, "RPC RecHits", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER( FWRPCRecHitProxyBuilder, RPCRecHitCollection, "RPC RecHits", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

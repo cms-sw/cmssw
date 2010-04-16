@@ -12,17 +12,14 @@
 class FWCSCRecHitProxyBuilder : public FWProxyBuilderBase
 {
 public:
-   FWCSCRecHitProxyBuilder(void) 
-    {}
+   FWCSCRecHitProxyBuilder(void) {}
   
-   virtual ~FWCSCRecHitProxyBuilder(void)
-    {}
+   virtual ~FWCSCRecHitProxyBuilder(void) {}
   
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   virtual void build(const FWEventItem* iItem,
-                      TEveElementList** product);
+   virtual void build(const FWEventItem* iItem, TEveElementList* product);
 
    // Disable default copy constructor
    FWCSCRecHitProxyBuilder(const FWCSCRecHitProxyBuilder&);
@@ -31,19 +28,8 @@ private:
 };
 
 void
-FWCSCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWCSCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product)
 {
-   TEveElementList* tList = *product;
-
-   if(0 == tList) {
-      tList =  new TEveElementList(iItem->name().c_str(), "cscRechits", true);
-      *product = tList;
-      tList->SetMainColor(iItem->defaultDisplayProperties().color());
-      gEve->AddElement(tList);
-   } else {
-      tList->DestroyElements();
-   }
-
    const CSCRecHit2DCollection* collection = 0;
    iItem->get(collection);
 
@@ -65,7 +51,7 @@ FWCSCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList** produ
       {
 	 TEveCompound* compund = new TEveCompound("csc compound", "cscRechits");
 	 compund->OpenCompound();
-	 tList->AddElement(compund);
+	 product->AddElement(compund);
   
 	 TEveStraightLineSet* rechitSet = new TEveStraightLineSet(s.str().c_str());
 	 rechitSet->SetMainColor(iItem->defaultDisplayProperties().color());

@@ -15,17 +15,14 @@ using namespace DTEnums;
 class FWDTRecHitProxyBuilder : public FWProxyBuilderBase
 {
 public:
-   FWDTRecHitProxyBuilder(void) 
-    {}
+   FWDTRecHitProxyBuilder(void) {}
   
-   virtual ~FWDTRecHitProxyBuilder(void) 
-    {}
+   virtual ~FWDTRecHitProxyBuilder(void) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   virtual void build(const FWEventItem* iItem,
-                      TEveElementList** product);
+   virtual void build(const FWEventItem* iItem, TEveElementList* product);
 
    // Disable default copy constructor
    FWDTRecHitProxyBuilder(const FWDTRecHitProxyBuilder&); 
@@ -34,19 +31,8 @@ private:
 };
 
 void
-FWDTRecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList** product )
+FWDTRecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product )
 {
-   TEveElementList* tList = *product;
-
-   if(0 == tList) {
-      tList =  new TEveElementList(iItem->name().c_str(), "dtRechits", true);
-      *product = tList;
-      tList->SetMainColor(iItem->defaultDisplayProperties().color());
-      gEve->AddElement(tList);
-   } else {
-      tList->DestroyElements();
-   }
-
    const DTRecHitCollection* collection = 0;
    iItem->get(collection);
 
@@ -103,9 +89,9 @@ FWDTRecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList** produ
 	 rechitSet->AddLine( globalPos[0], globalPos[1], globalPos[2], globalCenterPoint[0], globalCenterPoint[1], globalCenterPoint[2] );
       }
    }
-   tList->AddElement(compund);
+   product->AddElement(compund);
 }
 
-REGISTER_FWPROXYBUILDER( FWDTRecHitProxyBuilder, DTRecHitCollection, "DT RecHits", FWViewType::kISpy );
+REGISTER_FWPROXYBUILDER( FWDTRecHitProxyBuilder, DTRecHitCollection, "DT RecHits", FWViewType::kISpyBit );
 
 

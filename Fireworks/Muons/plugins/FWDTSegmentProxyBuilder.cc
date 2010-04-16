@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWDTSegmentProxyBuilder.cc,v 1.3 2010/04/08 13:09:33 yana Exp $
+// $Id: FWDTSegmentProxyBuilder.cc,v 1.1 2010/04/16 10:29:09 yana Exp $
 //
 
 // system include files
@@ -35,7 +35,7 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   virtual void build(const FWEventItem* iItem, TEveElementList** product);
+   virtual void build(const FWEventItem* iItem, TEveElementList* product);
 
    FWDTSegmentProxyBuilder(const FWDTSegmentProxyBuilder&);    // stop default
 
@@ -43,19 +43,8 @@ private:
 };
 
 void
-FWDTSegmentProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWDTSegmentProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product)
 {
-   TEveElementList* tList = *product;
-
-   if( 0 == tList ) {
-      tList =  new TEveElementList( iItem->name().c_str(), "dtSegments", true);
-      *product = tList;
-      tList->SetMainColor(iItem->defaultDisplayProperties().color());
-      gEve->AddElement(tList);
-   } else {
-      tList->DestroyElements();
-   }
-
    const DTRecSegment4DCollection* segments = 0;
    iItem->get(segments);
 
@@ -76,7 +65,7 @@ FWDTSegmentProxyBuilder::build(const FWEventItem* iItem, TEveElementList** produ
            segment!=range.second; ++segment)
       {
          TEveCompound* compund = new TEveCompound( "dt compound", s.str().c_str() );
-         tList->AddElement(compund);
+         product->AddElement(compund);
          compund->OpenCompound();
 
          TEveStraightLineSet* segmentSet = new TEveStraightLineSet;
@@ -90,6 +79,6 @@ FWDTSegmentProxyBuilder::build(const FWEventItem* iItem, TEveElementList** produ
    }
 }
 
-REGISTER_FWPROXYBUILDER( FWDTSegmentProxyBuilder, DTRecSegment4DCollection, "DT Segments", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER( FWDTSegmentProxyBuilder, DTRecSegment4DCollection, "DT Segments", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
 
 
