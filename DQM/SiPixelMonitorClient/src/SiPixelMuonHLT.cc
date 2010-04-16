@@ -14,7 +14,7 @@
 //
 // Original Author:  Dan Duggan
 //         Created:  
-// $Id: SiPixelMuonHLT.cc,v 1.4 2009/12/18 20:44:50 wmtan Exp $
+// $Id: SiPixelMuonHLT.cc,v 1.5 2010/04/12 23:30:34 elmer Exp $
 //
 //////////////////////////////////////////////////////////
 #include "DQM/SiPixelMonitorClient/interface/SiPixelMuonHLT.h"
@@ -124,35 +124,21 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bool GotRecHits  = true;
   bool GotL3Muons  = true;
   
-  try
-    {
-      iEvent.getByLabel("hltSiPixelClusters", clusters);
-    }
-  catch( cms::Exception& exception ) 
-    {
-      LogDebug("PixelHLTDQM") << "No pix clusters, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-      GotClusters = false;
-    }
-
-  try
-    {
-      iEvent.getByLabel("hltSiPixelRecHits", rechits);
-    }
-  catch( cms::Exception& exception ) 
-    {
-      LogDebug("PixelHLTDQM") << "No pix rechits, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-      GotRecHits = false;
-    }
-
-  try
-    {
-      iEvent.getByLabel (l3MuonCollectionTag_, l3mucands);
-    }
-  catch( cms::Exception& exception ) 
-    {
-      LogDebug("PixelHLTDQM") << "No L3 Muons, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-      GotL3Muons = false;
-    }
+  iEvent.getByLabel("hltSiPixelClusters", clusters);
+  if(!clusters.isValid()){
+    edm::LogInfo("PixelHLTDQM") << "No pix clusters, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+    GotClusters = false;
+  }
+  iEvent.getByLabel("hltSiPixelRecHits", rechits);
+  if(!rechits.isValid()){
+    edm::LogInfo("PixelHLTDQM") << "No pix rechits, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+    GotRecHits = false;
+  }
+  iEvent.getByLabel (l3MuonCollectionTag_, l3mucands);
+  if(!l3mucands.isValid()){
+    edm::LogInfo("PixelHLTDQM") << "No L3 Muons, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+    GotL3Muons = false;
+  }
   
   //if (!clusters.failedToGet ())
   if (GotClusters){
