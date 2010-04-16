@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: PVFitter.cc,v 1.6 2010/04/03 10:17:13 jengbou Exp $
+   version $Id: PVFitter.cc,v 1.7 2010/04/13 08:43:43 adamwo Exp $
 
 ________________________________________________________________**/
 
@@ -129,26 +129,26 @@ void PVFitter::readEvent(const edm::Event& iEvent)
            //for ( size_t ipv=0; ipv != pv.size(); ++ipv ) {
 
           //--- vertex selection
-          if ( pv->isFake() || pv->tracksSize()==0 )  return;
-          if ( pv->ndof() < minVtxNdf_ || (pv->ndof()+3.)/pv->tracksSize()<2*minVtxWgt_ )  return;
+          if ( pv->isFake() || pv->tracksSize()==0 )  continue;
+          if ( pv->ndof() < minVtxNdf_ || (pv->ndof()+3.)/pv->tracksSize()<2*minVtxWgt_ )  continue;
           //---
 
           hPVx->Fill( pv->x(), pv->z() );
           hPVy->Fill( pv->y(), pv->z() );
 
-	  //
-	  // 3D fit section
-	  //
-	  // apply additional quality cut
-	  if ( pvQuality(*pv)>dynamicQualityCut_ )  return;
-	  // if store exceeds max. size: reduce size and apply new quality cut
-	  if ( pvStore_.size()>=maxNrVertices_ ) {
-	    compressStore();
-	    if ( pvQuality(*pv)>dynamicQualityCut_ )  return;
-	  }
-	  //
-	  // copy PV to store
-	  //
+          //
+          // 3D fit section
+          //
+          // apply additional quality cut
+          if ( pvQuality(*pv)>dynamicQualityCut_ )  continue;
+          // if store exceeds max. size: reduce size and apply new quality cut
+          if ( pvStore_.size()>=maxNrVertices_ ) {
+             compressStore();
+             if ( pvQuality(*pv)>dynamicQualityCut_ )  continue;
+          }
+          //
+          // copy PV to store
+          //
           BeamSpotFitPVData pvData;
           pvData.position[0] = pv->x();
           pvData.position[1] = pv->y();
