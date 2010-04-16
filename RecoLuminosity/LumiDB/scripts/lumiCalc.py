@@ -250,6 +250,78 @@ def recordedLumiForRange(dbsession,c,fileparsingResult):
         lumidata.append( recordedLumiForRun(dbsession,c,run,lslist) )
     return lumidata
 
+def printDeliveredLumi(lumidata,mode):
+    labels=[('%-*s'%(8,'run'),'%-*s'%(17,'n lumi sections'),'%-*s'%(10,'delivered'),'%-*s'%(10,'beam mode'))]
+    print tablePrinter.indent(labels+lumidata,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,10) )
+
+def dumpDeliveredLumi(lumidata,filename):
+    pass
+
+def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
+    datatoprint=[]
+    deadtoprint=[]
+    labels=[('Run','HLT path','Recorded Luminosity')]
+    deadtimelabels=[('Run','Lumi section : Dead fraction')]
+    if isVerbose:
+        labels=[('Run','HLT path','L1 bit','L1 prescale','HLT prescale','Recorded Luminosity')]
+    for dataperRun in lumidata:
+        runnum=dataperRun[0]
+        deadfractable={}
+        if len(dataperRun[1])==0:
+            rowdata=[]
+            rowdata+=[runnum]+2*['N/A']
+            datatoprint.append(rowdata)
+            deadtoprint.append([runnum,'N/A'])
+            continue
+        perlsdata=dataperRun[2]
+        recordedLumi=0.0
+        norbits=perlsdata.values()[0][2]
+        lstime=lslengthsec(norbits,3564)
+        for myls,d in perlsdata.items():
+            instLumi=d[1]
+            deadfrac=float(d[0])/float(norbits*3564)
+            deadfractable[myls]='%.2f'%deadfrac
+            recordedLumi+=instLumi*(1.0-deadfrac)*lstime
+        deadtoprint.append([str(runnum),str(deadfractable)])
+        trgdict=dataperRun[1]
+        if trgdict.has_key(hltpath):
+            rowdata=[]
+            l1bit=trgdict[hltpath][0]
+            hltprescale=trgdict[hltpath][1]
+            l1prescale=trgdict[hltpath][2]
+            if not isVerbose:
+                rowdata+=[str(runnum),hltpath,'%.2f'%(recordedLumi*hltprescale*l1prescale)]
+            else:
+                rowdata+=[str(runnum),hltpath,l1bit,str(l1prescale),str(hltprescale),'%.2f'%(recordedLumi*hltprescale*l1prescale)]
+            datatoprint.append(rowdata)
+            continue
+        for trg,trgdata in trgdict.items():
+            rowdata=[]                    
+            if trg==trgdict.keys()[0]:
+                rowdata+=[str(runnum)]
+            else:
+                rowdata+=['']
+            l1bit=trgdata[0]
+            hltprescale=trgdata[1]
+            l1prescale=trgdata[2]
+            if not isVerbose:
+                rowdata+=[trg,'%.2f'%(recordedLumi*hltprescale*l1prescale)]
+            else:
+                rowdata+=[trg,l1bit,str(l1prescale),str(hltprescale),'%.2f'%(recordedLumi*hltprescale*l1prescale)]
+            datatoprint.append(rowdata)
+    print '==='
+    print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,10))
+    if isVerbose:
+        print '==='
+        print tablePrinter.indent(deadtimelabels+deadtoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,70))
+        
+
+def dumpRecordedLumi(lumidata,filename,hltpath=''):
+    pass
+
+def printLumiOverview(delivered,recorded):
+    pass
+
 def main():
     c=constants()
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi Calculations")
@@ -333,11 +405,9 @@ def main():
         if runnumber!=0:
             lumidata.append(deliveredLumiForRun(session,c,runnumber))
         else:
-            lumidata=deliveredLumiForRange(session,c,fileparsingResult)
+            lumidata=deliveredLumiForRange(session,c,fileparsingResult)    
         
-        labels=[('%-*s'%(8,'run'),'%-*s'%(17,'n lumi sections'),'%-*s'%(10,'delivered'),'%-*s'%(10,'beam mode'))]
-        print tablePrinter.indent(labels+lumidata,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,10) )
-        
+        printDeliveredLumi(lumidata,'')
     if args.action == 'recorded':
         if args.hltpath and len(args.hltpath)!=0:
             hpath=args.hltpath
@@ -345,7 +415,9 @@ def main():
             lumidata.append(recordedLumiForRun(session,c,runnumber))
         else:
             lumidata=recordedLumiForRange(session,c,fileparsingResult)
-    print lumidata
+        #modes=['overview','detail','verbose','csv']
+        printRecordedLumi(lumidata,c.VERBOSE,hpath)
+    #print lumidata
     
     del session
     del svc
