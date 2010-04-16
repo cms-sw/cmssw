@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.19 2010/04/14 11:52:46 yana Exp $
+// $Id: TrackUtils.cc,v 1.20 2010/04/14 12:41:54 yana Exp $
 //
 
 // system include files
@@ -22,13 +22,10 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
-
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
+#include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -1747,4 +1744,45 @@ namespace fireworks {
       }
       return text;
    }   
+
+   void
+   addSegment(const RecSegment& segment, const TGeoHMatrix* matrix, TEveStraightLineSet& oSegmentSet)
+   {
+      const double segmentLength = 15;
+
+      Double_t localSegmentInnerPoint[3];
+      Double_t localSegmentCenterPoint[3];
+      Double_t localSegmentOuterPoint[3];
+      Double_t globalSegmentInnerPoint[3];
+      Double_t globalSegmentCenterPoint[3];
+      Double_t globalSegmentOuterPoint[3];
+
+      localSegmentOuterPoint[0] = segment.localPosition().x() + segmentLength*segment.localDirection().x();
+      localSegmentOuterPoint[1] = segment.localPosition().y() + segmentLength*segment.localDirection().y();
+      localSegmentOuterPoint[2] = segmentLength*segment.localDirection().z();
+
+      localSegmentCenterPoint[0] = segment.localPosition().x();
+      localSegmentCenterPoint[1] = segment.localPosition().y();
+      localSegmentCenterPoint[2] = 0;
+
+      localSegmentInnerPoint[0] = segment.localPosition().x() - segmentLength*segment.localDirection().x();
+      localSegmentInnerPoint[1] = segment.localPosition().y() - segmentLength*segment.localDirection().y();
+      localSegmentInnerPoint[2] = -segmentLength*segment.localDirection().z();
+
+      matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
+      matrix->LocalToMaster( localSegmentCenterPoint, globalSegmentCenterPoint );
+      matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
+
+      if( globalSegmentInnerPoint[1] *globalSegmentOuterPoint[1] > 0 ) {
+	 oSegmentSet.AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+			      globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+      } else {
+	if( fabs(globalSegmentInnerPoint[1]) > fabs(globalSegmentOuterPoint[1]) )
+	   oSegmentSet.AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+				globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2] );
+	else
+	   oSegmentSet.AddLine( globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2],
+				globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+      }
+   }
 }

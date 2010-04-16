@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.12 2010/04/13 08:52:21 yana Exp $
+// $Id: TrackUtils.h,v 1.13 2010/04/14 11:52:46 yana Exp $
 //
 
 // system include files
@@ -13,8 +13,9 @@
 // forward declarations
 namespace reco 
 {
-  class Track;
+   class Track;
 }
+class RecSegment;
 
 class FWEventItem;
 class TEveElement;
@@ -22,6 +23,7 @@ class TEveTrack;
 class TEveTrackPropagator;
 class DetId;
 class TGeoHMatrix;
+class TEveStraightLineSet;
 
 class SiPixelCluster;
 
@@ -97,6 +99,8 @@ namespace fireworks {
    std::string info( const DetId& );
    std::string info( const std::set<DetId>& );
    std::string info( const std::vector<DetId>& );
+
+   void addSegment(const RecSegment& segment, const TGeoHMatrix* matrix, TEveStraightLineSet& oSegmentSet);
 }
 
 #endif // Fireworks_Tracks_TrackUtils_h
