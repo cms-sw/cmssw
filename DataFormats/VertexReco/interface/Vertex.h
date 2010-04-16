@@ -15,7 +15,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.34 2010/02/16 08:15:35 arizzi Exp $
+ * \version $Id: Vertex.h,v 1.35 2010/04/16 07:47:56 arizzi Exp $
  *
  */
 #include <Rtypes.h>
@@ -135,7 +135,10 @@ namespace reco {
     const std::vector<Track> & refittedTracks() const { return refittedTracks_;}
 
     /// Returns the four momentum of the sum of the tracks, assuming the given mass for the decay products
-    math::XYZTLorentzVectorD fourMomentum(float mass=0.13957018) const; 
+    math::XYZTLorentzVectorD p4(float mass=0.13957018,float minWeight=0.5) const; 
+
+    /// Returns the number of tracks in the vertex with weight above minWeight
+    unsigned int nTracks(float minWeight=0.5) const; 
 
   private:
     class TrackEqual {

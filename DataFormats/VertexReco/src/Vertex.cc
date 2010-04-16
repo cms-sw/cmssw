@@ -2,7 +2,7 @@
 #include <Math/GenVector/PxPyPzE4D.h>                                                                                                   
 #include <Math/GenVector/PxPyPzM4D.h>       
 
-// $Id: Vertex.cc,v 1.15 2007/09/25 11:21:53 speer Exp $
+// $Id: Vertex.cc,v 1.16 2010/04/16 07:47:59 arizzi Exp $
 using namespace reco;
 using namespace std;
 
@@ -111,7 +111,7 @@ Track Vertex::refittedTrack(const TrackRef & track) const
   return refittedTrack(TrackBaseRef(track));
 }
 
-math::XYZTLorentzVectorD Vertex::fourMomentum(float mass) const
+math::XYZTLorentzVectorD Vertex::p4(float mass,float minWeight) const
 {
 
  math::XYZTLorentzVectorD sum;
@@ -120,7 +120,7 @@ math::XYZTLorentzVectorD Vertex::fourMomentum(float mass) const
  if(hasRefittedTracks()) {
  for(std::vector<Track>::const_iterator iter = refittedTracks_.begin();
      iter != refittedTracks_.end(); ++iter) {
-   if (trackWeight(originalTrack(*iter)) >=0.5) {
+   if (trackWeight(originalTrack(*iter)) >=minWeight) {
    vec.SetPx(iter->px());
    vec.SetPy(iter->py());
    vec.SetPz(iter->pz());
@@ -133,7 +133,7 @@ math::XYZTLorentzVectorD Vertex::fourMomentum(float mass) const
  {
  for(std::vector<reco::TrackBaseRef>::const_iterator iter = tracks_begin();
             iter != tracks_end(); iter++) {
-  if (trackWeight(*iter) >= 0.5) {
+  if (trackWeight(*iter) >=minWeight) {
    vec.SetPx((*iter)->px());
    vec.SetPy((*iter)->py());
    vec.SetPz((*iter)->pz());
@@ -143,5 +143,22 @@ math::XYZTLorentzVectorD Vertex::fourMomentum(float mass) const
   }
  }
  return sum;
+}
+
+unsigned int Vertex::nTracks(float minWeight) const
+{
+ int n=0;
+ if(hasRefittedTracks()) {
+ for(std::vector<Track>::const_iterator iter = refittedTracks_.begin(); iter != refittedTracks_.end(); ++iter) 
+   if (trackWeight(originalTrack(*iter)) >=minWeight) 
+     n++;
+ }
+ else
+ {
+  for(std::vector<reco::TrackBaseRef>::const_iterator iter = tracks_begin(); iter != tracks_end(); iter++) 
+   if (trackWeight(*iter) >=minWeight) 
+    n++  
+ } 
+ return n;
 }
 
