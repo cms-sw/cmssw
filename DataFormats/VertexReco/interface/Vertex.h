@@ -15,7 +15,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.33 2008/11/06 17:06:23 elmer Exp $
+ * \version $Id: Vertex.h,v 1.34 2010/02/16 08:15:35 arizzi Exp $
  *
  */
 #include <Rtypes.h>
@@ -24,6 +24,9 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/RefToBase.h" 
+#include <Math/GenVector/PxPyPzE4D.h>                                                                                                   
+#include <Math/GenVector/PxPyPzM4D.h> 
+#include "DataFormats/Math/interface/LorentzVector.h"                                                                                   
 
 namespace reco {
 
@@ -130,6 +133,9 @@ namespace reco {
 
     /// Returns the container of refitted tracks
     const std::vector<Track> & refittedTracks() const { return refittedTracks_;}
+
+    /// Returns the four momentum of the sum of the tracks, assuming the given mass for the decay products
+    math::XYZTLorentzVectorD fourMomentum(float mass=0.13957018) const; 
 
   private:
     class TrackEqual {

@@ -1,6 +1,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include <Math/GenVector/PxPyPzE4D.h>                                                                                                   
+#include <Math/GenVector/PxPyPzM4D.h>       
 
-// $Id: Vertex.cc,v 1.14 2007/09/13 16:05:25 speer Exp $
+// $Id: Vertex.cc,v 1.15 2007/09/25 11:21:53 speer Exp $
 using namespace reco;
 using namespace std;
 
@@ -108,3 +110,38 @@ Track Vertex::refittedTrack(const TrackRef & track) const
 {
   return refittedTrack(TrackBaseRef(track));
 }
+
+math::XYZTLorentzVectorD Vertex::fourMomentum(float mass) const
+{
+
+ math::XYZTLorentzVectorD sum;
+ ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > vec;
+
+ if(hasRefittedTracks()) {
+ for(std::vector<Track>::const_iterator iter = refittedTracks_.begin();
+     iter != refittedTracks_.end(); ++iter) {
+   if (trackWeight(originalTrack(*iter)) >=0.5) {
+   vec.SetPx(iter->px());
+   vec.SetPy(iter->py());
+   vec.SetPz(iter->pz());
+   vec.SetM(mass);
+   sum += vec;
+   }
+  }
+ }
+ else
+ {
+ for(std::vector<reco::TrackBaseRef>::const_iterator iter = tracks_begin();
+            iter != tracks_end(); iter++) {
+  if (trackWeight(*iter) >= 0.5) {
+   vec.SetPx((*iter)->px());
+   vec.SetPy((*iter)->py());
+   vec.SetPz((*iter)->pz());
+   vec.SetM(mass);
+   sum += vec;
+   }
+  }
+ }
+ return sum;
+}
+
