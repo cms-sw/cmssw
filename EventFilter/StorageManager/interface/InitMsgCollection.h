@@ -1,4 +1,4 @@
-// $Id: InitMsgCollection.h,v 1.7 2009/07/20 13:06:10 mommsen Exp $
+// $Id: InitMsgCollection.h,v 1.8 2009/09/16 10:44:29 mommsen Exp $
 /// @file: InitMsgCollection.h 
 
 #ifndef StorageManager_InitMsgCollection_h
@@ -24,8 +24,8 @@ namespace stor
      to event consumers and written to output streams.
 
      $Author: mommsen $
-     $Revision: 1.7 $
-     $Date: 2009/07/20 13:06:10 $
+     $Revision: 1.8 $
+     $Date: 2009/09/16 10:44:29 $
   */
 
   typedef std::vector<unsigned char> InitMsgBuffer;
@@ -108,25 +108,6 @@ namespace stor
      * @return the InitMsgSharedPtr at the beginning of the full collection.
      */
     InitMsgSharedPtr getFullCollection() const { return serializedFullSet_; }
- 
-    /**
-     * Registers a new consumer for the given output mdoule
-     *
-     * @param consumer ID
-     * @param output module name
-     * @return if the registration succeeded
-     */
-    bool registerConsumer(const ConsumerID cid, const std::string& hltModule);
-
-    /**
-     * Fetches the single INIT message that matches the requested consumer ID.
-     * If no messages match the request, an empty pointer is returned.
-     *
-     * @param consumer ID
-     * @return the InitMsgSharedPtr of the single INIT message for the consumer ID
-     */
-    InitMsgSharedPtr getElementForConsumer(const ConsumerID cid) const;
-
 
     /**
      * Removes all entries from the collection.
@@ -201,9 +182,6 @@ namespace stor
     typedef std::map<uint32, std::string> OutModTable;
     OutModTable outModNameTable_;
     mutable boost::mutex listLock_;
-
-    std::map<ConsumerID, std::string> consumerOutputModuleMap_;
-    mutable boost::mutex consumerMapLock_;
   };
 }
 

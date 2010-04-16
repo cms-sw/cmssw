@@ -1,20 +1,18 @@
-// $Id: StorageManager.cc,v 1.127 2010/03/16 17:55:57 mommsen Exp $
+// $Id: StorageManager.cc,v 1.128 2010/03/19 13:21:37 mommsen Exp $
 /// @file: StorageManager.cc
 
-#include "EventFilter/StorageManager/interface/ConsumerUtils.h"
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
 #include "EventFilter/StorageManager/interface/DiskWriterResources.h"
 #include "EventFilter/StorageManager/interface/DQMEventProcessor.h"
 #include "EventFilter/StorageManager/interface/DQMEventProcessorResources.h"
 #include "EventFilter/StorageManager/interface/DiscardManager.h"
-#include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/FragmentMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/FragmentProcessor.h"
-#include "EventFilter/StorageManager/interface/RegistrationCollection.h"
 #include "EventFilter/StorageManager/interface/SoapUtils.h"
 #include "EventFilter/StorageManager/interface/StorageManager.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
+
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
@@ -41,7 +39,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.127 2010/03/16 17:55:57 mommsen Exp $ $Name:  $")
+    "$Id: $ $Name: $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -60,6 +58,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s) :
     // case we deserialize DQMEvents for collation
     edm::RootAutoLibraryLoader::enable();
     initializeSharedResources();
+    _consumerUtils.setSharedResources(_sharedResources);
   }
   catch(std::exception &e)
   {
@@ -73,7 +72,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s) :
     LOG4CPLUS_FATAL( getApplicationLogger(), errorMsg );
     XCEPT_RAISE( stor::exception::Exception, errorMsg );
   }
-  
+
   startWorkerThreads();
 }
 
@@ -695,110 +694,7 @@ void
 StorageManager::processConsumerRegistrationRequest( xgi::Input* in, xgi::Output* out )
   throw( xgi::exception::Exception )
 {
-
-  // Get consumer ID if registration is allowed:
-  ConsumerID cid = _sharedResources->_registrationCollection->getConsumerID();
-
-  if( !cid.isValid() )
-    {
-      writeNotReady( out );
-      return;
-    }
-
-  const utils::duration_t secs2stale =
-    _sharedResources->_configuration->getEventServingParams()._activeConsumerTimeout;
-  const enquing_policy::PolicyTag policy = enquing_policy::DiscardOld;
-  const int qsize =
-    _sharedResources->_configuration->getEventServingParams()._consumerQueueSize;
-
-  // Create registration info and set consumer ID:
-  stor::ConsRegPtr reginfo;
-  std::string errorMsg = "Error parsing an event consumer registration request";
-  try
-    {
-      reginfo = parseEventConsumerRegistration( in, qsize, policy, secs2stale );
-    }
-  catch ( edm::Exception& excpt )
-    {
-      errorMsg.append( ": " );
-      errorMsg.append( excpt.what() );
-
-      LOG4CPLUS_ERROR(this->getApplicationLogger(), errorMsg);
-
-      XCEPT_DECLARE(stor::exception::ConsumerRegistration,
-      sentinelException, errorMsg);
-      notifyQualified("error", sentinelException);
-
-      writeErrorString( out, errorMsg );
-      return;
-    }
-  catch ( xcept::Exception& excpt )
-    {
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),
-        errorMsg << xcept::stdformat_exception_history(excpt));
-
-      XCEPT_DECLARE_NESTED(stor::exception::ConsumerRegistration,
-      sentinelException, errorMsg, excpt);
-      notifyQualified("error", sentinelException);
-
-      writeErrorString( out, errorMsg + xcept::stdformat_exception_history(excpt) );
-      return;
-    }
-  catch ( ... )
-    {
-      errorMsg.append( ": unknown exception" );
-
-      LOG4CPLUS_ERROR(this->getApplicationLogger(), errorMsg);
-
-      XCEPT_DECLARE(stor::exception::ConsumerRegistration,
-      sentinelException, errorMsg);
-      notifyQualified("error", sentinelException);
-
-      writeErrorString( out, errorMsg );
-      return;
-    }
-  reginfo->setConsumerID( cid );
-
-  // Create queue and set queue ID:
-  QueueID qid =
-    _sharedResources->_eventConsumerQueueCollection->createQueue( cid,
-                                                                  policy,
-                                                                  qsize,
-                                                                  secs2stale );
-  if( !qid.isValid() )
-    {
-      writeNotReady( out );
-      return;
-    }
-
-  reginfo->setQueueID( qid );
-
-  // Register consumer with InitMsgCollection:
-  bool reg_ok =
-    _sharedResources->_initMsgCollection->registerConsumer( cid,
-                                                            reginfo->outputModuleLabel() );
-  if( !reg_ok )
-    {
-      writeNotReady( out );
-      return;
-    }
-
-  // Add registration to collection:
-  bool add_ok = 
-    _sharedResources->_registrationCollection->addRegistrationInfo( cid,
-                                                                    reginfo );
-  if( !add_ok )
-    {
-      writeNotReady( out );
-      return;
-    }
-
-  // Put registration on the queue:
-  _sharedResources->_registrationQueue->enq_wait( reginfo );
-
-  // Reply to consumer:
-  writeConsumerRegistration( out, cid );
-
+  _consumerUtils.processConsumerRegistrationRequest(in,out);
 }
 
 
@@ -806,28 +702,7 @@ void
 StorageManager::processConsumerHeaderRequest( xgi::Input* in, xgi::Output* out )
   throw( xgi::exception::Exception )
 {
-
-  ConsumerID cid = getConsumerID( in );
-  if( !cid.isValid() )
-    {
-      writeEmptyBuffer( out );
-      return;
-    }
-
-  // 20-Apr-2009, KAB - treat the proxy server like any other consumer. If
-  // and when we need to support multiple HLT output modules with the proxy
-  // server, then we can go back to sending the full InitMsgCollection.
-  InitMsgSharedPtr payload =
-    _sharedResources->_initMsgCollection->getElementForConsumer( cid );
-
-  if( payload.get() == NULL )
-    {
-      writeEmptyBuffer( out );
-      return;
-    }
-
-  writeConsumerHeader( out, payload );
-
+  _consumerUtils.processConsumerHeaderRequest(in,out);
 }
 
 
@@ -835,29 +710,7 @@ void
 StorageManager::processConsumerEventRequest( xgi::Input* in, xgi::Output* out )
   throw( xgi::exception::Exception )
 {
-
-  ConsumerID cid = getConsumerID( in );
-  if( !cid.isValid() )
-    {
-      writeEmptyBuffer( out );
-      return;
-    }
-
-  if ( !_sharedResources->_registrationCollection->registrationIsAllowed() )
-    {
-      writeDone( out );
-      return;
-    }
-
-  I2OChain evt =
-    _sharedResources->_eventConsumerQueueCollection->popEvent( cid );
-  if( evt.faulty() )
-    {
-      writeEmptyBuffer( out );
-      return;
-    }
-
-  writeConsumerEvent( out, evt );
+  _consumerUtils.processConsumerEventRequest(in,out);
 }
 
 
@@ -865,100 +718,7 @@ void
 StorageManager::processDQMConsumerRegistrationRequest( xgi::Input* in, xgi::Output* out )
   throw( xgi::exception::Exception )
 {
-
-  // Get consumer ID if registration is allowed:
-  ConsumerID cid = _sharedResources->_registrationCollection->getConsumerID();
-
-  if( !cid.isValid() )
-    {
-      writeNotReady( out );
-      return;
-    }
-
-  const utils::duration_t secs2stale =
-    _sharedResources->_configuration->getEventServingParams()._DQMactiveConsumerTimeout;
-  const enquing_policy::PolicyTag policy = enquing_policy::DiscardOld;
-  const int qsize =
-    _sharedResources->_configuration->getEventServingParams()._DQMconsumerQueueSize;
-
-  // Create registration info and set consumer ID:
-  stor::DQMEventConsRegPtr dqmreginfo;
-  std::string errorMsg = "Error parsing a DQM event consumer registration request";
-  try
-    {
-      dqmreginfo = parseDQMEventConsumerRegistration( in, qsize, policy, secs2stale );
-    }
-  catch ( edm::Exception& excpt )
-    {
-      errorMsg.append( ": " );
-      errorMsg.append( excpt.what() );
-
-      LOG4CPLUS_ERROR(this->getApplicationLogger(), errorMsg);
-
-      XCEPT_DECLARE(stor::exception::DQMConsumerRegistration,
-      sentinelException, errorMsg);
-      notifyQualified("error", sentinelException);
-
-      writeErrorString( out, errorMsg );
-      return;
-    }
-  catch ( xcept::Exception& excpt )
-    {
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),
-        errorMsg << xcept::stdformat_exception_history(excpt));
-
-      XCEPT_DECLARE_NESTED(stor::exception::DQMConsumerRegistration,
-      sentinelException, errorMsg, excpt);
-      notifyQualified("error", sentinelException);
-
-      writeErrorString( out, errorMsg + xcept::stdformat_exception_history(excpt) );
-      return;
-    }
-  catch ( ... )
-    {
-      errorMsg.append( ": unknown exception" );
-
-      LOG4CPLUS_ERROR(this->getApplicationLogger(), errorMsg);
-
-      XCEPT_DECLARE(stor::exception::DQMConsumerRegistration,
-      sentinelException, errorMsg);
-      notifyQualified("error", sentinelException);
-
-      writeErrorString( out, errorMsg );
-      return;
-    }
-  dqmreginfo->setConsumerID( cid );
-
-  // Create queue and set queue ID:
-  QueueID qid =
-    _sharedResources->_dqmEventConsumerQueueCollection->createQueue( cid,
-                                                                     policy,
-                                                                     qsize,
-                                                                     secs2stale );
-  if( !qid.isValid() )
-    {
-      writeNotReady( out );
-      return;
-    }
-
-  dqmreginfo->setQueueID( qid );
-
-  // Add registration to collection:
-  bool add_ok = 
-    _sharedResources->_registrationCollection->addRegistrationInfo( cid,
-                                                                    dqmreginfo );
-  if( !add_ok )
-    {
-      writeNotReady( out );
-      return;
-    }
-
-  // Put registration on the queue:
-  _sharedResources->_registrationQueue->enq_wait( dqmreginfo );
-
-  // Reply to consumer:
-  writeConsumerRegistration( out, cid );
-
+  _consumerUtils.processDQMConsumerRegistrationRequest(in,out);
 }
 
 
@@ -966,27 +726,7 @@ void
 StorageManager::processDQMConsumerEventRequest( xgi::Input* in, xgi::Output* out )
   throw( xgi::exception::Exception )
 {
-
-  ConsumerID cid = getConsumerID( in );
-  if( !cid.isValid() )
-    {
-      writeEmptyBuffer( out );
-      return;
-    }
-
-  if ( !_sharedResources->_registrationCollection->registrationIsAllowed() )
-    {
-      writeDone( out );
-      return;
-    }
-
-  DQMEventRecord::GroupRecord dqmGroupRecord =
-    _sharedResources->_dqmEventConsumerQueueCollection->popEvent( cid );
-
-  if ( !dqmGroupRecord.empty() )
-    writeDQMConsumerEvent( out, dqmGroupRecord.getDQMEventMsgView() );
-  else
-    writeEmptyBuffer( out );
+  _consumerUtils.processDQMConsumerEventRequest(in,out);
 }
 
 

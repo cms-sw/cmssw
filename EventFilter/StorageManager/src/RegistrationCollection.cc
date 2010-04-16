@@ -1,4 +1,4 @@
-// $Id: RegistrationCollection.cc,v 1.6 2009/10/06 09:20:04 mommsen Exp $
+// $Id: RegistrationCollection.cc,v 1.7 2010/04/15 16:05:45 mommsen Exp $
 /// @file: RegistrationCollection.cc
 
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
@@ -32,7 +32,7 @@ ConsumerID RegistrationCollection::getConsumerID()
 }
 
 bool
-RegistrationCollection::addRegistrationInfo( ConsumerID cid, RegPtr ri )
+RegistrationCollection::addRegistrationInfo( const ConsumerID cid, const RegPtr ri )
 {
   boost::mutex::scoped_lock sl( _lock );
   if( _registrationAllowed )
@@ -61,7 +61,21 @@ RegistrationCollection::addRegistrationInfo( ConsumerID cid, RegPtr ri )
     }
 }
 
-void RegistrationCollection::getEventConsumers( ConsumerRegistrations& crs )
+
+RegPtr RegistrationCollection::getRegistrationInfo( const ConsumerID cid )
+{
+  boost::mutex::scoped_lock sl( _lock );
+  RegPtr regInfo;
+  RegistrationMap::const_iterator pos = _consumers.find(cid);
+  if ( pos != _consumers.end() )
+  {
+    regInfo = pos->second;
+  }
+  return regInfo;
+}
+
+
+void RegistrationCollection::getEventConsumers( ConsumerRegistrations& crs ) const
 {
   boost::mutex::scoped_lock sl( _lock );
   for( RegistrationMap::const_iterator it = _consumers.begin();
@@ -74,7 +88,7 @@ void RegistrationCollection::getEventConsumers( ConsumerRegistrations& crs )
     }
 }
 
-void RegistrationCollection::getDQMEventConsumers( DQMConsumerRegistrations& crs )
+void RegistrationCollection::getDQMEventConsumers( DQMConsumerRegistrations& crs ) const
 {
   boost::mutex::scoped_lock sl( _lock );
   for( RegistrationMap::const_iterator it = _consumers.begin();

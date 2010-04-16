@@ -1,4 +1,4 @@
-// $Id: InitMsgCollection.cc,v 1.9 2009/09/16 08:58:43 mommsen Exp $
+// $Id: InitMsgCollection.cc,v 1.10 2009/09/16 10:44:49 mommsen Exp $
 /// @file: InitMsgCollection.cc
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
@@ -22,7 +22,6 @@ InitMsgCollection::InitMsgCollection()
   FDEBUG(5) << "Executing constructor for InitMsgCollection" << std::endl;
   initMsgList_.clear();
   outModNameTable_.clear();
-  consumerOutputModuleMap_.clear();
   serializedFullSet_.reset(new InitMsgBuffer(2 * sizeof(Header)));
   OtherMessageBuilder fullSetMsg(&(*serializedFullSet_)[0], Header::INIT_SET);
 }
@@ -160,15 +159,9 @@ InitMsgSharedPtr InitMsgCollection::getElementAt(const unsigned int index) const
 
 void InitMsgCollection::clear()
 {
-  {
-    boost::mutex::scoped_lock sl(consumerMapLock_);
-    consumerOutputModuleMap_.clear();
-  }
-  {
-    boost::mutex::scoped_lock sl(listLock_);
-    initMsgList_.clear();
-    outModNameTable_.clear();
-  }
+  boost::mutex::scoped_lock sl(listLock_);
+  initMsgList_.clear();
+  outModNameTable_.clear();
 }
 
 
@@ -338,41 +331,6 @@ void InitMsgCollection::add(InitMsgView const& initMsgView)
             copyPtr);
 }
 
-
-bool InitMsgCollection::registerConsumer(const ConsumerID cid, const std::string& hltModule)
-{
-  if ( ! cid.isValid() ) { return false; }
-  if ( hltModule == "" ) { return false; }
-
-  boost::mutex::scoped_lock sl( consumerMapLock_ );
-  consumerOutputModuleMap_[ cid ] = hltModule;
-  return true;
-}
-
-
-InitMsgSharedPtr InitMsgCollection::getElementForConsumer(const ConsumerID cid) const
-{
-  std::string outputModuleLabel;
-  {
-    boost::mutex::scoped_lock sl( consumerMapLock_ );
-
-    std::map< ConsumerID, std::string >::const_iterator mapIter;
-    mapIter = consumerOutputModuleMap_.find( cid );
-
-    if ( mapIter != consumerOutputModuleMap_.end() &&
-         mapIter->second != "" )
-      {
-        outputModuleLabel = mapIter->second;
-      }
-    else
-      {
-        InitMsgSharedPtr serializedProds;
-        return serializedProds;
-      }
-  }
-
-  return getElementForOutputModule(outputModuleLabel);
-}
 
 
 /// emacs configuration

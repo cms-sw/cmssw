@@ -1,4 +1,4 @@
-// $Id: RegistrationCollection.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: RegistrationCollection.h,v 1.4 2010/04/15 16:05:45 mommsen Exp $
 /// @file: RegistrationCollection.h 
 
 #ifndef StorageManager_RegistrationCollection_h
@@ -22,8 +22,8 @@ namespace stor
      Keep a collection of registered event and DQM event consumers.
 
      $Author: mommsen $
-     $Revision: 1.3 $
-     $Date: 2009/07/20 13:06:10 $
+     $Revision: 1.4 $
+     $Date: 2010/04/15 16:05:45 $
   */
 
   class RegistrationCollection
@@ -44,19 +44,24 @@ namespace stor
     /**
        Add registration info. Return false if no registration is allowed.
     */
-    bool addRegistrationInfo( ConsumerID, RegPtr );
+    bool addRegistrationInfo( const ConsumerID, RegPtr );
+
+    /**
+       Get registration info for ConsumerID. Returns empty pointer if not found.
+    */
+    RegPtr getRegistrationInfo( const ConsumerID );
 
     /**
        Get event consumer registrations.
     */
     typedef std::vector<stor::ConsRegPtr> ConsumerRegistrations;
-    void getEventConsumers( ConsumerRegistrations& );
+    void getEventConsumers( ConsumerRegistrations& ) const;
 
     /**
        Get DQM event consumer registrations.
     */
     typedef std::vector<stor::DQMEventConsRegPtr> DQMConsumerRegistrations;
-    void getDQMEventConsumers( DQMConsumerRegistrations& );
+    void getDQMEventConsumers( DQMConsumerRegistrations& ) const;
 
     /**
        Enable registration.

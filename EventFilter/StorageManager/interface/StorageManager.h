@@ -1,4 +1,4 @@
-// $Id: StorageManager.h,v 1.56 2009/10/19 14:38:12 mommsen Exp $
+// $Id: StorageManager.h,v 1.57 2010/03/04 16:57:41 mommsen Exp $
 /// @file: StorageManager.h 
 
 #ifndef StorageManager_StorageManager_h
@@ -6,6 +6,7 @@
 
 #include <string>
 
+#include "EventFilter/StorageManager/interface/ConsumerUtils.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/WebPageHelper.h"
 
@@ -38,8 +39,8 @@ namespace stor {
    * Main class of the StorageManager XDAQ application
    *
    * $Author: mommsen $
-   * $Revision: 1.56 $
-   * $Date: 2009/10/19 14:38:12 $
+   * $Revision: 1.57 $
+   * $Date: 2010/03/04 16:57:41 $
    */
 
   class StorageManager: public xdaq::Application
@@ -225,6 +226,7 @@ namespace stor {
     DiskWriter *_diskWriter;
     DQMEventProcessor *_dqmEventProcessor;
 
+    ConsumerUtils _consumerUtils;
     WebPageHelper _webPageHelper;
 
   };
