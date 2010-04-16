@@ -141,61 +141,6 @@ def recordedLumiForRun(dbsession,c,runnum):
         cursor.close()
         del hltprescQuery
         dbsession.transaction().commit()
-
-        dbsession.transaction().start(True)
-        schema=dbsession.nominalSchema()
-        #for myhltpath,(myl1bitname,myhltprescale) in finalhltData.items():
-        #print 'querying here ',myhltpath,myl1bitname,myhltprescale
-        trgQuery=schema.tableHandle(nameDealer.trgTableName()).newQuery()
-        trgQuery.addToOutputList("CMSLSNUM","cmslsnum")
-        trgQuery.addToOutputList("PRESCALE","trgprescale")
-        trgQuery.addToOutputList("DEADTIME","trgdeadtime")
-        trgQuery.addToOutputList("BITNAME","bitname")
-        trgQueryCondition=coral.AttributeList()
-        trgQueryCondition.extend('runnumber','unsigned int')
-        #trgQueryCondition.extend('bitname','string')
-        trgQueryCondition['runnumber'].setData(int(runnum))
-        #trgQueryCondition['bitname'].setData(myl1bitname)
-        trgResult=coral.AttributeList()
-        trgResult.extend("cmslsnum","unsigned int")
-        trgResult.extend("trgprescale","unsigned int")
-        trgResult.extend("trgdeadtime","unsigned long long")
-        trgResult.extend("bitname","string")
-        trgQuery.defineOutput(trgResult)
-        trgQuery.setCondition("RUNNUM =:runnumber",trgQueryCondition)
-        trgQuery.addToOrderList("BITNAME")
-        trgQuery.addToOrderList("CMSLSNUM")
-        cursor=trgQuery.execute()
-        counter=0
-        mylsnum=0
-        trgprescalemap={}
-        while cursor.next():
-            trglsnum=cursor.currentRow()['cmslsnum'].data()
-            trgprescale=cursor.currentRow()['trgprescale'].data()
-            trgdeadtime=cursor.currentRow()['trgdeadtime'].data()
-            trgbitname=cursor.currentRow()['bitname'].data()
-            if not deadtable.has_key(trglsnum):
-                #deadtable[trglsnum]=25.0e-09*trgdeadtime/c.LSLENGTH*100.0
-                deadtable[trglsnum]=[]
-                deadtable[trglsnum].append(trgdeadtime)                
-            if counter==0:
-                mylsnum=trglsnum
-                trgprescalemap[trgbitname]=trgprescale
-            if mylsnum!=trglsnum:
-                counter=0
-                mylsnum=0
-            else:
-                counter=counter+1
-        cursor.close()
-        del trgQuery
-        dbsession.transaction().commit()
-
-        #trgtable
-        #print trgprescalemap
-        for hpath,trgdataseq in lumidata[1].items():
-            bitn=trgdataseq[0]
-            if trgprescalemap.has_key(bitn):
-                trgdataseq.append(trgprescalemap[bitn])
                 
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
@@ -206,37 +151,63 @@ def recordedLumiForRun(dbsession,c,runnum):
         queryCondition.extend("runnumber","unsigned int")
         queryCondition.extend("lumiversion","string")
         #queryCondition.extend("alive","bool")
-        queryCondition.extend("bitnum","unsigned int")
         queryCondition["runnumber"].setData(int(runnum))
         queryCondition["lumiversion"].setData(c.LUMIVERSION)
         #queryCondition["alive"].setData(True)
-        queryCondition["bitnum"].setData(0)
-        query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND trg.BITNUM=:bitnum",queryCondition)
+        query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM",queryCondition)
         #query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive=:alive AND trg.BITNUM=:bitnum",queryCondition)
         #query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
         query.addToOutputList("lumisummary.CMSLSNUM","cmsls")
         query.addToOutputList("lumisummary.INSTLUMI","instlumi")
         query.addToOutputList("lumisummary.NUMORBIT","norbits")
+        query.addToOutputList("trg.BITNAME","bitname")
+        query.addToOutputList("trg.DEADTIME","trgdeadtime")
+        query.addToOutputList("trg.PRESCALE","trgprescale")
+        query.addToOutputList("trg.BITNUM","trgbitnum")
+        query.addToOrderList("trg.BITNAME")
+        query.addToOrderList("trg.CMSLSNUM")
+
         result=coral.AttributeList()
         result.extend("cmsls","unsigned int")
         result.extend("instlumi","float")
         result.extend("norbits","unsigned int")
+        result.extend("bitname","string")
+        result.extend("trgdeadtime","unsigned long long")
+        result.extend("trgprescale","unsigned int")
+        result.extend("trgbitnum","unsigned int")
+        trgprescalemap={}
         query.defineOutput(result)
         cursor=query.execute()
         while cursor.next():
             cmsls=cursor.currentRow()["cmsls"].data()
+            trgprescale=cursor.currentRow()["trgprescale"].data()
+            trgdeadtime=cursor.currentRow()["trgdeadtime"].data()
+            trgbitname=cursor.currentRow()["bitname"].data()
+            trgbitnum=cursor.currentRow()["trgbitnum"].data()
             instlumi=cursor.currentRow()["instlumi"].data()
             norbits=cursor.currentRow()["norbits"].data()
-            if deadtable.has_key(cmsls):
-                deadtable[cmsls].append(instlumi)
-                deadtable[cmsls].append(norbits)
+            if cmsls==1:
+                trgprescalemap[trgbitname]=trgprescale
+            if trgbitnum==0:
+                if not deadtable.has_key(cmsls):
+                    deadtable[cmsls]=[]
+                    deadtable[cmsls].append(trgdeadtime)
+                    deadtable[cmsls].append(instlumi)
+                    deadtable[cmsls].append(norbits)
+        cursor.close()
         del query
         dbsession.transaction().commit()
+        
         #
         #consolidate results
         #
+        #trgtable
+        #print trgprescalemap
+        for hpath,trgdataseq in lumidata[1].items():
+            bitn=trgdataseq[0]
+            if trgprescalemap.has_key(bitn):
+                trgdataseq.append(trgprescalemap[bitn])
         lumidata[2]=deadtable
-        #print lumidata
         return lumidata
     
         #if hltpath=='all':
