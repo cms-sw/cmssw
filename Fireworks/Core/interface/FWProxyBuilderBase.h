@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:12 CET 2010
-// $Id: FWProxyBuilderBase.h,v 1.2 2010/04/13 10:31:15 amraktad Exp $
+// $Id: FWProxyBuilderBase.h,v 1.3 2010/04/15 20:15:15 amraktad Exp $
 //
 
 // system include files
@@ -96,6 +96,7 @@ protected:
       ~Product()
       {
          m_elements->DecDenyDestroy();
+         m_elements->DestroyElements();
       }
    };
 
