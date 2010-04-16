@@ -122,12 +122,12 @@ def reconfigurePF2PATTaus(process,
 	 % (tauType, pf2patSelection)
 
    # Get the prototype of tau producer to make, i.e. fixedConePFTauProducer
-   producerName = producerFromType(tauType)
+   producerName = producerFromType(tauType) + postfix
    # Set as the source for the pf2pat taus (pfTaus) selector
    applyPostfix(process,"pfTaus", postfix).src = producerName
    # Start our pf2pat taus base sequence
    setattr(process,"pfTausBaseSequence"+postfix, cms.Sequence(getattr(process,
-      producerName+postfix)))
+      producerName)))
    baseSequence = getattr(process,"pfTausBaseSequence"+postfix)
    
    #make custom mapper to take postfix into account (could have gone with lambda of lambda but... )
@@ -196,9 +196,9 @@ def adaptPFTaus(process,tauType = 'shrinkingConePFTau', postfix = ""):
         )
 
 #helper function for PAT on PF2PAT sample
-def tauTypeInPF2PAT(process,tauType='shrinkingConePFTau'): 
+def tauTypeInPF2PAT(process,tauType='shrinkingConePFTau', postfix = ""): 
     process.load("PhysicsTools.PFCandProducer.pfTaus_cff")
-    process.pfTaus.src = cms.InputTag(tauType+'Producer')
+    applyPostfix(process, "pfTaus",postfix).src = cms.InputTag(tauType+'Producer'+postfix)
             
 
 def addPFCandidates(process,src,patLabel='PFParticles',cut="",postfix=""):
