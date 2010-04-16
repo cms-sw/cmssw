@@ -6,7 +6,7 @@
 #include "DataFormats/GeometryVector/interface/Phi.h"
 #include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
-#ifndef IN_DICTBUILD
+#ifndef __REFLEX__
 #include "DataFormats/Math/interface/SSEVec.h"
 #endif
 #include <iosfwd>
@@ -53,7 +53,7 @@ public:
     theX(p.x()), theY(p.y()), theZ(p.z()), theW(0) {}
 
 
-#ifndef IN_DICTBUILD
+#ifndef __REFLEX__
   // constructor from Vec3
   template<typename U>
   Basic3DVector(mathSSE::Vec3<U> const& iv) :
