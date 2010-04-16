@@ -313,7 +313,7 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
     print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,10))
     if isVerbose:
         print '==='
-        print tablePrinter.indent(deadtimelabels+deadtoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,70))
+        print tablePrinter.indent(deadtimelabels+deadtoprint,hasHeader=True,separateRows=True,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,70))
         
 
 def dumpRecordedLumi(lumidata,filename,hltpath=''):
