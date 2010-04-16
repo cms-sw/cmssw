@@ -2,7 +2,7 @@
 #include <Math/GenVector/PxPyPzE4D.h>                                                                                                   
 #include <Math/GenVector/PxPyPzM4D.h>       
 
-// $Id: Vertex.cc,v 1.16 2010/04/16 07:47:59 arizzi Exp $
+// $Id: Vertex.cc,v 1.17 2010/04/16 08:08:28 arizzi Exp $
 using namespace reco;
 using namespace std;
 
@@ -157,7 +157,7 @@ unsigned int Vertex::nTracks(float minWeight) const
  {
   for(std::vector<reco::TrackBaseRef>::const_iterator iter = tracks_begin(); iter != tracks_end(); iter++) 
    if (trackWeight(*iter) >=minWeight) 
-    n++  
+    n++;  
  } 
  return n;
 }
