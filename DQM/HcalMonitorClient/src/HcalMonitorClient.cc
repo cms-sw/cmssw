@@ -1,8 +1,8 @@
 /*
  * \file HcalMonitorClient.cc
  * 
- * $Date: 2010/04/10 13:30:22 $
- * $Revision: 1.94 $
+ * $Date: 2010/04/12 08:59:48 $
+ * $Revision: 1.95 $
  * \author J. Temple
  * 
  */
@@ -88,7 +88,9 @@ HcalMonitorClient::HcalMonitorClient(const edm::ParameterSet& ps)
   fC_WidthFromDBByDepth=0;
 
   // Add all relevant clients
-  //clients_.reserve(12); // any reason to reserve ahead of time?
+  clients_.clear();
+  clients_.reserve(14); // any reason to reserve ahead of time?
+  summaryClient_=0;
 
   clients_.push_back(new HcalBaseDQClient((std::string)"HcalMonitorModule",ps));
   if (find(enabledClients_.begin(), enabledClients_.end(),"DeadCellMonitor")!=enabledClients_.end())
@@ -117,9 +119,6 @@ HcalMonitorClient::HcalMonitorClient(const edm::ParameterSet& ps)
     clients_.push_back(new HcalDetDiagNoiseMonitorClient((std::string)"DetDiagNoiseMonitor",ps));
   if (find(enabledClients_.begin(), enabledClients_.end(),"DetDiagTimingMonitor")!=enabledClients_.end())
     clients_.push_back(new HcalDetDiagTimingClient((std::string)"DetDiagTimingMonitor",ps));
-
-
-
 
   if (find(enabledClients_.begin(), enabledClients_.end(),"Summary")!=enabledClients_.end())
     summaryClient_ = new HcalSummaryClient((std::string)"ReportSummaryClient",ps);
