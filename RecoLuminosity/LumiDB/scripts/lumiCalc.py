@@ -269,9 +269,9 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
         deadfractable={}
         if len(dataperRun[1])==0:
             rowdata=[]
-            rowdata+=[runnum]+2*['N/A']
+            rowdata+=[str(runnum)]+2*['N/A']
             datatoprint.append(rowdata)
-            deadtoprint.append([runnum,'N/A'])
+            deadtoprint.append([str(runnum),'N/A'])
             continue
         perlsdata=dataperRun[2]
         recordedLumi=0.0
