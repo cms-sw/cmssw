@@ -14,7 +14,7 @@ namespace ewk
   }
   
   DiLeptonRefBaseCandidate::DiLeptonRefBaseCandidate(const edm::Ref<reco::MuonCollection>& d1,
-				       const edm::Ref<reco::MuonCollection>& d2)
+						     const edm::Ref<reco::MuonCollection>& d2)
   {
     addDaughter(reco::CandidateBaseRef(d1));
     addDaughter(reco::CandidateBaseRef(d2));
@@ -31,33 +31,69 @@ namespace ewk
   
   const reco::Muon DiLeptonRefBaseCandidate::muDaughter1() const
   {
-    edm::Ref<reco::MuonCollection> d = daughterRef(0).castTo<edm::Ref<reco::MuonCollection> >();
-    
-    if(d.isNonnull()) return *d;
+    try {
+      edm::Ref<reco::MuonCollection> d = daughterRef(0).castTo<edm::Ref<reco::MuonCollection> >();
+      
+      if(d.isNonnull()) return *d;
+    } catch (cms::Exception e) { }
+
+    try {
+      edm::Ptr<reco::Muon> d = daughterRef(0).castTo<edm::Ptr<reco::Muon> >();
+      
+      if(d.isNonnull()) return *d;
+    } catch (cms::Exception e) { }
+
     return reco::Muon();
   }
   
   const reco::Muon DiLeptonRefBaseCandidate::muDaughter2() const
   {
-    edm::Ref<reco::MuonCollection> d = daughterRef(1).castTo<edm::Ref<reco::MuonCollection> >();
-    
-    if(d.isNonnull()) return *d;
+    try {
+      edm::Ref<reco::MuonCollection> d = daughterRef(1).castTo<edm::Ref<reco::MuonCollection> >();
+      
+      if(d.isNonnull()) return *d;
+    } catch (cms::Exception e) { }
+
+    try {
+      edm::Ptr<reco::Muon> d = daughterRef(1).castTo<edm::Ptr<reco::Muon> >();
+      
+      if(d.isNonnull()) return *d;
+    } catch (cms::Exception e) { }
+
     return reco::Muon();
   }
   
   const reco::GsfElectron DiLeptonRefBaseCandidate::eDaughter1() const
   {
-    edm::Ref<reco::GsfElectronCollection> d = daughterRef(0).castTo<edm::Ref<reco::GsfElectronCollection> >();
+    try {
+      edm::Ref<reco::GsfElectronCollection> d = daughterRef(0).castTo<edm::Ref<reco::GsfElectronCollection> >();
+      
+      if(d.isNonnull()) return *d;
+    } catch(cms::Exception e) { }
     
-    if(d.isNonnull()) return *d;
+    try {
+      edm::Ptr<reco::GsfElectron> d = daughterRef(0).castTo<edm::Ptr<reco::GsfElectron> >();
+      
+      if(d.isNonnull()) return *d;
+    } catch(cms::Exception e) { }
+    
     return reco::GsfElectron();
   }
   
   const reco::GsfElectron DiLeptonRefBaseCandidate::eDaughter2() const
   {
-    edm::Ref<reco::GsfElectronCollection> d = daughterRef(1).castTo<edm::Ref<reco::GsfElectronCollection> >();
+    try {
+      edm::Ref<reco::GsfElectronCollection> d = daughterRef(1).castTo<edm::Ref<reco::GsfElectronCollection> >();
+      
+      if(d.isNonnull()) return *d;
+    } catch(cms::Exception e) { }
     
-    if(d.isNonnull()) return *d;
+    try {
+      edm::Ptr<reco::GsfElectron> d = daughterRef(1).castTo<edm::Ptr<reco::GsfElectron> >();
+      
+      if(d.isNonnull()) return *d;
+    } catch(cms::Exception e) { }
+    
     return reco::GsfElectron();
   }
   

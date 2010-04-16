@@ -42,6 +42,10 @@
    <class name="edm::RefToBaseVector<ewk::DiLeptonRefBaseCandidate>" />
    <class name="edm::Wrapper<edm::RefToBaseVector<ewk::DiLeptonRefBaseCandidate> >" />
    <class name="edm::reftobase::BaseVectorHolder<ewk::DiLeptonRefBaseCandidate>" />
+   <class name="edm::Ptr<ewk::DiLeptonRefBaseCandidate>" />
+   <class name="edm::Wrapper<edm::Ptr<ewk::DiLeptonRefBaseCandidate> >" />
+   <class name="edm::PtrVector<ewk::DiLeptonRefBaseCandidate>" />
+   <class name="edm::Wrapper<edm::PtrVector<ewk::DiLeptonRefBaseCandidate> >" />
 
    <class name="ewk::LeptonMETRefBaseCandidate"/>
    <class name="std::vector<ewk::LeptonMETRefBaseCandidate>"/>
@@ -56,6 +60,10 @@
    <class name="edm::RefToBaseVector<ewk::LeptonMETRefBaseCandidate>" />
    <class name="edm::Wrapper<edm::RefToBaseVector<ewk::LeptonMETRefBaseCandidate> >" />
    <class name="edm::reftobase::BaseVectorHolder<ewk::LeptonMETRefBaseCandidate>" />
+   <class name="edm::Ptr<ewk::LeptonMETRefBaseCandidate>" />
+   <class name="edm::Wrapper<edm::Ptr<ewk::LeptonMETRefBaseCandidate> >" />
+   <class name="edm::PtrVector<ewk::LeptonMETRefBaseCandidate>" />
+   <class name="edm::Wrapper<edm::PtrVector<ewk::LeptonMETRefBaseCandidate> >" />
 
    <class name="ewk::ZGammaRefBaseCandidate"/>
    <class name="std::vector<ewk::ZGammaRefBaseCandidate>"/>
@@ -70,6 +78,10 @@
    <class name="edm::RefToBaseVector<ewk::ZGammaRefBaseCandidate>" />
    <class name="edm::Wrapper<edm::RefToBaseVector<ewk::ZGammaRefBaseCandidate> >" />
    <class name="edm::reftobase::BaseVectorHolder<ewk::ZGammaRefBaseCandidate>" />
+   <class name="edm::Ptr<ewk::ZGammaRefBaseCandidate>" />
+   <class name="edm::Wrapper<edm::Ptr<ewk::ZGammaRefBaseCandidate> >" />
+   <class name="edm::PtrVector<ewk::ZGammaRefBaseCandidate>" />
+   <class name="edm::Wrapper<edm::PtrVector<ewk::ZGammaRefBaseCandidate> >" />
 
    <!-- 
    <class name="edm::reftobase::BaseHolder<ewk::DiLeptonRefBaseCandidatePtr>" />

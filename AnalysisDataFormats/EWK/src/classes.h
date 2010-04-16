@@ -67,7 +67,11 @@ namespace {
      edm::RefToBaseVector<ewk::DiLeptonRefBaseCandidate> rtbvm3;
      edm::Wrapper<edm::RefToBaseVector<ewk::DiLeptonRefBaseCandidate> > rtbvm_w3;
      edm::reftobase::BaseVectorHolder<ewk::DiLeptonRefBaseCandidate> *bvhm_p3;
-    
+     edm::Ptr<ewk::DiLeptonRefBaseCandidate> p3;
+     edm::Wrapper<edm::Ptr<ewk::DiLeptonRefBaseCandidate> > p_w3;
+     edm::PtrVector<ewk::DiLeptonRefBaseCandidate> pv3;
+     edm::Wrapper<edm::PtrVector<ewk::DiLeptonRefBaseCandidate> > pv_w3;
+
      std::vector<ewk::LeptonMETRefBaseCandidate> v4;
      edm::Wrapper<std::vector<ewk::LeptonMETRefBaseCandidate> > c4;
      edm::Ref<std::vector<ewk::LeptonMETRefBaseCandidate> > r4;
@@ -80,6 +84,10 @@ namespace {
      edm::RefToBaseVector<ewk::LeptonMETRefBaseCandidate> rtbvm4;
      edm::Wrapper<edm::RefToBaseVector<ewk::LeptonMETRefBaseCandidate> > rtbvm_w4;
      edm::reftobase::BaseVectorHolder<ewk::LeptonMETRefBaseCandidate> *bvhm_p4;
+     edm::Ptr<ewk::LeptonMETRefBaseCandidate> p4;
+     edm::Wrapper<edm::Ptr<ewk::LeptonMETRefBaseCandidate> > p_w4;
+     edm::PtrVector<ewk::LeptonMETRefBaseCandidate> pv4;
+     edm::Wrapper<edm::PtrVector<ewk::LeptonMETRefBaseCandidate> > pv_w4;
 
      std::vector<ewk::ZGammaRefBaseCandidate> v5;
      edm::Wrapper<std::vector<ewk::ZGammaRefBaseCandidate> > c5;
@@ -93,6 +101,10 @@ namespace {
      edm::RefToBaseVector<ewk::ZGammaRefBaseCandidate> rtbvm5;
      edm::Wrapper<edm::RefToBaseVector<ewk::ZGammaRefBaseCandidate> > rtbvm_w5;
      edm::reftobase::BaseVectorHolder<ewk::ZGammaRefBaseCandidate> *bvhm_p5;
+     edm::Ptr<ewk::ZGammaRefBaseCandidate> p6;
+     edm::Wrapper<edm::Ptr<ewk::ZGammaRefBaseCandidate> > p_w6;
+     edm::PtrVector<ewk::ZGammaRefBaseCandidate> pv6;
+     edm::Wrapper<edm::PtrVector<ewk::ZGammaRefBaseCandidate> > pv_w6;
     
   };
 }  
