@@ -19,6 +19,8 @@ public:
     push_back("PV Z", params.getParameter<double>("maxZ") );
     set("PV NDOF");
     set("PV Z");
+
+    retInternal_ = getBitTemplate();
   }
   
   bool operator() ( edm::EventBase const & event,  std::strbitset & ret ) {

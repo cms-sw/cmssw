@@ -7,7 +7,8 @@ process.load('PhysicsTools.SelectorUtils.wplusjetsAnalysis_cfi')
 
 process.inputs = cms.PSet (
     fileNames = cms.vstring(
-        '/your/files/go/here.root'
+        # Your data goes here:
+        '/Volumes/MyBook/Data/TTbar/shyft_35x_v3/ljmet_1.root'
         )
 )
 

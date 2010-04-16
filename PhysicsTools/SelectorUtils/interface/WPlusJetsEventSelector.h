@@ -12,6 +12,7 @@
 #include "PhysicsTools/SelectorUtils/interface/MuonVPlusJetsIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/PVSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 
@@ -38,6 +39,9 @@ class WPlusJetsEventSelector : public EventSelector {
   edm::InputTag               metTag_;
   edm::InputTag               trigTag_;
 
+  std::string                 muTrig_;
+  std::string                 eleTrig_;
+
   std::vector<reco::ShallowClonePtrCandidate> selectedJets_;
   std::vector<reco::ShallowClonePtrCandidate> selectedMuons_;
   std::vector<reco::ShallowClonePtrCandidate> selectedElectrons_;
@@ -48,6 +52,7 @@ class WPlusJetsEventSelector : public EventSelector {
   std::vector<reco::ShallowClonePtrCandidate> selectedElectrons2_;
   reco::ShallowClonePtrCandidate              met_;
 
+  PVSelector                           pvSelector_;
   MuonVPlusJetsIDSelectionFunctor      muonIdTight_;
   ElectronVPlusJetsIDSelectionFunctor  electronIdTight_;
   MuonVPlusJetsIDSelectionFunctor      muonIdLoose_;
