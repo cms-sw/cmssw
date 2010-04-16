@@ -97,7 +97,7 @@ namespace mathSSE {
     }
   
     Vec3 get1(unsigned int n) const { 
-      return _mm_shuffle_ps(vec, vec, _MM_SHUFFLE(n, n, n, n))); 
+      return _mm_shuffle_ps(vec, vec, _MM_SHUFFLE(n, n, n, n)); 
   }
 
   };
@@ -130,7 +130,7 @@ namespace mathSSE {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
     }
     Vec3 get1(unsigned int n) const {
-      return Vec3(arr[n],arr[n],arr[n],arr[n]);
+      return Vec3(arr[n],arr[n],arr[n]);
     }
 
 
