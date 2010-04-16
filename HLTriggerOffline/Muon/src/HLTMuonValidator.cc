@@ -1,6 +1,6 @@
 /** \file HLTMuonValidator.cc
- *  $Date: 2010/04/06 15:36:29 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/04/15 18:36:05 $
+ *  $Revision: 1.19 $
  */
 
 
@@ -206,19 +206,12 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
   Handle<          TriggerEventWithRefs> rawTriggerEvent;
   Handle<                MuonCollection> recMuons;
   Handle<         GenParticleCollection> genParticles;
-  Handle<      L1MuonParticleCollection> handleCandsL1;
-  Handle<RecoChargedCandidateCollection> handleCandsL2;
-  Handle<RecoChargedCandidateCollection> handleCandsL3;
 
   iEvent.getByLabel("hltTriggerSummaryRAW", rawTriggerEvent);
   if (rawTriggerEvent.failedToGet())
     {LogError("HLTMuonVal") << "No trigger summary found"; return;}
-
   iEvent.getByLabel(    recMuonLabel_, recMuons     );
   iEvent.getByLabel(genParticleLabel_, genParticles );
-  iEvent.getByLabel(     l1CandLabel_, handleCandsL1);
-  iEvent.getByLabel(     l2CandLabel_, handleCandsL2);
-  iEvent.getByLabel(     l3CandLabel_, handleCandsL3);
 
   vector<string> sources;
   if (genParticles.isValid()) sources.push_back("gen");
@@ -226,16 +219,6 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
 
   bool isFirstEvent = (eventNumber == 1);
   if (isFirstEvent) initializeHists(sources);
-
-//   L1MuonParticleCollection candsL1;
-//   if (handleCandsL1.isValid()) candsL1 = * handleCandsL1;
-//   else LogError("HLTMuonVal") << "No L1 collection with this name!" << endl;
-
-//   vector<RecoChargedCandidateCollection> candsHlt(2);
-//   if (handleCandsL2.isValid()) candsHlt[0] = * handleCandsL2;
-//   if (handleCandsL3.isValid()) candsHlt[1] = * handleCandsL3;
-//   RecoChargedCandidateCollection & candsL2 = candsHlt[0];
-//   RecoChargedCandidateCollection & candsL3 = candsHlt[1];
 
   for (size_t sourceNo = 0; sourceNo < sources.size(); sourceNo++) {
 
@@ -279,8 +262,6 @@ HLTMuonValidator::analyzePath(const Event & iEvent,
                               Handle<TriggerEventWithRefs> rawTriggerEvent)
 {
 
-  cout << path << ", " << source << endl;
-
   const bool skipFilters = (path == "NoFilters");
 
   const float maxEta = elements_[path + "_" + "CutMaxEta" ]->getFloatValue();
@@ -312,10 +293,12 @@ HLTMuonValidator::analyzePath(const Event & iEvent,
       Handle<RecoChargedCandidateCollection> handleCandsL3;
       iEvent.getByLabel(l2CandLabel_, handleCandsL2);
       iEvent.getByLabel(l3CandLabel_, handleCandsL3);
-      for (size_t i = 0; i < handleCandsL2->size(); i++)
-        candsHlt[0].push_back(& handleCandsL2->at(i));
-      for (size_t i = 0; i < handleCandsL3->size(); i++)
-        candsHlt[1].push_back(& handleCandsL3->at(i));
+      if (handleCandsL2.isValid())
+        for (size_t i = 0; i < handleCandsL2->size(); i++)
+          candsHlt[0].push_back(& handleCandsL2->at(i));
+      if (handleCandsL3.isValid())
+        for (size_t i = 0; i < handleCandsL3->size(); i++)
+          candsHlt[1].push_back(& handleCandsL3->at(i));
   }
   else for (size_t i = 0; i < nStepsHlt; i++)
     for (size_t j = 0; j < refsHlt[i].size(); j++)
@@ -352,8 +335,8 @@ HLTMuonValidator::analyzePath(const Event & iEvent,
     size_t nMatches = count(hasMatch.begin(), hasMatch.end(), true);
     if (nMatches < nObjectsToPassPath) break;
     if (nMatches > highestNumMatches) {
-      LogWarning("HLTMuonVal") << "More matches in step " << step 
-                               << " than in step " << step - 1;
+      LogTrace("HLTMuonVal") << "More matches in step " << step 
+                             << " than in step " << step - 1;
       break;
     }
     highestNumMatches = nMatches;
@@ -403,8 +386,6 @@ HLTMuonValidator::findMatches(
     vector<L1MuonParticleRef> candsL1,
     vector< vector< const RecoChargedCandidate *> > candsHlt)
 {
-
-  cout << "    nL1: " << candsL1.size() << endl;
 
   set<size_t>::iterator it;
 
@@ -457,13 +438,13 @@ HLTMuonValidator::findMatches(
       indicesHlt[j].erase(bestMatch);
     }
 
-    cout << "    Muon: " << cand->eta() << ", ";
-    if (matches[i].candL1) cout << matches[i].candL1->eta() << ", ";
-    else cout << "none, ";
-    for (size_t j = 0; j < candsHlt.size(); j++) 
-      if (matches[i].candHlt[j]) cout << matches[i].candHlt[j]->eta() << ", ";
-      else cout << "none, ";
-    cout << endl;
+//     cout << "    Muon: " << cand->eta() << ", ";
+//     if (matches[i].candL1) cout << matches[i].candL1->eta() << ", ";
+//     else cout << "none, ";
+//     for (size_t j = 0; j < candsHlt.size(); j++) 
+//       if (matches[i].candHlt[j]) cout << matches[i].candHlt[j]->eta() << ", ";
+//       else cout << "none, ";
+//     cout << endl;
 
   }
 
