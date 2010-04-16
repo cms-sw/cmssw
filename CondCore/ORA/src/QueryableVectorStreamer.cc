@@ -42,19 +42,14 @@ namespace ora {
         RelationalStreamerFactory streamerFactory( m_schema );
         // first open the insert on the extra table...
         m_query.reset( new SelectOperation( m_mappingElement.tableName(), m_schema.storageSchema() ));
-        const std::vector<std::string>& columns = m_mappingElement.columnNames();
-        size_t startIdx = m_mappingElement.startIndexForPKColumns();
-        size_t cols = columns.size();
-        if( cols==0 || cols < startIdx+1 ){
-          throwException( "Expected id column names have not been found in the mapping.",
-                          "QVReader::build");
+
+        m_query->addWhereId( m_mappingElement.pkColumn() );
+        std::vector<std::string> recIdCols = m_mappingElement.recordIdColumns();
+        for( size_t i=0; i<recIdCols.size(); i++ ){
+          m_query->addId( recIdCols[ i ] );
+          m_query->addOrderId( recIdCols[ i ] );
         }
 
-        m_query->addWhereId( columns[startIdx] );
-        for( size_t i=startIdx+1; i<cols; i++ ){
-          m_query->addId( columns[ i ] );
-          m_query->addOrderId( columns[ i ] );
-        }
         Reflex::Type storeBaseType = ClassUtils::containerSubType(m_objectType,"store_base_type");
         if( !storeBaseType ){
           throwException( "Missing dictionary information for the store base type of the container \"" +
@@ -156,9 +151,7 @@ namespace ora {
         m_recordId.push_back( 0 );
 
         coral::AttributeList& whereData = m_query->whereData();
-        const std::vector<std::string>& columns = m_mappingElement.columnNames();
-        size_t startIdx = m_mappingElement.startIndexForPKColumns();
-        whereData[ columns[ startIdx ] ].data<int>() = fullId[0];
+        whereData[ m_mappingElement.pkColumn() ].data<int>() = fullId[0];
         m_query->execute();
         m_dataReader->select( fullId[0] );
       }
@@ -177,9 +170,7 @@ namespace ora {
         m_recordId.push_back( 0 );
 
         coral::AttributeList& whereData = m_query->whereData();
-        const std::vector<std::string>& columns = m_mappingElement.columnNames();
-        size_t startIdx = m_mappingElement.startIndexForPKColumns();
-        whereData[ columns[ startIdx ] ].data<int>() = fullId[0];
+        whereData[ m_mappingElement.pkColumn() ].data<int>() = fullId[0];
 
         setQueryCondition( *m_query, selection, m_mappingElement );
         
@@ -191,22 +182,17 @@ namespace ora {
         SelectOperation countQuery( m_mappingElement.tableName(), m_schema.storageSchema() );
         std::string countColumn("COUNT(*)");
         countQuery.addData( countColumn ,typeid(int) );
-        const std::vector<std::string>& columns = m_mappingElement.columnNames();
-        size_t startIdx = m_mappingElement.startIndexForPKColumns();
-        size_t cols = columns.size();
-        if( cols==0 || cols < startIdx+1 ){
-          throwException( "Expected id column names have not been found in the mapping.",
-                          "QVReader::selectionCount");
-        }
-        // select by all ids (except the position...)
-        for( size_t i=startIdx; i<cols-1; i++ ){
-          countQuery.addWhereId( columns[ i ] );
+        countQuery.addWhereId( m_mappingElement.pkColumn() );
+        std::vector<std::string> recIdColumns = m_mappingElement.recordIdColumns();
+        for( size_t i=0;i<recIdColumns.size();i++){
+          countQuery.addWhereId( recIdColumns[i] );
         }
 
         coral::AttributeList& whereData = countQuery.whereData();
         // Fill-in the identities.
+        whereData[ m_mappingElement.pkColumn() ].data<int>() = fullId[0];
         for ( size_t i=0;i<fullId.size();i++ ){
-          whereData[ columns[i+startIdx] ].data<int>() = fullId[i];
+          whereData[ recIdColumns[i] ].data<int>() = fullId[i+1];
         }
         
         setQueryCondition( countQuery, selection, m_mappingElement );
@@ -254,8 +240,7 @@ namespace ora {
           m_recordId[m_recordId.size()-1] = (int)i;
           coral::AttributeList& row = m_query->data();
 
-          const std::string& posColumn = m_mappingElement.columnNames()[m_mappingElement.columnNames().size()-1];
-          *(size_t*)positionData = (size_t)(row[posColumn].data<int>());
+          *(size_t*)positionData = (size_t)(row[m_mappingElement.posColumn()].data<int>());
     
           m_dataReader->setRecordId( m_recordId );
           m_dataReader->read( containerData );

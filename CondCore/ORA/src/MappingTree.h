@@ -2,8 +2,45 @@
 #define INCLUDE_ORA_MAPPINGTREE_H
 
 #include "MappingElement.h"
+//
+#include <set>
 
 namespace ora {
+
+  struct TableInfo {
+      TableInfo():
+        m_dependency( false ),
+        m_tableName(""),
+        m_idColumns(),
+        m_dataColumns(),
+        m_parentTableName(""),
+        m_refColumns(){
+      }
+      TableInfo( const TableInfo& rhs ):
+        m_dependency( rhs.m_dependency ),
+        m_tableName( rhs.m_tableName ),
+        m_idColumns( rhs.m_idColumns ),
+        m_dataColumns( rhs.m_dataColumns ),
+        m_parentTableName(rhs.m_parentTableName),
+        m_refColumns(rhs.m_refColumns){
+      }
+      TableInfo& operator=( const TableInfo& rhs ){
+        m_dependency = rhs.m_dependency;
+        m_tableName = rhs.m_tableName;
+        m_idColumns = rhs.m_idColumns;
+        m_dataColumns = rhs.m_dataColumns;
+        m_parentTableName = rhs.m_parentTableName;
+        m_refColumns = rhs.m_refColumns;
+        return *this;
+      }
+      bool m_dependency;
+      std::string m_tableName;
+      std::vector<std::string> m_idColumns;
+      std::map<std::string,std::string> m_dataColumns;
+      std::string m_parentTableName;
+      std::vector<std::string> m_refColumns;
+  };
+  
 
   /**
    * The structure holding an object/relational mapping.
@@ -38,7 +75,9 @@ namespace ora {
      */
     MappingElement& setTopElement( const std::string& className,
                                    const std::string& tableName,
-                                   bool isDependency=false );
+                                   bool isDependent = false );
+
+    void setDependency( const MappingTree& parentTree );
 
     /**
      * Returns the main mapping element
@@ -57,6 +96,8 @@ namespace ora {
     /// replace present data with the provided source
     void override(const MappingTree& source);
 
+    std::vector<TableInfo> tables() const;
+    
   private:
     /**
      * The mapping version
@@ -67,6 +108,8 @@ namespace ora {
      * The main tree
      */
     MappingElement m_element;
+
+    std::auto_ptr<TableInfo> m_parentTable;
 
   };
 }

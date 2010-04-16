@@ -343,7 +343,7 @@ ora::PoolDbCache::~PoolDbCache(){
 
 void ora::PoolDbCache::add( int id, const PoolDbCacheData& data ){
   std::map<int,PoolDbCacheData >::iterator iData = m_idMap.insert( std::make_pair( id, data )).first;
-  std::map<std::string,PoolDbCacheData*>::iterator iS = m_sequences.find( MappingRules::containerIdSequenceName() );
+  std::map<std::string,PoolDbCacheData*>::iterator iS = m_sequences.find( MappingRules::sequenceNameForContainerId() );
   if( iS == m_sequences.end() ){
     throwException( "ContainerId Sequence is empty","PoolDbCache::add");
   }
@@ -379,8 +379,8 @@ std::map<std::string,ora::PoolDbCacheData*>& ora::PoolDbCache::sequences(){
 void ora::PoolDbCache::clear(){
   m_sequences.clear();
   m_idMap.clear();
-  m_sequences.insert(std::make_pair( MappingRules::containerIdSequenceName(), &m_databaseData ) );
-  m_sequences.insert(std::make_pair( MappingRules::mappingSequenceName(), &m_mappingData ) );
+  m_sequences.insert(std::make_pair( MappingRules::sequenceNameForContainerId(), &m_databaseData ) );
+  m_sequences.insert(std::make_pair( MappingRules::sequenceNameForMapping(), &m_mappingData ) );
 }
 
 std::string ora::PoolContainerHeaderTable::tableName(){

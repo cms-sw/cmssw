@@ -72,6 +72,11 @@ namespace ora {
     static ElementType elementTypeFromString( const std::string& elementType );
 
     public:
+    /// Iterator definition
+    typedef std::map< std::string, MappingElement >::iterator iterator;
+    typedef std::map< std::string, MappingElement >::const_iterator const_iterator;
+
+    public:
 
     /// Empty Constructor
     MappingElement();
@@ -96,20 +101,17 @@ namespace ora {
      */
     ElementType elementType() const;
 
-    /**
-     * Returns the element type of the parent
-     */
-    ElementType parentType() const;
+    std::string elementTypeString() const;
 
     /**
      * Returns the dependent flag
      */
-    bool isDependentTree() const;
+    bool isDependent() const;
 
     /**
      * Returns the parent class mapping element
      */
-    const MappingElement* parentClassMappingElement() const;
+    const MappingElement& parentClassMappingElement() const;
     
     /**
      * Returns the scope name
@@ -125,10 +127,6 @@ namespace ora {
      */
     const std::string& variableNameForSchema() const;
     /**
-     * Returns the variable name for the column name generation
-     */
-    const std::string& variableNameForColumn() const;
-    /**
      * Returns the variable C++ type
      */
     const std::string& variableType() const;
@@ -137,29 +135,25 @@ namespace ora {
      * Returns the associated table name
      */
     const std::string& tableName() const;
-
+    
     /**
      * Returns the associated columns
      */
     const std::vector< std::string >& columnNames() const;
 
-    size_t startIndexForPKColumns() const;
+    std::string idColumn() const;
+
+    std::string pkColumn() const;
+
+    std::vector<std::string> recordIdColumns() const;
+
+    std::string posColumn() const;
 
     /**
      * Returns the table names and their id columns  
      */
     std::vector<std::pair<std::string,std::string> > tableHierarchy() const;
      
-    /**
-     * Returns the name of the main table
-     */
-    const std::string& mainTableName() const;
-    
-    /**
-     * Sets the mapping element as dependent on the specified class mapping
-     */
-    void setDependency( const MappingElement& parentClassMappingElement );
-    
     /**
      * Changes the type of the element and propagates the changes to the sub-elements accordingly
      * Note: It should be called before a call to alterTableName and setColumnNames.
@@ -177,16 +171,12 @@ namespace ora {
     /**
      * Sets the variable name for the table-column name generation
      */
-     void setVariableNameForSchema(const std::string& scopeName,const std::string& variableName, bool embeddedObject=false);
+    //void setVariableNameForSchema(const std::string& scopeName,const std::string& variableName);
     /**
      * Sets the column names. It is propagated to objects having the same associated table.
      * @param columns The names of the associated columns.
      */
     void setColumnNames( const std::vector< std::string >& columns );
-
-    /// Iterator definition
-    typedef std::map< std::string, MappingElement >::iterator iterator;
-    typedef std::map< std::string, MappingElement >::const_iterator const_iterator;
 
     /// Returns an iterator in the beginning of the sequence
     iterator begin();
@@ -217,28 +207,16 @@ namespace ora {
                                       const std::string& variableType,
                                       const std::string& tableName );
 
-    /**
-     * Appends a the specified sub-element.
-     * In case the current element is not an object or an array, an ObjectRelationalException is thrown.
-     *
-     * @param element The element to be appended
-     */
-    void appendSubElementTree( const MappingElement& element );
-
     /*
      * replace present data with the provided source
      */
     void override(const MappingElement& source);
-    
+
   private:
     /**
      * The type of this mapping element.
      */
     ElementType m_elementType;
-    /**
-     * The type of the mapping element generating the current one, if any. 
-     */
-    ElementType m_parentType;
     /**
      * Flag to recursive mark the mapping trees of depending objects
      */
@@ -261,10 +239,6 @@ namespace ora {
      */
     std::string m_variableNameForSchema;
     /**
-     * The variable name used for the column name generation.
-     */
-    std::string m_variableNameForColumn;
-    /**
      * The C++ type of the element.
      */
     std::string m_variableType;
@@ -276,26 +250,18 @@ namespace ora {
     std::string m_tableName;
     /**
      * The array of the names of the associated columns. For an object they are the ones defining
-     * its identity. A primitive is associated to a single column. For an ORA reference they are the ones defining the object
-     * identity, plus two columns corresponding to the two fields of the OID.
+     * its identity. A primitive is associated to a single column. For an ORA reference they are two columns corresponding
+     * to the two fields of the OID.
      * For a pointer or a reference the first column is the referenced
      * table and the rest refer to the identity columns of the target object. For an array the first column is the "position"
      * column and the rest are the columns forming the foreign key constraint w.r.t. the parent table.
      */
     std::vector<std::string> m_columnNames;
-
+    
     /**
      * The map of sub-elements.
      */
     std::map< std::string, MappingElement > m_subElements;
-    /**
-     * The main table name
-     */
-    std::string m_mainTableName;
-    /**
-     * The parent class 
-     */
-    std::auto_ptr<MappingElement> m_parentClassMappingElement;
 
   };
 }
@@ -303,55 +269,41 @@ namespace ora {
 inline 
 ora::MappingElement::MappingElement():
   m_elementType(ora::MappingElement::Undefined),
-  m_parentType(ora::MappingElement::Undefined),
   m_isDependentTree(false),
   m_scopeName(""),
   m_variableName(""),
   m_variableNameForSchema(""),
-  m_variableNameForColumn(""),
   m_variableType(""),
   m_tableName(""),
   m_columnNames(),
-  m_subElements(),
-  m_mainTableName(""),
-  m_parentClassMappingElement(){
+  m_subElements(){
 }
 
 inline 
 ora::MappingElement::MappingElement( const MappingElement& element):
   m_elementType(element.m_elementType),
-  m_parentType(element.m_parentType),
   m_isDependentTree(element.m_isDependentTree),
   m_scopeName(element.m_scopeName),
   m_variableName(element.m_variableName),
   m_variableNameForSchema(element.m_variableNameForSchema),
-  m_variableNameForColumn(element.m_variableNameForColumn),
   m_variableType(element.m_variableType),
   m_tableName(element.m_tableName),
   m_columnNames(element.m_columnNames),
-  m_subElements(element.m_subElements),
-  m_mainTableName(element.m_mainTableName),
-  m_parentClassMappingElement() {
-  if(element.m_parentClassMappingElement.get()) m_parentClassMappingElement.reset( new MappingElement(*element.m_parentClassMappingElement));
+  m_subElements(element.m_subElements){
 }
 
 inline ora::MappingElement& 
 ora::MappingElement::operator=(const MappingElement& element){
   if(this != &element){
      m_elementType = element.m_elementType;
-     m_parentType = element.m_parentType;
      m_isDependentTree = element.m_isDependentTree;
      m_scopeName = element.m_scopeName;
      m_variableName = element.m_variableName;
      m_variableNameForSchema = element.m_variableNameForSchema;
-     m_variableNameForColumn = element.m_variableNameForColumn;
      m_variableType = element.m_variableType;
      m_tableName = element.m_tableName;
      m_columnNames = element.m_columnNames;
      m_subElements = element.m_subElements;
-     m_mainTableName = element.m_mainTableName;
-     m_parentClassMappingElement.reset();
-     if(element.m_parentClassMappingElement.get()) m_parentClassMappingElement.reset( new MappingElement(*element.m_parentClassMappingElement));
   }
   return *this;
 }
@@ -393,32 +345,21 @@ ora::MappingElement::find( const std::string& key ) const
   return m_subElements.find( key );
 }
 
-inline bool
-ora::MappingElement::removeSubElement( const std::string& key ) 
-{
-  return m_subElements.erase( key )>0;
-}
-
 inline ora::MappingElement::ElementType
 ora::MappingElement::elementType() const
 {
   return m_elementType;
 }
 
-inline ora::MappingElement::ElementType
-ora::MappingElement::parentType() const
+inline std::string
+ora::MappingElement::elementTypeString() const
 {
-  return m_parentType;
+  return elementTypeAsString( m_elementType );
 }
 
 inline bool 
-ora::MappingElement::isDependentTree() const {
+ora::MappingElement::isDependent() const {
   return m_isDependentTree;
-}
-
-inline const ora::MappingElement*
-ora::MappingElement::parentClassMappingElement() const {
-  return m_parentClassMappingElement.get();
 }
 
 inline const std::string&
@@ -440,12 +381,6 @@ ora::MappingElement::variableNameForSchema() const
 }
 
 inline const std::string&
-ora::MappingElement::variableNameForColumn() const
-{
-  return m_variableNameForColumn;
-}
-
-inline const std::string&
 ora::MappingElement::variableType() const
 {
   return m_variableType;
@@ -461,11 +396,6 @@ inline const std::vector< std::string >&
 ora::MappingElement::columnNames() const
 {
   return m_columnNames;
-}
-
-inline const std::string&
-ora::MappingElement::mainTableName() const {
-  return m_mainTableName;
 }
 
 #endif

@@ -57,7 +57,7 @@ void ora::MappingDatabase::unfoldElement( const MappingElement& element, Mapping
 
 ora::MappingDatabase::MappingDatabase( ora::IDatabaseSchema& schema ):
   m_schema( schema ),
-  m_mappingSequence( MappingRules::mappingSequenceName(), schema ),
+  m_mappingSequence( MappingRules::sequenceNameForMapping(), schema ),
   m_versions(),
   m_isLoaded( false ){
 }
@@ -141,6 +141,7 @@ bool ora::MappingDatabase::getMappingByVersion( const std::string& version, Mapp
           }
           topLevelElement = iElem->second;
           if( topLevelElement.elementType == MappingElement::dependencyMappingElementType() ) dependency = true;
+          topLevelFound = true;
         } 
       } else {
         std::map<std::string, std::vector<MappingRawElement> >::iterator iN = innerElements.find( iElem->second.scopeName );
@@ -150,6 +151,10 @@ bool ora::MappingDatabase::getMappingByVersion( const std::string& version, Mapp
           iN->second.push_back( iElem->second );
         }
       }
+    }
+    if( !topLevelFound ){
+      throwException( "Could not find top element for mapping version \""+version+"\".",
+                      "MappingDatabase::getMappingByVersion" );
     }
     MappingElement& topElement = destination.setTopElement( topLevelElement.variableName,
                                                             topLevelElement.tableName,

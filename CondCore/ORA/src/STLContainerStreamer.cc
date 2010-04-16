@@ -255,18 +255,12 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
   
   // first open the insert on the extra table...
   m_query.reset( new MultiRecordSelectOperation( m_mappingElement.tableName(), m_schema.storageSchema() ));
-  const std::vector<std::string>& columns = m_mappingElement.columnNames();
-  size_t stColIdx = m_mappingElement.startIndexForPKColumns();
-  size_t cols = columns.size();
-  if( cols==0 || cols < stColIdx+1 ){
-    throwException( "Expected id column names have not been found in the mapping.",
-                    "STLContainerReader::build");
-  }
 
-  m_query->addWhereId( columns[stColIdx] );
-  for( size_t i=stColIdx+1; i<cols; i++ ){
-    m_query->addId( columns[ i ] );
-    m_query->addOrderId( columns[ i ] );
+  m_query->addWhereId( m_mappingElement.pkColumn() );
+  std::vector<std::string> recIdCols = m_mappingElement.recordIdColumns();
+  for( size_t i=0; i<recIdCols.size(); i++ ){
+    m_query->addId( recIdCols[ i ] );
+    m_query->addOrderId( recIdCols[ i ] );
   }
   
   m_offset = &offset;
@@ -328,9 +322,7 @@ void ora::STLContainerReader::select( int oid ){
                    "STLContainerReader::read");
   }
   coral::AttributeList& whereData = m_query->whereData();
-  const std::vector<std::string>& columns = m_mappingElement.columnNames();
-  size_t stColIdx = m_mappingElement.startIndexForPKColumns();
-  whereData[ columns[ stColIdx ] ].data<int>() = oid;
+  whereData[ m_mappingElement.pkColumn() ].data<int>() = oid;
   m_query->execute();
   if(m_keyReader.get()) m_keyReader->select( oid );
   m_dataReader->select( oid );

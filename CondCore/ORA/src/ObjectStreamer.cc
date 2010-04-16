@@ -52,7 +52,7 @@ void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
       MappingElement::iterator iDataMemberMapping = m_mapping.find( dataMemberName );
       if ( iDataMemberMapping == m_mapping.end() ) {
         throwException( "Data member \"" + dataMemberName +
-                        "\" not found in the mapping element",
+                        "\" not found in the mapping element of variable \""+m_mapping.variableName()+"\".",
                         "ObjectStreamerBase::buildBaseDataMembers" );
       }
       MappingElement& dataMemberMapping = iDataMemberMapping->second;
@@ -98,7 +98,7 @@ bool ora::ObjectStreamerBase::buildDataMembers( DataElement& dataElement,
     MappingElement::iterator idataMemberMapping = m_mapping.find( dataMemberName );
     if ( idataMemberMapping == m_mapping.end() ) {
       throwException( "Data member \"" + dataMemberName +
-                      "\" not found in the mapping element",
+                      "\" not found in the mapping element of variable \""+m_mapping.variableName()+"\".",
                       "ObjectStreamerBase::buildDataMembers" );
     }
     MappingElement& dataMemberMapping = idataMemberMapping->second;

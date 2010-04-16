@@ -103,7 +103,7 @@ void ora::DatabaseSession::startTransaction( bool readOnly ){
   if( !m_transactionCache.get() ){
     m_dbSession.get().transaction().start( readOnly );
     m_schema.reset( IDatabaseSchema::createSchemaHandle( m_dbSession.get().nominalSchema() ));
-    m_contIdSequence.reset( new NamedSequence( MappingRules::containerIdSequenceName(), *m_schema ));
+    m_contIdSequence.reset( new NamedSequence( MappingRules::sequenceNameForContainerId(), *m_schema ));
     m_mappingDb.reset( new MappingDatabase( *m_schema ));
     m_transactionCache.reset( new TransactionCache );
   }

@@ -240,35 +240,21 @@ ora::MappingElement::MappingElement( const std::string& elementType,
                                      const std::string& variableType,
                                      const std::string& tableName ):
   m_elementType( Undefined ),
-  m_parentType( Undefined ),
   m_isDependentTree(false),
   m_scopeName( "" ),
   m_variableName( variableName ),
   m_variableNameForSchema( "" ),
-  m_variableNameForColumn( "" ),
   m_variableType( variableType ),
   m_tableName( tableName ),
   m_columnNames(),
-  m_subElements(),
-  m_mainTableName( tableName ),
-  m_parentClassMappingElement()
+  m_subElements()
 {
   // Check here the element type
-  if ( !  isValidMappingElementType( elementType ) ) {
-    throwException( "\"" + elementType + "\" is not a supported mapping element type",
-                    "MappingElement::MappingElement" );
-  }
   m_elementType = elementTypeFromString( elementType );
   if(m_elementType == Dependency) m_isDependentTree = true;
 }
 
 ora::MappingElement::~MappingElement() {
-}
-
-size_t ora::MappingElement::startIndexForPKColumns() const {
-  size_t startIndex = 0;
-  if( m_isDependentTree ) startIndex = 1;
-  return startIndex;
 }
 
 namespace ora {
@@ -296,12 +282,45 @@ ora::MappingElement::tableHierarchy() const{
   return tableList;
 }
 
-void
-ora::MappingElement::setDependency( const MappingElement& parentClassMappingElement )
-{
-  m_elementType = Dependency;
-  m_isDependentTree = true;
-  m_parentClassMappingElement.reset( new MappingElement( parentClassMappingElement) );
+std::string ora::MappingElement::idColumn() const {
+  if( m_columnNames.empty() ) throwException( "No column names found in the mapping element.",
+                                              "MappingElement::idColumn");
+  return m_columnNames.front();
+}
+
+std::string ora::MappingElement::pkColumn() const {
+  size_t ind = 0;
+  if( m_isDependentTree ) ind = 1;
+  if( m_columnNames.size() < ind+1 )
+    throwException( "Column names not found as expected in the mapping element.",
+                    "MappingElement::idColumn");
+  return m_columnNames.at( ind );
+}
+
+std::vector<std::string> ora::MappingElement::recordIdColumns() const {
+  size_t ind = 0;
+  if( m_isDependentTree ) ind = 1;
+  size_t cols = m_columnNames.size();
+  if( cols < ind+2 ){
+    std::stringstream message;
+    message <<"Column names for variable=\""<< m_variableName<<"\" of type=\""<<elementTypeAsString( m_elementType )<<"\" are not as expected.";
+    throwException( message.str(),
+                    "MappingElement::recordIdColumns");
+  }
+  std::vector<std::string> ret;
+  for( size_t i=ind+1;i<cols;i++){
+    ret.push_back( m_columnNames[i] );
+  }
+  return ret;
+}
+
+std::string ora::MappingElement::posColumn() const {
+  size_t ind = 0;
+  if( m_isDependentTree ) ind = 1;
+  if( m_columnNames.size() < ind+2 )
+    throwException( "Column names not found as expected in the mapping element.",
+                    "MappingElement::posColumn");
+  return m_columnNames.back();
 }
 
 ora::MappingElement&
@@ -317,46 +336,31 @@ ora::MappingElement::appendSubElement( const std::string& elementType,
            m_elementType == Array ||
            m_elementType == CArray ||
            m_elementType == InlineCArray ||
-           m_elementType == OraReference ||
            m_elementType == OraPointer ||
            m_elementType == OraArray ) ) {
     throwException( "Attempted to insert a sub-element under an element of type \"" +
                     ora::MappingElement::elementTypeAsString( m_elementType ) + "\"",
                     "MappingElement::appendSubElement" );
   }
+  if(m_subElements.find( variableName )!=m_subElements.end()){
+    throwException("Attribute name \""+variableName+"\" is already defined in the mapping element of variable \""+
+                   m_variableName+"\".",
+                   "MappingElement::appendSubElement");
+  }
+  
   MappingElement& newElement =
     m_subElements.insert( std::make_pair( variableName,ora::MappingElement( elementType,
                                                                             variableName,
                                                                             variableType,
                                                                             tableName ) ) ).first->second;
-  newElement.m_parentType = m_elementType;
   newElement.m_isDependentTree = m_isDependentTree;
   if ( m_scopeName.empty() ) {
     newElement.m_scopeName = m_variableName;
   } else {
     newElement.m_scopeName = m_scopeName + "::" + m_variableName;
   }
-  newElement.m_mainTableName = m_mainTableName;
   
   return newElement;
-}
-
-void
-ora::MappingElement::appendSubElementTree( const MappingElement& element ){
-  if ( ! ( m_elementType == Class ||
-           m_elementType == Object ||
-           m_elementType == Dependency||
-           m_elementType == Array ||
-           m_elementType == CArray ||
-           m_elementType == InlineCArray ||
-           m_elementType == OraReference ||
-           m_elementType == OraPointer ||
-           m_elementType == OraArray  ) ) {
-    throwException( "Attempted to insert a sub-element under an element of type \"" +
-                    MappingElement::elementTypeAsString( m_elementType ) + "\"",
-                    "MappingElement::appendSubElement" );
-  }
-  m_subElements.insert( std::make_pair(element.variableName(),element));
 }
 
 void
@@ -376,7 +380,7 @@ ora::MappingElement::alterType( const std::string& elementType )
              m_elementType == Dependency ||
              m_elementType == Array ||
              m_elementType == CArray ||
-             m_elementType == OraReference ||
+             m_elementType == InlineCArray ||
              m_elementType == OraPointer ||
              m_elementType == OraArray  ) ) {
       m_subElements.clear();
@@ -394,7 +398,6 @@ ora::MappingElement::alterTableName( const std::string& tableName )
     ora::MappingElement& subElement = iElement->second;
     if ( subElement.elementType() != Array &&
          subElement.elementType() != CArray &&
-         subElement.elementType() != OraPointer &&
          subElement.elementType() != OraArray  ) {
       subElement.alterTableName( tableName );
     }
@@ -402,50 +405,24 @@ ora::MappingElement::alterTableName( const std::string& tableName )
   m_tableName = tableName;
 }
 
-void
-ora::MappingElement::setVariableNameForSchema(const std::string& scopeName,
-                                                               const std::string& variableName,
-                                                               bool embeddedObject){
-  if ( scopeName.empty() ) {
-    m_variableNameForSchema = variableName;
-  } else {
-    m_variableNameForSchema = scopeName + "_" + variableName;
-  }
-  if(embeddedObject) m_variableNameForColumn = variableName;
-}
+//void
+//ora::MappingElement::setVariableNameForSchema(const std::string& scopeName,
+//                                              const std::string& variableName){
+//  if ( scopeName.empty() ) {
+//    m_variableNameForSchema = variableName;
+//  } else {
+//    m_variableNameForSchema = scopeName + "_" + variableName;
+//  }
+//}
 
 void
 ora::MappingElement::setColumnNames( const std::vector< std::string >& columns )
 {
   m_columnNames = columns;
   if ( m_subElements.empty() ) return;
-
-  std::vector< std::string > columnsToPropagate = m_columnNames;
-  if ( this->elementType() == OraReference ) {
-    // Remove the OID fields
-    columnsToPropagate.pop_back();
-    columnsToPropagate.pop_back();
-  }
-
-  for ( iterator iElement = this->begin();
-        iElement != this->end(); ++iElement ) {
-    ora::MappingElement& subElement = iElement->second;
-
-    if ( subElement.elementType() == Object &&
-         subElement.tableName() == m_tableName ) {
-      subElement.setColumnNames( columnsToPropagate );
-    }
-    else if ( subElement.elementType() == OraReference &&
-              subElement.tableName() == m_tableName ) {
-      std::vector< std::string > columns = subElement.columnNames();
-      for ( size_t i = 0; i < columns.size() - 2; ++i ) columns[i] = columnsToPropagate[i];
-      subElement.setColumnNames( columns );
-    }
-  }
 }
 
-void ora::MappingElement::override(const MappingElement& source)
-{
+void ora::MappingElement::override(const MappingElement& source){
   if(variableType()==source.variableType() || elementType()==source.elementType())
   {
     alterType(MappingElement::elementTypeAsString(source.elementType()));

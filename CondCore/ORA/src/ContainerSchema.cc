@@ -105,15 +105,16 @@ void ora::ContainerSchema::create(){
   checkClassDict();
   std::string newMappingVersion = m_session.mappingDatabase().newMappingVersionForContainer( m_containerName );
   MappingGenerator mapGen( m_session.schema().storageSchema() );
-  if(!mapGen.createNewMapping( m_containerName, m_classDict, m_mapping )){
-    throwException("Mapping generation failed.",
-                   "ContainerSchema::create");
-  }
+  mapGen.createNewMapping( m_containerName, m_classDict, m_mapping );
+  //if(!mapGen.createNewMapping( m_containerName, m_classDict, m_mapping )){
+  //  throwException("Mapping generation failed.",
+  //                 "ContainerSchema::create");
+  //}
   m_mapping.setVersion( newMappingVersion );
   m_session.mappingDatabase().storeMapping( m_mapping );
   m_session.mappingDatabase().insertClassVersion( m_classDict, 0, m_containerId, newMappingVersion, true );
   MappingToSchema mapping2Schema( m_session.schema().storageSchema() );
-  mapping2Schema.createOrAlter(  m_mapping, false );
+  mapping2Schema.create(  m_mapping );
   m_loaded = true;
 }
 
@@ -165,16 +166,17 @@ void ora::ContainerSchema::evolve(){
     throwException("Base mapping has not been found in the database.",
                    "ContainerSchema::evolve");
   }
-  if(!mapGen.createNewMapping( m_containerName, m_classDict, baseMapping,  m_mapping )){
-    throwException("Mapping generation failed..",
-                   "ContainerSchema::evolve");
-  }
+  mapGen.createNewMapping( m_containerName, m_classDict, baseMapping,  m_mapping );
+  //if(!mapGen.createNewMapping( m_containerName, m_classDict, baseMapping,  m_mapping )){
+  //  throwException("Mapping generation failed..",
+  //                 "ContainerSchema::evolve");
+  //}
   std::string newMappingVersion = m_session.mappingDatabase().newMappingVersionForContainer( m_containerName );
   m_mapping.setVersion( newMappingVersion );
   m_session.mappingDatabase().storeMapping( m_mapping );
   m_session.mappingDatabase().insertClassVersion( m_classDict, 0, m_containerId, newMappingVersion );
   MappingToSchema mapping2Schema( m_session.schema().storageSchema() );
-  mapping2Schema.createOrAlter(  m_mapping, true  );
+  mapping2Schema.alter(  m_mapping  );
   m_loaded = true;
 }
 
@@ -209,29 +211,29 @@ bool ora::ContainerSchema::loadMappingForDependentClass( const Reflex::Type& dep
 }
 
 void ora::ContainerSchema::extend( const Reflex::Type& dependentClassDict ){
-  bool okGen = false;
   std::string className = dependentClassDict.Name(Reflex::SCOPED);
   std::map<std::string,MappingTree*>::iterator iDep =
     m_dependentMappings.insert( std::make_pair( className, new MappingTree ) ).first;
   MappingGenerator mapGen( m_session.schema().storageSchema() );
   MappingTree baseMapping;
   bool foundBase = m_session.mappingDatabase().getBaseMappingForContainer( className, m_containerId, baseMapping );
+  MappingToSchema mapping2Schema( m_session.schema().storageSchema() );
   if( foundBase ){
     // evolution required...
-    okGen = mapGen.createNewDependentMapping( dependentClassDict, m_mapping, baseMapping, *iDep->second );
+    mapGen.createNewDependentMapping( dependentClassDict, m_mapping, baseMapping, *iDep->second );
+    mapping2Schema.alter(  *iDep->second  );
   } else {
     // new mapping from scratch...
-    okGen = mapGen.createNewDependentMapping( dependentClassDict, m_mapping, *iDep->second );
+    mapGen.createNewDependentMapping( dependentClassDict, m_mapping, *iDep->second );
+    mapping2Schema.create(  *iDep->second  );
   }
-  if(!okGen) throwException("Mapping generation failed.",
-                            "ContainerSchema::extend");
+  //if(!okGen) throwException("Mapping generation failed.",
+  //                          "ContainerSchema::extend");
   std::string newMappingVersion = m_session.mappingDatabase().newMappingVersionForContainer( m_containerName );
   iDep->second->setVersion( newMappingVersion );
   m_session.mappingDatabase().storeMapping( *iDep->second );
   //m_session.mappingDatabase().insertClassVersion( m_classDict, 1, m_containerId, newMappingVersion, !foundBase );
   m_session.mappingDatabase().insertClassVersion( dependentClassDict, 1, m_containerId, newMappingVersion, !foundBase );
-  MappingToSchema mapping2Schema( m_session.schema().storageSchema() );
-  mapping2Schema.createOrAlter(  *iDep->second, foundBase  );
 }
 
 bool ora::ContainerSchema::extendIfRequired( const Reflex::Type& dependentClassDict ){

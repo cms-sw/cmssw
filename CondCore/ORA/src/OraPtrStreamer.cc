@@ -31,13 +31,7 @@ namespace ora {
         m_localElement.clear();
 
         const std::vector<std::string>& columns = m_mapping.columnNames();
-        size_t stColIdx = m_mapping.startIndexForPKColumns();
         size_t cols = columns.size();
-        if( cols==0 || cols < stColIdx+1 ){
-          throwException( "Expected id column names have not been found in the mapping.",
-                          "OraPtrReadBuffer::build");
-        }
-
         for( size_t i=0; i<cols; i++ ){
           m_query.addWhereId( columns[ i ] );
         }

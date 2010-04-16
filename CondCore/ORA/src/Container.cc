@@ -42,7 +42,7 @@ const std::string& ora::Container::name(){
   return m_dbContainer->name();
 }
 
-std::string ora::Container::className(){
+const std::string& ora::Container::className(){
   return m_dbContainer->className();
 }
 

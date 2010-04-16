@@ -5,6 +5,11 @@
 #include <string>
 #include <set>
 #include <map>
+#include <vector>
+
+namespace coral{
+  class ISchema;
+}
 
 namespace ora {
 
@@ -12,7 +17,7 @@ namespace ora {
     
     public:
 
-    TableRegister();
+    explicit TableRegister( coral::ISchema& schema );
 
     virtual ~TableRegister();
 
@@ -24,18 +29,26 @@ namespace ora {
 
     void insertTable(const std::string& tableName);
 
-    bool insertColumn(const std::string& tableName, const std::string& columnName);
+    bool insertColumn(const std::string& tableName, const std::string& columnName );
 
-    //unsigned int nextDependencyIndex( const std::string& tableName );
+    bool insertColumns(const std::string& tableName, const std::vector<std::string>& columns );
 
     private:
+
+    void init();
+
+    private:
+
+    coral::ISchema& m_schema;
+
+    bool m_init;
 
     std::map<std::string,std::set<std::string> > m_register;
 
     const std::string* m_currentTable;
 
     std::set<std::string>* m_currentColumns;
-    
+
   };
 
 }
