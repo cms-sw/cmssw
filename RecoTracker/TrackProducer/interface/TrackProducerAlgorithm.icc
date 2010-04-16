@@ -170,6 +170,9 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	// =========================
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
+	//set the algo_ member in order to propagate the old alog name
+	algo_=theT->algo();	
+
 	//=====  the hits are in the same order as they were in the track::extra.        
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, 
 			     seed, ndof, bs, theT->seedRef(),theT->qualityMask());
