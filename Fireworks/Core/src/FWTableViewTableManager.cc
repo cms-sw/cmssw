@@ -1,4 +1,4 @@
-// $Id: FWTableViewTableManager.cc,v 1.11 2009/12/11 16:04:50 chrjones Exp $
+// $Id: FWTableViewTableManager.cc,v 1.12 2010/03/03 15:44:24 eulisse Exp $
 
 #include <math.h>
 #include "TClass.h"
@@ -9,28 +9,40 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
+#include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
+#include "Fireworks/TableWidget/interface/FWOutlinedTextTableCellRenderer.h"
 
 FWTableViewTableManager::FWTableViewTableManager (const FWTableView *view)
      : m_view(view),
        m_graphicsContext(0),
        m_renderer(0),
+       m_rowContext(0),
+       m_rowRenderer(0),
        m_tableFormats(0),
        m_caughtExceptionInCellRender(false)
 {
      GCValues_t gc = *(m_view->m_tableWidget->GetWhiteGC().GetAttributes());
      m_graphicsContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&gc,kTRUE);
-//      m_graphicsContext = (TGGC *)&FWTextTableCellRenderer::getDefaultGC();
      m_highlightContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&gc,kTRUE);
      m_highlightContext->SetForeground(gVirtualX->GetPixel(kBlue));
      m_highlightContext->SetBackground(gVirtualX->GetPixel(kBlue));
      m_renderer = new FWTextTableCellRenderer(m_graphicsContext,
 					      m_highlightContext,
 					      FWTextTableCellRenderer::kJustifyRight);
+     m_rowContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&gc,kTRUE);
+     m_rowContext->SetForeground(gVirtualX->GetPixel(kWhite));
+     m_rowContext->SetBackground(gVirtualX->GetPixel(kBlack));
+     m_rowFillContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&gc,kTRUE);
+     m_rowRenderer = new FWOutlinedTextTableCellRenderer(m_rowContext,
+                                                      m_rowFillContext,
+                                                      FWOutlinedTextTableCellRenderer::kJustifyLeft);
+   
 }
 
 FWTableViewTableManager::~FWTableViewTableManager ()
 {
      delete m_renderer;
+     delete m_rowRenderer;
 }
 
 int FWTableViewTableManager::numberOfRows() const
@@ -59,9 +71,6 @@ std::vector<std::string> FWTableViewTableManager::getTitles () const
 
 int FWTableViewTableManager::unsortedRowNumber(int iSortedRowNumber) const
 {
-//      printf("%d indices, returning %d (%d)\n", (int)m_sortedToUnsortedIndices.size(),
-// 	    iSortedRowNumber, 
-// 	    iSortedRowNumber < (int)m_sortedToUnsortedIndices.size() ? m_sortedToUnsortedIndices[iSortedRowNumber] : -1);
      if (iSortedRowNumber >= (int)m_sortedToUnsortedIndices.size())
 	  return 0;
      return m_sortedToUnsortedIndices[iSortedRowNumber];
@@ -103,39 +112,29 @@ FWTableCellRendererBase *FWTableViewTableManager::cellRenderer(int iSortedRowNum
 	       snprintf(s, sizeof(s), fs, ret);
 	       break;
 	  }
-//  	  m_highlightContext->SetForeground(gVirtualX->GetPixel(kBlue));
-//  	  m_highlightContext->SetBackground(gVirtualX->GetPixel(kBlue));
 	  if (not m_view->item()->modelInfo(realRowNumber).isSelected()) {
 	       if (m_view->item()->modelInfo(realRowNumber).displayProperties().isVisible())
-		    m_graphicsContext->
-			 SetForeground(gVirtualX->GetPixel(m_view->item()->modelInfo(realRowNumber).
-							   displayProperties().color()));
+                  if (m_view->m_manager->colorManager().background() == kBlack) {
+                     m_graphicsContext->
+                     SetForeground(gVirtualX->GetPixel(kWhite));
+                  } else {
+                     m_graphicsContext->
+                     SetForeground(gVirtualX->GetPixel(kBlack));
+                  }
 	       else {
-		    if (m_view->m_manager->colorManager().background() == kBlack)
-			 m_graphicsContext->SetForeground(0x404040);
-		    else m_graphicsContext->SetForeground(0xe0e0e0);
+                  if (m_view->m_manager->colorManager().background() == kBlack) {
+                     m_graphicsContext->SetForeground(0x888888);
+                  } else { 
+                     m_graphicsContext->SetForeground(0x888888);
+                  }
 	       }
 	       m_renderer->setGraphicsContext(m_graphicsContext);
 	  } else {
-// 	       m_graphicsContext->
-// 		    SetBackground(gVirtualX->GetPixel(kWhite));
 	       m_graphicsContext->
 		    SetForeground(0xffffff);
-// 	       m_graphicsContext->SetFillStyle(kFillSolid);
 	       m_renderer->setGraphicsContext(m_graphicsContext);
-// 	       m_renderer->setGraphicsContext(m_highlightContext);
-// 	       static TGGC* s_context = 0;
-// 	       if(0==s_context) {
-// 		    GCValues_t hT = *(gClient->GetResourcePool()->GetSelectedGC()->GetAttributes());
-// 		    s_context = gClient->GetResourcePool()->GetGCPool()->GetGC(&hT,kTRUE);
-// 		    s_context->SetForeground(s_context->GetBackground());
-// 		    //s_context->SetForeground(gVirtualX->GetPixel(kBlue+2));
-// 	       }
-// 	       m_renderer->setGraphicsContext(s_context);
 	  }
 	  m_renderer->setData(s, m_view->item()->modelInfo(realRowNumber).isSelected());
-// 			      not m_view->item()->modelInfo(realRowNumber).
-// 			      displayProperties().isVisible());
      } else { 
 	  m_renderer->setData("invalid", false);
      }
@@ -267,3 +266,25 @@ void FWTableViewTableManager::updateEvaluators ()
      }
      //printf("Got evaluators\n");
 }
+
+bool FWTableViewTableManager::hasRowHeaders() const
+{
+   return true;
+}
+FWTableCellRendererBase* FWTableViewTableManager::rowHeader(int iSortedRowNumber) const
+{
+   const int realRowNumber = unsortedRowNumber(iSortedRowNumber);
+   if (m_view->item() != 0 &&
+       m_view->item()->size() &&
+       m_view->item()->modelData(realRowNumber) != 0) {
+      m_rowFillContext->
+      SetForeground(gVirtualX->GetPixel(m_view->item()->modelInfo(realRowNumber).
+                                        displayProperties().color()));
+      
+      m_rowRenderer->setData(m_view->item()->modelName(realRowNumber).c_str());
+   } else {
+      m_rowRenderer->setData("");
+   }
+   return m_rowRenderer;
+}
+
