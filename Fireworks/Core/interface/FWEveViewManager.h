@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:45 CET 2010
-// $Id: FWEveViewManager.h,v 1.3 2010/04/12 10:09:15 amraktad Exp $
+// $Id: FWEveViewManager.h,v 1.4 2010/04/16 13:44:06 amraktad Exp $
 //
 
 // system include files
@@ -80,13 +80,13 @@ private:
    FWEveViewManager(const FWEveViewManager&); // stop default
    const FWEveViewManager& operator=(const FWEveViewManager&); // stop default
 
-   FWViewBase* createISpyView  (TEveWindowSlot* iParent);
-   FWViewBase* create3DView       (TEveWindowSlot* iParent);
-   FWViewBase* createLegoView      (TEveWindowSlot* iParent);
-   FWViewBase* createGlimpseView   (TEveWindowSlot* iParent);
-   FWViewBase* createRhoPhiView    (TEveWindowSlot* iParent);
-   FWViewBase* createRhoZView      (TEveWindowSlot* iParent);
-   FWEveView*  finishViewCreate    (boost::shared_ptr<FWEveView>);
+   FWViewBase* createISpyView   (TEveWindowSlot* iParent);
+   FWViewBase* create3DView     (TEveWindowSlot* iParent);
+   FWViewBase* createLegoView   (TEveWindowSlot* iParent);
+   FWViewBase* createGlimpseView(TEveWindowSlot* iParent);
+   FWViewBase* createRhoPhiView (TEveWindowSlot* iParent);
+   FWViewBase* createRhoZView   (TEveWindowSlot* iParent);
+   FWEveView*  finishViewCreate (boost::shared_ptr<FWEveView>);
 
    void beingDestroyed(const FWViewBase*);
 
@@ -106,7 +106,7 @@ private:
    std::map<int, BuilderVec> m_builders;
 
    std::vector< std::vector<boost::shared_ptr<FWEveView> > >  m_views;
-   std::vector<TEveElementList*>  m_products;
+   std::vector<TEveElementList*>  m_viewProducts;
 
    // TODO ...
    // std::map<const FWEventItem*, std::vector<TEveCompund*> >  m_interactions;

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:12 CET 2010
-// $Id: FWProxyBuilderBase.h,v 1.3 2010/04/15 20:15:15 amraktad Exp $
+// $Id: FWProxyBuilderBase.h,v 1.4 2010/04/16 14:41:23 amraktad Exp $
 //
 
 // system include files
@@ -129,6 +129,7 @@ protected:
 private:
    void applyChangesToAllModels();
    void cleanProduct(Product* p);
+   void setProjectionLayer(float);
 
    // ---------- member data --------------------------------
    typedef std::vector<Product*>::iterator Product_it;
@@ -141,6 +142,8 @@ private:
    bool m_modelsChanged;
    bool m_haveViews;
    bool m_mustBuild;
+
+   float m_layer;
 };
 
 #endif

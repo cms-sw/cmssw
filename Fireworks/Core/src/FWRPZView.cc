@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.4 2010/04/15 20:15:15 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.5 2010/04/16 13:44:07 amraktad Exp $
 //
 
 // system include files
@@ -212,23 +212,9 @@ FWRPZView::updateCaloLines(TEveElement* iParent)
 }
 
 void
-FWRPZView::importElements(TEveElement* iChildren, float iLayer, TEveElement* iProjectedParent)
+FWRPZView::importElements(TEveElement* iChildren, TEveElement* iProjectedParent)
 {
-   float oldLayer = m_projMgr->GetCurrentDepth();
-   m_projMgr->SetCurrentDepth(iLayer);
-   //make sure current depth is reset even if an exception is thrown
-   boost::shared_ptr<TEveProjectionManager> sentry(m_projMgr.get(),
-                                                   boost::bind(&TEveProjectionManager::SetCurrentDepth,
-                                                               _1,oldLayer));
-   if (iProjectedParent)
-   {
-      m_projMgr->ImportElements(iChildren,iProjectedParent);
-   }
-   else
-   {
-      m_projMgr->ImportElements(iChildren,  eventScene());
-      // printf("Import elements %s to scene %s chaged [%d]\n", iChildren->GetElementName(), eventScene()->GetElementName(), eventScene()->IsChanged());
-   }
+   m_projMgr->ImportElements(iChildren,iProjectedParent);
 }
 
 

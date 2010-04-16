@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.10 2010/04/16 10:59:51 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.11 2010/04/16 13:44:07 amraktad Exp $
 //
 
 // system include files
@@ -90,12 +90,12 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
    
    // create scene maps and view maps
 
-   m_products.resize(FWViewType::kSize);
+   m_viewProducts.resize(FWViewType::kSize);
    for (int viewType = 0;  viewType < FWViewType::kSize; ++viewType)
    {
       const char* sceneName = Form("Shared %s", FWViewType::idToName(viewType).c_str());
-      m_products[viewType] = new TEveElementList(sceneName);
-      m_products[viewType]->IncDenyDestroy();
+      m_viewProducts[viewType] = new TEveElementList(sceneName);
+      m_viewProducts[viewType]->IncDenyDestroy();
    }
    m_views.resize(FWViewType::kSize); 
    
@@ -173,21 +173,21 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
                         if (viewType == FWViewType::kRhoPhi || viewType == FWViewType::kRhoZ )
                         {
                            FWRPZView* rpzView = dynamic_cast<FWRPZView*> (i->get());
-                           rpzView->importElements(product, builder->layer());
+                           rpzView->importElements(product, rpzView->eventScene());
                         }
                      }
                   }
                   else 
                   {
                      TEveElementList* product = builder->createProduct((FWViewType::EType)viewType, 0);
-                     m_products[viewType]->AddElement(product);
+                     m_viewProducts[viewType]->AddElement(product);
 
                      for (EveViewVec_it i = m_views[viewType].begin(); i!= m_views[viewType].end(); ++i)
                      { 
                         if (viewType == FWViewType::kRhoPhi || viewType == FWViewType::kRhoZ )
                         {
                            FWRPZView* rpzView = dynamic_cast<FWRPZView*> (i->get());
-                           rpzView->importElements(product, builder->layer());
+                           rpzView->importElements(product,  rpzView->eventScene());
                         }
                      }
                   }
@@ -263,7 +263,7 @@ FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
 {
    view->setContext(context());
 
-   // printf("new view %s added \n", view->typeName().c_str());
+   //  printf("new view %s added \n", view->typeName().c_str());
    int typeId = view->typeId();
    int viewerBit = 1 << typeId;
    
@@ -287,11 +287,11 @@ FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
    if (typeId == FWViewType::kRhoPhi || typeId == FWViewType::kRhoZ )
    { 
       FWRPZView* rpzView = (FWRPZView*)(view.get());
-      rpzView->importElements(m_products[typeId], 0);
+      rpzView->importElements(m_viewProducts[typeId], rpzView->eventScene());
    }
    else
    {
-      view->eventScene()->AddElement(m_products[typeId]);
+      view->eventScene()->AddElement(m_viewProducts[typeId]);
    }
 
    view->beingDestroyed_.connect(boost::bind(&FWEveViewManager::beingDestroyed,this,_1));

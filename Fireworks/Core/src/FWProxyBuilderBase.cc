@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.3 2010/04/15 20:15:15 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.4 2010/04/16 14:41:23 amraktad Exp $
 //
 
 // system include files
@@ -40,7 +40,11 @@
 // constructors and destructor
 //
 FWProxyBuilderBase::FWProxyBuilderBase():
-   m_item(0), m_modelsChanged(false), m_haveViews(false), m_mustBuild(true)
+   m_item(0),
+   m_modelsChanged(false),
+   m_haveViews(false),
+   m_mustBuild(true),
+   m_layer(0)
 {
 }
 
@@ -99,6 +103,7 @@ FWProxyBuilderBase::build()
 {
    if (m_item)
    {
+      bool firstTime = m_products.size();
       clean();
 
       bool initIds = true;
@@ -119,6 +124,7 @@ FWProxyBuilderBase::build()
          // If product is not registered into any projection-manager,
          // this does nothing.
          // It might be cleaner to check view-type / supported view-types.
+         if (firstTime) setProjectionLayer(item()->layer());
          elms->ProjectAllChildren();
 
          if (elms && static_cast<int>(m_item->size()) == elms->NumChildren())
@@ -224,13 +230,17 @@ FWProxyBuilderBase::modelChanges(const FWModelIds& iIds)
 void
 FWProxyBuilderBase::itemChanged(const FWEventItem* iItem)
 { 
-  itemChangedImp(iItem);
-  if(m_haveViews) {
-    build();
-  } else {
-    m_mustBuild=true;
-  }
-  m_modelsChanged=false;
+   itemChangedImp(iItem);
+
+   if (iItem->layer() != m_layer)
+      setProjectionLayer(iItem->layer());
+
+   if(m_haveViews) {
+      build();
+   } else {
+      m_mustBuild=true;
+   }
+   m_modelsChanged=false;
 }
 
 void FWProxyBuilderBase::itemChangedImp(const FWEventItem*)
@@ -359,6 +369,18 @@ int
 FWProxyBuilderBase::layer() const
 {
    return m_item->layer();
+}
+
+void
+FWProxyBuilderBase::setProjectionLayer(float layer)
+{
+   m_layer = layer;
+   for (Product_it pIt = m_products.begin(); pIt != m_products.end(); ++pIt)
+   {
+      TEveProjectable* pable = static_cast<TEveProjectable*>((*pIt)->m_elements);
+      for (TEveProjectable::ProjList_i i = pable->BeginProjecteds(); i != pable->EndProjecteds(); ++i)
+         (*i)->SetDepth(m_layer);
+   }
 }
 
 //

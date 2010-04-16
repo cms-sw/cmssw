@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.7 2010/04/09 17:23:57 amraktad Exp $
+// $Id: FWEveView.cc,v 1.8 2010/04/16 13:44:07 amraktad Exp $
 //
 
 
@@ -84,7 +84,7 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type) :
    m_viewer->AddScene(m_eventScene);
 
    // spawn geo scene
-   m_geoScene = gEve->SpawnNewScene(Form("EventScene %s", typeName().c_str()));
+   m_geoScene = gEve->SpawnNewScene(Form("GeoScene %s", typeName().c_str()));
    m_geoScene->GetGLScene()->SetSelectable(kFALSE);
    m_viewer->AddScene(m_geoScene);
    m_viewContextMenu.reset(new FWViewContextMenuHandlerGL(m_viewer));

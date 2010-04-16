@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.2 2010/04/09 17:23:57 amraktad Exp $
+// $Id: FWRPZView.h,v 1.3 2010/04/12 12:43:09 amraktad Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ public:
    //returns the new element created from this import
    
    void eventEnd();
-   void importElements(TEveElement* iProjectableChild, float iLayer, TEveElement* iProjectedParent=0);
+   void importElements(TEveElement* iProjectableChild, TEveElement* iProjectedParent=0);
 
 private:
    FWRPZView(const FWRPZView&);    // stop default
