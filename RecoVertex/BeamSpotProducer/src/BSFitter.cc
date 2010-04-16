@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.16 2010/03/17 20:31:29 yumiceva Exp $
+ version $Id: BSFitter.cc,v 1.17 2010/03/18 16:14:08 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -500,7 +500,7 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 		
 		
 		// average transverse beam width
-		double sigmabeam2 = 0.03 * 0.03;
+		double sigmabeam2 = 0.006 * 0.006;
 		if (finputBeamWidth > 0 ) sigmabeam2 = finputBeamWidth * finputBeamWidth;
 
 		//double sigma2 = sigmabeam2 +  (iparam->sigd0())* (iparam->sigd0()) / iparam->weight2;
