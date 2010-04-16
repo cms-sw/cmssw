@@ -51,7 +51,8 @@ Maker::validateEDMType(std::string const& edmType, WorkerParams const& p) const 
   if(edmType != expected) {
     Exception toThrow(errors::Configuration,"Error occurred while creating module.\n");
     toThrow <<  p.pset_->getParameter<std::string>("@module_type") <<  " with label " << p.pset_->getParameter<std::string>("@module_label")
-      << " is of type " << edmType << ", but declared in the configuration as " << expected;
+      << " is of type " << edmType << ", but declared in the configuration as " << expected << ".\n"
+      << "Please replace " << expected << " with " << edmType << " in the appropriate configuration file(s).\n";
     throw toThrow;
   }
 }
