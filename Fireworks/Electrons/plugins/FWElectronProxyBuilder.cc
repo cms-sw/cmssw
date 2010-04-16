@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.4 2010/04/15 13:52:25 yana Exp $
+// $Id: FWElectronProxyBuilder.cc,v 1.5 2010/04/15 20:15:16 amraktad Exp $
 //
 #include "TEveTrack.h"
 
@@ -127,7 +127,7 @@ FWElectronProxyBuilder::buildViewType(const FWEventItem* iItem, TEveElementList*
 REGISTER_FWPROXYBUILDER(FWElectronProxyBuilder, reco::GsfElectronCollection, "Electrons", FWViewType::k3DBit | FWViewType::kRPZBit);
 
 
-/*
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 //   GLIMPSE specific proxy builder
@@ -165,5 +165,3 @@ FWElectronGlimpseProxyBuilder::build( const reco::GsfElectron& iData, unsigned i
 //    scaler()->addElement(marker);
 }
 REGISTER_FWPROXYBUILDER(FWElectronGlimpseProxyBuilder, reco::GsfElectron, "Electrons", FWViewType::kGlimpseBit);
-
-*/
