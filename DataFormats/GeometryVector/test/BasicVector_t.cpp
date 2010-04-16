@@ -40,6 +40,13 @@ float normV(Basic3DVectorF const & a) {
 
 
 int main() {
+#if defined(__GNUC__) && (__GNUC__ = 4) && (__GNUC_MINOR__ > 4)
+  std::cout << "gcc " << __GNUC__ << "." << __GNUC_MINOR__ << std::endl;
+endif
+#ifdef USE_SSEVECT
+  std::cout << "sse vector enabled in cmssw" << std::endl
+#endif
+
 
   Basic3DVectorF  x(2.0f,4.0f,5.0f);
   Basic3DVectorF  y(-3.0f,2.0f,-5.0f);

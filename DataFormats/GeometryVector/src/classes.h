@@ -1,6 +1,6 @@
-// this is a real nasty trick...
-#include "DataFormats/GeometryVector/interface/oldBasic3DVector.h"
-#define GeometryVector_Basic3DVector_h
+// use old stile (no sse vector buildin) class...
+#define IN_DICTBUILD
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 //
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"

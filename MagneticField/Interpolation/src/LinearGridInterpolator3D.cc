@@ -74,8 +74,20 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
   int s3 = grid.stride3(); 
   //chances are this is more numerically precise this way
 
-#ifdef INLINE_INTR
-  // pure intrinsics...
+
+#if defined(USE_SSEVECT)
+  
+  ValueType result = ((1.f-s)*(1.f-t)*u)*(grid(ind      +s3) - grid(ind      ));
+  result =  result + ((1.f-s)*     t *u)*(grid(ind   +s2+s3) - grid(ind   +s2));
+  result =  result + (s      *(1.f-t)*u)*(grid(ind+s1   +s3) - grid(ind+s1   ));
+  result =  result + (s      *     t *u)*(grid(ind+s1+s2+s3) - grid(ind+s1+s2)); 
+  result =  result + (        (1.f-s)*t)*(grid(ind   +s2   ) - grid(ind      ));
+  result =  result + (      s        *t)*(grid(ind+s1+s2   ) - grid(ind+s1   ));
+  result =  result + (                s)*(grid(ind+s1      ) - grid(ind      ));
+  result =  result +                                           grid(ind      );
+
+#else
+
   __m128 resultSIMD =                 _mm_mul_ps(_mm_set1_ps((1.f - s) * (1.f - t) * u), _mm_sub_ps(grid(ind           + s3).vec, grid(ind          ).vec));
   resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps((1.f - s) *         t * u), _mm_sub_ps(grid(ind      + s2 + s3).vec, grid(ind      + s2).vec)));
   resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps(        s * (1.f - t) * u), _mm_sub_ps(grid(ind + s1      + s3).vec, grid(ind + s1     ).vec)));
@@ -87,16 +99,7 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
   
   ValueType result(resultSIMD);
 
-#else 
-  
-  ValueType result = ((1.f-s)*(1.f-t)*u)*(grid(ind      +s3) - grid(ind      ));
-  result =  result + ((1.f-s)*     t *u)*(grid(ind   +s2+s3) - grid(ind   +s2));
-  result =  result + (s      *(1.f-t)*u)*(grid(ind+s1   +s3) - grid(ind+s1   ));
-  result =  result + (s      *     t *u)*(grid(ind+s1+s2+s3) - grid(ind+s1+s2)); 
-  result =  result + (        (1.f-s)*t)*(grid(ind   +s2   ) - grid(ind      ));
-  result =  result + (      s        *t)*(grid(ind+s1+s2   ) - grid(ind+s1   ));
-  result =  result + (                s)*(grid(ind+s1      ) - grid(ind      ));
-  result =  result +                                           grid(ind      );
+
 #endif
 
 

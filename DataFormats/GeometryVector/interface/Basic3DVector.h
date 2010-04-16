@@ -1,7 +1,11 @@
 #ifndef GeometryVector_Basic3DVector_h
 #define GeometryVector_Basic3DVector_h
 
-#ifdef USE_SSE
+#if defined(__GNUC__) && (__GNUC__ = 4) && (__GNUC_MINOR__ > 4)
+#define USE_SSEVECT
+#endif
+
+#if defined(USE_SSEVECT) && ! defined(IN_DICTBUILD)
 #include "DataFormats/GeometryVector/interface/newBasic3DVector.h"
 #else
 #include "DataFormats/GeometryVector/interface/oldBasic3DVector.h"

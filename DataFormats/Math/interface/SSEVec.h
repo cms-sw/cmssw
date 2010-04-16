@@ -1,6 +1,10 @@
 #ifndef DataFormat_Math_SSEVec_H
 #define DataFormat_Math_SSEVec_H
 
+#if defined(__GNUC__) && (__GNUC__ = 4) && (__GNUC_MINOR__ > 4)
+#include <x86intrin.h>
+
+#else
 
 #include <mmintrin.h>
 #include <emmintrin.h>
@@ -9,6 +13,8 @@
 #endif
 #ifdef __SSE4_1__
 #include <smmintrin.h>
+#endif
+
 #endif
 
 
