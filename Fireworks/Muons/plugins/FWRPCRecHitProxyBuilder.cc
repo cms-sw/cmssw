@@ -1,12 +1,12 @@
 // -*- C++ -*-
 //
 // Package:     Muons
-// Class  :     RPCActiveChamberProxyRhoPhiZ2DBuilder
+// Class  :     FWRPCRecHitProxyBuilder
 //
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWRPCRecHitProxyBuilder.cc,v 1.4 2010/04/08 13:09:33 yana Exp $
+// $Id: FWRPCRecHitProxyBuilder.cc,v 1.1 2010/04/16 10:29:09 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -16,14 +16,10 @@
 #include "TEvePointSet.h"
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
-#include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
 class FWRPCRecHitProxyBuilder : public FWProxyBuilderBase
@@ -35,20 +31,18 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   virtual void build(const FWEventItem* iItem, TEveElementList** product);
-
    FWRPCRecHitProxyBuilder(const FWRPCRecHitProxyBuilder&);    // stop default
-
    const FWRPCRecHitProxyBuilder& operator=(const FWRPCRecHitProxyBuilder&);    // stop default
+  
+   virtual void build(const FWEventItem* iItem, TEveElementList** product);
 };
 
 void
 FWRPCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
-   bool rhoPhiProjection = true;
    TEveElementList* tList = *product;
 
-   if(0 == tList) {
+   if( 0 == tList ) {
       tList =  new TEveElementList( iItem->name().c_str(), "rpcRecHits", true);
       *product = tList;
       tList->SetMainColor(iItem->defaultDisplayProperties().color());
@@ -60,7 +54,7 @@ FWRPCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList** produ
    const RPCRecHitCollection* hits = 0;
    iItem->get(hits);
 
-   if(0 == hits ) {
+   if( 0 == hits ) {
       return;
    }
    
@@ -79,50 +73,43 @@ FWRPCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList** produ
       const unsigned int nBuffer = 1024;
       char title[nBuffer];
       snprintf(title, nBuffer,"RPC module %d", (*chamberId).rawId());
-      TEveCompound* rpcList = new TEveCompound(title, title);
-      rpcList->OpenCompound();
-      //guarantees that CloseCompound will be called no matter what happens
-      boost::shared_ptr<TEveCompound> sentry(rpcList,boost::mem_fn(&TEveCompound::CloseCompound));
-      gEve->AddElement( rpcList, tList );
-      rpcList->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
-      rpcList->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
 
-      if ( !rhoPhiProjection ) {
-         // draw active chamber
-         TEveGeoShape* shape = geom->getShape( (*chamberId).rawId() );
-         if(0!=shape) {
-            shape->SetMainTransparency(75);
-            shape->SetMainColor(iItem->defaultDisplayProperties().color());
-            rpcList->AddElement(shape);
+      TEveGeoShape* shape = geom->getShape( (*chamberId).rawId() );
+
+      RPCRecHitCollection::range range = hits->get(*chamberId);
+      for( RPCRecHitCollection::const_iterator hit = range.first;
+	   hit != range.second; ++hit)
+      {
+         TEveCompound* compund = new TEveCompound("rpc compound", title );
+         compund->OpenCompound();
+         tList->AddElement(compund);
+
+	 Double_t localPoint[3];
+	 Double_t globalPoint[3];
+
+	 localPoint[0] = hit->localPosition().x();
+	 localPoint[1] = hit->localPosition().y();
+	 localPoint[2] = hit->localPosition().z();
+	 
+	 TEvePointSet* pointSet = new TEvePointSet;
+	 pointSet->SetMarkerStyle( 2 );
+	 pointSet->SetMarkerSize( 3 );
+         pointSet->SetMainColor( iItem->defaultDisplayProperties().color() );
+         pointSet->SetRnrSelf( iItem->defaultDisplayProperties().isVisible() );
+         pointSet->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
+         compund->AddElement( pointSet );
+         if( 0 != shape ) {
+            shape->SetMainTransparency( 75 );
+            shape->SetMainColor( iItem->defaultDisplayProperties().color() );
+            pointSet->AddElement( shape );
          }
-      } else {
-         if ( (*chamberId).region() == 0 ) {   // barrel
-            TEvePointSet* pointSet = new TEvePointSet();
-            pointSet->SetMarkerStyle(2);
-            pointSet->SetMarkerSize(3);
-            pointSet->SetMainColor(iItem->defaultDisplayProperties().color());
-            rpcList->AddElement( pointSet );
 
-            RPCRecHitCollection::range range = hits->get(*chamberId);
-            for (RPCRecHitCollection::const_iterator hit = range.first;
-                 hit!=range.second; ++hit)
-            {
-               Double_t localPoint[3];
-               Double_t globalPoint[3];
-
-               localPoint[0] = hit->localPosition().x();
-               localPoint[1] = hit->localPosition().y();
-               localPoint[2] = hit->localPosition().z();
-
-               if ( (*chamberId).layer() == 1 && (*chamberId).station() < 3 ) localPoint[0] = -localPoint[0];
-               matrix->LocalToMaster( localPoint, globalPoint );
-               // printf("RPC id: %d \t(%0.2f,%0.2f,%0.2f)->(%0.2f,%0.2f,%0.2f)\n",
-               // (*chamberId).rawId(), localPoint[0], localPoint[1], localPoint[2], globalPoint[0], globalPoint[1], globalPoint[2]);
-               pointSet->SetNextPoint( globalPoint[0], globalPoint[1], globalPoint[2] );
-            }
-         }
+	 if( (*chamberId).layer() == 1 && (*chamberId).station() < 3 )
+	    localPoint[0] = -localPoint[0];
+	 matrix->LocalToMaster( localPoint, globalPoint );
+	 pointSet->SetNextPoint( globalPoint[0], globalPoint[1], globalPoint[2] );
       }
    }
 }
 
-REGISTER_FWPROXYBUILDER( FWRPCRecHitProxyBuilder, RPCRecHitCollection, "RPCHits", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER( FWRPCRecHitProxyBuilder, RPCRecHitCollection, "RPC RecHits", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
