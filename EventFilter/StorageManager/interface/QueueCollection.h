@@ -1,4 +1,4 @@
-// $Id: QueueCollection.h,v 1.5 2009/08/24 14:31:11 mommsen Exp $
+// $Id: QueueCollection.h,v 1.6 2010/02/16 10:49:52 mommsen Exp $
 /// @file: QueueCollection.h 
 
 #ifndef StorageManager_QueueCollection_h
@@ -34,8 +34,8 @@ namespace stor {
    * of QueueIDs of queues the class should be added.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/08/24 14:31:11 $
+   * $Revision: 1.6 $
+   * $Date: 2010/02/16 10:49:52 $
    */
 
   template <class T>
@@ -57,7 +57,7 @@ namespace stor {
     utils::duration_t getExpirationInterval(QueueID id) const;
 
     /**
-       Create a new contained queue, with the given policy and given
+      Create a new contained queue, with the given policy and given
       maximum size. It returns a unique identifier to later identify
       requests originating from this consumer.
     */
