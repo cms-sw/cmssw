@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2009/03/27 10:44:37 $
- * $Revision: 1.38 $
+ * $Date: 2010/04/15 12:04:46 $
+ * $Revision: 1.39 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -349,7 +349,7 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
 
       const double vminf = seg->vDrift();   //  vdrift correction are recorded in the segment    
       double cminf = 0.;
-      if(seg->ist0Valid()) cfmin = - seg->t0()*0.00543;
+      if(seg->ist0Valid()) cminf = - seg->t0()*0.00543;
 
       //cout << "In updateHits: t0 = " << seg->t0() << endl;
       //cout << "In updateHits: vminf = " << vminf << endl;
