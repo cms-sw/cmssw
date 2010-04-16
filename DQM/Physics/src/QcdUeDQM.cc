@@ -61,12 +61,33 @@ QcdUeDQM::QcdUeDQM(const ParameterSet &parameters) :
   repSumMap_(0),
   repSummary_(0),
   h2TrigCorr_(0),
+  ptMin_(parameters.getParameter<double>("ptMin")),
+  minRapidity_(parameters.getParameter<double>("minRapidity")),
+  maxRapidity_(parameters.getParameter<double>("maxRapidity")),
+  tip_(parameters.getParameter<double>("tip")),
+  lip_(parameters.getParameter<double>("lip")),
+  diffvtxbs_(parameters.getParameter<double>("diffvtxbs")),
+  ptErr_pt_(parameters.getParameter<double>("ptErr_pt")),
+  vtxntk_(parameters.getParameter<double>("vtxntk")),
+  minHit_(parameters.getParameter<int>("minHit")),
+  pxlLayerMinCut_(parameters.getParameter<double>("pxlLayerMinCut")),
+  requirePIX1_(parameters.getParameter<bool>("requirePIX1")),
+  min3DHit_(parameters.getParameter<int>("min3DHit")),
+  maxChi2_(parameters.getParameter<double>("maxChi2")),
+  bsuse_(parameters.getParameter<bool>("bsuse")),
+  allowTriplets_(parameters.getParameter<bool>("allowTriplets")),
+  bsPos_(parameters.getParameter<double>("bsPos")),
   caloJetLabel_(parameters.getUntrackedParameter<edm::InputTag>("caloJetTag")),
   chargedJetLabel_(parameters.getUntrackedParameter<edm::InputTag>("chargedJetTag")),
   trackLabel_(parameters.getUntrackedParameter<edm::InputTag>("trackTag")),
-  vtxLabel_(parameters.getUntrackedParameter<edm::InputTag>("vtxTag"))
+  vtxLabel_(parameters.getUntrackedParameter<edm::InputTag>("vtxTag")),
+  bsLabel_(parameters.getParameter<edm::InputTag>("beamSpotTag")) 
 {
   // Constructor.
+  std::vector<std::string> quality = parameters.getParameter<std::vector<std::string> >("quality");
+  for (unsigned int j=0;j<quality.size();j++) quality_.push_back(reco::TrackBase::qualityByName(quality[j])); 
+  std::vector<std::string> algorithm = parameters.getParameter<std::vector<std::string> >("algorithm");
+  for (unsigned int j=0;j<algorithm.size();j++) algorithm_.push_back(reco::TrackBase::algoByName(algorithm[j])); 
 
   if (parameters.exists("hltTrgNames"))
     hltTrgNames_ = parameters.getUntrackedParameter<vector<string> >("hltTrgNames");
@@ -97,6 +118,10 @@ void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup)
 
 
   // Analyze the given event.
+   
+   edm::Handle<reco::BeamSpot> beamSpot;
+   bool ValidBS_ = iEvent.getByLabel(bsLabel_,beamSpot);
+   if(!ValidBS_)return;
 
    edm::Handle<reco::TrackCollection>tracks ;
    bool ValidTrack_ = iEvent.getByLabel(trackLabel_,tracks);
@@ -116,25 +141,34 @@ void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup)
 
    reco::TrackCollection tracks_sort = *tracks;
    std::sort(tracks_sort.begin(), tracks_sort.end(), PtSorter()); 
-   
 
   // get tracker geometry
   ESHandle<TrackerGeometry> trackerHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
   tgeo_ = trackerHandle.product();
   if (!tgeo_)return;
-
-  
+  selected_.clear(); 
   fillHltBits(iEvent);
-  bool validVtx = fillVtxPlots(iEvent, vertexColl);
-  if(validVtx){
-      fillpTMaxRelated(iEvent, tracks, vertexColl);
-      fillChargedJetSpectra(iEvent, trkJets);  
-      fillCaloJetSpectra(iEvent, calJets);
-      fillUE_with_MaxpTtrack(iEvent, tracks_sort, vertexColl);
-      fillUE_with_ChargedJets(iEvent, tracks_sort,trkJets, vertexColl); 
-      fillUE_with_CaloJets(iEvent, tracks_sort,calJets, vertexColl);
-  }
+  // select good tracks
+  if(fillVtxPlots(vertexColl))
+  {
+  fill1D(hNevts_,1);
+  for(reco::TrackCollection::const_iterator Trk = tracks_sort.begin(); Trk != tracks_sort.end(); ++Trk)
+   {
+    
+   if ( trackSelection(*Trk,beamSpot.product(),vtx1,vertexColl->size()) ) selected_.push_back( & * Trk );   
+   }
+ 
+      
+    fillpTMaxRelated(selected_);
+    fillChargedJetSpectra(trkJets);  
+    fillCaloJetSpectra(calJets);
+    fillUE_with_MaxpTtrack(selected_);
+    if(trkJets->size() > 0)fillUE_with_ChargedJets(selected_,trkJets); 
+    if(calJets->size()>0)fillUE_with_CaloJets(selected_,calJets);
+  
+ }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,6 +271,8 @@ void QcdUeDQM::book1D(std::vector<MonitorElement*> &mes,
   // Book 1D histos.
 
   for(size_t i=0;i<hltTrgUsedNames_.size();++i) {
+    std::string folderName = "Physics/QcdUe/" + hltTrgUsedNames_.at(i);
+    theDbe_->setCurrentFolder(folderName);
     MonitorElement *e = theDbe_->book1D(Form("%s_%s",name.c_str(),hltTrgUsedNames_.at(i).c_str()),
                                         Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
                                         nx, x1, x2);
@@ -257,6 +293,8 @@ void QcdUeDQM::book2D(std::vector<MonitorElement*> &mes,
   // Book 2D histos.
 
   for(size_t i=0;i<hltTrgUsedNames_.size();++i) {
+    std::string folderName = "Physics/QcdUe/" + hltTrgUsedNames_.at(i);
+    theDbe_->setCurrentFolder(folderName);
     MonitorElement *e = theDbe_->book2D(Form("%s_%s",name.c_str(),hltTrgUsedNames_.at(i).c_str()),
                                         Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
                                         nx, x1, x2, ny, y1, y2);
@@ -277,6 +315,8 @@ void QcdUeDQM::bookProfile(std::vector<MonitorElement*> &mes,
   // Book Profile histos.
 
   for(size_t i=0;i<hltTrgUsedNames_.size();++i) {
+    std::string folderName = "Physics/QcdUe/" + hltTrgUsedNames_.at(i);
+    theDbe_->setCurrentFolder(folderName);
     MonitorElement *e = theDbe_->bookProfile(Form("%s_%s",name.c_str(),hltTrgUsedNames_.at(i).c_str()),
                                         Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
                                         nx, x1, x2, y1, y2," ");
@@ -294,7 +334,7 @@ void QcdUeDQM::createHistos()
     repSumMap_  = theDbe_->book2D("reportSummaryMap","reportSummaryMap",1,0,1,1,0,1);
     repSummary_ = theDbe_->bookFloat("reportSummary");
   }
-
+   
    theDbe_->setCurrentFolder("Physics/QcdUe");
 
   if (1) {
@@ -310,80 +350,78 @@ void QcdUeDQM::createHistos()
     if (h)
       h->SetStats(0);
   }
+  book1D(hNevts_,"hNevts","number of events",2,0,2);
+  book1D(hNtrackerLayer_,"hNtrackerLayer","number of tracker layers;multiplicity",20,-0.5,19.5 );
+  book1D(hNtrackerPixelLayer_,"hNtrackerPixelLayer","number of pixel layers;multiplicity",10,-0.5,9.5 );
+  book1D(hNtrackerStripPixelLayer_,"hNtrackerStripPixelLayer","number of strip + pixel layers;multiplicity",30,-0.5,39.5 );
+  book1D(hRatioPtErrorPt_,"hRatioPtErrorPt","ratio of pT error and track pT",25,0.,5.);
+  book1D(hTrkPt_,"hTrkPt","pT of all tracks",50,0.,50.);
+  book1D(hTrkEta_,"hTrkEta","eta of all tracks",40,-4.,4.);
+  book1D(hTrkPhi_,"hTrkPhi","phi of all tracks",40,-4.,4.);
+  book1D(hRatioDxySigmaDxyBS_,"hRatioDxySigmaDxyBS","ratio of transverse impact parameter and its significance wrt beam spot",60,-10.,10);
+  book1D(hRatioDxySigmaDxyPV_,"hRatioDxySigmaDxyPV","ratio of transverse impact parameter and its significance wrt PV",60,-10.,10);
+  book1D(hRatioDzSigmaDzBS_,"hRatioDzSigmaDzBS","ratio of longitudinal impact parameter and its significance wrt beam spot",80,-20.,20);
+  book1D(hRatioDzSigmaDzPV_,"hRatioDzSigmaDzPV","ratio of longitudinal impact parameter and its significance wrt PV",80,-20.,20);
+  book1D(hTrkChi2_,"hTrkChi2","track chi2",30,0.,30);
+  book1D(hTrkNdof_,"hTrkNdof","track NDOF",100,0,100);
 
-  if(1) {
-    const int Nx = 5;
-    const double x1 = 0;
-    const double x2 = 5;
-    book1D(hEvtSel_pTMax_,"hEvtSel_pTMax","Number of events at each stage of selection",Nx,x1,x2);
-    book1D(hEvtSel_ChargedJet_,"hEvtSel_ChargedJet","Number of events at each stage of selection",Nx,x1,x2);   
-    book1D(hEvtSel_CaloJet_,"hEvtSel_CaloJet","Number of events at each stage of selection",Nx,x1,x2);
-    setLabel1D(hEvtSel_pTMax_);
-    setLabel1D(hEvtSel_ChargedJet_);
-    setLabel1D(hEvtSel_CaloJet_);
-  }
- 
-  if (1) {
-    const int Nx = 50;
-    const double x1 = 0.0;
-    const double x2 = 50.0;
-    book1D(hNTrack500_,"hNTrack500","number of track with pT > 500 MeV;multiplicity",Nx,x1,x2);
- 
-  }
+  book1D(hNgoodTrk_,"hNgoodTrk","number of good tracks",50,-0.5,49.5);
 
- if(1){
-   const int Nz = 100;
-   const double z1 = -20.0;
-   const double z2 = 20.0;
-   book1D(hVertex_z_,"hVertex_z","z position of vertex; z[cm]",Nz,z1,z2);
-}
+  book1D(hGoodTrkPt500_,"hGoodTrkPt500","pT of all good tracks with pT > 500 MeV",50,0.,50.);
+  book1D(hGoodTrkEta500_,"hGoodTrkEta500","eta of all good tracks pT > 500 MeV",40,-4.,4.);
+  book1D(hGoodTrkPhi500_,"hGoodTrkPhi500","phi of all good tracks pT > 500 MeV",40,-4.,4.);
 
-  if(1){
-    const int Nx = 5;
-    const double x1 = 0;
-    const double x2 = 5;
-    book1D(hNvertices_,"hNvertices","number of vertices",Nx,x1,x2);
+  book1D(hGoodTrkPt900_,"hGoodTrkPt900","pT of all good tracks with pT > 900 MeV",50,0.,50.);
+  book1D(hGoodTrkEta900_,"hGoodTrkEta900","eta of all good tracks pT > 900 MeV",40,-4.,4.);
+  book1D(hGoodTrkPhi900_,"hGoodTrkPhi900","phi of all good tracks pT > 900 MeV",40,-4.,4.);
 
-  }
+  book1D(hNvertices_,"hNvertices","number of vertices",5,-0.5,4.5);
+  book1D(hVertex_z_,"hVertex_z","z position of vertex; z[cm]",100,-20,20);
+  book1D(hVertex_y_,"hVertex_y","y position of vertex; y[cm]",100,-5,5);
+  book1D(hVertex_x_,"hVertex_x","x position of vertex; x[cm]",100,-5,5);
+
+  book1D(hBeamSpot_z_,"hBeamSpot_z","z position of beamspot; z[cm]",100,-20,20);
+  book1D(hBeamSpot_y_,"hBeamSpot_y","y position of beamspot; y[cm]",50,-10,10);
+  book1D(hBeamSpot_x_,"hBeamSpot_x","x position of beamspot; x[cm]",50,-10,10);
 
 
   if (1) {
     const int Nx = 25;
     const double x1 = 0.0;
     const double x2 = 50.0;
-    book1D(hTrack_pTSpectrum_,"hTrack_pTSpectrum","pT spectrum of leading track;pT(GeV/c)",Nx,x1,x2);
-    book1D(hCaloJet_pTSpectrum_,"hCalo_pTSpectrum","pT spectrum of leading calo jet;pT(GeV/c)",Nx,x1,x2);
-    book1D(hChargedJet_pTSpectrum_,"hChargedJet_pTSpectrum","pT spectrum of leading track jet;pT(GeV/c)",Nx,x1,x2);
+    book1D(hLeadingTrack_pTSpectrum_,"hLeadingTrack_pTSpectrum","pT spectrum of leading track;pT(GeV/c)",Nx,x1,x2);
+    book1D(hLeadingCaloJet_pTSpectrum_,"hLeadingCalo_pTSpectrum","pT spectrum of leading calo jet;pT(GeV/c)",Nx,x1,x2);
+    book1D(hLeadingChargedJet_pTSpectrum_,"hLeadingChargedJet_pTSpectrum","pT spectrum of leading track jet;pT(GeV/c)",Nx,x1,x2);
     
   }
   
   if (1) {
-    const int Nx = 25;
-    const double x1 = -3.2;
-    const double x2 =  3.2;
-    book1D(hTrack_phiSpectrum_,"hTrack_phiSpectrum","#phi spectrum of leading track;#phi",Nx,x1,x2);
-    book1D(hCaloJet_phiSpectrum_,"hCaloJet_phiSpectrum","#phi spectrum of leading calo jet;#phi",Nx,x1,x2);
-    book1D(hChargedJet_phiSpectrum_,"hChargedJet_phiSpectrum","#phi spectrum of leading track jet;#phi",Nx,x1,x2);
+    const int Nx = 24;
+    const double x1 = -4.;
+    const double x2 =  4.;
+    book1D(hLeadingTrack_phiSpectrum_,"hLeadingTrack_phiSpectrum","#phi spectrum of leading track;#phi",Nx,x1,x2);
+    book1D(hLeadingCaloJet_phiSpectrum_,"hLeadingCaloJet_phiSpectrum","#phi spectrum of leading calo jet;#phi",Nx,x1,x2);
+    book1D(hLeadingChargedJet_phiSpectrum_,"hLeadingChargedJet_phiSpectrum","#phi spectrum of leading track jet;#phi",Nx,x1,x2);
 
   }
   
   if (1) {
-    const int Nx = 25;
-    const double x1 = -5.;
-    const double x2 =  5.;
-    book1D(hTrack_etaSpectrum_,"hTrack_etaSpectrum","#eta spectrum of leading track;#eta",Nx,x1,x2);
-    book1D(hCaloJet_etaSpectrum_,"hCaloJet_etaSpectrum","#eta spectrum of leading calo jet;#eta",Nx,x1,x2);
-    book1D(hChargedJet_etaSpectrum_,"hChargedJet_etaSpectrum","#eta spectrum of leading track jet;#eta",Nx,x1,x2);
+    const int Nx = 24;
+    const double x1 = -4.;
+    const double x2 =  4.;
+    book1D(hLeadingTrack_etaSpectrum_,"hLeadingTrack_etaSpectrum","#eta spectrum of leading track;#eta",Nx,x1,x2);
+    book1D(hLeadingCaloJet_etaSpectrum_,"hLeadingCaloJet_etaSpectrum","#eta spectrum of leading calo jet;#eta",Nx,x1,x2);
+    book1D(hLeadingChargedJet_etaSpectrum_,"hLeadingChargedJet_etaSpectrum","#eta spectrum of leading track jet;#eta",Nx,x1,x2);
 
   }
 
 
 if (1) {
-    const int Nx = 20;
+    const int Nx = 75;
     const double x1 = 0.0;
-    const double x2 = 20.0;
+    const double x2 = 75.0;
     const double y1 = 0.;
-    const double y2 = 50.;
+    const double y2 = 10.;
     bookProfile(hdNdEtadPhi_pTMax_Toward500_,"hdNdEtadPhi_pTMax_Toward500", 
                  "Average number of tracks (pT > 500 MeV) in toward region vs leading track pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hdNdEtadPhi_pTMax_Transverse500_,"hdNdEtadPhi_pTMax_Transverse500", 
@@ -427,6 +465,51 @@ if (1) {
                  "Average number of tracks (pT > 500 MeV) in transverse region vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hpTSumdEtadPhi_trackJet_Away500_,"hpTSumdEtadPhi_trackJet_Away500", 
                  "Average number of tracks (pT > 500 MeV) in away region vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+
+   
+   bookProfile(hdNdEtadPhi_pTMax_Toward900_,"hdNdEtadPhi_pTMax_Toward900",
+                 "Average number of tracks (pT > 900 MeV) in toward region vs leading track pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+    bookProfile(hdNdEtadPhi_pTMax_Transverse900_,"hdNdEtadPhi_pTMax_Transverse900",
+                 "Average number of tracks (pT > 900 MeV) in transverse region vs leading track pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+    bookProfile(hdNdEtadPhi_pTMax_Away900_,"hdNdEtadPhi_pTMax_Away900",
+                 "Average number of tracks (pT > 900 MeV) in away region vs leading track pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+
+    bookProfile(hdNdEtadPhi_caloJet_Toward900_,"hdNdEtadPhi_caloJet_Toward900",
+                 "Average number of tracks (pT > 900 MeV) in toward region vs leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+    bookProfile(hdNdEtadPhi_caloJet_Transverse900_,"hdNdEtadPhi_caloJet_Transverse900",
+                 "Average number of tracks (pT > 900 MeV) in transverse region vs leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+    bookProfile(hdNdEtadPhi_caloJet_Away900_,"hdNdEtadPhi_caloJet_Away900",
+                 "Average number of tracks (pT > 900 MeV) in away region vs leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+
+    bookProfile(hdNdEtadPhi_trackJet_Toward900_,"hdNdEtadPhi_trackJet_Toward900",
+                 "Average number of tracks (pT > 900 MeV) in toward region vs leading track jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2);
+    bookProfile(hdNdEtadPhi_trackJet_Transverse900_,"hdNdEtadPhi_trackJet_Transverse900",
+                 "Average number of tracks (pT > 900 MeV) in transverse region vs leading track jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+    bookProfile(hdNdEtadPhi_trackJet_Away900_,"hdNdEtadPhi_trackJet_Away900",
+                 "Average number of tracks (pT > 900 MeV) in away region vs leading track jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+
+
+
+    bookProfile(hpTSumdEtadPhi_pTMax_Toward900_,"hpTSumdEtadPhi_pTMax_Toward900",
+                 "Average number of tracks (pT > 900 MeV) in toward region vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+    bookProfile(hpTSumdEtadPhi_pTMax_Transverse900_,"hpTSumdEtadPhi_pTMax_Transverse900",
+                 "Average number of tracks (pT > 900 MeV) in transverse region vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+    bookProfile(hpTSumdEtadPhi_pTMax_Away900_,"hpTSumdEtadPhi_pTMax_Away900",
+                 "Average number of tracks (pT > 900 MeV) in away region vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+
+    bookProfile(hpTSumdEtadPhi_caloJet_Toward900_,"hpTSumdEtadPhi_caloJet_Toward900",
+                 "Average number of tracks (pT > 900 MeV) in toward region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+    bookProfile(hpTSumdEtadPhi_caloJet_Transverse900_,"hpTSumdEtadPhi_caloJet_Transverse900",
+                 "Average number of tracks (pT > 900 MeV) in transverse region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+    bookProfile(hpTSumdEtadPhi_caloJet_Away900_,"hpTSumdEtadPhi_caloJet_Away900",
+                 "Average number of tracks (pT > 900 MeV) in away region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+
+    bookProfile(hpTSumdEtadPhi_trackJet_Toward900_,"hpTSumdEtadPhi_trackJet_Toward900",
+                 "Average number of tracks (pT > 900 MeV) in toward region vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+    bookProfile(hpTSumdEtadPhi_trackJet_Transverse900_,"hpTSumdEtadPhi_trackJet_Transverse900",
+                 "Average number of tracks (pT > 900 MeV) in transverse region vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+    bookProfile(hpTSumdEtadPhi_trackJet_Away900_,"hpTSumdEtadPhi_trackJet_Away900",
+                 "Average number of tracks (pT > 900 MeV) in away region vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
  
    
   }
@@ -437,9 +520,7 @@ if (1) {
     const double x2 = 20.0;
 
         book1D(hChargedJetMulti_,"hChargedJetMulti","Charged jet multiplicity;multiplicities",Nx,x1,x2);
-        book1D(hChargedJetConstituent_,"hChargedJetConstituent","Charged Jet Constituent;number of constituents",Nx,x1,x2);
         book1D(hCaloJetMulti_,"hCaloJetMulti","Calo jet multiplicity;multiplicities",Nx,x1,x2);
-        book1D(hCaloJetConstituent_,"hCaloJetConstituent","Calo Jet Constituent;number of constituents",Nx,x1,x2);
 
   }
 
@@ -569,87 +650,167 @@ void QcdUeDQM::fillProfile(std::vector<MonitorElement*> &mes, double valx, doubl
 }
 
 //--------------------------------------------------------------------------------------------------
-bool QcdUeDQM::fillVtxPlots(const edm::Event &iEvent, const edm::Handle< reco::VertexCollection > vtxColl)
+bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, const reco::Vertex vtx, int sizevtx )
 {
-  bool vtxFound = false;
+//-------------Fill basic histograms---------
+
+
+//-------------------------------------------
+
+ bool goodTrk = false;
+
+ if(sizevtx!=1) return 0;    //selection events with only a vertex
+ if(vtx.z()-bs->z0()==0) return 0;   //selection events with good vertex
+ vtxntk_=vtxntk_-1;
+    if(vtx.tracksSize()<= vtxntk_) return 0;    //selection evets with vertex recostructed with at least vtxntk  tracks
+
+ //Fill basic information of all the tracks
+  fill1D(hNtrackerLayer_,trk.hitPattern().trackerLayersWithMeasurement());
+  fill1D(hNtrackerPixelLayer_,trk.hitPattern().pixelLayersWithMeasurement());
+  fill1D(hNtrackerStripPixelLayer_,(trk.hitPattern().pixelLayersWithMeasurement() +  trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()));
+  fill1D(hRatioPtErrorPt_,(trk.ptError()/trk.pt()));
+  fill1D(hTrkPt_,trk.pt());
+  fill1D(hTrkEta_,trk.eta());  
+  fill1D(hTrkPhi_,trk.phi());
+  fill1D(hRatioDxySigmaDxyBS_,(trk.dxy(bs->position())/trk.dxyError()));
+  fill1D(hRatioDxySigmaDxyPV_,(trk.dxy(vtx.position())/trk.dxyError()));
+  fill1D(hRatioDzSigmaDzBS_,(trk.dz(bs->position())/trk.dzError()));
+  fill1D(hRatioDzSigmaDzPV_,(trk.dz(vtx.position())/trk.dzError()));
+  fill1D(hTrkChi2_,trk.normalizedChi2());
+  fill1D(hTrkNdof_,trk.ndof());   
+
+  fill1D(hBeamSpot_x_,bs->x0());
+  fill1D(hBeamSpot_y_,bs->y0()); 
+  fill1D(hBeamSpot_z_,bs->z0());
+ 
+ //number of layers
+ bool layerMinCutbool=false;
+    if (trk.hitPattern().trackerLayersWithMeasurement() >= minHit_ ||
+                (trk.hitPattern().trackerLayersWithMeasurement()==3 && trk.hitPattern().pixelLayersWithMeasurement()==3 && allowTriplets_))
+      layerMinCutbool=true;
+
+
+  //number of pixel layers
+ bool pxlLayerMinCutbool=false;
+    if (trk.hitPattern().pixelLayersWithMeasurement() >=pxlLayerMinCut_) pxlLayerMinCutbool=true;
+
+
+ // cut on the hits in pixel layers
+ bool hasPIX1 = false;
+    if (requirePIX1_) {
+      const reco::HitPattern& p = trk.hitPattern();
+      for (int i=0; i<p.numberOfHits(); i++) {
+        uint32_t hit = p.getHitPattern(i);
+        if (p.validHitFilter(hit) && p.pixelHitFilter(hit) && p.getLayer(hit)==1) hasPIX1 = true;
+      }
+    }else hasPIX1 = true;
+ 
+ // cut on the pT error
+ bool ptErrorbool=false; 
+    if (trk.ptError()/trk.pt() < ptErr_pt_ || 
+        (trk.hitPattern().trackerLayersWithMeasurement()==3 && trk.hitPattern().pixelLayersWithMeasurement()==3 && allowTriplets_)) ptErrorbool=true; 
+ // quality cut
+ bool quality_ok = true;  
+ if (quality_.size()!=0) {
+      quality_ok = false;
+      for (unsigned int i = 0; i<quality_.size();++i) {
+        if (trk.quality(quality_[i])){
+          quality_ok = true;
+          break;
+        }
+      }
+    }
+ //-----
+ bool algo_ok = true;
+    if (algorithm_.size()!=0) {
+      if (std::find(algorithm_.begin(),algorithm_.end(),trk.algo())==algorithm_.end()) algo_ok = false;
+    }
+ 
+
+ if(bsuse_==1)
+      {
+    if(hasPIX1 &&  pxlLayerMinCutbool && layerMinCutbool &&  (trk.hitPattern().pixelLayersWithMeasurement() +  trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()) >= min3DHit_ && ptErrorbool && fabs(trk.pt()) >= ptMin_ &&  trk.eta() >= minRapidity_ && trk.eta() <= maxRapidity_ &&  fabs(trk.dxy(bs->position())/trk.dxyError()) < tip_ &&  fabs(trk.dz(bs->position())/trk.dzError()) < lip_  &&  trk.normalizedChi2()<=maxChi2_ &&  quality_ok &&  algo_ok)goodTrk=true ;
+      }
+
+    if(bsuse_==0)
+     {
+       if(hasPIX1 &&  pxlLayerMinCutbool &&  layerMinCutbool &&  (trk.hitPattern().pixelLayersWithMeasurement() +  trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo())  >= min3DHit_ && ptErrorbool && fabs(trk.pt()) >= ptMin_ && trk.eta() >= minRapidity_ && trk.eta() <= maxRapidity_ && fabs(trk.dxy(vtx.position())/trk.dxyError()) < tip_ && fabs(trk.dz(vtx.position())/trk.dzError()) < lip_  && trk.normalizedChi2()<=maxChi2_ && quality_ok &&  algo_ok)goodTrk=true;
+     
+     }
+
+  return goodTrk;
+
+ }
+//--------------------------------------------------------------------------------------------------
+bool  QcdUeDQM::fillVtxPlots( const edm::Handle< reco::VertexCollection > vtxColl)
+{
   const reco::VertexCollection theVertices = *(vtxColl.product());
+  bool goodVtx = false;
   fill1D(hNvertices_,theVertices.size()); 
-  //  if (theVertices.size() > 0){
     for (reco::VertexCollection::const_iterator vertexIt = theVertices.begin(); vertexIt != theVertices.end(); ++vertexIt) 
       {
 	fill1D(hVertex_z_,vertexIt->z());
-        if(fabs(vertexIt->z()) < 10)vtxFound = true; 
-      
+        fill1D(hVertex_y_,vertexIt->y());
+        fill1D(hVertex_x_,vertexIt->x());
+
+        if(fabs(vertexIt->z()) < diffvtxbs_)
+         {
+         goodVtx = true;
+         vtx1=(*vertexIt);
+         
+         break;
+         }
       } // Loop over vertcies
-    //  }//At least one vertex
-  if(vtxFound)return true;
-  return false;
- 
+   return goodVtx;
 }
 //--------------------------------------------------------------------------------------------------
-void QcdUeDQM::fillpTMaxRelated(const edm::Event &iEvent, const edm::Handle<reco::TrackCollection> &track, const edm::Handle< reco::VertexCollection > vtxColl)
+void QcdUeDQM::fillpTMaxRelated(const std::vector<const reco::Track *> &track)
+ {
+   fill1D(hNgoodTrk_,track.size());
+   if(track.size()>0)
+   {
+   fill1D(hLeadingTrack_pTSpectrum_,track[0]->pt());
+   fill1D(hLeadingTrack_phiSpectrum_,track[0]->phi());
+   fill1D(hLeadingTrack_etaSpectrum_,track[0]->eta());
+   }
+     for(size_t i = 0; i < track.size(); i++)
        {
-const double beamspot=0.110321;
-int Ntrack500 = 0;
-
- const reco::VertexCollection theVertices = *(vtxColl.product());
-   for (reco::VertexCollection::const_iterator vertexIt = theVertices.begin(); vertexIt != theVertices.end(); ++vertexIt) 
-	   {
-	    
-	     if(vertexIt->z()!=beamspot)
-	       {   // Vertex is not beam spot
-              
-		 if(fabs(vertexIt->z()) < 10.)
-		   { // vertex z position cut
-		    
-		     for(reco::TrackCollection::const_iterator trk = track->begin(); trk != track->end(); ++trk)
-		       {
-                        if(trk->pt() > 0.5)Ntrack500++;                  
-			 if(trk == track->begin() && fabs(vertexIt->z() - trk->vz()) < 1.)
-			   {
-			     fill1D(hTrack_pTSpectrum_,trk->pt());
-			     fill1D(hTrack_phiSpectrum_,trk->phi());
-			     fill1D(hTrack_etaSpectrum_,trk->eta()); 
-			   }	     
-		       }
+        fill1D(hGoodTrkPt500_,track[i]->pt());
+        fill1D(hGoodTrkEta500_,track[i]->eta());
+        fill1D(hGoodTrkPhi500_,track[i]->phi());
+        if(track[i]->pt() > 0.9)
+        {
+        fill1D(hGoodTrkPt900_,track[i]->pt());
+        fill1D(hGoodTrkEta900_,track[i]->eta());
+        fill1D(hGoodTrkPhi900_,track[i]->phi());
+        }
+        }
 		     
-		     
-		   }// vertex z position cut
-		 
-	       }// vertex is not beam spot
-	     break;  // Look for only one vertex of interest
-	   }// Loop over vertices
-fill1D(hNTrack500_,Ntrack500);
  }
-void QcdUeDQM::fillChargedJetSpectra(const edm::Event &iEvent, const edm::Handle<reco::CandidateView> trackJets)
+
+
+void QcdUeDQM::fillChargedJetSpectra(const edm::Handle<reco::CandidateView> trackJets)
 {
   fill1D(hChargedJetMulti_,trackJets->size());
   for( reco::CandidateView::const_iterator f  = trackJets->begin();  f != trackJets->end(); f++) 
     {
       if(f != trackJets->begin())continue;
-      fill1D(hChargedJet_pTSpectrum_,f->pt());
-      fill1D(hChargedJet_etaSpectrum_,f->eta());
-      fill1D(hChargedJet_phiSpectrum_,f->phi());
-      int nConst = 0;
-      for( reco::Candidate::const_iterator c  = f->begin(); c != f->end(); c ++)
-	{  
-	  nConst++;  
-	}
-      fill1D(hChargedJetConstituent_,nConst);
+      fill1D(hLeadingChargedJet_pTSpectrum_,f->pt());
+      fill1D(hLeadingChargedJet_etaSpectrum_,f->eta());
+      fill1D(hLeadingChargedJet_phiSpectrum_,f->phi());
     } 
 	
 }
 
-void QcdUeDQM::fillCaloJetSpectra(const edm::Event &iEvent, const edm::Handle<reco::CaloJetCollection> caloJets)
+void QcdUeDQM::fillCaloJetSpectra(const edm::Handle<reco::CaloJetCollection> caloJets)
 {
   fill1D(hCaloJetMulti_,caloJets->size());
    for( reco::CaloJetCollection::const_iterator f  = caloJets->begin();  f != caloJets->end(); f++)
      {
        if(f != caloJets->begin())continue;
-       fill1D(hCaloJet_pTSpectrum_,f->pt()); 
-       fill1D(hCaloJetConstituent_,f->nConstituents());
-       fill1D(hCaloJet_etaSpectrum_,f->eta());
-       fill1D(hCaloJet_phiSpectrum_,f->phi());
+       fill1D(hLeadingCaloJet_pTSpectrum_,f->pt()); 
+       fill1D(hLeadingCaloJet_etaSpectrum_,f->eta());
+       fill1D(hLeadingCaloJet_phiSpectrum_,f->phi());
      }
    
 }
@@ -660,11 +821,10 @@ void QcdUeDQM::fillCaloJetSpectra(const edm::Event &iEvent, const edm::Handle<re
 
 */
 
-void QcdUeDQM::fillUE_with_MaxpTtrack(const edm::Event &iEvent, const reco::TrackCollection &track, const edm::Handle< reco::VertexCollection > vtxColl)
+void QcdUeDQM::fillUE_with_MaxpTtrack(const std::vector<const reco::Track*>  &track)
 {
 double w = 0.119;          
 //double w = 1.;
-const double beamspot=0.110321;
 double nTrk500_TransReg = 0;
 double nTrk500_AwayReg = 0;
 double nTrk500_TowardReg = 0;
@@ -672,82 +832,81 @@ double nTrk500_TowardReg = 0;
 double pTSum500_TransReg = 0;
 double pTSum500_AwayReg = 0;
 double pTSum500_TowardReg = 0;
-double nevt = 0.0; 	 
-fill1D(hEvtSel_pTMax_,nevt);
- const reco::VertexCollection theVertices = *(vtxColl.product());
-   for (reco::VertexCollection::const_iterator vertexIt = theVertices.begin(); vertexIt != theVertices.end(); ++vertexIt) 
-     {
-       nevt = nevt + 1.0;
-       fill1D(hEvtSel_pTMax_,nevt);
-       if(vertexIt->z()!=beamspot)
-	 {   // Vertex is not beam spot
-          nevt = nevt + 1.0;
-          fill1D(hEvtSel_pTMax_,nevt);
-	   if(fabs(vertexIt->z()) < 10.)
-	     { // vertex z posiion cut
-              nevt = nevt + 1.0;
-              fill1D(hEvtSel_pTMax_,nevt);
-              if(track[0].pt() > 1.)
-               {
-               nevt = nevt + 1.0;
-               fill1D(hEvtSel_pTMax_,nevt);
-	       for(size_t i = 1; i < track.size();i++)
+
+
+double nTrk900_TransReg = 0;
+double nTrk900_AwayReg = 0;
+double nTrk900_TowardReg = 0;
+
+double pTSum900_TransReg = 0;
+double pTSum900_AwayReg = 0;
+double pTSum900_TowardReg = 0;
+   if(track.size() > 0) 
+    {
+     if(track[0]->pt() > 1.)
+         {
+	    for(size_t i = 1; i < track.size();i++)
 		 {
-		   if(fabs(vertexIt->z() - track[i].vz()) < 1.)
-		     { 
-		       double dphi = (180./PI)*(deltaPhi(track[0].phi(),track[i].phi()));
-		       fill1D(hdPhi_maxpTTrack_tracks_,dphi);
                         
-                       
+                       double dphi = (180./PI)*(deltaPhi(track[0]->phi(),track[i]->phi()));
+                       fill1D(hdPhi_maxpTTrack_tracks_,dphi);
 		       if(fabs(dphi)>60. && fabs(dphi)<120.)
 			 {
-			   if(track[i].pt() > 0.5 && fabs(track[i].eta()) < 2.)
-			     {
-			       pTSum500_TransReg =  pTSum500_TransReg + track[i].pt();     
+			       pTSum500_TransReg =  pTSum500_TransReg + track[i]->pt();     
 			       nTrk500_TransReg++;
-			     }  
+                               if(track[i]->pt() > 0.9)
+                               {
+                               pTSum900_TransReg =  pTSum900_TransReg + track[i]->pt();
+                               nTrk900_TransReg++;
+                               }
 			 }            
 			
 		       if(fabs(dphi)>120. && fabs(dphi)<180.)
 			 {
-			   if(track[i].pt() > 0.5 && fabs(track[i].eta()) < 2.)
-			     {
-			       pTSum500_AwayReg =  pTSum500_AwayReg + track[i].pt();   
+			       pTSum500_AwayReg =  pTSum500_AwayReg + track[i]->pt();   
 			       nTrk500_AwayReg++;
-			     }
+                                if(track[i]->pt() > 0.9)
+                                {
+                                pTSum900_AwayReg =  pTSum900_AwayReg + track[i]->pt();
+                                nTrk900_AwayReg++;
+
+                                } 
 			 } 
 		       
 		       if(fabs(dphi)<60.)
 			 {
-			   if(track[i].pt() > 0.5 && fabs(track[i].eta()) < 2.)
-			     {
-			       pTSum500_TowardReg =  pTSum500_TowardReg + track[i].pt();
+			       pTSum500_TowardReg =  pTSum500_TowardReg + track[i]->pt();
 			       nTrk500_TowardReg++;
-			     }
+                               if(track[i]->pt() > 0.9)
+                               {
+                               pTSum900_TowardReg =  pTSum900_TowardReg + track[i]->pt();
+                               nTrk900_TowardReg++;
+                               } 
 			 }           
-		       
-		     } // track from vertex
-		 }// Loop over tracks
-               fillProfile(hdNdEtadPhi_pTMax_Toward500_, track[0].pt(),nTrk500_TowardReg,w);
-               fillProfile(hdNdEtadPhi_pTMax_Transverse500_, track[0].pt(),nTrk500_TransReg,w);
-               fillProfile(hdNdEtadPhi_pTMax_Away500_, track[0].pt(),nTrk500_AwayReg,w);
+		     } // track loop 
+		 }// leading track
+             // non empty collection
+               fillProfile(hdNdEtadPhi_pTMax_Toward500_, track[0]->pt(),nTrk500_TowardReg,w);
+               fillProfile(hdNdEtadPhi_pTMax_Transverse500_, track[0]->pt(),nTrk500_TransReg,w);
+               fillProfile(hdNdEtadPhi_pTMax_Away500_, track[0]->pt(),nTrk500_AwayReg,w);
 
-               fillProfile(hpTSumdEtadPhi_pTMax_Toward500_,track[0].pt() ,pTSum500_TowardReg,w);
-               fillProfile(hpTSumdEtadPhi_pTMax_Transverse500_,track[0].pt(),pTSum500_TransReg,w);
-               fillProfile(hpTSumdEtadPhi_pTMax_Away500_, track[0].pt(),pTSum500_AwayReg,w);
-//	        break;  // Look for only one vertex of interest 
-	      }// pT cut on leading track
-	     }// vertex z position cut
-	 }// vertex is not beam spot
-       break;  // Look for only one vertex of interest
-     }// Loop over vertices
+               fillProfile(hpTSumdEtadPhi_pTMax_Toward500_,track[0]->pt() ,pTSum500_TowardReg,w);
+               fillProfile(hpTSumdEtadPhi_pTMax_Transverse500_,track[0]->pt(),pTSum500_TransReg,w);
+               fillProfile(hpTSumdEtadPhi_pTMax_Away500_, track[0]->pt(),pTSum500_AwayReg,w);
+
+               fillProfile(hdNdEtadPhi_pTMax_Toward900_, track[0]->pt(),nTrk900_TowardReg,w);
+               fillProfile(hdNdEtadPhi_pTMax_Transverse900_, track[0]->pt(),nTrk900_TransReg,w);
+               fillProfile(hdNdEtadPhi_pTMax_Away900_, track[0]->pt(),nTrk900_AwayReg,w);
+
+               fillProfile(hpTSumdEtadPhi_pTMax_Toward900_,track[0]->pt() ,pTSum900_TowardReg,w);
+               fillProfile(hpTSumdEtadPhi_pTMax_Transverse900_,track[0]->pt(),pTSum900_TransReg,w);
+               fillProfile(hpTSumdEtadPhi_pTMax_Away900_, track[0]->pt(),pTSum900_AwayReg,w);
+     }
 }
 
-void QcdUeDQM::fillUE_with_ChargedJets(const edm::Event &iEvent, const reco::TrackCollection &track, const edm::Handle<reco::CandidateView> &trackJets, const edm::Handle< reco::VertexCollection > vtxColl)
+void QcdUeDQM::fillUE_with_ChargedJets(const std::vector<const reco::Track *>  &track, const edm::Handle<reco::CandidateView> &trackJets)
 {
 double w = 0.119;
-//double w = 1.;
-const double beamspot=0.110321; 
 double nTrk500_TransReg = 0;
 double nTrk500_AwayReg = 0;
 double nTrk500_TowardReg = 0;
@@ -755,61 +914,57 @@ double nTrk500_TowardReg = 0;
 double pTSum500_TransReg = 0;
 double pTSum500_AwayReg = 0;
 double pTSum500_TowardReg = 0;
-double nevt = 0.0; 
-fill1D(hEvtSel_ChargedJet_,nevt);
-   const reco::VertexCollection theVertices = *(vtxColl.product());
-     for (reco::VertexCollection::const_iterator vertexIt = theVertices.begin(); vertexIt != theVertices.end(); ++vertexIt) 
-       {
-        nevt = nevt + 1.0;
-       fill1D(hEvtSel_ChargedJet_,nevt);
-	 if(vertexIt->z()!=beamspot)
-	   {   // Vertex is not beam spot
-             nevt = nevt + 1.0;
-             fill1D(hEvtSel_ChargedJet_,nevt);  
-	     if(fabs(vertexIt->z()) < 10)
-	       { // vertex z posiion cut
-                nevt = nevt + 1.0;
-                fill1D(hEvtSel_ChargedJet_,nevt);   
-                if(!(trackJets->empty()) && (trackJets->begin())->pt() > 1.)
-                 {
-                 double jetPhi = (trackJets->begin())->phi();
-                 nevt = nevt + 1.0;
-                 fill1D(hEvtSel_ChargedJet_,nevt);
-		 for(size_t i = 0; i < track.size();i++)
+
+
+double nTrk900_TransReg = 0;
+double nTrk900_AwayReg = 0;
+double nTrk900_TowardReg = 0;
+
+double pTSum900_TransReg = 0;
+double pTSum900_AwayReg = 0;
+double pTSum900_TowardReg = 0;
+
+   if(!(trackJets->empty()) && (trackJets->begin())->pt() > 1.)
+         {
+         double jetPhi = (trackJets->begin())->phi();
+           for(size_t i = 0; i < track.size();i++)
 		   {
-		     if(fabs(vertexIt->z() - track[i].vz()) < 1.)
-		       {
-			 double dphi = (180./PI)*(deltaPhi(jetPhi,track[i].phi()));
+			 double dphi = (180./PI)*(deltaPhi(jetPhi,track[i]->phi()));
 			 fill1D(hdPhi_chargedJet_tracks_,dphi);
 			 if(fabs(dphi)>60. && fabs(dphi)<120.)
 			   {
-			     if(track[i].pt() > 0.5 && fabs(track[i].eta()) < 2.)
-			       {
-				 pTSum500_TransReg =  pTSum500_TransReg + track[i].pt();
+				 pTSum500_TransReg =  pTSum500_TransReg + track[i]->pt();
 				 nTrk500_TransReg++;
-			       }
-			    
+                                 if(track[i]->pt() > 0.9)
+                                 {
+                                 pTSum900_TransReg =  pTSum900_TransReg + track[i]->pt();
+                                 nTrk900_TransReg++;
+                                 }
 			   }
 			
 			 if(fabs(dphi)>120. && fabs(dphi)<180.)
 			   {
-			     if(track[i].pt() > 0.5 && fabs(track[i].eta()) < 2.)
-			       {
-				 pTSum500_AwayReg =  pTSum500_AwayReg + track[i].pt();
+				 pTSum500_AwayReg =  pTSum500_AwayReg + track[i]->pt();
 				 nTrk500_AwayReg++;
-			       }
+                                  if(track[i]->pt() > 0.9)
+                                 {
+                                 pTSum900_AwayReg =  pTSum900_AwayReg + track[i]->pt();
+                                 nTrk900_AwayReg++;
+                                 }
 			   }
 			 if(fabs(dphi)<60.)
 			   {
-			     if(track[i].pt() > 0.5 && fabs(track[i].eta()) < 2.)
-			       {
-				 pTSum500_TowardReg =  pTSum500_TowardReg + track[i].pt();
+				 pTSum500_TowardReg =  pTSum500_TowardReg + track[i]->pt();
 				 nTrk500_TowardReg++;
-			       }
+                                  if(track[i]->pt() > 0.9)
+                                 {
+                                 pTSum900_TowardReg =  pTSum900_TowardReg + track[i]->pt();
+                                 nTrk900_TowardReg++;
+                                 } 
 			   }
-		       }// tracks from vertex
+		       }// tracks loop 
 
-		   }// Track Loop
+		   }// leading track jet
 		 
 		 fillProfile(hdNdEtadPhi_trackJet_Toward500_, (trackJets->begin())->pt(),nTrk500_TowardReg,w);
 		 fillProfile(hdNdEtadPhi_trackJet_Transverse500_, (trackJets->begin())->pt(),nTrk500_TransReg,w);
@@ -818,22 +973,19 @@ fill1D(hEvtSel_ChargedJet_,nevt);
 		 fillProfile(hpTSumdEtadPhi_trackJet_Toward500_, (trackJets->begin())->pt(),pTSum500_TowardReg,w);
 		 fillProfile(hpTSumdEtadPhi_trackJet_Transverse500_, (trackJets->begin())->pt(),pTSum500_TransReg,w);
 		 fillProfile(hpTSumdEtadPhi_trackJet_Away500_, (trackJets->begin())->pt(),pTSum500_AwayReg,w);
-//                 break;  // Look for only one vertex of interest
-		 }//pT cut on leading charged jet
-	       }// vertex z position cut
-	   }// vertex is not beam spot
-	 break;  // Look for only one vertex of interest    
-       }// Loop over vertices
-     
-		
- 
-}                                                                                       
 
-void QcdUeDQM:: fillUE_with_CaloJets(const edm::Event &iEvent, const reco::TrackCollection &track, const edm::Handle<reco::CaloJetCollection> &caloJets, const edm::Handle< reco::VertexCollection > vtxColl)
+                 fillProfile(hdNdEtadPhi_trackJet_Toward900_, (trackJets->begin())->pt(),nTrk900_TowardReg,w);
+                 fillProfile(hdNdEtadPhi_trackJet_Transverse900_, (trackJets->begin())->pt(),nTrk900_TransReg,w);
+                 fillProfile(hdNdEtadPhi_trackJet_Away900_, (trackJets->begin())->pt(),nTrk900_AwayReg,w);
+
+                 fillProfile(hpTSumdEtadPhi_trackJet_Toward900_, (trackJets->begin())->pt(),pTSum900_TowardReg,w);
+                 fillProfile(hpTSumdEtadPhi_trackJet_Transverse900_, (trackJets->begin())->pt(),pTSum900_TransReg,w);
+                 fillProfile(hpTSumdEtadPhi_trackJet_Away900_, (trackJets->begin())->pt(),pTSum900_AwayReg,w);  
+}
+
+void QcdUeDQM:: fillUE_with_CaloJets(const std::vector<const reco::Track *>  &track, const edm::Handle<reco::CaloJetCollection> &caloJets)
 {
-const double beamspot=0.110321;
 double w = 0.119;
-//double w = 1.;
 double nTrk500_TransReg = 0;
 double nTrk500_AwayReg = 0;
 double nTrk500_TowardReg = 0;
@@ -841,79 +993,71 @@ double nTrk500_TowardReg = 0;
 double pTSum500_TransReg = 0;
 double pTSum500_AwayReg = 0;
 double pTSum500_TowardReg = 0;
-double nevt = 0.0;
-fill1D(hEvtSel_CaloJet_,nevt);
-    
-  
 
-     const reco::VertexCollection theVertices = *(vtxColl.product());
-     for (reco::VertexCollection::const_iterator vertexIt = theVertices.begin(); vertexIt != theVertices.end(); ++vertexIt) 
-       {
-          nevt = nevt + 1.0;
-          fill1D(hEvtSel_CaloJet_,nevt);
-	 if(vertexIt->z()!=beamspot)
-	   {   // Vertex is not beam spot
-            nevt = nevt + 1.0;
-            fill1D(hEvtSel_CaloJet_,nevt);
-	     if(fabs(vertexIt->z()) < 10)
-	       { // vertex z posiion cut
-                nevt = nevt + 1.0;
-                fill1D(hEvtSel_CaloJet_,nevt);
-                if(!(caloJets->empty()) && (caloJets->begin())->pt() > 1.)
-                 {
-                 double jetPhi = (caloJets->begin())->phi();
-                 nevt = nevt + 1.0;
-                 fill1D(hEvtSel_CaloJet_,nevt);
-		 for(size_t i = 0; i < track.size();i++)
+double nTrk900_TransReg = 0;
+double nTrk900_AwayReg = 0;
+double nTrk900_TowardReg = 0;
+
+double pTSum900_TransReg = 0;
+double pTSum900_AwayReg = 0;
+double pTSum900_TowardReg = 0;
+    if(!(caloJets->empty()) && (caloJets->begin())->pt() > 1.)
+          {
+            double jetPhi = (caloJets->begin())->phi();
+	     for(size_t i = 0; i < track.size();i++)
 		   {
-		     if(fabs(vertexIt->z() - track[i].vz()) < 1.)
-		       {
-			 double dphi = (180./PI)*(deltaPhi(jetPhi,track[i].phi()));
+			 double dphi = (180./PI)*(deltaPhi(jetPhi,track[i]->phi()));
 			 fill1D(hdPhi_caloJet_tracks_,dphi);
 			 if(fabs(dphi)>60. && fabs(dphi)<120.)
 			   {
-			     
-			     if(track[i].pt() > 0.5 && fabs(track[i].eta()) < 2.)
-			       {
-				 pTSum500_TransReg =  pTSum500_TransReg + track[i].pt();
+				 pTSum500_TransReg =  pTSum500_TransReg + track[i]->pt();
 				 nTrk500_TransReg++;
-			       }
+                                 if(track[i]->pt() > 0.9)
+                                 {
+                                 pTSum900_TransReg =  pTSum900_TransReg + track[i]->pt();
+                                 nTrk900_TransReg++;
+                                 }
 			   }
 			 if(fabs(dphi)>120. && fabs(dphi)<180.)
 			   {
-			     if(track[i].pt() > 0.5 && fabs(track[i].eta()) < 2.)
-			       {
-				 pTSum500_AwayReg =  pTSum500_AwayReg + track[i].pt();
+				 pTSum500_AwayReg =  pTSum500_AwayReg + track[i]->pt();
 				 nTrk500_AwayReg++;
-			       }
+                                 if(track[i]->pt() > 0.9)
+                                 {
+                                 pTSum900_AwayReg =  pTSum900_AwayReg + track[i]->pt();
+                                 nTrk900_AwayReg++;
+                                 }
 			   }
 			 if(fabs(dphi)<60.)
 			   {
-			     if(track[i].pt() > 0.5 && fabs(track[i].eta()) < 2.)
-			       {
-				 pTSum500_TowardReg =  pTSum500_TowardReg + track[i].pt();
+				 pTSum500_TowardReg =  pTSum500_TowardReg + track[i]->pt();
 				 nTrk500_TowardReg++;
-			       }
-			   
+                                 if(track[i]->pt() > 0.9)
+                                 {
+                                 pTSum900_TowardReg =  pTSum900_TowardReg + track[i]->pt();
+                                 nTrk900_TowardReg++; 
+                                 }
 			   }
-		       }// tracks from vertex
+		       }// tracks loop 
 
-		   }// Loop over tracks
+		   }// leading calo jet
 		 fillProfile(hdNdEtadPhi_caloJet_Toward500_, (caloJets->begin())->pt(),nTrk500_TowardReg,w);
 		 fillProfile(hdNdEtadPhi_caloJet_Transverse500_, (caloJets->begin())->pt(),nTrk500_TransReg,w);
 		 fillProfile(hdNdEtadPhi_caloJet_Away500_, (caloJets->begin())->pt(),nTrk500_AwayReg,w);
 		   
 		 fillProfile(hpTSumdEtadPhi_caloJet_Toward500_, (caloJets->begin())->pt(),pTSum500_TowardReg,w);
 		 fillProfile(hpTSumdEtadPhi_caloJet_Transverse500_, (caloJets->begin())->pt(),pTSum500_TransReg,w);
-		 fillProfile(hpTSumdEtadPhi_caloJet_Away500_, (caloJets->begin())->pt(),pTSum500_AwayReg,w);
-//                 break;  // Look for only one vertex of interest
-                } //pT cut on leading calo jet
-	       }// vertex z position cut
-	   }// vertex is not beam spot
-         break;  // Look for only one vertex of interest	    
-       }// Loop over vertices
-       
+                 fillProfile(hpTSumdEtadPhi_caloJet_Away500_, (caloJets->begin())->pt(),pTSum500_AwayReg,w);
 
+                 fillProfile(hdNdEtadPhi_caloJet_Toward900_, (caloJets->begin())->pt(),nTrk900_TowardReg,w);
+                 fillProfile(hdNdEtadPhi_caloJet_Transverse900_, (caloJets->begin())->pt(),nTrk900_TransReg,w);
+                 fillProfile(hdNdEtadPhi_caloJet_Away900_, (caloJets->begin())->pt(),nTrk900_AwayReg,w);
+
+                 fillProfile(hpTSumdEtadPhi_caloJet_Toward900_, (caloJets->begin())->pt(),pTSum900_TowardReg,w);
+                 fillProfile(hpTSumdEtadPhi_caloJet_Transverse900_, (caloJets->begin())->pt(),pTSum900_TransReg,w);
+                 fillProfile(hpTSumdEtadPhi_caloJet_Away900_, (caloJets->begin())->pt(),pTSum900_AwayReg,w);
+
+                 
 }
 
 void QcdUeDQM::fillHltBits(const Event &iEvent)
