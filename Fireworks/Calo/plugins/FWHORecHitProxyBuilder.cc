@@ -20,7 +20,7 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   virtual void build(const FWEventItem* iItem, TEveElementList** product);
+   virtual void build(const FWEventItem* iItem, TEveElementList* product);
 
    Float_t m_maxEnergy;
 
@@ -31,19 +31,8 @@ private:
 };
 
 void
-FWHORecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWHORecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product)
 {
-   TEveElementList* tList = *product;
-
-   if(0 == tList) {
-      tList = new TEveElementList(iItem->name().c_str(), "hoRechits", true);
-      *product = tList;
-      tList->SetMainColor(iItem->defaultDisplayProperties().color());
-      gEve->AddElement(tList);
-   } else {
-      tList->DestroyElements();
-   }
-
    const HORecHitCollection* collection = 0;
    iItem->get(collection);
 
@@ -69,7 +58,7 @@ FWHORecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList** produc
 
       TEveCompound* compund = new TEveCompound("ho compound", s.str().c_str());
       compund->OpenCompound();
-      tList->AddElement(compund);
+      product->AddElement(compund);
       
       std::vector<TEveVector> corners = iItem->getGeom()->getPoints((*it).detid().rawId());
       if( corners.empty() ) {
