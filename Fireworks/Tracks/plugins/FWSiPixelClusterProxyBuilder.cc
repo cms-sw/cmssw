@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.2 2010/04/15 20:15:16 amraktad Exp $
+// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.3 2010/04/16 10:59:52 amraktad Exp $
 //
 
 // system include files
@@ -149,5 +149,5 @@ protected:
     virtual Mode getMode() { return Modules; }
 };
 
-REGISTER_FWPROXYBUILDER(FWSiPixelClusterProxyBuilder,SiPixelClusterCollectionNew,"SiPixel", FWViewType::k3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
-REGISTER_FWPROXYBUILDER(FWSiPixelClusterModProxyBuilder,SiPixelClusterCollectionNew,"SiPixelDets", FWViewType::k3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWSiPixelClusterProxyBuilder,SiPixelClusterCollectionNew,"SiPixel", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWSiPixelClusterModProxyBuilder,SiPixelClusterCollectionNew,"SiPixelDets", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

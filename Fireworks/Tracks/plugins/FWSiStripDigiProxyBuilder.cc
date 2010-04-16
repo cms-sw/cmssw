@@ -89,4 +89,4 @@ FWSiStripDigiProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWSiStripDigiProxyBuilder,edm::DetSetVector<SiStripDigi>,"SiStripDigi", FWViewType::k3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWSiStripDigiProxyBuilder,edm::DetSetVector<SiStripDigi>,"SiStripDigi", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

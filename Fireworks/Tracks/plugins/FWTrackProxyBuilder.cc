@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackProxyBuilder.cc,v 1.2 2010/04/14 11:52:46 yana Exp $
+// $Id: FWTrackProxyBuilder.cc,v 1.3 2010/04/16 10:59:52 amraktad Exp $
 //
 
 // system include files
@@ -83,4 +83,4 @@ FWTrackProxyBuilder::build( const reco::Track& iData, unsigned int iIndex,TEveEl
 //
 // static member functions
 //
-REGISTER_FWPROXYBUILDER(FWTrackProxyBuilder, reco::Track, "Tracks", FWViewType::k3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWTrackProxyBuilder, reco::Track, "Tracks", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

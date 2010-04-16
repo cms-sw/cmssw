@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Mar 22 12:08:40 CET 2010
-// $Id: FWViewType.h,v 1.4 2010/04/12 12:43:09 amraktad Exp $
+// $Id: FWViewType.h,v 1.5 2010/04/16 10:59:51 amraktad Exp $
 //
 #include <string>
 
@@ -36,8 +36,8 @@ public:
    };
 
    // shorcuts
-   const static int kRPZBit = kRhoPhiBit | kRhoZBit;
-   const static int k3DBits  = kISpyBit | k3DBit;
+   static const int kAllRPZBits = kRhoPhiBit | kRhoZBit;
+   static const int kAll3DBits  = kISpyBit | k3DBit;
 
    static  std::string  k3DName;
    static  std::string  kRhoPhiName;
