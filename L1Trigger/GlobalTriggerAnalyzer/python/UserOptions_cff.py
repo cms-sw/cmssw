@@ -12,8 +12,8 @@ import sys
 ###################### user choices ######################
 
 # (pre)release (cycle) to be run - it is used to choose a correct global tag
-cmsRunRelease = 'CMSSW_3_6_X'
-#cmsRunRelease = 'CMSSW_3_5_X'
+#cmsRunRelease = 'CMSSW_3_6_X'
+cmsRunRelease = 'CMSSW_3_5_X'
 
 # choose (pre)release used to produce the event samples
 sampleFromRelease = 'CMSSW_3_6_0_pre2'
@@ -55,15 +55,18 @@ else :
 
     # data type: StreamFile is not associated to these runs (no available files)
     #           for RAW data, the unpacker sequence RawToDigi will be also run
-    dataType = 'RAW'
+    #dataType = 'RAW'
     #dataType = 'StreamFile'
-    #dataType = 'RECO'
+    dataType = 'RECO'
     
-    #runNumber = 123596
-    #runNumber = 116035
-    #runNumber = 121560
-    runNumber = 127715
-
+    #runNumber = '123596'
+    #runNumber = '116035'
+    #runNumber = '121560'
+    #runNumber = '127715'
+    #runNumber = '132440_132439_Cosmics'
+    #runNumber = '132442_132440_MinimumBias_small'
+    runNumber = 'Commissioning10-Apr1Skim_Muon_skim-v1' 
+        
 # change to True to use local files
 #     the type of file must be matched by hand
 #     useGlobalTag must be also defined here
@@ -133,9 +136,9 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
     # global tag
     
     if cmsRunRelease == 'CMSSW_3_6_X' :
-        useGlobalTag = 'GR10_P_V3'
+        useGlobalTag = 'GR10_P_V4'
     elif cmsRunRelease == 'CMSSW_3_5_X' :
-        useGlobalTag = 'GR10_P_V3'
+        useGlobalTag = 'GR10_P_V4'
     elif cmsRunRelease == 'CMSSW_3_4_1' :
         useGlobalTag = 'GR10_P_V3'
     elif cmsRunRelease == 'CMSSW_3_3_6' :
@@ -584,7 +587,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
     if dataType == 'RAW' : 
 
-        if runNumber == 123596 :
+        if runNumber == '123596' :
             dataset = '/Cosmics/BeamCommissioning09-v1/RAW'
             print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
     
@@ -596,7 +599,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
                 ])
 
     
-        elif runNumber == 116035 :
+        elif runNumber == '116035' :
             dataset = '/Cosmics/Commissioning09-v3/RAW'
             print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
     
@@ -607,7 +610,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
             secFiles.extend([
                 ])
         
-        elif runNumber == 121560 :
+        elif runNumber == '121560' :
             dataset = '/Cosmics/Commissioning09-v3/RAW'
             print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
     
@@ -618,12 +621,36 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
             secFiles.extend([
                 ])
 
-        elif runNumber == 127715 :
+        elif runNumber == '127715' :
             dataset = '/Cosmics/Commissioning10-v3/RAW'
             print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
     
             readFiles.extend( [                        
                 '/store/data/Commissioning10/Cosmics/RAW/v3/000/127/715/FCB12D5F-6C18-DF11-AB4B-000423D174FE.root'
+                ]);                                                                                               
+
+            secFiles.extend([
+                ])
+
+        elif runNumber == '132440_132439_Cosmics' :
+            dataset = '/Cosmics/Commissioning10-v4/RAW'
+            print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
+    
+            readFiles.extend( [                        
+                '/store/data/Commissioning10/Cosmics/RAW/v4/000/132/440/72DAEFC2-1A3C-DF11-A352-0030487A195C.root',
+                '/store/data/Commissioning10/Cosmics/RAW/v4/000/132/439/A689F088-EE3B-DF11-A241-000423D99896.root'
+                ]);                                                                                               
+
+            secFiles.extend([
+                ])
+
+        elif runNumber == 'Commissioning10-Apr1Skim_Muon_skim-v1' :
+            dataset = '/MinimumBias/Commissioning10-Apr1Skim_Muon_skim-v1/RAW-RECO'
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
+    
+            readFiles.extend( [                        
+                '/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_Muon_skim-v1/0139/047E236C-B03E-DF11-8A23-002618FDA204.root',
+                '/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_Muon_skim-v1/0139/040A2472-C83E-DF11-85C6-002618FDA259.root' 
                 ]);                                                                                               
 
             secFiles.extend([
@@ -636,7 +663,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
     elif dataType == 'RECO' : 
         # data dat
-        if runNumber == 123596 :
+        if runNumber == '123596' :
             dataset = '/Cosmics/BeamCommissioning09-v2/RECO'
             print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
 
@@ -644,12 +671,40 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
                 '/store/data/BeamCommissioning09/Cosmics/RECO/v2/000/123/596/FC5C3B0F-8AE2-DE11-A905-003048D37456.root'
         
                 ] );
-        elif runNumber == 127715 :
+        elif runNumber == '127715' :
             dataset = '/Cosmics/Commissioning10-v3/RECO'
             print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
     
             readFiles.extend( [                        
                 '/store/data/Commissioning10/Cosmics/RECO/v3/000/127/715/261A3141-9F18-DF11-883E-001D09F24493.root'
+                ]);                                                                                               
+
+            secFiles.extend([
+                ])
+
+        elif runNumber == '132442_132440_MinimumBias_small' :
+            dataset = '/MinimumBias/Commissioning10-PromptReco-v7/RECO'
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
+    
+            readFiles.extend( [                        
+                '/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/442/102D0664-273C-DF11-A013-00304879FA4C.root',
+                '/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/440/F4C92A98-163C-DF11-9788-0030487C7392.root',
+                '/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/440/F427D642-173C-DF11-A909-0030487C60AE.root',
+                '/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/440/E27821C3-0C3C-DF11-9BD9-0030487CD718.root'
+                ]);                                                                                               
+
+            secFiles.extend([
+                ])
+
+        elif runNumber == 'Commissioning10-Apr1Skim_Muon_skim-v1' :
+            dataset = '/MinimumBias/Commissioning10-Apr1Skim_Muon_skim-v1/RAW-RECO'
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
+    
+            readFiles.extend( [
+                '/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_Muon_skim-v1/0140/E0740811-8E40-DF11-AA5E-0026189438ED.root',
+                '/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_Muon_skim-v1/0139/EE8A4C75-C83E-DF11-9116-002618943983.root',
+                '/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_Muon_skim-v1/0139/E8557E88-B43E-DF11-9882-00248C0BE005.root',
+                '/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_Muon_skim-v1/0139/E618AD7F-C83E-DF11-B8BE-002618943915.root'               
                 ]);                                                                                               
 
             secFiles.extend([
