@@ -64,6 +64,13 @@ namespace mathSSE {
     Vec3(float f1, float f2, float f3) {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=0;
     }
+    void set(float f1, float f2, float f3, float f4=0) {
+      arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
+    }
+    Vec3 get1(unsigned int n) const {
+      return Vec3(arr[n],arr[n],arr[n],arr[n]);
+    }
+
     T __attribute__ ((aligned(16))) arr[4];
     OldVec<T> o;
   };
@@ -84,6 +91,15 @@ namespace mathSSE {
     Vec3(float f1, float f2, float f3) {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=0;
     }
+
+    void set(float f1, float f2, float f3, float f4=0) {
+      vec = _mm_set_ps(f4, f3, f2, f1);
+    }
+  
+    Vec3 get1(unsigned int n) const { 
+      return _mm_shuffle_ps(vec, vec, _MM_SHUFFLE(n, n, n, n))); 
+  }
+
   };
   
   typedef Vec3<float> Vec3F;
@@ -109,6 +125,14 @@ namespace mathSSE {
     }
     
     Vec3(OldVec<double> const & ivec) : o(ivec) {}
+
+    void set(float f1, float f2, float f3, float f4=0) {
+      arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
+    }
+    Vec3 get1(unsigned int n) const {
+      return Vec3(arr[n],arr[n],arr[n],arr[n]);
+    }
+
 
   };
   

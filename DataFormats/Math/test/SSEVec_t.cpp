@@ -1,4 +1,5 @@
 #include "DataFormats/Math/interface/SSEVec.h"
+#include "DataFormats/Math/interface/SSERot.h"
 #include<cmath>
 #include<iostream>
 
@@ -26,6 +27,15 @@ float dotSimple( Vec3F const & a, Vec3F const & b) {
 
 float norm(Vec3F const & a) {
   return std::sqrt(dot(a,a));
+}
+
+
+Vec3F toLocal(Vec3F const & a, Rot3<float> const & r) {
+  return r.rotate(a);
+}
+
+Vec3F toGlobal(Vec3F const & a, Rot3<float> const & r) {
+  return r.rotateBack(a);
 }
 
 
@@ -92,6 +102,27 @@ int main() {
   vx+=vy;
   __asm__ ("#A cout");
   std::cout << vx.theX << ", "<<  vx.theY << ", "<<  vx.theZ << std::endl;
+
+  std::cout << "rotations" << std::endl;
+
+  float a = 0.01;
+  float ca = cos(a);
+  float sa = sin(a);
+
+  Rot3<float> r1(ca, sa, 0,
+		 -sa, ca, 0,
+		 0,   0,  1);;
+
+  Vec3F xr = r1.rotate(x);
+  std::cout << x << std::endl;
+  std::cout << xr << std::endl;
+  std::cout << r1.rotateBack(xr) << std::endl;
+
+  Rot3<float> rt = r1.transpose();
+  Vec3F xt = rt.rotate(xr);
+  std::cout << x << std::endl;
+  std::cout << xt << std::endl;
+  std::cout << rt.rotateBack(xt) << std::endl;
 
 
 }
