@@ -37,7 +37,7 @@ public:
 
   /// constructor from 2D vector (X and Y from 2D vector, z set to zero)
   Basic3DVector( const Basic2DVector<T> & p) : 
-    v(p.x(),p.y(),p.z()) {}
+    v(p.x(),p.y(),0) {}
 
 
   /** Explicit constructor from other (possibly unrelated) vector classes 
