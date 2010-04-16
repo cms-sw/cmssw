@@ -75,7 +75,7 @@ def deliveredLumiForRange(dbsession,c,fileparsingResult):
         lumidata.append( deliveredLumiForRun(dbsession,c,run) )
     return lumidata
 
-def recordedLumiForRun(dbsession,c,runnum):
+def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
     recorded=0.0
     lumidata=[] #[runnumber,trgtable,deadtable]
     trgtable={} #{hltpath:[l1seed,hltprescale,l1prescale]}
@@ -207,9 +207,8 @@ def recordedLumiForRun(dbsession,c,runnum):
             bitn=trgdataseq[0]
             if trgprescalemap.has_key(bitn):
                 trgdataseq.append(trgprescalemap[bitn])
-        lumidata[2]=deadtable
-        return lumidata
-    
+        #filter selected cmsls
+        lumidata[2]=filterDeadtable(deadtable,lslist)
         #if hltpath=='all':
         #    for hltname in hltTotrgMap.keys():
         #        effresult=recorded/(hltTotrgMap[hltname][1]*hltTotrgMap[hltname][2])
@@ -229,15 +228,26 @@ def recordedLumiForRun(dbsession,c,runnum):
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
-        
+    return lumidata
+
+def filterDeadtable(inTable,lslist):
+    if len(lslist)==0:
+        return inTable
+    result={}
+    for existingLS in inTable.keys():
+        if existingLS in lslist:
+            result[existingLS]=inTable[existingLS]
+    return result
+
 def recordedLumiForRange(dbsession,c,fileparsingResult):
     #
     #in this case,only take run numbers from theinput file
     #
     lumidata=[]
-    for run in fileparsingResult.runs():
+    for (run,lslist) in fileparsingResult.runsandls().items():
         #print 'processing run ',run
-        lumidata.append( recordedLumiForRun(dbsession,c,run) )
+        #print 'valid ls list ',lslist
+        lumidata.append( recordedLumiForRun(dbsession,c,run,lslist) )
     return lumidata
 
 def main():
