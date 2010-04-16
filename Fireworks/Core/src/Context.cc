@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.9 2010/04/09 19:49:28 amraktad Exp $
+// $Id: Context.cc,v 1.10 2010/04/13 19:55:23 chrjones Exp $
 //
 
 // system include files
@@ -31,6 +31,10 @@ using namespace fireworks;
 //
 // static data member definitions
 //
+
+const float Context::s_ecalR = 126;
+const float Context::s_ecalZ = 306;
+const float Context::s_transitionAngle = 0.00411532;
 
 //
 // constructors and destructor
