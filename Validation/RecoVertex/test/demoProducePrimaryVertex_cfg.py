@@ -4,6 +4,11 @@ process = cms.Process("DempProduce")
 #keep the logging output to a nice level
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.GlobalTag.globaltag= "START3X_V25B::All"
+
 process.load("Configuration.EventContent.EventContent_cff")
 
 
@@ -24,14 +29,15 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
+
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.source = cms.Source("PoolSource",
+                                fileNames = cms.untracked.vstring('/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V25B_356ReReco-v1/0004/0E72CE54-F43B-DF11-A06F-0026189438BD.root')
+)
 
 process.load("RecoVertex.Configuration.RecoVertex_cff")
-
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:pv_reco.root')
-)
 
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 

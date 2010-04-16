@@ -5,15 +5,10 @@ process = cms.Process("AnalyzePersistentVertices")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('/store/mc/Summer09/MinBias/GEN-SIM-RECO/STARTUP3X_V8D_900GeV-v1/0005/E4B3A7BE-3AD7-DE11-9230-002618943939.root')
-#                            fileNames = cms.untracked.vstring(
-#       '/store/relval/CMSSW_3_1_2/RelValTTbar_Tauola_2M/GEN-SIM-RECO/MC_31X_V3-v1/0007/0AB2E447-B478-DE11-8BD8-000423D992DC.root',
-#       '/store/relval/CMSSW_3_1_2/RelValTTbar_Tauola_2M/GEN-SIM-RECO/MC_31X_V3-v1/0007/402647C3-B378-DE11-A125-001D09F2447F.root',
-#       '/store/relval/CMSSW_3_1_2/RelValTTbar_Tauola_2M/GEN-SIM-RECO/MC_31X_V3-v1/0007/AE71556E-B478-DE11-B8C2-001D09F24637.root'
-#    )
+                                fileNames = cms.untracked.vstring('/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V25B_356ReReco-v1/0004/0E72CE54-F43B-DF11-A06F-0026189438BD.root')
 )
 
 process.simpleVertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer",
@@ -25,10 +20,6 @@ process.simpleVertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer",
 )
 
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
-
-#process.Tracer = cms.Service("Tracer",
-#    indention = cms.untracked.string('$$')
-#)
 
 process.p = cms.Path(process.simpleVertexAnalysis*process.dump)
 
