@@ -5,17 +5,13 @@
 // Package:     Muons
 // Class  :     FWMuonBuilder
 //
-// $Id: FWMuonBuilder.h,v 1.4 2009/08/24 04:54:33 dmytro Exp $
+// $Id: FWMuonBuilder.h,v 1.5 2010/01/21 21:02:13 amraktad Exp $
 //
 #include "Fireworks/Core/interface/FWEvePtr.h"
 
 // forward declarations
 namespace reco {
    class Muon;
-   class TrackExtra;
-}
-namespace fw {
-   class NamedCounter;
 }
 
 class FWEventItem;
@@ -40,7 +36,6 @@ public:
                   TEveElement* tList,
                   bool showEndcap,
                   bool onlyTracks = false);
-
 
 private:
    FWMuonBuilder(const FWMuonBuilder&);    // stop default

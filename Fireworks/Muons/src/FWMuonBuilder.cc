@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.17 2010/04/08 13:09:33 yana Exp $
+// $Id: FWMuonBuilder.cc,v 1.18 2010/04/14 11:53:01 yana Exp $
 //
 
 // system include files
@@ -16,9 +16,8 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/interface/FWMagField.h"
-//#include "Fireworks/Tracks/interface/estimate_field.h"
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Candidates/interface/CandidateUtils.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Muons/interface/FWMuonBuilder.h"
@@ -86,27 +85,49 @@ void addMatchInformation( const reco::Muon* muon,
          }
       }
       const TGeoHMatrix* matrix = geom->getMatrix( chamber->id.rawId() );
-      if ( matrix ) {
+      if( matrix ) {
          // make muon segment 20 cm long along local z-axis
          // add segments
-         for ( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin();
-               segment != chamber->segmentMatches.end(); ++segment )
+	 for( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin(),
+							       segmentEnd = chamber->segmentMatches.end();
+	      segment != segmentEnd; ++segment )
          {
-            Double_t localSegmentInnerPoint[3];
-            Double_t localSegmentOuterPoint[3];
-            Double_t globalSegmentInnerPoint[3];
-            Double_t globalSegmentOuterPoint[3];
-            localSegmentOuterPoint[0] = segment->x + segment->dXdZ * 10;
-            localSegmentOuterPoint[1] = segment->y + segment->dYdZ * 10;
-            localSegmentOuterPoint[2] = 10;
-            localSegmentInnerPoint[0] = segment->x - segment->dXdZ * 10;
-            localSegmentInnerPoint[1] = segment->y - segment->dYdZ * 10;
-            localSegmentInnerPoint[2] = -10;
-            matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
-            matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
+	    const double segmentLength = 15;
 
-            segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-                                globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+	    Double_t localSegmentInnerPoint[3];
+	    Double_t localSegmentCenterPoint[3];
+	    Double_t localSegmentOuterPoint[3];
+	    Double_t globalSegmentInnerPoint[3];
+	    Double_t globalSegmentCenterPoint[3];
+	    Double_t globalSegmentOuterPoint[3];
+
+	    localSegmentOuterPoint[0] = segment->x + segmentLength*segment->dXdZ;
+	    localSegmentOuterPoint[1] = segment->y + segmentLength*segment->dYdZ;
+	    localSegmentOuterPoint[2] = segmentLength;
+
+	    localSegmentCenterPoint[0] = segment->x;
+	    localSegmentCenterPoint[1] = segment->y;
+	    localSegmentCenterPoint[2] = 0;
+
+	    localSegmentInnerPoint[0] = segment->x - segmentLength*segment->dXdZ;
+	    localSegmentInnerPoint[1] = segment->y - segmentLength*segment->dYdZ;
+	    localSegmentInnerPoint[2] = -segmentLength;
+
+	    matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
+	    matrix->LocalToMaster( localSegmentCenterPoint, globalSegmentCenterPoint );
+	    matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
+
+	    if( globalSegmentInnerPoint[1]*globalSegmentOuterPoint[1] > 0 ) {
+	       segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+				    globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+	    } else {
+	       if( fabs(globalSegmentInnerPoint[1]) > fabs(globalSegmentOuterPoint[1]) )
+		  segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+				       globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2] );
+	       else
+		  segmentSet->AddLine( globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2],
+				       globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+	    }
          }
       }
    }

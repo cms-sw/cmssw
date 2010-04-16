@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:28:07 EST 2008
-// $Id: FWMuonProxyBuilder.cc,v 1.1 2010/04/14 12:09:25 yana Exp $
+// $Id: FWMuonProxyBuilder.cc,v 1.2 2010/04/14 15:53:26 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -16,6 +16,8 @@
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
+#include "Fireworks/Candidates/interface/CandidateUtils.h"
 #include "Fireworks/Muons/interface/FWMuonBuilder.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -135,9 +137,38 @@ FWMuonLegoProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEve
    points->SetNextPoint( iData.eta(), iData.phi(), 0.1 );
 }
 
+class FWMuonGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>  {
+
+public:
+   FWMuonGlimpseProxyBuilder() {}
+   virtual ~FWMuonGlimpseProxyBuilder() {}
+
+   REGISTER_PROXYBUILDER_METHODS();
+
+private:
+   FWMuonGlimpseProxyBuilder(const FWMuonGlimpseProxyBuilder&); // stop default
+
+   const FWMuonGlimpseProxyBuilder& operator=(const FWMuonGlimpseProxyBuilder&); // stop default
+
+   // ---------- member data --------------------------------
+   void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
+};
+
+void
+FWMuonGlimpseProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const 
+{
+   FWEveScalableStraightLineSet* marker = new FWEveScalableStraightLineSet( "", "");
+   marker->SetLineWidth(2);
+   fireworks::addStraightLineSegment( marker, &iData, 1.0 );
+   oItemHolder.AddElement(marker);
+   //add to scaler at end so that it can scale the line after all ends have been added
+   // FIXME:   scaler()->addElement(marker);
+}
+
 //
 // static member functions
 //
 REGISTER_FWPROXYBUILDER(FWMuonProxyBuilder, reco::Muon, "Muons", FWViewType::k3DBit | FWViewType::kRhoZBit);
 REGISTER_FWPROXYBUILDER(FWMuonRhoPhiProxyBuilder, reco::Muon, "Muons", FWViewType::kRhoPhiBit);
 REGISTER_FWPROXYBUILDER(FWMuonLegoProxyBuilder, reco::Muon, "Muons", FWViewType::kLegoBit);
+REGISTER_FWPROXYBUILDER(FWMuonGlimpseProxyBuilder, reco::Muon, "Muons", FWViewType::kGlimpseBit);

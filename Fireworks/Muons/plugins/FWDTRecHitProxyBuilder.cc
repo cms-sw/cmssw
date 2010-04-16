@@ -12,13 +12,13 @@
 
 using namespace DTEnums;
 
-class FWDTRecHits3DProxyBuilder : public FWProxyBuilderBase
+class FWDTRecHitProxyBuilder : public FWProxyBuilderBase
 {
 public:
-   FWDTRecHits3DProxyBuilder(void) 
+   FWDTRecHitProxyBuilder(void) 
     {}
   
-   virtual ~FWDTRecHits3DProxyBuilder(void) 
+   virtual ~FWDTRecHitProxyBuilder(void) 
     {}
 
    REGISTER_PROXYBUILDER_METHODS();
@@ -28,13 +28,13 @@ private:
                       TEveElementList** product);
 
    // Disable default copy constructor
-   FWDTRecHits3DProxyBuilder(const FWDTRecHits3DProxyBuilder&); 
+   FWDTRecHitProxyBuilder(const FWDTRecHitProxyBuilder&); 
    // Disable default assignment operator
-   const FWDTRecHits3DProxyBuilder& operator=(const FWDTRecHits3DProxyBuilder&);
+   const FWDTRecHitProxyBuilder& operator=(const FWDTRecHitProxyBuilder&);
 };
 
 void
-FWDTRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWDTRecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList** product )
 {
    TEveElementList* tList = *product;
 
@@ -50,7 +50,7 @@ FWDTRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pro
    const DTRecHitCollection* collection = 0;
    iItem->get(collection);
 
-   if(0 == collection)
+   if( 0 == collection )
    {
       return;
    }
@@ -62,8 +62,8 @@ FWDTRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pro
    rechitSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
    compund->AddElement(rechitSet);   
 
-   for(DTRecHitCollection::id_iterator chId = collection->id_begin(), chIdEnd = collection->id_end();
-       chId != chIdEnd; ++chId)
+   for( DTRecHitCollection::id_iterator chId = collection->id_begin(), chIdEnd = collection->id_end();
+       chId != chIdEnd; ++chId )
    {
       const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix((*chId).chamberId());
       if(!matrix) {
@@ -76,8 +76,8 @@ FWDTRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pro
       Double_t globalCenterPoint[3];
       
       DTRecHitCollection::range range = collection->get(*chId);
-      for(DTRecHitCollection::const_iterator it = range.first;
-	  it != range.second; ++it)
+      for( DTRecHitCollection::const_iterator it = range.first;
+	   it != range.second; ++it )
       {
 	 Double_t localPos[3] = {(*it).localPosition().x(), (*it).localPosition().y(), (*it).localPosition().z()};
 	 Double_t globalPos[3];
@@ -96,16 +96,16 @@ FWDTRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pro
          matrix->LocalToMaster(localCenterPoint, globalCenterPoint);
          matrix->LocalToMaster(localPos, globalPos);
 	 
-	 rechitSet->AddLine(lGlobalPoint[0], lGlobalPoint[1], lGlobalPoint[2], rGlobalPoint[0], rGlobalPoint[1], rGlobalPoint[2]);
-	 rechitSet->AddLine(globalCenterPoint[0], globalCenterPoint[1], globalCenterPoint[2], rGlobalPoint[0], rGlobalPoint[1], rGlobalPoint[2]);
-	 rechitSet->AddLine(lGlobalPoint[0], lGlobalPoint[1], lGlobalPoint[2], globalCenterPoint[0], globalCenterPoint[1], globalCenterPoint[2]);
+	 rechitSet->AddLine( lGlobalPoint[0], lGlobalPoint[1], lGlobalPoint[2], rGlobalPoint[0], rGlobalPoint[1], rGlobalPoint[2] );
+	 rechitSet->AddLine( globalCenterPoint[0], globalCenterPoint[1], globalCenterPoint[2], rGlobalPoint[0], rGlobalPoint[1], rGlobalPoint[2] );
+	 rechitSet->AddLine( lGlobalPoint[0], lGlobalPoint[1], lGlobalPoint[2], globalCenterPoint[0], globalCenterPoint[1], globalCenterPoint[2] );
 
-	 rechitSet->AddLine(globalPos[0], globalPos[1], globalPos[2], globalCenterPoint[0], globalCenterPoint[1], globalCenterPoint[2]);
+	 rechitSet->AddLine( globalPos[0], globalPos[1], globalPos[2], globalCenterPoint[0], globalCenterPoint[1], globalCenterPoint[2] );
       }
    }
    tList->AddElement(compund);
 }
 
-REGISTER_FWPROXYBUILDER(FWDTRecHits3DProxyBuilder, DTRecHitCollection, "DT Rec Hits", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER( FWDTRecHitProxyBuilder, DTRecHitCollection, "DT RecHits", FWViewType::kISpy );
 
 

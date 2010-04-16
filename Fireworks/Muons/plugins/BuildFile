@@ -1,10 +1,10 @@
 <library file=*.cc name=FireworksMuonsPlugins>
-  <use name=Fireworks/Muons>
+  <use name=Fireworks/Candidates>
   <use name=Fireworks/Calo>
+  <use name=Fireworks/Muons>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/CSCRecHit>
   <use name=DataFormats/DTRecHit>
-  <use name=Fireworks/Candidates>
   <flags EDM_PLUGIN=1>
 </library>
 
