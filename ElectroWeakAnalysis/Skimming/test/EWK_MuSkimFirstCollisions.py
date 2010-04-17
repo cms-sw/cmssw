@@ -40,7 +40,13 @@ import HLTrigger.HLTfilters.hltHighLevel_cfi
 process.EWK_MuHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 # Uncomment this to access 8E29 menu and filter on it
 process.EWK_MuHLTFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-process.EWK_MuHLTFilter.HLTPaths=["HLT_MinBiasBSC", "HLT_L1Mu", "HLT_L1MuOpen", "HLT_L2Mu9", "HLT_Mu9"] 
+process.EWK_MuHLTFilter.HLTPaths = [
+          "HLT_MinBiasBSC",
+          "HLT_L1Mu", "HLT_L1MuOpen", "HLT_L1Mu20",
+          "HLT_L2Mu9", "HLT_L2Mu11",
+          "HLT_Mu5", "HLT_Mu9"
+          ] 
+
 # Uncomment this to filter on 1E31 HLT menu
 #process.EWK_MuHLTFilter.HLTPaths = ["HLT_Mu9", "HLT_DoubleMu3"]
 
