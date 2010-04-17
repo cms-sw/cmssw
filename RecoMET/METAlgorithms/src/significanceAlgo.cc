@@ -21,7 +21,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: significanceAlgo.cc,v 1.10 2009/10/22 16:50:45 fblekman Exp $
+// $Id: significanceAlgo.cc,v 1.11 2010/02/20 05:38:50 dlange Exp $
 //
 //
 
@@ -156,7 +156,7 @@ const double
 metsig::significanceAlgo::significance(double &met_r, double &met_phi, double &met_set) 
 {
   
-  if(signifmatrix_.Abs()<0.000001){
+   if(fabs(signifmatrix_.Determinant())<0.000001){
     //edm::LogWarning("SignCaloSpecificAlgo") << "Event Vector is empty!  Return significance -1";
     return(-1);
   } 
@@ -179,7 +179,7 @@ metsig::significanceAlgo::significance(double &met_r, double &met_phi, double &m
 
   // one other option: if particles cancel there could be small numbers.
   // this check fixes this, added by F.Blekman
-  if(v_tot.Abs()<0.000001)
+  if(fabs(v_tot.Determinant())<0.000001)
     return -1;
 
 
