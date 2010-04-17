@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # Example for a configuration of the MC match
 #
-patJetPartonMatch = cms.EDFilter("MCMatcher",        # cut on deltaR, deltaPt/Pt; pick best by deltaR
+patJetPartonMatch = cms.EDProducer("MCMatcher",        # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src         = cms.InputTag("ak5CaloJets"),       # RECO objects to match
     matched     = cms.InputTag("genParticles"),      # mc-truth particle collection
     mcPdgId     = cms.vint32(1, 2, 3, 4, 5, 21),     # one or more PDG ID (quarks except top; gluons)

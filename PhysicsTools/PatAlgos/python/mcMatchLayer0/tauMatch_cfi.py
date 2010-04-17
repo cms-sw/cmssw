@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # for taus (cuts are NOT tuned)
 # (using old values from TQAF, january 2008)
 #
-tauMatch = cms.EDFilter("MCMatcher",
+tauMatch = cms.EDProducer("MCMatcher",
     src         = cms.InputTag("shrinkingConePFTauProducer"),    # RECO objects to match
     matched     = cms.InputTag("genParticles"),              # mc-truth particle collection
     mcPdgId     = cms.vint32(15),                            # one or more PDG ID (15 = tau); absolute values (see below)

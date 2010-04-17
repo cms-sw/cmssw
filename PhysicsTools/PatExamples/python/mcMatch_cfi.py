@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-myMuonMatch = cms.EDFilter("MCMatcher",     # cut on deltaR, deltaPt/Pt; pick best by deltaR
+myMuonMatch = cms.EDProducer("MCMatcher",     # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src     = cms.InputTag("muons"),        # RECO objects to match
     matched = cms.InputTag("genParticles"), # mc-truth particle collection
     mcPdgId     = cms.vint32(13),           # one or more PDG ID (13 = muon); absolute values (see below)

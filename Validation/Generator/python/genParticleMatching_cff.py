@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ## reco-generator matching for muons
-electronMatch = cms.EDFilter("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
+electronMatch = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src         = cms.InputTag("gsfElectrons"), # RECO objects to match
     matched     = cms.InputTag("genParticles"), # mc-truth particle collection
     mcPdgId     = cms.vint32(11),               # one or more PDG ID (11 = electron); absolute values (see below)
@@ -14,7 +14,7 @@ electronMatch = cms.EDFilter("MCMatcher",       # cut on deltaR, deltaPt/Pt; pic
 )
 
 ## reco-generator matching for electrons
-muonMatch = cms.EDFilter("MCMatcher",           # cut on deltaR, deltaPt/Pt; pick best by deltaR
+muonMatch = cms.EDProducer("MCMatcher",           # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src     = cms.InputTag("muons"),            # RECO objects to match  
     matched = cms.InputTag("genParticles"),     # mc-truth particle collection
     mcPdgId     = cms.vint32(13),               # one or more PDG ID (13 = muon); absolute values (see below)
@@ -27,7 +27,7 @@ muonMatch = cms.EDFilter("MCMatcher",           # cut on deltaR, deltaPt/Pt; pic
 )
 
 ## reco-generator(parton) matching for jets
-jetPartonMatch = cms.EDFilter("MCMatcher",      # cut on deltaR, deltaPt/Pt; pick best by deltaR
+jetPartonMatch = cms.EDProducer("MCMatcher",      # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src = cms.InputTag("antikt5CaloJets"),      # RECO objects to match
     matched = cms.InputTag("genParticles"),     # mc-truth particle collection
     mcPdgId  = cms.vint32(1, 2, 3, 4, 5),       # one or more PDG ID (quarks except top; gluons)
