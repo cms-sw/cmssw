@@ -340,10 +340,12 @@ public :
   Int_t           L1_Mu5_Jet6;  
   Int_t           L1_EG5_TripleJet6;  
   Int_t           L1_SingleJet6;  
+  Int_t           L1_SingleJet10;
   Int_t           L1_ETM30;  
   Int_t           L1_QuadJet6; 
   Int_t           L1_TripleJet14; 
   Int_t           L1_DoubleEG1; 
+  Int_t           L1_DoubleEG2; 
   Int_t           L1_DoubleEG5; 
   Int_t           L1_DoubleHfBitCountsRing1_P1N1; 
   Int_t           L1_DoubleHfBitCountsRing2_P1N1; 
@@ -483,6 +485,16 @@ public :
   Int_t           L1Tech_RPC_TTU_barrel_Cosmics_v0_5bx;
   Int_t           L1Tech_RPC_TTU_pointing_Cosmics_v0;
   Int_t           L1Tech_RPC_TTU_pointing_Cosmics_v0_5bx;
+  Int_t           L1Tech_RPC_TTU_RBst1_collisions_v0;
+  Int_t           L1Tech_RPC_TTU_RBst1_collisions_v0_5bx;
+
+  Int_t           L1Tech_HCAL_HF_MM_or_PP_or_PM_v0;
+  Int_t           L1Tech_HCAL_HF_MM_or_PP_or_PM_v0_5bx;
+  Int_t           L1Tech_HCAL_HF_coincidence_PM_v1;
+  Int_t           L1Tech_HCAL_HF_coincidence_PM_v1_5bx;
+  Int_t           L1Tech_HCAL_HF_MMP_or_MPP_v0;
+  Int_t           L1Tech_HCAL_HF_MMP_or_MPP_v0_5bx;
+
   Int_t           L1Tech_ZDC_loose_vertex_v0;
   Int_t           L1Tech_ZDC_loose_vertex_v0_5bx;
   Int_t           L1Tech_ZDC_minus_over_threshold_v0;
@@ -1158,10 +1170,12 @@ public :
   TBranch        *b_L1_Mu5_Jet6;   //!
   TBranch        *b_L1_EG5_TripleJet6; //!   
   TBranch        *b_L1_SingleJet6; //!  
+  TBranch        *b_L1_SingleJet10; //!
   TBranch        *b_L1_ETM30; //!  
   TBranch        *b_L1_QuadJet6;   //! 
   TBranch        *b_L1_TripleJet14;   //!  
   TBranch        *b_L1_DoubleEG1;   //! 
+  TBranch        *b_L1_DoubleEG2;   //! 
   TBranch        *b_L1_DoubleEG5;   //! 
   TBranch        *b_L1_DoubleHfBitCountsRing1_P1N1;   //! 
   TBranch        *b_L1_DoubleHfBitCountsRing2_P1N1;   //! 
@@ -1238,7 +1252,6 @@ public :
   TBranch        *b_L1_SingleTauJet4;   //!    
   TBranch        *b_L1_DoubleForJet10_EtaOpp;   //!    
 
-
   // ccla - L1 Technical bits  (06Dec09)
   TBranch        *b_L1Tech_BPTX_minus_v0;   //!
   TBranch        *b_L1Tech_BPTX_minus_v0_5bx;   //!
@@ -1304,6 +1317,16 @@ public :
   TBranch        *b_L1Tech_RPC_TTU_barrel_Cosmics_v0_5bx;   //!
   TBranch        *b_L1Tech_RPC_TTU_pointing_Cosmics_v0;   //!
   TBranch        *b_L1Tech_RPC_TTU_pointing_Cosmics_v0_5bx;   //!
+  TBranch        *b_L1Tech_RPC_TTU_RBst1_collisions_v0;   //!
+  TBranch        *b_L1Tech_RPC_TTU_RBst1_collisions_v0_5bx; //!
+
+  TBranch        *b_L1Tech_HCAL_HF_MM_or_PP_or_PM_v0; //!
+  TBranch        *b_L1Tech_HCAL_HF_MM_or_PP_or_PM_v0_5bx; //!
+  TBranch        *b_L1Tech_HCAL_HF_coincidence_PM_v1; //!
+  TBranch        *b_L1Tech_HCAL_HF_coincidence_PM_v1_5bx; //!
+  TBranch        *b_L1Tech_HCAL_HF_MMP_or_MPP_v0; //!
+  TBranch        *b_L1Tech_HCAL_HF_MMP_or_MPP_v0_5bx; //!
+
   TBranch        *b_L1Tech_ZDC_loose_vertex_v0;   //!
   TBranch        *b_L1Tech_ZDC_loose_vertex_v0_5bx;   //!
   TBranch        *b_L1Tech_ZDC_minus_over_threshold_v0;   //!
@@ -2423,9 +2446,11 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_Mu5_Jet6", &L1_Mu5_Jet6, &b_L1_Mu5_Jet6);
   fChain->SetBranchAddress("L1_EG5_TripleJet6", &L1_EG5_TripleJet6, &b_L1_EG5_TripleJet6);
   fChain->SetBranchAddress("L1_SingleJet6", &L1_SingleJet6, &b_L1_SingleJet6);
+  fChain->SetBranchAddress("L1_SingleJet10", &L1_SingleJet10, &b_L1_SingleJet10);
   fChain->SetBranchAddress("L1_ETM30", &L1_ETM30, &b_L1_ETM30);
 
   fChain->SetBranchAddress("L1_DoubleEG1", &L1_DoubleEG1, &b_L1_DoubleEG1); 
+  fChain->SetBranchAddress("L1_DoubleEG2", &L1_DoubleEG2, &b_L1_DoubleEG2); 
   fChain->SetBranchAddress("L1_DoubleEG5", &L1_DoubleEG5, &b_L1_DoubleEG5); 
   fChain->SetBranchAddress("L1_DoubleHfBitCountsRing1_P1N1", &L1_DoubleHfBitCountsRing1_P1N1, &b_L1_DoubleHfBitCountsRing1_P1N1); 
   fChain->SetBranchAddress("L1_DoubleHfBitCountsRing2_P1N1", &L1_DoubleHfBitCountsRing2_P1N1, &b_L1_DoubleHfBitCountsRing2_P1N1); 
@@ -2567,6 +2592,16 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1Tech_RPC_TTU_barrel_Cosmics.v0_5bx", &L1Tech_RPC_TTU_barrel_Cosmics_v0_5bx, &b_L1Tech_RPC_TTU_barrel_Cosmics_v0_5bx);
   fChain->SetBranchAddress("L1Tech_RPC_TTU_pointing_Cosmics.v0", &L1Tech_RPC_TTU_pointing_Cosmics_v0, &b_L1Tech_RPC_TTU_pointing_Cosmics_v0);
   fChain->SetBranchAddress("L1Tech_RPC_TTU_pointing_Cosmics.v0_5bx", &L1Tech_RPC_TTU_pointing_Cosmics_v0_5bx, &b_L1Tech_RPC_TTU_pointing_Cosmics_v0_5bx);
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_RBst1_collisions.v0", &L1Tech_RPC_TTU_RBst1_collisions_v0, &b_L1Tech_RPC_TTU_RBst1_collisions_v0);
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_RBst1_collisions.v0_5bx", &L1Tech_RPC_TTU_RBst1_collisions_v0_5bx, &b_L1Tech_RPC_TTU_RBst1_collisions_v0_5bx);
+
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_MM_or_PP_or_PM.v0", &L1Tech_HCAL_HF_MM_or_PP_or_PM_v0, &b_L1Tech_HCAL_HF_MM_or_PP_or_PM_v0);
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_MM_or_PP_or_PM.v0_5bx", &L1Tech_HCAL_HF_MM_or_PP_or_PM_v0_5bx, &b_L1Tech_HCAL_HF_MM_or_PP_or_PM_v0_5bx);
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_coincidence_PM.v1", &L1Tech_HCAL_HF_coincidence_PM_v1, &b_L1Tech_HCAL_HF_coincidence_PM_v1);
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_coincidence_PM.v1_5bx", &L1Tech_HCAL_HF_coincidence_PM_v1_5bx, &b_L1Tech_HCAL_HF_coincidence_PM_v1_5bx);
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_MMP_or_MPP.v0", &L1Tech_HCAL_HF_MMP_or_MPP_v0, &b_L1Tech_HCAL_HF_MMP_or_MPP_v0);
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_MMP_or_MPP.v0_5bx", &L1Tech_HCAL_HF_MMP_or_MPP_v0_5bx, &b_L1Tech_HCAL_HF_MMP_or_MPP_v0_5bx);
+
   fChain->SetBranchAddress("L1Tech_ZDC_loose_vertex.v0", &L1Tech_ZDC_loose_vertex_v0, &b_L1Tech_ZDC_loose_vertex_v0);
   fChain->SetBranchAddress("L1Tech_ZDC_loose_vertex.v0_5bx", &L1Tech_ZDC_loose_vertex_v0_5bx, &b_L1Tech_ZDC_loose_vertex_v0_5bx);
   fChain->SetBranchAddress("L1Tech_ZDC_minus_over_threshold.v0", &L1Tech_ZDC_minus_over_threshold_v0, &b_L1Tech_ZDC_minus_over_threshold_v0);
@@ -2886,12 +2921,38 @@ void OHltTree::Init(TTree *tree)
 
   //
   /* Also associate with the maps to speed up code! */
+  fChain->SetBranchAddress("L1Tech_BPTX_plus_OR_minus.v0", &map_BitOfStandardHLTPath["L1Tech_BPTX_plus_OR_minus.v0"], &b_L1Tech_BPTX_plus_OR_minus_v0); 
+  fChain->SetBranchAddress("L1Tech_BPTX_plus_AND_minus_instance1.v0", &map_BitOfStandardHLTPath["L1Tech_BPTX_plus_AND_minus_instance1.v0"], &b_L1Tech_BPTX_plus_AND_minus_instance1_v0); 
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_OR.v0", &map_BitOfStandardHLTPath["L1Tech_BSC_minBias_OR.v0"], &b_L1Tech_BSC_minBias_OR_v0); 
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_threshold1.v0", &map_BitOfStandardHLTPath["L1Tech_BSC_minBias_threshold1.v0"], &b_L1Tech_BSC_minBias_threshold1_v0); 
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_threshold2.v0", &map_BitOfStandardHLTPath["L1Tech_BSC_minBias_threshold2.v0"], &b_L1Tech_BSC_minBias_threshold2_v0); 
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_inner_threshold1.v0", &map_BitOfStandardHLTPath["L1Tech_BSC_minBias_inner_threshold1.v0"], &b_L1Tech_BSC_minBias_inner_threshold1_v0); 
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_inner_threshold2.v0", &map_BitOfStandardHLTPath["L1Tech_BSC_minBias_inner_threshold2.v0"], &b_L1Tech_BSC_minBias_inner_threshold2_v0); 
+  fChain->SetBranchAddress("L1Tech_BSC_halo_beam1_inner.v0", &map_BitOfStandardHLTPath["L1Tech_BSC_halo_beam1_inner.v0"], &b_L1Tech_BSC_halo_beam1_inner_v0); 
+  fChain->SetBranchAddress("L1Tech_BSC_halo_beam1_outer.v0", &map_BitOfStandardHLTPath["L1Tech_BSC_halo_beam1_outer.v0"], &b_L1Tech_BSC_halo_beam1_outer_v0); 
+  fChain->SetBranchAddress("L1Tech_BSC_halo_beam2_inner.v0", &map_BitOfStandardHLTPath["L1Tech_BSC_halo_beam2_inner.v0"], &b_L1Tech_BSC_halo_beam2_inner_v0); 
+  fChain->SetBranchAddress("L1Tech_BSC_halo_beam2_outer.v0", &map_BitOfStandardHLTPath["L1Tech_BSC_halo_beam2_outer.v0"], &b_L1Tech_BSC_halo_beam2_outer_v0); 
+  fChain->SetBranchAddress("L1Tech_BSC_HighMultiplicity.v0", &map_BitOfStandardHLTPath["L1Tech_BSC_HighMultiplicity.v0"], &b_L1Tech_BSC_HighMultiplicity_v0); 
+  fChain->SetBranchAddress("L1Tech_BSC_splash_beam1.v0", &map_BitOfStandardHLTPath["L1Tech_BSC_splash_beam1.v0"], &b_L1Tech_BSC_splash_beam1_v0); 
+  fChain->SetBranchAddress("L1Tech_BSC_splash_beam2.v0", &map_BitOfStandardHLTPath["L1Tech_BSC_splash_beam2.v0"], &b_L1Tech_BSC_splash_beam2_v0); 
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_barrel_Cosmics.v0", &map_BitOfStandardHLTPath["L1Tech_RPC_TTU_barrel_Cosmics.v0"], &b_L1Tech_RPC_TTU_barrel_Cosmics_v0); 
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_pointing_Cosmics.v0", &map_BitOfStandardHLTPath["L1Tech_RPC_TTU_pointing_Cosmics.v0"], &b_L1Tech_RPC_TTU_pointing_Cosmics_v0); 
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_RBst1_collisions.v0", &map_BitOfStandardHLTPath["L1Tech_RPC_TTU_RBst1_collisions.v0"], &b_L1Tech_RPC_TTU_RBst1_collisions_v0); 
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_MM_or_PP_or_PM.v0", &map_BitOfStandardHLTPath["L1Tech_HCAL_HF_MM_or_PP_or_PM.v0"], &b_L1Tech_HCAL_HF_MM_or_PP_or_PM_v0); 
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_coincidence_PM.v1", &map_BitOfStandardHLTPath["L1Tech_HCAL_HF_coincidence_PM.v1"], &b_L1Tech_HCAL_HF_coincidence_PM_v1); 
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_MMP_or_MPP.v0", &map_BitOfStandardHLTPath["L1Tech_HCAL_HF_MMP_or_MPP.v0"], &b_L1Tech_HCAL_HF_MMP_or_MPP_v0); 
+  fChain->SetBranchAddress("L1Tech_HCAL_HO_totalOR.v0", &map_BitOfStandardHLTPath["L1Tech_HCAL_HO_totalOR.v0"], &b_L1Tech_HCAL_HO_totalOR_v0); 
+  fChain->SetBranchAddress("L1Tech_HCAL_HBHE_totalOR.v0", &map_BitOfStandardHLTPath["L1Tech_HCAL_HBHE_totalOR.v0"], &b_L1Tech_HCAL_HBHE_totalOR_v0);
+  //fChain->SetBranchAddress("", &map_BitOfStandardHLTPath[""], &b_); 
+
   fChain->SetBranchAddress("L1_Mu5_Jet6", &map_BitOfStandardHLTPath["L1_Mu5_Jet6"], &b_L1_Mu5_Jet6); 
   fChain->SetBranchAddress("L1_EG5_TripleJet6", &map_BitOfStandardHLTPath["L1_EG5_TripleJet6"], &b_L1_EG5_TripleJet6); 
   fChain->SetBranchAddress("L1_SingleJet6", &map_BitOfStandardHLTPath["L1_SingleJet6"], &b_L1_SingleJet6); 
+  fChain->SetBranchAddress("L1_SingleJet10", &map_BitOfStandardHLTPath["L1_SingleJet10"], &b_L1_SingleJet10); 
   fChain->SetBranchAddress("L1_ETM30", &map_BitOfStandardHLTPath["L1_ETM30"], &b_L1_ETM30); 
 
   fChain->SetBranchAddress("L1_DoubleEG1", &map_BitOfStandardHLTPath["L1_DoubleEG1"], &b_L1_DoubleEG1); 
+  fChain->SetBranchAddress("L1_DoubleEG2", &map_BitOfStandardHLTPath["L1_DoubleEG2"], &b_L1_DoubleEG2); 
   fChain->SetBranchAddress("L1_DoubleEG5", &map_BitOfStandardHLTPath["L1_DoubleEG5"], &b_L1_DoubleEG5); 
   fChain->SetBranchAddress("L1_DoubleHfBitCountsRing1_P1N1", &map_BitOfStandardHLTPath["L1_DoubleHfBitCountsRing1_P1N1"], &b_L1_DoubleHfBitCountsRing1_P1N1); 
   fChain->SetBranchAddress("L1_DoubleHfBitCountsRing2_P1N1", &map_BitOfStandardHLTPath["L1_DoubleHfBitCountsRing2_P1N1"], &b_L1_DoubleHfBitCountsRing2_P1N1); 
@@ -2966,6 +3027,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet2", &map_BitOfStandardHLTPath["L1_SingleTauJet2"], &b_L1_SingleTauJet2); 
   fChain->SetBranchAddress("L1_SingleTauJet4", &map_BitOfStandardHLTPath["L1_SingleTauJet4"], &b_L1_SingleTauJet4); 
   fChain->SetBranchAddress("L1_DoubleForJet10_EtaOpp", &map_BitOfStandardHLTPath["L1_DoubleForJet10_EtaOpp"], &b_L1_DoubleForJet10_EtaOpp); 
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus", &map_BitOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusORMinus"], &b_L1_BscMinBiasOR_BptxPlusORMinus); 
 
   fChain->SetBranchAddress("L1_DoubleMuTopBottom", &map_BitOfStandardHLTPath["L1_DoubleMuTopBottom"], &b_L1_DoubleMuTopBottom); 
   fChain->SetBranchAddress("L1_DoubleEG05_TopBottom", &map_BitOfStandardHLTPath["L1_DoubleEG05_TopBottom"], &b_L1_DoubleEG05_TopBottom);  
@@ -3235,7 +3297,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_L1Mu14_L1SingleJet20", &map_BitOfStandardHLTPath["HLT_L1Mu14_L1SingleJet20"], &b_HLT_L1Mu14_L1SingleJet20);
   fChain->SetBranchAddress("HLT_MinBiasBSC_NoBPTX", &map_BitOfStandardHLTPath["HLT_MinBiasBSC_NoBPTX"], &b_HLT_MinBiasBSC_NoBPTX);
   fChain->SetBranchAddress("HLT_SplashBSC", &map_BitOfStandardHLTPath["HLT_SplashBSC"], &b_HLT_SplashBSC);
-  fChain->SetBranchAddress("HLT_L1_BscMinBiasOR_BptxPlusORMinus", &map_BitOfStandardHLTPath["HLT_L1_BscMinBiasOR_BptxPlusORMinus"], &b_HLT_L1_BscMinBiasOR_BptxPlusORMinus);
   fChain->SetBranchAddress("HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX", &map_BitOfStandardHLTPath["HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX"], &b_HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX);
   fChain->SetBranchAddress("HLT_L1Tech_RPC_TTU_RBst1_collisions", &map_BitOfStandardHLTPath["HLT_L1Tech_RPC_TTU_RBst1_collisions"], &b_HLT_L1Tech_RPC_TTU_RBst1_collisions);
   fChain->SetBranchAddress("HLT_IsoTrackHE_1E31", &map_BitOfStandardHLTPath["HLT_IsoTrackHE_1E31"], &b_HLT_IsoTrackHE_1E31);
