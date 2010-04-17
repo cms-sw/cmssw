@@ -4,7 +4,7 @@ siStripFEDCheck = cms.EDAnalyzer("SiStripFEDCheckPlugin",
   #Directory to book histograms in
   DirName = cms.untracked.string('SiStrip/FEDIntegrity/'),
   #Raw data collection
-  RawDataTag = cms.untracked.InputTag('source'),
+  RawDataTag = cms.InputTag('source'),
   #Number of events to cache info before updating histograms
   #(set to zero to disable cache)
   #HistogramUpdateFrequency = cms.untracked.uint32(0),
