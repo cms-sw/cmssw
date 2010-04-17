@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.67 2010/04/16 06:12:22 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.68 2010/04/16 06:14:47 dinardo Exp $
 //
 //
 
@@ -236,8 +236,7 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 				    2.*M[0][1]*(Vertices[i].x-par[6])*(Vertices[i].y-par[7]) +
 				    2.*M[1][2]*(Vertices[i].y-par[7])*(Vertices[i].z-par[8]) +
 				    2.*M[0][2]*(Vertices[i].x-par[6])*(Vertices[i].z-par[8])))) >= precision)
-// 	    sumlog += double(DIM)*log(2.*pi) + log(fabs(det)) +
-	    sumlog += log(fabs(det)) +
+	    sumlog += double(DIM)*log(2.*pi) + log(fabs(det)) +
 	      (M[0][0]*(Vertices[i].x-par[6])*(Vertices[i].x-par[6]) +
 	       M[1][1]*(Vertices[i].y-par[7])*(Vertices[i].y-par[7]) +
 	       M[2][2]*(Vertices[i].z-par[8])*(Vertices[i].z-par[8]) +
@@ -264,8 +263,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
  
   if ((vals != NULL) && (vals->size() == nParams*2))
     {
-      double nSigmaXY    = 5.;
-      double nSigmaZ     = 5.;
+      double nSigmaXY    = 6.;
+      double nSigmaZ     = 6.;
       double varFactor   = 2./5.; // Take into account the difference between the RMS and sigma (RMS usually greater than sigma)
       double parDistance = 0.01;
       double det;
@@ -735,8 +734,8 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
       outputFile << "EndTimeOfFit " << formatTime(endTimeOfFit / pow(2,32)) << endl;
       outputFile << "LumiRange " << beginLumiOfFit << " - " << endLumiOfFit << endl;
       outputFile << "Type " << dataType << endl;
-      // 3D Vertexing with Pixel Tracks good data = type 3
-      // Bad data = type -1
+      // 3D Vertexing with Pixel Tracks good data = Type 3
+      // Bad data = Type -1
 
       BufferString << *(it+0);
       outputFile << "X0 " << BufferString.str().c_str() << endl;
@@ -1202,12 +1201,7 @@ void Vx3DHLTAnalyzer::beginJob()
       reportSummaryMap->Fill(0.5, 0.5, 0.);
       dbe->setCurrentFolder("BeamPixel/EventInfo/reportSummaryContents");
 
-      // Convention for reportSummary:
-      // -   0% at the moment of creation of the histogram
-      // -  95% if iether not not enough "minNentries" or bad fit
-      // - 100% if good fit
-
-      // Convention for reportSummaryMap:
+      // Convention for reportSummary and reportSummaryMap:
       // - 0%  at the moment of creation of the histogram
       // - n%  numberGoodFits / numberFits
     }
@@ -1216,7 +1210,7 @@ void Vx3DHLTAnalyzer::beginJob()
   maxLumiIntegration   = 100;
   minVxDoF             = 4.;
   minVxWgt             = 0.5;
-  VxErrCorr            = 1.0;
+  VxErrCorr            = 1.5;
   internalDebug        = false;
   considerVxCovariance = true;
 
