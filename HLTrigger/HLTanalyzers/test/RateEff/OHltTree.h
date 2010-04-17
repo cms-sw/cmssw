@@ -492,6 +492,23 @@ public :
   Int_t           L1Tech_ZDC_tight_vertex_v0;
   Int_t           L1Tech_ZDC_tight_vertex_v0_5bx;
 
+  // BSC and BPTX algorithm bits
+  Int_t           L1_BptxMinus;
+  Int_t           L1_BptxMinus_5bx;
+  Int_t           L1_BptxPlus;
+  Int_t           L1_BptxPlus_5bx;
+  Int_t           L1_BptxPlusORMinus;
+  Int_t           L1_BptxPlusORMinus_5bx;
+  Int_t           L1_BscHighMultiplicity;
+  Int_t           L1_BscHighMultiplicity_5bx;
+  Int_t           L1_BscMinBiasInnerThreshold1;
+  Int_t           L1_BscMinBiasInnerThreshold1_5bx;
+  Int_t           L1_BscMinBiasInnerThreshold2;
+  Int_t           L1_BscMinBiasInnerThreshold2_5bx;
+  Int_t           L1_BscMinBiasOR;
+  Int_t           L1_BscMinBiasOR_5bx;
+  Int_t           L1_BscMinBiasOR_BptxPlusORMinus;
+  Int_t           L1_BscMinBiasOR_BptxPlusORMinus_5bx;
 
   // Here we declare any emulated L1 bits 
   Int_t           OpenL1_ZeroBias;
@@ -1295,6 +1312,22 @@ public :
   TBranch        *b_L1Tech_ZDC_plus_over_threshold_v0_5bx;   //!
   TBranch        *b_L1Tech_ZDC_tight_vertex_v0;   //!
   TBranch        *b_L1Tech_ZDC_tight_vertex_v0_5bx;   //!
+  TBranch        *b_L1_BptxMinus;   //!
+  TBranch        *b_L1_BptxMinus_5bx;   //!
+  TBranch        *b_L1_BptxPlus;   //!
+  TBranch        *b_L1_BptxPlus_5bx;   //!
+  TBranch        *b_L1_BptxPlusORMinus;   //!
+  TBranch        *b_L1_BptxPlusORMinus_5bx;   //!
+  TBranch        *b_L1_BscHighMultiplicity;   //!
+  TBranch        *b_L1_BscHighMultiplicity_5bx;   //!
+  TBranch        *b_L1_BscMinBiasInnerThreshold1;   //!
+  TBranch        *b_L1_BscMinBiasInnerThreshold1_5bx;   //!
+  TBranch        *b_L1_BscMinBiasInnerThreshold2;   //!
+  TBranch        *b_L1_BscMinBiasInnerThreshold2_5bx;   //!
+  TBranch        *b_L1_BscMinBiasOR;   //!
+  TBranch        *b_L1_BscMinBiasOR_5bx;   //!
+  TBranch        *b_L1_BscMinBiasOR_BptxPlusORMinus;   //!
+  TBranch        *b_L1_BscMinBiasOR_BptxPlusORMinus_5bx;   //!
 
   // JH - 1E31 MC menu
   TBranch        *b_HLT_L1Jet15;   //!  
@@ -2542,6 +2575,23 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1Tech_ZDC_plus_over_threshold.v0_5bx", &L1Tech_ZDC_plus_over_threshold_v0_5bx, &b_L1Tech_ZDC_plus_over_threshold_v0_5bx);
   fChain->SetBranchAddress("L1Tech_ZDC_tight_vertex.v0", &L1Tech_ZDC_tight_vertex_v0, &b_L1Tech_ZDC_tight_vertex_v0);
   fChain->SetBranchAddress("L1Tech_ZDC_tight_vertex.v0_5bx", &L1Tech_ZDC_tight_vertex_v0_5bx, &b_L1Tech_ZDC_tight_vertex_v0_5bx);
+  fChain->SetBranchAddress("L1_BptxMinus", &L1_BptxMinus, &b_L1_BptxMinus);
+  fChain->SetBranchAddress("L1_BptxMinus_5bx", &L1_BptxMinus_5bx, &b_L1_BptxMinus_5bx);
+  fChain->SetBranchAddress("L1_BptxPlus", &L1_BptxPlus, &b_L1_BptxPlus);
+  fChain->SetBranchAddress("L1_BptxPlus_5bx", &L1_BptxPlus_5bx, &b_L1_BptxPlus_5bx);
+  fChain->SetBranchAddress("L1_BptxPlusORMinus", &L1_BptxPlusORMinus, &b_L1_BptxPlusORMinus);
+  fChain->SetBranchAddress("L1_BptxPlusORMinus_5bx", &L1_BptxPlusORMinus_5bx, &b_L1_BptxPlusORMinus_5bx);
+  fChain->SetBranchAddress("L1_BscHighMultiplicity", &L1_BscHighMultiplicity, &b_L1_BscHighMultiplicity);
+  fChain->SetBranchAddress("L1_BscHighMultiplicity_5bx", &L1_BscHighMultiplicity_5bx, &b_L1_BscHighMultiplicity_5bx);
+  fChain->SetBranchAddress("L1_BscMinBiasInnerThreshold1", &L1_BscMinBiasInnerThreshold1, &b_L1_BscMinBiasInnerThreshold1);
+  fChain->SetBranchAddress("L1_BscMinBiasInnerThreshold1_5bx", &L1_BscMinBiasInnerThreshold1_5bx, &b_L1_BscMinBiasInnerThreshold1_5bx);
+  fChain->SetBranchAddress("L1_BscMinBiasInnerThreshold2", &L1_BscMinBiasInnerThreshold2, &b_L1_BscMinBiasInnerThreshold2);
+  fChain->SetBranchAddress("L1_BscMinBiasInnerThreshold2_5bx", &L1_BscMinBiasInnerThreshold2_5bx, &b_L1_BscMinBiasInnerThreshold2_5bx);
+  fChain->SetBranchAddress("L1_BscMinBiasOR", &L1_BscMinBiasOR, &b_L1_BscMinBiasOR);
+  fChain->SetBranchAddress("L1_BscMinBiasOR_5bx", &L1_BscMinBiasOR_5bx, &b_L1_BscMinBiasOR_5bx);
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus", &L1_BscMinBiasOR_BptxPlusORMinus, &b_L1_BscMinBiasOR_BptxPlusORMinus);
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus_5bx", &L1_BscMinBiasOR_BptxPlusORMinus_5bx, &b_L1_BscMinBiasOR_BptxPlusORMinus_5bx);
+
 
   // JH - 1E31 MC menu
   fChain->SetBranchAddress("HLT_L1Jet15", &HLT_L1Jet15, &b_HLT_L1Jet15); 
