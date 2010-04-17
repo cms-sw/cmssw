@@ -21,7 +21,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: significanceAlgo.cc,v 1.11 2010/02/20 05:38:50 dlange Exp $
+// $Id: significanceAlgo.cc,v 1.12 2010/04/17 14:31:56 fblekman Exp $
 //
 //
 
@@ -156,7 +156,7 @@ const double
 metsig::significanceAlgo::significance(double &met_r, double &met_phi, double &met_set) 
 {
   
-   if(fabs(signifmatrix_.Determinant())<0.000001){
+  if(signifmatrix_(0,0)==0 && signifmatrix_(1,1)==0 && signifmatrix_(1,0)==0 && signifmatrix_(0,1)==0){
     //edm::LogWarning("SignCaloSpecificAlgo") << "Event Vector is empty!  Return significance -1";
     return(-1);
   } 
