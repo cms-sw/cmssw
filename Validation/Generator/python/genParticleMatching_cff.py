@@ -40,7 +40,7 @@ jetPartonMatch = cms.EDProducer("MCMatcher",      # cut on deltaR, deltaPt/Pt; p
 )
 
 ## reco-generator(jets) matching for jets
-jetGenJetMatch = cms.EDFilter("GenJetMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
+jetGenJetMatch = cms.EDProducer("GenJetMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src      = cms.InputTag("antikt5CaloJets"), # RECO jets (any View<Jet> is ok)
     matched  = cms.InputTag("antikt5GenJets"),  # GEN jets  (must be GenJetCollection)
     mcPdgId  = cms.vint32(),                    # n/a
