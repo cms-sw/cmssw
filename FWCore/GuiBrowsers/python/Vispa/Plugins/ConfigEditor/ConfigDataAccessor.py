@@ -68,7 +68,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def _readRecursive(self, mother, pth):
         """ Read cms objects recursively from path """
         entry = None
-        if isinstance(pth, (cms.Path, cms.Sequence, cms.Source, mod._Module, cms.Service, cms.ESSource, cms.ESProducer, cms.ESPrefer, cms.PSet)):
+        if isinstance(pth, (cms.Path, cms.EndPath, cms.Sequence, cms.SequencePlaceholder, cms.Source, mod._Module, cms.Service, cms.ESSource, cms.ESProducer, cms.ESPrefer, cms.PSet)):
             entry = pth
             entry._configChildren=[]
             self._allObjects += [pth]
@@ -269,6 +269,8 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if text == "":
             if hasattr(object, "type_"):
                 text = str(object.type_())
+        if text == "":
+            text = str(object)
         return text
 
     def children(self, object):
@@ -279,7 +281,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             return ()
         
     def isContainer(self, object):
-        return isinstance(object, (ConfigFolder, list, cms.Path, cms.Sequence))
+        return isinstance(object, (ConfigFolder, list, cms.Path, cms.Sequence, cms.SequencePlaceholder))
 
     def nonSequenceChildren(self, object):
         objects=[]
