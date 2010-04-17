@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.13 2010/04/14 14:43:19 querten Exp $
+// $Id: HSCParticleProducer.cc,v 1.14 2010/04/15 14:17:27 querten Exp $
 //
 //
 
@@ -77,7 +77,7 @@ HSCParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // information from the muons
   edm::Handle<reco::MuonCollection> muonCollectionHandle;
-  iEvent.getByLabel("muons",muonCollectionHandle);
+  iEvent.getByLabel(m_muonsTag,muonCollectionHandle);
 
   // information from the tracks
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
@@ -102,17 +102,6 @@ HSCParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     beta_calculator_MUON->addInfoToCandidate(*hscpcandidate,  iEvent,iSetup);
   }}
 
-  // cleanup the collection based on the input selection
-  for(int i=0;i<(int)hscp->size();i++) {
-     susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin() + i;
-     bool decision = false;
-     for(unsigned int s=0;s<Selectors.size();s++){decision |= Selectors[s]->isSelected(*hscpcandidate);}
-     if(!decision){
-        hscp->erase(hscpcandidate);
-        i--;
-     }
-  }
-
   // compute the RPC contribution
   if(useBetaFromRpc){
   for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end(); ++hscpcandidate) {
@@ -124,6 +113,17 @@ HSCParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end(); ++hscpcandidate) {
     beta_calculator_ECAL->addInfoToCandidate(*hscpcandidate,trackCollectionHandle,iEvent,iSetup);
   }}
+
+  // cleanup the collection based on the input selection
+  for(int i=0;i<(int)hscp->size();i++) {
+     susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin() + i;
+     bool decision = false;
+     for(unsigned int s=0;s<Selectors.size();s++){decision |= Selectors[s]->isSelected(*hscpcandidate);}
+     if(!decision){
+        hscp->erase(hscpcandidate);
+        i--;
+     }
+  }
 
   // output result
   iEvent.put(result); 

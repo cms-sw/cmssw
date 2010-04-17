@@ -6,7 +6,7 @@ process = cms.Process("EXOHSCPAnalysis")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 10
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #number of Events to be skimmed.
 process.maxEvents = cms.untracked.PSet(
@@ -36,101 +36,15 @@ process.source = cms.Source("PoolSource",
    )
 )
 
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
+process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducer_cff")           #IF RUNNING ON RAW-DIGI-RECO
+#process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducerFromSkim_cff")  #IF RUNNING ON HSCP SKIM
 
-process.dedxHarm2 = cms.EDProducer("DeDxEstimatorProducer",
-    tracks                     = cms.InputTag("TrackRefitter"),
-    trajectoryTrackAssociation = cms.InputTag("TrackRefitter"),
-
-    estimator      = cms.string('generic'),
-    exponent       = cms.double(-2.0),
-
-    UseStrip       = cms.bool(True),
-    UsePixel       = cms.bool(True),
-    MeVperADCStrip = cms.double(3.61e-06*250),
-    MeVperADCPixel = cms.double(3.61e-06),
-
-    MisCalib_Mean      = cms.untracked.double(1.0),
-    MisCalib_Sigma     = cms.untracked.double(0.00),
-
-    UseCalibration  = cms.bool(False),
-    calibrationPath = cms.string(""),
-)
-
-process.dedxNPHarm2             = process.dedxHarm2.clone()
-process.dedxNPHarm2.UsePixel    = cms.bool(False)
-
-
-#ALL THIS IS NEEDED BY ECAL BETA CALCULATOR (TrackAssociator)
-process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
-from TrackingTools.TrackAssociator.default_cfi import * 
-process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
-process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi")
-process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
-process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-process.load("Geometry.DTGeometry.dtGeometry_cfi")
-process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
-process.load("Geometry.CSCGeometry.cscGeometry_cfi")
-process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
-
-
-from SUSYBSMAnalysis.HSCP.HSCPSelections_cff import *
-
-process.HSCParticleProducer = cms.EDProducer("HSCParticleProducer",
-   TrackAssociatorParameterBlock,
-
-   useBetaFromTk      = cms.bool(True),
-   useBetaFromMuon    = cms.bool(True),
-   useBetaFromRpc     = cms.bool(True),
-   useBetaFromEcal    = cms.bool(False),
-
-   tracks             = cms.InputTag("TrackRefitter"),
-   muons              = cms.InputTag("muons"),
-   dedxEstimator      = cms.InputTag("dedxNPHarm2"),
-   dedxDiscriminator  = cms.InputTag("dedxNPHarm2"),
-   muontimingDt       = cms.InputTag("muons:dt"),
-   muontimingCsc      = cms.InputTag("muons:csc"),
-   muontimingCombined = cms.InputTag("muons:combined"),
-
-   minTkP             = cms.double(2),
-   maxTkChi2          = cms.double(5),
-   minTkHits          = cms.uint32(9),
-
-   minMuP             = cms.double(2),
-
-   minDR              = cms.double(0.1),
-   maxInvPtDiff       = cms.double(0.005),
-
-   minTkdEdx          = cms.double(2.0),
-   maxMuBeta          = cms.double(0.9),
-
-   SelectionParameters = cms.VPSet(
-      HSCPSelectionDefault,
-   ),
-)
-
-
-process.HSCParticleSelector = cms.EDProducer("HSCParticleSelector",
-   source = cms.InputTag("HSCParticleProducer"),
-
-   SelectionParameters = cms.VPSet(
-      HSCPSelectionHighdEdx, #THE OR OF THE TWO SELECTION WILL BE APPLIED
-      HSCPSelectionHighTOF,
-   ),
-)
 
 process.TFileService = cms.Service("TFileService",
         fileName = cms.string('tfile_out.root')
 )
 
-process.p = cms.Path(process.offlineBeamSpot + process.TrackRefitter + process.dedxHarm2 + process.dedxNPHarm2 + process.HSCParticleProducer + process.HSCParticleSelector)
+process.p = cms.Path(process.HSCParticleProducerSeq)
 
 process.OUT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring("drop *", "keep *_*_*_EXOHSCPAnalysis"),
