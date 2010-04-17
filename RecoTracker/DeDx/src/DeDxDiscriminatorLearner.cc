@@ -164,10 +164,9 @@ void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::
          const SiStripMatchedRecHit2D* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
          const SiStripRecHit1D*        sistripsimple1dhit  = dynamic_cast<const SiStripRecHit1D*>(hit);
 
-         if(sistripsimplehit)
-         {
+         if(sistripsimplehit){
              Learn((sistripsimplehit->cluster()).get(), trajState);
-         }else if(sistripsimplehit){
+         }else if(sistripmatchedhit){
              Learn((sistripmatchedhit->monoHit()  ->cluster()).get(),trajState);
              Learn((sistripmatchedhit->stereoHit()->cluster()).get(),trajState);
          }else if(sistripsimple1dhit){
