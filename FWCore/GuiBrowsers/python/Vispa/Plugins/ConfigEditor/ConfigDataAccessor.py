@@ -281,7 +281,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             return ()
         
     def isContainer(self, object):
-        return isinstance(object, (ConfigFolder, list, cms.Path, cms.Sequence, cms.SequencePlaceholder))
+        return isinstance(object, (ConfigFolder, list, cms.Path, cms.EndPath, cms.Sequence, cms.SequencePlaceholder))
 
     def nonSequenceChildren(self, object):
         objects=[]
