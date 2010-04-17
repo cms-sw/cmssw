@@ -174,8 +174,8 @@ process.EWK_MuSkimPath = cms.Path(
   process.hltLevel1GTSeed+
   process.goodMuons +
   process.rmCosmicFromGoodMuons +
-  process.tracks +
-  process.tracksFilter +
+#  process.tracks +
+#  process.tracksFilter +
   process.dimuonsAOD +
   process.allWMuNus +
 #  process.goodMuonsPt15 +
