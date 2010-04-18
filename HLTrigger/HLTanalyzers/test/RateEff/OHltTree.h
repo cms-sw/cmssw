@@ -3297,6 +3297,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_L1Mu14_L1SingleJet20", &map_BitOfStandardHLTPath["HLT_L1Mu14_L1SingleJet20"], &b_HLT_L1Mu14_L1SingleJet20);
   fChain->SetBranchAddress("HLT_MinBiasBSC_NoBPTX", &map_BitOfStandardHLTPath["HLT_MinBiasBSC_NoBPTX"], &b_HLT_MinBiasBSC_NoBPTX);
   fChain->SetBranchAddress("HLT_SplashBSC", &map_BitOfStandardHLTPath["HLT_SplashBSC"], &b_HLT_SplashBSC);
+  fChain->SetBranchAddress("HLT_L1_BscMinBiasOR_BptxPlusORMinus", &map_BitOfStandardHLTPath["HLT_L1_BscMinBiasOR_BptxPlusORMinus"], &b_HLT_L1_BscMinBiasOR_BptxPlusORMinus);
   fChain->SetBranchAddress("HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX", &map_BitOfStandardHLTPath["HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX"], &b_HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX);
   fChain->SetBranchAddress("HLT_L1Tech_RPC_TTU_RBst1_collisions", &map_BitOfStandardHLTPath["HLT_L1Tech_RPC_TTU_RBst1_collisions"], &b_HLT_L1Tech_RPC_TTU_RBst1_collisions);
   fChain->SetBranchAddress("HLT_IsoTrackHE_1E31", &map_BitOfStandardHLTPath["HLT_IsoTrackHE_1E31"], &b_HLT_IsoTrackHE_1E31);
