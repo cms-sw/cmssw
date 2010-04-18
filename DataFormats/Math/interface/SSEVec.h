@@ -115,7 +115,7 @@ namespace mathSSE {
       vec[1] = ivec[1];
     }
     
-    Vec3(__m128d ivec0, __m128d ivec1, ) {
+    Vec3(__m128d ivec0, __m128d ivec1) {
       vec[0] = ivec0;
       vec[1] = ivec1;
     }
