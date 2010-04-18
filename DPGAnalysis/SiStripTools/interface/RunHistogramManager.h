@@ -7,6 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "TH2F.h"
 
 class TH1F;
 class TH2F;
@@ -18,7 +19,8 @@ class TProfile;
    BaseHistoParams();
    virtual ~BaseHistoParams();
 
-   virtual void beginRun(const edm::Run& iRun, TFileDirectory& subrun) = 0;
+   virtual void beginRun(const edm::Run& iRun, TFileDirectory& subrun);
+   virtual void beginRun(const unsigned int irun, TFileDirectory& subrun) = 0;
 
  };
 
@@ -42,26 +44,26 @@ template <class T>
 
     }
 
-    virtual void beginRun(const edm::Run& iRun, TFileDirectory& subrun) {
+    virtual void beginRun(const unsigned int irun, TFileDirectory& subrun) {
       
-      if(_runpointers.find(iRun.run())!=_runpointers.end()) {
-	*_pointer = _runpointers[iRun.run()];
-	LogDebug("TH1Fbooked") << "Histogram " << _name.c_str() << " already exists " << _runpointers[iRun.run()];
+      if(_runpointers.find(irun)!=_runpointers.end()) {
+	*_pointer = _runpointers[irun];
+	LogDebug("TH1Fbooked") << "Histogram " << _name.c_str() << " already exists " << _runpointers[irun];
 	
       }
       else {
 
 	char title[400];
-	sprintf(title,"%s run %d",_title.c_str(),iRun.run());
+	sprintf(title,"%s run %d",_title.c_str(),irun);
 	
-	_runpointers[iRun.run()] = subrun.make<T>(_name.c_str(),
+	_runpointers[irun] = subrun.make<T>(_name.c_str(),
 						  title,
 						  _nbinx,
 						  _xmin,
 						  _xmax);
 	
-	*_pointer = _runpointers[iRun.run()];
-	LogDebug("TH1Fbooked") << "Histogram " << _name.c_str() << " booked " << _runpointers[iRun.run()];
+	*_pointer = _runpointers[irun];
+	LogDebug("TH1Fbooked") << "Histogram " << _name.c_str() << " booked " << _runpointers[irun];
       }
       
     }
@@ -102,19 +104,19 @@ template <>
 
     }
 
-    virtual void beginRun(const edm::Run& iRun, TFileDirectory& subrun) {
+    virtual void beginRun(const unsigned int irun, TFileDirectory& subrun) {
       
-      if(_runpointers.find(iRun.run())!=_runpointers.end()) {
-	*_pointer = _runpointers[iRun.run()];
-	LogDebug("TH2Fbooked") << "Histogram " << _name.c_str() << " already exists " << _runpointers[iRun.run()];
+      if(_runpointers.find(irun)!=_runpointers.end()) {
+	*_pointer = _runpointers[irun];
+	LogDebug("TH2Fbooked") << "Histogram " << _name.c_str() << " already exists " << _runpointers[irun];
 	
       }
       else {
 	
 	char title[400];
-	sprintf(title,"%s run %d",_title.c_str(),iRun.run());
+	sprintf(title,"%s run %d",_title.c_str(),irun);
 	
-	_runpointers[iRun.run()] = subrun.make<TH2F>(_name.c_str(),
+	_runpointers[irun] = subrun.make<TH2F>(_name.c_str(),
 						  title,
 						  _nbinx,
 						  _xmin,
@@ -123,8 +125,8 @@ template <>
 						  _ymin,
 						  _ymax);
 	
-	*_pointer = _runpointers[iRun.run()];
-	LogDebug("TH2Fbooked") << "Histogram " << _name.c_str() << " booked " << _runpointers[iRun.run()];
+	*_pointer = _runpointers[irun];
+	LogDebug("TH2Fbooked") << "Histogram " << _name.c_str() << " booked " << _runpointers[irun];
       }
       
       
@@ -149,20 +151,22 @@ template <>
 class RunHistogramManager {
 
  public:
-
+  
   RunHistogramManager();
   ~RunHistogramManager();
-
-TH1F**  makeTH1F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax);
-TProfile**  makeTProfile(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax);
-TH2F**  makeTH2F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax, const unsigned int nbiny, const double ymin, const double ymax);
-
-void  beginRun(const edm::Run& iRun);
-
- 
+  
+  TH1F**  makeTH1F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax);
+  TProfile**  makeTProfile(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax);
+  TH2F**  makeTH2F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax, const unsigned int nbiny, const double ymin, const double ymax);
+  
+  void  beginRun(const edm::Run& iRun);
+  void  beginRun(const unsigned int irun);
+  void  beginRun(const unsigned int irun, TFileDirectory& subdir);
+  
+  
  private:
- 
- std::vector<BaseHistoParams*> _histograms;
+  
+  std::vector<BaseHistoParams*> _histograms;
   
 };
 

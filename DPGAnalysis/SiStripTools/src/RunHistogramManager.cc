@@ -8,7 +8,17 @@
 #include "TProfile.h"
 
 BaseHistoParams::BaseHistoParams() { }
+
 BaseHistoParams::~BaseHistoParams() { }
+
+void BaseHistoParams::beginRun(const edm::Run& iRun, TFileDirectory& subrun) {
+  
+  beginRun(iRun.run(),subrun);
+
+}
+
+
+
 
 RunHistogramManager::RunHistogramManager():
   _histograms() { }
@@ -63,19 +73,31 @@ TH2F** RunHistogramManager::makeTH2F(const char* name, const char* title, const 
 }
 
 void  RunHistogramManager::beginRun(const edm::Run& iRun) {
+
+  beginRun(iRun.run());
+
+}
+
+void  RunHistogramManager::beginRun(const unsigned int irun) {
+
+  edm::Service<TFileService> tfserv;
+  beginRun(irun,*tfserv);
+
+}
+
+void  RunHistogramManager::beginRun(const unsigned int irun, TFileDirectory& subdir) {
   
   // create/go to the run subdirectory
   
-  edm::Service<TFileService> tfserv;
   char dirname[300];
-  sprintf(dirname,"run_%d",iRun.run());
-  TFileDirectory subrun = tfserv->mkdir(dirname);
+  sprintf(dirname,"run_%d",irun);
+  TFileDirectory subrun = subdir.mkdir(dirname);
   
   // loop on the histograms and update the pointer references
   
   for(unsigned int ih=0;ih<_histograms.size();++ih) {
     
-    _histograms[ih]->beginRun(iRun,subrun);
+    _histograms[ih]->beginRun(irun,subrun);
     
   }
 }
