@@ -115,6 +115,11 @@ namespace mathSSE {
       vec[1] = ivec[1];
     }
     
+    Vec3(__m128d ivec0, __m128d ivec1, ) {
+      vec[0] = ivec0;
+      vec[1] = ivec1;
+    }
+    
     Vec3() {
       vec[0] = _mm_setzero_pd();
       vec[1] = _mm_setzero_pd();
@@ -140,6 +145,7 @@ namespace mathSSE {
 
 }
 
+//float op
 
 inline float dot(mathSSE::Vec3F a, mathSSE::Vec3F b) {
   using  mathSSE::_mm_dot_ps;
@@ -179,6 +185,23 @@ inline mathSSE::Vec3F operator*(float a, mathSSE::Vec3F b) {
 inline mathSSE::Vec3F operator*(mathSSE::Vec3F b,float a) {
   return  _mm_mul_ps(_mm_set1_ps(a),b.vec);
 }
+
+
+// double op (not all...)
+inline mathSSE::Vec3D operator+(mathSSE::Vec3D a, mathSSE::Vec3D b) {
+  return  mathSSE::Vec3D(_mm_add_pd(a.vec[0],b.vec[0]),_mm_add_pd(a.vec[1],b.vec[1]));
+}
+inline mathSSE::Vec3D operator-(mathSSE::Vec3D a, mathSSE::Vec3D b) {
+  return  mathSSE::Vec3D(_mm_sub_pd(a.vec[0],b.vec[0]),_mm_sub_pd(a.vec[1],b.vec[1]));
+}
+inline mathSSE::Vec3D operator*(mathSSE::Vec3D a, mathSSE::Vec3D b) {
+  return  mathSSE::Vec3D(_mm_mul_pd(a.vec[0],b.vec[0]),_mm_mul_pd(a.vec[1],b.vec[1]));
+}
+inline mathSSE::Vec3D operator/(mathSSE::Vec3D a, mathSSE::Vec3D b) {
+  return  mathSSE::Vec3D(_mm_div_pd(a.vec[0],b.vec[0]),_mm_div_pd(a.vec[1],b.vec[1]));
+}
+
+
 
 
 #include <iosfwd>
