@@ -132,7 +132,7 @@ class StandardTester(object):
                   'fastsim2' : ['cmsRun ../FastSimulation/Configuration/test/IntegrationTest_cfg.py'],
                   'fastsim3' : ['cmsRun ../FastSimulation/Configuration/test/ExampleWithHLT_1E31_cfg.py'],
                   'fastsim4' : ['cmsRun ../FastSimulation/Configuration/test/IntegrationTestWithHLT_cfg.py'],
-                  'pat1'     : ['cmsRun ../PhysicsTools/PatAlgos/test/patLayer1_fromAOD_full_cfg.py'],
+                  'pat1'     : ['cmsRun ../PhysicsTools/PatAlgos/test/IntegrationTest_cfg.py'],
                 }
 
         hltTests = { 'hlt1' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --conditions auto:startup --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_DigiL1Raw_8E29.root',
