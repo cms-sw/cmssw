@@ -126,13 +126,13 @@ int main() {
   std::cout << xt << std::endl;
   std::cout << rt.rotateBack(xt) << std::endl;
 
-  std::cout << r1 << std::cout;
-  std::cout << rt << std::cout;
-  std::cout << r1*rt << std::cout;
-  std::cout << r2 << std::cout;
-  std::cout << r1*r2 << std::cout;
-  std::cout << r2*r1 << std::cout;
-  std::cout << r1*r2.transpose() << std::cout;
-  std::cout << r1.transpose()*r2 << std::cout;
+  std::cout << r1 << std::endl;
+  std::cout << rt << std::endl;
+  std::cout << r1*rt << std::endl;
+  std::cout << r2 << std::endl;
+  std::cout << r1*r2 << std::endl;
+  std::cout << r2*r1 << std::endl;
+  std::cout << r1*r2.transpose() << std::endl;
+  std::cout << r1.transpose()*r2 << std::endl;
 
 }
