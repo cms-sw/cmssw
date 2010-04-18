@@ -33,7 +33,8 @@ public:
   TkRotation(  mathSSE::Rot3<T> const & irot ) : rot(irot){}
   
   TkRotation( T xx, T xy, T xz, T yx, T yy, T yz, T zx, T zy, T zz) :
-    rot(xx,xy,xz, yx,yy,yz, zx, zy,zz);
+    rot(xx,xy,xz, yx,yy,yz, zx, zy,zz){}
+
   TkRotation( const T* p) : 
     rot(p[0],p[1],p[2], 
         p[3],p[4],p[5],
