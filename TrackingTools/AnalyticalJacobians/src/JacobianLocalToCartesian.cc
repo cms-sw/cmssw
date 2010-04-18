@@ -30,10 +30,10 @@ JacobianLocalToCartesian::JacobianLocalToCartesian(const Surface& surface,
   AlgebraicMatrix65 & lJacobian = theJacobian;
   lJacobian(0,3) = 1.;
   lJacobian(1,4) = 1.;
-  lJacobian(3,0) = pzSign * ( (-q*dxdz)/(sqr*qbp*qbp) ); 
+  lJacobian(3,0) = pzSign * ( dxdz*(-q/(sqr*qbp*qbp)) ); 
   lJacobian(3,1) = pzSign * ( q/(sqr*qbp) + (den*dxdz*dxdz) );
   lJacobian(3,2) = pzSign * ( (den*dxdz*dydz) );
-  lJacobian(4,0) = pzSign * ( (-q*dydz)/(sqr*qbp*qbp) );
+  lJacobian(4,0) = pzSign * ( dydz*(-q/(sqr*qbp*qbp)) );
   lJacobian(4,1) = pzSign * ( (den*dxdz*dydz) );
   lJacobian(4,2) = pzSign * ( q/(sqr*qbp) + (den*dydz*dydz) );
   lJacobian(5,0) = pzSign * ( -q/(sqr*qbp*qbp) );
