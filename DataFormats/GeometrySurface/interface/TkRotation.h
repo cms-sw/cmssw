@@ -1,5 +1,6 @@
 #ifndef Geom_TkRotation_H
 #define Geom_TkRotation_H
+
 #if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
 #define USE_SSEVECT
 #endif
@@ -9,3 +10,6 @@
 #else
 #include "DataFormats/GeometrySurface/interface/oldTkRotation.h"
 #endif
+
+#endif // Geom_TkRotation_H
+

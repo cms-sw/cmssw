@@ -133,7 +133,7 @@ public:
 	 a.zx(), a.zy(), a.zz()) {}
   
   TkRotation transposed() const {
-    return rot.transposed();
+    return rot.transpose();
   }
   
   Basic3DVector<T> operator*( const Basic3DVector<T>& v) const {
