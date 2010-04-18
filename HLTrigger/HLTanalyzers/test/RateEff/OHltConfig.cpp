@@ -27,7 +27,9 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
   cmsEnergy = 10.;
   liveTimeRun = 100.;
   nL1AcceptsRun = 100;
-  lumiSectionLength = 93.;
+  // lumiSectionLength = 93.;
+  lumiSectionLength = 23.3;
+  lumiScaleFactor = 1.0;
   prescaleNormalization = 1;
   isL1Menu = false;
   doL1preloop = true;  
@@ -76,6 +78,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cfg.lookupValue("data.liveTimeRun",liveTimeRun);
     cfg.lookupValue("data.nL1AcceptsRun",nL1AcceptsRun); 
     cfg.lookupValue("data.lumiSectionLength",lumiSectionLength);
+    cfg.lookupValue("data.lumiScaleFactor",lumiScaleFactor);
     cfg.lookupValue("data.prescaleNormalization",prescaleNormalization);
     
     getPreFilter();
@@ -299,6 +302,8 @@ void OHltConfig::print()
       cout << "nL1AcceptsRun: " << nL1AcceptsRun << endl;
       cout << "liveTimeRun: " << liveTimeRun << endl;
       cout << "Time of one LumiSection: " << lumiSectionLength << endl;
+      if (fabs(lumiScaleFactor-1.) > 0.001)
+	cout << "Luminosity scaled by: " << lumiScaleFactor << endl;
       cout << "PD prescale factor: " << prescaleNormalization << endl;
     }
   cout << "alcaCondition: " << alcaCondition << endl;

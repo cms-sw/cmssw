@@ -179,8 +179,9 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
     if(cfg->isRealData == 1 && cfg->lumiSectionLength > 0)
       {
 	// Effective time = # of lumi sections * length of 1 lumi section / overall prescale factor of the PD being analyzed
-	scaleddeno = (float)((procs[i]->GetNLumiSections()) * (cfg->lumiSectionLength)) / ((float)(cfg->prescaleNormalization));
-	scaleddenoPerLS = (float)((cfg->lumiSectionLength)) / ((float)(cfg->prescaleNormalization));
+	float fact=cfg->lumiSectionLength/cfg->lumiScaleFactor;
+	  scaleddeno = (float)((procs[i]->GetNLumiSections()) * (fact)) / ((float)(cfg->prescaleNormalization));
+	scaleddenoPerLS = (float)((fact)) / ((float)(cfg->prescaleNormalization));
 	cout << "N(Lumi Sections) = " << (procs[i]->GetNLumiSections()) << endl;
       }
     else if(cfg->isRealData == 1 && cfg->nL1AcceptsRun > 0) 
