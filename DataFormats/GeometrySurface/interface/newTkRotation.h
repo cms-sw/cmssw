@@ -28,29 +28,29 @@ namespace geometryDetails {
 template <class T>
 class TkRotation {
 public:
-
+  
   TkRotation( ){}
   TkRotation(  mathSSE::Rot3<T> const & irot ) : rot(irot){}
-
+  
   TkRotation( T xx, T xy, T xz, T yx, T yy, T yz, T zx, T zy, T zz) :
     rot(xx,xy,xz, yx,yy,yz, zx, zy,zz);
   TkRotation( const T* p) : 
     rot(p[0],p[1],p[2], 
         p[3],p[4],p[5],
-        p[6],p[7],p[8] {}
-
+        p[6],p[7],p[8]) {}
+	
   TkRotation( const GlobalVector & aX, const GlobalVector & aY)  {
-
+    
     GlobalVector uX = aX.unit();
     GlobalVector uY = aY.unit();
     GlobalVector uZ(uX.cross(uY));
- 
+    
     rot.axis[0]= uX.basicVector().v;
     rot.axis[1]= uY.basicVector().v;
     rot.axis[2]= uZ.basicVector().v;
-
+    
   }
-
+  
   /** Construct from global vectors of the x, y and z axes.
    *  The axes are assumed to be unit vectors forming
    *  a right-handed orthonormal basis. No checks are performed!
@@ -61,8 +61,8 @@ public:
     rot.axis[1]= uY.basicVector().v;
     rot.axis[2]= uZ.basicVector().v;
   }
-    
-
+  
+  
   /** rotation around abritrary axis by the amount of phi:
    *  its constructed by  O^-1(z<->axis) rot_z(phi) O(z<->axis)
    *  the frame is rotated such that the z-asis corresponds to the rotation
@@ -72,13 +72,13 @@ public:
    *  angles.. hence I have to construckt it this way...by brute force
    */
   TkRotation( const Basic3DVector<T>& axis, T phi) :
-	rot(  cos(phi), sin(phi), 0, 
-             -sin(phi), cos(phi), 0,
-	             0,        0, 1) {
-
+    rot(  cos(phi), sin(phi), 0, 
+	  -sin(phi), cos(phi), 0,
+	  0,        0, 1) {
+    
     //rotation around the z-axis by  phi
     TkRotation tmpRotz ( cos(axis.phi()), sin(axis.phi()), 0.,
-		        -sin(axis.phi()), cos(axis.phi()), 0.,
+			 -sin(axis.phi()), cos(axis.phi()), 0.,
                          0.,              0.,              1. );
     //rotation around y-axis by theta
     TkRotation tmpRoty ( cos(axis.theta()), 0.,-sin(axis.theta()),
@@ -86,69 +86,69 @@ public:
 		         sin(axis.theta()), 0., cos(axis.theta()) );
     (*this)*=tmpRoty;
     (*this)*=tmpRotz;      // =  this * tmpRoty * tmpRotz 
-   
+    
     // (tmpRoty * tmpRotz)^-1 * this * tmpRoty * tmpRotz
-
+    
     *this = (tmpRoty*tmpRotz).multiplyInverse(*this);
-
+    
   }
   /* this is the same thing...derived from the CLHEP ... it gives the
      same results MODULO the sign of the rotation....  but I don't want
      that... had 
-  TkRotation (const Basic3DVector<T>& axis, float phi) {
-    T cx = axis.x();
-    T cy = axis.y();
-    T cz = axis.z();
-    
-    T ll = axis.mag();
-    if (ll == 0) {
-      geometryDetails::TkRotationErr1();
-    }else{
-      
-      float cosa = cos(phi), sina = sin(phi);
-      cx /= ll; cy /= ll; cz /= ll;   
-      
-       R11 = cosa + (1-cosa)*cx*cx;
-       R12 =        (1-cosa)*cx*cy - sina*cz;
-       R13 =        (1-cosa)*cx*cz + sina*cy;
-      
-       R21 =        (1-cosa)*cy*cx + sina*cz;
-       R22 = cosa + (1-cosa)*cy*cy; 
-       R23 =        (1-cosa)*cy*cz - sina*cx;
-      
-       R31 =        (1-cosa)*cz*cx - sina*cy;
-       R32 =        (1-cosa)*cz*cy + sina*cx;
-       R33 = cosa + (1-cosa)*cz*cz;
-      
-    }
-    
-  }
+     TkRotation (const Basic3DVector<T>& axis, float phi) {
+     T cx = axis.x();
+     T cy = axis.y();
+     T cz = axis.z();
+     
+     T ll = axis.mag();
+     if (ll == 0) {
+     geometryDetails::TkRotationErr1();
+     }else{
+     
+     float cosa = cos(phi), sina = sin(phi);
+     cx /= ll; cy /= ll; cz /= ll;   
+     
+     R11 = cosa + (1-cosa)*cx*cx;
+     R12 =        (1-cosa)*cx*cy - sina*cz;
+     R13 =        (1-cosa)*cx*cz + sina*cy;
+     
+     R21 =        (1-cosa)*cy*cx + sina*cz;
+     R22 = cosa + (1-cosa)*cy*cy; 
+     R23 =        (1-cosa)*cy*cz - sina*cx;
+     
+     R31 =        (1-cosa)*cz*cx - sina*cy;
+     R32 =        (1-cosa)*cz*cy + sina*cx;
+     R33 = cosa + (1-cosa)*cz*cz;
+     
+     }
+     
+     }
   */
-
+  
   template <typename U>
   TkRotation( const TkRotation<U>& a) : 
-	rot (a.xx(), a.xy(), a.xz(), 
-	     a.yx(), a.yy(), a.yz(),
-	     a.zx(), a.zy(), a.zz()) {}
-
+    rot (a.xx(), a.xy(), a.xz(), 
+	 a.yx(), a.yy(), a.yz(),
+	 a.zx(), a.zy(), a.zz()) {}
+  
   TkRotation transposed() const {
     return rot.transposed();
   }
-
+  
   Basic3DVector<T> operator*( const Basic3DVector<T>& v) const {
     return rot.rotate(v.v);
-
+  }
   Basic3DVector<T> multiplyInverse( const Basic3DVector<T>& v) const {
     return rot.rotateBack(v.v);
   }
-
+  
   template <class Scalar>
   Basic3DVector<Scalar> multiplyInverse( const Basic3DVector<Scalar>& v) const {
     return Basic3DVector<Scalar>( xx()*v.x() + yx()*v.y() + zx()*v.z(),
 				  xy()*v.x() + yy()*v.y() + zy()*v.z(),
 				  xz()*v.x() + yz()*v.y() + zz()*v.z());
   }
-
+  
   Basic3DVector<T> operator*( const Basic2DVector<T>& v) const {
     return Basic3DVector<T>( xx()*v.x() + xy()*v.y(),
 			     yx()*v.x() + yy()*v.y(),
@@ -159,30 +159,30 @@ public:
 			     xy()*v.x() + yy()*v.y(),
 			     xz()*v.x() + yz()*v.y());
   }
-
   
-
+  
+  
   TkRotation operator*( const TkRotation& b) const {
     return rot*b.rot;
-
+  }
   TkRotation multiplyInverse( const TkRotation& b) const {
     return rot.transpose()*b;
   }
-
+  
   TkRotation& operator*=( const TkRotation& b) {
     return *this = operator * (b);
   }
-
+  
   // Note a *= b; <=> a = a * b; while a.transform(b); <=> a = b * a;
   TkRotation& transform(const TkRotation& b) {
     return *this = b.operator * (*this);
   }
-
+  
   TkRotation & rotateAxes(const Basic3DVector<T>& newX,
 			  const Basic3DVector<T>& newY,
 			  const Basic3DVector<T>& newZ) {
     T del = 0.001;
-
+    
     if (
 	
 	// the check for right-handedness is not needed since
@@ -205,12 +205,12 @@ public:
 				  newX.z(), newY.z(), newZ.z()));
     }
   }
-
-
+  
+  
   Basic3DVector<T> x() const { return rot.axis[0];}
   Basic3DVector<T> y() const { return rot.axis[1];}
   Basic3DVector<T> z() const { return rot.axis[2];}
-
+  
   T xx() const { return rot.axis[0].arr[0];} 
   T xy() const { return rot.axis[0].arr[1];} 
   T xz() const { return rot.axis[0].arr[2];} 
@@ -220,11 +220,11 @@ public:
   T zx() const { return rot.axis[2].arr[0];} 
   T zy() const { return rot.axis[2].arr[1];} 
   T zz() const { return rot.axis[2].arr[2];} 
-
+  
 private:
-
+  
   mathSSE::Rot3<T> rot;
-
+  
 };
 
 
