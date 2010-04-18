@@ -62,7 +62,7 @@ int main ( int argc, char ** argv )
        ++ev) {
     ret.set(false);
     
-    bool passed = wPlusJets(ev, ret);
+    // bool passed = wPlusJets(ev, ret);
     std::vector<reco::ShallowClonePtrCandidate> const & electrons =  wPlusJets.selectedElectrons();
     std::vector<reco::ShallowClonePtrCandidate> const & muons     =  wPlusJets.selectedMuons();
     std::vector<reco::ShallowClonePtrCandidate> const & jets      =  wPlusJets.cleanedJets();
@@ -75,7 +75,7 @@ int main ( int argc, char ** argv )
     bit_ = "== 1 Lepton";
     bool passOneLepton = ret[ bit_ ];
     bit_ = "= 0 Jets";
-    bool jet0 = ret[bit_];
+    // bool jet0 = ret[bit_];
     bit_ = "= 1 Jets";
     bool jet1 = ret[bit_];
     bit_ = "= 2 Jets";
