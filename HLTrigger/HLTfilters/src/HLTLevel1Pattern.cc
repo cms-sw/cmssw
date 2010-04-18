@@ -5,8 +5,8 @@
  *  that checks for a specific pattern of L1 accept/reject in 5 BX's for a given L1 bit
  *  It can be configured to use or ignore the L1 trigger mask
  *
- *  $Date: 2010/03/15 11:06:10 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/04/13 16:39:41 $
+ *  $Revision: 1.1 $
  *
  *  \author Andrea Bocci
  *
@@ -38,6 +38,7 @@ private:
   std::string       m_triggerBit;
   std::vector<int>  m_bunchCrossings;
   std::vector<int>  m_triggerPattern;
+  unsigned int      m_daqPartitions;
   unsigned int      m_triggerNumber;
   bool              m_triggerAlgo;
   bool              m_triggerMasked;
@@ -62,10 +63,11 @@ private:
 // constructors and destructor
 //
 HLTLevel1Pattern::HLTLevel1Pattern(const edm::ParameterSet & config) :
-  m_gtReadoutRecord( config.getParameter<edm::InputTag>("L1GtReadoutRecordTag") ),
+  m_gtReadoutRecord( config.getParameter<edm::InputTag>     ("L1GtReadoutRecordTag") ),
   m_triggerBit(      config.getParameter<std::string>       ("triggerBit") ),
   m_bunchCrossings(  config.getParameter<std::vector<int> > ("bunchCrossings") ),
   m_triggerPattern(  m_bunchCrossings.size(), false ),
+  m_daqPartitions(   config.getParameter<unsigned int>      ("daqPartitions") ),
   m_triggerNumber(   0 ),
   m_triggerAlgo(     true ),
   m_triggerMasked(   false ),
@@ -103,28 +105,34 @@ HLTLevel1Pattern::filter(edm::Event& event, const edm::EventSetup& setup)
     AlgorithmMap::const_iterator entry;
     if ((entry = algoMap.find(m_triggerBit)) != algoMap.end()) {
         m_triggerAlgo = true;
-        m_triggerNumber    = entry->second.algoBitNumber();
+        m_triggerNumber = entry->second.algoBitNumber();
     } else 
     if ((entry = techMap.find(m_triggerBit)) != techMap.end()) {
         m_triggerAlgo = false;
-        m_triggerNumber    = entry->second.algoBitNumber();
+        m_triggerNumber = entry->second.algoBitNumber();
     } else
       throw cms::Exception("Configuration") << "requested L1 trigger \"" << m_triggerBit << "\" does not exist in the current L1 menu";
   }
 
   if (m_triggerAlgo) {
     // check the L1 algorithms mask
+    //  - mask & partition == part. --> fully masked
+    //  - mask & partition == 0x00  --> fully unmasked
+    //  - mask & partition != part. --> unmasked in some partitions, consider as unmasked
     if (m_watchPhysicsMask.check(setup)) {
       edm::ESHandle<L1GtTriggerMask> h_mask;
       setup.get<L1GtTriggerMaskAlgoTrigRcd>().get(h_mask);
-      m_triggerMasked = h_mask->gtTriggerMask()[m_triggerNumber];
+      m_triggerMasked = ((h_mask->gtTriggerMask()[m_triggerNumber] & m_daqPartitions) == m_daqPartitions);
     }
   } else {
     // check the L1 technical triggers mask
+    //  - mask & partition == part. --> fully masked
+    //  - mask & partition == 0x00  --> fully unmasked
+    //  - mask & partition != part. --> unmasked in some partitions, consider as unmasked
     if (m_watchTechnicalMask.check(setup)) {
       edm::ESHandle<L1GtTriggerMask> h_mask;
       setup.get<L1GtTriggerMaskTechTrigRcd>().get(h_mask);
-      m_triggerMasked = h_mask->gtTriggerMask()[m_triggerNumber];
+      m_triggerMasked = ((h_mask->gtTriggerMask()[m_triggerNumber] & m_daqPartitions) == m_daqPartitions);
     }
   }
 
