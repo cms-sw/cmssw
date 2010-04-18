@@ -45,8 +45,14 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
   // Modify only if you know what you do!
   if (cfg->doSelectBranches) {
     fChain->SetBranchStatus("*",kFALSE);
+    fChain->SetBranchStatus("*",kFALSE);
     fChain->SetBranchStatus("MCmu*",kTRUE); // for ppMuX
     fChain->SetBranchStatus("MCel*",kTRUE); // for ppEleX
+    fChain->SetBranchStatus("Run",kTRUE);
+    fChain->SetBranchStatus("Event",kTRUE);
+    fChain->SetBranchStatus("LumiBlock",kTRUE);
+    fChain->SetBranchStatus("Bx",kTRUE);
+    fChain->SetBranchStatus("Orbit",kTRUE);
     // fChain->SetBranchStatus("L1TechnicalTriggerBits",kTRUE);
     if (cfg->selectBranchL1) {
       fChain->SetBranchStatus("L1_*",kTRUE);
