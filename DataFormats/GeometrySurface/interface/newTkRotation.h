@@ -169,7 +169,7 @@ public:
     return rot*b.rot;
   }
   TkRotation multiplyInverse( const TkRotation& b) const {
-    return rot.transpose()*b;
+    return rot.transpose()*b.rot;
   }
   
   TkRotation& operator*=( const TkRotation& b) {
