@@ -28,7 +28,9 @@ namespace geometryDetails {
 template <class T>
 class TkRotation {
 public:
-  
+
+  typedef Vector3DBase< T, GlobalTag>  GlobalVector;
+
   TkRotation( ){}
   TkRotation(  mathSSE::Rot3<T> const & irot ) : rot(irot){}
   
