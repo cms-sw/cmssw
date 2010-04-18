@@ -183,5 +183,6 @@ inline mathSSE::Vec3F operator*(mathSSE::Vec3F b,float a) {
 
 #include <iosfwd>
 std::ostream & operator<<(std::ostream & out, mathSSE::Vec3F const & v);
+std::ostream & operator<<(std::ostream & out, mathSSE::Vec3D const & v);
 
 #endif // DataFormat_Math_SSEVec_H

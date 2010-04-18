@@ -45,9 +45,9 @@ public:
     GlobalVector uY = aY.unit();
     GlobalVector uZ(uX.cross(uY));
  
-    rot.axis[0]= uX;
-    rot.axis[1]= uY;
-    rot.axis[2]= uZ;
+    rot.axis[0]= uX.basicVector().v;
+    rot.axis[1]= uY.basicVector().v;
+    rot.axis[2]= uZ.basicVector().v;
 
   }
 
@@ -57,9 +57,9 @@ public:
    */
   TkRotation( const GlobalVector & uX, const GlobalVector & uY, 
 	      const GlobalVector & uZ) {
-    rot.axis[0]= uX;
-    rot.axis[1]= uY;
-    rot.axis[2]= uZ;
+    rot.axis[0]= uX.basicVector().v;
+    rot.axis[1]= uY.basicVector().v;
+    rot.axis[2]= uZ.basicVector().v;
   }
     
 
@@ -163,10 +163,10 @@ public:
   
 
   TkRotation operator*( const TkRotation& b) const {
-    return rot.rotate(b);
+    return rot*b.rot;
 
   TkRotation multiplyInverse( const TkRotation& b) const {
-    return rot.rotateBack(b);
+    return rot.transpose()*b;
   }
 
   TkRotation& operator*=( const TkRotation& b) {
@@ -206,15 +206,20 @@ public:
     }
   }
 
-  T const &xx() const { return rot.axis[0].arr[0];} 
-  T const &xy() const { return rot.axis[0].arr[1];} 
-  T const &xz() const { return rot.axis[0].arr[2];} 
-  T const &yx() const { return rot.axis[1].arr[0];} 
-  T const &yy() const { return rot.axis[1].arr[1];} 
-  T const &yz() const { return rot.axis[1].arr[2];} 
-  T const &zx() const { return rot.axis[2].arr[0];} 
-  T const &zy() const { return rot.axis[2].arr[1];} 
-  T const &zz() const { return rot.axis[2].arr[2];} 
+
+  Basic3DVector<T> x() const { return rot.axis[0];}
+  Basic3DVector<T> y() const { return rot.axis[1];}
+  Basic3DVector<T> z() const { return rot.axis[2];}
+
+  T xx() const { return rot.axis[0].arr[0];} 
+  T xy() const { return rot.axis[0].arr[1];} 
+  T xz() const { return rot.axis[0].arr[2];} 
+  T yx() const { return rot.axis[1].arr[0];} 
+  T yy() const { return rot.axis[1].arr[1];} 
+  T yz() const { return rot.axis[1].arr[2];} 
+  T zx() const { return rot.axis[2].arr[0];} 
+  T zy() const { return rot.axis[2].arr[1];} 
+  T zz() const { return rot.axis[2].arr[2];} 
 
 private:
 

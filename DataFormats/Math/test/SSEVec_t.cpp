@@ -109,9 +109,11 @@ int main() {
   float ca = cos(a);
   float sa = sin(a);
 
-  Rot3<float> r1(ca, sa, 0,
+  Rot3<float> r1( ca, sa, 0,
 		 -sa, ca, 0,
-		 0,   0,  1);;
+		   0,  0, 1);
+
+  Rot3<float> r2(Vec3F( 0, 1 ,0), Vec3F( 0, 0, 1), Vec3F( 1, 0, 0));
 
   Vec3F xr = r1.rotate(x);
   std::cout << x << std::endl;
@@ -124,5 +126,13 @@ int main() {
   std::cout << xt << std::endl;
   std::cout << rt.rotateBack(xt) << std::endl;
 
+  std::cout << r1 << std::cout;
+  std::cout << rt << std::cout;
+  std::cout << r1*rt << std::cout;
+  std::cout << r2 << std::cout;
+  std::cout << r1*r2 << std::cout;
+  std::cout << r2*r1 << std::cout;
+  std::cout << r1*r2.transpose() << std::cout;
+  std::cout << r1.transpose()*r2 << std::cout;
 
 }

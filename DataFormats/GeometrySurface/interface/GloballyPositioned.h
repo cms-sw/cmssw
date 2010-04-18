@@ -51,14 +51,12 @@ public:
    *  one of the reference frame, and return a global point with the
    *  same precision as the input one.
    */
-#ifndef CMS_NO_TEMPLATE_MEMBERS
   template <class U>
   Point3DBase< U, GlobalTag>
   toGlobal( const Point3DBase< U, LocalTag>& lp) const {
     return Point3DBase< U, GlobalTag>( rotation().multiplyInverse( lp.basicVector()) +
 				       position().basicVector());
   }
-#endif    
 
   /** Transform a local vector (i.e. a vector with coordinates in the
    *  local frame) to the global frame
@@ -71,13 +69,11 @@ public:
    *  one of the reference frame, and return a global vector with the
    *  same precision as the input one.
    */
-#ifndef CMS_NO_TEMPLATE_MEMBERS
   template <class U>
   Vector3DBase< U, GlobalTag>
   toGlobal( const Vector3DBase< U, LocalTag>& lv) const {
     return Vector3DBase< U, GlobalTag>( rotation().multiplyInverse( lv.basicVector()));
   }
-#endif    
 
   /** Transform a global point (i.e. a point with coordinates in the
    *  global frame) to the local frame
@@ -90,14 +86,12 @@ public:
    *  one of the reference frame, and return a local point with the
    *  same precision as the input one.
    */
-#ifndef CMS_NO_TEMPLATE_MEMBERS
   template <class U>
   Point3DBase< U, LocalTag>
   toLocal( const Point3DBase< U, GlobalTag>& gp) const {
     return Point3DBase< U, LocalTag>( rotation() * 
 				      (gp.basicVector()-position().basicVector()));
   }
-#endif    
 
   /** Transform a global vector (i.e. a vector with coordinates in the
    *  global frame) to the local frame
@@ -110,13 +104,11 @@ public:
    *  one of the reference frame, and return a local vector with the
    *  same precision as the input one.
    */
-#ifndef CMS_NO_TEMPLATE_MEMBERS
   template <class U>
   Vector3DBase< U, LocalTag>
   toLocal( const Vector3DBase< U, GlobalTag>& gv) const {
     return Vector3DBase< U, LocalTag>( rotation() * gv.basicVector());
   }
-#endif 
 
   /** Move the position of the frame in the global frame.  
    *  Useful e.g. for alignment.
