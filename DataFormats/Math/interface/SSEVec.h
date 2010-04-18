@@ -39,7 +39,7 @@ namespace mathSSE {
 #endif
   }
   
-  // almost cross (just 3x3 and [1] has the wrong sign....) 
+  // cross (just 3x3) 
   inline __m128 _mm_cross_ps(__m128 v1, __m128 v2) {
     __m128 v3 = _mm_shuffle_ps(v2, v1, _MM_SHUFFLE(3, 0, 2, 2));
     __m128 v4 = _mm_shuffle_ps(v1, v2, _MM_SHUFFLE(3, 1, 0, 1));
@@ -50,7 +50,8 @@ namespace mathSSE {
     v4 = _mm_shuffle_ps(v2, v1, _MM_SHUFFLE(3, 1, 0, 1));
     
     v3 = _mm_mul_ps(v3, v4);
-    return _mm_sub_ps(v5, v3);
+    const  __m128 neg = _mm_set_ps(0.0f,0,0.0f,,0.0f,-0.0f);
+    return mm_xor_ps(_mm_sub_ps(v5, v3), neg);
   }
 
 
@@ -156,9 +157,7 @@ inline float dot(mathSSE::Vec3F a, mathSSE::Vec3F b) {
 
 inline mathSSE::Vec3F cross(mathSSE::Vec3F a, mathSSE::Vec3F b) {
   using  mathSSE::_mm_cross_ps;
-  mathSSE::Vec3F res(_mm_cross_ps(a.vec,b.vec));
-  res.arr[1] *= -1.f;
-  return res;
+  return _mm_cross_ps(a.vec,b.vec));
 }
 
 
