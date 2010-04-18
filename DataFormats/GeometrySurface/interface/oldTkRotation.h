@@ -236,6 +236,11 @@ public:
     }
   }
 
+  Basic3DVector<T> x() const { return  Basic3DVector<T>(xx(),xy(),xz());}
+  Basic3DVector<T> y() const { return  Basic3DVector<T>(yx(),yy(),yz());}
+  Basic3DVector<T> z() const { return  Basic3DVector<T>(zx(),zy(),zz());}
+
+
   T const &xx() const { return R11;} 
   T const &xy() const { return R12;} 
   T const &xz() const { return R13;} 
