@@ -50,8 +50,8 @@ namespace mathSSE {
     v4 = _mm_shuffle_ps(v2, v1, _MM_SHUFFLE(3, 1, 0, 1));
     
     v3 = _mm_mul_ps(v3, v4);
-    const  __m128 neg = _mm_set_ps(0.0f,0,0.0f,,0.0f,-0.0f);
-    return mm_xor_ps(_mm_sub_ps(v5, v3), neg);
+    const  __m128 neg = _mm_set_ps(0.0f,0.0f,-0.0f,0.0f);
+    return _mm_xor_ps(_mm_sub_ps(v5, v3), neg);
   }
 
 
@@ -157,7 +157,7 @@ inline float dot(mathSSE::Vec3F a, mathSSE::Vec3F b) {
 
 inline mathSSE::Vec3F cross(mathSSE::Vec3F a, mathSSE::Vec3F b) {
   using  mathSSE::_mm_cross_ps;
-  return _mm_cross_ps(a.vec,b.vec));
+  return _mm_cross_ps(a.vec,b.vec);
 }
 
 
