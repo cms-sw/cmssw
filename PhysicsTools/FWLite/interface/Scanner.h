@@ -120,9 +120,9 @@ namespace fwlite {
                         if (!scanner.test(&vals[j])) continue;
                         if (printFullEventId_) {
                             const edm::EventAuxiliary &id = event_->eventAuxiliary();
-                            printf(" : %9d : %4d : %9d : %3d", id.run(), id.luminosityBlock(), id.event(), j);
+                            printf(" : %9d : %4d : %9d : %3lu", id.run(), id.luminosityBlock(), id.event(), j);
                         } else {
-                            printf(" : %5d : %3d", iev, j);
+                            printf(" : %5d : %3lu", iev, j);
                         }
                         scanner.print(&vals[j]);
                         std::cout << " :" << std::endl;
