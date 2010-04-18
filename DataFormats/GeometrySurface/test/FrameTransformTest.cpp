@@ -90,6 +90,6 @@ int main() {
 
   go<float>();
   std::cout << std::endl;
-//  go<double>();
+  go<double>();
 
 }
