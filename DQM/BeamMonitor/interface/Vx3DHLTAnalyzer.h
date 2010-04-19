@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.18 2010/04/14 17:30:20 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.19 2010/04/15 16:52:05 dinardo Exp $
 //
 //
 
@@ -45,6 +45,9 @@
 using namespace std;
 
 
+// #################
+// # Fit variables #
+// #################
 #define DIM 3
 void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int /*iflag*/);
 typedef struct
@@ -56,11 +59,11 @@ typedef struct
 } VertexType;
 vector<VertexType> Vertices;
 bool considerVxCovariance;
-int counterVx;         // Counts the number of vertices taken into account for the fit
-double maxTransRadius; // Max transverse radius in which the vertices must be [cm]
-double maxLongLength;  // Max longitudinal length in which the vertices must be [cm]
-double xPos,yPos,zPos; // x,y,z approximate positions of the beam spot
-double VxErrCorr;      // Coefficient to compensate the under-estimation of the vertex errors
+unsigned int counterVx; // Counts the number of vertices taken into account for the fit
+double maxTransRadius;  // Max transverse radius in which the vertices must be [cm]
+double maxLongLength;   // Max longitudinal length in which the vertices must be [cm]
+double xPos,yPos,zPos;  // x,y,z approximate positions of the beam spot
+double VxErrCorr;       // Coefficient to compensate the under-estimation of the vertex errors
 double pi;
 
 
@@ -89,12 +92,15 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
 				      const edm::EventSetup& iSetup);
       virtual void endJob();
 
-      // cfg file parameters
+
+      // #######################
+      // # cfg file parameters #
+      // #######################
       edm::InputTag vertexCollection;
       bool debugMode;
       unsigned int nLumiReset;
       bool dataFromFit;
-      int minNentries;
+      unsigned int minNentries;
       double xRange;
       double xStep;
       double yRange;
@@ -103,7 +109,10 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       double zStep;
       string fileName;
 
-      // Histograms
+
+      // ##############
+      // # Histograms #
+      // ##############
       MonitorElement* mXlumi;
       MonitorElement* mYlumi;
       MonitorElement* mZlumi;
@@ -133,15 +142,18 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       MonitorElement* reportSummary;
       MonitorElement* reportSummaryMap;
       
-      // Internal variables
+
+      // ######################
+      // # Internal variables #
+      // ######################
       ofstream outputFile;
       ofstream outputDebugFile;
       unsigned int runNumber;
       unsigned int lumiCounter;
       unsigned int totalHits;
       unsigned int maxLumiIntegration;
-      int numberGoodFits;
-      int numberFits;
+      unsigned int numberGoodFits;
+      unsigned int numberFits;
       edm::TimeValue_t beginTimeOfFit;
       edm::TimeValue_t endTimeOfFit;
       unsigned int beginLumiOfFit;

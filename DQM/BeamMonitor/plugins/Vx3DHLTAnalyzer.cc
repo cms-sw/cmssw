@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.69 2010/04/17 12:39:58 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.70 2010/04/17 17:37:04 dinardo Exp $
 //
 //
 
@@ -104,7 +104,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 
       for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
 	
-	if ((it3DVx->isValid() == true) && (it3DVx->isFake() == false) && (it3DVx->ndof() >= minVxDoF) && ((it3DVx->ndof() + 3.)/it3DVx->tracksSize() >= 2.*minVxWgt))
+	if ((it3DVx->isValid() == true) && (it3DVx->isFake() == false) && (it3DVx->ndof() >= minVxDoF) && ((it3DVx->ndof() + 3.)/(double)it3DVx->tracksSize() >= 2.*minVxWgt))
 	  {
 	    for (i = 0; i < DIM; i++)
 	      {
