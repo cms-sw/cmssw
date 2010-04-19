@@ -1,12 +1,14 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.2 $
-#     $Date: 2008/07/30 14:10:18 $
+#     $Revision: 1.3 $ by $Author$
+#     $Date: 2009/01/07 18:27:49 $
 #
 #  Extract INFI directives from input file
 #  and write chunk to standard output according to
 #  specified splitting scheme.
+#  Lines starting with '#' (preceeded by any number of whitespace)
+#  will be ignored.
 #  A first line starting with 'CastorPool=' will always be output as first line.
 #
 #  Usage:
@@ -70,7 +72,14 @@ close INFILE;
 $/ = "\n"; # back to normal
 
 # split the input into lines
-@LINES = split "\n",$body;
+@LINESALL = split "\n",$body;
+
+my @LINES;
+foreach my $line (@LINESALL) {
+    unless ($line =~ /^\s*#/ ) { # exclude lines with comments, i.e.
+	push (@LINES, $line);    # marked with '#' (& ignore whitespace before)
+    }
+}
 
 # how many INFI cards
 $ninfi = $#LINES + 1;
@@ -105,8 +114,6 @@ if ($endId < $startId) {
   print "ninfi was $#infi\n";
   exit 2;
 }
-
-# print "thisGen= $thisGen total=$totalGen startId= $startId  endID= $endId\n";
 
 print "$poolDef\n" if ($poolDef ne ""); #GF
 
