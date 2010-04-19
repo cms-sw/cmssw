@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.31 2010/04/12 12:05:01 mommsen Exp $
+// $Id: Configuration.cc,v 1.32 2010/04/12 15:25:05 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -219,8 +219,10 @@ namespace stor
   {
     _eventServeParamCopy._activeConsumerTimeout = 60.0;  // seconds
     _eventServeParamCopy._consumerQueueSize = 5;
+    _eventServeParamCopy._consumerQueuePolicy = "DiscardOld";
     _eventServeParamCopy._DQMactiveConsumerTimeout = 60.0;  // seconds
     _eventServeParamCopy._DQMconsumerQueueSize = 15;
+    _eventServeParamCopy._DQMconsumerQueuePolicy = "DiscardOld";
   }
 
   void Configuration::setQueueConfigurationDefaults()
@@ -358,19 +360,23 @@ namespace stor
     _activeConsumerTimeout =
       static_cast<int>(_eventServeParamCopy._activeConsumerTimeout);
     _consumerQueueSize = _eventServeParamCopy._consumerQueueSize;
+    _consumerQueuePolicy = _eventServeParamCopy._consumerQueuePolicy;
     _DQMactiveConsumerTimeout =
       static_cast<int>(_eventServeParamCopy._DQMactiveConsumerTimeout);
     _DQMconsumerQueueSize = _eventServeParamCopy._DQMconsumerQueueSize;
+    _DQMconsumerQueuePolicy = _eventServeParamCopy._DQMconsumerQueuePolicy;
 
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable( "runNumber", &_infospaceRunNumber );
     infoSpace->fireItemAvailable("activeConsumerTimeout",
                                  &_activeConsumerTimeout);
     infoSpace->fireItemAvailable("consumerQueueSize",&_consumerQueueSize);
+    infoSpace->fireItemAvailable("consumerQueuePolicy",&_consumerQueuePolicy);
     infoSpace->fireItemAvailable("DQMactiveConsumerTimeout",
                               &_DQMactiveConsumerTimeout);
     infoSpace->fireItemAvailable("DQMconsumerQueueSize",
                                  &_DQMconsumerQueueSize);
+    infoSpace->fireItemAvailable("DQMconsumerQueuePolicy",&_DQMconsumerQueuePolicy);
   }
 
   void Configuration::
@@ -503,8 +509,10 @@ namespace stor
   {
     _eventServeParamCopy._activeConsumerTimeout = _activeConsumerTimeout;
     _eventServeParamCopy._consumerQueueSize = _consumerQueueSize;
+    _eventServeParamCopy._consumerQueuePolicy = _consumerQueuePolicy;
     _eventServeParamCopy._DQMactiveConsumerTimeout = _DQMactiveConsumerTimeout;
     _eventServeParamCopy._DQMconsumerQueueSize = _DQMconsumerQueueSize;
+    _eventServeParamCopy._DQMconsumerQueuePolicy = _DQMconsumerQueuePolicy;
 
     // validation
     if (_eventServeParamCopy._consumerQueueSize < 1)

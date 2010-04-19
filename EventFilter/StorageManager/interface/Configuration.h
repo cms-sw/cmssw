@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.18 2010/04/12 12:05:43 mommsen Exp $
+// $Id: Configuration.h,v 1.19 2010/04/12 15:25:26 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -77,8 +77,10 @@ namespace stor
   {
     utils::duration_t _activeConsumerTimeout;  // seconds
     int _consumerQueueSize;
+    std::string _consumerQueuePolicy;
     utils::duration_t _DQMactiveConsumerTimeout;  // seconds
     int _DQMconsumerQueueSize;
+    std::string _DQMconsumerQueuePolicy;
   };
 
   /**
@@ -159,8 +161,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.18 $
-   * $Date: 2010/04/12 12:05:43 $
+   * $Revision: 1.19 $
+   * $Date: 2010/04/12 15:25:26 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -353,8 +355,10 @@ namespace stor
 
     xdata::Integer _activeConsumerTimeout;  // seconds
     xdata::Integer _consumerQueueSize;
+    xdata::String  _consumerQueuePolicy;
     xdata::Integer _DQMactiveConsumerTimeout;  // seconds
     xdata::Integer _DQMconsumerQueueSize;
+    xdata::String  _DQMconsumerQueuePolicy;
 
     xdata::Boolean _collateDQM;
     xdata::Boolean _archiveDQM;

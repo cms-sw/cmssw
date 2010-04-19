@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.h,v 1.8 2010/02/16 10:49:52 mommsen Exp $
+// $Id: EventConsumerRegistrationInfo.h,v 1.9 2010/04/16 14:39:34 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_EventConsumerRegistrationInfo_h
@@ -20,8 +20,8 @@ namespace stor
    * Holds the registration information from a event consumer.
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2010/02/16 10:49:52 $
+   * $Revision: 1.9 $
+   * $Date: 2010/04/16 14:39:34 $
    */
 
   class EventConsumerRegistrationInfo: public RegistrationInfoBase
@@ -34,9 +34,7 @@ namespace stor
     /**
      * Constructs an instance with the specified registration information.
      */
-    EventConsumerRegistrationInfo( const unsigned int& maxConnectRetries,
-                                   const unsigned int& connectRetryInterval,// seconds
-                                   const std::string& consumerName,
+    EventConsumerRegistrationInfo( const std::string& consumerName,
                                    const std::string& triggerSelection,
                                    const FilterList& selEvents,
                                    const std::string& outputModuleLabel,
@@ -48,8 +46,6 @@ namespace stor
     ~EventConsumerRegistrationInfo();
 
     // Accessors:
-    unsigned int maxConnectRetries() const { return _maxConnectRetries; }
-    unsigned int connectRetryInterval() const { return _connectRetryInterval; }
     const std::string& triggerSelection() const { return _triggerSelection; }
     const FilterList& selEvents() const { return _selEvents; }
     const std::string& outputModuleLabel() const { return _outputModuleLabel; }
@@ -78,8 +74,6 @@ namespace stor
 
     CommonRegistrationInfo _common;
 
-    unsigned int _maxConnectRetries;
-    unsigned int _connectRetryInterval;
     std::string _triggerSelection;
     FilterList _selEvents;
     std::string _outputModuleLabel;

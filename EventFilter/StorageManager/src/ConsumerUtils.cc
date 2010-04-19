@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.cc,v 1.9 2010/04/16 12:31:58 mommsen Exp $
+// $Id: ConsumerUtils.cc,v 1.10 2010/04/16 14:39:59 mommsen Exp $
 /// @file: ConsumerUtils.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
@@ -296,12 +296,6 @@ EventConsRegPtr ConsumerUtils::parseEventConsumerRegistration(xgi::Input* in) co
     XCEPT_RAISE( xgi::exception::Exception,
       "Null xgi::Input* in parseEventConsumerRegistration" );
   }
-    
-  const utils::duration_t secondsToStale =
-    _sharedResources->_configuration->getEventServingParams()._activeConsumerTimeout;
-  const enquing_policy::PolicyTag queuePolicy = enquing_policy::DiscardOld;
-  const int queueSize =
-    _sharedResources->_configuration->getEventServingParams()._consumerQueueSize;
 
   std::string name = "unknown";
   std::string pset_str = "<>";
@@ -374,41 +368,71 @@ EventConsRegPtr ConsumerUtils::parseEventConsumerRegistration(xgi::Input* in) co
       sel_events = tmpPSet1.getParameter<Strings>( "SelectEvents" );
     }
   }
-  
-  // Number of retries:
-  unsigned int max_conn_retr = 5;
+
+  // Consumer time-out
+  utils::duration_t secondsToStale;
   try
   {
-    max_conn_retr = pset.getParameter<int>( "TrackedMaxConnectTries" );
+    secondsToStale =
+      pset.getParameter<utils::duration_t>( "TrackedConsumerTimeOut" );
   }
   catch( edm::Exception& e )
   {
-    pset.getUntrackedParameter<int>( "maxConnectTries", 5 );
+    secondsToStale =
+      pset.getUntrackedParameter<utils::duration_t>( "consumerTimeOut",
+        _sharedResources->_configuration->getEventServingParams()._activeConsumerTimeout);
   }
-  
-  // Retry interval:
-  unsigned int conn_retr_interval = 10;
+
+  // Queue size
+  int queueSize;
   try
   {
-    conn_retr_interval =
-      pset.getParameter<int>( "TrackedConnectTrySleepTime" );
+    queueSize =
+      pset.getParameter<int>( "TrackedQueueSize" );
   }
   catch( edm::Exception& e )
   {
-    conn_retr_interval =
-      pset.getUntrackedParameter<int>( "connectTrySleepTime", 10 );
+    queueSize =
+      pset.getUntrackedParameter<int>( "queueSize",
+        _sharedResources->_configuration->getEventServingParams()._consumerQueueSize);
   }
-  
-  EventConsRegPtr cr( new EventConsumerRegistrationInfo( max_conn_retr,
-                                                    conn_retr_interval,
-                                                    name,
-                                                    sel_events_new,
-                                                    sel_events,
-                                                    sel_hlt_out,
-                                                    queueSize,
-                                                    queuePolicy,
-                                                    secondsToStale,
-                                                    remote_host ) );
+
+  // Queue policy
+  std::string policy;
+  enquing_policy::PolicyTag queuePolicy;
+  try
+  {
+    policy =
+      pset.getParameter<std::string>( "TrackedQueuePolicy" );
+  }
+  catch( edm::Exception& e )
+  {
+    policy =
+      pset.getUntrackedParameter<std::string>( "queuePolicy",
+        _sharedResources->_configuration->getEventServingParams()._consumerQueuePolicy);
+  }
+  if ( policy == "DiscardNew" )
+  {
+    queuePolicy = enquing_policy::DiscardNew;
+  }
+  else if ( policy == "DiscardOld" )
+  {
+    queuePolicy = enquing_policy::DiscardOld;
+  }
+  else
+  {
+    XCEPT_RAISE( stor::exception::ConsumerRegistration,
+      "Unknown enqueuing policy: " + policy );
+  }
+
+  EventConsRegPtr cr( new EventConsumerRegistrationInfo( name,
+                                                         sel_events_new,
+                                                         sel_events,
+                                                         sel_hlt_out,
+                                                         queueSize,
+                                                         queuePolicy,
+                                                         secondsToStale,
+                                                         remote_host ) );
   return cr;
 }
 
@@ -425,9 +449,25 @@ DQMEventConsRegPtr ConsumerUtils::parseDQMEventConsumerRegistration(xgi::Input* 
   
   const utils::duration_t secondsToStale =
     _sharedResources->_configuration->getEventServingParams()._DQMactiveConsumerTimeout;
-  const enquing_policy::PolicyTag queuePolicy = enquing_policy::DiscardOld;
   const int queueSize =
     _sharedResources->_configuration->getEventServingParams()._DQMconsumerQueueSize;
+
+  std::string policy =
+  _sharedResources->_configuration->getEventServingParams()._DQMconsumerQueuePolicy;
+  enquing_policy::PolicyTag queuePolicy;
+  if ( policy == "DiscardNew" )
+  {
+    queuePolicy = enquing_policy::DiscardNew;
+  }
+  else if ( policy == "DiscardOld" )
+  {
+    queuePolicy = enquing_policy::DiscardOld;
+  }
+  else
+  {
+    XCEPT_RAISE( stor::exception::DQMConsumerRegistration,
+      "Unknown enqueuing policy: " + policy );
+  }
 
   std::string consumerName = "None provided";
   std::string consumerTopFolderName = "*";
@@ -443,7 +483,7 @@ DQMEventConsRegPtr ConsumerUtils::parseDQMEventConsumerRegistration(xgi::Input* 
     consumerName = requestMessage.getConsumerName();
     // for DQM consumers top folder name is stored in the "parameteSet"
     std::string reqFolder = requestMessage.getRequestParameterSet();
-    if (reqFolder.size() >= 1) consumerTopFolderName = reqFolder;
+    if ( !reqFolder.empty() ) consumerTopFolderName = reqFolder;
   }
   
   const std::string remote_host = in->getenv( "REMOTE_HOST" );
