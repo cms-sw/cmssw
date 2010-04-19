@@ -65,12 +65,12 @@ void SiGaussianTailNoiseAdder::addCMNoise(std::vector<double> &in, float cmnRMS,
 }
 
 void SiGaussianTailNoiseAdder::addBaselineShift(std::vector<double> &in, std::vector<bool> &badChannels){
-  int nAPVs = in.size()/128;
+  size_t nAPVs = in.size()/128;
   std::vector<float> vShift;
   double apvCharge, apvMult;
   
   size_t iChannel;
-  for(int APVn =0; APVn < nAPVs; ++APVn){
+  for(size_t APVn =0; APVn < nAPVs; ++APVn){
    	apvMult=0; apvCharge=0;
 	for(iChannel=APVn*128; iChannel!=APVn*128+128; ++iChannel) {
   	   if(in[iChannel]>0){
