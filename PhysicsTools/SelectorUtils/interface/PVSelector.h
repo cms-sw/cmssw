@@ -17,8 +17,10 @@ public:
   pvSrc_ (params.getParameter<edm::InputTag>("pvSrc") ) {
     push_back("PV NDOF", params.getParameter<double>("minNdof") );
     push_back("PV Z", params.getParameter<double>("maxZ") );
+    push_back("PV RHO", params.getParameter<double>("maxRho") );
     set("PV NDOF");
     set("PV Z");
+    set("PV RHO");
 
     retInternal_ = getBitTemplate();
   }
@@ -38,8 +40,13 @@ public:
 	 || ignoreCut("PV NDOF")    ) {
       passCut(ret, "PV NDOF" );
       if ( fabs(pv.z()) <= cut("PV Z", double()) 
-	   || ignoreCut("PV Z")    ) 
+	   || ignoreCut("PV Z")    ) {
 	passCut(ret, "PV Z" );
+	if ( fabs(pv.position().Rho()) <= cut("PV RHO", double() )
+	     || ignoreCut("PV RHO") ) {
+	  passCut( ret, "PV RHO");
+	}
+      }
     }
   
     return (bool)ret;
