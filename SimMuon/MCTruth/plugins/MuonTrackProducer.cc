@@ -220,6 +220,9 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	    float segmentdXdZerr = segmentMatch->dXdZErr;
 	    float segmentdYdZerr = segmentMatch->dYdZErr;
 	    
+	    CSCSegmentRef segmentCSC = segmentMatch->cscSegmentRef;
+	    DTRecSegment4DRef segmentDT = segmentMatch->dtSegmentRef;
+	    
 	    bool segment_arbitrated_Ok = (segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR) && 
 					  segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR));
 	    
@@ -233,115 +236,38 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 		<<"\n\t  Local Direction (dXdZ,dYdZ)=("<<segmentdXdZ<<","<<segmentdYdZ<<") +/- ("<<segmentdXdZerr<<","<<segmentdYdZerr<<")"; 
 	      
 	      if (!segment_arbitrated_Ok) continue;
-	      	      
-	      // try to match to DT segments
-	      unsigned int index_dt_segment = 0;
-	      for(DTRecSegment4DCollection::const_iterator segment = dtSegmentCollectionH_->begin();
-		  segment != dtSegmentCollectionH_->end(); ++segment , index_dt_segment++) {
+	      
+	      if (segmentDT.get() != 0) {
+		const DTRecSegment4D* segment = segmentDT.get();
 		
-		// look at segments in the given chamber
-		DetId dtgeoid = segment->geographicalId();
-		if (dtgeoid != did) continue;
+		edm::LogVerbatim("MuonTrackProducer")<<"\t ===> MATCHING with DT segment with index = "<<segmentDT.key();
 		
-		LocalPoint  segmentLocalPosition       = segment->localPosition();
-		LocalVector segmentLocalDirection      = segment->localDirection();
-		LocalError  segmentLocalPositionError  = segment->localPositionError();
-		LocalError  segmentLocalDirectionError = segment->localDirectionError();
-		bool segmentFound = false;
-		
-		float this_segment_x = segmentLocalPosition.x();
-		float this_segment_y = segmentLocalPosition.y();
-		
-		float this_segment_dxdz = 1e9; 
-		float this_segment_dydz = 1e9;
-		if (segmentLocalDirection.z() != 0.) {
-		  this_segment_dxdz = segmentLocalDirection.x()/segmentLocalDirection.z();
-		  this_segment_dydz = segmentLocalDirection.y()/segmentLocalDirection.z();
+		if(segment->hasPhi()) {
+		  const DTChamberRecSegment2D* phiSeg = segment->phiSegment();
+		  std::vector<const TrackingRecHit*> phiHits = phiSeg->recHits();
+		  for(std::vector<const TrackingRecHit*>::const_iterator ihit = phiHits.begin();
+		      ihit != phiHits.end(); ++ihit) {
+		    TrackingRecHit* seghit = (*ihit)->clone();
+		    newTrk->setHitPattern( *seghit, i++ );
+		    selectedTrackHits->push_back( seghit );
+		    newExtra->add( TrackingRecHitRef( rHits, hidx ++ ) );
+		  }
 		}
-
-		LogTrace("MuonTrackProducer")
-		  <<"\n trying to match with segment : \n" 
-		  <<"\nLocal Position (X,Y)=("<<this_segment_x <<","<<this_segment_y <<"), "
-		  <<"Local Direction (dXdZ,dYdZ)=("
-		  <<this_segment_dxdz<<","<<this_segment_dydz<<") \n";
 		
-		float Dx = segmentMatch->x - this_segment_x;
-		if (segmentMatch->x != 0.) Dx = Dx/segmentMatch->x;
-		LogTrace("MuonTrackProducer")<<"\tDx = "<< Dx;
-		
-		float Dy = segmentMatch->y - this_segment_y;
-		if (segmentMatch->y != 0.) Dy = Dy/segmentMatch->y;
-		LogTrace("MuonTrackProducer")<<"\tDy = "<< Dy;
-		
-		float Ddxdz = segmentMatch->dXdZ - this_segment_dxdz;
-		if (segmentMatch->dXdZ != 0.) Ddxdz = Ddxdz/segmentMatch->dXdZ;
-		LogTrace("MuonTrackProducer")<<"\tDdxdz = "<< Ddxdz;
-		
-		float Ddydz = segmentMatch->dYdZ - this_segment_dydz;
-		if (segmentMatch->dYdZ != 0.) Ddydz = Ddydz/segmentMatch->dYdZ;
-		LogTrace("MuonTrackProducer")<<"\tDdydz = "<< Ddydz;
-		
-                float DxErr = segmentMatch->xErr - sqrt(segmentLocalPositionError.xx());
-		if (segmentMatch->xErr != 0.) DxErr = DxErr/segmentMatch->xErr;
-		LogTrace("MuonTrackProducer")<<"\tDxErr = "<< DxErr;
-		
-		float DyErr = segmentMatch->yErr - sqrt(segmentLocalPositionError.yy());
-		if (segmentMatch->yErr != 0.) DyErr = DyErr/segmentMatch->yErr;
-		LogTrace("MuonTrackProducer")<<"\tDyErr = "<< DyErr;
-		
-                float DdxdzErr = segmentMatch->dXdZErr - sqrt(segmentLocalDirectionError.xx());
-		if (segmentMatch->dXdZErr != 0.) DdxdzErr = DdxdzErr/segmentMatch->dXdZErr;
-		LogTrace("MuonTrackProducer")<<"\tDdxdzErr = "<< DdxdzErr;
-		
-                float DdydzErr = segmentMatch->dYdZErr - sqrt(segmentLocalDirectionError.yy());
-		if (segmentMatch->dYdZErr != 0.) DdydzErr = DdydzErr/segmentMatch->dYdZErr;
-		LogTrace("MuonTrackProducer")<<"\tDdydzErr = "<< DdydzErr;
-		
-		if (fabs( Dx )                                  < 1E-6 &&
-		    fabs( Dy )                                  < 1E-6 &&
-		    fabs( Ddxdz )                               < 1E-6 &&
-		    fabs( Ddydz )                               < 1E-6 &&
-		    fabs( DxErr )                               < 1E-6 &&
-		    fabs( DyErr )                               < 1E-6 &&
-		    fabs( DdxdzErr )                            < 1E-6 &&
-		    fabs( DdydzErr )                            < 1E-6)   {
-		  
-		  edm::LogVerbatim("MuonTrackProducer")<<"\t ===> MATCHING with DT segment with index = "<<index_dt_segment;
-		  if (segmentFound) {
-		    edm::LogWarning("MuonTrackProducer") 
-		      <<"***WARNING*** in MuonTrackProducer : this DT segment was already matched ! please check ... ";
-		    continue;
+		if(segment->hasZed()) {
+		  const DTSLRecSegment2D* zSeg = (*segment).zSegment();
+		  std::vector<const TrackingRecHit*> zedHits = zSeg->recHits();
+		  for(std::vector<const TrackingRecHit*>::const_iterator ihit = zedHits.begin();
+		      ihit != zedHits.end(); ++ihit) {
+		    TrackingRecHit* seghit = (*ihit)->clone();
+		    newTrk->setHitPattern( *seghit, i++ );
+		    selectedTrackHits->push_back( seghit );
+		    newExtra->add( TrackingRecHitRef( rHits, hidx ++ ) );
 		  }
-		  
-		  segmentFound = true;
-		  
-		  if(segment->hasPhi()) {
-		    const DTChamberRecSegment2D* phiSeg = segment->phiSegment();
-		    std::vector<const TrackingRecHit*> phiHits = phiSeg->recHits();
-		    for(std::vector<const TrackingRecHit*>::const_iterator ihit = phiHits.begin();
-			ihit != phiHits.end(); ++ihit) {
-		      TrackingRecHit* seghit = (*ihit)->clone();
-		      newTrk->setHitPattern( *seghit, i++ );
-		      selectedTrackHits->push_back( seghit );
-		      newExtra->add( TrackingRecHitRef( rHits, hidx ++ ) );
-		    }
-		  }
-		  
-		  if(segment->hasZed()) {
-		    const DTSLRecSegment2D* zSeg = (*segment).zSegment();
-		    std::vector<const TrackingRecHit*> zedHits = zSeg->recHits();
-		    for(std::vector<const TrackingRecHit*>::const_iterator ihit = zedHits.begin();
-			ihit != zedHits.end(); ++ihit) {
-		      TrackingRecHit* seghit = (*ihit)->clone();
-		      newTrk->setHitPattern( *seghit, i++ );
-		      selectedTrackHits->push_back( seghit );
-		      newExtra->add( TrackingRecHitRef( rHits, hidx ++ ) );
-		    }
-		  }
-		} // if segment matches
-	      } // loop over DT segments 
+		}
+	      } else edm::LogWarning("MuonTrackProducer")<<"\n***WARNING: UNMATCHED DT segment ! \n";
 	    } // if (subdet == MuonSubdetId::DT)
-	    
+
 	    else if (subdet == MuonSubdetId::CSC) {
 	      edm::LogVerbatim("MuonTrackProducer")
 		<<"\n\t segment index: "<<index_segment << ARBITRATED
@@ -350,105 +276,29 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	      
 	      if (!segment_arbitrated_Ok) continue;
 	      
-	      // try to match to CSC segment
-	      unsigned int index_csc_segment = 0;
-	      for(CSCSegmentCollection::const_iterator segment = cscSegmentCollectionH_->begin();
-		  segment != cscSegmentCollectionH_->end(); ++segment , index_csc_segment++) {
+	      if (segmentCSC.get() != 0) {
+		const CSCSegment* segment = segmentCSC.get();
 		
-		// look at segments in the given chamber
-		DetId cscgeoid = segment->geographicalId();
-		if (cscgeoid != did) continue;
+		edm::LogVerbatim("MuonTrackProducer")<<"\t ===> MATCHING with CSC segment with index = "<<segmentCSC.key();
 		
-		LocalPoint  segmentLocalPosition       = segment->localPosition();
-		LocalVector segmentLocalDirection      = segment->localDirection();
-		LocalError  segmentLocalPositionError  = segment->localPositionError();
-		LocalError  segmentLocalDirectionError = segment->localDirectionError();
-		bool segmentFound = false;
-
-		float this_segment_x = segmentLocalPosition.x();
-		float this_segment_y = segmentLocalPosition.y();
-		
-		float this_segment_dxdz = 1e9; 
-		float this_segment_dydz = 1e9;
-		if (segmentLocalDirection.z() != 0.) {
-		  this_segment_dxdz = segmentLocalDirection.x()/segmentLocalDirection.z();
-		  this_segment_dydz = segmentLocalDirection.y()/segmentLocalDirection.z();
+		std::vector<const TrackingRecHit*> hits = segment->recHits();
+		for(std::vector<const TrackingRecHit*>::const_iterator ihit = hits.begin();
+		    ihit != hits.end(); ++ihit) {
+		  TrackingRecHit* seghit = (*ihit)->clone();
+		  newTrk->setHitPattern( *seghit, i++ );
+		  selectedTrackHits->push_back( seghit );
+		  newExtra->add( TrackingRecHitRef( rHits, hidx ++ ) );		  
 		}
-		
-		LogTrace("MuonTrackProducer")
-		  <<"\n trying to match with segment : \n" 
-		  <<"\nLocal Position (X,Y)=("<<this_segment_x <<","<<this_segment_y <<"), "
-		  <<"Local Direction (dXdZ,dYdZ)=("
-		  <<this_segment_dxdz<<","<<this_segment_dydz<<") \n";
-		
-		float Dx = segmentMatch->x - this_segment_x;
-		if (segmentMatch->x != 0.) Dx = Dx/segmentMatch->x;
-		LogTrace("MuonTrackProducer")<<"\tDx = "<< Dx;
-		
-		float Dy = segmentMatch->y - this_segment_y;
-		if (segmentMatch->y != 0.) Dy = Dy/segmentMatch->y;
-		LogTrace("MuonTrackProducer")<<"\tDy = "<< Dy;
-		
-		float Ddxdz = segmentMatch->dXdZ - this_segment_dxdz;
-		if (segmentMatch->dXdZ != 0.) Ddxdz = Ddxdz/segmentMatch->dXdZ;
-		LogTrace("MuonTrackProducer")<<"\tDdxdz = "<< Ddxdz;
-		
-		float Ddydz = segmentMatch->dYdZ - this_segment_dydz;
-		if (segmentMatch->dYdZ != 0.) Ddydz = Ddydz/segmentMatch->dYdZ;
-		LogTrace("MuonTrackProducer")<<"\tDdydz = "<< Ddydz;
-		
-		float DxErr = segmentMatch->xErr - sqrt(segmentLocalPositionError.xx());
-		if (segmentMatch->xErr != 0.) DxErr = DxErr/segmentMatch->xErr;
-		LogTrace("MuonTrackProducer")<<"\tDxErr = "<< DxErr;
-		
-		float DyErr = segmentMatch->yErr - sqrt(segmentLocalPositionError.yy());
-		if (segmentMatch->yErr != 0.) DyErr = DyErr/segmentMatch->yErr;
-		LogTrace("MuonTrackProducer")<<"\tDyErr = "<< DyErr;
-		
-		float DdxdzErr = segmentMatch->dXdZErr - sqrt(segmentLocalDirectionError.xx());
-		if (segmentMatch->dXdZErr != 0.) DdxdzErr = DdxdzErr/segmentMatch->dXdZErr;
-		LogTrace("MuonTrackProducer")<<"\tDdxdzErr = "<< DdxdzErr;
-		
-		float DdydzErr = segmentMatch->dYdZErr - sqrt(segmentLocalDirectionError.yy());
-		if (segmentMatch->dYdZErr != 0.) DdydzErr = DdydzErr/segmentMatch->dYdZErr;
-		LogTrace("MuonTrackProducer")<<"\tDdydzErr = "<< DdydzErr;
-		
-		if (fabs( Dx )                                  < 1E-6 &&
-		    fabs( Dy )                                  < 1E-6 &&
-		    fabs( Ddxdz )                               < 1E-6 &&
-		    fabs( Ddydz )                               < 1E-6 &&
-		    fabs( DxErr )                               < 1E-6 &&
-		    fabs( DyErr )                               < 1E-6 &&
-		    fabs( DdxdzErr )                            < 1E-6 &&
-		    fabs( DdydzErr )                            < 1E-6)  {
-		  
-		  edm::LogVerbatim("MuonTrackProducer")<<"\t ===> MATCHING with CSC segment with index = "<<index_csc_segment;
-		  if (segmentFound) {
-		    edm::LogWarning("MuonTrackProducer") 
-		      <<"***WARNING*** in MuonTrackProducer : this CSC segment was already matched ! please check ... ";
-		    continue;
-		  }
-		  segmentFound = true;
-		  
-		  std::vector<const TrackingRecHit*> hits = segment->recHits();
-		  for(std::vector<const TrackingRecHit*>::const_iterator ihit = hits.begin();
-		      ihit != hits.end(); ++ihit) {
-		    TrackingRecHit* seghit = (*ihit)->clone();
-		    newTrk->setHitPattern( *seghit, i++ );
-		    selectedTrackHits->push_back( seghit );
-		    newExtra->add( TrackingRecHitRef( rHits, hidx ++ ) );		  
-		  }
-		} // matching CSC segments
-	      }  // loop over CSC segments
-	    }   // else if (subdet == MuonSubdetId::CSC)
-	    
+	      } else edm::LogWarning("MuonTrackProducer")<<"\n***WARNING: UNMATCHED CSC segment ! \n";
+	    }  //  else if (subdet == MuonSubdetId::CSC)
+
 	  } // loop on vector<MuonSegmentMatch>	  
-	}  // loop on vector<MuonChamberMatch>	
-      }   // if (trackType == "innerTrackPlusSegments")
+	} // loop on vector<MuonChamberMatch>	
+      } // if (trackType == "innerTrackPlusSegments")
       
       selectedTracks->push_back( *newTrk );
       selectedTrackExtras->push_back( *newExtra );
-      
+
     } // if (isGoodResult)
   }  // loop on reco::MuonCollection
   
@@ -456,4 +306,3 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.put(selectedTrackExtras);
   iEvent.put(selectedTrackHits);
 }
-
