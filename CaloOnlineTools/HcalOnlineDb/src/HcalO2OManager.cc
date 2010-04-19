@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.32 2010/03/16 11:38:38 kukartse Exp $
+// $Id: HcalO2OManager.cc,v 1.33 2010/04/13 09:27:55 innocent Exp $
 //
 
 
@@ -255,7 +255,12 @@ int HcalO2OManager::getListOfNewIovs(std::vector<uint32_t> & iovs,
       orcon_iovs.size() > 0 &&
       orcon_iovs[0] == 1 &&
       omds_iovs[0] != 1){
-    std::cout << "HcalO2OManager: First IOV in the OMDS tag is not 1, might not be a problem..." << std::endl;
+    std::cout << std::endl << "HcalO2OManager: First IOV in the OMDS tag is not 1," << std::endl;
+    std::cout << "HcalO2OManager: while it must be 1 in the offline tag." << std::endl;
+    std::cout << "HcalO2OManager: O2O will assume that IOV=1 in the offline tag" << std::endl;
+    std::cout << "HcalO2OManager: is filled with some safe default." << std::endl;
+    std::cout << "HcalO2OManager: IOV=1 will be ignored, and O2O will proceeed" << std::endl;
+    std::cout << "HcalO2OManager: as long as other inconsistencies are not detected." << std::endl << std::endl;
     _orcon_index_offset = 1; // skip the first IOV in ORCON because it
     //                       // is 1 while OMDS doesn't have IOV=1
   } 
@@ -267,8 +272,8 @@ int HcalO2OManager::getListOfNewIovs(std::vector<uint32_t> & iovs,
   for (std::vector<uint32_t>::const_iterator _iov = orcon_iovs.begin();
        _iov != orcon_iovs.end();
        ++_iov){
-    if (_orcon_index_offset == 1) continue; // skip first check if first Pool IOV =1 but not OMDS
     _index = (int)(_iov - orcon_iovs.begin());
+    if (_orcon_index_offset == 1 && _index == 0) continue; // skip first check if first Pool IOV =1 but not OMDS
     if (omds_iovs[_index-_orcon_index_offset] != orcon_iovs[_index]){
       std::cout << "HcalO2OManager: existing IOVs do not match, cannot sync, exiting..." << std::endl;
       return result; // existing IOVs do not match
@@ -278,6 +283,7 @@ int HcalO2OManager::getListOfNewIovs(std::vector<uint32_t> & iovs,
   //
   //_____ loop over remaining OMDS IOVs
   //
+  //std::cout << "HcalO2OManager: DEBUG: " << std::endl;
   int _counter = 0; // count output IOVs
   for (;_index < omds_iovs.size();++_index){
     if (_index == 0){
