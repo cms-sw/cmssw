@@ -14,9 +14,9 @@ process.source = cms.Source("PoolSource",
 # MessageLogger
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-#process.MessageLogger.debugModules = cms.untracked.vstring("testanalyzer","muonAssociatorByHits","mix")
+#process.MessageLogger.debugModules = cms.untracked.vstring("testanalyzer","muonAssociatorByHits","process.muonTrackProducer")
 
-process.MessageLogger.categories = cms.untracked.vstring('testReader', 'MuonAssociatorEDProducer',
+process.MessageLogger.categories = cms.untracked.vstring('testReader', 'MuonAssociatorEDProducer', 'MuonTrackProducer',
     'MuonAssociatorByHits', 'DTHitAssociator', 'RPCHitAssociator', 'MuonTruth',
     'MixingModule', 'FwkJob', 'FwkReport', 'FwkSummary', 'Root_NoDictionary')
 
@@ -29,6 +29,9 @@ process.MessageLogger.cerr = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
     ),
     MuonAssociatorEDProducer = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    MuonTrackProducer = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
     ),
     MuonAssociatorByHits = cms.untracked.PSet(
@@ -58,6 +61,9 @@ process.MessageLogger.cout = cms.untracked.PSet(
         limit = cms.untracked.int32(10000000)
     ),
     MuonAssociatorEDProducer = cms.untracked.PSet(
+        limit = cms.untracked.int32(10000000)
+    ),
+    MuonTrackProducer = cms.untracked.PSet(
         limit = cms.untracked.int32(10000000)
     ),
     MuonAssociatorByHits = cms.untracked.PSet(
@@ -99,29 +105,24 @@ process.MessageLogger.cout = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 
 # Standard Sequences
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryExtended_cff")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load("Configuration.StandardSequences.Digi_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-# for 3XX MC data
-process.GlobalTag.globaltag = cms.string('IDEAL_31X::All')
-#process.GlobalTag.globaltag = cms.string('IDEAL_30X::All')
-# for 2XX MC data
-#process.GlobalTag.globaltag = cms.string('IDEAL_V12::All') # 22X
-#process.GlobalTag.globaltag = cms.string('IDEAL_V9::All')  # 21X
+# set the GlobalTag according to the input MC sample
+process.GlobalTag.globaltag = cms.string('START3X_V16D::All')
 
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
-#process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.EventContent.EventContent_cff')
 
 # MuonAssociatorByHits
 process.load("SimMuon.MCTruth.MuonAssociatorByHits_cfi")
 process.muonAssociatorByHits.tracksTag = cms.InputTag("globalMuons")
 process.muonAssociatorByHits.UseTracker = cms.bool(True)
 process.muonAssociatorByHits.UseMuon = cms.bool(True)
-#process.muonAssociatorByHits.dumpDT = cms.bool(True)
 
 # test analysis
 process.testanalyzer = cms.EDAnalyzer("testReader",
@@ -166,18 +167,11 @@ process.schedule = cms.Schedule(process.mixing, process.TPs,
 #                                process.allDigis, process.L1simulation_step, process.digi2raw_step, process.raw2digi_step, process.reconstruction_step, 
 #                                process.muonAssociator, process.test, process.output)
 
+# Customisation function
 def customise(process):
-#    process.source.inputCommands = cms.untracked.vstring('keep *','drop FEDRawDataCollection_*_*_*')
-#    process.source.dropDescendantsOfDroppedBranches=cms.untracked.bool(False)
-      
-    if hasattr(process,"RandomNumberGeneratorService"):
-        del process.RandomNumberGeneratorService.theSource
-    else:    
-        process.load("IOMC/RandomEngine/IOMC_cff")
-        del process.RandomNumberGeneratorService.theSource
-
-    process.RandomNumberGeneratorService.restoreStateLabel = cms.untracked.string('randomEngineStateProducer')
-    
+    process.load("IOMC/RandomEngine/IOMC_cff")
+    del process.RandomNumberGeneratorService.generator
+    process.RandomNumberGeneratorService.restoreStateLabel = cms.untracked.string('randomEngineStateProducer')   
     return(process)
 
 # End of customisation function definition
