@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.20 $'),
+    version = cms.untracked.string('$Revision: 1.21 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -374,12 +374,32 @@ process.outlogerr = cms.OutputModule("PoolOutputModule",
 
 
 #===========================================================
+###########################ngood event per lumi##########################################
 
+process.nottoomany = cms.EDFilter("NMaxPerLumi",
+                       nMaxPerLumi = cms.uint32(10)
+                      )
+
+process.valskim=cms.Path(process.primaryVertexFilter+process.noscraping+process.nottoomany)
+
+
+#### output 
+process.outputvalskim = cms.OutputModule("PoolOutputModule",
+    outputCommands = process.FEVTEventContent.outputCommands,
+    fileName = cms.untracked.string("/tmp/malgeri/ValSkim.root"),
+    dataset = cms.untracked.PSet(
+      dataTier = cms.untracked.string('RAW-RECO'),
+      filterName = cms.untracked.string('ValSkim')
+    ),
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('valskim'))
+)
+
+###########################################################################
 process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.outHSCP+process.ecalrechitfilter_out+process.outputpfgskim2+process.outputpfgskim3+process.outlogerr)
+process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.outHSCP+process.ecalrechitfilter_out+process.outputpfgskim2+process.outputpfgskim3+process.outlogerr+process.outputvalskim)
 
 
 
