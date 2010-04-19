@@ -18,7 +18,7 @@ RecoEcalFEVT = cms.PSet(
         'keep *_correctedMulti5x5*_*_*',
         # Preshower clusters
         'keep recoPreshowerClusters_multi5x5SuperClustersWithPreshower_*_*', 
-        'keep recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_*_*'
+        'keep recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_*_*',
 	# DROP statements
 	'drop recoBasicClusters_multi5x5BasicClusters_multi5x5BarrelBasicClusters_*',
         'drop recoSuperClusters_multi5x5SuperClusters_multi5x5BarrelSuperClusters_*')
