@@ -137,7 +137,7 @@ namespace mathSSE {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
     }
     Vec3 get1(unsigned int n) const {
-      return Vec3(arr[n],arr[n],arr[n],,arr[n]);
+      return Vec3(arr[n],arr[n],arr[n],arr[n]);
     }
 
 
@@ -227,14 +227,14 @@ inline double dot(mathSSE::Vec3D a, mathSSE::Vec3D b) {
 inline mathSSE::Vec3D cross(mathSSE::Vec3D a, mathSSE::Vec3D b) {
   const __m128d neg = _mm_set_pd ( 0.0 , -0.0 );
   // lh .z * rh .x , lh .z * rh .y
-  __m128d l1 = _mm_mul_pd ( _mm_unpacklo_pd ( b.vec[1] , b.vec[1] ), a.vec[0] );
+  __m128d l1 = _mm_mul_pd ( _mm_unpacklo_pd ( a.vec[1] , a.vec[1] ), b.vec[0] );
   // rh .z * lh .x , rh .z * lh .y
-  __m128d l2 = _mm_mul_pd ( _mm_unpacklo_pd (  a.vec[1],  a.vec[1] ),  b.vec[0] );
+  __m128d l2 = _mm_mul_pd ( _mm_unpacklo_pd (  b.vec[1],  b.vec[1] ),  a.vec[0] );
   __m128d m1 = _mm_sub_pd ( l1 , l2 ); // l1 - l2
   m1 = _mm_shuffle_pd ( m1 , m1 , 1 ); // switch the elements
   m1 = _mm_xor_pd ( m1 , neg ); // change the sign of the first element
   // lh .x * rh .y , lh .y * rh .x
-  l1 = _mm_mul_pd (  b.vec[0] , _mm_shuffle_pd (  a.vec[0] ,  a.vec[0] , 1 ) );
+  l1 = _mm_mul_pd (  a.vec[0] , _mm_shuffle_pd (  b.vec[0] ,  b.vec[0] , 1 ) );
   // lh .x * rh .y - lh .y * rh .x
   __m128d m2 = _mm_sub_sd ( l1 , _mm_unpackhi_pd ( l1 , l1 ) );
 

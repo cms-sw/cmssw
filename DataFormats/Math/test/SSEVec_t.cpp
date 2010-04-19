@@ -22,13 +22,11 @@ float dotV( Vec3F const & a, Vec3F const & b) {
 float dotSimple( Vec3F const & a, Vec3F const & b) {
   Vec3F res = a*b;
   return res.arr[0]+res.arr[1]+res.arr[2];
-
 }
 
 double dotSimple( Vec3D const & a, Vec3D const & b) {
   Vec3D res = a*b;
   return res.arr[0]+res.arr[1]+res.arr[2];
-
 }
 
 float norm(Vec3F const & a) {
@@ -159,8 +157,8 @@ void go() {
 
 int main() {
   testBa();
-  go<float>;
-  go<double>;
+  go<float>();
+  go<double>();
 
   return 0;
 };
