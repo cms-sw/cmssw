@@ -205,12 +205,15 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       short  chStatus(*it);
       
       // not issuiung messages for regular cases 
-      // force MEM readout if mem_ is enabled EE
-      if( (chStatus == CH_DISABLED ||chStatus == CH_SUPPRESS) && !mem_ ) 
+      if( chStatus == CH_DISABLED )
+        {continue;}
+
+      // force MEM readout if mem_ is enabled in EEs regardless on ch suppress status flag
+      if( chStatus == CH_SUPPRESS && !mem_ ) 
 	{continue;}
       
       // issuiung messages for problematic cases, even though handled by the DCC
-      else if( chStatus == CH_TIMEOUT || chStatus == CH_HEADERERR || chStatus == CH_LINKERR  || chStatus == CH_LENGTHERR || chStatus == CH_IFIFOFULL || chStatus == CH_L1AIFIFOFULL )
+      if( chStatus == CH_TIMEOUT || chStatus == CH_HEADERERR || chStatus == CH_LINKERR  || chStatus == CH_LENGTHERR || chStatus == CH_IFIFOFULL || chStatus == CH_L1AIFIFOFULL )
 	{
 	  if( ! DCCDataUnpacker::silentMode_ ){ 
             edm::LogWarning("IncorrectBlock") << "In fed: " << fedId_ << " at LV1: " << l1_
