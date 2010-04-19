@@ -90,7 +90,7 @@ namespace mathSSE {
     Vec3() {
       vec = _mm_setzero_ps();
     }
-    Vec3(float f1, float f2, float f3, 3, float f4=0) {
+    Vec3(float f1, float f2, float f3, float f4=0) {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
     }
 
@@ -127,17 +127,17 @@ namespace mathSSE {
       vec[1] = _mm_setzero_pd();
     }
 
-    Vec3(double f1, double f2, double f3) {
-      arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=0;
+    Vec3(double f1, double f2, double f3, double f4=0) {
+      arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
     }
     
     Vec3(OldVec<double> const & ivec) : o(ivec) {}
 
-    void set(float f1, float f2, float f3, float f4=0) {
+    void set(double f1, double f2, double f3, double f4=0) {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
     }
     Vec3 get1(unsigned int n) const {
-      return Vec3(arr[n],arr[n],arr[n]);
+      return Vec3(arr[n],arr[n],arr[n],,arr[n]);
     }
 
 
@@ -238,7 +238,7 @@ inline mathSSE::Vec3D cross(mathSSE::Vec3D a, mathSSE::Vec3D b) {
   // lh .x * rh .y - lh .y * rh .x
   __m128d m2 = _mm_sub_sd ( l1 , _mm_unpackhi_pd ( l1 , l1 ) );
 
-  return Vec3D( m1 , m2 );
+  return  mathSSE::Vec3D( m1 , m2 );
 }
 
 

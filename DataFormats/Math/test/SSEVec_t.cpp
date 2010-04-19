@@ -158,7 +158,7 @@ void go() {
 
 
 int main() {
-  testBA();
+  testBa();
   go<float>;
   go<double>;
 
