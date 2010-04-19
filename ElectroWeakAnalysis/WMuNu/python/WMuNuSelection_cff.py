@@ -18,7 +18,7 @@ selcorMet = cms.EDFilter("WMuNuSelector",
       WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus"),
 
       # Preselection! 
-      MuonTrig = cms.untracked.string("HLT_L2Mu9"),
+      MuonTrig = cms.untracked.string("HLT_Mu9"),
       PtThrForZ1 = cms.untracked.double(20.0),
       PtThrForZ2 = cms.untracked.double(10.0),
       EJetMin = cms.untracked.double(40.),
@@ -59,7 +59,7 @@ selpfMet = cms.EDFilter("WMuNuSelector",
       WMuNuCollectionTag = cms.untracked.InputTag("pfMetWMuNus"),
 
       # Preselection! 
-      MuonTrig = cms.untracked.string("HLT_L2Mu9"),
+      MuonTrig = cms.untracked.string("HLT_Mu9"),
       PtThrForZ1 = cms.untracked.double(20.0),
       PtThrForZ2 = cms.untracked.double(10.0),
       EJetMin = cms.untracked.double(40.),
@@ -101,7 +101,7 @@ seltcMet = cms.EDFilter("WMuNuSelector",
       WMuNuCollectionTag = cms.untracked.InputTag("tcMetWMuNus"),
 
       # Preselection! 
-      MuonTrig = cms.untracked.string("HLT_L2Mu9"),
+      MuonTrig = cms.untracked.string("HLT_Mu9"),
       PtThrForZ1 = cms.untracked.double(20.0),
       PtThrForZ2 = cms.untracked.double(10.0),
       EJetMin = cms.untracked.double(40.),

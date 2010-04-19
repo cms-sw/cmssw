@@ -11,7 +11,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
        fileNames = cms.untracked.vstring(
-        'file:/data2/Wmunu_Summer09-MC_31X_V3_7TeV_AODSIM-v1/002861FD-899B-DE11-915E-000AE488BE67.root'
+#      'file:/data1/degrutto/CMSSW_3_5_6/src/ElectroWeakAnalysis/Skimming/test/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133483_3.root'
+   'file:/ciet3a/data4/EWK_SubSkim_Summer09_7TeV/WMuNu_7TeV_10invpb_1.root',
+
         )
 )
 
@@ -19,26 +21,28 @@ process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")  # standard cuts de
 #process.selcorMet.plotHistograms = cms.untracked.bool(True) 
 process.selpfMet.plotHistograms = cms.untracked.bool(True) # --> "true" for plotting of histos
 #process.seltcMet.plotHistograms = cms.untracked.bool(True)
+
  
 #process.load("ElectroWeakAnalysis.WMuNu.wmunusValidation_cfi") #load validation sequence (for WMunu & ZMuMu)
 
 # Debug/info printouts
 process.MessageLogger = cms.Service("MessageLogger",
-      debugModules = cms.untracked.vstring('selectPfMetWMuNus'),
+      debugModules = cms.untracked.vstring('selpfMet'),
       cout = cms.untracked.PSet(
             default = cms.untracked.PSet( limit = cms.untracked.int32(100) ),
-            threshold = cms.untracked.string('INFO')
-            #threshold = cms.untracked.string('DEBUG')
+            threshold = cms.untracked.string('DEBUG')
       ),
       destinations = cms.untracked.vstring('cout')
 )
 
 # Output histograms
-process.TFileService = cms.Service("TFileService", fileName = cms.string('WMuNu.root') )
+process.TFileService = cms.Service("TFileService", fileName = cms.string('WMuNu_prueba.root') )
 
 # Steering the process
-#process.path0 = cms.Path(process.wmunuval) # This creates extra validation folders, not strictly necesary for analysis
+#process.path0 = cms.Path(process.wmunuVal) # This creates extra validation folders, not strictly necesary for analysis
 process.path1 = cms.Path(process.selectPfMetWMuNus) #--> This is the default now!
 #process.path2 = cms.Path(process.selectTcMetWMuNus)
 #process.path3 = cms.Path(process.selectCaloMetWMuNus)
+
+
 

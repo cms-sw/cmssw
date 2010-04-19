@@ -12,7 +12,7 @@ wmnVal_corMet = cms.EDFilter("WMuNuValidator",
       JetTag = cms.untracked.InputTag("ak5CaloJets"),  # CAREFUL --> If you run on Summer09 MC, this was called "antikt5CaloJets"
       
       # Main cuts ->
-      MuonTrig = cms.untracked.string("HLT_L2Mu9"),
+      MuonTrig = cms.untracked.string("HLT_Mu9"),
       PtCut = cms.untracked.double(25.0),
       EtaMinCut = cms.untracked.double(-2.1),
       EtaMaxCut = cms.untracked.double(2.1),
@@ -52,7 +52,7 @@ wmnVal_pfMet = cms.EDFilter("WMuNuValidator",
       JetTag = cms.untracked.InputTag("ak5CaloJets"),
 
       # Main cuts ->
-      MuonTrig = cms.untracked.string("HLT_L2Mu9"),
+      MuonTrig = cms.untracked.string("HLT_Mu9"),
       PtCut = cms.untracked.double(25.0),
       EtaMaxCut = cms.untracked.double(2.1),
       EtaMinCut = cms.untracked.double(-2.1),
@@ -92,7 +92,7 @@ wmnVal_tcMet = cms.EDFilter("WMuNuValidator",
       JetTag = cms.untracked.InputTag("ak5CaloJets"),
 
       # Main cuts ->
-      MuonTrig = cms.untracked.string("HLT_L2Mu9"),
+      MuonTrig = cms.untracked.string("HLT_Mu9"),
       PtCut = cms.untracked.double(25.0),
       EtaMaxCut = cms.untracked.double(2.1),
       EtaMinCut = cms.untracked.double(-2.1),
