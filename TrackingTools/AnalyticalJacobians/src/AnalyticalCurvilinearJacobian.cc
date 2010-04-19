@@ -23,6 +23,9 @@ AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
    //dbg::dbg_trace(1,"ACJ1", globalParameters.vector(),x,p,s,theJacobian);
 }
 
+#ifdef TRPRFN_SSE
+#include "AnalyticalCurvilinearJacobian.icc"
+#else
 
 AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
 (const GlobalTrajectoryParameters& globalParameters,
@@ -235,29 +238,30 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   // end of TRPRFN
 }
 
+#endif
 
- void AnalyticalCurvilinearJacobian::computeInfinitesimalJacobian 
- (const GlobalTrajectoryParameters& globalParameters,
-  const GlobalPoint&, 
-  const GlobalVector& p, 
-  const GlobalVector& h, 
-  const double& s) {
-   /*
-    * origin  TRPROP
-    *
-     C *** ERROR PROPAGATION ALONG A PARTICLE TRAJECTORY IN A MAGNETIC FIELD
-     C     ROUTINE ASSUMES THAT IN THE INTERVAL (X1,X2) THE QUANTITIES 1/P
-     C     AND (HX,HY,HZ) ARE RATHER CONSTANT. DELTA(PHI) MUST NOT BE TOO LARGE
-     C
-     C     Authors: A. Haas and W. Wittek
-     C
-
-    */
+void AnalyticalCurvilinearJacobian::computeInfinitesimalJacobian 
+(const GlobalTrajectoryParameters& globalParameters,
+ const GlobalPoint&, 
+ const GlobalVector& p, 
+ const GlobalVector& h, 
+ const double& s) {
+  /*
+   * origin  TRPROP
+   *
+   C *** ERROR PROPAGATION ALONG A PARTICLE TRAJECTORY IN A MAGNETIC FIELD
+   C     ROUTINE ASSUMES THAT IN THE INTERVAL (X1,X2) THE QUANTITIES 1/P
+   C     AND (HX,HY,HZ) ARE RATHER CONSTANT. DELTA(PHI) MUST NOT BE TOO LARGE
+   C
+   C     Authors: A. Haas and W. Wittek
+   C
    
-
+  */
+  
+  
   double qbp = globalParameters.signedInverseMomentum();
   double absS = s;
-
+  
   // average momentum
   GlobalVector tn = (globalParameters.momentum()+p).unit(); 
   double sinl = tn.z(); 
@@ -294,7 +298,8 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   theJacobian(4,3) =  b3*tgl*(absS*qbp);
 
 
- }
+}
+
 void
 AnalyticalCurvilinearJacobian::computeStraightLineJacobian
 (const GlobalTrajectoryParameters& globalParameters,
