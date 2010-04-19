@@ -1,6 +1,7 @@
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
@@ -182,7 +183,11 @@ MuonAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
     // SimTrack collection
     edm::Handle<CrossingFrame<SimTrack> > cf_simtracks;
     edm::Handle<edm::SimTrackContainer> simTrackCollection;
-    
+
+    // SimVertex collection
+    edm::Handle<CrossingFrame<SimVertex> > cf_simvertices;
+    edm::Handle<edm::SimVertexContainer> simVertexCollection;
+        
     if (crossingframe) {
       e->getByLabel(simtracksXFTag,cf_simtracks);
       auto_ptr<MixCollection<SimTrack> > SimTk( new MixCollection<SimTrack>(cf_simtracks.product()) );
@@ -194,7 +199,18 @@ MuonAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
 	  <<"SimTrack "<<k
 	  <<" - Id:"<<ITER->trackId()<<"/Evt:("<<ITER->eventId().event()<<","<<ITER->eventId().bunchCrossing()<<")"
 	  <<" pdgId = "<<ITER->type()<<", q = "<<ITER->charge()<<", p = "<<ITER->momentum().P()
-	  <<", pT = "<<ITER->momentum().Pt()<<", eta = "<<ITER->momentum().Eta()<<", phi = "<<ITER->momentum().Phi();
+	  <<", pT = "<<ITER->momentum().Pt()<<", eta = "<<ITER->momentum().Eta()<<", phi = "<<ITER->momentum().Phi()
+	  <<"\n * "<<*ITER <<endl;
+      }
+      e->getByLabel(simtracksXFTag,cf_simvertices);
+      auto_ptr<MixCollection<SimVertex> > SimVtx( new MixCollection<SimVertex>(cf_simvertices.product()) );
+      edm::LogVerbatim("MuonAssociatorByHits")<<"\n"<<"CrossingFrame<SimVertex> collection with InputTag = "<<simtracksXFTag
+					      <<" has size = "<<SimVtx->size();
+      int kv = 0;
+      for (MixCollection<SimVertex>::MixItr VITER=SimVtx->begin(); VITER!=SimVtx->end(); VITER++, kv++){
+	edm::LogVerbatim("MuonAssociatorByHits")
+	  <<"SimVertex "<<kv
+	  << " : "<< *VITER <<endl;
       }
     }
     else {
@@ -208,7 +224,18 @@ MuonAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
 	  <<"SimTrack "<<k
 	  <<" - Id:"<<ITER->trackId()<<"/Evt:("<<ITER->eventId().event()<<","<<ITER->eventId().bunchCrossing()<<")"
 	  <<" pdgId = "<<ITER->type()<<", q = "<<ITER->charge()<<", p = "<<ITER->momentum().P()
-	  <<", pT = "<<ITER->momentum().Pt()<<", eta = "<<ITER->momentum().Eta()<<", phi = "<<ITER->momentum().Phi();
+	  <<", pT = "<<ITER->momentum().Pt()<<", eta = "<<ITER->momentum().Eta()<<", phi = "<<ITER->momentum().Phi()
+	  <<"\n * "<<*ITER <<endl;
+      }
+      e->getByLabel("g4SimHits",simVertexCollection);
+      const edm::SimVertexContainer simVC = *(simVertexCollection.product());
+      edm::LogVerbatim("MuonAssociatorByHits")<<"\n"<<"SimVertex collection with InputTag = "<<"g4SimHits"
+					      <<" has size = "<<simVC.size()<<endl;
+      int kv = 0;
+      for (edm::SimVertexContainer::const_iterator VITER=simVC.begin(); VITER!=simVC.end(); VITER++, kv++){
+	edm::LogVerbatim("MuonAssociatorByHits")
+	  <<"SimVertex "<<kv
+	  << " : "<< *VITER <<endl;
       }
     }
   }
@@ -949,9 +976,36 @@ void MuonAssociatorByHits::getMatchedIds
     
     // Si-Tracker Hits
     if (det == DetId::Tracker && UseTracker) {
+      stringstream detector_id;
+      
+      if (subdet == PixelSubdetector::PixelBarrel) {
+	PXBDetId pxbdetid(detid);
+	detector_id << pxbdetid;
+      }
+      else if (subdet == PixelSubdetector::PixelEndcap) {
+	PXFDetId pxfdetid(detid);
+	detector_id << pxfdetid;
+      }
+      else if (subdet == StripSubdetector::TIB) {
+	TIBDetId tibdetid(detid);
+	detector_id << tibdetid;
+      }
+      else if (subdet == StripSubdetector::TOB) {
+	TOBDetId tobdetid(detid);
+	detector_id << tobdetid;
+      }
+      else if (subdet == StripSubdetector::TID) {
+	TIDDetId tiddetid(detid);
+	detector_id << tiddetid;
+      }
+      else if (subdet == StripSubdetector::TEC) {
+	TECDetId tecdetid(detid);
+	detector_id << tecdetid;
+      }
+      
       if (valid_Hit) hitlog = hitlog+" -Tracker - detID = "+detector_id.str();
       else hitlog = hitlog+" *** INVALID ***"+" -Tracker - detID = "+detector_id.str();
-
+      
       iH++;
       SimTrackIds = trackertruth->associateHitId(*hitp);
 
@@ -970,14 +1024,17 @@ void MuonAssociatorByHits::getMatchedIds
 	  tracker_matchedIds_INVALID[iH] = SimTrackIds;
 	}
       }
-    }    
+    }  
     // Muon detector Hits    
     else if (det == DetId::Muon && UseMuon) {
 
       // DT Hits      
-      if (subdet == MuonSubdetId::DT) {
-	if (valid_Hit) hitlog = hitlog+" -Muon DT - detID = "+detector_id.str();	  
-	else hitlog = hitlog+" *** INVALID ***"+" -Muon DT - detID = "+detector_id.str();	  
+      if (subdet == MuonSubdetId::DT) {    
+	DTWireId dtdetid = DTWireId(detid);
+	stringstream dt_detector_id;
+	dt_detector_id << dtdetid;
+	if (valid_Hit) hitlog = hitlog+" -Muon DT - detID = "+dt_detector_id.str();	  
+	else hitlog = hitlog+" *** INVALID ***"+" -Muon DT - detID = "+dt_detector_id.str();	  
 	
 	const DTRecHit1D * dtrechit = dynamic_cast<const DTRecHit1D *>(hitp);
 	
@@ -1075,8 +1132,14 @@ void MuonAssociatorByHits::getMatchedIds
 		<<"*** WARNING in MuonAssociatorByHits::getMatchedIds, null dynamic_cast of a DT TrackingRecHit !";
 	      
 	      unsigned int i_detid = (*ithit)->geographicalId().rawId();
+	      DTWireId i_dtdetid = DTWireId(i_detid);
+
+	      stringstream i_dt_detector_id;
+	      i_dt_detector_id << i_dtdetid;
+
 	      stringstream i_ss;
-	      i_ss<<"\t\t hit "<<i_compHit<<" -Muon DT - detID = "<<i_detid;
+	      i_ss<<"\t\t hit "<<i_compHit<<" -Muon DT - detID = "<<i_dt_detector_id.str();
+
 	      string i_hitlog = i_ss.str();
 	      i_hitlog = i_hitlog + write_matched_simtracks(i_SimTrackIds);
 	      if (printRtS) edm::LogVerbatim("MuonAssociatorByHits") << i_hitlog;
@@ -1092,8 +1155,11 @@ void MuonAssociatorByHits::getMatchedIds
       
       // CSC Hits
       else if (subdet == MuonSubdetId::CSC) {
-	if (valid_Hit) hitlog = hitlog+" -Muon CSC- detID = "+detector_id.str();	  
-	else hitlog = hitlog+" *** INVALID ***"+" -Muon CSC- detID = "+detector_id.str();	  
+	CSCDetId cscdetid = CSCDetId(detid);
+	stringstream csc_detector_id;
+	csc_detector_id << cscdetid;
+	if (valid_Hit) hitlog = hitlog+" -Muon CSC- detID = "+csc_detector_id.str();	  
+	else hitlog = hitlog+" *** INVALID ***"+" -Muon CSC- detID = "+csc_detector_id.str();	  
 	
 	const CSCRecHit2D * cscrechit = dynamic_cast<const CSCRecHit2D *>(hitp);
 	
@@ -1162,8 +1228,14 @@ void MuonAssociatorByHits::getMatchedIds
 		<<"*** WARNING in MuonAssociatorByHits::getMatchedIds, null dynamic_cast of a CSC TrackingRecHit !";
 	      
 	      unsigned int i_detid = (*ithit)->geographicalId().rawId();
+	      CSCDetId i_cscdetid = CSCDetId(i_detid);
+
+	      stringstream i_csc_detector_id;
+	      i_csc_detector_id << i_cscdetid;
+
 	      stringstream i_ss;
-	      i_ss<<"\t\t hit "<<i_compHit<<" -Muon CSC- detID = "<<i_detid;
+	      i_ss<<"\t\t hit "<<i_compHit<<" -Muon CSC- detID = "<<i_csc_detector_id.str();
+
 	      string i_hitlog = i_ss.str();
 	      i_hitlog = i_hitlog + write_matched_simtracks(i_SimTrackIds);
 	      if (printRtS) edm::LogVerbatim("MuonAssociatorByHits") << i_hitlog;
@@ -1179,8 +1251,11 @@ void MuonAssociatorByHits::getMatchedIds
       
       // RPC Hits
       else if (subdet == MuonSubdetId::RPC) {
-	if (valid_Hit) hitlog = hitlog+" -Muon RPC- detID = "+detector_id.str();	  
-	else hitlog = hitlog+" *** INVALID ***"+" -Muon RPC- detID = "+detector_id.str();	  
+	RPCDetId rpcdetid = RPCDetId(detid);
+	stringstream rpc_detector_id;
+	rpc_detector_id << rpcdetid;
+	if (valid_Hit) hitlog = hitlog+" -Muon RPC- detID = "+rpc_detector_id.str();	  
+	else hitlog = hitlog+" *** INVALID ***"+" -Muon RPC- detID = "+rpc_detector_id.str();	  
 	
 	iH++;
 	SimTrackIds = rpctruth.associateRecHit(*hitp);
