@@ -34,7 +34,8 @@ class ESFastTDigitizer
     theDetIds(0),
     addNoise_(addNoise),
     numESdetId_(numESdetId),  
-    histoDistribution_(0)
+       histoDistribution_(0),
+       refHistos_(0)
   {        
   
     setRefFile_ = true;
