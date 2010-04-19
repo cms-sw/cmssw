@@ -82,9 +82,9 @@ SiPixelDataQuality::SiPixelDataQuality(bool offlineXMLfile) : offlineXMLfile_(of
 SiPixelDataQuality::~SiPixelDataQuality() {
   edm::LogInfo("SiPixelDataQuality") << 
     " Deleting SiPixelDataQuality " << "\n" ;
-  delete allmodsMap;
-  delete errmodsMap;
-  delete goodmodsMap;
+  if(allmodsMap) delete allmodsMap;
+  if(errmodsMap) delete errmodsMap;
+  if(goodmodsMap) delete goodmodsMap;
 }
 
 
