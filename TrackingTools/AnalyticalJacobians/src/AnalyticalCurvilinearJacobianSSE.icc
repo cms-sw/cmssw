@@ -8,6 +8,9 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
  const GlobalVector& h, 
  const double& s)
 {    
+
+  using mathSSE::Vec3D;
+
   //GlobalVector p1 = fts.momentum().unit();
   GlobalVector p1 = globalParameters.momentum().unit();
   GlobalVector p2 = p.unit();
@@ -44,14 +47,14 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   const __m128d neg = _mm_set_pd ( 0.0 , -0.0 );
 
-  __128d t = _mm_mul_pd(t1.vec[0],t1.vec[0]);
+  __m128d t = _mm_mul_pd(t1.vec[0],t1.vec[0]);
   t = _mm_sqrt_pd(_mm_sum_pd(t,_mm_shuffle_pd(t,t,1)));
-  Vec3D u1(_mm_xor_pd(neg,_mm_div_pd(_mm_shuffle_pd(t1,t1,1),t)), _mm_setzero_pd());
+  Vec3D u1(_mm_xor_pd(neg,_mm_div_pd(_mm_shuffle_pd(t1.vec[0],t1.vec[0],1),t)), _mm_setzero_pd());
   Vec3D v1 = cross(t1,u1);
 
   t = _mm_mul_pd(t2.vec[0],t2.vec[0]);
   t = _mm_sqrt_pd(_mm_sum_pd(t,_mm_shuffle_pd(t,t,1)));
-  Vec3D u2(_mm_xor_pd(neg,_mm_div_pd(_mm_shuffle_pd(t2,t2,1),t)), _mm_setzero_pd());
+  Vec3D u2(_mm_xor_pd(neg,_mm_div_pd(_mm_shuffle_pd(t2.vec[0],t2.vec[0],1),t)), _mm_setzero_pd());
   Vec3D v2 = cross(t2,u2);
 
 
@@ -69,12 +72,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   
   
   Vec3D hu = cross(hn,u1);
-  Vec3D hu = cross(hn,v1);
-
-  double hu1 =         - hn3*u12;
-  double hu2 = hn3*u11;
-  double hu3 = hn1*u12 - hn2*u11;
-  
+  Vec3D hv = cross(hn,v1);
 
   
   //   1/p - doesn't change since |p1| = |p2|
