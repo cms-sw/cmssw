@@ -196,14 +196,14 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
     double qbp2 = qbp * qbp;
     double thirdOrder41 = 1./3 * h2 * s3 * qbp * temp2;
     double fourthOrder41 = 1./8 * h3 * s4 * qbp2 * temp1;
-    theJacobian(3,0) = secondOrder41 + thirdOrder41 + fourthOrder41;
+    theJacobian(3,0) = secondOrder41 + (thirdOrder41 + fourthOrder41);
 
     double temp3 = hp11*v21 + hp12*v22 + hp13*v23;
     double secondOrder51 = 0.5 * qp * temp3 * s2;
     double temp4 = ghnmp1*v21 + ghnmp2*v22 + ghnmp3*v23;
     double thirdOrder51 = 1./3 * h2 * s3 * qbp * temp4;
     double fourthOrder51 = 1./8 * h3 * s4 * qbp2 * temp3;
-    theJacobian(4,0) = secondOrder51 + thirdOrder51 + fourthOrder51;
+    theJacobian(4,0) = secondOrder51 + (thirdOrder51 + fourthOrder51);
   }
 
   theJacobian(3,1) = (sint*(v11*u21 + v12*u22          ) +
