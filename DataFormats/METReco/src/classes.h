@@ -99,6 +99,7 @@ namespace {
     std::vector<CommonMETData> bcv1;
 
     std::vector<SpecificCaloMETData> bcv2;
+    std::vector<SpecificPFMETData> bpfv2;
 
     reco::PhiWedge x1;  
     edm::Wrapper<reco::PhiWedge> w1;
