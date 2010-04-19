@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.24 2010/03/10 15:28:34 merkelp Exp $
+// $Id: SiPixelClusterSource.cc,v 1.25 2010/04/10 08:12:27 elmer Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -102,6 +102,18 @@ void SiPixelClusterSource::beginRun(const edm::Run& r, const edm::EventSetup& iS
     buildStructure(iSetup);
     // Book Monitoring Elements
     bookMEs();
+    // Book occupancy maps in global coordinates for all clusters:
+    theDMBE->setCurrentFolder("Pixel/Clusters/OffTrack");
+    //bpix
+    meClPosLayer1 = theDMBE->book2D("position_siPixelClusters_Layer_1","Clusters Layer1;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
+    meClPosLayer2 = theDMBE->book2D("position_siPixelClusters_Layer_2","Clusters Layer2;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
+    meClPosLayer3 = theDMBE->book2D("position_siPixelClusters_Layer_3","Clusters Layer3;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
+    //fpix
+    meClPosDisk1pz = theDMBE->book2D("position_siPixelClusters_pz_Disk_1","Clusters +Z Disk1;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
+    meClPosDisk2pz = theDMBE->book2D("position_siPixelClusters_pz_Disk_2","Clusters +Z Disk2;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
+    meClPosDisk1mz = theDMBE->book2D("position_siPixelClusters_mz_Disk_1","Clusters -Z Disk1;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
+    meClPosDisk2mz = theDMBE->book2D("position_siPixelClusters_mz_Disk_2","Clusters -Z Disk2;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
+    
     firstRun = false;
   }
 }
@@ -296,7 +308,6 @@ void SiPixelClusterSource::bookMEs(){
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }
     }
-    //**
     if(smileyOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,7)){
         (*struct_iter).second->book( conf_,7,twoDimOn,reducedSet);

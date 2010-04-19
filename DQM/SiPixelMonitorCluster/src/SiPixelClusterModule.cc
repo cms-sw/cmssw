@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.27 2010/03/10 15:28:34 merkelp Exp $
+// $Id: SiPixelClusterModule.cc,v 1.28 2010/04/10 08:12:27 elmer Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -531,6 +531,53 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
       if(modon){
 	(meCharge_)->Fill((float)charge);
 	(meSize_)->Fill((int)size);
+        DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
+	std::string currDir = theDMBE->pwd();
+	theDMBE->cd("Pixel/Clusters/OffTrack/");
+	MonitorElement * me;
+	if(barrel){
+          uint32_t DBlayer = PixelBarrelName(DetId(id_)).layerName();
+	  switch(DBlayer){
+	  case 1: {
+	    me = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_1");
+	    if(me) me->Fill(clustgp.z(),clustgp.phi());
+	    break;
+	  } case 2: {
+	    me = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_2");
+	    if(me) me->Fill(clustgp.z(),clustgp.phi());
+	    break;
+	  } case 3: {
+	    me = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_3");
+	    if(me) me->Fill(clustgp.z(),clustgp.phi());
+	    break;
+	  }} 
+	}else if(endcap){
+	  uint32_t DBdisk = PixelEndcapName(DetId(id_)).diskName();
+	  if(clustgp.z()>0){
+	    switch(DBdisk){
+	    case 1: {
+	      me = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_pz_Disk_1");
+	      if(me) me->Fill(clustgp.x(),clustgp.y());
+	      break;
+	    } case 2: {
+	      me = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_pz_Disk_2");
+	      if(me) me->Fill(clustgp.x(),clustgp.y());
+	      break;
+	    }}
+	 }else{
+	    switch(DBdisk){
+	    case 1: {
+	      me = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_mz_Disk_1");
+	      if(me) me->Fill(clustgp.x(),clustgp.y());
+	      break;
+	    } case 2: {
+	      me = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_mz_Disk_2");
+	      if(me) me->Fill(clustgp.x(),clustgp.y());
+	      break;
+	    }}
+	  } 
+	}
+	theDMBE->cd(currDir);
 	if(!reducedSet)
 	{
 	  (meMinRow_)->Fill((int)minPixelRow);
