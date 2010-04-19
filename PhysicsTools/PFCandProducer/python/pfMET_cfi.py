@@ -1,10 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoMET.METProducers.METSigParams_cfi import *
 
-pfMET = cms.EDProducer("PFMET",
-    PFCandidates = cms.InputTag("particleFlow"),
-    # HF calibration factor 1/0.7=1.429 (in 31X applied by PFProducer)
-    hfCalibFactor =  cms.double(1.0),
-    verbose = cms.untracked.bool(False)
-)
+pfMET = cms.EDProducer("METProducer",
+                       
+                       METSignificance_params,
+                       src = cms.InputTag("particleFlow"),
+                       METType = cms.string('PFMET'),
+                       alias = cms.string('PFMET'),
+                       noHF = cms.bool(False),
+                       globalThreshold = cms.double(0.0),
+                       InputType = cms.string('PFCandidateCollection'),
+                       calculateSignificance = cms.bool(True)
+                       )
 
