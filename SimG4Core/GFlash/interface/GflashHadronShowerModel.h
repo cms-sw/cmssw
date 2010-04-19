@@ -36,7 +36,6 @@ private:
   G4bool excludeDetectorRegion(const G4FastTrack& fastTrack);
   void makeHits(const G4FastTrack& fastTrack);
   void updateGflashStep(G4ThreeVector position, G4double time);
-  G4int findShowerType(const G4FastTrack& fastTrack);
 
 private:  
 

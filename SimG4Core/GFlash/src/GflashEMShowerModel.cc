@@ -91,13 +91,13 @@ void GflashEMShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastSte
   fastStep.KillPrimaryTrack();
   fastStep.ProposePrimaryTrackPathLength(0.0);
 
-  //input variables for GflashEMShowerProfile with showerType = 1 (shower starts inside crystals)
-  G4int showerType =  findShowerType(fastTrack);
+  //input variables for GflashEMShowerProfile with showerType = 1,5 (shower starts inside crystals)
   G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV;
   G4double globalTime = fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetGlobalTime();
   G4double charge = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetCharge();
   G4ThreeVector position = fastTrack.GetPrimaryTrack()->GetPosition() / cm;
   G4ThreeVector momentum = fastTrack.GetPrimaryTrack()->GetMomentum()/GeV;
+  G4int showerType = Gflash::findShowerType(position);
 
   // Do actual parameterization. The result of parameterization is gflashHitList
   theProfile->initialize(showerType,energy,globalTime,charge,position,momentum);
@@ -167,12 +167,14 @@ G4bool GflashEMShowerModel::excludeDetectorRegion(const G4FastTrack& fastTrack) 
   G4bool isExcluded=false;
 
   //exclude regions where geometry are complicated
+  //+- one supermodule around the EB/EE boundary: 1.479 +- 0.0174*5 
   G4double eta =   fastTrack.GetPrimaryTrack()->GetPosition().pseudoRapidity() ;
-  if(fabs(eta) > 1.3 && fabs(eta) < 1.57) return true;
+  if(std::fabs(eta) > 1.392 && std::fabs(eta) < 1.566) return true;
 
   return isExcluded;
 }
 
+/*
 G4int GflashEMShowerModel::findShowerType(const G4FastTrack& fastTrack)
 {
   // Initialization of longitudinal and lateral parameters for
@@ -236,3 +238,4 @@ G4int GflashEMShowerModel::findShowerType(const G4FastTrack& fastTrack)
 
   return showerType;
 }
+*/

@@ -104,12 +104,12 @@ void GflashHadronShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fas
   else if(particleType == G4Proton::ProtonDefinition()) theProfile = theProtonProfile;
 
   //input variables for GflashHadronShowerProfile
-  G4int showerType = findShowerType(fastTrack);
   G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV;
   G4double globalTime = fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetGlobalTime();
   G4double charge = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetCharge();
   G4ThreeVector position = fastTrack.GetPrimaryTrack()->GetPosition()/cm;
   G4ThreeVector momentum = fastTrack.GetPrimaryTrack()->GetMomentum()/GeV;
+  G4int showerType = Gflash::findShowerType(position);
 
   theProfile->initialize(showerType,energy,globalTime,charge,position,momentum);
   theProfile->loadParameters();
@@ -235,9 +235,10 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTra
   G4bool isExcluded=false;
   int verbosity = theParSet.getUntrackedParameter<int>("Verbosity");
   
-  //exclude regions where geometry are complicated 
+  //exclude regions where geometry are complicated
+  //+- one supermodule around the EB/EE boundary: 1.479 +- 0.0174*5
   G4double eta =   fastTrack.GetPrimaryTrack()->GetPosition().pseudoRapidity() ;
-  if(fabs(eta) > Gflash::EtaMax[Gflash::kESPM] && fabs(eta) < Gflash::EtaMin[Gflash::kENCA]) {
+  if(std::fabs(eta) > 1.392 && std::fabs(eta) < 1.566) {
     if(verbosity>0) {
        edm::LogInfo("SimGeneralGFlash") << "GflashHadronShowerModel: excluding region of eta = " << eta;
     }
@@ -248,14 +249,18 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTra
 
     Gflash::CalorimeterNumber kCalor = Gflash::getCalorimeterNumber(postStep->GetPosition()/cm);
     G4double distOut = 9999.0;
-    //exclude the region where the shower starting point is outside parameterization envelopes
-    if(kCalor==Gflash::kNULL) {
-      isExcluded = true;
+
+    //exclude the region where the shower starting point is inside the preshower
+    if( std::fabs(eta) > Gflash::EtaMin[Gflash::kENCA] &&
+        std::fabs((postStep->GetPosition()).getZ()/cm) < Gflash::Zmin[Gflash::kENCA]) {
+      return true;
     }
+
+    //<---the shower starting point is always inside envelopes
     //@@@exclude the region where the shower starting point is too close to the end of
     //the hadronic envelopes (may need to be optimized further!)
     //@@@if we extend parameterization including Magnet/HO, we need to change this strategy
-    else if(kCalor == Gflash::kHB) {
+    if(kCalor == Gflash::kHB) {
       distOut =  Gflash::Rmax[Gflash::kHB] - postStep->GetPosition().getRho()/cm;
       if (distOut < Gflash::MinDistanceToOut ) isExcluded = true;
     }
@@ -273,68 +278,4 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTra
   }
 
   return isExcluded;
-}
-
-G4int GflashHadronShowerModel::findShowerType(const G4FastTrack& fastTrack)
-{
-  // Initialization of longitudinal and lateral parameters for 
-  // hadronic showers. Simulation of the intrinsic fluctuations
-
-  // type of hadron showers subject to the shower starting point (ssp)
-  // showerType = -1 : default (invalid) 
-  // showerType =  0 : ssp before EBRY (barrel crystal) 
-  // showerType =  1 : ssp inside EBRY
-  // showerType =  2 : ssp after  EBRY before HB
-  // showerType =  3 : ssp inside HB
-  // showerType =  4 : ssp before EFRY (endcap crystal) 
-  // showerType =  5 : ssp inside EFRY 
-  // showerType =  6 : ssp after  EFRY before HE
-  // showerType =  7 : ssp inside HE
-    
-  G4TouchableHistory* touch = (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
-  G4LogicalVolume* lv = touch->GetVolume()->GetLogicalVolume();
-
-  std::size_t pos1  = lv->GetName().find("EBRY");
-  std::size_t pos11 = lv->GetName().find("EWAL");
-  std::size_t pos12 = lv->GetName().find("EWRA");
-  std::size_t pos2  = lv->GetName().find("EFRY");
-
-  G4ThreeVector position = fastTrack.GetPrimaryTrack()->GetPosition()/cm;
-  Gflash::CalorimeterNumber kCalor = Gflash::getCalorimeterNumber(position);
-
-  G4int showerType = -1;
-
-  //central
-  if (kCalor == Gflash::kESPM || kCalor == Gflash::kHB ) {
-
-    G4double posRho = position.getRho();
-
-    if(pos1 != std::string::npos || pos11 != std::string::npos || pos12 != std::string::npos ) {
-      showerType = 1;
-    }
-    else {
-      if(kCalor == Gflash::kESPM) {
-	showerType = 2;
-	if( posRho < Gflash::Rmin[Gflash::kESPM]+ Gflash::ROffCrystalEB ) showerType = 0;
-      }
-      else showerType = 3;
-    }
-
-  }
-  //forward
-  else if (kCalor == Gflash::kENCA || kCalor == Gflash::kHE) {
-    if(pos2 != std::string::npos) {
-      showerType = 5;
-    }
-    else {
-      if(kCalor == Gflash::kENCA) {
-	showerType = 6;
-	if(fabs(position.getZ()) < Gflash::Zmin[Gflash::kENCA] + Gflash::ZOffCrystalEE) showerType = 4;
-      }
-      else showerType = 7;
-    }
-    //@@@need z-dependent correction on the mean energy reponse
-  }
-
-  return showerType;
 }
