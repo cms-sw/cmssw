@@ -3,7 +3,7 @@
 setenv SCRAM_ARCH slc5_ia32_gcc434
 eval `scramv1 runtime -csh`
 
-set RefRelease="CMSSW_3_5_0_pre1"
+set RefRelease="CMSSW_3_6_0_pre6"
 set WebDir=$CMSSW_VERSION # this is where you want the plots to end up; normally, you should put here the current release
 
 # Possible values are:
@@ -24,11 +24,11 @@ set copyWWW="false"
 #set copyWWW="true"
 
 # set the histogram file name in Comparison mode
-set histogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_5_0_pre2-MC_3XY_V14-v1__GEN-SIM-RECO_1.root"
+set histogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_6_0-MC_36Y_V4-v1__GEN-SIM-RECO.root"
 
 #reference histogram file name
 #set refhistogramfile="DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root"
-set refhistogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_5_0_pre1-MC_3XY_V14-v1__GEN-SIM-RECO_1.root"
+set refhistogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_6_0_pre6-MC_36Y_V4-v1__GEN-SIM-RECO.root"
 
 setenv DATADIR $CMSSW_BASE/src
 setenv REFDIRS /afs/cern.ch/cms/performance/tracker/activities/validation/ReferenceFiles
@@ -50,25 +50,25 @@ cd ${DATADIR}
 
 # Get the relevant packages
 #
-if (! -e Validation/Geometry) cvs co -r $CMSSW_VERSION Validation/Geometry
-if (! -e Validation/TrackerHits) cvs co -r $CMSSW_VERSION Validation/TrackerHits
-if (! -e Validation/TrackerDigis) cvs co -r $CMSSW_VERSION Validation/TrackerDigis
-if (! -e Validation/TrackerRecHits) cvs co -r $CMSSW_VERSION Validation/TrackerRecHits
-if (! -e Validation/TrackingMCTruth) cvs co -r $CMSSW_VERSION Validation/TrackingMCTruth
+if (! -e Validation/Geometry) cvs co Validation/Geometry
+if (! -e Validation/TrackerHits) cvs co Validation/TrackerHits
+if (! -e Validation/TrackerDigis) cvs co Validation/TrackerDigis
+if (! -e Validation/TrackerRecHits) cvs co Validation/TrackerRecHits
+if (! -e Validation/TrackingMCTruth) cvs co Validation/TrackingMCTruth
 if (! -e Validation/RecoTrack) cvs co  Validation/RecoTrack ### TEMPORARY: I MODIFIED THE HEAD OF /test
 #Add also co of CalibTracker for test o Lite version of Geometry
-if (! -e CalibTracker/SiStripCommon) cvs co -r $CMSSW_VERSION CalibTracker/SiStripCommon
+#if (! -e CalibTracker/SiStripCommon) cvs co -r $CMSSW_VERSION CalibTracker/SiStripCommon
 #
 # Geometry Validation
 #
-if ('${1}' == 'GEOMETRY' ) then
-cd ${DATADIR}/Validation/Geometry/test
-./TrackerGeometryValidation.sh ${RefRelease}
-    if ($copyWWW == "true") then 
-    chmod a+x copyWWWTrackerGeometry.sh    
-    ./copyWWWTrackerGeometry.sh
-    endif
-endif
+#if ('${1}' == 'GEOMETRY' ) then
+#cd ${DATADIR}/Validation/Geometry/test
+#./TrackerGeometryValidation.sh ${RefRelease}
+#    if ($copyWWW == "true") then 
+#    chmod a+x copyWWWTrackerGeometry.sh    
+#    ./copyWWWTrackerGeometry.sh
+#    endif
+#endif
 #
 # Run validation chain
 #
