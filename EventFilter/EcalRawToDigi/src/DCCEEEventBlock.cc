@@ -37,7 +37,7 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   
   reset();
   
-  eventSize_ = numbBytes;	
+  eventSize_ = numbBytes;        
   data_      = buffer;
   
   // First Header Word of fed block
@@ -175,7 +175,7 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   }
 
   // See number of FE channels that we need according to the trigger type //
-  // TODO : WHEN IN LOCAL MODE WE SHOULD CHECK RUN TYPE			
+  // TODO : WHEN IN LOCAL MODE WE SHOULD CHECK RUN TYPE                        
   uint numbChannels(0);
   
   if(       triggerType_ == PHYSICTRIGGER      ){ numbChannels = 68; }
@@ -195,39 +195,44 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   //          equals number_channels_found_in_data.
   //          The checks are doing f.e. by f.e. only.
   
-  if( feUnpacking_ || memUnpacking_ ){ 	     					
+  if( feUnpacking_ || memUnpacking_ ){                                                      
     it = feChStatus_.begin();
     
     // looping over FE channels, i.e. tower blocks
-    for( uint chNumber=1; chNumber<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; chNumber++, it++ ){			
-      //for( uint i=1; chNumber<= numbChannels; chNumber++, it++ ){			
-
-      short  chStatus(*it);
+    for( uint chNumber=1; chNumber<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; chNumber++, it++ ){                        
+      //for( uint i=1; chNumber<= numbChannels; chNumber++, it++ ){                        
       
-      // not issuiung messages for regular cases 
-      if( chStatus == CH_DISABLED )
-        {continue;}
-
+      const short chStatus(*it);
+      
+      // skip unpacking if channel disabled
+      if (chStatus == CH_DISABLED) {
+        continue;
+      }
+      
       // force MEM readout if mem_ is enabled in EEs regardless on ch suppress status flag
-      if( chStatus == CH_SUPPRESS && !mem_ ) 
-	{continue;}
+      if (chStatus == CH_SUPPRESS && !mem_ ) {
+        continue;
+      }
       
       // issuiung messages for problematic cases, even though handled by the DCC
-      if( chStatus == CH_TIMEOUT || chStatus == CH_HEADERERR || chStatus == CH_LINKERR  || chStatus == CH_LENGTHERR || chStatus == CH_IFIFOFULL || chStatus == CH_L1AIFIFOFULL )
-	{
-	  if( ! DCCDataUnpacker::silentMode_ ){ 
-            edm::LogWarning("IncorrectBlock") << "In fed: " << fedId_ << " at LV1: " << l1_
-    					        << " the DCC channel: " << chNumber 
-					        << " has channel status: " << chStatus 
-					        << " and is not being unpacked";
-          }
-	  continue;
-	}
-      
+      // and skip channel
+      if (chStatus == CH_TIMEOUT || chStatus == CH_HEADERERR ||
+          chStatus == CH_LINKERR || chStatus == CH_LENGTHERR ||
+          chStatus == CH_IFIFOFULL || chStatus == CH_L1AIFIFOFULL)
+      {
+        if (! DCCDataUnpacker::silentMode_) {
+            edm::LogWarning("IncorrectBlock")
+              << "Bad channel status: " << chStatus
+              << " in the DCC channel: " << chNumber
+              << " (LV1 " << l1_ << " fed " << fedId_ << ")\n"
+              << "  => DCC channel is not being unpacked";
+        }
+        continue;
+      }
       
       // Unpack Tower (Xtal Block) in case of SR (data are 0 suppressed)
       if(feUnpacking_ && sr_ && chNumber<=68)
-	{
+        {
           if( fov_ > 0){  
             bool applyZS(true);
             if( !ignoreSR && chStatus != CH_FORCEDZS1
@@ -236,7 +241,7 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
 
             // If there is a decision to fully suppress data this is updated in channel status by the dcc
             //if ( ( srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_NREAD ){
-	        STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
+                STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
             //}
           }
           else{
@@ -245,7 +250,7 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
              STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,chNumber);
 
           }
-	}
+        }
       
 
 
@@ -253,18 +258,18 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       
       // Unpack Tower (Xtal Block) for no SR (possibly 0 suppression flags)
       else if (feUnpacking_ && chNumber<=68)
-	{
-	  // if tzs_ data are not really suppressed, even though zs flags are calculated
-	  if(tzs_){ zs_ = false;}
-	  STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,chNumber);
-	}
+        {
+          // if tzs_ data are not really suppressed, even though zs flags are calculated
+          if(tzs_){ zs_ = false;}
+          STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,chNumber);
+        }
       
       
       // Unpack Mem blocks
-      if(memUnpacking_	&& chNumber>68 )
-	{
-	  STATUS = memBlock_->unpack(&data_,&dwToEnd_,chNumber);
-	}
+      if(memUnpacking_        && chNumber>68 )
+        {
+          STATUS = memBlock_->unpack(&data_,&dwToEnd_,chNumber);
+        }
       
     }
     // closing loop over FE/TTblock channels
@@ -287,7 +292,7 @@ int DCCEEEventBlock::unpackTCCBlocks(){
   for(it=tccChStatus_.begin();it!=tccChStatus_.end();it++, tccChId++){
     if( (*it) != CH_TIMEOUT &&  (*it) != CH_DISABLED){
       STATUS = tccBlock_->unpack(&data_,&dwToEnd_,tccChId);
-	  if(STATUS == STOP_EVENT_UNPACKING) break;
+          if(STATUS == STOP_EVENT_UNPACKING) break;
     }
   }
   return STATUS;

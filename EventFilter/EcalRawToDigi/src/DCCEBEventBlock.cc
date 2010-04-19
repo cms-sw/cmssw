@@ -40,7 +40,7 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   
   reset();
  
-  eventSize_ = numbBytes;	
+  eventSize_ = numbBytes;        
   data_      = buffer;
   
   // First Header Word of fed block
@@ -178,7 +178,7 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
 
 
   // See number of FE channels that we need according to the trigger type //
-  // TODO : WHEN IN LOCAL MODE WE SHOULD CHECK RUN TYPE			
+  // TODO : WHEN IN LOCAL MODE WE SHOULD CHECK RUN TYPE                        
   uint numbChannels(0);
   
   if(       triggerType_ == PHYSICTRIGGER      ){ numbChannels = 68; }
@@ -202,28 +202,38 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     it = feChStatus_.begin();
     
     // looping over FE channels, i.e. tower blocks
-    for( uint chNumber=1; chNumber<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; chNumber++, it++ ){			
-      //for( uint i=1; chNumber<= numbChannels; chNumber++, it++ ){			
+    for( uint chNumber=1; chNumber<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; chNumber++, it++ ){                        
+      //for( uint i=1; chNumber<= numbChannels; chNumber++, it++ ){                        
 
       const short chStatus(*it);
       
-      // not issuiung messages for regular cases
-      if(chStatus == CH_DISABLED ||
-	 chStatus == CH_SUPPRESS) 
-	{continue;}
+      // regular cases
+      const bool regular = (chStatus == CH_DISABLED ||
+                            chStatus == CH_SUPPRESS);
+      
+      // problematic cases
+      const bool problematic = (chStatus == CH_TIMEOUT ||
+                                chStatus == CH_HEADERERR ||
+                                chStatus == CH_LINKERR ||
+                                chStatus == CH_LENGTHERR ||
+                                chStatus == CH_IFIFOFULL ||
+                                chStatus == CH_L1AIFIFOFULL);
       
       // issuiung messages for problematic cases, even though handled by the DCC
-      else if( chStatus == CH_TIMEOUT || chStatus == CH_HEADERERR || chStatus == CH_LINKERR || chStatus == CH_LENGTHERR || chStatus == CH_IFIFOFULL || chStatus == CH_L1AIFIFOFULL)
-	{
-	  if( ! DCCDataUnpacker::silentMode_ ){ 
-            edm::LogWarning("IncorrectBlock") << "In fed: " << fedId_ << " at LV1: " << l1_
-    					        << " the DCC channel: " << chNumber 
-					        << " has channel status: " << chStatus 
-					        << " and is not being unpacked";
-          }
-	  continue;
-	}
+      if (problematic) {
+        if (! DCCDataUnpacker::silentMode_ ) {
+            edm::LogWarning("IncorrectBlock")
+              << "Bad channel status: " << chStatus
+              << " in the DCC channel: " << chNumber
+              << " (LV1 " << l1_ << " fed " << fedId_ << ")\n"
+              << "  => DCC channel is not being unpacked";
+        }
+      }
       
+      // skip unpack in case of bad status
+      if (regular || problematic) {
+        continue;
+      }
       
       // Unpack Tower (Xtal Block) in case of SR (data are 0 suppressed)
       if(feUnpacking_ && sr_ && chNumber<=68)
@@ -241,7 +251,7 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
               // so we can remove this piece of code
               // if ( ( srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_NREAD ){
               //
-	      //  STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
+              //  STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
               //}
             
           }
@@ -252,23 +262,23 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
 
           }
           
-	}
+        }
       
       
       // Unpack Tower (Xtal Block) for no SR (possibly 0 suppression flags)
       else if (feUnpacking_ && chNumber<=68)
-	{
-	  // if tzs_ data are not really suppressed, even though zs flags are calculated
-	  if(tzs_){ zs_ = false;}
-	  STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,chNumber);
-	}
+        {
+          // if tzs_ data are not really suppressed, even though zs flags are calculated
+          if(tzs_){ zs_ = false;}
+          STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,chNumber);
+        }
       
       
       // Unpack Mem blocks
-      if(memUnpacking_	&& chNumber>68 )
-	{
-	  STATUS = memBlock_->unpack(&data_,&dwToEnd_,chNumber);
-	}
+      if(memUnpacking_        && chNumber>68 )
+        {
+          STATUS = memBlock_->unpack(&data_,&dwToEnd_,chNumber);
+        }
       
     }
     // closing loop over FE/TTblock channels
