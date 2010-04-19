@@ -107,7 +107,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   //   phi
 
-  theJacobian(2,0) = -qp*anu**cosl1*dot(t2,dx);
+  theJacobian(2,0) = -qp*anu*cosl1*dot(t2,dx);
 
   theJacobian(2,1) = 
     cost*dot(v1,u2) +
