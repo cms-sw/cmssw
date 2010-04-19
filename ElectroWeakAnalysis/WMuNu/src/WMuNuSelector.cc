@@ -270,7 +270,7 @@ void WMuNuSelector::endJob() {
 
 bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       nall++;
-      h1_["hCutFlowSummary"]->Fill(1.);
+      if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(1.);
 
       // Repeat Pre-Selection Cuts just in case...
       // Muon collection
@@ -480,14 +480,14 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (acop>=acopCut_) return 0;
 
             nacop++;
-            h1_["hCutFlowSummary"]->Fill(9.);
+                  if(plotHistograms_)  h1_["hCutFlowSummary"]->Fill(9.);
 
 
 
             if (!iso) return 0;
 
             niso++;
-            h1_["hCutFlowSummary"]->Fill(10.);
+                  if(plotHistograms_)  h1_["hCutFlowSummary"]->Fill(10.);
 
 
             if(plotHistograms_){
@@ -510,7 +510,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
            LogTrace("") << ">>>> Event ACCEPTED";
             nsel++;
-             if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(11.);
+                  if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(11.);
 
 
             // (To be continued ;-) )

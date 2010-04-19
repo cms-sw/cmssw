@@ -7,8 +7,6 @@ process.maxEvents = cms.untracked.PSet(
       #input = cms.untracked.int32(100)
 )
 process.source = cms.Source("PoolSource",
-      debugVerbosity = cms.untracked.uint32(0),
-      debugFlag = cms.untracked.bool(False),
       #fileNames = cms.untracked.vstring("file:/data4/RelValWM_CMSSW_3_1_0-STARTUP31X_V1-v1_GEN-SIM-RECO/40BFAA1A-5466-DE11-B792-001D09F29533.root")
       #fileNames = cms.untracked.vstring("file:/data4/Wmunu-Summer09-MC_31X_V2_preproduction_311-v1/0011/F4C91F77-766D-DE11-981F-00163E1124E7.root")
        fileNames = cms.untracked.vstring("file:/data4/Wmunu_Summer09-MC_31X_V3_AODSIM-v1/0009/F82D4260-507F-DE11-B5D6-00093D128828.root")
@@ -28,6 +26,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 
 process.load("ElectroWeakAnalysis.WMuNu.wmunusValidation_cfi") #load validation sequence (for WMunu & ZMuMu)
+process.wmnVal_pfMet.JetTag = cms.untracked.InputTag("antikt5CaloJets")
+#process.wmnVal_corMet.JetTag = cms.untracked.InputTag("antikt5CaloJets") 
+#process.wmnVal_tcMet.JetTag = cms.untracked.InputTag("antikt5CaloJets") 
 
 
 # Output

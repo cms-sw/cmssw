@@ -30,11 +30,13 @@ process.wmnOutput = cms.OutputModule("PoolOutputModule",
  #     fileName = cms.untracked.string('AOD_with_WCandidates.root')
 )
 
+
+#For compatibility with Summer09!!
+#process.selpfMet.JetTag = cms.untracked.InputTag("antikt5CaloJets") 
+
 # This Example uses only "corMetGlobalMuons". Modify to run over pf & tc Met (as "selectPfMetWMuNus")...
 process.path = cms.Path(process.selectPfMetWMuNus)
-
-# Maybe you want to comment the following sentence ;-)... 
-#process.end = cms.EndPath(process.wmnOutput)
+process.end = cms.EndPath(process.wmnOutput)
 
 
 

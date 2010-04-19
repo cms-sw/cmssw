@@ -22,6 +22,11 @@ process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")  # standard cuts de
 process.selpfMet.plotHistograms = cms.untracked.bool(True) # --> "true" for plotting of histos
 #process.seltcMet.plotHistograms = cms.untracked.bool(True)
 
+#For compatibility with Summer09!!
+process.selpfMet.JetTag = cms.untracked.InputTag("antikt5CaloJets") 
+#process.selcorMet.JetTag = cms.untracked.InputTag("antikt5CaloJets") 
+#process.seltcMet.JetTag = cms.untracked.InputTag("antikt5CaloJets") 
+
  
 #process.load("ElectroWeakAnalysis.WMuNu.wmunusValidation_cfi") #load validation sequence (for WMunu & ZMuMu)
 

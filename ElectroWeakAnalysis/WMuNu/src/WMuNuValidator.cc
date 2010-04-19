@@ -102,8 +102,8 @@ WMuNuValidator::WMuNuValidator( const ParameterSet & cfg ) :
       // Input collections
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
-      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
-      metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons", false)),
+      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("pfMet"))),
+      metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons", true)),
       jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
 
       // Main cuts 
