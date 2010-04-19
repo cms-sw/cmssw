@@ -1,6 +1,6 @@
 // Original Author:  Anne-Marie Magnan
 //         Created:  2010/01/11
-// $Id: SiStripSpyMonitorModule.cc,v 1.1 2010/03/12 19:26:37 amagnan Exp $
+// $Id: SiStripSpyMonitorModule.cc,v 1.2 2010/03/15 03:33:35 wmtan Exp $
 //
 
 #include <sstream>
@@ -129,22 +129,22 @@ using edm::LogInfo;
 //
 
 SiStripSpyMonitorModule::SiStripSpyMonitorModule(const edm::ParameterSet& iConfig)
-  : spyScopeRawDigisTag_(iConfig.getUntrackedParameter<edm::InputTag>("SpyScopeRawDigisTag",edm::InputTag("SiStripSpyUnpacker","ScopeRawDigis"))),
-    spyPedSubtrDigisTag_(iConfig.getUntrackedParameter<edm::InputTag>("SpyPedSubtrDigisTag",edm::InputTag("SiStripFEDEmulator",""))),
-    spyL1Tag_(iConfig.getUntrackedParameter<edm::InputTag>("SpyL1Tag",edm::InputTag("SiStripSpyDigiConverter","L1ACount"))),
-    spyTotCountTag_(iConfig.getUntrackedParameter<edm::InputTag>("SpyTotalEventCountTag",edm::InputTag("SiStripSpyDigiConverter","TotalEventCount"))),
-    spyAPVeTag_(iConfig.getUntrackedParameter<edm::InputTag>("SpyAPVeTag",edm::InputTag("SiStripSpyDigiConverter","APVAddress"))),
+  : spyScopeRawDigisTag_(iConfig.getParameter<edm::InputTag>("SpyScopeRawDigisTag")),
+    spyPedSubtrDigisTag_(iConfig.getParameter<edm::InputTag>("SpyPedSubtrDigisTag")),
+    spyL1Tag_(iConfig.getParameter<edm::InputTag>("SpyL1Tag")),
+    spyTotCountTag_(iConfig.getParameter<edm::InputTag>("SpyTotalEventCountTag")),
+    spyAPVeTag_(iConfig.getParameter<edm::InputTag>("SpyAPVeTag")),
     dqm_(0),
-    folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","SiStrip/ReadoutView/SpyMonitoringSummary")),
-    fillAllDetailedHistograms_(iConfig.getUntrackedParameter<bool>("FillAllDetailedHistograms",false)),
-    fillWithEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithEventNumber",false)),
-    fillWithLocalEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithLocalEventNumber",false)),
-    writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
-    dqmStoreFileName_(iConfig.getUntrackedParameter<std::string>("DQMStoreFileName","DQMStore.root")),
+    folderName_(iConfig.getParameter<std::string>("HistogramFolderName")),
+    fillAllDetailedHistograms_(iConfig.getParameter<bool>("FillAllDetailedHistograms")),
+    fillWithEvtNum_(iConfig.getParameter<bool>("FillWithEventNumber")),
+    fillWithLocalEvtNum_(iConfig.getParameter<bool>("FillWithLocalEventNumber")),
+    writeDQMStore_(iConfig.getParameter<bool>("WriteDQMStore")),
+    dqmStoreFileName_(iConfig.getParameter<std::string>("DQMStoreFileName")),
     firstHeaderBit_(0),
     firstTrailerBit_(0),
-    outfileNames_(iConfig.getUntrackedParameter<std::vector<std::string> >("OutputErrors")),
-    writeCabling_(iConfig.getUntrackedParameter<bool>("WriteCabling",false))
+    outfileNames_(iConfig.getParameter<std::vector<std::string> >("OutputErrors")),
+    writeCabling_(iConfig.getParameter<bool>("WriteCabling"))
 {
 
   evt_ = 0;
@@ -159,12 +159,12 @@ SiStripSpyMonitorModule::SiStripSpyMonitorModule(const edm::ParameterSet& iConfi
     outfileMap_[outfileNames_.at(i)] = i;
   }
 
-  frameQuality_.minDigiRange = static_cast<uint16_t>(iConfig.getUntrackedParameter<uint32_t>("MinDigiRange",100));
-  frameQuality_.maxDigiRange = static_cast<uint16_t>(iConfig.getUntrackedParameter<uint32_t>("MaxDigiRange",1024));
-  frameQuality_.minZeroLight = static_cast<uint16_t>(iConfig.getUntrackedParameter<uint32_t>("MinZeroLight",0));
-  frameQuality_.maxZeroLight = static_cast<uint16_t>(iConfig.getUntrackedParameter<uint32_t>("MaxZeroLight",1024));
-  frameQuality_.minTickHeight = static_cast<uint16_t>(iConfig.getUntrackedParameter<uint32_t>("MinTickHeight",0));
-  frameQuality_.maxTickHeight = static_cast<uint16_t>(iConfig.getUntrackedParameter<uint32_t>("MaxTickHeight",1024));
+  frameQuality_.minDigiRange = static_cast<uint16_t>(iConfig.getParameter<uint32_t>("MinDigiRange"));
+  frameQuality_.maxDigiRange = static_cast<uint16_t>(iConfig.getParameter<uint32_t>("MaxDigiRange"));
+  frameQuality_.minZeroLight = static_cast<uint16_t>(iConfig.getParameter<uint32_t>("MinZeroLight"));
+  frameQuality_.maxZeroLight = static_cast<uint16_t>(iConfig.getParameter<uint32_t>("MaxZeroLight"));
+  frameQuality_.minTickHeight = static_cast<uint16_t>(iConfig.getParameter<uint32_t>("MinTickHeight"));
+  frameQuality_.maxTickHeight = static_cast<uint16_t>(iConfig.getParameter<uint32_t>("MaxTickHeight"));
   
 }
 

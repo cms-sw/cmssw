@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.36 2010/03/30 16:35:50 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.37 2010/04/02 15:41:32 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -112,14 +112,14 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
 //
 
 SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfig)
-  : rawDataTag_(iConfig.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("source",""))),
-    folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","SiStrip/ReadoutView/FedMonitoringSummary")),
-    fillAllDetailedHistograms_(iConfig.getUntrackedParameter<bool>("FillAllDetailedHistograms",false)),
-    fillWithEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithEventNumber",false)),
-    printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
-    //printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
-    writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
-    dqmStoreFileName_(iConfig.getUntrackedParameter<std::string>("DQMStoreFileName","DQMStore.root")),
+  : rawDataTag_(iConfig.getParameter<edm::InputTag>("RawDataTag")),
+    folderName_(iConfig.getParameter<std::string>("HistogramFolderName")),
+    fillAllDetailedHistograms_(iConfig.getParameter<bool>("FillAllDetailedHistograms")),
+    fillWithEvtNum_(iConfig.getParameter<bool>("FillWithEventNumber")),
+    printDebug_(iConfig.getParameter<unsigned int>("PrintDebugMessages")),
+    //printDebug_(iConfig.getParameter<bool>("PrintDebugMessages")),
+    writeDQMStore_(iConfig.getParameter<bool>("WriteDQMStore")),
+    dqmStoreFileName_(iConfig.getParameter<std::string>("DQMStoreFileName")),
     dqm_(0),
     cablingCacheId_(0)
 {

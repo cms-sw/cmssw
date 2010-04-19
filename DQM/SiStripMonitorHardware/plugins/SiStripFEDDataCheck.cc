@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDDataCheck.cc,v 1.13 2010/04/02 15:41:32 amagnan Exp $
+// $Id: SiStripFEDDataCheck.cc,v 1.15 2010/04/17 07:37:09 dellaric Exp $
 //
 //
 #include <memory>
@@ -101,19 +101,19 @@ class SiStripFEDCheckPlugin : public edm::EDAnalyzer
 
 SiStripFEDCheckPlugin::SiStripFEDCheckPlugin(const edm::ParameterSet& iConfig)
   : rawDataTag_(iConfig.getParameter<edm::InputTag>("RawDataTag")),
-    dirName_(iConfig.getUntrackedParameter<std::string>("DirName","SiStrip/FEDIntegrity/")),
-    printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
-    writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
-    updateFrequency_(iConfig.getUntrackedParameter<unsigned int>("HistogramUpdateFrequency",0)),
+    dirName_(iConfig.getParameter<std::string>("DirName")),
+    printDebug_(iConfig.getParameter<bool>("PrintDebugMessages")),
+    writeDQMStore_(iConfig.getParameter<bool>("WriteDQMStore")),
+    updateFrequency_(iConfig.getParameter<unsigned int>("HistogramUpdateFrequency")),
     fedsPresentBinContents_(FEDNumbering::MAXSiStripFEDID+1,0),
     fedFatalErrorBinContents_(FEDNumbering::MAXSiStripFEDID+1,0),
     fedNonFatalErrorBinContents_(FEDNumbering::MAXSiStripFEDID+1,0),
     eventCount_(0),
-    doPayloadChecks_(iConfig.getUntrackedParameter<bool>("DoPayloadChecks",true)),
-    checkChannelLengths_(iConfig.getUntrackedParameter<bool>("CheckChannelLengths",true)),
-    checkPacketCodes_(iConfig.getUntrackedParameter<bool>("CheckChannelPacketCodes",true)),
-    checkFELengths_(iConfig.getUntrackedParameter<bool>("CheckFELengths",true)),
-    checkChannelStatusBits_(iConfig.getUntrackedParameter<bool>("CheckChannelStatus",true)),
+    doPayloadChecks_(iConfig.getParameter<bool>("DoPayloadChecks")),
+    checkChannelLengths_(iConfig.getParameter<bool>("CheckChannelLengths")),
+    checkPacketCodes_(iConfig.getParameter<bool>("CheckChannelPacketCodes")),
+    checkFELengths_(iConfig.getParameter<bool>("CheckFELengths")),
+    checkChannelStatusBits_(iConfig.getParameter<bool>("CheckChannelStatus")),
     cablingCacheId_(0)
 {
   if (printDebug_ && !doPayloadChecks_ && (checkChannelLengths_ || checkPacketCodes_ || checkFELengths_)) {

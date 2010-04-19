@@ -42,7 +42,7 @@ void CMHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram(tkMapConfig_,"TkHistoMap",iConfig,pDebugStream);
 
   if (iConfig.exists("FedIdVec")){
-    std::vector<unsigned int> lIdVec = iConfig.getUntrackedParameter<std::vector<unsigned int> >("FedIdVec");
+    std::vector<unsigned int> lIdVec = iConfig.getParameter<std::vector<unsigned int> >("FedIdVec");
     for (unsigned int i(0); i<lIdVec.size(); i++){
       if (lIdVec.at(i) < 500) doFed_[lIdVec.at(i)] = true;
     }

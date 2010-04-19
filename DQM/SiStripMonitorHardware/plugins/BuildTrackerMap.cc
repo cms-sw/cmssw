@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: BuildTrackerMap.cc,v 1.8 2010/03/18 19:06:09 amagnan Exp $
+// $Id: BuildTrackerMap.cc,v 1.9 2010/04/15 16:08:41 amagnan Exp $
 //
 
 #include <sstream>
@@ -105,15 +105,15 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
 //
 
 BuildTrackerMapPlugin::BuildTrackerMapPlugin(const edm::ParameterSet& iConfig)
-  : fileName_(iConfig.getUntrackedParameter<std::string>("InputFileName","DQMStore.root")),
-    mechanicalView_(iConfig.getUntrackedParameter<bool>("MechanicalView",true)),
-    folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","DQMData/")),
-    printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
-    doDiff_(iConfig.getUntrackedParameter<bool>("DoDifference",false)),
-    fileNameDiff_(iConfig.getUntrackedParameter<std::string>("InputFileNameForDiff","DQMStore.root")),
-    tkHistoMapNameVec_(iConfig.getUntrackedParameter<std::vector<std::string> >("TkHistoMapNameVec")),
-    minVal_(iConfig.getUntrackedParameter<std::vector<double> >("MinValueVec")),
-    maxVal_(iConfig.getUntrackedParameter<std::vector<double> >("MaxValueVec")),
+  : fileName_(iConfig.getParameter<std::string>("InputFileName")),
+    mechanicalView_(iConfig.getParameter<bool>("MechanicalView")),
+    folderName_(iConfig.getParameter<std::string>("HistogramFolderName")),
+    printDebug_(iConfig.getParameter<unsigned int>("PrintDebugMessages")),
+    doDiff_(iConfig.getParameter<bool>("DoDifference")),
+    fileNameDiff_(iConfig.getParameter<std::string>("InputFileNameForDiff")),
+    tkHistoMapNameVec_(iConfig.getParameter<std::vector<std::string> >("TkHistoMapNameVec")),
+    minVal_(iConfig.getParameter<std::vector<double> >("MinValueVec")),
+    maxVal_(iConfig.getParameter<std::vector<double> >("MaxValueVec")),
     pset_(iConfig.getParameter<edm::ParameterSet>("TkmapParameters"))
 {
 

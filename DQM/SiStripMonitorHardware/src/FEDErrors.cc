@@ -130,7 +130,7 @@ void FEDErrors::initialiseFED(const unsigned int aFedID,
 	// 3=TIB, 4=TID, 5=TOB, 6=TEC (TECB here)
 	switch(DetId(lDetid).subdetId()) {
 	case 3:
-	  lSubid = 2;
+	  lSubid = 2; //TIB
 	  break;
 
 	case 4:
@@ -142,7 +142,7 @@ void FEDErrors::initialiseFED(const unsigned int aFedID,
 	  }
 
 	case 5:
-	  lSubid = 5;
+	  lSubid = 5; //TOB
 	  break;
 
 	case 6:

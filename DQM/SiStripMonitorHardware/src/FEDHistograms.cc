@@ -249,8 +249,9 @@ if ( (badStatusBitsDetailed_.enabled && aAPVErr.APVStatusBit) ||
 
 
 void FEDHistograms::fillLumiHistograms(const FEDErrors::LumiErrors & aLumErr){
+  lumiErrorFraction_.monitorEle->Reset();
   for (unsigned int iD(0); iD<aLumErr.nTotal.size(); iD++){
-    if (aLumErr.nTotal[iD] > 0) fillHistogram(lumiErrorFraction_,iD,static_cast<float>(aLumErr.nErrors[iD])/aLumErr.nTotal[iD]);
+    if (aLumErr.nTotal[iD] > 0) fillHistogram(lumiErrorFraction_,iD+1,static_cast<float>(aLumErr.nErrors[iD])/aLumErr.nTotal[iD]);
   }
 }
 
@@ -583,9 +584,17 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
   bookHistogram(lumiErrorFraction_,
 		"lumiErrorFraction",
 		"Fraction of error per lumi section vs subdetector",
-		6,0,6,
+		6,0.5,6.5,
 		"SubDetId");
 
+  //Set special property for lumi ME
+  lumiErrorFraction_.monitorEle->setLumiFlag();
+  lumiErrorFraction_.monitorEle->setBinLabel(1, "TECB");
+  lumiErrorFraction_.monitorEle->setBinLabel(2, "TECF");
+  lumiErrorFraction_.monitorEle->setBinLabel(3, "TIB");
+  lumiErrorFraction_.monitorEle->setBinLabel(4, "TIDB");
+  lumiErrorFraction_.monitorEle->setBinLabel(5, "TIDF");
+  lumiErrorFraction_.monitorEle->setBinLabel(6, "TOB");
 
   //book map after, as it creates a new folder...
   if (tkMapConfig_.enabled){

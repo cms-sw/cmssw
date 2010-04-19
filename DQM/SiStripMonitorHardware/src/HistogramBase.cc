@@ -48,12 +48,12 @@ void HistogramBase::getConfigForHistogram(HistogramConfig & aConfig,
   bool isTimeHisto = configName.find("vsTime") != configName.npos;
 
   if (psetContainingConfigPSet.exists(psetName)) {
-    const edm::ParameterSet& pset = psetContainingConfigPSet.getUntrackedParameter<edm::ParameterSet>(psetName);
-    aConfig.enabled = (pset.exists("Enabled") ? pset.getUntrackedParameter<bool>("Enabled") : true);
+    const edm::ParameterSet& pset = psetContainingConfigPSet.getParameter<edm::ParameterSet>(psetName);
+    aConfig.enabled = (pset.exists("Enabled") ? pset.getParameter<bool>("Enabled") : true);
     if (aConfig.enabled) {
-      aConfig.nBins = (pset.exists("NBins") ? pset.getUntrackedParameter<unsigned int>("NBins") : 600);
-      aConfig.min = (pset.exists("Min") ? pset.getUntrackedParameter<double>("Min") : 0);
-      aConfig.max = (pset.exists("Max") ? pset.getUntrackedParameter<double>("Max") : 3600);
+      aConfig.nBins = (pset.exists("NBins") ? pset.getParameter<unsigned int>("NBins") : 600);
+      aConfig.min = (pset.exists("Min") ? pset.getParameter<double>("Min") : 0);
+      aConfig.max = (pset.exists("Max") ? pset.getParameter<double>("Max") : 3600);
       if (aConfig.nBins) {
         if (pDebugStream) (*pDebugStream) << "[HistogramBase]\tHistogram: " << configName << "\tEnabled"
                                           << "\tNBins: " << aConfig.nBins << "\tMin: " << aConfig.min << "\tMax: " << aConfig.max << std::endl;
@@ -77,10 +77,10 @@ void HistogramBase::getConfigForHistogram(HistogramConfig & aConfig,
   //for timehisto, if global parameter exists => overwrite individual settings
   if (psetContainingConfigPSet.exists("TimeHistogramConfig") && isTimeHisto)
     {
-      const edm::ParameterSet& pset = psetContainingConfigPSet.getUntrackedParameter<edm::ParameterSet>("TimeHistogramConfig");
-      aConfig.nBins = (pset.exists("NBins") ? pset.getUntrackedParameter<unsigned int>("NBins") : 600);
-      aConfig.min = (pset.exists("Min") ? pset.getUntrackedParameter<double>("Min") : 0);
-      aConfig.max = (pset.exists("Max") ? pset.getUntrackedParameter<double>("Max") : 3600);
+      const edm::ParameterSet& pset = psetContainingConfigPSet.getParameter<edm::ParameterSet>("TimeHistogramConfig");
+      aConfig.nBins = (pset.exists("NBins") ? pset.getParameter<unsigned int>("NBins") : 600);
+      aConfig.min = (pset.exists("Min") ? pset.getParameter<double>("Min") : 0);
+      aConfig.max = (pset.exists("Max") ? pset.getParameter<double>("Max") : 3600);
     } 
   
 }
