@@ -39,6 +39,7 @@ namespace mathSSE {
 #endif
   }
   
+
   // cross (just 3x3) 
   inline __m128 _mm_cross_ps(__m128 v1, __m128 v2) {
     __m128 v3 = _mm_shuffle_ps(v2, v1, _MM_SHUFFLE(3, 0, 2, 2));
@@ -89,8 +90,8 @@ namespace mathSSE {
     Vec3() {
       vec = _mm_setzero_ps();
     }
-    Vec3(float f1, float f2, float f3) {
-      arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=0;
+    Vec3(float f1, float f2, float f3, 3, float f4=0) {
+      arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
     }
 
     void set(float f1, float f2, float f3, float f4=0) {
@@ -186,7 +187,8 @@ inline mathSSE::Vec3F operator*(mathSSE::Vec3F b,float a) {
 }
 
 
-// double op (not all...)
+
+// double op
 inline mathSSE::Vec3D operator+(mathSSE::Vec3D a, mathSSE::Vec3D b) {
   return  mathSSE::Vec3D(_mm_add_pd(a.vec[0],b.vec[0]),_mm_add_pd(a.vec[1],b.vec[1]));
 }
@@ -198,6 +200,45 @@ inline mathSSE::Vec3D operator*(mathSSE::Vec3D a, mathSSE::Vec3D b) {
 }
 inline mathSSE::Vec3D operator/(mathSSE::Vec3D a, mathSSE::Vec3D b) {
   return  mathSSE::Vec3D(_mm_div_pd(a.vec[0],b.vec[0]),_mm_div_pd(a.vec[1],b.vec[1]));
+}
+
+inline mathSSE::Vec3D operator*(double a, mathSSE::Vec3D b) {
+  __m128d res = _mm_set1_pd(a);
+  return  mathSSE::Vec3D(_mm_mul_pd(res,b.vec[0]),_mm_mul_pd(res,b.vec[1]));
+}
+
+inline mathSSE::Vec3D operator*(mathSSE::Vec3D b, double a) {
+  __m128d res = _mm_set1_pd(a);
+  return  mathSSE::Vec3D(_mm_mul_pd(res,b.vec[0]),_mm_mul_pd(res,b.vec[1]));
+}
+
+
+
+inline double dot(mathSSE::Vec3D a, mathSSE::Vec3D b) {
+  __m128d res = _mm_add_sd ( _mm_mul_pd ( a.vec[0], b.vec[0]),
+			     _mm_mul_sd ( a.vec[1], b.vec[1]) 
+			     );
+  res = _mm_add_sd ( _mm_unpackhi_pd ( res , res ), res );
+  double s;
+  _mm_store_sd(&s,res);
+  return s;
+}
+
+inline mathSSE::Vec3D cross(mathSSE::Vec3D a, mathSSE::Vec3D b) {
+  const __m128d neg = _mm_set_pd ( 0.0 , -0.0 );
+  // lh .z * rh .x , lh .z * rh .y
+  __m128d l1 = _mm_mul_pd ( _mm_unpacklo_pd ( b.vec[1] , b.vec[1] ), a.vec[0] );
+  // rh .z * lh .x , rh .z * lh .y
+  __m128d l2 = _mm_mul_pd ( _mm_unpacklo_pd (  a.vec[1],  a.vec[1] ),  b.vec[0] );
+  __m128d m1 = _mm_sub_pd ( l1 , l2 ); // l1 - l2
+  m1 = _mm_shuffle_pd ( m1 , m1 , 1 ); // switch the elements
+  m1 = _mm_xor_pd ( m1 , neg ); // change the sign of the first element
+  // lh .x * rh .y , lh .y * rh .x
+  l1 = _mm_mul_pd (  b.vec[0] , _mm_shuffle_pd (  a.vec[0] ,  a.vec[0] , 1 ) );
+  // lh .x * rh .y - lh .y * rh .x
+  __m128d m2 = _mm_sub_sd ( l1 , _mm_unpackhi_pd ( l1 , l1 ) );
+
+  return Vec3D( m1 , m2 );
 }
 
 

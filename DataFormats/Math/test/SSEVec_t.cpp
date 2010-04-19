@@ -25,6 +25,12 @@ float dotSimple( Vec3F const & a, Vec3F const & b) {
 
 }
 
+double dotSimple( Vec3D const & a, Vec3D const & b) {
+  Vec3D res = a*b;
+  return res.arr[0]+res.arr[1]+res.arr[2];
+
+}
+
 float norm(Vec3F const & a) {
   return std::sqrt(dot(a,a));
 }
@@ -83,45 +89,58 @@ void sum(BaVecF & lh, BaVecF const & rh) {
   lh += rh;  
 }
 
-int main() {
 
-  Vec3F x(2.0,4.0,5.0);
-  Vec3F y(-3.0,2.0,-5.0);
+void testBa() {
+  std::cout <<" test BA" << std::endl;
+  BaVecF vx(2.0,4.0,5.0);
+  BaVecF vy(-3.0,2.0,-5.0);
+  vx+=vy;
+  std::cout << vx.theX << ", "<<  vx.theY << ", "<<  vx.theZ << std::endl;
+}
+
+
+template<typename T> 
+void go() {
+
+  typedef Vec3<T> Vec;
+
+  std::cout << std::endl;
+  std::cout << sizeof(Vec) << std::endl;
+
+  Vec x(2.0,4.0,5.0);
+  Vec y(-3.0,2.0,-5.0);
+  std::cout << x << std::endl;
+  std::cout << y << std::endl;
+  std::cout << 3.*x << std::endl;
+  std::cout << y*0.1 << std::endl;
+
 
   std::cout << dot(x,y) << std::endl; 
   std::cout << dotSimple(x,y) << std::endl;
 
-  __asm__ ("#A cross");
-  Vec3F z = cross(x,y);
-  __asm__ ("#A cout");
+  Vec z = cross(x,y);
   std::cout << z << std::endl;
 
-  BaVecF vx(2.0,4.0,5.0);
-  BaVecF vy(-3.0,2.0,-5.0);
-  __asm__ ("#A BaVec+=");
-  vx+=vy;
-  __asm__ ("#A cout");
-  std::cout << vx.theX << ", "<<  vx.theY << ", "<<  vx.theZ << std::endl;
 
   std::cout << "rotations" << std::endl;
 
-  float a = 0.01;
-  float ca = cos(a);
-  float sa = sin(a);
+  T a = 0.01;
+  T ca = std::cos(a);
+  T sa = std::sin(a);
 
-  Rot3<float> r1( ca, sa, 0,
+  Rot3<T> r1( ca, sa, 0,
 		 -sa, ca, 0,
 		   0,  0, 1);
 
-  Rot3<float> r2(Vec3F( 0, 1 ,0), Vec3F( 0, 0, 1), Vec3F( 1, 0, 0));
+  Rot3<T> r2(Vec( 0, 1 ,0), Vec( 0, 0, 1), Vec( 1, 0, 0));
 
-  Vec3F xr = r1.rotate(x);
+  Vec xr = r1.rotate(x);
   std::cout << x << std::endl;
   std::cout << xr << std::endl;
   std::cout << r1.rotateBack(xr) << std::endl;
 
-  Rot3<float> rt = r1.transpose();
-  Vec3F xt = rt.rotate(xr);
+  Rot3<T> rt = r1.transpose();
+  Vec xt = rt.rotate(xr);
   std::cout << x << std::endl;
   std::cout << xt << std::endl;
   std::cout << rt.rotateBack(xt) << std::endl;
@@ -136,3 +155,12 @@ int main() {
   std::cout << r1.transpose()*r2 << std::endl;
 
 }
+
+
+int main() {
+  testBA();
+  go<float>;
+  go<double>;
+
+  return 0;
+};
