@@ -69,14 +69,26 @@ public:
 
   void multiplyTest(const float & norm1, const float & norm2)
   {
-    SiStripGain gain(*apvGain1, norm1);
-    gain.multiply(*apvGain2, norm2);
+    std::pair<std::string, std::string> recordLabelPair1("gainRcd1", "");
+    std::pair<std::string, std::string> recordLabelPair2("gainRcd2", "");
+    std::vector<std::pair<std::string, std::string> > recordLabelPairVector;
+    recordLabelPairVector.push_back(recordLabelPair1);
+    recordLabelPairVector.push_back(recordLabelPair2);
+    std::vector<float> normVector;
+    normVector.push_back(norm1);
+    normVector.push_back(norm2);
+
+    SiStripGain gain(*apvGain1, norm1, recordLabelPair1);
+    gain.multiply(*apvGain2, norm2, recordLabelPair2);
     SiStripApvGain::Range range = gain.getRange(detId);
 
+    // Check multiplication
     CPPUNIT_ASSERT( float(gain.getApvGain(0, range)) == float(1./norm1*1./norm2));
     CPPUNIT_ASSERT( float(gain.getApvGain(1, range)) == float(0.8/norm1*1./(0.8*norm2)));
     CPPUNIT_ASSERT( float(gain.getApvGain(2, range)) == float(1.2/norm1*1./(1.2*norm2)));
     CPPUNIT_ASSERT( float(gain.getApvGain(3, range)) == float(2./norm1*2./norm2));
+
+    checkTag(gain, normVector, normVector.size(), recordLabelPairVector);
   }
 
   void apvGainsTest(const float & norm)
@@ -87,6 +99,7 @@ public:
     CPPUNIT_ASSERT( float(gain.getApvGain(1, range)) == float(0.8/norm));
     CPPUNIT_ASSERT( float(gain.getApvGain(2, range)) == float(1.2/norm));
     CPPUNIT_ASSERT( float(gain.getApvGain(3, range)) == float(2./norm));
+    checkTag(gain, norm, "", "");
 
     SiStripGain gain2(*apvGain2, norm);
     SiStripApvGain::Range range2 = gain2.getRange(detId);
@@ -94,6 +107,27 @@ public:
     CPPUNIT_ASSERT( float(gain2.getApvGain(1, range2)) == float(1./(norm*0.8)));
     CPPUNIT_ASSERT( float(gain2.getApvGain(2, range2)) == float(1./(norm*1.2)));
     CPPUNIT_ASSERT( float(gain2.getApvGain(3, range2)) == float(2./norm));
+    checkTag(gain2, norm, "", "");
+  }
+
+  void checkTag(const SiStripGain & gain, const float & norm,
+		const std::string & rcdName, const std::string & labelName)
+  {
+    std::vector<float> normVector;
+    normVector.push_back(norm);
+    std::vector<std::pair<std::string, std::string> > recordLabelPairVector;
+    recordLabelPairVector.push_back(std::make_pair(rcdName, labelName));
+    checkTag(gain, normVector, 1, recordLabelPairVector);
+  }
+  void checkTag(const SiStripGain & gain, const std::vector<float> & norm, const uint32_t tagNum,
+		const std::vector<std::pair<std::string, std::string> > & recordLabelPair)
+  {
+    CPPUNIT_ASSERT( gain.getNumberOfTags() == tagNum );
+    for( unsigned int i=0; i<tagNum; ++i ) {
+      CPPUNIT_ASSERT( float(gain.getTagNorm(i)) == norm[i] );
+      CPPUNIT_ASSERT( gain.getRcdName(i) == recordLabelPair[i].first );
+      CPPUNIT_ASSERT( gain.getLabelName(i) == recordLabelPair[i].second );
+    }
   }
 
   void fillApvGain(SiStripApvGain * apvGain, const uint32_t detId, const std::vector<float> & theSiStripVector)

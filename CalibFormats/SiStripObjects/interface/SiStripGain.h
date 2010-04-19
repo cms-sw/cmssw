@@ -14,7 +14,7 @@
  *
  * Original Author:  gbruno
  *         Created:  Wed Mar 22 12:24:20 CET 2006
- * $Id: SiStripGain.h,v 1.7 2010/04/15 12:47:38 demattia Exp $
+ * $Id: SiStripGain.h,v 1.8 2010/04/15 14:30:41 demattia Exp $
  *
  * Modifications by M. De Mattia (demattia@pd.infn.it) on 11/11/2009:
  * It now holds a std::vector of pointers to ApvGain and a std::vector of corresponding
@@ -27,7 +27,11 @@
  * There are two set of methods to access the gain value. The first one returns the products of all ApvGain/norm.
  * The second set of methods take an additional integer paramter and return the corresponding ApvGain (without normalization).
  * Note that no check is done inside these methods to see if the ApvGain really exists. It is responsibility of the
- * user to not pass an index value that exceeds the number of ApvGains.
+ * user to not pass an index value that exceeds the number of ApvGains. <br>
+ * The normalization factors for each of the stored ApvGains are also accessible passing the corresponding index.
+ * <br>
+ * Additional method are provided to get the number of ApvGains used to build this object, the names of the records
+ * that stored those ApvGains and the labels (they can be used to go back to the tags looking in the cfg).
  */
 
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
@@ -40,14 +44,23 @@ class SiStripGain
   SiStripGain() {};
   virtual ~SiStripGain() {};
 
+  /// Kept for compatibility
   inline SiStripGain(const SiStripApvGain& apvgain, const double & factor) :
     apvgain_(0)
   {
-    multiply(apvgain, factor);
+    multiply(apvgain, factor, std::make_pair("", ""));
+  }
+
+  inline SiStripGain(const SiStripApvGain& apvgain, const double & factor,
+		     const std::pair<std::string, std::string> & recordLabelPair) :
+    apvgain_(0)
+  {
+    multiply(apvgain, factor, recordLabelPair);
   }
 
   /// Used to input additional gain values that will be multiplied to the first one
-  void multiply(const SiStripApvGain & apvgain, const double & factor);
+  void multiply(const SiStripApvGain & apvgain, const double & factor,
+		const std::pair<std::string, std::string> & recordLabelPair);
 
   // getters
   // For the product of all apvGains
@@ -64,12 +77,29 @@ class SiStripGain
    * NOTE that no protection is inside the method (because we want to keep it very light)
    * therefore it is the caller duty to check that the index is in the correct range.
    */
-  const SiStripApvGain::Range getRange(const uint32_t& detID, const int index) const;
-  float getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range, const int index) const;
-  float getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range, const int index) const;
+  const SiStripApvGain::Range getRange(const uint32_t& detID, const uint32_t index) const;
+  float getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range, const uint32_t index) const;
+  float getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range, const uint32_t index) const;
 
   /// ATTENTION: we assume the detIds are the same as those from the first gain
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
+
+  inline size_t getNumberOfTags() const
+  {
+    return apvgainVector_.size();
+  }
+  inline std::string getRcdName(const uint32_t index) const
+  {
+    return recordLabelPair_[index].first;
+  }
+  inline std::string getLabelName(const uint32_t index) const
+  {
+    return recordLabelPair_[index].second;
+  }
+  inline double getTagNorm(const uint32_t index) const
+  {
+    return normVector_[index];
+  }
 
   void printDebug(std::stringstream& ss) const;
   void printSummary(std::stringstream& ss) const;
@@ -87,6 +117,7 @@ class SiStripGain
   std::vector<double> normVector_;
   const SiStripApvGain * apvgain_;
   std::auto_ptr<SiStripApvGain> apvgainAutoPtr_;
+  std::vector<std::pair<std::string, std::string> > recordLabelPair_;
 };
 
 #endif

@@ -6,7 +6,7 @@
 //     <Notes on implementation>
 // Original Author:  gbruno
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripGain.cc,v 1.10 2010/03/29 12:32:37 demattia Exp $
+// $Id: SiStripGain.cc,v 1.11 2010/04/15 12:47:31 demattia Exp $
 
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
@@ -15,7 +15,8 @@
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include <sstream>
 
-void SiStripGain::multiply(const SiStripApvGain & apvgain, const double & factor)
+void SiStripGain::multiply(const SiStripApvGain & apvgain, const double & factor,
+			   const std::pair<std::string, std::string> & recordLabelPair)
 {
   // When inserting the first ApvGain
   if( apvgain_ == 0 ) {
@@ -32,6 +33,7 @@ void SiStripGain::multiply(const SiStripApvGain & apvgain, const double & factor
     std::cout << "multiplication" << std::endl;
     fillNewGain( apvgain_, 1., &apvgain, factor ); 
   }
+  recordLabelPair_.push_back(recordLabelPair);
   apvgainVector_.push_back(&apvgain);
   normVector_.push_back(factor);
 }
@@ -92,7 +94,7 @@ float SiStripGain::getStripGain(const uint16_t& strip, const SiStripApvGain::Ran
   return( apvgain_->getStripGain(strip, range) );
 }
 
-float SiStripGain::getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range, const int index) const
+float SiStripGain::getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range, const uint32_t index) const
 {
   if( !(apvgainVector_.empty()) ) {
     return( apvgainVector_[index]->getStripGain(strip, range) );
@@ -110,7 +112,7 @@ float SiStripGain::getApvGain(const uint16_t& apv, const SiStripApvGain::Range& 
   return( apvgain_->getApvGain(apv, range) );
 }
 
-float SiStripGain::getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range, const int index) const
+float SiStripGain::getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range, const uint32_t index) const
 {
   if( !(apvgainVector_.empty()) ) {
     return (apvgainVector_[index]->getApvGain(apv, range))/(normVector_[index]);
@@ -130,7 +132,7 @@ const SiStripApvGain::Range SiStripGain::getRange(const uint32_t& DetId) const
   return apvgain_->getRange(DetId);
 }
 
-const SiStripApvGain::Range SiStripGain::getRange(const uint32_t& DetId, const int index) const
+const SiStripApvGain::Range SiStripGain::getRange(const uint32_t& DetId, const uint32_t index) const
 {
   return apvgainVector_[index]->getRange(DetId);
 }
