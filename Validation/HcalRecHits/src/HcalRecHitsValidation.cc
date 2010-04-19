@@ -1,6 +1,6 @@
 #include "Validation/HcalRecHits/interface/HcalRecHitsValidation.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   // DQM ROOT output
@@ -26,6 +26,12 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   sign_         = conf.getUntrackedParameter<std::string>("sign", "*");
   mc_           = conf.getUntrackedParameter<std::string>("mc", "yes");
   famos_        = conf.getUntrackedParameter<bool>("Famos", false);
+
+  //Collections
+  theHBHERecHitCollectionLabel = conf.getUntrackedParameter<edm::InputTag>("HBHERecHitCollectionLabel");
+  theHFRecHitCollectionLabel   = conf.getUntrackedParameter<edm::InputTag>("HFRecHitCollectionLabel");
+  theHORecHitCollectionLabel   = conf.getUntrackedParameter<edm::InputTag>("HORecHitCollectionLabel");
+
   //  std::cout << "*** famos_ = " << famos_ << std::endl; 
 
   subdet_ = 5;
@@ -379,6 +385,9 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
     }
     // ************** HB **********************************
     if (subdet_ == 1 || subdet_ == 5 ){
+
+      sprintf(histo, "HcalRecHitTask_severityLevel_HB");
+      sevLvl_HB = dbe_->book1D(histo, histo, 25, 0, 25); 
       
       if(etype_ == 1 && subdet_ == 1 ) { 
         if(imc != 0) {
@@ -412,22 +421,22 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       }
       
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HB" ) ;
-      meRecHitsEnergyHB = dbe_->book1D(histo, histo, 510 , -10. , 500.); 
+      meRecHitsEnergyHB = dbe_->book1D(histo, histo, 2010 , -10. , 2000.); 
       
       sprintf (histo, "HcalRecHitTask_timing_HB" ) ;
-      meTimeHB = dbe_->book1D(histo, histo, 2000 , -100. , 100.); 
+      meTimeHB = dbe_->book1D(histo, histo, 200 , -100. , 100.); 
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HB" ) ;
-      meTE_HB = dbe_->book2D(histo, histo, 300, -5., 295.,  300, -50., 100.);
+      meTE_HB = dbe_->book2D(histo, histo, 3000, -5., 2995.,  300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HB_depth1" ) ;
-      meTE_HB1 = dbe_->book2D(histo, histo, 300, -5., 295.,  300, -50., 100.);
+      meTE_HB1 = dbe_->book2D(histo, histo, 3000, -5., 2995.,  300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HB_depth2" ) ;
-      meTE_HB2 = dbe_->book2D(histo, histo, 300, -5., 295.,  300, -50., 100.);
+      meTE_HB2 = dbe_->book2D(histo, histo, 3000, -5., 2995.,  300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HB" ) ;
-      meTEprofileHB = dbe_->bookProfile(histo, histo, 300, -5., 295., 300, -50., 100.); 
+      meTEprofileHB = dbe_->bookProfile(histo, histo, 3000, -5., 2995., 300, -50., 100.); 
       
       if(imc != 0) {
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HB");
@@ -439,6 +448,9 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
     
     // ********************** HE ************************************
     if ( subdet_ == 2 || subdet_ == 5 ){
+
+      sprintf(histo, "HcalRecHitTask_severityLevel_HE");
+      sevLvl_HE = dbe_->book1D(histo, histo, 25, 0, 25); 
       
       if(etype_ == 1 && subdet_ == 2 ) { 
 	
@@ -478,16 +490,16 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       meTimeHE = dbe_->book1D(histo, histo, 200 , -100. , 100.); 
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE" ) ;
-      meTE_HE = dbe_->book2D(histo, histo, 300, -5., 295.,  300, -50., 100.);
+      meTE_HE = dbe_->book2D(histo, histo, 1000, -5., 995.,  300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE_depth1" ) ;
-      meTE_HE1 = dbe_->book2D(histo, histo, 300, -5., 295., 300, -50., 100.);
+      meTE_HE1 = dbe_->book2D(histo, histo, 1000, -5., 995., 300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE_depth2" ) ;
-      meTE_HE2 = dbe_->book2D(histo, histo, 300, -5., 295.,  300, -50., 100.);
+      meTE_HE2 = dbe_->book2D(histo, histo, 1000, -5., 995.,  300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HE" ) ;
-      meTEprofileHE = dbe_->bookProfile(histo, histo, 300, -5., 295., 300, -50., 100.); 
+      meTEprofileHE = dbe_->bookProfile(histo, histo, 1000, -5., 995., 300, -50., 100.); 
       
       if(imc != 0) {
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HE");
@@ -500,6 +512,9 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 
     // ************** HO ****************************************
     if ( subdet_ == 3 || subdet_ == 5  ){
+
+      sprintf(histo, "HcalRecHitTask_severityLevel_HO");
+      sevLvl_HO = dbe_->book1D(histo, histo, 25, 0, 25); 
       
       if(etype_ == 1 && subdet_ == 3) { 
         if (imc != 0) {
@@ -522,13 +537,13 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       meRecHitsEnergyHO = dbe_->book1D(histo, histo, 510 , -10. , 500.); 
       
       sprintf (histo, "HcalRecHitTask_timing_HO" ) ;
-      meTimeHO = dbe_->book1D(histo, histo, 2000 , -100., 100.); 
+      meTimeHO = dbe_->book1D(histo, histo, 200 , -100., 100.); 
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HO" ) ;
-      meTE_HO= dbe_->book2D(histo, histo, 300, -5., 295., 300, -50., 100.);
+      meTE_HO= dbe_->book2D(histo, histo, 1000, -5., 995., 300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HO" ) ;
-      meTEprofileHO = dbe_->bookProfile(histo, histo, 300, -5., 295.,  300, -50., 100.); 
+      meTEprofileHO = dbe_->bookProfile(histo, histo, 1000, -5., 995.,  300, -50., 100.); 
       
       if(imc != 0) {
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HO");
@@ -540,6 +555,9 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   
     // ********************** HF ************************************
     if ( subdet_ == 4 || subdet_ == 5 ){
+
+      sprintf(histo, "HcalRecHitTask_severityLevel_HF");
+      sevLvl_HF = dbe_->book1D(histo, histo, 25, 0, 25); 
 
       if(etype_ == 1 &&  subdet_ == 4) { 
 
@@ -566,19 +584,19 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       meRecHitsEnergyHF = dbe_->book1D(histo, histo, 1010 , -10. , 1000.); 
 
       sprintf (histo, "HcalRecHitTask_timing_HF" ) ;
-      meTimeHF = dbe_->book1D(histo, histo, 2000 , -100. , 100.); 
+      meTimeHF = dbe_->book1D(histo, histo, 200 , -100. , 100.); 
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HF" ) ;
-      meTE_HF = dbe_->book2D(histo, histo, 300, -5., 295., 300, -50., 100.);
+      meTE_HF = dbe_->book2D(histo, histo, 1000, -5., 995., 300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HFL" ) ;
-      meTE_HFL = dbe_->book2D(histo, histo, 300, -5., 295., 300, -50., 100.);
+      meTE_HFL = dbe_->book2D(histo, histo, 1000, -5., 995., 300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HFS" ) ;
-      meTE_HFS = dbe_->book2D(histo, histo, 300, -5., 295., 300, -50., 100.);
+      meTE_HFS = dbe_->book2D(histo, histo, 1000, -5., 995., 300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HF" ) ;
-      meTEprofileHF = dbe_->bookProfile(histo, histo, 300, -5., 295., 300, -50., 100.); 
+      meTEprofileHF = dbe_->bookProfile(histo, histo, 1000, -5., 995., 300, -50., 100.); 
             
       if(imc != 0) {
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HF");
@@ -998,9 +1016,42 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   //   previously was:  c.get<IdealGeometryRecord>().get (geometry);
   c.get<CaloGeometryRecord>().get (geometry);
 
+  // HCAL channel status map ****************************************
+  edm::ESHandle<HcalChannelQuality> hcalChStatus;
+  c.get<HcalChannelQualityRcd>().get( hcalChStatus );
+  theHcalChStatus = hcalChStatus.product();
+  // Assignment of severity levels **********************************
+  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
+  c.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
+  theHcalSevLvlComputer = hcalSevLvlComputerHndl.product(); 
 
   // Fill working vectors of HCAL RecHits quantities 
   fillRecHitsTmp(subdet_, ev); 
+
+  // HB   
+  if( subdet_ ==5 || subdet_ == 1 ){ 
+     for(unsigned int iv=0; iv<hcalHBSevLvlVec.size(); iv++){
+        sevLvl_HB->Fill(hcalHBSevLvlVec[iv]);
+     }    
+  }
+  // HE   
+  if( subdet_ ==5 || subdet_ == 2 ){
+     for(unsigned int iv=0; iv<hcalHESevLvlVec.size(); iv++){
+        sevLvl_HE->Fill(hcalHESevLvlVec[iv]);
+     }
+  }
+  // HO 
+  if( subdet_ ==5 || subdet_ == 3 ){
+     for(unsigned int iv=0; iv<hcalHOSevLvlVec.size(); iv++){
+        sevLvl_HO->Fill(hcalHOSevLvlVec[iv]);
+     }
+  }
+  // HF 
+  if( subdet_ ==5 || subdet_ == 4 ){
+     for(unsigned int iv=0; iv<hcalHFSevLvlVec.size(); iv++){
+        sevLvl_HF->Fill(hcalHFSevLvlVec[iv]);
+     }
+  } 
 
   //  std::cout << "*** 3" << std::endl; 
 
@@ -1691,147 +1742,143 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
   cdepth.clear();
   cz.clear();
   cstwd.clear();
+  hcalHBSevLvlVec.clear();
+  hcalHESevLvlVec.clear();
+  hcalHFSevLvlVec.clear();
+  hcalHOSevLvlVec.clear(); 
 
   if( subdet_ == 1 || subdet_ == 2  || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
     
     //HBHE
-    std::vector<edm::Handle<HBHERecHitCollection> > hbhecoll;
-    ev.getManyByType(hbhecoll);
-
-    std::vector<edm::Handle<HBHERecHitCollection> >::iterator i;
+    edm::Handle<HBHERecHitCollection> hbhecoll;
+    ev.getByLabel(theHBHERecHitCollectionLabel, hbhecoll);
     
-    int count = 0;
-    for (i=hbhecoll.begin(); i!=hbhecoll.end(); i++) {
+    for (HBHERecHitCollection::const_iterator j=hbhecoll->begin(); j != hbhecoll->end(); j++) {
+      HcalDetId cell(j->id());
+      const CaloCellGeometry* cellGeometry =
+	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+      double eta  = cellGeometry->getPosition().eta () ;
+      double phi  = cellGeometry->getPosition().phi () ;
+      double zc   = cellGeometry->getPosition().z ();
+      int sub     = cell.subdet();
+      int depth   = cell.depth();
+      int inteta  = cell.ieta();
+      if(inteta > 0) inteta -= 1;
+      int intphi  = cell.iphi()-1;
+      double en   = j->energy();
+      double t    = j->time();
+      int stwd    = j->flags();
       
-      count ++;  
-    //      std::cout << "*** HBHE collection No. " <<  count << std::endl;     
-      if ( count == 1) {
-      for (HBHERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
-	HcalDetId cell(j->id());
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	double eta  = cellGeometry->getPosition().eta () ;
-	double phi  = cellGeometry->getPosition().phi () ;
-        double zc   = cellGeometry->getPosition().z ();
-	int sub     = cell.subdet();
-	int depth   = cell.depth();
-	int inteta  = cell.ieta();
-	if(inteta > 0) inteta -= 1;
-	int intphi  = cell.iphi()-1;
-	double en   = j->energy();
-	double t    = j->time();
-	int stwd    = j->flags();
-
-	if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
+      int serivityLevel = hcalSevLvl( (CaloRecHit*) &*j );
+      if( cell.subdet()==HcalBarrel ){
+         hcalHBSevLvlVec.push_back(serivityLevel);
+      }else if (cell.subdet()==HcalEndcap ){
+         hcalHESevLvlVec.push_back(serivityLevel);
+      } 
+      
+      if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
 	
-	  csub.push_back(sub);
-	  cen.push_back(en);
-	  ceta.push_back(eta);
-	  cphi.push_back(phi);
-	  ctime.push_back(t);
-	  cieta.push_back(inteta);
-	  ciphi.push_back(intphi);
-	  cdepth.push_back(depth);
-	  cz.push_back(zc);
-	  cstwd.push_back(stwd);
-	}
-      }
-
+	csub.push_back(sub);
+	cen.push_back(en);
+	ceta.push_back(eta);
+	cphi.push_back(phi);
+	ctime.push_back(t);
+	cieta.push_back(inteta);
+	ciphi.push_back(intphi);
+	cdepth.push_back(depth);
+	cz.push_back(zc);
+	cstwd.push_back(stwd);
       }
     }
+    
   }
 
   if( subdet_ == 4 || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
 
     //HF
-    std::vector<edm::Handle<HFRecHitCollection> > hfcoll;
-    ev.getManyByType(hfcoll);
-    std::vector<edm::Handle<HFRecHitCollection> >::iterator ihf;
+    edm::Handle<HFRecHitCollection> hfcoll;
+    ev.getByLabel(theHFRecHitCollectionLabel, hfcoll);
 
-    int count = 0;
-    for (ihf=hfcoll.begin(); ihf!=hfcoll.end(); ihf++) {      
-      count++;
-      if(count == 1) {
-      for (HFRecHitCollection::const_iterator j=(*ihf)->begin(); j!=(*ihf)->end(); j++) {
-	HcalDetId cell(j->id());
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	double eta   = cellGeometry->getPosition().eta () ;
-	double phi   = cellGeometry->getPosition().phi () ;
-        double zc     = cellGeometry->getPosition().z ();
-	int sub      = cell.subdet();
-	int depth    = cell.depth();
-	int inteta   = cell.ieta();
-	if(inteta > 0) inteta -= 1;
-	int intphi   = cell.iphi()-1;
-	double en    = j->energy();
-	double t     = j->time();
-	int stwd     = j->flags();
+    for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); j++) {
+      HcalDetId cell(j->id());
+      const CaloCellGeometry* cellGeometry =
+	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+      double eta   = cellGeometry->getPosition().eta () ;
+      double phi   = cellGeometry->getPosition().phi () ;
+      double zc     = cellGeometry->getPosition().z ();
+      int sub      = cell.subdet();
+      int depth    = cell.depth();
+      int inteta   = cell.ieta();
+      if(inteta > 0) inteta -= 1;
+      int intphi   = cell.iphi()-1;
+      double en    = j->energy();
+      double t     = j->time();
+      int stwd     = j->flags();
 
-	if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
+      int serivityLevel = hcalSevLvl( (CaloRecHit*) &*j );
+      if( cell.subdet()==HcalForward ){
+         hcalHFSevLvlVec.push_back(serivityLevel);
+      } 
+
+      if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
 	
-	  csub.push_back(sub);
-	  cen.push_back(en);
-	  ceta.push_back(eta);
-	  cphi.push_back(phi);
-	  ctime.push_back(t);
-	  cieta.push_back(inteta);
-	  ciphi.push_back(intphi);
-	  cdepth.push_back(depth);
-	  cz.push_back(zc);
-       	  cstwd.push_back(stwd);
-	}
-      }
+	csub.push_back(sub);
+	cen.push_back(en);
+	ceta.push_back(eta);
+	cphi.push_back(phi);
+	ctime.push_back(t);
+	cieta.push_back(inteta);
+	ciphi.push_back(intphi);
+	cdepth.push_back(depth);
+	cz.push_back(zc);
+	cstwd.push_back(stwd);
       }
     }
   }
 
   //HO
-
   if( subdet_ == 3 || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
   
-    std::vector<edm::Handle<HORecHitCollection> > hocoll;
-    ev.getManyByType(hocoll);
-    std::vector<edm::Handle<HORecHitCollection> >::iterator iho;
+    edm::Handle<HORecHitCollection> hocoll;
+    ev.getByLabel(theHORecHitCollectionLabel, hocoll);
     
-    int count = 0;
-    for (iho=hocoll.begin(); iho!=hocoll.end(); iho++) {
-      count++;
-      if (count == 1) {
-      for (HORecHitCollection::const_iterator j=(*iho)->begin(); j!=(*iho)->end(); j++) {
-	HcalDetId cell(j->id());
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	double eta   = cellGeometry->getPosition().eta () ;
-	double phi   = cellGeometry->getPosition().phi () ;
-        double zc    = cellGeometry->getPosition().z ();
-	int sub      = cell.subdet();
-	int depth    = cell.depth();
-	int inteta   = cell.ieta();
-	if(inteta > 0) inteta -= 1;
-	int intphi   = cell.iphi()-1;
-	double t     = j->time();
-	double en    = j->energy();
-	int stwd     = j->flags();
+    for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); j++) {
+      HcalDetId cell(j->id());
+      const CaloCellGeometry* cellGeometry =
+	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+      double eta   = cellGeometry->getPosition().eta () ;
+      double phi   = cellGeometry->getPosition().phi () ;
+      double zc    = cellGeometry->getPosition().z ();
+      int sub      = cell.subdet();
+      int depth    = cell.depth();
+      int inteta   = cell.ieta();
+      if(inteta > 0) inteta -= 1;
+      int intphi   = cell.iphi()-1;
+      double t     = j->time();
+      double en    = j->energy();
+      int stwd     = j->flags();
 
-	if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
-	  csub.push_back(sub);
-	  cen.push_back(en);
-	  ceta.push_back(eta);
-	  cphi.push_back(phi);
-	  ctime.push_back(t);
-	  cieta.push_back(inteta);
-	  ciphi.push_back(intphi);
-	  cdepth.push_back(depth);
-	  cz.push_back(zc);
-	  cstwd.push_back(stwd);
-	}
-      }
+      int serivityLevel = hcalSevLvl( (CaloRecHit*) &*j );
+      if( cell.subdet()==HcalOuter ){
+         hcalHOSevLvlVec.push_back(serivityLevel);
+      } 
+      
+      if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
+	csub.push_back(sub);
+	cen.push_back(en);
+	ceta.push_back(eta);
+	cphi.push_back(phi);
+	ctime.push_back(t);
+	cieta.push_back(inteta);
+	ciphi.push_back(intphi);
+	cdepth.push_back(depth);
+	cz.push_back(zc);
+	cstwd.push_back(stwd);
       }
     }
-  }      
-  
+  }
 }
+
 double HcalRecHitsValidation::dR(double eta1, double phi1, double eta2, double phi2) { 
   double PI = 3.1415926535898;
   double deltaphi= phi1 - phi2;
@@ -1873,6 +1920,18 @@ double HcalRecHitsValidation::dPhiWsign(double phi1, double phi2) {
 
 }
 
+int HcalRecHitsValidation::hcalSevLvl(const CaloRecHit* hit){
+
+   const DetId id = hit->detid();
+
+   const uint32_t recHitFlag = hit->flags();
+   const uint32_t dbStatusFlag = theHcalChStatus->getValues(id)->getValue();
+
+   int severityLevel = theHcalSevLvlComputer->getSeverityLevel(id, recHitFlag, dbStatusFlag);
+
+   return severityLevel;
+
+} 
 
 DEFINE_FWK_MODULE(HcalRecHitsValidation);
 
