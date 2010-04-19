@@ -106,13 +106,13 @@ SiStripGain* SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::SiStr
 
     fillApvGain( a, apvgain_[0], pDD );
     // Create a new gain object and insert the ApvGain
-    SiStripGain * gain = new SiStripGain( *(pDD[0].product()), getNFactor(0));
+    SiStripGain * gain = new SiStripGain( *(pDD[0].product()), getNFactor(0), apvgain_[0] );
 
     if( apvgain_.size() > 1 ) {
       for( unsigned int i=1; i<apvgain_.size(); ++i ) {
         fillApvGain( a, apvgain_[i], pDD );
         // Add the new ApvGain to the gain object
-        gain->multiply(*(pDD[i].product()), getNFactor(i));
+        gain->multiply(*(pDD[i].product()), getNFactor(i), apvgain_[i]);
       }
     }
     return gain;
@@ -123,13 +123,13 @@ SiStripGain* SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::SiStr
 
     pDD.push_back(edm::ESHandle<SiStripApvGain>());
     a.getRecord<SiStripApvGainSimRcd>().get(apvgain_[0].second, pDD[0]);
-    SiStripGain * gain = new SiStripGain( *(pDD[0].product()), getNFactor(0));
+    SiStripGain * gain = new SiStripGain( *(pDD[0].product()), getNFactor(0), apvgain_[0] );
 
     if( apvgain_.size() > 1 ) {
       for( unsigned int i=1; i<apvgain_.size(); ++i ) {
         pDD.push_back(edm::ESHandle<SiStripApvGain>());
         a.getRecord<SiStripApvGainSimRcd>().get(apvgain_[i].second, pDD[i]);
-        gain->multiply(*(pDD[i].product()), getNFactor(i));
+        gain->multiply(*(pDD[i].product()), getNFactor(i), apvgain_[i]);
       }
     }
     return gain;
