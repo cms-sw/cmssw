@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: MuonSelectors.h,v 1.9 2010/01/20 17:28:12 jribnik Exp $
+// $Id: MuonSelectors.h,v 1.10 2010/01/21 06:07:06 slava77 Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"
@@ -89,7 +89,14 @@ namespace muon {
 
    // ------------ method to calculate the segment compatibility for a track with matched muon info  ------------
    float segmentCompatibility(const reco::Muon& muon,reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration);
-
+   
+   // Check if two muon trajectory overlap
+   // The overlap is performed by comparing distance between two muon
+   // trajectories if they cross the same muon chamber. Trajectories 
+   // overlap if distance/uncertainty is smaller than allowed pullX 
+   // and pullY
+   bool overlap( const reco::Muon& muon1, const reco::Muon& muon2, 
+		 double pullX = 1.0, double pullY = 1.0 );
 
 }
 #endif

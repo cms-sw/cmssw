@@ -632,3 +632,39 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type )
       return false;
     }
 }
+
+bool muon::overlap( const reco::Muon& muon1, const reco::Muon& muon2, 
+		    double pullX, double pullY)
+{
+  unsigned int nMatches1 = muon1.numberOfMatches(reco::Muon::SegmentAndTrackArbitration);
+  unsigned int nMatches2 = muon2.numberOfMatches(reco::Muon::SegmentAndTrackArbitration);
+  unsigned int betterMuon = ( muon1.pt() > muon2.pt() ? 1 : 2 );
+  for ( std::vector<reco::MuonChamberMatch>::const_iterator chamber1 = muon1.matches().begin();
+	   chamber1 != muon1.matches().end(); ++chamber1 )
+    for ( std::vector<reco::MuonChamberMatch>::const_iterator chamber2 = muon2.matches().begin();
+	  chamber2 != muon2.matches().end(); ++chamber2 )
+      {
+	if ( chamber1->id != chamber2->id ) continue;
+	// found the same chamber
+	if ( fabs(chamber1->x-chamber2->x) < 
+	     pullX * sqrt(chamber1->xErr*chamber1->xErr+chamber2->xErr*chamber2->xErr) )
+	  {
+	    if ( betterMuon == 1 )
+	      nMatches2--;
+	    else
+	      nMatches1--;
+	       if ( nMatches1==0 || nMatches2==0 ) return true;
+	       continue;
+	  }
+	if ( fabs(chamber1->y-chamber2->y) < 
+	     pullY * sqrt(chamber1->yErr*chamber1->yErr+chamber2->yErr*chamber2->yErr) )
+	  {
+	    if ( betterMuon == 1 )
+	      nMatches2--;
+	    else
+	      nMatches1--;
+	    if ( nMatches1==0 || nMatches2==0 ) return true;
+	  }
+      }
+  return false;
+}
