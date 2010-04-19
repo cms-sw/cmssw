@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.3 2009/11/05 17:07:51 boudoul Exp $
+// $Id: TrackingMonitor.h,v 1.4 2010/01/17 20:00:42 dutta Exp $
 
 #include <memory>
 #include <fstream>
@@ -36,6 +36,7 @@ class TrackingMonitor : public edm::EDAnalyzer
         virtual void beginJob(void);
         virtual void endJob(void);
 
+        virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup);
         virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
     private:
@@ -69,6 +70,8 @@ class TrackingMonitor : public edm::EDAnalyzer
 
         std::string builderName;
         edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
+ 
+        bool doLumiAnalysis;
 };
 
 #endif //define TrackingMonitor_H
