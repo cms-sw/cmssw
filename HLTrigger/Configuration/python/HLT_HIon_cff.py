@@ -1,14 +1,13 @@
-# /dev/CMSSW_3_6_0/pre4/HIon/V20 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
+# /dev/CMSSW_3_6_0/HIon/V1 (CMSSW_3_6_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/HIon/V20')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V1')
 )
 
 streams = cms.PSet( 
-  Offline = cms.vstring(  ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   Calibration = cms.vstring( 'TestEnables' ),
@@ -16,6 +15,7 @@ streams = cms.PSet(
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   EventDisplay = cms.vstring(  ),
   A = cms.vstring( 'JetMETTauMonitor',
     'EGMonitor',
@@ -24,15 +24,15 @@ streams = cms.PSet(
     'HcalHPDNoise',
     'ZeroBias',
     'MuMonitor',
-    'Cosmics',
     'Mu',
     'JetMETTau',
     'MinimumBias',
-    'HcalNZS' ),
+    'HcalNZS',
+    'Cosmics' ),
   DQM = cms.vstring(  ),
   HLTDQM = cms.vstring(  ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
-  Express = cms.vstring( 'ExpressPhysics' )
+  Offline = cms.vstring(  )
 )
 datasets = cms.PSet( 
   LogMonitor = cms.vstring(  ),
@@ -42,6 +42,7 @@ datasets = cms.PSet(
   AlCaP0 = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
   EG = cms.vstring(  ),
@@ -49,13 +50,12 @@ datasets = cms.PSet(
   HcalHPDNoise = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
   MuMonitor = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
   Mu = cms.vstring(  ),
   JetMETTau = cms.vstring(  ),
   MinimumBias = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
-  OfflineMonitor = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  )
+  Cosmics = cms.vstring(  ),
+  OfflineMonitor = cms.vstring(  )
 )
 
 MCJetCorrectorIcone5Unit = cms.ESSource( "LXXXCorrectionService",
@@ -696,9 +696,9 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
       Level = cms.int32( 0 )
     )
   ),
-  RecoveredRecHitBits = cms.vstring(  ),
+  DropChannelStatusBits = cms.vstring(  ),
   appendToDataLabel = cms.string( "" ),
-  DropChannelStatusBits = cms.vstring(  )
+  RecoveredRecHitBits = cms.vstring(  )
 )
 hltCkfTrajectoryBuilderMumu = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   ComponentName = cms.string( "hltCkfTrajectoryBuilderMumu" ),
@@ -1042,12 +1042,13 @@ hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
 )
 hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    daqPartitions = cms.uint32( 1 ),
     ignoreL1Mask = cms.bool( True ),
     invert = cms.bool( False ),
+    bunchCrossings = cms.vint32( 0, -1, 1, -2, 2 ),
     physicsLoBits = cms.uint64( 0x1 ),
     physicsHiBits = cms.uint64( 0x40000 ),
-    technicalBits = cms.uint64( 0x0 ),
-    bunchCrossings = cms.vint32( 0, -1, 1, -2, 2 )
+    technicalBits = cms.uint64( 0x0 )
 )
 hltOfflineBeamSpot = cms.EDProducer( "BeamSpotProducer" )
 hltPreFirstPath = cms.EDFilter( "HLTPrescaler" )

@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_0/pre4/GRun/V20
+# /dev/CMSSW_3_6_0/GRun/V1
 
 import FWCore.ParameterSet.Config as cms
 
@@ -86,22 +86,6 @@ streamA_datasetMuMonitor_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuMonitor_selector.throw      = cms.bool(False)
 streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_L1Mu', 
     'HLT_L1MuOpen')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCosmics_selector
-streamA_datasetCosmics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetCosmics_selector.l1tResults = cms.InputTag('')
-streamA_datasetCosmics_selector.throw      = cms.bool(False)
-streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_TrackerCosmics', 
-    'HLT_RPCBarrelCosmics', 
-    'HLT_CSCBeamHaloRing2or3', 
-    'HLT_CSCBeamHaloOverlapRing2', 
-    'HLT_CSCBeamHaloOverlapRing1', 
-    'HLT_CSCBeamHalo', 
-    'HLT_L1MuOpen_NoBPTX', 
-    'HLT_L1Tech_BSC_halo', 
-    'HLT_L1MuOpen_AntiBPTX', 
-    'HLT_TkMu3_NoVertex', 
-    'HLT_L2Mu0_NoVertex')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMu_selector
 streamA_datasetMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -197,4 +181,20 @@ streamA_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
 streamA_datasetHcalNZS_selector.throw      = cms.bool(False)
 streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_8E29', 
     'HLT_HcalPhiSym')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCosmics_selector
+streamA_datasetCosmics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetCosmics_selector.l1tResults = cms.InputTag('')
+streamA_datasetCosmics_selector.throw      = cms.bool(False)
+streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_TrackerCosmics', 
+    'HLT_RPCBarrelCosmics', 
+    'HLT_CSCBeamHaloRing2or3', 
+    'HLT_CSCBeamHaloOverlapRing2', 
+    'HLT_CSCBeamHaloOverlapRing1', 
+    'HLT_CSCBeamHalo', 
+    'HLT_L1MuOpen_NoBPTX', 
+    'HLT_L1Tech_BSC_halo', 
+    'HLT_L1MuOpen_AntiBPTX', 
+    'HLT_TkMu3_NoVertex', 
+    'HLT_L2Mu0_NoVertex')
 
