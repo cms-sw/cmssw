@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.7 2010/04/16 10:59:51 amraktad Exp $
+// $Id: FWElectronProxyBuilder.cc,v 1.8 2010/04/16 11:28:04 amraktad Exp $
 //
 #include "TEveTrack.h"
 
@@ -19,7 +19,6 @@
 #include "Fireworks/Candidates/interface/CandidateUtils.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Electrons/interface/makeSuperCluster.h" 
-
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -44,11 +43,11 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWElectronProxyBuilder(const FWElectronProxyBuilder&); // stop default
-   const FWElectronProxyBuilder& operator=(const FWElectronProxyBuilder&); // stop default
+   FWElectronProxyBuilder( const FWElectronProxyBuilder& ); // stop default
+   const FWElectronProxyBuilder& operator=( const FWElectronProxyBuilder& ); // stop default
 
-   virtual void buildViewType(const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type);
-   TEveElementList* requestCommon(const reco::GsfElectronCollection* gsfElectrons);
+   virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type );
+   TEveElementList* requestCommon( const reco::GsfElectronCollection* gsfElectrons );
 
    TEveElementList* m_common;
 };
@@ -57,7 +56,7 @@ private:
 FWElectronProxyBuilder::FWElectronProxyBuilder():
    m_common(0)
 {
-   m_common = new TEveElementList("common electron scene");
+   m_common = new TEveElementList( "common electron scene" );
    m_common->IncDenyDestroy();
 }
 
@@ -67,11 +66,11 @@ FWElectronProxyBuilder::~FWElectronProxyBuilder()
 }
 
 TEveElementList*
-FWElectronProxyBuilder::requestCommon(const reco::GsfElectronCollection* gsfElectrons)
+FWElectronProxyBuilder::requestCommon( const reco::GsfElectronCollection* gsfElectrons )
 {
-   if (m_common->HasChildren() == false && gsfElectrons->empty() == false)
+   if( m_common->HasChildren() == false && gsfElectrons->empty() == false )
    {
-      for(reco::GsfElectronCollection::const_iterator it = gsfElectrons->begin() ; it != gsfElectrons->end(); ++it) 
+      for( reco::GsfElectronCollection::const_iterator it = gsfElectrons->begin(), itEnd = gsfElectrons->end(); it != itEnd; ++it ) 
       {
          TEveTrack* track(0);
          if( (*it).gsfTrack().isAvailable() )
@@ -81,7 +80,7 @@ FWElectronProxyBuilder::requestCommon(const reco::GsfElectronCollection* gsfElec
             track = fireworks::prepareCandidate( (*it),
                                                  context().getTrackPropagator());
          track->MakeTrack();
-         track->SetMainColor(item()->defaultDisplayProperties().color());
+         track->SetMainColor( item()->defaultDisplayProperties().color() );
          m_common->AddElement( track );
       }
    }
@@ -95,36 +94,35 @@ FWElectronProxyBuilder::cleanLocal()
 }
 
 void
-FWElectronProxyBuilder::buildViewType(const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type)
+FWElectronProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type )
 {
-   reco::GsfElectronCollection const * gsfElectrons =0;
-   iItem->get(gsfElectrons);
-   if (gsfElectrons == 0) return;
+   reco::GsfElectronCollection const * gsfElectrons = 0;
+   iItem->get( gsfElectrons );
+   if( gsfElectrons == 0 ) return;
 
-
-   TEveElementList*   tracks = requestCommon(gsfElectrons);
+   TEveElementList*   tracks = requestCommon( gsfElectrons );
    TEveElement::List_i trkIt = tracks->BeginChildren();
    Int_t idx = 0;
-   for( reco::GsfElectronCollection::const_iterator  elIt = gsfElectrons->begin(); elIt != gsfElectrons->end(); ++elIt, ++trkIt)
+   for( reco::GsfElectronCollection::const_iterator elIt = gsfElectrons->begin(), elItEnd = gsfElectrons->end(); elIt != elItEnd; ++elIt, ++trkIt )
    { 
-      const char* name  = Form("Electron %d", ++idx);
-      TEveElementList* comp = new TEveElementList(name, name);
-      comp->AddElement(*trkIt);
-      if (type == FWViewType::kRhoPhi)
-         fireworks::makeRhoPhiSuperCluster(*item(),
-                                           (*elIt).superCluster(),
-                                           (*elIt).phi(),
-                                           *comp);
-      else if (type == FWViewType::kRhoZ)
-         fireworks::makeRhoZSuperCluster(*item(),
-                                         (*elIt).superCluster(),
-                                         (*elIt).phi(),
-                                         *comp);
-      product->AddElement(comp);
+      const char* name = Form( "Electron %d", ++idx );
+      TEveElementList* comp = new TEveElementList( name, name );
+      comp->AddElement( *trkIt );
+      if( type == FWViewType::kRhoPhi )
+         fireworks::makeRhoPhiSuperCluster( *item(),
+					    (*elIt).superCluster(),
+					    (*elIt).phi(),
+					    *comp );
+      else if( type == FWViewType::kRhoZ )
+         fireworks::makeRhoZSuperCluster( *item(),
+					  (*elIt).superCluster(),
+					  (*elIt).phi(),
+					  *comp );
+      product->AddElement( comp );
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWElectronProxyBuilder, reco::GsfElectronCollection, "Electrons", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
+REGISTER_FWPROXYBUILDER( FWElectronProxyBuilder, reco::GsfElectronCollection, "Electrons", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
 
 
 

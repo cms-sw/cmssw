@@ -8,93 +8,59 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonsProxyBuilder.cc,v 1.2 2009/01/23 21:35:46 amraktad Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.1 2010/04/13 12:59:52 yana Exp $
 //
-
-// system include files
-
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-
-
-// user include files
-#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWViewType.h"
+
 #include "Fireworks/Electrons/interface/makeSuperCluster.h"
 
-class FWPhotonRhoPhiProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Photon> {
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+
+class FWPhotonProxyBuilder : public FWProxyBuilderBase {
 
 public:
-   FWPhotonRhoPhiProxyBuilder() :
-     m_reportedNoSuperClusters(false) {}
-  
-   virtual ~FWPhotonRhoPhiProxyBuilder() {}
+   FWPhotonProxyBuilder() {}
+
+   virtual ~FWPhotonProxyBuilder() {}
+
+   virtual bool hasSingleProduct() { return false; }
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWPhotonRhoPhiProxyBuilder(const FWPhotonRhoPhiProxyBuilder&); // stop default
+   FWPhotonProxyBuilder(const FWPhotonProxyBuilder&); // stop default
+   const FWPhotonProxyBuilder& operator=(const FWPhotonProxyBuilder&); // stop default
 
-   const FWPhotonRhoPhiProxyBuilder& operator=(const FWPhotonRhoPhiProxyBuilder&); // stop default
-
-   virtual void build(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
-
-   mutable bool m_reportedNoSuperClusters;
+   virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type );
 };
 
 void
-FWPhotonRhoPhiProxyBuilder::build(const reco::Photon& iData, unsigned int iIndex,TEveElement& oItemHolder) const
+FWPhotonProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type )
 {
-   if( fireworks::makeRhoPhiSuperCluster(*item(),
-                                         iData.superCluster(),
-                                         iData.phi(),
-                                         oItemHolder) ) {
-   } else {
-      if(!m_reportedNoSuperClusters) {
-         m_reportedNoSuperClusters=true;
-         std::cout <<"Can not draw photons because could not get super cluster"<<std::endl;
-      }
+   reco::PhotonCollection const * photons = 0;
+   iItem->get( photons );
+   if( photons == 0 ) return;
+
+   Int_t idx = 0;
+   for( reco::PhotonCollection::const_iterator it = photons->begin(), itEnd = photons->end(); it != itEnd; ++it)
+   { 
+      const char* name = Form( "Photon %d", ++idx );
+      TEveElementList* comp = new TEveElementList( name, name );
+      if( type == FWViewType::kRhoPhi )
+	 fireworks::makeRhoPhiSuperCluster(*item(),
+					   (*it).superCluster(),
+					   (*it).phi(),
+					   *comp);
+      else if( type == FWViewType::kRhoZ )
+         fireworks::makeRhoZSuperCluster(*item(),
+                                         (*it).superCluster(),
+                                         (*it).phi(),
+                                         *comp);
+      product->AddElement(comp);
    }
 }
 
-class FWPhotonRhoZProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Photon> {
-
-public:
-   FWPhotonRhoZProxyBuilder() :
-     m_reportedNoSuperClusters(false) {}
-  
-   virtual ~FWPhotonRhoZProxyBuilder() {}
-
-   REGISTER_PROXYBUILDER_METHODS();
-
-private:
-   FWPhotonRhoZProxyBuilder(const FWPhotonRhoZProxyBuilder&); // stop default
-
-   const FWPhotonRhoZProxyBuilder& operator=(const FWPhotonRhoZProxyBuilder&); // stop default
-
-   virtual void build(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
-
-   mutable bool m_reportedNoSuperClusters;
-};
-
-void
-FWPhotonRhoZProxyBuilder::build(const reco::Photon& iData, unsigned int iIndex,TEveElement& oItemHolder) const
-{
-   if( fireworks::makeRhoZSuperCluster(*item(),
-                                       iData.superCluster(),
-                                       iData.phi(),
-                                       oItemHolder) ) {
-   } else {
-      if(!m_reportedNoSuperClusters) {
-         m_reportedNoSuperClusters=true;
-         std::cout <<"Can not draw photons because could not get super cluster"<<std::endl;
-      }
-   }
-}
-
-//
-// static member functions
-//
-REGISTER_FWPROXYBUILDER(FWPhotonRhoPhiProxyBuilder, reco::Photon, "Photons", FWViewType::kRhoPhiBit);
-REGISTER_FWPROXYBUILDER(FWPhotonRhoZProxyBuilder, reco::Photon, "Photons", FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER( FWPhotonProxyBuilder, reco::PhotonCollection, "Photons", FWViewType::kAllRPZBits );
