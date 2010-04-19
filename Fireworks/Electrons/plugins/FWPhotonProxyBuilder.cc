@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonProxyBuilder.cc,v 1.1 2010/04/13 12:59:52 yana Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.2 2010/04/19 08:20:15 yana Exp $
 //
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -45,9 +45,9 @@ FWPhotonProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
    if( photons == 0 ) return;
 
    Int_t idx = 0;
-   for( reco::PhotonCollection::const_iterator it = photons->begin(), itEnd = photons->end(); it != itEnd; ++it)
+   for( reco::PhotonCollection::const_iterator it = photons->begin(), itEnd = photons->end(); it != itEnd; ++it, ++idx)
    { 
-      const char* name = Form( "Photon %d", ++idx );
+      const char* name = Form( "Photon %d", idx );
       TEveElementList* comp = new TEveElementList( name, name );
       if( type == FWViewType::kRhoPhi )
 	 fireworks::makeRhoPhiSuperCluster(*item(),
