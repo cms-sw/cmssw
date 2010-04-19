@@ -24,7 +24,7 @@ AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
 }
 
 #ifdef TRPRFN_SSE
-#include "AnalyticalCurvilinearJacobian.icc"
+#include "AnalyticalCurvilinearJacobianSSE.icc"
 #else
 
 AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian

@@ -1,5 +1,4 @@
 
-
 void
 AnalyticalCurvilinearJacobian::computeFullJacobian
 (const GlobalTrajectoryParameters& globalParameters,
@@ -42,18 +41,18 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   Vec3D hn(hnf.x(),hnf.y(),hnf.z());
   Vec3D dx(dxf.x(),dxf.y(),dxf.z());
 
-  double gamma = dot(hn*t2);
+  double gamma = dot(hn,t2);
   Vec3D an = cross(hn,t2);
 
   const __m128d neg = _mm_set_pd ( 0.0 , -0.0 );
 
   __m128d t = _mm_mul_pd(t1.vec[0],t1.vec[0]);
-  t = _mm_sqrt_pd(_mm_sum_pd(t,_mm_shuffle_pd(t,t,1)));
+  t = _mm_sqrt_pd(_mm_add_pd(t,_mm_shuffle_pd(t,t,1)));
   Vec3D u1(_mm_xor_pd(neg,_mm_div_pd(_mm_shuffle_pd(t1.vec[0],t1.vec[0],1),t)), _mm_setzero_pd());
   Vec3D v1 = cross(t1,u1);
 
   t = _mm_mul_pd(t2.vec[0],t2.vec[0]);
-  t = _mm_sqrt_pd(_mm_sum_pd(t,_mm_shuffle_pd(t,t,1)));
+  t = _mm_sqrt_pd(_mm_add_pd(t,_mm_shuffle_pd(t,t,1)));
   Vec3D u2(_mm_xor_pd(neg,_mm_div_pd(_mm_shuffle_pd(t2.vec[0],t2.vec[0],1),t)), _mm_setzero_pd());
   Vec3D v2 = cross(t2,u2);
 
@@ -79,7 +78,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   
   //   lambda
   
-  theJacobian(1,0) = -qp*anv*dot(t2*dx);
+  theJacobian(1,0) = -qp*anv*dot(t2,dx);
   
   theJacobian(1,1) = 
     cost* dot(v1,v2) +
@@ -93,7 +92,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   theJacobian(1,2) = 
     cost*dot(u1,v2) +
-    sint*dot(hu*v2) +
+    sint*dot(hu,v2) +
     omcost*dot(hn,u1) * dot(hn,v2) +
     anv*(-sint*dot(u1,t2) +
 	 omcost*dot(u1,an)  -
@@ -112,8 +111,8 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   theJacobian(2,1) = 
     cost*dot(v1,u2) +
-    sint*dot(hv*u2) +
-    omcost*dot(hn*v1)*dot(hn,u2) +
+    sint*dot(hv,u2) +
+    omcost*dot(hn,v1)*dot(hn,u2) +
     anu*(-sint*dot(v1,t2) +
 	 omcost*dot(v1,an) -
 	 tmsint*gamma*dot(hn,v1)
@@ -123,7 +122,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   theJacobian(2,2) = 
     cost*dot(u1,u2) +
-    sint*(hu1,u2) +
+    sint*dot(hu,u2) +
     omcost*dot(hn,u1)*dot(hn,u2) +
     anu*(-sint*dot(u1,t2) +
 	 omcost*dot(u1,an) -
@@ -164,9 +163,9 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
     double fourthOrder41 = 1./8 * h3 * s4 * qbp2 * temp1;
     theJacobian(3,0) = secondOrder41 + thirdOrder41 + fourthOrder41;
 
-    double temp3 =dot(hp1*v2);
+    double temp3 =dot(hp1,v2);
     double secondOrder51 = 0.5 * qp * temp3 * s2;
-    double temp4 = dot(ghnmp*v2);
+    double temp4 = dot(ghnmp,v2);
     double thirdOrder51 = 1./3 * h2 * s3 * qbp * temp4;
     double fourthOrder51 = 1./8 * h3 * s4 * qbp2 * temp3;
     theJacobian(4,0) = secondOrder51 + thirdOrder51 + fourthOrder51;
@@ -175,7 +174,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   theJacobian(3,1) = (sint*dot(v1,u2) +
 		      omcost*dot(hv,u2) +
 		      tmsint*dot(hn,u2) *
-		      dot(hn*v1))/q;
+		      dot(hn,v1))/q;
 
   theJacobian(3,2) = (sint*dot(u1,u2) +
 		      omcost*dot(hu,u2) +
@@ -200,6 +199,6 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   theJacobian(4,3) = dot(u1,v2); 
 
-  theJacobian(4,4) = dot(v11,v2);
+  theJacobian(4,4) = dot(v1,v2);
   // end of TRPRFN
 }
