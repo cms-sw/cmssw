@@ -69,8 +69,8 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
 
 
   // singleton histogram object
-  theHisto = GflashHistogram::instance();
   if(thePar.getParameter<bool>("GflashHistogram")) {
+    theHisto = GflashHistogram::instance();
     theHisto->setStoreFlag(true);
     theHisto->bookHistogram(thePar.getParameter<std::string>("GflashHistogramName"));
   }
@@ -78,7 +78,11 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
 }
 
 GFlash::~GFlash() {
-  if(theHisto) delete theHisto;
+  /*
+  if(thePar.getParameter<bool>("GflashHistogram")) {
+    if(theHisto) delete theHisto;
+  }
+  */
 }
 
 //define this as a plug-in
