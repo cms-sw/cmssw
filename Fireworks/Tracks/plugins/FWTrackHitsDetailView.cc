@@ -19,12 +19,10 @@
 
 // Fireworks includes
 #include "Fireworks/Core/interface/FWModelId.h"
-//#include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/CSGAction.h"
-//#include "Fireworks/Core/interface/FWGUISubviewArea.h"
 #include "Fireworks/Core/interface/FWIntValueListener.h"
 #include "Fireworks/Core/interface/FWMagField.h"
 
@@ -32,13 +30,12 @@
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
 FWTrackHitsDetailView::FWTrackHitsDetailView ():
-m_modules(0),
-m_moduleLabels(0),
-m_hits(0),
-m_slider(0),
-m_sliderListener()
-{
-}
+  m_modules(0),
+  m_moduleLabels(0),
+  m_hits(0),
+  m_slider(0),
+  m_sliderListener()
+{}
 
 FWTrackHitsDetailView::~FWTrackHitsDetailView ()
 {
