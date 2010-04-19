@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.70 2010/04/17 17:37:04 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.71 2010/04/19 17:10:52 dinardo Exp $
 //
 //
 
@@ -55,7 +55,7 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
   debugMode        = iConfig.getParameter<bool>("debugMode");
   nLumiReset       = iConfig.getParameter<unsigned int>("nLumiReset");
   dataFromFit      = iConfig.getParameter<bool>("dataFromFit");
-  minNentries      = iConfig.getParameter<int>("minNentries");
+  minNentries      = iConfig.getParameter<unsigned int>("minNentries");
   xRange           = iConfig.getParameter<double>("xRange");
   xStep            = iConfig.getParameter<double>("xStep");
   yRange           = iConfig.getParameter<double>("yRange");
