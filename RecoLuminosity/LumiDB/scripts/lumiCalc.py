@@ -28,6 +28,7 @@ def deliveredLumiForRun(dbsession,c,runnum):
     #
     #if c.VERBOSE:
     #    print 'deliveredLumiForRun : norm : ',c.NORM,' : run : ',runnum
+    #output ['run','totalls','delivered','beammode']
     delivered=0.0
     totalls=0
     try:
@@ -36,6 +37,7 @@ def deliveredLumiForRun(dbsession,c,runnum):
         query=schema.tableHandle(nameDealer.lumisummaryTableName()).newQuery()
         query.addToOutputList("sum(INSTLUMI)","totallumi")
         query.addToOutputList("count(INSTLUMI)","totalls")
+        query.addToOutputList("NUMORBIT","norbits")
         queryBind=coral.AttributeList()
         queryBind.extend("runnum","unsigned int")
         queryBind.extend("lumiversion","string")
@@ -44,18 +46,25 @@ def deliveredLumiForRun(dbsession,c,runnum):
         result=coral.AttributeList()
         result.extend("totallumi","float")
         result.extend("totalls","unsigned int")
+        result.extend("norbits","unsigned int")
         query.defineOutput(result)
         query.setCondition("RUNNUM =:runnum AND LUMIVERSION =:lumiversion",queryBind)
+        query.limitReturnedRows(1)
+        query.groupBy('NUMORBIT')
         cursor=query.execute()
         while cursor.next():
             delivereddata=cursor.currentRow()['totallumi'].data()
             totallsdata=cursor.currentRow()['totalls'].data()
+            norbitsdata=cursor.currentRow()['norbits'].data()
             if delivereddata:
-                delivered=delivereddata*c.NORM*c.LSLENGTH
                 totalls=totallsdata
+                norbits=norbitsdata
+                lstime=lslengthsec(norbits,3564)
+                delivered=delivereddata*c.NORM*lstime
         del query
         dbsession.transaction().commit()
         lumidata=[]
+
         if delivered==0.0:
             lumidata=[str(runnum),'N/A','N/A','N/A']
         else:
@@ -76,6 +85,8 @@ def deliveredLumiForRange(dbsession,c,fileparsingResult):
     return lumidata
 
 def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
+    """output: ['runnumber','trgtable{}','deadtable{}']
+    """
     recorded=0.0
     lumidata=[] #[runnumber,trgtable,deadtable]
     trgtable={} #{hltpath:[l1seed,hltprescale,l1prescale]}
@@ -105,15 +116,16 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
             hltpathname=cursor.currentRow()["hltpathname"].data()
             l1seed=cursor.currentRow()["l1seed"].data()
             collectedseeds.append((hltpathname,l1seed))
+        #print 'collectedseeds ',collectedseeds
         del query
         dbsession.transaction().commit()
         #loop over hltpath
         for (hname,sname) in collectedseeds:
             l1bitname=hltTrgSeedMapper.findUniqueSeed(hname,sname)
+            #print 'found unque seed ',hname,l1bitname
             if l1bitname:
-                lumidata[1][hltpathname]=[]
-                lumidata[1][hltpathname].append(l1bitname.replace('\"',''))
-
+                lumidata[1][hname]=[]
+                lumidata[1][hname].append(l1bitname.replace('\"',''))
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
         hltprescQuery=schema.tableHandle(nameDealer.hltTableName()).newQuery()
@@ -136,12 +148,12 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
             hltpath=cursor.currentRow()['hltpath'].data()
             hltprescale=cursor.currentRow()['hltprescale'].data()
             if lumidata[1].has_key(hltpath):
-                if len(lumidata[1][hltpath])==1:
-                    lumidata[1][hltpath].append(hltprescale)
+                lumidata[1][hltpath].append(hltprescale)
+                
         cursor.close()
         del hltprescQuery
         dbsession.transaction().commit()
-                
+        
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
         query=schema.newQuery()
@@ -180,14 +192,15 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
         cursor=query.execute()
         while cursor.next():
             cmsls=cursor.currentRow()["cmsls"].data()
-            trgprescale=cursor.currentRow()["trgprescale"].data()
-            trgdeadtime=cursor.currentRow()["trgdeadtime"].data()
-            trgbitname=cursor.currentRow()["bitname"].data()
-            trgbitnum=cursor.currentRow()["trgbitnum"].data()
             instlumi=cursor.currentRow()["instlumi"].data()
             norbits=cursor.currentRow()["norbits"].data()
+            trgbitname=cursor.currentRow()["bitname"].data()
+            trgdeadtime=cursor.currentRow()["trgdeadtime"].data()
+            trgprescale=cursor.currentRow()["trgprescale"].data()
+            trgbitnum=cursor.currentRow()["trgbitnum"].data()
             if cmsls==1:
-                trgprescalemap[trgbitname]=trgprescale
+                if not trgprescalemap.has_key(trgbitname):
+                    trgprescalemap[trgbitname]=trgprescale
             if trgbitnum==0:
                 if not deadtable.has_key(cmsls):
                     deadtable[cmsls]=[]
@@ -202,32 +215,20 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
         #consolidate results
         #
         #trgtable
-        #print trgprescalemap
-        for hpath,trgdataseq in lumidata[1].items():
+        #print 'trgprescalemap',trgprescalemap
+        #print lumidata[1]
+        for hpath,trgdataseq in lumidata[1].items():   
             bitn=trgdataseq[0]
-            if trgprescalemap.has_key(bitn):
-                trgdataseq.append(trgprescalemap[bitn])
+            if trgprescalemap.has_key(bitn) and len(trgdataseq)==2:
+                lumidata[1][hpath].append(trgprescalemap[bitn])                
         #filter selected cmsls
         lumidata[2]=filterDeadtable(deadtable,lslist)
-        #if hltpath=='all':
-        #    for hltname in hltTotrgMap.keys():
-        #        effresult=recorded/(hltTotrgMap[hltname][1]*hltTotrgMap[hltname][2])
-                #rprint.printLine('  '+hltname,effresult)
-                #if c.VERBOSE:
-                    #rprint.printTriggerLine(hltTotrgMap[hltname][0],hltTotrgMap[hltname][2],hltTotrgMap[hltname][1])
-        #else:
-        #    if hltTotrgMap.has_key(hltpath) is False:
-        #        print 'Unable to calculate recorded luminosity for HLTPath ',hltpath
-        #        return
-        #    effresult=recorded/(hltTotrgMap[hltpath][1]*hltTotrgMap[hltpath][2])
-            #rprint.printLine('  '+hltpath,effresult)
-            #if c.VERBOSE:
-                #rprint.printTriggerLine(hltTotrgMap[hltpath][0],hltTotrgMap[hltpath][1],hltTotrgMap[hltpath][2])
-        #rprint.printOuterSeparator()
+        #print 'lumidata[2] ',lumidata[2]
     except Exception,e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
+    #print 'before return lumidata ',lumidata
     return lumidata
 
 def filterDeadtable(inTable,lslist):
@@ -251,77 +252,173 @@ def recordedLumiForRange(dbsession,c,fileparsingResult):
     return lumidata
 
 def printDeliveredLumi(lumidata,mode):
-    labels=[('%-*s'%(8,'run'),'%-*s'%(17,'n lumi sections'),'%-*s'%(10,'delivered'),'%-*s'%(10,'beam mode'))]
-    print tablePrinter.indent(labels+lumidata,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,10) )
+    labels=[('Run','N LumiSections','Delivered','Beam Mode')]
+    print tablePrinter.indent(labels+lumidata,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,20) )
 
 def dumpDeliveredLumi(lumidata,filename):
     pass
 
+def calculateTotalRecorded(deadtable):
+    """
+    input: {lsnum:[deadtime,instlumi,norbits]}
+    output: recordedLumi
+    """
+    recordedLumi=0.0
+    for myls,d in deadtable.items():
+        instLumi=d[1]
+        deadfrac=float(d[0])/float(d[2]*3564)
+        lstime=lslengthsec(d[2],3564)
+        recordedLumi+=instLumi*(1.0-deadfrac)*lstime
+    return recordedLumi
+
+def calculateEffective(trgtable,totalrecorded):
+    """
+    input: trgtable{hltpath:[l1seed,hltprescale,l1prescale]},totalrecorded(float)
+    output:{hltpath,recorded}
+    """
+    #print 'inputtrgtable',trgtable
+    result={}
+    for hltpath,data in trgtable.items():
+        if len(data) == 3:
+            result[hltpath]=totalrecorded/(data[1]*data[2])
+        else:
+            result[hltpath]=0.0
+    return result
+
+def getDeadfractions(deadtable):
+    """
+    inputtable: {lsnum:[deadtime,instlumi,norbits]}
+    output: {lsnum:deadfraction}
+    """
+    result={}
+    for myls,d in deadtable.items():
+        deadfrac=float(d[0])/(float(d[2])*float(3564))
+        result[myls]=deadfrac
+    return result
+
 def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
     datatoprint=[]
-    deadtoprint=[]
     labels=[('Run','HLT path','Recorded Luminosity')]
-    deadtimelabels=[('Run','Lumi section : Dead fraction')]
     if isVerbose:
-        labels=[('Run','HLT path','L1 bit','L1 prescale','HLT prescale','Recorded Luminosity')]
+        labels=[('Run','HLT-path','L1-bit','L1-presc','HLT-presc','Recorded')]
     for dataperRun in lumidata:
         runnum=dataperRun[0]
-        deadfractable={}
         if len(dataperRun[1])==0:
             rowdata=[]
             rowdata+=[str(runnum)]+2*['N/A']
             datatoprint.append(rowdata)
-            deadtoprint.append([str(runnum),'N/A'])
             continue
         perlsdata=dataperRun[2]
         recordedLumi=0.0
         norbits=perlsdata.values()[0][2]
-        lstime=lslengthsec(norbits,3564)
-        for myls,d in perlsdata.items():
-            instLumi=d[1]
-            deadfrac=float(d[0])/float(norbits*3564)
-            deadfractable[myls]='%.2f'%deadfrac
-            recordedLumi+=instLumi*(1.0-deadfrac)*lstime
-        deadtoprint.append([str(runnum),str(deadfractable)])
+        recordedLumi=calculateTotalRecorded(perlsdata)
         trgdict=dataperRun[1]
-        if trgdict.has_key(hltpath):
+        effective=calculateEffective(trgdict,recordedLumi)
+        if trgdict.has_key(hltpath) and effective.has_key(hltpath):
             rowdata=[]
             l1bit=trgdict[hltpath][0]
-            hltprescale=trgdict[hltpath][1]
-            l1prescale=trgdict[hltpath][2]
-            if not isVerbose:
-                rowdata+=[str(runnum),hltpath,'%.2f'%(recordedLumi*hltprescale*l1prescale)]
+            if len(trgdict[hltpath]) != 3:
+                if not isVerbose:
+                    rowdata+=[str(runnum),hltpath,'N/A']
+                else:
+                    rowdata+=[str(runnum),hltpath,l1bit,'N/A','N/A','N/A']
             else:
-                rowdata+=[str(runnum),hltpath,l1bit,str(l1prescale),str(hltprescale),'%.2f'%(recordedLumi*hltprescale*l1prescale)]
+                if not isVerbose:
+                    rowdata+=[str(runnum),hltpath,'%.2f'%(effective[hltpath])]
+                else:
+                    hltprescale=trgdict[hltpath][1]
+                    l1prescale=trgdict[hltpath][2]
+                    rowdata+=[str(runnum),hltpath,l1bit,str(l1prescale),str(hltprescale),'%.2f'%(effective[hltpath])]
             datatoprint.append(rowdata)
             continue
+        
         for trg,trgdata in trgdict.items():
+            #print trg,trgdata
             rowdata=[]                    
             if trg==trgdict.keys()[0]:
                 rowdata+=[str(runnum)]
             else:
                 rowdata+=['']
             l1bit=trgdata[0]
-            hltprescale=trgdata[1]
-            l1prescale=trgdata[2]
-            if not isVerbose:
-                rowdata+=[trg,'%.2f'%(recordedLumi*hltprescale*l1prescale)]
+            if len(trgdata)==3:
+                if not isVerbose:
+                    rowdata+=[trg,'%.2f'%(effective[trg])]
+                else:
+                    hltprescale=trgdata[1]
+                    l1prescale=trgdata[2]
+                    rowdata+=[trg,l1bit,str(l1prescale),str(hltprescale),'%.2f'%(effective[trg])]
             else:
-                rowdata+=[trg,l1bit,str(l1prescale),str(hltprescale),'%.2f'%(recordedLumi*hltprescale*l1prescale)]
+                if not isVerbose:
+                    rowdata+=[trg,'N/A']
+                else:
+                    rowdata+=[trg,l1bit,'N/A','N/A','%.2f'%(effective[trg])]
             datatoprint.append(rowdata)
+    #print datatoprint
     print '==='
-    print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,10))
+    print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace_strict(x,22))
     if isVerbose:
+        deadtoprint=[]
+        deadtimelabels=[('Run','Lumi section : Dead fraction')]
+
+        for dataperRun in lumidata:
+            runnum=dataperRun[0]
+            if len(dataperRun[1])==0:
+                deadtoprint.append([str(runnum),'N/A'])
+                continue
+            perlsdata=dataperRun[2]
+            #print 'perlsdata 2 : ',perlsdata
+            deadT=getDeadfractions(perlsdata)
+            t=''
+            for myls,de in deadT.items():
+                t+=str(myls)+':'+'%.2f'%(de)+' '
+            deadtoprint.append([str(runnum),t])
         print '==='
-        print tablePrinter.indent(deadtimelabels+deadtoprint,hasHeader=True,separateRows=True,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,70))
+        print tablePrinter.indent(deadtimelabels+deadtoprint,hasHeader=True,separateRows=True,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,80))
         
 
 def dumpRecordedLumi(lumidata,filename,hltpath=''):
     pass
 
-def printLumiOverview(delivered,recorded):
-    pass
-
+def printOverviewData(delivered,recorded,hltpath=''):
+    toprowlabels=[('Run','Delivered LumiSections','Delivered Luminosity','Selected LumiSections','Recorded Luminosity',hltpath)]
+    lastrowlabels=[('Delivered LS','Selected LS','Delivered','Recorded',hltpath)]
+    rowdata=[]
+    datatable=[]
+    totaldata=[]
+    totalDeliveredLS=0
+    totalSelectedLS=0
+    totalDelivered=0.0
+    totalRecorded=0.0
+    totalRecordedInPath=0.0
+    totaltable=[]
+    for runidx,deliveredrowdata in enumerate(delivered):
+        rowdata+=[deliveredrowdata[0],deliveredrowdata[1],deliveredrowdata[2]]
+        if deliveredrowdata[1]=='N/A': #run does not exist
+            rowdata+=['N/A','N/A','N/A']
+            datatable.append(rowdata)
+            continue
+        totalDeliveredLS+=int(deliveredrowdata[1])
+        totalDelivered+=float(deliveredrowdata[2])
+        
+        selectedls=recorded[runidx][2].keys()
+        recordedLumi=calculateTotalRecorded(recorded[runidx][2])
+        lumiinPaths=calculateEffective(recorded[runidx][1],recordedLumi)
+        if hltpath!='' and hltpath!='all':
+            if lumiinPaths.has_key(hltpath):
+                rowdata+=[str(selectedls),'%.2f'%(recordedLumi),'%.2f'%(lumiinPaths[hltpath])]
+                totalRecordedInPath+=lumiinPaths[hltpath]
+            else:
+                rowdata+=[str(selectedls),'%.2f'%(recordedLumi),'N/A']
+        else:
+            rowdata+=[str(selectedls),'%.2f'%(recordedLumi),'%.2f'%(recordedLumi)]
+        totalSelectedLS+=len(selectedls)
+        totalRecorded+=recordedLumi
+        datatable.append(rowdata)
+    totaltable=[[str(totalDeliveredLS),str(totalSelectedLS),'%.2f'%(totalDelivered),'%.2f'%(totalRecorded),'%.2f'%(totalRecordedInPath)]]
+    print tablePrinter.indent(toprowlabels+datatable,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,10))
+    print '=== Total : '
+    print tablePrinter.indent(lastrowlabels+totaltable,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,20))
+    
 def main():
     c=constants()
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi Calculations")
@@ -415,8 +512,20 @@ def main():
             lumidata.append(recordedLumiForRun(session,c,runnumber))
         else:
             lumidata=recordedLumiForRange(session,c,fileparsingResult)
-        #modes=['overview','detail','verbose','csv']
         printRecordedLumi(lumidata,c.VERBOSE,hpath)
+    if args.action == 'overview':
+        delivereddata=[]
+        recordeddata=[]
+        if args.hltpath and len(args.hltpath)!=0:
+            hpath=args.hltpath
+        if runnumber!=0:
+            delivereddata.append(deliveredLumiForRun(session,c,runnumber))
+            recordeddata.append(recordedLumiForRun(session,c,runnumber))
+        else:
+            delivereddata=deliveredLumiForRange(session,c,fileparsingResult)
+            recordeddata=recordedLumiForRange(session,c,fileparsingResult)
+        printOverviewData(delivereddata,recordeddata,hpath)
+        
     #print lumidata
     
     del session
