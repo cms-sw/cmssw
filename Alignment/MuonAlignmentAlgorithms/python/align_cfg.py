@@ -41,6 +41,7 @@ process.looper.algoConfig.twoBin = twoBin
 process.looper.algoConfig.weightAlignment = weightAlignment
 process.looper.algoConfig.minAlignmentHits = minAlignmentHits
 process.looper.algoConfig.combineME11 = combineME11
+process.looper.algoConfig.residualsModel = cms.string("GaussPowerTails")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string(globaltag)
