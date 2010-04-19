@@ -205,6 +205,9 @@ def dump( beam, file):
     file.write("EmittanceY 0"+end)
     file.write("BetaStar 0"+end)
 
+def delta(x,xerr,nextx,nextxerr):
+    return math.fabs( float(x) - float(nextx) )/math.sqrt(math.pow(float(xerr),2) + math.pow(float(nextxerr),2))
+
 # lumi tools CondCore/Utilities/python/timeUnitHelper.py
 def pack(high,low):
     """pack high,low 32bit unsigned int to one unsigned 64bit long long
@@ -639,6 +642,7 @@ if __name__ == '__main__':
 	
 	    ibeam = listbeam[ii]
 	    inextbeam = BeamSpot()
+	    iNNbeam = BeamSpot()
 	    if docreate:
 		tmpbeam.IOVfirst = ibeam.IOVfirst
 		tmpbeam.IOVBeginTime = ibeam.IOVBeginTime
@@ -654,6 +658,8 @@ if __name__ == '__main__':
 	    if ii < len(listbeam) - 1: 
 		inextbeam = listbeam[ii+1]
 		docheck = True
+		if ii < len(listbeam) -2:
+		    iNNbeam = listbeam[ii+2]
 	    else:
 		print "close payload because end of data has been reached"
 		docreate = True
@@ -675,14 +681,28 @@ if __name__ == '__main__':
 	    
 	    # check offsets
 	    if docheck:
-		deltaX = math.fabs( float(ibeam.X) - float(inextbeam.X) )/math.sqrt(math.pow(float(ibeam.Xerr),2) + math.pow(float(inextbeam.Xerr),2)) > 1.5
-		deltaY = math.fabs( float(ibeam.Y) - float(inextbeam.Y) )/math.sqrt(math.pow(float(ibeam.Yerr),2) + math.pow(float(inextbeam.Yerr),2)) > 1.5
-		deltaZ = math.fabs( float(ibeam.Z) - float(inextbeam.Z) )/math.sqrt(math.pow(float(ibeam.Zerr),2) + math.pow(float(inextbeam.Zerr),2)) > 2
-		deltasigmaZ = math.fabs( float(ibeam.sigmaZ) - float(inextbeam.sigmaZ) )/math.sqrt(math.pow(float(ibeam.sigmaZerr),2) + math.pow(float(inextbeam.sigmaZerr),2)) > 2
-		deltadxdz = math.fabs( float(ibeam.dxdz) - float(inextbeam.dxdz) )/math.sqrt(math.pow(float(ibeam.dxdzerr),2) + math.pow(float(inextbeam.dxdzerr),2)) > 2.5
-		deltadydz = math.fabs( float(ibeam.dydz) - float(inextbeam.dydz) )/math.sqrt(math.pow(float(ibeam.dydzerr),2) + math.pow(float(inextbeam.dydzerr),2)) > 2.5
-		deltawidthX = math.fabs( float(ibeam.beamWidthX) - float(inextbeam.beamWidthX) )/math.sqrt(math.pow(float(ibeam.beamWidthXerr),2) + math.pow(float(inextbeam.beamWidthXerr),2)) > 3
-		deltawidthY = math.fabs( float(ibeam.beamWidthY) - float(inextbeam.beamWidthY) )/math.sqrt(math.pow(float(ibeam.beamWidthYerr),2) + math.pow(float(inextbeam.beamWidthYerr),2)) > 3
+		deltaX = delta(ibeam.X, ibeam.Xerr, inextbeam.X, inextbeam.Xerr) > 1.5
+		deltaY = delta(ibeam.Y, ibeam.Yerr, inextbeam.Y, inextbeam.Yerr) > 1.5
+		deltaZ = delta(ibeam.Z, ibeam.Zerr, inextbeam.Z, inextbeam.Zerr) > 2.5
+				
+		deltasigmaZ = delta(ibeam.sigmaZ, ibeam.sigmaZerr, inextbeam.sigmaZ, inextbeam.sigmaZerr) > 2.5
+		deltadxdz   = delta(ibeam.dxdz, ibeam.dxdzerr, inextbeam.dxdz, inextbeam.dxdzerr) > 2.5
+		deltadydz   = delta(ibeam.dydz, ibeam.dydzerr, inextbeam.dydz, inextbeam.dydzerr) > 2.5
+		
+		deltawidthX = delta(ibeam.beamWidthX, ibeam.beamWidthXerr, inextbeam.beamWidthX, inextbeam.beamWidthXerr) > 3
+		deltawidthY = delta(ibeam.beamWidthY, ibeam.beamWidthYerr, inextbeam.beamWidthY, inextbeam.beamWidthYerr) > 3
+
+		#if iNNbeam.Type != -1:
+		#    deltaX = deltaX and delta(ibeam.X, ibeam.Xerr, iNNbeam.X, iNNbeam.Xerr) > 1.5
+		#    deltaY = deltaY and delta(ibeam.Y, ibeam.Yerr, iNNbeam.Y, iNNbeam.Yerr) > 1.5
+		#    deltaZ = deltaZ and delta(ibeam.Z, ibeam.Zerr, iNNbeam.Z, iNNbeam.Zerr) > 1.5
+		#		
+		#    deltasigmaZ = deltasigmaZ and delta(ibeam.sigmaZ, ibeam.sigmaZerr, iNNbeam.sigmaZ, iNNbeam.sigmaZerr) > 2.5
+		#    deltadxdz   = deltadxdz and delta(ibeam.dxdz, ibeam.dxdzerr, iNNbeam.dxdz, iNNbeam.dxdzerr) > 2.5
+		#    deltadydz   = deltadydz and delta(ibeam.dydz, ibeam.dydzerr, iNNbeam.dydz, iNNbeam.dydzerr) > 2.5
+		#
+		#    deltawidthX = deltawidthX and delta(ibeam.beamWidthX, ibeam.beamWidthXerr, iNNbeam.beamWidthX, iNNbeam.beamWidthXerr) > 3
+		#    deltawidthY = deltawidthY and delta(ibeam.beamWidthY, ibeam.beamWidthYerr, iNNbeam.beamWidthY, iNNbeam.beamWidthYerr) > 3
 
 		if deltaX or deltaY or deltaZ or deltasigmaZ or deltadxdz or deltadydz or deltawidthX or deltawidthY:
 		    docreate = True
