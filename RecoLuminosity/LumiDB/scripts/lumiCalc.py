@@ -271,6 +271,21 @@ def calculateTotalRecorded(deadtable):
         recordedLumi+=instLumi*(1.0-deadfrac)*lstime
     return recordedLumi
 
+def splitlistToRangeString(inPut):
+    result=[]
+    first=inPut[0]
+    last=inPut[0]
+    result.append([inPut[0]])
+    counter=0
+    for i in inPut[1:]:
+        if i==last+1:
+            result[counter].append(i)
+        else:
+            counter+=1
+            result.append([i])
+        last=i
+    return ','.join(['['+str(min(x))+'-'+str(max(x))+']' for x in result])
+
 def calculateEffective(trgtable,totalrecorded):
     """
     input: trgtable{hltpath:[l1seed,hltprescale,l1prescale]},totalrecorded(float)
@@ -401,16 +416,17 @@ def printOverviewData(delivered,recorded,hltpath=''):
         totalDelivered+=float(deliveredrowdata[2])
         
         selectedls=recorded[runidx][2].keys()
+        selectedlsStr=splitlistToRangeString(selectedls)
         recordedLumi=calculateTotalRecorded(recorded[runidx][2])
         lumiinPaths=calculateEffective(recorded[runidx][1],recordedLumi)
         if hltpath!='' and hltpath!='all':
             if lumiinPaths.has_key(hltpath):
-                rowdata+=[str(selectedls),'%.2f'%(recordedLumi),'%.2f'%(lumiinPaths[hltpath])]
+                rowdata+=[selectedlsStr,'%.2f'%(recordedLumi),'%.2f'%(lumiinPaths[hltpath])]
                 totalRecordedInPath+=lumiinPaths[hltpath]
             else:
-                rowdata+=[str(selectedls),'%.2f'%(recordedLumi),'N/A']
+                rowdata+=[selectedlsStr,'%.2f'%(recordedLumi),'N/A']
         else:
-            rowdata+=[str(selectedls),'%.2f'%(recordedLumi),'%.2f'%(recordedLumi)]
+            rowdata+=[selectedlsStr,'%.2f'%(recordedLumi),'%.2f'%(recordedLumi)]
         totalSelectedLS+=len(selectedls)
         totalRecorded+=recordedLumi
         datatable.append(rowdata)
