@@ -19,6 +19,11 @@ void popcon::SiStripDetVOffHandler::getNewObjects()
 	<< " - > getNewObjects\n"; 
   if (tagInfo().size){
     //check whats already inside of database
+    std::string userText;
+    size_t splitPoint = logDBEntry().usertext.find_last_of("@");
+    if( splitPoint != std::string::npos ) {
+      userText = logDBEntry().usertext.substr(splitPoint);
+    }
     dbstr << "got offlineInfo" << tagInfo().name << ", size " << tagInfo().size << " " << tagInfo().token 
 	  << " , last object valid since " 
 	  << tagInfo().lastInterval.first << " token "   
@@ -36,7 +41,7 @@ void popcon::SiStripDetVOffHandler::getNewObjects()
 	  << logDBEntry().payloadContainer << "\n"
 	  << logDBEntry().exectime         << "\n"
 	  << logDBEntry().execmessage      << "\n"
-	  << "\n\n-- user text " << logDBEntry().usertext.substr(logDBEntry().usertext.find_last_of("@")) ;
+	  << "\n\n-- user text " << userText;
   } else {
     dbstr << " First object for this tag ";
   }
