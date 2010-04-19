@@ -13,7 +13,9 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/TimeStamp.h"
+#include <algorithm>
 #include <iostream>
+#include <iterator>
 #include <stdexcept>
 #include <vector>
 #include <math.h>
@@ -54,7 +56,7 @@ RunInfoRead::readData(const std::string & table,
   try{
     session->transaction().start();
     std::cout << "starting session " << std::endl;
-    coral::ISchema& schema = session->nominalSchema();
+    coral::ISchema& schema = session->schema("CMS_RUNINFO");
     std::cout << " accessing schema " << std::endl;
     std::cout << " trying to handle table ::  " << m_tableToRead << std::endl;
     std::string m_columnToRead_id = "ID";
@@ -74,12 +76,11 @@ RunInfoRead::readData(const std::string & table,
       //cursorI.currentRow().toOutputStream(std::cout) << std::endl;
       const coral::AttributeList& row = cursorI.currentRow();
       id_start = row[m_columnToRead_id].data<long long>();
-      std::cout << "id for start time time extracted == " << id_start << std::endl;
     }
     else {
       id_start = -1;
-      std::cout << "id for start time time extracted == " << id_start << std::endl;
     }
+    //std::cout << "id for start time time extracted == " << id_start << std::endl;
     delete queryI;
     
     //now extracting the start time
@@ -138,12 +139,12 @@ RunInfoRead::readData(const std::string & table,
     if( cursorIII.next() ) {
       //cursorIII.currentRow().toOutputStream(std::cout) << std::endl;
       const coral::AttributeList& row = cursorIII.currentRow();
-      id_stop = row[m_columnToRead_id].data<long long>();
-      std::cout << "id for stop time time extracted == " << id_stop << std::endl;
+      id_stop = row[m_columnToRead_id].data<long long>();  
     }
     else {
       id_stop = -1;
     }
+    //std::cout << "id for stop time time extracted == " << id_stop << std::endl;
     delete queryIII;
     
     //now exctracting the stop time
@@ -187,23 +188,27 @@ RunInfoRead::readData(const std::string & table,
     }
     delete queryIV;
     
-    coral::IQuery* queryV = schema.tableHandle(m_tableToRead).newQuery();  
-    queryV->addToOutputList(m_tableToRead + "." + m_columnToRead, m_columnToRead);
+    std::string m_tableToRead_fed = "RUNSESSION_STRING";
+    coral::IQuery* queryV = schema.newQuery();  
+    queryV->addToTableList(m_tableToRead);
+    queryV->addToTableList(m_tableToRead_fed);
+    queryV->addToOutputList(m_tableToRead_fed + "." + m_columnToRead_val, m_columnToRead_val);
+    //queryV->addToOutputList(m_tableToRead + "." + m_columnToRead, m_columnToRead);
     //condition
-    std::string condition5 = m_tableToRead + ".runnumber=:n_run AND " + m_tableToRead + ".name='CMS.LVL0:FED_ENABLE_MASK'";
+    std::string condition5 = m_tableToRead + ".RUNNUMBER=:n_run AND " + m_tableToRead + ".NAME='CMS.LVL0:FED_ENABLE_MASK' AND RUNSESSION_PARAMETER.ID = RUNSESSION_STRING.RUNSESSION_PARAMETER_ID";
+    //std::string condition5 = m_tableToRead + ".runnumber=:n_run AND " + m_tableToRead + ".name='CMS.LVL0:FED_ENABLE_MASK'";
     queryV->setCondition(condition5, conditionData);
     coral::ICursor& cursorV = queryV->execute();
     std::string fed;
     if ( cursorV.next() ) {
       //cursorV.currentRow().toOutputStream(std::cout) << std::endl;
       const coral::AttributeList& row = cursorV.currentRow();
-      fed = row[m_columnToRead].data<std::string>();
-      //std::cout << "string fed emask == " << fed << std::endl;
+      fed = row[m_columnToRead_val].data<std::string>();
     }
     else {
       fed="null";
-      //std::cout << "string fed emask == " << fed << std::endl;
     }
+    //std::cout << "string fed emask == " << fed << std::endl;
     delete queryV;
     
     std::replace(fed.begin(), fed.end(), '%', ' ');
@@ -213,17 +218,22 @@ RunInfoRead::readData(const std::string & table,
       if ( !(stream >> word) ){break;}
       std::replace(word.begin(), word.end(), '&', ' ');
       std::stringstream ss(word);
-      int fed; 
+      int fedNumber; 
       int val;
-      ss >> fed >> val;
+      ss >> fedNumber >> val;
       //std::cout << "fed:: " << fed << "--> val:: " << val << std::endl; 
       //val bit 0 represents the status of the SLINK, but 5 and 7 means the SLINK/TTS is ON but NA or BROKEN (see mail of alex....)
       if( (val & 0001) == 1 && (val != 5) && (val != 7) ) 
-	temp_sum.m_fed_in.push_back(fed);
+	temp_sum.m_fed_in.push_back(fedNumber);
     } 
+    std::cout << "feds in run:--> ";
+    std::copy(temp_sum.m_fed_in.begin(), temp_sum.m_fed_in.end(), std::ostream_iterator<int>(std::cout, ", "));
+    std::cout << std::endl;
+    /*
     for (size_t i =0; i<temp_sum.m_fed_in.size() ; ++i){
       std::cout << "fed in run:--> " << temp_sum.m_fed_in[i] << std::endl; 
-    }  
+    } 
+    */
     
     coral::ISchema& schema2 = session->schema("CMS_DCS_ENV_PVSS_COND");
     std::string m_tableToRead_cur= "CMSFWMAGNET";
