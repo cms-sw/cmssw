@@ -422,7 +422,7 @@ if __name__ == '__main__':
         dfile.write('Timetype runnumber\n')
         checkType = tagType
         if tagType == "express":
-            checkType = "prompt"
+            checkType = "hlt"
         dfile.write('IOVCheck ' + checkType + '\n')
         dfile.write('usertext ' + iov_comment +'\n')
         
