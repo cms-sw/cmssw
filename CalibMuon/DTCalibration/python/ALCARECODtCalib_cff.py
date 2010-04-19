@@ -12,7 +12,7 @@ ALCARECODtCalibHLTFilter = copy.deepcopy(hltHighLevel)
 #ALCARECODtCalibHLTFilter.HLTPaths = ['HLT_L1MuOpen', 'HLT_L1Mu']
 ALCARECODtCalibHLTFilter.throw = False ## dont throw on unknown path names
 
-ALCARECODtCalibHLTFilter.eventSetupPathsKey = 'MuAlCalIsolatedMu'
+ALCARECODtCalibHLTFilter.eventSetupPathsKey = 'MuAlcaDtCalibMu'
 
 # Configuration for DT 4D segments without the wire propagation correction
 from RecoLocalMuon.DTSegment.DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB_cfi import *
