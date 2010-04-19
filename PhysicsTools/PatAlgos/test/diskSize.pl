@@ -51,7 +51,8 @@ foreach (split(/\n/, $IN)) {
         #print STDERR "Got item $item\n";
   }
   next unless defined $item;
-  if (m/\*Br\s+\d+\s+:((\w+)_(\w+)_(\w*)_(\w+))\.obj\.(\S+) :/) {
+ #if (m/\*Br\s+\d+\s+:((\w+)_(\w+)_(\w*)_(\w+))\.obj\.(\S+) :/) {
+  if (m/\*Br\s+\d+\s+:((\w+)_(\w+)_(\w*)_(\w+))\.(\S+) :/) {
         $obj = $6; $item = $1;
         #print STDERR "Got item $item, obj $obj\n";
         die "Product $1 not found" unless defined($survey{$1});
