@@ -29,7 +29,6 @@
 #include <string>
 #include <sstream>
 #include <math.h>
-
 //
 // -- Contructor
 //
@@ -63,84 +62,113 @@ void SiStripCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup con
   }
   eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
 
-  if (!sistripCertificationBooked_)  bookSiStripCertificationMEs();
-  if (!trackingCertificationBooked_) bookTrackingCertificationMEs();
+  nFEDConnected_ = 0;
+  const FEDNumbering numbering;
+  const int siStripFedIdMin = numbering.MINSiStripFEDID;
+  const int siStripFedIdMax = numbering.MAXSiStripFEDID; 
+
+  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
+  if( eSetup.find( recordKey ) != 0) {
+
+    edm::ESHandle<RunInfo> sumFED;
+    eSetup.get<RunInfoRcd>().get(sumFED);    
+    
+    if ( sumFED.isValid() ) {
+      std::vector<int> FedsInIds= sumFED->m_fed_in;   
+      for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
+	int fedID = FedsInIds[it];     
+	if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDConnected_;
+      }
+      LogDebug ("SiStripDcsInfo") << " SiStripDcsInfo :: Connected FEDs " << nFEDConnected_;
+    }
+  }
+ 
+  bookSiStripCertificationMEs();
+  bookTrackingCertificationMEs();
+  fillDummySiStripCertification();
+  fillDummyTrackingCertification();
+  
 }
 //
 // -- Book MEs for SiStrip Sertification fractions  
 //
 void SiStripCertificationInfo::bookSiStripCertificationMEs() {
   if (!sistripCertificationBooked_) {
+    dqmStore_->cd();
     std::string strip_dir = "";
-
     SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir); 
-    if (strip_dir.size() > 0) {
-      dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
-      SiStripCertification = dqmStore_->bookFloat("CertificationSummary");  
-      SubDetMEs local_mes;
-      std::string tag;
-      dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/CertificationContents");
-      tag = "TIB";
-      
-      local_mes.folder_name = "TIB";
-      local_mes.subdet_tag  = "TIB";
-      local_mes.n_layer     = 4;
-      local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
-      SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
-      
-      tag = "TOB";
-      local_mes.folder_name = "TOB";
-      local_mes.subdet_tag  = "TOB";
-      local_mes.n_layer     = 6;
-      local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
-      SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
-      
-      tag = "TECF";
-      local_mes.folder_name = "TEC/side_2";
-      local_mes.subdet_tag  = "TEC+";
-      local_mes.n_layer     = 9;
-      local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
-      SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
-      
-      tag = "TECB";
-      local_mes.folder_name = "TEC/side_1";
-      local_mes.subdet_tag  = "TEC-";
-      local_mes.n_layer     = 9;
-      local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
-      SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
-      
-      tag = "TIDF";
-      local_mes.folder_name = "TID/side_2";
-      local_mes.subdet_tag  = "TID+";
-      local_mes.n_layer     = 3;
-      local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
-      SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
-      
-      tag = "TIDB";
-      local_mes.folder_name = "TID/side_1";
-      local_mes.subdet_tag  = "TID-";
-      local_mes.n_layer     = 3;
-      local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
-      SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
-      
-      dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
-      std::string  hname  = "CertificationReportMap";
-      std::string  htitle = "SiStrip Certification for Good Detector Fraction";
-      SiStripCertificationSummaryMap = dqmStore_->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
-      SiStripCertificationSummaryMap->setAxisTitle("Sub Detector Type", 1);
-      SiStripCertificationSummaryMap->setAxisTitle("Layer/Disc Number", 2);
-      
-      int ibin = 0;
-      for (std::map<std::string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
-	   it != SubDetMEsMap.end(); it++) {
-	ibin++;
-	std::string det = it->first;
-	SiStripCertificationSummaryMap->setBinLabel(ibin,det);       
-      }
-      sistripCertificationBooked_  = true;
-      dqmStore_->cd();
+    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
+    else dqmStore_->setCurrentFolder("SiStrip/EventInfo"); 
+
+    SiStripCertification = dqmStore_->bookFloat("CertificationSummary");  
+
+    std::string  hname  = "CertificationReportMap";
+    std::string  htitle = "SiStrip Certification for Good Detector Fraction";
+    SiStripCertificationSummaryMap = dqmStore_->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
+    SiStripCertificationSummaryMap->setAxisTitle("Sub Detector Type", 1);
+    SiStripCertificationSummaryMap->setAxisTitle("Layer/Disc Number", 2);
+    int ibin = 0;
+    for (std::map<std::string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
+	 it != SubDetMEsMap.end(); it++) {
+      ibin++;
+      std::string det = it->first;
+      SiStripCertificationSummaryMap->setBinLabel(ibin,det);       
     }
-  } 
+
+    SubDetMEs local_mes;
+    std::string tag;
+    dqmStore_->cd();
+    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/CertificationContents");
+    else dqmStore_->setCurrentFolder("SiStrip/EventInfo/CertificationContents");
+    tag = "TIB";
+    
+    local_mes.folder_name = "TIB";
+    local_mes.subdet_tag  = "TIB";
+    local_mes.n_layer     = 4;
+    local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
+    SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
+    
+    tag = "TOB";
+    local_mes.folder_name = "TOB";
+    local_mes.subdet_tag  = "TOB";
+    local_mes.n_layer     = 6;
+    local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
+    SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
+    
+    tag = "TECF";
+    local_mes.folder_name = "TEC/side_2";
+    local_mes.subdet_tag  = "TEC+";
+    local_mes.n_layer     = 9;
+    local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
+    SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
+    
+    tag = "TECB";
+    local_mes.folder_name = "TEC/side_1";
+    local_mes.subdet_tag  = "TEC-";
+    local_mes.n_layer     = 9;
+    local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
+    SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
+    
+    tag = "TIDF";
+    local_mes.folder_name = "TID/side_2";
+    local_mes.subdet_tag  = "TID+";
+    local_mes.n_layer     = 3;
+    local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
+    SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
+    
+    tag = "TIDB";
+    local_mes.folder_name = "TID/side_1";
+    local_mes.subdet_tag  = "TID-";
+    local_mes.n_layer     = 3;
+    local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
+    SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
+    
+    dqmStore_->cd();
+    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
+    
+    sistripCertificationBooked_  = true;
+    dqmStore_->cd();
+  }
 }  
 //
 // -- Book MEs for SiStrip Sertification fractions  
@@ -155,9 +183,19 @@ void SiStripCertificationInfo::bookTrackingCertificationMEs() {
 
       dqmStore_->setCurrentFolder(tracking_dir+"/EventInfo/CertificationContents");
 
-      TrackingCertificationRate        = dqmStore_->bookFloat("TrackRate");
-      TrackingCertificationChi2overDoF = dqmStore_->bookFloat("TrackChi2overDoF");
-      TrackingCertificationRecHits     = dqmStore_->bookFloat("TrackRecHits");
+      std::string type;
+      MonitorElement* me;
+      type = "Rate";
+      me = dqmStore_->bookFloat("Track"+type);
+      TrackingMEsMap.insert(std::pair<std::string,MonitorElement*>(type,me));
+
+      type = "Chi2";
+      me = dqmStore_->bookFloat("Track"+type);
+      TrackingMEsMap.insert(std::pair<std::string,MonitorElement*>(type,me));
+
+      type = "RecHits";
+      me = dqmStore_->bookFloat("Track"+type);
+      TrackingMEsMap.insert(std::pair<std::string,MonitorElement*>(type,me));
       
       trackingCertificationBooked_ = true;
       dqmStore_->cd();
@@ -174,6 +212,11 @@ void SiStripCertificationInfo::analyze(edm::Event const& event, edm::EventSetup 
 //
 void SiStripCertificationInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
   edm::LogInfo( "SiStripDaqInfo") << "SiStripDaqInfo::endLuminosityBlock";
+
+  if (nFEDConnected_ > 0) {
+    fillSiStripCertificationMEsAtLumi();  
+    fillTrackingCertificationMEs();
+  }
 }
 
 //
@@ -182,34 +225,10 @@ void SiStripCertificationInfo::endLuminosityBlock(edm::LuminosityBlock const& lu
 void SiStripCertificationInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
   edm::LogInfo ("SiStripCertificationInfo") <<"SiStripCertificationInfo:: End Run";
 
-  fillDummySiStripCertification();
-  fillDummyTrackingCertification();
-
-
-  float nFEDConnected = 0.0;
-  const FEDNumbering numbering;
-  const int siStripFedIdMin = numbering.MINSiStripFEDID;
-  const int siStripFedIdMax = numbering.MAXSiStripFEDID; 
-
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if( eSetup.find( recordKey ) != 0) {
-
-    edm::ESHandle<RunInfo> sumFED;
-    eSetup.get<RunInfoRcd>().get(sumFED);    
-    
-    if ( sumFED.isValid() ) {
-      std::vector<int> FedsInIds= sumFED->m_fed_in;   
-      for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
-	int fedID = FedsInIds[it];     
-	if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDConnected;
-      }
-      edm::LogInfo ("SiStripCertificationInfo") <<" SiStripCertificationInfo :: Connected FEDs " << nFEDConnected;
-      if (nFEDConnected > 0) {
-	fillSiStripCertificationMEs();
-	fillTrackingCertificationMEs();
-      }
-    }
-  } 
+  if (nFEDConnected_ > 0) {
+    fillSiStripCertificationMEs();
+    fillTrackingCertificationMEs();
+  }
 }
 //
 // --Fill Tracking Certification 
@@ -219,13 +238,13 @@ void SiStripCertificationInfo::fillTrackingCertificationMEs() {
     edm::LogError("SiStripCertificationInfo") << " SiStripCertificationInfo::fillTrackingCertificationMEs : MEs missing ";
     return;
   }
-  resetTrackingCertificationMEs();
   std::string tk_dir = "";
   SiStripUtility::getTopFolderPath(dqmStore_, "Tracking", tk_dir);
   if (tk_dir.size() == 0) {
     fillDummyTrackingCertification();
     return;
   }    
+  
   std::vector<MonitorElement*> all_mes = dqmStore_->getContents(tk_dir+"/EventInfo/reportSummaryContents");
   float fval = 1.0;
   for (std::vector<MonitorElement *>::const_iterator it = all_mes.begin();
@@ -235,9 +254,14 @@ void SiStripCertificationInfo::fillTrackingCertificationMEs() {
     if (me->kind() == MonitorElement::DQM_KIND_REAL) {
       std::string name = me->getName();
       float val   = me->getFloatValue();
-      if (name.find("Rate") != std::string::npos) TrackingCertificationRate->Fill(val);
-      else if (name.find("Chi2overDoF") != std::string::npos) TrackingCertificationChi2overDoF->Fill(val);
-      else if (name.find("RecHits") != std::string::npos) TrackingCertificationRecHits->Fill(val); 
+      for (std::map<std::string, MonitorElement*>::const_iterator it = TrackingMEsMap.begin();
+	   it != TrackingMEsMap.end(); it++) {
+	std::string type = it->first; 
+	if (name.find(type) != std::string::npos) {
+	  it->second->Fill(val);
+	  break;
+        }
+      }
       fval *= val;
     }
   }  
@@ -248,13 +272,13 @@ void SiStripCertificationInfo::fillTrackingCertificationMEs() {
 //
 void SiStripCertificationInfo::fillSiStripCertificationMEs() {
   if (!sistripCertificationBooked_) {
-    edm::LogError("SiStripCertificationInfo") << " SiStripCertificationInfo::fillTrackingCertificationMEs : MEs missing ";
+    edm::LogError("SiStripCertificationInfo") << " SiStripCertificationInfo::fillSiStripCertificationMEs : MEs missing ";
     return;
   }
+  resetSiStripCertificationMEs();
   std::string mdir = "MechanicalView";
   dqmStore_->cd();
   if (!SiStripUtility::goToDir(dqmStore_, mdir)) return;
-  resetSiStripCertificationMEs();
   std::string mechanical_dir = dqmStore_->pwd();
   uint16_t nDetTot = 0;
   uint16_t nFaultyTot = 0;  
@@ -289,7 +313,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs() {
       nfaulty_subdet += nfaulty_layer;
       float fraction_layer = -1.0;
       if ( ndet_layer > 0) fraction_layer = 1 - ((nfaulty_layer*1.0)/ndet_layer);
-      SiStripCertificationSummaryMap->Fill(xbin, ilayer+1,fraction_layer); 
+      if (SiStripCertificationSummaryMap) SiStripCertificationSummaryMap->Fill(xbin, ilayer+1,fraction_layer); 
     }
     if (ybin <= SiStripCertificationSummaryMap->getNbinsY()) {
       for (int k = ybin+1; k <= SiStripCertificationSummaryMap->getNbinsY(); k++) SiStripCertificationSummaryMap->Fill(xbin, k, -1.0);    
@@ -310,10 +334,11 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs() {
 void SiStripCertificationInfo::resetTrackingCertificationMEs() {
   if (!trackingCertificationBooked_) bookTrackingCertificationMEs();
   if (trackingCertificationBooked_) {
-    TrackingCertification->Reset(); 
-    TrackingCertificationRate->Reset();
-    TrackingCertificationChi2overDoF->Reset();
-    TrackingCertificationRecHits->Reset();
+    TrackingCertification->Reset();
+    for (std::map<std::string, MonitorElement*>::const_iterator it = TrackingMEsMap.begin();
+	 it != TrackingMEsMap.end(); it++) {
+      it->second->Reset();
+    }
   }
 }
 //
@@ -357,13 +382,52 @@ void SiStripCertificationInfo::fillDummyTrackingCertification() {
   resetTrackingCertificationMEs();
   if (trackingCertificationBooked_) {
     TrackingCertification->Fill(-1.0);
+    for (std::map<std::string, MonitorElement*>::const_iterator it = TrackingMEsMap.begin();
+	 it != TrackingMEsMap.end(); it++) {
+      it->second->Fill(-1.0);
+    }
     
-    TrackingCertificationRate->Fill(-1.0);
-    
-    TrackingCertificationChi2overDoF->Fill(-1.0);
-
-    TrackingCertificationRecHits->Fill(-1.0);
   }
+}
+//
+// --Fill SiStrip Certification
+//
+void SiStripCertificationInfo::fillSiStripCertificationMEsAtLumi() {
+  if (!sistripCertificationBooked_) {
+    edm::LogError("SiStripCertificationInfo") << " SiStripCertificationInfo::fillSiStripCertificationMEsAtLumi : MEs missing ";
+    return;
+  }
+  resetSiStripCertificationMEs();
+  dqmStore_->cd();
+  std::string strip_dir = "";
+  SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir);
+  if (strip_dir.size() == 0) strip_dir = "SiStrip";
+
+  std::string full_path;
+  float dcs_flag = 1.0;
+  float dqm_flag = 1.0;
+  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin();
+       it != SubDetMEsMap.end(); it++) {
+    std::string type = it->first;
+    full_path = strip_dir + "/EventInfo/DCSContents/SiStrip_" + type;
+    MonitorElement* me_dcs = dqmStore_->get(full_path);
+    if (me_dcs && me_dcs->kind() == MonitorElement::DQM_KIND_REAL) dcs_flag = me_dcs->getFloatValue(); 
+    full_path = strip_dir + "/EventInfo/reportSummaryContents/SiStrip_" + type;
+    MonitorElement* me_dqm = dqmStore_->get(full_path);
+    if (me_dqm && me_dqm->kind() == MonitorElement::DQM_KIND_REAL) dqm_flag = me_dqm->getFloatValue(); 
+    it->second.det_fractionME->Reset();
+    it->second.det_fractionME->Fill(fminf(dqm_flag,dcs_flag));
+  }
+  dcs_flag = 1.0;
+  dqm_flag = 1.0;
+  full_path = strip_dir + "/EventInfo/reportSummary";
+  MonitorElement* me_dqm = dqmStore_->get(full_path);
+  if (me_dqm && me_dqm->kind() == MonitorElement::DQM_KIND_REAL) dqm_flag = me_dqm->getFloatValue();
+  full_path = strip_dir + "/EventInfo/DCSSummary";
+  MonitorElement* me_dcs = dqmStore_->get(full_path);
+  if (me_dcs && me_dcs->kind() == MonitorElement::DQM_KIND_REAL) dcs_flag = me_dcs->getFloatValue();
+  SiStripCertification->Reset();
+  SiStripCertification->Fill(fminf(dqm_flag,dcs_flag));   
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripCertificationInfo);
