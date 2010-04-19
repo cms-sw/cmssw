@@ -52,10 +52,10 @@ void GflashHadronShowerProfile::hadronicParameterization()
 
   //initial valuses that will be changed as the shower developes
   double stepLengthLeft = theShowino->getStepLengthToOut();
-  Gflash::CalorimeterNumber whichCalor =  Gflash::getCalorimeterNumber(theShowino->getPosition());
 
   double deltaStep = 0.0;
   double showerDepth = 0.0;
+  Gflash::CalorimeterNumber whichCalor = Gflash::kNULL;
 
   theGflashHitList.clear();
   GflashHit aHit;
@@ -82,12 +82,17 @@ void GflashHadronShowerProfile::hadronicParameterization()
     double heightProfile = 0.; 
     double deltaEnergy = 0.;
 
-    //get energy deposition for this step 
     whichCalor = Gflash::getCalorimeterNumber(theShowino->getPosition());
-    heightProfile = longitudinalProfile(showerDepth,theShowino->getPathLength());
 
-    if(whichCalor == Gflash::kNULL || heightProfile <= 0. ) continue;
+    //skip if Showino is outside envelopes
+    if(whichCalor == Gflash::kNULL ) continue;
 
+    heightProfile = longitudinalProfile();
+
+    //skip if the delta energy for this step will be very small
+    if(heightProfile < 1.00e-08 ) continue;
+
+    //get energy deposition for this step 
     deltaEnergy =  heightProfile*Gflash::divisionStep*energyScale[whichCalor];    
     theShowino->addEnergyDeposited(deltaEnergy);
 
@@ -112,6 +117,8 @@ void GflashHadronShowerProfile::hadronicParameterization()
     double hitEnergy = sampleSpotEnergy*CLHEP::GeV;
     double hitTime = theShowino->getGlobalTime()*CLHEP::nanosecond;
 
+    Gflash::CalorimeterNumber hitCalor = Gflash::kNULL;
+
     for (int ispot = 0 ;  ispot < nSpotsInStep ; ispot++) {
 	
       // Compute global position of generated spots with taking into account magnetic field
@@ -125,10 +132,11 @@ void GflashHadronShowerProfile::hadronicParameterization()
 	
       Gflash3Vector hitPosition = locateHitPosition(trajectoryPoint,R50);   
 	
+      hitCalor = Gflash::getCalorimeterNumber(hitPosition);	  
+      if( hitCalor == Gflash::kNULL) continue;
+
       hitPosition *= CLHEP::cm;
 
-      if( std::fabs(hitPosition.getZ()/CLHEP::cm) > Gflash::Zmax[Gflash::kHE] ) continue;
-	
       aHit.setTime(hitTime);
       aHit.setEnergy(hitEnergy);
       aHit.setPosition(hitPosition);
@@ -218,11 +226,10 @@ void GflashHadronShowerProfile::hadronicParameterization()
 	  theShowino->getHelix()->getGflashTrajectoryPoint(trajectoryPoint,incrementPath);
 	  
 	  Gflash3Vector hitPosition = locateHitPosition(trajectoryPoint,R50);   
-
 	  hitPosition *= CLHEP::cm;
 
 	  if(std::fabs(hitPosition.getZ()/CLHEP::cm) > Gflash::Zmax[Gflash::kHO] ) continue;
-	  
+
 	  aHit.setTime(hitTime);
 	  aHit.setEnergy(hitEnergy);
 	  aHit.setPosition(hitPosition);
@@ -292,12 +299,15 @@ Gflash3Vector GflashHadronShowerProfile::locateHitPosition(GflashTrajectoryPoint
   return position;
 }
 
-double GflashHadronShowerProfile::longitudinalProfile(double showerDepth, double pathLength) {
+//double GflashHadronShowerProfile::longitudinalProfile(double showerDepth, double pathLength) {
+double GflashHadronShowerProfile::longitudinalProfile() {
 
-  double heightProfile = 0;
-  double transDepth = theShowino->getStepLengthToHcal();
+  double heightProfile = 0.0;
+
   Gflash3Vector pos = theShowino->getPosition();
   int showerType = theShowino->getShowerType();
+  double showerDepth = theShowino->getDepth();
+  double transDepth = theShowino->getStepLengthToHcal();
 
   // Energy in a delta step (dz) = (energy to deposite)*[Gamma(z+dz)-Gamma(z)]*dz
   // where the incomplete Gamma function gives an intergrate probability of the longitudinal 
@@ -305,29 +315,16 @@ double GflashHadronShowerProfile::longitudinalProfile(double showerDepth, double
   // Instead, we use approximated energy; energy in dz = (energy to deposite)*gamma(z)*dz
   // where gamma is the Gamma-distributed probability function
 
-  GflashTrajectoryPoint tempPoint;
-  theShowino->getHelix()->getGflashTrajectoryPoint(tempPoint,pathLength);
+  Gflash::CalorimeterNumber whichCalor = Gflash::getCalorimeterNumber(pos);
 
-  if(showerType == 0 || showerType == 1 ) {
-    double rhoBackEB = Gflash::Rmin[Gflash::kESPM] + Gflash::ROffCrystalEB
-                     + Gflash::LengthCrystalEB*std::sin(pos.getTheta());
-    if(tempPoint.getPosition().getRho() < rhoBackEB ) { 
-      heightProfile = twoGammaProfile(longEcal,showerDepth,Gflash::kESPM);
+  if(showerType == 0 || showerType == 1 || showerType == 4 || showerType == 5 ) {
+    if(whichCalor == Gflash::kESPM || whichCalor == Gflash::kENCA ) {
+      heightProfile = twoGammaProfile(longEcal,showerDepth,whichCalor);
     }
-    else if (tempPoint.getPosition().getRho() > Gflash::Rmin[Gflash::kHB] ){
-      heightProfile = twoGammaProfile(longHcal,showerDepth-transDepth,Gflash::kHB);
+    else if(whichCalor == Gflash::kHB || whichCalor == Gflash::kHE) {
+      heightProfile = twoGammaProfile(longHcal,showerDepth-transDepth,whichCalor);
     }
-    else heightProfile = 0.;
-  }  
-  else if(showerType == 4 || showerType == 5){
-    //@@@use new parameterization for EE/HE
-    if(std::abs(tempPoint.getPosition().getZ()) < Gflash::Zmin[Gflash::kENCA]+Gflash::LengthCrystalEB ) { 
-      heightProfile = twoGammaProfile(longEcal,showerDepth,Gflash::kENCA);
-    }
-    else if (std::abs(tempPoint.getPosition().getZ()) > Gflash::Zmin[Gflash::kHE] ){
-      heightProfile = twoGammaProfile(longHcal,showerDepth-transDepth,Gflash::kHE);
-    }
-    else heightProfile = 0.;
+    else  heightProfile = 0.;
   }  
   else if (showerType == 2 || showerType == 6 ) {
     //two gammas between crystal and Hcal
@@ -462,10 +459,7 @@ int GflashHadronShowerProfile::getNumberOfSpots(Gflash::CalorimeterNumber kCalor
 
   //until we optimize the reduction scale in the number of Nspots
       
-  if( kCalor == Gflash::kESPM && (theShowino->getPosition()).getRho() < 153.0 ) {
-    numberOfSpots = static_cast<int>(numberOfSpots/100);
-  }
-  else if( kCalor == Gflash::kENCA && std::fabs((theShowino->getPosition()).getZ()) < 340.0 ) {
+  if( kCalor == Gflash::kESPM ||  kCalor == Gflash::kENCA) {
     numberOfSpots = static_cast<int>(numberOfSpots/100);
   }
   else {
@@ -495,7 +489,8 @@ double GflashHadronShowerProfile::depthScale(double ssp, double ssp0, double len
 
 double GflashHadronShowerProfile::gammaProfile(double alpha, double beta, double showerDepth, double lengthUnit) {
   double gamma = 0.0;
-  if(alpha > 0 && beta > 0 && lengthUnit > 0) {
+  //  if(alpha > 0 && beta > 0 && lengthUnit > 0) {
+  if(showerDepth>0.0) {
     Genfun::LogGamma lgam;
     double x = showerDepth*(beta/lengthUnit);
     gamma = (beta/lengthUnit)*std::pow(x,alpha-1.0)*std::exp(-x)/std::exp(lgam(alpha));
@@ -505,7 +500,15 @@ double GflashHadronShowerProfile::gammaProfile(double alpha, double beta, double
  
 double GflashHadronShowerProfile::twoGammaProfile(double *longPar, double depth, Gflash::CalorimeterNumber kIndex) {
   double twoGamma = 0.0;
-  twoGamma  = longPar[0]* gammaProfile(exp(longPar[1]),exp(longPar[2]),depth,Gflash::radLength[kIndex])
-          +(1-longPar[0])*gammaProfile(exp(longPar[3]),exp(longPar[4]),depth,Gflash::intLength[kIndex]);
+
+  longPar[0] = std::min(1.0,longPar[0]);
+  if(longPar[3] > 4.0 || longPar[4] > 4.0) {
+    double rfactor = 2.0/std::max(longPar[3],longPar[4]);
+    longPar[3] = rfactor*(longPar[3]+1.0);  
+    longPar[4] *= rfactor;  
+  }
+
+  twoGamma  = longPar[0]*gammaProfile(exp(longPar[1]),exp(longPar[2]),depth,Gflash::radLength[kIndex])
+         +(1-longPar[0])*gammaProfile(exp(longPar[3]),exp(longPar[4]),depth,Gflash::intLength[kIndex]);
   return twoGamma;
 }

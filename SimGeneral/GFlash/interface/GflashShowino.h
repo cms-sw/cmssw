@@ -33,6 +33,7 @@ public:
   double getPathLength() { return thePathLength; }
   Gflash3Vector& getPosition() { return thePosition; }
   double getEnergyDeposited() { return theEnergyDeposited ; }
+  double getDepth() { return (thePathLength-thePathLengthAtShower); }
 
   void setGlobalTime(double globalTime) { theGlobalTime = globalTime; }
   void setPathLength(double pathLength) { thePathLength = pathLength; }
@@ -40,7 +41,7 @@ public:
   void addEnergyDeposited(double energy ) { theEnergyDeposited += energy; }
 
 private:
-  Gflash3Vector& simulateFirstInteractionPoint(int showType);
+  Gflash3Vector& simulateFirstInteractionPoint(int showType, Gflash3Vector& pos);
   int convertShowerType(int fastSimShowerType, const Gflash3Vector& pos);
   void evaluateLengths();
 

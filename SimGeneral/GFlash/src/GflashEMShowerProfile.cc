@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.1 2010/01/11 16:12:56 syjun Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.2 2010/01/15 21:28:31 syjun Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 //
@@ -276,7 +276,8 @@ double GflashEMShowerProfile::getDistanceToOut(Gflash::CalorimeterNumber kCalor)
                    - theShowino->getPathLengthAtShower();
   }
   else if (kCalor == Gflash::kENCA) {
-    stepLengthLeft = theShowino->getHelix()->getPathLengthAtZ(Gflash::Zmax[Gflash::kENCA])
+    double zsign = (theShowino->getPosition()).getEta() > 0 ? 1.0 : -1.0;
+    stepLengthLeft = theShowino->getHelix()->getPathLengthAtZ(zsign*Gflash::Zmax[Gflash::kENCA])
                    - theShowino->getPathLengthAtShower();
   }
   return stepLengthLeft;

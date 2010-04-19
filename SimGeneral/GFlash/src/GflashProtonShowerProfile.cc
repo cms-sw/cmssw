@@ -35,8 +35,8 @@ void GflashProtonShowerProfile::loadParameters()
       energySigmaHcal *= (1.05-0.4*tanh(0.010*(einc-80.0)));
       
       r2 = CLHEP::RandGaussQ::shoot();
-      energyScale[Gflash::kHB] =
-	exp(energyMeanHcal+energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2 ))-0.05*einc;
+      energyScale[Gflash::kHB] = std::max(0.0,
+	exp(energyMeanHcal+energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2 ))-0.05*einc);
     }
     else {
       energyScale[Gflash::kENCA] = einc*(pscale + (0.4/einc)*depthScale(std::fabs(position.getZ()),338.0,21.)
@@ -47,8 +47,8 @@ void GflashProtonShowerProfile::loadParameters()
       energySigmaHcal = (fTanh(einc,Gflash::hadscale[2]) +
 			 fTanh(einc,Gflash::hadscale[3])*depthScale(std::fabs(position.getZ()),Gflash::ZFrontCrystalEE,Gflash::LengthCrystalEE));
       r2 = CLHEP::RandGaussQ::shoot();
-      energyScale[Gflash::kHE] =
-	exp(energyMeanHcal+energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2 ))-0.05*einc;
+      energyScale[Gflash::kHE] = std::max(0.0,
+	exp(energyMeanHcal+energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2 ))-0.05*einc);
     }
   }
   else if(showerType == 2 || showerType == 6 || showerType == 3 || showerType == 7) { 
@@ -60,18 +60,18 @@ void GflashProtonShowerProfile::loadParameters()
     gap_corr = fTanh(einc,Gflash::protonscale[2]);
          
     if(showerType == 2 ) {
-      energyScale[Gflash::kHB] = 
+      energyScale[Gflash::kHB] = std::max(0.0,
 	exp(energyMeanHcal+1.15*energySigmaHcal*CLHEP::RandGaussQ::shoot())-2.0
-	- gap_corr*einc*depthScale(position.getRho(),Gflash::Rmin[Gflash::kHB],28.);
+	- gap_corr*einc*depthScale(position.getRho(),Gflash::Rmin[Gflash::kHB],28.));
     }
     else if(showerType == 6) {
-      energyScale[Gflash::kHE] = 
+      energyScale[Gflash::kHE] = std::max(0.0,
 	exp(energyMeanHcal+1.15*energySigmaHcal*CLHEP::RandGaussQ::shoot())-2.0
-	- gap_corr*einc*depthScale(std::fabs(position.getZ()),Gflash::Zmin[Gflash::kHB],60.);
+	- gap_corr*einc*depthScale(std::fabs(position.getZ()),Gflash::Zmin[Gflash::kHB],60.));
     }
     else {
-      energyScale[Gflash::kHB] = 
-	exp(energyMeanHcal+energySigmaHcal*CLHEP::RandGaussQ::shoot())-2.0;
+      energyScale[Gflash::kHB] = std::max(0.0,
+	exp(energyMeanHcal+energySigmaHcal*CLHEP::RandGaussQ::shoot())-2.0);
       energyScale[Gflash::kHE] = energyScale[Gflash::kHB];
     }
   }

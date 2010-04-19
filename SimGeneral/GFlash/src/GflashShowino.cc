@@ -29,19 +29,20 @@ void GflashShowino::initialize(int showerType, double energy, double globalTime,
     thePositionAtShower = position;  
     thePosition = thePositionAtShower;
     theShowerType = showerType;
+
   }
   else {
     //this input is from FastSimulation
     //1. simulate the shower starting position
-    thePositionAtShower = simulateFirstInteractionPoint(showerType);
+    thePositionAtShower = simulateFirstInteractionPoint(showerType,position);
     thePosition = thePositionAtShower;
 
     //2. find shower type depending on where is the shower starting point
-    theShowerType = convertShowerType(showerType,thePositionAtShower);
+    theShowerType = Gflash::findShowerType(thePositionAtShower);
+
   }  
 
   evaluateLengths();
-
 
 }
 
@@ -58,23 +59,23 @@ void GflashShowino::updateShowino(double deltaStep)
 }
 
 void GflashShowino::evaluateLengths() {
-  Gflash::CalorimeterNumber kCalor = Gflash::getCalorimeterNumber(thePosition);
-
   //thePathLengthAtShower: path Length from the origin to the shower starting point in cm
   //theStepLengthToOut: the total path length from the starting point of
   //                    shower to the maximum distance inside paramerized envelopes
+  double eta = thePosition.getEta();
   
-  if(kCalor == Gflash::kESPM || kCalor == Gflash::kHB ) {
-    thePathLengthOnEcal   = theHelix->getPathLengthAtRhoEquals(Gflash::Rmin[Gflash::kESPM]);
+  if (std::fabs(eta) < Gflash::EtaMax[Gflash::kESPM]) {
+    thePathLengthOnEcal   = theHelix->getPathLengthAtRhoEquals(Gflash::RFrontCrystalEB);
     thePathLengthAtShower = theHelix->getPathLengthAtRhoEquals(thePosition.getRho());
-    theStepLengthToOut    = theHelix->getPathLengthAtRhoEquals(Gflash::Rmax[Gflash::kHB]) - thePathLengthAtShower;
+    theStepLengthToOut    = std::min(300.,theHelix->getPathLengthAtRhoEquals(Gflash::Rmax[Gflash::kHB]) - thePathLengthAtShower);
     theStepLengthToHcal   = theHelix->getPathLengthAtRhoEquals(Gflash::Rmin[Gflash::kHB]) - thePathLengthAtShower;
   }
-  else if (kCalor == Gflash::kENCA || kCalor == Gflash::kHE ) {
-    thePathLengthOnEcal   = std::fabs(theHelix->getPathLengthAtZ(Gflash::Zmin[Gflash::kENCA]));
-    thePathLengthAtShower =           theHelix->getPathLengthAtZ(thePosition.getZ());
-    theStepLengthToOut    = std::fabs(theHelix->getPathLengthAtZ(Gflash::Zmax[Gflash::kHE])) - thePathLengthAtShower;
-    theStepLengthToHcal   = std::fabs(theHelix->getPathLengthAtZ(Gflash::Zmin[Gflash::kHE])) - thePathLengthAtShower;
+  else if (std::fabs(eta) < Gflash::EtaMax[Gflash::kENCA] ) {
+    double zsign = (eta > 0) ? 1.0 : -1.0 ; 
+    thePathLengthOnEcal   = theHelix->getPathLengthAtZ(zsign*Gflash::ZFrontCrystalEE);
+    thePathLengthAtShower = theHelix->getPathLengthAtZ(thePosition.getZ());
+    theStepLengthToOut    = std::min(300.,theHelix->getPathLengthAtZ(zsign*Gflash::Zmax[Gflash::kHE]) - thePathLengthAtShower);
+    theStepLengthToHcal   = theHelix->getPathLengthAtZ(zsign*Gflash::Zmin[Gflash::kHE]) - thePathLengthAtShower;
   }
   else { 
     //@@@extend for HF later
@@ -85,7 +86,8 @@ void GflashShowino::evaluateLengths() {
 
 }
 
-Gflash3Vector& GflashShowino::simulateFirstInteractionPoint(int fastSimShowerType) {
+
+Gflash3Vector& GflashShowino::simulateFirstInteractionPoint(int fastSimShowerType, Gflash3Vector &position) {
 
   //determine the shower starting point (ssp):
   //the position at the entrance + the mean free path till the inelastic interaction inside calo
@@ -103,26 +105,28 @@ Gflash3Vector& GflashShowino::simulateFirstInteractionPoint(int fastSimShowerTyp
     effectiveLambda = 28.4+1.20*std::tanh(1.5*(std::log(theEnergy)-4.3));
   }
   //fraction before the crystal, but inside Ecal
-  double frac_ssp1 = 1.5196e-01+1.3300e-01*tanh(-4.6971e-01*(std::log(theEnergy)+2.4162e+00));
+  //  double frac_ssp1 = 1.5196e-01+1.3300e-01*tanh(-4.6971e-01*(std::log(theEnergy)+2.4162e+00));
   //fraction after the crystal, but before Hcal
   double frac_ssp2 = 2.8310e+00+2.6766e+00*tanh(-4.8068e-01*(std::log(theEnergy)+3.4857e+00));
 
   if(fastSimShowerType == 100 ) { //fastTrack.onEcal() == 1
-    double rhoTemp = Gflash::ROffCrystalEB + Gflash::LengthCrystalEB*std::sin(thePositionAtShower.getTheta());
-    thePathLengthOnEcal  = theHelix->getPathLengthAtRhoEquals(Gflash::Rmin[Gflash::kESPM]);
-    double pathLengthAt1 = theHelix->getPathLengthAtRhoEquals(Gflash::Rmin[Gflash::kESPM]+ Gflash::ROffCrystalEB );
-    double pathLengthAt2 = theHelix->getPathLengthAtRhoEquals(Gflash::Rmin[Gflash::kESPM]+ rhoTemp );
-    double pathLengthAt3 = theHelix->getPathLengthAtRhoEquals(Gflash::Rmin[Gflash::kHB]);
-      
-    ///fraction before the crystal, but inside Ecal
-    //CLHEP::HepUniformRand()
 
+    //    double rhoTemp = Gflash::ROffCrystalEB + Gflash::LengthCrystalEB*std::sin(position.getTheta());
+    double rhoTemp = Gflash::LengthCrystalEB*std::sin(position.getTheta());
+    thePathLengthOnEcal  = theHelix->getPathLengthAtRhoEquals(Gflash::RFrontCrystalEB);
+    double pathLengthAt2 = theHelix->getPathLengthAtRhoEquals(Gflash::RFrontCrystalEB + rhoTemp );
+    double pathLengthAt3 = theHelix->getPathLengthAtRhoEquals(Gflash::Rmin[Gflash::kHB]);
+
+    ///fraction before the crystal, but inside Ecal
+    /*
     if(CLHEP::HepUniformRand() < frac_ssp1 ) {
       depthAtShower = (pathLengthAt1-thePathLengthOnEcal)*CLHEP::HepUniformRand();
     }
     else {
-      //inside the crystal
-      depthAtShower = (pathLengthAt1-thePathLengthOnEcal) - effectiveLambda*log(CLHEP::HepUniformRand());
+    */
+    //inside the crystal
+    //      depthAtShower = (pathLengthAt1-thePathLengthOnEcal) - effectiveLambda*log(CLHEP::HepUniformRand());
+      depthAtShower = - effectiveLambda*log(CLHEP::HepUniformRand());
       //after the crystal
       if(depthAtShower > (pathLengthAt2 - thePathLengthOnEcal) ) {
 	//before Hcal
@@ -132,32 +136,50 @@ Gflash3Vector& GflashShowino::simulateFirstInteractionPoint(int fastSimShowerTyp
 	//inside Hcal
 	else {
 	  depthAtShower = (pathLengthAt3 - thePathLengthOnEcal) - effectiveLambda*log(CLHEP::HepUniformRand());
+	  //check whether the shower starts beyond HB
+	  double pathLengthAt4 = theHelix->getPathLengthAtRhoEquals(Gflash::Rmax[Gflash::kHB]);
+	  if(depthAtShower > (pathLengthAt4 - thePathLengthOnEcal)) {
+	    depthAtShower = (pathLengthAt4 - pathLengthAt3)*CLHEP::HepUniformRand();
+	  }
 	}
       }
-    }
+      //    }
   }
   else if(fastSimShowerType == 101 ) { //fastTrack.onEcal() == 2 
-    double zTemp = Gflash::ZOffCrystalEE + Gflash::LengthCrystalEE;
-    thePathLengthOnEcal  = std::fabs(theHelix->getPathLengthAtZ(Gflash::Zmin[Gflash::kENCA]));
-    double pathLengthAt1 = std::fabs(theHelix->getPathLengthAtZ(Gflash::Zmin[Gflash::kENCA] + Gflash::ZOffCrystalEE));
-    double pathLengthAt2 = std::fabs(theHelix->getPathLengthAtZ(Gflash::Zmin[Gflash::kENCA] + zTemp));
-    double pathLengthAt3 = std::fabs(theHelix->getPathLengthAtZ(Gflash::Zmin[Gflash::kHE]));
+
+    double zTemp = Gflash::LengthCrystalEE;
+    double zsign = (position.getEta() > 0) ? 1.0 : -1.0 ; 
+
+    thePathLengthOnEcal  = theHelix->getPathLengthAtZ(zsign*Gflash::ZFrontCrystalEE);
+    double pathLengthAt2 = theHelix->getPathLengthAtZ(zsign*(Gflash::ZFrontCrystalEE + zTemp));
+    double pathLengthAt3 = theHelix->getPathLengthAtZ(zsign*Gflash::Zmin[Gflash::kHE]);
       
+    /*
     if(CLHEP::HepUniformRand() <  frac_ssp1 ) {
       depthAtShower = (pathLengthAt1-thePathLengthOnEcal)*CLHEP::HepUniformRand();
     }
     else {
-      depthAtShower = (pathLengthAt1-thePathLengthOnEcal)-effectiveLambda*std::log(CLHEP::HepUniformRand());
-	
+    */
+    //      depthAtShower = (pathLengthAt1-thePathLengthOnEcal)-effectiveLambda*std::log(CLHEP::HepUniformRand());
+      depthAtShower = -effectiveLambda*std::log(CLHEP::HepUniformRand());
+
       if(depthAtShower > (pathLengthAt2 - thePathLengthOnEcal) ) {
-	if(CLHEP::HepUniformRand()<  frac_ssp2 ) {
+	if(CLHEP::HepUniformRand() < frac_ssp2 ) {
 	  depthAtShower = (pathLengthAt2 - thePathLengthOnEcal) +(pathLengthAt3 - pathLengthAt2)*CLHEP::HepUniformRand();
 	}
 	else {
 	  depthAtShower = (pathLengthAt3 - thePathLengthOnEcal)-effectiveLambda*std::log(CLHEP::HepUniformRand());
+	  //shower starts beyond HE
+	  double pathLengthAt4 = theHelix->getPathLengthAtZ(zsign*Gflash::Zmax[Gflash::kHE]);
+	  if(depthAtShower > (pathLengthAt4 - thePathLengthOnEcal)) {
+	    depthAtShower = (pathLengthAt4 - pathLengthAt3)*CLHEP::HepUniformRand();
+	  }
 	}
       }
-    }
+      //    }
+  }
+  else {
+    depthAtShower = 0.0; 
   }
 
   double pathLength  = thePathLengthOnEcal + depthAtShower;
@@ -166,49 +188,5 @@ Gflash3Vector& GflashShowino::simulateFirstInteractionPoint(int fastSimShowerTyp
 
   //return the initial showino position at the shower starting position
   return trajectoryPoint.getPosition();
-}
 
-int GflashShowino::convertShowerType(int fastSimShowerType, const Gflash3Vector& position)
-{
-  int showerType = -1;
-
-  double rhoBackEB = Gflash::Rmin[Gflash::kESPM] + Gflash::ROffCrystalEB
-                     + Gflash::LengthCrystalEB*std::sin(position.getTheta());
-
-  if(fastSimShowerType == 100 ) {
-    //central
-    double posRho = position.getRho();
-
-    if(posRho < Gflash::Rmin[Gflash::kESPM]+ Gflash::ROffCrystalEB ) {
-      showerType = 0;
-    }
-    else if(posRho < rhoBackEB ) {
-      showerType = 1;
-    }
-    else if (posRho < Gflash::Rmin[Gflash::kHB]) {
-      showerType = 2;
-    }
-    else {
-      showerType = 3;
-    }
-  }
-  else if(fastSimShowerType == 101) {
-    //endcap
-    double posZ = std::fabs(position.getZ());
-
-    if(posZ < Gflash::Zmin[Gflash::kENCA] + Gflash::ZOffCrystalEE) {
-      showerType = 4;
-    }
-    else if(posZ < Gflash::Zmin[Gflash::kENCA] + Gflash::ZOffCrystalEE + Gflash::LengthCrystalEE) {
-      showerType = 5;
-    }
-    else if (posZ < Gflash::Zmin[Gflash::kHE]) {
-      showerType = 6;
-    }
-    else {
-      showerType = 7;
-    }
-  }
-
-  return showerType;
 }

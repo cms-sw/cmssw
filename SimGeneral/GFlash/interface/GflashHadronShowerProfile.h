@@ -30,7 +30,7 @@ public:
   std::vector<GflashHit>& getGflashHitList() {return theGflashHitList;}; 
 
 protected:
-  double longitudinalProfile(double showerDepth, double pathLength);
+  double longitudinalProfile();
   double hoProfile(double pathLength, double refDepth);
   void doCholeskyReduction(double **cc, double **vv, const int ndim);
   void getFluctuationVector(double *lowTriangle, double *correlationVector);

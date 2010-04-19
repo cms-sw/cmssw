@@ -81,12 +81,12 @@ void GflashAntiProtonShowerProfile::loadParameters()
     gap_corr = fTanh(einc,Gflash::pbar_hadscale[6]);
          
     if(showerType == 2) {
-      energyScale[Gflash::kHB] = 
-	exp(energyMeanHcal+energySigmaHcal*CLHEP::RandGaussQ::shoot())*(1.0- gap_corr*depthScale(position.getRho(),Gflash::Rmin[Gflash::kHB],28.));
+      energyScale[Gflash::kHB] = std::max(0.0,
+        exp(energyMeanHcal+energySigmaHcal*CLHEP::RandGaussQ::shoot())*(1.0- gap_corr*depthScale(position.getRho(),Gflash::Rmin[Gflash::kHB],28.)));
     }
     if(showerType == 6) {
-      energyScale[Gflash::kHE] = 
-	exp(energyMeanHcal+energySigmaHcal*CLHEP::RandGaussQ::shoot())*(1.0- gap_corr*depthScale(std::fabs(position.getZ()),Gflash::Zmin[Gflash::kHE],60.));
+      energyScale[Gflash::kHE] = std::max(0.0,
+	exp(energyMeanHcal+energySigmaHcal*CLHEP::RandGaussQ::shoot())*(1.0- gap_corr*depthScale(std::fabs(position.getZ()),Gflash::Zmin[Gflash::kHE],60.)));
     }
     else {
       energyScale[Gflash::kHB] = 

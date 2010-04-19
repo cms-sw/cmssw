@@ -19,6 +19,9 @@ namespace Gflash {
   };
   
   CalorimeterNumber getCalorimeterNumber(const Gflash3Vector position);
+  double rhoBackEB(const Gflash3Vector position);
+  double zBackEE(const Gflash3Vector position);
+  int findShowerType(const Gflash3Vector position);
 
   //                                            EB     HB     EE     HE      HO,     HF
   const double Zmin[kNumberCalorimeter]   = {0.000, 0.000, 317.2, 391.95, 0.000, 1110.0}; // in cm
@@ -26,13 +29,13 @@ namespace Gflash {
   const double Rmin[kNumberCalorimeter]   = {123.8, 177.5,  31.6,  31.6,  382.0,  12.5};
   const double Rmax[kNumberCalorimeter]   = {177.5, 287.7, 171.1, 263.9,  407.0, 140.0};
 
-  const double EtaMin[kNumberCalorimeter] = {0.000, 0.000, 1.570,  1.570, 0.000, 3.000};
-  const double EtaMax[kNumberCalorimeter] = {1.300, 1.300, 3.000,  3.000, 1.262, 5.000};
+  const double EtaMin[kNumberCalorimeter] = {0.000, 0.000, 1.479,  1.479, 0.000, 3.000};
+  const double EtaMax[kNumberCalorimeter] = {1.479, 1.479, 3.000,  3.000, 1.262, 5.000};
 
   const double RFrontCrystalEB = 129.0; // rho in cm
-  const double ZFrontCrystalEE = 317.2; // z in cm <<---check this number
+  const double ZFrontCrystalEE = 320.9; // z in cm
   const double ROffCrystalEB = 5.2; // rho in cm
-  const double ZOffCrystalEE = 5.2; // z in cm <<---check this number
+  const double ZOffCrystalEE = 3.7; // z in cm
   const double LengthCrystalEB  = 23.0;
   const double LengthCrystalEE  = 22.0;
 
