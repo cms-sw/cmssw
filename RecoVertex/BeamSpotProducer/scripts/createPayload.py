@@ -248,7 +248,7 @@ if __name__ == '__main__':
 	print "ERROR: You must provide the database tag name"
 	exit()
 
-    IOVbase = 'runbase'
+    IOVbase == 'runbase'
     if option.IOVbase:
         if option.IOVbase != "runbase" and option.IOVbase != "lumibase" and option.IOVbase != "timebase":
             print "\n\n unknown iov base option: "+ option.IOVbase +" \n\n\n"
