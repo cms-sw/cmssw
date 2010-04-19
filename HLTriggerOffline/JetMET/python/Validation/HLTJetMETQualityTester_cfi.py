@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltJetMetQualityTester = cms.EDFilter("QualityTester",
+hltJetMetQualityTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath(
         'HLTriggerOffline/JetMET/data/QualityTests.xml'
     ),
