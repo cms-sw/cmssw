@@ -6,8 +6,8 @@
  * *
  *  DQM Event Summary module for RPCs
  *
- *  $Date: 2010/01/14 00:16:55 $
- *  $Revision: 1.14.2.1 $
+ *  $Date: 2010/03/17 18:52:45 $
+ *  $Revision: 1.16 $
  *  \author Anna Cimmino
  *   
  */
@@ -72,7 +72,7 @@ public:
   std::string globalFolder_;
   
   int numberDisk_;
-
+  bool   doEndcapCertification_;
 
   enum RPCQualityFlags{DEAD = 6, PARTIALLY_DEAD=5};
 

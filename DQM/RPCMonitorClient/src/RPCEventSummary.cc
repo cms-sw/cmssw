@@ -2,9 +2,7 @@
 #include <sstream>
 
 #include <DQM/RPCMonitorClient/interface/RPCEventSummary.h>
-//CondFormats
-#include "CondFormats/RunInfo/interface/RunInfo.h"
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
@@ -18,20 +16,16 @@ using namespace std;
 RPCEventSummary::RPCEventSummary(const ParameterSet& ps ){
   LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Constructor";
 
-
-  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
-
   enableReportSummary_ = ps.getUntrackedParameter<bool>("EnableSummaryReport",true);
   prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 1);
   eventInfoPath_ = ps.getUntrackedParameter<string>("EventInfoPath", "RPC/EventInfo");
   globalFolder_ = ps.getUntrackedParameter<string>("RPCSummaryFolder", "RPC/RecHits/SummaryHistograms");
   minimumEvents_= ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
- 
- 
-  FEDRange_.first  = ps.getUntrackedParameter<unsigned int>("MinimumRPCFEDId", 790);
-  FEDRange_.second = ps.getUntrackedParameter<unsigned int>("MaximumRPCFEDId", 792);
-  
-  NumberOfFeds_ =FEDRange_.second -  FEDRange_.first +1;
+  numberDisk_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+  doEndcapCertification_ = ps.getUntrackedParameter<bool>("EnableEndcapSummary", false);
+
+  tier0_=ps.getUntrackedParameter<bool>("Tier0", false);
+
 }
 
 RPCEventSummary::~RPCEventSummary(){
@@ -47,9 +41,6 @@ void RPCEventSummary::beginJob(){
 void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
  LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin run";
 
- defaultValue_ = this->findRPCFED(c);
-
- event_=0;
  init_=false;
 
  MonitorElement* me;
@@ -65,7 +56,7 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
   }
 
   me = dbe_->bookFloat(histoName);
-  me->Fill(defaultValue_);
+  me->Fill(1);
 
   //TH2F ME providing a mapof values[0-1] to show if problems are localized or distributed
   me =0;
@@ -77,42 +68,41 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
  
   //customize the 2d histo
   stringstream BinLabel;
-  for (int i= 1 ; i<13; i++){//label sectors
+  for (int i= 1 ; i<=15; i++){
     BinLabel.str("");
-    BinLabel<<"Sec"<<i;
-    me->setBinLabel(i,BinLabel.str(),2);
+    if(i<13){
+      BinLabel<<"Sec"<<i;
+       me->setBinLabel(i,BinLabel.str(),2);
+    } 
+
+    BinLabel.str("");
+    if(i<5)
+      BinLabel<<"Disk"<<i-5;
+    else if(i>11)
+      BinLabel<<"Disk"<<i-11;
+    else if(i==11 || i==5)
+      BinLabel.str("");
+    else
+      BinLabel<<"Wheel"<<i-8;
+ 
+     me->setBinLabel(i,BinLabel.str(),1);
   }
 
-  for (int w = -2 ; w<= 2; w++){//label wheels
-    BinLabel.str("");
-    BinLabel<<"Wheel"<<w;
-    me->setBinLabel((w+8),BinLabel.str(),1);
-  }
-
-  for(int d = 1; d <= numberOfDisks_; d++ ){//label disks
-    BinLabel.str("");
-    BinLabel<<"Disk"<<d;
-    me->setBinLabel((d+11),BinLabel.str(),1);
-    BinLabel.str("");
-    BinLabel<<"Disk"<<-d;
-    me->setBinLabel((-d+5),BinLabel.str(),1);
-  }
-
+  //fill the histo with "1" --- just for the moment
   for(int i=1; i<=15; i++){
      for (int j=1; j<=12; j++ ){
        if(i==5 || i==11 || (j>6 && (i<6 || i>10)))    
 	 me->setBinContent(i,j,-1);//bins that not correspond to subdetector parts
        else
-	 me->setBinContent(i,j,defaultValue_);
+	 me->setBinContent(i,j,1);
      }
    }
 
-  if(numberOfDisks_ < 4){
+  if(numberDisk_ < 4)
     for (int j=1; j<=12; j++ ){
 	me->setBinContent(1,j,-1);//bins that not correspond to subdetector parts
 	me->setBinContent(15,j,-1);
     }
- }
 
  //the reportSummaryContents folder containins a collection of ME floats [0-1] (order of 5-10)
  // which describe the behavior of the respective subsystem sub-components.
@@ -120,19 +110,15 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
   
   stringstream segName;
   vector<string> segmentNames;
-  for(int i=-2; i<=2; i++){//Wheels
-    segName.str("");
-    segName<<"RPC_Wheel"<<i;
-    segmentNames.push_back(segName.str());
-  }
-
-
-  for(int i=1; i<=numberOfDisks_; i++){//Disks
+  for(int i=-4; i<=4; i++){
+    if(i>-3 && i<3) {
+      segName.str("");
+      segName<<"RPC_Wheel"<<i;
+      segmentNames.push_back(segName.str());
+    }
+    if(i==0) continue;
     segName.str("");
     segName<<"RPC_Disk"<<i;
-    segmentNames.push_back(segName.str());
-    segName.str("");
-    segName<<"RPC_Disk"<<-i;
     segmentNames.push_back(segName.str());
   }
   
@@ -144,46 +130,38 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
       dbe_->removeElement(me->getName());
     }
     me = dbe_->bookFloat(segmentNames[i]);
-    me->Fill(defaultValue_);
+    me->Fill(1);
   }
 
+  //excluded endcap parts
+  if(numberDisk_ < 4){
+    me=dbe_->get(eventInfoPath_ + "/reportSummaryContents/RPC_Disk4");
+    if(me)  me->Fill(-1);
+    me=dbe_->get(eventInfoPath_ + "/reportSummaryContents/RPC_Disk-4");
+    if(me)  me->Fill(-1);
+  }
 }
 
 void RPCEventSummary::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 
 
-void RPCEventSummary::analyze(const Event& iEvent, const EventSetup& c) {
-
-  event_ ++;
- 
-  //  if(event_ > 10 ) return; //check for RPC FEDs 
-                           //only at the first event
-
-  float newDefaultValue = this->findRPCFED(c);
-
-  if ( defaultValue_ == newDefaultValue) return;
-  else 
-    defaultValue_ = newDefaultValue;
-  this->fillWithDefaultValue( defaultValue_ ); 
-
-}
-
+void RPCEventSummary::analyze(const Event& iEvent, const EventSetup& c) {}
 
 void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  
   LogVerbatim ("rpceventsummary") <<"[RPCEventSummary]: End of LS transition, performing DQM client operation";
+}
 
-   
-  MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
-  float   rpcevents = RPCEvents -> getEntries();
+void RPCEventSummary::endRun(const Run& r, const EventSetup& c){
 
-  if( defaultValue_ == -1) return;
-   if(!init_ && rpcevents < minimumEvents_) return;
-   else if(!init_) {
-     init_=true;
-     nLumiSegs_ = prescaleFactor_;
-   }else nLumiSegs_++;
-   
-   if (nLumiSegs_ % prescaleFactor_ != 0 ) return;
-   
+
+  float  rpcevents = minimumEvents_;
+   MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
+
+  if(RPCEvents) {
+    rpcevents = RPCEvents -> getEntries();
+   }
+
+
+
    stringstream meName;
    MonitorElement * myMe;
    
@@ -194,21 +172,22 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
    MonitorElement * globalMe;
    
    //BARREL
-   float barrelFactor =0;
-   for(int w = -2 ; w<3; w++){
+   float barrelFactor = 1;
+   if(rpcevents >= minimumEvents_) {
+     for(int w = -2 ; w<3; w++){
      
-     meName.str("");
-     meName<<globalFolder_<<"/RPCChamberQuality_Roll_vs_Sector_Wheel"<<w;
-     myMe = dbe_->get(meName.str());
-     
-     if(myMe){      
-       float wheelFactor = 0;
+       meName.str("");
+       meName<<globalFolder_<<"/RPCChamberQuality_Roll_vs_Sector_Wheel"<<w;
+       myMe = dbe_->get(meName.str());
        
-       for(int s = 1; s<=myMe->getNbinsX() ; s++){
-	 float sectorFactor = 0;
-	 int rollInSector = 0;
+       if(myMe){      
+	 float wheelFactor = 0;
 	 
+	 for(int s = 1; s<=myMe->getNbinsX() ; s++){
+	   float sectorFactor = 0;
+	   int rollInSector = 0;
 	 
+	   
 	 for(int r = 1;r<=myMe->getNbinsY(); r++){
 	   if((s!=4 && r > 17 ) || ((s ==9 ||s ==10)  && r >15 ) )  continue;
 	   rollInSector++;
@@ -220,117 +199,91 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 	   
 	 }
 	 if(rollInSector!=0)
-	  sectorFactor = sectorFactor/rollInSector;
+	   sectorFactor = sectorFactor/rollInSector;
 	 
 	 if(reportMe)	reportMe->setBinContent(w+8, s, sectorFactor);
 	 wheelFactor += sectorFactor;
 	 
-       }//end loop on sectors
+	 }//end loop on sectors
+	 
+	 wheelFactor = wheelFactor/myMe->getNbinsX();
+	 
+	 meName.str("");
+	 meName<<eventInfoPath_ + "/reportSummaryContents/RPC_Wheel"<<w; 
+	 globalMe=dbe_->get(meName.str());
+	 if(globalMe) globalMe->Fill(wheelFactor);
+	 
+	 barrelFactor += wheelFactor;
+       }//
+     }//end loop on wheel
+   }
+
+   float endcapFactor = 1;
+
+   if(doEndcapCertification_){
+     if(rpcevents >= minimumEvents_) {   
+       //Endcap
+       for(int d = -numberDisk_ ; d<= numberDisk_; d++){
+	 if (d==0) continue;
+	 
+	 meName.str("");
+       meName<<globalFolder_<<"/RPCChamberQuality_Ring_vs_Segment_Disk"<<d;
+       myMe = dbe_->get(meName.str());
        
-       wheelFactor = wheelFactor/myMe->getNbinsX();
+       if(myMe){      
+	 float diskFactor = 0;
+	 
+	 float sectorFactor[6]= {0,0,0,0,0,0};
+	 
+	 for (int i = 0 ;i <6;i++){
+	   int firstSeg = (i *6 )+1;
+	   int lastSeg = firstSeg +6;
+	   int rollInSector = 0; 
+	   for(int seg = firstSeg; seg< lastSeg ; seg++){
+	     
+	     for(int y = 1;y<=myMe->getNbinsY(); y++){
+	       rollInSector++;
+	       if(myMe->getBinContent(seg,y) == PARTIALLY_DEAD) sectorFactor[i]+=0.8;
+	       else if(myMe->getBinContent(seg,y) == DEAD )sectorFactor[i]+=0;
+	       else sectorFactor[i]+=1;	
+	       
+	     }
+	   }
+	   sectorFactor[i] = sectorFactor[i]/rollInSector;
+	 }//end loop on Sectors
+	 
+	 
+	 for (int sec = 0 ; sec<6; sec++){
+	   diskFactor += sectorFactor[sec];	
+	   if(reportMe)	{
+	     if (d<0) reportMe->setBinContent(d+5, sec , sectorFactor[sec]);
+	     else  reportMe->setBinContent(d+11, sec , sectorFactor[sec]);
+	   } 	 
+	 }
+	 
+	 diskFactor = diskFactor/6;
+	 
+	 meName.str("");
+	 meName<<eventInfoPath_ + "/reportSummaryContents/RPC_Disk"<<d; 
+	 globalMe=dbe_->get(meName.str());
+	 if(globalMe) globalMe->Fill(diskFactor);
+	 
+	 endcapFactor += diskFactor;
+       }//end loop on disks
        
-       meName.str("");
-       meName<<eventInfoPath_ + "/reportSummaryContents/RPC_Wheel"<<w; 
-       globalMe=dbe_->get(meName.str());
-       if(globalMe) globalMe->Fill(wheelFactor);
        
-       barrelFactor += wheelFactor;
-     }//
-     
-     
-   }//end loop on wheel
+       }
+       
+       endcapFactor=endcapFactor/ (numberDisk_ * 2);
+     }
+   } 
    
+   //Fill repor summary
+   float rpcFactor = barrelFactor;
+   if(doEndcapCertification_) rpcFactor += (endcapFactor/2);
    
-   barrelFactor=barrelFactor/5;
-   
-   
-   //ENDCAPS
-      
-   
-  //Fill repor summary
    globalMe = dbe_->get(eventInfoPath_ +"/reportSummary"); 
-   if(globalMe) globalMe->Fill(barrelFactor);
+   if(globalMe) globalMe->Fill(rpcFactor);
    
    
 }
-
-void  RPCEventSummary::fillWithDefaultValue(float value){
-
-  MonitorElement  * me;
-
-  //Fill report summary
-  me =0;
-  me = dbe_->get(eventInfoPath_ +"/reportSummary");
-  if (me != 0 )  me->Fill(value);
-  
-  //Fill report summary map
-  me =0;
-  me = dbe_->get(eventInfoPath_ +"/reportSummaryMap");
-  me = dbe_->book2D("reportSummaryMap", "RPC Report Summary Map", 15, -7.5, 7.5, 12, 0.5 ,12.5);
-
-  if(me != 0){
-    for (int x  = 1; x <= 15 ; x++){
-      for(int y = 1; y <= 12 ; y++){
-	if(x==5 || x==11 || (y>6 && (x<6 || x>10)))    
-	  me->setBinContent(x,y,-1);//bins that not correspond to subdetector parts
-	else
-	  me->setBinContent(x, y, value);
-      }
-    }
-  }
-  
-  stringstream segName;
-  vector<string> segmentNames;
-  for(int i=-2; i<=2; i++){//Wheels
-    segName.str("");
-    segName<<"RPC_Wheel"<<i;
-    segmentNames.push_back(segName.str());
-  }
-  
-  for(int i=1; i<=numberOfDisks_; i++){//Disks
-    segName.str("");
-    segName<<"RPC_Disk"<<i;
-    segmentNames.push_back(segName.str());
-    segName.str("");
-    segName<<"RPC_Disk"<<-i;
-    segmentNames.push_back(segName.str());
-  }
-  
-  
-  for(unsigned int i=0; i<segmentNames.size(); i++){
-    me = 0;
-    me = dbe_->get(eventInfoPath_ + "/reportSummaryContents/" +segmentNames[i]);
-    if(me != 0) me->Fill(value);
-  }
-}
-
-
-//Check FED list in RunInfo for RPCs.
-float RPCEventSummary::findRPCFED(const EventSetup& c){
-
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  
-  defaultValue_ = 1;
-  
-  if(0 != c.find( recordKey ) ) {
-    defaultValue_ = -1;
-    
-    //get fed summary information
-    ESHandle<RunInfo> sumFED;
-    c.get<RunInfoRcd>().get(sumFED);    
-    vector<int> FedsInIds= sumFED->m_fed_in;   
-    unsigned int f = 0;
-    bool flag = false;
-    while(!flag && f < FedsInIds.size()) {
-      int fedID=FedsInIds[f];
-      //make sure fed id is in allowed range  
-      if(fedID>=FEDRange_.first && fedID<=FEDRange_.second) {
-	defaultValue_ = 1;
-	flag = true;
-      } 
-      f++;
-    }   
-  }   
-
-  return defaultValue_;
-}  

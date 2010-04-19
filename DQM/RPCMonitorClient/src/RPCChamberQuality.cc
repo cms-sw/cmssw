@@ -126,13 +126,12 @@ void RPCChamberQuality::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 
 void RPCChamberQuality::analyze(const Event& iEvent, const EventSetup& c) {}
 
-void RPCChamberQuality::endRun(const Run& r, const EventSetup& c) {
+void RPCChamberQuality::endRun(const Run& r, const EventSetup& c){
   LogVerbatim ("rpceventsummary") <<"[RPCChamberQuality]: End Job, performing DQM client operation";
 
    MonitorElement * RpcEvents = NULL;
    stringstream meName;
-   
-    
+       
    meName.str("");
    meName<<prefixDir_<<"/RPCEvents"; 
    int rpcEvents=0;
@@ -188,7 +187,7 @@ void RPCChamberQuality::endRun(const Run& r, const EventSetup& c) {
        } 
       } 
     } //loop by LimiBloks
-  }
+   }
 } 
 
 void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  }

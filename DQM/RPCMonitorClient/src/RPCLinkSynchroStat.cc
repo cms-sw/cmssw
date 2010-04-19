@@ -12,6 +12,13 @@ using namespace std;
 bool RPCLinkSynchroStat::LessLinkName::operator()(const BoardAndCounts& o1, const BoardAndCounts& o2) { return o1.first < o2.first; }
 bool RPCLinkSynchroStat::LessCountSum::operator()(const BoardAndCounts& o1, const BoardAndCounts& o2) { return o1.second.sum()< o2.second.sum(); }
 
+void RPCLinkSynchroStat::add(const std::string & lbName, const unsigned int *hits)
+{
+  LinkBoard lb(lbName);
+  SynchroCounts counts(hits);
+  for (std::vector<BoardAndCounts>::iterator it = theLinkStatMap.begin(); it != theLinkStatMap.end(); ++it)  if (it->first == lb) it->second += counts;
+}
+
 int RPCLinkSynchroStat::LinkBoard::add(const ChamberAndPartition & part) 
 {
   for (std::vector<ChamberAndPartition>::const_iterator it=theChamberAndPartitions.begin(); it != theChamberAndPartitions.end(); ++it) {
