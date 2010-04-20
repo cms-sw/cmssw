@@ -24,7 +24,6 @@
 <use   name="Geometry/CaloTopology"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="Utilities/Timing"/>
 <use   name="L1Trigger/CSCTrackFinder"/>
 <export>
   <lib   name="1"/>
