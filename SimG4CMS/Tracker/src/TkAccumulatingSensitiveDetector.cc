@@ -16,8 +16,7 @@
 #include "SimG4CMS/Tracker/interface/TkSimHitPrinter.h"
 #include "SimG4CMS/Tracker/interface/TrackerG4SimHitNumberingScheme.h"
 
-
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -405,11 +404,11 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfEvent * i)
 
 void TkAccumulatingSensitiveDetector::update(const BeginOfJob * i)
 {
-    edm::ESHandle<GeometricDet> pDD;
+    edm::ESTransientHandle<GeometricDet> pDD;
     const edm::EventSetup* es = (*i)();
     es->get<IdealGeometryRecord>().get( pDD );
 
-    edm::ESHandle<DDCompactView> pView;
+    edm::ESTransientHandle<DDCompactView> pView;
     es->get<IdealGeometryRecord>().get(pView);
 
     numberingScheme_=&(numberingScheme(*pView,*pDD));

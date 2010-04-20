@@ -5,7 +5,7 @@
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
@@ -71,7 +71,7 @@ PrintGeomInfoAction::~PrintGeomInfoAction() {}
 void PrintGeomInfoAction::update(const BeginOfJob * job)
 {
     if (_dumpSense) {
-        edm::ESHandle<DDCompactView> pDD;
+        edm::ESTransientHandle<DDCompactView> pDD;
 	(*job)()->get<IdealGeometryRecord>().get(pDD);
 
 	std::cout << "PrintGeomInfoAction::Get Printout of Sensitive Volumes " 

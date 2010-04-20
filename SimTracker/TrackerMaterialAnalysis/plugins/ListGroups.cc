@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/types.h"
@@ -82,7 +82,7 @@ ListGroups::~ListGroups() {
 
 void
 ListGroups::analyze(const edm::Event& evt, const edm::EventSetup& setup) {
-  edm::ESHandle<DDCompactView> hDdd;
+  edm::ESTransientHandle<DDCompactView> hDdd;
   setup.get<IdealGeometryRecord>().get( hDdd );
   DDFilteredView fv(*hDdd);
 

@@ -12,7 +12,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
@@ -150,7 +150,7 @@ std::vector<int> HcalTestAnalysis::towersToAdd(int centre, int nadd) {
 void HcalTestAnalysis::update(const BeginOfJob * job) {
 
   // Numbering From DDD
-  edm::ESHandle<DDCompactView> pDD;
+  edm::ESTransientHandle<DDCompactView> pDD;
   (*job)()->get<IdealGeometryRecord>().get(pDD);
   edm::LogInfo("HcalSim") << "HcalTestAnalysis:: Initialise "
 			  << "HcalNumberingFromDDD for " << names[0];

@@ -18,7 +18,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -153,7 +153,7 @@ void SimG4HcalValidation::init() {
 void SimG4HcalValidation::update(const BeginOfJob * job) {
 
   // Numbering From DDD
-  edm::ESHandle<DDCompactView> pDD;
+  edm::ESTransientHandle<DDCompactView> pDD;
   (*job)()->get<IdealGeometryRecord>().get(pDD);
   edm::LogInfo("ValidHcal") << "HcalTestAnalysis:: Initialise "
 			    << "HcalNumberingFromDDD for " << names[0];

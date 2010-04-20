@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/types.h"
@@ -85,7 +86,7 @@ ListIds::~ListIds() {
 void
 ListIds::analyze(const edm::Event& evt, const edm::EventSetup& setup){
   std::cout << "______________________________ DDD ______________________________" << std::endl;
-  edm::ESHandle<DDCompactView> hDdd;
+  edm::ESTransientHandle<DDCompactView> hDdd;
   setup.get<IdealGeometryRecord>().get( hDdd );
 
   std::string attribute = "TkDDDStructure";
