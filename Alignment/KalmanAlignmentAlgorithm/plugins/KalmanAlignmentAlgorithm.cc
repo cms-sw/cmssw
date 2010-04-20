@@ -37,7 +37,6 @@
 
 // miscellaneous includes
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Utilities/Timing/interface/TimingReport.h"
 #include "CLHEP/Random/RandGauss.h"
 #include <fstream>
 
@@ -84,8 +83,6 @@ void KalmanAlignmentAlgorithm::terminate( void )
 {
   if ( theMergerFlag )
   {
-    TimingReport* timing = TimingReport::current();
-    timing->dump( cout );  
     return; // only merging mode. nothing to do here.
   }
 
@@ -139,16 +136,9 @@ void KalmanAlignmentAlgorithm::terminate( void )
 
   KalmanAlignmentDataCollector::write();
 
-  TimingReport* timing = TimingReport::current();
-  timing->dump( cout );  
-
   string timingLogFile = theConfiguration.getUntrackedParameter< string >( "TimingLogFile", "timing.log" );
-
-  ofstream* output = new ofstream( timingLogFile.c_str() );
-  timing->dump( *output );
-  output->close();
-  delete output;
-
+  cout << "The usage of TimingReport from Utilities/Timing! Timing not written to log file" << endl;
+  
   delete theNavigator;
 
   cout << "[KalmanAlignmentAlgorithm::terminate] ... done." << endl;
@@ -165,9 +155,6 @@ void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup, const EventIn
 
   edm::ESHandle< MagneticField > aMagneticField;
   setup.get< IdealMagneticFieldRecord >().get( aMagneticField );  
-
-  TimeMe* timer;
-  timer = new TimeMe( "Full_Algo" );
 
   try
   {
@@ -218,9 +205,6 @@ void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup, const EventIn
     terminate();
     throw exception;
   }
-
-
-  delete timer;
 }
 
 
@@ -716,8 +700,6 @@ void KalmanAlignmentAlgorithm::mergeResults( void ) const
 
   AlignmentIORoot alignmentIO;
 
-  TimeMe* timer = 0;
-
   for ( vector<string>::iterator itFile = inFileNames.begin(); itFile != inFileNames.end(); ++itFile )
   {
     int iter = 1;
@@ -726,16 +708,12 @@ void KalmanAlignmentAlgorithm::mergeResults( void ) const
     while ( !ierr )
     {
       cout << "Read alignment parameters. file / iteration = " << *itFile << " / " << iter << endl;
-      delete timer;
-      timer = new TimeMe( "ReadFile" );
 
       vector< AlignmentParameters* > alignmentParameters =
 	alignmentIO.readAlignmentParameters( allAlignables, (*itFile).c_str(), iter, ierr );
 
       cout << "#param / ierr = " << alignmentParameters.size() << " / " << ierr << endl;
-      delete timer;
-      timer = new TimeMe( "AssociateParametersToAlignables" );
-
+      
       vector< AlignmentParameters* >::iterator itParam;
       for ( itParam = alignmentParameters.begin(); itParam != alignmentParameters.end(); ++itParam )
 	  alignmentParametersMap[(*itParam)->alignable()].push_back( *itParam );
@@ -743,9 +721,6 @@ void KalmanAlignmentAlgorithm::mergeResults( void ) const
       ++iter;
     }
   }
-
-  delete timer;
-  timer = new TimeMe( "MergeResults" );
 
   vector< Alignable* > alignablesToWrite;
   alignablesToWrite.reserve( alignmentParametersMap.size() );
@@ -774,8 +749,6 @@ void KalmanAlignmentAlgorithm::mergeResults( void ) const
 
     if ( applyPar || applyCov ) applyAlignmentParameters( itMap->first, mergedAliParam, applyPar, applyCov );
   }
-
-  delete timer;
 
   cout << "alignablesToWrite.size() = " << alignablesToWrite.size() << endl;
 

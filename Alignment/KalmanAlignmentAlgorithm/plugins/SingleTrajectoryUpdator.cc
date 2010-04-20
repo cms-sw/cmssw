@@ -6,8 +6,6 @@
 
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentDerivativesExtractor.h"
 
-#include "Utilities/Timing/interface/TimingReport.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
@@ -46,26 +44,16 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
 
 //   std::cout << "[SingleTrajectoryUpdator::process] START" << std::endl;
 
-  TimeMe* timer;
-  timer = new TimeMe( "Retrieve_Alignables" );
-
   vector< AlignableDetOrUnitPtr > currentAlignableDets = navigator->alignablesFromHits( ( *trajectory ).recHits() );
   vector< Alignable* > currentAlignables = alignablesFromAlignableDets( currentAlignableDets, store );
-
-  delete timer;
 
   if ( nDifferentAlignables( currentAlignables ) < 2 ) return;
   if ( currentAlignables.size() < theMinNumberOfHits ) return;
 
   ++theNumberOfProcessedEvts;
   bool includeCorrelations = ( theNumberOfPreAlignmentEvts < theNumberOfProcessedEvts );
-
-  timer = new TimeMe( "Update_Metrics" );
   
   metrics->update( currentAlignables );
-
-  delete timer;
-  timer = new TimeMe( "Retrieve_Additional_Alignables" );
 
   vector< Alignable* > additionalAlignables;
   if ( includeCorrelations ) additionalAlignables = metrics->additionalAlignables( currentAlignables );
@@ -75,13 +63,7 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
   allAlignables.insert( allAlignables.end(), currentAlignables.begin(), currentAlignables.end() );
   allAlignables.insert( allAlignables.end(), additionalAlignables.begin(), additionalAlignables.end() );
 
-  delete timer;
-  timer = new TimeMe( "Retrieve_Parameters" );
-
   CompositeAlignmentParameters alignmentParameters = store->selectParameters( allAlignables );
-
-  delete timer;
-  timer = new TimeMe( "Retrieve_Matrices" );
 
   const AlgebraicVector& allAlignmentParameters = alignmentParameters.parameters();
   AlgebraicSymMatrix currentAlignmentCov = alignmentParameters.covarianceSubset( currentAlignables );
@@ -100,9 +82,6 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
   AlgebraicMatrix derivatives = trajectory->derivatives();
 
   measurementCov += theExtraWeight*AlgebraicSymMatrix( measurementCov.num_row(), 1 );
-
-  delete timer;
-  timer = new TimeMe( "Update_Algo" );
 
   AlgebraicSymMatrix misalignedCov = measurementCov + alignmentCov;
 
@@ -196,30 +175,20 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
   }
 
 
-  delete timer;
-  timer = new TimeMe( "Clone_Parameters" );
-
   // update in alignment-interface
   CompositeAlignmentParameters* updatedParameters;
   updatedParameters = alignmentParameters.clone( updatedAlignmentParameters, updatedAlignmentCov );
-
-  delete timer;
-  timer = new TimeMe( "Update_Parameters" );
 
   if ( !checkCovariance( updatedAlignmentCov ) )
   {
     if ( includeCorrelations ) throw cms::Exception( "BadCovariance" );
 
     delete updatedParameters;
-    delete timer;
     return;
   }
 
   store->updateParameters( *updatedParameters, includeCorrelations );
   delete updatedParameters;
-
-  delete timer;
-  timer = new TimeMe( "Update_UserVariables" );
 
 
   // update user variables for debugging
@@ -228,8 +197,6 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
   //std::cout << "update user variables now" << std::endl;
   updateUserVariables( currentAlignables );
   //std::cout << "done." << std::endl;
-
-  delete timer;
 
   static int i = 0;
   if ( i%100 == 0 ) KalmanAlignmentDataCollector::fillGraph( "correlation_entries", i, store->numCorrelations() );
