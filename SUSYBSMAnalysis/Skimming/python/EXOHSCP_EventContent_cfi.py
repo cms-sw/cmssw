@@ -21,21 +21,14 @@ exoticaHSCPOutputModule.outputCommands.extend(RECOSIMEventContent.outputCommands
 SpecifiedEvenetContent=cms.PSet(
     outputCommands = cms.untracked.vstring(
       "drop *",
-#       "keep *",
-#      "keep *_genParticles_*_*",
-#      "keep *_met_*_*",
-#      "keep *_kt6CaloJets_*_*",
-      "keep recoMuons_muons_*_*",
+      "keep L1GlobalTriggerReadoutRecord_*_*_*",
+      "keep recoVertexs_offlinePrimaryVertices_*_*",
+	  "keep recoMuons_muons_*_*",
       "keep SiStripClusteredmNewDetSetVector_generalTracksSkim_*_*",
       "keep SiPixelClusteredmNewDetSetVector_generalTracksSkim_*_*",
       "keep recoTracks_generalTracksSkim_*_*",
       "keep recoTrackExtras_generalTracksSkim_*_*",
       "keep TrackingRecHitsOwned_generalTracksSkim_*_*",
-#      "keep SiStripClusteredmNewDetSetVector_*_*_*",
-#      "keep SiPixelClusteredmNewDetSetVector_*_*_*",
-#      "keep recoTracks_generalTracks_*_*",
-#      "keep recoTrackExtras_generalTracks_*_*",
-#      "keep TrackingRecHitsOwned_generalTracks_*_*",
       'keep *_dt1DRecHits_*_*',
       'keep *_dt4DSegments_*_*',
       'keep *_csc2DRecHits_*_*',
@@ -47,13 +40,10 @@ SpecifiedEvenetContent=cms.PSet(
       'keep recoTracks_globalMuons_*_*',
       'keep recoTrackExtras_globalMuons_*_*',
       'keep TrackingRecHitsOwned_globalMuons_*_*',
-#      'keep EcalRecHitsSorted_reducedEcalRecHitsEB_*_*',
       'keep EcalRecHitsSorted_reducedHSCPEcalRecHitsEB_*_*',
-#      'keep EcalRecHitsSorted_reducedEcalRecHitsEE_*_*',
       'keep EcalRecHitsSorted_reducedHSCPEcalRecHitsEE_*_*',
       'keep HBHERecHitsSorted_reducedHSCPhbhereco__*',
-#      'keep HBHERecHitsSorted_hbhereco__*',
-#      "keep *_*_*_EXOHSCPSkim",
+
       )
     )
 exoticaHSCPOutputModule.outputCommands.extend(SpecifiedEvenetContent.outputCommands)
