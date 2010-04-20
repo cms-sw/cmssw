@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 ### parameter set to be overloaded in the configuration file 
 
 
-from ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff import *
+from ElectroWeakAnalysis.Skimming.zMuMu_SubskimPathsUserData_cff import *
 
 from ElectroWeakAnalysis.ZMuMu.goodZToMuMu_cfi import *
 from ElectroWeakAnalysis.ZMuMu.goodZToMuMuSameCharge_cfi import *
@@ -34,6 +34,8 @@ goodZToMuMuPathLoose = cms.Path(
     goodZToMuMuLoose +
     goodZToMuMuAtLeast1HLTLoose
     )
+
+
 
 goodZToMuMu2HLTPathLoose = cms.Path(
     goodZToMuMuLoose +
@@ -114,6 +116,60 @@ goodZToMuMuOneTrackPathLoose=cms.Path(
 
 ### sequences and path for tight cuts...
 
+
+globalMuQualityCutsAnalysisAA= cms.EDAnalyzer(
+    "GlbMuQualityCutsAnalysis",
+    src = cms.InputTag("goodZToMuMu"), 
+    ptMin = cms.untracked.double("0.0"),
+    massMin = cms.untracked.double("0.0"),
+    massMax = cms.untracked.double("200.0"),
+    etaMin = cms.untracked.double("-1.0"),
+    etaMax = cms.untracked.double("10.0"),
+    trkIso = cms.untracked.double("10000"),
+    chi2Cut = cms.untracked.double("10"),
+    nHitCut = cms.untracked.int32(10)
+ )
+
+globalMuQualityCutsAnalysisAB= cms.EDAnalyzer(
+    "GlbMuQualityCutsAnalysis",
+    src = cms.InputTag("goodZToMuMuAB"), 
+    ptMin = cms.untracked.double("0.0"),
+    massMin = cms.untracked.double("0.0"),
+    massMax = cms.untracked.double("200.0"),
+    etaMin = cms.untracked.double("-1.0"),
+    etaMax = cms.untracked.double("10.0"),
+    trkIso = cms.untracked.double("10000"),
+    chi2Cut = cms.untracked.double("10"),
+    nHitCut = cms.untracked.int32(10)
+ )
+
+globalMuQualityCutsAnalysisAAtrk= cms.EDAnalyzer(
+    "GlbMuQualityCutsAnalysis",
+    src = cms.InputTag("goodZToMuMuOneTrackerMuon"), 
+    ptMin = cms.untracked.double("0.0"),
+    massMin = cms.untracked.double("0.0"),
+    massMax = cms.untracked.double("200.0"),
+    etaMin = cms.untracked.double("-1.0"),
+    etaMax = cms.untracked.double("10.0"),
+    trkIso = cms.untracked.double("10000"),
+    chi2Cut = cms.untracked.double("10"),
+    nHitCut = cms.untracked.int32(10)
+ )
+
+globalMuQualityCutsAnalysisAAsta= cms.EDAnalyzer(
+    "GlbMuQualityCutsAnalysis",
+    src = cms.InputTag("goodZToMuMuOneStandAloneMuon"), 
+    ptMin = cms.untracked.double("0.0"),
+    massMin = cms.untracked.double("0.0"),
+    massMax = cms.untracked.double("200.0"),
+    etaMin = cms.untracked.double("-1.0"),
+    etaMax = cms.untracked.double("10.0"),
+    trkIso = cms.untracked.double("10000"),
+    chi2Cut = cms.untracked.double("10"),
+    nHitCut = cms.untracked.int32(10)
+ )
+
+
 initialGoodZToMuMuPath = cms.Path( 
     goodZToMuMu +
     zmumuSaMassHistogram     
@@ -122,7 +178,8 @@ initialGoodZToMuMuPath = cms.Path(
 
 goodZToMuMuPath = cms.Path(
     goodZToMuMu +
-    goodZToMuMuAtLeast1HLT
+    goodZToMuMuAtLeast1HLT+
+    globalMuQualityCutsAnalysisAA 
     )
 
 
@@ -142,7 +199,8 @@ goodZToMuMuAB1HLTPath=cms.Path(
     goodZToMuMuNotFiltered + ## not filtered
     zToMuMuAB+
     goodZToMuMuAB+
-    goodZToMuMuAB1HLT
+    goodZToMuMuAB1HLT+
+    globalMuQualityCutsAnalysisAB
 )
 
 goodZToMuMuBB2HLTPath=cms.Path(
@@ -198,14 +256,16 @@ goodZToMuMuOneStandAloneMuonPath = cms.Path(
     ~goodZToMuMu +
     zToMuMuOneStandAloneMuon + 
     goodZToMuMuOneStandAloneMuon +
-    goodZToMuMuOneStandAloneMuonFirstHLT 
+    goodZToMuMuOneStandAloneMuonFirstHLT +
+    globalMuQualityCutsAnalysisAAsta
     )
 
 goodZToMuMuOneTrackerMuonPath= cms.Path(
     ~goodZToMuMu +
     zToMuMuOneTrackerMuon + 
     goodZToMuMuOneTrackerMuon +
-    goodZToMuMuOneTrackerMuonFirstHLT
+    goodZToMuMuOneTrackerMuonFirstHLT +
+    globalMuQualityCutsAnalysisAAtrk
 )
 
 
