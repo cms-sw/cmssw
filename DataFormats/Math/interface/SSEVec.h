@@ -259,7 +259,7 @@ inline mathSSE::Vec2D operator*(mathSSE::Vec2D b,double a) {
   return  _mm_mul_pd(_mm_set1_pd(a),b.vec);
 }
 
-inline double dot(mathSSE::Vec2D a, mathSSE::Vec2D b)  __attribute__((always_inline));
+inline double dot(mathSSE::Vec2D a, mathSSE::Vec2D b)  __attribute__((always_inline)) __attribute__ ((pure));
 
 inline double dot(mathSSE::Vec2D a, mathSSE::Vec2D b){
   __m128d res = _mm_mul_pd ( a.vec, b.vec);
@@ -269,7 +269,7 @@ inline double dot(mathSSE::Vec2D a, mathSSE::Vec2D b){
   return s;
 }
 
-inline double cross(mathSSE::Vec2D a, mathSSE::Vec2D b)  __attribute__((always_inline));
+inline double cross(mathSSE::Vec2D a, mathSSE::Vec2D b)  __attribute__((always_inline)) __attribute__ ((pure));
 
 inline double cross(mathSSE::Vec2D a, mathSSE::Vec2D b) {
   __m128d res =  _mm_shuffle_pd ( b.vec, b.vec, 1);
@@ -307,7 +307,7 @@ inline mathSSE::Vec3D operator*(mathSSE::Vec3D b, double a) {
 
 
 
-inline double dot(mathSSE::Vec3D a, mathSSE::Vec3D b) __attribute__((always_inline));
+inline double dot(mathSSE::Vec3D a, mathSSE::Vec3D b) __attribute__((always_inline)) __attribute__ ((pure));
 
 inline double dot(mathSSE::Vec3D a, mathSSE::Vec3D b) {
   __m128d res = _mm_add_sd ( _mm_mul_pd ( a.vec[0], b.vec[0]),
@@ -319,7 +319,7 @@ inline double dot(mathSSE::Vec3D a, mathSSE::Vec3D b) {
   return s;
 }
 
-inline mathSSE::Vec3D cross(mathSSE::Vec3D a, mathSSE::Vec3D b) __attribute__((always_inline));
+inline mathSSE::Vec3D cross(mathSSE::Vec3D a, mathSSE::Vec3D b) __attribute__((always_inline)) __attribute__ ((pure));
  
 inline mathSSE::Vec3D cross(mathSSE::Vec3D a, mathSSE::Vec3D b) {
   const __m128d neg = _mm_set_pd ( 0.0 , -0.0 );
