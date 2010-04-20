@@ -378,9 +378,9 @@ if __name__ == '__main__':
 
         otherArgs = ''
         if option.destDB:
-            otherArgs = option.destDB
+            otherArgs = " -d " + option.destDB
             if option.auth:
-                otherArgs = otherArgs + option.auth
+                otherArgs = otherArgs + " -a "+ option.auth
         
         print " get beam spot data from DB for IOVs. This can take a few minutes ..."
 
@@ -396,7 +396,7 @@ if __name__ == '__main__':
                 print " IOV: " + str(iIOV.since) + " to " + str(iIOV.till)
                 passiov = True
             if passiov:
-                acommand = 'getBeamSpotDB.py '+ tag + " " + str(iIOV.since) +otherArgs
+                acommand = 'getBeamSpotDB.py -t '+ tag + " -r " + str(iIOV.since) +otherArgs
                 status = commands.getstatusoutput( acommand )
                 tmpfile.write(status[1])
     
