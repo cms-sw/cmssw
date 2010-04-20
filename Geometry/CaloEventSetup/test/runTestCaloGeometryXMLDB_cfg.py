@@ -18,7 +18,7 @@ process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = 'MC_31X_V8::All'
+process.GlobalTag.globaltag = 'MC_36Y_V4::All'
 process.source = cms.Source("EmptySource")
 
 process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
