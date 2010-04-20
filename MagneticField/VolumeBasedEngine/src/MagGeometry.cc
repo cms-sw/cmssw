@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/06 13:23:47 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/03/03 13:07:49 $
+ *  $Revision: 1.17 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -16,7 +16,6 @@
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include "Utilities/Timing/interface/TimingReport.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
