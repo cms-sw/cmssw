@@ -514,12 +514,12 @@ if __name__ == '__main__':
 		    tmpbeam.IOVlast = line.split()[1]
 		tmpbeamsize += 1
             if line.find('BeginTimeOfFit') != -1:
-		tmpbeam.IOVBeginTime = line.split()[1]
+		tmpbeam.IOVBeginTime = line.split()[1] +line.split()[2] +line.split()[3]
 		if IOVbase =="timebase":
 		    tmpbeam.IOVfirst =  time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
 		tmpbeamsize += 1
             if line.find('EndTimeOfFit') != -1:
-		tmpbeam.IOVEndTime = line.split()[1]
+		tmpbeam.IOVEndTime = line.split()[1] +line.split()[2] +line.split()[3]
 		if IOVbase =="timebase":
 		    tmpbeam.IOVlast = time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
 		tmpbeamsize += 1
