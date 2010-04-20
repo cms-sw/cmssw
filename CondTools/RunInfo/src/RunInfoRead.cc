@@ -35,13 +35,13 @@ RunInfoRead::~RunInfoRead() {}
 
 void RunInfoRead::run() {}
 
-RunInfo::RunInfo 
+RunInfo 
 RunInfoRead::readData(const std::string & table, 
 		      const std::string &column, const int r_number) {
   m_tableToRead = table; // to be cms_runinfo.runsession_parameter
   m_columnToRead= column;  // to be string_value;
-  RunInfo::RunInfo  sum;
-  RunInfo::RunInfo temp_sum;
+  RunInfo  sum;
+  RunInfo temp_sum;
   //RunInfo Sum; 
   //for B currents...
   bool Bnotchanged = 0;
