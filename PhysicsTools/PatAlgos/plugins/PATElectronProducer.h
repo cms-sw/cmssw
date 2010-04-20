@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.21 2009/08/26 08:34:05 cbern Exp $
+// $Id: PATElectronProducer.h,v 1.21.18.1 2010/04/20 14:46:49 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -12,8 +12,8 @@
    The PATElectronProducer produces analysis-level pat::Electron's starting from
    a collection of objects of reco::GsfElectron.
 
-  \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.21 2009/08/26 08:34:05 cbern Exp $
+  \author   Steven Lowette, James Lamb\
+  \version  $Id: PATElectronProducer.h,v 1.21.18.1 2010/04/20 14:46:49 srappocc Exp $
 */
 
 
@@ -79,6 +79,8 @@ namespace pat {
       /// embed high level selection variables?
       bool          embedHighLevelSelection_;
       edm::InputTag beamLineSrc_;
+      bool          usePV_;
+      edm::InputTag pvSrc_;
 
       typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
       typedef edm::RefToBase<reco::GsfElectron> ElectronBaseRef;

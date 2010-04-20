@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.37 2009/10/15 17:17:26 rwolf Exp $
+// $Id: PATElectronProducer.cc,v 1.37.16.2 2010/04/20 14:46:48 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -19,9 +19,16 @@
 #include "PhysicsTools/PatUtils/interface/CaloIsolationEnergy.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
 
 #include <vector>
 #include <memory>
@@ -135,6 +142,8 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   embedHighLevelSelection_ = iConfig.getParameter<bool>("embedHighLevelSelection");
   if ( embedHighLevelSelection_ ) {
     beamLineSrc_ = iConfig.getParameter<edm::InputTag>("beamLineSrc");
+    usePV_ = iConfig.getParameter<bool>("usePV");
+    pvSrc_ = iConfig.getParameter<edm::InputTag>("pvSrc");
   }
 
 
@@ -153,6 +162,10 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   // Get the collection of electrons from the event
   edm::Handle<edm::View<reco::GsfElectron> > electrons;
   iEvent.getByLabel(electronSrc_, electrons);
+
+  // Get the ESHandle for the transient track builder, if needed for
+  // high level selection embedding
+  edm::ESHandle<TransientTrackBuilder> trackBuilder;
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
 
@@ -193,24 +206,42 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   // prepare the high level selection:
   // needs beamline
   reco::TrackBase::Point beamPoint(0,0,0);
+  reco::Vertex primaryVertex;
   if ( embedHighLevelSelection_ ) {
     // Get the beamspot
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> beamSpotHandle;
     iEvent.getByLabel(beamLineSrc_, beamSpotHandle);
+
+
+    // Get the primary vertex
+    edm::Handle< std::vector<reco::Vertex> > pvHandle;
+    iEvent.getByLabel( pvSrc_, pvHandle );
     
-    if ( beamSpotHandle.isValid() ){
-      beamSpot = *beamSpotHandle;
-    } else{
-      edm::LogError("DataNotAvailable")
-	<< "No beam spot available from EventSetup, not adding high level selection \n";
-    }
+    if ( ! usePV_ ) {
+      if ( beamSpotHandle.isValid() ){
+	beamSpot = *beamSpotHandle;
+      } else{
+	edm::LogError("DataNotAvailable")
+	  << "No beam spot available from EventSetup, not adding high level selection \n";
+      }
   
-    double x0 = beamSpot.x0();
-    double y0 = beamSpot.y0();
-    double z0 = beamSpot.z0();
-    
-    beamPoint = reco::TrackBase::Point ( x0, y0, z0 );
+      double x0 = beamSpot.x0();
+      double y0 = beamSpot.y0();
+      double z0 = beamSpot.z0();
+      
+      beamPoint = reco::TrackBase::Point ( x0, y0, z0 );
+    } else {
+      if ( pvHandle.isValid() ) {
+	primaryVertex = pvHandle->at(0);
+      } else {
+	edm::LogError("DataNotAvailable")
+	  << "No primary vertex available from EventSetup, not adding high level selection \n";
+      }
+
+      // This is needed by the IPTools methods from the tracking group
+      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);     
+    }
   }
 
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
@@ -330,9 +361,17 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       
 	// Make sure the collection it points to is there
 	if ( track.isNonnull() && track.isAvailable() ) {
-	  double corr_d0 = track->dxy( beamPoint );
-	
-	  anElectron.setDB( corr_d0 );
+
+	  if ( !usePV_ ) {
+	    double corr_d0 = track->dxy( beamPoint );
+	    anElectron.setDB( corr_d0, -1.0 );
+	  } else {
+	    reco::TransientTrack tt = trackBuilder->build(track);
+	    std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
+	    double d0_corr = result.second.value();
+	    double d0_err = result.second.error();
+	    anElectron.setDB( d0_corr, d0_err );	    
+	  }
 	} 
       }
     
@@ -590,6 +629,10 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
   highLevelPSet.setAllowAnything();
   iDesc.addNode( edm::ParameterDescription<edm::InputTag>("beamLineSrc", edm::InputTag(), true) 
                  )->setComment("input with high level selection");
+  iDesc.addNode( edm::ParameterDescription<edm::InputTag>("pvSrc", edm::InputTag(), true) 
+                 )->setComment("input with high level selection");
+  iDesc.addNode( edm::ParameterDescription<bool>("usePV", bool(), true) 
+                 )->setComment("input with high level selection, use primary vertex (true) or beam line (false)");
 
   descriptions.add("PATElectronProducer", iDesc);
 
