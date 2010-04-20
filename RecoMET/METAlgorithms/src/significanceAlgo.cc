@@ -21,7 +21,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: significanceAlgo.cc,v 1.13 2010/04/17 19:18:48 fblekman Exp $
+// $Id: significanceAlgo.cc,v 1.14 2010/04/20 11:02:01 fblekman Exp $
 //
 //
 
@@ -109,8 +109,8 @@ metsig::significanceAlgo::subtractObjects(const std::vector<metsig::SigInputObj>
     double sigma1_2=sigma_tan*sigma_tan;
 
     v_tot(0,0)-= sigma0_2*cosphi*cosphi + sigma1_2*sinphi*sinphi;
-    v_tot(0,1)-= -cosphi*sinphi*(-1.0*sigma0_2 + sigma1_2);
-    v_tot(1,0)-= cosphi*sinphi*(-1.0*sigma0_2 + sigma1_2);
+    v_tot(0,1)-= cosphi*sinphi*(sigma0_2 - sigma1_2);
+    v_tot(1,0)-= cosphi*sinphi*(sigma0_2 - sigma1_2);
     v_tot(1,1)-= sigma1_2*cosphi*cosphi + sigma0_2*sinphi*sinphi;
     
   }
@@ -143,8 +143,8 @@ metsig::significanceAlgo::addObjects(const std::vector<metsig::SigInputObj>& eve
     double sigma1_2=sigma_tan*sigma_tan;
 
     v_tot(0,0)+= sigma0_2*cosphi*cosphi + sigma1_2*sinphi*sinphi;
-    v_tot(0,1)+= -cosphi*sinphi*(-1.0*sigma0_2 + sigma1_2);
-    v_tot(1,0)+= cosphi*sinphi*(-1.0*sigma0_2 + sigma1_2);
+    v_tot(0,1)+= cosphi*sinphi*(sigma0_2 - sigma1_2);
+    v_tot(1,0)+= cosphi*sinphi*(sigma0_2 - sigma1_2);
     v_tot(1,1)+= sigma1_2*cosphi*cosphi + sigma0_2*sinphi*sinphi;
     
   }
