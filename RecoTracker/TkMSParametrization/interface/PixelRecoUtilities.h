@@ -40,13 +40,6 @@ namespace PixelRecoUtilities {
    */
   double longitudinalBendingCorrection( double radius, double pt,const edm::EventSetup& iSetup); 
 
-  /** 
-   *  initialize TimingReport item in a way used in TkTrackingRegions. 
-   *  Assigned a name and activate by .orcarc if 
-   *  TkTrackingRegions:timerLevel is >= switchOnLevel
-   */  
-  //  TimingReport::Item * initTiming(string name, int switchOnLevel); 
-
 }
  
 #endif

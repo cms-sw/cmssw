@@ -28,20 +28,3 @@ float PixelRecoUtilities::fieldInInvGev(const edm::EventSetup& iSetup)
   return theInvField;
 }
 
-
-
-// #include "Utilities/UI/interface/SimpleConfigurable.h"
-// #include <stdio.h>
-
-// TimingReport::Item * PixelRecoUtilities::initTiming(
-//     string name, int onLevel)
-// {
-//   static SimpleConfigurable<int> level(0,"TkTrackingRegions:timingLevel");
-//   char Lev[] = "9999 ";
-//   if (onLevel >= 0 && onLevel < 9999) sprintf(Lev,"(%d) ", onLevel);
-
-//   TimingReport::Item * item = &(*TimingReport::current())[string(Lev)+name];
-//   item->switchCPU(false);
-//   if (onLevel > level) item->switchOn(false);
-//   return item;
-// }

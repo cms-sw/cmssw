@@ -32,8 +32,6 @@
 #include "RecoTracker/MeasurementDet/interface/TkPixelMeasurementDet.h"
 #include "RecoTracker/MeasurementDet/interface/TkGluedMeasurementDet.h"
 
-#include "Utilities/Timing/interface/TimingReport.h"
-
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 

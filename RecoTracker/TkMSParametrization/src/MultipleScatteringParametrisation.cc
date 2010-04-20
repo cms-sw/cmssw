@@ -13,7 +13,6 @@ template <class T> T sqr( T t) {return t*t;}
 #include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0DetLayer.h"
 #include "RecoTracker/TkMSParametrization/interface/MSLayersAtAngle.h"
 
-//#include "Utilities/Notification/interface/TimingReport.h"
 //#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
 using namespace std;
@@ -56,9 +55,6 @@ MultipleScatteringParametrisation( const DetLayer* layer,const edm::EventSetup &
 float MultipleScatteringParametrisation::operator()(
     float pT, float cotTheta, float tip) const
 {
-//   static TimingReport::Item * theTimer =
-//      initTiming("MultScattering from vertex",5);
-//   TimeMe tm( *theTimer, false);
   float sumX0D = theLayer.sumX0D(cotTheta); 
   return x0ToSigma * sumX0D /pT;
 }
@@ -67,9 +63,6 @@ float MultipleScatteringParametrisation::operator()(
 float MultipleScatteringParametrisation::operator()(
   float pT, float cotTheta, const PixelRecoPointRZ & pointI, float tip) const
 {
-//   static TimingReport::Item * theTimer =
-//       initTiming("MultScattering 1p constraint",5);
-//   TimeMe tm( *theTimer, false);
 
   PixelRecoLineRZ lineIO(pointI, cotTheta, tip);
   PixelRecoPointRZ pointO = theLayer.crossing(lineIO).first;
@@ -88,9 +81,6 @@ float MultipleScatteringParametrisation::operator()(
     Consecutive consecutive,
     float tip) const
 {   
-//   static TimingReport::Item * theTimer =
-//       initTiming("MultScattering 2p constraint",5);
-//   TimeMe tm( *theTimer, false);
 
 
   PixelRecoLineRZ lineIO(pointI, pointO, tip);
