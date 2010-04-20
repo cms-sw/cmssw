@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.170 $"
+__version__ = "$Revision: 1.171 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -17,7 +17,7 @@ defaultOptions.pileup = 'NoPileUp'
 defaultOptions.geometry = 'Extended'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
 defaultOptions.magField = 'Default'
-defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
+defaultOptions.conditions = 'auto:startup'
 defaultOptions.scenarioOptions=['pp','cosmics','nocoll','HeavyIons']
 defaultOptions.harvesting= 'AtRunEnd'
 defaultOptions.gflash = False
@@ -449,7 +449,8 @@ class ConfigBuilder(object):
                 self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'GFlash_cff'
         else:
                 self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
-                
+	
+	# Mixing
 	if self._options.isMC==True and self._options.himix==False:
  	    self.PileupCFF='Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff'
         elif self._options.isMC==True and self._options.himix==True:	 
@@ -457,7 +458,7 @@ class ConfigBuilder(object):
         else:
 	    self.PileupCFF=''
 	    
-	#beamspot
+	# beamspot
 	if self._options.beamspot != None:
 	    self.beamspot=self._options.beamspot
 	else:
@@ -804,7 +805,6 @@ class ConfigBuilder(object):
 
             # the settings have to be the same as for the generator to stay consistent  
             print '  The pile up is taken from 7 TeV files. To switch to other files remove the inclusion of "PileUpSimulator7TeV_cfi"'
-            self.executeAndRemember('process.famosSimHits.ActivateDecays.comEnergy = 10000')
 	    
             self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithFamos)")
             self.executeAndRemember("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
@@ -845,7 +845,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.170 $"),
+              (version=cms.untracked.string("$Revision: 1.171 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
