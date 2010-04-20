@@ -25,8 +25,7 @@ columns:
           startorbit(uint32),        NOT NULL
           numorbit(uint32),          NOT NULL 
           lumisectionquality(short)  NOT NULL // use max 3 bits [HLX,HF,BRAN]
-          beam1energy(float)         NOT NULL 
-          beam2energy(float)         NOT NULL 
+          beamenergy(float)          NOT NULL 
           beamstatus(string)         NOT NULL 
 	  
 ======

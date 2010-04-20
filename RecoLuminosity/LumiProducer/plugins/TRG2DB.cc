@@ -432,7 +432,7 @@ namespace lumi{
       trgData.extend<unsigned int>("CMSLSNUM");
       trgData.extend<unsigned int>("BITNUM");
       trgData.extend<std::string>("BITNAME");
-      trgData.extend<unsigned int>("COUNT");
+      trgData.extend<unsigned int>("TRGCOUNT");
       trgData.extend<unsigned long long>("DEADTIME");
       trgData.extend<unsigned int>("PRESCALE");
       coral::IBulkOperation* trgInserter=trgtable.dataEditor().bulkInsert(trgData,totalcmsls*192);
@@ -443,7 +443,7 @@ namespace lumi{
       unsigned int& cmslsnum=trgData["CMSLSNUM"].data<unsigned int>();
       unsigned int& bitnum=trgData["BITNUM"].data<unsigned int>();
       std::string& bitname=trgData["BITNAME"].data<std::string>();
-      unsigned int& count=trgData["COUNT"].data<unsigned int>();
+      unsigned int& count=trgData["TRGCOUNT"].data<unsigned int>();
       unsigned long long& deadtime=trgData["DEADTIME"].data<unsigned long long>();
       unsigned int& prescale=trgData["PRESCALE"].data<unsigned int>();
 

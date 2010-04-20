@@ -39,8 +39,7 @@ def createLumi(dbsession):
     summary.insertColumn('STARTORBIT','unsigned int')
     summary.insertColumn('NUMORBIT','unsigned int')
     summary.insertColumn('LUMISECTIONQUALITY','short')
-    summary.insertColumn('BEAM1ENERGY','float')
-    summary.insertColumn('BEAM2ENERGY','float')
+    summary.insertColumn('BEAMENERGY','float')
     summary.insertColumn('BEAMSTATUS','string')
     
     summary.setPrimaryKey('LUMISUMMARY_ID')
@@ -57,8 +56,7 @@ def createLumi(dbsession):
     summary.setNotNullConstraint('STARTORBIT',True)
     summary.setNotNullConstraint('NUMORBIT',True)
     summary.setNotNullConstraint('LUMISECTIONQUALITY',True)
-    summary.setNotNullConstraint('BEAM1ENERGY',True)
-    summary.setNotNullConstraint('BEAM2ENERGY',True)
+    summary.setNotNullConstraint('BEAMENERGY',True)
     summary.setNotNullConstraint('BEAMSTATUS',True)
     
     db.createTable(summary,True)

@@ -70,9 +70,12 @@ namespace lumi{
       summaryData.extend("INSTLUMIERROR",typeid(float));
       summaryData.extend("INSTLUMIQUALITY",typeid(short));
       summaryData.extend("LUMISECTIONQUALITY",typeid(short));
-      summaryData.extend("CMSALIVE",typeid(bool));
+      summaryData.extend("CMSALIVE",typeid(short));
       summaryData.extend("STARTORBIT",typeid(unsigned int));
       summaryData.extend("NUMORBIT",typeid(unsigned int));
+      summaryData.extend("BEAMENERGY",typeid(float));
+      summaryData.extend("BEAMSTATUS",typeid(std::string));
+
       coral::IBulkOperation* summaryInserter=summarytable.dataEditor().bulkInsert(summaryData,totallumils);
       coral::AttributeList detailData;
       detailData.extend("LUMIDETAIL_ID",typeid(unsigned long long));
@@ -94,9 +97,12 @@ namespace lumi{
       float& instlumierror = summaryData["INSTLUMIERROR"].data<float>();
       short& instlumiquality = summaryData["INSTLUMIQUALITY"].data<short>();
       short& lumisectionquality = summaryData["LUMISECTIONQUALITY"].data<short>();
-      bool& cmsalive = summaryData["CMSALIVE"].data<bool>();
+      short& cmsalive = summaryData["CMSALIVE"].data<short>();
       unsigned int& startorbit=summaryData["STARTORBIT"].data<unsigned int>();
       unsigned int& numorbit= summaryData["NUMORBIT"].data<unsigned int>();
+      float& beamenergy= summaryData["BEAMENERGY"].data<float>();
+      std::string& beamstatus= summaryData["BEAMSTATUS"].data<std::string>();
+
       unsigned long long& lumidetail_id=detailData["LUMIDETAIL_ID"].data<unsigned long long>();
       unsigned long long& d2lumisummary_id=detailData["LUMISUMMARY_ID"].data<unsigned long long>();
       coral::Blob& bxlumivalue=detailData["BXLUMIVALUE"].data<coral::Blob>();
@@ -115,14 +121,16 @@ namespace lumi{
 	instlumiquality = 8;
 	lumisectionquality = 16;
 	//	unsigned int cmslsnum = 0;
-	bool iscmsalive = false;
+	short iscmsalive = 0;
 	if(i<=totalcmsls){
-	  iscmsalive=true;
+	  iscmsalive=1;
 	  cmslsnum=i;
 	}
 	cmsalive=iscmsalive;
 	startorbit=2837495;
 	numorbit=34566;
+	beamenergy=362;
+	beamstatus="stable";
 	//fetch a new id value 
 	//insert the new row
 	summaryInserter->processNextIteration();
