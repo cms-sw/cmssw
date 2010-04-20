@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2010/04/20 16:43:45 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/04/20 18:34:16 $
+ *  $Revision: 1.14 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -464,7 +464,7 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
     GlobalPoint ptg1(recHit->globalPosition());
     float deta = fabs (ptg1.eta()-ptg2.eta());
     // Geom::Phi should keep it in the range [-pi, pi]
-    float dphi = fabs (ptg1.phi()-ptg2.phi());
+    float dphi = deltaPhi(ptg1.phi(), ptg2.phi());
     float eta2 = fabs( ptg2.eta() );
     // be a little more lenient in cracks
     bool crack = isCrack(recHit) || isCrack(first);
@@ -533,10 +533,7 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
 
       GlobalPoint pos1 = (*iter)->globalPosition();  // +v
  
-      float dphi = pos1.phi()-pos2.phi();       //+v
-
-      if (dphi < 0.) dphi = -dphi;             //+v
-      if (dphi > M_PI) dphi = 2.*M_PI - dphi;  //+v
+      float dphi = deltaPhi(pos1.phi(),pos2.phi());       //+v
 
       if (  dphi < best_dphiG*1.5 ) {  
 
@@ -545,10 +542,8 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
 
 	GlobalVector dir1 = (*iter)->globalDirection();
 	
-	float  dphidir = fabs ( dir1.phi()-dir2.phi() );
+	float  dphidir = deltaPhi( dir1.phi(), dir2.phi() );
 
-	if (dphidir > M_PI) dphidir = 2.*M_PI - dphidir;
-	if (dphidir > M_PI*.5) dphidir = M_PI - dphidir;  // +v  [0,pi/2]
 	if (  dphidir < best_dphiD ) {
 
 	  best_dphiG = dphi;
@@ -580,11 +575,7 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
       
       GlobalVector dir2 = first->globalDirection();
       
-      float dphi = dir1.phi()-dir2.phi();
-
-      if (dphi < 0.) dphi = -dphi;
-      if (dphi > M_PI) dphi = 2.*M_PI - dphi;
-
+      float dphi = deltaPhi(dir1.phi(),dir2.phi());
       if (  dphi < best_dphi ) {
 
 	best_dphi = dphi;
