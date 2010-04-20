@@ -141,6 +141,12 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
       zDaudxyFromPV = muTrkRef->dxy(primaryVertices->begin()->position() );
       zDaudzFromPV = muTrkRef->dz(primaryVertices->begin()->position() );
     }	
+    if (muTrkRef.isNonnull() && m.isTrackerMuon() == true){
+      zDaudxyFromBS = muTrkRef->dxy(beamSpotHandle->position());
+      zDaudzFromBS = muTrkRef->dz(beamSpotHandle->position());
+      zDaudxyFromPV = muTrkRef->dxy(primaryVertices->begin()->position() );
+      zDaudzFromPV = muTrkRef->dz(primaryVertices->begin()->position() );
+    }	
     else if (muSaRef.isNonnull() && m.isStandAloneMuon() == true){
       zDaudxyFromBS = muSaRef->dxy(beamSpotHandle->position());
       zDaudzFromBS = muSaRef->dz(beamSpotHandle->position());
