@@ -137,23 +137,30 @@ void AMPTHadronizer::add_heavy_ion_rec(HepMC::GenEvent *evt)
 HepMC::GenParticle* AMPTHadronizer::build_ampt(int index, int barcode)
 {
    // Build particle object corresponding to index in ampt
-                                                                                                                                                         
-   double x0 = hmain2.patt[0][index];
-   double y0 = hmain2.patt[1][index];
 
-   double x = x0*cosphi0_-y0*sinphi0_;
-   double y = y0*cosphi0_+x0*sinphi0_;
+   float px0 = hbt.plast[index][0];
+   float py0 = hbt.plast[index][1];
+   float pz0 = hbt.plast[index][2];
+   float m = hbt.plast[index][3];
+
+   float px = px0*cosphi0_-py0*sinphi0_;
+   float py = px0*cosphi0_+py0*sinphi0_;
+   float pz = pz0;
+   float e = sqrt(px*px+py*py+pz*pz+m*m); 
+   int status = 1;
+
+//cout<<px<<" "<<py<<" "<<pz<<" "<<e<<" "<<hbt.lblast[index]<<" "<<INVFLV(hbt.lblast[index])<<" "<<status<<endl;
 
    HepMC::GenParticle* p = new HepMC::GenParticle(
-                                                  HepMC::FourVector(x,  // px                                                                            
-                                                                    y,  // py                                                                            
-                                                                    hmain2.patt[2][index],  // pz                                                         
-                                                                    hmain2.patt[3][index]), // E                                                          
-                                                  hmain2.katt[0][index],// id                                                                             
-                                                  hmain2.katt[3][index] // status                                                          
+                                                  HepMC::FourVector(px,                                                                            
+                                                                    py,                                                                            
+                                                                    pz,                                                         
+                                                                    e),                                                           
+                                                  INVFLV(hbt.lblast[index]),// id                                                                             
+                                                  status // status                                                          
                                                   );
-   p->suggest_barcode(barcode);
 
+   p->suggest_barcode(barcode);
    return p;
 }
 
@@ -198,18 +205,18 @@ bool AMPTHadronizer::get_particles(HepMC::GenEvent *evt )
       evt->add_vertex(vertice);
       if(!evt->signal_process_vertex()) evt->set_signal_process_vertex(vertice);
 
-      const unsigned int knumpart = hmain1.natt;
-      // cout<<"# of particles "<<knumpart<<endl;
+      const unsigned int knumpart = hbt.nlast;
+//      cout<<"# of particles "<<knumpart<<" "<<hbt.nlast<<endl;
       for (unsigned int ipart = 0; ipart<knumpart; ipart++) {
-
-         int mid = hmain2.katt[2][ipart];
+         int mid = 0;
          particles.push_back(build_ampt(ipart,ipart+1));
          prods.push_back(build_ampt_vertex(ipart,0));
          mother_ids.push_back(mid);
          LogDebug("DecayChain")<<"Mother index : "<<mid;
       }
       
-      LogDebug("AMPT")<<"Number of particles in vector "<<particles.size();
+//      LogDebug("AMPT")<<"Number of particles in vector "<<particles.size();
+//      cout<<"Number of particles in vector "<<particles.size();
 
       for (unsigned int ipart = 0; ipart<particles.size(); ipart++) {
 	 HepMC::GenParticle* part = particles[ipart];

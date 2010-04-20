@@ -264,6 +264,7 @@ AMPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
    for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
       if((*it)->status() == 1){
+//if((*it)->status() != 1) cout<<(*it)->status()<<endl;
 	 int pdg_id = (*it)->pdg_id();
 	 float eta = (*it)->momentum().eta();
 	 float phi = (*it)->momentum().phi();

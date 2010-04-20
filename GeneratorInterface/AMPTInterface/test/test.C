@@ -67,19 +67,25 @@ void test()
 */
   TFile* f4 = new TFile("treefile_ampt.root");
   TTree* tree4 = f4->Get("ana/hi");
-  TH1D* heta4 = new TH1D("eta4","",120,-12,12);
+  TH1D* heta4 = new TH1D("eta4","",80,-12,12);
   TH1D* hpt4 = new TH1D("pt4","",200,0.,20);
   TH1D* hb4 = new TH1D("b4","",300,0.,30);
+  TH1D* hpdg4 = new TH1D("pdg4","",2000,-1000,1000);
 //  heta4->SetMarkerColor(6);
 //  hpt4->SetMarkerColor(6);
 //  hb4->SetMarkerColor(6);
   tree4->Draw("b>>b4","","GOFF");
+//  tree4->Draw("eta>>eta4","abs(eta)<10.&& (abs(pdg)==11 || abs(pdg)==13 || abs(pdg)==211 || abs(pdg)==321 || abs(pdg)==3222 || abs(pdg)==3112 || abs(pdg)==3312 || abs(pdg)==3332 || abs(pdg)==15 || abs(pdg)==411 || abs(pdg)==431 || abs(pdg)==24 || abs(pdg)==4122)","GOFF");
   tree4->Draw("eta>>eta4","abs(eta)<10.&&chg!=0","GOFF");
+  tree4->Draw("pdg>>pdg4","abs(eta)<5.","GOFF");
   heta4->Scale(1.0/heta4->GetBinWidth(1)/hb4->GetEntries());
   heta4->SetTitle(";#eta;dN/d#eta");
   tree4->Draw("pt>>pt4","chg!=0","GOFF");
   hpt4->Scale(1.0/hpt4->Integral());
   hpt4->SetTitle(";p_{T};dN/dp_{T}");
+
+  TCanvas* c1 = new TCanvas("c1","",500,500);
+  hpdg4->Draw("hist");
 
   TCanvas* cd = new TCanvas("cd","",500,500);
 //  cd->Divide(2,1);

@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.168 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: GeneratorInterface/AMPTInterface/amptDefault_cfi.py -s GEN --conditions auto:mc --datatier GEN --eventcontent RAWSIM -n 1 --no_exec
+# with command line options: GeneratorInterface/AMPTInterface/amptDefault_cfi.py -s GEN --conditions auto:mc --datatier GEN --eventcontent RAWSIM -n 1 --scenario HeavyIons --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('GEN')
@@ -18,7 +18,7 @@ process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.VtxSmearedEarly10TeVCollision_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.EventContent.EventContentHeavyIons_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.2 $'),
@@ -56,29 +56,26 @@ process.generator = cms.EDFilter("AMPTGeneratorFilter",
     diquarky = cms.double(0.0),
     diquarkx = cms.double(0.0),
     diquarkpx = cms.double(7.0),
-    diquarkpy = cms.double(0.0),
+    ntmax = cms.int32(150),
     dpcoal = cms.double(1000000.0),
     diquarkembedding = cms.int32(0),
     maxmiss = cms.int32(1000),
     ktkick = cms.int32(1),
     mu = cms.double(3.2264),
-    deuteronfactor = cms.int32(1),
+    quenchingpar = cms.double(2.0),
     popcornpar = cms.double(1.0),
     drcoal = cms.double(1000000.0),
     amptmode = cms.int32(1),
-    hjseed = cms.int32(53153511),
-    partseed = cms.int32(8),
     izpc = cms.int32(0),
     popcornmode = cms.bool(True),
-    ihjsed = cms.int32(0),
     minijetpt = cms.double(-7.0),
     ks0decay = cms.bool(False),
     alpha = cms.double(0.47140452),
     dt = cms.double(0.2),
     rotateEventPlane = cms.bool(True),
     shadowingmode = cms.bool(True),
-    ntmax = cms.int32(150),
-    quenchingpar = cms.double(2.0),
+    diquarkpy = cms.double(0.0),
+    deuteronfactor = cms.int32(1),
     stringFragB = cms.double(0.5),
     quenchingmode = cms.bool(False),
     stringFragA = cms.double(2.2),
@@ -97,12 +94,12 @@ process.generator = cms.EDFilter("AMPTGeneratorFilter",
     proj = cms.string('A'),
     comEnergy = cms.double(2760.0),
     iat = cms.int32(208),
-    bMax = cms.double(30),
+    bMax = cms.double(0),
     iap = cms.int32(208)
 )
 
 # Path and EndPath definitions
-process.generation_step = cms.Path(process.pgen)
+process.generation_step = cms.Path(process.pgen_hi)
 process.endjob_step = cms.Path(process.endOfProcess)
 process.out_step = cms.EndPath(process.output)
 
