@@ -155,7 +155,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
     double s2 = s*s;
     double secondOrder41 = 0.5 * qp * temp1 * s2;
     Vec3D ghnmp = gamma*hn - t1;
-    double temp2 = dot(ghnmp,u2.xy());
+    double temp2 = dot(ghnmp.xy(),u2);
     double s3 = s2 * s;
     double s4 = s3 * s;
     double h1 = h.mag();
