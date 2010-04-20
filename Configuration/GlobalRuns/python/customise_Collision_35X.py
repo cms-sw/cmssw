@@ -82,29 +82,4 @@ def customise(process):
     ###
     ###############################################################################################
 
-
-    
-    # produce L1 trigger object maps (temporary fix for HLT mistake 
-    # in event content definition of RAW datatier for stream A)
-    import L1Trigger.GlobalTrigger.gtDigis_cfi
-    process.hltL1GtObjectMap = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone(
-        GmtInputTag = cms.InputTag( "gtDigis" ),
-        GctInputTag = cms.InputTag( "gctDigis" ),
-        CastorInputTag = cms.InputTag( "castorL1Digis" ),
-        ProduceL1GtDaqRecord = cms.bool( False ),
-        ProduceL1GtEvmRecord = cms.bool( False ),
-        ProduceL1GtObjectMapRecord = cms.bool( True ),
-        WritePsbL1GtDaqRecord = cms.bool( False ),
-        ReadTechnicalTriggerRecords = cms.bool( True ),
-        EmulateBxInEvent = cms.int32( 1 ),
-        AlternativeNrBxBoardDaq = cms.uint32( 0 ),
-        AlternativeNrBxBoardEvm = cms.uint32( 0 ),
-        BstLengthBytes = cms.int32( -1 ),
-        TechnicalTriggersInputTags = cms.VInputTag( 'simBscDigis' ),
-        RecordLength = cms.vint32( 3, 0 )
-        )
-    process.L1GtObjectMap_step = cms.Path(process.hltL1GtObjectMap)
-    process.schedule.insert(process.schedule.index(process.raw2digi_step)+1,process.L1GtObjectMap_step)
-
-    
     return (process)
