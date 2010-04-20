@@ -131,39 +131,6 @@ namespace calogeom {
       return co ;
    }
 
-   bool 
-   IdealObliquePrism::inside( const GlobalPoint& point ) const 
-   {
-      // first check eta/phi
-      bool is_inside ( false ) ;
-
-      const GlobalPoint& face ( getPosition() ) ;
-
-      // eta
-      if( fabs( point.eta() - face.eta() ) <= dEta()  &&
-	  fabs( point.phi() - face.phi() ) <= dPhi()     )
-      {
-	 // distance (trickier)
-	 GlobalPoint face2 ( etaPhiR( face.eta(), 
-				      face.phi(), 
-				      face.mag() + 2*fabs( dz() ) ) );
-	 if( dz() > 0 ) 
-	 { // 
-	    const float projection ( point.perp()*cos( point.phi() - face.phi() ) ) ;
-	    is_inside = ( projection >= face.perp() &&
-			  projection <= face2.perp()    ) ;
-	 } 
-	 else 
-	 { // here, it is just a Z test.
-	    is_inside = ( ( ( face.z()<0 ) ? ( point.z()<=face.z()  ) :
-			    ( point.z()>=face.z()  ) ) && // "front" face
-			  ( ( face.z()<0 ) ? ( point.z()>=face2.z() ) :
-			    ( point.z()<=face2.z() ) ) ); // "back" face
-	 }
-      }
-      return is_inside;
-   }
-
    std::ostream& operator<<( std::ostream& s, const IdealObliquePrism& cell ) 
    {
       s << "Center: " <<  cell.getPosition() << std::endl ;

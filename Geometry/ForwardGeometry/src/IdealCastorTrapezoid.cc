@@ -77,63 +77,6 @@ namespace calogeom {
       return co ;
    }
 
-   bool 
-   IdealCastorTrapezoid::inside( const GlobalPoint& point ) const 
-   {
-      const HepGeom::Point3D<double>  p ( point.x(), point.y(), point.z() ) ;
-
-      bool ok ( false ) ;
-
-      // loose cut to avoid some calculations
-      const HepGeom::Point3D<double>  fc ( getPosition().x(),
-			    getPosition().y(),
-			    getPosition().z() ) ;
-
-      if( 0 < p.z()*fc.z()                                 && //gross cuts
-	  fabs( p.z() ) > fabs( fc.z() ) - dhz()           &&
-	  fabs( p.z() ) < fabs( fc.z() ) + 2.*dz() + dhz() &&
-	  fabs( p.perp() ) > dR()                          &&
-	  fabs( p.perp() ) < dR() + 3.*dy()                  )
-      {
-	 ok = true ;
-
-	 const CaloCellGeometry::CornersVec& gc ( getCorners() ) ;
-	 const HepGeom::Point3D<double>  cv[8] = 
-	    { HepGeom::Point3D<double> ( gc[0].x(), gc[0].y(), gc[0].z() ) ,
-	      HepGeom::Point3D<double> ( gc[1].x(), gc[1].y(), gc[1].z() ) ,
-	      HepGeom::Point3D<double> ( gc[2].x(), gc[2].y(), gc[2].z() ) ,
-	      HepGeom::Point3D<double> ( gc[3].x(), gc[3].y(), gc[3].z() ) ,
-	      HepGeom::Point3D<double> ( gc[4].x(), gc[4].y(), gc[4].z() ) ,
-	      HepGeom::Point3D<double> ( gc[5].x(), gc[5].y(), gc[5].z() ) ,
-	      HepGeom::Point3D<double> ( gc[6].x(), gc[6].y(), gc[6].z() ) ,
-	      HepGeom::Point3D<double> ( gc[7].x(), gc[7].y(), gc[7].z() ) } ;
-
-	 for( unsigned int face ( 0 ) ; face != 6 ; ++(++face) )
-	 {
-	    static const unsigned int nc[6][4] = 
-	       { { 0,1,2,3 }, { 7,6,5,4 }, 
-		 { 0,4,5,1 }, { 3,2,6,7 },
-		 { 0,3,7,4 }, { 1,5,6,2 } } ;
-	    const unsigned int* ic1 ( &nc[face  ][0] ) ;
-	    const unsigned int* ic2 ( &nc[face+1][0] ) ;
-	    const HepGeom::Plane3D<double>  pl1 ( cv[ic1[0]], cv[ic1[1]], cv[ic1[2]] ) ;
-	    const HepGeom::Plane3D<double>  pl2 ( cv[ic2[0]], cv[ic2[1]], cv[ic2[2]] ) ;
-
-/*	    const HepGeom::Point3D<double>  p1 ( pl1.point( p ) ) ;
-	    const HepGeom::Point3D<double>  p2 ( pl2.point( p ) ) ;
-	    const HepGeom::Vector3D<double>  v1 ( p1 - p ) ;
-	    const HepGeom::Vector3D<double>  v2 ( p2 - p ) ;*/
-
-	    if( 0 > pl1.distance(p)*pl2.distance(p) ) //v1.dot( v2 ) )
-	    {
-	       ok = false ;
-	       break ;
-	    }
-	 }
-      }
-      return ok ;
-   }
-
    std::ostream& operator<<( std::ostream& s, const IdealCastorTrapezoid& cell ) 
    {
       s << "Center: " <<  cell.getPosition() << std::endl ;

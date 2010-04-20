@@ -27,8 +27,8 @@ namespace calogeom {
   
   Total: 6+3 parameters 
   
-  $Date: 2009/03/27 17:08:16 $
-  $Revision: 1.9 $
+  $Date: 2009/05/25 09:34:16 $
+  $Revision: 1.10 $
   \author P. Katsas - UoA
   */
    class IdealCastorTrapezoid: public CaloCellGeometry 
@@ -42,8 +42,6 @@ namespace calogeom {
 	 
 	 virtual ~IdealCastorTrapezoid() {}
 	 
-	 virtual bool inside( const GlobalPoint & point ) const;  
-
 	 virtual const CornersVec& getCorners() const;
 
 	 const double dxl() const { return param()[0] ; }

@@ -65,27 +65,6 @@ namespace calogeom {
       return co ;
    }
 
-   bool 
-   IdealZDCTrapezoid::inside( const GlobalPoint& point ) const 
-   {
-      const HepGeom::Point3D<double>  p ( point.x(), point.y(), point.z() ) ;
-
-      bool ok ( false ) ;
-
-      const GlobalPoint& face ( getPosition() ) ;
-
-      if( fabs( p.x() - face.x() ) <= dx() &&
-	  fabs( p.y() - face.y() ) <= dy() &&
-	  fabs( p.z() - face.z() ) <= 2.*dz() + dt() )
-      {
-	 const float sign ( 0 < point.z() ? 1 : -1 ) ;
-	 const float sl   ( sign*tan( an() ) ) ;
-	 ok = ok && ( ( p.z() - face.z() )>= sl*p.y() ) ;
-	 ok = ok && ( ( p.z() - ( face.z() + sign*2.*dz() ) ) <= sl*p.y() ) ;
-      }
-      return ok ;
-   }
-
    std::ostream& operator<<( std::ostream& s, const IdealZDCTrapezoid& cell ) 
    {
       s << "Center: " <<  cell.getPosition() << std::endl ;

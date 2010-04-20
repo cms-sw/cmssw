@@ -2,15 +2,6 @@
 #include <iostream>
 
 
-bool
-PreshowerStrip::inside( const GlobalPoint& p ) const
-{
-   const GlobalPoint& c ( getPosition() ) ;
-   return ( fabs( p.x() - c.x() ) < dx() && 
-	    fabs( p.y() - c.y() ) < dy() &&
-	    fabs( p.z() - c.z() ) < dz()    ) ; 
-}
-
 const CaloCellGeometry::CornersVec& 
 PreshowerStrip::getCorners() const 
 {

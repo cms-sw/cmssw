@@ -16,8 +16,8 @@ namespace calogeom {
   
   Total: 7 parameters 
   
-  $Date: 2009/04/01 13:55:16 $
-  $Revision: 1.6 $
+  $Date: 2009/05/25 09:34:16 $
+  $Revision: 1.7 $
   \author E. Garcia - UIC
   */
    class IdealZDCTrapezoid: public CaloCellGeometry 
@@ -30,8 +30,6 @@ namespace calogeom {
 	    CaloCellGeometry ( faceCenter, mgr, parm )  {}
 	 
 	virtual ~IdealZDCTrapezoid() {}
-
-	virtual bool inside( const GlobalPoint & point ) const;  
 
 	virtual const CornersVec& getCorners() const;
 

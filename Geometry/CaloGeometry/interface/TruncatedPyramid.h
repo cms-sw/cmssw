@@ -48,8 +48,6 @@ class TruncatedPyramid : public CaloCellGeometry
 
       virtual ~TruncatedPyramid() { delete m_corOne ; }
 
-      virtual bool inside( const GlobalPoint& point ) const ;  
-
       /** Position corresponding to the center of the front face at a certain
 	  depth (default is zero) along the crystal axis.
 	  If "depth" is <=0, the nomial position of the cell is returned

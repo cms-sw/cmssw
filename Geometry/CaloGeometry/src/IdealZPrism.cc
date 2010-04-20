@@ -98,14 +98,6 @@ namespace calogeom
       return co ;
    }
 
-   bool 
-   IdealZPrism::inside( const GlobalPoint & point ) const 
-   {
-      return ( fabs( point.eta() - getPosition().eta() ) <= dEta() &&
-	       fabs( point.phi() - getPosition().phi() ) <= dPhi() &&
-	       fabs( point.z()   - getPosition().z()   ) <= dz()       ) ; 
-   }
-
    std::ostream& operator<<( std::ostream& s, const IdealZPrism& cell ) 
    {
       s << "Center: " <<  cell.getPosition() << std::endl ;

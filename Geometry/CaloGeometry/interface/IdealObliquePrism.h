@@ -24,8 +24,8 @@ namespace calogeom {
   is encoded in the sign of the thickness.  (positive = parallel to
   z-axis, negative = perpendicular)
 
-  $Date: 2009/01/23 15:03:24 $
-  $Revision: 1.7 $
+  $Date: 2009/05/25 09:06:11 $
+  $Revision: 1.8 $
   \author J. Mans - Minnesota
   */
    class IdealObliquePrism : public CaloCellGeometry 
@@ -40,8 +40,6 @@ namespace calogeom {
 	 virtual ~IdealObliquePrism() {}
 
 	 virtual const CornersVec& getCorners() const ;
-
-	 virtual bool inside( const GlobalPoint & point ) const ;  
 
 	 double dEta()  const { return param()[0] ; }
 	 double dPhi()  const { return param()[1] ; }

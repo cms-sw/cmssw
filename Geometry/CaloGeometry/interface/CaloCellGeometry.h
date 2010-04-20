@@ -13,8 +13,8 @@
 
 Abstract base class for an individual cell's geometry.
     
-$Date: 2009/01/23 15:03:24 $
-$Revision: 1.16 $
+$Date: 2009/05/25 09:06:11 $
+$Revision: 1.17 $
 \author J. Mans, P. Meridiani
 */
 
@@ -46,7 +46,7 @@ class CaloCellGeometry
       const GlobalPoint& getPosition() const { return m_refPoint ; }
 
       // Returns true if the specified point is inside this cell
-      virtual bool inside( const GlobalPoint & point ) const = 0 ;  
+      bool inside( const GlobalPoint & point ) const ;  
 
       bool emptyCorners() const { return m_corners.empty() ; }
 

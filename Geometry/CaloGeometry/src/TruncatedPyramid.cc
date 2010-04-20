@@ -283,38 +283,6 @@ TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
    }
 }
 //----------------------------------------------------------------------
-
-bool 
-TruncatedPyramid::inside( const GlobalPoint& point ) const
-{
-   bool ans ( false ) ;
-   const HepGeom::Point3D<double>  p ( point.x(), point.y(), point.z() ) ;
-   const CornersVec& cog ( getCorners() ) ;
-   HepGeom::Point3D<double>  co[8] ;
-   for( unsigned int i ( 0 ) ; i != 8 ; ++i )
-   {
-      co[i] = HepGeom::Point3D<double> ( cog[i].x(), cog[i].y(), cog[i].z() ) ;
-   }
-
-   const HepGeom::Plane3D<double>  AA ( co[0], co[1], co[2] ) ; // z<0
-   const HepGeom::Plane3D<double>  BB ( co[6], co[5], co[4] ) ; // z>0
-
-   if( AA.distance(p)*BB.distance(p) >= 0 )
-   {
-     const HepGeom::Plane3D<double>  CC ( co[0], co[4], co[5] ) ; // x<0
-     const HepGeom::Plane3D<double>  DD ( co[2], co[6], co[7] ) ; // x>0
-     if( CC.distance(p)*DD.distance(p) >= 0 )
-     {
-       const HepGeom::Plane3D<double>  EE ( co[3], co[7], co[4] ) ; // y<0
-       const HepGeom::Plane3D<double>  FF ( co[1], co[5], co[6] ) ; // y>0
-       if( EE.distance(p)*FF.distance(p) >= 0 )
-       {
-	   ans = true ;
-       }
-      }
-   }
-   return ans ;
-}
 //----------------------------------------------------------------------
 
 std::ostream& operator<<( std::ostream& s, const TruncatedPyramid& cell ) 
