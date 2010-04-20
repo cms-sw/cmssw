@@ -14,8 +14,8 @@ class ConversionInfo{
 		 reco::TrackRef conversionPartnerTk){
     dist_ = dist;
     dcot_ = dcot;
-    radiusOfConversion = radiusOfConversion_;
-    pointOfConversion_ = pointOfConversion_;
+    radiusOfConversion_ = radiusOfConversion;
+    pointOfConversion_ = pointOfConversion;
     conversionPartnerTk_ = conversionPartnerTk;
   }
   double dist() {return dist_;}
