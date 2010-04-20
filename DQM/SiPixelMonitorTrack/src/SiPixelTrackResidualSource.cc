@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.14 2010/03/22 08:34:55 merkelp Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.15 2010/04/12 23:31:49 elmer Exp $
 
 
 #include <iostream>
@@ -578,7 +578,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
     					        				    refitTM->backwardPredictedState());      
 	  if (refitTTRH->isValid() && combinedTSoS.isValid()) { 
 	    // calculate the distance between the hit location and the track-crossing point predicted by the combined state 
-            const GeomDetUnit* GDU = dynamic_cast<const GeomDetUnit*>(ttrhDet);
+            const GeomDetUnit* GDU = static_cast<const GeomDetUnit*>(ttrhDet);
 	    const Topology* theTopology = &(GDU->topology()); 									
     	    
 	    MeasurementPoint hitPosition = theTopology->measurementPosition(refitTTRH->localPosition());				
@@ -703,7 +703,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	  // check if it's not null, and if it's a valid pixel hit
 	  if ((persistentHit != 0) && (typeid(*persistentHit) == typeid(SiPixelRecHit))) {
 	    // tell the C++ compiler that the hit is a pixel hit
-	    const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>( hit->hit() );
+	    const SiPixelRecHit* pixhit = static_cast<const SiPixelRecHit*>( hit->hit() );
 	    //Hit probability:
 	    float hit_prob = -1.;
 	    if(pixhit->hasFilledProb()){
@@ -721,14 +721,14 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 
 	      //define tracker and pixel geometry and topology
 	      const TrackerGeometry& theTracker(*theTrackerGeometry);
-	      const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (theTracker.idToDet(hit_detId) );
+	      const PixelGeomDetUnit* theGeomDet = static_cast<const PixelGeomDetUnit*> (theTracker.idToDet(hit_detId) );
 	      //test if PixelGeomDetUnit exists
 	      if(theGeomDet == 0) {
 		if(debug_) std::cout << "NO THEGEOMDET\n";
 		continue;
 	      }
 
-	      const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+	      const RectangularPixelTopology * topol = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
 	      //fill histograms for clusters on tracks
 	      //correct SiPixelTrackResidualModule
 	      std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find((*hit).geographicalId().rawId());
@@ -873,7 +873,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   if(debug_) std::cout << "clusters not on track: (size " << clustColl.size() << ") ";
 
   for(TrackerGeometry::DetContainer::const_iterator it = TG->dets().begin(); it != TG->dets().end(); it++){
-    if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){ 
+    if(static_cast<PixelGeomDetUnit*>((*it))!=0){ 
       DetId detId = (*it)->geographicalId();
       
       int nofclOnTrack = 0, nofclOffTrack=0; 
@@ -913,13 +913,13 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	    //find cluster global position (rphi, z) get cluster
 	    //define tracker and pixel geometry and topology
 	    const TrackerGeometry& theTracker(*theTrackerGeometry);
-	    const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (theTracker.idToDet(detId) );
+	    const PixelGeomDetUnit* theGeomDet = static_cast<const PixelGeomDetUnit*> (theTracker.idToDet(detId) );
 	    //test if PixelGeomDetUnit exists
 	    if(theGeomDet == 0) {
 	      if(debug_) std::cout << "NO THEGEOMDET\n";
 	      continue;
 	    }
-	    const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+	    const RectangularPixelTopology * topol = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
 	   
 	    //center of gravity (of charge)
 	    float xcenter = di->x();
@@ -1022,13 +1022,13 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      //find cluster global position (rphi, z) get cluster
 	      //define tracker and pixel geometry and topology
 	      const TrackerGeometry& theTracker(*theTrackerGeometry);
-	      const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (theTracker.idToDet(detId) );
+	      const PixelGeomDetUnit* theGeomDet = static_cast<const PixelGeomDetUnit*> (theTracker.idToDet(detId) );
 	      //test if PixelGeomDetUnit exists
 	      if(theGeomDet == 0) {
 		if(debug_) std::cout << "NO THEGEOMDET\n";
 		continue;
 	      }
-	      const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+	      const RectangularPixelTopology * topol = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
 	      //center of gravity (of charge)
 	      float xcenter = di->x();
 	      float ycenter = di->y();
