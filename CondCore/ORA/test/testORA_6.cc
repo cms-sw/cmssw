@@ -36,6 +36,12 @@ int main(){
     std::cout << "############# CONT=\""<<*iC<<"\""<<std::endl;
   }
   db.createContainer<SA>("Cont0");
+  //
+  db.transaction().commit();
+  db.disconnect();
+  db.connect( connStr );  
+  db.transaction().start( false );
+  //
   ora::Container contH0 = db.containerHandle( "Cont0" );
   std::cout << "** W start objs in container="<<contH0.size()<<std::endl;
   std::vector<boost::shared_ptr<SA> > buff;

@@ -571,7 +571,7 @@ class SA {
       for(int j=0;j<20;j++)
         for(int k=0;k<30;k++) m_1[i][j][k] = obj.m_1[i][j][k];
     /**
-    m_innData.m_v = obj.m_innData.m_v;
+    //m_innData.m_v = obj.m_innData.m_v;
     **/    
   }
   
@@ -599,8 +599,8 @@ class SA {
       for(int j=0;j<20;j++)
         for(int k=0;k<30;k++) m_1[i][j][k] = obj.m_1[i][j][k];
     /**
-    m_2 = obj.m_2;
-    m_innData.m_v = obj.m_innData.m_v;
+    //m_2 = obj.m_2;
+    //m_innData.m_v = obj.m_innData.m_v;
     **/
     return *this;
   }
@@ -637,8 +637,10 @@ class SA {
     for(int i=0;i<10;i++)
       for(int j=0;j<20;j++)
         for(int k=0;k<30;k++) if(m_1[i][j][k]!=rhs.m_1[i][j][k]) return false;
+    /**
     //if(m_2!=rhs.m_2) return false;
     //if(m_innData!=rhs.m_innData) return false;
+    **/
     return true;
   }
   bool operator!=(const SA& rhs){
@@ -659,8 +661,10 @@ class SA {
   std::vector<int> m_vecs[2];
   SM m_0[2][3][4];
   SM m_1[10][20][30];
+  /**
   //std::vector<std::vector<std::vector<int> > > m_2;
   //Inner m_innData;
+  **/
 };
 
 struct Metadata{

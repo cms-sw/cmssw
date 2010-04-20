@@ -212,6 +212,8 @@ int main(){
       i!=pv2.rend();i++){}
   for(ora::QueryableVector<std::string>::const_reverse_iterator i=pv0.rbegin();
       i!=pv0.rend();i++){}
+  /**
+   **/   
   pv0.max_size();
   pv2.resize(2);
   pv2.resize(3,std::string(""));
@@ -224,7 +226,7 @@ int main(){
   std::string s3 = pv2.back ( );
   s0.append(s1).append(s2).append(s3);
   std::string s4 = pv0[0];
-  std::string s5 = pv0.at(1);
+  std::string s5 = pv0.at(0);
   std::string s6 = pv0.front ( );
   std::string s7 = pv0.back ( );
   s4.append(s5).append(s6).append(s7);

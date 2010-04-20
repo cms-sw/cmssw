@@ -15,8 +15,8 @@ int main(){
     // writing...  
     ora::Database db;
     db.configuration().setMessageVerbosity( coral::Debug );
-    std::string connStr( "myalias" );
-    //std::string connStr( "sqlite_file:test.db" );
+    //std::string connStr( "myalias" );
+    std::string connStr( "sqlite_file:test.db" );
   db.connect( connStr );
   db.transaction().start( false );
   bool exists = db.exists();
@@ -144,7 +144,6 @@ int main(){
     } else {
     std::cout << "############# No data for oid="<<oid4<<std::endl;
   } 
-
   db.transaction().commit();
   db.disconnect();
   // update

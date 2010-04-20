@@ -13,15 +13,17 @@ int main(){
     //const boost::filesystem::path dict_path("testORADict");
     //edmplugin::SharedLibrary shared( dict_path );
     // writing...  
-  ora::Database db;
-  //std::string connStr( "sqlite_file:test.db" );
-    std::string connStr( "oracle://devdb10/giacomo" );
+    ora::Database db;
+    db.configuration().setMessageVerbosity( coral::Debug );
+    //std::string connStr( "sqlite_file:test.db" );
+  std::string connStr( "oracle://devdb10/giacomo" );
   db.connect( connStr );
   db.transaction().start( false );
   bool exists = db.exists();
   if(exists){
     std::cout << "############# ORA database does exist in "<< connStr<<"."<<std::endl;
     db.dropContainer("Cont0_ABCDEFGHILMNOPQRSTUVZ");
+    db.dropContainer("ABDC");
   } else {
     std::cout << "############# ORA database does not exist in "<< connStr<<", creating it..."<<std::endl;
     db.create();
@@ -32,8 +34,9 @@ int main(){
       iC != conts.end(); iC++ ){
     std::cout << "############# CONT=\""<<*iC<<"\""<<std::endl;
   }
-  db.createContainer<ArrayClass>("Cont0_ABCDEFGHILMNOPQRSTUVZ");
-  ora::Container contH0 = db.containerHandle( "Cont0_ABCDEFGHILMNOPQRSTUVZ" );
+  ora::Container contH0 = db.createContainer<ArrayClass>("ABDC");
+  //db.createContainer<ArrayClass>("Cont0_ABCDEFGHILMNOPQRSTUVZ");
+  //ora::Container contH0 = db.containerHandle( "Cont0_ABCDEFGHILMNOPQRSTUVZ" );
   ArrayClass a0(10);
   std::cout << "######### A0 map size="<<a0.m_map.size()<<std::endl;
   a0.print();
@@ -60,7 +63,8 @@ int main(){
       iC != conts.end(); iC++ ){
     std::cout << "############# CONT=\""<<*iC<<"\""<<std::endl;
   }
-  ora::Container contHR0 = db.containerHandle( "Cont0_ABCDEFGHILMNOPQRSTUVZ" );
+  //ora::Container contHR0 = db.containerHandle( "Cont0_ABCDEFGHILMNOPQRSTUVZ" );
+  ora::Container contHR0 = db.containerHandle( "ABDC" );
   std::cout << "############# ContID="<<contHR0.id()<<std::endl;
   ora::Object r0 = contHR0.fetchItem( oid0 );
   ArrayClass* ar0 = r0.cast<ArrayClass>();

@@ -45,7 +45,7 @@ namespace ora {
 
     const std::string& name();
 
-    std::string className();
+    const std::string& className();
 
     const std::string& mappingVersion();
 
