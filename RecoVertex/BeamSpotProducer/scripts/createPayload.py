@@ -22,9 +22,11 @@
    -d, --data   = DATA: Data file, or directory with data files.
    -I, --IOVbase = IOVBASE: options: runbase(default), lumibase, timebase
    -o, --overwrite : Overwrite results files when copying.
+   -m, --mergedSqlite = MERGEDSQLITE: Filename of merged sqlite file. default is Combined.db
    -n, --newarchive : Create a new archive directory when copying.
    -t, --tag    = TAG: Database tag name.
    -u, --upload : Upload files to offline drop box via scp.
+   -z, --zlarge : Enlarge sigmaZ to 10 +/- 0.005 cm.
    
    Francisco Yumiceva (yumiceva@fnal.gov)
    Fermilab 2010
@@ -296,6 +298,10 @@ if __name__ == '__main__':
     allfile = open( allbeam_file, 'a')
     print " merging all results into file: " + allbeam_file
 
+    # check if merged sqlite file exists
+    if os.path.exists(workflowdirArchive+"payloads/Combined.db"):
+        os.system("rm "+workflowdirArchive+"payloads/Combined.db")
+    
     
     nfile = 0
     for key in keys:
@@ -332,9 +338,9 @@ if __name__ == '__main__':
 	    elif line.find("LumiRange") != -1:
 		tmp_lumi = line.split()[1]
 	    elif line.find("BeginTimeOfFit") == -1 and line.find("EndTimeOfFit") == -1 and line.find("LumiRange") == -1:
-                if line.find("sigmaZ0") != -1:
+                if line.find("sigmaZ0") != -1 and option.zlarge:
                     line = "sigmaZ0 10\n"
-                if line.find("Cov(3,j)") != -1:
+                if line.find("Cov(3,j)") != -1 and option.zlarge:
                     line = "Cov(3,j) 0 0 0 2.5e-05 0 0 0\n"
 		newtmpfile.write(line)
             allfile.write(line)
@@ -419,7 +425,10 @@ if __name__ == '__main__':
         dfile.write('inputtag' +'\n')
         dfile.write('since ' + iov_since +'\n')
 #        dfile.write('till ' + iov_till +'\n')
-        dfile.write('Timetype runnumber\n')
+        if IOVbase == "runbase":
+			dfile.write('Timetype runnumber\n')
+		elif IOVbase == "lumibase":
+			dfile.write('Timetype lumiid\n')
         checkType = tagType
         if tagType == "express":
             checkType = "hlt"
