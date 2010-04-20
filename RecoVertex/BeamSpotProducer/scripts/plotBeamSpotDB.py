@@ -411,7 +411,7 @@ if __name__ == '__main__':
     # check if input data exists if given
     if option.data:
         if os.path.isdir(option.data):
-            files = os.system("ls "+option.data)
+            files = commands.getstatusoutput("ls "+option.data)[1]
             datafilename = "combined_all.txt"
             output = open(datafilename,"w")
             for f in files:
