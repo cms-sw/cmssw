@@ -252,7 +252,7 @@ def recordedLumiForRange(dbsession,c,fileparsingResult):
     return lumidata
 
 def printDeliveredLumi(lumidata,mode):
-    labels=[('Run','N LumiSections','Delivered','Beam Mode')]
+    labels=[('Run','Delivered LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Beam Mode')]
     print tablePrinter.indent(labels+lumidata,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,20) )
 
 def dumpDeliveredLumi(lumidata,filename):
@@ -313,9 +313,9 @@ def getDeadfractions(deadtable):
 
 def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
     datatoprint=[]
-    labels=[('Run','HLT path','Recorded Luminosity')]
+    labels=[('Run','HLT path','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
     if isVerbose:
-        labels=[('Run','HLT-path','L1-bit','L1-presc','HLT-presc','Recorded')]
+        labels=[('Run','HLT-path','L1-bit','L1-presc','HLT-presc','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
     for dataperRun in lumidata:
         runnum=dataperRun[0]
         if len(dataperRun[1])==0:
@@ -395,9 +395,8 @@ def dumpRecordedLumi(lumidata,filename,hltpath=''):
     pass
 
 def printOverviewData(delivered,recorded,hltpath=''):
-    toprowlabels=[('Run','Delivered LumiSections','Delivered Luminosity','Selected LumiSections','Recorded Luminosity',hltpath)]
-    lastrowlabels=[('Delivered LS','Selected LS','Delivered','Recorded',hltpath)]
-    rowdata=[]
+    toprowlabels=[('Run','Delivered LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Selected LS','Recorded'+u' (/\u03bcb)'.encode('utf-8'),hltpath+u'  (/\u03bcb)'.encode('utf-8') )]
+    lastrowlabels=[('Delivered LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Selected LS','Recorded'+u' (/\u03bcb)'.encode('utf-8'),hltpath+u' (/\u03bcb)'.encode('utf-8'))]
     datatable=[]
     totaldata=[]
     totalDeliveredLS=0
@@ -407,6 +406,7 @@ def printOverviewData(delivered,recorded,hltpath=''):
     totalRecordedInPath=0.0
     totaltable=[]
     for runidx,deliveredrowdata in enumerate(delivered):
+        rowdata=[]
         rowdata+=[deliveredrowdata[0],deliveredrowdata[1],deliveredrowdata[2]]
         if deliveredrowdata[1]=='N/A': #run does not exist
             rowdata+=['N/A','N/A','N/A']
@@ -430,7 +430,7 @@ def printOverviewData(delivered,recorded,hltpath=''):
         totalSelectedLS+=len(selectedls)
         totalRecorded+=recordedLumi
         datatable.append(rowdata)
-    totaltable=[[str(totalDeliveredLS),str(totalSelectedLS),'%.2f'%(totalDelivered),'%.2f'%(totalRecorded),'%.2f'%(totalRecordedInPath)]]
+    totaltable=[[str(totalDeliveredLS),'%.2f'%(totalDelivered),str(totalSelectedLS),'%.2f'%(totalRecorded),'%.2f'%(totalRecordedInPath)]]
     print tablePrinter.indent(toprowlabels+datatable,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,10))
     print '=== Total : '
     print tablePrinter.indent(lastrowlabels+totaltable,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,20))
