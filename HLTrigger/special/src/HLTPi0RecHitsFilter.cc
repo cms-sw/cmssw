@@ -336,17 +336,11 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
 
 HLTPi0RecHitsFilter::~HLTPi0RecHitsFilter()
 {
- 
   //delete TheMapping;
-
   
   if(storeRecHitES_){
     delete presh_algo;
   }
-    
-
-  //  TimingReport::current()->dump(std::cout);
-
 }
 
 
