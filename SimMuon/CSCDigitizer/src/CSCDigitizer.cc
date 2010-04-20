@@ -1,4 +1,3 @@
-#include "Utilities/Timing/interface/TimingReport.h" 
 #include "SimMuon/CSCDigitizer/src/CSCDigitizer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
@@ -95,23 +94,19 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
 
     // turn the edm::PSimHits into WireHits, using the WireHitSim
     {
-      TimeMe t("CSCWireHitSim");
       newWireHits.swap(theWireHitSim->simulate(layer, layerSimHits));
     }
     if(!newWireHits.empty()) {
-      TimeMe t("CSCStripHitSim");
       newStripHits.swap(theStripHitSim->simulate(layer, newWireHits));
     }
 
     // turn the hits into wire digis, using the electronicsSim
     {
-      TimeMe t("CSCWireElectronicsSim");
       theWireElectronicsSim->simulate(layer, newWireHits);
       theWireElectronicsSim->fillDigis(wireDigis);
       wireDigiSimLinks.insert( theWireElectronicsSim->digiSimLinks() );
     }  
     {
-      TimeMe t("CSCStripElectronicsSim");
       theStripElectronicsSim->simulate(layer, newStripHits);
       theStripElectronicsSim->fillDigis(stripDigis, comparators);
       stripDigiSimLinks.insert( theStripElectronicsSim->digiSimLinks() );
