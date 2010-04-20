@@ -412,10 +412,10 @@ if __name__ == '__main__':
     if option.data:
         if os.path.isdir(option.data):
             tmp = commands.getstatusoutput("ls "+option.data)
-            print tmp
             files = tmp[1].split()
             datafilename = "combined_all.txt"
             output = open(datafilename,"w")
+            print files
             for f in files:
                 input = open(option.data +"/"+f)
                 output.write(input.readlines())
