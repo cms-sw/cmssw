@@ -6,12 +6,10 @@ from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser,hltTrgSeed
 from RecoLuminosity.LumiDB.wordWrappers import wrap_always,wrap_onspace,wrap_onspace_strict
 class constants(object):
     def __init__(self):
-        self.LUMIUNIT='e30 [cm^-2]'
         self.NORM=1.0
         self.LUMIVERSION='0001'
         self.BEAMMODE='stable' #possible choices stable,quiet,either
         self.VERBOSE=False
-        self.LSLENGTH=0
     def defaultfrontierConfigString(self):
         return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
     
@@ -255,8 +253,14 @@ def printDeliveredLumi(lumidata,mode):
     labels=[('Run','Delivered LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Beam Mode')]
     print tablePrinter.indent(labels+lumidata,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,20) )
 
-def dumpDeliveredLumi(lumidata,filename):
-    pass
+def dumpData(lumidata,filename):
+    """
+    input params: lumidata [{'fieldname':value}]
+                  filename csvname
+    """
+    
+    r=csvReporter.csvReporter(filename)
+    r.writeRows(lumidata)
 
 def calculateTotalRecorded(deadtable):
     """
@@ -390,10 +394,45 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
         print '==='
         print tablePrinter.indent(deadtimelabels+deadtoprint,hasHeader=True,separateRows=True,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,80))
         
-
-def dumpRecordedLumi(lumidata,filename,hltpath=''):
-    pass
-
+def dumpRecordedLumi(lumidata,hltpath=''):
+    #labels=['Run','HLT path','Recorded']
+    datatodump=[]
+    for dataperRun in lumidata:
+        runnum=dataperRun[0]
+        if len(dataperRun[1])==0:
+            rowdata=[]
+            rowdata+=[str(runnum)]+2*['N/A']
+            datatodump.append(rowdata)
+            continue
+        perlsdata=dataperRun[2]
+        recordedLumi=0.0
+        norbits=perlsdata.values()[0][2]
+        recordedLumi=calculateTotalRecorded(perlsdata)
+        trgdict=dataperRun[1]
+        effective=calculateEffective(trgdict,recordedLumi)
+        if trgdict.has_key(hltpath) and effective.has_key(hltpath):
+            rowdata=[]
+            l1bit=trgdict[hltpath][0]
+            if len(trgdict[hltpath]) != 3:
+                rowdata+=[str(runnum),hltpath,'N/A']
+            else:
+                hltprescale=trgdict[hltpath][1]
+                l1prescale=trgdict[hltpath][2]
+                rowdata+=[str(runnum),hltpath,effective[hltpath]]
+            datatodump.append(rowdata)
+            continue
+        
+        for trg,trgdata in trgdict.items():
+            #print trg,trgdata
+            rowdata=[]                    
+            rowdata+=[str(runnum)]
+            l1bit=trgdata[0]
+            if len(trgdata)==3:
+                rowdata+=[trg,effective[trg]]
+            else:
+                rowdata+=[trg,'N/A']
+            datatodump.append(rowdata)
+    return datatodump
 def printOverviewData(delivered,recorded,hltpath=''):
     toprowlabels=[('Run','Delivered LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Selected LS','Recorded'+u' (/\u03bcb)'.encode('utf-8'),hltpath+u'  (/\u03bcb)'.encode('utf-8') )]
     lastrowlabels=[('Delivered LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Selected LS','Recorded'+u' (/\u03bcb)'.encode('utf-8'),hltpath+u' (/\u03bcb)'.encode('utf-8'))]
@@ -434,7 +473,29 @@ def printOverviewData(delivered,recorded,hltpath=''):
     print tablePrinter.indent(toprowlabels+datatable,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,10))
     print '=== Total : '
     print tablePrinter.indent(lastrowlabels+totaltable,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,20))
-    
+
+
+def dumpOverview(delivered,recorded,hltpath=''):
+    #toprowlabels=['run','delivered','recorded','hltpath']
+    datatable=[]
+    for runidx,deliveredrowdata in enumerate(delivered):
+        rowdata=[]
+        rowdata+=[deliveredrowdata[0],deliveredrowdata[2]]
+        if deliveredrowdata[1]=='N/A': #run does not exist
+            rowdata+=['N/A','N/A']
+            datatable.append(rowdata)
+            continue
+        recordedLumi=calculateTotalRecorded(recorded[runidx][2])
+        lumiinPaths=calculateEffective(recorded[runidx][1],recordedLumi)
+        if hltpath!='' and hltpath!='all':
+            if lumiinPaths.has_key(hltpath):
+                rowdata+=[recordedLumi,lumiinPaths[hltpath]]
+            else:
+                rowdata+=[recordedLumi,'N/A']
+        else:
+            rowdata+=[recordedLumi,recordedLumi]
+        datatable.append(rowdata)
+    return datatable
 def main():
     c=constants()
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi Calculations")
@@ -445,14 +506,13 @@ def main():
     parser.add_argument('-n',dest='normfactor',action='store',help='normalization factor (optional, default to 1.0)')
     parser.add_argument('-r',dest='runnumber',action='store',help='run number')
     parser.add_argument('-i',dest='inputfile',action='store',help='lumi range selection file (optional)')
-    parser.add_argument('-o',dest='outputfile',action='store',help='output csv file (optional)')
+    parser.add_argument('-o',dest='outputfile',action='store',help='output to csv file (optional)')
     parser.add_argument('-b',dest='beammode',action='store',help='beam mode, optional for delivered action, default "stable", choices "stable","quiet","either"')
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional for all, default 0001')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity, default to all')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
     parser.add_argument('action',choices=['overview','delivered','recorded'],help='lumi calculation types, default to overview')
-    parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose, prints additional trigger and inst lumi measurements' )
-    
+    parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode for printing' )
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
     args=parser.parse_args()
@@ -487,6 +547,7 @@ def main():
         c.VERBOSE=True
     hpath=''
     ifilename=''
+    ofilename=''
     beammode='stable'
     if args.verbose :
         c.VERBOSE=True
@@ -502,6 +563,8 @@ def main():
         ifilename=args.inputfile
     if args.runnumber :
         runnumber=args.runnumber
+    if args.outputfile and len(args.outputfile)!=0:
+        ofilename=args.outputfile
     if len(ifilename)==0 and runnumber==0:
         raise "must specify either a run (-r) or an input run selection file (-i)"
     session=svc.connect(connectstring,accessMode=coral.access_Update)
@@ -519,8 +582,11 @@ def main():
             lumidata.append(deliveredLumiForRun(session,c,runnumber))
         else:
             lumidata=deliveredLumiForRange(session,c,fileparsingResult)    
-        
-        printDeliveredLumi(lumidata,'')
+        if not ofilename:
+            printDeliveredLumi(lumidata,'')
+        else:
+            lumidata.insert(0,['run','nls','delivered','beammode'])
+            dumpData(lumidata,ofilename)
     if args.action == 'recorded':
         if args.hltpath and len(args.hltpath)!=0:
             hpath=args.hltpath
@@ -528,7 +594,12 @@ def main():
             lumidata.append(recordedLumiForRun(session,c,runnumber))
         else:
             lumidata=recordedLumiForRange(session,c,fileparsingResult)
-        printRecordedLumi(lumidata,c.VERBOSE,hpath)
+        if not ofilename:
+            printRecordedLumi(lumidata,c.VERBOSE,hpath)
+        else:
+            todump=dumpRecordedLumi(lumidata,hpath)
+            todump.insert(0,['run','hltpath','recorded'])
+            dumpData(todump,ofilename)
     if args.action == 'overview':
         delivereddata=[]
         recordeddata=[]
@@ -540,8 +611,14 @@ def main():
         else:
             delivereddata=deliveredLumiForRange(session,c,fileparsingResult)
             recordeddata=recordedLumiForRange(session,c,fileparsingResult)
-        printOverviewData(delivereddata,recordeddata,hpath)
-        
+        if not ofilename:
+            printOverviewData(delivereddata,recordeddata,hpath)
+        else:
+            todump=dumpOverview(delivereddata,recordeddata,hpath)
+            if len(hpath)==0:
+                hpath='all'
+            todump.insert(0,['run','delivered','recorded','hltpath:'+hpath])
+            dumpData(todump,ofilename)
     #print lumidata
     
     del session
