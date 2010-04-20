@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.2 2010/03/24 19:05:47 delaer Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.3 2010/03/26 22:01:08 wmtan Exp $
 //
 //
 
@@ -28,6 +28,7 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
+#include <functional>
 #include <string.h>
 #include <sstream>
 #include <fstream>
@@ -163,7 +164,7 @@ class TrackerDpgAnalysis : public edm::EDAnalyzer {
       float dedx1_, dedx2_, dedx3_;
       uint32_t detid_, dcuId_, type_;
       uint16_t fecCrate_, fecSlot_, fecRing_, ccuAdd_, ccuChan_, lldChannel_, fedId_, fedCh_, fiberLength_;
-      uint32_t nclusters_, npixClusters_, dedxNoM_, quality_, foundhits_, lostHits_, ndof_;
+      uint32_t nclusters_, npixClusters_, nclustersOntrack_, npixClustersOntrack_, dedxNoM_, quality_, foundhits_, lostHits_, ndof_;
       uint32_t *ntracks_, *ntrajs_;
       float *lowPixelProbabilityFraction_;
       uint32_t nVertices_, nPixelVertices_, nLayers_,foundhitsStrips_,foundhitsPixels_,losthitsStrips_,losthitsPixels_;
@@ -199,8 +200,8 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig)
    pset_ = iConfig;
 
    // enable/disable functionalities
-   functionality_offtrackClusters_ = iConfig.getUntrackedParameter<bool>("keepOntrackClusters",true);
-   functionality_ontrackClusters_  = iConfig.getUntrackedParameter<bool>("keepOfftrackClusters",true);
+   functionality_offtrackClusters_ = iConfig.getUntrackedParameter<bool>("keepOfftrackClusters",true);
+   functionality_ontrackClusters_  = iConfig.getUntrackedParameter<bool>("keepOntrackClusters",true);
    functionality_pixclusters_      = iConfig.getUntrackedParameter<bool>("keepPixelClusters",true);
    functionality_pixvertices_      = iConfig.getUntrackedParameter<bool>("keepPixelVertices",true);
    functionality_missingHits_      = iConfig.getUntrackedParameter<bool>("keepMissingHits",true);
@@ -426,6 +427,8 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig)
    event_->Branch("lowPixelProbabilityFraction",lowPixelProbabilityFraction_,buffer);
    event_->Branch("nclusters",&nclusters_,"nclusters/i");
    event_->Branch("npixClusters",&npixClusters_,"npixClusters/i");
+   event_->Branch("nclustersOntrack",&nclustersOntrack_,"nclustersOntrack/i");
+   event_->Branch("npixClustersOntrack",&npixClustersOntrack_,"npixClustersOntrack/i");
    event_->Branch("bsX0",&bsX0_,"bsX0/F");
    event_->Branch("bsY0",&bsY0_,"bsY0/F");
    event_->Branch("bsZ0",&bsZ0_,"bsZ0/F");
@@ -684,6 +687,8 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    for(size_t i = 0; i<trackLabel_.size(); ++i) {
      pixelClusterOntrackIndices.push_back(onTrack(pixelclusters,trackCollection[i],globaltrackid_[i]+1));
    }
+   nclustersOntrack_    = count_if(stripClusterOntrackIndices[0].begin(),stripClusterOntrackIndices[0].end(),bind2nd(not_equal_to<int>(), -1));
+   npixClustersOntrack_ = count_if(pixelClusterOntrackIndices[0].begin(),pixelClusterOntrackIndices[0].end(),bind2nd(not_equal_to<int>(), -1));
    
    // iterate over tracks
    for (size_t coll = 0; coll<trackCollection.size(); ++coll) {
@@ -941,19 +946,25 @@ TrackerDpgAnalysis::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
    }
    // cabling II (DCU map)
    ifstream cablingFile(cablingFileName_.c_str());
-   char buffer[1024];
-   cablingFile.getline(buffer,1024);
-   while(!cablingFile.eof()) {
-     std::istringstream line(buffer);
-     std::string name;
-     // one line contains the PSU name + all dcuids connected to it.
-     line >> name;
-     strncpy(PSUname_,name.c_str(),256);
-     while(!line.eof()) {
-       line >> dcuId_;
-       psumap_->Fill();
-     }
+   if(cablingFile.is_open()) {
+     char buffer[1024];
      cablingFile.getline(buffer,1024);
+     while(!cablingFile.eof()) {
+       std::istringstream line(buffer);
+       std::string name;
+       // one line contains the PSU name + all dcuids connected to it.
+       line >> name;
+       strncpy(PSUname_,name.c_str(),256);
+       while(!line.eof()) {
+         line >> dcuId_;
+         psumap_->Fill();
+       }
+       cablingFile.getline(buffer,1024);
+     }
+   } else {
+     edm::LogWarning("BadConfig") << " The PSU file does not exist. The psumap tree will not be filled."
+                                  << std::endl << " Looking for " << cablingFileName_.c_str() << "." 
+				  << std::endl << " Please specify a valid filename through the PSUFileName untracked parameter.";
    }
 
    //geometry
