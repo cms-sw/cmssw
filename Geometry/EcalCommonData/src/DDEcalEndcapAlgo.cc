@@ -175,7 +175,8 @@ DDEcalEndcapAlgo::ddname( const std::string& s ) const
 //-------------------- Endcap SC geometry methods ---------------------
 
 void 
-DDEcalEndcapAlgo::execute(DDCompactView& cpv) {
+DDEcalEndcapAlgo::execute( DDCompactView& cpv ) 
+{
 //  Position supercrystals in EE Quadrant
 //  Version:    1.00
 //  Created:    30 July 2007
@@ -232,12 +233,14 @@ DDEcalEndcapAlgo::execute(DDCompactView& cpv) {
 
    for( unsigned int isc ( 0 ); isc<eenSCTypes() ; ++isc ) 
    {
-     EECreateSC( isc+1, cpv );
+      EECreateSC( isc+1, cpv );
    }
 
    const std::vector<double>& colLimits ( eevecEEShape() );
+//** Loop over endcap columns
    for( int icol = 1; icol<=int(eenColumns()); icol++ )
    {
+//**  Loop over SCs in column, using limits from xml input
       for( int irow = int(colLimits[2*icol-2]);
 	   irow <= int(colLimits[2*icol-1]) ; ++irow )
       {
@@ -246,15 +249,15 @@ DDEcalEndcapAlgo::execute(DDCompactView& cpv) {
 	     vecEESCLims()[2] <= irow &&
 	     vecEESCLims()[3] >= irow    )
 	 {
+	   // Find SC type (complete or partial) for this location
 	    const unsigned int isctype ( EEGetSCType( icol, irow ) );
 
+	    // Create SC as a DDEcalEndcapTrap object and calculate rotation and
+	    // translation required to position it in the endcap.
 	    DDEcalEndcapTrap scrys( 1, eeSCEFront(), eeSCERear(), eeSCELength() ) ;
 
 	    scrys.moveto( scrFCtr( icol, irow ),
 			  scrRCtr( icol, irow ) );
-
-	    //  Calculate Z translation to bring SC into EE volume coordinates
-
 	    scrys.translate( DDTranslation( 0., 0., -eezOff() ) ) ;
 
 	    DDName rname ( envName( isctype ).name()
@@ -268,11 +271,12 @@ DDEcalEndcapAlgo::execute(DDCompactView& cpv) {
                                   << "   Rotation " << rname << " " << scrys.rotation() << std::endl
                                   << "   Position " << sccentre << std::endl;
 */
+            // Position SC in endcap
 	    cpv.position( envName( isctype ), 
-		   eeQuaName(),
-		   100*isctype + 10*(icol-1) + (irow-1),
-		   scrys.centrePos(),
-		   myrot( rname.fullname(), scrys.rotation() ) ) ;
+			  eeQuaName(),
+			  100*isctype + 10*(icol-1) + (irow-1),
+			  scrys.centrePos(),
+			  myrot( rname.fullname(), scrys.rotation() ) ) ;
 	 }
       }
    }
@@ -280,7 +284,8 @@ DDEcalEndcapAlgo::execute(DDCompactView& cpv) {
 
 
 void
-DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType, DDCompactView& cpv)
+DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType ,
+			      DDCompactView&     cpv       )
 { //  EECreateSCType   Create SC logical volume of the given type
 
    DDRotation noRot ;
@@ -457,10 +462,10 @@ DDEcalEndcapAlgo::EECreateCR()
 void 
 DDEcalEndcapAlgo::EEPositionCRs( const DDName        pName, 
 				 const DDTranslation offset, 
-				 const int           iSCType ,
-				 DDCompactView&      cpv ) 
+				 const int           iSCType,
+				 DDCompactView&      cpv      ) 
 {
-   //  Position crystals within parent supercrystal interior volume
+  //  EEPositionCRs Position crystals within parent supercrystal interior volume
 
 //   edm::LogInfo("EcalGeom") << "EEPositionCRs called " << std::endl;
 
@@ -471,8 +476,10 @@ DDEcalEndcapAlgo::EEPositionCRs( const DDName        pName,
    {
       const unsigned int icoffset ( ( iSCType - 1 )*ncol - 1 ) ;
       
+      // Loop over columns of SC
       for( unsigned int icol ( 1 ); icol <= ncol ; ++icol ) 
       {
+	// Get column limits for this SC type from xml input
 	 const int ncrcol ( (int) eevecEESCProf()[ icoffset + icol ] ) ;
 
 	 const int imin ( 0 < ncrcol ?      1 : ( 0 > ncrcol ? ncol + ncrcol + 1 : 0 ) ) ;
@@ -480,11 +487,14 @@ DDEcalEndcapAlgo::EEPositionCRs( const DDName        pName,
 
 	 if( imax>0 ) 
 	 {
+	   // Loop over crystals in this row
 	    for( int irow ( imin ); irow <= imax ; ++irow ) 
 	    {
 //	       edm::LogInfo("EcalGeom") << " type, col, row " << iSCType 
 //					<< " " << icol << " " << irow << std::endl;
 
+  	       // Create crystal as a DDEcalEndcapTrap object and calculate rotation and
+	       // translation required to position it in the SC.
 	       DDEcalEndcapTrap crystal( 1, eeCrysFront(), eeCrysRear(), eeCrysLength() ) ;
 
 	       crystal.moveto( cryFCtr( icol, irow ) ,
@@ -493,10 +503,10 @@ DDEcalEndcapAlgo::EEPositionCRs( const DDName        pName,
 	       DDName rname ( "EECrRoC" + int_to_string( icol ) + "R" + int_to_string( irow ) ) ;
 
 	       cpv.position( cryName(),
-		      pName,
-		      100*iSCType + 10*( icol - 1 ) + ( irow - 1 ),
-		      crystal.centrePos(),
-		      myrot( rname.fullname(), crystal.rotation() ) ) ;
+			     pName,
+			     100*iSCType + 10*( icol - 1 ) + ( irow - 1 ),
+			     crystal.centrePos(),
+			     myrot( rname.fullname(), crystal.rotation() ) ) ;
 	    }
 	 }
       }
