@@ -474,5 +474,44 @@ if __name__ == '__main__':
 	#print tagname+"@"+uuid+".txt"
     
     allfile.close()
+
+    #### CREATE payload for merged output
+            
+    print " create MERGED payload card for dropbox ..."
     
+    sqlite_file   = workflowdirArchive+'payloads/Combined.db'
+    metadata_file = workflowdirArchive+'payloads/Combined.txt'
+    dfile = open(metadata_file,'w')
         
+    dfile.write('destDB '+ destDB +'\n')
+    dfile.write('tag '+ tagname +'\n')
+    dfile.write('inputtag' +'\n')
+    dfile.write('since ' + iov_since +'\n')
+    #        dfile.write('till ' + iov_till +'\n')
+    if IOVbase == "runbase":
+        dfile.write('Timetype runnumber\n')
+    elif IOVbase == "lumibase":
+        dfile.write('Timetype lumiid\n')
+    checkType = tagType
+    if tagType == "express":
+        checkType = "hlt"
+    dfile.write('IOVCheck ' + checkType + '\n')
+    dfile.write('usertext ' + iov_comment +'\n')
+        
+    dfile.close()
+        
+    uuid = commands.getstatusoutput('uuidgen -t')[1]
+    final_sqlite_file_name = tagname + '@' + uuid
+        
+    if not os.path.isdir(workflowdirArchive + 'payloads'):
+        os.mkdir(workflowdirArchive + 'payloads')
+    commands.getstatusoutput('cp ' + sqlite_file   + ' ' + workflowdirArchive + 'payloads/' + final_sqlite_file_name + '.db')
+    commands.getstatusoutput('cp ' + metadata_file + ' ' + workflowdirArchive + 'payloads/' + final_sqlite_file_name + '.txt')
+
+    commands.getstatusoutput('mv ' + sqlite_file   + ' ' + workflowdirLastPayloads + final_sqlite_file_name + '.db')
+    commands.getstatusoutput('mv ' + metadata_file + ' ' + workflowdirLastPayloads + final_sqlite_file_name + '.txt')
+
+    print workflowdirLastPayloads + final_sqlite_file_name + '.db'
+    print workflowdirLastPayloads + final_sqlite_file_name + '.txt'
+        
+    
