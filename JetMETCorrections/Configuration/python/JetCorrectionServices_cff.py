@@ -18,8 +18,7 @@ L1Offset = cms.ESSource(
     'LXXXCorrectionService',
     level     = cms.string('L1Offset'),
     algorithm = cms.string('1PU_IC5Calo'),
-    section   = cms.string(''),
-    useCondDB = cms.untracked.bool(False)
+    section   = cms.string('')
     )
 
 # L1 (Fastjet PU&UE Subtraction) Correction Service
