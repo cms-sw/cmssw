@@ -17,7 +17,7 @@
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.19 2009/05/26 08:11:34 fabiocos Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.20 2009/10/31 05:19:46 slava77 Exp $
 //
 //
 
@@ -37,8 +37,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "Utilities/Timing/interface/TimingReport.h"
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
@@ -363,7 +361,6 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     }
 
     {//new scope for timing purposes only
-      TimeMe tProp("SteppingHelixPropagatorAnalyzer::analyze::propagate");
       if (testPCAPropagation_){
 	FreeTrajectoryState ftsDest;
 	GlobalPoint pDest1(10., 10., 0.);
@@ -455,7 +452,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 		   p3F, r3F, igHit->p3, igHit->r3, charge, covF); nPoints_++;
       }
 
-    }//TimeMe leaves here
+    }
     if (tr_) tr_->Fill(); //fill this track prop info
   }
     
@@ -469,7 +466,6 @@ void SteppingHelixPropagatorAnalyzer::endJob() {
   ntFile_->cd();
   tr_->Write();
   delete ntFile_; ntFile_ = 0;
-  TimingReport::current()->dump(std::cout);
 }
 
 void SteppingHelixPropagatorAnalyzer::loadNtVars(int ind, int eType, int pStatus, int id,

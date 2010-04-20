@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2009/05/15 16:37:50 $
-//   $Revision: 1.27 $
+//   $Date: 2010/02/12 15:03:43 $
+//   $Revision: 1.28 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -37,7 +37,6 @@
 //-----------------------------------------------------------------------------
 
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
-//#include <Utilities/Timing/interface/TimingReport.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 
@@ -285,15 +284,9 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
   clear();
   if (alct && clct) {
     {
-      //static TimingReport::Item & alctTimer =
-      //(*TimingReport::current())["CSCAnodeLCTProcessor:run"];
-      //TimeMe t(alctTimer, false);
       std::vector<CSCALCTDigi> alctV = alct->run(wiredc); // run anodeLCT
     }
     {
-      //static TimingReport::Item & clctTimer =
-      //(*TimingReport::current())["CSCCathodeLCTProcessor:run"];
-      //TimeMe t(clctTimer, false);
       std::vector<CSCCLCTDigi> clctV = clct->run(compdc); // run cathodeLCT
     }
 

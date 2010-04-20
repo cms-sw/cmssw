@@ -7,30 +7,29 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2009/05/20 15:00:02 $
-//   $Revision: 1.9 $
+//   $Date: 2009/10/16 13:10:12 $
+//   $Revision: 1.10 $
 //
 //   Modifications:
 //
 //--------------------------------------------------
  
-#include <L1Trigger/CSCTriggerPrimitives/plugins/CSCTriggerPrimitivesProducer.h>
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesBuilder.h>
+#include "L1Trigger/CSCTriggerPrimitives/plugins/CSCTriggerPrimitivesProducer.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesBuilder.h"
 
-//#include <Utilities/Timing/interface/TimingReport.h>
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h> 
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
-#include <CondFormats/DataRecord/interface/CSCBadChambersRcd.h>
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
+#include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 
-#include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
 // Configuration via EventSetup
 #include "CondFormats/CSCObjects/interface/CSCL1TPParameters.h"
@@ -55,7 +54,6 @@ CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {
   LogDebug("L1CSCTrigger")
     << "deleting trigger primitives after " << iev << " events.";
   delete lctBuilder_;
-  //TimingReport::current()->dump(std::cout);
 }
 
 //void CSCTriggerPrimitivesProducer::beginRun(const edm::EventSetup& setup) {
@@ -63,18 +61,12 @@ CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {
 
 void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
 					   const edm::EventSetup& setup) {
-  //static TimingReport::Item & lctTimer =
-  //  (*TimingReport::current())["CSCTriggerPrimitivesProducer:produce"];
-  //TimeMe t(lctTimer, false);
 
   LogDebug("L1CSCTrigger") << "start producing LCTs for event " << ++iev;
 
   // Find the geometry (& conditions?) for this event & cache it in 
   // CSCTriggerGeometry.
   {
-    //static TimingReport::Item & geomTimer =
-    //  (*TimingReport::current())["CSCTriggerPrimitivesProducer:geom"];
-    //TimeMe t(geomTimer, false);
     edm::ESHandle<CSCGeometry> h;
     setup.get<MuonGeometryRecord>().get(h);
     CSCTriggerGeometry::setGeometry(h);
@@ -127,9 +119,6 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
 
   // Fill output collections if valid input collections are available.
   if (wireDigis.isValid() && compDigis.isValid()) {
-    //static TimingReport::Item & buildTimer =
-    //  (*TimingReport::current())["CSCTriggerPrimitivesBuilder:build"];
-    //TimeMe t(buildTimer, false);
     lctBuilder_->build(pBadChambers.product(),
 		       wireDigis.product(), compDigis.product(),
 		       *oc_alct, *oc_clct, *oc_lct, *oc_sorted_lct);

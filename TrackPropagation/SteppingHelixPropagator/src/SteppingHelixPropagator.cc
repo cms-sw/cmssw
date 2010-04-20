@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2010/03/13 19:58:25 $
- *  $Revision: 1.71 $
+ *  $Date: 2010/03/20 06:54:29 $
+ *  $Revision: 1.72 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.71 2010/03/13 19:58:25 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.72 2010/03/20 06:54:29 slava77 Exp $
 //
 //
 
@@ -22,8 +22,6 @@
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 #include "MagneticField/Interpolation/interface/MFGrid.h"
-
-#include "Utilities/Timing/interface/TimingReport.h"
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
