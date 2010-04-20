@@ -411,11 +411,12 @@ if __name__ == '__main__':
     # check if input data exists if given
     if option.data:
         if os.path.isdir(option.data):
-            files = commands.getstatusoutput("ls "+option.data)[1]
+            tmp = commands.getstatusoutput("ls "+option.data)
+            files = tmp[1]
             datafilename = "combined_all.txt"
             output = open(datafilename,"w")
             for f in files:
-                input = open(f)
+                input = open(option.data +"/"+f)
                 output.write(input.readlines())
             output.close()
             print " data files have been collected in "+datafilename
