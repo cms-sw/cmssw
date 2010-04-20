@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/02 10:47:13 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/01/18 17:48:39 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CondFormats/DTObjects/interface/DTT0.h"
@@ -67,7 +68,7 @@ DTT0* DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord){
 
 void DTFakeT0ESProducer::parseDDD(const DTT0Rcd& iRecord){
 
-  edm::ESHandle<DDCompactView> cpv;
+  edm::ESTransientHandle<DDCompactView> cpv;
   edm::ESHandle<MuonDDDConstants> mdc;
 
   iRecord.getRecord<IdealGeometryRecord>().get(cpv);
