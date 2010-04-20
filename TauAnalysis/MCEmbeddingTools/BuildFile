@@ -12,6 +12,9 @@
 <use name=TrackingTools/RoadSearchHitAccess>
 <use name=DataFormats/VertexReco>
 <use name=GeneratorInterface/ExternalDecays>
+<use name=DataFormats/MuonReco>
+<use name=CommonTools/UtilAlgos>
+
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=ElectroWeakAnalysisMuonWithMCTauReplacer>
