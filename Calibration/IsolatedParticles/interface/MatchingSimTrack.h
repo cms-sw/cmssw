@@ -1,5 +1,5 @@
-#ifndef CalibrationIsolatedParticleseMatchingSimTrack_h
-#define CalibrationIsolatedParticleseMatchingSimTrack_h
+#ifndef CalibrationIsolatedParticlesMatchingSimTrack_h
+#define CalibrationIsolatedParticlesMatchingSimTrack_h
 
 // system include files
 #include <memory>

@@ -39,14 +39,11 @@ namespace spr{
   template< typename T>
   double eHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO=false, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, bool debug=false);
 
-  template< typename T>
-  std::vector< std::pair< DetId,double> > eHCALmatrixCell(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, bool debug=false);
-
-  template< typename T>
-  std::pair<double,int> eHCALmatrixTotal(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, bool debug=false);
-
   template <typename T>
-  double energyHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, bool debug=false);
+  double eHCALmatrix(const CaloGeometry* geo, const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, int& nRecHits, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene, GlobalPoint& gPosHotCell);
+
+  template< typename T>
+  double eHCALmatrix(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, int& nRecHits, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene, std::set<int>& uniqueIdset);
 
   template <typename T>
   double energyHCALmatrixNew(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, bool debug=false);
@@ -61,13 +58,7 @@ namespace spr{
   std::vector< typename T::const_iterator> hitHCALmatrixTotal(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO=false, bool debug=false);
 
   template <typename T>
-  double energyHCAL(std::vector<DetId>& vNeighboursDetId, std::vector<DetId>& dets, const HcalTopology* topology, edm::Handle<T>& hits, bool includeHO=false, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, bool debug=false);
-
-  template <typename T>
   double energyHCAL(std::vector<DetId>& vdets, edm::Handle<T>& hits, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, bool debug=false);
-
-  template <typename T>
-  std::vector<std::pair<DetId,double> > energyDetIdHCAL(std::vector<DetId>& vdets, edm::Handle<T>& hits, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, bool debug=false);
 
   template <typename T>
   std::vector< typename T::const_iterator> hitsHCAL(std::vector<DetId>& vdets, edm::Handle<T>& hits, bool debug=false);

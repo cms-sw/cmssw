@@ -1,12 +1,3 @@
-// -*- C++ -*
-/* 
-This function returns a vector of hits (RecHits/SimHits) in the hit collection
-which have a DetId matching to a given DetId.
-
-Original Author:  Seema Sharma
-Created: August 2009
-*/
-
 #ifndef CalibrationIsolatedParticlesFindEtaPhi_h
 #define CalibrationIsolatedParticlesFindEtaPhi_h
 

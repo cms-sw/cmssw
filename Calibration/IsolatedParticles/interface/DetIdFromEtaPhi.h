@@ -1,5 +1,5 @@
-#ifndef CalibrationIsolatedParticleseCDetIdFromEtaPhi_h
-#define CalibrationIsolatedParticleseCDetIdFromEtaPhi_h
+#ifndef CalibrationIsolatedParticlesDetIdFromEtaPhi_h
+#define CalibrationIsolatedParticlesDetIdFromEtaPhi_h
 
 #include <cmath>
 

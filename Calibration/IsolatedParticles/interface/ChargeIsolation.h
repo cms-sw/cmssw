@@ -6,8 +6,8 @@ Authors:  Seema Sharma, Sunanda Banerjee
 Created: August 2009
 */
 
-#ifndef CalibrationIsolatedParticleseChargeIsolation_h
-#define CalibrationIsolatedParticleseChargeIsolation_h
+#ifndef CalibrationIsolatedParticlesChargeIsolation_h
+#define CalibrationIsolatedParticlesChargeIsolation_h
 
 // system include files
 #include <memory>

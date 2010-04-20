@@ -1,5 +1,5 @@
-#ifndef CalibrationIsolatedParticleseMatrizHCALDetIds_h
-#define CalibrationIsolatedParticleseMatrizHCALDetIds_h
+#ifndef CalibrationIsolatedParticlesMatrizHCALDetIds_h
+#define CalibrationIsolatedParticlesMatrizHCALDetIds_h
 
 #include <vector>
 

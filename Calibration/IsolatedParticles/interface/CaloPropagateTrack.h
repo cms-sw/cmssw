@@ -1,5 +1,5 @@
-#ifndef CalibrationIsolatedParticleseCCaloPropagateTrack_h
-#define CalibrationIsolatedParticleseCCaloPropagateTrack_h
+#ifndef CalibrationIsolatedParticlesCaloPropagateTrack_h
+#define CalibrationIsolatedParticlesCaloPropagateTrack_h
 
 #include <cmath>
 

@@ -1,5 +1,5 @@
-#ifndef IsolatedTracksTreeRecoSimL1SeedsData_h
-#define IsolatedTracksTreeRecoSimL1SeedsData_h
+#ifndef CalibrationIsolatedParticlesIsolatedTracksNxN_h
+#define CalibrationIsolatedParticlesIsolatedTracksNxN_h
 
 // system include files
 #include <memory>
@@ -9,56 +9,47 @@
 #include <vector>
 
 // user include files
+#include <Math/GenVector/VectorUtil.h>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include <Math/GenVector/VectorUtil.h>
-#include "DataFormats/Common/interface/Ref.h"
-
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+// TFile Service
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 // muons and tracks
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
-// track associator
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 // Vertices
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-// SimHit
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-//simtrack
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-// ecal / hcal
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+// Calorimeters
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
 //L1 objects
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
@@ -68,36 +59,44 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-
 // Jets in the event
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
 
-// TFile Service
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+// SimHit
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+//simtrack
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
+// track associator
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+// ecal / hcal
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+
+#include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
 #include "Calibration/IsolatedParticles/interface/FindCaloHit.h"
 #include "Calibration/IsolatedParticles/interface/eECALMatrix.h"
 #include "Calibration/IsolatedParticles/interface/eHCALMatrix.h"
 #include "Calibration/IsolatedParticles/interface/MatchingSimTrack.h"
 #include "Calibration/IsolatedParticles/interface/CaloSimInfo.h"
-
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Math/interface/Point3D.h"
 
 // root objects
 #include "TROOT.h"
@@ -109,14 +108,14 @@
 #include "TDirectory.h"
 #include "TTree.h"
 
-#include <cmath>
+class IsolatedTracksNxN : public edm::EDAnalyzer {
 
-class IsolatedTracksTreeRecoSimL1SeedsData : public edm::EDAnalyzer {
- public:
-  explicit IsolatedTracksTreeRecoSimL1SeedsData(const edm::ParameterSet&);
-  ~IsolatedTracksTreeRecoSimL1SeedsData();
+public:
+  explicit IsolatedTracksNxN(const edm::ParameterSet&);
+  ~IsolatedTracksNxN();
   
- private:
+private:
+  //void   beginJob(const edm::EventSetup&) ;
   void   beginJob() ;
   void   analyze(const edm::Event&, const edm::EventSetup&);
   void   endJob() ;
@@ -128,36 +127,12 @@ class IsolatedTracksTreeRecoSimL1SeedsData : public edm::EDAnalyzer {
   double DeltaPhi(double v1, double v2);
   double DeltaR(double eta1, double phi1, double eta2, double phi2);
 
-  int    chargeIsolation(CaloNavigator<DetId>& navigator,const DetId anyCell, int deta, int dphi);
-  double chargeIsolation(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
-			 CaloNavigator<DetId>& navigator, 
-			 reco::TrackCollection::const_iterator trkItr, 
-			 edm::Handle<reco::TrackCollection> trkCollection, 
-			 edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle, 
-			 edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle, 
-			 const CaloSubdetectorGeometry* gEB, const CaloSubdetectorGeometry* gEE, 
-			 int ieta, int iphi);
-
-  double chargeIsolationNew(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
-			    const DetId& coreDet,
-			    reco::TrackCollection::const_iterator trkItr, 
-			    edm::Handle<reco::TrackCollection> trkCollection, 
-			    edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle, 
-			    edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle, 
-			    const CaloGeometry* geo, const CaloTopology* caloTopology,
-			    int ieta, int iphi);
-  int    chargeIsolationNew(std::vector<DetId>& vdets, const DetId anyCell) ;
-
-  double chargeIsolationHcal(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
-			     reco::TrackCollection::const_iterator trkItr, 
-			     edm::Handle<reco::TrackCollection> trkCollection,
-			     const DetId ClosestCell, const HcalTopology* topology, 
-			     const CaloSubdetectorGeometry* gHB,
-			     int ieta, int iphi, bool debug=false);
 
   void clearTreeVectors();  
+  
+private:
 
-  bool initL1;
+  bool initL1, flagMC;
   static const size_t nL1BitsMax=128;
   std::string algoBitToName[nL1BitsMax];
   std::map <std::string,bool> l1TriggerMap;
@@ -204,7 +179,7 @@ class IsolatedTracksTreeRecoSimL1SeedsData : public edm::EDAnalyzer {
   int    t_nTracks;
 
   int t_RunNo, t_EvtNo, t_Lumi, t_Bunch;
-  std::vector<double> *t_PVx,*t_PVy,*t_PVz, *t_PVisValid, *t_PVNTracks, *t_PVNTracksWt, *t_PVTracksSumPt, *t_PVTracksSumPtWt ;
+  std::vector<double> *t_PVx,*t_PVy,*t_PVz, *t_PVisValid, *t_PVNTracks, *t_PVNTracksWt, *t_PVTracksSumPt, *t_PVTracksSumPtWt, *t_PVndof;
   std::vector<double> *t_PVNTracksHP, *t_PVNTracksHPWt, *t_PVTracksSumPtHP, *t_PVTracksSumPtHPWt ;
 
   std::vector<int>    *t_L1Decision;
@@ -228,6 +203,11 @@ class IsolatedTracksTreeRecoSimL1SeedsData : public edm::EDAnalyzer {
   std::vector<int>    *t_trackPVIdx;
 
   std::vector<int>    *t_NLayersCrossed,*t_trackNOuterHits;
+  std::vector<int>    *t_trackHitsTOB,      *t_trackHitsTEC;
+  std::vector<int>    *t_trackHitInMissTOB, *t_trackHitInMissTEC,  *t_trackHitInMissTIB,  *t_trackHitInMissTID;
+  std::vector<int>    *t_trackHitOutMissTOB,*t_trackHitOutMissTEC, *t_trackHitOutMissTIB, *t_trackHitOutMissTID;
+  std::vector<int>    *t_trackHitInMeasTOB, *t_trackHitInMeasTEC,  *t_trackHitInMeasTIB,  *t_trackHitInMeasTID;
+  std::vector<int>    *t_trackHitOutMeasTOB,*t_trackHitOutMeasTEC, *t_trackHitOutMeasTIB, *t_trackHitOutMeasTID;
 
   std::vector<double> *t_maxNearP31x31;
   std::vector<double> *t_maxNearP25x25;
@@ -240,6 +220,13 @@ class IsolatedTracksTreeRecoSimL1SeedsData : public edm::EDAnalyzer {
 
   std::vector<double> *t_e3x3,              *t_e5x5,              *t_e7x7,              *t_e9x9,             *t_e11x11; 
   std::vector<double> *t_e13x13,            *t_e15x15,            *t_e21x21,            *t_e25x25,           *t_e31x31;
+  //std::vector< std::vector<double> > *t_e11x11Xtals;
+
+  std::vector<double> *t_e7x7_10Sig, *t_e9x9_10Sig, *t_e11x11_10Sig, *t_e15x15_10Sig;
+  std::vector<double> *t_e7x7_15Sig, *t_e9x9_15Sig, *t_e11x11_15Sig, *t_e15x15_15Sig;
+  std::vector<double> *t_e7x7_20Sig, *t_e9x9_20Sig, *t_e11x11_20Sig, *t_e15x15_20Sig;
+  std::vector<double> *t_e7x7_25Sig, *t_e9x9_25Sig, *t_e11x11_25Sig, *t_e15x15_25Sig;
+  std::vector<double> *t_e7x7_30Sig, *t_e9x9_30Sig, *t_e11x11_30Sig, *t_e15x15_30Sig;
 
   std::vector<double> *t_esimPdgId,         *t_simTrackP;
 

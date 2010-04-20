@@ -1,9 +1,9 @@
 // -*- C++ -*
 //
-// Package:    IsolatedTracksTreeRecoSimL1SeedsData
-// Class:      IsolatedTracksTreeRecoSimL1SeedsData
+// Package:    IsolatedTracksNxN
+// Class:      IsolatedTracksNxN
 // 
-/**\class IsolatedTracksTreeRecoSimL1SeedsData IsolatedTracksTreeRecoSimL1SeedsData.cc Analysis/IsolatedTracksTreeRecoSimL1SeedsData/src/IsolatedTracksTreeRecoSimL1SeedsData.cc
+/**\class IsolatedTracksNxN IsolatedTracksNxN.cc Calibration/IsolatedParticles/plugins/IsolatedTracksNxN.cc
 
  Description: <one line class summary>
 
@@ -13,21 +13,22 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Aug 10 15:30:40 CST 2009
-// $Id: IsolatedTracksTreeRecoSimL1SeedsData.cc,v 1.2 2010/02/03 02:30:12 wmtan Exp $
+// $Id$
 //
 //
 
 #include "DataFormats/TrackReco/interface/TrackBase.h"
-#include "Calibration/IsolatedParticles/plugins/IsolatedTracksTreeRecoSimL1SeedsData.h"
+#include "Calibration/IsolatedParticles/plugins/IsolatedTracksNxN.h"
 
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 #include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-IsolatedTracksTreeRecoSimL1SeedsData::IsolatedTracksTreeRecoSimL1SeedsData(const edm::ParameterSet& iConfig) {
+IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet& iConfig) {
 
   //now do what ever initialization is needed
+  flagMC                 = iConfig.getUntrackedParameter<bool>  ("FlagMC", false); 
   myverbose_             = iConfig.getUntrackedParameter<int>   ("Verbosity", 5          );
   pvTracksPtMin_         = iConfig.getUntrackedParameter<double>("PVTracksPtMin", 1.0    );
   debugTrks_             = iConfig.getUntrackedParameter<int>   ("DebugTracks"           );
@@ -53,8 +54,10 @@ IsolatedTracksTreeRecoSimL1SeedsData::IsolatedTracksTreeRecoSimL1SeedsData(const
 
   if(myverbose_>=0) {
     std::cout <<"Parameters read from config file \n" 
-	      <<"myverbose_ "        << myverbose_        
-	      <<"minTrackP_ "     << minTrackP_     << "\t maxTrackEta_ "    << maxTrackEta_    << "\n"
+	      <<" flagMC       "      << flagMC
+	      <<"\t myverbose_ "      << myverbose_        
+	      <<"\t minTrackP_ "      << minTrackP_     
+	      << "\t maxTrackEta_ " << maxTrackEta_    << "\n"
 	      << std::endl;
   }
 
@@ -62,17 +65,16 @@ IsolatedTracksTreeRecoSimL1SeedsData::IsolatedTracksTreeRecoSimL1SeedsData(const
 
 }
 
-IsolatedTracksTreeRecoSimL1SeedsData::~IsolatedTracksTreeRecoSimL1SeedsData() {
+IsolatedTracksNxN::~IsolatedTracksNxN() {
   delete  trackAssociator_;
 }
 
-void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::ESHandle<MagneticField> bFieldH;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
   bField = bFieldH.product();
 
- 
   clearTreeVectors();
 
   t_RunNo = iEvent.id().run();
@@ -237,6 +239,7 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
       t_PVz            ->push_back( (*recVtxs)[ind].z() );
       t_PVisValid      ->push_back( (*recVtxs)[ind].isValid() );
       t_PVNTracks      ->push_back( (*recVtxs)[ind].tracksSize() );
+      t_PVndof         ->push_back( (*recVtxs)[ind].ndof() );
       t_PVNTracksWt    ->push_back( vtxTrkNWt );
       t_PVTracksSumPt  ->push_back( vtxTrkSumPt );
       t_PVTracksSumPtWt->push_back( vtxTrkSumPtWt );
@@ -400,25 +403,26 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
 
   
   //get Handles to SimTracks and SimHits
-  /*
   edm::Handle<edm::SimTrackContainer> SimTk;
-  iEvent.getByLabel("g4SimHits",SimTk);
+  if (flagMC) iEvent.getByLabel("g4SimHits",SimTk);
   edm::SimTrackContainer::const_iterator simTrkItr;
 
   edm::Handle<edm::SimVertexContainer> SimVtx;
-  iEvent.getByLabel("g4SimHits",SimVtx);
+  if (flagMC) iEvent.getByLabel("g4SimHits",SimVtx);
   edm::SimVertexContainer::const_iterator vtxItr = SimVtx->begin();
 
   //get Handles to PCaloHitContainers of eb/ee/hbhe
   edm::Handle<edm::PCaloHitContainer> pcaloeb;
-  iEvent.getByLabel("g4SimHits", "EcalHitsEB", pcaloeb);
+  if (flagMC) iEvent.getByLabel("g4SimHits", "EcalHitsEB", pcaloeb);
 
   edm::Handle<edm::PCaloHitContainer> pcaloee;
-  iEvent.getByLabel("g4SimHits", "EcalHitsEE", pcaloee);
+  if (flagMC) iEvent.getByLabel("g4SimHits", "EcalHitsEE", pcaloee);
 
   edm::Handle<edm::PCaloHitContainer> pcalohh;
-  iEvent.getByLabel("g4SimHits", "HcalHits", pcalohh);
-  */
+  if (flagMC) iEvent.getByLabel("g4SimHits", "HcalHits", pcalohh);
+  
+  //associates tracker rechits/simhits to a track
+  TrackerHitAssociator* associate = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
   
   std::vector<int>  ifGood(trkCollection->size(), 1);
 
@@ -429,8 +433,6 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
 
   t_nTracks = trkCollection->size();
 
-  //  TrackerHitAssociator* associate = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
-  
   //decide the goodness of each track for this track collection
   for( trkItr = trkCollection->begin(),nTracks=0; trkItr != trkCollection->end(); ++trkItr, nTracks++){
     const reco::Track* pTrack = &(*trkItr);
@@ -442,11 +444,14 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
     
     const reco::Track* pTrack = &(*trkItr);
     
-    if(debugTrks_>0) {std::cout << " Track index " << nTracks << " ";  printTrack(pTrack); }
-    
+    //if(debugTrks_>0) {std::cout << " Track index " << nTracks << " ";  printTrack(pTrack); }
+    //if(pTrack->pt()>1.0)   {std::cout << " Track index " << nTracks << " ";  printTrack(pTrack);}
+
     const reco::HitPattern& hitp = pTrack->hitPattern();
     int nLayersCrossed = hitp.trackerLayersWithMeasurement() ;        
     int nOuterHits     = hitp.stripTOBLayersWithMeasurement()+hitp.stripTECLayersWithMeasurement() ;
+    const reco::HitPattern& hitpIn  = pTrack->trackerExpectedHitsInner();
+    const reco::HitPattern& hitpOut = pTrack->trackerExpectedHitsOuter();
     
     double eta1        = pTrack->momentum().eta();
     double phi1        = pTrack->momentum().phi();
@@ -484,22 +489,25 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
     t_trackPAll             ->push_back( p1 );
     t_trackEtaAll           ->push_back( eta1 );
     t_trackPhiAll           ->push_back( phi1 );
-    //edm::SimTrackContainer::const_iterator matchedSimTrkAll = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false); 
-    //if( matchedSimTrkAll != SimTk->end())     t_trackPdgIdAll         ->push_back( matchedSimTrkAll->type() );
-    
-    //std::cout <<"Any Good Track : Sim " << matchedSimTrkAll->type()  << " " << matchedSimTrkAll->momentum().P() << std::endl;
+
+    if (flagMC) {
+      edm::SimTrackContainer::const_iterator matchedSimTrkAll = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false); 
+      if( matchedSimTrkAll != SimTk->end())     t_trackPdgIdAll         ->push_back( matchedSimTrkAll->type() );
+      //std::cout <<"Any Good Track : Sim " << matchedSimTrkAll->type()  << " " << matchedSimTrkAll->momentum().P() << std::endl;
+    }
     // find the impact point on ecal surface
     const FreeTrajectoryState fts1 = trackAssociator_->getFreeTrajectoryState(iSetup, *pTrack);
     TrackDetMatchInfo info1 = trackAssociator_->associate(iEvent, iSetup, fts1, parameters_);
     const GlobalPoint point1(info1.trkGlobPosAtEcal.x(),info1.trkGlobPosAtEcal.y(),info1.trkGlobPosAtEcal.z());
     //std::cout << "Ecal point1 " << point1 << std::endl;
 
-    //const GlobalPoint pointHH(info1.trkGlobPosAtHcal.x(),info1.trkGlobPosAtHcal.y(),info1.trkGlobPosAtHcal.z());
+    const GlobalPoint pointHH(info1.trkGlobPosAtHcal.x(),info1.trkGlobPosAtHcal.y(),info1.trkGlobPosAtHcal.z());
     
-    //double rad1 = sqrt( info1.trkGlobPosAtEcal.x()*info1.trkGlobPosAtEcal.x() + info1.trkGlobPosAtEcal.y()*info1.trkGlobPosAtEcal.y());
-    //double rad2 = sqrt( info1.trkGlobPosAtHcal.x()*info1.trkGlobPosAtHcal.x() + info1.trkGlobPosAtHcal.y()*info1.trkGlobPosAtHcal.y());
-    //std::cout<<"Track (pt,eta,phi) "<< pt1 << " " << eta1 << " " << phi1 << "ecal eta "<<point1.eta()<< " Radius " << rad1 << " z "<< info1.trkGlobPosAtEcal.z() << "  info1.isGoodEcal "<< info1.isGoodEcal <<"\n"<<" hcal eta " << pointHH.eta() << " Radius " << rad2 << " z " << info1.trkGlobPosAtHcal.z() << " isGoodHcal " << info1.isGoodHcal << std::endl;
-
+    /*
+      double rad1 = sqrt( info1.trkGlobPosAtEcal.x()*info1.trkGlobPosAtEcal.x() + info1.trkGlobPosAtEcal.y()*info1.trkGlobPosAtEcal.y());
+      double rad2 = sqrt( info1.trkGlobPosAtHcal.x()*info1.trkGlobPosAtHcal.x() + info1.trkGlobPosAtHcal.y()*info1.trkGlobPosAtHcal.y());
+      std::cout<<"Track (pt,eta,phi) "<< pt1 << " " << eta1 << " " << phi1 << "ecal eta "<<point1.eta()<< " Radius " << rad1 << " z "<< info1.trkGlobPosAtEcal.z() << "  info1.isGoodEcal "<< info1.isGoodEcal <<"\n"<<" hcal eta " << pointHH.eta() << " Radius " << rad2 << " z " << info1.trkGlobPosAtHcal.z() << " isGoodHcal " << info1.isGoodHcal << std::endl;
+    */
 
     
     //====== second propagator
@@ -526,16 +534,6 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
 	maxNearP11x11 = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  5, 5, theTrackQuality);
 	maxNearP9x9   = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  4, 4, theTrackQuality);
 	maxNearP7x7   = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  3, 3, theTrackQuality);
-	/*
-	maxNearP31x31 = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology, 15,15);
-	maxNearP25x25 = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology, 12,12);
-	maxNearP21x21 = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology, 10,10);
-	maxNearP15x15 = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology,  7, 7);
-	maxNearP13x13 = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology,  6, 6);
-	maxNearP11x11 = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology,  5, 5);
-	maxNearP9x9   = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology,  4, 4);
-	maxNearP7x7   = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology,  3, 3);
-	*/
       } else {
 	//const DetId isoCell = gEE->getClosestCell(point1);
 	const DetId isoCell = gEE->getClosestCell(point2);
@@ -547,16 +545,6 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
 	maxNearP11x11 = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  5, 5, theTrackQuality);
 	maxNearP9x9   = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  4, 4, theTrackQuality);
 	maxNearP7x7   = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  3, 3, theTrackQuality);
-	/*
-	maxNearP31x31 = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology, 15,15);
-	maxNearP25x25 = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology, 12,12);
-	maxNearP21x21 = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology, 10,10);
-	maxNearP15x15 = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology,  7, 7);
-	maxNearP13x13 = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology,  6, 6);
-	maxNearP11x11 = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology,  5, 5);
-	maxNearP9x9   = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology,  4, 4);
-	maxNearP7x7   = chargeIsolationNew(iEvent, iSetup, isoCell, trkItr, trkCollection, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology,  3, 3);
-	*/
       }
       
       if( maxNearP31x31<1.0 && nLayersCrossed>7 && nOuterHits>4) {
@@ -572,84 +560,144 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
       if( maxNearP7x7<1.0) {
 	
 	// get the matching simTrack
-	//double simTrackP = -1;
-	//edm::SimTrackContainer::const_iterator matchedSimTrk = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
-	//if( matchedSimTrk != SimTk->end() )simTrackP = matchedSimTrk->momentum().P();
-	
+	double simTrackP = -1;
+	if (flagMC) {
+	  edm::SimTrackContainer::const_iterator matchedSimTrk = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
+	  if( matchedSimTrk != SimTk->end() )simTrackP = matchedSimTrk->momentum().P();
+	}
 	// get ECal Tranverse Profile
 	double e3x3=0, e5x5=0, e7x7=0, e9x9=0, e11x11=0, e13x13=0, e15x15=0, e21x21=0, e25x25=0, e31x31=0;
-	//std::map<std::string, double> simInfo3x3,   simInfo5x5,   simInfo7x7,   simInfo9x9;
-	//std::map<std::string, double> simInfo11x11, simInfo13x13, simInfo15x15, simInfo21x21, simInfo25x25, simInfo31x31;
-	//double trkEcalEne=0;
+
+	double e7x7_10Sig=0, e9x9_10Sig=0, e11x11_10Sig=0, e15x15_10Sig=0;
+	double e7x7_15Sig=0, e9x9_15Sig=0, e11x11_15Sig=0, e15x15_15Sig=0;
+	double e7x7_20Sig=0, e9x9_20Sig=0, e11x11_20Sig=0, e15x15_20Sig=0;
+	double e7x7_25Sig=0, e9x9_25Sig=0, e11x11_25Sig=0, e15x15_25Sig=0;
+	double e7x7_30Sig=0, e9x9_30Sig=0, e11x11_30Sig=0, e15x15_30Sig=0;
+
+	std::map<std::string, double> simInfo3x3,   simInfo5x5,   simInfo7x7,   simInfo9x9;
+	std::map<std::string, double> simInfo11x11, simInfo13x13, simInfo15x15, simInfo21x21, simInfo25x25, simInfo31x31;
+	double trkEcalEne=0;
 	
 	//if(std::abs(point1.eta())<1.479) {
+	//std::vector<std::pair<DetId,double> > vXtals11x11;
 	if(std::abs(point2_EC.first.eta())<1.479) {
 	  
 	  //const DetId isoCell = gEB->getClosestCell(point1);
 	  const DetId isoCell = gEB->getClosestCell(point2);
 	    
-	  e3x3         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,1,1);
-	  e5x5         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,2,2);
-	  e7x7         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3);
-	  e9x9         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4);
-	  e11x11       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5);
-	  e13x13       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,6,6);
-	  e15x15       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7);
-	  e21x21       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,10,10);
-	  e25x25       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,12,12);
-	  e31x31       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,15,15);
+	  e3x3         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,1,1,   -100.0, -100.0);
+	  e5x5         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,2,2,   -100.0, -100.0);
+	  e7x7         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   -100.0, -100.0);
+	  e9x9         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   -100.0, -100.0);
+	  e11x11       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   -100.0, -100.0);
+	  e13x13       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,6,6,   -100.0, -100.0);
+	  e15x15       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   -100.0, -100.0);
+	  e21x21       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,10,10, -100.0, -100.0);
+	  e25x25       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,12,12, -100.0, -100.0);
+	  e31x31       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,15,15, -100.0, -100.0);
 
-	  /*
-	  // check the energy from SimHits
-	  simInfo3x3   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 1,1);
-	  simInfo5x5   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 2,2);
-	  simInfo7x7   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 3,3);
-	  simInfo9x9   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 4,4);
-	  simInfo11x11 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 5,5);
-	  simInfo13x13 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 6,6);
-	  simInfo15x15 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 7,7);
-	  simInfo21x21 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 10,10);
-	  simInfo25x25 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 12,12);
-	  simInfo31x31 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 15,15);
+	  //vXtals11x11 = spr::eECALmatrixCell(isoCell, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology, 5,5, -100, -100);
+
+	  e7x7_10Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.030,  0.150);
+	  e9x9_10Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.030,  0.150);
+	  e11x11_10Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.030,  0.150);
+	  e15x15_10Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.030,  0.150);
+
+	  e7x7_15Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.045,  0.225);
+	  e9x9_15Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.045,  0.225);
+	  e11x11_15Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.045,  0.225);
+	  e15x15_15Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.045,  0.225);
+
+	  e7x7_20Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.060,  0.300);
+	  e9x9_20Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.060,  0.300);
+	  e11x11_20Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.060,  0.300);
+	  e15x15_20Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.060,  0.300);
+
+	  e7x7_25Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.075,  0.375);
+	  e9x9_25Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.075,  0.375);
+	  e11x11_25Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.075,  0.375);
+	  e15x15_25Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.075,  0.375);
+
+	  e7x7_30Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.090,  0.450);
+	  e9x9_30Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.090,  0.450);
+	  e11x11_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.090,  0.450);
+	  e15x15_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.090,  0.450);
+
+	  if (flagMC) {
+	    // check the energy from SimHits
+	    simInfo3x3   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 1,1);
+	    simInfo5x5   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 2,2);
+	    simInfo7x7   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 3,3);
+	    simInfo9x9   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 4,4);
+	    simInfo11x11 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 5,5);
+	    simInfo13x13 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 6,6);
+	    simInfo15x15 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 7,7);
+	    simInfo21x21 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 10,10);
+	    simInfo25x25 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 12,12);
+	    simInfo31x31 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 15,15);
 	  
-	  //trkEcalEne   = spr::eCaloSimInfo(iEvent, geo, pcaloeb, SimTk, SimVtx, pTrack, *associate);
-	  trkEcalEne   = spr::eCaloSimInfo(iEvent, geo, pcaloeb,pcaloee, SimTk, SimVtx, pTrack, *associate);
-	  */
+	    trkEcalEne   = spr::eCaloSimInfo(iEvent, geo, pcaloeb,pcaloee, SimTk, SimVtx, pTrack, *associate);
+	  }
 	} else {
 	  
 	  //const DetId isoCell = gEE->getClosestCell(point1);
 	  const DetId isoCell = gEE->getClosestCell(point2);
 	  
-	  e3x3         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,1,1);
-	  e5x5         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,2,2);
-	  e7x7         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3);
-	  e9x9         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4);
-	  e11x11       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5);
-	  e13x13       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,6,6);
-	  e15x15       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7);
-	  e21x21       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,10,10);
-	  e25x25       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,12,12);
-	  e31x31       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,15,15);
+	  e3x3         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,1,1,   -100.0, -100.0);
+	  e5x5         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,2,2,   -100.0, -100.0);
+	  e7x7         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   -100.0, -100.0);
+	  e9x9         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   -100.0, -100.0);
+	  e11x11       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   -100.0, -100.0);
+	  e13x13       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,6,6,   -100.0, -100.0);
+	  e15x15       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   -100.0, -100.0);
+	  e21x21       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,10,10, -100.0, -100.0);
+	  e25x25       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,12,12, -100.0, -100.0);
+	  e31x31       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,15,15, -100.0, -100.0);
 
-	  /*
-	  // check the energy from SimHits
-	  simInfo3x3   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 1,1);
-	  simInfo5x5   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 2,2);
-	  simInfo7x7   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 3,3);
-	  simInfo9x9   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 4,4);
-	  simInfo11x11 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 5,5);
-	  simInfo13x13 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 6,6);
-	  simInfo15x15 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 7,7);
-	  simInfo21x21 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 10,10);
-	  simInfo25x25 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 12,12);
-	  simInfo31x31 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 15,15);
+	  //vXtals11x11  = spr::eECALmatrixCell(isoCell, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology, 5,5, -100, -100);
+
+	  e7x7_10Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.030,  0.150);
+	  e9x9_10Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.030,  0.150);
+	  e11x11_10Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.030,  0.150);
+	  e15x15_10Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.030,  0.150);
+
+	  e7x7_15Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.045,  0.225);
+	  e9x9_15Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.045,  0.225);
+	  e11x11_15Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.045,  0.225);
+	  e15x15_15Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.045,  0.225);
+
+	  e7x7_20Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.060,  0.300);
+	  e9x9_20Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.060,  0.300);
+	  e11x11_20Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.060,  0.300);
+	  e15x15_20Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.060,  0.300);
+
+	  e7x7_25Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.075,  0.375);
+	  e9x9_25Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.075,  0.375);
+	  e11x11_25Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.075,  0.375);
+	  e15x15_25Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.075,  0.375);
+
+	  e7x7_30Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.090,  0.450);
+	  e9x9_30Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.090,  0.450);
+	  e11x11_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.090,  0.450);
+	  e15x15_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.090,  0.450);
+
+	  if (flagMC) {
+	    // check the energy from SimHits
+	    simInfo3x3   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 1,1);
+	    simInfo5x5   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 2,2);
+	    simInfo7x7   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 3,3);
+	    simInfo9x9   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 4,4);
+	    simInfo11x11 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 5,5);
+	    simInfo13x13 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 6,6);
+	    simInfo15x15 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 7,7);
+	    simInfo21x21 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 10,10);
+	    simInfo25x25 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 12,12);
+	    simInfo31x31 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 15,15);
 	  
-	  //trkEcalEne   = spr::eCaloSimInfo(iEvent, geo, pcaloee, SimTk, SimVtx, pTrack, *associate);
-	  trkEcalEne   = spr::eCaloSimInfo(iEvent, geo, pcaloeb,pcaloee, SimTk, SimVtx, pTrack, *associate);
-	  */
+	    trkEcalEne   = spr::eCaloSimInfo(iEvent, geo, pcaloeb,pcaloee, SimTk, SimVtx, pTrack, *associate);
+	  }
 	} // if EB or EE
 
-	/*
 	// =======  Get HCAL information 
 	double hcalScale=1.0;
 	if( std::abs(pTrack->eta())<1.4 ) {
@@ -657,7 +705,6 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
 	} else {
 	  hcalScale=135.0;
 	}
-	*/
 
 	GlobalPoint hpoint1(info1.trkGlobPosAtHcal.x(),info1.trkGlobPosAtHcal.y(),info1.trkGlobPosAtHcal.z());
 	double x=info1.trkGlobPosAtHcal.x(); 
@@ -672,25 +719,21 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
 	const DetId ClosestCell = gHB->getClosestCell(hpoint2);
 	
 	double maxNearHcalP3x3=999, maxNearHcalP5x5=999, maxNearHcalP7x7=999;
-	/*
-	maxNearHcalP3x3  = chargeIsolationHcal(iEvent, iSetup, trkItr, trkCollection, ClosestCell, theHBHETopology, gHB,1,1);
-	maxNearHcalP5x5  = chargeIsolationHcal(iEvent, iSetup, trkItr, trkCollection, ClosestCell, theHBHETopology, gHB,2,2);
-	maxNearHcalP7x7  = chargeIsolationHcal(iEvent, iSetup, trkItr, trkCollection, ClosestCell, theHBHETopology, gHB,3,3);
-	*/
 	maxNearHcalP3x3  = spr::chargeIsolationHcal(trkItr, trkCollection, ClosestCell, theHBHETopology, gHB, bField, 1,1, theTrackQuality);
 	maxNearHcalP5x5  = spr::chargeIsolationHcal(trkItr, trkCollection, ClosestCell, theHBHETopology, gHB, bField, 2,2, theTrackQuality);
 	maxNearHcalP7x7  = spr::chargeIsolationHcal(trkItr, trkCollection, ClosestCell, theHBHETopology, gHB, bField, 3,3, theTrackQuality);
 
 	double h3x3=0,    h5x5=0,    h7x7=0;
-	//double trkHcalEne = 0;
-	//std::map<std::string, double> hsimInfo3x3, hsimInfo5x5, hsimInfo7x7;	    
+	double trkHcalEne = 0;
+	std::map<std::string, double> hsimInfo3x3, hsimInfo5x5, hsimInfo7x7;
 	
 	// bool includeHO=false, bool algoNew=true, bool debug=false
-	h3x3 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,1,1, false, true, -100, -100, -100, -100, false);  
-	h5x5 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,2,2, false, true, -100, -100, -100, -100, false);  
-	h7x7 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,3,3, false, true, -100, -100, -100, -100, false);  
+	h3x3 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,1,1, false, true, -100.0, -100.0, -100.0, -100.0);  
+	h5x5 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,2,2, false, true, -100.0, -100.0, -100.0, -100.0);  
+	h7x7 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,3,3, false, true, -100.0, -100.0, -100.0, -100.0);  
 
-	/* // debug the ecal and hcal matrix
+	// debug the ecal and hcal matrix
+	/*
 	std::cout<<"Run "<<iEvent.id().run()<<"  Event "<<iEvent.id().event()<<std::endl; 
 	std::vector<std::pair<DetId,double> > v7x7 = spr::eHCALmatrixCell(theHBHETopology, ClosestCell, hbhe,3,3, false, false);
 	double sumv=0.0;
@@ -704,16 +747,13 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
 	  std::cout << " Cell " << iv << " 0x" << std::hex << v7x7[iv].first() << std::dec << " " << id << " Energy " << v7x7[iv].second << std::endl;
 	}
 	*/
-
-
+	if (flagMC) {
+	  hsimInfo3x3 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 1,1);
+	  hsimInfo5x5 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 2,2);
+	  hsimInfo7x7 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 3,3);
 	
-	/*
-	hsimInfo3x3 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 1,1);
-	hsimInfo5x5 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 2,2);
-	hsimInfo7x7 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 3,3);
-	
-	trkHcalEne  = spr::eCaloSimInfo(iEvent, geo,pcalohh, SimTk, SimVtx, pTrack, *associate);
-	*/
+	  trkHcalEne  = spr::eCaloSimInfo(iEvent, geo,pcalohh, SimTk, SimVtx, pTrack, *associate);
+	}
 	// ====================================================================================================
 	
 	
@@ -730,8 +770,6 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
 	t_trackPt               ->push_back( pt1 );
 	t_trackEta              ->push_back( eta1 );
 	t_trackPhi              ->push_back( phi1 );
-	t_trackNOuterHits       ->push_back( nOuterHits );
-	t_NLayersCrossed        ->push_back( nLayersCrossed );
 	t_trackDxy              ->push_back( dxy1 );	
 	t_trackDz               ->push_back( dz1 );	
 	t_trackDxyBS            ->push_back( dxybs1 );	
@@ -739,6 +777,28 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
 	t_trackDxyPV            ->push_back( dxypv1 );	
 	t_trackDzPV             ->push_back( dzpv1 );	
 	t_trackChiSq            ->push_back( chisq1 );	
+	t_trackNOuterHits       ->push_back( nOuterHits );
+	t_NLayersCrossed        ->push_back( nLayersCrossed );
+	
+	t_trackHitsTOB          ->push_back( hitp.stripTOBLayersWithMeasurement()       ); 
+	t_trackHitsTEC          ->push_back( hitp.stripTECLayersWithMeasurement()       );
+	t_trackHitInMissTOB     ->push_back( hitpIn.stripTOBLayersWithoutMeasurement()  ); 
+	t_trackHitInMissTEC     ->push_back( hitpIn.stripTECLayersWithoutMeasurement()  );  
+	t_trackHitInMissTIB     ->push_back( hitpIn.stripTIBLayersWithoutMeasurement()  );  
+	t_trackHitInMissTID     ->push_back( hitpIn.stripTIDLayersWithoutMeasurement()  );
+	t_trackHitOutMissTOB    ->push_back( hitpOut.stripTOBLayersWithoutMeasurement() );
+	t_trackHitOutMissTEC    ->push_back( hitpOut.stripTECLayersWithoutMeasurement() ); 
+	t_trackHitOutMissTIB    ->push_back( hitpOut.stripTIBLayersWithoutMeasurement() );
+	t_trackHitOutMissTID    ->push_back( hitpOut.stripTIDLayersWithoutMeasurement() );
+
+	t_trackHitInMeasTOB     ->push_back( hitpIn.stripTOBLayersWithMeasurement()  ); 
+	t_trackHitInMeasTEC     ->push_back( hitpIn.stripTECLayersWithMeasurement()  );  
+	t_trackHitInMeasTIB     ->push_back( hitpIn.stripTIBLayersWithMeasurement()  );  
+	t_trackHitInMeasTID     ->push_back( hitpIn.stripTIDLayersWithMeasurement()  );
+	t_trackHitOutMeasTOB    ->push_back( hitpOut.stripTOBLayersWithMeasurement() );
+	t_trackHitOutMeasTEC    ->push_back( hitpOut.stripTECLayersWithMeasurement() ); 
+	t_trackHitOutMeasTIB    ->push_back( hitpOut.stripTIBLayersWithMeasurement() );
+	t_trackHitOutMeasTID    ->push_back( hitpOut.stripTIDLayersWithMeasurement() );
 
 	t_maxNearP15x15         ->push_back( maxNearP15x15 );
 	t_maxNearP21x21         ->push_back( maxNearP21x21 );
@@ -759,79 +819,110 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
 	t_e21x21                ->push_back( e21x21 );
 	t_e25x25                ->push_back( e25x25 );
 	t_e31x31                ->push_back( e31x31 );
-	
+
+	t_e7x7_10Sig            ->push_back( e7x7_10Sig   ); 
+	t_e9x9_10Sig            ->push_back( e9x9_10Sig   ); 
+	t_e11x11_10Sig          ->push_back( e11x11_10Sig ); 
+	t_e15x15_10Sig          ->push_back( e15x15_10Sig );
+	t_e7x7_15Sig            ->push_back( e7x7_15Sig   ); 
+	t_e9x9_15Sig            ->push_back( e9x9_15Sig   ); 
+	t_e11x11_15Sig          ->push_back( e11x11_15Sig ); 
+	t_e15x15_15Sig          ->push_back( e15x15_15Sig );
+	t_e7x7_20Sig            ->push_back( e7x7_20Sig   ); 
+	t_e9x9_20Sig            ->push_back( e9x9_20Sig   ); 
+	t_e11x11_20Sig          ->push_back( e11x11_20Sig ); 
+	t_e15x15_20Sig          ->push_back( e15x15_20Sig );
+	t_e7x7_25Sig            ->push_back( e7x7_25Sig   ); 
+	t_e9x9_25Sig            ->push_back( e9x9_25Sig   ); 
+	t_e11x11_25Sig          ->push_back( e11x11_25Sig ); 
+	t_e15x15_25Sig          ->push_back( e15x15_25Sig );
+	t_e7x7_30Sig            ->push_back( e7x7_30Sig   ); 
+	t_e9x9_30Sig            ->push_back( e9x9_30Sig   ); 
+	t_e11x11_30Sig          ->push_back( e11x11_30Sig ); 
+	t_e15x15_30Sig          ->push_back( e15x15_30Sig );
+
 	/*
-	t_esim3x3               ->push_back( simInfo3x3["eTotal"] );
-	t_esim5x5               ->push_back( simInfo5x5["eTotal"] );
-	t_esim7x7               ->push_back( simInfo7x7["eTotal"] );
-	t_esim9x9               ->push_back( simInfo9x9["eTotal"] );
-	t_esim11x11             ->push_back( simInfo11x11["eTotal"] );
-	t_esim13x13             ->push_back( simInfo13x13["eTotal"] );
-	t_esim15x15             ->push_back( simInfo15x15["eTotal"] );
-	t_esim21x21             ->push_back( simInfo21x21["eTotal"] );
-	t_esim25x25             ->push_back( simInfo25x25["eTotal"] );
-	t_esim31x31             ->push_back( simInfo31x31["eTotal"] );
-	
-	t_esim3x3Matched        ->push_back( simInfo3x3["eMatched"] );
-	t_esim5x5Matched        ->push_back( simInfo5x5["eMatched"] );
-	t_esim7x7Matched        ->push_back( simInfo7x7["eMatched"] );
-	t_esim9x9Matched        ->push_back( simInfo9x9["eMatched"] );
-	t_esim11x11Matched      ->push_back( simInfo11x11["eMatched"] );
-	t_esim13x13Matched      ->push_back( simInfo13x13["eMatched"] );
-	t_esim15x15Matched      ->push_back( simInfo15x15["eMatched"] );
-	t_esim21x21Matched      ->push_back( simInfo21x21["eMatched"] );
-	t_esim25x25Matched      ->push_back( simInfo25x25["eMatched"] );
-	t_esim31x31Matched      ->push_back( simInfo31x31["eMatched"] );
-	
-	t_esim3x3Rest           ->push_back( simInfo3x3["eRest"] );
-	t_esim5x5Rest           ->push_back( simInfo5x5["eRest"] );
-	t_esim7x7Rest           ->push_back( simInfo7x7["eRest"] );
-	t_esim9x9Rest           ->push_back( simInfo9x9["eRest"] );
-	t_esim11x11Rest         ->push_back( simInfo11x11["eRest"] );
-	t_esim13x13Rest         ->push_back( simInfo13x13["eRest"] );
-	t_esim15x15Rest         ->push_back( simInfo15x15["eRest"] );
-	t_esim21x21Rest         ->push_back( simInfo21x21["eRest"] );
-	t_esim25x25Rest         ->push_back( simInfo25x25["eRest"] );
-	t_esim31x31Rest         ->push_back( simInfo31x31["eRest"] );
-	
-	t_esim3x3Photon         ->push_back( simInfo3x3["eGamma"] );
-	t_esim5x5Photon         ->push_back( simInfo5x5["eGamma"] );
-	t_esim7x7Photon         ->push_back( simInfo7x7["eGamma"] );
-	t_esim9x9Photon         ->push_back( simInfo9x9["eGamma"] );
-	t_esim11x11Photon       ->push_back( simInfo11x11["eGamma"] );
-	t_esim13x13Photon       ->push_back( simInfo13x13["eGamma"] );
-	t_esim15x15Photon       ->push_back( simInfo15x15["eGamma"] );
-	t_esim21x21Photon       ->push_back( simInfo21x21["eGamma"] );
-	t_esim25x25Photon       ->push_back( simInfo25x25["eGamma"] );
-	t_esim31x31Photon       ->push_back( simInfo31x31["eGamma"] );
-	
-	t_esim3x3NeutHad        ->push_back( simInfo3x3["eNeutralHad"] );
-	t_esim5x5NeutHad        ->push_back( simInfo5x5["eNeutralHad"] );
-	t_esim7x7NeutHad        ->push_back( simInfo7x7["eNeutralHad"] );
-	t_esim9x9NeutHad        ->push_back( simInfo9x9["eNeutralHad"] );
-	t_esim11x11NeutHad      ->push_back( simInfo11x11["eNeutralHad"] );
-	t_esim13x13NeutHad      ->push_back( simInfo13x13["eNeutralHad"] );
-	t_esim15x15NeutHad      ->push_back( simInfo15x15["eNeutralHad"] );
-	t_esim21x21NeutHad      ->push_back( simInfo21x21["eNeutralHad"] );
-	t_esim25x25NeutHad      ->push_back( simInfo25x25["eNeutralHad"] );
-	t_esim31x31NeutHad      ->push_back( simInfo31x31["eNeutralHad"] );
-	
-	t_esim3x3CharHad        ->push_back( simInfo3x3["eChargedHad"] );
-	t_esim5x5CharHad        ->push_back( simInfo5x5["eChargedHad"] );
-	t_esim7x7CharHad        ->push_back( simInfo7x7["eChargedHad"] );
-	t_esim9x9CharHad        ->push_back( simInfo9x9["eChargedHad"] );
-	t_esim11x11CharHad      ->push_back( simInfo11x11["eChargedHad"] );
-	t_esim13x13CharHad      ->push_back( simInfo13x13["eChargedHad"] );
-	t_esim15x15CharHad      ->push_back( simInfo15x15["eChargedHad"] );
-	t_esim21x21CharHad      ->push_back( simInfo21x21["eChargedHad"] );
-	t_esim25x25CharHad      ->push_back( simInfo25x25["eChargedHad"] );
-	t_esim31x31CharHad      ->push_back( simInfo31x31["eChargedHad"] );
-	
-	t_trkEcalEne            ->push_back( trkEcalEne );
-	t_simTrackP             ->push_back( simTrackP );
-	t_esimPdgId             ->push_back( simInfo11x11["pdgMatched"] );
+	std::vector<double> vEne;
+	double tempXtals=0.0;
+	for(int iv=0; iv<vXtals11x11.size(); iv++){
+	  vEne.push_back( vXtals11x11[iv].second );
+	  tempXtals += vXtals11x11[iv].second ;
+	}
+	t_e11x11Xtals           ->push_back( vEne );	
+	if(e11x11 !=tempXtals )  std::cout << "e11x11 "<<e11x11 << " from vector of Xtals "<< tempXtals<<std::endl;
 	*/
+	if (flagMC) {
+	  t_esim3x3               ->push_back( simInfo3x3["eTotal"] );
+	  t_esim5x5               ->push_back( simInfo5x5["eTotal"] );
+	  t_esim7x7               ->push_back( simInfo7x7["eTotal"] );
+	  t_esim9x9               ->push_back( simInfo9x9["eTotal"] );
+	  t_esim11x11             ->push_back( simInfo11x11["eTotal"] );
+	  t_esim13x13             ->push_back( simInfo13x13["eTotal"] );
+	  t_esim15x15             ->push_back( simInfo15x15["eTotal"] );
+	  t_esim21x21             ->push_back( simInfo21x21["eTotal"] );
+	  t_esim25x25             ->push_back( simInfo25x25["eTotal"] );
+	  t_esim31x31             ->push_back( simInfo31x31["eTotal"] );
 	
+	  t_esim3x3Matched        ->push_back( simInfo3x3["eMatched"] );
+	  t_esim5x5Matched        ->push_back( simInfo5x5["eMatched"] );
+	  t_esim7x7Matched        ->push_back( simInfo7x7["eMatched"] );
+	  t_esim9x9Matched        ->push_back( simInfo9x9["eMatched"] );
+	  t_esim11x11Matched      ->push_back( simInfo11x11["eMatched"] );
+	  t_esim13x13Matched      ->push_back( simInfo13x13["eMatched"] );
+	  t_esim15x15Matched      ->push_back( simInfo15x15["eMatched"] );
+	  t_esim21x21Matched      ->push_back( simInfo21x21["eMatched"] );
+	  t_esim25x25Matched      ->push_back( simInfo25x25["eMatched"] );
+	  t_esim31x31Matched      ->push_back( simInfo31x31["eMatched"] );
+	
+	  t_esim3x3Rest           ->push_back( simInfo3x3["eRest"] );
+	  t_esim5x5Rest           ->push_back( simInfo5x5["eRest"] );
+	  t_esim7x7Rest           ->push_back( simInfo7x7["eRest"] );
+	  t_esim9x9Rest           ->push_back( simInfo9x9["eRest"] );
+	  t_esim11x11Rest         ->push_back( simInfo11x11["eRest"] );
+	  t_esim13x13Rest         ->push_back( simInfo13x13["eRest"] );
+	  t_esim15x15Rest         ->push_back( simInfo15x15["eRest"] );
+	  t_esim21x21Rest         ->push_back( simInfo21x21["eRest"] );
+	  t_esim25x25Rest         ->push_back( simInfo25x25["eRest"] );
+	  t_esim31x31Rest         ->push_back( simInfo31x31["eRest"] );
+	
+	  t_esim3x3Photon         ->push_back( simInfo3x3["eGamma"] );
+	  t_esim5x5Photon         ->push_back( simInfo5x5["eGamma"] );
+	  t_esim7x7Photon         ->push_back( simInfo7x7["eGamma"] );
+	  t_esim9x9Photon         ->push_back( simInfo9x9["eGamma"] );
+	  t_esim11x11Photon       ->push_back( simInfo11x11["eGamma"] );
+	  t_esim13x13Photon       ->push_back( simInfo13x13["eGamma"] );
+	  t_esim15x15Photon       ->push_back( simInfo15x15["eGamma"] );
+	  t_esim21x21Photon       ->push_back( simInfo21x21["eGamma"] );
+	  t_esim25x25Photon       ->push_back( simInfo25x25["eGamma"] );
+	  t_esim31x31Photon       ->push_back( simInfo31x31["eGamma"] );
+	
+	  t_esim3x3NeutHad        ->push_back( simInfo3x3["eNeutralHad"] );
+	  t_esim5x5NeutHad        ->push_back( simInfo5x5["eNeutralHad"] );
+	  t_esim7x7NeutHad        ->push_back( simInfo7x7["eNeutralHad"] );
+	  t_esim9x9NeutHad        ->push_back( simInfo9x9["eNeutralHad"] );
+	  t_esim11x11NeutHad      ->push_back( simInfo11x11["eNeutralHad"] );
+	  t_esim13x13NeutHad      ->push_back( simInfo13x13["eNeutralHad"] );
+	  t_esim15x15NeutHad      ->push_back( simInfo15x15["eNeutralHad"] );
+	  t_esim21x21NeutHad      ->push_back( simInfo21x21["eNeutralHad"] );
+	  t_esim25x25NeutHad      ->push_back( simInfo25x25["eNeutralHad"] );
+	  t_esim31x31NeutHad      ->push_back( simInfo31x31["eNeutralHad"] );
+	
+	  t_esim3x3CharHad        ->push_back( simInfo3x3["eChargedHad"] );
+	  t_esim5x5CharHad        ->push_back( simInfo5x5["eChargedHad"] );
+	  t_esim7x7CharHad        ->push_back( simInfo7x7["eChargedHad"] );
+	  t_esim9x9CharHad        ->push_back( simInfo9x9["eChargedHad"] );
+	  t_esim11x11CharHad      ->push_back( simInfo11x11["eChargedHad"] );
+	  t_esim13x13CharHad      ->push_back( simInfo13x13["eChargedHad"] );
+	  t_esim15x15CharHad      ->push_back( simInfo15x15["eChargedHad"] );
+	  t_esim21x21CharHad      ->push_back( simInfo21x21["eChargedHad"] );
+	  t_esim25x25CharHad      ->push_back( simInfo25x25["eChargedHad"] );
+	  t_esim31x31CharHad      ->push_back( simInfo31x31["eChargedHad"] );
+	
+	  t_trkEcalEne            ->push_back( trkEcalEne );
+	  t_simTrackP             ->push_back( simTrackP );
+	  t_esimPdgId             ->push_back( simInfo11x11["pdgMatched"] );
+	}
+
 	t_maxNearHcalP3x3       ->push_back( maxNearHcalP3x3 );
 	t_maxNearHcalP5x5       ->push_back( maxNearHcalP5x5 );
 	t_maxNearHcalP7x7       ->push_back( maxNearHcalP7x7 );
@@ -841,34 +932,33 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
 	t_h7x7                  ->push_back( h7x7 );
 	
 	t_infoHcal              ->push_back( info1.isGoodHcal );
-	/*
-	t_trkHcalEne            ->push_back( hcalScale*trkHcalEne );
+	if (flagMC) {
+	  t_trkHcalEne            ->push_back( hcalScale*trkHcalEne );
 	
-	t_hsim3x3               ->push_back( hcalScale*hsimInfo3x3["eTotal"] );
-	t_hsim5x5               ->push_back( hcalScale*hsimInfo5x5["eTotal"] );
-	t_hsim7x7               ->push_back( hcalScale*hsimInfo7x7["eTotal"] );
+	  t_hsim3x3               ->push_back( hcalScale*hsimInfo3x3["eTotal"] );
+	  t_hsim5x5               ->push_back( hcalScale*hsimInfo5x5["eTotal"] );
+	  t_hsim7x7               ->push_back( hcalScale*hsimInfo7x7["eTotal"] );
 	
-	t_hsim3x3Matched        ->push_back( hcalScale*hsimInfo3x3["eMatched"] );
-	t_hsim5x5Matched        ->push_back( hcalScale*hsimInfo5x5["eMatched"] );
-	t_hsim7x7Matched        ->push_back( hcalScale*hsimInfo7x7["eMatched"] );
+	  t_hsim3x3Matched        ->push_back( hcalScale*hsimInfo3x3["eMatched"] );
+	  t_hsim5x5Matched        ->push_back( hcalScale*hsimInfo5x5["eMatched"] );
+	  t_hsim7x7Matched        ->push_back( hcalScale*hsimInfo7x7["eMatched"] );
 	
-	t_hsim3x3Rest           ->push_back( hcalScale*hsimInfo3x3["eRest"] );
-	t_hsim5x5Rest           ->push_back( hcalScale*hsimInfo5x5["eRest"] );
-	t_hsim7x7Rest           ->push_back( hcalScale*hsimInfo7x7["eRest"] );
+	  t_hsim3x3Rest           ->push_back( hcalScale*hsimInfo3x3["eRest"] );
+	  t_hsim5x5Rest           ->push_back( hcalScale*hsimInfo5x5["eRest"] );
+	  t_hsim7x7Rest           ->push_back( hcalScale*hsimInfo7x7["eRest"] );
 	
-	t_hsim3x3Photon         ->push_back( hcalScale*hsimInfo3x3["eGamma"] );
-	t_hsim5x5Photon         ->push_back( hcalScale*hsimInfo5x5["eGamma"] );
-	t_hsim7x7Photon         ->push_back( hcalScale*hsimInfo7x7["eGamma"] );
+	  t_hsim3x3Photon         ->push_back( hcalScale*hsimInfo3x3["eGamma"] );
+	  t_hsim5x5Photon         ->push_back( hcalScale*hsimInfo5x5["eGamma"] );
+	  t_hsim7x7Photon         ->push_back( hcalScale*hsimInfo7x7["eGamma"] );
 	
-	t_hsim3x3NeutHad        ->push_back( hcalScale*hsimInfo3x3["eNeutralHad"] );
-	t_hsim5x5NeutHad        ->push_back( hcalScale*hsimInfo5x5["eNeutralHad"] );
-	t_hsim7x7NeutHad        ->push_back( hcalScale*hsimInfo7x7["eNeutralHad"] );
+	  t_hsim3x3NeutHad        ->push_back( hcalScale*hsimInfo3x3["eNeutralHad"] );
+	  t_hsim5x5NeutHad        ->push_back( hcalScale*hsimInfo5x5["eNeutralHad"] );
+	  t_hsim7x7NeutHad        ->push_back( hcalScale*hsimInfo7x7["eNeutralHad"] );
 	
-	t_hsim3x3CharHad        ->push_back( hcalScale*hsimInfo3x3["eChargedHad"] );
-	t_hsim5x5CharHad        ->push_back( hcalScale*hsimInfo5x5["eChargedHad"] );
-	t_hsim7x7CharHad        ->push_back( hcalScale*hsimInfo7x7["eChargedHad"] );
-	*/
-
+	  t_hsim3x3CharHad        ->push_back( hcalScale*hsimInfo3x3["eChargedHad"] );
+	  t_hsim5x5CharHad        ->push_back( hcalScale*hsimInfo5x5["eChargedHad"] );
+	  t_hsim7x7CharHad        ->push_back( hcalScale*hsimInfo7x7["eChargedHad"] );
+	}
 	/*
 	if(hcalScale*hsimInfo3x3["eTotal"] > 50.0) {
 
@@ -902,7 +992,7 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
 }
 
 // ----- method called once each job just before starting event loop ----
-void IsolatedTracksTreeRecoSimL1SeedsData::beginJob() {
+void IsolatedTracksNxN::beginJob() {
 
   nEventProc=0;
 
@@ -922,7 +1012,7 @@ void IsolatedTracksTreeRecoSimL1SeedsData::beginJob() {
 }
 
 // ----- method called once each job just after ending the event loop ----
-void IsolatedTracksTreeRecoSimL1SeedsData::endJob() {
+void IsolatedTracksNxN::endJob() {
 
   std::cout << "Number of Events Processed " << nEventProc << std::endl;
   if( h_L1AlgoNames ){
@@ -941,201 +1031,20 @@ void IsolatedTracksTreeRecoSimL1SeedsData::endJob() {
 
 //===========================================================================================================
 
-double IsolatedTracksTreeRecoSimL1SeedsData::chargeIsolationNew(const edm::Event& iEvent, const edm::EventSetup& iSetup, const DetId& coreDet, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle, edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi) {
-  
-  const CaloSubdetectorGeometry* gEB = geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-  const CaloSubdetectorGeometry* gEE = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
-
-  std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology);
-  //std::cout <<ieta << " " << iphi << " " << vdets.size() << std::endl;
-
-  double maxNearP = -1.0;
-  std::string theTrackQuality = "highPurity";
-  reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
-
-  //,const DetId anyCell,
-  reco::TrackCollection::const_iterator trkItr2;
-  for( trkItr2 = trkCollection->begin(); trkItr2 != trkCollection->end(); ++trkItr2){
-
-    const reco::Track* pTrack2 = &(*trkItr2);
-
-    bool   trkQuality  = pTrack2->quality(trackQuality_);
-    if( (trkItr2 != trkItr) && trkQuality )  {
-      
-      const FreeTrajectoryState fts2 = trackAssociator_->getFreeTrajectoryState(iSetup, *pTrack2);
-      TrackDetMatchInfo info2 = trackAssociator_->associate(iEvent, iSetup, fts2, parameters_);
-      const GlobalPoint point2(info2.trkGlobPosAtEcal.x(),info2.trkGlobPosAtEcal.y(),info2.trkGlobPosAtEcal.z());
-
-      if( info2.isGoodEcal ) {
-	if( std::abs(point2.eta())<1.479) {
-	  const DetId anyCell = gEB->getClosestCell(point2);
-	  //int isChargedIso = chargeIsolation(theNavigator,anyCell,ieta, iphi);
-	  int isChargedIso = chargeIsolationNew(vdets, anyCell);
-	  if(isChargedIso==0) {
-	    if(maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
-	  }
-	} else {
-	  const DetId anyCell = gEE->getClosestCell(point2);
-	  //int isChargedIso = chargeIsolation(theNavigator,anyCell,ieta, iphi);
-	  int isChargedIso = chargeIsolationNew(vdets, anyCell);
-	  if(isChargedIso==0) {
-	    if(maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
-	  }
-	}
-      } //info2.isGoodEcal
-    }
-  }
-  return maxNearP;
-}
-
-int IsolatedTracksTreeRecoSimL1SeedsData::chargeIsolationNew(std::vector<DetId>& vdets, const DetId anyCell) {
-  int isIsolated = 1;
-  for( unsigned int i=0; i<vdets.size(); i++){
-    if( anyCell == vdets[i] ) isIsolated = 0;
-  }
-  return isIsolated;
-}
 
 //===========================================================================================================
 
-double IsolatedTracksTreeRecoSimL1SeedsData::chargeIsolation(const edm::Event& iEvent, const edm::EventSetup& iSetup, CaloNavigator<DetId>& theNavigator, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle, edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle, const CaloSubdetectorGeometry* gEB, const CaloSubdetectorGeometry* gEE, int ieta, int iphi) {
-  
-  double maxNearP = -1.0;
-  std::string theTrackQuality = "highPurity";
-  reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
 
-  //,const DetId anyCell,
-  reco::TrackCollection::const_iterator trkItr2;
-  for( trkItr2 = trkCollection->begin(); trkItr2 != trkCollection->end(); ++trkItr2){
-
-    const reco::Track* pTrack2 = &(*trkItr2);
-
-    bool   trkQuality  = pTrack2->quality(trackQuality_);
-    //const reco::HitPattern& hitp = pTrack2->hitPattern();
-    //int nLayersCrossed = hitp.trackerLayersWithMeasurement() ;        
-
-    //if( (trkItr2 != trkItr) && trkQuality && nLayersCrossed>7 )  {
-    if( (trkItr2 != trkItr) && trkQuality )  {
-      
-      const FreeTrajectoryState fts2 = trackAssociator_->getFreeTrajectoryState(iSetup, *pTrack2);
-      TrackDetMatchInfo info2 = trackAssociator_->associate(iEvent, iSetup, fts2, parameters_);
-      const GlobalPoint point2(info2.trkGlobPosAtEcal.x(),info2.trkGlobPosAtEcal.y(),info2.trkGlobPosAtEcal.z());
-
-      if( info2.isGoodEcal ) {
-	if( std::abs(point2.eta())<1.479) {
-	  const DetId anyCell = gEB->getClosestCell(point2);
-	  int isChargedIso = chargeIsolation(theNavigator,anyCell,ieta, iphi);
-	  if(isChargedIso==0) {
-	    if(maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
-	  }
-	} else {
-	  const DetId anyCell = gEE->getClosestCell(point2);
-	  int isChargedIso = chargeIsolation(theNavigator,anyCell,ieta, iphi);
-	  if(isChargedIso==0) {
-	    if(maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
-	  }
-	}
-      } //info2.isGoodEcal
-    }
-  }
-  return maxNearP;
-}
-
-int IsolatedTracksTreeRecoSimL1SeedsData::chargeIsolation(CaloNavigator<DetId>& navigator,const DetId anyCell, int ieta, int iphi){
-
-  int isIsolated = 1;
-
-  DetId thisDet;
-
-  for (int dx = -ieta; dx < ieta+1; ++dx) {
-    for (int dy = -iphi; dy < iphi+1; ++dy) {
-
-      thisDet = navigator.offsetBy(dx, dy);
-      navigator.home();
-      
-      if (thisDet != DetId(0)) {
-	if (thisDet == anyCell) {
-	  isIsolated = 0;
-	  return isIsolated;
-	}
-      }
-    }
-  }
-  return isIsolated;
-}
-
-double IsolatedTracksTreeRecoSimL1SeedsData::chargeIsolationHcal(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
-					       reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection,
-					       const DetId ClosestCell, const HcalTopology* topology, const CaloSubdetectorGeometry* gHB, 
-					       int ieta, int iphi, bool debug) {
-
-  std::vector<DetId> dets(1,ClosestCell);
-
-   if(debug) std::cout << (HcalDetId) ClosestCell << std::endl;
-
-  std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi); //, debug);
-  std::vector<DetId>::iterator it;  
-  
-  if(debug) {
-    for(unsigned int i=0; i<vdets.size(); i++) {
-      std::cout << "HcalDetId in " <<2*ieta+1 << "x" << 2*iphi+1 << " " << (HcalDetId) vdets[i] << std::endl;
-    }
-  }
-
-  double maxNearP = -1.0;
-  std::string theTrackQuality = "highPurity";
-  reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
-  
-  reco::TrackCollection::const_iterator trkItr2;
-  for( trkItr2 = trkCollection->begin(); trkItr2 != trkCollection->end(); ++trkItr2){
-    
-    const reco::Track* pTrack2 = &(*trkItr2);
-    
-    bool   trkQuality  = pTrack2->quality(trackQuality_);
-    //const reco::HitPattern& hitp = pTrack2->hitPattern();
-    //int nLayersCrossed = hitp.trackerLayersWithMeasurement() ;        
-    
-    //if( (trkItr2 != trkItr) && trkQuality && nLayersCrossed>7 )  {
-    if( (trkItr2 != trkItr) && trkQuality )  {
-      const FreeTrajectoryState fts2 = trackAssociator_->getFreeTrajectoryState(iSetup, *pTrack2);
-      TrackDetMatchInfo info2 = trackAssociator_->associate(iEvent, iSetup, fts2, parameters_);
-      const GlobalPoint point2(info2.trkGlobPosAtHcal.x(),info2.trkGlobPosAtHcal.y(),info2.trkGlobPosAtHcal.z());
-
-      if(debug){
-	std::cout << "Track2 (p,eta,phi) " << pTrack2->p() << " " << pTrack2->eta() << " " << pTrack2->phi() << std::endl;
-      }
-
-      if( info2.isGoodHcal ) {
-	const DetId anyCell = gHB->getClosestCell(point2);
-	//it = vdets.find(vdets.begin(), vdets.end(),anyCell);
-	for(unsigned int i=0; i<vdets.size(); i++) {
-	  if(anyCell == vdets[i]) {
-	    if(maxNearP<pTrack2->p())  maxNearP=pTrack2->p();
-	    break;
-	  }
-	}
-	if(debug){
-	  std::cout << "maxNearP " << maxNearP << " thisCell " << (HcalDetId)anyCell 
-		    << " (" << info2.trkGlobPosAtHcal.x()<<","<< info2.trkGlobPosAtHcal.y()<<","<< info2.trkGlobPosAtHcal.z()<<")"
-		    << std::endl;
-	}
-
-      }
-    }
-  }  
-  
-  return maxNearP;
-}
-  
 
 
 //---
-void IsolatedTracksTreeRecoSimL1SeedsData::clearTreeVectors() {
+void IsolatedTracksNxN::clearTreeVectors() {
 
   t_PVx               ->clear();
   t_PVy               ->clear();
   t_PVz               ->clear();
   t_PVisValid         ->clear();
+  t_PVndof            ->clear();
   t_PVNTracks         ->clear();
   t_PVNTracksWt       ->clear();
   t_PVTracksSumPt     ->clear();
@@ -1193,6 +1102,24 @@ void IsolatedTracksTreeRecoSimL1SeedsData::clearTreeVectors() {
   t_trackDzPV         ->clear();
   t_trackChiSq        ->clear();
   t_trackPVIdx        ->clear();
+  t_trackHitsTOB          ->clear(); 
+  t_trackHitsTEC          ->clear();
+  t_trackHitInMissTOB     ->clear(); 
+  t_trackHitInMissTEC     ->clear();  
+  t_trackHitInMissTIB     ->clear();  
+  t_trackHitInMissTID     ->clear();
+  t_trackHitOutMissTOB    ->clear();
+  t_trackHitOutMissTEC    ->clear(); 
+  t_trackHitOutMissTIB    ->clear();
+  t_trackHitOutMissTID    ->clear();  
+  t_trackHitInMeasTOB     ->clear(); 
+  t_trackHitInMeasTEC     ->clear();  
+  t_trackHitInMeasTIB     ->clear();  
+  t_trackHitInMeasTID     ->clear();
+  t_trackHitOutMeasTOB    ->clear();
+  t_trackHitOutMeasTEC    ->clear(); 
+  t_trackHitOutMeasTIB    ->clear();
+  t_trackHitOutMeasTID    ->clear();
 
   t_maxNearP31x31     ->clear();
   t_maxNearP25x25     ->clear();
@@ -1213,78 +1140,100 @@ void IsolatedTracksTreeRecoSimL1SeedsData::clearTreeVectors() {
   t_e21x21            ->clear();
   t_e25x25            ->clear();
   t_e31x31            ->clear();
+  //  t_e11x11Xtals       ->clear();
 
-  /*
-  t_simTrackP         ->clear();
-  t_esimPdgId         ->clear();
-  t_trkEcalEne        ->clear();
+  t_e7x7_10Sig        ->clear();
+  t_e9x9_10Sig        ->clear();
+  t_e11x11_10Sig      ->clear();
+  t_e15x15_10Sig      ->clear();
+  t_e7x7_15Sig        ->clear();
+  t_e9x9_15Sig        ->clear();
+  t_e11x11_15Sig      ->clear();
+  t_e15x15_15Sig      ->clear();
+  t_e7x7_20Sig        ->clear();
+  t_e9x9_20Sig        ->clear();
+  t_e11x11_20Sig      ->clear();
+  t_e15x15_20Sig      ->clear();
+  t_e7x7_25Sig        ->clear();
+  t_e9x9_25Sig        ->clear();
+  t_e11x11_25Sig      ->clear();
+  t_e15x15_25Sig      ->clear();
+  t_e7x7_30Sig        ->clear();
+  t_e9x9_30Sig        ->clear();
+  t_e11x11_30Sig      ->clear();
+  t_e15x15_30Sig      ->clear();
 
-  t_esim3x3           ->clear();
-  t_esim5x5           ->clear();
-  t_esim7x7           ->clear();
-  t_esim9x9           ->clear();
-  t_esim11x11         ->clear();
-  t_esim13x13         ->clear();
-  t_esim15x15         ->clear();
-  t_esim21x21         ->clear();
-  t_esim25x25         ->clear();
-  t_esim31x31         ->clear();
+  if (flagMC) {
+    t_simTrackP         ->clear();
+    t_esimPdgId         ->clear();
+    t_trkEcalEne        ->clear();
+
+    t_esim3x3           ->clear();
+    t_esim5x5           ->clear();
+    t_esim7x7           ->clear();
+    t_esim9x9           ->clear();
+    t_esim11x11         ->clear();
+    t_esim13x13         ->clear();
+    t_esim15x15         ->clear();
+    t_esim21x21         ->clear();
+    t_esim25x25         ->clear();
+    t_esim31x31         ->clear();
   
-  t_esim3x3Matched    ->clear();
-  t_esim5x5Matched    ->clear();
-  t_esim7x7Matched    ->clear();
-  t_esim9x9Matched    ->clear();
-  t_esim11x11Matched  ->clear();
-  t_esim13x13Matched  ->clear();
-  t_esim15x15Matched  ->clear();
-  t_esim21x21Matched  ->clear();
-  t_esim25x25Matched  ->clear();
-  t_esim31x31Matched  ->clear();
+    t_esim3x3Matched    ->clear();
+    t_esim5x5Matched    ->clear();
+    t_esim7x7Matched    ->clear();
+    t_esim9x9Matched    ->clear();
+    t_esim11x11Matched  ->clear();
+    t_esim13x13Matched  ->clear();
+    t_esim15x15Matched  ->clear();
+    t_esim21x21Matched  ->clear();
+    t_esim25x25Matched  ->clear();
+    t_esim31x31Matched  ->clear();
 
-  t_esim3x3Rest       ->clear();
-  t_esim5x5Rest       ->clear();
-  t_esim7x7Rest       ->clear();
-  t_esim9x9Rest       ->clear();
-  t_esim11x11Rest     ->clear();
-  t_esim13x13Rest     ->clear();
-  t_esim15x15Rest     ->clear();
-  t_esim21x21Rest     ->clear();
-  t_esim25x25Rest     ->clear();
-  t_esim31x31Rest     ->clear();
+    t_esim3x3Rest       ->clear();
+    t_esim5x5Rest       ->clear();
+    t_esim7x7Rest       ->clear();
+    t_esim9x9Rest       ->clear();
+    t_esim11x11Rest     ->clear();
+    t_esim13x13Rest     ->clear();
+    t_esim15x15Rest     ->clear();
+    t_esim21x21Rest     ->clear();
+    t_esim25x25Rest     ->clear();
+    t_esim31x31Rest     ->clear();
 
-  t_esim3x3Photon     ->clear();
-  t_esim5x5Photon     ->clear();
-  t_esim7x7Photon     ->clear();
-  t_esim9x9Photon     ->clear();
-  t_esim11x11Photon   ->clear();
-  t_esim13x13Photon   ->clear();
-  t_esim15x15Photon   ->clear();
-  t_esim21x21Photon   ->clear();
-  t_esim25x25Photon   ->clear();
-  t_esim31x31Photon   ->clear();
+    t_esim3x3Photon     ->clear();
+    t_esim5x5Photon     ->clear();
+    t_esim7x7Photon     ->clear();
+    t_esim9x9Photon     ->clear();
+    t_esim11x11Photon   ->clear();
+    t_esim13x13Photon   ->clear();
+    t_esim15x15Photon   ->clear();
+    t_esim21x21Photon   ->clear();
+    t_esim25x25Photon   ->clear();
+    t_esim31x31Photon   ->clear();
 
-  t_esim3x3NeutHad    ->clear();
-  t_esim5x5NeutHad    ->clear();
-  t_esim7x7NeutHad    ->clear();
-  t_esim9x9NeutHad    ->clear();
-  t_esim11x11NeutHad  ->clear();
-  t_esim13x13NeutHad  ->clear();
-  t_esim15x15NeutHad  ->clear();
-  t_esim21x21NeutHad  ->clear();
-  t_esim25x25NeutHad  ->clear();
-  t_esim31x31NeutHad  ->clear();
+    t_esim3x3NeutHad    ->clear();
+    t_esim5x5NeutHad    ->clear();
+    t_esim7x7NeutHad    ->clear();
+    t_esim9x9NeutHad    ->clear();
+    t_esim11x11NeutHad  ->clear();
+    t_esim13x13NeutHad  ->clear();
+    t_esim15x15NeutHad  ->clear();
+    t_esim21x21NeutHad  ->clear();
+    t_esim25x25NeutHad  ->clear();
+    t_esim31x31NeutHad  ->clear();
 
-  t_esim3x3CharHad    ->clear();
-  t_esim5x5CharHad    ->clear();
-  t_esim7x7CharHad    ->clear();
-  t_esim9x9CharHad    ->clear();
-  t_esim11x11CharHad  ->clear();
-  t_esim13x13CharHad  ->clear();
-  t_esim15x15CharHad  ->clear();
-  t_esim21x21CharHad  ->clear();
-  t_esim25x25CharHad  ->clear();
-  t_esim31x31CharHad  ->clear();
-  */
+    t_esim3x3CharHad    ->clear();
+    t_esim5x5CharHad    ->clear();
+    t_esim7x7CharHad    ->clear();
+    t_esim9x9CharHad    ->clear();
+    t_esim11x11CharHad  ->clear();
+    t_esim13x13CharHad  ->clear();
+    t_esim15x15CharHad  ->clear();
+    t_esim21x21CharHad  ->clear();
+    t_esim25x25CharHad  ->clear();
+    t_esim31x31CharHad  ->clear();
+  }
 
   t_maxNearHcalP3x3   ->clear();
   t_maxNearHcalP5x5   ->clear();
@@ -1295,31 +1244,32 @@ void IsolatedTracksTreeRecoSimL1SeedsData::clearTreeVectors() {
   t_h7x7              ->clear();
 
   t_infoHcal          ->clear();
-  /*
-  t_trkHcalEne        ->clear();
 
-  t_hsim3x3           ->clear();
-  t_hsim5x5           ->clear();
-  t_hsim7x7           ->clear();
-  t_hsim3x3Matched    ->clear();
-  t_hsim5x5Matched    ->clear();
-  t_hsim7x7Matched    ->clear();
-  t_hsim3x3Rest       ->clear();
-  t_hsim5x5Rest       ->clear();
-  t_hsim7x7Rest       ->clear();
-  t_hsim3x3Photon     ->clear();
-  t_hsim5x5Photon     ->clear();
-  t_hsim7x7Photon     ->clear();
-  t_hsim3x3NeutHad    ->clear();
-  t_hsim5x5NeutHad    ->clear();
-  t_hsim7x7NeutHad    ->clear();
-  t_hsim3x3CharHad    ->clear();
-  t_hsim5x5CharHad    ->clear();
-  t_hsim7x7CharHad    ->clear();
-  */
+  if (flagMC) {
+    t_trkHcalEne        ->clear();
+
+    t_hsim3x3           ->clear();
+    t_hsim5x5           ->clear();
+    t_hsim7x7           ->clear();
+    t_hsim3x3Matched    ->clear();
+    t_hsim5x5Matched    ->clear();
+    t_hsim7x7Matched    ->clear();
+    t_hsim3x3Rest       ->clear();
+    t_hsim5x5Rest       ->clear();
+    t_hsim7x7Rest       ->clear();
+    t_hsim3x3Photon     ->clear();
+    t_hsim5x5Photon     ->clear();
+    t_hsim7x7Photon     ->clear();
+    t_hsim3x3NeutHad    ->clear();
+    t_hsim5x5NeutHad    ->clear();
+    t_hsim7x7NeutHad    ->clear();
+    t_hsim3x3CharHad    ->clear();
+    t_hsim5x5CharHad    ->clear();
+    t_hsim7x7CharHad    ->clear();
+  }
 }
 
-void IsolatedTracksTreeRecoSimL1SeedsData::BookHistograms(){
+void IsolatedTracksNxN::BookHistograms(){
 
   char hname[100], htit[100];
 
@@ -1386,6 +1336,7 @@ void IsolatedTracksTreeRecoSimL1SeedsData::BookHistograms(){
   t_PVy               = new std::vector<double>();
   t_PVz               = new std::vector<double>();
   t_PVisValid         = new std::vector<double>();
+  t_PVndof            = new std::vector<double>(); 
   t_PVNTracks         = new std::vector<double>();
   t_PVNTracksWt       = new std::vector<double>();
   t_PVTracksSumPt     = new std::vector<double>();
@@ -1399,6 +1350,7 @@ void IsolatedTracksTreeRecoSimL1SeedsData::BookHistograms(){
   tree->Branch("PVy"                  ,"vector<double>"      ,&t_PVy);
   tree->Branch("PVz"                  ,"vector<double>"      ,&t_PVz);
   tree->Branch("PVisValid"            ,"vector<double>"      ,&t_PVisValid);
+  tree->Branch("PVndof"               ,"vector<double>"      ,&t_PVndof);
   tree->Branch("PVNTracks"            ,"vector<double>"      ,&t_PVNTracks);
   tree->Branch("PVNTracksWt"          ,"vector<double>"      ,&t_PVNTracksWt);
   tree->Branch("t_PVTracksSumPt"      ,"vector<double>"      ,&t_PVTracksSumPt);
@@ -1489,13 +1441,50 @@ void IsolatedTracksTreeRecoSimL1SeedsData::BookHistograms(){
   t_trackDzPV         = new std::vector<double>();
   t_trackPVIdx        = new std::vector<int>();
   t_trackChiSq        = new std::vector<double>();
+  t_trackHitsTOB      = new std::vector<int>(); 
+  t_trackHitsTEC      = new std::vector<int>();
+  t_trackHitInMissTOB = new std::vector<int>(); 
+  t_trackHitInMissTEC = new std::vector<int>();  
+  t_trackHitInMissTIB = new std::vector<int>();  
+  t_trackHitInMissTID = new std::vector<int>();
+  t_trackHitOutMissTOB= new std::vector<int>();
+  t_trackHitOutMissTEC= new std::vector<int>(); 
+  t_trackHitOutMissTIB= new std::vector<int>();
+  t_trackHitOutMissTID= new std::vector<int>();
+  t_trackHitInMeasTOB = new std::vector<int>(); 
+  t_trackHitInMeasTEC = new std::vector<int>();  
+  t_trackHitInMeasTIB = new std::vector<int>();  
+  t_trackHitInMeasTID = new std::vector<int>();
+  t_trackHitOutMeasTOB= new std::vector<int>();
+  t_trackHitOutMeasTEC= new std::vector<int>(); 
+  t_trackHitOutMeasTIB= new std::vector<int>();
+  t_trackHitOutMeasTID= new std::vector<int>();
 
-  tree->Branch("t_trackP",            "vector<double>", &t_trackP);
-  tree->Branch("t_trackPt",           "vector<double>", &t_trackPt);
-  tree->Branch("t_trackEta",          "vector<double>", &t_trackEta);
-  tree->Branch("t_trackPhi",          "vector<double>", &t_trackPhi);
-  tree->Branch("t_trackNOuterHits",   "vector<int>",    &t_trackNOuterHits);
-  tree->Branch("t_NLayersCrossed",    "vector<int>",    &t_NLayersCrossed);
+  tree->Branch("t_trackP",            "vector<double>", &t_trackP            );
+  tree->Branch("t_trackPt",           "vector<double>", &t_trackPt           );
+  tree->Branch("t_trackEta",          "vector<double>", &t_trackEta          );
+  tree->Branch("t_trackPhi",          "vector<double>", &t_trackPhi          );
+  tree->Branch("t_trackNOuterHits",   "vector<int>",    &t_trackNOuterHits   );
+  tree->Branch("t_NLayersCrossed",    "vector<int>",    &t_NLayersCrossed    );
+  tree->Branch("t_trackHitsTOB",       "vector<int>",   &t_trackHitsTOB      ); 
+  tree->Branch("t_trackHitsTEC",       "vector<int>",   &t_trackHitsTEC      );
+  tree->Branch("t_trackHitInMissTOB",  "vector<int>",   &t_trackHitInMissTOB ); 
+  tree->Branch("t_trackHitInMissTEC",  "vector<int>",   &t_trackHitInMissTEC );  
+  tree->Branch("t_trackHitInMissTIB",  "vector<int>",   &t_trackHitInMissTIB );  
+  tree->Branch("t_trackHitInMissTID",  "vector<int>",   &t_trackHitInMissTID );
+  tree->Branch("t_trackHitOutMissTOB", "vector<int>",   &t_trackHitOutMissTOB);
+  tree->Branch("t_trackHitOutMissTEC", "vector<int>",   &t_trackHitOutMissTEC); 
+  tree->Branch("t_trackHitOutMissTIB", "vector<int>",   &t_trackHitOutMissTIB);
+  tree->Branch("t_trackHitOutMissTID", "vector<int>",   &t_trackHitOutMissTID);
+  tree->Branch("t_trackHitInMeasTOB",  "vector<int>",   &t_trackHitInMeasTOB ); 
+  tree->Branch("t_trackHitInMeasTEC",  "vector<int>",   &t_trackHitInMeasTEC );  
+  tree->Branch("t_trackHitInMeasTIB",  "vector<int>",   &t_trackHitInMeasTIB );  
+  tree->Branch("t_trackHitInMeasTID",  "vector<int>",   &t_trackHitInMeasTID );
+  tree->Branch("t_trackHitOutMeasTOB", "vector<int>",   &t_trackHitOutMeasTOB);
+  tree->Branch("t_trackHitOutMeasTEC", "vector<int>",   &t_trackHitOutMeasTEC); 
+  tree->Branch("t_trackHitOutMeasTIB", "vector<int>",   &t_trackHitOutMeasTIB);
+  tree->Branch("t_trackHitOutMeasTID", "vector<int>",   &t_trackHitOutMeasTID);
+
   tree->Branch("t_trackDxy",          "vector<double>", &t_trackDxy     );
   tree->Branch("t_trackDxyBS",        "vector<double>", &t_trackDxyBS   );
   tree->Branch("t_trackDz",           "vector<double>", &t_trackDz      );
@@ -1533,6 +1522,7 @@ void IsolatedTracksTreeRecoSimL1SeedsData::BookHistograms(){
   t_e21x21            = new std::vector<double>();
   t_e25x25            = new std::vector<double>();
   t_e31x31            = new std::vector<double>();
+  //t_e11x11Xtals       = new std::vector<std::vector<double> >(); 
 
   tree->Branch("t_e3x3",              "vector<double>", &t_e3x3);
   tree->Branch("t_e5x5",              "vector<double>", &t_e5x5);
@@ -1544,150 +1534,191 @@ void IsolatedTracksTreeRecoSimL1SeedsData::BookHistograms(){
   tree->Branch("t_e21x21",            "vector<double>", &t_e21x21);
   tree->Branch("t_e25x25",            "vector<double>", &t_e25x25);
   tree->Branch("t_e31x31",            "vector<double>", &t_e31x31);
+  //tree->Branch("t_e11x11Xtals",       "vector<vector<double> >", &t_e11x11Xtals);
 
-  /*
-  t_esim3x3              = new std::vector<double>();
-  t_esim5x5              = new std::vector<double>();
-  t_esim7x7              = new std::vector<double>();
-  t_esim9x9              = new std::vector<double>();
-  t_esim11x11            = new std::vector<double>();
-  t_esim13x13            = new std::vector<double>();
-  t_esim15x15            = new std::vector<double>();
-  t_esim21x21            = new std::vector<double>();
-  t_esim25x25            = new std::vector<double>();
-  t_esim31x31            = new std::vector<double>();
+  t_e7x7_10Sig        = new std::vector<double>();
+  t_e9x9_10Sig        = new std::vector<double>();
+  t_e11x11_10Sig      = new std::vector<double>();
+  t_e15x15_10Sig      = new std::vector<double>();
+  t_e7x7_15Sig        = new std::vector<double>();
+  t_e9x9_15Sig        = new std::vector<double>();
+  t_e11x11_15Sig      = new std::vector<double>();
+  t_e15x15_15Sig      = new std::vector<double>();
+  t_e7x7_20Sig        = new std::vector<double>();
+  t_e9x9_20Sig        = new std::vector<double>();
+  t_e11x11_20Sig      = new std::vector<double>();
+  t_e15x15_20Sig      = new std::vector<double>();
+  t_e7x7_25Sig        = new std::vector<double>();
+  t_e9x9_25Sig        = new std::vector<double>();
+  t_e11x11_25Sig      = new std::vector<double>();
+  t_e15x15_25Sig      = new std::vector<double>();
+  t_e7x7_30Sig        = new std::vector<double>();
+  t_e9x9_30Sig        = new std::vector<double>();
+  t_e11x11_30Sig      = new std::vector<double>();
+  t_e15x15_30Sig      = new std::vector<double>();
 
-  t_esim3x3Matched       = new std::vector<double>();
-  t_esim5x5Matched       = new std::vector<double>();
-  t_esim7x7Matched       = new std::vector<double>();
-  t_esim9x9Matched       = new std::vector<double>();
-  t_esim11x11Matched     = new std::vector<double>();
-  t_esim13x13Matched     = new std::vector<double>();
-  t_esim15x15Matched     = new std::vector<double>();
-  t_esim21x21Matched     = new std::vector<double>();
-  t_esim25x25Matched     = new std::vector<double>();
-  t_esim31x31Matched     = new std::vector<double>();
+  tree->Branch("t_e7x7_10Sig"        ,"vector<double>", &t_e7x7_10Sig);
+  tree->Branch("t_e9x9_10Sig"        ,"vector<double>", &t_e9x9_10Sig);
+  tree->Branch("t_e11x11_10Sig"      ,"vector<double>", &t_e11x11_10Sig);
+  tree->Branch("t_e15x15_10Sig"      ,"vector<double>", &t_e15x15_10Sig);
+  tree->Branch("t_e7x7_15Sig"        ,"vector<double>", &t_e7x7_15Sig);
+  tree->Branch("t_e9x9_15Sig"        ,"vector<double>", &t_e9x9_15Sig);
+  tree->Branch("t_e11x11_15Sig"      ,"vector<double>", &t_e11x11_15Sig);
+  tree->Branch("t_e15x15_15Sig"      ,"vector<double>", &t_e15x15_15Sig);
+  tree->Branch("t_e7x7_20Sig"        ,"vector<double>", &t_e7x7_20Sig);
+  tree->Branch("t_e9x9_20Sig"        ,"vector<double>", &t_e9x9_20Sig);
+  tree->Branch("t_e11x11_20Sig"      ,"vector<double>", &t_e11x11_20Sig);
+  tree->Branch("t_e15x15_20Sig"      ,"vector<double>", &t_e15x15_20Sig);
+  tree->Branch("t_e7x7_25Sig"        ,"vector<double>", &t_e7x7_25Sig);
+  tree->Branch("t_e9x9_25Sig"        ,"vector<double>", &t_e9x9_25Sig);
+  tree->Branch("t_e11x11_25Sig"      ,"vector<double>", &t_e11x11_25Sig);
+  tree->Branch("t_e15x15_25Sig"      ,"vector<double>", &t_e15x15_25Sig);
+  tree->Branch("t_e7x7_30Sig"        ,"vector<double>", &t_e7x7_30Sig);
+  tree->Branch("t_e9x9_30Sig"        ,"vector<double>", &t_e9x9_30Sig);
+  tree->Branch("t_e11x11_30Sig"      ,"vector<double>", &t_e11x11_30Sig);
+  tree->Branch("t_e15x15_30Sig"      ,"vector<double>", &t_e15x15_30Sig);
 
-  t_esim3x3Rest          = new std::vector<double>();
-  t_esim5x5Rest          = new std::vector<double>();
-  t_esim7x7Rest          = new std::vector<double>();
-  t_esim9x9Rest          = new std::vector<double>();
-  t_esim11x11Rest        = new std::vector<double>();
-  t_esim13x13Rest        = new std::vector<double>();
-  t_esim15x15Rest        = new std::vector<double>();
-  t_esim21x21Rest        = new std::vector<double>();
-  t_esim25x25Rest        = new std::vector<double>();
-  t_esim31x31Rest        = new std::vector<double>();
+  if (flagMC) {
+    t_esim3x3              = new std::vector<double>();
+    t_esim5x5              = new std::vector<double>();
+    t_esim7x7              = new std::vector<double>();
+    t_esim9x9              = new std::vector<double>();
+    t_esim11x11            = new std::vector<double>();
+    t_esim13x13            = new std::vector<double>();
+    t_esim15x15            = new std::vector<double>();
+    t_esim21x21            = new std::vector<double>();
+    t_esim25x25            = new std::vector<double>();
+    t_esim31x31            = new std::vector<double>();
 
-  t_esim3x3Photon        = new std::vector<double>();
-  t_esim5x5Photon        = new std::vector<double>();
-  t_esim7x7Photon        = new std::vector<double>();
-  t_esim9x9Photon        = new std::vector<double>();
-  t_esim11x11Photon      = new std::vector<double>();
-  t_esim13x13Photon      = new std::vector<double>();
-  t_esim15x15Photon      = new std::vector<double>();
-  t_esim21x21Photon      = new std::vector<double>();
-  t_esim25x25Photon      = new std::vector<double>();
-  t_esim31x31Photon      = new std::vector<double>();
+    t_esim3x3Matched       = new std::vector<double>();
+    t_esim5x5Matched       = new std::vector<double>();
+    t_esim7x7Matched       = new std::vector<double>();
+    t_esim9x9Matched       = new std::vector<double>();
+    t_esim11x11Matched     = new std::vector<double>();
+    t_esim13x13Matched     = new std::vector<double>();
+    t_esim15x15Matched     = new std::vector<double>();
+    t_esim21x21Matched     = new std::vector<double>();
+    t_esim25x25Matched     = new std::vector<double>();
+    t_esim31x31Matched     = new std::vector<double>();
 
-  t_esim3x3NeutHad       = new std::vector<double>();
-  t_esim5x5NeutHad       = new std::vector<double>();
-  t_esim7x7NeutHad       = new std::vector<double>();
-  t_esim9x9NeutHad       = new std::vector<double>();
-  t_esim11x11NeutHad     = new std::vector<double>();
-  t_esim13x13NeutHad     = new std::vector<double>();
-  t_esim15x15NeutHad     = new std::vector<double>();
-  t_esim21x21NeutHad     = new std::vector<double>();
-  t_esim25x25NeutHad     = new std::vector<double>();
-  t_esim31x31NeutHad     = new std::vector<double>();
+    t_esim3x3Rest          = new std::vector<double>();
+    t_esim5x5Rest          = new std::vector<double>();
+    t_esim7x7Rest          = new std::vector<double>();
+    t_esim9x9Rest          = new std::vector<double>();
+    t_esim11x11Rest        = new std::vector<double>();
+    t_esim13x13Rest        = new std::vector<double>();
+    t_esim15x15Rest        = new std::vector<double>();
+    t_esim21x21Rest        = new std::vector<double>();
+    t_esim25x25Rest        = new std::vector<double>();
+    t_esim31x31Rest        = new std::vector<double>();
 
-  t_esim3x3CharHad       = new std::vector<double>();
-  t_esim5x5CharHad       = new std::vector<double>();
-  t_esim7x7CharHad       = new std::vector<double>();
-  t_esim9x9CharHad       = new std::vector<double>();
-  t_esim11x11CharHad     = new std::vector<double>();
-  t_esim13x13CharHad     = new std::vector<double>();
-  t_esim15x15CharHad     = new std::vector<double>();
-  t_esim21x21CharHad     = new std::vector<double>();
-  t_esim25x25CharHad     = new std::vector<double>();
-  t_esim31x31CharHad     = new std::vector<double>();
+    t_esim3x3Photon        = new std::vector<double>();
+    t_esim5x5Photon        = new std::vector<double>();
+    t_esim7x7Photon        = new std::vector<double>();
+    t_esim9x9Photon        = new std::vector<double>();
+    t_esim11x11Photon      = new std::vector<double>();
+    t_esim13x13Photon      = new std::vector<double>();
+    t_esim15x15Photon      = new std::vector<double>();
+    t_esim21x21Photon      = new std::vector<double>();
+    t_esim25x25Photon      = new std::vector<double>();
+    t_esim31x31Photon      = new std::vector<double>();
 
-  t_trkEcalEne           = new std::vector<double>();
-  t_simTrackP            = new std::vector<double>();
-  t_esimPdgId            = new std::vector<double>();
-  */
+    t_esim3x3NeutHad       = new std::vector<double>();
+    t_esim5x5NeutHad       = new std::vector<double>();
+    t_esim7x7NeutHad       = new std::vector<double>();
+    t_esim9x9NeutHad       = new std::vector<double>();
+    t_esim11x11NeutHad     = new std::vector<double>();
+    t_esim13x13NeutHad     = new std::vector<double>();
+    t_esim15x15NeutHad     = new std::vector<double>();
+    t_esim21x21NeutHad     = new std::vector<double>();
+    t_esim25x25NeutHad     = new std::vector<double>();
+    t_esim31x31NeutHad     = new std::vector<double>();
 
-  /*
-  tree->Branch("t_esim3x3",             "vector<double>", &t_esim3x3);
-  tree->Branch("t_esim5x5",             "vector<double>", &t_esim5x5);
-  tree->Branch("t_esim7x7",             "vector<double>", &t_esim7x7);
-  tree->Branch("t_esim9x9",             "vector<double>", &t_esim9x9);
-  tree->Branch("t_esim11x11",           "vector<double>", &t_esim11x11);
-  tree->Branch("t_esim13x13",           "vector<double>", &t_esim13x13);
-  tree->Branch("t_esim15x15",           "vector<double>", &t_esim15x15);
-  tree->Branch("t_esim21x21",           "vector<double>", &t_esim21x21);
-  tree->Branch("t_esim25x25",           "vector<double>", &t_esim25x25);
-  tree->Branch("t_esim31x31",           "vector<double>", &t_esim31x31);
+    t_esim3x3CharHad       = new std::vector<double>();
+    t_esim5x5CharHad       = new std::vector<double>();
+    t_esim7x7CharHad       = new std::vector<double>();
+    t_esim9x9CharHad       = new std::vector<double>();
+    t_esim11x11CharHad     = new std::vector<double>();
+    t_esim13x13CharHad     = new std::vector<double>();
+    t_esim15x15CharHad     = new std::vector<double>();
+    t_esim21x21CharHad     = new std::vector<double>();
+    t_esim25x25CharHad     = new std::vector<double>();
+    t_esim31x31CharHad     = new std::vector<double>();
 
-  tree->Branch("t_esim3x3Matched",      "vector<double>", &t_esim3x3Matched);
-  tree->Branch("t_esim5x5Matched",      "vector<double>", &t_esim5x5Matched);
-  tree->Branch("t_esim7x7Matched",      "vector<double>", &t_esim7x7Matched);
-  tree->Branch("t_esim9x9Matched",      "vector<double>", &t_esim9x9Matched);
-  tree->Branch("t_esim11x11Matched",    "vector<double>", &t_esim11x11Matched);
-  tree->Branch("t_esim13x13Matched",    "vector<double>", &t_esim13x13Matched);
-  tree->Branch("t_esim15x15Matched",    "vector<double>", &t_esim15x15Matched);
-  tree->Branch("t_esim21x21Matched",    "vector<double>", &t_esim21x21Matched);
-  tree->Branch("t_esim25x25Matched",    "vector<double>", &t_esim25x25Matched);
-  tree->Branch("t_esim31x31Matched",    "vector<double>", &t_esim31x31Matched);
+    t_trkEcalEne           = new std::vector<double>();
+    t_simTrackP            = new std::vector<double>();
+    t_esimPdgId            = new std::vector<double>();
 
-  tree->Branch("t_esim3x3Rest",         "vector<double>", &t_esim3x3Rest);
-  tree->Branch("t_esim5x5Rest",         "vector<double>", &t_esim5x5Rest);
-  tree->Branch("t_esim7x7Rest",         "vector<double>", &t_esim7x7Rest);
-  tree->Branch("t_esim9x9Rest",         "vector<double>", &t_esim9x9Rest);
-  tree->Branch("t_esim11x11Rest",       "vector<double>", &t_esim11x11Rest);
-  tree->Branch("t_esim13x13Rest",       "vector<double>", &t_esim13x13Rest);
-  tree->Branch("t_esim15x15Rest",       "vector<double>", &t_esim15x15Rest);
-  tree->Branch("t_esim21x21Rest",       "vector<double>", &t_esim21x21Rest);
-  tree->Branch("t_esim25x25Rest",       "vector<double>", &t_esim25x25Rest);
-  tree->Branch("t_esim31x31Rest",       "vector<double>", &t_esim31x31Rest);
+    tree->Branch("t_esim3x3",             "vector<double>", &t_esim3x3);
+    tree->Branch("t_esim5x5",             "vector<double>", &t_esim5x5);
+    tree->Branch("t_esim7x7",             "vector<double>", &t_esim7x7);
+    tree->Branch("t_esim9x9",             "vector<double>", &t_esim9x9);
+    tree->Branch("t_esim11x11",           "vector<double>", &t_esim11x11);
+    tree->Branch("t_esim13x13",           "vector<double>", &t_esim13x13);
+    tree->Branch("t_esim15x15",           "vector<double>", &t_esim15x15);
+    tree->Branch("t_esim21x21",           "vector<double>", &t_esim21x21);
+    tree->Branch("t_esim25x25",           "vector<double>", &t_esim25x25);
+    tree->Branch("t_esim31x31",           "vector<double>", &t_esim31x31);
 
-  tree->Branch("t_esim3x3Photon",       "vector<double>", &t_esim3x3Photon);
-  tree->Branch("t_esim5x5Photon",       "vector<double>", &t_esim5x5Photon);
-  tree->Branch("t_esim7x7Photon",       "vector<double>", &t_esim7x7Photon);
-  tree->Branch("t_esim9x9Photon",       "vector<double>", &t_esim9x9Photon);
-  tree->Branch("t_esim11x11Photon",     "vector<double>", &t_esim11x11Photon);
-  tree->Branch("t_esim13x13Photon",     "vector<double>", &t_esim13x13Photon);
-  tree->Branch("t_esim15x15Photon",     "vector<double>", &t_esim15x15Photon);
-  tree->Branch("t_esim21x21Photon",     "vector<double>", &t_esim21x21Photon);
-  tree->Branch("t_esim25x25Photon",     "vector<double>", &t_esim25x25Photon);
-  tree->Branch("t_esim31x31Photon",     "vector<double>", &t_esim31x31Photon);
+    tree->Branch("t_esim3x3Matched",      "vector<double>", &t_esim3x3Matched);
+    tree->Branch("t_esim5x5Matched",      "vector<double>", &t_esim5x5Matched);
+    tree->Branch("t_esim7x7Matched",      "vector<double>", &t_esim7x7Matched);
+    tree->Branch("t_esim9x9Matched",      "vector<double>", &t_esim9x9Matched);
+    tree->Branch("t_esim11x11Matched",    "vector<double>", &t_esim11x11Matched);
+    tree->Branch("t_esim13x13Matched",    "vector<double>", &t_esim13x13Matched);
+    tree->Branch("t_esim15x15Matched",    "vector<double>", &t_esim15x15Matched);
+    tree->Branch("t_esim21x21Matched",    "vector<double>", &t_esim21x21Matched);
+    tree->Branch("t_esim25x25Matched",    "vector<double>", &t_esim25x25Matched);
+    tree->Branch("t_esim31x31Matched",    "vector<double>", &t_esim31x31Matched);
 
-  tree->Branch("t_esim3x3NeutHad",      "vector<double>", &t_esim3x3NeutHad);
-  tree->Branch("t_esim5x5NeutHad",      "vector<double>", &t_esim5x5NeutHad);
-  tree->Branch("t_esim7x7NeutHad",      "vector<double>", &t_esim7x7NeutHad);
-  tree->Branch("t_esim9x9NeutHad",      "vector<double>", &t_esim9x9NeutHad);
-  tree->Branch("t_esim11x11NeutHad",    "vector<double>", &t_esim11x11NeutHad);
-  tree->Branch("t_esim13x13NeutHad",    "vector<double>", &t_esim13x13NeutHad);
-  tree->Branch("t_esim15x15NeutHad",    "vector<double>", &t_esim15x15NeutHad);
-  tree->Branch("t_esim21x21NeutHad",    "vector<double>", &t_esim21x21NeutHad);
-  tree->Branch("t_esim25x25NeutHad",    "vector<double>", &t_esim25x25NeutHad);
-  tree->Branch("t_esim31x31NeutHad",    "vector<double>", &t_esim31x31NeutHad);
+    tree->Branch("t_esim3x3Rest",         "vector<double>", &t_esim3x3Rest);
+    tree->Branch("t_esim5x5Rest",         "vector<double>", &t_esim5x5Rest);
+    tree->Branch("t_esim7x7Rest",         "vector<double>", &t_esim7x7Rest);
+    tree->Branch("t_esim9x9Rest",         "vector<double>", &t_esim9x9Rest);
+    tree->Branch("t_esim11x11Rest",       "vector<double>", &t_esim11x11Rest);
+    tree->Branch("t_esim13x13Rest",       "vector<double>", &t_esim13x13Rest);
+    tree->Branch("t_esim15x15Rest",       "vector<double>", &t_esim15x15Rest);
+    tree->Branch("t_esim21x21Rest",       "vector<double>", &t_esim21x21Rest);
+    tree->Branch("t_esim25x25Rest",       "vector<double>", &t_esim25x25Rest);
+    tree->Branch("t_esim31x31Rest",       "vector<double>", &t_esim31x31Rest);
 
-  tree->Branch("t_esim3x3CharHad",      "vector<double>", &t_esim3x3CharHad);
-  tree->Branch("t_esim5x5CharHad",      "vector<double>", &t_esim5x5CharHad);
-  tree->Branch("t_esim7x7CharHad",      "vector<double>", &t_esim7x7CharHad);
-  tree->Branch("t_esim9x9CharHad",      "vector<double>", &t_esim9x9CharHad);
-  tree->Branch("t_esim11x11CharHad",    "vector<double>", &t_esim11x11CharHad);
-  tree->Branch("t_esim13x13CharHad",    "vector<double>", &t_esim13x13CharHad);
-  tree->Branch("t_esim15x15CharHad",    "vector<double>", &t_esim15x15CharHad);
-  tree->Branch("t_esim21x21CharHad",    "vector<double>", &t_esim21x21CharHad);
-  tree->Branch("t_esim25x25CharHad",    "vector<double>", &t_esim25x25CharHad);
-  tree->Branch("t_esim31x31CharHad",    "vector<double>", &t_esim31x31CharHad);
+    tree->Branch("t_esim3x3Photon",       "vector<double>", &t_esim3x3Photon);
+    tree->Branch("t_esim5x5Photon",       "vector<double>", &t_esim5x5Photon);
+    tree->Branch("t_esim7x7Photon",       "vector<double>", &t_esim7x7Photon);
+    tree->Branch("t_esim9x9Photon",       "vector<double>", &t_esim9x9Photon);
+    tree->Branch("t_esim11x11Photon",     "vector<double>", &t_esim11x11Photon);
+    tree->Branch("t_esim13x13Photon",     "vector<double>", &t_esim13x13Photon);
+    tree->Branch("t_esim15x15Photon",     "vector<double>", &t_esim15x15Photon);
+    tree->Branch("t_esim21x21Photon",     "vector<double>", &t_esim21x21Photon);
+    tree->Branch("t_esim25x25Photon",     "vector<double>", &t_esim25x25Photon);
+    tree->Branch("t_esim31x31Photon",     "vector<double>", &t_esim31x31Photon);
 
-  tree->Branch("t_trkEcalEne",          "vector<double>", &t_trkEcalEne);
-  tree->Branch("t_simTrackP",           "vector<double>", &t_simTrackP);
-  tree->Branch("t_esimPdgId",           "vector<double>", &t_esimPdgId);
-  */
+    tree->Branch("t_esim3x3NeutHad",      "vector<double>", &t_esim3x3NeutHad);
+    tree->Branch("t_esim5x5NeutHad",      "vector<double>", &t_esim5x5NeutHad);
+    tree->Branch("t_esim7x7NeutHad",      "vector<double>", &t_esim7x7NeutHad);
+    tree->Branch("t_esim9x9NeutHad",      "vector<double>", &t_esim9x9NeutHad);
+    tree->Branch("t_esim11x11NeutHad",    "vector<double>", &t_esim11x11NeutHad);
+    tree->Branch("t_esim13x13NeutHad",    "vector<double>", &t_esim13x13NeutHad);
+    tree->Branch("t_esim15x15NeutHad",    "vector<double>", &t_esim15x15NeutHad);
+    tree->Branch("t_esim21x21NeutHad",    "vector<double>", &t_esim21x21NeutHad);
+    tree->Branch("t_esim25x25NeutHad",    "vector<double>", &t_esim25x25NeutHad);
+    tree->Branch("t_esim31x31NeutHad",    "vector<double>", &t_esim31x31NeutHad);
+
+    tree->Branch("t_esim3x3CharHad",      "vector<double>", &t_esim3x3CharHad);
+    tree->Branch("t_esim5x5CharHad",      "vector<double>", &t_esim5x5CharHad);
+    tree->Branch("t_esim7x7CharHad",      "vector<double>", &t_esim7x7CharHad);
+    tree->Branch("t_esim9x9CharHad",      "vector<double>", &t_esim9x9CharHad);
+    tree->Branch("t_esim11x11CharHad",    "vector<double>", &t_esim11x11CharHad);
+    tree->Branch("t_esim13x13CharHad",    "vector<double>", &t_esim13x13CharHad);
+    tree->Branch("t_esim15x15CharHad",    "vector<double>", &t_esim15x15CharHad);
+    tree->Branch("t_esim21x21CharHad",    "vector<double>", &t_esim21x21CharHad);
+    tree->Branch("t_esim25x25CharHad",    "vector<double>", &t_esim25x25CharHad);
+    tree->Branch("t_esim31x31CharHad",    "vector<double>", &t_esim31x31CharHad);
+
+    tree->Branch("t_trkEcalEne",          "vector<double>", &t_trkEcalEne);
+    tree->Branch("t_simTrackP",           "vector<double>", &t_simTrackP);
+    tree->Branch("t_esimPdgId",           "vector<double>", &t_esimPdgId);
+  }
 
   t_maxNearHcalP3x3      = new std::vector<double>();
   t_maxNearHcalP5x5      = new std::vector<double>();
@@ -1696,27 +1727,29 @@ void IsolatedTracksTreeRecoSimL1SeedsData::BookHistograms(){
   t_h5x5                 = new std::vector<double>();
   t_h7x7                 = new std::vector<double>();
   t_infoHcal             = new std::vector<int>();
-  /*
-  t_trkHcalEne           = new std::vector<double>();
-  t_hsim3x3              = new std::vector<double>();
-  t_hsim5x5              = new std::vector<double>();
-  t_hsim7x7              = new std::vector<double>();
-  t_hsim3x3Matched       = new std::vector<double>();
-  t_hsim5x5Matched       = new std::vector<double>();
-  t_hsim7x7Matched       = new std::vector<double>();
-  t_hsim3x3Rest          = new std::vector<double>();
-  t_hsim5x5Rest          = new std::vector<double>();
-  t_hsim7x7Rest          = new std::vector<double>();
-  t_hsim3x3Photon        = new std::vector<double>();
-  t_hsim5x5Photon        = new std::vector<double>();
-  t_hsim7x7Photon        = new std::vector<double>();
-  t_hsim3x3NeutHad       = new std::vector<double>();
-  t_hsim5x5NeutHad       = new std::vector<double>();
-  t_hsim7x7NeutHad       = new std::vector<double>();
-  t_hsim3x3CharHad       = new std::vector<double>();
-  t_hsim5x5CharHad       = new std::vector<double>();
-  t_hsim7x7CharHad       = new std::vector<double>();
-  */
+
+  if (flagMC) {
+    t_trkHcalEne           = new std::vector<double>();
+    t_hsim3x3              = new std::vector<double>();
+    t_hsim5x5              = new std::vector<double>();
+    t_hsim7x7              = new std::vector<double>();
+    t_hsim3x3Matched       = new std::vector<double>();
+    t_hsim5x5Matched       = new std::vector<double>();
+    t_hsim7x7Matched       = new std::vector<double>();
+    t_hsim3x3Rest          = new std::vector<double>();
+    t_hsim5x5Rest          = new std::vector<double>();
+    t_hsim7x7Rest          = new std::vector<double>();
+    t_hsim3x3Photon        = new std::vector<double>();
+    t_hsim5x5Photon        = new std::vector<double>();
+    t_hsim7x7Photon        = new std::vector<double>();
+    t_hsim3x3NeutHad       = new std::vector<double>();
+    t_hsim5x5NeutHad       = new std::vector<double>();
+    t_hsim7x7NeutHad       = new std::vector<double>();
+    t_hsim3x3CharHad       = new std::vector<double>();
+    t_hsim5x5CharHad       = new std::vector<double>();
+    t_hsim7x7CharHad       = new std::vector<double>();
+  }
+
   tree->Branch("t_maxNearHcalP3x3",     "vector<double>", &t_maxNearHcalP3x3);
   tree->Branch("t_maxNearHcalP5x5",     "vector<double>", &t_maxNearHcalP5x5);
   tree->Branch("t_maxNearHcalP7x7",     "vector<double>", &t_maxNearHcalP7x7);
@@ -1724,33 +1757,34 @@ void IsolatedTracksTreeRecoSimL1SeedsData::BookHistograms(){
   tree->Branch("t_h5x5",                "vector<double>", &t_h5x5);
   tree->Branch("t_h7x7",                "vector<double>", &t_h7x7);
   tree->Branch("t_infoHcal",            "vector<int>",    &t_infoHcal);
-  /*
-  tree->Branch("t_trkHcalEne",          "vector<double>", &t_trkHcalEne);
-  tree->Branch("t_hsim3x3",             "vector<double>", &t_hsim3x3);
-  tree->Branch("t_hsim5x5",             "vector<double>", &t_hsim5x5);
-  tree->Branch("t_hsim7x7",             "vector<double>", &t_hsim7x7);
-  tree->Branch("t_hsim3x3Matched",      "vector<double>", &t_hsim3x3Matched);
-  tree->Branch("t_hsim5x5Matched",      "vector<double>", &t_hsim5x5Matched);
-  tree->Branch("t_hsim7x7Matched",      "vector<double>", &t_hsim7x7Matched);
-  tree->Branch("t_hsim3x3Rest",         "vector<double>", &t_hsim3x3Rest);
-  tree->Branch("t_hsim5x5Rest",         "vector<double>", &t_hsim5x5Rest);
-  tree->Branch("t_hsim7x7Rest",         "vector<double>", &t_hsim7x7Rest);
-  tree->Branch("t_hsim3x3Photon",       "vector<double>", &t_hsim3x3Photon);
-  tree->Branch("t_hsim5x5Photon",       "vector<double>", &t_hsim5x5Photon);
-  tree->Branch("t_hsim7x7Photon",       "vector<double>", &t_hsim7x7Photon);
-  tree->Branch("t_hsim3x3NeutHad",      "vector<double>", &t_hsim3x3NeutHad);
-  tree->Branch("t_hsim5x5NeutHad",      "vector<double>", &t_hsim5x5NeutHad);
-  tree->Branch("t_hsim7x7NeutHad",      "vector<double>", &t_hsim7x7NeutHad);
-  tree->Branch("t_hsim3x3CharHad",      "vector<double>", &t_hsim3x3CharHad);
-  tree->Branch("t_hsim5x5CharHad",      "vector<double>", &t_hsim5x5CharHad);
-  tree->Branch("t_hsim7x7CharHad",      "vector<double>", &t_hsim7x7CharHad);
-  */
+
+  if (flagMC) {
+    tree->Branch("t_trkHcalEne",          "vector<double>", &t_trkHcalEne);
+    tree->Branch("t_hsim3x3",             "vector<double>", &t_hsim3x3);
+    tree->Branch("t_hsim5x5",             "vector<double>", &t_hsim5x5);
+    tree->Branch("t_hsim7x7",             "vector<double>", &t_hsim7x7);
+    tree->Branch("t_hsim3x3Matched",      "vector<double>", &t_hsim3x3Matched);
+    tree->Branch("t_hsim5x5Matched",      "vector<double>", &t_hsim5x5Matched);
+    tree->Branch("t_hsim7x7Matched",      "vector<double>", &t_hsim7x7Matched);
+    tree->Branch("t_hsim3x3Rest",         "vector<double>", &t_hsim3x3Rest);
+    tree->Branch("t_hsim5x5Rest",         "vector<double>", &t_hsim5x5Rest);
+    tree->Branch("t_hsim7x7Rest",         "vector<double>", &t_hsim7x7Rest);
+    tree->Branch("t_hsim3x3Photon",       "vector<double>", &t_hsim3x3Photon);
+    tree->Branch("t_hsim5x5Photon",       "vector<double>", &t_hsim5x5Photon);
+    tree->Branch("t_hsim7x7Photon",       "vector<double>", &t_hsim7x7Photon);
+    tree->Branch("t_hsim3x3NeutHad",      "vector<double>", &t_hsim3x3NeutHad);
+    tree->Branch("t_hsim5x5NeutHad",      "vector<double>", &t_hsim5x5NeutHad);
+    tree->Branch("t_hsim7x7NeutHad",      "vector<double>", &t_hsim7x7NeutHad);
+    tree->Branch("t_hsim3x3CharHad",      "vector<double>", &t_hsim3x3CharHad);
+    tree->Branch("t_hsim5x5CharHad",      "vector<double>", &t_hsim5x5CharHad);
+    tree->Branch("t_hsim7x7CharHad",      "vector<double>", &t_hsim7x7CharHad);
+  }
   tree->Branch("t_nTracks",             &t_nTracks,       "t_nTracks/I");
 
 }
 
 
-double IsolatedTracksTreeRecoSimL1SeedsData::DeltaPhi(double v1, double v2) {
+double IsolatedTracksNxN::DeltaPhi(double v1, double v2) {
   // Computes the correctly normalized phi difference
   // v1, v2 = phi of object 1 and 2
   
@@ -1762,13 +1796,13 @@ double IsolatedTracksTreeRecoSimL1SeedsData::DeltaPhi(double v1, double v2) {
   if (diff < pi){ return diff;} else { return corr;} 
 }
 
-double IsolatedTracksTreeRecoSimL1SeedsData::DeltaR(double eta1, double phi1, double eta2, double phi2) {
+double IsolatedTracksNxN::DeltaR(double eta1, double phi1, double eta2, double phi2) {
   double deta = eta1 - eta2;
   double dphi = DeltaPhi(phi1, phi2);
   return std::sqrt(deta*deta + dphi*dphi);
 }
 
-void IsolatedTracksTreeRecoSimL1SeedsData::printTrack(const reco::Track* pTrack) {
+void IsolatedTracksNxN::printTrack(const reco::Track* pTrack) {
   
   std::string theTrackQuality = "highPurity";
   reco::TrackBase::TrackQuality trackQuality_ = reco::TrackBase::qualityByName(theTrackQuality);
@@ -1786,9 +1820,20 @@ void IsolatedTracksTreeRecoSimL1SeedsData::printTrack(const reco::Track* pTrack)
   
   if( printTrkHitPattern_ ) {
     const reco::HitPattern& p = pTrack->hitPattern();
-    
+    const reco::HitPattern& p1 = pTrack->trackerExpectedHitsInner();
+    const reco::HitPattern& p2 = pTrack->trackerExpectedHitsOuter();
+
+    std::cout<<"default " << std::endl;
     for (int i=0; i<p.numberOfHits(); i++) {
       p.printHitPattern(i, std::cout);
+    }
+    std::cout<<"trackerExpectedHitsInner() " << std::endl;
+    for (int i=0; i<p1.numberOfHits(); i++) {
+      p1.printHitPattern(i, std::cout);
+    }
+    std::cout<<"trackerExpectedHitsOuter() " << std::endl;
+    for (int i=0; i<p2.numberOfHits(); i++) {
+      p2.printHitPattern(i, std::cout);
     }
 
 
@@ -1807,4 +1852,4 @@ void IsolatedTracksTreeRecoSimL1SeedsData::printTrack(const reco::Track* pTrack)
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(IsolatedTracksTreeRecoSimL1SeedsData);
+DEFINE_FWK_MODULE(IsolatedTracksNxN);
