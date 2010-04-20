@@ -105,22 +105,21 @@ void popcon::SiStripDetVOffHandler::setForTransfer() {
   }
 }
 
-
 void popcon::SiStripDetVOffHandler::setUserTextLog()
 {
   std::stringstream ss;
-  ss << "@@@ Number of payloads transferred " << resultVec.size() << ".";
+  ss << "@@@ Number of payloads transferred " << resultVec.size() << "." << std::endl;
   std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::const_iterator it = resultVec.begin();
-  ss << "year month day hour minute second \t\t #LV off \t #HV off" << std::endl;
+  ss << "year month day hour minute second \t #LV off \t #HV off" << std::endl;
   for( ; it != resultVec.end(); ++it ) {
     coral::TimeStamp coralTime(cond::time::to_boost(it->second));
-    ss << coralTime.year() << " "
-       << coralTime.month() << " "
-       << coralTime.day() << " "
-       << coralTime.hour() << " "
-       << coralTime.minute() << " "
+    ss << coralTime.year() << "   "
+       << coralTime.month() << "    "
+       << coralTime.day() << "   "
+       << coralTime.hour() << "    "
+       << coralTime.minute() << "     "
        << coralTime.second();
-    ss << "\t\t" << it->first->getLVoffCounts() << "\t" << it->first->getHVoffCounts() << std::endl;
+    ss << "\t\t  " << it->first->getLVoffCounts() << "\t\t  " << it->first->getHVoffCounts() << std::endl;
   }
 
   if( debug_ ) {
@@ -130,10 +129,8 @@ void popcon::SiStripDetVOffHandler::setUserTextLog()
       ss << j << "/" << payloadStats[j][0] << "/" << payloadStats[j][1] << "/" << payloadStats[j][2] << "\t ";
     }
   }
-  
+
   this->m_userTextLog = ss.str();
-  
-  LogTrace("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::setUserTextLog] " << ss.str();
-    
- 
+
+  LogTrace("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::setUserTextLog] " << ss.str(); 
 }
