@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.169 $"
+__version__ = "$Revision: 1.170 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -232,7 +232,7 @@ class ConfigBuilder(object):
 		    print "Possible options are:", pileupMap.keys()
                     sys.exit(-1)
             else:
-                    self.loadAndRemember("FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi")
+                    self.loadAndRemember("FastSimulation.PileUpProducer.PileUpSimulator7TeV_cfi")
                     self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
 		    self.executeAndRemember('process.famosPileUp.PileUpSimulator = process.PileUpSimulatorBlock.PileUpSimulator')
                     self.executeAndRemember("process.famosPileUp.PileUpSimulator.averageNumber = %s" %pileupMap[self._options.pileup])
@@ -803,8 +803,7 @@ class ConfigBuilder(object):
             self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
 
             # the settings have to be the same as for the generator to stay consistent  
-            print '  Set comEnergy to famos decay processing to 10 TeV. Please edit by hand if it needs to be different.'
-            print '  The pile up is taken from 10 TeV files. To switch to other files remove the inclusion of "PileUpSimulator10TeV_cfi"'
+            print '  The pile up is taken from 7 TeV files. To switch to other files remove the inclusion of "PileUpSimulator7TeV_cfi"'
             self.executeAndRemember('process.famosSimHits.ActivateDecays.comEnergy = 10000')
 	    
             self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithFamos)")
@@ -846,7 +845,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.169 $"),
+              (version=cms.untracked.string("$Revision: 1.170 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
