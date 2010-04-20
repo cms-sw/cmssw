@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2010/04/20 16:21:28 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/04/20 16:43:45 $
+ *  $Revision: 1.13 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -613,7 +613,6 @@ bool MuonSeedOrcaPatternRecognition::check(const MuonRecHitContainer & segments)
 void MuonSeedOrcaPatternRecognition::markAsUsed(int nr, const MuonRecHitContainer &recHits, bool* used) const
 {
   used[nr] = true;
-  return;
   // if it's ME1A with two other segments in the container, mark the ghosts as used, too.
   if(recHits[nr]->isCSC())
   {
