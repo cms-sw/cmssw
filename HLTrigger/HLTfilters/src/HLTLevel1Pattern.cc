@@ -5,8 +5,8 @@
  *  that checks for a specific pattern of L1 accept/reject in 5 BX's for a given L1 bit
  *  It can be configured to use or ignore the L1 trigger mask
  *
- *  $Date: 2010/04/13 16:39:41 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/04/18 11:28:37 $
+ *  $Revision: 1.2 $
  *
  *  \author Andrea Bocci
  *
@@ -44,6 +44,7 @@ private:
   bool              m_triggerMasked;
   bool              m_ignoreL1Mask;
   bool              m_invert;
+  bool              m_throw;
 
   edm::ESWatcher<L1GtTriggerMenuRcd>         m_watchL1Menu;
   edm::ESWatcher<L1GtTriggerMaskAlgoTrigRcd> m_watchPhysicsMask;
@@ -72,7 +73,8 @@ HLTLevel1Pattern::HLTLevel1Pattern(const edm::ParameterSet & config) :
   m_triggerAlgo(     true ),
   m_triggerMasked(   false ),
   m_ignoreL1Mask(    config.getParameter<bool>              ("ignoreL1Mask") ),
-  m_invert(          config.getParameter<bool>              ("invert") )
+  m_invert(          config.getParameter<bool>              ("invert") ),
+  m_throw (          config.getParameter<bool>              ("throw" ) )
 {
   std::vector<int> pattern( config.getParameter<std::vector<int> > ("triggerPattern") );
   if (pattern.size() != m_bunchCrossings.size())
@@ -110,8 +112,13 @@ HLTLevel1Pattern::filter(edm::Event& event, const edm::EventSetup& setup)
     if ((entry = techMap.find(m_triggerBit)) != techMap.end()) {
         m_triggerAlgo = false;
         m_triggerNumber = entry->second.algoBitNumber();
-    } else
-      throw cms::Exception("Configuration") << "requested L1 trigger \"" << m_triggerBit << "\" does not exist in the current L1 menu";
+    } else {
+      if (m_throw) {
+	throw cms::Exception("Configuration") << "requested L1 trigger \"" << m_triggerBit << "\" does not exist in the current L1 menu";
+      } else {
+	return m_invert;
+      }
+    }
   }
 
   if (m_triggerAlgo) {
