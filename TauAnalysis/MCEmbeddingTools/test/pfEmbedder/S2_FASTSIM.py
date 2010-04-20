@@ -30,7 +30,7 @@ process.load('FastSimulation/Configuration/EventContent_cff')
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('-s nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -111,8 +111,8 @@ process.tmfTracks = cms.EDProducer("RecoTracksMixer",
     trackCol2 = cms.InputTag("generalTracks","","HLT2")
 )  
 
-#process.offlinePrimaryVerticesWithBS.TrackLabel = cms.InputTag("tmfTracks")
-#process.offlinePrimaryVertices.TrackLabel = cms.InputTag("tmfTracks")
+process.offlinePrimaryVerticesWithBS.TrackLabel = cms.InputTag("tmfTracks")
+process.offlinePrimaryVertices.TrackLabel = cms.InputTag("tmfTracks")
   
 
 #####################################  
