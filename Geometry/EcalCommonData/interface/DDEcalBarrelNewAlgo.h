@@ -158,6 +158,10 @@ class DDEcalBarrelNewAlgo : public DDAlgorithm {
       DDMaterial               atjMat  () const { return ddmat(m_ATJMat)  ; }
       double                   atjThick() const { return m_ATJThick; }
 
+      DDName                   sglName () const { return ddname(m_SGLName) ; }
+      DDMaterial               sglMat  () const { return ddmat(m_SGLMat)  ; }
+      double                   sglThick() const { return m_SGLThick; }
+
       DDName                   aglName () const { return ddname(m_AGLName) ; }
       DDMaterial               aglMat  () const { return ddmat(m_AGLMat)  ; }
       double                   aglThick() const { return m_AGLThick; }
@@ -543,6 +547,10 @@ private:
       std::string              m_ATJName      ; // After-The-Junction
       std::string              m_ATJMat       ; // 
       double                   m_ATJThick     ; // 
+
+      std::string              m_SGLName      ; // APD-Silicone glue
+      std::string              m_SGLMat       ; // 
+      double                   m_SGLThick     ; // 
 
       std::string              m_AGLName      ; // APD-Glue
       std::string              m_AGLMat       ; // 

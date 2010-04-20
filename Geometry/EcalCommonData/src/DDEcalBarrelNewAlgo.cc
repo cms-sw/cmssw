@@ -132,6 +132,10 @@ DDEcalBarrelNewAlgo::DDEcalBarrelNewAlgo() :
   m_ATJMat       (""),
   m_ATJThick     (0),
 
+  m_SGLName      (""),
+  m_SGLMat       (""),
+  m_SGLThick     (0),
+
   m_AGLName      (""),
   m_AGLMat       (""),
   m_AGLThick     (0),
@@ -490,6 +494,10 @@ void DDEcalBarrelNewAlgo::initialize(const DDNumericArguments      & nArgs,
    m_ATJName  = sArgs["ATJName"] ;
    m_ATJMat   = sArgs["ATJMat"] ;
    m_ATJThick = nArgs["ATJThick"] ;
+
+   m_SGLName  = sArgs["SGLName"] ;
+   m_SGLMat   = sArgs["SGLMat"] ;
+   m_SGLThick = nArgs["SGLThick"] ;
 
    m_AGLName  = sArgs["AGLName"] ;
    m_AGLMat   = sArgs["AGLMat"] ;
@@ -1472,6 +1480,17 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv)
 	 
 	 const DDLogicalPart capLog ( capDDName, capMat(), capSolid ) ;
 
+	 const DDName        sglDDName ( sglName().name() + sType ) ;
+
+	 DDSolid sglSolid ( DDSolidFactory::box( sglDDName, 
+						 capXSize()/2.,
+						 capYSize()/2.,  
+						 sglThick()/2.   ) ) ;
+
+	 const DDLogicalPart sglLog ( sglDDName, sglMat(), sglSolid ) ;
+	 
+	 const unsigned int copySGL ( 1 ) ;
+
 	 const DDName        cerDDName ( cerName().name() + sType ) ;
 
 	 DDSolid cerSolid ( DDSolidFactory::box( cerDDName, 
@@ -1510,8 +1529,8 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv)
 	 const DDName        aglDDName ( aglName().name() + sType ) ;
 
 	 DDSolid aglSolid ( DDSolidFactory::box( aglDDName, 
-						 apdSide()/2.,
-						 apdSide()/2.,  
+						 bsiXSize()/2.,
+						 bsiYSize()/2.,  
 						 aglThick()/2.   ) ) ;
 
 	 const DDLogicalPart aglLog ( aglDDName, aglMat(), aglSolid ) ;
@@ -1672,65 +1691,73 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv)
 	 if( 0 != capHere() )
 	 { 
 	    cpv.position( aglLog,
-		   bsiLog, 
-		   copyAGL, 
-		   DDTranslation( 0,
-				  0,
-				  - aglThick()/2. + bsiThick()/2. ),
-		   DDRotation() ) ;
+			  bsiLog, 
+			  copyAGL, 
+			  DDTranslation( 0,
+					 0,
+					 - aglThick()/2. + bsiThick()/2. ),
+			  DDRotation() ) ;
 
 	    cpv.position( andLog,
-		   bsiLog, 
-		   copyAND, 
-		   DDTranslation( 0,
-				  0,
-				  - andThick()/2. - aglThick() + bsiThick()/2. ),
-		   DDRotation() ) ;
+			  bsiLog, 
+			  copyAND, 
+			  DDTranslation( 0,
+					 0,
+					 - andThick()/2. - aglThick() + bsiThick()/2. ),
+			  DDRotation() ) ;
 
 	    cpv.position( apdLog,
-		   bsiLog, 
-		   copyAPD, 
-		   DDTranslation( 0,
-				  0,
-				  - apdThick()/2. - andThick()
-				  - aglThick() + bsiThick()/2. ),
-		   DDRotation() ) ;
+			  bsiLog, 
+			  copyAPD, 
+			  DDTranslation( 0,
+					 0,
+					 - apdThick()/2. - andThick()
+					 - aglThick() + bsiThick()/2. ),
+			  DDRotation() ) ;
 
 	    cpv.position( atjLog,
-		   bsiLog, 
-		   copyATJ, 
-		   DDTranslation( 0,
-				  0,
-				  - atjThick()/2. - apdThick() - andThick()
-				  - aglThick() + bsiThick()/2. ),
-		   DDRotation() ) ;
+			  bsiLog, 
+			  copyATJ, 
+			  DDTranslation( 0,
+					 0,
+					 - atjThick()/2. - apdThick() - andThick()
+					 - aglThick() + bsiThick()/2. ),
+			  DDRotation() ) ;
 
 	    cpv.position( bsiLog,
-		   cerLog, 
-		   copyBSi, 
-		   DDTranslation( 0,
-				  0,
-				  - bsiThick()/2. + cerThick()/2. ),
-		   DDRotation() ) ;
+			  cerLog, 
+			  copyBSi, 
+			  DDTranslation( 0,
+					 0,
+					 - bsiThick()/2. + cerThick()/2. ),
+			  DDRotation() ) ;
+
+	    cpv.position( sglLog,
+			  capLog, 
+			  copySGL, 
+			  DDTranslation( 0,
+					 0,
+					 - sglThick()/2. + capThick()/2. ),
+			  DDRotation() ) ;
 
 	    for( unsigned int ijkl ( 0 ) ; ijkl != 2 ; ++ijkl )
 	    {
 	       cpv.position( cerLog,
-		      capLog, 
-		      ++copyCER, 
-		      DDTranslation( trapCry.bl1() - ( 0 == ijkl ? apdX1() : apdX2() ),
-				     trapCry.h1()  - apdZ(),
-				     - cerThick()/2. + capThick()/2. ),
-		      DDRotation() ) ;
+			     capLog, 
+			     ++copyCER, 
+			     DDTranslation( trapCry.bl1() - ( 0 == ijkl ? apdX1() : apdX2() ),
+					    trapCry.h1()  - apdZ(),
+					    - sglThick() - cerThick()/2. + capThick()/2. ),
+			     DDRotation() ) ;
 	    }
 
 	    cpv.position( capLog,
-		   clrLog, 
-		   copyCap, 
-		   DDTranslation( 0 ,
-				  0 ,
-				  - trapCry.dz()  - capThick()/2. + (rClr - fClr)/2. ),
-		   DDRotation() ) ;
+			  clrLog, 
+			  copyCap, 
+			  DDTranslation( 0 ,
+					 0 ,
+					 - trapCry.dz()  - capThick()/2. + (rClr - fClr)/2. ),
+			  DDRotation() ) ;
 	 }
 
 
