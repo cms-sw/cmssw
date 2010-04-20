@@ -511,7 +511,7 @@ def main():
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional for all, default 0001')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity, default to all')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
-    parser.add_argument('action',choices=['overview','delivered','recorded'],help='lumi calculation types, default to overview')
+    parser.add_argument('action',choices=['overview','delivered','recorded'],help='command actions')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode for printing' )
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
