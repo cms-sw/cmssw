@@ -97,7 +97,7 @@ void testBa() {
 }
 
 
-void go2D() {
+void go2d() {
 
   typedef Vec2<double> Vec2d;
   typedef Vec3<double> Vec3d;
@@ -110,14 +110,14 @@ void go2D() {
   std::cout << x << std::endl;
   std::cout << y << std::endl;
 
-  Vec3d x2 = x.xy();
-  Vec3d y2 = y.xy();
+  Vec2d x2 = x.xy();
+  Vec2d y2 = y.xy();
   std::cout << x2 << std::endl;
   std::cout << y2 << std::endl;
 
 
-  std::cout << 3.*x << std::endl;
-  std::cout << y*0.1 << std::endl;
+  std::cout << 3.*x2 << std::endl;
+  std::cout << y2*0.1 << std::endl;
 
 
   std::cout << dot(x2,y2) << " = 2?"<< std::endl; 
@@ -189,6 +189,7 @@ int main() {
   testBa();
   go<float>();
   go<double>();
+  go2d();
 
   return 0;
 };
