@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2010/03/26 00:14:02 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/04/20 16:21:28 $
+ *  $Revision: 1.12 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -811,32 +811,4 @@ int MuonSeedOrcaPatternRecognition::countHits(const MuonRecHitPointer & segment)
   return count;
 }
 
-
-void MuonSeedOrcaPatternRecognition::markAsUsed(int nr, const MuonRecHitContainer &recHits, bool* used) const
-{
-  used[nr] = true;
-  // if it's ME1A with two other segments in the container, mark the ghosts as used, too.
-  if(recHits[nr]->isCSC())
-  {
-    CSCDetId detId(recHits[nr]->geographicalId().rawId());
-    if(detId.ring() == 4)
-    {
-      std::vector<unsigned> chamberHitNs;
-      for(unsigned i = 0; i < recHits.size(); ++i)
-      {
-        if(recHits[i]->geographicalId().rawId() == detId.rawId())
-        {
-          chamberHitNs.push_back(i);
-        }
-      }
-      if(chamberHitNs.size() == 3)
-      {
-        for(unsigned i = 0; i < 3; ++i)
-        {
-          used[chamberHitNs[i]] = true;
-        }
-      }
-    }
-  }
-}
 
