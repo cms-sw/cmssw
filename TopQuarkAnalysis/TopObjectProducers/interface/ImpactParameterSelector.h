@@ -1,7 +1,7 @@
 //
 // Original Author:  Sebastian Naumann
 //         Created:  Tue Apr 20 12:45:30 CEST 2010
-// $Id$
+// $Id: ImpactParameterSelector.h,v 1.1 2010/04/20 13:17:23 snaumann Exp $
 //
 //
 
@@ -73,11 +73,13 @@ ImpactParameterSelector<C>::produce(edm::Event& event, const edm::EventSetup& se
 
   for(typename edm::View<C>::const_iterator iter=leptons->begin(); iter!=leptons->end(); ++iter) {
     reco::TrackRef trackRef = iter->track();
-    reco::TransientTrack transTrack = trackBuilder->build(trackRef);
-    double ipSignificance = IPTools::absoluteTransverseImpactParameter(transTrack, vertex).second.significance();
+    if(trackRef.isNonnull() && trackRef.isAvailable()) {
+      reco::TransientTrack transTrack = trackBuilder->build(trackRef);
+      double ipSignificance = IPTools::absoluteTransverseImpactParameter(transTrack, vertex).second.significance();
 
-    if(ipSignificance < cut_)
-      out->push_back(*iter);
+      if(ipSignificance < cut_)
+	out->push_back(*iter);
+    }
   }
 
   event.put(out);
