@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerEventProducer.cc,v 1.6 2010/02/28 13:47:53 vadler Exp $
+// $Id: PATTriggerEventProducer.cc,v 1.7 2010/03/08 10:50:24 vadler Exp $
 //
 
 
@@ -16,64 +16,64 @@
 
 
 using namespace pat;
+using namespace edm;
 
 
-PATTriggerEventProducer::PATTriggerEventProducer( const edm::ParameterSet & iConfig ) :
+PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig ) :
   nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
-  tagTriggerResults_( iConfig.getParameter< edm::InputTag >( "triggerResults" ) ),
-  tagTriggerProducer_( iConfig.getParameter< edm::InputTag >( "patTriggerProducer" ) ),
-  tagsTriggerMatcher_( iConfig.getParameter< std::vector< edm::InputTag > >( "patTriggerMatches" ) )
+  tagTriggerResults_( "TriggerResults" ),
+  tagTriggerProducer_( "patTrigger" ),
+  tagsTriggerMatcher_()
 {
 
-  if ( tagTriggerResults_.process().empty() ) {
-    tagTriggerResults_ = edm::InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
-  }
+  if ( iConfig.exists( "triggerResults" ) )     tagTriggerResults_  = iConfig.getParameter< InputTag >( "triggerResults" );
+  if ( iConfig.exists( "patTriggerProducer" ) ) tagTriggerProducer_ = iConfig.getParameter< InputTag >( "patTriggerProducer" );
+  if ( iConfig.exists( "patTriggerMatches" ) )  tagsTriggerMatcher_ = iConfig.getParameter< std::vector< InputTag > >( "patTriggerMatches" );
+  if ( tagTriggerResults_.process().empty() ) tagTriggerResults_ = InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
 
   for ( size_t iMatch = 0; iMatch < tagsTriggerMatcher_.size(); ++iMatch ) {
-   produces< TriggerObjectMatch >( tagsTriggerMatcher_.at( iMatch ).label() );
+    produces< TriggerObjectMatch >( tagsTriggerMatcher_.at( iMatch ).label() );
   }
   produces< TriggerEvent >();
 
 }
 
 
-void PATTriggerEventProducer::beginRun( edm::Run & iRun, const edm::EventSetup & iSetup )
+void PATTriggerEventProducer::beginRun( Run & iRun, const EventSetup & iSetup )
 {
 
+  // Initialize
+  hltConfigInit_ = false;
+
+  // Initialize HLTConfigProvider
   bool changed( true );
   if ( ! hltConfig_.init( iRun, iSetup, nameProcess_, changed ) ) {
-    edm::LogError( "errorHltConfigExtraction" ) << "HLT config extraction error with process name " << nameProcess_;
-    hltConfigInit_ = false;
-    return;
-  }
-  if ( hltConfig_.size() <= 0 ) {
-    edm::LogError( "hltConfigSize" ) << "HLT config size error";
-    hltConfigInit_ = false;
-    return;
-  }
-  hltConfigInit_ = true;
+    LogError( "errorHltConfigExtraction" ) << "HLT config extraction error with process name " << nameProcess_;
+  } else if ( hltConfig_.size() <= 0 ) {
+    LogError( "hltConfigSize" ) << "HLT config size error";
+  } else hltConfigInit_ = true;
 
 }
 
 
-void PATTriggerEventProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
+void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
 {
 
   if ( ! hltConfigInit_ ) return;
 
-  edm::Handle< edm::TriggerResults > handleTriggerResults;
+  Handle< TriggerResults > handleTriggerResults;
   iEvent.getByLabel( tagTriggerResults_, handleTriggerResults );
   if ( ! handleTriggerResults.isValid() ) {
-    edm::LogError( "triggerResultsValid" ) << "edm::TriggerResults product with InputTag " << tagTriggerResults_.encode() << " not in event";
+    LogError( "triggerResultsValid" ) << "TriggerResults product with InputTag " << tagTriggerResults_.encode() << " not in event";
     return;
   }
-  edm::Handle< TriggerPathCollection > handleTriggerPaths;
+  Handle< TriggerPathCollection > handleTriggerPaths;
   iEvent.getByLabel( tagTriggerProducer_, handleTriggerPaths );
-  edm::Handle< TriggerFilterCollection > handleTriggerFilters;
+  Handle< TriggerFilterCollection > handleTriggerFilters;
   iEvent.getByLabel( tagTriggerProducer_, handleTriggerFilters );
-  edm::Handle< TriggerObjectCollection > handleTriggerObjects;
+  Handle< TriggerObjectCollection > handleTriggerObjects;
   iEvent.getByLabel( tagTriggerProducer_, handleTriggerObjects );
-  edm::Handle< TriggerObjectStandAloneCollection > handleTriggerObjectsStandAlone;
+  Handle< TriggerObjectStandAloneCollection > handleTriggerObjectsStandAlone;
   iEvent.getByLabel( tagTriggerProducer_, handleTriggerObjectsStandAlone );
   assert( handleTriggerObjects->size() == handleTriggerObjectsStandAlone->size() );
 
@@ -84,17 +84,17 @@ void PATTriggerEventProducer::produce( edm::Event& iEvent, const edm::EventSetup
   if ( handleTriggerPaths.isValid() ) {
     triggerEvent->setPaths( handleTriggerPaths );
   } else {
-    edm::LogError( "triggerPathsValid" ) << "pat::TriggerPathCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
+    LogError( "triggerPathsValid" ) << "pat::TriggerPathCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
   }
   if ( handleTriggerFilters.isValid() ) {
     triggerEvent->setFilters( handleTriggerFilters );
   } else {
-    edm::LogError( "triggerFiltersValid" ) << "pat::TriggerFilterCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
+    LogError( "triggerFiltersValid" ) << "pat::TriggerFilterCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
   }
   if ( handleTriggerObjects.isValid() ) {
     triggerEvent->setObjects( handleTriggerObjects );
   } else {
-    edm::LogError( "triggerObjectsValid" ) << "pat::TriggerObjectCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
+    LogError( "triggerObjectsValid" ) << "pat::TriggerObjectCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
   }
 
   // produce trigger match association and set references
@@ -103,14 +103,14 @@ void PATTriggerEventProducer::produce( edm::Event& iEvent, const edm::EventSetup
       const std::string labelTriggerObjectMatcher( tagsTriggerMatcher_.at( iMatch ).label() );
       // copy trigger match association using TriggerObjectStandAlone to those using TriggerObject
       // relying on the fact, that only one candidate collection is present in the association
-      edm::Handle< TriggerObjectStandAloneMatch > handleTriggerObjectStandAloneMatch;
+      Handle< TriggerObjectStandAloneMatch > handleTriggerObjectStandAloneMatch;
       iEvent.getByLabel( labelTriggerObjectMatcher, handleTriggerObjectStandAloneMatch );
       if ( ! handleTriggerObjectStandAloneMatch.isValid() ) {
-        edm::LogError( "triggerMatchValid" ) << "pat::TriggerObjectStandAloneMatch product with InputTag " << labelTriggerObjectMatcher << " not in event";
+        LogError( "triggerMatchValid" ) << "pat::TriggerObjectStandAloneMatch product with InputTag " << labelTriggerObjectMatcher << " not in event";
         continue;
       }
-      edm::AssociativeIterator< reco::CandidateBaseRef, TriggerObjectStandAloneMatch > it( *handleTriggerObjectStandAloneMatch, edm::EdmEventItemGetter< reco::CandidateBaseRef >( iEvent ) ), itEnd( it.end() );
-      edm::Handle< reco::CandidateView > handleCands;
+      AssociativeIterator< reco::CandidateBaseRef, TriggerObjectStandAloneMatch > it( *handleTriggerObjectStandAloneMatch, EdmEventItemGetter< reco::CandidateBaseRef >( iEvent ) ), itEnd( it.end() );
+      Handle< reco::CandidateView > handleCands;
       std::vector< int > indices;
       while ( it != itEnd ) {
         if ( indices.size() == 0 ) {
@@ -125,14 +125,14 @@ void PATTriggerEventProducer::produce( edm::Event& iEvent, const edm::EventSetup
         matchFiller.insert( handleCands, indices.begin(), indices.end() );
       }
       matchFiller.fill();
-      edm::OrphanHandle< TriggerObjectMatch > handleTriggerObjectMatch( iEvent.put( triggerObjectMatch, labelTriggerObjectMatcher ) );
+      OrphanHandle< TriggerObjectMatch > handleTriggerObjectMatch( iEvent.put( triggerObjectMatch, labelTriggerObjectMatcher ) );
       // set product reference to trigger match association
       if ( ! handleTriggerObjectMatch.isValid() ) {
-        edm::LogError( "triggerMatchValid" ) << "pat::TriggerObjectMatch product with InputTag " << labelTriggerObjectMatcher << " not in event";
+        LogError( "triggerMatchValid" ) << "pat::TriggerObjectMatch product with InputTag " << labelTriggerObjectMatcher << " not in event";
         continue;
       }
       if ( ! ( triggerEvent->addObjectMatchResult( handleTriggerObjectMatch, labelTriggerObjectMatcher ) ) ) {
-        edm::LogWarning( "triggerObjectMatchReplication" ) << "pat::TriggerEvent contains already a pat::TriggerObjectMatch from matcher module " << labelTriggerObjectMatcher;
+        LogWarning( "triggerObjectMatchReplication" ) << "pat::TriggerEvent contains already a pat::TriggerObjectMatch from matcher module " << labelTriggerObjectMatcher;
       }
     }
   }
