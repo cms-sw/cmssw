@@ -1,5 +1,5 @@
 //
-// $Id: TriggerEvent.cc,v 1.7 2009/09/09 15:11:43 vadler Exp $
+// $Id: TriggerEvent.cc,v 1.8 2009/10/06 19:56:18 vadler Exp $
 //
 
 
@@ -10,13 +10,114 @@ using namespace pat;
 
 
 /// constructor from values
-TriggerEvent::TriggerEvent( const std::string & nameHltTable, bool run, bool accept, bool error ) :
+TriggerEvent::TriggerEvent( const std::string & nameHltTable, bool run, bool accept, bool error, bool physDecl ) :
   nameHltTable_( nameHltTable ),
   run_( run ),
   accept_( accept ),
-  error_( error )
+  error_( error ),
+  physDecl_( physDecl )
 {
   objectMatchResults_.clear();
+}
+
+TriggerEvent::TriggerEvent( const std::string & nameL1Menu, const std::string & nameHltTable, bool run, bool accept, bool error, bool physDecl ) :
+  nameL1Menu_( nameL1Menu ),
+  nameHltTable_( nameHltTable ),
+  run_( run ),
+  accept_( accept ),
+  error_( error ),
+  physDecl_( physDecl )
+{
+  objectMatchResults_.clear();
+}
+
+
+/// algorithms related
+
+/// returns a NULL pointer, if the PAT trigger algorithm is not in the event
+const TriggerAlgorithm * TriggerEvent::algorithm( const std::string & nameAlgorithm ) const
+{
+  for ( TriggerAlgorithmCollection::const_iterator iAlgorithm = algorithms()->begin(); iAlgorithm != algorithms()->end(); ++iAlgorithm ) {
+    if ( nameAlgorithm == iAlgorithm->name() ) {
+      return &*iAlgorithm;
+    }
+  }
+  return 0;
+}
+
+/// returns the size of the PAT trigger algorithm collection, if the algorithm is not in the event
+unsigned TriggerEvent::indexAlgorithm( const std::string & nameAlgorithm ) const
+{
+  unsigned iAlgorithm = 0;
+  while ( iAlgorithm < algorithms()->size() && algorithms()->at( iAlgorithm ).name() != nameAlgorithm ) {
+    ++iAlgorithm;
+  }
+  return iAlgorithm;
+}
+
+TriggerAlgorithmRefVector TriggerEvent::acceptedAlgorithms() const
+{
+  TriggerAlgorithmRefVector theAcceptedAlgorithms;
+  for ( TriggerAlgorithmCollection::const_iterator iAlgorithm = algorithms()->begin(); iAlgorithm != algorithms()->end(); ++iAlgorithm ) {
+    if ( iAlgorithm->decision() ) {
+      const std::string nameAlgorithm( iAlgorithm->name() );
+      const TriggerAlgorithmRef algorithmRef( algorithms(), indexAlgorithm( nameAlgorithm ) );
+      theAcceptedAlgorithms.push_back( algorithmRef );
+    }
+  }
+  return theAcceptedAlgorithms;
+}
+
+TriggerAlgorithmRefVector TriggerEvent::techAlgorithms() const
+{
+  TriggerAlgorithmRefVector theTechAlgorithms;
+  for ( TriggerAlgorithmCollection::const_iterator iAlgorithm = algorithms()->begin(); iAlgorithm != algorithms()->end(); ++iAlgorithm ) {
+    if ( iAlgorithm->decision() ) {
+      const std::string nameAlgorithm( iAlgorithm->name() );
+      const TriggerAlgorithmRef algorithmRef( algorithms(), indexAlgorithm( nameAlgorithm ) );
+      theTechAlgorithms.push_back( algorithmRef );
+    }
+  }
+  return theTechAlgorithms;
+}
+
+TriggerAlgorithmRefVector TriggerEvent::acceptedTechAlgorithms() const
+{
+  TriggerAlgorithmRefVector theAcceptedTechAlgorithms;
+  for ( TriggerAlgorithmCollection::const_iterator iAlgorithm = algorithms()->begin(); iAlgorithm != algorithms()->end(); ++iAlgorithm ) {
+    if ( iAlgorithm->techTrigger() && iAlgorithm->decision() ) {
+      const std::string nameAlgorithm( iAlgorithm->name() );
+      const TriggerAlgorithmRef algorithmRef( algorithms(), indexAlgorithm( nameAlgorithm ) );
+      theAcceptedTechAlgorithms.push_back( algorithmRef );
+    }
+  }
+  return theAcceptedTechAlgorithms;
+}
+
+TriggerAlgorithmRefVector TriggerEvent::physAlgorithms() const
+{
+  TriggerAlgorithmRefVector thePhysAlgorithms;
+  for ( TriggerAlgorithmCollection::const_iterator iAlgorithm = algorithms()->begin(); iAlgorithm != algorithms()->end(); ++iAlgorithm ) {
+    if ( ! iAlgorithm->techTrigger() ) {
+      const std::string nameAlgorithm( iAlgorithm->name() );
+      const TriggerAlgorithmRef algorithmRef( algorithms(), indexAlgorithm( nameAlgorithm ) );
+      thePhysAlgorithms.push_back( algorithmRef );
+    }
+  }
+  return thePhysAlgorithms;
+}
+
+TriggerAlgorithmRefVector TriggerEvent::acceptedPhysAlgorithms() const
+{
+  TriggerAlgorithmRefVector theAcceptedPhysAlgorithms;
+  for ( TriggerAlgorithmCollection::const_iterator iAlgorithm = algorithms()->begin(); iAlgorithm != algorithms()->end(); ++iAlgorithm ) {
+    if ( ! iAlgorithm->techTrigger() && iAlgorithm->decision() ) {
+      const std::string nameAlgorithm( iAlgorithm->name() );
+      const TriggerAlgorithmRef algorithmRef( algorithms(), indexAlgorithm( nameAlgorithm ) );
+      theAcceptedPhysAlgorithms.push_back( algorithmRef );
+    }
+  }
+  return theAcceptedPhysAlgorithms;
 }
 
 
@@ -33,6 +134,7 @@ const TriggerPath * TriggerEvent::path( const std::string & namePath ) const
   return 0;
 }
 
+/// returns the size of the PAT trigger path collection, if the path is not in the event
 unsigned TriggerEvent::indexPath( const std::string & namePath ) const
 {
   unsigned iPath = 0;
@@ -54,7 +156,7 @@ TriggerPathRefVector TriggerEvent::acceptedPaths() const
   }
   return theAcceptedPaths;
 }
-      
+
 /// filters related
 
 /// returns a NULL pointer, if the PAT trigger filter is not in the event
@@ -68,6 +170,7 @@ const TriggerFilter * TriggerEvent::filter( const std::string & labelFilter ) co
   return 0;
 }
 
+/// returns the size of the PAT trigger filter collection, if the filter is not in the event
 unsigned TriggerEvent::indexFilter( const std::string & labelFilter ) const
 {
   unsigned iFilter = 0;
@@ -121,7 +224,7 @@ TriggerObjectRefVector TriggerEvent::objects( unsigned filterId ) const
   }
   return theObjects;
 }
- 
+
 /// x-collection related
 
 TriggerFilterRefVector TriggerEvent::pathModules( const std::string & namePath, bool all ) const
@@ -217,7 +320,7 @@ bool TriggerEvent::objectInFilter( const TriggerObjectRef & objectRef, const std
   if ( filter( labelFilter ) ) return filter( labelFilter )->hasObjectKey( objectRef.key() );
   return false;
 }
-                                                 
+
 TriggerFilterRefVector TriggerEvent::objectFilters( const TriggerObjectRef & objectRef ) const
 {
   TriggerFilterRefVector theObjectFilters;

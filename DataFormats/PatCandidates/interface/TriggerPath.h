@@ -7,18 +7,18 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerPath
 //
-// $Id: TriggerPath.h,v 1.2 2009/03/26 21:49:08 vadler Exp $
+// $Id: TriggerPath.h,v 1.3 2009/06/24 15:49:28 vadler Exp $
 //
 /**
   \class    pat::TriggerPath TriggerPath.h "DataFormats/PatCandidates/interface/TriggerPath.h"
-  \brief    Analysis-level trigger object class
+  \brief    Analysis-level HLTrigger path class
 
    TriggerPath implements a container for trigger paths' information within the 'pat' namespace.
    It has the following data members:
    - [to be filled]
 
   \author   Volker Adler
-  \version  $Id: TriggerPath.h,v 1.2 2009/03/26 21:49:08 vadler Exp $
+  \version  $Id: TriggerPath.h,v 1.3 2009/06/24 15:49:28 vadler Exp $
 */
 
 
@@ -34,7 +34,7 @@
 namespace pat {
 
   class TriggerPath {
-    
+
       /// data members
       std::string                name_;
       unsigned                   index_;                // in trigger table
@@ -53,7 +53,7 @@ namespace pat {
       TriggerPath( const std::string & name);
       TriggerPath( const std::string & name, unsigned index, unsigned prescale, bool run, bool accept, bool error, unsigned lastActiveFilterSlot );
       virtual ~TriggerPath() {};
-      
+
       /// setters & getters
       void setName( const std::string & name )                      { name_                 = name; };
       void setIndex( unsigned index )                               { index_                = index; };
@@ -74,9 +74,9 @@ namespace pat {
       std::vector< std::string > modules() const              { return modules_; };
       std::vector< unsigned >    filterIndices() const        { return filterIndices_; };
       int                        indexModule( const std::string & name ) const;           // returns size of 'modules_' ( modules().size() ) if name unknown and -1 if 'modules_' not filled
-    
+
   };
-  
+
 
   /// collection of TriggerPath
   typedef std::vector< TriggerPath >                      TriggerPathCollection;

@@ -17,14 +17,21 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
+#include "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
 #include "DataFormats/PatCandidates/interface/TriggerPath.h"
 #include "DataFormats/PatCandidates/interface/TriggerFilter.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
 
 using namespace pat;
@@ -33,7 +40,7 @@ using namespace edm;
 
 PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   onlyStandAlone_( iConfig.getParameter< bool >( "onlyStandAlone" ) ),
-  // L1 configuration parameters (backwards compatible)
+  // L1 configuration parameters
   tagL1ExtraMu_(),
   tagL1ExtraNoIsoEG_(),
   tagL1ExtraIsoEG_(),
@@ -96,6 +103,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   if ( tagTriggerEvent_.process().empty() )   tagTriggerEvent_   = InputTag( tagTriggerEvent_.label(), tagTriggerEvent_.instance(), nameProcess_ );
 
   if ( ! onlyStandAlone_ ) {
+    produces< TriggerAlgorithmCollection >();
     produces< TriggerPathCollection >();
     produces< TriggerFilterCollection >();
     produces< TriggerObjectCollection >();
@@ -516,6 +524,71 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
   // Put HLT & L1 objects to event
   if ( ! onlyStandAlone_ ) iEvent.put( triggerObjects );
   iEvent.put( triggerObjectsStandAlone );
+
+  // L1 algorithms
+  if ( ! onlyStandAlone_ ) {
+    L1GtUtils l1GtUtils;
+    l1GtUtils.retrieveL1EventSetup( iSetup );
+    ESHandle< L1GtTriggerMenu > handleL1GtTriggerMenu;
+    iSetup.get< L1GtTriggerMenuRcd >().get( handleL1GtTriggerMenu );
+    const AlgorithmMap l1GtAlgorithms( handleL1GtTriggerMenu->gtAlgorithmMap() );
+    const AlgorithmMap l1GtTechTriggers( handleL1GtTriggerMenu->gtTechnicalTriggerMap() );
+
+    std::auto_ptr< TriggerAlgorithmCollection > triggerAlgos( new TriggerAlgorithmCollection() );
+    triggerAlgos->reserve( l1GtAlgorithms.size() + l1GtTechTriggers.size() );
+    // physics algorithms
+    for ( AlgorithmMap::const_iterator iAlgo = l1GtAlgorithms.begin(); iAlgo != l1GtAlgorithms.end(); ++iAlgo ) {
+      if ( iAlgo->second.algoBitNumber() > 127 ) {
+        LogError( "errorL1AlgoBit" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' has bit number " << iAlgo->second.algoBitNumber() << " > 127; skipping";
+        continue;
+      }
+      int tech;
+      int bit;
+      if ( ! l1GtUtils.l1AlgTechTrigBitNumber( iAlgo->second.algoName(), tech, bit ) ) {
+        LogError( "errorL1AlgoName" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' not found in the L1 menu; skipping";
+        continue;
+      }
+      bool decisionBeforeMask;
+      bool decisionAfterMask;
+      int  prescale;
+      int  mask;
+      int  error( l1GtUtils.l1Results( iEvent, iAlgo->second.algoName(), decisionBeforeMask, decisionAfterMask, prescale, mask ) );
+      if ( error != 0 ) {
+        LogError( "errorL1AlgoDecision" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' decision has error code " << error << "; skipping";
+        continue;
+      }
+      TriggerAlgorithm triggerAlgo( iAlgo->second.algoName(), iAlgo->second.algoAlias(), (bool)tech, (unsigned)bit, (unsigned)prescale, (bool)mask, decisionBeforeMask, decisionAfterMask );
+      triggerAlgos->push_back( triggerAlgo );
+    }
+    // technical triggers
+    for ( AlgorithmMap::const_iterator iAlgo = l1GtTechTriggers.begin(); iAlgo != l1GtTechTriggers.end(); ++iAlgo ) {
+      if ( iAlgo->second.algoBitNumber() > 63 ) {
+        LogError( "errorL1AlgoBit" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' has bit number " << iAlgo->second.algoBitNumber() << " > 63; skipping";
+        continue;
+      }
+      int tech;
+      int bit;
+      if ( ! l1GtUtils.l1AlgTechTrigBitNumber( iAlgo->second.algoName(), tech, bit ) ) {
+        LogError( "errorL1AlgoName" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' not found in the L1 menu; skipping";
+        continue;
+      }
+      bool decisionBeforeMask;
+      bool decisionAfterMask;
+      int  prescale;
+      int  mask;
+      int  error( l1GtUtils.l1Results( iEvent, iAlgo->second.algoName(), decisionBeforeMask, decisionAfterMask, prescale, mask ) );
+      if ( error != 0 ) {
+        LogError( "errorL1AlgoDecision" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' decision has error code " << error << "; skipping";
+        continue;
+      }
+      TriggerAlgorithm triggerAlgo( iAlgo->second.algoName(), iAlgo->second.algoAlias(), (bool)tech, (unsigned)bit, (unsigned)prescale, (bool)mask, decisionBeforeMask, decisionAfterMask );
+      triggerAlgos->push_back( triggerAlgo );
+    }
+
+
+    // Put L1 algorithms to event
+    iEvent.put( triggerAlgos );
+  }
 
 }
 

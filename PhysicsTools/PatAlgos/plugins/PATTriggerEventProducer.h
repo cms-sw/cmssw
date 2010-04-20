@@ -51,6 +51,7 @@ namespace pat {
       std::string                  nameProcess_;        // configuration
       edm::InputTag                tagTriggerResults_;  // configuration (optional with default)
       edm::InputTag                tagTriggerProducer_; // configuration (optional with default)
+      edm::InputTag                tagL1Gt_;            // configuration (optional with default)
       std::vector< edm::InputTag > tagsTriggerMatcher_; // configuration (optional)
 
   };
