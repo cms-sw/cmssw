@@ -105,6 +105,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 
 # Standard Sequences
+process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.StandardSequences.GeometryExtended_cff")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load("Configuration.StandardSequences.Digi_cff")
@@ -141,6 +142,9 @@ process.MyOut = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('test.root')
 )
 
+# restore random number generator seeds corresponding to the input events
+process.RandomNumberGeneratorService.restoreStateLabel = cms.untracked.string('randomEngineStateProducer')
+
 # paths and schedule
 process.mixing = cms.Path(process.mix)
 process.TPs = cms.Path(process.trackingParticles)
@@ -166,13 +170,3 @@ process.schedule = cms.Schedule(process.mixing, process.TPs,
 #process.schedule = cms.Schedule(process.mixing, process.TPs,
 #                                process.allDigis, process.L1simulation_step, process.digi2raw_step, process.raw2digi_step, process.reconstruction_step, 
 #                                process.muonAssociator, process.test, process.output)
-
-# Customisation function
-def customise(process):
-    process.load("IOMC/RandomEngine/IOMC_cff")
-    del process.RandomNumberGeneratorService.generator
-    process.RandomNumberGeneratorService.restoreStateLabel = cms.untracked.string('randomEngineStateProducer')   
-    return(process)
-
-# End of customisation function definition
-process = customise(process)
