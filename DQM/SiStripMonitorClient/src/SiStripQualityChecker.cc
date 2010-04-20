@@ -535,6 +535,8 @@ void SiStripQualityChecker::initialiseBadModuleList() {
 // -- Fill Status information and the lumi block
 //
 void SiStripQualityChecker::fillStatusAtLumi(DQMStore* dqm_store){
+  if (!bookedStripStatus_ || !bookedTrackingStatus_) bookStatus(dqm_store);
+  fillDummyStatus();
   fillDetectorStatusAtLumi(dqm_store);
   fillTrackingStatusAtLumi(dqm_store);
 }
@@ -589,7 +591,7 @@ void SiStripQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
     MonitorElement * me = (*it);     
     if (!me) continue;     
     std::string name = me->getName();
-    float status = 1.0; 
+    float status = -1.0; 
     int ibin = 0;
     for (std::map<std::string, TrackingMEs>::const_iterator it = TrackingMEsMap.begin();
          it != TrackingMEsMap.end(); it++) {
@@ -599,12 +601,14 @@ void SiStripQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
       float upper_cut = it->second.UpperCut; 
       if (name.find(hname) != std::string::npos) {
         if (me->getMean() <= lower_cut || me->getMean() > upper_cut) status = 0.0;
+        else status = 1.0; 
 	it->second.TrackingFlag->Fill(status);
 	fillStatusHistogram(TrackSummaryReportMap, ibin, 1, status);
         break;
       }
     }
-    gstatus = gstatus * status; 
+    if (status == -1.0) gstatus = -1.0;
+    else gstatus = gstatus * status; 
   }
   TrackSummaryReportGlobal->Fill(gstatus);
   dqm_store->cd();
