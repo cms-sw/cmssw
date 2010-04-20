@@ -31,6 +31,7 @@ namespace popcon{
     edm::Service<SiStripDetVOffBuilder> modHVBuilder;
     uint32_t deltaTmin_;
     uint32_t maxIOVlength_;
+    bool debug_;
   };
 }
 #endif

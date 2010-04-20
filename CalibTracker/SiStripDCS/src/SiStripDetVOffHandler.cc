@@ -3,7 +3,8 @@
 popcon::SiStripDetVOffHandler::SiStripDetVOffHandler (const edm::ParameterSet& pset) :
   name_(pset.getUntrackedParameter<std::string>("name","SiStripDetVOffHandler")),
   deltaTmin_(pset.getParameter<uint32_t>("DeltaTmin")),
-  maxIOVlength_(pset.getParameter<uint32_t>("MaxIOVlength"))
+  maxIOVlength_(pset.getParameter<uint32_t>("MaxIOVlength")),
+  debug_(pset.getUntrackedParameter<bool>("Debug", false))
 { }
 
 popcon::SiStripDetVOffHandler::~SiStripDetVOffHandler() { 
@@ -19,7 +20,7 @@ void popcon::SiStripDetVOffHandler::getNewObjects()
 	<< " - > getNewObjects\n"; 
   if (tagInfo().size){
     //check whats already inside of database
-    std::string userText;
+    std::string userText("No data");
     size_t splitPoint = logDBEntry().usertext.find_last_of("@");
     if( splitPoint != std::string::npos ) {
       userText = logDBEntry().usertext.substr(splitPoint);
@@ -105,14 +106,29 @@ void popcon::SiStripDetVOffHandler::setForTransfer() {
 }
 
 
-void popcon::SiStripDetVOffHandler::setUserTextLog(){
+void popcon::SiStripDetVOffHandler::setUserTextLog()
+{
   std::stringstream ss;
-  
-  std::vector< std::vector<uint32_t> > payloadStats = modHVBuilder->getPayloadStats();
-  ss << "@@@ Number of payloads transferred " << resultVec.size() << ". "
-     << "PayloadNo/Badmodules/NoAdded/NoRemoved: ";
-  for (unsigned int j = 0; j < payloadStats.size(); j++) {
-    ss << j << "/" << payloadStats[j][0] << "/" << payloadStats[j][1] << "/" << payloadStats[j][2] << "\t ";
+  ss << "@@@ Number of payloads transferred " << resultVec.size() << ".";
+  std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::const_iterator it = resultVec.begin();
+  ss << "year month day hour minute second \t\t #LV off \t #HV off" << std::endl;
+  for( ; it != resultVec.end(); ++it ) {
+    coral::TimeStamp coralTime(cond::time::to_boost(it->second));
+    ss << coralTime.year() << " "
+       << coralTime.month() << " "
+       << coralTime.day() << " "
+       << coralTime.hour() << " "
+       << coralTime.minute() << " "
+       << coralTime.second();
+    ss << "\t\t" << it->first->getLVoffCounts() << "\t" << it->first->getHVoffCounts() << std::endl;
+  }
+
+  if( debug_ ) {
+    ss << "PayloadNo/Badmodules/NoAdded/NoRemoved: ";
+    std::vector< std::vector<uint32_t> > payloadStats = modHVBuilder->getPayloadStats();
+    for (unsigned int j = 0; j < payloadStats.size(); j++) {
+      ss << j << "/" << payloadStats[j][0] << "/" << payloadStats[j][1] << "/" << payloadStats[j][2] << "\t ";
+    }
   }
   
   this->m_userTextLog = ss.str();
