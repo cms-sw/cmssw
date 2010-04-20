@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/05/23 22:47:03 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/04/20 03:23:47 $
+ *  $Revision: 1.5 $
  */
 
 #include "MagneticField/GeomBuilder/plugins/VolumeBasedMagneticFieldESProducer.h"
@@ -57,7 +57,7 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const I
 
 
   // Get slave field
-  edm::ESTransientHandle<MagneticField> paramField;
+  edm::ESHandle<MagneticField> paramField;
   if (pset.getParameter<bool>("useParametrizedTrackerField")) {;
     iRecord.get(pset.getParameter<string>("paramLabel"),paramField);
   }
