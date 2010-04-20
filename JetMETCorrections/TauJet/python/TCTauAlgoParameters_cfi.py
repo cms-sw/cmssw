@@ -25,5 +25,5 @@ tcTauAlgoParameters = cms.PSet(
         HFRecHitCollection    = cms.InputTag("hfreco"),
         TrackAssociatorParameters = TrackAssociatorParameterBlock.TrackAssociatorParameters,
         DropCaloJets          = cms.untracked.bool(False), 
-        DropRejectedJets      = cms.untracked.bool(True)
+        DropRejectedJets      = cms.untracked.bool(False)
 )
