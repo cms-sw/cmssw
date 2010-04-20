@@ -214,6 +214,8 @@ inline mathSSE::Vec3D operator*(mathSSE::Vec3D b, double a) {
 
 
 
+inline double dot(mathSSE::Vec3D a, mathSSE::Vec3D b) __attribute__((always_inline));
+
 inline double dot(mathSSE::Vec3D a, mathSSE::Vec3D b) {
   __m128d res = _mm_add_sd ( _mm_mul_pd ( a.vec[0], b.vec[0]),
 			     _mm_mul_sd ( a.vec[1], b.vec[1]) 
@@ -224,6 +226,8 @@ inline double dot(mathSSE::Vec3D a, mathSSE::Vec3D b) {
   return s;
 }
 
+inline mathSSE::Vec3D cross(mathSSE::Vec3D a, mathSSE::Vec3D b) __attribute__((always_inline));
+ 
 inline mathSSE::Vec3D cross(mathSSE::Vec3D a, mathSSE::Vec3D b) {
   const __m128d neg = _mm_set_pd ( 0.0 , -0.0 );
   // lh .z * rh .x , lh .z * rh .y
