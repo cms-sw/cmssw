@@ -1,4 +1,3 @@
-#include "Utilities/Timing/interface/TimingReport.h" 
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimFactory.h"
 #include "SimMuon/RPCDigitizer/src/RPCSim.h"
@@ -49,9 +48,8 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
 
     const edm::PSimHitContainer & rollSimHits = hitMap[(*r)->id()];
     
-    LogDebug("RPCDigitizer") << "RPCDigitizer: found " << rollSimHits.size() 
-			     <<" hit(s) in the rpc roll";  
-    TimeMe t2("RPCSim");
+//    LogDebug("RPCDigitizer") << "RPCDigitizer: found " << rollSimHits.size() 
+//			     <<" hit(s) in the rpc roll";  
     
     theRPCSim->simulate(*r,rollSimHits);
     theRPCSim->simulateNoise(*r);
