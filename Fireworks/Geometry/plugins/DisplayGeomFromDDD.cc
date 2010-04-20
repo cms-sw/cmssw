@@ -13,7 +13,7 @@
 //
 // Original Author:  "Christopher Jones"
 //         Created:  Thu Mar 18 16:19:17 CDT 2010
-// $Id$
+// $Id: DisplayGeomFromDDD.cc,v 1.1 2010/04/01 21:58:00 chrjones Exp $
 //
 //
 
@@ -34,6 +34,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -404,7 +405,7 @@ DisplayGeomFromDDD::produce(const DisplayGeomRecord& iRecord)
 {
    using namespace edm::es;
 
-      edm::ESHandle<DDCompactView> viewH;
+      edm::ESTransientHandle<DDCompactView> viewH;
       iRecord.getRecord<IdealGeometryRecord>().get(viewH);
 
       boost::shared_ptr<TGeoManager> geom(new TGeoManager("cmsGeo","CMS Detector"));
