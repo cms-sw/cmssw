@@ -1,21 +1,14 @@
-# /dev/CMSSW_3_6_0/HIon/V1 (CMSSW_3_6_0_HLT1)
+# /dev/CMSSW_3_6_0/HIon/V2 (CMSSW_3_6_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V1')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V2')
 )
 
 streams = cms.PSet( 
-  OnlineErrors = cms.vstring( 'LogMonitor',
-    'FEDMonitor' ),
-  Calibration = cms.vstring( 'TestEnables' ),
-  EcalCalibration = cms.vstring( 'EcalLaser' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  RPCMON = cms.vstring( 'RPCMonitor' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
+  Offline = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
   A = cms.vstring( 'JetMETTauMonitor',
     'EGMonitor',
@@ -30,19 +23,18 @@ streams = cms.PSet(
     'HcalNZS',
     'Cosmics' ),
   DQM = cms.vstring(  ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   HLTDQM = cms.vstring(  ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
-  Offline = cms.vstring(  )
+  OnlineErrors = cms.vstring( 'LogMonitor',
+    'FEDMonitor' ),
+  Calibration = cms.vstring( 'TestEnables' ),
+  EcalCalibration = cms.vstring( 'EcalLaser' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
+  RPCMON = cms.vstring( 'RPCMonitor' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
+  HLTMON = cms.vstring( 'OfflineMonitor' )
 )
 datasets = cms.PSet( 
-  LogMonitor = cms.vstring(  ),
-  FEDMonitor = cms.vstring(  ),
-  TestEnables = cms.vstring(  ),
-  EcalLaser = cms.vstring(  ),
-  AlCaP0 = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
-  RPCMonitor = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
   EG = cms.vstring(  ),
@@ -55,6 +47,14 @@ datasets = cms.PSet(
   MinimumBias = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
+  LogMonitor = cms.vstring(  ),
+  FEDMonitor = cms.vstring(  ),
+  TestEnables = cms.vstring(  ),
+  EcalLaser = cms.vstring(  ),
+  AlCaP0 = cms.vstring(  ),
+  RPCMonitor = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  )
 )
 

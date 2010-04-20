@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_0/GRun/V1
+# /dev/CMSSW_3_6_0/GRun/V2
 
 import FWCore.ParameterSet.Config as cms
 
@@ -27,7 +27,6 @@ streamA_datasetEGMonitor_selector.throw      = cms.bool(False)
 streamA_datasetEGMonitor_selector.triggerConditions = cms.vstring('HLT_EgammaSuperClusterOnly_L1R', 
     'HLT_L1SingleEG2_NoBPTX', 
     'HLT_L1DoubleEG5', 
-    'HLT_L1SingleEG20_NoBPTX', 
     'HLT_L1SingleEG8', 
     'HLT_L1SingleEG5_NoBPTX', 
     'HLT_L1SingleEG5', 
