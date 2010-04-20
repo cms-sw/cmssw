@@ -79,9 +79,9 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer
 		   std::fstream&           oldCor   ,
 		   unsigned int            histi        );
 
-      void checkDiff( unsigned int   i1,
-		      unsigned int   i2,
-		      unsigned int   i3,
+      void checkDiff( int            i1,
+		      int            i2,
+		      int            i3,
 		      CenterOrCorner iCtrCor ,
 		      XorYorZ        iXYZ    ,
 		      double         diff      ) ;
@@ -363,14 +363,14 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry& cg      ,
 
 
 void 
-CaloGeometryAnalyzer::checkDiff( unsigned int   i1,
-				 unsigned int   i2,
-				 unsigned int   i3,
+CaloGeometryAnalyzer::checkDiff( int            i1      ,
+				 int            i2      ,
+				 int            i3      ,
 				 CenterOrCorner iCtrCor ,
 				 XorYorZ        iXYZ    ,
 				 double         diff      )
 {
-   if( 1.6 < fabs( diff ) ) 
+   if( 2.5 < fabs( diff ) ) 
    {
       std::cout<<"For a volume "<<( kCenter==iCtrCor ? "CENTER" : "CORNER" )
 	       <<", & "
@@ -504,8 +504,8 @@ CaloGeometryAnalyzer::ctrcor( const DetId&            did     ,
    h_diffs[histi][2]->Fill( dz ) ;
 
    checkDiff( oldie, oldip, 0, kCenter, kX, dx ) ;
-   checkDiff( oldie, oldip, 0, kCenter, kX, dy ) ;
-   checkDiff( oldie, oldip, 0, kCenter, kX, dz ) ;
+   checkDiff( oldie, oldip, 0, kCenter, kY, dy ) ;
+   checkDiff( oldie, oldip, 0, kCenter, kZ, dz ) ;
 
    fCtr << std::fixed << std::setw(12) << std::setprecision(4)
 	<< x
@@ -536,8 +536,8 @@ CaloGeometryAnalyzer::ctrcor( const DetId&            did     ,
       h_diffs[histi][j+5]->Fill( dz ) ;
 
       checkDiff( oldie, oldip, j, kCorner, kX, dx ) ;
-      checkDiff( oldie, oldip, j, kCorner, kX, dy ) ;
-      checkDiff( oldie, oldip, j, kCorner, kX, dz ) ;
+      checkDiff( oldie, oldip, j, kCorner, kY, dy ) ;
+      checkDiff( oldie, oldip, j, kCorner, kZ, dz ) ;
 
       fCor << std::fixed << std::setw(12) << std::setprecision(4)
 	   << x
@@ -625,6 +625,25 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
       assert( CaloGenericDetId( id.det(),
 				id.subdetId(),
 				cid.denseIndex() ) == id ) ;
+
+      const GlobalPoint pos ( cell->getPosition() ) ; 
+      const double posmag ( pos.mag() ) ;
+
+      const double disin ( DetId::Ecal   == det     &&
+			   EcalPreshower == subdetn     ? 0.000001 : 0.001 ) ;
+
+      const GlobalPoint pointIn ( pos.x() + disin*pos.x()/posmag ,
+				  pos.y() + disin*pos.y()/posmag ,
+				  pos.z() + disin*pos.z()/posmag   ) ;
+      const GlobalPoint pointFr ( pos.x() - 0.1*pos.x()/posmag ,
+				  pos.y() - 0.1*pos.y()/posmag ,
+				  pos.z() - 0.1*pos.z()/posmag   ) ;
+
+      //assert( cell->inside( pointIn ) ) ;
+      if( cell->inside( pointFr ) ) std::cout<<"Bad outside: "<<pointIn<<", " <<pointFr<<std::endl ;
+      assert( cell->inside( pointIn ) ) ;
+      assert( !cell->inside( pointFr ) ) ;
+
 
       if( det == DetId::Ecal )
       {
