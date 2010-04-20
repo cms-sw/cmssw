@@ -22,11 +22,11 @@ private:
    // Disable default assignment operator
    const FWCaloRecHitProxyBuilder& operator=(const FWCaloRecHitProxyBuilder&);
 
-   void build(const CaloRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
+   void build(const CaloRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder);
 };
 
 void
-FWCaloRecHitProxyBuilder::build(const CaloRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder) const
+FWCaloRecHitProxyBuilder::build(const CaloRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder) 
 {
    std::vector<TEveVector> corners = item()->getGeom()->getPoints(iData.detid());
    if( corners.empty() ) {

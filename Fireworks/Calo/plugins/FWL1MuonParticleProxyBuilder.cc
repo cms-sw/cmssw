@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1MuonParticleProxyBuilder.cc,v 1.1 2010/04/15 10:04:40 yana Exp $
+// $Id: FWL1MuonParticleProxyBuilder.cc,v 1.2 2010/04/15 13:19:32 yana Exp $
 //
 
 // system include files
@@ -34,11 +34,11 @@ private:
    FWL1MuonParticleProxyBuilder(const FWL1MuonParticleProxyBuilder&);    // stop default
    const FWL1MuonParticleProxyBuilder& operator=(const FWL1MuonParticleProxyBuilder&);    // stop default
   
-   virtual void build( const l1extra::L1MuonParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const;
+   virtual void build( const l1extra::L1MuonParticle& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
 
 void
-FWL1MuonParticleProxyBuilder::build( const l1extra::L1MuonParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const
+FWL1MuonParticleProxyBuilder::build( const l1extra::L1MuonParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
    double scale = 10;
    double r_ecal = 126;
@@ -63,7 +63,7 @@ FWL1MuonParticleProxyBuilder::build( const l1extra::L1MuonParticle& iData, unsig
    marker->SetLineStyle( 2 );
    marker->AddLine( r*cos(phi)*sin(theta), r*sin(phi)*sin(theta), r*cos(theta),
 		    (r+size)*cos(phi)*sin(theta), (r+size)*sin(phi)*sin(theta), (r+size)*cos(theta) );
-   oItemHolder.AddElement( marker );
+   setupAddElement(marker, &oItemHolder);
 }
 
 class FWL1MuonParticleLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1MuonParticle>
@@ -78,11 +78,11 @@ private:
    FWL1MuonParticleLegoProxyBuilder(const FWL1MuonParticleLegoProxyBuilder&);    // stop default
    const FWL1MuonParticleLegoProxyBuilder& operator=(const FWL1MuonParticleLegoProxyBuilder&);    // stop default
   
-   virtual void build( const l1extra::L1MuonParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const;
+   virtual void build( const l1extra::L1MuonParticle& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
 
 void
-FWL1MuonParticleLegoProxyBuilder::build( const l1extra::L1MuonParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const
+FWL1MuonParticleLegoProxyBuilder::build( const l1extra::L1MuonParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
    char title[1024];
    sprintf( title, "L1 Muon %d, Et: %0.1f GeV", iIndex,iData.et());
@@ -105,7 +105,7 @@ FWL1MuonParticleLegoProxyBuilder::build( const l1extra::L1MuonParticle& iData, u
 //    egs->SetShape( shape );
 //    egs->SetPickable( kTRUE );
 
-//    oItemHolder.AddElement( egs );
+//    setupAddElement(egs, &oItemHolder);
 }
 
 

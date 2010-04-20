@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPFTauProxyBuilder.cc,v 1.4 2010/04/16 11:28:03 amraktad Exp $
+// $Id: FWPFTauProxyBuilder.cc,v 1.5 2010/04/19 15:49:17 yana Exp $
 //
 
 // system include files
@@ -99,14 +99,14 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
 	}
 	track->MakeTrack();
 	if( track )
-	  comp->AddElement( track );
+	  setupAddElement(track, comp);
       }	
 
       if( ( type == FWViewType::k3D ) | ( type == FWViewType::kISpy ) ) {
 	 FW3DEveJet* cone = new FW3DEveJet( *jet, name, name);
 	 cone->SetPickable( kTRUE );
 	 cone->SetMainTransparency( 75 ); 
-	 comp->AddElement( cone );
+	 setupAddElement(cone, comp);
       }
       else if( type == FWViewType::kRhoPhi ) 
       {	 
@@ -120,13 +120,13 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
 	 TGeoBBox *sc_box = new TGeoTubeSeg(r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
 	 TEveGeoShape *element = fw::getShape( "spread", sc_box, iItem->defaultDisplayProperties().color() );
 	 element->SetPickable(kTRUE);
-	 comp->AddElement(element);
+	 setupAddElement(element, comp);
 
 	 TEveStraightLineSet* marker = new TEveStraightLineSet( "energy", name );
 	 marker->SetLineWidth( 4 );
 	 marker->AddLine( r_ecal*cos( phi ), r_ecal*sin( phi ), 0,
 			  ( r_ecal+size )*cos( phi ), ( r_ecal+size )*sin( phi ), 0);
-	 comp->AddElement( marker );
+	 setupAddElement(marker, comp);
       }
       else if( type == FWViewType::kRhoZ )
       {
@@ -139,15 +139,15 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
 	 marker->SetLineWidth(4);
 	 marker->AddLine(0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
 			 0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
-	 comp->AddElement( marker );
+	 setupAddElement(marker, comp);
 
 	 const std::vector<std::pair<double, double> > thetaBins = fireworks::thetaBins();
 	 double max_theta = thetaBins[min].first;
 	 double min_theta = thetaBins[max].second;
-	 fw::addRhoZEnergyProjection( comp, r_ecal, z_ecal, min_theta-0.003, max_theta+0.003,
-				      phi, item()->defaultDisplayProperties().color() );
+	 fw::addRhoZEnergyProjection( this, comp, r_ecal, z_ecal, min_theta-0.003, max_theta+0.003,
+				      phi);
       }            
-      product->AddElement( comp );
+      setupAddElement(comp, product);
    }
 }
 
@@ -171,11 +171,11 @@ private:
    FWPFTauGlimpseProxyBuilder(const FWPFTauGlimpseProxyBuilder&);    // stop default
    const FWPFTauGlimpseProxyBuilder& operator=(const FWPFTauGlimpseProxyBuilder&);    // stop default
 
-   virtual void build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder ) const;
+   virtual void build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
 
 void
-FWPFTauGlimpseProxyBuilder::build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder ) const
+FWPFTauGlimpseProxyBuilder::build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
    const reco::PFTauTagInfo *tauTagInfo = dynamic_cast<const reco::PFTauTagInfo*>((iData.pfTauTagInfoRef().get()));
    const reco::PFJet *jet = dynamic_cast<const reco::PFJet*>((tauTagInfo->pfjetRef().get()));
@@ -185,7 +185,7 @@ FWPFTauGlimpseProxyBuilder::build( const reco::PFTau& iData, unsigned int iIndex
    cone->SetMainTransparency( 50 ); 
    cone->SetDrawConeCap( kFALSE );
 
-   oItemHolder.AddElement( cone );
+   setupAddElement(cone, &oItemHolder);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -206,11 +206,11 @@ private:
    FWPFTauLegoProxyBuilder(const FWPFTauLegoProxyBuilder&);    // stop default
    const FWPFTauLegoProxyBuilder& operator=(const FWPFTauLegoProxyBuilder&);    // stop default
 
-   virtual void build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder ) const;
+   virtual void build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
 
 void
-FWPFTauLegoProxyBuilder::build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder ) const
+FWPFTauLegoProxyBuilder::build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
    const unsigned int nLineSegments = 20;
    const double jetRadius = 0.17;   //10 degree
@@ -223,7 +223,7 @@ FWPFTauLegoProxyBuilder::build( const reco::PFTau& iData, unsigned int iIndex, T
 			 iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
 			 0.1);
    }
-   oItemHolder.AddElement( container );
+   setupAddElement(container, &oItemHolder);
 }
 
 REGISTER_FWPROXYBUILDER(FWPFTauProxyBuilder, reco::PFTauCollection, "PFTau", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

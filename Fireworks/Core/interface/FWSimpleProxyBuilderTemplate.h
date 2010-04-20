@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 11:20:00 EST 2008
-// $Id: FWSimpleProxyBuilderTemplate.h,v 1.2 2009/01/23 21:35:40 amraktad Exp $
+// $Id: FWSimpleProxyBuilderTemplate.h,v 1.1 2010/04/06 20:00:35 amraktad Exp $
 //
 
 // system include files
@@ -47,7 +47,7 @@ private:
 
    const FWSimpleProxyBuilderTemplate& operator=(const FWSimpleProxyBuilderTemplate&); // stop default
 
-   virtual void build(const void*iData, unsigned int iIndex, TEveElement& oItemHolder) const
+   virtual void build(const void*iData, unsigned int iIndex, TEveElement& oItemHolder)
    {
       if(0!=iData) {
          build(*reinterpret_cast<const T*> (iData), iIndex, oItemHolder);
@@ -57,7 +57,7 @@ private:
    /**iIndex is the index where iData is found in the container from which it came
       iItemHolder is the object to which you add your own objects which inherit from TEveElement
     */
-   virtual void build(const T& iData, unsigned int iIndex,TEveElement& oItemHolder) const = 0;
+   virtual void build(const T& iData, unsigned int iIndex,TEveElement& oItemHolder) = 0;
 
    // ---------- member data --------------------------------
 

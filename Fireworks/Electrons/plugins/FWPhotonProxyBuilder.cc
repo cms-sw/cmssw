@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonProxyBuilder.cc,v 1.2 2010/04/19 08:20:15 yana Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.3 2010/04/19 15:46:08 yana Exp $
 //
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -26,7 +26,7 @@ public:
 
    virtual ~FWPhotonProxyBuilder() {}
 
-   virtual bool hasSingleProduct() { return false; }
+   virtual bool haveSingleProduct() const { return false; }
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -50,16 +50,16 @@ FWPhotonProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
       const char* name = Form( "Photon %d", idx );
       TEveElementList* comp = new TEveElementList( name, name );
       if( type == FWViewType::kRhoPhi )
-	 fireworks::makeRhoPhiSuperCluster(*item(),
+	 fireworks::makeRhoPhiSuperCluster(this,
 					   (*it).superCluster(),
 					   (*it).phi(),
 					   *comp);
       else if( type == FWViewType::kRhoZ )
-         fireworks::makeRhoZSuperCluster(*item(),
+         fireworks::makeRhoZSuperCluster(this,
                                          (*it).superCluster(),
                                          (*it).phi(),
                                          *comp);
-      product->AddElement(comp);
+      setupAddElement(comp, product);
    }
 }
 

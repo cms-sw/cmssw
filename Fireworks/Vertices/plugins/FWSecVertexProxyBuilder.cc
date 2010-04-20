@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSecVertexProxyBuilder.cc,v 1.4 2010/01/22 20:10:57 amraktad Exp $
+// $Id: FWSecVertexProxyBuilder.cc,v 1.1 2010/04/08 12:05:11 yana Exp $
 //
 #include <vector>
 
@@ -32,11 +32,11 @@ private:
    const FWSecVertexProxyBuilder& operator=(const FWSecVertexProxyBuilder&); // stop default
    
    // ---------- member data --------------------------------
-   void build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
+   void build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex, TEveElement& oItemHolder);
 };
 
 void 
-FWSecVertexProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex,TEveElement& oItemHolder) const
+FWSecVertexProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex,TEveElement& oItemHolder) 
 {
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    TEvePointSet* pointSet = new TEvePointSet();
@@ -74,7 +74,7 @@ FWSecVertexProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsign
       t.Scale(sqrt(vv(0))*100.,sqrt(vv(1))*100.,sqrt(vv(2))*100.);
       t.SetPos(v.x(),v.y(),v.z());
 
-      oItemHolder.AddElement(shape);
+      setupAddElement(shape, &oItemHolder);
 
       pointSet->SetNextPoint( v.x(), v.y(), v.z() );
 
@@ -90,10 +90,10 @@ FWSecVertexProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsign
          TEveTrack* trk = new TEveTrack(&t, context().getTrackPropagator());
          trk->SetMainColor(item()->defaultDisplayProperties().color());
          trk->MakeTrack();
-         oItemHolder.AddElement( trk );
+         setupAddElement(trk, &oItemHolder);
       }
    }
-   oItemHolder.AddElement( pointSet );
+   setupAddElement(pointSet, &oItemHolder);
 }
 
 REGISTER_FWPROXYBUILDER(FWSecVertexProxyBuilder, reco::SecondaryVertexTagInfo, "SecVertex", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

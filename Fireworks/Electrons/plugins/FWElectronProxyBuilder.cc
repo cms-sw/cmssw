@@ -8,8 +8,9 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.8 2010/04/16 11:28:04 amraktad Exp $
+// $Id: FWElectronProxyBuilder.cc,v 1.9 2010/04/19 08:20:15 yana Exp $
 //
+#include "TEveCompound.h"
 #include "TEveTrack.h"
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
@@ -37,7 +38,7 @@ public:
    FWElectronProxyBuilder() ;
    virtual ~FWElectronProxyBuilder();
 
-   virtual bool hasSingleProduct() { return false; }
+   virtual bool haveSingleProduct() const { return false; }
    virtual void cleanLocal();
 
    REGISTER_PROXYBUILDER_METHODS();
@@ -80,7 +81,7 @@ FWElectronProxyBuilder::requestCommon( const reco::GsfElectronCollection* gsfEle
             track = fireworks::prepareCandidate( (*it),
                                                  context().getTrackPropagator());
          track->MakeTrack();
-         track->SetMainColor( item()->defaultDisplayProperties().color() );
+         setupElement(track);
          m_common->AddElement( track );
       }
    }
@@ -102,23 +103,23 @@ FWElectronProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList
 
    TEveElementList*   tracks = requestCommon( gsfElectrons );
    TEveElement::List_i trkIt = tracks->BeginChildren();
-   Int_t idx = 0;
+
    for( reco::GsfElectronCollection::const_iterator elIt = gsfElectrons->begin(), elItEnd = gsfElectrons->end(); elIt != elItEnd; ++elIt, ++trkIt )
    { 
-      const char* name = Form( "Electron %d", ++idx );
-      TEveElementList* comp = new TEveElementList( name, name );
+      TEveCompound* comp = createCompound();
       comp->AddElement( *trkIt );
       if( type == FWViewType::kRhoPhi )
-         fireworks::makeRhoPhiSuperCluster( *item(),
+         fireworks::makeRhoPhiSuperCluster( this,
 					    (*elIt).superCluster(),
 					    (*elIt).phi(),
 					    *comp );
       else if( type == FWViewType::kRhoZ )
-         fireworks::makeRhoZSuperCluster( *item(),
+         fireworks::makeRhoZSuperCluster( this,
 					  (*elIt).superCluster(),
 					  (*elIt).phi(),
 					  *comp );
-      product->AddElement( comp );
+
+      setupAddElement(comp, product);
    }
 }
 
@@ -147,16 +148,16 @@ private:
 
    const FWElectronGlimpseProxyBuilder& operator=(const FWElectronGlimpseProxyBuilder&); // stop default
 
-   virtual void build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
+   virtual void build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder);
 };
 
 void
-FWElectronGlimpseProxyBuilder::build( const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder ) const
+FWElectronGlimpseProxyBuilder::build( const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder ) 
 {
    FWEveScalableStraightLineSet* marker = new FWEveScalableStraightLineSet("", "");
    marker->SetLineWidth(2);
    fireworks::addStraightLineSegment( marker, &iData, 1.0 );
-   oItemHolder.AddElement(marker);
+   setupAddElement(marker, &oItemHolder);
    //add to scaler at end so that it can scale the line after all ends have been added
    // FIXME: It's not a part of a standard FWSimpleProxyBuilderTemplate: the scaler is not set!
 //    assert(scaler());

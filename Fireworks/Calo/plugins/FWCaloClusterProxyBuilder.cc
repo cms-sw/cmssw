@@ -17,11 +17,11 @@ private:
    FWCaloClusterProxyBuilder(const FWCaloClusterProxyBuilder&); 			// stop default
    const FWCaloClusterProxyBuilder& operator=(const FWCaloClusterProxyBuilder&); 	// stop default
 
-   void build(const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
+   void build(const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder);
 };
 
 void
-FWCaloClusterProxyBuilder::build(const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder) const
+FWCaloClusterProxyBuilder::build(const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder) 
 {
    std::vector<std::pair<DetId, float> > clusterDetIds = iData.hitsAndFractions ();
    Float_t scale = 10.0; 	// FIXME: The scale should be taken form somewhere else

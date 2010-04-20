@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 15:32:20 EST 2008
-// $Id: makeSuperCluster.h,v 1.2.8.1 2009/04/24 02:18:42 dmytro Exp $
+// $Id: makeSuperCluster.h,v 1.3 2009/04/27 16:53:29 dmytro Exp $
 //
 
 // system include files
@@ -28,13 +28,14 @@
 // forward declarations
 class FWEventItem;
 class TEveElement;
+class FWProxyBuilderBase;
 
 namespace fireworks {
-   bool makeRhoPhiSuperCluster(const FWEventItem&,
+   bool makeRhoPhiSuperCluster(FWProxyBuilderBase*,
                                const reco::SuperClusterRef& iCluster,
                                float iPhi,
                                TEveElement& oItemHolder);
-   bool makeRhoZSuperCluster(const FWEventItem&,
+   bool makeRhoZSuperCluster(FWProxyBuilderBase*,
                              const reco::SuperClusterRef& iCluster,
                              float iPhi,
                              TEveElement& oItemHolder);

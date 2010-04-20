@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:45 CET 2010
-// $Id: FWEveViewManager.h,v 1.4 2010/04/16 13:44:06 amraktad Exp $
+// $Id: FWEveViewManager.h,v 1.5 2010/04/16 18:37:18 amraktad Exp $
 //
 
 // system include files
@@ -62,6 +62,7 @@ public:
 
    // ---------- member functions ---------------------------
    virtual void newItem(const FWEventItem*);
+   virtual void removeItem(const FWEventItem*);
    virtual void eventBegin();
    virtual void eventEnd();
 
@@ -89,16 +90,14 @@ private:
    FWEveView*  finishViewCreate (boost::shared_ptr<FWEveView>);
 
    void beingDestroyed(const FWViewBase*);
-
+   void modelChanges(const FWModelIds& iIds);
    bool haveViewForBit (int) const;
 
    // ---------- member data --------------------------------
    
-   typedef  std::map<std::string,  std::vector<BuilderInfo> >  TypeToBuilder;
-   
-   typedef  std::vector<boost::shared_ptr<FWProxyBuilderBase> >  BuilderVec;   
-   typedef std::vector<boost::shared_ptr<FWProxyBuilderBase> >::iterator BuilderVec_it;
-   
+   typedef std::map<std::string,  std::vector<BuilderInfo> >  TypeToBuilder;
+   typedef std::vector<boost::shared_ptr<FWProxyBuilderBase> >  BuilderVec;   
+   typedef BuilderVec::iterator BuilderVec_it;
    typedef std::vector<boost::shared_ptr<FWEveView > >::iterator EveViewVec_it;
    
    TypeToBuilder            m_typeToBuilder;
@@ -108,9 +107,7 @@ private:
    std::vector< std::vector<boost::shared_ptr<FWEveView> > >  m_views;
    std::vector<TEveElementList*>  m_viewProducts;
 
-   // TODO ...
-   // std::map<const FWEventItem*, std::vector<TEveCompund*> >  m_interactions;
-
+   std::map<const FWEventItem*,FWInteractionList*>  m_interactionLists;
 };
 
 

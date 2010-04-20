@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1JetParticleProxyBuilder.cc,v 1.1 2010/04/15 10:04:39 yana Exp $
+// $Id: FWL1JetParticleProxyBuilder.cc,v 1.2 2010/04/15 13:19:32 yana Exp $
 //
 
 // system include files
@@ -32,11 +32,11 @@ private:
    FWL1JetParticleProxyBuilder(const FWL1JetParticleProxyBuilder&);    // stop default
    const FWL1JetParticleProxyBuilder& operator=(const FWL1JetParticleProxyBuilder&);    // stop default
   
-   virtual void build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const;
+   virtual void build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
 
 void
-FWL1JetParticleProxyBuilder::build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const
+FWL1JetParticleProxyBuilder::build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
    double scale = 10;
    double r_ecal = 126;
@@ -61,7 +61,7 @@ FWL1JetParticleProxyBuilder::build( const l1extra::L1JetParticle& iData, unsigne
    marker->SetLineStyle( 2 );
    marker->AddLine( r*cos(phi)*sin(theta), r*sin(phi)*sin(theta), r*cos(theta),
 		    (r+size)*cos(phi)*sin(theta), (r+size)*sin(phi)*sin(theta), (r+size)*cos(theta) );
-   oItemHolder.AddElement( marker );
+   setupAddElement(marker, &oItemHolder);
 }
 
 class FWL1JetParticleLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1JetParticle>
@@ -76,11 +76,11 @@ private:
    FWL1JetParticleLegoProxyBuilder(const FWL1JetParticleLegoProxyBuilder&);    // stop default
    const FWL1JetParticleLegoProxyBuilder& operator=(const FWL1JetParticleLegoProxyBuilder&);    // stop default
   
-   virtual void build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const;
+   virtual void build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
 
 void
-FWL1JetParticleLegoProxyBuilder::build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const
+FWL1JetParticleLegoProxyBuilder::build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
    const unsigned int nLineSegments = 6;
    const double jetRadius = 0.5;
@@ -96,7 +96,7 @@ FWL1JetParticleLegoProxyBuilder::build( const l1extra::L1JetParticle& iData, uns
 			 iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
 			 0.1);
    }
-   oItemHolder.AddElement( container );
+   setupAddElement(container, &oItemHolder);
 }
 
 

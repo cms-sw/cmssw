@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, AljaMrak-Tadel
 //         Created:  Tue March 28  2 09:46:36 EST 2010
-// $Id: FWSimpleProxyBuilder.h,v 1.1 2010/04/06 20:00:35 amraktad Exp $
+// $Id: FWSimpleProxyBuilder.h,v 1.2 2010/04/15 20:15:15 amraktad Exp $
 //
 
 // system include files
@@ -42,20 +42,21 @@ public:
 
    // ---------- member functions ---------------------------
 
+protected:
+   virtual void build(const FWEventItem* iItem, TEveElementList* product);
+
 private:
    FWSimpleProxyBuilder(const FWSimpleProxyBuilder&); // stop default
 
    const FWSimpleProxyBuilder& operator=(const FWSimpleProxyBuilder&); // stop default
 
    virtual void itemChangedImp(const FWEventItem*);
-   virtual void build(const FWEventItem* iItem,
-                      TEveElementList* product);
    
    virtual bool specialModelChangeHandling(const FWModelId&, TEveElement*);
 
    //called once for each item in collection, the void* points to the
    // object properly offset in memory
-   virtual void build(const void*, unsigned int iIndex, TEveElement& iItemHolder) const = 0;
+   virtual void build(const void*, unsigned int iIndex, TEveElement& iItemHolder) = 0;
 
    // ---------- member data --------------------------------
    FWSimpleProxyHelper m_helper;

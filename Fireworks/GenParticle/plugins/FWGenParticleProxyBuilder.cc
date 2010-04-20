@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWGenParticleProxyBuilder.cc,v 1.2 2010/04/16 10:59:51 amraktad Exp $
+// $Id: FWGenParticleProxyBuilder.cc,v 1.3 2010/04/16 11:28:04 amraktad Exp $
 // 
 
 #include "TDatabasePDG.h"
@@ -41,7 +41,7 @@ private:
 
    const FWGenParticleProxyBuilder& operator=(const FWGenParticleProxyBuilder&); // stop default
    
-   void build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
+   void build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder);
 
    // ---------- member data --------------------------------
    static TDatabasePDG* s_pdg;
@@ -52,7 +52,7 @@ private:
 TDatabasePDG* FWGenParticleProxyBuilder::s_pdg = 0;
 
 void
-FWGenParticleProxyBuilder::build(const reco::GenParticle& iData, unsigned int iIndex, TEveElement& oItemHolder) const
+FWGenParticleProxyBuilder::build(const reco::GenParticle& iData, unsigned int iIndex, TEveElement& oItemHolder) 
 {
    if (!s_pdg)
       s_pdg = new TDatabasePDG();
@@ -67,7 +67,7 @@ FWGenParticleProxyBuilder::build(const reco::GenParticle& iData, unsigned int iI
    TEveTrack* trk = fireworks::prepareCandidate( iData, context().getTrackPropagator() );    
    trk->MakeTrack();
    trk->SetTitle(s);
-   oItemHolder.AddElement( trk );
+   setupAddElement(trk, &oItemHolder);
 }
 
 REGISTER_FWPROXYBUILDER(FWGenParticleProxyBuilder, reco::GenParticle, "GenParticles", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

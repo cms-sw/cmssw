@@ -5,7 +5,7 @@
 // Package:     Muons
 // Class  :     FWMuonBuilder
 //
-// $Id: FWMuonBuilder.h,v 1.5 2010/01/21 21:02:13 amraktad Exp $
+// $Id: FWMuonBuilder.h,v 1.6 2010/04/16 10:29:09 yana Exp $
 //
 #include "Fireworks/Core/interface/FWEvePtr.h"
 
@@ -18,6 +18,7 @@ class FWEventItem;
 class TEveElementList;
 class TEveTrackPropagator;
 class FWMagField;
+class FWPRoxyBuilderBase;
 
 class FWMuonBuilder
 {
@@ -31,7 +32,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void buildMuon(const FWEventItem* iItem,
+   void buildMuon(FWProxyBuilderBase*,
                   const reco::Muon* muon,
                   TEveElement* tList,
                   bool showEndcap,

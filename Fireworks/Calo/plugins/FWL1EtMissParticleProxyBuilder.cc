@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1EtMissParticleProxyBuilder.cc,v 1.1 2010/04/15 10:04:38 yana Exp $
+// $Id: FWL1EtMissParticleProxyBuilder.cc,v 1.2 2010/04/15 13:19:32 yana Exp $
 //
 
 // system include files
@@ -33,11 +33,11 @@ private:
    FWL1EtMissParticleProxyBuilder(const FWL1EtMissParticleProxyBuilder&);    // stop default
    const FWL1EtMissParticleProxyBuilder& operator=(const FWL1EtMissParticleProxyBuilder&);    // stop default
   
-   virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const;
+   virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
 
 void
-FWL1EtMissParticleProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const
+FWL1EtMissParticleProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
    double scale = 10;
    double r_ecal = 126;
@@ -62,7 +62,7 @@ FWL1EtMissParticleProxyBuilder::build( const l1extra::L1EtMissParticle& iData, u
    marker->SetLineStyle( 2 );
    marker->AddLine( r*cos(phi)*sin(theta), r*sin(phi)*sin(theta), r*cos(theta),
 		    (r+size)*cos(phi)*sin(theta), (r+size)*sin(phi)*sin(theta), (r+size)*cos(theta) );
-   oItemHolder.AddElement( marker );
+   setupAddElement(marker, &oItemHolder);
 }
 
 class FWL1EtMissParticleGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1EtMissParticle>
@@ -77,11 +77,11 @@ private:
    FWL1EtMissParticleGlimpseProxyBuilder(const FWL1EtMissParticleGlimpseProxyBuilder&);    // stop default
    const FWL1EtMissParticleGlimpseProxyBuilder& operator=(const FWL1EtMissParticleGlimpseProxyBuilder&);    // stop default
   
-   virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const;
+   virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
 
 void
-FWL1EtMissParticleGlimpseProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const
+FWL1EtMissParticleGlimpseProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
    char title[1024];
    sprintf( title, "L1 MET: %0.1f GeV", iData.et() );
@@ -98,9 +98,9 @@ FWL1EtMissParticleGlimpseProxyBuilder::build( const l1extra::L1EtMissParticle& i
    marker->AddLine( 0, 0, 0, size*cos(phi), size*sin(phi), 0);
    marker->AddLine( size*0.9*cos(phi+0.03), size*0.9*sin(phi+0.03), 0, size*cos(phi), size*sin(phi), 0);
    marker->AddLine( size*0.9*cos(phi-0.03), size*0.9*sin(phi-0.03), 0, size*cos(phi), size*sin(phi), 0);
-   container->AddElement( marker );
+   setupAddElement(marker, container);
 
-   oItemHolder.AddElement( container );
+   setupAddElement(container, &oItemHolder);
 }
 
 class FWL1EtMissParticleLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1EtMissParticle>
@@ -115,11 +115,11 @@ private:
    FWL1EtMissParticleLegoProxyBuilder(const FWL1EtMissParticleLegoProxyBuilder&);    // stop default
    const FWL1EtMissParticleLegoProxyBuilder& operator=(const FWL1EtMissParticleLegoProxyBuilder&);    // stop default
   
-   virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const;
+   virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
 
 void
-FWL1EtMissParticleLegoProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const
+FWL1EtMissParticleLegoProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
    char title[1024];
    sprintf(title, "L1 MET: %0.1f GeV", iData.et());
@@ -130,16 +130,16 @@ FWL1EtMissParticleLegoProxyBuilder::build( const l1extra::L1EtMissParticle& iDat
    
    TEveStraightLineSet* mainLine = new TEveStraightLineSet( "MET phi" );
    mainLine->AddLine(-5.191, iData.phi(), 0.1, 5.191, iData.phi(), 0.1 );
-   container->AddElement( mainLine );
+   setupAddElement(mainLine, container);
    
    double phi = iData.phi();
    phi = phi > 0 ? phi - M_PI : phi + M_PI;
    TEveStraightLineSet* secondLine = new TEveStraightLineSet( "MET opposite phi" );
    secondLine->SetLineStyle(7);
    secondLine->AddLine(-5.191, phi, 0.1, 5.191, phi, 0.1 );
-   container->AddElement( secondLine );
+   setupAddElement(secondLine, container);
 
-   oItemHolder.AddElement( container );
+   setupAddElement(container, &oItemHolder);
 }
 
 REGISTER_FWPROXYBUILDER(FWL1EtMissParticleProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

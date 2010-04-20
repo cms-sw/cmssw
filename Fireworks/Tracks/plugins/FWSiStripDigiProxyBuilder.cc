@@ -8,7 +8,6 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 // FIXME: If it's in src, it is private and should not be used...
-#include "Fireworks/Core/src/changeElementAndChildren.h"
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -79,14 +78,7 @@ FWSiStripDigiProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iEl
 void
 FWSiStripDigiProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
-   if( 0 != iElements && item() && item()->size() ) 
-   {
-      const FWEventItem::ModelInfo info(item()->defaultDisplayProperties(),false);
-      changeElementAndChildren(iElements, info);
-      iElements->SetRnrSelf(info.displayProperties().isVisible());
-      iElements->SetRnrChildren(info.displayProperties().isVisible());
-      iElements->ElementChanged();
-   }
+  
 }
 
 REGISTER_FWPROXYBUILDER(FWSiStripDigiProxyBuilder,edm::DetSetVector<SiStripDigi>,"SiStripDigi", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

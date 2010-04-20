@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.4 2010/04/16 10:59:50 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.5 2010/04/16 11:28:03 amraktad Exp $
 //
 
 // system include files
@@ -31,11 +31,11 @@ private:
    FWMETProxyBuilder(const FWMETProxyBuilder&);    // stop default
    const FWMETProxyBuilder& operator=(const FWMETProxyBuilder&);    // stop default
 
-   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder ) const;
+   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
 
 void
-FWMETProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder ) const
+FWMETProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
    double r_ecal = 126;
    double phi = iData.phi();
@@ -53,7 +53,7 @@ FWMETProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveEleme
    marker->AddLine( -dx*sin(phi) + (dy+r_ecal)*cos(phi), dx*cos(phi) + (dy+r_ecal)*sin(phi), 0,
 		    (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
 
-   oItemHolder.AddElement(marker);
+   setupAddElement(marker, &oItemHolder);
 }
 
 class FWMETGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::MET>
@@ -68,11 +68,11 @@ private:
    FWMETGlimpseProxyBuilder(const FWMETGlimpseProxyBuilder&);    // stop default
    const FWMETGlimpseProxyBuilder& operator=(const FWMETGlimpseProxyBuilder&);    // stop default
 
-   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder ) const;
+   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
 
 void
-FWMETGlimpseProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder ) const
+FWMETGlimpseProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
    double phi = iData.phi();
    double size = iData.et();
@@ -81,7 +81,7 @@ FWMETGlimpseProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TE
    marker->AddLine( 0, 0, 0, size*cos(phi), size*sin(phi), 0);
    marker->AddLine( size*0.9*cos(phi+0.03), size*0.9*sin(phi+0.03), 0, size*cos(phi), size*sin(phi), 0);
    marker->AddLine( size*0.9*cos(phi-0.03), size*0.9*sin(phi-0.03), 0, size*cos(phi), size*sin(phi), 0);
-   oItemHolder.AddElement(marker);
+   setupAddElement(marker, &oItemHolder);
 }
 
 class FWMETLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::MET>
@@ -96,22 +96,22 @@ private:
    FWMETLegoProxyBuilder(const FWMETLegoProxyBuilder&);    // stop default
    const FWMETLegoProxyBuilder& operator=(const FWMETLegoProxyBuilder&);    // stop default
 
-   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder ) const;
+   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
 
 void
-FWMETLegoProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder ) const
+FWMETLegoProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
    TEveStraightLineSet* mainLine = new TEveStraightLineSet( "MET phi" );
    mainLine->AddLine(-5.191, iData.phi(), 0.1, 5.191, iData.phi(), 0.1 );
-   oItemHolder.AddElement( mainLine );
+   setupAddElement(mainLine, &oItemHolder);
 
    double phi = iData.phi();
    phi = phi > 0 ? phi - M_PI : phi + M_PI;
    TEveStraightLineSet* secondLine = new TEveStraightLineSet( "MET opposite phi" );
    secondLine->SetLineStyle(7);
    secondLine->AddLine(-5.191, phi, 0.1, 5.191, phi, 0.1 );
-   oItemHolder.AddElement( secondLine );
+   setupAddElement(secondLine, &oItemHolder);
 }
 
 REGISTER_FWPROXYBUILDER(FWMETProxyBuilder, reco::MET, "MET", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

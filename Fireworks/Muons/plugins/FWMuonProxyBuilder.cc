@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:28:07 EST 2008
-// $Id: FWMuonProxyBuilder.cc,v 1.3 2010/04/16 10:29:09 yana Exp $
+// $Id: FWMuonProxyBuilder.cc,v 1.4 2010/04/16 16:40:13 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -36,20 +36,23 @@ private:
    const FWMuonProxyBuilder& operator=(const FWMuonProxyBuilder&); // stop default
 
    // ---------- member data --------------------------------
-   virtual void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
+   virtual void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder);
 
    mutable FWMuonBuilder m_builder;
 };
 
 void
-FWMuonProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const
+FWMuonProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) 
 {
-   m_builder.buildMuon(item(), &iData, &oItemHolder, true, false);
+   m_builder.buildMuon(this, &iData, &oItemHolder, true, false);
    
    // FIXME: To build in RhoPhi we should simply disable the Endcap drawing
    // by passing a false flag to a muon builder:
    // m_builder.buildMuon(item(), &iData, &oItemHolder, false, false);
 }
+
+//______________________________________________________________________________
+
 
 class FWMuonRhoPhiProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>  {
 
@@ -65,18 +68,21 @@ private:
    const FWMuonRhoPhiProxyBuilder& operator=(const FWMuonRhoPhiProxyBuilder&); // stop default
 
    // ---------- member data --------------------------------
-   void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
+   void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder);
 
    mutable FWMuonBuilder m_builder;
 };
 
 void
-FWMuonRhoPhiProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const
+FWMuonRhoPhiProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) 
 {
    // To build in RhoPhi we should simply disable the Endcap drawing
    // by passing a false flag to a muon builder:
-   m_builder.buildMuon(item(), &iData, &oItemHolder, false, false);
+   m_builder.buildMuon(this, &iData, &oItemHolder, false, false);
 }
+
+//______________________________________________________________________________
+
 
 class FWMuonLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>  {
 
@@ -90,16 +96,16 @@ private:
    FWMuonLegoProxyBuilder(const FWMuonLegoProxyBuilder&); // stop default
    const FWMuonLegoProxyBuilder& operator=(const FWMuonLegoProxyBuilder&); // stop default
 
-   virtual void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
+   virtual void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder);
 
    mutable FWMuonBuilder m_builder;
 };
 
 void
-FWMuonLegoProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const
+FWMuonLegoProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) 
 {
    TEvePointSet* points = new TEvePointSet("points");
-   oItemHolder.AddElement(points);
+   setupAddElement(points, &oItemHolder);
  
    points->SetMarkerStyle(2);
    points->SetMarkerSize(0.2);
@@ -137,6 +143,9 @@ FWMuonLegoProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEve
    points->SetNextPoint( iData.eta(), iData.phi(), 0.1 );
 }
 
+//______________________________________________________________________________
+
+
 class FWMuonGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>  {
 
 public:
@@ -151,16 +160,16 @@ private:
    const FWMuonGlimpseProxyBuilder& operator=(const FWMuonGlimpseProxyBuilder&); // stop default
 
    // ---------- member data --------------------------------
-   void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
+   void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder);
 };
 
 void
-FWMuonGlimpseProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) const 
+FWMuonGlimpseProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder)
 {
    FWEveScalableStraightLineSet* marker = new FWEveScalableStraightLineSet( "", "");
    marker->SetLineWidth(2);
    fireworks::addStraightLineSegment( marker, &iData, 1.0 );
-   oItemHolder.AddElement(marker);
+   setupAddElement(marker, &oItemHolder);
    //add to scaler at end so that it can scale the line after all ends have been added
    // FIXME:   scaler()->addElement(marker);
 }

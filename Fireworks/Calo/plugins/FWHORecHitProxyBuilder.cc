@@ -58,7 +58,7 @@ FWHORecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product
 
       TEveCompound* compund = new TEveCompound("ho compound", s.str().c_str());
       compund->OpenCompound();
-      product->AddElement(compund);
+      setupAddElement(compund, product);
       
       std::vector<TEveVector> corners = iItem->getGeom()->getPoints((*it).detid().rawId());
       if( corners.empty() ) {

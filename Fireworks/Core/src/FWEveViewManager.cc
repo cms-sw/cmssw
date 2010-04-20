@@ -8,11 +8,10 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.11 2010/04/16 13:44:07 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.12 2010/04/16 18:37:18 amraktad Exp $
 //
 
 // system include files
-
 
 // user include files
 #include "TEveSelection.h"
@@ -21,20 +20,23 @@
 #include "TEveCompound.h"
 #include "TEveCalo.h"
 
+// common
 #include "Fireworks/Core/interface/FWEveViewManager.h"
-#include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/FWInteractionList.h"
 
+// PB
 #include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
-
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWProxyBuilderFactory.h"
 
+// viewes
+#include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWISpyView.h"
 #include "Fireworks/Core/interface/FW3DView.h"
 #include "Fireworks/Core/interface/FWGlimpseView.h"
@@ -116,8 +118,9 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
 
 
    // signal
+   gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_Master);
    TEveSelection* eveSelection = gEve->GetSelection();
-   eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
+   eveSelection->SetPickToSelect(TEveSelection::kPS_Master);
    eveSelection->Connect("SelectionAdded(TEveElement*)","FWEveViewManager",this,"selectionAdded(TEveElement*)");
    eveSelection->Connect("SelectionRepeated(TEveElement*)","FWEveViewManager",this,"selectionAdded(TEveElement*)");
    eveSelection->Connect("SelectionRemoved(TEveElement*)","FWEveViewManager",this,"selectionRemoved(TEveElement*)");
@@ -154,7 +157,27 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
             
             boost::shared_ptr<FWProxyBuilderBase> pB( builder );
             builder->setItem(iItem);
-            builder->setHaveAWindow(haveViewForBit(builderViewBit));
+            iItem->changed_.connect(boost::bind(&FWEveViewManager::modelChanges,this,_1));
+            iItem->goingToBeDestroyed_.connect(boost::bind(&FWEveViewManager::removeItem,this,_1));
+
+            if (builder->willHandleInteraction() == false)
+            {
+               FWInteractionList* il = 0;
+               std::map<const FWEventItem*, FWInteractionList*>::iterator inter_it = m_interactionLists.find(iItem);
+               if (inter_it == m_interactionLists.end())
+               {
+                  il = new FWInteractionList(iItem);
+                  m_interactionLists[iItem] = il;
+               }
+               else
+               {
+                  il = inter_it->second;
+               }
+               // printf(">>> builder %p gas list %p \n", builder, il); fflush(stdout);
+               builder->setInteractionList(il, iItem->purpose());
+            }
+
+            builder->setHaveWindow(haveViewForBit(builderViewBit));
             
             // supported views
             for (int viewType = 0;  viewType < FWViewType::kSize; ++viewType)
@@ -163,7 +186,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
 
                if (viewBit & builderViewBit)
                {   
-                  if (builder->hasPerViewProduct())
+                  if (builder->havePerViewProduct())
                   { 
                      for (EveViewVec_it i = m_views[viewType].begin(); i!= m_views[viewType].end(); ++i)
                      {
@@ -196,11 +219,6 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
 
             m_builders[builderViewBit].push_back(pB);
             
-            if (builder->willHandleInteraction() == false)
-            {
-               // TODO ...
-               // builder->setInteractionList(&m_interactions[iItem], iItem->purpose());
-            }
             
          } // if builder
       } // loop views      
@@ -277,7 +295,7 @@ FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
          {
             for(BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt)
             {
-               (*bIt)->setHaveAWindow(true);
+               (*bIt)->setHaveWindow(true);
             }
          }
       }
@@ -327,7 +345,7 @@ FWEveViewManager::beingDestroyed(const FWViewBase* vb)
                if (viewerBit == (builderBit & viewerBit))
                {
                   for(BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt)
-                     (*bIt)->setHaveAWindow(false);
+                     (*bIt)->setHaveWindow(false);
                }
             }
          }
@@ -347,6 +365,55 @@ void
 FWEveViewManager::modelChangesDone()
 {
    gEve->EnableRedraw();
+}
+
+
+void
+FWEveViewManager::modelChanges(const FWModelIds& iIds)
+{
+   FWModelId id = *(iIds.begin());
+  const FWEventItem* item = id.item();
+
+   // in standard case new elements can be build in case of change of visibility
+   // and in non-standard case (e.g. calo towers) PB's modelChages handles all changes
+   for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
+   {
+      for(BuilderVec_it bIt = i->second.begin(); bIt != i->second.end(); ++bIt)
+      {
+         if ((*bIt)->getHaveWindow() && (*bIt)->item() == item)
+         {
+            (*bIt)->modelChanges(iIds);
+         }
+      }
+   }
+
+   std::map<const FWEventItem*, FWInteractionList*>::iterator it = m_interactionLists.find(item);
+   if (it != m_interactionLists.end())
+   {
+      it->second->modelChanges(iIds);
+   }
+}
+
+void
+FWEveViewManager::removeItem(const FWEventItem* item)
+{
+   for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
+   {
+      for(BuilderVec_it bIt = i->second.begin(); bIt != i->second.end(); ++bIt)
+      {
+         if ((*bIt)->item() == item)
+         {
+            (*bIt)->itemBeingDestroyed(item);
+         }
+      }
+   }
+
+   std::map<const FWEventItem*, FWInteractionList*>::iterator it =  m_interactionLists.find(item);
+   if (it != m_interactionLists.end())
+   {
+      delete it->second;
+      m_interactionLists.erase(it);
+   }  
 }
 
 void
@@ -383,7 +450,7 @@ FWEveViewManager::eventEnd()
 void
 FWEveViewManager::selectionAdded(TEveElement* iElement)
 {
-   //std::cout <<"selection added "<<iElement<< std::endl;
+   // std::cout <<"selection added "<<iElement<< std::endl;
    if(0!=iElement) {
       //std::cout <<"  non null"<<std::endl;
       void* userData=iElement->GetUserData();

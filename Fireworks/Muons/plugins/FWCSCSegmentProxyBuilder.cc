@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegmentProxyBuilder.cc,v 1.3 2010/04/16 16:40:13 yana Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.4 2010/04/20 14:07:49 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -32,12 +32,12 @@ private:
    FWCSCSegmentProxyBuilder(const FWCSCSegmentProxyBuilder&);   
    const FWCSCSegmentProxyBuilder& operator=(const FWCSCSegmentProxyBuilder&);
 
-  void build(const CSCSegment& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
+  void build(const CSCSegment& iData, unsigned int iIndex, TEveElement& oItemHolder);
 };
 
 void
 FWCSCSegmentProxyBuilder::build(const CSCSegment& iData,           
-                                unsigned int iIndex, TEveElement& oItemHolder) const
+                                unsigned int iIndex, TEveElement& oItemHolder)
 {
    const TGeoHMatrix* matrix = item()->getGeom()->getMatrix(iData.cscDetId().rawId());
   
@@ -58,11 +58,7 @@ FWCSCSegmentProxyBuilder::build(const CSCSegment& iData,
   
   TEveStraightLineSet* segmentSet = new TEveStraightLineSet(s.str().c_str());
   segmentSet->SetLineWidth(3);
-  segmentSet->SetMainColor(item()->defaultDisplayProperties().color());
-  segmentSet->SetRnrSelf(item()->defaultDisplayProperties().isVisible());
-  segmentSet->SetRnrChildren(item()->defaultDisplayProperties().isVisible());
-
-  oItemHolder.AddElement(segmentSet);
+  setupAddElement(segmentSet, &oItemHolder);
   
   double localSegmentInnerPoint[3];
   double localSegmentOuterPoint[3];

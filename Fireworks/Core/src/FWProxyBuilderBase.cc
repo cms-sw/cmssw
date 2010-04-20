@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.4 2010/04/16 14:41:23 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.5 2010/04/16 18:37:18 amraktad Exp $
 //
 
 // system include files
@@ -17,15 +17,14 @@
 
 // user include files
 #include "TEveElement.h"
+#include "TEveCompound.h"
 #include "TEveManager.h"
 #include "TEveSelection.h"
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWModelId.h"
-
-#include "Fireworks/Core/src/changeElementAndChildren.h"
-#include "Fireworks/Core/interface/setUserDataElementAndChildren.h"
+#include "Fireworks/Core/interface/FWInteractionList.h"
 
 
 //
@@ -42,7 +41,7 @@
 FWProxyBuilderBase::FWProxyBuilderBase():
    m_item(0),
    m_modelsChanged(false),
-   m_haveViews(false),
+   m_haveWindow(false),
    m_mustBuild(true),
    m_layer(0)
 {
@@ -62,17 +61,15 @@ FWProxyBuilderBase::setItem(const FWEventItem* iItem)
 { 
    m_item = iItem;
    if(0 != m_item) {
-      m_item->changed_.connect(boost::bind(&FWProxyBuilderBase::modelChanges,this,_1));
-      m_item->goingToBeDestroyed_.connect(boost::bind(&FWProxyBuilderBase::itemBeingDestroyed,this,_1));
       m_item->itemChanged_.connect(boost::bind(&FWProxyBuilderBase::itemChanged,this,_1));
    }
 }
 
 void
-FWProxyBuilderBase::setHaveAWindow(bool iFlag)
+FWProxyBuilderBase::setHaveWindow(bool iFlag)
 {
-   bool oldValue = m_haveViews;
-   m_haveViews=iFlag;
+   bool oldValue = m_haveWindow;
+   m_haveWindow=iFlag;
 
    if(iFlag && !oldValue) {
       //this is our first view so may need to rerun our building
@@ -95,7 +92,6 @@ FWProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
    }
 
    m_products.clear();
-   m_ids.clear();
 }
 
 void 
@@ -105,13 +101,12 @@ FWProxyBuilderBase::build()
    {
       bool firstTime = m_products.size();
       clean();
-
-      bool initIds = true;
       for (Product_it i = m_products.begin(); i != m_products.end(); ++i)
       {
+         // printf("build() %s \n", m_item->name().c_str());
          TEveElementList* elms = (*i)->m_elements;
 
-         if (hasSingleProduct())
+         if (haveSingleProduct())
          {
             build(m_item, elms);
          }
@@ -127,36 +122,12 @@ FWProxyBuilderBase::build()
          if (firstTime) setProjectionLayer(item()->layer());
          elms->ProjectAllChildren();
 
-         if (elms && static_cast<int>(m_item->size()) == elms->NumChildren())
-         {
-            if (initIds)
-            {
-               int largestIndex = m_ids.size();
-               if (m_ids.size()<m_item->size())
-               {
-                  m_ids.resize(m_item->size());
-               }
 
-               std::vector<FWModelIdFromEveSelector>::iterator itId = m_ids.begin();
-               for (int index = 0; index < elms->NumChildren(); ++itId,++index)
-               {
-                  if (index >= largestIndex)
-                  {
-                     *itId = FWModelId(m_item,index);
-                  }
-               }
-               initIds = false;
-            }
-         
-        
-            std::vector<FWModelIdFromEveSelector>::iterator itId = m_ids.begin();
-            for (TEveElement::List_i it = elms->BeginChildren(),
-                    itEnd = elms->EndChildren();
-                 it != itEnd;
-                 ++it,++itId)
-            {
-               fireworks::setUserDataElementAndChildren(*it, &(*itId));
-            }
+         if (m_interactionList)
+         {
+            unsigned int idx = 0;
+            for (TEveElement::List_i it = elms->BeginChildren(); it !=  elms->EndChildren(); ++it)
+               m_interactionList->added(*it, idx++);
          }
       }
    }
@@ -184,7 +155,8 @@ void
 FWProxyBuilderBase::modelChanges(const FWModelIds& iIds,
                                  TEveElement* iElements)
 {
-   //   printf("modelChange %d %d \n", iElements->NumChildren() ,  m_item->size()); fflush(stdout);
+   // printf("FWProxyBuilderBase::modelChange %d %d \n", iElements->NumChildren() ,  m_item->size()); fflush(stdout);
+
    assert(m_item && static_cast<int>(m_item->size()) == iElements->NumChildren() && "can not use default modelChanges implementation");
 
    TEveElement::List_i itElement = iElements->BeginChildren();
@@ -200,22 +172,14 @@ FWProxyBuilderBase::modelChanges(const FWModelIds& iIds,
          ++index;
          assert(itElement != iElements->EndChildren());
       }
-      if (specialModelChangeHandling(*it,*itElement))
-      {
-         fireworks::setUserDataElementAndChildren(*itElement,&(ids()[it->index()]));
-      }
-      const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
-      changeElementAndChildren(*itElement, info);
-      (*itElement)->SetRnrSelf(info.displayProperties().isVisible());
-      (*itElement)->SetRnrChildren(info.displayProperties().isVisible());
-      (*itElement)->ElementChanged();
+      specialModelChangeHandling(*it,*itElement);
    }
 }
 
 void
 FWProxyBuilderBase::modelChanges(const FWModelIds& iIds)
 {
-  if(m_haveViews) {
+  if(m_haveWindow) {
     for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
     {
       modelChanges(iIds, (*i)->m_elements);
@@ -230,21 +194,15 @@ FWProxyBuilderBase::modelChanges(const FWModelIds& iIds)
 void
 FWProxyBuilderBase::itemChanged(const FWEventItem* iItem)
 { 
-   itemChangedImp(iItem);
-
    if (iItem->layer() != m_layer)
       setProjectionLayer(iItem->layer());
 
-   if(m_haveViews) {
+   if(m_haveWindow) {
       build();
    } else {
       m_mustBuild=true;
    }
    m_modelsChanged=false;
-}
-
-void FWProxyBuilderBase::itemChangedImp(const FWEventItem*)
-{
 }
 
 //______________________________________________________________________________
@@ -258,35 +216,22 @@ FWProxyBuilderBase::canHandle(const FWEventItem& item)
 }
 
 //______________________________________________________________________________
-bool
-FWProxyBuilderBase::hasPerViewProduct()
-{
-  // by default all scenes are shared.
-  return false;
-}
-
-bool
-FWProxyBuilderBase::hasSingleProduct()
-{
-  // trivial projections use only one product
-  return true;
-}
 
 TEveElementList*
 FWProxyBuilderBase::createProduct(const FWViewType::EType viewType, FWViewContext* viewContext)
 {
-   if (hasSingleProduct() == false || m_products.empty())
+   if (haveSingleProduct() == false || m_products.empty())
    {
       m_products.push_back(new Product(viewType, viewContext));
 
       if (viewContext)
       {
-         // TODO viewContext.scaleChanged_connect(boost::bind(&FWProxyBuilderBase::setScale, this))
+         // TODO auto-scale  viewContext.scaleChanged_connect(boost::bind(&FWProxyBuilderBase::setScale, this))
       }
 
       if (item()) 
       {
-         // debug info for eve browser       
+         // debug info in eve browser       
          m_products.back()->m_elements->SetElementName(item()->name().c_str());
       }
    }
@@ -294,24 +239,14 @@ FWProxyBuilderBase::createProduct(const FWViewType::EType viewType, FWViewContex
    return m_products.back()->m_elements;
 }
 
-void
-FWProxyBuilderBase::releaseFromSceneGraph(const FWViewType&)
-{
-  // TODO ...
-}
-
-//______________________________________________________________________________
-
-bool
-FWProxyBuilderBase::willHandleInteraction()
-{
-  // by default view manager handles interaction
-  return false;
-}
+//------------------------------------------------------------------------------
 
 void
-FWProxyBuilderBase::setInteractionList(std::vector<TEveCompound* > const * interactionList, std::string& purpose )
+FWProxyBuilderBase::setInteractionList(FWInteractionList* l, const std::string& /*purpose*/ )
 {
+   // Called if willHandleInteraction() returns false. Purpose ignored by default.
+
+   m_interactionList = l;
 }
 
 
@@ -345,14 +280,68 @@ void
 FWProxyBuilderBase::build(const FWEventItem*, TEveElementList*)
 {
    // TODO when design is complete this has to be abstract function
-   assert(false && "Function used but not implemented.");
+   assert(false && "Function used, but not implemented.");
 }
 
 void 
 FWProxyBuilderBase::buildViewType(const FWEventItem*, TEveElementList*, FWViewType::EType)
 {
    // TODO when design is complete this has to be abstract function
-   assert(false && "Function used but not implemented.");
+   assert(false && "Function used, but not implemented.");
+}
+
+void
+FWProxyBuilderBase::setProjectionLayer(float layer)
+{
+   m_layer = layer;
+   for (Product_it pIt = m_products.begin(); pIt != m_products.end(); ++pIt)
+   {
+      TEveProjectable* pable = static_cast<TEveProjectable*>((*pIt)->m_elements);
+      for (TEveProjectable::ProjList_i i = pable->BeginProjecteds(); i != pable->EndProjecteds(); ++i)
+         (*i)->SetDepth(m_layer);
+   }
+}
+
+//------------------------------------------------------------------------------
+
+void
+FWProxyBuilderBase::setupAddElement(TEveElement* el, TEveElement* parent, bool color) const
+{
+   setupElement(el, color);
+   parent->AddElement(el);
+}
+
+void
+FWProxyBuilderBase::setupElement(TEveElement* el, bool color) const
+{
+   el->CSCTakeAnyParentAsMaster();
+   el->SetPickable(true);
+
+   if (color)
+   {
+      el->CSCApplyMainColorToMatchingChildren();
+      el->SetMainColor(m_item->defaultDisplayProperties().color());
+   }
+}
+
+//------------------------------------------------------------------------------
+
+TEveCompound*
+FWProxyBuilderBase::createCompound(bool set_color, bool propagate_color_to_all_children) const
+{
+   TEveCompound* c = new TEveCompound();
+   c->CSCTakeAnyParentAsMaster();
+   c->CSCImplySelectAllChildren();
+   c->SetPickable(true);
+   if (set_color)
+   {
+      c->SetMainColor(m_item->defaultDisplayProperties().color());
+   }
+   if (propagate_color_to_all_children)
+      c->CSCApplyMainColorToAllChildren();
+   else
+      c->CSCApplyMainColorToMatchingChildren();
+   return c;
 }
 
 //
@@ -369,18 +358,6 @@ int
 FWProxyBuilderBase::layer() const
 {
    return m_item->layer();
-}
-
-void
-FWProxyBuilderBase::setProjectionLayer(float layer)
-{
-   m_layer = layer;
-   for (Product_it pIt = m_products.begin(); pIt != m_products.end(); ++pIt)
-   {
-      TEveProjectable* pable = static_cast<TEveProjectable*>((*pIt)->m_elements);
-      for (TEveProjectable::ProjList_i i = pable->BeginProjecteds(); i != pable->EndProjecteds(); ++i)
-         (*i)->SetDepth(m_layer);
-   }
 }
 
 //

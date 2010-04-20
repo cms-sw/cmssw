@@ -2,13 +2,12 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.18 2010/04/14 11:53:01 yana Exp $
+// $Id: FWMuonBuilder.cc,v 1.19 2010/04/16 10:29:09 yana Exp $
 //
 
 // system include files
 #include "TEveTrackPropagator.h"
 #include "TEveVSDStructs.h"
-#include "TEveCompound.h"
 #include "TEveManager.h"
 #include "TEveTrack.h"
 #include "TEveStraightLineSet.h"
@@ -17,6 +16,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWMagField.h"
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Candidates/interface/CandidateUtils.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
@@ -59,17 +59,16 @@ std::vector<TEveVector> getRecoTrajectoryPoints( const reco::Muon* muon,
 //______________________________________________________________________________
 
 void addMatchInformation( const reco::Muon* muon,
-                          const FWEventItem* iItem,
+                          FWProxyBuilderBase* pb,
                           TEveElement* parentList,
                           bool showEndcap)
 {
    std::set<unsigned int> ids;
-   const DetIdToMatrix* geom = iItem->getGeom();
+   const DetIdToMatrix* geom = pb->context().getGeom();
    const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
    //need to use auto_ptr since the segmentSet may not be passed to muonList
    std::auto_ptr<TEveStraightLineSet> segmentSet(new TEveStraightLineSet);
    segmentSet->SetLineWidth(4);
-   segmentSet->SetMainColor(iItem->defaultDisplayProperties().color());
    std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin();
    for ( ; chamber != matches.end(); ++chamber )
    {
@@ -80,8 +79,7 @@ void addMatchInformation( const reco::Muon* muon,
          if(0!=shape) {
             shape->RefMainTrans().Scale(0.999, 0.999, 0.999);
             shape->SetMainTransparency(65);
-            shape->SetMainColor(iItem->defaultDisplayProperties().color());
-            parentList->AddElement(shape);
+            pb->setupAddElement(shape, parentList);
          }
       }
       const TGeoHMatrix* matrix = geom->getMatrix( chamber->id.rawId() );
@@ -131,7 +129,7 @@ void addMatchInformation( const reco::Muon* muon,
          }
       }
    }
-   if ( !matches.empty() ) parentList->AddElement( segmentSet.release() );
+   if ( !matches.empty() ) pb->setupAddElement( segmentSet.release(), parentList );
 }
 
 //______________________________________________________________________________
@@ -216,18 +214,18 @@ FWMuonBuilder::calculateField(const reco::Muon& iData, FWMagField* field)
 //______________________________________________________________________________
 
 void
-FWMuonBuilder::buildMuon(const FWEventItem* iItem,
+FWMuonBuilder::buildMuon(FWProxyBuilderBase* pb,
                          const reco::Muon* muon,
                          TEveElement* tList,
                          bool showEndcap,
                          bool tracksOnly)
 {
-   calculateField(*muon, iItem->context().getField());
+   calculateField(*muon, pb->context().getField());
 
    // workaround for missing GetFieldObj() in TEveTrackPropagator, default stepper is kHelix
    if (m_trackerPropagator->GetStepper() == TEveTrackPropagator::kHelix) {
       m_trackerPropagator->SetStepper(TEveTrackPropagator::kRungeKutta);
-      m_trackerPropagator->SetMagFieldObj(iItem->context().getField());
+      m_trackerPropagator->SetMagFieldObj(pb->context().getField());
    }
 
    TEveRecTrack recTrack;
@@ -245,15 +243,15 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
    if ( muon->isTrackerMuon() && 
 	muon->innerTrack().isAvailable() &&
 	muon->isMatchesValid() &&
-	!buggyMuon( &*muon, iItem->getGeom() ) )
+	!buggyMuon( &*muon, pb->context().getGeom() ) )
    {
       TEveTrack* trk = fireworks::prepareTrack(*(muon->innerTrack()),
 					       m_trackerPropagator.get(),
-					       getRecoTrajectoryPoints(muon,iItem) );
+					       getRecoTrajectoryPoints(muon,pb->item()) );
       trk->MakeTrack();
-      tList->AddElement( trk );
+      pb->setupAddElement(trk, tList);
       if ( ! tracksOnly )
-	 addMatchInformation( &(*muon), iItem, tList, showEndcap );
+	 addMatchInformation( &(*muon), pb, tList, showEndcap );
       return;
    } 
 
@@ -281,7 +279,7 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
                                                m_trackerPropagator.get(),
                                                extraPoints);
       trk->MakeTrack();
-      tList->AddElement( trk );
+      pb->setupAddElement(trk, tList);
       return;
    }
 
@@ -290,7 +288,7 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
       TEveTrack* trk = fireworks::prepareTrack(*(muon->innerTrack()),
                                                m_trackerPropagator.get());
       trk->MakeTrack();
-      tList->AddElement( trk );
+      pb->setupAddElement(trk, tList);
       return;
    }
 
@@ -299,7 +297,7 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
       TEveTrack* trk = fireworks::prepareTrack(*(muon->outerTrack()),
                                                m_trackerPropagator.get());
       trk->MakeTrack();
-      tList->AddElement( trk );
+      pb->setupAddElement(trk, tList);
       return;
    }
    
@@ -308,5 +306,5 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
    TEveTrack* trk = fireworks::prepareCandidate(*muon,
 						m_trackerPropagator.get());
    trk->MakeTrack();
-   tList->AddElement( trk );
+   pb->setupAddElement(trk, tList);
 }

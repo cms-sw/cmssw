@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:08 EST 2008
-// $Id: FWCaloTowerProxyBuilder.h,v 1.1 2010/04/09 19:46:22 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.h,v 1.2 2010/04/15 20:15:14 amraktad Exp $
 //
 
 #include "Rtypes.h"
@@ -38,6 +38,7 @@ public:
    virtual const std::string histName() const = 0;
    virtual double getEt(const CaloTower&) const = 0;
 
+   virtual bool willHandleInteraction() const { return true; }
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------

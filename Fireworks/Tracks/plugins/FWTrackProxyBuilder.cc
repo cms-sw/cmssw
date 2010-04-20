@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackProxyBuilder.cc,v 1.3 2010/04/16 10:59:52 amraktad Exp $
+// $Id: FWTrackProxyBuilder.cc,v 1.4 2010/04/16 11:28:04 amraktad Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ private:
 
    const FWTrackProxyBuilder& operator=(const FWTrackProxyBuilder&); // stop default
 
-   void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
+   void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder);
 
    FWEvePtr<TEveTrackPropagator> m_trackerPropagator;
 };
@@ -58,7 +58,7 @@ FWTrackProxyBuilder::~FWTrackProxyBuilder()
 }
 
 void
-FWTrackProxyBuilder::build( const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder ) const
+FWTrackProxyBuilder::build( const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder ) 
 {
    if( context().getField()->getAutodetect() ) {
       if( fabs( iData.eta() ) < 2.0 && iData.pt() > 0.5 && iData.pt() < 30 ) {
@@ -77,7 +77,7 @@ FWTrackProxyBuilder::build( const reco::Track& iData, unsigned int iIndex,TEveEl
 
    TEveTrack* trk = fireworks::prepareTrack( iData, propagator );
    trk->MakeTrack();
-   oItemHolder.AddElement( trk );
+   setupAddElement(trk, &oItemHolder);
 }
 
 //

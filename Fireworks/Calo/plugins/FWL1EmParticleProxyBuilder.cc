@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1EmParticleProxyBuilder.cc,v 1.1 2010/04/14 15:52:18 yana Exp $
+// $Id: FWL1EmParticleProxyBuilder.cc,v 1.1 2010/04/15 08:42:17 yana Exp $
 //
 
 // system include files
@@ -32,11 +32,11 @@ private:
    FWL1EmParticleProxyBuilder(const FWL1EmParticleProxyBuilder&);    // stop default
    const FWL1EmParticleProxyBuilder& operator=(const FWL1EmParticleProxyBuilder&);    // stop default
   
-   virtual void build( const l1extra::L1EmParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const;
+   virtual void build( const l1extra::L1EmParticle& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
 
 void
-FWL1EmParticleProxyBuilder::build( const l1extra::L1EmParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) const
+FWL1EmParticleProxyBuilder::build( const l1extra::L1EmParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
    double scale = 10;
    double r_ecal = 126;
@@ -61,7 +61,7 @@ FWL1EmParticleProxyBuilder::build( const l1extra::L1EmParticle& iData, unsigned 
    marker->SetLineStyle( 2 );
    marker->AddLine( r*cos(phi)*sin(theta), r*sin(phi)*sin(theta), r*cos(theta),
 		    (r+size)*cos(phi)*sin(theta), (r+size)*sin(phi)*sin(theta), (r+size)*cos(theta) );
-   oItemHolder.AddElement( marker );
+   setupAddElement(marker, &oItemHolder);
 }
 
 REGISTER_FWPROXYBUILDER(FWL1EmParticleProxyBuilder, l1extra::L1EmParticle, "L1EmParticle", FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

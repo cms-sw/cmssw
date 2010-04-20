@@ -5,7 +5,6 @@
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/src/changeElementAndChildren.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
@@ -86,11 +85,7 @@ FWSiPixelDigiProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    if( 0 != iElements && item() && item()->size() ) 
    {
-      const FWEventItem::ModelInfo info(item()->defaultDisplayProperties(),false);
-      changeElementAndChildren(iElements, info);
-      iElements->SetRnrSelf(info.displayProperties().isVisible());
-      iElements->SetRnrChildren(info.displayProperties().isVisible());
-      iElements->ElementChanged();
+
    }
 }
 

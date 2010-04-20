@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.3 2010/04/16 10:59:52 amraktad Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.4 2010/04/16 11:28:04 amraktad Exp $
 //
 
 // system include files
@@ -13,7 +13,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 // FIXME: If it's in src, it is private and should not be used...
-#include "Fireworks/Core/src/changeElementAndChildren.h"
+
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
@@ -106,11 +106,7 @@ FWSiStripClusterProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
    if(0!=iElements && item() && item()->size()) {
       //make the bad assumption that everything is being changed indentically
       const FWEventItem::ModelInfo info(item()->defaultDisplayProperties(),false);
-      changeElementAndChildren(iElements, info);
-      iElements->SetRnrSelf(info.displayProperties().isVisible());
-      iElements->SetRnrChildren(info.displayProperties().isVisible());
-      iElements->ElementChanged();
-   }
+     }
 }
 
 REGISTER_FWPROXYBUILDER(FWSiStripClusterProxyBuilder,edmNew::DetSetVector<SiStripCluster>,"SiStrip", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
