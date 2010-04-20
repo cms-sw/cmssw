@@ -1,5 +1,3 @@
-PT_CUT = 15. # P_t cut for tracks to match E/Hcal rechits. 
-
 import FWCore.ParameterSet.Config as cms
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 
@@ -17,34 +15,7 @@ generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 TrackRefitter.TrajectoryInEvent = cms.bool(True)
 TrackRefitter.src               = 'generalTracksSkim'
 
-trackSkimmingAndRefit = cms.Sequence( generalTracksSkim)
-
-
-
-dedxHarm2 = cms.EDProducer("DeDxEstimatorProducer",
-    tracks                     = cms.InputTag("TrackRefitter"),
-    trajectoryTrackAssociation = cms.InputTag("TrackRefitter"),
-
-    estimator      = cms.string('generic'),
-    exponent       = cms.double(-2.0),
-
-    UseStrip       = cms.bool(True),
-    UsePixel       = cms.bool(True),
-    MeVperADCStrip = cms.double(3.61e-06*250),
-    MeVperADCPixel = cms.double(3.61e-06),
-
-    MisCalib_Mean      = cms.untracked.double(1.0),
-    MisCalib_Sigma     = cms.untracked.double(0.00),
-
-    UseCalibration  = cms.bool(False),
-    calibrationPath = cms.string(""),
-)
-
-dedxNPHarm2             = dedxHarm2.clone()
-dedxNPHarm2.UsePixel    = cms.bool(False)
-
-dedxSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxHarm2 + dedxNPHarm2)
-
+trackerSeq = cms.Sequence( generalTracksSkim)
 
 
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
@@ -57,7 +28,7 @@ highPtTrackEcalDetIds = cms.EDProducer("HighPtTrackEcalDetIdProducer",
 									   #TrackAssociatorParameterBlock
 									   TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
 									   inputCollection = cms.InputTag("generalTracksSkim"),
-									   TrackPt=cms.double(PT_CUT)
+									   TrackPt=cms.double(15.0)
 									   )
 
 
@@ -86,21 +57,29 @@ reducedHSCPEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
 )
 
 
-ecalSeq = cms.Sequence(reducedHSCPEcalRecHitsEB+reducedHSCPEcalRecHitsEE)
+ecalSeq = cms.Sequence(detIdProduceSeq+reducedHSCPEcalRecHitsEB+reducedHSCPEcalRecHitsEE)
 
 
 reducedHSCPhbhereco = cms.EDProducer("ReduceHcalRecHitCollectionProducer",
 									 recHitsLabel = cms.InputTag("hbhereco",""),
 									 TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
 									 inputCollection = cms.InputTag("generalTracksSkim"),
-									 TrackPt=cms.double(PT_CUT),					   
+									 TrackPt=cms.double(15.0),					   
 									 reducedHitsCollection = cms.string('')
 )
 
 hcalSeq = cms.Sequence(reducedHSCPhbhereco)
 
+muonSeq = cms.EDProducer("UpdatedMuonInnerTrackRef",
+    MuonTag        = cms.untracked.InputTag("muons"),
+    OldTrackTag    = cms.untracked.InputTag("generalTracks"),
+    NewTrackTag    = cms.untracked.InputTag("generalTracksSkim"),
+    maxInvPtDiff   = cms.untracked.double(0.005),
+    minDR          = cms.untracked.double(0.01),
+)
 
-exoticaHSCPSeq = cms.Sequence( trackSkimmingAndRefit+detIdProduceSeq+ecalSeq+hcalSeq)
+
+exoticaHSCPSeq = cms.Sequence( trackerSeq+ecalSeq+hcalSeq+muonSeq)
 
 
 
