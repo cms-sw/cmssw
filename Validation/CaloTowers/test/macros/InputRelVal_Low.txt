@@ -1,18 +1,18 @@
-                            number_of_bad_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numBadCells.gif     1       0       26      0       -1      1D      Stat    Chi2    Log     2       1              bad cells number EB
-                            number_of_bad_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numBadCells.gif     1       0       26      0       -1      1D      Stat    Chi2    Log     2       1              bad cells number EE
-                            number_of_bad_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              bad cells number HB
-                            number_of_bad_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              bad cells number HE
-                            number_of_bad_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              bad cells number HF
-                      number_of_recovered_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numRcvCells.gif     1       0       26      0       -1      1D      Stat    Chi2    Log     2       1              recovered cells number EB
-                      number_of_recovered_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numRcvCells.gif     1       0       26      0       -1      1D      Stat    Chi2    Log     2       1              recovered cells number EE
-                      number_of_recovered_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              recovered cells number HB
-                      number_of_recovered_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              recovered cells number HE
-                      number_of_recovered_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              recovered cells number HF
-                    number_of_problematic_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numPrbCells.gif     1       0       26      0       -1      1D      Stat    Chi2    Log     2       1              problematic cells number EB
-                    number_of_problematic_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numPrbCells.gif     1       0       26      0       -1      1D      Stat    Chi2    Log     2       1              problematic cells number EE
-                    number_of_problematic_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              problematic cells number HB
-                    number_of_problematic_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              problematic cells number HE
-                    number_of_problematic_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D      Stat    Chi2    Log     2       1              problematic cells number HF
+                            number_of_bad_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numBadCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              bad cells number EB
+                            number_of_bad_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numBadCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              bad cells number EE
+                            number_of_bad_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              bad cells number HB
+                            number_of_bad_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              bad cells number HE
+                            number_of_bad_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              bad cells number HF
+                      number_of_recovered_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numRcvCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number EB
+                      number_of_recovered_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numRcvCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number EE
+                      number_of_recovered_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number HB
+                      number_of_recovered_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number HE
+                      number_of_recovered_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number HF
+                    number_of_problematic_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numPrbCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number EB
+                    number_of_problematic_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numPrbCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number EE
+                    number_of_problematic_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number HB
+                    number_of_problematic_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number HE
+                    number_of_problematic_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number HF
                                   CaloTowersTask_MET_HB   1	           HB_CaloTowers_MET_HB.gif	1	0	60.	0	-1	1D	Stat	Chi2	Log	2	1	       HB Calo MET (GeV)
                                   CaloTowersTask_SET_HB   1	           HB_CaloTowers_SET_HB.gif	1	0	100.	0	-1	1D	Stat	Chi2	Log	2	1	       Barrel CaloTowers SET (GeV)	
                           CaloTowersTask_energy_ECAL_HB   1	HB_CaloTowers_Energy_in_ECAL_HB.gif	1	-10.	120.	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers ECAL energy (GeV)
@@ -104,10 +104,10 @@
                                                    N_HE   1	                           N_HE.gif	10	0	500.	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HE RecHits
                                                    N_HF   1	                           N_HF.gif	10	0	500.	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HF RecHits
                                                    N_HO   1	                           N_HO.gif	10	0	500.	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HO RecHits
-                        HcalRecHitTask_severityLevel_HB   1                    severityLevel_HB.gif     1       0       25      0       -1      1D      Statrv  Chi2    Log     2       1                 severityLevel HB
-                        HcalRecHitTask_severityLevel_HE   1                    severityLevel_HE.gif     1       0       25      0       -1      1D      Statrv  Chi2    Log     2       1                 severityLevel HE
-                        HcalRecHitTask_severityLevel_HF   1                    severityLevel_HF.gif     1       0       25      0       -1      1D      Statrv  Chi2    Log     2       1                 severityLevel HF
-                        HcalRecHitTask_severityLevel_HO   1                    severityLevel_HO.gif     1       0       25      0       -1      1D      Statrv  Chi2    Log     2       1                 severityLevel HO
+                        HcalRecHitTask_severityLevel_HB   1                    severityLevel_HB.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HB
+                        HcalRecHitTask_severityLevel_HE   1                    severityLevel_HE.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HE
+                        HcalRecHitTask_severityLevel_HF   1                    severityLevel_HF.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HF
+                        HcalRecHitTask_severityLevel_HO   1                    severityLevel_HO.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HO
                                             RMS_seq_HB1   0
                                             RMS_seq_HB2   0
                                             RMS_seq_HE1   0
