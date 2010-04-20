@@ -410,7 +410,17 @@ if __name__ == '__main__':
 
     # check if input data exists if given
     if option.data:
-        if os.path.exists(option.data):
+        if os.path.isdir(option.data):
+            files = os.system("ls "+option.data)
+            datafilename = "combined_all.txt"
+            output = open(datafilename,"w")
+            for f in files:
+                input = open(f)
+                output.write(input.readlines())
+            output.close()
+            print " data files have been collected in "+datafilename
+            
+        elif os.path.exists(option.data):
             datafilename = option.data
         else:
             print " input beam spot data DOES NOT exist, file " + option.data
