@@ -26,6 +26,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -184,7 +185,7 @@ void RunManager::initG4(const edm::EventSetup & es)
   if (m_managerInitialized) return;
   
   // DDDWorld: get the DDCV from the ES and use it to build the World
-  edm::ESHandle<DDCompactView> pDD;
+  edm::ESTransientHandle<DDCompactView> pDD;
   es.get<IdealGeometryRecord>().get(pDD);
    
   G4LogicalVolumeToDDLogicalPartMap map_;
