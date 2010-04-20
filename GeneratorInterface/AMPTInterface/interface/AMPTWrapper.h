@@ -17,6 +17,12 @@ extern "C" {
   void ampt_(const char* frame, double& bmin0, double& bmax0, int);
 }
 #define AMPT ampt_
+
+extern "C" {
+  int invflv_(int&);
+}
+#define INVFLV invflv_
+
 //gsfs changed entries to agree with calling sequence in AMPT
 extern "C" {
   extern struct{ 
@@ -34,13 +40,14 @@ extern "C" {
 #define hmain1 hmain1_
 
 extern "C" {
-  extern struct{ 
-    int katt[4][_MAXNUMPARTICLE_];
-//gsfs changed following to float from double
-    float patt[4][_MAXNUMPARTICLE_];
-  }hmain2_;
+  extern struct{
+    int lblast[_MAXNUMPARTICLE_];
+    float xlast[_MAXNUMPARTICLE_][4];
+    float plast[_MAXNUMPARTICLE_][4];
+    int nlast;
+  }hbt_;
 }
-#define hmain2 hmain2_
+#define hbt hbt_
 
 extern "C" {
   extern struct{ 
