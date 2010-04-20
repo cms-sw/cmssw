@@ -78,8 +78,8 @@ hcalSimParameters = cms.PSet(
         timeSmearing = cms.bool(True)
     ),
     zdc = cms.PSet(
-        readoutFrameSize = cms.int32(6),
-        binOfMaximum = cms.int32(4),
+        readoutFrameSize = cms.int32(10),
+        binOfMaximum = cms.int32(5),
         samplingFactor = cms.double(0.267),
         doPhotoStatistics = cms.bool(True),
         photoelectronsToAnalog = cms.double(1.843),
