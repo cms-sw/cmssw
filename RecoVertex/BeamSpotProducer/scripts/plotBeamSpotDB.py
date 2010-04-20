@@ -415,10 +415,10 @@ if __name__ == '__main__':
             files = tmp[1].split()
             datafilename = "combined_all.txt"
             output = open(datafilename,"w")
-            print files
+            
             for f in files:
                 input = open(option.data +"/"+f)
-                output.write(input.readlines())
+                output.writelines(input.readlines())
             output.close()
             print " data files have been collected in "+datafilename
             
