@@ -97,6 +97,36 @@ void testBa() {
 }
 
 
+void go2D() {
+
+  typedef Vec2<double> Vec2d;
+  typedef Vec3<double> Vec3d;
+
+  std::cout << std::endl;
+  std::cout << sizeof(Vec2d) << std::endl;
+
+  Vec3d x(2.0,4.0,5.0);
+  Vec3d y(-3.0,2.0,-5.0);
+  std::cout << x << std::endl;
+  std::cout << y << std::endl;
+
+  Vec3d x2 = x.xy();
+  Vec3d y2 = y.xy();
+  std::cout << x2 << std::endl;
+  std::cout << y2 << std::endl;
+
+
+  std::cout << 3.*x << std::endl;
+  std::cout << y*0.1 << std::endl;
+
+
+  std::cout << dot(x2,y2) << " = 2?"<< std::endl; 
+  
+
+  double z = cross(x2,y2);
+  std::cout << z  << " = 16?" << std::endl;
+}
+
 template<typename T> 
 void go() {
 

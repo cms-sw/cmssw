@@ -59,12 +59,31 @@ namespace mathSSE {
   template<typename T>
   struct OldVec { T  theX; T  theY; T  theZ; T  theW;}  __attribute__ ((aligned (16)));
   
+
+  template<typename T> union Vec2{
+    Vec2() {
+      arr[0] = 0; arr[1] = 0;
+    }
+    Vec2(float f1, float f2) {
+      arr[0] = f1; arr[1] = f2;
+    }
+    void set(float f1, float f2) {
+      arr[0] = f1; arr[1] = f2;
+    }
+    Vec2 get1(unsigned int n) const {
+      return Vec3(arr[n],arr[n]);
+    }
+
+    T __attribute__ ((aligned(16))) arr[2];
+  };
+
+
   template<typename T> union Vec3{
     Vec3() {
       arr[0] = 0; arr[1] = 0; arr[2] = 0; arr[3]=0;
     }
-    Vec3(float f1, float f2, float f3) {
-      arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=0;
+    Vec3(float f1, float f2, float f3, float f4=0) {
+      arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
     }
     void set(float f1, float f2, float f3, float f4=0) {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
@@ -106,6 +125,31 @@ namespace mathSSE {
   
   typedef Vec3<float> Vec3F;
 
+
+  template<>
+  union Vec2<double> {
+    __m128d vec;
+    double __attribute__ ((aligned(16))) arr[2];
+        
+    Vec2(__m128d ivec) : vec(ivec) {}
+    
+    Vec2() {
+      vec = _mm_setzero_pd();
+    }
+
+    Vec2(double f1, double f2) {
+      arr[0] = f1; arr[1] = f2;
+    }
+    
+    void set(double f1, double f2) {
+      arr[0] = f1; arr[1] = f2;
+    }
+    Vec2 get1(unsigned int n) const {
+      return Vec2(arr[n],arr[n]);
+    }
+  };
+ 
+
   template<>
   union Vec3<double> {
     __m128d vec[2];
@@ -140,9 +184,12 @@ namespace mathSSE {
       return Vec3(arr[n],arr[n],arr[n],arr[n]);
     }
 
+    Vec2<double> xy() const { return vec[0];}
+    Vec2<double> zw() const { return vec[1];}
 
   };
   
+  typedef Vec2<double> Vec2D;
   typedef Vec3<double> Vec3D;
 
 }
@@ -187,8 +234,54 @@ inline mathSSE::Vec3F operator*(mathSSE::Vec3F b,float a) {
 }
 
 
+// double op 2d
+inline mathSSE::Vec2D operator+(mathSSE::Vec2D a, mathSSE::Vec2D b) {
+  return  _mm_add_pd(a.vec,b.vec);
+}
 
-// double op
+inline mathSSE::Vec2D operator-(mathSSE::Vec2D a, mathSSE::Vec2D b) {
+  return  _mm_sub_pd(a.vec,b.vec);
+}
+
+inline mathSSE::Vec2D operator*(mathSSE::Vec2D a, mathSSE::Vec2D b) {
+  return  _mm_mul_pd(a.vec,b.vec);
+}
+
+inline mathSSE::Vec2D operator/(mathSSE::Vec2D a, mathSSE::Vec2D b) {
+  return  _mm_div_pd(a.vec,b.vec);
+}
+
+inline mathSSE::Vec2D operator*(double a, mathSSE::Vec2D b) {
+  return  _mm_mul_pd(_mm_set1_pd(a),b.vec);
+}
+
+inline mathSSE::Vec2D operator*(mathSSE::Vec2D b,double a) {
+  return  _mm_mul_pd(_mm_set1_pd(a),b.vec);
+}
+
+inline double dot(mathSSE::Vec2D a, mathSSE::Vec2D b)  __attribute__((always_inline));
+
+inline double dot(mathSSE::Vec2D a, mathSSE::Vec2D b){
+  __m128d res = _mm_mul_pd ( a.vec, b.vec);
+  res = _mm_add_sd (  _mm_shuffle_pd ( res , res, 1 ), res );
+  double s;
+  _mm_store_sd(&s,res);
+  return s;
+}
+
+inline double cross(mathSSE::Vec2D a, mathSSE::Vec2D b)  __attribute__((always_inline));
+
+inline double cross(mathSSE::Vec2D a, mathSSE::Vec2D b) {
+  __m128d res =  _mm_shuffle_pd ( b.vec, b.vec, 1);
+  res = _mm_mul_pd (  a.vec , res );
+  res = _mm_sub_sd (res, _mm_shuffle_pd ( res , res, 1 ));
+  double s;
+  _mm_store_sd(&s,res);
+  return s;
+}
+
+
+// double op 3d
 inline mathSSE::Vec3D operator+(mathSSE::Vec3D a, mathSSE::Vec3D b) {
   return  mathSSE::Vec3D(_mm_add_pd(a.vec[0],b.vec[0]),_mm_add_pd(a.vec[1],b.vec[1]));
 }
@@ -249,6 +342,7 @@ inline mathSSE::Vec3D cross(mathSSE::Vec3D a, mathSSE::Vec3D b) {
 
 
 #include <iosfwd>
+std::ostream & operator<<(std::ostream & out, mathSSE::Vec2D const & v);
 std::ostream & operator<<(std::ostream & out, mathSSE::Vec3F const & v);
 std::ostream & operator<<(std::ostream & out, mathSSE::Vec3D const & v);
 
