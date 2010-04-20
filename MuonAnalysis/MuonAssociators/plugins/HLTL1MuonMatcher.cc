@@ -1,5 +1,5 @@
 //
-// $Id: L1MuonMatcher.cc,v 1.2 2009/09/23 12:32:27 gpetrucc Exp $
+// $Id: HLTL1MuonMatcher.cc,v 1.1 2010/02/22 11:53:37 gpetrucc Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: L1MuonMatcher.cc,v 1.2 2009/09/23 12:32:27 gpetrucc Exp $
+  \version  $Id: HLTL1MuonMatcher.cc,v 1.1 2010/02/22 11:53:37 gpetrucc Exp $
 */
 
 
@@ -24,6 +24,7 @@
 #include "DataFormats/Common/interface/View.h"
 
 #include "MuonAnalysis/MuonAssociators/interface/L1MuonMatcherAlgo.h"
+#include "PhysicsTools/PatAlgos/plugins/PATTriggerMatchSelector.h"
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
@@ -43,8 +44,8 @@ namespace pat {
 
       /// select L1s with patName_ and filterLabel_ (public, so it can be used by L1MuonMatcherAlgo)
       bool operator()(const pat::TriggerObjectStandAlone &l1) const {
-          return l1.hasPathName(pathName_) && 
-              (filterLabel_.empty() || l1.hasFilterLabel(filterLabel_));
+          if (resolveAmbiguities_ && (std::find(lockedItems_.begin(), lockedItems_.end(), &l1) != lockedItems_.end())) return false;
+          return selector_(0,l1);
       }
     private:
       typedef pat::TriggerObjectStandAlone           PATPrimitive;
@@ -56,11 +57,10 @@ namespace pat {
       /// Labels for input collections
       edm::InputTag reco_, l1_;
 
-      /// Which HLT path to consider
-      std::string pathName_;
-
-      /// Which filter label to consider (ignore it if black)
-      std::string filterLabel_;
+      /// Select HLT objects.
+      /// First template argument is dummy and useless,
+      pat::PATTriggerMatchSelector<bool,PATPrimitive> selector_;
+      bool resolveAmbiguities_;
 
       /// Labels to set as filter names in the output
       std::string labelProp_;
@@ -74,6 +74,9 @@ namespace pat {
                      const Hand & handle,
                      const std::vector<T> & values,
                      const std::string    & label) const ;
+
+      // for ambiguity resolution
+      std::vector<const pat::TriggerObjectStandAlone *> lockedItems_;
   };
 
 } // namespace
@@ -82,8 +85,8 @@ pat::HLTL1MuonMatcher::HLTL1MuonMatcher(const edm::ParameterSet & iConfig) :
     matcher_(iConfig),
     reco_(iConfig.getParameter<edm::InputTag>("src")),
     l1_(iConfig.getParameter<edm::InputTag>("matched")),
-    pathName_(iConfig.getParameter<std::string>("pathName")),
-    filterLabel_(iConfig.existsAs<std::string>("filterLabel") ? iConfig.getParameter<std::string>("filterLabel") : ""),
+    selector_(iConfig),
+    resolveAmbiguities_(iConfig.getParameter<bool>("resolveAmbiguities")),
     labelProp_(iConfig.getParameter<std::string>("setPropLabel")),
     writeExtraInfo_(iConfig.existsAs<bool>("writeExtraInfo") ? iConfig.getParameter<bool>("writeExtraInfo") : false)
 {
@@ -111,6 +114,7 @@ pat::HLTL1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     vector<int>   propMatches(reco->size(), -1);
     vector<int>   fullMatches(reco->size(), -1);
     vector<float> deltaRs(reco->size(), 999), deltaPhis(reco->size(), 999);
+    lockedItems_.clear();
     for (int i = 0, n = reco->size(); i < n; ++i) {
         TrajectoryStateOnSurface propagated;
         const reco::Candidate &mu = (*reco)[i];
@@ -123,7 +127,11 @@ pat::HLTL1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSet
             propOut->back().setCharge(mu.charge());
         }
         fullMatches[i] = match;
+        if (match != -1) {
+            lockedItems_.push_back(&(*l1s)[match]);
+        }
     }
+    lockedItems_.clear();
 
     OrphanHandle<PATPrimitiveCollection> propDone = iEvent.put(propOut, "propagatedReco");
 

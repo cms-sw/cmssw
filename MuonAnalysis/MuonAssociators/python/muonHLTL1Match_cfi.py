@@ -10,8 +10,16 @@ muonHLTL1Match = cms.EDProducer("HLTL1MuonMatcher",
 
     # L1 Muon collection, and preselection on that collection
     matched     = cms.InputTag("patTrigger"),
-    pathName    = cms.string('HLT_L1MuOpen'),
-    filterLabel = cms.string(''), # set to a non-empty string to select L1 objects also on the filter label
+
+    # Requests to select the object
+    # 90% compatible with documentation at SWGuidePATTrigger#Module_Configuration_AN1
+    andOr          = cms.bool( False ), # if False, do the 'AND' of the conditions below; otherwise, do the OR
+    filterIdsEnum  = cms.vstring( '*' ),
+    filterIds      = cms.vint32( 0 ),
+    filterLabels   = cms.vstring( '*' ),
+    pathNames      = cms.vstring( 'HLT_L1MuOpen' ),
+    collectionTags = cms.vstring( '*' ),
+    resolveAmbiguities    = cms.bool( True ), # if True, no more than one reco object can be matched to the same L1 object; precedence is given to the reco ones coming first in the list
 
     # Choice of matching algorithm
     useTrack = cms.string("tracker"),  # 'none' to use Candidate P4; or 'tracker', 'muon', 'global'
