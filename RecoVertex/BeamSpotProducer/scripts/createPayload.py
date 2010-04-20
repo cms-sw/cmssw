@@ -426,9 +426,9 @@ if __name__ == '__main__':
         dfile.write('since ' + iov_since +'\n')
 #        dfile.write('till ' + iov_till +'\n')
         if IOVbase == "runbase":
-			dfile.write('Timetype runnumber\n')
-		elif IOVbase == "lumibase":
-			dfile.write('Timetype lumiid\n')
+            dfile.write('Timetype runnumber\n')
+        elif IOVbase == "lumibase":
+            dfile.write('Timetype lumiid\n')
         checkType = tagType
         if tagType == "express":
             checkType = "hlt"
