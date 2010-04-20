@@ -16,16 +16,10 @@
 // Please have a look to all the commentary therein.
 //#include "DetectorDescription/Core/src/tutorial.h"
 
-#include "Utilities/Timing/interface/TimingReport.h"
-//#include "Utilities/Timing/interface/TimerProxy.h"
-
 using namespace std;
 
 int main(int argc, char *argv[])
 {
-  //   static TimerProxy timer_("main()");
-  //   TimeMe t(timer_,false);
-  TimeMe t("main()");
 
   //DDAlgoInit();
   // Initialize a DDL Schema aware parser for DDL-documents
@@ -116,8 +110,6 @@ int main(int argc, char *argv[])
   cout << "id=" << id << " mapsize=" << idMap.size() << endl;
   nominal_placements.close();
   phys_parts_tree.close();
-  TimingReport* tr = TimingReport::current();
-  tr->dump(cout);    
   return 0;
   
 }

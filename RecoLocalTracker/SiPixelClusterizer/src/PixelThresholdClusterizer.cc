@@ -60,7 +60,6 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
   doMissCalibrate=conf_.getUntrackedParameter<bool>("MissCalibrate",true); 
   doSplitClusters = conf.getParameter<bool>("SplitClusters");
   theBuffer.setSize( theNumOfRows, theNumOfCols );
-  //initTiming();
 }
 /////////////////////////////////////////////////////////////////////////////
 PixelThresholdClusterizer::~PixelThresholdClusterizer() {}
@@ -108,8 +107,6 @@ void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> 
 						   const std::vector<short>& badChannels,
                                                    edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) {
   
-  //TimeMe tm1( *theClustersTimer, false);
- 
   DigiIterator begin = input.begin();
   DigiIterator end   = input.end();
   
@@ -173,7 +170,6 @@ void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> 
 //----------------------------------------------------------------------------
 void PixelThresholdClusterizer::clear_buffer( DigiIterator begin, DigiIterator end ) 
 {
-  // TimeMe tm1( *theClearTimer, false);
   for(DigiIterator di = begin; di != end; ++di ) 
     {
       theBuffer.set_adc( di->row(), di->column(), 0 );   // reset pixel adc to 0
@@ -185,7 +181,6 @@ void PixelThresholdClusterizer::clear_buffer( DigiIterator begin, DigiIterator e
 //----------------------------------------------------------------------------
 void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator end ) 
 {
-  //TimeMe tm1( *theCopyTimer, false);
   for(DigiIterator di = begin; di != end; ++di) 
     {
       int row = di->row();
@@ -269,7 +264,6 @@ SiPixelCluster
 PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix, 
 					 edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) 
 {
-  //TimeMe tm1( *theMakeClustTimer, false);
   
   //First we acquire the seeds for the clusters
   int seed_adc;
@@ -394,30 +388,3 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
   return cluster;
 }
 
-//----------------------------------------------------------------------------
-//! \brief Initialize the timers.
-//----------------------------------------------------------------------------
-// void PixelThresholdClusterizer::initTiming() {
-//   TimingReport& tr(*TimingReport::current());
-//   theSetupTimer =      &tr["PixelClusterizer setup+digi"];
-//   theClustersTimer =   &tr["PixelClusterizer clusters"];
-//   theClusterizeTimer = &tr["PixelClusterizer clusterize"];
-//   theRecHitTimer =     &tr["PixelClusterizer create RecHits"];
-//   theCopyTimer =       &tr["PixelClusterizer copy to buffer"];
-//   theClearTimer =      &tr["PixelClusterizer clear buffer"];
-//   theMakeClustTimer =  &tr["PixelClusterizer make one cluster"];
-//   theCacheGetTimer =   &tr["PixelClusterizer cache access"];
-//   theCachePutTimer =   &tr["PixelClusterizer cache fill"];
-//   static bool detailedTiming 
-//     = conf_.getUntrackedParameter<bool>("DetailedTiming",false);
-//   if (!detailedTiming) {
-//     tr.switchOn( "PixelClusterizer setup+digi",false);
-//     tr.switchOn( "PixelClusterizer clusters",false);
-//     tr.switchOn( "PixelClusterizer create RecHits",false);
-//     tr.switchOn( "PixelClusterizer copy to buffer",false);
-//     tr.switchOn( "PixelClusterizer clear buffer",false);
-//     tr.switchOn( "PixelClusterizer make one cluster",false);
-//     tr.switchOn( "PixelClusterizer cache access",false);
-//     tr.switchOn( "PixelClusterizer cache fill",false);
-//   }
-//}

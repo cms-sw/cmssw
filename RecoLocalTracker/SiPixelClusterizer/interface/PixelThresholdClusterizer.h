@@ -50,9 +50,6 @@
 // Parameter Set:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// TimeMe class:
-//#include "Utilities/Timing/interface/TimingReport.h"
-
 #include <vector>
 
 
@@ -106,17 +103,6 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
 );
   // Calibrate the ADC charge to electrons 
   int calibrate(int adc, int col, int row);
-
-/*   void initTiming(); */
-/*   TimingReport::Item * theSetupTimer; */
-/*   TimingReport::Item * theClustersTimer; */
-/*   TimingReport::Item * theClusterizeTimer; */
-/*   TimingReport::Item * theRecHitTimer; */
-/*   TimingReport::Item * theCopyTimer; */
-/*   TimingReport::Item * theClearTimer; */
-/*   TimingReport::Item * theMakeClustTimer; */
-/*   TimingReport::Item * theCacheGetTimer; */
-/*   TimingReport::Item * theCachePutTimer; */
 
 };
 
