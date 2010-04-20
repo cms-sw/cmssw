@@ -9,6 +9,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 {    
 
   using mathSSE::Vec3D;
+  using mathSSE::Vec2D;
 
   //GlobalVector p1 = fts.momentum().unit();
   GlobalVector p1 = globalParameters.momentum().unit();
@@ -48,13 +49,15 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   __m128d t = _mm_mul_pd(t1.vec[0],t1.vec[0]);
   t = _mm_sqrt_pd(_mm_add_pd(t,_mm_shuffle_pd(t,t,1)));
-  Vec3D u1(_mm_xor_pd(neg,_mm_div_pd(_mm_shuffle_pd(t1.vec[0],t1.vec[0],1),t)), _mm_setzero_pd());
-  Vec3D v1 = cross(t1,u1);
+  Vec2D u1(_mm_xor_pd(neg,_mm_div_pd(_mm_shuffle_pd(t1.vec[0],t1.vec[0],1),t)));
+  Vec3D u13(u1.vec, _mm_setzero_pd());
+  Vec3D v1 = cross(t1,u13);
 
   t = _mm_mul_pd(t2.vec[0],t2.vec[0]);
   t = _mm_sqrt_pd(_mm_add_pd(t,_mm_shuffle_pd(t,t,1)));
-  Vec3D u2(_mm_xor_pd(neg,_mm_div_pd(_mm_shuffle_pd(t2.vec[0],t2.vec[0],1),t)), _mm_setzero_pd());
-  Vec3D v2 = cross(t2,u2);
+  Vec2D u2(_mm_xor_pd(neg,_mm_div_pd(_mm_shuffle_pd(t2.vec[0],t2.vec[0],1),t)));
+  Vec3D u23(u2.vec, _mm_setzero_pd());
+  Vec3D v2 = cross(t2,u23);
 
 
   // now prepare the transport matrix
@@ -64,13 +67,13 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 // moved up (where -h.mag() is needed()
 //   double qp = q*pp;
 
-  double anv = -dot(hn,u2);
+  double anv = -dot(hn,u23);
   double anu =  dot(hn,v2);
 
   double omcost = 1. - cost; double tmsint = theta - sint;
   
   
-  Vec3D hu = cross(hn,u1);
+  Vec3D hu = cross(hn,u13);
   Vec3D hv = cross(hn,v1);
 
   
@@ -94,14 +97,14 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
     cost*dot(u1,v2) +
     sint*dot(hu,v2) +
     omcost*dot(hn,u1) * dot(hn,v2) +
-    anv*(-sint*dot(u1,t2) +
-	 omcost*dot(u1,an)  -
-	 tmsint*gamma*dot(hn,u1)
+    anv*(-sint*dot(u1,t2.xy()) +
+	 omcost*dot(u1,an.xy())  -
+	 tmsint*gamma*dot(hn.xy(),u1)
 	 )
     ;
   theJacobian(1,2) *= cosl0;
 
-  theJacobian(1,3) = -q*anv*dot(u1,t2);
+  theJacobian(1,3) = -q*anv*dot(u1,t2.xy());
 
   theJacobian(1,4) = -q*anv*dot(v1,t2);
 
@@ -110,9 +113,9 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   theJacobian(2,0) = -qp*anu*cosl1*dot(t2,dx);
 
   theJacobian(2,1) = 
-    cost*dot(v1,u2) +
-    sint*dot(hv,u2) +
-    omcost*dot(hn,v1)*dot(hn,u2) +
+    cost*dot(v1.xy(),u2) +
+    sint*dot(hv.xy(),u2) +
+    omcost*dot(hn,v1)*dot(hn.xy(),u2) +
     anu*(-sint*dot(v1,t2) +
 	 omcost*dot(v1,an) -
 	 tmsint*gamma*dot(hn,v1)
@@ -122,16 +125,16 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   theJacobian(2,2) = 
     cost*dot(u1,u2) +
-    sint*dot(hu,u2) +
-    omcost*dot(hn,u1)*dot(hn,u2) +
-    anu*(-sint*dot(u1,t2) +
-	 omcost*dot(u1,an) -
-	 tmsint*gamma*dot(hn,u1)
+    sint*dot(hu.xy(),u2) +
+    omcost*dot(hn.xy(),u1)*dot(hn.xy(),u2) +
+    anu*(-sint*dot(u1,t2.xy()) +
+	 omcost*dot(u1,an.xy()) -
+	 tmsint*gamma*dot(hn.xy(),u1)
 	 )
     ;
   theJacobian(2,2) *= cosl1*cosl0;
 
-  theJacobian(2,3) = -q*anu*cosl1*dot(u1,t2);
+  theJacobian(2,3) = -q*anu*cosl1*dot(u1,t2.xy());
 
   theJacobian(2,4) = -q*anu*cosl1*dot(v1,t2);
 
@@ -143,16 +146,16 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   if (cutCriterion > limit) {
     double pp = 1./qbp;
-    theJacobian(3,0) = pp*dot(u2,dx);
+    theJacobian(3,0) = pp*dot(u2,dx.xy());
     theJacobian(4,0) = pp*dot(v2,dx);
   }
   else {
     Vec3D hp1 = cross(hn,t1);
-    double temp1 = dot(hp1,u2);
+    double temp1 = dot(hp1.xy(),u2);
     double s2 = s*s;
     double secondOrder41 = 0.5 * qp * temp1 * s2;
     Vec3D ghnmp = gamma*hn - t1;
-    double temp2 = dot(ghnmp,u2);
+    double temp2 = dot(ghnmp,u2.xy());
     double s3 = s2 * s;
     double s4 = s3 * s;
     double h1 = h.mag();
@@ -171,19 +174,19 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
     theJacobian(4,0) = secondOrder51 + (thirdOrder51 + fourthOrder51);
   }
 
-  theJacobian(3,1) = (sint*dot(v1,u2) +
-		      omcost*dot(hv,u2) +
-		      tmsint*dot(hn,u2) *
+  theJacobian(3,1) = (sint*dot(v1.xy(),u2) +
+		      omcost*dot(hv.xy(),u2) +
+		      tmsint*dot(hn.xy(),u2) *
 		      dot(hn,v1))/q;
 
   theJacobian(3,2) = (sint*dot(u1,u2) +
-		      omcost*dot(hu,u2) +
-		      tmsint*dot(hn,u2) *
-		      dot(hn,u1))*cosl0/q;
+		      omcost*dot(hu.xy(),u2) +
+		      tmsint*dot(hn.xy(),u2) *
+		      dot(hn.xy(),u1))*cosl0/q;
 
   theJacobian(3,3) = dot(u1,u2);
   
-  theJacobian(3,4) = dot(v1,u2);
+  theJacobian(3,4) = dot(v1.xy(),u2);
 
   //   zt
 
@@ -192,12 +195,12 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 		      tmsint*dot(hn,v2) *
 		      dot(hn,v1))/q;
 
-  theJacobian(4,2) = (sint*dot(u1,v2) +
+  theJacobian(4,2) = (sint*dot(u1,v2.xy()) +
 		      omcost*dot(hu,v2) +
 		      tmsint*dot(hn,v2) *
-		      dot(hn,u1))*cosl0/q;
+		      dot(hn.xy(),u1))*cosl0/q;
 
-  theJacobian(4,3) = dot(u1,v2); 
+  theJacobian(4,3) = dot(u1,v2.xy()); 
 
   theJacobian(4,4) = dot(v1,v2);
   // end of TRPRFN
