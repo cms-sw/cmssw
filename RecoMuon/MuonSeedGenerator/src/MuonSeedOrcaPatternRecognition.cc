@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2010/01/15 19:57:20 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/03/26 00:14:02 $
+ *  $Revision: 1.11 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -17,7 +17,7 @@
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
-
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
@@ -613,6 +613,7 @@ bool MuonSeedOrcaPatternRecognition::check(const MuonRecHitContainer & segments)
 void MuonSeedOrcaPatternRecognition::markAsUsed(int nr, const MuonRecHitContainer &recHits, bool* used) const
 {
   used[nr] = true;
+  return;
   // if it's ME1A with two other segments in the container, mark the ghosts as used, too.
   if(recHits[nr]->isCSC())
   {
@@ -677,7 +678,7 @@ void MuonSeedOrcaPatternRecognition::dumpLayer(const char * name, const MuonRecH
   for(MuonRecHitContainer::const_iterator segmentItr = segments.begin();
       segmentItr != segments.end(); ++segmentItr)
   {
-    std::cout << theDumper.dumpMuonId((**segmentItr).geographicalId()) << std::endl;
+    LogTrace(metname) << theDumper.dumpMuonId((**segmentItr).geographicalId());
   }
 }
 
@@ -718,5 +719,124 @@ MuonPatternRecoDumper theDumper;
       }
     }
   }
+  filterOverlappingChambers(result);
   return result;
 }
+
+
+void MuonSeedOrcaPatternRecognition::filterOverlappingChambers(MuonRecHitContainer & segments) const
+{
+  if(segments.empty()) return;
+  MuonPatternRecoDumper theDumper;
+  // need to optimize cuts
+  double dphiCut = 0.05;
+  double detaCut = 0.05;
+  std::vector<unsigned> toKill;
+  std::vector<unsigned> me1aOverlaps;
+  // loop over all segment pairs to see if there are two that match up in eta and phi
+  // but from different chambers
+  unsigned nseg = segments.size();
+  for(unsigned i = 0; i < nseg-1; ++i)
+  {
+    GlobalPoint pg1 = segments[i]->globalPosition();
+    for(unsigned j = i+1; j < nseg; ++j)
+    {
+      GlobalPoint pg2 = segments[j]->globalPosition();
+      if(segments[i]->geographicalId().rawId() != segments[j]->geographicalId().rawId()
+         && fabs(deltaPhi(pg1.phi(), pg2.phi())) < dphiCut
+         && fabs(pg1.eta()-pg2.eta()) < detaCut)
+      {
+        LogTrace(metname) << "OVERLAP " << theDumper.dumpMuonId(segments[i]->geographicalId()) << " " <<
+                                   theDumper.dumpMuonId(segments[j]->geographicalId());
+        // see which one is best
+        toKill.push_back( (countHits(segments[i]) < countHits(segments[j])) ? i : j);
+        if(isME1A(segments[i]))
+        {
+          me1aOverlaps.push_back(i);
+          me1aOverlaps.push_back(j);
+        }
+      }
+    }
+  }
+
+  if(toKill.empty()) return;
+
+  // try to kill ghosts assigned to overlaps
+  for(unsigned i = 0; i < me1aOverlaps.size(); ++i)
+  {
+    DetId detId(segments[me1aOverlaps[i]]->geographicalId());
+    vector<unsigned> inSameChamber;
+    for(unsigned j = 0; j < nseg; ++j)
+    {
+      if(i != j && segments[j]->geographicalId() == detId)
+      {
+        inSameChamber.push_back(j);
+      }
+    }
+    if(inSameChamber.size() == 2)
+    {
+      toKill.push_back(inSameChamber[0]);
+      toKill.push_back(inSameChamber[1]);
+    }
+  }
+  // now kill the killable
+  MuonRecHitContainer result;
+  for(unsigned i = 0; i < nseg; ++i)
+  {
+    if(std::find(toKill.begin(), toKill.end(), i) == toKill.end())
+    {
+      result.push_back(segments[i]);
+    }
+   
+  }
+  segments.swap(result);
+}
+
+
+bool MuonSeedOrcaPatternRecognition::isME1A(const ConstMuonRecHitPointer & segment) const
+{
+  return segment->isCSC() && CSCDetId(segment->geographicalId()).ring() == 4;
+}
+
+
+int MuonSeedOrcaPatternRecognition::countHits(const MuonRecHitPointer & segment) const {
+  int count = 0;
+  vector<TrackingRecHit*> components = (*segment).recHits();
+  for(vector<TrackingRecHit*>::const_iterator component = components.begin();
+      component != components.end(); ++component)
+  {
+    int componentSize = (**component).recHits().size();
+    count += (componentSize == 0) ? 1 : componentSize;
+  }
+  return count;
+}
+
+
+void MuonSeedOrcaPatternRecognition::markAsUsed(int nr, const MuonRecHitContainer &recHits, bool* used) const
+{
+  used[nr] = true;
+  // if it's ME1A with two other segments in the container, mark the ghosts as used, too.
+  if(recHits[nr]->isCSC())
+  {
+    CSCDetId detId(recHits[nr]->geographicalId().rawId());
+    if(detId.ring() == 4)
+    {
+      std::vector<unsigned> chamberHitNs;
+      for(unsigned i = 0; i < recHits.size(); ++i)
+      {
+        if(recHits[i]->geographicalId().rawId() == detId.rawId())
+        {
+          chamberHitNs.push_back(i);
+        }
+      }
+      if(chamberHitNs.size() == 3)
+      {
+        for(unsigned i = 0; i < 3; ++i)
+        {
+          used[chamberHitNs[i]] = true;
+        }
+      }
+    }
+  }
+}
+

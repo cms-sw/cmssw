@@ -39,7 +39,11 @@ private:
 
   /// apply some cuts to segments before using them
   MuonRecHitContainer filterSegments(const MuonRecHitContainer & segments) const;
-
+  void filterOverlappingChambers(MuonRecHitContainer & segments) const;
+  bool isME1A(const ConstMuonRecHitPointer & segment) const;
+  int countHits(const MuonRecHitPointer & segment) const;
+  // can mark other ME1A as used if one is.  
+  void markAsUsed(int nr, const MuonRecHitContainer &recHits, bool* used) const;
   std::vector<double> theCrackEtas;
   double theCrackWindow;
 };
