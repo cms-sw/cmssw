@@ -151,6 +151,10 @@ public:
   double sumpt2rec;
   double sumpt2,sumpt;
   double Tc,chisq,dzmax,dztrim,m4m2;
+  // rec vertex matching
+  double zmatch;
+  int nmatch;
+  std::map<double, int> ntInRecVz;  // number of tracks in recvtx at z
 };
 
 
@@ -168,6 +172,7 @@ private:
   void printPVTrks(const edm::Handle<reco::TrackCollection> &recTrks, 
 		   const edm::Handle<reco::VertexCollection> &recVtxs,  
 		   std::vector<SimPart>& tsim,
+		   std::vector<SimEvent>& simEvt,
 		   const bool selectedOnly=true);
 
   int* supf(std::vector<SimPart>& simtrks, const reco::TrackCollection & trks);
@@ -203,11 +208,20 @@ private:
 
     h[s]->Fill(x);
     if(signal){
+      if(h.count(s+"Signal")==0){
+	std::cout << "Trying to fill non-exiting Histogram named " << s+"Signal" << std::endl;
+	return;
+      }
       h[s+"Signal"]->Fill(x);
     }else{
+      if(h.count(s+"PU")==0){
+	std::cout << "Trying to fill non-exiting Histogram named " << s+"PU" << std::endl;
+	return;
+      }
       h[s+"PU"]->Fill(x);
     }
   }
+
   std::map<std::string, TH1*> bookVertexHistograms();
 
   bool matchVertex(const simPrimaryVertex  &vsim, 
@@ -257,7 +271,8 @@ private:
   void printEventSummary(std::map<std::string, TH1*> & h,
 			 const edm::Handle<reco::VertexCollection> recVtxs,
 			       const edm::Handle<reco::TrackCollection> recTrks, 
-			       std::vector<SimEvent> & simEvt);
+			 std::vector<SimEvent> & simEvt,
+			 const std::string message);
 
   void history(const edm::Handle<edm::View<reco::Track> > & tracks,const size_t trackindex=10000);
   std::string particleString(int) const;
@@ -281,6 +296,7 @@ private:
   TFile*  rootFile_;             
   bool verbose_;
   bool doMatching_;
+  bool printXBS_;
   edm::InputTag simG4_;
   double simUnit_;     
   double zmatch_;
@@ -291,6 +307,7 @@ private:
   int dumpcounter_;
   int ndump_;
   bool dumpThisEvent_;
+  bool dumpPUcandidates_;
 
   // from the event setup
   int run_;
@@ -311,6 +328,7 @@ private:
 
   TrackAssociatorBase * associatorByHits_;
   reco::RecoToSimCollection r2s_;
+  std::map<double, TrackingParticleRef> z2tp_;
 
   TrackFilterForPVFinding theTrackFilter;
   reco::BeamSpot vertexBeamSpot_;
