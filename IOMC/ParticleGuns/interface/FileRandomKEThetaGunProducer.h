@@ -21,7 +21,7 @@ namespace edm {
     // data members
     
     std::vector<double> kineticE, fdistn;
-
+    int                 particleN;
   };
 } 
 

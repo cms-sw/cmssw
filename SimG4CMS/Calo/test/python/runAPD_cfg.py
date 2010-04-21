@@ -64,7 +64,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
+    input = cms.untracked.int32(1000)
 )
 
 process.source = cms.Source("EmptySource",
@@ -79,30 +79,20 @@ process.generator = cms.EDProducer("FileRandomKEThetaGunProducer",
         MaxTheta = cms.double(0.0),
         MinPhi   = cms.double(-3.14159265359),
         MaxPhi   = cms.double(3.14159265359),
-        File     = cms.string('../data/neutronFromCf.dat'),
+        Particles= cms.int32(1000),
+        File     = cms.FileInPath('SimG4CMS/Calo/data/neutronFromCf.dat'),
     ),
-    Verbosity       = cms.untracked.int32(2),
+    Verbosity       = cms.untracked.int32(0),
     AddAntiParticle = cms.bool(False)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('simevent_QGSP_BERT_EMV.root')
+    fileName = cms.untracked.string('simevent_APD_Epoxy.root')
 )
-
-process.Timing = cms.Service("Timing")
-
-process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
-    oncePerEventMode = cms.untracked.bool(True),
-    showMallocInfo = cms.untracked.bool(True),
-    dump = cms.untracked.bool(True),
-    ignoreTotal = cms.untracked.int32(1)
-)
-
-process.Tracer = cms.Service("Tracer")
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('runWithGun_QGSP_BERT_EMV.root')
+    fileName = cms.string('runWithAPD_Epoxy.root')
 )
 
 process.common_maximum_timex = cms.PSet(
@@ -110,7 +100,7 @@ process.common_maximum_timex = cms.PSet(
     MaxTimeNames  = cms.vstring(),
     MaxTrackTimes = cms.vdouble()
 )
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy)
 process.VtxSmeared.MeanZ = -1.0
 process.VtxSmeared.SigmaX = 0.0
 process.VtxSmeared.SigmaY = 0.0
@@ -120,8 +110,8 @@ process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Generator.ApplyPCuts = False
 process.g4SimHits.Generator.ApplyEtaCuts = False
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EMV'
-process.g4SimHits.Physics.Verbosity = 2
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_HP'
+process.g4SimHits.Physics.Verbosity = 1
 process.g4SimHits.CaloSD.EminHits[0] = 0
 process.g4SimHits.ECalSD.StoreSecondary = True
 process.g4SimHits.CaloTrkProcessing.PutHistory = True
@@ -150,12 +140,13 @@ process.g4SimHits.SteppingAction = cms.PSet(
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckForHighEtPhotons = cms.untracked.bool(False),
     EventMin  = cms.untracked.int32(0),
-    EventMax  = cms.untracked.int32(10),
+    EventMax  = cms.untracked.int32(1),
     EventStep = cms.untracked.int32(1),
     TrackMin  = cms.untracked.int32(0),
     TrackMax  = cms.untracked.int32(999999999),
     TrackStep = cms.untracked.int32(1),
     VerboseLevel = cms.untracked.int32(2),
+    G4Verbose = cms.untracked.bool(True),
     DEBUG     = cms.untracked.bool(False),
     type      = cms.string('TrackingVerboseAction')
 ))

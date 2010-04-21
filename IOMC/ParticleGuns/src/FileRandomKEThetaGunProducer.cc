@@ -10,8 +10,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
 using namespace edm;
 
 FileRandomKEThetaGunProducer::FileRandomKEThetaGunProducer(const edm::ParameterSet& pset) :
@@ -21,19 +19,23 @@ FileRandomKEThetaGunProducer::FileRandomKEThetaGunProducer(const edm::ParameterS
   edm::ParameterSet pgun_params = 
     pset.getParameter<edm::ParameterSet>("PGunParameters") ;
   
-  std::string file = pgun_params.getParameter<std::string>("File");
+  edm::FileInPath fp   = pgun_params.getParameter<edm::FileInPath>("File");
+  std::string     file = fp.fullPath();
+  particleN            = pgun_params.getParameter<int>("Particles");
+  if (particleN <= 0) particleN = 1;
   edm::LogInfo("FlatThetaGun") << "Internal FileRandomKEThetaGun is initialzed"
-			       << " with data read from " << file;
+			       << " with data read from " << file << " and "
+			       << particleN << " particles created/event";
   ifstream is(file.c_str(), std::ios::in);
   if (is) {
     double energy, elem, sum=0;
     while (!is.eof()) {
       is >> energy >> elem;
-      kineticE.push_back(energy*CLHEP::MeV);
+      kineticE.push_back(0.001*energy);
       fdistn.push_back(elem);
       sum += elem;
       if (fVerbosity > 0) LogDebug("FlatThetaGun") << "KE " << energy
-						   <<" MeV Count rate " <<elem;
+						   <<" GeV Count rate " <<elem;
     }
     is.close();
     double last = 0;
@@ -80,7 +82,7 @@ void FileRandomKEThetaGunProducer::produce(edm::Event & e, const edm::EventSetup
   // loop over particles
   //
   int barcode = 1;
-  for (unsigned int ip=0; ip<fPartIDs.size(); ip++) {
+  for (int ip=0; ip<particleN; ip++) {
     double keMin=kineticE[0], keMax=kineticE[1];
     double rMin=fdistn[0], rMax=fdistn[1];
     double r1 = fRandomGenerator->fire();
@@ -97,7 +99,7 @@ void FileRandomKEThetaGunProducer::produce(edm::Event & e, const edm::EventSetup
 			       << " with " << r1 <<" in " << rMin <<":" <<rMax;
     double theta = fRandomGenerator->fire(fMinTheta, fMaxTheta);
     double phi   = fRandomGenerator->fire(fMinPhi, fMaxPhi);
-    int PartID   = fPartIDs[ip];
+    int PartID   = fPartIDs[0];
     const HepPDT::ParticleData* 
       PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
     double mass   = PData->mass().value() ;
@@ -113,18 +115,6 @@ void FileRandomKEThetaGunProducer::produce(edm::Event & e, const edm::EventSetup
     Part->suggest_barcode( barcode ) ;
     barcode++ ;
     Vtx->add_particle_out(Part);
-       
-    if ( fAddAntiParticle ) {
-      HepMC::FourVector ap(-px,-py,-pz,energy) ;
-      int APartID = -PartID ;
-      if ( PartID == 22 || PartID == 23 ) {
-	APartID = PartID ;
-      }
-      HepMC::GenParticle* APart = new HepMC::GenParticle(ap,APartID,1);
-      APart->suggest_barcode( barcode ) ;
-      barcode++ ;
-      Vtx->add_particle_out(APart) ;
-    }
        
   }
   fEvt->add_vertex(Vtx) ;
