@@ -1,6 +1,6 @@
 /** \file HLTMuonValidator.cc
- *  $Date: 2010/04/16 14:33:03 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/04/21 00:11:47 $
+ *  $Revision: 1.21 $
  */
 
 
@@ -269,7 +269,7 @@ HLTMuonValidator::analyzePath(const Event & iEvent,
   const size_t nFilters   = filterLabels_[path].size();
   const size_t nSteps     = stepLabels_[path].size();
   const size_t nStepsHlt  = nSteps - 2;
-  const size_t nObjectsToPassPath = (isDoubleMuonPath) ? 2 : 1;
+  const int nObjectsToPassPath = (isDoubleMuonPath) ? 2 : 1;
   vector< L1MuonParticleRef > candsL1;
   vector< vector< RecoChargedCandidateRef      > > refsHlt(nStepsHlt);
   vector< vector< const RecoChargedCandidate * > > candsHlt(nStepsHlt);
@@ -340,6 +340,10 @@ HLTMuonValidator::analyzePath(const Event & iEvent,
       }
     }
 
+    if (std::count(hasMatch.begin(), hasMatch.end(), true) <
+        nObjectsToPassPath) 
+      break;
+
     string pre  = path + "_" + source + "Pass";
     string post = "_" + stepLabels_[path][step];
 
@@ -361,20 +365,6 @@ HLTMuonValidator::analyzePath(const Event & iEvent,
 
   }
 
-}
-
-
-
-bool
-HLTMuonValidator::identical(const Candidate * p1, const Candidate * p2)
-{
-  if (p1 != 0 &&
-      p2 != 0 &&
-      p1->eta() == p2->eta() &&
-      p1->phi() == p2->phi() &&
-      p1->pt () == p2->pt ())
-    return true;
-  return false;
 }
 
 
