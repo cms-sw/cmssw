@@ -11,6 +11,7 @@ from RecoTauTag.RecoTau.CaloRecoTauDiscriminationByLeadingTrackFinding_cfi impor
 from RecoTauTag.RecoTau.CaloRecoTauDiscriminationByLeadingTrackPtCut_cfi import *
 from RecoTauTag.RecoTau.CaloRecoTauDiscriminationByIsolation_cfi import *
 from RecoTauTag.RecoTau.CaloRecoTauDiscriminationAgainstElectron_cfi import *
+from JetMETCorrections.TauJet.TCRecoTauDiscriminationAgainstHadronicJets_cfi import *
 
 tautagging = cms.Sequence(jptRecoTauProducer*
                           caloRecoTauProducer *
@@ -18,5 +19,6 @@ tautagging = cms.Sequence(jptRecoTauProducer*
                           caloRecoTauDiscriminationByLeadingTrackFinding *
                           caloRecoTauDiscriminationByLeadingTrackPtCut *
                           caloRecoTauDiscriminationByIsolation *
-                          caloRecoTauDiscriminationAgainstElectron)
+                          caloRecoTauDiscriminationAgainstElectron *
+                          tcRecoTauDiscriminationAgainstHadronicJets)
 

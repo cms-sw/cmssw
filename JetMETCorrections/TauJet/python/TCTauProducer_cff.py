@@ -12,11 +12,14 @@ caloRecoTauDiscriminationByIsolation.CaloTauProducer = cms.InputTag('tcRecoTauPr
 from RecoTauTag.RecoTau.CaloRecoTauDiscriminationAgainstElectron_cfi import *
 caloRecoTauDiscriminationAgainstElectron.CaloTauProducer = cms.InputTag('tcRecoTauProducer')
 
+from JetMETCorrections.TauJet.TCRecoTauDiscriminationAgainstHadronicJets_cfi import *
+
 TCTau = cms.Sequence(jptRecoTauProducer*
                      tcRecoTauProducer *
                      caloRecoTauTagInfoProducer *
                      caloRecoTauDiscriminationByLeadingTrackFinding *
                      caloRecoTauDiscriminationByLeadingTrackPtCut *
                      caloRecoTauDiscriminationByIsolation *
-                     caloRecoTauDiscriminationAgainstElectron)
+                     caloRecoTauDiscriminationAgainstElectron *
+                     tcRecoTauDiscriminationAgainstHadronicJets)
 
