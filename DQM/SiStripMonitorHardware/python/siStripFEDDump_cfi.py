@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 siStripFEDDump = cms.EDAnalyzer("SiStripFEDDumpPlugin",
   #Raw data collection
-  RawDataTag = cms.InputTag('source'),
+  RawDataTag = cms.untracked.InputTag('source'),
   #FED ID to dump
-  FEDID = cms.uint32(50)
+  FEDID = cms.untracked.uint32(50)
 )
 

@@ -52,9 +52,9 @@ process.SiStripFEDEmulator.ByModule = cms.bool(True) #use the digis stored by mo
 process.DQMStore = cms.Service("DQMStore")
 
 process.load('DQM.SiStripMonitorHardware.SiStripSpyMonitor_cfi')
-process.SiStripSpyMonitor.SpyScopeRawDigisTag = cms.InputTag('SiStripSpyUnpacker','ScopeRawDigis')
-process.SiStripSpyMonitor.SpyPedSubtrDigisTag = cms.InputTag('SiStripFEDEmulator','PedSubtrModuleDigis')
-process.SiStripSpyMonitor.SpyAPVeTag = cms.InputTag('SiStripSpyDigiConverter','APVAddress')
+process.SiStripSpyMonitor.SpyScopeRawDigisTag = cms.untracked.InputTag('SiStripSpyUnpacker','ScopeRawDigis')
+process.SiStripSpyMonitor.SpyPedSubtrDigisTag = cms.untracked.InputTag('SiStripFEDEmulator','PedSubtrModuleDigis')
+process.SiStripSpyMonitor.SpyAPVeTag = cms.untracked.InputTag('SiStripSpyDigiConverter','APVAddress')
 process.SiStripSpyMonitor.FillWithLocalEventNumber = False
 process.SiStripSpyMonitor.WriteDQMStore = True
 process.SiStripSpyMonitor.DQMStoreFileName = "DQMStore.root"
