@@ -13,7 +13,7 @@
 	 Author: Francisco Yumiceva
 */
 //
-// $Id: BooLowMAnalyzer.cc,v 1.4 2010/02/05 22:01:44 yumiceva Exp $
+// $Id: BooLowMAnalyzer.cc,v 1.5 2010/02/08 05:36:26 jengbou Exp $
 //
 //
 
@@ -334,10 +334,10 @@ BooLowMAnalyzer::IsTruthMatch( Combo acombo, const edm::View<pat::Jet> jets, TtG
 	pat::Jet patLepb = jets[ acombo.GetIdLepb() ];
 
 	// get gen partons
-	const reco::Candidate* genWp  = genEvt.hadronicDecayQuark();
-	const reco::Candidate* genWq  = genEvt.hadronicDecayQuarkBar();
-	const reco::Candidate* genHadb = genEvt.hadronicDecayB();
-	const reco::Candidate* genLepb = genEvt.leptonicDecayB();
+	const reco::GenParticle* genWp  = genEvt.hadronicDecayQuark();
+	const reco::GenParticle* genWq  = genEvt.hadronicDecayQuarkBar();
+	const reco::GenParticle* genHadb = genEvt.hadronicDecayB();
+	const reco::GenParticle* genLepb = genEvt.leptonicDecayB();
 
 	// first check if we have all partons 
 	if ( !genWp || !genWq || !genHadb || !genLepb ) {
@@ -351,7 +351,7 @@ BooLowMAnalyzer::IsTruthMatch( Combo acombo, const edm::View<pat::Jet> jets, TtG
 	//std::cout << " GenMatching: Wq = " << genWq->pdgId() << " q = " << genWq->threeCharge() << " Mother = " << genHadb->mother()->pdgId() << std::endl;
 
 	
-	std::vector<const reco::Candidate*> partons;
+	std::vector<const reco::GenParticle*> partons;
 	partons.push_back( genWp );
 	partons.push_back( genWq );
 	partons.push_back( genHadb );
@@ -466,13 +466,13 @@ BooLowMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 	//check if we process one event
 	bool processthis = false;
-    // for debugging specific event
+	// for debugging specific event
 	if (feventToProcess>-1 && nevents==feventToProcess) processthis = true;
 	else if (feventToProcess==-1) processthis = true;
 	
 	if (!processthis) { nevents++; return; }
 
-    /////////////////////////////////////////// 
+	/////////////////////////////////////////// 
 	//
 	// C O L L E C T I O N S
 	//
@@ -498,7 +498,7 @@ BooLowMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	const View<pat::Muon> &muons = *muonHandle;
 	if (debug) std::cout << "got muon collection" << std::endl;
 
-    // Electrons
+	// Electrons
 	Handle< View<pat::Electron> > electronHandle;
 	iEvent.getByLabel(electronSrc, electronHandle);
 	const View<pat::Electron> &electrons = *electronHandle;
@@ -520,14 +520,17 @@ BooLowMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	const View<reco::Vertex> &PVs = *PVHandle;
 	// Generator
 	Handle<TtGenEvent > genEvent;
-	iEvent.getByLabel(genEvnSrc, genEvent);
+	if (fIsMCTop) {
+	  iEvent.getByLabel(genEvnSrc, genEvent);
+	  if (debug) genEvent->print();
+	}
 	// Trigger
 	Handle<TriggerResults> hltresults;
-    iEvent.getByLabel("TriggerResults", hltresults);
-    int ntrigs=hltresults->size();
-    edm::TriggerNames triggerNames_;
-    triggerNames_.init(*hltresults);
-    bool acceptHLT = false;
+	iEvent.getByLabel("TriggerResults", hltresults);
+	int ntrigs=hltresults->size();
+	edm::TriggerNames triggerNames_;
+	triggerNames_.init(*hltresults);
+	bool acceptHLT = false;
 
 	// count events
 	hcounter->Counter("Processed");
@@ -539,173 +542,173 @@ BooLowMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	//
 	bool IsEventReconstructable = false;
 	
-	if (debug) {
-		//std::cout << "GenEvent = " << genEvent << std::endl;
-		TtGenEvent gevent=*genEvent;
-		std::cout << "generator, isSemiLeptonic = " << gevent.isSemiLeptonic() << std::endl;
-		if(gevent.lepton())  std::cout << "LeptonId = " << gevent.lepton()->pdgId() << std::endl;
-		if (gevent.leptonBar()) std::cout << "LeptonBarId = " << gevent.leptonBar()->pdgId() << std::endl;
-	}
+	if (fIsMCTop) {
+	  if (debug) {
+	    //std::cout << "GenEvent = " << genEvent << std::endl;
+	    TtGenEvent gevent=*genEvent;
+	    std::cout << "generator, isSemiLeptonic = " << gevent.isSemiLeptonic() << std::endl;
+	    if(gevent.lepton())  std::cout << "LeptonId = " << gevent.lepton()->pdgId() << std::endl;
+	    if (gevent.leptonBar()) std::cout << "LeptonBarId = " << gevent.leptonBar()->pdgId() << std::endl;
+	  }
 	
-	// TEMP
-	//if ( !genEvent->isSemiLeptonic() || genEvent->semiLeptonicChannel()!=2 ) return;
+	  // TEMP
+	  //if ( !genEvent->isSemiLeptonic() || genEvent->semiLeptonicChannel()!=2 ) return;
 
-	const reco::Candidate *genMuon   = genEvent->singleLepton();
-	const reco::Candidate *genNu     = genEvent->singleNeutrino();
-	const reco::Candidate *genTop    = genEvent->top();
-	const reco::Candidate *genTopBar = genEvent->topBar();
-	const reco::Candidate *genHadWp  = genEvent->hadronicDecayQuark();
-	const reco::Candidate *genHadWq  = genEvent->hadronicDecayQuarkBar();
-	const reco::Candidate *genHadb   = genEvent->hadronicDecayB();
-	const reco::Candidate *genLepb   = genEvent->leptonicDecayB();
+	  const reco::GenParticle *genMuon   = genEvent->singleLepton();
+	  const reco::GenParticle *genNu     = genEvent->singleNeutrino();
+	  const reco::GenParticle *genTop    = genEvent->top();
+	  const reco::GenParticle *genTopBar = genEvent->topBar();
+	  const reco::GenParticle *genHadWp  = genEvent->hadronicDecayQuark();
+	  const reco::GenParticle *genHadWq  = genEvent->hadronicDecayQuarkBar();
+	  const reco::GenParticle *genHadb   = genEvent->hadronicDecayB();
+	  const reco::GenParticle *genLepb   = genEvent->leptonicDecayB();
 
-	if (debug) std::cout << "got generator candidates" << std::endl;
-	double genNupz = 0;
+	  if (debug) std::cout << "got generator candidates" << std::endl;
+	  double genNupz = 0;
    
-	if (genTop && genTopBar) {
-		LorentzVector gentoppairP4;
-		gentoppairP4 = genTop->p4() + genTopBar->p4();
-		hgen_->Fill1d("gen_toppair_mass", gentoppairP4.M() );
-		hgen_->Fill1d("gen_toppair_pt", gentoppairP4.pt() );
+	  if (genTop && genTopBar) {
+	    LorentzVector gentoppairP4;
+	    gentoppairP4 = genTop->p4() + genTopBar->p4();
+	    hgen_->Fill1d("gen_toppair_mass", gentoppairP4.M() );
+	    hgen_->Fill1d("gen_toppair_pt", gentoppairP4.pt() );
 		
-		hgen_->Fill1d("gen_top_pt", genTop->pt() );
-		hgen_->Fill1d("gen_top_eta", genTop->eta() );
-		hgen_->Fill1d("gen_top_rapidity", genTop->y() );	
+	    hgen_->Fill1d("gen_top_pt", genTop->pt() );
+	    hgen_->Fill1d("gen_top_eta", genTop->eta() );
+	    hgen_->Fill1d("gen_top_rapidity", genTop->y() );	
 			
-		if ( genTop->pt() > 50 ) hgen_->Fill1d("gen_top_eta1", genTop->eta() );
-		if ( genTop->pt() > 100 ) hgen_->Fill1d("gen_top_eta2", genTop->eta() );
-		if ( genTop->pt() > 150 ) hgen_->Fill1d("gen_top_eta3", genTop->eta() );
+	    if ( genTop->pt() > 50 ) hgen_->Fill1d("gen_top_eta1", genTop->eta() );
+	    if ( genTop->pt() > 100 ) hgen_->Fill1d("gen_top_eta2", genTop->eta() );
+	    if ( genTop->pt() > 150 ) hgen_->Fill1d("gen_top_eta3", genTop->eta() );
 		
 		
-		if (debug) std::cout << " gen top rapidities: t_y = " << genTop->y()
-							 << " tbar_y = " << genTopBar->y() << std::endl;
+	    if (debug) std::cout << " gen top rapidities: t_y = " << genTop->y()
+				 << " tbar_y = " << genTopBar->y() << std::endl;
 
-		// run next block only for muon+jets channel
-		if ( genEvent->isSemiLeptonic() && genEvent->semiLeptonicChannel()==2 ) {
+	    // run next block only for muon+jets channel
+	    if ( genEvent->isSemiLeptonic() && genEvent->semiLeptonicChannel()==2 ) {
 
-		if (genHadWp && genHadWq && genMuon && genHadb && genLepb && genNu) {
-			hgen_->Fill2d("gentop_rapidities", genTop->y(), genTopBar->y() );
-			genNupz = genNu->p4().Pz();
-			hgen_->Fill1d("gen_nu_pz", genNupz );
-			hgen_->Fill2d("gen_nu_pt_vs_pz", genNu->p4().Pt(), genNupz );
-			hgen_->Fill1d("gen_deltaR_qb", DeltaR<reco::Candidate>()(*genHadWq, *genHadb ) );
-			hgen_->Fill1d("gen_deltaR_pb", DeltaR<reco::Candidate>()(*genHadWp, *genHadb ) );
-			hgen_->Fill1d("gen_deltaR_pq", DeltaR<reco::Candidate>()(*genHadWp, *genHadWq ) );
-			hgen_->Fill1d("gen_deltaR_lb", DeltaR<reco::Candidate>()(*genMuon , *genLepb ) );
-			hgen_->Fill1d("gen_deltaR_qLepb", DeltaR<reco::Candidate>()(*genHadWq , *genLepb ) );
-			hgen_->Fill1d("gen_deltaR_qmu", DeltaR<reco::Candidate>()(*genHadWq , *genMuon ) );
-			hgen_->Fill1d("gen_deltaR_muLepb", DeltaR<reco::Candidate>()(*genMuon, *genLepb ) );
+	      if (genHadWp && genHadWq && genMuon && genHadb && genLepb && genNu) {
+		hgen_->Fill2d("gentop_rapidities", genTop->y(), genTopBar->y() );
+		genNupz = genNu->p4().Pz();
+		hgen_->Fill1d("gen_nu_pz", genNupz );
+		hgen_->Fill2d("gen_nu_pt_vs_pz", genNu->p4().Pt(), genNupz );
+		hgen_->Fill1d("gen_deltaR_qb", DeltaR<reco::GenParticle>()(*genHadWq, *genHadb ) );
+		hgen_->Fill1d("gen_deltaR_pb", DeltaR<reco::GenParticle>()(*genHadWp, *genHadb ) );
+		hgen_->Fill1d("gen_deltaR_pq", DeltaR<reco::GenParticle>()(*genHadWp, *genHadWq ) );
+		hgen_->Fill1d("gen_deltaR_lb", DeltaR<reco::GenParticle>()(*genMuon , *genHadb ) );
+		hgen_->Fill1d("gen_deltaR_qLepb", DeltaR<reco::GenParticle>()(*genHadWq , *genLepb ) );
+		hgen_->Fill1d("gen_deltaR_qmu", DeltaR<reco::GenParticle>()(*genHadWq , *genMuon ) );
+		hgen_->Fill1d("gen_deltaR_muLepb", DeltaR<reco::GenParticle>()(*genMuon, *genLepb ) );
 			
-			// i should fill it twice with p and q jets....
-			hgen_->Fill2d("gen_deltaR_pq_vs_toppt", DeltaR<reco::Candidate>()(*genHadWp, *genHadWq ), genEvent->hadronicDecayTop()->pt()  );
-			hgen_->Fill2d("gen_deltaR_qb_vs_toppt", DeltaR<reco::Candidate>()(*genHadWq, *genHadb ), genEvent->hadronicDecayTop()->pt()  );
-			hgen_->Fill2d("gen_deltaR_muLepb_vs_toppt", DeltaR<reco::Candidate>()(*genMuon, *genLepb ), genEvent->leptonicDecayTop()->pt()  );
+		// i should fill it twice with p and q jets....
+		hgen_->Fill2d("gen_deltaR_pq_vs_toppt", DeltaR<reco::GenParticle>()(*genHadWp, *genHadWq ), genEvent->hadronicDecayTop()->pt()  );
+		hgen_->Fill2d("gen_deltaR_qb_vs_toppt", DeltaR<reco::GenParticle>()(*genHadWq, *genHadb ), genEvent->hadronicDecayTop()->pt()  );
+		hgen_->Fill2d("gen_deltaR_muLepb_vs_toppt", DeltaR<reco::GenParticle>()(*genMuon, *genLepb ), genEvent->leptonicDecayTop()->pt()  );
 
-			hgen_->Fill2d("gen_muonpt_vs_lepbpt", genMuon->pt(), genLepb->pt() );
+		hgen_->Fill2d("gen_muonpt_vs_lepbpt", genMuon->pt(), genLepb->pt() );
 			
-			LorentzVector tmpgentop = genEvent->hadronicDecayTop()->p4();
-			LorentzVector tmpgenW = genEvent->hadronicDecayW()->p4();
-			LorentzVector tmpgenWp= genEvent->hadronicDecayQuark()->p4();
-			LorentzVector tmpgenWq= genEvent->hadronicDecayQuarkBar()->p4();
-			TVector3 genp1(tmpgenWp.Px(),tmpgenWp.Py(),tmpgenWp.Pz());
-			TVector3 genp2(tmpgenWq.Px(),tmpgenWq.Py(),tmpgenWq.Pz());
-			TVector3 genptot(tmpgenW.Px(),tmpgenW.Py(),tmpgenW.Pz());
-			//Double_t tmptheta1 = TMath::ACos( (genp1.Dot(genptot))/(tmpgenWp.P()*tmpgenW.P()) );
-			//Double_t tmptheta2 = TMath::ACos( (genp2.Dot(genptot))/(tmpgenWq.P()*tmpgenW.P()) );
+		LorentzVector tmpgentop = genEvent->hadronicDecayTop()->p4();
+		LorentzVector tmpgenW = genEvent->hadronicDecayW()->p4();
+		LorentzVector tmpgenWp= genEvent->hadronicDecayQuark()->p4();
+		LorentzVector tmpgenWq= genEvent->hadronicDecayQuarkBar()->p4();
+		TVector3 genp1(tmpgenWp.Px(),tmpgenWp.Py(),tmpgenWp.Pz());
+		TVector3 genp2(tmpgenWq.Px(),tmpgenWq.Py(),tmpgenWq.Pz());
+		TVector3 genptot(tmpgenW.Px(),tmpgenW.Py(),tmpgenW.Pz());
+		//Double_t tmptheta1 = TMath::ACos( (genp1.Dot(genptot))/(tmpgenWp.P()*tmpgenW.P()) );
+		//Double_t tmptheta2 = TMath::ACos( (genp2.Dot(genptot))/(tmpgenWq.P()*tmpgenW.P()) );
 			
-			hgen_->Fill2d("gen_toprapidity_vs_psi_pq",tmpgentop.Rapidity(), Psi(TLorentzVector(tmpgenWp.Px(),tmpgenWp.Py(),tmpgenWp.Pz(),tmpgenWp.E()),TLorentzVector(tmpgenWq.Px(),tmpgenWq.Py(),tmpgenWq.Pz(),tmpgenWq.E()),tmpgentop.M()));
-//(tmpgenWp.P()+tmpgenWq.P())*TMath::Sin(tmptheta1+tmptheta2)/(2.*tmpgentop.M() ));
+		hgen_->Fill2d("gen_toprapidity_vs_psi_pq",tmpgentop.Rapidity(), Psi(TLorentzVector(tmpgenWp.Px(),tmpgenWp.Py(),tmpgenWp.Pz(),tmpgenWp.E()),TLorentzVector(tmpgenWq.Px(),tmpgenWq.Py(),tmpgenWq.Pz(),tmpgenWq.E()),tmpgentop.M()));
+		//(tmpgenWp.P()+tmpgenWq.P())*TMath::Sin(tmptheta1+tmptheta2)/(2.*tmpgentop.M() ));
 			
-			hgen_->Fill2d("gen_toprapidity_vs_deltaR_pq",tmpgentop.Rapidity(),DeltaR<reco::Candidate>()(*genHadWp, *genHadWq )  );
-			TLorentzVector tmpgenP4Wp = TLorentzVector(tmpgenWp.Px(),tmpgenWp.Py(),tmpgenWp.Pz(),tmpgenWp.E());
-			TLorentzVector tmpgenP4Wq = TLorentzVector(tmpgenWq.Px(),tmpgenWq.Py(),tmpgenWq.Pz(),tmpgenWq.E());
+		hgen_->Fill2d("gen_toprapidity_vs_deltaR_pq",tmpgentop.Rapidity(),DeltaR<reco::GenParticle>()(*genHadWp, *genHadWq )  );
+		TLorentzVector tmpgenP4Wp = TLorentzVector(tmpgenWp.Px(),tmpgenWp.Py(),tmpgenWp.Pz(),tmpgenWp.E());
+		TLorentzVector tmpgenP4Wq = TLorentzVector(tmpgenWq.Px(),tmpgenWq.Py(),tmpgenWq.Pz(),tmpgenWq.E());
 			
-			hgen_->Fill2d("gen_toprapidity_vs_dminij_pq",tmpgentop.Rapidity(), dij(tmpgenP4Wp,tmpgenP4Wq,tmpgentop.M()) );
-			hgen_->Fill2d("gen_toprapidity_vs_dmaxij_pq",tmpgentop.Rapidity(), dij(tmpgenP4Wp,tmpgenP4Wq,tmpgentop.M(), false) );
+		hgen_->Fill2d("gen_toprapidity_vs_dminij_pq",tmpgentop.Rapidity(), dij(tmpgenP4Wp,tmpgenP4Wq,tmpgentop.M()) );
+		hgen_->Fill2d("gen_toprapidity_vs_dmaxij_pq",tmpgentop.Rapidity(), dij(tmpgenP4Wp,tmpgenP4Wq,tmpgentop.M(), false) );
 			
-			double tmppL= (tmpgenW.Px()*tmpgentop.Px()+tmpgenW.Py()*tmpgentop.Py()+tmpgenW.Pz()*tmpgentop.Pz()) / tmpgentop.P();
-			double tmppT= TMath::Sqrt(tmpgenW.P()*tmpgenW.P() - tmppL*tmppL);
+		double tmppL= (tmpgenW.Px()*tmpgentop.Px()+tmpgenW.Py()*tmpgentop.Py()+tmpgenW.Pz()*tmpgentop.Pz()) / tmpgentop.P();
+		double tmppT= TMath::Sqrt(tmpgenW.P()*tmpgenW.P() - tmppL*tmppL);
 			
-			hgen_->Fill2d("gen_HadW_pT_vs_pL", tmppT, tmppL );
+		hgen_->Fill2d("gen_HadW_pT_vs_pL", tmppT, tmppL );
 			
-			LorentzVector tmpgenhadb = genHadb->p4();
-			tmppL= (tmpgenhadb.Px()*tmpgentop.Px()+tmpgenhadb.Py()*tmpgentop.Py()+tmpgenhadb.Pz()*tmpgentop.Pz()) / tmpgentop.P();
-			tmppT= TMath::Sqrt(tmpgenhadb.P()*tmpgenhadb.P() - tmppL*tmppL); 
+		LorentzVector tmpgenhadb = genHadb->p4();
+		tmppL= (tmpgenhadb.Px()*tmpgentop.Px()+tmpgenhadb.Py()*tmpgentop.Py()+tmpgenhadb.Pz()*tmpgentop.Pz()) / tmpgentop.P();
+		tmppT= TMath::Sqrt(tmpgenhadb.P()*tmpgenhadb.P() - tmppL*tmppL); 
 			
-			hgen_->Fill2d("gen_Hadb_pT_vs_pL", tmppT, tmppL );
+		hgen_->Fill2d("gen_Hadb_pT_vs_pL", tmppT, tmppL );
 			
-			LorentzVector tmpgenmu = genMuon->p4();
-			LorentzVector tmpgenLepW = genEvent->leptonicDecayW()->p4();
-			tmppL= (tmpgenmu.Px()*tmpgenLepW.Px()+tmpgenmu.Py()*tmpgenLepW.Py()+tmpgenmu.Pz()*tmpgenLepW.Pz()) / tmpgenLepW.P();
-			tmppT= TMath::Sqrt(tmpgenmu.P()*tmpgenmu.P() - tmppL*tmppL); 
+		LorentzVector tmpgenmu = genMuon->p4();
+		LorentzVector tmpgenLepW = genEvent->leptonicDecayW()->p4();
+		tmppL= (tmpgenmu.Px()*tmpgenLepW.Px()+tmpgenmu.Py()*tmpgenLepW.Py()+tmpgenmu.Pz()*tmpgenLepW.Pz()) / tmpgenLepW.P();
+		tmppT= TMath::Sqrt(tmpgenmu.P()*tmpgenmu.P() - tmppL*tmppL); 
 			
-			double tmpcosCM = TMath::Cos(TMath::ASin(2.*tmppT/tmpgenLepW.M()));
+		double tmpcosCM = TMath::Cos(TMath::ASin(2.*tmppT/tmpgenLepW.M()));
 			
-			LorentzVector tmpgennu = genNu->p4();
-			hgen_->Fill2d("gen_cosCM_vs_psi",tmpcosCM,Psi(TLorentzVector(tmpgenmu.Px(),tmpgenmu.Py(),tmpgenmu.Pz(),tmpgenmu.E()),
-														  TLorentzVector(tmpgennu.Px(),tmpgennu.Py(),tmpgennu.Pz(),tmpgennu.E()),
-														  tmpgenLepW.M()));
+		LorentzVector tmpgennu = genNu->p4();
+		hgen_->Fill2d("gen_cosCM_vs_psi",tmpcosCM,Psi(TLorentzVector(tmpgenmu.Px(),tmpgenmu.Py(),tmpgenmu.Pz(),tmpgenmu.E()),
+							      TLorentzVector(tmpgennu.Px(),tmpgennu.Py(),tmpgennu.Pz(),tmpgennu.E()),
+							      tmpgenLepW.M()));
 
-			double theminGenDeltaR = 999.;
+		double theminGenDeltaR = 999.;
 
-			if ( DeltaR<reco::Candidate>()(*genHadWp, *genHadWq ) < theminGenDeltaR ) theminGenDeltaR = DeltaR<reco::Candidate>()(*genHadWp, *genHadWq );
-			if ( DeltaR<reco::Candidate>()(*genHadWp, *genHadb ) < theminGenDeltaR ) theminGenDeltaR = DeltaR<reco::Candidate>()(*genHadWp, *genHadb );
-			if ( DeltaR<reco::Candidate>()(*genHadWp, *genLepb ) < theminGenDeltaR ) theminGenDeltaR = DeltaR<reco::Candidate>()(*genHadWp, *genLepb );
-			if ( DeltaR<reco::Candidate>()(*genHadWq, *genHadb ) < theminGenDeltaR ) theminGenDeltaR = DeltaR<reco::Candidate>()(*genHadWq, *genHadb );
-			if ( DeltaR<reco::Candidate>()(*genHadWq, *genLepb ) < theminGenDeltaR ) theminGenDeltaR = DeltaR<reco::Candidate>()(*genHadWq, *genLepb );
-			if ( DeltaR<reco::Candidate>()(*genHadb, *genLepb ) < theminGenDeltaR ) theminGenDeltaR = DeltaR<reco::Candidate>()(*genHadb, *genLepb );
+		if ( DeltaR<reco::GenParticle>()(*genHadWp, *genHadWq ) < theminGenDeltaR ) theminGenDeltaR = DeltaR<reco::GenParticle>()(*genHadWp, *genHadWq );
+		if ( DeltaR<reco::GenParticle>()(*genHadWp, *genHadb ) < theminGenDeltaR ) theminGenDeltaR = DeltaR<reco::GenParticle>()(*genHadWp, *genHadb );
+		if ( DeltaR<reco::GenParticle>()(*genHadWp, *genLepb ) < theminGenDeltaR ) theminGenDeltaR = DeltaR<reco::GenParticle>()(*genHadWp, *genLepb );
+		if ( DeltaR<reco::GenParticle>()(*genHadWq, *genHadb ) < theminGenDeltaR ) theminGenDeltaR = DeltaR<reco::GenParticle>()(*genHadWq, *genHadb );
+		if ( DeltaR<reco::GenParticle>()(*genHadWq, *genLepb ) < theminGenDeltaR ) theminGenDeltaR = DeltaR<reco::GenParticle>()(*genHadWq, *genLepb );
+		if ( DeltaR<reco::GenParticle>()(*genHadb, *genLepb ) < theminGenDeltaR ) theminGenDeltaR = DeltaR<reco::GenParticle>()(*genHadb, *genLepb );
 			
 				 
-			// count gen events in the fidutial region
-			if ( ( genHadWp->pt() > fMinJetPt ) &&
-				 ( genHadWq->pt() > fMinJetPt ) &&
-				 ( genHadb->pt()  > fMinJetPt ) &&
-				 ( genLepb->pt()  > fMinJetPt ) ) {
+		// count gen events in the fidutial region
+		if ( ( genHadWp->pt() > fMinJetPt ) &&
+		     ( genHadWq->pt() > fMinJetPt ) &&
+		     ( genHadb->pt()  > fMinJetPt ) &&
+		     ( genLepb->pt()  > fMinJetPt ) ) {
 
-				hcounter->Counter("GenJetPt");
+		  hcounter->Counter("GenJetPt");
 
-				if ( ( fabs(genHadWp->eta()) < fMaxJetEta ) &&
-					 ( fabs(genHadWq->eta()) < fMaxJetEta ) &&
-					 ( fabs(genHadb->eta() ) < fMaxJetEta ) &&
-					 ( fabs(genLepb->eta() ) < fMaxJetEta ) ) {
+		  if ( ( fabs(genHadWp->eta()) < fMaxJetEta ) &&
+		       ( fabs(genHadWq->eta()) < fMaxJetEta ) &&
+		       ( fabs(genHadb->eta() ) < fMaxJetEta ) &&
+		       ( fabs(genLepb->eta() ) < fMaxJetEta ) ) {
 
-					hcounter->Counter("GenJetEta");
+		    hcounter->Counter("GenJetEta");
 
-					// deltaR
-					if ( theminGenDeltaR > 0.5 ) {
+		    // deltaR
+		    if ( theminGenDeltaR > 0.5 ) {
 
-						hcounter->Counter("GenJetDeltaR");
+		      hcounter->Counter("GenJetDeltaR");
 										
-						if ( ( fabs(genMuon->eta()) < fMaxMuonEta ) &&
-							 ( genMuon->et()  > fMinMuonPt) ) {
-							hcounter->Counter("GenJetDeltaRMuon");
-							IsEventReconstructable = true;
-						}
-					}
-					if ( ( fabs(genMuon->eta()) < fMaxMuonEta ) &&
-						 ( genMuon->et()  > fMinMuonPt) ) hcounter->Counter("GenMuon");
-				}
-			}
+		      if ( ( fabs(genMuon->eta()) < fMaxMuonEta ) &&
+			   ( genMuon->et()  > fMinMuonPt) ) {
+			hcounter->Counter("GenJetDeltaRMuon");
+			IsEventReconstructable = true;
+		      }
+		    }
+		    if ( ( fabs(genMuon->eta()) < fMaxMuonEta ) &&
+			 ( genMuon->et()  > fMinMuonPt) ) hcounter->Counter("GenMuon");
+		  }
+		}
 						 
 				 
-		} else {
-			edm::LogWarning ( "BooLowMAnalyzer" ) << " No top decay generator info, what happen here?";
-			if (!genHadWp) edm::LogWarning ( "BooLowMAnalyzer" ) << " no genHadWp";
-			if (!genHadWq) edm::LogWarning ( "BooLowMAnalyzer" ) << " no genHadWq";
-			if (!genHadb)  edm::LogWarning ( "BooLowMAnalyzer" ) << " no genHadb";
-			if (!genLepb)  edm::LogWarning ( "BooLowMAnalyzer" ) << " no genLepb";
-			if (!genMuon)  edm::LogWarning ( "BooLowMAnalyzer" ) << " no genMuon";
-			if (!genNu)    edm::LogWarning ( "BooLowMAnalyzer" ) << " no genNu";
-			edm::LogWarning ( "BooLowMAnalyzer" ) << " skipping event, no counting this event ";
-			//return;
-		}
-		}
-		if (debug) std::cout << "done gen histo" << std::endl;
-	} else {
-	  if (fIsMCTop)
+	      } else {
+		edm::LogWarning ( "BooLowMAnalyzer" ) << " No top decay generator info, what happen here?";
+		if (!genHadWp) edm::LogWarning ( "BooLowMAnalyzer" ) << " no genHadWp";
+		if (!genHadWq) edm::LogWarning ( "BooLowMAnalyzer" ) << " no genHadWq";
+		if (!genHadb)  edm::LogWarning ( "BooLowMAnalyzer" ) << " no genHadb";
+		if (!genLepb)  edm::LogWarning ( "BooLowMAnalyzer" ) << " no genLepb";
+		if (!genMuon)  edm::LogWarning ( "BooLowMAnalyzer" ) << " no genMuon";
+		if (!genNu)    edm::LogWarning ( "BooLowMAnalyzer" ) << " no genNu";
+		edm::LogWarning ( "BooLowMAnalyzer" ) << " skipping event, no counting this event ";
+		//return;
+	      }
+	    }
+	    if (debug) std::cout << "done gen histo" << std::endl;
+	  } else {
 	    edm::LogWarning ( "BooLowMAnalyzer" ) << "no ttbar pair in generator";
+	  }
 	}
-
 	// count events
 	hcounter->Counter("Generator");
 	
@@ -1256,7 +1259,7 @@ BooLowMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	   hmet_->Fill1d(TString("MET")+"_"+"cut0", fJES*met[imet].et());
 	   hmet_->Fill1d(TString("MET_eta")+"_"+"cut0", fJES*met[imet].eta());
 	   hmet_->Fill1d(TString("MET_phi")+"_"+"cut0", fJES*met[imet].phi());
-	   hmet_->Fill1d(TString("MET_deltaR_muon")+"_"+"cut0", DeltaR<reco::Candidate>()( met[imet] , muons[0] ));
+	   hmet_->Fill1d(TString("MET_deltaR_muon")+"_"+"cut0", DeltaR<reco::GenParticle>()( met[imet] , muons[0] ));
 	   hmet_->FillvsJets2d(TString("MET_vsJets")+"_cut0",fJES*met[imet].et(), vectorjets);
 	   hmet_->Fill1d(TString("Ht")+"_cut0", fJES*met[imet].sumEt());
 	   hmet_->FillvsJets2d(TString("Ht_vsJets")+"_cut0",fJES*met[imet].sumEt(), vectorjets);
@@ -1350,7 +1353,11 @@ BooLowMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    if (fwriteAscii) {
 	   std::string dummyzero = " 0 ";
 	   // dump generated neutrino
-	   if (genNu) fasciiFile << "-1 " << genNu->p4().Px() <<" "<< genNu->p4().Py() <<" "<< genNu->p4().Pz() << dummyzero << std::endl;
+	   if (fIsMCTop) {
+	     const reco::GenParticle *genNu = genEvent->singleNeutrino();
+	     if (genNu)
+	       fasciiFile << "-1 " << genNu->p4().Px() <<" "<< genNu->p4().Py() <<" "<< genNu->p4().Pz() << dummyzero << std::endl;
+	   }
 	   else fasciiFile << "-1 0 0 0 0" << std::endl;
 	   // dump Muon
 	   fasciiFile << "-15 " << muonP4.Px() <<" "<< muonP4.Py() <<" "<< muonP4.Pz() << dummyzero << std::endl;
@@ -1377,16 +1384,17 @@ BooLowMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    //  T O P    R E C O N S T R U C T I O N
    //
 
-   int topdecay = 0;
-   if ( genEvent->isFullHadronic() ) topdecay =1;
-   if ( genEvent->isFullLeptonic() ) topdecay =2;
-   if ( genEvent->isSemiLeptonic() && genEvent->semiLeptonicChannel()==1 ) topdecay = 3;
-   if ( genEvent->isSemiLeptonic() && genEvent->semiLeptonicChannel()==2 ) topdecay = 4;
-   if ( genEvent->isSemiLeptonic() && genEvent->semiLeptonicChannel()==3 ) topdecay = 5;
+   if (fIsMCTop) {
+     int topdecay = 0;
+     if ( genEvent->isFullHadronic() ) topdecay =1;
+     if ( genEvent->isFullLeptonic() ) topdecay =2;
+     if ( genEvent->isSemiLeptonic() && genEvent->semiLeptonicChannel()==1 ) topdecay = 3;
+     if ( genEvent->isSemiLeptonic() && genEvent->semiLeptonicChannel()==2 ) topdecay = 4;
+     if ( genEvent->isSemiLeptonic() && genEvent->semiLeptonicChannel()==3 ) topdecay = 5;
    
-   //hgen_->Fill1d("gen_top_decays", topdecay );
-   hgen_->FillvsJets2d("gen_top_decays_vsJets", topdecay, vectorjets);
-	   
+     //hgen_->Fill1d("gen_top_decays", topdecay );
+     hgen_->FillvsJets2d("gen_top_decays_vsJets", topdecay, vectorjets);
+   }
    // OK now let's repeat the TOP loose selection
    if (NgoodJets >=4 ) {
 
