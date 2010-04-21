@@ -43,7 +43,8 @@ void MultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
     if (radLen > 0) {
       // Calculated rms scattering angle squared.
       double fact = 1. + 0.038*log(radLen); fact *=fact;
-      double a = fact/(beta2*p2);
+      // double a = fact/(beta2*p2);
+      double a = fact*e2;
       sigt2 = amscon*radLen*a;
       if (thePtMin > 0) {
 #ifdef DBG_MSU
@@ -54,7 +55,7 @@ void MultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
         AlgebraicSymMatrix55 const & covMatrix = TSoS.localError().matrix();
         double error2_QoverP = covMatrix(0,0);
 	// Formula valid for ultra-relativistic particles.
-//      sigt2 *= (1. + p2 * error2_QoverP);
+        //      sigt2 *= (1. + p2 * error2_QoverP);
 	// Exact formula
         sigt2 *= (1. + p2 * error2_QoverP *
 		               (1. + 5.*m2/e2 + 3.*m2*beta2*error2_QoverP));
@@ -83,9 +84,9 @@ void MultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
     // Create update (transformation of independant variations
     //   on angle in orthogonal planes to local parameters.
     double den = 1./(cl2*cl2);
-    theDeltaCov(1,1) = sigt2*(sf2*cl2 + cf2)*den;
-    theDeltaCov(1,2) = sigt2*(cf2*sl2      )*den;
-    theDeltaCov(2,2) = sigt2*(cf2*cl2 + sf2)*den;
+    theDeltaCov(1,1) = (den*sigt2)*(sf2*cl2 + cf2);
+    theDeltaCov(1,2) = (den*sigt2)*(cf2*sl2      );
+    theDeltaCov(2,2) = (den*sigt2)*(cf2*cl2 + sf2);
   }
   //
   // Save arguments to avoid duplication of computation
