@@ -728,6 +728,22 @@ if __name__=="__main__":
             p2.visit(namesVisitor)
             self.assertEqual(l, ['m1', '!m2', 'm1', 'm2', '-m2', '!m1', 'm1', 'm2'])
 
+        def testAdd(self):
+            m1 = DummyModule("m1")
+            m2 = DummyModule("m2")
+            m3 = DummyModule("m3")
+            m4 = DummyModule("m4")
+            s1 = Sequence(m1)
+            s3 = Sequence(m3+ignore(m4))
+            p = Path(s1)
+            p += ~m2
+            p *= s3
+
+            l = []
+            namesVisitor = DecoratedNodeNameVisitor(l)
+            p.visit(namesVisitor)
+            self.assertEqual(l, ['m1', '!m2', 'm3', '-m4'])
+
 
         def testRemove(self):
             m1 = DummyModule("m1")
