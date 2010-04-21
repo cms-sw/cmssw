@@ -31,7 +31,7 @@ void popcon::SiStripDetVOffHandler::getNewObjects()
 	  << tagInfo().lastPayloadToken << "\n\n UserText " << userTextLog() 
 	  << "\n LogDBEntry \n" 
 	  << logDBEntry().logId            << "\n"
-	  << logDBEntry().destinationDB    << "\n"   
+	  << logDBEntry().destinationDB    << "\n"
 	  << logDBEntry().provenance       << "\n"
 	  << logDBEntry().usertext         << "\n"
 	  << logDBEntry().iovtag           << "\n"
@@ -105,23 +105,27 @@ void popcon::SiStripDetVOffHandler::setForTransfer() {
   }
 }
 
+
 void popcon::SiStripDetVOffHandler::setUserTextLog()
 {
   std::stringstream ss;
   ss << "@@@ Number of payloads transferred " << resultVec.size() << "." << std::endl;
   std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::const_iterator it = resultVec.begin();
-  ss << "year month day hour minute second \t #LV off \t #HV off" << std::endl;
+  // ss << "year month day hour minute second \t #LV off \t #HV off" << std::endl;
+  ss << "time \t #LV off \t #HV off" << std::endl;
   for( ; it != resultVec.end(); ++it ) {
-    coral::TimeStamp coralTime(cond::time::to_boost(it->second));
-    ss << coralTime.year() << "   "
-       << coralTime.month() << "    "
-       << coralTime.day() << "   "
-       << coralTime.hour() << "    "
-       << coralTime.minute() << "     "
-       << coralTime.second();
+    ss << boost::posix_time::to_iso_extended_string( cond::time::to_boost(it->second) );
+    //     coral::TimeStamp coralTime(cond::time::to_boost(it->second));
+    //     ss << coralTime.year() << "   "
+    //        << coralTime.month() << "    "
+    //        << coralTime.day() << "   "
+    //        << coralTime.hour() << "    "
+    //        << coralTime.minute() << "     "
+    //        << coralTime.second();
     ss << "\t\t  " << it->first->getLVoffCounts() << "\t\t  " << it->first->getHVoffCounts() << std::endl;
   }
 
+  std::cout << ss.str();
   if( debug_ ) {
     ss << "PayloadNo/Badmodules/NoAdded/NoRemoved: ";
     std::vector< std::vector<uint32_t> > payloadStats = modHVBuilder->getPayloadStats();
@@ -129,8 +133,10 @@ void popcon::SiStripDetVOffHandler::setUserTextLog()
       ss << j << "/" << payloadStats[j][0] << "/" << payloadStats[j][1] << "/" << payloadStats[j][2] << "\t ";
     }
   }
-
+  
   this->m_userTextLog = ss.str();
-
-  LogTrace("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::setUserTextLog] " << ss.str(); 
+  
+  LogTrace("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::setUserTextLog] " << ss.str();
+    
+ 
 }
