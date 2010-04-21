@@ -29,9 +29,9 @@
 //      |tk = 1      TID = 4            wheel = 1-3      0=rphi,1=stereo  hit type = 0-3
 //      |tk = 1      TOB = 5            layer = 1-6      0=rphi,1=stereo  hit type = 0-3
 //      |tk = 1      TEC = 6            wheel = 1-9      0=rphi,1=stereo  hit type = 0-3
-//      |mu = 0      DT  = 1            layer                             hit type = 0-3
-//      |mu = 0      CSC = 2            layer                             hit type = 0-3
-//      |mu = 0      RPC = 3            layer                             hit type = 0-3
+//      |mu = 0      DT  = 1            4*(stat-1)+superlayer             hit type = 0-3
+//      |mu = 0      CSC = 2            4*(stat-1)+(ring-1)               hit type = 0-3
+//      |mu = 0      RPC = 3            4*(stat-1)+2*layer+region         hit type = 0-3
 //
 //      hit type, see DataFormats/TrackingRecHit/interface/TrackingRecHit.h
 //      valid    = valid hit                                     = 0
@@ -170,6 +170,18 @@ namespace reco {
     bool muonRPCHitFilter(uint32_t pattern) const;     // muon RPC
 
     uint32_t getLayer(uint32_t pattern) const; // sub-sub-structure
+    uint32_t getSubSubStructure(uint32_t pattern) const; // sub-sub-structure
+
+    /// Muon station (1-4). Only valid for muon patterns, of course.
+    uint32_t getMuonStation(uint32_t pattern) const;  // only for patterns from muon, of course
+    /// DT superlayer (1-3). Only valid for muon DT patterns, of course.
+    uint32_t getDTSuperLayer(uint32_t pattern) const; // only for DT patterns
+    /// CSC ring (1-4). Only valid for muon CSC patterns, of course.
+    uint32_t getCSCRing(uint32_t pattern) const ; 
+    /// RPC layer: for station 1 and 2, layer = 1(inner) or 2(outer); for station 3, 4 layer is always 0. Only valid for muon RPC patterns, of course.
+    uint32_t getRPCLayer(uint32_t pattern) const ; 
+    /// RPC region: 0 = barrel, 1 = endcap. Only valid for muon RPC patterns, of course.
+    uint32_t getRPCregion(uint32_t pattern) const;
 
     uint32_t getHitType(uint32_t pattern) const;   // hit type
     bool validHitFilter(uint32_t pattern) const;   // hit type 0 = valid
@@ -259,6 +271,38 @@ namespace reco {
     int stripTOBLayersNull() const;                  // case 999999: strip TOB
     int stripTECLayersNull() const;                  // case 999999: strip TEC
 
+
+
+    /// subdet = 0(all), 1(DT), 2(CSC), 3(RPC); hitType=-1(all), 0=valid, 3=bad
+    int muonStations(int subdet, int hitType) const ;
+
+    int muonStationsWithValidHits() const ;
+    int muonStationsWithBadHits() const ;
+    int muonStationsWithAnyHits() const ;
+    int dtStationsWithValidHits() const ;
+    int dtStationsWithBadHits() const ;
+    int dtStationsWithAnyHits() const ;
+    int cscStationsWithValidHits() const ;
+    int cscStationsWithBadHits() const ;
+    int cscStationsWithAnyHits() const ;
+    int rpcStationsWithValidHits() const ;
+    int rpcStationsWithBadHits() const ;
+    int rpcStationsWithAnyHits() const ;
+
+    ///  hitType=-1(all), 0=valid, 3=bad; 0 = no stations at all
+    int innermostMuonStationWithHits(int hitType) const ;
+    int innermostMuonStationWithValidHits() const ;
+    int innermostMuonStationWithBadHits() const ;
+    int innermostMuonStationWithAnyHits() const ;
+
+    ///  hitType=-1(all), 0=valid, 3=bad; 0 = no stations at all
+    int outermostMuonStationWithHits(int hitType) const ;
+    int outermostMuonStationWithValidHits() const ;
+    int outermostMuonStationWithBadHits() const ;
+    int outermostMuonStationWithAnyHits() const ;
+
+    int numberOfDTStationsWithRPhiView() const ;
+    int numberOfDTStationsWithRZView() const ;
   private:
 
     // number of 32 bit integers to store the full pattern

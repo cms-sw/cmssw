@@ -47,11 +47,14 @@ void HitPattern::set(const TrackingRecHit & hit, unsigned int i) {
       layer = TECDetId(id).wheel();
   } else if (detid == DetId::Muon) {
     if (subdet == (uint32_t) MuonSubdetId::DT) 
-      layer = DTLayerId(id.rawId()).layer();
+      layer = ((DTLayerId(id.rawId()).station()-1)<<2) + (DTLayerId(id.rawId()).superLayer()-1);
     else if (subdet == (uint32_t) MuonSubdetId::CSC)
-      layer = CSCDetId(id.rawId()).layer();
-    else if (subdet == (uint32_t) MuonSubdetId::RPC)
-      layer = RPCDetId(id.rawId()).layer();
+      layer = ((CSCDetId(id.rawId()).station()-1)<<2) +  (CSCDetId(id.rawId()).ring()-1);
+    else if (subdet == (uint32_t) MuonSubdetId::RPC) {
+      RPCDetId rpcid(id.rawId());
+      layer = ((rpcid.station()-1)<<2) + abs(rpcid.region());
+      if (rpcid.station() <= 2) layer += 2*(rpcid.layer()-1);
+    }
   }
   pattern += (layer&LayerMask)<<LayerOffset;
 
@@ -99,43 +102,20 @@ uint32_t HitPattern::getHitPattern(int position) const {
           32         21        10        0 | 6  65        54        43      3   9
 
          ugly enough, but it's not my fault, I was not even in CMS at that time   [gpetrucc] */
-//#define OLD_HITPATTERN_LOGIC
-#if defined(OLD_HITPATTERN_LOGIC)
-  int offset = position * HitSize;
-  uint32_t pattern = 0; 
-  for (int i=0; i<HitSize; i++) {
-    int pos = offset + i;
-    uint32_t word = hitPattern_[pos / 32];
-    uint32_t bit = (word >> (pos%32)) & 0x1;
-    pattern += bit << i;
-  }
-#endif
-#define GIO_HITPATTERN_LOGIC
-#if defined(GIO_HITPATTERN_LOGIC)
   uint16_t bitEndOffset = (position+1) * HitSize;
   uint8_t secondWord   = (bitEndOffset >> 5);
   uint8_t secondWordBits = bitEndOffset & (32-1); // that is, bitEndOffset % 32
   if (secondWordBits >= HitSize) { // full block is in this word
       uint8_t lowBitsToTrash = secondWordBits - HitSize;
       uint32_t myResult = (hitPattern_[secondWord] >> lowBitsToTrash) & ((1 << HitSize)-1);
-     #if defined(OLD_HITPATTERN_LOGIC)
-      if (pattern != myResult) { abort(); }
-     #endif //both
       return myResult;
   } else {
       uint8_t  firstWordBits   = HitSize - secondWordBits;
       uint32_t firstWordBlock  = hitPattern_[secondWord-1] >> (32-firstWordBits);
       uint32_t secondWordBlock = hitPattern_[secondWord] & ((1<<secondWordBits)-1);
       uint32_t myResult = firstWordBlock + (secondWordBlock << firstWordBits);
-     #if defined(OLD_HITPATTERN_LOGIC)
-      if (pattern != myResult) { abort(); }
-     #endif //both
       return myResult;
   }
-#endif
-#ifndef GIO_HITPATTERN_LOGIC
-  return pattern;
-#endif
 }
 
 bool HitPattern::trackerHitFilter(uint32_t pattern) const {
@@ -241,6 +221,12 @@ uint32_t HitPattern::getLayer(uint32_t pattern) const {
   return ((pattern>>LayerOffset) & LayerMask);
 }
 
+uint32_t HitPattern::getSubSubStructure(uint32_t pattern) const {
+  if (pattern == 0) return 999999;
+  return ((pattern>>LayerOffset) & LayerMask);
+}
+
+
 uint32_t HitPattern::getSide (uint32_t pattern) 
 {
      if (pattern == 0) return 999999;
@@ -251,6 +237,29 @@ uint32_t HitPattern::getHitType( uint32_t pattern ) const {
   if (pattern == 0) return 999999;
   return ((pattern>>HitTypeOffset) & HitTypeMask);
 }
+
+uint32_t HitPattern::getMuonStation(uint32_t pattern) const {
+  return (getSubSubStructure(pattern)>>2) + 1;
+}
+
+uint32_t HitPattern::getDTSuperLayer(uint32_t pattern) const {
+  return (getSubSubStructure(pattern) & 3) + 1;
+}
+
+uint32_t HitPattern::getCSCRing(uint32_t pattern) const {
+  return (getSubSubStructure(pattern) & 3) + 1;
+}
+
+uint32_t HitPattern::getRPCLayer(uint32_t pattern) const {
+    uint32_t sss = getSubSubStructure(pattern), stat = sss >> 2;
+    if (stat <= 1) return ((sss >> 1) & 1) + 1;
+    else return 0;
+}
+
+uint32_t HitPattern::getRPCregion(uint32_t pattern) const {
+    return getSubSubStructure(pattern) & 1;
+}
+
 
 bool HitPattern::validHitFilter(uint32_t pattern) const {
   if (getHitType(pattern) == 0) return true; 
@@ -1127,7 +1136,20 @@ void HitPattern::printHitPattern (int position, std::ostream &stream) const
      if (trackerHitFilter(pattern))
 	  stream << "tracker";
      stream << "\tsubstructure " << getSubStructure(pattern);
-     stream << "\tlayer " << getLayer(pattern);
+     if (muonHitFilter(pattern)) {
+         stream << "\tstation " << getMuonStation(pattern);
+         if (muonDTHitFilter(pattern)) { 
+            stream << "\tdt superlayer " << getDTSuperLayer(pattern); 
+         } else if (muonCSCHitFilter(pattern)) { 
+            stream << "\tcsc ring " << getCSCRing(pattern); 
+         } else if (muonRPCHitFilter(pattern)) {
+            stream << "\trpc " << (getRPCregion(pattern) ? "endcaps" : "barrel") << ", layer " << getRPCLayer(pattern); 
+         } else {
+            stream << "(UNKNOWN Muon SubStructure!) \tsubsubstructure " << getSubStructure(pattern);
+         }
+     } else {
+         stream << "\tlayer " << getLayer(pattern);
+     }
      stream << "\thit type " << getHitType(pattern);
      stream << std::endl;
 }
@@ -1183,3 +1205,91 @@ uint32_t HitPattern::isStereo (DetId i)
 	  return 0;
      }
 }
+
+int  HitPattern::muonStations(int subdet, int hitType) const {
+  int stations[4] = { 0,0,0,0 };
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (pattern == 0) break;
+    if (muonHitFilter(pattern) &&
+        (subdet  == 0  || int(getSubStructure(pattern)) == subdet) &&
+        (hitType == -1 || int(getHitType(pattern))      == hitType)) {
+        stations[getMuonStation(pattern)-1] = 1;
+    }
+  }
+  return stations[0]+stations[1]+stations[2]+stations[3];
+}
+
+int HitPattern::muonStationsWithValidHits() const { return muonStations(0, 0); }
+int HitPattern::muonStationsWithBadHits()   const { return muonStations(0, 3); }
+int HitPattern::muonStationsWithAnyHits()   const { return muonStations(0,-1); }
+int HitPattern::dtStationsWithValidHits()   const { return muonStations(1, 0); }
+int HitPattern::dtStationsWithBadHits()     const { return muonStations(1, 3); }
+int HitPattern::dtStationsWithAnyHits()     const { return muonStations(1,-1); }
+int HitPattern::cscStationsWithValidHits()  const { return muonStations(2, 0); }
+int HitPattern::cscStationsWithBadHits()    const { return muonStations(2, 3); }
+int HitPattern::cscStationsWithAnyHits()    const { return muonStations(2,-1); }
+int HitPattern::rpcStationsWithValidHits()  const { return muonStations(3, 0); }
+int HitPattern::rpcStationsWithBadHits()    const { return muonStations(3, 3); }
+int HitPattern::rpcStationsWithAnyHits()    const { return muonStations(3,-1); }
+
+int HitPattern::innermostMuonStationWithHits(int hitType) const {
+  int ret = 0;
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (pattern == 0) break;
+    if (muonHitFilter(pattern) &&
+        (hitType == -1 || int(getHitType(pattern)) == hitType)) {
+        int stat = getMuonStation(pattern);
+        if (ret == 0 || stat < ret) ret = stat;
+    }
+  }
+  return ret;
+}
+
+int HitPattern::outermostMuonStationWithHits(int hitType) const {
+  int ret = 0;
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (pattern == 0) break;
+    if (muonHitFilter(pattern) &&
+        (hitType == -1 || int(getHitType(pattern)) == hitType)) {
+        int stat = getMuonStation(pattern);
+        if (ret == 0 || stat > ret) ret = stat;
+    }
+  }
+  return ret;
+}
+
+int HitPattern::innermostMuonStationWithValidHits() const { return innermostMuonStationWithHits(0);  }
+int HitPattern::innermostMuonStationWithBadHits()   const { return innermostMuonStationWithHits(3);  }
+int HitPattern::innermostMuonStationWithAnyHits()   const { return innermostMuonStationWithHits(-1); }
+int HitPattern::outermostMuonStationWithValidHits() const { return outermostMuonStationWithHits(0);  }
+int HitPattern::outermostMuonStationWithBadHits()   const { return outermostMuonStationWithHits(3);  }
+int HitPattern::outermostMuonStationWithAnyHits()   const { return outermostMuonStationWithHits(-1); }
+
+int HitPattern::numberOfDTStationsWithRPhiView() const {
+  int stations[4] = { 0,0,0,0 };
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (pattern == 0) break;
+    if (muonDTHitFilter(pattern) && validHitFilter(pattern) && getDTSuperLayer(pattern) != 2) {
+        stations[getMuonStation(pattern)-1] = 1;
+    }
+  }
+  return stations[0]+stations[1]+stations[2]+stations[3];
+}
+
+int HitPattern::numberOfDTStationsWithRZView() const {
+  int stations[4] = { 0,0,0,0 };
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (pattern == 0) break;
+    if (muonDTHitFilter(pattern) && validHitFilter(pattern) && getDTSuperLayer(pattern) == 2) {
+        stations[getMuonStation(pattern)-1] = 1;
+    }
+  }
+  return stations[0]+stations[1]+stations[2]+stations[3];
+}
+
+
