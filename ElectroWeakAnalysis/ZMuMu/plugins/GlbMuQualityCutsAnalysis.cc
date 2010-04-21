@@ -75,16 +75,17 @@ void GlbMuQualityCutsAnalysis::analyze(const edm::Event& evt, const edm::EventSe
     const Candidate * c1 = dau1->masterClone().get();
     GenParticleRef mc1;
     const pat::Muon * mu1 = dynamic_cast<const pat::Muon*>(c1);
-    /* std::cout << "dau1.pt() " << dau1->pt() << std::endl;
-    std::cout << "dau1.pt() " << dau1->pt() << std::endl;
+  std::cout << " dimuon mass  " << i->mass() << std::endl;
+     std::cout << "dau1.pt() " << dau1->pt() << std::endl;
+    std::cout << "dau2.pt() " << dau2->pt() << std::endl;
     std::cout << "dau1.isGlobalMuon() " << dau1->isGlobalMuon() << std::endl;
     std::cout << "dau2.isGlobalMuon() " << dau2->isGlobalMuon()<< std::endl;
-    std::cout << "dau1.isTrackerMuon() " << dau1->isGlobalMuon() << std::endl;
-    std::cout << "dau2.isTrackerlMuon() " << dau2->isGlobalMuon()<< std::endl;
+    std::cout << "dau1.isTrackerMuon() " << dau1->isTrackerMuon() << std::endl;
+    std::cout << "dau2.isTrackerlMuon() " << dau2->isTrackerMuon()<< std::endl;
     std::cout << "dau1.isStandAloneMuon() " << dau1->isStandAloneMuon() << std::endl;
     std::cout << "dau2.isStandAloneMuon() " << dau2->isStandAloneMuon()<< std::endl;
     std::cout << "dau1.charge() " << dau1->charge() << std::endl;
-    std::cout << "dau2.charge() " << dau2->charge()<< std::endl; */
+    std::cout << "dau2.charge() " << dau2->charge()<< std::endl; 
   if(mu1 != 0) {
  
       //     if (mc1.isNonnull()) cout << "GlbMuQualityCutsAnalysis> genParticleRef1 " << mc1->pdgId() << endl;
@@ -111,22 +112,25 @@ void GlbMuQualityCutsAnalysis::analyze(const edm::Event& evt, const edm::EventSe
 	  "first of two daughter is neither a pat::Muon not pat::GenericParticle\n";
  
     }
-    int nOfHit_1= mu1->numberOfValidHits();
-    // std::cout << "n of hit of GlbMu1: " << nOfHit_1 << std::endl;
-    int nOfHit_tk_1= mu1->innerTrack()->numberOfValidHits();
-    //std::cout << "n of hit of TrkMu1: " << nOfHit_tk_1 << std::endl;
-    int nOfHit_2= mu2->numberOfValidHits();
-    //std::cout << "n of hit of GlbMu2: " << nOfHit_2 << std::endl;    
-    int nOfHit_tk_2= mu2->innerTrack()->numberOfValidHits();
-    // std::cout << "n of hit of TrkMu2: " << nOfHit_tk_2 << std::endl;
+
+    int nOfHit_1=0, nOfHit_tk_1=0, nOfHit_2=0, nOfHit_tk_2=0;
+    if (mu1->isGlobalMuon() )   nOfHit_1= mu1->numberOfValidHits();
+    std::cout << "n of hit of GlbMu1: " << nOfHit_1 << std::endl;
+    if (mu1->isTrackerMuon() ) nOfHit_tk_1= mu1->innerTrack()->numberOfValidHits();
+    std::cout << "n of hit of TrkMu1: " << nOfHit_tk_1 << std::endl;
+    if (mu2->isGlobalMuon() ) nOfHit_2= mu2->numberOfValidHits();
+    std::cout << "n of hit of GlbMu2: " << nOfHit_2 << std::endl;    
+    if (mu2->isTrackerMuon() ) nOfHit_tk_2= mu2->innerTrack()->numberOfValidHits();
+    std::cout << "n of hit of TrkMu2: " << nOfHit_tk_2 << std::endl;
     h_GlbMuNofHitsGlbMu_->Fill(nOfHit_1);
     h_GlbMuNofHitsGlbMu_->Fill(nOfHit_2);
     h_TrkMuNofHitsGlbMu_->Fill(nOfHit_tk_1);
     h_TrkMuNofHitsGlbMu_->Fill(nOfHit_tk_2);
-    double nChi2_1= mu1->normChi2();
-    //  std::cout << "chi2 of GlbMu1: " << nChi2_1 << std::endl;
-    double nChi2_2= mu2->normChi2();
-    //std::cout << "chi2 of GlbMu2: " << nChi2_2 << std::endl;
+    double nChi2_1=0, nChi2_2=0; 
+    if (mu1->isGlobalMuon() ) nChi2_1= mu1->normChi2();
+    std::cout << "chi2 of GlbMu1: " << nChi2_1 << std::endl;
+    if (mu2->isGlobalMuon() )  nChi2_2= mu2->normChi2();
+    std::cout << "chi2 of GlbMu2: " << nChi2_2 << std::endl;
     h_GlbMuChi2_->Fill(nChi2_1);
     h_GlbMuChi2_->Fill(nChi2_2);
     double dxy_1= mu1->dB(); 
@@ -134,16 +138,16 @@ void GlbMuQualityCutsAnalysis::analyze(const edm::Event& evt, const edm::EventSe
  
     h_GlbMuDxy_->Fill(dxy_1); 
     h_GlbMuDxy_->Fill(dxy_2); 
-    if (nOfHit_tk_1<nHitCut_) { 
+    if (mu1->isGlobalMuon() && ( nOfHit_tk_1<nHitCut_)) { 
       std::cout<<"found a GlbMuon with nOfHit " << nOfHit_tk_1 << ", it has eta: " << mu1->eta()<< std::endl;
   }
-    if (nOfHit_tk_2<nHitCut_) { 
+    if ( mu2->isGlobalMuon() && ( nOfHit_tk_2<nHitCut_)) { 
       std::cout<<"found a GlbMuon with nOfHit " << nOfHit_tk_2 << ", it has eta: " << mu2->eta()<< std::endl;
   }
-    if (nChi2_1 >chi2Cut_) {
+    if (mu1->isGlobalMuon() && ( nChi2_1 >chi2Cut_)) {
       std::cout<<"found a GlbMuon with chi2 " << nChi2_1 << ", it has chi2 of track: " << mu1->innerTrack()->normalizedChi2()<< ", and chi2 of Sta: "<<  mu1->outerTrack()->normalizedChi2() << ", eta: "<< mu1->eta()<< ",pt: "<< mu1->pt()<< std::endl;
     }
-    if (nChi2_2 >chi2Cut_) {
+    if (mu2->isGlobalMuon() && ( nChi2_2 >chi2Cut_)) {
       std::cout<<"found a GlbMuon with chi2 " << nChi2_2 << ", it has chi2 of track: " << mu2->innerTrack()->normalizedChi2()<< ", and chi2 of Sta: "<<  mu2->outerTrack()->normalizedChi2() << ", eta:  "<<mu2->eta()<< ",pt: "<< mu2->pt()<< std::endl;
     }
 
