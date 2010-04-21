@@ -235,12 +235,12 @@ void BasicSingleTrajectoryState::createLocalParameters() const {
 }
 
 void BasicSingleTrajectoryState::createLocalError() const {
-    if(theFreeState->hasCurvilinearError())
-      createLocalErrorFromCurvilinearError();
-    else if(theFreeState->hasCartesianError())
-      createLocalErrorFromCartesianError();
-    else
-      theLocalErrorValid = false;
+  if(theFreeState->hasCartesianError())
+    createLocalErrorFromCartesianError();
+  else if(theFreeState->hasCurvilinearError())
+    createLocalErrorFromCurvilinearError();
+  else
+    theLocalErrorValid = false;
 }
 
 void 

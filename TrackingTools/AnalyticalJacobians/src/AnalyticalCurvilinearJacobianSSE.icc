@@ -158,7 +158,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
     double temp2 = dot(ghnmp.xy(),u2);
     double s3 = s2 * s;
     double s4 = s3 * s;
-    double h1 = h.mag();
+    double h1 = -qp; // h.mag();
     double h2 = h1 * h1;
     double h3 = h2 * h1;
     double qbp2 = qbp * qbp;
