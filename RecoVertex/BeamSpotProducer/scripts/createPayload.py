@@ -243,7 +243,7 @@ if __name__ == '__main__':
         elif tagname.find("hlt") != -1:
             tagType = "hlt"
         else:
-            print "I am assuming your tag ifs for the offline database..."
+            print "I am assuming your tag is for the offline database..."
             tagType = "offline"
 
     else:	
@@ -259,6 +259,14 @@ if __name__ == '__main__':
     
     listoffiles = copyToWorkflowdir(option.data)
 
+    # check if we have a single combined data file
+    if len(listoffiles)==1:
+
+        #split combined file
+        os.system("split -l 23 "+listoffiles[0]+" "+listoffiles[0]+"_part_")
+        
+        listoffiles = copyToWorkflowdir( listoffiles[0].replace( os.path.basename(listoffiles[0]), "") )
+    
     # sort list of data files in chronological order
     sortedlist = {}
 
@@ -347,7 +355,7 @@ if __name__ == '__main__':
 	
 	# pack run number and lumi section
 	if IOVbase == "lumibase":
-	    iov_since = iov_till = pack(tmp_run, tmp_lumi)
+	    iov_since = iov_till = str( pack(int(tmp_run), int(tmp_lumi)) )
 
 	tmpfile.close()
 	newtmpfile.close()
@@ -377,7 +385,8 @@ if __name__ == '__main__':
     #os.system("cmsRun "+ writedb_out)
         
 	status_wDB = commands.getstatusoutput('cmsRun '+ writedb_out)
-
+        #print status_wDB[1]
+        
         #### Merge sqlite files
         print " merge sqlite file ..."
         acmd = "cmscond_export_iov -d sqlite_file:"+workflowdirArchive+"payloads/Combined.db -s sqlite_file:"+sqlite_file+ " -i "+tagname+" -t "+tagname+" -l sqlite_file:"+workflowdirTmp+"log.db"+" -b "+iov_since+" -e "+iov_since
