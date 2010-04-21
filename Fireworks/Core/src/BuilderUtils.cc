@@ -12,6 +12,7 @@
 #include "TColor.h"
 #include "TROOT.h"
 #include "TEveTrans.h"
+#include "TEveManager.h"
 #include "TEveGeoNode.h"
 #include <time.h>
 #include "DataFormats/FWLite/interface/Event.h"
@@ -89,8 +90,7 @@ void fw::addRhoZEnergyProjection( FWProxyBuilderBase* pb, TEveElement* container
       t(1,4) = 0;
       t(2,4) = (r2+r1)/2;
       t(3,4) = fabs(z2)>fabs(z1) ? z2 : z1;
-
-      pb->setupAddElement(container, element);
+      pb->setupAddElement(element, container);
    }
    if ( fabs(z2 - z1) > 1 ) {
       TGeoBBox *sc_box = new TGeoBBox(0., 1, (z2-z1)/2);
@@ -100,8 +100,7 @@ void fw::addRhoZEnergyProjection( FWProxyBuilderBase* pb, TEveElement* container
       t(1,4) = 0;
       t(2,4) = fabs(r2)>fabs(r1) ? r2 : r1;
       t(3,4) = (z2+z1)/2;
-
-      pb->setupAddElement(container, element);
+      pb->setupAddElement(element, container);
    }
 }
 

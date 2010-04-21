@@ -8,8 +8,10 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonProxyBuilder.cc,v 1.3 2010/04/19 15:46:08 yana Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.4 2010/04/20 20:49:42 amraktad Exp $
 //
+#include "TEveCompound.h"
+
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWViewType.h"
@@ -18,6 +20,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+
 
 class FWPhotonProxyBuilder : public FWProxyBuilderBase {
 
@@ -44,11 +47,9 @@ FWPhotonProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
    iItem->get( photons );
    if( photons == 0 ) return;
 
-   Int_t idx = 0;
-   for( reco::PhotonCollection::const_iterator it = photons->begin(), itEnd = photons->end(); it != itEnd; ++it, ++idx)
+   for( reco::PhotonCollection::const_iterator it = photons->begin(), itEnd = photons->end(); it != itEnd; ++it)
    { 
-      const char* name = Form( "Photon %d", idx );
-      TEveElementList* comp = new TEveElementList( name, name );
+      TEveCompound* comp = createCompound();
       if( type == FWViewType::kRhoPhi )
 	 fireworks::makeRhoPhiSuperCluster(this,
 					   (*it).superCluster(),
