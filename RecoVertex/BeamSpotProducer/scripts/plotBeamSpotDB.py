@@ -738,7 +738,8 @@ if __name__ == '__main__':
 	npayload = 1
 	for iload in newlistbeam:
             # print new list
-            name = option.payload.remove(".txt")
+            name = option.payload
+            name = name.replace(".txt","")
             name = name + "_" +str(npayload) +".txt"
             payloadfile = open(name,"w")
 	    dump( iload, payloadfile )

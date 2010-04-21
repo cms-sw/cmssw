@@ -266,15 +266,7 @@ if __name__ == '__main__':
 	IOVbase = option.IOVbase
     
     listoffiles = copyToWorkflowdir(option.data)
-
-    # check if we have a single combined data file
-    if len(listoffiles)==1:
-
-        #split combined file
-        os.system("split -l 23 "+listoffiles[0]+" "+listoffiles[0]+"_part_")
         
-        listoffiles = copyToWorkflowdir( listoffiles[0].replace( os.path.basename(listoffiles[0]), "") )
-    
     # sort list of data files in chronological order
     sortedlist = {}
 
