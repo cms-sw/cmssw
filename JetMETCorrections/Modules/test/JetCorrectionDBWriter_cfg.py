@@ -8,11 +8,6 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
    process.CondDBCommon, 
    toPut = cms.VPSet( 
       cms.PSet( 
-         record = cms.string('L2Relative_IC5JPT'), 
-         tag    = cms.string('L2Relative_IC5JPT'), 
-         label  = cms.string('L2Relative_IC5JPT') 
-      ), 
-      cms.PSet( 
          record = cms.string('L2Relative_IC5Calo'), 
          tag    = cms.string('L2Relative_IC5Calo'), 
          label  = cms.string('L2Relative_IC5Calo') 
@@ -71,11 +66,6 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
          record = cms.string('L2Relative_KT6PF'), 
          tag    = cms.string('L2Relative_KT6PF'), 
          label  = cms.string('L2Relative_KT6PF') 
-      ), 
-      cms.PSet( 
-         record = cms.string('L3Absolute_IC5JPT'), 
-         tag    = cms.string('L3Absolute_IC5JPT'), 
-         label  = cms.string('L3Absolute_IC5JPT') 
       ), 
       cms.PSet( 
          record = cms.string('L3Absolute_IC5Calo'), 
@@ -409,11 +399,6 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
       ) 
    ) 
 ) 
-process.dbWriterL2RelativeIC5JPT = cms.EDAnalyzer('JetCorrectorDBWriter', 
-   inputTxtFile = cms.untracked.string('Summer09_7TeV_ReReco332_L2Relative_IC5JPT.txt'), 
-   option       = cms.untracked.string(''), 
-   label        = cms.untracked.string('L2Relative_IC5JPT') 
-) 
 process.dbWriterL2RelativeIC5Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    inputTxtFile = cms.untracked.string('Summer09_7TeV_ReReco332_L2Relative_IC5Calo.txt'), 
    option       = cms.untracked.string(''), 
@@ -473,11 +458,6 @@ process.dbWriterL2RelativeKT6PF = cms.EDAnalyzer('JetCorrectorDBWriter',
    inputTxtFile = cms.untracked.string('Summer09_7TeV_ReReco332_L2Relative_KT6PF.txt'), 
    option       = cms.untracked.string(''), 
    label        = cms.untracked.string('L2Relative_KT6PF') 
-) 
-process.dbWriterL3AbsoluteIC5JPT = cms.EDAnalyzer('JetCorrectorDBWriter', 
-   inputTxtFile = cms.untracked.string('Summer09_7TeV_ReReco332_L3Absolute_IC5JPT.txt'), 
-   option       = cms.untracked.string(''), 
-   label        = cms.untracked.string('L3Absolute_IC5JPT') 
 ) 
 process.dbWriterL3AbsoluteIC5Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    inputTxtFile = cms.untracked.string('Summer09_7TeV_ReReco332_L3Absolute_IC5Calo.txt'), 
@@ -810,7 +790,6 @@ process.dbWriterL4 = cms.EDAnalyzer('JetCorrectorDBWriter',
    label        = cms.untracked.string('L4EMF_AK5Calo') 
 ) 
 process.p = cms.Path( 
-process.dbWriterL2RelativeIC5JPT * 
 process.dbWriterL2RelativeIC5Calo * 
 process.dbWriterL2RelativeIC5PF * 
 process.dbWriterL2RelativeAK5JPT * 
@@ -823,7 +802,6 @@ process.dbWriterL2RelativeKT4Calo *
 process.dbWriterL2RelativeKT4PF * 
 process.dbWriterL2RelativeKT6Calo * 
 process.dbWriterL2RelativeKT6PF * 
-process.dbWriterL3AbsoluteIC5JPT * 
 process.dbWriterL3AbsoluteIC5Calo * 
 process.dbWriterL3AbsoluteIC5PF * 
 process.dbWriterL3AbsoluteAK5JPT * 
