@@ -322,6 +322,8 @@ if __name__ == '__main__':
 	iov_till = ''
 	iov_comment = ''
 	destDB = 'oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT'
+        if option.Test:
+            destDB = 'oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT'
 	iov_comment = 'Beam spot position'
 	
 	suffix = "_" + str(nfile)
@@ -489,6 +491,11 @@ if __name__ == '__main__':
     
     allfile.close()
 
+    if len(listoffiles)==1:
+
+        #split combined file
+        os.system("rm "+listoffiles[0]+"_part_*")
+        
     #### CREATE payload for merged output
             
     print " create MERGED payload card for dropbox ..."
@@ -533,5 +540,9 @@ if __name__ == '__main__':
         dropbox = "DropBox"
         if option.Test:
             dropbox = "DropBox_test"
-        commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/"+dropbox)
-        commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/"+dropbox)
+        commands.getstatusoutput("chmod a+w " + workflowdirLastPayloads + final_sqlite_file_name + ".txt")
+        commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/tmp")
+        commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/tmp")
+
+        commands.getstatusoutput("ssh webcondvm.cern.ch \"mv /tmp/" + workflowdirLastPayloads + final_sqlite_file_name + ".db /"+dropbox)
+        commands.getstatusoutput("ssh webcondvm.cern.ch \"mv /tmp/" + workflowdirLastPayloads + final_sqlite_file_name + ".txt /"+dropbox)
