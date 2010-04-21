@@ -83,10 +83,10 @@ class SiStripShotFilter : public edm::EDFilter
 //
 
 SiStripShotFilter::SiStripShotFilter(const edm::ParameterSet& iConfig)
-  : fOutPath_(iConfig.getParameter<std::string>("OutputFilePath")),
+  : fOutPath_(iConfig.getUntrackedParameter<std::string>("OutputFilePath","shotChannels.dat")),
     cablingCacheId_(0),
     digicollection_(iConfig.getParameter<edm::InputTag>("DigiCollection")),
-    zs_(iConfig.getParameter<bool>("ZeroSuppressed"))
+    zs_(iConfig.getUntrackedParameter<bool>("ZeroSuppressed",true))
  
 {
 

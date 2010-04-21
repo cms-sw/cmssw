@@ -30,8 +30,8 @@ process.siStripBuildTrackerMap.DoDifference = True
 process.siStripBuildTrackerMap.MechanicalView = True
 #process.siStripBuildTrackerMap.TkHistoMapNameVec = 'TkHMap_RunMeanGainPerCh','TkHMap_RunMeanZeroLightPerCh','TkHMap_RunMeanTickHeightPerCh','TkHMap_RunRmsGainPerCh','TkHMap_RunRmsZeroLightPerCh','TkHMap_RunRmsTickHeightPerCh'
 process.siStripBuildTrackerMap.TkHistoMapNameVec = 'TkHMap_NumberOfOnTrackCluster','TkHMap_NumberOfOfffTrackCluster','TkHMap_NumberOfCluster','TkHMap_NumberOfDigi'
-process.siStripBuildTrackerMap.MinValueVec = cms.vdouble(0,0,0,0)
-process.siStripBuildTrackerMap.MaxValueVec = cms.vdouble(0,0,0,0)
+process.siStripBuildTrackerMap.MinValueVec = cms.untracked.vdouble(0,0,0,0)
+process.siStripBuildTrackerMap.MaxValueVec = cms.untracked.vdouble(0,0,0,0)
 
 process.siStripBuildTrackerMap.HistogramFolderName = ''
 process.siStripBuildTrackerMap.PrintDebugMessages = 3
