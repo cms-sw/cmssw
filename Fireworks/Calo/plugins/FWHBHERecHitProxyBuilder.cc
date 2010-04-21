@@ -56,16 +56,16 @@ FWHBHERecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* produ
       std::stringstream s;
       s << "HBHE RecHit " << index << ", energy: " << energy << " GeV";
 
-      TEveCompound* compund = new TEveCompound("hbhe compound", s.str().c_str());
-      compund->OpenCompound();
-      setupAddElement(compund, product);
+      TEveCompound* compound = new TEveCompound("hbhe compound", s.str().c_str());
+      compound->OpenCompound();
+      setupAddElement(compound, product);
       
       std::vector<TEveVector> corners = iItem->getGeom()->getPoints((*it).detid().rawId());
       if( corners.empty() ) {
 	return;
       }
    
-      fireworks::drawEnergyScaledBox3D(corners, energy / m_maxEnergy, *compund);
+      fireworks::drawEnergyScaledBox3D(corners, energy / m_maxEnergy, *compound);
    }
 }
 
