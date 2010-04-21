@@ -35,17 +35,27 @@ private:
   const std::vector<double>& vecCerPos()  const { return m_vecCerPos  ; }
   int        apdHere () const { return m_APDHere ; }
   
+  DDName     capName () const { return ddname(m_capName) ; }
+  DDMaterial capMat  () const { return DDMaterial( ddname(m_capMat) ) ; }
+  double     capXSize() const { return m_capXSize; }
+  double     capYSize() const { return m_capYSize; }
+  double     capThick() const { return m_capThick; }
+
   DDName     cerName () const { return ddname(m_CERName) ; }
   DDMaterial cerMat  () const { return DDMaterial( ddname(m_CERMat) ) ; }
-  double     cerXSize() const { return m_CERXSize ; }
-  double     cerYSize() const { return m_CERYSize ; }
+  double     cerXSize() const { return m_CERXSize; }
+  double     cerYSize() const { return m_CERYSize; }
   double     cerThick() const { return m_CERThick; }
 
   DDName     bsiName () const { return ddname(m_BSiName) ; }
   DDMaterial bsiMat  () const { return DDMaterial( ddname(m_BSiMat) ) ; }
-  double     bsiXSize() const { return m_BSiXSize ; }
-  double     bsiYSize() const { return m_BSiYSize ; }
+  double     bsiXSize() const { return m_BSiXSize; }
+  double     bsiYSize() const { return m_BSiYSize; }
   double     bsiThick() const { return m_BSiThick; }
+
+  DDName     sglName () const { return ddname(m_SGLName) ; }
+  DDMaterial sglMat  () const { return DDMaterial( ddname(m_SGLMat) ) ; }
+  double     sglThick() const { return m_SGLThick; }
 
   DDName     atjName () const { return ddname(m_ATJName) ; }
   DDMaterial atjMat  () const { return DDMaterial( ddname(m_ATJMat) ) ; }
@@ -74,6 +84,12 @@ private:
   std::vector<double>      m_vecCerPos    ; // Translation
   int                      m_APDHere      ;
 
+  std::string              m_capName      ; // Capsule
+  std::string              m_capMat       ; // 
+  double                   m_capXSize     ; // 
+  double                   m_capYSize     ; // 
+  double                   m_capThick     ; // 
+
   std::string              m_CERName      ; // Ceramic
   std::string              m_CERMat       ; // 
   double                   m_CERXSize     ; // 
@@ -97,6 +113,10 @@ private:
   std::string              m_ATJName      ; // After-The-Junction
   std::string              m_ATJMat       ; // 
   double                   m_ATJThick     ; // 
+
+  std::string              m_SGLName      ; // APD-Silicone glue
+  std::string              m_SGLMat       ; // 
+  double                   m_SGLThick     ; // 
 
   std::string              m_AGLName      ; // APD-Glue
   std::string              m_AGLMat       ; // 

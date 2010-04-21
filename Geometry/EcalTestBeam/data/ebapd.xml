@@ -23,21 +23,31 @@
     </Vector>
     <Numeric name="APDHere"     value="1" />
 
+    <String  name="CapName"     value="ECAP"  />
+    <String  name="CapMat"      value="materials:Air"  />
+    <Numeric name="CapXSize"    value="  23*mm" />
+    <Numeric name="CapYSize"    value="  20*mm" />
+    <Numeric name="CapThick"    value="   4*mm" />
+
+    <String  name="SGLName"     value="ESGL"  />
+    <String  name="SGLMat"      value="materials:Silicone_Gel"  />
+    <Numeric name="SGLThick"    value=" 0.030*mm" />
+
     <String  name="CerName"     value="ECER"  />
     <String  name="CerMat"      value="materials:Borosilicate_Glass"  />
     <Numeric name="CerXSize"    value=" 9.1*mm" />
     <Numeric name="CerYSize"    value="10.5*mm" />
-    <Numeric name="CerThick"    value=" 1.6*mm" />
+    <Numeric name="CerThick"    value=" 1.65*mm" />
 
     <String  name="AGLName"     value="EAGL"  />
     <String  name="AGLMat"      value="materials:E_Epoxy"  />
-    <Numeric name="AGLThick"    value=" 0.200*mm" />
+    <Numeric name="AGLThick"    value=" 0.600*mm" />
 
     <String  name="BSiName"     value="EBSI"  />
     <String  name="BSiMat"      value="materials:E_Silicon"  />
     <Numeric name="BSiXSize"    value=" 7.5*mm" />
     <Numeric name="BSiYSize"    value=" 7.5*mm" />
-    <Numeric name="BSiThick"    value=" 0.400*mm + 0.200*mm" />
+    <Numeric name="BSiThick"    value=" 0.400*mm + 0.600*mm" />
 
     <String  name="APDName"     value="EAPD"  />
     <String  name="APDMat"      value="materials:E_Silicon"  />

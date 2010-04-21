@@ -12,6 +12,12 @@ DDEcalAPDAlgo::DDEcalAPDAlgo() :
   m_vecCerPos    ( ),
   m_APDHere      (0),
 
+  m_capName      (""),
+  m_capMat       (""),
+  m_capXSize     (0),
+  m_capYSize     (0),
+  m_capThick     (0),
+
   m_CERName      (""),
   m_CERMat       (""),
   m_CERXSize     (0),
@@ -35,6 +41,10 @@ DDEcalAPDAlgo::DDEcalAPDAlgo() :
   m_ATJName      (""),
   m_ATJMat       (""),
   m_ATJThick     (0),
+
+  m_SGLName      (""),
+  m_SGLMat       (""),
+  m_SGLThick     (0),
 
   m_AGLName      (""),
   m_AGLMat       (""),
@@ -62,6 +72,12 @@ void DDEcalAPDAlgo::initialize(const DDNumericArguments      & nArgs,
   m_vecCerPos= vArgs["CerPos" ] ;
   m_APDHere  = (int)(nArgs["APDHere"]) ;
 
+  m_capName  = sArgs["CapName"] ;
+  m_capMat   = sArgs["CapMat"] ;
+  m_capXSize = nArgs["CapXSize"] ;
+  m_capYSize = nArgs["CapYSize"] ;
+  m_capThick = nArgs["CapThick"] ;
+
   m_CERName  = sArgs["CerName"] ;
   m_CERMat   = sArgs["CerMat"] ;
   m_CERXSize = nArgs["CerXSize"] ;
@@ -86,6 +102,10 @@ void DDEcalAPDAlgo::initialize(const DDNumericArguments      & nArgs,
   m_ATJMat   = sArgs["ATJMat"] ;
   m_ATJThick = nArgs["ATJThick"] ;
 
+  m_SGLName  = sArgs["SGLName"] ;
+  m_SGLMat   = sArgs["SGLMat"] ;
+  m_SGLThick = nArgs["SGLThick"] ;
+
   m_AGLName  = sArgs["AGLName"] ;
   m_AGLMat   = sArgs["AGLMat"] ;
   m_AGLThick = nArgs["AGLThick"] ;
@@ -106,6 +126,24 @@ void DDEcalAPDAlgo::execute(DDCompactView& cpv) {
   LogDebug("EcalGeom") << "******** DDEcalAPDAlgo execute!" << std::endl ;
 
 //++++++++++++++++++++++++++++++++++  APD ++++++++++++++++++++++++++++++++++
+  const DDName        capDDName (capName().name()) ;
+
+  DDSolid capSolid ( DDSolidFactory::box( capDDName, capXSize()/2.,
+					  capYSize()/2., capThick()/2. ) ) ;
+	 
+  const unsigned int copyCAP ( 1 ) ;
+	 
+  const DDLogicalPart capLog ( capDDName, capMat(), capSolid ) ;
+
+  const DDName        sglDDName ( sglName().name()) ;
+
+  DDSolid sglSolid ( DDSolidFactory::box( sglDDName, capXSize()/2.,
+					  capYSize()/2., sglThick()/2. ) ) ;
+
+  const DDLogicalPart sglLog ( sglDDName, sglMat(), sglSolid ) ;
+	 
+  const unsigned int copySGL ( 1 ) ;
+
   const DDName        cerDDName ( cerName().name() ) ;
 
   DDSolid cerSolid ( DDSolidFactory::box( cerDDName, cerXSize()/2.,
@@ -135,8 +173,8 @@ void DDEcalAPDAlgo::execute(DDCompactView& cpv) {
 
   const DDName        aglDDName ( aglName().name() ) ;
 
-  DDSolid aglSolid ( DDSolidFactory::box( aglDDName, apdSide()/2.,
-					  apdSide()/2., aglThick()/2. ) ) ;
+  DDSolid aglSolid ( DDSolidFactory::box( aglDDName, bsiXSize()/2.,
+					  bsiYSize()/2., aglThick()/2. ) ) ;
 
   const DDLogicalPart aglLog ( aglDDName, aglMat(), aglSolid ) ;
 	 
@@ -179,7 +217,14 @@ void DDEcalAPDAlgo::execute(DDCompactView& cpv) {
     cpv.position(bsiLog, cerLog, copyBSi, 
 		 DDTranslation(0,0,-bsiThick()/2.+cerThick()/2.),DDRotation());
 
-    cpv.position(cerLog, parent().name(), copyCER, 
+    cpv.position(sglLog, capLog, copySGL, 
+		 DDTranslation(0,0,-sglThick()/2.+capThick()/2.),DDRotation());
+
+    cpv.position(cerLog, capLog, copyCER, 
+		 DDTranslation(0,0,-sglThick()-cerThick()/2.+capThick()/2.),
+		 DDRotation() ) ;
+
+    cpv.position(capLog, parent().name(), copyCAP, 
 		 DDTranslation(vecCerPos()[0],vecCerPos()[1],vecCerPos()[2]),
 		 DDRotation() ) ;
   }
