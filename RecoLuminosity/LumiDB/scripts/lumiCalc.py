@@ -66,7 +66,7 @@ def deliveredLumiForRun(dbsession,c,runnum):
         if delivered==0.0:
             lumidata=[str(runnum),'N/A','N/A','N/A']
         else:
-            lumidata=[str(runnum),str(totalls),'%.2f'%delivered,c.BEAMMODE]
+            lumidata=[str(runnum),str(totalls),'%.3f'%delivered,c.BEAMMODE]
         return lumidata
     except Exception,e:
         print str(e)
@@ -190,7 +190,7 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
         cursor=query.execute()
         while cursor.next():
             cmsls=cursor.currentRow()["cmsls"].data()
-            instlumi=cursor.currentRow()["instlumi"].data()
+            instlumi=cursor.currentRow()["instlumi"].data()*c.NORM
             norbits=cursor.currentRow()["norbits"].data()
             trgbitname=cursor.currentRow()["bitname"].data()
             trgdeadtime=cursor.currentRow()["trgdeadtime"].data()
@@ -343,11 +343,11 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
                     rowdata+=[str(runnum),hltpath,l1bit,'N/A','N/A','N/A']
             else:
                 if not isVerbose:
-                    rowdata+=[str(runnum),hltpath,'%.2f'%(effective[hltpath])]
+                    rowdata+=[str(runnum),hltpath,'%.3f'%(effective[hltpath])]
                 else:
                     hltprescale=trgdict[hltpath][1]
                     l1prescale=trgdict[hltpath][2]
-                    rowdata+=[str(runnum),hltpath,l1bit,str(l1prescale),str(hltprescale),'%.2f'%(effective[hltpath])]
+                    rowdata+=[str(runnum),hltpath,l1bit,str(l1prescale),str(hltprescale),'%.3f'%(effective[hltpath])]
             datatoprint.append(rowdata)
             continue
         
@@ -361,16 +361,16 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
             l1bit=trgdata[0]
             if len(trgdata)==3:
                 if not isVerbose:
-                    rowdata+=[trg,'%.2f'%(effective[trg])]
+                    rowdata+=[trg,'%.3f'%(effective[trg])]
                 else:
                     hltprescale=trgdata[1]
                     l1prescale=trgdata[2]
-                    rowdata+=[trg,l1bit,str(l1prescale),str(hltprescale),'%.2f'%(effective[trg])]
+                    rowdata+=[trg,l1bit,str(l1prescale),str(hltprescale),'%.3f'%(effective[trg])]
             else:
                 if not isVerbose:
                     rowdata+=[trg,'N/A']
                 else:
-                    rowdata+=[trg,l1bit,'N/A','N/A','%.2f'%(effective[trg])]
+                    rowdata+=[trg,l1bit,'N/A','N/A','%.3f'%(effective[trg])]
             datatoprint.append(rowdata)
     #print datatoprint
     print '==='
@@ -389,7 +389,7 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
             deadT=getDeadfractions(perlsdata)
             t=''
             for myls,de in deadT.items():
-                t+=str(myls)+':'+'%.2f'%(de)+' '
+                t+=str(myls)+':'+'%.3f'%(de)+' '
             deadtoprint.append([str(runnum),t])
         print '==='
         print tablePrinter.indent(deadtimelabels+deadtoprint,hasHeader=True,separateRows=True,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,80))
@@ -460,16 +460,16 @@ def printOverviewData(delivered,recorded,hltpath=''):
         lumiinPaths=calculateEffective(recorded[runidx][1],recordedLumi)
         if hltpath!='' and hltpath!='all':
             if lumiinPaths.has_key(hltpath):
-                rowdata+=[selectedlsStr,'%.2f'%(recordedLumi),'%.2f'%(lumiinPaths[hltpath])]
+                rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'%.3f'%(lumiinPaths[hltpath])]
                 totalRecordedInPath+=lumiinPaths[hltpath]
             else:
-                rowdata+=[selectedlsStr,'%.2f'%(recordedLumi),'N/A']
+                rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'N/A']
         else:
-            rowdata+=[selectedlsStr,'%.2f'%(recordedLumi),'%.2f'%(recordedLumi)]
+            rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'%.3f'%(recordedLumi)]
         totalSelectedLS+=len(selectedls)
         totalRecorded+=recordedLumi
         datatable.append(rowdata)
-    totaltable=[[str(totalDeliveredLS),'%.2f'%(totalDelivered),str(totalSelectedLS),'%.2f'%(totalRecorded),'%.2f'%(totalRecordedInPath)]]
+    totaltable=[[str(totalDeliveredLS),'%.3f'%(totalDelivered),str(totalSelectedLS),'%.3f'%(totalRecorded),'%.3f'%(totalRecordedInPath)]]
     print tablePrinter.indent(toprowlabels+datatable,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,10))
     print '=== Total : '
     print tablePrinter.indent(lastrowlabels+totaltable,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,20))

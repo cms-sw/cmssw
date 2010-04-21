@@ -58,7 +58,8 @@ def createLumi(dbsession):
     summary.setNotNullConstraint('LUMISECTIONQUALITY',True)
     summary.setNotNullConstraint('BEAMENERGY',True)
     summary.setNotNullConstraint('BEAMSTATUS',True)
-    
+
+    summary.setUniqueConstraint(('RUNNUM','LUMIVERSION','LUMILSNUM'))
     db.createTable(summary,True)
     #lumi detail table
     detail=coral.TableDescription()
@@ -75,6 +76,9 @@ def createLumi(dbsession):
     detail.setNotNullConstraint('BXLUMIERROR',True)
     detail.setNotNullConstraint('BXLUMIQUALITY',True)
     detail.setNotNullConstraint('ALGONAME',True)
+
+    detail.setUniqueConstraint(('LUMISUMMARY_ID','ALGONAME'))
+
     db.createTable(detail,True)
     #trg table
     trg=coral.TableDescription()
