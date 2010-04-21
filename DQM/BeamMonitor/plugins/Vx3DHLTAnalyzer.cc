@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.71 2010/04/19 17:10:52 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.72 2010/04/19 17:35:56 dinardo Exp $
 //
 //
 
@@ -182,12 +182,12 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
   double sumlog = 0.;
   double precision = 1.e-9;
 
-//   par[0] = K(0,0)
-//   par[1] = K(1,1)
-//   par[2] = K(2,2)
-//   par[3] = K(0,1) = K(1,0)
-//   par[4] = K(1,2) = K(2,1)
-//   par[5] = K(0,2) = K(2,0)
+//   par[0] = K(0,0) --> Var[X]
+//   par[1] = K(1,1) --> Var[Y]
+//   par[2] = K(2,2) --> Var[Z]
+//   par[3] = K(0,1) = K(1,0) --> Cov[X,Y]
+//   par[4] = K(1,2) = K(2,1) --> Cov[Y,Z] --> dy/dz
+//   par[5] = K(0,2) = K(2,0) --> Cov[X,Z] --> dx/dz
 //   par[6] = mean x
 //   par[7] = mean y
 //   par[8] = mean z
@@ -204,8 +204,8 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 	      K[1][1] = fabs(par[1]) + VxErrCorr*VxErrCorr * fabs(Vertices[i].Covariance[1][1]);
 	      K[2][2] = fabs(par[2]) + VxErrCorr*VxErrCorr * fabs(Vertices[i].Covariance[2][2]);
 	      K[0][1] = K[1][0] = par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[0][1];
-	      K[1][2] = K[2][1] = par[4] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[1][2];
-	      K[0][2] = K[2][0] = par[5] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[0][2];
+	      K[1][2] = K[2][1] = par[4]*(par[2]-par[0]) - par[5]*par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[1][2];
+	      K[0][2] = K[2][0] = par[5]*(par[2]-par[1]) - par[4]*par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[0][2];
 	    }
 	  else
 	    {
@@ -213,8 +213,8 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 	      K[1][1] = fabs(par[1]);
 	      K[2][2] = fabs(par[2]);
 	      K[0][1] = K[1][0] = par[3];
-	      K[1][2] = K[2][1] = par[4];
-	      K[0][2] = K[2][0] = par[5];
+	      K[1][2] = K[2][1] = par[4]*(par[2]-par[0]) - par[5]*par[3];
+	      K[0][2] = K[2][0] = par[5]*(par[2]-par[1]) - par[4]*par[3];
 	    }
 
 	  det = K[0][0]*(K[1][1]*K[2][2] - K[1][2]*K[1][2]) -
@@ -306,8 +306,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance, 0., 0.);
 	  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance, 0., 0.);
 	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance, 0., 0.);
-	  Gauss3D->SetParameter(4,"cov yz", *(it+4), parDistance, 0., 0.);
-	  Gauss3D->SetParameter(5,"cov xz", *(it+5), parDistance, 0., 0.);
+	  Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistance, 0., 0.);
+	  Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(6,"mean x", *(it+6)+deltaMean, parDistance, 0., 0.);
 	  Gauss3D->SetParameter(7,"mean y", *(it+7), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(8,"mean z", *(it+8), parDistance, 0., 0.);
@@ -362,8 +362,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance, 0., 0.);
 	  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance, 0., 0.);
 	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance, 0., 0.);
-	  Gauss3D->SetParameter(4,"cov yz", *(it+4), parDistance, 0., 0.);
-	  Gauss3D->SetParameter(5,"cov xz", *(it+5), parDistance, 0., 0.);
+	  Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistance, 0., 0.);
+	  Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(7,"mean y", *(it+7)+deltaMean, parDistance, 0., 0.);
 	  Gauss3D->SetParameter(8,"mean z", *(it+8), parDistance, 0., 0.);
@@ -419,8 +419,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance, 0., 0.);
 	  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance, 0., 0.);
 	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance, 0., 0.);
-	  Gauss3D->SetParameter(4,"cov yz", *(it+4), parDistance, 0., 0.);
-	  Gauss3D->SetParameter(5,"cov xz", *(it+5), parDistance, 0., 0.);
+	  Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistance, 0., 0.);
+	  Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(8,"mean z", *(it+8)+deltaMean, parDistance, 0., 0.);
@@ -465,8 +465,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance, 0., 0.);
       Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance, 0., 0.);
       Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance, 0., 0.);
-      Gauss3D->SetParameter(4,"cov yz", *(it+4), parDistance, 0., 0.);
-      Gauss3D->SetParameter(5,"cov xz", *(it+5), parDistance, 0., 0.);
+      Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistance, 0., 0.);
+      Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistance, 0., 0.);
       Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance, 0., 0.);
       Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance, 0., 0.);
       Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance, 0., 0.);
@@ -509,8 +509,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance*5., 0, 0);
 	  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance*100., 0, 0);
 	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance*5., 0, 0);
-	  Gauss3D->SetParameter(4,"cov yz", *(it+4), parDistance*5., 0, 0);
-	  Gauss3D->SetParameter(5,"cov xz", *(it+5), parDistance*5., 0, 0);
+	  Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistance*5., 0, 0);
+	  Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistance*5., 0, 0);
 	  Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance*5., 0, 0);
 	  Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance*5., 0, 0);
 	  Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance*50., 0, 0);
@@ -553,8 +553,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	      Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance*10., 0, 0);
 	      Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance*500., 0, 0);
 	      Gauss3D->SetParameter(3,"cov xy", 0.0, parDistance*10., 0, 0);
-	      Gauss3D->SetParameter(4,"cov yz", 0.0, parDistance*10., 0, 0);
-	      Gauss3D->SetParameter(5,"cov xz", 0.0, parDistance*10., 0, 0);
+	      Gauss3D->SetParameter(4,"dydz  ", 0.0, parDistance*10., 0, 0);
+	      Gauss3D->SetParameter(5,"dxdz  ", 0.0, parDistance*10., 0, 0);
 	      Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance*10., 0, 0);
 	      Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance*10., 0, 0);
 	      Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance*100., 0, 0);
@@ -597,8 +597,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 		  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance*100., 0, 0);
 		  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance*500., 0, 0);
 		  Gauss3D->SetParameter(3,"cov xy", 0.0, parDistance*10., 0, 0);
-		  Gauss3D->SetParameter(4,"cov yz", 0.0, parDistance*10., 0, 0);
-		  Gauss3D->SetParameter(5,"cov xz", 0.0, parDistance*10., 0, 0);
+		  Gauss3D->SetParameter(4,"dydz  ", 0.0, parDistance*10., 0, 0);
+		  Gauss3D->SetParameter(5,"dxdz  ", 0.0, parDistance*10., 0, 0);
 		  Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance*100., 0, 0);
 		  Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance*100., 0, 0);
 		  Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance*500., 0, 0);
@@ -873,7 +873,6 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 
       if (dataFromFit == true)
 	{
-	  double dxdz, dydz;
 	  vector<double> fitResults;
 
 	  fitResults.push_back(Vx_X->getTH1()->GetRMS()*Vx_X->getTH1()->GetRMS());
@@ -897,8 +896,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	      cout << "var y -->  " << fitResults[1] << " +/- " << fitResults[1+nParams] << endl;
 	      cout << "var z -->  " << fitResults[2] << " +/- " << fitResults[2+nParams] << endl;
 	      cout << "cov xy --> " << fitResults[3] << " +/- " << fitResults[3+nParams] << endl;
-	      cout << "cov yz --> " << fitResults[4] << " +/- " << fitResults[4+nParams] << endl;
-	      cout << "cov xz --> " << fitResults[5] << " +/- " << fitResults[5+nParams] << endl;
+	      cout << "dydz   --> " << fitResults[4] << " +/- " << fitResults[4+nParams] << endl;
+	      cout << "dxdz   --> " << fitResults[5] << " +/- " << fitResults[5+nParams] << endl;
 	      cout << "mean x --> " << fitResults[6] << " +/- " << fitResults[6+nParams] << endl;
 	      cout << "mean y --> " << fitResults[7] << " +/- " << fitResults[7+nParams] << endl;
 	      cout << "mean z --> " << fitResults[8] << " +/- " << fitResults[8+nParams] << endl;
@@ -906,15 +905,12 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 
 	  if (goodData == 0)
 	    {		 
-	      dxdz = (fitResults[3]*fitResults[4] + fitResults[5]*(fitResults[2] - fitResults[1])) / ((fitResults[2]-fitResults[1])*(fitResults[2]-fitResults[0]) - fitResults[3]*fitResults[3]);
-	      dydz = (fitResults[3]*fitResults[5] + fitResults[4]*(fitResults[2] - fitResults[0])) / ((fitResults[2]-fitResults[1])*(fitResults[2]-fitResults[0]) - fitResults[3]*fitResults[3]);
-		  
 	      vals.push_back(fitResults[6]);
 	      vals.push_back(fitResults[7]);
 	      vals.push_back(fitResults[8]);
 	      vals.push_back(sqrt(fabs(fitResults[2])));
-	      vals.push_back(dxdz);
-	      vals.push_back(dydz);
+	      vals.push_back(fitResults[5]);
+	      vals.push_back(fitResults[4]);
 	      vals.push_back(sqrt(fabs(fitResults[0])));
 	      vals.push_back(sqrt(fabs(fitResults[1])));
 
@@ -922,8 +918,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	      vals.push_back(powf(fitResults[7+nParams],2.));
 	      vals.push_back(powf(fitResults[8+nParams],2.));
 	      vals.push_back(powf(fabs(fitResults[2+nParams]) / (2.*sqrt(fabs(fitResults[2]))),2.));
-	      vals.push_back(0.0);
-	      vals.push_back(0.0);
+	      vals.push_back(powf(fitResults[5+nParams],2.));
+	      vals.push_back(powf(fitResults[4+nParams],2.));
 	      vals.push_back(powf(fabs(fitResults[0+nParams]) / (2.*sqrt(fabs(fitResults[0]))),2.));
 	      vals.push_back(powf(fabs(fitResults[1+nParams]) / (2.*sqrt(fabs(fitResults[1]))),2.));
 	    }
@@ -1068,12 +1064,12 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       myLinFit->SetParameter(1, 0.0);
       sZlumi->getTH1()->Fit("myLinFit","QR");
 
-      dxdzlumi->ShiftFillLast(vals[4], (vals[4] != 0.) ? 0.0001 : 0.0, nLumiReset);
+      dxdzlumi->ShiftFillLast(vals[4], sqrt(vals[12]), nLumiReset);
       myLinFit->SetParameter(0, dxdzlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       dxdzlumi->getTH1()->Fit("myLinFit","QR");
 
-      dydzlumi->ShiftFillLast(vals[5], (vals[5] != 0.) ? 0.0001 : 0.0, nLumiReset);
+      dydzlumi->ShiftFillLast(vals[5], sqrt(vals[13]), nLumiReset);
       myLinFit->SetParameter(0, dydzlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       dydzlumi->getTH1()->Fit("myLinFit","QR");
