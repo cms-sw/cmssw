@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.72 2010/04/19 17:35:56 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.73 2010/04/21 06:26:51 dinardo Exp $
 //
 //
 
@@ -204,8 +204,8 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 	      K[1][1] = fabs(par[1]) + VxErrCorr*VxErrCorr * fabs(Vertices[i].Covariance[1][1]);
 	      K[2][2] = fabs(par[2]) + VxErrCorr*VxErrCorr * fabs(Vertices[i].Covariance[2][2]);
 	      K[0][1] = K[1][0] = par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[0][1];
-	      K[1][2] = K[2][1] = par[4]*(par[2]-par[0]) - par[5]*par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[1][2];
-	      K[0][2] = K[2][0] = par[5]*(par[2]-par[1]) - par[4]*par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[0][2];
+	      K[1][2] = K[2][1] = par[4]*(par[2]-par[1]) - par[5]*par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[1][2];
+	      K[0][2] = K[2][0] = par[5]*(par[2]-par[0]) - par[4]*par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[0][2];
 	    }
 	  else
 	    {
@@ -213,8 +213,8 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 	      K[1][1] = fabs(par[1]);
 	      K[2][2] = fabs(par[2]);
 	      K[0][1] = K[1][0] = par[3];
-	      K[1][2] = K[2][1] = par[4]*(par[2]-par[0]) - par[5]*par[3];
-	      K[0][2] = K[2][0] = par[5]*(par[2]-par[1]) - par[4]*par[3];
+	      K[1][2] = K[2][1] = par[4]*(par[2]-par[1]) - par[5]*par[3];
+	      K[0][2] = K[2][0] = par[5]*(par[2]-par[0]) - par[4]*par[3];
 	    }
 
 	  det = K[0][0]*(K[1][1]*K[2][2] - K[1][2]*K[1][2]) -
