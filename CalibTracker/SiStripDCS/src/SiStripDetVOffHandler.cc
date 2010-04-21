@@ -111,21 +111,12 @@ void popcon::SiStripDetVOffHandler::setUserTextLog()
   std::stringstream ss;
   ss << "@@@ Number of payloads transferred " << resultVec.size() << "." << std::endl;
   std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::const_iterator it = resultVec.begin();
-  // ss << "year month day hour minute second \t #LV off \t #HV off" << std::endl;
   ss << "time \t #LV off \t #HV off" << std::endl;
   for( ; it != resultVec.end(); ++it ) {
     ss << boost::posix_time::to_iso_extended_string( cond::time::to_boost(it->second) );
-    //     coral::TimeStamp coralTime(cond::time::to_boost(it->second));
-    //     ss << coralTime.year() << "   "
-    //        << coralTime.month() << "    "
-    //        << coralTime.day() << "   "
-    //        << coralTime.hour() << "    "
-    //        << coralTime.minute() << "     "
-    //        << coralTime.second();
     ss << "\t\t  " << it->first->getLVoffCounts() << "\t\t  " << it->first->getHVoffCounts() << std::endl;
   }
 
-  std::cout << ss.str();
   if( debug_ ) {
     ss << "PayloadNo/Badmodules/NoAdded/NoRemoved: ";
     std::vector< std::vector<uint32_t> > payloadStats = modHVBuilder->getPayloadStats();
