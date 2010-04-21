@@ -66,7 +66,7 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     quantity = cms.untracked.string("daughter(1).masterClone.phi")
     ),
     
-<<<<<<< ZMuMuAnalysisNtupler_cff.py
+
 #    cms.PSet(
 #    tag = cms.untracked.string("Dau1NofHit"),
 #    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon=1 || daughter(0).masterClone.isTrackerMuon=1)?daughter(0).masterClone.numberOfValidHits:daughter(0).masterClone.outerTrack.numberOfValidHits")
@@ -87,29 +87,7 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
 #    tag = cms.untracked.string("Dau1NofMuMatches"),
 #    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon==1 ||daughter(0).masterClone.isStandAloneMuon==1  ) ? daughter(0).masterClone.numberOfMatches : 0")
 #    ),
-=======
-    cms.PSet(
-    tag = cms.untracked.string("Dau1NofHit"),
-#    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon=1 || daughter(0).masterClone.isTrackerMuon=1)?daughter(0).masterClone.numberOfValidHits:daughter(0).masterClone.outerTrack.numberOfValidHits")
-    quantity = cms.untracked.string("?1?0:1")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("Dau1NofHitTk"),
-    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon==1 || daughter(0).masterClone.isTrackerMuon=1)?daughter(0).masterClone.innerTrack.numberOfValidHits:0")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("Dau1NofHitSta"),
-    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon==1 ||daughter(0).masterClone.isStandAloneMuon==1  ) ? daughter(0).masterClone.outerTrack.numberOfValidHits : 0")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("Dau1NofMuChambers"),
-    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon==1 ||daughter(0).masterClone.isStandAloneMuon==1  ) ? daughter(0).masterClone.numberOfChambers :0")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("Dau1NofMuMatches"),
-    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon==1 ||daughter(0).masterClone.isStandAloneMuon==1  ) ? daughter(0).masterClone.numberOfMatches : 0")
-    ),
->>>>>>> 1.19
+
     cms.PSet(
     tag = cms.untracked.string("Dau1Iso"),
     quantity = cms.untracked.string("daughter(0).masterClone.userIso(3)")
