@@ -4,7 +4,7 @@
 //
 // Original Author:  Sebastian Naumann
 //         Created:  Tue Apr 20 12:45:30 CEST 2010
-// $Id: ImpactParameterSelector.h,v 1.3 2010/04/21 11:20:09 snaumann Exp $
+// $Id: ImpactParameterSelector.h,v 1.4 2010/04/21 11:52:16 snaumann Exp $
 //
 //
 
@@ -84,14 +84,14 @@ ImpactParameterSelector<C>::produce(edm::Event& event, const edm::EventSetup& se
       reco::GsfTrackRef trackRef = iter->gsfTrack();
       if(!(trackRef.isNonnull() && trackRef.isAvailable()))
 	continue;
-      reco::TransientTrack transTrack = trackBuilder->build(trackRef);
+      transTrack = trackBuilder->build(trackRef);
     }
     // muons
     else {
       reco::TrackRef trackRef = iter->track();
       if(!(trackRef.isNonnull() && trackRef.isAvailable()))
 	continue;
-      reco::TransientTrack transTrack = trackBuilder->build(trackRef);
+      transTrack = trackBuilder->build(trackRef);
     }
 
     double ipSignificance = IPTools::absoluteTransverseImpactParameter(transTrack, vertex).second.significance();
