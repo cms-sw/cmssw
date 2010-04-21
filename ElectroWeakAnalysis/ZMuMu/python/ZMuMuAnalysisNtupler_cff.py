@@ -168,6 +168,7 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     tag = cms.untracked.string("VtxNormChi2"),
     quantity = cms.untracked.string("vertexNormalizedChi2")
     ),
+
 #    cms.PSet(
 #    tag = cms.untracked.string("Dau1TrkChi2"),
 #    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon==1 || daughter(0).masterClone.isTrackerMuon=1)?daughter(0).masterClone.innerTrack.normalizedChi2:0")
@@ -239,6 +240,66 @@ zMuMu=(
     )
 
 zGolden=(
+
+
+    cms.PSet(
+    tag = cms.untracked.string("Dau1NofHit"),
+    quantity = cms.untracked.string("daughter(0).masterClone.numberOfValidHits")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1NofHitTk"),
+    quantity = cms.untracked.string("daughter(0).masterClone.innerTrack.numberOfValidHits")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1NofHitSta"),
+    quantity = cms.untracked.string("daughter(0).masterClone.outerTrack.numberOfValidHits")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1NofMuChambers"),
+    quantity = cms.untracked.string(" daughter(0).masterClone.numberOfChambers ")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1NofMuMatches"),
+    quantity = cms.untracked.string("daughter(0).masterClone.numberOfMatches")
+    ),
+
+    cms.PSet(
+    tag = cms.untracked.string("Dau1TrkChi2"),
+    quantity = cms.untracked.string("daughter(0).masterClone.innerTrack.normalizedChi2")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1MuEnergyHad"),
+    quantity = cms.untracked.string("daughter(0).masterClone.calEnergy.had")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1MuEnergyEm"),
+    quantity = cms.untracked.string("daughter(0).masterClone.calEnergy.em")
+    ),
+
+
+    
+    cms.PSet(
+    tag = cms.untracked.string("Dau2NofHitSta"),
+    quantity = cms.untracked.string("daughter(1).masterClone.outerTrack.numberOfValidHits")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2NofMuChambers"),
+    quantity = cms.untracked.string("daughter(1).masterClone.numberOfChambers")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2NofMuMatches"),
+    quantity = cms.untracked.string("daughter(1).masterClone.numberOfMatches")
+    ),
+
+
+    cms.PSet(
+    tag = cms.untracked.string("Dau2MuEnergyHad"),
+    quantity = cms.untracked.string("daughter(1).masterClone.calEnergy.had")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2MuEnergyEm"),
+    quantity = cms.untracked.string("daughter(1).masterClone.calEnergy.em")
+    ),
 
     cms.PSet(
     tag = cms.untracked.string("Dau1Chi2"),
