@@ -49,14 +49,23 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0015/34BA4AF3-9A1B-DF11-A66C-003048678FA6.root',
-        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/D6FD0DFE-551B-DF11-8AB0-001A928116C2.root',
-        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/92E1636F-531B-DF11-BB63-0018F3D09654.root',
-        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/50312646-521B-DF11-9FDC-003048D15DCA.root',
-        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/4A4D7672-561B-DF11-BBBC-001A92811744.root',
-        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/2E406496-541B-DF11-A329-001731AF678D.root',
-        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/28311970-531B-DF11-901B-001731AF6725.root',
-        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/1ED9D7F3-541B-DF11-8DA8-001A9281170A.root'
+        '/store/relval/CMSSW_3_6_0/RelValLM1_sfts/GEN-SIM-RECO/MC_36Y_V4-v1/0014/D8F19D3E-AC49-DF11-9F9A-002618943852.root',
+        '/store/relval/CMSSW_3_6_0/RelValLM1_sfts/GEN-SIM-RECO/MC_36Y_V4-v1/0014/D60BAD49-FC49-DF11-9A39-003048678E8A.root',
+        '/store/relval/CMSSW_3_6_0/RelValLM1_sfts/GEN-SIM-RECO/MC_36Y_V4-v1/0014/C8526DD3-AB49-DF11-888E-001A92971ADC.root',
+        '/store/relval/CMSSW_3_6_0/RelValLM1_sfts/GEN-SIM-RECO/MC_36Y_V4-v1/0014/86314B81-AB49-DF11-B855-00304867BEDE.root',
+        '/store/relval/CMSSW_3_6_0/RelValLM1_sfts/GEN-SIM-RECO/MC_36Y_V4-v1/0014/7290CE76-AB49-DF11-AD07-00261894388A.root',
+        '/store/relval/CMSSW_3_6_0/RelValLM1_sfts/GEN-SIM-RECO/MC_36Y_V4-v1/0014/1E2E323C-AC49-DF11-A632-002354EF3BDA.root',
+        '/store/relval/CMSSW_3_6_0/RelValLM1_sfts/GEN-SIM-RECO/MC_36Y_V4-v1/0013/EED059EC-9849-DF11-B324-001A92971B06.root'
+
+
+#        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0015/34BA4AF3-9A1B-DF11-A66C-003048678FA6.root',
+#        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/D6FD0DFE-551B-DF11-8AB0-001A928116C2.root',
+#        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/92E1636F-531B-DF11-BB63-0018F3D09654.root',
+#        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/50312646-521B-DF11-9FDC-003048D15DCA.root',
+#        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/4A4D7672-561B-DF11-BBBC-001A92811744.root',
+#        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/2E406496-541B-DF11-A329-001731AF678D.root',
+#        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/28311970-531B-DF11-901B-001731AF6725.root',
+#        '/store/relval/CMSSW_3_5_1/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/1ED9D7F3-541B-DF11-8DA8-001A9281170A.root'
 
 #        '/store/relval/CMSSW_3_5_0/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0014/5C2F32FF-6C13-DF11-9D99-002354EF3BDD.root',
 #        '/store/relval/CMSSW_3_5_0/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V21-v1/0013/DA73D117-5713-DF11-B4A7-0017313F02F2.root',
@@ -106,7 +115,7 @@ process.source = cms.Source("PoolSource",
 #        '/store/relval/CMSSW_3_3_4/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V9-v1/0001/08E7BE08-52D5-DE11-9635-001731AF6B83.root'
         )
 )
-process.DQMStore.referenceFileName = 'file:./DQM_V0001_R000000001__RelValLM1_sfts__CMSSW_3_4_2-MC_3XY_V15-v1__GEN-SIM-RECO.root'
+process.DQMStore.referenceFileName = 'file:./DQM_V0001_R000000001__RelValLM1_sfts__CMSSW_3_6_0_pre3-MC_36Y_V2-v2__GEN-SIM-RECO.root'
 process.dqmSaver.referenceHandling = 'all'
 
 
