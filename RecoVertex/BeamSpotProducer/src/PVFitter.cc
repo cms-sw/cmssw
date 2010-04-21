@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: PVFitter.cc,v 1.7 2010/04/13 08:43:43 adamwo Exp $
+   version $Id: PVFitter.cc,v 1.8 2010/04/16 19:09:30 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -172,6 +172,8 @@ void PVFitter::readEvent(const edm::Event& iEvent)
 
 bool PVFitter::runFitter() {
 
+    std::cout << " Number of PVs collected for PVFitter: " << pvStore_.size() << std::endl;
+    
     if ( pvStore_.size() <= minNrVertices_ ) return false;
 
     //bool fit_ok = false;  
