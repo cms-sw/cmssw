@@ -21,28 +21,24 @@ process.load('Configuration/StandardSequences/EndOfProcess_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
+#process.Tracer=cms.Service("Tracer")
+
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.14 $'),
+    version = cms.untracked.string('$Revision: 1.6 $'),
     annotation = cms.untracked.string('promptCollisionReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
-
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
-
 process.options = cms.untracked.PSet(
-    Rethrow = cms.untracked.vstring('ProductNotFound'),
-    wantSummary = cms.untracked.bool(True) 
+    Rethrow = cms.untracked.vstring('ProductNotFound')
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring( 
-#'rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/123/615/1A913333-B7E2-DE11-AEEA-001D09F2960F.root'
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/009/4E4C78E1-8AE6-DE11-B2EA-0030487D0D3A.root'   )
+fileNames=cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/Commissioning10/HcalNZS/RAW/v2/000/126/701/A25CD078-CA11-DF11-B051-001D09F24E39.root')
+#    fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/HcalNZS/RAW/v1/000/120/347/0ED734F0-F5CE-DE11-AE27-001D09F24493.root')
 )
-
-#process.source.skipEvents = cms.untracked.uint32(16800)
 
 # Output definition
 process.FEVT = cms.OutputModule("PoolOutputModule",
@@ -82,6 +78,7 @@ process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 10000
 process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+
 
 ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
@@ -127,7 +124,7 @@ process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 1
 ##Preshower
 process.ecalPreshowerRecHit.ESBaseline = 0
 
-##Preshower algo for data is different than for MC
+##Preshower algo for data is different than for MC 
 process.ecalPreshowerRecHit.ESRecoAlgo = cms.untracked.int32(1)
 
 ## HCAL temporary fixes
@@ -152,10 +149,11 @@ process.trackerOnlyConversions.DeltaPhi = cms.double(.2)
 ###
 ###############################################################################################
 
+
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
-process.reconstruction_step = cms.Path(process.reconstruction)
+process.reconstruction_step = cms.Path(process.reconstruction_HcalNZS)
 process.dqmoffline_step = cms.Path(process.DQMOffline)
 process.pathALCARECOHcalCalHOCosmics = cms.Path(process.seqALCARECOHcalCalHOCosmics)
 process.pathALCARECOMuAlStandAloneCosmics = cms.Path(process.seqALCARECOMuAlStandAloneCosmics*process.ALCARECOMuAlStandAloneCosmicsDQM)
@@ -204,4 +202,4 @@ process.out_step = cms.EndPath(process.FEVT)
 process.ALCARECOStreamCombinedOutPath = cms.EndPath(process.ALCARECOStreamCombined)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOSiStripCalZeroBias,process.pathALCARECOTkAlMinBias,process.pathALCARECOTkAlMuonIsolated,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOMuAlOverlaps,process.pathALCARECOHcalCalIsoTrk,process.pathALCARECOHcalCalDijets,process.endjob_step,process.out_step,process.ALCARECOStreamCombinedOutPath)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOHcalCalMinBias,process.endjob_step,process.out_step,process.ALCARECOStreamCombinedOutPath)
