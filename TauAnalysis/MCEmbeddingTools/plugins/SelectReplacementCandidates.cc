@@ -56,7 +56,7 @@ void SelectReplacementCandidates::produce(edm::Event& iEvent, const edm::EventSe
 
 }
 
-void SelectReplacementCandidates::beginJob(const edm::EventSetup& )
+void SelectReplacementCandidates::beginJob()
 {
 
 }

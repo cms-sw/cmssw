@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("EXAMPLE")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 process.TFileService = cms.Service("TFileService",  fileName = cms.string("histo.root")          )
 
@@ -23,7 +23,8 @@ process.RandomNumberGeneratorService.newSource =  cms.PSet(
          engineName = cms.untracked.string('HepJamesRandom')
 ) 
 
-process.GlobalTag.globaltag = 'MC_31X_V5::All' # 31x
+#process.GlobalTag.globaltag = 'MC_31X_V5::All' # 31x
+process.GlobalTag.globaltag = 'MC_3XY_V26::All' # 356
 #process.GlobalTag.globaltag = 'STARTUP3X_V8A::All' # 33x
 #process.GlobalTag.globaltag = 'STARTUP31X_V4::All' # 31x
 

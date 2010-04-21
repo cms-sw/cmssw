@@ -31,7 +31,7 @@ public:
 	~SelectReplacementCandidates();
 
 	virtual void produce(edm::Event& iEvent, const edm::EventSetup& iConfig);
-	virtual void beginJob(const edm::EventSetup& );
+	virtual void beginJob();
 	virtual void endJob();
 
 private:

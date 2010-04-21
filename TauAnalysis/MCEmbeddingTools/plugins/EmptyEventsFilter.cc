@@ -13,7 +13,7 @@
 //
 // Original Author:  Manuel Zeise
 //         Created:  Wed Oct 17 10:06:52 CEST 2007
-// $Id: EmptyEventsFilter.cc,v 1.1.2.1 2009/10/07 08:32:55 zeise Exp $
+// $Id: EmptyEventsFilter.cc,v 1.2 2009/10/25 12:38:21 veelken Exp $
 //
 //
 
@@ -47,7 +47,7 @@ class EmptyEventsFilter : public edm::EDFilter {
       ~EmptyEventsFilter();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -132,7 +132,7 @@ EmptyEventsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EmptyEventsFilter::beginJob(const edm::EventSetup&)
+EmptyEventsFilter::beginJob()
 {
 }
 
