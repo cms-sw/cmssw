@@ -22,7 +22,8 @@
    -d, --data   = DATA: Data file, or directory with data files.
    -I, --IOVbase = IOVBASE: options: runbase(default), lumibase, timebase
    -o, --overwrite : Overwrite results files when copying.
-   -m, --mergedSqlite = MERGEDSQLITE: Filename of merged sqlite file. default is Combined.db
+   -O, --Output = OUTPUT: Output directory for data files (workflow directory)
+   -m, --mergedSqlite = MERGEDSQLITE: Filename of merged sqlite file. default is Combined.db (disable for the moment)
    -n, --newarchive : Create a new archive directory when copying.
    -t, --tag    = TAG: Database tag name.
    -T, --Test   : Upload files to Test dropbox for data validation.
@@ -212,6 +213,8 @@ if __name__ == '__main__':
 	#sys.exit()
 
     workflowdir             = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/test/workflow/"
+    if option.Output:
+        workflowdir = option.Output
     workflowdirLastPayloads = workflowdir + "lastPayloads/"
     workflowdirTmp          = workflowdir + "tmp/"
     workflowdirArchive      = workflowdir + "archive/"
