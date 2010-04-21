@@ -39,8 +39,8 @@ class SiStripFEDDumpPlugin : public edm::EDAnalyzer
 //
 
 SiStripFEDDumpPlugin::SiStripFEDDumpPlugin(const edm::ParameterSet& iConfig)
-  : rawDataTag_(iConfig.getParameter<edm::InputTag>("RawDataTag")),
-    fedIdToDump_(iConfig.getParameter<unsigned int>("FEDID"))
+  : rawDataTag_(iConfig.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("source",""))),
+    fedIdToDump_(iConfig.getUntrackedParameter<unsigned int>("FEDID",50))
 {
   if ( (fedIdToDump_ > FEDNumbering::MAXSiStripFEDID) || (fedIdToDump_ < FEDNumbering::MINSiStripFEDID) )
     edm::LogError("SiStripFEDDump") << "FED ID " << fedIdToDump_ << " is not valid. "
