@@ -11,16 +11,26 @@ process.options.FailPath = cms.untracked.vstring('ProductNotFound')
 process.MessageLogger.cerr.threshold = ''
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
-# source
-process.source = cms.Source("PoolSource", 
-     fileNames = cms.untracked.vstring(
-#    'file:/scratch1/cms/data/summer09/aodsim/zmumu/0016/889E7356-0084-DE11-AF48-001E682F8676.root'
-#    'file:testEWKMuSkim.root'
-  "rfio:/castor/cern.ch/user/f/fabozzi/mc7tev/F8EE38AF-1EBE-DE11-8D19-00304891F14E.root"
+
+# Input files (on disk)
+process.source = cms.Source("PoolSource",
+                            fileNames = cms.untracked.vstring(
+    "file:MC_MinBias_81_1.root"
     
     )
-)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+                            )
+#import os
+#dirname = "/tmp/degrutto/MinBiasMC/"
+#dirlist = os.listdir(dirname)
+#basenamelist = os.listdir(dirname + "/")
+#for basename in basenamelist:
+#                process.source.fileNames.append("file:" + dirname + "/" + basename)
+#                print "Number of files to process is %s" % (len(process.source.fileNames))
+
+                
+
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -30,9 +40,8 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 ### subskim
 from ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff import *
 
-
 process.load("ElectroWeakAnalysis.Skimming.zMuMuSubskimOutputModule_cfi")
-
+process.zMuMuSubskimOutputModule.fileName = 'testZMuMuSubskim_oneshot_Test.root'
 process.outpath = cms.EndPath(process.zMuMuSubskimOutputModule)
 
 ### analysis
@@ -40,7 +49,7 @@ from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("ewkZMuMuCategories_oneshot.root")
+    fileName = cms.string("ewkZMuMuCategories_oneshot_all_3_Test.root")
 )
 
 
@@ -51,14 +60,13 @@ process.TFileService = cms.Service(
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesPlots_cff")
 
 ### ntuple
-process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesNtuples_cff") 
-process.ntuplesOut.fileName = cms.untracked.string('NtupleLoose_test_oneshot.root')
+process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuAnalysisNtupler_cff")
+process.ntuplesOut.fileName = cms.untracked.string('file:NtupleLooseTestNew_oneshot_all_Test.root')
 
 
 
 # SubSkim Output module configuration
 
-process.zMuMuSubskimOutputModule.fileName = 'testZMuMuSubskim_oneshot.root'
 
 
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuAnalysisSchedules_cff") 
