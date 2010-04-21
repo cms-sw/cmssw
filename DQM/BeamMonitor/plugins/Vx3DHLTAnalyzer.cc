@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.73 2010/04/21 06:26:51 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.74 2010/04/21 06:38:38 dinardo Exp $
 //
 //
 
@@ -734,8 +734,9 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
       outputFile << "EndTimeOfFit " << formatTime(endTimeOfFit / pow(2,32)) << endl;
       outputFile << "LumiRange " << beginLumiOfFit << " - " << endLumiOfFit << endl;
       outputFile << "Type " << dataType << endl;
-      // 3D Vertexing with Pixel Tracks good data = Type 3
-      // Bad data = Type -1
+      // 3D Vertexing with Pixel Tracks:
+      // Good data = Type  3
+      // Bad data  = Type -1
 
       BufferString << *(it+0);
       outputFile << "X0 " << BufferString.str().c_str() << endl;
