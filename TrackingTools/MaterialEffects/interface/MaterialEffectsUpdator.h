@@ -7,8 +7,8 @@
  *  in this class.
  *  Ported from ORCA.
  *
- *  $Date: 2007/08/22 23:05:20 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/05/08 17:36:38 $
+ *  $Revision: 1.7 $
  *  \author todorov, cerati
  */
 
@@ -20,7 +20,7 @@ class MaterialEffectsUpdator
 public:
   /** Constructor with explicit mass hypothesis
    */
-  MaterialEffectsUpdator ( float mass ) :
+  MaterialEffectsUpdator ( double mass ) :
     theMass(mass),
     theDeltaP(0.),
     theDeltaCov() {}
@@ -93,7 +93,7 @@ public:
   }
   
  private:
-  float theMass;
+  double theMass;
 
 
 protected:  
