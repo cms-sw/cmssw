@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 zSelectionLoose = cms.PSet(
-    cut = cms.string("charge = 0 & daughter(0).pt > .5 & daughter(1).pt > .5 & abs(daughter(0).eta)<2.4 & abs(daughter(1).eta)<2.4 & mass > 0"),
+    cut = cms.string("charge = 0 & daughter(0).pt > 15 & daughter(1).pt > 15 & abs(daughter(0).eta)<2.1 & abs(daughter(1).eta)<2.1 & mass > 0"),
     isoCut = cms.double(1000.),
     ptThreshold = cms.untracked.double("1.5"),
     etEcalThreshold = cms.untracked.double("0.2"),
@@ -30,7 +30,7 @@ zSelectionLoose = cms.PSet(
 
 
 zSelection = cms.PSet(
-    cut = cms.string("charge = 0 & daughter(0).pt > 1. & daughter(1).pt > 1. & abs(daughter(0).eta)<2.4 & abs(daughter(1).eta)<2.4 & mass > 0"),
+    cut = cms.string("charge = 0 & daughter(0).pt > 20. & daughter(1).pt > 10. & abs(daughter(0).eta)<2.1 & abs(daughter(1).eta)<2.1 & mass > 0"),
     isoCut = cms.double(3.),
     ptThreshold = cms.untracked.double("1.5"),
     etEcalThreshold = cms.untracked.double("0.2"),
@@ -47,7 +47,7 @@ zSelection = cms.PSet(
 ### region A: |eta|<2.1, region B: 2.1< |eta| <2.4
 
 zSelectionABLoose = cms.PSet(
-    cut = cms.string("charge = 0 & daughter(0).pt > .5 & daughter(1).pt > .5 & ( (abs(daughter(0).eta)<2.1 & 2.1< abs(daughter(1).eta)<2.4 ) || (abs(daughter(1).eta)<2.1 & 2.1< abs(daughter(0).eta)<2.4 ) )  & mass > 0"),
+    cut = cms.string("charge = 0 & daughter(0).pt > 15 & daughter(1).pt > 15 & ( (abs(daughter(0).eta)<2.1 & 2.1< abs(daughter(1).eta)<2.4 ) || (abs(daughter(1).eta)<2.1 & 2.1< abs(daughter(0).eta)<2.4 ) )  & mass > 0"),
     isoCut = cms.double(1000.),
     ptThreshold = cms.untracked.double("1.5"),
     etEcalThreshold = cms.untracked.double("0.2"),
@@ -63,7 +63,7 @@ zSelectionABLoose = cms.PSet(
 
 
 zSelectionAB = cms.PSet(
-    cut = cms.string("charge = 0 & daughter(0).pt > 1 & daughter(1).pt > 1 & ( (abs(daughter(0).eta)<2.1 & 2.1< abs(daughter(1).eta)<2.4 ) || (abs(daughter(1).eta)<2.1 & 2.1< abs(daughter(0).eta)<2.4 ) )  & mass > 0"),
+    cut = cms.string("charge = 0 & daughter(0).pt > 20. & daughter(1).pt > 20. & ( (abs(daughter(0).eta)<2.1 & 2.1< abs(daughter(1).eta)<2.4 ) || (abs(daughter(1).eta)<2.1 & 2.1< abs(daughter(0).eta)<2.4 ) )  & mass > 0"),
     isoCut = cms.double(1000.),
     ptThreshold = cms.untracked.double("1.5"),
     etEcalThreshold = cms.untracked.double("0.2"),
@@ -79,7 +79,7 @@ zSelectionAB = cms.PSet(
 
 
 zSelectionBBLoose = cms.PSet(
-    cut = cms.string("charge = 0 & daughter(0).pt > .5 & daughter(1).pt > .5 & ( 2.1< abs(daughter(0).eta)<2.4 & 2.1< abs(daughter(1).eta)<2.4 )  & mass > 0"),
+    cut = cms.string("charge = 0 & daughter(0).pt > 15 & daughter(1).pt > 15 & ( 2.1< abs(daughter(0).eta)<2.4 & 2.1< abs(daughter(1).eta)<2.4 )  & mass > 0"),
     isoCut = cms.double(1000.),
     ptThreshold = cms.untracked.double("1.5"),
     etEcalThreshold = cms.untracked.double("0.2"),
@@ -95,7 +95,7 @@ zSelectionBBLoose = cms.PSet(
 
 
 zSelectionBB = cms.PSet(
-    cut = cms.string("charge = 0 & daughter(0).pt > 1. & daughter(1).pt > 1. & ( 2.1< abs(daughter(0).eta)<2.4 & 2.1< abs(daughter(1).eta)<2.4 )  & mass > 0"),
+    cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & ( 2.1< abs(daughter(0).eta)<2.4 & 2.1< abs(daughter(1).eta)<2.4 )  & mass > 0"),
     isoCut = cms.double(1000.),
     ptThreshold = cms.untracked.double("1.5"),
     etEcalThreshold = cms.untracked.double("0.2"),
