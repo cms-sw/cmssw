@@ -66,6 +66,7 @@ namespace cms
     else if( METtype == "GenMET" )  
       {
 	onlyFiducial = iConfig.getParameter<bool>("onlyFiducialParticles");
+        usePt      = iConfig.getUntrackedParameter<bool>("usePt",false);
 	produces<GenMETCollection>().setBranchAlias(alias.c_str());
       }
     else if( METtype == "PFMET" )
@@ -200,11 +201,10 @@ namespace cms
     //-----------------------------------
     else if( METtype == "GenMET" ) 
     {
-      alg_.run(input, &output, globalThreshold ); 
       GenSpecificAlgo gen;
       std::auto_ptr<GenMETCollection> genmetcoll;
       genmetcoll.reset (new GenMETCollection);
-      genmetcoll->push_back( gen.addInfo(input, output, onlyFiducial) );
+      genmetcoll->push_back( gen.addInfo(input, &output, globalThreshold, onlyFiducial, usePt) );
       event.put( genmetcoll );
     }
     else

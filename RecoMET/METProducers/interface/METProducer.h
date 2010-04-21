@@ -65,7 +65,10 @@ namespace cms
       double globalThreshold;
 
       //Use only fiducial GenParticles in GenMET calculation? 
-      bool onlyFiducial; 
+      bool onlyFiducial;
+
+      //Use Pt instaed of Et
+      bool usePt; 
 
       //Temporary implementation of response function for Track Corrected MET
       //TH2D *responseFunction_;  
