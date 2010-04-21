@@ -84,7 +84,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   theJacobian(1,0) = -qp*anv*dot(t2,dx);
   
   theJacobian(1,1) = 
-    cost* dot(v1,v2) +
+    cost*dot(v1,v2) +
     sint*dot(hv,v2) +
     omcost*dot(hn,v1) * dot(hn,v2) +
     anv*(-sint*dot(v1,t2) +
@@ -174,15 +174,17 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
     theJacobian(4,0) = secondOrder51 + (thirdOrder51 + fourthOrder51);
   }
 
+  double overQ = 1./q;
+
   theJacobian(3,1) = (sint*dot(v1.xy(),u2) +
 		      omcost*dot(hv.xy(),u2) +
-		      tmsint*dot(hn.xy(),u2) *
-		      dot(hn,v1))/q;
+		      tmsint*dot(hn,v1)*dot(hn.xy(),u2)
+		      )*overQ;
 
   theJacobian(3,2) = (sint*dot(u1,u2) +
 		      omcost*dot(hu.xy(),u2) +
-		      tmsint*dot(hn.xy(),u2) *
-		      dot(hn.xy(),u1))*cosl0/q;
+		      tmsint*dot(hn.xy(),u1)*dot(hn.xy(),u2) 
+		      )*(cosl0*overQ);
 
   theJacobian(3,3) = dot(u1,u2);
   
@@ -192,13 +194,13 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   theJacobian(4,1) = (sint*dot(v1,v2) +
 		      omcost*dot(hv,v2) +
-		      tmsint*dot(hn,v2) *
-		      dot(hn,v1))/q;
+		      tmsint*dot(hn,v1)*dot(hn,v2)
+		      )*overQ;
 
   theJacobian(4,2) = (sint*dot(u1,v2.xy()) +
 		      omcost*dot(hu,v2) +
-		      tmsint*dot(hn,v2) *
-		      dot(hn.xy(),u1))*cosl0/q;
+		      tmsint*dot(hn.xy(),u1)*dot(hn,v2)
+		      )*(cosl0*overQ);
 
   theJacobian(4,3) = dot(u1,v2.xy()); 
 
