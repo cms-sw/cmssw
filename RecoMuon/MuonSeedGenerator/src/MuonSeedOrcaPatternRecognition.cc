@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2010/04/20 18:34:16 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/04/20 22:39:13 $
+ *  $Revision: 1.15 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -464,7 +464,7 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
     GlobalPoint ptg1(recHit->globalPosition());
     float deta = fabs (ptg1.eta()-ptg2.eta());
     // Geom::Phi should keep it in the range [-pi, pi]
-    float dphi = deltaPhi(ptg1.phi(), ptg2.phi());
+    float dphi = fabs( deltaPhi(ptg1.phi(), ptg2.phi()) );
     float eta2 = fabs( ptg2.eta() );
     // be a little more lenient in cracks
     bool crack = isCrack(recHit) || isCrack(first);
@@ -533,7 +533,7 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
 
       GlobalPoint pos1 = (*iter)->globalPosition();  // +v
  
-      float dphi = deltaPhi(pos1.phi(),pos2.phi());       //+v
+      float dphi = fabs( deltaPhi(pos1.phi(),pos2.phi()) );       //+v
 
       if (  dphi < best_dphiG*1.5 ) {  
 
@@ -542,7 +542,7 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
 
 	GlobalVector dir1 = (*iter)->globalDirection();
 	
-	float  dphidir = deltaPhi( dir1.phi(), dir2.phi() );
+	float  dphidir = fabs( deltaPhi( dir1.phi(), dir2.phi() ) );
 
 	if (  dphidir < best_dphiD ) {
 
@@ -575,7 +575,7 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
       
       GlobalVector dir2 = first->globalDirection();
       
-      float dphi = deltaPhi(dir1.phi(),dir2.phi());
+      float dphi = fabs( deltaPhi(dir1.phi(),dir2.phi()) );
       if (  dphi < best_dphi ) {
 
 	best_dphi = dphi;
