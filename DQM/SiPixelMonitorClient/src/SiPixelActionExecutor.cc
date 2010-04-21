@@ -629,7 +629,24 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	MonitorElement* temp;
 	if((*iv)=="FedChLErrArray") temp = bei->book2D("FedChLErrArray","Type of last error",40,-0.5,39.5,37,0.,37.);
 	if((*iv)=="FedChNErrArray") temp = bei->book2D("FedChNErrArray","Total number of errors",40,-0.5,39.5,37,0.,37.);
-	if((*iv)=="FedETypeNErrArray") temp = bei->book2D("FedETypeNErrArray","Number of each error type",40,-0.5,39.5,15,24.5,39.5);
+	if((*iv)=="FedETypeNErrArray"){
+	  temp = bei->book2D("FedETypeNErrArray","Number of each error type",40,-0.5,39.5,15,24.5,39.5);
+	  temp->setBinLabel(1,"ROC of 25",2);
+	  temp->setBinLabel(2,"Gap word",2);
+	  temp->setBinLabel(3,"Dummy word",2);
+	  temp->setBinLabel(4,"FIFO full",2);
+	  temp->setBinLabel(5,"Timeout",2);
+	  temp->setBinLabel(6,"TBM trailer",2);
+	  temp->setBinLabel(7,"Event number",2);
+	  temp->setBinLabel(8,"Slink header",2);
+	  temp->setBinLabel(9,"Slink trailer",2);
+	  temp->setBinLabel(10,"Event size",2);
+	  temp->setBinLabel(11,"FED channel",2);
+	  temp->setBinLabel(12,"ROC value",2);
+	  temp->setBinLabel(13,"Dcol or pixel value",2);
+	  temp->setBinLabel(14,"Readout order",2);
+	  temp->setBinLabel(15,"CRC error",2);
+        }	  
 	sum_mes.push_back(temp);
       }
     }
