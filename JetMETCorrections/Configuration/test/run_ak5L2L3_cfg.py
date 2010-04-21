@@ -1,6 +1,6 @@
 ################################################################################
 #
-# run_kt4L2L3_cfg.py
+# run_ak5L2L3_cfg.py
 # ------------------
 #
 # This configuration demonstrates how to run the L2L3 correction producers
@@ -26,7 +26,7 @@ import FWCore.ParameterSet.Config as cms
 #!
 #! PROCESS
 #!
-process = cms.Process("KT4L2L3")
+process = cms.Process("AK5L2L3")
 
 
 #!
@@ -35,7 +35,17 @@ process = cms.Process("KT4L2L3")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source = cms.Source(
     'PoolSource',
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_3_0/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v1/0008/CEAAC1F4-0BB7-DE11-93D7-000423D99AA2.root')
+    fileNames = cms.untracked.vstring(
+        '/store/relval/CMSSW_3_6_0/RelValTTbar/GEN-SIM-RECO/MC_36Y_V4-v1/0014/82C13C57-FD49-DF11-B238-003048678DA2.root',
+        '/store/relval/CMSSW_3_6_0/RelValTTbar/GEN-SIM-RECO/MC_36Y_V4-v1/0014/66385781-E549-DF11-B8A6-00261894383E.root',
+        '/store/relval/CMSSW_3_6_0/RelValTTbar/GEN-SIM-RECO/MC_36Y_V4-v1/0013/DAF9E8AD-9749-DF11-ABDD-003048678FB2.root',
+        '/store/relval/CMSSW_3_6_0/RelValTTbar/GEN-SIM-RECO/MC_36Y_V4-v1/0013/92AB1865-9749-DF11-8AC9-00261894383E.root',
+        '/store/relval/CMSSW_3_6_0/RelValTTbar/GEN-SIM-RECO/MC_36Y_V4-v1/0013/5828E251-AD49-DF11-9C11-0018F3D096BC.root',
+        '/store/relval/CMSSW_3_6_0/RelValTTbar/GEN-SIM-RECO/MC_36Y_V4-v1/0013/287CF481-9749-DF11-9514-003048679162.root',
+        '/store/relval/CMSSW_3_6_0/RelValTTbar/GEN-SIM-RECO/MC_36Y_V4-v1/0013/241614BA-9A49-DF11-9B42-0018F3D0965A.root',
+        '/store/relval/CMSSW_3_6_0/RelValTTbar/GEN-SIM-RECO/MC_36Y_V4-v1/0013/164023A0-8E49-DF11-B1D5-0018F3D096CE.root',
+        '/store/relval/CMSSW_3_6_0/RelValTTbar/GEN-SIM-RECO/MC_36Y_V4-v1/0013/06FBE314-9A49-DF11-ADD2-00261894393A.root'
+        )
     )
 
 
@@ -53,29 +63,9 @@ process.TFileService=cms.Service("TFileService",fileName=cms.string('histos.root
 #!
 #! JET CORRECTION
 #!
-from JetMETCorrections.Configuration.JetCorrectionEra_cff import *
-JetCorrectionEra.era = 'Summer09_7TeV'
-process.load('JetMETCorrections.Configuration.JetCorrectionProducers_cff')
+process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
+process.load('JetMETCorrections.Configuration.JetCorrectionCondDB_cff')
 
-# correct kt4CaloJets
-process.kt4CaloL2Relative = process.ak5CaloL2Relative.clone(algorithm = 'KT4CALO')
-process.kt4CaloL3Absolute = process.ak5CaloL3Absolute.clone(algorithm = 'KT4CALO')
-process.kt4CaloL2L3 = process.ak5CaloL2L3.clone(
-    correctors = ['kt4CaloL2Relative','kt4CaloL3Absolute']
-    )
-process.kt4CaloJetsL2L3 = process.ak5CaloJetsL2L3.clone(
-    src = 'kt4CaloJets', correctors = ['kt4CaloL2L3']
-    )
-
-# correct kt4PFJets
-process.kt4PFL2Relative = process.ak5PFL2Relative.clone(algorithm = 'KT4PF')
-process.kt4PFL3Absolute = process.ak5PFL3Absolute.clone(algorithm = 'KT4PF')
-process.kt4PFL2L3 = process.ak5PFL2L3.clone(
-    correctors = ['kt4PFL2Relative','kt4PFL3Absolute']
-    )
-process.kt4PFJetsL2L3 = process.ak5PFJetsL2L3.clone(
-    src = 'kt4PFJets', correctors = ['kt4PFL2L3']
-    )
 
 
 #!
@@ -89,24 +79,24 @@ jetPtHistogram = cms.PSet(min          = cms.untracked.double(     10),
                           plotquantity = cms.untracked.string(   'pt')
                           )
 
-process.kt4CaloHistos = cms.EDAnalyzer(
+process.ak5CaloHistos = cms.EDAnalyzer(
     'CandViewHistoAnalyzer',
-    src = cms.InputTag('kt4CaloJets'),
+    src = cms.InputTag('ak5CaloJets'),
     histograms = cms.VPSet(jetPtHistogram)
     )
-process.kt4CaloL2L3Histos = cms.EDAnalyzer(
+process.ak5CaloL2L3Histos = cms.EDAnalyzer(
     'CandViewHistoAnalyzer',
-    src = cms.InputTag('kt4CaloJetsL2L3'),
+    src = cms.InputTag('ak5CaloJetsL2L3'),
     histograms = cms.VPSet(jetPtHistogram)
     )
-process.kt4PFHistos = cms.EDAnalyzer(
+process.ak5PFHistos = cms.EDAnalyzer(
     'CandViewHistoAnalyzer',
-    src = cms.InputTag('kt4PFJets'),
+    src = cms.InputTag('ak5PFJets'),
     histograms = cms.VPSet(jetPtHistogram)
     )
-process.kt4PFL2L3Histos = cms.EDAnalyzer(
+process.ak5PFL2L3Histos = cms.EDAnalyzer(
     'CandViewHistoAnalyzer',
-    src = cms.InputTag('kt4PFJetsL2L3'),
+    src = cms.InputTag('ak5PFJetsL2L3'),
     histograms = cms.VPSet(jetPtHistogram)
     )
 
@@ -114,6 +104,6 @@ process.kt4PFL2L3Histos = cms.EDAnalyzer(
 # RUN!
 #
 process.run = cms.Path(
-    process.kt4CaloJetsL2L3*process.kt4CaloHistos*process.kt4CaloL2L3Histos*
-    process.kt4PFJetsL2L3*  process.kt4PFHistos*  process.kt4PFL2L3Histos
+    process.ak5CaloJetsL2L3*process.ak5CaloHistos*process.ak5CaloL2L3Histos*
+    process.ak5PFJetsL2L3*  process.ak5PFHistos*  process.ak5PFL2L3Histos
     )

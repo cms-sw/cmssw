@@ -9,6 +9,8 @@
 ################################################################################
 import FWCore.ParameterSet.Config as cms
 
+from JetMETCorrections.Configuration.JetCorrectionCondDB_cff import *
+
 #
 # SINGLE LEVEL CORRECTION SERVICES
 #
@@ -38,8 +40,8 @@ ak5CaloL2Relative = cms.ESSource(
     section   = cms.string('')
     )
 ak5PFL2Relative    = ak5CaloL2Relative.clone( algorithm = 'AK5PF' )
-ak5JPTL2Relative   = ak5CaloL2Relative.clone( algorithm = 'AK5JPT' )
-ak5TrackL2Relative = ak5CaloL2Relative.clone( algorithm = 'AK5TRK' )
+#ak5JPTL2Relative   = ak5CaloL2Relative.clone( algorithm = 'AK5JPT' )
+#ak5TrackL2Relative = ak5CaloL2Relative.clone( algorithm = 'AK5TRK' )
 
 # L3 (absolute) Correction Services
 ak5CaloL3Absolute = cms.ESSource(
@@ -49,8 +51,8 @@ ak5CaloL3Absolute = cms.ESSource(
     section   = cms.string('')
     )
 ak5PFL3Absolute    = ak5CaloL3Absolute.clone( algorithm = 'AK5PF' )
-ak5JPTL3Absolute   = ak5CaloL3Absolute.clone( algorithm = 'AK5JPT' )
-ak5TrackL3Absolute = ak5CaloL3Absolute.clone( algorithm = 'AK5TRK' )
+#ak5JPTL3Absolute   = ak5CaloL3Absolute.clone( algorithm = 'AK5JPT' )
+#ak5TrackL3Absolute = ak5CaloL3Absolute.clone( algorithm = 'AK5TRK' )
 
 # L6 (semileptonically decaying b-jet) Correction Services
 ak5CaloL6SLB = cms.ESSource(
@@ -86,14 +88,14 @@ ak5PFL2L3 = cms.ESSource(
     'JetCorrectionServiceChain',
     correctors = cms.vstring('ak5PFL2Relative','ak5PFL3Absolute')
     )
-ak5JPTL2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
-    correctors = cms.vstring('ak5JPTL2Relative','ak5JPTL3Absolute')
-    )
-ak5TrackL2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
-    correctors = cms.vstring('ak5TrackL2Relative','ak5TrackL3Absolute')
-    )
+#ak5JPTL2L3 = cms.ESSource(
+#    'JetCorrectionServiceChain',
+#    correctors = cms.vstring('ak5JPTL2Relative','ak5JPTL3Absolute')
+#    )
+#ak5TrackL2L3 = cms.ESSource(
+#    'JetCorrectionServiceChain',
+#    correctors = cms.vstring('ak5TrackL2Relative','ak5TrackL3Absolute')
+#    )
 
 # L1L2L3 CORRECTION SERVICES
 ak5CaloL1L2L3 = ak5CaloL2L3.clone()
