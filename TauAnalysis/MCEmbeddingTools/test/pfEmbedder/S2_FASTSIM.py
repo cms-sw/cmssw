@@ -15,7 +15,10 @@ process.load('FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi')
 process.load('FastSimulation/Configuration/FamosSequences_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('FastSimulation/Configuration/FamosSequences_cff')
-process.load('FastSimulation/Configuration/HLT_8E29_cff')
+#process.load('FastSimulation/Configuration/HLT_8E29_cff') # STARTUP GT
+process.load('FastSimulation/Configuration/HLT_1E31_cff') # MC GT
+
+
 process.load('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
 #process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
 process.load('FastSimulation/Configuration/CommonInputs_cff')
@@ -30,7 +33,7 @@ process.load('FastSimulation/Configuration/EventContent_cff')
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('-s nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -94,6 +97,9 @@ process.misalignedCSCGeometry.applyAlignment = True
 #process.GlobalTag.globaltag = 'STARTUP3X_V8A::All'
 process.GlobalTag.globaltag = 'STARTUP31X_V4::All' # 31x
 #process.GlobalTag.globaltag = 'MC_31X_V5::All' # 31x
+
+# 356
+process.GlobalTag.globaltag = 'MC_3XY_V26::All' # 31x
 
 process.famosSimulationSequence.remove(process.offlineBeamSpot)
 

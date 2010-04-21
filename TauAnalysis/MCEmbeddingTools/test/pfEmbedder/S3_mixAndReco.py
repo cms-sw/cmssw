@@ -18,8 +18,9 @@ process.load('Configuration/StandardSequences/Reconstruction_cff')
 #process.GlobalTag.globaltag = 'MC_3XY_V9A::All'
 #process.GlobalTag.globaltag = 'STARTUP3X_V8A::All'
 #process.GlobalTag.globaltag = 'STARTUP3X_V8A::All'
-process.GlobalTag.globaltag = 'STARTUP31X_V4::All' # 31x
+#process.GlobalTag.globaltag = 'STARTUP31X_V4::All' # 31x
 #process.GlobalTag.globaltag = 'MC_31X_V5::All' # 31x
+process.GlobalTag.globaltag = 'MC_3XY_V26::All' # 356
 
 
 process.source = cms.Source("PoolSource",
