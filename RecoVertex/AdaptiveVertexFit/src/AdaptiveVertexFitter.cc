@@ -569,7 +569,7 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
           // were more than 100 m off!!
           LogError ("AdaptiveVertexFitter" ) << "Help! Vertex candidate just took off to " << nVertex.position()
                                              << "! Will discard this update!"
-					     << "track pt was " << (**i).linearizedTrack()->track().pt()
+	    //<< "track pt was " << (**i).linearizedTrack()->track().pt()
 					     << "track momentum was " << (**i).linearizedTrack()->track().initialFreeState().momentum()
 					     << "track position was " << (**i).linearizedTrack()->track().initialFreeState().position()
 					     << "track chi2 was " << (**i).linearizedTrack()->track().chi2()
