@@ -108,6 +108,17 @@ PropagateToMuon::startingState(const reco::Track &tk) const {
     
 }
 
+FreeTrajectoryState 
+PropagateToMuon::startingState(const SimTrack &tk, const edm::SimVertexContainer &vtxs) const {
+    if (tk.noVertex()) throw cms::Exception("UnsupportedOperation") << "I can't propagate simtracks without a vertex, I don't know where to start from.\n";
+    const math::XYZTLorentzVectorD & vtx = (vtxs)[tk.vertIndex()].position();
+    return FreeTrajectoryState(  GlobalPoint(vtx.X(), vtx.Y(), vtx.Z()),
+                                 GlobalVector(tk.momentum().X(), tk.momentum().Y(), tk.momentum().Z()),
+                                 int(tk.charge()),
+                                 magfield_.product());
+}
+
+
 
 TrajectoryStateOnSurface
 PropagateToMuon::extrapolate(const FreeTrajectoryState &start) const {

@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_interface_PropagateToMuon_h
 #define MuonAnalysis_MuonAssociators_interface_PropagateToMuon_h
 //
-// $Id: PropagateToMuon.h,v 1.1 2009/05/18 16:38:45 gpetrucc Exp $
+// $Id: PropagateToMuon.h,v 1.1 2009/08/03 09:57:58 gpetrucc Exp $
 //
 
 /**
@@ -10,7 +10,7 @@
             Support for other muon stations will be added on request.
             
   \author   Giovanni Petrucciani
-  \version  $Id: PropagateToMuon.h,v 1.1 2009/05/18 16:38:45 gpetrucc Exp $
+  \version  $Id: PropagateToMuon.h,v 1.1 2009/08/03 09:57:58 gpetrucc Exp $
 */
 
 
@@ -26,6 +26,9 @@
 struct DetLayer; // #include "TrackingTools/DetLayers/interface/DetLayer.h" // forward declaration can suffice
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
 
 class PropagateToMuon {
     public:
@@ -41,9 +44,13 @@ class PropagateToMuon {
         /// Extrapolate reco::Candidate to the muon station 2, return an invalid TSOS if it fails
         TrajectoryStateOnSurface extrapolate(const reco::Candidate &tk) const { return extrapolate(startingState(tk)); }
 
+        /// Extrapolate a SimTrack to the muon station 2, return an invalid TSOS if it fails; needs the SimVertices too, to know where to start from
+        /// Note: it will throw an exception if the SimTrack has no vertex.
+        //  don't ask me why SimVertexContainer is in edm namespace
+        TrajectoryStateOnSurface extrapolate(const SimTrack &tk, const edm::SimVertexContainer &vtxs) const { return extrapolate(startingState(tk, vtxs)); }
+
         /// Extrapolate a FreeTrajectoryState to the muon station 2, return an invalid TSOS if it fails
         TrajectoryStateOnSurface extrapolate(const FreeTrajectoryState &state) const ;
-
     private:
         enum WhichTrack { None, TrackerTk, MuonTk, GlobalTk };
         enum WhichState { AtVertex, Innermost, Outermost };
@@ -71,6 +78,9 @@ class PropagateToMuon {
 
         /// Starting state for the propagation
         FreeTrajectoryState startingState(const reco::Track &tk) const ;
+
+        /// Starting state for the propagation
+        FreeTrajectoryState startingState(const SimTrack &tk, const edm::SimVertexContainer &vtxs) const ;
 
         /// Get the best TSOS on one of the chambres of this DetLayer, or an invalid TSOS if none match
         TrajectoryStateOnSurface getBestDet(const TrajectoryStateOnSurface &tsos, const DetLayer *station) const;

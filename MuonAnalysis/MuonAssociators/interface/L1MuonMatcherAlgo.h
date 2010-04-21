@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 #define MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 //
-// $Id: L1MuonMatcherAlgo.h,v 1.4 2010/02/22 11:53:04 gpetrucc Exp $
+// $Id: L1MuonMatcherAlgo.h,v 1.5 2010/02/22 13:28:00 gpetrucc Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: L1MuonMatcherAlgo.h,v 1.4 2010/02/22 11:53:04 gpetrucc Exp $
+  \version  $Id: L1MuonMatcherAlgo.h,v 1.5 2010/02/22 13:28:00 gpetrucc Exp $
 */
 
 
@@ -39,6 +39,9 @@ class L1MuonMatcherAlgo {
         /// Extrapolate reco::Candidate to the muon station 2, return an invalid TSOS if it fails
         TrajectoryStateOnSurface extrapolate(const reco::Candidate &tk) const { return prop_.extrapolate(tk); }
 
+        /// Extrapolate a SimTrack to the muon station 2, return an invalid TSOS if it fails. Requires SimVertices to know where to start from.
+        TrajectoryStateOnSurface extrapolate(const SimTrack &tk, const edm::SimVertexContainer &vtx) const { return prop_.extrapolate(tk, vtx); }
+
         /// Extrapolate a FreeTrajectoryState to the muon station 2, return an invalid TSOS if it fails
         TrajectoryStateOnSurface extrapolate(const FreeTrajectoryState &state) const { return prop_.extrapolate(state); }
 
@@ -61,6 +64,14 @@ class L1MuonMatcherAlgo {
             return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi) : false;
         }
 
+        /// Try to match one simtrack to one L1. Return true if succeeded (and update deltaR, deltaPhi and propagated TSOS accordingly)
+        /// The preselection cut on L1, if specified in the config, is applied before the match
+        bool match(const SimTrack &tk, const edm::SimVertexContainer &vtxs, const l1extra::L1MuonParticle &l1, float &deltaR, float &deltaPhi, TrajectoryStateOnSurface &propagated) const {
+            propagated = extrapolate(tk, vtxs);
+            return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi) : false;
+        }
+
+
         /// Try to match one track to one L1. Return true if succeeded (and update deltaR, deltaPhi accordingly)
         /// The preselection cut on L1, if specified in the config, is applied before the match
         bool match(TrajectoryStateOnSurface & propagated, const l1extra::L1MuonParticle &l1, float &deltaR, float &deltaPhi) const ;
@@ -80,6 +91,15 @@ class L1MuonMatcherAlgo {
             propagated = extrapolate(c);
             return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi) : -1;
         }
+
+        /// Find the best match to L1, and return its index in the vector (and update deltaR, deltaPhi and propagated TSOS accordingly)
+        /// Returns -1 if the match fails
+        /// The preselection cut on L1, if specified in the config, is applied before the match
+        int match(const SimTrack &tk, const edm::SimVertexContainer &vtxs, const std::vector<l1extra::L1MuonParticle> &l1, float &deltaR, float &deltaPhi, TrajectoryStateOnSurface &propagated) const {
+            propagated = extrapolate(tk, vtxs);
+            return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi) : -1;
+        }
+
 
         /// Find the best match to L1, and return its index in the vector (and update deltaR, deltaPhi accordingly)
         /// Returns -1 if the match fails
