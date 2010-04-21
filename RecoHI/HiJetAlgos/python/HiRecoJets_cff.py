@@ -27,9 +27,11 @@ iterativeConePu5CaloJets = cms.EDProducer("FastjetJetProducer",
                                           )
 
 iterativeConePu5CaloJets.doPUOffsetCorr = True
+iterativeConePu5CaloJets.doAreaFastjet = True
+iterativeConePu5CaloJets.doRhoFastjet = True
 iterativeConePu5CaloJets.doPVCorrection = False
 iterativeConePu5CaloJets.jetPtMin = 10
-
+iterativeConePu5CaloJets.radiusPU = 0.5
 
 iterativeConePu7CaloJets = cms.EDProducer("FastjetJetProducer",
                                           CaloJetParameters,
@@ -39,8 +41,41 @@ iterativeConePu7CaloJets = cms.EDProducer("FastjetJetProducer",
                                           )
 
 iterativeConePu7CaloJets.doPUOffsetCorr = True
+iterativeConePu7CaloJets.doAreaFastjet = True
+iterativeConePu7CaloJets.doRhoFastjet = True
 iterativeConePu7CaloJets.doPVCorrection = False
 iterativeConePu7CaloJets.jetPtMin = 10
+iterativeConePu7CaloJets.radiusPU = 0.7
+
+ktPu4CaloJets = cms.EDProducer(
+    "FastjetJetProducer",
+    CaloJetParameters,
+    AnomalousCellParameters,
+    jetAlgorithm = cms.string("Kt"),
+    rParam       = cms.double(0.4)
+    )
+
+ktPu4CaloJets.doPUOffsetCorr = True
+ktPu4CaloJets.doAreaFastjet = True
+ktPu4CaloJets.doRhoFastjet = True
+ktPu4CaloJets.doPVCorrection = False
+ktPu4CaloJets.jetPtMin = 10
+ktPu4CaloJets.radiusPU = 0.5
+
+ktPu6CaloJets = cms.EDProducer(
+    "FastjetJetProducer",
+    CaloJetParameters,
+    AnomalousCellParameters,
+    jetAlgorithm = cms.string("Kt"),
+    rParam       = cms.double(0.6)
+    )
+
+ktPu6CaloJets.doPUOffsetCorr = True
+ktPu6CaloJets.doAreaFastjet = True
+ktPu6CaloJets.doRhoFastjet = True
+ktPu6CaloJets.doPVCorrection = False
+ktPu6CaloJets.jetPtMin = 10
+ktPu6CaloJets.radiusPU = 0.7
 
 akPu5CaloJets = cms.EDProducer(
     "FastjetJetProducer",
@@ -51,8 +86,11 @@ akPu5CaloJets = cms.EDProducer(
     )
 
 akPu5CaloJets.doPUOffsetCorr = True
+akPu5CaloJets.doAreaFastjet = True
+akPu5CaloJets.doRhoFastjet = True
 akPu5CaloJets.doPVCorrection = False
 akPu5CaloJets.jetPtMin = 10
+akPu5CaloJets.radiusPU = 0.5
 
 akPu7CaloJets = cms.EDProducer(
     "FastjetJetProducer",
@@ -63,35 +101,24 @@ akPu7CaloJets = cms.EDProducer(
     )
 
 akPu7CaloJets.doPUOffsetCorr = True
+akPu7CaloJets.doAreaFastjet = True
+akPu7CaloJets.doRhoFastjet = True
 akPu7CaloJets.doPVCorrection = False
 akPu7CaloJets.jetPtMin = 10
+akPu7CaloJets.radiusPU = 0.7
 
-akFastPu5CaloJets = akPu5CaloJets.clone()
-akFastPu5CaloJets.doPUOffsetCorr = False
-akFastPu5CaloJets.doAreaFastjet = True
-akFastPu5CaloJets.doRhoFastjet = True
+ak5CaloJets = akPu5CaloJets.clone()
+ak5CaloJets.doPUOffsetCorr = False
 
-akFastPu7CaloJets = akPu7CaloJets.clone()
-akFastPu7CaloJets.doPUOffsetCorr = False
-akFastPu7CaloJets.doAreaFastjet = True
-akFastPu7CaloJets.doRhoFastjet = True
+ak7CaloJets = akPu7CaloJets.clone()
+ak7CaloJets.doPUOffsetCorr = False
+
+kt4CaloJets = ktPu4CaloJets.clone()
+kt4CaloJets.doPUOffsetCorr = False
+
+kt6CaloJets = ktPu6CaloJets.clone()
+kt6CaloJets.doPUOffsetCorr = False
+
+hiRecoJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets+iterativeConePu7CaloJets+akPu5CaloJets+akPu7CaloJets+ak5CaloJets+ak7CaloJets + ktPu4CaloJets + ktPu6CaloJets +  kt4CaloJets + kt6CaloJets)
 
 
-# REPLACE with UP-TO-DATE Corrections
-#MCJetCorJetIconePu5 = cms.EDProducer("CaloJetCorrectionProducer",
-#    src = cms.InputTag("iterativeConePu5CaloJets"),
-#    correctors = cms.vstring('MCJetCorrectorIcone5'),
-#    alias = cms.untracked.string('MCJetCorJetIconePu5')
-#)
-
-#iterativeCone5HiGenJets = cms.EDProducer("IterativeConeHiGenJetProducer",
-#                                         IconeJetParameters,
-#                                         inputEtMin = cms.double(0.0),                                        
-#                                         inputEMin = cms.double(0.0),                                        
-#                                         src = cms.InputTag("hiGenParticles"),
-#                                         jetType = cms.string('GenJet'),                                        
-#                                         alias = cms.untracked.string('IC5HiGenJet'),
-#                                         coneRadius = cms.double(0.5)
-#                                         )
-
-hiRecoJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets+iterativeConePu7CaloJets+akPu5CaloJets+akPu7CaloJets+akFastPu5CaloJets+akFastPu7CaloJets)
