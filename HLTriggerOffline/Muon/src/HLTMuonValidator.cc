@@ -1,6 +1,6 @@
 /** \file HLTMuonValidator.cc
- *  $Date: 2010/04/15 18:36:05 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/04/16 14:33:03 $
+ *  $Revision: 1.20 $
  */
 
 
@@ -308,7 +308,7 @@ HLTMuonValidator::analyzePath(const Event & iEvent,
   findMatches(matches, candsL1, candsHlt);
 
   vector<size_t> matchesInEtaRange;
-  size_t highestNumMatches = kNull;
+  vector<bool> hasMatch(matches.size(), true);
 
   for (size_t step = 0; step < nSteps; step++) {
 
@@ -319,27 +319,26 @@ HLTMuonValidator::analyzePath(const Event & iEvent,
                            (step >= 4) ? 3 :
                            0; // default value when step == 0
 
-    vector<bool> hasMatch(matches.size(), false);
-
-    for (size_t j = 0; j < matches.size(); j++)
+    for (size_t j = 0; j < matches.size(); j++) {
       if (level == 0) {
-        hasMatch[j] = true;
         if (fabs(matches[j].candBase->eta()) < maxEta)
           matchesInEtaRange.push_back(j);
       }
-      else if (level == 1 && matches[j].candL1 != 0)
-        hasMatch[j] = true;
-      else if (level >= 2 && matches[j].candHlt[hltStep] != 0)
-        hasMatch[j] = true;
-  
-    size_t nMatches = count(hasMatch.begin(), hasMatch.end(), true);
-    if (nMatches < nObjectsToPassPath) break;
-    if (nMatches > highestNumMatches) {
-      LogTrace("HLTMuonVal") << "More matches in step " << step 
-                             << " than in step " << step - 1;
-      break;
+      else if (level == 1) {
+        if (matches[j].candL1 == 0)
+          hasMatch[j] = false;
+      }
+      else if (level >= 2) {
+        if (matches[j].candHlt[hltStep] == 0)
+          hasMatch[j] = false;
+        else if (!hasMatch[j]) {
+          LogTrace("HLTMuonVal") << "Match found for HLT step " << hltStep
+                                 << " of " << nStepsHlt 
+                                 << " without previous match!";
+          break;
+        }
+      }
     }
-    highestNumMatches = nMatches;
 
     string pre  = path + "_" + source + "Pass";
     string post = "_" + stepLabels_[path][step];
