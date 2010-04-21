@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Apr 19 12:48:18 CEST 2010
-// $Id$
+// $Id: FWInteractionList.cc,v 1.1 2010/04/20 20:49:41 amraktad Exp $
 //
 
 // system include files
@@ -117,12 +117,7 @@ FWInteractionList::removed(TEveElement* el, int idx)
 void
 FWInteractionList::modelChanges(const FWModelIds& iIds)
 { 
-   if (m_compounds.size() != m_item->size())
-   {
-      printf("%s (m_compounds.size() != m_item->size() : %d/%d \n", m_item->name().c_str(), m_compounds.size(), m_item->size());
-      return;
-   }   
-   
+   assert (m_compounds.size() >= m_item->size());
 
    for (std::set<FWModelId>::const_iterator it = iIds.begin(); it != iIds.end(); ++it)
    {
