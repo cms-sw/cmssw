@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackProxyBuilder.cc,v 1.4 2010/04/16 11:28:04 amraktad Exp $
+// $Id: FWTrackProxyBuilder.cc,v 1.5 2010/04/20 20:49:44 amraktad Exp $
 //
 
 // system include files
@@ -49,7 +49,7 @@ FWTrackProxyBuilder::FWTrackProxyBuilder()
    m_trackerPropagator->IncDenyDestroy();
    m_trackerPropagator->SetMaxR( 850 );
    m_trackerPropagator->SetMaxZ( 1100 );
-   m_trackerPropagator->SetMaxStep( 1 );
+   m_trackerPropagator->SetDelta(0.01);
 }
 
 FWTrackProxyBuilder::~FWTrackProxyBuilder()

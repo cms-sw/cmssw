@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.152 2010/04/06 20:00:35 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.153 2010/04/08 19:45:25 amraktad Exp $
 //
 
 // system include files
@@ -291,9 +291,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          macPath +="/src/Fireworks/Core/macros";
       }
       gROOT->SetMacroPath((std::string("./:")+macPath).c_str());
-
-      gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_PableCompound);
-      TEveTrack::SetDefaultBreakProjectedTracks(kFALSE);
 
       m_startupTasks = std::auto_ptr<CmsShowTaskExecutor>(new CmsShowTaskExecutor);
       m_startupTasks->tasksCompleted_.connect(boost::bind(&FWGUIManager::clearStatus,

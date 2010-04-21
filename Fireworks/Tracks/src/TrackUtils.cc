@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.20 2010/04/14 12:41:54 yana Exp $
+// $Id: TrackUtils.cc,v 1.21 2010/04/16 09:39:22 yana Exp $
 //
 
 // system include files
@@ -103,7 +103,6 @@ namespace fireworks {
       t.fV = refStates.front().position;
       t.fP = refStates.front().momentum;
       TEveTrack* trk = new TEveTrack(&t,propagator);
-      trk->SetBreakProjectedTracks(TEveTrack::kBPTAlways);
       for( unsigned int i(1); i<refStates.size()-1; ++i) {
 	if ( refStates[i].valid )
 	  trk->AddPathMark( TEvePathMark( TEvePathMark::kReference, refStates[i].position, refStates[i].momentum ) );
@@ -121,7 +120,6 @@ namespace fireworks {
       t.fV = refStates.back().position;
       t.fP = refStates.back().momentum * (-1);
       TEveTrack* trk = new TEveTrack(&t,propagator);
-      trk->SetBreakProjectedTracks(TEveTrack::kBPTAlways);
       unsigned int i(refStates.size()-1);
       for(; i>0; --i) {
 	if ( refStates[i].valid )
@@ -142,8 +140,6 @@ namespace fireworks {
     t.fV = refStates[i].position;
     t.fP = refStates[i].momentum;
     TEveTrack* trk = new TEveTrack(&t,propagator);
-    trk->SetBreakProjectedTracks(TEveTrack::kBPTAlways);
-
     for( unsigned int j(i+1); j<refStates.size()-1; ++j) {
       if ( refStates[i].valid )
 	trk->AddPathMark( TEvePathMark( TEvePathMark::kReference, refStates[i].position, refStates[i].momentum ) );

@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.19 2010/04/16 10:29:09 yana Exp $
+// $Id: FWMuonBuilder.cc,v 1.20 2010/04/20 20:49:44 amraktad Exp $
 //
 
 // system include files
@@ -178,7 +178,7 @@ FWMuonBuilder::FWMuonBuilder()
    m_trackerPropagator->IncDenyDestroy();
    m_trackerPropagator->SetMaxR( 850 );
    m_trackerPropagator->SetMaxZ( 1100 );
-   m_trackerPropagator->SetMaxStep(5);
+   m_trackerPropagator->SetDelta(0.05);
 }
 
 FWMuonBuilder::~FWMuonBuilder()
