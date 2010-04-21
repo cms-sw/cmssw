@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.6 2010/04/20 20:49:41 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.7 2010/04/21 18:59:22 amraktad Exp $
 //
 
 // system include files
@@ -40,7 +40,6 @@ FWMETProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveEleme
    double r_ecal = 126;
    double phi = iData.phi();
    double size = iData.et()*2;
-   printf("build MET\n");
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
    marker->SetLineWidth(2);
    marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
