@@ -73,7 +73,7 @@ public:
       : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin),
 			    rVertex, zVertex)
       {
-	measurementTrackerName_ = extra.getParameter<std::string>("measuremnentTrackerName");
+	measurementTrackerName_ = extra.getParameter<std::string>("measurementTrackerName");
       }
       
 
