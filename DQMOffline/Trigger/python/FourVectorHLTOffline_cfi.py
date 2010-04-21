@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.31 2010/03/25 13:25:09 rekovic Exp $
+# $Id: FourVectorHLTOffline_cfi.py,v 1.32 2010/03/27 09:22:17 rekovic Exp $
 hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     dirname = cms.untracked.string("HLT/FourVector/paths"),
     muonRecoCollectionName = cms.untracked.string("muons"),
@@ -16,12 +16,19 @@ hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
 		muonEtaMax = cms.untracked.double(2.1),
     muonDRMatch = cms.untracked.double(0.3),
 
+    jetDRMatch = cms.untracked.double(0.3),
+    jetL1DRMatch = cms.untracked.double(0.5),
+    jetEtMin = cms.untracked.double(5.0),
+
     electronDRMatch = cms.untracked.double(0.5),
+
+    photonEtMin = cms.untracked.double(5.0),
     photonDRMatch = cms.untracked.double(0.5),
+
     #tauDRMatch = cms.untracked.double(0.1),
-    #jetDRMatch = cms.untracked.double(0.1),
+
     #bjetDRMatch = cms.untracked.double(0.1),
-    #photonDRMatch = cms.untracked.double(0.1),
+
     #trackDRMatch = cms.untracked.double(0.1),
      SpecialPaths = cms.vstring(
             'HLT_MET45',
