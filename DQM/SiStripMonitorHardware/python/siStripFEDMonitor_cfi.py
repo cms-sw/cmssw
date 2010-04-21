@@ -2,239 +2,239 @@ import FWCore.ParameterSet.Config as cms
 
 siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   #Raw data collection
-  RawDataTag = cms.InputTag('source'),
+  RawDataTag = cms.untracked.InputTag('source'),
   #Folder in DQM Store to write global histograms to
-  HistogramFolderName = cms.string('SiStrip/ReadoutView/FedMonitoringSummary'),
+  HistogramFolderName = cms.untracked.string('SiStrip/ReadoutView/FedMonitoringSummary'),
   #Fill all detailed histograms at FED level even if they will be empty (so that files can be merged)
-  FillAllDetailedHistograms = cms.bool(False),
+  FillAllDetailedHistograms = cms.untracked.bool(False),
   #do histos vs time with time=event number. Default time = orbit number (s).
-  FillWithEventNumber = cms.bool(False),
+  FillWithEventNumber = cms.untracked.bool(False),
   #Whether to dump buffer info and raw data if any error is found: 
   #1=errors, 2=minimum info, 3=full debug with printing of the data buffer of each FED per event.
-  PrintDebugMessages = cms.uint32(1),
-  #PrintDebugMessages = cms.bool(False),
+  PrintDebugMessages = cms.untracked.uint32(1),
+  #PrintDebugMessages = cms.untracked.bool(False),
   #Whether to write the DQM store to a file at the end of the run and the file name
-  WriteDQMStore = cms.bool(False),
-  DQMStoreFileName = cms.string('DQMStore.root'),
+  WriteDQMStore = cms.untracked.bool(False),
+  DQMStoreFileName = cms.untracked.string('DQMStore.root'),
   #Histogram configuration
   #lumi histogram
-  ErrorFractionByLumiBlockHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),          
+  ErrorFractionByLumiBlockHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),          
   #Global/summary histograms
-  DataPresentHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  AnyFEDErrorsHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  AnyDAQProblemsHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  AnyFEProblemsHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  CorruptBuffersHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  BadChannelStatusBitsHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  BadActiveChannelStatusBitsHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
+  DataPresentHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  AnyFEDErrorsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  AnyDAQProblemsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  AnyFEProblemsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  CorruptBuffersHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  BadChannelStatusBitsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  BadActiveChannelStatusBitsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   #Sub sets of FE problems
-  FEOverflowsHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  FEMissingHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  BadMajorityAddressesHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  FETimeDiffTIBHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  FETimeDiffTOBHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  FETimeDiffTECBHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  FETimeDiffTECFHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  ApveAddressHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  FeMajAddressHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
+  FEOverflowsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  FEMissingHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  BadMajorityAddressesHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  FETimeDiffTIBHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  FETimeDiffTOBHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  FETimeDiffTECBHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  FETimeDiffTECFHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  ApveAddressHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  FeMajAddressHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   #medians per APV for all channels, all events
-  MedianAPV0HistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(256),
-    Min = cms.double(0),
-    Max = cms.double(1024)
+  MedianAPV0HistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(256),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(1024)
     ),
-  MedianAPV1HistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(256),
-    Min = cms.double(0),
-    Max = cms.double(1024)
+  MedianAPV1HistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(256),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(1024)
     ),        
   #Sub sets of DAQ problems
-  DataMissingHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  BadIDsHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  BadDAQPacketHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  InvalidBuffersHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  BadDAQCRCsHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  BadFEDCRCsHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
+  DataMissingHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  BadIDsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  BadDAQPacketHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  InvalidBuffersHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  BadDAQCRCsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  BadFEDCRCsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   #TkHistoMap
-  TkHistoMapHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
+  TkHistoMapHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   #Detailed FED level expert histograms
-  FEOverflowsDetailedHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  FEMissingDetailedHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  BadMajorityAddressesDetailedHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  BadAPVStatusBitsDetailedHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  APVErrorBitsDetailedHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  APVAddressErrorBitsDetailedHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  UnlockedBitsDetailedHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
-  OOSBitsDetailedHistogramConfig = cms.PSet( Enabled = cms.bool(True) ),
+  FEOverflowsDetailedHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  FEMissingDetailedHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  BadMajorityAddressesDetailedHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  BadAPVStatusBitsDetailedHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  APVErrorBitsDetailedHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  APVAddressErrorBitsDetailedHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  UnlockedBitsDetailedHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  OOSBitsDetailedHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   #Error counting histograms
-  nFEDErrorsHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(441),
-    Min = cms.double(0),
-    Max = cms.double(441)
+  nFEDErrorsHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(441),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(441)
   ),
-  nFEDDAQProblemsHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(441),
-    Min = cms.double(0),
-    Max = cms.double(441)
+  nFEDDAQProblemsHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(441),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(441)
   ),
-  nFEDsWithFEProblemsHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(441),
-    Min = cms.double(0),
-    Max = cms.double(441)
+  nFEDsWithFEProblemsHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(441),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(441)
   ),
-  nFEDCorruptBuffersHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(441),
-    Min = cms.double(0),
-    Max = cms.double(441)
+  nFEDCorruptBuffersHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(441),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(441)
   ),
-  nBadChannelStatusBitsHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(353),
-    Min = cms.double(0),
-    Max = cms.double(42240)
+  nBadChannelStatusBitsHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
   ),
-  nBadActiveChannelStatusBitsHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(353),
-    Min = cms.double(0),
-    Max = cms.double(42240)
+  nBadActiveChannelStatusBitsHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
   ),
-  nFEDsWithFEOverflowsHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(441),
-    Min = cms.double(0),
-    Max = cms.double(441)
+  nFEDsWithFEOverflowsHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(441),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(441)
   ),
-  nFEDsWithMissingFEsHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(441),
-    Min = cms.double(0),
-    Max = cms.double(441)
+  nFEDsWithMissingFEsHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(441),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(441)
   ),
-  nFEDsWithFEBadMajorityAddressesHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(441),
-    Min = cms.double(0),
-    Max = cms.double(441)
+  nFEDsWithFEBadMajorityAddressesHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(441),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(441)
   ),
-  nUnconnectedChannelsHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(353),
-    Min = cms.double(0),
-    Max = cms.double(42240)
+  nUnconnectedChannelsHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
   ),
-  nAPVStatusBitHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(353),
-    Min = cms.double(0),
-    Max = cms.double(42240)
+  nAPVStatusBitHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
   ),
-  nAPVErrorHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(353),
-    Min = cms.double(0),
-    Max = cms.double(42240)
+  nAPVErrorHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
   ),
-  nAPVAddressErrorHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(353),
-    Min = cms.double(0),
-    Max = cms.double(42240)
+  nAPVAddressErrorHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
   ),
-  nUnlockedHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(353),
-    Min = cms.double(0),
-    Max = cms.double(42240)
+  nUnlockedHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
   ),
-  nOutOfSyncHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(353),
-    Min = cms.double(0),
-    Max = cms.double(42240)
+  nOutOfSyncHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
   ),
-  nTotalBadChannelsHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(353),
-    Min = cms.double(0),
-    Max = cms.double(42240)
+  nTotalBadChannelsHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
   ),
-  nTotalBadActiveChannelsHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(353),
-    Min = cms.double(0),
-    Max = cms.double(42240)
+  nTotalBadActiveChannelsHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
   ),
-  TimeHistogramConfig = cms.PSet(
-    Enabled = cms.bool(False),
-    NBins = cms.uint32(600),
-    Min = cms.double(0),
-    Max = cms.double(3600)
+  TimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(False),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)
   ),
-  nTotalBadChannelsvsTimeHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(600),
-    Min = cms.double(0),
-    Max = cms.double(3600)
+  nTotalBadChannelsvsTimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)
   ),
-  nTotalBadActiveChannelsvsTimeHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(600),
-    Min = cms.double(0),
-    Max = cms.double(3600)
+  nTotalBadActiveChannelsvsTimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)
   ),
-  nFEDErrorsvsTimeHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(600),
-    Min = cms.double(0),
-    Max = cms.double(3600)
+  nFEDErrorsvsTimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)
   ),
-  nFEDCorruptBuffersvsTimeHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(600),
-    Min = cms.double(0),
-    Max = cms.double(3600)
+  nFEDCorruptBuffersvsTimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)
   ),
-  nFEDsWithFEProblemsvsTimeHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(600),
-    Min = cms.double(0),
-    Max = cms.double(3600)
+  nFEDsWithFEProblemsvsTimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)
   ),
-  nAPVStatusBitvsTimeHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(600),
-    Min = cms.double(0),
-    Max = cms.double(3600)
+  nAPVStatusBitvsTimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)
   ),
-  nAPVErrorvsTimeHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(600),
-    Min = cms.double(0),
-    Max = cms.double(3600)
+  nAPVErrorvsTimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)
   ),
-  nAPVAddressErrorvsTimeHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(600),
-    Min = cms.double(0),
-    Max = cms.double(3600)
+  nAPVAddressErrorvsTimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)
   ),
-  nUnlockedvsTimeHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(600),
-    Min = cms.double(0),
-    Max = cms.double(3600)
+  nUnlockedvsTimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)
   ),
-  nOutOfSyncvsTimeHistogramConfig = cms.PSet(
-    Enabled = cms.bool(True),
-    NBins = cms.uint32(600),
-    Min = cms.double(0),
-    Max = cms.double(3600)
+  nOutOfSyncvsTimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)
   )
 )
