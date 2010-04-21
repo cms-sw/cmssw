@@ -101,19 +101,19 @@ class SiStripFEDCheckPlugin : public edm::EDAnalyzer
 
 SiStripFEDCheckPlugin::SiStripFEDCheckPlugin(const edm::ParameterSet& iConfig)
   : rawDataTag_(iConfig.getParameter<edm::InputTag>("RawDataTag")),
-    dirName_(iConfig.getParameter<std::string>("DirName")),
-    printDebug_(iConfig.getParameter<bool>("PrintDebugMessages")),
-    writeDQMStore_(iConfig.getParameter<bool>("WriteDQMStore")),
-    updateFrequency_(iConfig.getParameter<unsigned int>("HistogramUpdateFrequency")),
+    dirName_(iConfig.getUntrackedParameter<std::string>("DirName","SiStrip/FEDIntegrity/")),
+    printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
+    writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
+    updateFrequency_(iConfig.getUntrackedParameter<unsigned int>("HistogramUpdateFrequency",0)),
     fedsPresentBinContents_(FEDNumbering::MAXSiStripFEDID+1,0),
     fedFatalErrorBinContents_(FEDNumbering::MAXSiStripFEDID+1,0),
     fedNonFatalErrorBinContents_(FEDNumbering::MAXSiStripFEDID+1,0),
     eventCount_(0),
-    doPayloadChecks_(iConfig.getParameter<bool>("DoPayloadChecks")),
-    checkChannelLengths_(iConfig.getParameter<bool>("CheckChannelLengths")),
-    checkPacketCodes_(iConfig.getParameter<bool>("CheckChannelPacketCodes")),
-    checkFELengths_(iConfig.getParameter<bool>("CheckFELengths")),
-    checkChannelStatusBits_(iConfig.getParameter<bool>("CheckChannelStatus")),
+    doPayloadChecks_(iConfig.getUntrackedParameter<bool>("DoPayloadChecks",true)),
+    checkChannelLengths_(iConfig.getUntrackedParameter<bool>("CheckChannelLengths",true)),
+    checkPacketCodes_(iConfig.getUntrackedParameter<bool>("CheckChannelPacketCodes",true)),
+    checkFELengths_(iConfig.getUntrackedParameter<bool>("CheckFELengths",true)),
+    checkChannelStatusBits_(iConfig.getUntrackedParameter<bool>("CheckChannelStatus",true)),
     cablingCacheId_(0)
 {
   if (printDebug_ && !doPayloadChecks_ && (checkChannelLengths_ || checkPacketCodes_ || checkFELengths_)) {
