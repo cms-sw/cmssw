@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.5 2010/04/16 11:28:03 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.6 2010/04/20 20:49:41 amraktad Exp $
 //
 
 // system include files
@@ -40,7 +40,7 @@ FWMETProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveEleme
    double r_ecal = 126;
    double phi = iData.phi();
    double size = iData.et()*2;
-
+   printf("build MET\n");
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
    marker->SetLineWidth(2);
    marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
@@ -55,6 +55,7 @@ FWMETProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveEleme
 
    setupAddElement(marker, &oItemHolder);
 }
+//______________________________________________________________________________
 
 class FWMETGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::MET>
 {
@@ -83,6 +84,8 @@ FWMETGlimpseProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TE
    marker->AddLine( size*0.9*cos(phi-0.03), size*0.9*sin(phi-0.03), 0, size*cos(phi), size*sin(phi), 0);
    setupAddElement(marker, &oItemHolder);
 }
+
+//______________________________________________________________________________
 
 class FWMETLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::MET>
 {
@@ -114,6 +117,6 @@ FWMETLegoProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveE
    setupAddElement(secondLine, &oItemHolder);
 }
 
-REGISTER_FWPROXYBUILDER(FWMETProxyBuilder, reco::MET, "MET", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
-REGISTER_FWPROXYBUILDER(FWMETGlimpseProxyBuilder, reco::MET, "MET", FWViewType::kGlimpseBit);
-REGISTER_FWPROXYBUILDER(FWMETLegoProxyBuilder, reco::MET, "MET", FWViewType::kLegoBit);
+REGISTER_FWPROXYBUILDER(FWMETProxyBuilder, reco::MET, "recoMET", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWMETGlimpseProxyBuilder, reco::MET, "recoMET", FWViewType::kGlimpseBit);
+REGISTER_FWPROXYBUILDER(FWMETLegoProxyBuilder, reco::MET, "recoMET", FWViewType::kLegoBit);
