@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 ### parameter set to be overloaded in the configuration file 
 
 
-from ElectroWeakAnalysis.Skimming.zMuMu_SubskimPathsUserData_cff import *
+from ElectroWeakAnalysis.ZMuMu.zMuMu_SubskimPathsUserData_cff import *
 
 from ElectroWeakAnalysis.ZMuMu.goodZToMuMu_cfi import *
 from ElectroWeakAnalysis.ZMuMu.goodZToMuMuSameCharge_cfi import *
