@@ -251,6 +251,7 @@ if __name__ == '__main__':
 	exit()
 
     IOVbase = 'runbase'
+    timetype = 'runnumber'
     if option.IOVbase:
         if option.IOVbase != "runbase" and option.IOVbase != "lumibase" and option.IOVbase != "timebase":
             print "\n\n unknown iov base option: "+ option.IOVbase +" \n\n\n"
@@ -344,7 +345,8 @@ if __name__ == '__main__':
 		iov_till = iov_since
 		tmp_run = line.split()[1]
 	    elif line.find("LumiRange") != -1:
-		tmp_lumi = line.split()[1]
+                # pick the last lumi
+		tmp_lumi = line.split()[3]
 	    elif line.find("BeginTimeOfFit") == -1 and line.find("EndTimeOfFit") == -1 and line.find("LumiRange") == -1:
                 if line.find("sigmaZ0") != -1 and option.zlarge:
                     line = "sigmaZ0 10\n"
@@ -355,6 +357,7 @@ if __name__ == '__main__':
 	
 	# pack run number and lumi section
 	if IOVbase == "lumibase":
+            timetype = "lumiid"
 	    iov_since = iov_till = str( pack(int(tmp_run), int(tmp_lumi)) )
 
 	tmpfile.close()
@@ -370,6 +373,7 @@ if __name__ == '__main__':
 	
 	writedb_tags = [('SQLITEFILE','sqlite_file:' + sqlite_file),
 			('TAGNAME',tagname),
+                        ('TIMETYPE',timetype),
 			('BEAMSPOTFILE',beam_file)]
     
 	for line in wfile:
