@@ -42,8 +42,8 @@ class FEConfigFgrEEStripDat : public IDataItem {
      throw(std::runtime_error);
 
   // User data
-  int m_thresh;
-  int m_lut_fg;
+  unsigned int m_thresh;
+  unsigned int m_lut_fg;
 
 };
 
