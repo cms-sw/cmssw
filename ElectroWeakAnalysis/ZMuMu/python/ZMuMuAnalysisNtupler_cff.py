@@ -8,7 +8,7 @@ import copy
 
 goodZToMuMuEdmNtuple = cms.EDProducer(
     "CandViewNtpProducer", 
-    src=cms.InputTag("goodZToMuMuLoose"),
+    src=cms.InputTag("goodZToMuMuAtLeast1HLTLoose"),
     lazyParser=cms.untracked.bool(True),
     prefix=cms.untracked.string("z"),
     eventInfo=cms.untracked.bool(True),
@@ -348,7 +348,7 @@ goodZToMuMuPathLoose.setLabel("goodZToMuMuEdmLoose")
 
 
 goodZToMuMuSameChargeEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
-goodZToMuMuSameChargeEdmNtupleLoose.src = cms.InputTag("goodZToMuMuSameChargeLoose")
+goodZToMuMuSameChargeEdmNtupleLoose.src = cms.InputTag("goodZToMuMuSameChargeAtLeast1HLTLoose")
 goodZToMuMuSameChargeEdmNtupleLoose.prefix = cms.untracked.string("zSameCharge")
 goodZToMuMuSameChargeEdmNtupleLoose.variables += zMuMu
 goodZToMuMuSameChargeEdmNtupleLoose.variables += zGolden
@@ -358,7 +358,7 @@ goodZToMuMuSameChargePathLoose.setLabel("goodZToMuMuSameChargeLoose")
 
 
 goodZToMuMuOneStandAloneEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
-goodZToMuMuOneStandAloneEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneStandAloneMuonLoose")
+goodZToMuMuOneStandAloneEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneStandAloneMuonFirstHLTLoose")
 goodZToMuMuOneStandAloneEdmNtupleLoose.prefix=cms.untracked.string("zMuSta")
 goodZToMuMuOneStandAloneEdmNtupleLoose.variables += zMuMu
 goodZToMuMuOneStandAloneEdmNtupleLoose.variables += zMuSa
@@ -366,14 +366,14 @@ goodZToMuMuOneStandAloneMuonPathLoose.__iadd__(goodZToMuMuOneStandAloneEdmNtuple
 goodZToMuMuOneStandAloneMuonPathLoose.setLabel("goodZToMuMuOneStandAloneMuonLoose")
 
 goodZToMuMuOneTrackEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
-goodZToMuMuOneTrackEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneTrackLoose")
+goodZToMuMuOneTrackEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneTrackFirstHLTLoose")
 goodZToMuMuOneTrackEdmNtupleLoose.prefix=cms.untracked.string("zMuTrk")
 goodZToMuMuOneTrackEdmNtupleLoose.variables += zMuTrk
 goodZToMuMuOneTrackPathLoose.__iadd__(goodZToMuMuOneTrackEdmNtupleLoose)
 goodZToMuMuOneTrackPathLoose.setLabel("goodZToMuMuOneTrackLoose")
 
 goodZToMuMuOneTrackerMuonEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
-goodZToMuMuOneTrackerMuonEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneTrackerMuonLoose")
+goodZToMuMuOneTrackerMuonEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneTrackerFirstHLTMuonLoose")
 goodZToMuMuOneTrackerMuonEdmNtupleLoose.prefix=cms.untracked.string("zMuTrkMu")
 goodZToMuMuOneTrackerMuonEdmNtupleLoose.variables += zMuMu
 goodZToMuMuOneTrackerMuonEdmNtupleLoose.variables += zMuTrkMu
