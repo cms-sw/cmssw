@@ -341,15 +341,16 @@ if __name__ == '__main__':
         beam_file_tmp = workflowdirTmp + beam_file[beam_file.rfind('/')+1:] + ".tmp"
 	newtmpfile = open(beam_file_tmp,"w")
 	tmp_run = ""
-	tmp_lumi = ""
+	tmp_lumi_since = ""
+        tmp_lumi_till = ""
 	for line in tmpfile:
 	    if line.find("Runnumber") != -1:
 		iov_since = line.split()[1]
 		iov_till = iov_since
 		tmp_run = line.split()[1]
 	    elif line.find("LumiRange") != -1:
-                # pick the last lumi
-		tmp_lumi = line.split()[3]
+		tmp_lumi_since = line.split()[1]
+                tmp_lumi_till = line.split()[3]
 	    elif line.find("BeginTimeOfFit") == -1 and line.find("EndTimeOfFit") == -1 and line.find("LumiRange") == -1:
                 if line.find("sigmaZ0") != -1 and option.zlarge:
                     line = "sigmaZ0 10\n"
@@ -361,7 +362,8 @@ if __name__ == '__main__':
 	# pack run number and lumi section
 	if IOVbase == "lumibase":
             timetype = "lumiid"
-	    iov_since = iov_till = str( pack(int(tmp_run), int(tmp_lumi)) )
+	    iov_since = str( pack(int(tmp_run), int(tmp_lumi_since)) )
+            iov_till = str( pack(int(tmp_run), int(tmp_lumi_till)) )
         # keep first iov for merged output
         if nfile == 1:
             iov_since_first = iov_since
@@ -402,7 +404,7 @@ if __name__ == '__main__':
             os.mkdir(workflowdirArchive + 'payloads')
         
         print " merge sqlite file ..."
-        acmd = "cmscond_export_iov -d sqlite_file:"+workflowdirArchive+"payloads/Combined.db -s sqlite_file:"+sqlite_file+ " -i "+tagname+" -t "+tagname+" -l sqlite_file:"+workflowdirTmp+"log.db"+" -b "+iov_since+" -e "+iov_since
+        acmd = "cmscond_export_iov -d sqlite_file:"+workflowdirArchive+"payloads/Combined.db -s sqlite_file:"+sqlite_file+ " -i "+tagname+" -t "+tagname+" -l sqlite_file:"+workflowdirTmp+"log.db"+" -b "+iov_since+" -e "+iov_till
         print acmd
         std = commands.getstatusoutput(acmd)
         print std[1]
