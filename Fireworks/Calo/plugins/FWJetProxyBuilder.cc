@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.5 2010/04/19 15:49:17 yana Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.6 2010/04/20 20:49:40 amraktad Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -140,7 +140,7 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
 
    float r_ecal = fireworks::Context::s_ecalR;
    float z_ecal = fireworks::Context::s_ecalZ;
-   float transition_angle = atan( r_ecal/z_ecal ); //FIXME This Context number is wrong: fireworks::Context::s_transitionAngle;
+   float transition_angle = fireworks::Context::s_transitionAngle;
 
    double theta = iData.theta();
    double eta = iData.eta();

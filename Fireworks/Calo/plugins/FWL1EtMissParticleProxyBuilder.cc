@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1EtMissParticleProxyBuilder.cc,v 1.2 2010/04/15 13:19:32 yana Exp $
+// $Id: FWL1EtMissParticleProxyBuilder.cc,v 1.3 2010/04/20 20:49:40 amraktad Exp $
 //
 
 // system include files
@@ -40,9 +40,9 @@ void
 FWL1EtMissParticleProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
    double scale = 10;
-   double r_ecal = 126;
-   double z_ecal = 306; // ECAL endcap inner surface
-   double transition_angle = atan( r_ecal/z_ecal );
+   float r_ecal = fireworks::Context::s_ecalR;
+   float z_ecal = fireworks::Context::s_ecalZ;
+   float transition_angle = fireworks::Context::s_transitionAngle;
    double phi = iData.phi();
    double theta = iData.theta();
    double size = iData.pt() * scale;

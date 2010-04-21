@@ -8,10 +8,11 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPFTauProxyBuilder.cc,v 1.6 2010/04/20 20:49:41 amraktad Exp $
+// $Id: FWPFTauProxyBuilder.cc,v 1.7 2010/04/21 13:58:52 amraktad Exp $
 //
 
 // system include files
+#include "TEveCompound.h"
 #include "TGeoTube.h"
 #include "TEveGeoNode.h"
 #include "TEveStraightLineSet.h"
@@ -46,6 +47,12 @@ private:
    const FWPFTauProxyBuilder& operator=(const FWPFTauProxyBuilder&);    // stop default
 
    virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type );
+
+   // Add Tracks which passed quality cuts and
+   // are inside a tracker signal cone around leading Track
+   void addConstituentTracks( const reco::PFTau &pfTau, class TEveElement *product );
+   // Add leading Track
+   void addLeadTrack( const reco::PFTau &pfTau, class TEveElement *product );
 };
 
 void
@@ -57,7 +64,7 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
 
    float r_ecal = fireworks::Context::s_ecalR;
    float z_ecal = fireworks::Context::s_ecalZ;
-   float transition_angle = atan( r_ecal/z_ecal ); //FIXME This Context number is wrong: fireworks::Context::s_transitionAngle;
+   float transition_angle = fireworks::Context::s_transitionAngle;
       
    Int_t idx = 0;
    for( reco::PFTauCollection::const_iterator it = pfTaus->begin(), itEnd = pfTaus->end(); it != itEnd; ++it, ++idx)
@@ -85,28 +92,17 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
       double theta = (*it).theta();
       double size = (*it).et();
 
-      const char* name = Form( "PFTau %d", idx );
-      TEveElementList* comp = new TEveElementList( name, name );
+      TEveElementList* comp = createCompound();
 
       // FIXME: Should it be only in RhoPhi and RhoZ?
-      const reco::TrackRef lead_track = (*it).leadTrack();
-      reco::TrackRefVector::iterator tracks_end = (*it).signalTracks().end(); 
-      for( reco::TrackRefVector::iterator i = (*it).signalTracks().begin(); i != tracks_end; ++i ) {
-	TEveTrack* track(0);
-	if( i->isAvailable() ) {
-	  track = fireworks::prepareTrack(**i,
-					  context().getTrackPropagator());
-	}
-	track->MakeTrack();
-	if( track )
-	  setupAddElement(track, comp);
-      }	
+      addLeadTrack( *it, comp );
+      addConstituentTracks( *it, comp );
 
       if( ( type == FWViewType::k3D ) | ( type == FWViewType::kISpy ) ) {
-	 FW3DEveJet* cone = new FW3DEveJet( *jet, name, name);
+	 FW3DEveJet* cone = new FW3DEveJet( *jet, "cone" );
 	 cone->SetPickable( kTRUE );
 	 cone->SetMainTransparency( 75 ); 
-	 setupAddElement(cone, comp);
+	 setupAddElement( cone, comp );
       }
       else if( type == FWViewType::kRhoPhi ) 
       {	 
@@ -120,13 +116,13 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
 	 TGeoBBox *sc_box = new TGeoTubeSeg(r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
 	 TEveGeoShape *element = fw::getShape( "spread", sc_box, iItem->defaultDisplayProperties().color() );
 	 element->SetPickable(kTRUE);
-	 setupAddElement(element, comp);
+	 setupAddElement( element, comp );
 
-	 TEveStraightLineSet* marker = new TEveStraightLineSet( "energy", name );
+	 TEveStraightLineSet* marker = new TEveStraightLineSet( "energy" );
 	 marker->SetLineWidth( 4 );
 	 marker->AddLine( r_ecal*cos( phi ), r_ecal*sin( phi ), 0,
 			  ( r_ecal+size )*cos( phi ), ( r_ecal+size )*sin( phi ), 0);
-	 setupAddElement(marker, comp);
+	 setupAddElement( marker, comp );
       }
       else if( type == FWViewType::kRhoZ )
       {
@@ -135,7 +131,7 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
 	    r = z_ecal/fabs(cos(theta)) :
 	    r = r_ecal/sin(theta);
    
-	 TEveStraightLineSet* marker = new TEveStraightLineSet( "energy", name );
+	 TEveStraightLineSet* marker = new TEveStraightLineSet( "energy" );
 	 marker->SetLineWidth(4);
 	 marker->AddLine(0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
 			 0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
@@ -147,8 +143,38 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
 	 fw::addRhoZEnergyProjection( this, comp, r_ecal, z_ecal, min_theta-0.003, max_theta+0.003,
 				      phi);
       }            
-      setupAddElement(comp, product);
+      setupAddElement( comp, product );
    }
+}
+
+// Tracks which passed quality cuts and
+// are inside a tracker signal cone around leading Track
+void
+FWPFTauProxyBuilder::addConstituentTracks( const reco::PFTau &pfTau, class TEveElement* product )
+{
+   for( reco::TrackRefVector::iterator i = pfTau.signalTracks().begin(), iEnd = pfTau.signalTracks().end();
+	i != iEnd; ++i ) {
+     TEveTrack* track( 0 );
+     if( i->isAvailable() ) {
+        track = fireworks::prepareTrack( **i, context().getTrackPropagator() );
+     }
+     track->MakeTrack();
+     if( track )
+        setupAddElement( track, product );
+   }	
+}
+
+// Leading Track
+void
+FWPFTauProxyBuilder::addLeadTrack( const reco::PFTau &pfTau, class TEveElement *product ) 
+{
+   const reco::TrackRef leadTrack = pfTau.leadTrack();
+   if( !leadTrack ) return;
+
+   TEveTrack* track = fireworks::prepareTrack( *leadTrack, context().getTrackPropagator() );
+   track->MakeTrack();
+   if( track )
+      setupAddElement( track, product );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
