@@ -1,7 +1,10 @@
+#ifndef ImpactParameterSelector_h
+#define ImpactParameterSelector_h
+
 //
 // Original Author:  Sebastian Naumann
 //         Created:  Tue Apr 20 12:45:30 CEST 2010
-// $Id: ImpactParameterSelector.h,v 1.1 2010/04/20 13:17:23 snaumann Exp $
+// $Id: ImpactParameterSelector.h,v 1.2 2010/04/20 13:50:18 snaumann Exp $
 //
 //
 
@@ -23,6 +26,8 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 template <typename C>
 class ImpactParameterSelector : public edm::EDProducer {
@@ -72,14 +77,26 @@ ImpactParameterSelector<C>::produce(edm::Event& event, const edm::EventSetup& se
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
 
   for(typename edm::View<C>::const_iterator iter=leptons->begin(); iter!=leptons->end(); ++iter) {
-    reco::TrackRef trackRef = iter->track();
-    if(trackRef.isNonnull() && trackRef.isAvailable()) {
-      reco::TransientTrack transTrack = trackBuilder->build(trackRef);
-      double ipSignificance = IPTools::absoluteTransverseImpactParameter(transTrack, vertex).second.significance();
+    reco::TransientTrack transTrack;
 
-      if(ipSignificance < cut_)
-	out->push_back(*iter);
+    // electrons
+    if(dynamic_cast<const reco::GsfElectron*>(&*iter)) {
+      reco::GsfTrackRef trackRef = iter->gsfTrack();
+      if(trackRef.isNonnull() && trackRef.isAvailable())
+	continue;
+      reco::TransientTrack transTrack = trackBuilder->build(trackRef);
     }
+    // muons
+    else {
+      reco::TrackRef trackRef = iter->track();
+      if(trackRef.isNonnull() && trackRef.isAvailable())
+	continue;
+      reco::TransientTrack transTrack = trackBuilder->build(trackRef);
+    }
+
+    double ipSignificance = IPTools::absoluteTransverseImpactParameter(transTrack, vertex).second.significance();
+    if(ipSignificance < cut_)
+      out->push_back(*iter);
   }
 
   event.put(out);
@@ -95,3 +112,5 @@ template<typename C>
 void 
 ImpactParameterSelector<C>::endJob() {
 }
+
+#endif
