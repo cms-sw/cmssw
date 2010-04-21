@@ -544,5 +544,7 @@ if __name__ == '__main__':
         commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/tmp")
         commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/tmp")
 
-        commands.getstatusoutput("ssh webcondvm.cern.ch \"mv /tmp/" + workflowdirLastPayloads + final_sqlite_file_name + ".db /"+dropbox +"\"")
-        commands.getstatusoutput("ssh webcondvm.cern.ch \"mv /tmp/" + workflowdirLastPayloads + final_sqlite_file_name + ".txt /"+dropbox +"\"")
+        cmd = commands.getstatusoutput("ssh webcondvm.cern.ch \"mv /tmp/" + workflowdirLastPayloads + final_sqlite_file_name + ".db /"+dropbox +"\"")
+        print cmd[1]
+        cmd = commands.getstatusoutput("ssh webcondvm.cern.ch \"mv /tmp/" + workflowdirLastPayloads + final_sqlite_file_name + ".txt /"+dropbox +"\"")
+        print cmd[1]
