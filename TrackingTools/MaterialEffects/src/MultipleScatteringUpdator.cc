@@ -43,8 +43,7 @@ void MultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
     if (radLen > 0) {
       // Calculated rms scattering angle squared.
       double fact = 1. + 0.038*log(radLen); fact *=fact;
-      // double a = fact/(beta2*p2);
-      double a = fact*e2;
+      double a = fact/(beta2*p2);
       sigt2 = amscon*radLen*a;
       if (thePtMin > 0) {
 #ifdef DBG_MSU
@@ -66,9 +65,8 @@ void MultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
 	// track angle.
 	double pMin2 = thePtMin*thePtMin*(p2/TSoS.globalMomentum().perp2());       
         // Use P constraint to calculate rms maximum scattering angle.
-        //double betaMin2 = (pMin*pMin)/(pMin * pMin + m2);
-        //double a_max = fact/(betaMin2 * pMin2);
-        double a_max =  fact*(pMin2 + m2);
+        double betaMin2 = pMin2/(pMin2 + m2);
+        double a_max = fact/(betaMin2 * pMin2);
         double sigt2_max = amscon*radLen*a_max;
         if (sigt2 > sigt2_max) sigt2 = sigt2_max;
 #ifdef DBG_MSU
