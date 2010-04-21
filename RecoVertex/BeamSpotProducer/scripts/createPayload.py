@@ -392,12 +392,13 @@ if __name__ == '__main__':
         #print status_wDB[1]
         
         #### Merge sqlite files
+        time.sleep(5)
         print " merge sqlite file ..."
         acmd = "cmscond_export_iov -d sqlite_file:"+workflowdirArchive+"payloads/Combined.db -s sqlite_file:"+sqlite_file+ " -i "+tagname+" -t "+tagname+" -l sqlite_file:"+workflowdirTmp+"log.db"+" -b "+iov_since+" -e "+iov_since
         print acmd
         std = commands.getstatusoutput(acmd)
         print std[1]
-                                        
+        time.sleep(5)
     #print status_wDB[1]
 	commands.getstatusoutput('rm -f ' + beam_file)
 	os.system("rm "+ writedb_out)
