@@ -215,6 +215,8 @@ if __name__ == '__main__':
     workflowdir             = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/test/workflow/"
     if option.Output:
         workflowdir = option.Output
+        if workflowdir[len(workflowdir)-1] != '/':
+ 	    workflowdir = workflowdir + '/'
     workflowdirLastPayloads = workflowdir + "lastPayloads/"
     workflowdirTmp          = workflowdir + "tmp/"
     workflowdirArchive      = workflowdir + "archive/"
