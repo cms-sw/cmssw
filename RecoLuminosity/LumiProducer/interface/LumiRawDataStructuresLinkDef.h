@@ -50,6 +50,7 @@
 #pragma link C++ struct HCAL_HLX::BRAN_BX_DATA+;
 #pragma link C++ struct HCAL_HLX::LHC_FILL_DATA+;
 
+#pragma link C++ struct HCAL_HLX::DIP_STRUCT_BASE+;
 
 #endif
 #endif

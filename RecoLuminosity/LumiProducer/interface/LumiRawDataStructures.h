@@ -44,6 +44,8 @@ namespace HCAL_HLX{
   };
 
   struct RUN_QUALITY {
+    uint32_t runNumber;
+    uint32_t sectionNumber;
 
     int HLX;
     int HFLumi;
@@ -54,112 +56,6 @@ namespace HCAL_HLX{
     int DT;
     int CSC;
   };
-
-  struct VDM_SCAN_DATA {
-
-    int MessageQuality;     
-    bool VdmMode; //True when a scan at one of the IPs is imminent, false otherwise
-    int IP;
-    bool RecordDataFlag; // True while data for one of the scan points at one of the IPs is being taken, false otherwise   
-    double BeamSeparation; //separation in sigma for the scan point  
-    bool isXaxis; //true if scanning xaxis, otherwise yaxis is being scanned 
-    int Beam; 
-    double StepProgress;
-    uint32_t timestamp;
-    uint32_t timestamp_micros;
-
-    uint32_t runNumber;
-    uint32_t sectionNumber;
-  };
-
-  struct BRAN_DATA {
-
-    int MessageQuality;     
-    double MeanCrossingAngle;
-    int AcqMode; 
-    double MeanLuminosity;
-    uint32_t timestamp;
-    uint32_t timestamp_micros;
-
-    uint32_t runNumber;
-    uint32_t sectionNumber;
-  };
-
-  struct BRAN_BX_DATA {
-
-    int MessageQuality;
-    double bunchByBunchLuminosity[4096];
-    int AcqMode;
-    uint32_t timestamp;
-    uint32_t timestamp_micros;
-
-    uint32_t runNumber;
-    uint32_t sectionNumber;
-  };
-
-  struct LHC_FILL_DATA {
-
-    int MessageQuality;
-    uint32_t FillNumber;
-    uint32_t timestamp;
-    uint32_t timestamp_micros;
-
-    uint32_t runNumber;
-    uint32_t sectionNumber;
-  };
-
-  struct CMS_LUMI_DIP_DATA {
-    
-    int MessageQuality;
-    uint32_t numHLXs;
-    uint32_t startOrbit;
-    uint32_t numOrbits;
-    uint32_t numBunches;
-    float instantLumi;
-    float instantLumiErr;
-    uint32_t timestamp;
-    uint32_t timestamp_micros;
-
-    uint32_t runNumber;
-    uint32_t sectionNumber;
-  };
-
-  struct TRIGGER_LUMI_SEGMENT {
-
-    int MessageQuality;
-    char state[64];
-    uint32_t deadtime;
-    uint32_t deadtimeBeamActive;
-    uint32_t lumiSegmentNumber;
-    uint32_t timestamp;
-    uint32_t timestamp_micros;
-
-    uint32_t runNumber;
-    uint32_t sectionNumber;
-  };
-
-  struct LHC_BEAM_MODE_DATA {
-
-    int MessageQuality;
-    char beamMode[64];
-    uint32_t timestamp;
-    uint32_t timestamp_micros;
-
-    uint32_t runNumber;
-    uint32_t sectionNumber;
-  };
-
-  struct LHC_BEAM_ENERGY_DATA {
-
-    int MessageQuality;
-    float singleBeamEnergy; //GeV
-    uint32_t timestamp;
-    uint32_t timestamp_micros;
-
-    uint32_t runNumber;
-    uint32_t sectionNumber;
-  };
-
 
   struct RCMS_CONFIG {
 
@@ -400,6 +296,150 @@ namespace HCAL_HLX{
     ET_SUM_SECTION etSum[HCAL_HLX_MAX_HLXS];
     OCCUPANCY_SECTION occupancy[HCAL_HLX_MAX_HLXS];
     LHC_SECTION lhc[HCAL_HLX_MAX_HLXS];
+  };
+
+  struct DIP_STRUCT_BASE { 
+    int MessageQuality;     
+    uint32_t timestamp;
+    uint32_t timestamp_micros;
+    uint32_t runNumber;
+    uint32_t sectionNumber;
+  };
+  
+    struct VDM_SCAN_DATA: public DIP_STRUCT_BASE {
+    bool VdmMode; //True when a scan at one of the IPs is imminent, false otherwise
+    int IP;
+    bool RecordDataFlag; // True while data for one of the scan points at one of the IPs is being taken, false otherwise   
+    double BeamSeparation; //separation in sigma for the scan point  
+    bool isXaxis; //true if scanning xaxis, otherwise yaxis is being scanned 
+    int Beam; 
+    double StepProgress;
+  };
+
+  struct BRAN_DATA: public DIP_STRUCT_BASE {
+    double MeanCrossingAngle;
+    int AcqMode; 
+    double MeanLuminosity;
+ };
+
+  struct BRAN_BX_DATA: public DIP_STRUCT_BASE {
+    double bunchByBunchLuminosity[3564];
+    int AcqMode;
+  };
+
+  struct LHC_FILL_DATA: public DIP_STRUCT_BASE {
+    uint32_t FillNumber;
+  };
+
+
+  struct CMS_LUMI_DIP_DATA: public DIP_STRUCT_BASE {
+    uint32_t numHLXs;
+    uint32_t startOrbit;
+    uint32_t numOrbits;
+    uint32_t numBunches;
+    float instantLumi;
+    float instantLumiErr;
+  };
+
+  struct CMS_LUMI_LH_DIP_DATA: public DIP_STRUCT_BASE {
+    float lumiHisto[3564];
+    uint32_t numBunches;
+  };
+
+  struct CMS_STATUS_DATA: public DIP_STRUCT_BASE {
+    char status[64];
+  };
+
+  struct TRIGGER_LUMI_SEGMENT: public DIP_STRUCT_BASE {
+    char state[64];
+    uint32_t deadtime;
+    uint32_t deadtimeBeamActive;
+    uint32_t lumiSegmentNumber;
+    
+  };
+
+  struct LHC_BEAM_MODE_DATA: public DIP_STRUCT_BASE {
+    char beamMode[64];
+  };
+
+  struct LHC_BEAM_ENERGY_DATA: public DIP_STRUCT_BASE {
+    float singleBeamEnergy; //GeV
+  };
+
+  struct LHC_BEAM_INTENSITY_DATA: public DIP_STRUCT_BASE {
+    double beamIntensity; //total num protons in beam summed over all bxs
+    double primitiveLifetime;
+    uint64_t acqTimeStamp;
+  };
+
+  struct LHC_BEAM_FBCT_INTENSITY_DATA: public DIP_STRUCT_BASE {
+    double bestLifetime; 
+    double averageBeamIntensity;
+    float averageBunchIntensities[3564];
+  };
+
+  struct CMS_SCAN_TUNE_DATA: public DIP_STRUCT_BASE {
+    double IntTime; 
+    double CollRate;
+    double CollRateErr;
+    bool Preferred;
+    char Source[64];
+  };
+
+  struct DIP_ACQUISITION_MODE: public DIP_STRUCT_BASE {
+    char mode[64];
+  };
+
+  struct BEAM_INFO {
+    double totalIntensity;
+    double primitiveLifetime;
+    double bestLifeTime;
+    double averageBeamIntensity;
+    float orbitFrequency;
+    float averageBunchIntensities[3564];
+  };
+  
+  
+  struct BRANA_INFO {
+    double meanCrossingAngle;
+    int acqMode;
+    double meanLuminosity;
+    double bunchByBunchLuminosity[3564];
+  };
+
+  struct BRANP_INFO {
+    double meanCrossingAngle;
+    int acqMode;
+    int counterAcquisition;
+    double meanLuminosity;
+    double meanCrossingAngleError;
+    double meanLuminosityError;
+    double bunchByBunchLuminosity[3564];
+  };
+
+  struct BRAN_INFO {
+
+    BRANA_INFO branA;
+    BRANP_INFO branP;
+  };
+
+  struct DIP_COMBINED_DATA: public DIP_STRUCT_BASE {
+
+     char beamMode[128];
+
+     float Energy;
+
+    uint32_t FillNumber;
+
+     BEAM_INFO Beam[2];
+
+     BRAN_INFO BRAN4L1;
+     BRAN_INFO BRAN4R1;
+     BRAN_INFO BRAN4L5;
+     BRAN_INFO BRAN4R5;
+
+     VDM_SCAN_DATA VdMScan;
+
   };
 
 }//~namespace HCAL_HLX

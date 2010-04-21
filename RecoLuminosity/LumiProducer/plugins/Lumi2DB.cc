@@ -24,6 +24,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <memory>
+#include <map>
 #include "TFile.h"
 #include "TTree.h"
 namespace lumi{
@@ -53,7 +54,9 @@ namespace lumi{
       float instlumierror;
       short instlumiquality;
       short lumisectionquality;
-      bool cmsalive;
+      short cmsalive;
+      std::string beammode;
+      float beamenergy;
       unsigned int cmslsnr;
       unsigned int lumilsnr;
       unsigned int startorbit;
@@ -61,6 +64,10 @@ namespace lumi{
       std::vector<PerBXData> bxET;
       std::vector<PerBXData> bxOCC1;
       std::vector<PerBXData> bxOCC2;
+    };
+    struct beamData{
+      float energy;
+      std::string mode;
     };
     typedef std::vector<PerLumiData> LumiResult;
   private:
@@ -120,6 +127,35 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   if(!hlxtree){
     throw lumi::Exception(std::string("non-existing HLXData "),"retrieveData","Lumi2DB");
   }
+  size_t nentries=hlxtree->GetEntries();
+  //source->GetListOfKeys()->Print();
+  std::map<unsigned int, Lumi2DB::beamData> dipmap;
+  TTree *diptree= (TTree*)source->Get("DIPCombined");
+  if(diptree){
+    //throw lumi::Exception(std::string("non-existing DIPData "),"retrieveData","Lumi2DB");
+    std::auto_ptr<HCAL_HLX::DIP_COMBINED_DATA> dipdata(new HCAL_HLX::DIP_COMBINED_DATA);
+    diptree->SetBranchAddress("DIPCombined.",&dipdata);
+    size_t ndipentries=diptree->GetEntries();
+    for(size_t i=0;i<ndipentries;++i){
+      diptree->GetEntry(i);
+      beamData b;
+      //std::cout<<"Beam Mode : "<<dipdata->beamMode<<"\n";
+      //std::cout<<"Beam Energy : "<<dipdata->Energy<<"\n";
+      //std::cout<<"sectionUmber : "<<dipdata->sectionNumber<<"\n";
+      unsigned int dipls=dipdata->sectionNumber;
+      b.mode=dipdata->beamMode;
+      b.energy=dipdata->Energy;
+      dipmap.insert(std::make_pair(dipls,b));
+    }
+  }else{
+    for(size_t i=0;i<nentries;++i){
+      beamData b;
+      b.mode="N/A";
+      b.energy=0.0;
+      dipmap.insert(std::make_pair(i,b));
+    }
+  }
+  //diptree->Print();
   //hlxtree->Print();
   std::auto_ptr<HCAL_HLX::LUMI_SECTION> localSection(new HCAL_HLX::LUMI_SECTION);
   HCAL_HLX::LUMI_SECTION_HEADER* lumiheader = &(localSection->hdr);
@@ -129,8 +165,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   hlxtree->SetBranchAddress("Header.",&lumiheader);
   hlxtree->SetBranchAddress("Summary.",&lumisummary);
   hlxtree->SetBranchAddress("Detail.",&lumidetail);
-  
-  size_t nentries=hlxtree->GetEntries();
+   
   size_t ncmslumi=0;
   std::cout<<"processing total lumi lumisection "<<nentries<<std::endl;
   //size_t lumisecid=0;
@@ -138,11 +173,11 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   //runnumber=lumiheader->runNumber;
   for(size_t i=0;i<nentries;++i){
     lumi::Lumi2DB::PerLumiData h;
-    h.cmsalive=true;
+    h.cmsalive=1;
     hlxtree->GetEntry(i);
     if(!lumiheader->bCMSLive){
       std::cout<<"non-CMS LS "<<lumiheader->sectionNumber<<std::endl;
-      h.cmsalive=false;
+      h.cmsalive=0;
       continue;
     }else{
       ++ncmslumi;
@@ -154,10 +189,19 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     //runnumber=lumiheader->runNumber;
     //if(runnumber!=m_run) throw std::runtime_error(std::string("requested run ")+this->int2str(m_run)+" does not match runnumber in the data header "+this->int2str(runnumber));
     h.lumilsnr=lumiheader->sectionNumber;
+    std::map<unsigned int , Lumi2DB::beamData >::iterator beamIt=dipmap.find(h.lumilsnr);
+    if ( beamIt!=dipmap.end() ){
+      h.beammode=beamIt->second.mode;
+      h.beamenergy=beamIt->second.energy;
+    }else{
+      h.beammode="N/A";
+      h.beamenergy=0.0;
+    }
     h.startorbit=lumiheader->startOrbit;
     h.numorbit=lumiheader->numOrbits;
     h.cmslsnr=ncmslumi;//we record cms lumils
     h.instlumi=lumisummary->InstantLumi;
+    //std::cout<<"instant lumi "<<lumisummary->InstantLumi<<std::endl;
     h.instlumierror=lumisummary->InstantLumiErr;
     h.lumisectionquality=lumisummary->InstantLumiQlty;
     h.dtnorm=lumisummary->DeadTimeNormalization;
@@ -213,9 +257,12 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     summaryData.extend<float>("INSTLUMIERROR");
     summaryData.extend<short>("INSTLUMIQUALITY");
     summaryData.extend<short>("LUMISECTIONQUALITY");
-    summaryData.extend<bool>("CMSALIVE");
+    summaryData.extend<short>("CMSALIVE");
     summaryData.extend<unsigned int>("STARTORBIT");
     summaryData.extend<unsigned int>("NUMORBIT");
+    summaryData.extend<float>("BEAMENERGY");
+    summaryData.extend<std::string>("BEAMSTATUS");
+
     coral::IBulkOperation* summaryInserter=summarytable.dataEditor().bulkInsert(summaryData,totallumils);
     
     coral::AttributeList detailData;
@@ -236,11 +283,13 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     float& instlumierror = summaryData["INSTLUMIERROR"].data<float>();
     short& instlumiquality = summaryData["INSTLUMIQUALITY"].data<short>();
     short& lumisectionquality = summaryData["LUMISECTIONQUALITY"].data<short>();
-    bool& cmsalive = summaryData["CMSALIVE"].data<bool>();
+    short& cmsalive = summaryData["CMSALIVE"].data<short>();
     unsigned int& lumilsnr = summaryData["LUMILSNUM"].data<unsigned int>();
     unsigned int& cmslsnr = summaryData["CMSLSNUM"].data<unsigned int>();
     unsigned int& startorbit = summaryData["STARTORBIT"].data<unsigned int>();
     unsigned int& numorbit = summaryData["NUMORBIT"].data<unsigned int>();
+    float& beamenergy = summaryData["BEAMENERGY"].data<float>();
+    std::string& beamstatus = summaryData["BEAMSTATUS"].data<std::string>();
 
     unsigned long long& lumidetail_id=detailData["LUMIDETAIL_ID"].data<unsigned long long>();
     unsigned long long& d2lumisummary_id=detailData["LUMISUMMARY_ID"].data<unsigned long long>();
@@ -267,6 +316,8 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       lumilsnr = lumiIt->lumilsnr;
       startorbit = lumiIt->startorbit;
       numorbit = lumiIt->numorbit;
+      beamenergy = lumiIt->beamenergy;
+      beamstatus = lumiIt->beammode;
       //fetch a new id value 
       //insert the new row
       summaryInserter->processNextIteration();
@@ -328,6 +379,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   session->transaction().commit();
   delete session;
   delete svc;
+
 }
 const std::string lumi::Lumi2DB::dataType() const{
   return "LUMI";
