@@ -8,13 +8,13 @@
  * To run this macro: root -l testSlices.cpp+
  */
 
-void testSlices()
+void testSlices(const TString & inputFileName = "0_MuScleFit.root", const TString & outputFileName = "BiasCheck_0.root")
 {
   gROOT->SetBatch(kTRUE);
 
-  TFile * inputFile = new TFile("0_MuScleFit.root", "READ");
+  TFile * inputFile = new TFile(inputFileName, "READ");
 
-  TFile * outputFile = new TFile("BiasCheck_Psis_0.root", "RECREATE");
+  TFile * outputFile = new TFile(outputFileName, "RECREATE");
 
   FitXslices fitXslices;
 
@@ -33,8 +33,8 @@ void testSlices()
   histoEta->RebinY(4);
   outputFile->mkdir("MassVsEta");
   outputFile->cd("MassVsEta");
-  // fitXslices(histoEta, 2.9, 3.3, "doubleGaussian", "exponential");
-  fitXslices(histoEta, 2.5, 3.5, "doubleGaussian", "exponential");
+  fitXslices(histoEta, 2.9, 3.3, "doubleGaussian", "");
+  // fitXslices(histoEta, 2.5, 3.5, "doubleGaussian", "exponential");
   // Mass vs PhiPlus
   TH2F * histoPhiPlus = (TH2F*)inputFile->Get("hRecBestResVSMu_MassVSPhiPlus");
   histoPhiPlus->RebinX(4);
