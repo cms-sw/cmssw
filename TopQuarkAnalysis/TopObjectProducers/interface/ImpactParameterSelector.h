@@ -4,7 +4,7 @@
 //
 // Original Author:  Sebastian Naumann
 //         Created:  Tue Apr 20 12:45:30 CEST 2010
-// $Id: ImpactParameterSelector.h,v 1.2 2010/04/20 13:50:18 snaumann Exp $
+// $Id: ImpactParameterSelector.h,v 1.3 2010/04/21 11:20:09 snaumann Exp $
 //
 //
 
@@ -82,14 +82,14 @@ ImpactParameterSelector<C>::produce(edm::Event& event, const edm::EventSetup& se
     // electrons
     if(dynamic_cast<const reco::GsfElectron*>(&*iter)) {
       reco::GsfTrackRef trackRef = iter->gsfTrack();
-      if(trackRef.isNonnull() && trackRef.isAvailable())
+      if(!(trackRef.isNonnull() && trackRef.isAvailable()))
 	continue;
       reco::TransientTrack transTrack = trackBuilder->build(trackRef);
     }
     // muons
     else {
       reco::TrackRef trackRef = iter->track();
-      if(trackRef.isNonnull() && trackRef.isAvailable())
+      if(!(trackRef.isNonnull() && trackRef.isAvailable()))
 	continue;
       reco::TransientTrack transTrack = trackBuilder->build(trackRef);
     }
