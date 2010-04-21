@@ -156,7 +156,7 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) const
 {
   if ( tracks.size() < 2 )
   {
-    LogError("RecoVertex/AdaptiveVertexFitter")
+    LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied fewer than two tracks. Vertex is invalid.";
     return CachingVertex<5>(); // return invalid vertex
   };
@@ -175,7 +175,7 @@ AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks) const
 {
   if ( tracks.size() < 2 )
   {
-    LogError("RecoVertex/AdaptiveVertexFitter")
+    LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied fewer than two tracks. Vertex is invalid.";
     return CachingVertex<5>(); // return invalid vertex
   };
@@ -190,7 +190,7 @@ AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks, const
 {
   if ( tracks.size() < 1 )
   {
-    LogError("RecoVertex/AdaptiveVertexFitter")
+    LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied no tracks. Vertex is invalid.";
     return CachingVertex<5>(); // return invalid vertex
   };
@@ -209,7 +209,7 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
 {
   if ( tracks.size() < 2 )
   {
-    LogError("RecoVertex/AdaptiveVertexFitter")
+    LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied fewer than two tracks. Vertex is invalid.";
     return CachingVertex<5>(); // return invalid vertex
   };
@@ -231,7 +231,7 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
 {
   if ( tracks.size() < 1 )
   {
-    LogError("RecoVertex/AdaptiveVertexFitter")
+    LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied no tracks. Vertex is invalid.";
     return CachingVertex<5>(); // return invalid vertex
   };
@@ -265,7 +265,7 @@ CachingVertex<5> AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack>
 {
   if ( tracks.size() < 1 )
   {
-    LogError("RecoVertex/AdaptiveVertexFitter")
+    LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied no tracks. Vertex is invalid.";
     return CachingVertex<5>(); // return invalid vertex
   };
@@ -286,7 +286,7 @@ CachingVertex<5> AdaptiveVertexFitter::vertex(
 {
   if ( tracks.size() < 1 )
   {
-    LogError("RecoVertex/AdaptiveVertexFitter")
+    LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied no tracks. Vertex is invalid.";
     return CachingVertex<5>(); // return invalid vertex
   };
@@ -568,19 +568,19 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
         {
           // were more than 100 m off!!
           LogError ("AdaptiveVertexFitter" ) << "Help! Vertex candidate just took off to " << nVertex.position()
-                                             << "! Will discard this update!";
-          // LogError ("AdaptiveVertexFitter" ) << "track pt was " << (**i).linearizedTrack()->track().pt();
-          LogError ("AdaptiveVertexFitter" ) << "track momentum was " << (**i).linearizedTrack()->track().initialFreeState().momentum();
-          LogError ("AdaptiveVertexFitter" ) << "track position was " << (**i).linearizedTrack()->track().initialFreeState().position();
-          LogError ("AdaptiveVertexFitter" ) << "track chi2 was " << (**i).linearizedTrack()->track().chi2();
-          LogError ("AdaptiveVertexFitter" ) << "track ndof was " << (**i).linearizedTrack()->track().ndof();
-          LogError ("AdaptiveVertexFitter" ) << "track w was " << (**i).weight();
-          LogError ("AdaptiveVertexFitter" ) << "track schi2 was " << (**i).smoothedChi2();
+                                             << "! Will discard this update!"
+					     << "track pt was " << (**i).linearizedTrack()->track().pt()
+					     << "track momentum was " << (**i).linearizedTrack()->track().initialFreeState().momentum()
+					     << "track position was " << (**i).linearizedTrack()->track().initialFreeState().position()
+					     << "track chi2 was " << (**i).linearizedTrack()->track().chi2()
+					     << "track ndof was " << (**i).linearizedTrack()->track().ndof()
+					     << "track w was " << (**i).weight()
+					     << "track schi2 was " << (**i).smoothedChi2();
         } else {
 	        fVertex = nVertex;
         }
       } else {
-        LogWarning("RecoVertex/AdaptiveVertexFitter") 
+        LogWarning("RecoVertex|AdaptiveVertexFitter") 
           << "The updator returned an invalid vertex when adding track "
           << i-globalVTracks.begin() 
 	        << ".\n Your vertex might just have lost one good track.";
