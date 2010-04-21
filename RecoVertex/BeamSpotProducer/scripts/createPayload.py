@@ -212,6 +212,12 @@ if __name__ == '__main__':
 	#print " e.g. createPayload BeamFitResults_template.txt BeamSpotObjects_2009_v1_express 122745 \"\" \"beam spot for early collisions\" \"oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT\"\n"
 	#sys.exit()
 
+    
+     # COMMAND LINE OPTIONS
+    #################################
+    option,args = parse(__doc__)
+    if not args and not option: exit()
+
     workflowdir             = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/test/workflow/"
     if option.Output:
         workflowdir = option.Output
@@ -220,12 +226,7 @@ if __name__ == '__main__':
     workflowdirLastPayloads = workflowdir + "lastPayloads/"
     workflowdirTmp          = workflowdir + "tmp/"
     workflowdirArchive      = workflowdir + "archive/"
-     
-     # COMMAND LINE OPTIONS
-    #################################
-    option,args = parse(__doc__)
-    if not args and not option: exit()
-
+    
     if ( (option.data and option.tag) or (option.data and option.copy)):
         mkWorkflowdir()
     
