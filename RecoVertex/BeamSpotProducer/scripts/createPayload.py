@@ -358,14 +358,14 @@ if __name__ == '__main__':
 		newtmpfile.write(line)
             allfile.write(line)
 
-	# keep first iov for merged output
-        if nfile == 1:
-            iov_since_first = iov_since
 	# pack run number and lumi section
 	if IOVbase == "lumibase":
             timetype = "lumiid"
 	    iov_since = iov_till = str( pack(int(tmp_run), int(tmp_lumi)) )
-
+        # keep first iov for merged output
+        if nfile == 1:
+            iov_since_first = iov_since
+        
 	tmpfile.close()
 	newtmpfile.close()
         if option.copy:
