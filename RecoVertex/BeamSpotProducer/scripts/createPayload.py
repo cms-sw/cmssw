@@ -498,7 +498,7 @@ if __name__ == '__main__':
     dfile.write('destDB '+ destDB +'\n')
     dfile.write('tag '+ tagname +'\n')
     dfile.write('inputtag' +'\n')
-    dfile.write('since ' + iov_since +'\n')
+    dfile.write('since ' + iov_since_first +'\n')
     #        dfile.write('till ' + iov_till +'\n')
     if IOVbase == "runbase":
         dfile.write('Timetype runnumber\n')
