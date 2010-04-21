@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCaloTauProxyBuilder.cc,v 1.5 2010/04/19 15:49:17 yana Exp $
+// $Id: FWCaloTauProxyBuilder.cc,v 1.6 2010/04/20 20:49:40 amraktad Exp $
 //
 
 // system include files
@@ -39,7 +39,7 @@ public:
    FWCaloTauProxyBuilder() {}
    virtual ~FWCaloTauProxyBuilder() {}
 
-   virtual bool hasSingleProduct() const { return false; }
+   virtual bool haveSingleProduct() const { return false; }
   
    REGISTER_PROXYBUILDER_METHODS();
 
