@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:45 CET 2010
-// $Id: FWEveViewManager.h,v 1.5 2010/04/16 18:37:18 amraktad Exp $
+// $Id: FWEveViewManager.h,v 1.6 2010/04/20 20:49:41 amraktad Exp $
 //
 
 // system include files
@@ -91,6 +91,7 @@ private:
 
    void beingDestroyed(const FWViewBase*);
    void modelChanges(const FWModelIds& iIds);
+   void itemChanged(const FWEventItem*);
    bool haveViewForBit (int) const;
 
    // ---------- member data --------------------------------
@@ -102,7 +103,7 @@ private:
    
    TypeToBuilder            m_typeToBuilder;
 
-   std::map<int, BuilderVec> m_builders;
+   std::map<int, BuilderVec> m_builders; // key is viewer bit
 
    std::vector< std::vector<boost::shared_ptr<FWEveView> > >  m_views;
    std::vector<TEveElementList*>  m_viewProducts;

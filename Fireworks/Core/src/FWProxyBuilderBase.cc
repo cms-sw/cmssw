@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.5 2010/04/16 18:37:18 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.6 2010/04/20 20:49:41 amraktad Exp $
 //
 
 // system include files
@@ -60,9 +60,6 @@ void
 FWProxyBuilderBase::setItem(const FWEventItem* iItem)
 { 
    m_item = iItem;
-   if(0 != m_item) {
-      m_item->itemChanged_.connect(boost::bind(&FWProxyBuilderBase::itemChanged,this,_1));
-   }
 }
 
 void
@@ -153,26 +150,27 @@ FWProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
 //______________________________________________________________________________
 void
 FWProxyBuilderBase::modelChanges(const FWModelIds& iIds,
-                                 TEveElement* iElements)
+                                 TEveElement* elms)
 {
-   // printf("FWProxyBuilderBase::modelChange %d %d \n", iElements->NumChildren() ,  m_item->size()); fflush(stdout);
+   assert(m_item && static_cast<int>(m_item->size()) == elms->NumChildren() && "can not use default modelChanges implementation");
 
-   assert(m_item && static_cast<int>(m_item->size()) == iElements->NumChildren() && "can not use default modelChanges implementation");
-
-   TEveElement::List_i itElement = iElements->BeginChildren();
+   TEveElement::List_i itElement = elms->BeginChildren();
    int index = 0;
    for (FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();
 	it != itEnd;
 	++it,++itElement,++index)
    {
-      assert(itElement != iElements->EndChildren());
+      assert(itElement != elms->EndChildren());
       while (index < it->index())
       {
          ++itElement;
          ++index;
-         assert(itElement != iElements->EndChildren());
+         assert(itElement != elms->EndChildren());
       }
-      specialModelChangeHandling(*it,*itElement);
+      if (specialModelChangeHandling(*it,*itElement))
+      {
+         elms->ProjectChild(*itElement);
+      }
    }
 }
 

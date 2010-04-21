@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Apr 19 12:48:18 CEST 2010
-// $Id: FWInteractionList.cc,v 1.1 2010/04/20 20:49:41 amraktad Exp $
+// $Id: FWInteractionList.cc,v 1.2 2010/04/21 10:09:51 amraktad Exp $
 //
 
 // system include files
@@ -95,7 +95,6 @@ FWInteractionList::added(TEveElement* el, unsigned int idx)
       TEveCompound* c = new TEveCompound(name.c_str(),name.c_str());
       c->EnableListElements((m_item->defaultDisplayProperties().isVisible()));
       c->SetMainColor(m_item->defaultDisplayProperties().color());
-      //   c->OpenCompound();
       c->CSCImplySelectAllChildren();
       c->CSCApplyMainColorToAllChildren();
 
@@ -104,8 +103,7 @@ FWInteractionList::added(TEveElement* el, unsigned int idx)
       m_compounds[idx] = c;
    }
    m_compounds[idx]->AddElement(el); 
-   //  printf("%s[%d] FWInteractionList::added has childern %d\n",m_item->name().c_str(), idx,  m_compounds[idx]->NumChildren()); 
-
+   // printf("%s[%d] FWInteractionList::added has childern %d\n",m_item->name().c_str(), idx,  m_compounds[idx]->NumChildren()); 
 }
 
 void
@@ -138,6 +136,18 @@ FWInteractionList::modelChanges(const FWModelIds& iIds)
          if (comp->GetSelectedLevel() == 1)
             gEve->GetSelection()->RemoveElement(comp);
       }
+   }
+}
+
+void
+FWInteractionList::itemChanged()
+{
+   for (int i=0; i< static_cast<int>(m_item->size()); ++i)
+   {
+      TEveElement* comp = m_compounds[i];
+      const FWEventItem::ModelInfo& info = m_item->modelInfo(i);
+      comp->EnableListElements(info.displayProperties().isVisible(), info.displayProperties().isVisible());
+      comp->SetMainColor(info.displayProperties().color());
    }
 }
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Mon Apr 19 12:48:12 CEST 2010
-// $Id$
+// $Id: FWInteractionList.h,v 1.1 2010/04/20 20:49:41 amraktad Exp $
 //
 
 // system include files
@@ -46,6 +46,7 @@ public:
    void removed(TEveElement*, int);
 
    void modelChanges(const std::set<FWModelId>&);
+   void itemChanged();
 
 private:
    FWInteractionList(const FWInteractionList&); // stop default

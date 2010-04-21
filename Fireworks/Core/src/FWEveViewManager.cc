@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.12 2010/04/16 18:37:18 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.13 2010/04/20 20:49:41 amraktad Exp $
 //
 
 // system include files
@@ -153,12 +153,13 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
          FWProxyBuilderBase* builder = FWProxyBuilderFactory::get()->create(builderName);
          if (builder)
          {
-            // printf("FWEveViewManager::makeProxyBuilderFor NEW builder %s \n", builderName.c_str());
+            //  printf("FWEveViewManager::makeProxyBuilderFor NEW builder %s \n", builderName.c_str());
             
             boost::shared_ptr<FWProxyBuilderBase> pB( builder );
             builder->setItem(iItem);
             iItem->changed_.connect(boost::bind(&FWEveViewManager::modelChanges,this,_1));
             iItem->goingToBeDestroyed_.connect(boost::bind(&FWEveViewManager::removeItem,this,_1));
+            iItem->itemChanged_.connect(boost::bind(&FWEveViewManager::itemChanged,this,_1));
 
             if (builder->willHandleInteraction() == false)
             {
@@ -186,6 +187,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
 
                if (viewBit & builderViewBit)
                {   
+                  // printf("%s builder %s supportsd view %s \n",  iItem->name().c_str(), builderName.c_str(), FWViewType::idToName(viewType).c_str());
                   if (builder->havePerViewProduct())
                   { 
                      for (EveViewVec_it i = m_views[viewType].begin(); i!= m_views[viewType].end(); ++i)
@@ -372,7 +374,7 @@ void
 FWEveViewManager::modelChanges(const FWModelIds& iIds)
 {
    FWModelId id = *(iIds.begin());
-  const FWEventItem* item = id.item();
+   const FWEventItem* item = id.item();
 
    // in standard case new elements can be build in case of change of visibility
    // and in non-standard case (e.g. calo towers) PB's modelChages handles all changes
@@ -387,10 +389,33 @@ FWEveViewManager::modelChanges(const FWModelIds& iIds)
       }
    }
 
-   std::map<const FWEventItem*, FWInteractionList*>::iterator it = m_interactionLists.find(item);
+   std::map<const FWEventItem*, FWInteractionList*>::iterator it =  m_interactionLists.find(item);
    if (it != m_interactionLists.end())
    {
       it->second->modelChanges(iIds);
+   }
+}
+
+void
+FWEveViewManager::itemChanged(const FWEventItem* item)
+{ 
+   if (item)
+   {
+      for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
+      {
+         for(BuilderVec_it bIt = i->second.begin(); bIt != i->second.end(); ++bIt)
+         {
+            if ((*bIt)->item() == item)
+            {
+               (*bIt)->itemChanged(item);
+            }
+         }
+      }
+      std::map<const FWEventItem*, FWInteractionList*>::iterator it =  m_interactionLists.find(item);
+      if (it != m_interactionLists.end())
+      {
+         it->second->itemChanged();
+      }
    }
 }
 
