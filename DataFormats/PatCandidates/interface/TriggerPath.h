@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerPath
 //
-// $Id: TriggerPath.h,v 1.3 2009/06/24 15:49:28 vadler Exp $
+// $Id: TriggerPath.h,v 1.4 2010/04/20 21:39:46 vadler Exp $
 //
 /**
   \class    pat::TriggerPath TriggerPath.h "DataFormats/PatCandidates/interface/TriggerPath.h"
@@ -18,7 +18,7 @@
    - [to be filled]
 
   \author   Volker Adler
-  \version  $Id: TriggerPath.h,v 1.3 2009/06/24 15:49:28 vadler Exp $
+  \version  $Id: TriggerPath.h,v 1.4 2010/04/20 21:39:46 vadler Exp $
 */
 
 
@@ -50,7 +50,7 @@ namespace pat {
 
       /// constructors and desctructor
       TriggerPath();
-      TriggerPath( const std::string & name);
+      TriggerPath( const std::string & name );
       TriggerPath( const std::string & name, unsigned index, unsigned prescale, bool run, bool accept, bool error, unsigned lastActiveFilterSlot );
       virtual ~TriggerPath() {};
 

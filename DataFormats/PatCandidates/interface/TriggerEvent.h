@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerEvent
 //
-// $Id: TriggerEvent.h,v 1.4 2009/04/28 19:34:19 vadler Exp $
+// $Id: TriggerEvent.h,v 1.7 2010/04/19 18:01:29 vadler Exp $
 //
 /**
   \class    pat::TriggerEvent TriggerEvent.h "DataFormats/PatCandidates/interface/TriggerEvent.h"
@@ -18,7 +18,7 @@
    - [to be filled]
 
   \author   Volker Adler
-  \version  $Id: TriggerEvent.h,v 1.4 2009/04/28 19:34:19 vadler Exp $
+  \version  $Id: TriggerEvent.h,v 1.7 2010/04/19 18:01:29 vadler Exp $
 */
 
 
@@ -84,7 +84,7 @@ namespace pat {
       bool        wasPhysDecl() const  { return physDecl_; };
 
       /// L1 algorithms related
-      void setAlgoriths( const edm::Handle< TriggerAlgorithmCollection > & handleTriggerAlgorithms ) { algorithms_ = TriggerAlgorithmRefProd( handleTriggerAlgorithms ); };
+      void setAlgorithms( const edm::Handle< TriggerAlgorithmCollection > & handleTriggerAlgorithms ) { algorithms_ = TriggerAlgorithmRefProd( handleTriggerAlgorithms ); };
       const TriggerAlgorithmCollection * algorithms() const { return algorithms_.get(); };          // returns 0 if RefProd is null
       const TriggerAlgorithm           * algorithm( const std::string & nameAlgorithm ) const;      // returns 0 if algorithm is not found
       unsigned                           indexAlgorithm( const std::string & nameAlgorithm ) const; // returns size of algorithm collection if algorithm is not found

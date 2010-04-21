@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerEventProducer.cc,v 1.7 2010/03/08 10:50:24 vadler Exp $
+// $Id: PATTriggerEventProducer.cc,v 1.11 2010/04/19 18:01:56 vadler Exp $
 //
 
 
@@ -8,10 +8,14 @@
 #include <cassert>
 
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 
 #include "DataFormats/Common/interface/AssociativeIterator.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -23,11 +27,13 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
   nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
   tagTriggerResults_( "TriggerResults" ),
   tagTriggerProducer_( "patTrigger" ),
+  tagL1Gt_( "gtDigis" ),
   tagsTriggerMatcher_()
 {
 
   if ( iConfig.exists( "triggerResults" ) )     tagTriggerResults_  = iConfig.getParameter< InputTag >( "triggerResults" );
   if ( iConfig.exists( "patTriggerProducer" ) ) tagTriggerProducer_ = iConfig.getParameter< InputTag >( "patTriggerProducer" );
+  if ( iConfig.exists( "l1GtTag" ) )            tagL1Gt_            = iConfig.getParameter< InputTag >( "l1GtTag" );
   if ( iConfig.exists( "patTriggerMatches" ) )  tagsTriggerMatcher_ = iConfig.getParameter< std::vector< InputTag > >( "patTriggerMatches" );
   if ( tagTriggerResults_.process().empty() ) tagTriggerResults_ = InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
 
@@ -61,12 +67,16 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
 
   if ( ! hltConfigInit_ ) return;
 
+  ESHandle< L1GtTriggerMenu > handleL1GtTriggerMenu;
+  iSetup.get< L1GtTriggerMenuRcd >().get( handleL1GtTriggerMenu );
   Handle< TriggerResults > handleTriggerResults;
   iEvent.getByLabel( tagTriggerResults_, handleTriggerResults );
   if ( ! handleTriggerResults.isValid() ) {
     LogError( "triggerResultsValid" ) << "TriggerResults product with InputTag " << tagTriggerResults_.encode() << " not in event";
     return;
   }
+  Handle< TriggerAlgorithmCollection > handleTriggerAlgorithms;
+  iEvent.getByLabel( tagTriggerProducer_, handleTriggerAlgorithms );
   Handle< TriggerPathCollection > handleTriggerPaths;
   iEvent.getByLabel( tagTriggerProducer_, handleTriggerPaths );
   Handle< TriggerFilterCollection > handleTriggerFilters;
@@ -77,10 +87,31 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
   iEvent.getByLabel( tagTriggerProducer_, handleTriggerObjectsStandAlone );
   assert( handleTriggerObjects->size() == handleTriggerObjectsStandAlone->size() );
 
+  bool physDecl( false );
+  if ( iEvent.isRealData() ) {
+    Handle< L1GlobalTriggerReadoutRecord > handleL1GlobalTriggerReadoutRecord;
+    iEvent.getByLabel( tagL1Gt_, handleL1GlobalTriggerReadoutRecord );
+    if ( handleL1GlobalTriggerReadoutRecord.isValid() ) {
+      L1GtFdlWord fdlWord = handleL1GlobalTriggerReadoutRecord->gtFdlWord();
+      if ( fdlWord.physicsDeclared() == 1 ) {
+        physDecl = true;
+      }
+    } else {
+      LogError( "l1GlobalTriggerReadoutRecordValid" ) << "L1GlobalTriggerReadoutRecord product with InputTag " << tagL1Gt_.encode() << " not in event";
+    }
+  } else {
+    physDecl = true;
+  }
+
   // produce trigger event
 
-  std::auto_ptr< TriggerEvent > triggerEvent( new TriggerEvent( std::string( hltConfig_.tableName() ), handleTriggerResults->wasrun(), handleTriggerResults->accept(), handleTriggerResults->error() ) );
+  std::auto_ptr< TriggerEvent > triggerEvent( new TriggerEvent( handleL1GtTriggerMenu->gtTriggerMenuName(), std::string( hltConfig_.tableName() ), handleTriggerResults->wasrun(), handleTriggerResults->accept(), handleTriggerResults->error(), physDecl ) );
   // set product references to trigger collections
+  if ( handleTriggerAlgorithms.isValid() ) {
+    triggerEvent->setAlgorithms( handleTriggerAlgorithms );
+  } else {
+    LogError( "triggerAlgorithmsValid" ) << "pat::TriggerAlgorithmCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
+  }
   if ( handleTriggerPaths.isValid() ) {
     triggerEvent->setPaths( handleTriggerPaths );
   } else {

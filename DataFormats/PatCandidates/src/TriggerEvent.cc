@@ -1,5 +1,5 @@
 //
-// $Id: TriggerEvent.cc,v 1.8 2009/10/06 19:56:18 vadler Exp $
+// $Id: TriggerEvent.cc,v 1.9 2010/04/20 21:39:46 vadler Exp $
 //
 
 
@@ -234,7 +234,7 @@ TriggerFilterRefVector TriggerEvent::pathModules( const std::string & namePath, 
     const unsigned onePastLastFilter = all ? path( namePath )->modules().size() : path( namePath )->lastActiveFilterSlot() + 1;
     for ( unsigned iM = 0; iM < onePastLastFilter; ++iM ) {
       const std::string labelFilter( path( namePath )->modules().at( iM ) );
-     const TriggerFilterRef filterRef( filters(), indexFilter( labelFilter ) ); // NULL, if filter was not in trigger::TriggerEvent
+      const TriggerFilterRef filterRef( filters(), indexFilter( labelFilter ) ); // NULL, if filter was not in trigger::TriggerEvent
       thePathFilters.push_back( filterRef );
     }
   }
