@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.20 2009/10/09 09:27:07 lowette Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.21 2009/11/10 14:49:02 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
@@ -105,11 +105,6 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange dev
       // Iterate through all channels and extract LLD settings 
       Analyses::const_iterator iter = data().find( fec_key.key() );
       if ( iter != data().end() ) {
-
-	if ( !iter->second->isValid() ) { 
-	  addProblemDevice( fec_key ); //@@ Remove problem device
-	  continue; 
-	}
 
 	OptoScanAnalysis* anal = dynamic_cast<OptoScanAnalysis*>( iter->second );
 	if ( !anal ) { 

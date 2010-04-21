@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.24 2009/11/12 12:35:43 dellaric Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.25 2009/11/15 16:42:16 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -27,8 +27,7 @@ using namespace sistrip;
 SiStripCommissioningOfflineDbClient::SiStripCommissioningOfflineDbClient( const edm::ParameterSet& pset ) 
   : SiStripCommissioningOfflineClient(pset),
     uploadAnal_( pset.getUntrackedParameter<bool>("UploadAnalyses",false) ),
-    uploadConf_( pset.getUntrackedParameter<bool>("UploadHwConfig",false) ),
-    disableDevices_( pset.getUntrackedParameter<bool>("DisableDevices",false) )
+    uploadConf_( pset.getUntrackedParameter<bool>("UploadHwConfig",false) )
 {
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
@@ -130,7 +129,6 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
   if ( tmp ) { 
     tmp->doUploadConf( uploadConf_ ); 
     tmp->doUploadAnal( uploadAnal_ ); 
-    tmp->disableDevices( disableDevices_ );
     std::stringstream ss;
     ss << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]" 
        << std::endl
@@ -139,9 +137,7 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
        << std::endl
        << " Uploading calibrations from analysis? : " 
        << ( tmp->doUploadAnal() ? "true" : "false" )
-       << std::endl
-       << " Disable problematic devices?          : " 
-       << ( tmp->disableDevices() ? "true" : "false" );
+       << std::endl;
     edm::LogVerbatim(mlDqmClient_) << ss.str();
   } else {
     edm::LogError(mlDqmClient_) 

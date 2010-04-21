@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.29 2009/11/15 16:42:16 lowette Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.30 2010/02/02 18:31:57 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -166,11 +166,6 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
       // Locate appropriate analysis object
       Analyses::const_iterator iter = data().find( fec_key.key() );
       if ( iter != data().end() ) { 
-	
-	if ( !iter->second->isValid() ) { 
-	  addProblemDevice( fec_key ); //@@ Remove problem device
-	  continue; 
-	}
 	
 	ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>( iter->second );
 	if ( !anal ) { 

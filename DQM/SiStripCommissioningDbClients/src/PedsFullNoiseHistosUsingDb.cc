@@ -1,4 +1,4 @@
-// Last commit: $Id: PedsFullNoiseHistosUsingDb.cc,v 1.2 2009/11/10 14:49:02 lowette Exp $
+// Last commit: $Id: PedsFullNoiseHistosUsingDb.cc,v 1.3 2009/11/15 16:42:16 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedsFullNoiseHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedsFullNoiseAnalysis.h"
@@ -115,12 +115,6 @@ void PedsFullNoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange f
       // Locate appropriate analysis object 
       Analyses::const_iterator iter = data().find( fec_key.key() );
       if ( iter != data().end() ) {
-
-        // Check if analysis is valid
-        if ( !iter->second->isValid() ) { 
-          addProblemDevice( fec_key ); //@@ Remove problem device
-          continue; 
-        }
 
         PedsFullNoiseAnalysis* anal = dynamic_cast<PedsFullNoiseAnalysis*>( iter->second );
         if ( !anal ) { 

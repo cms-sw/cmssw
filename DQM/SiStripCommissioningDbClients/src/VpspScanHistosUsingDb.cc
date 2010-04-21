@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.19 2009/06/18 20:52:37 lowette Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.20 2009/11/10 14:49:02 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
@@ -104,11 +104,6 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange dev
     // Iterate through all channels and extract LLD settings 
     Analyses::const_iterator iter = data().find( fec_key.key() );
     if ( iter != data().end() ) {
-
-      if ( !iter->second->isValid() ) { 
-	addProblemDevice( fec_key ); //@@ Remove problem device
-	continue; 
-      }
 
       VpspScanAnalysis* anal = dynamic_cast<VpspScanAnalysis*>( iter->second );
       if ( !anal ) { 

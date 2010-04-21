@@ -7,7 +7,6 @@ db_client = cms.EDAnalyzer("SiStripCommissioningOfflineDbClient",
   UseClientFile    = cms.untracked.bool(False),
   UploadHwConfig   = cms.untracked.bool(False),
   UploadAnalyses   = cms.untracked.bool(False),
-  DisableDevices   = cms.untracked.bool(False),
   SaveClientFile   = cms.untracked.bool(True),
   SummaryXmlFile   = cms.untracked.FileInPath('DQM/SiStripCommissioningClients/data/summary.xml'),
   # individual parameters

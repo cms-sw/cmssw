@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.14 2009/11/10 14:49:01 lowette Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.15 2009/11/15 16:42:16 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
@@ -31,13 +31,9 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   
   bool doUploadConf() const;
 
-  bool disableDevices() const;
-  
   void doUploadAnal( bool );
   
   void doUploadConf( bool );
-  
-  void disableDevices( bool );
   
  // ---------- protected methods ----------
 
@@ -74,10 +70,6 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   
   bool deviceIsPresent( const SiStripFecKey& );
   
-  void addProblemDevice( const SiStripFecKey& );
-  
-  void disableProblemDevices();
-  
  // ---------- private member data ----------
   
  private: 
@@ -94,25 +86,17 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   
   std::map<std::string,DetInfos> detInfo_;
   
-  typedef std::map<uint32_t,uint16_t> DisabledDevices;
-
-  std::map<std::string,DisabledDevices> disabled_;
-  
   bool uploadAnal_;
   
   bool uploadConf_;
-  
-  bool disableDevices_;
   
 };
 
 inline void CommissioningHistosUsingDb::doUploadConf( bool upload ) { uploadConf_ = upload; }
 inline void CommissioningHistosUsingDb::doUploadAnal( bool upload ) { uploadAnal_ = upload; }
-inline void CommissioningHistosUsingDb::disableDevices( bool disable ) { disableDevices_ = disable; }
 
 inline bool CommissioningHistosUsingDb::doUploadAnal() const { return uploadAnal_; }
 inline bool CommissioningHistosUsingDb::doUploadConf() const { return uploadConf_; }
-inline bool CommissioningHistosUsingDb::disableDevices() const { return disableDevices_; }
 
 inline SiStripConfigDb* const CommissioningHistosUsingDb::db() const { return db_; } 
 inline SiStripFedCabling* const CommissioningHistosUsingDb::cabling() const { return cabling_; }

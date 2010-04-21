@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.25 2009/11/10 14:49:02 lowette Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.26 2009/11/15 16:42:16 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
@@ -114,12 +114,6 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
       // Locate appropriate analysis object 
       Analyses::const_iterator iter = data().find( fec_key.key() );
       if ( iter != data().end() ) {
-
-         // Check if analysis is valid
-         if ( !iter->second->isValid() ) { 
-           addProblemDevice( fec_key ); //@@ Remove problem device
-           continue; 
-         }
 
          PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>( iter->second );
          if ( !anal ) { 
