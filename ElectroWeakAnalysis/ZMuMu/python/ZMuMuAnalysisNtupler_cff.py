@@ -375,7 +375,7 @@ goodZToMuMuOneTrackPathLoose.__iadd__(goodZToMuMuOneTrackEdmNtupleLoose)
 goodZToMuMuOneTrackPathLoose.setLabel("goodZToMuMuOneTrackLoose")
 
 goodZToMuMuOneTrackerMuonEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
-goodZToMuMuOneTrackerMuonEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneTrackerMuonFirstHLTMuonLoose")
+goodZToMuMuOneTrackerMuonEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneTrackerMuonFirstHLTLoose")
 goodZToMuMuOneTrackerMuonEdmNtupleLoose.prefix=cms.untracked.string("zMuTrkMu")
 goodZToMuMuOneTrackerMuonEdmNtupleLoose.variables += zMuMu
 goodZToMuMuOneTrackerMuonEdmNtupleLoose.variables += zMuTrkMu
