@@ -256,7 +256,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   pthread_mutex_init(&pickup_lock_,0);
 
   std::ostringstream ost;
-  ost  << "<div id=\"ve\">2.2.3 (" << edm::getReleaseVersion() <<")</div>"
+  ost  << "<div id=\"ve\">2.2.4 (" << edm::getReleaseVersion() <<")</div>"
        << "<div id=\"ou\">" << outPut_.toString() << "</div>"
        << "<div id=\"sh\">" << hasShMem_.toString() << "</div>"
        << "<div id=\"mw\">" << hasModuleWebRegistry_.toString() << "</div>"
