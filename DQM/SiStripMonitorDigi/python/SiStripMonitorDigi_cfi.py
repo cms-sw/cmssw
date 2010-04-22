@@ -114,6 +114,8 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
     HistoryProducer = cms.InputTag("consecutiveHEs"),
     ApvPhaseProducer = cms.InputTag("APVPhases"),
 
+    UseDCSFiltering = cms.bool(True),
+                                    
     # rest of parameters
     SelectAllDetectors = cms.bool(False),
     ShowMechanicalStructureView = cms.bool(True),

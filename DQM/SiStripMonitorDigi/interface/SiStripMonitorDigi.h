@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.23 2010/03/14 15:32:05 dutta Exp $
+// $Id: SiStripMonitorDigi.h,v 1.24 2010/03/27 11:42:26 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -19,6 +19,7 @@
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 
 class DQMStore;
+class SiStripDCSStatus;
 
 class SiStripMonitorDigi : public edm::EDAnalyzer {
  public:
@@ -137,6 +138,8 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
 
   edm::InputTag historyProducer_;  
   edm::InputTag apvPhaseProducer_;
+
+  SiStripDCSStatus* dcsStatus_;
 };
 #endif
 
