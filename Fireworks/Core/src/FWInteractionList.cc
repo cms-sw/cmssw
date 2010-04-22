@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Apr 19 12:48:18 CEST 2010
-// $Id: FWInteractionList.cc,v 1.2 2010/04/21 10:09:51 amraktad Exp $
+// $Id: FWInteractionList.cc,v 1.3 2010/04/21 19:24:58 amraktad Exp $
 //
 
 // system include files
@@ -145,6 +145,16 @@ FWInteractionList::itemChanged()
    for (int i=0; i< static_cast<int>(m_item->size()); ++i)
    {
       TEveElement* comp = m_compounds[i];
+
+      std::string name = m_item->modelName(i);
+      std::stringstream s;
+      if (m_item->haveInterestingValue())
+      {
+         s<<name<<", "<< m_item->modelInterestingValueAsString(i);
+         name = s.str();
+      }
+      comp->SetElementTitle(name.c_str());
+
       const FWEventItem::ModelInfo& info = m_item->modelInfo(i);
       comp->EnableListElements(info.displayProperties().isVisible(), info.displayProperties().isVisible());
       comp->SetMainColor(info.displayProperties().color());
