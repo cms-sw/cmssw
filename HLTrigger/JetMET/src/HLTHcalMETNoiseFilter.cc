@@ -12,7 +12,7 @@
 //
 // Original Author:  Leonard Apanasevich
 //         Created:  Wed Mar 25 16:01:27 CDT 2009
-// $Id: HLTHcalMETNoiseFilter.cc,v 1.10 2010/04/13 23:15:29 johnpaul Exp $
+// $Id: HLTHcalMETNoiseFilter.cc,v 1.11 2010/04/14 20:27:48 johnpaul Exp $
 //
 //
 
@@ -31,20 +31,21 @@
 #include <iostream>
 
 HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig)
-  : noisealgo_(iConfig),
-    HcalNoiseRBXCollectionTag_(iConfig.getParameter<edm::InputTag>("HcalNoiseRBXCollection")),
+  : HcalNoiseRBXCollectionTag_(iConfig.getParameter<edm::InputTag>("HcalNoiseRBXCollection")),
     severity_(iConfig.getParameter<int> ("severity")),
     maxNumRBXs_(iConfig.getParameter<int>("maxNumRBXs")),
     numRBXsToConsider_(iConfig.getParameter<int>("numRBXsToConsider")),
-    needHighLevelCoincidence_(iConfig.getParameter<bool>("needHighLevelCoincidence")),
-    useLooseRatioFilter_(iConfig.getParameter<bool>("useLooseRatioFilter")),
-    useLooseHitsFilter_(iConfig.getParameter<bool>("useLooseHitsFilter")),
-    useLooseZerosFilter_(iConfig.getParameter<bool>("useLooseZerosFilter")),
-    useLooseTimingFilter_(iConfig.getParameter<bool>("useLooseTimingFilter")),
-    useTightRatioFilter_(iConfig.getParameter<bool>("useTightRatioFilter")),
-    useTightHitsFilter_(iConfig.getParameter<bool>("useTightHitsFilter")),
-    useTightZerosFilter_(iConfig.getParameter<bool>("useTightZerosFilter")),
-    useTightTimingFilter_(iConfig.getParameter<bool>("useTightTimingFilter")),
+    needEMFCoincidence_(iConfig.getParameter<bool>("needEMFCoincidence")),
+    minRBXEnergy_(iConfig.getParameter<double>("minRBXEnergy")),
+    minRatio_(iConfig.getParameter<double>("minRatio")),
+    maxRatio_(iConfig.getParameter<double>("maxRatio")),
+    minHPDHits_(iConfig.getParameter<int>("minHPDHits")),
+    minRBXHits_(iConfig.getParameter<int>("minRBXHits")),
+    minHPDNoOtherHits_(iConfig.getParameter<int>("minHPDNoOtherHits")),
+    minZeros_(iConfig.getParameter<int>("minZeros")),
+    minHighEHitTime_(iConfig.getParameter<double>("minHighEHitTime")),
+    maxHighEHitTime_(iConfig.getParameter<double>("maxHighEHitTime")),
+    maxRBXEMF_(iConfig.getParameter<double>("maxRBXEMF")),
     minRecHitE_(iConfig.getParameter<double>("minRecHitE")),
     minLowHitE_(iConfig.getParameter<double>("minLowHitE")),
     minHighHitE_(iConfig.getParameter<double>("minHighHitE"))
@@ -94,17 +95,22 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
       ++it, ++cntr) {
 
     bool passFilter=true;
-    if(useLooseRatioFilter_ && !noisealgo_.passLooseRatio(*it)) passFilter=false;
-    else if(useLooseHitsFilter_ && !noisealgo_.passLooseHits(*it)) passFilter=false;
-    else if(useLooseZerosFilter_ && !noisealgo_.passLooseZeros(*it)) passFilter=false;
-    else if(useLooseTimingFilter_ && !noisealgo_.passLooseTiming(*it)) passFilter=false;
-    else if(useTightRatioFilter_ && !noisealgo_.passTightRatio(*it)) passFilter=false;
-    else if(useTightHitsFilter_ && !noisealgo_.passTightHits(*it)) passFilter=false;
-    else if(useTightZerosFilter_ && !noisealgo_.passTightZeros(*it)) passFilter=false;
-    else if(useTightTimingFilter_ && !noisealgo_.passTightTiming(*it)) passFilter=false;
-    
-    if((needHighLevelCoincidence_ && !noisealgo_.passHighLevelNoiseFilter(*it) && !passFilter) ||
-       (!needHighLevelCoincidence_ && !passFilter)) {
+    bool passEMF=true;
+    if(it->energy()>minRBXEnergy_) {
+      if(it->validRatio() && it->ratio()<minRatio_)        passFilter=false;
+      else if(it->validRatio() && it->ratio()>maxRatio_)   passFilter=false;
+      else if(it->numHPDHits()>=minHPDHits_)               passFilter=false;
+      else if(it->numRBXHits()>=minRBXHits_)               passFilter=false;
+      else if(it->numHPDNoOtherHits()>=minHPDNoOtherHits_) passFilter=false;
+      else if(it->numZeros()>=minZeros_)                   passFilter=false;
+      else if(it->minHighEHitTime()<minHighEHitTime_)      passFilter=false;
+      else if(it->maxHighEHitTime()>maxHighEHitTime_)      passFilter=false;
+      
+      if(it->RBXEMF()<maxRBXEMF_) passEMF=false;
+    }
+
+    if((needEMFCoincidence_ && !passEMF && !passFilter) ||
+       (!needEMFCoincidence_ && !passFilter)) {
       LogDebug("") << "HLTHcalMETNoiseFilter debug: Found a noisy RBX: "
 		   << "energy=" << it->energy() << "; "
 		   << "ratio=" << it->ratio() << "; "
