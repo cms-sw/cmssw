@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.71 2010/03/27 09:18:02 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.72 2010/04/21 15:13:20 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -240,6 +240,9 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   }
 
+  // for every event, first clear vector of selected muons
+  fSelectedMuons->clear();
+
   if(muonHandle.isValid()) { 
 
     for( reco::MuonCollection::const_iterator iter = muonHandle->begin(), iend = muonHandle->end(); iter != iend; ++iter )
@@ -257,6 +260,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
    } // end for
   } // end if
+
   edm::Handle<reco::MuonCollection> fSelMuonsHandle(fSelectedMuons,muonHandle.provenance());
 
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
