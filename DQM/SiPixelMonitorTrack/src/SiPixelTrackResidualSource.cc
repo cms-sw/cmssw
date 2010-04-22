@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.15 2010/04/12 23:31:49 elmer Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.16 2010/04/20 16:38:06 merkelp Exp $
 
 
 #include <iostream>
@@ -695,8 +695,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	  //uint IntRawDetID = (hit_detId.rawId());
 	  uint IntSubDetID = (hit_detId.subdetId());
 	  
- 	  if(IntSubDetID == 0 )
-	    continue;
+ 	  if(IntSubDetID == 0 ) continue; // don't look at SiStrip hits!	    
 
 	  // get the enclosed persistent hit
 	  const TrackingRecHit *persistentHit = hit->hit();
@@ -873,17 +872,17 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   if(debug_) std::cout << "clusters not on track: (size " << clustColl.size() << ") ";
 
   for(TrackerGeometry::DetContainer::const_iterator it = TG->dets().begin(); it != TG->dets().end(); it++){
-    if(static_cast<PixelGeomDetUnit*>((*it))!=0){ 
-      DetId detId = (*it)->geographicalId();
-      
+    //if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
+    DetId detId = (*it)->geographicalId();
+    if(detId>=302055684 && detId<=352477708){ // make sure it's a Pixel module WITHOUT using dynamic_cast!  
       int nofclOnTrack = 0, nofclOffTrack=0; 
       uint32_t DBlayer=10, DBdisk=10; 
       float z=0.; 
       //set layer/disk
-      if(DetId(detId).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+      if(DetId(detId).subdetId() == 1) { // Barrel module
 	DBlayer = PixelBarrelName(DetId(detId)).layerName();
       }
-      if(DetId(detId).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)){
+      if(DetId(detId).subdetId() == 2){ // Endcap module
 	DBdisk = PixelEndcapName(DetId(detId )).diskName();
       }
       edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = clustColl.find(detId);
@@ -932,7 +931,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	    /////////////////////////////////////////////////
 
 	    //barrel
-	    if(DetId(detId).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+	    if(DetId(detId).subdetId() == 1) {
 	      meClSizeNotOnTrack_bpix->Fill((*di).size());
 	      meClSizeXNotOnTrack_bpix->Fill((*di).sizeX());
 	      meClSizeYNotOnTrack_bpix->Fill((*di).sizeY());
@@ -971,7 +970,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      }
 	    }
 	    //endcap
-	    if(DetId(detId).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+	    if(DetId(detId).subdetId() == 2) {
 	      meClSizeNotOnTrack_fpix->Fill((*di).size());
 	      meClSizeXNotOnTrack_fpix->Fill((*di).sizeX());
 	      meClSizeYNotOnTrack_fpix->Fill((*di).sizeY());
@@ -1047,7 +1046,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
       if(nofclOnTrack!=0) meNClustersOnTrack_all->Fill(nofclOnTrack); 
       if(nofclOffTrack!=0) meNClustersNotOnTrack_all->Fill(nofclOffTrack); 
       //barrel
-      if(DetId(detId).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)){
+      if(DetId(detId).subdetId() == 1){
 	if(nofclOnTrack!=0) meNClustersOnTrack_bpix->Fill(nofclOnTrack); 
 	if(nofclOffTrack!=0) meNClustersNotOnTrack_bpix->Fill(nofclOffTrack); 
 	//DBlayer = PixelBarrelName(DetId(detId)).layerName();
@@ -1067,7 +1066,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	}
       }//end barrel
       //endcap
-      if(DetId(detId).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+      if(DetId(detId).subdetId() == 2) {
 	//DBdisk = PixelEndcapName(DetId(detId )).diskName();
 	//z = clustgp.z();
 	if(nofclOnTrack!=0) meNClustersOnTrack_fpix->Fill(nofclOnTrack); 
@@ -1094,8 +1093,8 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	}
       }
 
-    }
-  }
+    }//end if it's a Pixel module
+  }//end for loop over tracker detector geometry modules
 
 
   if(trackclusters>0) (meNofClustersOnTrack_)->Fill(0,trackclusters);
