@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.21 $'),
+    version = cms.untracked.string('$Revision: 1.22 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -25,7 +25,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(5000)
 )
 
 
@@ -159,8 +159,6 @@ process.l1RequestTecAlgos.L1SeedsLogicalExpression = cms.string('31')
 
 process.rpcTecSkim = cms.Path(process.l1RequestTecAlgos)
 
-process.load("DPGAnalysis.Skims.RPCRecHitFilter_cfi")
-process.rpcRHSkim = cms.Path(process.RPCRecHitsFilter)
 ###########################################################################
 
 
@@ -188,7 +186,7 @@ process.outputMuonSkim = cms.OutputModule("PoolOutputModule",
     	      dataTier = cms.untracked.string('RAW-RECO'),
     	      filterName = cms.untracked.string('Muon_skim')),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring("l1MuBitsSkim","dtHLTSkim","dtSkim","cscHLTSkim","cscSkimAlone","rpcRHSkim","rpcTecSkim","muonTracksSkim")
+        SelectEvents = cms.vstring("l1MuBitsSkim","dtHLTSkim","dtSkim","cscHLTSkim","cscSkimAlone","rpcTecSkim","muonTracksSkim")
     )
 )
 ####################################################################################
