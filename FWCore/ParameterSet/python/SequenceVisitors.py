@@ -5,18 +5,17 @@ from Modules import OutputModule, EDProducer, EDFilter, EDAnalyzer
 class PathValidator(object):
     def enter(self,visitee):
         if isinstance(visitee,OutputModule):
-            message = "Warning: Path cannot have an OutputModule, "+visitee.label_()
-            print message
-            #raise ValueError(message)
+            raise ValueError("Path cannot contain an OutputModule, "+visitee.type_()+", with label "+visitee.label_())
     def leave(self,visitee):
         pass
 
 class EndPathValidator(object):
     def enter(self,visitee):
-        if isinstance(visitee,EDProducer) or isinstance(visitee,EDFilter):
-            message = "Warning: EndPath cannot have an EDProducer or an EDFilter, "+visitee.label_()
-            print message
-            #raise ValueError(message)
+        if isinstance(visitee,EDFilter):
+	    if (visitee.type_() not in ["TriggerResultsFilter", "HLTPrescaler"]):
+                raise ValueError("EndPath cannot contain an EDFilter, "+visitee.type_()+", with label "+visitee.label_())
+        if isinstance(visitee,EDProducer):
+            raise ValueError("EndPath cannot contain an EDProducer, "+visitee.type_()+", with label "+visitee.label_())
     def leave(self,visitee):
         pass
 
@@ -46,10 +45,10 @@ if __name__=="__main__":
             pathValidator = PathValidator()
             endpathValidator = EndPathValidator()
             p1.visit(pathValidator)
-            #self.assertRaises(ValueError, p2.visit, pathValidator) 
+            self.assertRaises(ValueError, p2.visit, pathValidator) 
             ep1.visit(endpathValidator) 
-            #self.assertRaises(ValueError, ep2.visit, endpathValidator)
-            #self.assertRaises(ValueError, ep3.visit, endpathValidator)
+            self.assertRaises(ValueError, ep2.visit, endpathValidator)
+            self.assertRaises(ValueError, ep3.visit, endpathValidator)
 
     unittest.main()
 
