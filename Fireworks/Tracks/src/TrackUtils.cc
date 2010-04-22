@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.21 2010/04/16 09:39:22 yana Exp $
+// $Id: TrackUtils.cc,v 1.22 2010/04/21 11:10:08 amraktad Exp $
 //
 
 // system include files
@@ -118,12 +118,12 @@ namespace fireworks {
     if ( refStates.back().valid ) {
       t.fSign = (-1)*track.charge();
       t.fV = refStates.back().position;
-      t.fP = refStates.back().momentum * (-1);
+      t.fP = refStates.back().momentum * (-1.0f);
       TEveTrack* trk = new TEveTrack(&t,propagator);
       unsigned int i(refStates.size()-1);
       for(; i>0; --i) {
 	if ( refStates[i].valid )
-	  trk->AddPathMark( TEvePathMark( TEvePathMark::kReference, refStates[i].position, refStates[i].momentum*(-1) ) );
+	  trk->AddPathMark( TEvePathMark( TEvePathMark::kReference, refStates[i].position, refStates[i].momentum*(-1.0f) ) );
 	else
 	  trk->AddPathMark( TEvePathMark( TEvePathMark::kDaughter, refStates[i].position ) );
       }
