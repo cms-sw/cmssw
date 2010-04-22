@@ -79,8 +79,8 @@ def cmp_tags(a,b):
     tmpb = b.replace("BeamSpotObjects_2009_v","")
     tmpb = b.replace("_offline","")
     
-    na = int(a)
-    nb = int(b)
+    na = int(tmpa)
+    nb = int(tmpb)
     if na < nb: return -1
     if na == nb: return 0
     if na > nb: return 1
