@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("EXAMPLE")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-100) )
 
 process.TFileService = cms.Service("TFileService",  fileName = cms.string("histo.root")          )
 
@@ -81,7 +81,7 @@ process.OUTPUT = cms.OutputModule("PoolOutputModule",
 #         "keep recoMuons_*_*_*"
 #         ),
         SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p1')),
-        fileName = cms.untracked.string('file:/tmp/fruboes/Zmumu/zMuMuEmbed_output.root')
+        fileName = cms.untracked.string('file:zMuMuEmbed_output.root')
 # fileName = cms.untracked.string('zMuMuEmbed_output.root')
 )
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id: ZmumuPFEmbedder.cc,v 1.1 2010/03/17 16:14:10 fruboes Exp $
+// $Id: ZmumuPFEmbedder.cc,v 1.2 2010/04/13 11:18:57 fruboes Exp $
 //
 //
 
@@ -53,7 +53,7 @@ class ZmumuPFEmbedder : public edm::EDProducer {
    private:
       virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      void produceTrackColl(edm::Event&, const std::vector< reco::PFCandidate > & toBeAdded );
+      void produceTrackColl(edm::Event&, const std::vector< reco::Muon > * toBeAdded );
       virtual void endJob() ;
       
       double _etaMax;
@@ -82,7 +82,7 @@ ZmumuPFEmbedder::ZmumuPFEmbedder(const edm::ParameterSet& iConfig)
 {
 
    //register your products
-   produces< std::vector< reco::Muon >  >("zMusExtracted"); // 
+   // produces< std::vector< reco::Muon >  >("zMusExtracted"); // 
    produces< std::vector< reco::PFCandidate >  >("forMixing"); // 
    produces<reco::TrackCollection>();
 
@@ -118,41 +118,33 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace reco;
 
-   std::cout << "#######"  << std::endl;
    Handle<PFCandidateCollection> pfIn;
    iEvent.getByLabel("particleFlow",pfIn);
-   // iterate over pf, choose 2 muons
 
-   std::auto_ptr<std::vector< reco::Muon > > pOut(new std::vector< reco::Muon  > );
+   //std::auto_ptr<std::vector< reco::Muon > > pOut(new std::vector< reco::Muon  > );
    std::auto_ptr<std::vector< reco::PFCandidate > > forMix(new std::vector< reco::PFCandidate  > );
    
    
-   std::vector< reco::PFCandidate > toBeAdded;
- 
+   //get selected muons
+   Handle< std::vector< reco::Muon > > selectedZMuonsHandle;
+   iEvent.getByLabel("TODO", selectedZMuonsHandle);
+   const std::vector< reco::Muon > * toBeAdded = selectedZMuonsHandle.product();
+   //std::vector< reco::Muon > toBeAdded;
+   // TODO - check col size
+   reco::Muon l1 = *(toBeAdded->begin());
+   reco::Muon l2 = *(toBeAdded->rbegin());
    
+   // iterate over pfcandidates, make copy if its not a selected muon
    PFCandidateConstIterator it = pfIn->begin();
    PFCandidateConstIterator itE = pfIn->end();
+
    for (;it!=itE;++it) {
      int pdg = std::abs( it->pdgId() );
-     
-     if ( pdg == 13 && std::abs(it->eta()) < _etaMax &&  it->pt() > _ptMin ) {
+     double dr1 = reco::deltaR( *it, l1); 
+     double dr2 = reco::deltaR( *it, l2); 
+
+     if ( pdg == 13 && (dr1 < 0.001 || dr2 < 0.002 ) ) { // it is a selected muon, do not copy
        
-       if (toBeAdded.size() < 2 ) {
-         toBeAdded.push_back(*it);
-       } else if (toBeAdded.size() == 2 ) {
-          forMix->push_back( *(toBeAdded.rbegin())  );
-          toBeAdded.pop_back();
-          toBeAdded.push_back(*it);
-       } else { // never should get here
-         throw cms::Exception("yadayada") << " Internal err \n";
-       }
-       
-       // keep two elements sorted
-       if (toBeAdded.size() == 2 && (toBeAdded.at(0).pt() < toBeAdded.at(1).pt()) ) {
-          reco::PFCandidate tmp = *( toBeAdded.begin() );
-          toBeAdded.at(0) = toBeAdded.at(1);
-          toBeAdded.at(1) = tmp;
-       }
        
      } else {
        forMix->push_back(*it);
@@ -160,20 +152,37 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
 
+   /*
    Handle<reco::VertexCollection> primaryVertices;
    iEvent.getByLabel("offlinePrimaryVertices", primaryVertices);
-   const reco::Vertex vtx = *(primaryVertices->begin());
+   const reco::Vertex vtx = *(primaryVertices->begin());*/
   
-   std::vector< reco::PFCandidate >::iterator itTBA = toBeAdded.begin();
-   
+   //   std::vector< reco::PFCandidate >::iterator itTBA = toBeAdded.begin();
+  
+   /*
+   std::cout << "__________________-" << std::endl; 
+   std::cout << vtx.x() 
+             << " " << vtx.y()  
+             << " " << vtx.z()  
+             << std::endl; */
+   /*
    reco::Vertex::Point p = vtx.position();
+
    for (; itTBA != toBeAdded.end(); ++itTBA) {
-       reco::Muon mu(itTBA->charge(), itTBA->p4(), p);
+
+       //reco::Muon mu(itTBA->charge(), itTBA->p4(), p);
+       reco::Muon mu(itTBA->charge(), itTBA->p4(), itTBA->vertex());
        pOut->push_back(mu); //xxx
-   }
+
+       reco::Vertex::Point p1 = itTBA->vertex();
+       std::cout << p1.x() 
+             << " " << p1.y()  
+             << " " << p1.z()  
+             << std::endl; 
+   }*/
 
    produceTrackColl(iEvent, toBeAdded);
-   iEvent.put(pOut, "zMusExtracted");
+   //iEvent.put(pOut, "zMusExtracted");
    iEvent.put(forMix, "forMixing");
 
 
@@ -182,7 +191,7 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // produces clean track collection wo muon tracks.
-void ZmumuPFEmbedder::produceTrackColl(edm::Event & iEvent, const std::vector< reco::PFCandidate > & toBeAdded )
+void ZmumuPFEmbedder::produceTrackColl(edm::Event & iEvent, const std::vector< reco::Muon > * toBeAdded )
 {
    edm::Handle<reco::TrackCollection> tks;
    iEvent.getByLabel( _tracks, tks);
@@ -195,13 +204,13 @@ void ZmumuPFEmbedder::produceTrackColl(edm::Event & iEvent, const std::vector< r
    for ( reco::TrackCollection::const_iterator it = tks->begin() ; it != tks->end(); ++it) 
    {
      bool ok = true;
-     for ( std::vector< reco::PFCandidate >::const_iterator itTBA = toBeAdded.begin();
-                                                            itTBA != toBeAdded.end();
+     for ( std::vector< reco::Muon >::const_iterator itTBA = toBeAdded->begin();
+                                                            itTBA != toBeAdded->end();
                                                             ++itTBA)
      {
-       const reco::MuonRef& muonRef = itTBA->muonRef();
+       //const reco::MuonRef& muonRef = itTBA->muonRef();
        //( muonRef.isNonnull() );
-       reco::TrackRef track = muonRef->innerTrack();
+       reco::TrackRef track = itTBA->innerTrack();
        double dr = reco::deltaR( *it, *track);
        //std::cout << "TTTT " << dr << std::endl;
        if (dr < epsilon) {

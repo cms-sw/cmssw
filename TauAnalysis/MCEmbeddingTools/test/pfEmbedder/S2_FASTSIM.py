@@ -33,7 +33,7 @@ process.load('FastSimulation/Configuration/EventContent_cff')
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('-s nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -52,8 +52,8 @@ process.source = cms.Source("PoolSource",
 process.output = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     #outputCommands = process.RECOSIMEventContent.outputComma ds,
-    fileName = cms.untracked.string('file:/tmp/fruboes/Zmumu/s2_FASTSIM.root'),
-#     fileName = cms.untracked.string('s2_FASTSIM.root'),
+#    fileName = cms.untracked.string('file:/tmp/fruboes/Zmumu/s2_FASTSIM.root'),
+     fileName = cms.untracked.string('s2_FASTSIM.root'),
 #fileName = cms.untracked.string('file:/tmp/fruboes/Zmumu/Bs2_FASTSIM.root'),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string(''),
