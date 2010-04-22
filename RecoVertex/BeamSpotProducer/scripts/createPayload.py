@@ -532,7 +532,8 @@ if __name__ == '__main__':
         dropbox = "DropBox"
         if option.Test:
             dropbox = "DropBox_test"
-        commands.getstatusoutput("chmod a+w " + workflowdirLastPayloads + final_sqlite_file_name + ".txt")
+	cmd = commands.getstatusoutput("chmod a+w " + workflowdirLastPayloads + final_sqlite_file_name + ".txt")
+	print cmd[1]
         commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/tmp")
         commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/tmp")
 
