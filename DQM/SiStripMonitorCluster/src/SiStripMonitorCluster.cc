@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.71 2010/03/27 11:26:24 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.72 2010/04/08 16:05:28 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -35,6 +35,7 @@
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDCSStatus.h"
 
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
@@ -149,10 +150,17 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
   historyProducer_ = conf_.getParameter<edm::InputTag>("HistoryProducer");
   // Apv Phase Producer
   apvPhaseProducer_ = conf_.getParameter<edm::InputTag>("ApvPhaseProducer");
+
+  // Create DCS Status
+  bool checkDCS    = conf_.getParameter<bool>("UseDCSFiltering");
+  if (checkDCS) dcsStatus_ = new SiStripDCSStatus();
+  else dcsStatus_ = 0; 
+
 } 
 
-
-SiStripMonitorCluster::~SiStripMonitorCluster() { }
+SiStripMonitorCluster::~SiStripMonitorCluster() { 
+  if (dcsStatus_) delete dcsStatus_;
+}
 
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup& es){
@@ -293,6 +301,9 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+  // Filter out events if DCS Event if requested
+  if (dcsStatus_ && !dcsStatus_->getStatus(iEvent,iSetup)) return;
 
   runNb   = iEvent.id().run();
   eventNb++;

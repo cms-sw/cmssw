@@ -45,6 +45,7 @@
 #include "DQM/SiStripCommon/interface/TkHistoMap.h" 
 //***************************************************
 
+class SiStripDCSStatus;
 //
 // class declaration
 //
@@ -190,5 +191,6 @@ private:
   double widthLowerLimit_;
   double widthUpperLimit_;
 
+  SiStripDCSStatus* dcsStatus_;
 };
 #endif

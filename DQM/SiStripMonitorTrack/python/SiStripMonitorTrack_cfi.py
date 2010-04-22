@@ -104,6 +104,8 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     Trending = cms.PSet( Nbins      = cms.int32(10),
                          Steps      = cms.int32(5),
                          UpdateMode = cms.int32(1)
-                         )
+                         ),
+
+    UserDCSFiltering = cms.bool(True)
     
     )

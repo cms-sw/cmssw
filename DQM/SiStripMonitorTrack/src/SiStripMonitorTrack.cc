@@ -16,6 +16,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDCSStatus.h"
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorTrack.h"
 
@@ -60,10 +61,17 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   }else{
     off_Flag = 1;
   }
+
+  // Create DCS Status
+  bool checkDCS    = conf_.getParameter<bool>("UseDCSFiltering");
+  if (checkDCS) dcsStatus_ = new SiStripDCSStatus();
+  else dcsStatus_ = 0; 
 }
 
 //------------------------------------------------------------------------
-SiStripMonitorTrack::~SiStripMonitorTrack() { }
+SiStripMonitorTrack::~SiStripMonitorTrack() { 
+  if (dcsStatus_) delete dcsStatus_;
+}
 
 //------------------------------------------------------------------------
 void SiStripMonitorTrack::beginRun(const edm::Run& run,const edm::EventSetup& es)
@@ -88,6 +96,8 @@ void SiStripMonitorTrack::endJob(void)
 // ------------ method called to produce the data  ------------
 void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
+  // Filter out events if DCS Event if requested
+  if (dcsStatus_ && !dcsStatus_->getStatus(e,es)) return;
   
   //initialization of global quantities
   LogDebug("SiStripMonitorTrack") << "[SiStripMonitorTrack::analyse]  " << "Run " << e.id().run() << " Event " << e.id().event() << std::endl;

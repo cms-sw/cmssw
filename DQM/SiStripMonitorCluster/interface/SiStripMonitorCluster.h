@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.33 2010/03/21 20:01:39 dutta Exp $
+// $Id: SiStripMonitorCluster.h,v 1.34 2010/03/23 22:18:05 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -25,6 +25,7 @@
 class DQMStore;
 class SiStripDetCabling;
 class SiStripCluster;
+class SiStripDCSStatus;
 
 class SiStripMonitorCluster : public edm::EDAnalyzer {
  public:
@@ -176,5 +177,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   double sToNUpperLimit_;  
   double widthLowerLimit_;
   double widthUpperLimit_;
+
+  SiStripDCSStatus* dcsStatus_;
 };
 #endif
