@@ -1,9 +1,9 @@
 #ifndef Fireworks_Calo_CaloUtils_h
 #define Fireworks_Calo_CaloUtils_h
 
-# include <vector>
+#include <vector>
+#include "TEveVector.h"
 
-class TEveVector;
 class TEveElement;
 
 namespace fireworks {
