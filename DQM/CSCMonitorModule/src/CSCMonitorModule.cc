@@ -28,6 +28,7 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps) {
 
   inputTag = ps.getUntrackedParameter<edm::InputTag>("InputObjects", (edm::InputTag)INPUT_TAG_LABEL);
   prebookEffParams = ps.getUntrackedParameter<bool>("PREBOOK_EFF_PARAMS", false);
+  processDcsScalers = ps.getUntrackedParameter<bool>("PROCESS_DCS_SCALERS", true);
   edm::ParameterSet params = ps.getUntrackedParameter<edm::ParameterSet>("EventProcessor");
   config.load(params);
 
@@ -78,7 +79,22 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c) {
   c.get<CSCCrateMapRcd>().get(hcrate);
   pcrate = hcrate.product();
 
-  dispatcher->processEvent(e, inputTag);
+  bool inStandby = true;
+
+  // Get DCS status scalers
+  if (processDcsScalers) {
+    edm::Handle<DcsStatusCollection> dcsStatus;
+    if (e.getByLabel("scalersRawToDigi", dcsStatus)) {
+      DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin();
+      for (; dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
+        inStandby = inStandby && !(dcsStatusItr->ready(DcsStatus::CSCp) || dcsStatusItr->ready(DcsStatus::CSCm));
+      }
+    }
+  } else {
+    inStandby = false;
+  }
+
+  dispatcher->processEvent(e, inputTag, inStandby);
 
 }
 

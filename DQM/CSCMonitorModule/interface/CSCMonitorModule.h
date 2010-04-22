@@ -40,6 +40,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 
 /// CSCDQM Framework stuff
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
@@ -78,6 +79,7 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
     DQMStore                 *dbe;
     edm::InputTag             inputTag;
     bool                      prebookEffParams;
+    bool                      processDcsScalers;
 
     /** Pointer to crate mapping from database **/
     const CSCCrateMap* pcrate;

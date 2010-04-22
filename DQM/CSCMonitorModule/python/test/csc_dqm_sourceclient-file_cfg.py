@@ -61,8 +61,9 @@ process.load("DQM.Integration.test.environment_cfi")
 process.dqmEnv.subSystemFolder    = "CSC"
 
 process.DQM.collectorPort = 9190
-process.DQM.collectorHost = 'cms-uflap03.dyndns.cern.ch'
+#process.DQM.collectorHost = 'cms-uflap03.dyndns.cern.ch'
 #process.DQM.collectorHost = 'localhost'
+process.DQM.collectorHost = 'pb-d-128-141-82-51.cern.ch'
 process.dqmSaver.convention = "Online"
 process.dqmSaver.dirName = "/tmp/valdo"
 process.dqmSaver.producer = "DQM"
@@ -98,6 +99,22 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'GR10_P_V2::All' 
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
+#--------------------------
+# DCS bits
+#--------------------------
+
+process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
+process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtRecord_cfi")
+import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
+gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
+
+process.physicsBitSelector = cms.EDFilter("PhysDecl",
+  applyfilter = cms.untracked.bool(False),
+  debugOn     = cms.untracked.bool(True)
+)
+
+
+process.load("EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi")
 
 #--------------------------
 # Web Service
@@ -145,7 +162,19 @@ MessageLogger = cms.Service("MessageLogger",
 # Sequences
 #--------------------------
 
-process.p = cms.Path(process.dqmCSCClient * process.cscDaqInfo * process.cscDcsInfo * process.cscCertificationInfo + process.dqmEnv + process.dqmSaver)
+process.p = cms.Path(
+    process.l1GtUnpack*
+    process.gtDigis*
+    process.l1GtRecord*
+    process.physicsBitSelector*
+    process.scalersRawToDigi+
+    process.dqmCSCClient * 
+    process.cscDaqInfo * 
+    process.cscDcsInfo * 
+    process.cscCertificationInfo + 
+    process.dqmEnv + 
+    process.dqmSaver)
+
 #process.p = cms.Path(process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor * process.dqmCSCClient + process.dqmEnv + process.dqmSaver)
 
 

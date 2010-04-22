@@ -152,7 +152,7 @@ namespace cscdqm {
 
     public:
 
-      void processEvent(const edm::Event& e, const edm::InputTag& inputTag);
+      void processEvent(const edm::Event& e, const edm::InputTag& inputTag, bool inStandby);
 
 #endif      
 

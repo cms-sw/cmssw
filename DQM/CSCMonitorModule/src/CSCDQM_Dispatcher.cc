@@ -170,9 +170,9 @@ namespace cscdqm {
    * @param  inputTag Tag to search Event Data in
    * @return 
    */
-  void Dispatcher::processEvent(const edm::Event& e, const edm::InputTag& inputTag) {
+  void Dispatcher::processEvent(const edm::Event& e, const edm::InputTag& inputTag, bool inStandby) {
     config->eventProcessTimer(true);
-    processor.processEvent(e, inputTag);
+    processor.processEvent(e, inputTag, inStandby);
     config->eventProcessTimer(false);
     updateFractionAndEfficiencyHistosAuto();
   }

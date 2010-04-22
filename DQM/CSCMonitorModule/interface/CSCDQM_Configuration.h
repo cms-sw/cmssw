@@ -85,6 +85,7 @@
   (( bool, FRAEFF_AUTO_UPDATE,  false , "start fractional and efficiency histogram update automatically (Dispatcher flag)" )) \
   (( bool, FRAEFF_SEPARATE_THREAD,  false , "start fractional and efficiency histogram update on separate thread (EventProcessor flag)" )) \
   (( bool, PRINT_STATS_ON_EXIT,  true , "print statistics on exit (destruction)" )) \
+  (( bool, IN_STANDBY,  true , "both detector endcaps are in standby mode" )) \
   (( std::string, BOOKING_XML_FILE, "" , "histogram description (booking) file in XML format (Collection)" )) \
   (( std::string, FOLDER_EMU, "" , "root file folder name to be used for EMU histograms (EventProcessor)" )) \
   (( std::string, FOLDER_DDU, "" , "root file folder name to be used for DDU histograms (EventProcessor)" )) \

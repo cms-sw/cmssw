@@ -320,5 +320,21 @@ namespace cscdqm {
 
   }
 
+
+  /**
+   * @brief  Fill in shifter histograms in standby mode
+   */
+  void EventProcessor::standbyEfficiencyHistos() {
+
+    MonitorObject *me = 0;
+    const int COLOR_STANDBY = 5;
+    if (getEMUHisto(h::EMU_CSC_STATS_SUMMARY, me)) {
+      LockType lock(me->mutex);
+      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+      summary.WriteChamberState(tmp, 0x0, COLOR_STANDBY, true, false);
+    }
+
+  }
+
 }
 
