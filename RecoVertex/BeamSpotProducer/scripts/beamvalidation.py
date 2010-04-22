@@ -75,9 +75,9 @@ def parse(docstring, arglist=None):
 def cmp_tags(a,b):
 
     tmpa = a.replace("BeamSpotObjects_2009_v","")
-    tmpa = a.replace("_offline","")
+    tmpa = tmpa.replace("_offline","")
     tmpb = b.replace("BeamSpotObjects_2009_v","")
-    tmpb = b.replace("_offline","")
+    tmpb = tmpb.replace("_offline","")
     
     na = int(tmpa)
     nb = int(tmpb)
