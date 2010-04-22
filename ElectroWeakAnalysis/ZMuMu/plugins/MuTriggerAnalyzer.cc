@@ -150,7 +150,7 @@ void MuTriggerAnalyzer::analyze (const Event & ev, const EventSetup &) {
 	return;
       }
       ev.getByLabel(trigTag_, triggerResults); 
-      trigNames.init(*triggerResults);
+      trigNames_ = &ev.triggerNames(*triggerResults_);
       bool trigger_fired = false;
       for (unsigned int i=0; i<triggerResults->size(); i++) {
         std::string trigName = trigNames.triggerName(i);
