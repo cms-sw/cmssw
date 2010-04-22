@@ -7,8 +7,8 @@
  *  in this class.
  *  Ported from ORCA.
  *
- *  $Date: 2009/05/08 17:36:38 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/04/21 12:57:43 $
+ *  $Revision: 1.8 $
  *  \author todorov, cerati
  */
 
@@ -73,7 +73,7 @@ public:
   }  
   /** Particle mass assigned at construction.
    */
-  inline float mass () const {
+  inline doublw mass () const {
     return theMass;
   }
 
@@ -83,17 +83,27 @@ public:
   // here comes the actual computation of the values
   virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const = 0;
 
- protected:
   // check of arguments for use with cached values
-  virtual bool newArguments (const TrajectoryStateOnSurface&, const PropagationDirection) const {
-    return true;
-  }
-  // storage of arguments for later use
-  virtual void storeArguments (const TrajectoryStateOnSurface&, const PropagationDirection) const {
+  bool newArguments (const TrajectoryStateOnSurface & TSoS, PropagationDirection  propDir) const {
+    bool ok = 
+      theLastOverP != TSoS.localParameters().qbp() ||
+      theLastRL    != TSoS.surface().mediumProperties()->radLen() ||
+      theLastPropDir != propDir;
+    if (ok) {
+      theLastOverP = TSoS.localParameters().qbp() ||
+      theLastRL    = TSoS.surface().mediumProperties()->radLen() ||
+      theLastPropDir = propDir;
+    }
+    return ok;
   }
   
  private:
   double theMass;
+
+  // chache previous call state
+  mutable double theLastOverP;
+  mutable float  theLastRL;
+  mutable PropagationDirection theLastPropDir;
 
 
 protected:  

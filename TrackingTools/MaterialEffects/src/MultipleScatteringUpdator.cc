@@ -86,33 +86,6 @@ void MultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
     theDeltaCov(1,2) = (den*sigt2)*(cf2*sl2      );
     theDeltaCov(2,2) = (den*sigt2)*(cf2*cl2 + sf2);
   }
-  //
-  // Save arguments to avoid duplication of computation
-  //
-  storeArguments(TSoS,propDir);
-}
-//
-// Compare arguments with the ones of the previous call
-//
-bool MultipleScatteringUpdator::newArguments (const TrajectoryStateOnSurface& TSoS, 
-					      const PropagationDirection propDir) const {
-  LocalVector localP = TSoS.localMomentum(); // let's call localMomentum only once
-  return 
-    localP.mag() != theLastP || 
-    //TSoS.localMomentum().unit().z()!=theLastDz ||   // if we get there,  TSoS.localMomentum().mag() = theLastP!
-    localP.z() != theLastDz*theLastP   ||   // so we can just do this, I think
-    propDir!=theLastPropDir ||
-    TSoS.surface().mediumProperties()->radLen()!=theLastRadLength;
-}
-//
-// Save arguments
-//
-void MultipleScatteringUpdator::storeArguments (const TrajectoryStateOnSurface& TSoS, 
-						const PropagationDirection propDir) const {
-  LocalVector localP = TSoS.localMomentum(); // let's call localMomentum only once
-  theLastP = localP.mag();
-  theLastDz = (theLastP == 0 ? 0 : localP.z()/theLastP);
-  theLastPropDir = propDir;
-  theLastRadLength = TSoS.surface().mediumProperties()->radLen();
+
 }
 

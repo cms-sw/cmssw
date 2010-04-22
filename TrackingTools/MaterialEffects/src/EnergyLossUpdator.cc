@@ -36,10 +36,6 @@ void EnergyLossUpdator::compute (const TrajectoryStateOnSurface& TSoS,
 		       propDir);
     if (propDir != alongMomentum) theDeltaP *= -1.;
   }
-  //
-  // Save arguments to avoid duplication of computation
-  //
-  storeArguments(TSoS,propDir);
 }
 //
 // Computation of energy loss according to Bethe-Bloch
@@ -128,30 +124,3 @@ EnergyLossUpdator::computeElectrons (const LocalVector& localP,
     theDeltaCov(0,0) += f*f*varz;
   }
 }
-//
-// Compare arguments with the ones of the previous call
-//
-bool EnergyLossUpdator::newArguments (const TrajectoryStateOnSurface& TSoS, 
-				      const PropagationDirection propDir) const {
-  LocalVector localP = TSoS.localMomentum(); // let's call localMomentum only once
-  return 
-    localP.mag() != theLastP || 
-    //TSoS.localMomentum().unit().z()!=theLastDz ||   // if we get there,  TSoS.localMomentum().mag() = theLastP!
-    localP.z() != theLastDz*theLastP   ||   // so we can just do this, I think
-    propDir!=theLastPropDir ||
-    TSoS.surface().mediumProperties()->radLen()!=theLastRl ||
-    TSoS.surface().mediumProperties()->xi()!=theLastXi;
-}
-//
-// Save arguments
-//
-void EnergyLossUpdator::storeArguments (const TrajectoryStateOnSurface& TSoS, 
-					const PropagationDirection propDir) const {
-  LocalVector localP = TSoS.localMomentum(); // let's call localMomentum only once
-  theLastP = localP.mag();
-  theLastDz = (theLastP == 0 ? 0 : localP.z()/theLastP);
-  theLastPropDir = propDir;
-  theLastRl = TSoS.surface().mediumProperties()->radLen();
-  theLastXi = TSoS.surface().mediumProperties()->xi();
-}
-

@@ -9,9 +9,6 @@
  *  to formulae by Bethe & Heitler.
  *  Ported from ORCA.
  *
- *  $Date: 2007/05/09 13:21:30 $
- *  $Revision: 1.5.2.1 $
- *  \author todorov, cerati
  */
 
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
@@ -22,22 +19,13 @@ class MediumProperties;
 class EnergyLossUpdator : public MaterialEffectsUpdator 
 {
  public:
-#ifndef CMS_NO_RELAXED_RETURN_TYPE
-  virtual EnergyLossUpdator* clone() const
-#else
-  virtual MaterialEffectsUpdator* clone() const
-#endif
-  {
+  virtual EnergyLossUpdator* clone() const {
     return new EnergyLossUpdator(*this);
   }
 
 public:
-  EnergyLossUpdator( float mass ) :
-    MaterialEffectsUpdator(mass),
-    theLastDz(0.),
-    theLastP(0.),
-    theLastPropDir(alongMomentum),
-    theLastXi(0.) {}
+  EnergyLossUpdator( double mass ) :
+    MaterialEffectsUpdator(mass) {}
 
 private:
   // here comes the actual computation of the values
@@ -49,20 +37,6 @@ private:
   void computeElectrons (const LocalVector&, const MediumProperties&,
 			 const PropagationDirection) const;
 
-protected:
-  // check of arguments for use with cached values
-  virtual bool newArguments (const TrajectoryStateOnSurface&, 
-			     const PropagationDirection) const;
-  // storage of arguments for later use of 
-  virtual void storeArguments (const TrajectoryStateOnSurface&, 
-			       const PropagationDirection) const;
-
-private:  
-  mutable float theLastDz;
-  mutable float theLastP;
-  mutable PropagationDirection theLastPropDir;
-  mutable float theLastRl;
-  mutable float theLastXi;
 };
 
 #endif
