@@ -7,8 +7,8 @@
  *  in this class.
  *  Ported from ORCA.
  *
- *  $Date: 2010/04/21 12:57:43 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/04/22 11:58:05 $
+ *  $Revision: 1.9 $
  *  \author todorov, cerati
  */
 
@@ -73,7 +73,7 @@ public:
   }  
   /** Particle mass assigned at construction.
    */
-  inline doublw mass () const {
+  inline double mass () const {
     return theMass;
   }
 
@@ -90,8 +90,8 @@ public:
       theLastRL    != TSoS.surface().mediumProperties()->radLen() ||
       theLastPropDir != propDir;
     if (ok) {
-      theLastOverP = TSoS.localParameters().qbp() ||
-      theLastRL    = TSoS.surface().mediumProperties()->radLen() ||
+      theLastOverP = TSoS.localParameters().qbp();
+      theLastRL    = TSoS.surface().mediumProperties()->radLen();
       theLastPropDir = propDir;
     }
     return ok;
