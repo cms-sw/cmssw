@@ -1,97 +1,97 @@
-#include "TEveManager.h"
-#include "TEveElement.h"
-#include "TEveCompound.h"
+// -*- C++ -*-
+//
+// Package:     Muons
+// Class  :     FWCSCRecHitProxyBuilder
+//
+// $Id: FWCSCRecHitProxyBuilder.cc,v 1.5 2010/04/20 20:49:43 amraktad Exp $
+//
+
 #include "TEveStraightLineSet.h"
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
+
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 
-class FWCSCRecHitProxyBuilder : public FWProxyBuilderBase
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
+
+class FWCSCRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<CSCRecHit2D>
 {
 public:
-   FWCSCRecHitProxyBuilder(void) {}
-  
-   virtual ~FWCSCRecHitProxyBuilder(void) {}
+   FWCSCRecHitProxyBuilder() {}
+   virtual ~FWCSCRecHitProxyBuilder() {}
   
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   virtual void build(const FWEventItem* iItem, TEveElementList* product);
-
-   // Disable default copy constructor
    FWCSCRecHitProxyBuilder(const FWCSCRecHitProxyBuilder&);
-   // Disable default assignment operator
    const FWCSCRecHitProxyBuilder& operator=(const FWCSCRecHitProxyBuilder&);
+
+   void build(const CSCRecHit2D& iData, unsigned int iIndex, TEveElement& oItemHolder);
 };
 
 void
-FWCSCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product)
-{
-   const CSCRecHit2DCollection* collection = 0;
-   iItem->get(collection);
-
-   if(0 == collection)
-   {
-      return;
-   }
-
-   unsigned int index = 0;
-   for(CSCRecHit2DCollection::id_iterator chId = collection->id_begin(), chIdEnd = collection->id_end();
-       chId != chIdEnd; ++chId, ++index)
-   {
-      std::stringstream s;
-      s << "chamber" << index;
-
-      CSCRecHit2DCollection::range range = collection->get(*chId);
-      for(CSCRecHit2DCollection::const_iterator it = range.first;
-	  it != range.second; ++it)
-      {
-	 TEveCompound* compund = new TEveCompound("csc compound", "cscRechits");
-	 compund->OpenCompound();
-	 product->AddElement(compund);
+FWCSCRecHitProxyBuilder::build(const CSCRecHit2D& iData,           
+                               unsigned int iIndex, TEveElement& oItemHolder)
+{       
+  const TGeoHMatrix* matrix = item()->getGeom()->getMatrix(iData.cscDetId().rawId());
   
-	 TEveStraightLineSet* rechitSet = new TEveStraightLineSet(s.str().c_str());
-	 rechitSet->SetMainColor(iItem->defaultDisplayProperties().color());
-	 rechitSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
-	 rechitSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
-	 compund->AddElement(rechitSet);
+  if ( ! matrix ) 
+  {
+    std::cout<<"ERROR: failed to get geometry of CSC layer with detid: " 
+             << iData.cscDetId().rawId() <<std::endl;
+    return;
+  }
 
-	 const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix(*chId);
-	 if(!matrix) {
-	    std::cout << "ERROR: failed get geometry of CSC layer with det id: " <<
-	       (*chId) << std::endl;
-	    continue;
-	 }
-	 
-	 Float_t x = it->localPosition().x();
-	 Float_t y = it->localPosition().y();
-	 Float_t z = 0.0;
-	 Float_t dx = sqrt(it->localPositionError().xx());
-	 Float_t dy = sqrt(it->localPositionError().yy());
+  std::stringstream s;
+  s << "layer" << iIndex;
 
-         Double_t localU1Point[3] = {x - dx, y, z};
-         Double_t localU2Point[3] = {x + dx, y, z};
-         Double_t localV1Point[3] = {x, y - dy, z};
-         Double_t localV2Point[3] = {x, y + dy, z};
+  TEveStraightLineSet* recHitSet = new TEveStraightLineSet(s.str().c_str());
+  recHitSet->SetLineWidth(3);
+  setupAddElement(recHitSet, &oItemHolder);
+  
+  double localPositionX = iData.localPosition().x();
+  double localPositionY = iData.localPosition().y();
+  
+  double localPositionXX = iData.localPositionError().xx();
+  double localPositionYY = iData.localPositionError().yy();
+  
+  double localU1Point[3] = 
+    {
+      localPositionX - localPositionXX, localPositionY, 0.0
+    };
+  
+  double localU2Point[3] = 
+    {
+      localPositionX + localPositionXX, localPositionY, 0.0
+    };
+  
+  double localV1Point[3] = 
+    {
+      localPositionX, localPositionY - localPositionYY, 0.0
+    };
+  
+  double localV2Point[3] = 
+    {
+      localPositionX, localPositionY + localPositionYY, 0.0
+    };
 
-         Double_t globalU1Point[3];
-         Double_t globalU2Point[3];
-         Double_t globalV1Point[3];
-         Double_t globalV2Point[3];
+  double globalU1Point[3];
+  double globalU2Point[3];
+  double globalV1Point[3];
+  double globalV2Point[3];
 
-         matrix->LocalToMaster(localU1Point, globalU1Point);
-         matrix->LocalToMaster(localU2Point, globalU2Point);
-         matrix->LocalToMaster(localV1Point, globalV1Point);
-         matrix->LocalToMaster(localV2Point, globalV2Point);
-	 rechitSet->AddLine(globalU1Point[0], globalU1Point[1], globalU1Point[2], globalU2Point[0], globalU2Point[1], globalU2Point[2]);
-	 rechitSet->AddLine(globalV1Point[0], globalV1Point[1], globalV1Point[2], globalV2Point[0], globalV2Point[1], globalV2Point[2]);
-      }
-   }
+  matrix->LocalToMaster(localU1Point, globalU1Point);
+  matrix->LocalToMaster(localU2Point, globalU2Point);
+  matrix->LocalToMaster(localV1Point, globalV1Point);
+  matrix->LocalToMaster(localV2Point, globalV2Point);
+ 
+  recHitSet->AddLine(globalU1Point[0], globalU1Point[1], globalU1Point[2], 
+                     globalU2Point[0], globalU2Point[1], globalU2Point[2]);
+ 
+  recHitSet->AddLine(globalV1Point[0], globalV1Point[1], globalV1Point[2], 
+                     globalV2Point[0], globalV2Point[1], globalV2Point[2]);
 }
 
-REGISTER_FWPROXYBUILDER( FWCSCRecHitProxyBuilder, CSCRecHit2DCollection, "CSC RecHits", FWViewType::kISpyBit );
+REGISTER_FWPROXYBUILDER( FWCSCRecHitProxyBuilder, CSCRecHit2D, "CSC RecHits", FWViewType::kAll3DBits | FWViewType::kRhoZBit );
 
 
