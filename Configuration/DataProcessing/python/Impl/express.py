@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-_hcalnzs_
+_express_
 
-Scenario supporting proton collisions
+Scenario supporting express processing
 
 """
 
@@ -17,14 +17,14 @@ from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
 from Configuration.PyReleaseValidation.ConfigBuilder import addOutputModule
-from Configuration.DataProcessing.RecoTLR import customisePPData
+from Configuration.DataProcessing.RecoTLR import customiseExpress
 
-class hcalnzs(Scenario):
+class express(Scenario):
     """
-    _hcalnzs_
+    _express_
 
-    Implement configuration building for data processing for proton
-    collision data taking
+    Implement configuration building for data processing for 
+    express stream data taking
 
     """
 
@@ -37,12 +37,18 @@ class hcalnzs(Scenario):
 
         """
 
-        skims = ['HcalCalMinBias']
+        skims = ['SiStripCalZeroBias',
+                 'TkAlMinBias',
+                 'TkAlMuonIsolated',
+                 'MuAlCalIsolatedMu',
+                 'MuAlOverlaps',
+                 'HcalCalIsoTrk',
+                 'HcalCalDijets']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO:reconstruction_HcalNZS'+step+',DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -66,7 +72,7 @@ class hcalnzs(Scenario):
           addOutputModule(process, tier, tier)        
 
         #add the former top level patches here
-        customisePPData(process)
+        customiseExpress(process)
         
         return process
 
@@ -111,7 +117,7 @@ class hcalnzs(Scenario):
         #//
         
         #add the former top level patches here
-        customisePPData(process)
+        customiseExpressData(process)
 
         return process
     
@@ -188,5 +194,6 @@ class hcalnzs(Scenario):
         process.source.fileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName
-        
+        process.dqmSaver.saveByLumiSection = 1
+
         return process

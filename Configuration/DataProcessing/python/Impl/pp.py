@@ -17,7 +17,7 @@ from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
 from Configuration.PyReleaseValidation.ConfigBuilder import addOutputModule
-from Configuration.GlobalRuns.reco_TLR import reco_TLR
+from Configuration.DataProcessing.RecoTLR import customisePPData
 
 class pp(Scenario):
     """
@@ -48,7 +48,7 @@ class pp(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO:reconstruction_withPixellessTk'+step+',L1HwVal,DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -72,7 +72,7 @@ class pp(Scenario):
           addOutputModule(process, tier, tier)        
 
         #add the former top level patches here
-        reco_TLR(process)
+        customisePPData(process)
         
         return process
 
@@ -117,7 +117,7 @@ class pp(Scenario):
         #//
         
         #add the former top level patches here
-        reco_TLR(process)
+        customisePPData(process)
 
         return process
     

@@ -17,7 +17,7 @@ from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
 from Configuration.PyReleaseValidation.ConfigBuilder import addOutputModule
-
+from Configuration.DataProcessing.RecoTLR import customiseCosmicData
 
 class cosmics(Scenario):
     """
@@ -69,7 +69,8 @@ class cosmics(Scenario):
 
         for tier in writeTiers: 
           addOutputModule(process, tier, tier)        
- 
+
+        customiseCosmicData(process)  
         return process
 
     def expressProcessing(self, globalTag,  writeTiers = [],
