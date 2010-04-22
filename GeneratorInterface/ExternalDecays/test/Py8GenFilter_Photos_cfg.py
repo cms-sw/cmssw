@@ -21,6 +21,8 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     
     PythiaParameters = cms.PSet(
         py8SpecialSettings   = cms.vstring( 'HadronLevel:Hadronize = off', # mstp(111)=0
+				            'ParticleDecays:limitTau0 = on',  # mstj(22)=2 - decay unstable particles
+				            'ParticleDecays:tau0Max   = 10.', # parj(71)=10.- for which ctau < 10 mm
 	                                    'PartonLevel:ISR = off',       # mstp(61)=0
 	                                    'PartonLevel:FSR = off',       # mstp(71)=0 ; what about mstj(41) ???
 					    'PartonLevel:MI = off'         # mstp(81)=0

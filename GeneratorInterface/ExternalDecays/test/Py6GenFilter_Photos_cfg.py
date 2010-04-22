@@ -38,12 +38,12 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     # this shows how to turn ON some of the general Py6 printouts, like banner...
     ## --> displayPythiaBanner = cms.untracked.bool(True),
     ## --> displayPythiaCards = cms.untracked.bool(True),
-    comEnergy = cms.double(10000.0),
+    comEnergy = cms.double(7000.0),
 
-    ExternalDecays = cms.PSet(
-        Photos = cms.untracked.PSet(),
-        parameterSets = cms.vstring( "Photos" )
-    ),
+#    ExternalDecays = cms.PSet(
+#        Photos = cms.untracked.PSet(),
+#        parameterSets = cms.vstring( "Photos" )
+#    ),
 
     PythiaParameters = cms.PSet(
 
@@ -64,7 +64,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
             'MSTP(61)=0              ! no initial-state showers', 
             'MSTP(71)=0              ! no final-state showers', 
             'MSTP(81)=0              ! no multiple interactions', 
-            'MSTP(111)=0             ! no hadronization', 
+            ###'MSTP(111)=0             ! no hadronization', 
             'MSTU(21)=1              !Check on possible errors during program execution', 
             'MSUB(102)=1             !ggH', 
             'MSUB(123)=1             !ZZ fusion to H', 
