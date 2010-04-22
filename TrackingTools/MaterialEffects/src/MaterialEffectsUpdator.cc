@@ -49,7 +49,7 @@ bool MaterialEffectsUpdator::updateStateInPlace (TrajectoryStateOnSurface& TSoS,
   return true;
 }
 
-bool newArguments (const TrajectoryStateOnSurface & TSoS, PropagationDirection  propDir) const {
+bool MaterialEffectsUpdator::newArguments (const TrajectoryStateOnSurface & TSoS, PropagationDirection  propDir) const {
   // check that track as same momentum and direction, surface has same radLen
   // it optimize also against multiple evaluations on different "surfaces" 
   // belonging to contigous detectors with same radLem 
