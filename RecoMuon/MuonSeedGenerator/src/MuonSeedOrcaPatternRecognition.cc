@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2010/04/20 22:39:13 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/04/21 16:22:53 $
+ *  $Revision: 1.16 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -469,7 +469,7 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
     // be a little more lenient in cracks
     bool crack = isCrack(recHit) || isCrack(first);
     float detaWindow = crack ? 0.25 : 0.2;
-    if ( deta > detaWindow || dphi > .1 ) {
+    if ( deta > detaWindow || dphi > .2 ) {
       continue;
     }   // +vvp!!!
 
@@ -502,9 +502,11 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
     else {    //  endcap & overlap.
       // allow a looser dphi cut where bend is greatest, so we get those little 5-GeV muons
       // watch out for ghosts from ME1/A, below 2.0.
-      float dphicut = (eta2 > 1.6 && eta2 < 2.0) ? 0.1 : 0.07;
+      //float dphicut = (eta2 > 1.6 && eta2 < 2.0) ? 0.2 : 0.2;
+      float dphicut = (isME1A(first) || isME1A(recHit)) ? 0.1 : 0.2;
       // segments at the edge of the barrel may not have a good eta measurement
-      float detacut = (first->isDT() || recHit->isDT()) ? 0.2 : 0.1;
+     // float detacut = (first->isDT() || recHit->isDT()) ? 0.1 : 0.2;
+      float detacut = (first->isDT() || recHit->isDT()) ? 0.2 : 0.2;
 
       if ( deta < detacut && dphi < dphicut ) {
 	good_rhit.push_back(recHit);
