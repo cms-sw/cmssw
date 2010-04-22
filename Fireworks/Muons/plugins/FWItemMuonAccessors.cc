@@ -8,7 +8,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemMuonAccessors.cc,v 1.2 2010/03/10 10:34:14 yana Exp $
+// $Id: FWItemMuonAccessors.cc,v 1.3 2010/04/16 13:11:30 yana Exp $
 //
 
 // system include files
@@ -21,6 +21,7 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "Fireworks/Core/interface/FWItemRandomAccessor.h"
 
@@ -28,4 +29,5 @@ REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<CSCRecHit2DCollection>,CSC
 REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<CSCSegmentCollection>,CSCSegmentCollection,"CSCSegmentCollectionAccessor");
 REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<DTRecSegment2DCollection>,DTRecSegment2DCollection,"DTSegment2DCollectionAccessor");
 REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<DTRecSegment4DCollection>,DTRecSegment4DCollection,"DTSegment4DCollectionAccessor");
+REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<DTRecHitCollection>,DTRecHitCollection,"DTRecHitCollectionAccessor");
 REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<RPCRecHitCollection>,RPCRecHitCollection,"RPCRecHitCollectionAccessor");
