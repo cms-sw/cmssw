@@ -23,7 +23,7 @@ MaterialEffectsUpdator::~MaterialEffectsUpdator () {}
 /** Updates TrajectoryStateOnSurface with material effects
  *    (momentum and covariance matrix are potentially affected.
  */
-MaterialEffectsUpdator::TrajectoryStateOnSurface updateState (const TrajectoryStateOnSurface& TSoS, 
+TrajectoryStateOnSurface MaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS, 
 							      const PropagationDirection propDir) const {
   TrajectoryStateOnSurface shallowCopy = TSoS;
   // A TSOS is a proxy. Its contents will be really copied only if/when the updateStateInPlace attempts to change them
