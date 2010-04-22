@@ -364,7 +364,7 @@ if __name__ == '__main__':
             timetype = "lumiid"
 	    iov_since = str( pack(int(tmp_run), int(tmp_lumi_since)) )
             iov_till = str( pack(int(tmp_run), int(tmp_lumi_till)) )
-        # keep first iov for merged output
+        # keep first iov for merged output metafile
         if nfile == 1:
             iov_since_first = iov_since
         
@@ -394,22 +394,9 @@ if __name__ == '__main__':
 
 	wnewfile.close()
 	print "writing sqlite file ..."
-    #os.system("cmsRun "+ writedb_out)
-        
-	status_wDB = commands.getstatusoutput('cmsRun '+ writedb_out)
+    	status_wDB = commands.getstatusoutput('cmsRun '+ writedb_out)
         #print status_wDB[1]
         
-        #### Merge sqlite files
-        if not os.path.isdir(workflowdirArchive + 'payloads'):
-            os.mkdir(workflowdirArchive + 'payloads')
-        
-        print " merge sqlite file ..."
-        acmd = "cmscond_export_iov -d sqlite_file:"+workflowdirArchive+"payloads/Combined.db -s sqlite_file:"+sqlite_file+ " -i "+tagname+" -t "+tagname+" -l sqlite_file:"+workflowdirTmp+"log.db"+" -b "+iov_since+" -e "+iov_till
-        print acmd
-        std = commands.getstatusoutput(acmd)
-        print std[1]
-        
-    #print status_wDB[1]
 	commands.getstatusoutput('rm -f ' + beam_file)
 	os.system("rm "+ writedb_out)
     ##### READ and check sqlite file
@@ -438,6 +425,18 @@ if __name__ == '__main__':
 	outtext = status_rDB[1]
 	print outtext
 	os.system("rm "+ readdb_out)
+	
+        #### Merge sqlite files
+        if not os.path.isdir(workflowdirArchive + 'payloads'):
+            os.mkdir(workflowdirArchive + 'payloads')
+        
+        print " merge sqlite file ..."
+        acmd = "cmscond_export_iov -d sqlite_file:"+workflowdirArchive+"payloads/Combined.db -s sqlite_file:"+sqlite_file+ " -i "+tagname+" -t "+tagname+" -l sqlite_file:"+workflowdirTmp+"log.db"+" -b "+iov_since+" -e "+iov_till
+        print acmd
+        std = commands.getstatusoutput(acmd)
+        print std[1]
+        
+	os.system("rm "+sqlite_file)
 
     #### CREATE payload files for dropbox
             
@@ -479,7 +478,7 @@ if __name__ == '__main__':
         #    commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/DropBox")
         #    commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/DropBox")
 
-        print " done."
+        print " clean up done."
     #### CLEAN up
 	
 	#print "DONE.\n"
@@ -488,12 +487,7 @@ if __name__ == '__main__':
 	#print tagname+"@"+uuid+".txt"
     
     allfile.close()
-
-    if len(listoffiles)==1:
-
-        #split combined file
-        os.system("rm "+listoffiles[0]+"_part_*")
-        
+            
     #### CREATE payload for merged output
             
     print " create MERGED payload card for dropbox ..."
