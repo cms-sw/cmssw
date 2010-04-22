@@ -5,13 +5,15 @@
 #include <sigc++/signal.h>
 
 class TGWindow;
+class TGLPhysicalShape;
 
 class FWGLEventHandler : public TEveLegoEventHandler {
 public:
    FWGLEventHandler(TGWindow *w, TObject *obj, TEveCaloLego* l = 0 );
    virtual ~FWGLEventHandler() {}
 
-   virtual Bool_t HandleButton(Event_t * event);
+   virtual void   PopupContextMenu(TGLPhysicalShape* pshp, Event_t *event, Int_t gx, Int_t gy);
+
 
    sigc::signal<void,Int_t,Int_t> openSelectedModelContextMenu_;
 
