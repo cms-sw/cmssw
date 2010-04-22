@@ -26,11 +26,11 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   ePlusJets_       (params.getParameter<bool>("ePlusJets") ),
   muPtMin_         (params.getParameter<double>("muPtMin")), 
   muEtaMax_        (params.getParameter<double>("muEtaMax")), 
-  elePtMin_        (params.getParameter<double>("elePtMin")), 
+  eleEtMin_        (params.getParameter<double>("eleEtMin")), 
   eleEtaMax_       (params.getParameter<double>("eleEtaMax")), 
   muPtMinLoose_    (params.getParameter<double>("muPtMinLoose")), 
   muEtaMaxLoose_   (params.getParameter<double>("muEtaMaxLoose")), 
-  elePtMinLoose_   (params.getParameter<double>("elePtMinLoose")), 
+  eleEtMinLoose_   (params.getParameter<double>("eleEtMinLoose")), 
   eleEtaMaxLoose_  (params.getParameter<double>("eleEtaMaxLoose")), 
   jetPtMin_        (params.getParameter<double>("jetPtMin")), 
   jetEtaMax_       (params.getParameter<double>("jetEtaMax")), 
@@ -42,6 +42,8 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   push_back( "Trigger"        );
   push_back( "PV"             );
   push_back( ">= 1 Lepton"    );
+  push_back( "== 1 Tight Lepton"    );
+  push_back( "== 1 Tight Lepton, Mu Veto");
   push_back( "== 1 Lepton"    );
   push_back( "MET Cut"        );
   push_back( "Z Veto"         );
@@ -59,6 +61,8 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   set( "Trigger"        );
   set( "PV"             );
   set( ">= 1 Lepton"    );
+  set( "== 1 Tight Lepton"    );
+  set( "== 1 Tight Lepton, Mu Veto");
   set( "== 1 Lepton"    );
   set( "MET Cut"        );
   set( "Z Veto"         );
@@ -82,6 +86,7 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
 
 bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::strbitset & ret)
 {
+
   ret.set(false);
 
   selectedJets_.clear();
@@ -147,24 +152,22 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
       edm::Handle< vector< pat::MET > > metHandle;
       event.getByLabel (metTag_, metHandle);
 
-
-      int nGlobalMuons = 0;
+      std::vector<pat::Muon>::const_iterator theMuon = muonHandle->end();
       for ( std::vector<pat::Muon>::const_iterator muonBegin = muonHandle->begin(),
 	      muonEnd = muonHandle->end(), imuon = muonBegin;
 	    imuon != muonEnd; ++imuon ) {
-	if ( imuon->isGlobalMuon() ) {
-	  ++nGlobalMuons;
-	  // Tight cuts
-	  bool passTight = muonIdTight_(*imuon);
-	  if ( imuon->pt() > muPtMin_ && fabs(imuon->eta()) < muEtaMax_ && 
-	       passTight ) {
-	    selectedMuons_.push_back( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Muon>( muonHandle, imuon - muonBegin ) ) );
-	  } else {
-	    // Loose cuts
-	    if ( imuon->pt() > muPtMinLoose_ && fabs(imuon->eta()) < muEtaMaxLoose_ && 
-		 muonIdLoose_(*imuon) ) {
-	      looseMuons_.push_back( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Muon>( muonHandle, imuon - muonBegin ) ) );
-	    }
+	if ( !imuon->isGlobalMuon()) continue;
+	// Tight cuts
+	bool passTight = muonIdTight_(*imuon);
+	if (  imuon->pt() > muPtMin_ && fabs(imuon->eta()) < muEtaMax_ && 
+	     passTight ) {
+	  selectedMuons_.push_back( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Muon>( muonHandle, imuon - muonBegin ) ) );
+	  theMuon = imuon;
+	} else {
+	  // Loose cuts
+	  if ( imuon->pt() > muPtMinLoose_ && fabs(imuon->eta()) < muEtaMaxLoose_ && 
+	       muonIdLoose_(*imuon) ) {
+	    looseMuons_.push_back( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Muon>( muonHandle, imuon - muonBegin ) ) );
 	  }
 	}
       }
@@ -175,13 +178,13 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
 	    ielectron != electronEnd; ++ielectron ) {
 	++nElectrons;
 	// Tight cuts
-	if ( ielectron->pt() > elePtMin_ && fabs(ielectron->eta()) < eleEtaMax_ && 
+	if ( ielectron->et() > eleEtMin_ && fabs(ielectron->eta()) < eleEtaMax_ && 
 	     electronIdTight_(*ielectron) &&
 	     ielectron->electronID( "eidRobustTight" ) > 0  ) {
 	  selectedElectrons_.push_back( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Electron>( electronHandle, ielectron - electronBegin ) ) );
 	} else {
 	  // Loose cuts
-	  if ( ielectron->pt() > elePtMinLoose_ && fabs(ielectron->eta()) < eleEtaMaxLoose_ && 
+	  if ( ielectron->et() > eleEtMinLoose_ && fabs(ielectron->eta()) < eleEtaMaxLoose_ && 
 	       electronIdLoose_(*ielectron) ) {
 	    looseElectrons_.push_back( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Electron>( electronHandle, ielectron - electronBegin ) ) );
 	  }
@@ -205,8 +208,8 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
 										   ijet->p4() * jetScale_ ) );
     
 	bool passJetID = false;
-	if ( ijet->isCaloJet() ) passJetID = jetIdLoose_(*ijet);
-	else passJetID = pfjetIdLoose_(*ijet);
+	if ( ijet->isCaloJet() ) passJetID = jetIdLoose_(*ijet, ret1);
+	else passJetID = pfjetIdLoose_(*ijet, ret2);
 	if ( scaledJet.pt() > jetPtMin_ && fabs(scaledJet.eta()) < jetEtaMax_ && passJetID ) {
 	  selectedJets_.push_back( scaledJet );
 	  if ( muPlusJets_ ) {
@@ -216,9 +219,10 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
 	    bool indeltaR = false;
 	    for( std::vector<reco::ShallowClonePtrCandidate>::const_iterator electronBegin = selectedElectrons_.begin(),
 		   electronEnd = selectedElectrons_.end(), ielectron = electronBegin;
-		 ielectron != electronEnd; ++ielectron )
+		 ielectron != electronEnd; ++ielectron ) {
 	      if( reco::deltaR( ielectron->eta(), ielectron->phi(), scaledJet.eta(), scaledJet.phi() ) < dR_ )
-		{  indeltaR = true;  continue; }
+		{  indeltaR = true; }
+	    }
 	    if( !indeltaR ) {
 	      cleanedJets_.push_back( scaledJet );
 	    }
@@ -242,88 +246,107 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
 	   ( nleptons > 0 ) ){
 	passCut( ret, ">= 1 Lepton");
 
-	bool oneMuon = 
-	  ( selectedMuons_.size() == 1 && 
-	    looseMuons_.size() + selectedElectrons_.size() + looseElectrons_.size() == 0 
-	    );
-	bool oneElectron = 
-	  ( selectedElectrons_.size() == 1 &&
-	    selectedMuons_.size() == 0 
-	    );
+	if ( ignoreCut("== 1 Tight Lepton") || 
+	     ( nleptons == 1 ) ){
+	  passCut( ret, "== 1 Tight Lepton");
 
-	if ( ignoreCut("== 1 Lepton") || 
-	     ( (muPlusJets_ && oneMuon) ^ (ePlusJets_ && oneElectron )  )
-	     ) {
-	  passCut(ret, "== 1 Lepton");	  
+	  bool oneMuon = 
+	    ( selectedMuons_.size() == 1 && 
+	      looseMuons_.size() + selectedElectrons_.size() + looseElectrons_.size() == 0 
+	      );
+	  bool oneElectron = 
+	    ( selectedElectrons_.size() == 1 &&
+	      selectedMuons_.size() == 0 
+	      );
 
-	  bool metCut = met_.pt() > metMin_;
-	  if ( ignoreCut("MET Cut") ||
-	       metCut ) {
-	    passCut( ret, "MET Cut" );
+	  bool oneMuonMuVeto = 
+	    ( selectedMuons_.size() == 1 && 
+	      looseMuons_.size() == 0 
+	      );
+
+
+	  if ( ignoreCut("== 1 Tight Lepton, Mu Veto") || 
+	       ( (muPlusJets_ && oneMuonMuVeto)  )
+	       ) {
+	    passCut(ret, "== 1 Tight Lepton, Mu Veto");
+
+	    if ( ignoreCut("== 1 Lepton") || 
+		 ( (muPlusJets_ && oneMuon) ^ (ePlusJets_ && oneElectron )  )
+		 ) {
+	      passCut(ret, "== 1 Lepton");	  
+
+	      bool metCut = met_.pt() > metMin_;
+	      if ( ignoreCut("MET Cut") ||
+		   metCut ) {
+		passCut( ret, "MET Cut" );
 	  
 
-	    bool zVeto = true;
-	    if ( selectedMuons_.size() == 2 ) {
-	    }
-	    if ( selectedElectrons_.size() == 2 ) {
-	    }
-	    if ( ignoreCut("Z Veto") ||
-		 zVeto ){
-	      passCut(ret, "Z Veto");
+		bool zVeto = true;
+		if ( selectedMuons_.size() == 2 ) {
+		}
+		if ( selectedElectrons_.size() == 2 ) {
+		}
+		if ( ignoreCut("Z Veto") ||
+		     zVeto ){
+		  passCut(ret, "Z Veto");
 	    
   
-	      bool conversionVeto = true;
-	      if ( ignoreCut("Conversion Veto") ||
-		   conversionVeto ) {
-		passCut(ret,"Conversion Veto");
+		  bool conversionVeto = true;
+		  if ( ignoreCut("Conversion Veto") ||
+		       conversionVeto ) {
+		    passCut(ret,"Conversion Veto");
 		
 
 
-		bool cosmicVeto = true;
-		if ( ignoreCut("Cosmic Veto") ||
-		     cosmicVeto ) {
-		  passCut(ret,"Cosmic Veto");
+		    bool cosmicVeto = true;
+		    if ( ignoreCut("Cosmic Veto") ||
+			 cosmicVeto ) {
+		      passCut(ret,"Cosmic Veto");
 
 
-		  if ( ignoreCut("= 0 Jets") ||
-		       static_cast<int>(cleanedJets_.size()) ==  0 ){
-		    passCut(ret,"= 0 Jets");  
-		  } // end if 0 tight jets
+		      if ( ignoreCut("= 0 Jets") ||
+			   static_cast<int>(cleanedJets_.size()) ==  0 ){
+			passCut(ret,"= 0 Jets");  
+		      } // end if 0 tight jets
 
-		  if ( ignoreCut("= 1 Jets") ||
-		       static_cast<int>(cleanedJets_.size()) ==  1 ){
-		    passCut(ret,"= 1 Jets");  
-		  } // end if 1 tight jets
+		      if ( ignoreCut("= 1 Jets") ||
+			   static_cast<int>(cleanedJets_.size()) ==  1 ){
+			passCut(ret,"= 1 Jets");  
+		      } // end if 1 tight jets
 
-		  if ( ignoreCut("= 2 Jets") ||
-		       static_cast<int>(cleanedJets_.size()) ==  2 ){
-		    passCut(ret,"= 2 Jets");  
-		  } // end if 2 tight jets		  
+		      if ( ignoreCut("= 2 Jets") ||
+			   static_cast<int>(cleanedJets_.size()) ==  2 ){
+			passCut(ret,"= 2 Jets");  
+		      } // end if 2 tight jets		  
 
-		  if ( ignoreCut("= 3 Jets") ||
-		       static_cast<int>(cleanedJets_.size()) ==  3 ){
-		    passCut(ret,"= 3 Jets");  
-		  } // end if 3 tight jets
+		      if ( ignoreCut("= 3 Jets") ||
+			   static_cast<int>(cleanedJets_.size()) ==  3 ){
+			passCut(ret,"= 3 Jets");  
+		      } // end if 3 tight jets
 
-		  if ( ignoreCut("= 4 Jets") ||
-		       static_cast<int>(cleanedJets_.size()) ==  4 ){
-		    passCut(ret,"= 4 Jets");  
-		  } // end if 4 tight jets
+		      if ( ignoreCut("= 4 Jets") ||
+			   static_cast<int>(cleanedJets_.size()) ==  4 ){
+			passCut(ret,"= 4 Jets");  
+		      } // end if 4 tight jets
 
-		  if ( ignoreCut(">=5 Jets") ||
-		       static_cast<int>(cleanedJets_.size()) >=  5 ){
-		    passCut(ret,">=5 Jets");  
-		  } // end if >=5 tight jets
+		      if ( ignoreCut(">=5 Jets") ||
+			   static_cast<int>(cleanedJets_.size()) >=  5 ){
+			passCut(ret,">=5 Jets");  
+		      } // end if >=5 tight jets
 		  
-		} // end if cosmic veto
+		    } // end if cosmic veto
 		
-	      } // end if conversion veto
+		  } // end if conversion veto
 
-	    } // end if z veto
+		} // end if z veto
 
-	  } // end if met cut
+	      } // end if met cut
 	
-	} // end if == 1 lepton
+	    } // end if == 1 lepton
+
+	  } // end if == 1 tight lepton with a muon veto separately
+
+	} // end if == 1 tight lepton
 
       } // end if >= 1 lepton
 

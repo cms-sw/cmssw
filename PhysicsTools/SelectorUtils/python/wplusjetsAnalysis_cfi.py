@@ -19,37 +19,47 @@ wplusjetsAnalysis = cms.PSet(
     eleTrig = cms.string('HLT_Ele15_LW_L1R'),
     # tight muons
     muonIdTight = cms.PSet(
-        version = cms.string('SUMMER08'),
+        version = cms.string('FIRSTDATA'),
         Chi2 = cms.double(10.0),
-        D0 = cms.double(0.2),
+        D0 = cms.double(999.0),
+        ED0 = cms.double(999.0),
+        SD0 = cms.double(3.0),
         NHits = cms.int32(11),
         ECalVeto = cms.double(4.0),
         HCalVeto = cms.double(6.0),
         RelIso = cms.double(0.05),
+        cutsToIgnore = cms.vstring('D0', 'ED0')
         ),
     # tight electrons
     electronIdTight = cms.PSet(
-        version = cms.string('SUMMER08'),
-        D0 = cms.double(0.02),
-        RelIso = cms.double( 0.1 )
+        version = cms.string('FIRSTDATA'),
+        D0 = cms.double(999.0),
+        ED0 = cms.double(999.0),
+        SD0 = cms.double(3.0),
+        RelIso = cms.double( 0.1 ),
+        cutsToIgnore = cms.vstring('D0', 'ED0')
         ),
     # loose muons
     muonIdLoose = cms.PSet(
-        version = cms.string('SUMMER08'),
+        version = cms.string('FIRSTDATA'),
         Chi2 = cms.double(10.0),
-        D0 = cms.double(0.2),
+        D0 = cms.double(999.0),
+        ED0 = cms.double(999.0),
+        SD0 = cms.double(3.0),
         NHits = cms.int32(11),
         ECalVeto = cms.double(4.0),
         HCalVeto = cms.double(6.0),
         RelIso = cms.double(0.2),
-        cutsToIgnore = cms.vstring('Chi2', 'D0', 'NHits','ECalVeto','HCalVeto')
+        cutsToIgnore = cms.vstring('Chi2', 'D0', 'ED0', 'SD0', 'NHits','ECalVeto','HCalVeto')
         ),
     # loose electrons
     electronIdLoose = cms.PSet(
-        version = cms.string('SUMMER08'),
-        D0 = cms.double(0.2),
+        version = cms.string('FIRSTDATA'),
+        D0 = cms.double(999.0),
+        ED0 = cms.double(999.0),
+        SD0 = cms.double(3.0),
         RelIso = cms.double( 0.2 ),
-        cutsToIgnore = cms.vstring('D0')
+        cutsToIgnore = cms.vstring( 'D0', 'ED0', 'SD0')
         ),
     # loose jets
     jetIdLoose = jetIDSelector.clone(),
@@ -60,14 +70,14 @@ wplusjetsAnalysis = cms.PSet(
     ePlusJets      = cms.bool( False ),
     muPtMin        = cms.double( 20.0 ),
     muEtaMax       = cms.double( 2.1 ),
-    elePtMin       = cms.double( 20.0 ),
+    eleEtMin       = cms.double( 20.0 ),
     eleEtaMax      = cms.double( 2.4 ),
-    muPtMinLoose   = cms.double( 20.0 ),
-    muEtaMaxLoose  = cms.double( 2.1 ),
-    elePtMinLoose  = cms.double( 20.0 ),
-    eleEtaMaxLoose = cms.double( 2.4 ),    
-    jetPtMin       = cms.double( 15.0 ),
-    jetEtaMax      = cms.double( 3.0 ),
+    muPtMinLoose   = cms.double( 10.0 ),
+    muEtaMaxLoose  = cms.double( 2.5 ),
+    eleEtMinLoose  = cms.double( 15.0 ),
+    eleEtaMaxLoose = cms.double( 10.0 ),    
+    jetPtMin       = cms.double( 30.0 ),
+    jetEtaMax      = cms.double( 2.4 ),
     jetScale       = cms.double( 1.0 ),
     metMin         = cms.double( 0.0 )
 )

@@ -30,6 +30,23 @@ class WPlusJetsEventSelector : public EventSelector {
   std::vector<reco::ShallowClonePtrCandidate> const & selectedElectrons() const { return selectedElectrons_;}
   std::vector<reco::ShallowClonePtrCandidate> const & selectedMuons    () const { return selectedMuons_;    }
   reco::ShallowClonePtrCandidate const &              selectedMET      () const { return met_; }
+
+  void printSelectors(std::ostream & out) {
+    out << "PV Selector: " << std::endl;
+    pvSelector_.print(out);
+    out << "Muon ID Tight Selector: " << std::endl;
+    muonIdTight_.print(out);
+    out << "Electron ID Tight Selector: " << std::endl;
+    electronIdTight_.print(out);
+    out << "Muon ID Loose Selector: " << std::endl;
+    muonIdLoose_.print(out);
+    out << "Electron ID Loose Selector: " << std::endl;
+    electronIdLoose_.print(out);
+    out << "Calo Jet Selector: " << std::endl;
+    jetIdLoose_.print(out);
+    out << "PF Jet Selector: " << std::endl;
+    pfjetIdLoose_.print(out);
+  }
  
  protected: 
 
@@ -67,12 +84,12 @@ class WPlusJetsEventSelector : public EventSelector {
 
   double muPtMin_  ;
   double muEtaMax_ ;
-  double elePtMin_ ;
+  double eleEtMin_ ;
   double eleEtaMax_;
 
   double muPtMinLoose_  ;
   double muEtaMaxLoose_ ;
-  double elePtMinLoose_ ;
+  double eleEtMinLoose_ ;
   double eleEtaMaxLoose_;
 
   double jetPtMin_ ;
