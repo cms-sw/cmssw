@@ -84,24 +84,14 @@ public:
   virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const = 0;
 
   // check of arguments for use with cached values
-  bool newArguments (const TrajectoryStateOnSurface & TSoS, PropagationDirection  propDir) const {
-    bool ok = 
-      theLastOverP != TSoS.localParameters().qbp() ||
-      theLastRL    != TSoS.surface().mediumProperties()->radLen() ||
-      theLastPropDir != propDir;
-    if (ok) {
-      theLastOverP = TSoS.localParameters().qbp();
-      theLastRL    = TSoS.surface().mediumProperties()->radLen();
-      theLastPropDir = propDir;
-    }
-    return ok;
-  }
+  bool newArguments (const TrajectoryStateOnSurface & TSoS, PropagationDirection  propDir) const;
   
  private:
   double theMass;
 
   // chache previous call state
   mutable double theLastOverP;
+  mutable double theLastDxdz;
   mutable float  theLastRL;
   mutable PropagationDirection theLastPropDir;
 

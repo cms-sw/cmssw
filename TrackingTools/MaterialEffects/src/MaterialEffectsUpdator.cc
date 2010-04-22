@@ -3,7 +3,9 @@
 
 using namespace SurfaceSideDefinition;
 
-//#include "Utilities/UI/interface/SimpleConfigurable.h"
+// static initialization
+AlgebraicSymMatrix55  MaterialEffectsUpdator::theNullMatrix;
+
 //
 // Update of the trajectory state (implemented in base class since general for
 //   all classes returning deltaP and deltaCov.
@@ -47,5 +49,21 @@ bool MaterialEffectsUpdator::updateStateInPlace (TrajectoryStateOnSurface& TSoS,
   return true;
 }
 
-// static initialization
-AlgebraicSymMatrix55  MaterialEffectsUpdator::theNullMatrix;
+bool newArguments (const TrajectoryStateOnSurface & TSoS, PropagationDirection  propDir) const {
+  // check that track as same momentum and direction, surface has same radLen
+  // it optimize also against multiple evaluations on different "surfaces" 
+  // belonging to contigous detectors with same radLem 
+  bool ok = 
+    theLastOverP != TSoS.localParameters().qbp() ||
+    theLastDxdz != TSoS.localParameters().dxdz() || 
+    theLastRL    != TSoS.surface().mediumProperties()->radLen() ||
+    theLastPropDir != propDir;
+  if (ok) {
+    theLastOverP = TSoS.localParameters().qbp();
+    theLastDxdz  = TSoS.localParameters().dxdz(); 
+    theLastRL  = TSoS.surface().mediumProperties()->radLen();
+    theLastPropDir = propDir;
+  }
+  return ok;
+}
+  
