@@ -27,6 +27,7 @@
 
 #include "GeneratorInterface/Pythia8Interface/interface/LHAupLesHouches.h"
 
+#include "HepPID/ParticleIDTranslations.hh"
 
 using namespace gen;
 using namespace Pythia8;
@@ -200,16 +201,26 @@ static int getStatus(const HepMC::GenParticle *p)
 
 bool Pythia8Hadronizer::declareStableParticles(const std::vector<int> &pdgIds)
 {
-#if 0
-	for(std::vector<int>::const_iterator iter = pdgIds.begin();
-	    iter != pdgIds.end(); ++iter)
-		if (!markStable(*iter))
-			return false;
 
-	return true;
-#else
-	return false;
-#endif
+   for ( size_t i=0; i<pdgIds.size(); i++ )
+   {
+      // FIXME: need to double check if PID's are the same in Py6 & Py8,
+      //        because the HepPDT translation tool is actually for **Py6** 
+      // 
+      int PyID = HepPID::translatePDTtoPythia( pdgIds[i] ); 
+      std::ostringstream pyCard ;
+      pyCard << PyID <<":onMode=off";
+      // alternative:
+      // pyCard << pyCode <<":mayDecay=off";
+      pythia->readString( pyCard.str() );
+      // alternative:
+      // set the 2nd input argument warn=false 
+      // - this way Py8 will NOT print warnings about unknown particle code(s)
+      // pythia->readString( pyCard.str(), false )
+   }
+   
+   return true;
+
 }
 
 void Pythia8Hadronizer::statistics()
