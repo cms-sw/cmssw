@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.6 2010/04/20 20:49:41 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.7 2010/04/21 19:24:58 amraktad Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@
 // constructors and destructor
 //
 FWProxyBuilderBase::FWProxyBuilderBase():
+   m_interactionList(0),
    m_item(0),
    m_modelsChanged(false),
    m_haveWindow(false),
