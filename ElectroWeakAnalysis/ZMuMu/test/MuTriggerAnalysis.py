@@ -115,7 +115,8 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('MuTriggerStudy_133_AllqualityCutsButIso.root')
 )
 
-# Muon filter
+# Muon filter, you can choose to add/remove/loose/tighten  cuts (isolation cuts for example)
+
 process.goodMuons = cms.EDFilter("MuonSelector",
                                    src = cms.InputTag("muons"),
                                    cut = cms.string('( isGlobalMuon=1 && isTrackerMuon ) && isolationR03().sumPt<1000.0 && abs(innerTrack().dxy)<0.5 && (globalTrack().hitPattern().numberOfValidMuonHits()>0) && (globalTrack.hitPattern().numberOfValidStripHits()>=10) && (globalTrack().normalizedChi2()<10) '), 
@@ -130,9 +131,9 @@ process.MuTriggerAnalyzer = cms.EDAnalyzer(
     TrigTag = cms.InputTag("TriggerResults::HLT"),
     triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::HLT" ),  
     hltPath = cms.string("HLT_L2Mu9"),
-##HLT_L2Mu9
+##HLT_Mu9
     L3FilterName= cms.string("hltL2Mu9L2Filtered9"),
-##hltL2Mu9L2Filtered9
+##hltSingleMu9L3Filtered9
     maxDPtRel = cms.double( 1.0 ),
     maxDeltaR = cms.double( 0.5 ),
     ptMuCut = cms.untracked.double( 5.0 ),
