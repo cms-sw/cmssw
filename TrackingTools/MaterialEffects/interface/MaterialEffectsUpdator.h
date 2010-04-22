@@ -7,8 +7,8 @@
  *  in this class.
  *  Ported from ORCA.
  *
- *  $Date: 2010/04/22 11:58:05 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/04/22 12:19:04 $
+ *  $Revision: 1.11 $
  *  \author todorov, cerati
  */
 
@@ -20,25 +20,14 @@ class MaterialEffectsUpdator
 public:
   /** Constructor with explicit mass hypothesis
    */
-  MaterialEffectsUpdator ( double mass ) :
-    theMass(mass),
-    theDeltaP(0.),
-    theDeltaCov() {}
-  /** Default constructor (mass from configurable)
-   */
-  //  MaterialEffectsUpdator ();
-
-  virtual ~MaterialEffectsUpdator () {}
+  MaterialEffectsUpdator ( double mass );
+  virtual ~MaterialEffectsUpdator ();
 
   /** Updates TrajectoryStateOnSurface with material effects
    *    (momentum and covariance matrix are potentially affected.
    */
   virtual TrajectoryStateOnSurface updateState (const TrajectoryStateOnSurface& TSoS, 
-						const PropagationDirection propDir) const {
-        TrajectoryStateOnSurface shallowCopy = TSoS;
-        // A TSOS is a proxy. Its contents will be really copied only if/when the updateStateInPlace attempts to change them
-        return updateStateInPlace(shallowCopy, propDir) ? shallowCopy : TrajectoryStateOnSurface();
-  }
+						const PropagationDirection propDir) const;
 
   /** Updates in place TrajectoryStateOnSurface with material effects
    *    (momentum and covariance matrix are potentially affected)
@@ -52,25 +41,14 @@ public:
  
   /** Change in |p| from material effects.
    */
-  virtual double deltaP (const TrajectoryStateOnSurface& TSoS, const PropagationDirection propDir) const {
-    // check for material
-    if ( !TSoS.surface().mediumProperties() )  return 0.;
-    // check for change (avoid using compute method if possible)
-    if ( newArguments(TSoS,propDir) )  compute(TSoS,propDir);
-    return theDeltaP;
-  }
+  virtual double deltaP (const TrajectoryStateOnSurface& TSoS, const PropagationDirection propDir) const;
 
 
   /** Contribution to covariance matrix (in local co-ordinates) from material effects.
    */
   virtual const AlgebraicSymMatrix55 &deltaLocalError (const TrajectoryStateOnSurface& TSoS, 
-					      const PropagationDirection propDir) const {
-    // check for material
-    if ( !TSoS.surface().mediumProperties() )  return theNullMatrix;
-    // check for change (avoid using compute method if possible)
-    if ( newArguments(TSoS,propDir) )  compute(TSoS,propDir);
-    return theDeltaCov;
-  }  
+						       const PropagationDirection propDir) const;
+
   /** Particle mass assigned at construction.
    */
   inline double mass () const {

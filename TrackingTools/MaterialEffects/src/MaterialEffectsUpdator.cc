@@ -6,6 +6,54 @@ using namespace SurfaceSideDefinition;
 // static initialization
 AlgebraicSymMatrix55  MaterialEffectsUpdator::theNullMatrix;
 
+
+
+/** Constructor with explicit mass hypothesis
+ */
+MaterialEffectsUpdator::MaterialEffectsUpdator ( double mass ) :
+  theMass(mass),
+  theLastOverP(0),
+  theLastDxdz(0), 
+  theLastRL(0),
+  theDeltaP(0.),
+  theDeltaCov() {}
+
+MaterialEffectsUpdator::~MaterialEffectsUpdator () {}
+
+/** Updates TrajectoryStateOnSurface with material effects
+ *    (momentum and covariance matrix are potentially affected.
+ */
+MaterialEffectsUpdator::TrajectoryStateOnSurface updateState (const TrajectoryStateOnSurface& TSoS, 
+							      const PropagationDirection propDir) const {
+  TrajectoryStateOnSurface shallowCopy = TSoS;
+  // A TSOS is a proxy. Its contents will be really copied only if/when the updateStateInPlace attempts to change them
+  return updateStateInPlace(shallowCopy, propDir) ? shallowCopy : TrajectoryStateOnSurface();
+}
+
+
+/** Change in |p| from material effects.
+ */
+double MaterialEffectsUpdator::deltaP (const TrajectoryStateOnSurface& TSoS, const PropagationDirection propDir) const {
+  // check for material
+  if ( !TSoS.surface().mediumProperties() )  return 0.;
+  // check for change (avoid using compute method if possible)
+  if ( newArguments(TSoS,propDir) )  compute(TSoS,propDir);
+  return theDeltaP;
+}
+
+
+  /** Contribution to covariance matrix (in local co-ordinates) from material effects.
+   */
+const AlgebraicSymMatrix55 & MaterialEffectsUpdator::deltaLocalError (const TrajectoryStateOnSurface& TSoS, 
+								      const PropagationDirection propDir) const {
+  // check for material
+  if ( !TSoS.surface().mediumProperties() )  return theNullMatrix;
+  // check for change (avoid using compute method if possible)
+  if ( newArguments(TSoS,propDir) )  compute(TSoS,propDir);
+  return theDeltaCov;
+}  
+
+
 //
 // Update of the trajectory state (implemented in base class since general for
 //   all classes returning deltaP and deltaCov.
