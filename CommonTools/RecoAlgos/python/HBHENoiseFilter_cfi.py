@@ -10,5 +10,5 @@ HBHENoiseFilter = cms.EDFilter(
     minZeros = cms.int32(10),
     minHighEHitTime = cms.double(-9999.0),
     maxHighEHitTime = cms.double(9999.0),
-    maxRBXEMF = cms.double(0.01)
+    maxRBXEMF = cms.double(-9999.0)
     )
