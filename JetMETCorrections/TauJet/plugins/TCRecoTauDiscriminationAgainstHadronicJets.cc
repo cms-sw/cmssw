@@ -27,8 +27,7 @@ void TCRecoTauDiscriminationAgainstHadronicJets::beginEvent(const Event& iEvent,
 
 
 double TCRecoTauDiscriminationAgainstHadronicJets::discriminate(const CaloTauRef& theCaloTauRef){
-  math::XYZTLorentzVector p4 = tcTauCorrector->correctedP4(*theCaloTauRef);
-std::cout << "check discr " << tcTauCorrector->algoComponent() << " " << TCTauAlgorithm::TCAlgoHadronicJet << endl;
+	math::XYZTLorentzVector p4 = tcTauCorrector->correctedP4(*theCaloTauRef);
 	return ((tcTauCorrector->algoComponent() != TCTauAlgorithm::TCAlgoHadronicJet) ? 1. : 0.);
 }
 
