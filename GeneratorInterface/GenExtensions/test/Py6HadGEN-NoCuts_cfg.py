@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('SampleGeneration/BcGeneration/Bc2JpsiPiFromLHE_cfi.py nevts:3'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -55,11 +55,8 @@ process.output.outputCommands.append('keep *_source_*_*')
 process.output.outputCommands.append('keep *_generator_*_*')
 
 # Other statements
-<<<<<<< Py6HadGEN-NoCuts_cfg.py
-process.GlobalTag.globaltag = 'MC_36Y_V4::All'
-=======
-process.GlobalTag.globaltag = 'MC_3XY_V25::All'
->>>>>>> 1.3
+#process.GlobalTag.globaltag = 'MC_36Y_V4::All'#conditions working with CMSSW_3_6_0
+process.GlobalTag.globaltag = 'MC_37Y_V0::All'#conditions working with CMSSW_3_7_0_pre1
 process.generator = cms.EDFilter("Pythia6HadronizerFilter",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(0.1235),
@@ -140,18 +137,6 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
             'processParameters')
     )
 )
-<<<<<<< Py6HadGEN-NoCuts_cfg.py
-process.mumugenfilter = cms.EDFilter("MCParticlePairFilter",
-    Status = cms.untracked.vint32(1, 1),
-    MinPt = cms.untracked.vdouble(2.5, 2.5),
-    MaxEta = cms.untracked.vdouble(2.5, 2.5),
-    moduleLabel = cms.untracked.string('generator'),
-    MinEta = cms.untracked.vdouble(-2.5, -2.5),
-    ParticleCharge = cms.untracked.int32(-1),
-    ParticleID1 = cms.untracked.vint32(13),
-    ParticleID2 = cms.untracked.vint32(13)
-)
-## process.ProductionFilterSequence = cms.Sequence(process.generator*process.mumugenfilter)
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.generator*process.pgen)
@@ -159,26 +144,6 @@ process.simulation_step = cms.Path(process.psim)
 process.digitisation_step = cms.Path(process.pdigi)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.digi2raw_step = cms.Path(process.DigiToRaw)
-=======
-process.mumugenfilter = cms.EDFilter("MCParticlePairFilter",
-    Status = cms.untracked.vint32(1, 1),
-    MinPt = cms.untracked.vdouble(2.5, 2.5),
-    MaxEta = cms.untracked.vdouble(2.5, 2.5),
-    moduleLabel = cms.untracked.string('generator'),
-    MinEta = cms.untracked.vdouble(-2.5, -2.5),
-    ParticleCharge = cms.untracked.int32(-1),
-    ParticleID1 = cms.untracked.vint32(13),
-    ParticleID2 = cms.untracked.vint32(13)
-)
-## process.ProductionFilterSequence = cms.Sequence(process.generator*process.mumugenfilter)
-
-# Path and EndPath definitions
-process.generation_step = cms.Path(process.pgen)
-process.simulation_step = cms.Path(process.psim)
-process.digitisation_step = cms.Path(process.pdigi)
-process.L1simulation_step = cms.Path(process.SimL1Emulator)
-process.digi2raw_step = cms.Path(process.DigiToRaw)
->>>>>>> 1.3
 process.endjob_step = cms.Path(process.endOfProcess)
 process.out_step = cms.EndPath(process.output)
 

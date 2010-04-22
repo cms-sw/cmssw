@@ -16,7 +16,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('reco nevts:3'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -47,11 +47,9 @@ process.output.outputCommands.append('keep *_source_*_*')
 process.output.outputCommands.append('keep *_generator_*_*')
 
 # Other statements
-<<<<<<< Py6HadRECO-NoCuts_cfg.py
-process.GlobalTag.globaltag = 'MC_36Y_V4::All'
-=======
-process.GlobalTag.globaltag = 'MC_3XY_V25::All'
->>>>>>> 1.3
+process.GlobalTag.globaltag = 'MC_37Y_V0::All'##conditions for CMSSW_3_7_0_pre1
+## process.GlobalTag.globaltag = 'MC_36Y_V4::All'
+## process.GlobalTag.globaltag = 'MC_3XY_V25::All'
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)

@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('SampleGeneration/BcGeneration/Bc2JpsiPiFromLHE_cfi.py nevts:3'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -55,11 +55,8 @@ process.output.outputCommands.append('keep *_source_*_*')
 process.output.outputCommands.append('keep *_generator_*_*')
 
 # Other statements
-<<<<<<< Py6HadGEN-HLT_cfg.py
-process.GlobalTag.globaltag = 'MC_36Y_V4::All'
-=======
-process.GlobalTag.globaltag = 'MC_3XY_V25::All'
->>>>>>> 1.3
+#process.GlobalTag.globaltag = 'MC_36Y_V4::All'#conditions working with CMSSW_3_6_0
+process.GlobalTag.globaltag = 'MC_37Y_V0::All'#conditions working with CMSSW_3_7_0_pre1
 process.generator = cms.EDFilter("Pythia6HadronizerFilter",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(0.1235),
