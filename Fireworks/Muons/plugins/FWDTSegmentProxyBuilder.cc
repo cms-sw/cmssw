@@ -8,25 +8,18 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWDTSegmentProxyBuilder.cc,v 1.1 2010/04/16 10:29:09 yana Exp $
+// $Id: FWDTSegmentProxyBuilder.cc,v 1.2 2010/04/16 16:40:13 yana Exp $
 //
 
-// system include files
-#include "TEveManager.h"
-#include "TEveElement.h"
-#include "TEveCompound.h"
 #include "TEveStraightLineSet.h"
 
-// user include files
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "Fireworks/Tracks/interface/TrackUtils.h"
 
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
-class FWDTSegmentProxyBuilder : public FWProxyBuilderBase
+class FWDTSegmentProxyBuilder : public FWSimpleProxyBuilderTemplate<DTRecSegment4D>
 {
 public:
    FWDTSegmentProxyBuilder() {}
@@ -35,50 +28,71 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   virtual void build(const FWEventItem* iItem, TEveElementList* product);
+   FWDTSegmentProxyBuilder(const FWDTSegmentProxyBuilder&);
+   const FWDTSegmentProxyBuilder& operator=(const FWDTSegmentProxyBuilder&);
 
-   FWDTSegmentProxyBuilder(const FWDTSegmentProxyBuilder&);    // stop default
-
-   const FWDTSegmentProxyBuilder& operator=(const FWDTSegmentProxyBuilder&);    // stop default
+  void build(const DTRecSegment4D& iData, unsigned int iIndex, TEveElement& oItemHolder);
 };
 
 void
-FWDTSegmentProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product)
+FWDTSegmentProxyBuilder::build(const DTRecSegment4D& iData,           
+                               unsigned int iIndex, TEveElement& oItemHolder)
 {
-   const DTRecSegment4DCollection* segments = 0;
-   iItem->get(segments);
+  const TGeoHMatrix* matrix = item()->getGeom()->getMatrix(iData.chamberId().rawId());
 
-   if( 0 == segments ) {
-       return;
-   }
-   
-   unsigned int index = 0;
-   for( DTRecSegment4DCollection::id_iterator chamberId = segments->id_begin(), chamberIdEnd = segments->id_end();
-	chamberId != chamberIdEnd; ++chamberId, ++index )
-   {
-      std::stringstream s;
-      s << "DT Segment " << index;
-      const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( (*chamberId).rawId() );
+  if (  ! matrix ) 
+  {
+    std::cout<<"ERROR: failed to get geometry of DT chamber with detid: " 
+             << iData.chamberId().rawId() <<std::endl;
+    return;
+  }
 
-      DTRecSegment4DCollection::range range = segments->get(*chamberId);
-      for( DTRecSegment4DCollection::const_iterator segment = range.first;
-           segment!=range.second; ++segment)
-      {
-         TEveCompound* compund = new TEveCompound( "dt compound", s.str().c_str() );
-         product->AddElement(compund);
-         compund->OpenCompound();
+  std::stringstream s;
+  s << "chamber" << iIndex;
 
-         TEveStraightLineSet* segmentSet = new TEveStraightLineSet;
-	 fireworks::addSegment(*segment, matrix, *segmentSet);
-         segmentSet->SetLineWidth(3);
-         segmentSet->SetMainColor(iItem->defaultDisplayProperties().color());
-         segmentSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
-         segmentSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
-         compund->AddElement( segmentSet );
-      }
-   }
+  TEveStraightLineSet* segmentSet = new TEveStraightLineSet(s.str().c_str());
+  segmentSet->SetLineWidth(3);
+  setupAddElement(segmentSet, &oItemHolder);
+
+  const double halfThickness = 17.0; 
+  // Bad! Actually the DTs are of either halfThickness 18.1 or 16.35
+  // This should be fetched from the geometry.
+
+  double localSegmentInnerPoint[3];
+  double localSegmentOuterPoint[3];
+  
+  double globalSegmentInnerPoint[3];
+  double globalSegmentOuterPoint[3];
+
+  double localPositionX = iData.localPosition().x();
+  double localPositionY = iData.localPosition().y();
+  double localPositionZ = iData.localPosition().z();
+
+  double localDirectionX = iData.localDirection().x();
+  double localDirectionY = iData.localDirection().y();
+  double localDirectionZ = iData.localDirection().z();
+
+  double localDirMag = sqrt(localDirectionX*localDirectionX + 
+                            localDirectionY*localDirectionY +
+                            localDirectionZ*localDirectionZ);
+  double localDirTheta = iData.localDirection().theta();
+
+  localSegmentInnerPoint[0] = localPositionX + (localDirectionX/localDirMag)*(halfThickness/cos(localDirTheta));
+  localSegmentInnerPoint[1] = localPositionY + (localDirectionY/localDirMag)*(halfThickness/cos(localDirTheta));
+  localSegmentInnerPoint[2] = localPositionZ + (localDirectionZ/localDirMag)*(halfThickness/cos(localDirTheta));
+
+  localSegmentOuterPoint[0] = localPositionX - (localDirectionX/localDirMag)*(halfThickness/cos(localDirTheta));
+  localSegmentOuterPoint[1] = localPositionY - (localDirectionY/localDirMag)*(halfThickness/cos(localDirTheta));
+  localSegmentOuterPoint[2] = localPositionZ - (localDirectionZ/localDirMag)*(halfThickness/cos(localDirTheta));
+
+  matrix->LocalToMaster(localSegmentInnerPoint,  globalSegmentInnerPoint);
+  matrix->LocalToMaster(localSegmentOuterPoint,  globalSegmentOuterPoint);
+
+  segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+                      globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2]);
+
 }
 
-REGISTER_FWPROXYBUILDER( FWDTSegmentProxyBuilder, DTRecSegment4DCollection, "DT Segments", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER( FWDTSegmentProxyBuilder, DTRecSegment4D, "DT Segments", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
 
 
