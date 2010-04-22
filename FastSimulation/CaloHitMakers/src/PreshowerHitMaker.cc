@@ -27,6 +27,7 @@ PreshowerHitMaker::PreshowerHitMaker(
   psLayer1Dir_(layer1dir),
   psLayer2Entrance_(layer2entrance),
   psLayer2Dir_(layer2dir),
+  totalLayer1_(0.),totalLayer2_(0.),
   theGenerator(aGenerator)
 {
   double dummyt;
@@ -84,7 +85,7 @@ PreshowerHitMaker::PreshowerHitMaker(
 }
 
 
-bool 
+bool
 PreshowerHitMaker::addHit(double r,double phi,unsigned layer)
 {
   if((layer==1&&!layer1valid_)||((layer==2&&!layer2valid_))) return false;
@@ -117,6 +118,12 @@ PreshowerHitMaker::addHit(double r,double phi,unsigned layer)
 	  cellitr->second+=spote;
 	}  
       //      std::cout << " found " << stripNumber << " " << spote <<std::endl;
+      if(layer==1){
+	totalLayer1_+=spote;
+      }
+      else if (layer==2) {
+	totalLayer2_+=spote;
+      }
       return true;
     }
   //  std::cout << "  Could not find a cell " << point << std::endl;
