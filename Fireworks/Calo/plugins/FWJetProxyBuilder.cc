@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.6 2010/04/20 20:49:40 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.7 2010/04/21 15:38:20 yana Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -44,11 +44,11 @@ private:
 void
 FWJetProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
-   FW3DEveJet* cone = new FW3DEveJet( iData, "jet", "jet");
-   cone->SetPickable(kTRUE);
-   cone->SetMainTransparency(75);
+   FW3DEveJet* cone = new FW3DEveJet( iData, "jet" );
+   cone->SetPickable( kTRUE );
+   cone->SetMainTransparency( 75 );
 
-   setupAddElement(cone, &oItemHolder);
+   setupAddElement( cone, &oItemHolder );
 }
 //------------------------------------------------------------------------------
 
@@ -101,17 +101,18 @@ FWJetRhoPhiProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEv
      points[i+8] = points[i];
    }
    
+   TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur() );
    TEveGeoShape *element = fw::getShape( "cone", 
 					 new TGeoArb8( 0, points ),
 					 item()->defaultDisplayProperties().color() );
    element->SetMainTransparency( 90 );
-   setupAddElement(element, &oItemHolder);
+   setupAddElement( element, &oItemHolder );
    
    TEveStraightLineSet* marker = new TEveStraightLineSet( "energy" );
    marker->SetLineWidth( 4 );
    marker->AddLine( ecalR*cos(phi), ecalR*sin(phi), 0,
 		    (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
-   setupAddElement(marker, &oItemHolder);
+   setupAddElement( marker, &oItemHolder );
 }
 
 //______________________________________________________________________________
@@ -156,13 +157,13 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
      r = r_ecal/sin(theta);
    
    double size = iData.et();
-   double etaSize = sqrt(iData.etaetaMoment());
+   double etaSize = sqrt( iData.etaetaMoment() );
    
    TEveStraightLineSet* marker = new TEveStraightLineSet( "energy" );
    marker->SetLineWidth(4);
-   marker->AddLine(0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
-		   0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
-   setupAddElement(marker, &oItemHolder);
+   marker->AddLine( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
+		    0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
+   setupAddElement( marker, &oItemHolder );
    
    double min_theta = 2*atan(exp(-( eta+etaSize )));
    double max_theta = 2*atan(exp(-( eta-etaSize )));
@@ -215,13 +216,14 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
    for( int i = 0; i<8; ++i ) {
      points[i+8] = points[i];
    }
+   TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur() );
    TEveGeoShape *element = fw::getShape( "cone2", 
 					 new TGeoArb8( 0, points ),
 					 item()->defaultDisplayProperties().color() );
    element->RefMainTrans().RotateLF( 1, 3, M_PI/2 );
    element->SetMainTransparency( 90 );
 
-   setupAddElement(element, &oItemHolder);
+   setupAddElement( element, &oItemHolder );
 }
 
 //______________________________________________________________________________
@@ -236,8 +238,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWJetGlimpseProxyBuilder(const FWJetGlimpseProxyBuilder&); // stop default
-   const FWJetGlimpseProxyBuilder& operator=(const FWJetGlimpseProxyBuilder&); // stop default
+   FWJetGlimpseProxyBuilder( const FWJetGlimpseProxyBuilder& ); // stop default
+   const FWJetGlimpseProxyBuilder& operator=( const FWJetGlimpseProxyBuilder& ); // stop default
 
    virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
@@ -245,11 +247,11 @@ private:
 void
 FWJetGlimpseProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
-   FWGlimpseEveJet* cone = new FWGlimpseEveJet(&iData, "jet", "jet");
+   FWGlimpseEveJet* cone = new FWGlimpseEveJet( &iData, "jet" );
    cone->SetMainTransparency( 50 );
    cone->SetDrawConeCap( kFALSE );
    cone->SetMainTransparency( 50 );
-   setupAddElement(cone, &oItemHolder);
+   setupAddElement( cone, &oItemHolder );
 }
 
 //______________________________________________________________________________
@@ -264,8 +266,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWJetLegoProxyBuilder(const FWJetLegoProxyBuilder&); // stop default
-   const FWJetLegoProxyBuilder& operator=(const FWJetLegoProxyBuilder&); // stop default
+   FWJetLegoProxyBuilder( const FWJetLegoProxyBuilder& ); // stop default
+   const FWJetLegoProxyBuilder& operator=( const FWJetLegoProxyBuilder& ); // stop default
 
    virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder );
 };
@@ -273,19 +275,19 @@ private:
 void
 FWJetLegoProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
 {
-   TEveStraightLineSet* container = new TEveStraightLineSet("circle");
+   TEveStraightLineSet* container = new TEveStraightLineSet( "circle" );
 
    const unsigned int nLineSegments = 20;
    const double jetRadius = 0.5;
    for( unsigned int iphi = 0; iphi < nLineSegments; ++iphi ) {
-      container->AddLine(iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
-                         iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),
-                         0.1,
-                         iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*(iphi+1)),
-                         iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
-                         0.1);
+      container->AddLine( iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
+			  iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),
+			  0.1,
+			  iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*(iphi+1)),
+			  iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
+			  0.1 );
    }
-   setupAddElement(container, &oItemHolder);
+   setupAddElement( container, &oItemHolder );
 }
 
 REGISTER_FWPROXYBUILDER( FWJetProxyBuilder, reco::Jet, "Jets", FWViewType::kAll3DBits );

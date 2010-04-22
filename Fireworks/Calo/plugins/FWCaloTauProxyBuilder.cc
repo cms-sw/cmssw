@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCaloTauProxyBuilder.cc,v 1.7 2010/04/21 13:58:52 amraktad Exp $
+// $Id: FWCaloTauProxyBuilder.cc,v 1.8 2010/04/21 15:38:20 yana Exp $
 //
 
 // system include files
@@ -118,6 +118,7 @@ FWCaloTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList*
 	    min_phi = phi-M_PI/36/2;
 	    max_phi = phi+M_PI/36/2;
 	 }
+	 TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
 	 TGeoBBox *sc_box = new TGeoTubeSeg(r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
 	 TEveGeoShape *element = fw::getShape( "spread", sc_box, iItem->defaultDisplayProperties().color() );
 	 element->SetPickable(kTRUE);
