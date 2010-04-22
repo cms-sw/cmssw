@@ -74,7 +74,7 @@ offset_from_firstStrip( const std::vector<stats_t<float> >& Q, const stats_t<flo
     const stats_t<float> probably = geometric_position( wc, proj);
     wc.dropSmallerEdgeStrip();
     const stats_t<float> maybe = geometric_position( wc, proj);
-    return stats_t<float>( probably(), std::max( probably.error2(), maybe.error2() + pow( probably()-maybe() ,2)/12 ) );
+    return stats_t<float>( probably(), std::max( probably.error2(), float(maybe.error2() + pow( probably()-maybe() ,2)/12 )) );
   }
   return geometric_position( wc, proj);
 }
