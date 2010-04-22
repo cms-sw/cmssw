@@ -180,7 +180,8 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
       {
 	// Effective time = # of lumi sections * length of 1 lumi section / overall prescale factor of the PD being analyzed
 	float fact=cfg->lumiSectionLength/cfg->lumiScaleFactor;
-	  scaleddeno = (float)((procs[i]->GetNLumiSections()) * (fact)) / ((float)(cfg->prescaleNormalization));
+	scaleddeno = (float)((procs[i]->GetNLumiSections()) * (fact)) / ((float)(cfg->prescaleNormalization));
+	//scaleddeno = (float)(1. * (fact)) / ((float)(cfg->prescaleNormalization));
 	scaleddenoPerLS = (float)((fact)) / ((float)(cfg->prescaleNormalization));
 	cout << "N(Lumi Sections) = " << (procs[i]->GetNLumiSections()) << endl;
       }
@@ -211,12 +212,16 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
       
       if(cfg->isRealData == 1) {
 	Rate[j]    += OHltRateCounter::eff((float)rcs[i]->iCount[j],scaleddeno);   
-	RateErr[j] += OHltRateCounter::effErr((float)rcs[i]->iCount[j],scaleddeno); 
+	//RateErr[j] += OHltRateCounter::effErr((float)rcs[i]->iCount[j],scaleddeno); 
+	RateErr[j] += OHltRateCounter::errRate2((float)rcs[i]->iCount[j],scaleddeno); 
 	spureRate[j]    += OHltRateCounter::eff((float)rcs[i]->sPureCount[j],scaleddeno);   
-	spureRateErr[j] += OHltRateCounter::effErr((float)rcs[i]->sPureCount[j],scaleddeno); 
+	//spureRateErr[j] += OHltRateCounter::effErr((float)rcs[i]->sPureCount[j],scaleddeno); 
+	spureRateErr[j] += OHltRateCounter::errRate2((float)rcs[i]->sPureCount[j],scaleddeno); 
 	pureRate[j]    += OHltRateCounter::eff((float)rcs[i]->pureCount[j],scaleddeno);   
-	pureRateErr[j] += OHltRateCounter::effErr((float)rcs[i]->pureCount[j],scaleddeno); 
+	//pureRateErr[j] += OHltRateCounter::effErr((float)rcs[i]->pureCount[j],scaleddeno); 
+	pureRateErr[j] += OHltRateCounter::errRate2((float)rcs[i]->pureCount[j],scaleddeno); 
 	cout << "N(passing " << menu->GetTriggerName(j) << ") = " << (float)rcs[i]->iCount[j] << endl;
+	//cout << "\t RATE: " << Rate[j] << " +- " <<  RateErr[j] << "  scaleddeno: " << scaleddeno << endl;
 
         for (int k=0;k<ntrig;k++){ 
           coMa[j][k] += ((float)rcs[i]->overlapCount[j][k]);
