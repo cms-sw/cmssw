@@ -114,7 +114,7 @@ def customiseCosmicMC(process):
         
 
 ##############################################################################
-def customisePPDataExpress(process):
+def customiseExpress(process):
     process= customisePPData(process)
 
     return process
