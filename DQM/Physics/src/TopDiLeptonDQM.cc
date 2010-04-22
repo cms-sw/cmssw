@@ -1,6 +1,6 @@
 /*
- *  $Date: 2010/01/07 14:16:30 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/02/25 17:09:49 $
+ *  $Revision: 1.10 $
  *  \author M. Marienfeld - DESY Hamburg
  */
 
@@ -14,15 +14,15 @@ using namespace edm;
 
 TopDiLeptonDQM::TopDiLeptonDQM( const edm::ParameterSet& ps ) {
 
-  parameters_ = ps;
   initialize();
 
   moduleName_      = ps.getUntrackedParameter<string>("moduleName");
+  fileOutput_      = ps.getParameter<bool>("fileOutput");
   outputFile_      = ps.getUntrackedParameter<string>("outputFile");
   triggerResults_  = ps.getParameter<InputTag>("TriggerResults");
   hltPaths_        = ps.getParameter<vector<string> >("hltPaths");
-  hltPaths_sig_    = parameters_.getParameter<vector<string> >("hltPaths_sig");
-  hltPaths_trig_   = parameters_.getParameter<vector<string> >("hltPaths_trig");
+  hltPaths_sig_    = ps.getParameter<vector<string> >("hltPaths_sig");
+  hltPaths_trig_   = ps.getParameter<vector<string> >("hltPaths_trig");
 
   vertex_          = ps.getParameter<edm::InputTag>("vertexCollection");
   vertex_X_cut_    = ps.getParameter<double>("vertex_X_cut");
@@ -38,6 +38,7 @@ TopDiLeptonDQM::TopDiLeptonDQM( const edm::ParameterSet& ps ) {
   elec_pT_cut_     = ps.getParameter<double>("elec_pT_cut");
   elec_eta_cut_    = ps.getParameter<double>("elec_eta_cut");
   elec_iso_cut_    = ps.getParameter<double>("elec_iso_cut");
+  elec_emf_cut_    = ps.getParameter<double>("elec_emf_cut");
 
   MassWindow_up_   = ps.getParameter<double>("MassWindow_up");
   MassWindow_down_ = ps.getParameter<double>("MassWindow_down");
@@ -52,8 +53,11 @@ TopDiLeptonDQM::TopDiLeptonDQM( const edm::ParameterSet& ps ) {
   N_muel = 0;
   N_elel = 0;
 
-  //  const char *fileName = outputFile_.c_str();
-  //  outfile.open (fileName);
+
+  if( fileOutput_ ) {
+    const char *fileName = outputFile_.c_str();
+    outfile.open (fileName);
+  }
 
 }
 
@@ -78,19 +82,21 @@ void TopDiLeptonDQM::beginJob() {
   Trigs_      = dbe_->book1D("01_Trigs",      "Fired muon/electron triggers",    10,  0., 10.);
   TriggerEff_ = dbe_->book1D("02_TriggerEff", "HL Trigger Efficiencies",          5,  0.,  5.);
   TriggerEff_->setTitle("HL Trigger Efficiencies #epsilon_{signal} = #frac{[signal] && [control]}{[control]}");
+  Ntracks_    = dbe_->book1D("Ntracks",       "Number of tracks",                50,  0., 50.);
 
-  Nmuons_        = dbe_->book1D("03_Nmuons",     "Number of muons",               20,   0.,  10.);
-  Nmuons_iso_    = dbe_->book1D("04_Nmuons_iso", "Number of isolated muons",      20,   0.,  10.);
-  Nmuons_charge_ = dbe_->book1D("Nmuons_charge", "Number of muons * moun charge", 19, -10.,  10.);
-  VxVy_muons_    = dbe_->book2D("VxVy_muons",    "Vertex x-y-positon (global)",   50 ,  0.,   1., 50 , 0., 1.);
-  Vz_muons_      = dbe_->book1D("Vz_muons",      "Vertex z-positon (global)",     40 ,  0.,  20.);
-  pT_muons_      = dbe_->book1D("pT_muons",      "P_T of muons",                  40,   0., 200.);
-  eta_muons_     = dbe_->book1D("eta_muons",     "Eta of muons",                  50,  -5.,   5.);
-  phi_muons_     = dbe_->book1D("phi_muons",     "Phi of muons",                  40,  -4.,   4.);
+  Nmuons_        = dbe_->book1D("03_Nmuons",     "Number of muons",               20,    0.,  10.);
+  Nmuons_iso_    = dbe_->book1D("04_Nmuons_iso", "Number of isolated muons",      20,    0.,  10.);
+  Nmuons_charge_ = dbe_->book1D("Nmuons_charge", "Number of muons * moun charge", 19,  -10.,  10.);
+  VxVy_muons_    = dbe_->book2D("VxVy_muons",    "Vertex x-y-positon (global)",   40 ,  -1.,   1., 40 , -1., 1.);
+  Vz_muons_      = dbe_->book1D("Vz_muons",      "Vertex z-positon (global)",     40 , -20.,  20.);
+  pT_muons_      = dbe_->book1D("pT_muons",      "P_T of muons",                  40,    0., 200.);
+  eta_muons_     = dbe_->book1D("eta_muons",     "Eta of muons",                  50,   -5.,   5.);
+  phi_muons_     = dbe_->book1D("phi_muons",     "Phi of muons",                  40,   -4.,   4.);
 
   Nelecs_        = dbe_->book1D("05_Nelecs",     "Number of electrons",           20,   0.,  10.);
   Nelecs_iso_    = dbe_->book1D("06_Nelecs_iso", "Number of isolated electrons",  20,   0.,  10.);
   Nelecs_charge_ = dbe_->book1D("Nelecs_charge", "Number of elecs * elec charge", 19, -10.,  10.);
+  HoverE_elecs_  = dbe_->book1D("HoverE_elecs",  "Hadronic over Ecal energy",     50,   0.,   1.);
   pT_elecs_      = dbe_->book1D("pT_elecs",      "P_T of electrons",              40,   0., 200.);
   eta_elecs_     = dbe_->book1D("eta_elecs",     "Eta of electrons",              50,  -5.,   5.);
   phi_elecs_     = dbe_->book1D("phi_elecs",     "Phi of electrons",              40,  -4.,   4.);
@@ -156,7 +162,9 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
   bool Fired_Signal_Trigger[100]  = {false};
   bool Fired_Control_Trigger[100] = {false};
 
-  //  int N_event   = (evt.id()).event();
+  int N_run   = (evt.id()).run();
+  int N_event = (evt.id()).event();
+  int N_lumi  =  evt.luminosityBlock();
 
   int N_leptons = 0;
   int N_iso_mu  = 0;
@@ -186,13 +194,19 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
   if( !vertexs.failedToGet() ) {
 
-    reco::VertexCollection::const_iterator vertex;
+    reco::Vertex primaryVertex = vertexs->front();
 
-    for(vertex = vertexs->begin(); vertex!= vertexs->end(); ++vertex) {
+    int numberTracks = primaryVertex.tracksSize();
+    //    double ndof      = primaryVertex.ndof();
+    bool   fake      = primaryVertex.isFake();
 
-      vertex_X = vertex->position().x();
-      vertex_Y = vertex->position().y();
-      vertex_Z = vertex->position().z();
+    Ntracks_->Fill(numberTracks);
+
+    if( !fake && numberTracks > 3 ) {
+
+      vertex_X = primaryVertex.x();
+      vertex_Y = primaryVertex.y();
+      vertex_Z = primaryVertex.z();
 
     }
 
@@ -304,7 +318,7 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 	track_Y = track->vy();
 	track_Z = track->vz();
 
-	VxVy_muons_->Fill(track_X,track_Y);
+	VxVy_muons_->Fill(track_X, track_Y);
 	Vz_muons_->Fill(track_Z);
 
       }
@@ -376,6 +390,9 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
       float N_elecs = elecs->size();
       float Q_elec  = elec->charge();
+      float HoverE  = elec->hcalOverEcal();
+
+      HoverE_elecs_->Fill( HoverE );
 
       Nelecs_charge_->Fill(N_elecs*Q_elec);
 
@@ -396,6 +413,7 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
       if(          track_Z > vertex_Z_cut_ )  continue;
       if(     elec->pt()   < elec_pT_cut_  )  continue;
       if( abs(elec->eta()) > elec_eta_cut_ )  continue;
+      if(           HoverE > elec_emf_cut_ )  continue;
 
       reco::GsfElectron::IsolationVariables elecIso = elec->dr03IsolationVariables();
 
@@ -477,7 +495,28 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 	  D_eta_muons_->Fill(mu1.eta()-mu2.eta());
 	  D_phi_muons_->Fill(mu1.phi()-mu2.phi());
 
-	  //	  if( mu1.isGlobalMuon() && mu2.isGlobalMuon() )  outfile << N_event << "\n";
+	  if(fileOutput_) {
+
+	    if( mu1.isGlobalMuon() && mu2.isGlobalMuon() ) {
+
+	      outfile << "--------------------" << "\n";
+	      outfile << "      Run : " << N_run   << "\n";
+	      outfile << "    Event : " << N_event << "\n";
+	      outfile << "LumiBlock : " << N_lumi  << "\n";
+	      outfile << "     Type :  mu mu" << "\n";
+	      outfile << "--------------------" << "\n";
+	      outfile << "DilepMass : " << DilepMass << "\n";
+	      outfile << "Mu1 Pt    : " << mu1.pt() << "\n";
+	      outfile << "Mu1 Eta   : " << mu1.eta() << "\n";
+	      outfile << "Mu1 Phi   : " << mu1.phi() << "\n";
+	      outfile << "Mu2 Pt    : " << mu2.pt() << "\n";
+	      outfile << "Mu2 Eta   : " << mu2.eta() << "\n";
+	      outfile << "Mu2 Phi   : " << mu2.phi() << "\n";
+	      outfile << "--------------------" << "\n";
+
+	    }
+
+	  }
 
 	  // Determinating trigger efficiencies
 
@@ -512,6 +551,29 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 	dimassWC_LOG10_->Fill( log10(DilepMass) );
 	dimassWC_->Fill(      DilepMass );
 	dimassWC_LOGX_->Fill( DilepMass );
+
+	if(fileOutput_) {
+
+	  if( mu1.isGlobalMuon() && mu2.isGlobalMuon() ) {
+
+	    outfile << "---------------------" << "\n";
+	    outfile << "      Run : " << N_run   << "\n";
+	    outfile << "    Event : " << N_event << "\n";
+	    outfile << "LumiBlock : " << N_lumi  << "\n";
+	    outfile << "     Type :  WC mu mu" << "\n";
+	    outfile << "---------------------" << "\n";
+	    outfile << "DilepMass : " << DilepMass << "\n";
+	    outfile << "Mu1 Pt    : " << mu1.pt() << "\n";
+	    outfile << "Mu1 Eta   : " << mu1.eta() << "\n";
+	    outfile << "Mu1 Phi   : " << mu1.phi() << "\n";
+	    outfile << "Mu2 Pt    : " << mu2.pt() << "\n";
+	    outfile << "Mu2 Eta   : " << mu2.eta() << "\n";
+	    outfile << "Mu2 Phi   : " << mu2.phi() << "\n";
+	    outfile << "---------------------" << "\n";
+
+	  }
+
+	}
 
       }
 
@@ -577,7 +639,28 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 	  D_eta_lepts_->Fill(mu1.eta()-el1.eta());
 	  D_phi_lepts_->Fill(mu1.phi()-el1.phi());
 
-	  //	  if( mu1.isGlobalMuon() && el1.isGlobalMuon() )  outfile << N_event << "\n";
+	  if(fileOutput_) {
+
+	    if( mu1.isGlobalMuon() && el1.isElectron() ) {
+
+	      outfile << "--------------------" << "\n";
+	      outfile << "      Run : " << N_run   << "\n";
+	      outfile << "    Event : " << N_event << "\n";
+	      outfile << "LumiBlock : " << N_lumi  << "\n";
+	      outfile << "     Type :  mu el" << "\n";
+	      outfile << "--------------------" << "\n";
+	      outfile << "DilepMass : " << DilepMass << "\n";
+	      outfile << "Mu1 Pt    : " << mu1.pt() << "\n";
+	      outfile << "Mu1 Eta   : " << mu1.eta() << "\n";
+	      outfile << "Mu1 Phi   : " << mu1.phi() << "\n";
+	      outfile << "El1 Pt    : " << el1.pt() << "\n";
+	      outfile << "El1 Eta   : " << el1.eta() << "\n";
+	      outfile << "El1 Phi   : " << el1.phi() << "\n";
+	      outfile << "--------------------" << "\n";
+
+	    }
+
+	  }
 
 	  // Determinating trigger efficiencies
 
@@ -667,7 +750,28 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 	  D_eta_elecs_->Fill(el1.eta()-el2.eta());
 	  D_phi_elecs_->Fill(el1.phi()-el2.phi());
 
-	  //	  if( el1.isGlobalMuon() && el2.isGlobalMuon() )  outfile << N_event << "\n";
+	  if(fileOutput_) {
+
+	    if( el1.isElectron() && el2.isElectron() ) {
+
+	      outfile << "--------------------" << "\n";
+	      outfile << "      Run : " << N_run   << "\n";
+	      outfile << "    Event : " << N_event << "\n";
+	      outfile << "LumiBlock : " << N_lumi  << "\n";
+	      outfile << "     Type :  el el" << "\n";
+	      outfile << "--------------------" << "\n";
+	      outfile << "DilepMass : " << DilepMass << "\n";
+	      outfile << "El1 Pt    : " << el1.pt() << "\n";
+	      outfile << "El1 Eta   : " << el1.eta() << "\n";
+	      outfile << "El1 Phi   : " << el1.phi() << "\n";
+	      outfile << "El2 Pt    : " << el2.pt() << "\n";
+	      outfile << "El2 Eta   : " << el2.eta() << "\n";
+	      outfile << "El2 Phi   : " << el2.phi() << "\n";
+	      outfile << "--------------------" << "\n";
+
+	    }
+
+	  }
 
 	  // Determinating trigger efficiencies
 
@@ -718,6 +822,6 @@ void TopDiLeptonDQM::endRun(const Run& r, const EventSetup& context) {
 
 void TopDiLeptonDQM::endJob() {
 
-  //  outfile.close();
+  if(fileOutput_)  outfile.close();
 
 }

@@ -59,6 +59,7 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     DQMStore * dbe_;
 
     std::string moduleName_;
+    bool fileOutput_;
     std::string outputFile_;
     edm::InputTag triggerResults_;
     std::vector<std::string> hltPaths_;
@@ -89,6 +90,7 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     double elec_pT_cut_;
     double elec_eta_cut_;
     double elec_iso_cut_;
+    double elec_emf_cut_;
 
     double MassWindow_up_;
     double MassWindow_down_;
@@ -96,6 +98,7 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     MonitorElement * Events_;
     MonitorElement * Trigs_;
     MonitorElement * TriggerEff_;
+    MonitorElement * Ntracks_;
 
     MonitorElement * Nmuons_;
     MonitorElement * Nmuons_iso_;
@@ -109,6 +112,7 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     MonitorElement * Nelecs_;
     MonitorElement * Nelecs_iso_;
     MonitorElement * Nelecs_charge_;
+    MonitorElement * HoverE_elecs_;
     MonitorElement * pT_elecs_;
     MonitorElement * eta_elecs_;
     MonitorElement * phi_elecs_;

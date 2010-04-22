@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 topDiLeptonDQM = cms.EDAnalyzer("TopDiLeptonDQM",
 
     moduleName = cms.untracked.string('Physics/Top/DiLepton'),
+    fileOutput = cms.bool(False),
     outputFile = cms.untracked.string('DimuonEvents.txt'),
     ### 
     TriggerResults = cms.InputTag('TriggerResults','','HLT'),
@@ -19,16 +20,17 @@ topDiLeptonDQM = cms.EDAnalyzer("TopDiLeptonDQM",
     ### 
     muonCollection = cms.InputTag('muons'),
     muon_pT_cut    = cms.double( 1.0 ),
-    muon_eta_cut   = cms.double( 5.0 ),
+    muon_eta_cut   = cms.double( 2.4 ),
     muon_iso_cut   = cms.double( 0.2 ),
     ### 
     elecCollection = cms.InputTag('gsfElectrons'),
-    elec_pT_cut    = cms.double( 1.0 ),
-    elec_eta_cut   = cms.double( 5.0 ),
+    elec_pT_cut    = cms.double( 2.0 ),
+    elec_eta_cut   = cms.double( 2.4 ),
     elec_iso_cut   = cms.double( 0.2 ),
+    elec_emf_cut   = cms.double( 0.1 ),
     ### 
-    MassWindow_up   = cms.double( 120. ),
-    MassWindow_down = cms.double(  60. )
+    MassWindow_up   = cms.double( 3.2 ),
+    MassWindow_down = cms.double( 3.0 )
 
 )
 
