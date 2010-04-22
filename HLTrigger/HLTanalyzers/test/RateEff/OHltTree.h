@@ -361,8 +361,10 @@ public :
   Int_t           L1_EG5_TripleJet15; 
   Int_t           L1_ETM20; 
   Int_t           L1_ETM40; 
+  Int_t           L1_ETM70; 
   Int_t           L1_ETM80; 
   Int_t           L1_ETT60; 
+  Int_t           L1_HTT50; 
   Int_t           L1_HTT100; 
   Int_t           L1_HTT200; 
   Int_t           L1_HTT300; 
@@ -1195,8 +1197,10 @@ public :
   TBranch        *b_L1_EG5_TripleJet15;   //! 
   TBranch        *b_L1_ETM20;   //! 
   TBranch        *b_L1_ETM40;   //! 
+  TBranch        *b_L1_ETM70;   //! 
   TBranch        *b_L1_ETM80;   //! 
   TBranch        *b_L1_ETT60;   //! 
+  TBranch        *b_L1_HTT50;   //! 
   TBranch        *b_L1_HTT100;   //! 
   TBranch        *b_L1_HTT200;   //! 
   TBranch        *b_L1_HTT300;   //! 
@@ -2455,7 +2459,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_EG5_TripleJet6", &L1_EG5_TripleJet6, &b_L1_EG5_TripleJet6);
   fChain->SetBranchAddress("L1_SingleJet6", &L1_SingleJet6, &b_L1_SingleJet6);
   fChain->SetBranchAddress("L1_SingleJet10", &L1_SingleJet10, &b_L1_SingleJet10);
-  fChain->SetBranchAddress("L1_ETM30", &L1_ETM30, &b_L1_ETM30);
 
   fChain->SetBranchAddress("L1_DoubleEG1", &L1_DoubleEG1, &b_L1_DoubleEG1); 
   fChain->SetBranchAddress("L1_DoubleEG2", &L1_DoubleEG2, &b_L1_DoubleEG2); 
@@ -2473,9 +2476,12 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_EG10_Jet15", &L1_EG10_Jet15, &b_L1_EG10_Jet15); 
   fChain->SetBranchAddress("L1_EG5_TripleJet15", &L1_EG5_TripleJet15, &b_L1_EG5_TripleJet15); 
   fChain->SetBranchAddress("L1_ETM20", &L1_ETM20, &b_L1_ETM20); 
+  fChain->SetBranchAddress("L1_ETM30", &L1_ETM30, &b_L1_ETM30);
   fChain->SetBranchAddress("L1_ETM40", &L1_ETM40, &b_L1_ETM40); 
+  fChain->SetBranchAddress("L1_ETM70", &L1_ETM70, &b_L1_ETM70); 
   fChain->SetBranchAddress("L1_ETM80", &L1_ETM80, &b_L1_ETM80); 
   fChain->SetBranchAddress("L1_ETT60", &L1_ETT60, &b_L1_ETT60); 
+  fChain->SetBranchAddress("L1_HTT50", &L1_HTT50, &b_L1_HTT50); 
   fChain->SetBranchAddress("L1_HTT100", &L1_HTT100, &b_L1_HTT100); 
   fChain->SetBranchAddress("L1_HTT200", &L1_HTT200, &b_L1_HTT200); 
   fChain->SetBranchAddress("L1_HTT300", &L1_HTT300, &b_L1_HTT300); 
@@ -2966,7 +2972,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_EG5_TripleJet6", &map_BitOfStandardHLTPath["L1_EG5_TripleJet6"], &b_L1_EG5_TripleJet6); 
   fChain->SetBranchAddress("L1_SingleJet6", &map_BitOfStandardHLTPath["L1_SingleJet6"], &b_L1_SingleJet6); 
   fChain->SetBranchAddress("L1_SingleJet10", &map_BitOfStandardHLTPath["L1_SingleJet10"], &b_L1_SingleJet10); 
-  fChain->SetBranchAddress("L1_ETM30", &map_BitOfStandardHLTPath["L1_ETM30"], &b_L1_ETM30); 
 
   fChain->SetBranchAddress("L1_DoubleEG1", &map_BitOfStandardHLTPath["L1_DoubleEG1"], &b_L1_DoubleEG1); 
   fChain->SetBranchAddress("L1_DoubleEG2", &map_BitOfStandardHLTPath["L1_DoubleEG2"], &b_L1_DoubleEG2); 
@@ -2984,9 +2989,12 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_EG10_Jet15", &map_BitOfStandardHLTPath["L1_EG10_Jet15"], &b_L1_EG10_Jet15); 
   fChain->SetBranchAddress("L1_EG5_TripleJet15", &map_BitOfStandardHLTPath["L1_EG5_TripleJet15"], &b_L1_EG5_TripleJet15); 
   fChain->SetBranchAddress("L1_ETM20", &map_BitOfStandardHLTPath["L1_ETM20"], &b_L1_ETM20); 
+  fChain->SetBranchAddress("L1_ETM30", &map_BitOfStandardHLTPath["L1_ETM30"], &b_L1_ETM30); 
   fChain->SetBranchAddress("L1_ETM40", &map_BitOfStandardHLTPath["L1_ETM40"], &b_L1_ETM40); 
+  fChain->SetBranchAddress("L1_ETM70", &map_BitOfStandardHLTPath["L1_ETM70"], &b_L1_ETM70); 
   fChain->SetBranchAddress("L1_ETM80", &map_BitOfStandardHLTPath["L1_ETM80"], &b_L1_ETM80); 
   fChain->SetBranchAddress("L1_ETT60", &map_BitOfStandardHLTPath["L1_ETT60"], &b_L1_ETT60); 
+  fChain->SetBranchAddress("L1_HTT50", &map_BitOfStandardHLTPath["L1_HTT50"], &b_L1_HTT50); 
   fChain->SetBranchAddress("L1_HTT100", &map_BitOfStandardHLTPath["L1_HTT100"], &b_L1_HTT100); 
   fChain->SetBranchAddress("L1_HTT200", &map_BitOfStandardHLTPath["L1_HTT200"], &b_L1_HTT200); 
   fChain->SetBranchAddress("L1_HTT300", &map_BitOfStandardHLTPath["L1_HTT300"], &b_L1_HTT300); 
