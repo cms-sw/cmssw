@@ -36,7 +36,7 @@ int SiPixelFrameConverter::toDetector(const ElectronicIndex & cabling, DetectorI
     stm << "Map shows no fed="<<theFedId
         <<", link="<<cabling.link
         <<", roc="<<cabling.roc;
-    edm::LogError("SiPixelFrameConverter") << stm.str();
+    edm::LogWarning("SiPixelFrameConverter") << stm.str();
     return 2;
   }
   LocalPixel::DcolPxid local = { cabling.dcol, cabling.pxid };
