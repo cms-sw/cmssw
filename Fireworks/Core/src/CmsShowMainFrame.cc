@@ -9,12 +9,10 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.88 2010/01/25 16:05:21 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.89 2010/01/27 21:52:24 chrjones Exp $
 //
 // hacks
-// #define private public
 #include "DataFormats/FWLite/interface/Event.h"
-// #undef private
 
 // system include files
 #include <sigc++/sigc++.h>

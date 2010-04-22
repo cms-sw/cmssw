@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.18 2009/10/29 09:56:04 chrjones Exp $
+// $Id: FWTableView.cc,v 1.19 2009/12/11 16:04:50 chrjones Exp $
 //
 
 // system include files
@@ -21,13 +21,6 @@
 #include <sstream>
 #include <stdexcept>
 
-// FIXME
-// need camera parameters
-#define private public
-#include "TGLPerspectiveCamera.h"
-#undef private
-
-
 #include "TRootEmbeddedCanvas.h"
 #include "THStack.h"
 #include "TCanvas.h"
@@ -38,10 +31,6 @@
 #include "TEveScene.h"
 #include "TGLViewer.h"
 #include "TSystem.h"
-//EVIL, but only way I can avoid a double delete of TGLEmbeddedViewer::fFrame
-#define private public
-#include "TGLEmbeddedViewer.h"
-#undef private
 #include "TGComboBox.h"
 #include "TGLabel.h"
 #include "TGTextView.h"

@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.8 2010/04/16 13:44:07 amraktad Exp $
+// $Id: FWEveView.cc,v 1.9 2010/04/16 18:37:18 amraktad Exp $
 //
 
 
@@ -62,7 +62,7 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type) :
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
    m_imageScale(this, "Image Scale", 1.0, 1.0, 6.0),
    m_eventInfoLevel(this, "Overlay Event Info", 0l, 0l, 3l),
-   m_drawCMSLogo(this,"Show Logo",false)
+   m_drawCMSLogFo(this,"Show Logo",false)
 #else
    m_eventInfoLevel(this, "Overlay Event Info", 0l, 0l, 3l),
    m_drawCMSLogo(this,"Show Logo",false),

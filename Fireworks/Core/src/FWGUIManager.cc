@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.195 2010/04/08 21:39:38 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.196 2010/04/12 12:43:10 amraktad Exp $
 
 //
 
@@ -67,8 +67,6 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
-
-#include "Fireworks/Core/src/accessMenuBar.h"
 
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/src/CmsShowMain.h"

@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.4 2010/01/21 23:04:48 chrjones Exp $
+// $Id: FWTriggerTableView.cc,v 1.5 2010/01/27 15:36:58 amraktad Exp $
 //
 
 // system include files
@@ -16,13 +16,6 @@
 #include <stdexcept>
 #include <boost/regex.hpp>
 
-// FIXME
-// need camera parameters
-#define private public
-#include "TGLPerspectiveCamera.h"
-#undef private
-
-
 #include "TRootEmbeddedCanvas.h"
 #include "THStack.h"
 #include "TCanvas.h"
@@ -33,10 +26,6 @@
 #include "TEveScene.h"
 #include "TGLViewer.h"
 #include "TSystem.h"
-//EVIL, but only way I can avoid a double delete of TGLEmbeddedViewer::fFrame
-#define private public
-#include "TGLEmbeddedViewer.h"
-#undef private
 #include "TGComboBox.h"
 #include "TGLabel.h"
 #include "TGTextView.h"
