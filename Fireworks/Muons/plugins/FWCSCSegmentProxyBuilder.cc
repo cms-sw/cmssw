@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegmentProxyBuilder.cc,v 1.4 2010/04/20 14:07:49 mccauley Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.5 2010/04/20 20:49:43 amraktad Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -39,9 +39,9 @@ void
 FWCSCSegmentProxyBuilder::build(const CSCSegment& iData,           
                                 unsigned int iIndex, TEveElement& oItemHolder)
 {
-   const TGeoHMatrix* matrix = item()->getGeom()->getMatrix(iData.cscDetId().rawId());
+  const TGeoHMatrix* matrix = item()->getGeom()->getMatrix(iData.cscDetId().rawId());
   
-  if (  ! matrix ) 
+  if ( ! matrix ) 
   {
     std::cout<<"ERROR: failed to get geometry of CSC chamber with detid: " 
              << iData.cscDetId().rawId() <<std::endl;
