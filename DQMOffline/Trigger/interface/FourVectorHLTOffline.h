@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.49 2010/04/08 05:06:27 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.50 2010/04/21 15:13:21 rekovic Exp $
 //
 //
 
@@ -180,6 +180,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       unsigned int nBinsOneOverEt_; 
       double ptMin_ ;
       double ptMax_ ;
+      double dRMax_ ;
       
       double electronEtaMax_;
       double electronEtMin_;
@@ -633,12 +634,13 @@ template <class T>
 class objMonData:public BaseMonitor {
 public:
     objMonData() { EtaMax_= 2.5; EtMin_=3.0; GenJetsFlag_ = false; BJetsFlag_ = false; fL2MuFlag = false; }
-    void setLimits(float etaMax, float etMin, float drMatch, float l1drMatch) 
+    void setLimits(float etaMax, float etMin, float drMatch, float l1drMatch, float dRRange = 2.) 
     {
      EtaMax_= etaMax; 
      EtMin_= etMin; 
      DRMatch_= drMatch;
      L1DRMatch_= l1drMatch;
+     DRRange_ = dRRange;
     }
     void setTriggerType(std::vector<int> trigType) { triggerType_ = trigType; }
     void pushTriggerType(int trigType) { triggerType_.push_back(trigType); }
@@ -699,6 +701,7 @@ private:
 
     float DRMatch_;
     float L1DRMatch_;
+    float DRRange_;
 
     bool GenJetsFlag_;
     bool BJetsFlag_;
@@ -844,7 +847,7 @@ void objMonData<T>::monitorL1(const int l1Index, FourVectorHLTOffline* fv)
 
 
 
-      if (fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_)
+      //if (fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_)
       { 
 
         NL1++;
@@ -853,11 +856,13 @@ void objMonData<T>::monitorL1(const int l1Index, FourVectorHLTOffline* fv)
         v_->getL1EtaVsL1PhiL1Histo()->Fill(l1FV.eta(), l1FV.phi());
 
       }
+      /*
       else {
 
         continue;
 
       }
+      */
 
       matchL1Offline(l1FV, fv, NL1, NL1OffUM);
 
@@ -903,7 +908,7 @@ void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVecto
 
          // make maps of matched objects
         float dR = reco::deltaR(recoEta,recoPhi,l1FV.eta(),l1FV.phi());
-        if ( dR < 1.0)
+        if ( dR < DRRange_)
         {
 
           L1OffDRMatchMap.insert(std::pair<float,int>(dR,j));
@@ -945,7 +950,7 @@ void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVecto
 
          // make maps of matched objects
         float dR = reco::deltaR(recoEta,recoPhi,l1FV.eta(),l1FV.phi());
-        if ( dR < 1.0)
+        if ( dR < DRRange_)
         {
 
           L1OffDRMatchMap.insert(std::pair<float,int>(dR,j));
@@ -980,7 +985,7 @@ void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVecto
 
         // make maps of matched objects
         float dR = reco::deltaR(iter->eta(),iter->phi(),l1FV.eta(),l1FV.phi());
-        if ( dR < 1.0) 
+        if ( dR < DRRange_) 
         {
 
          L1OffDRMatchMap.insert(std::pair<float,int>(dR,j));
@@ -1017,7 +1022,7 @@ void objMonData<T>::monitorOnline(const int hltIndex, const int l1Index, FourVec
 
 	  trigger::TriggerObject onlineFV = toc[*ki];
 	
-	  if (fabs(onlineFV.eta()) <= EtaMax_ && onlineFV.pt() >= EtMin_)
+	  //if (fabs(onlineFV.eta()) <= EtaMax_ && onlineFV.pt() >= EtMin_)
 	  { 
 	
 	    NOn++;    
@@ -1027,11 +1032,13 @@ void objMonData<T>::monitorOnline(const int hltIndex, const int l1Index, FourVec
 	    v_->getOnEtaVsOnPhiOnHisto()->Fill(onlineFV.eta(), onlineFV.phi());
 	
 	  }
+    /*
 	  else {
 	
 	    return;
 	
 	  }
+    */
 
     matchOnlineL1(onlineFV,l1Index, fv, NOn);
     matchOnlineOffline(onlineFV,fv, NOn);
@@ -1082,7 +1089,7 @@ void objMonData<T>::matchOnlineL1(const trigger::TriggerObject& onlineFV, const 
 
             float dR = reco::deltaR(l1FV.eta(),l1FV.phi(),onlineFV.eta(),onlineFV.phi());
 
-            if ( dR < 1.0) 
+            if ( dR < DRRange_) 
             {
 
               OnL1DRMatchMap.insert(std::pair<float,int>(dR,j));
@@ -1136,7 +1143,7 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
 
           // make maps of matched objects
          float dR = reco::deltaR(recoEta,recoPhi,onlineFV.eta(),onlineFV.phi());
-         if ( dR < 1.0)
+         if ( dR < DRRange_)
          {
 
            OnOffDRMatchMap.insert(std::pair<float,int>(dR,j));
@@ -1177,7 +1184,7 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
 
           // make maps of matched objects
          float dR = reco::deltaR(recoEta,recoPhi,onlineFV.eta(),onlineFV.phi());
-         if ( dR < 1.0)
+         if ( dR < DRRange_)
          {
 
            OnOffDRMatchMap.insert(std::pair<float,int>(dR,j));
@@ -1215,7 +1222,7 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
 
           // make maps of matched objects
          float dR = reco::deltaR(iter->eta(),iter->phi(),onlineFV.eta(),onlineFV.phi());
-         if ( dR < 1.0)
+         if ( dR < DRRange_)
          {
 
            OnOffDRMatchMap.insert(std::pair<float,int>(dR,j));

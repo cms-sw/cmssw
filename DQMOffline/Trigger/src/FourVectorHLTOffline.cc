@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.72 2010/04/21 15:13:20 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.73 2010/04/22 10:18:41 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -46,6 +46,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin",0.);
   ptMax_ = iConfig.getUntrackedParameter<double>("ptMax",1000.);
   nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",20);
+  dRMax_ = iConfig.getUntrackedParameter<double>("dRMax",1.0);
   nBinsOneOverEt_ = iConfig.getUntrackedParameter<unsigned int>("NbinsOneOverEt",10000);
   nLS_   = iConfig.getUntrackedParameter<unsigned int>("NLuminositySegments",10);
   LSsize_   = iConfig.getUntrackedParameter<double>("LuminositySegmentSize",23);
@@ -312,7 +313,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // electron Monitor
   objMonData<reco::GsfElectronCollection> eleMon;
   eleMon.setReco(gsfElectrons);
-  eleMon.setLimits(electronEtaMax_, electronEtMin_, electronDRMatch_, electronL1DRMatch_);
+  eleMon.setLimits(electronEtaMax_, electronEtMin_, electronDRMatch_, electronL1DRMatch_, dRMax_);
   
   eleMon.pushTriggerType(TriggerElectron);
   eleMon.pushTriggerType(TriggerL1NoIsoEG);
@@ -326,7 +327,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //muoMon.setReco(muonHandle);
   muoMon.setReco(fSelMuonsHandle);
   muoMon.setRecoMu(fSelMuonsHandle);
-  muoMon.setLimits(muonEtaMax_, muonEtMin_, muonDRMatch_, muonL1DRMatch_);
+  muoMon.setLimits(muonEtaMax_, muonEtMin_, muonDRMatch_, muonL1DRMatch_, dRMax_);
   
   muoMon.pushTriggerType(TriggerMuon);
   muoMon.pushTriggerType(TriggerL1Mu);
@@ -336,7 +337,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // tau Monitor
   objMonData<reco::CaloTauCollection>  tauMon;
   tauMon.setReco(tauHandle);
-  tauMon.setLimits(tauEtaMax_, tauEtMin_, tauDRMatch_, tauL1DRMatch_);
+  tauMon.setLimits(tauEtaMax_, tauEtMin_, tauDRMatch_, tauL1DRMatch_, dRMax_);
   
   tauMon.pushTriggerType(TriggerTau);
   tauMon.pushTriggerType(TriggerL1TauJet);
@@ -347,7 +348,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // photon Monitor
   objMonData<reco::PhotonCollection> phoMon;
   phoMon.setReco(photonHandle);
-  phoMon.setLimits(photonEtaMax_, photonEtMin_, photonDRMatch_, photonL1DRMatch_);
+  phoMon.setLimits(photonEtaMax_, photonEtMin_, photonDRMatch_, photonL1DRMatch_, dRMax_);
   
   phoMon.pushTriggerType(TriggerPhoton);
 
@@ -357,7 +358,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // jet Monitor - NOTICE: we use genJets for MC
   objMonData<reco::CaloJetCollection> jetMon;
   jetMon.setReco(jetHandle);
-  jetMon.setLimits(jetEtaMax_, jetEtMin_, jetDRMatch_, jetL1DRMatch_);
+  jetMon.setLimits(jetEtaMax_, jetEtMin_, jetDRMatch_, jetL1DRMatch_, dRMax_);
 
   jetMon.pushTriggerType(TriggerJet);
   jetMon.pushTriggerType(TriggerL1CenJet);
@@ -372,7 +373,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //btagIPMon.setReco(jetHandle);
   btagIPMon.setRecoB(bTagIPHandle);
   btagIPMon.setBJetsFlag(true);
-  btagIPMon.setLimits(bjetEtaMax_, bjetEtMin_, bjetDRMatch_, bjetL1DRMatch_);
+  btagIPMon.setLimits(bjetEtaMax_, bjetEtMin_, bjetDRMatch_, bjetL1DRMatch_, dRMax_);
 
   btagIPMon.pushTriggerType(TriggerBJet);
   btagIPMon.pushTriggerType(TriggerJet);
@@ -385,7 +386,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //btagMuMon.setReco(jetHandle);
   btagMuMon.setRecoB(bTagMuHandle);
   btagMuMon.setBJetsFlag(true);
-  btagMuMon.setLimits(bjetEtaMax_, bjetEtMin_, bjetDRMatch_, bjetL1DRMatch_);
+  btagMuMon.setLimits(bjetEtaMax_, bjetEtMin_, bjetDRMatch_, bjetL1DRMatch_, dRMax_);
 
   btagMuMon.pushTriggerType(TriggerBJet);
   btagMuMon.pushTriggerType(TriggerJet);
@@ -400,7 +401,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // met Monitor
   objMonData<reco::CaloMETCollection> metMon;
   metMon.setReco(metHandle);
-  metMon.setLimits(metEtaMax_, metMin_, metDRMatch_, metL1DRMatch_);
+  metMon.setLimits(metEtaMax_, metMin_, metDRMatch_, metL1DRMatch_, dRMax_);
   
   metMon.pushTriggerType(TriggerMET);
 
@@ -410,7 +411,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   objMonData<reco::CaloMETCollection> tetMon;
   tetMon.setReco(metHandle);
   //tetMon.setLimits(tetEtaMax_=999., tetEtMin_=10, tetDRMatch_=999);
-  tetMon.setLimits(999., 10., 999., 999.);
+  tetMon.setLimits(999., 10., 999., 999., dRMax_);
   
   tetMon.pushTriggerType(TriggerTET);
 
@@ -419,7 +420,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // default Monitor
   //objMonData<trigger::TriggerEvent> defMon;
   objMonData<reco::CaloMETCollection> defMon;
-  defMon.setLimits(999., 3., 999., 999.);
+  defMon.setLimits(999., 3., 999., 999., dRMax_);
 
   // vector to hold monitors 
   // interface is through virtual class BaseMonitor
@@ -517,6 +518,8 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if (v->getPath().find("BTagIP") != std::string::npos ) btagMon = btagIPMon;
     else btagMon = btagMuMon;
 
+    if (v->getPath().find("L2Mu") != std::string::npos ) muoMon.setL2MuFlag(true);
+    else muoMon.setL2MuFlag(false);
     //if(*v != "HLT_L1Jet6U") continue;
 
     unsigned int pathByIndex = triggerNames.triggerIndex(v->getPath());
@@ -1241,15 +1244,15 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        
        histoname = labelname+"_l1DRL1On";
        title = labelname+" l1DR L1+online";
-       l1DRL1On =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, 0, 1.); 
+       l1DRL1On =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, 0, dRMax_); 
        
        histoname = labelname+"_offDRL1Off";
        title = labelname+" offDR L1+offline";
-       offDRL1Off =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, 0, 1.);
+       offDRL1Off =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, 0, dRMax_);
        
        histoname = labelname+"_offDROnOff";
        title = labelname+" offDR online+offline";
-       offDROnOff =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, 0, 1.); 
+       offDROnOff =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, 0, dRMax_); 
 
 
        v->setHistos( NOn, onEtOn, onOneOverEtOn, onEtavsonPhiOn, NOff, offEtOff, offEtavsoffPhiOff, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On, NL1Off, offEtL1Off, offEtavsoffPhiL1Off, NOnOff, offEtOnOff, offEtavsoffPhiOnOff, NL1OnUM, l1EtL1OnUM, l1Etavsl1PhiL1OnUM, NL1OffUM, offEtL1OffUM, offEtavsoffPhiL1OffUM, NOnOffUM, offEtOnOffUM, offEtavsoffPhiOnOffUM, offDRL1Off, offDROnOff, l1DRL1On 
