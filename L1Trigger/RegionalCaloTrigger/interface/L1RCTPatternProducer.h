@@ -20,6 +20,9 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
+using namespace std;
+
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -93,5 +96,10 @@ private:
   int randomSeed;
   bool regionSums;
   unsigned short ecal, fgbit, hcal, mubit, Etot, hf;
+
+  int nPatternEv;
+  int nSamplesPerEv;
+  int nPreSamples;
+
 
 };
