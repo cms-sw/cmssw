@@ -15,7 +15,7 @@ CalorimeterNumber getCalorimeterNumber(const Gflash3Vector position)
   if (std::fabs(eta) < EtaMax[kESPM] ) {
     double rho = position.getRho();
     double rhoBack = rhoBackEB(position); 
-    if(rho > Gflash::RFrontCrystalEB && rho < rhoBack ) {
+    if(rho > Gflash::Rmin[kESPM] && rho < rhoBack ) {
       index = kESPM;
     }
     else if(rho > Rmin[kHB] && rho < Rmax[kHB]) {
@@ -26,7 +26,7 @@ CalorimeterNumber getCalorimeterNumber(const Gflash3Vector position)
   else if (std::fabs(eta) < EtaMax[kENCA]) {
     double z = std::fabs(position.getZ());
     double zBack = zBackEE(position);
-    if( z > Gflash::ZFrontCrystalEE && z < zBack ) {
+    if( z > Gflash::Zmin[kENCA] && z < zBack ) {
       index = kENCA;
     }
     else if( z > Zmin[kHE] && z < Zmax[kHE] ) {
@@ -81,12 +81,15 @@ int findShowerType(const Gflash3Vector position)
 
 double rhoBackEB(const Gflash3Vector position) 
 {
-  return (Gflash::RFrontCrystalEB + Gflash::LengthCrystalEB*std::sin(position.getTheta()));
+  //return (Gflash::RFrontCrystalEB + Gflash::LengthCrystalEB*std::sin(position.getTheta()));
+  return (Gflash::RFrontCrystalEB + Gflash::LengthCrystalEB );
+
 }
 
 double zBackEE(const Gflash3Vector position) 
 {
-  return (Gflash::ZFrontCrystalEE + Gflash::LengthCrystalEE*std::fabs(std::cos(position.getTheta())));
+  //return (Gflash::ZFrontCrystalEE + Gflash::LengthCrystalEE*std::fabs(std::cos(position.getTheta())));
+  return (Gflash::ZFrontCrystalEE + Gflash::LengthCrystalEE);
 }
 
 //end of the Gflash name space
