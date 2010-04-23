@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.22 2010/04/21 11:10:08 amraktad Exp $
+// $Id: TrackUtils.cc,v 1.23 2010/04/22 11:27:22 matevz Exp $
 //
 
 // system include files
@@ -517,64 +517,93 @@ namespace fireworks {
 
   //______________________________________________________________________________
 	
-  void addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveElementList *tList, Color_t color, bool addNearbyClusters) {
-    const char* title = "TrackHits";
-    const edmNew::DetSetVector<SiStripCluster> * allClusters = 0;
-    if (addNearbyClusters) {
-      for (trackingRecHit_iterator it = t.recHitsBegin(); it!=t.recHitsEnd(); it++) {
-	if (typeid(**it) == typeid(SiStripRecHit2D)) {
-	  const SiStripRecHit2D &hit = static_cast<const SiStripRecHit2D &>(**it);
-	  if (hit.cluster().isNonnull() && hit.cluster().isAvailable()) { allClusters = hit.cluster().product(); break; }
-	}
-      }
-    }
-
-    for (trackingRecHit_iterator it = t.recHitsBegin(); it!=t.recHitsEnd(); it++) {
-
-      // -- get ring number (position of module in rho)
-      DetId id = (*it)->geographicalId();
-      int rNumber = 0;
-      unsigned int subdet = (unsigned int)id.subdetId();
-      if (subdet == SiStripDetId::TID) {
-	TIDDetId tidDet = id;
-	rNumber = tidDet.ringNumber()-1;
-	if (PRINT) std::cout << "-" << tidDet.isStereo() << "-" << tidDet.isRPhi() << "-" << tidDet.isBackRing() << "-" << rNumber << "-" << tidDet.moduleNumber() << "-" << tidDet.diskNumber();
-      }
-      else if (subdet == SiStripDetId::TEC) {
-	TECDetId tecDet = id;
-	rNumber = tecDet.ringNumber()-1;
-	if (PRINT) std::cout << "-" << tecDet.isStereo() << "-" << tecDet.isRPhi() << "-" << tecDet.isBackPetal() << "-" << rNumber << "-" << tecDet.moduleNumber() << "-" << tecDet.wheelNumber();
-      }
-      else if (subdet == SiStripDetId::TIB) {
-	TIBDetId tibDet = id;
-	rNumber = tibDet.layerNumber()-1;
-	if (PRINT) std::cout << "-" << tibDet.isStereo() << "-" << tibDet.isRPhi() << "-" << tibDet.isDoubleSide() << "-" << rNumber << "-" << tibDet.moduleNumber() << "-" << tibDet.stringNumber();
-      }
-      else if (subdet == SiStripDetId::TOB) {
-	TOBDetId tobDet = id;
-	rNumber = tobDet.layerNumber()+3;
-	if (PRINT) std::cout << "-" << tobDet.isStereo() << "-" << tobDet.isRPhi() << "-" << tobDet.isDoubleSide() << "-" << rNumber << "-" << tobDet.moduleNumber() << "-" << tobDet.rodNumber();
+   void
+   addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveElementList *tList, Color_t color, bool addNearbyClusters ) {
+      const char* title = "TrackHits";
+      const edmNew::DetSetVector<SiStripCluster> * allClusters = 0;
+      if( addNearbyClusters ) {
+	 for( trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it ) {
+	    if( typeid(**it) == typeid(SiStripRecHit2D) ) {
+	       const SiStripRecHit2D &hit = static_cast<const SiStripRecHit2D &>(**it);
+	       if( hit.cluster().isNonnull() && hit.cluster().isAvailable() ) {
+		  allClusters = hit.cluster().product();
+		  break;
+	       }
+	    }
+	 }
       }
 
-      // -- get phi from SiStripHit
+      for( trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it ) {
+	 // -- get ring number (position of module in rho)
+	 DetId id = (*it)->geographicalId();
+// 	 int rNumber = 0;
+// 	 unsigned int subdet = (unsigned int)id.subdetId();
+// 	 if( subdet == SiStripDetId::TID ) {
+// 	    TIDDetId tidDet = id;
+// 	    rNumber = tidDet.ringNumber()-1;
+// 	    if( PRINT )
+// 	       std::cout << "-" << tidDet.isStereo()
+// 			 << "-" << tidDet.isRPhi()
+// 			 << "-" << tidDet.isBackRing()
+// 			 << "-" << rNumber
+// 			 << "-" << tidDet.moduleNumber()
+// 			 << "-" << tidDet.diskNumber();
+// 	 }
+// 	 else if( subdet == SiStripDetId::TEC ) {
+// 	    TECDetId tecDet = id;
+// 	    rNumber = tecDet.ringNumber()-1;
+// 	    if( PRINT )
+// 	       std::cout << "-" << tecDet.isStereo()
+// 			 << "-" << tecDet.isRPhi()
+// 			 << "-" << tecDet.isBackPetal()
+// 			 << "-" << rNumber
+// 			 << "-" << tecDet.moduleNumber()
+// 			 << "-" << tecDet.wheelNumber();
+// 	 }
+// 	 else if( subdet == SiStripDetId::TIB ) {
+// 	    TIBDetId tibDet = id;
+// 	    rNumber = tibDet.layerNumber()-1;
+// 	    if( PRINT )
+// 	       std::cout << "-" << tibDet.isStereo()
+// 			 << "-" << tibDet.isRPhi()
+// 			 << "-" << tibDet.isDoubleSide()
+// 			 << "-" << rNumber
+// 			 << "-" << tibDet.moduleNumber()
+// 			 << "-" << tibDet.stringNumber();
+// 	 }
+// 	 else if( subdet == SiStripDetId::TOB ) {
+// 	    TOBDetId tobDet = id;
+// 	    rNumber = tobDet.layerNumber()+3;
+// 	    if( PRINT )
+// 	       std::cout << "-" << tobDet.isStereo()
+// 			 << "-" << tobDet.isRPhi()
+// 			 << "-" << tobDet.isDoubleSide()
+// 			 << "-" << rNumber
+// 			 << "-" << tobDet.moduleNumber()
+// 			 << "-" << tobDet.rodNumber();
+// 	 }
+
+	 // -- get phi from SiStripHit
 			
-      TrackingRecHitRef rechitref = *it;
-      const TrackingRecHit* rh = &(*rechitref);
-      const SiStripRecHit2D* single = dynamic_cast<const SiStripRecHit2D*>(rh);
-      if (single)     {
-	if (PRINT) std::cout << " single hit ";
+	 TrackingRecHitRef rechitref = *it;
+	 const TrackingRecHit* rh = &(*rechitref);
+	 const SiStripRecHit2D* single = dynamic_cast<const SiStripRecHit2D*>(rh);
+	 if( single ) {
+	    if( PRINT )
+	       std::cout << " single hit ";
 				
-	const SiStripCluster* Cluster = 0;
-	if (single->cluster().isNonnull())
-	  Cluster = single->cluster().get();
-	else if (single->cluster_regional().isNonnull())
-	  Cluster = single->cluster_regional().get();
-	else 
-	  if (PRINT) std::cout << " no cluster found!";
+	    const SiStripCluster* Cluster = 0;
+	    if( single->cluster().isNonnull() )
+	       Cluster = single->cluster().get();
+	    else if( single->cluster_regional().isNonnull() )
+	       Cluster = single->cluster_regional().get();
+	    else 
+	       if( PRINT )
+		  std::cout << " no cluster found!";
             
-	if (Cluster) {
-	  if (allClusters != 0) {
-	    const edmNew::DetSet<SiStripCluster> & clustersOnThisDet = (*allClusters)[rh->geographicalId().rawId()];
+	    if( Cluster ) {
+	       if( allClusters != 0 ) {
+		  const edmNew::DetSet<SiStripCluster> & clustersOnThisDet = (*allClusters)[rh->geographicalId().rawId()];
 	    //if (clustersOnThisDet.size() > 1) std::cout << "DRAWING EXTRA CLUSTERS: N = " << clustersOnThisDet.size() << std::endl;
 	    for (edmNew::DetSet<SiStripCluster>::const_iterator itc = clustersOnThisDet.begin(), edc = clustersOnThisDet.end(); itc != edc; ++itc) {
 	      double bc = itc->barycenter();
@@ -597,9 +626,7 @@ namespace fireworks {
 	    scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
 	    scposition->SetLineColor(color);
 	    tList->AddElement(scposition);
-	  }
-
-				
+	  }		
 	}					
       } else if (!rh->isValid() && (id.rawId() != 0)) {    // lost hit
 	if (allClusters != 0) {
@@ -621,8 +648,7 @@ namespace fireworks {
 	  }
 	}
       }				
-    }
-			
+    }			
   }
 
   //______________________________________________________________________________
@@ -950,7 +976,7 @@ namespace fireworks {
     if (PRINT) std::cout << std::endl;
 		
     int cnt=0;
-    for (trackingRecHit_iterator it = t.recHitsBegin(); it!=t.recHitsEnd(); it++) {
+    for( trackingRecHit_iterator it = t.recHitsBegin(); it!=t.recHitsEnd(); it++) {
 			
       TrackingRecHitRef rechitref = *it;
       /*			
