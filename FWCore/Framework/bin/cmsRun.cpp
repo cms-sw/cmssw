@@ -152,13 +152,13 @@ int main(int argc, char* argv[])
   defaultServices.push_back("AdaptorConfig");
   defaultServices.push_back("EnableFloatingPointExceptions");
   defaultServices.push_back("UnixSignalService");
+  defaultServices.push_back("SiteLocalConfigService");
 
   // These cannot be overridden from the configuration files.
   // An exception will be thrown if any of these is specified there.
   std::vector<std::string> forcedServices;
   forcedServices.reserve(2);
   forcedServices.push_back("JobReportService");
-  forcedServices.push_back("SiteLocalConfigService");
 
   std::string descString(argv[0]);
   descString += " [options] [--";
