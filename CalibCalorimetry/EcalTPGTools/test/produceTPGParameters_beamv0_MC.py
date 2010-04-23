@@ -22,7 +22,7 @@ process.eegeom = cms.ESSource("EmptyESSource",
 # process.GlobalTag.globaltag = "GR09_31X_V2H::All"
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_31X_ECAL'
-process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/xiezhen/conddb'
+process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
 # process.GlobalTag.connect =cms.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG')
 
 
