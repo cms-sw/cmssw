@@ -349,7 +349,7 @@ if __name__ == '__main__':
         tmp_datafilename = workflowdirTmp+"tmp_datafile.txt"
         if option.merged:
             tmpfile = file(tmp_datafilename,'w')
-            tmpfile.write(sortedlist[key])
+            tmpfile.writelines(sortedlist[key])
             tmpfile.close()
             beam_file = tmp_datafilename
             
