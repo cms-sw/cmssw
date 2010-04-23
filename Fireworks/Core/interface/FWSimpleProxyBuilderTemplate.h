@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 11:20:00 EST 2008
-// $Id: FWSimpleProxyBuilderTemplate.h,v 1.1 2010/04/06 20:00:35 amraktad Exp $
+// $Id: FWSimpleProxyBuilderTemplate.h,v 1.2 2010/04/20 20:49:41 amraktad Exp $
 //
 
 // system include files
@@ -54,10 +54,18 @@ private:
       }
    }
 
+   virtual void buildViewType(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType viewType)
+   {
+      if(0!=iData) {
+         buildViewType(*reinterpret_cast<const T*> (iData), iIndex, oItemHolder, viewType);
+      }
+   }
    /**iIndex is the index where iData is found in the container from which it came
       iItemHolder is the object to which you add your own objects which inherit from TEveElement
-    */
-   virtual void build(const T& iData, unsigned int iIndex,TEveElement& oItemHolder) = 0;
+   */
+   virtual void build(const T& iData, unsigned int iIndex,TEveElement& oItemHolder) { assert(false);}
+
+   virtual void buildViewType(const T& iData, unsigned int iIndex,TEveElement& oItemHolder, FWViewType::EType viewType) { assert(false);};
 
    // ---------- member data --------------------------------
 

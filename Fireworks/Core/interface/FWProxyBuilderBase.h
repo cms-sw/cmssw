@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:12 CET 2010
-// $Id: FWProxyBuilderBase.h,v 1.5 2010/04/16 18:37:18 amraktad Exp $
+// $Id: FWProxyBuilderBase.h,v 1.6 2010/04/20 20:49:41 amraktad Exp $
 //
 
 // system include files
@@ -112,10 +112,10 @@ protected:
    }
    
    //Override this if you need to special handle selection or other changes
-   virtual bool specialModelChangeHandling(const FWModelId&, TEveElement*);
-   virtual void applyChangesToAllModels(TEveElement* iElements);
+   virtual bool specialModelChangeHandling(const FWModelId&, TEveElement*, FWViewType::EType);
+   virtual void applyChangesToAllModels(TEveElement*, FWViewType::EType);
 
-   virtual void modelChanges(const FWModelIds&, TEveElement*);
+   virtual void modelChanges(const FWModelIds&, TEveElement*, FWViewType::EType);
 
    FWProxyBuilderBase(const FWProxyBuilderBase&); // stop default
    const FWProxyBuilderBase& operator=(const FWProxyBuilderBase&); // stop default

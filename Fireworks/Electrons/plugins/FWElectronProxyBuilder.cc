@@ -8,12 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.9 2010/04/19 08:20:15 yana Exp $
+// $Id: FWElectronProxyBuilder.cc,v 1.10 2010/04/20 20:49:42 amraktad Exp $
 //
 #include "TEveCompound.h"
 #include "TEveTrack.h"
 
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
+#include "Fireworks/Core/interface/FWProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWViewType.h"
 
@@ -32,7 +32,7 @@
 // 
 ////////////////////////////////////////////////////////////////////////////////
 
-class FWElectronProxyBuilder : public FWProxyBuilderBase {
+class FWElectronProxyBuilder : public FWProxyBuilderTemplate<reco::GsfElectron> {
 
 public:
    FWElectronProxyBuilder() ;
@@ -48,7 +48,7 @@ private:
    const FWElectronProxyBuilder& operator=( const FWElectronProxyBuilder& ); // stop default
 
    virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type );
-   TEveElementList* requestCommon( const reco::GsfElectronCollection* gsfElectrons );
+   TEveElementList* requestCommon();
 
    TEveElementList* m_common;
 };
@@ -67,18 +67,19 @@ FWElectronProxyBuilder::~FWElectronProxyBuilder()
 }
 
 TEveElementList*
-FWElectronProxyBuilder::requestCommon( const reco::GsfElectronCollection* gsfElectrons )
+FWElectronProxyBuilder::requestCommon()
 {
-   if( m_common->HasChildren() == false && gsfElectrons->empty() == false )
+   if( m_common->HasChildren() == false )
    {
-      for( reco::GsfElectronCollection::const_iterator it = gsfElectrons->begin(), itEnd = gsfElectrons->end(); it != itEnd; ++it ) 
+      for (int i = 0; i < static_cast<int>(item()->size()); ++i)
       {
+         const reco::GsfElectron &electron = modelData(i);
          TEveTrack* track(0);
-         if( (*it).gsfTrack().isAvailable() )
-            track = fireworks::prepareTrack( *((*it).gsfTrack()),
+         if( electron.gsfTrack().isAvailable() )
+            track = fireworks::prepareTrack( *electron.gsfTrack(),
                                              context().getTrackPropagator());
          else
-            track = fireworks::prepareCandidate( (*it),
+            track = fireworks::prepareCandidate( electron,
                                                  context().getTrackPropagator());
          track->MakeTrack();
          setupElement(track);
@@ -97,33 +98,31 @@ FWElectronProxyBuilder::cleanLocal()
 void
 FWElectronProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type )
 {
-   reco::GsfElectronCollection const * gsfElectrons = 0;
-   iItem->get( gsfElectrons );
-   if( gsfElectrons == 0 ) return;
-
-   TEveElementList*   tracks = requestCommon( gsfElectrons );
+   TEveElementList*   tracks = requestCommon();
    TEveElement::List_i trkIt = tracks->BeginChildren();
 
-   for( reco::GsfElectronCollection::const_iterator elIt = gsfElectrons->begin(), elItEnd = gsfElectrons->end(); elIt != elItEnd; ++elIt, ++trkIt )
-   { 
+   for (int i = 0; i < static_cast<int>(iItem->size()); ++i, ++trkIt)
+   {
+      const reco::GsfElectron &electron = modelData(i);
+
       TEveCompound* comp = createCompound();
       comp->AddElement( *trkIt );
       if( type == FWViewType::kRhoPhi )
          fireworks::makeRhoPhiSuperCluster( this,
-					    (*elIt).superCluster(),
-					    (*elIt).phi(),
+					    electron.superCluster(),
+					    electron.phi(),
 					    *comp );
       else if( type == FWViewType::kRhoZ )
          fireworks::makeRhoZSuperCluster( this,
-					  (*elIt).superCluster(),
-					  (*elIt).phi(),
+					  electron.superCluster(),
+					  electron.phi(),
 					  *comp );
 
       setupAddElement(comp, product);
    }
 }
 
-REGISTER_FWPROXYBUILDER( FWElectronProxyBuilder, reco::GsfElectronCollection, "Electrons", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER( FWElectronProxyBuilder, reco::GsfElectron, "Electrons", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
 
 
 

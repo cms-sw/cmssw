@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:08 EST 2008
-// $Id: FWCaloTowerProxyBuilder.h,v 1.2 2010/04/15 20:15:14 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.h,v 1.3 2010/04/20 20:49:40 amraktad Exp $
 //
 
 #include "Rtypes.h"
@@ -53,8 +53,8 @@ private:
                       TEveElementList* product);
 
 
-   virtual void modelChanges(const FWModelIds&, TEveElement*);
-   virtual void applyChangesToAllModels(TEveElement* iElements);
+   virtual void modelChanges(const FWModelIds&, TEveElement*, FWViewType::EType);
+   virtual void applyChangesToAllModels(TEveElement* iElements, FWViewType::EType);
    virtual void itemBeingDestroyed(const FWEventItem*);
 
    // ---------- member data --------------------------------

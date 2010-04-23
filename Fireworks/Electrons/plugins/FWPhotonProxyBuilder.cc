@@ -8,11 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonProxyBuilder.cc,v 1.4 2010/04/20 20:49:42 amraktad Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.5 2010/04/21 10:39:25 amraktad Exp $
 //
 #include "TEveCompound.h"
 
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
+#include "Fireworks/Core/interface/FWProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWViewType.h"
 
@@ -22,7 +22,7 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 
-class FWPhotonProxyBuilder : public FWProxyBuilderBase {
+class FWPhotonProxyBuilder : public FWProxyBuilderTemplate<reco::Photon> {
 
 public:
    FWPhotonProxyBuilder() {}
@@ -42,23 +42,21 @@ private:
 
 void
 FWPhotonProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type )
-{
-   reco::PhotonCollection const * photons = 0;
-   iItem->get( photons );
-   if( photons == 0 ) return;
-
-   for( reco::PhotonCollection::const_iterator it = photons->begin(), itEnd = photons->end(); it != itEnd; ++it)
-   { 
+{ 
+   for (int i = 0; i < static_cast<int>(iItem->size()); ++i)
+   {    
+      const reco::Photon &photon = modelData(i);
       TEveCompound* comp = createCompound();
+
       if( type == FWViewType::kRhoPhi )
 	 fireworks::makeRhoPhiSuperCluster(this,
-					   (*it).superCluster(),
-					   (*it).phi(),
+					   photon.superCluster(),
+					   photon.phi(),
 					   *comp);
       else if( type == FWViewType::kRhoZ )
          fireworks::makeRhoZSuperCluster(this,
-                                         (*it).superCluster(),
-                                         (*it).phi(),
+                                         photon.superCluster(),
+                                         photon.phi(),
                                          *comp);
       setupAddElement(comp, product);
    }

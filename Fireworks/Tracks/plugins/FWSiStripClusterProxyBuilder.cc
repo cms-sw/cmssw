@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.5 2010/04/20 20:49:44 amraktad Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.6 2010/04/23 17:01:19 yana Exp $
 //
 
 // system include files
@@ -28,12 +28,12 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
 private:
-   virtual void build( const FWEventItem* iItem, TEveElementList* product );
+   virtual void build( const FWEventItem* iItem, TEveElementList* product);
   
    FWSiStripClusterProxyBuilder( const FWSiStripClusterProxyBuilder& );    // stop default
    const FWSiStripClusterProxyBuilder& operator=( const FWSiStripClusterProxyBuilder& );    // stop default
-   void modelChanges( const FWModelIds& iIds, TEveElement* iElements );
-   void applyChangesToAllModels( TEveElement* iElements );
+   void modelChanges( const FWModelIds& iIds, TEveElement* iElements, FWViewType::EType);
+   void applyChangesToAllModels( TEveElement* iElements, FWViewType::EType);
 };
 
 void
@@ -70,13 +70,13 @@ FWSiStripClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
 }
 
 void
-FWSiStripClusterProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+FWSiStripClusterProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements, FWViewType::EType vt)
 {
-   applyChangesToAllModels(iElements);
+   applyChangesToAllModels(iElements, vt);
 }
  
 void
-FWSiStripClusterProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
+FWSiStripClusterProxyBuilder::applyChangesToAllModels(TEveElement* iElements, FWViewType::EType )
 {
    if(0!=iElements && item() && item()->size()) {
      //make the bad assumption that everything is being changed indentically

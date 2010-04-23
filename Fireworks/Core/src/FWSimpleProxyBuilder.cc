@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Tue March 28 09:46:41 EST 2010
-// $Id: FWSimpleProxyBuilder.cc,v 1.3 2010/04/15 20:15:15 amraktad Exp $
+// $Id: FWSimpleProxyBuilder.cc,v 1.4 2010/04/20 20:49:41 amraktad Exp $
 //
 
 // system include files
@@ -90,13 +90,34 @@ FWSimpleProxyBuilder::build(const FWEventItem* iItem,
    }
 }
 
+void
+FWSimpleProxyBuilder::buildViewType(const FWEventItem* iItem,
+                                    TEveElementList* product, FWViewType::EType viewType)
+{
+   size_t size = iItem->size();
+   for (int index = 0; index < static_cast<int>(size); ++index)
+   {
+      TEveCompound* itemHolder = createCompound();
+      product->AddElement(itemHolder);
+      if (iItem->modelInfo(index).displayProperties().isVisible())
+      {
+         const void* modelData = iItem->modelData(index);
+         buildViewType(m_helper.offsetObject(modelData),index, *itemHolder, viewType);
+      }
+   }
+}
+
+
 bool
-FWSimpleProxyBuilder::specialModelChangeHandling(const FWModelId& iId, TEveElement* iCompound) {
+FWSimpleProxyBuilder::specialModelChangeHandling(const FWModelId& iId, TEveElement* iCompound, FWViewType::EType viewType) {
    const FWEventItem::ModelInfo& info = iId.item()->modelInfo(iId.index());
    bool returnValue = false;
    if(info.displayProperties().isVisible() && iCompound->NumChildren()==0) {
-      const void* modelData = iId.item()->modelData(iId.index());      
-      build(m_helper.offsetObject(modelData),iId.index(),*iCompound);
+      const void* modelData = iId.item()->modelData(iId.index());
+      if (haveSingleProduct())      
+         build(m_helper.offsetObject(modelData),iId.index(),*iCompound);
+      else
+         buildViewType(m_helper.offsetObject(modelData),iId.index(),*iCompound, viewType);
       returnValue=true;
    }
    return returnValue;

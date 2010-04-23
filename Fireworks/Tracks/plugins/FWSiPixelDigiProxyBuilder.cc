@@ -23,8 +23,8 @@ private:
   virtual void build(const FWEventItem* iItem, TEveElementList* product);
   FWSiPixelDigiProxyBuilder(const FWSiPixelDigiProxyBuilder&);    
   const FWSiPixelDigiProxyBuilder& operator=(const FWSiPixelDigiProxyBuilder&);
-  void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
-  void applyChangesToAllModels(TEveElement* iElements);
+   void modelChanges(const FWModelIds& iIds, TEveElement* iElements, FWViewType::EType);
+   void applyChangesToAllModels(TEveElement* iElements, FWViewType::EType);
 };
 
 void FWSiPixelDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product)
@@ -75,13 +75,13 @@ void FWSiPixelDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
 }
 
 void
-FWSiPixelDigiProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+FWSiPixelDigiProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements, FWViewType::EType vt)
 {
-   applyChangesToAllModels(iElements);
+   applyChangesToAllModels(iElements, vt);
 }
 
 void
-FWSiPixelDigiProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
+FWSiPixelDigiProxyBuilder::applyChangesToAllModels(TEveElement* iElements, FWViewType::EType)
 {
    if( 0 != iElements && item() && item()->size() ) 
    {

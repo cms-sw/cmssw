@@ -24,8 +24,8 @@ private:
   virtual void build(const FWEventItem* iItem, TEveElementList* product);
   FWSiStripDigiProxyBuilder(const FWSiStripDigiProxyBuilder&);    
   const FWSiStripDigiProxyBuilder& operator=(const FWSiStripDigiProxyBuilder&);
-  void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
-  void applyChangesToAllModels(TEveElement* iElements);
+   void modelChanges(const FWModelIds& iIds, TEveElement* iElements, int);
+   void applyChangesToAllModels(TEveElement* iElements, int);
 };
 
 void FWSiStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product)
@@ -69,13 +69,13 @@ void FWSiStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
 }
 
 void
-FWSiStripDigiProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+FWSiStripDigiProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements, int vt)
 {
-   applyChangesToAllModels(iElements);
+   applyChangesToAllModels(iElements, vt);
 }
 
 void
-FWSiStripDigiProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
+FWSiStripDigiProxyBuilder::applyChangesToAllModels(TEveElement* iElements, int)
 {
   
 }

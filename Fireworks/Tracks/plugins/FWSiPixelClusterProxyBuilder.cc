@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.5 2010/04/20 20:49:44 amraktad Exp $
+// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.6 2010/04/23 17:01:19 yana Exp $
 //
 
 // system include files
@@ -35,8 +35,8 @@ private:
    virtual void build( const FWEventItem* iItem, TEveElementList* product );
    FWSiPixelClusterProxyBuilder( const FWSiPixelClusterProxyBuilder& );    // stop default
    const FWSiPixelClusterProxyBuilder& operator=( const FWSiPixelClusterProxyBuilder& );    // stop default
-   void modelChanges( const FWModelIds& iIds, TEveElement* iElements );
-   void applyChangesToAllModels( TEveElement* iElements );
+   void modelChanges( const FWModelIds& iIds, TEveElement* iElements, int);
+   void applyChangesToAllModels( TEveElement* iElements, int );
 
 protected:
    enum Mode { Clusters, Modules };
@@ -81,13 +81,13 @@ void FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementL
 }
 
 void
-FWSiPixelClusterProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+FWSiPixelClusterProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements, int vt)
 {
-   applyChangesToAllModels(iElements);
+   applyChangesToAllModels(iElements, vt);
 }
 
 void
-FWSiPixelClusterProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
+FWSiPixelClusterProxyBuilder::applyChangesToAllModels(TEveElement* iElements, int)
 {
    if(0!=iElements && item() && item()->size()) {
       //make the bad assumption that everything is being changed indentically

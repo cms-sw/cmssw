@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.7 2010/04/21 19:24:58 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.8 2010/04/22 10:20:56 matevz Exp $
 //
 
 // system include files
@@ -136,22 +136,22 @@ void
 FWProxyBuilderBase::applyChangesToAllModels()
 {
    for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
-      applyChangesToAllModels((*i)->m_elements);
+      applyChangesToAllModels((*i)->m_elements, (*i)->m_viewType);
 
    m_modelsChanged=false;
 }
 
 void
-FWProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
+FWProxyBuilderBase::applyChangesToAllModels(TEveElement* elms, FWViewType::EType viewType)
 {
    FWModelIds ids(m_ids.begin(), m_ids.end());
-   modelChanges(ids,iElements);
+   modelChanges(ids, elms, viewType);
 }
 
 //______________________________________________________________________________
 void
 FWProxyBuilderBase::modelChanges(const FWModelIds& iIds,
-                                 TEveElement* elms)
+                                 TEveElement* elms, FWViewType::EType viewType)
 {
    assert(m_item && static_cast<int>(m_item->size()) == elms->NumChildren() && "can not use default modelChanges implementation");
 
@@ -168,7 +168,7 @@ FWProxyBuilderBase::modelChanges(const FWModelIds& iIds,
          ++index;
          assert(itElement != elms->EndChildren());
       }
-      if (specialModelChangeHandling(*it,*itElement))
+      if (specialModelChangeHandling(*it,*itElement, viewType))
       {
          elms->ProjectChild(*itElement);
       }
@@ -181,7 +181,7 @@ FWProxyBuilderBase::modelChanges(const FWModelIds& iIds)
   if(m_haveWindow) {
     for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
     {
-      modelChanges(iIds, (*i)->m_elements);
+       modelChanges(iIds, (*i)->m_elements, (*i)->m_viewType);
     }
     m_modelsChanged=false;
   } else {
@@ -250,7 +250,7 @@ FWProxyBuilderBase::setInteractionList(FWInteractionList* l, const std::string& 
 
 
 bool
-FWProxyBuilderBase::specialModelChangeHandling(const FWModelId&, TEveElement*)
+FWProxyBuilderBase::specialModelChangeHandling(const FWModelId&, TEveElement*, FWViewType::EType)
 {
   return false;
 }
