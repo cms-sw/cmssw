@@ -15,7 +15,13 @@
   <use   name="FWCore/PluginManager"/>
   <use   name="FWCore/Framework"/>
 </library>
+<library   file="SiteLocalConfigServiceTester.cc" name="SiteLocalConfigUnitTestClient">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Services"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/Framework"/>
+</library>
 <bin   file="TestFWCoreServicesDriver.cpp">
-  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Services/test fpe_test.sh fpe_test_2.sh test_mallocopts.sh"/>
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Services/test fpe_test.sh fpe_test_2.sh test_mallocopts.sh test_sitelocalconfig.sh"/>
   <use   name="FWCore/Utilities"/>
 </bin>
