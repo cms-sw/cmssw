@@ -3,12 +3,14 @@
 
 namespace calogeom {
    
+  /*
    static GlobalPoint etaPhiR( float eta, float phi, float rad )
    {
       return GlobalPoint( rad*cosf(phi)/coshf(eta) , 
 			  rad*sinf(phi)/coshf(eta) ,
 			  rad*tanhf(eta)            ) ;
    }
+  */
    
    static GlobalPoint etaPhiPerp( float eta, float phi, float perp )  
    {
