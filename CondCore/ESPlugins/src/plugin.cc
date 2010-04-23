@@ -32,6 +32,9 @@
 #include "CondFormats/ESObjects/interface/ESThresholds.h"
 #include "CondFormats/DataRecord/interface/ESThresholdsRcd.h"
 
+#include "CondFormats/ESObjects/interface/ESTimeSampleWeights.h"
+#include "CondFormats/DataRecord/interface/ESTimeSampleWeightsRcd.h"
+
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
 
