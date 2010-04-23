@@ -30,7 +30,7 @@ public:
  */   
  virtual KinematicState propagateToTheTransversePCA(const KinematicState& state, const GlobalPoint& referencePoint) const;
   
- virtual std::pair<HelixBarrelPlaneCrossingByCircle,BoundPlane*> planeCrossing(const FreeTrajectoryState& par,
+ virtual std::pair<HelixBarrelPlaneCrossingByCircle,BoundPlane::BoundPlanePointer> planeCrossing(const FreeTrajectoryState& par,
                                                                    const GlobalPoint& point) const;
 								   
  /**
