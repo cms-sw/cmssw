@@ -43,7 +43,8 @@ class pp(Scenario):
                  'MuAlCalIsolatedMu',
                  'MuAlOverlaps',
                  'HcalCalIsoTrk',
-                 'HcalCalDijets']
+                 'HcalCalDijets',
+                 'SiStripCalMinBias']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
@@ -89,7 +90,7 @@ class pp(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
         options.step = \
-          """RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+TkAlMinBias+MuAlCalIsolatedMu+RpcCalHLT,ENDJOB"""
+          """RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+SiStripCalMinBias,ENDJOB"""
         options.isMC = False
         options.isData = True
         options.eventcontent = None
