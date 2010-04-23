@@ -14,9 +14,6 @@
 #include "CondFormats/ESObjects/interface/ESWeightStripGroups.h"
 #include "CondFormats/DataRecord/interface/ESWeightStripGroupsRcd.h"
 
-#include "CondFormats/ESObjects/interface/ESTBWeights.h"
-#include "CondFormats/DataRecord/interface/ESTBWeightsRcd.h"
-
 #include "CondFormats/ESObjects/interface/ESCondObjectContainer.h"
 #include "CondFormats/DataRecord/interface/ESIntercalibConstantsRcd.h"
 
@@ -46,8 +43,7 @@
 
 REGISTER_PLUGIN(ESGainRcd,ESGain);
 REGISTER_PLUGIN(ESPedestalsRcd,ESPedestals);
-REGISTER_PLUGIN(ESWeightStripGroupsRcd,ESWeightStripGroups);
-REGISTER_PLUGIN(ESTBWeightsRcd,ESTBWeights);
+REGISTER_PLUGIN(ESTimeSampleWeightsRcd,ESTimeSampleWeights);
 REGISTER_PLUGIN(ESIntercalibConstantsRcd,ESFloatCondObjectContainer);
 REGISTER_PLUGIN(ESADCToGeVConstantRcd,ESADCToGeVConstant);
 REGISTER_PLUGIN(ESMIPToGeVConstantRcd,ESMIPToGeVConstant);
