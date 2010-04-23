@@ -7,7 +7,6 @@
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-// FIXME: If it's in src, it is private and should not be used...
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"

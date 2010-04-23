@@ -89,4 +89,4 @@ FWSiPixelDigiProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWSiPixelDigiProxyBuilder,edm::DetSetVector<PixelDigi>,"SiPixelDigi", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER( FWSiPixelDigiProxyBuilder,edm::DetSetVector<PixelDigi>,"SiPixelDigi", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
