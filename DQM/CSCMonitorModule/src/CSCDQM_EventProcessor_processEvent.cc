@@ -125,24 +125,10 @@ namespace cscdqm {
    * @brief  Process event (Global DQM)
    * @param  e Event object
    * @param  inputTag Tag to search Event Data in
+   * @param  standby HW standby status indicator
    * @return 
    */
-  void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inputTag, bool inStandby) {
-
-    // Set in standby once at the start. Afterwards - no!
-    // i.e. if we ever in the run have gone off standby - this value is false 
-    config->setIN_STANDBY(config->getIN_STANDBY() && inStandby);
-
-    // If we in standby from the start - fill in standby data in shifter histograms
-    if (!standbyProcessed && config->getIN_STANDBY() && inStandby) {
-      standbyEfficiencyHistos();
-      standbyProcessed = true;
-    }
-
-    // We do not fill histograms in standby!
-    if (inStandby) {
-      return;
-    }
+  void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inputTag) {
 
     preProcessEvent();
 

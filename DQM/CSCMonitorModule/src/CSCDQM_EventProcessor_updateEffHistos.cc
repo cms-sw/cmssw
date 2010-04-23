@@ -89,16 +89,18 @@ namespace cscdqm {
       }
   
       //const int COLOR_WHITE = 0;
-      const int COLOR_GREEN = 1;
-      const int COLOR_RED   = 2;
-      const int COLOR_BLUE  = 3;
-      const int COLOR_GREY  = 4;
+      const int COLOR_GREEN   = 1;
+      const int COLOR_RED     = 2;
+      const int COLOR_BLUE    = 3;
+      const int COLOR_GREY    = 4;
+      const int COLOR_STANDBY = 5;
   
       if (getEMUHisto(h::EMU_CSC_STATS_SUMMARY, me)) {
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x1, COLOR_GREEN, true, false);
         summary.WriteChamberState(tmp, HWSTATUSERRORBITS, COLOR_RED, false, true);
+        summary.WriteChamberState(tmp, 0x1000, COLOR_STANDBY, false);
         summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false);
       }
 
@@ -107,6 +109,7 @@ namespace cscdqm {
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x4, COLOR_RED, true, false);
         summary.WriteChamberState(tmp, 0x8, COLOR_BLUE, false, false);
+        summary.WriteChamberState(tmp, 0x1000, COLOR_STANDBY, false);
         summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
@@ -114,6 +117,7 @@ namespace cscdqm {
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x10, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x1000, COLOR_STANDBY, false);
         summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
@@ -121,6 +125,7 @@ namespace cscdqm {
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x20, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x1000, COLOR_STANDBY, false);
         summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
@@ -128,6 +133,7 @@ namespace cscdqm {
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x40, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x1000, COLOR_STANDBY, false);
         summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
@@ -135,6 +141,7 @@ namespace cscdqm {
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x80, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x1000, COLOR_STANDBY, false);
         summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
@@ -142,6 +149,7 @@ namespace cscdqm {
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x100, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x1000, COLOR_STANDBY, false);
         summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
@@ -149,6 +157,7 @@ namespace cscdqm {
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x200, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x1000, COLOR_STANDBY, false);
         summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
@@ -156,6 +165,7 @@ namespace cscdqm {
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x400, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x1000, COLOR_STANDBY, false);
         summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
@@ -163,6 +173,7 @@ namespace cscdqm {
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x800, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x1000, COLOR_STANDBY, false);
         summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
       
@@ -322,16 +333,55 @@ namespace cscdqm {
 
 
   /**
-   * @brief  Fill in shifter histograms in standby mode
+   * @brief  apply standby flags/parameters
+   * @param standby standby flags
    */
-  void EventProcessor::standbyEfficiencyHistos() {
+  void EventProcessor::standbyEfficiencyHistos(HWStandbyType& standby) {
+
+    Address adr;
+    adr.mask.side = true;
+    adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
+
+    adr.side = 1;
+    summary.SetValue(adr, STANDBY, (standby.MeP ? 1 : 0));
+    if (!standby.MeP) {
+      summary.SetValue(adr, WAS_ON);
+    }
+
+    adr.side = 2;
+    summary.SetValue(adr, STANDBY, (standby.MeM ? 1 : 0));
+    if (!standby.MeM) {
+      summary.SetValue(adr, WAS_ON);
+    }
 
     MonitorObject *me = 0;
+    if (getEMUHisto(h::EMU_CSC_STANDBY, me)){
+      LockType lock(me->mutex);
+      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+
+      // All standby
+      summary.WriteChamberState(tmp, 0x1000, 5);
+       
+      // Temporary in standby (was ON)
+      summary.WriteChamberState(tmp, 0x3000, 1, false);
+
+    }
+
+  }
+
+  /**
+   * @brief  Fill in shifter histograms in full standby mode
+   */
+  void EventProcessor::fullStandbyEfficiencyHistos() {
+
+    MonitorObject *me = 0;
+    const int COLOR_GREY    = 4;
     const int COLOR_STANDBY = 5;
     if (getEMUHisto(h::EMU_CSC_STATS_SUMMARY, me)) {
       LockType lock(me->mutex);
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
       summary.WriteChamberState(tmp, 0x0, COLOR_STANDBY, true, false);
+      summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
     }
 
   }

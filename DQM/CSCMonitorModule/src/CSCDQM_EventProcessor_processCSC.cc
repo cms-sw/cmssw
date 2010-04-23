@@ -125,6 +125,11 @@ namespace cscdqm {
       return;
     }
 
+    // Check if in standby!
+    if (summary.isChamberStandby(cid)) {
+      return;
+    }
+
     double DMBEvents  = 0.0;
     DMBEvents = config->getChamberCounterValue(DMB_EVENTS, crateID, dmbID);
 

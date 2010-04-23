@@ -45,6 +45,9 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps) {
     dispatcher->maskHWElements(maskedHW);
   }
 
+
+  events = 0;
+
 }
 
 /**
@@ -79,7 +82,7 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c) {
   c.get<CSCCrateMapRcd>().get(hcrate);
   pcrate = hcrate.product();
 
-  bool inStandby = true;
+  cscdqm::HWStandbyType standby;
 
   // Get DCS status scalers
   if (processDcsScalers) {
@@ -87,14 +90,35 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c) {
     if (e.getByLabel("scalersRawToDigi", dcsStatus)) {
       DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin();
       for (; dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
-        inStandby = inStandby && !(dcsStatusItr->ready(DcsStatus::CSCp) || dcsStatusItr->ready(DcsStatus::CSCm));
+        standby.applyMeP(dcsStatusItr->ready(DcsStatus::CSCp));
+        standby.applyMeM(dcsStatusItr->ready(DcsStatus::CSCm));
       }
     }
-  } else {
-    inStandby = false;
+    standby.process = true;
   }
 
-  dispatcher->processEvent(e, inputTag, inStandby);
+  /**
+   * Remove me!
+   */
+  events++;
+
+  /*
+  if (events <= 1000 || events > 5000) {
+    standby.MeP = true;
+    standby.MeM = true;
+  } 
+  */
+
+  //if (events > 1000 && events <= 3000) {
+  //  standby.MeP = true;
+  //  standby.MeM = false;
+  //} 
+
+  /**
+   * /Remove me!
+   */
+
+  dispatcher->processEvent(e, inputTag, standby);
 
 }
 

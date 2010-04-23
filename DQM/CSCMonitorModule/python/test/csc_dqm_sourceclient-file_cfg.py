@@ -110,7 +110,7 @@ gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
 
 process.physicsBitSelector = cms.EDFilter("PhysDecl",
   applyfilter = cms.untracked.bool(False),
-  debugOn     = cms.untracked.bool(True)
+  debugOn     = cms.untracked.bool(False)
 )
 
 

@@ -30,7 +30,6 @@ namespace cscdqm {
     config = p_config;
     fFirstEvent = true;
     fCloseL1As = true;
-    standbyProcessed = false;
 
   }
 

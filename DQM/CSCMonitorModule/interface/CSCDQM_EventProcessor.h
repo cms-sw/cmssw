@@ -51,6 +51,38 @@
 
 namespace cscdqm {
 
+  /**
+   * Structure of standby flags
+   */
+  struct HWStandbyType {
+  
+    // if standby flag should be considered at all?
+    bool process;
+
+    // ME+
+    bool MeP;
+
+    // ME-
+    bool MeM;
+
+    HWStandbyType() {
+      process = MeP = MeM = false;
+    }
+
+    void applyMeP(bool ready) {
+      MeP = MeP || !ready;
+    }
+
+    void applyMeM(bool ready) {
+      MeM = MeM || !ready;
+    }
+
+    bool fullStandby() {
+      return (MeM && MeP);
+    }
+
+  };
+
   typedef std::map<CSCIdType, ExaminerStatusType> CSCExaminerMapType;
   typedef std::vector<DDUIdType>                  DDUExaminerVectorType;
   // typedef std::map<int, long> CSCExaminerMapType;
@@ -76,9 +108,14 @@ namespace cscdqm {
       ~EventProcessor() { }
 
       void init();
+
       void updateFractionHistos();
       void updateEfficiencyHistos();
+
       unsigned int maskHWElements(std::vector<std::string>& tokens);
+
+      void standbyEfficiencyHistos(HWStandbyType& standby);
+      void fullStandbyEfficiencyHistos();
 
     private:
       
@@ -99,7 +136,6 @@ namespace cscdqm {
       const bool getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
       void setEmuEventDisplayBit(MonitorObject*& mo, const unsigned int x, const unsigned int y, const unsigned int bit);
       void resetEmuEventDisplays();
-      void standbyEfficiencyHistos();
 
       /** Pointer to Global Configuration */
       Configuration* config;
@@ -113,7 +149,6 @@ namespace cscdqm {
       bool fFirstEvent;
       bool fCloseL1As; // Close L1A bit from DDU Trailer
       bool EmuEventDisplayWasReset;
-      bool standbyProcessed;
       
 // ===================================================================================================
 // Local ONLY stuff 
@@ -139,7 +174,7 @@ namespace cscdqm {
 
     public:
 
-      void processEvent(const edm::Event& e, const edm::InputTag& inputTag, bool inStandby);
+      void processEvent(const edm::Event& e, const edm::InputTag& inputTag);
 
 #endif      
 
