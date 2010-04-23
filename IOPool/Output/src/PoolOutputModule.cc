@@ -89,13 +89,13 @@ namespace edm {
 	basketSize_(basketSize) {}
 
 
-  PoolOutputModule::OutputItem::Sorter::Sorter(TTree* tree) {
+  PoolOutputModule::OutputItem::Sorter::Sorter(TTree* tree) : treeMap_(new std::map<std::string, int>) {
     // Fill a map mapping branch names to an index specifying the order in the tree.
     if(tree != 0) {
       TObjArray* branches = tree->GetListOfBranches();
       for(int i = 0; i < branches->GetEntries(); ++i) {
         TBranchElement* br = (TBranchElement*)branches->At(i);
-        treeMap_.insert(std::make_pair(std::string(br->GetName()), i));
+        treeMap_->insert(std::make_pair(std::string(br->GetName()), i));
       }
     }
   }
@@ -104,13 +104,13 @@ namespace edm {
   PoolOutputModule::OutputItem::Sorter::operator()(OutputItem const& lh, OutputItem const& rh) const {
     // Provides a comparison for sorting branches according to the index values in treeMap_.
     // Branches not found are always put at the end (i.e. not found > found).
-    if(treeMap_.empty()) return lh < rh;
+    if(treeMap_->empty()) return lh < rh;
     std::string const& lstring = lh.branchDescription_->branchName();
     std::string const& rstring = rh.branchDescription_->branchName();
-    std::map<std::string, int>::const_iterator lit = treeMap_.find(lstring);
-    std::map<std::string, int>::const_iterator rit = treeMap_.find(rstring);
-    bool lfound = (lit != treeMap_.end());
-    bool rfound = (rit != treeMap_.end());
+    std::map<std::string, int>::const_iterator lit = treeMap_->find(lstring);
+    std::map<std::string, int>::const_iterator rit = treeMap_->find(rstring);
+    bool lfound = (lit != treeMap_->end());
+    bool rfound = (rit != treeMap_->end());
     if(lfound && rfound) {
       return lit->second < rit->second;
     } else if(lfound) {
