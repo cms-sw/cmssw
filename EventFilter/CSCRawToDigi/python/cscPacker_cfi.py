@@ -6,6 +6,8 @@ cscpacker = cms.EDProducer("CSCDigiToRawModule",
     comparatorDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
     alctDigiTag = cms.InputTag("simCscTriggerPrimitiveDigis"),
     clctDigiTag = cms.InputTag("simCscTriggerPrimitiveDigis"),
+    preTriggerTag = cms.InputTag("simCscTriggerPrimitiveDigis"),
+    requirePreTrigger = cms.bool(True),
     correlatedLCTDigiTag = cms.InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")
 )
 

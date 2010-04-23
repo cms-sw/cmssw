@@ -1,14 +1,13 @@
 /** \file
  *
- *  $Date: 2009/05/20 09:31:43 $
- *  $Revision: 1.38 $
+ *  $Date: 2009/05/27 11:46:09 $
+ *  $Revision: 1.39 $
  *  \author A. Tumanov - Rice
  *  But long, long ago...
  */
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "EventFilter/CSCRawToDigi/src/CSCDigiToRaw.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -21,13 +20,16 @@
 #include "FWCore/Utilities/interface/CRC16.h"
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
 #include <algorithm>
 
 using namespace edm;
 using namespace std;
 
-CSCDigiToRaw::CSCDigiToRaw(){}
+CSCDigiToRaw::CSCDigiToRaw(const edm::ParameterSet & pset)
+: requirePreTrigger_(pset.getParameter<bool>("requirePreTrigger"))
+{}
 
 void CSCDigiToRaw::beginEvent(const CSCChamberMap* electronicsMap)
 {
@@ -60,29 +62,40 @@ CSCEventData & CSCDigiToRaw::findEventData(const CSCDetId & cscDetId)
 
 
   
-void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis)
+void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis, const CSCCLCTPreTriggerCollection & preTriggers)
 {  //iterate over chambers with strip digis in them
   for (CSCStripDigiCollection::DigiRangeIterator j=stripDigis.begin(); j!=stripDigis.end(); ++j)
     {
       CSCDetId cscDetId=(*j).first;
+      CSCDetId chamberId = cscDetId.chamberId();
+      if(chamberId.ring() ==4)
+      {
+        chamberId = CSCDetId(chamberId.endcap(), chamberId.station(), 1, chamberId.chamber(), 0);
+      }
 
-      bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
-      bool zplus = (cscDetId.endcap() == 1);
-      bool me1b = (cscDetId.station()==1) && (cscDetId.ring()==1);
+      // only digitize if there are pre-triggers
+      CSCCLCTPreTriggerCollection::Range preTriggerRange = preTriggers.get(chamberId);
 
-      CSCEventData & cscData = findEventData(cscDetId);
+      if(!requirePreTrigger_ || preTriggerRange.first != preTriggerRange.second)
+      {
+        bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
+        bool zplus = (cscDetId.endcap() == 1);
+        bool me1b = (cscDetId.station()==1) && (cscDetId.ring()==1);
 
-      std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-      std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
-      for( ; digiItr != last; ++digiItr)
-        {
-          CSCStripDigi digi = *digiItr;
-          int strip = digi.getStrip();
-          if ( me1a && zplus ) { digi.setStrip(17-strip); } // 1-16 -> 16-1
-          if ( me1b && !zplus) { digi.setStrip(65-strip);} // 1-64 -> 64-1
-          if ( me1a ) { strip = digi.getStrip(); digi.setStrip(strip+64);} // reset back 1-16 to 65-80 digi
-          cscData.add(digi, cscDetId.layer() );
-        }
+        CSCEventData & cscData = findEventData(cscDetId);
+
+        std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
+        std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+        for( ; digiItr != last; ++digiItr)
+          {
+            CSCStripDigi digi = *digiItr;
+            int strip = digi.getStrip();
+            if ( me1a && zplus ) { digi.setStrip(17-strip); } // 1-16 -> 16-1
+            if ( me1b && !zplus) { digi.setStrip(65-strip);} // 1-64 -> 64-1
+            if ( me1a ) { strip = digi.getStrip(); digi.setStrip(strip+64);} // reset back 1-16 to 65-80 digi
+            cscData.add(digi, cscDetId.layer() );
+          }
+      }
     }
 }
 
@@ -170,6 +183,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                                     const CSCComparatorDigiCollection& comparatorDigis,
                                     const CSCALCTDigiCollection& alctDigis,
                                     const CSCCLCTDigiCollection& clctDigis,
+                                    const CSCCLCTPreTriggerCollection & preTriggers,
                                     const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
                                     FEDRawDataCollection& fed_buffers,
                                     const CSCChamberMap* mapping,
@@ -181,7 +195,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   //get fed object from fed_buffers
   // make a map from the index of a chamber to the event data from it
   beginEvent(mapping);
-  add(stripDigis);
+  add(stripDigis, preTriggers);
   add(wireDigis);
   add(comparatorDigis);
   add(alctDigis);
