@@ -49,14 +49,14 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   push_back( "Z Veto"         );
   push_back( "Conversion Veto");
   push_back( "Cosmic Veto"    );
-  push_back( "= 0 Jets"       );
-  push_back( "= 1 Jets"       );
-  push_back( "= 2 Jets"       );
-  push_back( "= 3 Jets"       );
-  push_back( "= 4 Jets"       );
+  push_back( ">=1 Jets"       );
+  push_back( ">=2 Jets"       );
+  push_back( ">=3 Jets"       );
+  push_back( ">=4 Jets"       );
   push_back( ">=5 Jets"       );
 
-  // turn everything on by default
+
+  // turn (almost) everything on by default
   set( "Inclusive"      );
   set( "Trigger"        );
   set( "PV"             );
@@ -68,12 +68,11 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   set( "Z Veto"         );
   set( "Conversion Veto");
   set( "Cosmic Veto"    );
-  set( "= 0 Jets"       );
-  set( "= 1 Jets"       );
-  set( "= 2 Jets"       );
-  set( "= 3 Jets"       );
-  set( "= 4 Jets"       );
-  set( ">=5 Jets"       );
+  set( ">=1 Jets", minJets_ >= 1);
+  set( ">=2 Jets", minJets_ >= 2);
+  set( ">=3 Jets", minJets_ >= 3);
+  set( ">=4 Jets", minJets_ >= 4);
+  set( ">=5 Jets", minJets_ >= 5); 
 
   dR_ = 0.3;
 
@@ -303,36 +302,32 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
 			 cosmicVeto ) {
 		      passCut(ret,"Cosmic Veto");
 
+		      if ( ignoreCut(">=1 Jets") ||
+			   static_cast<int>(cleanedJets_.size()) >=  1 ){
+			passCut(ret,">=1 Jets");  
+		      } // end if >=1 tight jets
 
-		      if ( ignoreCut("= 0 Jets") ||
-			   static_cast<int>(cleanedJets_.size()) ==  0 ){
-			passCut(ret,"= 0 Jets");  
-		      } // end if 0 tight jets
+		      if ( ignoreCut(">=2 Jets") ||
+			   static_cast<int>(cleanedJets_.size()) >=  2 ){
+			passCut(ret,">=2 Jets");  
+		      } // end if >=2 tight jets
 
-		      if ( ignoreCut("= 1 Jets") ||
-			   static_cast<int>(cleanedJets_.size()) ==  1 ){
-			passCut(ret,"= 1 Jets");  
-		      } // end if 1 tight jets
+		      if ( ignoreCut(">=3 Jets") ||
+			   static_cast<int>(cleanedJets_.size()) >=  3 ){
+			passCut(ret,">=3 Jets");  
+		      } // end if >=3 tight jets
 
-		      if ( ignoreCut("= 2 Jets") ||
-			   static_cast<int>(cleanedJets_.size()) ==  2 ){
-			passCut(ret,"= 2 Jets");  
-		      } // end if 2 tight jets		  
-
-		      if ( ignoreCut("= 3 Jets") ||
-			   static_cast<int>(cleanedJets_.size()) ==  3 ){
-			passCut(ret,"= 3 Jets");  
-		      } // end if 3 tight jets
-
-		      if ( ignoreCut("= 4 Jets") ||
-			   static_cast<int>(cleanedJets_.size()) ==  4 ){
-			passCut(ret,"= 4 Jets");  
-		      } // end if 4 tight jets
+		      if ( ignoreCut(">=4 Jets") ||
+			   static_cast<int>(cleanedJets_.size()) >=  4 ){
+			passCut(ret,">=4 Jets");  
+		      } // end if >=4 tight jets
 
 		      if ( ignoreCut(">=5 Jets") ||
 			   static_cast<int>(cleanedJets_.size()) >=  5 ){
 			passCut(ret,">=5 Jets");  
 		      } // end if >=5 tight jets
+
+
 		  
 		    } // end if cosmic veto
 		

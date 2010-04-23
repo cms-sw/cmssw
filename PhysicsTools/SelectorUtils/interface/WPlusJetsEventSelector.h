@@ -78,6 +78,7 @@ class WPlusJetsEventSelector : public EventSelector {
   PFJetIDSelectionFunctor              pfjetIdLoose_;
 
   int minJets_;
+
   double dR_;
   bool muPlusJets_;
   bool ePlusJets_;
