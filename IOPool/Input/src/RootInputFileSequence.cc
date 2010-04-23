@@ -7,6 +7,7 @@
 #include "DuplicateChecker.h"
 
 #include "FWCore/Catalog/interface/FileCatalog.h"
+#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -73,6 +74,11 @@ namespace edm {
     duplicateChecker_(primarySequence ? new DuplicateChecker(pset) : 0),
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", primary())) {
 
+    //we now allow the site local config to specify what the TTree cache size should be
+    edm::Service<edm::SiteLocalConfig> pSLC;
+    if(pSLC->sourceTTreeCacheSize()) {
+      treeCacheSize_=*(pSLC->sourceTTreeCacheSize());
+    }
     StorageFactory *factory = StorageFactory::get();
     for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_)
       factory->stagein(fileIter_->fileName());
