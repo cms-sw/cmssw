@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.75 2010/04/21 06:41:45 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.76 2010/04/21 06:45:29 dinardo Exp $
 //
 //
 
@@ -1208,7 +1208,7 @@ void Vx3DHLTAnalyzer::beginJob()
   maxLumiIntegration   = 100;
   minVxDoF             = 4.;
   minVxWgt             = 0.5;
-  VxErrCorr            = 1.59;
+  VxErrCorr            = 1.6;
   internalDebug        = false;
   considerVxCovariance = true;
 
