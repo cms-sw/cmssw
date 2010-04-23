@@ -76,13 +76,13 @@ int main ( int argc, char ** argv )
     bool passOneLepton = ret[ bit_ ];
     bit_ = "= 0 Jets";
     // bool jet0 = ret[bit_];
-    bit_ = "= 1 Jets";
+    bit_ = ">=1 Jets";
     bool jet1 = ret[bit_];
-    bit_ = "= 2 Jets";
+    bit_ = ">=2 Jets";
     bool jet2 = ret[bit_];
-    bit_ = "= 3 Jets";
+    bit_ = ">=3 Jets";
     bool jet3 = ret[bit_];
-    bit_ = "= 4 Jets";
+    bit_ = ">=4 Jets";
     bool jet4 = ret[bit_];
     bit_ = ">=5 Jets";
     bool jet5 = ret[bit_];
