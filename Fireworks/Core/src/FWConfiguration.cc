@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 22 15:54:29 EST 2008
-// $Id: FWConfiguration.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWConfiguration.cc,v 1.5 2010/04/06 20:27:04 chrjones Exp $
 //
 
 // system include files
@@ -153,60 +153,88 @@ FWConfiguration::valueForKey(const std::string& iKey) const
    return &(itFind->second);
 }
 
-std::ostream&
-operator<<(std::ostream& oTo, const FWConfiguration& iConfig)
+
+/** Helper function to make sure we escape correctly xml entities embedded in
+    the string @a value.
+  */
+std::string 
+attrEscape(std::string value)
 {
-   oTo <<"FWConfiguration("<<iConfig.version()<<")\n";
-   if(iConfig.stringValues()) {
-      for(FWConfiguration::StringValues::const_iterator it = iConfig.stringValues()->begin();
-          it != iConfig.stringValues()->end();
-          ++it) {
-         oTo<<".addValue(\""<<*it<<"\")\n";
-      }
+   std::string::size_type index=0;
+   index = 0;
+   while (std::string::npos != (index=value.find('&',index))){
+      value.replace(index, 1,"&amp;", 5);
+      // Do not check "&quot;" for quotes.
+      index += 5;
    }
-   if(iConfig.keyValues()) {
-      for(FWConfiguration::KeyValues::const_iterator it = iConfig.keyValues()->begin();
-          it != iConfig.keyValues()->end();
-          ++it) {
-         oTo<<".addKeyValue(\""<<it->first<<"\", "<<it->second<<")\n";
-      }
+
+   while (std::string::npos != (index=value.find('"',index))){
+      value.replace(index, 1,"&quot;", 6);
+      // Do not check "&quot;" for quotes.
+      index += 6;
    }
-   return oTo;
+   
+   index = 0;
+   while (std::string::npos != (index=value.find('<',index))){
+      value.replace(index, 1,"&lt;", 4);
+      // Do not check "&quot;" for quotes.
+      index += 4;
+   }
+
+   index = 0;
+   while (std::string::npos != (index=value.find('>',index))){
+      value.replace(index, 1,"&gt;", 4);
+      // Do not check "&quot;" for quotes.
+      index += 4;
+   }
+
+   return value;
 }
 
-std::ostream&
-addToCode(const std::string& iParentVariable,
-          const std::string& iKey,
-          const FWConfiguration& iConfig,
-          std::ostream& oTo)
+/** Streaming FWConfiguration objects to xml.
+
+    Example of dump is:
+    
+    <config name="top" version="1">
+      <string value="S1">
+      <string value="S2">
+      ...
+      <string value="SN">
+      <config name="c1">
+         ...
+      </configuration>
+      <config name="c2">
+         ...
+      </config>
+      ...
+    </config>
+   
+    Streaming the top level configuration item will stream all its children.
+  */
+void
+streamTo(std::ostream& oTo, const FWConfiguration& iConfig, const std::string &name)
 {
-   oTo <<"{\n";
-   std::string newVar = iParentVariable+"a";
-   oTo <<"  FWConfiguration "<<newVar<<"("<<iConfig.version()<<");\n";
+   static int recursionLevel = -1;
+   recursionLevel += 1;
+   std::string indentation(recursionLevel, ' ');
+   oTo << indentation << "<config name=\"" << name 
+                      << "\" version=\"" << iConfig.version() << "\">\n";
    if(iConfig.stringValues()) {
       for(FWConfiguration::StringValues::const_iterator it = iConfig.stringValues()->begin();
           it != iConfig.stringValues()->end();
           ++it) {
-         //make sure to escape any quotations embedded in the string
-         std::string value = *it;
-         std::string::size_type index=0;
-         while (std::string::npos != (index=value.find('"',index))) {
-            value.insert(index,1,'\\');
-            ++index; ++index;
-         }
-         oTo<<"  "<<newVar<<".addValue(\""<<value<<"\");\n";
+         oTo << indentation << "  <string>" << attrEscape(*it) << "</string>\n";
       }
    }
    if(iConfig.keyValues()) {
       for(FWConfiguration::KeyValues::const_iterator it = iConfig.keyValues()->begin();
           it != iConfig.keyValues()->end();
           ++it) {
-         addToCode(newVar,it->first,it->second, oTo);
+         streamTo(oTo, it->second, attrEscape(it->first));
       }
    }
-   oTo<<"  "<< iParentVariable<<".addKeyValue(\""<<iKey<<"\", "<<newVar<<");\n}\n";
-
-   return oTo;
+   oTo << indentation << "</config>" << std::endl;
+   recursionLevel -= 1;
 }
 
 //
