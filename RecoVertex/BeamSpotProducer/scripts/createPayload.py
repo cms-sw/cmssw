@@ -277,7 +277,7 @@ if __name__ == '__main__':
             alllines = mergedfile.readlines()
             npayloads = len(alllines)/23
             for i in range(0,npayloads):
-                block = alllines[i * 23, (i+1)*23]
+                block = alllines[i * 23: (i+1)*23]
                 line = block[2]
                 atime = time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z")
                 sortedlist[atime] = block
