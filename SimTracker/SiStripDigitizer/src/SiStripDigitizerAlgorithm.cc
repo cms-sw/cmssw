@@ -240,7 +240,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 		//adding the CMN
 		//------------------------------------------------------
         if(CommonModeNoise){
-		  float cmnRMS;
+		  float cmnRMS = 0.;
 		  DetId  detId(detID);
 		  uint32_t SubDet = detId.subdetId();
 		  if(SubDet==3){
