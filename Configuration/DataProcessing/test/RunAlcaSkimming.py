@@ -48,20 +48,21 @@ class RunAlcaSkimming:
             
         try:
             process = scenario.alcaSkim(self.skims)
+        except NotImplementedError, ex:
+            print "This scenario does not support Alca Skimming:\n"
+            return
         except Exception, ex:
-            msg = "Error creating Prompt Reco config:\n"
+            msg = "Error creating Alca Skimming config:\n"
             msg += str(ex)
             raise RuntimeError, msg
 
         process.source.fileNames.append(self.inputLFN)
 
-
         psetFile = open("RunAlcaSkimmingCfg.py", "w")
         psetFile.write(process.dumpPython())
         psetFile.close()
-        cmsRun = "cmsRun -f FrameworkJobReport.xml RunAlcaSkimmingCfg.py"
+        cmsRun = "cmsRun -e RunAlcaSkimmingCfg.py"
         print "Now do:\n%s" % cmsRun
-        
 
 
 
@@ -79,7 +80,7 @@ Where options are:
 
 
 Example:
-python2.4 RunAlcaSkimming.py --scenario=Cosmics --lfn=/store/whatever --skims=ALCARECOStreamMuAlStandAloneCosmics
+python2.4 RunAlcaSkimming.py --scenario=Cosmics --lfn=/store/whatever --skims=MuAlStandAloneCosmics
 
 """
     try:
