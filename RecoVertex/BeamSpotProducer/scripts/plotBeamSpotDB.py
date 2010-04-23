@@ -651,6 +651,9 @@ if __name__ == '__main__':
 	docreate = True
 	countlumi = 0
 	tmprun = ""
+        maxNlumis = 100
+        if option.weighted:
+            maxNlumis = 999999999
 	for ii in range(0,len(listbeam)):
 	
 	    ibeam = listbeam[ii]
@@ -677,7 +680,7 @@ if __name__ == '__main__':
 		print "close payload because end of data has been reached"
 		docreate = True
 	    # check maximum lumi counts
-	    if countlumi == 100:
+	    if countlumi == maxNlumis:
 		print "close payload because maximum lumi sections accumulated"
 		docreate = True
 		countlumi = 0
