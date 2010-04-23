@@ -115,9 +115,9 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
 	meMap[os.str()] = dbe->book2D(os.str(), os.str(),  96, 0.5, 96.5, 21, 0.5, 21.5);
       else
 	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,  96.5, 17, 0.5, 17.5);
-      
-    
-      rpcUtils.labelXAxisSector( meMap[os.str()]);
+
+      meMap[os.str()]->setAxisTitle("strip", 1);
+      meMap[os.str()]->setAxisTitle("roll", 2);
       rpcUtils.labelYAxisRoll( meMap[os.str()], 0, ring);
 
     }else{//Endcap
@@ -125,13 +125,14 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
       float lBin = fBin+12;
       meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5, 96.5, 12,fBin, lBin);
       meMap[os.str()]->setAxisTitle("strip", 1);
+      meMap[os.str()]->setAxisTitle("segment", 2);
       stringstream yLabel;
       for(int r = 2; r<= 3; r ++) {
 	int offset = 0;
 	if (r ==3) offset =6;
 	for (int i = 1 ; i<=6; i++) {
 	  yLabel.str("");
-	  yLabel<<"R"<<r<<"_"<<(((detId.sector()-1)*6) +i);
+	  yLabel<<"R"<<r<<"_C"<<(((detId.sector()-1)*6) +i);
 	  meMap[os.str()]->setBinLabel(i+offset, yLabel.str(), 2);
 	  
 	}
@@ -165,7 +166,6 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
 
   return meMap;
 }
-
 
 
 
