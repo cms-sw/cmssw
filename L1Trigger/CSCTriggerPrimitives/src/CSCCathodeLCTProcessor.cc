@@ -19,8 +19,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2009/05/19 15:29:23 $
-//   $Revision: 1.39 $
+//   $Date: 2009/10/16 09:10:56 $
+//   $Revision: 1.40 $
 //
 //   Modifications: 
 //
@@ -456,6 +456,7 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
 }
 
 void CSCCathodeLCTProcessor::clear() {
+  thePreTriggerBXs.clear();
   for (int bx = 0; bx < MAX_CLCT_BINS; bx++) {
     bestCLCT[bx].clear();
     secondCLCT[bx].clear();
@@ -1989,6 +1990,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
     // If any of half-strip envelopes has enough layers hit in it, TMB
     // will pre-trigger.
     if (pre_trig) {
+      thePreTriggerBXs.push_back(first_bx);
       if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
 	<< "..... pretrigger at bx = " << first_bx
 	<< "; waiting drift delay .....";

@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2009/10/16 13:10:12 $
-//   $Revision: 1.10 $
+//   $Date: 2010/04/20 13:40:41 $
+//   $Revision: 1.11 $
 //
 //   Modifications:
 //
@@ -46,6 +46,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   // register what this produces
   produces<CSCALCTDigiCollection>();
   produces<CSCCLCTDigiCollection>();
+  produces<CSCCLCTPreTriggerCollection>();
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
 }
@@ -99,6 +100,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   // and downstream of MPC.
   std::auto_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
   std::auto_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
+  std::auto_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
 
@@ -121,12 +123,13 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   if (wireDigis.isValid() && compDigis.isValid()) {
     lctBuilder_->build(pBadChambers.product(),
 		       wireDigis.product(), compDigis.product(),
-		       *oc_alct, *oc_clct, *oc_lct, *oc_sorted_lct);
+		       *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct);
   }
 
   // Put collections in event.
   ev.put(oc_alct);
   ev.put(oc_clct);
+  ev.put(oc_pretrig);
   ev.put(oc_lct);
   ev.put(oc_sorted_lct,"MPCSORTED");
 }

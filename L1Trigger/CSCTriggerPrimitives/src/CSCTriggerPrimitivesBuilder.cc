@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2009/05/15 16:38:58 $
-//   $Revision: 1.16 $
+//   $Date: 2009/05/20 14:59:13 $
+//   $Revision: 1.17 $
 //
 //   Modifications:
 //
@@ -143,6 +143,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 					const CSCComparatorDigiCollection* compdc,
 					CSCALCTDigiCollection& oc_alct,
 					CSCCLCTDigiCollection& oc_clct,
+                                        CSCCLCTPreTriggerCollection & oc_pretrig,
 					CSCCorrelatedLCTDigiCollection& oc_lct,
 					CSCCorrelatedLCTDigiCollection& oc_sorted_lct) {
   // CSC geometry.
@@ -176,6 +177,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 
 	      std::vector<CSCALCTDigi> alctV = tmb->alct->readoutALCTs();
 	      std::vector<CSCCLCTDigi> clctV = tmb->clct->readoutCLCTs();
+              std::vector<int> preTriggerBXs = tmb->clct->preTriggerBXs();
 
 	      // Skip to next chamber if there are no LCTs to save.
 	      if (alctV.empty() && clctV.empty() && lctV.empty()) continue;
@@ -203,6 +205,14 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 		  << ((clctV.size() > 1) ? "s " : " ") << "in collection\n";
 		oc_clct.put(std::make_pair(clctV.begin(),clctV.end()), detid);
 	      }
+
+              // Cathode LCTs pretriggers
+              if (!preTriggerBXs.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << preTriggerBXs.size() << " CLCT pretriggers"
+                  << ((preTriggerBXs.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_pretrig.put(std::make_pair(preTriggerBXs.begin(),preTriggerBXs.end()), detid);
+              }
 	    }
 	  }
 	}
