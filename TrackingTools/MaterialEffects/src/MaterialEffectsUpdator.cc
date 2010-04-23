@@ -16,6 +16,7 @@ MaterialEffectsUpdator::MaterialEffectsUpdator ( double mass ) :
   theLastDxdz(0), 
   theLastRL(0),
   theDeltaP(0.),
+  theLastPropDir(anyDirection),
   theDeltaCov() {}
 
 MaterialEffectsUpdator::~MaterialEffectsUpdator () {}
