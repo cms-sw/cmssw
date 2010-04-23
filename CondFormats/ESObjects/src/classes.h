@@ -16,6 +16,7 @@
 #include "CondFormats/ESObjects/interface/ESThresholds.h"
 #include "CondFormats/ESObjects/interface/ESGain.h"
 #include "CondFormats/ESObjects/interface/ESRecHitRatioCuts.h"
+#include "CondFormats/ESObjects/interface/ESTimeSampleWeights.h"
 
 namespace{
   struct dictionary {
@@ -47,5 +48,7 @@ namespace{
     ESThresholds threshold; 
 
     ESGain gain;
+
+    ESTimeSampleWeights tsweights;
   };
 }
