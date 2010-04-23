@@ -89,20 +89,18 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO'))
                                     )
 
-#process.scalers = cms.EDProducer('ScalersRawToDigi')
-#process.onlineBeamSpot = cms.EDProducer('BeamSpotOnlineProducer',
-#                              label = cms.InputTag('scalers')
-#                              )
+process.scalersRawToDigi = cms.EDProducer('ScalersRawToDigi')
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpotOnline_cff")
 
 process.out = cms.OutputModule( "PoolOutputModule",
-                                fileName = cms.untracked.string( '/uscmst1b_scratch/lpc1/cmsroc/yumiceva/tmp/onlineBeamSpotwithDB2.root' ),
+                                fileName = cms.untracked.string( '/uscmst1b_scratch/lpc1/cmsroc/yumiceva/tmp/onlineBeamSpotwithDB3.root' ),
                                 outputCommands = cms.untracked.vstring(
     "keep *"
     )
                                 )
 
-process.dtRawDump = cms.Path(process.scalers + process.onlineBeamSpot )
+process.dtRawDump = cms.Path(process.scalersRawToDigi + process.onlineBeamSpot )
+#process.dtRawDump = cms.Path( process.onlineBeamSpot )
 
 process.e = cms.EndPath( process.out )
