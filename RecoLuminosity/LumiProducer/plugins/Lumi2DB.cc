@@ -143,7 +143,11 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       //std::cout<<"Beam Energy : "<<dipdata->Energy<<"\n";
       //std::cout<<"sectionUmber : "<<dipdata->sectionNumber<<"\n";
       unsigned int dipls=dipdata->sectionNumber;
-      b.mode=dipdata->beamMode;
+      if (std::string(dipdata->beamMode).empty()){
+	b.mode="N/A";
+      }else{
+	b.mode=dipdata->beamMode;
+      }
       b.energy=dipdata->Energy;
       dipmap.insert(std::make_pair(dipls,b));
     }
