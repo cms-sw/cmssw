@@ -18,10 +18,10 @@ JPTCaloRecoTauProducer = copy.deepcopy(caloRecoTauProducer)
 from RecoJets.JetAssociationProducers.ak5JTA_cff import*
 
 JPTAntiKt5JetTracksAssociatorAtVertex = ak5JetTracksAssociatorAtVertex.clone()
-JPTAntiKt5JetTracksAssociatorAtVertex.jets = cms.InputTag("ak5CaloJets")
+JPTAntiKt5JetTracksAssociatorAtVertex.jets = cms.InputTag("TCTauJetPlusTrackZSPCorJetAntiKt5")
 
 JPTAntiKt5JetTracksAssociatorAtCaloFace = ak5JetTracksAssociatorAtCaloFace.clone()
-JPTAntiKt5JetTracksAssociatorAtCaloFace.jets = cms.InputTag("ak5CaloJets")
+JPTAntiKt5JetTracksAssociatorAtCaloFace.jets = cms.InputTag("TCTauJetPlusTrackZSPCorJetAntiKt5")
 
 JPTAntiKt5JetExtender = ak5JetExtender.clone()
 JPTAntiKt5JetExtender.jets = cms.InputTag("ak5CaloJets")
@@ -31,10 +31,8 @@ JPTAntiKt5JetExtender.jet2TracksAtVX = cms.InputTag("JPTAntiKt5JetTracksAssociat
 
 jptRecoTauProducer = cms.Sequence(
         JPTeidTight *
+	TCTauJetPlusTrackZSPCorJetAntiKt5 *
         JPTAntiKt5JetTracksAssociatorAtVertex *
-#        JPTAntiKt5JetTracksAssociatorAtCaloFace *
-        JPTAntiKt5JetExtender *
-        TCTauJetPlusTrackZSPCorJetAntiKt5 *
         caloRecoTauTagInfoProducer *
         JPTCaloRecoTauProducer
 )

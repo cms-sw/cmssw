@@ -5,6 +5,6 @@ from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 
 tcRecoTauDiscriminationAgainstHadronicJets = cms.EDProducer("TCRecoTauDiscriminationAgainstHadronicJets",
 	tcTauAlgoParameters,
-	CaloTauProducer = cms.InputTag('tcRecoTauProducer'),
+	CaloTauProducer = cms.InputTag('caloRecoTauProducer'),
 	Prediscriminants = noPrediscriminants
 )
