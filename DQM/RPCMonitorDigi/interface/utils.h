@@ -7,7 +7,7 @@
 #include <vector>
 #include <iomanip>
 #include <string>
-using namespace std;
+
 
 namespace rpcdqm{
 
@@ -177,13 +177,13 @@ namespace rpcdqm{
 
     void doEndcapLabeling(){          
 
-      string rolls[3];
+      std::string rolls[3];
       rolls[0]="A";
       rolls[1]="B";
       rolls[2]="C";
 
       endcapYLabels_.clear();
-      stringstream myLabel;
+      std::stringstream myLabel;
 
       for(int ring = 1 ; ring <=3; ring ++){
 	for(int ch = 1; ch<=6; ch++){
@@ -196,7 +196,7 @@ namespace rpcdqm{
       }
     }
 
-    string YLabel(int i) {
+    std::string YLabel(int i) {
 
       return ylabel[i];
       
@@ -207,7 +207,7 @@ namespace rpcdqm{
       //before do some checks
       if (!myMe) return;
 
-      stringstream xLabel;
+      std::stringstream xLabel;
 
       for(int x = 1; x<= myMe->getNbinsX(); x++){
 	xLabel.str("");
@@ -222,7 +222,7 @@ namespace rpcdqm{
       //before do some checks
       if (!myMe) return;
 
-      stringstream xLabel;
+      std::stringstream xLabel;
 
       myMe->setAxisTitle("Segments", 1);
 
@@ -268,7 +268,7 @@ namespace rpcdqm{
       //before do some checks
       if (!myMe) return;
 
-      string labels[9]= {"C", "Ring1 B", "A","C", "Ring2 B", "A","C", "Ring3 B", "A"};
+      std::string labels[9]= {"C", "Ring1 B", "A","C", "Ring2 B", "A","C", "Ring3 B", "A"};
       int startBin ;
       (numberOfRings == 2 ? startBin = 3: startBin = 0);
  
@@ -389,7 +389,7 @@ std::string detId2ChamberLabel(const RPCDetId & _id){
       std::string ChLabel;
       std::vector<int> Wvector2;
       std::vector<int> Wvector1;
-      string ylabel[22];
+      std::string ylabel[22];
   };
 }
 

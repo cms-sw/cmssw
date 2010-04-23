@@ -57,16 +57,15 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
     os<<"ClusterSize_"<<nameRoll;
     meMap[os.str()] = dbe->book1D(os.str(), os.str(), 20, 0.5, 20.5);
    dbe->tag( meMap[os.str()],  rpcdqm::CLUSTERSIZE);
- //    os.str("");
+   //os.str("");
 //     os<<"NumberOfClusters_"<<nameRoll;
 //     meMap[os.str()] = dbe->book1D(os.str(), os.str(), 10, 0.5, 10.5);
 
     os.str("");
-    os<<"NumberOfDigi_"<<nameRoll;
+    os<<"Multiplicity_"<<nameRoll;
     meMap[os.str()] = dbe->book1D(os.str(), os.str(), 50, 0.5, 50.5);
     dbe->tag( meMap[os.str()],  rpcdqm::MULTIPLICITY);
 
-    
     os.str("");
     os<<"BXWithData_"<<nameRoll;
     meMap[os.str()] = dbe->book1D(os.str(), os.str(), 10, 0.5, 10.5);
@@ -74,7 +73,7 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
     /// RPCRecHits
 
     os.str("");
-    os<<"RecHitCounter_"<<nameRoll;
+    os<<"NumberOfClusters_"<<nameRoll;
     meMap[os.str()] = dbe->book1D(os.str(), os.str(),20,0.5,20.5);
   }
   
@@ -117,14 +116,37 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
       else
 	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,  96.5, 17, 0.5, 17.5);
       
-      for (int i = -3; i<3; i++) {
-	rpcUtils.labelYAxisRoll( meMap[os.str()], 0, i);
-      }
+    
+      rpcUtils.labelXAxisSector( meMap[os.str()]);
+      rpcUtils.labelYAxisRoll( meMap[os.str()], 0, ring);
 
     }else{//Endcap
-      meMap[os.str()] = dbe->book2D(os.str(), os.str(), 36, 0.5, 36.5, 6, 0.5, 6.5);
-      for (int i = -3; i<3; i++) {
-	rpcUtils.labelYAxisRing(meMap[os.str()], 2);
+      float fBin = ((detId.sector()-1)*6)+ 0.5;
+      float lBin = fBin+12;
+      meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5, 96.5, 12,fBin, lBin);
+      meMap[os.str()]->setAxisTitle("strip", 1);
+      stringstream yLabel;
+      for(int r = 2; r<= 3; r ++) {
+	int offset = 0;
+	if (r ==3) offset =6;
+	for (int i = 1 ; i<=6; i++) {
+	  yLabel.str("");
+	  yLabel<<"R"<<r<<"_"<<(((detId.sector()-1)*6) +i);
+	  meMap[os.str()]->setBinLabel(i+offset, yLabel.str(), 2);
+	  
+	}
+      }
+      for(int i = 1; i <= 96 ; i++) {
+	if (i ==1) meMap[os.str()]->setBinLabel(i, "1", 1);
+	else if (i==16) meMap[os.str()]->setBinLabel(i, "RollA", 1);
+	else if (i==32) meMap[os.str()]->setBinLabel(i, "32", 1);
+	else if (i==33) meMap[os.str()]->setBinLabel(i, "1", 1);
+	else if (i==48) meMap[os.str()]->setBinLabel(i, "RollB", 1);
+	else if (i==64) meMap[os.str()]->setBinLabel(i, "32", 1);
+	else if (i==65) meMap[os.str()]->setBinLabel(i, "1", 1);
+	else if (i==80) meMap[os.str()]->setBinLabel(i, "RollC", 1);
+	else if (i==96) meMap[os.str()]->setBinLabel(i, "32", 1);
+	else  meMap[os.str()]->setBinLabel(i, "", 1);
       }
     } 
   }
@@ -154,13 +176,12 @@ map<string, MonitorElement*> RPCMonitorDigi::bookRegionRing(int region, int ring
   dbe->setCurrentFolder(GlobalHistogramsFolder);
   stringstream os, label;
 
-  rpcdqm::utils mylabel;
-  mylabel.dolabeling();
+  rpcdqm::utils rpcUtils;
 
   // os<<"OccupancyXY_"<<ringType<<"_"<<ring;
-//   //  meMap[os.str()] = dbe->book2D(os.str(), os.str(),63, -800, 800, 63, -800, 800);
-//     meMap[os.str()] = dbe->book2D(os.str(), os.str(),1000, -800, 800, 1000, -800, 800);
-
+  //   //  meMap[os.str()] = dbe->book2D(os.str(), os.str(),63, -800, 800, 63, -800, 800);
+  //     meMap[os.str()] = dbe->book2D(os.str(), os.str(),1000, -800, 800, 1000, -800, 800);
+  
   os.str("");
   os<<"ClusterSize_"<<ringType<<"_"<<ring;
   meMap[os.str()] = dbe->book1D(os.str(), os.str(),20, 0.5, 20.5);
@@ -181,17 +202,22 @@ map<string, MonitorElement*> RPCMonitorDigi::bookRegionRing(int region, int ring
   if(region==0) {
     
     os.str("");
-    os<<"Occupancy_Roll_vs_Sector_"<<ringType<<"_"<<ring;                                      // new Occupancy Roll vs Sector
+    os<<"Occupancy_Roll_vs_Sector_"<<ringType<<"_"<<ring;                                   
     meMap[os.str()] = dbe->book2D(os.str(), os.str(), 12, 0.5,12.5, 21, 0.5, 21.5);
-    for(int i=1; i<22; i++) {
-      meMap[os.str()] ->setBinLabel(i, mylabel.YLabel(i), 2);
-      if(i<13) {
-	label.str("");
-	label<<"Sec"<<i;
-	meMap[os.str()] ->setBinLabel(i, label.str(), 1);
-      }
-    }
-  } //end of Barrel 
+    rpcUtils.labelXAxisSector(meMap[os.str()]);
+    rpcUtils.labelYAxisRoll( meMap[os.str()], 0, ring);
+
+
+  }else{
+    
+    os.str("");
+    os<<"Occupancy_Ring_vs_Segment_"<<ringType<<"_"<<ring;                                  
+    meMap[os.str()] = dbe->book2D(os.str(), os.str(), 36, 0.5,36.5, 6, 0.5, 6.5);
+ 
+    rpcUtils.labelXAxisSegment(meMap[os.str()]);
+    rpcUtils.labelYAxisRing(meMap[os.str()], 2);
+
+  }
     
     os.str("");
     os<<"BxDistribution_"<<ringType<<"_"<<ring;

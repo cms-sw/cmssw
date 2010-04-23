@@ -263,9 +263,9 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       os.str("");
       os<<"Occupancy_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
       if(meMap[os.str()]){ 
-	meMap[os.str()]->Fill(strip, nr);
-	//meMap[os.str()]->setBinLabel(nr,YLabel, 2); // to ne removed later!!!
-	}
+	if(detId.region() ==0)	meMap[os.str()]->Fill(strip, nr);
+	if(detId.region() ==0)	meMap[os.str()]->Fill(strip + 32*(detId.roll()-1),  RPCname.segment()+ ((ring -2)*6));
+      }
 
       os.str("");
       os<<"Occupancy_"<<nameRoll;
@@ -275,6 +275,12 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       os<<"Occupancy_Roll_vs_Sector_"<<ringType<<"_"<<ring;       
       if (meRingMap[os.str()]) {
 	meRingMap[os.str()]->Fill(detId.sector(), nr, 1);
+      }
+ 
+      os.str("");
+      os<<"Occupancy_Ring_vs_Segment_"<<ringType<<"_"<<ring;   
+       if (meRingMap[os.str()]) {
+	meRingMap[os.str()]->Fill( RPCname.segment(), (detId.ring()-1)*3-detId.roll()+1, 1);
       }
     
       if(dqmexpert){ 	
