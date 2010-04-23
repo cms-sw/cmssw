@@ -69,11 +69,18 @@ BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup)
   aSpot.setEmittanceX( 0. );
   aSpot.setEmittanceY( 0. );
   aSpot.setbetaStar( 0.) ;
-  aSpot.setType( reco::BeamSpot::Tracker );
+  aSpot.setType( reco::BeamSpot::LHC ); // flag value from scalars
 
   // check if we have a valid beam spot fit result from online DQM
 
-  if ( spotOnline.empty() ) {
+  if ( spotOnline.x() == 0 &&
+       spotOnline.y() == 0 &&
+       spotOnline.z() == 0 &&
+       spotOnline.width_x() == 0 &&
+       spotOnline.width_y() == 0 ) {
+
+    //edm::LogInfo("RecoVertex/BeamSpotProducer") 
+    //<< "Online Beam Spot producer fall back to DB value " << "\n";
 
     edm::ESHandle< BeamSpotObjects > beamhandle;
     iSetup.get<BeamSpotObjectsRcd>().get(beamhandle);
