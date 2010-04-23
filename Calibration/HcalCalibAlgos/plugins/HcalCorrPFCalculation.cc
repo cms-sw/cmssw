@@ -1,4 +1,4 @@
-// $Id: HcalCorrPFCalculation.cc,v 1.23 2010/03/16 23:25:48 andrey Exp $
+// $Id: HcalCorrPFCalculation.cc,v 1.24 2010/03/17 21:47:19 andrey Exp $
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -53,9 +53,9 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
   bool        Conecorr_;
   double        radius_;
 
-  double calibrationConeSize_,associationConeSize_, EcalCone_;
+  double clusterConeSize_,associationConeSize_, ecalCone_, neutralIsolationCone_, trackIsolationCone_;
   float eECAL, eECAL09cm, eECAL40cm;   
-  // double energyECALmip;
+// double energyECALmip;
 
   float eCentHit, eTrack, eParticle;
   float CentHitFactor;
@@ -82,8 +82,9 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
   const CaloGeometry* geo;
   const HcalGeometry* geoHcal;
 
+  Float_t xTrkHcal,yTrkHcal,zTrkHcal;
   Float_t xTrkEcal, yTrkEcal, zTrkEcal;
- Float_t xAtHcal, yAtHcal, zAtHcal;
+  Float_t xAtHcal, yAtHcal, zAtHcal;
 
   float eEcalCone, eHcalCone, eHcalConeNoise;
   int UsedCells, UsedCellsNoise;
@@ -119,8 +120,12 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) {
   trackAssociator_.useDefaultPropagator();
 
   associationConeSize_=iConfig.getParameter<double>("associationConeSize");
-  calibrationConeSize_=iConfig.getParameter<double>("calibrationConeSize");
-  EcalCone_=iConfig.getParameter<double>("EcalCone");
+  clusterConeSize_=iConfig.getParameter<double>("clusterConeSize");
+  ecalCone_=iConfig.getParameter<double>("ecalCone");
+  trackIsolationCone_ = iConfig.getParameter<double>("trackIsolationCone");
+  neutralIsolationCone_ = iConfig.getParameter<double>("neutralIsolationCone");
+
+  // AxB_=iConfig.getParameter<std::string>("AxB");
 
 }
 
@@ -272,11 +277,29 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
       /*  Propogate the partoicle to Hcal */
 
+
       const FreeTrajectoryState *freetrajectorystate_ =
 	new FreeTrajectoryState(initpos, mom ,charge , &(*theMagField));
  
+
+      TrackDetMatchInfo info = trackAssociator_.associate(ev, c, *freetrajectorystate_ , parameters_);
+
       GlobalPoint barrelMC(0,0,0), endcapMC(0,0,0), forwardMC1(0,0,0), forwardMC2(0,0,0);
       
+      GlobalPoint gPointHcal(0.,0.,0.);
+       
+      /*   
+      xTrkHcal=info.trkGlobPosAtHcal.x();
+      yTrkHcal=info.trkGlobPosAtHcal.y();
+      zTrkHcal=info.trkGlobPosAtHcal.z();
+      //GlobalPoint gPointHcal(xTrkHcal,yTrkHcal,zTrkHcal);
+      
+      GlobalVector trackMomAtHcal = info.trkMomAtHcal;
+ 
+      if (xTrkHcal==0 && yTrkHcal==0 && zTrkHcal==0) continue;
+      */
+
+
       if(fabs(etaParticle)<1.392) {
 	Cylinder *cylinder = new Cylinder(Surface::PositionType(0,0,0),
 					  Surface::RotationType(), 181.1);
@@ -305,32 +328,37 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       }
       if(doHF) {
 	
-	Surface::RotationType rot(GlobalVector(1,0,0),GlobalVector(0,1,0));
+	if (abs(etaParticle)>5.191) continue;
 	
-	Surface::PositionType pos1(0., 0.,1125*fabs(etaParticle)/etaParticle);
-	//	Surface::PositionType pos1(0., 0.,1115*fabs(etaParticle)/etaParticle);
-	Surface::PositionType pos2(0., 0.,1137*fabs(etaParticle)/etaParticle);
-	PlaneBuilder::ReturnType aPlane1 = PlaneBuilder().plane(pos1,rot);
-	PlaneBuilder::ReturnType aPlane2 = PlaneBuilder().plane(pos2,rot);
-	
-	
-	TrajectoryStateOnSurface steppingHelixstateinfo_ = stepPropF->propagate(*freetrajectorystate_, (*aPlane1));
-	if(steppingHelixstateinfo_.isValid() ) 
-	  forwardMC1 = steppingHelixstateinfo_.freeState()->position();
-	
-	steppingHelixstateinfo_ = stepPropF->propagate(*freetrajectorystate_, (*aPlane2));
-	if(steppingHelixstateinfo_.isValid() ) 
-	  forwardMC2 = steppingHelixstateinfo_.freeState()->position();
+	if(abs(etaParticle)>2.99) {	
+	  Surface::RotationType rot(GlobalVector(1,0,0),GlobalVector(0,1,0));
+	  
+	  Surface::PositionType pos1(0., 0.,1125*fabs(etaParticle)/etaParticle);
+	  //	Surface::PositionType pos1(0., 0.,1115*fabs(etaParticle)/etaParticle);
+	  Surface::PositionType pos2(0., 0.,1137*fabs(etaParticle)/etaParticle);
+	  PlaneBuilder::ReturnType aPlane1 = PlaneBuilder().plane(pos1,rot);
+	  PlaneBuilder::ReturnType aPlane2 = PlaneBuilder().plane(pos2,rot);
+	  
+	  
+	  TrajectoryStateOnSurface steppingHelixstateinfo_ = stepPropF->propagate(*freetrajectorystate_, (*aPlane1));
+	  if(steppingHelixstateinfo_.isValid() ) 
+	    forwardMC1 = steppingHelixstateinfo_.freeState()->position();
+	  
+	  steppingHelixstateinfo_ = stepPropF->propagate(*freetrajectorystate_, (*aPlane2));
+	  if(steppingHelixstateinfo_.isValid() ) 
+	    forwardMC2 = steppingHelixstateinfo_.freeState()->position();
+	}
       }
       /*   ------------       ------------    -----------------------------  */
       
  
 
       /*  Finding the closest cell at Hcal  */
-      GlobalPoint gPointHcal(0.,0.,0.);
       Int_t iphitrue = -10;
       Int_t ietatrue = 100;
-       HcalDetId tempId, tempId1, tempId2;
+      HcalDetId tempId, tempId1, tempId2;
+      
+      
       if (abs(etaParticle)<1.392)
 	{
 	  gPointHcal = barrelMC;
@@ -344,26 +372,31 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       if (abs(etaParticle)>=3.0 && abs(etaParticle)<5.191) 
 	{
 	  /*
-	  tempId1 = gHcal->getClosestCell(forwardMC1);	 
-	  tempId2 = gHcal->getClosestCell(forwardMC2);
-	  if (deltaR(tempId1.eta(), tempId1.phi(), etaParticle, phiParticle) < deltaR(tempId2.eta(), tempId2.phi(), etaParticle, phiParticle))
+	    tempId1 = gHcal->getClosestCell(forwardMC1);	 
+	    tempId2 = gHcal->getClosestCell(forwardMC2);
+	    if (deltaR(tempId1.eta(), tempId1.phi(), etaParticle, phiParticle) < deltaR(tempId2.eta(), tempId2.phi(), etaParticle, phiParticle))
 	    gPointHcal = forwardMC1;
-
-	  else gPointHcal = forwardMC2;
+	    
+	    else gPointHcal = forwardMC2;
 	  */
 	  gPointHcal = forwardMC1;
-	  tempId = gHcal->CaloSubdetectorGeometry::getClosestCell(gPointHcal);
+	  tempId = gHcal->getClosestCell(gPointHcal);
+	  //tempId = gHcal->CaloSubdetectorGeometry::getClosestCell(gPointHcal);
 	}
 
+      
+      
+      tempId = gHcal->getClosestCell(gPointHcal);
+    
       ietatrue = tempId.ieta();
       iphitrue = tempId.iphi();
-
+      
       etaGPoint = gPointHcal.eta();
       phiGPoint = gPointHcal.phi();
 
-      xAtHcal = gPointHcal.x();
-      yAtHcal = gPointHcal.y();
-      zAtHcal = gPointHcal.z();
+      //xAtHcal = gPointHcal.x();
+      //yAtHcal = gPointHcal.y();
+      //zAtHcal = gPointHcal.z();
       /*       -----------------   ------------------------      */
 
       
@@ -384,7 +417,6 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       
       
       /*   -------------   Calculate Ecal Energy using TrackAssociator  ---------------------- */
-      TrackDetMatchInfo info = trackAssociator_.associate(ev, c, *freetrajectorystate_ , parameters_);
 
       //float etaecal=info.trkGlobPosAtEcal.eta();
       
@@ -394,7 +426,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
        
       GlobalPoint gPointEcal(xTrkEcal,yTrkEcal,zTrkEcal);
             
-      eECAL = ecalEnergyInCone(gPointEcal, EcalCone_, Hitecal, geo);
+      eECAL = ecalEnergyInCone(gPointEcal, ecalCone_, Hitecal, geo);
       eECAL09cm = ecalEnergyInCone(gPointEcal, 9, Hitecal, geo);
       eECAL40cm = ecalEnergyInCone(gPointEcal, 40, Hitecal, geo);
       
@@ -434,7 +466,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
 	  double distAtHcal =  getDistInPlaneSimple(gPointHcal, pos);
 	  
-	  if(distAtHcal < associationConeSize_) 
+	  if(distAtHcal < clusterConeSize_) 
 	    {
 	      for (HBHERecHitCollection::const_iterator hhit2=Hithbhe.begin(); hhit2!=Hithbhe.end(); hhit2++) 
 		//for (HcalRecHitCollection::const_iterator hhit2=Hithcal.begin(); hhit2!=Hithcal.end(); hhit2++) 
@@ -527,7 +559,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  int depthhitNoise = depthhit;
 	  
 	  double distAtHcal =  getDistInPlaneSimple(gPointHcal, pos);
-	  if(distAtHcal < calibrationConeSize_ && enehit>0. && MaxHit.hitenergy > 0.) 
+	  if(distAtHcal < clusterConeSize_ && MaxHit.hitenergy > 0.) 
 	    {
 	      eHcalCone += enehit;	    
 	      UsedCells++;
@@ -550,7 +582,6 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	      // cout<<"track: ieta "<<ietahit<<" iphi: "<<iphihit<<" depth: "<<depthhit<<" energydepos: "<<enehit<<endl;
 	      
 	      for (HBHERecHitCollection::const_iterator hhit2=Hithbhe.begin(); hhit2!=Hithbhe.end(); hhit2++) 
-		//for (HcalRecHitCollection::const_iterator hhit2=Hithcal.begin(); hhit2!=Hithcal.end(); hhit2++) 
 		{
 		  recal = RecalibFactor(hhit2->detid());
 		  int iphihit2 = (hhit2->id()).iphi();
@@ -590,7 +621,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  
 	  double distAtHcal =  getDistInPlaneSimple(gPointHcal,pos);
 	  
-	  if(distAtHcal < calibrationConeSize_ && enehit>0. &&  MaxHit.hitenergy > 0.) 
+	  if(distAtHcal < clusterConeSize_ &&  MaxHit.hitenergy > 0.) 
 	    //if(dr<radius_ && enehit>0.) 
 	    {
 	      
@@ -635,14 +666,8 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
       /* ------------- -   Track-MC matching  (if any tracks are in event)    ------------    - */
       
-
-      //genEta = etaParticle;      
-      //genPhi = phiParticle;
-      
       nTracks=0;
 
-      //if (abs(genEta) < 2.4)
-      //{
       delRmc[0] = 5; 
       
       float delR_track_particle = 100;
@@ -665,7 +690,6 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	}
 	  
 
-	  //}
       /*        ------------------          ------------------------------ ------- */
 
 
@@ -714,8 +738,8 @@ cout<<"M ieta: "<<MaxHit.ietahitm<<"  M iphi: "<<MaxHit.iphihitm<<endl;
 
  	  eParticle = mom_MC;
  	  //eTrack = mom_MC;
-	  phiTrack = phiParticle;
-	  etaTrack = etaParticle;
+	  //phiTrack = phiParticle;
+	  //etaTrack = etaParticle;
 
 	  pfTree->Fill();
 	}
@@ -727,63 +751,30 @@ cout<<"M ieta: "<<MaxHit.ietahitm<<"  M iphi: "<<MaxHit.iphihitm<<endl;
 
 void HcalCorrPFCalculation::beginJob(){
 
-  /*
- tracksTree = fs -> make<TTree>("tracksTree", "Tree for pf info");
+  pfTree = fs -> make<TTree>("pfTree", "Tree for pf info");
 
- tracksTree->Branch("genEta", &genEta, "genEta/F");
- tracksTree->Branch("genPhi", &genPhi, "genPhi/F");
-
-
-tracksTree->Branch("nTracks", &nTracks, "nTracks/I"); 
- 
- tracksTree->Branch("trackEta", trackEta, "trackEta[nTracks]/F"); 
- tracksTree->Branch("trackPhi", trackPhi, "trackPhi[nTracks]/F"); 
- tracksTree->Branch("trackP", trackP, "trackP[nTracks]/F"); 
-
- tracksTree->Branch("delRmc", delRmc, "delRmc[nTracks]/F"); 
- tracksTree->Branch("numValidTrkHits", numValidTrkHits, "numValidTrkHits[nTracks]/I"); 
- tracksTree->Branch("numValidTrkStrips", numValidTrkStrips, "numValidTrkStrips[nTracks]/I"); 
- tracksTree->Branch("numLayers", numLayers, "numLayers[nTracks]/I"); 
- tracksTree->Branch("trkQual", trkQual, "trkQual[nTracks]/O"); 
-
-  */
- //  nTracks = fs->make<TH1F>("nTracks","general;number of general tracks",21,-0.5,20.5);
-  /* 
-  enEcalB = fs->make<TH1F>("enEcalB", "enEcalB", 500, -5,50); 
-  enEcalE = fs->make<TH1F>("enEcalE", "enEcalE", 500, -5,50); 
- 
-  nCells = fs->make<TProfile>("nCells", "nCells", 83, -41.5, 41.5); 
-  nCellsNoise = fs->make<TProfile>("nCellsNoise", "nCellsNoise", 83, -41.5, 41.5); 
   
-  enHcal = fs->make<TProfile>("enHcal", "enHcal", 83, -41.5, 41.5); 
-  enHcalNoise =  fs->make<TProfile>("enHcalNoise", "enHcalNoise", 83, -41.5, 41.5); 
-  */
-
- pfTree = fs -> make<TTree>("pfTree", "Tree for pf info");
-
-
- pfTree->Branch("nTracks", &nTracks, "nTracks/I"); 
+  pfTree->Branch("nTracks", &nTracks, "nTracks/I"); 
   pfTree->Branch("trackEta", trackEta, "trackEta[nTracks]/F"); 
- pfTree->Branch("trackPhi", trackPhi, "trackPhi[nTracks]/F"); 
- pfTree->Branch("trackP", trackP, "trackP[nTracks]/F"); 
-
- pfTree->Branch("delRmc", delRmc, "delRmc[nTracks]/F"); 
- pfTree->Branch("numValidTrkHits", numValidTrkHits, "numValidTrkHits[nTracks]/I"); 
- pfTree->Branch("numValidTrkStrips", numValidTrkStrips, "numValidTrkStrips[nTracks]/I"); 
- pfTree->Branch("numLayers", numLayers, "numLayers[nTracks]/I"); 
- pfTree->Branch("trkQual", trkQual, "trkQual[nTracks]/O"); 
- 
-
- pfTree->Branch("eEcalCone", &eEcalCone, "eEcalCone/F");
- pfTree->Branch("eHcalCone", &eHcalCone, "eHcalCone/F");
- pfTree->Branch("eHcalConeNoise", &eHcalConeNoise, "eHcalConeNoise/F");
-
- pfTree->Branch("UsedCellsNoise", &UsedCellsNoise, "UsedCellsNoise/I");
- pfTree->Branch("UsedCells", &UsedCells, "UsedCells/I");
-
+  pfTree->Branch("trackPhi", trackPhi, "trackPhi[nTracks]/F"); 
+  pfTree->Branch("trackP", trackP, "trackP[nTracks]/F"); 
+  
+  pfTree->Branch("delRmc", delRmc, "delRmc[nTracks]/F"); 
+  pfTree->Branch("numValidTrkHits", numValidTrkHits, "numValidTrkHits[nTracks]/I"); 
+  pfTree->Branch("numValidTrkStrips", numValidTrkStrips, "numValidTrkStrips[nTracks]/I"); 
+  pfTree->Branch("numLayers", numLayers, "numLayers[nTracks]/I"); 
+  pfTree->Branch("trkQual", trkQual, "trkQual[nTracks]/O"); 
+  
+  
+  pfTree->Branch("eEcalCone", &eEcalCone, "eEcalCone/F");
+  pfTree->Branch("eHcalCone", &eHcalCone, "eHcalCone/F");
+  pfTree->Branch("eHcalConeNoise", &eHcalConeNoise, "eHcalConeNoise/F");
+  
+  pfTree->Branch("UsedCellsNoise", &UsedCellsNoise, "UsedCellsNoise/I");
+  pfTree->Branch("UsedCells", &UsedCells, "UsedCells/I");
+  
   pfTree->Branch("eCentHit", &eCentHit , "eCentHit/F");
 
-  //It says track, but it's actually MC particle's parameters:
   pfTree->Branch("eParticle", &eParticle, "eParticle/F");
   pfTree->Branch("etaParticle", &etaParticle, "etaParticle/F");
   pfTree->Branch("phiParticle", &phiParticle, "phiParticle/F");
@@ -810,11 +801,9 @@ tracksTree->Branch("nTracks", &nTracks, "nTracks/I");
  
  //  pfTree->Branch("numValidTrkHits", &numValidTrkHits, "numValidTrkHits/I");
  // pfTree->Branch("numValidTrkStrips", &numValidTrkStrips, "numValidTrkStrips/I");
- // pfTree->Branch("trkQual", &trkQual, "trkQual/O0O");
+ // pfTree->Branch("trkQual", &trkQual, "trkQual/");
  // pfTree->Branch("numLayers", &numLayers, "numLayers/I");
 
- //  pfTree->Branch("iEtaTr", &iEtaTr, "iEtaTr/I");
- // pfTree->Branch("iPhiTr", &iPhiTr, "iPhiTr/I");
 }
 
 

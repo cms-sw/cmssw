@@ -8,10 +8,10 @@
 Int_t sample=0;
 
 //TString imgpath("~/afs/public_html/test/");  
- TString imgpath("~/afs/public_html/pfcorrs/v01/");  
+ TString imgpath("~/afs/public_html/pfcorrs/v02/");  
 
- TFile* fMC = new TFile("./HcalCorrPF.root","OPEN");
- // TFile* fMC = new TFile("~/nobackup/arch/hcalCorrPFv11_35cm.root","OPEN");
+ //TFile* fMC = new TFile("./HcalCorrPF.root","OPEN");
+  TFile* fMC = new TFile("~/nobackup/arch/hcalCorrPFv13_35cm.root","OPEN");
 
 
  TCut tr_cut = "eParticle>45 && eParticle<55";  label = new TText(0.03,0.2, "Pions 50 GeV "); sample=50;
@@ -20,17 +20,15 @@ Int_t sample=0;
 
   TCut trkQual = "";
   //  TCut trkQual = "(trkQual[0]==1 && abs(etaParticle)<2.4) || abs(etaParticle)>2.4";
-  TCut mip_cut = "eECAL<1.";
-  //TCut neutral_iso_cut ="(eECAL40cm-eECAL09cm)<8";
-  TCut neutral_iso_cut ="";
-  //TCut hit_dist = "";
-   TCut hit_dist = "delR<18";
+  TCut mip_cut = "eECAL09cm<1.";
+    TCut hit_dist = "delR<16";
   TCut mc_dist = "";
   // TCut mc_dist = "(abs(etaParticle)<2.4 && delRmc[0]<2) || abs(etaParticle)>2.4";
-  TCut low_resp_cut = "";
-  //TCut low_resp_cut = "eHcalCone/eTrack>0.2";
+  //TCut low_resp_cut = "";
+  TCut low_resp_cut = "eHcalCone/eParticle>0.2";
   TCut maxPNearBy = "";
-
+  //  TCut neutral_iso_cut ="";
+  TCut neutral_iso_cut = "(abs(iEta)<=13&&(eECAL40cm-eECAL09cm)<6.8)||(abs(iEta)==14&&(eECAL40cm-eECAL09cm)<6.6)||(abs(iEta)==15&&(eECAL40cm-eECAL09cm)<6.6)||(abs(iEta)==16&&(eECAL40cm-eECAL09cm)<9.8)||(abs(iEta)==17&&(eECAL40cm-eECAL09cm)<10.4)||(abs(iEta)==18&&(eECAL40cm-eECAL09cm)<9.8)||(abs(iEta)==19&&(eECAL40cm-eECAL09cm)<11.0)||(abs(iEta)==20&&(eECAL40cm-eECAL09cm)<12.3)||(abs(iEta)==21&&(eECAL40cm-eECAL09cm)<13.6)||(abs(iEta)==22&&(eECAL40cm-eECAL09cm)<15.2)||(abs(iEta)==23&&(eECAL40cm-eECAL09cm)<15.4)||(abs(iEta)==24&&(eECAL40cm-eECAL09cm)<16.3)||(abs(iEta)==25&&(eECAL40cm-eECAL09cm)<16.1)||(abs(iEta)==26&&(eECAL40cm-eECAL09cm)<15.4)||(abs(iEta)==27&&(eECAL40cm-eECAL09cm)<15.4)||abs(iEta)>27";
   
   TCut selection = trkQual && neutral_iso_cut && tr_cut && mip_cut && hit_dist && mc_dist && maxPNearBy && low_resp_cut;
   
@@ -178,7 +176,7 @@ Int_t sample=0;
   c1->SaveAs(imgpath+"p16.png");  
   hMC -> Delete();
 
-  ftreeMC -> Draw("eHcalCone/eParticle:iEta>>hMC", selection, "prof");
+  ftreeMC -> Draw("eHcalCone/eParticle:iEta>>hMC(83,-42.5,42.5)", selection, "prof");
   hMC -> SetTitle("eHcal/eParticle vs iEta");
   hMC -> SetFillColor(kRed-10);
 hMC -> SetMaximum(1.2);
@@ -197,12 +195,23 @@ hMC -> SetMaximum(1.2);
   c1->SaveAs(imgpath+"p18.png");  
   hMC -> Delete();
 
-  ftreeMC -> Draw("delR>>hMC", selection, "");
-  hMC -> SetTitle("#DeltaR(hotHit, trackHit)");
+  c1 -> SetLogy(0);
+
+  ftreeMC -> Draw("eParticle/e5x5:iEta>>hMC(83,-42.5,42.5)", selection,"prof");
+  hMC -> SetTitle("Corrections");
   hMC -> SetFillColor(kRed-10);
   label -> Draw();
-  c1->SaveAs(imgpath+"p18.png");  
+  c1->SaveAs(imgpath+"p19.png");  
   hMC -> Delete();
+
+  /*
+  ftreeMC -> Draw("eParticle/eHcalCone:iEta>>hMC(83,-42.5,42.5)", selection,"prof");
+  hMC -> SetTitle("Corrections");
+  hMC -> SetFillColor(kRed-10);
+  label -> Draw();
+  c1->SaveAs(imgpath+"p19.png");  
+  hMC -> Delete();
+*/
 
   ftreeMC -> Draw("etaParticle>>hMC", selection);
   hMC -> SetTitle("eta of MC particle");
@@ -251,14 +260,30 @@ hMC -> SetMaximum(1.2);
   hMC -> Delete();
 
 
-  ftreeMC -> Draw("eParticle/eHcalCone:iEta>>hMC", selection,"prof");
-  hMC -> SetTitle("Corrections");
+  ftreeMC -> Draw("delR>>hMC", selection, "");
+  hMC -> SetTitle("#DeltaR(hotHit, trackHit)");
   hMC -> SetFillColor(kRed-10);
   label -> Draw();
   c1->SaveAs(imgpath+"p26.png");  
   hMC -> Delete();
 
 
+ ftreeMC -> Draw("iPhi>>hMC", selection&&"abs(iEta)>=29");
+ hMC -> SetTitle("iPhi at |iEta|>=29");
+ hMC -> SetFillColor(kRed-10);
+ label -> Draw();
+ c1->SaveAs(imgpath+"p07.png");  
+ hMC->Delete();
+ 
+
+
+ ftreeMC -> Draw("iPhi>>hMC", selection&&"abs(iEta)>=29");
+ hMC -> SetTitle("iPhi at |iEta|>=29");
+ hMC -> SetFillColor(kRed-10);
+ label -> Draw();
+ c1->SaveAs(imgpath+"p07.png");  
+ hMC->Delete();
+ 
 
 
   c1 -> SetLogy();

@@ -18,7 +18,6 @@ process.hcalPFcorrs.calibrationConeSize = cms.double(35.)
 #process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = 'MC_31X_V5::All'
-#process.GlobalTag.globaltag = cms.string('STARTUP31X_V1::All')
 process.GlobalTag.globaltag = 'DESIGN_3X_V24::All'
 process.prefer("GlobalTag")
 

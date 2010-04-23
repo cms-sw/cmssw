@@ -7,12 +7,12 @@
   gStyle->SetPadGridX(1);
   gStyle->SetPadGridY(1);
 
-TString imgpath("~/afs/public_html/pfcorrs/v01/");
+TString imgpath("~/afs/public_html/pfcorrs/v02/");
 
- TFile* fcorrs = new TFile("./hcalCorrsFile.root","OPEN");
+ TFile* fcorrs = new TFile("~/nobackup/arch/hcalCorrsFile_resp01.root","OPEN");
  TProfile* respcorrs = (TProfile*)fcorrs->Get("corrs1");
 
- TFile* tf = new TFile("~/nobackup/arch/hcalCorrPFv9_35cm.root","OPEN");
+ TFile* tf = new TFile("~/nobackup/arch/hcalCorrPFv13_35cm.root","OPEN");
  //TFile* tf = new TFile("~/afs/arch/hcalCorrPFv2_26.2cm.root","OPEN");
 //TFile* tf = new TFile("./HcalCorrPF.root","OPEN");
  ofstream new_pfcorrs("newPFcorrs.txt");
@@ -50,31 +50,29 @@ TString imgpath("~/afs/public_html/pfcorrs/v01/");
  TProfile* p5 = (TProfile*)tf->Get("hcalRecoAnalyzer/enEcal");
 */
 
- TCut tr_cut = "eTrack>47 && eTrack<53";  label = new TText(0.03,0.2, "50 GeV");
+ TCut tr_cut = "eParticle>45 && eParticle<55";  label = new TText(0.03,0.2, "50 GeV");
   
  label -> SetNDC(); label->SetTextAlign(11); label->SetTextSize(0.05); label->SetTextAngle(90); label->SetTextColor(kRed);
 
- //TCut trqual = "trkQual==1 && numValidTrkHits>11 && numLayers>7";
- TCut trqual = "";
-   TCut trqual = "trkQual==1 && numValidTrkHits>13 && (abs(iEta)<17 || numValidTrkStrips>9)";
-  TCut mip_cut = "eECAL<1.";
-  //TCut neutral_iso_cut ="(eECAL40cm-eECAL09cm)<8"; 
-  TCut neutral_iso_cut =""; 
-  TCut hit_dist = "iDr<1.5";
-  // TCut hit_dist = "delR<18";
-  TCut mc_dist = "delRmc<3 || abs(iEta)>23";
-  //TCut hit_dist = "iDr<1.5";
-  TCut low_resp_cut = "eHcalCone/eTrack>0.2";  
-
+  TCut trkQual = "";
+  //  TCut trkQual = "(trkQual[0]==1 && abs(etaParticle)<2.4) || abs(etaParticle)>2.4";
+  TCut mip_cut = "eECAL09cm<1.";
+    TCut hit_dist = "delR<16";
+  TCut mc_dist = "";
+  // TCut mc_dist = "(abs(etaParticle)<2.4 && delRmc[0]<2) || abs(etaParticle)>2.4";
+  //TCut low_resp_cut = "";
+  TCut low_resp_cut = "eHcalCone/eParticle>0.2";
   TCut maxPNearBy = "";
-  //TCut maxPNearBy = "maxPNearBy<2";
-
-TCut selection = trqual && neutral_iso_cut && tr_cut && mip_cut && hit_dist && mc_dist && maxPNearBy && low_resp_cut;
+  //  TCut neutral_iso_cut ="";
+  TCut neutral_iso_cut = "(abs(iEta)<=13&&(eECAL40cm-eECAL09cm)<6.8)||(abs(iEta)==14&&(eECAL40cm-eECAL09cm)<6.6)||(abs(iEta)==15&&(eECAL40cm-eECAL09cm)<6.6)||(abs(iEta)==16&&(eECAL40cm-eECAL09cm)<9.8)||(abs(iEta)==17&&(eECAL40cm-eECAL09cm)<10.4)||(abs(iEta)==18&&(eECAL40cm-eECAL09cm)<9.8)||(abs(iEta)==19&&(eECAL40cm-eECAL09cm)<11.0)||(abs(iEta)==20&&(eECAL40cm-eECAL09cm)<12.3)||(abs(iEta)==21&&(eECAL40cm-eECAL09cm)<13.6)||(abs(iEta)==22&&(eECAL40cm-eECAL09cm)<15.2)||(abs(iEta)==23&&(eECAL40cm-eECAL09cm)<15.4)||(abs(iEta)==24&&(eECAL40cm-eECAL09cm)<16.3)||(abs(iEta)==25&&(eECAL40cm-eECAL09cm)<16.1)||(abs(iEta)==26&&(eECAL40cm-eECAL09cm)<15.4)||(abs(iEta)==27&&(eECAL40cm-eECAL09cm)<15.4)||abs(iEta)>27";
+  
+  TCut selection = trkQual && neutral_iso_cut && tr_cut && mip_cut && hit_dist && mc_dist && maxPNearBy && low_resp_cut;
+  
 
   TTree* pftree = (TTree*)tf->Get("hcalPFcorrs/pfTree");
-//  pftree -> Draw("eHcalCone/eTrack:iEta>>p1(82, -40.5, 41.5)", "", "prof goff");
-  pftree -> Draw("eHcalCone/eTrack:iEta>>p1(82, -40.5, 41.5)", selection, "prof goff");
-  pftree -> Draw("(eHcalCone-eHcalConeNoise)/eTrack:iEta>>p2(82, -40.5, 41.5)", selection, "prof goff");
+//  pftree -> Draw("eHcalCone/eParticle:iEta>>p1(82, -40.5, 41.5)", "", "prof goff");
+  pftree -> Draw("eHcalCone/eParticle:iEta>>p1(82, -40.5, 41.5)", selection, "prof goff");
+  pftree -> Draw("(eHcalCone-eHcalConeNoise)/eParticle:iEta>>p2(82, -40.5, 41.5)", selection, "prof goff");
   pftree -> Draw("UsedCells:iEta>>p3(82, -40.5, 41.5)", selection, "prof goff");
   pftree -> Draw("UsedCellsNoise:iEta>>p4(82, -40.5, 41.5)", selection, "prof goff");
   pftree -> Draw("eECAL:iEta>>p5(82, -40.5, 41.5)", selection, "prof goff");
