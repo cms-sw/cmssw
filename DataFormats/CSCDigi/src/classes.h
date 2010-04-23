@@ -26,7 +26,7 @@
 #include <DataFormats/CSCDigi/interface/CSCDDUStatusDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h>
 #include <DataFormats/CSCDigi/interface/CSCDCCStatusDigiCollection.h>
-
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
 
 
 
@@ -68,7 +68,7 @@ namespace{
   std::vector<CSCDDUStatusDigi>  vDDUSD_;
   std::vector<CSCDCCStatusDigi>  vDCCSD_;
   std::vector<CSCALCTStatusDigi>  vALCTSD_;
-
+  std::vector<CSCCLCTPreTrigger> vPreTriggerBX_;
 
   std::vector<std::vector<CSCWireDigi> >  vvWD_;
   std::vector<std::vector<CSCRPCDigi>  >  vvRD_;
@@ -84,6 +84,7 @@ namespace{
   std::vector<std::vector<CSCDDUStatusDigi> >  vvDDUSD_;
   std::vector<std::vector<CSCDCCStatusDigi> >  vvDCCSD_;
   std::vector<std::vector<CSCALCTStatusDigi> >  vvALCTSD_;
+  std::vector<std::vector<CSCCLCTPreTrigger> > vvPreTrigger_;
 
   CSCWireDigiCollection clWD_;
   CSCRPCDigiCollection  clRD_;
@@ -99,6 +100,7 @@ namespace{
   CSCDMBStatusDigiCollection clDDUSD_;
   CSCDMBStatusDigiCollection clDCCSD_;
   CSCDMBStatusDigiCollection clALCTSD_;
+  CSCCLCTPreTriggerCollection clPreTrigger_;
 
   edm::Wrapper<CSCWireDigiCollection> wWD_;
   edm::Wrapper<CSCRPCDigiCollection> wRD_;
@@ -114,5 +116,6 @@ namespace{
   edm::Wrapper<CSCDDUStatusDigiCollection> wDDUSD_;
   edm::Wrapper<CSCDCCStatusDigiCollection> wDCCSD_;
   edm::Wrapper<CSCALCTStatusDigiCollection> wALCTSD_;
+  edm::Wrapper<CSCCLCTPreTriggerCollection> wPreTrigger_;
   };
 }

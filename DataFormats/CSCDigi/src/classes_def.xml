@@ -28,6 +28,7 @@
    <class name="std::vector<CSCDDUStatusDigi>"/>
    <class name="std::vector<CSCDCCStatusDigi>"/>
    <class name="std::vector<CSCALCTStatusDigi>"/>
+   <class name="std::vector<CSCCLCTPreTrigger>"/>
 
    <class name="std::map<CSCDetId,std::vector<CSCWireDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCRPCDigi> >"/>
@@ -43,6 +44,7 @@
    <class name="std::map<CSCDetId,std::vector<CSCDDUStatusDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCDCCStatusDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCALCTStatusDigi> >"/>
+   <class name="std::map<CSCDetId,std::vector<CSCCLCTPreTrigger> >"/>
 
    <class name="MuonDigiCollection<CSCDetId,CSCWireDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCRPCDigi>"/>
@@ -58,6 +60,7 @@
    <class name="MuonDigiCollection<CSCDetId,CSCDCCStatusDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCDDUStatusDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCALCTStatusDigi>"/>
+   <class name="MuonDigiCollection<CSCDetId,CSCCLCTPreTrigger>"/>
 
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCWireDigi>>"  splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCRPCDigi>>" splitLevel="0"/>
@@ -73,5 +76,6 @@
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCDCCStatusDigi> >" splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCDDUStatusDigi> >" splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCALCTStatusDigi> >" splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCLCTPreTrigger> >" splitLevel="0"/>
 
 </lcgdict>
