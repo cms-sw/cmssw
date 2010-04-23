@@ -28,7 +28,7 @@ dqmElectronTagProbeAnalysis = cms.EDAnalyzer("ElectronTagProbeAnalyzer",
     
     MassLow = cms.double(60),
     MassHigh = cms.double(120),
-    TpCheckSign = cms.bool(False),  
+    TpCheckSign = cms.bool(True),  
     TagCheckClass = cms.bool(False),  
     ProbeEtCut = cms.bool(False),
     ProbeCheckClass = cms.bool(False),                                        
