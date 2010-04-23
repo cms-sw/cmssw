@@ -95,17 +95,12 @@ public:
   bool isValid() const {
     return theFreeState || theLocalParametersValid;
   }
+  static void notValid();
 
   bool hasError() const {
     return (theFreeState && theFreeState->hasError()) || theLocalErrorValid;
   }
-  void missingError(std::string where) const{
-    std::stringstream form;
-    form<<"TrajectoryStateOnSurface: attempt to access errors when none available "
-	<<where<<".\nfreestate pointer: "
-	<<theFreeState<<"\nlocal error valid :"<<theLocalErrorValid ;
-    throw TrajectoryStateException(form.str());
-  }
+  void missingError(char const * where) const;
 
 // access global parameters/errors
   const GlobalTrajectoryParameters& globalParameters() const {
@@ -137,10 +132,10 @@ public:
     if(!hasError()) missingError(" accesing curvilinearerror.");
     return freeTrajectoryState()->curvilinearError();
   }
+
+
   FreeTrajectoryState* freeTrajectoryState(bool withErrors = true) const {
-    if(!isValid()) throw TrajectoryStateException(
-      "TrajectoryStateOnSurface is invalid and cannot return any parameters");
-    checkGlobalParameters();
+    if(!isValid()) notValid();
     //if(hasError()) { // let's start like this to see if we alloc less
     if(withErrors && hasError()) { // this is the right thing
       checkCartesianError();
@@ -153,8 +148,7 @@ public:
 
 // access local parameters/errors
   const LocalTrajectoryParameters& localParameters() const {
-    if (!isValid()) throw TrajectoryStateException(
-      "TrajectoryStateOnSurface is invalid and cannot return any parameters");
+    if (!isValid()) notValid();
     if (!theLocalParametersValid)
       createLocalParameters();
     return theLocalParameters;
@@ -168,6 +162,7 @@ public:
   LocalVector localDirection() const {
     return localMomentum().unit();
   }
+
   const LocalTrajectoryError& localError() const {
     if (!hasError()) missingError(" accessing local error.");
     if (!theLocalErrorValid)
@@ -181,27 +176,8 @@ public:
 
   virtual double weight() const {return theWeight;} 
 
-  void rescaleError(double factor) {
-    if (!hasError()) missingError(" trying to rescale");    
-    if (theFreeState)
-      theFreeState->rescaleError(factor);
+  void rescaleError(double factor);
 
-    if (theLocalErrorValid){
-      //do it by hand if the free state is not around.
-      bool zeroField =theField->inInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
-      if (zeroField){
-	AlgebraicSymMatrix55 errors=theLocalError.matrix();
-	//scale the 0 indexed covariance by the square root of the factor
-	for (uint i=1;i!=5;++i)      errors(i,0)*=factor;
-	double factor_squared=factor*factor;
-	//scale all others by the scaled factor
-	for (uint i=1;i!=5;++i)  for (uint j=i;j!=5;++j) errors(i,j)*=factor_squared;
-	//term 0,0 is not scaled at all
-	theLocalError = LocalTrajectoryError(errors);
-      }
-      else theLocalError *= (factor*factor);
-    }
-  }
 
   BasicSingleTrajectoryState* clone() const {
     return new BasicSingleTrajectoryState(*this);

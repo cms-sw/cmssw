@@ -96,41 +96,25 @@ public:
   bool hasError() const {
     return theCurvilinearErrorValid || theCartesianErrorValid;
   }
+  static void missingError();
+
   const GlobalTrajectoryParameters& parameters() const {
     return theGlobalParameters;
   }
   const CartesianTrajectoryError& cartesianError() const {
-    if (!hasError()) throw TrajectoryStateException(
-      "FreeTrajectoryState: attempt to access errors when none available");
+    if (!hasError()) missingError;
     if (!theCartesianErrorValid)
       createCartesianError();
     return theCartesianError;
   }
   const CurvilinearTrajectoryError& curvilinearError() const {
-    if (!hasError()) throw TrajectoryStateException(
-      "FreeTrajectoryState: attempt to access errors when none available");
+    if (!hasError()) missingError;
     if (!theCurvilinearErrorValid)
       createCurvilinearError();
     return theCurvilinearError;
   }
-  void rescaleError(double factor) {
-    bool zeroField = parameters().magneticFieldInInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
-    if (zeroField) {
-      if (theCartesianErrorValid){
-	if (!theCurvilinearErrorValid) createCurvilinearError();
-	theCurvilinearError.zeroFieldScaling(factor*factor);
-	createCartesianError();
-      }else
-	if (theCurvilinearErrorValid) theCurvilinearError.zeroFieldScaling(factor*factor);
-    } else{
-      if (theCartesianErrorValid){
-	theCartesianError *= (factor*factor);
-      }
-      if (theCurvilinearErrorValid){
-	theCurvilinearError *= (factor*factor);
-      }
-    }
-  }
+
+  void rescaleError(double factor);
 
   void setCartesianError(const CartesianTrajectoryError &err) {
         theCartesianError = err; theCartesianErrorValid = true;
