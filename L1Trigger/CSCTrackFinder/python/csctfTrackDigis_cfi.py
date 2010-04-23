@@ -90,8 +90,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
                                                             QualityEnableME4a  = cms.uint32(65535),
                                                             QualityEnableME4b  = cms.uint32(65535),
                                                             QualityEnableME4c  = cms.uint32(65535),
-                                                            initializeFromPSet = cms.bool(True)
-                                                            
+                                                            initializeFromPSet = cms.bool(False)
                                                             ),
                                  isTMB07 = cms.bool(True),
                                  useDT = cms.bool(True),
