@@ -39,11 +39,8 @@ class express(Scenario):
 
         skims = ['SiStripCalZeroBias',
                  'TkAlMinBias',
-                 'TkAlMuonIsolated',
-                 'MuAlCalIsolatedMu',
-                 'MuAlOverlaps',
-                 'HcalCalIsoTrk',
-                 'HcalCalDijets']
+                 'RpcCalHLT',
+                 'MuAlCalIsolatedMu']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
