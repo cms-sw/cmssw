@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.26 $'),
+    version = cms.untracked.string('$Revision: 1.27 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
@@ -42,7 +42,7 @@ process.GlobalTag.globaltag = 'START36_V4::All'
 ############################# START SUSYPAT specifics ####################################
 from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
 #Apply SUSYPAT, parameters are: mcInfo, HLT menu, Jet energy corrections, mcVersion ('35x' for 35x samples),JetCollections
-addDefaultSUSYPAT(process,True,'HLT','Summer09_7TeV_ReReco332','',['IC5Calo','AK5PF','AK5JPT','AK5Track']) 
+addDefaultSUSYPAT(process,True,'HLT','Summer09_7TeV_ReReco332','',['IC5Calo','IC5PF','AK5JPT','AK5Track']) 
 SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )
 ############################## END SUSYPAT specifics ####################################
 

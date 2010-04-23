@@ -252,6 +252,8 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep *_photonCore_*_*',        #Keep electron core
         'keep recoConversions_conversions_*_*',
         'keep recoTracks_*onversions_*_*',
+'keep EcalRecHitsSorted_reducedEcalRecHits*_*_*',
+        'keep recoPFRecHits_particleFlowCluster*_Cleaned_*',
         'keep HcalNoiseSummary_*_*_*' #Keep the one in RECO
         ] 
 
