@@ -12,6 +12,7 @@
 
 #include <string>
 #include "boost/scoped_ptr.hpp"
+#include "boost/scoped_ptr.hpp"
 
 #include "IOPool/Common/interface/RootServiceChecker.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -60,7 +61,7 @@ namespace edm {
         explicit Sorter(TTree* tree);
         bool operator() (OutputItem const& lh, OutputItem const& rh) const;
       private:
-        std::map<std::string, int> treeMap_;
+        boost::shared_ptr<std::map<std::string, int> > treeMap_;
       };
 
       OutputItem();
