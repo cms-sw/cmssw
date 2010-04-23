@@ -86,7 +86,7 @@ class cosmics(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "cosmics"
         options.step = \
-          """RAW2DIGI,L1Reco,RECO:reconstructionCosmics,ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlCosmicsHLT+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+HcalCalHOCosmics,ENDJOB"""
+          """RAW2DIGI,L1Reco,RECO:reconstructionCosmics,ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+MuAlCalIsolatedMu+HcalCalHOCosmics,ENDJOB"""
         options.isMC = False
         options.isData = True
         options.eventcontent = None
