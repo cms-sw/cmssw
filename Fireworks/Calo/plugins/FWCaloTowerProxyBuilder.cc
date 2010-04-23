@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.4 2010/04/16 10:59:50 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.5 2010/04/16 11:28:03 amraktad Exp $
 //
 
 // system includes
@@ -185,8 +185,8 @@ FWCaloTowerProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
    if(0!=m_hist) {
       m_hist->Reset();
    }
-   if(0 != caloData()) {
-      caloData()->DataChanged();
+   if(0 != iItem->context().getCaloData()) {
+      iItem->context().getCaloData()->DataChanged();
    }
 }
 
