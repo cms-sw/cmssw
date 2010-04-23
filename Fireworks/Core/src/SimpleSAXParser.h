@@ -16,6 +16,7 @@
 #include <cassert>
 #include <cstring>
 #include <iostream>
+#include <algorithm>
 
 bool
 fgettoken(std::istream &in, char **buffer, size_t *maxSize, const char *separators,
