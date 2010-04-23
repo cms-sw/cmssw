@@ -9,7 +9,7 @@
 #include "CondFormats/DataRecord/interface/ESGainRcd.h"
 #include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
 #include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
-#include "CondFormats/DataRecord/interface/ESTBWeightsRcd.h"
+#include "CondFormats/DataRecord/interface/ESTimeSampleWeightsRcd.h"
 #include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/ESIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/ESRecHitRatioCutsRcd.h"
@@ -22,10 +22,6 @@ ESRecHitWorker::ESRecHitWorker(const edm::ParameterSet& ps) :
         ESRecHitWorkerBaseClass( ps )
 {
   recoAlgo_ = ps.getUntrackedParameter<int>("ESRecoAlgo", 0);
-
-  std::vector<double> weights_;
-  weights_.push_back(0) ;
-  ESWeights_ = ps.getUntrackedParameter< std::vector<double> >("ESWeights", weights_);  
 
   if (recoAlgo_ == 0)
     algoW_ = new ESRecHitSimAlgo();
@@ -50,23 +46,13 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
 
   double ESGain = gain->getESGain();
   double ESMIPToGeV = (ESGain == 1) ? mipToGeV->getESValueLow() : mipToGeV->getESValueHigh(); 
-  /*
-  es.get<ESTBWeightsRcd>().get(esWeights_);
-  const ESTBWeights *wgts = esWeights_.product();
 
-  ESTBWeights::ESTBWeightMap::const_iterator wit = wgts->getMap().find( ESGain );
-  ESWeightSet wset;
-  double w0 = 0;
-  double w1 = 0;
-  double w2 = 0;
-  if ( wit != wgts->getMap().end() ) {
-    wset = wit->second;
-    const ESWeightSet::ESWeightMatrix& mat = wset.getWeights();
-    w0 = mat(int(ESGain-1), 0);
-    w1 = mat(int(ESGain-1), 1);
-    w2 = mat(int(ESGain-1), 2);
-  }
-  */
+  es.get<ESTimeSampleWeightsRcd>().get(esWeights_);
+  const ESTimeSampleWeights *wgts = esWeights_.product();
+
+  float w0 = wgts->getWeightForTS0();
+  float w1 = wgts->getWeightForTS1();
+  float w2 = wgts->getWeightForTS2();
 
   es.get<ESPedestalsRcd>().get(esPedestals_);
   const ESPedestals *peds = esPedestals_.product();
@@ -83,9 +69,9 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
   if (recoAlgo_ == 0) {
     algoW_->setESGain(ESGain);
     algoW_->setMIPGeV(ESMIPToGeV);
-    algoW_->setW0(ESWeights_[0]);
-    algoW_->setW1(ESWeights_[1]);
-    algoW_->setW2(ESWeights_[2]);
+    algoW_->setW0(w0);
+    algoW_->setW1(w1);
+    algoW_->setW2(w2);
     algoW_->setPedestals(peds);
     algoW_->setIntercalibConstants(mips);
     algoW_->setChannelStatus(channelStatus);

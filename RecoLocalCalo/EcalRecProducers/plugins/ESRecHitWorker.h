@@ -10,8 +10,7 @@
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 #include "CondFormats/ESObjects/interface/ESGain.h"
 #include "CondFormats/ESObjects/interface/ESMIPToGeVConstant.h"
-#include "CondFormats/ESObjects/interface/ESTBWeights.h"
-#include "CondFormats/ESObjects/interface/ESWeightSet.h"
+#include "CondFormats/ESObjects/interface/ESTimeSampleWeights.h"
 #include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESRecHitRatioCuts.h"
@@ -37,13 +36,12 @@ class ESRecHitWorker : public ESRecHitWorkerBaseClass {
  private:
 
   int recoAlgo_;  
-  std::vector<double> ESWeights_;
   ESRecHitSimAlgo *algoW_;
   ESRecHitFitAlgo *algoF_;
 
   edm::ESHandle<ESGain> esgain_;
   edm::ESHandle<ESMIPToGeVConstant> esMIPToGeV_;
-  edm::ESHandle<ESTBWeights> esWeights_;
+  edm::ESHandle<ESTimeSampleWeights> esWeights_;
   edm::ESHandle<ESPedestals> esPedestals_;
   edm::ESHandle<ESIntercalibConstants> esMIPs_;
   edm::ESHandle<ESChannelStatus> esChannelStatus_;
