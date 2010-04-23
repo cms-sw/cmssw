@@ -52,7 +52,7 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     writeToFiles = cms.bool(True),
     outFile = cms.string('TPG_linear.txt'),
    #### TPG config tag and version (if not given it will be automatically given ) ####
-    TPGtag = cms.string('E_LINEAR'),
+    TPGtag = cms.string('ENERGY'),
     TPGversion = cms.uint32(1),
                                         
    #### TPG calculation parameters ####
