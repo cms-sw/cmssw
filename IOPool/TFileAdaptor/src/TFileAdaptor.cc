@@ -2,6 +2,8 @@
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -64,6 +66,25 @@ public:
     tempDir_ = p.getUntrackedParameter<std::string> ("tempDir", tempDir_);
     native_ = p.getUntrackedParameter<std::vector<std::string> >("native", native_);
     ar.watchPostEndJob(this, &TFileAdaptor::termination);
+     
+    //values set in the site local config or in SiteLocalConfigService override
+    // any values set for this service.  This is to allow backwards compatibility
+    // for WMDM tools until we switch to only using the site local config for this info
+    edm::Service<edm::SiteLocalConfig> pSLC;
+    if(pSLC.isAvailable()) {
+       if(pSLC->sourceCacheTempDir()) {
+          tempDir_=*(pSLC->sourceCacheTempDir());
+       }
+       if(pSLC->sourceCacheHint()) {
+          cacheHint_ = *(pSLC->sourceCacheHint());
+       }
+       if(pSLC->sourceReadHint()) {
+          readHint_ = *(pSLC->sourceReadHint());
+       }
+       if(pSLC->sourceNativeProtocols()) {
+          native_=*(pSLC->sourceNativeProtocols());
+       }
+    }
 
     // tell factory how clients should access files
     if (cacheHint_ == "application-only")
