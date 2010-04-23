@@ -626,7 +626,7 @@ if __name__ == '__main__':
         ibeam = listbeam[ii]
         datax = ibeam.IOVfirst
         #print str(ii) + "  " +datax
-        if datax == '1':
+        if datax == '1' and IOVbase =="runbase":
             print " skip IOV = "+ str(ibeam.IOVfirst) + " to " + str(ibeam.IOVlast)
             tmpremovelist.append(ibeam)
         
