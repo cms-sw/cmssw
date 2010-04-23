@@ -737,18 +737,19 @@ if __name__ == '__main__':
 	    tmprun = ibeam.Run
 	    countlumi += 1
 	
-
+        
 	npayload = 1
+        payloadfile = open(name,"w")
 	for iload in newlistbeam:
             # print new list
             name = option.payload
-            name = name.replace(".txt","")
-            name = name + "_" +str(npayload) +".txt"
-            payloadfile = open(name,"w")
+            #name = name.replace(".txt","")
+            #name = name + "_" +str(npayload) +".txt"
+            #payloadfile = open(name,"w")
 	    dump( iload, payloadfile )
-            payloadfile.close()
+            #payloadfile.close()
             npayload += 1
-
+        payloadfile.close()
     if option.noplot:
         print " no plots requested, exit now."
         sys.exit()
