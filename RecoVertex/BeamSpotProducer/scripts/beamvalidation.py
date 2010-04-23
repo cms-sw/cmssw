@@ -108,11 +108,11 @@ def dump_footer(file):
     file.write('</body>\n</html>\n')
 
 #______________
-def write_tags(file, tags):
+def write_tags(tags):
 
-    br = '<BR>'
-    file.write('Latest offline tags:')
-    file.write(br)
+    end = '/n'
+    br = '<BR>'+end
+    
     for i in tags:
         file.write(i)
         file.write(br)
@@ -174,6 +174,17 @@ if __name__ == '__main__':
 	listIOVs.append( aIOV )
 
     print listIOVs
+
+    # create web page
+
+    lines = []
+    end = '/n'
+    br = '<BR>'+end
+    lines.append('Latest tags:'+end)
+    lines.append(br)
+    lines.append('''
+<table border="1"><tr>')
+    
 
     
 

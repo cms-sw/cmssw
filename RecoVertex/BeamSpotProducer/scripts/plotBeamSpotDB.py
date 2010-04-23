@@ -666,10 +666,7 @@ if __name__ == '__main__':
 		tmpbeam.Type = 2
 	    docheck = False
 	    docreate = False
-	    # check we run over the same run
-	    if tmprun != ibeam.Run and ii>0:
-		print "close payload because we are in a new run"
-		docreate = True
+	    
 	    # check last iov
 	    if ii < len(listbeam) - 1: 
 		inextbeam = listbeam[ii+1]
@@ -678,6 +675,10 @@ if __name__ == '__main__':
 		    iNNbeam = listbeam[ii+2]
 	    else:
 		print "close payload because end of data has been reached"
+		docreate = True
+            # check we run over the same run
+	    if ibeam.Run != inextbeam.Run:
+		print "close payload because we are in a new run"
 		docreate = True
 	    # check maximum lumi counts
 	    if countlumi == maxNlumis:
