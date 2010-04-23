@@ -11,7 +11,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb  2 16:40:52 EST 2009
-// $Id: FWTableViewTableManager.h,v 1.4 2009/08/26 22:21:45 dmytro Exp $
+// $Id: FWTableViewTableManager.h,v 1.5 2010/04/16 19:48:14 chrjones Exp $
 //
 
 // system include files
@@ -28,7 +28,7 @@
 
 // forward declarations
 class FWTableView;
-class FWOutlinedTextTableCellRenderer;
+class FWFramedTextTableCellRenderer;
 
 class FWTableViewTableManager : public FWTableManagerBase {
      friend class FWTableView;
@@ -104,7 +104,7 @@ protected:
 
      TGGC *m_rowContext;
      TGGC *m_rowFillContext;
-     FWOutlinedTextTableCellRenderer *m_rowRenderer;
+     FWFramedTextTableCellRenderer *m_rowRenderer;
    
      std::vector<FWExpressionEvaluator> m_evaluators;
      std::vector<FWTableViewManager::TableEntry> *m_tableFormats;

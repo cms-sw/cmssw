@@ -1,6 +1,7 @@
-// $Id: FWTableViewTableManager.cc,v 1.12 2010/03/03 15:44:24 eulisse Exp $
+// $Id: FWTableViewTableManager.cc,v 1.13 2010/04/16 19:48:15 chrjones Exp $
 
 #include <math.h>
+#include <sstream>
 #include "TClass.h"
 #include "TGClient.h"
 #include "Fireworks/Core/interface/FWTableViewTableManager.h"
@@ -10,7 +11,7 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
-#include "Fireworks/TableWidget/interface/FWOutlinedTextTableCellRenderer.h"
+#include "Fireworks/TableWidget/interface/FWFramedTextTableCellRenderer.h"
 
 FWTableViewTableManager::FWTableViewTableManager (const FWTableView *view)
      : m_view(view),
@@ -29,13 +30,13 @@ FWTableViewTableManager::FWTableViewTableManager (const FWTableView *view)
      m_renderer = new FWTextTableCellRenderer(m_graphicsContext,
 					      m_highlightContext,
 					      FWTextTableCellRenderer::kJustifyRight);
-     m_rowContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&gc,kTRUE);
-     m_rowContext->SetForeground(gVirtualX->GetPixel(kWhite));
-     m_rowContext->SetBackground(gVirtualX->GetPixel(kBlack));
+     //m_rowContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&gc,kTRUE);
+     //m_rowContext->SetForeground(gVirtualX->GetPixel(kWhite));
+     //m_rowContext->SetBackground(gVirtualX->GetPixel(kBlack));
      m_rowFillContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&gc,kTRUE);
-     m_rowRenderer = new FWOutlinedTextTableCellRenderer(m_rowContext,
+     m_rowRenderer = new FWFramedTextTableCellRenderer(m_graphicsContext,
                                                       m_rowFillContext,
-                                                      FWOutlinedTextTableCellRenderer::kJustifyLeft);
+                                                      FWFramedTextTableCellRenderer::kJustifyRight);
    
 }
 
@@ -277,11 +278,25 @@ FWTableCellRendererBase* FWTableViewTableManager::rowHeader(int iSortedRowNumber
    if (m_view->item() != 0 &&
        m_view->item()->size() &&
        m_view->item()->modelData(realRowNumber) != 0) {
-      m_rowFillContext->
-      SetForeground(gVirtualX->GetPixel(m_view->item()->modelInfo(realRowNumber).
-                                        displayProperties().color()));
+      if (m_view->item()->modelInfo(realRowNumber).displayProperties().isVisible()) {
+         if (m_view->m_manager->colorManager().background() == kBlack) {
+            m_graphicsContext->
+            SetForeground(gVirtualX->GetPixel(kWhite));
+         } else {
+            m_graphicsContext->
+            SetForeground(gVirtualX->GetPixel(kBlack));
+         }
+         m_rowFillContext->
+         SetForeground(gVirtualX->GetPixel(m_view->item()->modelInfo(realRowNumber).
+                                           displayProperties().color()));
+      } else {
+         m_graphicsContext->SetForeground(0x888888);
+         m_rowFillContext->SetForeground(m_view->m_manager->colorManager().background());
+      }
       
-      m_rowRenderer->setData(m_view->item()->modelName(realRowNumber).c_str());
+      std::ostringstream s;
+      s<<realRowNumber;
+      m_rowRenderer->setData(s.str().c_str());
    } else {
       m_rowRenderer->setData("");
    }

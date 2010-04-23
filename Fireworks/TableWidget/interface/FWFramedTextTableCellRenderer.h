@@ -1,11 +1,11 @@
-#ifndef Fireworks_TableWidget_FWOutlinedTextTableCellRenderer_h
-#define Fireworks_TableWidget_FWOutlinedTextTableCellRenderer_h
+#ifndef Fireworks_TableWidget_FWFramedTextTableCellRenderer_h
+#define Fireworks_TableWidget_FWFramedTextTableCellRenderer_h
 // -*- C++ -*-
 //
 // Package:     TableWidget
-// Class  :     FWOutlinedTextTableCellRenderer
+// Class  :     FWFramedTextTableCellRenderer
 // 
-/**\class FWOutlinedTextTableCellRenderer FWOutlinedTextTableCellRenderer.h Fireworks/TableWidget/interface/FWOutlinedTextTableCellRenderer.h
+/**\class FWFramedTextTableCellRenderer FWFramedTextTableCellRenderer.h Fireworks/TableWidget/interface/FWFramedTextTableCellRenderer.h
 
  Description: A Cell Renderer who draws text with an outline and fills in the background
 
@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:43:50 EST 2009
-// $Id: FWOutlinedTextTableCellRenderer.h,v 1.3 2009/05/05 08:36:06 elmer Exp $
+// $Id: FWFramedTextTableCellRenderer.h,v 1.1 2010/04/16 19:46:46 chrjones Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@
 
 // forward declarations
 
-class FWOutlinedTextTableCellRenderer : public FWTableCellRendererBase {
+class FWFramedTextTableCellRenderer : public FWTableCellRendererBase {
    
 public:
    static const TGGC&  getDefaultGC();
@@ -43,10 +43,10 @@ public:
       kJustifyCenter
    };
    
-   FWOutlinedTextTableCellRenderer(const TGGC* iTextContext=&(getDefaultGC()), 
+   FWFramedTextTableCellRenderer(const TGGC* iTextContext=&(getDefaultGC()), 
                            const TGGC* iFillContext=&(getFillGC()),
                            Justify iJustify=kJustifyLeft);
-   virtual ~FWOutlinedTextTableCellRenderer();
+   virtual ~FWFramedTextTableCellRenderer();
    
    // ---------- const member functions ---------------------
    const TGGC* graphicsContext() const { return m_context;}
@@ -65,13 +65,13 @@ public:
    
    
 private:
-   FWOutlinedTextTableCellRenderer(const FWOutlinedTextTableCellRenderer&); // stop default
+   FWFramedTextTableCellRenderer(const FWFramedTextTableCellRenderer&); // stop default
    
-   const FWOutlinedTextTableCellRenderer& operator=(const FWOutlinedTextTableCellRenderer&); // stop default
+   const FWFramedTextTableCellRenderer& operator=(const FWFramedTextTableCellRenderer&); // stop default
    
    // ---------- member data --------------------------------
    const TGGC* m_context;
-   const TGGC* m_fillContext;
+   const TGGC* m_frameContext;
    TGFont* m_font;
    std::string m_data;
    Justify m_justify;
