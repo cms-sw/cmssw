@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2009/11/16 10:46:29 $
- * $Revision: 1.26 $
+ * $Date: 2010/01/04 15:10:59 $
+ * $Revision: 1.27 $
  *
  */
 
@@ -2043,6 +2043,7 @@ void EcalSelectiveReadoutValidation::normalizeHists(double eventCount){
       h->GetYaxis()->SetTitle("<Count>");
     }
     buf << "Normalising " << h->GetName() << "\n";
+    h->SetBit(TH1::kIsAverage);
     h->Scale(scale);
   }
   edm::LogInfo("EcalSrValid") << buf.str();
