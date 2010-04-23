@@ -23,7 +23,7 @@
    -I, --IOVbase = IOVBASE: options: runbase(default), lumibase, timebase
    -o, --overwrite : Overwrite results files when copying.
    -O, --Output = OUTPUT: Output directory for data files (workflow directory)
-   -m, --mergedSqlite = MERGEDSQLITE: Filename of merged sqlite file. default is Combined.db (disable for the moment)
+   -m, --merged : Use when data file contains combined results.
    -n, --newarchive : Create a new archive directory when copying.
    -t, --tag    = TAG: Database tag name.
    -T, --Test   : Upload files to Test dropbox for data validation.
@@ -272,6 +272,17 @@ if __name__ == '__main__':
 
     for beam_file in listoffiles:
 
+        if len(listoffiles)==1 and option.merged:
+            mergedfile = open(beam_file)
+            alllines = mergedfile.readlines()
+            npayloads = len(alllines)/23
+            for i in range(0,npayloads):
+                block = alllines[i * 23, (i+1)*23]
+                line = block[2]
+                atime = time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z")
+                sortedlist[atime] = block
+            break
+        
 	tmpfile = open(beam_file)
 	atime = ''
 	arun = ''
@@ -335,7 +346,13 @@ if __name__ == '__main__':
     #### WRITE sqlite file
 	
 	beam_file = sortedlist[key]
-
+        tmp_datafilename = workflowdirTmp+"tmp_datafile.txt"
+        if option.merged:
+            tmpfile = file(tmp_datafilename,'w')
+            tmpfile.write(sortedlist[key])
+            tmpfile.close()
+            beam_file = tmp_datafilename
+            
 	print "read input beamspot file: " + beam_file
 	tmpfile = open(beam_file)
         beam_file_tmp = workflowdirTmp + beam_file[beam_file.rfind('/')+1:] + ".tmp"
@@ -529,15 +546,29 @@ if __name__ == '__main__':
         
     if option.upload:
         print " scp files to offline Drop Box"
-        dropbox = "DropBox"
+        dropbox = "/DropBox"
         if option.Test:
-            dropbox = "DropBox_test"
-	cmd = commands.getstatusoutput("chmod a+w " + workflowdirLastPayloads + final_sqlite_file_name + ".txt")
-	print cmd[1]
-        commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/tmp")
-        commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/tmp")
+            dropbox = "/DropBox_test"
 
-        cmd = commands.getstatusoutput("ssh webcondvm.cern.ch \"mv /tmp/" + final_sqlite_file_name + ".db /"+dropbox +"\"")
-        print cmd[1]
-        cmd = commands.getstatusoutput("ssh webcondvm.cern.ch \"mv /tmp/" + final_sqlite_file_name + ".txt /"+dropbox +"\"")
-        print cmd[1]
+        acmd = "chmod a+w " + workflowdirLastPayloads + final_sqlite_file_name + ".txt"
+        outcmd = commands.getstatusoutput(acmd)
+        print acmd
+        print outcmd[1]
+        acmd = "scp -p" + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/tmp"
+        outcmd = commands.getstatusoutput(acmd)
+        print acmd
+        print outcmd[1]
+        acmd = "scp -p" + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/tmp"
+        outcmd = commands.getstatusoutput(acmd)
+        print acmd
+        print outcmd[1]
+        acmd = "ssh webcondvm.cern.ch \"mv /tmp/" + final_sqlite_file_name + ".db "+dropbox +"\""
+        outcmd = commands.getstatusoutput(acmd)
+        print acmd
+        print outcmd[1]
+        acmd = "ssh webcondvm.cern.ch \"mv /tmp/" + final_sqlite_file_name + ".txt "+dropbox +"\""
+        outcmd = commands.getstatusoutput(acmd)
+        print acmd
+        print outcmd[1]
+        
+

@@ -84,8 +84,53 @@ def cmp_tags(a,b):
     if na < nb: return -1
     if na == nb: return 0
     if na > nb: return 1
+#___
 
+def dump_header(file):
 
+    file.write('''
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html>
+<head><title>Beam Spot Calibration Status</title></head>
+
+<BR>
+<BR>
+<strong><script src="css/datemod.js"
+type="text/javascript"></script></strong>
+
+<body>
+
+''')
+
+#____
+
+def dump_footer(file):
+
+    file.write('</body>\n</html>\n')
+
+#______________
+def write_tags(file, tags):
+
+    br = '<BR>'
+    file.write('Latest offline tags:')
+    file.write(br)
+    for i in tags:
+        file.write(i)
+        file.write(br)
+
+#__________
+def write_iovs(file, iovs, tag):
+
+    br = '<BR>'
+    file.write('Last three IOVs in tag '+tag)
+    file.write(br)
+    
+    for i in iovs:
+        file.write(i[0]+" "+i[1])
+        file.write(br)
+    
+
+    
+#______________________________
 if __name__ == '__main__':
 
 
@@ -95,8 +140,15 @@ if __name__ == '__main__':
     outcmd = commands.getstatusoutput( queryTags_cmd )
     
     listtags = outcmd[1].split()
+    
+    tmplist = []
+    for itag in listtags:
+        if itag[len(itag)-7:len(itag)] == "offline":
+            tmplist.append(itag)
+    listtags = tmplist
+            
     listtags.sort( cmp = cmp_tags )
-    listtags.reverte()
+    listtags.reverse()
 
     print listtags
 
@@ -105,12 +157,14 @@ if __name__ == '__main__':
 
     queryIOVs_cmd = "cmscond_list_iov -c frontier://cmsfrontier.cern.ch:8000/Frontier/CMS_COND_31X_BEAMSPOT -P /afs/cern.ch/cms/DB/conddb -t "+ lasttag
 
-    oudcmd = commands.getstatusoutput( queryIOVs_cmd )
+    outcmd = commands.getstatusoutput( queryIOVs_cmd )
 
     tmparr = outcmd[1].split('\n')
+    
     TimeType = tmparr[1].split()[1]
     listIOVs = []
 
+    # pick the last three IOVs
     for i in range(0,3):
 	tmpline = tmparr[len(tmparr) -2 -i]
 	aIOV = []
@@ -119,9 +173,10 @@ if __name__ == '__main__':
 	
 	listIOVs.append( aIOV )
 
-    listIOVs.reverse()
-
     print listIOVs
+
+    
+
 
 
 
