@@ -66,7 +66,13 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     quantity = cms.untracked.string("daughter(1).masterClone.phi")
     ),
     
+    cms.PSet(
+    tag = cms.untracked.string("Dau1NofHit"),
+    quantity = cms.untracked.string("?1>0?1:0"),
+    ),
 
+
+    
 #    cms.PSet(
 #    tag = cms.untracked.string("Dau1NofHit"),
 #    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon=1 || daughter(0).masterClone.isTrackerMuon=1)?daughter(0).masterClone.numberOfValidHits:daughter(0).masterClone.outerTrack.numberOfValidHits")
