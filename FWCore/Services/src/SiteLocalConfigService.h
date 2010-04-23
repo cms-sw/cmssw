@@ -4,6 +4,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 #include <string>
 #include <list>
+#include <vector>
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
@@ -32,6 +33,11 @@ namespace edm
 	    const std::string lookupCalibConnect (const std::string& input) const;
 	    const std::string rfioType (void) const;
 
+            const std::string* sourceCacheTempDir() const;
+            const std::string* sourceCacheHint() const;
+            const std::string* sourceReadHint() const;
+            const unsigned int* sourceTTreeCacheSize() const;
+            const std::vector<std::string>* sourceNativeProtocols() const;
 	    // implicit copy constructor
 	    // implicit assignment operator
 	    // implicit destructor
@@ -43,7 +49,17 @@ namespace edm
 	    std::string		m_frontierConnect;
 	    std::string 	m_rfioType;
 	    bool		m_connected;	    
-	};
+            std::string         m_cacheTempDir;
+            std::string const*  m_cacheTempDirPtr;
+            std::string         m_cacheHint;
+            std::string const*  m_cacheHintPtr;
+            std::string         m_readHint;
+            std::string const*  m_readHintPtr;
+            unsigned int        m_ttreeCacheSize;
+            unsigned int const* m_ttreeCacheSizePtr;
+            std::vector<std::string> m_nativeProtocols;
+            std::vector<std::string> const* m_nativeProtocolsPtr;
+ 	};
     }
 }
 

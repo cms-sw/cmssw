@@ -29,6 +29,12 @@ namespace edm
     virtual const std::string lookupCalibConnect (const std::string& input) const = 0;
     virtual const std::string rfioType (void) const = 0;
     
+    virtual const std::string* sourceCacheTempDir() const = 0;
+    virtual const std::string* sourceCacheHint() const = 0;
+    virtual const std::string* sourceReadHint() const = 0;
+    virtual const unsigned int* sourceTTreeCacheSize() const = 0;
+    virtual const std::vector<std::string>* sourceNativeProtocols() const = 0;
+     
     // implicit copy constructor
     // implicit assignment operator
   private:

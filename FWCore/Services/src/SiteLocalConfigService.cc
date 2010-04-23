@@ -2,7 +2,7 @@
 
 #include "FWCore/Services/src/SiteLocalConfigService.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
@@ -27,7 +27,15 @@ inline std::string _toString(const XMLCh *toTranscode)
     std::string tmp(XMLString::transcode(toTranscode));
     return tmp;
 }
-	
+
+inline unsigned int _toUInt(const XMLCh *toTranscode)
+{
+   std::istringstream iss(_toString(toTranscode));
+   unsigned int returnValue;
+   iss >> returnValue;
+   return returnValue;
+}
+
 inline XMLCh*  _toDOMS( std::string temp )
 {
     XMLCh* buff = XMLString::transcode(temp.c_str());    
@@ -67,10 +75,26 @@ inline std::string _toParenString(const DOMNode &nodeToConvert)
     return oss.str();
 }
 
+template <typename T>
+static
+void overrideFromPSet(const char* iName, const edm::ParameterSet& iPSet,
+                      T& iHolder, const T* iPointer)
+{
+   if(iPSet.exists(iName)) {
+      iHolder = iPSet.getUntrackedParameter<T>(iName);
+      iPointer = &iHolder;
+   }
+}
 
 edm::service::SiteLocalConfigService::SiteLocalConfigService (const edm::ParameterSet &pset,
 							      const edm::ActivityRegistry &activityRegistry)
-    : m_connected (false)
+    : m_connected (false),
+      m_cacheTempDirPtr(0),
+      m_cacheHintPtr(0),
+      m_readHintPtr(0),
+      m_ttreeCacheSizePtr(0),
+      m_nativeProtocolsPtr(0)
+
 {
     m_rfioType = "castor";
     m_url = "/SITECONF/local/JobConfig/site-local-config.xml";
@@ -79,7 +103,15 @@ edm::service::SiteLocalConfigService::SiteLocalConfigService (const edm::Paramet
     if (tmp)
 	m_url = tmp + m_url;
     
-    this->parse (m_url);	    
+    this->parse (m_url);
+   
+   //apply overrides
+   overrideFromPSet("overrideSourceCacheTempDir",pset,m_cacheTempDir, m_cacheTempDirPtr);
+   overrideFromPSet("overrideSourceCacheHintDir",pset,m_cacheHint,m_cacheHintPtr);
+   overrideFromPSet("overrideSourceReadHint",pset,m_readHint,m_readHintPtr);
+   overrideFromPSet("overrideSourceNativeProtocols",pset,m_nativeProtocols,m_nativeProtocolsPtr);
+   overrideFromPSet("overrideSourceTTreeCacheSize",pset,m_ttreeCacheSize,m_ttreeCacheSizePtr);
+   
 }
 
 const std::string
@@ -180,6 +212,37 @@ edm::service::SiteLocalConfigService::rfioType (void) const
     return m_rfioType;
 }
 
+const std::string* 
+edm::service::SiteLocalConfigService::sourceCacheTempDir() const
+{
+   return m_cacheTempDirPtr;
+}
+
+const std::string* 
+edm::service::SiteLocalConfigService::sourceCacheHint() const
+{
+   return m_cacheHintPtr;
+}
+
+const std::string* 
+edm::service::SiteLocalConfigService::sourceReadHint() const
+{
+   return m_readHintPtr;
+}
+
+const unsigned int* 
+edm::service::SiteLocalConfigService::sourceTTreeCacheSize() const
+{
+   return m_ttreeCacheSizePtr;
+}
+
+const std::vector<std::string>* 
+edm::service::SiteLocalConfigService::sourceNativeProtocols() const
+{
+   return m_nativeProtocolsPtr;
+}
+
+
 void
 edm::service::SiteLocalConfigService::parse (const std::string &url)
 {
@@ -210,6 +273,16 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 	//       ... frontier-interpreted server/proxy xml ...
         //     </frontier-connect>
 	//   </calib-data>
+        //   <source-config>
+        //     <cache-temp-dir name="/a/b/c"/>
+        //     <cache-hint value="..."/>
+        //     <read-hint value="..."/>
+        //     <ttree-cache-size value="0"/>
+        //     <native-protocols>
+        //        <protocol  prefix="dcache"/>
+        //        <protocol prefix="file"/>
+        //     </native-protocols>
+        //   </source-config>
 	// </site>
 	// </site-local-config>
     
@@ -279,6 +352,91 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 		    }
 		}
 	    }
+            // Parsing of the source config section
+            {
+               DOMNodeList * sourceConfigList 
+               = site->getElementsByTagName (_toDOMS ("source-config"));
+               
+               if (sourceConfigList->getLength () > 0)
+               {
+                  DOMElement *sourceConfig 
+                  = static_cast <DOMElement *> (sourceConfigList->item (0));
+                  
+                  DOMNodeList *cacheTempDirList
+                  = sourceConfig->getElementsByTagName (_toDOMS ("cache-temp-dir"));
+                  
+                  if (cacheTempDirList->getLength () > 0)
+                  {
+                     DOMElement *cacheTempDir
+                     = static_cast <DOMElement *> (cacheTempDirList->item (0));
+                     
+                     m_cacheTempDir = _toString(cacheTempDir->getAttribute (_toDOMS ("name")));
+                     m_cacheTempDirPtr = &m_cacheTempDir;
+                  }
+                  
+                  DOMNodeList *cacheHintList
+                  = sourceConfig->getElementsByTagName (_toDOMS ("cache-hint"));
+                  
+                  if (cacheHintList->getLength () > 0)
+                  {
+                     DOMElement *cacheHint
+                     = static_cast <DOMElement *> (cacheHintList->item (0));
+                     
+                     m_cacheHint = _toString(cacheHint->getAttribute (_toDOMS ("value")));
+                     m_cacheHintPtr = &m_cacheHint;
+                  }
+
+                  DOMNodeList *readHintList
+                  = sourceConfig->getElementsByTagName (_toDOMS ("read-hint"));
+                  
+                  if (readHintList->getLength () > 0)
+                  {
+                     DOMElement *readHint
+                     = static_cast <DOMElement *> (readHintList->item (0));
+                     
+                     m_readHint = _toString(readHint->getAttribute (_toDOMS ("value")));
+                     m_readHintPtr = &m_readHint;
+                  }
+                  
+                  DOMNodeList *ttreeCacheSizeList
+                  = sourceConfig->getElementsByTagName (_toDOMS ("ttree-cache-size"));
+                  
+                  if (ttreeCacheSizeList->getLength () > 0)
+                  {
+                     DOMElement *ttreeCacheSize
+                     = static_cast <DOMElement *> (ttreeCacheSizeList->item (0));
+                     
+                     m_ttreeCacheSize = _toUInt(ttreeCacheSize->getAttribute (_toDOMS ("value")));
+                     m_ttreeCacheSizePtr = &m_ttreeCacheSize;
+                  }
+                  
+                  DOMNodeList *nativeProtocolsList
+                  = sourceConfig->getElementsByTagName (_toDOMS ("native-protocols"));
+                  
+                  if (nativeProtocolsList->getLength () > 0)
+                  {
+                     DOMElement *nativeProtocol
+                     = static_cast <DOMElement *> (nativeProtocolsList->item (0));
+                     
+                     DOMNodeList *childList = nativeProtocol->getChildNodes();
+                     
+                     XMLCh* prefixXMLCh = _toDOMS ("prefix");
+                     unsigned int numNodes = childList->getLength ();
+                     for (unsigned int i = 0; i < numNodes; ++i)
+                     {
+                        DOMNode *childNode = childList->item(i);
+                        if (childNode->getNodeType() != DOMNode::ELEMENT_NODE)
+                           continue;
+                        DOMElement *child = static_cast <DOMElement *> (childNode);
+                        
+                        m_nativeProtocols.push_back( _toString(child->getAttribute(prefixXMLCh)));
+                     }
+                     
+                     m_nativeProtocolsPtr = &m_nativeProtocols;
+                  }
+                  
+               }
+            }
 	}
 	m_connected = true;
     } 
