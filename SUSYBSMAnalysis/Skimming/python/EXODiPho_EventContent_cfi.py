@@ -4,13 +4,13 @@ from Configuration.EventContent.EventContent_cff import *
 exoticaDiPhoOutputModule = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(),
     SelectEvents = cms.untracked.PSet(
-       SelectEvents = cms.vstring("exoticaDiPhoSkimPath") #the selector name must be same as the path name in EXODiPhoOct09_cfg.py in test directory.
+       SelectEvents = cms.vstring("exoticaDiPhoSkimPath") #the selector name must be same as the path name in EXODiPho_cfg.py in test directory.
       ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('EXODiPho'), #name a name you like.
         dataTier = cms.untracked.string('EXOGroup')
     ),
-    fileName = cms.untracked.string('exoticatest.root') # can be modified later in EXODiPhoOct09_cfg.py in  test directory. 
+    fileName = cms.untracked.string('exoticatest.root') # can be modified later in EXODiPho_cfg.py in  test directory. 
   )
 
 

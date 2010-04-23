@@ -6,13 +6,13 @@ exoticaDiLeptonOutputModule = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(),
     SelectEvents = cms.untracked.PSet(
        SelectEvents = cms.vstring("exoticaDiMuonSkimPath","exoticaDiElectronSkimPath","exoticaEMuSkimPath") 
-#the selector name must be same as the path name in EXODiLeptonOct09_cfg.py in test directory.
+#the selector name must be same as the path name in EXODiLepton_cfg.py in test directory.
       ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('EXODiLepton'), #name a name you like.
         dataTier = cms.untracked.string('EXOGroup')
     ),
-    fileName = cms.untracked.string('exoticadileptontest.root') # can be modified later in EXODiLeptonOct09_cfg.py in  test directory. 
+    fileName = cms.untracked.string('exoticadileptontest.root') # can be modified later in EXODiLepton_cfg.py in  test directory. 
   )
 
 

@@ -5,13 +5,13 @@ from Configuration.EventContent.EventContent_cff import *
 exoticaHTOutputModule = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(),
     SelectEvents = cms.untracked.PSet(
-       SelectEvents = cms.vstring("exoticaHTSkimPath") #the selector name must be same as the path name in EXOHTOct09_cfg.py in test directory.
+       SelectEvents = cms.vstring("exoticaHTSkimPath") #the selector name must be same as the path name in EXOHT_cfg.py in test directory.
       ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('EXOHT'), #name a name you like.
         dataTier = cms.untracked.string('EXOGroup')
     ),
-    fileName = cms.untracked.string('exoticaesinglejettest.root') # can be modified later in EXOHTOct09_cfg.py in  test directory. 
+    fileName = cms.untracked.string('exoticaesinglejettest.root') # can be modified later in EXOHT_cfg.py in  test directory. 
   )
 
 

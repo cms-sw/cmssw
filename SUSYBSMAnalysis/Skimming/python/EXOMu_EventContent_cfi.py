@@ -5,13 +5,13 @@ from Configuration.EventContent.EventContent_cff import *
 exoticaMuOutputModule = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(),
     SelectEvents = cms.untracked.PSet(
-       SelectEvents = cms.vstring("exoticaMuSkimPath") #the selector name must be same as the path name in EXOMuOct09_cfg.py in test directory.
+       SelectEvents = cms.vstring("exoticaMuSkimPath") #the selector name must be same as the path name in EXOMu_cfg.py in test directory.
       ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('EXOMu'), #name a name you like.
         dataTier = cms.untracked.string('EXOGroup')
     ),
-    fileName = cms.untracked.string('exoticamutest.root') # can be modified later in EXOMuOct09_cfg.py in  test directory. 
+    fileName = cms.untracked.string('exoticamutest.root') # can be modified later in EXOMu_cfg.py in  test directory. 
   )
 
 
