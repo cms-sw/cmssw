@@ -4,6 +4,12 @@
 
 #include <cmath>
 
+
+void FreeTrajectoryState::missingError() {
+ throw TrajectoryStateException(
+      "FreeTrajectoryState: attempt to access errors when none available");
+}
+
 // implementation of non-trivial methods of FreeTrajectoryState
 
 // Warning: these methods violate constness
@@ -30,6 +36,27 @@ void FreeTrajectoryState::createCurvilinearError() const{
     ROOT::Math::Similarity(jac, theCartesianError.matrix());
   ((FreeTrajectoryState*)this)->theCurvilinearErrorValid = true;
 } 
+
+
+void FreeTrajectoryState::rescaleError(double factor) {
+  bool zeroField = parameters().magneticFieldInInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
+  if (zeroField) {
+    if (theCartesianErrorValid){
+      if (!theCurvilinearErrorValid) createCurvilinearError();
+      theCurvilinearError.zeroFieldScaling(factor*factor);
+      createCartesianError();
+    }else
+      if (theCurvilinearErrorValid) theCurvilinearError.zeroFieldScaling(factor*factor);
+  } else{
+    if (theCartesianErrorValid){
+      theCartesianError *= (factor*factor);
+    }
+    if (theCurvilinearErrorValid){
+      theCurvilinearError *= (factor*factor);
+    }
+  }
+}
+
 
 // check if trajectory can reach given radius
 

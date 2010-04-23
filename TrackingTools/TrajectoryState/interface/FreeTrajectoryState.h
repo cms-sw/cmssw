@@ -102,13 +102,13 @@ public:
     return theGlobalParameters;
   }
   const CartesianTrajectoryError& cartesianError() const {
-    if (!hasError()) missingError;
+    if (!hasError()) missingError();
     if (!theCartesianErrorValid)
       createCartesianError();
     return theCartesianError;
   }
   const CurvilinearTrajectoryError& curvilinearError() const {
-    if (!hasError()) missingError;
+    if (!hasError()) missingError();
     if (!theCurvilinearErrorValid)
       createCurvilinearError();
     return theCurvilinearError;
