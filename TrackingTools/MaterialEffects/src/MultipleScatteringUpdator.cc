@@ -3,7 +3,7 @@
 
 
 void oldMUcompute (const TrajectoryStateOnSurface& TSoS, 
-		   const PropagationDirection propDir, double mass);
+		   const PropagationDirection propDir, double mass, double ptmin);
 
 //#define DBG_MSU
 
@@ -91,7 +91,7 @@ void MultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
     theDeltaCov(2,2) = (den*sigt2)*(cf2*cl2 + sf2);
 
     std::cout << "new " <<  theDeltaCov(1,1) << " " <<  theDeltaCov(1,2)  << " " <<  theDeltaCov(2,2) << std::endl;
-    oldMUcompute(TSoS,propDor, mass());
+    oldMUcompute(TSoS,propDir, mass(), thePtMin);
 
   }
 
@@ -105,7 +105,7 @@ void MultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
 //   of local parameters based on Highland formula for sigma(alpha) in plane.
 //
 void oldMUcompute (const TrajectoryStateOnSurface& TSoS, 
-		   const PropagationDirection propDir, double mass)
+		   const PropagationDirection propDir, double mass, double thePtMin)
 {
   //
   // Get surface
@@ -173,5 +173,6 @@ void oldMUcompute (const TrajectoryStateOnSurface& TSoS,
     //   on angle in orthogonal planes to local parameters.
     std::cout << " old " << sigt2*(sf*sf*cl*cl + cf*cf)/(cl*cl*cl*cl)
 	      << " " << sigt2*(cf*sf*sl*sl        )/(cl*cl*cl*cl) 
-	      << " " sigt2*(cf*cf*cl*cl + sf*sf)/(cl*cl*cl*cl) << std::endl;
+	      << " " << sigt2*(cf*cf*cl*cl + sf*sf)/(cl*cl*cl*cl) << std::endl;
   }
+}
