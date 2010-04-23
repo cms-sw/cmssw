@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_0/HIon/V2 (CMSSW_3_6_0_HLT2)
+# /dev/CMSSW_3_6_0/HIon/V4 (CMSSW_3_6_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V2')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V4')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -13,22 +13,7 @@ process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'Product
   'TooFewProducts' ) )
 process.streams = cms.PSet( 
   Offline = cms.vstring(  ),
-  EventDisplay = cms.vstring(  ),
-  A = cms.vstring( 'JetMETTauMonitor',
-    'EGMonitor',
-    'EG',
-    'RandomTriggers',
-    'HcalHPDNoise',
-    'ZeroBias',
-    'MuMonitor',
-    'Mu',
-    'JetMETTau',
-    'MinimumBias',
-    'HcalNZS',
-    'Cosmics' ),
-  DQM = cms.vstring(  ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  HLTDQM = cms.vstring(  ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   Calibration = cms.vstring( 'TestEnables' ),
@@ -36,21 +21,24 @@ process.streams = cms.PSet(
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   Express = cms.vstring( 'ExpressPhysics' ),
+  EventDisplay = cms.vstring(  ),
+  A = cms.vstring( 'JetMETTauMonitor',
+    'RandomTriggers',
+    'HcalHPDNoise',
+    'ZeroBias',
+    'MuMonitor',
+    'Mu',
+    'JetMETTau',
+    'HcalNZS',
+    'Cosmics',
+    'EGMonitor',
+    'EG',
+    'MinimumBias' ),
+  DQM = cms.vstring(  ),
+  HLTDQM = cms.vstring(  ),
   HLTMON = cms.vstring( 'OfflineMonitor' )
 )
 process.datasets = cms.PSet( 
-  JetMETTauMonitor = cms.vstring(  ),
-  EGMonitor = cms.vstring(  ),
-  EG = cms.vstring(  ),
-  RandomTriggers = cms.vstring(  ),
-  HcalHPDNoise = cms.vstring(  ),
-  ZeroBias = cms.vstring(  ),
-  MuMonitor = cms.vstring(  ),
-  Mu = cms.vstring(  ),
-  JetMETTau = cms.vstring(  ),
-  MinimumBias = cms.vstring(  ),
-  HcalNZS = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
@@ -59,6 +47,18 @@ process.datasets = cms.PSet(
   AlCaP0 = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
+  JetMETTauMonitor = cms.vstring(  ),
+  RandomTriggers = cms.vstring(  ),
+  HcalHPDNoise = cms.vstring(  ),
+  ZeroBias = cms.vstring(  ),
+  MuMonitor = cms.vstring(  ),
+  Mu = cms.vstring(  ),
+  JetMETTau = cms.vstring(  ),
+  HcalNZS = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
+  EGMonitor = cms.vstring(  ),
+  EG = cms.vstring(  ),
+  MinimumBias = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  )
 )
 
@@ -106,7 +106,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR10_H_V5::All" ),
+    globaltag = cms.string( "GR10_36XH_V5::All" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialPeriod = cms.untracked.int32( 10 ),
