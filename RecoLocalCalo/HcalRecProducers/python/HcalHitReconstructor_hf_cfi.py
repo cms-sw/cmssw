@@ -64,8 +64,9 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         #  short_R, long_R are coefficients of R threshold, parameterized in *ENERGY*:  R_thresh = [0]+[1]*energy+[2]*energy^2+...
                         #  As of March 2010, the R threshold is a simply fixed value:  R>0.98
                         #  Energy and ET params are energy and ET threshold coefficients, parameterized in *ieta*
+                        #  As of April 23, a separate cut is used for long and short R.  R>0.8 for short, R>0.98 for long (ieta=29)
                         
-                        PETstat = cms.PSet(short_R = cms.vdouble([0.8]),  # default ratio cut:  R>0.98
+                        PETstat = cms.PSet(short_R = cms.vdouble([0.8]),  # new default ratio cut:  R>0.8
                                            shortEnergyParams        = cms.vdouble([129.9,-6.61,0.1153]),
                                            shortETParams            = cms.vdouble([0]),  # by default, only trivial cut ET>0 applied
                                            long_R  = cms.vdouble([0.98]),  # default ratio cut:  R>0.98
