@@ -739,7 +739,7 @@ if __name__ == '__main__':
 	
         
 	npayload = 1
-        payloadfile = open(name,"w")
+        payloadfile = open(option.payload,"w")
 	for iload in newlistbeam:
             # print new list
             name = option.payload
