@@ -32,7 +32,7 @@ def getRelease():
 def getCustomProcess(process,myname):
     rel=getRelease()
     try:
-        _temp=__import__('Configuration.GlobalRuns.reco_TLR_'+rel,globals(),locals(),[myname],-1)
+        _temp=__import__('Configuration.GlobalRuns.reco_TLR_'+rel,globals(),locals(),[myname])
     except ImportError,ex:
         msg= 'Unable to import reco TLR configuration ' + str(ex)
         raise RuntimeError,msg
