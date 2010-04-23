@@ -32,6 +32,7 @@
    -t, --tag     = TAG: Database tag name.
    -I, --IOVbase = IOVBASE: options: runbase(default), lumibase, timebase
    -w, --wait : Pause script after plotting a new histograms.
+   -W, --weighted : Create a weighted result for the whole IOV.
    
    Francisco Yumiceva (yumiceva@fnal.gov)
    Fermilab 2010
@@ -690,7 +691,9 @@ if __name__ == '__main__':
 	    #print "wx = " + ibeam.beamWidthX + " err= "+ ibeam.beamWidthXerr
 	    (tmpbeam.beamWidthX, tmpbeam.beamWidthXerr) = weight(tmpbeam.beamWidthX, tmpbeam.beamWidthXerr, ibeam.beamWidthX, ibeam.beamWidthXerr)
 	    (tmpbeam.beamWidthY, tmpbeam.beamWidthYerr) = weight(tmpbeam.beamWidthY, tmpbeam.beamWidthYerr, ibeam.beamWidthY, ibeam.beamWidthYerr)
-	    
+
+            if option.weighted:
+                docheck = False
 	    # check offsets
 	    if docheck:
 		deltaX = delta(ibeam.X, ibeam.Xerr, inextbeam.X, inextbeam.Xerr) > 1.5
