@@ -122,16 +122,17 @@ MuTriggerAnalyzer::MuTriggerAnalyzer(const edm::ParameterSet& cfg ) :
   nbins_(cfg.getParameter<double>("ptMax_")), 
   ptMax_(cfg.getParameter<double>("ptMax_")){
    Service<TFileService> fs;
-  hTrigMuonPtNumS_ = fs->make<TH1D>("hTrigMuonPtNumS", "hTrigMuonPtNumS", nbins_ + 1, 0, ptMax_); 
+ 
+ hTrigMuonPtNumS_ = fs->make<TH1D>("hTrigMuonPtNumS", "hTrigMuonPtNumS", nbins_ + 1, 0, ptMax_); 
   hTrigMuonPtDenS_ = fs->make<TH1D>("hTrigMuonPtDenS", "hTrigMuonPtDenS", nbins_ +1 , 0, ptMax_); 
   deltaR_ = fs->make<TH1D>("deltaR", "deltaR", nbins_+1, 0, maxDeltaR_); 
   deltaPtOverPt_ = fs->make<TH1D>("deltaPtOverPt", "deltaPtOverPt", nbins_ + 1, 0, maxDPtRel_); 
+
 }
 
 void MuTriggerAnalyzer::endJob() {
   for (int i = 0; i < nbins_+1; ++i){
     std::cout << "number of reco muon in bin " << i << " = " << hTrigMuonPtDenS_->GetBinContent(i) << std::endl;
-    
     std::cout << "number of hlt muon in bin " << i << " = " << hTrigMuonPtNumS_->GetBinContent(i) << std::endl;
 
  
@@ -150,17 +151,20 @@ void MuTriggerAnalyzer::analyze (const Event & ev, const EventSetup &) {
 	return;
       }
       ev.getByLabel(trigTag_, triggerResults); 
-      trigNames_ = &ev.triggerNames(*triggerResults_);
+      // trigNames.init(*triggerResults);
+      trigNames_ = &ev.triggerNames(*triggerResults);
       bool trigger_fired = false;
       for (unsigned int i=0; i<triggerResults->size(); i++) {
-        std::string trigName = trigNames.triggerName(i);
+	
+
+        std::string trigName = trigNames_->triggerName(i);
 	if ( trigName == hltPath_ && triggerResults->accept(i)) {
 	  trigger_fired = true;
 	}
       }   
       edm::Handle< trigger::TriggerEvent > handleTriggerEvent;
-      LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << hltPath_ << ")";
-      if ( ! ev.getByLabel( trigEv_, handleTriggerEvent ))  {
+      //  LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << hltPath_ << ")";
+          if ( ! ev.getByLabel( trigEv_, handleTriggerEvent ))  {
 	LogWarning( "errorTriggerEventValid" ) << "trigger::TriggerEvent product with InputTag " << trigEv_.encode() << " not in event";
 	return;
       }
