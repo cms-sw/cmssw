@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/GRun/V4 (CMSSW_3_6_0_HLT2)
+# /dev/CMSSW_3_6_0/GRun/V5 (CMSSW_3_6_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/GRun/V4')
+  tableName = cms.string('/dev/CMSSW_3_6_0/GRun/V5')
 )
 
 streams = cms.PSet( 
@@ -188,53 +188,7 @@ datasets = cms.PSet(
     'HLT_HighMult40',
     'HLT_L1Tech_BSC_halo_forPhysicsBackground',
     'HLT_L1_BscMinBiasOR_BeamGas' ),
-  OfflineMonitor = cms.vstring( 'HLT_L1MET20',
-    'HLT_QuadJet15U',
-    'HLT_DiJetAve30U_8E29',
-    'HLT_DiJetAve15U_8E29',
-    'HLT_FwdJet20U',
-    'HLT_L1SingleForJet_NoBPTX',
-    'HLT_Jet50U',
-    'HLT_Jet30U',
-    'HLT_Jet15U',
-    'HLT_L1Jet10U',
-    'HLT_Activity_EcalREM',
-    'HLT_Activity_Ecal',
-    'HLT_Activity_DT',
-    'HLT_Activity_PixelClusters',
-    'HLT_Activity_L1A',
-    'HLT_TkMu3_NoVertex',
-    'HLT_L2Mu0_NoVertex',
-    'HLT_BTagMu_Jet10U',
-    'HLT_DoubleMu3',
-    'HLT_DoubleJet15U_ForwardBackward',
-    'HLT_L2Mu5',
-    'HLT_HighMult40',
-    'HLT_L1_BscMinBiasOR_BeamGas',
-    'HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX',
-    'HLT_L1Jet10U_NoBPTX',
-    'HLT_L1SingleCenJet_NoBPTX',
-    'HLT_L1SingleEG2_NoBPTX',
-    'HLT_L1SingleTauJet_NoBPTX',
-    'HLT_Activity_DT_Tuned',
-    'HLT_L1Jet6U',
-    'HLT_L1Jet6U_NoBPTX',
-    'HLT_L1SingleCenJet',
-    'HLT_L1SingleForJet',
-    'HLT_L1SingleTauJet',
-    'HLT_Mu0_L1MuOpen',
-    'HLT_Mu0_Track0_Jpsi',
-    'HLT_Mu3_L1MuOpen',
-    'HLT_Mu3_Track0_Jpsi',
-    'HLT_Mu5_L1MuOpen',
-    'HLT_Mu5_Track0_Jpsi',
-    'HLT_SelectEcalSpikes_L1R',
-    'HLT_SelectEcalSpikesHighEt_L1R',
-    'HLT_DoublePhoton4_Jpsi_L1R',
-    'HLT_DoublePhoton4_Upsilon_L1R',
-    'HLT_DoublePhoton4_eeRes_L1R',
-    'HLT_DoublePhoton5_L1R',
-    'HLT_L2DoubleMu0',
+  OfflineMonitor = cms.vstring( 'HLT_L2DoubleMu0',
     'HLT_L2Mu0',
     'HLT_L2Mu3',
     'HLT_Mu0_L2Mu0',
@@ -317,29 +271,60 @@ datasets = cms.PSet(
     'HLT_L1MuOpen_NoBPTX',
     'HLT_HT100U',
     'HLT_MET100',
-    'HLT_MET45' )
+    'HLT_MET45',
+    'HLT_L1MET20',
+    'HLT_QuadJet15U',
+    'HLT_DiJetAve30U_8E29',
+    'HLT_DiJetAve15U_8E29',
+    'HLT_FwdJet20U',
+    'HLT_L1SingleForJet_NoBPTX',
+    'HLT_Jet50U',
+    'HLT_Jet30U',
+    'HLT_Jet15U',
+    'HLT_L1Jet10U',
+    'HLT_Activity_EcalREM',
+    'HLT_Activity_Ecal',
+    'HLT_Activity_DT',
+    'HLT_Activity_PixelClusters',
+    'HLT_Activity_L1A',
+    'HLT_TkMu3_NoVertex',
+    'HLT_L2Mu0_NoVertex',
+    'HLT_BTagMu_Jet10U',
+    'HLT_DoubleMu3',
+    'HLT_DoubleJet15U_ForwardBackward',
+    'HLT_L2Mu5',
+    'HLT_HighMult40',
+    'HLT_L1_BscMinBiasOR_BeamGas',
+    'HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX',
+    'HLT_L1Jet10U_NoBPTX',
+    'HLT_L1SingleCenJet_NoBPTX',
+    'HLT_L1SingleEG2_NoBPTX',
+    'HLT_L1SingleTauJet_NoBPTX',
+    'HLT_Activity_DT_Tuned',
+    'HLT_L1Jet6U',
+    'HLT_L1Jet6U_NoBPTX',
+    'HLT_L1SingleCenJet',
+    'HLT_L1SingleForJet',
+    'HLT_L1SingleTauJet',
+    'HLT_Mu0_L1MuOpen',
+    'HLT_Mu0_Track0_Jpsi',
+    'HLT_Mu3_L1MuOpen',
+    'HLT_Mu3_Track0_Jpsi',
+    'HLT_Mu5_L1MuOpen',
+    'HLT_Mu5_Track0_Jpsi',
+    'HLT_SelectEcalSpikes_L1R',
+    'HLT_SelectEcalSpikesHighEt_L1R',
+    'HLT_DoublePhoton4_Jpsi_L1R',
+    'HLT_DoublePhoton4_Upsilon_L1R',
+    'HLT_DoublePhoton4_eeRes_L1R',
+    'HLT_DoublePhoton5_L1R' )
 )
 
-MCJetCorrectorIcone5Unit = cms.ESSource( "LXXXCorrectionService",
+BTagRecord = cms.ESSource( "EmptyESSource",
+  recordName = cms.string( "JetTagComputerRecord" ),
+  iovIsRunNotTime = cms.bool( True ),
   appendToDataLabel = cms.string( "" ),
-  level = cms.string( "L2RelativeFlat" ),
-  algorithm = cms.string( "" ),
-  section = cms.string( "" ),
-  era = cms.string( "HLT" )
-)
-MCJetCorrectorIcone5HF07 = cms.ESSource( "LXXXCorrectionService",
-  appendToDataLabel = cms.string( "" ),
-  level = cms.string( "L2Relative" ),
-  algorithm = cms.string( "" ),
-  section = cms.string( "" ),
-  era = cms.string( "HLT" )
-)
-L3AbsoluteCorrectionService = cms.ESSource( "LXXXCorrectionService",
-  appendToDataLabel = cms.string( "" ),
-  level = cms.string( "L3Absolute" ),
-  algorithm = cms.string( "IC5Calo" ),
-  section = cms.string( "" ),
-  era = cms.string( "Summer09_7TeV_ReReco332" )
+  firstValid = cms.vuint32( 1 )
 )
 L2RelativeCorrectionService = cms.ESSource( "LXXXCorrectionService",
   appendToDataLabel = cms.string( "" ),
@@ -348,17 +333,32 @@ L2RelativeCorrectionService = cms.ESSource( "LXXXCorrectionService",
   section = cms.string( "" ),
   era = cms.string( "Summer09_7TeV_ReReco332" )
 )
-BTagRecord = cms.ESSource( "EmptyESSource",
-  recordName = cms.string( "JetTagComputerRecord" ),
-  iovIsRunNotTime = cms.bool( True ),
+L3AbsoluteCorrectionService = cms.ESSource( "LXXXCorrectionService",
   appendToDataLabel = cms.string( "" ),
-  firstValid = cms.vuint32( 1 )
+  level = cms.string( "L3Absolute" ),
+  algorithm = cms.string( "IC5Calo" ),
+  section = cms.string( "" ),
+  era = cms.string( "Summer09_7TeV_ReReco332" )
 )
 MCJetCorrectorIcone5 = cms.ESSource( "JetCorrectionServiceChain",
   appendToDataLabel = cms.string( "" ),
   correctors = cms.vstring( 'L2RelativeCorrectionService',
     'L3AbsoluteCorrectionService' ),
   label = cms.string( "MCJetCorrectorIcone5" )
+)
+MCJetCorrectorIcone5HF07 = cms.ESSource( "LXXXCorrectionService",
+  appendToDataLabel = cms.string( "" ),
+  level = cms.string( "L2Relative" ),
+  algorithm = cms.string( "" ),
+  section = cms.string( "" ),
+  era = cms.string( "HLT" )
+)
+MCJetCorrectorIcone5Unit = cms.ESSource( "LXXXCorrectionService",
+  appendToDataLabel = cms.string( "" ),
+  level = cms.string( "L2RelativeFlat" ),
+  algorithm = cms.string( "" ),
+  section = cms.string( "" ),
+  era = cms.string( "HLT" )
 )
 essourceSev = cms.ESSource( "EmptyESSource",
   recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
@@ -367,36 +367,6 @@ essourceSev = cms.ESSource( "EmptyESSource",
   firstValid = cms.vuint32( 1 )
 )
 
-hltMuTrackJpsiTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryBuilder" ),
-  updator = cms.string( "KFUpdator" ),
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  estimator = cms.string( "Chi2" ),
-  TTRHBuilder = cms.string( "WithTrackAngle" ),
-  MeasurementTrackerName = cms.string( "" ),
-  trajectoryFilterName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
-  maxCand = cms.int32( 1 ),
-  lostHitPenalty = cms.double( 30.0 ),
-  intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  appendToDataLabel = cms.string( "" )
-)
-hltMuTrackJpsiTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
-  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
-  appendToDataLabel = cms.string( "" ),
-  filterPset = cms.PSet( 
-    minimumNumberOfHits = cms.int32( 5 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( 8 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    chargeSignificance = cms.double( -1.0 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    minPt = cms.double( 1.0 )
-  )
-)
 AnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnalyticalPropagator" ),
   PropagationDirection = cms.string( "alongMomentum" ),
@@ -1022,6 +992,36 @@ hltKFSmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
+)
+hltMuTrackJpsiTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
+  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryBuilder" ),
+  updator = cms.string( "KFUpdator" ),
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  estimator = cms.string( "Chi2" ),
+  TTRHBuilder = cms.string( "WithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "" ),
+  trajectoryFilterName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
+  maxCand = cms.int32( 1 ),
+  lostHitPenalty = cms.double( 30.0 ),
+  intermediateCleaning = cms.bool( True ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+hltMuTrackJpsiTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
+  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
+  appendToDataLabel = cms.string( "" ),
+  filterPset = cms.PSet( 
+    minimumNumberOfHits = cms.int32( 5 ),
+    minHitsMinPt = cms.int32( 3 ),
+    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+    maxLostHits = cms.int32( 1 ),
+    maxNumberOfHits = cms.int32( 8 ),
+    maxConsecLostHits = cms.int32( 1 ),
+    chargeSignificance = cms.double( -1.0 ),
+    nSigmaMinPt = cms.double( 5.0 ),
+    minPt = cms.double( 1.0 )
+  )
 )
 mixedlayerpairs = cms.ESProducer( "SeedingLayersESProducer",
   appendToDataLabel = cms.string( "" ),
