@@ -70,13 +70,14 @@ reducedHSCPhbhereco = cms.EDProducer("ReduceHcalRecHitCollectionProducer",
 
 hcalSeq = cms.Sequence(reducedHSCPhbhereco)
 
-muonSeq = cms.EDProducer("UpdatedMuonInnerTrackRef",
+muonsSkim = cms.EDProducer("UpdatedMuonInnerTrackRef",
     MuonTag        = cms.untracked.InputTag("muons"),
     OldTrackTag    = cms.untracked.InputTag("generalTracks"),
     NewTrackTag    = cms.untracked.InputTag("generalTracksSkim"),
     maxInvPtDiff   = cms.untracked.double(0.005),
     minDR          = cms.untracked.double(0.01),
 )
+muonSeq = cms.Sequence(muonsSkim)
 
 
 exoticaHSCPSeq = cms.Sequence( trackerSeq+ecalSeq+hcalSeq+muonSeq)

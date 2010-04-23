@@ -23,7 +23,7 @@ SpecifiedEvenetContent=cms.PSet(
       "drop *",
       "keep L1GlobalTriggerReadoutRecord_*_*_*",
       "keep recoVertexs_offlinePrimaryVertices_*_*",
-	  "keep recoMuons_muons_*_*",
+      "keep recoMuons_muonsSkim_*_*",
       "keep SiStripClusteredmNewDetSetVector_generalTracksSkim_*_*",
       "keep SiPixelClusteredmNewDetSetVector_generalTracksSkim_*_*",
       "keep recoTracks_generalTracksSkim_*_*",
@@ -43,12 +43,9 @@ SpecifiedEvenetContent=cms.PSet(
       'keep EcalRecHitsSorted_reducedHSCPEcalRecHitsEB_*_*',
       'keep EcalRecHitsSorted_reducedHSCPEcalRecHitsEE_*_*',
       'keep HBHERecHitsSorted_reducedHSCPhbhereco__*',
-
+      'keep edmTriggerResults_TriggerResults__EXOHSCPSkim',
       )
     )
 exoticaHSCPOutputModule.outputCommands.extend(SpecifiedEvenetContent.outputCommands)
-
-
-
 
 

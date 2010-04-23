@@ -6,7 +6,7 @@ process = cms.Process("EXOHSCPSkim")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-#process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #number of Events to be skimmed.
 process.maxEvents = cms.untracked.PSet(
