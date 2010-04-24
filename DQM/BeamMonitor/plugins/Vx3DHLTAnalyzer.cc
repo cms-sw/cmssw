@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.76 2010/04/21 06:45:29 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.77 2010/04/23 08:50:46 dinardo Exp $
 //
 //
 
@@ -43,11 +43,11 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
   nLumiReset       = 1;
   dataFromFit      = true;
   minNentries      = 35;
-  xRange           = 4.;
+  xRange           = 2.;
   xStep            = 0.001;
-  yRange           = 4.;
+  yRange           = 2.;
   yStep            = 0.001;
-  zRange           = 40.;
+  zRange           = 30.;
   zStep            = 0.05;
   fileName         = "BeamPixelResults.txt";
 
@@ -104,7 +104,11 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 
       for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
 	
-	if ((it3DVx->isValid() == true) && (it3DVx->isFake() == false) && (it3DVx->ndof() >= minVxDoF) && ((it3DVx->ndof() + 3.)/(double)it3DVx->tracksSize() >= 2.*minVxWgt))
+	if ((it3DVx->isValid() == true) &&
+	    (it3DVx->isFake() == false) &&
+	    (it3DVx->ndof() >= minVxDoF) &&
+	    (it3DVx->tracksSize() != 0) &&
+	    ((it3DVx->ndof() + 3.)/(double)it3DVx->tracksSize() >= 2.*minVxWgt))
 	  {
 	    for (i = 0; i < DIM; i++)
 	      {
@@ -265,8 +269,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
     {
       double nSigmaXY    = 6.;
       double nSigmaZ     = 6.;
-      double varFactor   = 2./5.; // Take into account the difference between the RMS and sigma (RMS usually greater than sigma)
-      double parDistance = 0.01;
+      double varFactor   = 4./25.; // Take into account the difference between the RMS and sigma (RMS usually greater than sigma)
+      double parDistance = 0.005;  // Unit: [cm]
       double det;
       double bestEdm     = 1e-1;
       double deltaMean;
@@ -304,7 +308,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  // arg4 - step of the parameter
 	  Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance, 0., 0.);
 	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance, 0., 0.);
-	  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance, 0., 0.);
+	  Gauss3D->SetParameter(2,"var z ", *(it+2), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistance, 0., 0.);
@@ -360,7 +364,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  // arg4 - step of the parameter
 	  Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance, 0., 0.);
 	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance, 0., 0.);
-	  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance, 0., 0.);
+	  Gauss3D->SetParameter(2,"var z ", *(it+2), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistance, 0., 0.);
@@ -417,7 +421,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  // arg4 - step of the parameter
 	  Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance, 0., 0.);
 	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance, 0., 0.);
-	  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance, 0., 0.);
+	  Gauss3D->SetParameter(2,"var z ", *(it+2), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistance, 0., 0.);
@@ -463,7 +467,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       // arg4 - step of the parameter
       Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance, 0., 0.);
       Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance, 0., 0.);
-      Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance, 0., 0.);
+      Gauss3D->SetParameter(2,"var z ", *(it+2), parDistance, 0., 0.);
       Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance, 0., 0.);
       Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistance, 0., 0.);
       Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistance, 0., 0.);
@@ -507,7 +511,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  // arg4 - step of the parameter
 	  Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance*5., 0, 0);
 	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance*5., 0, 0);
-	  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance*100., 0, 0);
+	  Gauss3D->SetParameter(2,"var z ", *(it+2), parDistance*100., 0, 0);
 	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance*5., 0, 0);
 	  Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistance*5., 0, 0);
 	  Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistance*5., 0, 0);
@@ -551,7 +555,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	      // arg4 - step of the parameter
 	      Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance*10., 0, 0);
 	      Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance*10., 0, 0);
-	      Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance*500., 0, 0);
+	      Gauss3D->SetParameter(2,"var z ", *(it+2), parDistance*100., 0, 0);
 	      Gauss3D->SetParameter(3,"cov xy", 0.0, parDistance*10., 0, 0);
 	      Gauss3D->SetParameter(4,"dydz  ", 0.0, parDistance*10., 0, 0);
 	      Gauss3D->SetParameter(5,"dxdz  ", 0.0, parDistance*10., 0, 0);
@@ -595,7 +599,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 		  // arg4 - step of the parameter
 		  Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance*100., 0, 0);
 		  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance*100., 0, 0);
-		  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance*500., 0, 0);
+		  Gauss3D->SetParameter(2,"var z ", *(it+2), parDistance*500., 0, 0);
 		  Gauss3D->SetParameter(3,"cov xy", 0.0, parDistance*10., 0, 0);
 		  Gauss3D->SetParameter(4,"dydz  ", 0.0, parDistance*10., 0, 0);
 		  Gauss3D->SetParameter(5,"dxdz  ", 0.0, parDistance*10., 0, 0);
@@ -709,6 +713,10 @@ void Vx3DHLTAnalyzer::reset(string ResetType)
       endTimeOfFit   = 0;
       beginLumiOfFit = 0;
       endLumiOfFit   = 0;
+    }
+  else if (ResetType.compare("hitCounter") == 0)
+    {
+      totalHits      = 0;
     }
 }
 
@@ -993,15 +1001,26 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 
 	  histTitle << "Fitted Beam Spot [cm] (Lumi start: " << beginLumiOfFit << " - Lumi end: " << endLumiOfFit << ")";
 
-	  reset("whole");
+	  if (lumiCounter >= maxLumiIntegration) reset("whole");
+	  else reset("partial");
 	}
       else
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, -1);
 	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
 
-	  if (goodData == -2) { reset("whole"); histTitle << "Fitted Beam Spot [cm] (not enough statistics)"; }
-	  else { histTitle << "Fitted Beam Spot [cm] (problems)"; if (lumiCounter == maxLumiIntegration) reset("whole"); }
+	  if (goodData == -2)
+	    {
+	      reset("hitCounter");
+	      if (lumiCounter >= maxLumiIntegration) reset("whole");
+	      histTitle << "Fitted Beam Spot [cm] (not enough statistics)";
+	    }
+	  else
+	    {
+	      histTitle << "Fitted Beam Spot [cm] (problems)";
+	      if (lumiCounter >= maxLumiIntegration) reset("whole");
+	      else reset("partial");
+	    }
 	}
 
       reportSummary->Fill(numberFits != 0 ? (double)numberGoodFits/(double)numberFits : 0.0);
@@ -1205,10 +1224,10 @@ void Vx3DHLTAnalyzer::beginJob()
     }
 
   reset("scratch");
-  maxLumiIntegration   = 100;
+  maxLumiIntegration   = 15;
   minVxDoF             = 4.;
   minVxWgt             = 0.5;
-  VxErrCorr            = 1.6;
+  VxErrCorr            = 1.5;
   internalDebug        = false;
   considerVxCovariance = true;
 
