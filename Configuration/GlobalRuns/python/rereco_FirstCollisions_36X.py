@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.169 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('reco_FirstCollisions_36X nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -34,7 +34,9 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('reco_FirstCollisions_36X_DIGI2RAW.root')
+    fileNames = cms.untracked.vstring('reco_FirstCollisions_36X_DIGI2RAW.root'),
+                            inputCommands = cms.untracked.vstring("keep *","drop *_*_*_RECO")
+                            
 )
 
 # Output definition
