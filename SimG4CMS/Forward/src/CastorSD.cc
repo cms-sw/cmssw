@@ -32,11 +32,11 @@ CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
 		   edm::ParameterSet const & p, 
 		   const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager), numberingScheme(0), lvC3EF(0),
-  lvC3HF(0), lvC4EF(0), lvC4HF(0) {
+  lvC3HF(0), lvC4EF(0), lvC4HF(0), lvCAEL(0), lvCAHL(0) {
   
   edm::ParameterSet m_CastorSD = p.getParameter<edm::ParameterSet>("CastorSD");
-  useShowerLibrary  = m_CastorSD.getParameter<bool>("useShowerLibrary");                  // Add useSh... to PSet (WC)
-  energyThresholdSL = m_CastorSD.getParameter<double>("minEnergyInGeVforUsingSLibrary");  // Add useSh... to PSet (WC)
+  useShowerLibrary  = m_CastorSD.getParameter<bool>("useShowerLibrary");
+  energyThresholdSL = m_CastorSD.getParameter<double>("minEnergyInGeVforUsingSLibrary");
   energyThresholdSL = energyThresholdSL*GeV;   //  Convert GeV => MeV 
   
   if (useShowerLibrary) showerLibrary = new CastorShowerLibrary(name, p);
@@ -57,12 +57,15 @@ CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
     if (strcmp(((*lvcite)->GetName()).c_str(),"C3HF") == 0) lvC3HF = (*lvcite);
     if (strcmp(((*lvcite)->GetName()).c_str(),"C4EF") == 0) lvC4EF = (*lvcite);
     if (strcmp(((*lvcite)->GetName()).c_str(),"C4HF") == 0) lvC4HF = (*lvcite);
-    if (lvC3EF != 0 && lvC3HF != 0 && lvC4EF != 0 && lvC4HF != 0) break;
+    if (strcmp(((*lvcite)->GetName()).c_str(),"CAEL") == 0) lvCAEL = (*lvcite);
+    if (strcmp(((*lvcite)->GetName()).c_str(),"CAHL") == 0) lvCAHL = (*lvcite);
+    if (lvC3EF != 0 && lvC3HF != 0 && lvC4EF != 0 && lvC4HF != 0 && lvCAEL != 0 && lvCAHL != 0) break;
   }
   edm::LogInfo("ForwardSim") << "CastorSD:: LogicalVolume pointers\n"
 			     << lvC3EF << " for C3EF; " << lvC3HF 
 			     << " for C3HF; " << lvC4EF << " for C4EF; " 
-			     << lvC4HF << " for C4HF.";
+			     << lvC4HF << " for C4HF; " 
+			     << lvCAEL << " for CAEL; " << lvCAHL << " for CAHL. " << std::endl;
 
   //  if(useShowerLibrary) edm::LogInfo("ForwardSim") << "\n Using Castor Shower Library \n";
 
@@ -177,7 +180,10 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     if(useShowerLibrary && aboveThreshold && notaMuon && (!backward)) {
       // Use Castor shower library if energy is above threshold, is not a muon 
       // and is not moving backward 
-      getFromLibrary(aStep);
+      if (currentLV == lvC3EF || currentLV == lvC4EF || 
+	  currentLV == lvCAEL || currentLV == lvCAHL ||
+	  currentLV == lvC3HF || currentLV == lvC4HF  ) getFromLibrary(aStep);
+      return NCherPhot;
     } else {
       // Usual calculations
       // G4ThreeVector      hitPoint = preStepPoint->GetPosition();	
@@ -523,17 +529,15 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, CastorShowerEve
 //
 // ==============================================================
   
-  const float pi = 3.141592654;
-  
   // Get 'track' phi:
-  float   trackPhi = theTrack->GetPosition().phi(); 
+  float   trackPhi = track->GetPosition().phi(); 
   // Get phi from primary that gave rise to SL 'shower':
   float  showerPhi = shower.getPrimPhi(); 
   // Delta phi:
   
-  //  Find the HexSector for which 'track' and 'shower' belong
-  int  trackHexSector = (int) (  trackPhi / (pi/8) ) ;
-  int showerHexSector = (int) ( showerPhi / (pi/8) ) ;
+  //  Find the OctSector for which 'track' and 'shower' belong
+  int  trackOctSector = (int) (  trackPhi / (M_PI/4) ) ;
+  int showerOctSector = (int) ( showerPhi / (M_PI/4) ) ;
   
   uint32_t  newUnitID;
   uint32_t         sec = ( ( unitID>>4 ) & 0xF ) ;
@@ -544,22 +548,25 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, CastorShowerEve
   //                            << "\n         sec = " << sec 
   //                            << "\n  complement = " << complement ; 
   
+  // Get 'track' z:
+  float   trackZ = track->GetPosition().z();
+  
   int aux ;
-  int dSec = trackHexSector - showerHexSector ;
-  if( dSec<0 ) {
-     sec += 16 ;
-     sec += dSec ;
-     aux  = (int) (sec/16) ;
-     sec -= aux*16 ;
-     sec  = sec<<4 ;
-     newUnitID = complement | sec ;
-  } else {
-     sec += dSec ;
-     aux  = (int) (sec/16) ;
-     sec -= aux*16 ;
-     sec  = sec<<4 ;
-     newUnitID = complement | sec ;
+  int dSec = 2*(trackOctSector - showerOctSector) ;
+  if(trackZ<0)
+  {
+    sec -= dSec ;
+    if(sec<0) sec += 16;
+    if(sec>15) sec -= 16;
+  } else
+  {
+  if( dSec<0 ) sec += 16 ;
+  sec += dSec ;
+  aux  = (int) (sec/16) ;
+  sec -= aux*16 ;
   }
+  sec  = sec<<4 ;
+  newUnitID = complement | sec ;
   
 #ifdef DebugLog
   if(newUnitID != unitID) {
@@ -621,11 +628,18 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
 			 << theTrack->GetTrackID()  ;
 #endif
 
+  // Scale to correct energy
+  double E_track = preStepPoint->GetTotalEnergy() ;
+  double E_SLhit = hits.getPrimE() * GeV ;
+  double scale = E_track/E_SLhit ;
+  
   //  Loop over hits retrieved from the library
   for (unsigned int i=0; i<hits.getNhit(); i++) {
     
     // Get nPhotoElectrons and set edepositEM / edepositHAD accordingly
-    double nPhotoElectrons    = hits.getNphotons(i);  
+    double nPhotoElectrons    = hits.getNphotons(i);
+    // Apply scaling
+      nPhotoElectrons *= scale ;
     if(isEM)  {
        // edepositEM  = nPhotoElectrons*GeV; 
        edepositEM  = nPhotoElectrons; 
