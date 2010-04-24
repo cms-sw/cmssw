@@ -76,7 +76,7 @@ namespace edm {
 
     //we now allow the site local config to specify what the TTree cache size should be
     edm::Service<edm::SiteLocalConfig> pSLC;
-    if(pSLC->sourceTTreeCacheSize()) {
+    if(pSLC.isAvailable() && pSLC->sourceTTreeCacheSize()) {
       treeCacheSize_=*(pSLC->sourceTTreeCacheSize());
     }
     StorageFactory *factory = StorageFactory::get();
