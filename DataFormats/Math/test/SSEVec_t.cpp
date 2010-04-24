@@ -146,8 +146,8 @@ void go() {
   std::cout << dot(x,y) << std::endl; 
   std::cout << dotSimple(x,y) << std::endl;
 
-  std::cout << "equal" << (x==x ? " " : " not ") << "ok" std::endl;
-  std::cout << "not equal" << (x==y ? " not " : " ") << "ok" std::endl;
+  std::cout << "equal" << (x==x ? " " : " not ") << "ok" << std::endl;
+  std::cout << "not equal" << (x==y ? " not " : " ") << "ok" << std::endl;
  
   Vec z = cross(x,y);
   std::cout << z << std::endl;
