@@ -554,11 +554,11 @@ if __name__ == '__main__':
         outcmd = commands.getstatusoutput(acmd)
         print acmd
         print outcmd[1]
-        acmd = "scp -p" + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/tmp"
+        acmd = "scp -p " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/tmp"
         outcmd = commands.getstatusoutput(acmd)
         print acmd
         print outcmd[1]
-        acmd = "scp -p" + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/tmp"
+        acmd = "scp -p " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/tmp"
         outcmd = commands.getstatusoutput(acmd)
         print acmd
         print outcmd[1]
