@@ -17,7 +17,7 @@
    A very simple script 
 
    usage: %prog -t <tag name>
-   
+   -o, --output    = OUTPUT: filename of output html file.
    
    Francisco Yumiceva (yumiceva@fnal.gov)
    Fermilab 2010
@@ -86,9 +86,9 @@ def cmp_tags(a,b):
     if na > nb: return 1
 #___
 
-def dump_header(file):
+def dump_header(lines):
 
-    file.write('''
+    lines.append('''
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html>
 <head><title>Beam Spot Calibration Status</title></head>
 
@@ -103,37 +103,46 @@ type="text/javascript"></script></strong>
 
 #____
 
-def dump_footer(file):
+def dump_footer(lines):
 
-    file.write('</body>\n</html>\n')
+    lines.append('</body>\n</html>\n')
 
 #______________
-def write_tags(tags):
+def write_tags(tags, lines):
 
-    end = '/n'
+    end = '\n'
     br = '<BR>'+end
-    
+        
     for i in tags:
-        file.write(i)
-        file.write(br)
+        lines.append('<tr>'+end)
+        lines.append('<td>'+end)
+        lines.append(i)
+        lines.append('</td>'+end)
+        lines.append('</tr>'+end)
 
-#__________
-def write_iovs(file, iovs, tag):
+#______________
+def write_iovs(iovs, lines):
 
-    br = '<BR>'
-    file.write('Last three IOVs in tag '+tag)
-    file.write(br)
-    
+    end = '\n'
+    br = '<BR>'+end
+        
     for i in iovs:
-        file.write(i[0]+" "+i[1])
-        file.write(br)
-    
+        lines.append('<tr>'+end)
+        lines.append('<td>'+end)
+        lines.append(i[0] + " - " + i[1])
+        lines.append('</td>'+end)
+        lines.append('</tr>'+end)
 
-    
 #______________________________
 if __name__ == '__main__':
 
+    
+    # COMMAND LINE OPTIONS
+    #################################
+    option,args = parse(__doc__)
+    if not args and not option: exit()
 
+    
     ## Get the latest tags
     queryTags_cmd = "cmscond_list_iov -c frontier://cmsfrontier.cern.ch:8000/Frontier/CMS_COND_31X_BEAMSPOT -P /afs/cern.ch/cms/DB/conddb -a | grep BeamSpotObjects | grep offline"
     
@@ -150,7 +159,7 @@ if __name__ == '__main__':
     listtags.sort( cmp = cmp_tags )
     listtags.reverse()
 
-    print listtags
+    #print listtags
 
     # Get the latest IOVs
     lasttag = listtags[0]
@@ -173,19 +182,41 @@ if __name__ == '__main__':
 	
 	listIOVs.append( aIOV )
 
-    print listIOVs
+    #print listIOVs
 
     # create web page
-
     lines = []
-    end = '/n'
+    end = '\n'
     br = '<BR>'+end
+    
+    dump_header(lines)
+
+    lines.append('Latest IOVs for tag:'+listtags[0]+end)
+    lines.append(br)
+    lines.append('''
+<table border="1">
+''')
+    write_iovs( listIOVs, lines )
+    lines.append('</table>'+end)
+    
     lines.append('Latest tags:'+end)
     lines.append(br)
     lines.append('''
-<table border="1"><tr>')
-    
+<table border="1">
+<tr>
+<th> offline </th>
+</tr>
+''')
+    write_tags( listtags, lines)
+    lines.append('</table>'+end)
 
+    dump_footer(lines)
+
+    outfile = open(option.output,'w')
+    #print lines
+    outfile.writelines( lines )
+    
+    
     
 
 

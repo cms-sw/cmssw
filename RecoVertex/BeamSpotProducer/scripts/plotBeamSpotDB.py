@@ -678,7 +678,7 @@ if __name__ == '__main__':
 		docreate = True
             # check we run over the same run
 	    if ibeam.Run != inextbeam.Run:
-		print "close payload because we are in a new run"
+		print "close payload because we end of run "+ibeam.Run
 		docreate = True
 	    # check maximum lumi counts
 	    if countlumi == maxNlumis:
