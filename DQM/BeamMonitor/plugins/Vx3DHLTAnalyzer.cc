@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.78 2010/04/24 09:18:11 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.79 2010/04/24 11:42:06 dinardo Exp $
 //
 //
 
@@ -872,7 +872,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
   int goodData;
 
   if ((lumiCounter%nLumiReset == 0) && (nLumiReset != 0) && (beginTimeOfFit != 0) && (runNumber != 0))
-    {            
+    {
       endTimeOfFit  = lumiBlock.endTime().value();
       endLumiOfFit  = lumiBlock.luminosityBlock();
       lastLumiOfFit = endLumiOfFit;
@@ -960,6 +960,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	    vals.push_back(0.0);
 	    vals.push_back(powf(Vx_X->getTH1F()->GetRMSError(),2.));
 	    vals.push_back(powf(Vx_Y->getTH1F()->GetRMSError(),2.));
+
+	    counterVx = Vx_X->getTH1F()->GetEntries();
 	    }
 	  else
 	    {
@@ -1008,6 +1010,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, -1);
 	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
+
+	  counterVx = 0;
 
 	  if (goodData == -2)
 	    {
@@ -1095,6 +1099,11 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       myLinFit->SetParameter(1, 0.0);
       dydzlumi->getTH1()->Fit("myLinFit","QR");
       
+      goodVxCounter->ShiftFillLast(counterVx, sqrt((double)counterVx), nLumiReset);      
+      myLinFit->SetParameter(0, goodVxCounter->getTH1()->GetMean(2));
+      myLinFit->SetParameter(1, 0.0);
+      goodVxCounter->getTH1()->Fit("myLinFit","QR");
+
       delete myLinFit;
 
       vals.clear();
@@ -1193,8 +1202,14 @@ void Vx3DHLTAnalyzer::beginJob()
       hitCounter = dbe->book1D("pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
 
       hitCounter->setAxisTitle("Lumisection [#]",1);
-      hitCounter->setAxisTitle("# Pixel-Hits [#]",2);
+      hitCounter->setAxisTitle("Pixel-Hits [#]",2);
       hitCounter->getTH1()->SetOption("E1");
+
+      goodVxCounter = dbe->book1D("Good vertices vs lumi", "# Good vertices vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+
+      goodVxCounter->setAxisTitle("Lumisection [#]",1);
+      goodVxCounter->setAxisTitle("Good vertices [#]",2);
+      goodVxCounter->getTH1()->SetOption("E1");
 
       fitResults = dbe->book2D("fit results","Results of Beam Spot Fit", 2, 0., 2., 9, 0., 9.);
       fitResults->setAxisTitle("Fitted Beam Spot [cm]", 1);
@@ -1227,7 +1242,7 @@ void Vx3DHLTAnalyzer::beginJob()
   maxLumiIntegration   = 15;
   minVxDoF             = 4.;
   minVxWgt             = 0.5;
-  VxErrCorr            = 1.58;
+  VxErrCorr            = 1.5;
   internalDebug        = false;
   considerVxCovariance = true;
 

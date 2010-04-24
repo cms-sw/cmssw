@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.19 2010/04/15 16:52:05 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.20 2010/04/19 17:11:02 dinardo Exp $
 //
 //
 
@@ -135,9 +135,11 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       MonitorElement* Vx_ZX_profile;
       MonitorElement* Vx_ZY_profile;
 
-      MonitorElement* hitCounter;
+      MonitorElement* goodVxCounter;
 
       MonitorElement* fitResults;
+
+      MonitorElement* hitCounter;
 
       MonitorElement* reportSummary;
       MonitorElement* reportSummaryMap;
