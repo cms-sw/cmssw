@@ -29,7 +29,7 @@ class cosmics(Scenario):
     """
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO','ALCARECO']):
+    def promptReco(self, globalTag, writeTiers = ['RECO'], **options):
         """
         _promptReco_
 
@@ -73,50 +73,53 @@ class cosmics(Scenario):
         customiseCosmicData(process)  
         return process
 
-    def expressProcessing(self, globalTag,  writeTiers = [],
-                          datasets = [], alcaDataset = None):
+
+    def expressProcessing(self, globalTag, writeTiers = [], **options):
         """
         _expressProcessing_
 
-        Implement Cosmics Express processing
+        Cosmic data taking express processing
 
         """
 
+        skims = ['TkAlBeamHalo',
+                 'MuAlBeamHaloOverlaps',
+                 'MuAlBeamHalo',
+                 'TkAlCosmics0T',
+                 'MuAlStandAloneCosmics',
+                 'MuAlGlobalCosmics',
+                 'MuAlCalIsolatedMu',
+                 'HcalCalHOCosmics']
+        step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "cosmics"
-        options.step = \
-          """RAW2DIGI,L1Reco,RECO:reconstructionCosmics,ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+MuAlCalIsolatedMu+HcalCalHOCosmics,ENDJOB"""
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
-        options.eventcontent = None
-        options.relval = None
         options.beamspot = None
+        options.eventcontent = None
+        options.magField = 'AutoFromDBCurrent'
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
+        options.relval = False
         
         process = cms.Process('EXPRESS')
         cb = ConfigBuilder(options, process = process)
 
-        process.source = cms.Source(
-           "NewEventStreamFileReader",
-           fileNames = cms.untracked.vstring()
+        # Input source
+        process.source = cms.Source("NewEventStreamFileReader",
+            fileNames = cms.untracked.vstring()
         )
-        
         cb.prepare()
 
-        #  //
-        # // Install the OutputModules for everything but ALCA
-        #//
-        self.addExpressOutputModules(process, writeTiers, datasets)
-        
-        #  //
-        # // TODO: Install Alca output
-        #//
-        
-        return process
-    
+        for tier in writeTiers: 
+          addOutputModule(process, tier, tier)        
 
-    def alcaSkim(self, skims):
+        customiseCosmicData(process)  
+        return process
+
+
+    def alcaSkim(self, skims, **options):
         """
         _alcaSkim_
 
@@ -149,14 +152,9 @@ class cosmics(Scenario):
         cb.prepare() 
 
         return process
-                
-
-        
-
-        
 
 
-    def dqmHarvesting(self, datasetName, runNumber,  globalTag, **options):
+    def dqmHarvesting(self, datasetName, runNumber, globalTag, **options):
         """
         _dqmHarvesting_
 

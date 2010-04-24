@@ -29,7 +29,7 @@ class pp(Scenario):
     """
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO','ALCARECO']):
+    def promptReco(self, globalTag, writeTiers = ['RECO'], **options):
         """
         _promptReco_
 
@@ -58,7 +58,6 @@ class pp(Scenario):
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         options.relval = False
         
-        
         process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process)
 
@@ -68,6 +67,52 @@ class pp(Scenario):
         )
         cb.prepare()
 
+        for tier in writeTiers: 
+          addOutputModule(process, tier, tier)        
+
+        #add the former top level patches here
+        customisePPData(process)
+        
+        return process
+
+
+    def expressProcessing(self, globalTag, writeTiers = [], **options):
+        """
+        _expressProcessing_
+
+        Proton collision data taking express processing
+
+        """
+
+        skims = ['SiStripCalZeroBias',
+                 'TkAlMinBias',
+                 'TkAlMuonIsolated',
+                 'MuAlCalIsolatedMu',
+                 'MuAlOverlaps',
+                 'HcalCalIsoTrk',
+                 'HcalCalDijets',
+                 'SiStripCalMinBias']
+        step = stepALCAPRODUCER(skims)
+        options = Options()
+        options.__dict__.update(defaultOptions.__dict__)
+        options.scenario = "pp"
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
+        options.isMC = False
+        options.isData = True
+        options.beamspot = None
+        options.eventcontent = None
+        options.magField = 'AutoFromDBCurrent'
+        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
+        options.relval = False
+        
+        process = cms.Process('EXPRESS')
+        cb = ConfigBuilder(options, process = process)
+
+        # Input source
+        process.source = cms.Source("NewEventStreamFileReader",
+            fileNames = cms.untracked.vstring()
+        )
+        cb.prepare()
 
         for tier in writeTiers: 
           addOutputModule(process, tier, tier)        
@@ -77,53 +122,8 @@ class pp(Scenario):
         
         return process
 
-    def expressProcessing(self, globalTag,  writeTiers = [],
-                          datasets = [], alcaDataset = None):
-        """
-        _expressProcessing_
 
-        Implement proton collision Express processing
-
-        """
-
-        options = Options()
-        options.__dict__.update(defaultOptions.__dict__)
-        options.scenario = "pp"
-        options.step = \
-          """RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+SiStripCalMinBias,ENDJOB"""
-        options.isMC = False
-        options.isData = True
-        options.eventcontent = None
-        options.relval = None
-        options.beamspot = None
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-        
-        process = cms.Process('EXPRESS')
-        cb = ConfigBuilder(options, process = process)
-
-        process.source = cms.Source(
-           "NewEventStreamFileReader",
-           fileNames = cms.untracked.vstring()
-        )
-        
-        cb.prepare()
-
-        #  //
-        # // Install the OutputModules for everything but ALCA
-        #//
-        self.addExpressOutputModules(process, writeTiers, datasets)
-        
-        #  //
-        # // TODO: Install Alca output
-        #//
-        
-        #add the former top level patches here
-        customisePPData(process)
-
-        return process
-    
-
-    def alcaSkim(self, skims):
+    def alcaSkim(self, skims, **options):
         """
         _alcaSkim_
 
@@ -156,14 +156,9 @@ class pp(Scenario):
         cb.prepare() 
 
         return process
-                
-
-        
-
-        
 
 
-    def dqmHarvesting(self, datasetName, runNumber,  globalTag, **options):
+    def dqmHarvesting(self, datasetName, runNumber, globalTag, **options):
         """
         _dqmHarvesting_
 
