@@ -264,7 +264,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       os<<"Occupancy_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
       if(meMap[os.str()]){ 
 	if(detId.region() ==0)	meMap[os.str()]->Fill(strip, nr);
-	if(detId.region() ==0)	meMap[os.str()]->Fill(strip + 32*(detId.roll()-1),  RPCname.segment()+ ((ring -2)*6));
+	else	meMap[os.str()]->Fill(strip + 32*(detId.roll()-1),  RPCname.segment()+ ((detId.ring() -2)*6));
       }
 
       os.str("");
