@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.20 2010/04/19 17:11:02 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.21 2010/04/24 13:00:05 dinardo Exp $
 //
 //
 
@@ -63,8 +63,11 @@ unsigned int counterVx; // Counts the number of vertices taken into account for 
 double maxTransRadius;  // Max transverse radius in which the vertices must be [cm]
 double maxLongLength;   // Max longitudinal length in which the vertices must be [cm]
 double xPos,yPos,zPos;  // x,y,z approximate positions of the beam spot
-double VxErrCorr;       // Coefficient to compensate the under-estimation of the vertex errors
 double pi;
+// ######################
+// # cfg file parameter #
+// ######################
+double VxErrCorr;       // Coefficient to compensate the under-estimation of the vertex errors
 
 
 class Vx3DHLTAnalyzer : public edm::EDAnalyzer {

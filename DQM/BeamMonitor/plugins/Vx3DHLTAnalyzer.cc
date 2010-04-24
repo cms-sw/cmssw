@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.80 2010/04/24 12:59:56 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.81 2010/04/24 14:23:29 dinardo Exp $
 //
 //
 
@@ -49,6 +49,7 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
   yStep            = 0.001;
   zRange           = 30.;
   zStep            = 0.05;
+  VxErrCorr        = 1.58;
   fileName         = "BeamPixelResults.txt";
 
   vertexCollection = iConfig.getParameter<InputTag>("vertexCollection");
@@ -62,6 +63,7 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
   yStep            = iConfig.getParameter<double>("yStep");
   zRange           = iConfig.getParameter<double>("zRange");
   zStep            = iConfig.getParameter<double>("zStep");
+  VxErrCorr        = iConfig.getParameter<double>("VxErrCorr");
   fileName         = iConfig.getParameter<string>("fileName");
 }
 
@@ -705,6 +707,21 @@ void Vx3DHLTAnalyzer::reset(string ResetType)
     }
   else if (ResetType.compare("partial") == 0)
     {
+      Vx_X->Reset();
+      Vx_Y->Reset();
+      Vx_Z->Reset();
+      
+      Vertices.clear();
+      
+      lumiCounter    = 0;
+      totalHits      = 0;
+      beginTimeOfFit = 0;
+      endTimeOfFit   = 0;
+      beginLumiOfFit = 0;
+      endLumiOfFit   = 0;
+    }
+  else if (ResetType.compare("nohisto") == 0)
+    {
       Vertices.clear();
       
       lumiCounter    = 0;
@@ -1111,7 +1128,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
     {
       reportSummaryMap->Fill(0.5, 0.5, 1.0);
       hitCounter->ShiftFillLast(totalHits, sqrt(totalHits), 1);
-      reset("partial");
+      reset("nohisto");
     }
 }
 
@@ -1176,9 +1193,9 @@ void Vx3DHLTAnalyzer::beginJob()
       dydzlumi->setAxisTitle("dY/dZ [rad]",2);
       dydzlumi->getTH1()->SetOption("E1");
 
-      Vx_ZX = dbe->book2D("vertex zx", "Primary Vertex ZX Coordinate Distribution", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(xRange/xStep/10.), -xRange/2., xRange/2.);
-      Vx_ZY = dbe->book2D("vertex zy", "Primary Vertex ZY Coordinate Distribution", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(yRange/yStep/10.), -yRange/2., yRange/2.);
-      Vx_XY = dbe->book2D("vertex xy", "Primary Vertex XY Coordinate Distribution", (int)(xRange/xStep/10.), -xRange/2., xRange/2., (int)(yRange/yStep/10.), -yRange/2., yRange/2.);
+      Vx_ZX = dbe->book2D("vertex zx", "Primary Vertex ZX Coordinate Distribution", (int)(zRange/zStep/5.), -zRange/2., zRange/2., (int)(xRange/xStep/5.), -xRange/2., xRange/2.);
+      Vx_ZY = dbe->book2D("vertex zy", "Primary Vertex ZY Coordinate Distribution", (int)(zRange/zStep/5.), -zRange/2., zRange/2., (int)(yRange/yStep/5.), -yRange/2., yRange/2.);
+      Vx_XY = dbe->book2D("vertex xy", "Primary Vertex XY Coordinate Distribution", (int)(xRange/xStep/5.), -xRange/2., xRange/2., (int)(yRange/yStep/5.), -yRange/2., yRange/2.);
 
       Vx_ZX->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZX->setAxisTitle("Primary Vertices X [cm]",2);
@@ -1190,11 +1207,11 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
       Vx_XY->setAxisTitle("Entries [#]",3);
 
-      Vx_ZX_profile = dbe->bookProfile("zx profile","ZX Profile", (int)(zRange/zStep/20.), -zRange/2., zRange/2., (int)(xRange/xStep/20.), -xRange/2., xRange/2., "");
+      Vx_ZX_profile = dbe->bookProfile("zx profile","ZX Profile", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(xRange/xStep/10.), -xRange/2., xRange/2., "");
       Vx_ZX_profile->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZX_profile->setAxisTitle("Primary Vertices X [cm]",2);
 
-      Vx_ZY_profile = dbe->bookProfile("zy profile","ZY Profile", (int)(zRange/zStep/20.), -zRange/2., zRange/2., (int)(yRange/yStep/20.), -yRange/2., yRange/2., "");
+      Vx_ZY_profile = dbe->bookProfile("zy profile","ZY Profile", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(yRange/yStep/10.), -yRange/2., yRange/2., "");
       Vx_ZY_profile->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZY_profile->setAxisTitle("Primary Vertices Y [cm]",2);
 
@@ -1241,7 +1258,6 @@ void Vx3DHLTAnalyzer::beginJob()
   maxLumiIntegration   = 15;
   minVxDoF             = 4.;
   minVxWgt             = 0.5;
-  VxErrCorr            = 1.5;
   internalDebug        = false;
   considerVxCovariance = true;
 
