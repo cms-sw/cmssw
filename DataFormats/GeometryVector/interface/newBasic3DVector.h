@@ -82,7 +82,7 @@ public:
 
 
   // equality
-  bool operator==(const Basic3DVector& rh) {
+  bool operator==(const Basic3DVector& rh) const {
     return x()==rh.x() && y()==rh.y() && z()==rh.z();
   }
 

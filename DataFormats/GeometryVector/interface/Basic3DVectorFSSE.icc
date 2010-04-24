@@ -6,7 +6,7 @@
 //
 
 template <>
-inline bool Basic3DVectorF::operator==( const Basic3DVectorF& rh) {
+inline bool Basic3DVectorF::operator==( const Basic3DVectorF& rh) const {
   return v==rh.v;
 }
 template <> template <>
