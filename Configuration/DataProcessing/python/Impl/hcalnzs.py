@@ -29,7 +29,7 @@ class hcalnzs(Scenario):
     """
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO','ALCARECO']):
+    def promptReco(self, globalTag, writeTiers = ['RECO'], **options):
         """
         _promptReco_
 
@@ -51,7 +51,6 @@ class hcalnzs(Scenario):
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         options.relval = False
         
-        
         process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process)
 
@@ -70,53 +69,8 @@ class hcalnzs(Scenario):
         
         return process
 
-    def expressProcessing(self, globalTag,  writeTiers = [],
-                          datasets = [], alcaDataset = None):
-        """
-        _expressProcessing_
 
-        Implement proton collision Express processing
-
-        """
-
-        options = Options()
-        options.__dict__.update(defaultOptions.__dict__)
-        options.scenario = "pp"
-        options.step = \
-          """RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+TkAlMinBias+MuAlCalIsolatedMu+RpcCalHLT,ENDJOB"""
-        options.isMC = False
-        options.isData = True
-        options.eventcontent = None
-        options.relval = None
-        options.beamspot = None
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-        
-        process = cms.Process('EXPRESS')
-        cb = ConfigBuilder(options, process = process)
-
-        process.source = cms.Source(
-           "NewEventStreamFileReader",
-           fileNames = cms.untracked.vstring()
-        )
-        
-        cb.prepare()
-
-        #  //
-        # // Install the OutputModules for everything but ALCA
-        #//
-        self.addExpressOutputModules(process, writeTiers, datasets)
-        
-        #  //
-        # // TODO: Install Alca output
-        #//
-        
-        #add the former top level patches here
-        customisePPData(process)
-
-        return process
-    
-
-    def alcaSkim(self, skims):
+    def alcaSkim(self, skims, **options):
         """
         _alcaSkim_
 
@@ -149,14 +103,9 @@ class hcalnzs(Scenario):
         cb.prepare() 
 
         return process
-                
-
-        
-
-        
 
 
-    def dqmHarvesting(self, datasetName, runNumber,  globalTag, **options):
+    def dqmHarvesting(self, datasetName, runNumber, globalTag, **options):
         """
         _dqmHarvesting_
 
