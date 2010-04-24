@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.79 2010/04/24 11:42:06 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.80 2010/04/24 12:59:56 dinardo Exp $
 //
 //
 
@@ -208,8 +208,8 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 	      K[1][1] = fabs(par[1]) + VxErrCorr*VxErrCorr * fabs(Vertices[i].Covariance[1][1]);
 	      K[2][2] = fabs(par[2]) + VxErrCorr*VxErrCorr * fabs(Vertices[i].Covariance[2][2]);
 	      K[0][1] = K[1][0] = par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[0][1];
-	      K[1][2] = K[2][1] = par[4]*(par[2]-par[1]) - par[5]*par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[1][2];
-	      K[0][2] = K[2][0] = par[5]*(par[2]-par[0]) - par[4]*par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[0][2];
+	      K[1][2] = K[2][1] = par[4]*(fabs(par[2])-fabs(par[1])) - par[5]*par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[1][2];
+	      K[0][2] = K[2][0] = par[5]*(fabs(par[2])-fabs(par[0])) - par[4]*par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[0][2];
 	    }
 	  else
 	    {
@@ -217,8 +217,8 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 	      K[1][1] = fabs(par[1]);
 	      K[2][2] = fabs(par[2]);
 	      K[0][1] = K[1][0] = par[3];
-	      K[1][2] = K[2][1] = par[4]*(par[2]-par[1]) - par[5]*par[3];
-	      K[0][2] = K[2][0] = par[5]*(par[2]-par[0]) - par[4]*par[3];
+	      K[1][2] = K[2][1] = par[4]*(fabs(par[2])-fabs(par[1])) - par[5]*par[3];
+	      K[0][2] = K[2][0] = par[5]*(fabs(par[2])-fabs(par[0])) - par[4]*par[3];
 	    }
 
 	  det = K[0][0]*(K[1][1]*K[2][2] - K[1][2]*K[1][2]) -
@@ -939,6 +939,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	}
       else
 	{
+	  counterVx = Vx_X->getTH1F()->GetEntries();
+	    
 	  if (Vx_X->getTH1F()->GetEntries() >= minNentries)
 	    {
 	    goodData = 0;
@@ -960,8 +962,6 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	    vals.push_back(0.0);
 	    vals.push_back(powf(Vx_X->getTH1F()->GetRMSError(),2.));
 	    vals.push_back(powf(Vx_Y->getTH1F()->GetRMSError(),2.));
-
-	    counterVx = Vx_X->getTH1F()->GetEntries();
 	    }
 	  else
 	    {
@@ -1011,8 +1011,6 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, -1);
 	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
 
-	  counterVx = 0;
-
 	  if (goodData == -2)
 	    {
 	      reset("hitCounter");
@@ -1024,6 +1022,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	      histTitle << "Fitted Beam Spot [cm] (problems)";
 	      if (lumiCounter >= maxLumiIntegration) reset("whole");
 	      else reset("partial");
+	      counterVx = 0;
 	    }
 	}
 
@@ -1099,7 +1098,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       myLinFit->SetParameter(1, 0.0);
       dydzlumi->getTH1()->Fit("myLinFit","QR");
       
-      goodVxCounter->ShiftFillLast(counterVx, sqrt((double)counterVx), nLumiReset);      
+      goodVxCounter->ShiftFillLast((double)counterVx, sqrt((double)counterVx), nLumiReset);      
       myLinFit->SetParameter(0, goodVxCounter->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       goodVxCounter->getTH1()->Fit("myLinFit","QR");
