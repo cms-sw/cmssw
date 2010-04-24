@@ -16,7 +16,7 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: CastorSD.h,v 1.6 2009/03/30 18:30:23 sunanda Exp $
+// $Id: CastorSD.h,v 1.7 2009/09/02 20:41:25 sunanda Exp $
 //
  
 // system include files
@@ -48,9 +48,10 @@ private:
   CastorNumberingScheme * numberingScheme;
   CastorShowerLibrary *   showerLibrary;
   G4LogicalVolume         *lvC3EF, *lvC3HF, *lvC4EF, *lvC4HF;
+  G4LogicalVolume         *lvCAEL, *lvCAHL;   // Pointers for W logical volumes
   
-  bool                    useShowerLibrary;   // Add useShowerLibrary to PSet !!! (WC)
-  double                  energyThresholdSL;  // Add useShowerLibrary to PSet !!! (WC)
+  bool                    useShowerLibrary;
+  double                  energyThresholdSL; 
 
 protected:
 
