@@ -58,7 +58,7 @@ public:
 
   // equality
   bool operator==(const Vector3DBase & rh) const {
-    return basicVector()==rh.basicVector();
+    return this->basicVector()==rh.basicVector();
   }
 
 

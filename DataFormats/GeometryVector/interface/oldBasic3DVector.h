@@ -84,6 +84,11 @@ public:
   /// Cartesian z coordinate
   T z() const { return theZ;}
 
+  // equality
+  bool operator==(const Basic3DVector& rh) {
+    return x()==rh.x() && y()==rh.y() && z()==rh.z();
+  }
+
   /// The vector magnitude squared. Equivalent to vec.dot(vec)
   T mag2() const { return  x()*x() + y()*y()+z()*z();}
 
