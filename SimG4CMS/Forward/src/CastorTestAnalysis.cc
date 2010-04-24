@@ -12,6 +12,7 @@
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4CMS/Forward/interface/CastorTestAnalysis.h"
 //#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
@@ -20,6 +21,8 @@
 #include <cmath>
 #include <iostream>
 #include <iomanip>
+
+#define debugLog
 
 enum ntcastors_elements {
   ntcastors_evt, ntcastors_trackid, ntcastors_charge, ntcastors_pdgcode, ntcastors_x, ntcastors_y, ntcastors_z, ntcastors_stepl, ntcastors_stepe, ntcastors_eta, ntcastors_phi, ntcastors_vpx, ntcastors_vpy, ntcastors_vpz
@@ -180,6 +183,12 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
    std::cout<<std::endl;
   */
 
+#ifdef DebugLog
+  if ( theTrack->GetNextVolume() != 0 )
+      LogDebug("ForwardSim") << " NextVolume: " << theTrack->GetNextVolume()->GetName() ;
+  else 
+      LogDebug("ForwardSim") << " NextVolume: OutOfWorld" ;
+#endif
 
  
 //fill ntuple with step level information
@@ -198,14 +207,8 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
   std::cout << "update(*evt) --> accessed all HC";
   
   int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorFI");
-  int CAPLid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorPL");
-  int CABUid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorBU");
-  int CATUid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorTU");
     
   CaloG4HitCollection* theCAFI = (CaloG4HitCollection*) allHC->GetHC(CAFIid);
-  CaloG4HitCollection* theCAPL = (CaloG4HitCollection*) allHC->GetHC(CAPLid);
-  CaloG4HitCollection* theCABU = (CaloG4HitCollection*) allHC->GetHC(CABUid);
-  CaloG4HitCollection* theCATU = (CaloG4HitCollection*) allHC->GetHC(CATUid);
 
   theCastorNumScheme = new CastorNumberingScheme();
   // CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();
@@ -230,17 +233,6 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
     //  Check FI TBranch for Hits
     if (theCAFI->entries() > 0) getCastorBranchData(theCAFI) ;
     
-    //  Temporary solution as events are saved to TBranch's others than CastorFI when 
-    //  using shower library  (WC)
-    if(useShowerLibrary) {
-       //  Check BU TBranch for Hits
-       if (theCABU->entries() > 0) getCastorBranchData(theCABU) ;
-       //  Check PL TBranch for Hits
-       if (theCAPL->entries() > 0) getCastorBranchData(theCAPL) ;
-       //  Check TU TBranch for Hits
-       if (theCATU->entries() > 0) getCastorBranchData(theCATU) ;
-    }
-
 // Find Primary info:
       int trackID = 0;
       int particleType = 0;
