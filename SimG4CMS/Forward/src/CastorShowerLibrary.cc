@@ -277,7 +277,7 @@ void CastorShowerLibrary::getRecord(int type, int record) {
 
   edm::LogInfo("CastorShower") << "CastorShowerLibrary::getRecord: ";
   
-  int nrc  = record-1;
+  int nrc  = record;
   int nHit = 0;
   showerEvent = new CastorShowerEvent();
   if (type > 0) {
@@ -366,12 +366,12 @@ void CastorShowerLibrary::select(int type, double pin, double etain, double phii
 
   int iphi;
   double phiMin = 0. ;
-  double phiMax = 0.392699 ;     // 12.5 * (pi/180)  rad 
+  double phiMax = M_PI/4 ;     // 45 * (pi/180)  rad 
   if(phiin < phiMin) phiin = phiin + M_PI ;
   if(phiin >= phiMin && phiin < phiMax) {
      iphi = FindPhiBin(phiin) ;
   } else {
-     double remainder = fmod(phiin , M_PI) ;
+     double remainder = fmod(phiin , M_PI/4) ;
      phiin = phiMin + remainder ;
      iphi = FindPhiBin(phiin) ;
   }
