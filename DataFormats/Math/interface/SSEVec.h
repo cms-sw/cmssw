@@ -209,6 +209,10 @@ inline mathSSE::Vec3F cross(mathSSE::Vec3F a, mathSSE::Vec3F b) {
 }
 
 
+inline bool operator==(mathSSE::Vec3F a, mathSSE::Vec3F b) {
+  return _mm_movemask_ps(_mm_cmpeq_ps(a.vec,b.vec))==0xf;
+}
+
 inline mathSSE::Vec3F operator+(mathSSE::Vec3F a, mathSSE::Vec3F b) {
   return  _mm_add_ps(a.vec,b.vec);
 }
@@ -282,6 +286,14 @@ inline double cross(mathSSE::Vec2D a, mathSSE::Vec2D b) {
 
 
 // double op 3d
+
+inline bool operator==(mathSSE::Vec3D a, mathSSE::Vec3D b) {
+  return 
+    _mm_movemask_pd(_mm_cmpeq_pd(a.vec[0],b.vec[0]))==0x3 && 
+    _mm_movemask_pd(_mm_cmpeq_pd(a.vec[1],b.vec[1]))==0x3 ;
+}
+
+
 inline mathSSE::Vec3D operator+(mathSSE::Vec3D a, mathSSE::Vec3D b) {
   return  mathSSE::Vec3D(_mm_add_pd(a.vec[0],b.vec[0]),_mm_add_pd(a.vec[1],b.vec[1]));
 }

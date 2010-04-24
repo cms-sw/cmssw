@@ -5,7 +5,10 @@
 // specialization using ssemath for BasicVector<float>
 //
 
-
+template <>
+inline bool Basic3DVectorF::operator==( const Basic3DVectorF& rh) {
+  return v==rh.v;
+}
 template <> template <>
 inline Basic3DVectorF&  Basic3DVectorF::operator+=<float> ( const Basic3DVectorF& rh) {
   v = v + rh.v;

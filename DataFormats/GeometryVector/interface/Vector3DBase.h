@@ -56,6 +56,12 @@ public:
    */
   Vector3DBase unit() const { return Vector3DBase( this->basicVector().unit());}
 
+  // equality
+  bool operator==(const Vector3DBase & rh) const {
+    return basicVector()==rh.basicVector();
+  }
+
+
   /** Increment by another Vector of possibly different precision,
    *  defined in the same reference frame 
    */
