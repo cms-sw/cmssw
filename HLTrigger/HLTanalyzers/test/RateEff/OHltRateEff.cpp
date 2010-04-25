@@ -6,6 +6,7 @@
 #include <TString.h>
 #include <TTree.h>
 #include <TChain.h>
+#include <TError.h>
 #include "OHltTree.h"
 #include "OHltMenu.h"
 #include "OHltConfig.h"
@@ -37,6 +38,8 @@ inline void ShowUsage() {
 // Main
 /* ********************************************** */
 int main(int argc, char *argv[]){
+
+  gErrorIgnoreLevel = 5001;
 
   int argIndex = 0;
   if (argc > ++argIndex) {

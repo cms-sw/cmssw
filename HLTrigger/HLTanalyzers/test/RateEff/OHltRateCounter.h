@@ -90,6 +90,7 @@ class OHltRateCounter {
   std::vector<int> pureCount;
   std::vector< std::vector<int> > overlapCount;
   std::vector<int> prescaleCount;
+  std::vector<int> prescaleCountL1;
 
   std::vector< std::vector<int> > perLumiSectionCount;
   std::vector<int> perLumiSectionTotCount;

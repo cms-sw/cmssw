@@ -209,17 +209,25 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       TString st = menu->GetTriggerName(i);
       if (st.BeginsWith("HLT_") || st.BeginsWith("L1_")  || st.BeginsWith("L1Tech_") || st.BeginsWith("AlCa_")) {
 	// Prefixes reserved for Standard HLT&L1	
-	if ( (map_BitOfStandardHLTPath.find(st)->second==1) ) {	
-	  if (map_L1BitOfStandardHLTPath.find(st)->second>0) {
-	    if (prescaleResponse(menu,cfg,rc,i)) { triggerBit[i] = true; }
+	//	if(st.BeginsWith("HLT_")) { cout << st << ", prescalecount = " << rc->prescaleCount[i] << ", "; }
+	if (map_L1BitOfStandardHLTPath.find(st)->second>0) {
+	  //	  if(st.BeginsWith("HLT_")) 
+	  //	    {cout << "L1 passed, "; }
+	  if (prescaleResponse(menu,cfg,rc,i)) {
+	    //	    if(st.BeginsWith("HLT_")) { cout << "Prescale passed, "; }
+	    if ( (map_BitOfStandardHLTPath.find(st)->second==1) ) { 
+	      triggerBit[i] = true; 
+	      //	      if(st.BeginsWith("HLT_")) { cout << "HLT passed"; }
+	    }
 	  }
 	}
       } else {
 	CheckOpenHlt(cfg,menu,rc,i);
       }
+      //      if(st.BeginsWith("HLT_")) { cout << endl; }
     }
     primaryDatasetsDiagnostics.fill(triggerBit);  //SAK -- record primary datasets decisions
-
+    
     /* ******************************** */
     // 2. Loop to check overlaps
     for (int it = 0; it < nTrig; it++){
@@ -309,7 +317,7 @@ bool OHltTree::prescaleResponse(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *
 
 bool OHltTree::prescaleResponseL1(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
   if (cfg->doDeterministicPrescale) {
-    (rc->prescaleCount[i])++;
+    (rc->prescaleCountL1[i])++;
     return ((rc->prescaleCount[i]) % menu->GetL1Prescale(i) == 0); //
   } else {
     return (GetIntRandom() % menu->GetL1Prescale(i) == 0);
