@@ -55,14 +55,16 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
  
     MonitorElement* me = dbe_->get("Info/ProvInfo/runIsComplete");
      
-    if (!me) 
-         me = dbe_->bookFloat("runIsComplete");
- 
-    if (runIsComplete_)
-         if (me) me->Fill(1.);
-    else
-         if (me) me->Fill(0.);
-    
+    if (!me) me = dbe_->bookFloat("runIsComplete");
+
+    if (me)
+    { 
+      if (runIsComplete_)
+        me->Fill(1.);
+      else
+        me->Fill(0.);
+    }
+
     dbe_->save(fileBaseName_ + suffix + wflow + ".root",
 	     "", "^(Reference/)?([^/]+)", rewrite,
 	     (DQMStore::SaveReferenceTag) saveReference_,
