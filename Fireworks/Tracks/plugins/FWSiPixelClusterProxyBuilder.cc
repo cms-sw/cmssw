@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.6 2010/04/23 17:01:19 yana Exp $
+// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.7 2010/04/23 21:02:00 amraktad Exp $
 //
 
 // system include files
@@ -35,8 +35,8 @@ private:
    virtual void build( const FWEventItem* iItem, TEveElementList* product );
    FWSiPixelClusterProxyBuilder( const FWSiPixelClusterProxyBuilder& );    // stop default
    const FWSiPixelClusterProxyBuilder& operator=( const FWSiPixelClusterProxyBuilder& );    // stop default
-   void modelChanges( const FWModelIds& iIds, TEveElement* iElements, int);
-   void applyChangesToAllModels( TEveElement* iElements, int );
+   //void modelChanges( const FWModelIds& iIds, TEveElement* iElements, int);
+   //void applyChangesToAllModels( TEveElement* iElements, int );
 
 protected:
    enum Mode { Clusters, Modules };
@@ -51,13 +51,14 @@ void FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementL
    iItem->get( pixels );
    if( 0 == pixels ) return;
    
+   TEveCompound* top = createCompound();
    int index(0);
    for( SiPixelClusterCollectionNew::const_iterator set = pixels->begin(), setEnd = pixels->end();
-	set != setEnd; ++set, ++index ) {
+       set != setEnd; ++set, ++index ) {
       TEveCompound* compound = createCompound();
       unsigned int id = set->detId();
       DetId detid(id);
-
+      
       if( iItem->getGeom() ) {
          Mode m = getMode();
          if( m == Clusters ) {
@@ -72,37 +73,24 @@ void FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementL
             TEveGeoShape* shape = iItem->getGeom()->getShape( id );
             if( 0 != shape ) {
                shape->SetMainTransparency( 50 );
- 	       setupAddElement( shape, compound );
+               setupAddElement( shape, compound );
             }
          }
       }
-      setupAddElement( compound, product );
+      setupAddElement(compound, top);
    }
-}
-
-void
-FWSiPixelClusterProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements, int vt)
-{
-   applyChangesToAllModels(iElements, vt);
-}
-
-void
-FWSiPixelClusterProxyBuilder::applyChangesToAllModels(TEveElement* iElements, int)
-{
-   if(0!=iElements && item() && item()->size()) {
-      //make the bad assumption that everything is being changed indentically
-      const FWEventItem::ModelInfo info(item()->defaultDisplayProperties(),false);
-   }
+   
+   setupAddElement(top, product);
 }
 
 class FWSiPixelClusterModProxyBuilder : public FWSiPixelClusterProxyBuilder {
 public:
    FWSiPixelClusterModProxyBuilder() {}
    virtual ~FWSiPixelClusterModProxyBuilder() {}
-
+   
    REGISTER_PROXYBUILDER_METHODS();
 protected:
-    virtual Mode getMode() { return Modules; }
+   virtual Mode getMode() { return Modules; }
 };
 
 REGISTER_FWPROXYBUILDER( FWSiPixelClusterProxyBuilder, SiPixelClusterCollectionNew, "SiPixelCluster", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
