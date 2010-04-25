@@ -167,9 +167,8 @@ BasicSingleTrajectoryState(const Surface& aSurface) :
 
 BasicSingleTrajectoryState::~BasicSingleTrajectoryState(){}
 
-void  BasicSingleTrajectoryState::notValid() {
-  throw TrajectoryStateException(
-				 "TrajectoryStateOnSurface is invalid and cannot return any parameters");
+void BasicSingleTrajectoryState::notValid() {
+  throw TrajectoryStateException("TrajectoryStateOnSurface is invalid and cannot return any parameters");
 }
 
 
