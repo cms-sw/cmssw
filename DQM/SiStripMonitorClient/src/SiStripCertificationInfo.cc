@@ -281,7 +281,9 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs() {
   if (!SiStripUtility::goToDir(dqmStore_, mdir)) return;
   std::string mechanical_dir = dqmStore_->pwd();
   uint16_t nDetTot = 0;
-  uint16_t nFaultyTot = 0;  
+  uint16_t nFaultyTot = 0;
+  uint16_t nSToNTot = 0; 
+  float    sToNTot  = 0.0;
   SiStripFolderOrganizer folder_organizer;  
   int xbin = 0;
   for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); 
@@ -290,6 +292,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs() {
     std::string name = it->first;
     std::string tag  = it->second.subdet_tag;
     MonitorElement* me = it->second.det_fractionME;
+    if (!me) continue;
     std::string bad_module_folder = mechanical_dir+"/"+it->second.folder_name+"/"+"BadModuleList";
     std::vector<MonitorElement *> faulty_detMEs = dqmStore_->getContents(bad_module_folder);
     
@@ -320,13 +323,25 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs() {
     }     
     float fraction_subdet = -1.0;
     if (ndet_subdet > 0) fraction_subdet = 1 - ((nfaulty_subdet*1.0)/ndet_subdet);
-    if (me) me->Fill(fraction_subdet); 
+    // Check S/N status flag and use the minimum between the two
+    std::string full_path = mechanical_dir.substr(0, mechanical_dir.find_last_of("/")) 
+                            + "/EventInfo/reportSummaryContents/SiStrip_SToNFlag_"+name;
+    MonitorElement* me_ston = dqmStore_->get(full_path);
+    me->Reset();
+    if (me_ston && me_ston->kind()==MonitorElement::DQM_KIND_REAL) {
+      float ston_flg = me_ston->getFloatValue(); 
+      sToNTot += ston_flg;
+      nSToNTot++;
+      me->Fill(fminf(fraction_subdet,ston_flg));
+    } else me->Fill(fraction_subdet);
     nDetTot += ndet_subdet ;
     nFaultyTot += nfaulty_subdet;
   }
   float fraction_global = -1.0;
-  if (nDetTot > 0) fraction_global = 1 - ((nFaultyTot *1.8)/nFaultyTot);
-  SiStripCertification->Fill(fraction_global);
+  if (nDetTot > 0) fraction_global = 1.0 - ((nFaultyTot*1.0)/nDetTot);
+  float ston_frac_global = 1.0;
+  if (nSToNTot > 0) ston_frac_global = sToNTot/nSToNTot;   
+  SiStripCertification->Fill(fminf(fraction_global,ston_frac_global));
 }
 //
 // --Reset Tracking Certification 
