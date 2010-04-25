@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.4 2010/03/31 15:37:55 hegner Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.5 2010/04/15 19:17:10 srappocc Exp $
 */
 
 
@@ -88,7 +88,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   // 
   // Accessor from PAT jets
   // 
-  bool operator()( const pat::Jet & jet, std::strbitset & ret )  
+  bool operator()( const pat::Jet & jet, pat::strbitset & ret )  
   {
     if ( version_ == FIRSTDATA ) return firstDataCuts( jet, ret );
     else {
@@ -102,7 +102,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   // This can be used with reco quantities. 
   // 
   bool operator()( reco::PFJet const & jet, 
-		   std::strbitset & ret )  
+		   pat::strbitset & ret )  
   {
     if ( version_ == FIRSTDATA ) return firstDataCuts( jet, ret );
     else {
@@ -114,7 +114,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   // cuts based on craft 08 analysis. 
   // 
   bool firstDataCuts( reco::Jet const & jet,
-		      std::strbitset & ret) 
+		      pat::strbitset & ret) 
   {    
 
     // cache some variables

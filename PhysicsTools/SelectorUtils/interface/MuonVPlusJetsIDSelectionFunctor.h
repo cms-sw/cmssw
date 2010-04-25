@@ -122,7 +122,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
   }
 
   // Allow for multiple definitions of the cuts. 
-  bool operator()( const pat::Muon & muon, std::strbitset & ret ) 
+  bool operator()( const pat::Muon & muon, pat::strbitset & ret ) 
   { 
 
     if ( version_ == SUMMER08 ) return summer08Cuts( muon, ret );
@@ -135,7 +135,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
   using Selector<pat::Muon>::operator();
 
   // cuts based on craft 08 analysis. 
-  bool summer08Cuts( const pat::Muon & muon, std::strbitset & ret)
+  bool summer08Cuts( const pat::Muon & muon, pat::strbitset & ret)
   {
 
     ret.set(false);
@@ -169,7 +169,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
 
   // cuts based on craft 08 analysis. 
-  bool firstDataCuts( const pat::Muon & muon, std::strbitset & ret)
+  bool firstDataCuts( const pat::Muon & muon, pat::strbitset & ret)
   {
 
     ret.set(false);

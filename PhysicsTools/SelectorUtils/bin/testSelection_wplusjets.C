@@ -54,7 +54,7 @@ int main ( int argc, char ** argv )
 
   //cout << "Making event selector" << endl;
   WPlusJetsEventSelector wPlusJets( shyftParameters );
-  std::strbitset ret = wPlusJets.getBitTemplate();
+  pat::strbitset ret = wPlusJets.getBitTemplate();
   
   //loop through each event
   for( ev.toBegin();

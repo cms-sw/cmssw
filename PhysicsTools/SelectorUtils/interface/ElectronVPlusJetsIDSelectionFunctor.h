@@ -86,7 +86,7 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
   }
 
   // Allow for multiple definitions of the cuts. 
-  bool operator()( const pat::Electron & electron, std::strbitset & ret )  
+  bool operator()( const pat::Electron & electron, pat::strbitset & ret )  
   { 
 
     if ( version_ == SUMMER08 ) return summer08Cuts( electron, ret );
@@ -99,7 +99,7 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
   using Selector<pat::Electron>::operator();
 
   // cuts based on craft 08 analysis. 
-  bool summer08Cuts( const pat::Electron & electron, std::strbitset & ret) 
+  bool summer08Cuts( const pat::Electron & electron, pat::strbitset & ret) 
   {
 
     ret.set(false);
@@ -121,7 +121,7 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
 
 
   // cuts based on craft 08 analysis. 
-  bool firstDataCuts( const pat::Electron & electron, std::strbitset & ret) 
+  bool firstDataCuts( const pat::Electron & electron, pat::strbitset & ret) 
   {
 
     ret.set(false);

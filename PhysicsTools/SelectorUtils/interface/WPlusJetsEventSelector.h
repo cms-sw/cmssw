@@ -22,7 +22,7 @@ class WPlusJetsEventSelector : public EventSelector {
 
   virtual void scaleJets(double scale) {jetScale_ = scale;}
   
-  virtual bool operator()( edm::EventBase const & t, std::strbitset & ret);
+  virtual bool operator()( edm::EventBase const & t, pat::strbitset & ret);
   using EventSelector::operator();
 
   std::vector<reco::ShallowClonePtrCandidate> const & selectedJets     () const { return selectedJets_;     } 

@@ -9,7 +9,7 @@
    to access the underlying bits by a string name instead of via an index.
 
   \author Salvatore Rappoccio
-  \version  $Id: strbitset.h,v 1.2 2010/02/10 13:53:49 srappocc Exp $
+  \version  $Id: strbitset.h,v 1.3 2010/02/10 20:06:25 srappocc Exp $
 */
 
 
@@ -19,7 +19,7 @@
 #include <iostream>
 #include <fstream>
 
-namespace std {
+namespace pat {
 
 class strbitset {
  public:

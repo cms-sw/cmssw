@@ -83,7 +83,7 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   retInternal_ = getBitTemplate();
 }
 
-bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::strbitset & ret)
+bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, pat::strbitset & ret)
 {
 
   ret.set(false);
@@ -196,8 +196,8 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
 					     metHandle->at(0).p4() );
 
 
-      std::strbitset ret1 = jetIdLoose_.getBitTemplate();
-      std::strbitset ret2 = pfjetIdLoose_.getBitTemplate();
+      pat::strbitset ret1 = jetIdLoose_.getBitTemplate();
+      pat::strbitset ret2 = pfjetIdLoose_.getBitTemplate();
       for ( std::vector<pat::Jet>::const_iterator jetBegin = jetHandle->begin(),
 	      jetEnd = jetHandle->end(), ijet = jetBegin;
 	    ijet != jetEnd; ++ijet ) {

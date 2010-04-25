@@ -25,7 +25,7 @@ public:
     retInternal_ = getBitTemplate();
   }
   
-  bool operator() ( edm::EventBase const & event,  std::strbitset & ret ) {
+  bool operator() ( edm::EventBase const & event,  pat::strbitset & ret ) {
     event.getByLabel(pvSrc_, h_primVtx);
 
     // check if there is a good primary vertex

@@ -10,7 +10,7 @@
   The user can then turn individual cuts on and off at will. 
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.6 2010/03/22 03:54:31 wmtan Exp $
+  \version  $Id: Selector.h,v 1.7 2010/04/13 14:38:33 srappocc Exp $
 */
 
 
@@ -21,11 +21,11 @@
 
 /// Functor that operates on <T>
 template<class T>
-class Selector : public std::binary_function<T, std::strbitset, bool>  {
+class Selector : public std::binary_function<T, pat::strbitset, bool>  {
   
  public:
   typedef T                                            data_type;
-  typedef std::binary_function<T,std::strbitset,bool>  base_type;
+  typedef std::binary_function<T,pat::strbitset,bool>  base_type;
   typedef std::pair<std::string, size_t>               cut_flow_item;
   typedef std::vector<cut_flow_item>                   cut_flow_map;
   typedef std::map<std::string, int>                   int_map;
@@ -69,7 +69,7 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
   }
 
   /// This provides the interface for base classes to select objects
-  virtual bool operator()( T const & t, std::strbitset & ret ) = 0;
+  virtual bool operator()( T const & t, pat::strbitset & ret ) = 0;
 
   /// This provides an alternative signature without the second ret
   virtual bool operator()( T const & t )
@@ -129,7 +129,7 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
   }
 
   /// Passing cuts
-  void passCut( std::strbitset & ret, std::string const & s ) {
+  void passCut( pat::strbitset & ret, std::string const & s ) {
     ret[s] = true;
     cut_flow_map::iterator found = cutFlow_.end();
     for ( cut_flow_map::iterator cutsBegin = cutFlow_.begin(),
@@ -152,8 +152,8 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
   };
 
   /// Get an empty bitset with the proper names
-  std::strbitset getBitTemplate() const { 
-    std::strbitset ret = bits_; 
+  pat::strbitset getBitTemplate() const { 
+    pat::strbitset ret = bits_; 
     ret.set(false);
     for ( cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(),
 	    cutsEnd = cutFlow_.end(), icut = cutsBegin;
@@ -164,7 +164,7 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
   }
 
   /// set ignored bits
-  void setIgnored( std::strbitset & ret ) {
+  void setIgnored( pat::strbitset & ret ) {
     for ( cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(),
 	    cutsEnd = cutFlow_.end(), icut = cutsBegin;
 	  icut != cutsEnd; ++icut ) {
@@ -209,8 +209,8 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
   }
 
  protected:
-  std::strbitset bits_;        //!< the bitset indexed by strings
-  std::strbitset retInternal_; //!< internal ret if users don't care about return bits
+  pat::strbitset bits_;        //!< the bitset indexed by strings
+  pat::strbitset retInternal_; //!< internal ret if users don't care about return bits
   int_map        intCuts_;     //!< the int-value cut map
   double_map     doubleCuts_;  //!< the double-value cut map
   cut_flow_map   cutFlow_;     //!< map of cut flows in "human" order
