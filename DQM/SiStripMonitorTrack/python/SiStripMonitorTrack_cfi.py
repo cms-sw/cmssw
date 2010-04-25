@@ -106,6 +106,6 @@ SiStripMonitorTrack = cms.EDAnalyzer(
                          UpdateMode = cms.int32(1)
                          ),
 
-    UserDCSFiltering = cms.bool(True)
+    UseDCSFiltering = cms.bool(True)
     
     )
