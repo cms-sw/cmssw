@@ -37,12 +37,16 @@ class ProbeTreeProducer : public edm::EDAnalyzer {
     /// InputTag to the collection of all probes
     edm::InputTag probesTag_;
 
+    /// The selector object
+    StringCutObjectSelector<reco::Candidate, true> cut_;
+
     /// The object that actually computes variables and fills the tree for the probe
     std::auto_ptr<tnp::BaseTreeFiller> probeFiller_;
 };
 
 ProbeTreeProducer::ProbeTreeProducer(const edm::ParameterSet& iConfig) :
-  probesTag_(iConfig.getParameter<edm::InputTag>("ProbesTag")),
+  probesTag_(iConfig.getParameter<edm::InputTag>("src")),
+  cut_(iConfig.existsAs<std::string>("cut") ? iConfig.getParameter<std::string>("cut") : ""),
   probeFiller_(new tnp::BaseTreeFiller("probe_tree", iConfig))
 {
 }
@@ -51,12 +55,14 @@ ProbeTreeProducer::~ProbeTreeProducer(){
 }
 
 void ProbeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-  using namespace edm; using namespace std; 
-  Handle<reco::CandidateView> probes;
+  edm::Handle<reco::CandidateView> probes;
   iEvent.getByLabel(probesTag_, probes);
   probeFiller_->init(iEvent);
   for (size_t i = 0; i < probes->size(); ++i){
-    probeFiller_->fill(probes->refAt(i));
+    const reco::CandidateBaseRef &probe = probes->refAt(i);
+    if(cut_(*probe)){
+      probeFiller_->fill(probe);
+    }
   }
 }
 
@@ -67,3 +73,4 @@ void ProbeTreeProducer::endJob(){
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ProbeTreeProducer);
+
