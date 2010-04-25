@@ -48,10 +48,26 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
     wflow.replace(pos++, 1, "__");
 
   if (lumi == 0) // save for run
+  {
+    // set run end flag
+    dbe_->cd();
+    dbe_->setCurrentFolder("Info/ProvInfo");
+ 
+    MonitorElement* me = dbe_->get("Info/ProvInfo/runIsComplete");
+     
+    if (!me) 
+         me = dbe_->bookFloat("runIsComplete");
+ 
+    if (runIsComplete_)
+         if (me) me->Fill(1.);
+    else
+         if (me) me->Fill(0.);
+    
     dbe_->save(fileBaseName_ + suffix + wflow + ".root",
 	     "", "^(Reference/)?([^/]+)", rewrite,
 	     (DQMStore::SaveReferenceTag) saveReference_,
 	     saveReferenceQMin_);
+  }
   else // save EventInfo folders for luminosity sections
   {
     std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
