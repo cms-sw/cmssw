@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2010/01/04 15:10:59 $
- * $Revision: 1.27 $
+ * $Date: 2010/04/23 13:58:04 $
+ * $Revision: 1.28 $
  *
  */
 
@@ -2042,9 +2042,11 @@ void EcalSelectiveReadoutValidation::normalizeHists(double eventCount){
     } else{ //assuming TH1
       h->GetYaxis()->SetTitle("<Count>");
     }
-    buf << "Normalising " << h->GetName() << "\n";
-    h->SetBit(TH1::kIsAverage);
+    buf << "Normalising " << h->GetName() << ". Factor: " << scale << "\n";
     h->Scale(scale);
+    //Set average bit so histogram can be added correctly. Beware must be done
+    //after call the TH1::Scale (Scale has no effect if average bit is set)
+    h->SetBit(TH1::kIsAverage);
   }
   edm::LogInfo("EcalSrValid") << buf.str();
 }
