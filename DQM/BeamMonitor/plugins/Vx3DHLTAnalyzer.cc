@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.81 2010/04/24 14:23:29 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.82 2010/04/24 16:47:53 dinardo Exp $
 //
 //
 
@@ -658,10 +658,10 @@ void Vx3DHLTAnalyzer::reset(string ResetType)
 {
   if (ResetType.compare("scratch") == 0)
     {
-      runNumber      = 0;
-      numberGoodFits = 0;
-      numberFits     = 0;
-      lastLumiOfFit  = 0;
+      runNumber        = 0;
+      numberGoodFits   = 0;
+      numberFits       = 0;
+      lastLumiOfFit    = 0;
       
       Vx_X->Reset();
       Vx_Y->Reset();
@@ -676,12 +676,13 @@ void Vx3DHLTAnalyzer::reset(string ResetType)
 
       Vertices.clear();
       
-      lumiCounter    = 0;
-      totalHits      = 0;
-      beginTimeOfFit = 0;
-      endTimeOfFit   = 0;
-      beginLumiOfFit = 0;
-      endLumiOfFit   = 0;
+      lumiCounter      = 0;
+      lumiCounterHisto = 0;
+      totalHits        = 0;
+      beginTimeOfFit   = 0;
+      endTimeOfFit     = 0;
+      beginLumiOfFit   = 0;
+      endLumiOfFit     = 0;
     }
   else if (ResetType.compare("whole") == 0)
     {
@@ -698,12 +699,13 @@ void Vx3DHLTAnalyzer::reset(string ResetType)
 
       Vertices.clear();
       
-      lumiCounter    = 0;
-      totalHits      = 0;
-      beginTimeOfFit = 0;
-      endTimeOfFit   = 0;
-      beginLumiOfFit = 0;
-      endLumiOfFit   = 0;
+      lumiCounter      = 0;
+      lumiCounterHisto = 0;
+      totalHits        = 0;
+      beginTimeOfFit   = 0;
+      endTimeOfFit     = 0;
+      beginLumiOfFit   = 0;
+      endLumiOfFit     = 0;
     }
   else if (ResetType.compare("partial") == 0)
     {
@@ -713,28 +715,27 @@ void Vx3DHLTAnalyzer::reset(string ResetType)
       
       Vertices.clear();
       
-      lumiCounter    = 0;
-      totalHits      = 0;
-      beginTimeOfFit = 0;
-      endTimeOfFit   = 0;
-      beginLumiOfFit = 0;
-      endLumiOfFit   = 0;
+      lumiCounter      = 0;
+      totalHits        = 0;
+      beginTimeOfFit   = 0;
+      endTimeOfFit     = 0;
+      beginLumiOfFit   = 0;
+      endLumiOfFit     = 0;
     }
   else if (ResetType.compare("nohisto") == 0)
     {
       Vertices.clear();
       
-      lumiCounter    = 0;
-      totalHits      = 0;
-      beginTimeOfFit = 0;
-      endTimeOfFit   = 0;
-      beginLumiOfFit = 0;
-      endLumiOfFit   = 0;
+      lumiCounter      = 0;
+      lumiCounterHisto = 0;
+      totalHits        = 0;
+      beginTimeOfFit   = 0;
+      endTimeOfFit     = 0;
+      beginLumiOfFit   = 0;
+      endLumiOfFit     = 0;
     }
   else if (ResetType.compare("hitCounter") == 0)
-    {
-      totalHits      = 0;
-    }
+    totalHits          = 0;
 }
 
 
@@ -877,16 +878,18 @@ void Vx3DHLTAnalyzer::beginLuminosityBlock(const LuminosityBlock& lumiBlock,
       beginTimeOfFit = lumiBlock.beginTime().value();
       beginLumiOfFit = lumiBlock.luminosityBlock();
       lumiCounter++;
+      lumiCounterHisto++;
     }
-    else if ((lumiCounter != 0) && (lumiBlock.luminosityBlock() >= (beginLumiOfFit+lumiCounter))) lumiCounter++;
+  else if ((lumiCounter != 0) && (lumiBlock.luminosityBlock() >= (beginLumiOfFit+lumiCounter))) { lumiCounter++; lumiCounterHisto++; }
 }
 
 
 void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 					 const EventSetup& iSetup)
 {
-  unsigned int nParams = 9;
+  stringstream histTitle;
   int goodData;
+  unsigned int nParams = 9;
 
   if ((lumiCounter%nLumiReset == 0) && (nLumiReset != 0) && (beginTimeOfFit != 0) && (runNumber != 0))
     {
@@ -894,7 +897,6 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       endLumiOfFit  = lumiBlock.luminosityBlock();
       lastLumiOfFit = endLumiOfFit;
       vector<double> vals;
-      stringstream histTitle;
 
       hitCounter->ShiftFillLast(totalHits, sqrt(totalHits), nLumiReset);
 
@@ -1019,8 +1021,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  numberGoodFits++;
 
 	  histTitle << "Fitted Beam Spot [cm] (Lumi start: " << beginLumiOfFit << " - Lumi end: " << endLumiOfFit << ")";
-
-	  if (lumiCounter >= maxLumiIntegration) reset("whole");
+	  if (lumiCounterHisto >= maxLumiIntegration) reset("whole");
 	  else reset("partial");
 	}
       else
@@ -1030,15 +1031,16 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 
 	  if (goodData == -2)
 	    {
-	      reset("hitCounter");
-	      if (lumiCounter >= maxLumiIntegration) reset("whole");
 	      histTitle << "Fitted Beam Spot [cm] (not enough statistics)";
+	      if (lumiCounter >= maxLumiIntegration) reset("whole");
+	      else reset("hitCounter");
 	    }
 	  else
 	    {
 	      histTitle << "Fitted Beam Spot [cm] (problems)";
-	      if (lumiCounter >= maxLumiIntegration) reset("whole");
+	      if (lumiCounterHisto >= maxLumiIntegration) reset("whole");
 	      else reset("partial");
+
 	      counterVx = 0;
 	    }
 	}
@@ -1126,6 +1128,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
     }
   else if (nLumiReset == 0)
     {
+      histTitle << "Fitted Beam Spot [cm] (no ongoing fits)";
+      fitResults->setAxisTitle(histTitle.str().c_str(), 1);
       reportSummaryMap->Fill(0.5, 0.5, 1.0);
       hitCounter->ShiftFillLast(totalHits, sqrt(totalHits), 1);
       reset("nohisto");

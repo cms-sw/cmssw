@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.21 2010/04/24 13:00:05 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.22 2010/04/24 16:48:06 dinardo Exp $
 //
 //
 
@@ -153,18 +153,19 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       // ######################
       ofstream outputFile;
       ofstream outputDebugFile;
+      edm::TimeValue_t beginTimeOfFit;
+      edm::TimeValue_t endTimeOfFit;
+      int nBinsHistoricalPlot;
       unsigned int runNumber;
       unsigned int lumiCounter;
+      unsigned int lumiCounterHisto;
       unsigned int totalHits;
       unsigned int maxLumiIntegration;
       unsigned int numberGoodFits;
       unsigned int numberFits;
-      edm::TimeValue_t beginTimeOfFit;
-      edm::TimeValue_t endTimeOfFit;
       unsigned int beginLumiOfFit;
       unsigned int endLumiOfFit;
       unsigned int lastLumiOfFit;
-      int nBinsHistoricalPlot;
       double minVxDoF;
       double minVxWgt;
       bool internalDebug;
