@@ -1,3 +1,10 @@
+2010-04-26  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-18-00
+	* addition of modules to insert evf pseudo-fed info
+	and to select particular feds - and their cfi files
+	* removed all getByType 
+
 2010-04-13  Emilio Meschi <emilio.meschi@cern.ch>
 	
 	* tag V00-17-18

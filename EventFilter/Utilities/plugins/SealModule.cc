@@ -6,6 +6,8 @@
 #include "EventFilter/Utilities/interface/TimeProfilerService.h"
 #include "EventFilter/Utilities/interface/Stepper.h"
 #include "EventFilter/Utilities/plugins/ExceptionGenerator.h"
+#include "EventFilter/Utilities/plugins/EvFRecordInserter.h"
+#include "EventFilter/Utilities/plugins/EvFFEDSelector.h"
 
 using namespace edm::serviceregistry;
 using namespace evf;
@@ -20,3 +22,5 @@ DEFINE_FWK_SERVICE_MAKER(ServiceWebRegistry,maker2);
 DEFINE_FWK_SERVICE(TimeProfilerService);
 DEFINE_FWK_SERVICE(Stepper);
 DEFINE_FWK_MODULE(ExceptionGenerator);
+DEFINE_ANOTHER_FWK_MODULE(EvFRecordInserter);
+DEFINE_ANOTHER_FWK_MODULE(EvFFEDSelector);
