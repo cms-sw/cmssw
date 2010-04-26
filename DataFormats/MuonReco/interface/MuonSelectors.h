@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: MuonSelectors.h,v 1.10 2010/01/21 06:07:06 slava77 Exp $
+// $Id: MuonSelectors.h,v 1.11 2010/04/19 02:59:57 dmytro Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"
@@ -96,7 +96,7 @@ namespace muon {
    // overlap if distance/uncertainty is smaller than allowed pullX 
    // and pullY
    bool overlap( const reco::Muon& muon1, const reco::Muon& muon2, 
-		 double pullX = 1.0, double pullY = 1.0 );
+		 double pullX = 1.0, double pullY = 1.0, bool checkAdjacentChambers = false);
 
 }
 #endif

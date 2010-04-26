@@ -1,5 +1,7 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 namespace muon {
 SelectionType selectionTypeFromString( const std::string &label )
@@ -634,7 +636,7 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type )
 }
 
 bool muon::overlap( const reco::Muon& muon1, const reco::Muon& muon2, 
-		    double pullX, double pullY)
+		    double pullX, double pullY, bool checkAdjacentChambers)
 {
   unsigned int nMatches1 = muon1.numberOfMatches(reco::Muon::SegmentAndTrackArbitration);
   unsigned int nMatches2 = muon2.numberOfMatches(reco::Muon::SegmentAndTrackArbitration);
@@ -644,27 +646,59 @@ bool muon::overlap( const reco::Muon& muon1, const reco::Muon& muon2,
     for ( std::vector<reco::MuonChamberMatch>::const_iterator chamber2 = muon2.matches().begin();
 	  chamber2 != muon2.matches().end(); ++chamber2 )
       {
-	if ( chamber1->id != chamber2->id ) continue;
-	// found the same chamber
-	if ( fabs(chamber1->x-chamber2->x) < 
-	     pullX * sqrt(chamber1->xErr*chamber1->xErr+chamber2->xErr*chamber2->xErr) )
-	  {
-	    if ( betterMuon == 1 )
-	      nMatches2--;
-	    else
-	      nMatches1--;
-	       if ( nMatches1==0 || nMatches2==0 ) return true;
-	       continue;
-	  }
-	if ( fabs(chamber1->y-chamber2->y) < 
-	     pullY * sqrt(chamber1->yErr*chamber1->yErr+chamber2->yErr*chamber2->yErr) )
-	  {
+	
+	// if ( (chamber1->segmentMatches.empty() || chamber2->segmentMatches.empty()) ) continue;
+	
+	// handle case where both muons have information about the same chamber
+	// here we know how close they are 
+	if ( chamber1->id == chamber2->id ){
+	  // found the same chamber
+	  if ( fabs(chamber1->x-chamber2->x) < 
+	       pullX * sqrt(chamber1->xErr*chamber1->xErr+chamber2->xErr*chamber2->xErr) )
+	    {
+	      if ( betterMuon == 1 )
+		nMatches2--;
+	      else
+		nMatches1--;
+	      if ( nMatches1==0 || nMatches2==0 ) return true;
+	      continue;
+	    }
+	  if ( fabs(chamber1->y-chamber2->y) < 
+	       pullY * sqrt(chamber1->yErr*chamber1->yErr+chamber2->yErr*chamber2->yErr) )
+	    {
+	      if ( betterMuon == 1 )
+		nMatches2--;
+	      else
+		nMatches1--;
+	      if ( nMatches1==0 || nMatches2==0 ) return true;
+	    }
+	} else {
+	  if ( ! checkAdjacentChambers ) continue;
+	  // check if tracks are pointing into overlaping region of the CSC detector
+	  if ( chamber1->id.subdetId() != MuonSubdetId::CSC || 
+	       chamber2->id.subdetId() != MuonSubdetId::CSC ) continue;
+	  CSCDetId id1(chamber1->id);
+	  CSCDetId id2(chamber2->id);
+	  if ( id1.endcap()  != id2.endcap() )  continue;
+	  if ( id1.station() != id2.station() ) continue;
+	  if ( id1.ring()    != id2.ring() )    continue;
+	  if ( abs(id1.chamber() - id2.chamber())>1 ) continue;
+	  // FIXME: we don't handle 18->1; 36->1 transitions since 
+	  // I don't know how to check for sure how many chambers
+	  // are there. Probably need to hard code some checks.
+	  
+	  // Now we have to make sure that both tracks are close to an edge
+	  // FIXME: ignored Y coordinate for now
+	  if ( fabs(chamber1->edgeX) > chamber1->xErr*pullX ) continue;
+	  if ( fabs(chamber2->edgeX) > chamber2->xErr*pullX ) continue;
+	  if ( chamber1->x * chamber2->x < 0 ) { // check if the same edge
 	    if ( betterMuon == 1 )
 	      nMatches2--;
 	    else
 	      nMatches1--;
 	    if ( nMatches1==0 || nMatches2==0 ) return true;
 	  }
+	}
       }
   return false;
 }
