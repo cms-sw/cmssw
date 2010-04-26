@@ -131,6 +131,7 @@ void EMShower::prepareSteps()
   int stps;
   int first_Ecal_step=0;
   int last_Ecal_step=0;
+
   // The maximum is in principe 8 (with 5X0 steps in the ECAL)
   steps.reserve(20);
   
@@ -158,6 +159,13 @@ void EMShower::prepareSteps()
     radlen = 0.;
   }
   
+  // add a step between preshower and ee
+  radlen += theGrid->ps2eeTotalX0();
+  if ( radlen > 0.) {
+    steps.push_back(Step(5,radlen));
+    radlen = 0.;  
+  }
+  
   // ECAL
   radlen += theGrid->ecalTotalX0();
   if ( radlen > 0. ) {
@@ -172,6 +180,8 @@ void EMShower::prepareSteps()
     last_Ecal_step=steps.size()-1;
     radlen = 0.;
   } 
+
+  // I should had a gap here ! 
  
  // HCAL 
  radlen += theGrid->hcalTotalX0();
@@ -239,9 +249,10 @@ EMShower::compute() {
 
   // Prepare the grids in EcalHitMaker
   // theGrid->setInnerAndOuterDepth(innerDepth,outerDepth);
-
+  float pstot=0.;
+  float ps2tot=0.;
+  float ps1tot=0.;
   bool status=false; 
-
   //  double E1 = 0.;  // Energy layer 1
   //  double E2 = 0.;  // Energy layer 2
   //  double n1 = 0.;  // #mips layer 1
@@ -254,22 +265,29 @@ EMShower::compute() {
     // The length of the shower in this segment
     dt = steps[iStep].second;
 
+    //    std::cout << " Detector " << steps[iStep].first << " t " << t << " " << dt << std::endl;
+
     // The elapsed length
     t += dt;
-
+    
     // In what detector are we ?
     unsigned detector=steps[iStep].first;
+       
     bool presh1 = detector==0;
     bool presh2 = detector==1;
     bool ecal = detector==2;
     bool hcal = detector==3;
     bool vfcal = detector==4;
+    bool gap = detector==5;
 
     // Temporary. Will be removed 
     if ( theHCAL==NULL) hcal=false;
 
     // Keep only ECAL for now
     if ( vfcal ) continue;
+
+    // Nothing to do in the gap
+    if( gap ) continue;
 
     //    cout << " t = " << t << endl;
     // Build the grid of crystals at this ECAL depth
@@ -366,7 +384,11 @@ EMShower::compute() {
       else if ( presh1 ) {
 	
 	nS = random->poissonShoot(dE*E[i]*theLayer1->mipsPerGeV());
+	//	std::cout << " dE *E[i] (1)" << dE*E[i] << " " << dE*E[i]*theLayer1->mipsPerGeV() << "  "<< nS << std::endl;
+	pstot+=dE*E[i];
+	ps1tot+=dE*E[i];
 	dE = nS/(E[i]*theLayer1->mipsPerGeV());
+
 	//        E1 += dE*E[i]; 
 	//	n1 += nS; 
 	//	if (presh2) { E2 += SpotEnergy; ++n2; }
@@ -374,7 +396,11 @@ EMShower::compute() {
       } else if ( presh2 ) {
 	
 	nS = random->poissonShoot(dE*E[i]*theLayer2->mipsPerGeV());
+	//	std::cout << " dE *E[i] (2) " << dE*E[i] << " " << dE*E[i]*theLayer2->mipsPerGeV() << "  "<< nS << std::endl;
+	pstot+=dE*E[i];
+	ps2tot+=dE*E[i];
         dE = nS/(E[i]*theLayer2->mipsPerGeV());
+
 	//        E2 += dE*E[i]; 
 	//	n2 += nS; 
 	
@@ -534,6 +560,8 @@ EMShower::compute() {
       Etotal+=Etot[i];
     }
   //  myHistos->fill("h20",Etotal);
+  //  if(thePreshower)
+  //    std::cout << " PS " << thePreshower->layer1Calibrated() << " " << thePreshower->layer2Calibrated() << " " << thePreshower->totalCalibrated() << " " << ps1tot << " " <<ps2tot << " " << pstot << std::endl;
 }
 
 
