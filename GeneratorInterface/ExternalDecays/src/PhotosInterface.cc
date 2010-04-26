@@ -111,7 +111,7 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
       }
       
       if ( !legalVtx ) continue;
-      
+            
       // now do all the loops again
       //
       // first, flush out HEPEVT & tmp barcode storage
@@ -286,6 +286,9 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
       // ugh, done with this vertex !
    
    }
+   
+   // restore event number in HEPEVT (safety measure, somehow needed by Hw6)
+   HepMC::HEPEVT_Wrapper::set_event_number( evt->event_number() );
 
    // cross-check printout MODIFIED HepMC::GenEvent
    // evt->print();
