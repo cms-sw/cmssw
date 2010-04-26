@@ -98,26 +98,17 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   //===================== save L1 Trigger information =======================
   // get L1TriggerReadout records
-  edm::Handle<L1GlobalTriggerReadoutRecord>   gtRecord;
-  iEvent.getByLabel(L1GTReadoutRcdSource_,   gtRecord);
-  
-  //  edm::Handle<L1GlobalTriggerObjectMapRecord> gtOMRec;
-  //  iEvent.getByLabel(L1GTObjectMapRcdSource_, gtOMRec);
+  edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
+  iEvent.getByLabel(L1GTReadoutRcdSource_,  gtRecord);
   
   // sanity check on L1 Trigger Records
   if (!gtRecord.isValid()) {
     std::cout << "\nL1GlobalTriggerReadoutRecord with \n \nnot found"
       "\n  --> returning false by default!\n" << std::endl;
   }
-  //  if (!gtOMRec.isValid()) {
-  //    std::cout << "\nL1GlobalTriggerObjectMapRecord with \n \nnot found"
-  //      "\n  --> returning false by default!\n" << std::endl;
-  //  }
 
   edm::ESHandle<L1GtTriggerMenu> gtOMRec;
   iSetup.get<L1GtTriggerMenuRcd>().get(gtOMRec) ;
-  //iEvent.getByLabel(mL1GTObjectMapRcdSource, gtOMRec);
-  //iEvent.getByLabel(mL1GTReadoutRcdSource,gtRecord);
 
   // L1 decision word  
   const DecisionWord dWord = gtRecord->decisionWord();  
@@ -190,7 +181,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<reco::VertexCollection> recVtxs;
   iEvent.getByLabel("offlinePrimaryVertices",recVtxs);
   
-  //std::vector<reco::TrackRef> svTracks;
   std::vector<reco::Track> svTracks;
   math::XYZPoint leadPV(0,0,0);
   double sumPtMax = -1.0;
@@ -208,8 +198,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	bool trkQuality  = (*vtxTrack)->quality(trackQuality_);
 
 	if((*vtxTrack)->pt()<pvTracksPtMin_) continue;
-	
-	//if( trkQuality ) std::cout << trkQuality << std::endl;
 	
 	vtxTrkSumPt += (*vtxTrack)->pt();
 	if( trkQuality ) {
@@ -257,8 +245,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       */
     }
   }
-
-  
 
   // Get the beamspot
   edm::Handle<reco::BeamSpot> beamSpotH;
@@ -379,13 +365,10 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   const CaloSubdetectorGeometry* gEB = geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
   const CaloSubdetectorGeometry* gEE = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
   const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
-  //  const CaloSubdetectorGeometry* gHE = geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
   
   edm::ESHandle<CaloTopology> theCaloTopology;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology); 
   const CaloTopology *caloTopology = theCaloTopology.product();
-  //const CaloSubdetectorTopology* theEBTopology   = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
-  //  const CaloSubdetectorTopology* theEETopology   = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
   
   edm::ESHandle<HcalTopology> htopo;
   iSetup.get<IdealGeometryRecord>().get(htopo);
@@ -399,9 +382,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByLabel("hbhereco",hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
-  //  std::cout <<"hbhe->size() " << hbhe->size() << std::endl;
 
-  
   //get Handles to SimTracks and SimHits
   edm::Handle<edm::SimTrackContainer> SimTk;
   if (flagMC) iEvent.getByLabel("g4SimHits",SimTk);
@@ -422,7 +403,8 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if (flagMC) iEvent.getByLabel("g4SimHits", "HcalHits", pcalohh);
   
   //associates tracker rechits/simhits to a track
-  TrackerHitAssociator* associate = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
+  TrackerHitAssociator* associate;
+  if(flagMC) associate = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
   
   std::vector<int>  ifGood(trkCollection->size(), 1);
 
@@ -444,9 +426,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     
     const reco::Track* pTrack = &(*trkItr);
     
-    //if(debugTrks_>0) {std::cout << " Track index " << nTracks << " ";  printTrack(pTrack); }
-    //if(pTrack->pt()>1.0)   {std::cout << " Track index " << nTracks << " ";  printTrack(pTrack);}
-
     const reco::HitPattern& hitp = pTrack->hitPattern();
     int nLayersCrossed = hitp.trackerLayersWithMeasurement() ;        
     int nOuterHits     = hitp.stripTOBLayersWithMeasurement()+hitp.stripTECLayersWithMeasurement() ;
@@ -465,22 +444,20 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     double dzpv1       = (recVtxs->size()>0 && !((*recVtxs)[0].isFake()))  ? pTrack->dz(leadPV)  : pTrack->dz();	
     double chisq1      = pTrack->normalizedChi2();
 
-    //std::cout << "IsoTrack : (dz,dxy) "<<dz1<<" "<<dxy1<<" corr "<<dzbs1<<" "<<dxybs1<<std::endl;
-
     h_recEtaPt_0->Fill(eta1, pt1);
-    h_recEtaP_0->Fill(eta1, p1);
-    h_recPt_0->Fill(pt1);
-    h_recP_0->Fill(p1);
-    h_recEta_0->Fill(eta1);
-    h_recPhi_0->Fill(phi1);
+    h_recEtaP_0 ->Fill(eta1, p1);
+    h_recPt_0   ->Fill(pt1);
+    h_recP_0    ->Fill(p1);
+    h_recEta_0  ->Fill(eta1);
+    h_recPhi_0  ->Fill(phi1);
     
     if(ifGood[nTracks] && nLayersCrossed>7 ) {
       h_recEtaPt_1->Fill(eta1, pt1);
-      h_recEtaP_1->Fill(eta1, p1);
-      h_recPt_1->Fill(pt1);
-      h_recP_1->Fill(p1);
-      h_recEta_1->Fill(eta1);
-      h_recPhi_1->Fill(phi1);
+      h_recEtaP_1 ->Fill(eta1, p1);
+      h_recPt_1   ->Fill(pt1);
+      h_recP_1    ->Fill(p1);
+      h_recEta_1  ->Fill(eta1);
+      h_recPhi_1  ->Fill(phi1);
     }
     
     //========== check the charge isolation by propagating tracks to ecal surface ======
@@ -492,12 +469,12 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     if (flagMC) {
       edm::SimTrackContainer::const_iterator matchedSimTrkAll = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false); 
-      if( matchedSimTrkAll != SimTk->end())     t_trackPdgIdAll         ->push_back( matchedSimTrkAll->type() );
+      if( matchedSimTrkAll != SimTk->end())     t_trackPdgIdAll->push_back( matchedSimTrkAll->type() );
       //std::cout <<"Any Good Track : Sim " << matchedSimTrkAll->type()  << " " << matchedSimTrkAll->momentum().P() << std::endl;
     }
     // find the impact point on ecal surface
-    const FreeTrajectoryState fts1 = trackAssociator_->getFreeTrajectoryState(iSetup, *pTrack);
-    TrackDetMatchInfo info1 = trackAssociator_->associate(iEvent, iSetup, fts1, parameters_);
+    const FreeTrajectoryState fts1  = trackAssociator_->getFreeTrajectoryState(iSetup, *pTrack);
+    TrackDetMatchInfo         info1 = trackAssociator_->associate(iEvent, iSetup, fts1, parameters_);
     const GlobalPoint point1(info1.trkGlobPosAtEcal.x(),info1.trkGlobPosAtEcal.y(),info1.trkGlobPosAtEcal.z());
     //std::cout << "Ecal point1 " << point1 << std::endl;
 
@@ -515,9 +492,8 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     std::pair<math::XYZPoint,bool> point2_HC = spr::propagateHCAL( pTrack, bField);
     const GlobalPoint point2(point2_EC.first.x(),  point2_EC.first.y(), point2_EC.first.z());
 
-    // !!!! Correct it to select on p1 rather than pt1
-    //if( ifGood[nTracks] && pt1>minTrackP_ && std::abs(eta1)<maxTrackEta_ && info1.isGoodEcal) { 
-    if( p1>minTrackP_ && std::abs(eta1)<maxTrackEta_ && info1.isGoodEcal && point2_EC.second) { 
+    //if( p1>minTrackP_ && std::abs(eta1)<maxTrackEta_ && info1.isGoodEcal && point2_EC.second) { 
+    if( p1>minTrackP_ && std::abs(eta1)<maxTrackEta_ && point2_EC.second) { 
       
       double maxNearP31x31=999.0, maxNearP25x25=999.0, maxNearP21x21=999.0, maxNearP15x15=999.0;
       double maxNearP13x13=999.0, maxNearP11x11=999.0, maxNearP9x9  =999.0, maxNearP7x7  =999.0;
@@ -547,17 +523,17 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	maxNearP7x7   = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  3, 3, theTrackQuality);
       }
       
-      if( maxNearP31x31<1.0 && nLayersCrossed>7 && nOuterHits>4) {
+      if( maxNearP31x31<0.0 && nLayersCrossed>7 && nOuterHits>4) {
 	h_recEtaPt_2->Fill(eta1, pt1);
-	h_recEtaP_2->Fill(eta1, p1);
-	h_recPt_2->Fill(pt1);
-	h_recP_2->Fill(p1);
-	h_recEta_2->Fill(eta1);
-	h_recPhi_2->Fill(phi1);
+	h_recEtaP_2 ->Fill(eta1, p1);
+	h_recPt_2   ->Fill(pt1);
+	h_recP_2    ->Fill(p1);
+	h_recEta_2  ->Fill(eta1);
+	h_recPhi_2  ->Fill(phi1);
       }
       
       // if isolated in 7x7 then store the further quantities
-      if( maxNearP7x7<1.0) {
+      if( maxNearP7x7<0.0) {
 	
 	// get the matching simTrack
 	double simTrackP = -1;
@@ -579,7 +555,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	double trkEcalEne=0;
 	
 	//if(std::abs(point1.eta())<1.479) {
-	//std::vector<std::pair<DetId,double> > vXtals11x11;
 	if(std::abs(point2_EC.first.eta())<1.479) {
 	  
 	  //const DetId isoCell = gEB->getClosestCell(point1);
@@ -595,8 +570,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  e21x21       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,10,10, -100.0, -100.0);
 	  e25x25       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,12,12, -100.0, -100.0);
 	  e31x31       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,15,15, -100.0, -100.0);
-
-	  //vXtals11x11 = spr::eECALmatrixCell(isoCell, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology, 5,5, -100, -100);
 
 	  e7x7_10Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.030,  0.150);
 	  e9x9_10Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.030,  0.150);
@@ -653,8 +626,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  e21x21       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,10,10, -100.0, -100.0);
 	  e25x25       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,12,12, -100.0, -100.0);
 	  e31x31       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,15,15, -100.0, -100.0);
-
-	  //vXtals11x11  = spr::eECALmatrixCell(isoCell, barrelRecHitsHandle, endcapRecHitsHandle, geo, caloTopology, 5,5, -100, -100);
 
 	  e7x7_10Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.030,  0.150);
 	  e9x9_10Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.030,  0.150);
@@ -756,7 +727,17 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	}
 	// ====================================================================================================
 	
-	
+	// get diff between track outermost hit position and the propagation point at outermost surface of tracker	
+	std::pair<math::XYZPoint,double> point2_TK0 = spr::propagateTrackerEnd( pTrack, bField, false);
+	math::XYZPoint diff(pTrack->outerPosition().X()-point2_TK0.first.X(), 
+			    pTrack->outerPosition().Y()-point2_TK0.first.Y(), 
+			    pTrack->outerPosition().Z()-point2_TK0.first.Z() );
+	double trackOutPosOutHitDr = diff.R();
+	double trackL              = point2_TK0.second;
+	//std::cout<<" propagted "<<point2_TK0.first<<" "<< point2_TK0.first.eta()<<" "<<point2_TK0.first.phi()<<std::endl;
+	//std::cout<<" outerPosition() "<< pTrack->outerPosition() << " "<< pTrack->outerPosition().eta()<< " " << pTrack->outerPosition().phi()<< std::endl;
+	//std::cout<<"diff " << diff << " diffR " <<diff.R()<<" diffR/L "<<diff.R()/point2_TK0.second <<std::endl;
+
 	for(unsigned int ind=0;ind<recVtxs->size();ind++) {
 	  if (!((*recVtxs)[ind].isFake())) {
 	    reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
@@ -799,6 +780,8 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	t_trackHitOutMeasTEC    ->push_back( hitpOut.stripTECLayersWithMeasurement() ); 
 	t_trackHitOutMeasTIB    ->push_back( hitpOut.stripTIBLayersWithMeasurement() );
 	t_trackHitOutMeasTID    ->push_back( hitpOut.stripTIDLayersWithMeasurement() );
+	t_trackOutPosOutHitDr   ->push_back( trackOutPosOutHitDr                     );
+	t_trackL                ->push_back( trackL                                  );
 
 	t_maxNearP15x15         ->push_back( maxNearP15x15 );
 	t_maxNearP21x21         ->push_back( maxNearP21x21 );
@@ -841,16 +824,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	t_e11x11_30Sig          ->push_back( e11x11_30Sig ); 
 	t_e15x15_30Sig          ->push_back( e15x15_30Sig );
 
-	/*
-	std::vector<double> vEne;
-	double tempXtals=0.0;
-	for(int iv=0; iv<vXtals11x11.size(); iv++){
-	  vEne.push_back( vXtals11x11[iv].second );
-	  tempXtals += vXtals11x11[iv].second ;
-	}
-	t_e11x11Xtals           ->push_back( vEne );	
-	if(e11x11 !=tempXtals )  std::cout << "e11x11 "<<e11x11 << " from vector of Xtals "<< tempXtals<<std::endl;
-	*/
 	if (flagMC) {
 	  t_esim3x3               ->push_back( simInfo3x3["eTotal"] );
 	  t_esim5x5               ->push_back( simInfo5x5["eTotal"] );
@@ -1120,6 +1093,8 @@ void IsolatedTracksNxN::clearTreeVectors() {
   t_trackHitOutMeasTEC    ->clear(); 
   t_trackHitOutMeasTIB    ->clear();
   t_trackHitOutMeasTID    ->clear();
+  t_trackOutPosOutHitDr   ->clear();
+  t_trackL                ->clear();
 
   t_maxNearP31x31     ->clear();
   t_maxNearP25x25     ->clear();
@@ -1459,6 +1434,8 @@ void IsolatedTracksNxN::BookHistograms(){
   t_trackHitOutMeasTEC= new std::vector<int>(); 
   t_trackHitOutMeasTIB= new std::vector<int>();
   t_trackHitOutMeasTID= new std::vector<int>();
+  t_trackOutPosOutHitDr=new std::vector<double>();
+  t_trackL             =new std::vector<double>();
 
   tree->Branch("t_trackP",            "vector<double>", &t_trackP            );
   tree->Branch("t_trackPt",           "vector<double>", &t_trackPt           );
@@ -1484,6 +1461,8 @@ void IsolatedTracksNxN::BookHistograms(){
   tree->Branch("t_trackHitOutMeasTEC", "vector<int>",   &t_trackHitOutMeasTEC); 
   tree->Branch("t_trackHitOutMeasTIB", "vector<int>",   &t_trackHitOutMeasTIB);
   tree->Branch("t_trackHitOutMeasTID", "vector<int>",   &t_trackHitOutMeasTID);
+  tree->Branch("t_trackOutPosOutHitDr", "vector<double>", &t_trackOutPosOutHitDr);
+  tree->Branch("t_trackL",              "vector<double>", &t_trackL);
 
   tree->Branch("t_trackDxy",          "vector<double>", &t_trackDxy     );
   tree->Branch("t_trackDxyBS",        "vector<double>", &t_trackDxyBS   );

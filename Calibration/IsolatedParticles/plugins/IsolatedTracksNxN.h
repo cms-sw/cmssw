@@ -208,6 +208,7 @@ private:
   std::vector<int>    *t_trackHitOutMissTOB,*t_trackHitOutMissTEC, *t_trackHitOutMissTIB, *t_trackHitOutMissTID;
   std::vector<int>    *t_trackHitInMeasTOB, *t_trackHitInMeasTEC,  *t_trackHitInMeasTIB,  *t_trackHitInMeasTID;
   std::vector<int>    *t_trackHitOutMeasTOB,*t_trackHitOutMeasTEC, *t_trackHitOutMeasTIB, *t_trackHitOutMeasTID;
+  std::vector<double> *t_trackOutPosOutHitDr, *t_trackL;
 
   std::vector<double> *t_maxNearP31x31;
   std::vector<double> *t_maxNearP25x25;

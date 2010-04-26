@@ -1,5 +1,5 @@
-#ifndef CalibrationIsolatedParticlesDetIdFromEtaPhi_h
-#define CalibrationIsolatedParticlesDetIdFromEtaPhi_h
+#ifndef CalibrationIsolatedParticleseCDetIdFromEtaPhi_h
+#define CalibrationIsolatedParticleseCDetIdFromEtaPhi_h
 
 #include <cmath>
 
@@ -8,9 +8,9 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 namespace spr{
-  const DetId findDetIdECAL( const CaloGeometry* geo, double eta, double phi) ;
-  const DetId findDetIdHCAL( const CaloGeometry* geo, double eta, double phi) ;
-  const DetId findDetIdCalo( const CaloSubdetectorGeometry* geo, double theta, double phi, double radius) ;
+  const DetId findDetIdECAL( const CaloGeometry* geo, double eta, double phi, bool debug=false) ;
+  const DetId findDetIdHCAL( const CaloGeometry* geo, double eta, double phi, bool debug=false) ;
+  const DetId findDetIdCalo( const CaloSubdetectorGeometry* geo, double theta, double phi, double radius, bool debug=false) ;
 
 }
 #endif

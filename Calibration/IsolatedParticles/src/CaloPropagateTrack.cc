@@ -47,6 +47,61 @@ namespace spr{
     return std::pair<math::XYZPoint,bool>(track.point,track.ok);
   }
 
+  std::pair<math::XYZPoint,bool> propagateTracker(const reco::Track *track, const MagneticField* bfield, bool debug) {
+    GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
+    GlobalVector momentum (track->px(), track->py(), track->pz());
+    int charge (track->charge());
+    spr::propagatedTrack track1 = spr::propagateCalo (vertex, momentum, charge, bfield, 290.0, 109.0, 1.705, debug);
+    return std::pair<math::XYZPoint,bool>(track1.point,track1.ok);
+  }
+
+  std::pair<math::XYZPoint,double> propagateTrackerEnd(const reco::Track *track, const MagneticField* bField, bool debug) {
+
+    GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
+    GlobalVector momentum (track->px(), track->py(), track->pz());
+    int charge (track->charge());
+    float radius = track->outerPosition().Rho();
+    float zdist  = track->outerPosition().Z();
+    if (debug) std::cout << "propagateTrackerEnd:: Vertex " << vertex << " Momentum " << momentum << " Charge " << charge << " Radius " << radius << " Z " << zdist << std::endl;
+
+    FreeTrajectoryState fts (vertex, momentum, charge, bField);
+    Plane::PlanePointer endcap = Plane::build(Plane::PositionType (0, 0, zdist), Plane::RotationType());
+    Cylinder::CylinderPointer barrel = Cylinder::build(Cylinder::PositionType (0, 0, 0), Cylinder::RotationType (), radius);
+
+    AnalyticalPropagator myAP (bField, alongMomentum, 2*M_PI);
+
+    TrajectoryStateOnSurface tsose = myAP.propagate(fts, *endcap);
+    TrajectoryStateOnSurface tsosb = myAP.propagate(fts, *barrel);
+
+    math::XYZPoint point(-999.,-999.,-999.);
+    bool ok=false;
+    GlobalVector direction(0,0,1);
+    if (tsosb.isValid() && std::abs(zdist) < 110) {
+      point.SetXYZ(tsosb.globalPosition().x(), tsosb.globalPosition().y(), tsosb.globalPosition().z());
+      direction = tsosb.globalDirection();
+      ok = true;
+    } else if (tsose.isValid()) {
+      point.SetXYZ(tsose.globalPosition().x(), tsose.globalPosition().y(), tsose.globalPosition().z());
+      direction = tsose.globalDirection();
+      ok = true;
+    }
+
+    double length = -1;
+    if (ok) {
+      math::XYZPoint vDiff(point.x()-vertex.x(), point.y()-vertex.y(), point.z()-vertex.z());
+      double dphi  = direction.phi()-momentum.phi();
+      double rdist = std::sqrt(vDiff.x()*vDiff.x()+vDiff.y()*vDiff.y());
+      double rat   = 0.5*dphi/std::sin(0.5*dphi);
+      double dZ    = vDiff.z();
+      double dS    = rdist*rat; //dZ*momentum.z()/momentum.perp();
+      length       = std::sqrt(dS*dS+dZ*dZ);
+      if (debug) 
+	std::cout << "propagateTracker:: Barrel " << tsosb.isValid() << " Endcap " << tsose.isValid() << " OverAll " << ok << " Point " << point << " RDist " << rdist << " dS " << dS << " dS/pt " << rdist*rat/momentum.perp() << " zdist " << dZ << " dz/pz " << dZ/momentum.z() << " Length " << length << std::endl;
+    }
+
+    return std::pair<math::XYZPoint,double>(point,length);
+  }
+
   spr::propagatedTrack propagateCalo(const GlobalPoint& tpVertex, const GlobalVector& tpMomentum, int tpCharge, const MagneticField* bField, float zdist, float radius, float corner, bool debug) {
     
     spr::propagatedTrack track;

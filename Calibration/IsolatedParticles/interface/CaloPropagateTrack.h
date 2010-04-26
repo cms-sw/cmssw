@@ -24,6 +24,9 @@ namespace spr{
   std::pair<math::XYZPoint,bool> propagateHCAL(const reco::Track*, const MagneticField*, bool debug=false);
   std::pair<math::XYZPoint,bool> propagateHCAL(const GlobalPoint& vertex, const GlobalVector& momentum, int charge, const MagneticField*, bool debug=false);
 
+  std::pair<math::XYZPoint,bool> propagateTracker(const reco::Track*, const MagneticField*, bool debug=false);
+  std::pair<math::XYZPoint,double> propagateTrackerEnd(const reco::Track*, const MagneticField*, bool debug=false);
+
   propagatedTrack propagateCalo(const GlobalPoint& vertex, const GlobalVector& momentum, int charge, const MagneticField*, float zdist, float radius, float corner, bool debug=false);
 
 }
