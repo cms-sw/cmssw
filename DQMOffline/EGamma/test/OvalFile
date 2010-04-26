@@ -34,7 +34,7 @@ Tests with same datasets as release validation
   <var name="DBS_RELEASE" value="Any">
   <var name="DBS_TIER" value="FEVT">
   <var name="DBS_COND" value="Commissioning10-Express-v9">
-  <var name="DBS_SAMPLE" value="ExpressPhysics">
+  <var name="DBS_SAMPLE" value="StreamExpress">
 
   <var name="VAL_ANALYZER" value="ElectronAnalyzer">
   <var name="VAL_CONFIGURATION" value="${VAL_ANALYZER}_cfg.py">
@@ -48,14 +48,14 @@ Tests with same datasets as release validation
     <executable name="dbs_discovery.py">
     
     <var name="TEST_HISTOS_FILE" value="cmsRun.${DBS_RUN}.olog.electronHistos.root">
-    <var name="TEST_WORKFLOW" value="/${DBS_SAMPLE}/${DBS_RUN}/DQMOFFLINE">
+    <var name="TEST_WORKFLOW" value="/${DBS_SAMPLE}/${DBS_COND}/DQMOFFLINE">
   
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
     
     <var name="DQM_PREFIX" value="DQM_V0001_R000000001">
-    
-    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${DBS_SAMPLE}__${DBS_RUN}__DQMOFFLINE.root">
+        
+    <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${DBS_SAMPLE}__${DBS_COND}__DQMOFFLINE.root">
     <var name="PUB_INPUT_FOLDER" value="DQMData/Run 1/Egamma/Run summary/Electrons/">
     <var name="PUB_OUTPUT_DIR" value="${TOP_WEB_DIR}/${DBS_RUN}/DQMOffline">
     <var name="PUB_TITLE" value="DQMOffline Electron Histograms for ${DBS_RUN}">
