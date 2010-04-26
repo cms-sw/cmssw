@@ -23,6 +23,13 @@
 
 import httplib, urllib, urllib2, types, string, os, sys
 
+if not os.environ.has_key('DBS_RELEASE'):
+  os.environ['DBS_RELEASE'] = "Any"
+if not os.environ.has_key('DBS_SAMPLE'):
+  os.environ['DBS_SAMPLE'] = "Any"
+if not os.environ.has_key('DBS_RUN'):
+  os.environ['DBS_RUN'] = "Any"
+
 def common_search(dbs_tier):
 
   if os.environ['DBS_RELEASE'] == "LOCAL":
@@ -30,19 +37,26 @@ def common_search(dbs_tier):
     for line in  open('dbs_discovery.txt').readlines():
       line = line.strip()
       if line == "": continue
-      if line.find(os.environ['DBS_SAMPLE'])== -1: continue
+      if os.environ['DBS_SAMPLE'] != "Any" and line.find(os.environ['DBS_SAMPLE'])== -1: continue
       if line.find(os.environ['DBS_COND'])== -1: continue
       if line.find(dbs_tier)== -1: continue
       result.append('file:'+line)
   else:
     url = "https://cmsweb.cern.ch:443/dbs_discovery/aSearch"
+    input = "find file"
+    separator = " where "
     if os.environ['DBS_RELEASE'] != "Any":
-      input = "find file where release = " + os.environ['DBS_RELEASE']
+      input = input + separator + "release = " + os.environ['DBS_RELEASE']
+      separator = " and "
     if os.environ['DBS_SAMPLE'] != "Any":
-      input = input + " and primds = " + os.environ['DBS_SAMPLE']
-    input = input + " and dataset like *" + os.environ['DBS_COND'] + "*" + dbs_tier + "*"
+      input = input + separator + "primds = " + os.environ['DBS_SAMPLE']
+      separator = " and "
+    if os.environ['DBS_RUN'] != "Any":
+      input = input + separator + "run = " + os.environ['DBS_RUN']
+      separator = " and "
+    input = input + separator + "dataset like *" + os.environ['DBS_COND'] + "*" + dbs_tier + "*"
     final_input = urllib.quote(input) ;
-
+    
     agent   = "Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)"
     ctypes  = "text/plain"
     headers = { 'User-Agent':agent, 'Accept':ctypes}

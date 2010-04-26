@@ -20,7 +20,7 @@ process.dqmElectronClientAllElectrons.InputFile = cms.string(os.environ['TEST_HI
 #process.dqmElectronClientTagAndProbe.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
 
 process.load("Configuration.StandardSequences.EDMtoMEAtJobEnd_cff")
-process.dqmSaver.workflow = '/'+os.environ['TEST_DATASET']+'/'+os.environ['DBS_RELEASE']+'-'+os.environ['DBS_COND']+'/DQMOFFLINE'
+process.dqmSaver.workflow = os.environ['TEST_WORKFLOW']
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
 process.p = cms.Path(process.electronOfflineClientSequence*process.dqmStoreStats*process.DQMSaver)

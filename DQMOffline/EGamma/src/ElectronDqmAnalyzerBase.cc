@@ -76,7 +76,9 @@ const std::string * ElectronDqmAnalyzerBase::find( const std::string & name )
     return 0 ;
    }
   else
-   { return &*res[0] ; }
+   {
+    return &*res[0] ;
+   }
  }
 
 void ElectronDqmAnalyzerBase::beginJob()
