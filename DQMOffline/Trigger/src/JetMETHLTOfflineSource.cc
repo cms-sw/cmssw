@@ -57,6 +57,9 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   plotAll_     = iConfig.getUntrackedParameter< bool >("plotAll", false);
   plotAllwrtMu_     = iConfig.getUntrackedParameter< bool >("plotAllwrtMu", false);
   plotEff_     = iConfig.getUntrackedParameter< bool >("plotEff", false);
+  nameForEff_ =  iConfig.getUntrackedParameter< bool >("nameForEff", true);
+  jetID = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"));
+  
   // plotting paramters
   MuonTrigPaths_ = iConfig.getUntrackedParameter<vector<std::string> >("pathnameMuon");
   MBTrigPaths_ = iConfig.getUntrackedParameter<vector<std::string> >("pathnameMB");
@@ -64,8 +67,20 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   caloMETTag_ = iConfig.getParameter<edm::InputTag>("CaloMETCollectionLabel"); 
   triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
   triggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
+  custompathname = iConfig.getUntrackedParameter<vector<std::string> >("paths");
+  _fEMF  = iConfig.getUntrackedParameter< double >("fEMF", 0.01);
+  _feta  = iConfig.getUntrackedParameter< double >("feta", 2.60);
+  _fHPD  = iConfig.getUntrackedParameter< double >("fHPD", 0.98);
+  _n90Hits = iConfig.getUntrackedParameter< double >("n90Hits", 1.0);
+  // this is the list of paths to look at.
+  std::vector<edm::ParameterSet> paths =  iConfig.getParameter<std::vector<edm::ParameterSet> >("pathPairs");
+  for(std::vector<edm::ParameterSet>::iterator pathconf = paths.begin() ; pathconf != paths.end();  pathconf++) {
 
-  
+  std::pair<std::string, std::string> custompathnamepair;
+  custompathnamepair.first =pathconf->getParameter<std::string>("pathname"); 
+  custompathnamepair.second = pathconf->getParameter<std::string>("denompathname");   
+  custompathnamepairs_.push_back(custompathnamepair);
+  } 
 
 
 }
@@ -136,13 +151,13 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
     const CaloMET met = calometcol->front();
    }   
   fillMEforMonTriggerSummary();
-  if(plotAll_)fillMEforMonAllTrigger();
-  if(plotAllwrtMu_)fillMEforMonAllTriggerwrtMuonTrigger();
+  if(plotAll_)fillMEforMonAllTrigger(iEvent);
+  if(plotAllwrtMu_)fillMEforMonAllTriggerwrtMuonTrigger(iEvent);
   if(plotEff_)
   {
-  fillMEforEffAllTrigger(); 
-  fillMEforEffWrtMuTrigger();
-  fillMEforEffWrtMBTrigger();
+  fillMEforEffAllTrigger(iEvent); 
+  fillMEforEffWrtMuTrigger(iEvent);
+  fillMEforEffWrtMBTrigger(iEvent);
   }
   fillMEforTriggerNTfired();
 }
@@ -150,56 +165,43 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 void JetMETHLTOfflineSource::fillMEforMonTriggerSummary(){
   // Trigger summary for all paths
+    bool muTrig = false;
+    bool mbTrig = false;
+    for(size_t i=0;i<MuonTrigPaths_.size();++i)if(isHLTPathAccepted(MuonTrigPaths_[i]))muTrig = true;
+    for(size_t i=0;i<MBTrigPaths_.size();++i)if(isHLTPathAccepted(MBTrigPaths_[i]))mbTrig = true;
     for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v )
         {
          double binV = TriggerPosition(v->getPath());       
-         if(isHLTPathAccepted(v->getPath()))rate_All->Fill(binV);
-         if(isHLTPathAccepted(v->getPath()))correlation_All->Fill(binV,binV);
+         if(isHLTPathAccepted(v->getPath()))
+         {
+          rate_All->Fill(binV);
+          if(muTrig)rate_AllWrtMu->Fill(binV);
+          if(mbTrig)rate_AllWrtMB->Fill(binV);
+         }
+         if(isHLTPathAccepted(v->getPath()))
+         {
+          correlation_All->Fill(binV,binV);
+          if(muTrig)correlation_AllWrtMu->Fill(binV,binV);
+          if(mbTrig)correlation_AllWrtMB->Fill(binV,binV);
+         }
          for(PathInfoCollection::iterator w = v+1; w!= hltPathsAll_.end(); ++w )
            {
            double binW = TriggerPosition(w->getPath()); 
-           if(isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_All->Fill(binV,binW);
-           if(!isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_All->Fill(binW,binV); 
+           if(isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))
+           {
+            correlation_All->Fill(binV,binW);
+            if(muTrig)correlation_AllWrtMu->Fill(binV,binW);
+            if(mbTrig)correlation_AllWrtMB->Fill(binV,binW); 
+           }
+           if(!isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))
+           {
+            correlation_All->Fill(binW,binV); 
+            if(muTrig)correlation_AllWrtMu->Fill(binW,binV);
+            if(mbTrig)correlation_AllWrtMB->Fill(binW,binV);
+
+           }
            }
         }
-  // Trigger summary for all paths wrt Muon trigger
-    bool muTrig = false;
-    for(size_t i=0;i<MuonTrigPaths_.size();++i)if(isHLTPathAccepted(MuonTrigPaths_[i]))muTrig = true;  
-    if(muTrig )
-    { 
-    for(PathInfoCollection::iterator v = hltPathsWrtMu_.begin(); v!= hltPathsWrtMu_.end(); ++v )
-        {
-         double binV = TriggerPosition(v->getPath());
-         if(isHLTPathAccepted(v->getPath()))rate_AllWrtMu->Fill(binV);
-         if(isHLTPathAccepted(v->getPath()))correlation_AllWrtMu->Fill(binV,binV);
-         for(PathInfoCollection::iterator w = v+1; w!= hltPathsWrtMu_.end(); ++w )
-           {
-           double binW = TriggerPosition(w->getPath());
-           if(isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_AllWrtMu->Fill(binV,binW);
-           if(!isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_AllWrtMu->Fill(binW,binV);
-           }
-        } 
-  }// Muon trigger fired
-
- // Trigger summary for all paths wrt MB trigger
-    bool mbTrig = false;
-    for(size_t i=0;i<MBTrigPaths_.size();++i)if(isHLTPathAccepted(MBTrigPaths_[i]))mbTrig = true;
-    if(mbTrig )
-    {
-    for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffWrtMB_.end(); ++v )
-        {
-         double binV = TriggerPosition(v->getPath());
-         if(isHLTPathAccepted(v->getPath()))rate_AllWrtMB->Fill(binV);
-         if(isHLTPathAccepted(v->getPath()))correlation_AllWrtMB->Fill(binV,binV);
-         for(PathInfoCollection::iterator w = v+1; w!= hltPathsEffWrtMB_.end(); ++w )
-           {
-           double binW = TriggerPosition(w->getPath());
-           if(isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_AllWrtMB->Fill(binV,binW);
-           if(!isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_AllWrtMB->Fill(binW,binV);
-           }
-        }
-  }// MB trigger fired
-
 }
 
 void JetMETHLTOfflineSource::fillMEforTriggerNTfired(){
@@ -210,7 +212,7 @@ void JetMETHLTOfflineSource::fillMEforTriggerNTfired(){
   } else {
     return;
   }
-  for(PathInfoCollection::iterator v = hltPathsNTfired_.begin(); v!= hltPathsNTfired_.end(); ++v )
+  for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v )
     {
      for(int i = 0; i < npath; ++i) {
        if (triggerNames_.triggerName(i).find(v->getPath()) != std::string::npos )
@@ -279,13 +281,14 @@ void JetMETHLTOfflineSource::fillMEforTriggerNTfired(){
 }
 
 
-void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
+void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
   int npath;
   if(&triggerResults_) {
     npath = triggerResults_->size();
   } else {
     return;
   }
+ //-----------------------------------------------------  
   const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects()); 
   for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v )
     {
@@ -295,21 +298,23 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
             std::vector<double>jetPtVec;
             std::vector<double>jetPhiVec; 
             std::vector<double>jetEtaVec;
+            std::vector<double>jetPxVec;
+            std::vector<double>jetPyVec;
             
             std::vector<double>hltPtVec;
             std::vector<double>hltPhiVec;
             std::vector<double>hltEtaVec;
-
-            std::vector<double>l1PtVec;
-            std::vector<double>l1PhiVec;
-            std::vector<double>l1EtaVec; 
-
+            std::vector<double>hltPxVec;
+            std::vector<double>hltPyVec;
+ 
+            //---------------------------------------------
             edm::InputTag l1Tag(v->getl1Path(),"",processname_);
             const int l1Index = triggerObj_->filterIndex(l1Tag);
             edm::InputTag hltTag(v->getLabel(),"",processname_);
             const int hltIndex = triggerObj_->filterIndex(hltTag);
             bool l1TrigBool = false;
             bool hltTrigBool = false;
+            bool diJetFire = false;
             int jetsize = 0;
             if ( l1Index >= triggerObj_->sizeFilters() ) {
             edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
@@ -320,8 +325,9 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
              if(v->getObjectType() == trigger::TriggerJet)v->getMEhisto_N_L1()->Fill(kl1.size());
              for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki)
               {
-               double l1TrigEta = 0;
-               double l1TrigPhi = 0;
+               double l1TrigEta = -100;
+               double l1TrigPhi = -100;
+              //-------------------------------------------
                if(v->getObjectType() == trigger::TriggerJet)
                { 
                l1TrigEta = toc[*ki].eta();
@@ -339,24 +345,58 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
                v->getMEhisto_Pt_L1()->Fill(toc[*ki].pt());
                v->getMEhisto_Phi_L1()->Fill(toc[*ki].phi());
                }
-               
+             //-----------------------------------------------  
                 if ( hltIndex >= triggerObj_->sizeFilters() ) {
                 edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
                 } else {
                 const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex);
                 std::string hltname = triggerObj_->filterTag(hltIndex).encode();
-                 if(v->getObjectType() == trigger::TriggerJet)v->getMEhisto_N_HLT()->Fill(khlt.size());
+                 if((v->getObjectType() == trigger::TriggerJet) && (ki == kl1.begin()))v->getMEhisto_N_HLT()->Fill(khlt.size());
+
                  for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj)
                   {
-                  hltTrigBool = true;
-                  double hltTrigEta = 0.;
-                  double hltTrigPhi = 0.;
+                  double hltTrigEta = -100;
+                  double hltTrigPhi = -100;
                   if(v->getObjectType() == trigger::TriggerJet)
                    {
                    hltTrigEta = toc[*kj].eta();
                    hltTrigPhi = toc[*kj].phi();
-                   
+                   if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4 && (v->getTriggerType() == "DiJet_Trigger"))hltTrigBool = true;
+                  }    
+                  }
+               for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj)
+                  {
+                  double hltTrigEta = -100;
+                  double hltTrigPhi = -100;
+            //--------------------------------------------------
+                  if(v->getObjectType() == trigger::TriggerMET)
+                    {
+                    v->getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());
+                    v->getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());
+                    v->getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());
+                    v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());
+                    v->getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));
+                    v->getMEhisto_PhiResolution_L1HLT()->Fill((toc[*ki].phi()-toc[*kj].phi())/(toc[*ki].phi()));
+                    }
+           //--------------------------------------------------
+                  if(v->getObjectType() == trigger::TriggerJet)
+                   {
+                   hltTrigEta = toc[*kj].eta();
+                   hltTrigPhi = toc[*kj].phi();
+
                    if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4)
+                     {
+                    
+                    v->getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());
+                    v->getMEhisto_EtaCorrelation_L1HLT()->Fill(toc[*ki].eta(),toc[*kj].eta());
+                    v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());
+
+                    v->getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));
+                    v->getMEhisto_EtaResolution_L1HLT()->Fill((toc[*ki].eta()-toc[*kj].eta())/(toc[*ki].eta()));
+                    v->getMEhisto_PhiResolution_L1HLT()->Fill((toc[*ki].phi()-toc[*kj].phi())/(toc[*ki].phi()));
+                    } 
+
+                   if(((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi) < 0.4 ) || (v->getTriggerType() == "DiJet_Trigger"  && hltTrigBool)) && !diJetFire)
                     {
                     v->getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());
                     if (isBarrel(toc[*kj].eta()))  v->getMEhisto_PtBarrel_HLT()->Fill(toc[*kj].pt());
@@ -365,26 +405,9 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
                     v->getMEhisto_Eta_HLT()->Fill(toc[*kj].eta());
                     v->getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());
                     v->getMEhisto_EtaPhi_HLT()->Fill(toc[*kj].eta(),toc[*kj].phi());
-                    
-                    v->getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());
-                    v->getMEhisto_EtaCorrelation_L1HLT()->Fill(toc[*ki].eta(),toc[*kj].eta());  
-                    v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());
-                     
-                    v->getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));
-                    v->getMEhisto_EtaResolution_L1HLT()->Fill((toc[*ki].eta()-toc[*kj].eta())/(toc[*ki].eta()));
-                    v->getMEhisto_PhiResolution_L1HLT()->Fill((toc[*ki].phi()-toc[*kj].phi())/(toc[*ki].phi()));
-                    } 
-                    if(v->getObjectType() == trigger::TriggerMET)
-                    {
-                    v->getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());
-                    v->getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());
-                    v->getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());
-                    v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi()); 
-                    v->getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));
-                    v->getMEhisto_PhiResolution_L1HLT()->Fill((toc[*ki].phi()-toc[*kj].phi())/(toc[*ki].phi()));
-                    }
+         //-------------------------------------------------           
+
                     if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
-                        
                     
                     for(CaloJetCollection::const_iterator jet = calojet.begin(); jet != calojet.end(); ++jet ) {
                       double jetEta = jet->eta();
@@ -407,28 +430,33 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
                          v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-jet->pt())/(toc[*kj].pt()));
                          v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*kj].eta()-jet->eta())/(toc[*kj].eta()));
                          v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-jet->phi())/(toc[*kj].phi()));
-                         if(v->getTriggerType() == "DiJet_Trigger")
+                         
+        //-------------------------------------------------------    
+                         if(v->getTriggerType() == "DiJet_Trigger" )
                            {
                             jetPhiVec.push_back(jet->phi());
                             jetPtVec.push_back(jet->pt());
                             jetEtaVec.push_back(jet->eta());         
+                            jetPxVec.push_back(jet->px());
+                            jetPyVec.push_back(jet->py()); 
 
                             hltPhiVec.push_back(toc[*kj].phi());
                             hltPtVec.push_back(toc[*kj].pt());
                             hltEtaVec.push_back(toc[*kj].eta());
- 
-                            l1PhiVec.push_back(toc[*ki].phi());
-                            l1PtVec.push_back(toc[*ki].pt());
-                            l1EtaVec.push_back(toc[*ki].eta());
+                            hltPxVec.push_back(toc[*kj].px()); 
+                            hltPyVec.push_back(toc[*kj].py());
+
                            }
                           
 
                         }// matching jet
                                     
                      }// Jet Loop
-                    v->getMEhisto_N()->Fill(jetsize);
                     }// valid jet collection
-
+                  } // hlt matching with l1 
+                      
+                }// jet trigger
+      //------------------------------------------------------
                     if(calometColl_.isValid() && (v->getObjectType() == trigger::TriggerMET)){
                     const CaloMETCollection *calometcol = calometColl_.product();
                     const CaloMET met = calometcol->front();
@@ -439,25 +467,25 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
                     v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),met.phi());
                     v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-met.pt())/(toc[*kj].pt()));
                     v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-met.phi())/(toc[*kj].phi())); 
-                    }// valid MET Collection 
-                    }// matching  HLT candidate     
+                }// valid MET Collection 
 
-                 }//Loop over HLT trigger candidates
+     //--------------------------------------------------------
 
-           }// valid hlt trigger object
-
-         }// Loop over L1 objects
-           if(v->getTriggerType() == "DiJet_Trigger" && jetPtVec.size() >1)
-             {
+            }//Loop over HLT trigger candidates
+         if(v->getTriggerType() == "DiJet_Trigger")diJetFire = true;
+        }// valid hlt trigger object
+     }// Loop over L1 objects
+      }// valid L1
+     v->getMEhisto_N()->Fill(jetsize);
+     //--------------------------------------------------------
+       if(v->getTriggerType() == "DiJet_Trigger" && jetPtVec.size() >1)
+            {
                double AveJetPt = (jetPtVec[0] + jetPtVec[1])/2;
                double AveJetEta = (jetEtaVec[0] + jetEtaVec[1])/2;               
                double JetDelPhi = deltaPhi(jetPhiVec[0],jetPhiVec[1]);
                double AveHLTPt = (hltPtVec[0] + hltPtVec[1])/2;
                double AveHLTEta = (hltEtaVec[0] + hltEtaVec[1])/2;
                double HLTDelPhi = deltaPhi(hltPhiVec[0],hltPhiVec[1]);
-               double AveL1Pt = (l1PtVec[0] + l1PtVec[1])/2;
-               double AveL1Eta = (l1EtaVec[0] + l1EtaVec[1])/2;
-               double L1DelPhi = deltaPhi(l1PhiVec[0],l1PhiVec[1]);
                v->getMEhisto_AveragePt_RecObj()->Fill(AveJetPt);
                v->getMEhisto_AverageEta_RecObj()->Fill(AveJetEta);
                v->getMEhisto_DeltaPhi_RecObj()->Fill(JetDelPhi);
@@ -466,14 +494,10 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
                v->getMEhisto_AverageEta_HLTObj()->Fill(AveHLTEta);
                v->getMEhisto_DeltaPhi_HLTObj()->Fill(HLTDelPhi);       
 
-               v->getMEhisto_AveragePt_L1Obj()->Fill(AveL1Pt);
-               v->getMEhisto_AverageEta_L1Obj()->Fill(AveL1Eta);
-               v->getMEhisto_DeltaPhi_L1Obj()->Fill(L1DelPhi); 
- 
-             }
-        } // trigger name exists/not  
-          
-       if(l1TrigBool && !hltTrigBool)
+            
+            }
+    //-----------------------------------------------------      
+       if(v->getPath().find("L1") != std::string::npos)
          {
          if ( l1Index >= triggerObj_->sizeFilters() ) {
           edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
@@ -500,6 +524,13 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
                          v->getMEhisto_Phi()->Fill(jet->phi());
                          v->getMEhisto_EtaPhi()->Fill(jet->eta(),jet->phi()); 
 
+                         v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*ki].pt(),jet->pt());
+                         v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*ki].eta(),jet->eta());
+                         v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*ki].phi(),jet->phi());
+
+                         v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*ki].pt()-jet->pt())/(toc[*ki].pt()));
+                         v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*ki].eta()-jet->eta())/(toc[*ki].eta()));
+                         v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*ki].phi()-jet->phi())/(toc[*ki].phi()));
 
                         }// matching jet
                                     
@@ -512,23 +543,26 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
                     const CaloMET met = calometcol->front();
                     v->getMEhisto_Pt()->Fill(met.pt()); 
                     v->getMEhisto_Phi()->Fill(met.phi());
-     
+                
+                    v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*ki].pt(),met.pt());
+                    v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*ki].phi(),met.phi());
+                    v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*ki].pt()-met.pt())/(toc[*ki].pt()));
+                    v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*ki].phi()-met.phi())/(toc[*ki].phi()));
                     }// valid MET Collection         
              
 
               }// Loop over keys
              }// valid object
-
          }// L1 is fired but not HLT       
-      
-      }//HLT is fired
+  //-----------------------------------    
+      }//Trigger is fired
      }// trigger under study
     }//Loop over all trigger paths
 
 }
 
 //-------------plots wrt Muon Trigger------------
-void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(){
+void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & iEvent){
 
     int npath;
     if(&triggerResults_) {
@@ -537,124 +571,145 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(){
        return;
      }
 
-    const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects());
     bool muTrig = false;
     for(size_t i=0;i<MuonTrigPaths_.size();++i)if(isHLTPathAccepted(MuonTrigPaths_[i]))muTrig = true;
     if(muTrig)
     {
-    for(PathInfoCollection::iterator v = hltPathsWrtMu_.begin(); v!= hltPathsWrtMu_.end(); ++v )
+     //-----------------------------------------------------  
+  const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects()); 
+  for(PathInfoCollection::iterator v = hltPathsAllWrtMu_.begin(); v!= hltPathsAllWrtMu_.end(); ++v )
     {
-    for(int i = 0; i < npath; ++i) {
+     for(int i = 0; i < npath; ++i) { 
        if (triggerNames_.triggerName(i).find(v->getPath()) != std::string::npos && triggerResults_->accept(i))
              {
-              std::vector<double>jetPtVec;                                                                      
-            std::vector<double>jetPhiVec;                                                                     
-            std::vector<double>jetEtaVec;                                                                     
-                                                                                                              
-            std::vector<double>hltPtVec;                                                                      
-            std::vector<double>hltPhiVec;                                                                     
-            std::vector<double>hltEtaVec;                                                                     
-
-            std::vector<double>l1PtVec;
-            std::vector<double>l1PhiVec;
-            std::vector<double>l1EtaVec; 
-
+            std::vector<double>jetPtVec;
+            std::vector<double>jetPhiVec; 
+            std::vector<double>jetEtaVec;
+            std::vector<double>jetPxVec;
+            std::vector<double>jetPyVec;
+            
+            std::vector<double>hltPtVec;
+            std::vector<double>hltPhiVec;
+            std::vector<double>hltEtaVec;
+            std::vector<double>hltPxVec;
+            std::vector<double>hltPyVec;
+ 
+            //---------------------------------------------
             edm::InputTag l1Tag(v->getl1Path(),"",processname_);
             const int l1Index = triggerObj_->filterIndex(l1Tag);
             edm::InputTag hltTag(v->getLabel(),"",processname_);
             const int hltIndex = triggerObj_->filterIndex(hltTag);
-            bool l1TrigBool = false;                              
-            bool hltTrigBool = false;                             
-            int jetsize = 0;                                      
-            if ( l1Index >= triggerObj_->sizeFilters() ) {        
+            bool l1TrigBool = false;
+            bool hltTrigBool = false;
+            int MatchingHLT = 0;
+            int jetsize = 0;
+            if ( l1Index >= triggerObj_->sizeFilters() ) {
             edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
-            } else {                                                                                   
-             l1TrigBool = true;                                                                        
-             const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);                             
-             std::string l1name = triggerObj_->filterTag(l1Index).encode();                            
-             if(v->getObjectType() == trigger::TriggerJet)v->getMEhisto_N_L1()->Fill(kl1.size());      
-             for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki)               
-              {                                                                                        
-               double l1TrigEta = 0;                                                                   
-               double l1TrigPhi = 0;                                                                   
-               if(v->getObjectType() == trigger::TriggerJet)                                           
-               {                                                                                       
-               l1TrigEta = toc[*ki].eta();                                                             
-               l1TrigPhi = toc[*ki].phi();                                                             
-               v->getMEhisto_Pt_L1()->Fill(toc[*ki].pt());                                             
-               if (isBarrel(toc[*ki].eta()))  v->getMEhisto_PtBarrel_L1()->Fill(toc[*ki].pt());        
-               if (isEndCap(toc[*ki].eta()))  v->getMEhisto_PtEndcap_L1()->Fill(toc[*ki].pt());        
-               if (isForward(toc[*ki].eta())) v->getMEhisto_PtForward_L1()->Fill(toc[*ki].pt());       
-               v->getMEhisto_Eta_L1()->Fill(toc[*ki].eta());                                           
-               v->getMEhisto_Phi_L1()->Fill(toc[*ki].phi());                                           
-               v->getMEhisto_EtaPhi_L1()->Fill(toc[*ki].eta(),toc[*ki].phi());                         
-               }                                                                                       
-               if(v->getObjectType() == trigger::TriggerMET)                                           
-               {                                                                                       
-               v->getMEhisto_Pt_L1()->Fill(toc[*ki].pt());                                             
-               v->getMEhisto_Phi_L1()->Fill(toc[*ki].phi());                                           
-               }                                                                                       
-                                                                                                       
-                if ( hltIndex >= triggerObj_->sizeFilters() ) {                                        
+            } else {
+             l1TrigBool = true;
+             const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
+             std::string l1name = triggerObj_->filterTag(l1Index).encode();
+             if(v->getObjectType() == trigger::TriggerJet)v->getMEhisto_N_L1()->Fill(kl1.size());
+             for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki)
+              {
+               double l1TrigEta = 0;
+               double l1TrigPhi = 0;
+              //-------------------------------------------
+               if(v->getObjectType() == trigger::TriggerJet)
+               { 
+               l1TrigEta = toc[*ki].eta();
+               l1TrigPhi = toc[*ki].phi();
+               v->getMEhisto_Pt_L1()->Fill(toc[*ki].pt());
+               if (isBarrel(toc[*ki].eta()))  v->getMEhisto_PtBarrel_L1()->Fill(toc[*ki].pt());
+               if (isEndCap(toc[*ki].eta()))  v->getMEhisto_PtEndcap_L1()->Fill(toc[*ki].pt());
+               if (isForward(toc[*ki].eta())) v->getMEhisto_PtForward_L1()->Fill(toc[*ki].pt());
+               v->getMEhisto_Eta_L1()->Fill(toc[*ki].eta());
+               v->getMEhisto_Phi_L1()->Fill(toc[*ki].phi());
+               v->getMEhisto_EtaPhi_L1()->Fill(toc[*ki].eta(),toc[*ki].phi());
+               }
+               if(v->getObjectType() == trigger::TriggerMET)
+               {
+               v->getMEhisto_Pt_L1()->Fill(toc[*ki].pt());
+               v->getMEhisto_Phi_L1()->Fill(toc[*ki].phi());
+               }
+             //-----------------------------------------------  
+                if ( hltIndex >= triggerObj_->sizeFilters() ) {
                 edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
-                } else {                                                                                
-                const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex);                         
-                std::string hltname = triggerObj_->filterTag(hltIndex).encode();                        
-                 if(v->getObjectType() == trigger::TriggerJet)v->getMEhisto_N_HLT()->Fill(khlt.size()); 
-                 for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj)            
-                  {                                                                                     
-                  hltTrigBool = true;                                                                   
-                  double hltTrigEta = 0.;                                                               
-                  double hltTrigPhi = 0.;                                                               
-                  if(v->getObjectType() == trigger::TriggerJet)                                         
-                   {                                                                                    
-                   hltTrigEta = toc[*kj].eta();                                                         
-                   hltTrigPhi = toc[*kj].phi();                                                         
-                                                                                                        
-                   if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4)                     
-                    {                                                                                   
-                    v->getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());                                        
-                    if (isBarrel(toc[*kj].eta()))  v->getMEhisto_PtBarrel_HLT()->Fill(toc[*kj].pt());   
-                    if (isEndCap(toc[*kj].eta()))  v->getMEhisto_PtEndcap_HLT()->Fill(toc[*kj].pt());   
-                    if (isForward(toc[*kj].eta())) v->getMEhisto_PtForward_HLT()->Fill(toc[*kj].pt());  
-                    v->getMEhisto_Eta_HLT()->Fill(toc[*kj].eta());                                      
-                    v->getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());                                      
-                    v->getMEhisto_EtaPhi_HLT()->Fill(toc[*kj].eta(),toc[*kj].phi());                    
-                                                                                                        
-                    v->getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());             
-                    v->getMEhisto_EtaCorrelation_L1HLT()->Fill(toc[*ki].eta(),toc[*kj].eta());          
-                    v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());          
-                                                                                                        
+                } else {
+                const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex);
+                std::string hltname = triggerObj_->filterTag(hltIndex).encode();
+                if((v->getObjectType() == trigger::TriggerJet) && (ki == kl1.begin()))v->getMEhisto_N_HLT()->Fill(khlt.size());
+
+                 for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj)
+                  {
+                  double hltTrigEta = 0.;
+                  double hltTrigPhi = 0.;
+                  if(v->getObjectType() == trigger::TriggerJet)
+                   {
+                   hltTrigEta = toc[*kj].eta();
+                   hltTrigPhi = toc[*kj].phi();
+                   if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4 && (v->getTriggerType() == "DiJet_Trigger"))hltTrigBool = true;
+                  }    
+                  }
+
+               for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj)
+                  {
+                  double hltTrigEta = 0.;
+                  double hltTrigPhi = 0.;
+            //--------------------------------------------------
+                  if(v->getObjectType() == trigger::TriggerMET)
+                    {
+                    v->getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());
+                    v->getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());
+                    v->getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());
+                    v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());
+                    v->getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));
+                    v->getMEhisto_PhiResolution_L1HLT()->Fill((toc[*ki].phi()-toc[*kj].phi())/(toc[*ki].phi()));
+                    }
+           //--------------------------------------------------
+                  if(v->getObjectType() == trigger::TriggerJet)
+                   {
+                   hltTrigEta = toc[*kj].eta();
+                   hltTrigPhi = toc[*kj].phi();
+                   
+                   if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4 || hltTrigBool)
+                    {
+                    
+                    v->getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());
+                    if (isBarrel(toc[*kj].eta()))  v->getMEhisto_PtBarrel_HLT()->Fill(toc[*kj].pt());
+                    if (isEndCap(toc[*kj].eta()))  v->getMEhisto_PtEndcap_HLT()->Fill(toc[*kj].pt());
+                    if (isForward(toc[*kj].eta())) v->getMEhisto_PtForward_HLT()->Fill(toc[*kj].pt());
+                    v->getMEhisto_Eta_HLT()->Fill(toc[*kj].eta());
+                    v->getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());
+                    v->getMEhisto_EtaPhi_HLT()->Fill(toc[*kj].eta(),toc[*kj].phi());
+                    if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4)
+                     {  
+                    MatchingHLT++; 
+                    v->getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());
+                    v->getMEhisto_EtaCorrelation_L1HLT()->Fill(toc[*ki].eta(),toc[*kj].eta());  
+                    v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());
+                     
                     v->getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));
                     v->getMEhisto_EtaResolution_L1HLT()->Fill((toc[*ki].eta()-toc[*kj].eta())/(toc[*ki].eta()));
                     v->getMEhisto_PhiResolution_L1HLT()->Fill((toc[*ki].phi()-toc[*kj].phi())/(toc[*ki].phi()));
-                    }                                                                                           
-                    if(v->getObjectType() == trigger::TriggerMET)                                               
-                    {                                                                                           
-                    v->getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());                                                
-                    v->getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());                                              
-                    v->getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());                     
-                    v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());                  
-                    v->getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));    
-                    v->getMEhisto_PhiResolution_L1HLT()->Fill((toc[*ki].phi()-toc[*kj].phi())/(toc[*ki].phi()));
-                    }                                                                                           
-                    if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){                  
-                                                                                                                
-                                                                                                                
+                    } 
+         //-------------------------------------------------           
+
+                    if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
+                        
                     for(CaloJetCollection::const_iterator jet = calojet.begin(); jet != calojet.end(); ++jet ) {
-                                                                                                                
-                      double jetEta = jet->eta();                                                               
-                      double jetPhi = jet->phi();                                                               
-                      if(deltaR(hltTrigEta, hltTrigPhi, jetEta, jetPhi) < 0.4)                                  
-                        {                                                                                       
-                        jetsize++;                                                                              
-                        v->getMEhisto_Pt()->Fill(jet->pt());                                                    
-                        if (isBarrel(jet->eta()))  v->getMEhisto_PtBarrel()->Fill(jet->pt());                   
-                        if (isEndCap(jet->eta()))  v->getMEhisto_PtEndcap()->Fill(jet->pt());                   
-                        if (isForward(jet->eta())) v->getMEhisto_PtForward()->Fill(jet->pt());                  
-                         v->getMEhisto_Eta()->Fill(jet->eta());                                                 
-                         v->getMEhisto_Phi()->Fill(jet->phi());                                                 
-                         v->getMEhisto_EtaPhi()->Fill(jet->eta(),jet->phi());                                   
+                      double jetEta = jet->eta();
+                      double jetPhi = jet->phi();
+                      if(deltaR(hltTrigEta, hltTrigPhi, jetEta, jetPhi) < 0.4)
+                        {
+                        jetsize++;
+                        v->getMEhisto_Pt()->Fill(jet->pt());
+                        if (isBarrel(jet->eta()))  v->getMEhisto_PtBarrel()->Fill(jet->pt());
+                        if (isEndCap(jet->eta()))  v->getMEhisto_PtEndcap()->Fill(jet->pt());
+                        if (isForward(jet->eta())) v->getMEhisto_PtForward()->Fill(jet->pt());
+                         v->getMEhisto_Eta()->Fill(jet->eta());
+                         v->getMEhisto_Phi()->Fill(jet->phi());
+                         v->getMEhisto_EtaPhi()->Fill(jet->eta(),jet->phi()); 
 
                          v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),jet->pt());
                          v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*kj].eta(),jet->eta());
@@ -663,131 +718,142 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(){
                          v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-jet->pt())/(toc[*kj].pt()));
                          v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*kj].eta()-jet->eta())/(toc[*kj].eta()));
                          v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-jet->phi())/(toc[*kj].phi()));
-                         if(v->getTriggerType() == "DiJet_Trigger")                                                  
-                           {                                                                                         
-                            jetPhiVec.push_back(jet->phi());                                                         
-                            jetPtVec.push_back(jet->pt());                                                           
-                            jetEtaVec.push_back(jet->eta());                                                         
+        //-------------------------------------------------------    
+                         if(v->getTriggerType() == "DiJet_Trigger"  && MatchingHLT==1)
+                           {
+                            jetPhiVec.push_back(jet->phi());
+                            jetPtVec.push_back(jet->pt());
+                            jetEtaVec.push_back(jet->eta());         
+                            jetPxVec.push_back(jet->px());
+                            jetPyVec.push_back(jet->py()); 
 
                             hltPhiVec.push_back(toc[*kj].phi());
-                            hltPtVec.push_back(toc[*kj].pt());  
+                            hltPtVec.push_back(toc[*kj].pt());
                             hltEtaVec.push_back(toc[*kj].eta());
-                                                                
-                            l1PhiVec.push_back(toc[*ki].phi()); 
-                            l1PtVec.push_back(toc[*ki].pt());   
-                            l1EtaVec.push_back(toc[*ki].eta()); 
-                           }                                    
-                                                                
+                            hltPxVec.push_back(toc[*kj].px()); 
+                            hltPyVec.push_back(toc[*kj].py());
+
+                           }
+                          
 
                         }// matching jet
-                                        
-                     }// Jet Loop       
+                                    
+                     }// Jet Loop
                     v->getMEhisto_N()->Fill(jetsize);
-                    }// valid jet collection         
-
+                    }// valid jet collection
+                  } // hlt matching with l1 
+                      
+                }// jet trigger
+      //------------------------------------------------------
                     if(calometColl_.isValid() && (v->getObjectType() == trigger::TriggerMET)){
-                    const CaloMETCollection *calometcol = calometColl_.product();             
-                    const CaloMET met = calometcol->front();                                  
-                    v->getMEhisto_Pt()->Fill(met.pt());                                       
-                    v->getMEhisto_Phi()->Fill(met.phi());                                     
-                                                                                                               
-                    v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),met.pt());                     
-                    v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),met.phi());                  
-                    v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-met.pt())/(toc[*kj].pt()));    
+                    const CaloMETCollection *calometcol = calometColl_.product();
+                    const CaloMET met = calometcol->front();
+                    v->getMEhisto_Pt()->Fill(met.pt()); 
+                    v->getMEhisto_Phi()->Fill(met.phi());
+     
+                    v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),met.pt());
+                    v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),met.phi());
+                    v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-met.pt())/(toc[*kj].pt()));
                     v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-met.phi())/(toc[*kj].phi())); 
-                    }// valid MET Collection                                                                    
-                    }// matching  HLT candidate                                                                 
+                }// valid MET Collection 
 
-                 }//Loop over HLT trigger candidates
+     //--------------------------------------------------------
 
-           }// valid hlt trigger object
+            }//Loop over HLT trigger candidates
+
+        }// valid hlt trigger object
 
          }// Loop over L1 objects
-           if(v->getTriggerType() == "DiJet_Trigger" && jetPtVec.size() > 1)
-             {                                       
+      }// valid L1
+     v->getMEhisto_N()->Fill(jetsize);
+     //--------------------------------------------------------
+       if(v->getTriggerType() == "DiJet_Trigger" && jetPtVec.size() >1)
+            {
                double AveJetPt = (jetPtVec[0] + jetPtVec[1])/2;
                double AveJetEta = (jetEtaVec[0] + jetEtaVec[1])/2;               
-               double JetDelPhi = deltaPhi(jetPhiVec[0],jetPhiVec[1]);           
-               double AveHLTPt = (hltPtVec[0] + hltPtVec[1])/2;                  
-               double AveHLTEta = (hltEtaVec[0] + hltEtaVec[1])/2;               
-               double HLTDelPhi = deltaPhi(hltPhiVec[0],hltPhiVec[1]);           
-               double AveL1Pt = (l1PtVec[0] + l1PtVec[1])/2;                     
-               double AveL1Eta = (l1EtaVec[0] + l1EtaVec[1])/2;                  
-               double L1DelPhi = deltaPhi(l1PhiVec[0],l1PhiVec[1]);              
-                                                                                 
-               v->getMEhisto_AveragePt_RecObj()->Fill(AveJetPt);                 
-               v->getMEhisto_AverageEta_RecObj()->Fill(AveJetEta);               
-               v->getMEhisto_DeltaPhi_RecObj()->Fill(JetDelPhi);                  
+               double JetDelPhi = deltaPhi(jetPhiVec[0],jetPhiVec[1]);
+               double AveHLTPt = (hltPtVec[0] + hltPtVec[1])/2;
+               double AveHLTEta = (hltEtaVec[0] + hltEtaVec[1])/2;
+               double HLTDelPhi = deltaPhi(hltPhiVec[0],hltPhiVec[1]);
+               v->getMEhisto_AveragePt_RecObj()->Fill(AveJetPt);
+               v->getMEhisto_AverageEta_RecObj()->Fill(AveJetEta);
+               v->getMEhisto_DeltaPhi_RecObj()->Fill(JetDelPhi);
  
                v->getMEhisto_AveragePt_HLTObj()->Fill(AveHLTPt);
                v->getMEhisto_AverageEta_HLTObj()->Fill(AveHLTEta);
                v->getMEhisto_DeltaPhi_HLTObj()->Fill(HLTDelPhi);       
 
-               v->getMEhisto_AveragePt_L1Obj()->Fill(AveL1Pt);
-               v->getMEhisto_AverageEta_L1Obj()->Fill(AveL1Eta);
-               v->getMEhisto_DeltaPhi_L1Obj()->Fill(L1DelPhi);   
-                                                                
-             }                                                  
-        } // trigger name exists/not                            
-                                                                
-       if(l1TrigBool && !hltTrigBool)                           
-         {                                                      
-
+            
+            }
+    //-----------------------------------------------------      
+       if(v->getPath().find("L1") != std::string::npos)
+         {
          if ( l1Index >= triggerObj_->sizeFilters() ) {
           edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
-           } else {                                                                                  
-           l1TrigBool = true;                                                                        
-           const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);                             
-           std::string l1name = triggerObj_->filterTag(l1Index).encode();                            
-            for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki)              
-              {                                                                                      
-              double l1TrigEta = toc[*ki].eta();                                                     
-              double l1TrigPhi = toc[*ki].phi();                                                     
-              if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "SingleJet_Trigger") ){             
+           } else {
+           l1TrigBool = true;
+           const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
+           std::string l1name = triggerObj_->filterTag(l1Index).encode();
+            for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki)
+              {
+              double l1TrigEta = toc[*ki].eta();
+              double l1TrigPhi = toc[*ki].phi();
+              if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "SingleJet_Trigger") ){
                    for(CaloJetCollection::const_iterator jet = calojet.begin(); jet != calojet.end(); ++jet ) {
-                    double jetEta = jet->eta();                                                                
-                    double jetPhi = jet->phi();                                                                
-                      if(deltaR(l1TrigEta, l1TrigPhi, jetEta, jetPhi) < 0.4)                                   
-                        {                                                                                      
-                        jetsize++;                                                                             
-                        v->getMEhisto_Pt()->Fill(jet->pt());                                                   
-                        if (isBarrel(jet->eta()))  v->getMEhisto_PtBarrel()->Fill(jet->pt());                  
-                        if (isEndCap(jet->eta()))  v->getMEhisto_PtEndcap()->Fill(jet->pt());                  
-                        if (isForward(jet->eta())) v->getMEhisto_PtForward()->Fill(jet->pt());                 
-                         v->getMEhisto_Eta()->Fill(jet->eta());                                                
-                         v->getMEhisto_Phi()->Fill(jet->phi());                                                
-                         v->getMEhisto_EtaPhi()->Fill(jet->eta(),jet->phi());                                  
+                    double jetEta = jet->eta();
+                    double jetPhi = jet->phi();
+                      if(deltaR(l1TrigEta, l1TrigPhi, jetEta, jetPhi) < 0.4)
+                        {
+                        jetsize++;
+                        v->getMEhisto_Pt()->Fill(jet->pt());
+                        if (isBarrel(jet->eta()))  v->getMEhisto_PtBarrel()->Fill(jet->pt());
+                        if (isEndCap(jet->eta()))  v->getMEhisto_PtEndcap()->Fill(jet->pt());
+                        if (isForward(jet->eta())) v->getMEhisto_PtForward()->Fill(jet->pt());
+                         v->getMEhisto_Eta()->Fill(jet->eta());
+                         v->getMEhisto_Phi()->Fill(jet->phi());
+                         v->getMEhisto_EtaPhi()->Fill(jet->eta(),jet->phi()); 
 
+                         v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*ki].pt(),jet->pt());
+                         v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*ki].eta(),jet->eta());
+                         v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*ki].phi(),jet->phi());
+
+                         v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*ki].pt()-jet->pt())/(toc[*ki].pt()));
+                         v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*ki].eta()-jet->eta())/(toc[*ki].eta()));
+                         v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*ki].phi()-jet->phi())/(toc[*ki].phi()));
                         }// matching jet
-                                        
-                     }// Jet Loop       
+                                    
+                     }// Jet Loop
                     v->getMEhisto_N()->Fill(jetsize);
-                   }// valid Jet collection          
+                   }// valid Jet collection
 
                     if(calometColl_.isValid() && (v->getObjectType() == trigger::TriggerMET)){
-                    const CaloMETCollection *calometcol = calometColl_.product();             
-                    const CaloMET met = calometcol->front();                                  
-                    v->getMEhisto_Pt()->Fill(met.pt());                                       
-                    v->getMEhisto_Phi()->Fill(met.phi());                                     
-                                                                                                               
-                    }// valid MET Collection                                                                   
-                                                                                                               
+                    const CaloMETCollection *calometcol = calometColl_.product();
+                    const CaloMET met = calometcol->front();
+                    v->getMEhisto_Pt()->Fill(met.pt()); 
+                    v->getMEhisto_Phi()->Fill(met.phi());
+
+                    v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*ki].pt(),met.pt());
+                    v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*ki].phi(),met.phi());
+                    v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*ki].pt()-met.pt())/(toc[*ki].pt()));
+                    v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*ki].phi()-met.phi())/(toc[*ki].phi()));
+     
+                    }// valid MET Collection         
+             
 
               }// Loop over keys
              }// valid object
-
-         }// L1 is fired but not HLT
- 
-      }//HLT is fired
+         }// L1 is fired but not HLT       
+  //-----------------------------------    
+      }//Trigger is fired
      }// trigger under study
-
     }//Loop over all trigger paths
-    }// Muon trigger fired
+
+  }// Muon trigger fired
 
 
 }
 
-void JetMETHLTOfflineSource::fillMEforEffAllTrigger(){
+void JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent){
 int npath;
   if(&triggerResults_) {
     npath = triggerResults_->size();
@@ -809,9 +875,17 @@ int npath;
 
              if(denompassed){
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
+              bool jetIDbool = false;
               if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
               {
+
               CaloJetCollection::const_iterator jet = calojet.begin();
+              jetID->calculate(iEvent, *jet);
+ 
+              if(verbose_)cout<<"n90Hits==="<<jetID->n90Hits()<<"==fHPDs=="<<jetID->fHPD()<<endl;
+              if((jet->emEnergyFraction()<=_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
+              {
+              jetIDbool = true;
               v->getMEhisto_DenominatorPt()->Fill(jet->pt());
               if (isBarrel(jet->eta()))  v->getMEhisto_DenominatorPtBarrel()->Fill(jet->pt());
               if (isEndCap(jet->eta()))  v->getMEhisto_DenominatorPtEndcap()->Fill(jet->pt());
@@ -820,12 +894,17 @@ int npath;
               v->getMEhisto_DenominatorPhi()->Fill(jet->phi());
               v->getMEhisto_DenominatorEtaPhi()->Fill(jet->eta(),jet->phi());             
               }
+              }
               if(v->getTriggerType() == "DiJet_Trigger" && calojet.size()>1)
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
+              jetID->calculate(iEvent, *jet2);
+              if(jetIDbool && ((jet2->emEnergyFraction()<=_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
+              {
               v->getMEhisto_DenominatorPt()->Fill((jet->pt() + jet2->pt())/2.);
               v->getMEhisto_DenominatorEta()->Fill((jet->eta() + jet2->eta())/2.);
+              }
               }
             
        }// Jet trigger and valid jet collection
@@ -840,9 +919,14 @@ int npath;
       if (numpassed)
              {
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
+              bool jetIDbool = false;
               if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
+              jetID->calculate(iEvent, *jet);
+              if((jet->emEnergyFraction()<=_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
+              {
+              jetIDbool = true; 
               v->getMEhisto_NumeratorPt()->Fill(jet->pt());
               if (isBarrel(jet->eta()))  v->getMEhisto_NumeratorPtBarrel()->Fill(jet->pt());
               if (isEndCap(jet->eta()))  v->getMEhisto_NumeratorPtEndcap()->Fill(jet->pt());
@@ -851,14 +935,18 @@ int npath;
               v->getMEhisto_NumeratorPhi()->Fill(jet->phi());
               v->getMEhisto_NumeratorEtaPhi()->Fill(jet->eta(),jet->phi());
               }
+              }
               if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() > 1)
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
+              jetID->calculate(iEvent, *jet2);
+              if(jetIDbool && ((jet2->emEnergyFraction()<=_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
+              {
               v->getMEhisto_NumeratorPt()->Fill((jet->pt() + jet2->pt())/2.);
               v->getMEhisto_NumeratorEta()->Fill((jet->eta() + jet2->eta())/2.);
               }       
-
+           }
        }// Jet trigger and valid jet collection
        if(calometColl_.isValid() && (v->getObjectType() == trigger::TriggerMET)){
        const CaloMETCollection *calometcol = calometColl_.product();
@@ -874,7 +962,7 @@ int npath;
 }
 
 
-void JetMETHLTOfflineSource::fillMEforEffWrtMuTrigger(){
+void JetMETHLTOfflineSource::fillMEforEffWrtMuTrigger(const Event & iEvent){
 
 int npath;
   if(&triggerResults_) {
@@ -896,9 +984,14 @@ int npath;
 
              if(denompassed){
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
+              bool jetIDbool = false;
               if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
+              jetID->calculate(iEvent, *jet);
+              if((jet->emEnergyFraction()<=_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
+              {
+              jetIDbool = true;
               v->getMEhisto_DenominatorPt()->Fill(jet->pt());
               if (isBarrel(jet->eta()))  v->getMEhisto_DenominatorPtBarrel()->Fill(jet->pt());
               if (isEndCap(jet->eta()))  v->getMEhisto_DenominatorPtEndcap()->Fill(jet->pt());
@@ -907,13 +1000,18 @@ int npath;
               v->getMEhisto_DenominatorPhi()->Fill(jet->phi());
               v->getMEhisto_DenominatorEtaPhi()->Fill(jet->eta(),jet->phi());             
               }
+              }
               if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() > 1)
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
+              jetID->calculate(iEvent, *jet2);
+              if(jetIDbool && ((jet2->emEnergyFraction()<=_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
+              { 
               v->getMEhisto_DenominatorPt()->Fill((jet->pt() + jet2->pt())/2.);
               v->getMEhisto_DenominatorEta()->Fill((jet->eta() + jet2->eta())/2.);
               }
+             }
             
        }// Jet trigger and valid jet collection
        if(calometColl_.isValid() && (v->getObjectType() == trigger::TriggerMET)){
@@ -927,9 +1025,14 @@ int npath;
       if (numpassed)
              {
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
+              bool jetIDbool = false;     
               if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
+              jetID->calculate(iEvent, *jet);
+              if((jet->emEnergyFraction()<=_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
+              {
+              jetIDbool = true;
               v->getMEhisto_NumeratorPt()->Fill(jet->pt());
               if (isBarrel(jet->eta()))  v->getMEhisto_NumeratorPtBarrel()->Fill(jet->pt());
               if (isEndCap(jet->eta()))  v->getMEhisto_NumeratorPtEndcap()->Fill(jet->pt());
@@ -938,12 +1041,17 @@ int npath;
               v->getMEhisto_NumeratorPhi()->Fill(jet->phi());
               v->getMEhisto_NumeratorEtaPhi()->Fill(jet->eta(),jet->phi());
               }
+              }
               if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() > 1)     
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++; 
+              jetID->calculate(iEvent, *jet2);
+              if(jetIDbool && ((jet2->emEnergyFraction()<=_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
+              {
               v->getMEhisto_NumeratorPt()->Fill((jet->pt() + jet2->pt())/2.);  
               v->getMEhisto_NumeratorEta()->Fill((jet->eta() + jet2->eta())/2.);
+              }
               }
 
        }// Jet trigger and valid jet collection
@@ -962,7 +1070,7 @@ int npath;
 }
 
 
-void JetMETHLTOfflineSource::fillMEforEffWrtMBTrigger(){
+void JetMETHLTOfflineSource::fillMEforEffWrtMBTrigger(const Event & iEvent){
 
 int npath;
   if(&triggerResults_) {
@@ -984,9 +1092,14 @@ int npath;
 
              if(denompassed){
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
+              bool jetIDbool = false;
               if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size()) 
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
+              jetID->calculate(iEvent, *jet);
+              if((jet->emEnergyFraction()<=_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
+              {
+              jetIDbool = true;
               v->getMEhisto_DenominatorPt()->Fill(jet->pt());
               if (isBarrel(jet->eta()))  v->getMEhisto_DenominatorPtBarrel()->Fill(jet->pt());
               if (isEndCap(jet->eta()))  v->getMEhisto_DenominatorPtEndcap()->Fill(jet->pt());
@@ -995,13 +1108,17 @@ int npath;
               v->getMEhisto_DenominatorPhi()->Fill(jet->phi());
               v->getMEhisto_DenominatorEtaPhi()->Fill(jet->eta(),jet->phi());             
               }
+              }
               if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() >1) 
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
+              jetID->calculate(iEvent, *jet2);
+              if(jetIDbool && ((jet2->emEnergyFraction()<=_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
+              {
               v->getMEhisto_DenominatorPt()->Fill((jet->pt() + jet2->pt())/2.);  
               v->getMEhisto_DenominatorEta()->Fill((jet->eta() + jet2->eta())/2.);
-
+              } 
               }
        }// Jet trigger and valid jet collection
        if(calometColl_.isValid() && (v->getObjectType() == trigger::TriggerMET)){
@@ -1015,9 +1132,14 @@ int npath;
       if (numpassed)
              {
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
+              bool jetIDbool = false;
               if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
+              jetID->calculate(iEvent, *jet);
+              if((jet->emEnergyFraction()<=_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
+              {
+              jetIDbool = true; 
               v->getMEhisto_NumeratorPt()->Fill(jet->pt());
               if (isBarrel(jet->eta()))  v->getMEhisto_NumeratorPtBarrel()->Fill(jet->pt());
               if (isEndCap(jet->eta()))  v->getMEhisto_NumeratorPtEndcap()->Fill(jet->pt());
@@ -1026,13 +1148,17 @@ int npath;
               v->getMEhisto_NumeratorPhi()->Fill(jet->phi());
               v->getMEhisto_NumeratorEtaPhi()->Fill(jet->eta(),jet->phi());
               }
+              }
               if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() > 1)
               {
               CaloJetCollection::const_iterator jet = calojet.begin();   
               CaloJetCollection::const_iterator jet2 = jet++;
+              jetID->calculate(iEvent, *jet2);
+              if(jetIDbool && ((jet2->emEnergyFraction()<=_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
+              {
               v->getMEhisto_NumeratorPt()->Fill((jet->pt() + jet2->pt())/2.);
               v->getMEhisto_NumeratorEta()->Fill((jet->eta() + jet2->eta())/2.);
-
+              }
               }
        }// Jet trigger and valid jet collection
        if(calometColl_.isValid() && (v->getObjectType() == trigger::TriggerMET)){
@@ -1101,22 +1227,21 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
     std::string filtername("dummy");
     std::string Denomfiltername("denomdummy");
 
-   if (pathname.find("Jet") != std::string::npos && !(pathname.find("Mu") != std::string::npos) && !(pathname.find("BTag") != std::string::npos) && !(pathname.find("Triple") != std::string::npos) && !(pathname.find("Quad") != std::string::npos) && !(pathname.find("DiJet") != std::string::npos)){
+   if (pathname.find("Jet") != std::string::npos && !(pathname.find("DoubleJet") != std::string::npos) && !(pathname.find("DiJet") != std::string::npos) && !(pathname.find("BTag") != std::string::npos) && !(pathname.find("Mu") != std::string::npos) && !(pathname.find("Fwd") != std::string::npos)){
          triggerType = "SingleJet_Trigger"; 
          objectType = trigger::TriggerJet;
       }
-  if (pathname.find("DiJet") != std::string::npos && !(pathname.find("Mu") != std::string::npos) && !(pathname.find("BTag") != std::string::npos) && !(pathname.find("Triple") != std::string::npos) && !(pathname.find("Quad") != std::string::npos) ){
+  if (pathname.find("DiJet") != std::string::npos || pathname.find("DoubleJet") != std::string::npos){
          triggerType = "DiJet_Trigger";
          objectType = trigger::TriggerJet;
       }
-    if (pathname.find("MET") != std::string::npos ){
+    if (pathname.find("MET") != std::string::npos || pathname.find("HT") != std::string::npos){
          triggerType = "MET_Trigger";  
          objectType = trigger::TriggerMET;
       }
     
-    if((pathname.find("Fwd") != std::string::npos) || (pathname.find("Quad") != std::string::npos))dpathname = "HLT_L1MuOpen";
 
-     if(objectType == trigger::TriggerJet  && !(pathname.find("DiJet") != std::string::npos) && !(pathname.find("Quad") != std::string::npos) && !(pathname.find("Fwd") != std::string::npos))
+     if(objectType == trigger::TriggerJet  && !(pathname.find("DiJet") != std::string::npos) && !(pathname.find("DoubleJet") != std::string::npos))
         {
          singleJet++;
          if(singleJet > 1)dpathname = dpathname = hltConfig_.triggerName(i-1);
@@ -1138,6 +1263,8 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    // find L1 condition for numpath with numpath objecttype 
       // find PSet for L1 global seed for numpath, 
       // list module labels for numpath
+
+
   
         std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
         for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin(); numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
@@ -1145,6 +1272,7 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
         if ((hltConfig_.moduleType(*numpathmodule) == "HLT1CaloJet")|| (hltConfig_.moduleType(*numpathmodule) == "HLTDiJetAveFilter") || (hltConfig_.moduleType(*numpathmodule) == "HLT1CaloMET" ) || (hltConfig_.moduleType(*numpathmodule) == "HLTPrescaler") )filtername = *numpathmodule;
         if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")l1pathname = *numpathmodule;
       }
+
       if(objectType != 0)
        {
         std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(dpathname);
@@ -1153,21 +1281,85 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
         if ((hltConfig_.moduleType(*numpathmodule) == "HLT1CaloJet")|| (hltConfig_.moduleType(*numpathmodule) == "HLTDiJetAveFilter") || (hltConfig_.moduleType(*numpathmodule) == "HLT1CaloMET" ) || (hltConfig_.moduleType(*numpathmodule) == "HLTPrescaler") )Denomfiltername = *numpathmodule;
       }
        }
+
    if(objectType != 0)
     {
     if(verbose_)cout<<"==pathname=="<<pathname<<"==denompath=="<<dpathname<<"==filtername=="<<filtername<<"==denomfiltername=="<<Denomfiltername<<"==l1pathname=="<<l1pathname<<"==objectType=="<<objectType<<endl;    
-   
+    if(!((pathname.find("HT") != std::string::npos) || (pathname.find("Quad") != std::string::npos)))
+    {     
     hltPathsAll_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
-    hltPathsWrtMu_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
-    hltPathsEff_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
+    hltPathsAllWrtMu_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
     hltPathsEffWrtMu_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
     hltPathsEffWrtMB_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
-    hltPathsNTfired_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));    
 
+    if(!nameForEff_) hltPathsEff_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
+    }
+
+    hltPathsAllTriggerSummary_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
 
     }
   } //Loop over paths
 
+  //---------bool to pick trigger names pair from config file-------------
+   if(nameForEff_)
+     {
+    std::string l1pathname = "dummy";
+    std::string denompathname = "";
+    unsigned int usedPrescale = 1;
+    unsigned int objectType = 0;
+    std::string triggerType = "";
+    std::string filtername("dummy");
+    std::string Denomfiltername("denomdummy");
+     for (std::vector<std::pair<std::string, std::string> >::iterator custompathnamepair = custompathnamepairs_.begin(); custompathnamepair != custompathnamepairs_.end(); ++custompathnamepair)
+     {
+      std::string pathname  = custompathnamepair->first;
+      std::string dpathname = custompathnamepair->second;
+      bool numFound = false;
+      bool denomFound = false;
+      // Checking if the trigger exist in HLT table or not
+      for (unsigned int i=0; i!=n; ++i) {
+        std::string HLTname = hltConfig_.triggerName(i);
+        if(HLTname == pathname)numFound = true;
+        if(HLTname == dpathname)denomFound = true;
+      }
+     if(numFound && denomFound)
+      {  
+      if (pathname.find("Jet") != std::string::npos && !(pathname.find("DiJet") != std::string::npos) && !(pathname.find("DoubleJet") != std::string::npos) && !(pathname.find("BTag") != std::string::npos) && !(pathname.find("Mu") != std::string::npos) && !(pathname.find("Fwd") != std::string::npos)){
+         triggerType = "SingleJet_Trigger";
+         objectType = trigger::TriggerJet;
+      }
+  if (pathname.find("DiJet") != std::string::npos || pathname.find("DoubleJet") != std::string::npos ){
+         triggerType = "DiJet_Trigger";
+         objectType = trigger::TriggerJet;
+      }
+    if (pathname.find("MET") != std::string::npos ){
+         triggerType = "MET_Trigger";
+         objectType = trigger::TriggerMET;
+      }
+
+        std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
+        for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin(); numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
+        edm::InputTag testTag(*numpathmodule,"",processname_);
+        if ((hltConfig_.moduleType(*numpathmodule) == "HLT1CaloJet")|| (hltConfig_.moduleType(*numpathmodule) == "HLTDiJetAveFilter") || (hltConfig_.moduleType(*numpathmodule) == "HLT1CaloMET" ) || (hltConfig_.moduleType(*numpathmodule) == "HLTPrescaler") )filtername = *numpathmodule;
+        if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")l1pathname = *numpathmodule;
+      }
+
+      if(objectType != 0)
+       {
+        std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(dpathname);
+        for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin(); numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
+        edm::InputTag testTag(*numpathmodule,"",processname_);
+        if ((hltConfig_.moduleType(*numpathmodule) == "HLT1CaloJet")|| (hltConfig_.moduleType(*numpathmodule) == "HLTDiJetAveFilter") || (hltConfig_.moduleType(*numpathmodule) == "HLT1CaloMET" ) || (hltConfig_.moduleType(*numpathmodule) == "HLTPrescaler") )Denomfiltername = *numpathmodule;
+      }
+     
+     if(verbose_)cout<<"==pathname=="<<pathname<<"==denompath=="<<dpathname<<"==filtername=="<<filtername<<"==denomfiltername=="<<Denomfiltername<<"==l1pathname=="<<l1pathname<<"==objectType=="<<objectType<<endl;
+    hltPathsEff_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType)); 
+
+    }
+  }
+  }
+}
+       //-----------------------------------------------------------------
     //---book trigger summary histos
    if(!isSetup_)
     {
@@ -1175,9 +1367,9 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
     if (dbe)   {
       dbe->setCurrentFolder(dirname_ + foldernm);
     }
-    int     TrigBins_ = hltPathsAll_.size();
+    int     TrigBins_ = hltPathsAllTriggerSummary_.size();
     double  TrigMin_ = -0.5;
-    double  TrigMax_ = hltPathsAll_.size()-0.5;
+    double  TrigMax_ = hltPathsAllTriggerSummary_.size()-0.5;
     std::string histonm="JetMET_TriggerRate";
     std::string histot="JetMET TriggerRate Summary";
      
@@ -1216,7 +1408,7 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
     }
     //---Set bin label
  
-    for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
+    for(PathInfoCollection::iterator v = hltPathsAllTriggerSummary_.begin(); v!= hltPathsAllTriggerSummary_.end(); ++v ){
       std::string labelnm("dummy");
       labelnm = v->getPath(); 
       int nbins = rate_All->getTH1()->GetNbinsX();
@@ -1246,11 +1438,11 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    if(plotAll_)
    {
    int Nbins_       = 10;
-   int Nmin_        = 0;
-   int Nmax_        = 10;
+   int Nmin_        = -0.5;
+   int Nmax_        = 9.5;
    int Ptbins_      = 40;
    int Etabins_     = 40;
-   int Phibins_     = 20;
+   int Phibins_     = 35;
    int Resbins_     = 30;
    double PtMin_    = 0.;
    double PtMax_    = 200.;
@@ -1264,644 +1456,450 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){  
 
    std::string subdirName = dirName + v->getPath();
+   std::string trigPath = "("+v->getPath()+")";
    dbe->setCurrentFolder(subdirName);  
  
-   MonitorElement *dummy;
+   MonitorElement *dummy, *N, *Pt,  *PtBarrel, *PtEndcap, *PtForward, *Eta, *Phi, *EtaPhi,
+                  *N_L1, *Pt_L1,  *PtBarrel_L1, *PtEndcap_L1, *PtForward_L1, *Eta_L1, *Phi_L1, *EtaPhi_L1,
+                  *N_HLT, *Pt_HLT,  *PtBarrel_HLT, *PtEndcap_HLT, *PtForward_HLT, *Eta_HLT, *Phi_HLT, *EtaPhi_HLT,
+                  *PtResolution_L1HLT, *EtaResolution_L1HLT,*PhiResolution_L1HLT,
+                  *PtResolution_HLTRecObj, *EtaResolution_HLTRecObj,*PhiResolution_HLTRecObj,
+                  *PtCorrelation_L1HLT,*EtaCorrelation_L1HLT,*PhiCorrelation_L1HLT,
+                  *PtCorrelation_HLTRecObj,*EtaCorrelation_HLTRecObj,*PhiCorrelation_HLTRecObj,
+                  *jetAveragePt, *jetAverageEta, *jetPhiDifference, *hltAveragePt, *hltAverageEta, *hltPhiDifference;
+
    dummy =  dbe->bookFloat("dummy");    
+   N = dbe->bookFloat("dummy");
+   Pt = dbe->bookFloat("dummy");
+   PtBarrel = dbe->bookFloat("dummy");
+   PtEndcap = dbe->bookFloat("dummy");
+   PtForward = dbe->bookFloat("dummy");
+   Eta = dbe->bookFloat("dummy");
+   Phi = dbe->bookFloat("dummy");
+   EtaPhi = dbe->bookFloat("dummy");
+   N_L1 = dbe->bookFloat("dummy");
+   Pt_L1 = dbe->bookFloat("dummy");
+   PtBarrel_L1 = dbe->bookFloat("dummy");
+   PtEndcap_L1 = dbe->bookFloat("dummy");
+   PtForward_L1 = dbe->bookFloat("dummy");
+   Eta_L1 = dbe->bookFloat("dummy");
+   Phi_L1 = dbe->bookFloat("dummy");
+   EtaPhi_L1 = dbe->bookFloat("dummy");
+
+   N_HLT = dbe->bookFloat("dummy");
+   Pt_HLT = dbe->bookFloat("dummy");
+   PtBarrel_HLT = dbe->bookFloat("dummy");
+   PtEndcap_HLT = dbe->bookFloat("dummy");
+   PtForward_HLT = dbe->bookFloat("dummy");
+   Eta_HLT = dbe->bookFloat("dummy");
+   Phi_HLT = dbe->bookFloat("dummy");
+   EtaPhi_HLT = dbe->bookFloat("dummy");
+
+   PtResolution_L1HLT = dbe->bookFloat("dummy");
+   EtaResolution_L1HLT = dbe->bookFloat("dummy");
+   PhiResolution_L1HLT = dbe->bookFloat("dummy");
+   PtResolution_HLTRecObj = dbe->bookFloat("dummy");
+   EtaResolution_HLTRecObj = dbe->bookFloat("dummy");
+   PhiResolution_HLTRecObj = dbe->bookFloat("dummy");
+   PtCorrelation_L1HLT = dbe->bookFloat("dummy");
+   EtaCorrelation_L1HLT = dbe->bookFloat("dummy");
+   PhiCorrelation_L1HLT = dbe->bookFloat("dummy");
+   PtCorrelation_HLTRecObj = dbe->bookFloat("dummy");
+   EtaCorrelation_HLTRecObj = dbe->bookFloat("dummy");
+   PhiCorrelation_HLTRecObj = dbe->bookFloat("dummy");
+
+   jetAveragePt =  dbe->bookFloat("dummy");
+   jetAverageEta = dbe->bookFloat("dummy");
+   jetPhiDifference = dbe->bookFloat("dummy");
+   hltAveragePt = dbe->bookFloat("dummy");
+   hltAverageEta = dbe->bookFloat("dummy");
+   hltPhiDifference = dbe->bookFloat("dummy");
 
    std::string labelname("ME");
    std::string histoname(labelname+"");
    std::string title(labelname+"");
-   if(v->getObjectType() == trigger::TriggerJet && v->getTriggerType() == "SingleJet_Trigger")
-   {   
+   if(v->getObjectType() == trigger::TriggerJet)
+   {  
+
    histoname = labelname+"_recObjN";
-   title     = labelname+"_recObjN;multiplicity";
-   MonitorElement * N = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
+   title     = labelname+"_recObjN;Reco multiplicity()"+trigPath;
+   N = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
    TH1 *h = N->getTH1();
    h->Sumw2();    
 
    histoname = labelname+"_recObjPt";
-   title = labelname+"_recObjPt;Pt[GeV/c]";
-   MonitorElement * Pt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_recObjPt; Reco Pt[GeV/c]"+trigPath;
+   Pt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = Pt->getTH1();
    h->Sumw2();
  
    histoname = labelname+"_recObjPtBarrel";
-   title = labelname+"_recObjPtBarrel;Pt[GeV/c]";
-   MonitorElement * PtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_recObjPtBarrel;Reco Pt[GeV/c]"+trigPath;
+   PtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = PtBarrel->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_recObjPtEndcap";
-   title = labelname+"_recObjPtEndcap;Pt[GeV/c]";
-   MonitorElement * PtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_recObjPtEndcap;Reco Pt[GeV/c]"+trigPath;
+   PtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = PtEndcap->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_recObjPtForward";
-   title = labelname+"_recObjPtForward;Pt[GeV/c]";
-   MonitorElement * PtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_recObjPtForward;Reco Pt[GeV/c]"+trigPath;
+   PtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = PtForward->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_recObjEta";
-   title = labelname+"_recObjEta;#eta";
-   MonitorElement * Eta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+   title = labelname+"_recObjEta;Reco #eta"+trigPath;
+   Eta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = Eta->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_recObjPhi";
-   title = labelname+"_recObjPhi;#Phi";
-   MonitorElement * Phi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   title = labelname+"_recObjPhi;Reco #Phi"+trigPath;
+   Phi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = Phi->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_recObjEtaPhi";
-   title = labelname+"_recObjEtaPhi;#eta;#Phi";
-   MonitorElement * EtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+   title = labelname+"_recObjEtaPhi;Reco #eta;Reco #Phi"+trigPath;
+   EtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
    h = EtaPhi->getTH1();
    h->Sumw2();
 
   
    histoname = labelname+"_l1ObjN";         
-   title     = labelname+"_l1ObjN;multiplicity";
-   MonitorElement * N_L1 = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
+   title     = labelname+"_l1ObjN;L1 multiplicity"+trigPath;
+   N_L1 = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
    h = N_L1->getTH1();                                              
    h->Sumw2();                                               
 
    histoname = labelname+"_l1ObjPt";
-   title = labelname+"_l1ObjPt;Pt[GeV/c]";
-   MonitorElement * Pt_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_l1ObjPt;L1 Pt[GeV/c]"+trigPath;
+   Pt_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = Pt_L1->getTH1();                                                            
    h->Sumw2();                                                             
                                                                             
    histoname = labelname+"_l1ObjPtBarrel";                                    
-   title = labelname+"_l1ObjPtBarrel;Pt[GeV/c]";                              
-   MonitorElement * PtBarrel_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_l1ObjPtBarrel;L1 Pt[GeV/c]"+trigPath;                              
+   PtBarrel_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = PtBarrel_L1->getTH1();                                                            
    h->Sumw2();                                                             
 
    histoname = labelname+"_l1ObjPtEndcap";
-   title = labelname+"_l1ObjPtEndcap;Pt[GeV/c]";
-   MonitorElement * PtEndcap_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_l1ObjPtEndcap;L1 Pt[GeV/c]"+trigPath;
+   PtEndcap_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = PtEndcap_L1->getTH1();                                                            
    h->Sumw2();                                                             
 
    histoname = labelname+"_l1ObjPtForward";
-   title = labelname+"_l1ObjPtForward;Pt[GeV/c]";
-   MonitorElement * PtForward_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_l1ObjPtForward;L1 Pt[GeV/c]"+trigPath;
+   PtForward_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = PtForward_L1->getTH1();                                                            
    h->Sumw2();                                                             
 
    histoname = labelname+"_l1ObjEta";
-   title = labelname+"_l1ObjEta;#eta";
-   MonitorElement * Eta_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+   title = labelname+"_l1ObjEta;L1 #eta"+trigPath;
+   Eta_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = Eta_L1->getTH1();                                                               
    h->Sumw2();                                                                
 
    histoname = labelname+"_l1ObjPhi";
-   title = labelname+"_l1ObjPhi;#Phi";
-   MonitorElement * Phi_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   title = labelname+"_l1ObjPhi;L1 #Phi"+trigPath;
+   Phi_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = Phi_L1->getTH1();                                                               
    h->Sumw2();                                                                
 
    histoname = labelname+"_l1ObjEtaPhi";
-   title = labelname+"_l1ObjEtaPhi;#eta;#Phi";
-   MonitorElement * EtaPhi_L1 =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+   title = labelname+"_l1ObjEtaPhi;L1 #eta;L1 #Phi"+trigPath;
+   EtaPhi_L1 =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
    h = EtaPhi_L1->getTH1();                                                                                        
    h->Sumw2();                                
 
+  if(!(v->getPath().find("L1") != std::string::npos))
+    {
    histoname = labelname+"_hltObjN";         
-   title     = labelname+"_hltObjN;multiplicity";
-   MonitorElement * N_HLT = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
+   title     = labelname+"_hltObjN;HLT multiplicity"+trigPath;
+   N_HLT = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
    h = N_HLT->getTH1();                                              
    h->Sumw2();                                               
 
    histoname = labelname+"_hltObjPt";
-   title = labelname+"_hltObjPt;Pt[GeV/c]";
-   MonitorElement * Pt_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_hltObjPt;HLT Pt[GeV/c]"+trigPath;
+   Pt_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = Pt_HLT->getTH1();                                                            
    h->Sumw2();                                                             
                                                                             
    histoname = labelname+"_hltObjPtBarrel";                                    
-   title = labelname+"_hltObjPtBarrel;Pt[GeV/c]";                              
-   MonitorElement * PtBarrel_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_hltObjPtBarrel;HLT Pt[GeV/c]"+trigPath;                              
+   PtBarrel_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = PtBarrel_HLT->getTH1();                                                            
    h->Sumw2();                                                             
 
    histoname = labelname+"_hltObjPtEndcap";
-   title = labelname+"_hltObjPtEndcap;Pt[GeV/c]";
-   MonitorElement * PtEndcap_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_hltObjPtEndcap;HLT Pt[GeV/c]"+trigPath;
+   PtEndcap_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = PtEndcap_HLT->getTH1();                                                            
    h->Sumw2();                                                             
 
    histoname = labelname+"_hltObjPtForward";
-   title = labelname+"_hltObjPtForward;Pt[GeV/c]";
-   MonitorElement * PtForward_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_hltObjPtForward;HLT Pt[GeV/c]"+trigPath;
+   PtForward_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = PtForward_HLT->getTH1();                                                            
    h->Sumw2();                                                             
 
    histoname = labelname+"_hltObjEta";
-   title = labelname+"_hltObjEta;#eta";
-   MonitorElement * Eta_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+   title = labelname+"_hltObjEta;HLT #eta"+trigPath;
+   Eta_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = Eta_HLT->getTH1();                                                               
    h->Sumw2();                                                                
 
    histoname = labelname+"_hltObjPhi";
-   title = labelname+"_hltObjPhi;#Phi";
-   MonitorElement * Phi_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   title = labelname+"_hltObjPhi;HLT #Phi"+trigPath;
+   Phi_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = Phi_HLT->getTH1();                                                               
    h->Sumw2();                                                                
 
    histoname = labelname+"_hltObjEtaPhi";
-   title = labelname+"_hltObjEtaPhi;#eta;#Phi";
-   MonitorElement * EtaPhi_HLT =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+   title = labelname+"_hltObjEtaPhi;HLT #eta;HLT #Phi"+trigPath;
+   EtaPhi_HLT =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
    h = EtaPhi_HLT->getTH1();                                                                                        
    h->Sumw2();                                
 
    histoname = labelname+"_l1HLTPtResolution";
-   title = labelname+"_l1HLTPtResolution;#frac{Pt(L1)-Pt(HLT)}{Pt(L1)}";
-   MonitorElement * PtResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   title = labelname+"_l1HLTPtResolution;(Pt(L1)-Pt(HLT))/Pt(L1)"+trigPath;
+   PtResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
    h = PtResolution_L1HLT->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_l1HLTEtaResolution";
-   title = labelname+"_l1HLTEtaResolution;#frac{#eta(L1)-#eta(HLT)}{#eta(L1)}";
-   MonitorElement * EtaResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   title = labelname+"_l1HLTEtaResolution;(#eta(L1)-#eta(HLT))/#eta(L1)"+trigPath;
+   EtaResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
    h = EtaResolution_L1HLT->getTH1();
    h->Sumw2(); 
 
    histoname = labelname+"_l1HLTPhiResolution";
-   title = labelname+"_l1HLTPhiResolution;#frac{#Phi(L1)-#Phi(HLT)}{#Phi(L1)}";
-   MonitorElement * PhiResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   title = labelname+"_l1HLTPhiResolution;(#Phi(L1)-#Phi(HLT))/#Phi(L1)"+trigPath;
+   PhiResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
    h = PhiResolution_L1HLT->getTH1();
    h->Sumw2();
 
-
-   histoname = labelname+"_hltRecObjPtResolution";
-   title = labelname+"_hltRecObjPtResolution;#frac{Pt(HLT)-Pt(Reco)}{Pt(HLT)}";
-   MonitorElement * PtResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PtResolution_HLTRecObj->getTH1();
-   h->Sumw2();
-
-   histoname = labelname+"_hltRecObjEtaResolution";
-   title = labelname+"_hltRecObjEtaResolution;#frac{#eta(HLT)-#eta(Reco)}{#eta(HLT)}";
-   MonitorElement * EtaResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = EtaResolution_HLTRecObj->getTH1();
-   h->Sumw2();
-
-   histoname = labelname+"_hltRecObjPhiResolution";
-   title = labelname+"_hltRecObjPhiResolution;#frac{#Phi(HLT)-#Phi(Reco)}{#Phi(HLT)}";
-   MonitorElement * PhiResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PhiResolution_HLTRecObj->getTH1();
-   h->Sumw2();
-
    histoname = labelname+"_l1HLTPtCorrelation";
-   title = labelname+"_l1HLTPtCorrelation;Pt(L1)[GeV/c];Pt(HLT)[GeV/c]";
-   MonitorElement * PtCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_l1HLTPtCorrelation;Pt(L1)[GeV/c];Pt(HLT)[GeV/c]"+trigPath;
+   PtCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
    h = PtCorrelation_L1HLT->getTH1();
-   h->Sumw2();  
+   h->Sumw2();
 
    histoname = labelname+"_l1HLTEtaCorrelation";
-   title = labelname+"_l1HLTEtaCorrelation;#eta(L1);#eta(HLT)";
-   MonitorElement * EtaCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_);
+   title = labelname+"_l1HLTEtaCorrelation;#eta(L1);#eta(HLT)"+trigPath;
+   EtaCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_);
    h = EtaCorrelation_L1HLT->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_l1HLTPhiCorrelation";
-   title = labelname+"_l1HLTPhiCorrelation;#Phi(L1);#Phi(HLT)";
-   MonitorElement * PhiCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
+   title = labelname+"_l1HLTPhiCorrelation;#Phi(L1);#Phi(HLT)"+trigPath;
+   PhiCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
    h = PhiCorrelation_L1HLT->getTH1();
+   h->Sumw2();
+
+   }
+  
+   histoname = labelname+"_hltRecObjPtResolution";
+   title = labelname+"_hltRecObjPtResolution;(Pt(HLT)-Pt(Reco))/Pt(HLT)"+trigPath;
+   PtResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   h = PtResolution_HLTRecObj->getTH1();
+   h->Sumw2();
+
+   histoname = labelname+"_hltRecObjEtaResolution";
+   title = labelname+"_hltRecObjEtaResolution;(#eta(HLT)-#eta(Reco))/#eta(HLT)"+trigPath;
+   EtaResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   h = EtaResolution_HLTRecObj->getTH1();
+   h->Sumw2();
+
+   histoname = labelname+"_hltRecObjPhiResolution";
+   title = labelname+"_hltRecObjPhiResolution;(#Phi(HLT)-#Phi(Reco))/#Phi(HLT)"+trigPath;
+   PhiResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   h = PhiResolution_HLTRecObj->getTH1();
    h->Sumw2();
 
 
    histoname = labelname+"_hltRecObjPtCorrelation";
-   title = labelname+"_hltRecObjPtCorrelation;Pt(HLT)[GeV/c];Pt(Reco)[GeV/c]";
-   MonitorElement * PtCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_hltRecObjPtCorrelation;Pt(HLT)[GeV/c];Pt(Reco)[GeV/c]"+trigPath;
+   PtCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
    h = PtCorrelation_HLTRecObj->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_hltRecObjEtaCorrelation";
-   title = labelname+"_hltRecObjEtaCorrelation;#eta(HLT);#eta(Reco)";
-   MonitorElement * EtaCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_);
+   title = labelname+"_hltRecObjEtaCorrelation;#eta(HLT);#eta(Reco)"+trigPath;
+   EtaCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_);
    h = EtaCorrelation_HLTRecObj->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_hltRecObjPhiCorrelation";
-   title = labelname+"_hltRecObjPhiCorrelation;#Phi(HLT);#Phi(Reco)";
-   MonitorElement * PhiCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
+   title = labelname+"_hltRecObjPhiCorrelation;#Phi(HLT);#Phi(Reco)"+trigPath;
+   PhiCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
    h = PhiCorrelation_HLTRecObj->getTH1();
    h->Sumw2();
 
-   v->setHistos(  N, Pt,  PtBarrel, PtEndcap, PtForward, Eta, Phi, EtaPhi,
-                  N_L1, Pt_L1,  PtBarrel_L1, PtEndcap_L1, PtForward_L1, Eta_L1, Phi_L1, EtaPhi_L1,
-                  N_HLT, Pt_HLT,  PtBarrel_HLT, PtEndcap_HLT, PtForward_HLT, Eta_HLT, Phi_HLT, EtaPhi_HLT, 
-                  PtResolution_L1HLT, EtaResolution_L1HLT,PhiResolution_L1HLT,
-                  PtResolution_HLTRecObj,EtaResolution_HLTRecObj,PhiResolution_HLTRecObj,
-                  PtCorrelation_L1HLT,EtaCorrelation_L1HLT,PhiCorrelation_L1HLT,
-                  PtCorrelation_HLTRecObj,EtaCorrelation_HLTRecObj,PhiCorrelation_HLTRecObj,
-                  dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy);
-
-   }// histos for Jet Triggers
-
-  if(v->getObjectType() == trigger::TriggerJet && v->getTriggerType() == "DiJet_Trigger")
-   {                                            
-   histoname = labelname+"_recObjN";            
-   title     = labelname+"_recObjN;multiplicity";
-   MonitorElement * N = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
-   TH1 *h = N->getTH1();                                                                
-   h->Sumw2();                                                                          
-
-   histoname = labelname+"_recObjPt";
-   title = labelname+"_recObjPt;Pt[GeV/c]";
-   MonitorElement * Pt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = Pt->getTH1();                                                                         
-   h->Sumw2();                                                                               
-                                                                                             
-   histoname = labelname+"_recObjPtBarrel";                                                  
-   title = labelname+"_recObjPtBarrel;Pt[GeV/c]";                                            
-   MonitorElement * PtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtBarrel->getTH1();                                                                         
-   h->Sumw2();                                                                                     
-
-   histoname = labelname+"_recObjPtEndcap";
-   title = labelname+"_recObjPtEndcap;Pt[GeV/c]";
-   MonitorElement * PtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtEndcap->getTH1();                                                                         
-   h->Sumw2();                                                                                     
-
-   histoname = labelname+"_recObjPtForward";
-   title = labelname+"_recObjPtForward;Pt[GeV/c]";
-   MonitorElement * PtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtForward->getTH1();                                                                         
-   h->Sumw2();                                                                                      
-
-   histoname = labelname+"_recObjEta";
-   title = labelname+"_recObjEta;#eta";
-   MonitorElement * Eta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-   h = Eta->getTH1();                                                                            
-   h->Sumw2();                                                                                   
-
-   histoname = labelname+"_recObjPhi";
-   title = labelname+"_recObjPhi;#Phi";
-   MonitorElement * Phi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = Phi->getTH1();                                                                            
-   h->Sumw2();                                                                                   
-
-   histoname = labelname+"_recObjEtaPhi";
-   title = labelname+"_recObjEtaPhi;#eta;#Phi";
-   MonitorElement * EtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-   h = EtaPhi->getTH1();                                                                                                     
-   h->Sumw2();                                                                                                               
-
-  
-   histoname = labelname+"_l1ObjN";         
-   title     = labelname+"_l1ObjN;multiplicity";
-   MonitorElement * N_L1 = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
-   h = N_L1->getTH1();                                                                     
-   h->Sumw2();                                                                             
-
-   histoname = labelname+"_l1ObjPt";
-   title = labelname+"_l1ObjPt;Pt[GeV/c]";
-   MonitorElement * Pt_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = Pt_L1->getTH1();                                                                         
-   h->Sumw2();                                                                                  
-                                                                                                
-   histoname = labelname+"_l1ObjPtBarrel";                                                      
-   title = labelname+"_l1ObjPtBarrel;Pt[GeV/c]";                                                
-   MonitorElement * PtBarrel_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtBarrel_L1->getTH1();                                                                         
-   h->Sumw2();                                                                                        
-
-   histoname = labelname+"_l1ObjPtEndcap";
-   title = labelname+"_l1ObjPtEndcap;Pt[GeV/c]";
-   MonitorElement * PtEndcap_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtEndcap_L1->getTH1();                                                                         
-   h->Sumw2();                                                                                        
-
-   histoname = labelname+"_l1ObjPtForward";
-   title = labelname+"_l1ObjPtForward;Pt[GeV/c]";
-   MonitorElement * PtForward_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtForward_L1->getTH1();                                                                         
-   h->Sumw2();                                                                                         
-
-   histoname = labelname+"_l1ObjEta";
-   title = labelname+"_l1ObjEta;#eta";
-   MonitorElement * Eta_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-   h = Eta_L1->getTH1();                                                                            
-   h->Sumw2();                                                                                      
-
-   histoname = labelname+"_l1ObjPhi";
-   title = labelname+"_l1ObjPhi;#Phi";
-   MonitorElement * Phi_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = Phi_L1->getTH1();                                                                            
-   h->Sumw2();                                                                                      
-
-   histoname = labelname+"_l1ObjEtaPhi";
-   title = labelname+"_l1ObjEtaPhi;#eta;#Phi";
-   MonitorElement * EtaPhi_L1 =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-   h = EtaPhi_L1->getTH1();                                                                                                     
-   h->Sumw2();                                                                                                                  
-
-   histoname = labelname+"_hltObjN";         
-   title     = labelname+"_hltObjN;multiplicity";
-   MonitorElement * N_HLT = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
-   h = N_HLT->getTH1();                                                                     
-   h->Sumw2();                                                                              
-
-   histoname = labelname+"_hltObjPt";
-   title = labelname+"_hltObjPt;Pt[GeV/c]";
-   MonitorElement * Pt_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = Pt_HLT->getTH1();                                                                         
-   h->Sumw2();                                                                                   
-                                                                                                 
-   histoname = labelname+"_hltObjPtBarrel";                                                      
-   title = labelname+"_hltObjPtBarrel;Pt[GeV/c]";                                                
-   MonitorElement * PtBarrel_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtBarrel_HLT->getTH1();                                                                         
-   h->Sumw2();                                                                                         
-
-   histoname = labelname+"_hltObjPtEndcap";
-   title = labelname+"_hltObjPtEndcap;Pt[GeV/c]";
-   MonitorElement * PtEndcap_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtEndcap_HLT->getTH1();                                                                         
-   h->Sumw2();                                                                                         
-
-   histoname = labelname+"_hltObjPtForward";
-   title = labelname+"_hltObjPtForward;Pt[GeV/c]";
-   MonitorElement * PtForward_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtForward_HLT->getTH1();                                                                         
-   h->Sumw2();                                                                                          
-
-   histoname = labelname+"_hltObjEta";
-   title = labelname+"_hltObjEta;#eta";
-   MonitorElement * Eta_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-   h = Eta_HLT->getTH1();                                                                            
-   h->Sumw2();                                                                                       
-
-   histoname = labelname+"_hltObjPhi";
-   title = labelname+"_hltObjPhi;#Phi";
-   MonitorElement * Phi_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = Phi_HLT->getTH1();                                                                            
-   h->Sumw2();                                                                                       
-
-   histoname = labelname+"_hltObjEtaPhi";
-   title = labelname+"_hltObjEtaPhi;#eta;#Phi";
-   MonitorElement * EtaPhi_HLT =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-   h = EtaPhi_HLT->getTH1();                                                                                                     
-   h->Sumw2();                                                                                                                   
-
-   histoname = labelname+"_l1HLTPtResolution";
-   title = labelname+"_l1HLTPtResolution;#frac{Pt(L1)-Pt(HLT)}{Pt(L1)}";
-   MonitorElement * PtResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PtResolution_L1HLT->getTH1();                                                                           
-   h->Sumw2();                                                                                                 
-
-   histoname = labelname+"_l1HLTEtaResolution";
-   title = labelname+"_l1HLTEtaResolution;#frac{#eta(L1)-#eta(HLT)}{#eta(L1)}";
-   MonitorElement * EtaResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = EtaResolution_L1HLT->getTH1();                                                                           
-   h->Sumw2();                                                                                                  
-
-   histoname = labelname+"_l1HLTPhiResolution";
-   title = labelname+"_l1HLTPhiResolution;#frac{#Phi(L1)-#Phi(HLT)}{#Phi(L1)}";
-   MonitorElement * PhiResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PhiResolution_L1HLT->getTH1();                                                                           
-   h->Sumw2();                                                                                                  
-
-
-   histoname = labelname+"_hltRecObjPtResolution";
-   title = labelname+"_hltRecObjPtResolution;#frac{Pt(HLT)-Pt(Reco)}{Pt(HLT)}";
-   MonitorElement * PtResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PtResolution_HLTRecObj->getTH1();                                                                           
-   h->Sumw2();                                                                                                     
-
-   histoname = labelname+"_hltRecObjEtaResolution";
-   title = labelname+"_hltRecObjEtaResolution;#frac{#eta(HLT)-#eta(Reco)}{#eta(HLT)}";
-   MonitorElement * EtaResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = EtaResolution_HLTRecObj->getTH1();                                                                           
-   h->Sumw2();                                                                                                      
-
-   histoname = labelname+"_hltRecObjPhiResolution";
-   title = labelname+"_hltRecObjPhiResolution;#frac{#Phi(HLT)-#Phi(Reco)}{#Phi(HLT)}";
-   MonitorElement * PhiResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PhiResolution_HLTRecObj->getTH1();                                                                           
-   h->Sumw2();                                                                                                      
-
-   histoname = labelname+"_l1HLTPtCorrelation";
-   title = labelname+"_l1HLTPtCorrelation;Pt(L1)[GeV/c];Pt(HLT)[GeV/c]";
-   MonitorElement * PtCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
-   h = PtCorrelation_L1HLT->getTH1();                                                                                              
-   h->Sumw2();                                                                                                                     
-
-   histoname = labelname+"_l1HLTEtaCorrelation";
-   title = labelname+"_l1HLTEtaCorrelation;#eta(L1);#eta(HLT)";
-   MonitorElement * EtaCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_);
-   h = EtaCorrelation_L1HLT->getTH1();                                                                                                    
-   h->Sumw2();                                                                                                                            
-
-   histoname = labelname+"_l1HLTPhiCorrelation";
-   title = labelname+"_l1HLTPhiCorrelation;#Phi(L1);#Phi(HLT)";
-   MonitorElement * PhiCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
-   h = PhiCorrelation_L1HLT->getTH1();                                                                                                    
-   h->Sumw2();                                                                                                                            
-
-
-   histoname = labelname+"_hltRecObjPtCorrelation";
-   title = labelname+"_hltRecObjPtCorrelation;Pt(HLT)[GeV/c];Pt(Reco)[GeV/c]";
-   MonitorElement * PtCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
-   h = PtCorrelation_HLTRecObj->getTH1();                                                                                              
-   h->Sumw2();                                                                                                                         
-
-   histoname = labelname+"_hltRecObjEtaCorrelation";
-   title = labelname+"_hltRecObjEtaCorrelation;#eta(HLT);#eta(Reco)";
-   MonitorElement * EtaCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_
-);                                                                                                                                          
-   h = EtaCorrelation_HLTRecObj->getTH1();                                                                                                  
-   h->Sumw2();
-
-   histoname = labelname+"_hltRecObjPhiCorrelation";
-   title = labelname+"_hltRecObjPhiCorrelation;#Phi(HLT);#Phi(Reco)";
-   MonitorElement * PhiCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_
-);
-   h = PhiCorrelation_HLTRecObj->getTH1();
-   h->Sumw2();
-
+   if(v->getTriggerType() == "DiJet_Trigger")
+   {
    histoname = labelname+"_RecObjAveragePt";
-   title     = labelname+"_RecObjAveragePt;Pt[GeV/c]";
-   MonitorElement * jetAveragePt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title     = labelname+"_RecObjAveragePt;Reco Average Pt[GeV/c]"+trigPath;
+   jetAveragePt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = jetAveragePt->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_RecObjAverageEta";
-   title     = labelname+"_RecObjAverageEta;#eta";
-   MonitorElement * jetAverageEta = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+   title     = labelname+"_RecObjAverageEta;Reco Average #eta"+trigPath;
+   jetAverageEta = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = jetAverageEta->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_RecObjPhiDifference";
-   title     = labelname+"_RecObjPhiDifference;#Delta#Phi";
-   MonitorElement * jetPhiDifference = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   title     = labelname+"_RecObjPhiDifference;Reco #Delta#Phi"+trigPath;
+   jetPhiDifference = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = jetPhiDifference->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_hltObjAveragePt";
-   title     = labelname+"_hltObjAveragePt;Pt[GeV/c]";
-   MonitorElement * hltAveragePt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title     = labelname+"_hltObjAveragePt;HLT Average Pt[GeV/c]"+trigPath;
+   hltAveragePt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = hltAveragePt->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_hltObjAverageEta";
-   title     = labelname+"_hltObjAverageEta;#eta";
-   MonitorElement * hltAverageEta = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+   title     = labelname+"_hltObjAverageEta;HLT Average #eta"+trigPath;
+   hltAverageEta = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = hltAverageEta->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_hltObjPhiDifference";
-   title     = labelname+"_hltObjPhiDifference;#Delta#Phi";
-   MonitorElement * hltPhiDifference = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   title     = labelname+"_hltObjPhiDifference;Reco #Delta#Phi"+trigPath;
+   hltPhiDifference = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = hltPhiDifference->getTH1();
    h->Sumw2();
 
-   histoname = labelname+"_l1ObjAveragePt";
-   title     = labelname+"_l1ObjAveragePt;Pt[GeV/c]";
-   MonitorElement * l1AveragePt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = l1AveragePt->getTH1();
-   h->Sumw2();
+   }
 
-   histoname = labelname+"_l1ObjAverageEta";
-   title     = labelname+"_l1ObjAverageEta;#eta";
-   MonitorElement * l1AverageEta = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-   h = l1AverageEta->getTH1();
-   h->Sumw2();
+ }// histos for Jet Triggers
 
-   histoname = labelname+"_l1ObjPhiDifference";
-   title     = labelname+"_l1ObjPhiDifference;#Delta#Phi";
-   MonitorElement * l1PhiDifference = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = l1PhiDifference->getTH1();
-   h->Sumw2();
-  
-
-   v->setHistos(  N, Pt,  PtBarrel, PtEndcap, PtForward, Eta, Phi, EtaPhi,
-                  N_L1, Pt_L1,  PtBarrel_L1, PtEndcap_L1, PtForward_L1, Eta_L1, Phi_L1, EtaPhi_L1,
-                  N_HLT, Pt_HLT,  PtBarrel_HLT, PtEndcap_HLT, PtForward_HLT, Eta_HLT, Phi_HLT, EtaPhi_HLT,
-                  PtResolution_L1HLT, EtaResolution_L1HLT,PhiResolution_L1HLT,
-                  PtResolution_HLTRecObj,EtaResolution_HLTRecObj,PhiResolution_HLTRecObj,
-                  PtCorrelation_L1HLT,EtaCorrelation_L1HLT,PhiCorrelation_L1HLT,
-                  PtCorrelation_HLTRecObj,EtaCorrelation_HLTRecObj,PhiCorrelation_HLTRecObj,
-                  jetAveragePt, jetAverageEta, jetPhiDifference, hltAveragePt, hltAverageEta, hltPhiDifference,
-                  l1AveragePt, l1AverageEta, l1PhiDifference);
-
-   }// histos for Jet Triggers
 
  if(v->getObjectType() == trigger::TriggerMET)
    {   
    histoname = labelname+"_recObjPt";
-   title = labelname+"_recObjPt;Pt[GeV/c]";
-   MonitorElement * Pt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_recObjPt;Reco Pt[GeV/c]"+trigPath;
+   Pt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    TH1 *h = Pt->getTH1();
    h->Sumw2();
  
 
    histoname = labelname+"_recObjPhi";
-   title = labelname+"_recObjPhi;#Phi";
-   MonitorElement * Phi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   title = labelname+"_recObjPhi;Reco #Phi"+trigPath;
+   Phi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = Phi->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_l1ObjPt";
-   title = labelname+"_l1ObjPt;Pt[GeV/c]";
-   MonitorElement * Pt_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_l1ObjPt;L1 Pt[GeV/c]"+trigPath;
+   Pt_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = Pt_L1->getTH1();                                                            
    h->Sumw2();                                                             
                                                                             
 
    histoname = labelname+"_l1ObjPhi";
-   title = labelname+"_l1ObjPhi;#Phi";
-   MonitorElement * Phi_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   title = labelname+"_l1ObjPhi;L1 #Phi"+trigPath;
+   Phi_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = Phi_L1->getTH1();                                                               
    h->Sumw2();                                                                
 
+   if(!(v->getPath().find("L1") != std::string::npos)){
 
    histoname = labelname+"_hltObjPt";
-   title = labelname+"_hltObjPt;Pt[GeV/c]";
-   MonitorElement * Pt_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_hltObjPt;HLT Pt[GeV/c]"+trigPath;
+   Pt_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = Pt_HLT->getTH1();                                                            
    h->Sumw2();                                                             
                                                                             
 
    histoname = labelname+"_hltObjPhi";
-   title = labelname+"_hltObjPhi;#Phi";
-   MonitorElement * Phi_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   title = labelname+"_hltObjPhi;HLT #Phi"+trigPath;
+   Phi_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = Phi_HLT->getTH1();                                                               
    h->Sumw2();                                                                
 
 
    histoname = labelname+"_l1HLTPtResolution";
-   title = labelname+"_l1HLTPtResolution;#frac{Pt(L1)-Pt(HLT)}{Pt(L1)}";
-   MonitorElement * PtResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   title = labelname+"_l1HLTPtResolution;(Pt(L1)-Pt(HLT))/Pt(L1)"+trigPath;
+   PtResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
    h = PtResolution_L1HLT->getTH1();
    h->Sumw2();
 
 
    histoname = labelname+"_l1HLTPhiResolution";
-   title = labelname+"_l1HLTPhiResolution;#frac{#Phi(L1)-#Phi(HLT)}{#Phi(L1)}";
-   MonitorElement * PhiResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   title = labelname+"_l1HLTPhiResolution;(#Phi(L1)-#Phi(HLT))/#Phi(L1)"+trigPath;
+   PhiResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
    h = PhiResolution_L1HLT->getTH1();
    h->Sumw2();
 
 
 
+   histoname = labelname+"_l1HLTPtCorrelation";
+   title = labelname+"_l1HLTPtCorrelation;Pt(L1)[GeV/c];Pt(HLT)[GeV/c]"+trigPath;
+   PtCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
+   h = PtCorrelation_L1HLT->getTH1();
+   h->Sumw2();
+
+
+   histoname = labelname+"_l1HLTPhiCorrelation";
+   title = labelname+"_l1HLTPhiCorrelation;#Phi(L1);#Phi(HLT)"+trigPath;
+   PhiCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
+   h = PhiCorrelation_L1HLT->getTH1();
+   h->Sumw2();
+
+  }
+
    histoname = labelname+"_hltRecObjPtResolution";
-   title = labelname+"_hltRecObjPtResolution;#frac{Pt(HLT)-Pt(Reco)}{Pt(HLT)}";
-   MonitorElement * PtResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   title = labelname+"_hltRecObjPtResolution;(Pt(HLT)-Pt(Reco))/Pt(HLT)"+trigPath;
+   PtResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
    h = PtResolution_HLTRecObj->getTH1();
    h->Sumw2();
 
 
    histoname = labelname+"_hltRecObjPhiResolution";
-   title = labelname+"_hltRecObjPhiResolution;#frac{#Phi(HLT)-#Phi(Reco)}{#Phi(HLT)}";
-   MonitorElement * PhiResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   title = labelname+"_hltRecObjPhiResolution;(#Phi(HLT)-#Phi(Reco))/#Phi(HLT)"+trigPath;
+   PhiResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
    h = PhiResolution_HLTRecObj->getTH1();
    h->Sumw2();
 
-   histoname = labelname+"_l1HLTPtCorrelation";
-   title = labelname+"_l1HLTPtCorrelation;Pt(L1)[GeV/c];Pt(HLT)[GeV/c]";
-   MonitorElement * PtCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
-   h = PtCorrelation_L1HLT->getTH1();
-   h->Sumw2();  
-
-
-   histoname = labelname+"_l1HLTPhiCorrelation";
-   title = labelname+"_l1HLTPhiCorrelation;#Phi(L1);#Phi(HLT)";
-   MonitorElement * PhiCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
-   h = PhiCorrelation_L1HLT->getTH1();
-   h->Sumw2();
 
 
    histoname = labelname+"_hltRecObjPtCorrelation";
-   title = labelname+"_hltRecObjPtCorrelation;Pt(HLT)[GeV/c];Pt(Reco)[GeV/c]";
-   MonitorElement * PtCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
+   title = labelname+"_hltRecObjPtCorrelation;Pt(HLT)[GeV/c];Pt(Reco)[GeV/c]"+trigPath;
+   PtCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
    h = PtCorrelation_HLTRecObj->getTH1();
    h->Sumw2();
 
 
    histoname = labelname+"_hltRecObjPhiCorrelation";
-   title = labelname+"_hltRecObjPhiCorrelation;#Phi(HLT);#Phi(Reco)";
-   MonitorElement * PhiCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
+   title = labelname+"_hltRecObjPhiCorrelation;#Phi(HLT);#Phi(Reco)"+trigPath;
+   PhiCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
    h = PhiCorrelation_HLTRecObj->getTH1();
    h->Sumw2();
-
-   v->setHistos(  dummy, Pt,  dummy, dummy, dummy, dummy, Phi, dummy,
-                  dummy, Pt_L1,  dummy, dummy, dummy, dummy, Phi_L1, dummy,
-                  dummy, Pt_HLT,  dummy, dummy, dummy, dummy, Phi_HLT, dummy, 
-                  PtResolution_L1HLT, dummy,PhiResolution_L1HLT,
-                  PtResolution_HLTRecObj,dummy,PhiResolution_HLTRecObj,
-                  PtCorrelation_L1HLT,dummy,PhiCorrelation_L1HLT,
-                  PtCorrelation_HLTRecObj,dummy,PhiCorrelation_HLTRecObj,
-                  dummy, dummy, dummy, dummy,dummy, dummy, dummy, dummy,dummy);
+   
 
    }// histos for MET Triggers 
+
+  v->setHistos(  N, Pt,  PtBarrel, PtEndcap, PtForward, Eta, Phi, EtaPhi,
+               N_L1, Pt_L1,  PtBarrel_L1, PtEndcap_L1, PtForward_L1, Eta_L1, Phi_L1, EtaPhi_L1,
+               N_HLT, Pt_HLT,  PtBarrel_HLT, PtEndcap_HLT, PtForward_HLT, Eta_HLT, Phi_HLT, EtaPhi_HLT,
+               PtResolution_L1HLT, EtaResolution_L1HLT,PhiResolution_L1HLT,
+               PtResolution_HLTRecObj,EtaResolution_HLTRecObj,PhiResolution_HLTRecObj,
+               PtCorrelation_L1HLT,EtaCorrelation_L1HLT,PhiCorrelation_L1HLT,
+               PtCorrelation_HLTRecObj,EtaCorrelation_HLTRecObj,PhiCorrelation_HLTRecObj,
+               jetAveragePt, jetAverageEta, jetPhiDifference, hltAveragePt, hltAverageEta, hltPhiDifference,
+               dummy, dummy, dummy);
  
   }
 
@@ -1909,11 +1907,11 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
  if(plotAllwrtMu_)
   {
    int Nbins_       = 10;
-   int Nmin_        = 0;
-   int Nmax_        = 10;
+   int Nmin_        = -0.5;
+   int Nmax_        = 9.5;
    int Ptbins_      = 40;
    int Etabins_     = 40;
-   int Phibins_     = 20;
+   int Phibins_     = 35;
    int Resbins_     = 30;
    double PtMin_    = 0.;
    double PtMax_    = 200.;
@@ -1925,653 +1923,463 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    double ResMax_   =   1.5;
 // Now define histos wrt Muon trigger
   std::string dirName = dirname_ + "/MonitorAllTriggersWrtMuonTrigger/";
-  for(PathInfoCollection::iterator v = hltPathsWrtMu_.begin(); v!= hltPathsWrtMu_.end(); ++v ){
+  for(PathInfoCollection::iterator v = hltPathsAllWrtMu_.begin(); v!= hltPathsAllWrtMu_.end(); ++v ){
   
   std::string subdirName = dirName + v->getPath();
+  std::string trigPath = "("+v->getPath()+")";
   dbe->setCurrentFolder(subdirName);             
                                                    
-   MonitorElement *dummy;                          
-   dummy =  dbe->bookFloat("dummy");               
+  
+  MonitorElement *dummy, *N, *Pt,  *PtBarrel, *PtEndcap, *PtForward, *Eta, *Phi, *EtaPhi,
+                  *N_L1, *Pt_L1,  *PtBarrel_L1, *PtEndcap_L1, *PtForward_L1, *Eta_L1, *Phi_L1, *EtaPhi_L1,
+                  *N_HLT, *Pt_HLT,  *PtBarrel_HLT, *PtEndcap_HLT, *PtForward_HLT, *Eta_HLT, *Phi_HLT, *EtaPhi_HLT,
+                  *PtResolution_L1HLT, *EtaResolution_L1HLT,*PhiResolution_L1HLT,
+                  *PtResolution_HLTRecObj, *EtaResolution_HLTRecObj,*PhiResolution_HLTRecObj,
+                  *PtCorrelation_L1HLT,*EtaCorrelation_L1HLT,*PhiCorrelation_L1HLT,
+                  *PtCorrelation_HLTRecObj,*EtaCorrelation_HLTRecObj,*PhiCorrelation_HLTRecObj,
+                  *jetAveragePt, *jetAverageEta, *jetPhiDifference, *hltAveragePt, *hltAverageEta, *hltPhiDifference;
+
+   dummy =  dbe->bookFloat("dummy");    
+   N = dbe->bookFloat("dummy");
+   Pt = dbe->bookFloat("dummy");
+   PtBarrel = dbe->bookFloat("dummy");
+   PtEndcap = dbe->bookFloat("dummy");
+   PtForward = dbe->bookFloat("dummy");
+   Eta = dbe->bookFloat("dummy");
+   Phi = dbe->bookFloat("dummy");
+   EtaPhi = dbe->bookFloat("dummy");
+   N_L1 = dbe->bookFloat("dummy");
+   Pt_L1 = dbe->bookFloat("dummy");
+   PtBarrel_L1 = dbe->bookFloat("dummy");
+   PtEndcap_L1 = dbe->bookFloat("dummy");
+   PtForward_L1 = dbe->bookFloat("dummy");
+   Eta_L1 = dbe->bookFloat("dummy");
+   Phi_L1 = dbe->bookFloat("dummy");
+   EtaPhi_L1 = dbe->bookFloat("dummy");
+
+   N_HLT = dbe->bookFloat("dummy");
+   Pt_HLT = dbe->bookFloat("dummy");
+   PtBarrel_HLT = dbe->bookFloat("dummy");
+   PtEndcap_HLT = dbe->bookFloat("dummy");
+   PtForward_HLT = dbe->bookFloat("dummy");
+   Eta_HLT = dbe->bookFloat("dummy");
+   Phi_HLT = dbe->bookFloat("dummy");
+   EtaPhi_HLT = dbe->bookFloat("dummy");
+
+   PtResolution_L1HLT = dbe->bookFloat("dummy");
+   EtaResolution_L1HLT = dbe->bookFloat("dummy");
+   PhiResolution_L1HLT = dbe->bookFloat("dummy");
+   PtResolution_HLTRecObj = dbe->bookFloat("dummy");
+   EtaResolution_HLTRecObj = dbe->bookFloat("dummy");
+   PhiResolution_HLTRecObj = dbe->bookFloat("dummy");
+   PtCorrelation_L1HLT = dbe->bookFloat("dummy");
+   EtaCorrelation_L1HLT = dbe->bookFloat("dummy");
+   PhiCorrelation_L1HLT = dbe->bookFloat("dummy");
+   PtCorrelation_HLTRecObj = dbe->bookFloat("dummy");
+   EtaCorrelation_HLTRecObj = dbe->bookFloat("dummy");
+   PhiCorrelation_HLTRecObj = dbe->bookFloat("dummy");
+
+   jetAveragePt =  dbe->bookFloat("dummy");
+   jetAverageEta = dbe->bookFloat("dummy");
+   jetPhiDifference = dbe->bookFloat("dummy");
+   hltAveragePt = dbe->bookFloat("dummy");
+   hltAverageEta = dbe->bookFloat("dummy");
+   hltPhiDifference = dbe->bookFloat("dummy");
 
    std::string labelname("ME");
    std::string histoname(labelname+"");
-   std::string title(labelname+"");    
-   if(v->getObjectType() == trigger::TriggerJet && v->getTriggerType() == "SingleJet_Trigger")
-   {                                                                                          
-   histoname = labelname+"_recObjN";                                                          
-   title     = labelname+"_recObjN;multiplicity";                                             
-   MonitorElement * N = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);      
-   TH1 *h = N->getTH1();                                                                      
-   h->Sumw2();                                                                                
+   std::string title(labelname+"");
+   if(v->getObjectType() == trigger::TriggerJet)
+   {  
+
+   histoname = labelname+"_recObjN";
+   title     = labelname+"_recObjN;Reco multiplicity()"+trigPath;
+   N = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
+   TH1 *h = N->getTH1();
+   h->Sumw2();    
 
    histoname = labelname+"_recObjPt";
-   title = labelname+"_recObjPt;Pt[GeV/c]";
-   MonitorElement * Pt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = Pt->getTH1();                                                                         
-   h->Sumw2();                                                                               
-                                                                                             
-   histoname = labelname+"_recObjPtBarrel";                                                  
-   title = labelname+"_recObjPtBarrel;Pt[GeV/c]";                                            
-   MonitorElement * PtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtBarrel->getTH1();                                                                         
-   h->Sumw2();                                                                                     
+   title = labelname+"_recObjPt; Reco Pt[GeV/c]"+trigPath;
+   Pt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = Pt->getTH1();
+   h->Sumw2();
+ 
+   histoname = labelname+"_recObjPtBarrel";
+   title = labelname+"_recObjPtBarrel;Reco Pt[GeV/c]"+trigPath;
+   PtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = PtBarrel->getTH1();
+   h->Sumw2();
 
    histoname = labelname+"_recObjPtEndcap";
-   title = labelname+"_recObjPtEndcap;Pt[GeV/c]";
-   MonitorElement * PtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtEndcap->getTH1();                                                                         
-   h->Sumw2();                                                                                     
+   title = labelname+"_recObjPtEndcap;Reco Pt[GeV/c]"+trigPath;
+   PtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = PtEndcap->getTH1();
+   h->Sumw2();
 
    histoname = labelname+"_recObjPtForward";
-   title = labelname+"_recObjPtForward;Pt[GeV/c]";
-   MonitorElement * PtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtForward->getTH1();                                                                         
-   h->Sumw2();                                                                                      
+   title = labelname+"_recObjPtForward;Reco Pt[GeV/c]"+trigPath;
+   PtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = PtForward->getTH1();
+   h->Sumw2();
 
    histoname = labelname+"_recObjEta";
-   title = labelname+"_recObjEta;#eta";
-   MonitorElement * Eta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-   h = Eta->getTH1();                                                                            
-   h->Sumw2();                                                                                   
+   title = labelname+"_recObjEta;Reco #eta"+trigPath;
+   Eta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+   h = Eta->getTH1();
+   h->Sumw2();
 
    histoname = labelname+"_recObjPhi";
-   title = labelname+"_recObjPhi;#Phi";
-   MonitorElement * Phi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = Phi->getTH1();                                                                            
-   h->Sumw2();                                                                                   
+   title = labelname+"_recObjPhi;Reco #Phi"+trigPath;
+   Phi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   h = Phi->getTH1();
+   h->Sumw2();
 
    histoname = labelname+"_recObjEtaPhi";
-   title = labelname+"_recObjEtaPhi;#eta;#Phi";
-   MonitorElement * EtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-   h = EtaPhi->getTH1();                                                                                                     
-   h->Sumw2();                                                                                                               
+   title = labelname+"_recObjEtaPhi;Reco #eta;Reco #Phi"+trigPath;
+   EtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+   h = EtaPhi->getTH1();
+   h->Sumw2();
 
   
    histoname = labelname+"_l1ObjN";         
-   title     = labelname+"_l1ObjN;multiplicity";
-   MonitorElement * N_L1 = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
-   h = N_L1->getTH1();                                                                     
-   h->Sumw2();                                                                             
+   title     = labelname+"_l1ObjN;L1 multiplicity"+trigPath;
+   N_L1 = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
+   h = N_L1->getTH1();                                              
+   h->Sumw2();                                               
 
    histoname = labelname+"_l1ObjPt";
-   title = labelname+"_l1ObjPt;Pt[GeV/c]";
-   MonitorElement * Pt_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = Pt_L1->getTH1();                                                                         
-   h->Sumw2();                                                                                  
-                                                                                                
-   histoname = labelname+"_l1ObjPtBarrel";                                                      
-   title = labelname+"_l1ObjPtBarrel;Pt[GeV/c]";                                                
-   MonitorElement * PtBarrel_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtBarrel_L1->getTH1();                                                                         
-   h->Sumw2();                                                                                        
+   title = labelname+"_l1ObjPt;L1 Pt[GeV/c]"+trigPath;
+   Pt_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = Pt_L1->getTH1();                                                            
+   h->Sumw2();                                                             
+                                                                            
+   histoname = labelname+"_l1ObjPtBarrel";                                    
+   title = labelname+"_l1ObjPtBarrel;L1 Pt[GeV/c]"+trigPath;                              
+   PtBarrel_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = PtBarrel_L1->getTH1();                                                            
+   h->Sumw2();                                                             
 
    histoname = labelname+"_l1ObjPtEndcap";
-   title = labelname+"_l1ObjPtEndcap;Pt[GeV/c]";
-   MonitorElement * PtEndcap_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtEndcap_L1->getTH1();                                                                         
-   h->Sumw2();                                                                                        
+   title = labelname+"_l1ObjPtEndcap;L1 Pt[GeV/c]"+trigPath;
+   PtEndcap_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = PtEndcap_L1->getTH1();                                                            
+   h->Sumw2();                                                             
 
    histoname = labelname+"_l1ObjPtForward";
-   title = labelname+"_l1ObjPtForward;Pt[GeV/c]";
-   MonitorElement * PtForward_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtForward_L1->getTH1();                                                                         
-   h->Sumw2();                                                                                         
+   title = labelname+"_l1ObjPtForward;L1 Pt[GeV/c]"+trigPath;
+   PtForward_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = PtForward_L1->getTH1();                                                            
+   h->Sumw2();                                                             
 
    histoname = labelname+"_l1ObjEta";
-   title = labelname+"_l1ObjEta;#eta";
-   MonitorElement * Eta_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-   h = Eta_L1->getTH1();                                                                            
-   h->Sumw2();                                                                                      
+   title = labelname+"_l1ObjEta;L1 #eta"+trigPath;
+   Eta_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+   h = Eta_L1->getTH1();                                                               
+   h->Sumw2();                                                                
 
    histoname = labelname+"_l1ObjPhi";
-   title = labelname+"_l1ObjPhi;#Phi";
-   MonitorElement * Phi_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = Phi_L1->getTH1();                                                                            
-   h->Sumw2();                                                                                      
+   title = labelname+"_l1ObjPhi;L1 #Phi"+trigPath;
+   Phi_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   h = Phi_L1->getTH1();                                                               
+   h->Sumw2();                                                                
 
    histoname = labelname+"_l1ObjEtaPhi";
-   title = labelname+"_l1ObjEtaPhi;#eta;#Phi";
-   MonitorElement * EtaPhi_L1 =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-   h = EtaPhi_L1->getTH1();                                                                                                     
-   h->Sumw2();                                                                                                                  
+   title = labelname+"_l1ObjEtaPhi;L1 #eta;L1 #Phi"+trigPath;
+   EtaPhi_L1 =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+   h = EtaPhi_L1->getTH1();                                                                                        
+   h->Sumw2();                                
 
+  if(!(v->getPath().find("L1") != std::string::npos))
+    {
    histoname = labelname+"_hltObjN";         
-   title     = labelname+"_hltObjN;multiplicity";
-   MonitorElement * N_HLT = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
-   h = N_HLT->getTH1();                                                                     
-   h->Sumw2();                                                                              
+   title     = labelname+"_hltObjN;HLT multiplicity"+trigPath;
+   N_HLT = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
+   h = N_HLT->getTH1();                                              
+   h->Sumw2();                                               
 
    histoname = labelname+"_hltObjPt";
-   title = labelname+"_hltObjPt;Pt[GeV/c]";
-   MonitorElement * Pt_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = Pt_HLT->getTH1();                                                                         
-   h->Sumw2();                                                                                   
-                                                                                                 
-   histoname = labelname+"_hltObjPtBarrel";                                                      
-   title = labelname+"_hltObjPtBarrel;Pt[GeV/c]";                                                
-   MonitorElement * PtBarrel_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtBarrel_HLT->getTH1();                                                                         
-   h->Sumw2();                                                                                         
+   title = labelname+"_hltObjPt;HLT Pt[GeV/c]"+trigPath;
+   Pt_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = Pt_HLT->getTH1();                                                            
+   h->Sumw2();                                                             
+                                                                            
+   histoname = labelname+"_hltObjPtBarrel";                                    
+   title = labelname+"_hltObjPtBarrel;HLT Pt[GeV/c]"+trigPath;                              
+   PtBarrel_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = PtBarrel_HLT->getTH1();                                                            
+   h->Sumw2();                                                             
 
    histoname = labelname+"_hltObjPtEndcap";
-   title = labelname+"_hltObjPtEndcap;Pt[GeV/c]";
-   MonitorElement * PtEndcap_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtEndcap_HLT->getTH1();                                                                         
-   h->Sumw2();                                                                                         
+   title = labelname+"_hltObjPtEndcap;HLT Pt[GeV/c]"+trigPath;
+   PtEndcap_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = PtEndcap_HLT->getTH1();                                                            
+   h->Sumw2();                                                             
 
    histoname = labelname+"_hltObjPtForward";
-   title = labelname+"_hltObjPtForward;Pt[GeV/c]";
-   MonitorElement * PtForward_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtForward_HLT->getTH1();                                                                         
-   h->Sumw2();                                                                                          
+   title = labelname+"_hltObjPtForward;HLT Pt[GeV/c]"+trigPath;
+   PtForward_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = PtForward_HLT->getTH1();                                                            
+   h->Sumw2();                                                             
 
    histoname = labelname+"_hltObjEta";
-   title = labelname+"_hltObjEta;#eta";
-   MonitorElement * Eta_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-   h = Eta_HLT->getTH1();                                                                            
-   h->Sumw2();                                                                                       
+   title = labelname+"_hltObjEta;HLT #eta"+trigPath;
+   Eta_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+   h = Eta_HLT->getTH1();                                                               
+   h->Sumw2();                                                                
 
    histoname = labelname+"_hltObjPhi";
-   title = labelname+"_hltObjPhi;#Phi";
-   MonitorElement * Phi_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = Phi_HLT->getTH1();                                                                            
-   h->Sumw2();                                                                                       
+   title = labelname+"_hltObjPhi;HLT #Phi"+trigPath;
+   Phi_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   h = Phi_HLT->getTH1();                                                               
+   h->Sumw2();                                                                
 
    histoname = labelname+"_hltObjEtaPhi";
-   title = labelname+"_hltObjEtaPhi;#eta;#Phi";
-   MonitorElement * EtaPhi_HLT =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-   h = EtaPhi_HLT->getTH1();                                                                                                     
-   h->Sumw2();                                                                                                                   
+   title = labelname+"_hltObjEtaPhi;HLT #eta;HLT #Phi"+trigPath;
+   EtaPhi_HLT =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+   h = EtaPhi_HLT->getTH1();                                                                                        
+   h->Sumw2();                                
 
    histoname = labelname+"_l1HLTPtResolution";
-   title = labelname+"_l1HLTPtResolution;#frac{Pt(L1)-Pt(HLT)}{Pt(L1)}";
-   MonitorElement * PtResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PtResolution_L1HLT->getTH1();                                                                           
-   h->Sumw2();                                                                                                 
+   title = labelname+"_l1HLTPtResolution;(Pt(L1)-Pt(HLT))/Pt(L1)"+trigPath;
+   PtResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   h = PtResolution_L1HLT->getTH1();
+   h->Sumw2();
 
    histoname = labelname+"_l1HLTEtaResolution";
-   title = labelname+"_l1HLTEtaResolution;#frac{#eta(L1)-#eta(HLT)}{#eta(L1)}";
-   MonitorElement * EtaResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = EtaResolution_L1HLT->getTH1();                                                                           
-   h->Sumw2();                                                                                                  
+   title = labelname+"_l1HLTEtaResolution;(#eta(L1)-#eta(HLT))/#eta(L1)"+trigPath;
+   EtaResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   h = EtaResolution_L1HLT->getTH1();
+   h->Sumw2(); 
 
    histoname = labelname+"_l1HLTPhiResolution";
-   title = labelname+"_l1HLTPhiResolution;#frac{#Phi(L1)-#Phi(HLT)}{#Phi(L1)}";
-   MonitorElement * PhiResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PhiResolution_L1HLT->getTH1();                                                                           
-   h->Sumw2();                                                                                                  
-
-
-   histoname = labelname+"_hltRecObjPtResolution";
-   title = labelname+"_hltRecObjPtResolution;#frac{Pt(HLT)-Pt(Reco)}{Pt(HLT)}";
-   MonitorElement * PtResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PtResolution_HLTRecObj->getTH1();                                                                           
-   h->Sumw2();                                                                                                     
-
-   histoname = labelname+"_hltRecObjEtaResolution";
-   title = labelname+"_hltRecObjEtaResolution;#frac{#eta(HLT)-#eta(Reco)}{#eta(HLT)}";
-   MonitorElement * EtaResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = EtaResolution_HLTRecObj->getTH1();                                                                           
-   h->Sumw2();                                                                                                      
-
-   histoname = labelname+"_hltRecObjPhiResolution";
-   title = labelname+"_hltRecObjPhiResolution;#frac{#Phi(HLT)-#Phi(Reco)}{#Phi(HLT)}";
-   MonitorElement * PhiResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PhiResolution_HLTRecObj->getTH1();                                                                           
-   h->Sumw2();                                                                                                      
+   title = labelname+"_l1HLTPhiResolution;(#Phi(L1)-#Phi(HLT))/#Phi(L1)"+trigPath;
+   PhiResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   h = PhiResolution_L1HLT->getTH1();
+   h->Sumw2();
 
    histoname = labelname+"_l1HLTPtCorrelation";
-   title = labelname+"_l1HLTPtCorrelation;Pt(L1)[GeV/c];Pt(HLT)[GeV/c]";
-   MonitorElement * PtCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
-   h = PtCorrelation_L1HLT->getTH1();                                                                                              
-   h->Sumw2();                                                                                                                     
+   title = labelname+"_l1HLTPtCorrelation;Pt(L1)[GeV/c];Pt(HLT)[GeV/c]"+trigPath;
+   PtCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
+   h = PtCorrelation_L1HLT->getTH1();
+   h->Sumw2();
 
    histoname = labelname+"_l1HLTEtaCorrelation";
-   title = labelname+"_l1HLTEtaCorrelation;#eta(L1);#eta(HLT)";
-   MonitorElement * EtaCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_);
-   h = EtaCorrelation_L1HLT->getTH1();                                                                                                    
-   h->Sumw2();                                                                                                                            
+   title = labelname+"_l1HLTEtaCorrelation;#eta(L1);#eta(HLT)"+trigPath;
+   EtaCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_);
+   h = EtaCorrelation_L1HLT->getTH1();
+   h->Sumw2();
 
    histoname = labelname+"_l1HLTPhiCorrelation";
-   title = labelname+"_l1HLTPhiCorrelation;#Phi(L1);#Phi(HLT)";
-   MonitorElement * PhiCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
-   h = PhiCorrelation_L1HLT->getTH1();                                                                                                    
-   h->Sumw2();                                                                                                                            
+   title = labelname+"_l1HLTPhiCorrelation;#Phi(L1);#Phi(HLT)"+trigPath;
+   PhiCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
+   h = PhiCorrelation_L1HLT->getTH1();
+   h->Sumw2();
 
-
-   histoname = labelname+"_hltRecObjPtCorrelation";
-   title = labelname+"_hltRecObjPtCorrelation;Pt(HLT)[GeV/c];Pt(Reco)[GeV/c]";
-   MonitorElement * PtCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
-   h = PtCorrelation_HLTRecObj->getTH1();                                                                                              
-   h->Sumw2();                                                                                                                         
-
-   histoname = labelname+"_hltRecObjEtaCorrelation";
-   title = labelname+"_hltRecObjEtaCorrelation;#eta(HLT);#eta(Reco)";
-   MonitorElement * EtaCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_);                                                                                                                                          
-   h = EtaCorrelation_HLTRecObj->getTH1();                                                                                                  
-   h->Sumw2();                                                                                                                              
-
-   histoname = labelname+"_hltRecObjPhiCorrelation";
-   title = labelname+"_hltRecObjPhiCorrelation;#Phi(HLT);#Phi(Reco)";
-   MonitorElement * PhiCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);                                                                                                                                          
-   h = PhiCorrelation_HLTRecObj->getTH1();                                                                                                  
-   h->Sumw2();                                                                                                                              
-
-   v->setHistos(  N, Pt,  PtBarrel, PtEndcap, PtForward, Eta, Phi, EtaPhi,
-                  N_L1, Pt_L1,  PtBarrel_L1, PtEndcap_L1, PtForward_L1, Eta_L1, Phi_L1, EtaPhi_L1,
-                  N_HLT, Pt_HLT,  PtBarrel_HLT, PtEndcap_HLT, PtForward_HLT, Eta_HLT, Phi_HLT, EtaPhi_HLT, 
-                  PtResolution_L1HLT, EtaResolution_L1HLT,PhiResolution_L1HLT,                             
-                  PtResolution_HLTRecObj,EtaResolution_HLTRecObj,PhiResolution_HLTRecObj,                  
-                  PtCorrelation_L1HLT,EtaCorrelation_L1HLT,PhiCorrelation_L1HLT,                           
-                  PtCorrelation_HLTRecObj,EtaCorrelation_HLTRecObj,PhiCorrelation_HLTRecObj,               
-                  dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy);                          
-
-   }// histos for Jet Triggers
-
-  if(v->getObjectType() == trigger::TriggerJet && v->getTriggerType() == "DiJet_Trigger")
-   {                                                                                     
-   histoname = labelname+"_recObjN";                                                     
-   title     = labelname+"_recObjN;multiplicity";                                        
-   MonitorElement * N = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_); 
-   TH1 *h = N->getTH1();                                                                 
-   h->Sumw2();                                                                           
-
-   histoname = labelname+"_recObjPt";
-   title = labelname+"_recObjPt;Pt[GeV/c]";
-   MonitorElement * Pt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = Pt->getTH1();                                                                         
-   h->Sumw2();                                                                               
-                                                                                             
-   histoname = labelname+"_recObjPtBarrel";                                                  
-   title = labelname+"_recObjPtBarrel;Pt[GeV/c]";                                            
-   MonitorElement * PtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtBarrel->getTH1();                                                                         
-   h->Sumw2();                                                                                     
-
-   histoname = labelname+"_recObjPtEndcap";
-   title = labelname+"_recObjPtEndcap;Pt[GeV/c]";
-   MonitorElement * PtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtEndcap->getTH1();                                                                         
-   h->Sumw2();                                                                                     
-
-   histoname = labelname+"_recObjPtForward";
-   title = labelname+"_recObjPtForward;Pt[GeV/c]";
-   MonitorElement * PtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtForward->getTH1();                                                                         
-   h->Sumw2();                                                                                      
-
-   histoname = labelname+"_recObjEta";
-   title = labelname+"_recObjEta;#eta";
-   MonitorElement * Eta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-   h = Eta->getTH1();                                                                            
-   h->Sumw2();                                                                                   
-
-   histoname = labelname+"_recObjPhi";
-   title = labelname+"_recObjPhi;#Phi";
-   MonitorElement * Phi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = Phi->getTH1();                                                                            
-   h->Sumw2();                                                                                   
-
-   histoname = labelname+"_recObjEtaPhi";
-   title = labelname+"_recObjEtaPhi;#eta;#Phi";
-   MonitorElement * EtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-   h = EtaPhi->getTH1();                                                                                                     
-   h->Sumw2();                                                                                                               
-
+   }
   
-   histoname = labelname+"_l1ObjN";         
-   title     = labelname+"_l1ObjN;multiplicity";
-   MonitorElement * N_L1 = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
-   h = N_L1->getTH1();                                                                     
-   h->Sumw2();                                                                             
-
-   histoname = labelname+"_l1ObjPt";
-   title = labelname+"_l1ObjPt;Pt[GeV/c]";
-   MonitorElement * Pt_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = Pt_L1->getTH1();                                                                         
-   h->Sumw2();                                                                                  
-                                                                                                
-   histoname = labelname+"_l1ObjPtBarrel";                                                      
-   title = labelname+"_l1ObjPtBarrel;Pt[GeV/c]";                                                
-   MonitorElement * PtBarrel_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtBarrel_L1->getTH1();                                                                         
-   h->Sumw2();                                                                                        
-
-   histoname = labelname+"_l1ObjPtEndcap";
-   title = labelname+"_l1ObjPtEndcap;Pt[GeV/c]";
-   MonitorElement * PtEndcap_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtEndcap_L1->getTH1();                                                                         
-   h->Sumw2();                                                                                        
-
-   histoname = labelname+"_l1ObjPtForward";
-   title = labelname+"_l1ObjPtForward;Pt[GeV/c]";
-   MonitorElement * PtForward_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtForward_L1->getTH1();                                                                         
-   h->Sumw2();                                                                                         
-
-   histoname = labelname+"_l1ObjEta";
-   title = labelname+"_l1ObjEta;#eta";
-   MonitorElement * Eta_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-   h = Eta_L1->getTH1();                                                                            
-   h->Sumw2();                                                                                      
-
-   histoname = labelname+"_l1ObjPhi";
-   title = labelname+"_l1ObjPhi;#Phi";
-   MonitorElement * Phi_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = Phi_L1->getTH1();                                                                            
-   h->Sumw2();                                                                                      
-
-   histoname = labelname+"_l1ObjEtaPhi";
-   title = labelname+"_l1ObjEtaPhi;#eta;#Phi";
-   MonitorElement * EtaPhi_L1 =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-   h = EtaPhi_L1->getTH1();                                                                                                     
-   h->Sumw2();                                                                                                                  
-
-   histoname = labelname+"_hltObjN";         
-   title     = labelname+"_hltObjN;multiplicity";
-   MonitorElement * N_HLT = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
-   h = N_HLT->getTH1();                                                                     
-   h->Sumw2();                                                                              
-
-   histoname = labelname+"_hltObjPt";
-   title = labelname+"_hltObjPt;Pt[GeV/c]";
-   MonitorElement * Pt_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = Pt_HLT->getTH1();                                                                         
-   h->Sumw2();                                                                                   
-                                                                                                 
-   histoname = labelname+"_hltObjPtBarrel";                                                      
-   title = labelname+"_hltObjPtBarrel;Pt[GeV/c]";                                                
-   MonitorElement * PtBarrel_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtBarrel_HLT->getTH1();                                                                         
-   h->Sumw2();                                                                                         
-
-   histoname = labelname+"_hltObjPtEndcap";
-   title = labelname+"_hltObjPtEndcap;Pt[GeV/c]";
-   MonitorElement * PtEndcap_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtEndcap_HLT->getTH1();                                                                         
-   h->Sumw2();                                                                                         
-
-   histoname = labelname+"_hltObjPtForward";
-   title = labelname+"_hltObjPtForward;Pt[GeV/c]";
-   MonitorElement * PtForward_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = PtForward_HLT->getTH1();                                                                         
-   h->Sumw2();                                                                                          
-
-   histoname = labelname+"_hltObjEta";
-   title = labelname+"_hltObjEta;#eta";
-   MonitorElement * Eta_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-   h = Eta_HLT->getTH1();                                                                            
-   h->Sumw2();                                                                                       
-
-   histoname = labelname+"_hltObjPhi";
-   title = labelname+"_hltObjPhi;#Phi";
-   MonitorElement * Phi_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = Phi_HLT->getTH1();                                                                            
-   h->Sumw2();                                                                                       
-
-   histoname = labelname+"_hltObjEtaPhi";
-   title = labelname+"_hltObjEtaPhi;#eta;#Phi";
-   MonitorElement * EtaPhi_HLT =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-   h = EtaPhi_HLT->getTH1();                                                                                                     
-   h->Sumw2();                                                                                                                   
-
-   histoname = labelname+"_l1HLTPtResolution";
-   title = labelname+"_l1HLTPtResolution;#frac{Pt(L1)-Pt(HLT)}{Pt(L1)}";
-   MonitorElement * PtResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PtResolution_L1HLT->getTH1();                                                                           
-   h->Sumw2();                                                                                                 
-
-   histoname = labelname+"_l1HLTEtaResolution";
-   title = labelname+"_l1HLTEtaResolution;#frac{#eta(L1)-#eta(HLT)}{#eta(L1)}";
-   MonitorElement * EtaResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = EtaResolution_L1HLT->getTH1();                                                                           
-   h->Sumw2();                                                                                                  
-
-   histoname = labelname+"_l1HLTPhiResolution";
-   title = labelname+"_l1HLTPhiResolution;#frac{#Phi(L1)-#Phi(HLT)}{#Phi(L1)}";
-   MonitorElement * PhiResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PhiResolution_L1HLT->getTH1();                                                                           
-   h->Sumw2();                                                                                                  
-
-
    histoname = labelname+"_hltRecObjPtResolution";
-   title = labelname+"_hltRecObjPtResolution;#frac{Pt(HLT)-Pt(Reco)}{Pt(HLT)}";
-   MonitorElement * PtResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PtResolution_HLTRecObj->getTH1();                                                                           
-   h->Sumw2();                                                                                                     
+   title = labelname+"_hltRecObjPtResolution;(Pt(HLT)-Pt(Reco))/Pt(HLT)"+trigPath;
+   PtResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   h = PtResolution_HLTRecObj->getTH1();
+   h->Sumw2();
 
    histoname = labelname+"_hltRecObjEtaResolution";
-   title = labelname+"_hltRecObjEtaResolution;#frac{#eta(HLT)-#eta(Reco)}{#eta(HLT)}";
-   MonitorElement * EtaResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = EtaResolution_HLTRecObj->getTH1();                                                                           
-   h->Sumw2();                                                                                                      
+   title = labelname+"_hltRecObjEtaResolution;(#eta(HLT)-#eta(Reco))/#eta(HLT)"+trigPath;
+   EtaResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   h = EtaResolution_HLTRecObj->getTH1();
+   h->Sumw2();
 
    histoname = labelname+"_hltRecObjPhiResolution";
-   title = labelname+"_hltRecObjPhiResolution;#frac{#Phi(HLT)-#Phi(Reco)}{#Phi(HLT)}";
-   MonitorElement * PhiResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PhiResolution_HLTRecObj->getTH1();                                                                           
-   h->Sumw2();                                                                                                      
-
-   histoname = labelname+"_l1HLTPtCorrelation";
-   title = labelname+"_l1HLTPtCorrelation;Pt(L1)[GeV/c];Pt(HLT)[GeV/c]";
-   MonitorElement * PtCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
-   h = PtCorrelation_L1HLT->getTH1();                                                                                              
-   h->Sumw2();                                                                                                                     
-
-   histoname = labelname+"_l1HLTEtaCorrelation";
-   title = labelname+"_l1HLTEtaCorrelation;#eta(L1);#eta(HLT)";
-   MonitorElement * EtaCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_);
-   h = EtaCorrelation_L1HLT->getTH1();                                                                                                    
-   h->Sumw2();                                                                                                                            
-
-   histoname = labelname+"_l1HLTPhiCorrelation";
-   title = labelname+"_l1HLTPhiCorrelation;#Phi(L1);#Phi(HLT)";
-   MonitorElement * PhiCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
-   h = PhiCorrelation_L1HLT->getTH1();                                                                                                    
-   h->Sumw2();                                                                                                                            
-
-
-   histoname = labelname+"_hltRecObjPtCorrelation";
-   title = labelname+"_hltRecObjPtCorrelation;Pt(HLT)[GeV/c];Pt(Reco)[GeV/c]";
-   MonitorElement * PtCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
-   h = PtCorrelation_HLTRecObj->getTH1();                                                                                              
-   h->Sumw2();                                                                                                                         
-
-   histoname = labelname+"_hltRecObjEtaCorrelation";
-   title = labelname+"_hltRecObjEtaCorrelation;#eta(HLT);#eta(Reco)";
-   MonitorElement * EtaCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_ );                                                                                                                                          
-   h = EtaCorrelation_HLTRecObj->getTH1();                                                                                                  
-   h->Sumw2();                                                                                                                              
-
-   histoname = labelname+"_hltRecObjPhiCorrelation";
-   title = labelname+"_hltRecObjPhiCorrelation;#Phi(HLT);#Phi(Reco)";
-   MonitorElement * PhiCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);                                                                                                                                          
-   h = PhiCorrelation_HLTRecObj->getTH1();                                                                                                  
-   h->Sumw2();                                                                                                                              
-
-   histoname = labelname+"_RecObjAveragePt";
-   title     = labelname+"_RecObjAveragePt;Pt[GeV/c]";
-   MonitorElement * jetAveragePt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = jetAveragePt->getTH1();                                                                        
-   h->Sumw2();                                                                                        
-
-   histoname = labelname+"_RecObjAverageEta";
-   title     = labelname+"_RecObjAverageEta;#eta";
-   MonitorElement * jetAverageEta = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-   h = jetAverageEta->getTH1();                                                                           
-   h->Sumw2();                                                                                            
-
-   histoname = labelname+"_RecObjPhiDifference";
-   title     = labelname+"_RecObjPhiDifference;#Delta#Phi";
-   MonitorElement * jetPhiDifference = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = jetPhiDifference->getTH1();                                                                           
-   h->Sumw2();                                                                                               
-
-   histoname = labelname+"_hltObjAveragePt";
-   title     = labelname+"_hltObjAveragePt;Pt[GeV/c]";
-   MonitorElement * hltAveragePt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = hltAveragePt->getTH1();                                                                        
-   h->Sumw2();                                                                                        
-
-   histoname = labelname+"_hltObjAverageEta";
-   title     = labelname+"_hltObjAverageEta;#eta";
-   MonitorElement * hltAverageEta = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-   h = hltAverageEta->getTH1();                                                                           
-   h->Sumw2();                                                                                            
-
-   histoname = labelname+"_hltObjPhiDifference";
-   title     = labelname+"_hltObjPhiDifference;#Delta#Phi";
-   MonitorElement * hltPhiDifference = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = hltPhiDifference->getTH1();                                                                           
-   h->Sumw2();                                                                                               
-
-   histoname = labelname+"_l1ObjAveragePt";
-   title     = labelname+"_l1ObjAveragePt;Pt[GeV/c]";
-   MonitorElement * l1AveragePt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = l1AveragePt->getTH1();                                                                        
-   h->Sumw2();                                                                                       
-
-   histoname = labelname+"_l1ObjAverageEta";
-   title     = labelname+"_l1ObjAverageEta;#eta";
-   MonitorElement * l1AverageEta = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-   h = l1AverageEta->getTH1();                                                                           
-   h->Sumw2();                                                                                           
-
-   histoname = labelname+"_l1ObjPhiDifference";
-   title     = labelname+"_l1ObjPhiDifference;#Delta#Phi";
-   MonitorElement * l1PhiDifference = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = l1PhiDifference->getTH1();
+   title = labelname+"_hltRecObjPhiResolution;(#Phi(HLT)-#Phi(Reco))/#Phi(HLT)"+trigPath;
+   PhiResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   h = PhiResolution_HLTRecObj->getTH1();
    h->Sumw2();
 
 
-   v->setHistos(  N, Pt,  PtBarrel, PtEndcap, PtForward, Eta, Phi, EtaPhi,
-                  N_L1, Pt_L1,  PtBarrel_L1, PtEndcap_L1, PtForward_L1, Eta_L1, Phi_L1, EtaPhi_L1,
-                  N_HLT, Pt_HLT,  PtBarrel_HLT, PtEndcap_HLT, PtForward_HLT, Eta_HLT, Phi_HLT, EtaPhi_HLT,
-                  PtResolution_L1HLT, EtaResolution_L1HLT,PhiResolution_L1HLT,
-                  PtResolution_HLTRecObj,EtaResolution_HLTRecObj,PhiResolution_HLTRecObj,
-                  PtCorrelation_L1HLT,EtaCorrelation_L1HLT,PhiCorrelation_L1HLT,
-                  PtCorrelation_HLTRecObj,EtaCorrelation_HLTRecObj,PhiCorrelation_HLTRecObj,
-                  jetAveragePt, jetAverageEta, jetPhiDifference, hltAveragePt, hltAverageEta, hltPhiDifference,
-                  l1AveragePt, l1AverageEta, l1PhiDifference);
-
-   }// histos for Jet Triggers
-
-  if(v->getObjectType() == trigger::TriggerMET)
-   {                                          
-   histoname = labelname+"_recObjPt";         
-   title = labelname+"_recObjPt;Pt[GeV/c]";   
-   MonitorElement * Pt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   TH1 *h = Pt->getTH1();                                                                    
-   h->Sumw2();                                                                               
-                                                                                             
-
-   histoname = labelname+"_recObjPhi";
-   title = labelname+"_recObjPhi;#Phi";
-   MonitorElement * Phi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = Phi->getTH1();                                                                            
-   h->Sumw2();                                                                                   
-
-   histoname = labelname+"_l1ObjPt";
-   title = labelname+"_l1ObjPt;Pt[GeV/c]";
-   MonitorElement * Pt_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = Pt_L1->getTH1();                                                                         
-   h->Sumw2();                                                                                  
-                                                                                                
-
-   histoname = labelname+"_l1ObjPhi";
-   title = labelname+"_l1ObjPhi;#Phi";
-   MonitorElement * Phi_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = Phi_L1->getTH1();                                                                            
-   h->Sumw2();                                                                                      
-
-
-   histoname = labelname+"_hltObjPt";
-   title = labelname+"_hltObjPt;Pt[GeV/c]";
-   MonitorElement * Pt_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-   h = Pt_HLT->getTH1();                                                                         
-   h->Sumw2();                                                                                   
-                                                                                                 
-
-   histoname = labelname+"_hltObjPhi";
-   title = labelname+"_hltObjPhi;#Phi";
-   MonitorElement * Phi_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-   h = Phi_HLT->getTH1();                                                                            
-   h->Sumw2();                                                                                       
-
-
-   histoname = labelname+"_l1HLTPtResolution";
-   title = labelname+"_l1HLTPtResolution;#frac{Pt(L1)-Pt(HLT)}{Pt(L1)}";
-   MonitorElement * PtResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PtResolution_L1HLT->getTH1();                                                                           
-   h->Sumw2();                                                                                                 
-
-
-   histoname = labelname+"_l1HLTPhiResolution";
-   title = labelname+"_l1HLTPhiResolution;#frac{#Phi(L1)-#Phi(HLT)}{#Phi(L1)}";
-   MonitorElement * PhiResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PhiResolution_L1HLT->getTH1();                                                                           
-   h->Sumw2();                                                                                                  
-
-
-   histoname = labelname+"_hltRecObjPtResolution";
-   title = labelname+"_hltRecObjPtResolution;#frac{Pt(HLT)-Pt(Reco)}{Pt(HLT)}";
-   MonitorElement * PtResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PtResolution_HLTRecObj->getTH1();                                                                           
-   h->Sumw2();                                                                                                     
-
-
-   histoname = labelname+"_hltRecObjPhiResolution";
-   title = labelname+"_hltRecObjPhiResolution;#frac{#Phi(HLT)-#Phi(Reco)}{#Phi(HLT)}";
-   MonitorElement * PhiResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
-   h = PhiResolution_HLTRecObj->getTH1();                                                                           
-   h->Sumw2();                                                                                                      
-
-   histoname = labelname+"_l1HLTPtCorrelation";
-   title = labelname+"_l1HLTPtCorrelation;Pt(L1)[GeV/c];Pt(HLT)[GeV/c]";
-   MonitorElement * PtCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
-   h = PtCorrelation_L1HLT->getTH1();                                                                                              
-   h->Sumw2();                                                                                                                     
-
-
-   histoname = labelname+"_l1HLTPhiCorrelation";
-   title = labelname+"_l1HLTPhiCorrelation;#Phi(L1);#Phi(HLT)";
-   MonitorElement * PhiCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
-   h = PhiCorrelation_L1HLT->getTH1();                                                                                                    
-   h->Sumw2();                                                                                                                            
-
-
    histoname = labelname+"_hltRecObjPtCorrelation";
-   title = labelname+"_hltRecObjPtCorrelation;Pt(HLT)[GeV/c];Pt(Reco)[GeV/c]";
-   MonitorElement * PtCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
-   h = PtCorrelation_HLTRecObj->getTH1();                                                                                              
-   h->Sumw2();                                                                                                                         
+   title = labelname+"_hltRecObjPtCorrelation;Pt(HLT)[GeV/c];Pt(Reco)[GeV/c]"+trigPath;
+   PtCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
+   h = PtCorrelation_HLTRecObj->getTH1();
+   h->Sumw2();
 
+   histoname = labelname+"_hltRecObjEtaCorrelation";
+   title = labelname+"_hltRecObjEtaCorrelation;#eta(HLT);#eta(Reco)"+trigPath;
+   EtaCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_);
+   h = EtaCorrelation_HLTRecObj->getTH1();
+   h->Sumw2();
 
    histoname = labelname+"_hltRecObjPhiCorrelation";
-   title = labelname+"_hltRecObjPhiCorrelation;#Phi(HLT);#Phi(Reco)";
-  MonitorElement * PhiCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
+   title = labelname+"_hltRecObjPhiCorrelation;#Phi(HLT);#Phi(Reco)"+trigPath;
+   PhiCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
    h = PhiCorrelation_HLTRecObj->getTH1();
    h->Sumw2();
 
-   v->setHistos(  dummy, Pt,  dummy, dummy, dummy, dummy, Phi, dummy,
-                  dummy, Pt_L1,  dummy, dummy, dummy, dummy, Phi_L1, dummy,
-                  dummy, Pt_HLT,  dummy, dummy, dummy, dummy, Phi_HLT, dummy,
-                  PtResolution_L1HLT, dummy,PhiResolution_L1HLT,
-                  PtResolution_HLTRecObj,dummy,PhiResolution_HLTRecObj,
-                  PtCorrelation_L1HLT,dummy,PhiCorrelation_L1HLT,
-                  PtCorrelation_HLTRecObj,dummy,PhiCorrelation_HLTRecObj,
-                  dummy, dummy, dummy, dummy,dummy, dummy, dummy, dummy,dummy);
+   if(v->getTriggerType() == "DiJet_Trigger")
+   {
+   histoname = labelname+"_RecObjAveragePt";
+   title     = labelname+"_RecObjAveragePt;Reco Average Pt[GeV/c]"+trigPath;
+   jetAveragePt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = jetAveragePt->getTH1();
+   h->Sumw2();
+
+   histoname = labelname+"_RecObjAverageEta";
+   title     = labelname+"_RecObjAverageEta;Reco Average #eta"+trigPath;
+   jetAverageEta = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+   h = jetAverageEta->getTH1();
+   h->Sumw2();
+
+   histoname = labelname+"_RecObjPhiDifference";
+   title     = labelname+"_RecObjPhiDifference;Reco #Delta#Phi"+trigPath;
+   jetPhiDifference = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   h = jetPhiDifference->getTH1();
+   h->Sumw2();
+
+   histoname = labelname+"_hltObjAveragePt";
+   title     = labelname+"_hltObjAveragePt;HLT Average Pt[GeV/c]"+trigPath;
+   hltAveragePt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = hltAveragePt->getTH1();
+   h->Sumw2();
+
+   histoname = labelname+"_hltObjAverageEta";
+   title     = labelname+"_hltObjAverageEta;HLT Average #eta"+trigPath;
+   hltAverageEta = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+   h = hltAverageEta->getTH1();
+   h->Sumw2();
+
+   histoname = labelname+"_hltObjPhiDifference";
+   title     = labelname+"_hltObjPhiDifference;Reco #Delta#Phi"+trigPath;
+   hltPhiDifference = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   h = hltPhiDifference->getTH1();
+   h->Sumw2();
+
+   }
+
+   }// histos for Jet Triggers
+ 
+
+   if(v->getObjectType() == trigger::TriggerMET)
+   {   
+   histoname = labelname+"_recObjPt";
+   title = labelname+"_recObjPt;Reco Pt[GeV/c]"+trigPath;
+   Pt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   TH1 *h = Pt->getTH1();
+   h->Sumw2();
+ 
+
+   histoname = labelname+"_recObjPhi";
+   title = labelname+"_recObjPhi;Reco #Phi"+trigPath;
+   Phi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   h = Phi->getTH1();
+   h->Sumw2();
+
+   histoname = labelname+"_l1ObjPt";
+   title = labelname+"_l1ObjPt;L1 Pt[GeV/c]"+trigPath;
+   Pt_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = Pt_L1->getTH1();                                                            
+   h->Sumw2();                                                             
+                                                                            
+
+   histoname = labelname+"_l1ObjPhi";
+   title = labelname+"_l1ObjPhi;L1 #Phi"+trigPath;
+   Phi_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   h = Phi_L1->getTH1();                                                               
+   h->Sumw2();                                                                
+
+   if(!(v->getPath().find("L1") != std::string::npos)){
+
+   histoname = labelname+"_hltObjPt";
+   title = labelname+"_hltObjPt;HLT Pt[GeV/c]"+trigPath;
+   Pt_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+   h = Pt_HLT->getTH1();                                                            
+   h->Sumw2();                                                             
+                                                                            
+
+   histoname = labelname+"_hltObjPhi";
+   title = labelname+"_hltObjPhi;HLT #Phi"+trigPath;
+   Phi_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+   h = Phi_HLT->getTH1();                                                               
+   h->Sumw2();                                                                
+
+
+   histoname = labelname+"_l1HLTPtResolution";
+   title = labelname+"_l1HLTPtResolution;(Pt(L1)-Pt(HLT))/Pt(L1)"+trigPath;
+   PtResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   h = PtResolution_L1HLT->getTH1();
+   h->Sumw2();
+
+
+   histoname = labelname+"_l1HLTPhiResolution";
+   title = labelname+"_l1HLTPhiResolution;(#Phi(L1)-#Phi(HLT))/#Phi(L1)"+trigPath;
+   PhiResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   h = PhiResolution_L1HLT->getTH1();
+   h->Sumw2();
+
+
+
+   histoname = labelname+"_l1HLTPtCorrelation";
+   title = labelname+"_l1HLTPtCorrelation;Pt(L1)[GeV/c];Pt(HLT)[GeV/c]"+trigPath;
+   PtCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
+   h = PtCorrelation_L1HLT->getTH1();
+   h->Sumw2();
+
+
+   histoname = labelname+"_l1HLTPhiCorrelation";
+   title = labelname+"_l1HLTPhiCorrelation;#Phi(L1);#Phi(HLT)"+trigPath;
+   PhiCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
+   h = PhiCorrelation_L1HLT->getTH1();
+   h->Sumw2();
+
+  }
+
+   histoname = labelname+"_hltRecObjPtResolution";
+   title = labelname+"_hltRecObjPtResolution;(Pt(HLT)-Pt(Reco))/Pt(HLT)"+trigPath;
+   PtResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   h = PtResolution_HLTRecObj->getTH1();
+   h->Sumw2();
+
+
+   histoname = labelname+"_hltRecObjPhiResolution";
+   title = labelname+"_hltRecObjPhiResolution;(#Phi(HLT)-#Phi(Reco))/#Phi(HLT)"+trigPath;
+   PhiResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
+   h = PhiResolution_HLTRecObj->getTH1();
+   h->Sumw2();
+
+
+
+   histoname = labelname+"_hltRecObjPtCorrelation";
+   title = labelname+"_hltRecObjPtCorrelation;Pt(HLT)[GeV/c];Pt(Reco)[GeV/c]"+trigPath;
+   PtCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
+   h = PtCorrelation_HLTRecObj->getTH1();
+   h->Sumw2();
+
+
+   histoname = labelname+"_hltRecObjPhiCorrelation";
+   title = labelname+"_hltRecObjPhiCorrelation;#Phi(HLT);#Phi(Reco)"+trigPath;
+   PhiCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
+   h = PhiCorrelation_HLTRecObj->getTH1();
+   h->Sumw2();
+   
 
    }// histos for MET Triggers 
+  v->setHistos(  N, Pt,  PtBarrel, PtEndcap, PtForward, Eta, Phi, EtaPhi,
+               N_L1, Pt_L1,  PtBarrel_L1, PtEndcap_L1, PtForward_L1, Eta_L1, Phi_L1, EtaPhi_L1,
+               N_HLT, Pt_HLT,  PtBarrel_HLT, PtEndcap_HLT, PtForward_HLT, Eta_HLT, Phi_HLT, EtaPhi_HLT,
+               PtResolution_L1HLT, EtaResolution_L1HLT,PhiResolution_L1HLT,
+               PtResolution_HLTRecObj,EtaResolution_HLTRecObj,PhiResolution_HLTRecObj,
+               PtCorrelation_L1HLT,EtaCorrelation_L1HLT,PhiCorrelation_L1HLT,
+               PtCorrelation_HLTRecObj,EtaCorrelation_HLTRecObj,PhiCorrelation_HLTRecObj,
+               jetAveragePt, jetAverageEta, jetPhiDifference, hltAveragePt, hltAverageEta, hltPhiDifference,
+               dummy, dummy, dummy);
+ 
  }
 
 }
 //-------Now Efficiency histos--------
  if(plotEff_)
   {
-   int Ptbins_      = 40;
+   int Ptbins_      = 100;
    int Etabins_     = 40;
-   int Phibins_     = 20;
+   int Phibins_     = 35;
    double PtMin_    = 0.;
    double PtMax_    = 200.;
    double EtaMin_   = -5.;
@@ -2593,85 +2401,85 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "SingleJet_Trigger"))
    { 
    histoname = labelname+"_NumeratorPt";
-   title     = labelname+"NumeratorPt;Pt[GeV/c]";
+   title     = labelname+"NumeratorPt;Calo Pt[GeV/c]";
    MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    TH1 * h = NumeratorPt->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorPtBarrel";
-   title     = labelname+"NumeratorPtBarrel;Pt[GeV/c]";
+   title     = labelname+"NumeratorPtBarrel;Calo Pt[GeV/c] ";
    MonitorElement * NumeratorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = NumeratorPtBarrel->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorPtEndcap";
-   title     = labelname+"NumeratorPtEndcap;Pt[GeV/c]";
+   title     = labelname+"NumeratorPtEndcap;Calo Pt[GeV/c]";
    MonitorElement * NumeratorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = NumeratorPtEndcap->getTH1();
    h->Sumw2(); 
 
    histoname = labelname+"_NumeratorPtForward";
-   title     = labelname+"NumeratorPtForward;Pt[GeV/c]";
+   title     = labelname+"NumeratorPtForward;Calo Pt[GeV/c]";
    MonitorElement * NumeratorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = NumeratorPtForward->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorEta";
-   title     = labelname+"NumeratorEta;#eta";
+   title     = labelname+"NumeratorEta;Calo #eta ";
    MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = NumeratorEta->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorPhi";
-   title     = labelname+"NumeratorPhi;#Phi";
+   title     = labelname+"NumeratorPhi;Calo #Phi";
    MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = NumeratorPhi->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorEtaPhi";
-   title     = labelname+"NumeratorEtaPhi;#eta;#Phi";
+   title     = labelname+"NumeratorEtaPhi;Calo #eta;Calo #Phi";
    MonitorElement * NumeratorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
    h = NumeratorEtaPhi->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPt";
-   title     = labelname+"DenominatorPt;Pt[GeV/c]";
+   title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
    MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPt->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPtBarrel";
-   title     = labelname+"DenominatorPtBarrel;Pt[GeV/c]";
+   title     = labelname+"DenominatorPtBarrel;Calo Pt[GeV/c]";
    MonitorElement * DenominatorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPtBarrel->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPtEndcap";
-   title     = labelname+"DenominatorPtEndcap;Pt[GeV/c]";
+   title     = labelname+"DenominatorPtEndcap;Calo Pt[GeV/c]";
    MonitorElement * DenominatorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPtEndcap->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPtForward";
-   title     = labelname+"DenominatorPtForward;Pt[GeV/c]";
+   title     = labelname+"DenominatorPtForward;Calo Pt[GeV/c] ";
    MonitorElement * DenominatorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPtForward->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorEta";
-   title     = labelname+"DenominatorEta;#eta";
+   title     = labelname+"DenominatorEta;Calo #eta ";
    MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = DenominatorEta->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPhi";
-   title     = labelname+"DenominatorPhi;#Phi";
+   title     = labelname+"DenominatorPhi;Calo #Phi";
    MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = DenominatorPhi->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorEtaPhi";
-   title     = labelname+"DenominatorEtaPhi;#eta;#Phi";
+   title     = labelname+"DenominatorEtaPhi;Calo #eta; Calo #Phi";
    MonitorElement * DenominatorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
    h = DenominatorEtaPhi->getTH1();
    h->Sumw2();
@@ -2683,60 +2491,62 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
 
    if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "DiJet_Trigger"))
    {
+
    histoname = labelname+"_NumeratorAvrgPt";
-   title     = labelname+"NumeratorAvrgPt;Pt[GeV/c]";
+   title     = labelname+"NumeratorAvrgPt;Calo Pt[GeV/c]";
    MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    TH1 * h = NumeratorPt->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorAvrgEta";
-   title     = labelname+"NumeratorAvrgEta;#eta";
+   title     = labelname+"NumeratorAvrgEta;Calo #eta";
    MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = NumeratorEta->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorAvrgPt";
-   title     = labelname+"DenominatorAvrgPt;Pt[GeV/c]";
+   title     = labelname+"DenominatorAvrgPt;Calo Pt[GeV/c] ";
    MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPt->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorAvrgEta";
-   title     = labelname+"DenominatorAvrgEta;#eta";
+   title     = labelname+"DenominatorAvrgEta;Calo #eta";
    MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = DenominatorEta->getTH1();
    h->Sumw2();
 
    v->setEffHistos(  NumeratorPt,  dummy, dummy, dummy, NumeratorEta, dummy, dummy,
                DenominatorPt,  dummy, dummy, dummy, DenominatorEta, dummy, dummy);
+   
 
    }
 
    if(v->getObjectType() == trigger::TriggerMET)
    {
    histoname = labelname+"_NumeratorPt";
-   title     = labelname+"NumeratorPt;Pt[GeV/c]";
+   title     = labelname+"NumeratorPt;Calo Pt[GeV/c]";
    MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    TH1 * h = NumeratorPt->getTH1();
    h->Sumw2();
 
 
    histoname = labelname+"_NumeratorPhi";
-   title     = labelname+"NumeratorPhi;#Phi";
+   title     = labelname+"NumeratorPhi;Calo #Phi";
    MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = NumeratorPhi->getTH1();
    h->Sumw2();
 
 
    histoname = labelname+"_DenominatorPt";
-   title     = labelname+"DenominatorPt;Pt[GeV/c]";
+   title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
    MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPt->getTH1();
    h->Sumw2();
 
    
    histoname = labelname+"_DenominatorPhi";
-   title     = labelname+"DenominatorPhi;#Phi";
+   title     = labelname+"DenominatorPhi;Calo #Phi";
    MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = DenominatorPhi->getTH1();
    h->Sumw2();
@@ -2769,79 +2579,79 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMu_.begin(); v!= hltPathsEffW
    h->Sumw2();
 
    histoname = labelname+"_NumeratorPtBarrel";
-   title     = labelname+"NumeratorPtBarrel;Pt[GeV/c]";
+   title     = labelname+"NumeratorPtBarrel;Calo Pt[GeV/c]";
    MonitorElement * NumeratorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = NumeratorPtBarrel->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorPtEndcap";
-   title     = labelname+"NumeratorPtEndcap;Pt[GeV/c]";
+   title     = labelname+"NumeratorPtEndcap;Calo Pt[GeV/c]";
    MonitorElement * NumeratorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = NumeratorPtEndcap->getTH1();
    h->Sumw2(); 
 
    histoname = labelname+"_NumeratorPtForward";
-   title     = labelname+"NumeratorPtForward;Pt[GeV/c]";
+   title     = labelname+"NumeratorPtForward;Calo Pt[GeV/c]";
    MonitorElement * NumeratorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = NumeratorPtForward->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorEta";
-   title     = labelname+"NumeratorEta;#eta";
+   title     = labelname+"NumeratorEta;Calo #eta ";
    MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = NumeratorEta->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorPhi";
-   title     = labelname+"NumeratorPhi;#Phi";
+   title     = labelname+"NumeratorPhi;Calo #Phi";
    MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = NumeratorPhi->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorEtaPhi";
-   title     = labelname+"NumeratorEtaPhi;#eta;#Phi";
+   title     = labelname+"NumeratorEtaPhi;Calo #eta;Calo #Phi";
    MonitorElement * NumeratorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
    h = NumeratorEtaPhi->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPt";
-   title     = labelname+"DenominatorPt;Pt[GeV/c]";
+   title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
    MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPt->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPtBarrel";
-   title     = labelname+"DenominatorPtBarrel;Pt[GeV/c]";
+   title     = labelname+"DenominatorPtBarrel;Calo Pt[GeV/c]";
    MonitorElement * DenominatorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPtBarrel->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPtEndcap";
-   title     = labelname+"DenominatorPtEndcap;Pt[GeV/c]";
+   title     = labelname+"DenominatorPtEndcap;Calo Pt[GeV/c]";
    MonitorElement * DenominatorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPtEndcap->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPtForward";
-   title     = labelname+"DenominatorPtForward;Pt[GeV/c]";
+   title     = labelname+"DenominatorPtForward;Calo Pt[GeV/c] ";
    MonitorElement * DenominatorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPtForward->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorEta";
-   title     = labelname+"DenominatorEta;#eta";
+   title     = labelname+"DenominatorEta;Calo #eta";
    MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = DenominatorEta->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPhi";
-   title     = labelname+"DenominatorPhi;#Phi";
+   title     = labelname+"DenominatorPhi;Calo #Phi";
    MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = DenominatorPhi->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorEtaPhi";
-   title     = labelname+"DenominatorEtaPhi;#eta;#Phi";
+   title     = labelname+"DenominatorEtaPhi;Calo #eta (IC5);Calo #Phi ";
    MonitorElement * DenominatorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
    h = DenominatorEtaPhi->getTH1();
    h->Sumw2();
@@ -2854,58 +2664,59 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMu_.begin(); v!= hltPathsEffW
   if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "DiJet_Trigger"))
    {
    histoname = labelname+"_NumeratorAvrgPt";
-   title     = labelname+"NumeratorAvrgPt;Pt[GeV/c]";
+   title     = labelname+"NumeratorAvrgPt;Calo Pt[GeV/c] ";
    MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    TH1 * h = NumeratorPt->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorAvrgEta";
-   title     = labelname+"NumeratorAvrgEta;#eta";
+   title     = labelname+"NumeratorAvrgEta;Calo #eta";
    MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = NumeratorEta->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorAvrgPt";
-   title     = labelname+"DenominatorAvrgPt;Pt[GeV/c]";
+   title     = labelname+"DenominatorAvrgPt;Calo Pt[GeV/c]";
    MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPt->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorAvrgEta";
-   title     = labelname+"DenominatorAvrgEta;#eta";
+   title     = labelname+"DenominatorAvrgEta;Calo #eta ";
    MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = DenominatorEta->getTH1();
    h->Sumw2();
 
    v->setEffHistos(  NumeratorPt,  dummy, dummy, dummy, NumeratorEta, dummy, dummy,
                DenominatorPt,  dummy, dummy, dummy, DenominatorEta, dummy, dummy);
+   
 
    }
    if(v->getObjectType() == trigger::TriggerMET)
    {
    histoname = labelname+"_NumeratorPt";
-   title     = labelname+"NumeratorPt;Pt[GeV/c]";
+   title     = labelname+"NumeratorPt;Calo Pt[GeV/c]";
    MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    TH1 * h = NumeratorPt->getTH1();
    h->Sumw2();
 
 
    histoname = labelname+"_NumeratorPhi";
-   title     = labelname+"NumeratorPhi;#Phi";
+   title     = labelname+"NumeratorPhi;Calo #Phi";
    MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = NumeratorPhi->getTH1();
    h->Sumw2();
 
 
    histoname = labelname+"_DenominatorPt";
-   title     = labelname+"DenominatorPt;Pt[GeV/c]";
+   title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
    MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPt->getTH1();
    h->Sumw2();
 
    
    histoname = labelname+"_DenominatorPhi";
-   title     = labelname+"DenominatorPhi;#Phi";
+   title     = labelname+"DenominatorPhi;Calo #Phi";
    MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = DenominatorPhi->getTH1();
    h->Sumw2();
@@ -2930,85 +2741,85 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffW
    if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "SingleJet_Trigger"))
    { 
    histoname = labelname+"_NumeratorPt";
-   title     = labelname+"NumeratorPt;Pt[GeV/c]";
+   title     = labelname+"NumeratorPt;Calo Pt[GeV/c] ";
    MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    TH1 * h = NumeratorPt->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorPtBarrel";
-   title     = labelname+"NumeratorPtBarrel;Pt[GeV/c]";
+   title     = labelname+"NumeratorPtBarrel;Calo Pt[GeV/c]";
    MonitorElement * NumeratorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = NumeratorPtBarrel->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorPtEndcap";
-   title     = labelname+"NumeratorPtEndcap;Pt[GeV/c]";
+   title     = labelname+"NumeratorPtEndcap; Calo Pt[GeV/c] ";
    MonitorElement * NumeratorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = NumeratorPtEndcap->getTH1();
    h->Sumw2(); 
 
    histoname = labelname+"_NumeratorPtForward";
-   title     = labelname+"NumeratorPtForward;Pt[GeV/c]";
+   title     = labelname+"NumeratorPtForward;Calo Pt[GeV/c]";
    MonitorElement * NumeratorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = NumeratorPtForward->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorEta";
-   title     = labelname+"NumeratorEta;#eta";
+   title     = labelname+"NumeratorEta;Calo #eta ";
    MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = NumeratorEta->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorPhi";
-   title     = labelname+"NumeratorPhi;#Phi";
+   title     = labelname+"NumeratorPhi;Calo #Phi";
    MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = NumeratorPhi->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorEtaPhi";
-   title     = labelname+"NumeratorEtaPhi;#eta;#Phi";
+   title     = labelname+"NumeratorEtaPhi;Calo #eta;Calo #Phi ";
    MonitorElement * NumeratorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
    h = NumeratorEtaPhi->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPt";
-   title     = labelname+"DenominatorPt;Pt[GeV/c]";
+   title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
    MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPt->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPtBarrel";
-   title     = labelname+"DenominatorPtBarrel;Pt[GeV/c]";
+   title     = labelname+"DenominatorPtBarrel;Calo Pt[GeV/c]";
    MonitorElement * DenominatorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPtBarrel->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPtEndcap";
-   title     = labelname+"DenominatorPtEndcap;Pt[GeV/c]";
+   title     = labelname+"DenominatorPtEndcap;Calo Pt[GeV/c]";
    MonitorElement * DenominatorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPtEndcap->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPtForward";
-   title     = labelname+"DenominatorPtForward;Pt[GeV/c]";
+   title     = labelname+"DenominatorPtForward;Calo Pt[GeV/c]";
    MonitorElement * DenominatorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPtForward->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorEta";
-   title     = labelname+"DenominatorEta;#eta";
+   title     = labelname+"DenominatorEta;Calo #eta ";
    MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = DenominatorEta->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorPhi";
-   title     = labelname+"DenominatorPhi;#Phi";
+   title     = labelname+"DenominatorPhi;Calo #Phi";
    MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = DenominatorPhi->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorEtaPhi";
-   title     = labelname+"DenominatorEtaPhi;#eta;#Phi";
+   title     = labelname+"DenominatorEtaPhi;Calo #eta ;Calo #Phi ";
    MonitorElement * DenominatorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
    h = DenominatorEtaPhi->getTH1();
    h->Sumw2();
@@ -3021,26 +2832,27 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffW
 
   if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "DiJet_Trigger"))
    {
+
    histoname = labelname+"_NumeratorAvrgPt";
-   title     = labelname+"NumeratorAvrgPt;Pt[GeV/c]";
+   title     = labelname+"NumeratorAvrgPt;Calo Pt[GeV/c] ";
    MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    TH1 * h = NumeratorPt->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_NumeratorAvrgEta";
-   title     = labelname+"NumeratorAvrgEta;#eta";
+   title     = labelname+"NumeratorAvrgEta;Calo #eta ";
    MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = NumeratorEta->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorAvrgPt";
-   title     = labelname+"DenominatorAvrgPt;Pt[GeV/c]";
+   title     = labelname+"DenominatorAvrgPt;Calo Pt[GeV/c] ";
    MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPt->getTH1();
    h->Sumw2();
 
    histoname = labelname+"_DenominatorAvrgEta";
-   title     = labelname+"DenominatorAvrgEta;#eta";
+   title     = labelname+"DenominatorAvrgEta;Calo #eta ";
    MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
    h = DenominatorEta->getTH1();
    h->Sumw2();
@@ -3048,32 +2860,34 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffW
    v->setEffHistos(  NumeratorPt,  dummy, dummy, dummy, NumeratorEta, dummy, dummy,
                DenominatorPt,  dummy, dummy, dummy, DenominatorEta, dummy, dummy);
 
+    
+
    }
    if(v->getObjectType() == trigger::TriggerMET)
    {
    histoname = labelname+"_NumeratorPt";
-   title     = labelname+"NumeratorPt;Pt[GeV/c]";
+   title     = labelname+"NumeratorPt;Calo Pt[GeV/c]";
    MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    TH1 * h = NumeratorPt->getTH1();
    h->Sumw2();
 
 
    histoname = labelname+"_NumeratorPhi";
-   title     = labelname+"NumeratorPhi;#Phi";
+   title     = labelname+"NumeratorPhi;Calo #Phi";
    MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = NumeratorPhi->getTH1();
    h->Sumw2();
 
 
    histoname = labelname+"_DenominatorPt";
-   title     = labelname+"DenominatorPt;Pt[GeV/c]";
+   title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
    MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
    h = DenominatorPt->getTH1();
    h->Sumw2();
 
    
    histoname = labelname+"_DenominatorPhi";
-   title     = labelname+"DenominatorPhi;#Phi";
+   title     = labelname+"DenominatorPhi;Calo #Phi";
    MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
    h = DenominatorPhi->getTH1();
    h->Sumw2();
@@ -3094,9 +2908,9 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffW
    int Nbins_       = 10;
    int Nmin_        = 0;
    int Nmax_        = 10;
-   int Ptbins_      = 40;
+   int Ptbins_      = 100;
    int Etabins_     = 40;
-   int Phibins_     = 20;
+   int Phibins_     = 35;
    double PtMin_    = 0.;
    double PtMax_    = 200.;
    double EtaMin_   = -5.;
@@ -3105,7 +2919,7 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffW
    double PhiMax_   =  3.14159;
 
    std::string dirName4_ = dirname_ + "/TriggerNotFired/";
-   for(PathInfoCollection::iterator v = hltPathsNTfired_.begin(); v!= hltPathsNTfired_.end(); ++v ){
+   for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
 
     MonitorElement *dummy;
     dummy =  dbe->bookFloat("dummy");
@@ -3231,6 +3045,7 @@ void JetMETHLTOfflineSource::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 // - method called once each job just after ending the event loop  ------------
 void 
 JetMETHLTOfflineSource::endJob() {
+delete jetID;
 }
 
 /// EndRun
