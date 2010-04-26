@@ -28,6 +28,15 @@ hcalSimBlock = cms.PSet(
     injectTestHits = cms.bool(False)
 )
 
+es_cholesky = cms.ESSource('HcalTextCalibrations',
+    input = cms.VPSet(
+        cms.PSet(
+            object = cms.string('CholeskyMatrices'),
+            file = cms.FileInPath("CondFormats/HcalObjects/data/CholeskyMatrices.txt")
+        ),
+    ),
+    appendToDataLabel = cms.string('reference')
+)
 
 simHcalUnsuppressedDigis = cms.EDProducer("HcalDigiProducer",
     hcalSimBlock
