@@ -1,8 +1,8 @@
 /** \file
  * 
  * 
- * $Date: 2006/07/27 21:40:44 $
- * $Revision: 1.5 $
+ * $Date: 2006/10/27 01:35:23 $
+ * $Revision: 1.6 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -31,6 +31,7 @@ namespace test{
   public:
     DumpFEDRawDataProduct(const ParameterSet& pset){
       std::vector<int> ids;
+      label_ = pset.getUntrackedParameter<std::string>("label","source");
       ids=pset.getUntrackedParameter<std::vector<int> >("feds",std::vector<int>());
       dumpPayload_=pset.getUntrackedParameter<bool>("dumpPayload",false);
       for (std::vector<int>::iterator i=ids.begin(); i!=ids.end(); i++) 
@@ -42,8 +43,8 @@ namespace test{
       cout << "--- Run: " << e.id().run()
 	   << " Event: " << e.id().event() << endl;
       Handle<FEDRawDataCollection> rawdata;
-      e.getByType(rawdata);
-      for (int i = 0; i<FEDNumbering::lastFEDId(); i++){
+      e.getByLabel(label_,rawdata);
+      for (int i = 0; i<=FEDNumbering::lastFEDId(); i++){
 	const FEDRawData& data = rawdata->FEDData(i);
 	size_t size=data.size();
 

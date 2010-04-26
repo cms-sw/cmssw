@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/07/08 13:23:33 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/03/16 21:05:18 $
+ *  $Revision: 1.17 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -79,6 +79,11 @@ void FEDNumbering::init()
     {
       in_[i] = true;
       from_[i] = "DAQeFED";
+    }
+  for(i=MINDAQmFEDFEDID; i<=MAXDAQmFEDFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "DAQmFED";
     }
 
 
