@@ -8,6 +8,7 @@
 
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/PatCandidates>
 
 <use name=CommonTools/CandUtils>
 <use name=CommonTools/UtilAlgos>

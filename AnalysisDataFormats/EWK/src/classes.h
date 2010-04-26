@@ -18,7 +18,7 @@
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
-
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 
 #include <vector>
@@ -39,7 +39,7 @@ namespace {
      edm::RefToBaseVector<reco::WMuNuCandidate> rtbvm;
      edm::Wrapper<edm::RefToBaseVector<reco::WMuNuCandidate> > rtbvm_w;
      edm::reftobase::BaseVectorHolder<reco::WMuNuCandidate> *bvhm_p;
- 
+
 
 
      std::vector<reco::WMuNuCandidatePtr> v2;
@@ -54,7 +54,7 @@ namespace {
      edm::RefToBaseVector<reco::WMuNuCandidatePtr> rtbvm2;
      edm::Wrapper<edm::RefToBaseVector<reco::WMuNuCandidatePtr> > rtbvm_w2;
      edm::reftobase::BaseVectorHolder<reco::WMuNuCandidatePtr> *bvhm_p2;
-    
+
      std::vector<ewk::DiLeptonRefBaseCandidate> v3;
      edm::Wrapper<std::vector<ewk::DiLeptonRefBaseCandidate> > c3;
      edm::Ref<std::vector<ewk::DiLeptonRefBaseCandidate> > r3;
@@ -105,6 +105,19 @@ namespace {
      edm::Wrapper<edm::Ptr<ewk::ZGammaRefBaseCandidate> > p_w6;
      edm::PtrVector<ewk::ZGammaRefBaseCandidate> pv6;
      edm::Wrapper<edm::PtrVector<ewk::ZGammaRefBaseCandidate> > pv_w6;
-    
+
+     edm::Ptr<pat::Muon> p_m7;
+     edm::RefToBaseVector<pat::Muon> rtbv_m_7;
+     edm::PtrVector<pat::Muon> pv_m7;
+     edm::Wrapper<edm::PtrVector<pat::Muon> > w_pv_m7;
+     edm::Wrapper<edm::RefToBaseVector<pat::Muon> > w_rtbv_m_7;
+     edm::reftobase::BaseVectorHolder<pat::Muon> *bvh_m_7;
+
+//      std::vector<edm::Ref<pat::MuonCollection> > v_r_mc_7;
+//      edm::Wrapper<std::vector<edm::Ref<pat::MuonCollection> > > w_v_r_mc_7;
+//      std::vector<edm::Ref<std::vector<pat::Muon>,pat::Muon,edm::refhelper::FindUsingAdvance<std::vector<pat::Muon>,pat::Muon> > > c_7;
+//      edm::Wrapper<std::vector<edm::Ref<std::vector<pat::Muon>,pat::Muon,edm::refhelper::FindUsingAdvance<std::vector<pat::Muon>,pat::Muon> > > > d_7;
+
+
   };
-}  
+}
