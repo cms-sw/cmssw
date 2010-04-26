@@ -52,6 +52,7 @@ private:
 
   const HcalDbService * theDbService;
   CLHEP::RandGaussQ * theRandGaussQ;
+  CLHEP::RandFlat * theRandFlat;
   const CaloVSimParameterMap * theParameterMap;
   const CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
   HPDIonFeedbackSim * theIonFeedbackSim;
@@ -64,8 +65,6 @@ private:
   double HO_ff;
   const HcalCholeskyMatrices * myCholeskys;
   const HcalPedestals * myADCPeds;
-  CLHEP::RandFlat * theRandFlat;
-
 };
 
 #endif
