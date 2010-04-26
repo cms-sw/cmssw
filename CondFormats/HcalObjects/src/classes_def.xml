@@ -66,6 +66,14 @@
  <class name="std::vector<HcalValidationCorr>"/>
  <class name="HcalValidationCorrs"/>
 
+ <class name="HcalCholeskyMatrix"/>
+ <class name="std::vector<HcalCholeskyMatrix>"/>
+ <class name="HcalCholeskyMatrices"/>
+
+ <class name="HcalCovarianceMatrix"/>
+ <class name="std::vector<HcalCovarianceMatrix>"/>
+ <class name="HcalCovarianceMatrices"/>
+
  <class name="HcalLutMetadatum"/>
  <class name="std::vector<HcalLutMetadatum>"/>
  <class name="HcalLutMetadata" class_version="0"/>

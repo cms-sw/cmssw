@@ -54,6 +54,12 @@ namespace {
     std::vector<HcalLutMetadatum> myLutMetadatumVec;
     HcalLutMetadata::NonChannelData myLutNonChannelMetadata;
 
+    HcalCholeskyMatrices myCholeskys;
+    std::vector<HcalCholeskyMatrix> myCholeskysVec;
+
+    HcalCovarianceMatrices myCovariances;
+    std::vector<HcalCovarianceMatrix> myCovariancesVec;
+
     HcalDcsValues myDcsValues;
     std::vector<HcalDcsValue> myDcsValueVec;
 
