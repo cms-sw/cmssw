@@ -192,10 +192,11 @@ void PedsFullNoiseAlgorithm::analyse() {
           
           // new Bin84 method
       		std::vector<float> integralFrac;
-	    		integralFrac.push_back(1.*noisehist->GetBinContent(0)/noisehist->Integral());
+	    		integralFrac.push_back(1.*noisehist->GetBinContent(0)/noisehist->Integral(0,noisehist->GetNbinsX()));
       		// Calculate the integral of distro as a function of bins.
       		for(int i = 1; i < noisehist->GetNbinsX();i++){
-	    			integralFrac.push_back(float(noisehist->GetBinContent(i))/noisehist->Integral()+integralFrac[i-1]);
+	    		integralFrac.push_back(float(noisehist->GetBinContent(i))/
+                noisehist->Integral(0,noisehist->GetNbinsX())+integralFrac[i-1]);
       			//Take the two bins next to 84% and solve for x in 0.84 = mx+b
       			if (integralFrac[i] >= 0.84135 && integralFrac[i-1] < 0.84135) {
       			// my quadratic noise calculation
