@@ -294,14 +294,14 @@ if __name__ == '__main__':
 	    if line.find("EndTimeOfFit") != -1:
 		atime = time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z")
 	    if line.find("LumiRange") != -1:
-		alumis = line.strip('LumiRange ')
+		alumi = line.split()[3]
 	    if line.find('Type') != -1 and line.split()[1] == '0':
 		skip = True		
 	if skip:
 	    print " zero fit result, skip file " + beam_file + " with time stamp:"
 	    print " run " + arun + " lumis " + alumis
 	else:
-	    sortedlist[atime] = beam_file
+	    sortedlist[int(pack(int(arun), int(alumi)] = beam_file
 		
 	tmpfile.close()
 
@@ -324,6 +324,7 @@ if __name__ == '__main__':
     
     nfile = 0
     iov_since_first = '1'
+    total_files = len(keys)
     
     for key in keys:
 	
@@ -452,57 +453,19 @@ if __name__ == '__main__':
         print acmd
         std = commands.getstatusoutput(acmd)
         print std[1]
+
+        # keep last payload for express, and prompt tags
+        if nfile == total_files:
+            print " this is the last IOV. You can use this payload for express and prompt conditions."
+            os.system("cp "+sqlite_file+ " "+workflowdirArchive+"payloads/express.db")
+            print "a copy of this payload has been placed at:"
+            print workflowdirArchive+"payloads/express.db"
         
+        # clean up
 	os.system("rm "+sqlite_file)
-
-    #### CREATE payload files for dropbox
-            
-        #print " create payload card for dropbox ..."
-        #dfile = open(metadata_file,'w')
-        
-        #dfile.write('destDB '+ destDB +'\n')
-        #dfile.write('tag '+ tagname +'\n')
-        #dfile.write('inputtag' +'\n')
-        #dfile.write('since ' + iov_since +'\n')
-        #if IOVbase == "runbase":
-        #    dfile.write('Timetype runnumber\n')
-        #elif IOVbase == "lumibase":
-        #    dfile.write('Timetype lumiid\n')
-        #checkType = tagType
-        #if tagType == "express":
-        #    checkType = "hlt"
-        #dfile.write('IOVCheck ' + checkType + '\n')
-        #dfile.write('usertext ' + iov_comment +'\n')
-        
-        #dfile.close()
-        
-        #uuid = commands.getstatusoutput('uuidgen -t')[1]
-        #final_sqlite_file_name = tagname + '@' + uuid
-        
-        #if not os.path.isdir(workflowdirArchive + 'payloads'):
-        #    os.mkdir(workflowdirArchive + 'payloads')
-        #commands.getstatusoutput('cp ' + sqlite_file   + ' ' + workflowdirArchive + 'payloads/' + final_sqlite_file_name + '.db')
-        #commands.getstatusoutput('cp ' + metadata_file + ' ' + workflowdirArchive + 'payloads/' + final_sqlite_file_name + '.txt')
-
-        #commands.getstatusoutput('mv ' + sqlite_file   + ' ' + workflowdirLastPayloads + final_sqlite_file_name + '.db')
-        #commands.getstatusoutput('mv ' + metadata_file + ' ' + workflowdirLastPayloads + final_sqlite_file_name + '.txt')
-
-        #print workflowdirLastPayloads + final_sqlite_file_name + '.db'
-        #print workflowdirLastPayloads + final_sqlite_file_name + '.txt'
-        
-        #if option.upload:
-        #    print " scp files to offline Drop Box"
-        #    commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/DropBox")
-        #    commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/DropBox")
-
         print " clean up done."
-    #### CLEAN up
-	
-	#print "DONE.\n"
-	#print "Files ready to be move to beamspot dropbox:"
-	#print tagname+"@"+uuid+".db"
-	#print tagname+"@"+uuid+".txt"
-    
+
+
     allfile.close()
             
     #### CREATE payload for merged output

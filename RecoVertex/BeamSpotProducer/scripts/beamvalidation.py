@@ -12,7 +12,7 @@
 #____________________________________________________________
 
 """
-   bsvalidation
+   beam spot validation
 
    A very simple script 
 
@@ -144,18 +144,26 @@ if __name__ == '__main__':
 
     
     ## Get the latest tags
-    queryTags_cmd = "cmscond_list_iov -c frontier://cmsfrontier.cern.ch:8000/Frontier/CMS_COND_31X_BEAMSPOT -P /afs/cern.ch/cms/DB/conddb -a | grep BeamSpotObjects | grep offline"
+    queryTags_cmd = "cmscond_list_iov -c frontier://cmsfrontier.cern.ch:8000/Frontier/CMS_COND_31X_BEAMSPOT -P /afs/cern.ch/cms/DB/conddb -a | grep BeamSpotObjects"
     
     outcmd = commands.getstatusoutput( queryTags_cmd )
     
     listtags = outcmd[1].split()
     
-    tmplist = []
+    listtags_offline = []
     for itag in listtags:
         if itag[len(itag)-7:len(itag)] == "offline":
-            tmplist.append(itag)
-    listtags = tmplist
-            
+            listtags_offline.append(itag)
+    listtags_express = []
+    for itag in listtags:
+        if itag[len(itag)-7:len(itag)] == "express":
+            listtags_express.append(itag)
+    listtags_prompt = []
+    for itag in listtags:
+        if itag[len(itag)-6:len(itag)] == "prompt":
+            listtags_prompt.append(itag)
+    
+    listtags = listtags_offline        
     listtags.sort( cmp = cmp_tags )
     listtags.reverse()
 

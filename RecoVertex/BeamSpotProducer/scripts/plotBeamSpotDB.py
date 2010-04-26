@@ -22,8 +22,8 @@
    -c, --create  = CREATE: name for beam spot data file.
    -d, --data    = DATA: input beam spot data file.
    -D, --destDB  = DESTDB: destination DB string. online(oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT).
-   -i, --initial = INITIAL: First run.
-   -f, --final   = FINAL: Last run.
+   -i, --initial = INITIAL: First IOV. Options: run number, or run:lumi, eg. \"133200:21\"
+   -f, --final   = FINAL: Last IOV. Options: run number, or run:lumi
    -g, --graph : create a TGraphError instead of a TH1 object
    -n, --noplot : Only extract beam spot data, plots are not created..
    -o, --output  = OUTPUT: filename of ROOT file with plots.
@@ -230,6 +230,7 @@ def unpackLumiid(i):
     j=unpack(i)
     return {'run':j[0],'lumisection':j[1]}
 
+
 # ROOT STYLE
 #############################
 def SetStyle():
@@ -389,15 +390,30 @@ if __name__ == '__main__':
 
         for iIOV in iovlist:
             passiov = False
+            tmprunfirst = firstRun
+            tmprunlast = lastRun
+            tmplumifirst = 1
+            tmplumilast = 9999999
+            if IOVbase=="lumibase":
+                #tmprunfirst = int(firstRun.split(":")[0])
+                #tmprunlast  = int(lastRun.split(":")[0])
+                #tmplumifirst = int(firstRun.split(":")[1])
+                #tmplumilast  = int(lastRun.split(":")[1])
+                tmprunfirst = pack( int(firstRun.split(":")[0]) , int(firstRun.split(":")[1]) )
+                tmprunlast  = pack( int(lastRun.split(":")[0]) , int(lasstRun.split(":")[1]) )
 	    #print "since = " + str(iIOV.since) + " till = "+ str(iIOV.till)
-            if iIOV.since >= int(firstRun) and int(lastRun) < 0 and iIOV.since <= int(firstRun):
+            if iIOV.since >= int(tmprunfirst) and int(tmprunlast) < 0 and iIOV.since <= int(tmprunfirst):
                 print " IOV: " + str(iIOV.since)
                 passiov = True
-            if iIOV.since >= int(firstRun) and int(lastRun) > 0 and iIOV.till < int(lastRun):
+            if iIOV.since >= int(tmprunfirst) and int(tmprunlast) > 0 and iIOV.till < int(tmprunlast):
                 print " IOV: " + str(iIOV.since) + " to " + str(iIOV.till)
                 passiov = True
             if passiov:
                 acommand = 'getBeamSpotDB.py -t '+ tag + " -r " + str(iIOV.since) +otherArgs
+                if IOVbase=="lumibase":
+                    tmprun = unpack(iIOV.since)[0]
+                    tmplumi = unpack(iIOV.since)[1]
+                    acommand = 'getBeamSpotDB.py -t '+ tag + " -r " + str(tmprun) +" -l "+tmplumi +otherArgs
                 status = commands.getstatusoutput( acommand )
                 tmpfile.write(status[1])
     
@@ -627,7 +643,7 @@ if __name__ == '__main__':
         datax = ibeam.IOVfirst
         #print str(ii) + "  " +datax
         if datax == '1' and IOVbase =="runbase":
-            print " skip IOV = "+ str(ibeam.IOVfirst) + " to " + str(ibeam.IOVlast)
+            print " iov = 1? skip this IOV = "+ str(ibeam.IOVfirst) + " to " + str(ibeam.IOVlast)
             tmpremovelist.append(ibeam)
         
         if ii < len(listbeam) -1:
@@ -674,15 +690,15 @@ if __name__ == '__main__':
 		if ii < len(listbeam) -2:
 		    iNNbeam = listbeam[ii+2]
 	    else:
-		print "close payload because end of data has been reached"
+		print "close payload because end of data has been reached. Run "+ibeam.Run
 		docreate = True
             # check we run over the same run
 	    if ibeam.Run != inextbeam.Run:
-		print "close payload because we end of run "+ibeam.Run
+		print "close payload because end of run "+ibeam.Run
 		docreate = True
 	    # check maximum lumi counts
 	    if countlumi == maxNlumis:
-		print "close payload because maximum lumi sections accumulated"
+		print "close payload because maximum lumi sections accumulated within run "+ibeam.Run
 		docreate = True
 		countlumi = 0
 	    # weighted average position
@@ -735,7 +751,7 @@ if __name__ == '__main__':
 	    if docreate:
 		tmpbeam.IOVlast = ibeam.IOVfirst
 		tmpbeam.IOVEndTime = ibeam.IOVEndTime
-		print "  Lumi1: "+str(tmpbeam.IOVfirst) + " Lumi2: "+str(tmpbeam.IOVlast)
+		print "  Run: "+tmpbeam.Run +" Lumi1: "+str(tmpbeam.IOVfirst) + " Lumi2: "+str(tmpbeam.IOVlast)
 		newlistbeam.append(tmpbeam)
 		tmpbeam = BeamSpot()
 	    tmprun = ibeam.Run
