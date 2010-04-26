@@ -74,8 +74,8 @@ process.OUTPUT = cms.OutputModule("PoolOutputModule",
 #         "keep recoMuons_*_*_*"
 #         ),
         SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p1')),
-#        fileName = cms.untracked.string('file:zMuMuEmbed_output.root')
-         fileName = cms.untracked.string('/tmp/fruboes/Zmumu/zMuMuEmbed_output.root')
+        fileName = cms.untracked.string('file:zMuMuEmbed_output.root')
+#         fileName = cms.untracked.string('/tmp/fruboes/Zmumu/zMuMuEmbed_output.root')
 )
 
 
