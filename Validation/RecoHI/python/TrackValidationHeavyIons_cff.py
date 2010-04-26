@@ -1,0 +1,39 @@
+import FWCore.ParameterSet.Config as cms
+
+# track associator settings
+import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi 
+TrackAssociatorByHitsRecoDenom = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone(
+    ComponentName = cms.string('TrackAssociatorByHitsRecoDenom'),  
+    SimToRecoDenominator = cms.string('reco'),
+    UseGrouped = cms.bool(False) 
+    )
+
+# reco track quality cuts
+from Validation.RecoTrack.cuts_cff import *
+cutsRecoTracks.src = "hiSelectedTracks"
+cutsRecoTracks.ptMin = 2.0
+cutsRecoTracks.quality = []
+
+# sim track quality cuts
+from Validation.RecoHI.findableSimTracks_cfi import *
+findableSimTracks.ptMin = 2.0
+
+# setup multi-track validator
+from Validation.RecoTrack.MultiTrackValidator_cff import *
+hiTrackValidator = multiTrackValidator.clone(
+    label = cms.VInputTag(cms.InputTag('cutsRecoTracks')),
+    label_tp_effic = cms.InputTag("findableSimTracks"),
+    label_tp_fake  = cms.InputTag("cutsTPFake"),
+    signalOnlyTP = cms.bool(False),
+    skipHistoFit = cms.untracked.bool(True), # done in post-processing
+    minpT = cms.double(1.0),
+    maxpT = cms.double(100.0),
+    nintpT = cms.int32(40),
+    useLogPt = cms.untracked.bool(True)
+    )
+
+# track validation sequence
+hiTrackValidation = cms.Sequence(findableSimTracks
+                                 + cutsTPFake
+                                 + cutsRecoTracks
+                                 + hiTrackValidator)
