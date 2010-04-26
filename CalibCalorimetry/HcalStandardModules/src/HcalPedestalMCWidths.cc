@@ -10,7 +10,7 @@
 HcalPedestalMCWidths::HcalPedestalMCWidths(const edm::ParameterSet& ps)
 {
    firsttime = true;
-   histflag = ps.getUntrackedParameter<bool>("saveHists",false);
+   histflag = ps.getUntrackedParameter<bool>("saveHists",true);
 }
 
 
