@@ -219,7 +219,7 @@ int elePublishHistos()
       histo->SetLineWidth(3) ;
 
       histo_option = histo->GetOption() ;
-      if ((histo_option.Contains("ELE_LOGY")==kTRUE)&&(histo->GetEntries()>0))
+      if ((histo_option.Contains("ELE_LOGY")==kTRUE)&&(histo->GetEntries()>0)&&(histo->GetMaximum()>0))
        { canvas->SetLogy(1) ; }
 
       if (histo->IsA()->InheritsFrom("TH2")==kTRUE)

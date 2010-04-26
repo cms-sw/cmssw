@@ -34,16 +34,16 @@ Tests with same datasets as release validation
   <var name="DBS_RELEASE" value="Any">
   <var name="DBS_TIER" value="FEVT">
   <var name="DBS_COND" value="Commissioning10-Express-v9">
-  <var name="DBS_SAMPLE" value="StreamExpress">
+  <var name="DBS_SAMPLE" value="ExpressPhysics">
 
   <var name="VAL_ANALYZER" value="ElectronAnalyzer">
   <var name="VAL_CONFIGURATION" value="${VAL_ANALYZER}_cfg.py">
   <!--var name="DBS_RELEASE" value="LOCAL"-->
   <!--var name="DBS_COND" value=""-->
 
-  <environment name="133881">
+  <environment name="DataRun">
   
-    <var name="DBS_RUN" value="133881">
+    <var name="DBS_RUN" value="133875">
     
     <executable name="dbs_discovery.py">
     
