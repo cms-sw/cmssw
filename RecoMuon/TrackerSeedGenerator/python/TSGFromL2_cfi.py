@@ -7,12 +7,12 @@ from RecoMuon.TrackerSeedGenerator.TrackerSeedCleaner_cff import *
 from RecoMuon.TrackerSeedGenerator.TSGs_cff import *
 
 hltL3TrajectorySeedFromL2 = cms.EDProducer("TSGFromL2Muon",
-    MuonTrackingRegionCommon,
-    TrackerSeedCleanerCommon,
     # ServiceParameters
     MuonServiceProxy,
     # MuonTrackingRegionBuilder and  TrackerSeedCleaner should be empty for TSGForRoadSearchOI
     # MuonTrackingRegionBuilder should be empty for TSGFromPropagation
+    #MuonTrackingRegionCommon,
+    #TrackerSeedCleanerCommon,
     MuonTrackingRegionBuilder = cms.PSet(),
     TrackerSeedCleaner = cms.PSet(),
     TkSeedGenerator = TSGsBlock.TSGForRoadSearchOI,
