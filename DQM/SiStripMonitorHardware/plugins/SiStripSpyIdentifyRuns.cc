@@ -1,6 +1,6 @@
 // Original Author:  Anne-Marie Magnan
 //         Created:  2010/02/25
-// $Id: SiStripSpyIdentifyRuns.cc,v 1.2 2010/03/15 03:33:35 wmtan Exp $
+// $Id: SiStripSpyIdentifyRuns.cc,v 1.1 2010/04/19 15:31:42 amagnan Exp $
 //
 
 #include <sstream>
@@ -57,6 +57,8 @@ namespace sistrip {
     //tag of spydata source collection
     edm::InputTag srcTag_;
 
+    uint32_t prevRun_;
+
   };
 }//namespace
 
@@ -70,7 +72,8 @@ namespace sistrip {
 
   SpyIdentifyRunsModule::SpyIdentifyRunsModule(const edm::ParameterSet& iConfig)
     : fileName_(iConfig.getParameter<std::string>("OutputTextFile")),
-      srcTag_(iConfig.getParameter<edm::InputTag>("InputProductLabel"))
+      srcTag_(iConfig.getParameter<edm::InputTag>("InputProductLabel")),
+      prevRun_(0)
   {
 
   }
@@ -97,9 +100,10 @@ namespace sistrip {
   void SpyIdentifyRunsModule::analyze(const edm::Event& aEvt, const edm::EventSetup& aSetup)
   {
 
-    static bool lFirstEvent = true;
-    if (!lFirstEvent) return;
-
+    //static bool lFirstEvent = true;
+    //if (!lFirstEvent) return;
+    uint32_t lRunNum = aEvt.id().run();
+    if (lRunNum == prevRun_) return;
 
     edm::Handle<FEDRawDataCollection> lHandle;
     aEvt.getByLabel( srcTag_, lHandle ); 
@@ -122,17 +126,21 @@ namespace sistrip {
 	} catch (const cms::Exception& e) { 
 	  edm::LogWarning("SiStripSpyIdentifyRuns")
 	    << "Exception caught when creating FEDSpyBuffer object for FED " << iFed << ": " << e.what();
-	  if (!(buffer->readoutMode() == READOUT_MODE_SPY)) break;
+	  //if (!(buffer->readoutMode() == READOUT_MODE_SPY)) break;
+	  std::string lErrStr = e.what();
+	  if (lErrStr.find("Buffer is not from spy channel")!=lErrStr.npos) break;
 	  else {
-	    writeRunInFile(aEvt.id().run());
+	    writeRunInFile(lRunNum);
 	    break;
 	  }
 	} // end of buffer reset try.
-        
-	writeRunInFile(aEvt.id().run());
+        edm::LogWarning("SiStripSpyIdentifyRuns")
+	  << " -- this is a spy file, run " << lRunNum << std::endl;
+	writeRunInFile(lRunNum);
 	break;
       }
-    lFirstEvent = false;
+    //lFirstEvent = false;
+    prevRun_ = lRunNum;
 
   }
 
