@@ -16,7 +16,6 @@
 // Original Author: Jim Hirschauer (adaptation of Seema Sharma's
 // IsolatedTracksNew)
 //         Created:  Thu Nov  6 15:30:40 CST 2008
-// $Id$
 //
 //
 #define _DEBUG_QUIET
@@ -32,6 +31,7 @@
 IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig) {
 
   //now do what ever initialization is needed
+  doMC            = iConfig.getUntrackedParameter<bool>  ("DoMC", false); 
   myverbose_      = 
     iConfig.getUntrackedParameter<int>( "Verbosity", 5 );
   useJetTrigger_  = 

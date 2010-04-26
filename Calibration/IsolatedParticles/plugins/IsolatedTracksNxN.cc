@@ -13,7 +13,6 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Aug 10 15:30:40 CST 2009
-// $Id$
 //
 //
 
@@ -28,7 +27,7 @@
 IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet& iConfig) {
 
   //now do what ever initialization is needed
-  flagMC                 = iConfig.getUntrackedParameter<bool>  ("FlagMC", false); 
+  doMC                   = iConfig.getUntrackedParameter<bool>  ("DoMC", false); 
   myverbose_             = iConfig.getUntrackedParameter<int>   ("Verbosity", 5          );
   pvTracksPtMin_         = iConfig.getUntrackedParameter<double>("PVTracksPtMin", 1.0    );
   debugTrks_             = iConfig.getUntrackedParameter<int>   ("DebugTracks"           );
@@ -54,7 +53,7 @@ IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet& iConfig) {
 
   if(myverbose_>=0) {
     std::cout <<"Parameters read from config file \n" 
-	      <<" flagMC       "      << flagMC
+	      <<" doMC         "      << doMC
 	      <<"\t myverbose_ "      << myverbose_        
 	      <<"\t minTrackP_ "      << minTrackP_     
 	      << "\t maxTrackEta_ " << maxTrackEta_    << "\n"
@@ -385,26 +384,26 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   //get Handles to SimTracks and SimHits
   edm::Handle<edm::SimTrackContainer> SimTk;
-  if (flagMC) iEvent.getByLabel("g4SimHits",SimTk);
+  if (doMC) iEvent.getByLabel("g4SimHits",SimTk);
   edm::SimTrackContainer::const_iterator simTrkItr;
 
   edm::Handle<edm::SimVertexContainer> SimVtx;
-  if (flagMC) iEvent.getByLabel("g4SimHits",SimVtx);
+  if (doMC) iEvent.getByLabel("g4SimHits",SimVtx);
   edm::SimVertexContainer::const_iterator vtxItr = SimVtx->begin();
 
   //get Handles to PCaloHitContainers of eb/ee/hbhe
   edm::Handle<edm::PCaloHitContainer> pcaloeb;
-  if (flagMC) iEvent.getByLabel("g4SimHits", "EcalHitsEB", pcaloeb);
+  if (doMC) iEvent.getByLabel("g4SimHits", "EcalHitsEB", pcaloeb);
 
   edm::Handle<edm::PCaloHitContainer> pcaloee;
-  if (flagMC) iEvent.getByLabel("g4SimHits", "EcalHitsEE", pcaloee);
+  if (doMC) iEvent.getByLabel("g4SimHits", "EcalHitsEE", pcaloee);
 
   edm::Handle<edm::PCaloHitContainer> pcalohh;
-  if (flagMC) iEvent.getByLabel("g4SimHits", "HcalHits", pcalohh);
+  if (doMC) iEvent.getByLabel("g4SimHits", "HcalHits", pcalohh);
   
   //associates tracker rechits/simhits to a track
-  TrackerHitAssociator* associate;
-  if(flagMC) associate = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
+  TrackerHitAssociator* associate=0;
+  if (doMC) associate = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
   
   std::vector<int>  ifGood(trkCollection->size(), 1);
 
@@ -467,7 +466,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     t_trackEtaAll           ->push_back( eta1 );
     t_trackPhiAll           ->push_back( phi1 );
 
-    if (flagMC) {
+    if (doMC) {
       edm::SimTrackContainer::const_iterator matchedSimTrkAll = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false); 
       if( matchedSimTrkAll != SimTk->end())     t_trackPdgIdAll->push_back( matchedSimTrkAll->type() );
       //std::cout <<"Any Good Track : Sim " << matchedSimTrkAll->type()  << " " << matchedSimTrkAll->momentum().P() << std::endl;
@@ -537,7 +536,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	
 	// get the matching simTrack
 	double simTrackP = -1;
-	if (flagMC) {
+	if (doMC) {
 	  edm::SimTrackContainer::const_iterator matchedSimTrk = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
 	  if( matchedSimTrk != SimTk->end() )simTrackP = matchedSimTrk->momentum().P();
 	}
@@ -596,7 +595,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  e11x11_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.090,  0.450);
 	  e15x15_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.090,  0.450);
 
-	  if (flagMC) {
+	  if (doMC) {
 	    // check the energy from SimHits
 	    simInfo3x3   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 1,1);
 	    simInfo5x5   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 2,2);
@@ -652,7 +651,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  e11x11_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.090,  0.450);
 	  e15x15_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.090,  0.450);
 
-	  if (flagMC) {
+	  if (doMC) {
 	    // check the energy from SimHits
 	    simInfo3x3   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 1,1);
 	    simInfo5x5   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 2,2);
@@ -718,7 +717,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  std::cout << " Cell " << iv << " 0x" << std::hex << v7x7[iv].first() << std::dec << " " << id << " Energy " << v7x7[iv].second << std::endl;
 	}
 	*/
-	if (flagMC) {
+	if (doMC) {
 	  hsimInfo3x3 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 1,1);
 	  hsimInfo5x5 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 2,2);
 	  hsimInfo7x7 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 3,3);
@@ -824,7 +823,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	t_e11x11_30Sig          ->push_back( e11x11_30Sig ); 
 	t_e15x15_30Sig          ->push_back( e15x15_30Sig );
 
-	if (flagMC) {
+	if (doMC) {
 	  t_esim3x3               ->push_back( simInfo3x3["eTotal"] );
 	  t_esim5x5               ->push_back( simInfo5x5["eTotal"] );
 	  t_esim7x7               ->push_back( simInfo7x7["eTotal"] );
@@ -905,7 +904,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	t_h7x7                  ->push_back( h7x7 );
 	
 	t_infoHcal              ->push_back( info1.isGoodHcal );
-	if (flagMC) {
+	if (doMC) {
 	  t_trkHcalEne            ->push_back( hcalScale*trkHcalEne );
 	
 	  t_hsim3x3               ->push_back( hcalScale*hsimInfo3x3["eTotal"] );
@@ -1138,7 +1137,7 @@ void IsolatedTracksNxN::clearTreeVectors() {
   t_e11x11_30Sig      ->clear();
   t_e15x15_30Sig      ->clear();
 
-  if (flagMC) {
+  if (doMC) {
     t_simTrackP         ->clear();
     t_esimPdgId         ->clear();
     t_trkEcalEne        ->clear();
@@ -1220,7 +1219,7 @@ void IsolatedTracksNxN::clearTreeVectors() {
 
   t_infoHcal          ->clear();
 
-  if (flagMC) {
+  if (doMC) {
     t_trkHcalEne        ->clear();
 
     t_hsim3x3           ->clear();
@@ -1557,7 +1556,7 @@ void IsolatedTracksNxN::BookHistograms(){
   tree->Branch("t_e11x11_30Sig"      ,"vector<double>", &t_e11x11_30Sig);
   tree->Branch("t_e15x15_30Sig"      ,"vector<double>", &t_e15x15_30Sig);
 
-  if (flagMC) {
+  if (doMC) {
     t_esim3x3              = new std::vector<double>();
     t_esim5x5              = new std::vector<double>();
     t_esim7x7              = new std::vector<double>();
@@ -1707,7 +1706,7 @@ void IsolatedTracksNxN::BookHistograms(){
   t_h7x7                 = new std::vector<double>();
   t_infoHcal             = new std::vector<int>();
 
-  if (flagMC) {
+  if (doMC) {
     t_trkHcalEne           = new std::vector<double>();
     t_hsim3x3              = new std::vector<double>();
     t_hsim5x5              = new std::vector<double>();
@@ -1737,7 +1736,7 @@ void IsolatedTracksNxN::BookHistograms(){
   tree->Branch("t_h7x7",                "vector<double>", &t_h7x7);
   tree->Branch("t_infoHcal",            "vector<int>",    &t_infoHcal);
 
-  if (flagMC) {
+  if (doMC) {
     tree->Branch("t_trkHcalEne",          "vector<double>", &t_trkHcalEne);
     tree->Branch("t_hsim3x3",             "vector<double>", &t_hsim3x3);
     tree->Branch("t_hsim5x5",             "vector<double>", &t_hsim5x5);

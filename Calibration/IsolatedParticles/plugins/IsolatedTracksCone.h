@@ -136,7 +136,7 @@ private:
   
   int    debugTrks_;
   bool   printTrkHitPattern_;
-
+  bool   doMC;
   int    myverbose_;
   bool   useJetTrigger_;
   double drLeadJetVeto_, ptMinLeadJet_;

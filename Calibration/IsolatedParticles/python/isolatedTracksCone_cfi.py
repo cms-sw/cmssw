@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 isolatedTracksCone= cms.EDAnalyzer("IsolatedTracksCone",
-                                   FlagMC        = cms.untracked.bool(False),
+                                   doMC          = cms.untracked.bool(False),
                                    Verbosity     = cms.untracked.int32( 1 ),
                                    useJetTrigger = cms.untracked.bool(False),
                                    drLeadJetVeto = cms.untracked.double(1.2),

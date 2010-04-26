@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 isolatedTracksNxN = cms.EDAnalyzer("IsolatedTracksNxN",
-                                   FlagMC        = cms.untracked.bool(False),
+                                   doMC          = cms.untracked.bool(False),
                                    Verbosity     = cms.untracked.int32( 1 ),
 
                                    PVTracksPtMin = cms.untracked.double(1.0),

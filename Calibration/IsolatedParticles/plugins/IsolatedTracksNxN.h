@@ -132,7 +132,7 @@ private:
   
 private:
 
-  bool initL1, flagMC;
+  bool initL1, doMC;
   static const size_t nL1BitsMax=128;
   std::string algoBitToName[nL1BitsMax];
   std::map <std::string,bool> l1TriggerMap;
