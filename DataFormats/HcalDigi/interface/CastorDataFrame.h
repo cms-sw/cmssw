@@ -30,18 +30,25 @@ public:
   bool zsMarkAndPass() const { return (hcalPresamples_&0x10); }
   /// was ZS unsuppressed?
   bool zsUnsuppressed() const { return (hcalPresamples_&0x20); }
+  /// zs crossing mask (which sums considered)
+  uint32_t zsCrossingMask() const { return (hcalPresamples_&0x3FF000)>>12; }
   
   /// access a sample
   const HcalQIESample& operator[](int i) const { return data_[i]; }
   /// access a sample
   const HcalQIESample& sample(int i) const { return data_[i]; }
+  /// offset of bunch number for this channel relative to nominal set in the unpacker (range is +7->-7.  -1000 indicates the data is invalid/unavailable)
+  int fiberIdleOffset() const;
   
   /// validate appropriate DV and ER bits as well as capid rotation for the specified samples (default is all)
   bool validate(int firstSample=0, int nSamples=100) const;
   
   void setSize(int size);
   void setPresamples(int ps);
+  void setZSInfo(bool unsuppressed, bool markAndPass, uint32_t crossingMask=0);
   void setSample(int i, const HcalQIESample& sam) { data_[i]=sam; }
+  void setFiberIdleOffset(int offset);
+
 // ElecId not yet specified  void setReadoutIds(const HcalElectronicsId& eid);
   
   static const int MAXSAMPLES = 10;
