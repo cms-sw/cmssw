@@ -13,9 +13,6 @@
 #include <libconfig.h++>
 #include "OHltMenu.h"
 
-using namespace std;
-using namespace libconfig;
-
 class OHltConfig {
  public:
 
@@ -30,7 +27,7 @@ class OHltConfig {
   void getPreFilter();
 
   // Data
-  Config cfg;
+  libconfig::Config cfg;
 
   /**** General Menu & Run conditions ****/
   int nEntries;
@@ -57,19 +54,19 @@ class OHltConfig {
   int nL1AcceptsRun;
   float lumiSectionLength;
   int prescaleNormalization;
-  vector < vector <int> > runLumiblockList; // format: (runnr, minLumiBlock, maxLumiBlock)
+  std::vector < std::vector <int> > runLumiblockList; // format: (runnr, minLumiBlock, maxLumiBlock)
 
   
   /******************************/
 
   /**** Samples & processes ****/
-  vector<TString> pnames;
-  vector<TString> ppaths;
-  vector<TString> pfnames;
-  vector<bool> pdomucuts;
-  vector<bool> pdoecuts;
-  vector<float> psigmas;
-  vector <int> pisPhysicsSample; // Is it a RATE sample (MB, QCD) or a PHYSICS sample (W,Z,top)
+  std::vector<TString> pnames;
+  std::vector<TString> ppaths;
+  std::vector<TString> pfnames;
+  std::vector<bool> pdomucuts;
+  std::vector<bool> pdoecuts;
+  std::vector<float> psigmas;
+  std::vector <int> pisPhysicsSample; // Is it a RATE sample (MB, QCD) or a PHYSICS sample (W,Z,top)
   /*****************************/
 
   /**** Menu ****/

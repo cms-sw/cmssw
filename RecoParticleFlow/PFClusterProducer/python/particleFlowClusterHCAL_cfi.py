@@ -33,6 +33,8 @@ particleFlowClusterHCAL = cms.EDProducer("PFClusterProducer",
     showerSigma = cms.double(10.0),
     # use cells with common corner to build topo-clusters
     useCornerCells = cms.bool(True),
+    # enable cleaning of RBX and HPD (HCAL only);                                         
+    cleanRBXandHPDs = cms.bool(True),
     # n crystals for position calculation in HCAL
     posCalcNCrystal = cms.int32(5), 
     #----depth correction

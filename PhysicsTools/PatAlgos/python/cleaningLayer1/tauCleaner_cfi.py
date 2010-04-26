@@ -10,7 +10,7 @@ cleanPatTaus = cms.EDProducer("PATTauCleaner",
         ' tauID("byIsolationUsingLeadingPion") > 0.5 &'
         ' tauID("againstMuon") > 0.5 &'
         ' tauID("againstElectron") > 0.5 &'
-        ' (signalTracks.size() = 1 | signalTracks.size() = 3)'
+        ' (signalPFChargedHadrCands.size() = 1 | signalPFChargedHadrCands.size() = 3)'
     ),
 
     # overlap checking configurables

@@ -16,7 +16,7 @@ selectLoose = cms.EDProducer("AnalyticalTrackSelector",
     qualityBit = cms.string('loose'), ## set to '' or comment out if you don't want to set the bit
 
     # parameters for adapted optimal cuts on chi2 and primary vertex compatibility
-    chi2n_par = cms.double(1.6),
+    chi2n_par = cms.double(2.0),
     res_par = cms.vdouble(0.003, 0.01),
     d0_par1 = cms.vdouble(0.55, 4.0),
     dz_par1 = cms.vdouble(0.65, 4.0),

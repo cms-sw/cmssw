@@ -58,15 +58,36 @@ namespace reco {
 
     /// check if the track is secondary
     bool isSecondary() const { 
-      return trackType(T_FROM_NUCL) || trackType(T_FROM_GAMMACONV); 
+      return 
+	trackType(T_FROM_DISP) || 
+	trackType(T_FROM_GAMMACONV) || 
+	trackType(T_FROM_V0); 
     }
 
-    /// \return the nuclear interaction associated
-    NuclearInteractionRef nuclearRef() const { return nuclInterRef_; }
+    bool isPrimary() const{
+      return trackType(T_TO_DISP); 
+    }
 
-    /// \set the ref to the nuclear interaction
-    void setNuclearRef(const NuclearInteractionRef& niref, TrackType trType) { 
-      nuclInterRef_ = niref; setTrackType(trType,true); 
+    bool isLinkedToDisplacedVertex() const{
+      return isSecondary() || isPrimary();
+    }
+
+    /// \return the displaced vertex associated
+    PFDisplacedTrackerVertexRef displacedVertexRef(TrackType trType) const {
+      if (trType == T_TO_DISP)
+	return displacedVertexDaughterRef_;
+      else if (trType == T_FROM_DISP)
+	return displacedVertexMotherRef_;
+      else return PFDisplacedTrackerVertexRef();
+    }
+
+    /// \set the ref to the displaced vertex interaction
+    void setDisplacedVertexRef(const PFDisplacedTrackerVertexRef& niref, TrackType trType) { 
+
+      if (trType == T_TO_DISP) {
+	displacedVertexDaughterRef_ = niref; setTrackType(trType,true);}
+      else if (trType == T_FROM_DISP) {
+      	displacedVertexMotherRef_ = niref; setTrackType(trType,true);}
     } 
     
     /// \return reference to the corresponding Muon
@@ -108,9 +129,12 @@ namespace reco {
     /// position at ECAL entrance
     math::XYZPointF        positionAtECALEntrance_;
     
-    /// reference to the corresponding pf nuclear interaction
-    NuclearInteractionRef  nuclInterRef_;
+    /// reference to the corresponding pf displaced vertex where this track was created
+    PFDisplacedTrackerVertexRef  displacedVertexMotherRef_;
 
+    /// reference to the corresponding pf displaced vertex which this track was created
+    PFDisplacedTrackerVertexRef  displacedVertexDaughterRef_;
+                                 
     /// reference to the corresponding muon
     reco::MuonRef muonRef_;
 

@@ -16,7 +16,7 @@ class SiStripClusterValidator : public edm::EDAnalyzer {
  public:
   SiStripClusterValidator(const edm::ParameterSet& config);
   ~SiStripClusterValidator();
-  virtual void beginJob(const edm::EventSetup& setup);
+  virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   void validate(const edm::DetSetVector<SiStripCluster>&, const edm::DetSetVector<SiStripCluster>&);

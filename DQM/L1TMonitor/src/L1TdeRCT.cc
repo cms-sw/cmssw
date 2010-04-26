@@ -77,8 +77,8 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
    ecalTPGData_( ps.getParameter< InputTag >("ecalTPGData") ),
    hcalTPGData_( ps.getParameter< InputTag >("hcalTPGData") ),
    gtDigisLabel_( ps.getParameter< InputTag >("gtDigisLabel") ),
-   gtEGAlgoName_ ( ps.getParameter< std::string >("gtEGAlgoName") ), 
-   doubleThreshold_ ( ps.getParameter< int >("doubleThreshold") ) 
+   gtEGAlgoName_ ( ps.getParameter< std::string >("gtEGAlgoName") ),
+   doubleThreshold_ ( ps.getParameter< int >("doubleThreshold") )
 {
 
 
@@ -171,13 +171,13 @@ void L1TdeRCT::beginJob(void)
 
     dbe->setCurrentFolder(histFolder_+"EffCurves/NisoEm/");
 
-    trigEffThresh_ = 
+    trigEffThresh_ =
       dbe->book2D("trigEffThresh", "Rank occupancy >= 2x trig thresh",
 		  ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-    
+
     dbe->setCurrentFolder(histFolder_+"EffCurves/NisoEm/ServiceData");
 
-    trigEffThreshOcc_ = 
+    trigEffThreshOcc_ =
       dbe->book2D("trigEffThreshOcc", "Rank occupancy >= 2x trig thresh",
 		  ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
     trigEffTriggThreshOcc_ =
@@ -530,17 +530,18 @@ void L1TdeRCT::beginJob(void)
       dbe->book2D("rctBitMipOvereff2D", "2D mip bit overefficiency",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitQuietEff2D_ =
-      dbe->book2D("rctBitQuietEff2D", "2D quiet bit efficiency",
-      ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+    // QUIETBIT: To add quiet bit information, uncomment following 11 lines:
+    // rctBitQuietEff2D_ =
+      // dbe->book2D("rctBitQuietEff2D", "2D quiet bit efficiency",
+      // ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitQuietIneff2D_ =
-      dbe->book2D("rctBitQuietIneff2D", "2D quiet bit inefficiency",
-      ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+    // rctBitQuietIneff2D_ =
+      // dbe->book2D("rctBitQuietIneff2D", "2D quiet bit inefficiency",
+      // ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitQuietOvereff2D_ =
-      dbe->book2D("rctBitQuietOvereff2D", "2D quiet bit overefficiency",
-      ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+    // rctBitQuietOvereff2D_ =
+      // dbe->book2D("rctBitQuietOvereff2D", "2D quiet bit overefficiency",
+      // ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     rctBitHfPlusTauEff2D_ =
       dbe->book2D("rctBitHfPlusTauEff2D", "2D HfPlusTau bit efficiency",
@@ -656,7 +657,7 @@ void L1TdeRCT::beginJob(void)
       dbe->book2D("rctBitUnmatchedDataHfPlusTau2D", "2D HfPlusTau bit for unmatched hardware hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
- 
+
 // for single channels
 
     if(singlechannelhistos_)
@@ -764,7 +765,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
   if (verbose_) {
     std::cout << "L1TdeRCT: analyze...." << std::endl;
   }
-  
+
   // for GT decision word
 //  edm::ESHandle<L1GtTriggerMenu> menuRcd;
   edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
@@ -1264,7 +1265,7 @@ if(first)
       nelectrE=nelectrNisoEmul;
       nelectrD=nelectrNisoData;
     }
-    
+
     for(int i = 0; i < nelectrE; i++)
       {
 	//bool triggered = l1SingleEG2; //false; //HACK until true trigger implimented
@@ -1288,7 +1289,7 @@ if(first)
 	    if(triggered)
 	      trigEffTriggThreshOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.98001); }
 	  }
-      
+
 
 
 	Bool_t found = kFALSE;
@@ -1425,21 +1426,21 @@ if(first)
 //    DivideME2D(rctNisoEmIneff2Occ_, rctNisoEmEmulOcc_, rctNisoEmIneff2_);
     DivideME1D(rctNisoEmIneff2Occ1D_, rctNisoEmEff1Occ1D_, rctNisoEmIneff2oneD_);
     DivideME2D(rctNisoEmIneff2Occ_, rctNisoEmEff1Occ_, rctNisoEmIneff2_);
-    
+
     DivideME1D(rctIsoEmIneffOcc1D_, rctIsoEmEmulOcc1D_, rctIsoEmIneff1D_);
     DivideME2D(rctIsoEmIneffOcc_, rctIsoEmEmulOcc_, rctIsoEmIneff_);
     DivideME1D(rctNisoEmIneffOcc1D_, rctNisoEmEmulOcc1D_, rctNisoEmIneff1D_);
     DivideME2D(rctNisoEmIneffOcc_, rctNisoEmEmulOcc_, rctNisoEmIneff_);
-    
+
     DivideME2D(trigEffTriggThreshOcc_, trigEffThreshOcc_, trigEffThresh_);
     if(singlechannelhistos_) {
       for(int i = 0; i < nelectrE; i++)
 	{
 	  int chnl=PHIBINS*electronEmulEta[k][i]+electronEmulPhi[k][i];
-	  DivideME1D(trigEffTriggOcc_[chnl], trigEffOcc_[chnl], trigEff_[chnl]); 
+	  DivideME1D(trigEffTriggOcc_[chnl], trigEffOcc_[chnl], trigEff_[chnl]);
 	}
     }
-    
+
     for(int i = 0; i < nelectrD; i++)
     {
       Bool_t found = kFALSE;
@@ -1526,14 +1527,14 @@ if(first)
 
            // see comments for Iso Eff2
 
-            if(regionEmulRank[i] == regionDataRank[i]) 
-             { 
+            if(regionEmulRank[i] == regionDataRank[i])
+             {
              rctRegSpEffOcc1D_->Fill(chnl);
 //             rctRegSpEffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.99001);
              rctRegSpEffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.98012);
              rctRegSpIneffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.0099);
              }
-            else 
+            else
              {
              rctRegSpIneffOcc1D_->Fill(chnl);
              rctRegSpIneffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.9801);
@@ -1630,7 +1631,8 @@ if(first)
       DivideME2D(rctBitMatchedOverFlow2D_, rctBitEmulOverFlow2D_, rctBitOverFlowEff2D_);
       DivideME2D(rctBitMatchedTauVeto2D_, rctBitEmulTauVeto2D_, rctBitTauVetoEff2D_);
       DivideME2D (rctBitMatchedMip2D_, rctBitEmulMip2D_, rctBitMipEff2D_);
-      DivideME2D (rctBitMatchedQuiet2D_, rctBitEmulQuiet2D_, rctBitQuietEff2D_);
+      // QUIETBIT: To add quiet bit information, uncomment following line:
+      // DivideME2D (rctBitMatchedQuiet2D_, rctBitEmulQuiet2D_, rctBitQuietEff2D_);
       DivideME2D (rctBitMatchedHfPlusTau2D_, rctBitEmulHfPlusTau2D_, rctBitHfPlusTauEff2D_);
 
       DivideME1D (rctRegUnmatchedEmulOcc1D_, rctRegEmulOcc1D_, rctRegIneff1D_);
@@ -1638,7 +1640,8 @@ if(first)
       DivideME2D (rctBitUnmatchedEmulOverFlow2D_, rctBitEmulOverFlow2D_, rctBitOverFlowIneff2D_);
       DivideME2D (rctBitUnmatchedEmulTauVeto2D_, rctBitEmulTauVeto2D_, rctBitTauVetoIneff2D_);
       DivideME2D (rctBitUnmatchedEmulMip2D_, rctBitEmulMip2D_, rctBitMipIneff2D_);
-      DivideME2D (rctBitUnmatchedEmulQuiet2D_, rctBitEmulQuiet2D_, rctBitQuietIneff2D_);
+      // QUIETBIT: To add quiet bit information, uncomment the following line:
+      // DivideME2D (rctBitUnmatchedEmulQuiet2D_, rctBitEmulQuiet2D_, rctBitQuietIneff2D_);
       DivideME2D (rctBitUnmatchedEmulHfPlusTau2D_, rctBitEmulHfPlusTau2D_, rctBitHfPlusTauIneff2D_);
 
 
@@ -1692,7 +1695,7 @@ if(first)
         // we try a new definition of overefficiency:
         // DivideME1D(rctRegUnmatchedDataOcc1D_, rctRegDataOcc1D_, rctRegOvereff1D_);
         // DivideME2D(rctRegUnmatchedDataOcc2D_, rctRegDataOcc2D_, rctRegOvereff2D_);
-        
+
         if(singlechannelhistos_) rctRegOvereffChannel_[chnl]->Fill(regionDataRank[i]);
       }
 
@@ -1727,8 +1730,9 @@ if(first)
     DivideME2D(rctBitUnmatchedDataTauVeto2D_, rctBitDataTauVeto2D_, rctBitTauVetoOvereff2D_);
     DivideME2D (rctBitUnmatchedDataMip2D_, rctBitDataMip2D_,
           rctBitMipOvereff2D_);
-    DivideME2D (rctBitUnmatchedDataQuiet2D_, rctBitDataQuiet2D_,
-          rctBitQuietOvereff2D_);
+    // QUIETBIT: To add quiet bit information, uncomment following 2 lines:
+    // DivideME2D (rctBitUnmatchedDataQuiet2D_, rctBitDataQuiet2D_,
+          // rctBitQuietOvereff2D_);
     DivideME2D (rctBitUnmatchedDataHfPlusTau2D_, rctBitDataHfPlusTau2D_,
           rctBitHfPlusTauOvereff2D_);
 

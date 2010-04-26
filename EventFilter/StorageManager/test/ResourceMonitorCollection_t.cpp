@@ -105,9 +105,9 @@ testResourceMonitorCollection::notMountedDisk(bool sendAlarm)
 {
   const std::string dummyDisk = "/aNonExistingDisk";
 
-  ResourceMonitorParams rmParams;
-  rmParams._isProductionSystem = sendAlarm;
-  _rmc->configureResources(rmParams);
+  AlarmParams alarmParams;
+  alarmParams._isProductionSystem = sendAlarm;
+  _rmc->configureAlarms(alarmParams);
 
   DiskWritingParams dwParams;
   dwParams._nLogicalDisk = 0;
@@ -221,9 +221,9 @@ testResourceMonitorCollection::processCountWithArguments()
 void
 testResourceMonitorCollection::noSataBeasts()
 {
-  ResourceMonitorParams rmParams;
-  rmParams._isProductionSystem = true;
-  _rmc->configureResources(rmParams);
+  AlarmParams alarmParams;
+  alarmParams._isProductionSystem = true;
+  _rmc->configureAlarms(alarmParams);
 
   ResourceMonitorCollection::SATABeasts sataBeasts;
   bool foundSataBeasts =

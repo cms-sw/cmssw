@@ -1,23 +1,40 @@
 import FWCore.ParameterSet.Config as cms
+ 
+hltHcalMETNoiseFilter = cms.EDFilter(
+    "HLTHcalMETNoiseFilter",
 
-hltHcalMETNoiseFilter = cms.EDFilter("HLTHcalMETNoiseFilter",
-    HcalNoiseSummary       = cms.InputTag("hcalnoise"),
+    # collections to get
+    HcalNoiseRBXCollection = cms.InputTag("hltHcalNoise"),
+    
+    # set to 0 if you want to accept all events
     severity = cms.int32(1),
 
-    # note that more than one filter can be applied at once
-    useLooseFilter = cms.bool(True),
-    useTightFilter = cms.bool(False),
-    useHighLevelFilter = cms.bool(False),
-    useCustomFilter = cms.bool(False),
+    # if there are more than maxNumRBXs RBXs in the event, the event passes the trigger
+    maxNumRBXs = cms.int32(2),
+    
+    # consider the top N=numRBXsToConsider RBXs by energy in the event
+    # this number should be <= maxNumRBXs
+    numRBXsToConsider = cms.int32(2),
 
-    # parameters for custom filter
-    # only used if useCustomFilter==True
-    minE2Over10TS = cms.double(0.7),
-    min25GeVHitTime = cms.double(-7.0),
-    max25GeVHitTime = cms.double(6.0),
-    maxZeros = cms.int32(8),
-    maxHPDHits = cms.int32(16),
-    maxRBXHits = cms.int32(72),
-    minHPDEMF = cms.double(-9999999.),
-    minRBXEMF = cms.double(-9999999.)
-)
+    # require coincidence between the High-Level (EMF) filter and the other filters
+    needEMFCoincidence = cms.bool(True),
+
+    # cuts
+    minRatio = cms.double(0.65),
+    maxRatio = cms.double(0.98),
+    minHPDHits = cms.int32(17),
+    minRBXHits = cms.int32(999),
+    minHPDNoOtherHits = cms.int32(10),
+    minZeros = cms.int32(10),
+    minLowEHitTime = cms.double(-9999.0),
+    maxLowEHitTime = cms.double(9999.0),
+    minHighEHitTime = cms.double(-9999.0),
+    maxHighEHitTime = cms.double(9999.0),
+    
+    maxRBXEMF = cms.double(0.02),
+
+    minRecHitE = cms.double(1.5),
+    minLowHitE = cms.double(10.0),
+    minHighHitE = cms.double(25.0),
+
+    )

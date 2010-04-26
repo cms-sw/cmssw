@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,15 +19,11 @@
 
 #include "DQM/EcalBarrelMonitorTasks/interface/EBDaqInfoTask.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+EBDaqInfoTask::EBDaqInfoTask(const edm::ParameterSet& ps) {
 
-EBDaqInfoTask::EBDaqInfoTask(const ParameterSet& ps) {
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  dqmStore_ = Service<DQMStore>().operator->();
-
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -137,7 +134,7 @@ void EBDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
 
   } else {
 
-    LogWarning("EBDaqInfoTask") << "Cannot find any RunInfoRcd" << endl;
+    edm::LogWarning("EBDaqInfoTask") << "Cannot find any edm::RunInfoRcd";
 
   }
 
@@ -180,6 +177,6 @@ void EBDaqInfoTask::cleanup(void){
 
 }
 
-void EBDaqInfoTask::analyze(const Event& e, const EventSetup& c){ 
+void EBDaqInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
 
 }

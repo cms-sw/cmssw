@@ -181,6 +181,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   initQCriterion<DeadChannel>(qalgos_);
   initQCriterion<NoisyChannel>(qalgos_);
   initQCriterion<ContentsWithinExpected>(qalgos_);
+  initQCriterion<CompareToMedian>(qalgos_);
 }
 
 DQMStore::~DQMStore(void)
@@ -1922,7 +1923,6 @@ DQMStore::save(const std::string &filename,
   {
     TObjString(edm::getReleaseVersion().c_str()).Write(); // Save CMSSW version
     TObjString(getDQMPatchVersion().c_str()).Write(); // Save DQM patch version
-    outputFileRecreate_=false;
   }
   
   // Construct a regular expression from the pattern string.
@@ -2041,17 +2041,21 @@ DQMStore::save(const std::string &filename,
 
   f.Close();
 
-#if !WITHOUT_CMS_FRAMEWORK
-  // Report the file to job report service.
-  edm::Service<edm::JobReport> jr;
-  if (jr.isAvailable())
+  if (outputFileRecreate_)
   {
-    std::map<std::string, std::string> info;
-    info["Source"] = "DQMStore";
-    info["FileClass"] = "DQM";
-    jr->reportAnalysisFile(filename, info);
-  }
+#if !WITHOUT_CMS_FRAMEWORK
+    // Report the file to job report service.
+    edm::Service<edm::JobReport> jr;
+    if (jr.isAvailable())
+    {
+      std::map<std::string, std::string> info;
+      info["Source"] = "DQMStore";
+      info["FileClass"] = "DQM";
+      jr->reportAnalysisFile(filename, info);
+    }
 #endif
+    outputFileRecreate_=false;
+  }
 
   // Maybe make some noise.
   if (verbose_)

@@ -1,4 +1,3 @@
-
 /*
  *   File: DataFormats/Scalers/src/Level1TriggerScalers.cc   (W.Badgett)
  */
@@ -46,7 +45,16 @@ Level1TriggerScalers::Level1TriggerScalers():
   deadtimeBeamActivePartitionController_(0),
   deadtimeBeamActiveTimeSlot_(0),
   gtAlgoCounts_(nLevel1Triggers),
-  gtTechCounts_(nLevel1TestTriggers)
+  gtTechCounts_(nLevel1TestTriggers),
+  lastOrbitCounter0_(0),
+  lastTestEnable_(0),
+  lastResync_(0),
+  lastStart_(0),
+  lastEventCounter0_(0),
+  lastHardReset_(0),
+  spare0_(0ULL),
+  spare1_(0ULL),
+  spare2_(0ULL)
 { 
 }
 
@@ -54,8 +62,8 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
 { 
   Level1TriggerScalers();
 
-  struct ScalersEventRecordRaw_v3 * raw 
-    = (struct ScalersEventRecordRaw_v3 *)rawData;
+  struct ScalersEventRecordRaw_v5 * raw 
+    = (struct ScalersEventRecordRaw_v5 *)rawData;
 
   trigType_     = ( raw->header >> 56 ) &        0xFULL;
   eventID_      = ( raw->header >> 32 ) & 0x00FFFFFFULL;
@@ -112,33 +120,98 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
 
     for ( int i=0; i<ScalersRaw::N_L1_TEST_TRIGGERS_v1; i++)
     { gtTechCounts_.push_back( raw->trig.gtTechCounts[i]);}
+
+    if ( version_ >= 5 )
+    {
+      lastOrbitCounter0_ = raw->lastOrbitCounter0;
+      lastTestEnable_    = raw->lastTestEnable;
+      lastResync_        = raw->lastResync;
+      lastStart_         = raw->lastStart;
+      lastEventCounter0_ = raw->lastEventCounter0;
+      lastHardReset_     = raw->lastHardReset;
+      spare0_            = raw->spare[0];
+      spare1_            = raw->spare[1];
+      spare2_            = raw->spare[2];
+    }
+    else
+    {
+      lastOrbitCounter0_ = 0UL;
+      lastTestEnable_    = 0UL;
+      lastResync_        = 0UL;
+      lastStart_         = 0UL;
+      lastEventCounter0_ = 0UL;
+      lastHardReset_     = 0UL;
+      spare0_            = 0ULL;
+      spare1_            = 0ULL;
+      spare2_            = 0ULL;
+    }
   }
 }
 
 Level1TriggerScalers::~Level1TriggerScalers() { } 
 
 double Level1TriggerScalers::rateLS(unsigned int counts)
-{ 
-  unsigned long long counts64 = (unsigned long long)counts;
-  return(rateLS(counts64));
-}
+{ return(rateLS(counts,firstShortLSRun));}
 
 double Level1TriggerScalers::rateLS(unsigned long long counts)
+{ return(rateLS(counts,firstShortLSRun));}
+
+double Level1TriggerScalers::rateLS(unsigned int counts,
+				    int runNumber)
 { 
-  double rate = ((double)counts) / 93.4281216;
+  unsigned long long counts64 = (unsigned long long)counts;
+  return(rateLS(counts64,runNumber));
+}
+
+double Level1TriggerScalers::rateLS(unsigned long long counts,
+				    int runNumber)
+{ 
+  double rate;
+  if (( runNumber >= firstShortLSRun ) || ( runNumber <= 1 ))
+  {
+    rate = ((double)counts) / 23.31040958083832;
+  }
+  else
+  {
+    rate = ((double)counts) / 93.24163832335329;
+  }
   return(rate);
 }
 
 double Level1TriggerScalers::percentLS(unsigned long long counts)
+{ return(percentLS(counts,firstShortLSRun));}
+
+double Level1TriggerScalers::percentLS(unsigned long long counts,
+				       int runNumber)
 { 
-  double percent = ((double)counts) / 37371248.64;
+  double percent;
+  if (( runNumber >= firstShortLSRun ) || ( runNumber <= 1 ))
+  {
+    percent = ((double)counts) /  9342812.16;
+  }
+  else
+  {
+    percent = ((double)counts) / 37371248.64;
+  }
   if ( percent > 100.0000 ) { percent = 100.0;}
   return(percent);
 }
 
 double Level1TriggerScalers::percentLSActive(unsigned long long counts)
+{ return(percentLSActive(counts,firstShortLSRun));}
+
+double Level1TriggerScalers::percentLSActive(unsigned long long counts,
+				       int runNumber)
 { 
-  double percent = ((double)counts) / 29444014.08;
+  double percent;
+  if (( runNumber >= firstShortLSRun ) || ( runNumber <= 1 ))
+  {
+    percent = ((double)counts) /  7361003.52;
+  }
+  else
+  {
+    percent = ((double)counts) / 29444014.08;
+  }
   if ( percent > 100.0000 ) { percent = 100.0;}
   return(percent);
 }
@@ -299,5 +372,33 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
 	    (i+(length*3)), gtTechCounts[i+(length*3)]);
     s << line << std::endl;
   }
+
+  if ( c.version() >= 5 )
+  {
+    sprintf(line," LastOrbitCounter0:  %10u  0x%8.8X", c.lastOrbitCounter0(),
+	    c.lastOrbitCounter0()); 
+    s << line << std::endl;
+    
+    sprintf(line," LastTestEnable:     %10u  0x%8.8X", c.lastTestEnable(),
+	    c.lastTestEnable()); 
+    s << line << std::endl;
+    
+    sprintf(line," LastResync:         %10u  0x%8.8X", c.lastResync(),
+	    c.lastResync()); 
+    s << line << std::endl;
+    
+    sprintf(line," LastStart:          %10u  0x%8.8X", c.lastStart(),
+	    c.lastStart()); 
+    s << line << std::endl;
+    
+    sprintf(line," LastEventCounter0:  %10u  0x%8.8X", c.lastEventCounter0(),
+	    c.lastEventCounter0()); 
+    s << line << std::endl;
+    
+    sprintf(line," LastHardReset:      %10u  0x%8.8X", c.lastHardReset(),
+	    c.lastHardReset()); 
+    s << line << std::endl;
+  }
+
   return s;
 }

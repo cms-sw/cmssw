@@ -4,6 +4,7 @@
 <use name=rootcore>
 <use name=rootrflx>
 <use name=roothistmatrix>
+<use name=CommonTools/Utils>
 <export>
   <use name=rootcore>
   <lib name=PhysicsToolsFWLite>

@@ -25,17 +25,24 @@ TrackerCrate.showData = function (evt) {
 	    var detid = myPoly.getAttribute("detid");
 	    var id = myPoly.getAttribute("id");
 	    var crate = Math.floor(id/1000000);
-            var myPos = myPoly.getAttribute("POS");
-            var s0    = myPos.indexOf("(")+1;
-            var s1    = myPos.indexOf(")");
-            var modId = myPos.substring(s0, s1);
-
 opacity=0.4;
 myPoly.setAttribute("style","fill-opacity: "+opacity+"; stroke: black; stroke-width: 2") ;
 	//    parent.document.getElementById('print2').setAttribute("src",parent.servername+parent.tmapname+"crate"+crate+".html#"+detid);
       parent.window.setip1(parent.servername+parent.tmapname+"crate"+crate+".html#"+detid);
 	    //alert(top.document.getElementById('print1'));
-       parent.opener.RequestHistos.RequestTkMapHistos(modId);	    	    
+	var cmodid = myPoly.getAttribute("cmodid");
+            var modules = new Array();
+            
+            var layer = Math.floor(cmodid/100000);
+	    if(layer!=parent.loaded){parent.loaded=layer;parent.remotewin.location.href=parent.servername+parent.tmapname+"layer"+layer+".xml";}
+	    //alert(modules.length+" "+modules[0]);
+            opacity=0.4;
+            
+            myPoly.setAttribute("style","stroke: black; stroke-width: 1") ;
+            if(parent.remotewin.document.getElementById(cmodid)!=null){styledef=parent.remotewin.document.getElementById(cmodid).getAttribute("style");
+	      if(styledef==null||styledef=="")parent.remotewin.document.getElementById(cmodid).setAttribute("style","stroke: black; stroke-width: 1") ; 
+	      else parent.remotewin.document.getElementById(cmodid).setAttribute("style",""); }
+         
      }
        if (evt.type == "mouseout") {
     var myPoly = evt.currentTarget;

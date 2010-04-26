@@ -1,4 +1,4 @@
-// $Id: TriggerSelector.cc,v 1.4 2009/12/01 17:40:41 smorovic Exp $
+// $Id: TriggerSelector.cc,v 1.5 2009/12/02 09:21:27 mommsen Exp $
 /// @file: TriggerSelector.cc
 
 #include "EventFilter/StorageManager/interface/TriggerSelector.h"
@@ -21,6 +21,7 @@ namespace stor
                                    Strings const& names):
   useOld_(true)
   {
+    accept_all_=false;
     eventSelector_.reset( new edm::EventSelector(pathspecs,names));
   }
 
@@ -28,6 +29,7 @@ namespace stor
                                    Strings const& triggernames, bool old_):
   useOld_(old_)
   {
+    accept_all_=false;
     if (old_) {
       //old mode forced
       eventSelector_.reset( new edm::EventSelector(config, triggernames));

@@ -1,18 +1,16 @@
-// $Id: EBClient.h,v 1.26 2009/10/28 08:18:20 dellaric Exp $
+// $Id: EBClient.h,v 1.27 2010/01/25 21:12:23 dellaric Exp $
 
 /*!
   \file EBClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.26 $
-  \date $Date: 2009/10/28 08:18:20 $
+  \version $Revision: 1.27 $
+  \date $Date: 2010/01/25 21:12:23 $
 */
 
 
 #ifndef EBClient_H
 #define EBClient_H
-
-#include <string>
 
 class EcalCondDBInterface;
 #ifdef WITH_ECAL_COND_DB

@@ -1,4 +1,5 @@
 <use name=L1Trigger/CSCTriggerPrimitives>
+<use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 <use name=Geometry/Records>
 

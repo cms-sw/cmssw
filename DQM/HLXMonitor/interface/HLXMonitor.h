@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.18 2009/12/04 17:48:59 neadam Exp $
+// $Id: HLXMonitor.h,v 1.19 2009/12/14 22:22:08 wmtan Exp $
 //
 //
 
@@ -268,6 +268,7 @@ class HLXMonitor : public edm::EDAnalyzer
 
       HCAL_HLX::LUMI_SECTION lumiSection;
 
+      bool         currentRunEnded_;
       unsigned int runNumber_;
       unsigned int expectedNibbles_;
       unsigned int totalNibbles_[36];
@@ -291,6 +292,9 @@ class HLXMonitor : public edm::EDAnalyzer
       float evtRateWindow_;
       int evtRateCount_;
       int pEvent_;
+
+      // Lumi section info
+      double num4NibblePerLS_;
 
 };
 

@@ -15,7 +15,7 @@
 #include <set>
 
 // user include files
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,7 +40,9 @@ private:
   
   bool applyfilter;
   bool debugOn;
-  
+  bool init_;
+  std::vector<std::string>  hlNames_;  // name of each HLT algorithm
+  edm::InputTag hlTriggerResults_;
 };
 
 #endif

@@ -22,8 +22,8 @@ class RPCPointProducer : public edm::EDProducer {
    public:
       explicit RPCPointProducer(const edm::ParameterSet&);
       ~RPCPointProducer();
-      std::string dt4DSegments;
-      std::string cscSegments;
+      edm::InputTag cscSegments;
+      edm::InputTag dt4DSegments;
    private:
       virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);

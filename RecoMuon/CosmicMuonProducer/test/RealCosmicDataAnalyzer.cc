@@ -1,7 +1,7 @@
 /** \class RealCosmicDataAnalyzer
  *
- *  $Date: 2009/10/31 05:19:43 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/12/29 23:18:38 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu   -  Purdue University <Chang.Liu@cern.ch>
  */
 
@@ -516,5 +516,5 @@ edm::ESHandle<Propagator> RealCosmicDataAnalyzer::propagator() const {
 
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(RealCosmicDataAnalyzer);
+
+DEFINE_FWK_MODULE(RealCosmicDataAnalyzer);

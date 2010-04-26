@@ -2,11 +2,19 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
+#include <cassert>
+
+short EcalScDetId::xyz2HashedIndex[EcalScDetId::IX_MAX][EcalScDetId::IY_MAX][EcalScDetId::nEndcaps];
+
+EcalScDetId EcalScDetId::hashedIndex2DetId[kSizeForDenseIndexing];
+
 
 EcalScDetId::EcalScDetId() : DetId() {
 }
+
 EcalScDetId::EcalScDetId(uint32_t rawid) : DetId(rawid) {
 }
+
 EcalScDetId::EcalScDetId(int ix, int iy, int iz) : DetId(Ecal,EcalEndcap) 
 {
   if(!validDetId(ix,iy,iz))
@@ -33,29 +41,27 @@ EcalScDetId& EcalScDetId::operator=(const DetId& gen) {
   id_=gen.rawId();
   return *this;
 }
+  
+int EcalScDetId::iquadrant() const {
+  const int xMiddle = IX_MAX/2; //y = 0 between xMiddle and xMiddle+1
+  const int yMiddle = IY_MAX/2; //x = 0 between yMiddle and yMiddle+1
+  if (iy()>yMiddle){// y>0
+    if(ix()>xMiddle)   //             A y	     
+      return 1;        //             |		     
+    else	       //      Q2     |    Q1	     
+      return 2;        //             |		     
+  } else{// y<0	       //   ----------o---------> x   
+    if(ix()>xMiddle)   //             |		      
+      return 4;        //      Q3     |    Q4	    
+    else	       //             |               
+      return 3;
+  }
+  //Should never be reached
+  return -1;
+}  
 
-int 
-EcalScDetId::iquadrant() const 
-{
-   const int jx ( ix() ) ;
-   const int jy ( iy() ) ;
-   static const int MX ( IX_MAX/2 ) ;
-   static const int MY ( IY_MAX/2 ) ;
-   return ( MX <= jx && MY <= jy ? 1 :
-	    ( MX >= jx && MY <= jy ? 2 :
-	      ( MX >= jx && MY >= jy ? 3 : 4 ) ) ) ;
-}
-
-int 
-EcalScDetId::isc() const 
-{ 
-   return EEDetId::isc( ix(), iy() ) ; 
-}
-
-bool 
-EcalScDetId::validDetId(int iX, int iY, int iZ) 
-{
-   static const char endcapMap[401] = {
+bool EcalScDetId::validDetId(int iX, int iY, int iZ) {
+  static const char endcapMap[401] = {
     "       XXXXXX       "
     "    XXXXXXXXXXXX    "
     "   XXXXXXXXXXXXXX   "
@@ -77,14 +83,27 @@ EcalScDetId::validDetId(int iX, int iY, int iZ)
     "    XXXXXXXXXXXX    "
     "       XXXXXX       "};
 
-   return ( 1      == abs(iZ) && 
-	    IX_MIN <= iX      &&
-	    IX_MAX >= iX      &&
-	    IY_MIN <= iY      &&
-	    IY_MAX >= iY      &&
-	    endcapMap[iX-1+(iY-1)*20]!=' ' ) ;
+  return abs(iZ)==1 && endcapMap[iX-1+(iY-1)*20]!=' ';
 }
 
 std::ostream& operator<<(std::ostream& s,const EcalScDetId& id) {
   return s << "(EE iz " << ((id.zside()>0)?("+ "):("- ")) << " ix " << id.ix() << " , iy " << id.iy() << ')';
+}
+
+void EcalScDetId::checkHashedIndexMap(){
+  static bool initialized = false;
+  if(initialized) return;
+  int hashedIndex = -1;
+  for(int iZ = -1; iZ <= +1; iZ+=2){
+    for(int iY = IY_MIN; iY <= IY_MAX; ++iY){
+      for(int iX = IX_MIN; iX <= IX_MAX; ++iX){
+	if(validDetId(iX,iY,iZ)){
+	  xyz2HashedIndex[iX-IX_MIN][iY-IY_MIN][iZ>0?1:0] = ++hashedIndex;
+	  assert((unsigned)hashedIndex < sizeof(hashedIndex2DetId)/sizeof(hashedIndex2DetId[0]));
+	     hashedIndex2DetId[hashedIndex] = EcalScDetId(iX, iY, iZ);
+	}
+      }
+    }
+  }
+  initialized = true;
 }

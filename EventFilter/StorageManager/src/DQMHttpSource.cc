@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.16 2009/11/05 13:14:07 mommsen Exp $
+ *  $Id: DQMHttpSource.cc,v 1.17 2009/12/11 19:43:37 wmtan Exp $
 /// @file: DQMHttpSource.cc
  */
 
@@ -267,7 +267,7 @@ namespace edm
         for (int tdx = 0; tdx < (int) toList.size(); tdx++) {
           TObject *toPtr = toList[tdx];
           std::string cls = toPtr->IsA()->GetName();
-          std::string nm = stor::DQMInstance::getSafeMEName(toPtr);
+          std::string nm = stor::DQMFolder::getSafeMEName(toPtr);
           FDEBUG(8) << "    TObject class = " << cls << ", name = " << nm << std::endl;
           if (bei_->extract(toPtr, bei_->pwd(), true))
           {
@@ -286,7 +286,7 @@ namespace edm
         std::string subFolderName = ti->first;
         std::vector<TObject *>::iterator vi(ti->second.begin()), ve(ti->second.end());
         for ( ; vi != ve; ++vi) {
-          std::string histoName = stor::DQMInstance::getSafeMEName(*vi);
+          std::string histoName = stor::DQMFolder::getSafeMEName(*vi);
           std::string fullName = subFolderName + "/" + histoName;
           std::vector<std::string>::iterator entryFound;
           entryFound = std::find(firstHistoExtractDone_.begin(),

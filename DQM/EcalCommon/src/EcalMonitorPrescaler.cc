@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.11 2008/10/29 13:27:05 dellaric Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.14 2010/03/27 20:44:49 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.11 $
-  \date $Date: 2008/10/29 13:27:05 $
+  \version $Revision: 1.14 $
+  \date $Date: 2010/03/27 20:44:49 $
 */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,15 +14,11 @@
 
 #include <DQM/EcalCommon/interface/EcalMonitorPrescaler.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EcalMonitorPrescaler::EcalMonitorPrescaler(ParameterSet const& ps) {
+EcalMonitorPrescaler::EcalMonitorPrescaler(const edm::ParameterSet& ps) {
 
   count_ = 0;
 
-  EcalRawDataCollection_ = ps.getParameter<InputTag>("EcalRawDataCollection");
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
   occupancyPrescaleFactor_ = ps.getUntrackedParameter<int>("occupancyPrescaleFactor" , 0);
   integrityPrescaleFactor_ = ps.getUntrackedParameter<int>("integrityPrescaleFactor", 0);
@@ -50,7 +46,7 @@ EcalMonitorPrescaler::EcalMonitorPrescaler(ParameterSet const& ps) {
     
 EcalMonitorPrescaler::~EcalMonitorPrescaler() { }
 
-bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
+bool EcalMonitorPrescaler::filter(edm::Event &e, const edm::EventSetup &c) {
 
   count_++;
 
@@ -77,67 +73,65 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
     if ( count_ % timingPrescaleFactor_ == 0 ) status = true;
   }
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-           dcch.getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
         if ( laserPrescaleFactor_ ) { 
           if ( count_ % laserPrescaleFactor_ == 0 ) status = true;
         }
       }
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::LED_STD ||
-           dcch.getRunType() == EcalDCCHeaderBlock::LED_GAP ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::LED_STD ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::LED_GAP ) {
         if ( ledPrescaleFactor_ ) {
           if ( count_ % ledPrescaleFactor_ == 0 ) status = true;
         }
       }
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
         if ( pedestalPrescaleFactor_ ) { 
           if ( count_ % pedestalPrescaleFactor_ == 0 ) status = true;
         }
       }
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-           dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
         if ( testpulsePrescaleFactor_ ) { 
           if ( count_ % testpulsePrescaleFactor_ == 0 ) status = true;
         }
       }
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ) {
         if ( pedestaloffsetPrescaleFactor_ ) {
           if ( count_ % pedestaloffsetPrescaleFactor_ == 0 ) status = true;
         }
       }
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ) {
         if ( cosmicPrescaleFactor_ ) {
           if ( count_ % cosmicPrescaleFactor_ == 0 ) status = true;
         }
       }
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) {
         if ( physicsPrescaleFactor_ ) {
           if ( count_ % physicsPrescaleFactor_ == 0 ) status = true;
         }
       }
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) {
         if ( clusterPrescaleFactor_ ) {
           if ( count_ % clusterPrescaleFactor_ == 0 ) status = true;
         }
@@ -147,13 +141,11 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
 
   } else {
 
-    LogWarning("EcalMonitorPrescaler") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EcalMonitorPrescaler") << EcalRawDataCollection_ << " not available";
 
   }
 
   return status;
 
 }
-
-void EcalMonitorPrescaler::endJob() { }
 

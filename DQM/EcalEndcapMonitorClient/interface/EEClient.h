@@ -1,18 +1,16 @@
-// $Id: EEClient.h,v 1.18 2009/10/28 08:18:22 dellaric Exp $
+// $Id: EEClient.h,v 1.19 2010/01/25 21:12:25 dellaric Exp $
 
 /*!
   \file EEClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.18 $
-  \date $Date: 2009/10/28 08:18:22 $
+  \version $Revision: 1.19 $
+  \date $Date: 2010/01/25 21:12:25 $
 */
 
 
 #ifndef EEClient_H
 #define EEClient_H
-
-#include <string>
 
 class EcalCondDBInterface;
 class DQMStore;

@@ -3,8 +3,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2008
-///  $Revision: 1.4 $
-///  $Date: 2009/10/30 13:12:49 $
+///  $Revision: 1.3 $
+///  $Date: 2009/03/27 14:33:55 $
 ///  (last update by $Author: flucke $)
  
 #include "Alignment/ReferenceTrajectories/interface/DualKalmanTrajectory.h"
@@ -37,16 +37,13 @@ DualKalmanTrajectory::DualKalmanTrajectory(const Trajectory::DataContainer &traj
 					   const MagneticField *magField,
 					   MaterialEffects materialEffects,
 					   PropagationDirection propDir,
-					   double mass, 
-					   const reco::BeamSpot &beamSpot,
-					   int residualMethod)
+					   double mass, int residualMethod)
   : ReferenceTrajectoryBase(referenceTsos.localParameters().mixedFormatVector().kSize,
 			    forwardRecHitNums.size() + backwardRecHitNums.size() - 1, 0, 0)
 {
   theValidityFlag = this->construct(trajMeasurements, referenceTsos,
 				    forwardRecHitNums, backwardRecHitNums,
- 				    mass, materialEffects, propDir, magField,
-				    beamSpot, residualMethod);
+ 				    mass, materialEffects, propDir, magField, residualMethod);
 }
 
 
@@ -64,19 +61,16 @@ bool DualKalmanTrajectory::construct(const Trajectory::DataContainer &trajMeasur
 				     const std::vector<unsigned int> &backwardRecHitNums,
 				     double mass, MaterialEffects materialEffects,
 				     const PropagationDirection propDir,
-				     const MagneticField *magField, 
-				     const reco::BeamSpot &beamSpot,
-				     int residualMethod)
+				     const MagneticField *magField, int residualMethod)
 {
 
   ReferenceTrajectoryPtr fwdTraj = this->construct(trajMeasurements, refTsos, forwardRecHitNums,
-						   mass, materialEffects,
-						   propDir, magField, beamSpot);
+						     mass, materialEffects,
+						     propDir, magField);
   
   ReferenceTrajectoryPtr bwdTraj = this->construct(trajMeasurements, refTsos, backwardRecHitNums,
-						   mass, materialEffects,
-						   this->oppositeDirection(propDir), magField,
-						   beamSpot);
+						     mass, materialEffects,
+						     this->oppositeDirection(propDir), magField);
 
   //   edm::LogError("Alignment") << "@SUB=DualKalmanTrajectory::construct"
   // 			     << "valid fwd/bwd " << fwdTraj->isValid() 
@@ -145,8 +139,7 @@ DualKalmanTrajectory::construct(const Trajectory::DataContainer &trajMeasurement
 				const std::vector<unsigned int> &recHitNums,
 				double mass, MaterialEffects materialEffects,
 				const PropagationDirection propDir,
-				const MagneticField *magField,
-				const reco::BeamSpot &beamSpot) const
+				const MagneticField *magField) const
 {
 
   ConstRecHitContainer recHits;
@@ -156,7 +149,7 @@ DualKalmanTrajectory::construct(const Trajectory::DataContainer &trajMeasurement
   }
 
   return new ReferenceTrajectory(referenceTsos, recHits, false, // hits are already ordered
-				 magField, materialEffects, propDir, mass, beamSpot);
+				 magField, materialEffects, propDir, mass);
 }
 
 //-----------------------------------------------------------------------------------------------

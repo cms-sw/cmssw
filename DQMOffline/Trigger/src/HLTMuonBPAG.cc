@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/10/02 13:09:47 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/02/22 16:16:46 $
+ *  $Revision: 1.7 $
  */
 
 
@@ -60,8 +60,10 @@ HLTMuonBPAG::HLTMuonBPAG
 ( const ParameterSet& pset, string triggerName, vector<string> moduleNames,
   MuonSelectionStruct probeSelection,
   MuonSelectionStruct inputTagSelection, string customName,
-  vector<string> validTriggers)
-  : HLTMuonMatchAndPlot(pset, triggerName, moduleNames, probeSelection, customName, validTriggers),
+  vector<string> validTriggers,
+  const edm::Run & currentRun,
+  const edm::EventSetup & currentEventSetup)  
+  : HLTMuonMatchAndPlot(pset, triggerName, moduleNames, probeSelection, customName, validTriggers, currentRun, currentEventSetup),
     tagSelection(inputTagSelection)
     
 {
@@ -150,9 +152,26 @@ void HLTMuonBPAG::analyze( const Event & iEvent )
     // each tag passed a tag trigger
 
     bool passedHLT = false;
-    for ( size_t jCollLabel = 0; jCollLabel < theHltCollectionLabels.size(); jCollLabel++ ) {
-      if ( tagRecMatches[iTag].hltCands[jCollLabel].pt() > 0 ) {        
-        passedHLT = true;
+
+    LogTrace ("HLTMuonVal") << "CRASH: tagRecMatches[iTag].hltCands.size() =  "
+                            << theHltCollectionLabels.size() << endl
+                            << "CRASH: theHltCollectionLabels.size() =  "
+                            << theHltCollectionLabels.size()
+                            << endl;
+
+//     cout <<  "==========================================================================" << endl
+//          <<  "  Run =  " << iEvent.id().run() << "  Event =  " << iEvent.id().event() << endl
+//          <<  "  tagRecMatches[iTag].hltCands.size() = " << tagRecMatches[iTag].hltCands.size() << endl
+//          <<  "  theHltCollectionLabels.size() = " << theHltCollectionLabels.size() << endl
+//          <<  ""  << endl;
+      
+
+      
+    if ( theHltCollectionLabels.size() <= tagRecMatches[iTag].hltCands.size()) {
+      for ( size_t jCollLabel = 0; jCollLabel < theHltCollectionLabels.size(); jCollLabel++ ) {
+        if ( tagRecMatches[iTag].hltCands[jCollLabel].pt() > 0 ) {        
+          passedHLT = true;
+        }
       }
     }
 
@@ -492,8 +511,8 @@ bool HLTMuonBPAG::selectAndMatchMuons(const edm::Event & iEvent,
   // First, intialize a probe selection
   // Some day this should come from the driver
   
-  StringCutObjectSelector<Muon> tempRecoSelector("pt > 1 && abs(eta) < 1.4");
-  StringCutObjectSelector<TriggerObject> tempHltSelector("pt > 1 && abs(eta) < 1.4");
+  //StringCutObjectSelector<Muon> tempRecoSelector("pt > 1 && abs(eta) < 1.4");
+  //StringCutObjectSelector<TriggerObject> tempHltSelector("pt > 1 && abs(eta) < 1.4");
   string customName = "bpagTag";
   //double d0Cut = 2.0;
   //double z0Cut = 50;

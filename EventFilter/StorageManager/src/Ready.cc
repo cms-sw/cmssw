@@ -1,4 +1,4 @@
-// $Id: Ready.cc,v 1.11 2009/09/29 07:57:56 mommsen Exp $
+// $Id: Ready.cc,v 1.14 2010/02/18 14:47:45 mommsen Exp $
 /// @file: Ready.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -41,10 +41,9 @@ void Ready::do_entryActionWork()
   // update all configuration parameters
   std::string errorMsg = "Failed to update configuration parameters in Ready state";
   try
-    {
-      sharedResources->_configuration->updateAllParams();
-    }
-  // we don't have access to the sentinel here. Send an alarm instead.
+  {
+    sharedResources->_configuration->updateAllParams();
+  }
   catch(xcept::Exception &e)
   {
     XCEPT_DECLARE_NESTED(stor::exception::Configuration,
@@ -79,10 +78,18 @@ void Ready::do_entryActionWork()
     set_capacity(queueParams._commandQueueSize);
   sharedResources->_fragmentQueue->
     set_capacity(queueParams._fragmentQueueSize);
+  sharedResources->_fragmentQueue->
+    set_memory(queueParams._fragmentQueueMemoryLimitMB * 1024*1024);
   sharedResources->_registrationQueue->
     set_capacity(queueParams._registrationQueueSize);
   sharedResources->_streamQueue->
     set_capacity(queueParams._streamQueueSize);
+  sharedResources->_streamQueue->
+    set_memory(queueParams._streamQueueMemoryLimitMB * 1024*1024);
+  sharedResources->_dqmEventQueue->
+    set_capacity(queueParams._dqmEventQueueSize);
+  sharedResources->_dqmEventQueue->
+    set_memory(queueParams._dqmEventQueueMemoryLimitMB * 1024*1024);
 
   // convert the SM configuration string into ConfigInfo objects
   // and store them for later use
@@ -99,10 +106,18 @@ void Ready::do_entryActionWork()
   // configure the disk monitoring
   ResourceMonitorCollection& rmc =
     sharedResources->_statisticsReporter->getResourceMonitorCollection();
-  rmc.configureDisks(dwParams);
+  AlarmParams ap =
+    sharedResources->_configuration->getAlarmParams();
   ResourceMonitorParams rmp =
     sharedResources->_configuration->getResourceMonitorParams();
+  rmc.configureAlarms(ap);
   rmc.configureResources(rmp);
+  rmc.configureDisks(dwParams);
+  
+  // configure the run monitoring
+  RunMonitorCollection& run_mc =
+    sharedResources->_statisticsReporter->getRunMonitorCollection();
+  run_mc.configureAlarms(ap);
 
   // configure the discard manager
   sharedResources->_discardManager->configure();

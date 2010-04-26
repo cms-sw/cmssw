@@ -1510,7 +1510,7 @@ struct de_rank : public DEutils<T> , public std::binary_function<typename DEutil
   typedef DEtrait<T> de_trait;
   typedef typename de_trait::cand_type cand_type;
   bool operator()(const cand_type& x, const cand_type& y) const {
-    return true; //default
+    return false; //default
   }
 };
 

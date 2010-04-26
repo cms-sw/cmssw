@@ -119,6 +119,9 @@ namespace reco {
     const VertexLinkData& vertexLinkData() const 
       {return vertexLinkData_;}
 
+    /// cout function
+    void Dump(std::ostream& out = std::cout) const;
+
   private:
 
     /// -------- Internal tools -------- ///

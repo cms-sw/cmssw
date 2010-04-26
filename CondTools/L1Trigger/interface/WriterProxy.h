@@ -6,6 +6,8 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
@@ -34,7 +36,8 @@ class WriterProxy
          * In case some need other methods, like delete and update, one should add more abstract
          * methods here.
          */
-        virtual std::string save (const edm::EventSetup & setup,  cond::DbSession & session) const = 0;
+
+        virtual std::string save (const edm::EventSetup & setup) const = 0;
 
     protected:
 };
@@ -49,7 +52,7 @@ class WriterProxyT : public WriterProxy
         virtual ~WriterProxyT() {}
 
         /* This method requires that Record and Type supports copy constructor */
-        virtual std::string save (const edm::EventSetup & setup, cond::DbSession & session) const
+        virtual std::string save (const edm::EventSetup & setup) const
         {
             // load record and type from EventSetup and save them in db
             edm::ESHandle<Type> handle;
@@ -64,12 +67,26 @@ class WriterProxyT : public WriterProxy
 	      }
 
 	    // If handle is invalid, then data is already in DB
+       
+	    edm::Service<cond::service::PoolDBOutputService> poolDb;
+	    if (!poolDb.isAvailable())
+	      {
+		throw cond::Exception( "DataWriter: PoolDBOutputService not available."
+				       ) ;
+	      }
+	    cond::DbSession session = poolDb->session();
+	    cond::DbScopedTransaction tr(session);
+	    // if throw transaction will unroll
+	    tr.start(false);
+
 	    pool::Ref<Type> ref = 
 	      session.storeObject( new Type (*(handle.product ())),
 				   cond::classNameForTypeId(typeid(Type))
 				   );
 
-	    return ref.toString ();
+	    std::string payloadToken = ref.toString ();
+	    tr.commit ();
+	    return payloadToken ;
         }
 };
 

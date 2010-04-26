@@ -2,8 +2,8 @@
 # by cmsDriver customisation
 
 # to generate Unsuppressed digis, one has to set the following parameter:
-# useConfigZSvalues = cms.int32(1)
-# in SimCalorimetry/HcalZeroSuppressionProducers/python/hcalDigisRealistic_cfi.py
+# process.simHcalDigis.useConfigZSvalues = 1
+# to generate suppressed digis, useConfigZSvalues should be set to 0
 
 import FWCore.ParameterSet.Config as cms
 def customise(process):
@@ -15,5 +15,6 @@ def customise(process):
     process.simHcalDigis.HElevel = -999
     process.simHcalDigis.HOlevel = -999
     process.simHcalDigis.HFlevel = -999
+    process.simHcalDigis.useConfigZSvalues = 1
     
     return(process)

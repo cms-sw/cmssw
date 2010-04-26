@@ -1,5 +1,7 @@
 #include "DQMServices/Diagnostic/interface/DQMHistoryCreateTrend.h"
 
+using namespace std;
+
 void DQMHistoryCreateTrend::operator()(const DQMHistoryTrendsConfig & trend)
 {
   if( trend.firstRun != trend.lastRun ) {

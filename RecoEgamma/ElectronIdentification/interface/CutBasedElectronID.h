@@ -20,7 +20,6 @@ public:
   std::string type_;
   std::string quality_;
   std::string version_;
-  edm::InputTag verticesCollection;
   edm::ParameterSet cuts_;
   
 };

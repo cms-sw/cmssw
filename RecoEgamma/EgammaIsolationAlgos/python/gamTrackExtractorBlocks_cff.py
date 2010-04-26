@@ -14,6 +14,8 @@ GamIsoTrackExtractorBlock = cms.PSet(
     NHits_Min = cms.uint32(0),
     Chi2Ndof_Max = cms.double(1e+64),
     Chi2Prob_Min = cms.double(-1.0),
-    Pt_Min = cms.double(-1.0)
+    Pt_Min = cms.double(-1.0),
+
+    dzOption = cms.string("vz")
 )
 

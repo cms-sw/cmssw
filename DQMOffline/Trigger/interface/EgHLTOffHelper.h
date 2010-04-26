@@ -42,13 +42,13 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class EgammaHLTTrackIsolation;
+class HLTConfigProvider;
 
 namespace egHLT {
 
@@ -104,8 +104,6 @@ namespace egHLT {
     std::vector<std::pair<std::string,std::string> > l1PreAndSeedFilters_; //filter names of a l1 prescaler and the corresponding l1 seed filter
     std::vector<std::string> l1PreScaledPaths_;//l1 pre-scaled path names
     std::vector<std::string> l1PreScaledFilters_;//l1 pre scale filters
-    edm::TriggerNames trigNames_;
-    
 
     //allow us to recompute e/gamma HLT isolations (note we also have em and hcal but they have to be declared for every event)
     //which is awkward and I havent thought of a good way around it yet
@@ -147,6 +145,7 @@ namespace egHLT {
     bool calHLTPhoTrkIsol_;
     
     
+    std::vector<edm::ParameterSet> trigCutParams_; //probably the least bad option
 
   private: //disabling copy / assignment
     OffHelper& operator=(const OffHelper& rhs){return *this;}
@@ -156,7 +155,8 @@ namespace egHLT {
     OffHelper():eleLooseCuts_(),eleCuts_(),phoLooseCuts_(),phoCuts_(),hltEleTrkIsolAlgo_(NULL),hltPhoTrkIsolAlgo_(NULL){}
     ~OffHelper();
     
-    void setup(const edm::ParameterSet& conf,const std::vector<std::string>& hltFiltersUsed);
+    void setup(const edm::ParameterSet& conf);
+    void setupTriggers(const HLTConfigProvider& config,const std::vector<std::string>& hltFiltersUsed);
 
     //int is the error code, 0 = no error
     //it should never throw, print to screen or crash, this is the only error reporting it does
@@ -166,7 +166,7 @@ namespace egHLT {
     int getHandles(const edm::Event& event,const edm::EventSetup& setup);
     int fillOffEleVec(std::vector<OffEle>& offEles);
     int fillOffPhoVec(std::vector<OffPho>& offPhos);
-    int setTrigInfo(egHLT::OffEvt& offEvent);
+    int setTrigInfo(const edm::Event & edmEvent, egHLT::OffEvt& offEvent);
 
     void fillIsolData(const reco::GsfElectron& ele,OffEle::IsolData& isolData);
     void fillClusShapeData(const reco::GsfElectron& ele,OffEle::ClusShapeData& clusShapeData);

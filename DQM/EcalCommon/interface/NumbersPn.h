@@ -5,8 +5,6 @@
 #include <stdexcept>
 #include <vector>
 
-#include "FWCore/Framework/interface/EventSetup.h"
-
 class NumbersPn {
 
  public:

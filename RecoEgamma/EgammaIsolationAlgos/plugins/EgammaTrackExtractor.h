@@ -60,6 +60,8 @@ private:
   double thePt_Min;                         //! min track pt to include into iso deposit
   std::vector<double> paramForIsolBarrel_;   //! Barrel requirements to determine if isolated for selective filling
   std::vector<double> paramForIsolEndcap_;   //! Endcap requirements to determine if isolated for selective filling
+  std::string dzOptionString;
+  int dzOption;
 };
 
 }

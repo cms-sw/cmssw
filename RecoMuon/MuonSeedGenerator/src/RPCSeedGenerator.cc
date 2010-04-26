@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Haiyun Teng
 //         Created:  Wed Oct 29 17:24:36 CET 2008
-// $Id: RPCSeedGenerator.cc,v 1.5 2009/10/15 14:26:56 hyteng Exp $
+// $Id: RPCSeedGenerator.cc,v 1.6 2009/10/31 05:21:39 slava77 Exp $
 //
 //
 
@@ -27,7 +27,7 @@ Implementation:
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 // special include files
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"

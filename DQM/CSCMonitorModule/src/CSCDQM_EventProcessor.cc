@@ -124,18 +124,14 @@ namespace cscdqm {
     bool result = false;
 
     if (crateId > 0 && crateId <= 60 && dmbId > 0 && dmbId <= 10) {
-      try {
-        CSCDetId cid = config->fnGetCSCDetId(crateId, dmbId);
-        cscPosition  = cid.chamber();
-        int iring    = cid.ring();
-        int istation = cid.station();
-        int iendcap  = cid.endcap();
-        std::string tlabel = cscdqm::Utility::getCSCTypeLabel(iendcap, istation, iring);
-        cscType = cscdqm::Utility::getCSCTypeBin(tlabel);
-        result = true;
-      } catch (cms::Exception e) {
-        result = false;
-      }
+      CSCDetId cid = config->fnGetCSCDetId(crateId, dmbId);
+      cscPosition  = cid.chamber();
+      int iring    = cid.ring();
+      int istation = cid.station();
+      int iendcap  = cid.endcap();
+      std::string tlabel = cscdqm::Utility::getCSCTypeLabel(iendcap, istation, iring);
+      cscType = cscdqm::Utility::getCSCTypeBin(tlabel);
+      result = true;
     }
     
     if (!result) {

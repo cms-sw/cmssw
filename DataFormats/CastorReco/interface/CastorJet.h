@@ -6,13 +6,12 @@
  *
  * \author Hans Van Haevermaet, University of Antwerp
  *
- * \version $Id: CastorJet.h,v 1.2 2008/11/24 22:18:42 hvanhaev Exp $
+ * \version $Id: CastorJet.h,v 1.3 2009/02/27 15:48:51 hvanhaev Exp $
  *
  */
 #include <vector>
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/CastorReco/interface/CastorCluster.h"
-#include "FWCore/Framework/interface/Event.h"
 
 using namespace edm;
 

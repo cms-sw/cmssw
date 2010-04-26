@@ -19,7 +19,7 @@
 
 
 //---------------------------------------------------------------------
-DDDividedPolyconeRho::DDDividedPolyconeRho( const DDDivision& div, DDCompactView* cpv )
+DDDividedPolyconeRho::DDDividedPolyconeRho( const DDDivision& div, DDCompactView& cpv )
   :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();
@@ -161,7 +161,7 @@ DDLogicalPart DDDividedPolyconeRho::makeDDLogicalPart( const int copyNo ) const
 
 //=====================================================================
 //---------------------------------------------------------------------
-DDDividedPolyconePhi::DDDividedPolyconePhi( const DDDivision& div, DDCompactView* cpv )
+DDDividedPolyconePhi::DDDividedPolyconePhi( const DDDivision& div, DDCompactView& cpv )
   :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();
@@ -270,7 +270,7 @@ DDLogicalPart DDDividedPolyconePhi::makeDDLogicalPart( const int copyNo ) const
 
 //=====================================================================
 //---------------------------------------------------------------------
-DDDividedPolyconeZ::DDDividedPolyconeZ( const DDDivision& div, DDCompactView* cpv )
+DDDividedPolyconeZ::DDDividedPolyconeZ( const DDDivision& div, DDCompactView& cpv )
   :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();

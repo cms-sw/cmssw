@@ -1,5 +1,4 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
-#include "DataFormats/Math/interface/ProjectMatrix.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 bool BaseSiTrackerRecHit2DLocalPos::hasPositionAndError() const {
@@ -36,11 +35,6 @@ BaseSiTrackerRecHit2DLocalPos::getKfComponents( KfComponentsHolder & holder ) co
    AlgebraicMatrix25 & proj = holder.projection<2>();
    proj(0,3) = 1;
    proj(1,4) = 1;
-
-   ProjectMatrix<double,5,2>  & pf = holder.projFunc<2>();
-   pf.index[0] = 3;
-   pf.index[1] = 4;
-   holder.doUseProjFunc();
 
    holder.measuredParams<2>() = AlgebraicVector2( & holder.tsosLocalParameters().At(3), 2 );
    holder.measuredErrors<2>() = holder.tsosLocalErrors().Sub<AlgebraicSymMatrix22>( 3, 3 );

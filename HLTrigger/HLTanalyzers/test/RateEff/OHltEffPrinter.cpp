@@ -9,6 +9,8 @@
 #include "OHltEffPrinter.h"
 #include "OHltTree.h"
 
+using namespace std;
+
 void OHltEffPrinter::SetupAll(vector<float> tEff,vector<float> tEffErr,vector<float> tspureEff,
 			       vector<float> tspureEffErr,vector<float> tpureEff,
 			       vector<float> tpureEffErr,vector< vector<float> >tcoMa, float tDenEff) {

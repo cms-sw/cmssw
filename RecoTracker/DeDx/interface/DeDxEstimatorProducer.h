@@ -15,6 +15,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h" 
 
+#include <ext/hash_map>
 
 
 //
@@ -33,11 +34,6 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  double thickness    (DetId id);
-  double normalization(DetId id);
-  double distance     (DetId id);
-
-
   // ----------member data ---------------------------
   BaseDeDxEstimator*                m_estimator;
 
@@ -52,10 +48,15 @@ private:
   unsigned int MaxNrStrips;
   unsigned int MinTrackHits;
 
-  const TrackerGeometry* m_tracker;
-  std::map<DetId,double> m_normalizationMap;
-  std::map<DetId,double> m_distanceMap;
-  std::map<DetId,double> m_thicknessMap;
+   private : 
+      struct stModInfo{int DetId; float Thickness; float Distance; float Normalization;};
+
+      class isEqual{
+         public:
+                 template <class T> bool operator () (const T& PseudoDetId1, const T& PseudoDetId2) { return PseudoDetId1==PseudoDetId2; }
+      };
+  
+  __gnu_cxx::hash_map<unsigned int, stModInfo*,  __gnu_cxx::hash<unsigned int>, isEqual > MODsColl;
 };
 
 #endif

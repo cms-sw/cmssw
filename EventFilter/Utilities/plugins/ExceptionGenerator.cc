@@ -24,7 +24,7 @@ using namespace std;
 namespace evf{
 
     const std::string ExceptionGenerator::menu[menu_items] =  
-      {"Sleep x ms", "SleepForever", "Cms Exception", "Exit with error", "Abort", "Unknown Exception", "Endless loop", "Generate Error Message" };
+      {"Sleep x ms", "SleepForever", "Cms Exception", "Exit with error", "Abort", "Unknown Exception", "Endless loop", "Generate Error Message", "Segfault" };
 
     ExceptionGenerator::ExceptionGenerator( const edm::ParameterSet& pset) : 
       ModuleWeb("ExceptionGenerator"), actionRequired_(false), actionId_(-1)
@@ -63,6 +63,10 @@ namespace evf{
 	      break;
 	    case 7:
 	      edm::LogError("TestErrorMessage") << qualifier_;
+	      break;
+	    case 8:
+	      int *pi = 0;
+	      *pi=0;
 	    }
 	}
     }

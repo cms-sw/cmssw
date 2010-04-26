@@ -4,17 +4,16 @@
 /*
  * \file EETrendTask.h
  *
- * $Date: 2009/11/10 18:31:58 $
- * $Revision: 1.1 $
+ * $Date: 2010/03/22 04:45:45 $
+ * $Revision: 1.5 $
  * \author Dongwook Jang, Soon Yung Jun
  *
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "TProfile.h"
 
 class MonitorElement;
 class DQMStore;
@@ -58,11 +57,6 @@ class EETrendTask: public edm::EDAnalyzer{
   // Update time check
   void updateTime(void);
 
-  // Shift bins of TProfile to the right
-  void shift2Right(TProfile* p, int bins=1);
-
-  // Shift bins of TProfile to the left
-  void shift2Left(TProfile* p, int bins=1);
 
 
  private:
@@ -77,19 +71,53 @@ class EETrendTask: public edm::EDAnalyzer{
 
   bool mergeRuns_;
 
+  bool verbose_;
+
   edm::InputTag EEDigiCollection_;
+  edm::InputTag EcalPnDiodeDigiCollection_;
   edm::InputTag EcalRecHitCollection_;
+  edm::InputTag EcalTrigPrimDigiCollection_;
+  edm::InputTag BasicClusterCollection_;
+  edm::InputTag SuperClusterCollection_;
+  edm::InputTag EEDetIdCollection0_;
+  edm::InputTag EEDetIdCollection1_;
+  edm::InputTag EEDetIdCollection2_;
+  edm::InputTag EEDetIdCollection3_;
+  edm::InputTag EEDetIdCollection4_;
+  edm::InputTag EcalElectronicsIdCollection1_;
+  edm::InputTag EcalElectronicsIdCollection2_;
+  edm::InputTag EcalElectronicsIdCollection3_;
+  edm::InputTag EcalElectronicsIdCollection4_;
+  edm::InputTag EcalElectronicsIdCollection5_;
+  edm::InputTag EcalElectronicsIdCollection6_;
   edm::InputTag FEDRawDataCollection_;
+  edm::InputTag EESRFlagCollection_;
 
   MonitorElement* nEEDigiMinutely_;
+  MonitorElement* nEcalPnDiodeDigiMinutely_;
   MonitorElement* nEcalRecHitMinutely_;
+  MonitorElement* nEcalTrigPrimDigiMinutely_;
+  MonitorElement* nBasicClusterMinutely_;
+  MonitorElement* nBasicClusterSizeMinutely_;
+  MonitorElement* nSuperClusterMinutely_;
+  MonitorElement* nSuperClusterSizeMinutely_;
+  MonitorElement* nIntegrityErrorMinutely_;
   MonitorElement* nFEDEEminusRawDataMinutely_;
   MonitorElement* nFEDEEplusRawDataMinutely_;
+  MonitorElement* nEESRFlagMinutely_;
 
   MonitorElement* nEEDigiHourly_;
+  MonitorElement* nEcalPnDiodeDigiHourly_;
   MonitorElement* nEcalRecHitHourly_;
+  MonitorElement* nEcalTrigPrimDigiHourly_;
+  MonitorElement* nBasicClusterHourly_;
+  MonitorElement* nBasicClusterSizeHourly_;
+  MonitorElement* nSuperClusterHourly_;
+  MonitorElement* nSuperClusterSizeHourly_;
+  MonitorElement* nIntegrityErrorHourly_;
   MonitorElement* nFEDEEminusRawDataHourly_;
   MonitorElement* nFEDEEplusRawDataHourly_;
+  MonitorElement* nEESRFlagHourly_;
 
   bool init_;
 

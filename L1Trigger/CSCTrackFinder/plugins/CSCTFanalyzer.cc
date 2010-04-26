@@ -89,7 +89,7 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es){
 				int station = (*csc).first.station()-1;
 				int cscId   = (*csc).first.triggerCscId()-1;
 				int sector  = (*csc).first.triggerSector()-1 + ( (*csc).first.endcap()==1 ? 0 : 6 );
-				//int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
+				int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
 				int tbin    = lct->getBX();
 				//int fpga    = ( subSector ? subSector-1 : station+1 );
 				if((verbose&1)==1)

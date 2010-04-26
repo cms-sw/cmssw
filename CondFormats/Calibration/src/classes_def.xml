@@ -33,7 +33,7 @@
 
 
  <class name="CalibHistograms" class_version="0">
-   <field name="m_data" mapping="blob" />
+   <field name=" m_data" mapping="blob" />
  </class>
  <class name="std::vector<CalibHistogram>"/>
  <class name="CalibHistogram"/>

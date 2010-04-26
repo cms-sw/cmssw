@@ -29,7 +29,7 @@ db_client = cms.EDAnalyzer("SiStripCommissioningOfflineDbClient",
   ),
   NoiseParameters          = cms.PSet(),
   OptoScanParameters       = cms.PSet(
-    TargetGain = cms.double(0.863),   # target gain (0.863 ~ 690ADC for tickmark)
+    TargetGain = cms.double(0.8),     # target gain (0.8 ~ 640ADC for tickmark)
     SkipGainUpdate = cms.bool(False)  # wether to keep the gain the same as already on the db
   ),
   PedestalsParameters      = cms.PSet(

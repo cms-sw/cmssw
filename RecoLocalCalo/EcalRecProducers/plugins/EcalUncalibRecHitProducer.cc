@@ -91,4 +91,4 @@ EcalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"                                                                                                            
-DEFINE_ANOTHER_FWK_MODULE( EcalUncalibRecHitProducer );
+DEFINE_FWK_MODULE( EcalUncalibRecHitProducer );

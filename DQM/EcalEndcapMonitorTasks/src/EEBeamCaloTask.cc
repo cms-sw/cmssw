@@ -1,15 +1,14 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2008/12/03 15:03:17 $
- * $Revision: 1.36 $
+ * $Date: 2010/02/12 21:57:31 $
+ * $Revision: 1.38 $
  * \author A. Ghezzi
  *
  */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,17 +30,13 @@
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEBeamCaloTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EEBeamCaloTask::EEBeamCaloTask(const ParameterSet& ps){
+EEBeamCaloTask::EEBeamCaloTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -112,7 +107,7 @@ void EEBeamCaloTask::beginJob(void){
 
 }
 
-void EEBeamCaloTask::beginRun(const Run& r, const EventSetup& c) {
+void EEBeamCaloTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -120,7 +115,7 @@ void EEBeamCaloTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EEBeamCaloTask::endRun(const Run& r, const EventSetup& c) {
+void EEBeamCaloTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -410,17 +405,17 @@ void EEBeamCaloTask::cleanup(void){
 
 void EEBeamCaloTask::endJob(void){
 
-  LogInfo("EEBeamCaloTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EEBeamCaloTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
+void EEBeamCaloTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool enable = false;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -433,14 +428,14 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EEBeamCaloTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EEBeamCaloTask") << EcalRawDataCollection_ << " not available";
   }
 
   if ( ! enable ) return;
   if ( ! init_ ) this->setup();
   ievt_++;
 
-  Handle<EcalTBEventHeader> pEventHeader;
+  edm::Handle<EcalTBEventHeader> pEventHeader;
   const EcalTBEventHeader* evtHeader=0;
 
   if ( e.getByLabel(EcalTBEventHeader_, pEventHeader) ) {
@@ -600,7 +595,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 //   }
 
   if(reset_histos_moving){
-    LogInfo("EEBeamCaloTask") << "event " << ievt_ << " resetting histos for moving table!! ";
+    edm::LogInfo("EEBeamCaloTask") << "event " << ievt_ << " resetting histos for moving table!! ";
 
     //     meEEBCaloE1vsCry_->setBinContent(crystal_step_ , meBBCaloEne_[4]->getMean() );
     //     meEEBCaloE1vsCry_->setBinError(crystal_step_ , meBBCaloEne_[4]->getRMS() );
@@ -632,7 +627,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
                                         //One can also think to remove the reset of the histograms when the table change
                                         // status from moving to stable, and to leave the reset only if the cry_in_beam changes.
 
-      LogInfo("EEBeamCaloTask") << "event " << ievt_ << " resetting histos for stable table!! ";
+      edm::LogInfo("EEBeamCaloTask") << "event " << ievt_ << " resetting histos for stable table!! ";
 
       //       meEEBCaloE1vsCry_->setBinContent(crystal_step_ , meBBCaloEne_[4]->getMean() );
       //       meEEBCaloE1vsCry_->setBinError(crystal_step_ , meBBCaloEne_[4]->getRMS() );
@@ -660,7 +655,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   }
 
  if(skip_this_event){
-   LogInfo("EEBeamCaloTask") << "event " << event <<" analyzed: "<<ievt_ << " : skipping this event!! ";
+   edm::LogInfo("EEBeamCaloTask") << "event " << event <<" analyzed: "<<ievt_ << " : skipping this event!! ";
    return;}
 
  // now CrystalsDone_ contains the crystal on beam at the beginning fo a new step, and not when it has finished !!
@@ -674,10 +669,9 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   float xip = phi_c + 0.5;
   if (!tb_moving) {meBBCaloCryOnBeam_->Fill(xie,xip);}
 
-  Handle<EBDigiCollection> digis;
+  edm::Handle<EBDigiCollection> digis;
   e.getByLabel(EBDigiCollection_, digis);
   int nebd = digis->size();
-  //  LogDebug("EEBeamCaloTask") << "event " << ievt_ << " digi collection size " << nebd;
 
   meBBNumCaloCryRead_->Fill(nebd);
 
@@ -719,11 +713,6 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     if(abs(deta_c) >1 || abs(dphi_c) >1){continue;}
     int i_in_array = deta_c -3*dphi_c + 4;
-
-
-    //LogDebug("EEBeamCaloTask") << " det id = " << id;
-    //LogDebug("EEBeamCaloTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
-    //LogDebug("EEBeamCaloTask") << " deta, dphi, i_in_array, i_toBeRead " << deta_c  << " " <<  dphi_c << " " <<i_in_array<<" "<<i_toBeRead;
 
     if( i_in_array < 0 || i_in_array > 8 ){continue;}
 
@@ -785,7 +774,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
   //the part involving rechits
 
-  Handle<EcalUncalibratedRecHitCollection> hits;
+  edm::Handle<EcalUncalibratedRecHitCollection> hits;
   e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
   int neh = hits->size();
   LogDebug("EEBeamCaloTask") << "event " << event <<" analyzed: "<< ievt_ << " hits collection size " << neh;
@@ -804,11 +793,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     int deta_c= ie - eta_c;
     int dphi_c= ip - phi_c;
 
-
     int i_in_array = deta_c -3*dphi_c + 4;
-    //LogDebug("EEBeamCaloTask") << " rechits det id = " << id;
-    //LogDebug("EEBeamCaloTask") << " rechits sm, ieta, iphi " << ism << " " << ie << " " << ip;
-    //LogDebug("EEBeamCaloTask") << " rechits deta, dphi, i_in_array" << deta_c  << " " <<  dphi_c << " " <<i_in_array;
 
     float R_ene = hitItr->amplitude();
     if ( R_ene <= 0. ) R_ene = 0.0;
@@ -820,8 +805,6 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     meEEBCaloBeamCentered_->Fill(deta_c,dphi_c,R_ene);
 
     if( i_in_array < 0 || i_in_array > 8 ){continue;}
-
-    //LogDebug("EEBeamCaloTask") <<"In the array, cry: "<<ic<<" rec ene: "<<R_ene;
 
     if(i_in_array == 4){cryInBeamEne = R_ene;}
     if(! tb_moving){meBBCaloEne_[i_in_array]->Fill(R_ene);}

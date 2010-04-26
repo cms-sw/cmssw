@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.28 2009/08/25 14:12:36 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.33 2010/03/23 13:13:05 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -110,6 +110,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
     //printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
     writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
     dqmStoreFileName_(iConfig.getUntrackedParameter<std::string>("DQMStoreFileName","DQMStore.root")),
+    dqm_(0),
     cablingCacheId_(0)
 {
   //print config to debug log
@@ -203,27 +204,30 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
       continue;
     }
 
-    //Do exactly same check as unpacker
-    //will be used by channel check in following method fillFEDErrors so need to be called beforehand.
-    bool lFailUnpackerFEDcheck = lFedErrors.failUnpackerFEDCheck(fedData);
+
  
     //check for problems and fill detailed histograms
     lFedErrors.fillFEDErrors(fedData,
 			     lFullDebug,
 			     printDebug_,
 			     lNChannelMonitoring,
-			     lNChannelUnpacker
+			     lNChannelUnpacker,
+			     fedHists_.cmHistosEnabled(),
+			     fedHists_.cmHistPointer(false),
+			     fedHists_.cmHistPointer(true)
 			     );
 
-
+    //check filled in previous method.
+    bool lFailUnpackerFEDcheck = lFedErrors.failUnpackerFEDCheck();
 
     lFedErrors.incrementFEDCounters();
     fedHists_.fillFEDHistograms(lFedErrors,lFullDebug);
 
+
     bool lFailMonitoringFEDcheck = lFedErrors.failMonitoringFEDCheck();
     if (lFailMonitoringFEDcheck) lNTotBadFeds++;
 
-   
+
     //sanity check: if something changed in the unpacking code 
     //but wasn't propagated here
     //print only the summary, and more info if printDebug>1
@@ -245,15 +249,18 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     }
 
 
-    if (doTkHistoMap_){//if TkHistMap is enabled
+    //Fill TkHistoMap:
+    //add an entry for all channels (good = 0), 
+    //so that tkHistoMap knows which channels should be there.
+    if (doTkHistoMap_ && !fedHists_.tkHistoMapPointer()) {
+      edm::LogWarning("SiStripMonitorHardware") << " -- Fedid " << fedId
+						<< ", TkHistoMap enabled but pointer is null." << std::endl;
+    }
 
-      //Fill TkHistoMap:
-      //true means have an entry for all channels (good = 0), 
-      //so that tkHistoMap knows which channels should be there.
-
-      lFedErrors.fillBadChannelList(badChannelFraction,cabling_,lNTotBadChannels,lNTotBadActiveChannels,true);
-
-    }//if TkHistMap is enabled
+    lFedErrors.fillBadChannelList(doTkHistoMap_,
+				  fedHists_.tkHistoMapPointer(),
+				  lNTotBadChannels,
+				  lNTotBadActiveChannels);
   }//loop over FED IDs
 
   if ((lNTotBadFeds> 0 || lNTotBadChannels>0) && printDebug_>1) {
@@ -293,29 +300,6 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   if (fillWithEvtNum_) fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),iEvent.id().event());
   else fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),iEvent.orbitNumber()/11223.);
 
-  //match fedId/channel with detid
-
-  if (doTkHistoMap_) {//if TkHistoMap is enabled
-    std::map<unsigned int,std::pair<unsigned short,unsigned short> >::iterator fracIter;
-    std::vector<std::pair<unsigned int,unsigned int> >::iterator chanIter;
-
-    //int ele = 0;
-    //int nBadChannels = 0;
-    for (fracIter = badChannelFraction.begin(); fracIter!=badChannelFraction.end(); fracIter++){
-      uint32_t detid = fracIter->first;
-      //if ((fracIter->second).second != 0) {
-      //std::cout << "------ ele #" << ele << ", Frac for detid #" << detid << " = " <<(fracIter->second).second << "/" << (fracIter->second).first << std::endl;
-      //nBadChannels++;
-      //}
-      unsigned short nTotCh = (fracIter->second).first;
-      unsigned short nBadCh = (fracIter->second).second;
-      assert (nTotCh >= nBadCh);
-      if (nTotCh != 0) fedHists_.fillTkHistoMap(fedHists_.tkHistoMapPointer(),detid,static_cast<float>(nBadCh)/nTotCh);
-      //ele++;
-    }
-    //std::cout << "--- Total number of badChannels in map = " << nBadChannels << std::endl;
-
-  }//if TkHistoMap is enabled
 
   nEvt_++;
 

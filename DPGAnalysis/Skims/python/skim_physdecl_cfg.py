@@ -6,12 +6,15 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.skimming = cms.EDFilter("PhysDecl",
     applyfilter = cms.untracked.bool(True)
+    debugOn = cms.untracked.bool(True),
+    HLTriggerResults = cms.InputTag("TriggerResults","","HLT")
+
 )
 
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/BeamSplash_cfg.py,v $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/skim_physdecl_cfg.py,v $'),
     annotation = cms.untracked.string('PhysDecl skim')
 )
 

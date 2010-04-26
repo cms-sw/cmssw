@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.HepMCCandAlgos.goodMuonMCMatch_cfi import *
-#goodMuonMCMatch.src = 'selectedLayer1Muons'
-goodMuonMCMatch.src = 'selectedLayer1MuonsTriggerMatch'
+goodMuonMCMatch.src = 'selectedPatMuonsTriggerMatch'
 from PhysicsTools.HepMCCandAlgos.goodTrackMCMatch_cfi import *
-goodTrackMCMatch.src = 'selectedLayer1TrackCands'
+goodTrackMCMatch.src = 'selectedPatTracks'
 
 from ElectroWeakAnalysis.Skimming.dimuonsMCMatch_cfi import *
 from ElectroWeakAnalysis.Skimming.dimuonsOneTrackMCMatch_cfi import *

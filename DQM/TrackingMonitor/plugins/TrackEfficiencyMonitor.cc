@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/05 17:07:51 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/02/11 00:11:00 $
+ *  $Revision: 1.8 $
  *  \author Jeremy Andrea
  */
 
@@ -14,7 +14,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/TrackingMonitor/plugins/TrackEfficiencyMonitor.h"
 #include <string>
@@ -80,7 +80,6 @@ TrackEfficiencyMonitor::~TrackEfficiencyMonitor()
 void TrackEfficiencyMonitor::beginJob(void) 
 //-----------------------------------------------------------------------------------
 {
-  using namespace edm;
   std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
   std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
   
@@ -262,7 +261,6 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
 //-----------------------------------------------------------------------------------
 {
    
-  using namespace edm;
 
   edm::Handle<reco::TrackCollection> tkTracks;
   iEvent.getByLabel(theTKTracksLabel_, tkTracks);

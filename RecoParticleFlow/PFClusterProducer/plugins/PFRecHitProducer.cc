@@ -12,7 +12,8 @@
 // #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPFCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 using namespace std;
 using namespace edm;
 
@@ -33,6 +34,7 @@ PFRecHitProducer::PFRecHitProducer(const edm::ParameterSet& iConfig)
   
   //register products
   produces<reco::PFRecHitCollection>();
+  produces<reco::PFRecHitCollection>("Cleaned");
   
 }
 
@@ -42,11 +44,14 @@ void PFRecHitProducer::produce(edm::Event& iEvent,
 
 
   auto_ptr< vector<reco::PFRecHit> > recHits( new vector<reco::PFRecHit> ); 
+  auto_ptr< vector<reco::PFRecHit> > recHitsCleaned( new vector<reco::PFRecHit> ); 
   
   // fill the collection of rechits (see child classes)
-  createRecHits( *recHits, iEvent, iSetup);
+  createRecHits( *recHits, *recHitsCleaned, iEvent, iSetup);
 
   iEvent.put( recHits );
+  iEvent.put( recHitsCleaned, "Cleaned" );
+
 }
 
 
@@ -72,6 +77,14 @@ PFRecHitProducer::beginRun(edm::Run& run,
   es.get<HcalChannelQualityRcd>().get( hcalChStatus );
   theHcalChStatus = hcalChStatus.product();
 
+  // Retrieve the good/bad ECAL channels from the DB
+  edm::ESHandle<EcalChannelStatus> ecalChStatus;
+  es.get<EcalChannelStatusRcd>().get(ecalChStatus);
+  theEcalChStatus = ecalChStatus.product();
+
+  edm::ESHandle<CaloTowerConstituentsMap> cttopo;
+  es.get<IdealGeometryRecord>().get(cttopo);
+  theTowerConstituentsMap = cttopo.product();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

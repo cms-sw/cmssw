@@ -20,7 +20,10 @@ TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSur
   }
 
   std::vector<double> weights = PosteriorWeightsCalculator(predictedComponents).weights(aRecHit);
-  if ( weights.empty() )  return TrajectoryStateOnSurface();
+  if ( weights.empty() ) {
+    edm::LogError("GsfMultiStateUpdator") << " no weights could be retreived. invalid updated state !.";
+    return TrajectoryStateOnSurface();
+  }
 
   MultiTrajectoryStateAssembler result;
 
@@ -28,11 +31,17 @@ TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSur
   for (std::vector<TrajectoryStateOnSurface>::const_iterator iter = predictedComponents.begin();
        iter != predictedComponents.end(); iter++) {
     TrajectoryStateOnSurface updatedTSOS = KFUpdator().update(*iter, aRecHit);
-    result.addState(TrajectoryStateOnSurface(updatedTSOS.localParameters(),
-					     updatedTSOS.localError(), updatedTSOS.surface(), 
-					     &(tsos.globalParameters().magneticField()),
-					     (*iter).surfaceSide(), weights[i]));
+    if (updatedTSOS.isValid()){
+      result.addState(TrajectoryStateOnSurface(updatedTSOS.localParameters(),
+					       updatedTSOS.localError(), updatedTSOS.surface(), 
+					       &(tsos.globalParameters().magneticField()),
+					       (*iter).surfaceSide(), weights[i]));
     i++;
+    }
+    else{
+      edm::LogError("GsfMultiStateUpdator") << "one of the KF updated state is invalid. skipping.";
+    }
+
   }
 
   return result.combinedState();

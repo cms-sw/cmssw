@@ -23,21 +23,19 @@ particleFlowDisplacedVertex = cms.EDProducer("PFDisplacedVertexProducer",
     # minimal radius below which we do not reconstruct interactions
     # typically the position of the first Pixel layer
 
-    primaryVertexCut = cms.double(4),
+    primaryVertexCut = cms.double(1.5),
 
-    # radius at which no secondary tracks are availables
-    # in the barrel.For the moment we exclude the TOB barrel
-    # since 5-th track step starts the latest at first TOB
-    # layer.
-    tobCut = cms.double(56),
+    # radius below which we don't wamt to reconstruct displaced
+    # vertices
+    tobCut = cms.double(100),
 
-    # radius at which no secondary tracks are availables
-    # in the endcaps.For the moment we exclude the TEC wheel.
-    tecCut = cms.double(110),
+    # z below which we don't want to reconstruct displaced
+    # vertices
+    tecCut = cms.double(220),
 
     # the minimal accepted weight for the tracks calculated in the 
     # adaptive vertex fitter to be associated to the displaced vertex
-    # 0.5 corresponds to the 3-sigma uncompatibility (to check)
+    # this correspond to the sigmacut of 6
     minAdaptWeight = cms.double(0.5)
                                    
 )

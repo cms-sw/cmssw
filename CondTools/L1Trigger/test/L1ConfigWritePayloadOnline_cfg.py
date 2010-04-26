@@ -29,7 +29,7 @@ options.register('outputDBAuth',
                  '.', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Authentication path for outputDB")
+                 "Authentication path for output DB")
 options.register('overwriteKeys',
                  0, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -40,6 +40,21 @@ options.register('logTransactions',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Record transactions in log DB")
+options.register('copyNonO2OPayloads',
+                 0, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Copy DTTF TSC payloads from ORCON")
+options.register('copyDBConnect',
+                 'sqlite_file:l1config.db', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Connection string for copy DB")
+options.register('copyDBAuth',
+                 '.', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Authentication path for copy DB")
 options.parseArguments()
 
 # Generate L1TriggerKey from OMDS
@@ -65,7 +80,7 @@ process.L1TriggerKeyOnline.subsystemLabels = cms.vstring( 'CSCTF',
                                                           'GMT',
                                                           'GMTScales',
                                                           'RCT',
-#                                                          'GCT',
+                                                          'GCT',
                                                           'GT' )
 
 # Generate configuration data from OMDS
@@ -80,6 +95,29 @@ process.load("L1TriggerConfig.DTTrackFinder.L1MuDTTFParametersOnline_cfi")
 
 process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfigOnline_cfi")
 process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConeDefinitionOnline_cfi")
+
+if options.copyNonO2OPayloads == 1:
+    process.L1MuDTEtaPatternLutOnline.copyFromCondDB = cms.bool( True )
+    process.L1MuDTEtaPatternLutOnline.onlineDB = options.copyDBConnect
+    process.L1MuDTEtaPatternLutOnline.onlineAuthentication = options.copyDBAuth
+    process.L1MuDTExtLutOnline.copyFromCondDB = cms.bool( True )
+    process.L1MuDTExtLutOnline.onlineDB = options.copyDBConnect
+    process.L1MuDTExtLutOnline.onlineAuthentication = options.copyDBAuth
+    process.L1MuDTPhiLutOnline.copyFromCondDB = cms.bool( True )
+    process.L1MuDTPhiLutOnline.onlineDB = options.copyDBConnect
+    process.L1MuDTPhiLutOnline.onlineAuthentication = options.copyDBAuth
+    process.L1MuDTPtaLutOnline.copyFromCondDB = cms.bool( True )
+    process.L1MuDTPtaLutOnline.onlineDB = options.copyDBConnect
+    process.L1MuDTPtaLutOnline.onlineAuthentication = options.copyDBAuth
+    process.L1MuDTQualPatternLutOnline.copyFromCondDB = cms.bool( True )
+    process.L1MuDTQualPatternLutOnline.onlineDB = options.copyDBConnect
+    process.L1MuDTQualPatternLutOnline.onlineAuthentication = options.copyDBAuth
+    process.L1RPCConfigOnline.copyFromCondDB = cms.bool( True )
+    process.L1RPCConfigOnline.onlineDB = options.copyDBConnect
+    process.L1RPCConfigOnline.onlineAuthentication = options.copyDBAuth
+    process.L1RPCConeDefinitionOnline.copyFromCondDB = cms.bool( True )
+    process.L1RPCConeDefinitionOnline.onlineDB = options.copyDBConnect
+    process.L1RPCConeDefinitionOnline.onlineAuthentication = options.copyDBAuth
 
 process.load("L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersOnlineProducer_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleOnlineProducer_cfi")
@@ -118,9 +156,8 @@ else:
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-process.source = cms.Source("EmptySource")
 
-
+# Suppress warnings, not actually used, except for copyNonO2OPayloads
 process.outputDB = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
     toGet = cms.VPSet(cms.PSet(
@@ -136,7 +173,18 @@ process.outputDB = cms.ESSource("PoolDBESSource",
     tag = cms.string( "L1CaloGeometry_" + options.tagBase )
     ))
 )
-process.outputDB.connect = cms.string(options.outputDBConnect)
-process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
 
+if options.copyNonO2OPayloads == 0:
+    process.outputDB.connect = options.outputDBConnect
+    process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
+    process.source = cms.Source("EmptySource")
+else:
+    process.outputDB.connect = options.copyDBConnect
+    process.outputDB.DBParameters.authenticationPath = options.copyDBAuth
+    process.source = cms.Source("EmptyIOVSource",
+                                timetype = cms.string('runnumber'),
+                                firstValue = cms.uint64(4294967295),
+                                lastValue = cms.uint64(4294967295),
+                                interval = cms.uint64(1) )
+                            
 process.p = cms.Path(process.L1CondDBPayloadWriter)

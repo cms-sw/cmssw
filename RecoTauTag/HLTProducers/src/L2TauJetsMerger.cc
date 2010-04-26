@@ -48,9 +48,13 @@ void L2TauJetsMerger::produce(edm::Event& iEvent, const edm::EventSetup& iES)
    for(CaloJetCollection::const_iterator iTau = tauJets->begin();iTau !=tauJets->end();iTau++)
      { 
      //Create a Map to associate to every Jet its L1SeedId, i.e. 0,1,2 or 3
-     if(iTau->et() > mEt_Min)
-       //       myL2L1JetsMap.insert(pair<int, const CaloJet>(iL1Jet, *(iTau)));
-       myTmpJets.push_back(*(iTau));
+       if(iTau->et() > mEt_Min) {
+
+	 //Add the Pdg Id here 
+	 CaloJet myJet = *iTau;
+	 myJet.setPdgId(15);
+	 myTmpJets.push_back(myJet);
+       }
      }
    iL1Jet++;
  }

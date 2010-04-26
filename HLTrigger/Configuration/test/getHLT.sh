@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_3_5_0/HLT"         # no explicit version, take te most recent 
-TARGET="/dev/CMSSW_3_5_0/\$TABLE"     # no explicit version, take te most recent 
+MASTER="/dev/CMSSW_3_5_5/HLT"         # no explicit version, take te most recent 
+TARGET="/dev/CMSSW_3_5_5/\$TABLE"     # no explicit version, take te most recent 
 TABLES="8E29 1E31 GRun HIon"               # $TABLE in the above variable will be expanded to these TABLES
 
 # getHLT.py
@@ -29,11 +29,26 @@ else
   exit 1
 fi
 
+if [ -f "./getDatasets.py" ]; then
+  GETDATASETS="./getDatasets.py"
+elif [ -f "$CMSSW_BASE/src/$PACKAGE/test/getDatasets.py" ]; then
+  GETDATASETS="$CMSSW_BASE/src/$PACKAGE/test/getDatasets.py"
+elif [ -f "$CMSSW_RELEASE_BASE/src/$PACKAGE/test/getDatasets.py" ]; then
+  GETDATASETS="$CMSSW_RELEASE_BASE/src/$PACKAGE/test/getDatasets.py"
+else
+  echo "cannot find getDatasets.py, aborting"
+  exit 1
+fi
+
 function getConfigForCVS() {
   # for things in CMSSW CVS
   local CONFIG="$1"
   local NAME="$2"
-  $GETHLT --cff --mc $CONFIG $NAME
+  if [ "${NAME}" == "8E29" ] || [ "${NAME}" == "GRun" ]; then
+   $GETHLT --cff --mc --l1 L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc $CONFIG $NAME
+  else
+   $GETHLT --cff --mc $CONFIG $NAME
+  fi
 }
 
 function getContentForCVS() {
@@ -43,12 +58,24 @@ function getContentForCVS() {
   rm -f hltOutput*_cff.py*
 }
 
+function getDatasetsForCVS() {
+  local CONFIG="$1"
+  local TARGET="$2"
+
+  $GETDATASETS $CONFIG $TARGET
+}
+
 function getConfigForOnline() {
   # for things NOT in CMSSW CVS:
   local CONFIG="$1"
   local NAME="$2"
-  $GETHLT --full --offline --data $CONFIG $NAME
-  $GETHLT --full --offline --mc   $CONFIG $NAME
+  if [ "${NAME}" == "8E29" ] || [ "${NAME}" == "GRun" ]; then
+   $GETHLT --full --offline --data --l1 L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc $CONFIG $NAME
+   $GETHLT --full --offline --mc   --l1 L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc $CONFIG $NAME
+  else
+   $GETHLT --full --offline --data $CONFIG $NAME
+   $GETHLT --full --offline --mc   $CONFIG $NAME
+  fi
 }
 
 # make sure we're using *this* working area
@@ -63,8 +90,11 @@ getContentForCVS $MASTER
 for TABLE in $TABLES; do
   getConfigForCVS $(eval echo $TARGET) $TABLE
 done
-ls -l HLT_*_cff.py HLTrigger_EventContent_cff.py
-mv -f HLT_*_cff.py HLTrigger_EventContent_cff.py ../python
+for TABLE in "GRun"; do
+  getDatasetsForCVS $(eval echo $TARGET) HLTrigger_Datasets_cff.py
+done
+ls -l HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_cff.py
+mv -f HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_cff.py ../python
 echo
 
 # for things now also in CMSSW CVS:

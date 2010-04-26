@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.EgHLTOffFiltersToMon_cfi import *
 
-egHLTOffDQMClient = cms.EDFilter("EgHLTOfflineClient",
+egHLTOffDQMClient = cms.EDAnalyzer("EgHLTOfflineClient",
                                  egHLTOffFiltersToMon,
                                  DQMDirName=cms.string("HLT/EgOffline"),
                                  hltTag = cms.string("HLT"),

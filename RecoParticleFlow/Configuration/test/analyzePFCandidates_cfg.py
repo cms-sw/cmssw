@@ -22,7 +22,7 @@ process.source = cms.Source (
 process.pfCandidateAnalyzer = cms.EDAnalyzer("PFCandidateAnalyzer",
     PFCandidates = cms.InputTag("particleFlow"),
     verbose = cms.untracked.bool(True),
-    printBlocks = cms.untracked.bool(True)
+    printBlocks = cms.untracked.bool(False)
 )
 
 process.load("FastSimulation.Configuration.EventContent_cff")

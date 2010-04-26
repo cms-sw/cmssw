@@ -3,7 +3,7 @@
 #
 #     name                   value    error        min       max     free/fixed (optional)
 #------------------------------------------------------------------------------
-par  YieldZMuMu              4000          10            0    1000000         free  
+par  YieldZMuMu              10000          10            0    1000000         free  
 par  YieldBkgZMuTk               1          10            0    1000000         fixed   
 par  YieldBkgZMuSa              1           1             0    1000000         fixed   
 par  YieldBkgZMuMuNotIso       1            10            0    1000000         fixed  

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TrackMon = cms.EDFilter("TrackingMonitor",
+TrackMon = cms.EDAnalyzer("TrackingMonitor",
     
     # input tags
     TrackProducer = cms.InputTag("generalTracks"),

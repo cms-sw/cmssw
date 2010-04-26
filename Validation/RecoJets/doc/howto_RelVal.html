@@ -12,8 +12,8 @@ different jet reconstuction algorithms and can be viewed using a web browser.
 <ol>
 <b><li>Create a release area</b>
 <pre>
-  scramv1 project -n CMSSW_3_3_6_val CMSSW CMSSW_3_3_6
-  cd CMSSW_3_3_6_val/src
+  scramv1 project -n CMSSW_3_3_0_pre5_val CMSSW CMSSW_3_3_0_pre5
+  cd CMSSW_3_3_0_pre5_val/src
   eval `scramv1 runtime -csh`
   cmscvsroot CMSSW
 </pre>
@@ -31,7 +31,8 @@ correction code</b>
 <b><li>Check out and build the JetMet release validation package</b>
 <p>
 <pre>
-   cvs co -r V04-02-05 Validation/RecoJets
+   cvs co -r V04-02-01 Validation/RecoJets
+   cvs co -r V01-08-27 JetMETCorrections/Configuration # if you are using the above for 31X and 32X
    scramv1 b
 </pre>
 
@@ -51,7 +52,6 @@ Execute the following commands:
 <pre>
    cd Validation/RecoJets/analysis
    cmsRun allJets_validation_cfg.py
-   # cmsRun allJets_validation_before_330pre4_cfg.py (if 330 and before pre4)
 </pre>
 
 <p>This will produce a output root file containing histograms of various

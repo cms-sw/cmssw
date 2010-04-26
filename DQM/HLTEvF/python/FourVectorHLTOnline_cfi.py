@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOnline_cfi.py,v 1.6 2009/11/20 15:07:19 rekovic Exp $
-hltResultsOn = cms.EDFilter("FourVectorHLTOnline",
+# $Id: FourVectorHLTOnline_cfi.py,v 1.7 2009/12/04 18:05:57 rekovic Exp $
+hltResultsOn = cms.EDAnalyzer("FourVectorHLTOnline",
     dirname = cms.untracked.string("HLT/FourVector/source"),
     plotAll = cms.untracked.bool(False),
 

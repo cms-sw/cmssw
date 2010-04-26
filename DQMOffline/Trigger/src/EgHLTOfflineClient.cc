@@ -13,11 +13,13 @@
 
 #include "DQMOffline/Trigger/interface/EgHLTTrigTools.h"
 
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 #include <boost/algorithm/string.hpp>
 
-EgHLTOfflineClient::EgHLTOfflineClient(const edm::ParameterSet& iConfig):dbe_(NULL)
+EgHLTOfflineClient::EgHLTOfflineClient(const edm::ParameterSet& iConfig):dbe_(NULL),isSetup_(false)
 {
-  dbe_ = edm::Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->(); //only one chance to get this, if we every have another shot, remember to check isSetup is okay
   if (!dbe_) {
     edm::LogError("EgHLTOfflineClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
   }
@@ -53,18 +55,9 @@ EgHLTOfflineClient::EgHLTOfflineClient(const edm::ParameterSet& iConfig):dbe_(NU
   if(dbe_) dbe_->setCurrentFolder(dirName_);
  
 
-  bool filterInactiveTriggers =iConfig.getParameter<bool>("filterInactiveTriggers");
-  if(filterInactiveTriggers){
-    std::vector<std::string> activeFilters;
-    std::string hltTag = iConfig.getParameter<std::string>("hltTag");
-    egHLT::trigTools::getActiveFilters(activeFilters,hltTag);
-    
-    egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
-    egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNames_,activeFilters);
-    egHLT::trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeFilters);
-    egHLT::trigTools::filterInactiveTightLooseTriggers(phoTightLooseTrigNames_,activeFilters);
-   				    
-  }
+  filterInactiveTriggers_ =iConfig.getParameter<bool>("filterInactiveTriggers");
+  hltTag_ = iConfig.getParameter<std::string>("hltTag");
+ 
 
 }
 
@@ -76,7 +69,7 @@ EgHLTOfflineClient::~EgHLTOfflineClient()
 
 void EgHLTOfflineClient::beginJob()
 {
- 
+  
 
 }
 
@@ -87,7 +80,22 @@ void EgHLTOfflineClient::endJob()
 
 void EgHLTOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
- 
+  if(isSetup_){
+    if(filterInactiveTriggers_){
+      HLTConfigProvider hltConfig;
+      bool changed=false;
+      hltConfig.init(run,c,hltTag_,changed);
+      std::vector<std::string> activeFilters;
+      egHLT::trigTools::getActiveFilters(hltConfig,activeFilters);
+      
+      egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
+      egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNames_,activeFilters);
+      egHLT::trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeFilters);
+      egHLT::trigTools::filterInactiveTightLooseTriggers(phoTightLooseTrigNames_,activeFilters);
+      
+    }
+    isSetup_=true;
+  }
 }
 
 

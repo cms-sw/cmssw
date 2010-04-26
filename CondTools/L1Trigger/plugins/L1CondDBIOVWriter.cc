@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.14 2009/08/14 17:44:59 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.18 2010/02/10 02:53:44 wsun Exp $
 //
 //
 
@@ -23,6 +23,7 @@
 
 // user include files
 #include "CondTools/L1Trigger/plugins/L1CondDBIOVWriter.h"
+#include "CondTools/L1Trigger/interface/DataWriter.h"
 
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
@@ -82,8 +83,13 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    using namespace edm;
 
    // Get L1TriggerKeyList
-   ESHandle< L1TriggerKeyList > keyList ;
-   iSetup.get< L1TriggerKeyListRcd >().get( keyList ) ;
+   L1TriggerKeyList keyList ;
+   l1t::DataWriter dataWriter ;
+   if( !dataWriter.fillLastTriggerKeyList( keyList ) )
+     {
+       edm::LogError( "L1-O2O" )
+         << "Problem getting last L1TriggerKeyList" ;
+     }
 
    unsigned long long run = iEvent.id().run() ;
 
@@ -107,7 +113,7 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 	   // Use TSC key and L1TriggerKeyList to find next run's
 	   // L1TriggerKey token
-	   std::string keyToken = keyList->token( m_tscKey ) ;
+	   std::string keyToken = keyList.token( m_tscKey ) ;
 
 	   // Update IOV sequence for this token with since-time = new run 
 	   triggerKeyIOVUpdated =
@@ -154,6 +160,8 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    // If L1TriggerKey IOV was already up to date, then so are all its
    // sub-records.
+   bool throwException = false ;
+
    if( triggerKeyIOVUpdated )
      {
        // Loop over record@type in L1TriggerKey
@@ -193,19 +201,23 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                  << "Object key for "
                  << recordType << ": " << objectKey ;
 
-	       std::string payloadToken = keyList->token( recordType,
-							  objectKey ) ;
+	       std::string payloadToken = keyList.token( recordType,
+							 objectKey ) ;
 	       if( payloadToken.empty() )
 		 {
-		   throw cond::Exception(
-		     "L1CondDBIOVWriter: empty payload token for " +
-		     recordType + ", key " + objectKey );
-		 }
+		   edm::LogVerbatim( "L1-O2O" )
+		     << "L1CondDBIOVWriter: empty payload token for " +
+		     recordType + ", key " + objectKey ;
 
-	       m_writer.updateIOV( recordName,
-				   payloadToken,
-				   run,
-				   m_logTransactions ) ;
+		   throwException = true ;
+		 }
+	       else
+		 {
+		   m_writer.updateIOV( recordName,
+				       payloadToken,
+				       run,
+				       m_logTransactions ) ;
+		 }
 	     }
 	 }
      }
@@ -213,6 +225,11 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    if( m_logKeys )
      {
        edm::LogVerbatim( "L1-O2O" ) << log ;
+     }
+
+   if( throwException )
+     {
+       throw cond::Exception( "L1CondDBIOVWriter: empty payload tokens" ) ;
      }
 }
 
