@@ -70,8 +70,8 @@ namespace Gflash {
   const double MinEnergyCutOffForHO = 2.5;
 
   //additional energy scale for the Hcal sensitive detector
-  const double scaleSensitive = 0.200;
-  const double scaleSensitiveHE = 0.260;
+  const double scaleSensitiveHB = 0.200;
+  const double scaleSensitiveHE = 0.200;
 
   // properties for different sub-detectors (calorimeters)
 
