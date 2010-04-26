@@ -52,7 +52,8 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    if (fabs(m_eta) < 1.5) {
       try {
          handle_hits.getByLabel(*m_event, "ecalRecHit", "EcalRecHitsEB");
-         hits = handle_hits.ptr();
+	 if( handle_hits.isValid() )
+	    hits = handle_hits.ptr();
       }
       catch (...)
       {
@@ -62,7 +63,8 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    } else {
       try {
          handle_hits.getByLabel(*m_event, "ecalRecHit", "EcalRecHitsEE");
-         hits = handle_hits.ptr();
+	 if( handle_hits.isValid() )
+	    hits = handle_hits.ptr();
       }
       catch (...)
       {
@@ -70,18 +72,19 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
          "showing crystal location but not energy" << std::endl;
       }
    }
-
+     
    // data
-   TEveCaloDataVec* data = new TEveCaloDataVec(1 + m_colors.size());
+   TEveCaloDataVec* data = new TEveCaloDataVec( 1 + m_colors.size() );
    data->IncDenyDestroy();
-   data->RefSliceInfo(0).Setup("hits (not clustered)", 0.0, m_defaultColor);
-   for (size_t i = 0; i < m_colors.size(); ++i)
+   data->RefSliceInfo(0).Setup("hits (not clustered)", 0.0, m_defaultColor );
+   for( size_t i = 0; i < m_colors.size(); ++i )
    {
-      data->RefSliceInfo(i + 1).Setup("hits (not clustered)", 0.0, m_colors[i]);
+      data->RefSliceInfo(i + 1).Setup( "hits (not clustered)", 0.0, m_colors[i] );
    }
 
+   if( handle_hits.isValid() ) 
    // fill
-   fillData(hits, data);
+      fillData( hits, data );
 
    // axis
    Double_t etaMin(0), etaMax(0), phiMin(0), phiMax(0);
@@ -177,9 +180,9 @@ void FWECALDetailViewBuilder::setColor(Color_t color, const std::vector<DetId> &
       m_detIdsToColor[detIds[i]] = slice;
 }
 
-void FWECALDetailViewBuilder::showSuperCluster(const reco::SuperCluster &cluster, Color_t color)
+void
+FWECALDetailViewBuilder::showSuperCluster( const reco::SuperCluster &cluster, Color_t color )
 {
-
    std::vector<DetId> clusterDetIds;
    const std::vector<std::pair<DetId, float> > &hitsAndFractions = cluster.hitsAndFractions();
    for (size_t j = 0; j < hitsAndFractions.size(); ++j)
@@ -187,22 +190,18 @@ void FWECALDetailViewBuilder::showSuperCluster(const reco::SuperCluster &cluster
       clusterDetIds.push_back(hitsAndFractions[j].first);
    }
 
-   setColor(color, clusterDetIds);
-
+   setColor( color, clusterDetIds );
 }
 
-void FWECALDetailViewBuilder::showSuperClusters(Color_t color1, Color_t color2)
+void
+FWECALDetailViewBuilder::showSuperClusters( Color_t color1, Color_t color2 )
 {
-
    // get the superclusters from the event
+   fwlite::Handle<reco::SuperClusterCollection> collection;
 
-   fwlite::Handle<reco::SuperClusterCollection> handle_superclusters;
-   const reco::SuperClusterCollection *superclusters = 0;
-
-   if (fabs(m_eta) < 1.5) {
+   if( fabs( m_eta ) < 1.5 ) {
       try {
-         handle_superclusters.getByLabel(*m_event, "correctedHybridSuperClusters");
-         superclusters = handle_superclusters.ptr();
+         collection.getByLabel( *m_event, "correctedHybridSuperClusters" );
       }
       catch (...)
       {
@@ -210,50 +209,50 @@ void FWECALDetailViewBuilder::showSuperClusters(Color_t color1, Color_t color2)
       }
    } else {
       try {
-         handle_superclusters.getByLabel(*m_event, "correctedMulti5x5SuperClustersWithPreshower");
-         superclusters = handle_superclusters.ptr();
+         collection.getByLabel( *m_event, "correctedMulti5x5SuperClustersWithPreshower" );
       }
       catch (...)
       {
          std::cout <<"no endcap superclusters are available" << std::endl;
       }
    }
-
-   unsigned int colorIndex = 0;
-   // sort clusters in eta so neighboring clusters have distinct colors
-   reco::SuperClusterCollection sorted = *superclusters;
-   std::sort(sorted.begin(), sorted.end(), superClusterEtaLess);
-   for (size_t i = 0; i < sorted.size(); ++i)
+   if( collection.isValid() )
    {
-      if (!(fabs(sorted[i].eta() - m_eta) < (m_size*0.0172)
-            && fabs(sorted[i].phi() - m_phi) < (m_size*0.0172)) )
-         continue;
+      unsigned int colorIndex = 0;
+      // sort clusters in eta so neighboring clusters have distinct colors
+      reco::SuperClusterCollection sorted = *collection.product();
+      std::sort( sorted.begin(), sorted.end(), superClusterEtaLess );
+      for( size_t i = 0; i < sorted.size(); ++i )
+      {
+	 if( !(fabs(sorted[i].eta() - m_eta) < (m_size*0.0172)
+	       && fabs(sorted[i].phi() - m_phi) < (m_size*0.0172)) )
+	   continue;
 
-      if (colorIndex %2 == 0) showSuperCluster(sorted[i], color1);
-      else showSuperCluster(sorted[i], color2);
-      ++colorIndex;
-
+	 if( colorIndex %2 == 0 )
+	    showSuperCluster( sorted[i], color1 );
+	 else
+	    showSuperCluster( sorted[i], color2 );
+	 ++colorIndex;
+      }
    }
-
 }
 
-void FWECALDetailViewBuilder::fillData(const EcalRecHitCollection *hits,
-                                       TEveCaloDataVec *data)
+void
+FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
+				   TEveCaloDataVec *data )
 {
-
    // loop on all the detids
-   for (EcalRecHitCollection::const_iterator k = hits->begin();
-        k != hits->end(); ++k) {
-
-      const TGeoHMatrix *matrix = m_geom->getMatrix(k->id().rawId());
-      if ( matrix == 0 ) {
+  for( EcalRecHitCollection::const_iterator k = hits->begin(), kEnd = hits->end();
+        k != kEnd; ++k ) {
+      const TGeoHMatrix *matrix = m_geom->getMatrix( k->id().rawId() );
+      if( matrix == 0 ) {
          printf("Warning: cannot get geometry for DetId: %d. Ignored.\n",k->id().rawId());
          continue;
       }
 
-      TVector3 v(matrix->GetTranslation()[0],
-                 matrix->GetTranslation()[1],
-                 matrix->GetTranslation()[2]);
+      TVector3 v( matrix->GetTranslation()[0],
+		  matrix->GetTranslation()[1],
+		  matrix->GetTranslation()[2] );
 
       // set the et
       double size = k->energy()/cosh(v.Eta());
@@ -334,7 +333,6 @@ void FWECALDetailViewBuilder::fillData(const EcalRecHitCollection *hits,
    } // end loop on hits
 
    data->DataChanged();
-
 }
 
 double

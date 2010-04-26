@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.10 2010/04/20 20:49:42 amraktad Exp $
+// $Id: FWElectronProxyBuilder.cc,v 1.11 2010/04/23 21:02:00 amraktad Exp $
 //
 #include "TEveCompound.h"
 #include "TEveTrack.h"
@@ -82,7 +82,7 @@ FWElectronProxyBuilder::requestCommon()
             track = fireworks::prepareCandidate( electron,
                                                  context().getTrackPropagator());
          track->MakeTrack();
-         setupElement(track);
+         setupElement( track );
          m_common->AddElement( track );
       }
    }
@@ -118,7 +118,7 @@ FWElectronProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList
 					  electron.phi(),
 					  *comp );
 
-      setupAddElement(comp, product);
+      setupAddElement( comp, product );
    }
 }
 
