@@ -59,6 +59,9 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
 
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+
 
 #include "TFile.h"
 #include "TObjString.h"
@@ -104,6 +107,7 @@ struct stAPVGain{
    double 	NEntries;
    TH1F*	HCharge;
    TH1F*        HChargeN;
+   bool         isMasked;
 };
 
 class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
@@ -233,6 +237,10 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
    iSetup.get<SiStripGainRcd>().get(gainHandle);
    if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
 
+   edm::ESHandle<SiStripQuality> SiStripQuality_;
+   iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
+
+
    unsigned int Index=0;
    for(unsigned int i=0;i<Det.size();i++){
       DetId  Detid  = Det[i]->geographicalId(); 
@@ -268,6 +276,7 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
                 APV->R             = DetUnit->position().basicVector().transverse();
                 APV->Thickness     = DetUnit->surface().bounds().thickness();
 		APV->NEntries	   = 0;
+                APV->isMasked      = SiStripQuality_->IsApvBad(Detid.rawId(),j);
 
                 APVsCollOrdered.push_back(APV);
 		APVsColl[(APV->DetId<<3) | APV->APVId] = APV;
@@ -435,7 +444,7 @@ SiStripGainFromCalibTree::algoAnalyzeTheTree()
             }
 
          }// END OF ON-CLUSTER LOOP
-      }// END OF EVENT LOOP
+      }printf("\n");// END OF EVENT LOOP
 }
 
 
@@ -495,7 +504,8 @@ SiStripGainFromCalibTree::algoEndJob() {
       Proj = (TH1D*)(Charge_Vs_Index->ProjectionY("",APV->Bin,APV->Bin,"e"));
       if(!Proj)continue;
 
-      if(CalibrationLevel==1){
+      if(CalibrationLevel==0){
+      }else if(CalibrationLevel==1){
          int SecondAPVId = APV->APVId;
          if(SecondAPVId%2==0){    SecondAPVId = SecondAPVId+1; }else{ SecondAPVId = SecondAPVId-1; }
 	 stAPVGain* APV2 = APVsColl[(APV->DetId<<3) | SecondAPVId];
@@ -509,11 +519,12 @@ SiStripGainFromCalibTree::algoEndJob() {
             stAPVGain* APV2 = tmpit->second;
 	    if(APV2->DetId != APV->DetId || APV2->APVId == APV->APVId)continue;            
             TH1D* Proj2 = (TH1D*)(Charge_Vs_Index->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
-            if(Proj2 && APV->DetId==369171124)printf("B) DetId %6i APVId %1i --> NEntries = %f\n",APV2->DetId, APV2->APVId, Proj2->GetEntries());
+//            if(Proj2 && APV->DetId==369171124)printf("B) DetId %6i APVId %1i --> NEntries = %f\n",APV2->DetId, APV2->APVId, Proj2->GetEntries());
             if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
           }          
       }else{
-         printf("Unknown Calibration Level, will assume 0");
+         CalibrationLevel = 0;
+         printf("Unknown Calibration Level, will assume %i\n",CalibrationLevel);
       }
 
       getPeakOfLandau(Proj,FitResults);
@@ -537,7 +548,7 @@ SiStripGainFromCalibTree::algoEndJob() {
 
       //printf("%5i/%5i:  %6i - %1i  %5E Entries --> MPV = %f +- %f\n",I,APVsColl.size(),APV->DetId, APV->APVId, Proj->GetEntries(), FitResults[0], FitResults[1]);fflush(stdout);
       delete Proj;
-   }
+   }printf("\n");
 
    storeOnTree();
 }
@@ -565,6 +576,7 @@ void SiStripGainFromCalibTree::storeOnTree()
    double        tree_Gain;
    double        tree_PrevGain;
    double        tree_NEntries;
+   bool          tree_isMasked;
 
    TTree*         MyTree;
    MyTree = tfs->make<TTree> ("APVGain","APVGain");
@@ -588,7 +600,7 @@ void SiStripGainFromCalibTree::storeOnTree()
    MyTree->Branch("Gain"              ,&tree_Gain       ,"Gain/D");
    MyTree->Branch("PrevGain"          ,&tree_PrevGain   ,"PrevGain/D");
    MyTree->Branch("NEntries"          ,&tree_NEntries   ,"NEntries/D");
-
+   MyTree->Branch("isMasked"          ,&tree_isMasked   ,"isMasked/O");
 
 
    FILE* Gains = fopen(OutputGains.c_str(),"w");
@@ -624,6 +636,7 @@ void SiStripGainFromCalibTree::storeOnTree()
       tree_Gain       = APV->Gain;
       tree_PrevGain   = APV->PreviousGain;
       tree_NEntries   = APV->NEntries;
+      tree_isMasked   = APV->isMasked;
 
       MyTree->Fill();
    }
