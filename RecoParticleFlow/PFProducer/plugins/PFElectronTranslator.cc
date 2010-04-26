@@ -227,7 +227,8 @@ void PFElectronTranslator::createBasicCluster(const reco::PFBlockElement & PFBE,
 					    myPFCluster.position(),
 					    myPFCluster.caloID(),
 					    myPFCluster.hitsAndFractions(),
-					    myPFCluster.algo()));
+					    myPFCluster.algo(),
+					    myPFCluster.seed()));
 }
 
 
