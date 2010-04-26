@@ -148,7 +148,7 @@ class PerfSuite:
            
     Examples:
     
-    cmsPerfSuite.py --step GEN-HLT -t 5 -i 2 -c 1 -m 5 --RunTimeSize MinBias,TTbar --RunIgProf TTbar --RunCallgrind TTbar --RunMemcheck TTbar --RunDigiPileUp TTbar --PUInputFile /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root --cmsdriver="--eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,IDEAL_V9::All"
+    cmsPerfSuite.py --step GEN-HLT -t 5 -i 2 -c 1 -m 5 --RunTimeSize MinBias,TTbar --RunIgProf TTbar --RunCallgrind TTbar --RunMemcheck TTbar --RunDigiPileUp TTbar --PUInputFile /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root --cmsdriver="--conditions FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,IDEAL_V9::All"
     (this will run the suite with 5 events for TimeSize tests on MinBias and TTbar, 2 for IgProf tests on TTbar only, 1 for Callgrind tests on TTbar only, 5 for Memcheck on MinBias and TTbar, it will also run DIGI PILEUP for all TTbar tests defined, i.e. 5 TimeSize, 2 IgProf, 1 Callgrind, 5 Memcheck. The file /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root will be copied locally as INPUT_PILEUP_EVENTS.root and it will be used as the input file for the MixingModule pile up events. All these tests will be done for the step GEN-HLT, i.e. GEN,SIM,DIGI,L1,DIGI2RAW,HLT at once)
     OR
     cmsPerfSuite.py --step GEN-HLT -t 5 -i 2 -c 1 -m 5 --RunTimeSize MinBias,TTbar --RunIgProf TTbar --RunCallgrind TTbar --RunMemcheck TTbar --RunTimeSizePU TTbar --PUInputFile /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root
@@ -1504,50 +1504,39 @@ class PerfSuite:
             if tarball:
                tarballTime=PerfSuiteTimer(start=datetime.datetime.now()) #Create the tarball PerfSuiteTimer
                TimerInfo.update({'tarballTime':{'TotalTime':tarballTime}})
-               # Adding the str(stepOptions to distinguish the tarballs for 1 release
-               # (GEN->DIGI, L1->RECO will be run in parallel)
-               
-               # Cleaning the stepOptions from the --usersteps=:
+               #Adding the str(stepOptions to distinguish the tarballs for 1 release (GEN->DIGI, L1->RECO will be run in parallel)
+               #Cleaning the stepOptions from the --usersteps=:
                if "=" in str(stepOptions):
                   fileStepOption=str(stepOptions).split("=")[1]
                else:
                   fileStepOption=str(stepOptions)
                if fileStepOption=="":
                   fileStepOption="UnknownStep"
-               # Add the working directory used to avoid overwriting castor files (also put a check...)
+               #Add the working directory used to avoid overwriting castor files (also put a check...)
                fileWorkingDir=os.path.basename(perfsuitedir)
-               
-               # Also add the --conditions and --eventcontent options used in the --cmsdriver options since it
-               # is possible that the same tests will be run with different conditions and/or event content:               
-               # Parse it out of --cmsdriver option:
+               #Also add the --conditions and --eventcontent options used in the --cmsdriver options since it is possible that the same tests will be run with different conditions and/or event content:
+               #Parse it out of --cmsdriver option:
                fileEventContentOption="UnknownEventContent"
                fileConditionsOption="UnknownConditions"
                for token in cmsdriverOptions.split("--"):
                   if token!='' and 'cmsdriver' not in token:
                      if "=" in token:
                         fileOption=token.split("=")[0]
-                        fileOptionValue=token.split("=")[1].strip("'").strip('"')
+                        fileOptionValue=token.split("=")[1].strip("'").strip('"').split()[0]
                      else:
                         fileOption=token.split()[0]
-                        fileOptionValue=token.split()[1].strip("'").strip('"')
+                        fileOptionValue=token.split()[1].strip("'").strip('"').split()[0]
                      if "eventcontent" or "conditions" in fileOption:
                         if "eventcontent" in fileOption:
                            fileEventContentOption=fileOptionValue
                         elif "conditions" in fileOption:
-                           # check if we are using the autoCond style of flexible conditions
-                           # if so, expand the condition here so that the file names contain the real conditions
-                           if "auto:" in fileOptionValue: 
-                              from Configuration.PyReleaseValidation.autoCond import autoCond
-                              fileConditionsOption = autoCond[ fileOptionValue.split(':')[1] ]
+                           #FIXME:
+                           #Should put at least the convention in cmsPerfCommons to know how to parse it...
+                           #Potential weak point if the conditions tag convention changes...
+                           if "," in fileOptionValue: #Since 330, conditions don't have FrontierConditions_GlobalTag, in front of them anymore...
+                              fileConditionsOption=fileOptionValue.split("::")[0].split(",")[1] #"Backward" compatibility
                            else:
-                              # "old style" conditions, hardcoded values ...
-                              # FIXME:
-                              # Should put at least the convention in cmsPerfCommons to know how to parse it...
-                              # Potential weak point if the conditions tag convention changes...
-                              if "," in fileOptionValue: #Since 330, conditions don't have FrontierConditions_GlobalTag, in front of them anymore...
-                                 fileConditionsOption=fileOptionValue.split("::")[0].split(",")[1] #"Backward" compatibility
-                              else:
-                                 fileConditionsOption=fileOptionValue.split("::")[0] 
+                              fileConditionsOption=fileOptionValue.split("::")[0] 
                   else: # empty token
                      #print "Print this is the token: %s"%token
                      pass
@@ -1556,46 +1545,60 @@ class PerfSuite:
                #self.printFlush("Eventcontent label to add to the tarball name is %s"%fileEventContentOption)
                      #FIXME:
                      #Could add the allowed event contents in the cmsPerfCommons.py file and use those to match in the command line options... This assumes maintenance of cmsPerfCommons.py
-                  
-               TarFile = "%s_%s_%s_%s_%s_%s_%s_%s.tgz" % (self.cmssw_arch, self.cmssw_version, fileStepOption, fileConditionsOption, fileEventContentOption, fileWorkingDir, self.host, self.user)
-               AbsTarFile = os.path.join(perfsuitedir,TarFile)
-               tarcmd  = "tar -zcf %s %s" %(AbsTarFile,os.path.join(perfsuitedir,"*"))
-               self.printFlush(tarcmd)
-               #FIXME:
-               #Anything that will be logged after the tar command below will not enter the cmsPerfSuite.log in the tarball (by definition)...
-               #To remain backward compatible the harvesting script needs to be based on the command above to identify the tarball location.
-               #Obsolete popen4-> subprocess.Popen
-               #self.printFlush(os.popen3(tarcmd)[2].read()) #Using popen3 to get only stderr we don't want the whole stdout of tar!
-               self.printFlush(subprocess.Popen(tarcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read())
-               #Archive it on CASTOR
-               #Before archiving check if it already exist if it does print a message, but do not overwrite, so do not delete it from local dir:
-               fullcastorpathfile=os.path.join(castordir,TarFile)
-               checkcastor="nsls  %s" % fullcastorpathfile
-               #Obsolete os.popen-> subprocess.Popen                
-               #checkcastorout=os.popen3(checkcastor)[1].read()
-               checkcastorout=subprocess.Popen(checkcastor,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.read()                
-               if checkcastorout.rstrip()==fullcastorpathfile:
-                  castorcmdstderr="File %s is already on CASTOR! Will NOT OVERWRITE!!!"%fullcastorpathfile
-               else:
-                  castorcmd="rfcp %s %s" % (AbsTarFile,fullcastorpathfile)
-                  self.printFlush(castorcmd)
-                  #Obsolete os.popen-> subprocess.Popen
-                  #castorcmdstderr=os.popen3(castorcmd)[2].read()
-                  castorcmdstderr=subprocess.Popen(castorcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read()
-               #Checking the stderr of the rfcp command to copy the tarball (.tgz) on CASTOR:
-               if castorcmdstderr:
-                   #If it failed print the stderr message to the log and tell the user the tarball (.tgz) is kept in the working directory
-                   self.printFlush(castorcmdstderr)
-                   self.printFlush("Since the CASTOR archiving for the tarball failed the file %s is kept in directory %s"%(TarFile, perfsuitedir))
-               else:
-                   #If it was successful then remove the tarball from the working directory:
-                   self.printFlush("Successfully archived the tarball %s in CASTOR!\nDeleting the local copy of the tarball"%(TarFile))
-                   rmtarballcmd="rm -Rf %s"%(AbsTarFile)
-                   self.printFlush(rmtarballcmd)
-                   #Obsolete os.popen-> subprocess.Popen
-                   #self.printFlush(os.popen4(rmtarballcmd)[1].read())
-                   self.printFlush(subprocess.Popen(rmtarballcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.read() )
-               tarballTime.set_end(datetime.datetime.now())
+
+               for i in range(0,2):
+                  if i == 0:
+                     tartype = "tarball"
+                     subprocess.Popen("ls -R | grep .root > RootFiles",shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read()
+                     subprocess.Popen("echo RootFiles >> RootFiles",shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read()               
+                     TarFile = "%s_%s_%s_%s_%s_%s_%s_%s.tgz" % (self.cmssw_arch, self.cmssw_version, fileStepOption, fileConditionsOption, fileEventContentOption, fileWorkingDir, self.host, self.user)
+                     AbsTarFile = os.path.join(perfsuitedir,TarFile)
+                     tarcmd  = "tar zcfX %s %s %s" %(AbsTarFile,"RootFiles", os.path.join(perfsuitedir,"*"))
+                     self.printFlush(tarcmd)
+                  else:
+                     tartype = "rootfiles"
+                     subprocess.Popen("rm %s"%(os.path.join(perfsuitedir,"RootFiles")),shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read()                     
+                     TarFile = "%s_%s_%s_%s_%s_%s_%s_%s_%s.tgz" % (self.cmssw_arch, self.cmssw_version, fileStepOption, fileConditionsOption, fileEventContentOption, fileWorkingDir, self.host, self.user, "Root")
+                     AbsTarFile = os.path.join(perfsuitedir,TarFile)
+                     tarcmd  = "tar zcf %s %s" %(AbsTarFile,os.path.join(perfsuitedir,"*"))
+                     self.printFlush(tarcmd)
+                     
+                  #FIXME:
+                  #Anything that will be logged after the tar command below will not enter the cmsPerfSuite.log in the tarball (by definition)...
+                  #To remain backward compatible the harvesting script needs to be based on the command above to identify the tarball location.
+                  #Obsolete popen4-> subprocess.Popen
+                  #self.printFlush(os.popen3(tarcmd)[2].read()) #Using popen3 to get only stderr we don't want the whole stdout of tar!
+                  self.printFlush(subprocess.Popen(tarcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read())
+                  #Archive it on CASTOR
+                  #Before archiving check if it already exist if it does print a message, but do not overwrite, so do not delete it from local dir:
+                  fullcastorpathfile=os.path.join(castordir,TarFile)
+                  checkcastor="nsls  %s" % fullcastorpathfile
+                  #Obsolete os.popen-> subprocess.Popen                
+                  #checkcastorout=os.popen3(checkcastor)[1].read()
+                  checkcastorout=subprocess.Popen(checkcastor,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.read()                
+                  if checkcastorout.rstrip()==fullcastorpathfile:
+                     castorcmdstderr="File %s is already on CASTOR! Will NOT OVERWRITE!!!"%fullcastorpathfile
+                  else:
+                     castorcmd="rfcp %s %s" % (AbsTarFile,fullcastorpathfile)
+                     self.printFlush(castorcmd)
+                     #Obsolete os.popen-> subprocess.Popen
+                     #castorcmdstderr=os.popen3(castorcmd)[2].read()
+                     castorcmdstderr=subprocess.Popen(castorcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read()
+                  #Checking the stderr of the rfcp command to copy the tarball (.tgz) on CASTOR:
+                  if castorcmdstderr:
+                     #If it failed print the stderr message to the log and tell the user the tarball (.tgz) is kept in the working directory
+                     self.printFlush(castorcmdstderr)
+                     self.printFlush("Since the CASTOR archiving for the tarball failed the file %s is kept in directory %s"%(TarFile, perfsuitedir))
+                  else:
+                     #If it was successful then remove the tarball from the working directory:
+                     self.printFlush("Successfully archived the %s in CASTOR: %s"%(tartype, fullcastorpathfile))
+                     self.printFlush("Deleting the local copy of the %s: %s"%(tartype, TarFile))
+                     rmtarballcmd="rm -Rf %s"%(AbsTarFile)
+                     self.printFlush(rmtarballcmd)
+                     #Obsolete os.popen-> subprocess.Popen
+                     #self.printFlush(os.popen4(rmtarballcmd)[1].read())
+                     self.printFlush(subprocess.Popen(rmtarballcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.read() )
+                  tarballTime.set_end(datetime.datetime.now())
             else:
                self.printFlush("Performance Suite directory will not be archived in a tarball since --no_tarball option was chosen")
 

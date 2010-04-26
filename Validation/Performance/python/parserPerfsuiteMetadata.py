@@ -255,6 +255,7 @@ class parserPerfsuiteMetadata:
 		parsing_rules = (
 			(("", "num_cores", "run_on_cpus"), r"""^This machine \((.+)\) is assumed to have (\d+) cores, and the suite will be run on cpu \[(.+)\]$"""),
 			(("start_time", "host", "local_workdir", "user"), r"""^Performance Suite started running at (.+) on (.+) in directory (.+), run by user (.+)$""", "req"),
+			(("architecture",) ,r"""^Current Architecture is (.+)$"""),
 			(("test_release_based_on",), r"""^Test Release based on: (.+)$""", "req"),
 			(("base_release_path",) , r"""^Base Release in: (.+)$"""),
 			(("test_release_local_path",) , r"""^Your Test release in: (.+)$"""),
@@ -583,12 +584,14 @@ class parserPerfsuiteMetadata:
 
 		parsing_rules = (
 			(("finishing_time", "", ""), r"""^Performance Suite finished running at (.+) on (.+) in directory (.+)$"""),
-			(("successfully_archived_tarball", ), r"""^Successfully archived the tarball (.+) in CASTOR!$"""),
+			(("successfully_archived_tarball", ), r"""^Deleting the local copy of the tarball: (.+)$"""),
 			#TODO: WE MUST HAVE THE CASTOR URL, but for some of files it's not included [probably crashed]
-			(("", "", "castor_file_url"), r"""^rfcp ([^\s]+)(\s+)(.+)$"""),
+			(("castor_file_url", ), r"""^Successfully archived the tarball in CASTOR: (.+)$"""),
+			(("castor_root_url", ), r"""^Successfully archived the rootfiles in CASTOR: (.+)$"""),
+#			(("", "", "castor_file_url"), r"""^rfcp ([^\s]+)(\s+)(.+)$"""),
 		)
 
-		
+	
 		""" we apply the defined parsing rules to extract the required fields of information into the dictionary (as defined in parsing rules) """
 		info = self._applyParsingRules(parsing_rules, self.lines_other)
 
@@ -679,7 +682,7 @@ class parserPerfsuiteMetadata:
 
 
 		if self.missing_fields:
-			self.handleParsingError("========== SOME REQUIRED FIELDS WERE NOT FOUND DURING PARSING ======= "+ str( missing_fields))
+			self.handleParsingError("========== SOME REQUIRED FIELDS WERE NOT FOUND DURING PARSING ======= "+ str(self.missing_fields))
 
 		return result
 		
