@@ -2,7 +2,7 @@
 #include "FastSimulation/CaloGeometryTools/interface/CaloSegment.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer1Properties.h"
-//#include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer2Properties.h"
+#include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer2Properties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
 #include "FastSimulation/CalorimeterProperties/interface/ECALProperties.h"
 
@@ -68,6 +68,15 @@ CaloSegment::CaloSegment(const CaloPoint& in,
 	// From Olga's & Patrick's talk PRS/JetMET 21 Sept 2004 
 	radLenIncm = 22.3;
 	intLenIncm = 140;
+      }
+      break;
+    case PSEEGAP:
+      {
+	// according to Sunanda 0.19 X0 (0.08X0 of polyethylene), support (0.06X0 of aluminium)  + other stuff
+	// in the geometry 12 cm between layer and entrance of EE. Polyethylene is rather 48 and Al 8.9 (PDG)
+	// for the inLen, just rescale according to PDG (85cm)
+	radLenIncm = myCalorimeter->layer2Properties(1)->pseeRadLenIncm();
+	intLenIncm = myCalorimeter->layer2Properties(1)->pseeIntLenIncm();
       }
       break;
     default:
