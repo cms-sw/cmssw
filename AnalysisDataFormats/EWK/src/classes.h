@@ -3,9 +3,6 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "AnalysisDataFormats/EWK/interface/DiLeptonRefBaseCandidate.h"
-#include "AnalysisDataFormats/EWK/interface/LeptonMETRefBaseCandidate.h"
-#include "AnalysisDataFormats/EWK/interface/ZGammaRefBaseCandidate.h"
 #include "AnalysisDataFormats/EWK/interface/WMuNuCandidatePtr.h"
 #include "AnalysisDataFormats/EWK/interface/WMuNuCandidate.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
@@ -54,57 +51,6 @@ namespace {
      edm::RefToBaseVector<reco::WMuNuCandidatePtr> rtbvm2;
      edm::Wrapper<edm::RefToBaseVector<reco::WMuNuCandidatePtr> > rtbvm_w2;
      edm::reftobase::BaseVectorHolder<reco::WMuNuCandidatePtr> *bvhm_p2;
-
-     std::vector<ewk::DiLeptonRefBaseCandidate> v3;
-     edm::Wrapper<std::vector<ewk::DiLeptonRefBaseCandidate> > c3;
-     edm::Ref<std::vector<ewk::DiLeptonRefBaseCandidate> > r3;
-     edm::RefProd<std::vector<ewk::DiLeptonRefBaseCandidate> > rp3;
-     edm::Wrapper<edm::RefVector<std::vector<ewk::DiLeptonRefBaseCandidate> > > wrv3;
-     edm::helpers::Key<edm::RefProd<std::vector<ewk::DiLeptonRefBaseCandidate> > > hkrv3;
-     edm::RefToBase<ewk::DiLeptonRefBaseCandidate> rtbm3;
-     edm::reftobase::IndirectHolder<ewk::DiLeptonRefBaseCandidate> ihm3;
-     edm::RefToBaseProd<ewk::DiLeptonRefBaseCandidate> rtbpm3;
-     edm::RefToBaseVector<ewk::DiLeptonRefBaseCandidate> rtbvm3;
-     edm::Wrapper<edm::RefToBaseVector<ewk::DiLeptonRefBaseCandidate> > rtbvm_w3;
-     edm::reftobase::BaseVectorHolder<ewk::DiLeptonRefBaseCandidate> *bvhm_p3;
-     edm::Ptr<ewk::DiLeptonRefBaseCandidate> p3;
-     edm::Wrapper<edm::Ptr<ewk::DiLeptonRefBaseCandidate> > p_w3;
-     edm::PtrVector<ewk::DiLeptonRefBaseCandidate> pv3;
-     edm::Wrapper<edm::PtrVector<ewk::DiLeptonRefBaseCandidate> > pv_w3;
-
-     std::vector<ewk::LeptonMETRefBaseCandidate> v4;
-     edm::Wrapper<std::vector<ewk::LeptonMETRefBaseCandidate> > c4;
-     edm::Ref<std::vector<ewk::LeptonMETRefBaseCandidate> > r4;
-     edm::RefProd<std::vector<ewk::LeptonMETRefBaseCandidate> > rp4;
-     edm::Wrapper<edm::RefVector<std::vector<ewk::LeptonMETRefBaseCandidate> > > wrv4;
-     edm::helpers::Key<edm::RefProd<std::vector<ewk::LeptonMETRefBaseCandidate> > > hkrv4;
-     edm::RefToBase<ewk::LeptonMETRefBaseCandidate> rtbm4;
-     edm::reftobase::IndirectHolder<ewk::LeptonMETRefBaseCandidate> ihm4;
-     edm::RefToBaseProd<ewk::LeptonMETRefBaseCandidate> rtbpm4;
-     edm::RefToBaseVector<ewk::LeptonMETRefBaseCandidate> rtbvm4;
-     edm::Wrapper<edm::RefToBaseVector<ewk::LeptonMETRefBaseCandidate> > rtbvm_w4;
-     edm::reftobase::BaseVectorHolder<ewk::LeptonMETRefBaseCandidate> *bvhm_p4;
-     edm::Ptr<ewk::LeptonMETRefBaseCandidate> p4;
-     edm::Wrapper<edm::Ptr<ewk::LeptonMETRefBaseCandidate> > p_w4;
-     edm::PtrVector<ewk::LeptonMETRefBaseCandidate> pv4;
-     edm::Wrapper<edm::PtrVector<ewk::LeptonMETRefBaseCandidate> > pv_w4;
-
-     std::vector<ewk::ZGammaRefBaseCandidate> v5;
-     edm::Wrapper<std::vector<ewk::ZGammaRefBaseCandidate> > c5;
-     edm::Ref<std::vector<ewk::ZGammaRefBaseCandidate> > r5;
-     edm::RefProd<std::vector<ewk::ZGammaRefBaseCandidate> > rp5;
-     edm::Wrapper<edm::RefVector<std::vector<ewk::ZGammaRefBaseCandidate> > > wrv5;
-     edm::helpers::Key<edm::RefProd<std::vector<ewk::ZGammaRefBaseCandidate> > > hkrv5;
-     edm::RefToBase<ewk::ZGammaRefBaseCandidate> rtbm5;
-     edm::reftobase::IndirectHolder<ewk::ZGammaRefBaseCandidate> ihm5;
-     edm::RefToBaseProd<ewk::ZGammaRefBaseCandidate> rtbpm5;
-     edm::RefToBaseVector<ewk::ZGammaRefBaseCandidate> rtbvm5;
-     edm::Wrapper<edm::RefToBaseVector<ewk::ZGammaRefBaseCandidate> > rtbvm_w5;
-     edm::reftobase::BaseVectorHolder<ewk::ZGammaRefBaseCandidate> *bvhm_p5;
-     edm::Ptr<ewk::ZGammaRefBaseCandidate> p6;
-     edm::Wrapper<edm::Ptr<ewk::ZGammaRefBaseCandidate> > p_w6;
-     edm::PtrVector<ewk::ZGammaRefBaseCandidate> pv6;
-     edm::Wrapper<edm::PtrVector<ewk::ZGammaRefBaseCandidate> > pv_w6;
 
      edm::Ptr<pat::Muon> p_m7;
      edm::RefToBaseVector<pat::Muon> rtbv_m_7;
