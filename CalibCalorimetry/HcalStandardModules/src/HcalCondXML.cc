@@ -75,7 +75,7 @@ namespace {
     fOutput << "   <ETA>" << abs (converter.getField (1)) << "</ETA>"<< std::endl;
     fOutput << "   <PHI>" << converter.getField (2) << "</PHI> "<< std::endl;
     fOutput << "   <DEPTH>" << converter.getField (3) << "</DEPTH> "<< std::endl;
-    fOutput << "   <Z>" << (converter.getField (1) > 0 > 0 ? "1" : "-1") << "</Z> "<< std::endl;
+    fOutput << "   <Z>" << (converter.getField (1) > 0 ? "1" : "-1") << "</Z> "<< std::endl;
     fOutput << "   <DETECTOR_NAME>" << converter.getFlavor () << "</DETECTOR_NAME> "<< std::endl;
     fOutput << "   <HCAL_CHANNEL_ID>" << converter.getId().rawId () << "</HCAL_CHANNEL_ID> "<< std::endl;
     fOutput << "</CHANNEL>"<< std::endl;
