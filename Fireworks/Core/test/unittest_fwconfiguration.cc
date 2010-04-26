@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_fwconfiguration.cc,v 1.3 2008/03/14 03:23:39 chrjones Exp $
+// $Id: unittest_fwconfiguration.cc,v 1.1 2009/03/05 22:01:53 chrjones Exp $
 //
 
 // system include files
@@ -93,11 +93,8 @@ BOOST_AUTO_TEST_CASE( fwconfiguration )
    BOOST_CHECK(found->value()==kValue);
    BOOST_CHECK_THROW(config.valueForKey("blah"), std::runtime_error);
    
-   std::cout <<topConfig<<std::endl;
+   streamTo(std::cout, topConfig, "top");
 
-   std::cout <<std::endl;
-   addToCode("a","top",topConfig,std::cout) << std::cout;
-   
    //Test manager
    std::auto_ptr<Conf> pConf(new Conf() );
    
