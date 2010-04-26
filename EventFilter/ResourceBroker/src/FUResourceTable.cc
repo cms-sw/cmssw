@@ -8,6 +8,8 @@
 
 
 #include "EventFilter/ResourceBroker/interface/FUResourceTable.h"
+#include "FWCore/Utilities/interface/CRC16.h"
+#include "EvffedFillerRB.h"
 
 #include "toolbox/task/WorkLoopFactory.h"
 #include "interface/evb/i2oEVBMsgs.h"
@@ -39,7 +41,8 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
 				 BUProxy          *bu,
 				 SMProxy          *sm,
 				 log4cplus::Logger logger,
-				 unsigned int      timeout)
+				 unsigned int      timeout,
+				 EvffedFillerRB   *frb)
   throw (evf::Exception)
   : bu_(bu)
   , sm_(sm)
@@ -64,6 +67,7 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
   , isHalting_(false)
   , runNumber_(0xffffffff)
   , lock_(toolbox::BSem::FULL)
+  , frb_(frb)
 {
   initialize(segmentationMode,
 	     nbRawCells,nbRecoCells,nbDqmCells,
@@ -109,7 +113,7 @@ void FUResourceTable::initialize(bool   segmentationMode,
   }
   
   for (UInt_t i=0;i<nbRawCells_;i++) {
-    resources_.push_back(new FUResource(i,log_));
+    resources_.push_back(new FUResource(i,log_,frb_));
     freeResourceIds_.push(i);
   }
 
@@ -444,6 +448,13 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
   if (!resource->fatalError()&&!resource->isAllocated()) {
     FUShmRawCell* cell=shmBuffer_->rawCellToWrite();
     resource->allocate(cell);
+    timeval now;
+    gettimeofday(&now,0);
+
+    frb_->setRBTimeStamp(((uint64_t)(now.tv_sec) << 32) + (uint64_t)(now.tv_usec));
+
+    frb_->setRBEventCount(nbCompleted_);
+
     if (doCrcCheck_>0&&0==nbAllocated_%doCrcCheck_)  resource->doCrcCheck(true);
     else                                             resource->doCrcCheck(false);
   }

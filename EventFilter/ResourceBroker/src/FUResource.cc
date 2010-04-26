@@ -12,6 +12,8 @@
 #include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
+#include "EvffedFillerRB.h"
+
 #include "interface/shared/frl_header.h"
 #include "interface/shared/fed_header.h"
 #include "interface/shared/fed_trailer.h"
@@ -52,14 +54,18 @@ unsigned int FUResource::gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FUResource::FUResource(UInt_t fuResourceId,log4cplus::Logger logger)
+FUResource::FUResource(UInt_t fuResourceId,log4cplus::Logger logger, EvffedFillerRB *frb)
   : log_(logger)
   , fuResourceId_(fuResourceId)
   , superFragHead_(0)
   , superFragTail_(0)
   , nbBytes_(0)
   , superFragSize_(0)
+  , frb_(frb)
 {
+  std::cout << "FUResource " << fuResourceId << " Created with FRB pointing to " 
+	    << (unsigned int) frb_ << " frb payload is " << (unsigned int) frb_->getPayload() 
+	    << std::endl;
   release();
 }
 
@@ -155,7 +161,34 @@ void FUResource::process(MemRef_t* bufRef)
     
     itBufRef=next;
   }
-  
+  if(isComplete()){
+    frb_->putHeader(evtNumber_,0);
+    frb_->putTrailer();
+    fedSize_[frb_->fedId()]=frb_->size();  
+    UChar_t *startPos = shmCell_->writeData(frb_->getPayload(),frb_->size());
+    superFragSize_=frb_->size();
+    if (!shmCell_->markSuperFrag(iSuperFrag_,superFragSize_,startPos)) {
+      nbErrors_++;
+      stringstream oss;
+      oss<<"Failed to mark super fragment in shared mem buffer."
+	 <<" fuResourceId:"<<fuResourceId_
+	 <<" evtNumber:"<<evtNumber_
+	 <<" iSuperFrag:"<<iSuperFrag_;
+      XCEPT_RAISE(evf::Exception,oss.str());
+    }
+    
+    if (!shmCell_->markFed(frb_->fedId(),frb_->size(),startPos)) {
+      nbErrors_++;
+      stringstream oss;
+      oss<<"Failed to mark fed in buffer."
+	 <<" evtNumber:"<<evtNumber_
+	 <<" fedId:"<<frb_->fedId()
+	 <<" fedSize:"<<frb_->size()
+	 <<" fedAddr:0x"<<hex<<(unsigned long)frb_->getPayload()<<dec;
+      XCEPT_RAISE(evf::Exception,oss.str());
+    }
+
+  }
   return;
 }
 

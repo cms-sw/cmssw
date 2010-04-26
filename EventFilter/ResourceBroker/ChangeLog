@@ -1,3 +1,9 @@
+2010-04-26  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-00
+	* addition and filling of EvF pseudo-fed 
+	* small change in rt timeout logic to try and fix timeouts
+
 2010-04-06  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-14-01
