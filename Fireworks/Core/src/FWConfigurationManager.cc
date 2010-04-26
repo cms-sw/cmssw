@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:32 EST 2008
-// $Id: FWConfigurationManager.cc,v 1.9 2010/03/14 18:37:56 amraktad Exp $
+// $Id: FWConfigurationManager.cc,v 1.10 2010/04/23 08:57:29 eulisse Exp $
 //
 
 // system include files
@@ -204,7 +204,7 @@ class FWXMLConfigParser : public SimpleSAXParser
         IN_PUSHED_CONFIG,
         IN_POPPED_CONFIG,
         IN_BEGIN_STRING,
-        IN_STORED_STRING,
+        IN_STORED_STRING
       };
 
 public:

@@ -390,7 +390,7 @@ SimpleSAXParser::parse(void)
    }
 }
 
-SimpleSAXParser::~SimpleSAXParser() {};
+SimpleSAXParser::~SimpleSAXParser() {}
 
 /** Helper function which gets a token delimited by @a separator from the 
     @a file and write it, 0 terminated in the buffer found in @a buffer.
