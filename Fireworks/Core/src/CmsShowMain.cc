@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.153 2010/04/08 19:45:25 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.154 2010/04/21 11:10:07 amraktad Exp $
 //
 
 // system include files
@@ -740,8 +740,10 @@ CmsShowMain::setupConfiguration()
    } else {
       char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
       if(0==whereConfig) {
-         std::cerr <<"unable to load configuration file '"<<m_configFileName<<"' will load default instead"<<std::endl;
-         m_configFileName = "default.fwc";
+         std::cerr <<"unable to load configuration file '"<<m_configFileName<<"' will load default instead."<<std::endl;
+         whereConfig = gSystem->Which(TROOT::GetMacroPath(), "default.fwc", kReadPermission);
+         assert(whereConfig && "Default configuration cannot be found. Malformed Fireworks installation?");
+         m_configFileName = whereConfig;
       }
 
       delete [] whereConfig;
