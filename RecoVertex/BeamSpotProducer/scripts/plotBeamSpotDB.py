@@ -27,12 +27,12 @@
    -g, --graph : create a TGraphError instead of a TH1 object
    -n, --noplot : Only extract beam spot data, plots are not created..
    -o, --output  = OUTPUT: filename of ROOT file with plots.
-   -p, --payload = PAYLOAD: filename of text file. this output file can be used to create DB payloads.
+   -p, --payload = PAYLOAD: filename of output text file. Combine and splits lumi IOVs.
    -P, --Print : create PNG plots from canvas.
    -t, --tag     = TAG: Database tag name.
    -I, --IOVbase = IOVBASE: options: runbase(default), lumibase, timebase
    -w, --wait : Pause script after plotting a new histograms.
-   -W, --weighted : Create a weighted result for the whole IOV.
+   -W, --weighted : Create a weighted result for a range of lumi IOVs, skip lumi IOV combination and splitting.
    
    Francisco Yumiceva (yumiceva@fnal.gov)
    Fermilab 2010
@@ -749,7 +749,7 @@ if __name__ == '__main__':
 		    #print "weighted average x = "+tmpbeam.X +" +//- "+tmpbeam.Xerr
 		    print "close payload because of movement in X= "+str(deltaX)+", Y= "+str(deltaY) + ", Z= "+str(deltaZ)+", sigmaZ= "+str(deltasigmaZ)+", dxdz= "+str(deltadxdz)+", dydz= "+str(deltadydz)+", widthX= "+str(deltawidthX)+", widthY= "+str(deltawidthY)
 	    if docreate:
-		tmpbeam.IOVlast = ibeam.IOVfirst
+		tmpbeam.IOVlast = ibeam.IOVlast
 		tmpbeam.IOVEndTime = ibeam.IOVEndTime
 		print "  Run: "+tmpbeam.Run +" Lumi1: "+str(tmpbeam.IOVfirst) + " Lumi2: "+str(tmpbeam.IOVlast)
 		newlistbeam.append(tmpbeam)
