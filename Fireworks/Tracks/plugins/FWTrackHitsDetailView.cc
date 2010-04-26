@@ -118,10 +118,10 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
    trk->MakeTrack();
    trk->SetLineWidth(2);
    prop->SetRnrDaughters(kTRUE);
-   prop->SetRnrDecay(kTRUE);
    prop->SetRnrReferences(kTRUE);
    prop->SetRnrDecay(kTRUE);
    prop->SetRnrFV(kTRUE);
+   trk->SetMainColor(id.item()->defaultDisplayProperties().color());
    m_eveScene->AddElement(trk);
 
 
