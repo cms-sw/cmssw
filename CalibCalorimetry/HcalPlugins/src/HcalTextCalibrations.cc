@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.16 2009/10/23 18:53:53 andersj Exp $
+// $Id: HcalTextCalibrations.cc,v 1.17 2010/02/22 20:51:12 kukartse Exp $
 //
 //
 
@@ -102,12 +102,20 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceDcsMap);
       findingRecord <HcalDcsMapRcd> ();
     }
+    else if (objectName == "CholeskyMatrices") {
+      setWhatProduced (this, &HcalTextCalibrations::produceCholeskyMatrices);
+      findingRecord <HcalCholeskyMatricesRcd> ();
+    }
+    else if (objectName == "CovarianceMatrices") {
+      setWhatProduced (this, &HcalTextCalibrations::produceCovarianceMatrices);
+      findingRecord <HcalCovarianceMatricesRcd> ();
+    }
     else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
 		<< "ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
-		<< "ValidationCorrs LutMetadata DcsValues DcsMap "
+		<< "ValidationCorrs LutMetadata DcsValues DcsMap CholeskyMatrices CovarianceMatrices"
 		<< std::endl;
     }
   }
@@ -215,3 +223,12 @@ std::auto_ptr<HcalDcsValues>
 std::auto_ptr<HcalDcsMap> HcalTextCalibrations::produceDcsMap (const HcalDcsMapRcd& rcd) {
   return produce_impl<HcalDcsMap> (mInputs ["DcsMap"]);
 }
+
+std::auto_ptr<HcalCovarianceMatrices> HcalTextCalibrations::produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rcd) {
+  return produce_impl<HcalCovarianceMatrices> (mInputs ["CovarianceMatrices"]);
+}
+
+std::auto_ptr<HcalCholeskyMatrices> HcalTextCalibrations::produceCholeskyMatrices (const HcalCholeskyMatricesRcd& rcd) {
+  return produce_impl<HcalCholeskyMatrices> (mInputs ["CholeskyMatrices"]);
+}
+
