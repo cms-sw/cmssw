@@ -61,8 +61,8 @@ process.OUTPUT = cms.OutputModule("PoolOutputModule",
 #         "keep *_*_*_HLT2" 
 #       ),
 #SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p1')),
-     fileName = cms.untracked.string('file:/tmp/fruboes/Zmumu/st3_mixedPFCollection.root')
-#    fileName = cms.untracked.string('st3_mixedPFCollection.root')
+#     fileName = cms.untracked.string('file:/tmp/fruboes/Zmumu/st3_mixedPFCollection.root')
+    fileName = cms.untracked.string('st3_mixedPFCollection.root')
 )
 
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id: ZmumuPFEmbedder.cc,v 1.2 2010/04/13 11:18:57 fruboes Exp $
+// $Id: ZmumuPFEmbedder.cc,v 1.3 2010/04/22 15:01:19 fruboes Exp $
 //
 //
 
@@ -56,9 +56,8 @@ class ZmumuPFEmbedder : public edm::EDProducer {
       void produceTrackColl(edm::Event&, const std::vector< reco::Muon > * toBeAdded );
       virtual void endJob() ;
       
-      double _etaMax;
-      double _ptMin;
       edm::InputTag _tracks;
+      edm::InputTag _selectedMuons;
       
       // ----------member data ---------------------------
 };
@@ -76,27 +75,17 @@ class ZmumuPFEmbedder : public edm::EDProducer {
 // constructors and destructor
 //
 ZmumuPFEmbedder::ZmumuPFEmbedder(const edm::ParameterSet& iConfig)
-  : _etaMax(iConfig.getUntrackedParameter<double>("etaMax")),
-    _ptMin(iConfig.getUntrackedParameter<double>("ptMin")),
-    _tracks(iConfig.getParameter<edm::InputTag>("tracks"))
+  : _tracks(iConfig.getParameter<edm::InputTag>("tracks")),
+    _selectedMuons(iConfig.getParameter<edm::InputTag>("selectedMuons"))
 {
 
    //register your products
    // produces< std::vector< reco::Muon >  >("zMusExtracted"); // 
-   produces< std::vector< reco::PFCandidate >  >("forMixing"); // 
    produces<reco::TrackCollection>();
+   produces< std::vector< reco::PFCandidate >  >("forMixing");
 
    
- //  produces< edm::RefToBaseVector< reco::Candidate >  >(); // 
-  // Yp    produces< std::vector< reco::RecoCandidate >  >();
-  //  produces< std::vector< reco::CompositeRefCandidate >  >();
-
-   //if do put with a label
-   //produces<ExampleData2>("label");
-   //now do what ever other initialization is needed
-  
 }
-
 
 ZmumuPFEmbedder::~ZmumuPFEmbedder()
 {
@@ -127,7 +116,7 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    //get selected muons
    Handle< std::vector< reco::Muon > > selectedZMuonsHandle;
-   iEvent.getByLabel("TODO", selectedZMuonsHandle);
+   iEvent.getByLabel(_selectedMuons, selectedZMuonsHandle);
    const std::vector< reco::Muon > * toBeAdded = selectedZMuonsHandle.product();
    //std::vector< reco::Muon > toBeAdded;
    // TODO - check col size
@@ -152,37 +141,8 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
 
-   /*
-   Handle<reco::VertexCollection> primaryVertices;
-   iEvent.getByLabel("offlinePrimaryVertices", primaryVertices);
-   const reco::Vertex vtx = *(primaryVertices->begin());*/
-  
-   //   std::vector< reco::PFCandidate >::iterator itTBA = toBeAdded.begin();
-  
-   /*
-   std::cout << "__________________-" << std::endl; 
-   std::cout << vtx.x() 
-             << " " << vtx.y()  
-             << " " << vtx.z()  
-             << std::endl; */
-   /*
-   reco::Vertex::Point p = vtx.position();
-
-   for (; itTBA != toBeAdded.end(); ++itTBA) {
-
-       //reco::Muon mu(itTBA->charge(), itTBA->p4(), p);
-       reco::Muon mu(itTBA->charge(), itTBA->p4(), itTBA->vertex());
-       pOut->push_back(mu); //xxx
-
-       reco::Vertex::Point p1 = itTBA->vertex();
-       std::cout << p1.x() 
-             << " " << p1.y()  
-             << " " << p1.z()  
-             << std::endl; 
-   }*/
 
    produceTrackColl(iEvent, toBeAdded);
-   //iEvent.put(pOut, "zMusExtracted");
    iEvent.put(forMix, "forMixing");
 
 
@@ -208,9 +168,11 @@ void ZmumuPFEmbedder::produceTrackColl(edm::Event & iEvent, const std::vector< r
                                                             itTBA != toBeAdded->end();
                                                             ++itTBA)
      {
-       //const reco::MuonRef& muonRef = itTBA->muonRef();
-       //( muonRef.isNonnull() );
        reco::TrackRef track = itTBA->innerTrack();
+       /*
+       if (!track.isNonnull()) {
+         continue;
+       }*/
        double dr = reco::deltaR( *it, *track);
        //std::cout << "TTTT " << dr << std::endl;
        if (dr < epsilon) {
