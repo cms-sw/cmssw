@@ -21,11 +21,11 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(3)
+    input = cms.untracked.int32(10)
 )
 
 process.load("Configuration.Generator.MinBias_cfi")
-process.prod = cms.EDAnalyzer("SimHitCaloHitDumper")
+process.prod = cms.EDFilter("SimHitCaloHitDumper")
 
 process.g4SimHits.StackingAction.NeutronThreshold = 0.
 process.g4SimHits.StackingAction.MaxTrackTime = 1e9
@@ -46,10 +46,12 @@ process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('cscNeutronWriter.root')
 )
 
+process.RandomNumberGeneratorService.cscNeutronWriter = cms.PSet(initialSeed = cms.untracked.uint32(112358))
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'STARTUP_31X::All'
+process.GlobalTag.globaltag = 'MC_3XY_V26::All'
+process.source = cms.Source("EmptySource")
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.generator*process.pgen)
