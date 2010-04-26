@@ -445,7 +445,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   // JH
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2DoubleMu0") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHlt1MuonPassed(0.,0.,-1.,9999.,0)>=2) {  
+      if(OpenHlt1L2MuonPassed(0.,0.,9999.)>=2) {  
 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }  
       }  
     }  
