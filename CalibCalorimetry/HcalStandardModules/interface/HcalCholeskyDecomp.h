@@ -18,6 +18,9 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
+#include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEData.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
