@@ -120,8 +120,6 @@ JetExpandingModule::expandClusters(const edm::Handle<l1slhc::L1CaloJetCollection
 	    if(isValid(binOrigin))
 	      {
 		L1CaloJet origin = *(objectAt(binOrigin));
-		printf("Before Expanding %d \n",origin.E());
-		
 		if(origin.central()) 
 		  {
       
@@ -132,8 +130,8 @@ JetExpandingModule::expandClusters(const edm::Handle<l1slhc::L1CaloJetCollection
 			for(unsigned int i=0;i<sums.size();++i)
 			  origin.addConstituent(sums.at(i));
 		      }
-		    printf("After Expanding %d \n",origin.E());
-		    
+		    //change the ET!
+		    origin.setP4(math::PtEtaPhiMLorentzVector(((double)origin.E())/2.,origin.p4().eta(),origin.p4().phi(),0.0));
 		    cleanClusters.push_back(origin);
 		  }
 	      }
