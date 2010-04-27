@@ -21,6 +21,9 @@
 <use   name="HLTrigger/HLTcore"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="DQM/HLTEvF"/>
+<use   name="RecoJets/JetAssociationAlgorithms"/>
+<use   name="RecoJets/JetAlgorithms"/>
+
 <use   name="root"/>
 <use   name="boost"/>
 <flags   EDM_PLUGIN="1"/>
