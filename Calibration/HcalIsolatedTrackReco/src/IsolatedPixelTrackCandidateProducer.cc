@@ -8,6 +8,7 @@
 // Framework
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 //
@@ -76,7 +77,7 @@ void IsolatedPixelTrackCandidateProducer::beginJob () {}
 void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
 
   //get ECAL constants:
-  edm::ESHandle<DDCompactView> pDD;
+  edm::ESTransientHandle<DDCompactView> pDD;
   theEventSetup.get<IdealGeometryRecord>().get(pDD);
   getEcalConstants(&(*pDD));
 
