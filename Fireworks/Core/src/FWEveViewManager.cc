@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.13 2010/04/20 20:49:41 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.14 2010/04/21 19:24:58 amraktad Exp $
 //
 
 // system include files
@@ -174,7 +174,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
                {
                   il = inter_it->second;
                }
-               // printf(">>> builder %p gas list %p \n", builder, il); fflush(stdout);
+               printf(">>> builder %s add list %p \n", iItem->name().c_str(), il); fflush(stdout);
                builder->setInteractionList(il, iItem->purpose());
             }
 
@@ -283,7 +283,7 @@ FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
 {
    view->setContext(context());
 
-   //  printf("new view %s added \n", view->typeName().c_str());
+   // printf("new view %s added \n", view->typeName().c_str());
    int typeId = view->typeId();
    int viewerBit = 1 << typeId;
    
@@ -378,6 +378,7 @@ FWEveViewManager::modelChanges(const FWModelIds& iIds)
 
    // in standard case new elements can be build in case of change of visibility
    // and in non-standard case (e.g. calo towers) PB's modelChages handles all changes
+   bool itemHaveWindow = false;
    for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
    {
       for(BuilderVec_it bIt = i->second.begin(); bIt != i->second.end(); ++bIt)
@@ -385,14 +386,18 @@ FWEveViewManager::modelChanges(const FWModelIds& iIds)
          if ((*bIt)->getHaveWindow() && (*bIt)->item() == item)
          {
             (*bIt)->modelChanges(iIds);
+            if ((*bIt)->getHaveWindow()) itemHaveWindow = true;
          }
       }
    }
 
-   std::map<const FWEventItem*, FWInteractionList*>::iterator it =  m_interactionLists.find(item);
-   if (it != m_interactionLists.end())
+   if (itemHaveWindow)
    {
-      it->second->modelChanges(iIds);
+      std::map<const FWEventItem*, FWInteractionList*>::iterator it =  m_interactionLists.find(item);
+      if (it != m_interactionLists.end())
+      {
+         it->second->modelChanges(iIds);
+      }
    }
 }
 
@@ -401,20 +406,27 @@ FWEveViewManager::itemChanged(const FWEventItem* item)
 { 
    if (item)
    {
+      bool itemHaveWindow = false;
       for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
       {
          for(BuilderVec_it bIt = i->second.begin(); bIt != i->second.end(); ++bIt)
          {
             if ((*bIt)->item() == item)
             {
+          
                (*bIt)->itemChanged(item);
+               if ((*bIt)->getHaveWindow()) itemHaveWindow = true;
             }
          }
       }
-      std::map<const FWEventItem*, FWInteractionList*>::iterator it =  m_interactionLists.find(item);
-      if (it != m_interactionLists.end())
+
+      if (itemHaveWindow)
       {
-         it->second->itemChanged();
+         std::map<const FWEventItem*, FWInteractionList*>::iterator it =  m_interactionLists.find(item);
+         if (it != m_interactionLists.end())
+         {
+            it->second->itemChanged();
+         }
       }
    }
 }
