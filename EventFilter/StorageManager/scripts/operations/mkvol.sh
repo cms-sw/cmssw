@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: mkvol.sh,v 1.7 2008/08/28 08:57:51 gbauer Exp $
+# $Id: mkvol.sh,v 1.8 2008/09/05 09:45:11 gbauer Exp $
 
 ## *** added security feature: 5th argument MUST BE 'makefilesys' 
 ## or else file system will NOT be made ***
@@ -80,15 +80,19 @@ if test "$nofs" = "makefilesys"; then
 fi
 
 
-mkdir -p $mpoint && /bin/mount -L $mlabel $mpoint
-if test "$?" != "0"; then
-    echo "Error: Problem mounting disk, please check status!!!"
-    exit 4;
+if ! /bin/mount -L $mlabel $mpoint; then
+    echo "Error: Problem mounting disk by label, trying by mountpoint..."
+    if ! /bin/mount $dpath $mpoint; then
+        echo "Error: Problem mounting disk, please check status!!!"
+        exit 4;
+    else
+        echo "Mounting directly $mpoint from $dpath succeeded."
+    fi
 fi
 
 cd $mpoint
 for i in efed gcd; do
-    for j in open closed; do
+    for j in open closed log; do
 echo "mkdir -p $i/$j"
 	mkdir -p $i/$j
 	chmod 777 $i/$j;

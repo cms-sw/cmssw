@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.50 2010/02/16 18:30:59 babar Exp $
+# $Id: setup_sm.sh,v 1.51 2010/03/08 14:40:15 gbauer Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
@@ -122,6 +122,10 @@ startcopyworker () {
     local local_file="/opt/copyworker/TransferSystem_Cessy.cfg"
     local reference_file="/nfshome0/smpro/configuration/TransferSystem_Cessy.cfg"
 
+    mkdir -p /store/copyworker
+    chmod 755 /store/copyworker
+    chown 5410:0 /store/copyworker
+
     if test -r "$reference_file"; then
         local local_time=`stat -t $local_file 2>/dev/null | cut -f13 -d' '`
         local reference_time=`stat -t $reference_file 2>/dev/null | cut -f13 -d' '`
@@ -146,6 +150,10 @@ startinjectworker () {
     checkSLCversion
     local local_file="/opt/injectworker/.db.conf"
     local reference_file="/nfshome0/smpro/configuration/db.conf"
+
+    mkdir -p /store/injectworker
+    chmod 755 /store/injectworker
+    chown 40491:0 /store/injectworker 
 
     if test -f "$reference_file"; then
         if test -s "$local_file"; then
@@ -190,6 +198,10 @@ startcopymanager () {
         echo "This host is not configured to be THE CopyManager: $hname != $cmhost"
         return
     fi
+
+    mkdir -p /store/copymanager
+    chmod 755 /store/copymanager
+    chown 5410:0 /store/copymanager
 
     if test -r "$reference_file"; then
         local local_time=`stat -t $local_file 2>/dev/null | cut -f13 -d' '`
