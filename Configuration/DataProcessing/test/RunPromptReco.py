@@ -76,6 +76,8 @@ class RunPromptReco:
 
         process.source.fileNames.append(self.inputLFN)
 
+        import FWCore.ParameterSet.Config as cms
+
         process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
         psetFile = open("RunPromptRecoCfg.py", "w")
