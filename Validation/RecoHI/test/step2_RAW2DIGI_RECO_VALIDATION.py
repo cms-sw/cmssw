@@ -17,7 +17,7 @@ process.load('Configuration.StandardSequences.GeometryExtended_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
-process.load('Validation.RecoHI.ValidationHeavyIons_cff')
+process.load('Configuration.StandardSequences.ValidationHeavyIons_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContentHeavyIons_cff')
@@ -25,7 +25,7 @@ process.load('Configuration.EventContent.EventContentHeavyIons_cff')
 process.Timing = cms.Service("Timing")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('step2 nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
