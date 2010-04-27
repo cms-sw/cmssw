@@ -68,11 +68,11 @@
 
  <class name="HcalCholeskyMatrix"/>
  <class name="std::vector<HcalCholeskyMatrix>"/>
- <class name="HcalCholeskyMatrices"/>
+ <class name="HcalCholeskyMatrices" class_version="0"/>
 
  <class name="HcalCovarianceMatrix"/>
  <class name="std::vector<HcalCovarianceMatrix>"/>
- <class name="HcalCovarianceMatrices"/>
+ <class name="HcalCovarianceMatrices" class_version="0"/>
 
  <class name="HcalLutMetadatum"/>
  <class name="std::vector<HcalLutMetadatum>"/>
