@@ -23,7 +23,7 @@
    -z, --zlarge : Enlarge sigmaZ to 10 +/- 0.005 cm.
    
    Francisco Yumiceva (yumiceva@fnal.gov)
-   Lorezo Uplegger    (send an email to Francisco)
+   Lorenzo Uplegger   (send an email to Francisco)
    Fermilab 2010
    
 """
@@ -37,6 +37,7 @@ import optparse
 
 USAGE = re.compile(r'(?s)\s*usage: (.*?)(\n[ \t]*\n|$)')
 
+########################################################################
 def nonzero(self): # will become the nonzero method of optparse.Values
     "True if options were given"
     for v in self.__dict__.itervalues():
@@ -48,9 +49,11 @@ optparse.Values.__nonzero__ = nonzero # dynamically fix optparse.Values
 class ParsingError(Exception): pass
 
 
+########################################################################
 def exit(msg=""):
     raise SystemExit(msg or optionstring.replace("%prog",sys.argv[0]))
 
+########################################################################
 def parse(docstring, arglist=None):
     global optionstring
     global tagType
@@ -84,6 +87,7 @@ def pack(high,low):
     h=high<<32
     return (h|low)
 
+########################################################################
 def unpack(i):
     """unpack 64bit unsigned long long into 2 32bit unsigned int, return tuple (high,low)
     """
@@ -91,6 +95,7 @@ def unpack(i):
     low=i&0xFFFFFFFF
     return(high,low)
 
+########################################################################
 def unpackLumiid(i):
     """unpack 64bit lumiid to dictionary {'run','lumisection'}
     """
@@ -100,7 +105,6 @@ def unpackLumiid(i):
 #####################################################################################
 # General functions
 #####################################################################################
-
 def getLastUploadedIOV(tagName):
     listIOVCommand = "cmscond_list_iov -c oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSPOT -P /afs/cern.ch/cms/DB/conddb -t " + tagName 
     aCommand       = listIOVCommand + " | grep DB= | tail -1 | awk \'{print $1}\'"
@@ -112,6 +116,7 @@ def getLastUploadedIOV(tagName):
     #WARNING when we pass to lumi IOV this should be long long
     return long(output[1])
 
+########################################################################
 def getListOfFilesToProcess(dataSet,lastRun=-1):
     queryCommand = "dbs --search --query \"find file where dataset=" + dataSet
     if lastRun != -1:
@@ -121,6 +126,7 @@ def getListOfFilesToProcess(dataSet,lastRun=-1):
     output = commands.getstatusoutput( queryCommand )
     return output[1].split('\n')
 
+########################################################################
 def getLastClosedRun(DBSListOfFiles):
     runs = []
     for file in DBSListOfFiles:
@@ -134,13 +140,15 @@ def getLastClosedRun(DBSListOfFiles):
         runs.sort()
         return long(runs[len(runs)-2])
     
+########################################################################
 def ls(dir):
     lsCommand      = ''
     listOfFiles    = []
     if dir.find('castor') != -1:
     	lsCommand = 'ns'
     elif not os.path.exists(dir):
-        exit("ERROR: File or directory " + dir + " doesn't exist") 
+        print "ERROR: File or directory " + dir + " doesn't exist"
+        return listOfFiles
 
     aCommand  = lsCommand  + 'ls '+ dir + " | grep .txt"
 
@@ -152,19 +160,30 @@ def ls(dir):
 
     return listOfFiles            
 
+########################################################################
+def dirExists(dir):
+    if dir.find("castor") != -1:
+    	lsCommand = "nsls " + dir
+        output = commands.getstatusoutput( lsCommand )
+        return not output[0]
+    else:
+        return os.path.exists(dir)
+
+########################################################################
 def getRunNumberFromFileName(fileName):
     regExp = re.search('(\w+)_(\d+)_(\d+)_(\d+)',fileName)
     if not regExp:
         return -1
     return long(regExp.group(3))
 
+########################################################################
 def getRunNumberFromDBSName(fileName):
     regExp = re.search('(\w+)/(\d+)/(\d+)/(\d+)/(\w+)',fileName)
     if not regExp:
         return -1
     return long(regExp.group(3)+regExp.group(4))
     
-
+########################################################################
 def getNewRunList(fromDir,lastUploadedIOV):
     newRunList = []
     listOfFiles = ls(fromDir)
@@ -175,6 +194,7 @@ def getNewRunList(fromDir,lastUploadedIOV):
             newRunList.append(fileName)
     return newRunList        
 
+########################################################################
 def getListOfFilesToCopy(listOfFilesToProcess,newRunList):
     listOfFilesToCopy = []
     runsToProcess = {}
@@ -204,82 +224,108 @@ def getListOfFilesToCopy(listOfFilesToProcess,newRunList):
 
     for run in processedRunsKeys:
         if run <= lastClosedRun :
+            print "For run " + str(run) + " I have processed " + str(processedRuns[run]) + " files and in DBS there are " + str(runsToProcess[run]) + " files!"
             if processedRuns[run] == runsToProcess[run]:
                 for file in newRunList:
                     if run == getRunNumberFromFileName(file):
                         listOfFilesToCopy.append(file)
             else:
-                exit("ERROR: I still have less files than the ones that are in DBS!")
+                exit("ERROR: For run " + str(run) + " I have processed " + str(processedRuns[run]) + " files but in DBS there are " + str(runsToProcess[run]) + " files!")
     return listOfFilesToCopy            
 
+########################################################################
 def cp(fromDir,toDir,listOfFiles):
     cpCommand   = ''
     copiedFiles = []
     if fromDir.find('castor') != -1:
     	cpCommand = 'rf'
-    elif not os.path.exists(fromDir):
-        exit("ERROR: File or directory " + fromDir + " doesn't exist") 
 
     for file in listOfFiles:
         if os.path.isfile(toDir+file):
             if option.overwrite:
-                print "File " + file + " already exists in destination. We will overwrite it."
+                print "File " + file + " already exists in destination directory. We will overwrite it."
             else:
-                print "File " + file + " already exists in destination. Keep original file."
+                print "File " + file + " already exists in destination directory. We will Keep original file."
                 copiedFiles.append(file)
                 continue
-    	    # copy to local disk
+    	# copy to local disk
     	aCommand = cpCommand + 'cp '+ fromDir + file + " " + toDir
-#    	print " >> " + aCommand
+    	print " >> " + aCommand
         tmpStatus = commands.getstatusoutput( aCommand )
         if tmpStatus[0] == 0:
             copiedFiles.append(file)
         else:
-            exit("ERROR: Can't copy file " + file)
+            print "[cp()]\tERROR: Can't copy file " + file
     return copiedFiles
 
+########################################################################
+def sendEmail(mailList,error):
+    print "Sending email to " + mailList + " with body: " + error
 
 
+########################################################################
 if __name__ == '__main__':
-    # COMMAND LINE OPTIONS
-    #################################
+
+    ######### COMMAND LINE OPTIONS ##############
     option,args = parse(__doc__)
-    #    if not args and not option: exit()
-    #    workflowdir             = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/test/workflow/"
-    # reading config file
+
+    ######### CONFIGURATION FILE ################
     configurationFile = 'BeamSpotWorkflow.cfg'
     configuration     = ConfigParser.ConfigParser()
     print 'Reading configuration from ', configurationFile
     configuration.read(configurationFile)
 
-    fromDir     = configuration.get('Common','FROM_DIR')
-    toDir       = configuration.get('Common','TO_DIR')
+    sourceDir   = configuration.get('Common','SOURCE_DIR')
+    archiveDir  = configuration.get('Common','ARCHIVE_DIR')
+    workingDir  = configuration.get('Common','WORKING_DIR')
     databaseTag = configuration.get('Common','DBTAG')
     dataSet     = configuration.get('Common','DATASET')
-    if fromDir[len(fromDir)-1] != '/':
-        fromDir = fromDir + '/'
-    if toDir[len(toDir)-1] != '/':
-        toDir = toDir + '/'
-    if not os.path.isdir(toDir):
-	os.mkdir(toDir)
-    
+    mailList    = configuration.get('Common','EMAIL')
+
+    ######### DIRECTORIES SETUP #################
+    if sourceDir[len(sourceDir)-1] != '/':
+        sourceDir = sourceDir + '/'
+    if not dirExists(sourceDir):
+        error = "ERROR: The source directory " + sourceDir + " doesn't exist!"
+        sendEmail(mailList,error)
+        exit(error)
+
+    if archiveDir[len(archiveDir)-1] != '/':
+        archiveDir = archiveDir + '/'
+    if not os.path.isdir(archiveDir):
+	os.mkdir(archiveDir)
+
+    if workingDir[len(workingDir)-1] != '/':
+        workingDir = workingDir + '/'
+    if not os.path.isdir(workingDir):
+	os.mkdir(workingDir)
+    else:
+        os.system("rm -f "+ workingDir + "*") 
 
 
-    # get last IOV in DB
-    lastUploadedIOV = getLastUploadedIOV(databaseTag) 
-#    lastUploadedIOV = 133918
+#    lastUploadedIOV = getLastUploadedIOV(databaseTag) 
+    lastUploadedIOV = 133885
 
-    # get list of files after last IOV
-    newRunList      = getNewRunList(fromDir,lastUploadedIOV)
-    if len(newRunList) == 0:
+    ######### Get list of files processed after the last IOV  
+    newProcessedRunList      = getNewRunList(sourceDir,lastUploadedIOV)
+    if len(newProcessedRunList) == 0:
         exit("There are no new runs after " + str(lastUploadedIOV))
 
-    # get from DBS the list of files after last IOV 
+    ######### Copy files to archive directory
+    for i in range(3):
+        copiedFiles = cp(sourceDir,archiveDir,newProcessedRunList)    
+        if len(copiedFiles) == len(newProcessedRunList):
+            break;
+    if len(copiedFiles) != len(newProcessedRunList):
+        error = "ERROR: I copied only " + str(len(copiedFiles)) + " out of " + str(len(newProcessedRunList)) 
+        sendEmail(mailList,error)
+        exit(error)
+
+
+    ######### Get from DBS the list of files after last IOV    
     listOfFilesToProcess = getListOfFilesToProcess(dataSet,lastUploadedIOV) 
 
-    # get list of files to copy and process for DB
-    listOfFilesToCopy = getListOfFilesToCopy(listOfFilesToProcess,newRunList)
+    ######### Get list of files to copy and process for DB
+#    listOfFilesToCopy = getListOfFilesToCopy(listOfFilesToProcess,newProcessedRunList)
 
-    # copy files to workflow directory
-    cp(fromDir,toDir,listOfFilesToCopy)    
 
