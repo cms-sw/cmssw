@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.98 2010/03/04 21:32:40 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.99 2010/03/25 14:57:22 matevz Exp $
 //
 
 // system include files
@@ -189,6 +189,7 @@ public:
    void checkSubviewAreaIconState(TEveWindow*);
    void subviewIsBeingDestroyed(FWGUISubviewArea*);
    void subviewDestroy(FWGUISubviewArea*); // timeout funct
+   void subviewDestroyAll();
    void subviewInfoSelected(FWGUISubviewArea*);
    void subviewInfoUnselected(FWGUISubviewArea*);
    void subviewSwapped(FWGUISubviewArea*);

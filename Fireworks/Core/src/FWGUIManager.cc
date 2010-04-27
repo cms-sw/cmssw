@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.196 2010/04/12 12:43:10 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.197 2010/04/22 17:29:52 amraktad Exp $
 
 //
 
@@ -40,6 +40,7 @@
 #include "TGPack.h"
 #include "TEveWindow.h"
 #include "TEveViewer.h"
+#include "TEveCaloData.h"
 #include "TEveWindowManager.h"
 #include "TEveSelection.h"
 #include "TGFileDialog.h"
@@ -93,6 +94,7 @@
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
 
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
+#include "Fireworks/Core/interface/Context.h"
 
 //
 // constants, enums and typedefs
@@ -522,6 +524,42 @@ FWGUIManager::subviewDestroy(FWGUISubviewArea* sva)
    FWViewBase* viewBase = m_viewMap[ew];
    m_viewMap.erase(ew);
    viewBase->destroy();
+}
+
+void
+FWGUIManager::subviewDestroyAll()
+{
+   std::vector<FWGUISubviewArea*> sd;
+   for(ViewMap_i wIt = m_viewMap.begin(); wIt != m_viewMap.end(); ++wIt)
+   {
+      FWGUISubviewArea* ar = FWGUISubviewArea::getToolBarFromWindow(wIt->first);
+      sd.push_back(ar);
+   }
+
+   for (std::vector<FWGUISubviewArea*>::iterator i= sd.begin(); i !=sd.end(); ++i)
+   {
+      if((*i)->isSelected())
+         setViewPopup(0);
+      subviewDestroy(*i);
+   }
+
+   m_cmsShowMain->context()->getCaloData()->DestroyElements();
+
+   gSystem->ProcessEvents();
+   gSystem->Sleep(200);
+
+
+   
+   while (m_viewPrimPack->HasChildren())
+   {
+      TEveWindow* w = dynamic_cast<TEveWindow*>(m_viewPrimPack->FirstChild());
+      if (w) w->DestroyWindowAndSlot();
+   }
+
+   gSystem->Sleep(200);
+   m_viewSecPack = 0;
+   gSystem->ProcessEvents();
+   
 }
 
 void
@@ -1071,6 +1109,8 @@ setWindowInfoFrom(const FWConfiguration& iFrom,
 void
 FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    // main window
+   if (m_viewSecPack) subviewDestroyAll();
+
    const FWConfiguration* mw = iFrom.valueForKey(kMainWindow);
    assert(mw != 0);
    setWindowInfoFrom(*mw, m_cmsShowMainFrame);

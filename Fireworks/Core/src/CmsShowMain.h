@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.43 2010/01/21 21:01:32 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.44 2010/03/25 14:57:22 matevz Exp $
 //
 
 // system include files
@@ -87,12 +87,13 @@ public:
 
    void notified(TSocket*);
    const fwlite::Event* getCurrentEvent() const;
-
+   const fireworks::Context* context() const { return m_context.get(); };
 private:
    CmsShowMain(const CmsShowMain&); // stop default
    const CmsShowMain& operator=(const CmsShowMain&); // stop default
 
    void loadGeometry();
+   void reloadConfiguration(const std::string &config);
    void setupViewManagers();
    void setupConfiguration();
    void setupDataHandling();
@@ -132,6 +133,7 @@ private:
    void startAutoLoadTimer();
    void stopAutoLoadTimer();
    void setupAutoLoad(float);
+
 
    // ---------- member data --------------------------------
    std::auto_ptr<FWConfigurationManager> m_configurationManager;
