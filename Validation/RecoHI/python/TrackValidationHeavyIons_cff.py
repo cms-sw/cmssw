@@ -15,7 +15,7 @@ cutsRecoTracks.ptMin = 2.0
 cutsRecoTracks.quality = []
 
 # sim track quality cuts
-from Validation.RecoHI.findableSimTracks_cfi import *
+from Validation.RecoHI.selectSimTracks_cff import *
 findableSimTracks.ptMin = 2.0
 
 # setup multi-track validator
