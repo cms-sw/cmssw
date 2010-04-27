@@ -69,7 +69,7 @@ void GflashPiKShowerProfile::loadParameters()
     else if(showerType == 6) {
       energyScale[Gflash::kHE] = std::max(0.0,
 	exp(energyMeanHcal+energySigmaHcal*CLHEP::RandGaussQ::shoot())-2.0
-	- gap_corr*einc*depthScale(std::fabs(position.getRho()),Gflash::Zmin[Gflash::kHE],60.));
+	- gap_corr*einc*depthScale(std::fabs(position.getZ()),Gflash::Zmin[Gflash::kHE],66.));
     }
     else {
       energyScale[Gflash::kHB] = std::max(0.0,
