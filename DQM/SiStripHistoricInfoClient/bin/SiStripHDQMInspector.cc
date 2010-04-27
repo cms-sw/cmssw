@@ -65,7 +65,7 @@ void runTrackingInspector( const string &dbName, const string &tagName, const st
   config.push_back(Trend( multiItems(subDetectors, "Summary_TotalNumberOfClusters_OnTrack@entries"), "OnTrackClusters_entries.gif", 0,
                           condition+"&& 369098752@Summary_TotalNumberOfClusters_OnTrack@entries > 0", "", Start, End, nRuns, 0 ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_TotalNumberOfClusters_OffTrack@mean"), "TotalNumberOfClusters_OffTrack_mean.gif", 0,
-                          condition+"&& 369098752@Summary_TotalNumberOfClusters_OffTrack@mean > 0", "", Start, End, nRuns, 0, 50 ));
+                          condition+"&& 369098752@Summary_TotalNumberOfClusters_OffTrack@mean > 0", "", Start, End, nRuns, 0, 1000 ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_TotalNumberOfClusters_OffTrack@entries"), "TotalNumberOfClusters_OffTrack_entries.gif", 0,
                           condition+"&& 369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 0", "", Start, End, nRuns, 0 ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterChargeCorr_OnTrack@landauPeak"), "ClusterChargeCorr_OnTrack_landau.gif", 0,
@@ -83,9 +83,9 @@ void runTrackingInspector( const string &dbName, const string &tagName, const st
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterStoNCorr_OnTrack@mean"), "ClusterStoNCorr_OnTrack_mean.gif", 0,
                           condition+"&& 369098752@Summary_ClusterStoNCorr_OnTrack@mean > 0", "", Start, End, nRuns, 0 ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterStoN_OffTrack@landauPeak"), "ClusterStoN_OffTrack_landauPeak.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterStoN_OffTrack@entries > 10000", "", Start, End, nRuns, 0, 20 ));
+                          condition+"&& 369098752@Summary_ClusterStoN_OffTrack@entries > 10000", "", Start, End, nRuns, 0, 60 ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterStoN_OffTrack@mean"), "ClusterStoN_OffTrack_mean.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterStoN_OffTrack@entries > 10000", "", Start, End, nRuns, 0, 25 ));
+                          condition+"&& 369098752@Summary_ClusterStoN_OffTrack@entries > 10000", "", Start, End, nRuns, 0, 80 ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterWidth_OnTrack@mean"), "ClusterWidth_OnTrack_mean.gif", 0,
                           condition+"&& 369098752@Summary_ClusterWidth_OnTrack@mean > 0", "", Start, End, nRuns, 0 ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterWidth_OffTrack@mean"), "ClusterWidth_OffTrack_mean.gif", 0,
