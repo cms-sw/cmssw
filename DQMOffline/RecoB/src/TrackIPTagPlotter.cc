@@ -160,10 +160,253 @@ TrackIPTagPlotter::TrackIPTagPlotter(const TString & tagName,
 	100, lowerIPEBound, upperIPEBound, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc) ;
 
   tkcntHistosErr2D[3] = new FlavourHistograms<double>
-       ("ipe4" + theExtensionString, "2D IP error 4.trk",
+       ("ipe4_2D" + theExtensionString, "2D IP error 4.trk",
 	100, lowerIPEBound, upperIPEBound, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc) ;
 
+  // decay length
+  tkcntHistosDecayLengthVal2D[4] = new FlavourHistograms<double>
+       ("decLen_2D" + theExtensionString, "Decay Length 2D",
+	50, -5.0, 5.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
 
+  tkcntHistosDecayLengthVal2D[0] = new FlavourHistograms<double>
+       ("decLen1_2D" + theExtensionString, "2D Decay Length 1.trk",
+	50, -5.0, 5.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosDecayLengthVal2D[1] = new FlavourHistograms<double>
+       ("decLen2_2D" + theExtensionString, "2D Decay Length 2.trk",
+	50, -5.0, 5.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosDecayLengthVal2D[2] = new FlavourHistograms<double>
+       ("decLen3_2D" + theExtensionString, "2D Decay Length 3.trk",
+	50, -5.0, 5.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosDecayLengthVal2D[3] = new FlavourHistograms<double>
+       ("decLen4_2D" + theExtensionString, "2D Decay Length 4.trk",
+	50, -5.0, 5.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosDecayLengthVal3D[4] = new FlavourHistograms<double>
+       ("decLen_3D" + theExtensionString, "3D Decay Length",
+	50, -5.0, 5.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosDecayLengthVal3D[0] = new FlavourHistograms<double>
+       ("decLen1_3D" + theExtensionString, "3D Decay Length 1.trk",
+	50, -5.0, 5.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosDecayLengthVal3D[1] = new FlavourHistograms<double>
+       ("decLen2_3D" + theExtensionString, "3D Decay Length 2.trk",
+	50, -5.0, 5.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosDecayLengthVal3D[2] = new FlavourHistograms<double>
+       ("decLen3_3D" + theExtensionString, "3D Decay Length 3.trk",
+	50, -5.0, 5.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosDecayLengthVal3D[3] = new FlavourHistograms<double>
+       ("decLen4_3D" + theExtensionString, "3D Decay Length 4.trk",
+	50, -5.0, 5.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  // jet distance
+  tkcntHistosJetDistVal2D[4] = new FlavourHistograms<double>
+       ("jetDist_2D" + theExtensionString, "JetDistance 2D",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistVal2D[0] = new FlavourHistograms<double>
+       ("jetDist1_2D" + theExtensionString, "JetDistance 2D 1.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistVal2D[1] = new FlavourHistograms<double>
+       ("jetDist2_2D" + theExtensionString, "JetDistance 2D 2.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistVal2D[2] = new FlavourHistograms<double>
+       ("jetDist3_2D" + theExtensionString, "JetDistance 2D 3.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistVal2D[3] = new FlavourHistograms<double>
+       ("jetDist4_2D" + theExtensionString, "JetDistance 2D 4.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistVal3D[4] = new FlavourHistograms<double>
+       ("jetDist_3D" + theExtensionString, "JetDistance 3D",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistVal3D[0] = new FlavourHistograms<double>
+       ("jetDist1_3D" + theExtensionString, "JetDistance 3D 1.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistVal3D[1] = new FlavourHistograms<double>
+       ("jetDist2_3D" + theExtensionString, "JetDistance 3D 2.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistVal3D[2] = new FlavourHistograms<double>
+       ("jetDist3_3D" + theExtensionString, "JetDistance 3D 3.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistVal3D[3] = new FlavourHistograms<double>
+       ("jetDist4_3D" + theExtensionString, "JetDistance 3D 4.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistSign2D[4] = new FlavourHistograms<double>
+       ("jetDist_2D" + theExtensionString, "JetDistance Sign 2D",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistSign2D[0] = new FlavourHistograms<double>
+       ("jetDist1_2D" + theExtensionString, "JetDistance Sign 2D 1.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistSign2D[1] = new FlavourHistograms<double>
+       ("jetDist2_2D" + theExtensionString, "JetDistance Sign 2D 2.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistSign2D[2] = new FlavourHistograms<double>
+       ("jetDist3_2D" + theExtensionString, "JetDistance Sign 2D 3.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistSign2D[3] = new FlavourHistograms<double>
+       ("jetDist4_2D" + theExtensionString, "JetDistance Sign 2D 4.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistSign3D[4] = new FlavourHistograms<double>
+       ("jetDist_3D" + theExtensionString, "JetDistance Sign 3D",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistSign3D[0] = new FlavourHistograms<double>
+       ("jetDist1_3D" + theExtensionString, "JetDistance Sign 3D 1.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistSign3D[1] = new FlavourHistograms<double>
+       ("jetDist2_3D" + theExtensionString, "JetDistance Sign 3D 2.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistSign3D[2] = new FlavourHistograms<double>
+       ("jetDist3_3D" + theExtensionString, "JetDistance Sign 3D 3.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosJetDistSign3D[3] = new FlavourHistograms<double>
+       ("jetDist4_3D" + theExtensionString, "JetDistance Sign 3D 4.trk",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  // track chi-squared
+  tkcntHistosTkNChiSqr2D[4] = new FlavourHistograms<double>
+       ("tkNChiSqr_2D" + theExtensionString, "Normalized Chi Squared 2D",
+        50, -0.1, 10.0, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNChiSqr2D[0] = new FlavourHistograms<double>
+       ("tkNChiSqr1_2D" + theExtensionString, "Normalized Chi Squared 2D 1.trk",
+        50, -0.1, 10.0, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNChiSqr2D[1] = new FlavourHistograms<double>
+       ("tkNChiSqr2_2D" + theExtensionString, "Normalized Chi Squared 2D 2.trk",
+        50, -0.1, 10.0, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNChiSqr2D[2] = new FlavourHistograms<double>
+       ("tkNChiSqr3_2D" + theExtensionString, "Normalized Chi Squared 2D 3.trk",
+        50, -0.1, 10.0, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNChiSqr2D[3] = new FlavourHistograms<double>
+       ("tkNChiSqr4_2D" + theExtensionString, "Normalized Chi Squared 2D 4.trk",
+        50, -0.1, 10.0, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNChiSqr3D[4] = new FlavourHistograms<double>
+       ("tkNChiSqr_3D" + theExtensionString, "Normalized Chi Squared 3D",
+        50, -0.1, 10.0, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNChiSqr3D[0] = new FlavourHistograms<double>
+       ("tkNChiSqr1_3D" + theExtensionString, "Normalized Chi Squared 3D 1.trk",
+        50, -0.1, 10.0, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNChiSqr3D[1] = new FlavourHistograms<double>
+       ("tkNChiSqr2_3D" + theExtensionString, "Normalized Chi Squared 3D 2.trk",
+        50, -0.1, 10.0, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNChiSqr3D[2] = new FlavourHistograms<double>
+       ("tkNChiSqr3_3D" + theExtensionString, "Normalized Chi Squared 3D 3.trk",
+        50, -0.1, 10.0, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNChiSqr3D[3] = new FlavourHistograms<double>
+       ("tkNChiSqr4_3D" + theExtensionString, "Normalized Chi Squared 3D 4.trk",
+        50, -0.1, 10.0, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  // track pT
+  tkcntHistosTkPt2D[4] = new FlavourHistograms<double>
+       ("tkPt_2D" + theExtensionString, "Track Pt 2D",
+        50, -0.1, 50.1, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkPt2D[0] = new FlavourHistograms<double>
+       ("tkPt1_2D" + theExtensionString, "Track Pt 2D 1.trk",
+        50, -0.1, 50.1, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkPt2D[1] = new FlavourHistograms<double>
+       ("tkPt2_2D" + theExtensionString, "Track Pt 2D 2.trk",
+        50, -0.1, 50.1, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkPt2D[2] = new FlavourHistograms<double>
+       ("tkPt3_2D" + theExtensionString, "Track Pt 2D 3.trk",
+        50, -0.1, 50.1, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkPt2D[3] = new FlavourHistograms<double>
+       ("tkPt4_2D" + theExtensionString, "Track Pt 2D 4.trk",
+        50, -0.1, 50.1, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkPt3D[4] = new FlavourHistograms<double>
+       ("tkPt_3D" + theExtensionString, "Track Pt 3D",
+        50, -0.1, 50.1, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkPt3D[0] = new FlavourHistograms<double>
+       ("tkPt1_3D" + theExtensionString, "Track Pt 3D 1.trk",
+        50, -0.1, 50.1, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkPt3D[1] = new FlavourHistograms<double>
+       ("tkPt2_3D" + theExtensionString, "Track Pt 3D 2.trk",
+        50, -0.1, 50.1, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkPt3D[2] = new FlavourHistograms<double>
+       ("tkPt3_3D" + theExtensionString, "Track Pt 3D 3.trk",
+        50, -0.1, 50.1, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkPt3D[3] = new FlavourHistograms<double>
+       ("tkPt4_3D" + theExtensionString, "Track Pt 3D 4.trk",
+        50, -0.1, 50.1, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  // track nHits
+  tkcntHistosTkNHits2D[4] = new FlavourHistograms<int>
+       ("tkNHits_2D" + theExtensionString, "Track NHits 2D",
+        31, -0.5, 30.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNHits2D[0] = new FlavourHistograms<int>
+       ("tkNHits1_2D" + theExtensionString, "Track NHits 2D 1.trk",
+        31, -0.5, 30.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNHits2D[1] = new FlavourHistograms<int>
+       ("tkNHits2_2D" + theExtensionString, "Track NHits 2D 2.trk",
+        31, -0.5, 30.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNHits2D[2] = new FlavourHistograms<int>
+       ("tkNHits3_2D" + theExtensionString, "Track NHits 2D 3.trk",
+        31, -0.5, 30.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNHits2D[3] = new FlavourHistograms<int>
+       ("tkNHits4_2D" + theExtensionString, "Track NHits 2D 4.trk",
+        31, -0.5, 30.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNHits3D[4] = new FlavourHistograms<int>
+       ("tkNHits_3D" + theExtensionString, "Track NHits 3D",
+        31, -0.5, 30.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNHits3D[0] = new FlavourHistograms<int>
+       ("tkNHits1_3D" + theExtensionString, "Track NHits 3D 1.trk",
+        31, -0.5, 30.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNHits3D[1] = new FlavourHistograms<int>
+       ("tkNHits2_3D" + theExtensionString, "Track NHits 3D 2.trk",
+        31, -0.5, 30.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNHits3D[2] = new FlavourHistograms<int>
+       ("tkNHits3_3D" + theExtensionString, "Track NHits 3D 3.trk",
+        31, -0.5, 30.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  tkcntHistosTkNHits3D[3] = new FlavourHistograms<int>
+       ("tkNHits4_3D" + theExtensionString, "Track NHits 3D 4.trk",
+        31, -0.5, 30.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
 
   // probability
   tkcntHistosProb3D[4] = new FlavourHistograms<float>
@@ -206,15 +449,6 @@ TrackIPTagPlotter::TrackIPTagPlotter(const TString & tagName,
        ("prob4" + theExtensionString, "2D IP probability 4.trk",
 	50, -1.1, 1.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc) ;
 
-  decayLengthValuHisto = new FlavourHistograms<double>
-       ("decLen" + theExtensionString, "Decay Length",
-	50, -5.0, 5.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
-  jetDistanceValuHisto = new FlavourHistograms<double>
-       ("jetDist" + theExtensionString, "JetDistance",
-	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
-  jetDistanceSignHisto = new FlavourHistograms<double>
-       ("jetDistSign" + theExtensionString, "JetDistance significance",
-	50, -100.0, 100.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
   ghostTrackDistanceValuHisto = new FlavourHistograms<double>
        ("ghostTrackDist" + theExtensionString, "GhostTrackDistance",
 	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
@@ -224,6 +458,22 @@ TrackIPTagPlotter::TrackIPTagPlotter(const TString & tagName,
   ghostTrackWeightHisto = new FlavourHistograms<double>
        ("ghostTrackWeight" + theExtensionString, "GhostTrack fit participation weight",
 	50, 0.0, 1.0, false, false, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  trackQualHisto = new FlavourHistograms<int>
+       ("trackQual" + theExtensionString, "Track Quality of Tracks Associated to Jets",
+        5, -1.5, 4.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  selectedTrackQualHisto = new FlavourHistograms<int>
+       ("selectedTrackQual" + theExtensionString, "Track Quality of Selected Tracks Associated to Jets",
+        5, -1.5, 4.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  trackMultVsJetPtHisto = new FlavourHistograms2D<double, int>
+       ("trackMultVsJetPt" + theExtensionString, "Track Multiplicity vs Jet Pt for Tracks Associated to Jets",
+        50, 0.0, 250.0, 21, -0.5, 30.5, false, update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+
+  selectedTrackMultVsJetPtHisto = new FlavourHistograms2D<double, int>
+       ("selectedTrackMultVsJetPt" + theExtensionString, "Track Multiplicity vs Jet Pt for Selected Tracks Associated to Jets",
+        50, 0.0, 250.0, 21, -0.5, 20.5, false, update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
 
   if (willFinalize_) createPlotsForFinalize();
 
@@ -235,12 +485,13 @@ TrackIPTagPlotter::~TrackIPTagPlotter ()
 
   delete trkNbr3D;
   delete trkNbr2D;
-  delete decayLengthValuHisto;
-  delete jetDistanceValuHisto;
-  delete jetDistanceSignHisto;
   delete ghostTrackDistanceValuHisto;
   delete ghostTrackDistanceSignHisto;
   delete ghostTrackWeightHisto;
+  delete trackQualHisto;
+  delete selectedTrackQualHisto;
+  delete trackMultVsJetPtHisto;
+  delete selectedTrackMultVsJetPtHisto;
 
   for(int n=0; n <= 4; n++) {
     delete tkcntHistosSig2D[n];
@@ -249,6 +500,18 @@ TrackIPTagPlotter::~TrackIPTagPlotter ()
     delete tkcntHistosVal3D[n];
     delete tkcntHistosErr2D[n];
     delete tkcntHistosErr3D[n];
+    delete tkcntHistosDecayLengthVal2D[n];
+    delete tkcntHistosDecayLengthVal3D[n];
+    delete tkcntHistosJetDistVal2D[n];
+    delete tkcntHistosJetDistVal3D[n];
+    delete tkcntHistosJetDistSign2D[n];
+    delete tkcntHistosJetDistSign3D[n];
+    delete tkcntHistosTkNChiSqr2D[n];
+    delete tkcntHistosTkNChiSqr3D[n];
+    delete tkcntHistosTkPt2D[n];
+    delete tkcntHistosTkPt3D[n];
+    delete tkcntHistosTkNHits2D[n];
+    delete tkcntHistosTkNHits3D[n];
     delete tkcntHistosProb2D[n];
     delete tkcntHistosProb3D[n];
   }
@@ -270,6 +533,10 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
       << "BTagPerformanceAnalyzer: Extended TagInfo not of type TrackIPTagInfo. " << endl;
   }
 
+  GlobalPoint pv(tagInfo->primaryVertex()->position().x(),
+                 tagInfo->primaryVertex()->position().y(),
+                 tagInfo->primaryVertex()->position().z());
+
   vector<reco::TrackIPTagInfo::TrackIPData> ip = tagInfo->impactParameterData();
 
   vector<float> prob2d, prob3d;
@@ -282,10 +549,19 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
   trkNbr2D->fill(jetFlavour, ip.size());
 
   vector<std::size_t> sortedIndices = tagInfo->sortedIndexes(reco::TrackIPTagInfo::IP2DSig);
+  reco::TrackRefVector sortedTracks = tagInfo->sortedTracks(sortedIndices);
   for(unsigned int n=0; n < sortedIndices.size() && n < 4; n++) {
     tkcntHistosSig2D[n]->fill(jetFlavour, ip[sortedIndices[n]].ip2d.significance());
     tkcntHistosVal2D[n]->fill(jetFlavour, ip[sortedIndices[n]].ip2d.value());
     tkcntHistosErr2D[n]->fill(jetFlavour, ip[sortedIndices[n]].ip2d.error());
+    double decayLen = (ip[sortedIndices[n]].closestToJetAxis - pv).mag();
+    tkcntHistosDecayLengthVal2D[n]->fill(jetFlavour, decayLen);
+    tkcntHistosJetDistVal2D[n]->fill(jetFlavour, ip[sortedIndices[n]].distanceToJetAxis.value());
+    tkcntHistosJetDistSign2D[n]->fill(jetFlavour, ip[sortedIndices[n]].distanceToJetAxis.significance());
+    const reco::TrackRef& track = sortedTracks[n];
+    tkcntHistosTkNChiSqr2D[n]->fill(jetFlavour, track->normalizedChi2());
+    tkcntHistosTkPt2D[n]->fill(jetFlavour, track->pt());
+    tkcntHistosTkNHits2D[n]->fill(jetFlavour, track->found());
   }
   sortedIndices = tagInfo->sortedIndexes(reco::TrackIPTagInfo::Prob2D);
   for(unsigned int n=0; n < sortedIndices.size() && n < 4; n++) {
@@ -297,10 +573,19 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     tkcntHistosErr2D[n]->fill(jetFlavour, lowerIPEBound-1.0);
   }
   sortedIndices = tagInfo->sortedIndexes(reco::TrackIPTagInfo::IP3DSig);
+  sortedTracks = tagInfo->sortedTracks(sortedIndices);
   for(unsigned int n=0; n < sortedIndices.size() && n < 4; n++) {
     tkcntHistosSig3D[n]->fill(jetFlavour, ip[sortedIndices[n]].ip3d.significance());
     tkcntHistosVal3D[n]->fill(jetFlavour, ip[sortedIndices[n]].ip3d.value());
     tkcntHistosErr3D[n]->fill(jetFlavour, ip[sortedIndices[n]].ip3d.error());
+    double decayLen = (ip[sortedIndices[n]].closestToJetAxis - pv).mag();
+    tkcntHistosDecayLengthVal3D[n]->fill(jetFlavour, decayLen);
+    tkcntHistosJetDistVal3D[n]->fill(jetFlavour, ip[sortedIndices[n]].distanceToJetAxis.value());
+    tkcntHistosJetDistSign3D[n]->fill(jetFlavour, ip[sortedIndices[n]].distanceToJetAxis.significance());
+    const reco::TrackRef& track = sortedTracks[n];
+    tkcntHistosTkNChiSqr3D[n]->fill(jetFlavour, track->normalizedChi2());
+    tkcntHistosTkPt3D[n]->fill(jetFlavour, track->pt());
+    tkcntHistosTkNHits3D[n]->fill(jetFlavour, track->found());
   }
   sortedIndices = tagInfo->sortedIndexes(reco::TrackIPTagInfo::Prob3D);
   for(unsigned int n=0; n < sortedIndices.size() && n < 4; n++) {
@@ -316,26 +601,41 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     tkcntHistosVal2D[4]->fill(jetFlavour, ip[n].ip2d.value());
     tkcntHistosErr2D[4]->fill(jetFlavour, ip[n].ip2d.error());
     tkcntHistosProb2D[4]->fill(jetFlavour, prob2d[n]);
+    double decayLen = (ip[n].closestToJetAxis - pv).mag();
+    tkcntHistosDecayLengthVal2D[4]->fill(jetFlavour, decayLen);
+    tkcntHistosJetDistVal2D[4]->fill(jetFlavour, ip[n].distanceToJetAxis.value());
+    tkcntHistosJetDistSign2D[4]->fill(jetFlavour, ip[n].distanceToJetAxis.significance());
+    const reco::TrackRef& track = tagInfo->selectedTracks()[n];
+    tkcntHistosTkNChiSqr2D[4]->fill(jetFlavour, track->normalizedChi2());
+    tkcntHistosTkPt2D[4]->fill(jetFlavour, track->pt());
+    tkcntHistosTkNHits2D[4]->fill(jetFlavour, track->found());
   }
   for(unsigned int n=0; n < ip.size(); n++) {
     tkcntHistosSig3D[4]->fill(jetFlavour, ip[n].ip3d.significance());
     tkcntHistosVal3D[4]->fill(jetFlavour, ip[n].ip3d.value());
     tkcntHistosErr3D[4]->fill(jetFlavour, ip[n].ip3d.error());
     tkcntHistosProb3D[4]->fill(jetFlavour, prob3d[n]);
-  }
-  GlobalPoint pv(tagInfo->primaryVertex()->position().x(),
-                 tagInfo->primaryVertex()->position().y(),
-                 tagInfo->primaryVertex()->position().z());
-  for(unsigned int n=0; n < ip.size(); n++) {
     double decayLen = (ip[n].closestToJetAxis - pv).mag();
-    decayLengthValuHisto->fill(jetFlavour, decayLen);
-    jetDistanceValuHisto->fill(jetFlavour, ip[n].distanceToJetAxis.value());
-    jetDistanceSignHisto->fill(jetFlavour, ip[n].distanceToJetAxis.significance());
+    tkcntHistosDecayLengthVal3D[4]->fill(jetFlavour, decayLen);
+    tkcntHistosJetDistVal3D[4]->fill(jetFlavour, ip[n].distanceToJetAxis.value());
+    tkcntHistosJetDistSign3D[4]->fill(jetFlavour, ip[n].distanceToJetAxis.significance());
+    const reco::TrackRef& track = tagInfo->selectedTracks()[n];
+    tkcntHistosTkNChiSqr3D[4]->fill(jetFlavour, track->normalizedChi2());
+    tkcntHistosTkPt3D[4]->fill(jetFlavour, track->pt());
+    tkcntHistosTkNHits3D[4]->fill(jetFlavour, track->found());
+  }
+  for(unsigned int n=0; n < ip.size(); n++) {
     ghostTrackDistanceValuHisto->fill(jetFlavour, ip[n].distanceToGhostTrack.value());
     ghostTrackDistanceSignHisto->fill(jetFlavour, ip[n].distanceToGhostTrack.significance());
     ghostTrackWeightHisto->fill(jetFlavour, ip[n].ghostTrackWeight);
+    selectedTrackQualHisto->fill(jetFlavour, highestTrackQual(tagInfo->selectedTracks()[n].get()));
+  }
+  for(unsigned int n = 0; n < tagInfo->tracks().size(); n++) {
+    trackQualHisto->fill(jetFlavour, highestTrackQual(tagInfo->tracks()[n].get()));
   }
 
+  trackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt(), tagInfo->tracks().size());
+  selectedTrackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt(), tagInfo->selectedTracks().size());
 }
 
 void TrackIPTagPlotter::createPlotsForFinalize (){
@@ -441,18 +741,12 @@ void TrackIPTagPlotter::psPlot(const TString & name)
 
   canvas.Print(name + cName + ".ps");
   canvas.Clear();
-  canvas.Divide(2,3);
+  canvas.Divide(1,3);
   canvas.cd(1);
-  jetDistanceValuHisto->plot();
-  canvas.cd(2);
-  jetDistanceSignHisto->plot();
-  canvas.cd(3);
-  decayLengthValuHisto->plot();
-  canvas.cd(4);
   ghostTrackDistanceValuHisto->plot();
-  canvas.cd(5);
+  canvas.cd(2);
   ghostTrackDistanceSignHisto->plot();
-  canvas.cd(6);
+  canvas.cd(3);
   ghostTrackWeightHisto->plot();
 
   canvas.Print(name + cName + ".ps");
@@ -464,9 +758,6 @@ void TrackIPTagPlotter::epsPlot(const TString & name)
 {
   trkNbr2D->epsPlot(name);
   trkNbr3D->epsPlot(name);
-  decayLengthValuHisto->epsPlot(name);
-  jetDistanceValuHisto->epsPlot(name);
-  jetDistanceSignHisto->epsPlot(name);
   ghostTrackDistanceValuHisto->epsPlot(name);
   ghostTrackDistanceSignHisto->epsPlot(name);
   ghostTrackWeightHisto->epsPlot(name);
@@ -479,8 +770,31 @@ void TrackIPTagPlotter::epsPlot(const TString & name)
     tkcntHistosErr3D[n]->epsPlot(name);
     tkcntHistosProb2D[n]->epsPlot(name);
     tkcntHistosProb3D[n]->epsPlot(name);
+    tkcntHistosDecayLengthVal2D[n]->epsPlot(name);
+    tkcntHistosDecayLengthVal3D[n]->epsPlot(name);
+    tkcntHistosJetDistVal2D[n]->epsPlot(name);
+    tkcntHistosJetDistVal3D[n]->epsPlot(name);
+    tkcntHistosJetDistSign2D[n]->epsPlot(name);
+    tkcntHistosJetDistSign3D[n]->epsPlot(name);
+    tkcntHistosTkNChiSqr2D[n]->epsPlot(name);
+    tkcntHistosTkNChiSqr3D[n]->epsPlot(name);
+    tkcntHistosTkPt2D[n]->epsPlot(name);
+    tkcntHistosTkPt3D[n]->epsPlot(name);
+    tkcntHistosTkNHits2D[n]->epsPlot(name);
+    tkcntHistosTkNHits3D[n]->epsPlot(name);
   }
   if (finalized) {
     for(int n=0; n < 4; n++) effPurFromHistos[n]->epsPlot(name);
   }
+}
+
+int TrackIPTagPlotter::highestTrackQual(const reco::Track* track) {
+  for(int i = 4; i > -1; --i)
+  {
+    reco::TrackBase::TrackQuality qual = reco::TrackBase::qualityByName(reco::TrackBase::qualityNames[i]);
+    if(track->quality(qual))
+      return i;
+  }
+
+  return -1;
 }

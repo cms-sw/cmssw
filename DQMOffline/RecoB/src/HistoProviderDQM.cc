@@ -35,6 +35,22 @@ MonitorElement* HistoProviderDQM::book1D (const TString &name,
   return (dqmStore_->book1D ((const char *)name, (const char *)title,nchX, xbinsize));
 }        
 
+MonitorElement* HistoProviderDQM::book2D(const TString &name,
+                                const TString &title,
+                                int nchX, double lowX, double highX,
+                                int nchY, double lowY, double highY) {
+  return (dqmStore_->book2D ((const char *)name,(const char *) title, nchX,lowX,highX, nchY, lowY, highY));
+
+}
+
+
+MonitorElement* HistoProviderDQM::book2D (const TString &name,
+                                 const TString &title,
+                                 int nchX, float *xbinsize,
+                                 int nchY, float *ybinsize){
+  return (dqmStore_->book2D ((const char *)name, (const char *)title,nchX, xbinsize, nchY, ybinsize));
+}
+        
 MonitorElement * HistoProviderDQM::access(const TString &name){
 return   dqmStore_->get((const char *)(label_+"/"+name));   
 }

@@ -146,8 +146,6 @@ protected:
 
 } ;
 
-
-
 template <class T>
 FlavourHistograms<T>::FlavourHistograms (TString baseNameTitle_ , TString baseNameDescription_ ,
 					  int nBins_ , double lowerBound_ , double upperBound_ ,
@@ -520,7 +518,4 @@ vector<TH1F*> FlavourHistograms<T>::getHistoVector() const
     }
   return histoVector;
 }
-
-
-
 #endif

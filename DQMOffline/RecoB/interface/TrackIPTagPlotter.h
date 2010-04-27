@@ -4,6 +4,7 @@
 #include "DQMOffline/RecoB/interface/BaseTagInfoPlotter.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DQMOffline/RecoB/interface/FlavourHistorgrams.h"
+#include "DQMOffline/RecoB/interface/FlavourHistorgrams2D.h"
 // #include "RecoBTag/MCTools/interface/JetFlavour.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -27,6 +28,8 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
 
   void psPlot(const TString & name);
 
+  int highestTrackQual(const reco::Track* track);
+
  private:
 
   int	nBinEffPur_ ;
@@ -41,6 +44,18 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
   FlavourHistograms<double> * tkcntHistosErr2D[5];
   FlavourHistograms<double> * tkcntHistosVal3D[5];
   FlavourHistograms<double> * tkcntHistosVal2D[5];
+  FlavourHistograms<double> * tkcntHistosDecayLengthVal2D[5];
+  FlavourHistograms<double> * tkcntHistosDecayLengthVal3D[5];
+  FlavourHistograms<double> * tkcntHistosJetDistVal2D[5];
+  FlavourHistograms<double> * tkcntHistosJetDistVal3D[5];
+  FlavourHistograms<double> * tkcntHistosJetDistSign2D[5];
+  FlavourHistograms<double> * tkcntHistosJetDistSign3D[5];
+  FlavourHistograms<double> * tkcntHistosTkNChiSqr2D[5];
+  FlavourHistograms<double> * tkcntHistosTkNChiSqr3D[5];
+  FlavourHistograms<double> * tkcntHistosTkPt2D[5];
+  FlavourHistograms<double> * tkcntHistosTkPt3D[5];
+  FlavourHistograms<int> * tkcntHistosTkNHits2D[5];
+  FlavourHistograms<int> * tkcntHistosTkNHits3D[5];
   FlavourHistograms<int> * trkNbr3D, * trkNbr2D;
   double lowerIPSBound, upperIPSBound,lowerIPBound, upperIPBound,lowerIPEBound, upperIPEBound ;
 
@@ -48,9 +63,13 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
 
   FlavourHistograms<float> * tkcntHistosProb3D[5];
   FlavourHistograms<float> * tkcntHistosProb2D[5];
-  FlavourHistograms<double> *decayLengthValuHisto, *ghostTrackWeightHisto;
-  FlavourHistograms<double> *jetDistanceValuHisto, *jetDistanceSignHisto;
+  FlavourHistograms<double> *ghostTrackWeightHisto;
   FlavourHistograms<double> *ghostTrackDistanceValuHisto, *ghostTrackDistanceSignHisto;
+
+  FlavourHistograms<int> * trackQualHisto;
+  FlavourHistograms<int> * selectedTrackQualHisto;
+  FlavourHistograms2D<double, int> * trackMultVsJetPtHisto;
+  FlavourHistograms2D<double, int> * selectedTrackMultVsJetPtHisto;
 
   bool finalized;
 } ;

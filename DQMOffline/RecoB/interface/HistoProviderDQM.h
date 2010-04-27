@@ -21,6 +21,17 @@ class HistoProviderDQM  {
   virtual MonitorElement* book1D       (const TString &name,
                       const TString &title,
                       int nchX, float *xbinsize) ;
+
+  virtual MonitorElement* book2D       (const TString &name,
+                      const TString &title,
+                      int nchX, double lowX, double highX,
+                      int nchY, double lowY, double highY) ;
+  
+  virtual MonitorElement* book2D       (const TString &name,
+                      const TString &title,
+                      int nchX, float *xbinsize,
+                      int nchY, float *ybinsize) ;
+
   void setDir(std::string);
 
   virtual MonitorElement * access(const TString &name);
