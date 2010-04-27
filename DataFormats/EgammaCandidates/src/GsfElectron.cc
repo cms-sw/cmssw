@@ -6,7 +6,7 @@
 using namespace reco;
 
 GsfElectron::GsfElectron()
- : mva_(0), fbrem_(0), class_(UNKNOWN) {}
+ : passCutBasedPreselection_(false), passMvaPreslection_(false), mva_(0), fbrem_(0), class_(UNKNOWN) {}
 
 GsfElectron::GsfElectron
  ( const LorentzVector & p4,
@@ -22,7 +22,7 @@ GsfElectron::GsfElectron
    trackClusterMatching_(tcm), trackExtrapolations_(te),
    closestCtfTrack_(ctfInfo),
    fiducialFlags_(ff), showerShape_(ss),
-   mva_(mva),
+   passCutBasedPreselection_(false), passMvaPreslection_(false), mva_(mva),
    fbrem_(fbrem), class_(UNKNOWN)
  {
   setCharge(charge) ;
@@ -47,8 +47,9 @@ GsfElectron::GsfElectron
    ambiguousGsfTracks_(ambiguousTracks),
    fiducialFlags_(electron.fiducialFlags_),
    showerShape_(electron.showerShape_),
-   dr03_(electron.dr03_),
-   dr04_(electron.dr04_),
+   dr03_(electron.dr03_), dr04_(electron.dr04_),
+   passCutBasedPreselection_(electron.passCutBasedPreselection_),
+   passMvaPreslection_(electron.passMvaPreslection_),
    mva_(electron.mva_),
    fbrem_(electron.fbrem_),
    class_(electron.class_),
@@ -64,6 +65,38 @@ GsfElectron::GsfElectron
   // * electron.trackClusterMatching_.electronCluster ~ electronCluster ?
   // * electron.closestCtfTrack_.ctfTrack ~ closestCtfTrack ?
   // * electron.ambiguousGsfTracks_ ~ ambiguousTracks ?
+ }
+
+bool GsfElectron::overlap( const Candidate & c ) const {
+  const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
+  return ( o != 0 &&
+	   ( checkOverlap( gsfTrack(), o->gsfTrack() ) ||
+	     checkOverlap( superCluster(), o->superCluster() ) )
+	   );
+  //?? return false;
+}
+
+GsfElectron * GsfElectron::clone() const
+ { return new GsfElectron(*this) ; }
+
+GsfElectron * GsfElectron::clone
+ (
+  const GsfElectronCoreRef & core,
+  const CaloClusterPtr & electronCluster,
+  const TrackRef & closestCtfTrack,
+  const GsfTrackRefVector & ambiguousTracks
+ ) const
+ { return new GsfElectron(*this,core,electronCluster,closestCtfTrack,ambiguousTracks) ; }
+
+bool GsfElectron::ecalDriven() const
+ {
+  if (!passingCutBasedPreselection()&&!passingMvaPreselection())
+   {
+    edm::LogWarning("GsfElectronAlgo|UndefinedPreselectionInfo")
+      <<"All preselection flags are false,"
+      <<" either the data is too old or electrons were not preselected." ;
+   }
+  return (ecalDrivenSeed()&&passingCutBasedPreselection()) ;
  }
 
 void GsfElectron::correctEcalEnergy( float newEnergy, float newEnergyError )
@@ -90,25 +123,4 @@ void GsfElectron::correctMomentum
   corrections_.electronMomentumError = electronErr ;
   corrections_.isMomentumCorrected = true ;
  }
-
-bool GsfElectron::overlap( const Candidate & c ) const {
-  const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
-  return ( o != 0 &&
-	   ( checkOverlap( gsfTrack(), o->gsfTrack() ) ||
-	     checkOverlap( superCluster(), o->superCluster() ) )
-	   );
-  //?? return false;
-}
-
-GsfElectron * GsfElectron::clone() const
- { return new GsfElectron(*this) ; }
-
-GsfElectron * GsfElectron::clone
- (
-  const GsfElectronCoreRef & core,
-  const CaloClusterPtr & electronCluster,
-  const TrackRef & closestCtfTrack,
-  const GsfTrackRefVector & ambiguousTracks
- ) const
- { return new GsfElectron(*this,core,electronCluster,closestCtfTrack,ambiguousTracks) ; }
 

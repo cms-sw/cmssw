@@ -32,71 +32,9 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.38 2010/01/11 15:09:46 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.39 2010/02/25 15:32:20 chamont Exp $
  *
  ****************************************************************************/
-
-//*****************************************************************************
-//
-// $Log: GsfElectron.h,v $
-// Revision 1.38  2010/01/11 15:09:46  chamont
-// give explicit values to classification enum
-//
-// Revision 1.37  2009/12/11 09:09:41  chamont
-// tranform NARROW into OLDNARROW, and add closestCtfTrack to GsfElectronCore
-//
-// Revision 1.36  2009/12/11 08:59:17  chamont
-// reintroduce temporarily NARROW so that Photons have a usable tag
-//
-// Revision 1.35  2009/11/14 14:28:40  charlot
-// updated classification
-//
-// Revision 1.34  2009/10/10 20:07:35  chamont
-// remove is*Driven() lethods
-//
-// Revision 1.33  2009/10/10 09:00:36  chamont
-// Add ecalDrivenSeed() to isEcalDriven(), Add trackerDrivenSeed() to isTrackerDriven(), for classes GsfElectron and GsfElectronCore
-//
-// Revision 1.32  2009/09/03 13:56:15  chamont
-// fix an error in comments
-//
-// Revision 1.31  2009/08/21 12:22:57  chamont
-// new charge info
-//
-// Revision 1.30  2009/07/14 12:41:52  charlot
-// improved electron charge
-//
-// Revision 1.29  2009/04/06 11:18:05  chamont
-// few changes, should not affect users
-//
-// Revision 1.28  2009/03/31 10:54:09  charlot
-// readded isolation setters
-//
-// Revision 1.27  2009/03/31 10:30:20  charlot
-// added getters for structs, removed setter for the core
-//
-// Revision 1.26  2009/03/28 20:42:11  charlot
-// added momentum at vertex with bs constraint
-//
-// Revision 1.25  2009/03/27 13:09:08  charlot
-// added setter for the core
-//
-// Revision 1.24  2009/03/26 11:20:20  charlot
-// updated for new supercluster dataformat
-//
-// Revision 1.23  2009/03/24 23:07:03  charlot
-// added setter for isolation
-//
-// Revision 1.22  2009/03/24 17:26:27  charlot
-// updated provenance and added comments in headers
-//
-// Revision 1.21  2009/03/20 22:59:16  chamont
-// new class GsfElectronCore and new interface for GsfElectron
-//
-// Revision 1.20  2009/02/14 11:00:26  charlot
-// new interface for fiducial regions
-//
-//*****************************************************************************
 
 class GsfElectron : public RecoCandidate
  {
@@ -499,18 +437,27 @@ class GsfElectron : public RecoCandidate
 
 
   //=======================================================
-  // Particle Flow Data
+  // Preselection info
   //=======================================================
 
   public :
 
     // accessors
+    bool ecalDriven() const ; // return true if ecalDrivenSeed() and passingCutBasedPreselection()
+    bool passingCutBasedPreselection() const { return passCutBasedPreselection_ ; }
+    bool passingMvaPreselection() const { return passMvaPreslection_ ; }
     float mva() const { return mva_ ; }
+
+    // setters
+    void setPassCutBasedPreselection( bool flag ) { passCutBasedPreselection_ = flag ; }
+    void setPassMvaPreselection( bool flag ) { passMvaPreslection_ = flag ; }
 
   private:
 
     // attributes
-    float mva_ ;                    // electron ID variable from mva (tracker driven electrons)
+    bool passCutBasedPreselection_ ;
+    bool passMvaPreslection_ ;
+    float mva_ ; // electron ID variable from mva (tracker driven electrons)
 
 
   //=======================================================
