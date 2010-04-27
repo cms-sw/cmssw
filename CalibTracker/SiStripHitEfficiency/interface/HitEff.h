@@ -78,6 +78,8 @@ class HitEff : public edm::EDAnalyzer {
   int timeDTDOF;
   float timeECAL, dedx;
   int dedxNOM;
+  int tquality;
+  int istep;
 };
 
 
