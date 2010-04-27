@@ -10,6 +10,7 @@ eventEmbeddingSourceParameters = cms.PSet(
 )
 eventEmbeddingMixParameters = cms.PSet(
     LabelPlayback = cms.string(''),
+    playback = cms.bool(False),
     maxBunch = cms.int32(0),
     minBunch = cms.int32(0),
     Label = cms.string(''),
