@@ -84,6 +84,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   theSiPileUpSignals->reset();
   unsigned int detID = det->geographicalId().rawId();
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
+  SiStripApvGain::Range detGainRange = gainHandle->getRange(detID);
   SiStripPedestals::Range detPedestalRange = pedestalHandle->getRange(detID);
   SiStripBadStrip::Range detBadStripRange = deadChannelHandle->getRange(detID);
   numStrips = (det->specificTopology()).nstrips();  
@@ -176,7 +177,8 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 	  }
 	  if(RefStrip<numStrips){
 	 	float noiseRMS = noiseHandle->getNoise(RefStrip,detNoiseRange);
-		theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC);
+		float gainValue = gainHandle->getStripGain(RefStrip, detGainRange);
+		theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC/gainValue);
 	  }
 	}
     digis.clear();
