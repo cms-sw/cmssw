@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.51 2010/03/08 14:40:15 gbauer Exp $
+# $Id: setup_sm.sh,v 1.52 2010/04/27 01:59:13 gbauer Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
@@ -232,13 +232,33 @@ start () {
         srv-S2C17-01)
             ;;
         srv-C2D05-02)
+            echo "doing  srv-C2D05-02..."
             for i in $store/satacmsdisk*; do 
                 sn=`basename $i`
                 if mount | grep -q $sn; then
                     echo "$sn is already mounted"
                 else
-                    echo "Attempting to mount $i"
+                    echo "Attempting to mount $i by LABEL"
                     mount -L $sn $i
+		    if mount | grep -q $sn; then
+			echo "Mounted $i using label"
+		    else
+		    #if label mount failed, do it the hard way:
+			device=''
+			for dev in /dev/mapper/mpath*p*; do
+			    /sbin/e2label  $dev | grep -q "$sn" && device=$dev
+			done
+			if [ -b "$device" ]; then
+			    echo "Attempting to mount $1 from $device"
+			    if mount $device $i; then
+				echo "Mounted $i manually from $device"
+			    else
+				echo "Could not mount $i from $device!"
+			    fi
+			else
+			    echo "Could not mount $i from $device!"
+			fi
+		    fi
                 fi
             done
             ;;
