@@ -32,6 +32,7 @@ SiStripDCSStatus::SiStripDCSStatus() :
   TECFinDAQ(false),
   TECBinDAQ(false),
   trackerAbsent(false),
+  rawdataAbsent(true),
   initialised(false) {
 }
 //
@@ -105,12 +106,13 @@ void SiStripDCSStatus::initialise(edm::Event const& e, edm::EventSetup const& eS
   edm::Handle<FEDRawDataCollection> rawDataHandle;
   e.getByLabel("source", rawDataHandle);
 
-  const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
   if ( !rawDataHandle.isValid() ) {
     rawdataAbsent = true;
     return;
   }
 
+  rawdataAbsent = false;
+  const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
   for(std::vector<unsigned short>::const_iterator ifed = connectedFEDs.begin(); ifed != connectedFEDs.end(); ifed++){
     const std::vector<FedChannelConnection> fedChannels = fedCabling_->connections( *ifed );
     if (!(rawDataCollection.FEDData(*ifed).size()) || !(rawDataCollection.FEDData(*ifed).data()) ) continue;
