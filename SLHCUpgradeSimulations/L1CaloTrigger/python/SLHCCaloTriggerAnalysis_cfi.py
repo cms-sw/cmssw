@@ -32,14 +32,14 @@ SLHCelectrons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                            src    = cms.InputTag("L1ExtraParticles","EGamma"),
                            ref    = cms.InputTag("mcElectrons"),
                            deltaR = cms.double(0.3),
-                           threshold = cms.double(10.)
+                           threshold = cms.double(5.)
 )                           
 
 SLHCisoElectrons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                            src    = cms.InputTag("L1ExtraParticles","IsoEGamma"),
                            ref    = cms.InputTag("mcElectrons"),
                            deltaR = cms.double(0.3),
-                           threshold = cms.double(10.)
+                           threshold = cms.double(5.)
 )                           
 
 
@@ -54,7 +54,7 @@ SLHCisoPhotons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                            src    = cms.InputTag("L1ExtraParticles","IsoEGamma"),
                            ref    = cms.InputTag("mcPhotons"),
                            deltaR = cms.double(0.3),
-                           threshold = cms.double(10.)
+                           threshold = cms.double(5.)
 )                           
 
 

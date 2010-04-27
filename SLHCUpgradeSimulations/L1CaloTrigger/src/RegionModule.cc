@@ -44,7 +44,7 @@ RegionModule::clusterize(L1CaloRegionCollection& regions,const edm::Handle<L1Cal
   //I am doing it the slow way because I want to simulate the Circuit!!
   reset();
   
-  int Nregions = 0;
+
 
   //Populate the lattice with ECAL/HCAL
   populateLattice(towers);
@@ -74,8 +74,8 @@ RegionModule::clusterize(L1CaloRegionCollection& regions,const edm::Handle<L1Cal
       if(E>0)
 	regions.push_back(region);
 
-      Nregions++;
+
     }
-  printf("Finished %d regions\n",Nregions);
+
 }
 	
