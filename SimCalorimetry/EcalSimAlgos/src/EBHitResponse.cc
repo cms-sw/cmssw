@@ -62,10 +62,10 @@ EBHitResponse::putAnalogSignal( const PCaloHit& hit )
 	 CaloSamples& result ( *findSignal( detId ) );
 
 //	 edm::LogError( "EBHitResponse" )<<"---APD SimHit found for "
-	 std::cout<<"---APD SimHit found for "
+/*	 std::cout<<"---APD SimHit found for "
 		  << EBDetId( detId ) 
 		  <<", depth="<< depth 
-		  <<std::endl ;
+		  <<std::endl ;*/
 
 	 const double signal ( apdSignalAmplitude( hit ) ) ;
 	    
@@ -121,10 +121,10 @@ EBHitResponse::apdSignalAmplitude( const PCaloHit& hit ) const
 
    npe *= fac ;
 //   edm::LogError( "EBHitResponse" ) << "--- # photoelectrons for "
-   std::cout << "--- # photoelectrons for "
+/*   std::cout << "--- # photoelectrons for "
 	     << EBDetId( hit.id() ) 
 	     <<" is " << npe //;
-	     <<std::endl ;
+	     <<std::endl ;*/
 
    return npe ;
 }
