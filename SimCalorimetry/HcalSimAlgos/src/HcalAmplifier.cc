@@ -101,7 +101,9 @@ void HcalAmplifier::addPedestals(CaloSamples & frame) const
   if(hcalSubDet==HcalGenericDetId::HcalGenOuter) fudgefactor = HO_ff;
   bool useOld = false;
   if(fudgefactor==0) useOld = true;
-  if(hcalGenDetId.isHcalCastorDetId()) useOld = true;
+  if(hcalGenDetId.isHcalCastorDetId()) return;
+  if(hcalGenDetId.isHcalZDCDetId()) return;
+  
 
   const HcalCholeskyMatrix * thisChanCholesky = myCholeskys->getValues(hcalGenDetId);
   const HcalPedestal * thisChanADCPeds = myADCPeds->getValues(hcalGenDetId);
