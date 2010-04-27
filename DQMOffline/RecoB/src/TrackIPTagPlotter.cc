@@ -461,11 +461,11 @@ TrackIPTagPlotter::TrackIPTagPlotter(const TString & tagName,
 
   trackQualHisto = new FlavourHistograms<int>
        ("trackQual" + theExtensionString, "Track Quality of Tracks Associated to Jets",
-        5, -1.5, 4.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+        6, -1.5, 4.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
 
   selectedTrackQualHisto = new FlavourHistograms<int>
        ("selectedTrackQual" + theExtensionString, "Track Quality of Selected Tracks Associated to Jets",
-        5, -1.5, 4.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+        6, -1.5, 4.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
 
   trackMultVsJetPtHisto = new FlavourHistograms2D<double, int>
        ("trackMultVsJetPt" + theExtensionString, "Track Multiplicity vs Jet Pt for Tracks Associated to Jets",
