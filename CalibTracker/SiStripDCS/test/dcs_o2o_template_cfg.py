@@ -2,18 +2,8 @@
 # o2o-template_cfg.py : cmsRun configuration file for o2o DCS extraction
 #
 # Author  : Jo Cole
-# Changes : Marco De Mattia
+# Changes : Marco DeMattia
 #           Dave Schudel
-#
-# Usage:  This file is a template for running the DCS o2o script run_o2o.sh.
-#           That script creates an intermediate configuration file
-#           (o2o_status_change_nopw_cfg.py) and writes the current time & date 
-#           in place of the 2009 and similar tags.
-#
-#         Then, the python script testpw.py is called, which writes the
-#           database login information in place of the cms_trk_tkcc/fjrEipnl88@cms_omds_tunnel and oracle://cms_omds_tunnel/CMS_TRK_DCS_PVSS_COND tags
-#           and saves the final script as o2o_status_change_cfg.by.  It then
-#           runs cmsRun o2o_status_change_cfg.py and performs the extraction. 
 # -----------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
@@ -38,9 +28,8 @@ process.load("CalibTracker.SiStripDCS.MessLogger_cfi")
 # -----------------------------------------------------------------------------
 
 process.SiStripConfigDb = cms.Service("SiStripConfigDb",
-    # ConfDb = cms.untracked.string('cms_trk_tkcc/A4npLENFPA4@cms_omds_tunnel'),
-    ConfDb = cms.untracked.string('cms_trk_r/1A3C5E7G:FIN@cms_omds_tunnel'),
-    TNS_ADMIN = cms.untracked.string('/opt/cmssw/Development/Users/DeMattia/connection_files'),
+    ConfDb = cms.untracked.string('cms_trk_r/PASSWORD@cms_omds_tunnel'),
+    TNS_ADMIN = cms.untracked.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
     UsingDb = cms.untracked.bool(True),
     Partitions = cms.untracked.PSet(
         PartTIBD = cms.untracked.PSet(
@@ -61,7 +50,7 @@ process.SiStripConfigDb = cms.Service("SiStripConfigDb",
                 ForceVersions = cms.untracked.bool(True), 
                 DcuPsuMapVersion = cms.untracked.vuint32(266,1)
                 ),
-         PartTECM = cms.untracked.PSet(
+        PartTECM = cms.untracked.PSet(
                 PartitionName = cms.untracked.string("TM_09-JUN-2009_1"),
                 ForceCurrentState = cms.untracked.bool(False),
                 ForceVersions = cms.untracked.bool(True), 
@@ -83,12 +72,20 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1)
 )
 
+
+# -----------------------------------------------------------------------------
+# Database Setup
+# -----------------------------------------------------------------------------
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+
+process.CondDBCommon.connect = cms.string('oracle://cms_omds_tunnel/CMS_TRK_R')
+
 # -----------------------------------------------------------------------------
 # Define our ModuleHVBuilder process.  
 #
 # Parameters:
 #   onlineDB            : the connection string for the database.  In  
-#                           o2o-template_cfg.py, we save it as 'oracle://cms_omds_tunnel/CMS_TRK_DCS_PVSS_COND' - it's
+#                           o2o-template_cfg.py, we save it as 'oracle://cms_omds_nolb/CMS_TRK_DCS_PVSS_COND' - it's
 #                           converted to the correct value from the script
 #                           run_o2o.sh (so we don't save connection info here)
 #   authPath            : <unknown>
@@ -104,14 +101,14 @@ process.source = cms.Source("EmptySource",
 
 process.SiStripDetVOffBuilder = cms.Service(
     "SiStripDetVOffBuilder",
-    # onlineDB = cms.string('oracle://cms_omds_tunnel/CMS_TRK_DCS_PVSS_COND'),
     onlineDB = cms.string('oracle://cms_omds_tunnel/CMS_TRK_R'),
-    authPath = cms.string('/opt/cmssw/Development/Users/DeMattia/connection_files'),
-    
-    # Format for date/time vector:  year, month, day, hour, minute, second, nanosecond
-    Tmin = cms.vint32(2010,  4, 1, 20,  0, 0, 000),
-    Tmax = cms.vint32(2010,  4, 2, 20,  0, 0, 000),
+    #authPath = cms.string('/opt/cmssw/shifter/o2o_dcs/connection_files'),
+    authPath = cms.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
 
+    # Format for date/time vector:  year, month, day, hour, minute, second, nanosecond      
+    Tmin = cms.untracked.vint32(2009, 11, 23,  4,  0, 0, 000),
+    Tmax = cms.untracked.vint32(2009, 11, 23,  16,  0, 0, 000),
+    
     # Do NOT change this unless you know what you are doing!
     TSetMin = cms.vint32(2007, 11, 26, 0, 0, 0, 0),                                             
     
@@ -123,30 +120,20 @@ process.SiStripDetVOffBuilder = cms.Service(
     
     # flag to show if you are reading from file for lastValue or not                              
     lastValueFromFile = cms.bool(False),
-
+    
     # flag to toggle debug output
     debugModeOn = cms.bool(False),
-
+    
     # DetIdFile
     DetIdListFile = cms.string('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
-    ExcludedDetIdListFile = cms.string('CalibTracker/SiStripDCS/data/ExcludedSiStripDetInfo.dat'),
 
     # Threshold to consider an HV channel on
     HighVoltageOnThreshold = cms.double(0.97),
 
     # Leave empty if you want to use the db
-    PsuDetIdMapFile = cms.string("CalibTracker/SiStripDCS/data/PsuDetIdMap.dat")
+    PsuDetIdMapFile = cms.string("CalibTracker/SiStripDCS/data/PsuDetIdMap.dat"),
+    ExcludedDetIdListFile = cms.string('CalibTracker/SiStripDCS/data/ExcludedSiStripDetInfo.dat')
 )
-
-# -----------------------------------------------------------------------------
-# Database Setup
-# -----------------------------------------------------------------------------
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-
-# process.CondDBCommon.connect = cms.string('oracle://cms_omds_tunnel/CMS_TRK_R')
-process.CondDBCommon.connect = cms.string('sqlite_file:dbfile.db')
-process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('nfshome0/popcondev/conddb')
-# process.CondDBCommon.connect = cms.string('oracle://cms_omds_tunnel/CMS_TRK_DCS_PVSS_COND')
 
 # -----------------------------------------------------------------------------
 # Service to write our data to the sqlite db (or Oracle).  This service is 
@@ -166,9 +153,13 @@ process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('nfs
 # -----------------------------------------------------------------------------
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon,
+    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+    DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(0),
+        authenticationPath = cms.untracked.string('/nfshome0/popcondev/conddb')
+    ),
     timetype = cms.untracked.string('timestamp'),
-    # connect = cms.string('sqlite_file:dbfile.db'),
+    connect = cms.string('sqlite_file:dbfile.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripDetVOffRcd'),
         tag = cms.string('SiStripDetVOff_Fake_31X')
@@ -193,8 +184,8 @@ process.siStripPopConDetVOff = cms.EDAnalyzer("SiStripPopConDetVOff",
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source = cms.PSet(
-        DeltaTmin = cms.uint32(240),
-        MaxIOVlength = cms.uint32(1000)
+        DeltaTmin = cms.uint32(15),
+        MaxIOVlength = cms.uint32(120)
     )                                        
 )
 
