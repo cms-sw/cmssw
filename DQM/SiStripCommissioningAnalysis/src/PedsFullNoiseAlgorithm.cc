@@ -292,20 +292,14 @@ void PedsFullNoiseAlgorithm::analyse() {
 	  		// Outputs Dead FedId FedCh Apv Strip Max/Mean Spread Signif Mean CrateSlot Ring Addr ccu lld.
         SiStripFedKey fed_key(ana->fedKey());
         SiStripFecKey fec_key(ana->fecKey());
-        std::cout<<"Dead "<<fed_key.fedId()
-        <<" "<<fed_key.fedChannel()
-        <<" "<<iapv
-        <<" "<<istr
-        <<" "<<ana->noiseMax_[iapv]/ana->noiseMean_[iapv]
-        <<" "<<ana->noiseSpread_[iapv]
-        <<" "<<ana->noiseSignif_[iapv][istr]
-        <<" "<<ana->noiseMean_[iapv]
+        std::cout<<"Dead "<<ana->noiseSignif_[iapv][istr]
         <<" "<<fec_key.fecCrate()
         <<" "<<fec_key.fecSlot()
         <<" "<<fec_key.fecRing()
         <<" "<<fec_key.ccuAddr()
         <<" "<<fec_key.ccuChan()
-        <<" "<<fec_key.lldChan()<<std::endl;
+        <<" "<<fec_key.lldChan()
+        <<" "<<iapv*128+istr<<std::endl;
       } // Strip Masking for Dead Strips
       //Strip Masking for Non Gassian Strips which are also noisy.
       else if(ana->ksProb_[iapv][istr] < 20.0){// && ana->noiseSpread_[iapv] > 0.3        
@@ -314,20 +308,14 @@ void PedsFullNoiseAlgorithm::analyse() {
         // Outputs NoisyKS FedId FedCh Apv Strip Max/Mean Spread Signif Mean CrateSlot Ring Addr ccu lld.
         SiStripFedKey fed_key(ana->fedKey());
         SiStripFecKey fec_key(ana->fecKey());
-        std::cout<<"NoisyKS "<<fed_key.fedId()
-        <<" "<<fed_key.fedChannel()
-        <<" "<<iapv
-        <<" "<<istr
-        <<" "<<ana->noiseSignif_[iapv][istr]
-        <<" "<<ana->noiseRMS_[iapv][istr]
-        <<" "<<ana->noiseSpread_[iapv]
-        <<" "<<ana->noiseMean_[iapv]
+        std::cout<<"NoisyKS "<<ana->ksProb_[iapv][istr]     
         <<" "<<fec_key.fecCrate()
         <<" "<<fec_key.fecSlot()
         <<" "<<fec_key.fecRing()
         <<" "<<fec_key.ccuAddr()
         <<" "<<fec_key.ccuChan()
-        <<" "<<fec_key.lldChan()<<std::endl;
+        <<" "<<fec_key.lldChan()
+        <<" "<<iapv*128+istr<<std::endl;
       } //Strip Masking for Non Gassian Strips which are also noisy.
       // Laurent's Method for Flagging bad strips in TIB
       else if((ana->noiseMax_[iapv]/ana->noiseMean_[iapv] > 3 || ana->noiseSpread_[iapv] > 3)
@@ -336,40 +324,28 @@ void PedsFullNoiseAlgorithm::analyse() {
         // Outputs NoisyLM FedId FedCh Apv Strip Max/Mean Spread Signif Mean CrateSlot Ring Addr ccu lld.
         SiStripFedKey fed_key(ana->fedKey());
         SiStripFecKey fec_key(ana->fecKey());
-        std::cout<<"NoisyLM "<<fed_key.fedId()
-        <<" "<<fed_key.fedChannel()
-        <<" "<<iapv
-        <<" "<<istr
-        <<" "<<ana->noiseMax_[iapv]/ana->noiseMean_[iapv]
-        <<" "<<ana->noiseSpread_[iapv]
-        <<" "<<ana->noiseSignif_[iapv][istr]
-        <<" "<<ana->noiseMean_[iapv]
+        std::cout<<"NoisyLM "<<ana->noiseMax_[iapv]/ana->noiseMean_[iapv]     
         <<" "<<fec_key.fecCrate()
         <<" "<<fec_key.fecSlot()
         <<" "<<fec_key.fecRing()
         <<" "<<fec_key.ccuAddr()
         <<" "<<fec_key.ccuChan()
-        <<" "<<fec_key.lldChan()<<std::endl;
+        <<" "<<fec_key.lldChan()
+        <<" "<<iapv*128+istr<<std::endl;
       } // if NoisyLM 
       else if(ana->noiseSignif_[iapv][istr] > 10){
       	ana->noisy_[iapv].push_back(istr);
         // Outputs NoisySignif FedId FedCh Apv Strip Max/Mean Spread Signif Mean CrateSlot Ring Addr ccu lld.
         SiStripFedKey fed_key(ana->fedKey());
         SiStripFecKey fec_key(ana->fecKey());
-        std::cout<<"NoisySignif "<<fed_key.fedId()
-        <<" "<<fed_key.fedChannel()
-        <<" "<<iapv
-        <<" "<<istr
-        <<" "<<ana->noiseMax_[iapv]/ana->noiseMean_[iapv]
-        <<" "<<ana->noiseSpread_[iapv]
-        <<" "<<ana->noiseSignif_[iapv][istr]
-        <<" "<<ana->noiseMean_[iapv]
+        std::cout<<"NoisySignif "<<ana->noiseSignif_[iapv][istr]    
         <<" "<<fec_key.fecCrate()
         <<" "<<fec_key.fecSlot()
         <<" "<<fec_key.fecRing()
         <<" "<<fec_key.ccuAddr()
         <<" "<<fec_key.ccuChan()
-        <<" "<<fec_key.lldChan()<<std::endl;
+        <<" "<<fec_key.lldChan()
+        <<" "<<iapv*128+istr<<std::endl;
       } // if Signif 
       /*/ Some double checking if a strip is noisy for multiple reasons.      
       if(ana->ksProb_[iapv][istr] < 1.0 && ana->noiseSpread_[iapv] > 0.3        
@@ -378,20 +354,14 @@ void PedsFullNoiseAlgorithm::analyse() {
       	&& ana->noiseSignif_[iapv][istr] > 1){                    
           SiStripFedKey fed_key(ana->fedKey());
       		SiStripFecKey fec_key(ana->fecKey());
-          std::cout << "KSandLM "<<fed_key.fedId()
-          <<" "<<fed_key.fedChannel()
-      		<<" "<<iapv
-      		<<" "<<istr
-          <<" "<<ana->noiseSignif_[iapv][istr]
-          <<" "<<ana->noiseRMS_[iapv][istr]
-          <<" "<<ana->noiseSpread_[iapv]
-          <<" "<<ana->noiseMean_[iapv]
-          <<" "<<fec_key.fecCrate()
-      		<<" "<<fec_key.fecSlot()
-      		<<" "<<fec_key.fecRing()
-      		<<" "<<fec_key.ccuAddr()
-      		<<" "<<fec_key.ccuChan()
-      		<<" "<<fec_key.lldChan()<<std::endl;
+          std::cout << "KSandLM "<<ana->noiseSignif_[iapv][istr]    
+        	<<" "<<fec_key.fecCrate()
+        	<<" "<<fec_key.fecSlot()
+        	<<" "<<fec_key.fecRing()
+        	<<" "<<fec_key.ccuAddr()
+        	<<" "<<fec_key.ccuChan()
+        	<<" "<<fec_key.lldChan()
+        	<<" "<<iapv*128+istr<<std::endl;
       	}
       }//if KS and LM
       if((ana->noiseMax_[iapv]/ana->noiseMean_[iapv] > 3 || ana->noiseSpread_[iapv] > 3)
@@ -399,20 +369,14 @@ void PedsFullNoiseAlgorithm::analyse() {
       	if(ana->noiseSignif_[iapv][istr] > 10) {
           SiStripFedKey fed_key(ana->fedKey());
       		SiStripFecKey fec_key(ana->fecKey());
-          std::cout << "LMandSignif "<<fed_key.fedId()
-          <<" "<<fed_key.fedChannel()
-      		<<" "<<iapv
-      		<<" "<<istr
-          <<" "<<ana->noiseSignif_[iapv][istr]
-          <<" "<<ana->noiseRMS_[iapv][istr]
-          <<" "<<ana->noiseSpread_[iapv]
-          <<" "<<ana->noiseMean_[iapv]
-          <<" "<<fec_key.fecCrate()
-      		<<" "<<fec_key.fecSlot()
-      		<<" "<<fec_key.fecRing()
-      		<<" "<<fec_key.ccuAddr()
-      		<<" "<<fec_key.ccuChan()
-      		<<" "<<fec_key.lldChan()<<std::endl;                    
+          std::cout << "LMandSignif "<<ana->noiseSignif_[iapv][istr]    
+        	<<" "<<fec_key.fecCrate()
+        	<<" "<<fec_key.fecSlot()
+        	<<" "<<fec_key.fecRing()
+        	<<" "<<fec_key.ccuAddr()
+        	<<" "<<fec_key.ccuChan()
+        	<<" "<<fec_key.lldChan()
+        	<<" "<<iapv*128+istr<<std::endl;                    
       	}
       } // if LM and Signif
       if(ana->ksProb_[iapv][istr] < 1.0 && ana->noiseSpread_[iapv] > 0.3        
@@ -420,20 +384,14 @@ void PedsFullNoiseAlgorithm::analyse() {
       	if(ana->noiseSignif_[iapv][istr] > 10) {
           SiStripFedKey fed_key(ana->fedKey());
       		SiStripFecKey fec_key(ana->fecKey());
-          std::cout << "KSandSignif "<<fed_key.fedId()
-          <<" "<<fed_key.fedChannel()
-      		<<" "<<iapv
-      		<<" "<<istr
-          <<" "<<ana->noiseSignif_[iapv][istr]
-          <<" "<<ana->noiseRMS_[iapv][istr]
-          <<" "<<ana->noiseSpread_[iapv]
-          <<" "<<ana->noiseMean_[iapv]
-          <" "<<fec_key.fecCrate()
-      		<<" "<<fec_key.fecSlot()
-      		<<" "<<fec_key.fecRing()
-      		<<" "<<fec_key.ccuAddr()
-      		<<" "<<fec_key.ccuChan()
-      		<<" "<<fec_key.lldChan()<<std::endl;                    
+          std::cout << "KSandSignif "<<ana->noiseSignif_[iapv][istr]    
+        	<<" "<<fec_key.fecCrate()
+        	<<" "<<fec_key.fecSlot()
+        	<<" "<<fec_key.fecRing()
+        	<<" "<<fec_key.ccuAddr()
+        	<<" "<<fec_key.ccuChan()
+        	<<" "<<fec_key.lldChan()
+        	<<" "<<iapv*128+istr<<std::endl;                    
       	}
       } // if KS and Signif */
     }// strip loop to set dead or noisy strips   
