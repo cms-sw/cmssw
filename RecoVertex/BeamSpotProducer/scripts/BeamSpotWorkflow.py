@@ -147,7 +147,7 @@ def ls(dir):
     tmpStatus = commands.getstatusoutput( aCommand )
     listOfFiles = tmpStatus[1].split('\n')
     if len(listOfFiles) == 1:
-        if listOffiles[0].find('No such file or directory') != -1:
+        if listOfFiles[0].find('No such file or directory') != -1:
             exit("ERROR: File or directory " + path + " doesn't exist") 
 
     return listOfFiles            
@@ -265,11 +265,11 @@ if __name__ == '__main__':
     
 
 
-#    lastUploadedIOV = getLastUploadedIOV(databaseTag) 
-    lastUploadedIOV = 133918
+    lastUploadedIOV = getLastUploadedIOV(databaseTag) 
+#    lastUploadedIOV = 133918
     newRunList      = getNewRunList(fromDir,lastUploadedIOV)
     if len(newRunList) == 0:
-        exit("There are no new runs after " + lastUploadedIOV)
+        exit("There are no new runs after " + str(lastUploadedIOV))
 
     listOfFilesToProcess = getListOfFilesToProcess(dataSet,lastUploadedIOV) 
 
