@@ -128,7 +128,7 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  }
 	  else
 	    {
-	      int highPtTaus=0;
+	      unsigned int highPtTaus=0;
 	      for(size_t j = 0;j<refC[0].size();++j)
 		{
 		  if((refC[0])[j].Et()>refTauPt_)
@@ -150,7 +150,7 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  }
 	else
 	  {
-	    int highPtLeptons=0;
+	    unsigned int highPtLeptons=0;
 	    for(size_t j = 0;j<refC[1].size();++j)
 	      {
 		if((refC[1])[j].Et()>refLeptonPt_)
@@ -175,14 +175,8 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   edm::Handle<trigger::TriggerEvent> trigEv;
   //get The triggerEvent
-     bool gotTEV =true;
-     try {
-       gotTEV*=iEvent.getByLabel(triggerEvent_,trigEv);
-     }
-     catch (cms::Exception& exception) {
-       gotTEV =false;
-     }
 
+  bool  gotTEV=iEvent.getByLabel(triggerEvent_,trigEv) && trigEv.isValid();
 
   if(gotTEV)
     {

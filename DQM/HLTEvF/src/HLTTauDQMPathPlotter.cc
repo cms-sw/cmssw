@@ -83,7 +83,7 @@ HLTTauDQMPathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    }
 	  else
 	    {
-	      int highPtTaus=0;
+	      unsigned int highPtTaus=0;
 	      for(size_t j = 0;j<refC[0].size();++j)
 		{
 		  if((refC[0])[j].Et()>refTauPt_)
@@ -96,45 +96,39 @@ HLTTauDQMPathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	 
 
 	    }
-  
-	  //lepton reference
-	  if(refC.size()>1)
-	    if(refC[1].size()<nTriggeredLeptons_[0])
-	      {
-		lepton_ok = false;
-	      }
-	    else
-	      {
-		int highPtLeptons=0;
-		for(size_t j = 0;j<refC[1].size();++j)
-		  {
-		    if((refC[1])[j].Et()>refLeptonPt_)
-		      highPtLeptons++;
-		  }
-		if(highPtLeptons<nTriggeredLeptons_[0])
-		  {
-		    lepton_ok = false;
-		  }
-	 
-	      }
-	  if(lepton_ok&&tau_ok)
-	    {
-	      accepted_events_matched->Fill(0.5);
-	      isGoodReferenceEvent=true;
-	    }
 	}
+      //lepton reference
+      if(refC.size()>1) {
+	if(refC[1].size()<nTriggeredLeptons_[0])
+	  {
+	    lepton_ok = false;
+	  }
+	else  {
+	  unsigned int highPtLeptons=0;
+	  for(size_t j = 0;j<refC[1].size();++j)
+	    {
+	      if((refC[1])[j].Et()>refLeptonPt_)
+		highPtLeptons++;
+	    }
+	  if(highPtLeptons<nTriggeredLeptons_[0])
+	    {
+	      lepton_ok = false;
+	    }
+	  
+	}
+	  
+	if(lepton_ok&&tau_ok)
+	  {
+	    accepted_events_matched->Fill(0.5);
+	    isGoodReferenceEvent=true;
+	  }
+      }
+
     }
 
-  Handle<TriggerEventWithRefs> trigEv;
-  //get The triggerEvent
-     bool gotTEV =true;
-     try {
-       gotTEV*=iEvent.getByLabel(triggerEventObject_,trigEv);
-     }
-     catch (cms::Exception& exception) {
-       gotTEV =false;
-     }
 
+  Handle<TriggerEventWithRefs> trigEv;
+  bool   gotTEV=iEvent.getByLabel(triggerEventObject_,trigEv) &&trigEv.isValid();
 
   if(gotTEV)
     {
