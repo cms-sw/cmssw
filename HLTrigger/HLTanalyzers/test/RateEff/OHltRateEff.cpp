@@ -151,6 +151,7 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   TH1F *h3 = new TH1F("h3","etanum",nbineta,etamin,etamax);
   TH1F *h4 = new TH1F("h4","etaden",nbineta,etamin,etamax);
 
+	float fTwo=2.;
   
   vector<float> ftmp;
   for (int i=0;i<ntrig;i++) { // Init
@@ -187,6 +188,7 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
 	//scaleddeno = (float)(1. * (fact)) / ((float)(cfg->prescaleNormalization));
 	scaleddenoPerLS = (float)((fact)) / ((float)(cfg->prescaleNormalization));
 	cout << "N(Lumi Sections) = " << (procs[i]->GetNLumiSections()) << endl;
+	hltDatasets[i].computeRate(scaleddeno);          //SAK -- convert event counts into rates. FOR DATA ONLY
       }
     else if(cfg->isRealData == 1 && cfg->nL1AcceptsRun > 0) 
       { 
@@ -199,7 +201,8 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
     float collisionRate =
       ((float)cfg->nFilledBunches/(float)cfg->maxFilledBunches)/cfg->bunchCrossingTime ; // Hz
 
-    hltDatasets[i].computeRate(collisionRate, mu);   //SAK -- convert event counts into rates
+    if(!(cfg->isRealData == 1 && cfg->lumiSectionLength > 0))
+			hltDatasets[i].computeRate(collisionRate, mu);   //SAK -- convert event counts into rates
 
 
     for (unsigned int iLS=0;iLS<rcs[i]->perLumiSectionCount.size();iLS++) {
@@ -234,12 +237,12 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
 
       else{
 	Rate[j]    += collisionRate*(1. - exp(- mu * OHltRateCounter::eff((float)rcs[i]->iCount[j],deno)));  
-	RateErr[j] += pow(collisionRate*mu * OHltRateCounter::effErr((float)rcs[i]->iCount[j],deno),2.);
+	RateErr[j] += pow(collisionRate*mu * OHltRateCounter::effErr((float)rcs[i]->iCount[j],deno),fTwo);
 	//cout<<j<<" Counts: "<<rcs[i]->iCount[j]<<endl;
 	spureRate[j]    += collisionRate*(1. - exp(- mu * OHltRateCounter::eff((float)rcs[i]->sPureCount[j],deno)));  
-	spureRateErr[j] += pow(collisionRate*mu * OHltRateCounter::effErr((float)rcs[i]->sPureCount[j],deno),2.);
+	spureRateErr[j] += pow(collisionRate*mu * OHltRateCounter::effErr((float)rcs[i]->sPureCount[j],deno),fTwo);
 	pureRate[j]    += collisionRate*(1. - exp(- mu * OHltRateCounter::eff((float)rcs[i]->pureCount[j],deno)));  
-	pureRateErr[j] += pow(collisionRate*mu * OHltRateCounter::effErr((float)rcs[i]->pureCount[j],deno),2.);
+	pureRateErr[j] += pow(collisionRate*mu * OHltRateCounter::effErr((float)rcs[i]->pureCount[j],deno),fTwo);
         cout << "N(passing " << menu->GetTriggerName(j) << ") = " << (float)rcs[i]->iCount[j] << endl; 
 
 	for (int k=0;k<ntrig;k++){

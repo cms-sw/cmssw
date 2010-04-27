@@ -131,6 +131,8 @@ public:
                   , UInt_t    numProcessedEvents  ///< Number of events processed for this sample, to be used for the trigger efficiency calculations.
                   );
 
+	void computeRate( float scaleddenominator); ///<product of:#LS*LSlength/(LuminosityFactor*OriginalStreamPrescaleFactor). DATA ONLY
+
   /**
     Prints to the given output stream:
       - A Latex table of the contribution of this dataset to the other datasets (numEventsAdded).
@@ -223,6 +225,8 @@ public:
   void computeRate( Double_t  collisionRate       ///< Rate of bunch crossings, for onverting numbers of events into rates.
                   , Double_t  mu                  ///< bunchCrossingTime * crossSection * instantaneousLuminosity * maxFilledBunches / nFilledBunches
                   );
+
+  void computeRate( float scaleddenominator);     ///<product of:#LS*LSlength/(LuminosityFactor*OriginalStreamPrescaleFactor). DATA ONLY
 
   /**
     TObject::Write()s to the currently open file correlation plots [RateIn(X AND Y) / RateIn(X)], 
