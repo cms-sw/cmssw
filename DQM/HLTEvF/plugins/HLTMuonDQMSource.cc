@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.35 2010/02/16 17:03:16 wmtan Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.36 2010/02/17 22:53:26 wdd Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -67,10 +67,10 @@ Implementation:
 
 #include "TMath.h" 
 
-using namespace std;
-using namespace edm;
-using namespace reco;
-using namespace l1extra;
+//using namespace std;
+//using namespace edm;
+//using namespace reco;
+//using namespace l1extra;
 //
 // constructors and destructor
 //
@@ -78,24 +78,26 @@ HLTMuonDQMSource::HLTMuonDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0
 {
   parameters_ = ps;
   verbose_ = parameters_.getUntrackedParameter < bool > ("verbose", false);
-  monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","HLT/HLTMonMuon");
+  monitorName_ = parameters_.getUntrackedParameter<std::string>("monitorName","HLT/HLTMonMuon");
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
   coneSize_ = parameters_.getUntrackedParameter<double>("coneSize", 0.24);
-  l2seedscollectionTag_ = parameters_.getUntrackedParameter<InputTag>("l2MuonSeedTag",edm::InputTag("hltL2MuonSeeds"));
-  l3seedscollectionTag_ = parameters_.getUntrackedParameter<InputTag>("l3MuonSeedTag",edm::InputTag("hltL3TrajectorySeed"));
-  l2collectionTag_ = parameters_.getUntrackedParameter<InputTag>("l2MuonTag",edm::InputTag("hltL2MuonCandidates"));
-  l3collectionTag_ = parameters_.getUntrackedParameter<InputTag>("l3MuonTag",edm::InputTag("hltL3MuonCandidates"));
-  l2isolationTag_ = parameters_.getUntrackedParameter<InputTag>("l2IsolationTag",edm::InputTag("hltL2MuonIsolations"));
-  l3isolationTag_ = parameters_.getUntrackedParameter<InputTag>("l3IsolationTag",edm::InputTag("hltL3MuonIsolations"));
+  l2seedscollectionTag_ = parameters_.getUntrackedParameter<edm::InputTag>("l2MuonSeedTag",edm::InputTag("hltL2MuonSeeds"));
+  l3seedscollectionTag_ = parameters_.getUntrackedParameter<edm::InputTag>("l3MuonSeedTag",edm::InputTag("hltL3TrajectorySeed"));
+  l2collectionTag_ = parameters_.getUntrackedParameter<edm::InputTag>("l2MuonTag",edm::InputTag("hltL2MuonCandidates"));
+  l3collectionTag_ = parameters_.getUntrackedParameter<edm::InputTag>("l3MuonTag",edm::InputTag("hltL3MuonCandidates"));
+  l2isolationTag_ = parameters_.getUntrackedParameter<edm::InputTag>("l2IsolationTag",edm::InputTag("hltL2MuonIsolations"));
+  l3isolationTag_ = parameters_.getUntrackedParameter<edm::InputTag>("l3IsolationTag",edm::InputTag("hltL3MuonIsolations"));
+
+  TrigResultInput = parameters_.getUntrackedParameter<edm::InputTag>("TrigResultInputTag", edm::InputTag("TriggerResults"));
 
   dbe_ = 0 ;
-  dbe_ = Service < DQMStore > ().operator->();
+  dbe_ = edm::Service < DQMStore > ().operator->();
   dbe_->setVerbose(0);
  
   outputFile_ =
     parameters_.getUntrackedParameter < std::string > ("outputFile", "");
   if (outputFile_.size() != 0) {
-    LogWarning("HLTMuonDQMSource") << "Muon HLT Monitoring histograms will be saved to " 
+    edm::LogWarning("HLTMuonDQMSource") << "Muon HLT Monitoring histograms will be saved to " 
 				   << outputFile_ << std::endl;
   }
   else {
@@ -148,7 +150,7 @@ void HLTMuonDQMSource::beginJob()
   if (dbe_) {
     //dbe_->setCurrentFolder("monitorName_");
     if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
-    LogInfo("HLTMuonDQMSource") << "===>DQM event prescale = " << prescaleEvt_ << " events "<< endl;
+    edm::LogInfo("HLTMuonDQMSource") << "===>DQM event prescale = " << prescaleEvt_ << " events "<< std::endl;
     
     
     /// book some histograms here
@@ -157,7 +159,7 @@ void HLTMuonDQMSource::beginJob()
     // create and cd into new folder
     char name[512], title[512];
     double pt_max;
-    string dirname;
+    std::string dirname;
 
     for( int trig = 0; trig < nTrigs; trig++ ) {
       dirname = theDirectoryName[trig]+"/";
@@ -764,29 +766,29 @@ void HLTMuonDQMSource::beginJob()
 }
 
 //--------------------------------------------------------
-void HLTMuonDQMSource::beginRun(const edm::Run& r, const EventSetup& context) {
+void HLTMuonDQMSource::beginRun(const edm::Run& r, const edm::EventSetup& context) {
   
 }
 
 //--------------------------------------------------------
-void HLTMuonDQMSource::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
-					    const EventSetup& context) {
+void HLTMuonDQMSource::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+					    const edm::EventSetup& context) {
   
 }
 
 // ----------------------------------------------------------
-void HLTMuonDQMSource::analyze(const Event& iEvent, 
-			       const EventSetup& iSetup )
+void HLTMuonDQMSource::analyze(const edm::Event& iEvent, 
+			       const edm::EventSetup& iSetup )
 {  
   if ( !dbe_) return;
   counterEvt_++;
   if (prescaleEvt_ > 0 && counterEvt_%prescaleEvt_!=0) return;
-  LogDebug("HLTMuonDQMSource") << " processing conterEvt_: " << counterEvt_ <<endl;
+  LogDebug("HLTMuonDQMSource") << " processing conterEvt_: " << counterEvt_ <<std::endl;
 
   bool trigFired = false;
   bool FiredTriggers[NTRIG] = {false};
-  Handle<TriggerResults> trigResult;
-  iEvent.getByLabel(InputTag("TriggerResults"), trigResult);
+  edm::Handle<edm::TriggerResults> trigResult;
+  iEvent.getByLabel(TrigResultInput, trigResult);
   if( !trigResult.failedToGet() ) {
     int ntrigs = trigResult->size();
     const edm::TriggerNames & trigName = iEvent.triggerNames(*trigResult);
@@ -816,58 +818,15 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   edm::ESHandle<GlobalTrackingGeometry> glbTrackingGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(glbTrackingGeometry);
   
-  Handle<RecoChargedCandidateCollection> l2mucands, l3mucands;
-  Handle<L2MuonTrajectorySeedCollection> l2seeds; 
-  Handle<L3MuonTrajectorySeedCollection> l3seeds; 
-  RecoChargedCandidateCollection::const_iterator cand, cand2, cand3;
+  edm::Handle<reco::RecoChargedCandidateCollection> l2mucands, l3mucands;
+  edm::Handle<L2MuonTrajectorySeedCollection> l2seeds; 
+  edm::Handle<L3MuonTrajectorySeedCollection> l3seeds; 
+  reco::RecoChargedCandidateCollection::const_iterator cand, cand2, cand3;
   
-  bool accessToL2Seed = true;
-  try {
-    iEvent.getByLabel (l2seedscollectionTag_,l2seeds);
-  }
-  catch( cms::Exception& exception ) {
-    LogDebug("HLTMuonDQMSource") << "no L2 seed, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-    accessToL2Seed = false;
-  }
-  
-  if( accessToL2Seed ) {
-    bool accessToL2Muon = true;
-    try{
-      iEvent.getByLabel (l2collectionTag_,l2mucands);
-    }
-    catch( cms::Exception& exception ) {
-      LogDebug("HLTMuonDQMSource") << "no L2 Muon, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-      accessToL2Muon = false;
-    }
-
-    if( accessToL2Muon ) {
-      bool accessToL3Seed = true;
-      try {
-	iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
-      }
-      catch( cms::Exception& exception ) {
-        LogDebug("HLTMuonDQMSource") << "no L3 Seed, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-        accessToL3Seed = false;
-      }
-
-      if( accessToL3Seed ) {
-	bool accessToL3Muon = true;
-	try {
-	  iEvent.getByLabel (l3collectionTag_,l3mucands);
-	}
-        catch( cms::Exception& exception ) {
-          LogDebug("HLTMuonDQMSource") << "no L3 Muon, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-          accessToL3Muon = false;
-        }
-      }
-    }
-  }
-
-  /*
   iEvent.getByLabel (l2seedscollectionTag_,l2seeds);
-  //iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
-  //iEvent.getByLabel (l2collectionTag_,l2mucands);
-  //iEvent.getByLabel (l3collectionTag_,l3mucands);
+  iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
+  iEvent.getByLabel (l2collectionTag_,l2mucands);
+  iEvent.getByLabel (l3collectionTag_,l3mucands);
 
   if( !l2seeds.failedToGet() && l2seeds.isValid() ) {
     iEvent.getByLabel (l2collectionTag_,l2mucands);
@@ -876,7 +835,6 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       if( !l3seeds.failedToGet() && l3seeds.isValid() ) iEvent.getByLabel (l3collectionTag_,l3mucands);
     }
   }
-  */
 
   for( int ntrig = 0; ntrig < nTrigs; ntrig++ ) {
     if( !FiredTriggers[ntrig] ) continue;
@@ -884,7 +842,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
     if( !l2seeds.failedToGet() && l2seeds.isValid() ) {
       hNMu[ntrig][3]->Fill(l2seeds->size());
       L2MuonTrajectorySeedCollection::const_iterator l2seed;
-      map<L1MuonParticleRef, int> l1map;
+      std::map<l1extra::L1MuonParticleRef, int> l1map;
       for (l2seed=l2seeds->begin() ; l2seed != l2seeds->end();++l2seed){
 	PTrajectoryStateOnDet state=l2seed->startingState();
 	// Transform Trajectory State on Det to a TSOS
@@ -902,7 +860,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	hetaphi[ntrig][3]->Fill(phi,eta);
 	hptphi[ntrig][3]->Fill(pt,phi);
 	hpteta[ntrig][3]->Fill(pt,eta);
-	L1MuonParticleRef l1ref = l2seed->l1Particle();
+	l1extra::L1MuonParticleRef l1ref = l2seed->l1Particle();
 	l1map[l1ref]++;
 	hseedptres[ntrig][0]->Fill(1/pt - 1/l1ref->pt());
 	hseedetares[ntrig][0]->Fill(eta - l1ref->eta());
@@ -931,8 +889,8 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	_hphi1[ntrig][0]->Fill(l1ref->phi());
 	if ( !l2mucands.failedToGet() && l2mucands.isValid() ) {
 	  for (cand=l2mucands->begin(); cand!=l2mucands->end(); ++cand) {
-	    TrackRef tk = cand->get<TrackRef>();
-	    RefToBase<TrajectorySeed> seed=tk->seedRef();
+	    reco::TrackRef tk = cand->get<reco::TrackRef>();
+	    edm::RefToBase<TrajectorySeed> seed=tk->seedRef();
 	    if ( (l2seed->startingState()).detId() == (seed->startingState()).detId() ) {
 	      if(tk->pt()*l1ref->pt() != 0 ) {
 		hptres[ntrig][0]->Fill(1/l1ref->pt() - 1/tk->pt());
@@ -969,9 +927,9 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	      //find the L3 build from this L2
 	      if (!l3mucands.failedToGet() && l3mucands.isValid() ) {
 		for (cand=l3mucands->begin(); cand!=l3mucands->end(); ++cand) {
-		  TrackRef l3tk= cand->get<TrackRef>();
-		  if( l3tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> > ().isAvailable() ) {
-		    if (l3tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> >()->l2Track() == tk){
+		  reco::TrackRef l3tk= cand->get<reco::TrackRef>();
+		  if( l3tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> > ().isAvailable() ) {
+		    if (l3tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >()->l2Track() == tk){
 		      if(l1ref->pt()*l3tk->pt() != 0 ) {
 			hptres[ntrig][2]->Fill(1/l1ref->pt() - 1/l3tk->pt());
 			hptrespt[ntrig][2]->Fill(l3tk->pt(), 1/l1ref->pt() - 1/l3tk->pt());
@@ -1012,7 +970,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	}
       }
       // mapping
-      map<L1MuonParticleRef, int>::iterator it;
+      std::map<l1extra::L1MuonParticleRef, int>::iterator it;
       for( it = l1map.begin(); it != l1map.end(); it++ ) {
 	  hseedNMuper[ntrig][0]->Fill(it->second);
       }
@@ -1023,7 +981,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
     if (!l3seeds.failedToGet() && l3seeds.isValid() ) {
       hNMu[ntrig][4]->Fill(l3seeds->size());
       L3MuonTrajectorySeedCollection::const_iterator l3seed;
-      map<TrackRef, int> l2map;
+      std::map<reco::TrackRef, int> l2map;
       for (l3seed=l3seeds->begin() ; l3seed != l3seeds->end();++l3seed){
 	PTrajectoryStateOnDet state=l3seed->startingState();
 	// Transform Trajectory State on Det to a TSOS
@@ -1043,7 +1001,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	hptphi[ntrig][4]->Fill(pt,phi);
 	hpteta[ntrig][4]->Fill(pt,eta);
 
-	TrackRef l2tkRef = l3seed->l2Track();
+	reco::TrackRef l2tkRef = l3seed->l2Track();
 	l2map[l2tkRef]++;
 	hseedptres[ntrig][1]->Fill(1/pt - 1/l2tkRef->pt());
 	hseedetares[ntrig][1]->Fill(eta - l2tkRef->eta());
@@ -1053,7 +1011,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	hseedphirelres[ntrig][1]->Fill((phi - l2tkRef->phi())/l2tkRef->phi());
       }
       // mapping
-      map<TrackRef, int>::iterator it;
+      std::map<reco::TrackRef, int>::iterator it;
       for( it = l2map.begin(); it != l2map.end(); it++ ) {
 	  hseedNMuper[ntrig][1]->Fill(it->second);
       }
@@ -1067,14 +1025,14 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
     if (!recoBeamSpotHandle.failedToGet())  beamSpot = *recoBeamSpotHandle;
     
     if (!l2mucands.failedToGet() && l2mucands.isValid() ) {
-      LogDebug("HLTMuonDQMSource") << " filling L2 stuff " << endl;
-      Handle<reco::IsoDepositMap> l2depMap;
+      LogDebug("HLTMuonDQMSource") << " filling L2 stuff " << std::endl;
+      edm::Handle<reco::IsoDepositMap> l2depMap;
       if( l2mucands->size() != 0 ) iEvent.getByLabel (l2isolationTag_,l2depMap);
       hNMu[ntrig][1]->Fill(l2mucands->size());
       for (cand=l2mucands->begin(); cand!=l2mucands->end(); ++cand) {
-	TrackRef tk = cand->get<TrackRef>();
+	reco::TrackRef tk = cand->get<reco::TrackRef>();
 	if (!l2depMap.failedToGet() && l2depMap.isValid() ) {
-	  LogDebug("HLTMuonDQMSource") << " filling L2 Iso stuff " << endl;
+	  LogDebug("HLTMuonDQMSource") << " filling L2 Iso stuff " << std::endl;
 	  if ( l2depMap->contains(tk.id()) ){
 	    reco::IsoDepositMap::value_type calDeposit = (*l2depMap)[tk];
 	    double dephlt = calDeposit.depositWithin(coneSize_);
@@ -1122,22 +1080,22 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	  cand2=cand;
 	  ++cand2;
 	  for (; cand2!=l2mucands->end(); cand2++) {
-	    TrackRef tk2=cand2->get<TrackRef>();
+	    reco::TrackRef tk2=cand2->get<reco::TrackRef>();
 	    if ( tk->charge()*tk2->charge() == -1 ){
 	      double mass=(cand->p4()+cand2->p4()).M();
 	      hdimumass[ntrig][0]->Fill(mass);
 	    }
 	  }
-	} else LogWarning("HLTMonMuon")<<"stop filling candidate with update@Vtx failure";
+	} else edm::LogWarning("HLTMonMuon")<<"stop filling candidate with update@Vtx failure";
       }
     }
     if (!l3mucands.failedToGet() && l3mucands.isValid() ) {
-      LogDebug("HLTMuonDQMSource") << " filling L3 stuff " << endl;
+      LogDebug("HLTMuonDQMSource") << " filling L3 stuff " << std::endl;
       hNMu[ntrig][2]->Fill(l3mucands->size());
-      Handle<reco::IsoDepositMap> l3depMap;
+      edm::Handle<reco::IsoDepositMap> l3depMap;
       if( l3mucands->size() != 0 ) iEvent.getByLabel (l3isolationTag_,l3depMap);
       for (cand=l3mucands->begin(); cand!=l3mucands->end(); ++cand) {
-	TrackRef tk = cand->get<TrackRef>();
+	reco::TrackRef tk = cand->get<reco::TrackRef>();
 	if (!l3depMap.failedToGet() && l3depMap.isValid() ) {
 	  if ( l3depMap->contains(tk.id()) ){
 	    reco::IsoDepositMap::value_type calDeposit= (*l3depMap)[tk];
@@ -1179,14 +1137,14 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	++cand2;
 	
 	for (; cand2!=l3mucands->end(); cand2++) {
-	  TrackRef tk2=cand2->get<TrackRef>();
+	  reco::TrackRef tk2=cand2->get<reco::TrackRef>();
 	  if ( tk->charge()*tk2->charge() == -1 ){
 	    double mass=(cand->p4()+cand2->p4()).M();
 	    hdimumass[ntrig][1]->Fill(mass);
 	  }
 	}
-	if( tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> >().isAvailable() ) {
-	  TrackRef l2tk = tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> >()->l2Track();
+	if( tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >().isAvailable() ) {
+	  reco::TrackRef l2tk = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >()->l2Track();
 	  if(tk->pt()*l2tk->pt() != 0 ) {
 	    hptres[ntrig][1]->Fill(1/l2tk->pt() - 1/tk->pt());
 	    hptrespt[ntrig][1]->Fill(tk->pt(), 1/l2tk->pt() - 1/tk->pt());
@@ -1258,9 +1216,9 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 
 
   // Tower
-  Handle<CaloTowerCollection> caloTower; 
+  edm::Handle<CaloTowerCollection> caloTower; 
   if( !l2mucands.failedToGet() && l2mucands->size() != 0 )
-    iEvent.getByLabel(InputTag("hltTowerMakerForMuons"), caloTower);
+    iEvent.getByLabel(edm::InputTag("hltTowerMakerForMuons"), caloTower);
   for( int ntrig = 0; ntrig < nTrigs; ntrig++ ) {
     if( !FiredTriggers[ntrig] ) continue;
     if( caloTower.isValid() ) {
@@ -1271,7 +1229,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	  // deltaR with l2muon
 	  if (!l2mucands.failedToGet() && l2mucands.isValid() ) {
 	      for (cand=l2mucands->begin(); cand!=l2mucands->end(); ++cand) {
-		  TrackRef l2tk= cand->get<TrackRef>();
+		  reco::TrackRef l2tk= cand->get<reco::TrackRef>();
 	          double deltaR_l2 = reco::deltaR(*l2tk, (*itower));
 		  htowerdRL2[ntrig]->Fill(deltaR_l2);
 	      }
@@ -1279,7 +1237,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	  // deltaR with l3muon
 	  if (!l3mucands.failedToGet() && l3mucands.isValid() ) {
 	      for (cand=l3mucands->begin(); cand!=l3mucands->end(); ++cand) {
-		  TrackRef l3tk= cand->get<TrackRef>();
+		  reco::TrackRef l3tk= cand->get<reco::TrackRef>();
 	          double deltaR_l3 = reco::deltaR(*l3tk, (*itower));
 		  htowerdRL3[ntrig]->Fill(deltaR_l3);
 	      }
@@ -1315,15 +1273,15 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 
 
 //--------------------------------------------------------
-void HLTMuonDQMSource::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
-					  const EventSetup& context) {
+void HLTMuonDQMSource::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+					  const edm::EventSetup& context) {
 }
 //--------------------------------------------------------
-void HLTMuonDQMSource::endRun(const Run& r, const EventSetup& context){
+void HLTMuonDQMSource::endRun(const edm::Run& r, const edm::EventSetup& context){
 }
 //--------------------------------------------------------
 void HLTMuonDQMSource::endJob(){
-  LogInfo("HLTMonMuon") << "analyzed " << counterEvt_ << " events";
+  edm::LogInfo("HLTMonMuon") << "analyzed " << counterEvt_ << " events";
   //cout << "analyzed = " << counterEvt_ << " , triggered = " << nTrig_ << endl;
   
   
