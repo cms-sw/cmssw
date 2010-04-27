@@ -29,7 +29,7 @@ patJets = cms.EDProducer("PATJetProducer",
     
     # embedding of AOD items
     embedCaloTowers = cms.bool(False), ## switch on/off embedding of supercluster (externally stored in AOD)
-    embedPFCandidates = cms.bool(False), 
+    embedPFCandidates = cms.bool(True), 
 
     # jet energy corrections
     addJetCorrFactors    = cms.bool(True),

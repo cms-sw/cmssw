@@ -13,7 +13,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
-process.out.fileName = cms.untracked.string('patLayer1_fromAOD_PF2PAT_full.root')
+process.out.fileName = cms.untracked.string('patTuple_PF2PAT.root')
 
 # load the PAT config
 process.load("PhysicsTools.PatAlgos.patSequences_cff")

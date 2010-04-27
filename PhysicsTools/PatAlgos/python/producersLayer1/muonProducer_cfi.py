@@ -42,7 +42,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
     embedStandAloneMuon = cms.bool(True),  ## embed in AOD externally stored standalone muon track
     embedPickyMuon      = cms.bool(True),  ## embed in AOD externally stored TeV-refit picky muon track
     embedTpfmsMuon      = cms.bool(True),  ## embed in AOD externally stored TeV-refit TPFMS muon track
-    embedPFCandidate    = cms.bool(False), ## embed in AOD externally stored particle flow candidate
+    embedPFCandidate    = cms.bool(True), ## embed in AOD externally stored particle flow candidate
     
     # embed IsoDeposits
     isoDeposits = cms.PSet(
