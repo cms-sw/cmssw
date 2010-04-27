@@ -51,21 +51,15 @@ FWHORecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product
    unsigned int index = 0;
    for(it = collection->begin(); it != itEnd; ++it, ++index)
    {
-      Float_t energy = (*it).energy();
-   
-      std::stringstream s;
-      s << "HO RecHit " << index << ", energy: " << energy << " GeV";
-
-      TEveCompound* compound = new TEveCompound("ho compound", s.str().c_str());
-      compound->OpenCompound();
-      setupAddElement(compound, product);
-      
       std::vector<TEveVector> corners = iItem->getGeom()->getPoints((*it).detid().rawId());
       if( corners.empty() ) {
 	return;
       }
 
-      fireworks::drawEnergyScaledBox3D(corners, energy / m_maxEnergy, *compound);
+      TEveCompound* compound = createCompound();
+      Float_t energy = (*it).energy();
+      fireworks::drawEnergyScaledBox3D(corners, energy / m_maxEnergy, compound, this);
+      setupAddElement(compound, product);
    }
 }
 

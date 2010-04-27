@@ -34,7 +34,7 @@ FWCaloClusterProxyBuilder::build(const reco::CaloCluster& iData, unsigned int iI
 	 continue;
       }
 
-      fireworks::drawEnergyTower3D(corners, (*id).second * scale, oItemHolder);
+      fireworks::drawEnergyTower3D(corners, (*id).second * scale, &oItemHolder, this);
    }
 }
 

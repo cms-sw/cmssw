@@ -45,7 +45,7 @@ FWHBHERecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* produ
    for(; it != itEnd; ++it)
    {
       if ((*it).energy() > m_maxEnergy)
-	m_maxEnergy = (*it).energy();
+         m_maxEnergy = (*it).energy();
    }
    
    unsigned int index = 0;
@@ -53,19 +53,14 @@ FWHBHERecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* produ
    {
       Float_t energy = (*it).energy();
 
-      std::stringstream s;
-      s << "HBHE RecHit " << index << ", energy: " << energy << " GeV";
-
-      TEveCompound* compound = new TEveCompound("hbhe compound", s.str().c_str());
-      compound->OpenCompound();
-      setupAddElement(compound, product);
-      
       std::vector<TEveVector> corners = iItem->getGeom()->getPoints((*it).detid().rawId());
       if( corners.empty() ) {
-	return;
+         return;
       }
    
-      fireworks::drawEnergyScaledBox3D(corners, energy / m_maxEnergy, *compound);
+      TEveCompound* compound = createCompound();
+      fireworks::drawEnergyScaledBox3D(corners, energy / m_maxEnergy, compound, this);
+      setupAddElement(compound, product);
    }
 }
 
