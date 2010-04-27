@@ -111,11 +111,10 @@ namespace cscdqm {
 
       void updateFractionHistos();
       void updateEfficiencyHistos();
+      void standbyEfficiencyHistos(HWStandbyType& standby);
+      void writeShifterHistograms();
 
       unsigned int maskHWElements(std::vector<std::string>& tokens);
-
-      void standbyEfficiencyHistos(HWStandbyType& standby);
-      void fullStandbyEfficiencyHistos();
 
     private:
       

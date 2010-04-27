@@ -103,16 +103,15 @@ process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 # DCS bits
 #--------------------------
 
-process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
-process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtRecord_cfi")
-import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
-gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
+#process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
+#process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtRecord_cfi")
+#import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
+#gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
 
-process.physicsBitSelector = cms.EDFilter("PhysDecl",
-  applyfilter = cms.untracked.bool(False),
-  debugOn     = cms.untracked.bool(False)
-)
-
+#process.physicsBitSelector = cms.EDFilter("PhysDecl",
+#  applyfilter = cms.untracked.bool(False),
+#  debugOn     = cms.untracked.bool(False)
+#)
 
 process.load("EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi")
 
@@ -163,10 +162,10 @@ MessageLogger = cms.Service("MessageLogger",
 #--------------------------
 
 process.p = cms.Path(
-    process.l1GtUnpack*
-    process.gtDigis*
-    process.l1GtRecord*
-    process.physicsBitSelector*
+    #process.l1GtUnpack*
+    #process.gtDigis*
+    #process.l1GtRecord*
+    #process.physicsBitSelector*
     process.scalersRawToDigi+
     process.dqmCSCClient * 
     process.cscDaqInfo * 

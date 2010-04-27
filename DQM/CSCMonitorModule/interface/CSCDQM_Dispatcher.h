@@ -99,7 +99,7 @@ namespace cscdqm {
           // Lets mark CSCs as BAD - have not ever ever been in !STANDBY 
           if (!fullStandbyProcessed) {
             processor.standbyEfficiencyHistos(standby);
-            processor.fullStandbyEfficiencyHistos();
+            processor.writeShifterHistograms();
             fullStandbyProcessed = true;
           }
         }
