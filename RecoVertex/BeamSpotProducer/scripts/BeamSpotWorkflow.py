@@ -265,15 +265,21 @@ if __name__ == '__main__':
     
 
 
+    # get last IOV in DB
     lastUploadedIOV = getLastUploadedIOV(databaseTag) 
 #    lastUploadedIOV = 133918
+
+    # get list of files after last IOV
     newRunList      = getNewRunList(fromDir,lastUploadedIOV)
     if len(newRunList) == 0:
         exit("There are no new runs after " + str(lastUploadedIOV))
 
+    # get from DBS the list of files after last IOV 
     listOfFilesToProcess = getListOfFilesToProcess(dataSet,lastUploadedIOV) 
 
+    # get list of files to copy and process for DB
     listOfFilesToCopy = getListOfFilesToCopy(listOfFilesToProcess,newRunList)
 
+    # copy files to workflow directory
     cp(fromDir,toDir,listOfFilesToCopy)    
 
