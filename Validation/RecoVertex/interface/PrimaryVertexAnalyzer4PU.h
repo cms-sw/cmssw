@@ -182,6 +182,7 @@ private:
 					    double simUnit=1.0);
   void getTc(const std::vector<reco::TransientTrack>&,double &, double &, double &, double &, double&);
   void add(std::map<std::string, TH1*>& h, TH1* hist){  h[hist->GetName()]=hist; hist->StatOverflows(kTRUE);}
+
   void Fill(std::map<std::string, TH1*>& h, std::string s, double x){
     //    cout << "Fill1 " << s << endl;
     if(h.count(s)==0){
@@ -220,6 +221,31 @@ private:
       }
       h[s+"PU"]->Fill(x);
     }
+  }
+
+  void Fill(std::map<std::string, TH1*>& h, std::string s, bool yesno, bool signal){
+    if (yesno){
+      Fill(h, s,1.,signal);
+    }else{
+      Fill(h, s,0.,signal);
+    }
+  }
+
+  void Cumulate(TH1* h){
+    
+    if((h->GetEntries()==0) || (h->Integral()<=0) ){
+      std::cout << "DEBUG : Cumulate called with empty histogram " << h->GetTitle() << std::endl;
+      return;
+    }
+    std::cout << "DEBUG : cumulating  " << h->GetTitle() << std::endl;
+    try{
+      h->ComputeIntegral();
+      Double_t * integral=h->GetIntegral();
+      h->SetContent(integral);
+    }catch(...){
+      std::cout << "DEBUG : an error occurred cumulating  " << h->GetTitle()  <<  std::endl;
+    }
+    std::cout << "DEBUG : cumulating  " << h->GetTitle() << "done " <<  std::endl;
   }
 
   std::map<std::string, TH1*> bookVertexHistograms();
