@@ -63,9 +63,6 @@ FUResource::FUResource(UInt_t fuResourceId,log4cplus::Logger logger, EvffedFille
   , superFragSize_(0)
   , frb_(frb)
 {
-  std::cout << "FUResource " << fuResourceId << " Created with FRB pointing to " 
-	    << (unsigned int) frb_ << " frb payload is " << (unsigned int) frb_->getPayload() 
-	    << std::endl;
   release();
 }
 
