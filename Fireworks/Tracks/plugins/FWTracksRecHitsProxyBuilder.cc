@@ -27,7 +27,8 @@ private:
 void
 FWTracksRecHitsProxyBuilder::build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder) 
 {
-   fireworks::addHits(iData, item(), &oItemHolder, false);
+   if( iData.extra().isAvailable() )
+      fireworks::addHits(iData, item(), &oItemHolder, false);
 }
 
 class FWTracksModulesProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
@@ -48,7 +49,8 @@ private:
 void
 FWTracksModulesProxyBuilder::build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder) 
 {
-   fireworks::addModules(iData, item(), &oItemHolder, false);
+   if( iData.extra().isAvailable() )
+      fireworks::addModules(iData, item(), &oItemHolder, false);
 }
 
 REGISTER_FWPROXYBUILDER(FWTracksRecHitsProxyBuilder, reco::Track, "TrackHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
