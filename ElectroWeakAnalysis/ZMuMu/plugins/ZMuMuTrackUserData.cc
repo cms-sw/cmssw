@@ -113,19 +113,23 @@ void ZMuMuTrackUserData::produce( Event & evt, const EventSetup & ) {
     tk.setIsolation(pat::User3Iso, iso[2]);
     tk.setIsolation(pat::User4Iso, iso[3]);
     tk.setIsolation(pat::User5Iso, iso[4]);
-    float zDaudxyFromBS = 10000 ;
-    float zDaudzFromBS = 10000;
-    float zDaudxyFromPV = 10000;
-    float zDaudzFromPV = 10000;	
-    float zDauNofHit = 10000;
-    float zDauNofHitTk = 10000;
-    float zDauNofHitSta = 10000;
-    float zDauNofMuChambers = 10000;
-    float zDauNofMuMatches = 10000;
-    float zDauChi2 = 10000;
-    float zDauTrkChi2 = 10000;
-    float zDauMuEnergyEm = 10000;
-    float zDauMuEnergyHad = 10000;
+  
+    
+
+    float zDaudxyFromBS = -1 ;
+    float zDaudzFromBS = -1;
+    float zDaudxyFromPV = -1;
+    float zDaudzFromPV = -1;	
+    float zDauNofMuChambers = -1;
+    float zDauNofMuMatches = -1;
+    float zDauChi2 = -1;
+    float zDauTrkChi2 = -1;
+    float zDauSaChi2 = -1;
+    float zDauNofMuonHits =- 1;
+    float zDauNofStripHits = -1;
+    float zDauNofPixelHits = -1;
+    float zDauMuEnergyEm = -1;
+    float zDauMuEnergyHad = -1;
 
     TrackRef muTrkRef = tk.track();
     if (muTrkRef.isNonnull()){ 
@@ -133,27 +137,23 @@ void ZMuMuTrackUserData::produce( Event & evt, const EventSetup & ) {
       zDaudzFromBS = muTrkRef->dz(beamSpotHandle->position());
       zDaudxyFromPV = muTrkRef->dxy(primaryVertices->begin()->position() );
       zDaudzFromPV = muTrkRef->dz(primaryVertices->begin()->position() );	
-      zDauNofHit = muTrkRef->numberOfValidHits();
-      zDauNofHitTk = muTrkRef-> numberOfValidHits();
-      zDauNofHitSta = 0;
-      zDauNofMuChambers = 0;
-      zDauNofMuMatches = 0;
       zDauChi2 = muTrkRef->normalizedChi2();
       zDauTrkChi2 = muTrkRef->normalizedChi2();
-      zDauMuEnergyEm = -1;
-      zDauMuEnergyHad = -1;
+      zDauNofStripHits = muTrkRef->hitPattern().numberOfValidStripHits();
+      zDauNofPixelHits = muTrkRef->hitPattern().numberOfValidPixelHits();
     }
     tk.addUserFloat("zDau_dxyFromBS", zDaudxyFromBS);
     tk.addUserFloat("zDau_dzFromBS", zDaudzFromBS);
     tk.addUserFloat("zDau_dxyFromPV", zDaudxyFromPV);
     tk.addUserFloat("zDau_dzFromPV", zDaudzFromPV);
-    tk.addUserFloat("zDauNofHit", zDauNofHit );
-    tk.addUserFloat("zDauNofHitTk", zDauNofHitTk );
-    tk.addUserFloat("zDauNofHitSta", zDauNofHitSta);
+    tk.addUserFloat("zDau_NofMuonHits" , zDauNofMuonHits ); 
+    tk.addUserFloat("zDau_NofStripHits" , zDauNofStripHits ); 
+    tk.addUserFloat("zDau_NofPixelHits" , zDauNofPixelHits ); 
     tk.addUserFloat("zDauNofMuChambers", zDauNofMuChambers);
     tk.addUserFloat("zDauNofMuMatches", zDauNofMuMatches);
     tk.addUserFloat("zDauChi2", zDauChi2);
-    tk.addUserFloat("zDauTrkChi2", zDauChi2);
+    tk.addUserFloat("zDauTrkChi2", zDauTrkChi2);
+    tk.addUserFloat("zDauSaChi2", zDauSaChi2);
     tk.addUserFloat("zDauMuEnergyEm", zDauMuEnergyEm);
     tk.addUserFloat("zDauMuEnergyHad", zDauMuEnergyHad);
 
