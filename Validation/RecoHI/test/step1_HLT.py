@@ -1,8 +1,8 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.165 
+# Revision: 1.173 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: step1 -s HLT:HIon -n 1 --filein file.root --eventcontent FEVTDEBUGHLT --conditions MC_3XY_V25::All --mc --scenario HeavyIons --no_exec
+# with command line options: step1 -s HLT:HIon -n 2 --filein file.root --eventcontent FEVTDEBUGHLT --conditions MC_37Y_V0::All --mc --scenario HeavyIons --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('HLT')
@@ -11,17 +11,15 @@ process = cms.Process('HLT')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.StandardSequences.GeometryExtended_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('HLTrigger.Configuration.HLT_HIon_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContentHeavyIons_cff')
 
-process.Timing = cms.Service("Timing")
-
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('step2 nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -35,8 +33,9 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
     #'/store/relval/CMSSW_3_7_0_pre1/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V0-v1/0015/FCBBDE68-0E4D-DF11-BD54-002618943984.root'
-    #'/store/relval/CMSSW_3_7_0_pre1/RelValPyquen_DiJet_pt80to120_2760GeV/GEN-SIM-RAW/MC_37Y_V0-v1/0015/D2E0B5ED-394D-DF11-B729-002618943868.root'
-    '/store/relval/CMSSW_3_7_0_pre1/RelValPyquen_DiJet_pt80to120_2760GeV/GEN-SIM-RECO/MC_37Y_V0-v1/0015/321864EE-394D-DF11-B7AD-002618943866.root'
+    #'/store/relval/CMSSW_3_7_0_pre1/RelValPyquen_DiJet_pt80to120_2760GeV/GEN-SIM-RECO/MC_37Y_V0-v1/0015/321864EE-394D-DF11-B7AD-002618943866.root'
+    '/store/relval/CMSSW_3_7_0_pre1/RelValPyquen_DiJet_pt80to120_2760GeV/GEN-SIM-RAW/MC_37Y_V0-v1/0015/D2E0B5ED-394D-DF11-B729-002618943868.root'
+
     )
 )
 
@@ -54,7 +53,6 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-#process.mix.playback = True
 process.GlobalTag.globaltag = 'MC_37Y_V0::All'
 
 # Path and EndPath definitions

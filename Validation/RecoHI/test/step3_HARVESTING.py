@@ -1,8 +1,8 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.165 
+# Revision: 1.173
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: step3 -s HARVESTING:validationHarvesting --harvesting AtRunEnd --conditions MC_3XY_V25::All --filein file:step2_RAW2DIGI_RECO_VALIDATION_DQM.root --mc --no_exec
+# with command line options: step3 -s HARVESTING:validationHarvesting --harvesting AtRunEnd --conditions MC_37Y_V0::All --filein file:step2_RAW2DIGI_RECO_VALIDATION.root --scenario HeavyIons --mc --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('HARVESTING')
@@ -17,12 +17,10 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.EDMtoMEAtRunEnd_cff')
 process.load('Configuration.StandardSequences.Harvesting_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Configuration.EventContent.EventContent_cff')
-
-process.Timing = cms.Service("Timing")
+process.load('Configuration.EventContent.EventContentHeavyIons_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('step3 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
