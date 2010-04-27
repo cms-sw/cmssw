@@ -224,8 +224,8 @@ TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& setup
   
   unsigned int bJetCounter = 0;
   if( bTags_ == 1 ){
-    for(unsigned int idx = 0; idx < jets->size(); idx++){
-      if((*jets)[idx].correctedJet(jetCorrectionLevel_).bDiscriminator(bTagAlgo_) >= minBTagValueBJet_) ++bJetCounter;
+    for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet < jets->end(); ++jet){
+      if(jet->bDiscriminator(bTagAlgo_) >= minBTagValueBJet_) ++bJetCounter;
     }
   }
   
