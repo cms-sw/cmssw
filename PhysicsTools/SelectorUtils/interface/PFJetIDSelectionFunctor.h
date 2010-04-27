@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.5 2010/04/15 19:17:10 srappocc Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.6 2010/04/25 17:06:33 hegner Exp $
 */
 
 
@@ -62,14 +62,14 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       set("CEF", 1.0);
       set("NEF", 1.0);
       set("NCH", 0);
-      set("nConstituents", 0);
+      set("nConstituents", 1);
     } else if ( quality_ == TIGHT ) {
       set("CHF", 0.0);
       set("NHF", 0.9);
       set("CEF", 1.0);
       set("NEF", 0.9);
       set("NCH", 0);
-      set("nConstituents", 0);      
+      set("nConstituents", 1);      
     }
 
 
