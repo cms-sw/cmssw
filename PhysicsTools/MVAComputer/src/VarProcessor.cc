@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.cc,v 1.5 2009/05/11 16:01:17 saout Exp $
+// $Id: VarProcessor.cc,v 1.6 2009/06/03 09:50:14 saout Exp $
 //
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -122,42 +122,48 @@ void VarProcessor::deriv(double *input, int *conf, double *output,
 
 	std::vector<double> matrix = this->deriv(iter, nInputVars);
 
-	unsigned int out = outConf[out_] - outConf[0];
 	unsigned int size = 0;
 	while(iter)
 		size += (iter++).size();
+	unsigned int out = matrix.empty() ? 0 : (matrix.size() / size);
+
+	if (matrix.size() != out * size ||
+	    (out > 1 && (int)out != outConf[out_] - outConf[0]))
+		throw cms::Exception("VarProcessor")
+			<< "Derivative matrix implausible size in "
+			<< typeid(*this).name() << "."
+			<< std::endl;
 
 #ifdef DEBUG_DERIV
 	if (!matrix.empty()) {
 		std::cout << "---------------- "
 		          << ROOT::Reflex::Tools::Demangle(typeid(*this))
 		          << std::endl;
-	for(unsigned int i = 0; i < out; i++) {
-		for(unsigned int j = 0; j < size; j++)
-			std::cout << matrix[i*size+j] << "\t";
-		std::cout << std::endl;
+		for(unsigned int i = 0; i < out; i++) {
+			for(unsigned int j = 0; j < size; j++)
+				std::cout << matrix.at(i*size+j) << "\t";
+			std::cout << std::endl;
+		}
+		std::cout << "----------------" << std::endl;
 	}
-	std::cout << "----------------" << std::endl;
-}
-#endif
 
-	unsigned int sz = deriv.size();
-	deriv.resize(sz + out * in);
-
-#ifdef DEBUG_DERIV
 	std::cout << "======= in = " << in << ", size = " << size
-	          << ", out = " << out << std::endl;
+	          << ", out = " << out << ", matrix = " << matrix.size()
+	          << std::endl;
 #endif
+
+	unsigned int sz = (outConf[out_] - in) * in;
+	unsigned int oldSz = deriv.size();
+	if (oldSz < sz)
+		deriv.resize(sz);
+
+	double *begin = &deriv.front() + (outConf[0] - in + offset) * in;
+	double *end = begin + out * in;
+	if (begin < &deriv.front() + oldSz)
+		std::fill(begin, end, 0.0);
+
 	if (matrix.empty())
 		return;
-	else if (matrix.size() != out * size)
-		throw cms::Exception("VarProcessor")
-			<< "Derivative matrix implausible size in "
-			<< typeid(*this).name() << "."
-			<< std::endl;
-
-	double *begin = &deriv.front() + sz;
-	double *end = begin + out * in;
 
 	double *m0 = &matrix.front();
 	BitSet::Iterator cur = inputVars.iter();
@@ -190,7 +196,7 @@ void VarProcessor::deriv(double *input, int *conf, double *output,
 				const double *q = &deriv.front() +
 				                  (pos - in) * in;
 				for(const double *m = m0; p < end;
-				    m += size, q -= size)
+				    m += size, q -= in)
 					for(unsigned int k = 0; k < in; k++)
 						*p++ += *m * *q++;
 			} else {

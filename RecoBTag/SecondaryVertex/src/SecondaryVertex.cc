@@ -28,11 +28,7 @@ SecondaryVertex::computeDist2d(const Vertex &pv, const Vertex &sv,
 	                sv.position().Y() - pv.position().Y());
 
 	double dist = ROOT::Math::Mag(vector);
-	double error = ROOT::Math::Similarity(cov, vector);
-	if (error > 0.0 && dist > 1.0e-9)
-		error = std::sqrt(error) / dist;
-	else
-		error = -1.0;
+	double error = std::sqrt(ROOT::Math::Similarity(cov, vector)) / dist;
 
 	if ((vector[0] * direction.x() +
 	     vector[1] * direction.y()) < 0.0)
@@ -58,11 +54,7 @@ SecondaryVertex::computeDist3d(const Vertex &pv, const Vertex &sv,
 	                sv.position().Z() - pv.position().Z());
 
 	double dist = ROOT::Math::Mag(vector);
-	double error = ROOT::Math::Similarity(cov, vector);
-	if (error > 0.0 && dist > 1.0e-9)
-		error = std::sqrt(error) / dist;
-	else
-		error = -1.0;
+	double error = std::sqrt(ROOT::Math::Similarity(cov, vector)) / dist;
 
 	if ((vector[0] * direction.x() +
 	     vector[1] * direction.y() +

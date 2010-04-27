@@ -5,7 +5,7 @@
 #include <sstream>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/Candidate/interface/Candidate.h"

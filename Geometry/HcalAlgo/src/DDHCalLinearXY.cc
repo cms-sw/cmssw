@@ -42,7 +42,7 @@ void DDHCalLinearXY::initialize(const DDNumericArguments & nArgs,
 		       << centre[1] << ", "	<< centre[2];
 }
 
-void DDHCalLinearXY::execute(DDCompactView& cpv) {
+void DDHCalLinearXY::execute() {
 
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
@@ -56,7 +56,7 @@ void DDHCalLinearXY::execute(DDCompactView& cpv) {
 	
       DDTranslation tran(xoff+i*deltaX,yoff+j*deltaY,centre[2]);
       copy++;
-     cpv.position(child, mother, copy, tran, rot);
+      DDpos (child, mother, copy, tran, rot);
       LogDebug("HCalGeom") << "DDHCalLinearXY test: " << child 
 			   << " number " << copy << " positioned in "
 			   << mother << " at " << tran << " with " << rot;

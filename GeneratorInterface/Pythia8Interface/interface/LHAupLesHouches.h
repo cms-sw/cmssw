@@ -19,9 +19,7 @@
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
-using namespace Pythia8;
-
-class LHAupLesHouches : public LHAup {
+class LHAupLesHouches : public Pythia8::LHAup {
     public:
 	LHAupLesHouches() {;}
 

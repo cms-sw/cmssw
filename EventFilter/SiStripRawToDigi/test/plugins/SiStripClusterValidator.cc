@@ -33,7 +33,7 @@ SiStripClusterValidator::~SiStripClusterValidator()
 {  
 }
 
-void SiStripClusterValidator::beginJob(const edm::EventSetup& setup)
+void SiStripClusterValidator::beginJob()
 {
 }
 

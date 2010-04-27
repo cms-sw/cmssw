@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.187 2010/01/26 15:30:20 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.186 2010/01/25 17:36:55 amraktad Exp $
 
 //
 
@@ -285,7 +285,7 @@ FWGUIManager::createView(const std::string& iName, TEveWindowSlot* slot)
       throw std::runtime_error(std::string("Unable to create view named ")+iName+" because it is unknown");
    }
    
-   if (!slot) slot = m_viewSecPack->NewSlot();
+   if (!slot) m_viewSecPack->NewSlot();
    TEveCompositeFrame *ef = slot->GetEveFrame();
    FWViewBase* viewBase = itFind->second(slot);
    //in future, get context from 'view'
@@ -328,9 +328,6 @@ FWGUIManager::loadEvent() {
    {
       TEveViewer* ev = dynamic_cast<TEveViewer*>(*i);
       ev->GetGLViewer()->DeleteOverlayAnnotations();
-
-      // refresh label 
-      /// markup set run , event, time
    }
    
    m_cmsShowMainFrame->loadEvent(*m_cmsShowMain->getCurrentEvent());

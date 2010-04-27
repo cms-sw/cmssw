@@ -23,7 +23,8 @@ SiStripPsuDetIdMap::SiStripPsuDetIdMap() { LogTrace("SiStripPsuDetIdMap") << "[S
 SiStripPsuDetIdMap::~SiStripPsuDetIdMap() {LogTrace("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] Destructing ..."; }
 
 // Build PSU-DETID map
-void SiStripPsuDetIdMap::BuildMap() {
+void SiStripPsuDetIdMap::BuildMap()
+{
   // initialize the map vector
   pgMap.clear();
   detectorLocations.clear();
@@ -153,7 +154,8 @@ void SiStripPsuDetIdMap::BuildMap() {
 }
 
 // Extract DCU-PSU map from DB
-void SiStripPsuDetIdMap::getDcuPsuMap(DcuPsusRange &pRange, DcuPsusRange &cRange, std::string partition) {
+void SiStripPsuDetIdMap::getDcuPsuMap(DcuPsusRange &pRange, DcuPsusRange &cRange, std::string partition)
+{
   // initialize the DCU-PSU range
   pRange = DcuPsuMapPG_.emptyRange();
   cRange = DcuPsuMapCG_.emptyRange();
@@ -235,6 +237,24 @@ void SiStripPsuDetIdMap::getDcuPsuMap(DcuPsusRange &pRange, DcuPsusRange &cRange
   
   cRange = CGrange;
   pRange = PGrange;
+}
+
+void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile )
+{
+  edm::FileInPath file(mapFile.c_str());
+  ifstream ifs( file.fullPath().c_str() );
+  string line;
+  while( getline( ifs, line ) ) {
+    if( line != "" ) {
+      // split the line and insert in the map
+      stringstream ss(line);
+      string dpName;
+      uint32_t detId;
+      ss >> detId;
+      ss >> dpName;
+      pgMap.push_back( std::make_pair(detId, dpName) );
+    }
+  }
 }
 
 std::vector<uint32_t> SiStripPsuDetIdMap::getLvDetID(std::string pvss) {

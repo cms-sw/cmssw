@@ -62,6 +62,10 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
   bool runClientEndLumiBlock_;
   bool runClientEndRun_;
   bool runClientEndJob_;
+
+  bool filterInactiveTriggers_;
+  bool isSetup_;
+  std::string hltTag_;
   
 
   //disabling copying/assignment (in theory this is copyable but lets not just in case)

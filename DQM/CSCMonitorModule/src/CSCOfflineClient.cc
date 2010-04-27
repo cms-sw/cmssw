@@ -46,12 +46,7 @@ CSCOfflineClient::~CSCOfflineClient() {
   if (dispatcher) delete dispatcher;
 }
 
-/**
- * @brief  Begin the run (load MO into cache and book eff histos)
- * @param  r Run object
- * @param  c Event setup
- */
-void CSCOfflineClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+void CSCOfflineClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   /*
    *  Putting histograms to internal cache: EMU stuff
@@ -85,18 +80,9 @@ void CSCOfflineClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
     }
   }
 
-}
-
-
-/**
- * @brief  End of lumi section method
- * @param  lumiSeg Luminosity block
- * @param  iSetup Event setup
- * @return 
- */
-void CSCOfflineClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
   config.incNEvents();
   dispatcher->updateFractionAndEfficiencyHistos();
+
 }
 
 /**

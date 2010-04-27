@@ -34,7 +34,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 // forward declarations
 class L1GtTriggerMenu;

@@ -15,13 +15,13 @@ TSiStripRecHit2DLocalPos::clone (const TrajectoryStateOnSurface& ts) const
      if(!specificHit()->cluster().isNull()){
        const SiStripCluster&  clust = *specificHit()->cluster();  
            StripClusterParameterEstimator::LocalValues lv = 
-      theCPE->localParameters( clust, *detUnit(), ts);
+      theCPE->localParameters( clust, *detUnit(), ts.localParameters());
 	   return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, det(), 
 						   specificHit()->cluster(), theCPE, weight(), getAnnealingFactor());
      }else{
        const SiStripCluster&  clust = *specificHit()->cluster_regional();  
        StripClusterParameterEstimator::LocalValues lv = 
-	 theCPE->localParameters( clust, *detUnit(), ts);
+	 theCPE->localParameters( clust, *detUnit(), ts.localParameters());
        return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, det(), 
 					       specificHit()->cluster_regional(), theCPE, weight(), getAnnealingFactor());       
      }

@@ -11,8 +11,8 @@
 #define PFTauAlgo_Track_minPt_           (0.0)
 #define PFTauAlgo_ChargedHadrCand_minPt_ (0.0)
 
-PFRecoTauAlgorithm::PFRecoTauAlgorithm() : PFRecoTauAlgorithmBase(){}  
-PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) :PFRecoTauAlgorithmBase(iConfig){
+PFRecoTauAlgorithm::PFRecoTauAlgorithm() : TransientTrackBuilder_(0){}  
+PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientTrackBuilder_(0){
   LeadPFCand_minPt_                   = iConfig.getParameter<double>("LeadPFCand_minPt"); 
 
   UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ 
@@ -84,8 +84,14 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) :PFRecoTauAl
   //Neutral hadrons cones
   myHCALSignalConeSizeTFormula    = TauTagTools::computeConeSizeTFormula(HCALSignalConeSizeFormula_,"HCAL signal cone size");
   myHCALIsolConeSizeTFormula      = TauTagTools::computeConeSizeTFormula(HCALIsolConeSizeFormula_,"HCAL isolation cone size");
+ 
+
 }
 
+void PFRecoTauAlgorithm::setTransientTrackBuilder(const TransientTrackBuilder* x)
+{
+   TransientTrackBuilder_ = x;
+}
 
 PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,const Vertex& myPV){
   PFJetRef myPFJet=(*myPFTauTagInfoRef).pfjetRef();  // catch a ref to the initial PFJet  

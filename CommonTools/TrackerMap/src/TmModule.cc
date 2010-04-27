@@ -1,8 +1,5 @@
 #include "CommonTools/TrackerMap/interface/TmModule.h"
 #include <string>
-using namespace std;
-
-
 
 TmModule::TmModule(int idc, int ring, int layer){
   idModule = idc;

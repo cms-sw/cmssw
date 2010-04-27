@@ -41,6 +41,7 @@
 
 class DQMStore;
 class MonitorElement;
+class HLTConfigProvider;
 
 namespace egHLT {
   class EleHLTFilterMon;
@@ -82,6 +83,10 @@ class EgHLTOfflineSource : public edm::EDAnalyzer {
   egHLT::BinData binData_;
   egHLT::CutMasks cutMasks_;
 
+  bool isSetup_;
+  bool filterInactiveTriggers_;
+  std::string hltTag_;
+
   //disabling copying/assignment (copying this class would be bad, mkay)
   EgHLTOfflineSource(const EgHLTOfflineSource& rhs){}
   EgHLTOfflineSource& operator=(const EgHLTOfflineSource& rhs){return *this;}
@@ -99,7 +104,7 @@ class EgHLTOfflineSource : public edm::EDAnalyzer {
   void addEleTrigPath(const std::string& name);
   void addPhoTrigPath(const std::string& name);
   void getHLTFilterNamesUsed(std::vector<std::string>& filterNames)const;
-
+  void filterTriggers(const HLTConfigProvider& hltConfig);
 };
  
 

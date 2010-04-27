@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2009/10/28 08:18:23 $
- * $Revision: 1.68 $
+ * $Date: 2010/01/25 21:12:26 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -12,11 +12,6 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-
-#include "TCanvas.h"
-#include "TStyle.h"
-#include "TGraph.h"
-#include "TLine.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -33,11 +28,7 @@
 
 #include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EECosmicClient::EECosmicClient(const ParameterSet& ps) {
+EECosmicClient::EECosmicClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -49,7 +40,7 @@ EECosmicClient::EECosmicClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -57,7 +48,7 @@ EECosmicClient::EECosmicClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -81,9 +72,9 @@ EECosmicClient::~EECosmicClient() {
 
 void EECosmicClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EECosmicClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EECosmicClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -92,7 +83,7 @@ void EECosmicClient::beginJob(void) {
 
 void EECosmicClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EECosmicClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EECosmicClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -102,7 +93,7 @@ void EECosmicClient::beginRun(void) {
 
 void EECosmicClient::endJob(void) {
 
-  if ( debug_ ) cout << "EECosmicClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EECosmicClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -110,7 +101,7 @@ void EECosmicClient::endJob(void) {
 
 void EECosmicClient::endRun(void) {
 
-  if ( debug_ ) cout << "EECosmicClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EECosmicClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -161,7 +152,7 @@ void EECosmicClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EECosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EECosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   char histo[200];

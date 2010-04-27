@@ -6,10 +6,6 @@
 // ---------------------------------------------------------------------------
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 
-// DDCore parts
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-
 #include <vector>
 #include <string>
 
@@ -35,7 +31,7 @@ class DDLSAX2ConfigHandler : public DDLSAX2Handler
   // -----------------------------------------------------------------------
   //  Constructor and Destructor
   // -----------------------------------------------------------------------
-  DDLSAX2ConfigHandler( DDCompactView& cpv);
+  DDLSAX2ConfigHandler();
   ~DDLSAX2ConfigHandler();
 
   // -----------------------------------------------------------------------
@@ -54,7 +50,6 @@ class DDLSAX2ConfigHandler : public DDLSAX2Handler
   std::vector<std::string> files_;
   std::vector<std::string> urls_;
   std::string schemaLocation_;
-  DDCompactView& cpv_;
 
 };
 

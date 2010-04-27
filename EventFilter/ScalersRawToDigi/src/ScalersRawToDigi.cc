@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 // FEDRawData 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -98,8 +98,8 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
     int nWords = length / 8;
     int nBytesExtra = 0;
 
-    const ScalersEventRecordRaw_v3 * raw 
-	     = (struct ScalersEventRecordRaw_v3 *)fedData.data();
+    const ScalersEventRecordRaw_v5 * raw 
+	     = (struct ScalersEventRecordRaw_v5 *)fedData.data();
     if ( ( raw->version == 1 ) || ( raw->version == 2 ) )
     {
       L1TriggerScalers oldTriggerScalers(fedData.data());

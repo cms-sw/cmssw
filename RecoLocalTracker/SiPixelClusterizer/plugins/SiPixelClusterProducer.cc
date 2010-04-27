@@ -55,7 +55,8 @@ namespace cms
     clusterMode_("None"),     // bogus
     clusterizer_(0),          // the default, in case we fail to make one
     readyToCluster_(false),   // since we obviously aren't
-    src_( conf.getParameter<edm::InputTag>( "src" ) )
+    src_( conf.getParameter<edm::InputTag>( "src" ) ),
+    maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) )
   {
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelClusterCollectionNew>(); 
@@ -189,6 +190,12 @@ namespace cms
 	numberOfClusters += spc.size();
       }
 
+      if ((maxTotalClusters_ >= 0) && (numberOfClusters > maxTotalClusters_)) {
+        edm::LogError("TooManyClusters") <<  "Limit on the number of clusters exceeded. An empty cluster collection will be produced instead.\n";
+        edmNew::DetSetVector<SiPixelCluster> empty;
+        empty.swap(output);
+        break;
+      }
     } // end of DetUnit loop
     
     //LogDebug ("SiPixelClusterProducer") << " Executing " 

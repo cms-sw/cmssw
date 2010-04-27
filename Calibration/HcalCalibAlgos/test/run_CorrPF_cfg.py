@@ -6,7 +6,6 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(2000))
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 
@@ -19,13 +18,13 @@ process.source = cms.Source("PoolSource",
     )
 )
 
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(2000)
+)
+
 process.load("Calibration.HcalCalibAlgos.pfCorrs_cfi")
 #process.hcalRecoAnalyzer.outputFile = cms.untracked.string("HcalCorrPF.root")
-process.hcalRecoAnalyzer.ConeRadiusCm = cms.untracked.double(30.)
-
-process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('HcalCorrPF.root')
-)
+#process.hcalRecoAnalyzer.ConeRadiusCm = cms.untracked.double(30.)
 
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")

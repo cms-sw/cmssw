@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.20 2009/12/14 22:22:49 wmtan Exp $
+// $Id: DumpGeom.cc,v 1.19 2009/11/15 14:26:12 dmytro Exp $
 //
 //
 
@@ -619,7 +619,7 @@ void DumpGeom::mapTrackerGeometry(const DDCompactView& cview,
   DDExpandedView expv(cview);
   int id;
   for ( ; git != egit; ++git ) {
-    expv.goTo( (*git)->navpos() );
+    expv.goTo( (*git)->navType() );
 
     std::stringstream s;
     s << "/cms:World_1";

@@ -471,7 +471,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 		    }
 		  }
 		}
-		if(othererror) (*isum)->Fill(ndet, me->getMean());
+		if(othererror) (*isum)->Fill(ndet, me1->getEntries());
 	      }else if ((sname.find("_charge_")!=string::npos && sname.find("Track_")==string::npos && 
 	                me->getName().find("Track_")==string::npos) ||
 			(sname.find("_charge_")!=string::npos && sname.find("_OnTrack_")!=string::npos && 
@@ -520,6 +520,10 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 		title = "NDigis";
 	      }else if (sname.find("ALLMODS_chargeCOMB_")!=string::npos){
 		title = "NClusters";
+	      }else if (sname.find("_NErrors_")!=string::npos){
+	        if(prefix=="SUMOFF" && isbarrel) title = "Total number of errors per Ladder";
+		else if(prefix=="SUMOFF" && !isbarrel) title = "Total number of errors per Blade";
+		else title = "Total number of errors per Module";
 	      }else{
 		if(prefix=="SUMOFF") title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + (isbarrel?" per Ladder":" per Blade"); 
 		else title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per Module"; 
@@ -700,7 +704,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 		  }
 //		  if(othererror) (*isum)->Fill(ndet-1, me->getMean());
 //	        }else (*isum)->Fill(ndet-1, me->getMean());
-		  if(othererror) (*isum)->setBinContent(ndet, (*isum)->getBinContent(ndet) + me->getEntries());
+		  if(othererror) (*isum)->setBinContent(ndet, (*isum)->getBinContent(ndet) + me1->getEntries());
 	        }else (*isum)->setBinContent(ndet, (*isum)->getBinContent(ndet) + me->getEntries());
 	      }
 	      (*isum)->setAxisTitle("FED #",1);
@@ -873,7 +877,9 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	      // Setting title
 
 		  string title="";
-	      if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Ladder"; 
+	      if((*igm)->getName().find("NErrors_") != string::npos && prefix=="SUMOFF") title = "Total number of errors per Ladder";
+	      else if((*igm)->getName().find("NErrors_") != string::npos && prefix=="SUMRAW") title = "Total number of errors per Module";
+	      else if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Ladder"; 
 	      else if((*igm)->getName().find("FREQ_") != string::npos) title = "NEvents with digis per Module"; 
 	      else if((*igm)->getName().find("adcCOMB_") != string::npos) title = "NDigis";
 	      else if((*igm)->getName().find("chargeCOMB_") != string::npos) title = "NClusters";
@@ -1085,7 +1091,9 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	      else if((*igm)->getName().find("chargeCOMB_")!=string::npos) (*igm)->setAxisTitle("Cluster charge [kilo electrons]",1);
 	      else (*igm)->setAxisTitle("Modules",1);
 	      string title="";
-	      if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Blade"; 
+	      if((*igm)->getName().find("NErrors_") != string::npos && prefix=="SUMOFF") title = "Total number of errors per Blade";
+	      else if((*igm)->getName().find("NErrors_") != string::npos && prefix=="SUMRAW") title = "Total number of errors per Module";
+	      else if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Blade"; 
 	      else if((*igm)->getName().find("FREQ_") != string::npos) title = "NEvents with digis per Module"; 
 	      else if((*igm)->getName().find("adcCOMB_")!=string::npos) title = "NDigis";
 	      else if((*igm)->getName().find("chargeCOMB_")!=string::npos) title = "NClusters";
@@ -2064,12 +2072,15 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel){
 	  MonitorElement * me = bei->get(full_path);
 	  if (!me) continue;
 	  float missingHits = me->getEntries();
+	  //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"missingHits= "<<missingHits<<endl;
 	  string new_path = full_path.replace(full_path.find("missing"),7,"valid");
 	  me = bei->get(new_path);
 	  if (!me) continue;
 	  float validHits = me->getEntries();
+	  //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"validHits= "<<validHits<<endl;
 	  float hitEfficiency = -1.;
 	  if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
+	  //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"hitEfficiency= "<<hitEfficiency<<endl;
 	  int binx = 0; int biny = 0;
 	  if(currDir.find("Shell_m")!=string::npos){ binx = 1;}else{ binx = 2;}
 	  if(dname.find("01")!=string::npos){ biny = 1;}else if(dname.find("02")!=string::npos){ biny = 2;}
@@ -2091,6 +2102,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel){
 	  if(currDir.find("Layer_1")!=string::npos){
 	    HitEfficiency_L1 = bei->get("Pixel/Barrel/HitEfficiency_L1");
 	    if(HitEfficiency_L1) HitEfficiency_L1->setBinContent(binx, biny,(float)hitEfficiency);
+	    //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"setting bin ("<<binx<<","<<biny<<") with "<<(float)hitEfficiency<<endl;
 	  }else if(currDir.find("Layer_2")!=string::npos){
 	    HitEfficiency_L2 = bei->get("Pixel/Barrel/HitEfficiency_L2");
 	    if(HitEfficiency_L2) HitEfficiency_L2->setBinContent(binx, biny,(float)hitEfficiency);

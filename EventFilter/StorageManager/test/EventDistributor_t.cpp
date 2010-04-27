@@ -77,10 +77,11 @@ void testEventDistributor::initEventDistributor()
     {
       xdaq::Application* app = mockapps::getMockXdaqApplication();
       _sharedResources.reset(new SharedResources());
+      _sharedResources->_configuration.reset(new Configuration(app->getApplicationInfoSpace(), 0));
       _sharedResources->_initMsgCollection.reset(new InitMsgCollection());
       _sharedResources->_streamQueue.reset(new StreamQueue(1024));
       _sharedResources->_dqmEventQueue.reset(new DQMEventQueue(1024));
-      _sharedResources->_statisticsReporter.reset(new StatisticsReporter(app,0));
+      _sharedResources->_statisticsReporter.reset(new StatisticsReporter(app,_sharedResources));
       _eventDistributor.reset(new EventDistributor(_sharedResources));
       EventConsumerMonitorCollection& ecmc = 
         _sharedResources->_statisticsReporter->getEventConsumerMonitorCollection();
@@ -88,7 +89,6 @@ void testEventDistributor::initEventDistributor()
       DQMConsumerMonitorCollection& dcmc = 
         _sharedResources->_statisticsReporter->getDQMConsumerMonitorCollection();
       _sharedResources->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( dcmc ) );
-      _sharedResources->_configuration.reset(new Configuration(app->getApplicationInfoSpace(), 0));
     }
 }
 

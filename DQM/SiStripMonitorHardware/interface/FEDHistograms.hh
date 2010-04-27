@@ -64,6 +64,7 @@ public:
 			  );
 
 
+  bool cmHistosEnabled();
 
    //book the top level histograms
   void bookTopLevelHistograms(DQMStore* dqm);
@@ -78,6 +79,8 @@ public:
   std::string tkHistoMapName(unsigned int aIndex=0);
 
   TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0);
+
+  MonitorElement *cmHistPointer(bool aApv1);
 
 protected:
   
@@ -138,7 +141,14 @@ private:
   MonitorElement *feTimeDiffTIB_,
     *feTimeDiffTOB_,
     *feTimeDiffTECB_,
-    *feTimeDiffTECF_;        
+    *feTimeDiffTECF_;
+
+  MonitorElement *apveAddress_;
+  MonitorElement *feMajAddress_;
+
+  MonitorElement *medianAPV0_;
+  MonitorElement *medianAPV1_;
+
 
   //FED level histograms
   std::map<unsigned int,MonitorElement*> feOverflowDetailed_, 

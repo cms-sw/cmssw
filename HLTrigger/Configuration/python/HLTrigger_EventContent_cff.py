@@ -8,8 +8,6 @@ import FWCore.ParameterSet.Config as cms
 #
 # as these are used in Configuration/EventContent
 #
-# All else is internal and should not be used directly by non-HLT users.
-#
 HLTriggerRAW = cms.PSet(
     outputCommands = cms.vstring('drop *_hlt*_*_*', 
         'keep *_hltL1GtObjectMap_*_*', 
@@ -35,9 +33,9 @@ HLTriggerAOD = cms.PSet(
 
 HLTDebugRAW = cms.PSet(
     outputCommands = cms.vstring('drop *_hlt*_*_*', 
-        'keep *_hltAlCaEtaRegRecHits_*_*', 
+        'keep *_hltAlCaEtaRecHitsFilter_*_*', 
         'keep *_hltAlCaPhiSymStream_*_*', 
-        'keep *_hltAlCaPi0RegRecHits_*_*', 
+        'keep *_hltAlCaPi0RecHitsFilter_*_*', 
         'keep *_hltBLifetimeL25AssociatorStartupU_*_*', 
         'keep *_hltBLifetimeL25AssociatorStartup_*_*', 
         'keep *_hltBLifetimeL25BJetTagsStartupU_*_*', 
@@ -201,6 +199,11 @@ HLTDebugRAW = cms.PSet(
         'keep *_hltMCJetCorJetIcone5Regional_*_*', 
         'keep *_hltMCJetCorJetIcone5_*_*', 
         'keep *_hltMet_*_*', 
+        'keep *_hltMuTrackJpsiCtfTrackCands_*_*', 
+        'keep *_hltMuTrackJpsiCtfTracks_*_*', 
+        'keep *_hltMuTrackJpsiPixelTrackCands_*_*', 
+        'keep *_hltMuTrackJpsiPixelTrackSelector_*_*', 
+        'keep *_hltMuTrackJpsiTrackSeeds_*_*', 
         'keep *_hltMulti5x5EndcapSuperClustersWithPreshowerL1Isolated_*_*', 
         'keep *_hltMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolated_*_*', 
         'keep *_hltMulti5x5SuperClustersL1Isolated_*_*', 
@@ -237,6 +240,7 @@ HLTDebugRAW = cms.PSet(
         'keep *_hltTowerMakerForMuons_*_*', 
         'keep FEDRawDataCollection_rawDataCollector_*_*', 
         'keep FEDRawDataCollection_source_*_*', 
+        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*', 
         'keep L1MuGMTCands_hltGtDigis_*_*', 
         'keep L1MuGMTReadoutCollection_hltGtDigis_*_*', 
         'keep edmTriggerResults_*_*_*', 
@@ -246,9 +250,9 @@ HLTDebugRAW = cms.PSet(
 
 HLTDebugFEVT = cms.PSet(
     outputCommands = cms.vstring('drop *_hlt*_*_*', 
-        'keep *_hltAlCaEtaRegRecHits_*_*', 
+        'keep *_hltAlCaEtaRecHitsFilter_*_*', 
         'keep *_hltAlCaPhiSymStream_*_*', 
-        'keep *_hltAlCaPi0RegRecHits_*_*', 
+        'keep *_hltAlCaPi0RecHitsFilter_*_*', 
         'keep *_hltBLifetimeL25AssociatorStartupU_*_*', 
         'keep *_hltBLifetimeL25AssociatorStartup_*_*', 
         'keep *_hltBLifetimeL25BJetTagsStartupU_*_*', 
@@ -412,6 +416,11 @@ HLTDebugFEVT = cms.PSet(
         'keep *_hltMCJetCorJetIcone5Regional_*_*', 
         'keep *_hltMCJetCorJetIcone5_*_*', 
         'keep *_hltMet_*_*', 
+        'keep *_hltMuTrackJpsiCtfTrackCands_*_*', 
+        'keep *_hltMuTrackJpsiCtfTracks_*_*', 
+        'keep *_hltMuTrackJpsiPixelTrackCands_*_*', 
+        'keep *_hltMuTrackJpsiPixelTrackSelector_*_*', 
+        'keep *_hltMuTrackJpsiTrackSeeds_*_*', 
         'keep *_hltMulti5x5EndcapSuperClustersWithPreshowerL1Isolated_*_*', 
         'keep *_hltMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolated_*_*', 
         'keep *_hltMulti5x5SuperClustersL1Isolated_*_*', 
@@ -448,6 +457,7 @@ HLTDebugFEVT = cms.PSet(
         'keep *_hltTowerMakerForMuons_*_*', 
         'keep FEDRawDataCollection_rawDataCollector_*_*', 
         'keep FEDRawDataCollection_source_*_*', 
+        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*', 
         'keep L1MuGMTCands_hltGtDigis_*_*', 
         'keep L1MuGMTReadoutCollection_hltGtDigis_*_*', 
         'keep edmTriggerResults_*_*_*', 

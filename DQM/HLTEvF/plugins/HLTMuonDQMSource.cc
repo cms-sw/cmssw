@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.33 2009/11/16 01:10:22 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.35 2010/02/16 17:03:16 wmtan Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -49,7 +49,7 @@ Implementation:
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -789,8 +789,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   iEvent.getByLabel(InputTag("TriggerResults"), trigResult);
   if( !trigResult.failedToGet() ) {
     int ntrigs = trigResult->size();
-    TriggerNames trigName;
-    trigName.init(*trigResult);
+    const edm::TriggerNames & trigName = iEvent.triggerNames(*trigResult);
     for( int itrig = 0; itrig != ntrigs; ++itrig) {
       //cout << "trigName = " << trigName.triggerName(itrig) << " " << itrig << endl;
       for( unsigned int n = 0; n < (unsigned int)theTriggerBits.size(); n++) { 

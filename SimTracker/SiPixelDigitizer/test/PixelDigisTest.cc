@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.21 2009/11/27 15:23:35 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.22 2010/01/12 07:17:14 hegner Exp $
 //
 //
 // system include files
@@ -33,7 +33,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 // my includes
 //#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"

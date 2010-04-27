@@ -44,7 +44,7 @@ void DDTrackerLinearXY::initialize(const DDNumericArguments & nArgs,
 			  << centre[1] << ", "	<< centre[2];
 }
 
-void DDTrackerLinearXY::execute(DDCompactView& cpv) {
+void DDTrackerLinearXY::execute() {
 
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
@@ -58,7 +58,7 @@ void DDTrackerLinearXY::execute(DDCompactView& cpv) {
 	
       DDTranslation tran(xoff+i*deltaX,yoff+j*deltaY,centre[2]);
       copy++;
-     cpv.position(child, mother, copy, tran, rot);
+      DDpos (child, mother, copy, tran, rot);
       LogDebug("TrackerGeom") << "DDTrackerLinearXY test: " << child 
 			      << " number " << copy << " positioned in "
 			      << mother << " at " << tran << " with " << rot;

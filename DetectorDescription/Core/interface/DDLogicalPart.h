@@ -153,7 +153,6 @@ private:
 // some helpers .... (not very clean, redesign!!)
 std::pair<bool,std::string> DDIsValid(const std::string & ns, const std::string & name, std::vector<DDLogicalPart> & result,bool doRegex=true);
 // std::maps name to std::vector of namespaces
-// 2009-2010 re-write...FIX: Understand how this is used by DDSpecifics and FIX
 typedef DDI::Singleton<std::map<std::string,std::vector<DDName> > > LPNAMES;
 void DD_NC(const DDName &);
 

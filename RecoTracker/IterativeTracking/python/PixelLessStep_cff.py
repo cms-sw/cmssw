@@ -93,7 +93,7 @@ fourthCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterES
     ComponentName = 'fourthCkfTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
     maxLostHits = 0,
-    minimumNumberOfHits = 6,
+    minimumNumberOfHits = 7,
     minPt = 0.1
     )
     )
@@ -104,7 +104,7 @@ fourthCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderE
     ComponentName = 'fourthCkfTrajectoryBuilder',
     MeasurementTrackerName = 'fourthMeasurementTracker',
     trajectoryFilterName = 'fourthCkfTrajectoryFilter',
-    minNrOfHitsForRebuild = 4
+    minNrOfHitsForRebuild = 5
     )
 
 # MAKING OF TRACK CANDIDATES
@@ -126,13 +126,14 @@ fourthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProd
 import RecoTracker.FinalTrackSelectors.selectLoose_cfi
 import RecoTracker.FinalTrackSelectors.selectTight_cfi
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
+import RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi
 
 pixellessStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
     src = 'fourthWithMaterialTracks',
     keepAllTracks = False,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.4,
+    chi2n_par = 0.6,
     res_par = ( 0.003, 0.001 ),
     minNumberLayers = 5,
     maxNumberLostLayers = 1,
@@ -148,7 +149,7 @@ pixellessStepTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight
     keepAllTracks = True,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.3,
+    chi2n_par = 0.4,
     res_par = ( 0.003, 0.001 ),
     minNumberLayers = 5,
     maxNumberLostLayers = 0,
@@ -164,9 +165,9 @@ pixellessStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighP
     keepAllTracks = True,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.2,
+    chi2n_par = 0.3,
     res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 5,
+    minNumberLayers = 6,
     maxNumberLostLayers = 0,
     minNumber3DLayers = 3,
     d0_par1 = ( 1.0, 4.0 ),

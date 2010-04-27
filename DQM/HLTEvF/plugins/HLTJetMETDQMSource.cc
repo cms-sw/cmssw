@@ -10,7 +10,7 @@
 #include "DQM/HLTEvF/interface/HLTJetMETDQMSource.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
@@ -126,7 +126,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
   //currun=iEvent.id().run();
   //if ( nev_==1) runno = iEvent.id().run();
-  
+  /*
   bool changed(true);
   if (hltConfig_.init(iEvent,processname_,changed)) {
     if (changed) {
@@ -145,7 +145,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     return;
   }
   // if ( currun != runno) runchanged=true;
-
+  */
 
   
   edm::Handle<TriggerResults> triggerResults;
@@ -158,7 +158,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       return;
     }
   }
-  TriggerNames triggerNames(*triggerResults);  
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
   unsigned int npath = triggerResults->size();
 
   edm::Handle<TriggerEvent> triggerObj;
@@ -1509,8 +1509,32 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
   if (verbose_) std::cout << "beginRun, run " << run.id() << std::endl;
   // HLT config does not change within runs!
 
+  bool changed(true);
+  //if (hltConfig_.init(iEvent,processname_,changed)) {
+  if (hltConfig_.init(run,c,processname_,changed)) {
+    if (changed) {
+      hltconfigchanged=true;
+      //if(verbose_) 
+      //hltConfig_.dump("Triggers");
+      LogWarning("HLTJetMETDQMSource") 	<< "HLTJetMETDQMSource:analyze: The number of valid triggers has changed since beginning of job." << std::endl;
+      //	<< "Processing of events halted for summary histograms"  << std::endl;
+      //<< "Summary histograms do not support changing configurations." << std::endl
+     
+    }
+  }
+  else {   
+    LogError("HLTJetMETDQMSource") << "HLT config init error" << std::endl;
+    return;
+  }
+  if ( hltConfig_.size() <= 0 ) {
+    LogError("HLTJetMETDQMSource") << "HLT config size error" << std::endl;
+    return;
+  }
+  // if ( currun != runno) runchanged=true;
+ 
+
   if (verbose_) cout << "End BeginRun ---------------- " << endl;
-  
+ 
 }
 
 //--------------------------------------------------------

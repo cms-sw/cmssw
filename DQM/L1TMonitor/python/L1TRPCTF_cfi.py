@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1trpctf = cms.EDFilter("L1TRPCTF",
+l1trpctf = cms.EDAnalyzer("L1TRPCTF",
     disableROOToutput = cms.untracked.bool(True),
     rpctfSource = cms.InputTag("l1GtUnpack","","DQM"),
     rpctfRPCDigiSource = cms.InputTag("rpcunpacker","DQM"),

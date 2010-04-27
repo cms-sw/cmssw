@@ -91,7 +91,7 @@ TrackMon_cosmicTk.doSeedParameterHistos = True
 import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
 TrackMon_ckf = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
 TrackMon_ckf.TrackProducer      = 'ctfWithMaterialTracksP5'
-TrackMon_ckf.AlgoName           = 'CKFTk'
+TrackMon_ckf.AlgoName           = 'GenTk'
 TrackMon_ckf.FolderName         = 'Tracking/TrackParameters'
 TrackMon_ckf.doSeedParameterHistos = True
 

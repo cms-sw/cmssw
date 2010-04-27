@@ -4,7 +4,7 @@
 // user include files
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

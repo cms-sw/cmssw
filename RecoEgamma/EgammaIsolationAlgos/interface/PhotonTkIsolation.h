@@ -11,6 +11,7 @@
 
 //C++ includes
 #include <vector>
+#include <string>
 #include <functional>
 
 //CMSSW includes
@@ -18,6 +19,9 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaTrackSelector.h"
+
+using egammaisolation::EgammaTrackSelector ;
 
 
 
@@ -30,8 +34,22 @@ class PhotonTkIsolation {
 		     double etLow,
 		     double lip,
 		     double drb,
-		     const reco::TrackCollection*,
-		     reco::TrackBase::Point beamPoint) ;
+		     const reco::TrackCollection* trackCollection,
+		     reco::TrackBase::Point beamPoint) :
+  extRadius_(extRadius),
+  intRadiusBarrel_(intRadius),
+  intRadiusEndcap_(intRadius),
+  stripBarrel_(0.0),
+  stripEndcap_(0.0),
+  etLow_(etLow),
+  lip_(lip),
+  drb_(drb),
+  trackCollection_(trackCollection),
+  beamPoint_(beamPoint) {
+    
+    setDzOption("vz");
+
+  }
 
   PhotonTkIsolation (double extRadius,
                      double intRadius,
@@ -39,19 +57,62 @@ class PhotonTkIsolation {
                      double etLow,
                      double lip,
                      double drb,
-                     const reco::TrackCollection*,
-                     reco::TrackBase::Point beamPoint) ;
+                     const reco::TrackCollection* trackCollection,
+                     reco::TrackBase::Point beamPoint) :
+  extRadius_(extRadius),
+  intRadiusBarrel_(intRadius),
+  intRadiusEndcap_(intRadius),
+  stripBarrel_(strip),
+  stripEndcap_(strip),
+  etLow_(etLow),
+  lip_(lip),
+  drb_(drb),
+  trackCollection_(trackCollection),
+  beamPoint_(beamPoint) {
+    
+    setDzOption("vz");
+
+  }
+
 
   PhotonTkIsolation (double extRadius,
                      double intRadiusBarrel,
-		     double intRadiusEndcap,
-		     double stripBarrel,
+		             double intRadiusEndcap,
+		             double stripBarrel,
+                     double stripEndcap,		
+                     double etLow,
+                     double lip,
+                     double drb,
+                     const reco::TrackCollection* trackCollection,
+                     reco::TrackBase::Point beamPoint) :
+  extRadius_(extRadius),
+  intRadiusBarrel_(intRadiusBarrel),
+  intRadiusEndcap_(intRadiusEndcap),
+  stripBarrel_(stripBarrel),
+  stripEndcap_(stripEndcap),
+  etLow_(etLow),
+  lip_(lip),
+  drb_(drb),
+  trackCollection_(trackCollection),
+  beamPoint_(beamPoint) {
+    
+    setDzOption("vz");
+
+  }
+
+
+
+  PhotonTkIsolation (double extRadius,
+                     double intRadiusBarrel,
+		             double intRadiusEndcap,
+		             double stripBarrel,
                      double stripEndcap,		
                      double etLow,
                      double lip,
                      double drb,
                      const reco::TrackCollection*,
-                     reco::TrackBase::Point beamPoint) ;
+                     reco::TrackBase::Point beamPoint,
+                     const std::string&) ;
 
    //destructor 
   ~PhotonTkIsolation() ;
@@ -59,6 +120,14 @@ class PhotonTkIsolation {
 
   int getNumberTracks(const reco::Candidate*) const ;
   double getPtTracks (const reco::Candidate*) const ;
+
+  void setDzOption(const std::string &s) {
+    if( ! s.compare("dz") )      dzOption_ = EgammaTrackSelector::dz;
+    else if( ! s.compare("vz") ) dzOption_ = EgammaTrackSelector::vz;
+    else if( ! s.compare("bs") ) dzOption_ = EgammaTrackSelector::bs;
+    else if( ! s.compare("vtx") )dzOption_ = EgammaTrackSelector::vtx;
+    else                         dzOption_ = EgammaTrackSelector::dz;
+  }
 
  private:
 
@@ -73,6 +142,8 @@ class PhotonTkIsolation {
 
   const reco::TrackCollection *trackCollection_ ;
   reco::TrackBase::Point beamPoint_;
+
+  int dzOption_;
 
   std::pair<int,double>getIso(const reco::Candidate*) const ;
 

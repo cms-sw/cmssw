@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2009/10/28 08:18:21 $
- * $Revision: 1.70 $
+ * $Date: 2010/01/25 21:12:24 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -21,11 +21,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps) {
+EBBeamHodoClient::EBBeamHodoClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -37,7 +33,7 @@ EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -45,7 +41,7 @@ EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   for (int i=0; i<4; i++) {
 
@@ -91,9 +87,9 @@ EBBeamHodoClient::~EBBeamHodoClient() {
 
 void EBBeamHodoClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EBBeamHodoClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EBBeamHodoClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -102,7 +98,7 @@ void EBBeamHodoClient::beginJob(void) {
 
 void EBBeamHodoClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EBBeamHodoClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EBBeamHodoClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -112,7 +108,7 @@ void EBBeamHodoClient::beginRun(void) {
 
 void EBBeamHodoClient::endJob(void) {
 
-  if ( debug_ ) cout << "EBBeamHodoClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EBBeamHodoClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -196,7 +192,7 @@ void EBBeamHodoClient::endJob(void) {
 
 void EBBeamHodoClient::endRun(void) {
 
-  if ( debug_ ) cout << "EBBeamHodoClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EBBeamHodoClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -231,7 +227,7 @@ void EBBeamHodoClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EBBeamHodoClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EBBeamHodoClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   int smId = 1;

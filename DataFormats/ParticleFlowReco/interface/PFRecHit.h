@@ -71,6 +71,7 @@ namespace reco {
     void add4Neighbour( unsigned index );
     void add8Neighbour( unsigned index );
     void setEnergyUp( double eUp) { energyUp_ = eUp; }
+    void setRescale( double factor) { rescale_ = factor; }
     
     void clearNeighbours() {
       neighbours4_.clear();
@@ -102,6 +103,9 @@ namespace reco {
 
     /// rechit energy
     double energy() const { return energy_; }
+
+    /// rescaling factor
+    double rescale() const { return rescale_; }
 
     /// For HF hits: rechit energy (and neighbour's) in the other HF layer
     double energyUp() const { return energyUp_; }
@@ -193,8 +197,11 @@ namespace reco {
     /// rechit layer
     PFLayer::Layer                 layer_;
 
-    /// rechit energy
+    /// rechit energy 
     double              energy_;
+
+    /// Internal rescaling factor of the energy (1. = default, 0 = killed channels, x = rescaled)
+    double              rescale_;
 
     /// For HF hits : hit energy in the other layer (EM for HAD, and HAD for EM)
     double              energyUp_;

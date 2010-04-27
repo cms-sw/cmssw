@@ -26,6 +26,8 @@ PFCandidateAnalyzer::PFCandidateAnalyzer(const edm::ParameterSet& iConfig) {
   printBlocks_ = 
     iConfig.getUntrackedParameter<bool>("printBlocks",false);
 
+  rankByPt_ = 
+    iConfig.getUntrackedParameter<bool>("rankByPt",false);
 
 
   LogDebug("PFCandidateAnalyzer")
@@ -58,10 +60,18 @@ PFCandidateAnalyzer::analyze(const Event& iEvent,
   Handle<PFCandidateCollection> pfCandidates;
   iEvent.getByLabel(inputTagPFCandidates_, pfCandidates);
 
+  reco::PFCandidateCollection newcol;  
+
+  // to sort, one needs to copy
+  if(rankByPt_)
+    {
+      newcol=*pfCandidates;
+      sort(newcol.begin(),newcol.end(),greaterPt);
+    }
   
   for( unsigned i=0; i<pfCandidates->size(); i++ ) {
     
-    const reco::PFCandidate& cand = (*pfCandidates)[i];
+    const reco::PFCandidate & cand = (rankByPt_) ? newcol[i] : (*pfCandidates)[i];
     
     if( verbose_ ) {
       cout<<cand<<endl;

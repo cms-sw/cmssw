@@ -42,14 +42,24 @@ class Level1TriggerRates
 
   Level1TriggerRates();
   Level1TriggerRates(Level1TriggerScalers const& s);
+  Level1TriggerRates(Level1TriggerScalers const& s,
+		     int runNumber);
   Level1TriggerRates(Level1TriggerScalers const& s1, 
 		     Level1TriggerScalers const& s2);
+  Level1TriggerRates(Level1TriggerScalers const& s1, 
+		     Level1TriggerScalers const& s2,
+		     int runNumber);
   virtual ~Level1TriggerRates();
 
   void computeRates(Level1TriggerScalers const& t1);
+  void computeRates(Level1TriggerScalers const& t1, 
+		    int runNumber);
 
   void computeRates(Level1TriggerScalers const& t1,
 		    Level1TriggerScalers const& t2);
+  void computeRates(Level1TriggerScalers const& t1,
+		    Level1TriggerScalers const& t2,
+		    int runNumber);
 
   /// name method
   std::string name() const { return "Level1TriggerRates"; }
@@ -121,7 +131,7 @@ class Level1TriggerRates
   { return(collectionTimeLumiSeg_.get_timespec());}
 
   std::vector<double> gtAlgoCountsRate() const { return(gtAlgoCountsRate_);}
-  std::vector<double> gtTechCountsRate() const{ return(gtTechCountsRate_);}
+  std::vector<double> gtTechCountsRate() const { return(gtTechCountsRate_);}
 
   /// equality operator
   int operator==(const Level1TriggerRates& e) const { return false; }

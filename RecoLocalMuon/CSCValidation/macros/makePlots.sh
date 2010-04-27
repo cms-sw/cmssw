@@ -69,12 +69,12 @@ cat > ${MACRO}<<EOF
   make1DPlot("Segments/hSnSegments",f1,"Segments per Event", 1110, "Segments_hSnSegments.png");
 
   //efficiency plots
-  makeEffGif("Efficiency/hRHSTE", f1, "RecHit Efficiecy", "Efficiency_hRHEff.png");
-  makeEffGif("Efficiency/hSSTE", f1, "Segment Efficiecy", "Efficiency_hSEff.png");
-  Draw2DEfficiency("Efficiency/hRHSTE2", f1, "RecHit Efficiency 2D", "Efficiency_hRHEff2.png");
-  Draw2DEfficiency("Efficiency/hSSTE2", f1, "Segment Efficiency 2D", "Efficiency_hSEff2.png");
-  Draw2DEfficiency("Efficiency/hWireSTE2", f1, "Wire Efficiency 2D", "Efficiency_hWireEff2.png");
-  Draw2DEfficiency("Efficiency/hStripSTE2", f1, "Strip Efficiency 2D", "Efficiency_hStripEff2.png");
+  makeEffGif("Efficiency/hRHEff", f1, "RecHit Efficiecy", "Efficiency_hRHEff.png");
+  makeEffGif("Efficiency/hSEff", f1, "Segment Efficiecy", "Efficiency_hSEff.png");
+  Draw2DTempPlot("Efficiency/hRHEff2", f1, false, "Efficiency_hRHEff2.png");
+  Draw2DTempPlot("Efficiency/hSEff2", f1, false, "Efficiency_hSEff2.png");
+  Draw2DTempPlot("Efficiency/hWireEff2", f1, false, "Efficiency_hWireEff2.png");
+  Draw2DTempPlot("Efficiency/hStripEff2", f1, false, "Efficiency_hStripEff2.png");
   Draw2DTempPlot("Efficiency/hSensitiveAreaEvt", f1, false, "Efficiency_hEvts2.png");
 
   

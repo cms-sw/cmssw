@@ -9,7 +9,7 @@ process = cms.Process("L1CSCTriggerPrimitivesReader")
 
 process.source = cms.Source("PoolSource",
     # fileNames = cms.untracked.vstring("file:lcts.root"),
-    fileNames = cms.untracked.vstring("file:/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_3_3_0.root"),
+    fileNames = cms.untracked.vstring("file:/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_3_1_0_pre7.root"),
     # fileNames = cms.untracked.vstring("file:/data0/slava/test/lcts_14419l.root.sav"),
     debugVebosity = cms.untracked.uint32(10),
     debugFlag = cms.untracked.bool(False)
@@ -41,8 +41,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'DESIGN_31X_V8::All'
-process.GlobalTag.globaltag = 'MC_31X_V9::All'
+process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
 # Enable floating point exceptions
 #process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions")

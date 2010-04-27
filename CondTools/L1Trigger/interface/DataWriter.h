@@ -73,6 +73,8 @@ class DataWriter
 
   std::string lastPayloadToken( const std::string& recordName ) ;
 
+  bool fillLastTriggerKeyList( L1TriggerKeyList& output ) ;
+
  protected:
 };
 
@@ -96,7 +98,6 @@ void DataWriter::readObject( const std::string& payloadToken,
   outputObject = *ref ;
   tr.commit ();
 }
-
 
 } // ns
 

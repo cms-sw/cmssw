@@ -164,11 +164,29 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
       path_mvaWeightFileEleID = edm::FileInPath ( mvaWeightFileEleID.c_str() ).fullPath();
     }
 
-  // End PFElectrons Configuration
+
+  //Secondary tracks and displaced vertices parameters
+
+  bool rejectTracks_Bad
+    = iConfig.getParameter<bool>("rejectTracks_Bad");
+
+  bool rejectTracks_Step45
+    = iConfig.getParameter<bool>("rejectTracks_Step45");
+
+  bool usePFNuclearInteractions
+    = iConfig.getParameter<bool>("usePFNuclearInteractions");
 
   bool usePFConversions
     = iConfig.getParameter<bool>("usePFConversions");  
-  
+
+  bool usePFDecays
+    = iConfig.getParameter<bool>("usePFDecays");
+
+
+
+
+
+
 
 
   boost::shared_ptr<PFEnergyCalibration> 
@@ -208,8 +226,17 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 			      applyCrackCorrectionsForElectrons,
 			      usePFSCEleCalib);
   
-  pfAlgo_->setPFConversionParameters(usePFConversions);
+  //  pfAlgo_->setPFConversionParameters(usePFConversions);
   
+  //Secondary tracks and displaced vertices parameters
+  
+  pfAlgo_->setDisplacedVerticesParameters(rejectTracks_Bad,
+					  rejectTracks_Step45,
+					  usePFNuclearInteractions,
+ 					  usePFConversions,
+	 				  usePFDecays);
+  
+
   // Muon parameters
   std::vector<double> muonHCAL
     = iConfig.getParameter<std::vector<double> >("muon_HCAL");  

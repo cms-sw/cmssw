@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2009/10/29 11:42:24 $
- *  $Revision: 1.14.4.2 $
+ *  $Date: 2009/11/04 09:04:44 $
+ *  $Revision: 1.15 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -45,8 +45,6 @@
 
 #include "classlib/utils/StringList.h"
 #include "classlib/utils/StringOps.h"
-
-using namespace lat;
 
 class EDMtoMEConverter : public edm::EDAnalyzer
 {
@@ -93,5 +91,3 @@ class EDMtoMEConverter : public edm::EDAnalyzer
 }; // end class declaration
 
 #endif
-
-

@@ -4,6 +4,7 @@
 #########################################################################################
 
 source ${BaseDir}/fillDB_HistoryDQMService.sh
+source ${BaseDir}/TakeLastVersion.sh
 
 function SubDetScript ()
 {
@@ -40,11 +41,12 @@ function SubDetScript ()
     local ProcessedFileList=HDQMProcessed_${TagName}.txt
     local TempProcessed=ToProcess_${DetName}.txt
 
-    find ${SourceDir} -name "*.root" | awk -F"/" '{a=$0; sub($NF,"",a); print a}' > $TempProcessed
+    find -L ${SourceDir} -name "*.root" | awk -F"/" '{a=$0; sub($NF,"",a); print a}' > $TempProcessed
     # local ListOfDirs=(`cat $ProcessedFileList $TempProcessed | sort | uniq -u | awk -F"/" '{a=$0; sub($NF,"",a); print a}'`)
     # Declare this specifically as an array
     declare -a ListOfDirs
-    local ListOfDirs=($(cat $ProcessedFileList $TempProcessed | sort | uniq -u | awk -F"/" '{a=$0; sub($NF,"",a); print a}'))
+    # local ListOfDirs=($(cat $ProcessedFileList $TempProcessed | sort | uniq))
+    local ListOfDirs=($(cat $TempProcessed | sort | uniq))
 
     local Update=0
 
@@ -60,7 +62,11 @@ function SubDetScript ()
 
 	# Internally runs that must not be processed are skipped. The return code tells if something has been processed.
 	# Therefore, looking only at the ListSize is not sufficient to decide if to update the histograms.
+
+
 	fillDB_HistoryDQMService ${DetName} ${TagName} ${Dir} ${Database} ${AuthenticationPath} ${FirstRun} ${LastRun} ${ProcessedFileList} ${CMSSW_version}
+
+
 	local Update=$?
 
 	let "k+=1"

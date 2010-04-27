@@ -222,7 +222,7 @@ double JetComparison::deltaR2(double eta0, double phi0, double eta, double phi){
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(JetComparison);
+
+DEFINE_FWK_MODULE(JetComparison);
 
  

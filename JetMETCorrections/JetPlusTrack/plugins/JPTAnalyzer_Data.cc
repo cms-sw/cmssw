@@ -126,7 +126,6 @@ class JPTAnalyzer_Data : public edm::EDAnalyzer {
   // output root file and tree
   TFile*      hOutputFile ;
   TTree*      t1;
-  bool scalar_;
 };
 
 //
@@ -220,7 +219,6 @@ JPTAnalyzer_Data::JPTAnalyzer_Data(const edm::ParameterSet& iConfig)
   //  JetCorrectionZSP = iConfig.getParameter< std::string > ("JetCorrectionZSP");
   // Jet+tracks energy corrections
   JetCorrectionJPT = iConfig.getParameter< std::string > ("JetCorrectionJPT");
-  scalar_ = iConfig.getUntrackedParameter<bool> ("UseScalarMethod",false);
 }
 
 
@@ -439,24 +437,10 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 
 	 jcgood = jcgood + 1;
 
-	 // ZSP JetRef
-	 edm::RefToBase<reco::Jet> zspRef( edm::Ref<CaloJetCollection>( zspjets, zspjet - zspjets->begin() ) );
-
 	 // JPT corrections
-	 double scaleJPT = -1.;
-	 Jet::LorentzVector jetscaleJPT;
-	 if ( scalar_ ) {
-	   scaleJPT = correctorJPT->correction ( (*zspjet), zspRef, iEvent, iSetup );
-	   jetscaleJPT = Jet::LorentzVector( zspjet->px()*scaleJPT, 
-					     zspjet->py()*scaleJPT,
-					     zspjet->pz()*scaleJPT, 
-					     zspjet->energy()*scaleJPT );
-	 } else {
-	   JetCorrector::LorentzVector p4;
-	   scaleJPT = correctorJPT->correction( *zspjet, zspRef, iEvent, iSetup, p4 );
-	   jetscaleJPT = Jet::LorentzVector( p4.Px(), p4.Py(), p4.Pz(), p4.E() );
-	 }
-	 
+	 double scaleJPT = correctorJPT->correction ((*zspjet),iEvent,iSetup);
+	 Jet::LorentzVector jetscaleJPT(zspjet->px()*scaleJPT, zspjet->py()*scaleJPT,
+					zspjet->pz()*scaleJPT, zspjet->energy()*scaleJPT);
 	 /* 
 	 cout <<" ....> corrected jpt jet Et = " << jetscaleJPT.pt()
 	      <<" eta = " << jetscaleJPT.eta()

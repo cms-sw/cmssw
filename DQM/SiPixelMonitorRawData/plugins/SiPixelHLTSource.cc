@@ -49,7 +49,8 @@ SiPixelHLTSource::SiPixelHLTSource(const edm::ParameterSet& iConfig) :
   rawin_( conf_.getParameter<edm::InputTag>( "RawInput" ) ),
   errin_( conf_.getParameter<edm::InputTag>( "ErrorInput" ) ),
   saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
-  slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) )
+  slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
+  dirName_( conf_.getUntrackedParameter<std::string>("DirName","Pixel/FEDIntegrity/") )
 {
    theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelHLTSource::SiPixelHLTSource: Got DQM BackEnd interface"<<endl;
@@ -163,7 +164,7 @@ void SiPixelHLTSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 void SiPixelHLTSource::bookMEs(){
 
   theDMBE->cd();
-  theDMBE->setCurrentFolder("Pixel/FEDIntegrity/");
+  theDMBE->setCurrentFolder(dirName_);
 
   std::string rawhid;
   std::string errhid;

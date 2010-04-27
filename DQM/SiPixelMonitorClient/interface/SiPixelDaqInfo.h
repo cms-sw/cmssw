@@ -45,7 +45,12 @@ private:
   std::pair<int,int> FEDRange_;
 
   int  NumberOfFeds_;
- 
+  
+  int NEvents_;
+  int nFEDsBarrel_;
+  int nFEDsEndcap_;
+  int FEDs_[40];
+  
 };
 
 #endif

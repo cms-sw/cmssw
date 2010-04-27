@@ -1,4 +1,4 @@
-// $Id: HcalCorrPFCalculation.cc,v 1.16 2010/01/25 22:13:27 hegner Exp $
+// $Id: HcalCorrPFCalculation.cc,v 1.15 2010/01/22 19:34:19 argiro Exp $
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -334,7 +334,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       Int_t iphitrue = -10;
       Int_t ietatrue = 100;
       
-      if (abs(etahcal)<1.392) 
+      if (etahcal<1.392) 
 	{
 	  const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
 	  //    const GlobalPoint tempPoint(newx, newy, newz);
@@ -344,7 +344,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  iphitrue = tempId.iphi();
 	}
       
-      if (abs(etahcal)>1.392 &&  abs(etahcal)<3.0) 
+      if (etahcal>1.392 &&  etahcal<3.0) 
 	{
 	  const CaloSubdetectorGeometry* gHE = geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
 	  const HcalDetId tempId = gHE->getClosestCell(gPointHcal);
@@ -352,7 +352,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  iphitrue = tempId.iphi();
 	}
       
-      if (abs(etahcal)>3.0 &&  abs(etahcal)<5.0) 
+      if (etahcal>3.0 &&  etahcal<5.0) 
 	{
 	  const CaloSubdetectorGeometry* gHF = geo->getSubdetectorGeometry(DetId::Hcal,HcalForward);
 	  const HcalDetId tempId = gHF->getClosestCell(gPointHcal);

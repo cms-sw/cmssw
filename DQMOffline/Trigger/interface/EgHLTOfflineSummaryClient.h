@@ -63,6 +63,10 @@ public:
   std::vector<std::string> egHLTFiltersToMonPaths_;
   bool usePathNames_;
   
+  bool filterInactiveTriggers_;
+  bool isSetup_;
+  std::string hltTag_;
+  
 
   //disabling copying/assignment (in theory this is copyable but lets not just in case)
   EgHLTOfflineSummaryClient(const EgHLTOfflineSummaryClient& rhs){}

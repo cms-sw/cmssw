@@ -7,7 +7,7 @@
 
   Description: Example DQM Client 
 
-  $Id: SMDQMClientExample.cc,v 1.7 2008/03/04 17:12:40 hcheung Exp $
+  $Id: SMDQMClientExample.cc,v 1.8 2008/07/15 20:15:27 biery Exp $
 
 */
 
@@ -164,6 +164,20 @@ void SMDQMClientExample::analyze(const edm::Event& iEvent,
     std::cout << "int1 value string: \"" << i1->valueString() << "\"" << std::endl;
   } else {
     std::cout << "did not find int1" << std::endl;
+  }
+
+  f1 = dbe->get("C1/C3/float1");
+  if(f1) {
+    std::cout << "float1 value string: \"" << f1->valueString() << "\"" << std::endl;
+  } else {
+    std::cout << "did not find float1" << std::endl;
+  }
+
+  s1 = dbe->get("C1/C3/s1");
+  if(s1) {
+    std::cout << "s1 value string: \"" << s1->valueString() << "\"" << std::endl;
+  } else {
+    std::cout << "did not find s1" << std::endl;
   }
 
   ++counter;

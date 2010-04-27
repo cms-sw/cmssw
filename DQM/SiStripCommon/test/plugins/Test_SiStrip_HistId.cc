@@ -44,14 +44,13 @@ Test_SiStrip_HistId::~Test_SiStrip_HistId()
 
 void Test_SiStrip_HistId::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
+  edm::Handle<ExampleData> pIn;
    iEvent.getByLabel("example",pIn);
 #endif
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
+   edm::ESHandle<SetupData> pSetup;
    iSetup.get<SetupRecord>().get(pSetup);
 #endif
 

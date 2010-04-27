@@ -19,8 +19,9 @@ from DQMServices.Components.DQMEnvironment_cfi import *
 dqmEnv.subSystemFolder = 'HLT'
 
 
-#hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hltEventInfoClient*hLTMuonPostVal*jetMETHLTOfflineClient*tagAndProbeEfficiencyPostProcessor*HLTTauPostAnalysis*dqmEnv)
 
-hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hLTMuonPostVal*jetMETHLTOfflineClient*tagAndProbeEfficiencyPostProcessor*HLTTauPostAnalysis*dqmOfflineHLTCert*dqmEnv)
+#hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hLTMuonPostVal*jetMETHLTOfflineClient*tagAndProbeEfficiencyPostProcessor*HLTTauPostAnalysis*dqmOfflineHLTCert*dqmEnv)
 
-#hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hLTMuonPostVal*jetMETHLTOfflineClient*tagAndProbeEfficiencyPostProcessor*HLTTauPostAnalysis*dqmEnv)
+# remove jetMETHLTOfflineClient
+hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hLTMuonPostVal*tagAndProbeEfficiencyPostProcessor*HLTTauPostAnalysis*dqmOfflineHLTCert*dqmEnv)
+

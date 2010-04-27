@@ -89,6 +89,7 @@ L3Muons = cms.EDProducer("L3MuonProducer",
             Propagator = cms.string('SmartPropagatorAny')
         ),
         PtCut = cms.double(1.0),
+        PCut = cms.double(2.5),
         GlbRefitterParameters = cms.PSet(
             TrackerSkipSection = cms.int32(-1),
             DoPredictionsOnly = cms.bool(False),

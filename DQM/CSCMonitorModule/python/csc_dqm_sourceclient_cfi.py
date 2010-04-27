@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.CSCMonitorModule.csc_dqm_masked_hw_cfi import *
 
-dqmCSCClient = cms.EDFilter("CSCMonitorModule",
+dqmCSCClient = cms.EDAnalyzer("CSCMonitorModule",
 
   BOOKING_XML_FILE = cms.FileInPath('DQM/CSCMonitorModule/data/emuDQMBooking.xml'),
   InputObjects = cms.untracked.InputTag("source"),
@@ -35,13 +35,13 @@ dqmCSCClient = cms.EDFilter("CSCMonitorModule",
     FRAEFF_AUTO_UPDATE_START = cms.untracked.uint32(5),
     FRAEFF_AUTO_UPDATE_FREQ = cms.untracked.uint32(200),
     EFF_COLD_THRESHOLD = cms.untracked.double(0.1),
-    EFF_COLD_SIGFAIL = cms.untracked.double(2.0),
-    EFF_HOT_THRESHOLD = cms.untracked.double(10.0),
-    EFF_HOT_SIGFAIL = cms.untracked.double(5.0),
+    EFF_COLD_SIGFAIL = cms.untracked.double(1.5),
+    EFF_HOT_THRESHOLD = cms.untracked.double(2.0),
+    EFF_HOT_SIGFAIL = cms.untracked.double(10.0),
     EFF_ERR_THRESHOLD = cms.untracked.double(0.1),
     EFF_ERR_SIGFAIL = cms.untracked.double(5.0),
-    EFF_NODATA_THRESHOLD = cms.untracked.double(0.99),
-    EFF_NODATA_SIGFAIL = cms.untracked.double(5.0),
+    EFF_NODATA_THRESHOLD = cms.untracked.double(0.5),
+    EFF_NODATA_SIGFAIL = cms.untracked.double(10.0),
     EVENTS_ECHO = cms.untracked.uint32(1000),
     MO_FILTER = cms.untracked.vstring(
       '+/^.*$/',

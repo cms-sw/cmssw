@@ -21,7 +21,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: significanceAlgo.cc,v 1.9 2009/10/21 11:27:12 fblekman Exp $
+// $Id: significanceAlgo.cc,v 1.14 2010/04/20 11:02:01 fblekman Exp $
 //
 //
 
@@ -72,7 +72,7 @@ metsig::significanceAlgo::~significanceAlgo(){
 void
 metsig::significanceAlgo::rotateMatrix( Double_t theta, TMatrixD &v)
 {
-
+  // I suggest not using this to rotate trivial matrices.
   TMatrixD r(2,2);
   TMatrixD rInv(2,2);
 
@@ -88,7 +88,6 @@ metsig::significanceAlgo::rotateMatrix( Double_t theta, TMatrixD &v)
 const void 
 metsig::significanceAlgo::subtractObjects(const std::vector<metsig::SigInputObj>& eventVec)
 { 
-  TMatrixD v_tmp(2,2);
   TMatrixD v_tot = signifmatrix_;
   //--- Loop over physics objects in the event ---//
   //  for(unsigned int objnum=1; objnum < EventVec.size(); objnum++ ) {
@@ -98,22 +97,22 @@ metsig::significanceAlgo::subtractObjects(const std::vector<metsig::SigInputObj>
     double sigma_et   = obj->get_sigma_e();
     double sigma_tan  = obj->get_sigma_tan();
 
-    double xval = et_tmp * cos( phi_tmp );
-    double yval = et_tmp * sin( phi_tmp );
+    double cosphi=cos(phi_tmp);
+    double sinphi=sin(phi_tmp);
+    double xval = et_tmp * cosphi;
+    double yval = et_tmp * sinphi;
     xmet_ += xval;
     ymet_ += yval;
     set_worker_ -= et_tmp;
 
-    //-- Initialize covariance matrix --//
-    v_tmp(0,0) = pow( sigma_et, 2);
-    v_tmp(0,1) = 0;  v_tmp(1,0) = 0;
-    v_tmp(1,1) = pow( sigma_tan, 2);
-    
-    //-- rotate matrix --//
-    rotateMatrix(phi_tmp,v_tmp);
+    double sigma0_2=sigma_et*sigma_et;
+    double sigma1_2=sigma_tan*sigma_tan;
 
-    //-- add to sum of rotated covariance matrices --//
-    v_tot -= v_tmp;
+    v_tot(0,0)-= sigma0_2*cosphi*cosphi + sigma1_2*sinphi*sinphi;
+    v_tot(0,1)-= cosphi*sinphi*(sigma0_2 - sigma1_2);
+    v_tot(1,0)-= cosphi*sinphi*(sigma0_2 - sigma1_2);
+    v_tot(1,1)-= sigma1_2*cosphi*cosphi + sigma0_2*sinphi*sinphi;
+    
   }
   signifmatrix_=v_tot;
 }
@@ -123,7 +122,6 @@ metsig::significanceAlgo::subtractObjects(const std::vector<metsig::SigInputObj>
 const void 
 metsig::significanceAlgo::addObjects(const std::vector<metsig::SigInputObj>& eventVec)
 { 
-  TMatrixD v_tmp(2,2);
   TMatrixD v_tot = signifmatrix_;
   //--- Loop over physics objects in the event ---//
   //  for(unsigned int objnum=1; objnum < EventVec.size(); objnum++ ) {
@@ -133,22 +131,22 @@ metsig::significanceAlgo::addObjects(const std::vector<metsig::SigInputObj>& eve
     double sigma_et   = obj->get_sigma_e();
     double sigma_tan  = obj->get_sigma_tan();
 
-    double xval = et_tmp * cos( phi_tmp );
-    double yval = et_tmp * sin( phi_tmp );
+    double cosphi=cos(phi_tmp);
+    double sinphi=sin(phi_tmp);
+    double xval = et_tmp * cosphi;
+    double yval = et_tmp * sinphi;
     xmet_ -= xval;
     ymet_ -= yval;
     set_worker_ += et_tmp;
 
-    //-- Initialize covariance matrix --//
-    v_tmp(0,0) = pow( sigma_et, 2);
-    v_tmp(0,1) = 0;  v_tmp(1,0) = 0;
-    v_tmp(1,1) = pow( sigma_tan, 2);
-    
-    //-- rotate matrix --//
-    rotateMatrix(phi_tmp,v_tmp);
+    double sigma0_2=sigma_et*sigma_et;
+    double sigma1_2=sigma_tan*sigma_tan;
 
-    //-- add to sum of rotated covariance matrices --//
-    v_tot += v_tmp;
+    v_tot(0,0)+= sigma0_2*cosphi*cosphi + sigma1_2*sinphi*sinphi;
+    v_tot(0,1)+= cosphi*sinphi*(sigma0_2 - sigma1_2);
+    v_tot(1,0)+= cosphi*sinphi*(sigma0_2 - sigma1_2);
+    v_tot(1,1)+= sigma1_2*cosphi*cosphi + sigma0_2*sinphi*sinphi;
+    
   }
   signifmatrix_=v_tot;
 }
@@ -158,7 +156,7 @@ const double
 metsig::significanceAlgo::significance(double &met_r, double &met_phi, double &met_set) 
 {
   
-  if(signifmatrix_.Abs()<0.000001){
+  if(signifmatrix_(0,0)==0 && signifmatrix_(1,1)==0 && signifmatrix_(1,0)==0 && signifmatrix_(0,1)==0){
     //edm::LogWarning("SignCaloSpecificAlgo") << "Event Vector is empty!  Return significance -1";
     return(-1);
   } 
@@ -181,7 +179,7 @@ metsig::significanceAlgo::significance(double &met_r, double &met_phi, double &m
 
   // one other option: if particles cancel there could be small numbers.
   // this check fixes this, added by F.Blekman
-  if(v_tot.Abs()<0.000001)
+  if(fabs(v_tot.Determinant())<0.000001)
     return -1;
 
 

@@ -1,7 +1,6 @@
 #include "CommonTools/TrackerMap/interface/TmPsu.h"
 #include "CommonTools/TrackerMap/interface/TmModule.h"
 #include <string>
-using namespace std;
 
 TmPsu::TmPsu(int dcs,int branch,int rack, int crate,int board){
   

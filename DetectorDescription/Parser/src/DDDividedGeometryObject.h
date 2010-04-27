@@ -9,7 +9,6 @@
 #include "DetectorDescription/Core/interface/DDAxes.h"
 #include "DetectorDescription/Core/interface/DDDivision.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
@@ -19,12 +18,14 @@ enum DivisionType { DivNDIVandWIDTH, DivNDIV, DivWIDTH };
 class DDLogicalPart;
 class DDRotation;
 class DDSolid;
+class DDPosPart;
+
 
 class DDDividedGeometryObject //: public DDDivision 
 { 
  public:
   
-  DDDividedGeometryObject( const DDDivision& div, DDCompactView* cpv );
+  DDDividedGeometryObject( const DDDivision& div, DDCompactView& cpv );
   
   virtual ~DDDividedGeometryObject();
   
@@ -64,7 +65,8 @@ class DDDividedGeometryObject //: public DDDivision
     double compWidth_;
     DivisionType divisionType_;
     int theVoluFirstCopyNo_;
-    DDCompactView* cpv_;
+    DDCompactView& cpv_;
+
 };
 
 #endif

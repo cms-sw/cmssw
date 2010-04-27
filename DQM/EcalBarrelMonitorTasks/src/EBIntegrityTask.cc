@@ -1,15 +1,14 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2009/06/23 06:45:58 $
- * $Revision: 1.78 $
+ * $Date: 2010/03/27 20:07:58 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  *
  */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,17 +25,13 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
+EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -65,6 +60,7 @@ EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
     meIntegrityMemTTId[i] = 0;
     meIntegrityMemTTBlockSize[i] = 0;
   }
+  meIntegrityErrorsByLumi = 0;
 
 }
 
@@ -84,7 +80,16 @@ void EBIntegrityTask::beginJob(void){
 
 }
 
-void EBIntegrityTask::beginRun(const Run& r, const EventSetup& c) {
+void EBIntegrityTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup) {
+
+  if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Reset();
+
+}
+
+void EBIntegrityTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
+}
+
+void EBIntegrityTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -92,7 +97,7 @@ void EBIntegrityTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBIntegrityTask::endRun(const Run& r, const EventSetup& c) {
+void EBIntegrityTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -110,6 +115,7 @@ void EBIntegrityTask::reset(void) {
     if ( meIntegrityMemTTId[i] ) meIntegrityMemTTId[i]->Reset();
     if ( meIntegrityMemTTBlockSize[i] ) meIntegrityMemTTBlockSize[i]->Reset();
   }
+  if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Reset();
 
 }
 
@@ -124,9 +130,20 @@ void EBIntegrityTask::setup(void){
 
     // checking when number of towers in data different than expected from header
     sprintf(histo, "EBIT DCC size error");
-    meIntegrityDCCSize = dqmStore_->book1D(histo, histo, 36, 1, 37.);
+    meIntegrityDCCSize = dqmStore_->book1D(histo, histo, 36, 1., 37.);
     for (int i = 0; i < 36; i++) {
       meIntegrityDCCSize->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    // checking the number of integrity errors in each DCC for each lumi
+    // crystal integrity error is weighted by 1/1700
+    // tower integrity error is weighted by 1/68
+    // bin 0 contains the number of processed events in the lumi (for normalization)
+    sprintf(histo, "EBIT weighted integrity errors by lumi");
+    meIntegrityErrorsByLumi = dqmStore_->book1D(histo, histo, 36, 1., 37.);
+//    meIntegrityErrorsByLumi->setLumiFlag();
+    for (int i = 0; i < 36; i++) {
+      meIntegrityErrorsByLumi->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
     // checking when the gain is 0
@@ -236,6 +253,9 @@ void EBIntegrityTask::cleanup(void){
     if ( meIntegrityDCCSize ) dqmStore_->removeElement( meIntegrityDCCSize->getName() );
     meIntegrityDCCSize = 0;
 
+    if ( meIntegrityErrorsByLumi ) dqmStore_->removeElement( meIntegrityErrorsByLumi->getName() );
+    meIntegrityErrorsByLumi = 0;
+
     dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/Gain");
     for (int i = 0; i < 36; i++) {
       if ( meIntegrityGain[i] ) dqmStore_->removeElement( meIntegrityGain[i]->getName() );
@@ -298,19 +318,22 @@ void EBIntegrityTask::cleanup(void){
 
 void EBIntegrityTask::endJob(void){
 
-  LogInfo("EBIntegrityTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBIntegrityTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
+void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  Handle<EBDetIdCollection> ids0;
+  // fill bin 0 with number of events in the lumi
+  if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(0.);
+
+  edm::Handle<EBDetIdCollection> ids0;
 
   if ( e.getByLabel(EBDetIdCollection0_, ids0) ) {
 
@@ -318,7 +341,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( *idItr );
 
-      float xism = ism - 0.5;
+      float xism = ism + 0.5;
 
       if ( meIntegrityDCCSize ) meIntegrityDCCSize->Fill(xism);
 
@@ -326,11 +349,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-//    LogWarning("EBIntegrityTask") << EBDetIdCollection0_ << " not available";
+//    edm::LogWarning("EBIntegrityTask") << EBDetIdCollection0_ << " not available";
 
   }
 
-  Handle<EBDetIdCollection> ids1;
+  edm::Handle<EBDetIdCollection> ids1;
 
   if ( e.getByLabel(EBDetIdCollection1_, ids1) ) {
 
@@ -343,21 +366,23 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ip = (ic-1)%20 + 1;
 
       int ism = Numbers::iSM( id );
+      float xism = ism + 0.5;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
       if ( meIntegrityGain[ism-1] ) meIntegrityGain[ism-1]->Fill(xie, xip);
+      if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(xism, 1./1700.);
 
     }
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EBDetIdCollection1_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EBDetIdCollection1_ << " not available";
 
   }
 
-  Handle<EBDetIdCollection> ids2;
+  edm::Handle<EBDetIdCollection> ids2;
 
   if ( e.getByLabel(EBDetIdCollection2_, ids2) ) {
 
@@ -370,21 +395,23 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ip = (ic-1)%20 + 1;
 
       int ism = Numbers::iSM( id );
+      float xism = ism + 0.5;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
       if ( meIntegrityChId[ism-1] ) meIntegrityChId[ism-1]->Fill(xie, xip);
+      if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(xism, 1./1700.);
 
     }
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EBDetIdCollection2_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EBDetIdCollection2_ << " not available";
 
   }
 
-  Handle<EBDetIdCollection> ids3;
+  edm::Handle<EBDetIdCollection> ids3;
 
   if ( e.getByLabel(EBDetIdCollection3_, ids3) ) {
 
@@ -397,21 +424,23 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ip = (ic-1)%20 + 1;
 
       int ism = Numbers::iSM( id );
+      float xism = ism + 0.5;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
       if ( meIntegrityGainSwitch[ism-1] ) meIntegrityGainSwitch[ism-1]->Fill(xie, xip);
+      if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(xism, 1./1700.);
 
     }
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EBDetIdCollection3_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EBDetIdCollection3_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids4;
+  edm::Handle<EcalElectronicsIdCollection> ids4;
 
   if ( e.getByLabel(EcalElectronicsIdCollection1_, ids4) ) {
 
@@ -425,21 +454,23 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ipt = (itt-1)%4 + 1;
 
       int ismt = Numbers::iSM( *idItr );
+      float xismt = ismt + 0.5;
 
       float xiet = iet - 0.5;
       float xipt = ipt - 0.5;
 
       if ( meIntegrityTTId[ismt-1] ) meIntegrityTTId[ismt-1]->Fill(xiet, xipt);
+      if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(xismt, 1./68.);
 
     }
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids5;
+  edm::Handle<EcalElectronicsIdCollection> ids5;
 
   if ( e.getByLabel(EcalElectronicsIdCollection2_, ids5) ) {
 
@@ -453,21 +484,23 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ipt = (itt-1)%4 + 1;
 
       int ismt = Numbers::iSM( *idItr );
+      float xismt = ismt + 0.5;
 
       float xiet = iet - 0.5;
       float xipt = ipt - 0.5;
 
       if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xiet, xipt);
+      if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(xismt, 1./68.);
 
     }
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids6;
+  edm::Handle<EcalElectronicsIdCollection> ids6;
 
   if ( e.getByLabel(EcalElectronicsIdCollection3_, ids6) ) {
 
@@ -486,11 +519,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids7;
+  edm::Handle<EcalElectronicsIdCollection> ids7;
 
   if ( e.getByLabel(EcalElectronicsIdCollection4_, ids7) ) {
 
@@ -509,11 +542,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids8;
+  edm::Handle<EcalElectronicsIdCollection> ids8;
 
   if ( e.getByLabel(EcalElectronicsIdCollection5_, ids8) ) {
 
@@ -539,11 +572,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection5_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection5_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids9;
+  edm::Handle<EcalElectronicsIdCollection> ids9;
 
   if ( e.getByLabel(EcalElectronicsIdCollection6_, ids9) ) {
 
@@ -569,7 +602,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection6_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection6_ << " not available";
 
   }
 

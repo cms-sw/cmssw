@@ -17,6 +17,8 @@ function fillDB_HistoryDQMService ()
     local ProcessedFileList=$8
     local CMSSW_version=$9
 
+    echo "DirName: $DirName"
+
     # echo
     # echo "PRINTING INFO IN FILLDB"
     # echo "DetName=$DetName"
@@ -36,30 +38,42 @@ function fillDB_HistoryDQMService ()
 
     # The "$" sign tells it to match that expression at the end of a line
     declare -a rootFileList
-    rootFileList=(`ls ${DirName} | grep ".root$" | sort`)
+
+
+
+    local rootFileListName="TempList.txt"
+    TakeLastVersion ${DirName} ${rootFileListName}
+
+#rootFileList=(`cat ${rootFileListName} | grep ".root$" | sort`)
+#echo "rootFileList: $rootFileList"
+
+    declare -a UniqFileList=(`cat $rootFileListName $ProcessedFileList | grep .root | sort | uniq -u`)
+#echo `echo $rootFileList | sed -e "s-.root-.root\n-g" | cat $ProcessedFileList - | sort | uniq -u`
+
 
     local k=0
-    local ListSize=${#rootFileList[*]}
+    local ListSize=${#UniqFileList[*]}
+    echo "Processing $ListSize runs"
 
     while [ "$k" -lt "$ListSize" ]
         do
-	local rootFile=${rootFileList[$k]}
+	local rootFile=${UniqFileList[$k]}
 	local runNumber=`echo ${rootFile} | awk -F "R00" '{print $2}' | awk -F"_" '{print int($1)}'`
 	local lessThenLastRun=0
-	if [ ${LastRun} -eq -1 ] || [ ${runNumber} -le ${lastRun} ]; then
+	if [ ${LastRun} -eq -1 ] || [ ${runNumber} -le ${LastRun} ]; then
 	    local lessThenLastRun=1
 	fi
 	if [ ${runNumber} -ge ${FirstRun} ] && [ ${lessThenLastRun} -eq 1 ]; then
 	    echo -e "\n\n\nprocessing " $rootFile " for runNr " ${runNumber} "\n\n"
 	    # echo "processing $rootFile for runNr ${runNumber}"
-	    cat template_${DetName}HistoryDQMService_cfg.py | sed -e "s@RUNNUMBER@${runNumber}@g" -e "s@FILENAME@$DirName/$rootFile@" -e "s@TAGNAME@${TagName}@g" -e "s@DATABASE@${Database}@" -e "s@AUTHENTICATIONPATH@${AuthenticationPath}@" > Run_${DetName}_${runNumber}.py
-	    cmsRun Run_${DetName}_${runNumber}.py > Run_${DetName}_${runNumber}.log
+	    cat template_${DetName}HistoryDQMService_cfg.py | sed -e "s@RUNNUMBER@${runNumber}@g" -e "s@FILENAME@$rootFile@" -e "s@TAGNAME@${TagName}@g" -e "s@DATABASE@${Database}@" -e "s@AUTHENTICATIONPATH@${AuthenticationPath}@" > Run_${DetName}_${runNumber}.py
+      cmsRun Run_${DetName}_${runNumber}.py > Run_${DetName}_${runNumber}.log
 	    # if [ "$?" != "0" ]; then
 	    # if [ $? -ne 0 ]; then
 		# echo -e "Problem found in the processing (exit code = $?). please have a look at \nRun_${DetName}_${runNumber}.log" && exit
 	    # else
 	    # The file is processed only if the job was successful
-	    echo ${DirName} >> ${ProcessedFileList}
+	    echo ${rootFile} >> ${ProcessedFileList}
 	    echo "done."
 	    # fi
 	    local Update=1

@@ -8,53 +8,22 @@ FebConnectorSpec::FebConnectorSpec(
   : theLinkBoardInputNum(num),
     theChamber(chamber),
     theFeb(feb),
-    theAlgo(0),
     theRawId(0)
 { }
 
-const ChamberStripSpec FebConnectorSpec::strip( int pinNumber) const
+void FebConnectorSpec::add(const ChamberStripSpec & strip)
 {
-  int nStrips=theAlgo/10000;
-  int firstChamberStrip=(theAlgo-10000*nStrips)/100;
-  int pinAlgo=theAlgo-10000*nStrips-100*firstChamberStrip;
-  int slope=1;
-  if (pinAlgo > 3) {
-    pinAlgo=pinAlgo-4;
-    slope=-1;
-  }
-  bool valid=true;
-  if (pinNumber < pinAlgo) valid=false;
-  if (!pinAlgo && (pinNumber < 2)) valid=false;
-  if (pinAlgo && (pinNumber > pinAlgo+nStrips-1)) valid=false;
-  if (!pinAlgo && (pinNumber > nStrips+2 || pinNumber == 9)) valid=false;
-  int chamberStripNumber=-1;
-  if (valid) {
-    if (pinAlgo !=0) chamberStripNumber=firstChamberStrip+slope*(pinNumber-pinAlgo);
-    else if (pinNumber < 9) chamberStripNumber=firstChamberStrip+slope*(pinNumber-2);
-    else chamberStripNumber=firstChamberStrip+slope*(pinNumber-3);
-  }
-  ChamberStripSpec aStrip={pinNumber,chamberStripNumber,0};
-  return aStrip;
+  theStrips.push_back(strip);
 }
 
-const int FebConnectorSpec::chamberStripNum(int istrip) const {
-  int nStrips = theAlgo/10000;
-  if (istrip<0 || istrip>nStrips-1) return 0;
-  int firstChamberStrip=(theAlgo-10000*nStrips)/100;
-  int pinAlgo=theAlgo-10000*nStrips-100*firstChamberStrip;
-  int theStrip=firstChamberStrip+istrip;
-  if (pinAlgo>3) theStrip=firstChamberStrip-istrip;
-  return theStrip;
-}
-
-const int FebConnectorSpec::cablePinNum(int istrip) const {
-  int nStrips = theAlgo/10000;
-  if (istrip<0 || istrip>nStrips-1) return 0;
-  int pinAlgo=theAlgo%100;
-  if (pinAlgo>3) pinAlgo=pinAlgo-4;
-  bool holeatpin9=(pinAlgo==0 && istrip>6);
-  int thePin = istrip+pinAlgo+holeatpin9+2*(pinAlgo==0);
-  return thePin;
+const ChamberStripSpec * FebConnectorSpec::strip( int pinNumber) const
+{
+  //FIXME - temporary implementaion, to be replace by LUT (in preparation)
+  typedef std::vector<ChamberStripSpec>::const_iterator IT;
+  for (IT it=theStrips.begin(); it != theStrips.end(); it++) {
+    if(pinNumber==it->cablePinNumber) return &(*it);
+  }
+  return 0;
 }
 
 const uint32_t & FebConnectorSpec::rawId() const
@@ -75,11 +44,8 @@ std::string FebConnectorSpec::print(int depth) const
   str << theChamber.print(depth)<< std::endl << theFeb.print(depth) ;
   depth--;
   if (depth >=0) {
-    int nStrips=theAlgo/10000;
-    for (int istrip=0; istrip<nStrips; istrip++) {
-      ChamberStripSpec aStrip={cablePinNum(istrip),chamberStripNum(istrip),cmsStripNum(istrip)};
-      str << aStrip.print(depth); 
-    }
+    typedef std::vector<ChamberStripSpec>::const_iterator IT;
+    for (IT it=theStrips.begin(); it != theStrips.end(); it++) str << (*it).print(depth); 
   }
   return str.str();
 }

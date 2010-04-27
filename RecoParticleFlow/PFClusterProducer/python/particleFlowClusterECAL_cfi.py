@@ -35,6 +35,8 @@ particleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
     posCalcNCrystal = cms.int32(9),
     # use cells with common corner to build topo-clusters
     useCornerCells = cms.bool(True),
+    # enable cleaning of RBX and HPD (HCAL only);                                         
+    cleanRBXandHPDs = cms.bool(False),
     # depth correction for ECAL clusters:
     #   0: no depth correction
     #   1: electrons/photons - depth correction is proportionnal to E
