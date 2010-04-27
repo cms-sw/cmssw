@@ -37,17 +37,17 @@
     <String  name="CerMat"      value="materials:Borosilicate_Glass"  />
     <Numeric name="CerXSize"    value=" 9.1*mm" />
     <Numeric name="CerYSize"    value="10.5*mm" />
-    <Numeric name="CerThick"    value=" 1.65*mm" />
+    <Numeric name="CerThick"    value=" 1.55*mm + 0.575*mm - 0.350*mm" />
 
     <String  name="AGLName"     value="EAGL"  />
     <String  name="AGLMat"      value="materials:E_Epoxy"  />
-    <Numeric name="AGLThick"    value=" 0.600*mm" />
+    <Numeric name="AGLThick"    value=" 0.575*mm" />
 
     <String  name="BSiName"     value="EBSI"  />
     <String  name="BSiMat"      value="materials:E_Silicon"  />
     <Numeric name="BSiXSize"    value=" 7.5*mm" />
     <Numeric name="BSiYSize"    value=" 7.5*mm" />
-    <Numeric name="BSiThick"    value=" 0.400*mm + 0.600*mm" />
+    <Numeric name="BSiThick"    value=" 0.400*mm + 0.575*mm" />
 
     <String  name="APDName"     value="EAPD"  />
     <String  name="APDMat"      value="materials:E_Silicon"  />
