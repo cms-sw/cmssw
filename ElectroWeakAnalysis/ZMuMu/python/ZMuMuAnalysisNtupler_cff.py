@@ -66,10 +66,10 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     quantity = cms.untracked.string("daughter(1).masterClone.phi")
     ),
     
-    cms.PSet(
-    tag = cms.untracked.string("Dau1NofHit"),
-    quantity = cms.untracked.string("?1>0?1:0"),
-    ),
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau1NofHit"),
+#    quantity = cms.untracked.string("?1>0?1:0"),
+#    ),
 
 
     
@@ -240,8 +240,31 @@ zMuMu=(
 #    tag = cms.untracked.string("Dau2MuEnergyEm"),
 #    quantity = cms.untracked.string("?daughter(1).masterClone.isGlobalMuon==1 ||daughter(1).masterClone.isTrackerMuon==1?daughter(1).masterClone.calEnergy.em:-1")
 #    ),
-    
-    
+
+    cms.PSet(
+    tag = cms.untracked.string("Dau1GlobalMuonBit"),
+    quantity = cms.untracked.string("daughter(0).masterClone.isGlobalMuon")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2GlobalMuonBit"),
+    quantity = cms.untracked.string("daughter(1).masterClone.isGlobalMuon")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1StandAloneBit"),
+    quantity = cms.untracked.string("daughter(0).masterClone.isStandAloneMuon")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2StandAloneBit"),
+    quantity = cms.untracked.string("daughter(1).masterClone.isStandAloneMuon")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1TrackerMuonBit"),
+    quantity = cms.untracked.string("daughter(0).masterClone.isTrackerMuon")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2TrackerMuonBit"),
+    quantity = cms.untracked.string("daughter(1).masterClone.isTrackerMuon")
+    ),
                 
     )
 
@@ -402,7 +425,20 @@ zMuTrk =(
     cms.PSet(
     tag = cms.untracked.string("Dau2Chi2"),
     quantity = cms.untracked.string("daughter(1).masterClone.track.normalizedChi2")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1GlobalMuonBit"),
+    quantity = cms.untracked.string("daughter(0).masterClone.isGlobalMuon")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1StandAloneBit"),
+    quantity = cms.untracked.string("daughter(0).masterClone.isStandAloneMuon")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1TrackerMuonBit"),
+    quantity = cms.untracked.string("daughter(0).masterClone.isTrackerMuon")
     )
+
             
     )
 
