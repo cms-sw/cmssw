@@ -62,8 +62,6 @@ namespace evf{
 	= FED_SOID_INSERT(fedinterface::EVFFED_ID) + FED_VERSION_INSERT(fedinterface::EVFFED_VERSION);
       *(uint32_t*)(payload_+ evtn::SLINK_HALFWORD_SIZE) 
 	= FED_HCTRLID_INSERT + FED_EVTY_INSERT(0x1) + FED_LVL1_INSERT(l1id) + FED_BXID_INSERT(bxid);
-      std::cout << "inserting 0x"<< std::hex << *(uint32_t*)payload_ 
-		<< *(uint32_t*)(payload_ + evtn::SLINK_HALFWORD_SIZE) << std::endl;
 
     }
     // this function MUST be called again after filling is complete (hence again in EP!!!)
