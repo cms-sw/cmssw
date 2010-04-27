@@ -195,7 +195,7 @@ class Detector {
     const float Area(const Address& adr) const;
 
     void PrintAddress(const Address& adr) const;
-    const bool AddressFromString(const std::string str_address, Address& adr) const;
+    const bool AddressFromString(const std::string& str_address, Address& adr) const;
 
     const unsigned int NumberOfRings(const unsigned int station) const;
     const unsigned int NumberOfChambers(const unsigned int station, const unsigned int ring) const;

@@ -569,7 +569,7 @@ namespace cscdqm {
    * @param  adr Address to return
    * @return true if address was successfully created, false - otherwise
    */
-  const bool Detector::AddressFromString(const std::string str_address, Address& adr) const {
+  const bool Detector::AddressFromString(const std::string& str_address, Address& adr) const {
     
     std::vector<std::string> tokens;
     Utility::splitString(str_address, ",", tokens);
