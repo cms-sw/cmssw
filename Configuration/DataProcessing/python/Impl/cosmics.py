@@ -103,7 +103,7 @@ class cosmics(Scenario):
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         options.relval = False
         
-        process = cms.Process('EXPRESS')
+        process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process)
 
         # Input source
@@ -131,8 +131,8 @@ class cosmics(Scenario):
             step += (skim+"+")
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
-        options.scenario = 'cosmics'        
-        options.step = step+'DQM,ENDJOB'
+        options.scenario = "cosmics"        
+        options.step = step.rstrip('+')+',ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
