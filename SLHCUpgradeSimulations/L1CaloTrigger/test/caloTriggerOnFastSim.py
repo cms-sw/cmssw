@@ -30,7 +30,7 @@ process.famosSimHits.SimulateTracking = False
 
 # Get frontier conditions    - not applied in the HCAL, see below
 from Configuration.PyReleaseValidation.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['startup']
+process.GlobalTag.globaltag = autoCond['mc']
 
 # Apply ECAL miscalibration
 process.ecalRecHit.doMiscalib = True
