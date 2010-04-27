@@ -82,10 +82,12 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
    m_eveScene->AddElement(m_modules);
    m_moduleLabels = new TEveElementList("Modules");
    m_eveScene->AddElement(m_moduleLabels);
-   fireworks::addModules(*track, id.item(), m_modules, true);
+   if( track->extra().isAvailable() )
+      fireworks::addModules(*track, id.item(), m_modules, true);
    m_hits = new TEveElementList("Hits");
    m_eveScene->AddElement(m_hits);
-   fireworks::addHits(*track, id.item(), m_hits, true);
+   if( track->extra().isAvailable() )
+      fireworks::addHits(*track, id.item(), m_hits, true);
    for (TEveElement::List_i i=m_modules->BeginChildren(); i!=m_modules->EndChildren(); ++i)
    {
       TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
