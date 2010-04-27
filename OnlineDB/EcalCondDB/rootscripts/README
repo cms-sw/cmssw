@@ -1,8 +1,0 @@
-These ROOT scripts were created by Francesca to access the ECAL online
-DB via ROOT.
-
-They can be taken as examples for further analysis using the DB.
-Please see the schema PDFs in the doc/ directory to see what is
-available in the DB.
-
-- Ricky Egeland

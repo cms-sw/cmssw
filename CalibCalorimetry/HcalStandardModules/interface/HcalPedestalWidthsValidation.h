@@ -1,5 +1,5 @@
-#ifndef HcalPedestalsAnalysis_H
-#define HcalPedestalsAnalysis_H
+#ifndef HcalPedestalWidthsValidation_H
+#define HcalPedestalWidthsValidation_H
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -32,12 +32,12 @@
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbXml.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 
 #include "TFile.h"
 #include "TProfile.h"
 #include "TH1.h"
+#include "TH2.h"
 #include <math.h>
 #include <iostream>
 #include <map>
@@ -52,7 +52,7 @@ namespace edm {
   class EventSetup;
 }
 
-   struct NewPedBunch
+   struct NewPedBunchVal
    {
       HcalDetId detid;
       bool usedflag;
@@ -63,25 +63,24 @@ namespace edm {
       float prod[4][4];
       float prodfc[4][4];
       int num[4][4];
+      TH1F * hist[4];
+      TH2F * covarhistADC;
+      TH2F * covarhistfC;
    };
 
-class HcalPedestalsAnalysis : public edm::EDAnalyzer
+class HcalPedestalWidthsValidation : public edm::EDAnalyzer
 {
    public:
    //Constructor
-   HcalPedestalsAnalysis(const edm::ParameterSet& ps);
+   HcalPedestalWidthsValidation(const edm::ParameterSet& ps);
    //Destructor
-   virtual ~HcalPedestalsAnalysis();
+   virtual ~HcalPedestalWidthsValidation();
    //Analysis
    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
    private:
    //Container for data, 1 per channel
-   std::vector<NewPedBunch> Bunches;
-   //Flag for saving histos
-   bool hiSaveFlag;
-   bool dumpXML;
-   bool verboseflag;
+   std::vector<NewPedBunchVal> BunchVales;
    int runnum;
    int firstTS;
    int lastTS;
@@ -90,8 +89,6 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
    std::string pedsfCfilename;
    std::string widthsADCfilename;
    std::string widthsfCfilename;
-   std::string XMLfilename;
-   std::string XMLtag;
 
    TH1F *HBMeans;
    TH1F *HBWidths;

@@ -1,6 +1,0 @@
-<use   name="DataFormats/SiStripDetId"/>
-<use   name="root"/>
-<use   name="DataFormats/SiStripCluster"/>
-<export>
-  <lib   name="1"/>
-</export>

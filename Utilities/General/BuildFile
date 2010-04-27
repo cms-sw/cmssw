@@ -1,8 +1,0 @@
-<export>
- <lib name=UtilitiesGeneral>
- <use name=boost>
- <use name=FWCore/Utilities>
-</export>
-
-<use name=FWCore/Utilities>
-<use name=boost>

@@ -1,6 +1,0 @@
-<use   name="L1Trigger/GlobalCaloTrigger"/>
-<library   file="*.cc" name="L1TriggerGlobalCaloTriggerPlugins">
-  <use   name="root"/>
-  <use   name="CommonTools/UtilAlgos"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

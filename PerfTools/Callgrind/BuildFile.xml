@@ -1,7 +1,0 @@
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="valgrind"/>
-<export>
-  <lib   name="1"/>
-</export>

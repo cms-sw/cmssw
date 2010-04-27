@@ -1,5 +1,0 @@
-<bin   file="testDetSort.cpp" name="testDetSort">
-  <use   name="Geometry/CommonDetUnit"/>
-  <use   name="DataFormats/DetId"/>
-  <use   name="boost"/>
-</bin>

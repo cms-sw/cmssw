@@ -1,6 +1,0 @@
-destDB 
-inputtag 
-tag CASTORRECO_Geometry_TagXX
-since 
-till 
-usertext

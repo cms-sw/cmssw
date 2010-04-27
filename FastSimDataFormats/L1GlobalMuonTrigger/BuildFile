@@ -1,8 +1,0 @@
-<use name=DataFormats/L1GlobalMuonTrigger>
-<use name=DataFormats/Math>
-<use name=SimDataFormats/Track>
-<export>
-  <use name=DataFormats/L1GlobalMuonTrigger>
-  <use name=DataFormats/Math>
-  <lib name=FastSimDataFormatsL1GlobalMuonTrigger>
-</export>

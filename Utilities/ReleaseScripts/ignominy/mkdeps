@@ -1,8 +1,0 @@
-#!/bin/sh
-
-eval `cd $DIST; scram runtime -sh`
-ignominy --verbose --root=$DIST \
-  --conf=$DEPDIR/path-auto.conf --conf=$UTILSDIR/path.conf \
-  > $DEPDIR/dependencies.txt 2> $DEPDIR/log
-egrep '(oops|warning):' < $DEPDIR/log | \
-  grep -v ': warning: resolved from' > $DEPDIR/logwarnings

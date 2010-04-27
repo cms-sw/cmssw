@@ -1,6 +1,0 @@
-destDB 
-inputtag 
-tag XMLFILE_Geometry_IdealGFlash_TagXX
-since 
-till 
-usertext

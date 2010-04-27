@@ -1,5 +1,0 @@
-#!/bin/csh
-setenv PATH ~moserro/public/perfreport:${PATH}
-mkdir $1
-perfreport -i ~/scratch0/callgrind.out.$1 -d ~moserro/public/perfreport/allstandard.xml -o $1
-

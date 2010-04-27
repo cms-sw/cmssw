@@ -1,7 +1,0 @@
-<use   name="boost"/>
-<use   name="DataFormats/L1GlobalCaloTrigger"/>
-<use   name="CondFormats/L1TObjects"/>
-<use   name="CondFormats/DataRecord"/>
-<export>
-  <lib   name="1"/>
-</export>

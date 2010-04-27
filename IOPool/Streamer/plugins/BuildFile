@@ -1,8 +1,0 @@
-<use name=FWCore/Framework>
-<use name=FWCore/ServiceRegistry>
-<use name=DataFormats/FEDRawData>
-<use name=IOPool/Streamer>
-<library file=Module.cc name=IOPoolStreamerPlugins>
-<flags EDM_PLUGIN=1>
-</library>
-

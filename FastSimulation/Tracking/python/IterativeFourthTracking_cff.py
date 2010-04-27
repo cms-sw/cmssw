@@ -1,9 +1,0 @@
-import FWCore.ParameterSet.Config as cms
-
-from FastSimulation.Tracking.IterativeFourthSeedProducer_cff import *
-from FastSimulation.Tracking.IterativeFourthCandidateProducer_cff import *
-from FastSimulation.Tracking.IterativeFourthTrackProducer_cff import *
-from FastSimulation.Tracking.IterativeFourthTrackMerger_cfi import *
-from FastSimulation.Tracking.IterativeFourthTrackFilter_cff import *
-iterativeFourthTracking = cms.Sequence(iterativeFourthSeeds+iterativeFourthTrackCandidatesWithPairs+iterativeFourthTracks+iterativeFourthTrackMerging+iterativeFourthTrackFiltering)
-

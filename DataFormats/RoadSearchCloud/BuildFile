@@ -1,6 +1,0 @@
-<use name=rootrflx>
-<use name=clhepheader>
-<export>
-  <lib name=DataFormatsRoadSearchCloud>
-</export>
-

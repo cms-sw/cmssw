@@ -1,6 +1,0 @@
-<library   file="*.cc" name="TrackingToolsTrajectoryFilteringTest">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="TrackingTools/TrajectoryFiltering"/>
-  <use   name="TrackingTools/Records"/>
-  <use   name="RecoTracker/Record"/>
-</library>

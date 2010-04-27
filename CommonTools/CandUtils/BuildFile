@@ -1,4 +1,0 @@
-<use name=DataFormats/Candidate>
-<export>
-  <lib name=CommonToolsCandUtils>
-</export>

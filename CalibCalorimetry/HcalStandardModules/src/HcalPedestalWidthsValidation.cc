@@ -5,54 +5,58 @@
 // (ADC, fC in .txt plus an .xml file)
 //
 #include <memory>
-#include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalsAnalysis.h"
+#include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalWidthsValidation.h"
 
-HcalPedestalsAnalysis::HcalPedestalsAnalysis(const edm::ParameterSet& ps)
+HcalPedestalWidthsValidation::HcalPedestalWidthsValidation(const edm::ParameterSet& ps)
 {
-   hiSaveFlag = ps.getUntrackedParameter<bool>("hiSaveFlag", false);
-   dumpXML = ps.getUntrackedParameter<bool>("dumpXML", true);
-   verboseflag = ps.getUntrackedParameter<bool>("verbose", false);
    firstTS = ps.getUntrackedParameter<int>("firstTS", 0);
    lastTS = ps.getUntrackedParameter<int>("lastTS", 9);   
    firsttime = true;
 
-   rawPedsItem = new HcalPedestals(true);
-   rawWidthsItem = new HcalPedestalWidths(true);
-   rawPedsItemfc = new HcalPedestals(false);
-   rawWidthsItemfc = new HcalPedestalWidths(false);
+   rawPedsItem = new HcalPedestals();
+   rawWidthsItem = new HcalPedestalWidths();
+   rawPedsItemfc = new HcalPedestals();
+   rawWidthsItemfc = new HcalPedestalWidths();
 }
 
 
-HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
+HcalPedestalWidthsValidation::~HcalPedestalWidthsValidation()
 {
    //Calculate pedestal constants
    std::cout << "Calculating Pedestal constants...\n";
-   std::vector<NewPedBunch>::iterator bunch_it;
-   for(bunch_it=Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
+   std::vector<NewPedBunchVal>::iterator bunch_it;
+   for(bunch_it=BunchVales.begin(); bunch_it != BunchVales.end(); bunch_it++)
    {
       if(bunch_it->usedflag){
 
-      if(verboseflag) std::cout << "Analyzing channel " << bunch_it->detid << std::endl;
-      //pedestal constant is the mean
-      if(bunch_it->num[0][0]!=0) bunch_it->cap[0] /= bunch_it->num[0][0];
-      if(bunch_it->num[1][1]!=0) bunch_it->cap[1] /= bunch_it->num[1][1];
-      if(bunch_it->num[2][2]!=0) bunch_it->cap[2] /= bunch_it->num[2][2];
-      if(bunch_it->num[3][3]!=0) bunch_it->cap[3] /= bunch_it->num[3][3];
-      if(bunch_it->num[0][0]!=0) bunch_it->capfc[0] /= bunch_it->num[0][0];
-      if(bunch_it->num[1][1]!=0) bunch_it->capfc[1] /= bunch_it->num[1][1];
-      if(bunch_it->num[2][2]!=0) bunch_it->capfc[2] /= bunch_it->num[2][2];
-      if(bunch_it->num[3][3]!=0) bunch_it->capfc[3] /= bunch_it->num[3][3];
-      //widths are the covariance matrix--assumed symmetric
+      bunch_it->cap[0] /= bunch_it->num[0][0];
+      bunch_it->cap[1] /= bunch_it->num[1][1];
+      bunch_it->cap[2] /= bunch_it->num[2][2];
+      bunch_it->cap[3] /= bunch_it->num[3][3];
+      bunch_it->capfc[0] /= bunch_it->num[0][0];
+      bunch_it->capfc[1] /= bunch_it->num[1][1];
+      bunch_it->capfc[2] /= bunch_it->num[2][2];
+      bunch_it->capfc[3] /= bunch_it->num[3][3];
+      //widths are the covariance matrix--NOT assumed symmetric here
       bunch_it->sig[0][0] = (bunch_it->prod[0][0]/bunch_it->num[0][0])-(bunch_it->cap[0])*(bunch_it->cap[0]);
       bunch_it->sig[1][1] = (bunch_it->prod[1][1]/bunch_it->num[1][1])-(bunch_it->cap[1])*(bunch_it->cap[1]);
       bunch_it->sig[2][2] = (bunch_it->prod[2][2]/bunch_it->num[2][2])-(bunch_it->cap[2])*(bunch_it->cap[2]);
       bunch_it->sig[3][3] = (bunch_it->prod[3][3]/bunch_it->num[3][3])-(bunch_it->cap[3])*(bunch_it->cap[3]);
       bunch_it->sig[0][1] = (bunch_it->prod[0][1])/(bunch_it->num[0][1])-(bunch_it->cap[0]*bunch_it->cap[1]);
       bunch_it->sig[0][2] = (bunch_it->prod[0][2])/(bunch_it->num[0][2])-(bunch_it->cap[0]*bunch_it->cap[2]);
-      bunch_it->sig[0][3] = (bunch_it->prod[3][0])/(bunch_it->num[3][0])-(bunch_it->cap[0]*bunch_it->cap[3]); // sig03 MISNAMED in object!
+      bunch_it->sig[0][3] = (bunch_it->prod[0][3])/(bunch_it->num[0][3])-(bunch_it->cap[0]*bunch_it->cap[3]);
       bunch_it->sig[1][2] = (bunch_it->prod[1][2])/(bunch_it->num[1][2])-(bunch_it->cap[1]*bunch_it->cap[2]);
       bunch_it->sig[1][3] = (bunch_it->prod[1][3])/(bunch_it->num[1][3])-(bunch_it->cap[1]*bunch_it->cap[3]);
       bunch_it->sig[2][3] = (bunch_it->prod[2][3])/(bunch_it->num[2][3])-(bunch_it->cap[2]*bunch_it->cap[3]);
+
+      bunch_it->sig[1][0] = (bunch_it->prod[1][0]/bunch_it->num[1][0])-(bunch_it->cap[1])*(bunch_it->cap[0]);
+      bunch_it->sig[2][0] = (bunch_it->prod[2][0]/bunch_it->num[2][0])-(bunch_it->cap[2])*(bunch_it->cap[0]);
+      bunch_it->sig[2][1] = (bunch_it->prod[2][1]/bunch_it->num[2][1])-(bunch_it->cap[2])*(bunch_it->cap[1]);
+      bunch_it->sig[3][0] = (bunch_it->prod[3][0]/bunch_it->num[3][0])-(bunch_it->cap[3])*(bunch_it->cap[0]);
+      bunch_it->sig[3][1] = (bunch_it->prod[3][1]/bunch_it->num[3][1])-(bunch_it->cap[3])*(bunch_it->cap[1]);
+      bunch_it->sig[3][2] = (bunch_it->prod[3][2]/bunch_it->num[3][2])-(bunch_it->cap[3])*(bunch_it->cap[2]);
+      
+      
 
       bunch_it->sigfc[0][0] = (bunch_it->prodfc[0][0]/bunch_it->num[0][0])-(bunch_it->capfc[0])*(bunch_it->capfc[0]);
       bunch_it->sigfc[1][1] = (bunch_it->prodfc[1][1]/bunch_it->num[1][1])-(bunch_it->capfc[1])*(bunch_it->capfc[1]);
@@ -60,35 +64,67 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       bunch_it->sigfc[3][3] = (bunch_it->prodfc[3][3]/bunch_it->num[3][3])-(bunch_it->capfc[3])*(bunch_it->capfc[3]);
       bunch_it->sigfc[0][1] = (bunch_it->prodfc[0][1]/(bunch_it->num[0][1]))-(bunch_it->capfc[0]*bunch_it->capfc[1]);
       bunch_it->sigfc[0][2] = (bunch_it->prodfc[0][2]/(bunch_it->num[0][2]))-(bunch_it->capfc[0]*bunch_it->capfc[2]);
-      bunch_it->sigfc[0][3] = (bunch_it->prodfc[3][0]/(bunch_it->num[3][0]))-(bunch_it->capfc[0]*bunch_it->capfc[3]); //sig03 MISNAMED in object!
+      bunch_it->sigfc[0][3] = (bunch_it->prodfc[0][3]/(bunch_it->num[0][3]))-(bunch_it->capfc[0]*bunch_it->capfc[3]);
       bunch_it->sigfc[1][2] = (bunch_it->prodfc[1][2]/(bunch_it->num[1][2]))-(bunch_it->capfc[1]*bunch_it->capfc[2]);
       bunch_it->sigfc[1][3] = (bunch_it->prodfc[1][3]/(bunch_it->num[1][3]))-(bunch_it->capfc[1]*bunch_it->capfc[3]);
       bunch_it->sigfc[2][3] = (bunch_it->prodfc[2][3]/(bunch_it->num[2][3]))-(bunch_it->capfc[2]*bunch_it->capfc[3]);
 
+      bunch_it->sigfc[1][0] = (bunch_it->prodfc[1][0]/(bunch_it->num[1][0]))-(bunch_it->capfc[1]*bunch_it->capfc[0]);
+      bunch_it->sigfc[2][0] = (bunch_it->prodfc[2][0]/(bunch_it->num[2][0]))-(bunch_it->capfc[2]*bunch_it->capfc[0]);
+      bunch_it->sigfc[2][1] = (bunch_it->prodfc[2][1]/(bunch_it->num[2][1]))-(bunch_it->capfc[2]*bunch_it->capfc[1]);
+      bunch_it->sigfc[3][0] = (bunch_it->prodfc[3][0]/(bunch_it->num[3][0]))-(bunch_it->capfc[3]*bunch_it->capfc[0]);
+      bunch_it->sigfc[3][1] = (bunch_it->prodfc[3][1]/(bunch_it->num[3][1]))-(bunch_it->capfc[3]*bunch_it->capfc[1]);
+      bunch_it->sigfc[3][2] = (bunch_it->prodfc[3][2]/(bunch_it->num[3][2]))-(bunch_it->capfc[3]*bunch_it->capfc[2]);
+
+      for(int i = 0; i != 4; i++){
+         for(int j = 0; j != 4; j++){
+	    bunch_it->covarhistADC->Fill(i,j,bunch_it->sig[i][j]);
+	    bunch_it->covarhistfC->Fill(i,j,bunch_it->sigfc[i][j]);
+	 }
+      }
+
       if(bunch_it->detid.subdet() == 1){
+         theFile->cd("HB");
+         bunch_it->covarhistADC->Write();
+         bunch_it->covarhistfC->Write();
          for(int i = 0; i != 4; i++){
+            bunch_it->hist[i]->Write();
             HBMeans->Fill(bunch_it->cap[i]);
-            HBWidths->Fill(bunch_it->sig[i][i]);
+            HBWidths->Fill(sqrt(bunch_it->sig[i][i]));
          }
       }
       if(bunch_it->detid.subdet() == 2){
+         theFile->cd("HE");
+         bunch_it->covarhistADC->Write();
+         bunch_it->covarhistfC->Write();
          for(int i = 0; i != 4; i++){
+            bunch_it->hist[i]->Write();
             HEMeans->Fill(bunch_it->cap[i]);
-            HEWidths->Fill(bunch_it->sig[i][i]);
+            HEWidths->Fill(sqrt(bunch_it->sig[i][i]));
          }
       }
       if(bunch_it->detid.subdet() == 3){
+         theFile->cd("HO");
+         bunch_it->covarhistADC->Write();
+         bunch_it->covarhistfC->Write();
          for(int i = 0; i != 4; i++){
+            bunch_it->hist[i]->Write();
             HOMeans->Fill(bunch_it->cap[i]);
-            HOWidths->Fill(bunch_it->sig[i][i]);
+            HOWidths->Fill(sqrt(bunch_it->sig[i][i]));
          }
       }
       if(bunch_it->detid.subdet() == 4){
+         theFile->cd("HF");
+         bunch_it->covarhistADC->Write();
+         bunch_it->covarhistfC->Write();
          for(int i = 0; i != 4; i++){
+            bunch_it->hist[i]->Write();
             HFMeans->Fill(bunch_it->cap[i]);
-            HFWidths->Fill(bunch_it->sig[i][i]);
+            HFWidths->Fill(sqrt(bunch_it->sig[i][i]));
          }
       }
+
+      theFile->cd();
 
       const HcalPedestal item(bunch_it->detid, bunch_it->cap[0], bunch_it->cap[1], bunch_it->cap[2], bunch_it->cap[3]);
       rawPedsItem->addValues(item);
@@ -134,31 +170,22 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
     std::ofstream outStream4(widthsfCfilename.c_str());
     HcalDbASCIIIO::dumpObject (outStream4, (*rawWidthsItemfc) );
 
-    if(dumpXML){
-       std::ofstream outStream5(XMLfilename.c_str());
-       HcalDbXml::dumpObject (outStream5, runnum, 0, 2147483647, XMLtag, 1, (*rawPedsItem), (*rawWidthsItem)); 
-    }
-
-    if(hiSaveFlag){
-       theFile->Write();
-    }else{
-       theFile->cd();
-       theFile->cd("HB");
-       HBMeans->Write();
-       HBWidths->Write();
-       theFile->cd();
-       theFile->cd("HF");
-       HFMeans->Write();
-       HFWidths->Write();
-       theFile->cd();
-       theFile->cd("HE");
-       HEMeans->Write();
-       HEWidths->Write();
-       theFile->cd();
-       theFile->cd("HO");
-       HOMeans->Write();
-       HOWidths->Write();
-    }
+    theFile->cd();
+    theFile->cd("HB");
+    HBMeans->Write();
+    HBWidths->Write();
+    theFile->cd();
+    theFile->cd("HF");
+    HFMeans->Write();
+    HFWidths->Write();
+    theFile->cd();
+    theFile->cd("HE");
+    HEMeans->Write();
+    HEWidths->Write();
+    theFile->cd();
+    theFile->cd("HO");
+    HOMeans->Write();
+    HOWidths->Write(); 
 
     std::cout << "Writing ROOT file... ";
     theFile->Close();
@@ -172,10 +199,8 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
 
 // ------------ method called to for each event  ------------
 void
-HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
+HcalPedestalWidthsValidation::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-   using namespace std;
 
    edm::Handle<HBHEDigiCollection> hbhe;              e.getByType(hbhe);
    edm::Handle<HODigiCollection> ho;                  e.getByType(ho);
@@ -192,13 +217,11 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       std::stringstream tempstringout;
       tempstringout << runnum;
       runnum_string = tempstringout.str();
-      ROOTfilename = runnum_string + "-peds_ADC.root";
-      pedsADCfilename = runnum_string + "-peds_ADC.txt";
-      pedsfCfilename = runnum_string + "-peds_fC.txt";
-      widthsADCfilename = runnum_string + "-widths_ADC.txt";
-      widthsfCfilename = runnum_string + "-widths_fC.txt";
-      XMLfilename = runnum_string + "-peds_ADC_complete.xml"; 
-      XMLtag = "Hcal_pedestals_" + runnum_string;
+      ROOTfilename = runnum_string + "-val_peds_ADC.root";
+      pedsADCfilename = runnum_string + "-val_peds_ADC.txt";
+      pedsfCfilename = runnum_string + "-val_peds_fC.txt";
+      widthsADCfilename = runnum_string + "-val_widths_ADC.txt";
+      widthsfCfilename = runnum_string + "-val_widths_fC.txt";
 
       theFile = new TFile(ROOTfilename.c_str(), "RECREATE");
       theFile->cd();
@@ -227,14 +250,35 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
          HcalGenericDetId mygenid(it->rawId());
          if(mygenid.isHcalDetId())
          {
-            NewPedBunch a;
+            NewPedBunchVal a;
             HcalDetId chanid(mygenid.rawId());
             a.detid = chanid;
             a.usedflag = false;
+	    std::ostringstream s1;
+            s1 << mygenid;
+            std::string histname = s1.str();
+	    histname += " Covariance Matrix";
+	    a.covarhistADC = new TH2F(histname.c_str(), histname.c_str(), 4, -.5, 3.5, 4, -.5, 3.5);
+	    a.covarhistADC->SetOption("TEXT");
+	    a.covarhistADC->SetStats(0);
+	    histname += " fC";
+	    a.covarhistfC = new TH2F(histname.c_str(), histname.c_str(), 4, -.5, 3.5, 4, -.5, 3.5);
+	    a.covarhistfC->SetOption("TEXT");
+	    a.covarhistfC->SetStats(0);
             for(int i = 0; i != 4; i++)
             {
                a.cap[i] = 0;
                a.capfc[i] = 0;
+	       std::ostringstream s3;
+               s3 << mygenid;
+	       std::string histname = s3.str() + " Cap ";
+	       std::ostringstream s4;
+	       s4 << i;
+	       histname += s4.str();
+	       std::ostringstream s5;
+	       s5 << std::hex << (mygenid.rawId()) << std::dec;
+	       std::string histnamedetid = s5.str();
+               a.hist[i] = new TH1F(histname.c_str(), histnamedetid.c_str(), 16, -.5, 15.5);
                for(int j = 0; j != 4; j++)
                {
                   a.sig[i][j] = 0;
@@ -244,23 +288,25 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
                   a.num[i][j] = 0;
                }
             }
-            Bunches.push_back(a);
+            BunchVales.push_back(a);
+//	    theFile->cd();
          }
       }
       firsttime = false;
    }
 
-   std::vector<NewPedBunch>::iterator bunch_it;
+   std::vector<NewPedBunchVal>::iterator bunch_it;
 
    for(HBHEDigiCollection::const_iterator j = hbhe->begin(); j != hbhe->end(); j++)
    {
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-      for(bunch_it = Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
+      for(bunch_it = BunchVales.begin(); bunch_it != BunchVales.end(); bunch_it++)
          if(bunch_it->detid.rawId() == digi.id().rawId()) break;
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts != lastTS+1; ts++)
       {
          if(digi.sample(ts).adc() > 15) continue;
+         bunch_it->hist[digi.sample(ts).capid()]->Fill(digi.sample(ts).adc());
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
@@ -295,12 +341,13 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
    for(HODigiCollection::const_iterator j = ho->begin(); j != ho->end(); j++)
    {
       const HODataFrame digi = (const HODataFrame)(*j);
-      for(bunch_it = Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
+      for(bunch_it = BunchVales.begin(); bunch_it != BunchVales.end(); bunch_it++)
          if(bunch_it->detid.rawId() == digi.id().rawId()) break;
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts <= lastTS; ts++)
       {
          if(digi.sample(ts).adc() > 15) continue;
+         bunch_it->hist[digi.sample(ts).capid()]->Fill(digi.sample(ts).adc());
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
@@ -335,12 +382,13 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
    for(HFDigiCollection::const_iterator j = hf->begin(); j != hf->end(); j++)
    {
       const HFDataFrame digi = (const HFDataFrame)(*j);
-      for(bunch_it = Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
+      for(bunch_it = BunchVales.begin(); bunch_it != BunchVales.end(); bunch_it++)
          if(bunch_it->detid.rawId() == digi.id().rawId()) break;
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts <= lastTS; ts++)
       {
          if(digi.sample(ts).adc() > 15) continue;
+         bunch_it->hist[digi.sample(ts).capid()]->Fill(digi.sample(ts).adc());
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
@@ -376,4 +424,4 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HcalPedestalsAnalysis);
+DEFINE_FWK_MODULE(HcalPedestalWidthsValidation);

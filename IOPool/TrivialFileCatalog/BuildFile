@@ -1,8 +1,0 @@
-<use name=FileCatalog>
-<use name=xerces-c>
-<use name=Iguana/Utilities>
-<use name=CoralBase>
-<Flags ROOTMAP=1>
-<export>
-    <lib name=IOPoolTrivialFileCatalog>
-</export>

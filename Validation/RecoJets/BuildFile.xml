@@ -1,8 +1,0 @@
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="CommonTools/UtilAlgos"/>
-<use   name="rootgraphics"/>
-<export>
-  <lib   name="1"/>
-</export>

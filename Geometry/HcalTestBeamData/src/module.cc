@@ -1,7 +1,0 @@
-//<<<<<< INCLUDES                                                       >>>>>>
-
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
-#include "Geometry/HcalTestBeamData/interface/DDEcalPreshowerAlgoTB.h"
-#include "FWCore/PluginManager/interface/PluginFactory.h"
-
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDEcalPreshowerAlgoTB, "hcal:DDEcalPreshowerAlgoTB");

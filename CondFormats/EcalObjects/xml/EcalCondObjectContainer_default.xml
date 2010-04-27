@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="EcalFloatCondObjectContainer" >
-   <Class name="EcalFloatCondObjectContainer"  mapping_version="EcalFloatCondObjectContainer_automatic_default" >
-   </Class >
-  </PoolContainer >
- </PoolDatabase >
-

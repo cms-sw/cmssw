@@ -1,4 +1,0 @@
-<use   name="GeneratorInterface/PyquenInterface"/>
-<library   file="*.cc" name="GeneratorInterfacePyquenInterfacePlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

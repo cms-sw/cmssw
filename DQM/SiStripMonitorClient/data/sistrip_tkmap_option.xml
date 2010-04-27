@@ -1,8 +1,0 @@
-<TrackerMapConfiguration> 
-<TkMapOption> QTestAlarm </TkMapOption> 
-<TkMapOption> NumberOfDigis </TkMapOption> 
-<TkMapOption> NumberOfClusters </TkMapOption> 
-<TkMapOption> ClusterWidth </TkMapOption> 
-<TkMapOption> NrOfClusterizedStrips </TkMapOption> 
-</TrackerMapConfiguration> 
-

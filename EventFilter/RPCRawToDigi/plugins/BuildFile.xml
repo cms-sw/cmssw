@@ -1,4 +1,0 @@
-<use   name="EventFilter/RPCRawToDigi"/>
-<library   file="*.cc" name="EventFilterRPCRawToDigiPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

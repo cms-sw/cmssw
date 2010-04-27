@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="CSCDDUMap" >
-   <Class name="CSCDDUMap"  mapping_version="CSCDDUMap_automatic_default" >
-   </Class >
-  </PoolContainer >
- </PoolDatabase >

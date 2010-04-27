@@ -1,9 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="clhep"/>
-<use   name="RecoVertex/PrimaryVertexProducer"/>
-<use   name="TrackingTools/Records"/>
-<library   file="*.cc" name="RecoVertexPrimaryVertexProducerPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

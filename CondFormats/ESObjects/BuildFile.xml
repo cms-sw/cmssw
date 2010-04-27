@@ -1,9 +1,0 @@
-<use   name="FWCore/Utilities"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="DataFormats/Math"/>
-<use   name="boost"/>
-<use   name="rootmath"/>
-<use   name="rootrflx"/>
-<export>
-  <lib   name="1"/>
-</export>

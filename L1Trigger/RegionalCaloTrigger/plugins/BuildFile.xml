@@ -1,6 +1,0 @@
-<use   name="L1Trigger/RegionalCaloTrigger"/>
-<use   name="CommonTools/UtilAlgos"/>
-<use   name="FWCore/ServiceRegistry"/>
-<library   file="*.cc" name="L1TriggerRegionalCaloTriggerPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

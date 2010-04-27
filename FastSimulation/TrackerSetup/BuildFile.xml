@@ -1,9 +1,0 @@
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Utilities"/>
-<use   name="RecoTracker/Record"/>
-<use   name="boost"/>
-<export>
-  <lib   name="1"/>
-</export>

@@ -1,7 +1,0 @@
-
-<export>
- <lib name=TrackingToolsMeasurementDet>
- <use name=TrackingTools/TransientTrackingRecHit>
-</export>
-
- <use name=TrackingTools/TransientTrackingRecHit>

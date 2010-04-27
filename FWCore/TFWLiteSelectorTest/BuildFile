@@ -1,7 +1,0 @@
-<use name=DataFormats/Common>
-<use name=FWCore/TFWLiteSelector>
-<use name=rootgraphics>
-<export>
-  <lib name=FWCoreTFWLiteSelectorTest>
-</export>
-

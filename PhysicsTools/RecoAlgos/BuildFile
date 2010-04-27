@@ -1,4 +1,0 @@
-<export>
-  <use name=CommonTools/RecoUtils>
-  <use name=PhysicsTools/RecoUtils>
-</export>

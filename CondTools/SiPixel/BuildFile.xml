@@ -1,9 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/SiPixelObjects"/>
-<use   name="CondCore/PopCon"/>
-<export>
-  <lib   name="1"/>
-</export>

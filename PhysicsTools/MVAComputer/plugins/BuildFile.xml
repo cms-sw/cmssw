@@ -1,9 +1,0 @@
-<use name="FWCore/Framework"/>
-<use name="PhysicsTools/MVAComputer"/>
-<library name="PhysicsToolsMVAComputerPlugins" file="module.cc">
-   <flags EDM_PLUGIN="1"/>
-</library>
-<library name="PhysicsToolsMVAComputerProcTMVA" file="ProcTMVA.cc">
-   <use name="roottmva"/>
-   <flags EDM_PLUGIN="1"/>
-</library>

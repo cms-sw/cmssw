@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="DTCCBConfig" >
-   <Class name="DTCCBConfig" mapping_version="DTCCBConfig-2.0" >
-   </Class >
-  </PoolContainer >
- </PoolDatabase >

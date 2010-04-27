@@ -1,6 +1,0 @@
-destDB 
-inputtag 
-tag XMLFILE_Geometry_ExtendedGFlash_TagXX
-since 
-till 
-usertext 

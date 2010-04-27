@@ -1,4 +1,0 @@
-<use   name="L1Trigger/CSCTrackFinder"/>
-<library   file="*.cc" name="L1TriggerCSCTrackFinderPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

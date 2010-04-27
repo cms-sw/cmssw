@@ -1,6 +1,0 @@
-<use   name="SimTracker/SiPixelDigitizer"/>
-<use   name="MagneticField/Records"/>
-<use   name="MagneticField/Engine"/>
-<library   file="*.cc" name="SimTrackerSiPixelDigitizerPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

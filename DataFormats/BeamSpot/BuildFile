@@ -1,9 +1,0 @@
-<use name=DataFormats/Common>
-<use name=rootcore>
-<use name=rootrflx>
-<use name=clhep>
-<export>
-  <use name=rootcore>
-  <lib name=DataFormatsBeamSpot>
-</export>
-

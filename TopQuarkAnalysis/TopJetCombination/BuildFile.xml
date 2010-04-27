@@ -1,6 +1,0 @@
-<use   name="AnalysisDataFormats/TopObjects"/>
-<use   name="TopQuarkAnalysis/TopTools"/>
-<use   name="FWCore/Framework"/>
-<export>
-  <lib   name="1"/>
-</export>

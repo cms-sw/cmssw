@@ -1,9 +1,0 @@
-<lcgdict>
-  <class name="HcalTestHistoClass"/>
-  <class name="HcalTestHistoClass::Layer"/>
-  <class name="HcalTestHistoClass::Hit"/>
-  <class name="HcalTestHistoClass::QIE"/>
-  <class name="std::vector<HcalTestHistoClass::Layer>"/>
-  <class name="std::vector<HcalTestHistoClass::Hit>"/>
-  <class name="std::vector<HcalTestHistoClass::QIE>"/>
-</lcgdict>

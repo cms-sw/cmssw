@@ -1,9 +1,0 @@
-<use   name="TrackingTools/GsfTracking"/>
-<use   name="boost"/>
-<use   name="TrackingTools/PatternTools"/>
-<use   name="TrackingTools/Records"/>
-<use   name="TrackingTools/DetLayers"/>
-<use   name="TrackingTools/MaterialEffects"/>
-<library   file="*.cc" name="TrackingToolsGsfTrackingPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

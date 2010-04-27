@@ -1,8 +1,0 @@
-     <lcgdict>
-
-        <class name="ElectronLikelihoodCategoryData"/>      
-        <class name="ElectronLikelihoodCalibration"/>
-<class name="ElectronLikelihoodCalibration::Entry"/>
-<class name="std::vector<ElectronLikelihoodCalibration::Entry>"/>     
-
-</lcgdict>   

@@ -1,6 +1,0 @@
-<use name=rootrflx>
-<use name=boost>
-<lib name=Eve>
-<export>
-  <lib name=FireworksCandidates>
-</export>

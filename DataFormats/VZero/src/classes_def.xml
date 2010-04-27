@@ -1,8 +1,0 @@
-<lcgdict>
-  <class name="reco::VZero"/>
-  <class name="std::vector<reco::VZero>"/>
-  <class name="edm::Wrapper<std::vector<reco::VZero> >"/>
-  <class name="std::pair<Vector3DBase<float,GlobalTag>,Vector3DBase<float,GlobalTag> >"/>
-  <class name="reco::VZeroData"/>
-</lcgdict>
-

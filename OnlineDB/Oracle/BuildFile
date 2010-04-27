@@ -1,9 +1,0 @@
-<use name=oracle>
-<use name=oracleocci>
-<export>
-  <use name=oracle>
-  <use name=oracleocci>
-  <lib name=OnlineDBOracle>
-</export>
-
-

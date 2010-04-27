@@ -1,7 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="RecoTracker/RoadMapRecord"/>
-<flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

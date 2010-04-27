@@ -1,5 +1,0 @@
- - fix / add boundaries for all (existing combination of) bounded surfaces
- - add boundaries to material-by-layer plots
- - add eta to global RZ plots
- - add option of log material scale in RZ plots
- - add (global and) local eta-phi or Z-phi (barrel) + R-phi (forward) plots (lego or grayscale, possibly in log scale)

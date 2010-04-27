@@ -1,4 +1,0 @@
-<flags   EDM_PLUGIN="1"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="DQMServices/Core"/>
-<use   name="SimDataFormats/CrossingFrame"/>

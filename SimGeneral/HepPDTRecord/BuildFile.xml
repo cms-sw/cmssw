@@ -1,6 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="heppdt"/>
-<export>
-  <lib   name="1"/>
-</export>

@@ -1,4 +1,0 @@
-<lcgdict>
-  <class name="reco::BeamSpot"/>
-  <class name="edm::Wrapper<reco::BeamSpot>"/>
-</lcgdict>

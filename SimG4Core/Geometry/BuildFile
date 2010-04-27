@@ -1,8 +1,0 @@
-<use name=FWCore/Framework>
-<use name=DetectorDescription/Core>
-<use name=geant4core>
-<use name=Geometry/Records>
-<export>
- <lib name=SimG4CoreGeometry>
-</export>
-

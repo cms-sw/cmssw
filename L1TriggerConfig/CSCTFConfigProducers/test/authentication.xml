@@ -1,7 +1,0 @@
-<?xml version="1.0" ?>
-<connectionlist>
-<connection name="oracle://CMS_OMDS_LB/CMS_TRG_R">
-  <parameter name="user" value="CMS_TRG_R" />
-  <parameter name="password" value="******" />
-</connection>
-</connectionlist>

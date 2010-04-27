@@ -1,9 +1,0 @@
-<use name=DataFormats/Common>
-<use name=FWCore/Utilities>
-<use name=rootrflx>
-<export>
-  <use name=DataFormats/Common>
-  <use name=FWCore/Utilities>
-  <lib name=DataFormatsFEDRawData>
-</export>
-

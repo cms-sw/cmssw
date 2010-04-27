@@ -1,2 +1,0 @@
-#!/bin/sh
-root.exe -b -l -q hits.C

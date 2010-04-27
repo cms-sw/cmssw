@@ -1,9 +1,0 @@
-#run popcon example1
-echo "populate 10,20,30, then 5?,15?,25?, then 50,60,70"
-cmsRun $LOCALRT/src/CondCore/PopCon/test/PopConExample1.py
-echo "inspect db"
-cmscond_list_iov -c sqlite_file:testExample.db -a
-echo "get iov details"
-cmscond_list_iov -c sqlite_file:testExample.db -t mytest
-echo "dump log"
-cmscond_logdb_dump -c sqlite_file:logtestExample.db  

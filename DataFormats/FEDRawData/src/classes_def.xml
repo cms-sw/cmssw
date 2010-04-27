@@ -1,8 +1,0 @@
-
-<lcgdict>
- <class name="FEDRawData"/>
- <class name="std::vector<FEDRawData>"/>
- <class name="FEDRawDataCollection"/>
- <class name="edm::Wrapper<FEDRawDataCollection>" splitLevel="0"/>
- <class name="edm::RefProd<FEDRawDataCollection>"/>
-</lcgdict>

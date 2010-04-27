@@ -1,9 +1,0 @@
- 2307  16:12   cmscond_generate_mappingxml -c PhysicsTools::Calibration::MVAComputer -P ../src -d CondFormatsPhysicsToolsObjects
-  2309  16:12   mv PhysicsTools::Calibration::MVAComputer_basic_0.xml MVAComputer_basic_0.xml
-  2311  16:16   emacs MVAComputer_basic_0.xml &
-  2316  16:23   pool_build_object_relational_mapping -h
-  2317  16:23   pool_build_object_relational_mapping -f MVAComputer_basic_0.xml -d CondFormatsPhysicsToolsObjects -c sqlite_file:pippo.db
-2353  16:42   cmscond_generate_mappingxml -c PhysicsTools::Calibration::MVAComputerContainer -P ../src -d CondFormatsPhysicsToolsObjects
-
-   2356  16:44   emacs PhysicsTools::Calibration::MVAComputerContainer_basic_0.xml &
- 2360  16:45   pool_build_object_relational_mapping -f MVAComputerContainer_basic_0.xml -d CondFormatsPhysicsToolsObjects -c sqlite_file:pippo.db

@@ -1,9 +1,0 @@
- <use name=RecoVertex/KalmanVertexFit>
-<use name=RecoVertex/AdaptiveVertexFit>
-<use name=RecoVertex/VertexPrimitives>
-<use name=RecoVertex/VertexTools>
-<export>
-  <use name=RecoVertex/VertexPrimitives>
-  <lib name=RecoVertexAdaptiveVertexFinder>
-</export>
-

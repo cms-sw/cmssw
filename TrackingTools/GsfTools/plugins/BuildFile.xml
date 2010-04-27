@@ -1,6 +1,0 @@
-<use   name="TrackingTools/Records"/>
-<use   name="TrackingTools/GsfTools"/>
-<use   name="FWCore/Framework"/>
-<library   file="*.cc" name="TrackingToolsGsfToolsPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

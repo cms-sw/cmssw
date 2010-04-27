@@ -1,7 +1,0 @@
-#!/bin/sh
-
-trap 's=$?; rm -f /tmp/pc$$.*; exit $st' 0 1 2 15
-sed 's|/redhat61/|/PLATFORM/|g; s|/Linux__2.2/|/PLATFORM/|g' < path-linux.conf > /tmp/pc$$.linux
-sed 's|/sun/|/PLATFORM/|g;      s|/Sun\(OS__5.6\|\)/|/PLATFORM/|g' < path-sunos.conf > /tmp/pc$$.sunos
-diff -u /tmp/pc$$.linux /tmp/pc$$.sunos
-exit 0

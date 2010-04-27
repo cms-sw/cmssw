@@ -1,6 +1,0 @@
-<use name="FWCore/ParameterSet"/>
-<use name="DataFormats/BTauReco"/>
-<use name="RecoBTau/JetTagComputer"/>
-<export>
-  <lib name="1"/>
-</export>

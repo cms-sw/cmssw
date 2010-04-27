@@ -1,8 +1,0 @@
-<flags   EDM_PLUGIN="1"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="DataFormats/RoadSearchCloud"/>
-<export>
-  <lib   name="1"/>
-</export>

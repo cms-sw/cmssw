@@ -1,6 +1,0 @@
-<use name=DQMServices/Core>
-<use name=FWCore/Framework>
-<export>
-  <lib name=DQMServicesExamples>
-</export>
-

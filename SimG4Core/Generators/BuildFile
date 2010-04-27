@@ -1,9 +1,0 @@
-<export>
- <lib name=SimG4CoreGenerators>
-</export>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/MessageLogger>
-<use name=SimDataFormats/GeneratorProducts>
-<use name=boost>
-<use name=geant4core>
-<use name=rootmath>

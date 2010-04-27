@@ -1,8 +1,0 @@
-<use name=DataFormats/Provenance>
-<use name=rootrflx>
-<export>
-  <use name=DataFormats/Provenance>
-  <use name=DataFormats/Common>
-  <lib name=DataFormatsStreamer>
-</export>
-

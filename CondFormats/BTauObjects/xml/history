@@ -1,9 +1,0 @@
-generate mapping template
-2237  14:58   cmscond_generate_mappingxml -c TrackProbabilityCalibration -P ../src -d CondFormatsBTauObjects
---edit template etc
-  2241  15:01   cp TrackProbabilityCalibration_basic_0.xml TrackProbabilityCalibration_2DRcd_0.xml
---edit
-  2242  15:02   cp TrackProbabilityCalibration_2DRcd_0.xml TrackProbabilityCalibration_3DRcd_0.xml
-
-2253  15:06   pool_build_object_relational_mapping -f TrackProbabilityCalibration_2DRcd_0.xml -d CondFormatsBTauObjects -c sqlite_file:test.db
-  2254  15:06   pool_build_object_relational_mapping -f TrackProbabilityCalibration_3DRcd_0.xml -d CondFormatsBTauObjects -c sqlite_file:test.db

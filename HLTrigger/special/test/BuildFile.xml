@@ -1,6 +1,0 @@
-<library   file="*.cc" name="testHLTriggerspecial">
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/ParameterSet"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

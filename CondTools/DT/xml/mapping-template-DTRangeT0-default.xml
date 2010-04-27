@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="DTRangeT0" >
-   <Class name="DTRangeT0" mapping_version="DTRangeT0-2.0" >
-   </Class >
-  </PoolContainer >
- </PoolDatabase >
