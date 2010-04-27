@@ -14,7 +14,7 @@
 //
 // Original Author:  Dan Duggan
 //         Created:  
-// $Id: SiPixelMuonHLT.cc,v 1.5 2010/04/12 23:30:34 elmer Exp $
+// $Id: SiPixelMuonHLT.cc,v 1.6 2010/04/16 17:44:52 merkelp Exp $
 //
 //////////////////////////////////////////////////////////
 #include "DQM/SiPixelMonitorClient/interface/SiPixelMuonHLT.h"
@@ -49,29 +49,6 @@ SiPixelMuonHLT::SiPixelMuonHLT(const edm::ParameterSet& iConfig) :
    else
      outputFile_ = "PixelHLTDQM.root";
    ///////
-   //trigger setup info...
-   //std::vector < edm::ParameterSet > filters = parameters_.getParameter < std::vector < edm::ParameterSet > >("filters");
-   //for (std::vector < edm::ParameterSet >::iterator filterconf = filters.begin (); filterconf != filters.end (); filterconf++)
-   //  {
-   //    theDirectoryName.push_back (filterconf->getParameter < std::string > ("directoryName"));
-   //    std::string _tmp_level = filterconf->getParameter < std::string > ("directoryName");
-   //    std::vector < std::string > _tmp_bits = filterconf->getParameter < std::vector < std::string > >("triggerBits");
-   //    for (size_t i = 0; i < _tmp_bits.size (); ++i)
-   //	 {
-   //	   theTriggerBits.push_back (_tmp_bits[i]);
-   //	   theHLTCollectionLevel.push_back (_tmp_level);
-   //	 }
-   //  }
-   // L1PassThrough, L2PassThrough, L3PassThrough
-   //nTrigs = theDirectoryName.size ();
-
-   //for (int trig = 0; trig < nTrigs; trig++)
-   //  striggers_[trig] = "";
-
-   //Temporary for the time being
-   //string topFolderName_ ("PixBarrel_ClustOcc");  
-   //folder_organizer.setSiStripFolderName (topFolderName_);
-   //folder_organizer.setSiStripFolder ();
    if (theDMBE != NULL) theDMBE->setCurrentFolder (monitorName_); 
    SiPixelMuonHLT::Histo_init();
    
@@ -115,11 +92,7 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   RecoChargedCandidateCollection::const_iterator cand;
   Handle <edmNew::DetSetVector<SiPixelCluster> > clusters;
   Handle <edmNew::DetSetVector<SiPixelRecHit> > rechits;
-  //iEvent.getByLabel("hltSiPixelClusters", clusters);
-  //iEvent.getByLabel("hltSiPixelRecHits", rechits);
-  //iEvent.getByLabel (l3MuonCollectionTag_, l3mucands);
 
-  //Temporary fix because of framework bug...
   bool GotClusters = true;
   bool GotRecHits  = true;
   bool GotL3Muons  = true;
@@ -140,9 +113,8 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     GotL3Muons = false;
   }
   
-  //if (!clusters.failedToGet ())
   if (GotClusters){
-    if(!clusters.failedToGet () && clusters.isValid())
+    if(!clusters.failedToGet ())
       {
 	int NBarrel[4] = {0,0,0,0};
 	int NEndcap[5] = {0,0,0,0,0};
@@ -198,9 +170,8 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
   bool doRecHits = false;
   
-  //if (!rechits.failedToGet () && doRecHits)
   if (GotRecHits && doRecHits){
-    if(!rechits.failedToGet () && rechits.isValid())
+    if(!rechits.failedToGet ())
       {
 	for (size_t i = 0; i < rechits->size(); ++i){ 
 	  const SiPixelRecHit* myhit = rechits->data(i);
@@ -217,9 +188,8 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	}      
       }
   }
-  //if (!l3mucands.failedToGet ())
   if(GotL3Muons){
-    if(!l3mucands.failedToGet () && l3mucands.isValid())
+    if(!l3mucands.failedToGet ())
       {
 	int NBarrel[4] = {0,0,0,0};
 	int NEndcap[5] = {0,0,0,0,0};
@@ -234,6 +204,8 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 		const SiPixelRecHit *pixhit = dynamic_cast < const SiPixelRecHit * >(l3tk->recHit(hit).get());
 		if((*pixhit).isValid() == true){
 		  edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> const& pixclust = (*pixhit).cluster();
+		  if (!(*pixhit).cluster().isAvailable()) 
+		    {continue;}
 		  const PixelGeomDetUnit *PixGeom = dynamic_cast < const PixelGeomDetUnit * >(theTracker.idToDet (detID));
 		  const PixelTopology *topol = dynamic_cast < const PixelTopology * >(&(PixGeom->specificTopology ()));
 		  LocalPoint clustlp = topol->localPosition (MeasurementPoint(pixclust->x(),pixclust->y()));
