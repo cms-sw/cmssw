@@ -13,8 +13,8 @@ class CaloCellGeometry;
 Interface class to the geometry information for all calorimetry 
 subdetectors.
 
-$Date: 2007/03/07 09:18:00 $
-$Revision: 1.5 $
+$Date: 2009/09/10 20:41:25 $
+$Revision: 1.6 $
 \author J. Mans and P. Meridiani
 */
 
@@ -52,7 +52,7 @@ class CaloGeometry
 							     int             subdet   ) const ;
 
       // Get closest cell, etc...
-      const DetId getClosestCell( const GlobalPoint& r ) const ;
+//not implemented      const DetId getClosestCell( const GlobalPoint& r ) const ;
 
    private:
 
