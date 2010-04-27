@@ -45,10 +45,6 @@ class WorkFlowRunner(Thread):
         if not os.path.exists(wfDir):
             os.makedirs(wfDir)
 
-        # clean up first:
-        cmd = 'cd '+wfDir+';rm -f step*.py *.root;'
-        self.doCmd(cmd)
-
         preamble = ''
         if os.path.exists( os.path.join(os.environ["CMS_PATH"],'cmsset_default.sh') ) :
             preamble = 'source $CMS_PATH/cmsset_default.sh; '
