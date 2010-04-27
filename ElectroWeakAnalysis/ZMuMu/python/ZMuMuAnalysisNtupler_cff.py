@@ -5,6 +5,7 @@ from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
 import copy
 
 
+### CandViewNtpProducer Configuration - common to all categories.
 
 goodZToMuMuEdmNtuple = cms.EDProducer(
     "CandViewNtpProducer", 
@@ -208,10 +209,6 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     quantity = cms.untracked.string("userFloat('TrueY')")
     ),   
     cms.PSet(
-    tag = cms.untracked.string("Dau1HLTBit"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_HLTBit')")
-    ),
-    cms.PSet(
     tag = cms.untracked.string("Dau1Chi2"),
     quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_Chi2')")
     ),
@@ -276,14 +273,6 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_NofMuMatches')")
     ),
     cms.PSet(
-    tag = cms.untracked.string("Dau1NofMuMatches"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_NofMuMatches')")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("Dau2NofMuMatches"),
-    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_NofMuMatches')")
-    ),
-    cms.PSet(
     tag = cms.untracked.string("Dau1MuEnergyEm"),
     quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_MuEnergyEm')")
     ),
@@ -305,11 +294,15 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     )
 
 
+
+### zMuMu vector of PSet is common to all categories except zMuTrk category 
+
 zMuMu=(
     
     
 #    cms.PSet(
 #    tag = cms.untracked.string("Dau2NofHitSta"),
+
 #    quantity = cms.untracked.string("?(daughter(1).masterClone.isGlobalMuon==1  ||daughter(1).masterClone.isStandAloneMuon==1 )?daughter(1).masterClone.outerTrack.numberOfValidHits: -1")
 #    ),
 #    cms.PSet(
@@ -359,6 +352,9 @@ zMuMu=(
     ),
                 
     )
+
+### zGolden vector of PSet is specific for zGolden category
+
 
 zGolden=(
 
@@ -473,6 +469,10 @@ zGolden=(
     
     )
 
+
+
+### zMUSa vector of PSet is specific for zMuSa category
+
 zMuSa = (
    
 #    cms.PSet(
@@ -485,6 +485,9 @@ zMuSa = (
 #    ),
     
     )
+
+
+### zMuTrkMu vector of PSet is specific for zMuTrkMu category
 
 zMuTrkMu=(
 #    cms.PSet(
@@ -505,6 +508,10 @@ zMuTrkMu=(
 #    ),
 #
     )
+
+
+### zMuTrk vector of PSet is specific for zMuTrk category
+
 
 zMuTrk =(
 ##     cms.PSet(
