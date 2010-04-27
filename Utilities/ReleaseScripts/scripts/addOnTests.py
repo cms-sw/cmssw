@@ -143,7 +143,9 @@ class StandardTester(object):
                      'hlt2' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --conditions auto:mc --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_DigiL1Raw_1E31.root',
                       'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_1E31.py',
                       'ln -s RelVal_DigiL1Raw_1E31.root RelVal_DigiL1Raw_HIon.root',
-                      'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_HIon.py']
+                      'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_HIon.py'],
+                     'hlt3' : ['cmsRun ../HLTrigger/Configuration/test/OnData_HLT_8E29.py'],
+                     'hlt4' : ['cmsRun ../HLTrigger/Configuration/test/OnData_HLT_GRun.py']
                      }
 
     	commands={}
