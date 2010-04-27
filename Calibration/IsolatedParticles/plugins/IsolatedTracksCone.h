@@ -114,26 +114,6 @@ private:
   double DeltaPhi(double v1, double v2);
   double DeltaR(double eta1, double phi1, double eta2, double phi2);
 
-
-  int conechargeIsolation(const GlobalPoint& hpoint1, 
-			  const GlobalPoint& point2, 
-			  const GlobalVector& trackMom,
-			  double dR);
-
-
-  double conechargeIsolation(const edm::Event& iEvent, 
-			     const edm::EventSetup& iSetup, 
-			     reco::TrackCollection::const_iterator trkItr, 
-			     edm::Handle<reco::TrackCollection> trkCollection, 
-			     int &nNearTRKs,
-			     int &nLayers_maxNearP,
-			     int &trkQual_maxNearP,
-			     double &maxNearP_goodTrk,
-			     const GlobalPoint& hpoint1,
-			     const GlobalVector& trackMom,
-			     double dR);
-  
-  
   int    debugTrks_;
   bool   printTrkHitPattern_;
   bool   doMC;

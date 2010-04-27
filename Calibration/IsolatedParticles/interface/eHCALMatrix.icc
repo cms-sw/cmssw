@@ -1,5 +1,6 @@
 #include "Calibration/IsolatedParticles/interface/FindCaloHit.h"
 #include "Calibration/IsolatedParticles/interface/FindEtaPhi.h"
+#include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 #include "Calibration/IsolatedParticles/interface/MatrixHCALDetIds.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 

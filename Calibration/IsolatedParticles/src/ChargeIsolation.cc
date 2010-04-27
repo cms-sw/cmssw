@@ -1,5 +1,6 @@
 #include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
+#include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 #include "Calibration/IsolatedParticles/interface/MatrixECALDetIds.h"
 #include "Calibration/IsolatedParticles/interface/MatrixHCALDetIds.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -272,4 +273,71 @@ namespace spr{
     }
     return isIsolated;
   }
+
+  //===========================================================================================================
+
+  double coneChargeIsolation(const edm::Event& iEvent, const edm::EventSetup& iSetup, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, TrackDetectorAssociator& associator, TrackAssociatorParameters& parameters_, std::string theTrackQuality, int &nNearTRKs, int &nLayers_maxNearP, int &trkQual_maxNearP, double &maxNearP_goodTrk, const GlobalPoint& hpoint1, const GlobalVector& trackMom, double dR) {
+
+    nNearTRKs=0;
+    nLayers_maxNearP=0;
+    trkQual_maxNearP=-1; 
+    maxNearP_goodTrk = -999.0;
+    double maxNearP = -999.0;
+    reco::TrackBase::TrackQuality trackQuality_=  reco::TrackBase::qualityByName(theTrackQuality);
+
+    // Iterate over tracks
+    reco::TrackCollection::const_iterator trkItr2;
+    for( trkItr2 = trkCollection->begin(); 
+	 trkItr2 != trkCollection->end(); ++trkItr2){
+
+      // Get track
+      const reco::Track* pTrack2 = &(*trkItr2);
+    
+      // Get track qual, nlayers, and hit pattern
+      if (pTrack2->quality(trackQuality_)) trkQual_maxNearP  = 1;
+      const reco::HitPattern& hitp = pTrack2->hitPattern();
+      nLayers_maxNearP = hitp.trackerLayersWithMeasurement() ;        
+    
+      // Skip if the neighboring track candidate is the iso-track
+      // candidate
+      if (trkItr2 != trkItr) {
+    
+	// Get propagator
+	const FreeTrajectoryState fts2 = associator.getFreeTrajectoryState(iSetup, *pTrack2);
+	TrackDetMatchInfo info2 = associator.associate(iEvent, iSetup, fts2, parameters_);
+    
+	// Make sure it reaches Hcal
+	if (info2.isGoodHcal ) {
+    
+	  const GlobalPoint point2(info2.trkGlobPosAtHcal.x(),
+				   info2.trkGlobPosAtHcal.y(),
+				   info2.trkGlobPosAtHcal.z());
+    
+	  int isConeChargedIso = coneChargeIsolation(hpoint1, point2, trackMom, dR);
+    
+	  if (isConeChargedIso==0) {
+	    nNearTRKs++;
+	    if(maxNearP<pTrack2->p()) {
+	      maxNearP=pTrack2->p();
+	      if (trkQual_maxNearP>0 && nLayers_maxNearP>7 && maxNearP_goodTrk<pTrack2->p()) {
+		maxNearP_goodTrk=pTrack2->p();
+	      }
+	    }
+	  }
+	}
+      }
+    } // Iterate over track loop
+    
+    return maxNearP;
+  }
+
+
+  int coneChargeIsolation(const GlobalPoint& hpoint1, const GlobalPoint& point2, const GlobalVector& trackMom, double dR) {			 
+
+    int isIsolated = 1;
+    if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, point2) > dR) isIsolated = 1;
+    else isIsolated = 0;
+    return isIsolated;
+  } 
+
 }

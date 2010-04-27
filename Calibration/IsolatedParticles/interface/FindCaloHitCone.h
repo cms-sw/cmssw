@@ -21,8 +21,11 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include <cmath>
 
@@ -36,10 +39,6 @@ namespace spr {
   template <typename T>
   std::vector<typename T::const_iterator> findHitCone(const CaloGeometry* geo, edm::Handle<T>& barrelhits, edm::Handle<T>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom);
   
-  /////////////////////////////
-  // Cone clustering
-  /////////////////////////////
-
   //Ecal Endcap OR Barrel RecHits
   std::vector<EcalRecHitCollection::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<EcalRecHitCollection>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR);
 
@@ -52,13 +51,6 @@ namespace spr {
   // PCalo SimHits
   std::vector<edm::PCaloHitContainer::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<edm::PCaloHitContainer>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom);
 
-  // Cone clustering core
-  double getDistInPlaneTrackDir(const GlobalPoint& caloPoint, const GlobalVector& caloVector, const GlobalPoint& rechitPoint);
-
-  // Not used, but here for reference
-  double getDistInCMatEcal(double eta1, double phi1, double eta2, double phi2);
-  double getDistInCMatHcal(double eta1, double phi1, double eta2, double phi2);
-  
 }
 
 #include "FindCaloHitCone.icc"

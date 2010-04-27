@@ -21,6 +21,7 @@
 #define _DEBUG_QUIET
 
 #include "Calibration/IsolatedParticles/plugins/IsolatedTracksCone.h"
+#include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -202,22 +203,22 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   
   //get Handles to SimTracks and SimHits
   edm::Handle<edm::SimTrackContainer> SimTk;
-  iEvent.getByLabel("g4SimHits",SimTk);
+  if (doMC) iEvent.getByLabel("g4SimHits",SimTk);
   edm::SimTrackContainer::const_iterator simTrkItr;
 
   edm::Handle<edm::SimVertexContainer> SimVtx;
-  iEvent.getByLabel("g4SimHits",SimVtx);
+  if (doMC) iEvent.getByLabel("g4SimHits",SimVtx);
   edm::SimVertexContainer::const_iterator vtxItr = SimVtx->begin();
 
   //get Handles to PCaloHitContainers of eb/ee/hbhe
   edm::Handle<edm::PCaloHitContainer> pcaloeb;
-  iEvent.getByLabel("g4SimHits", "EcalHitsEB", pcaloeb);
+  if (doMC) iEvent.getByLabel("g4SimHits", "EcalHitsEB", pcaloeb);
 
   edm::Handle<edm::PCaloHitContainer> pcaloee;
-  iEvent.getByLabel("g4SimHits", "EcalHitsEE", pcaloee);
+  if (doMC) iEvent.getByLabel("g4SimHits", "EcalHitsEE", pcaloee);
 
   edm::Handle<edm::PCaloHitContainer> pcalohh;
-  iEvent.getByLabel("g4SimHits", "HcalHits", pcalohh);
+  if (doMC) iEvent.getByLabel("g4SimHits", "HcalHits", pcalohh);
   
   
   
@@ -282,8 +283,8 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   ////////////////////////////
   // Primary loop over tracks
   ////////////////////////////
-  TrackerHitAssociator* associate = 
-    new TrackerHitAssociator::TrackerHitAssociator(iEvent);
+  TrackerHitAssociator* associate=0;
+  if (doMC) associate = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
   
 
   nTRK      = 0;
@@ -375,11 +376,12 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
       +hitp.stripTECLayersWithMeasurement() ;
 
     
-  
-    edm::SimTrackContainer::const_iterator matchedSimTrk = 
-      spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
-    double simP = matchedSimTrk->momentum().P();
-
+    double simP = 0;
+    if (doMC) {
+      edm::SimTrackContainer::const_iterator matchedSimTrk = 
+	spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
+      simP = matchedSimTrk->momentum().P();
+    }
     ////////////////////////////////////////////
     // Get Ecal Point
     ////////////////////////////////////////////
@@ -526,14 +528,15 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
       int    conehtrkQual_maxNearP = -1; 
       double conehmaxNearP_goodTrk = -999.0;
 
-      conehmaxNearP = conechargeIsolation(iEvent, iSetup, 
-					  trkItr, trkCollection,
-					  conehnNearTRKs, 
-					  conehnLayers_maxNearP,
-					  conehtrkQual_maxNearP, 
-					  conehmaxNearP_goodTrk, 
-					  hpoint1, trackMomAtHcal, 
-					  a_charIsoR[i]); 
+      conehmaxNearP = spr::coneChargeIsolation(iEvent, iSetup, 
+					       trkItr, trkCollection, 
+					       *trackAssociator_, parameters_, 
+					       theTrackQuality, conehnNearTRKs,
+					       conehnLayers_maxNearP,
+					       conehtrkQual_maxNearP, 
+					       conehmaxNearP_goodTrk, 
+					       hpoint1, trackMomAtHcal, 
+					       a_charIsoR[i]); 
 
       v_hmaxNearP_goodTrk.push_back(hmaxNearP_goodTrk);
       v_hmaxNearP        .push_back(hmaxNearP        );
@@ -598,20 +601,20 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
 
     //     double heta = (double)hpoint1.eta();
     //     double hphi = (double)hpoint1.phi();
-    
-    hsim3x3   = spr::eHCALmatrix(theHBHETopology, ClosestCell, 
-				 pcalohh,1,1);
-    hsim5x5   = spr::eHCALmatrix(theHBHETopology, ClosestCell,
-				 pcalohh,2,2);
-
     std::vector<int> multiplicity3x3;
     std::vector<int> multiplicity5x5;
-    hsimInfo3x3 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, pcalohh, SimTk, SimVtx, pTrack, *associate, 1,1, multiplicity3x3);
-    hsimInfo5x5 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, pcalohh, SimTk, SimVtx, pTrack, *associate, 2,2, multiplicity5x5);
-    
-    // Get energy from all simhits in hcal associated with iso track
-    trkHcalEne   = spr::eCaloSimInfo(iEvent, geo, pcalohh, SimTk, SimVtx, pTrack, *associate);
+    if (doMC) {
+      hsim3x3   = spr::eHCALmatrix(theHBHETopology, ClosestCell, 
+				   pcalohh,1,1);
+      hsim5x5   = spr::eHCALmatrix(theHBHETopology, ClosestCell,
+				   pcalohh,2,2);
 
+      hsimInfo3x3 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, pcalohh, SimTk, SimVtx, pTrack, *associate, 1,1, multiplicity3x3);
+      hsimInfo5x5 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, pcalohh, SimTk, SimVtx, pTrack, *associate, 2,2, multiplicity5x5);
+    
+      // Get energy from all simhits in hcal associated with iso track
+      trkHcalEne   = spr::eCaloSimInfo(iEvent, geo, pcalohh, SimTk, SimVtx, pTrack, *associate);
+    }
 
     // Finally for cones of varying radii.
     std::vector<double> v_hsimInfoConeMatched;
@@ -665,9 +668,9 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
 
       std::vector<int> multiplicityCone;
       std::vector<DetId> coneRecHitDetIds;
-      
-      hsimCone = spr::eCone_hcal(geo, pcalohh, hpoint1, point1, 
-				 a_coneR[i], trackMomAtHcal, nSimHitsCone);
+      if (doMC) 
+	hsimCone = spr::eCone_hcal(geo, pcalohh, hpoint1, point1, 
+				   a_coneR[i], trackMomAtHcal, nSimHitsCone);
       
       // If needed, get ieta and iphi of rechits for cones of 23.25
       // and for hitmap for debugging
@@ -707,40 +710,40 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
       }
       
       // SimHits NOT matched to RecHits
-      hsimInfoCone = spr::eHCALSimInfoCone(iEvent,pcalohh, SimTk, SimVtx, pTrack, *associate, geo, hpoint1, point1, a_coneR[i], trackMomAtHcal, multiplicityCone);      
+      if (doMC) {
+	hsimInfoCone = spr::eHCALSimInfoCone(iEvent,pcalohh, SimTk, SimVtx, pTrack, *associate, geo, hpoint1, point1, a_coneR[i], trackMomAtHcal, multiplicityCone);      
       
       
 	  
-      // SimHits matched to RecHits
-      //       hsimInfoCone = spr::eHCALSimInfoCone(iEvent,pcalohh, SimTk, SimVtx, 
-      //        					   pTrack, *associate, 
-      //        					   geo, hpoint1, point1, 
-      //        					   a_coneR[i], trackMomAtHcal, 
-      //        					   multiplicityCone,
-      //        					   coneRecHitDetIds);      
+	// SimHits matched to RecHits
+	//       hsimInfoCone = spr::eHCALSimInfoCone(iEvent,pcalohh, SimTk, SimVtx, 
+	//        					   pTrack, *associate, 
+	//        					   geo, hpoint1, point1, 
+	//        					   a_coneR[i], trackMomAtHcal, 
+	//        					   multiplicityCone,
+	//        					   coneRecHitDetIds);      
       
-      v_hsimInfoConeMatched   .push_back(hsimInfoCone["eMatched"   ]);
-      v_hsimInfoConeRest      .push_back(hsimInfoCone["eRest"      ]);
-      v_hsimInfoConePhoton    .push_back(hsimInfoCone["eGamma"     ]);
-      v_hsimInfoConeNeutHad   .push_back(hsimInfoCone["eNeutralHad"]);
-      v_hsimInfoConeCharHad   .push_back(hsimInfoCone["eChargedHad"]);
-      v_hsimInfoConePdgMatched.push_back(hsimInfoCone["pdgMatched" ]);
-      v_hsimInfoConeTotal     .push_back(hsimInfoCone["eTotal"     ]);
+	v_hsimInfoConeMatched   .push_back(hsimInfoCone["eMatched"   ]);
+	v_hsimInfoConeRest      .push_back(hsimInfoCone["eRest"      ]);
+	v_hsimInfoConePhoton    .push_back(hsimInfoCone["eGamma"     ]);
+	v_hsimInfoConeNeutHad   .push_back(hsimInfoCone["eNeutralHad"]);
+	v_hsimInfoConeCharHad   .push_back(hsimInfoCone["eChargedHad"]);
+	v_hsimInfoConePdgMatched.push_back(hsimInfoCone["pdgMatched" ]);
+	v_hsimInfoConeTotal     .push_back(hsimInfoCone["eTotal"     ]);
 
-      v_hsimInfoConeNMatched  .push_back(multiplicityCone.at(0));
+	v_hsimInfoConeNMatched  .push_back(multiplicityCone.at(0));
 
-      v_hsimInfoConeNTotal      .push_back(multiplicityCone.at(1));
-      v_hsimInfoConeNNeutHad    .push_back(multiplicityCone.at(2));
-      v_hsimInfoConeNCharHad    .push_back(multiplicityCone.at(3));
-      v_hsimInfoConeNPhoton     .push_back(multiplicityCone.at(4));
-      v_hsimInfoConeNRest       .push_back(multiplicityCone.at(5));
+	v_hsimInfoConeNTotal      .push_back(multiplicityCone.at(1));
+	v_hsimInfoConeNNeutHad    .push_back(multiplicityCone.at(2));
+	v_hsimInfoConeNCharHad    .push_back(multiplicityCone.at(3));
+	v_hsimInfoConeNPhoton     .push_back(multiplicityCone.at(4));
+	v_hsimInfoConeNRest       .push_back(multiplicityCone.at(5));
 
-      v_hsimCone                .push_back(hsimCone                   );
+	v_hsimCone                .push_back(hsimCone                   );
+	v_nSimHitsCone            .push_back(nSimHitsCone               );
+      }
       v_hCone                   .push_back(hCone                      );
-
       v_nRecHitsCone            .push_back(nRecHitsCone               );
-      v_nSimHitsCone            .push_back(nSimHitsCone               );
-
       
       v_distFromHotCell         .push_back(distFromHotCell            );
       v_ietaFromHotCell         .push_back(ietaFromHotCell            );
@@ -771,7 +774,6 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
     t_trkNLayersCrossed ->push_back(nLayersCrossed             );
     t_dtFromLeadJet     ->push_back(drFromLeadJet              );
     t_trkP              ->push_back(p1                         );
-    t_simP              ->push_back(simP                       );
     t_trkPt             ->push_back(pt1                        );
     t_trkEta            ->push_back(eta1                       );
     t_trkPhi            ->push_back(phi1                       );
@@ -782,9 +784,6 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
 
     t_h3x3              ->push_back(h3x3                       );
     t_h5x5              ->push_back(h5x5                       );
-    t_hsim3x3           ->push_back(hsim3x3                    );
-    t_hsim5x5           ->push_back(hsim5x5                    );
-
     t_nRH_h3x3          ->push_back(nRH_h3x3                   );
     t_nRH_h5x5          ->push_back(nRH_h5x5                   );
     
@@ -794,36 +793,41 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
     t_v_RH_h5x5_ieta    ->push_back(v_RH_h5x5_ieta);
     t_v_RH_h5x5_iphi    ->push_back(v_RH_h5x5_iphi);
     t_v_RH_h5x5_ene     ->push_back(v_RH_h5x5_ene);
-    
-    t_hsim3x3Matched    ->push_back(hsimInfo3x3["eMatched"]    );
-    t_hsim5x5Matched    ->push_back(hsimInfo5x5["eMatched"]    );
-    t_hsim3x3Rest       ->push_back(hsimInfo3x3["eRest"]       );
-    t_hsim5x5Rest       ->push_back(hsimInfo5x5["eRest"]       );
-    t_hsim3x3Photon     ->push_back(hsimInfo3x3["eGamma"]      );
-    t_hsim5x5Photon     ->push_back(hsimInfo5x5["eGamma"]      );
-    t_hsim3x3NeutHad    ->push_back(hsimInfo3x3["eNeutralHad"] );
-    t_hsim5x5NeutHad    ->push_back(hsimInfo5x5["eNeutralHad"] );
-    t_hsim3x3CharHad    ->push_back(hsimInfo3x3["eChargedHad"] );
-    t_hsim5x5CharHad    ->push_back(hsimInfo5x5["eChargedHad"] );
-    t_hsim3x3Total      ->push_back(hsimInfo3x3["eTotal"]      );
-    t_hsim5x5Total      ->push_back(hsimInfo5x5["eTotal"]      );
-    t_hsim3x3PdgMatched ->push_back(hsimInfo3x3["pdgMatched"]  );
-    t_hsim5x5PdgMatched ->push_back(hsimInfo5x5["pdgMatched"]  );
 
-    t_hsim3x3NMatched   ->push_back(multiplicity3x3.at(0));
-    t_hsim3x3NTotal     ->push_back(multiplicity3x3.at(1));
-    t_hsim3x3NNeutHad   ->push_back(multiplicity3x3.at(2));
-    t_hsim3x3NCharHad   ->push_back(multiplicity3x3.at(3));
-    t_hsim3x3NPhoton    ->push_back(multiplicity3x3.at(4));
-    t_hsim3x3NRest      ->push_back(multiplicity3x3.at(5));
+    if (doMC) {
+      t_simP              ->push_back(simP                       );
+      t_hsim3x3           ->push_back(hsim3x3                    );
+      t_hsim5x5           ->push_back(hsim5x5                    );
 
-    t_hsim5x5NMatched   ->push_back(multiplicity5x5.at(0));
-    t_hsim5x5NTotal     ->push_back(multiplicity5x5.at(1));
-    t_hsim5x5NNeutHad   ->push_back(multiplicity5x5.at(2));
-    t_hsim5x5NCharHad   ->push_back(multiplicity5x5.at(3));
-    t_hsim5x5NPhoton    ->push_back(multiplicity5x5.at(4));
-    t_hsim5x5NRest      ->push_back(multiplicity5x5.at(5));
+      t_hsim3x3Matched    ->push_back(hsimInfo3x3["eMatched"]    );
+      t_hsim5x5Matched    ->push_back(hsimInfo5x5["eMatched"]    );
+      t_hsim3x3Rest       ->push_back(hsimInfo3x3["eRest"]       );
+      t_hsim5x5Rest       ->push_back(hsimInfo5x5["eRest"]       );
+      t_hsim3x3Photon     ->push_back(hsimInfo3x3["eGamma"]      );
+      t_hsim5x5Photon     ->push_back(hsimInfo5x5["eGamma"]      );
+      t_hsim3x3NeutHad    ->push_back(hsimInfo3x3["eNeutralHad"] );
+      t_hsim5x5NeutHad    ->push_back(hsimInfo5x5["eNeutralHad"] );
+      t_hsim3x3CharHad    ->push_back(hsimInfo3x3["eChargedHad"] );
+      t_hsim5x5CharHad    ->push_back(hsimInfo5x5["eChargedHad"] );
+      t_hsim3x3Total      ->push_back(hsimInfo3x3["eTotal"]      );
+      t_hsim5x5Total      ->push_back(hsimInfo5x5["eTotal"]      );
+      t_hsim3x3PdgMatched ->push_back(hsimInfo3x3["pdgMatched"]  );
+      t_hsim5x5PdgMatched ->push_back(hsimInfo5x5["pdgMatched"]  );
 
+      t_hsim3x3NMatched   ->push_back(multiplicity3x3.at(0));
+      t_hsim3x3NTotal     ->push_back(multiplicity3x3.at(1));
+      t_hsim3x3NNeutHad   ->push_back(multiplicity3x3.at(2));
+      t_hsim3x3NCharHad   ->push_back(multiplicity3x3.at(3));
+      t_hsim3x3NPhoton    ->push_back(multiplicity3x3.at(4));
+      t_hsim3x3NRest      ->push_back(multiplicity3x3.at(5));
+
+      t_hsim5x5NMatched   ->push_back(multiplicity5x5.at(0));
+      t_hsim5x5NTotal     ->push_back(multiplicity5x5.at(1));
+      t_hsim5x5NNeutHad   ->push_back(multiplicity5x5.at(2));
+      t_hsim5x5NCharHad   ->push_back(multiplicity5x5.at(3));
+      t_hsim5x5NPhoton    ->push_back(multiplicity5x5.at(4));
+      t_hsim5x5NRest      ->push_back(multiplicity5x5.at(5));
+    }
     
     t_distFromHotCell_h3x3->push_back(distFromHotCell_h3x3);
     t_ietaFromHotCell_h3x3->push_back(ietaFromHotCell_h3x3);
@@ -832,30 +836,30 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
     t_ietaFromHotCell_h5x5->push_back(ietaFromHotCell_h5x5);
     t_iphiFromHotCell_h5x5->push_back(iphiFromHotCell_h5x5);
     
-	
-    t_trkHcalEne                ->push_back(trkHcalEne                 );
-    t_trkEcalEne                ->push_back(trkEcalEne                 );
+    if (doMC) {
+      t_trkHcalEne                ->push_back(trkHcalEne                 );
+      t_trkEcalEne                ->push_back(trkEcalEne                 );
 
-    t_v_hsimInfoConeMatched     ->push_back(v_hsimInfoConeMatched   );
-    t_v_hsimInfoConeRest        ->push_back(v_hsimInfoConeRest      );
-    t_v_hsimInfoConePhoton      ->push_back(v_hsimInfoConePhoton   );
-    t_v_hsimInfoConeNeutHad     ->push_back(v_hsimInfoConeNeutHad   );
-    t_v_hsimInfoConeCharHad     ->push_back(v_hsimInfoConeCharHad   );
-    t_v_hsimInfoConePdgMatched  ->push_back(v_hsimInfoConePdgMatched);  
-    t_v_hsimInfoConeTotal       ->push_back(v_hsimInfoConeTotal     );
+      t_v_hsimInfoConeMatched     ->push_back(v_hsimInfoConeMatched   );
+      t_v_hsimInfoConeRest        ->push_back(v_hsimInfoConeRest      );
+      t_v_hsimInfoConePhoton      ->push_back(v_hsimInfoConePhoton   );
+      t_v_hsimInfoConeNeutHad     ->push_back(v_hsimInfoConeNeutHad   );
+      t_v_hsimInfoConeCharHad     ->push_back(v_hsimInfoConeCharHad   );
+      t_v_hsimInfoConePdgMatched  ->push_back(v_hsimInfoConePdgMatched);  
+      t_v_hsimInfoConeTotal       ->push_back(v_hsimInfoConeTotal     );
 
-    t_v_hsimInfoConeNMatched    ->push_back(v_hsimInfoConeNMatched  );
-    t_v_hsimInfoConeNTotal      ->push_back(v_hsimInfoConeNTotal    );
-    t_v_hsimInfoConeNNeutHad    ->push_back(v_hsimInfoConeNNeutHad  );
-    t_v_hsimInfoConeNCharHad    ->push_back(v_hsimInfoConeNCharHad  );
-    t_v_hsimInfoConeNPhoton     ->push_back(v_hsimInfoConeNPhoton    );
-    t_v_hsimInfoConeNRest       ->push_back(v_hsimInfoConeNRest     );  
+      t_v_hsimInfoConeNMatched    ->push_back(v_hsimInfoConeNMatched  );
+      t_v_hsimInfoConeNTotal      ->push_back(v_hsimInfoConeNTotal    );
+      t_v_hsimInfoConeNNeutHad    ->push_back(v_hsimInfoConeNNeutHad  );
+      t_v_hsimInfoConeNCharHad    ->push_back(v_hsimInfoConeNCharHad  );
+      t_v_hsimInfoConeNPhoton     ->push_back(v_hsimInfoConeNPhoton    );
+      t_v_hsimInfoConeNRest       ->push_back(v_hsimInfoConeNRest     );  
 
-    t_v_hsimCone    ->push_back(v_hsimCone    );
-    t_v_hCone       ->push_back(v_hCone       );
-    t_v_nRecHitsCone->push_back(v_nRecHitsCone);
-    t_v_nSimHitsCone->push_back(v_nSimHitsCone);
-    
+      t_v_hsimCone    ->push_back(v_hsimCone    );
+      t_v_hCone       ->push_back(v_hCone       );
+      t_v_nRecHitsCone->push_back(v_nRecHitsCone);
+      t_v_nSimHitsCone->push_back(v_nSimHitsCone);
+    }
 
     
     t_v_distFromHotCell->push_back(v_distFromHotCell);
@@ -944,7 +948,6 @@ void IsolatedTracksCone::beginJob(const edm::EventSetup&) {
   t_trkNLayersCrossed  = new std::vector<double>();
   t_dtFromLeadJet      = new std::vector<double>();
   t_trkP               = new std::vector<double>();
-  t_simP               = new std::vector<double>();
   t_trkPt              = new std::vector<double>();
   t_trkEta             = new std::vector<double>();
   t_trkPhi             = new std::vector<double>();
@@ -955,40 +958,47 @@ void IsolatedTracksCone::beginJob(const edm::EventSetup&) {
 
   t_h3x3               = new std::vector<double>();
   t_h5x5               = new std::vector<double>();
-  t_hsim3x3            = new std::vector<double>();
-  t_hsim5x5            = new std::vector<double>();
 
   t_nRH_h3x3           = new std::vector<double>();
   t_nRH_h5x5           = new std::vector<double>();
 
-  t_hsim3x3Matched     = new std::vector<double>();
-  t_hsim5x5Matched     = new std::vector<double>();
-  t_hsim3x3Rest        = new std::vector<double>();
-  t_hsim5x5Rest        = new std::vector<double>();
-  t_hsim3x3Photon      = new std::vector<double>();
-  t_hsim5x5Photon      = new std::vector<double>();
-  t_hsim3x3NeutHad     = new std::vector<double>();
-  t_hsim5x5NeutHad     = new std::vector<double>();
-  t_hsim3x3CharHad     = new std::vector<double>();
-  t_hsim5x5CharHad     = new std::vector<double>();
-  t_hsim3x3PdgMatched  = new std::vector<double>();
-  t_hsim5x5PdgMatched  = new std::vector<double>();
-  t_hsim3x3Total       = new std::vector<double>();
-  t_hsim5x5Total       = new std::vector<double>();
+  if (doMC) {
+    t_simP               = new std::vector<double>();
+    t_hsim3x3            = new std::vector<double>();
+    t_hsim5x5            = new std::vector<double>();
 
-  t_hsim3x3NMatched  = new std::vector<int>();
-  t_hsim3x3NTotal    = new std::vector<int>();
-  t_hsim3x3NNeutHad  = new std::vector<int>();
-  t_hsim3x3NCharHad  = new std::vector<int>();
-  t_hsim3x3NPhoton   = new std::vector<int>();
-  t_hsim3x3NRest     = new std::vector<int>();
+    t_hsim3x3Matched     = new std::vector<double>();
+    t_hsim5x5Matched     = new std::vector<double>();
+    t_hsim3x3Rest        = new std::vector<double>();
+    t_hsim5x5Rest        = new std::vector<double>();
+    t_hsim3x3Photon      = new std::vector<double>();
+    t_hsim5x5Photon      = new std::vector<double>();
+    t_hsim3x3NeutHad     = new std::vector<double>();
+    t_hsim5x5NeutHad     = new std::vector<double>();
+    t_hsim3x3CharHad     = new std::vector<double>();
+    t_hsim5x5CharHad     = new std::vector<double>();
+    t_hsim3x3PdgMatched  = new std::vector<double>();
+    t_hsim5x5PdgMatched  = new std::vector<double>();
+    t_hsim3x3Total       = new std::vector<double>();
+    t_hsim5x5Total       = new std::vector<double>();
 
-  t_hsim5x5NMatched  = new std::vector<int>();
-  t_hsim5x5NTotal    = new std::vector<int>();
-  t_hsim5x5NNeutHad  = new std::vector<int>();
-  t_hsim5x5NCharHad  = new std::vector<int>();
-  t_hsim5x5NPhoton   = new std::vector<int>();
-  t_hsim5x5NRest     = new std::vector<int>();
+    t_hsim3x3NMatched  = new std::vector<int>();
+    t_hsim3x3NTotal    = new std::vector<int>();
+    t_hsim3x3NNeutHad  = new std::vector<int>();
+    t_hsim3x3NCharHad  = new std::vector<int>();
+    t_hsim3x3NPhoton   = new std::vector<int>();
+    t_hsim3x3NRest     = new std::vector<int>();
+
+    t_hsim5x5NMatched  = new std::vector<int>();
+    t_hsim5x5NTotal    = new std::vector<int>();
+    t_hsim5x5NNeutHad  = new std::vector<int>();
+    t_hsim5x5NCharHad  = new std::vector<int>();
+    t_hsim5x5NPhoton   = new std::vector<int>();
+    t_hsim5x5NRest     = new std::vector<int>();
+
+    t_trkHcalEne         = new std::vector<double>();
+    t_trkEcalEne         = new std::vector<double>();
+  }
 
   t_distFromHotCell_h3x3  = new std::vector<double>();
   t_ietaFromHotCell_h3x3  = new std::vector<int>();
@@ -997,26 +1007,25 @@ void IsolatedTracksCone::beginJob(const edm::EventSetup&) {
   t_ietaFromHotCell_h5x5  = new std::vector<int>();
   t_iphiFromHotCell_h5x5  = new std::vector<int>();
 
+  if (doMC) {
+    t_v_hsimInfoConeMatched   = new std::vector<std::vector<double> >();
+    t_v_hsimInfoConeRest      = new std::vector<std::vector<double> >();
+    t_v_hsimInfoConePhoton     = new std::vector<std::vector<double> >();
+    t_v_hsimInfoConeNeutHad   = new std::vector<std::vector<double> >();
+    t_v_hsimInfoConeCharHad   = new std::vector<std::vector<double> >();
+    t_v_hsimInfoConePdgMatched= new std::vector<std::vector<double> >();
+    t_v_hsimInfoConeTotal     = new std::vector<std::vector<double> >();
 
-  t_trkHcalEne         = new std::vector<double>();
-  t_trkEcalEne         = new std::vector<double>();
+    t_v_hsimInfoConeNMatched  = new std::vector<std::vector<int> >();
+    t_v_hsimInfoConeNTotal    = new std::vector<std::vector<int> >();
+    t_v_hsimInfoConeNNeutHad  = new std::vector<std::vector<int> >();
+    t_v_hsimInfoConeNCharHad  = new std::vector<std::vector<int> >();
+    t_v_hsimInfoConeNPhoton    = new std::vector<std::vector<int> >();
+    t_v_hsimInfoConeNRest     = new std::vector<std::vector<int> >();
 
-  t_v_hsimInfoConeMatched   = new std::vector<std::vector<double> >();
-  t_v_hsimInfoConeRest      = new std::vector<std::vector<double> >();
-  t_v_hsimInfoConePhoton     = new std::vector<std::vector<double> >();
-  t_v_hsimInfoConeNeutHad   = new std::vector<std::vector<double> >();
-  t_v_hsimInfoConeCharHad   = new std::vector<std::vector<double> >();
-  t_v_hsimInfoConePdgMatched= new std::vector<std::vector<double> >();
-  t_v_hsimInfoConeTotal     = new std::vector<std::vector<double> >();
+    t_v_hsimCone    = new std::vector<std::vector<double> >();
+  }
 
-  t_v_hsimInfoConeNMatched  = new std::vector<std::vector<int> >();
-  t_v_hsimInfoConeNTotal    = new std::vector<std::vector<int> >();
-  t_v_hsimInfoConeNNeutHad  = new std::vector<std::vector<int> >();
-  t_v_hsimInfoConeNCharHad  = new std::vector<std::vector<int> >();
-  t_v_hsimInfoConeNPhoton    = new std::vector<std::vector<int> >();
-  t_v_hsimInfoConeNRest     = new std::vector<std::vector<int> >();
-
-  t_v_hsimCone    = new std::vector<std::vector<double> >();
   t_v_hCone       = new std::vector<std::vector<double> >();
   t_v_nRecHitsCone= new std::vector<std::vector<int> >();
   t_v_nSimHitsCone= new std::vector<std::vector<int> >();
@@ -1041,8 +1050,8 @@ void IsolatedTracksCone::beginJob(const edm::EventSetup&) {
 
   t_v_hlTriggers    = new std::vector<std::vector<int> >();
 
-  t_hltHE     = new std::vector<int>();
-  t_hltHB     = new std::vector<int>();
+  t_hltHE                         = new std::vector<int>();
+  t_hltHB                         = new std::vector<int>();
   t_hltL1Jet15		          = new std::vector<int>();
   t_hltJet30		          = new std::vector<int>();
   t_hltJet50		          = new std::vector<int>();
@@ -1055,8 +1064,8 @@ void IsolatedTracksCone::beginJob(const edm::EventSetup&) {
   t_hltMinBiasHcal	          = new std::vector<int>();
   t_hltMinBiasEcal	          = new std::vector<int>();
   t_hltMinBiasPixel	          = new std::vector<int>();
-  t_hltSingleIsoTau30_Trk5          = new std::vector<int>();
-  t_hltDoubleLooseIsoTau15_Trk5     = new std::vector<int>();
+  t_hltSingleIsoTau30_Trk5        = new std::vector<int>();
+  t_hltDoubleLooseIsoTau15_Trk5   = new std::vector<int>();
   
 
   t_irun = new std::vector<unsigned int>();
@@ -1085,7 +1094,6 @@ void IsolatedTracksCone::clearTrackVectors() {
   t_trkNLayersCrossed  ->clear();
   t_dtFromLeadJet      ->clear();
   t_trkP               ->clear();
-  t_simP               ->clear();
   t_trkPt              ->clear();
   t_trkEta             ->clear();
   t_trkPhi             ->clear();
@@ -1094,38 +1102,45 @@ void IsolatedTracksCone::clearTrackVectors() {
   t_v_eMipDR           ->clear();
   t_h3x3               ->clear();
   t_h5x5               ->clear();
-  t_hsim3x3            ->clear();
-  t_hsim5x5            ->clear();
   t_nRH_h3x3           ->clear();
   t_nRH_h5x5           ->clear();
-  t_hsim3x3Matched     ->clear();
-  t_hsim5x5Matched     ->clear();
-  t_hsim3x3Rest        ->clear();
-  t_hsim5x5Rest        ->clear();
-  t_hsim3x3Photon      ->clear();
-  t_hsim5x5Photon      ->clear();
-  t_hsim3x3NeutHad     ->clear();
-  t_hsim5x5NeutHad     ->clear();
-  t_hsim3x3CharHad     ->clear();
-  t_hsim5x5CharHad     ->clear();
-  t_hsim3x3PdgMatched  ->clear();
-  t_hsim5x5PdgMatched  ->clear();
-  t_hsim3x3Total       ->clear();
-  t_hsim5x5Total       ->clear();
 
-  t_hsim3x3NMatched    ->clear();
-  t_hsim3x3NTotal      ->clear();
-  t_hsim3x3NNeutHad    ->clear();
-  t_hsim3x3NCharHad    ->clear();
-  t_hsim3x3NPhoton      ->clear();
-  t_hsim3x3NRest       ->clear();
+  if (doMC) {
+    t_simP               ->clear();
+    t_hsim3x3            ->clear();
+    t_hsim5x5            ->clear();
+    t_hsim3x3Matched     ->clear();
+    t_hsim5x5Matched     ->clear();
+    t_hsim3x3Rest        ->clear();
+    t_hsim5x5Rest        ->clear();
+    t_hsim3x3Photon      ->clear();
+    t_hsim5x5Photon      ->clear();
+    t_hsim3x3NeutHad     ->clear();
+    t_hsim5x5NeutHad     ->clear();
+    t_hsim3x3CharHad     ->clear();
+    t_hsim5x5CharHad     ->clear();
+    t_hsim3x3PdgMatched  ->clear();
+    t_hsim5x5PdgMatched  ->clear();
+    t_hsim3x3Total       ->clear();
+    t_hsim5x5Total       ->clear();
 
-  t_hsim5x5NMatched    ->clear();
-  t_hsim5x5NTotal      ->clear();
-  t_hsim5x5NNeutHad    ->clear();
-  t_hsim5x5NCharHad    ->clear();
-  t_hsim5x5NPhoton      ->clear();
-  t_hsim5x5NRest       ->clear();
+    t_hsim3x3NMatched    ->clear();
+    t_hsim3x3NTotal      ->clear();
+    t_hsim3x3NNeutHad    ->clear();
+    t_hsim3x3NCharHad    ->clear();
+    t_hsim3x3NPhoton      ->clear();
+    t_hsim3x3NRest       ->clear();
+
+    t_hsim5x5NMatched    ->clear();
+    t_hsim5x5NTotal      ->clear();
+    t_hsim5x5NNeutHad    ->clear();
+    t_hsim5x5NCharHad    ->clear();
+    t_hsim5x5NPhoton      ->clear();
+    t_hsim5x5NRest       ->clear();
+
+    t_trkHcalEne         ->clear();
+    t_trkEcalEne         ->clear();
+  }
 
   t_distFromHotCell_h3x3  ->clear();
   t_ietaFromHotCell_h3x3  ->clear();
@@ -1134,25 +1149,25 @@ void IsolatedTracksCone::clearTrackVectors() {
   t_ietaFromHotCell_h5x5  ->clear();
   t_iphiFromHotCell_h5x5  ->clear();
 
-  t_trkHcalEne         ->clear();
-  t_trkEcalEne         ->clear();
+  if (doMC) {
+    t_v_hsimInfoConeMatched   ->clear();
+    t_v_hsimInfoConeRest      ->clear();
+    t_v_hsimInfoConePhoton     ->clear();
+    t_v_hsimInfoConeNeutHad   ->clear();
+    t_v_hsimInfoConeCharHad   ->clear();
+    t_v_hsimInfoConePdgMatched->clear();  
+    t_v_hsimInfoConeTotal     ->clear();
 
-  t_v_hsimInfoConeMatched   ->clear();
-  t_v_hsimInfoConeRest      ->clear();
-  t_v_hsimInfoConePhoton     ->clear();
-  t_v_hsimInfoConeNeutHad   ->clear();
-  t_v_hsimInfoConeCharHad   ->clear();
-  t_v_hsimInfoConePdgMatched->clear();  
-  t_v_hsimInfoConeTotal     ->clear();
+    t_v_hsimInfoConeNMatched   ->clear();
+    t_v_hsimInfoConeNRest      ->clear();
+    t_v_hsimInfoConeNPhoton     ->clear();
+    t_v_hsimInfoConeNNeutHad   ->clear();
+    t_v_hsimInfoConeNCharHad   ->clear();
+    t_v_hsimInfoConeNTotal     ->clear();
 
-  t_v_hsimInfoConeNMatched   ->clear();
-  t_v_hsimInfoConeNRest      ->clear();
-  t_v_hsimInfoConeNPhoton     ->clear();
-  t_v_hsimInfoConeNNeutHad   ->clear();
-  t_v_hsimInfoConeNCharHad   ->clear();
-  t_v_hsimInfoConeNTotal     ->clear();
+    t_v_hsimCone    ->clear();
+  }
 
-  t_v_hsimCone    ->clear();
   t_v_hCone       ->clear();
   t_v_nRecHitsCone->clear();
   t_v_nSimHitsCone->clear();
@@ -1249,7 +1264,6 @@ void IsolatedTracksCone::BuildTree(){
   ntp->Branch("trkNLayersCrossed", "vector<double>", &t_trkNLayersCrossed);
   ntp->Branch("drFromLeadJet"    , "vector<double>", &t_dtFromLeadJet    );
   ntp->Branch("trkP"             , "vector<double>", &t_trkP             );
-  ntp->Branch("simP"             , "vector<double>", &t_simP             );
   ntp->Branch("trkPt"            , "vector<double>", &t_trkPt            );
   ntp->Branch("trkEta"           , "vector<double>", &t_trkEta           );
   ntp->Branch("trkPhi"           , "vector<double>", &t_trkPhi           );
@@ -1261,39 +1275,46 @@ void IsolatedTracksCone::BuildTree(){
 
   ntp->Branch("h3x3"             , "vector<double>", &t_h3x3             );
   ntp->Branch("h5x5"             , "vector<double>", &t_h5x5             );
-
-  ntp->Branch("hsim3x3"          , "vector<double>", &t_hsim3x3          );
-  ntp->Branch("hsim5x5"          , "vector<double>", &t_hsim5x5          );
   ntp->Branch("nRH_h3x3"         , "vector<double>", &t_nRH_h3x3         );
   ntp->Branch("nRH_h5x5"         , "vector<double>", &t_nRH_h5x5         );
-  ntp->Branch("hsim3x3Matched"   , "vector<double>", &t_hsim3x3Matched   );
-  ntp->Branch("hsim5x5Matched"   , "vector<double>", &t_hsim5x5Matched   );
-  ntp->Branch("hsim3x3Rest"      , "vector<double>", &t_hsim3x3Rest      );
-  ntp->Branch("hsim5x5Rest"      , "vector<double>", &t_hsim5x5Rest      );
-  ntp->Branch("hsim3x3Photon"    , "vector<double>", &t_hsim3x3Photon    );
-  ntp->Branch("hsim5x5Photon"    , "vector<double>", &t_hsim5x5Photon    );
-  ntp->Branch("hsim3x3NeutHad"   , "vector<double>", &t_hsim3x3NeutHad   );
-  ntp->Branch("hsim5x5NeutHad"   , "vector<double>", &t_hsim5x5NeutHad   );
-  ntp->Branch("hsim3x3CharHad"   , "vector<double>", &t_hsim3x3CharHad   );
-  ntp->Branch("hsim5x5CharHad"   , "vector<double>", &t_hsim5x5CharHad   );
-  ntp->Branch("hsim3x3PdgMatched", "vector<double>", &t_hsim3x3PdgMatched);
-  ntp->Branch("hsim5x5PdgMatched", "vector<double>", &t_hsim5x5PdgMatched);
-  ntp->Branch("hsim3x3Total"     , "vector<double>", &t_hsim3x3Total     );
-  ntp->Branch("hsim5x5Total"     , "vector<double>", &t_hsim5x5Total     );
 
-  ntp->Branch("hsim3x3NMatched"   , "vector<int>", &t_hsim3x3NMatched   );
-  ntp->Branch("hsim3x3NRest"      , "vector<int>", &t_hsim3x3NRest      );
-  ntp->Branch("hsim3x3NPhoton"    , "vector<int>", &t_hsim3x3NPhoton    );
-  ntp->Branch("hsim3x3NNeutHad"   , "vector<int>", &t_hsim3x3NNeutHad   );
-  ntp->Branch("hsim3x3NCharHad"   , "vector<int>", &t_hsim3x3NCharHad   );
-  ntp->Branch("hsim3x3NTotal"     , "vector<int>", &t_hsim3x3NTotal     );
+  if (doMC) {
+    ntp->Branch("simP"             , "vector<double>", &t_simP             );
+    ntp->Branch("hsim3x3"          , "vector<double>", &t_hsim3x3          );
+    ntp->Branch("hsim5x5"          , "vector<double>", &t_hsim5x5          );
 
-  ntp->Branch("hsim5x5NMatched"   , "vector<int>", &t_hsim5x5NMatched   );
-  ntp->Branch("hsim5x5NRest"      , "vector<int>", &t_hsim5x5NRest      );
-  ntp->Branch("hsim5x5NPhoton"    , "vector<int>", &t_hsim5x5NPhoton    );
-  ntp->Branch("hsim5x5NNeutHad"   , "vector<int>", &t_hsim5x5NNeutHad   );
-  ntp->Branch("hsim5x5NCharHad"   , "vector<int>", &t_hsim5x5NCharHad   );
-  ntp->Branch("hsim5x5NTotal"     , "vector<int>", &t_hsim5x5NTotal     );
+    ntp->Branch("hsim3x3Matched"   , "vector<double>", &t_hsim3x3Matched   );
+    ntp->Branch("hsim5x5Matched"   , "vector<double>", &t_hsim5x5Matched   );
+    ntp->Branch("hsim3x3Rest"      , "vector<double>", &t_hsim3x3Rest      );
+    ntp->Branch("hsim5x5Rest"      , "vector<double>", &t_hsim5x5Rest      );
+    ntp->Branch("hsim3x3Photon"    , "vector<double>", &t_hsim3x3Photon    );
+    ntp->Branch("hsim5x5Photon"    , "vector<double>", &t_hsim5x5Photon    );
+    ntp->Branch("hsim3x3NeutHad"   , "vector<double>", &t_hsim3x3NeutHad   );
+    ntp->Branch("hsim5x5NeutHad"   , "vector<double>", &t_hsim5x5NeutHad   );
+    ntp->Branch("hsim3x3CharHad"   , "vector<double>", &t_hsim3x3CharHad   );
+    ntp->Branch("hsim5x5CharHad"   , "vector<double>", &t_hsim5x5CharHad   );
+    ntp->Branch("hsim3x3PdgMatched", "vector<double>", &t_hsim3x3PdgMatched);
+    ntp->Branch("hsim5x5PdgMatched", "vector<double>", &t_hsim5x5PdgMatched);
+    ntp->Branch("hsim3x3Total"     , "vector<double>", &t_hsim3x3Total     );
+    ntp->Branch("hsim5x5Total"     , "vector<double>", &t_hsim5x5Total     );
+
+    ntp->Branch("hsim3x3NMatched"   , "vector<int>", &t_hsim3x3NMatched   );
+    ntp->Branch("hsim3x3NRest"      , "vector<int>", &t_hsim3x3NRest      );
+    ntp->Branch("hsim3x3NPhoton"    , "vector<int>", &t_hsim3x3NPhoton    );
+    ntp->Branch("hsim3x3NNeutHad"   , "vector<int>", &t_hsim3x3NNeutHad   );
+    ntp->Branch("hsim3x3NCharHad"   , "vector<int>", &t_hsim3x3NCharHad   );
+    ntp->Branch("hsim3x3NTotal"     , "vector<int>", &t_hsim3x3NTotal     );
+
+    ntp->Branch("hsim5x5NMatched"   , "vector<int>", &t_hsim5x5NMatched   );
+    ntp->Branch("hsim5x5NRest"      , "vector<int>", &t_hsim5x5NRest      );
+    ntp->Branch("hsim5x5NPhoton"    , "vector<int>", &t_hsim5x5NPhoton    );
+    ntp->Branch("hsim5x5NNeutHad"   , "vector<int>", &t_hsim5x5NNeutHad   );
+    ntp->Branch("hsim5x5NCharHad"   , "vector<int>", &t_hsim5x5NCharHad   );
+    ntp->Branch("hsim5x5NTotal"     , "vector<int>", &t_hsim5x5NTotal     );
+
+    ntp->Branch("trkHcalEne"       , "vector<double>", &t_trkHcalEne       );
+    ntp->Branch("trkEcalEne"       , "vector<double>", &t_trkEcalEne       );
+  }
 
   ntp->Branch("distFromHotCell_h3x3", "vector<double>", &t_distFromHotCell_h3x3);
   ntp->Branch("ietaFromHotCell_h3x3", "vector<int>", &t_ietaFromHotCell_h3x3);
@@ -1302,25 +1323,25 @@ void IsolatedTracksCone::BuildTree(){
   ntp->Branch("ietaFromHotCell_h5x5", "vector<int>", &t_ietaFromHotCell_h5x5);
   ntp->Branch("iphiFromHotCell_h5x5", "vector<int>", &t_iphiFromHotCell_h5x5);
 
-  ntp->Branch("trkHcalEne"       , "vector<double>", &t_trkHcalEne       );
-  ntp->Branch("trkEcalEne"       , "vector<double>", &t_trkEcalEne       );
+  if (doMC) {
+    ntp->Branch("v_hsimInfoConeMatched"   ,"vector<vector<double> >",&t_v_hsimInfoConeMatched   );
+    ntp->Branch("v_hsimInfoConeRest"      ,"vector<vector<double> >",&t_v_hsimInfoConeRest      );
+    ntp->Branch("v_hsimInfoConePhoton"     ,"vector<vector<double> >",&t_v_hsimInfoConePhoton     );
+    ntp->Branch("v_hsimInfoConeNeutHad"   ,"vector<vector<double> >",&t_v_hsimInfoConeNeutHad   );
+    ntp->Branch("v_hsimInfoConeCharHad"   ,"vector<vector<double> >",&t_v_hsimInfoConeCharHad   );
+    ntp->Branch("v_hsimInfoConePdgMatched","vector<vector<double> >",&t_v_hsimInfoConePdgMatched);
+    ntp->Branch("v_hsimInfoConeTotal"     ,"vector<vector<double> >",&t_v_hsimInfoConeTotal     );
 
-  ntp->Branch("v_hsimInfoConeMatched"   ,"vector<vector<double> >",&t_v_hsimInfoConeMatched   );
-  ntp->Branch("v_hsimInfoConeRest"      ,"vector<vector<double> >",&t_v_hsimInfoConeRest      );
-  ntp->Branch("v_hsimInfoConePhoton"     ,"vector<vector<double> >",&t_v_hsimInfoConePhoton     );
-  ntp->Branch("v_hsimInfoConeNeutHad"   ,"vector<vector<double> >",&t_v_hsimInfoConeNeutHad   );
-  ntp->Branch("v_hsimInfoConeCharHad"   ,"vector<vector<double> >",&t_v_hsimInfoConeCharHad   );
-  ntp->Branch("v_hsimInfoConePdgMatched","vector<vector<double> >",&t_v_hsimInfoConePdgMatched);
-  ntp->Branch("v_hsimInfoConeTotal"     ,"vector<vector<double> >",&t_v_hsimInfoConeTotal     );
+    ntp->Branch("v_hsimInfoConeNMatched"  ,"vector<vector<int> >"   ,&t_v_hsimInfoConeNMatched   );
+    ntp->Branch("v_hsimInfoConeNRest"     ,"vector<vector<int> >"   ,&t_v_hsimInfoConeNRest      );
+    ntp->Branch("v_hsimInfoConeNPhoton"    ,"vector<vector<int> >"   ,&t_v_hsimInfoConeNPhoton     );
+    ntp->Branch("v_hsimInfoConeNNeutHad"  ,"vector<vector<int> >"   ,&t_v_hsimInfoConeNNeutHad   );
+    ntp->Branch("v_hsimInfoConeNCharHad"  ,"vector<vector<int> >"   ,&t_v_hsimInfoConeNCharHad   );
+    ntp->Branch("v_hsimInfoConeNTotal"    ,"vector<vector<int> >"   ,&t_v_hsimInfoConeNTotal     );
 
-  ntp->Branch("v_hsimInfoConeNMatched"  ,"vector<vector<int> >"   ,&t_v_hsimInfoConeNMatched   );
-  ntp->Branch("v_hsimInfoConeNRest"     ,"vector<vector<int> >"   ,&t_v_hsimInfoConeNRest      );
-  ntp->Branch("v_hsimInfoConeNPhoton"    ,"vector<vector<int> >"   ,&t_v_hsimInfoConeNPhoton     );
-  ntp->Branch("v_hsimInfoConeNNeutHad"  ,"vector<vector<int> >"   ,&t_v_hsimInfoConeNNeutHad   );
-  ntp->Branch("v_hsimInfoConeNCharHad"  ,"vector<vector<int> >"   ,&t_v_hsimInfoConeNCharHad   );
-  ntp->Branch("v_hsimInfoConeNTotal"    ,"vector<vector<int> >"   ,&t_v_hsimInfoConeNTotal     );
+    ntp->Branch("v_hsimCone"     ,"vector<vector<double> >",&t_v_hsimCone    );
+  }
 
-  ntp->Branch("v_hsimCone"     ,"vector<vector<double> >",&t_v_hsimCone    );
   ntp->Branch("v_hCone"        ,"vector<vector<double> >",&t_v_hCone       );
   ntp->Branch("v_nRecHitsCone" ,"vector<vector<int> >"   ,&t_v_nRecHitsCone);
   ntp->Branch("v_nSimHitsCone" ,"vector<vector<int> >"   ,&t_v_nSimHitsCone);
@@ -1363,7 +1384,6 @@ void IsolatedTracksCone::BuildTree(){
   ntp->Branch("irun" ,"vector<unsigned int>", &t_irun);
   ntp->Branch("ievt" ,"vector<unsigned int>", &t_ievt);
   ntp->Branch("ilum" ,"vector<unsigned int>", &t_ilum);
-
    
 }
 
@@ -1413,100 +1433,6 @@ double IsolatedTracksCone::DeltaR(double eta1, double phi1,
   double dphi = DeltaPhi(phi1, phi2);
   return std::sqrt(deta*deta + dphi*dphi);
 }
-
-
-
-
-double 
-IsolatedTracksCone::conechargeIsolation(const edm::Event& iEvent, 
-					const edm::EventSetup& iSetup, 
-					reco::TrackCollection::const_iterator trkItr, 
-					edm::Handle<reco::TrackCollection> trkCollection, 
-					int &nNearTRKs,
-					int &nLayers_maxNearP,
-					int &trkQual_maxNearP,
-					double &maxNearP_goodTrk,
-					const GlobalPoint& hpoint1,
-					const GlobalVector& trackMom,
-					double dR) 
-{
-  nNearTRKs=0;
-  nLayers_maxNearP=0;
-  trkQual_maxNearP=-1; 
-  maxNearP_goodTrk = -999.0;
-  double maxNearP = -999.0;
-  std::string theTrackQuality = "highPurity";
-  reco::TrackBase::TrackQuality trackQuality_=
-    reco::TrackBase::qualityByName(theTrackQuality);
-
-  // Iterate over tracks
-  reco::TrackCollection::const_iterator trkItr2;
-  for( trkItr2 = trkCollection->begin(); 
-       trkItr2 != trkCollection->end(); ++trkItr2){
-
-    // Get track
-    const reco::Track* pTrack2 = &(*trkItr2);
-    
-    // Get track qual, nlayers, and hit pattern
-    if (pTrack2->quality(trackQuality_)) trkQual_maxNearP  = 1;
-    const reco::HitPattern& hitp = pTrack2->hitPattern();
-    nLayers_maxNearP = hitp.trackerLayersWithMeasurement() ;        
-    
-    // Skip if the neighboring track candidate is the iso-track
-    // candidate
-    if (trkItr2 == trkItr) continue;
-    
-    // Get propagator
-    const FreeTrajectoryState fts2 = 
-      trackAssociator_->getFreeTrajectoryState(iSetup, *pTrack2);
-    TrackDetMatchInfo info2 = 
-      trackAssociator_->associate(iEvent, iSetup, fts2, parameters_);
-    
-    // Make sure it reaches Hcal
-    if (info2.trkGlobPosAtHcal.x()==0 && 
-	info2.trkGlobPosAtHcal.y()==0 && 
-	info2.trkGlobPosAtHcal.z()==0) 
-    {
-      continue;
-    }
-    
-    const GlobalPoint point2(info2.trkGlobPosAtHcal.x(),
-			     info2.trkGlobPosAtHcal.y(),
-			     info2.trkGlobPosAtHcal.z());
-    
-    int isConeChargedIso = conechargeIsolation(hpoint1, point2, trackMom, dR);
-    
-    if(isConeChargedIso==0) {
-      nNearTRKs++;
-      if(maxNearP<pTrack2->p()) {
-	maxNearP=pTrack2->p();
-
-	if(trkQual_maxNearP>0 && nLayers_maxNearP>7 && 
-	   maxNearP_goodTrk<pTrack2->p())
-	{
-	  maxNearP_goodTrk=pTrack2->p();
-	}
-      }
-    }
-  } // Iterate over track loop
-
-  return maxNearP;
-}
-
-
-
-int IsolatedTracksCone::conechargeIsolation(const GlobalPoint& hpoint1, 
-					    const GlobalPoint& point2, 
-					    const GlobalVector& trackMom, 
-					    double dR){			 
-  int isIsolated = 1;
-  if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, point2) > dR) isIsolated = 1;
-  else isIsolated = 0;
-  return isIsolated;
-} 
-
-
-
 
 
 //define this as a plug-in

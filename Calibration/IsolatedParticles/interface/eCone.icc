@@ -1,5 +1,6 @@
 #include "Calibration/IsolatedParticles/interface/FindCaloHit.h"
 #include "Calibration/IsolatedParticles/interface/FindCaloHitCone.h"
+#include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 #include<iostream>
 
 namespace spr{
