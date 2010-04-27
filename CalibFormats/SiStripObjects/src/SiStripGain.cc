@@ -6,7 +6,7 @@
 //     <Notes on implementation>
 // Original Author:  gbruno
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripGain.cc,v 1.11 2010/04/15 12:47:31 demattia Exp $
+// $Id: SiStripGain.cc,v 1.12 2010/04/19 16:17:18 demattia Exp $
 
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
@@ -30,7 +30,6 @@ void SiStripGain::multiply(const SiStripApvGain & apvgain, const double & factor
   }
   else {
     // There is already an ApvGain inside the SiStripGain. Multiply it by the new one and save the new pointer.
-    std::cout << "multiplication" << std::endl;
     fillNewGain( apvgain_, 1., &apvgain, factor ); 
   }
   recordLabelPair_.push_back(recordLabelPair);
