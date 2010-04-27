@@ -131,9 +131,11 @@ void select( std::string const &path, std::vector<std::string> const entrynames 
       std::ifstream f3( rofile3.c_str() );
       std::string rofile4 = rootpath + "/" + "DQM_V0001_EcalEndcap_R" + runNb + ".root";
       std::ifstream f4( rofile4.c_str() );
+      std::string rofile5 = rootpath + "/" + "DQM_V0001_Ecal_R" + runNb + ".root";
+      std::ifstream f5( rofile5.c_str() );
 
       bool rofileOK = true;
-      if( f1.fail() && f2.fail() && f3.fail() && f4.fail() ) {
+      if( f1.fail() && f2.fail() && f3.fail() && f4.fail() && f5.fail() ) {
         rofileOK = false;
       }
 
