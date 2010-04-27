@@ -35,7 +35,7 @@ process.dqmSaver.dirName = '/tmp/merkelp/'
 process.dqmSaver.saveByLumiSection = 1
 process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
-process.qTester = cms.EDFilter("QualityTester",
+process.qTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelMonitorClient/test/sipixel_tier0_qualitytest.xml'),
     prescaleFactor = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -81,12 +81,14 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
 #process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 ###process.GlobalTag.globaltag = "GR09_R_V4::All"
-process.GlobalTag.globaltag = "CRAFT09_R_V9::All"
+###process.GlobalTag.globaltag = "CRAFT09_R_V9::All"
+process.GlobalTag.globaltag = "GR09_R_36X_V3::All"
+
 
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.source = cms.Source("PoolSource",
-    debugFlag = cms.untracked.bool(True),
-    debugVebosity = cms.untracked.uint32(1),
+    #debugFlag = cms.untracked.bool(True),
+    #debugVebosity = cms.untracked.uint32(1),
     #fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/c/chiochia/cmssw/Muon_FullValidation_150pre3.root')
     #fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/relval/2008/6/6/RelVal-RelValTTbar-1212531852-IDEAL_V1-2nd-02/0000/081018D5-EC33-DD11-A623-000423D6CA42.root')
     fileNames = cms.untracked.vstring(
@@ -103,7 +105,7 @@ process.source = cms.Source("PoolSource",
 	    )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
+    input = cms.untracked.int32(2000)
 )
 
 ##----## Sequences and Paths:
@@ -118,6 +120,7 @@ process.p = cms.Path(
 		     process.LocalReco*
 		     process.TrackReco*
 		     process.DQMmodules*
+		     #process.siPixelP5DQM_source_woTrack*
 		     process.siPixelP5DQM_source*
 		     process.PixelP5DQMClientWithDataCertification
 		    )

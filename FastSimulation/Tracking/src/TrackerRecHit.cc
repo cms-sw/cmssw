@@ -180,17 +180,17 @@ TrackerRecHit::makesAPairWith(const TrackerRecHit& anotherHit) const {
 
   //Pixelless Pairs  
    // First Hit on TIB1
-    ( ( theSubDetId == 4 && theLayerNumber == 1 ) && 
-      (( anotherSubDetId == 4 && anotherLayerNumber == 2 ) ||
-       ( anotherSubDetId == 3 && anotherLayerNumber == 1 )) ) ||
-    // First Hit on TID1
     ( ( theSubDetId == 3 && theLayerNumber == 1 ) && 
-      ( anotherSubDetId == 3 && anotherLayerNumber == 2 ) ) ||
+      (( anotherSubDetId == 3 && anotherLayerNumber == 2 ) ||
+       ( anotherSubDetId == 4 && anotherLayerNumber == 1 )) ) ||
+    // First Hit on TID1
+    ( ( theSubDetId == 4 && theLayerNumber == 1 ) && 
+      ( anotherSubDetId == 4 && anotherLayerNumber == 2 ) ) ||
     // First Hit on TID2
-    ( ( theSubDetId == 3 && theLayerNumber == 2 ) && 
-      ( anotherSubDetId == 3 && anotherLayerNumber == 3 ) ) ||
+    ( ( theSubDetId == 4 && theLayerNumber == 2 ) && 
+      ( anotherSubDetId == 4 && anotherLayerNumber == 3 ) ) ||
     // First Hit on TID3
-    ( ( theSubDetId == 3 && theLayerNumber == 3 ) && 
+    ( ( theSubDetId == 4 && theLayerNumber == 3 ) && 
       ( anotherSubDetId == 6 && anotherLayerNumber == 1 ) ) ||
     // First Hit on TEC3
     ( ( theSubDetId == 6 && theLayerNumber == 3 ) && 

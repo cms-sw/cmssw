@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.L1TMonitor.L1THCALTPG_cfi import *
-hcalunpacker = cms.EDFilter("HcalRawToDigi",
+hcalunpacker = cms.EDProducer("HcalRawToDigi",
     # Optional filter to remove any digi with "data valid" off, "error" on, 
     # or capids not rotating
     FilterDataQuality = cms.bool(True),

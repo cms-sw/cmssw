@@ -26,10 +26,8 @@ private:
 
 //  edm::ParameterSet theConfig;
   float maxD0Sig_, minPt_;
-  int minSiHits_, minPxHits_;  // deprecated
-  int minSiLayers_, minPxLayers_;
+  int minSiHits_, minPxHits_;
   float maxNormChi2_;
-  //reco::TrackBase::TrackQuality quality_;
 };
 
 #endif

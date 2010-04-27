@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/19 11:45:21 $
+ *  $Date: 2006/02/15 13:54:45 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -26,11 +26,3 @@ double DTTTrigBaseSync::offset(const DTLayer* layer,
   return offset(layer, wireId, globalPos, tTrig, wireProp, tof);
 }
 
-
-
-double DTTTrigBaseSync::emulatorOffset(const DTWireId& wireId) {
-
-  double tTrig = 0.;
-  double t0cell = 0.;
-  return emulatorOffset(wireId, tTrig, t0cell);
-}

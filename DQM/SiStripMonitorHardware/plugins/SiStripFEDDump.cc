@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
@@ -66,7 +66,7 @@ SiStripFEDDumpPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
   const FEDRawData& rawData = rawDataCollection.FEDData(fedIdToDump_);
-  const sistrip::FEDBuffer buffer(rawData.data(),rawData.size(),true);
+  const sistrip::FEDBufferBase buffer(rawData.data(),rawData.size(),true);
   std::ostringstream os;
   os << buffer << std::endl;
   buffer.dump(os);

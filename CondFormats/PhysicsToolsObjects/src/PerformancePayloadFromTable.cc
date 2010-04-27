@@ -37,7 +37,7 @@ bool PerformancePayloadFromTable::matches(BinningPointByMap p, PhysicsPerformanc
       //
       //    if (! p.isKeyAvailable(*it) ) return false;
       float v = p.value(*it);
-      if (!(v > row[minPos(*it)] && v  < row[maxPos(*it)])) return false;
+      if (!(v >= row[minPos(*it)] && v  < row[maxPos(*it)])) return false;
   }
   return true;
 }

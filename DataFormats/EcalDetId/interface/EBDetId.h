@@ -13,7 +13,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.24 2009/01/28 16:23:16 elmer Exp $
+ *  $Id: EBDetId.h,v 1.26 2010/03/03 18:52:39 ferriff Exp $
  */
 
 
@@ -74,6 +74,25 @@ class EBDetId : public DetId {
 
   uint32_t denseIndex() const { return hashedIndex() ; }
 
+  /** returns a new EBDetId offset by nrStepsEta and nrStepsPhi (can be negative), 
+    * returns EBDetId(0) if invalid */
+  EBDetId offsetBy( int nrStepsEta, int nrStepsPhi ) const;
+
+  /** returns a new EBDetId on the other zside of barrel (ie iEta*-1), 
+    * returns EBDetId(0) if invalid (shouldnt happen) */
+  EBDetId switchZSide() const;
+ 
+  /** following are static member functions of the above two functions
+    * which take and return a DetId, returns DetId(0) if invalid 
+    */
+  static DetId offsetBy( const DetId startId, int nrStepsEta, int nrStepsPhi );
+  static DetId switchZSide( const DetId startId );
+
+  /** return an approximate values of eta (~0.15% precise)
+   */
+  float approxEta() const { return ieta() * crystalUnitToEta; }
+  static float approxEta( const DetId id );
+
   static bool validDenseIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
 
   static EBDetId detIdFromDenseIndex( uint32_t di ) { return unhashIndex( di ) ; }
@@ -115,6 +134,9 @@ class EBDetId : public DetId {
   static const int MAX_C = kCrystalsPerSM;
   static const int MIN_HASH =  0; // always 0 ...
   static const int MAX_HASH =  2*MAX_IPHI*MAX_IETA-1;
+
+  // eta coverage of one crystal (approximate)
+  static const float crystalUnitToEta;
 
   enum { kSizeForDenseIndexing = MAX_HASH + 1 } ;
   

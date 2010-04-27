@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.13 2009/09/18 09:10:25 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.17 2010/03/16 17:55:57 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -15,6 +15,7 @@
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
 #include "EventFilter/StorageManager/interface/QueueID.h"
+#include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
@@ -24,18 +25,20 @@ using namespace stor;
 StatisticsReporter::StatisticsReporter
 (
   xdaq::Application *app,
-  const utils::duration_t& monitoringSleepSec
+  SharedResourcesPtr sr
 ) :
 _app(app),
 _alarmHandler(new AlarmHandler(app)),
-_monitoringSleepSec(monitoringSleepSec),
-_runMonCollection(_monitoringSleepSec),
+_sharedResources(sr),
+_monitoringSleepSec(sr->_configuration->
+  getWorkerThreadParams()._monitoringSleepSec),
+_runMonCollection(_monitoringSleepSec, _alarmHandler, sr),
 _fragMonCollection(_monitoringSleepSec),
 _filesMonCollection(5*_monitoringSleepSec),
 _streamsMonCollection(_monitoringSleepSec),
 _dataSenderMonCollection(_monitoringSleepSec, _alarmHandler),
 _dqmEventMonCollection(5*_monitoringSleepSec),
-_resourceMonCollection(900*_monitoringSleepSec, _alarmHandler),
+_resourceMonCollection(600*_monitoringSleepSec, _alarmHandler),
 _stateMachineMonCollection(_monitoringSleepSec),
 _eventConsumerMonCollection(_monitoringSleepSec),
 _dqmConsumerMonCollection(_monitoringSleepSec),
@@ -206,6 +209,10 @@ bool StatisticsReporter::monitorAction(toolbox::task::WorkLoop* wl)
     calculateStatistics();
     updateInfoSpace();
   }
+  catch(exception::DiskSpaceAlarm &e)
+  {
+    _sharedResources->moveToFailedState(e);
+  }
   catch(xcept::Exception &e)
   {
     LOG4CPLUS_ERROR(_app->getApplicationLogger(),
@@ -329,6 +336,8 @@ void StatisticsReporter::reset()
   _eventConsumerMonCollection.reset(now);
   _dqmConsumerMonCollection.reset(now);
   _throughputMonCollection.reset(now);
+
+  _alarmHandler->clearAllAlarms();
 }
 
 

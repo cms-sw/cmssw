@@ -1,4 +1,4 @@
-// $Id: FragmentStore.cc,v 1.5 2009/06/29 15:46:50 mommsen Exp $
+// $Id: FragmentStore.cc,v 1.6 2009/07/20 13:07:27 mommsen Exp $
 /// @file: FragmentStore.cc
 
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
@@ -12,6 +12,7 @@ const bool FragmentStore::addFragment(I2OChain &chain)
   // the trivial case that the chain is already complete
   if ( chain.complete() ) return true;
 
+  _memoryUsed += chain.memoryUsed();
   const FragKey newKey = chain.fragmentKey();
 
   // Use efficientAddOrUpdates pattern suggested by Item 24 of 
@@ -27,6 +28,7 @@ const bool FragmentStore::addFragment(I2OChain &chain)
     {
       chain = pos->second;
       _store.erase(pos);
+      _memoryUsed -= chain.memoryUsed();
       return true;
     }
   }
@@ -91,6 +93,7 @@ const bool FragmentStore::getStaleEvent(I2OChain &chain, double timeout)
   {
     chain = pos->second;
     _store.erase(pos);
+    _memoryUsed -= chain.memoryUsed();
     chain.markFaulty();
     return true;
   }

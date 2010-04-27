@@ -2,23 +2,22 @@ import FWCore.ParameterSet.Config as cms
 
 offlinePrimaryVerticesWithBS = cms.EDProducer("PrimaryVertexProducer",
     PVSelParameters = cms.PSet(
-        maxDistanceToBeam = cms.double(1.0) # meaningless for constrained fits
-        #minVertexFitProb = cms.double(0.01) ## 1% vertex fit probability, not used with the adaptive fitter
+        maxDistanceToBeam = cms.double(0.02), ## 200 microns
+
+        minVertexFitProb = cms.double(0.01) ## 1% vertex fit probability
+
     ),
     verbose = cms.untracked.bool(False),
     algorithm = cms.string('AdaptiveVertexFitter'),
-    minNdof  = cms.double(1.0),
     TkFilterParameters = cms.PSet(
         maxNormalizedChi2 = cms.double(5.0),
         minSiliconHits = cms.int32(7), ## hits > 7
-        minSiliconLayersWithHits = cms.int32(-1), ## hits > 7
 
         maxD0Significance = cms.double(5.0), ## keep most primary tracks
 
         minPt = cms.double(0.0), ## better for softish events
 
-        minPixelHits = cms.int32(2), ## hits > 2
-        minPixelLayersWithHits = cms.int32(-1) ## hits > 2
+        minPixelHits = cms.int32(2) ## hits > 2
 
     ),
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
@@ -34,10 +33,7 @@ offlinePrimaryVerticesWithBS = cms.EDProducer("PrimaryVertexProducer",
 
     ),
     TkClusParameters = cms.PSet(
-        algorithm   = cms.string("gap"),
-        TkGapClusParameters = cms.PSet( 
-            zSeparation = cms.double(0.1) ## 1 mm max separation betw. clusters
-        )
+        zSeparation = cms.double(0.1) ## 1 mm max separation betw. clusters
 
     )
 )

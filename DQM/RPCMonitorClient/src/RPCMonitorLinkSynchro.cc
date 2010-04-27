@@ -55,10 +55,10 @@ void RPCMonitorLinkSynchro::endLuminosityBlock(const LuminosityBlock& ls, const 
 //  me_linksMostNoisy->update();
 }
 
-void RPCMonitorLinkSynchro::beginJob(const edm::EventSetup&)
+void RPCMonitorLinkSynchro::beginJob()
 {
   DQMStore* dmbe = edm::Service<DQMStore>().operator->();
-  dmbe->setCurrentFolder("RPC/FEDIntegrity/");
+  dmbe->setCurrentFolder("RPC/LinkMonitor/");
   RPCLinkSynchroHistoMaker hm(theSynchro);
 
   me_delaySummary = dmbe->book1D("delaySummary","LinkDelaySummary",8,-3.5, 4.5);

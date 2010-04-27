@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Mar  2 01:46:46 CET 2008
-// $Id: OMDSReader.cc,v 1.10 2009/03/18 22:12:20 wsun Exp $
+// $Id: OMDSReader.cc,v 1.11 2009/03/18 23:08:24 wsun Exp $
 //
 
 // system include files
@@ -34,10 +34,24 @@ namespace l1t
 //
 // constructors and destructor
 //
+  OMDSReader::OMDSReader()
+    : DataManager(),
+      m_coralTransaction( 0 )
+  {}
+
   OMDSReader::OMDSReader( const std::string& connectString,
 			  const std::string& authenticationPath )
     : DataManager( connectString, authenticationPath, true )
   {
+    m_coralTransaction = &( connection->coralTransaction() ) ;
+    m_coralTransaction->start( true ) ;
+  }
+
+  void
+  OMDSReader::connect( const std::string& connectString,
+		       const std::string& authenticationPath )
+  {
+    DataManager::connect( connectString, authenticationPath, true ) ;
     m_coralTransaction = &( connection->coralTransaction() ) ;
     m_coralTransaction->start( true ) ;
   }

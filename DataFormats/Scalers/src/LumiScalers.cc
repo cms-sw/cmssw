@@ -54,42 +54,54 @@ LumiScalers::LumiScalers(const unsigned char * rawData)
   eventID_      = ( raw->header >> 32 ) & 0x00FFFFFFULL;
   sourceID_     = ( raw->header >>  8 ) & 0x00000FFFULL;
   bunchNumber_  = ( raw->header >> 20 ) &      0xFFFULL;
+  version_      = raw->version;
 
-  version_ = raw->version;
+  struct LumiScalersRaw_v1 * lumi = NULL;
+
   if ( version_ >= 1 )
   {
-    collectionTime_.set_tv_sec(static_cast<long>(raw->lumi.collectionTime_sec));
-    collectionTime_.set_tv_nsec(raw->lumi.collectionTime_nsec);
-    deadTimeNormalization_  = raw->lumi.DeadtimeNormalization;
-    normalization_          = raw->lumi.Normalization;
-    lumiFill_               = raw->lumi.LumiFill;
-    lumiRun_                = raw->lumi.LumiRun;
-    liveLumiFill_           = raw->lumi.LiveLumiFill;
-    liveLumiRun_            = raw->lumi.LiveLumiRun;
-    instantLumi_            = raw->lumi.InstantLumi;
-    instantLumiErr_         = raw->lumi.InstantLumiErr;
-    instantLumiQlty_        = raw->lumi.InstantLumiQlty;
-    lumiETFill_             = raw->lumi.LumiETFill;
-    lumiETRun_              = raw->lumi.LumiETRun;
-    liveLumiETFill_         = raw->lumi.LiveLumiETFill;
-    liveLumiETRun_          = raw->lumi.LiveLumiETRun;
-    instantETLumi_          = raw->lumi.InstantETLumi;
-    instantETLumiErr_       = raw->lumi.InstantETLumiErr;
-    instantETLumiQlty_      = raw->lumi.InstantETLumiQlty;
+    if ( version_ <= 2 )
+    {
+      lumi = & (raw->lumi);
+    }
+    else 
+    {
+      struct ScalersEventRecordRaw_v3 * raw3 
+	= (struct ScalersEventRecordRaw_v3 *)rawData;
+      lumi = & (raw3->lumi);
+    }
+    collectionTime_.set_tv_sec(static_cast<long>(lumi->collectionTime_sec));
+    collectionTime_.set_tv_nsec(lumi->collectionTime_nsec);
+    deadTimeNormalization_  = lumi->DeadtimeNormalization;
+    normalization_          = lumi->Normalization;
+    lumiFill_               = lumi->LumiFill;
+    lumiRun_                = lumi->LumiRun;
+    liveLumiFill_           = lumi->LiveLumiFill;
+    liveLumiRun_            = lumi->LiveLumiRun;
+    instantLumi_            = lumi->InstantLumi;
+    instantLumiErr_         = lumi->InstantLumiErr;
+    instantLumiQlty_        = lumi->InstantLumiQlty;
+    lumiETFill_             = lumi->LumiETFill;
+    lumiETRun_              = lumi->LumiETRun;
+    liveLumiETFill_         = lumi->LiveLumiETFill;
+    liveLumiETRun_          = lumi->LiveLumiETRun;
+    instantETLumi_          = lumi->InstantETLumi;
+    instantETLumiErr_       = lumi->InstantETLumiErr;
+    instantETLumiQlty_      = lumi->InstantETLumiQlty;
     for ( int i=0; i<ScalersRaw::N_LUMI_OCC_v1; i++)
     {
-      lumiOccFill_.push_back(raw->lumi.LumiOccFill[i]);
-      lumiOccRun_.push_back(raw->lumi.LumiOccRun[i]);
-      liveLumiOccFill_.push_back(raw->lumi.LiveLumiOccFill[i]);
-      liveLumiOccRun_.push_back(raw->lumi.LiveLumiOccRun[i]);
-      instantOccLumi_.push_back(raw->lumi.InstantOccLumi[i]);
-      instantOccLumiErr_.push_back(raw->lumi.InstantOccLumiErr[i]);
-      instantOccLumiQlty_.push_back(raw->lumi.InstantOccLumiQlty[i]);
-      lumiNoise_.push_back(raw->lumi.lumiNoise[i]);
+      lumiOccFill_.push_back(lumi->LumiOccFill[i]);
+      lumiOccRun_.push_back(lumi->LumiOccRun[i]);
+      liveLumiOccFill_.push_back(lumi->LiveLumiOccFill[i]);
+      liveLumiOccRun_.push_back(lumi->LiveLumiOccRun[i]);
+      instantOccLumi_.push_back(lumi->InstantOccLumi[i]);
+      instantOccLumiErr_.push_back(lumi->InstantOccLumiErr[i]);
+      instantOccLumiQlty_.push_back(lumi->InstantOccLumiQlty[i]);
+      lumiNoise_.push_back(lumi->lumiNoise[i]);
     }
-    sectionNumber_ = raw->lumi.sectionNumber;
-    startOrbit_    = raw->lumi.startOrbit;
-    numOrbits_     = raw->lumi.numOrbits;
+    sectionNumber_ = lumi->sectionNumber;
+    startOrbit_    = lumi->startOrbit;
+    numOrbits_     = lumi->numOrbits;
   }
 }
 

@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.67 2009/08/21 11:52:29 dellaric Exp $
+// $Id: Numbers.cc,v 1.71 2010/03/08 20:55:39 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.67 $
-  \date $Date: 2009/08/21 11:52:29 $
+  \version $Revision: 1.71 $
+  \date $Date: 2010/03/08 20:55:39 $
 */
 
 #include <sstream>
@@ -34,6 +34,9 @@
 
 const EcalElectronicsMapping* Numbers::map = 0;
 const EcalTrigTowerConstituentsMap* Numbers::mapTT = 0;
+
+std::vector<DetId> Numbers::crystalsTCC_[100*108];
+std::vector<DetId> Numbers::crystalsDCC_[100* 54];
 
 bool Numbers::init = false;
 
@@ -697,45 +700,20 @@ int Numbers::iTCC( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
 //-------------------------------------------------------------------------
 
-std::vector<DetId> Numbers::crystals( const EcalSubdetector subdet, int itcc, int itt ) throw( std::runtime_error ) {
-
-
-  if( Numbers::map ) {
-
-    EcalSubdetector sub = Numbers::map->subdet(itcc,1);
-
-    if( subdet == sub ) {
-      
-      return( Numbers::map->ttConstituents( itcc, itt ) );
-      
-    } else {
-
-      std::vector<DetId> empty;
-      empty.clear();
-      return empty;
-
-    }
-    
-  }  else {
-    
-    std::ostringstream s;
-    s << "ECAL Geometry not available";
-    throw( std::runtime_error( s.str() ) );
-    
-  }
-
-}
-
-//-------------------------------------------------------------------------
-
-std::vector<DetId> Numbers::crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
+std::vector<DetId>* Numbers::crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
 
     int itcc = Numbers::map->TCCid(id);
     int itt = Numbers::map->iTT(id);
 
-    return( Numbers::map->ttConstituents( itcc, itt ) );
+    int index = 100*(itcc-1) + (itt-1);
+
+    if ( Numbers::crystalsTCC_[index].size() == 0 ) {
+      Numbers::crystalsTCC_[index] = Numbers::map->ttConstituents( itcc, itt );
+    }
+
+    return &(Numbers::crystalsTCC_[index]);
 
   } else {
 
@@ -781,14 +759,38 @@ int Numbers::RtHalf(const EEDetId& id) {
 
 //-------------------------------------------------------------------------
 
-std::vector<DetId> Numbers::crystals( const EcalElectronicsId& id ) throw( std::runtime_error ) {
+std::vector<DetId>* Numbers::crystals( const EcalElectronicsId& id ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
 
     int idcc = id.dccId();
     int itt = id.towerId();
 
-    return( Numbers::map->dccTowerConstituents( idcc, itt ) );
+    return Numbers::crystals( idcc, itt );
+
+  } else {
+
+    std::ostringstream s;
+    s << "ECAL Geometry not available";
+    throw( std::runtime_error( s.str() ) );
+
+  }
+
+}
+
+//-------------------------------------------------------------------------
+
+std::vector<DetId>* Numbers::crystals( int idcc, int itt ) throw( std::runtime_error ) {
+
+  if( Numbers::map ) {
+
+    int index = 100*(idcc-1) + (itt-1);
+
+    if ( Numbers::crystalsDCC_[index].size() == 0 ) {
+      Numbers::crystalsDCC_[index] = Numbers::map->dccTowerConstituents( idcc, itt );
+    }
+
+    return &(Numbers::crystalsDCC_[index]);
 
   } else {
 

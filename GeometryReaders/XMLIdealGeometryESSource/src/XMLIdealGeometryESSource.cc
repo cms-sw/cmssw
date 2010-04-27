@@ -58,13 +58,27 @@ XMLIdealGeometryESSource::produceMagField(const IdealMagneticFieldRecord &)
 std::auto_ptr<DDCompactView>
 XMLIdealGeometryESSource::produce() {
   
+  DDCompactView cpv;
+  DDLParser parser(cpv); //* parser = DDLParser::instance();
+  // 2009-07-09 memory patch
+
+  // unlock before use because it can be used more than once!
+  DDMaterial::StoreT::instance().setReadOnly(false);
+  DDSolid::StoreT::instance().setReadOnly(false);
+  DDLogicalPart::StoreT::instance().setReadOnly(false);
+  DDSpecifics::StoreT::instance().setReadOnly(false);
+  DDRotation::StoreT::instance().setReadOnly(false);
+
+  parser.clearFiles();
   DDName ddName(rootNodeName_);
   DDLogicalPart rootNode(ddName);
   DDRootDef::instance().set(rootNode);
-  std::auto_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
-  DDLParser parser(*returnValue); //* parser = DDLParser::instance();
   parser.getDDLSAX2FileHandler()->setUserNS(userNS_);
   int result2 = parser.parse(geoConfig_);
+//   const std::vector<std::string> & whatsparsed = geoConfig_.getFileList();
+//   for (std::vector<std::string>::const_iterator it = whatsparsed.begin(); it != whatsparsed.end(); ++it ) {
+//     std::cout << *it << std::endl;
+//   }  
   if (result2 != 0) throw DDException("DDD-Parser: parsing failed!");
 
   // after parsing the root node should be valid!
@@ -73,7 +87,34 @@ XMLIdealGeometryESSource::produce() {
     throw cms::Exception("Geometry")<<"There is no valid node named \""
                                     <<rootNodeName_<<"\"";
   }
-  returnValue->lockdown();  
+
+  // at this point we should have a valid store of DDObjects and we will move these
+  // to the local storage area using swaps with the existing Singleton<Store...>'s
+  // NOTE TO SELF:  this is similar to the below explicit copy of the graph of the
+  // DDCompactView at this point with this XMLIdealGeometryESSource so as not to
+  // share the Store's anymore.
+  // 2009-07-09 memory patch
+  DDMaterial::StoreT::instance().swap(matStore_);
+  DDSolid::StoreT::instance().swap(solidStore_);
+  DDLogicalPart::StoreT::instance().swap(lpStore_);
+  DDSpecifics::StoreT::instance().swap(specStore_);
+  DDRotation::StoreT::instance().swap(rotStore_);
+
+  // lock the global stores.
+  DDMaterial::StoreT::instance().setReadOnly(false);
+  DDSolid::StoreT::instance().setReadOnly(false);
+  DDLogicalPart::StoreT::instance().setReadOnly(false);
+  DDSpecifics::StoreT::instance().setReadOnly(false);
+  DDRotation::StoreT::instance().setReadOnly(false);
+
+  std::auto_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
+  
+  // NOTE TO SELF:  Mike, DO NOT try to fix the memory leak here by going global again!!!
+  //copy the graph from the global one
+  DDCompactView globalOne;
+  //returnValue->writeableGraph() = globalOne.graph();
+  //  globalOne.clear();
+  returnValue->swap(globalOne);
   return returnValue;
 }
 

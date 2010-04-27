@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 /**\class PFCandidateAnalyzer 
@@ -53,6 +54,15 @@ class PFCandidateAnalyzer : public edm::EDAnalyzer {
 
   /// print the blocks associated to a given candidate ?
   bool   printBlocks_;
+
+  /// rank the candidates by Pt
+  bool rankByPt_;
+
+  static bool greaterPt( const reco::PFCandidate& a, const reco::PFCandidate& b ) {
+    return (a.pt()>b.pt());
+  }
+
+
 
 };
 

@@ -20,6 +20,7 @@ class RunPromptReco:
         self.scenario = None
         self.writeReco = False
         self.writeAlca = False
+        self.writeAlcareco = False
         self.writeAod = False
         self.globalTag = 'UNSPECIFIED::All'
         self.inputLFN = None
@@ -47,16 +48,22 @@ class RunPromptReco:
         if self.writeReco:
             dataTiers.append("RECO")
             print "Configuring to Write out Reco..."
-        if self.writeAlca:
-            dataTiers.append("ALCA")
+        if self.writeAlcareco:
+            dataTiers.append("ALCARECO")
             print "Configuring to Write out Alca..."
         if self.writeAod:
             dataTiers.append("AOD")
             print "Configuring to Write out Aod..."
 
         try:
-            process = scenario.promptReco(self.globalTag,
-                                          dataTiers)
+            if len(dataTiers) > 0:
+                # use command line options for data-tiers
+                process = scenario.promptReco(self.globalTag,
+                                              dataTiers)
+            else:
+                # use default data-tiers for current scenario
+                process = scenario.promptReco(self.globalTag)
+                
         except Exception, ex:
             msg = "Error creating Prompt Reco config:\n"
             msg += str(ex)
@@ -75,7 +82,7 @@ class RunPromptReco:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "reco", "alca", "aod",
+    valid = ["scenario=", "reco", "alcareco", "aod",
              "global-tag=", "lfn="]
     usage = """RunPromptReco.py <options>"""
     try:
@@ -93,8 +100,8 @@ if __name__ == '__main__':
             recoinator.scenario = arg
         if opt == "--reco":
             recoinator.writeReco = True
-        if opt == "--alca":
-            recoinator.writeAlca = True
+        if opt == "--alcareco":
+            recoinator.writeAlcareco = True
         if opt == "--aod":
             recoinator.writeAod = True
         if opt == "--global-tag":

@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for HL triggers
  *
- *  $Date: 2007/03/28 20:33:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/02/17 17:50:05 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
 #include<vector>
 #include<string>
 
@@ -38,7 +37,6 @@ class HLTrigReport : public edm::EDAnalyzer {
    private:
 
       edm::InputTag hlTriggerResults_;  // Input tag for TriggerResults
-      edm::TriggerNames triggerNames_;  // TriggerNames class
 
       unsigned int  nEvents_;           // number of events processed
 

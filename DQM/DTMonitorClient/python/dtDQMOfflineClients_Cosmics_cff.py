@@ -11,7 +11,7 @@ from DQM.DTMonitorClient.dtTriggerEfficiencyTest_cfi import *
 from DQM.DTMonitorClient.dtBlockedROChannelsTest_cfi import *
 blockedROChannelTest.offlineMode = True;
 
-dtQualityTests = cms.EDFilter("QualityTester",
+dtQualityTests = cms.EDAnalyzer("QualityTester",
                          #reportThreshold = cms.untracked.string('red'),
                          prescaleFactor = cms.untracked.int32(1),
                          qtList = cms.untracked.FileInPath('DQM/DTMonitorClient/test/QualityTests.xml'),

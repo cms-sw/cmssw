@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  *        
- * $Date: 2009/04/17 15:07:59 $
- * $Revision: 1.2 $
+ * $Date: 2009/12/14 22:22:19 $
+ * $Revision: 1.3 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -100,7 +100,7 @@ void DQMHcalDiJetsAlCaReco::beginJob(){
   hiDistrProbeJetEnergy_->setAxisTitle("E, GeV", 1);
   hiDistrProbeJetEnergy_->setAxisTitle("# jets", 2);
 
-  hiDistrProbeJetEta_ = dbe_->book1D("ProbeJetEta", "the number of probe jets", 100,-5., 5.); 
+  hiDistrProbeJetEta_ = dbe_->book1D("ProbeJetEta", "the number of probe jets", 100, -5., 5.); 
   hiDistrProbeJetEta_->setAxisTitle("#eta", 1);
   hiDistrProbeJetEta_->setAxisTitle("# jets", 2);
 
@@ -112,7 +112,7 @@ void DQMHcalDiJetsAlCaReco::beginJob(){
   hiDistrTagJetEnergy_->setAxisTitle("E, GeV", 1);
   hiDistrTagJetEnergy_->setAxisTitle("# jets", 2);
 
-  hiDistrTagJetEta_ = dbe_->book1D("TagJetEta", "the number of  tag jets", 100, 5., 5.); 
+  hiDistrTagJetEta_ = dbe_->book1D("TagJetEta", "the number of  tag jets", 100, -5., 5.); 
   hiDistrTagJetEta_->setAxisTitle("#eta", 1);
   hiDistrTagJetEta_->setAxisTitle("# jets", 2);
 

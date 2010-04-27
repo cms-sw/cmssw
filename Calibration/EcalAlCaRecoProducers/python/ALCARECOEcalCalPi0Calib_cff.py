@@ -11,8 +11,8 @@ import RecoLocalCalo.EcalRecProducers.ecalRecalibRecHit_cfi
 ecalPi0Corrected =  RecoLocalCalo.EcalRecProducers.ecalRecalibRecHit_cfi.ecalRecHit.clone(
             doEnergyScale = cms.bool(False),
             doIntercalib = cms.bool(False),
-            EERecHitCollection = cms.InputTag("hltAlCaPi0RegRecHits","pi0EcalRecHitsEE"),
-            EBRecHitCollection = cms.InputTag("hltAlCaPi0RegRecHits","pi0EcalRecHitsEB"),
+            EERecHitCollection = cms.InputTag("hltAlCaPi0RecHitsFilter","pi0EcalRecHitsEE"),
+            EBRecHitCollection = cms.InputTag("hltAlCaPi0RecHitsFilter","pi0EcalRecHitsEB"),
             doLaserCorrections = cms.bool(True),
             EBRecalibRecHitCollection = cms.string('pi0EcalRecHitsEB'),
             EERecalibRecHitCollection = cms.string('pi0EcalRecHitsEE')

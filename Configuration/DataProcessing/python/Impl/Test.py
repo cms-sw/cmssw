@@ -21,7 +21,7 @@ class Test(Scenario):
     """
 
     
-    def promptReco(self, globalTag, skims = [], writeTiers = ['RECO','ALCA']):
+    def promptReco(self, globalTag, skims = [], writeTiers = ['RECO','ALCARECO']):
         """
         _installPromptReco_
 

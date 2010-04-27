@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-particleFlowRecHitHCAL = cms.EDFilter("PFRecHitProducerHCAL",
+particleFlowRecHitHCAL = cms.EDProducer("PFRecHitProducerHCAL",
     # verbosity 
     verbose = cms.untracked.bool(False),
     caloTowers = cms.InputTag("towerMakerPF"),
@@ -27,9 +27,17 @@ particleFlowRecHitHCAL = cms.EDFilter("PFRecHitProducerHCAL",
 
 # Cut short fibres if no long fibre energy
     ShortFibre_Cut = cms.double(60.),
-    LongFibre_Fraction = cms.double(0.05)
+    LongFibre_Fraction = cms.double(0.05),
 
-                                  
+# Compensate for ECAL dead channels                                        
+    ECAL_Compensate = cms.bool(False),
+    ECAL_Threshold = cms.double(10.),
+    ECAL_Compensation = cms.double(0.5),
+    ECAL_Dead_Code = cms.uint32(10),
+
+# Depth correction (in cm) for hadronic and electromagnetic rechits
+    EM_Depth = cms.double(22.),
+    HAD_Depth = cms.double(47.)                              
                                   
 )
 

@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2009/10/28 08:18:23 $
- * $Revision: 1.116 $
+ * $Date: 2010/04/14 16:13:39 $
+ * $Revision: 1.127 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -44,13 +44,11 @@
 #include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+
 #include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EELaserClient::EELaserClient(const ParameterSet& ps) {
+EELaserClient::EELaserClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -62,7 +60,7 @@ EELaserClient::EELaserClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -70,18 +68,18 @@ EELaserClient::EELaserClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   laserWavelengths_.reserve(4);
   for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
-  laserWavelengths_ = ps.getUntrackedParameter<vector<int> >("laserWavelengths", laserWavelengths_);
+  laserWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("laserWavelengths", laserWavelengths_);
 
   if ( verbose_ ) {
-    cout << " Laser wavelengths:" << endl;
+    std::cout << " Laser wavelengths:" << std::endl;
     for ( unsigned int i = 0; i < laserWavelengths_.size(); i++ ) {
-      cout << " " << laserWavelengths_[i];
+      std::cout << " " << laserWavelengths_[i];
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -192,8 +190,8 @@ EELaserClient::EELaserClient(const ParameterSet& ps) {
 
   rmsThresholdRelative_ = 0.3;
 
-  amplitudeThresholdPnG01_ = 50.;
-  amplitudeThresholdPnG16_ = 50.;
+  amplitudeThresholdPnG01_ = 100.;
+  amplitudeThresholdPnG16_ = 100.;
 
   pedPnExpectedMean_[0] = 750.0;
   pedPnExpectedMean_[1] = 750.0;
@@ -201,8 +199,8 @@ EELaserClient::EELaserClient(const ParameterSet& ps) {
   pedPnDiscrepancyMean_[0] = 100.0;
   pedPnDiscrepancyMean_[1] = 100.0;
 
-  pedPnRMSThreshold_[0] = 1.0; // value at h4; expected nominal: 0.5
-  pedPnRMSThreshold_[1] = 3.0; // value at h4; expected nominal: 1.6
+  pedPnRMSThreshold_[0] = 10.;
+  pedPnRMSThreshold_[1] = 10.;
 
 }
 
@@ -212,9 +210,9 @@ EELaserClient::~EELaserClient() {
 
 void EELaserClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EELaserClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EELaserClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -223,7 +221,7 @@ void EELaserClient::beginJob(void) {
 
 void EELaserClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EELaserClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EELaserClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -233,7 +231,7 @@ void EELaserClient::beginRun(void) {
 
 void EELaserClient::endJob(void) {
 
-  if ( debug_ ) cout << "EELaserClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EELaserClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -241,7 +239,7 @@ void EELaserClient::endJob(void) {
 
 void EELaserClient::endRun(void) {
 
-  if ( debug_ ) cout << "EELaserClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EELaserClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -883,8 +881,8 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
         UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
       }
@@ -936,9 +934,9 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L1 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -973,9 +971,9 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L2 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -1010,9 +1008,9 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L3 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num05 << " " << mean05 << " " << rms05 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L3 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num05 << " " << mean05 << " " << rms05 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -1047,9 +1045,9 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L4 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num07 << " " << mean07 << " " << rms07 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L4 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num07 << " " << mean07 << " " << rms07 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -1086,18 +1084,18 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonLaserDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonLaserDat ..." << std::endl;
       if ( dataset1_bl.size() != 0 ) econn->insertDataArraySet(&dataset1_bl, moniov);
       if ( dataset1_ir.size() != 0 ) econn->insertDataArraySet(&dataset1_ir, moniov);
       if ( dataset1_gr.size() != 0 ) econn->insertDataArraySet(&dataset1_gr, moniov);
       if ( dataset1_rd.size() != 0 ) econn->insertDataArraySet(&dataset1_rd, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
-  if ( verbose_ ) cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
   MonPNBlueDat pn_bl;
   map<EcalLogicID, MonPNBlueDat> dataset2_bl;
@@ -1113,8 +1111,8 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
         UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
         UtilsClient::printBadChannels(meg05_[ism-1], i05_[ism-1]);
@@ -1197,10 +1195,10 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         if ( i == 1 ) {
 
           if ( verbose_ ) {
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-            cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
-            cout << endl;
+            std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+            std::cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << std::endl;
+            std::cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << std::endl;
+            std::cout << std::endl;
           }
 
         }
@@ -1239,10 +1237,10 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         if ( i == 1 ) {
 
           if ( verbose_ ) {
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-            cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << endl;
-            cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << endl;
-            cout << endl;
+            std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+            std::cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << std::endl;
+            std::cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << std::endl;
+            std::cout << std::endl;
           }
 
         }
@@ -1281,10 +1279,10 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         if ( i == 1 ) {
 
           if ( verbose_ ) {
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-            cout << "PNs (" << i << ") L3 G01 " << num03  << " " << mean03 << " " << rms03  << endl;
-            cout << "PNs (" << i << ") L3 G16 " << num11  << " " << mean11 << " " << rms11  << endl;
-            cout << endl;
+            std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+            std::cout << "PNs (" << i << ") L3 G01 " << num03  << " " << mean03 << " " << rms03  << std::endl;
+            std::cout << "PNs (" << i << ") L3 G16 " << num11  << " " << mean11 << " " << rms11  << std::endl;
+            std::cout << std::endl;
           }
 
         }
@@ -1323,10 +1321,10 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         if ( i == 1 ) {
 
           if ( verbose_ ) {
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-            cout << "PNs (" << i << ") L4 G01 " << num04  << " " << mean04 << " " << rms04  << endl;
-            cout << "PNs (" << i << ") L4 G16 " << num12  << " " << mean12 << " " << rms12  << endl;
-            cout << endl;
+            std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+            std::cout << "PNs (" << i << ") L4 G01 " << num04  << " " << mean04 << " " << rms04  << std::endl;
+            std::cout << "PNs (" << i << ") L4 G16 " << num12  << " " << mean12 << " " << rms12  << std::endl;
+            std::cout << std::endl;
           }
 
         }
@@ -1366,18 +1364,18 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonPnDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonPnDat ..." << std::endl;
       if ( dataset2_bl.size() != 0 ) econn->insertDataArraySet(&dataset2_bl, moniov);
       if ( dataset2_ir.size() != 0 ) econn->insertDataArraySet(&dataset2_ir, moniov);
       if ( dataset2_gr.size() != 0 ) econn->insertDataArraySet(&dataset2_gr, moniov);
       if ( dataset2_rd.size() != 0 ) econn->insertDataArraySet(&dataset2_rd, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
-  if ( verbose_ ) cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
   MonTimingLaserBlueCrystalDat t_bl;
   map<EcalLogicID, MonTimingLaserBlueCrystalDat> dataset3_bl;
@@ -1393,8 +1391,8 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
     }
 
     for ( int ix = 1; ix <= 50; ix++ ) {
@@ -1426,9 +1424,9 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L1 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -1460,9 +1458,9 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L2 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -1494,9 +1492,9 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L3 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03  << " " << mean03 << " " << rms03  << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L3 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03  << " " << mean03 << " " << rms03  << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -1528,9 +1526,9 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L4 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num04  << " " << mean04 << " " << rms04  << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L4 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num04  << " " << mean04 << " " << rms04  << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -1564,14 +1562,14 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonTimingLaserCrystalDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonTimingLaserCrystalDat ..." << std::endl;
       if ( dataset3_bl.size() != 0 ) econn->insertDataArraySet(&dataset3_bl, moniov);
       if ( dataset3_ir.size() != 0 ) econn->insertDataArraySet(&dataset3_ir, moniov);
       if ( dataset3_gr.size() != 0 ) econn->insertDataArraySet(&dataset3_gr, moniov);
       if ( dataset3_rd.size() != 0 ) econn->insertDataArraySet(&dataset3_rd, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
@@ -1585,7 +1583,7 @@ void EELaserClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EELaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EELaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   uint64_t bits01 = 0;
@@ -1611,16 +1609,6 @@ void EELaserClient::analyze(void) {
   bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
   bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
   bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
-
-#ifdef WITH_ECAL_COND_DB
-  map<EcalLogicID, RunCrystalErrorsDat> mask1;
-  map<EcalLogicID, RunPNErrorsDat> mask2;
-  map<EcalLogicID, RunTTErrorsDat> mask3;
-
-  EcalErrorMask::fetchDataSet(&mask1);
-  EcalErrorMask::fetchDataSet(&mask2);
-  EcalErrorMask::fetchDataSet(&mask3);
-#endif
 
   char histo[200];
 
@@ -2274,63 +2262,6 @@ void EELaserClient::analyze(void) {
 
         }
 
-        // masking
-
-#ifdef WITH_ECAL_COND_DB
-        if ( mask1.size() != 0 ) {
-          map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-          for (m = mask1.begin(); m != mask1.end(); m++) {
-
-            int jx = ix + Numbers::ix0EE(ism);
-            int jy = iy + Numbers::iy0EE(ism);
-
-            if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
-
-            if ( ! Numbers::validEE(ism, jx, jy) ) continue;
-
-            int ic = Numbers::indexEE(ism, jx, jy);
-
-            if ( ic == -1 ) continue;
-
-            EcalLogicID ecid = m->first;
-
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );
-                UtilsClient::maskBinContent( meg02_[ism-1], ix, iy );
-                UtilsClient::maskBinContent( meg03_[ism-1], ix, iy );
-                UtilsClient::maskBinContent( meg04_[ism-1], ix, iy );
-              }
-            }
-
-          }
-        }
-#endif
-
-        // TT masking
-
-#ifdef WITH_ECAL_COND_DB
-        if ( mask3.size() != 0 ) {
-          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = mask3.begin(); m != mask3.end(); m++) {
-
-            EcalLogicID ecid = m->first;
-
-            int itt = Numbers::iSC(ism, EcalEndcap, ix, iy);
-
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );
-                UtilsClient::maskBinContent( meg02_[ism-1], ix, iy );
-                UtilsClient::maskBinContent( meg03_[ism-1], ix, iy );
-                UtilsClient::maskBinContent( meg04_[ism-1], ix, iy );
-              }
-            }
-
-          }
-        }
-#endif
-
       }
     }
 
@@ -2546,34 +2477,6 @@ void EELaserClient::analyze(void) {
 
       }
 
-      // masking
-
-#ifdef WITH_ECAL_COND_DB
-      if ( mask2.size() != 0 ) {
-        map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
-        for (m = mask2.begin(); m != mask2.end(); m++) {
-
-          EcalLogicID ecid = m->first;
-
-          if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1).getLogicID() ) {
-            if ( (m->second).getErrorBits() & (bits01|bits02) ) {
-              UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
-              UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
-              UtilsClient::maskBinContent( meg07_[ism-1], i, 1 );
-              UtilsClient::maskBinContent( meg08_[ism-1], i, 1 );
-            }
-            if ( (m->second).getErrorBits() & (bits01|bits04) ) {
-              UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
-              UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );
-              UtilsClient::maskBinContent( meg11_[ism-1], i, 1 );
-              UtilsClient::maskBinContent( meg12_[ism-1], i, 1 );
-            }
-          }
-
-        }
-      }
-#endif
-
     }
 
     for ( int i = 1; i <= 10; i++ ) {
@@ -2613,6 +2516,149 @@ void EELaserClient::analyze(void) {
     }
 
   }
+
+#ifdef WITH_ECAL_COND_DB
+  if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
+    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_crystal_number") != 0 ) continue;
+
+        int iz = ecid.getID1();
+        int ix = ecid.getID2();
+        int iy = ecid.getID3();
+
+        for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+          int ism = superModules_[i];
+          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+          if (iter == superModules_.end()) continue;
+          if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
+            int jx = 101 - ix - Numbers::ix0EE(ism);
+            int jy = iy - Numbers::iy0EE(ism);
+            if ( Numbers::validEE(ism, ix, iy) ) {
+              UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
+              UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
+              UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
+              UtilsClient::maskBinContent( meg04_[ism-1], jx, jy );
+            }
+          }
+          if ( iz == +1 && ( ism >= 10 && ism <= 18 ) ) {
+            int jx = ix - Numbers::ix0EE(ism);
+            int jy = iy - Numbers::iy0EE(ism);
+            if ( Numbers::validEE(ism, ix, iy) ) {
+              UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
+              UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
+              UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
+              UtilsClient::maskBinContent( meg04_[ism-1], jx, jy );
+            }
+          }
+        }
+
+      }
+
+    }
+  }
+
+  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
+    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
+
+        int idcc = ecid.getID1() - 600;
+
+        int ism = -1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int itt = ecid.getID2();
+
+        if ( itt > 70 ) continue;
+
+        if ( itt >= 42 && itt <= 68 ) continue;
+
+        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
+
+        if ( itt >= 1 && itt <= 68 ) {
+          std::vector<DetId>* crystals = Numbers::crystals( idcc, itt );
+          for ( unsigned int i=0; i<crystals->size(); i++ ) {
+            EEDetId id = (*crystals)[i];
+            int ix = id.ix();
+            int iy = id.iy();
+            if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
+            int jx = ix - Numbers::ix0EE(ism);
+            int jy = iy - Numbers::iy0EE(ism);
+            UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
+            UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
+            UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
+            UtilsClient::maskBinContent( meg04_[ism-1], jx, jy );
+          }
+        }
+
+      }
+
+    }
+  }
+
+  if ( EcalErrorMask::mapPNErrors_.size() != 0 ) {
+    map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapPNErrors_.begin(); m != EcalErrorMask::mapPNErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & (bits01|bits02) ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_LM_PN") != 0 ) continue;
+
+        int idcc = ecid.getID1() - 600;
+
+        int ism = -1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int i = ecid.getID2() - 1;
+
+        UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg07_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg08_[ism-1], i, 1 );
+
+      }
+
+      if ( (m->second).getErrorBits() & (bits01|bits04) ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_LM_PN") != 0 ) continue;
+
+        int idcc = ecid.getID1() - 600;
+
+        int ism = -1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int i = ecid.getID2() - 1;
+
+        UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg11_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg12_[ism-1], i, 1 );
+
+      }
+
+    }
+  }
+#endif
 
 }
 

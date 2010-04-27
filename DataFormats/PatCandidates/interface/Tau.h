@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.25 2009/08/10 08:24:36 veelken Exp $
+// $Id: Tau.h,v 1.26 2010/02/03 10:31:50 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.25 2009/08/10 08:24:36 veelken Exp $
+  \version  $Id: Tau.h,v 1.26 2010/02/03 10:31:50 veelken Exp $
 */
 
 
@@ -70,14 +70,37 @@ namespace pat {
       /// override the reco::BaseTau::leadTrack method, to access the internal storage of the leading track
       reco::TrackRef leadTrack() const;
       /// override the reco::BaseTau::signalTracks method, to access the internal storage of the signal tracks
-	const reco::TrackRefVector & signalTracks() const;	
+      const reco::TrackRefVector & signalTracks() const;	
       /// method to store the isolation tracks internally
       void embedIsolationTracks();
       /// method to store the leading track internally
       void embedLeadTrack();
       /// method to store the signal tracks internally
       void embedSignalTracks();
-
+      ///- PFTau specific content -
+      /// method to store the leading candidate internally
+      void embedLeadPFCand();
+      /// method to store the leading charged hadron candidate internally
+      void embedLeadPFChargedHadrCand();
+      /// method to store the leading neutral candidate internally
+      void embedLeadPFNeutralCand();
+      /// method to store the signal candidates internally
+      void embedSignalPFCands();
+      /// method to store the signal charged hadrons candidates internally
+      void embedSignalPFChargedHadrCands();
+      /// method to store the signal neutral hadrons candidates internally
+      void embedSignalPFNeutralHadrCands();
+      /// method to store the signal gamma candidates internally
+      void embedSignalPFGammaCands();
+      /// method to store the isolation candidates internally
+      void embedIsolationPFCands();
+      /// method to store the isolation charged hadrons candidates internally
+      void embedIsolationPFChargedHadrCands();
+      /// method to store the isolation neutral hadrons candidates internally
+      void embedIsolationPFNeutralHadrCands();
+      /// method to store the isolation gamma candidates internally
+      void embedIsolationPFGammaCands();
+      
       // ---- matched GenJet methods ----
       /// return matched GenJet, built from the visible particles of a generated tau
       const reco::GenJet * genJet() const;
@@ -127,40 +150,40 @@ namespace pat {
       const reco::PFTauTagInfoRef & pfTauTagInfoRef() const { return pfSpecific().PFTauTagInfoRef_; }
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRef & leadPFChargedHadrCand() const { return pfSpecific().leadPFChargedHadrCand_; }
+      const reco::PFCandidateRef leadPFChargedHadrCand() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       float leadPFChargedHadrCandsignedSipt() const { return pfSpecific().leadPFChargedHadrCandsignedSipt_; }
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRef & leadPFNeutralCand() const { return pfSpecific().leadPFNeutralCand_; }
+      const reco::PFCandidateRef leadPFNeutralCand() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRef & leadPFCand() const { return pfSpecific().leadPFCand_; }
+      const reco::PFCandidateRef leadPFCand() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & signalPFCands() const { return pfSpecific().selectedSignalPFCands_; } 
+      const reco::PFCandidateRefVector & signalPFCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & signalPFChargedHadrCands() const { return pfSpecific().selectedSignalPFChargedHadrCands_; } 
+      const reco::PFCandidateRefVector & signalPFChargedHadrCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & signalPFNeutrHadrCands() const { return pfSpecific().selectedSignalPFNeutrHadrCands_; } 
+      const reco::PFCandidateRefVector & signalPFNeutrHadrCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & signalPFGammaCands() const { return pfSpecific().selectedSignalPFGammaCands_; }
+      const reco::PFCandidateRefVector & signalPFGammaCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & isolationPFCands() const { return pfSpecific().selectedIsolationPFCands_; } 
+      const reco::PFCandidateRefVector & isolationPFCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & isolationPFChargedHadrCands() const { return pfSpecific().selectedIsolationPFChargedHadrCands_; } 
+      const reco::PFCandidateRefVector & isolationPFChargedHadrCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & isolationPFNeutrHadrCands() const { return pfSpecific().selectedIsolationPFNeutrHadrCands_; } 
+      const reco::PFCandidateRefVector & isolationPFNeutrHadrCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & isolationPFGammaCands() const { return pfSpecific().selectedIsolationPFGammaCands_; }
+      const reco::PFCandidateRefVector & isolationPFGammaCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       float isolationPFChargedHadrCandsPtSum() const { return pfSpecific().isolationPFChargedHadrCandsPtSum_; }
@@ -247,6 +270,47 @@ namespace pat {
       std::vector<reco::Track> signalTracks_;
       mutable reco::TrackRefVector signalTracksTransientRefVector_;
       mutable edm::BoolCache       signalTracksTransientRefVectorFixed_;
+      // specific for PFTau
+      std::vector<reco::PFCandidate> leadPFCand_;
+      bool embeddedLeadPFCand_;
+      std::vector<reco::PFCandidate> leadPFChargedHadrCand_;
+      bool embeddedLeadPFChargedHadrCand_;
+      std::vector<reco::PFCandidate> leadPFNeutralCand_;
+      bool embeddedLeadPFNeutralCand_;
+
+      std::vector<reco::PFCandidate> signalPFCands_;
+      bool embeddedSignalPFCands_;
+      mutable reco::PFCandidateRefVector signalPFCandsTransientRefVector_;
+      mutable edm::BoolCache signalPFCandsRefVectorFixed_;
+      std::vector<reco::PFCandidate> signalPFChargedHadrCands_;
+      bool embeddedSignalPFChargedHadrCands_;
+      mutable reco::PFCandidateRefVector signalPFChargedHadrCandsTransientRefVector_;
+      mutable edm::BoolCache signalPFChargedHadrCandsRefVectorFixed_;
+      std::vector<reco::PFCandidate> signalPFNeutralHadrCands_;
+      bool embeddedSignalPFNeutralHadrCands_;
+      mutable reco::PFCandidateRefVector signalPFNeutralHadrCandsTransientRefVector_;
+      mutable edm::BoolCache signalPFNeutralHadrCandsRefVectorFixed_;
+      std::vector<reco::PFCandidate> signalPFGammaCands_;
+      bool embeddedSignalPFGammaCands_;
+      mutable reco::PFCandidateRefVector signalPFGammaCandsTransientRefVector_;
+      mutable edm::BoolCache signalPFGammaCandsRefVectorFixed_;
+      std::vector<reco::PFCandidate> isolationPFCands_;
+      bool embeddedIsolationPFCands_;
+      mutable reco::PFCandidateRefVector isolationPFCandsTransientRefVector_;
+      mutable edm::BoolCache isolationPFCandsRefVectorFixed_;
+      std::vector<reco::PFCandidate> isolationPFChargedHadrCands_;
+      bool embeddedIsolationPFChargedHadrCands_;
+      mutable reco::PFCandidateRefVector isolationPFChargedHadrCandsTransientRefVector_;
+      mutable edm::BoolCache isolationPFChargedHadrCandsRefVectorFixed_;
+      std::vector<reco::PFCandidate> isolationPFNeutralHadrCands_;
+      bool embeddedIsolationPFNeutralHadrCands_;
+      mutable reco::PFCandidateRefVector isolationPFNeutralHadrCandsTransientRefVector_;
+      mutable edm::BoolCache isolationPFNeutralHadrCandsRefVectorFixed_;
+      std::vector<reco::PFCandidate> isolationPFGammaCands_;
+      bool embeddedIsolationPFGammaCands_;
+      mutable reco::PFCandidateRefVector isolationPFGammaCandsTransientRefVector_;
+      mutable edm::BoolCache isolationPFGammaCandsRefVectorFixed_;
+
       // ---- matched GenJet holder ----
       std::vector<reco::GenJet> genJet_;
       // ---- tau ID's holder ----

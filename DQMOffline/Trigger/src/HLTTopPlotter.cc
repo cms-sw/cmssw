@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/08/14 13:34:13 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/11/13 12:39:32 $
+ *  $Revision: 1.2 $
  */
 
 
@@ -61,8 +61,10 @@ typedef std::vector<reco::Muon> MuonCollection;
 HLTTopPlotter::HLTTopPlotter
 ( const ParameterSet& pset, string triggerName, vector<string> moduleNames,
   MuonSelectionStruct inputSelection, string customName,
-  vector<string> validTriggers)
-  : HLTMuonMatchAndPlot(pset, triggerName, moduleNames, inputSelection, customName, validTriggers)
+  vector<string> validTriggers,
+  const edm::Run & currentRun,
+  const edm::EventSetup & currentEventSetup)
+  : HLTMuonMatchAndPlot(pset, triggerName, moduleNames, inputSelection, customName, validTriggers, currentRun, currentEventSetup)
     
 {
 

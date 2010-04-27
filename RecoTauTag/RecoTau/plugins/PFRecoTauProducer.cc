@@ -15,13 +15,11 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include "RecoTauTag/RecoTau/interface/PFRecoTauAlgorithm.h"
-#include "RecoTauTag/RecoTau/interface/HPSPFRecoTauAlgorithm.h"
 
 #include "CLHEP/Random/RandGauss.h"
 
@@ -40,38 +38,22 @@ class PFRecoTauProducer : public EDProducer {
   InputTag PFTauTagInfoProducer_;
   InputTag ElectronPreIDProducer_;
   InputTag PVProducer_;
-  std::string Algorithm_;
   double smearedPVsigmaX_;
   double smearedPVsigmaY_;
   double smearedPVsigmaZ_;
   double JetMinPt_;
-  PFRecoTauAlgorithmBase* PFRecoTauAlgo_;
-
+  PFRecoTauAlgorithm* PFRecoTauAlgo_;
 };
 
 PFRecoTauProducer::PFRecoTauProducer(const ParameterSet& iConfig){
   PFTauTagInfoProducer_   = iConfig.getParameter<InputTag>("PFTauTagInfoProducer");
   ElectronPreIDProducer_  = iConfig.getParameter<InputTag>("ElectronPreIDProducer");
   PVProducer_             = iConfig.getParameter<InputTag>("PVProducer");
-  Algorithm_              = iConfig.getParameter<string>("Algorithm");
   smearedPVsigmaX_        = iConfig.getParameter<double>("smearedPVsigmaX");
   smearedPVsigmaY_        = iConfig.getParameter<double>("smearedPVsigmaY");
   smearedPVsigmaZ_        = iConfig.getParameter<double>("smearedPVsigmaZ");	
   JetMinPt_               = iConfig.getParameter<double>("JetPtMin");
-
-  if(Algorithm_ =="ConeBased") {
-    PFRecoTauAlgo_=new PFRecoTauAlgorithm(iConfig);
-  }
-  else if(Algorithm_ =="HPS") {
-    PFRecoTauAlgo_=new HPSPFRecoTauAlgorithm(iConfig);
-  }
-  else {    //Add inside out Algorithm here
-
-    //If no Algorithm found throw exception
-    throw cms::Exception("") << "Unknown Algorithkm" << std::endl;
-  }
-    
-
+  PFRecoTauAlgo_=new PFRecoTauAlgorithm(iConfig);
   produces<PFTauCollection>();      
 }
 PFRecoTauProducer::~PFRecoTauProducer(){

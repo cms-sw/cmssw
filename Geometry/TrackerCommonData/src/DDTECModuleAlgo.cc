@@ -219,7 +219,7 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
 
 void DDTECModuleAlgo::doPos(DDLogicalPart toPos, DDLogicalPart mother, 
 			    int copyNr, double x, double y, double z, 
-			    std::string rotName, DDCompactView& cpv) {
+			    std::string rotName) {
 
   DDTranslation tran(z, x, y);
   DDRotation rot;
@@ -232,14 +232,14 @@ void DDTECModuleAlgo::doPos(DDLogicalPart toPos, DDLogicalPart mother,
     rot = DDRotation();
   }
 	
-  cpv.position(toPos, mother, copyNr, tran, rot);
+  DDpos (toPos, mother, copyNr, tran, rot);
   LogDebug("TECGeom") << "DDTECModuleAlgo test: " << toPos.name()
 		      << " positioned in "<< mother.name() 
 		      << " at " << tran  << " with " << rot;
 }
 
 void DDTECModuleAlgo::doPos(DDLogicalPart toPos, double x, double y, double z,
-			    std::string rotName, DDCompactView& cpv) {
+			    std::string rotName) {
   int           copyNr = 1;
   if (isStereo) copyNr = 2;
 
@@ -254,10 +254,10 @@ void DDTECModuleAlgo::doPos(DDLogicalPart toPos, double x, double y, double z,
   }
   if (rotName == "NULL") rotName = standardRot;
 
-  doPos(toPos,parent(),copyNr,x,y,z,rotName, cpv);
+  doPos(toPos,parent(),copyNr,x,y,z,rotName);
 }
 
-void DDTECModuleAlgo::execute(DDCompactView& cpv) {
+void DDTECModuleAlgo::execute() {
 
   LogDebug("TECGeom") << "==>> Constructing DDTECModuleAlgo...";
   //declarations
@@ -336,7 +336,7 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
     zpos = topFrameEndZ -topFrame2LHeight- 0.5*sin(detTilt)*(topFrameBotWidth - topFrame2Width)-dz*cos(detTilt+fabs(thet))/cos(fabs(thet))+bl2*sin(detTilt)-0.1*CLHEP::mm;
   }
   //position
-  doPos(sideFrameLeft,xpos,ypos,zpos,waferRot, cpv);
+  doPos(sideFrameLeft,xpos,ypos,zpos,waferRot);
 
   //right Frame
   name    = idName + "SideFrameRight";
@@ -370,7 +370,7 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
     zpos = topFrameEndZ -topFrame2RHeight+ 0.5*sin(detTilt)*(topFrameBotWidth - topFrame2Width)-dz*cos(detTilt-fabs(thet))/cos(fabs(thet))-bl2*sin(detTilt)-0.1*CLHEP::mm;
   }
   //position it
-  doPos(sideFrameRight,xpos,ypos,zpos,waferRot, cpv);
+  doPos(sideFrameRight,xpos,ypos,zpos,waferRot);
 
 
   //Supplies Box(es)
@@ -409,7 +409,7 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
       zpos = topFrameEndZ - topFrame2RHeight - 0.5*sin(detTilt)*(topFrameBotWidth - topFrame2Width) - siFrSuppBoxYPos[i]-sin(detTilt)*sideFrameRWidth;
     }
     //position it;
-    doPos(siFrSuppBox,xpos,ypos,zpos,waferRot,cpv);
+    doPos(siFrSuppBox,xpos,ypos,zpos,waferRot);
   }
   //The Hybrid
   name    = idName + "Hybrid";
@@ -428,7 +428,7 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
   zpos = 0.5 * (-waferPosition + fullHeight + hybridHeight)+pitchHeight;
   if (isRing6)	zpos *=-1;
   //position it
-  doPos(hybrid,0,ypos,zpos,"NULL", cpv);  
+  doPos(hybrid,0,ypos,zpos,"NULL");  
 
   // Wafer
   name    = idName + tag +"Wafer";
@@ -451,7 +451,7 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
   zpos =-0.5 * waferPosition;// former and incorrect topFrameHeight;
   if (isRing6) zpos *= -1;
   
-  doPos(wafer,0,ypos,zpos,waferRot,cpv);
+  doPos(wafer,0,ypos,zpos,waferRot);
   
   // Active
   name    = idName + tag +"Active";
@@ -472,7 +472,7 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
 		      << bl1 << ", 0, " << h1 << ", " << bl2 << ", "
 		      << bl1 << ", 0";
   DDLogicalPart active(solid.ddname(), matter, solid);
-  doPos(active, wafer, 1, -0.5 * backplaneThick,0,0, activeRot, cpv); // from the definition of the wafer local axes and doPos() routine
+  doPos(active, wafer, 1, -0.5 * backplaneThick,0,0, activeRot); // from the definition of the wafer local axes and doPos() routine
   //inactive part in rings > 3
   if(ringNo > 3){
     inactivePos -= fullHeight-activeHeight; //inactivePos is measured from the beginning of the _wafer_
@@ -499,7 +499,7 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
 			<< bl1 << ", 0";  
     DDLogicalPart inactive(solid.ddname(), matter, solid);
     ypos = inactivePos - 0.5*activeHeight;
-    doPos(inactive,active, 1, ypos,0,0, "NULL", cpv); // from the definition of the wafer local axes and doPos() routine
+    doPos(inactive,active, 1, ypos,0,0, "NULL"); // from the definition of the wafer local axes and doPos() routine
   }
   //Pitch Adapter
   name    = idName + "PA";
@@ -536,8 +536,8 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
   if(isStereo)    xpos    = 0.5 * fullHeight * sin(detTilt);
   
   DDLogicalPart pa(solid.ddname(), matter, solid);
-  if(isStereo)doPos(pa, xpos, ypos,zpos, pitchRot, cpv);
-  else        doPos(pa, xpos, ypos,zpos, "NULL", cpv);
+  if(isStereo)doPos(pa, xpos, ypos,zpos, pitchRot);
+  else        doPos(pa, xpos, ypos,zpos, "NULL");
   //Top of the frame
   name = idName + "TopFrame";
   matname = DDName(DDSplit(topFrameMat).first, DDSplit(topFrameMat).second);
@@ -586,12 +586,12 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
     zpos *=-1;
   }
 
-  doPos(topFrame, 0,ypos,zpos,"NULL", cpv);
+  doPos(topFrame, 0,ypos,zpos,"NULL");
   if(isStereo){
     //create
     DDLogicalPart topFrame2(solid.ddname(), matter, solid);
     zpos -= 0.5*(topFrameHeight + 0.5*(topFrame2LHeight+topFrame2RHeight));
-    doPos(topFrame2, 0,ypos,zpos,pitchRot, cpv);
+    doPos(topFrame2, 0,ypos,zpos,pitchRot);
   }
   
   //Si - Reencorcement
@@ -627,7 +627,7 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
       //    zpos -= topFrame2RHeight + sin(thet)*(sideFrameRWidth + 0.5*dlTop);
       zpos -= topFrame2RHeight + sin (fabs(detTilt))* 0.5*topFrame2Width;
     }
-    doPos(siReenforce,xpos,ypos,zpos,waferRot, cpv);
+    doPos(siReenforce,xpos,ypos,zpos,waferRot);
   }
 
   //Bridge 
@@ -657,7 +657,7 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
 			<< " Box made of " << matname << " of dimensions "
 			<< bl1 << ", " << h1 << ", " << dz;
     DDLogicalPart bridgeGap(solid.ddname(), matter, solid);
-   cpv.position(bridgeGap, bridge, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
+    DDpos (bridgeGap, bridge, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
     LogDebug("TECGeom") << "DDTECModuleAlgo test: " << bridgeGap.name() 
 			<< " number 1 positioned in " << bridge.name()
 			<< " at (0,0,0) with no rotation";

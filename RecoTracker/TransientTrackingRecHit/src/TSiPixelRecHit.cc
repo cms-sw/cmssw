@@ -12,7 +12,7 @@ TSiPixelRecHit::RecHitPointer TSiPixelRecHit::clone (const TrajectoryStateOnSurf
   }else{
     const SiPixelCluster& clust = *specificHit()->cluster();  
     PixelClusterParameterEstimator::LocalValues lv = 
-      theCPE->localParameters( clust, *detUnit(), ts);
+      theCPE->localParameters( clust, *detUnit(), ts.localParameters());
     return TSiPixelRecHit::build( lv.first, lv.second, det(), specificHit()->cluster(), theCPE, weight(), getAnnealingFactor());
   }
 }

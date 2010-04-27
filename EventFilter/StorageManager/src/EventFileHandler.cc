@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.cc,v 1.10 2010/02/01 11:42:18 mommsen Exp $
+// $Id: EventFileHandler.cc,v 1.11 2010/02/01 14:08:30 mommsen Exp $
 /// @file: EventFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/EventFileHandler.h>
@@ -15,10 +15,11 @@ EventFileHandler::EventFileHandler
 (
   InitMsgSharedPtr view,
   FilesMonitorCollection::FileRecordPtr fileRecord,
+  const DbFileHandlerPtr dbFileHandler,
   const DiskWritingParams& dwParams,
   const unsigned long long& maxFileSize
 ) :
-FileHandler(fileRecord, dwParams, maxFileSize),
+FileHandler(fileRecord, dbFileHandler, dwParams, maxFileSize),
 _writer(new edm::StreamerFileWriter(
   fileRecord->completeFileName()+".dat",
   fileRecord->completeFileName()+".ind"

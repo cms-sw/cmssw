@@ -526,12 +526,8 @@ if(gjets.size() > 0) {
 	double dr = zspjetc.deltaR(cjetc);
 	if(dr < 0.001) break;
       }
-
-      // ZSP JetRef
-      edm::RefToBase<reco::Jet> zspRef( edm::Ref<CaloJetCollection>( zspjets, zspjet - zspjets->begin() ) );
-
       // JPT corrections
-      double scaleJPT = correctorJPT->correction ((*zspjet),zspRef,iEvent,iSetup);
+      double scaleJPT = correctorJPT->correction ((*zspjet),iEvent,iSetup);
       Jet::LorentzVector jetscaleJPT(zspjet->px()*scaleJPT, zspjet->py()*scaleJPT,
 				     zspjet->pz()*scaleJPT, zspjet->energy()*scaleJPT);    
       // Building new CaloJet

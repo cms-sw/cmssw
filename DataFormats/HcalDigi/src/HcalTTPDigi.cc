@@ -31,7 +31,7 @@ void HcalTTPDigi::setSample(int relativeSample,
         // Trigger input: 72 bits
         for (int i=0; i<4; i++)
             triggerInputs_[5*linSample+i] = triggerInputs[i] ;
-        triggerInputs_[5*linSample+5] = triggerInputs[5]&0xFF ;
+        triggerInputs_[5*linSample+4] = triggerInputs[4]&0xFF ;
         // Algo dependency: 20 bits
         algoDepend_[linSample] = algodep&0xFFFFF ;
         // Trigger output: 4 bits
@@ -64,6 +64,18 @@ uint32_t HcalTTPDigi::algorithmWord(int relativeSample) const {
   else return 0;
 }
 
+bool HcalTTPDigi::operator==(const HcalTTPDigi& digi) const {
+
+    if (samples_ != digi.size() || presamples_ != digi.presamples()) return false ;
+    int relativeSize = digi.size() - digi.presamples() ; 
+    for (int i=-this->presamples(); i<relativeSize; i++) {
+        if (this->inputPattern(i) != digi.inputPattern(i)) return false ; 
+        if (this->algorithmWord(i) != digi.algorithmWord(i)) return false ; 
+        if (this->triggerOutput(i) != digi.triggerOutput(i)) return false ; 
+    }
+    return true ;
+}
+
 std::ostream& operator<<(std::ostream& out, const HcalTTPDigi& digi) {
 
     out << "HcalTTPDigi " << digi.id() 
@@ -90,3 +102,4 @@ std::ostream& operator<<(std::ostream& out, const HcalTTPDigi& digi) {
 
     return out ; 
 }
+

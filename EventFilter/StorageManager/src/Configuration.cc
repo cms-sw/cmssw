@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.22 2010/01/22 14:20:45 mommsen Exp $
+// $Id: Configuration.cc,v 1.31 2010/04/12 12:05:01 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -30,6 +30,7 @@ namespace stor
     setQueueConfigurationDefaults();
     setWorkerThreadDefaults();
     setResourceMonitorDefaults();
+    setAlarmDefaults();
 
     setupDiskWritingInfoSpaceParams(infoSpace);
     setupDQMProcessingInfoSpaceParams(infoSpace);
@@ -37,6 +38,7 @@ namespace stor
     setupQueueConfigurationInfoSpaceParams(infoSpace);
     setupWorkerThreadInfoSpaceParams(infoSpace);
     setupResourceMonitorInfoSpaceParams(infoSpace);
+    setupAlarmInfoSpaceParams(infoSpace);
   }
 
   struct DiskWritingParams Configuration::getDiskWritingParams() const
@@ -76,6 +78,12 @@ namespace stor
     return _resourceMonitorParamCopy;
   }
 
+  struct AlarmParams Configuration::getAlarmParams() const
+  {
+    boost::mutex::scoped_lock sl(_generalMutex);
+    return _alarmParamCopy;
+  }
+
   void Configuration::updateAllParams()
   {
     boost::mutex::scoped_lock sl(_generalMutex);
@@ -85,7 +93,8 @@ namespace stor
     updateLocalQueueConfigurationData();
     updateLocalWorkerThreadData();
     updateLocalResourceMonitorData();
-    updateLocalRunNumber();
+    updateLocalAlarmData();
+    updateLocalRunNumberData();
   }
 
   unsigned int Configuration::getRunNumber() const
@@ -102,7 +111,7 @@ namespace stor
   void Configuration::updateRunParams()
   {
     boost::mutex::scoped_lock sl(_generalMutex);
-    updateLocalRunNumber();
+    updateLocalRunNumberData();
   }
 
   bool Configuration::streamConfigurationHasChanged() const
@@ -162,16 +171,18 @@ namespace stor
     _diskWriteParamCopy._streamConfiguration = "";
     _diskWriteParamCopy._fileName = "storageManager";
     _diskWriteParamCopy._filePath = "/tmp";
+    _diskWriteParamCopy._dbFilePath = ""; // use default _filePath+"/log"
     _diskWriteParamCopy._otherDiskPaths.clear();
     _diskWriteParamCopy._fileCatalog = "summaryCatalog.txt";
     _diskWriteParamCopy._setupLabel = "Data";
     _diskWriteParamCopy._nLogicalDisk = 0;
     _diskWriteParamCopy._maxFileSizeMB = 0;
-    _diskWriteParamCopy._highWaterMark = 0.9;
+    _diskWriteParamCopy._highWaterMark = 90;
+    _diskWriteParamCopy._failHighWaterMark = 95;
     _diskWriteParamCopy._lumiSectionTimeOut = 45.0;
     _diskWriteParamCopy._errorEventsTimeOut = 300.0;
     _diskWriteParamCopy._fileClosingTestInterval = 5.0;
-    _diskWriteParamCopy._fileSizeTolerance = 0.1;
+    _diskWriteParamCopy._fileSizeTolerance = 0.0;
     _diskWriteParamCopy._useIndexFiles = true;
 
     _previousStreamCfg = _diskWriteParamCopy._streamConfiguration;
@@ -198,8 +209,8 @@ namespace stor
     _dqmParamCopy._archiveDQM = false;
     _dqmParamCopy._filePrefixDQM = "/tmp/DQM";
     _dqmParamCopy._archiveIntervalDQM = 0;
-    _dqmParamCopy._purgeTimeDQM = 120;
-    _dqmParamCopy._readyTimeDQM = 30;
+    _dqmParamCopy._purgeTimeDQM = 300;
+    _dqmParamCopy._readyTimeDQM = 120;
     _dqmParamCopy._useCompressionDQM = true;
     _dqmParamCopy._compressionLevelDQM = 1;
   }
@@ -216,9 +227,12 @@ namespace stor
   {
     _queueConfigParamCopy._commandQueueSize = 128;
     _queueConfigParamCopy._dqmEventQueueSize = 3072;
+    _queueConfigParamCopy._dqmEventQueueMemoryLimitMB = 9999;
     _queueConfigParamCopy._fragmentQueueSize = 1024;
+    _queueConfigParamCopy._fragmentQueueMemoryLimitMB = 9999;
     _queueConfigParamCopy._registrationQueueSize = 128;
     _queueConfigParamCopy._streamQueueSize = 2048;
+    _queueConfigParamCopy._streamQueueMemoryLimitMB = 9999;
   }
 
   void Configuration::setWorkerThreadDefaults()
@@ -247,7 +261,6 @@ namespace stor
   void Configuration::setResourceMonitorDefaults()
   {
     // set defaults
-    _resourceMonitorParamCopy._isProductionSystem = false;
     _resourceMonitorParamCopy._sataUser = "";
     _resourceMonitorParamCopy._injectWorkers._user = "smpro";
     _resourceMonitorParamCopy._injectWorkers._command = "/InjectWorker.pl /store/global";
@@ -257,6 +270,14 @@ namespace stor
     _resourceMonitorParamCopy._copyWorkers._expectedCount = -1;
   }
 
+  void Configuration::setAlarmDefaults()
+  {
+    // set defaults
+    _alarmParamCopy._isProductionSystem = false;
+    _alarmParamCopy._errorEvents = 10;
+    _alarmParamCopy._unwantedEvents = 10000;
+  }
+
   void Configuration::
   setupDiskWritingInfoSpaceParams(xdata::InfoSpace* infoSpace)
   {
@@ -264,11 +285,13 @@ namespace stor
     _streamConfiguration = _diskWriteParamCopy._streamConfiguration;
     _fileName = _diskWriteParamCopy._fileName;
     _filePath = _diskWriteParamCopy._filePath;
+    _dbFilePath = _diskWriteParamCopy._dbFilePath;
     _fileCatalog = _diskWriteParamCopy._fileCatalog;
     _setupLabel = _diskWriteParamCopy._setupLabel;
     _nLogicalDisk = _diskWriteParamCopy._nLogicalDisk;
     _maxFileSize = _diskWriteParamCopy._maxFileSizeMB;
     _highWaterMark = _diskWriteParamCopy._highWaterMark;
+    _failHighWaterMark = _diskWriteParamCopy._failHighWaterMark;
     _lumiSectionTimeOut = _diskWriteParamCopy._lumiSectionTimeOut;
     _errorEventsTimeOut = _diskWriteParamCopy._errorEventsTimeOut;
     _fileClosingTestInterval =
@@ -283,12 +306,14 @@ namespace stor
     infoSpace->fireItemAvailable("STparameterSet", &_streamConfiguration);
     infoSpace->fireItemAvailable("fileName", &_fileName);
     infoSpace->fireItemAvailable("filePath", &_filePath);
+    infoSpace->fireItemAvailable("dbFilePath", &_dbFilePath);
     infoSpace->fireItemAvailable("otherDiskPaths", &_otherDiskPaths);
     infoSpace->fireItemAvailable("fileCatalog", &_fileCatalog);
     infoSpace->fireItemAvailable("setupLabel", &_setupLabel);
     infoSpace->fireItemAvailable("nLogicalDisk", &_nLogicalDisk);
     infoSpace->fireItemAvailable("maxFileSize", &_maxFileSize);
     infoSpace->fireItemAvailable("highWaterMark", &_highWaterMark);
+    infoSpace->fireItemAvailable("failHighWaterMark", &_failHighWaterMark);
     infoSpace->fireItemAvailable("lumiSectionTimeOut", &_lumiSectionTimeOut);
     infoSpace->fireItemAvailable("errorEventsTimeOut", &_errorEventsTimeOut);
     infoSpace->fireItemAvailable("fileClosingTestInterval",
@@ -354,17 +379,23 @@ namespace stor
     // copy the initial defaults to the xdata variables
     _commandQueueSize = _queueConfigParamCopy._commandQueueSize;
     _dqmEventQueueSize = _queueConfigParamCopy._dqmEventQueueSize;
+    _dqmEventQueueMemoryLimitMB = _queueConfigParamCopy._dqmEventQueueMemoryLimitMB;
     _fragmentQueueSize = _queueConfigParamCopy._fragmentQueueSize;
+    _fragmentQueueMemoryLimitMB = _queueConfigParamCopy._fragmentQueueMemoryLimitMB;
     _registrationQueueSize = _queueConfigParamCopy._registrationQueueSize;
     _streamQueueSize = _queueConfigParamCopy._streamQueueSize;
+    _streamQueueMemoryLimitMB = _queueConfigParamCopy._streamQueueMemoryLimitMB;
 
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable("commandQueueSize", &_commandQueueSize);
     infoSpace->fireItemAvailable("dqmEventQueueSize", &_dqmEventQueueSize);
+    infoSpace->fireItemAvailable("dqmEventQueueMemoryLimitMB", &_dqmEventQueueMemoryLimitMB);
     infoSpace->fireItemAvailable("fragmentQueueSize", &_fragmentQueueSize);
+    infoSpace->fireItemAvailable("fragmentQueueMemoryLimitMB", &_fragmentQueueMemoryLimitMB);
     infoSpace->fireItemAvailable("registrationQueueSize",
                                  &_registrationQueueSize);
     infoSpace->fireItemAvailable("streamQueueSize", &_streamQueueSize);
+    infoSpace->fireItemAvailable("streamQueueMemoryLimitMB", &_streamQueueMemoryLimitMB);
   }
 
   void Configuration::
@@ -389,7 +420,6 @@ namespace stor
   setupResourceMonitorInfoSpaceParams(xdata::InfoSpace* infoSpace)
   {
     // copy the initial defaults to the xdata variables
-    _isProductionSystem = _resourceMonitorParamCopy._isProductionSystem;
     _sataUser = _resourceMonitorParamCopy._sataUser;
     _injectWorkersUser = _resourceMonitorParamCopy._injectWorkers._user;
     _injectWorkersCommand = _resourceMonitorParamCopy._injectWorkers._command;
@@ -399,7 +429,6 @@ namespace stor
     _nCopyWorkers = _resourceMonitorParamCopy._copyWorkers._expectedCount;
  
     // bind the local xdata variables to the infospace
-    infoSpace->fireItemAvailable("isProductionSystem", &_isProductionSystem);
     infoSpace->fireItemAvailable("sataUser", &_sataUser);
     infoSpace->fireItemAvailable("injectWorkersUser", &_injectWorkersUser);
     infoSpace->fireItemAvailable("injectWorkersCommand", &_injectWorkersCommand);
@@ -409,6 +438,20 @@ namespace stor
     infoSpace->fireItemAvailable("nCopyWorkers", &_nCopyWorkers);
   }
 
+  void Configuration::
+  setupAlarmInfoSpaceParams(xdata::InfoSpace* infoSpace)
+  {
+    // copy the initial defaults to the xdata variables
+    _isProductionSystem = _alarmParamCopy._isProductionSystem;
+    _errorEvents = _alarmParamCopy._errorEvents;
+    _unwantedEvents = _alarmParamCopy._unwantedEvents;
+ 
+    // bind the local xdata variables to the infospace
+    infoSpace->fireItemAvailable("isProductionSystem", &_isProductionSystem);
+    infoSpace->fireItemAvailable("errorEvents", &_errorEvents);
+    infoSpace->fireItemAvailable("unwantedEvents", &_unwantedEvents);
+  }
+
   void Configuration::updateLocalDiskWritingData()
   {
     evf::ParameterSetRetriever smpset(_streamConfiguration);
@@ -416,11 +459,16 @@ namespace stor
 
     _diskWriteParamCopy._fileName = _fileName;
     _diskWriteParamCopy._filePath = _filePath;
+    if ( _dbFilePath.value_.empty() )
+      _diskWriteParamCopy._dbFilePath = _filePath.value_ + "/log";
+    else
+      _diskWriteParamCopy._dbFilePath = _dbFilePath;
     _diskWriteParamCopy._fileCatalog = _fileCatalog;
     _diskWriteParamCopy._setupLabel = _setupLabel;
     _diskWriteParamCopy._nLogicalDisk = _nLogicalDisk;
     _diskWriteParamCopy._maxFileSizeMB = _maxFileSize;
     _diskWriteParamCopy._highWaterMark = _highWaterMark;
+    _diskWriteParamCopy._failHighWaterMark = _failHighWaterMark;
     _diskWriteParamCopy._lumiSectionTimeOut = _lumiSectionTimeOut;
     _diskWriteParamCopy._errorEventsTimeOut = _errorEventsTimeOut;
     _diskWriteParamCopy._fileClosingTestInterval = _fileClosingTestInterval;
@@ -443,6 +491,12 @@ namespace stor
     _dqmParamCopy._readyTimeDQM = _readyTimeDQM;
     _dqmParamCopy._useCompressionDQM = _useCompressionDQM;
     _dqmParamCopy._compressionLevelDQM = _compressionLevelDQM;
+
+    // make sure that purge time is larger than ready time
+    if ( _dqmParamCopy._purgeTimeDQM < _dqmParamCopy._readyTimeDQM )
+    {
+      _dqmParamCopy._purgeTimeDQM = _dqmParamCopy._readyTimeDQM + 10;
+    }
   }
 
   void Configuration::updateLocalEventServingData()
@@ -467,9 +521,12 @@ namespace stor
   {
     _queueConfigParamCopy._commandQueueSize = _commandQueueSize;
     _queueConfigParamCopy._dqmEventQueueSize = _dqmEventQueueSize;
+    _queueConfigParamCopy._dqmEventQueueMemoryLimitMB = _dqmEventQueueMemoryLimitMB;
     _queueConfigParamCopy._fragmentQueueSize = _fragmentQueueSize;
+    _queueConfigParamCopy._fragmentQueueMemoryLimitMB = _fragmentQueueMemoryLimitMB;
     _queueConfigParamCopy._registrationQueueSize = _registrationQueueSize;
     _queueConfigParamCopy._streamQueueSize = _streamQueueSize;
+    _queueConfigParamCopy._streamQueueMemoryLimitMB = _streamQueueMemoryLimitMB;
   }
 
   void Configuration::updateLocalWorkerThreadData()
@@ -496,7 +553,6 @@ namespace stor
 
   void Configuration::updateLocalResourceMonitorData()
   {
-    _resourceMonitorParamCopy._isProductionSystem = _isProductionSystem;
     _resourceMonitorParamCopy._sataUser = _sataUser;
     _resourceMonitorParamCopy._injectWorkers._user = _injectWorkersUser;
     _resourceMonitorParamCopy._injectWorkers._command = _injectWorkersCommand;
@@ -506,7 +562,14 @@ namespace stor
     _resourceMonitorParamCopy._copyWorkers._expectedCount = _nCopyWorkers;
   }
 
-  void Configuration::updateLocalRunNumber()
+  void Configuration::updateLocalAlarmData()
+  {
+    _alarmParamCopy._isProductionSystem = _isProductionSystem;
+    _alarmParamCopy._errorEvents = _errorEvents;
+    _alarmParamCopy._unwantedEvents = _unwantedEvents;
+  }
+
+  void Configuration::updateLocalRunNumberData()
   {
     _localRunNumber = _infospaceRunNumber;
   }
@@ -522,7 +585,7 @@ namespace stor
     boost::shared_ptr<edm::ParameterSet> smPSet = pdesc->getProcessPSet();
 
     // loop over each end path
-    size_t streamId = 0;
+    StreamID streamId = 0;
     std::vector<std::string> allEndPaths = 
       smPSet->getParameter<std::vector<std::string> >("@end_paths");
     for(std::vector<std::string>::iterator endPathIter = allEndPaths.begin();

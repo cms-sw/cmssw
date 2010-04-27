@@ -4,7 +4,8 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
 
     # verbosity 
     verbose = cms.untracked.bool(False),
-                                   
+    # Debug flag
+    debug = cms.untracked.bool(False),
 
     # input clusters
     PFClustersECAL = cms.InputTag("particleFlowClusterECAL"),
@@ -20,7 +21,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     RecTracks = cms.InputTag("trackerDrivenElectronSeeds"),
 
     # input nuclear interactions 
-    PFNuclear = cms.InputTag("pfNuclear"),
+    PFNuclear = cms.InputTag("pfDisplacedTrackerVertex"),
     useNuclear = cms.bool(False),
 
     # input muons
@@ -42,8 +43,6 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     # Run particle flow at HLT (hence no RecMuons, no GSF tracks)
     usePFatHLT = cms.bool(False),
 
-    # Debug flag
-    debug = cms.untracked.bool(False)
 )
 
 

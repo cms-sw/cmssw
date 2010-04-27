@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.7 2009/12/08 14:12:58 dshpakov Exp $
+// $Id: DiskWriter.h,v 1.9 2010/03/16 19:12:25 mommsen Exp $
 /// @file: DiskWriter.h 
 
 #ifndef StorageManager_DiskWriter_h
@@ -13,6 +13,8 @@
 #include "toolbox/task/WaitingWorkLoop.h"
 #include "xdaq/Application.h"
 
+#include "EventFilter/StorageManager/interface/Configuration.h"
+#include "EventFilter/StorageManager/interface/DbFileHandler.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
@@ -30,9 +32,9 @@ namespace stor {
    * It gets the next event from the StreamQueue and writes it
    * to the appropriate stream file(s) on disk. 
    *
-   * $Author: dshpakov $
-   * $Revision: 1.7 $
-   * $Date: 2009/12/08 14:12:58 $
+   * $Author: mommsen $
+   * $Revision: 1.9 $
+   * $Date: 2010/03/16 19:12:25 $
    */
   
   class DiskWriter : public toolbox::lang::Class
@@ -86,16 +88,6 @@ namespace stor {
     void checkForFileTimeOuts(const bool doItNow = false);
 
     /**
-     * Close all files for expired lumi sections
-     */    
-    void closeFilesForOldLumiSections();
-
-    /**
-     * Close all files belonging to the given lumi section
-     */    
-    void closeFilesForLumiSection(const uint32_t lumiSection);
-
-    /**
      * Close all timed-out files
      */    
     void closeTimedOutFiles(const utils::time_point_t);
@@ -126,14 +118,28 @@ namespace stor {
     void destroyStreams();
 
     /**
-       Close files at the end of a luminosity section and release
-       message memory:
-    */
+     * Close files at the end of a luminosity section and release
+     * message memory:
+     */
     void processEndOfLumiSection(const I2OChain&);
+
+    /**
+     * Log file statistics for so far unreported lumi sections
+     */
+    void reportRemainingLumiSections() const;
+
+    /**
+     * Log end-of-run marker
+     */
+    void writeEndOfRunMarker() const;
+
 
     xdaq::Application* _app;
     SharedResourcesPtr _sharedResources;
+    DiskWritingParams _dwParams;
+    const DbFileHandlerPtr _dbFileHandler;
 
+    unsigned int _runNumber;
     unsigned int _timeout; // Timeout in seconds on stream queue
     utils::time_point_t _lastFileTimeoutCheckTime; // Last time we checked for time-out files
 

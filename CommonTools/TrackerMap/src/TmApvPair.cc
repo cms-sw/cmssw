@@ -1,7 +1,6 @@
 #include "CommonTools/TrackerMap/interface/TmApvPair.h"
 #include "CommonTools/TrackerMap/interface/TmModule.h"
 #include <string>
-using namespace std;
 
 TmApvPair::TmApvPair(int connId,int crate){
   idex=connId;

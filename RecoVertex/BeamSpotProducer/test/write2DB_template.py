@@ -17,6 +17,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           toPut = cms.VPSet(cms.PSet(
     record = cms.string('BeamSpotObjectsRcd'),
     tag = cms.string('TAGNAME') )),
+    timetype = cms.untracked.string('TIMETYPE'),                                     
     loadBlobStreamer = cms.untracked.bool(False)
 )
 

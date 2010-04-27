@@ -66,5 +66,5 @@ namespace cond{
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 using cond::EmptyIOVSource;
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(EmptyIOVSource);
+
+DEFINE_FWK_INPUT_SOURCE(EmptyIOVSource);

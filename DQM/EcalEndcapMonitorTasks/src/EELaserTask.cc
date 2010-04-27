@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2009/08/25 09:17:30 $
- * $Revision: 1.61 $
+ * $Date: 2010/02/12 21:45:20 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  *
 */
@@ -30,17 +30,13 @@
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EELaserTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EELaserTask::EELaserTask(const ParameterSet& ps){
+EELaserTask::EELaserTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -111,7 +107,7 @@ void EELaserTask::beginJob(void){
 
 }
 
-void EELaserTask::beginRun(const Run& r, const EventSetup& c) {
+void EELaserTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -119,7 +115,7 @@ void EELaserTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EELaserTask::endRun(const Run& r, const EventSetup& c) {
+void EELaserTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -624,13 +620,13 @@ void EELaserTask::cleanup(void){
 
 void EELaserTask::endJob(void){
 
-  LogInfo("EELaserTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EELaserTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EELaserTask::analyze(const Event& e, const EventSetup& c){
+void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool enable = false;
   int runType[18];
@@ -640,7 +636,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
   int waveLength[18];
   for (int i=0; i<18; i++) waveLength[i] = -1;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -661,7 +657,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EELaserTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EELaserTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -671,7 +667,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EEDigiCollection> digis;
+  edm::Handle<EEDigiCollection> digis;
 
   if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
@@ -691,9 +687,6 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
                runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
       if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
-
-      LogDebug("EELaserTask") << " det id = " << id;
-      LogDebug("EELaserTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       int ic = Numbers::icEE(ism, ix, iy);
 
@@ -719,7 +712,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
         } else {
 
-          LogWarning("EELaserTask") << " RtHalf = " << rtHalf[ism-1];
+          edm::LogWarning("EELaserTask") << " RtHalf = " << rtHalf[ism-1];
 
         }
 
@@ -734,7 +727,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EELaserTask") << EEDigiCollection_ << " not available";
+    edm::LogWarning("EELaserTask") << EEDigiCollection_ << " not available";
 
   }
 
@@ -743,7 +736,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
     adcPN[i] = 0.;
   }
 
-  Handle<EcalPnDiodeDigiCollection> pns;
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
 
   if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
 
@@ -760,9 +753,6 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LASER_STD ||
                runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
-
-      LogDebug("EELaserTask") << " det id = " << pnItr->id();
-      LogDebug("EELaserTask") << " sm, num " << ism << " " << num;
 
       float xvalped = 0.;
 
@@ -834,11 +824,11 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EELaserTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EELaserTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 
-  Handle<EcalUncalibratedRecHitCollection> hits;
+  edm::Handle<EcalUncalibratedRecHitCollection> hits;
 
   if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
@@ -863,9 +853,6 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
                runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
       if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
-
-      LogDebug("EELaserTask") << " det id = " << id;
-      LogDebug("EELaserTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       MonitorElement* meAmplMap = 0;
       MonitorElement* meTimeMap = 0;
@@ -896,7 +883,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       } else {
 
-        LogWarning("EELaserTask") << " RtHalf = " << rtHalf[ism-1];
+        edm::LogWarning("EELaserTask") << " RtHalf = " << rtHalf[ism-1];
 
       }
 
@@ -906,10 +893,6 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       if ( yval <= 0. ) yval = 0.0;
       float zval = hitItr->pedestal();
       if ( zval <= 0. ) zval = 0.0;
-
-      LogDebug("EELaserTask") << " hit amplitude " << xval;
-      LogDebug("EELaserTask") << " hit jitter " << yval;
-      LogDebug("EELaserTask") << " hit pedestal " << zval;
 
       if ( meAmplMap ) meAmplMap->Fill(xix, xiy, xval);
 
@@ -924,15 +907,13 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       if ( adcPN[refPn] != 0. ) wval = xval /  adcPN[refPn];
 
-      LogDebug("EELaserTask") << " hit amplitude over PN " << wval;
-
       if ( meAmplPNMap ) meAmplPNMap->Fill(xix, xiy, wval);
 
     }
 
   } else {
 
-    LogWarning("EELaserTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    edm::LogWarning("EELaserTask") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
 

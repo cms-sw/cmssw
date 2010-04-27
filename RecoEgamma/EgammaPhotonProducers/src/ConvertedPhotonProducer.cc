@@ -56,7 +56,7 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
 
 
   
-  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer CTOR " << "\n";
+  //cout<< " ConvertedPhotonProducer CTOR " << "\n";
   
   
   
@@ -122,7 +122,7 @@ void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & th
  
 
     //get magnetic field
-  edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field" << "\n";
+  //edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field" << "\n";
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
     
   // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
@@ -144,8 +144,8 @@ void  ConvertedPhotonProducer::endRun (edm::Run& r, edm::EventSetup const & theE
 
 void  ConvertedPhotonProducer::endJob () {
   
-  edm::LogInfo("ConvertedPhotonProducer") << " Analyzed " << nEvt_  << "\n";
-  LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer::endJob Processed " << nEvt_ << " events " << "\n";
+ 
+  //LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer::endJob Processed " << nEvt_ << " events " << "\n";
   
   
 }
@@ -157,7 +157,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   using namespace edm;
   nEvt_++;  
 
-  LogDebug("ConvertedPhotonProducer")   << "ConvertedPhotonProduce::produce event number " <<   theEvent.id() << " Global counter " << nEvt_ << "\n";
+  //  LogDebug("ConvertedPhotonProducer")   << "ConvertedPhotonProduce::produce event number " <<   theEvent.id() << " Global counter " << nEvt_ << "\n";
   //  std::cout    << "ConvertedPhotonProduce::produce event number " <<   theEvent.id() << " Global counter " << nEvt_ << "\n";
   
   //
@@ -195,18 +195,18 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   Handle<reco::TrackCollection> outInTrkHandle;
   theEvent.getByLabel(conversionOITrackProducer_,  outInTrkHandle);
   if (!outInTrkHandle.isValid()) {
-    std::cout << "Error! Can't get the conversionOITrack " << "\n";
+    //std::cout << "Error! Can't get the conversionOITrack " << "\n";
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the conversionOITrack " << "\n";
     validTrackInputs=false;
   }
-  LogDebug("ConvertedPhotonProducer")<< "ConvertedPhotonProducer  outInTrack collection size " << (*outInTrkHandle).size() << "\n";
+  //  LogDebug("ConvertedPhotonProducer")<< "ConvertedPhotonProducer  outInTrack collection size " << (*outInTrkHandle).size() << "\n";
   
    
   //// Get the association map between CKF Out In tracks and the SC where they originated
   Handle<reco::TrackCaloClusterPtrAssociation> outInTrkSCAssocHandle;
   theEvent.getByLabel( conversionOITrackProducer_, outInTrackSCAssociationCollection_, outInTrkSCAssocHandle);
   if (!outInTrkSCAssocHandle.isValid()) {
-    std::cout << "Error! Can't get the product " <<  outInTrackSCAssociationCollection_.c_str() <<"\n";
+    //  std::cout << "Error! Can't get the product " <<  outInTrackSCAssociationCollection_.c_str() <<"\n";
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product " <<  outInTrackSCAssociationCollection_.c_str() <<"\n";
     validTrackInputs=false;
   }
@@ -215,11 +215,11 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   Handle<reco::TrackCollection> inOutTrkHandle;
   theEvent.getByLabel(conversionIOTrackProducer_, inOutTrkHandle);
   if (!inOutTrkHandle.isValid()) {
-    std::cout << "Error! Can't get the conversionIOTrack " << "\n";
+    // std::cout << "Error! Can't get the conversionIOTrack " << "\n";
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the conversionIOTrack " << "\n";
     validTrackInputs=false;
   }
-  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer inOutTrack collection size " << (*inOutTrkHandle).size() << "\n";
+  //  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer inOutTrack collection size " << (*inOutTrkHandle).size() << "\n";
 
 
   //// Get the generalTracks if the recovery of one track cases is switched on
@@ -228,7 +228,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   if (  recoverOneTrackCase_ ) {
     theEvent.getByLabel("generalTracks", generalTrkHandle);
     if (!generalTrkHandle.isValid()) {
-      std::cout << "Error! Can't get the genralTracks " << "\n";
+      //std::cout << "Error! Can't get the genralTracks " << "\n";
       edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the genralTracks " << "\n";
     }
   }  
@@ -237,7 +237,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   Handle<reco::TrackCaloClusterPtrAssociation> inOutTrkSCAssocHandle;
   theEvent.getByLabel( conversionIOTrackProducer_, inOutTrackSCAssociationCollection_, inOutTrkSCAssocHandle);
   if (!inOutTrkSCAssocHandle.isValid()) {
-    std::cout << "Error! Can't get the product " <<  inOutTrackSCAssociationCollection_.c_str() <<"\n";
+    //std::cout << "Error! Can't get the product " <<  inOutTrackSCAssociationCollection_.c_str() <<"\n";
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product " <<  inOutTrackSCAssociationCollection_.c_str() <<"\n";
     validTrackInputs=false;
   }
@@ -283,7 +283,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     //  std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*> allPairs;
     std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr> allPairs;
     allPairs = theTrackPairFinder_->run(t_outInTrk, outInTrkHandle, outInTrkSCAssocHandle, t_inOutTrk, inOutTrkHandle, inOutTrkSCAssocHandle  );
-    LogDebug("ConvertedPhotonProducer")  << "ConvertedPhotonProducer  allPairs.size " << allPairs.size() << "\n";      
+    //LogDebug("ConvertedPhotonProducer")  << "ConvertedPhotonProducer  allPairs.size " << allPairs.size() << "\n";      
 
     buildCollections(theEventSetup, scBarrelHandle, bcBarrelHandle, hcalTowersHandle, generalTrkHandle, allPairs, outputConvPhotonCollection);
     buildCollections(theEventSetup, scEndcapHandle, bcEndcapHandle, hcalTowersHandle, generalTrkHandle, allPairs, outputConvPhotonCollection);
@@ -291,7 +291,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   
   // put the product in the event
   outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(),outputConvPhotonCollection.end());
-  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Putting in the event    converted photon candidates " << (*outputConvPhotonCollection_p).size() << "\n";  
+  //LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Putting in the event    converted photon candidates " << (*outputConvPhotonCollection_p).size() << "\n";  
   const edm::OrphanHandle<reco::ConversionCollection> conversionHandle= theEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
 
 
@@ -351,7 +351,7 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
     std::vector<math::XYZVector> trackPout;
     float minAppDist=-99;
 
-    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer SC energy " << aClus->energy() << " eta " <<  aClus->eta() << " phi " <<  aClus->phi() << "\n";
+    //LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer SC energy " << aClus->energy() << " eta " <<  aClus->eta() << " phi " <<  aClus->phi() << "\n";
 
     
     //// Set here first quantities for the converted photon
@@ -391,7 +391,7 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
 	    
 	  }
 	  catch ( cms::Exception& e ) {
-	    std::cout << " cms::Exception caught in ConvertedPhotonProducer::produce" << "\n" ;
+	    //std::cout << " cms::Exception caught in ConvertedPhotonProducer::produce" << "\n" ;
 	    edm::LogWarning(metname) << "cms::Exception caught in ConvertedPhotonProducer::produce\n"
 				     << e.explainSelf();
 	    
@@ -424,12 +424,12 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
       
 	
 	for ( std::vector<reco::TransientTrack>::const_iterator iTk=(iPair->first).begin(); iTk!= (iPair->first).end(); ++iTk) {
-	  LogDebug("ConvertedPhotonProducer")  << "  ConvertedPhotonProducer Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
+	  //LogDebug("ConvertedPhotonProducer")  << "  ConvertedPhotonProducer Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
 	  
 	  const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
 	  reco::TrackRef myTkRef= ttt->persistentTrackRef(); 
 	  
-	  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer Ref to Rec Tracks in the pair  charge " << myTkRef->charge() << " Num of RecHits " << myTkRef->recHitsSize() << " inner momentum " << myTkRef->innerMomentum() << "\n";  
+	  //LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer Ref to Rec Tracks in the pair  charge " << myTkRef->charge() << " Num of RecHits " << myTkRef->recHitsSize() << " inner momentum " << myTkRef->innerMomentum() << "\n";  
 	  if ( myTkRef->extra().isNonnull() ) {
 	    trackInnPos.push_back(  myTkRef->innerPosition());
 	    trackPin.push_back(  myTkRef->innerMomentum());
@@ -440,15 +440,15 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
 	}
 	
 	//	std::cout << " ConvertedPhotonProducer trackPin size " << trackPin.size() << std::endl;
-	LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer SC energy " <<  aClus->energy() << "\n";
-	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer photon p4 " << p4  << "\n";
-	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer vtx " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
+	//LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer SC energy " <<  aClus->energy() << "\n";
+	//LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer photon p4 " << p4  << "\n";
+	//LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer vtx " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
         if( theConversionVertex.isValid() ) {
 	  
-	  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer theConversionVertex " << theConversionVertex.position().x() << " " << theConversionVertex.position().y() << " " << theConversionVertex.position().z() << "\n";
+	  //LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer theConversionVertex " << theConversionVertex.position().x() << " " << theConversionVertex.position().y() << " " << theConversionVertex.position().z() << "\n";
 	  
 	}
-	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
+	//LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
 
         
 	minAppDist=calculateMinApproachDistance( trackPairRef[0],  trackPairRef[1]);
@@ -461,7 +461,7 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
 	
 	
 	myCands++;
-	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Put the ConvertedPhotonCollection a candidate in the Barrel " << "\n";
+	//LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Put the ConvertedPhotonCollection a candidate in the Barrel " << "\n";
 	
 	} else {
 	  
@@ -531,7 +531,7 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
 		    
 		  }
 		  catch ( cms::Exception& e ) {
-		    std::cout << " cms::Exception caught in ConvertedPhotonProducer::produce" << "\n" ;
+		    //std::cout << " cms::Exception caught in ConvertedPhotonProducer::produce" << "\n" ;
 		    edm::LogWarning(metname) << "cms::Exception caught in ConvertedPhotonProducer::produce\n"
 					     << e.explainSelf();
 		    

@@ -10,6 +10,12 @@ import FWCore.ParameterSet.Config as cms
 
 # ECAL TPG emulator and HCAL TPG run in the simulation sequence in order to be able 
 # to use unsuppressed digis produced by ECAL and HCAL simulation, respectively
+# in Configuration/StandardSequences/python/Digi_cff.py
+# SimCalorimetry.Configuration.SimCalorimetry_cff
+# which calls
+# SimCalorimetry.Configuration.ecalDigiSequence_cff
+# SimCalorimetry.Configuration.hcalDigiSequence_cff
+
 
 # RCT emulator
 import L1Trigger.RegionalCaloTrigger.rctDigis_cfi

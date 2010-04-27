@@ -12,13 +12,13 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQMOffline/Trigger/interface/EgHLTTrigTools.h"
-
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include <boost/algorithm/string.hpp>
 
 EgHLTOfflineSummaryClient::EgHLTOfflineSummaryClient(const edm::ParameterSet& iConfig):
-  egHLTSumHistName_("egHLTTrigSum")
+  egHLTSumHistName_("egHLTTrigSum"),isSetup_(false)
 {  
-  dirName_=iConfig.getParameter<std::string>("DQMDirName");
+  dirName_=iConfig.getParameter<std::string>("DQMDirName"); //only one chance to get this, if we every have another shot, remember to check isSetup is okay
   dbe_ = edm::Service<DQMStore>().operator->();
   if (!dbe_) {
     edm::LogError("EgHLTOfflineSummaryClient") << "unable to get DQMStore service, no summary histograms will be produced";
@@ -35,27 +35,10 @@ EgHLTOfflineSummaryClient::EgHLTOfflineSummaryClient(const edm::ParameterSet& iC
   phoHLTFilterNamesForSumBit_ = iConfig.getParameter<std::vector<std::string> >("phoHLTFilterNamesForSumBit");
   
 
-  bool filterInactiveTriggers =iConfig.getParameter<bool>("filterInactiveTriggers"); 
-  std::string hltTag = iConfig.getParameter<std::string>("hltTag");
-  if(filterInactiveTriggers){
-    std::vector<std::string> activeFilters;
-   
-  
-    egHLT::trigTools::getActiveFilters(activeFilters,hltTag);
-  
-
-    egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
-    egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNames_,activeFilters);
-    egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNamesForSumBit_,activeFilters);
-    egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNamesForSumBit_,activeFilters); 
-     
-  }
-
-  getEgHLTFiltersToMon_(egHLTFiltersToMon_);
-  
+  filterInactiveTriggers_ =iConfig.getParameter<bool>("filterInactiveTriggers"); 
+  hltTag_ = iConfig.getParameter<std::string>("hltTag");
+ 
   usePathNames_ = iConfig.getParameter<bool>("usePathNames");
-
-   if(usePathNames_) egHLT::trigTools::translateFiltersToPathNames(egHLTFiltersToMon_,egHLTFiltersToMonPaths_,hltTag);
  
   
   //std::vector<std::string> egHLTSumQTests = iConfig.getParameter<std::vector<std::string> >("egHLTSumQTests");
@@ -98,7 +81,26 @@ void EgHLTOfflineSummaryClient::endJob()
 
 void EgHLTOfflineSummaryClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
- 
+  if(!isSetup_){
+    bool changed;
+    HLTConfigProvider hltConfig;
+    hltConfig.init(run,c,hltTag_,changed);
+    if(filterInactiveTriggers_){
+      std::vector<std::string> activeFilters;
+      
+      egHLT::trigTools::getActiveFilters(hltConfig,activeFilters);     
+      
+      egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
+      egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNames_,activeFilters);
+      egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNamesForSumBit_,activeFilters);
+      egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNamesForSumBit_,activeFilters); 
+      
+    }
+    getEgHLTFiltersToMon_(egHLTFiltersToMon_);
+     
+    if(usePathNames_) egHLT::trigTools::translateFiltersToPathNames(hltConfig,egHLTFiltersToMon_,egHLTFiltersToMonPaths_);
+    isSetup_=true;
+  }
 }
 
 

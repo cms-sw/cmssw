@@ -97,10 +97,10 @@ JetPlusTrackCorrector::~JetPlusTrackCorrector() {;}
 // -----------------------------------------------------------------------------
 //
 double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
-					  const edm::RefToBase<reco::Jet>& fJetRef,
 					  const edm::Event& event,
 					  const edm::EventSetup& setup,
-					  P4& corrected ) const {
+					  P4& corrected ) const 
+{
   
   // Corrected 4-momentum for jet
   corrected = fJet.p4();

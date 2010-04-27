@@ -1,13 +1,14 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2009/10/26 17:33:48 $
- * $Revision: 1.26 $
+ * $Date: 2009/12/14 17:03:39 $
+ * $Revision: 1.27 $
  * \author E. Di Marco
  *
 */
 
 #include <iostream>
+#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -28,17 +29,13 @@
 
 #include "DQM/EcalBarrelMonitorTasks/interface/EBRawDataTask.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBRawDataTask::EBRawDataTask(const ParameterSet& ps) {
+EBRawDataTask::EBRawDataTask(const edm::ParameterSet& ps) {
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -82,7 +79,7 @@ void EBRawDataTask::beginJob(void){
 
 }
 
-void EBRawDataTask::beginRun(const Run& r, const EventSetup& c) {
+void EBRawDataTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -90,7 +87,7 @@ void EBRawDataTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBRawDataTask::endRun(const Run& r, const EventSetup& c) {
+void EBRawDataTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -350,13 +347,13 @@ void EBRawDataTask::cleanup(void){
 
 void EBRawDataTask::endJob(void) {
 
-  LogInfo("EBRawDataTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBRawDataTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
+void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
@@ -410,7 +407,7 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
       int ECALDCC_BunchCrossing_MostFreqCounts = 0;
       int ECALDCC_TriggerType_MostFreqCounts = 0;
 
-      Handle<EcalRawDataCollection> dcchs;
+      edm::Handle<EcalRawDataCollection> dcchs;
 
       if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -451,7 +448,7 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
         }
 
       } else {
-        LogWarning("EBRawDataTask") << EcalRawDataCollection_ << " not available";
+        edm::LogWarning("EBRawDataTask") << EcalRawDataCollection_ << " not available";
       }
 
     }
@@ -477,10 +474,10 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EBRawDataTask") << FEDRawDataCollection_ << " not available";
+    edm::LogWarning("EBRawDataTask") << FEDRawDataCollection_ << " not available";
   }
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -598,7 +595,7 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EBRawDataTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EBRawDataTask") << EcalRawDataCollection_ << " not available";
   }
 
 }

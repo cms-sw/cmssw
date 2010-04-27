@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 kinFitTtSemiLepEvent = cms.EDProducer("TtSemiLepKinFitProducerMuon",
-    jets = cms.InputTag("selectedLayer1Jets"),
-    leps = cms.InputTag("selectedLayer1Muons"),
-    mets = cms.InputTag("layer1METs"),
+    jets = cms.InputTag("selectedPatJets"),
+    leps = cms.InputTag("selectedPatMuons"),
+    mets = cms.InputTag("patMETs"),
 
     # ------------------------------------------------
     # maximum number of jets to be considered in the

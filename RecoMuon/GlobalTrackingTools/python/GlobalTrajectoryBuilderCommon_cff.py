@@ -24,6 +24,7 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         DoPredictionsOnly = cms.bool(False)
     ),
     PtCut = cms.double(1.0),
+    PCut = cms.double(2.5),
     TrackerPropagator = cms.string('SteppingHelixPropagatorAny'),
     GlbRefitterParameters = cms.PSet(
         DTRecSegmentLabel = cms.InputTag("dt4DSegments"),

@@ -5,7 +5,7 @@ CFGLIBS   = -L$(shell pwd)/libconfig-1.3/.libs
 CFGCFLAGS = -I$(shell pwd)/libconfig-1.3
 
 CXX        = g++
-CXXFLAGS   = $(ROOTCFLAGS) -Wall -g
+CXXFLAGS   = $(ROOTCFLAGS) -Wall -g -I$(shell scram tool info boost | grep '^INCLUDE' | cut -d= -f2)
 LD         = gcc
 LDFLAGS    = -Wall -g
 LIBS       = $(ROOTLIBS) -lEG $(CFGLIBS) -lconfig++

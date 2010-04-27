@@ -7,8 +7,8 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalSimpleReconstructor);
-DEFINE_ANOTHER_FWK_MODULE(HcalHitReconstructor);
-DEFINE_ANOTHER_FWK_MODULE(ZdcSimpleReconstructor);
-DEFINE_ANOTHER_FWK_MODULE(ZdcHitReconstructor);
+
+DEFINE_FWK_MODULE(HcalSimpleReconstructor);
+DEFINE_FWK_MODULE(HcalHitReconstructor);
+DEFINE_FWK_MODULE(ZdcSimpleReconstructor);
+DEFINE_FWK_MODULE(ZdcHitReconstructor);

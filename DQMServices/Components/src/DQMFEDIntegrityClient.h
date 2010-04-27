@@ -4,14 +4,14 @@
  *
  * DQM FED Client
  *
- * $Date: 2009/07/26 18:32:58 $
- * $Revision: 1.5 $
+ * $Date: 2010/03/25 16:10:25 $
+ * $Revision: 1.7 $
  * \author  M. Marienfeld
  *
 */
 
-#ifndef DQMFEDIntegrityClient_H
-#define DQMFEDIntegrityClient_H
+#ifndef DQMFEDINTEGRITYCLIENT_H
+#define DQMFEDINTEGRITYCLIENT_H
 
 #include <string>
 #include <vector>
@@ -71,6 +71,7 @@ private:
   bool fillOnEndJob;
   bool fillOnEndLumi;
   std::string moduleName;
+  std::string fedFolderName;
 
 };
 

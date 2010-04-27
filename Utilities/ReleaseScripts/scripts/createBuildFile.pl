@@ -142,7 +142,7 @@ sub updateRevDeps ()
 sub initCache ()
 {
   my $dir=shift || "";
-  if((-f $cfile) && (-f $pcfile) && (-f "${symboldir}/SymbolsCache"))
+  if((-f $cfile) && (-f $pcfile) && (-f "${symboldir}.SymbolsCache.db"))
   {
     $cache=&SCRAMGenUtils::readHashCache($cfile);
     $pcache=&SCRAMGenUtils::readHashCache($pcfile);
@@ -178,7 +178,7 @@ sub initCache ()
 	&SCRAMGenUtils::writeHashCache($pcache,$pcfile);
       }
     }
-    $data->{ALL_SYMBOLS}=&SCRAMGenUtils::readHashCache("${symboldir}/SymbolsCache");
+    $data->{ALL_SYMBOLS}=&SCRAMGenUtils::readHashCache("${symboldir}.SymbolsCache.db");
     foreach my $p (keys %$cache){if((exists $cache->{$p}{done}) && ($cache->{$p}{done}==0)){delete $cache->{$p}{done};}}
   }
   else
@@ -210,8 +210,7 @@ sub initCache ()
     &SCRAMGenUtils::scramToolSymbolCache($tcache,"self",$symboldir,$xjobs,$pcache->{packmap});
     &SCRAMGenUtils::waitForChild();
     print STDERR "\n";
-    $data->{ALL_SYMBOLS}=&SCRAMGenUtils::mergeSymbols($symboldir,"SymbolsCache");
-    
+    $data->{ALL_SYMBOLS}=&SCRAMGenUtils::mergeSymbols($symboldir,"${symboldir}.SymbolsCache.db");
     foreach my $d (reverse sort keys %{$projcache->{BUILDTREE}}){&updateProd($d);}
     $projcache={};
     $locprojcache={};
@@ -639,7 +638,10 @@ sub processRequest_SYMBOL_CHECK_REQUEST ()
     if (exists $allsyms->{$s})
     {
       my $s1=$allsyms->{$s};
-      foreach my $t (keys %$s1){$ts{$s}{$t}=$s1->{$t};}
+      foreach my $t (keys %$s1)
+      {
+        foreach my $l (keys %{$s1->{$t}}){$ts{$s}{$t}=$l;}
+      }
     }
   }
   my $tmpfile=&SCRAMGenUtils::getTmpFile ($cachedir);

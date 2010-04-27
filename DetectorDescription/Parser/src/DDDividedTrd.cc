@@ -21,7 +21,7 @@
 #include <cstdlib>
 
 //------------------------------------------------------------------------
-DDDividedTrdX::DDDividedTrdX ( const DDDivision& div, DDCompactView* cpv )
+DDDividedTrdX::DDDividedTrdX ( const DDDivision& div, DDCompactView& cpv )
   :  DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();
@@ -179,7 +179,7 @@ void DDDividedTrdX::checkParametersValidity()
 }
 
 //--------------------------------------------------------------------------
-DDDividedTrdY::DDDividedTrdY ( const DDDivision& div, DDCompactView* cpv )
+DDDividedTrdY::DDDividedTrdY ( const DDDivision& div, DDCompactView& cpv )
   : DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();
@@ -321,7 +321,7 @@ void DDDividedTrdY::checkParametersValidity()
 }
 
 //--------------------------------------------------------------------------
-DDDividedTrdZ::DDDividedTrdZ( const DDDivision& div, DDCompactView* cpv )
+DDDividedTrdZ::DDDividedTrdZ( const DDDivision& div, DDCompactView& cpv )
   : DDDividedGeometryObject(div,cpv)
 { 
   checkParametersValidity();

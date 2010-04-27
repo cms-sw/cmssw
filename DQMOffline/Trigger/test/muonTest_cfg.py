@@ -8,7 +8,7 @@ process = cms.Process("HLTMuonOfflineAnalysis")
 #process.load("DQMOffline.Trigger.MuonTrigRateAnalyzer_cosmics_cfi")
 #process.load("DQMOffline.Trigger.MuonOffline_Trigger_cosmics_cff")
 process.load("DQMOffline.Trigger.MuonOffline_Trigger_cff")
-
+process.load("DQMOffline.Trigger.QuadJetAna_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 
@@ -84,6 +84,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.analyzerpath = cms.Path(
     process.muonFullOfflineDQM*
+	process.quadJetAna *
     process.MEtoEDMConverter*
 	process.dqmStoreStats
 )

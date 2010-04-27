@@ -59,6 +59,7 @@ class HcalSeverityLevelComputer
   void getChStBit(HcalSeverityDefinition& mydef, const std::string& mybit);
   void getRecHitFlag(HcalSeverityDefinition& mydef, const std::string& mybit);
   void setBit (const unsigned bitnumber, uint32_t& where);
+  void setAllRHMasks(const unsigned bitnumber, HcalSeverityDefinition& mydef);
 
   friend std::ostream& operator<<(std::ostream& s, const HcalSeverityLevelComputer::HcalSeverityDefinition& def);
 

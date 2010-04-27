@@ -94,8 +94,10 @@ HDShower::HDShower(const RandomEngine* engine,
     eSpotSize *= 2.5;
     if(effective > emax) {
       effective = emax; 
-      eSpotSize *= 2.; 
+      eSpotSize *= 4.; 
       depthStep *= 2.;
+      if(effective > 1000.)
+      eSpotSize *= 2.; 
     }
   }
 
@@ -441,13 +443,18 @@ void HDShower::makeSteps(int nsteps) {
     nspots.push_back((int)(eStep[i]/eSpotSize)+1);
 
    if(debug)
-     LogDebug("FastCalorimetry") << i << "  xO and lamdepth at the end of step = " 
-	  << x0depth[i] << " " 
-	  << lamdepth[i] << "   Estep func = " <<  eStep[i] 
-	  << "   Rstep = " << rlamStep[i] << "  Nspots = " <<  nspots[i]
-	  << std::endl; 
+     LogDebug("FastCalorimetry") 
+       << " step " << i
+       << "  det: " << detector[i]   
+       << "  xO and lamdepth at the end of step = " 
+       << x0depth[i] << " "  
+       << lamdepth[i] << "   Estep func = " <<  eStep[i]
+       << "   Rstep = " << rlamStep[i] << "  Nspots = " <<  nspots[i]
+       << "  espot = " <<  eStep[i] / (double)nspots[i]
+       << std::endl; 
 
   }
+
 
   // The only step is in ECAL - let's make the size bigger ...  
   if(count == 1 and detector[0] == 1) rlamStep[0] *= 2.;
@@ -532,8 +539,18 @@ bool HDShower::compute() {
 	
 	if(!status) continue; 
 
-        espot *= 0.1;  // SPECIAL fine-grain energy spots in ECAL to avoid false ECAL clustering 
-        nspots[i] *= 10;  
+        int ntry = nspots[i] * 10;  
+        if( ntry >= infinity ) {  // use max allowed in case of too many spots
+	  nspots[i] = 0.5 * infinity;  
+	  espot *= 0.1 * (double)ntry / double(nspots[i]);
+	}     
+	else {
+	  espot *= 0.1;  // fine-grain energy spots in ECAL
+                         // to avoid false ECAL clustering 
+          nspots[i] = ntry;
+	}
+
+
         theGrid->setSpotEnergy(espot);
       }  
 
@@ -546,7 +563,7 @@ bool HDShower::compute() {
       // only OK points are counted ...
       if(nspots[i] > inf ){
 	std::cout << " FamosHDShower::compute - at long.step " << i 
-		  << "  too many spots : "  <<  nspots[i] << " !!! " 
+		  << "  too many spots required : "  <<  nspots[i] << " !!! " 
                   << std::endl;
       }
 
@@ -585,20 +602,21 @@ bool HDShower::compute() {
 	
       } // end of tranverse simulation
       if(count == infinity) { 
-        status = false; 
 	if(debug)
-	  LogDebug("FastCalorimetry") << "*** FamosHDShower::compute " << " maximum number of" 
-	       << " transverse points " << count << " is used !!!" << std::endl; 
-        break;
+	  LogDebug("FastCalorimetry") 
+	    << " FamosHDShower::compute " << " maximum number of" 
+	    << " transverse points " << count << " is used !!!" << std::endl; 
       }
 
       if(debug)
-	LogDebug("FastCalorimetry") << " FamosHDShower::compute " << " long.step No." << i 
-	     << "   Ntry, Nok = " << count
-	     << " " << nok << std::endl; 
-      
+	LogDebug("FastCalorimetry") 
+	  << " FamosHDShower::compute " << " long.step No." << i 
+	  << "   Ntry, Nok = " << count
+	  << " " << nok << std::endl; 
+
     } // end of longitudinal steps
   } // end of no steps
+
   return status;
 
 }

@@ -16,14 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:51:59 EDT 2005
-// $Id: DependsOnDummyService.h,v 1.1 2005/09/09 17:23:39 chrjones Exp $
+// $Id: DependsOnDummyService.h,v 1.2 2007/08/06 20:54:12 wmtan Exp $
 //
 
-// system include files
+namespace edm {
+   class ConfigurationDescriptions;
+}
 
-// user include files
-
-// forward declarations
 namespace testserviceregistry {
    class DependsOnDummyService
    {
@@ -32,21 +31,15 @@ namespace testserviceregistry {
       DependsOnDummyService();
       virtual ~DependsOnDummyService();
 
-      // ---------- const member functions ---------------------
       int value() const { return value_; }
       
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       DependsOnDummyService(const DependsOnDummyService&); // stop default
-
       const DependsOnDummyService& operator=(const DependsOnDummyService&); // stop default
 
-      // ---------- member data --------------------------------
       int value_;
    };
 }
-
 #endif

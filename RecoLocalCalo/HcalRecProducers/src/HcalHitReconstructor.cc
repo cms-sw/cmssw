@@ -32,7 +32,6 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   setSaturationFlags_(conf.getParameter<bool>("setSaturationFlags")),
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed"))
-  
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
   hbheFlagSetter_=0;
@@ -40,6 +39,8 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   hbheTimingShapedFlagSetter_ = 0;
   hfdigibit_=0;
   hfrechitbit_=0;
+  hfS9S1_=0;
+  hfPET_=0;
   saturationFlagSetter_=0;
   HFTimingTrustFlagSetter_=0;
   
@@ -93,6 +94,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     produces<HORecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HF")) {
     subdet_=HcalForward;
+    HFNoiseAlgo_=conf.getParameter<int>("HFNoiseAlgo"); // get noise algorithm type
 
     if (setTimingTrustFlags_) {
       
@@ -100,7 +102,6 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
       HFTimingTrustFlagSetter_=new HFTimingTrustFlag(pstrust.getParameter<int>("hfTimingTrustLevel1"),
 						     pstrust.getParameter<int>("hfTimingTrustLevel2"));
     }
-
 
     if (setNoiseFlags_)
       {
@@ -118,6 +119,22 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 						    psrechit.getParameter<double>("long_HFETthreshold"),
 						    psrechit.getParameter<double>("long_HFEnergythreshold")	
 						    );
+	const edm::ParameterSet& psS9S1   = conf.getParameter<edm::ParameterSet>("S9S1stat");
+	hfS9S1_   = new HcalHF_S9S1algorithm(psS9S1.getParameter<std::vector<double> >("short_optimumSlope"),
+					     psS9S1.getParameter<std::vector<double> >("shortEnergyParams"),
+					     psS9S1.getParameter<std::vector<double> >("shortETParams"),
+					     psS9S1.getParameter<std::vector<double> >("long_optimumSlope"),
+					     psS9S1.getParameter<std::vector<double> >("longEnergyParams"),
+					     psS9S1.getParameter<std::vector<double> >("longETParams")
+					     );
+	const edm::ParameterSet& psPET    = conf.getParameter<edm::ParameterSet>("PETstat");
+	hfPET_    = new HcalHF_PETalgorithm(psPET.getParameter<std::vector<double> >("short_R"),
+					    psPET.getParameter<std::vector<double> >("shortEnergyParams"),
+					    psPET.getParameter<std::vector<double> >("shortETParams"),
+					    psPET.getParameter<std::vector<double> >("long_R"),
+					    psPET.getParameter<std::vector<double> >("longEnergyParams"),
+					    psPET.getParameter<std::vector<double> >("longETParams")
+					    );
       }
     produces<HFRecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"ZDC")) {
@@ -139,6 +156,8 @@ HcalHitReconstructor::~HcalHitReconstructor() {
   if (hfdigibit_)             delete hfdigibit_;
   if (hfrechitbit_)           delete hfrechitbit_;
   if (hbheHSCPFlagSetter_)    delete hbheHSCPFlagSetter_;
+  if (hfS9S1_)                delete hfS9S1_;
+  if (hfPET_)                 delete hfPET_;
 }
 
 void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
@@ -313,7 +332,25 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	  HcalTimingCorrector::Correct(rec->back(), *i, favorite_capid);
       }
       // This sets HF noise bit determined from L/S rechit energy comparison
-      if (setNoiseFlags_) hfrechitbit_->hfSetFlagFromRecHits(*rec,myqual,mySeverity);
+      if (setNoiseFlags_) 
+	{
+	  if (HFNoiseAlgo_==1)  // old-style bit setting ("Algo 1")
+	    hfrechitbit_->hfSetFlagFromRecHits(*rec,myqual,mySeverity); // old code passes full rechit collection to algo; probably not the best way to go about this.  Instead, loop over rechits directly here
+
+	  else if (HFNoiseAlgo_>1)  // HFNoiseAlgo_==3 is the default
+	    {
+	      for (HFRecHitCollection::iterator i = rec->begin();i!=rec->end();++i)
+		{
+		  int depth=i->id().depth();
+		  int ieta=i->id().ieta();
+		  // Short fibers and all channels at |ieta|=29 use PET settings in Algo 3
+		  if ((HFNoiseAlgo_==4) || (HFNoiseAlgo_==3 && depth==1 && abs(ieta)!=29 )) 
+		    hfS9S1_->HFSetFlagFromS9S1(*i,*rec,myqual, mySeverity);
+		  else
+		    hfPET_->HFSetFlagFromPET(*i,*rec,myqual,mySeverity);
+		}
+	    }
+	}
       // return result
       e.put(rec);     
     } else if (subdet_==HcalOther && subdetOther_==HcalCalibration) {

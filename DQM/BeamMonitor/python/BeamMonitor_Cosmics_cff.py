@@ -2,9 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                               monitorName = cms.untracked.string('BeamMonitor'),
-                              beamSpot = cms.untracked.string('offlineBeamSpot'), ## hltOfflineBeamSpot for HLTMON
+                              beamSpot = cms.untracked.InputTag('offlineBeamSpot'), ## hltOfflineBeamSpot for HLTMON
+                              primaryVertex = cms.untracked.InputTag('offlinePrimaryVertices'),
+                              timeInterval = cms.untracked.int32(920),
                               fitEveryNLumi = cms.untracked.int32(2),
                               resetEveryNLumi = cms.untracked.int32(20),
+                              resetPVEveryNLumi = cms.untracked.int32(2),
                               Debug = cms.untracked.bool(False),
                               BeamFitter = cms.PSet(
         			Debug = cms.untracked.bool(False),

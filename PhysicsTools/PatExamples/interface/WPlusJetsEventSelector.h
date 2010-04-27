@@ -37,6 +37,7 @@ class WPlusJetsEventSelector : public EventSelector {
 			  );
   
   virtual bool operator()( edm::EventBase const & t, std::strbitset & ret);
+  using EventSelector::operator();
 
   std::vector<pat::Jet>      const & selectedJets     () const { return selectedJets_;     } 
   std::vector<pat::Jet>      const & cleanedJets      () const { return cleanedJets_;      } 

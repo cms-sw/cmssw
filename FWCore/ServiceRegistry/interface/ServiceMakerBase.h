@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceMakerBase.h,v 1.2 2005/09/10 02:08:48 wmtan Exp $
+// $Id: ServiceMakerBase.h,v 1.3 2007/06/14 02:25:50 wmtan Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@ namespace edm {
    
    namespace serviceregistry {
 
+      class SaveConfiguration;
       class ServiceWrapperBase;
       class ServicesManager;
       
@@ -46,10 +47,16 @@ public:
                            edm::ActivityRegistry&,
                            ServicesManager&) const = 0;
 
+         virtual bool saveConfiguration() const = 0;
+         
          // ---------- static member functions --------------------
          
          // ---------- member functions ---------------------------
          
+protected:
+         bool testSaveConfiguration(const SaveConfiguration*) const {return true;}
+         bool testSaveConfiguration(const void*) const {return false;}
+
 private:
          ServiceMakerBase(const ServiceMakerBase&); // stop default
          

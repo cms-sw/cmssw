@@ -35,7 +35,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
-process.jetComp = cms.EDFilter("JetComparison",
+process.jetComp = cms.EDAnalyzer("JetComparison",
     MinEnergy = cms.double(50.0),
     outputFile = cms.untracked.string('fastjet50-120_fast.root')
 )

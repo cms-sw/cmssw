@@ -3,8 +3,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 int EcalSeverityLevelAlgo::severityLevel( const DetId id, 
-                const EcalRecHitCollection &recHits, 
-                const EcalChannelStatus &chStatus )
+                const EcalRecHitCollection & recHits, 
+                const EcalChannelStatus & chStatus,
+                float recHitEtThreshold,
+                SpikeId spId,
+                float spIdThreshold
+                )
 {
         // get DB flag
         uint16_t dbStatus = retrieveDBStatus( id, chStatus );
@@ -24,6 +28,9 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
                 }
         } else {
                 // the channel is in the recHit collection
+                // .. is it a spike?
+                if ( spikeFromNeighbours(id, recHits, recHitEtThreshold, spId) > spIdThreshold  ) return kWeird;
+                // .. not a spike, return the normal severity level
                 return severityLevel( *it, chStatus );
         }
         return 0;
@@ -58,7 +65,7 @@ int EcalSeverityLevelAlgo::severityLevel( uint32_t rhFlag, uint16_t chStatus )
                 return kRecovered;
         } else if ( rhFlag == EcalRecHit::kDead
                  || rhFlag == EcalRecHit::kSaturated
-                 || rhFlag == EcalRecHit::kFake
+                 //|| rhFlag == EcalRecHit::kFake // will be uncommented when validated
                  || rhFlag == EcalRecHit::kFakeNeighbours
                  || rhFlag == EcalRecHit::kKilled ) {
                 // recovery failed (or not tried) or signal is fake or channel
@@ -76,9 +83,100 @@ uint16_t EcalSeverityLevelAlgo::retrieveDBStatus( const DetId id, const EcalChan
         if ( chIt != chStatus.end() ) {
                 dbStatus = chIt->getStatusCode();
         } else {
-                edm::LogError("EcalSeveritylevelError") << "No channel status found for xtal " 
+                edm::LogError("EcalSeverityLevelError") << "No channel status found for xtal " 
                         << id.rawId() 
                         << "! something wrong with EcalChannelStatus in your DB? ";
         }
         return dbStatus;
+}
+
+float EcalSeverityLevelAlgo::spikeFromNeighbours( const DetId id,
+                                                  const EcalRecHitCollection & recHits,
+                                                  float recHitEtThreshold,
+                                                  SpikeId spId
+                                                  )
+{
+        switch( spId ) {
+                case kE1OverE9:
+                        return E1OverE9( id, recHits, recHitEtThreshold );
+                        break;
+                case kSwissCross:
+                        return swissCross( id, recHits, recHitEtThreshold );
+                        break;
+                default:
+                        edm::LogInfo("EcalSeverityLevelAlgo") << "Algorithm number " << spId
+                                << " not known. Please check the enum in EcalSeverityLevelAlgo.h";
+                        break;
+
+        }
+        return 0;
+}
+
+float EcalSeverityLevelAlgo::E1OverE9( const DetId id, const EcalRecHitCollection & recHits, float recHitEtThreshold )
+{
+        // compute E1 over E9
+        if ( id.subdetId() == EcalBarrel ) {
+                // select recHits with Et above recHitEtThreshold
+                if ( recHitApproxEt( id, recHits ) < recHitEtThreshold ) return 0;
+                EBDetId ebId( id );
+                float s9 = 0;
+                for ( int deta = -1; deta <= +1; ++deta ) {
+                        for ( int dphi = -1; dphi <= +1; ++dphi ) {
+                                s9 += recHitE( id, recHits, deta, dphi );
+                        }
+                }
+                return recHitE(id, recHits) / s9;
+        }
+        return 0;
+}
+
+float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollection & recHits, float recHitEtThreshold )
+{
+        // compute swissCross
+        if ( id.subdetId() == EcalBarrel ) {
+                EBDetId ebId( id );
+                // avoid recHits at |eta|=85 where one side of the neighbours is missing
+                // (may improve considering also eta module borders, but no
+                // evidence for the time being that there the performance is
+                // different)
+                if ( abs(ebId.ieta())==85 ) return 0;
+                // select recHits with Et above recHitEtThreshold
+                if ( recHitApproxEt( id, recHits ) < recHitEtThreshold ) return 0;
+                float s4 = 0;
+                float e1 = recHitE( id, recHits );
+                s4 += recHitE( id, recHits,  1,  0 );
+                s4 += recHitE( id, recHits, -1,  0 );
+                s4 += recHitE( id, recHits,  0,  1 );
+                s4 += recHitE( id, recHits,  0, -1 );
+                return 1 - s4 / e1;
+        }
+        return 0;
+}
+
+float EcalSeverityLevelAlgo::recHitE( const DetId id, const EcalRecHitCollection & recHits,
+                                           int dEta, int dPhi )
+{
+        DetId nid = EBDetId::offsetBy( id, dEta, dPhi );
+        return ( nid == DetId(0) ? 0 : recHitE( nid, recHits ) );
+}
+
+float EcalSeverityLevelAlgo::recHitE( const DetId id, const EcalRecHitCollection &recHits )
+{
+        if ( id == DetId(0) ) {
+                return 0;
+        } else {
+                EcalRecHitCollection::const_iterator it = recHits.find( id );
+                if ( it != recHits.end() ) return (*it).energy();
+        }
+        return 0;
+}
+
+
+float EcalSeverityLevelAlgo::recHitApproxEt( const DetId id, const EcalRecHitCollection &recHits )
+{
+        // for the time being works only for the barrel
+        if ( id.subdetId() == EcalBarrel ) {
+                return recHitE( id, recHits ) / cosh( EBDetId::approxEta( id ) );
+        }
+        return 0;
 }

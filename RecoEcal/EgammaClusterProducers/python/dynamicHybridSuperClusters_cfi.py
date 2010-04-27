@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoEcal.EgammaClusterProducers.ecalRecHitFlags_cfi import *
+
 # Producer for Hybrid BasicClusters and SuperClusters
 dynamicHybridSuperClusters = cms.EDProducer("HybridClusterProducer",
     eThreshA = cms.double(0.003),
@@ -47,7 +49,17 @@ dynamicHybridSuperClusters = cms.EDProducer("HybridClusterProducer",
             c = cms.double(0.1201),
             b = cms.double(108.8)
         )
+    ),
+    RecHitFlagToBeExcluded = cms.vint32(
+        ecalRecHitFlag_kFaultyHardware,
+        ecalRecHitFlag_kPoorCalib,
+        ecalRecHitFlag_kSaturated,
+        ecalRecHitFlag_kLeadingEdgeRecovered,
+        ecalRecHitFlag_kNeighboursRecovered,
+        ecalRecHitFlag_kTowerRecovered,
+        ecalRecHitFlag_kDead
     )
+
 )
 
 

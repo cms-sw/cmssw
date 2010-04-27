@@ -1,4 +1,4 @@
-// $Id: EventStreamHandler.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
+// $Id: EventStreamHandler.cc,v 1.5 2010/02/08 11:57:59 mommsen Exp $
 /// @file: EventStreamHandler.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -13,17 +13,19 @@ using namespace stor;
 EventStreamHandler::EventStreamHandler
 (
   const EventStreamConfigurationInfo& streamConfig,
-  SharedResourcesPtr sharedResources
+  const SharedResourcesPtr sharedResources,
+  const DbFileHandlerPtr dbFileHandler
 ):
-StreamHandler(sharedResources),
+StreamHandler(sharedResources, dbFileHandler),
 _streamConfig(streamConfig),
 _initMsgCollection(sharedResources->_initMsgCollection)
 {
   _streamRecord->streamName = streamLabel();
+  _streamRecord->fractionToDisk = fractionToDisk();
 }
 
 
-const EventStreamHandler::FileHandlerPtr
+EventStreamHandler::FileHandlerPtr
 EventStreamHandler::newFileHandler(const I2OChain& event)
 {
   // the INIT message is not available when the EventStreamHandler is
@@ -38,7 +40,8 @@ EventStreamHandler::newFileHandler(const I2OChain& event)
   FilesMonitorCollection::FileRecordPtr fileRecord = getNewFileRecord(event);
 
   FileHandlerPtr newFileHandler(
-    new EventFileHandler(_initMsgView, fileRecord, _diskWritingParams, getMaxFileSize())
+    new EventFileHandler(_initMsgView, fileRecord, _dbFileHandler,
+      _diskWritingParams, getMaxFileSize())
   );
   _fileHandlers.push_back(newFileHandler);
 

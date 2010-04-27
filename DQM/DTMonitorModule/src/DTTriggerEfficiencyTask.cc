@@ -1,8 +1,8 @@
 /*
  * \file DTTriggerEfficiencyTask.cc
  * 
- * $Date: 2009/10/19 15:58:47 $
- * $Revision: 1.4 $
+ * $Date: 2010/01/05 10:14:40 $
+ * $Revision: 1.5 $
  * \author C.Battilana - CIEMAT
  *
 */
@@ -11,7 +11,7 @@
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 // DT trigger
 #include "DQM/DTMonitorModule/interface/DTTrigGeomUtils.h"

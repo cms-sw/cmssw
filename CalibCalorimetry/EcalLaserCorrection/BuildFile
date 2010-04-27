@@ -1,6 +1,5 @@
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/EcalObjects>
-<use name=CalibCalorimetry/EcalLaserAnalyzer>
 <use name=DataFormats/DetId>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/Provenance>

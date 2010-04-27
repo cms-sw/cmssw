@@ -10,7 +10,7 @@
  * track extra is also copied and error matrix are corrected by the same scale factors
  *
  * $Dates: 2007/09/04 13:28 $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  *
  * \author Jean-Roch Vlimant  UCSB
  * \author Finn Rebassoo      UCSB
@@ -30,7 +30,7 @@
 #include <DataFormats/TrackReco/interface/TrackExtra.h>
 #include <DataFormats/TrackingRecHit/interface/TrackingRecHit.h>
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class FreeTrajectoryState;
 class MuonErroMatrix;

@@ -3,7 +3,6 @@
 #include "Validation/Geometry/interface/MaterialBudgetHcal.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-DEFINE_SEAL_MODULE ();
 DEFINE_SIMWATCHER (MaterialBudgetAction);
 DEFINE_SIMWATCHER (MaterialBudgetHcal);
 

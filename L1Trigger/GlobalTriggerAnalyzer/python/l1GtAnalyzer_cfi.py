@@ -22,10 +22,13 @@ l1GtAnalyzer = cms.EDAnalyzer("L1GtAnalyzer",
     #     gtDigis  = GT unpacker (common GT/GMT unpacker)
     L1GmtInputTag = cms.InputTag("gmtDigis"),
     
+    # input tag for L1GtTriggerMenuLite
+    L1GtTmLInputTag = cms.InputTag("l1GtTriggerMenuLite"),
     
-    # an algorithm and a condition in that algorithm to test the object maps
+    # an algorithm and a condition in that algorithm to test the object maps, a bit number
+    AlgorithmName = cms.string('L1_DoubleJet50_ETM20'),
     ConditionName = cms.string('DoubleTauJet50_2'),
-    AlgorithmName = cms.string('L1_DoubleJet50_ETM20')
+    BitNumber = cms.uint32(0)
 )
 
 

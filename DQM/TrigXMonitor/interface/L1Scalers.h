@@ -1,7 +1,7 @@
 // -*-c++-*-
 #ifndef L1Scalers_H
 #define L1Scalers_H
-// $Id: L1Scalers.h,v 1.9 2008/09/17 20:56:02 lorenzo Exp $
+// $Id: L1Scalers.h,v 1.12 2010/02/18 18:18:36 wittich Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -9,7 +9,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class L1Scalers: public edm::EDAnalyzer
 {
@@ -45,9 +45,15 @@ public:
 private:
   DQMStore * dbe_;
   int nev_; // Number of events processed
-  
+
   bool verbose_;
   edm::InputTag l1GtDataSource_; // L1 Scalers
+  
+  bool denomIsTech_;
+  unsigned int denomBit_;
+  std::vector<unsigned int> algoSelected_;
+  std::vector<unsigned int> techSelected_;
+
   std::string folderName_; // dqm folder name
   MonitorElement *l1scalers_;
   MonitorElement *l1techScalers_;
@@ -58,29 +64,40 @@ private:
   // 2d versions
   MonitorElement *l1scalersBx_;
   MonitorElement *l1techScalersBx_;
-  MonitorElement *pixFedSizeBx_;
-  MonitorElement *hfEnergyMaxTowerBx_;
+//   MonitorElement *pixFedSizeBx_;
+//   MonitorElement *hfEnergyMaxTowerBx_;
 
   // Int
   MonitorElement *nLumiBlock_;
   MonitorElement *l1AlgoCounter_;  //for total Algo Rate
   MonitorElement *l1TtCounter_;    //for total TT Rate
+
+  //timing plots
+  std::vector<MonitorElement* > algoBxDiff_;
+  std::vector<MonitorElement* > techBxDiff_;
+  std::vector<MonitorElement* > algoBxDiffLumi_;
+  std::vector<MonitorElement* > techBxDiffLumi_;
+
   // Hacks for early running
-  MonitorElement *pixFedSize_;
-  MonitorElement *hfEnergy_;
+//   MonitorElement *pixFedSize_;
+//   MonitorElement *hfEnergy_;
   // steal from HLTrigger/special
   unsigned int threshold_;
   unsigned int fedStart_, fedStop_ ;
   //total Rates
   unsigned int rateAlgoCounter_;  //for total Algo Rate
   unsigned int rateTtCounter_;     //for total TT Rate
-  
+ 
+
   edm::InputTag fedRawCollection_;
 
   std::vector<int> maskedList_;
   edm::InputTag HcalRecHitCollection_;
   // END HACK
 
+  int earliestDenom_;
+  std::vector<int> earliestTech_;
+  std::vector<int> earliestAlgo_;
 
 };
 

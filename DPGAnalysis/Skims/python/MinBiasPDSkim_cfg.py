@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.14 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -13,14 +13,13 @@ process.configurationMetadata = cms.untracked.PSet(
 # This is for testing purposes.
 #
 #
-# run 123151 lumisection 14
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-'/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/123/151/6ADC6A1B-01DE-DE11-8FBD-00304879FA4A.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/123/151/6ADC6A1B-01DE-DE11-8FBD-00304879FA4A.root'),
-                            secondaryFileNames = cms.untracked.vstring(
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/123/151/3CE3F1C6-FADD-DE11-8AEA-001D09F251D1.root',
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/123/151/6C8F0233-FCDD-DE11-BF8E-001D09F297EF.root')
+# run 132440
+'/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/440/26C8DED9-0E3C-DF11-9D83-0030487CD7B4.root'),
+                           secondaryFileNames = cms.untracked.vstring(
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/132/440/CEF82055-F13B-DF11-BF11-000423D9989E.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/132/440/1CF54554-F13B-DF11-8BFB-000423D98BC4.root')
 )
 
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
@@ -38,7 +37,7 @@ process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR09_P_V7::All' 
+process.GlobalTag.globaltag = 'GR10_P_V4::All' 
 
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration/StandardSequences/Reconstruction_cff")
@@ -46,37 +45,12 @@ process.load('Configuration/EventContent/EventContent_cff')
 
 process.FEVTEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')
 
-
-######################################Reco Track#################################################
-
-process.generalTracksFilter = cms.EDFilter("TrackCountFilter",
-                                                      src = cms.InputTag('generalTracks'),
-                                                      minNumber = cms.uint32(2) 
-                                                      )
-process.pixelLessTracksFilter = cms.EDFilter("TrackCountFilter",
-                                                      src = cms.InputTag('ctfPixelLess'),
-                                                      minNumber = cms.uint32(1) 
-                                                      )
-process.pixelTracksFilter = cms.EDFilter("TrackCountFilter",
-                                                      src = cms.InputTag('pixelTracks'),
-                                                      minNumber = cms.uint32(1) 
-                                                      )
-
-process.generalTracksPath = cms.Path(process.generalTracksFilter)
-process.pixelTracksPath = cms.Path(process.pixelLessTracksFilter)
-process.pixelLessTracksPath = cms.Path(process.pixelTracksFilter)
-
-
-process.recotrackout = cms.OutputModule("PoolOutputModule",
-                               outputCommands = process.FEVTEventContent.outputCommands,
-                               SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generalTracksPath',
-    										'pixelTracksPath',
-										'pixelLessTracksPath')),
-                               dataset = cms.untracked.PSet(
-			                 dataTier = cms.untracked.string('RAW-RECO'),
-                                         filterName = cms.untracked.string('RecoTracks')),
-                               fileName = cms.untracked.string('generalTracks.root')
-                               )
+#
+#  Load common sequences
+#
+process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskAlgoTrigConfig_cff')
+process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
+process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 
 ###########################################################################################
 #------------------------------------------
@@ -101,15 +75,12 @@ process.hltBeamHalo = cms.EDFilter("HLTHighLevel",
 #### the path
 process.cscHaloSkim = cms.Path(process.hltBeamHalo+process.cscSkim)
 
-process.options = cms.untracked.PSet(
- wantSummary = cms.untracked.bool(True)
-)
 
 
 #### output 
 process.outputBeamHaloSkim = cms.OutputModule("PoolOutputModule",
     outputCommands = process.FEVTEventContent.outputCommands,
-    fileName = cms.untracked.string("MinBiascscskimEvents.root"),
+    fileName = cms.untracked.string("/tmp/malgeri/MinBiascscskimEvents.root"),
     dataset = cms.untracked.PSet(
       dataTier = cms.untracked.string('RAW-RECO'),
       filterName = cms.untracked.string('CSCSkim_BeamHalo_MinBias')
@@ -117,26 +88,11 @@ process.outputBeamHaloSkim = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('cscHaloSkim'))
 )
 
-##################################################DT skim###############################################
-process.muonDTDigis = cms.EDFilter("DTUnpackingModule",
-    dataType = cms.string('DDU'),
-    useStandardFEDid = cms.untracked.bool(True),
-    fedbyType = cms.untracked.bool(True),
-    readOutParameters = cms.PSet(
-        debug = cms.untracked.bool(False),
-        rosParameters = cms.PSet(
-            writeSC = cms.untracked.bool(True),
-            readingDDU = cms.untracked.bool(True),
-            performDataIntegrityMonitor = cms.untracked.bool(False),
-            readDDUIDfromDDU = cms.untracked.bool(True),
-            debug = cms.untracked.bool(False),
-            localDAQ = cms.untracked.bool(False)
-        ),
-        localDAQ = cms.untracked.bool(False),
-        performDataIntegrityMonitor = cms.untracked.bool(False)
-    )
-)
+###################### DT Activity Filter ######################
 
+from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import dtunpacker
+
+process.muonDTDigis = dtunpacker.clone()
 
 process.hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
  inputDCC         = cms.InputTag( "dttfDigis" ),   
@@ -154,9 +110,11 @@ process.hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
  minQual          = cms.int32( 2 ),   # 0-1=L 2-3=H 4=LL 5=HL 6=HH/
  minDDUBX         = cms.int32( 9 ),
  maxDDUBX         = cms.int32( 14 ),
- minActiveChambs  = cms.int32( 1 )
+ minActiveChambs  = cms.int32( 1 ),
+ activeSectors    = cms.vint32(1,2,3,4,5,6,7,8,9,10,11,12)
 )
 
+# this is for filtering on HLT path
 process.HLTDT =cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
      HLTPaths = cms.vstring('HLT_L1MuOpen','HLT_Activity_DT'),           # provide list of HLT paths (or patterns) you want
@@ -165,44 +123,207 @@ process.HLTDT =cms.EDFilter("HLTHighLevel",
      throw = cms.bool(False)    # throw exception on unknown path names
  )
 
-process.HLTDTpath = cms.Path(process.HLTDT)
-process.DTskim=cms.Path(process.muonDTDigis+process.hltDTActivityFilter)
+process.dtHLTSkim = cms.Path(process.HLTDT)
 
-process.DTskimout = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('DTSkim.root'),
+process.dtSkim=cms.Path(process.muonDTDigis+process.hltDTActivityFilter)
+
+
+
+############################ L1 Muon bits #################################
+
+process.l1RequestPhAlgos = process.hltLevel1GTSeed.clone()
+# False allows to read directly from L1 instead fo candidate ObjectMap
+process.l1RequestPhAlgos.L1UseL1TriggerObjectMaps = cms.bool(False)
+    #
+    # option used forL1UseL1TriggerObjectMaps = False only
+    # number of BxInEvent: 1: L1A=0; 3: -1, L1A=0, 1; 5: -2, -1, L1A=0, 1, 
+# online is used 5
+process.l1RequestPhAlgos.L1NrBxInEvent = cms.int32(5)
+
+# Request the or of the following bits: from 54 to 62 and 106-107
+
+process.l1RequestPhAlgos.L1SeedsLogicalExpression = cms.string(
+    'L1_SingleMuBeamHalo OR L1_SingleMuOpen OR L1_SingleMu0 OR L1_SingleMu3 OR L1_SingleMu5 OR L1_SingleMu7 OR L1_SingleMu10 OR L1_SingleMu14 OR L1_SingleMu20 OR L1_DoubleMuOpen OR L1_DoubleMu3')
+
+process.l1MuBitsSkim = cms.Path(process.l1RequestPhAlgos)
+
+###########################################################################
+
+
+########################## RPC Filters ############################
+
+process.l1RequestTecAlgos = process.hltLevel1GTSeed.clone()
+
+process.l1RequestTecAlgos.L1TechTriggerSeeding = cms.bool(True)
+process.l1RequestTecAlgos.L1SeedsLogicalExpression = cms.string('31')
+
+process.rpcTecSkim = cms.Path(process.l1RequestTecAlgos)
+
+process.load("DPGAnalysis.Skims.RPCRecHitFilter_cfi")
+process.rpcRHSkim = cms.Path(process.RPCRecHitsFilter)
+###########################################################################
+
+
+########################## CSC Filter ############################
+# path already defined above
+#### the paths (single paths wrt combined paths above)
+process.cscHLTSkim = cms.Path(process.hltBeamHalo)
+process.cscSkimAlone = cms.Path(process.cscSkim)
+###########################################################################
+
+########################## Muon tracks Filter ############################
+process.muonSkim=cms.EDFilter("CandViewCountFilter", 
+                 src =cms.InputTag("muons"), minNumber = cms.uint32(1))
+process.muonTracksSkim = cms.Path(process.muonSkim)
+
+
+###########################################################################
+
+
+
+process.outputMuonSkim = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('/tmp/malgeri/MuonSkim.root'),
     outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
     dataset = cms.untracked.PSet(
     	      dataTier = cms.untracked.string('RAW-RECO'),
-    	      filterName = cms.untracked.string('DT_skim')),
+    	      filterName = cms.untracked.string('Muon_skim')),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('DTskim','HLTDTpath')
-       )
+        SelectEvents = cms.vstring("l1MuBitsSkim","dtHLTSkim","dtSkim","cscHLTSkim","cscSkimAlone","rpcRHSkim","rpcTecSkim","muonTracksSkim")
+    )
 )
 ####################################################################################
-##################################bscnobamhalo############################################
-process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
-process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
+##################################good collisions############################################
 
-process.L1T1=process.hltLevel1GTSeed.clone()
-process.L1T1.L1TechTriggerSeeding = cms.bool(True)
-process.L1T1.L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)')
+process.L1T1coll=process.hltLevel1GTSeed.clone()
+process.L1T1coll.L1TechTriggerSeeding = cms.bool(True)
+process.L1T1coll.L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
 
-process.bscnobeamhalo = cms.Path(process.L1T1)
+process.l1tcollpath = cms.Path(process.L1T1coll)
 
-process.bscnobhout = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('BSCNOBEAMHALO.root'),
+process.primaryVertexFilter = cms.EDFilter("VertexSelector",
+   src = cms.InputTag("offlinePrimaryVertices"),
+   cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"), # tracksSize() > 3 for the older cut
+   filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
+)
+
+
+process.noscraping = cms.EDFilter("FilterOutScraping",
+applyfilter = cms.untracked.bool(True),
+debugOn = cms.untracked.bool(False),
+numtrack = cms.untracked.uint32(10),
+thresh = cms.untracked.double(0.25)
+)
+
+process.goodvertex=cms.Path(process.primaryVertexFilter+process.noscraping)
+
+
+process.collout = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('/tmp/malgeri/good_coll.root'),
     outputCommands = process.FEVTEventContent.outputCommands,
     dataset = cms.untracked.PSet(
     	      dataTier = cms.untracked.string('RAW-RECO'),
-    	      filterName = cms.untracked.string('BSCNOBEAMHALO')),
+    	      filterName = cms.untracked.string('GOODCOLL')),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('bscnobeamhalo')
+        SelectEvents = cms.vstring('goodvertex','l1tcollpath')
+    )
+)
+##################################beam backg filter#################################################
+process.L1T1bkgcross=process.hltLevel1GTSeed.clone()
+process.L1T1bkgcross.L1TechTriggerSeeding = cms.bool(True)
+process.L1T1bkgcross.L1SeedsLogicalExpression = cms.string('0 AND NOT (40 OR 41) AND ((36 OR 37 OR 38 OR 39) OR (42 AND NOT 43) OR (43 AND NOT 42))')
+
+process.l1tbkgcrosspath = cms.Path(process.L1T1bkgcross)
+
+process.L1T1bkgnocross=process.hltLevel1GTSeed.clone()
+process.L1T1bkgnocross.L1TechTriggerSeeding = cms.bool(True)
+process.L1T1bkgnocross.L1SeedsLogicalExpression = cms.string('NOT 0 AND NOT 7 AND (36 OR 37 OR 38 OR 39 OR 40 OR 41 OR 42 OR 43 OR 8 OR 9 OR 10)')
+
+process.l1tbkgnocrosspath = cms.Path(process.L1T1bkgnocross)
+
+process.bkgout = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('/tmp/malgeri/bkg.root'),
+    outputCommands = process.FEVTEventContent.outputCommands,
+    dataset = cms.untracked.PSet(
+    	      dataTier = cms.untracked.string('RAW-RECO'),
+    	      filterName = cms.untracked.string('BEAMBKG')),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('l1tbkgcrosspath','l1tbkgnocrosspath')
     )
 )
 
 
+##################################filter_rechit for ECAL############################################
+process.load("DPGAnalysis.Skims.filterRecHits_cfi")
 
-process.outpath = cms.EndPath(process.recotrackout+process.outputBeamHaloSkim+process.DTskimout+process.bscnobhout)
+process.ecalrechitfilter = cms.Path(process.recHitEnergyFilter)
+
+
+process.ecalrechitfilter_out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('/tmp/malgeri/ecalrechitfilter.root'),
+    outputCommands = process.FEVTEventContent.outputCommands,
+    dataset = cms.untracked.PSet(
+    	      dataTier = cms.untracked.string('RAW-RECO'),
+    	      filterName = cms.untracked.string('ECALRECHIT')),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('ecalrechitfilter')
+    )
+)
+
+####################################################################################
+##################################stoppedHSCP############################################
+
+
+# this is for filtering on HLT path
+process.hltstoppedhscp = cms.EDFilter("HLTHighLevel",
+     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+     HLTPaths = cms.vstring("HLT_StoppedHSCP*"), # provide list of HLT paths (or patterns) you want
+     eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
+     andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
+     throw = cms.bool(False)    # throw exception on unknown path names
+ )
+
+process.HSCP=cms.Path(process.hltstoppedhscp)
+
+process.outHSCP = cms.OutputModule("PoolOutputModule",
+                               outputCommands =  process.FEVTEventContent.outputCommands,
+                               fileName = cms.untracked.string('/tmp/malgeri/StoppedHSCP_filter.root'),
+                               dataset = cms.untracked.PSet(
+                                  dataTier = cms.untracked.string('RAW-RECO'),
+                                  filterName = cms.untracked.string('Skim_StoppedHSCP')),
+                               
+                               SelectEvents = cms.untracked.PSet(
+    SelectEvents = cms.vstring("HSCP")
+    ))
+
+
+
+#===========================================================
+
+#################################logerrorharvester############################################
+process.load("FWCore.Modules.logErrorFilter_cfi")
+
+process.logerrorpath=cms.Path(process.logErrorFilter)
+
+process.outlogerr = cms.OutputModule("PoolOutputModule",
+                               outputCommands =  process.FEVTEventContent.outputCommands,
+                               fileName = cms.untracked.string('/tmp/malgeri/logerror_filter.root'),
+                               dataset = cms.untracked.PSet(
+                                  dataTier = cms.untracked.string('RAW-RECO'),
+                                  filterName = cms.untracked.string('Skim_logerror')),
+                               
+                               SelectEvents = cms.untracked.PSet(
+    SelectEvents = cms.vstring("logerrorpath")
+    ))
+
+
+
+#===========================================================
+
+process.options = cms.untracked.PSet(
+ wantSummary = cms.untracked.bool(True)
+)
+
+process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.bkgout+process.outHSCP+process.ecalrechitfilter_out+process.outlogerr)
 
 
 

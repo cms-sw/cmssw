@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/10/10 09:48:58 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/11/15 11:46:57 $
+ *  $Revision: 1.7 $
  *  \author  M. Zanetti - INFN Padova 
  * FRC 060906
  */
@@ -35,8 +35,17 @@ DTDDUUnpacker::DTDDUUnpacker(const edm::ParameterSet& ps) : dduPSet(ps) {
   performDataIntegrityMonitor = dduPSet.getUntrackedParameter<bool>("performDataIntegrityMonitor",false);
   debug = dduPSet.getUntrackedParameter<bool>("debug",false);
 
-  // enable DQM
-  if(performDataIntegrityMonitor) dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
+  // enable DQM if Service is available
+  if(performDataIntegrityMonitor) {
+    if (edm::Service<DTDataMonitorInterface>().isAvailable()) {
+      dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
+    } else {
+      LogWarning("DTRawToDigi|DTDDUUnpacker") << 
+	"[DTDDUUnpacker] WARNING! Data Integrity Monitoring requested but no DTDataMonitorInterface Service available" << endl;
+      performDataIntegrityMonitor = false;
+    }
+  }
+
 }
 
 

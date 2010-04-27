@@ -41,21 +41,27 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                 ),
         cms.PSet( Level = cms.int32(8),
                   RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity', 'HBHEPulseShape', 'HOBit',
-                                            'HFDigiTime', 'HFLongShort', 'ZDCBit', 'CalibrationBit',
+                                            'HFDigiTime',
+                                            'ZDCBit', 'CalibrationBit',
                                             'TimingErrorBit'),
                   ChannelStatus = cms.vstring('')
                 ),
-        cms.PSet( Level = cms.int32(10),
+        # March 2010:  HFLongShort now tested, and should be excluded from CaloTowers by default
+        cms.PSet( Level = cms.int32(11),
+                  RecHitFlags = cms.vstring('HFLongShort'),
+                  ChannelStatus = cms.vstring('')
+                ),
+        cms.PSet( Level = cms.int32(12),
+                  RecHitFlags = cms.vstring(''),
+                  ChannelStatus = cms.vstring('HcalCellCaloTowerMask')
+                ),
+        cms.PSet( Level = cms.int32(15),
                   RecHitFlags = cms.vstring(''),
                   ChannelStatus = cms.vstring('HcalCellHot')
                 ),
         cms.PSet( Level = cms.int32(20),
                   RecHitFlags = cms.vstring(''),
                   ChannelStatus = cms.vstring('HcalCellOff', 'HcalCellDead')
-                ),
-        cms.PSet( Level = cms.int32(9999),
-                  RecHitFlags = cms.vstring(''),
-                  ChannelStatus = cms.vstring('HcalCellCaloTowerMask')
                 )
         ),
     RecoveredRecHitBits = cms.vstring('TimingAddedBit','TimingSubtractedBit'),

@@ -64,3 +64,6 @@ SiStripMonitorClusterHVOff.TH1ClusterCharge.moduleswitchon = False
 
 SiStripMonitorClusterHVOff.TH1ClusterWidth.layerswitchon = False
 SiStripMonitorClusterHVOff.TH1ClusterWidth.moduleswitchon = False
+
+SiStripMonitorClusterHVOff.TProfClustersVsDBxCycle.subdetswitchon = False
+SiStripMonitorClusterHVOff.TH2ApvCycleVsDBxGlobal.globalswitchon = False

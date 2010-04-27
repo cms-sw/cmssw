@@ -28,6 +28,9 @@
 #include <vector>
 using namespace std;
 
+
+
+
 /*****************************************************************************/
 ClusterShapeTrajectoryFilter::~ClusterShapeTrajectoryFilter()
 {
@@ -126,7 +129,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
         if(recHit != 0)
           if(! theFilter->isCompatible(*recHit, gdir))
           {
-            LogTrace("TrajectFilter")
+            LogTrace("MinBiasTracking")
               << "  [TrajectFilter] fail pixel";
             return false;
           }
@@ -142,14 +145,14 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
           { 
             if(! theFilter->isCompatible(*(recHit->monoHit()  ), gdir))
             {
-              LogTrace("TrajectFilter")
+              LogTrace("MinBiasTracking")
                << "  [TrajectFilter] fail strip matched 1st";
               return false;
             }
 
             if(! theFilter->isCompatible(*(recHit->stereoHit()), gdir))
             {
-              LogTrace("TrajectFilter")
+              LogTrace("MinBiasTracking")
                 << "  [TrajectFilter] fail strip matched 2nd";
               return false;
             }
@@ -165,7 +168,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
             if(recHit != 0)
               if(! theFilter->isCompatible(*recHit, gdir))
               {
-                LogTrace("TrajectFilter")
+                LogTrace("MinBiasTracking")
                   << "  [TrajectFilter] fail strip single";
                 return false;
               }
@@ -178,7 +181,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
             if(recHit != 0)
               if(! theFilter->isCompatible(recHit->originalHit(), gdir))
               {
-                LogTrace("TrajectFilter")
+                LogTrace("MinBiasTracking")
                   << "  [TrajectFilter] fail strip projected";
                 return false;
               }
@@ -202,14 +205,6 @@ bool ClusterShapeTrajectoryFilter::qualityFilter
 bool ClusterShapeTrajectoryFilter::qualityFilter
   (const TempTrajectory& trajectory) const
 {
-  TempTrajectory t = trajectory;
-
-  // Check if ok
-  if(toBeContinued(t)) return true;
-
-  // Should take out last
-  if(t.measurements().size() <= 3) return false;
-
   return true;
 }
 

@@ -31,7 +31,8 @@ class Level1TriggerScalers
   enum 
   {
     nLevel1Triggers          = 128,
-    nLevel1TestTriggers      = 64
+    nLevel1TestTriggers      = 64,
+    firstShortLSRun          = 125574
   };
 
   static const unsigned long long N_BX = 3564ULL;
@@ -110,10 +111,25 @@ class Level1TriggerScalers
   unsigned long long deadtimeBeamActiveTimeSlot() const 
   { return(deadtimeBeamActiveTimeSlot_);}
 
+  unsigned int lastOrbitCounter0() const { return(lastOrbitCounter0_);}
+  unsigned int lastTestEnable() const    { return(lastTestEnable_);}
+  unsigned int lastResync() const        { return(lastResync_);}
+  unsigned int lastStart() const         { return(lastStart_);}
+  unsigned int lastEventCounter0() const { return(lastEventCounter0_);}
+  unsigned int lastHardReset() const     { return(lastHardReset_);}
+  unsigned long long spare0() const      { return(spare0_);}
+  unsigned long long spare1() const      { return(spare1_);}
+  unsigned long long spare2() const      { return(spare2_);}
+
   static double rateLS(unsigned long long counts);
   static double rateLS(unsigned int counts);
   static double percentLS(unsigned long long counts);
   static double percentLSActive(unsigned long long counts);
+
+  static double rateLS(unsigned long long counts, int runNumber);
+  static double rateLS(unsigned int counts, int runNumber);
+  static double percentLS(unsigned long long counts, int runNumber);
+  static double percentLSActive(unsigned long long counts, int runNumber);
 
   std::vector<unsigned int> gtAlgoCounts() const 
   { return(gtAlgoCounts_);}
@@ -168,6 +184,21 @@ protected:
 
   std::vector<unsigned int> gtAlgoCounts_;
   std::vector<unsigned int> gtTechCounts_;
+
+  // Orbit counter markers indicating when the last BGO 
+  // command of a particular type was received, relative 
+  // to the last OrbitCounter0 (OC0), for this L1 accept
+  unsigned int lastOrbitCounter0_;
+  unsigned int lastTestEnable_;
+  unsigned int lastResync_;
+  unsigned int lastStart_;
+  unsigned int lastEventCounter0_;
+  unsigned int lastHardReset_;
+
+  // For future use
+  unsigned long long spare0_;
+  unsigned long long spare1_;
+  unsigned long long spare2_;
 };
 
 

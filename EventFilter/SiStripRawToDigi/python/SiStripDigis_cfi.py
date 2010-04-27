@@ -7,10 +7,11 @@ siStripDigis = cms.EDProducer(
     UseDaqRegister    = cms.bool(False),
     UseFedKey         = cms.bool(False),
     UnpackBadChannels = cms.bool(False),
+    MarkModulesOnMissingFeds = cms.bool(True),
     TriggerFedId      = cms.int32(0),
+    DoAllCorruptBufferChecks = cms.bool(False),
     #FedEventDumpFreq  = cms.untracked.int32(0),
     #FedBufferDumpFreq = cms.untracked.int32(0),
-    UnpackCommonModeValues = cms.bool(False),
     )
 
 

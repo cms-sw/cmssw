@@ -1,4 +1,4 @@
-// $Id: Starting.cc,v 1.7 2009/08/28 16:41:26 mommsen Exp $
+// $Id: Starting.cc,v 1.8 2009/09/29 07:57:56 mommsen Exp $
 /// @file: Starting.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
@@ -40,7 +40,9 @@ void Starting::do_entryActionWork()
     sharedResources->_configuration->getWorkerThreadParams();
   sharedResources->_diskWriterResources->
     requestStreamConfiguration(evtCfgList, errCfgList,
-                               workerParams._DWdeqWaitTime);
+      sharedResources->_configuration->getDiskWritingParams(),
+      sharedResources->_configuration->getRunNumber(),
+      workerParams._DWdeqWaitTime);
 
   // Request configuration of DQMEventProcessor
   sharedResources->_dqmEventProcessorResources->

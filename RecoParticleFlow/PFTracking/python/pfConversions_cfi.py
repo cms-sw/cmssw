@@ -1,24 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-#  Author: N. Marinelli, U. of Notre Dame, US
+#  Author: M. Gouzevitch base on N. Marinelli work
 #
-pfConversions = cms.EDProducer("PFConversionsProducer", 
-    conversionCollection = cms.string(''),
-    # outputs
-    PFConversionCollection = cms.string(''),
-    # inputs
-
-    conversionProducer = cms.string('conversions'),
-
-    debug = cms.bool(False),
-    PFRecTracksFromConversions = cms.string('pfRecTracksFromConversions'),
-
-    OtherConversionCollection =           cms.VInputTag(),
-    OtherOutInCollection      =           cms.VInputTag(), 
-    OtherInOutCollection      =           cms.VInputTag()
-
- 
+pfConversions = cms.EDProducer("PFConversionProducer", 
+    conversionCollection = cms.InputTag("trackerOnlyConversions", "")
 )
 
 

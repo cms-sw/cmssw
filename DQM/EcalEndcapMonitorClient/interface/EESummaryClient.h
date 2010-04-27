@@ -4,15 +4,14 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2009/12/11 16:08:54 $
- * $Revision: 1.46 $
+ * $Date: 2010/01/25 21:12:25 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
 
 #include <vector>
 #include <string>
-#include <fstream>
 
 #include "TROOT.h"
 #include "TProfile2D.h"

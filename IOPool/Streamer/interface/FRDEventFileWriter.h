@@ -1,7 +1,7 @@
 #ifndef IOPool_Streamer_FRDEventFileWriter_h
 #define IOPool_Streamer_FRDEventFileWriter_h 
 
-// $Id: FRDEventFileWriter.h,v 1.1.10.1 2009/04/03 18:29:38 biery Exp $
+// $Id: FRDEventFileWriter.h,v 1.2 2009/04/24 17:48:10 biery Exp $
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
@@ -20,6 +20,8 @@ class FRDEventFileWriter
   void doOutputEventFragment(unsigned char* dataPtr,
                              unsigned long dataSize);
 
+  uint32 adler32() const { return (adlerb_ << 16) | adlera_; }
+
   void start() {}
   void stop() {}
  
@@ -29,6 +31,9 @@ class FRDEventFileWriter
 
   std::auto_ptr<std::ofstream> ost_;
   std::string fileName_;
+
+  uint32 adlera_;
+  uint32 adlerb_;
 
 };
 #endif

@@ -2,13 +2,15 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/19 11:33:10 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/02/19 14:26:53 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
  */
 
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "HLTrigger/HLTcore/interface/HLTEventAnalyzerAOD.h"
 #include <cassert>
 
@@ -40,21 +42,13 @@ HLTEventAnalyzerAOD::~HLTEventAnalyzerAOD()
 // member functions
 //
 void
-HLTEventAnalyzerAOD::beginRun(edm::Run const &, edm::EventSetup const&)
-{
-}
-
-// ------------ method called to produce the data  ------------
-void
-HLTEventAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEventAnalyzerAOD::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
   using namespace std;
   using namespace edm;
-  
-  cout << endl;
 
   bool changed(true);
-  if (hltConfig_.init(iEvent,processName_,changed)) {
+  if (hltConfig_.init(iRun,iSetup,processName_,changed)) {
     if (changed) {
       // check if trigger name in (new) config
       if (triggerName_!="@") { // "@" means: analyze all triggers in config
@@ -68,12 +62,26 @@ HLTEventAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  hltConfig_.dump("Triggers");
 	}
       }
+      hltConfig_.dump("Streams");
+      hltConfig_.dump("Datasets");
+      hltConfig_.dump("PrescaleTable");
+      hltConfig_.dump("ProcessPSet");
     }
   } else {
     cout << "HLTEventAnalyzerAOD::analyze:"
 	 << " config extraction failure with process name "
 	 << processName_ << endl;
   }
+}
+
+// ------------ method called to produce the data  ------------
+void
+HLTEventAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  using namespace std;
+  using namespace edm;
+  
+  cout << endl;
 
   // get event products
   iEvent.getByLabel(triggerResultsTag_,triggerResultsHandle_);
@@ -93,28 +101,29 @@ HLTEventAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (triggerName_=="@") {
     const unsigned int n(hltConfig_.size());
     for (unsigned int i=0; i!=n; ++i) {
-      analyzeTrigger(hltConfig_.triggerName(i));
+      analyzeTrigger(iEvent,hltConfig_.triggerName(i));
     }
   } else {
-    analyzeTrigger(triggerName_);
+    analyzeTrigger(iEvent,triggerName_);
   }
-  
-  cout << endl;
 
   return;
-  
+
 }
 
-void HLTEventAnalyzerAOD::analyzeTrigger(const std::string& triggerName) {
+void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const std::string& triggerName) {
   
   using namespace std;
   using namespace edm;
   using namespace reco;
   using namespace trigger;
-  
+
+  cout << endl;
+
   const unsigned int n(hltConfig_.size());
   const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName));
-  
+  assert(triggerIndex==iEvent.triggerNames(*triggerResultsHandle_).triggerIndex(triggerName));
+
   // abort on invalid trigger name
   if (triggerIndex>=n) {
     cout << "HLTEventAnalyzerAOD::analyzeTrigger: path "

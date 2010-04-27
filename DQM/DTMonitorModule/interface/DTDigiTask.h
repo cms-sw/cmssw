@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2009/07/08 15:34:47 $
- * $Revision: 1.30 $
+ * $Date: 2010/01/05 10:14:39 $
+ * $Revision: 1.31 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -21,7 +21,7 @@
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
 #include <FWCore/Framework/interface/LuminosityBlock.h>
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <memory>
 #include <iostream>

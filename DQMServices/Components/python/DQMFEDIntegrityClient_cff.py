@@ -1,14 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-dqmFEDIntegrity = cms.EDFilter("DQMFEDIntegrityClient",
+dqmFEDIntegrity = cms.EDAnalyzer("DQMFEDIntegrityClient",
    fillInEventloop = cms.untracked.bool(True),
    fillOnEndLumi = cms.untracked.bool(True),
    fillOnEndRun = cms.untracked.bool(True),
    fillOnEndJob = cms.untracked.bool(False),
-   moduleName = cms.untracked.string('FED')
+   moduleName = cms.untracked.string('FED'),
+   fedFolderName = cms.untracked.string('FEDIntegrity')
    )
 
-dqmQTestDQMFED = cms.EDFilter("QualityTester",
+dqmQTestDQMFED = cms.EDAnalyzer("QualityTester",
    prescaleFactor = cms.untracked.int32(1),
    qtList = cms.untracked.FileInPath('DQMServices/Components/data/DQMFEDQualityTests.xml'),
    getQualityTestsFromFile = cms.untracked.bool(True),

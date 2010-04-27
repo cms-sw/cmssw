@@ -7,7 +7,7 @@
 */
 //
 //         Created:  2009/12/07
-// $Id: SiStripShotFilterPlugins.cc,v 1.9 2009/11/05 12:23:58 amagnan Exp $
+// $Id: SiStripShotFilter.cc,v 1.1 2010/01/08 14:14:47 amagnan Exp $
 //
 
 #include <sstream>
@@ -24,7 +24,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
