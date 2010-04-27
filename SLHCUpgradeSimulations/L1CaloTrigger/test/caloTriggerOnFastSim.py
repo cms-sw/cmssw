@@ -1,17 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("SLHC")
+process = cms.Process("PROD")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(100)
 )
 
 # Include the RandomNumberGeneratorService definition
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
 # Generate ttbar events
-process.load("Configuration.Generator.TTbar_cfi")
+process.load("Configuration.Generator.ZEE_cfi")
 
 # Famos sequences (NO HLT)
 process.load("FastSimulation.Configuration.CommonInputs_cff")
@@ -26,11 +26,11 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosPileUp.PileUpSimulator.averageNumber = 5.0
 # You may not want to simulate everything for your study
 process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = True
+process.famosSimHits.SimulateTracking = False
 
 # Get frontier conditions    - not applied in the HCAL, see below
-# Values for globaltag are "STARTUP31X_V8::All","MC_31X_V9::All"
-process.GlobalTag.globaltag = "STARTUP31X_V8::All"
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['startup']
 
 # Apply ECAL miscalibration
 process.ecalRecHit.doMiscalib = True
@@ -50,7 +50,6 @@ process.misalignedCSCGeometry.applyAlignment = True
 #process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_0.0.xml"
 
 # Famos with everything !
-
 #Load Scales
 process.load("L1TriggerConfig.L1ScalesProducers.L1CaloInputScalesConfig_cff")
 process.load("L1TriggerConfig.L1ScalesProducers.L1CaloScalesConfig_cff")
@@ -62,18 +61,21 @@ process.horeco.doDigis = True
 process.hfreco.doDigis = True
 
 
-                                      
+process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTriggerAnalysis_cfi")
 
-process.p1 = cms.Path(process.ProductionFilterSequence+
+process.p1 = cms.Path(process.generator+
                       process.famosWithEverything+
                       process.simEcalTriggerPrimitiveDigis+
                       process.simHcalTriggerPrimitiveDigis+
                       process.SLHCCaloTrigger
-
 )
 
 
-# To write out events
+#process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
+process.source = cms.Source("EmptySource")
+
+
+ To write out events
 process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *_*_*_*',

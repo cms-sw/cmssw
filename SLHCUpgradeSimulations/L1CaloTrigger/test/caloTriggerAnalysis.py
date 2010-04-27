@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("SLHC")
+process = cms.Process("PROD")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
@@ -26,17 +26,11 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosPileUp.PileUpSimulator.averageNumber = 5.0
 # You may not want to simulate everything for your study
 process.famosSimHits.SimulateCalorimetry = True
-
-
-####
-###
 process.famosSimHits.SimulateTracking = False
-###
-###
 
 # Get frontier conditions    - not applied in the HCAL, see below
-# Values for globaltag are "STARTUP31X_V8::All","MC_31X_V9::All"
-process.GlobalTag.globaltag = "STARTUP31X_V8::All"
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['startup']
 
 # Apply ECAL miscalibration
 process.ecalRecHit.doMiscalib = True
@@ -56,7 +50,6 @@ process.misalignedCSCGeometry.applyAlignment = True
 #process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_0.0.xml"
 
 # Famos with everything !
-
 #Load Scales
 process.load("L1TriggerConfig.L1ScalesProducers.L1CaloInputScalesConfig_cff")
 process.load("L1TriggerConfig.L1ScalesProducers.L1CaloScalesConfig_cff")
@@ -70,7 +63,7 @@ process.hfreco.doDigis = True
 
 process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTriggerAnalysis_cfi")
 
-process.p1 = cms.Path(process.ProductionFilterSequence+
+process.p1 = cms.Path(process.generator+
                       process.famosWithEverything+
                       process.simEcalTriggerPrimitiveDigis+
                       process.simHcalTriggerPrimitiveDigis+
@@ -85,4 +78,27 @@ process.TFileService = cms.Service("TFileService",
 )
 
 
+
+#process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
+process.source = cms.Source("EmptySource")
+
+
+# To write out events
+#process.load("FastSimulation.Configuration.EventContent_cff")
+#process.o1 = cms.OutputModule("PoolOutputModule",
+#    process.AODSIMEventContent,
+#    fileName = cms.untracked.string('AODIntegrationTest.root')
+#)
+#process.outpath = cms.EndPath(process.o1)
+
+# Keep output to a nice level
+# process.Timing =  cms.Service("Timing")
+# process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt","cout")
+# process.MessageLogger.categories.append("FamosManager")
+# process.MessageLogger.cout = cms.untracked.PSet(threshold=cms.untracked.string("INFO"),
+#                                                 default=cms.untracked.PSet(limit=cms.untracked.int32(0)),
+#                                                 FamosManager=cms.untracked.PSet(limit=cms.untracked.int32(100000)))
+
+
+# Make the job crash in case of missing product
 process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
