@@ -1,11 +1,47 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TriggerAnalysis")
+process = cms.Process("TriggerAnalysis2")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
-"file:~/www/2010/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133483_331.root" 
+#"file:~/www/2010/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133483_331.root" 
+# "file:MuTriggerReco_1_1.root"
+
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133874_1.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133874_10.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133874_11.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133874_12.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133874_13.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133874_2.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133874_3.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133874_4.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133874_5.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133874_6.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133874_7.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133874_8.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133874_9.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133875_1.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133875_2.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133875_3.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133875_4.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133876_1.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133876_2.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133876_3.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133876_4.root",
+#"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133877_1.root",
+#"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133877_10.root",
+#"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133877_2.root",
+#"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133877_3.root",
+#"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133877_4.root",
+#"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133877_5.root",
+#"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133877_6.root",
+#"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133877_7.root",
+#"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133877_8.root",
+#"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133877_9.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133881_1.root",
+"file:/data4/Skimming/SkimResults/133/EWKMuSkim_L1TG04041_AllMuAtLeastThreeTracks133885_1.root",
+
     )
 )
 
@@ -14,15 +50,20 @@ process.source = cms.Source("PoolSource",
 #dirlist = os.listdir(dirname)
 #basenamelist = os.listdir(dirname + "/")
 #for basename in basenamelist:
-#                    process.source.fileNames.append("file:" + dirname + "/" + basename)
-#                    print "Number of files to process is %s" % (len(process.source.fileNames))
+#                    process.source.file:Names.append("file::" + dirname + "/" + basename)
+#                    print "Number of file:s to process is %s" % (len(process.source.file:Names))
+
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.MessageLogger.cerr.threshold = ''
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-)
+#process.maxEvents = cms.untracked.PSet(
+#    input = cms.untracked.int32(-1)
+#)
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('MuTriggerNew.root')
@@ -61,6 +102,7 @@ process.MuTriggerAnalyzerAllCuts = cms.EDAnalyzer(
     hltPath = cms.string("HLT_Mu9"),
 ##HLT_Mu9
     L3FilterName= cms.string("hltSingleMu9L3Filtered9"),
+ ###   ("hltL2Mu9L2Filtered9"),
 ##hltSingleMu9L3Filtered9
     maxDPtRel = cms.double( 1.0 ),
     maxDeltaR = cms.double( 0.5 ),
@@ -69,12 +111,12 @@ process.MuTriggerAnalyzerAllCuts = cms.EDAnalyzer(
     ptMax_=cms.double( 40.0 )
 )
 
-#import copy
-#process.MuTriggerAnalyzerAllCutsButIso=  copy.deepcopy(process.MuTriggerAnalyzerAllCuts)
-#process.MuTriggerAnalyzerAllCutsButIso.muons= cms.untracked.InputTag("goodMuonsNotIso") 
+import copy
+process.MuTriggerAnalyzerAllCutsButIso=  copy.deepcopy(process.MuTriggerAnalyzerAllCuts)
+process.MuTriggerAnalyzerAllCutsButIso.muons= cms.untracked.InputTag("goodMuonsNotIso") 
 
-#process.MuTriggerAnalyzerNoCuts=  copy.deepcopy(process.MuTriggerAnalyzerAllCuts)
-#process.MuTriggerAnalyzerNoCuts.muons= cms.untracked.InputTag("goodMuonsNoCuts")
+process.MuTriggerAnalyzerNoCuts=  copy.deepcopy(process.MuTriggerAnalyzerAllCuts)
+process.MuTriggerAnalyzerNoCuts.muons= cms.untracked.InputTag("goodMuonsNoCuts")
 
 
 
@@ -82,7 +124,37 @@ process.MuTriggerAnalyzerAllCuts = cms.EDAnalyzer(
 
 
 process.pAllCuts = cms.Path(process.goodMuons* process.MuTriggerAnalyzerAllCuts)
-#process.pAllCutsButIso = cms.Path(process.goodMuonsNotIso* process.MuTriggerAnalyzerAllCutsButIso)
-##process.pNoCuts = cms.Path(process.goodMuonsNoCuts* process.MuTriggerAnalyzerNoCuts)
+process.pAllCutsButIso = cms.Path(process.goodMuonsNotIso* process.MuTriggerAnalyzerAllCutsButIso)
+process.pNoCuts = cms.Path(process.goodMuonsNoCuts* process.MuTriggerAnalyzerNoCuts)
 
 
+# Output module configuration
+from Configuration.EventContent.EventContent_cff import *
+EventContent = cms.PSet(
+        outputCommands = cms.untracked.vstring()
+        )
+
+EventContent.outputCommands.extend(FEVTEventContent.outputCommands)
+
+
+EventSelection = cms.PSet(
+        SelectEvents = cms.untracked.PSet(
+            SelectEvents = cms.vstring(
+               'pAllCuts','pAllCutsButIso','pNoCuts')
+                )
+        )
+
+
+process.OutputModule = cms.OutputModule("PoolOutputModule",
+                                EventContent,
+                                EventSelection,
+                                dataset = cms.untracked.PSet(
+                                  filterName = cms.untracked.string('pAllCuts'),
+                                  dataTier = cms.untracked.string('USER')
+               ),
+                                                     fileName = cms.untracked.string('MuTriggerReco.root')
+
+                                                  )
+
+
+#process.outpath = cms.EndPath(process.OutputModule)
