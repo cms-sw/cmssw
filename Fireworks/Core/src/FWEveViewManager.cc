@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.14 2010/04/21 19:24:58 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.15 2010/04/27 16:48:18 amraktad Exp $
 //
 
 // system include files
@@ -174,7 +174,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
                {
                   il = inter_it->second;
                }
-               printf(">>> builder %s add list %p \n", iItem->name().c_str(), il); fflush(stdout);
+               //  printf(">>> builder %s add list %p \n", iItem->name().c_str(), il); fflush(stdout);
                builder->setInteractionList(il, iItem->purpose());
             }
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 11:20:00 EST 2008
-// $Id: FWSimpleProxyBuilderTemplate.h,v 1.2 2010/04/20 20:49:41 amraktad Exp $
+// $Id: FWSimpleProxyBuilderTemplate.h,v 1.3 2010/04/23 21:01:59 amraktad Exp $
 //
 
 // system include files
@@ -41,6 +41,9 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
+
+protected:
+   const T& modelData(int index) { return *reinterpret_cast<const T*>(m_helper.offsetObject(item()->modelData(index))); }
 
 private:
    FWSimpleProxyBuilderTemplate(const FWSimpleProxyBuilderTemplate&); // stop default

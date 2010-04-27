@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, AljaMrak-Tadel
 //         Created:  Tue March 28  2 09:46:36 EST 2010
-// $Id: FWSimpleProxyBuilder.h,v 1.3 2010/04/20 20:49:41 amraktad Exp $
+// $Id: FWSimpleProxyBuilder.h,v 1.4 2010/04/23 21:01:59 amraktad Exp $
 //
 
 // system include files
@@ -46,6 +46,7 @@ protected:
    virtual void build(const FWEventItem* iItem, TEveElementList* product);
    virtual void buildViewType(const FWEventItem* iItem, TEveElementList* product, FWViewType::EType viewType);
 
+   FWSimpleProxyHelper m_helper;
 private:
    FWSimpleProxyBuilder(const FWSimpleProxyBuilder&); // stop default
 
@@ -61,8 +62,6 @@ private:
    virtual void buildViewType(const void*, unsigned int iIndex, TEveElement& iItemHolder, FWViewType::EType) = 0;
 
    // ---------- member data --------------------------------
-   FWSimpleProxyHelper m_helper;
-
 };
 
 

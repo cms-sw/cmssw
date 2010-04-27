@@ -8,12 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.11 2010/04/23 21:02:00 amraktad Exp $
+// $Id: FWElectronProxyBuilder.cc,v 1.12 2010/04/26 13:33:33 yana Exp $
 //
 #include "TEveCompound.h"
 #include "TEveTrack.h"
 
-#include "Fireworks/Core/interface/FWProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWViewType.h"
 
@@ -32,7 +32,7 @@
 // 
 ////////////////////////////////////////////////////////////////////////////////
 
-class FWElectronProxyBuilder : public FWProxyBuilderTemplate<reco::GsfElectron> {
+class FWElectronProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GsfElectron> {
 
 public:
    FWElectronProxyBuilder() ;
@@ -46,8 +46,9 @@ public:
 private:
    FWElectronProxyBuilder( const FWElectronProxyBuilder& ); // stop default
    const FWElectronProxyBuilder& operator=( const FWElectronProxyBuilder& ); // stop default
+  
+   virtual void buildViewType(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type );
 
-   virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type );
    TEveElementList* requestCommon();
 
    TEveElementList* m_common;
@@ -73,7 +74,8 @@ FWElectronProxyBuilder::requestCommon()
    {
       for (int i = 0; i < static_cast<int>(item()->size()); ++i)
       {
-         const reco::GsfElectron &electron = modelData(i);
+         const reco::GsfElectron& electron = modelData(i);
+
          TEveTrack* track(0);
          if( electron.gsfTrack().isAvailable() )
             track = fireworks::prepareTrack( *electron.gsfTrack(),
@@ -96,30 +98,27 @@ FWElectronProxyBuilder::cleanLocal()
 }
 
 void
-FWElectronProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type )
+FWElectronProxyBuilder::buildViewType(const reco::GsfElectron& electron, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type )
 {
    TEveElementList*   tracks = requestCommon();
    TEveElement::List_i trkIt = tracks->BeginChildren();
+   std::advance(trkIt, iIndex);
 
-   for (int i = 0; i < static_cast<int>(iItem->size()); ++i, ++trkIt)
-   {
-      const reco::GsfElectron &electron = modelData(i);
 
-      TEveCompound* comp = createCompound();
-      comp->AddElement( *trkIt );
-      if( type == FWViewType::kRhoPhi )
-         fireworks::makeRhoPhiSuperCluster( this,
-					    electron.superCluster(),
-					    electron.phi(),
-					    *comp );
-      else if( type == FWViewType::kRhoZ )
-         fireworks::makeRhoZSuperCluster( this,
-					  electron.superCluster(),
-					  electron.phi(),
-					  *comp );
+   TEveCompound* comp = createCompound();
+   comp->AddElement( *trkIt );
+   if( type == FWViewType::kRhoPhi )
+      fireworks::makeRhoPhiSuperCluster( this,
+                                         electron.superCluster(),
+                                         electron.phi(),
+                                         *comp );
+   else if( type == FWViewType::kRhoZ )
+      fireworks::makeRhoZSuperCluster( this,
+                                       electron.superCluster(),
+                                       electron.phi(),
+                                       *comp );
 
-      setupAddElement( comp, product );
-   }
+   setupAddElement( comp, &oItemHolder );
 }
 
 REGISTER_FWPROXYBUILDER( FWElectronProxyBuilder, reco::GsfElectron, "Electrons", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
