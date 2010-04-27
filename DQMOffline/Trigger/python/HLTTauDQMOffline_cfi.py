@@ -11,7 +11,7 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                                                                           cms.InputTag("shrinkingConePFTauDiscriminationByIsolation")
                             ),
                             doPFTaus = cms.untracked.bool(True),
-                            ptMin = cms.untracked.double(15.0),
+                            ptMin = cms.untracked.double(10.0),
                             PFTauProducer = cms.untracked.InputTag("shrinkingConePFTauProducer")
                             ),
                     Electrons = cms.untracked.PSet(
