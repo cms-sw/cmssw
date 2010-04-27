@@ -45,9 +45,6 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps) {
     dispatcher->maskHWElements(maskedHW);
   }
 
-
-  events = 0;
-
 }
 
 /**
@@ -96,27 +93,6 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
     standby.process = true;
   }
-
-  /**
-   * Remove me!
-   */
-  events++;
-
-  /*
-  if (events <= 1000 || events > 5000) {
-    standby.MeP = true;
-    standby.MeM = true;
-  } 
-  */
-
-  //if (events > 1000 && events <= 3000) {
-  //  standby.MeP = true;
-  //  standby.MeM = false;
-  //} 
-
-  /**
-   * /Remove me!
-   */
 
   dispatcher->processEvent(e, inputTag, standby);
 

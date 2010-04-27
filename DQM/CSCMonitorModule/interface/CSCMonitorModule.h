@@ -81,8 +81,6 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
     bool                      prebookEffParams;
     bool                      processDcsScalers;
 
-    unsigned int events;
-
     /** Pointer to crate mapping from database **/
     const CSCCrateMap* pcrate;
 
