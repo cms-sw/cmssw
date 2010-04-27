@@ -58,6 +58,8 @@ class RunAlcaSkimming:
 
         process.source.fileNames.append(self.inputLFN)
 
+        process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+
         psetFile = open("RunAlcaSkimmingCfg.py", "w")
         psetFile.write(process.dumpPython())
         psetFile.close()
