@@ -312,7 +312,8 @@ def get_plots(path,output, iovs, tag):
     
     cmd = "cp "+path+"/*.png "+os.path.dirname(output)
     outcmd = commands.getstatusoutput( cmd )
-    
+
+    pngfiles.sort()
     return pngfiles
 
 #_______________________________
