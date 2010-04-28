@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.9 2010/04/16 18:37:18 amraktad Exp $
+// $Id: FWEveView.cc,v 1.10 2010/04/22 17:29:52 amraktad Exp $
 //
 
 
@@ -199,13 +199,15 @@ FWEveView::addTo(FWConfiguration& iTo) const
 void
 FWEveView::setFrom(const FWConfiguration& iFrom)
 {
-   if (version() != iFrom.version())
+   if (version() <= iFrom.version())
    {
-      fwLog(fwlog::kWarning) << "Skiping configuration. Version do not mach in view " << typeName() << std::endl;
-      return;
+      for(const_iterator it =begin(), itEnd = end();
+          it != itEnd;
+          ++it) {
+         (*it)->setFrom(iFrom);      
+      }  
    }
-   // take care of parameters
-   FWConfigurableParameterizable::setFrom(iFrom);
+   if (iFrom.version() > 1)
    {
       assert( m_overlayEventInfo);
       m_overlayEventInfo->setFrom(iFrom);
@@ -240,24 +242,32 @@ FWEveView::addToOrthoCamera(TGLOrthoCamera* camera, FWConfiguration& iTo) const
 void
 FWEveView::setFromOrthoCamera(TGLOrthoCamera* camera,  const FWConfiguration& iFrom)
 {
-   // zoom
-   std::string zoomName("cameraZoom"); zoomName += typeName();
-   assert( 0!=iFrom.valueForKey(zoomName) );
-   std::istringstream s(iFrom.valueForKey(zoomName)->value());
-   s>>(camera->fZoom);
-   
-   // transformation matrix
-   std::string matrixName("cameraMatrix");
-   for ( unsigned int i = 0; i < 16; ++i ) {
-      std::ostringstream os;
-      os << i;
-      const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + typeName() );
-      assert( value );
-      std::istringstream s(value->value());
-      s>> (camera->RefCamTrans()[i]);
+   if ( iFrom.version() > 1)
+   {
+      // zoom
+      std::string zoomName("cameraZoom"); zoomName += typeName();
+      assert( 0!=iFrom.valueForKey(zoomName) );
+      std::istringstream s(iFrom.valueForKey(zoomName)->value());
+      s>>(camera->fZoom);
+      
+      // transformation matrix
+      std::string matrixName("cameraMatrix");
+      for ( unsigned int i = 0; i < 16; ++i ) {
+         std::ostringstream os;
+         os << i;
+         const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + typeName() );
+         assert( value );
+         std::istringstream s(value->value());
+         s>> (camera->RefCamTrans()[i]);
+      }
+      
+      camera->IncTimeStamp();
    }
-
-   camera->IncTimeStamp();
+   else {
+      // reset camera if version not supported 
+      fwLog(fwlog::kInfo) << "Can't restore camera parameters in view " << typeName() <<". Version of configuration too old. Set default camera parameters." << std::endl;   
+      viewerGL()->ResetCamerasAfterNextUpdate();      
+   }
 }
 
 
@@ -289,44 +299,50 @@ FWEveView::addToPerspectiveCamera(TGLPerspectiveCamera* cam, const std::string& 
       osValue << cam->fFOV;
       iTo.addKeyValue(name+" FOV",FWConfiguration(osValue.str()));
    }
-   
 }
 
 void
 FWEveView::setFromPerspectiveCamera(TGLPerspectiveCamera* cam, const std::string& name, const FWConfiguration& iFrom)
 {
-   std::string matrixName("cameraMatrix");
-   for ( unsigned int i = 0; i < 16; ++i ){
-      std::ostringstream os;
-      os << i;
-      const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + name );
-      assert( value );
-      std::istringstream s(value->value());
-      s>>((cam->RefCamTrans())[i]);
-   }
-   
-   // transformation matrix base
-   matrixName = "cameraMatrixBase";
-   for ( unsigned int i = 0; i < 16; ++i ){
-      std::ostringstream os;
-      os << i;
-      const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + name );
-      assert( value );
-      std::istringstream s(value->value());
-      s>>((cam->RefCamBase())[i]);
-   }
-   
+   if ( iFrom.version() > 1)
    {
-      const FWConfiguration* value = iFrom.valueForKey( name + " FOV" );
-      if (value) // assert not necessary in version 1
-      {
+      std::string matrixName("cameraMatrix");
+      for ( unsigned int i = 0; i < 16; ++i ){
+         std::ostringstream os;
+         os << i;
+         const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + name );
+         assert( value );
          std::istringstream s(value->value());
-         s>>cam->fFOV;
+         s>>((cam->RefCamTrans())[i]);
       }
+      
+      // transformation matrix base
+      matrixName = "cameraMatrixBase";
+      for ( unsigned int i = 0; i < 16; ++i ){
+         std::ostringstream os;
+         os << i;
+         const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + name );
+         assert( value );
+         std::istringstream s(value->value());
+         s>>((cam->RefCamBase())[i]);
+      }
+      
+      {
+         const FWConfiguration* value = iFrom.valueForKey( name + " FOV" );
+         if (value) // assert not necessary in version 1
+         {
+            std::istringstream s(value->value());
+            s>>cam->fFOV;
+         }
+      }
+      
+      cam->IncTimeStamp();
    }
-   
-   cam->IncTimeStamp();
+   else
+   {
+      // reset camera if version not supported
+      fwLog(fwlog::kInfo) << "Can't restore camera parameters in view " << typeName() <<". Version of configuration too old. Set default camera parameters." << std::endl;   
+      viewerGL()->ResetCamerasAfterNextUpdate();      
+   }
 }
 
-
-//// TODO : add getters, setters for FOV and ZOOM in camera
