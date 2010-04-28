@@ -567,15 +567,15 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
              nVertex.position().perp()>120.)
         {
           // were more than 100 m off!!
-          LogError ("AdaptiveVertexFitter" ) << "Help! Vertex candidate just took off to " << nVertex.position()
-                                             << "! Will discard this update!"
-	    //<< "track pt was " << (**i).linearizedTrack()->track().pt()
-					     << "track momentum was " << (**i).linearizedTrack()->track().initialFreeState().momentum()
-					     << "track position was " << (**i).linearizedTrack()->track().initialFreeState().position()
-					     << "track chi2 was " << (**i).linearizedTrack()->track().chi2()
-					     << "track ndof was " << (**i).linearizedTrack()->track().ndof()
-					     << "track w was " << (**i).weight()
-					     << "track schi2 was " << (**i).smoothedChi2();
+          LogWarning ("AdaptiveVertexFitter" ) << "Help! Vertex candidate just took off to " << nVertex.position()
+					       << "! Will discard this update!";
+// 	    //<< "track pt was " << (**i).linearizedTrack()->track().pt()
+// 					     << "track momentum was " << (**i).linearizedTrack()->track().initialFreeState().momentum()
+// 					     << "track position was " << (**i).linearizedTrack()->track().initialFreeState().position()
+// 					     << "track chi2 was " << (**i).linearizedTrack()->track().chi2()
+// 					     << "track ndof was " << (**i).linearizedTrack()->track().ndof()
+// 					     << "track w was " << (**i).weight()
+// 					     << "track schi2 was " << (**i).smoothedChi2();
         } else {
 	        fVertex = nVertex;
         }
