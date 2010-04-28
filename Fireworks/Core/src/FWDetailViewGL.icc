@@ -21,6 +21,7 @@ m_eveScene(0)
 template <typename T>
 FWDetailViewGL<T>::~FWDetailViewGL ()
 {
+   if (m_eveScene) m_eveScene->DestroyElemets();
 }
 
 template <typename T>
