@@ -113,6 +113,8 @@ def dump_header(lines):
 <H1>Status of the Beam Spot Calibration</H1>
 <BR>
 <BR>
+This page is updated every 10 minutes:
+<BR>
 <strong><script src="datemod.js"
 type="text/javascript"></script></strong>
 
@@ -342,11 +344,13 @@ if __name__ == '__main__':
     option,args = parse(__doc__)
     if not args and not option: exit()
 
-    htmlwebsite = "http://cmsrocstor.fnal.gov/lpc1/cmsroc/yumiceva/tmp/"
+    #htmlwebsite = "http://cmsrocstor.fnal.gov/lpc1/cmsroc/yumiceva/tmp/"
+    htmlwebsite = "https://yumiceva.web.cern.ch/yumiceva/beamspot/"
     if option.web: htmlwebsite = option.web
     
     ## Get the latest tags
-    dest = "frontier://cmsfrontier.cern.ch:8000/Frontier/CMS_COND_31X_BEAMSPOT"
+    #dest = "frontier://cmsfrontier.cern.ch:8000/Frontier/CMS_COND_31X_BEAMSPOT"
+    dest = "oracle://cms_orcff_prod/CMS_COND_31X_BEAMSPOT"
     auth = "/afs/cern.ch/cms/DB/conddb"
     #cmscond_list_iov -c oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT -P /afs/cern.ch/cms/DB/conddb  -a
     
