@@ -63,19 +63,16 @@ def customise(process):
     ## HCAL temporary fixes
     process.hfreco.firstSample  = 3
     process.hfreco.samplesToAdd = 4
+    process.hfreco.PETstat.short_R = cms.vdouble([0.8])
     
     ## EGAMMA
-    process.gsfElectrons.applyPreselection = cms.bool(False)
-    process.photons.minSCEtBarrel = 2.
-    process.photons.minSCEtEndcap =2.
-    process.photonCore.minSCEt = 2.
-    process.conversionTrackCandidates.minSCEt =1.
-    process.conversions.minSCEt =1.
-    process.trackerOnlyConversions.AllowTrackBC = cms.bool(False)
-    process.trackerOnlyConversions.AllowRightBC = cms.bool(False)
-    process.trackerOnlyConversions.MinApproach = cms.double(-.25)
-    process.trackerOnlyConversions.DeltaCotTheta = cms.double(.07)
-    process.trackerOnlyConversions.DeltaPhi = cms.double(.2)
+    process.photons.minSCEtBarrel = 5.
+    process.photons.minSCEtEndcap =5.
+    process.photonCore.minSCEt = 5.
+    process.conversionTrackCandidates.minSCEt =5.
+    process.conversions.minSCEt =5.
+    process.trackerOnlyConversions.rCut = 2.
+    process.trackerOnlyConversions.vtxChi2 = 0.0005
     
     ###
     ###  end of top level replacements
