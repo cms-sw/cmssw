@@ -1,7 +1,7 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.169 
-# Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
+# Revision: 1.172 
+# Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 # with command line options: reco_FirstCollisions_36X -s RAW2DIGI,L1Reco,RECO,DQM --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --conditions GR_R_36X_V6::All --customise Configuration/GlobalRuns/customise_Collision_36X.py --no_exec --python_filename=rereco_FirstCollisions_36X.py
 import FWCore.ParameterSet.Config as cms
 
@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.169 $'),
+    version = cms.untracked.string('$Revision: 1.172 $'),
     annotation = cms.untracked.string('reco_FirstCollisions_36X nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -81,6 +81,9 @@ def customise(process):
     process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
     process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 10000
     process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+    process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
+    process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
+        
 
     ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
@@ -89,34 +92,31 @@ def customise(process):
     
     ### pixelTracks
     #---- new parameters ----
-    process.pixelTracks.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.06) # was originHalfLength = 15.9; translated assuming sigmaZ ~ 3.8
+    process.pixelTracks.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.06)
+    process.pixelTracks.RegionFactoryPSet.RegionPSet.originHalfLength = cms.double(40.6)
     
     ### 0th step of iterative tracking
-    #---- replaces ----
-    process.newSeedFromTriplets.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
     #---- new parameters ----
-    process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ   = cms.double(4.06)  # was originHalfLength = 15.9; translated assuming sigmaZ ~ 3.8
-    process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
+    process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ   = cms.double(4.06)
+    process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 40.6
 
     ### 2nd step of iterative tracking
-    #---- replaces ----
-    process.secTriplets.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
     #---- new parameters ----
-    process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  # was originHalfLength = 17.5; translated assuming sigmaZ ~ 3.8
-    process.secTriplets.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
+    process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)
+    process.secTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 44.7
 
     ## Primary Vertex
     process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
     process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 20
     process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxD0Significance = 100
-    process.offlinePrimaryVerticesWithBS.TkFilterParameters.minPixelLayersWithHits = 1
-    process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconLayersWithHits = 6
+    process.offlinePrimaryVerticesWithBS.TkFilterParameters.minPixelLayersWithHits = 2
+    process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconLayersWithHits = 5
     process.offlinePrimaryVerticesWithBS.TkClusParameters.TkGapClusParameters.zSeparation = 1
     process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 2
     process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 20
     process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
-    process.offlinePrimaryVertices.TkFilterParameters.minPixelLayersWithHits = 1
-    process.offlinePrimaryVertices.TkFilterParameters.minSiliconLayersWithHits = 6
+    process.offlinePrimaryVertices.TkFilterParameters.minPixelLayersWithHits = 2
+    process.offlinePrimaryVertices.TkFilterParameters.minSiliconLayersWithHits = 5
     process.offlinePrimaryVertices.TkClusParameters.TkGapClusParameters.zSeparation = 1
 
     ## ECAL 
@@ -131,19 +131,16 @@ def customise(process):
     ## HCAL temporary fixes
     process.hfreco.firstSample  = 3
     process.hfreco.samplesToAdd = 4
+    process.hfreco.PETstat.short_R = cms.vdouble([0.8])
     
     ## EGAMMA
-    process.gsfElectrons.applyPreselection = cms.bool(False)
-    process.photons.minSCEtBarrel = 2.
-    process.photons.minSCEtEndcap =2.
-    process.photonCore.minSCEt = 2.
-    process.conversionTrackCandidates.minSCEt =1.
-    process.conversions.minSCEt =1.
-    process.trackerOnlyConversions.AllowTrackBC = cms.bool(False)
-    process.trackerOnlyConversions.AllowRightBC = cms.bool(False)
-    process.trackerOnlyConversions.MinApproach = cms.double(-.25)
-    process.trackerOnlyConversions.DeltaCotTheta = cms.double(.07)
-    process.trackerOnlyConversions.DeltaPhi = cms.double(.2)
+    process.photons.minSCEtBarrel = 5.
+    process.photons.minSCEtEndcap =5.
+    process.photonCore.minSCEt = 5.
+    process.conversionTrackCandidates.minSCEt =5.
+    process.conversions.minSCEt =5.
+    process.trackerOnlyConversions.rCut = 2.
+    process.trackerOnlyConversions.vtxChi2 = 0.0005
     
     ###
     ###  end of top level replacements
