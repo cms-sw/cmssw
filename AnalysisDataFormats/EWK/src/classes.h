@@ -16,7 +16,7 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
-
+#include "DataFormats/PatCandidates/interface/Photon.h"
 
 #include <vector>
 #include <map>
@@ -58,6 +58,14 @@ namespace {
      edm::Wrapper<edm::PtrVector<pat::Muon> > w_pv_m7;
      edm::Wrapper<edm::RefToBaseVector<pat::Muon> > w_rtbv_m_7;
      edm::reftobase::BaseVectorHolder<pat::Muon> *bvh_m_7;
+     
+    edm::Ptr<pat::Photon> p_ph7;
+    edm::RefToBaseVector<pat::Photon> rtbv_ph_7;
+    edm::PtrVector<pat::Photon> pv_ph7;
+    edm::Wrapper<edm::PtrVector<pat::Photon> > w_pv_ph7;
+    edm::Wrapper<edm::RefToBaseVector<pat::Photon> > w_rtbv_ph_7;
+    edm::reftobase::BaseVectorHolder<pat::Photon> *bvh_ph_7;
+
 
 //      std::vector<edm::Ref<pat::MuonCollection> > v_r_mc_7;
 //      edm::Wrapper<std::vector<edm::Ref<pat::MuonCollection> > > w_v_r_mc_7;
