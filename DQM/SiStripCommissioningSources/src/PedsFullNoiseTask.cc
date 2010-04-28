@@ -121,7 +121,7 @@ void PedsFullNoiseTask::fill( const SiStripEventSummary & summary,
   }
 
   // get the event number of the first event, not necessarily 1 (parallel processing on FUs)
-  static uint32_t firstev = summary.event();
+  static int32_t firstev = summary.event();
 
   // skipping events
   if (!skipped_) {
