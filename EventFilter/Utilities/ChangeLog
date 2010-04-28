@@ -1,3 +1,8 @@
+2010-04-28  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-18-02 (01 used by Bill)
+	* add InputTag to both EvFXXX in plugins
+	
 2010-04-26  Emilio Meschi <emilio.meschi@cern.ch>
 	
 	* tag V00-18-00

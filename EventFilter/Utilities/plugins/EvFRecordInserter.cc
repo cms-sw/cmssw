@@ -11,11 +11,12 @@ namespace evf{
     : evc_(0)
     , ehi_(0LL)
     , last_(0)
+    , label_(pset.getParameter<edm::InputTag>("inputTag"))
   {}
     void EvFRecordInserter::analyze(const edm::Event & e, const edm::EventSetup& c)
     {
       edm::Handle<FEDRawDataCollection> rawdata;
-      e.getByType(rawdata);
+      e.getByLabel(label_,rawdata);
       unsigned int id = fedinterface::EVFFED_ID;
       const FEDRawData& data = rawdata->FEDData(id);
       size_t size=data.size();

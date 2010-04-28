@@ -5,15 +5,17 @@
 namespace evf{
 
   EvFFEDSelector::EvFFEDSelector( const edm::ParameterSet& ps)
+    : label_(ps.getParameter<edm::InputTag>("inputTag"))
+    , fedlist_(ps.getParameter<std::vector<unsigned int> >("fedList")) 
   {
-    fedlist_ = ps.getParameter<std::vector<unsigned int> >("fedList");
+    
     produces<FEDRawDataCollection>();
   }
   void EvFFEDSelector::produce(edm::Event & e, const edm::EventSetup& c)
   {
     edm::Handle<FEDRawDataCollection> rawdata;
     FEDRawDataCollection *fedcoll = new FEDRawDataCollection();
-    e.getByType(rawdata);
+    e.getByLabel(label_,rawdata);
     std::vector<unsigned int>::iterator it = fedlist_.begin();
     for(;it!=fedlist_.end();it++)
       {

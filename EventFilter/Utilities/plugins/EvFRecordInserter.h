@@ -4,6 +4,7 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "EvffedFillerEP.h"
 
@@ -22,6 +23,7 @@ namespace evf{
       uint32_t evc_;
       uint64_t ehi_;
       uint32_t last_;
+      edm::InputTag label_;
     };
 }
 

@@ -5,6 +5,8 @@
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/Framework/interface/Event.h>
 
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include <vector>
 
 namespace evf{
@@ -18,6 +20,7 @@ namespace evf{
       void produce(edm::Event & e, const edm::EventSetup& c);
       
     private:
+      edm::InputTag label_;
       std::vector<unsigned int> fedlist_;
       
     };
