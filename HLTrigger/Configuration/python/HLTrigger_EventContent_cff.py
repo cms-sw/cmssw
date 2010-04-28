@@ -243,6 +243,7 @@ HLTDebugRAW = cms.PSet(
         'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*', 
         'keep L1MuGMTCands_hltGtDigis_*_*', 
         'keep L1MuGMTReadoutCollection_hltGtDigis_*_*', 
+        'keep SiPixelClusteredmNewDetSetVector_hltSiPixelClusters_*_*', 
         'keep edmTriggerResults_*_*_*', 
         'keep triggerTriggerEventWithRefs_*_*_*', 
         'keep triggerTriggerEvent_*_*_*')
@@ -460,6 +461,7 @@ HLTDebugFEVT = cms.PSet(
         'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*', 
         'keep L1MuGMTCands_hltGtDigis_*_*', 
         'keep L1MuGMTReadoutCollection_hltGtDigis_*_*', 
+        'keep SiPixelClusteredmNewDetSetVector_hltSiPixelClusters_*_*', 
         'keep edmTriggerResults_*_*_*', 
         'keep triggerTriggerEventWithRefs_*_*_*', 
         'keep triggerTriggerEvent_*_*_*')
