@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from ElectroWeakAnalysis.Skimming.dimuonsHLTFilter_cfi import *
 from ElectroWeakAnalysis.Skimming.patCandidatesForZMuMuSubskim_cff import *
-from ElectroWeakAnalysis.ZMuMu.zMuMuMuonUserData import *
+from ElectroWeakAnalysis.Skimming.zMuMuMuonUserData import *
 from ElectroWeakAnalysis.Skimming.dimuons_cfi import *
 dimuons.decay = cms.string('userDataMuons@+ userDataMuons@-')
 from ElectroWeakAnalysis.Skimming.dimuonsOneTrack_cfi import *

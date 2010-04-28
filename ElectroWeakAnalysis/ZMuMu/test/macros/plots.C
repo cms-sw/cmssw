@@ -2,14 +2,14 @@
   //  #include <exception>;
 
   //    TFile *file = TFile::Open("rfio:/castor/cern.ch/user/d/degrutto/incl15WithBsPv/NtupleLoose_test_inclu15_1_2.root");
-     TFile *file = TFile::Open("NtupleLoose_test.root");
+     TFile *file = TFile::Open("NtupleLooseTestNew_oneshot_all_Test.root");
 //TFile *file = TFile::Open("rfio:/castor/cern.ch/user/d/degrutto/zmmWithBsPv/NtupleLoose_test.root");
     TTree * Events = dynamic_cast< TTree *> (file->Get("Events"));
    TFile * output_file = TFile::Open("histo.root", "RECREATE");
    // TFile * output_file = TFile::Open("histo_test.root", "RECREATE");
   
   // zGolden plots
-  TCut cut_zGolden("zGoldenMass>20 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && zGoldenDau1Iso< 3.0 && zGoldenDau2Iso < 3.0");
+  TCut cut_zGolden("zGoldenMass>20 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && zGoldenDau1Iso< 3.0 && zGoldenDau2Iso < 3.0 && zGoldenMass> 60 && zGoldenMass<120 ");
   TDirectory * dir = output_file->mkdir("goodZToMuMuPlots");
   dir->cd();
   TH1F * zMass = new TH1F("zMass", "zMass", 200, 0, 200);
@@ -260,15 +260,15 @@
    delete dau2Dz;
    
 
-   TH1F * dau1NofHit = new TH1F("dua1NofHit", "dau1NofHit", 100, -0.5, 99.5);
-   Events->Project("dua1NofHit", "zGoldenDau1NofHit", cut_zGolden );
-   dau1NofHit->Write();
-   delete dau1NofHit;
+   TH1F * dau1NofStripHit = new TH1F("dua1NofStripHit", "dau1NofStripHit", 100, -0.5, 99.5);
+   Events->Project("dua1NofStripHit", "zGoldenDau1NofStripHits", cut_zGolden );
+   dau1NofStripHit->Write();
+   delete dau1NofStripHit;
    
-   TH1F * dau2NofHit = new TH1F("dua2NofHit", "dau2NofHit", 100, -0.5, 99.5);
-   Events->Project("dua2NofHit", "zGoldenDau2NofHit", cut_zGolden );
-   dau2NofHit->Write();
-   delete dau2NofHit;
+   TH1F * dau2NofStripHit = new TH1F("dua2NofStripHit", "dau2NofStripHit", 100, -0.5, 99.5);
+   Events->Project("dua2NofStripHit", "zGoldenDau2NofStripHits", cut_zGolden );
+   dau2NofStripHit->Write();
+   delete dau2NofStripHit;
 
 
    TH1F * dau1NofMuCh = new TH1F("dua1NofMuCh", "dau1NofMuCh", 20, -0.5, 19.5);
@@ -333,12 +333,12 @@
 
    
 
-   TH1F * nofHitTrk = new TH1F("nofHitTrk", "nofHitTrk", 100, -0.5, 99.5);
+   /*  TH1F * nofHitTrk = new TH1F("nofHitTrk", "nofHitTrk", 100, -0.5, 99.5);
    Events->Project("nofHitTrk", "zMuTrkDau2NofHitTk", cut_zMuTrk );
    nofHitTrk->Write();
    delete nofHitTrk;
 
-   
+   */
    TH1F * trkChi2 = new TH1F("trkChi2", "trkChi2", 100, -0.5, 99.5);
    Events->Project("trkChi2", "zMuTrkDau2Chi2", cut_zMuTrk );
    trkChi2->Write();

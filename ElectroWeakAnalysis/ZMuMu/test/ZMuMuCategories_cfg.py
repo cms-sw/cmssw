@@ -25,8 +25,9 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    "rfio:/castor/cern.ch/user/f/fabozzi/test354/testZMuMuSubskimUserData_2.root "
-   # "file:testZMuMuSubskimUserData.root"
+##    "rfio:/castor/cern.ch/user/f/fabozzi/test354/testZMuMuSubskimUserData_2.root "
+  "file:../../Skimming/test/testZMuMuSubskimWithMC.root"
+  #"testZMuMuSubskimUserData.root"
 #"file:../../Skimming/test/testZMuMuSubskim.root"
   #  "rfio:/castor/cern.ch/user/f/fabozzi/origZmumuSubSkim.root"
     #"rfio:/castor/cern.ch/user/f/fabozzi/350ZmumuSubSkim.root"

@@ -195,7 +195,7 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     cms.PSet(
     tag = cms.untracked.string("TruePt"),
     quantity = cms.untracked.string("userFloat('TruePt')")
-    ),   
+    ),  
     cms.PSet(
     tag = cms.untracked.string("TrueEta"),
     quantity = cms.untracked.string("userFloat('TrueEta')")

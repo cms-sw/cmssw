@@ -8,7 +8,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
      fileNames = cms.untracked.vstring(
-     'file:myCollection.root',
+     'rfio:/castor/cern.ch/user/f/fabozzi/mc7tev/F8EE38AF-1EBE-DE11-8D19-00304891F14E.root'
+     
   )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )

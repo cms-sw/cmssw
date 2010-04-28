@@ -1,6 +1,8 @@
+
+
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TestZMuMuSubskim")
+process = cms.Process("ZMuMuSubskim")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
@@ -15,8 +17,9 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 # Input files (on disk)
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-    "file:MC_MinBias_81_1.root"
-    
+'rfio:/castor/cern.ch/user/f/fabozzi/mc7tev/F8EE38AF-1EBE-DE11-8D19-00304891F14E.root'
+
+   
     )
                             )
 #import os
@@ -30,7 +33,7 @@ process.source = cms.Source("PoolSource",
                 
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -38,11 +41,20 @@ process.GlobalTag.globaltag = cms.string('START3X_V21::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ### subskim
-from ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff import *
+##from ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff import *
 
 process.load("ElectroWeakAnalysis.Skimming.zMuMuSubskimOutputModule_cfi")
+
+
+
+
 process.zMuMuSubskimOutputModule.fileName = 'testZMuMuSubskim_oneshot_Test.root'
+
 process.outpath = cms.EndPath(process.zMuMuSubskimOutputModule)
+
+
+
+
 
 ### analysis
 from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
@@ -54,7 +66,7 @@ process.TFileService = cms.Service(
 
 
 ### vertexing
-#process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesVtxed_cff")
+process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesVtxed_cff")
 
 ### plots
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesPlots_cff")
@@ -71,3 +83,8 @@ process.ntuplesOut.fileName = cms.untracked.string('file:NtupleLooseTestNew_ones
 
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuAnalysisSchedules_cff") 
 
+
+## MC truth
+process.load("ElectroWeakAnalysis.Skimming.zMuMu_SubskimPathsWithMCTruth_cff")
+process.zMuMuSubskimOutputModule.outputCommands.extend(process.mcEventContent.outputCommands)
+####

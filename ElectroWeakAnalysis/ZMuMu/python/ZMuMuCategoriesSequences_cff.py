@@ -178,8 +178,8 @@ initialGoodZToMuMuPath = cms.Path(
 
 goodZToMuMuPath = cms.Path(
     goodZToMuMu +
-    goodZToMuMuAtLeast1HLT+
-    globalMuQualityCutsAnalysisAA 
+    goodZToMuMuAtLeast1HLT
+  ##  globalMuQualityCutsAnalysisAA 
     )
 
 
@@ -199,8 +199,8 @@ goodZToMuMuAB1HLTPath=cms.Path(
     goodZToMuMuNotFiltered + ## not filtered
     zToMuMuAB+
     goodZToMuMuAB+
-    goodZToMuMuAB1HLT+
-    globalMuQualityCutsAnalysisAB
+    goodZToMuMuAB1HLT
+##    globalMuQualityCutsAnalysisAB
 )
 
 goodZToMuMuBB2HLTPath=cms.Path(
@@ -256,16 +256,16 @@ goodZToMuMuOneStandAloneMuonPath = cms.Path(
     ~goodZToMuMu +
     zToMuMuOneStandAloneMuon + 
     goodZToMuMuOneStandAloneMuon +
-    goodZToMuMuOneStandAloneMuonFirstHLT +
-    globalMuQualityCutsAnalysisAAsta
+    goodZToMuMuOneStandAloneMuonFirstHLT 
+##    globalMuQualityCutsAnalysisAAsta
     )
 
 goodZToMuMuOneTrackerMuonPath= cms.Path(
     ~goodZToMuMu +
     zToMuMuOneTrackerMuon + 
     goodZToMuMuOneTrackerMuon +
-    goodZToMuMuOneTrackerMuonFirstHLT +
-    globalMuQualityCutsAnalysisAAtrk
+    goodZToMuMuOneTrackerMuonFirstHLT 
+##    globalMuQualityCutsAnalysisAAtrk
 )
 
 
