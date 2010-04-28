@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.6 2010/04/25 17:06:33 hegner Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.7.2.1 2010/04/27 14:56:32 srappocc Exp $
 */
 
 

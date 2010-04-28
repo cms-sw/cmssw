@@ -48,6 +48,8 @@ public:
 	}
       }
     }
+
+    setIgnored(ret);
   
     return (bool)ret;
   }

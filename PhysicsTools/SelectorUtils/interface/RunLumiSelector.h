@@ -29,7 +29,7 @@ public:
     retInternal_ = getBitTemplate();
   }
   
-  bool operator() ( edm::EventBase const & ev,  std::strbitset & ret ) {
+  bool operator() ( edm::EventBase const & ev,  pat::strbitset & ret ) {
 
     if ( !ignoreCut("RunLumi") ) {
       bool goodLumi = false;
