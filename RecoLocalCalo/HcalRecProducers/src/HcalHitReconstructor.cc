@@ -109,7 +109,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 	const edm::ParameterSet& psrechit  =conf.getParameter<edm::ParameterSet>("rechitstat");
 	hfdigibit_=new HcalHFStatusBitFromDigis(psdigi.getParameter<int>("HFdigiflagFirstSample"),
 						psdigi.getParameter<int>("HFdigiflagSamplesToAdd"),
-						psdigi.getParameter<int>("HFdidiflagExpectedPeak"),
+						psdigi.getParameter<int>("HFdigiflagExpectedPeak"),
 						psdigi.getParameter<double>("HFdigiflagMinfCthreshold"),
 						psdigi.getParameter<double>("HFdigiflagCoef0"),
 						psdigi.getParameter<double>("HFdigiflagCoef1"),
