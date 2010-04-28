@@ -75,7 +75,7 @@ private:
           " from the beginJob.  Please change to code so the beginJob method takes no arguments.";
         }
 	exceptionContext(md_, e);
-	throw e;
+	throw;
     }
     catch(std::bad_alloc& bda) {
 	LogError("BeginJob")
@@ -146,7 +146,7 @@ private:
 	state_ = Exception;
 	e << "A cms::Exception is going through " << workerType() << ":\n";
 	exceptionContext(md_, e);
-	throw e;
+	throw;
     }
     catch(std::bad_alloc& bda) {
 	LogError("EndJob")
