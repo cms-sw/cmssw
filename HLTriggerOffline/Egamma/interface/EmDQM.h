@@ -61,6 +61,7 @@ private:
   double plotPtMin ;
   double plotPtMax ;
   unsigned int plotBins ;
+  unsigned int plotMinEtForEtaEffPlot;
   // preselction cuts
   edm::InputTag gencutCollection_;
   unsigned int gencut_;
