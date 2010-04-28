@@ -14,6 +14,8 @@ def customiseCommon(process):
     process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
     process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 10000
     process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+    process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
+    process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
 
     ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
@@ -22,34 +24,31 @@ def customiseCommon(process):
     
     ### pixelTracks
     #---- new parameters ----
-    process.pixelTracks.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.06) # was originHalfLength = 15.9; translated assuming sigmaZ ~ 3.8
-    
+    process.pixelTracks.RegionFactoryPSet.RegionPSet.nSigmaZ  = 4.06
+    process.pixelTracks.RegionFactoryPSet.RegionPSet.originHalfLength = cms.double(40.6)
+
     ### 0th step of iterative tracking
-    #---- replaces ----
-    process.newSeedFromTriplets.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
     #---- new parameters ----
-    process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ   = cms.double(4.06)  # was originHalfLength = 15.9; translated assuming sigmaZ ~ 3.8
-    process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
+    process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ   = cms.double(4.06)  
+    process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 40.6
 
     ### 2nd step of iterative tracking
-    #---- replaces ----
-    process.secTriplets.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
     #---- new parameters ----
-    process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  # was originHalfLength = 17.5; translated assuming sigmaZ ~ 3.8
-    process.secTriplets.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
+    process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  
+    process.secTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 44.7
 
     ## Primary Vertex
     process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
     process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 20
     process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxD0Significance = 100
-    process.offlinePrimaryVerticesWithBS.TkFilterParameters.minPixelLayersWithHits = 1
-    process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconLayersWithHits = 6
+    process.offlinePrimaryVerticesWithBS.TkFilterParameters.minPixelLayersWithHits = 2
+    process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconLayersWithHits = 5
     process.offlinePrimaryVerticesWithBS.TkClusParameters.TkGapClusParameters.zSeparation = 1
     process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 2
     process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 20
     process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
-    process.offlinePrimaryVertices.TkFilterParameters.minPixelLayersWithHits = 1
-    process.offlinePrimaryVertices.TkFilterParameters.minSiliconLayersWithHits = 6
+    process.offlinePrimaryVertices.TkFilterParameters.minPixelLayersWithHits = 2
+    process.offlinePrimaryVertices.TkFilterParameters.minSiliconLayersWithHits = 5
     process.offlinePrimaryVertices.TkClusParameters.TkGapClusParameters.zSeparation = 1
 
     ## ECAL 
