@@ -18,7 +18,8 @@
 
    usage: %prog -t <tag name>
    -o, --output    = OUTPUT: filename of output html file.
-   
+   -p, --path      = PATH: path to beam spot scripts.
+
    Francisco Yumiceva (yumiceva@fnal.gov)
    Fermilab 2010
    
@@ -106,12 +107,13 @@ def dump_header(lines):
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html>
 <head><title>Beam Spot Calibration Status</title></head>
 
-<BR>
-<BR>
-<strong><script src="css/datemod.js"
-type="text/javascript"></script></strong>
-
 <body>
+
+<H1>Status of the Beam Spot Calibration</H1>
+<BR>
+<BR>
+<strong><script src="datemod.js"
+type="text/javascript"></script></strong>
 
 ''')
 
@@ -259,6 +261,19 @@ def get_lastIOVs( listoftags, dest, auth ):
 
     return results
 
+#____________________________
+def get_plots(path, tag):
+
+    cmd = path+"/plotBeamSpotDB.py -b -P -t "+tag
+    print cmd
+    outcmd = commands.getstatusoutput( cmd )
+    
+    cmd = "ls "+path+" *.png"
+    outcmd = commands.getstatusoutput( cmd )
+
+    pngfiles = outcmd[1].split('\n')
+    print pngfiles
+
     
 #______________________________
 if __name__ == '__main__':
@@ -287,7 +302,7 @@ if __name__ == '__main__':
     
     dump_header(lines)
 
-    lines.append('Latest IOVs: '+end)
+    lines.append('<h2>The three lates IOVs</h2>'+end)
     lines.append(br)
     lines.append('''
 <table border="1">
@@ -295,13 +310,24 @@ if __name__ == '__main__':
     write_iovs( list_lastIOVs, lines )
     lines.append('</table>'+end)
     
-    lines.append('Latest tags:'+end)
+    lines.append('<h2>Latest data processed</h2>'+end)
+    lines.append(br)
+    lines.append('to be written'+end)
+    lines.append(br)
+
+    lines.append('<h2>The Latest Tags</h2>'+end)
     lines.append(br)
     lines.append('''
 <table border="1">
 ''')
     write_tags( list_tags, lines)
     lines.append('</table>'+end)
+
+    lines.append('<h2>Latest plots</h2>'+end)
+    lines.append(br)
+    
+    get_plots(option.path, list_tags['offline'][0])
+    
 
     dump_footer(lines)
 
