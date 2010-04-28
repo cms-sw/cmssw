@@ -405,9 +405,12 @@ if __name__ == '__main__':
             if iIOV.since >= int(tmprunfirst) and int(tmprunlast) < 0 and iIOV.since <= int(tmprunfirst):
                 print " IOV: " + str(iIOV.since)
                 passiov = True
-            if iIOV.since >= int(tmprunfirst) and int(tmprunlast) > 0 and iIOV.till < int(tmprunlast):
+            if iIOV.since >= int(tmprunfirst) and int(tmprunlast) > 0 and iIOV.till <= int(tmprunlast):
                 print " IOV: " + str(iIOV.since) + " to " + str(iIOV.till)
                 passiov = True
+            if iIOV.since >= int(tmprunlast) and iIOV.till >= 4294967295:
+                print " IOV: " + str(iIOV.since) + " to " + str(iIOV.till)
+                passiov = True                
             if passiov:
                 acommand = 'getBeamSpotDB.py -t '+ tag + " -r " + str(iIOV.since) +otherArgs
                 if IOVbase=="lumibase":

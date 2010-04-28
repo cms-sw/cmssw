@@ -19,7 +19,8 @@
    usage: %prog -t <tag name>
    -o, --output    = OUTPUT: filename of output html file.
    -p, --path      = PATH: path to beam spot scripts.
-
+   -w, --web       = WEB: html path to website.
+   
    Francisco Yumiceva (yumiceva@fnal.gov)
    Fermilab 2010
    
@@ -229,7 +230,10 @@ def get_lastIOVs( listoftags, dest, auth ):
     for itag in dbtags:
         
         lasttag = listoftags[itag][0]
-    
+        #fix for the moment to read old tags
+        if itag!="offline":
+            lasttag = listoftags[itag][1]
+        
         queryIOVs_cmd = "cmscond_list_iov -c "+dest+" -P "+auth+" -t "+ lasttag
         print queryIOVs_cmd
         
@@ -290,7 +294,8 @@ def get_plots(path,output, iovs, tag):
     if iovs[0].type == "lumiid":
 	initial = str(unpack(initial)[0])+":"+str(unpack(initial)[1])
 	final =  str(unpack(final)[0])+":"+str(unpack(final)[1])
-    
+
+    initial = str(int(initial) -10 )
     cmd = path+"/plotBeamSpotDB.py -b -P -t "+tag+" -i "+initial +" -f "+final
     print cmd
     outcmd = commands.getstatusoutput( cmd )
@@ -308,7 +313,7 @@ def get_plots(path,output, iovs, tag):
     return pngfiles
 
 #_______________________________
-def write_plots(lines, plots):
+def write_plots(lines, plots,web):
 
     end = '\n'
     br = '<BR>'+end
@@ -322,8 +327,8 @@ def write_plots(lines, plots):
 	plot = plots[i]
 	if i%2 == 0:
 	    lines.append("<tr>"+end)
-	lines.append("<td> <img src="+plot+" alt="+plot+" width='700' height='250' /></td>")
-	if i%2 == 0:
+	lines.append("<td> <a href=\""+web+"/"+plot+"\"> <img src="+plot+" alt="+plot+" width='700' height='250' /> </a> </td>"+end)
+	if i%2 == 1:
 	    lines.append("</tr>"+end)
 
     lines.append('</table>'+end)
@@ -337,6 +342,8 @@ if __name__ == '__main__':
     option,args = parse(__doc__)
     if not args and not option: exit()
 
+    htmlwebsite = "http://cmsrocstor.fnal.gov/lpc1/cmsroc/yumiceva/tmp/"
+    if option.web: htmlwebsite = option.web
     
     ## Get the latest tags
     dest = "frontier://cmsfrontier.cern.ch:8000/Frontier/CMS_COND_31X_BEAMSPOT"
@@ -355,7 +362,7 @@ if __name__ == '__main__':
     
     dump_header(lines)
 
-    lines.append('<h2>The three lates IOVs</h2>'+end)
+    lines.append('<h2>The three latest IOVs</h2>'+end)
     lines.append(br)
     lines.append('''
 <table border="1">
@@ -376,12 +383,12 @@ if __name__ == '__main__':
     write_tags( list_tags, lines)
     lines.append('</table>'+end)
 
-    lines.append('<h2>Latest plots</h2>'+end)
+    lasttag = list_lastIOVs.keys()[0]
+    lines.append('<h2>Plots of the latest IOVs from condDB tag: '+lasttag+' </h2>'+end)
     lines.append(br)
     
-    lasttag = list_lastIOVs.keys()[0]
     pngfiles = get_plots(option.path,option.output, list_lastIOVs[lasttag], lasttag)
-    write_plots( pngfiles )
+    write_plots( lines, pngfiles, htmlwebsite )
 
     dump_footer(lines)
 
