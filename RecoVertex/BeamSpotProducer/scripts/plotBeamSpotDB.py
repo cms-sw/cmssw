@@ -693,7 +693,7 @@ if __name__ == '__main__':
 		print "close payload because end of data has been reached. Run "+ibeam.Run
 		docreate = True
             # check we run over the same run
-	    if ibeam.Run != inextbeam.Run and no docreate:
+	    if ibeam.Run != inextbeam.Run and docreate==False:
 		print "close payload because end of run "+ibeam.Run
 		docreate = True
 	    # check maximum lumi counts
