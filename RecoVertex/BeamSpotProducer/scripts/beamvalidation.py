@@ -380,7 +380,7 @@ if __name__ == '__main__':
     lines.append(br)
     
     lasttag = list_lastIOVs.keys()[0]
-    pngfiles = get_plots(option.path, list_lastIOVs[lasttag], lasttag)
+    pngfiles = get_plots(option.path,option.output, list_lastIOVs[lasttag], lasttag)
     write_plots( pngfiles )
 
     dump_footer(lines)
