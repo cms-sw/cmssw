@@ -300,7 +300,7 @@ void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
 //
 // Fill histograms
 //
-void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>& input, bool reducedSet, bool modon, bool ladon, bool bladeon) {
+int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>& input, bool reducedSet, bool modon, bool ladon, bool bladeon) {
 //std::cout<<"Entering SiPixelRawDataErrorModule::fill: "<<std::endl;
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -313,13 +313,12 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 
   }
   
+  unsigned int numberOfErrors = 0;  
+  
   edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(id_); // search  errors of detid
   //edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(0xffffffff); // search  errors of detid
   
   if( isearch != input.end() ) {  // Not at empty iterator
-    
-    unsigned int numberOfErrors = 0;
-    
     // Look at errors now
     edm::DetSet<SiPixelRawDataError>::const_iterator  di;
     for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
@@ -623,20 +622,20 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
           }
         }//end for
       //}//end if
-    }//end for
+    }//end if not an empty iterator
   }
   
   //std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
 //std::cout<<"...leaving SiPixelRawDataErrorModule::fill. "<<std::endl;
-  
+  return numberOfErrors;
 }
 
-void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataError>& input) {
+int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataError>& input) {
   //std::cout<<"Entering   SiPixelRawDataErrorModule::fillFED: "<<static_cast<int>(id_)<<std::endl;
+  unsigned int numberOfErrors = 0;
   edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(0xffffffff); // search  errors of detid
   if( isearch != input.end() ) {  // Not an empty iterator
     //std::cout<<"FED has some errors!"<<std::endl;    
-    unsigned int numberOfErrors = 0;
     
     // Look at FED errors now
     int TBMType;
@@ -831,9 +830,9 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
         }//end for
       }//end if
     }//end for
-  }// end if empty iterator
+  }// end if not an empty iterator
   
 //  std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
 //std::cout<<"...leaving   SiPixelRawDataErrorModule::fillFED. "<<std::endl;
-  
+  return numberOfErrors;
 }

@@ -44,9 +44,9 @@ class SiPixelRawDataErrorModule {
   /// Book FED histograms
   void bookFED(const edm::ParameterSet& iConfig);
   /// Fill histograms
-  void fill(const edm::DetSetVector<SiPixelRawDataError> & input, bool reducedSet=false, bool modon=true, bool ladon=false, bool bladeon=false);
+  int fill(const edm::DetSetVector<SiPixelRawDataError> & input, bool reducedSet=false, bool modon=true, bool ladon=false, bool bladeon=false);
   /// Fill FED histograms
-  void fillFED(const edm::DetSetVector<SiPixelRawDataError> & input);
+  int fillFED(const edm::DetSetVector<SiPixelRawDataError> & input);
   
  private:
 
