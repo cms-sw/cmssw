@@ -1,7 +1,8 @@
-// $Id: DbFileHandler.cc,v 1.4 2010/03/31 12:33:53 mommsen Exp $
+// $Id: DbFileHandler.cc,v 1.5 2010/04/12 12:05:01 mommsen Exp $
 /// @file: DbFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/DbFileHandler.h>
+#include <EventFilter/StorageManager/interface/Exception.h>
 
 #include <iomanip>
 
@@ -62,6 +63,12 @@ void DbFileHandler::openFile
              << ".log";
 
   outputFile.open( dbfilename.str().c_str(), ios_base::ate | ios_base::out | ios_base::app );
+  if (! outputFile.is_open() )
+  {
+    std::ostringstream msg;
+    msg << "Failed to open db log file " << dbfilename.str();
+    XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
+  }
 }
 
 
