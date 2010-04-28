@@ -1,6 +1,6 @@
 #include "TCanvas.h"
 #include "RVersion.h"
-#include "TRootEmbeddedCanvas.h""
+#include "TRootEmbeddedCanvas.h"
 #include "TGLViewer.h"
 
 #include "TEveWindow.h"
