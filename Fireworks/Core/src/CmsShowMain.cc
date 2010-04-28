@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.155 2010/04/26 09:13:57 eulisse Exp $
+// $Id: CmsShowMain.cc,v 1.156 2010/04/28 14:08:11 eulisse Exp $
 //
 
 // system include files
@@ -565,13 +565,15 @@ CmsShowMain::reloadConfiguration(const std::string &config)
    if (config.empty())
       return;
 
-   m_guiManager->updateStatus(("Reloading configuration " 
-                               + config + "...").c_str());
-
+   std::string msg = "Reloading configuration "
+                               + config + "...";
+   fwLog(fwlog::kDebug) << msg << std::endl;
+   m_guiManager->updateStatus(msg.c_str());
    m_eiManager->clearItems();
    m_configFileName = config;
    m_guiManager->subviewDestroyAll();
    m_configurationManager->readFromFile(config);
+   m_guiManager->updateStatus("");
 }
 
 void
