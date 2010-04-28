@@ -107,11 +107,13 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
       {
 	const edm::ParameterSet& psdigi    =conf.getParameter<edm::ParameterSet>("digistat");
 	const edm::ParameterSet& psrechit  =conf.getParameter<edm::ParameterSet>("rechitstat");
-	hfdigibit_=new HcalHFStatusBitFromDigis(psdigi.getParameter<int>("HFpulsetimemin"),
-						psdigi.getParameter<int>("HFpulsetimemax"),
-						psdigi.getParameter<double>("HFratio_beforepeak"),
-						psdigi.getParameter<double>("HFratio_afterpeak"),
-						psdigi.getParameter<int>("HFadcthreshold"));
+	hfdigibit_=new HcalHFStatusBitFromDigis(psdigi.getParameter<int>("HFdigiflagFirstSample"),
+						psdigi.getParameter<int>("HFdigiflagSamplesToAdd"),
+						psdigi.getParameter<int>("HFdidiflagExpectedPeak"),
+						psdigi.getParameter<double>("HFdigiflagMinfCthreshold"),
+						psdigi.getParameter<double>("HFdigiflagCoef0"),
+						psdigi.getParameter<double>("HFdigiflagCoef1"),
+						psdigi.getParameter<double>("HFdigiflagCoef2"));
 	hfrechitbit_=new HcalHFStatusBitFromRecHits(psrechit.getParameter<double>("short_HFlongshortratio"),
 						    psrechit.getParameter<double>("short_HFETthreshold"),
 						    psrechit.getParameter<double>("short_HFEnergythreshold"),
@@ -323,7 +325,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
 	(rec->back()).setFlags(0);
 	// This calls the code for setting the HF noise bit determined from digi shape
-	if (setNoiseFlags_) hfdigibit_->hfSetFlagFromDigi(rec->back(),*i);
+	if (setNoiseFlags_) hfdigibit_->hfSetFlagFromDigi(rec->back(),*i,calibrations);
 	if (setSaturationFlags_)
 	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);
 	if (setTimingTrustFlags_)

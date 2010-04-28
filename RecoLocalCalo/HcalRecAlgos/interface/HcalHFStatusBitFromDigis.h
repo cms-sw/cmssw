@@ -4,13 +4,14 @@
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 
 /** \class HcalHFStatusBitFromDigis
     
    This class sets status bit in the status words for the revised CaloRecHit objets according to informatino from the digi associated to the hit.
     
-   $Date: 2009/03/27 14:46:59 $
-   $Revision: 1.2 $
+   $Date: 2010/01/21 15:18:01 $
+   $Revision: 1.3 $
    \author J. Temple -- University of Maryland and E. Yazgan
 */
 
@@ -18,36 +19,35 @@ class HcalHFStatusBitFromDigis {
 public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
   HcalHFStatusBitFromDigis();
-  HcalHFStatusBitFromDigis(int HFpulsetimemin,int HFpulsetimemax, double HFratiobefore, double HFratioafter, int adcthreshold=10, int firstSample=0, int samplesToAdd=10); 
+  HcalHFStatusBitFromDigis(int firstSample, int samplesToAdd, int expectedPeak,
+			   double minthreshold,
+			   double coef0, double coef1, double coef2);
   
   // Destructor
   ~HcalHFStatusBitFromDigis();
 
   // The important stuff!  Methods for setting the status flag values
-  void hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame& digi);
+  void hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame& digi, const HcalCalibrations& calib);
   
-  // getter functions -- would we ever want to do this?
-  int hfpulsetimemin(){return HFpulsetimemin_;}
-  int hfpulsetimemax(){return HFpulsetimemax_;}
-  double hfratio_beforepeak(){return HFratio_beforepeak_;}
-  double hfratio_afterpeak(){return HFratio_afterpeak_;}
+
   double bit(){return HcalCaloFlagLabels::HFDigiTime;}
-  double threshold(){return adcthreshold_;}
+  double threshold(){return minthreshold_;}
 
   // setter functions
-  void sethfpulsetimemin(int x){HFpulsetimemin_=x; return;}
-  void sethfpulsetimemax(int x){HFpulsetimemax_=x; return;}
-  void sethfratio_beforepeak(double x){HFratio_beforepeak_=x; return;}
-  void sethfratio_afterpeak(double x){HFratio_afterpeak_=x; return;}
-  void setthreshold(double x){adcthreshold_=x; return;}
+  void setthreshold(double x){minthreshold_=x; return;}
 
 private:
   // variables for cfg files
-  int HFpulsetimemin_, HFpulsetimemax_;
-  double HFratio_beforepeak_, HFratio_afterpeak_;
-  double adcthreshold_;
+  double minthreshold_;
   int firstSample_;
   int samplesToAdd_;
+  int expectedPeak_;
+  
+  // Coefficients used to determine energy ratio threshold:
+  // E_peak/(Etotal) > coef0_-exp(coef1_+coef2_*Energy)
+  double coef0_;
+  double coef1_;
+  double coef2_;
 };
 
 #endif

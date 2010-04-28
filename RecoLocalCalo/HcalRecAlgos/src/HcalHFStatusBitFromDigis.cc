@@ -9,77 +9,88 @@ using namespace std;
 HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
 {
   // use simple values in default constructor
-  HFpulsetimemin_     = 0;
-  HFpulsetimemax_     = 10;
-  HFratio_beforepeak_ = .1;
-  HFratio_afterpeak_  = 1.;
-  adcthreshold_=10; // minimum (pedestal-subtracted) ADC value needed for a cell to be considered noisy
+  minthreshold_=10; // minimum total fC (summed over allowed range of time slices) needed for an HF channel to be considered noisy
+  firstSample_=3;
+  samplesToAdd_=4;
+  expectedPeak_=4;
+  // Based on Igor V's algorithm:
+  //TS4/(TS3+TS4+TS5+TS6) > 0.93 - exp(-0.38275-0.012667*E)
+  coef0_= 0.93;
+  coef1_ = -0.38275;
+  coef2_ = -0.012667;
 }
 
-HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(int HFpulsetimemin,int HFpulsetimemax, double HFratiobefore, double HFratioafter, int adcthreshold, int firstSample, int samplesToAdd)
+HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(int firstSample, 
+						   int samplesToAdd, 
+						   int expectedPeak,
+						   double minthreshold,
+						   double coef0, double coef1, double coef2)
 {
-  HFpulsetimemin_     = HFpulsetimemin;
-  HFpulsetimemax_     = HFpulsetimemax;
-  HFratio_beforepeak_ = HFratiobefore;
-  HFratio_afterpeak_  = HFratioafter;
-  adcthreshold_       = adcthreshold; 
   firstSample_        = firstSample;
   samplesToAdd_       = samplesToAdd;
+  expectedPeak_       = expectedPeak;
+  minthreshold_       = minthreshold;
+  coef0_              = coef0;
+  coef1_              = coef1;
+  coef2_              = coef2;
 }
 
 HcalHFStatusBitFromDigis::~HcalHFStatusBitFromDigis(){}
 
-void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame& digi)
+void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf, 
+						 const HFDataFrame& digi,
+						 const HcalCalibrations& calib)
 {
   int status=0;
   int maxtime=0;
-  int maxval=-3;  // maxval is 'pedestal subtracted', with default pedestal of 3 ADC counts
+  int maxval=-10;  // maxval is 'pedestal subtracted', with default pedestal of 3 ADC counts
 
   int maxInWindow=0; // maximum value found in reco window
+  int maxCapid=-1;
+
+  double totalCharge=0;
+  double peakCharge=0;
   for (int i=0;i<digi.size();++i)
     {
+      int capid=digi.sample(i).capid();
+      double value = digi.sample(i).nominal_fC()-calib.pedestal(capid);
+
       // Check for largest pulse within reco window
       if (i >=firstSample_ && i < samplesToAdd_ && i < digi.size())
 	{
-	  if (digi[i].nominal_fC()>digi[maxInWindow].nominal_fC())
-	    maxInWindow=i;
+	  totalCharge+=value;
+	  if (i==expectedPeak_) peakCharge=value;
 	}
       
-      // Find largest overall pulse
-      if (digi.sample(i).nominal_fC()-3>maxval) // need to make pedestal subtraction at some point
+      // Find largest overall pulse within the full digi, not just the allowed window?
+      if (value>maxval) 
 	{
 	  maxtime=i;
-	  maxval=digi.sample(i).nominal_fC()-3;  // assume pedestal is ~ 3 fC  (3 ADC counts = 2.5 - 3.5 fC bin, according to HcalQIESample.cc)
+	  maxCapid=capid;
+	  maxval=value;  // get pedestal directly for each capid
 	}
     }
   
   // Compare size of peak in reco window to charge in TS immediately before peak
   int TSfrac_counter=1; 
-  // assume that fC pedestal ~=3 for Shuichi's code  
+  // get pedestals for each capid -- add 4 to each capid, and then check mod 4.
+  // (This takes care of the case where max capid =0 , and capid-1 would then be negative)
   if (maxInWindow>0 && digi[maxInWindow].nominal_fC()!=3)
-    TSfrac_counter=int(50*((digi[maxInWindow-1].nominal_fC()-3)/(digi[maxInWindow].nominal_fC()-3))+1); // 6-bit counter to hold peak ratio info
+    TSfrac_counter=int(50*((digi[maxInWindow-1].nominal_fC()-calib.pedestal((maxCapid+3)%4))/(digi[maxInWindow].nominal_fC()-calib.pedestal((maxCapid+4)%4)))+1); // 6-bit counter to hold peak ratio info
   hf.setFlagField(TSfrac_counter, HcalCaloFlagLabels::Fraction2TS,6);
 
-  if (maxval<adcthreshold_) return; // don't set noise flags for cells below a given threshold
+  if (maxval<minthreshold_) return; // don't set noise flags for cells below a given threshold?
 
-  // Check that peak occurs in correct time window
-  if (maxtime<HFpulsetimemin_ || maxtime>HFpulsetimemax_)
+  // Calculate allowed minimum value of (TS4/TS3+4+5+6):
+  double cutoff=coef0_-exp(coef1_-coef2_*hf.energy());
+  
+  if (peakCharge/totalCharge<cutoff)
     status=1;
-    
-  // Check that peak is >= time slice prior to peak
-  else if (maxtime>0 &&  (float)(digi.sample(maxtime-1).nominal_fC()-3)/maxval>=HFratio_beforepeak_)
-    status=1;
+  else
+    status=0;
 
-  // Check that peak is >= time slice after peak
-  /* 
-     require >= so that a hot cell (where all digi sample values are the same)
-     will still get marked as noisy if HFratio_afterpeak_ ==1 
-  */
-  else if (maxtime<(digi.size()-1) &&  (float)(digi.sample(maxtime+1).nominal_fC()-3)/maxval>=HFratio_afterpeak_)
-    status=1;
-
-  // set flag starting at index HFDigiTime, with index of 1
-  hf.setFlagField(status,HcalCaloFlagLabels::HFDigiTime, 1);
+  // set flag  at index HFDigiTime
+  hf.setFlagField(status,HcalCaloFlagLabels::HFDigiTime);
 
   return;
 }

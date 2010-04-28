@@ -26,11 +26,15 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         setSaturationFlags = cms.bool(True),
                         setTimingTrustFlags = cms.bool(True),
                         
-                        digistat= cms.PSet(HFpulsetimemin     = cms.int32(0),
-                                           HFpulsetimemax     = cms.int32(10), # min/max time slice values for peak
-                                           HFratio_beforepeak = cms.double(0.6), # max allowed ratio (started at 0.1, loosened to 0.6 after pion studies)
-                                           HFratio_afterpeak  = cms.double(1.0), # max allowed ratio
-                                           HFadcthreshold       = cms.int32(10), # minimum size of peak (in ADC counts, after ped subtraction) to be considered noisy
+                        digistat= cms.PSet(HFdigiflagFirstSample     = cms.int32(3),  # These may be different from samples used for reconstruction
+                                           HFdigiflagSamplesToAdd    = cms.int32(4),
+                                           HFdigiflagExpectedPeak    = cms.int32(4), # expected TS position of pulse peak
+                                           HFdigiflagMinfCthreshold  = cms.double(10), # minimum value (in fC) of peak in order for channel to be considered noisy
+                                           # Following parameters are used for determining
+                                           # minimum threshold fC(peak)/sum_fC(HFsamplesToAdd) > [0] +exp([1]+[2]*Energy)
+                                           HFdigiflagCoef0           = cms.double(0.93),
+                                           HFdigiflagCoef1           = cms.double(0.),
+                                           HFdigiflagCoef2           = cms.double(0.)
                                            ),
                         
                         rechitstat = cms.PSet(short_HFlongshortratio = cms.double(0.995), # max allowed ratio of (L-S)/(L+S)
