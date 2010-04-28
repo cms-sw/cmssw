@@ -10,6 +10,8 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
 {
   // use simple values in default constructor
   minthreshold_=10; // minimum total fC (summed over allowed range of time slices) needed for an HF channel to be considered noisy
+  recoFirstSample_=0;
+  recoSamplesToAdd_=10;
   firstSample_=3;
   samplesToAdd_=4;
   expectedPeak_=4;
@@ -20,12 +22,16 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
   coef2_ = -0.012667;
 }
 
-HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(int firstSample, 
+HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(int recoFirstSample,
+						   int recoSamplesToAdd,
+						   int firstSample, 
 						   int samplesToAdd, 
 						   int expectedPeak,
 						   double minthreshold,
 						   double coef0, double coef1, double coef2)
 {
+  recoFirstSample_    = recoFirstSample;
+  recoSamplesToAdd_   = recoSamplesToAdd;
   firstSample_        = firstSample;
   samplesToAdd_       = samplesToAdd;
   expectedPeak_       = expectedPeak;
@@ -42,8 +48,6 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 						 const HcalCalibrations& calib)
 {
   int status=0;
-  int maxtime=0;
-  int maxval=-10;  // maxval is 'pedestal subtracted', with default pedestal of 3 ADC counts
 
   int maxInWindow=0; // maximum value found in reco window
   int maxCapid=-1;
@@ -55,31 +59,37 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
       int capid=digi.sample(i).capid();
       double value = digi.sample(i).nominal_fC()-calib.pedestal(capid);
 
-      // Check for largest pulse within reco window
-      if (i >=firstSample_ && i < samplesToAdd_ && i < digi.size())
+      // Find largest value within reconstruction window
+      if (i>=recoFirstSample_ && i <recoFirstSample_+recoSamplesToAdd_)
+	{
+	  // Find largest overall pulse within the full digi, or just the allowed window?
+	  if (value>maxInWindow) 
+	    {
+	      maxCapid=capid;
+	      maxInWindow=value;  
+	    }
+	}
+
+      // Sum all charge within flagging window, find charge in expected peak time slice
+      if (i >=firstSample_ && i < firstSample_+samplesToAdd_)
 	{
 	  totalCharge+=value;
 	  if (i==expectedPeak_) peakCharge=value;
 	}
-      
-      // Find largest overall pulse within the full digi, not just the allowed window?
-      if (value>maxval) 
-	{
-	  maxtime=i;
-	  maxCapid=capid;
-	  maxval=value;  // get pedestal directly for each capid
-	}
     }
+
   
-  // Compare size of peak in reco window to charge in TS immediately before peak
+  // Shuichi's Algorithm:  Compare size of peak in digi to charge in TS immediately before peak
   int TSfrac_counter=1; 
   // get pedestals for each capid -- add 4 to each capid, and then check mod 4.
   // (This takes care of the case where max capid =0 , and capid-1 would then be negative)
-  if (maxInWindow>0 && digi[maxInWindow].nominal_fC()!=3)
+  if (maxInWindow>0 &&
+      digi[maxInWindow].nominal_fC()!=calib.pedestal(maxCapid))
     TSfrac_counter=int(50*((digi[maxInWindow-1].nominal_fC()-calib.pedestal((maxCapid+3)%4))/(digi[maxInWindow].nominal_fC()-calib.pedestal((maxCapid+4)%4)))+1); // 6-bit counter to hold peak ratio info
   hf.setFlagField(TSfrac_counter, HcalCaloFlagLabels::Fraction2TS,6);
 
-  if (maxval<minthreshold_) return; // don't set noise flags for cells below a given threshold?
+  // Igor's algorithm:  compare charge in peak to total charge in window
+  if (totalCharge<minthreshold_) return; // don't set noise flags for cells below a given threshold?
 
   // Calculate allowed minimum value of (TS4/TS3+4+5+6):
   double cutoff=coef0_-exp(coef1_-coef2_*hf.energy());

@@ -10,8 +10,8 @@
     
    This class sets status bit in the status words for the revised CaloRecHit objets according to informatino from the digi associated to the hit.
     
-   $Date: 2010/01/21 15:18:01 $
-   $Revision: 1.3 $
+   $Date: 2010/04/28 17:06:16 $
+   $Revision: 1.4 $
    \author J. Temple -- University of Maryland and E. Yazgan
 */
 
@@ -19,7 +19,8 @@ class HcalHFStatusBitFromDigis {
 public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
   HcalHFStatusBitFromDigis();
-  HcalHFStatusBitFromDigis(int firstSample, int samplesToAdd, int expectedPeak,
+  HcalHFStatusBitFromDigis(int recoFirstSample, int recoSamplesToAdd,
+			   int firstSample, int samplesToAdd, int expectedPeak,
 			   double minthreshold,
 			   double coef0, double coef1, double coef2);
   
@@ -39,6 +40,10 @@ public:
 private:
   // variables for cfg files
   double minthreshold_;
+  // Reco Window
+  int recoFirstSample_;
+  int recoSamplesToAdd_;
+  // Special window for Igor's algorithm (not necessarily the same as reco window)
   int firstSample_;
   int samplesToAdd_;
   int expectedPeak_;
