@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.197 2010/04/22 17:29:52 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.198 2010/04/27 13:36:33 amraktad Exp $
 
 //
 
@@ -95,7 +95,7 @@
 
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
 #include "Fireworks/Core/interface/Context.h"
-
+#include "Fireworks/Core/interface/fwLog.h"
 //
 // constants, enums and typedefs
 //
@@ -1170,7 +1170,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    else
    {  // create views with same weight in old version
       for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
-         std::string name = it->first; 	          createView(it->first, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot);
+         std::string name = it->first;
          if (name == "3D Lego") name = FWViewType::kLegoName; 	 
          createView(name, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot); 	 
 
@@ -1180,22 +1180,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       // handle undocked windows in old version
       const FWConfiguration* undocked = iFrom.valueForKey(kUndocked);
       if(0!=undocked) {
-         const FWConfiguration::KeyValues* keyVals = undocked->keyValues();
-         if(0!=keyVals) {
-
-            int idx = m_viewMap.size() -keyVals->size();
-            for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it)
-            {
-               ViewMap_i lastViewIt = m_viewMap.end(); lastViewIt--;
-               TEveWindow* myw = lastViewIt->first;
-               idx++;
-               myw->UndockWindow();
-               TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(myw->GetEveFrame());
-               const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
-               TGMainFrame* mfp = (TGMainFrame*)mf;
-               setWindowInfoFrom(it->second, mfp);
-            }
-         }
+         fwLog(fwlog::kWarning) << "Restrore of undocked windows with old window management not supported." << std::endl;
       }
    }
 
