@@ -125,7 +125,7 @@ void PedsFullNoiseTask::fill( const SiStripEventSummary & summary,
 
   // skipping events
   if (!skipped_) {
-    if (summary.event() - firstev < nskip_) {
+    if (static_cast<int32_t>(summary.event()) - firstev < nskip_) {
       return;
     } else { // when all events are skipped
       skipped_ = true;
@@ -136,7 +136,7 @@ void PedsFullNoiseTask::fill( const SiStripEventSummary & summary,
 
   // determine pedestals - decoupled from noise determination
   if (!pedsdone_) {
-    if (summary.event() - firstev < nskip_ + nevpeds_) {
+    if (static_cast<int32_t>(summary.event()) - firstev < nskip_ + nevpeds_) {
       // estimate the pedestals
       for ( uint16_t istrip = 0; istrip < nstrips_; ++istrip ) {
         updateHistoSet( pedhist_, istrip, digis.data[istrip].adc() );
