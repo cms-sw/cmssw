@@ -227,7 +227,8 @@ void SiPixelRawDataErrorSource::bookMEs(){
   theDMBE->setCurrentFolder("Pixel/AdditionalPixelErrors");
   char title[80]; sprintf(title, "By-LumiSection Error counters");
   byLumiErrors = theDMBE->book1D("byLumiErrors",title,2,0.,2.);
-
+  byLumiErrors->setLumiFlag();
+  
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter;
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter2;
   
