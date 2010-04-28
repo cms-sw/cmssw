@@ -1,6 +1,7 @@
 #include "TCanvas.h"
 #include "RVersion.h"
-#include "TRootEmbeddedCanvas.h"
+#include "TRootEmbeddedCanvas.h""
+#include "TGLViewer.h"
 
 #include "TEveWindow.h"
 #include "TEveViewer.h"
@@ -8,6 +9,7 @@
 #include "TEveManager.h"
 
 #include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/interface/FWGLEventHandler.h"
 
 template <typename T>
 FWDetailViewGL<T>::FWDetailViewGL () :
@@ -62,10 +64,16 @@ void  FWDetailViewGL<T>::init(TEveWindowSlot* slot)
   m_eveViewer->SpawnGLEmbeddedViewer();
 #endif
   gEve->GetViewers()->AddElement(m_eveViewer);
+  
+  TGLViewer* glv = m_eveViewer->GetGLViewer();
+  FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)glv->GetGLWidget(), (TObject*)glv);
+  glv->SetEventHandler(eh);
+  
   slot->ReplaceWindow(m_eveViewer);
   slot->SetShowTitleBar(kFALSE);
   m_eveScene = gEve->SpawnNewScene("Detailed view");
   m_eveViewer->AddScene(m_eveScene);
+  
 }
 
 
