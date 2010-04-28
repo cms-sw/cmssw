@@ -163,7 +163,7 @@ def write_iovs(iovs, lines):
 	aIOV = IOV()
 	if len(aIOVlist) > 0:
 	    aIOV = aIOVlist[0]
-	lines.append('<td> '+iIOV.type+' </td>'+end)
+	lines.append('<td> '+aIOV.type+' </td>'+end)
     lines.append('</tr>'+end)
     # print iovs
     for niovs in range(0,len(iovs[iovs.keys()[0]])):
