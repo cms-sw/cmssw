@@ -312,12 +312,19 @@ class parserPerfsuiteMetadata:
 		---------------------------------------
 		total packages: 2 (2 displayed)
 		"""
-		tags_start_index = [i for i in xrange(0, len(lines)) if lines[i].startswith("--- Tag ---")][0]
-		tags_end_index = [i for i in xrange(tags_start_index + 1, len(lines)) if lines[i].startswith("---------------------------------------")][0]
-		#print "tags start index: %s, end index: %s" % (tags_start_index, tags_end_index)
-		tags = lines[tags_start_index:tags_end_index+2]
-		#print [tag.split("  ") for tag in tags]
-		#print "\n".join(tags)
+		tags_start_index = -1 # set some default
+		try:
+			tags_start_index = [i for i in xrange(0, len(lines)) if lines[i].startswith("--- Tag ---")][0]
+		except:
+			pass
+		if tags_start_index > -1:
+			tags_end_index = [i for i in xrange(tags_start_index + 1, len(lines)) if lines[i].startswith("---------------------------------------")][0]
+			# print "tags start index: %s, end index: %s" % (tags_start_index, tags_end_index)
+			tags = lines[tags_start_index:tags_end_index+2]
+			# print [tag.split("  ") for tag in tags]
+			# print "\n".join(tags)
+	        else: # no tags found, make an empty list ...
+			tags = []
 		""" we join the tags with separator to store as simple string """
 		info["tags"] = self._LINE_SEPARATOR.join(tags)
 		#FILES/PATHS
@@ -679,7 +686,7 @@ class parserPerfsuiteMetadata:
 
 
 		if self.missing_fields:
-			self.handleParsingError("========== SOME REQUIRED FIELDS WERE NOT FOUND DURING PARSING ======= "+ str( missing_fields))
+			self.handleParsingError("========== SOME REQUIRED FIELDS WERE NOT FOUND DURING PARSING ======= "+ str( self.missing_fields))
 
 		return result
 		
