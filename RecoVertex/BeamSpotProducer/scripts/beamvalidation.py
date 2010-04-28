@@ -153,8 +153,7 @@ def write_iovs(iovs, lines):
     br = '<BR>'+end
     # hearder
     lines.append('<tr>'+end)
-    for i in iovs.keys():
-        
+    for i in iovs.keys():        
         lines.append('<th>'+i)
         lines.append('</th>'+end)
     lines.append('</tr>'+end)
@@ -261,20 +260,74 @@ def get_lastIOVs( listoftags, dest, auth ):
 
     return results
 
-#____________________________
-def get_plots(path, tag):
+#
+# lumi tools CondCore/Utilities/python/timeUnitHelper.py
+def pack(high,low):
+    """pack high,low 32bit unsigned int to one unsigned 64bit long long
+       Note:the print value of result number may appear signed, if the sign bit is used.
+    """
+    h=high<<32
+    return (h|low)
 
-    cmd = path+"/plotBeamSpotDB.py -b -P -t "+tag
+def unpack(i):
+    """unpack 64bit unsigned long long into 2 32bit unsigned int, return tuple (high,low)
+    """
+    high=i>>32
+    low=i&0xFFFFFFFF
+    return(high,low)
+
+def unpackLumiid(i):
+    """unpack 64bit lumiid to dictionary {'run','lumisection'}
+    """
+    j=unpack(i)
+    return {'run':j[0],'lumisection':j[1]}
+
+#____________________________
+def get_plots(path,output, iovs, tag):
+
+    initial=iovs[len(iovs)-1].IOVfirst
+    final =iovs[0].IOVfirst
+    if iovs[0].type == "lumiid":
+	initial = str(unpack(initial)[0])+":"+str(unpack(initial)[1])
+	final =  str(unpack(final)[0])+":"+str(unpack(final)[1])
+    
+    cmd = path+"/plotBeamSpotDB.py -b -P -t "+tag+" -i "+initial +" -f "+final
     print cmd
     outcmd = commands.getstatusoutput( cmd )
-    
-    cmd = "ls "+path+" *.png"
+    print outcmd[1]
+
+    cmd = "ls "+path+"/*.png"
     outcmd = commands.getstatusoutput( cmd )
 
     pngfiles = outcmd[1].split('\n')
     print pngfiles
-
     
+    cmd = "cp "+path+"/*.png "+os.path.dirname(output)
+    outcmd = commands.getstatusoutput( cmd )
+    
+    return pngfiles
+
+#_______________________________
+def write_plots(lines, plots):
+
+    end = '\n'
+    br = '<BR>'+end
+
+    lines.append(br)
+    lines.append('''
+<table border="1">
+
+''')
+    for i in range(0,len(plots)):
+	plot = plots[i]
+	if i%2 == 0:
+	    lines.append("<tr>"+end)
+	lines.append("<td> <img src="+plot+" alt="+plot+" width='700' height='250' /></td>")
+	if i%2 == 0:
+	    lines.append("</tr>"+end)
+
+    lines.append('</table>'+end)
+
 #______________________________
 if __name__ == '__main__':
 
@@ -326,8 +379,9 @@ if __name__ == '__main__':
     lines.append('<h2>Latest plots</h2>'+end)
     lines.append(br)
     
-    get_plots(option.path, list_tags['offline'][0])
-    
+    lasttag = list_lastIOVs.keys()[0]
+    pngfiles = get_plots(option.path, list_lastIOVs[lasttag], lasttag)
+    write_plots( pngfiles )
 
     dump_footer(lines)
 
