@@ -169,7 +169,7 @@ def write_iovs(iovs, lines):
     for niovs in range(0,len(iovs[iovs.keys()[0]])):
         lines.append('<tr>'+end)
         for i in iovs.keys():
-            aIOVlist = iovs[niovs]
+            aIOVlist = iovs[i]
 	    aIOV = IOV()
 	    if len(aIOVlist) > niovs:
 		aIOV = aIOVlist[niovs]
