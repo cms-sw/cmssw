@@ -67,6 +67,33 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     quantity = cms.untracked.string("daughter(1).masterClone.phi")
     ),
     
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau1NofHit"),
+#    quantity = cms.untracked.string("?1>0?1:0"),
+#    ),
+
+
+    
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau1NofHit"),
+#    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon=1 || daughter(0).masterClone.isTrackerMuon=1)?daughter(0).masterClone.numberOfValidHits:daughter(0).masterClone.outerTrack.numberOfValidHits")
+#    ),
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau1NofHitTk"),
+#    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon==1 || daughter(0).masterClone.isTrackerMuon=1)?daughter(0).masterClone.innerTrack.numberOfValidHits:0")
+#    ),
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau1NofHitSta"),
+#    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon==1 ||daughter(0).masterClone.isStandAloneMuon==1  ) ? daughter(0).masterClone.outerTrack.numberOfValidHits : 0")
+#    ),
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau1NofMuChambers"),
+#    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon==1 ||daughter(0).masterClone.isStandAloneMuon==1  ) ? daughter(0).masterClone.numberOfChambers :0")
+#    ),
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau1NofMuMatches"),
+#    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon==1 ||daughter(0).masterClone.isStandAloneMuon==1  ) ? daughter(0).masterClone.numberOfMatches : 0")
+#    ),
 
     cms.PSet(
     tag = cms.untracked.string("Dau1Iso"),
@@ -149,7 +176,18 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     quantity = cms.untracked.string("vertexNormalizedChi2")
     ),
 
-
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau1TrkChi2"),
+#    quantity = cms.untracked.string("?(daughter(0).masterClone.isGlobalMuon==1 || daughter(0).masterClone.isTrackerMuon=1)?daughter(0).masterClone.innerTrack.normalizedChi2:0")
+#    ),
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau1MuEnergyHad"),
+#    quantity = cms.untracked.string("?daughter(0).masterClone.isGlobalMuon==1||daughter(0).masterClone.isTrackerMuon==1 ?daughter(0).masterClone.calEnergy.had:-1")
+#    ),
+ #   cms.PSet(
+ #   tag = cms.untracked.string("Dau1MuEnergyEm"),
+ #   quantity = cms.untracked.string("?daughter(0).masterClone.isGlobalMuon==1||daughter(0).masterClone.isTrackerMuon==1 ?daughter(0).masterClone.calEnergy.em:-1")
+ #   ),
     cms.PSet(
     tag = cms.untracked.string("TrueMass"),
     quantity = cms.untracked.string("userFloat('TrueMass')")
@@ -262,11 +300,31 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
 zMuMu=(
     
     
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau2NofHitSta"),
 
+#    quantity = cms.untracked.string("?(daughter(1).masterClone.isGlobalMuon==1  ||daughter(1).masterClone.isStandAloneMuon==1 )?daughter(1).masterClone.outerTrack.numberOfValidHits: -1")
+#    ),
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau2NofMuChambers"),
+#    quantity = cms.untracked.string("?(daughter(1).masterClone.isGlobalMuon==1  ||daughter(1).masterClone.isStandAloneMuon==1 )?daughter(1).masterClone.numberOfChambers: -1")
+#    ),
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau2NofMuMatches"),
+#    quantity = cms.untracked.string("?(daughter(1).masterClone.isGlobalMuon==1  ||daughter(1).masterClone.isStandAloneMuon==1 )?daughter(1).masterClone.numberOfMatches: -1")
+#    ),
     cms.PSet(
     tag = cms.untracked.string("Dau2HLTBit"),
     quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_HLTBit')")
     ),
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau2MuEnergyHad"),
+#    quantity = cms.untracked.string("?daughter(1).masterClone.isGlobalMuon==1 ||daughter(1).masterClone.isTrackerMuon==1?daughter(1).masterClone.calEnergy.had:-1")
+#    ),
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau2MuEnergyEm"),
+#    quantity = cms.untracked.string("?daughter(1).masterClone.isGlobalMuon==1 ||daughter(1).masterClone.isTrackerMuon==1?daughter(1).masterClone.calEnergy.em:-1")
+#    ),
 
     cms.PSet(
     tag = cms.untracked.string("Dau1GlobalMuonBit"),
@@ -301,6 +359,85 @@ zMuMu=(
 zGolden=(
 
 
+   ##  cms.PSet(
+##     tag = cms.untracked.string("Dau1NofHit"),
+##     quantity = cms.untracked.string("daughter(0).masterClone.numberOfValidHits")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau1NofHitTk"),
+##     quantity = cms.untracked.string("daughter(0).masterClone.innerTrack.numberOfValidHits")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau1NofHitSta"),
+##     quantity = cms.untracked.string("daughter(0).masterClone.outerTrack.numberOfValidHits")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau1NofMuChambers"),
+##     quantity = cms.untracked.string(" daughter(0).masterClone.numberOfChambers ")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau1NofMuMatches"),
+##     quantity = cms.untracked.string("daughter(0).masterClone.numberOfMatches")
+##     ),
+
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau1TrkChi2"),
+##     quantity = cms.untracked.string("daughter(0).masterClone.innerTrack.normalizedChi2")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau1MuEnergyHad"),
+##     quantity = cms.untracked.string("daughter(0).masterClone.calEnergy.had")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau1MuEnergyEm"),
+##     quantity = cms.untracked.string("daughter(0).masterClone.calEnergy.em")
+##     ),
+
+
+    
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau2NofHitSta"),
+##     quantity = cms.untracked.string("daughter(1).masterClone.outerTrack.numberOfValidHits")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau2NofMuChambers"),
+##     quantity = cms.untracked.string("daughter(1).masterClone.numberOfChambers")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau2NofMuMatches"),
+##     quantity = cms.untracked.string("daughter(1).masterClone.numberOfMatches")
+##     ),
+
+
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau2MuEnergyHad"),
+##     quantity = cms.untracked.string("daughter(1).masterClone.calEnergy.had")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau2MuEnergyEm"),
+##     quantity = cms.untracked.string("daughter(1).masterClone.calEnergy.em")
+##     ),
+
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau1Chi2"),
+##     quantity = cms.untracked.string("daughter(0).masterClone.normChi2")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau2Chi2"),
+##     quantity = cms.untracked.string("daughter(1).masterClone.normChi2")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau2NofHit"),
+##     quantity = cms.untracked.string("daughter(1).masterClone.numberOfValidHits")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau2NofHitTk"),
+##     quantity = cms.untracked.string("daughter(1).masterClone.innerTrack.numberOfValidHits")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau2TrkChi2"),
+##     quantity = cms.untracked.string("daughter(1).masterClone.innerTrack.normalizedChi2")
+##    ),
     cms.PSet(
     tag = cms.untracked.string("MassSa"),
     quantity = cms.untracked.string("userFloat('MassSa')")
@@ -338,7 +475,14 @@ zGolden=(
 
 zMuSa = (
    
-
+#    cms.PSet(
+#    tag= cms.untracked.string("Dau2NofHit"),
+#    quantity = cms.untracked.string("?daughter(1).masterClone.isStandAloneMuon==1?daughter(1).masterClone.outerTrack.numberOfValidHits:daughter(1).masterClone.numberOfValidHits")
+#    ),
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau2Chi2"),
+#    quantity = cms.untracked.string("?daughter(1).masterClone.isStandAloneMuon==1?daughter(1).masterClone.outerTrack.normalizedChi2:daughter(1).masterClone.normChi2")
+#    ),
     
     )
 
@@ -346,7 +490,23 @@ zMuSa = (
 ### zMuTrkMu vector of PSet is specific for zMuTrkMu category
 
 zMuTrkMu=(
-
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau1Chi2"),
+#    quantity = cms.untracked.string("?daughter(0).masterClone.isTrackerMuon==1 ? daughter(0).masterClone.innerTrack.normalizedChi2 : daughter(0).masterClone.normChi2")
+#    ),
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau2Chi2"),
+#    quantity = cms.untracked.string("?daughter(1).masterClone.isTrackerMuon==1 ? daughter(1).masterClone.innerTrack.normalizedChi2 : daughter(1).masterClone.normChi2")
+#    ),
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau2NofHit"),
+#    quantity = cms.untracked.string("?daughter(1).masterClone.isTrackerMuon==1 ?  daughter(1).masterClone.innerTrack.numberOfValidHits: daughter(1).masterClone.numberOfValidHits")
+#    ),
+#    cms.PSet(
+#    tag = cms.untracked.string("Dau2NofHitTk"),
+#    quantity = cms.untracked.string("daughter(1).masterClone.innerTrack.numberOfValidHits")
+#    ),
+#
     )
 
 
@@ -354,6 +514,18 @@ zMuTrkMu=(
 
 
 zMuTrk =(
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau2NofHit"),
+##     quantity = cms.untracked.string("daughter(1).masterClone.track.numberOfValidHits")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau2NofHitTk"),
+##     quantity = cms.untracked.string("daughter(1).masterClone.track.numberOfValidHits")
+##     ),
+##     cms.PSet(
+##     tag = cms.untracked.string("Dau2Chi2"),
+##     quantity = cms.untracked.string("daughter(1).masterClone.track.normalizedChi2")
+##     ),
 
     cms.PSet(
     tag = cms.untracked.string("Dau1GlobalMuonBit"),
