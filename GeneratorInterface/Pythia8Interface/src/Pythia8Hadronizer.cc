@@ -209,9 +209,7 @@ bool Pythia8Hadronizer::declareStableParticles(const std::vector<int> &pdgIds)
       // 
       int PyID = HepPID::translatePDTtoPythia( pdgIds[i] ); 
       std::ostringstream pyCard ;
-      pyCard << PyID <<":onMode=off";
-      // alternative:
-      // pyCard << pyCode <<":mayDecay=off";
+      pyCard << PyID <<":mayDecay=false";
       pythia->readString( pyCard.str() );
       // alternative:
       // set the 2nd input argument warn=false 
