@@ -1,3 +1,10 @@
+2010-04-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-10-02
+	* When checking for directory existence, check that the
+	  directory is writable for the user, too.
+	* Throw exception is db log file cannot be appended.
+
 2010-04-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-10-01
