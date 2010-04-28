@@ -51,6 +51,7 @@ bool SiStripDCSStatus::getStatus(edm::Event const& e, edm::EventSetup const& eSe
   edm::Handle<DcsStatusCollection> dcsStatus;
   e.getByLabel("scalersRawToDigi", dcsStatus);
   if ( trackerAbsent || !dcsStatus.isValid())  return retVal;
+  if ((*dcsStatus).size() == 0) return retVal;
 
   statusTIBTID = true;
   statusTOB    = true;
