@@ -314,6 +314,7 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
   }
   
   unsigned int numberOfErrors = 0;  
+  unsigned int numberOfSeriousErrors = 0;
   
   edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(id_); // search  errors of detid
   //edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(0xffffffff); // search  errors of detid
@@ -413,6 +414,7 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
 	}  
 	//std::cout<<"INFO: "<<FedId<<" , "<<chanNmbr<<" , "<<errorType<<std::endl;
 	if(!(errorType==30)){
+	  numberOfSeriousErrors++;
 	  FedChNErrArray[FedId][chanNmbr]++;
 	  FedChLErrArray[FedId][chanNmbr] = errorType;
 	  FedETypeNErrArray[FedId][errorType-25]++;
@@ -627,12 +629,14 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
   
   //std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
 //std::cout<<"...leaving SiPixelRawDataErrorModule::fill. "<<std::endl;
-  return numberOfErrors;
+  return numberOfSeriousErrors;
 }
 
 int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataError>& input) {
   //std::cout<<"Entering   SiPixelRawDataErrorModule::fillFED: "<<static_cast<int>(id_)<<std::endl;
   unsigned int numberOfErrors = 0;
+  unsigned int numberOfSeriousErrors = 0;
+  
   edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(0xffffffff); // search  errors of detid
   if( isearch != input.end() ) {  // Not an empty iterator
     //std::cout<<"FED has some errors!"<<std::endl;    
@@ -788,6 +792,7 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
 	  };
 	}// end if errorType
 	if(!(errorType==30)){
+	  numberOfSeriousErrors++;
 	  FedChNErrArray[FedId][chanNmbr]++;
 	  FedChLErrArray[FedId][chanNmbr] = errorType;
 	  FedETypeNErrArray[FedId][errorType-25]++;
@@ -834,5 +839,5 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
   
 //  std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
 //std::cout<<"...leaving   SiPixelRawDataErrorModule::fillFED. "<<std::endl;
-  return numberOfErrors;
+  return numberOfSeriousErrors;
 }
