@@ -32,7 +32,9 @@ process.db_client = cms.EDAnalyzer(
     SummaryXmlFile   = cms.untracked.FileInPath('DQM/SiStripCommissioningClients/data/summary.xml'),
     UploadHwConfig   = cms.untracked.bool(False),
     UploadAnalyses   = cms.untracked.bool(False),
+    DisableDevices   = cms.untracked.bool(False),
     DisableBadStrips = cms.untracked.bool(False),
+    AddBadStrips 		= cms.untracked.bool(False),
     SaveClientFile = cms.untracked.bool(True)
     )
 
