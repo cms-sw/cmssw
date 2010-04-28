@@ -184,8 +184,9 @@ def write_iovs(iovs, lines):
 def get_listoftags(dest, auth,):
 
     queryTags_cmd = "cmscond_list_iov -c "+dest+" -P "+auth+" -a | grep BeamSpotObjects"
-    
+    print queryTags_cmd
     outcmd = commands.getstatusoutput( queryTags_cmd )
+    print outcmd[1]
     
     listtags = outcmd[1].split()
     
@@ -233,7 +234,7 @@ def get_lastIOVs( listoftags, dest, auth ):
         
         lasttag = listoftags[itag][0]
         #fix for the moment to read old tags
-        if itag!="offline":
+        if itag != "offline":
             lasttag = listoftags[itag][1]
         
         queryIOVs_cmd = "cmscond_list_iov -c "+dest+" -P "+auth+" -t "+ lasttag
@@ -350,7 +351,7 @@ if __name__ == '__main__':
     
     ## Get the latest tags
     #dest = "frontier://cmsfrontier.cern.ch:8000/Frontier/CMS_COND_31X_BEAMSPOT"
-    dest = "oracle://cms_orcff_prod/CMS_COND_31X_BEAMSPOT"
+    dest = "oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSPOT"
     auth = "/afs/cern.ch/cms/DB/conddb"
     #cmscond_list_iov -c oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT -P /afs/cern.ch/cms/DB/conddb  -a
     
