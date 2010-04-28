@@ -49,8 +49,9 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 {
   int status=0;
 
-  int maxInWindow=0; // maximum value found in reco window
+  double maxInWindow=0; // maximum value found in reco window
   int maxCapid=-1;
+  int maxTS=-1;  // time slice where maximum is found
 
   double totalCharge=0;
   double peakCharge=0;
@@ -67,6 +68,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 	    {
 	      maxCapid=capid;
 	      maxInWindow=value;  
+	      maxTS=i;
 	    }
 	}
 
@@ -83,9 +85,9 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
   int TSfrac_counter=1; 
   // get pedestals for each capid -- add 4 to each capid, and then check mod 4.
   // (This takes care of the case where max capid =0 , and capid-1 would then be negative)
-  if (maxInWindow>0 &&
-      digi[maxInWindow].nominal_fC()!=calib.pedestal(maxCapid))
-    TSfrac_counter=int(50*((digi[maxInWindow-1].nominal_fC()-calib.pedestal((maxCapid+3)%4))/(digi[maxInWindow].nominal_fC()-calib.pedestal((maxCapid+4)%4)))+1); // 6-bit counter to hold peak ratio info
+  if (maxTS>0 &&
+      digi[maxTS].nominal_fC()!=calib.pedestal(maxCapid))
+    TSfrac_counter=int(50*((digi[maxTS-1].nominal_fC()-calib.pedestal((maxCapid+3)%4))/(digi[maxTS].nominal_fC()-calib.pedestal((maxCapid+4)%4)))+1); // 6-bit counter to hold peak ratio info
   hf.setFlagField(TSfrac_counter, HcalCaloFlagLabels::Fraction2TS,6);
 
   // Igor's algorithm:  compare charge in peak to total charge in window
