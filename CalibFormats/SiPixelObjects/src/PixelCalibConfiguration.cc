@@ -25,6 +25,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
 						 PixelCalibBase(), PixelConfigBase("","","") 
 {
   std::string mthn = "[PixelCalibConfiguration::PixelCalibConfiguration()]\t    " ;
+cout << __LINE__ << " PixelCalibConfiguration" << endl ;
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
   /**
