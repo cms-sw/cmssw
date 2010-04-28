@@ -98,22 +98,34 @@ class StandardTester(object):
             pass
 
 
-        tstPkgs = ['FastSimulation', 'HLTrigger', 'PhysicsTools']
-        cmd = ''
+        tstPkgs = { 'FastSimulation' : [ 'Configuration' ],
+	            'HLTrigger'      : [ 'Configuration' ],
+		    'PhysicsTools'   : [ 'PatAlgos'      ],
+		  }
 
-        #-ap: make sure the actual package is there, not just the subsystem ...
+	#-ap: make sure the actual package is there, not just the subsystem ...
         # and set symlinks accordingly ...
-        pkgPath = '../src/'
+        pkgPath = os.environ['CMSSW_BASE'] + '/src/'
         relPath = '$CMSSW_RELEASE_BASE/src/'
-        for tstPkg in tstPkgs:
-            if os.path.exists(pkgPath + tstPkg):
-                cmd  = 'ln -s ' + pkgPath + tstPkg + ' .;'
-            else:
-                cmd  = 'ln -s ' + relPath + tstPkg + ' .;'
-            try:
-                print "setting up symlink for ",tstPkg,'using ',cmd
+        cmd = ''
+        for tstSys in tstPkgs:
+          if not os.path.exists(pkgPath + tstSys):
+             cmd  = 'ln -s ' + relPath + tstSys + ' .;'
+             try:
+                print 'setting up symlink for ' + tstSys + ' using ' + cmd
                 os.system(cmd)
-            except:
+             except:
+                pass
+          else:
+	    for tstPkg in tstPkgs[tstSys]:
+              if not os.path.exists(pkgPath + tstSys + "/" + tstPkg):
+                 cmd  = 'mkdir -p ' + tstSys + '; ln -s ' + relPath + tstSys + '/' + tstPkg + ' ' + tstSys +';'
+              else:
+                 cmd  = 'mkdir -p ' + tstSys + '; ln -s ' + pkgPath + tstSys + '/' + tstPkg + ' ' + tstSys +';'
+              try:
+                print 'setting up symlink for ' + tstSys + '/' + tstPkg + ' using ' + cmd
+                os.system(cmd)
+              except:
                 pass
 
         return
