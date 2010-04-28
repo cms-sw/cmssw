@@ -49,7 +49,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 {
   int status=0;
 
-  double maxInWindow=0; // maximum value found in reco window
+  double maxInWindow=-10; // maximum value found in reco window
   int maxCapid=-1;
   int maxTS=-1;  // time slice where maximum is found
 
