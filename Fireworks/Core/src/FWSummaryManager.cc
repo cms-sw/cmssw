@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.17 2009/10/05 08:30:51 amraktad Exp $
+// $Id: FWSummaryManager.cc,v 1.18 2009/11/03 00:05:03 chrjones Exp $
 //
 
 // system include files
@@ -133,12 +133,14 @@ FWSummaryManager::removeAllItems()
        it != itEnd;
        ++it) {
       if(0!=*it) {
+         m_pack->HideFrame(*it);
          m_pack->RemoveFrame(*it);
          delete *it;
          *it=0;
       }
    }
-   m_collectionWidgets.clear();
+   m_pack->Layout();
+   gClient->NeedRedraw(m_pack);
 }
 
 void
