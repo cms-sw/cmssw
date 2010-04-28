@@ -173,7 +173,7 @@ def write_iovs(iovs, lines):
 	    aIOV = IOV()
 	    if len(aIOVlist) > niovs:
 		aIOV = aIOVlist[niovs]
-	    lines.append('<td> '+iIOV.IOVfirst +' - '+iIOV.IOVlast+' </td>'+end)
+	    lines.append('<td> '+aIOV.IOVfirst +' - '+aIOV.IOVlast+' </td>'+end)
         lines.append('</tr>'+end)
 
 #______________
