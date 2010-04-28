@@ -72,34 +72,6 @@ TrackVertexArbitrator::TrackVertexArbitrator(const edm::ParameterSet &params) :
 	produces<reco::VertexCollection>();
 }
 
-/*
-static double computeSharedTracks(const reco::Vertex &pv,
-                                        const reco::Vertex &sv)
-{
-	std::set<reco::TrackRef> pvTracks;
-	for(std::vector<reco::TrackBaseRef>::const_iterator iter = pv.tracks_begin();
-	    iter != pv.tracks_end(); iter++) {
-	  //float w = pv.trackWeight(*iter);
-//                std::cout << "pvw: " << w << std::endl;
-		if (pv.trackWeight(*iter) >= 0.5)
-			pvTracks.insert(iter->castTo<reco::TrackRef>());
-	}
-
-	unsigned int count = 0, total = 0;
-	for(std::vector<reco::TrackBaseRef>::const_iterator iter = sv.tracks_begin();
-	    iter != sv.tracks_end(); iter++) {
-	  //float w = sv.trackWeight(*iter);
-  //              std::cout << "svw: " << w << std::endl;
-		if (sv.trackWeight(*iter) >= 0.5) {
-			total++;
-			count += pvTracks.count(iter->castTo<reco::TrackRef>());
-		}
-	}
-
-	return (double)count / (double)total;
-}
-*/
-
 bool TrackVertexArbitrator::trackFilter(const reco::TrackRef &track) const
 {
         if (track->hitPattern().trackerLayersWithMeasurement() < 4)

@@ -118,7 +118,6 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> InclusiveVertexFinder::
 		 GlobalVector trackDir2D(tt->impactPointState().globalDirection().x(),tt->impactPointState().globalDirection().y(),0.); 
 		 GlobalVector seedDir2D(seed.impactPointState().globalDirection().x(),seed.impactPointState().globalDirection().y(),0.); 
                  float dotprodTrackSeed2D = trackDir2D.unit().dot(seedDir2D.unit());
-                 /* float dotprodTrackSeed = */ tt->impactPointState().globalDirection().unit().dot(seed.impactPointState().globalDirection().unit());
 
                  float dotprodTrack = (dist.points().first-pv).unit().dot(tt->impactPointState().globalDirection().unit());
                  float dotprodSeed = (dist.points().second-pv).unit().dot(seed.impactPointState().globalDirection().unit());
