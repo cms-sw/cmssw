@@ -298,7 +298,7 @@ def get_plots(path,output, iovs, tag):
 	initial = str(unpack(initial)[0])+":"+str(unpack(initial)[1])
 	final =  str(unpack(final)[0])+":"+str(unpack(final)[1])
 
-    initial = str(int(initial) -10 )
+    initial = str(int(initial) -100 )
     cmd = path+"/plotBeamSpotDB.py -b -P -t "+tag+" -i "+initial +" -f "+final
     print cmd
     outcmd = commands.getstatusoutput( cmd )
@@ -328,6 +328,7 @@ def write_plots(lines, plots,web):
 ''')
     for i in range(0,len(plots)):
 	plot = plots[i]
+        plot = os.path.basename(plot)
 	if i%2 == 0:
 	    lines.append("<tr>"+end)
 	lines.append("<td> <a href=\""+web+"/"+plot+"\"> <img src="+plot+" alt="+plot+" width='700' height='250' /> </a> </td>"+end)
