@@ -796,7 +796,7 @@ if __name__ == '__main__':
     cvlist = []
 
     for ig in range(0,8):
-	cvlist.append( TCanvas(graphnamelist[ig],graphtitlelist[ig], 1800, 600) )
+	cvlist.append( TCanvas(graphnamelist[ig],graphtitlelist[ig], 1200, 600) )
 	if option.graph:
 	    graphlist.append( TGraphErrors( len(listbeam) ) )
         else:
