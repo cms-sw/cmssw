@@ -112,7 +112,7 @@ class parserPerfsuiteMetadata:
 		return [job_lines.index(line) 
 			for line in job_lines 
 			if line.startswith(start_of_line)][0]
-
+	
 	def findLineBefore(self, line_index, lines, test_condition):
 		""" finds a line satisfying the `test_condition` comming before the `line_index` """
 		# we're going backwards the lines list
@@ -157,9 +157,12 @@ class parserPerfsuiteMetadata:
 
 	""" reads the input cmsPerfsuite.log file  """
 	def readInput(self, path, fileName = "cmsPerfSuite.log"):
-		f = open(os.path.join(path, fileName), "r")
-		lines =  [s.strip() for s in f.readlines()]
-		f.close()
+		try:
+			f = open(os.path.join(path, fileName), "r")
+			lines =  [s.strip() for s in f.readlines()]
+			f.close()
+		except IOError:
+			lines = []
 
 		#print self._lines
 		return lines
@@ -339,9 +342,15 @@ class parserPerfsuiteMetadata:
 				print e
 			info["command_line"] = 	""
 		
-		cmd_parsed_start = self.findFirstIndex_ofStartsWith(lines, "Initial PerfSuite Arguments:") + 1
-		cmd_parsed_end = self.findFirstIndex_ofStartsWith(lines, "Running cmsDriver.py")
-		info["command_line_parsed"] = self._LINE_SEPARATOR.join(lines[cmd_parsed_start:cmd_parsed_end])
+		try:
+			cmd_parsed_start = self.findFirstIndex_ofStartsWith(lines, "Initial PerfSuite Arguments:") + 1
+			cmd_parsed_end = self.findFirstIndex_ofStartsWith(lines, "Running cmsDriver.py")
+			info["command_line_parsed"] = self._LINE_SEPARATOR.join(lines[cmd_parsed_start:cmd_parsed_end])
+		except IndexError, e:
+			if self._DEBUG:
+				print e
+			info["command_line"] = 	""
+
 		return  info
 
 	
