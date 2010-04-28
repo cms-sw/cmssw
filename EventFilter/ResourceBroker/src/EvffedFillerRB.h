@@ -44,7 +44,7 @@ namespace evf{
 	if(strtok(hostname,"-") == 0) hostid_ = 0xdead;
 	char *p = strtok(0,"-"); // rack id
 	long hostid = 0xdead;
-	if(p!=0) hostid = strtol(p,0,16) << 12;
+	if(p!=0) hostid = strtol(p,0,16) << 8;
 	p = strtok(0,"-"); // node id
 	if(p==0) hostid += 0xdead;
 	else hostid += strtol(p,0,16);
