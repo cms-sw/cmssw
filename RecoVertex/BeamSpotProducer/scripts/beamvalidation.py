@@ -149,20 +149,31 @@ def write_iovs(iovs, lines):
 
     end = '\n'
     br = '<BR>'+end
-
+    # hearder
     lines.append('<tr>'+end)
     for i in iovs.keys():
         
         lines.append('<th>'+i)
         lines.append('</th>'+end)
     lines.append('</tr>'+end)
-
-    for ntags in range(0,len(iovs[iovs.keys()[0]])):
+    # lumi type
+    lines.append('<tr>'+end)
+    for i in iovs.keys():
+	aIOVlist = iovs[niovs]
+	aIOV = IOV()
+	if len(aIOVlist) > 0:
+	    aIOV = aIOVlist[0]
+	lines.append('<td> '+iIOV.type+' </td>'+end)
+    lines.append('</tr>'+end)
+    
+    for niovs in range(0,len(iovs[iovs.keys()[0]])):
         lines.append('<tr>'+end)
         for i in iovs.keys():
-            aIOVlist = iovs[i]
-            for iIOV in aIOVlist:
-                lines.append('<td> '+iIOV.IOVfirst +' - '+iIOV.IOVlast+' </td>'+end)
+            aIOVlist = iovs[niovs]
+	    aIOV = IOV()
+	    if len(aIOVlist) > niovs:
+		aIOV = aIOVlist[niovs]
+	    lines.append('<td> '+iIOV.IOVfirst +' - '+iIOV.IOVlast+' </td>'+end)
         lines.append('</tr>'+end)
 
 #______________
@@ -204,9 +215,9 @@ def get_listoftags(dest, auth,):
 #______________________
 class IOV:
     def __init__(self):
-        self.type = "runnumber"
-        self.IOVfirst = '1'
-        self.IOVlast  = '1'
+        self.type = ''
+        self.IOVfirst = ''
+        self.IOVlast  = ''
 
 #_________________
 def get_lastIOVs( listoftags, dest, auth ):
