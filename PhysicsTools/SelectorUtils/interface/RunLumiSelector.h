@@ -19,11 +19,11 @@ public:
     
     if ( params.exists("lumisToProcess") ) {
       lumis_ = params.getUntrackedParameter<std::vector<edm::LuminosityBlockRange> > ("lumisToProcess");
-      set("RunLumi", false );
+      set("RunLumi" );
     }
     else {
       lumis_.clear();
-      set("RunLumi", true);
+      set("RunLumi", false);
     }
 
     retInternal_ = getBitTemplate();
