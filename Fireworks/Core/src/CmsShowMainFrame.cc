@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.89 2010/01/27 21:52:24 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.90 2010/04/22 17:29:52 amraktad Exp $
 //
 // hacks
 #include "DataFormats/FWLite/interface/Event.h"
@@ -84,7 +84,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *openData   = new CSGAction(this, cmsshow::sOpenData.c_str());
    CSGAction *appendData = new CSGAction(this, cmsshow::sAppendData.c_str());
    CSGAction *loadConfig = new CSGAction(this, cmsshow::sLoadConfig.c_str());
-   loadConfig->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *saveConfig   = new CSGAction(this, cmsshow::sSaveConfig.c_str());
    CSGAction *saveConfigAs = new CSGAction(this, cmsshow::sSaveConfigAs.c_str());
    CSGAction *exportImage   = new  CSGAction(this, cmsshow::sExportImage.c_str());
@@ -453,7 +452,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    //NOTE: There appears to be a bug in ROOT such that creating a menu item and setting it as
    // disabled immediately is ignored.  Therefore we have to wait till here to actually get ROOT
    // to disable these menu items
-   loadConfig->disable();
    undo->disable();
    redo->disable();
    cut->disable();

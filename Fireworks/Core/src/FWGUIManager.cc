@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.198 2010/04/27 13:36:33 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.199 2010/04/28 11:33:49 amraktad Exp $
 
 //
 
@@ -19,6 +19,7 @@
 #include <iostream>
 #include <cstdio>
 #include <sstream>
+#include <memory>
 
 #include "TGButton.h"
 #include "TGLabel.h"
@@ -144,6 +145,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                                              this, _1) );
 
    m_colorManager->colorsHaveChangedFinished_.connect(boost::bind(&FWGUIManager::finishUpColorChange,this));
+
    // These are only needed temporarilty to work around a problem which
    // Matevz has patched in a later version of the code
    TApplication::NeedGraphicsLibs();
@@ -176,8 +178,9 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       m_contextMenuHandler = new FWModelContextMenuHandler(iSelMgr,m_detailViewManager,m_colorManager,this);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
+      getAction(cmsshow::sLoadConfig)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForLoadConfigurationFile));
       getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
-      getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForConfigurationFile));
+      getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForSaveConfigurationFile));
       getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind( &FWGUIManager::showEDIFrame,this,-1));
       getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
       getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
@@ -559,7 +562,7 @@ FWGUIManager::subviewDestroyAll()
    gSystem->Sleep(200);
    m_viewSecPack = 0;
    gSystem->ProcessEvents();
-   
+
 }
 
 void
@@ -769,29 +772,62 @@ FWGUIManager::getCurrentEvent() const
    return m_cmsShowMain->getCurrentEvent();  
 }
 
-void
-FWGUIManager::promptForConfigurationFile()
+/** Helper method for a load / save configuration dialog.
+
+    @a result where the picked file is stored.
+    
+    @a mode the mode for the dialog (i.e. Load / Save).
+    
+    @return true if a file was successfully picked, false otherwise.
+  */
+bool
+FWGUIManager::promptForConfigurationFile(std::string &result, enum EFileDialogMode mode)
 {
-   static const char* kSaveFileTypes[] = {"Fireworks Configuration files","*.fwc",
-                                          "All Files","*",
-                                          0,0};
+   static const char* kFileTypes[] = {"Fireworks Configuration files","*.fwc",
+                                       "All Files","*",
+                                       0,0};
 
    static TString dir(".");
 
    TGFileInfo fi;
-   fi.fFileTypes = kSaveFileTypes;
+   fi.fFileTypes = kFileTypes;
    fi.fIniDir    = StrDup(dir);
-   new TGFileDialog(gClient->GetDefaultRoot(), m_cmsShowMainFrame,
-                    kFDSave,&fi);
+   new TGFileDialog(gClient->GetDefaultRoot(), m_cmsShowMainFrame, mode, &fi);
    dir = fi.fIniDir;
-   if (fi.fFilename != 0) { // to handle "cancel" button properly
-      std::string name = fi.fFilename;
-      // if the extension isn't already specified by hand, specify it now
-      std::string ext = kSaveFileTypes[fi.fFileTypeIdx + 1] + 1;
-      if (ext.size() != 0 && name.find(ext) == name.npos)
-         name += ext;
-      writeToConfigurationFile_(name);
-   }
+   if (fi.fFilename == 0) // to handle "cancel" button properly
+      return false;
+   std::string name = fi.fFilename;
+   // if the extension isn't already specified by hand, specify it now
+   std::string ext = kFileTypes[fi.fFileTypeIdx + 1] + 1;
+   if (ext.size() != 0 && name.find(ext) == name.npos)
+      name += ext;
+   result = name;
+   return true;
+}
+
+
+/** Emits the signal which request to load the configuration file picked up 
+    in a dialog.
+  */
+void
+FWGUIManager::promptForLoadConfigurationFile()
+{
+   std::string name;
+   if (!promptForConfigurationFile(name, kFDOpen))
+      return;
+   loadFromConfigurationFile_(name);
+}
+
+/** Emits the signal which requests to save the current configuration in the 
+    file picked up in the dialog.
+  */
+void
+FWGUIManager::promptForSaveConfigurationFile()
+{
+   std::string name;
+   if (!promptForConfigurationFile(name, kFDSave))
+      return;
+   writeToConfigurationFile_(name);
 }
 
 void

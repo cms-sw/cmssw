@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.154 2010/04/21 11:10:07 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.155 2010/04/26 09:13:57 eulisse Exp $
 //
 
 // system include files
@@ -280,6 +280,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       m_configurationManager->add("EventNavigator",m_navigator);
       m_guiManager->writeToConfigurationFile_.connect(boost::bind(&FWConfigurationManager::writeToFile,
                                                                   m_configurationManager.get(),_1));
+      m_guiManager->loadFromConfigurationFile_.connect(boost::bind(&CmsShowMain::reloadConfiguration,
+                                                                   this, _1));
       //figure out where to find macros
       //tell ROOT where to find our macros
       std::string macPath(cmspath);
@@ -555,6 +557,21 @@ CmsShowMain::setupViewManagers()
    boost::shared_ptr<FWL1TriggerTableViewManager> l1TriggerTableViewManager( new FWL1TriggerTableViewManager(m_guiManager.get()) );
    m_configurationManager->add(std::string("L1TriggerTables"), l1TriggerTableViewManager.get());
    m_viewManager->add( l1TriggerTableViewManager );
+}
+
+void
+CmsShowMain::reloadConfiguration(const std::string &config)
+{
+   if (config.empty())
+      return;
+
+   m_guiManager->updateStatus(("Reloading configuration " 
+                               + config + "...").c_str());
+
+   m_eiManager->clearItems();
+   m_configFileName = config;
+   m_guiManager->subviewDestroyAll();
+   m_configurationManager->readFromFile(config);
 }
 
 void

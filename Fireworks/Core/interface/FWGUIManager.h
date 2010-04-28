@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.99 2010/03/25 14:57:22 matevz Exp $
+// $Id: FWGUIManager.h,v 1.100 2010/04/27 13:36:33 amraktad Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include <sigc++/sigc++.h>
 #include "Rtypes.h"
 #include "GuiTypes.h"
+#include "TGFileDialog.h"
 #include <memory>
 
 // user include files
@@ -201,6 +202,7 @@ public:
    sigc::signal<void> filterButtonClicked_;
    sigc::signal<void, const TGWindow*> showEventFilterGUI_;
    sigc::signal<void, const std::string&> writeToConfigurationFile_;
+   sigc::signal<void, const std::string&> loadFromConfigurationFile_;
    sigc::signal<void, int, int> changedEventId_;
    sigc::signal<void> goingToQuit_;
    sigc::signal<void> writeToPresentConfigurationFile_;
@@ -221,7 +223,9 @@ private:
    
    void exportImageOfMainView();
 
-   void promptForConfigurationFile();
+   bool promptForConfigurationFile(std::string &result, enum EFileDialogMode mode);
+   void promptForSaveConfigurationFile();
+   void promptForLoadConfigurationFile();
    
    void delaySliderChanged(Int_t);
    

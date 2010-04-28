@@ -8,13 +8,14 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.22 2010/01/30 18:53:40 chrjones Exp $
+// $Id: FWEventItemsManager.cc,v 1.23 2010/04/08 19:45:25 amraktad Exp $
 //
 
 // system include files
 #include <sstream>
 #include <boost/bind.hpp>
 #include "TClass.h"
+#include "TEveManager.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
@@ -110,15 +111,21 @@ FWEventItemsManager::newEvent(const fwlite::Event* iEvent)
 
 
 void
-FWEventItemsManager::clearItems()
+FWEventItemsManager::clearItems(void)
 {
    goingToClearItems_();
    for(std::vector<FWEventItem*>::iterator it = m_items.begin();
        it != m_items.end();
        ++it) {
-      delete *it;
+      if (*it)
+      {
+         (*it)->destroy();
+      }
+      *it = 0;
+      gEve->EditElement(0);
    }
-   m_items.clear();
+   gEve->Redraw3D();
+   //m_items.clear();
 }
 
 static const std::string kType("type");
