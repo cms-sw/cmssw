@@ -1,4 +1,4 @@
-//$Id: Utils.cc,v 1.12 2010/03/31 12:31:29 mommsen Exp $
+//$Id: Utils.cc,v 1.13 2010/04/13 09:15:39 mommsen Exp $
 /// @file: Utils.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -100,13 +100,19 @@ namespace stor
     
     void checkDirectory(const std::string& path)
     {
-      struct stat64 buf;
+      struct stat64 results;
       
-      int retVal = stat64(path.c_str(), &buf);
+      int retVal = stat64(path.c_str(), &results);
       if( retVal !=0 )
       {
         std::ostringstream msg;
         msg << "Directory " << path << " does not exist: " << strerror(errno);
+        XCEPT_RAISE(stor::exception::NoSuchDirectory, msg.str());
+      }
+      if ( !(results.st_mode & S_IWUSR) )
+      {
+        std::ostringstream msg;
+        msg << "Directory " << path << " is not writable.";
         XCEPT_RAISE(stor::exception::NoSuchDirectory, msg.str());
       }
     }
