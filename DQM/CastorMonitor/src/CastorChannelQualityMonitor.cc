@@ -180,7 +180,8 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
      ////---- evaluation
      if( averageEnergy >  nThreshold_ )  status= 0;   ////--- channel is noisy 
      if( averageEnergy < dThreshold_  ) { status= -1;  ////--- channel is dead 
-         cout << "!!! dChannels ===> module="<< module+1 << " sector="<< sector+1 << endl;}
+          if(fVerbosity>0) cout << "!!! dChannels ===> module="<< module+1 << " sector="<< sector+1 << endl;
+	  }
      if( averageEnergy <  nThreshold_ && averageEnergy > dThreshold_ )  status= 1; ////---- channel is good
 
      if(fVerbosity>0)
@@ -199,7 +200,8 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
       ////---- evaluation
       if( wcounter1 > 0.85 )  status= 0; ////--- channel is noisy (85% of cases energy was above NoisyThreshold) 
       if( wcounter2 > 0.85 ) {status= -1;  ////--- channel is dead (85% of cases energy was below dThreshold)
-       cout << "!!! dChannels ===> module="<< module+1 << " sector="<< sector+1 << endl;}
+         if(fVerbosity>0) cout << "!!! dChannels ===> module="<< module+1 << " sector="<< sector+1 << endl; 
+	}
       if( wcounter1 < 0.85 && wcounter2 <  0.85 ) status= 1; ////---- channel is good
 
       if(fVerbosity>0)

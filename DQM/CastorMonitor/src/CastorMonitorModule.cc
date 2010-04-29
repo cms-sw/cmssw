@@ -396,14 +396,18 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   ////---- fill CastorEventProduct every 10 events
  if(ievt_%10 == 0) {
-   cout << "    RAW Data   ==> " << rawOK_<< endl;
-   cout << "    Digis      ==> " << digiOK_<< endl;
-   cout << "    RecHits    ==> " << rechitOK_<< endl;
 
   TH2F* hCastorEventProduct=CastorEventProduct->getTH2F();
   hCastorEventProduct->SetBinContent(1,1,int(rawOK_));
   hCastorEventProduct->SetBinContent(2,1,int(digiOK_));
   hCastorEventProduct->SetBinContent(3,1,int(rechitOK_));
+
+   if(fVerbosity>0) {
+   cout << "    RAW Data   ==> " << rawOK_<< endl;
+   cout << "    Digis      ==> " << digiOK_<< endl;
+   cout << "    RecHits    ==> " << rechitOK_<< endl;
+   }
+ 
  }
 
   //------------------------------------------------------------//
