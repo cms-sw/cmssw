@@ -8,13 +8,13 @@
 
 import FWCore.ParameterSet.Config as cms
 
-def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Summer09_7TeV_ReReco332', mcVersion='' ,theJetNames = ['IC5Calo','IC5PF','AK5JPT','AK5Track']):
-    loadPF2PAT(process,mcInfo,'PF')
+def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Spring10', mcVersion='' ,theJetNames = ['IC5Calo','AK5JPT']):
+    loadPF2PAT(process,mcInfo,JetMetCorrections,'PF')
     if not mcInfo:
 	removeMCDependence(process)
     loadMCVersion(process,mcVersion,mcInfo)
     loadPAT(process,JetMetCorrections)
-    addJetMET(process,theJetNames)
+    addJetMET(process,theJetNames,mcVersion)
     loadPATTriggers(process,HLTMenu)
 
     #-- Counter for the number of processed events --------------------------------
@@ -44,8 +44,6 @@ def loadMCVersion(process, mcVersion, mcInfo):
 
 
 def loadPAT(process,JetMetCorrections):
-    #-- PAT standard config -------------------------------------------------------
-    process.load("PhysicsTools.PatAlgos.patSequences_cff")
     #-- Changes for electron and photon ID ----------------------------------------
     # Turn off photon-electron cleaning (i.e., flag only)
     process.cleanPatPhotons.checkOverlaps.electrons.requireNoOverlaps = False
@@ -72,10 +70,19 @@ def loadPAT(process,JetMetCorrections):
     #-- Jet corrections -----------------------------------------------------------
     process.patJetCorrFactors.corrSample = JetMetCorrections 
 
-def loadPF2PAT(process,mcInfo,postfix):
+def loadPF2PAT(process,mcInfo,JetMetCorrections,postfix):
+    #-- PAT standard config -------------------------------------------------------
+    process.load("PhysicsTools.PatAlgos.patSequences_cff")
+    #-- Jet corrections -----------------------------------------------------------
+    process.patJetCorrFactors.corrSample = JetMetCorrections 
     #-- PF2PAT config -------------------------------------------------------------
     from PhysicsTools.PatAlgos.tools.pfTools import usePF2PAT
     usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5',runOnMC=mcInfo,postfix=postfix)
+    process.patJetsPF.embedGenJetMatch = False
+    process.patJetsPF.embedPFCandidates = False
+    #-- Relax isolation -----------------------------------------------------------
+    #process.pfIsolatedMuonsPF.combinedIsolationCut = 3.
+    #process.pfIsolatedElectronsPF.combinedIsolationCut = 3.
 
 def loadPATTriggers(process,HLTMenu):
     #-- Trigger matching ----------------------------------------------------------
@@ -87,8 +94,11 @@ def loadPATTriggers(process,HLTMenu):
     process.patTrigger.processName = HLTMenu
     process.patTriggerEvent.processName = HLTMenu
 
-def addSUSYJetCollection(process,jets = 'IC5Calo',doJTA=False,doType1MET=False,doJetID = True,jetIdLabel = None):
-    from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection, addJetID
+def addSUSYJetCollection(process,jets = 'IC5Calo',mcVersion='',doJTA=False,doType1MET=False,doJetID=True,jetIdLabel=None):
+    if mcVersion == '35x':
+        from PhysicsTools.PatAlgos.tools.cmsswVersionTools import addJetCollection35X as addJetCollection
+    else:
+	from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
     algorithm = jets[0:3]
     type = jets[3:len(jets)]
     jetCorrLabel = (algorithm,type)
@@ -106,15 +116,13 @@ def addSUSYJetCollection(process,jets = 'IC5Calo',doJTA=False,doType1MET=False,d
     elif type == 'PF':
 	jetCollection = '%(collection)sPFJets' % locals()
         doJTA = True
+	doJetID = False
     elif type == 'JPT':
         if 'IC' in algorithm: collectionJPT = algorithm.replace('IC','Icone')
         elif 'SC' in algorithm: collectionJPT = algorithm.replace('SC','Siscone')
         elif 'AK' in algorithm: collectionJPT = algorithm.replace('AK','AntiKt')
         else: raise ValueError, "Unknown jet algorithm: %s" % (jets)
         jetCollection = 'JetPlusTrackZSPCorJet%(collectionJPT)s' % locals()
-    	#jetCorrLabel = None
-	#doJetID = False
-        jetIdLabel =  '%(collection)sJPT' % locals()
     elif type == 'Track':
 	jetCollection = '%(collection)sTrackJets' % locals()
     	jetCorrLabel = None
@@ -134,12 +142,11 @@ def addSUSYJetCollection(process,jets = 'IC5Calo',doJTA=False,doType1MET=False,d
                      genJetCollection = cms.InputTag('%(collection)sGenJets' % locals())
                      )
 
-def addJetMET(process,theJetNames):
-    
+def addJetMET(process,theJetNames,mcVersion):
     #-- Extra Jet/MET collections -------------------------------------------------
     # Add a few jet collections...
     for jetName in theJetNames:
-    	addSUSYJetCollection(process,jetName)
+    	addSUSYJetCollection(process,jetName,mcVersion)
     
     #-- Tune contents of jet collections  -----------------------------------------
     theJetNames.append('')
@@ -147,6 +154,7 @@ def addJetMET(process,theJetNames):
         module = getattr(process,'patJets'+jetName)
         module.addTagInfos = False    # Remove tag infos
         module.embedGenJetMatch = False # Only keep reference, since we anyway keep the genJet collections
+        #module.embedCaloTowers = True # To drop calo towers
     theJetNames.pop()
     
     # Add tcMET
@@ -219,20 +227,18 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep L1GlobalTriggerObjectMapRecord_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_*_*_*',
         #Pat trigger matching
-        'keep patTriggerObjects_patTrigger_*_*',
-        'keep patTriggerFilters_patTrigger_*_*',
-        'keep patTriggerPaths_patTrigger_*_*',
-        'keep patTriggerEvent_patTriggerEvent_*_*',
-        'keep *_cleanPatPhotonsTriggerMatch_*_*',
-        'keep *_cleanPatElectronsTriggerMatch_*_*',
-        'keep *_cleanPatMuonsTriggerMatch_*_*',
-        'keep *_cleanPatTausTriggerMatch_*_*',
-        'keep *_cleanPatJetsTriggerMatch_*_*',
-        'keep *_patMETsTriggerMatch_*_*',
-        'keep patTriggerObjectStandAlones_patTrigger_*_*',
-        'keep patTriggerObjectStandAlonesedmAssociation_*_*_*',
-        # Others
-        'keep recoCaloMET_met_*_*', # raw MET
+        #'keep patTriggerObjects_patTrigger_*_*',
+        #'keep patTriggerFilters_patTrigger_*_*',
+        #'keep patTriggerPaths_patTrigger_*_*',
+        #'keep patTriggerEvent_patTriggerEvent_*_*',
+        #'keep *_cleanPatPhotonsTriggerMatch_*_*',
+        #'keep *_cleanPatElectronsTriggerMatch_*_*',
+        #'keep *_cleanPatMuonsTriggerMatch_*_*',
+        #'keep *_cleanPatTausTriggerMatch_*_*',
+        #'keep *_cleanPatJetsTriggerMatch_*_*',
+        #'keep *_patMETsTriggerMatch_*_*',
+        #'keep patTriggerObjectStandAlones_patTrigger_*_*',
+        #'keep patTriggerObjectStandAlonesedmAssociation_*_*_*',
         'keep *_muon*METValueMapProducer_*_*',   # Muon corrections to MET
         'keep *_offlinePrimaryVertices_*_*',
         'keep *_offlineBeamSpot_*_*',
@@ -241,10 +247,8 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep recoTracks_generalTracks_*_*',
 	'keep recoRecoChargedRefCandidates_trackRefsForJets_*_*',
 	'keep recoTrackJets_ak5TrackJets_*_*',
-	'keep *_pfLayer*_*_*', # Keep PF2PAT output
 	'keep *_electronMergedSeeds_*_*',
 	'keep *_Conversions_*_*',
-        'drop patPFParticles_pfLayer*_*_*', # drop PAT particles
 	'keep recoPFCandidates_particleFlow_*_*',
         'keep recoSuperClusters_corrected*_*_*',
 	'keep recoSuperClusters_pfElectronTranslator_*_*',
@@ -253,7 +257,7 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep recoConversions_conversions_*_*',
         'keep recoTracks_*onversions_*_*',
 'keep EcalRecHitsSorted_reducedEcalRecHits*_*_*',
-        'keep recoPFRecHits_particleFlowCluster*_Cleaned_*',
+#        'keep recoPFRecHits_particleFlowCluster*_Cleaned_*',
         'keep HcalNoiseSummary_*_*_*' #Keep the one in RECO
         ] 
 
