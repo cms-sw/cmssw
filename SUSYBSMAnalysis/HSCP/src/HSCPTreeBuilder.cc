@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Thu Mar 11 12:19:07 CEST 2010
-// $Id: HSCPTreeBuilder.cc,v 1.1 2010/04/14 13:05:03 querten Exp $
+// $Id: HSCPTreeBuilder.cc,v 1.2 2010/04/15 14:17:27 querten Exp $
 //
 
 
@@ -238,16 +238,6 @@ class HSCPTreeBuilder : public edm::EDFilter {
                 float          Gen_beta           [MAX_GENS];
                 float          Gen_mass           [MAX_GENS];
 
-
-		double        MinTrackMomentum;
-		double        MaxTrackMomentum;
-		double        MinTrackTMomentum;
-		double        MaxTrackTMomentum;
-		double        MinTrackEta;
-		double        MaxTrackEta;
-		int           MinTrackNHits;
-		int           MaxTrackNHits;
-
                 bool          reccordVertexInfo;
                 bool          reccordTrackInfo;
                 bool          reccordMuonInfo;
@@ -260,16 +250,6 @@ HSCPTreeBuilder::HSCPTreeBuilder(const edm::ParameterSet& iConfig)
    m_dEdxDiscrimTag    = iConfig.getParameter<std::vector<InputTag> >("dEdxDiscrim");  
    m_muonsTag          = iConfig.getParameter<InputTag>              ("muons");
    m_muontimingTag     = iConfig.getParameter<InputTag>              ("muontiming");
-
-
-   MinTrackMomentum    = iConfig.getUntrackedParameter<double>  ("minTrackMomentum"   ,  1.0);
-   MaxTrackMomentum    = iConfig.getUntrackedParameter<double>  ("maxTrackMomentum"   ,  99999.0);
-   MinTrackTMomentum   = iConfig.getUntrackedParameter<double>  ("minTrackTMomentum"  ,  1.0);
-   MaxTrackTMomentum   = iConfig.getUntrackedParameter<double>  ("maxTrackTMomentum"  ,  99999.0);
-   MinTrackEta         = iConfig.getUntrackedParameter<double>  ("minTrackEta"        , -5.0);
-   MaxTrackEta         = iConfig.getUntrackedParameter<double>  ("maxTrackEta"        ,  5.0);
-   MinTrackNHits       = iConfig.getUntrackedParameter<int>     ("minTrackNHits"      ,  0  );
-   MaxTrackNHits       = iConfig.getUntrackedParameter<int>     ("maxTrackNHits"      ,  50 );
 
    reccordVertexInfo   = iConfig.getUntrackedParameter<bool>    ("reccordVertexInfo"  ,  true );
    reccordTrackInfo    = iConfig.getUntrackedParameter<bool>    ("reccordTrackInfo"   ,  true );
@@ -571,11 +551,6 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    NTracks = 0;
    for(unsigned int i=0; i<trackCollection.size(); i++){
      reco::TrackRef track  = reco::TrackRef( trackCollectionHandle, i );
-
-     if(fabs(track->eta()) <MinTrackEta      ||  fabs(track->eta())>MaxTrackEta)       continue;
-     if(track->p()         <MinTrackMomentum ||  track->p()        >MaxTrackMomentum)  continue;
-     if(track->pt()        <MinTrackTMomentum||  track->pt()       >MaxTrackTMomentum) continue;
-     if(track->found()     <MinTrackNHits    ||  track->found()    >MaxTrackNHits)     continue;
 
      Track_p        [NTracks] = track->p();
      Track_px       [NTracks] = track->px();

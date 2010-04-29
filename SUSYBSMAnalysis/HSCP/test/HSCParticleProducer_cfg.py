@@ -23,6 +23,13 @@ process.GlobalTag.globaltag = 'START3X_V26::All'
 #replace fileNames  with the file you want to skim
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
+        '/store/user/quertenmont/ExoticaSkim/HSCPSkim/querten/MinimumBias/EXOHSCPSkim_7TeV_356_RecoQuality_V2/6925c18577f7c0eecef10af135e8c3b9/EXOHSCP_10_1.root',
+        '/store/user/quertenmont/ExoticaSkim/HSCPSkim/querten/MinimumBias/EXOHSCPSkim_7TeV_356_RecoQuality_V2/6925c18577f7c0eecef10af135e8c3b9/EXOHSCP_11_1.root',
+        '/store/user/quertenmont/ExoticaSkim/HSCPSkim/querten/MinimumBias/EXOHSCPSkim_7TeV_356_RecoQuality_V2/6925c18577f7c0eecef10af135e8c3b9/EXOHSCP_12_1.root',
+        '/store/user/quertenmont/ExoticaSkim/HSCPSkim/querten/MinimumBias/EXOHSCPSkim_7TeV_356_RecoQuality_V2/6925c18577f7c0eecef10af135e8c3b9/EXOHSCP_13_1.root',
+        '/store/user/quertenmont/ExoticaSkim/HSCPSkim/querten/MinimumBias/EXOHSCPSkim_7TeV_356_RecoQuality_V2/6925c18577f7c0eecef10af135e8c3b9/EXOHSCP_15_1.root',
+        '/store/user/quertenmont/ExoticaSkim/HSCPSkim/querten/MinimumBias/EXOHSCPSkim_7TeV_356_RecoQuality_V2/6925c18577f7c0eecef10af135e8c3b9/EXOHSCP_16_1.root',
+        '/store/user/quertenmont/ExoticaSkim/HSCPSkim/querten/MinimumBias/EXOHSCPSkim_7TeV_356_RecoQuality_V2/6925c18577f7c0eecef10af135e8c3b9/EXOHSCP_17_1.root',
         '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FEFC70B6-F53D-DF11-B57E-003048679150.root',
         '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FED8673E-F53D-DF11-9E58-0026189437EB.root',
         '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FEBF7874-EF3D-DF11-910D-002354EF3BDF.root',
@@ -36,8 +43,8 @@ process.source = cms.Source("PoolSource",
    )
 )
 
-process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducer_cff")           #IF RUNNING ON RAW-DIGI-RECO
-#process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducerFromSkim_cff")  #IF RUNNING ON HSCP SKIM
+#process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducer_cff")         #IF RUNNING ON DIGI-RECO
+process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducerFromSkim_cff")  #IF RUNNING ON HSCP SKIM
 
 
 process.TFileService = cms.Service("TFileService",

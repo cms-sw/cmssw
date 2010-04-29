@@ -1,5 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
+
+####################################################################################
+#   BEAMSPOT + TRAJECTORY BUILDERS
+####################################################################################
+
+from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
+from RecoTracker.TrackProducer.TrackRefitters_cff import *
+
+
+####################################################################################
+#   DEDX ESTIMATORS 
+####################################################################################
+
 dedxHarm2 = cms.EDProducer("DeDxEstimatorProducer",
     tracks                     = cms.InputTag("TrackRefitter"),
     trajectoryTrackAssociation = cms.InputTag("TrackRefitter"),
@@ -30,6 +43,9 @@ dedxCNPHarm2                = dedxNPHarm2.clone()
 dedxCNPHarm2.UseCalibration = cms.bool(True)
 dedxCNPHarm2.calibrationPath = cms.string("file:Gains.root")
 
+
+####################################################################################
+#   DEDX DISCRIMINATORS 
 ####################################################################################
 
 dedxProd               = cms.EDProducer("DeDxDiscriminatorProducer",
@@ -64,22 +80,22 @@ dedxASmi.Formula = cms.untracked.uint32(3)
 
 
 ####################################################################################
+#   MUON TIMING
+####################################################################################
 
+from RecoMuon.MuonIdentification.muonTiming_cfi import *
+muontiming.MuonCollection = cms.InputTag("muons")
+
+####################################################################################
+#   HSCP TREE BUILDER
+####################################################################################
 
 
 HSCPTreeBuilder = cms.EDProducer("HSCPTreeBuilder",
    tracks                  = cms.InputTag("TrackRefitter"),
-   dEdxDiscrim             = cms.VInputTag("dedxHarm2", "dedxNPHarm2", "dedxCHarm2", "dedxCNPHarm2", "dedxProd", "dedxSmi" ,"dedxASmi"),
+   dEdxDiscrim             = cms.VInputTag("dedxCHarm2", "dedxCNPHarm2", "dedxProd", "dedxASmi"),
    muons                   = cms.InputTag("muons"),
-   muontiming              = cms.InputTag("muons"),
-
-
-   minTrackMomentum   = cms.untracked.double  (0.0),
-   minTrackTMomentum  = cms.untracked.double  (0.0),
-   maxTrackMomentum   = cms.untracked.double  (9999),
-   maxTrackTMomentum  = cms.untracked.double  (9999),
-   minTrackEta        = cms.untracked.double  (0.0),
-   maxTrackEta        = cms.untracked.double  (2.5),
+   muontiming              = cms.InputTag("muontiming"),
 
    reccordVertexInfo  = cms.untracked.bool(True),
    reccordTrackInfo   = cms.untracked.bool(True),
@@ -87,10 +103,8 @@ HSCPTreeBuilder = cms.EDProducer("HSCPTreeBuilder",
    reccordGenInfo     = cms.untracked.bool(False),
 )
 
-HSCPTreeBuilderSeq = cms.Sequence(dedxHarm2 + dedxCHarm2 + dedxNPHarm2 + dedxCNPHarm2 + dedxProd + dedxSmi + dedxASmi + HSCPTreeBuilder );
+####################################################################################
+#   HSCP Tree Builder Sequence
+####################################################################################
 
-
-
-
-
-
+HSCPTreeBuilderSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxCHarm2 + dedxCNPHarm2 + dedxProd + dedxASmi + muontiming + HSCPTreeBuilder );

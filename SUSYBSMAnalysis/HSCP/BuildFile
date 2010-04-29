@@ -28,7 +28,7 @@
 <use name=TrackingTools/TransientTrack>
 <use name=root>
 <use name=rootcore>
-<use name=rootinteractive>
+<use name=rootgraphics>
 <use name=AnalysisDataFormats/SUSYBSMObjects>
 <use name=TrackingTools/TrackAssociator>
 <use name=Geometry/EcalMapping>
@@ -71,7 +71,6 @@
    <use name=TrackingTools/PatternTools>
    <use name=TrackingTools/Records>
    <use name=TrackingTools/TransientTrack>
-   <use name=rootcore>
    <use name=rootgraphics>
    <use name=root>
    <use name=rootcore>
@@ -86,6 +85,5 @@
    <use name=SimDataFormats/TrackingHit>
    <use name=SimDataFormats/Vertex>
    <use name=TrackingTools/TransientTrack>
-   <use name=root>
    <use name=CommonTools/UtilAlgos>
 </export>
