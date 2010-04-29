@@ -379,6 +379,7 @@ void PixelDelay25Calib::writeXML( std::ofstream *outstream,
 {
   std::string mthn = "[PixelDelay25Calib::writeXML()]\t\t\t    " ;
   
+  std::cout  << __LINE__ << "]\t" << mthn << "Writing.." << std::endl ;
 
   *outstream << " "                                                                                       << std::endl ;
   *outstream << "  <DATA>"                                                                                << std::endl ;
