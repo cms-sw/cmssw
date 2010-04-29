@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2010/03/04 09:15:41 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/03/29 18:15:56 $
+ *  $Revision: 1.21 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -65,7 +65,7 @@ public:
   virtual void Fill( const reco::Particle::LorentzVector & p4, const double & resValue, const int charge ) {};
   virtual void Fill( const reco::Particle::LorentzVector & p4, const double & genValue, const double recValue, const int charge ) {};
   virtual void Fill( const CLHEP::HepLorentzVector & p, const double & likeValue ) {};
-  virtual void Fill( const int & number ) {};
+  virtual void Fill( const unsigned int number ) {};
   virtual void Fill( const reco::Particle::LorentzVector & recoP1, const int charge1,
                      const reco::Particle::LorentzVector & genP1,
                      const reco::Particle::LorentzVector & recoP2, const int charge2,
@@ -278,9 +278,9 @@ class HParticle : public Histograms {
     //hMass_fine_->Fill(momentum.m(), weight);
   }
   
-  virtual void Fill( int number )
+  virtual void Fill( unsigned int number )
   {
-    hNumber_->Fill (number);
+    hNumber_->Fill(number);
   }
 
   virtual void Write()
