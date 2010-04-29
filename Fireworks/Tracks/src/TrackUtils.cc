@@ -2,7 +2,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.24 2010/04/23 08:31:56 yana Exp $
+// $Id: TrackUtils.cc,v 1.25 2010/04/23 17:01:20 yana Exp $
 //
 
 // system include files
@@ -54,8 +54,8 @@
 namespace fireworks {
 
    static const double MICRON = 1./1000./10.;
-   static const double pitchx = 100*MICRON;
-   static const double pitchy = 150*MICRON;
+   static const double PITCHX = 100*MICRON;
+   static const double PITCHY = 150*MICRON;
    static const int BIG_PIX_PER_ROC_Y = 2; // in y direction, cols
    static const int COLS_PER_ROC = 52;   // Num of Rows per ROC
    static const int ROWS_PER_ROC = 80;       // Num of cols per ROC
@@ -70,8 +70,8 @@ namespace fireworks {
    // -- barrel dStrip: 80, 80, 120, 120, 183, 183, 183, 183, 122, 122
 	
    // -- end cap SiStrip module geometry
-   static const double twopi = 6.28318531;
-   static const double dpEStrips[7] = { twopi/24/768, twopi/24/768, twopi/40/512, twopi/56/512, twopi/40/768, twopi/56/512, twopi/80/512 };
+   static const double TWOPI = 6.28318531;
+   static const double dpEStrips[7] = { TWOPI/24/768, TWOPI/24/768, TWOPI/40/512, TWOPI/56/512, TWOPI/40/768, TWOPI/56/512, TWOPI/80/512 };
    static const int nEStrips[7] = { 768, 768, 512, 512, 768, 512, 512 };
    static const double hEStrips[7] = {8.52, /* 11.09,*/ 8.82, 11.07, 11.52, 8.12+6.32, 9.61+8.49, 10.69+9.08};
    // -- barrel SiStrip module geometry
@@ -242,25 +242,25 @@ namespace fireworks {
 
   double
   pixelLocalX( const double mpx, const int nrows ) {
-    const double xoffset = -(nrows + BIG_PIX_PER_ROC_X*nrows/ROWS_PER_ROC)/2. * pitchx;
+    const double xoffset = -(nrows + BIG_PIX_PER_ROC_X*nrows/ROWS_PER_ROC)/2. * PITCHX;
 
     int binoffx = int(mpx);             // truncate to int
     double fractionX = mpx - binoffx;   // find the fraction
-    double local_pitchx = pitchx;       // defaultpitch
+    double local_PITCHX = PITCHX;       // defaultpitch
     if( binoffx>80 ) {              // ROC 1 - handles x on edge cluster
       binoffx = binoffx+2;
     } else if( binoffx == 80 ) {    // ROC 1
       binoffx = binoffx+1;
-      local_pitchx = 2 * pitchx;
+      local_PITCHX = 2 * PITCHX;
     } else if( binoffx == 79 ) {    // ROC 0
       binoffx = binoffx+0;
-      local_pitchx = 2 * pitchx;
+      local_PITCHX = 2 * PITCHX;
     } else if( binoffx >= 0 ) {     // ROC 0
       binoffx = binoffx+0;
     }
 
     // The final position in local coordinates
-    double lpX = double( binoffx*pitchx ) + fractionX*local_pitchx + xoffset;
+    double lpX = double( binoffx*PITCHX ) + fractionX*local_PITCHX + xoffset;
 
     return lpX;
   }
@@ -269,85 +269,85 @@ namespace fireworks {
 
   double
   pixelLocalY( const double mpy, const int ncols ) {
-    double yoffset = -(ncols + BIG_PIX_PER_ROC_Y*ncols/COLS_PER_ROC)/2. * pitchy;
+    double yoffset = -(ncols + BIG_PIX_PER_ROC_Y*ncols/COLS_PER_ROC)/2. * PITCHY;
 
     int binoffy = int(mpy);             // truncate to int
     double fractionY = mpy - binoffy;   // find the fraction
-    double local_pitchy = pitchy;       // defaultpitch
+    double local_PITCHY = PITCHY;       // defaultpitch
 
     if( binoffy>416 ) {                 // ROC 8, not real ROC
       binoffy = binoffy+17;
     } else if( binoffy == 416 ) {       // ROC 8
       binoffy = binoffy+16;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy == 415 ) {       // ROC 7, last big pixel
       binoffy = binoffy+15;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy > 364 ) {        // ROC 7
       binoffy = binoffy+15;
     } else if( binoffy == 364 ) {       // ROC 7
       binoffy = binoffy+14;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy == 363 ) {       // ROC 6
       binoffy = binoffy+13;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy>312 ) {          // ROC 6
       binoffy = binoffy+13;
     } else if( binoffy == 312 ) {       // ROC 6
       binoffy = binoffy+12;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy == 311 ) {       // ROC 5
       binoffy = binoffy+11;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy > 260 ) {        // ROC 5
       binoffy = binoffy+11;
     } else if( binoffy == 260 ) {       // ROC 5
       binoffy = binoffy+10;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy == 259 ) {       // ROC 4
       binoffy = binoffy+9;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy > 208 ) {        // ROC 4
       binoffy = binoffy+9;
     } else if(binoffy == 208 ) {        // ROC 4
       binoffy = binoffy+8;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy == 207 ) {       // ROC 3
       binoffy = binoffy+7;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy > 156 ) {        // ROC 3
       binoffy = binoffy+7;
     } else if( binoffy == 156 ) {       // ROC 3
       binoffy = binoffy+6;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy == 155 ) {       // ROC 2
       binoffy = binoffy+5;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy > 104 ) {        // ROC 2
       binoffy = binoffy+5;
     } else if( binoffy == 104 ) {       // ROC 2
       binoffy = binoffy+4;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy == 103 ) {       // ROC 1
       binoffy = binoffy+3;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy > 52 ) {         // ROC 1
       binoffy = binoffy+3;
     } else if( binoffy == 52 ) {        // ROC 1
       binoffy = binoffy+2;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy == 51 ) {        // ROC 0
       binoffy = binoffy+1;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     } else if( binoffy > 0 ) {          // ROC 0
       binoffy=binoffy+1;
     } else if( binoffy == 0 ) {         // ROC 0
       binoffy = binoffy+0;
-      local_pitchy = 2 * pitchy;
+      local_PITCHY = 2 * PITCHY;
     }
 
     // The final position in local coordinates
-    double lpY = double( binoffy*pitchy ) + fractionY*local_pitchy + yoffset;
+    double lpY = double( binoffy*PITCHY ) + fractionY*local_PITCHY + yoffset;
 
     return lpY;
   }
@@ -1745,45 +1745,4 @@ namespace fireworks {
       }
       return text;
    }   
-
-   void
-   addSegment(const RecSegment& segment, const TGeoHMatrix* matrix, TEveStraightLineSet& oSegmentSet)
-   {
-      const double segmentLength = 15;
-
-      Double_t localSegmentInnerPoint[3];
-      Double_t localSegmentCenterPoint[3];
-      Double_t localSegmentOuterPoint[3];
-      Double_t globalSegmentInnerPoint[3];
-      Double_t globalSegmentCenterPoint[3];
-      Double_t globalSegmentOuterPoint[3];
-
-      localSegmentOuterPoint[0] = segment.localPosition().x() + segmentLength*segment.localDirection().x();
-      localSegmentOuterPoint[1] = segment.localPosition().y() + segmentLength*segment.localDirection().y();
-      localSegmentOuterPoint[2] = segmentLength*segment.localDirection().z();
-
-      localSegmentCenterPoint[0] = segment.localPosition().x();
-      localSegmentCenterPoint[1] = segment.localPosition().y();
-      localSegmentCenterPoint[2] = 0;
-
-      localSegmentInnerPoint[0] = segment.localPosition().x() - segmentLength*segment.localDirection().x();
-      localSegmentInnerPoint[1] = segment.localPosition().y() - segmentLength*segment.localDirection().y();
-      localSegmentInnerPoint[2] = -segmentLength*segment.localDirection().z();
-
-      matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
-      matrix->LocalToMaster( localSegmentCenterPoint, globalSegmentCenterPoint );
-      matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
-
-      if( globalSegmentInnerPoint[1] *globalSegmentOuterPoint[1] > 0 ) {
-	 oSegmentSet.AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-			      globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
-      } else {
-	if( fabs(globalSegmentInnerPoint[1]) > fabs(globalSegmentOuterPoint[1]) )
-	   oSegmentSet.AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-				globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2] );
-	else
-	   oSegmentSet.AddLine( globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2],
-				globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
-      }
-   }
 }

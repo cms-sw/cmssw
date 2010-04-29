@@ -2,9 +2,9 @@
 #define Fireworks_Tracks_TrackUtils_h
 // -*- C++ -*-
 //
-// Package:     Core
+// Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.13 2010/04/14 11:52:46 yana Exp $
+// $Id: TrackUtils.h,v 1.14 2010/04/16 09:39:05 yana Exp $
 //
 
 // system include files
@@ -99,8 +99,6 @@ namespace fireworks {
    std::string info( const DetId& );
    std::string info( const std::set<DetId>& );
    std::string info( const std::vector<DetId>& );
-
-   void addSegment(const RecSegment& segment, const TGeoHMatrix* matrix, TEveStraightLineSet& oSegmentSet);
 }
 
 #endif // Fireworks_Tracks_TrackUtils_h
