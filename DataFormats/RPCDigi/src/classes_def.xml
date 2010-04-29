@@ -15,4 +15,7 @@
 <class name="edm::Wrapper< std::pair<LinkBoardElectronicIndex,int> >"/>
 <class name="std::vector< std::pair<LinkBoardElectronicIndex, int> >"/> 
 <class name="edm::Wrapper< std::vector< std::pair<LinkBoardElectronicIndex, int> > >"/> 
+ <class name="RPCDigiL1Link"/>
+ <class name="std::vector<RPCDigiL1Link>"/>
+ <class name="edm::Wrapper< std::vector<RPCDigiL1Link > >"/>
 </lcgdict>
