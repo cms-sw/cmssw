@@ -23,9 +23,9 @@ process.source = cms.Source (
        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW360pre6/aod_QCDForPF_Fast_9.root',
        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW360pre6/aod_QCDForPF_Fast_10.root'
      # Full
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW360pre6/aod_QCDForPF_Full_001.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW360pre6/aod_QCDForPF_Full_002.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW360pre6/aod_QCDForPF_Full_003.root'
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW360pre6/aod_QCDForPF_Full_0.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW360pre6/aod_QCDForPF_Full_1.root', 
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW360pre6/aod_QCDForPF_Full_2.root',
        ),
     secondaryFileNames = cms.untracked.vstring(),
     noEventSort = cms.untracked.bool(True),
@@ -44,7 +44,8 @@ process.load("RecoJets.Configuration.RecoPFJets_cff")
 process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-process.iterativeCone5PFJets.inputEtMin = 0.0
+#process.iterativeCone5PFJets.inputEtMin = 0.0
+process.ak5PFJets.inputEtMin = 0.0
 
 # should do a cloning
 process.genParticlesForJets.ignoreParticleIDs.append(14)
@@ -63,11 +64,14 @@ process.genParticlesForJets.excludeResonances = False
 
 
 process.pfJetBenchmark.OutputFile = cms.untracked.string('JetBenchmark_Full_360pre6.root')
-
+process.pfJetBenchmark.deltaRMax = 0.1
+process.pfJetBenchmark.OnltTwoJets = cms.bool(True)
+process.pfJetBenchmark.InputTruthLabel = cms.InputTag('ak5GenJets')
 process.p =cms.Path(
     process.genJetParticles+
-    process.iterativeCone5GenJets+
-    #process.iterativeCone5PFJets+
+    process.ak5GenJets+
+    #process.iterativeCone5GenJets+
+    #process.ak5PFJets+
     process.pfJetBenchmark
     )
 
