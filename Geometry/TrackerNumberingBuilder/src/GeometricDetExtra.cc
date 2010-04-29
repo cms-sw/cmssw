@@ -14,10 +14,9 @@
 /**
  * Constructors to be used when looping over DDD
  */
-GeometricDetExtra::GeometricDetExtra( GeometricDet const * gd, DetId id, GeoHistory& gh,  double vol, double dens, double wgt, double cpy, std::string& mat, bool dd )
-  : _mygd(gd), _geographicalId(id), _parents(gh), _volume(vol), _density(dens), _weight(wgt), _copy(cpy), _material(mat), _fromDD(dd) 
+GeometricDetExtra::GeometricDetExtra( GeometricDet const * gd, DetId id, GeoHistory& gh,  double vol, double dens, double wgt, double cpy, const std::string& mat, const std::string& name, bool dd )
+  : _mygd(gd), _geographicalId(id), _parents(gh), _volume(vol), _density(dens), _weight(wgt), _copy(cpy), _material(mat), _fromDD(dd) , _name(name)
 { 
-  //  std::cout << " made _mygd = " << _mygd << " to the geographicalId() " << _geographicalId << std::endl;
 
 }
 

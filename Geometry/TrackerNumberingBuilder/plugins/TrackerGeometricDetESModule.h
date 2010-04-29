@@ -1,7 +1,6 @@
 #ifndef Geometry_TrackerNumberingBuilder_TrackerGeometricDetESModule_H
 #define Geometry_TrackerNumberingBuilder_TrackerGeometricDetESModule_H
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,7 +23,7 @@ class  TrackerGeometricDetESModule: public edm::ESProducer,
                                edm::ValidityInterval& ) ;
 
  private:
-  void putOne(const DDCompactView& cpv, std::vector<GeometricDetExtra> & gde, const GeometricDet* gd, const DDExpandedView& ev, int lev );
+  void putOne(std::vector<GeometricDetExtra> & gde, const GeometricDet* gd, const DDExpandedView& ev, int lev );
 
   bool fromDDD_;
   // try without this first.  std::vector<GeometricDetExtra> gdv_;

@@ -182,9 +182,6 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) :
   _fromDD(true)
 #endif
 {
-  if (fv->logicalPart().name().name() == "Tracker") {
-    std::cout << "vol " << ((fv->logicalPart()).solid()).volume() << " dens " << ((fv->logicalPart()).material()).density() << std::endl;
-  }
   //std::cout << "GeometricDet3" << std::endl;
   //  workaround instead of this at initialization _ddd(fv->navPos().begin(),fv->navPos().end()),
   const DDFilteredView::nav_type& nt = fv->navPos();

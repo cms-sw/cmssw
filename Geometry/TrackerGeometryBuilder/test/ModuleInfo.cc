@@ -10,7 +10,7 @@
 //
 // Original Author:  Riccardo Ranieri
 //         Created:  Wed May 3 10:30:00 CEST 2006
-//
+//     Modified by:  Michael Case, April 2010.
 //
 
 // system include files
@@ -217,8 +217,9 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     for (; gdei != gdeEnd; ++gdei) {
       if (gdei->geographicalId() == modules[i]->geographicalId()) break;
     }
+
     if (gdei == gdeEnd) throw ("THERE IS NO MATCHING DetId in the GeometricDetExtra"); //THIS never happens!
-    if (gdei != gdeEnd) std::cout << "MATCHED " << modules[i]->geographicalID().rawId() << " in gdes." << std::endl;
+
     GeometricDet::NavRange detPos = modules[i]->navpos();
     Output << std::fixed << std::setprecision(6); // set as default 6 decimal digits
     std::bitset<32> binary_rawid(rawid);
@@ -233,10 +234,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     double weight = gdei->weight() / density_units / 1000.; // [kg], hence the factor 1000;
     double thickness = modules[i]->bounds()->thickness() * 10000; // cm-->um
     double activeSurface = volume / ( thickness / 10000 ); // cm2 (thickness in um)
-    if (modules[i]->name().name() == "PixelBarrelActiveFull") {
-      std::cout << "vol " << gdei->volume() << " dens " << gdei->density() << std::endl;
-      std::cout << "vol " << volume << " dens " << density << std::endl;
-    }
+
     volume_total+=volume;
     weight_total+=weight;
     activeSurface_total+=activeSurface;
@@ -260,16 +258,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " PXB" << "\t" << "Layer " << theLayer << " Ladder " << theLadder
 	       << "\t" << " module " << theModule << " " << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
-	  // 3rd from last of parent is what he wants printed.  Question is, why that one?
-	  //	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name() << std::endl;
-	  Output << "son of ";
-	  GeometricDet::GeoHistory::const_iterator pit ( gdei->parents().begin() );
-	  GeometricDet::GeoHistory::const_iterator pitEnd ( gdei->parents().end() );
-	  Output << "/";
-	  for (; pit != pitEnd; ++pit) {
-	    Output << "/" << pit->logicalPart().name();
-	  }
-	  Output << "\t";
+	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name() << std::endl;
 	} else {
 	  Output << " NO DDD Hierarchy available " << std::endl;
 	}
