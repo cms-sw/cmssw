@@ -149,8 +149,8 @@ namespace lumi{
     Queryalgo->addToOutputList("LUMISEGMENTNR","lsnr");
     Queryalgo->addToOutputList("BIT","algobit");
     Queryalgo->setCondition("RUNNUMBER =:runnumber",bindVariableList);
-    Queryalgo->addToOrderList("lsnr");
-    Queryalgo->addToOrderList("algobit");
+    Queryalgo->addToOrderList("LUMISEGMENTNR");
+    Queryalgo->addToOrderList("BIT");
     Queryalgo->defineOutput(qalgoOutput);
     coral::ICursor& c=Queryalgo->execute();
     
@@ -173,9 +173,12 @@ namespace lumi{
       throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for algocounts"),"retrieveData","TRGWBM2DB");
     }
     delete Queryalgo;
+    transaction.commit();
+    //std::cout<<"read algo counts"<<std::endl;
     //
     //select LUMISEGMENTNR,GTTECHCOUNTS,BIT from cms_wbm.LEVEL1_TRIGGER_TECH_CONDITIONS where RUNNUMBER=133881 order by LUMISEGMENTNR,BIT;
     //
+    transaction.start(true);
     coral::IQuery* Querytech=wbmschemaHandle.newQuery();
     Querytech->addToTableList(techname);
     coral::AttributeList qtechOutput;
@@ -185,9 +188,9 @@ namespace lumi{
     Querytech->addToOutputList("GTTECHCOUNTS","counts");
     Querytech->addToOutputList("LUMISEGMENTNR","lsnr");
     Querytech->addToOutputList("BIT","techbit");
-    Querytech->setCondition("RUNNUMBER =:runnumber",bindVariableList);
-    Querytech->addToOrderList("lsnr");
-    Querytech->addToOrderList("techbit");
+    Querytech->setCondition("RUNNUMBER=:runnumber",bindVariableList);
+    Querytech->addToOrderList("LUMISEGMENTNR");
+    Querytech->addToOrderList("BIT");
     Querytech->defineOutput(qtechOutput);
     coral::ICursor& techcursor=Querytech->execute();
     
@@ -212,10 +215,12 @@ namespace lumi{
       throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for techcounts"),"retrieveData","TRGWBM2DB");
     }
     delete Querytech;
-
+    transaction.commit();
+    //std::cout<<"read tech counts"<<std::endl;
     //
     //select LUMISEGMENTNR,DEADTIMEBEAMACTIVE from cms_wbm.LEVEL1_TRIGGER_CONDITIONS where RUNNUMBER=133881 order by LUMISEGMENTNR;
     //
+    transaction.start(true);
     coral::IQuery* Querydead=wbmschemaHandle.newQuery();
     Querydead->addToTableList(deadname);
     coral::AttributeList qdeadOutput;
@@ -226,8 +231,8 @@ namespace lumi{
     coral::AttributeList bindVariablesDead;
     bindVariablesDead.extend("runnumber",typeid(int));
     bindVariablesDead["runnumber"].data<int>()=runnumber;
-    Querydead->setCondition("LUMISEGMENTNR =:runnumber",bindVariablesDead);
-    Querydead->addToOrderList("lsnr");
+    Querydead->setCondition("RUNNUMBER=:runnumber",bindVariablesDead);
+    Querydead->addToOrderList("LUMISEGMENTNR");
     Querydead->defineOutput(qdeadOutput);
     coral::ICursor& deadcursor=Querydead->execute();
     s=0;
@@ -248,10 +253,13 @@ namespace lumi{
     }
     //transaction.commit();
     delete Querydead;
+    transaction.commit();
+    //std::cout<<"read dead counts"<<std::endl;
     /**
        Part II
        query tables in schema cms_gt
     **/
+    transaction.start(true);
     coral::ISchema& gtschemaHandle=trgsession->schema(gtschema);
     if(!gtschemaHandle.existsView(runtechviewname)){
       throw lumi::Exception(std::string("non-existing view ")+runtechviewname,"str2int","TRGWBM2DB");
@@ -288,9 +296,13 @@ namespace lumi{
       triggernamemap.insert(std::make_pair(algo_index,algo_name));
     }
     delete QueryName;
+    //std::cout<<"read alias"<<std::endl;
+    transaction.commit();
+    
     //
     //select techtrig_index,name from cms_gt.gt_run_tech_view where runnumber=:runnumber order by techtrig_index;
     //
+    transaction.start(true);
     std::map<unsigned int,std::string> techtriggernamemap;
     coral::IQuery* QueryTechName=gtschemaHandle.newQuery();
     QueryTechName->addToTableList(runtechviewname);
@@ -311,9 +323,11 @@ namespace lumi{
       techtriggernamemap.insert(std::make_pair(tech_index,tech_name));
     }
     delete QueryTechName;
+    transaction.commit();
     //
     //select prescale_factor_algo_000,prescale_factor_algo_001..._127 from cms_gt.gt_run_presc_algo_view where runr=:runnumber and prescale_index=0;
     //    
+    transaction.start(true);
     coral::IQuery* QueryAlgoPresc=gtschemaHandle.newQuery();
     QueryAlgoPresc->addToTableList(runprescalgoviewname);
     coral::AttributeList qAlgoPrescOutput;
@@ -343,9 +357,12 @@ namespace lumi{
       }
     }
     delete QueryAlgoPresc;
+    transaction.commit();
+
     //
     //select prescale_factor_tt_000,prescale_factor_tt_001..._63 from cms_gt.gt_run_presc_tech_view where runr=:runnumber and prescale_index=0;
     //    
+    transaction.start(true);
     coral::IQuery* QueryTechPresc=gtschemaHandle.newQuery();
     QueryTechPresc->addToTableList(runpresctechviewname);
     coral::AttributeList qTechPrescOutput;
@@ -376,7 +393,10 @@ namespace lumi{
     }
     delete QueryTechPresc;
     transaction.commit();
+    transaction.commit();
+    //std::cout<<"tech prescale ok"<<std::endl;
     delete trgsession;
+
     //
     //reprocess Algo name result filling unallocated trigger bit with string "False"
     //
@@ -414,7 +434,14 @@ namespace lumi{
     //write data into lumi db
     //
     coral::ISessionProxy* lumisession=svc->connect(m_dest,coral::Update);
+    coral::ITypeConverter& lumitpc=lumisession->typeConverter();
+    lumitpc.setCppTypeForSqlType("unsigned int","NUMBER(7)");
+    lumitpc.setCppTypeForSqlType("unsigned int","NUMBER(10)");
+    lumitpc.setCppTypeForSqlType("unsigned long long","NUMBER(20)");
+    
     unsigned int totalcmsls=deadtimeresult.size();
+    std::cout<<"inserting totalcmsls "<<totalcmsls<<std::endl;
+    unsigned int tot=0;
     try{
       lumisession->transaction().start(false);
       coral::ISchema& schema=lumisession->nominalSchema();
@@ -429,7 +456,8 @@ namespace lumi{
       trgData.extend<unsigned int>("TRGCOUNT");
       trgData.extend<unsigned long long>("DEADTIME");
       trgData.extend<unsigned int>("PRESCALE");
-      coral::IBulkOperation* trgInserter=trgtable.dataEditor().bulkInsert(trgData,totalcmsls*192);
+      coral::IBulkOperation* trgInserter=trgtable.dataEditor().bulkInsert(trgData,2048);
+      //coral::ITableDataEditor* trgInserter=trgtable.dataEditor();
       //loop over lumi LS
       
       unsigned long long& trg_id=trgData["TRG_ID"].data<unsigned long long>();
@@ -446,6 +474,7 @@ namespace lumi{
       TriggerDeadCountResult::const_iterator deadBeg=deadtimeresult.begin();
       TriggerDeadCountResult::const_iterator deadEnd=deadtimeresult.end();
       unsigned int trglscount=0;      
+
       for(deadIt=deadBeg;deadIt!=deadEnd;++deadIt,++trglscount ){
 	unsigned int cmslscount=trglscount+1;
 	BITCOUNT& algoinbits=algocount[trglscount];
@@ -463,7 +492,21 @@ namespace lumi{
 	  bitname=algonames[trgbitcount];
 	  count=*algoBitIt;
 	  prescale=algoprescale[trgbitcount];
+
+	  //coral::AttributeList rowbuf;
+	  //trgtable.dataEditor().rowBuffer(rowbuf);
+	  //rowbuf["TRG_ID"].data<unsigned long long>()=idg.generateNextIDForTable(LumiNames::trgTableName());
+	  //rowbuf["RUNNUM"].data<unsigned int>()=runnumber;
+	  //rowbuf["CMSLSNUM"].data<unsigned int>()=cmslscount;
+	  //rowbuf["BITNUM"].data<unsigned int>()=trgbitcount;
+	  //rowbuf["BITNAME"].data<std::string>()=algonames[trgbitcount];
+	  //rowbuf["TRGCOUNT"].data<unsigned int>()=*algoBitIt;
+	  //rowbuf["DEADTIME"].data<unsigned long long>()=*deadIt;
+	  //rowbuf["PRESCALE"].data<unsigned int>()=algoprescale[trgbitcount];
+	  //trgtable.dataEditor().insertRow(rowbuf);
 	  trgInserter->processNextIteration();	
+	  ++tot;
+	  //std::cout<<"tot "<<tot<<std::endl;
 	}
 	BITCOUNT::const_iterator techBitIt;
 	BITCOUNT::const_iterator techBitBeg=techinbits.begin();
@@ -478,6 +521,22 @@ namespace lumi{
 	  count=*techBitIt;
 	  prescale=techprescale[trgbitcount-lumi::N_TRGALGOBIT];
 	  trgInserter->processNextIteration();	
+	  //coral::AttributeList rowbuf;
+	  //trgtable.dataEditor().rowBuffer(rowbuf);
+	  //rowbuf["TRG_ID"].data<unsigned long long>()=idg.generateNextIDForTable(LumiNames::trgTableName());
+	  //rowbuf["RUNNUM"].data<unsigned int>()=runnumber;
+	  //rowbuf["CMSLSNUM"].data<unsigned int>()=cmslscount;
+	  //rowbuf["BITNUM"].data<unsigned int>()=trgbitcount;
+	  //rowbuf["BITNAME"].data<std::string>()=technames[trgbitcount-lumi::N_TRGALGOBIT];
+	  //rowbuf["TRGCOUNT"].data<unsigned int>()=*techBitIt;
+	  //rowbuf["DEADTIME"].data<unsigned long long>()=*deadIt;
+	  //rowbuf["PRESCALE"].data<unsigned int>()=techprescale[trgbitcount-lumi::N_TRGALGOBIT];
+	  //trgtable.dataEditor().insertRow(rowbuf);
+	  ++tot;
+	}
+	if(tot==2048){
+	trgInserter->flush();
+	tot=0;
 	}
       }
       trgInserter->flush();
@@ -488,7 +547,7 @@ namespace lumi{
       delete svc;
       throw er;
     }
-    //delete detailInserter;
+    //std::cout<<"about to commit "<<std::endl;
     lumisession->transaction().commit();
     delete lumisession;
     delete svc;

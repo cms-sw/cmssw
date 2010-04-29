@@ -11,6 +11,11 @@
   <use name="RecoLuminosity/LumiProducer"/>
 </bin>
 
+<bin file="loadLumiDB.cpp" name="loadLumiDB">
+  <use name="FWCore/PluginManager"/>
+  <use name="RecoLuminosity/LumiProducer"/>
+</bin>
+
 <bin file="testWriteHLTConf2LumiDB.cpp" name="testWriteHLTConf2LumiDB">
   <use name="FWCore/PluginManager"/>
   <use name="RecoLuminosity/LumiProducer"/>
