@@ -149,13 +149,13 @@ void ZMuMuTrackUserData::produce( Event & evt, const EventSetup & ) {
     tk.addUserFloat("zDau_NofMuonHits" , zDauNofMuonHits ); 
     tk.addUserFloat("zDau_NofStripHits" , zDauNofStripHits ); 
     tk.addUserFloat("zDau_NofPixelHits" , zDauNofPixelHits ); 
-    tk.addUserFloat("zDauNofMuChambers", zDauNofMuChambers);
-    tk.addUserFloat("zDauNofMuMatches", zDauNofMuMatches);
-    tk.addUserFloat("zDauChi2", zDauChi2);
-    tk.addUserFloat("zDauTrkChi2", zDauTrkChi2);
-    tk.addUserFloat("zDauSaChi2", zDauSaChi2);
-    tk.addUserFloat("zDauMuEnergyEm", zDauMuEnergyEm);
-    tk.addUserFloat("zDauMuEnergyHad", zDauMuEnergyHad);
+    tk.addUserFloat("zDau_NofMuChambers", zDauNofMuChambers);
+    tk.addUserFloat("zDau_NofMuMatches", zDauNofMuMatches);
+    tk.addUserFloat("zDau_Chi2", zDauChi2);
+    tk.addUserFloat("zDau_TrkChi2", zDauTrkChi2);
+    tk.addUserFloat("zDau_SaChi2", zDauSaChi2);
+    tk.addUserFloat("zDau_MuEnergyEm", zDauMuEnergyEm);
+    tk.addUserFloat("zDau_MuEnergyHad", zDauMuEnergyHad);
 
 
   }
