@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.14 2010/01/21 08:05:39 querten Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.15 2010/04/07 10:14:22 querten Exp $
 //
 //
 
@@ -403,7 +403,7 @@ double DeDxDiscriminatorProducer::ComputeDiscriminator(std::vector<double>& vect
       for(int i=1;i<=size;i++){
          P += pow(vect_probs[i-1] - ((2.0*i-1.0)/(2.0*size)),2);
       }
-      P *= (1.0/size);
+      P *= (3.0/size);
       estimator = P;
    }else{
       std::sort(vect_probs.begin(), vect_probs.end(), std::less<double>() );
@@ -411,7 +411,7 @@ double DeDxDiscriminatorProducer::ComputeDiscriminator(std::vector<double>& vect
       for(int i=1;i<=size;i++){
          P += vect_probs[i-1] * pow(vect_probs[i-1] - ((2.0*i-1.0)/(2.0*size)),2);
       }
-      P *= (1.0/size);
+      P *= (3.0/size);
       estimator = P;
    }
 
