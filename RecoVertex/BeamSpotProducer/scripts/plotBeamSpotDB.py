@@ -332,10 +332,10 @@ if __name__ == '__main__':
             exit()
 	IOVbase = option.IOVbase
     
-    firstRun = "1"
+    firstRun = "0"
     lastRun  = "4999999999"
     if IOVbase == "lumibase":
-	firstRun = "1:1"
+	firstRun = "0:0"
 	lastRun = "4999999999:4999999999"
     
     if option.initial:
@@ -645,8 +645,8 @@ if __name__ == '__main__':
         ibeam = listbeam[ii]
         datax = ibeam.IOVfirst
         #print str(ii) + "  " +datax
-        if datax == '1' and IOVbase =="runbase":
-            print " iov = 1? skip this IOV = "+ str(ibeam.IOVfirst) + " to " + str(ibeam.IOVlast)
+        if datax == '0' and IOVbase =="runbase":
+            print " iov = 0? skip this IOV = "+ str(ibeam.IOVfirst) + " to " + str(ibeam.IOVlast)
             tmpremovelist.append(ibeam)
         
         if ii < len(listbeam) -1:
@@ -696,7 +696,7 @@ if __name__ == '__main__':
 		print "close payload because end of data has been reached. Run "+ibeam.Run
 		docreate = True
             # check we run over the same run
-	    if ibeam.Run != inextbeam.Run and docreate==False:
+	    if ibeam.Run != inextbeam.Run:
 		print "close payload because end of run "+ibeam.Run
 		docreate = True
 	    # check maximum lumi counts
