@@ -8,7 +8,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = 'MC_31X_V8::All'
+process.GlobalTag.globaltag = 'MC_36Y_V4::All'
 
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 
@@ -20,9 +20,24 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.out = cms.OutputModule("AsciiOutputModule")
 
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.debugModules.append('*')
+process.MessageLogger.categories.append('TrackerGeometryBuilder')
+process.MessageLogger.categories.append('TrackerNumberingBuilder')
+process.MessageLogger.categories.append('ModuleInfo')
+process.MessageLogger.categories.append('CmsTrackerDebugNavigator')
+process.MessageLogger.cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG'),
+            default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+            TrackerNumberingBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+            TrackerGeometryBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+            ModuleInfo = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+            CmsTrackerDebugNavigator =cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+            )
+
 process.prod = cms.EDAnalyzer("ModuleInfo",
     fromDDD = cms.bool(True),
-    printDDD = cms.untracked.bool(False)
+    printDDD = cms.untracked.bool(True)
 )
 
 process.p1 = cms.Path(process.prod)

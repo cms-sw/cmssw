@@ -187,11 +187,14 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   // get the GeometricDet
   //
   edm::ESHandle<GeometricDet> rDD;
+  edm::ESHandle<std::vector<GeometricDetExtra> > rDDE;
   iSetup.get<IdealGeometryRecord>().get( rDD );     
+  iSetup.get<IdealGeometryRecord>().get( rDDE );     
+//   const std::vector<GeometricDetExtra> & rgde = *rDDE;
   edm::LogInfo("ModuleNumbering") << " Top node is  " << &(*rDD) << " " <<  (*rDD).name().name() << std::endl;
   edm::LogInfo("ModuleNumbering") << " And Contains  Daughters: " << (*rDD).deepComponents().size() << std::endl;
-  CmsTrackerDebugNavigator nav;
-  nav.dump(&(*rDD));
+  CmsTrackerDebugNavigator nav(&(*rDDE));
+  nav.dump(&(*rDD), &(*rDDE));
   //
   //first instance tracking geometry
   edm::ESHandle<TrackerGeometry> pDD;
@@ -200,9 +203,16 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   std::vector<const GeometricDet*> modules =  (*rDD).deepComponents();
   std::map< uint32_t , const GeometricDet* > mapDetIdToGeometricDet;
+//   std::map< uint32_t , const GeometricDetExtra* > mapDetIdToGDE;
   
   for(unsigned int i=0; i<modules.size();i++){  
     mapDetIdToGeometricDet[modules[i]->geographicalID().rawId()] = modules[i];
+//     for (unsigned int j=0; j<rDDE->size();++j){
+//       if (rgde[j].geographicalId() == modules[i]->geographicalID().rawId()) {
+// 	mapDetIdToGDE[modules[i]->geographicalID().rawId()] = &(rgde[j]);
+// 	break;
+//       }
+//     }
   }
   
   // Debug variables
