@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.11 2010/04/16 13:58:35 amraktad Exp $
+// $Id: Context.cc,v 1.12 2010/04/20 08:41:44 amraktad Exp $
 //
 
 // system include files
@@ -53,6 +53,15 @@ Context::Context(FWModelChangeManager* iCM,
    m_magField(0),
    m_caloData(0)
 {
+}
+
+Context::~Context()
+{
+}
+
+void
+Context::initEveElements()
+{
    m_magField = new FWMagField();
 
    m_propagator = new TEveTrackPropagator();
@@ -66,23 +75,20 @@ Context::Context(FWModelChangeManager* iCM,
    m_caloData = new TEveCaloDataHist();
    m_caloData->IncDenyDestroy();
 
-   // for (int i= 0; i < 3; ++i)
-   {
-      Bool_t status = TH1::AddDirectoryStatus();
-      TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
-      TH2F* dummy = new TH2F("background",
-                             "background",
-                             82, fw3dlego::xbins,
-                             72, -1*TMath::Pi(), TMath::Pi());
+   Bool_t status = TH1::AddDirectoryStatus();
+   TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
+   TH2F* dummy = new TH2F("background",
+                          "background",
+                          82, fw3dlego::xbins,
+                          72, -1*TMath::Pi(), TMath::Pi());
 
-      TH1::AddDirectory(status);
-      Int_t sliceIndex = m_caloData->AddHistogram(dummy);
-      (m_caloData)->RefSliceInfo(sliceIndex).Setup("background", 0., 0);
-   }
+   TH1::AddDirectory(status);
+   Int_t sliceIndex = m_caloData->AddHistogram(dummy);
+   (m_caloData)->RefSliceInfo(sliceIndex).Setup("background", 0., 0);
 }
 
-
-Context::~Context()
+void
+Context::deleteEveElements()
 {
    m_propagator->DecDenyDestroy();
    m_caloData->DecDenyDestroy();

@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.199 2010/04/28 11:33:49 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.200 2010/04/28 14:08:12 eulisse Exp $
 
 //
 
@@ -146,15 +146,10 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
 
    m_colorManager->colorsHaveChangedFinished_.connect(boost::bind(&FWGUIManager::finishUpColorChange,this));
 
-   // These are only needed temporarilty to work around a problem which
-   // Matevz has patched in a later version of the code
-   TApplication::NeedGraphicsLibs();
-   gApplication->InitializeGraphics();
-
+  
    TEveCompositeFrame::IconBarCreator_foo foo =  &FWGUIManager::makeGUIsubview;
    TEveCompositeFrame::SetupFrameMarkup(foo, 20, 4, false);
 
-   TEveManager::Create(kFALSE, "FIV");
    {
       //NOTE: by making sure we defaultly open to a fraction of the full screen size we avoid
       // causing the program to go into full screen mode under default SL4 window manager

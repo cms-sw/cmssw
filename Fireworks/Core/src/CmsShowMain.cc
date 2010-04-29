@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.156 2010/04/28 14:08:11 eulisse Exp $
+// $Id: CmsShowMain.cc,v 1.157 2010/04/28 16:51:55 eulisse Exp $
 //
 
 // system include files
@@ -28,14 +28,9 @@
 #include "TGFileDialog.h"
 #include "TMonitor.h"
 #include "TServerSocket.h"
-
+#include "TEveLine.h"
 #include "TEveManager.h"
-#include "TEveBrowser.h"
-#include "TEveTrackProjected.h"
-#include "TEveSelection.h"
 
-//needed to work around a bug
-//#include "TApplication.h"
 
 #include "Fireworks/Core/src/CmsShowMain.h"
 
@@ -146,7 +141,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       std::cerr <<"Insufficient GL support. " << iException.what() << std::endl;
       throw;
    } 
-   
+
    m_eiManager->setContext(m_context.get());
    
    try {
@@ -256,6 +251,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       //Delay creating guiManager and enabling autoloading until here so that if we have a 'help' request we don't
       // open any graphics or build dictionaries
       AutoLibraryLoader::enable();
+       
+      TEveManager::Create(kFALSE, "FIV");
+
+      m_context->initEveElements();
 
       m_guiManager = std::auto_ptr<FWGUIManager>(new FWGUIManager(m_selectionManager.get(),
                                                                   m_eiManager.get(),
@@ -342,7 +341,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       if(vm.count(kAutoSaveAllViews)) {
          m_autoSaveAllViewsFormat  = vm[kAutoSaveAllViews].as<std::string>();
          m_autoSaveAllViewsFormat += "%d_%d_%d_%s.png";
-       }
+      }
       m_startupTasks->startDoingTasks();
    } catch(std::exception& iException) {
       std::cerr <<"CmsShowMain caught exception "<<iException.what()<<std::endl;
@@ -389,8 +388,10 @@ void CmsShowMain::quit()
 
 void CmsShowMain::doExit()
 {
-   // fflush(stdout);
+   // pre terminate eve
+   m_context->deleteEveElements();
    m_guiManager->evePreTerminate();
+
    // sleep at least 150 ms
    // windows in ROOT GUI are destroyed in 150 ms timeout after
    gSystem->Sleep(151);
@@ -398,7 +399,6 @@ void CmsShowMain::doExit()
 
    gSystem->ExitLoop();
 }
-
 
 //
 // assignment operators

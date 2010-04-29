@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.44 2010/03/25 14:57:22 matevz Exp $
+// $Id: CmsShowMain.h,v 1.45 2010/04/27 13:36:33 amraktad Exp $
 //
 
 // system include files
@@ -133,7 +133,6 @@ private:
    void startAutoLoadTimer();
    void stopAutoLoadTimer();
    void setupAutoLoad(float);
-
 
    // ---------- member data --------------------------------
    std::auto_ptr<FWConfigurationManager> m_configurationManager;

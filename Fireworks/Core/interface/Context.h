@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id: Context.h,v 1.9 2010/04/16 10:46:59 amraktad Exp $
+// $Id: Context.h,v 1.10 2010/04/16 13:58:34 amraktad Exp $
 //
 
 // system include files
@@ -76,6 +76,9 @@ public:
    static const float s_ecalR;
    static const float s_ecalZ;
    static const float s_transitionAngle;
+
+  void initEveElements();
+  void deleteEveElements();
 
 private:
    Context(const Context&); // stop default
