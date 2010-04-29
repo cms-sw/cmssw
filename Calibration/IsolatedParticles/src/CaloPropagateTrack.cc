@@ -2,12 +2,72 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
+#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 
 #include <iostream>
 
 namespace spr{
+
+  std::vector<spr::propagatedTrackID> propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, bool debug) {
+
+    std::vector<spr::propagatedTrackID> vdets;
+    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
+    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
+    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+    reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
+
+    unsigned indx;
+    reco::TrackCollection::const_iterator trkItr;
+    for (trkItr = trkCollection->begin(),indx=0; trkItr != trkCollection->end(); ++trkItr,indx++) {
+      const reco::Track* pTrack = &(*trkItr);
+      propagatedTrackID vdet;
+      vdet.trkItr = trkItr;
+      vdet.ok     = (pTrack->quality(trackQuality_));
+      vdet.detIdECAL = DetId(0);
+      vdet.detIdHCAL = DetId(0);
+      if (debug) std::cout << "Propagate track " << indx << " p " << trkItr->p() << " eta " << trkItr->eta() << " phi " << trkItr->phi() << " Flag " << vdet.ok << std::endl;
+
+      std::pair<math::XYZPoint,bool> info = spr::propagateECAL (pTrack, bField, debug);
+      vdet.okECAL = info.second;
+      if (vdet.okECAL) {
+	const GlobalPoint point(info.first.x(),info.first.y(),info.first.z());
+	if (std::abs(point.eta())<1.479) {
+	  vdet.detIdECAL = barrelGeom->getClosestCell(point);
+	} else {
+	  vdet.detIdECAL = endcapGeom->getClosestCell(point);
+	}
+      }
+      info = spr::propagateHCAL (pTrack, bField, debug);
+      vdet.okHCAL = info.second;
+      if (vdet.okHCAL) {
+	const GlobalPoint point(info.first.x(),info.first.y(),info.first.z());
+	vdet.detIdHCAL = gHB->getClosestCell(point);
+      }
+
+      vdets.push_back(vdet);
+    }
+    
+    if (debug) {
+      std::cout << "propagateCALO:: for " << vdets.size() << " tracks" << std::endl;
+      for (unsigned int i=0; i<vdets.size(); ++i) {
+	std::cout << "Track [" << i << "] Flag: " << vdets[i].ok << " ECAL (" << vdets[i].okECAL << ") ";
+	if (vdets[i].detIdECAL.subdetId() == EcalBarrel) {
+	  std::cout << (EBDetId)(vdets[i].detIdECAL);
+	} else {
+	  std::cout << (EEDetId)(vdets[i].detIdHCAL); 
+	}
+	std::cout << " HCAL (" << vdets[i].okHCAL << ") " << (HcalDetId)(vdets[i].detIdHCAL) << std::endl;
+      }
+    }
+    return vdets;
+  }
 
   propagatedTrack propagateTrackToECAL(const reco::Track *track, const MagneticField* bfield, bool debug) {
     GlobalPoint  vertex (track->vx(), track->vy(), track->vz());

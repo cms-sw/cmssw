@@ -21,6 +21,7 @@
 
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 #include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
+#include "Calibration/IsolatedParticles/interface/eHCALMatrixExtra.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -361,9 +362,9 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* geo = pG.product();
-  const CaloSubdetectorGeometry* gEB = geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-  const CaloSubdetectorGeometry* gEE = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
-  const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+  //const CaloSubdetectorGeometry* gEB = geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+  //const CaloSubdetectorGeometry* gEE = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+  //const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
   
   edm::ESHandle<CaloTopology> theCaloTopology;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology); 
@@ -420,10 +421,25 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     bool   trkQuality  = pTrack->quality(trackQuality_);
     if( !trkQuality ) ifGood[nTracks]=0;
   }
+
+  // get the list of DetIds closest to the impact point of track on surface calorimeters
+  std::vector<spr::propagatedTrackID> trkCaloDets = spr::propagateCALO(trkCollection, geo, bField, theTrackQuality, false);
+  std::vector<spr::propagatedTrackID>::const_iterator trkDetItr;
+
+  if(myverbose_>2) {
+    for(trkDetItr = trkCaloDets.begin(); trkDetItr != trkCaloDets.end(); trkDetItr++){
+      std::cout<<trkDetItr->trkItr->p()<<" "<<trkDetItr->trkItr->eta()<<" "<<trkDetItr->okECAL<<" ";
+      if(trkDetItr->detIdECAL.subdetId() == EcalBarrel) std::cout << (EBDetId)trkDetItr->detIdECAL <<" ";
+      else                                              std::cout << (EEDetId)trkDetItr->detIdECAL <<" ";
+      std::cout<<trkDetItr->okHCAL<<" ";
+      if(trkDetItr->okHCAL) std::cout<<(HcalDetId)trkDetItr->detIdHCAL;
+      std::cout << std::endl;
+    }
+  }
+
+  for(trkDetItr = trkCaloDets.begin(),nTracks=0; trkDetItr != trkCaloDets.end(); trkDetItr++,nTracks++){
     
-  for( trkItr = trkCollection->begin(),nTracks=0; trkItr != trkCollection->end(); ++trkItr, nTracks++){
-    
-    const reco::Track* pTrack = &(*trkItr);
+    const reco::Track* pTrack = &(*(trkDetItr->trkItr));
     
     const reco::HitPattern& hitp = pTrack->hitPattern();
     int nLayersCrossed = hitp.trackerLayersWithMeasurement() ;        
@@ -459,7 +475,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       h_recPhi_1  ->Fill(phi1);
     }
     
-    //========== check the charge isolation by propagating tracks to ecal surface ======
     if( ! ifGood[nTracks] ) continue;
 
     t_trackPAll             ->push_back( p1 );
@@ -471,57 +486,21 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       if( matchedSimTrkAll != SimTk->end())     t_trackPdgIdAll->push_back( matchedSimTrkAll->type() );
       //std::cout <<"Any Good Track : Sim " << matchedSimTrkAll->type()  << " " << matchedSimTrkAll->momentum().P() << std::endl;
     }
-    // find the impact point on ecal surface
-    const FreeTrajectoryState fts1  = trackAssociator_->getFreeTrajectoryState(iSetup, *pTrack);
-    TrackDetMatchInfo         info1 = trackAssociator_->associate(iEvent, iSetup, fts1, parameters_);
-    const GlobalPoint point1(info1.trkGlobPosAtEcal.x(),info1.trkGlobPosAtEcal.y(),info1.trkGlobPosAtEcal.z());
-    //std::cout << "Ecal point1 " << point1 << std::endl;
-
-    const GlobalPoint pointHH(info1.trkGlobPosAtHcal.x(),info1.trkGlobPosAtHcal.y(),info1.trkGlobPosAtHcal.z());
     
-    /*
-      double rad1 = sqrt( info1.trkGlobPosAtEcal.x()*info1.trkGlobPosAtEcal.x() + info1.trkGlobPosAtEcal.y()*info1.trkGlobPosAtEcal.y());
-      double rad2 = sqrt( info1.trkGlobPosAtHcal.x()*info1.trkGlobPosAtHcal.x() + info1.trkGlobPosAtHcal.y()*info1.trkGlobPosAtHcal.y());
-      std::cout<<"Track (pt,eta,phi) "<< pt1 << " " << eta1 << " " << phi1 << "ecal eta "<<point1.eta()<< " Radius " << rad1 << " z "<< info1.trkGlobPosAtEcal.z() << "  info1.isGoodEcal "<< info1.isGoodEcal <<"\n"<<" hcal eta " << pointHH.eta() << " Radius " << rad2 << " z " << info1.trkGlobPosAtHcal.z() << " isGoodHcal " << info1.isGoodHcal << std::endl;
-    */
-
-    
-    //====== second propagator
-    std::pair<math::XYZPoint,bool> point2_EC = spr::propagateECAL( pTrack, bField);
-    std::pair<math::XYZPoint,bool> point2_HC = spr::propagateHCAL( pTrack, bField);
-    const GlobalPoint point2(point2_EC.first.x(),  point2_EC.first.y(), point2_EC.first.z());
-
-    //if( p1>minTrackP_ && std::abs(eta1)<maxTrackEta_ && info1.isGoodEcal && point2_EC.second) { 
-    if( p1>minTrackP_ && std::abs(eta1)<maxTrackEta_ && point2_EC.second) { 
+    if( p1>minTrackP_ && std::abs(eta1)<maxTrackEta_ && trkDetItr->okECAL) { 
       
       double maxNearP31x31=999.0, maxNearP25x25=999.0, maxNearP21x21=999.0, maxNearP15x15=999.0;
       double maxNearP13x13=999.0, maxNearP11x11=999.0, maxNearP9x9  =999.0, maxNearP7x7  =999.0;
-      
-      //if(std::abs(point1.eta())<1.479) {
-      if(std::abs(point2_EC.first.eta())<1.479) {
-	//const DetId isoCell = gEB->getClosestCell(point1);
-	const DetId isoCell = gEB->getClosestCell( point2);
-	maxNearP31x31 = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField, 15,15, theTrackQuality);
-	maxNearP25x25 = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField, 12,12, theTrackQuality);
-	maxNearP21x21 = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField, 10,10, theTrackQuality);
-	maxNearP15x15 = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  7, 7, theTrackQuality);
-	maxNearP13x13 = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  6, 6, theTrackQuality);
-	maxNearP11x11 = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  5, 5, theTrackQuality);
-	maxNearP9x9   = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  4, 4, theTrackQuality);
-	maxNearP7x7   = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  3, 3, theTrackQuality);
-      } else {
-	//const DetId isoCell = gEE->getClosestCell(point1);
-	const DetId isoCell = gEE->getClosestCell(point2);
-	maxNearP31x31 = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField, 15,15, theTrackQuality);
-	maxNearP25x25 = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField, 12,12, theTrackQuality);
-	maxNearP21x21 = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField, 10,10, theTrackQuality);
-	maxNearP15x15 = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  7, 7, theTrackQuality);
-	maxNearP13x13 = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  6, 6, theTrackQuality);
-	maxNearP11x11 = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  5, 5, theTrackQuality);
-	maxNearP9x9   = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  4, 4, theTrackQuality);
-	maxNearP7x7   = spr::chargeIsolationEcal(isoCell, trkItr, trkCollection, geo, caloTopology, bField,  3, 3, theTrackQuality);
-      }
-      
+
+      maxNearP31x31 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology, 15,15);
+      maxNearP25x25 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology, 12,12);
+      maxNearP21x21 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology, 10,10);
+      maxNearP15x15 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  7, 7);
+      maxNearP13x13 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  6, 6);
+      maxNearP11x11 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  5, 5);
+      maxNearP9x9   = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  4, 4);
+      maxNearP7x7   = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  3, 3);
+
       if( maxNearP31x31<0.0 && nLayersCrossed>7 && nOuterHits>4) {
 	h_recEtaPt_2->Fill(eta1, pt1);
 	h_recEtaP_2 ->Fill(eta1, p1);
@@ -552,121 +531,59 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	std::map<std::string, double> simInfo3x3,   simInfo5x5,   simInfo7x7,   simInfo9x9;
 	std::map<std::string, double> simInfo11x11, simInfo13x13, simInfo15x15, simInfo21x21, simInfo25x25, simInfo31x31;
 	double trkEcalEne=0;
+
+	const DetId isoCell = trkDetItr->detIdECAL;
+	e3x3         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,1,1,   -100.0, -100.0);
+	e5x5         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,2,2,   -100.0, -100.0);
+	e7x7         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   -100.0, -100.0);
+	e9x9         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   -100.0, -100.0);
+	e11x11       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   -100.0, -100.0);
+	e13x13       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,6,6,   -100.0, -100.0);
+	e15x15       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   -100.0, -100.0);
+	e21x21       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,10,10, -100.0, -100.0);
+	e25x25       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,12,12, -100.0, -100.0);
+	e31x31       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,15,15, -100.0, -100.0);
 	
-	//if(std::abs(point1.eta())<1.479) {
-	if(std::abs(point2_EC.first.eta())<1.479) {
+	e7x7_10Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.030,  0.150);
+	e9x9_10Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.030,  0.150);
+	e11x11_10Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.030,  0.150);
+	e15x15_10Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.030,  0.150);
+	
+	e7x7_15Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.045,  0.225);
+	e9x9_15Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.045,  0.225);
+	e11x11_15Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.045,  0.225);
+	e15x15_15Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.045,  0.225);
+	
+	e7x7_20Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.060,  0.300);
+	e9x9_20Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.060,  0.300);
+	e11x11_20Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.060,  0.300);
+	e15x15_20Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.060,  0.300);
+	
+	e7x7_25Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.075,  0.375);
+	e9x9_25Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.075,  0.375);
+	e11x11_25Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.075,  0.375);
+	e15x15_25Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.075,  0.375);
+	
+	e7x7_30Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.090,  0.450);
+	e9x9_30Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.090,  0.450);
+	e11x11_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.090,  0.450);
+	e15x15_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.090,  0.450);
+
+	if (doMC) {
+	  // check the energy from SimHits
+	  simInfo3x3   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 1,1);
+	  simInfo5x5   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 2,2);
+	  simInfo7x7   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 3,3);
+	  simInfo9x9   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 4,4);
+	  simInfo11x11 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 5,5);
+	  simInfo13x13 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 6,6);
+	  simInfo15x15 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 7,7);
+	  simInfo21x21 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 10,10);
+	  simInfo25x25 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 12,12);
+	  simInfo31x31 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 15,15);
 	  
-	  //const DetId isoCell = gEB->getClosestCell(point1);
-	  const DetId isoCell = gEB->getClosestCell(point2);
-	    
-	  e3x3         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,1,1,   -100.0, -100.0);
-	  e5x5         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,2,2,   -100.0, -100.0);
-	  e7x7         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   -100.0, -100.0);
-	  e9x9         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   -100.0, -100.0);
-	  e11x11       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   -100.0, -100.0);
-	  e13x13       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,6,6,   -100.0, -100.0);
-	  e15x15       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   -100.0, -100.0);
-	  e21x21       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,10,10, -100.0, -100.0);
-	  e25x25       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,12,12, -100.0, -100.0);
-	  e31x31       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,15,15, -100.0, -100.0);
-
-	  e7x7_10Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.030,  0.150);
-	  e9x9_10Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.030,  0.150);
-	  e11x11_10Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.030,  0.150);
-	  e15x15_10Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.030,  0.150);
-
-	  e7x7_15Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.045,  0.225);
-	  e9x9_15Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.045,  0.225);
-	  e11x11_15Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.045,  0.225);
-	  e15x15_15Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.045,  0.225);
-
-	  e7x7_20Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.060,  0.300);
-	  e9x9_20Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.060,  0.300);
-	  e11x11_20Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.060,  0.300);
-	  e15x15_20Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.060,  0.300);
-
-	  e7x7_25Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.075,  0.375);
-	  e9x9_25Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.075,  0.375);
-	  e11x11_25Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.075,  0.375);
-	  e15x15_25Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.075,  0.375);
-
-	  e7x7_30Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.090,  0.450);
-	  e9x9_30Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.090,  0.450);
-	  e11x11_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.090,  0.450);
-	  e15x15_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.090,  0.450);
-
-	  if (doMC) {
-	    // check the energy from SimHits
-	    simInfo3x3   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 1,1);
-	    simInfo5x5   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 2,2);
-	    simInfo7x7   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 3,3);
-	    simInfo9x9   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 4,4);
-	    simInfo11x11 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 5,5);
-	    simInfo13x13 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 6,6);
-	    simInfo15x15 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 7,7);
-	    simInfo21x21 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 10,10);
-	    simInfo25x25 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 12,12);
-	    simInfo31x31 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 15,15);
-	  
-	    trkEcalEne   = spr::eCaloSimInfo(iEvent, geo, pcaloeb,pcaloee, SimTk, SimVtx, pTrack, *associate);
-	  }
-	} else {
-	  
-	  //const DetId isoCell = gEE->getClosestCell(point1);
-	  const DetId isoCell = gEE->getClosestCell(point2);
-	  
-	  e3x3         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,1,1,   -100.0, -100.0);
-	  e5x5         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,2,2,   -100.0, -100.0);
-	  e7x7         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   -100.0, -100.0);
-	  e9x9         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   -100.0, -100.0);
-	  e11x11       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   -100.0, -100.0);
-	  e13x13       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,6,6,   -100.0, -100.0);
-	  e15x15       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   -100.0, -100.0);
-	  e21x21       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,10,10, -100.0, -100.0);
-	  e25x25       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,12,12, -100.0, -100.0);
-	  e31x31       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,15,15, -100.0, -100.0);
-
-	  e7x7_10Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.030,  0.150);
-	  e9x9_10Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.030,  0.150);
-	  e11x11_10Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.030,  0.150);
-	  e15x15_10Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.030,  0.150);
-
-	  e7x7_15Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.045,  0.225);
-	  e9x9_15Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.045,  0.225);
-	  e11x11_15Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.045,  0.225);
-	  e15x15_15Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.045,  0.225);
-
-	  e7x7_20Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.060,  0.300);
-	  e9x9_20Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.060,  0.300);
-	  e11x11_20Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.060,  0.300);
-	  e15x15_20Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.060,  0.300);
-
-	  e7x7_25Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.075,  0.375);
-	  e9x9_25Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.075,  0.375);
-	  e11x11_25Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.075,  0.375);
-	  e15x15_25Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.075,  0.375);
-
-	  e7x7_30Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   0.090,  0.450);
-	  e9x9_30Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.090,  0.450);
-	  e11x11_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.090,  0.450);
-	  e15x15_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.090,  0.450);
-
-	  if (doMC) {
-	    // check the energy from SimHits
-	    simInfo3x3   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 1,1);
-	    simInfo5x5   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 2,2);
-	    simInfo7x7   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 3,3);
-	    simInfo9x9   = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 4,4);
-	    simInfo11x11 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 5,5);
-	    simInfo13x13 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 6,6);
-	    simInfo15x15 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 7,7);
-	    simInfo21x21 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 10,10);
-	    simInfo25x25 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 12,12);
-	    simInfo31x31 = spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 15,15);
-	  
-	    trkEcalEne   = spr::eCaloSimInfo(iEvent, geo, pcaloeb,pcaloee, SimTk, SimVtx, pTrack, *associate);
-	  }
-	} // if EB or EE
+	  trkEcalEne   = spr::eCaloSimInfo(iEvent, geo, pcaloeb,pcaloee, SimTk, SimVtx, pTrack, *associate);
+	}
 
 	// =======  Get HCAL information 
 	double hcalScale=1.0;
@@ -675,57 +592,52 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	} else {
 	  hcalScale=135.0;
 	}
-
-	GlobalPoint hpoint1(info1.trkGlobPosAtHcal.x(),info1.trkGlobPosAtHcal.y(),info1.trkGlobPosAtHcal.z());
-	double x=info1.trkGlobPosAtHcal.x(); 
-	double y=info1.trkGlobPosAtHcal.y();
-	double z=info1.trkGlobPosAtHcal.z();
 	
-	if( x==0 && y==0 && z==0 )  hpoint1 = point1;	    
-	
-	//const DetId ClosestCell = gHB->getClosestCell(hpoint1);
-	GlobalPoint hpoint2( point2_HC.first.x(),point2_HC.first.y(),point2_HC.first.z());
-	if( !point2_HC.second )  hpoint2 = point2;
-	const DetId ClosestCell = gHB->getClosestCell(hpoint2);
-	
-	double maxNearHcalP3x3=999, maxNearHcalP5x5=999, maxNearHcalP7x7=999;
-	maxNearHcalP3x3  = spr::chargeIsolationHcal(trkItr, trkCollection, ClosestCell, theHBHETopology, gHB, bField, 1,1, theTrackQuality);
-	maxNearHcalP5x5  = spr::chargeIsolationHcal(trkItr, trkCollection, ClosestCell, theHBHETopology, gHB, bField, 2,2, theTrackQuality);
-	maxNearHcalP7x7  = spr::chargeIsolationHcal(trkItr, trkCollection, ClosestCell, theHBHETopology, gHB, bField, 3,3, theTrackQuality);
+	double maxNearHcalP3x3=-1, maxNearHcalP5x5=-1, maxNearHcalP7x7=-1;
+	maxNearHcalP3x3  = spr::chargeIsolationHcal(nTracks, trkCaloDets, theHBHETopology, 1,1);
+	maxNearHcalP5x5  = spr::chargeIsolationHcal(nTracks, trkCaloDets, theHBHETopology, 2,2);
+	maxNearHcalP7x7  = spr::chargeIsolationHcal(nTracks, trkCaloDets, theHBHETopology, 3,3);
 
 	double h3x3=0,    h5x5=0,    h7x7=0;
 	double trkHcalEne = 0;
 	std::map<std::string, double> hsimInfo3x3, hsimInfo5x5, hsimInfo7x7;
 	
-	// bool includeHO=false, bool algoNew=true, bool debug=false
-	h3x3 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,1,1, false, true, -100.0, -100.0, -100.0, -100.0);  
-	h5x5 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,2,2, false, true, -100.0, -100.0, -100.0, -100.0);  
-	h7x7 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,3,3, false, true, -100.0, -100.0, -100.0, -100.0);  
+	if(trkDetItr->okHCAL) {
+	  const DetId ClosestCell(trkDetItr->detIdHCAL);
+	  // bool includeHO=false, bool algoNew=true, bool debug=false
+	  h3x3 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,1,1, false, true, -100.0, -100.0, -100.0, -100.0);  
+	  h5x5 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,2,2, false, true, -100.0, -100.0, -100.0, -100.0);  
+	  h7x7 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,3,3, false, true, -100.0, -100.0, -100.0, -100.0);  
 
-	// debug the ecal and hcal matrix
-	/*
-	std::cout<<"Run "<<iEvent.id().run()<<"  Event "<<iEvent.id().event()<<std::endl; 
-	std::vector<std::pair<DetId,double> > v7x7 = spr::eHCALmatrixCell(theHBHETopology, ClosestCell, hbhe,3,3, false, false);
-	double sumv=0.0;
+	  if (doMC) {
+	    hsimInfo3x3 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 1,1);
+	    hsimInfo5x5 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 2,2);
+	    hsimInfo7x7 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 3,3);
+	  }
 
-	for(unsigned int iv=0; iv<v7x7.size(); iv++) { 
-	  sumv += v7x7[iv].second;
+	  // debug the ecal and hcal matrix
+	  if(myverbose_==4) {
+	    std::cout<<"Run "<<iEvent.id().run()<<"  Event "<<iEvent.id().event()<<std::endl; 
+	    std::vector<std::pair<DetId,double> > v7x7 = spr::eHCALmatrixCell(theHBHETopology, ClosestCell, hbhe,3,3, false, false);
+	    double sumv=0.0;
+	    
+	    for(unsigned int iv=0; iv<v7x7.size(); iv++) { 
+	      sumv += v7x7[iv].second;
+	    }
+	    std::cout<<"h7x7 "<<h7x7<<" v7x7 "<<sumv << " in " << v7x7.size() <<std::endl;
+	    for(unsigned int iv=0; iv<v7x7.size(); iv++) { 
+	      HcalDetId id = v7x7[iv].first;
+	      std::cout << " Cell " << iv << " 0x" << std::hex << v7x7[iv].first() << std::dec << " " << id << " Energy " << v7x7[iv].second << std::endl;
+	    }
+	  }
+	  
 	}
-	std::cout<<"h7x7 "<<h7x7<<" v7x7 "<<sumv << " in " << v7x7.size() <<std::endl;
-	for(unsigned int iv=0; iv<v7x7.size(); iv++) { 
-	  HcalDetId id = v7x7[iv].first;
-	  std::cout << " Cell " << iv << " 0x" << std::hex << v7x7[iv].first() << std::dec << " " << id << " Energy " << v7x7[iv].second << std::endl;
-	}
-	*/
 	if (doMC) {
-	  hsimInfo3x3 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 1,1);
-	  hsimInfo5x5 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 2,2);
-	  hsimInfo7x7 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 3,3);
-	
 	  trkHcalEne  = spr::eCaloSimInfo(iEvent, geo,pcalohh, SimTk, SimVtx, pTrack, *associate);
 	}
+
 	// ====================================================================================================
-	
+
 	// get diff between track outermost hit position and the propagation point at outermost surface of tracker	
 	std::pair<math::XYZPoint,double> point2_TK0 = spr::propagateTrackerEnd( pTrack, bField, false);
 	math::XYZPoint diff(pTrack->outerPosition().X()-point2_TK0.first.X(), 
@@ -903,7 +815,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	t_h5x5                  ->push_back( h5x5 );
 	t_h7x7                  ->push_back( h7x7 );
 	
-	t_infoHcal              ->push_back( info1.isGoodHcal );
+	t_infoHcal              ->push_back( trkDetItr->okHCAL );
 	if (doMC) {
 	  t_trkHcalEne            ->push_back( hcalScale*trkHcalEne );
 	

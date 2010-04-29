@@ -40,20 +40,23 @@ Created: August 2009
 
 namespace spr{
 
-  // takes the EcalSimHits and returns a map energy matched to SimTrack, photons, neutral hadrons etc.
+  // takes the EcalSimHits and returns a map energy matched to SimTrack, photons, neutral hadrons etc. in a symmetric matrix (2*ieta+1)*(2*iphi+1)
   template< typename T>
   std::map<std::string,double> eECALSimInfo(const edm::Event&, const DetId& det, const CaloGeometry* geo, const CaloTopology* caloTopology, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, double timeCut=150, bool debug=false);
 
+  // takes the EcalSimHits and returns a map energy matched to SimTrack, photons, neutral hadrons etc. in an symmetric matrix (ietaE+ietaW+1)*(iphiN+iphiS+1)
   template< typename T>
   std::map<std::string,double> eECALSimInfo(const edm::Event&, const DetId& det, const CaloGeometry* geo, const CaloTopology* caloTopology, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ietaE, int ietaW, int iphiN, int iphiS, double timeCut=150, bool debug=false);
   
-  // takes the HcalSimHits and returns a map energy matched to SimTrack, photons, neutral hadrons etc.
+  // takes the HcalSimHits and returns a map energy matched to SimTrack, photons, neutral hadrons etc. in a symmetric matrix (2*ieta+1)*(2*iphi+1)
   template <typename T>
   std::map<std::string,double> eHCALSimInfo(const edm::Event&, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, double timeCut=150, bool includeHO=false, bool debug=false);
 
+  // takes the EcalSimHits and returns a map energy matched to SimTrack, photons, neutral hadrons etc. in an symmetric matrix (ietaE+ietaW+1)*(iphiN+iphiS+1)
   template <typename T>
   std::map<std::string,double> eHCALSimInfo(const edm::Event&, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ietaE, int ietaW, int iphiN, int iphiS, double timeCut=150, bool includeHO=false, bool debug=false);
   
+  // takes the HcalSimHits and returns a map energy matched to SimTrack, photons, neutral hadrons etc. in a symmetric matrix (2*ieta+1)*(2*iphi+1) and also a multiplicity vector 
   template <typename T>
   std::map<std::string,double> eHCALSimInfo(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, std::vector<int>& multiplicityVector, bool debug=false);
 
