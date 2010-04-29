@@ -11,8 +11,8 @@
 /*
  * \file HcalDeadCellClient.cc
  * 
- * $Date: 2010/03/25 20:53:48 $
- * $Revision: 1.66 $
+ * $Date: 2010/03/25 21:21:04 $
+ * $Revision: 1.67 $
  * \author J. Temple
  * \brief Dead Cell Client class
  */
@@ -60,6 +60,37 @@ void HcalDeadCellClient::calculateProblems()
 {
   if (debug_>2) std::cout <<"\t\tHcalDeadCellClient::calculateProblems()"<<std::endl;
   if(!dqmStore_) return;
+
+  MonitorElement* temp_present;
+
+  // Don't fill histograms if nothing from Hcal is present
+  if (HBpresent_!=1)
+    {
+      temp_present=dqmStore_->get(prefixME_+"HcalInfo/HBpresent");
+      if (temp_present!=0)
+        HBpresent_=temp_present->getIntValue();
+    }
+  if (HEpresent_!=1)
+    {
+      temp_present=dqmStore_->get(prefixME_+"HcalInfo/HEpresent");
+      if (temp_present!=0)
+        HEpresent_=temp_present->getIntValue();
+    }
+  if (HOpresent_!=1)
+    {
+      temp_present=dqmStore_->get(prefixME_+"HcalInfo/HOpresent");
+      if (temp_present!=0)
+        HOpresent_=temp_present->getIntValue();
+    }
+  if (HFpresent_!=1)
+    {
+      temp_present=dqmStore_->get(prefixME_+"HcalInfo/HFpresent");
+      if (temp_present!=0)
+        HFpresent_=temp_present->getIntValue();
+    }
+  // Never saw any data from any Hcal FED; don't count as dead.
+  if (HBpresent_==-1 && HEpresent_==-1 && HOpresent_==-1 && HFpresent_==-1)
+    return;
   double totalevents=0;
   int etabins=0, phibins=0, zside=0;
   double problemvalue=0;
@@ -226,6 +257,10 @@ void HcalDeadCellClient::endJob(){}
 void HcalDeadCellClient::beginRun(void)
 {
   enoughevents_=false;
+  HBpresent_=-1;
+  HEpresent_=-1;
+  HOpresent_=-1;
+  HFpresent_=-1;
   if (!dqmStore_) 
     {
       if (debug_>0) std::cout <<"<HcalDeadCellClient::beginRun> dqmStore does not exist!"<<std::endl;
