@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.23 2010/04/08 19:45:25 amraktad Exp $
+// $Id: FWEventItemsManager.cc,v 1.24 2010/04/28 14:08:11 eulisse Exp $
 //
 
 // system include files
@@ -58,6 +58,8 @@ FWEventItemsManager::~FWEventItemsManager()
        ++it) {
       delete *it;
    }
+
+   m_items.clear();
 }
 
 //
@@ -122,10 +124,7 @@ FWEventItemsManager::clearItems(void)
          (*it)->destroy();
       }
       *it = 0;
-      gEve->EditElement(0);
    }
-   gEve->Redraw3D();
-   //m_items.clear();
 }
 
 static const std::string kType("type");

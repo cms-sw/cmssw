@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_eventitemsmanager.cc,v 1.2 2009/12/18 00:37:34 chrjones Exp $
+// $Id: unittest_eventitemsmanager.cc,v 1.3 2010/02/09 15:42:14 yana Exp $
 //
 
 // system include files
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( eventitemmanager )
    BOOST_REQUIRE(listener.nMessages_==0);
    BOOST_REQUIRE(eim.begin()==eim.end());
 
-   Color_t color1 = colm.indexToColor(1);
+   Color_t color1 = colm.indexToColor(0);
    eim.add(tracks);
    BOOST_CHECK(listener.nMessages_==1);
    BOOST_CHECK(eim.end()-eim.begin() == 1);
