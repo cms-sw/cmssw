@@ -2,11 +2,37 @@
 
 HcalCholeskyMatrix::HcalCholeskyMatrix(int fId) : mId (fId)
 {
+//   for(int cap = 0; cap != 4; cap++)
+//      for(int i = 0; i != 10; i++)
+//         for(int j = 0; j != 10; j++)
+//         cmatrix[cap][i][j] = 0;
+
    for(int cap = 0; cap != 4; cap++)
-      for(int i = 0; i != 10; i++)
-         for(int j = 0; j != 10; j++)
-         cmatrix[cap][i][j] = 0;
+      for(int i = 0; i != 55; i++)
+         cmatrix[cap][i] = 0;
+
+
 }
+
+float
+HcalCholeskyMatrix::getValue(int capid, int i,int j) const
+{
+   if(i < j) return 0;
+   int ii = i + 1;
+   int jj = j + 1;
+   return (float)(cmatrix[capid][(ii*(ii-1)/2+jj)-1]);
+}
+
+void
+HcalCholeskyMatrix::setValue(int capid, int i, int j, float val)
+{
+   if(i < j) return;
+   int ii = i + 1;
+   int jj = j + 1;
+   cmatrix[capid][(int)(ii*(ii-1)/2+jj)-1] = val;
+}
+
+
 /*
 void
 HcalCholeskyMatrix::makeNoise(int m, float xr[], HcalPedestal& ADCped)
