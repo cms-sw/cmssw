@@ -40,6 +40,7 @@ class InclusiveVertexFinder : public edm::EDProducer {
 	edm::InputTag				primaryVertexCollection;
 	edm::InputTag				trackCollection;
 	unsigned int				minHits;
+	unsigned int				maxNTracks;
         double 					minPt;
         double 					min3DIPSignificance;
         double 					min3DIPValue;
@@ -60,6 +61,7 @@ InclusiveVertexFinder::InclusiveVertexFinder(const edm::ParameterSet &params) :
 	primaryVertexCollection(params.getParameter<edm::InputTag>("primaryVertices")),
 	trackCollection(params.getParameter<edm::InputTag>("tracks")),
 	minHits(params.getParameter<unsigned int>("minHits")),
+	maxNTracks(params.getParameter<unsigned int>("maxNTracks")),
         minPt(params.getParameter<double>("minPt")), //0.8
 	min3DIPSignificance(params.getParameter<double>("seedMin3DIPSignificance")),
 	min3DIPValue(params.getParameter<double>("seedMin3DIPValue")),
@@ -221,7 +223,7 @@ void InclusiveVertexFinder::produce(edm::Event &event, const edm::EventSetup &es
                 
 //		std::cout << "Match pvd = "<< pvd[i] <<   std::endl;
         	std::pair<std::vector<reco::TransientTrack>,GlobalPoint>  ntracks = nearTracks(*s,tts,pv);
-                if(ntracks.first.size() == 0 ) continue;
+                if(ntracks.first.size() == 0 || ntracks.first.size() > maxNTracks ) continue;
                 ntracks.first.push_back(*s);
                 clusters.push_back(ntracks.first); 
 	 	std::vector<TransientVertex> vertices;
