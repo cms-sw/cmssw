@@ -5,7 +5,7 @@
 # with command line options: reco_FirstCollisions_36X -s RAW2DIGI,L1Reco,RECO,DQM --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --conditions GR_R_36X_V6::All --customise Configuration/GlobalRuns/customise_Collision_36X.py --no_exec --python_filename=rereco_FirstCollisions_36X.py
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('RECO')
+process = cms.Process('RERECO')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.172 $'),
+    version = cms.untracked.string('$Revision: 1.6 $'),
     annotation = cms.untracked.string('reco_FirstCollisions_36X nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
