@@ -34,7 +34,8 @@
 #include "OnlineDB/EcalCondDB/interface/DCSPTMTempList.h"
 #include "OnlineDB/EcalCondDB/interface/all_fe_config_types.h"
 #include "OnlineDB/EcalCondDB/interface/all_od_types.h"
-
+#include "OnlineDB/EcalCondDB/interface/LMFSeqDat.h"
+#include "OnlineDB/EcalCondDB/interface/LMFDat.h"
 
 class EcalCondDBInterface : public EcalDBConnection {
  public:
@@ -171,6 +172,14 @@ class EcalCondDBInterface : public EcalDBConnection {
 
   void updateRunConfig(ODRunConfigInfo* od) throw(std::runtime_error);
 
+  void insertLmfSeq(LMFSeqDat* iov)
+    throw(std::runtime_error);
+  void insertLmfRunIOV(LMFRunIOV* iov)
+    throw(std::runtime_error);
+  void insertLmfDat(LMFDat* dat)
+    throw(std::runtime_error);
+  void insertLmfDat(std::list<LMFDat*> dat)
+    throw(std::runtime_error);
 
   /**
    *  Return a run IOV object for a given tag
@@ -594,7 +603,7 @@ class EcalCondDBInterface : public EcalDBConnection {
 
 
 
-  /*
+  /*                               
    *  Fetch a set of DCS data based on time stamp
    */
   template<class DATT>
@@ -602,17 +611,17 @@ class EcalCondDBInterface : public EcalDBConnection {
     throw(std::runtime_error)
   {
     fillMap->clear();
-
+    
     DATT datiface;
     datiface.setConnection(env, conn);
     datiface.createReadStatement();
     datiface.setPrefetchRowCount(1000);
     datiface.fetchHistoricalData( fillMap, t );
     datiface.terminateReadStatement();
-
+    
   }
-
-
+  
+  
 
 
 

@@ -4,6 +4,7 @@
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include <string>
 #include <stdexcept>
+#include <iostream>
 
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 
@@ -53,11 +54,13 @@ class EcalDBConnection {
    */
   inline oracle::occi::Statement* createStatement()
     {
+      std::cout << "Creating statement" << std::endl;
       return conn->createStatement();
     }
 
   inline void terminateStatement(oracle::occi::Statement* stmt)
     {
+      std::cout << "Creating statement" << std::endl;
       conn->terminateStatement(stmt);
     }
 
@@ -74,6 +77,9 @@ class EcalDBConnection {
     {
       return oracle::occi::Clob(conn);
     }
+
+  oracle::occi::Environment* getEnv() const { return env; };
+  oracle::occi::Connection* getConn() const { return conn; };
 
  protected:
   

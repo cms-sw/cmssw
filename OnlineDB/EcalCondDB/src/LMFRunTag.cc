@@ -1,158 +1,95 @@
-#include <string>
-#include "OnlineDB/Oracle/interface/Oracle.h"
-
 #include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
 
 using namespace std;
 using namespace oracle::occi;
 
-LMFRunTag::LMFRunTag()
+LMFRunTag::LMFRunTag() : LMFUnique()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_ID = 0;
-  m_genTag = "default";
+  setClassName("LMFRunTag");
+  m_stringFields["gen_tag"] = "default";
+  m_intFields["version"]   = 1;
 }
 
+LMFRunTag::LMFRunTag(oracle::occi::Environment* env,
+		     oracle::occi::Connection* conn) : LMFUnique(env, conn)
+{
+  setClassName("LMFRunTag");
+  m_stringFields["gen_tag"] = "default";
+  m_intFields["version"]   = 1;
+}
 
+LMFRunTag::LMFRunTag(EcalDBConnection *c) : LMFUnique(c) {
+  setClassName("LMFRunTag");
+  m_stringFields["gen_tag"] = "default";
+  m_intFields["version"]   = 1;
+}
 
 LMFRunTag::~LMFRunTag()
 {
 }
 
-
-
 string LMFRunTag::getGeneralTag() const
 {
-  return m_genTag;
+  return getString("gen_tag");
 }
 
-
-
-void LMFRunTag::setGeneralTag(string genTag)
+LMFRunTag& LMFRunTag::setGeneralTag(const string &genTag)
 {
-  if (genTag != m_genTag) {
-    m_ID = 0;
-    m_genTag = genTag;
-  }
+  setString("gen_tag", genTag);
+  return *this;
 }
 
-
-
-int LMFRunTag::fetchID()
-  throw(runtime_error)
-{
-  // Return tag from memory if available
-  if (m_ID) {
-    return m_ID;
-  }
-  
-  this->checkConnection();
-
-  // fetch this ID
-  try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT tag_id FROM lmf_run_tag WHERE "
-		 "gen_tag    = :1");
-
-    stmt->setString(1, m_genTag);
-
-    ResultSet* rset = stmt->executeQuery();
-
-    if (rset->next()) {
-      m_ID = rset->getInt(1);
-    } else {
-      m_ID = 0;
-    }
-    m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(runtime_error("LMFRunTag::fetchID:  "+e.getMessage()));
-  }
-
-  return m_ID;
+LMFRunTag& LMFRunTag::setVersion(int v) {
+  setInt("version", v);
+  return *this;
 }
 
-
-
-void LMFRunTag::setByID(int id) 
-  throw(runtime_error)
-{
-  this->checkConnection();
-
-  try {
-    Statement* stmt = m_conn->createStatement();
-
-    stmt->setSQL("SELECT gen_tag FROM lmf_run_tag WHERE tag_id = :1");
-    stmt->setInt(1, id);
-
-    ResultSet* rset = stmt->executeQuery();
-    if (rset->next()) {
-      m_genTag = rset->getString(1);
-      m_ID = id;
-    } else {
-      throw(runtime_error("LMFRunTag::setByID:  Given tag_id is not in the database"));
-    }
-
-    m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-   throw(runtime_error("LMFRunTag::setByID:  "+e.getMessage()));
-  }
+int LMFRunTag::getVersion() const {
+  return getInt("version");
 }
 
-
-int LMFRunTag::writeDB()
-  throw(runtime_error)
-{
-  // see if this data is already in the DB
-  if (this->fetchID()) { 
-     return m_ID; 
-  }
-
-  // check the connectioin
-  this->checkConnection();
-
-  // write new tag to the DB
-  try {
-    Statement* stmt = m_conn->createStatement();
-
-    stmt->setSQL("INSERT INTO lmf_run_tag (tag_id, gen_tag) "
-		 "VALUES (lmf_run_tag_sq.NextVal, :1)");
-    stmt->setString(1, m_genTag);
-
-    stmt->executeUpdate();
-    
-    m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-   throw(runtime_error("LMFRunTag::writeDB:  "+e.getMessage()));
-  }
-
-  // now get the tag_id
-  if (!this->fetchID()) {
-    throw(runtime_error("LMFRunTag::writeDB:  Failed to write"));
-  }
-
-  return m_ID;
+std::string LMFRunTag::fetchIdSql(Statement *stmt) {
+  std::string sql = "SELECT tag_id FROM lmf_run_tag WHERE "
+    "gen_tag    = :1 AND version = :2";
+  stmt->setSQL(sql);
+  stmt->setString(1, getGeneralTag());
+  stmt->setInt(2, getVersion());
+  return sql;
 }
 
-
-
-void LMFRunTag::fetchAllTags( vector<LMFRunTag>* fillVec)
-  throw(runtime_error)
+std::string LMFRunTag::setByIDSql(Statement *stmt, int id) 
 {
-  this->checkConnection();
-  try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT tag_id FROM lmf_run_tag ORDER BY tag_id");
-    ResultSet* rset = stmt->executeQuery();
-    
-    LMFRunTag runtag;
-    runtag.setConnection(m_env, m_conn);
-    while(rset->next()) {
-      runtag.setByID( rset->getInt(1) );
-      fillVec->push_back( runtag );
-    }
-    m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(runtime_error("LMFRunTag::fetchAllTags:  "+e.getMessage()));
+  std::string sql = "SELECT gen_tag, version FROM lmf_run_tag "
+    "WHERE tag_id = :1";
+  stmt->setSQL(sql);
+  stmt->setInt(1, id);
+  return sql;
+}
+
+void LMFRunTag::getParameters(ResultSet *rset) {
+  setString("gen_tag", rset->getString(1));
+  setInt("version", rset->getInt(2));
+}
+
+LMFUnique * LMFRunTag::createObject() const {
+  LMFRunTag *t = new LMFRunTag;
+  t->setConnection(m_env, m_conn);
+  return t;
+}
+
+std::string LMFRunTag::fetchAllSql(Statement *stmt) const {
+  std::string sql = "SELECT TAG_ID FROM LMF_RUN_TAG";
+  stmt->setSQL(sql);
+  return sql;
+}
+
+bool LMFRunTag::isValid() {
+  bool ret = true;
+  if (getVersion() <= 0) {
+    ret = false;
   }
+  if (getGeneralTag().length() <= 0) {
+    ret = false;
+  }
+  return ret;
 }
