@@ -4,7 +4,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.14 2010/04/16 09:39:05 yana Exp $
+// $Id: TrackUtils.h,v 1.15 2010/04/29 14:13:33 yana Exp $
 //
 
 // system include files
@@ -90,9 +90,6 @@ namespace fireworks {
 	      const FWEventItem* iItem,
 	      TEveElement* trkList,
 	      bool addLostHits);
-
-   double estimateField( const reco::Track& track, bool highQuality = false );
-   double estimateField( double vx1, double vy1, double vx2, double vy2, double px, double py );
 
   // Helper functions to get human readable informationa about given DetId
   // (copied from TrackingTools/TrackAssociator)

@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.21 2010/04/21 11:10:08 amraktad Exp $
+// $Id: FWMuonBuilder.cc,v 1.22 2010/04/29 14:25:51 amraktad Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Candidates/interface/CandidateUtils.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
+#include "Fireworks/Tracks/interface/estimate_field.h"
 #include "Fireworks/Muons/interface/FWMuonBuilder.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -194,19 +195,18 @@ FWMuonBuilder::~FWMuonBuilder()
 void
 FWMuonBuilder::calculateField(const reco::Muon& iData, FWMagField* field)
 {
-
    // if auto field estimation mode, do extra loop over muons.
    // use both inner and outer track if available
-   if ( field->getAutodetect() ) {
-     if ( fabs( iData.eta() ) > 2.0 || iData.pt() < 3 ) return;
-     if ( iData.innerTrack().isAvailable() ){
-       double estimate = fireworks::estimateField(*(iData.innerTrack()),true);
-       if ( estimate >= 0 ) field->guessField( estimate );
+   if( field->getAutodetect() ) {
+     if( fabs( iData.eta() ) > 2.0 || iData.pt() < 3 ) return;
+     if( iData.innerTrack().isAvailable() ){
+        double estimate = fw::estimate_field( *( iData.innerTrack() ), true );
+	if( estimate >= 0 ) field->guessField( estimate );
 	 
      }
-     if ( iData.outerTrack().isAvailable() ){
-       double estimate = fireworks::estimateField(*(iData.outerTrack()));
-       if ( estimate >= 0 ) field->guessFieldIsOn( estimate > 0.5 );
+     if( iData.outerTrack().isAvailable() ){
+       double estimate = fw::estimate_field( *( iData.outerTrack() ) );
+       if( estimate >= 0 ) field->guessFieldIsOn( estimate > 0.5 );
      }
    }
 }

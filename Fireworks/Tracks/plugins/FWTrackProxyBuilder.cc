@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackProxyBuilder.cc,v 1.6 2010/04/21 11:10:08 amraktad Exp $
+// $Id: FWTrackProxyBuilder.cc,v 1.7 2010/04/29 14:25:51 amraktad Exp $
 //
 
 // system include files
@@ -21,6 +21,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
+#include "Fireworks/Tracks/interface/estimate_field.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -62,8 +63,8 @@ FWTrackProxyBuilder::build( const reco::Track& iData, unsigned int iIndex,TEveEl
 {
    if( context().getField()->getAutodetect() ) {
       if( fabs( iData.eta() ) < 2.0 && iData.pt() > 0.5 && iData.pt() < 30 ) {
-	 double estimate = fireworks::estimateField(iData,true);
-         if( estimate >= 0 ) context().getField()->guessField(estimate);
+	 double estimate = fw::estimate_field( iData, true );
+         if( estimate >= 0 ) context().getField()->guessField( estimate );
       }
    }
 
