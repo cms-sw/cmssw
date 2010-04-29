@@ -301,7 +301,7 @@ if __name__ == '__main__':
 	    print " zero fit result, skip file " + beam_file + " with time stamp:"
 	    print " run " + arun + " lumis " + alumis
 	else:
-	    sortedlist[int(pack(int(arun), int(alumi)] = beam_file
+	    sortedlist[int(pack(int(arun), int(alumi)))] = beam_file
 		
 	tmpfile.close()
 

@@ -752,6 +752,7 @@ if __name__ == '__main__':
 		    #print "weighted average x = "+tmpbeam.X +" +//- "+tmpbeam.Xerr
 		    print "close payload because of movement in X= "+str(deltaX)+", Y= "+str(deltaY) + ", Z= "+str(deltaZ)+", sigmaZ= "+str(deltasigmaZ)+", dxdz= "+str(deltadxdz)+", dydz= "+str(deltadydz)+", widthX= "+str(deltawidthX)+", widthY= "+str(deltawidthY)
 	    if docreate:
+            #if ii == len(listbeam)-1:
 		tmpbeam.IOVlast = ibeam.IOVlast
 		tmpbeam.IOVEndTime = ibeam.IOVEndTime
 		print "  Run: "+tmpbeam.Run +" Lumi1: "+str(tmpbeam.IOVfirst) + " Lumi2: "+str(tmpbeam.IOVlast)
