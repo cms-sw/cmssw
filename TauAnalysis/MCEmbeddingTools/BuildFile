@@ -11,16 +11,13 @@
 <use name=TrackingTools/TrackAssociator>
 <use name=TrackingTools/RoadSearchHitAccess>
 <use name=DataFormats/VertexReco>
-<use name=DataFormats/MuonReco>
 <use name=CommonTools/Utils>
 <use name=CommonTools/UtilAlgos>
 <use name=GeneratorInterface/ExternalDecays>
 <use name=DataFormats/MuonReco>
-<use name=CommonTools/UtilAlgos>
 
 <flags EDM_PLUGIN=1>
 <export>
-   <lib name=ElectroWeakAnalysisMuonWithMCTauReplacer>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>

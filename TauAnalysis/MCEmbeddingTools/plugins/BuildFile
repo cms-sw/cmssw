@@ -6,7 +6,6 @@
 		<use name=SimDataFormats/GeneratorProducts>
         <use name=DataFormats/HepMCCandidate>
         <use name=DataFormats/PatCandidates>
-		<use name=DataFormats/MuonReco>
         <use name=RecoMuon/MuonIsolation>
         <use name=TrackingTools/TrackAssociator>
         <use name=DataFormats/METReco>
