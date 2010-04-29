@@ -135,8 +135,8 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 			  		if(theFlatDistribution->fire()<APVSaturationProb){
 			 	   	 	int FirstAPV = localFirstChannel/128;
 				 		int LastAPV = localLastChannel/128;
-				 		cout << "-------------------HIP--------------" << endl;
-				 		cout << "Killing APVs " << FirstAPV << " - " <<LastAPV << " " << detID <<endl;
+						std::cout << "-------------------HIP--------------" << std::endl;
+						std::cout << "Killing APVs " << FirstAPV << " - " <<LastAPV << " " << detID <<std::endl;
 				 		for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) badChannels[strip] = true; //doing like that I remove the signal information only after the 
 																													//stip that got the HIP but it remains the signal of the previous
 																													//one. I'll make a further loop to remove all signal																										
