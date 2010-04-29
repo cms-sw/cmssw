@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2010/03/16 12:02:36 $
- *  $Revision: 1.29 $
+ *  $Date: 2010/03/29 18:15:57 $
+ *  $Revision: 1.30 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -31,6 +31,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include <CLHEP/Vector/LorentzVector.h>
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
 namespace edm {
   class ParameterSet;
@@ -94,6 +95,9 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   /// Template method used to fill the track collection starting from reco::muons or pat::muons
   template<typename T>
   void takeSelectedMuonType(const T & muon, std::vector<reco::Track> & tracks);
+  /// Function for onia selections
+  bool selGlobalMuon(const pat::Muon* aMuon);
+  bool selTrackerMuon(const pat::Muon* aMuon);  
 
   /// Check if two lorentzVector are near in deltaR
   bool checkDeltaR( reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu );
@@ -168,7 +172,8 @@ std::vector<reco::LeafCandidate> MuScleFit::fillMuonCollection( const std::vecto
     // Apply smearing if needed, and then bias
     // ---------------------------------------
     MuScleFitUtils::goodmuon++;
-    if (debug_>0) std::cout <<std::setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon
+    if (debug_>0) 
+      std::cout <<std::setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon
                        << ": initial value   Pt = " << mu.Pt() << std::endl;
 
     applySmearing(mu);
