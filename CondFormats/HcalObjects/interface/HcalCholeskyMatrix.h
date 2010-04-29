@@ -15,7 +15,7 @@ class HcalCholeskyMatrix {
    uint32_t rawId () const {return mId;}
 
    private:
-   float cmatrix[4][55];
+   int cmatrix[4][55];
    uint32_t mId;
 //   float cmatrix[4][10][10];
 };
