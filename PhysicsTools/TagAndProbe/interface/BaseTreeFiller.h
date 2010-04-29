@@ -129,6 +129,9 @@ class BaseTreeFiller : boost::noncopyable {
         /// specify the name of the TTree, and the configuration for it
         BaseTreeFiller(const char *name, const edm::ParameterSet config);
 
+        /// Add branches to an existing TTree managed by another BaseTreeFiller
+        BaseTreeFiller(BaseTreeFiller &main, const edm::ParameterSet &iConfig, const std::string &branchNamePrefix);
+
         /// Destructor, does nothing but it's out-of-line as we have complex data members
         ~BaseTreeFiller();
 
@@ -145,6 +148,7 @@ class BaseTreeFiller : boost::noncopyable {
         /// see macro in test directory for how to retrieve it from the output root file
         void writeProvenance(const edm::ParameterSet &pset) const ;
     protected:
+
         std::vector<ProbeVariable> vars_;
         std::vector<ProbeFlag>     flags_;
 
@@ -156,9 +160,15 @@ class BaseTreeFiller : boost::noncopyable {
         /// Ignore exceptions when evaluating variables
         bool ignoreExceptions_;
 
+        /// Add branches with run and lumisection number
+        bool addRunLumiInfo_;
+
+        void addBranches_(TTree *tree, const edm::ParameterSet &iConfig, const std::string &branchNamePrefix="") ;
+
         //implementation notice: these two are 'mutable' because we will fill them from a 'const' method
         mutable TTree * tree_;
         mutable float weight_;
+        mutable uint32_t run_, lumi_;
 };
 
 
