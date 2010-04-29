@@ -16,8 +16,8 @@
 //==================================================================//
 CastorChannelQualityMonitor::CastorChannelQualityMonitor(){
  ievt_=0;
-
- 
+ counter1=0;
+ counter2=0;
 }
 
 //==================================================================//
@@ -39,10 +39,10 @@ void CastorChannelQualityMonitor::reset(){
 void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
   CastorBaseMonitor::setup(ps,dbe);
-
-   offline_ = ps.getUntrackedParameter<bool>("OfflineMode", false); 
-   nThreshold_ = ps.getUntrackedParameter<double>("nThreshold", 100.0);
-   dThreshold_ = ps.getUntrackedParameter<double>("dThreshold", 1.0);
+   averageEnergyMethod_ = ps.getUntrackedParameter<bool>("averageEnergyMethod", true); 
+   offline_             = ps.getUntrackedParameter<bool>("OfflineMode", false); 
+   nThreshold_          = ps.getUntrackedParameter<double>("nThreshold", 0);
+   dThreshold_          = ps.getUntrackedParameter<double>("dThreshold", 0);
 
   if ( m_dbe !=NULL ) {    
     ////---- create ReportSummary Map 
@@ -68,24 +68,28 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
 
   if(fVerbosity>0) cout << "CastorChannelQualityMonitor::setup (start)" << endl;
 
-  ////---- initialize array aboveNoisyThreshold and aboveDThreshold
+  ////---- initialize array aboveNoisyThreshold and belowDThreshold
   for (int row=0; row<14; row++) {
     for (int col=0; col<16; col++){
         aboveNoisyThreshold[row][col] = 0;
-         aboveDThreshold[row][col] = 0;
+        belowDThreshold[row][col]     = 0;
+        energyArray[row][col]         = 0;
+        aboveThr[row][col]         = 0;
     }
   }
 
-  ////---- initialize the event counter  
-  ievt_=0;
+  ////---- initialize the event counter and other counters  
+  ievt_=0; counter1=0; counter2=0;  wcounter1=0.; wcounter2=0.; 
   ////---- initialize the fraction of good channels
-  fraction=0; 
+  fraction=0.; 
   overallStatus->Fill(fraction); reportSummary->Fill(fraction); 
   ////---- initialize status and number of good channels
   status = -99; numOK = 0; 
   ////---- initialize recHitPresent
   iRecHit=false;
-  
+  ////---- initialize averageEnergy
+  averageEnergy=0.;
+
   if(fVerbosity>0) cout << "CastorChannelQualityMonitor::setup (end)" << endl;
 
   return;
@@ -111,11 +115,12 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
      cout << "CastorChannelQualityMonitor: Dead Threshold is set to: " << dThreshold_ << endl;
     }
 
-  module = -1;  sector = -1; energy = -1.; 
+  castorModule = -1;  castorSector = -1; castorEnergy = -1.; 
   
   if (castorHits.size()>0) iRecHit=true;
   else iRecHit=false;
-  
+ 
+ 
  ////---- loop over RecHits 
  for(CastorRecHitCollection::const_iterator recHit = castorHits.begin(); recHit != castorHits.end(); ++recHit){
 
@@ -123,70 +128,92 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
     if(fVerbosity>0) cout << "Castor ID = " << CastorID << std::endl;
     CastorRecHitCollection::const_iterator rh = castorHits.find(CastorID);
     ////---- obtain module, sector and energy of a rechit
-    module = CastorID.module();
-    sector = CastorID.sector();
-    energy = rh->energy();
-    //cout<< "energy= "<< energy << endl;
-    iRecHit=true;
- 
-    int iN=0; int iD=0;
-   ////----  fill the arrays
-    if(energy > nThreshold_){ 
-       //++aboveNoisyThreshold[module-1][sector-1];
-       iN=aboveNoisyThreshold[module-1][sector-1]; aboveNoisyThreshold[module-1][sector-1]=iN+1;
+    castorModule = CastorID.module();
+    castorSector = CastorID.sector();
+    castorEnergy = rh->energy();
+    //if(ievt_ % 1000 == 0) cout << "==> module=" << module << " sector=" << sector << " energy= "<< energy << endl;
+    iRecHit=true; 
+   
+    ////----  fill the arrays 
+    ////----  need to substruct 1 since module and sector start from 1
+    if(castorEnergy > nThreshold_) ++aboveNoisyThreshold[castorModule-1][castorSector-1];
+    if(castorEnergy < dThreshold_) ++belowDThreshold[castorModule-1][castorSector-1];
+    ////---- use this threshold for the moment
+    if(castorEnergy>1) { //if(castorEnergy>0) {
+      ++aboveThr[castorModule-1][castorSector-1]; 
+      energyArray[castorModule-1][castorSector-1]=energyArray[castorModule-1][castorSector-1]+castorEnergy;
     }
 
-  if(energy < dThreshold_){
-      // ++aboveDThreshold[module-1][sector-1];
-       iD=aboveDThreshold[module-1][sector-1]; aboveDThreshold[module-1][sector-1]=iD+1;
-    }
- 
-  
-  }
+   }////---- end of the loop
+
+
+
 
  ////---- increment here 
   ievt_++;
-
- ////---- update reportSummarymap every 200 events
- if( (ievt_ == 25 || ievt_ % 200 == 0) && iRecHit ) {
-   
-   cout<< "===> start filling the reportSummaryMap!" << " dThreshold is set to " 
-       << dThreshold_ << " nThreshold is set to "<< nThreshold_ << endl;
-   
-   ////--- initialize these here
-   status = -99;  numOK = 0;  counter1=0; counter2=0; 
-   counter1_=0.; counter2_=0.;
-
-   ////---- reset the reportSummaryMap 
-   // if(offline_) reportSummaryMap->Reset();
   
-   ////---- look at the values in the arrays
+
+
+
+ ////---------------------------------------------
+ ////---- update reportSummarymap every 500 events
+ ////----------------------------------------------
+ if( (ievt_ == 25 || ievt_ % 500 == 0) && iRecHit ) {
+   
+   status = -99;  numOK = 0; 
+
+     ////---- reset the reportSummaryMap 
+    // if(offline_) reportSummaryMap->Reset();
+
+
+ ////---- check each channel 
+ for (int sector=0; sector<16; sector++){
   for (int module=0; module<14; module++){
-    for (int sector=0; sector<16; sector++){
-   //-- look at the arrays
-   counter1= aboveNoisyThreshold[module][sector]; //counter1 defines how many times the energy was above a noisythreshold
-   counter2= aboveDThreshold[module][sector];  //counter2 defines how many times the energy was below a dthreshold
-   counter1_ = double(counter1)/double(ievt_); // get the fraction of events when it was above a noisythreshold
-   counter2_ = double(counter2)/double(ievt_); // get the fraction of events when it was below a dThreshold
   
-    if( counter1_ > 0.85 ) ////--- channel is noisy (85% of cases energy was above NoisyThreshold)
-      status= 0;   
-  
-    if( counter2_ > 0.85 )   ////--- channel is dead (85% of cases energy was below dThreshold)
-      {status= -1; cout << "!!! dChannels ===> module="<< module << " sector="<< sector << endl;}
- 
-   if( counter1_ < 0.85 && counter2_ <  0.85 ) ////---- channel is good
-        status= 1;
 
-   if(fVerbosity>0)
-   cout << "===> module="<< module << " sector="<< sector <<" *** < counter1=" 
+   if(averageEnergyMethod_){
+
+     if(aboveThr[module][sector] >0)
+     averageEnergy= energyArray[module][sector]/double(aboveThr[module][sector]); // calculate the average energy in each channel
+     else averageEnergy=0;
+ 
+     ////---- evaluation
+     if( averageEnergy >  nThreshold_ )  status= 0;   ////--- channel is noisy 
+     if( averageEnergy < dThreshold_  ) { status= -1;  ////--- channel is dead 
+         cout << "!!! dChannels ===> module="<< module+1 << " sector="<< sector+1 << endl;}
+     if( averageEnergy <  nThreshold_ && averageEnergy > dThreshold_ )  status= 1; ////---- channel is good
+
+     if(fVerbosity>0)
+      cout << "===> module="<< module+1 << " sector="<< sector+1 <<" *** average Energy=" 
+	   << averageEnergy << " => energy=" << energyArray[module][sector] << " events="
+           << ievt_ << " aboveThr="<< double(aboveThr[module][sector]) <<endl;
+    }
+
+
+   else{
+      //-- look at the arrays
+      counter1= aboveNoisyThreshold[module][sector]; //counter1 defines how many times the energy was above a noisythreshold
+      counter2= belowDThreshold[module][sector];  //counter2 defines how many times the energy was below a dthreshold
+      wcounter1= double(counter1)/double(ievt_);
+      wcounter2= double(counter2)/double(ievt_);
+      ////---- evaluation
+      if( wcounter1 > 0.85 )  status= 0; ////--- channel is noisy (85% of cases energy was above NoisyThreshold) 
+      if( wcounter2 > 0.85 ) {status= -1;  ////--- channel is dead (85% of cases energy was below dThreshold)
+       cout << "!!! dChannels ===> module="<< module+1 << " sector="<< sector+1 << endl;}
+      if( wcounter1 < 0.85 && wcounter2 <  0.85 ) status= 1; ////---- channel is good
+
+      if(fVerbosity>0)
+        cout << "===> module="<< module+1 << " sector="<< sector+1 <<" *** counter1=" 
         << counter1 << " => counter2=" << counter2 << " events="<< ievt_ 
-        << " > ==> STATUS=" << status <<endl;
+        << " wcounter1=" << wcounter1  << " wcounter2=" <<  wcounter2
+        << " *** ==> STATUS=" << status <<endl;      
+    }
 
    ////---- fill reportSummaryMap  
    // reportSummaryMap->Fill(module,sector,status);
-   reportSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,status);
+   reportSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,double(status));
    if (status == 1) numOK++;
+
       }
     }
  ////--- calculate the fraction of good channels and fill it in
