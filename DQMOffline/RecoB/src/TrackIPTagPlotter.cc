@@ -461,11 +461,11 @@ TrackIPTagPlotter::TrackIPTagPlotter(const TString & tagName,
 
   trackQualHisto = new FlavourHistograms<int>
        ("trackQual" + theExtensionString, "Track Quality of Tracks Associated to Jets",
-        6, -1.5, 4.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+        4, -1.5, 2.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
 
   selectedTrackQualHisto = new FlavourHistograms<int>
        ("selectedTrackQual" + theExtensionString, "Track Quality of Selected Tracks Associated to Jets",
-        6, -1.5, 4.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+        4, -1.5, 2.5, false, true, true, "b", update, std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
 
   trackMultVsJetPtHisto = new FlavourHistograms2D<double, int>
        ("trackMultVsJetPt" + theExtensionString, "Track Multiplicity vs Jet Pt for Tracks Associated to Jets",
@@ -789,7 +789,7 @@ void TrackIPTagPlotter::epsPlot(const TString & name)
 }
 
 int TrackIPTagPlotter::highestTrackQual(const reco::Track* track) {
-  for(int i = 4; i > -1; --i)
+  for(int i = 2; i > -1; --i)
   {
     reco::TrackBase::TrackQuality qual = reco::TrackBase::qualityByName(reco::TrackBase::qualityNames[i]);
     if(track->quality(qual))

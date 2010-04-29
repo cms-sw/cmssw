@@ -52,7 +52,7 @@ public:
   void fill ( const int & flavour,  const T * variableX, const G * variableY) const;
 
 
-  void settitle(const char* title) ;
+  void settitle(const char* titleX, const char* titleY) ;
   
   // needed for efficiency computations -> this / b
   // (void : alternative would be not to overwrite the histos but to return a cloned HistoDescription)
@@ -271,19 +271,29 @@ FlavourHistograms2D<T, G>::fill ( const int & flavour,  const T * variableX, con
 
 
 template <class T, class G>
-void FlavourHistograms2D<T, G>::settitle(const char* title) {
- if(theHisto_all) theHisto_all ->setAxisTitle(title) ;
+void FlavourHistograms2D<T, G>::settitle(const char* titleX, const char* titleY) {
+ if(theHisto_all) theHisto_all ->setAxisTitle(titleX) ;
+ if(theHisto_all) theHisto_all ->setAxisTitle(titleY, 2) ;
     if (mcPlots_ == true) {  
       
-      if(theHisto_d)  theHisto_d   ->setAxisTitle(title) ;
-      if(theHisto_u)  theHisto_u   ->setAxisTitle(title) ;
-      if(theHisto_s)  theHisto_s   ->setAxisTitle(title) ;
-      if(theHisto_c)  theHisto_c   ->setAxisTitle(title) ;
-      if(theHisto_b)  theHisto_b   ->setAxisTitle(title) ;
-      if(theHisto_g)  theHisto_g   ->setAxisTitle(title) ;
-      if(theHisto_ni) theHisto_ni  ->setAxisTitle(title) ;
-      if(theHisto_dus) theHisto_dus ->setAxisTitle(title) ;
-      if(theHisto_dusg)theHisto_dusg->setAxisTitle(title) ;
+      if(theHisto_d)  theHisto_d   ->setAxisTitle(titleX) ;
+      if(theHisto_u)  theHisto_u   ->setAxisTitle(titleX) ;
+      if(theHisto_s)  theHisto_s   ->setAxisTitle(titleX) ;
+      if(theHisto_c)  theHisto_c   ->setAxisTitle(titleX) ;
+      if(theHisto_b)  theHisto_b   ->setAxisTitle(titleX) ;
+      if(theHisto_g)  theHisto_g   ->setAxisTitle(titleX) ;
+      if(theHisto_ni) theHisto_ni  ->setAxisTitle(titleX) ;
+      if(theHisto_dus) theHisto_dus ->setAxisTitle(titleX) ;
+      if(theHisto_dusg)theHisto_dusg->setAxisTitle(titleX) ;
+      if(theHisto_d)  theHisto_d   ->setAxisTitle(titleY, 2) ;
+      if(theHisto_u)  theHisto_u   ->setAxisTitle(titleY, 2) ;
+      if(theHisto_s)  theHisto_s   ->setAxisTitle(titleY, 2) ;
+      if(theHisto_c)  theHisto_c   ->setAxisTitle(titleY, 2) ;
+      if(theHisto_b)  theHisto_b   ->setAxisTitle(titleY, 2) ;
+      if(theHisto_g)  theHisto_g   ->setAxisTitle(titleY, 2) ;
+      if(theHisto_ni) theHisto_ni  ->setAxisTitle(titleY, 2) ;
+      if(theHisto_dus) theHisto_dus ->setAxisTitle(titleY, 2) ;
+      if(theHisto_dusg)theHisto_dusg->setAxisTitle(titleY, 2) ;
     }
 }
 
