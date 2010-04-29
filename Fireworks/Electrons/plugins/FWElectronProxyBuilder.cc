@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.12 2010/04/26 13:33:33 yana Exp $
+// $Id: FWElectronProxyBuilder.cc,v 1.13 2010/04/27 18:08:28 amraktad Exp $
 //
 #include "TEveCompound.h"
 #include "TEveTrack.h"
@@ -24,7 +24,6 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -117,7 +116,7 @@ FWElectronProxyBuilder::buildViewType(const reco::GsfElectron& electron, unsigne
                                        electron.superCluster(),
                                        electron.phi(),
                                        *comp );
-
+ 
    setupAddElement( comp, &oItemHolder );
 }
 

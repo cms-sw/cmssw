@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 15:32:33 EST 2008
-// $Id: makeSuperCluster.cc,v 1.3 2009/04/27 16:53:30 dmytro Exp $
+// $Id: makeSuperCluster.cc,v 1.4 2010/04/20 20:49:42 amraktad Exp $
 //
 
 // system include files
@@ -80,4 +80,5 @@ bool makeRhoZSuperCluster(FWProxyBuilderBase* pb,
 
    return true;
 }
+
 }
