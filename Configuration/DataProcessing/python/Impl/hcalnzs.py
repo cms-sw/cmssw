@@ -83,7 +83,7 @@ class hcalnzs(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = step.rstrip('+')+'ENDJOB'
+        options.step = step.rstrip('+')
         options.isMC = False
         options.isData = True
         options.beamspot = None
