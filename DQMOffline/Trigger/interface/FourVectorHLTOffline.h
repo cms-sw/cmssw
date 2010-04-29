@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.50 2010/04/21 15:13:21 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.51 2010/04/23 16:35:37 rekovic Exp $
 //
 //
 
@@ -847,7 +847,7 @@ void objMonData<T>::monitorL1(const int l1Index, FourVectorHLTOffline* fv)
 
 
 
-      //if (fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_)
+      if (fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_)
       { 
 
         NL1++;
@@ -856,12 +856,12 @@ void objMonData<T>::monitorL1(const int l1Index, FourVectorHLTOffline* fv)
         v_->getL1EtaVsL1PhiL1Histo()->Fill(l1FV.eta(), l1FV.phi());
 
       }
-      /*
       else {
 
         continue;
 
       }
+      /*
       */
 
       matchL1Offline(l1FV, fv, NL1, NL1OffUM);
@@ -1022,7 +1022,7 @@ void objMonData<T>::monitorOnline(const int hltIndex, const int l1Index, FourVec
 
 	  trigger::TriggerObject onlineFV = toc[*ki];
 	
-	  //if (fabs(onlineFV.eta()) <= EtaMax_ && onlineFV.pt() >= EtMin_)
+	  if (fabs(onlineFV.eta()) <= EtaMax_ && onlineFV.pt() >= EtMin_)
 	  { 
 	
 	    NOn++;    
@@ -1032,12 +1032,12 @@ void objMonData<T>::monitorOnline(const int hltIndex, const int l1Index, FourVec
 	    v_->getOnEtaVsOnPhiOnHisto()->Fill(onlineFV.eta(), onlineFV.phi());
 	
 	  }
-    /*
 	  else {
 	
 	    return;
 	
 	  }
+    /*
     */
 
     matchOnlineL1(onlineFV,l1Index, fv, NOn);
