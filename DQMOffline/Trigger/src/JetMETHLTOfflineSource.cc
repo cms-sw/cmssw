@@ -165,7 +165,7 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 void JetMETHLTOfflineSource::fillMEforMonTriggerSummary(){
   // Trigger summary for all paths
-    bool muTrig = false;
+/*    bool muTrig = false;
     bool mbTrig = false;
     for(size_t i=0;i<MuonTrigPaths_.size();++i)if(isHLTPathAccepted(MuonTrigPaths_[i]))muTrig = true;
     for(size_t i=0;i<MBTrigPaths_.size();++i)if(isHLTPathAccepted(MBTrigPaths_[i]))mbTrig = true;
@@ -194,6 +194,61 @@ void JetMETHLTOfflineSource::fillMEforMonTriggerSummary(){
             if(mbTrig)correlation_AllWrtMB->Fill(binV,binW); 
            }
            if(!isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))
+           {
+            correlation_All->Fill(binW,binV); 
+            if(muTrig)correlation_AllWrtMu->Fill(binW,binV);
+            if(mbTrig)correlation_AllWrtMB->Fill(binW,binV);
+
+           }
+           }
+        }
+*/
+
+    bool muTrig = false;
+    bool mbTrig = false;
+    for(size_t i=0;i<MuonTrigPaths_.size();++i){
+        if(isHLTPathAccepted(MuonTrigPaths_[i])){
+          muTrig = true;
+          break;
+        } 
+      }
+    for(size_t i=0;i<MBTrigPaths_.size();++i){
+        if(isHLTPathAccepted(MBTrigPaths_[i])){
+          mbTrig = true;
+          break;
+        }
+      }
+    for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v )
+        {
+         bool trigFirst= false;  
+         double binV = TriggerPosition(v->getPath());       
+         if(isHLTPathAccepted(v->getPath())) trigFirst = true;
+         if(!trigFirst)continue;
+         if(trigFirst)
+         {
+          rate_All->Fill(binV);
+          correlation_All->Fill(binV,binV);
+          if(muTrig){
+           rate_AllWrtMu->Fill(binV);
+           correlation_AllWrtMu->Fill(binV,binV);
+          }
+          if(mbTrig){
+           rate_AllWrtMB->Fill(binV);
+           correlation_AllWrtMB->Fill(binV,binV);
+          }
+         }
+         for(PathInfoCollection::iterator w = v+1; w!= hltPathsAll_.end(); ++w )
+           {
+           bool trigSec = false; 
+           double binW = TriggerPosition(w->getPath()); 
+           if(isHLTPathAccepted(w->getPath()))trigSec = true;
+           if(trigSec && trigFirst)
+           {
+            correlation_All->Fill(binV,binW);
+            if(muTrig)correlation_AllWrtMu->Fill(binV,binW);
+            if(mbTrig)correlation_AllWrtMB->Fill(binV,binW); 
+           }
+           if(!trigSec && trigFirst)
            {
             correlation_All->Fill(binW,binV); 
             if(muTrig)correlation_AllWrtMu->Fill(binW,binV);
@@ -233,7 +288,8 @@ void JetMETHLTOfflineSource::fillMEforTriggerNTfired(){
              if(l1found)
              {
              
-             if((v->getTriggerType() == "SingleJet_Trigger") && (calojetColl_.isValid()) && calojet.size())
+             if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && (calojetColl_.isValid()) && calojet.size())
+              
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               v->getMEhisto_JetPt()->Fill(jet->pt());
@@ -242,7 +298,7 @@ void JetMETHLTOfflineSource::fillMEforTriggerNTfired(){
                  
               }// single jet trigger is not fired
 
-            if(v->getTriggerType() == "DiJet_Trigger" && calojetColl_.isValid()  && calojet.size())
+            if((v->getTriggerType().compare("DiJet_Trigger") == 0) && calojetColl_.isValid()  && calojet.size())
               {
               v->getMEhisto_JetSize()->Fill(calojet.size()) ;
               if (calojet.size()>=2){
@@ -264,7 +320,7 @@ void JetMETHLTOfflineSource::fillMEforTriggerNTfired(){
               }
              }// di jet trigger is not fired 
 
-           if(v->getTriggerType() == "MET_Trigger" && calometColl_.isValid() )
+           if((v->getTriggerType().compare("MET_Trigger") == 0) && calometColl_.isValid() )
               {
               const CaloMETCollection *calometcol = calometColl_.product();
               const CaloMET met = calometcol->front();
@@ -321,7 +377,6 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
             } else {
              l1TrigBool = true;
              const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
-             std::string l1name = triggerObj_->filterTag(l1Index).encode();
              if(v->getObjectType() == trigger::TriggerJet)v->getMEhisto_N_L1()->Fill(kl1.size());
              for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki)
               {
@@ -350,7 +405,6 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
                 edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
                 } else {
                 const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex);
-                std::string hltname = triggerObj_->filterTag(hltIndex).encode();
                  if((v->getObjectType() == trigger::TriggerJet) && (ki == kl1.begin()))v->getMEhisto_N_HLT()->Fill(khlt.size());
 
                  for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj)
@@ -361,7 +415,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
                    {
                    hltTrigEta = toc[*kj].eta();
                    hltTrigPhi = toc[*kj].phi();
-                   if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4 && (v->getTriggerType() == "DiJet_Trigger"))hltTrigBool = true;
+                   if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4 && (v->getTriggerType().compare("DiJet_Trigger") == 0))hltTrigBool = true;
                   }    
                   }
                for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj)
@@ -396,7 +450,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
                     v->getMEhisto_PhiResolution_L1HLT()->Fill((toc[*ki].phi()-toc[*kj].phi())/(toc[*ki].phi()));
                     } 
 
-                   if(((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi) < 0.4 ) || (v->getTriggerType() == "DiJet_Trigger"  && hltTrigBool)) && !diJetFire)
+                   if(((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi) < 0.4 ) || ((v->getTriggerType().compare("DiJet_Trigger") == 0)  && hltTrigBool)) && !diJetFire)
                     {
                     v->getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());
                     if (isBarrel(toc[*kj].eta()))  v->getMEhisto_PtBarrel_HLT()->Fill(toc[*kj].pt());
@@ -406,8 +460,8 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
                     v->getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());
                     v->getMEhisto_EtaPhi_HLT()->Fill(toc[*kj].eta(),toc[*kj].phi());
          //-------------------------------------------------           
-
-                    if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
+ 
+                   if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
                     
                     for(CaloJetCollection::const_iterator jet = calojet.begin(); jet != calojet.end(); ++jet ) {
                       double jetEta = jet->eta();
@@ -432,7 +486,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
                          v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-jet->phi())/(toc[*kj].phi()));
                          
         //-------------------------------------------------------    
-                         if(v->getTriggerType() == "DiJet_Trigger" )
+                         if((v->getTriggerType().compare("DiJet_Trigger") == 0))
                            {
                             jetPhiVec.push_back(jet->phi());
                             jetPtVec.push_back(jet->pt());
@@ -472,13 +526,13 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
      //--------------------------------------------------------
 
             }//Loop over HLT trigger candidates
-         if(v->getTriggerType() == "DiJet_Trigger")diJetFire = true;
+         if((v->getTriggerType().compare("DiJet_Trigger") == 0))diJetFire = true;
         }// valid hlt trigger object
      }// Loop over L1 objects
       }// valid L1
      v->getMEhisto_N()->Fill(jetsize);
      //--------------------------------------------------------
-       if(v->getTriggerType() == "DiJet_Trigger" && jetPtVec.size() >1)
+       if((v->getTriggerType().compare("DiJet_Trigger") == 0) && jetPtVec.size() >1)
             {
                double AveJetPt = (jetPtVec[0] + jetPtVec[1])/2;
                double AveJetEta = (jetEtaVec[0] + jetEtaVec[1])/2;               
@@ -504,12 +558,11 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
            } else {
            l1TrigBool = true;
            const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
-           std::string l1name = triggerObj_->filterTag(l1Index).encode();
             for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki)
               {
               double l1TrigEta = toc[*ki].eta();
               double l1TrigPhi = toc[*ki].phi();
-              if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "SingleJet_Trigger") ){
+              if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("SingleJet_Trigger") == 0) ){
                    for(CaloJetCollection::const_iterator jet = calojet.begin(); jet != calojet.end(); ++jet ) {
                     double jetEta = jet->eta();
                     double jetPhi = jet->phi();
@@ -575,9 +628,9 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
     for(size_t i=0;i<MuonTrigPaths_.size();++i)if(isHLTPathAccepted(MuonTrigPaths_[i]))muTrig = true;
     if(muTrig)
     {
-     //-----------------------------------------------------  
+  //-----------------------------------------------------  
   const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects()); 
-  for(PathInfoCollection::iterator v = hltPathsAllWrtMu_.begin(); v!= hltPathsAllWrtMu_.end(); ++v )
+  for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v )
     {
      for(int i = 0; i < npath; ++i) { 
        if (triggerNames_.triggerName(i).find(v->getPath()) != std::string::npos && triggerResults_->accept(i))
@@ -601,19 +654,18 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
             const int hltIndex = triggerObj_->filterIndex(hltTag);
             bool l1TrigBool = false;
             bool hltTrigBool = false;
-            int MatchingHLT = 0;
+            bool diJetFire = false;
             int jetsize = 0;
             if ( l1Index >= triggerObj_->sizeFilters() ) {
             edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
             } else {
              l1TrigBool = true;
              const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
-             std::string l1name = triggerObj_->filterTag(l1Index).encode();
              if(v->getObjectType() == trigger::TriggerJet)v->getMEhisto_N_L1()->Fill(kl1.size());
              for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki)
               {
-               double l1TrigEta = 0;
-               double l1TrigPhi = 0;
+               double l1TrigEta = -100;
+               double l1TrigPhi = -100;
               //-------------------------------------------
                if(v->getObjectType() == trigger::TriggerJet)
                { 
@@ -637,25 +689,23 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
                 edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
                 } else {
                 const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex);
-                std::string hltname = triggerObj_->filterTag(hltIndex).encode();
-                if((v->getObjectType() == trigger::TriggerJet) && (ki == kl1.begin()))v->getMEhisto_N_HLT()->Fill(khlt.size());
+                 if((v->getObjectType() == trigger::TriggerJet) && (ki == kl1.begin()))v->getMEhisto_N_HLT()->Fill(khlt.size());
 
                  for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj)
                   {
-                  double hltTrigEta = 0.;
-                  double hltTrigPhi = 0.;
+                  double hltTrigEta = -100;
+                  double hltTrigPhi = -100;
                   if(v->getObjectType() == trigger::TriggerJet)
                    {
                    hltTrigEta = toc[*kj].eta();
                    hltTrigPhi = toc[*kj].phi();
-                   if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4 && (v->getTriggerType() == "DiJet_Trigger"))hltTrigBool = true;
+                   if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4 && (v->getTriggerType().compare("DiJet_Trigger") == 0))hltTrigBool = true;
                   }    
                   }
-
                for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj)
                   {
-                  double hltTrigEta = 0.;
-                  double hltTrigPhi = 0.;
+                  double hltTrigEta = -100;
+                  double hltTrigPhi = -100;
             //--------------------------------------------------
                   if(v->getObjectType() == trigger::TriggerMET)
                     {
@@ -671,10 +721,22 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
                    {
                    hltTrigEta = toc[*kj].eta();
                    hltTrigPhi = toc[*kj].phi();
-                   
-                   if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4 || hltTrigBool)
-                    {
+
+                   if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4)
+                     {
                     
+                    v->getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());
+                    v->getMEhisto_EtaCorrelation_L1HLT()->Fill(toc[*ki].eta(),toc[*kj].eta());
+                    v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());
+
+                    v->getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));
+                    v->getMEhisto_EtaResolution_L1HLT()->Fill((toc[*ki].eta()-toc[*kj].eta())/(toc[*ki].eta()));
+                    v->getMEhisto_PhiResolution_L1HLT()->Fill((toc[*ki].phi()-toc[*kj].phi())/(toc[*ki].phi()));
+                    } 
+
+                   if(((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi) < 0.4 ) || ((v->getTriggerType().compare("DiJet_Trigger") == 0)  && hltTrigBool)
+) && !diJetFire)
+                    {
                     v->getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());
                     if (isBarrel(toc[*kj].eta()))  v->getMEhisto_PtBarrel_HLT()->Fill(toc[*kj].pt());
                     if (isEndCap(toc[*kj].eta()))  v->getMEhisto_PtEndcap_HLT()->Fill(toc[*kj].pt());
@@ -682,21 +744,10 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
                     v->getMEhisto_Eta_HLT()->Fill(toc[*kj].eta());
                     v->getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());
                     v->getMEhisto_EtaPhi_HLT()->Fill(toc[*kj].eta(),toc[*kj].phi());
-                    if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4)
-                     {  
-                    MatchingHLT++; 
-                    v->getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());
-                    v->getMEhisto_EtaCorrelation_L1HLT()->Fill(toc[*ki].eta(),toc[*kj].eta());  
-                    v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());
-                     
-                    v->getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));
-                    v->getMEhisto_EtaResolution_L1HLT()->Fill((toc[*ki].eta()-toc[*kj].eta())/(toc[*ki].eta()));
-                    v->getMEhisto_PhiResolution_L1HLT()->Fill((toc[*ki].phi()-toc[*kj].phi())/(toc[*ki].phi()));
-                    } 
          //-------------------------------------------------           
-
-                    if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
-                        
+ 
+                   if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
+                    
                     for(CaloJetCollection::const_iterator jet = calojet.begin(); jet != calojet.end(); ++jet ) {
                       double jetEta = jet->eta();
                       double jetPhi = jet->phi();
@@ -718,8 +769,9 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
                          v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-jet->pt())/(toc[*kj].pt()));
                          v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*kj].eta()-jet->eta())/(toc[*kj].eta()));
                          v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-jet->phi())/(toc[*kj].phi()));
+                         
         //-------------------------------------------------------    
-                         if(v->getTriggerType() == "DiJet_Trigger"  && MatchingHLT==1)
+                         if((v->getTriggerType().compare("DiJet_Trigger") == 0))
                            {
                             jetPhiVec.push_back(jet->phi());
                             jetPtVec.push_back(jet->pt());
@@ -739,7 +791,6 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
                         }// matching jet
                                     
                      }// Jet Loop
-                    v->getMEhisto_N()->Fill(jetsize);
                     }// valid jet collection
                   } // hlt matching with l1 
                       
@@ -760,14 +811,13 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
      //--------------------------------------------------------
 
             }//Loop over HLT trigger candidates
-
+         if((v->getTriggerType().compare("DiJet_Trigger") == 0))diJetFire = true;
         }// valid hlt trigger object
-
-         }// Loop over L1 objects
+     }// Loop over L1 objects
       }// valid L1
      v->getMEhisto_N()->Fill(jetsize);
      //--------------------------------------------------------
-       if(v->getTriggerType() == "DiJet_Trigger" && jetPtVec.size() >1)
+       if((v->getTriggerType().compare("DiJet_Trigger") == 0) && jetPtVec.size() >1)
             {
                double AveJetPt = (jetPtVec[0] + jetPtVec[1])/2;
                double AveJetEta = (jetEtaVec[0] + jetEtaVec[1])/2;               
@@ -793,12 +843,11 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
            } else {
            l1TrigBool = true;
            const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
-           std::string l1name = triggerObj_->filterTag(l1Index).encode();
             for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki)
               {
               double l1TrigEta = toc[*ki].eta();
               double l1TrigPhi = toc[*ki].phi();
-              if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "SingleJet_Trigger") ){
+              if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("SingleJet_Trigger") == 0) ){
                    for(CaloJetCollection::const_iterator jet = calojet.begin(); jet != calojet.end(); ++jet ) {
                     double jetEta = jet->eta();
                     double jetPhi = jet->phi();
@@ -820,6 +869,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
                          v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*ki].pt()-jet->pt())/(toc[*ki].pt()));
                          v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*ki].eta()-jet->eta())/(toc[*ki].eta()));
                          v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*ki].phi()-jet->phi())/(toc[*ki].phi()));
+
                         }// matching jet
                                     
                      }// Jet Loop
@@ -831,12 +881,11 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
                     const CaloMET met = calometcol->front();
                     v->getMEhisto_Pt()->Fill(met.pt()); 
                     v->getMEhisto_Phi()->Fill(met.phi());
-
+                
                     v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*ki].pt(),met.pt());
                     v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*ki].phi(),met.phi());
                     v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*ki].pt()-met.pt())/(toc[*ki].pt()));
                     v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*ki].phi()-met.phi())/(toc[*ki].phi()));
-     
                     }// valid MET Collection         
              
 
@@ -847,6 +896,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
       }//Trigger is fired
      }// trigger under study
     }//Loop over all trigger paths
+  
 
   }// Muon trigger fired
 
@@ -876,7 +926,7 @@ int npath;
              if(denompassed){
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
               bool jetIDbool = false;
-              if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
+              if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && calojet.size())
               {
 
               CaloJetCollection::const_iterator jet = calojet.begin();
@@ -895,7 +945,7 @@ int npath;
               v->getMEhisto_DenominatorEtaPhi()->Fill(jet->eta(),jet->phi());             
               }
               }
-              if(v->getTriggerType() == "DiJet_Trigger" && calojet.size()>1)
+              if((v->getTriggerType().compare("DiJet_Trigger") == 0) && calojet.size()>1)
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
@@ -920,7 +970,7 @@ int npath;
              {
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
               bool jetIDbool = false;
-              if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
+              if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && calojet.size())
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               jetID->calculate(iEvent, *jet);
@@ -936,7 +986,7 @@ int npath;
               v->getMEhisto_NumeratorEtaPhi()->Fill(jet->eta(),jet->phi());
               }
               }
-              if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() > 1)
+              if((v->getTriggerType().compare("DiJet_Trigger") == 0) && calojet.size() > 1)
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
@@ -985,7 +1035,7 @@ int npath;
              if(denompassed){
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
               bool jetIDbool = false;
-              if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
+              if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && calojet.size())
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               jetID->calculate(iEvent, *jet);
@@ -1001,7 +1051,7 @@ int npath;
               v->getMEhisto_DenominatorEtaPhi()->Fill(jet->eta(),jet->phi());             
               }
               }
-              if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() > 1)
+              if((v->getTriggerType().compare("DiJet_Trigger") == 0) && calojet.size() > 1)
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
@@ -1026,7 +1076,7 @@ int npath;
              {
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
               bool jetIDbool = false;     
-              if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
+              if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && calojet.size())
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               jetID->calculate(iEvent, *jet);
@@ -1042,7 +1092,7 @@ int npath;
               v->getMEhisto_NumeratorEtaPhi()->Fill(jet->eta(),jet->phi());
               }
               }
-              if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() > 1)     
+              if((v->getTriggerType().compare("DiJet_Trigger") == 0) && calojet.size() > 1)     
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++; 
@@ -1093,7 +1143,7 @@ int npath;
              if(denompassed){
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
               bool jetIDbool = false;
-              if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size()) 
+              if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && calojet.size()) 
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               jetID->calculate(iEvent, *jet);
@@ -1109,7 +1159,7 @@ int npath;
               v->getMEhisto_DenominatorEtaPhi()->Fill(jet->eta(),jet->phi());             
               }
               }
-              if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() >1) 
+              if((v->getTriggerType().compare("DiJet_Trigger") == 0) && calojet.size() >1) 
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
@@ -1133,7 +1183,7 @@ int npath;
              {
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
               bool jetIDbool = false;
-              if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
+              if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && calojet.size())
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               jetID->calculate(iEvent, *jet);
@@ -1149,7 +1199,7 @@ int npath;
               v->getMEhisto_NumeratorEtaPhi()->Fill(jet->eta(),jet->phi());
               }
               }
-              if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() > 1)
+              if((v->getTriggerType().compare("DiJet_Trigger") == 0) && calojet.size() > 1)
               {
               CaloJetCollection::const_iterator jet = calojet.begin();   
               CaloJetCollection::const_iterator jet2 = jet++;
@@ -1743,7 +1793,7 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    h = PhiCorrelation_HLTRecObj->getTH1();
    h->Sumw2();
 
-   if(v->getTriggerType() == "DiJet_Trigger")
+   if((v->getTriggerType().compare("DiJet_Trigger") == 0))
    {
    histoname = labelname+"_RecObjAveragePt";
    title     = labelname+"_RecObjAveragePt;Reco Average Pt[GeV/c]"+trigPath;
@@ -2214,7 +2264,7 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    h = PhiCorrelation_HLTRecObj->getTH1();
    h->Sumw2();
 
-   if(v->getTriggerType() == "DiJet_Trigger")
+   if((v->getTriggerType().compare("DiJet_Trigger") == 0))
    {
    histoname = labelname+"_RecObjAveragePt";
    title     = labelname+"_RecObjAveragePt;Reco Average Pt[GeV/c]"+trigPath;
@@ -2398,7 +2448,7 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    MonitorElement *dummy;
    dummy =  dbe->bookFloat("dummy");   
     
-   if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "SingleJet_Trigger"))
+   if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("SingleJet_Trigger") == 0))
    { 
    histoname = labelname+"_NumeratorPt";
    title     = labelname+"NumeratorPt;Calo Pt[GeV/c]";
@@ -2489,7 +2539,7 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
                       DenominatorPt,  DenominatorPtBarrel, DenominatorPtEndcap, DenominatorPtForward, DenominatorEta, DenominatorPhi, DenominatorEtaPhi);
   }// Loop over Jet Trigger
 
-   if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "DiJet_Trigger"))
+   if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("DiJet_Trigger") == 0))
    {
 
    histoname = labelname+"_NumeratorAvrgPt";
@@ -2570,7 +2620,7 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMu_.begin(); v!= hltPathsEffW
 
    MonitorElement *dummy;
    dummy =  dbe->bookFloat("dummy");
-   if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "SingleJet_Trigger"))
+   if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("SingleJet_Trigger") == 0))
    { 
    histoname = labelname+"_NumeratorPt";
    title     = labelname+"NumeratorPt;Pt[GeV/c]";
@@ -2661,7 +2711,7 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMu_.begin(); v!= hltPathsEffW
                     DenominatorPt,  DenominatorPtBarrel, DenominatorPtEndcap, DenominatorPtForward, DenominatorEta, DenominatorPhi, DenominatorEtaPhi);
   }// Loop over Jet Trigger
 
-  if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "DiJet_Trigger"))
+  if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("DiJet_Trigger") == 0))
    {
    histoname = labelname+"_NumeratorAvrgPt";
    title     = labelname+"NumeratorAvrgPt;Calo Pt[GeV/c] ";
@@ -2738,7 +2788,7 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffW
    dbe->setCurrentFolder(subdirName);
    MonitorElement *dummy;
    dummy =  dbe->bookFloat("dummy");   
-   if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "SingleJet_Trigger"))
+   if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("SingleJet_Trigger") == 0))
    { 
    histoname = labelname+"_NumeratorPt";
    title     = labelname+"NumeratorPt;Calo Pt[GeV/c] ";
@@ -2830,7 +2880,7 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffW
   }// Loop over Jet Trigger
 
 
-  if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "DiJet_Trigger"))
+  if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("DiJet_Trigger") == 0))
    {
 
    histoname = labelname+"_NumeratorAvrgPt";
@@ -2944,7 +2994,7 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffW
 	 trigger.push_back("L1 passed but not HLT");
    for(unsigned int i =0; i < trigger.size(); i++)TriggerSummary->setBinLabel(i+1, trigger[i]);
 
-  if((v->getTriggerType())=="SingleJet_Trigger")
+  if((v->getTriggerType().compare("SingleJet_Trigger") == 0))
    {
    histoname = labelname+"_JetPt"; 
    title     = labelname+"Leading jet pT;Pt[GeV/c]";
@@ -2969,7 +3019,7 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffW
    v->setDgnsHistos( TriggerSummary, dummy, JetPt, JetEtaVsPt, JetPhiVsPt, dummy, dummy, dummy, dummy, dummy, dummy); 
    }// single Jet trigger  
 
-  if((v->getTriggerType())=="DiJet_Trigger")
+  if((v->getTriggerType().compare("DiJet_Trigger") == 0))
    {
    histoname = labelname+"_JetSize"; 
    title     = labelname+"Jet Size;multiplicity";
@@ -3018,7 +3068,7 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffW
 
    }// Dijet Jet trigger
 
-  if((v->getTriggerType())=="MET_Trigger")
+  if((v->getTriggerType().compare("MET_Trigger") == 0))
    {
    histoname = labelname+"_MET";
    title     = labelname+"MET;Pt[GeV/c]";
@@ -3105,10 +3155,11 @@ double JetMETHLTOfflineSource::TriggerPosition(std::string trigName){
        {
        const char * binLabel = rate_All->getTH1()->GetXaxis()->GetBinLabel(ibin);
        if(binLabel[0]=='\0')continue;
-       std::string binLabel_str = string(binLabel);
-       if(binLabel_str.compare(trigName)!=0)continue;
+//       std::string binLabel_str = string(binLabel);
+//       if(binLabel_str.compare(trigName)!=0)continue;
+         if(trigName.compare(binLabel)!=0)continue;
 
-       if(binLabel_str.compare(trigName)==0){
+       if(trigName.compare(binLabel)==0){
          binVal = rate_All->getTH1()->GetBinCenter(ibin);
          break;
          }
