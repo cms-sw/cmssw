@@ -17,16 +17,16 @@ StripCPE::StripCPE( edm::ParameterSet & conf,
   late.push_back( std::make_pair(outoftime.getParameter<double>("TIDlateFP"),outoftime.getParameter<double>("TIDlateBP")));
   late.push_back( std::make_pair(outoftime.getParameter<double>("TOBlateFP"),outoftime.getParameter<double>("TOBlateBP")));
   late.push_back( std::make_pair(outoftime.getParameter<double>("TEClateFP"),outoftime.getParameter<double>("TEClateBP")));
+  late.push_back( std::make_pair(outoftime.getParameter<double>("teclateFP"),outoftime.getParameter<double>("teclateBP")));
 }
 
 
 StripClusterParameterEstimator::LocalValues StripCPE::
 localParameters( const SiStripCluster& cluster) const {
   StripCPE::Param const & p = param(cluster.geographicalId());
-  const float lfp(lateFrontPlane(p.subdet)), lbp(lateBackPlane(p.subdet));
   const float barycenter = cluster.barycenter();
   const float fullProjection = p.coveredStrips( p.drift + LocalVector(0,0,-p.thickness), LocalPoint(barycenter,0,0));
-  const float strip = barycenter - 0.5 * (1-lbp+lfp) * fullProjection;
+  const float strip = barycenter - 0.5 * (1-p.lbp+p.lfp) * fullProjection;
   // + 0.5*p.coveredStrips(track, ltp.position()); unnecessary, since hypothesized perpendicular track covers no strips.
 
   return std::make_pair( p.topology->localPosition(strip),
@@ -71,6 +71,9 @@ fillParam(StripCPE::Param & p, const GeomDetUnit *  det) {
   p.topology=(StripTopology*)(&stripdet->topology());    
   p.nstrips = p.topology->nstrips(); 
   p.subdet = SiStripDetId(stripdet->geographicalId()).subDetector();
+  const int lateIndex = p.subdet-SiStripDetId::TIB + (p.subdet==SiStripDetId::TEC && TECDetId(p.subdet).ring() < 4) ? 1 : 0;
+  p.lfp = late[lateIndex].first;
+  p.lbp = late[lateIndex].second;
   
   const RadialStripTopology* rtop = dynamic_cast<const RadialStripTopology*>(p.topology);
   p.pitch_rel_err2 = (rtop) 
@@ -78,14 +81,4 @@ fillParam(StripCPE::Param & p, const GeomDetUnit *  det) {
     : 0;
   
   return p;
-}
-
-float StripCPE::
-lateFrontPlane(SiStripDetId::SubDetector subdet) const {
-  return late[subdet-SiStripDetId::TIB].first;
-}
-
-float StripCPE::
-lateBackPlane(SiStripDetId::SubDetector subdet) const {
-  return late[subdet-SiStripDetId::TIB].second;
 }
