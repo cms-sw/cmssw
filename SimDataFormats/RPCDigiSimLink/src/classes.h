@@ -11,21 +11,15 @@
 
 
 #include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
-#include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiL1Link.h"
 
 namespace {
   struct dictionary {
-    edm::Wrapper< std::vector<RPCDigiSimLink>  > RPCDigiSimLinkVector;
-    edm::Wrapper< std::vector<edm::DetSet<RPCDigiSimLink> > > RPCDigiSimLinkVectorDetSet; 
     edm::Wrapper<RPCDigiSimLink> RPCDigiSimLinkWrapper;
+    edm::Wrapper< std::vector<RPCDigiSimLink>  > RPCDigiSimLinkVector;
+
     edm::Wrapper< edm::DetSet<RPCDigiSimLink> > RPCDigiSimLinkDetSetWrapper;
+    edm::Wrapper< std::vector<edm::DetSet<RPCDigiSimLink> > > RPCDigiSimLinkVectorDetSet; 
     edm::Wrapper< edm::DetSetVector<RPCDigiSimLink> > RPCDigiSimLinkDetSetVectorWrapper;
-
-    std::vector<std::pair<unsigned int, int> > basic;
-    edm::Wrapper<RPCDigiL1Link> l1w;
-    std::vector<RPCDigiL1Link> plain;
-    edm::Wrapper<std::vector<RPCDigiL1Link> > vectorplain;
-
   };
 }
 
