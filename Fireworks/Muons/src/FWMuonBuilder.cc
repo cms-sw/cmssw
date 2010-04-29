@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.20 2010/04/20 20:49:44 amraktad Exp $
+// $Id: FWMuonBuilder.cc,v 1.21 2010/04/21 11:10:08 amraktad Exp $
 //
 
 // system include files
@@ -225,7 +225,7 @@ FWMuonBuilder::buildMuon(FWProxyBuilderBase* pb,
    // workaround for missing GetFieldObj() in TEveTrackPropagator, default stepper is kHelix
    if (m_trackerPropagator->GetStepper() == TEveTrackPropagator::kHelix) {
       m_trackerPropagator->SetStepper(TEveTrackPropagator::kRungeKutta);
-      m_trackerPropagator->SetMagFieldObj(pb->context().getField());
+      m_trackerPropagator->SetMagFieldObj(pb->context().getField(), false);
    }
 
    TEveRecTrack recTrack;

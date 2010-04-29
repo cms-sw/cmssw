@@ -111,7 +111,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
    m_moduleLabels->SetRnrChildren(labelsOn);
 
    TEveTrackPropagator* prop = new TEveTrackPropagator();
-   prop->SetMagFieldObj (item()->context().getField());
+   prop->SetMagFieldObj (item()->context().getField(), false);
    prop->SetStepper(TEveTrackPropagator::kRungeKutta);
    prop->SetMaxR(123);
    prop->SetMaxZ(300);

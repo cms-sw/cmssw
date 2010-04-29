@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackProxyBuilder.cc,v 1.5 2010/04/20 20:49:44 amraktad Exp $
+// $Id: FWTrackProxyBuilder.cc,v 1.6 2010/04/21 11:10:08 amraktad Exp $
 //
 
 // system include files
@@ -70,7 +70,7 @@ FWTrackProxyBuilder::build( const reco::Track& iData, unsigned int iIndex,TEveEl
    // workaround for missing GetFieldObj() in TEveTrackPropagator, default stepper is kHelix
    if( m_trackerPropagator->GetStepper() == TEveTrackPropagator::kHelix ) {
       m_trackerPropagator->SetStepper( TEveTrackPropagator::kRungeKutta );
-      m_trackerPropagator->SetMagFieldObj( context().getField() );
+      m_trackerPropagator->SetMagFieldObj( context().getField(), false);
    }
 
    TEveTrackPropagator* propagator = ( !iData.extra().isAvailable() ) ? m_trackerPropagator.get() : context().getTrackPropagator();

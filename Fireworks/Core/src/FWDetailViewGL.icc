@@ -7,6 +7,7 @@
 #include "TEveViewer.h"
 #include "TEveScene.h"
 #include "TEveManager.h"
+#include "TSystem.h"
 
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWGLEventHandler.h"
@@ -23,7 +24,7 @@ m_eveScene(0)
 template <typename T>
 FWDetailViewGL<T>::~FWDetailViewGL ()
 {
-   if (m_eveScene) m_eveScene->DestroyElements();
+  m_eveScene->Destroy();
 }
 
 template <typename T>
