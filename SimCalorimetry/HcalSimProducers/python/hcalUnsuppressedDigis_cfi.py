@@ -28,15 +28,29 @@ hcalSimBlock = cms.PSet(
     injectTestHits = cms.bool(False)
 )
 
-es_cholesky = cms.ESSource('HcalTextCalibrations',
-    input = cms.VPSet(
+es_cholesky = cms.ESSource("PoolDBESSource",
+    process.CondDBSetup,
+    timetype = cms.string('runnumber'),
+    toGet = cms.VPSet(
         cms.PSet(
-            object = cms.string('CholeskyMatrices'),
-            file = cms.FileInPath("CondFormats/HcalObjects/data/CholeskyMatrices.txt")
-        ),
-    ),
-    appendToDataLabel = cms.string('reference')
+            record = cms.string("HcalCholeskyMatricesRcd"),
+            tag = cms.string("TestCholesky")
+        )),
+#    connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierProd/CMS_COND_31X_HCAL'),
+    connect = cms.string('sqlite_file:CondFormats/HcalObjects/data/cholesky_sql.db'),
+    authenticationMethod = cms.untracked.uint32(0),
 )
+
+
+#es_cholesky = cms.ESSource('HcalTextCalibrations',
+#    input = cms.VPSet(
+#        cms.PSet(
+#            object = cms.string('CholeskyMatrices'),
+#            file = cms.FileInPath("CondFormats/HcalObjects/data/CholeskyMatrices.txt")
+#        ),
+#    ),
+#    appendToDataLabel = cms.string('reference')
+#)
 
 simHcalUnsuppressedDigis = cms.EDProducer("HcalDigiProducer",
     hcalSimBlock
