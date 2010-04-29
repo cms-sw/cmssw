@@ -49,12 +49,16 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 {
   int status=0;
 
+  // The following 3 values are computed using the default reconstruction window (for Shuichi's algorithm)
   double maxInWindow=-10; // maximum value found in reco window
   int maxCapid=-1;
   int maxTS=-1;  // time slice where maximum is found
 
+  // The following 3 values are computed only in the window (firstSample_, firstSample_ + samplesToAdD_), which may not be the same as the default reco window  (for Igor's algorithm)
   double totalCharge=0;
   double peakCharge=0;
+  double RecomputedEnergy=0;
+
   for (int i=0;i<digi.size();++i)
     {
       int capid=digi.sample(i).capid();
@@ -76,7 +80,9 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
       if (i >=firstSample_ && i < firstSample_+samplesToAdd_)
 	{
 	  totalCharge+=value;
+	  RecomputedEnergy+=value*calib.respcorrgain(capid);
 	  if (i==expectedPeak_) peakCharge=value;
+
 	}
     }
 
@@ -91,10 +97,10 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
   hf.setFlagField(TSfrac_counter, HcalCaloFlagLabels::Fraction2TS,6);
 
   // Igor's algorithm:  compare charge in peak to total charge in window
-  if (hf.energy()<minthreshold_) return; // don't set noise flags for cells below a given threshold?
+  if (RecomputedEnergy<minthreshold_) return; // don't set noise flags for cells below a given threshold?
 
   // Calculate allowed minimum value of (TS4/TS3+4+5+6):
-  double cutoff=coef0_-exp(coef1_+coef2_*hf.energy());
+  double cutoff=coef0_-exp(coef1_+coef2_*RecomputedEnergy);
   
   if (peakCharge/totalCharge<cutoff)
     status=1;
