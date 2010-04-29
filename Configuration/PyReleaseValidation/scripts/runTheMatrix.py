@@ -228,33 +228,48 @@ class MatrixReader(object):
         self.workFlows = []
         self.nameList  = {}
         
+
+        self.filesPrefMap = {'cmsDriver_standard_hlt.txt' : 'std-' ,
+                             'cmsDriver_highstats_hlt.txt': 'hi-'  ,
+                             'cmsDriver_PileUp_hlt.txt'   : 'pu-'  ,
+                             'cmsDriver_realData_hlt.txt' : 'data-'}
+
+        self.files = ['cmsDriver_standard_hlt.txt' ,
+                      'cmsDriver_highstats_hlt.txt',
+                      'cmsDriver_PileUp_hlt.txt'   ,
+                      'cmsDriver_realData_hlt.txt' 
+                      ]
+        
         return
 
-    def readMatrix(self, fileNameIn, prefix='', offset=0):
+    def readMatrix(self, fileNameIn):
         
+        prefix = self.filesPrefMap[fileNameIn]
+
         print "processing ", fileNameIn,
-        if offset > 0 : print ' offset=', offset,
-        if prefix.strip() != '' : print " prefix=", prefix,
-        print ""
-        
         lines = []
         try:
             try:
                 inFile = open(fileNameIn, 'r')
+                print ' from local developer area',
             except IOError:
                 baseRelPath = os.environ['CMSSW_BASE']
-                print "trying fall-back to cmsDriver files from developer area at:", baseRelPath
+                # print "trying fall-back to cmsDriver files from developer area at:", baseRelPath
                 try:
                     inFile = open( os.path.join(baseRelPath, 'src/Configuration/PyReleaseValidation/data' ,fileNameIn), 'r')
+                    print ' from ', baseRelPath,
                 except IOError:
                     baseRelPath = os.environ['CMSSW_RELEASE_BASE']
-                    print "trying fall back to cmsDriver files from base release at:", baseRelPath
+                    # print "trying fall back to cmsDriver files from base release at:", baseRelPath
                     inFile = open( os.path.join(baseRelPath, 'src/Configuration/PyReleaseValidation/data' ,fileNameIn), 'r')
+                    print ' from ', baseRelPath,
             lines = inFile.readlines()
             inFile.close()
         except Exception, e:
             print "ERROR reading in file ", fileNameIn, str(e)
             return
+
+        print " found ", len(lines), 'entries.'
         
         realRe = re.compile('\s*([1-9][0-9]*\.*[0-9]*)\s*\+\+\s*(.*?)\s*\+\+\s*(.*?)\s*\+\+\s*(.*?)\s*@@@\s*(.*)\s*')
         step1Re = re.compile('\s*([1-9][0-9]*\.*[0-9]*)\s*\+\+\s*(.*?)\s*\+\+\s*(.*?)\s*@@@\s*(.*)\s*')
@@ -282,7 +297,7 @@ class MatrixReader(object):
                 if len(steps) > 2:
                     step4 = steps[2].strip()
                 
-                self.step1WorkFlows[float(num)+offset] = (str(float(num)+offset), name, step2, step3, step4, cmd, None)
+                self.step1WorkFlows[(float(num),prefix)] = (str(float(num)), name, step2, step3, step4, cmd, None)
                 continue
             
                 
@@ -304,7 +319,7 @@ class MatrixReader(object):
                 if len(steps) > 2:
                     step4 = steps[2].strip()
                 
-                self.step1WorkFlows[float(num)+offset] = (str(float(num)+offset), name, step2, step3, step4, cmd, None)
+                self.step1WorkFlows[(float(num),prefix)] = (str(float(num)), name, step2, step3, step4, cmd, None)
                 continue
             
             step2Match = step2Re.match(line)
@@ -337,7 +352,7 @@ class MatrixReader(object):
         ids.sort()
         for key in ids:
             val = self.step1WorkFlows[key]
-            print key, ':', val
+            print key[0], ':', val
         
         print "found ", len(self.step2WorkFlows.keys()), ' workflows for step2:'
         for key, val in self.step2WorkFlows.items():
@@ -389,16 +404,25 @@ class MatrixReader(object):
 
         return
     
-    def createWorkFlows(self, prefix=''):
+    def createWorkFlows(self, fileNameIn):
 
-        ids = self.step1WorkFlows.keys()
+        prefixIn = self.filesPrefMap[fileNameIn]
+
+        # get through the list of items and update the requested workflows only
+        keyList = self.step1WorkFlows.keys()
+        ids = []
+        for item in keyList:
+            id, pref = item
+            if pref != prefixIn : continue
+            ids.append( float(id) )
+            
         ids.sort()
         n1 = 0
         n2 = 0
         n3 = 0
         n4 = 0
         for key in ids:
-            val = self.step1WorkFlows[key]
+            val = self.step1WorkFlows[(key,prefixIn)]
             num, name, step2, step3, step4, cmd, real = val
             nameId = num+'_'+name
             if step2.lower() != 'none':
@@ -434,7 +458,20 @@ class MatrixReader(object):
 
         return
 
-    def show(self, selected=None):
+    def prepare(self):
+        
+        for matrixFile in self.files:
+            try:
+                self.readMatrix(matrixFile)
+            except Exception, e:
+                print "ERROR reading file:", matrixFile, str(e)
+
+            try:
+                self.createWorkFlows(matrixFile)
+            except Exception, e:
+                print "ERROR creating workflows :", str(e)
+
+    def show(self, selected=None):    
         # self.showRaw()
         self.showWorkFlows(selected)
         print '\n','-'*80,'\n'
@@ -562,19 +599,7 @@ def runSelected(testList, nThreads=4, show=False) :
                    ]
 
     mrd = MatrixReader()
-    files = ['cmsDriver_standard_hlt.txt', 'cmsDriver_highstats_hlt.txt']
-    offset = 0
-    for matrixFile in files:
-        try:
-            mrd.readMatrix(matrixFile, offset=offset)
-        except Exception, e:
-            print "ERROR reading file:", matrixFile, str(e)
-        offset += 100
-
-    try:
-        mrd.createWorkFlows()
-    except Exception, e:
-        print "ERROR creating workflows :", str(e)
+    mrd.prepare()
 
     if testList == []:
         testList = stdList+hiStatList
@@ -594,17 +619,8 @@ def runSelected(testList, nThreads=4, show=False) :
 def runData(testList, nThreads=4, show=False) :
 
     mrd = MatrixReader()
-    files = ['cmsDriver_realData_hlt.txt']
-    for matrixFile in files:
-        try:
-            mrd.readMatrix(matrixFile)
-        except Exception, e:
-            print "ERROR reading file:", matrixFile, str(e)
 
-    try:
-        mrd.createWorkFlows()
-    except Exception, e:
-        print "ERROR creating workflows :", str(e)
+    mrd.prepare()
 
     ret = 0
     if show:
@@ -627,20 +643,7 @@ def runData(testList, nThreads=4, show=False) :
 def runAll(testList=None, nThreads=4, show=False) :
 
     mrd = MatrixReader()
-    files = ['cmsDriver_standard_hlt.txt', 'cmsDriver_highstats_hlt.txt']
-    offset = 0
-    for matrixFile in files:
-        try:
-            mrd.readMatrix(matrixFile, offset=offset)
-        except Exception, e:
-            print "ERROR reading file:", matrixFile, str(e)
-        offset += 100
-        
-    try:
-        mrd.createWorkFlows()
-    except Exception, e:
-        print "ERROR creating workflows : "+str(e)
-
+    mrd.prepare()
 
     ret = 0
     
@@ -672,8 +675,7 @@ def usage():
 Where options is one of the following:
   -d, --data <list> comma-separated list of workflows to use from the realdata file.
                     <list> can be "all" to select all data workflows
-  -l, --list <list> comma-separated list of workflows to use from the standard/highstat files
-                    highstat files are offset by 100.
+  -l, --list <list> comma-separated list of workflows to use from the cmsDriver*.txt files
   -j, --nproc <n>   run <n> processes in parallel (default: 4 procs)
   -s, --selected    run a subset of 8 workflows (usually in the CustomIB)
   -n, -q, --show    show the (selected) workflows
