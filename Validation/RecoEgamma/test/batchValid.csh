@@ -16,7 +16,7 @@ setenv outFileName  QCD_Pt_80_120
 endif
 
 setenv confName  PhotonValidator
-setenv MYWORKDIR /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_3_7_0_pre1/src/Validation/RecoEgamma/test
+setenv MYWORKDIR /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_3_7_0_pre2/src/Validation/RecoEgamma/test
 
 echo ${MYWORKDIR}
 
@@ -34,4 +34,5 @@ echo ${WORKDIR}
 cmsRun  conf.py > & ${outFileName}.log
 #---------------------------------------------------------------
  rfcp   ${outFileName}.log             ${MYOUT}/.
- rfcp   PhotonValidationRelVal370pre1_${outFileName}.root            ${MYOUT}/.
+ rfcp   PhotonValidationRelVal370pre2_${outFileName}.root            ${MYOUT}/.
+
