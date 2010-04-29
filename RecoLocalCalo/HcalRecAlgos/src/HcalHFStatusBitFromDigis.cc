@@ -9,7 +9,7 @@ using namespace std;
 HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
 {
   // use simple values in default constructor
-  minthreshold_=10; // minimum total fC (summed over allowed range of time slices) needed for an HF channel to be considered noisy
+  minthreshold_=10; // minimum energy threshold (in GeV)
   recoFirstSample_=0;
   recoSamplesToAdd_=10;
   firstSample_=3;
@@ -91,10 +91,10 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
   hf.setFlagField(TSfrac_counter, HcalCaloFlagLabels::Fraction2TS,6);
 
   // Igor's algorithm:  compare charge in peak to total charge in window
-  if (totalCharge<minthreshold_) return; // don't set noise flags for cells below a given threshold?
+  if (hf.energy()<minthreshold_) return; // don't set noise flags for cells below a given threshold?
 
   // Calculate allowed minimum value of (TS4/TS3+4+5+6):
-  double cutoff=coef0_-exp(coef1_-coef2_*hf.energy());
+  double cutoff=coef0_-exp(coef1_+coef2_*hf.energy());
   
   if (peakCharge/totalCharge<cutoff)
     status=1;

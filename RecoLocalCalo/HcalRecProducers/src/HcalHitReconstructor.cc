@@ -112,7 +112,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 						psdigi.getParameter<int>("HFdigiflagFirstSample"),
 						psdigi.getParameter<int>("HFdigiflagSamplesToAdd"),
 						psdigi.getParameter<int>("HFdigiflagExpectedPeak"),
-						psdigi.getParameter<double>("HFdigiflagMinfCthreshold"),
+						psdigi.getParameter<double>("HFdigiflagMinEthreshold"),
 						psdigi.getParameter<double>("HFdigiflagCoef0"),
 						psdigi.getParameter<double>("HFdigiflagCoef1"),
 						psdigi.getParameter<double>("HFdigiflagCoef2"));
