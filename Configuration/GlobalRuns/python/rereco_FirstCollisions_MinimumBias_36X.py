@@ -1,8 +1,8 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.172 
-# Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: reco_FirstCollisions_MinimumBias_36X -s RAW2DIGI,L1Reco,RECO,DQM,ALCA:SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --conditions GR_R_36X_V6::All --customise Configuration/GlobalRuns/customise_Collision_36X.py --no_exec --python_filename=rereco_FirstCollisions_MinimumBias_36X.py
+# Revision: 1.169 
+# Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
+# with command line options: reco_FirstCollisions_MinimumBias_36X -s RAW2DIGI,L1Reco,RECO,DQM,ALCA:SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib+EcalCalElectron --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --conditions GR_R_36X_V6::All --customise Configuration/GlobalRuns/customise_Collision_36X.py --no_exec --python_filename=rereco_FirstCollisions_MinimumBias_36X.py
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('RECO')
@@ -23,19 +23,19 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.172 $'),
+    version = cms.untracked.string('$Revision: 1.169 $'),
     annotation = cms.untracked.string('reco_FirstCollisions_MinimumBias_36X nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(10)
 )
 process.options = cms.untracked.PSet(
 
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('reco_FirstCollisions_MinimumBias_36X_DIGI2RAW.root')
+    fileNames = cms.untracked.vstring('/store/data/Commissioning10/MinimumBias/RAW/v4/000/132/440/EA896425-F93B-DF11-B971-000423D99AAE.root')
 )
 
 # Output definition
@@ -190,6 +190,26 @@ process.ALCARECOStreamHcalCalDijets = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('ALCARECO')
     )
 )
+process.ALCARECOStreamEcalCalElectron = cms.OutputModule("PoolOutputModule",
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('pathALCARECOEcalCalElectron')
+    ),
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep recoGsfElectronCores_*_*_*', 
+        'keep recoSuperClusters_*_*_*', 
+        'keep *_electronGsfTracks_*_*', 
+        'keep  *_gsfElectrons_*_*', 
+        'keep  *_alCaIsolatedElectrons_*_*', 
+        'keep recoCaloMETs_met_*_*', 
+        'keep edmTriggerResults_TriggerResults__*', 
+        'keep edmHepMCProduct_*_*_*', 
+        'keep *_MEtoEDMConverter_*_*'),
+    fileName = cms.untracked.string('EcalCalElectron.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string('EcalCalElectron'),
+        dataTier = cms.untracked.string('ALCARECO')
+    )
+)
 process.ALCARECOStreamMuAlOverlaps = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlOverlaps')
@@ -265,10 +285,11 @@ process.ALCARECOStreamMuAlCalIsolatedMuOutPath = cms.EndPath(process.ALCARECOStr
 process.ALCARECOStreamSiStripCalMinBiasOutPath = cms.EndPath(process.ALCARECOStreamSiStripCalMinBias)
 process.ALCARECOStreamHcalCalIsoTrkOutPath = cms.EndPath(process.ALCARECOStreamHcalCalIsoTrk)
 process.ALCARECOStreamHcalCalDijetsOutPath = cms.EndPath(process.ALCARECOStreamHcalCalDijets)
+process.ALCARECOStreamEcalCalElectronOutPath = cms.EndPath(process.ALCARECOStreamEcalCalElectron)
 process.ALCARECOStreamMuAlOverlapsOutPath = cms.EndPath(process.ALCARECOStreamMuAlOverlaps)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOHcalCalIsoTrk,process.pathALCARECOSiStripCalMinBias,process.pathALCARECODtCalib,process.pathALCARECOMuAlOverlaps,process.pathALCARECOTkAlMuonIsolated,process.pathALCARECOTkAlMinBias,process.pathALCARECOSiStripCalZeroBias,process.pathALCARECOHcalCalDijets,process.endjob_step,process.out_step,process.ALCARECOStreamTkAlMinBiasOutPath,process.ALCARECOStreamSiStripCalZeroBiasOutPath,process.ALCARECOStreamTkAlMuonIsolatedOutPath,process.ALCARECOStreamDtCalibOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath,process.ALCARECOStreamSiStripCalMinBiasOutPath,process.ALCARECOStreamHcalCalIsoTrkOutPath,process.ALCARECOStreamHcalCalDijetsOutPath,process.ALCARECOStreamMuAlOverlapsOutPath)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOEcalCalElectron,process.pathALCARECOHcalCalIsoTrk,process.pathALCARECOSiStripCalMinBias,process.pathALCARECODtCalib,process.pathALCARECOMuAlOverlaps,process.pathALCARECOTkAlMuonIsolated,process.pathALCARECOTkAlMinBias,process.pathALCARECOSiStripCalZeroBias,process.pathALCARECOHcalCalDijets,process.endjob_step,process.out_step,process.ALCARECOStreamTkAlMinBiasOutPath,process.ALCARECOStreamSiStripCalZeroBiasOutPath,process.ALCARECOStreamTkAlMuonIsolatedOutPath,process.ALCARECOStreamDtCalibOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath,process.ALCARECOStreamSiStripCalMinBiasOutPath,process.ALCARECOStreamHcalCalIsoTrkOutPath,process.ALCARECOStreamHcalCalDijetsOutPath,process.ALCARECOStreamEcalCalElectronOutPath,process.ALCARECOStreamMuAlOverlapsOutPath)
 
 
 # Automatic addition of the customisation function
