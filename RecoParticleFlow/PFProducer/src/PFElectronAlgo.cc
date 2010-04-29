@@ -25,11 +25,13 @@ PFElectronAlgo::PFElectronAlgo(const double mvaEleCut,
 			       string mvaWeightFileEleID,
 			       const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
 			       bool applyCrackCorrections,
-			       bool usePFSCEleCalib):
+			       bool usePFSCEleCalib,
+			       bool useEGElectrons):
   mvaEleCut_(mvaEleCut),
   thePFSCEnergyCalibration_(thePFSCEnergyCalibration),
   applyCrackCorrections_(applyCrackCorrections),
-  usePFSCEleCalib_(usePFSCEleCalib)
+  usePFSCEleCalib_(usePFSCEleCalib),
+  useEGElectrons_(useEGElectrons)
 {
   // Set the tmva reader
   tmvaReader_ = new TMVA::Reader();
@@ -2131,4 +2133,8 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
     } // End loop on elements from gsf track
   }  // End loop on gsf track  
   return;
+}
+
+void PFElectronAlgo::setEGElectronCollection(const reco::GsfElectronCollection & egelectrons) {
+  theGsfElectrons_ = & egelectrons;
 }

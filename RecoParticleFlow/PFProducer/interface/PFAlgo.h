@@ -22,6 +22,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "RecoParticleFlow/PFProducer/interface/PFCandConnector.h"
 
 /// \brief Particle Flow Algorithm
@@ -71,8 +72,10 @@ class PFAlgo {
 			  std::string mvaWeightFileEleID,
 			  bool usePFElectrons,
 			  const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-			  bool applyCrackCorrections=true,
-			  bool usePFSCEleCalib=true);
+			  bool applyCrackCorrections=false,
+			  bool usePFSCEleCalib=true,
+			  bool useEGElectrons=false);
+
 
   void setDisplacedVerticesParameters(bool rejectTracks_Bad,
 				      bool rejectTracks_Step45,
@@ -84,6 +87,9 @@ class PFAlgo {
   void setPFVertexParameters(bool useVertex,
 			   const reco::VertexCollection& primaryVertices);			   
   
+  // FlorianB : Collection of e/g electrons
+  void setEGElectronCollection(const reco::GsfElectronCollection & egelectrons);
+
   /// reconstruct particles (full framework case)
   /// will keep track of the block handle to build persistent references,
   /// and call reconstructParticles( const reco::PFBlockCollection& blocks )
@@ -208,6 +214,7 @@ class PFAlgo {
   bool usePFElectrons_;
   bool applyCrackCorrectionsElectrons_;
   bool usePFSCEleCalib_;
+  bool useEGElectrons_;
   PFElectronAlgo *pfele_;
   
   bool rejectTracks_Bad_;

@@ -4,6 +4,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "TMVA/Reader.h"
@@ -24,7 +26,8 @@ class PFElectronAlgo {
 		 std::string  mvaWeightFileEleID,
 		 const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
 		 bool applyCrackCorrections,
-		 bool usePFSCEleCalib);
+		 bool usePFSCEleCalib,
+		 bool useEGElectrons);
 		
   
   //destructor
@@ -43,6 +46,9 @@ class PFElectronAlgo {
 
   //get all electron PFCandidate
   const std::vector<reco::PFCandidate>& getAllElectronCandidates() {return allElCandidate_;};
+
+  // retrieve the list of pre-defined e/g electrons
+  void setEGElectronCollection(const reco::GsfElectronCollection & egelectrons);
 
  private: 
   typedef  std::map< unsigned int, std::vector<unsigned int> >  AssMap;
@@ -93,6 +99,7 @@ class PFElectronAlgo {
   boost::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_; 
   bool applyCrackCorrections_;
   bool usePFSCEleCalib_;
+  bool useEGElectrons_;
  
   const char  *mvaWeightFile_;
 
@@ -112,8 +119,8 @@ class PFElectronAlgo {
   int lateBrem,firstBrem,earlyBrem;
   float HOverHE,HOverPin;
 
-
-
   bool isvalid_;
+
+  const std::vector<reco::GsfElectron> * theGsfElectrons_;
 };
 #endif

@@ -91,14 +91,15 @@ PFAlgo::setPFEleParameters(double mvaEleCut,
 			   bool usePFElectrons,
 			   const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
 			   bool applyCrackCorrections,
-			   bool usePFSCEleCalib) {
+			   bool usePFSCEleCalib,
+			   bool useEGElectrons) {
   
   mvaEleCut_ = mvaEleCut;
   usePFElectrons_ = usePFElectrons;
   applyCrackCorrectionsElectrons_ = applyCrackCorrections;  
   usePFSCEleCalib_ = usePFSCEleCalib;
   thePFSCEnergyCalibration_ = thePFSCEnergyCalibration;
-  
+  useEGElectrons_ = useEGElectrons;
   if(!usePFElectrons_) return;
   mvaWeightFileEleID_ = mvaWeightFileEleID;
   FILE * fileEleID = fopen(mvaWeightFileEleID_.c_str(), "r");
@@ -114,7 +115,8 @@ PFAlgo::setPFEleParameters(double mvaEleCut,
   pfele_= new PFElectronAlgo(mvaEleCut_,mvaWeightFileEleID_,
 			     thePFSCEnergyCalibration_,
 			     applyCrackCorrectionsElectrons_,
-			     usePFSCEleCalib_);
+			     usePFSCEleCalib_,
+			     useEGElectrons_);
 }
 
 void 
@@ -2859,3 +2861,8 @@ PFAlgo::associatePSClusters(unsigned iEcal,
 	    
 
 }
+
+void  PFAlgo::setEGElectronCollection(const reco::GsfElectronCollection & egelectrons) {
+  if(useEGElectrons_ && pfele_) pfele_->setEGElectronCollection(egelectrons);
+}
+

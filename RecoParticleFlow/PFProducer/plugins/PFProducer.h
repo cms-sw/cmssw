@@ -39,6 +39,7 @@ class PFProducer : public edm::EDProducer {
 
   edm::InputTag  inputTagBlocks_;
   edm::InputTag  vertices_;
+  edm::InputTag  inputTagEgammaElectrons_;
   std::string electronOutputCol_;
 
   /// verbose ?
@@ -46,6 +47,8 @@ class PFProducer : public edm::EDProducer {
 
   // Use PF electrons ?
   bool usePFElectrons_;
+  // what about e/g electrons ?
+  bool useEGammaElectrons_;
 
   // Use vertices for Neutral particles ?
   bool useVerticesForNeutral_;

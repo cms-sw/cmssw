@@ -5,7 +5,8 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
-
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include <sstream>
 
 using namespace std;
@@ -102,6 +103,13 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 
   usePFElectrons_
     = iConfig.getParameter<bool>("usePFElectrons");    
+
+  useEGammaElectrons_
+    = iConfig.getParameter<bool>("useEGammaElectrons");    
+
+  if(  useEGammaElectrons_) {
+    inputTagEgammaElectrons_ = iConfig.getParameter<edm::InputTag>("egammaElectrons");
+  }
 
   electronOutputCol_
     = iConfig.getParameter<std::string>("pf_electron_output_col");
@@ -224,7 +232,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 			      usePFElectrons_,
 			      thePFSCEnergyCalibration,
 			      applyCrackCorrectionsForElectrons,
-			      usePFSCEleCalib);
+			      usePFSCEleCalib,
+			      useEGammaElectrons_);
   
   //  pfAlgo_->setPFConversionParameters(usePFConversions);
   
@@ -308,7 +317,7 @@ PFProducer::produce(Event& iEvent,
   if(!gotVertices) {
     ostringstream err;
     err<<"Cannot find vertices for this event.Continuing Without them ";
-    LogError("PFSimParticleProducer")<<err.str()<<endl;
+    LogError("PFProducer")<<err.str()<<endl;
   }
 
   //Assign the PFAlgo Parameters
@@ -318,16 +327,33 @@ PFProducer::produce(Event& iEvent,
 
   Handle< reco::PFBlockCollection > blocks;
 
-  LogDebug("PFBlock")<<"getting blocks"<<endl;
+  LogDebug("PFProducer")<<"getting blocks"<<endl;
   bool found = iEvent.getByLabel( inputTagBlocks_, blocks );  
 
   if(!found ) {
 
     ostringstream err;
     err<<"cannot find blocks: "<<inputTagBlocks_;
-    LogError("PFSimParticleProducer")<<err.str()<<endl;
+    LogError("PFProducer")<<err.str()<<endl;
     
     throw cms::Exception( "MissingProduct", err.str());
+  }
+
+  if (useEGammaElectrons_) {
+    Handle < reco::GsfElectronCollection > egelectrons;
+    
+    LogDebug("PFProducer")<<" Reading e/gamma electrons activated "<<endl;
+    bool found = iEvent.getByLabel( inputTagEgammaElectrons_, egelectrons );  
+    
+    if(!found) {
+      ostringstream err;
+      err<<"cannot find blocks: "<<inputTagBlocks_;
+      LogError("PFProducer")<<err.str()<<endl;
+    
+      throw cms::Exception( "MissingProduct", err.str());
+    }
+    
+    pfAlgo_->setEGElectronCollection(*egelectrons);
   }
 
   
