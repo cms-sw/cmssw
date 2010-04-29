@@ -7,7 +7,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemRandomAccessor.h,v 1.3 2010/03/04 18:06:19 eulisse Exp $
+// $Id: FWItemRandomAccessor.h,v 1.4 2010/03/17 11:34:01 mccauley Exp $
 //
 
 // system include files
@@ -147,6 +147,42 @@ public:
             finalSize += i->size();
          
          return finalSize;
+      }
+};
+
+/** Specialized accessor for the new edmNew::DetSetVector classes.
+  */
+template <class C, class COLL = typename C::value_type, class V = typename COLL::value_type >
+class FWItemNewDetSetAccessor : public FWItemRandomAccessorBase
+{
+public:
+   typedef C      container_type;
+   typedef COLL   collection_type;
+   typedef V      collection_value_type;
+
+   FWItemNewDetSetAccessor(const TClass *iClass)
+      : FWItemRandomAccessorBase(iClass, typeid(collection_value_type))
+      {}
+
+   REGISTER_FWITEMACCESSOR_METHODS();
+
+   const void*    modelData(int iIndex) const
+      {
+         if (!getDataPtr())
+            return 0;
+         const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
+         if (iIndex < 0)
+            return 0;
+
+         return &(c->data().operator[](iIndex));
+      }
+
+   unsigned int   size() const
+      {
+         if (!getDataPtr())
+            return 0;
+         const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
+         return c->dataSize();
       }
 };
 
