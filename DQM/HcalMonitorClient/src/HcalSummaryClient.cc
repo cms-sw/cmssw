@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/03/25 21:27:42 $
- * $Revision: 1.92 $
+ * $Date: 2010/03/25 21:29:38 $
+ * $Revision: 1.93 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -505,7 +505,7 @@ void HcalSummaryClient::beginRun(void)
   (reportMap_->getTH2F())->GetYaxis()->SetBinLabel(1,"Status");
   (reportMap_->getTH2F())->SetMarkerSize(3);
   (reportMap_->getTH2F())->SetOption("text90colz");
-  (reportMap_->getTH2F())->SetOption("textcolz");
+  //(reportMap_->getTH2F())->SetOption("textcolz");
   (reportMap_->getTH2F())->SetMinimum(-1);
   (reportMap_->getTH2F())->SetMaximum(1);
 
