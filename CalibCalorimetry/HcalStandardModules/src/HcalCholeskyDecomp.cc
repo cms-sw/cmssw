@@ -19,33 +19,42 @@ HcalCholeskyDecomp::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    using namespace edm;
    using namespace std;
 
-   edm::ESHandle<HcalDbService> conditions;
-   iSetup.get<HcalDbRecord>().get(conditions);
-
-//   const HcalQIEShape* shape = conditions->getHcalShape();
-
    edm::ESHandle<HcalCovarianceMatrices> refCov;
    iSetup.get<HcalCovarianceMatricesRcd>().get("reference",refCov);
    const HcalCovarianceMatrices* myCov = refCov.product(); //Fill emap from database
 
    double sig[4][10][10];
-   double c[4][10][10], cikik[4], cikjk[4];
+   double c[4][10][10], cikik[4], cikjk[4], ct[4][10][10];
 
    HcalCholeskyMatrices * outMatrices = new HcalCholeskyMatrices();
+
+   std::vector<DetId> listChan = myCov->getAllChannels();
+   std::vector<DetId>::iterator cell;
 
    int HBcount = 0;
    int HEcount = 0;
    int HFcount = 0;
    int HOcount = 0;
 
-   double HBmatrix[4][10][10] = {{{0.}}};
-   double HEmatrix[4][10][10] = {{{0.}}};
-   double HFmatrix[4][10][10] = {{{0.}}};
-   double HOmatrix[4][10][10] = {{{0.}}};
+   double HBmatrix[4][10][10];
+   double HEmatrix[4][10][10];
+   double HFmatrix[4][10][10];
+   double HOmatrix[4][10][10];
+
+   double tempmatrix[4][10][10] ;
 
 
-   std::vector<DetId> listChan = myCov->getAllChannels();
-   std::vector<DetId>::iterator cell;
+   for(int m= 0; m != 4; m++){
+      for(int i = 0; i != 10; i++){
+         for(int j = 0; j!=10; j++){
+          HBmatrix[m][i][j] = 0;
+          HEmatrix[m][i][j] = 0;
+          HFmatrix[m][i][j] = 0;
+          HOmatrix[m][i][j] = 0;
+         }
+      }
+   }
+
    for (std::vector<DetId>::iterator it = listChan.begin(); it != listChan.end(); it++)
    {
    for(int m= 0; m != 4; m++){
@@ -53,80 +62,115 @@ HcalCholeskyDecomp::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
          for(int j = 0; j!=10; j++){
             sig[m][i][j] = 0;
             c[m][i][j] = 0;
+	    ct[m][i][j] = 0;
             cikik[m] =0;
             cikjk[m] = 0;
+            tempmatrix[m][i][j] = 0;
          }
       }
    }
 
    const HcalCovarianceMatrix * CMatrix = myCov->getValues(*it);
+   HcalDetId hcalid(it->rawId());
 
    for(int m = 0; m != 4; m++){
       for(int i = 0; i != 10; i++){
          for(int j = 0; j != 10; j++) {sig[m][i][j] = CMatrix->getValue(m,i,j);}
-      }
+	}
    }
+
+//Method to check 4x10 storage
+//  for(int m = 0; m != 4; m++){
+//      for(int i = 0; i != 6; i++){
+//         for(int j=(i+4); j!=10; j++) {sig[m][i][j] = 0;}
+//        }
+//   }
+	
 
    for(int m = 0; m != 4; m++){
       for(int i = 0; i != 10; i++){
-         for(int j = i; j != 10; j++) sig[m][j][i] = sig[m][i][j];
+         for(int j = i; j != 10; j++){ sig[m][j][i] = sig[m][i][j];}
       }
    }
    //.......................Cholesky Decomposition.............................
    //Step 1a
-   for(int m = 0; m!=4; m++) c[m][0][0]=sqrt(sig[m][0][0]);
    for(int m = 0; m!=4; m++)
+	 {
+	
+		c[m][0][0]=sqrt(sig[m][0][0]);
+	}
+  for(int m = 0; m!=4; m++)
+   {
       for(int i = 1; i != 10; i++)
-         c[m][i][0] = sig[m][0][i] / c[m][0][0];
-   //Chelesky Matrices
-   for(int m = 0; m!=4; m++){
-      c[m][1][1] = sqrt((sig[m][1][1]) - (c[m][1][0]*c[m][1][0])); // i) step 2a of chelesky decomp
-      if (((sig[m][1][1]) - (c[m][1][0]*c[m][1][0]))<=0) continue;
-      for(int i = 2; i !=10; i++){
-         for(int j=1; j!= i; j++){
-            //cikjk[m] = 0;
-            for(int k=0; k != (j-1); k++)
-               cikjk[m] += c[m][i][k]*c[m][j][k]; // ii)  step 2a of chelesky decomp
-            c[m][i][j] = (sig[m][i][j] - cikjk[m])/c[m][j][j]; // step 3a of chelesky decomp
-         }
-         // cikik[m] = 0;
-         for( int k = 0; k != (i-1); k++)
-                                 cikik[m] += c[m][i][k]*c[m][i][k];
-         double test = ((sig[m][i][i]) - cikik[m]);
-         if(test > 0 ){c[m][i][i] = sqrt(test);}
-         else{
-           c[m][i][i] = -.001234;
-         }
-     }
- 
-   } 
-
-   HcalCholeskyMatrix * item = new HcalCholeskyMatrix(it->rawId());
-//   const HcalQIECoder* coder = conditions->getHcalCoder(it->rawId());
-
-   double tempmatrix[4][10][10] = {{{0.}}};
-
-   for(int m = 0; m != 4; m++){
-      for(int i = 0; i != 10; i++){
- //          for(int j = i; j != 10; j++) item->setValue(m,(i*(i-1)/2+j)-1,sig[m][i][j]);
-        for(int j = i; j != 10; j++) 
-        {
-           item->setValue(m,j,i, c[m][i][j]);
-           tempmatrix[m][i][j] = c[m][i][j];
-        }           
-/*         for(int j = i; j != 10; j++){
-            double x = sig[m][i][j];
-            int x1=(int)std::floor(x);
-            int x2=(int)std::floor(x+1);
-            float y2=coder->charge(*shape,x2,m);
-            float y1=coder->charge(*shape,x1,m);
-            double matrixelementfc=(y2-y1)*(x-x1)+y1;
-            item->setValue(m,j,i,matrixelementfc); 
-         }*/
-      }
+	{
+         c[m][i][0] = (sig[m][0][i] / c[m][0][0]);
+	}
    }
    
-   HcalDetId hcalid(it->rawId());
+ //Chelesky Matrices
+   for(int m = 0; m!=4; m++)
+   {
+      c[m][1][1] = sqrt(sig[m][1][1] - (c[m][1][0]*c[m][1][0])); // i) step 2a of chelesky decomp
+      if (((sig[m][1][1]) - (c[m][1][0]*c[m][1][0]))<=0) continue;
+      for(int i = 2; i !=10; i++)
+        {
+	cikik[m] = 0;
+         for(int j=1; j!= i; j++)
+                {
+            	cikjk[m] = 0;
+		    for(int k=0; k != j; k++)
+                        {
+                        cikjk[m] += (c[m][i][k]*c[m][j][k]); // ii)  step 2a of chelesky decomp
+                        }
+                c[m][i][j] = (sig[m][i][j] - cikjk[m])/c[m][j][j]; // step 3a of chelesky decomp
+                }//end of j loop
+         
+                for( int k = 0; k != i; k++)
+                {
+                         cikik[m] += (c[m][i][k]*c[m][i][k]);
+                }
+                double test = (sig[m][i][i] - cikik[m]);
+                if(test > 0 )
+                {
+                        c[m][i][i] = sqrt(test);
+                }
+                else
+                {
+                        c[m][i][i] = 1000;
+                }
+        }//end of i loop
+/*
+ //Cholesky Matrix for rechit (2-5 ts)
+  	for (int i = 0; i!=2; i++)
+	{
+	  for (int j=0; j!=10; j++)
+	  {
+		c[m][i][j] = 0;
+	  }
+	}
+	for (int i = 6; i!=10; i++)
+        {
+          for (int j=0; j!=10; j++)
+          {
+                c[m][i][j] = 0;
+          }
+        }
+*/
+
+
+   }//end of m loop
+   
+
+   HcalCholeskyMatrix * item = new HcalCholeskyMatrix(it->rawId());
+   for(int m = 0; m != 4; m++){
+      for(int i = 0; i != 10; i++){
+         for(int j = i; j != 10; j++){ 
+             item->setValue(m,j,i, c[m][j][i]);
+             tempmatrix[m][j][i] = c[m][j][i];
+         }//sig[m][j][i]
+      }
+   }
+
    if(hcalid.subdet()==1)
    {
       for(int m = 0; m != 4; m++)
@@ -161,12 +205,11 @@ HcalCholeskyDecomp::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    }
 
 
-
-
+   
    outMatrices->addValues(*item);
 
-   }  //end of loop over all covariance matrices
-   
+   }
+
    for(int m = 0; m != 4; m++)
    {
       for(int i = 0; i != 10; i++)
@@ -181,8 +224,9 @@ HcalCholeskyDecomp::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }
    }
 
-
   std::vector<DetId> listResult = outMatrices->getAllChannels();
+
+  int n_avg = 0;
 
   edm::ESHandle<HcalElectronicsMap> refEMap;
   iSetup.get<HcalElectronicsMapRcd>().get(refEMap);
@@ -193,11 +237,12 @@ HcalCholeskyDecomp::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); it++)
       {
       DetId mydetid = DetId(it->rawId());
-	if (std::find(listResult.begin(), listResult.end(), mydetid ) == listResult.end()  )
-	  {
-              std::cout << "Cholesky Matrix not found for cell " <<  HcalGenericDetId(it->rawId());
+        if (std::find(listResult.begin(), listResult.end(), mydetid ) == listResult.end()  )
+          {
+//              std::cout << "Cholesky Matrix not found for cell " <<  HcalGenericDetId(it->rawId());
               if(it->isHcalDetId())
               {
+              std::cout << "Cholesky Matrix not found for cell " <<  HcalGenericDetId(it->rawId());
                  HcalDetId hcalid2(it->rawId());
                  HcalCholeskyMatrix * item = new HcalCholeskyMatrix(it->rawId());
                  for(int m = 0; m != 4; m++)
@@ -206,25 +251,32 @@ HcalCholeskyDecomp::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                     {
                        for(int j = 0; j != 10; j++)
                        {
-                          if(hcalid2.subdet()==1) item->setValue(m,j,i,HBmatrix [m][i][j]);
-                          if(hcalid2.subdet()==2) item->setValue(m,j,i,HEmatrix [m][i][j]);
-                          if(hcalid2.subdet()==3) item->setValue(m,j,i,HFmatrix [m][i][j]);
-                          if(hcalid2.subdet()==4) item->setValue(m,j,i,HOmatrix [m][i][j]);
+                          if(j <= i){
+                          if(hcalid2.subdet()==1) item->setValue(m,i,j,HBmatrix [m][i][j]);
+                          if(hcalid2.subdet()==2) item->setValue(m,i,j,HEmatrix [m][i][j]);
+                          if(hcalid2.subdet()==3) item->setValue(m,i,j,HFmatrix [m][i][j]);
+                          if(hcalid2.subdet()==4) item->setValue(m,i,j,HOmatrix [m][i][j]);
+                          }else{
+                          if(hcalid2.subdet()==1) item->setValue(m,i,j,0);
+                          if(hcalid2.subdet()==2) item->setValue(m,i,j,0);
+                          if(hcalid2.subdet()==3) item->setValue(m,i,j,0);
+                          if(hcalid2.subdet()==4) item->setValue(m,i,j,0);
+                          }
                        }
                     }
                  }
                  outMatrices->addValues(*item);
-                 std::cout << "... Average Matrix used";
+                 std::cout << "... Average Matrix used\n";
+                 n_avg++;
               }
-              std::cout << std::endl;
-	  }
+          }
       }
 
-  std::vector<DetId> checkResult = outMatrices->getAllChannels();
-  int count = 0;
-  for(std::vector<DetId>::const_iterator it = checkResult.begin(); it != checkResult.end(); it++) count ++;
+   std::vector<DetId> checkResult = outMatrices->getAllChannels();
+   int count = 0;
+   for(std::vector<DetId>::const_iterator it = checkResult.begin(); it != checkResult.end(); it++) count ++;
 
-  std::cout << "There are " << count << " channels with Cholesky matrices.\n";
+   std::cout << "There are " << count << " channels with Cholesky matrices.\n" << "Used  " << n_avg << " average values.\n";
 
    ofstream cmatout(outfile.c_str());
    HcalDbASCIIIO::dumpObject(cmatout, *outMatrices);
