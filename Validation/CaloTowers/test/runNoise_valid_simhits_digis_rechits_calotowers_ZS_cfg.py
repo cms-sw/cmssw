@@ -52,6 +52,9 @@ process.hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigiTester",
 
 process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     outputFile = cms.untracked.string('HcalRecHitsValidation_ZS.root'),
+    HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
+    HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
+    HORecHitCollectionLabel   = cms.untracked.InputTag("horeco"),
     eventype = cms.untracked.string('single'),
     mc = cms.untracked.string('yes'),
     sign = cms.untracked.string('*'),
@@ -61,7 +64,7 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
 
 process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
     outputFile = cms.untracked.string('CaloTowersValidation.root'),
-    CaloTowerCollectionLabel = cms.untracked.string('towerMaker'),
+    CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
     hcalselector = cms.untracked.string('all')
 )
 
