@@ -144,8 +144,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
       firstTime_ = false;
     }
   
-  try
-    {
+
       if(castorDigis.size()>0) {
 	////---- consider time slices between 0 and 9
 	int firstTS = 0; 
@@ -206,8 +205,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 
       }
       
-    }
-  catch (...) { if(fVerbosity>0) cout<<"CastorPSMonitor::Error in processEvent !!!"<<endl; }
+    else { if(fVerbosity>0) cout<<"CastorPSMonitor::processEvent NO Castor Digis !!!"<<endl; }
  
    if (showTiming) { 
       cpu_timer.stop(); cout << " TIMER::CastorPS -> " << cpu_timer.cpuTime() << endl; 
