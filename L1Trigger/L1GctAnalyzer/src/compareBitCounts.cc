@@ -13,7 +13,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h" // Framework services
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h" // Framework service for histograms
+#include "CommonTools/UtilAlgos/interface/TFileService.h" // Framework service for histograms
 
 compareBitCounts::compareBitCounts(const edm::Handle<L1GctHFBitCountsCollection> &data, const edm::Handle<L1GctHFBitCountsCollection> &emu, const GctErrorAnalyzerMBxInfo &mbxparams) :
   data_(data),

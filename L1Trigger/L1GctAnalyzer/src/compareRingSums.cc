@@ -13,7 +13,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h" // Framework services
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h" // Framework service for histograms
+#include "CommonTools/UtilAlgos/interface/TFileService.h" // Framework service for histograms
 
 compareRingSums::compareRingSums(const edm::Handle<L1GctHFRingEtSumsCollection> &data, const edm::Handle<L1GctHFRingEtSumsCollection> &emu, const GctErrorAnalyzerMBxInfo &mbxparams) :
   data_(data),

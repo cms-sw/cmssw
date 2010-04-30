@@ -10,7 +10,8 @@ process.MessageLogger = cms.Service ("MessageLogger",
 
 process.source = cms.Source ( "PoolSource",
 #   fileNames = cms.untracked.vstring('/store/data/Commissioning09/Calo/RAW/v1/000/096/889/FCF95AAE-0E44-DE11-BE87-000423D8FA38.root')
-    fileNames = cms.untracked.vstring('/store/data/Commissioning09/Calo/RAW/v2/000/100/329/FE4BEE2D-815B-DE11-8C71-001D09F2AD84.root')
+#   fileNames = cms.untracked.vstring('/store/data/Commissioning09/Calo/RAW/v2/000/100/329/FE4BEE2D-815B-DE11-8C71-001D09F2AD84.root')
+    fileNames = cms.untracked.vstring('/store/data/Commissioning10/MinimumBias/RAW-RECO/v8/000/132/602/08C1CF7A-D940-DF11-91F1-00E08178C01B.root')
 )
 
 # Number of events
@@ -21,7 +22,7 @@ process.load('EventFilter.GctRawToDigi.l1GctHwDigis_cfi')
 process.l1GctHwDigis.unpackerVersion = cms.uint32(3)
 #process.l1GctHwDigis.unpackSharedRegions = cms.bool ( True )
 process.l1GctHwDigis.inputLabel = cms.InputTag( "source" )
-process.l1GctHwDigis.numberOfGctSamplesToUnpack = cms.uint32(1)
+process.l1GctHwDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
 process.l1GctHwDigis.hltMode = cms.bool( False )
 process.l1GctHwDigis.verbose = cms.untracked.bool ( False )
 process.l1GctHwDigis.unpackFibres = cms.untracked.bool ( True )
@@ -34,6 +35,7 @@ import L1Trigger.GlobalCaloTrigger.gctDigis_cfi
 process.valGctDigis = L1Trigger.GlobalCaloTrigger.gctDigis_cfi.gctDigis.clone()
 process.valGctDigis.inputLabel = cms.InputTag( "l1GctHwDigis" )
 process.valGctDigis.writeInternalData = cms.bool(True)
+process.valGctDigis.useImprovedTauAlgorithm = cms.bool(False)
 process.valGctDigis.preSamples = cms.uint32(0)
 process.valGctDigis.postSamples = cms.uint32(0)
 
@@ -46,8 +48,8 @@ process.TFileService = cms.Service("TFileService",
 process.analyzer = cms.EDAnalyzer('GctErrorAnalyzer',
    #Multiple BX Flags
    doRCTMBx = cms.untracked.bool(False),
-   doEmuMBx = cms.untracked.bool(True),
-   doGCTMBx = cms.untracked.bool(True),
+   doEmuMBx = cms.untracked.bool(False),
+   doGCTMBx = cms.untracked.bool(False),
    #Plot + Debug Info Flags
    doRCT = cms.untracked.bool(True),
    doEg = cms.untracked.bool(True),
@@ -61,11 +63,12 @@ process.analyzer = cms.EDAnalyzer('GctErrorAnalyzer',
      doRingSumDebug = cms.untracked.bool(True),
      doBitCountDebug = cms.untracked.bool(True),
    doTotalEnergySums = cms.untracked.bool(True),
-     doTotalHtDebug = cms.untracked.bool(False),
-     doTotalEtDebug = cms.untracked.bool(False),
+     doTotalHtDebug = cms.untracked.bool(True),
+     doTotalEtDebug = cms.untracked.bool(True),
    doMissingEnergySums = cms.untracked.bool(True),
-     doMissingETDebug = cms.untracked.bool(False),
-     doMissingHTDebug = cms.untracked.bool(False),
+     doMissingETDebug = cms.untracked.bool(True),
+     doMissingHTDebug = cms.untracked.bool(True),
+     doExtraMissingHTDebug = cms.untracked.bool(False),
    #Labels to use for data and emulator
    dataTag = cms.untracked.InputTag("l1GctHwDigis"),
    emuTag = cms.untracked.InputTag("valGctDigis"),
@@ -73,6 +76,8 @@ process.analyzer = cms.EDAnalyzer('GctErrorAnalyzer',
    RCTTrigBx = cms.untracked.int32(0),
    EmuTrigBx = cms.untracked.int32(0),
    GCTTrigBx = cms.untracked.int32(0),
+   #Choose the Geometry of the system
+   useSys = cms.untracked.string("P5")                               
 )
 
 process.defaultPath = cms.Sequence ( 

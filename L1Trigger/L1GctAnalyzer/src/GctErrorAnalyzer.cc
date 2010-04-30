@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jad Marrouche
 //         Created:  Wed May 20 14:19:23 CEST 2009
-// $Id: GctErrorAnalyzer.cc,v 1.4 2009/12/02 10:56:07 jad Exp $
+// $Id: GctErrorAnalyzer.cc,v 1.1 2009/12/14 17:23:32 tapper Exp $
 //
 //
 
@@ -30,7 +30,7 @@ Implementation:
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //TFile maker include
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 //ROOT includes
 #include "TH1.h"
 #include "TH2.h"
@@ -79,7 +79,7 @@ private:
   void plotTotalEErrors(const edm::Handle<L1GctEtTotalCollection> &totalEtD, const edm::Handle<L1GctEtTotalCollection> &totalEtE, const edm::Handle<L1GctEtHadCollection> &totalHtD, const edm::Handle<L1GctEtHadCollection> &totalHtE, const edm::Handle<L1CaloRegionCollection> &caloRegions);
   void plotMissingEt(const edm::Handle<L1GctEtMissCollection> &missingEtD, const edm::Handle<L1GctEtMissCollection> &missingEtE);
   void plotMissingHt(const edm::Handle<L1GctHtMissCollection> &missingHtD, const edm::Handle<L1GctHtMissCollection> &missingHtE);
-  void plotMissingEErrors(const edm::Handle<L1GctEtMissCollection> &missingEtD, const edm::Handle<L1GctEtMissCollection> &missingEtE, const edm::Handle<L1GctHtMissCollection> &missingHtD, const edm::Handle<L1GctHtMissCollection> &missingHtE, edm::Handle<L1CaloRegionCollection> &caloRegions);
+  void plotMissingEErrors(const edm::Handle<L1GctEtMissCollection> &missingEtD, const edm::Handle<L1GctEtMissCollection> &missingEtE, const edm::Handle<L1GctHtMissCollection> &missingHtD, const edm::Handle<L1GctHtMissCollection> &missingHtE, edm::Handle<L1CaloRegionCollection> &caloRegions, const edm::Handle<L1GctInternJetDataCollection> &intjetsemu, const edm::Handle<L1GctInternHtMissCollection> intMissingHtD);
   template<class T> bool checkCollections(const T &collection, const unsigned int &constraint, const std::string &label);
 
 public:
@@ -110,6 +110,7 @@ private:
   bool doMissingEnergySums_;
   bool doMissingETDebug_;
   bool doMissingHTDebug_;
+  bool doExtraMissingHTDebug_;
   //the following flags configure whether or not we want multiple BX behaviour for 
   //1. RCT regions
   //2. Emulator output
@@ -124,6 +125,8 @@ private:
   //the following flags contain the location of the hardware and emulator digis
   edm::InputTag dataTag_;
   edm::InputTag emuTag_;
+  //the following is a string which dictates whether or not we want to use the lab or full system parameters
+  std::string useSys_;
 
   //the following declares a struct to hold the MBX Info to make it easy to pass the information around
   GctErrorAnalyzerMBxInfo MBxInfo;
@@ -182,6 +185,7 @@ private:
   TH2I *forJetD_GlobalError_EtEtaPhi_;
   TH2I *forJetE_GlobalError_EtEtaPhi_;
   //intJet
+  TH2I *intJetEtEtaPhiE_;
   TH1I *intJetE_Et_;
   TH1I *intJetE_Of_;
   TH1I *intJetE_Jet1Et_;
@@ -220,6 +224,8 @@ private:
   TH1I *missingHtD_Of_, *missingHtE_Of_;
   TH1I *missingHtD_Phi_, *missingHtE_Phi_;
   TH1I *missingHt_errorFlag_;
+  TH1I *missingHtD_HtXPosLeaf1, *missingHtD_HtXPosLeaf2, *missingHtD_HtXPosLeaf3, *missingHtD_HtXNegLeaf1, *missingHtD_HtXNegLeaf2, *missingHtD_HtXNegLeaf3;
+  TH1I *missingHtD_HtYPosLeaf1, *missingHtD_HtYPosLeaf2, *missingHtD_HtYPosLeaf3, *missingHtD_HtYNegLeaf1, *missingHtD_HtYNegLeaf2, *missingHtD_HtYNegLeaf3;
 
   //error flags to decide whether or not to print debug info
   bool isIsoError;
@@ -241,6 +247,9 @@ private:
 
   //the event number
   unsigned int eventNumber;
+
+  const unsigned int * RCT_REGION_QUANTA;
+
 };
 
 //
@@ -277,6 +286,7 @@ GctErrorAnalyzer::GctErrorAnalyzer(const edm::ParameterSet& iConfig) :
   doMissingEnergySums_( iConfig.getUntrackedParameter<bool>("doMissingEnergySums", true) ),
   doMissingETDebug_( iConfig.getUntrackedParameter<bool>("doMissingETDebug", true) ),
   doMissingHTDebug_( iConfig.getUntrackedParameter<bool>("doMissingHTDebug", true) ),
+  doExtraMissingHTDebug_( iConfig.getUntrackedParameter<bool>("doExtraMissingHTDebug", false) ),
   doRCTMBx_( iConfig.getUntrackedParameter<bool>("doRCTMBx", false)),
   doEmuMBx_( iConfig.getUntrackedParameter<bool>("doEmuMBx", false)),
   doGCTMBx_( iConfig.getUntrackedParameter<bool>("doGCTMBx", false)),
@@ -284,7 +294,8 @@ GctErrorAnalyzer::GctErrorAnalyzer(const edm::ParameterSet& iConfig) :
   EmuTrigBx_( iConfig.getUntrackedParameter<int>("EmuTrigBx", 0)),
   GCTTrigBx_( iConfig.getUntrackedParameter<int>("GCTTrigBx", 0)),
   dataTag_( iConfig.getUntrackedParameter<edm::InputTag>("dataTag", edm::InputTag("gctDigis")) ),
-  emuTag_( iConfig.getUntrackedParameter<edm::InputTag>("emuTag", edm::InputTag("gctEmuDigis")) )
+  emuTag_( iConfig.getUntrackedParameter<edm::InputTag>("emuTag", edm::InputTag("gctEmuDigis")) ),
+  useSys_( iConfig.getUntrackedParameter<std::string>("useSys","P5"))
 {
   //now do what ever initialization is needed
   //make the root file
@@ -406,6 +417,7 @@ GctErrorAnalyzer::GctErrorAnalyzer(const edm::ParameterSet& iConfig) :
   forJetD_GlobalError_EtEtaPhi_ = errorHistCat.at(1).make<TH2I>("forJetD_GlobalError_EtEtaPhi", "forJetD_GlobalError_EtEtaPhi", 22, -0.5, 21.5, 18, -0.5, 17.5);
   forJetE_GlobalError_EtEtaPhi_ = errorHistCat.at(1).make<TH2I>("forJetE_GlobalError_EtEtaPhi", "forJetE_GlobalError_EtEtaPhi", 22, -0.5, 21.5, 18, -0.5, 17.5);
   //IntJets
+  intJetEtEtaPhiE_ = emuHistCat.at(9).make<TH2I>("intJetEtEtaPhiE_", "intJetEtEtaPhiE_;#eta (GCT Units);#phi (GCT Units)", 22, -0.5, 21.5, 18, -0.5, 17.5);
   intJetE_Et_ = emuHistCat.at(9).make<TH1I>("intJetE_Et", "intJetE_Et;E_{T};Number of Events", 1024, -0.5, 1023.5);
   intJetE_Of_ = emuHistCat.at(9).make<TH1I>("intJetE_Of", "intJetE_Of;Overflow Bit Status;Number of Events", 2, -0.5, 1.5);
   intJetE_Jet1Et_ = emuHistCat.at(9).make<TH1I>("intJetE_Jet1Et", "intJetE_Jet1Et;E_{T};Number of Events", 1024, -0.5, 1023.5);
@@ -433,9 +445,9 @@ GctErrorAnalyzer::GctErrorAnalyzer(const edm::ParameterSet& iConfig) :
   hfBitCountE_2neg_ = emuHistCat.at(6).make<TH1I>("hfBitCountE_2-", "hfBitCountE_2-;Rank;Number of Events", 8, -0.5, 7.5);
   hfBitCount_errorFlag_ = errorHistFlags.make<TH1I>("hfBitCount_errorFlag","hfBitCount_errorFlag;Status;Number of Candidates",2,-0.5,1.5);
   //Total ET
-  totalEtD_ = dataHistCat.at(7).make<TH1I>("totalEtD", "totalEtD;E_{T};Number of Events", 1024, -0.5, 1023.5);
+  totalEtD_ = dataHistCat.at(7).make<TH1I>("totalEtD", "totalEtD;E_{T};Number of Events", 2048, -0.5, 2047.5);
   totalEtD_Of_ = dataHistCat.at(7).make<TH1I>("totalEtD_Of", "totalEtD_Of;Overflow Bit Status;Number of Events", 2, -0.5, 1.5);
-  totalEtE_ = emuHistCat.at(7).make<TH1I>("totalEtE", "totalEtE;E_{T};Number of Events", 1024, -0.5, 1023.5);
+  totalEtE_ = emuHistCat.at(7).make<TH1I>("totalEtE", "totalEtE;E_{T};Number of Events", 2048, -0.5, 2047.5);
   totalEtE_Of_ = emuHistCat.at(7).make<TH1I>("totalEtE_Of", "totalEtE_Of;Overflow Bit Status;Number of Events", 2, -0.5, 1.5);
   totalEt_errorFlag_ = errorHistFlags.make<TH1I>("totalEt_errorFlag","totalEt_errorFlag;Status;Number of Candidates",2,-0.5,1.5);
   //Book the Global ET Error histograms in the errorHistCat   
@@ -444,9 +456,9 @@ GctErrorAnalyzer::GctErrorAnalyzer(const edm::ParameterSet& iConfig) :
   //totalEtD_GlobalError_Of_ = errorHistCat.at(3).make<TH1I>("totalEtD_GlobalError_Of", "totalEtD_GlobalError_Of;Overflow Bit Status;Number of Events", 2, -0.5, 1.5);
   //totalEtE_GlobalError_Of_ = errorHistCat.at(3).make<TH1I>("totalEtE_GlobalError_Of", "totalEtE_GlobalError_Of;Overflow Bit Status;Number of Events", 2, -0.5, 1.5);
   //Total HT
-  totalHtD_ = dataHistCat.at(7).make<TH1I>("totalHtD", "totalHtD;H_{T};Number of Events", 1024, -0.5, 1023.5);
+  totalHtD_ = dataHistCat.at(7).make<TH1I>("totalHtD", "totalHtD;H_{T};Number of Events", 2048, -0.5, 2047.5);
   totalHtD_Of_ = dataHistCat.at(7).make<TH1I>("totalHtD_Of", "totalHtD_Of;Overflow Bit Status;Number of Events", 2, -0.5, 1.5);
-  totalHtE_ = emuHistCat.at(7).make<TH1I>("totalHtE", "totalHtE;H_{T};Number of Events", 1024, -0.5, 1023.5);
+  totalHtE_ = emuHistCat.at(7).make<TH1I>("totalHtE", "totalHtE;H_{T};Number of Events", 2048, -0.5, 2047.5);
   totalHtE_Of_ = emuHistCat.at(7).make<TH1I>("totalHtE_Of", "totalHtE_Of;Overflow Bit Status;Number of Events", 2, -0.5, 1.5);
   totalHt_errorFlag_ = errorHistFlags.make<TH1I>("totalHt_errorFlag","totalHt_errorFlag;Status;Number of Candidates",2,-0.5,1.5);
   //Book the Global HT Error histograms in the errorHistCat
@@ -470,6 +482,20 @@ GctErrorAnalyzer::GctErrorAnalyzer(const edm::ParameterSet& iConfig) :
   missingHtE_Of_ = emuHistCat.at(8).make<TH1I>("missingHtE_Of", "missingHtE_Of;Overflow Bit Status;Number of Events", 2, -0.5, 1.5);
   missingHtE_Phi_ = emuHistCat.at(8).make<TH1I>("missingHtE_Phi", "missingHtE_Phi;Missing H_{T} #phi;Number of Events", 72, -0.5, 71.5);
   missingHt_errorFlag_ = errorHistFlags.make<TH1I>("missingHt_errorFlag","missingHt_errorFlag;Status;Number of Candidates",4,-0.5,3.5);
+  //Additional MissingHt Debug histograms
+  missingHtD_HtXPosLeaf1 = dataHistCat.at(8).make<TH1I>("missingHtD_HtXPosLeaf1", "missingHtD;Missing H_{T} X PosLeaf1;Number of Events", 4096, -2048.5, 2047.5);
+  missingHtD_HtXPosLeaf2 = dataHistCat.at(8).make<TH1I>("missingHtD_HtXPosLeaf2", "missingHtD;Missing H_{T} X PosLeaf2;Number of Events", 4096, -2048.5, 2047.5);
+  missingHtD_HtXPosLeaf3 = dataHistCat.at(8).make<TH1I>("missingHtD_HtXPosLeaf3", "missingHtD;Missing H_{T} X PosLeaf3;Number of Events", 4096, -2048.5, 2047.5);
+  missingHtD_HtXNegLeaf1 = dataHistCat.at(8).make<TH1I>("missingHtD_HtXNegLeaf1", "missingHtD;Missing H_{T} X NegLeaf1;Number of Events", 4096, -2048.5, 2047.5);
+  missingHtD_HtXNegLeaf2 = dataHistCat.at(8).make<TH1I>("missingHtD_HtXNegLeaf2", "missingHtD;Missing H_{T} X NegLeaf2;Number of Events", 4096, -2048.5, 2047.5);
+  missingHtD_HtXNegLeaf3 = dataHistCat.at(8).make<TH1I>("missingHtD_HtXNegLeaf3", "missingHtD;Missing H_{T} X NegLeaf3;Number of Events", 4096, -2048.5, 2047.5);
+
+  missingHtD_HtYPosLeaf1 = dataHistCat.at(8).make<TH1I>("missingHtD_HtYPosLeaf1", "missingHtD;Missing H_{T} Y PosLeaf1;Number of Events", 4096, -2048.5, 2047.5);
+  missingHtD_HtYPosLeaf2 = dataHistCat.at(8).make<TH1I>("missingHtD_HtYPosLeaf2", "missingHtD;Missing H_{T} Y PosLeaf2;Number of Events", 4096, -2048.5, 2047.5);
+  missingHtD_HtYPosLeaf3 = dataHistCat.at(8).make<TH1I>("missingHtD_HtYPosLeaf3", "missingHtD;Missing H_{T} Y PosLeaf3;Number of Events", 4096, -2048.5, 2047.5);
+  missingHtD_HtYNegLeaf1 = dataHistCat.at(8).make<TH1I>("missingHtD_HtYNegLeaf1", "missingHtD;Missing H_{T} Y NegLeaf1;Number of Events", 4096, -2048.5, 2047.5);
+  missingHtD_HtYNegLeaf2 = dataHistCat.at(8).make<TH1I>("missingHtD_HtYNegLeaf2", "missingHtD;Missing H_{T} Y NegLeaf2;Number of Events", 4096, -2048.5, 2047.5);
+  missingHtD_HtYNegLeaf3 = dataHistCat.at(8).make<TH1I>("missingHtD_HtYNegLeaf3", "missingHtD;Missing H_{T} Y NegLeaf3;Number of Events", 4096, -2048.5, 2047.5);
 
   //Annotate the labels of the error flags
   //For the electrons and jets
@@ -527,6 +553,18 @@ GctErrorAnalyzer::GctErrorAnalyzer(const edm::ParameterSet& iConfig) :
   MBxInfo.RCTTrigBx = RCTTrigBx_;
   MBxInfo.EmuTrigBx = EmuTrigBx_;
   MBxInfo.GCTTrigBx = GCTTrigBx_;
+
+  //set the parameters according to the system chosen
+  if(useSys_ == "P5") {
+    RCT_REGION_QUANTA = &RCT_REGION_QUANTA_P5;
+  }
+  else if(useSys_ == "Lab") {
+    RCT_REGION_QUANTA = &RCT_REGION_QUANTA_LAB;
+  }
+  else {
+    edm::LogWarning("ChosenSystem") << " " << "The system you chose to use (" << useSys_ << ") was not recognised. Defaulting to the full system geometry";
+    RCT_REGION_QUANTA = &RCT_REGION_QUANTA_P5;
+  }
 
 }
 
@@ -586,6 +624,8 @@ GctErrorAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   Handle<L1GctHtMissCollection> missingHtD;
   Handle<L1GctHtMissCollection> missingHtE;
 
+  Handle<L1GctInternHtMissCollection> intHtMissD;
+
   //we need this for all user cases...
   iEvent.getByLabel(dataTag_.label(), caloRegions);
 
@@ -594,7 +634,7 @@ GctErrorAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   eventNumber = iEvent.id().event();
 
   if(doRCT_) {
-    if(checkCollections(caloRegions, RCT_REGION_QUANTA, "RCT CaloRegions")) plotRCTRegions(caloRegions);
+    if(checkCollections(caloRegions, *RCT_REGION_QUANTA, "RCT CaloRegions")) plotRCTRegions(caloRegions);
   }
 
   if(doEg_) {
@@ -746,10 +786,37 @@ GctErrorAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       plotMissingHt(missingHtD, missingHtE);
       compareMissingH compareMHT(missingHtD, missingHtE, MBxInfo);
       isMissingHError = compareMHT.doCompare(missingHt_errorFlag_);
+
+      //added 19/03/2010 for intermediate information on MissingHt quantities in the data
+      if(doExtraMissingHTDebug_) {
+	iEvent.getByLabel(dataTag_.label(), "", intHtMissD);
+	if(checkCollections(intHtMissD, GCT_INT_HTMISS_QUANTA, "Internal Missing Ht Data")) {
+	  for(unsigned int i=0; i<intHtMissD->size(); i++) {
+	    if(doGCTMBx_ || intHtMissD->at(i).bx() == GCTTrigBx_) {
+	      if(!intHtMissD->at(i).overflow()) {
+		//the capBlock 0x301 is the input pipeline at the wheel for positive eta, whereas 0x701 is for negative eta
+		if(intHtMissD->at(i).capBlock() == 0x301 && intHtMissD->at(i).capIndex() == 0 && intHtMissD->at(i).isThereHtx()) missingHtD_HtXPosLeaf1->Fill(intHtMissD->at(i).htx());
+		if(intHtMissD->at(i).capBlock() == 0x301 && intHtMissD->at(i).capIndex() == 1 && intHtMissD->at(i).isThereHtx()) missingHtD_HtXPosLeaf2->Fill(intHtMissD->at(i).htx());
+		if(intHtMissD->at(i).capBlock() == 0x301 && intHtMissD->at(i).capIndex() == 2 && intHtMissD->at(i).isThereHtx()) missingHtD_HtXPosLeaf3->Fill(intHtMissD->at(i).htx());
+		if(intHtMissD->at(i).capBlock() == 0x701 && intHtMissD->at(i).capIndex() == 0 && intHtMissD->at(i).isThereHtx()) missingHtD_HtXNegLeaf1->Fill(intHtMissD->at(i).htx());
+		if(intHtMissD->at(i).capBlock() == 0x701 && intHtMissD->at(i).capIndex() == 1 && intHtMissD->at(i).isThereHtx()) missingHtD_HtXNegLeaf2->Fill(intHtMissD->at(i).htx());
+		if(intHtMissD->at(i).capBlock() == 0x701 && intHtMissD->at(i).capIndex() == 2 && intHtMissD->at(i).isThereHtx()) missingHtD_HtXNegLeaf3->Fill(intHtMissD->at(i).htx());
+		
+		if(intHtMissD->at(i).capBlock() == 0x301 && intHtMissD->at(i).capIndex() == 0 && intHtMissD->at(i).isThereHty()) missingHtD_HtYPosLeaf1->Fill(intHtMissD->at(i).hty());
+		if(intHtMissD->at(i).capBlock() == 0x301 && intHtMissD->at(i).capIndex() == 1 && intHtMissD->at(i).isThereHty()) missingHtD_HtYPosLeaf2->Fill(intHtMissD->at(i).hty());
+		if(intHtMissD->at(i).capBlock() == 0x301 && intHtMissD->at(i).capIndex() == 2 && intHtMissD->at(i).isThereHty()) missingHtD_HtYPosLeaf3->Fill(intHtMissD->at(i).hty());
+		if(intHtMissD->at(i).capBlock() == 0x701 && intHtMissD->at(i).capIndex() == 0 && intHtMissD->at(i).isThereHty()) missingHtD_HtYNegLeaf1->Fill(intHtMissD->at(i).hty());
+		if(intHtMissD->at(i).capBlock() == 0x701 && intHtMissD->at(i).capIndex() == 1 && intHtMissD->at(i).isThereHty()) missingHtD_HtYNegLeaf2->Fill(intHtMissD->at(i).hty());
+		if(intHtMissD->at(i).capBlock() == 0x701 && intHtMissD->at(i).capIndex() == 2 && intHtMissD->at(i).isThereHty()) missingHtD_HtYNegLeaf3->Fill(intHtMissD->at(i).hty());	      
+	      }
+	    }
+	  }
+	}
+      }
     }
 
     if((isMissingEError && doMissingETDebug_) || (isMissingHError && doMissingHTDebug_)) {
-      plotMissingEErrors(missingEtD, missingEtE, missingHtD, missingHtE, caloRegions);
+      plotMissingEErrors(missingEtD, missingEtE, missingHtD, missingHtE, caloRegions, intJetsE, intHtMissD);
     }
 
   }
@@ -990,6 +1057,9 @@ GctErrorAnalyzer::plotIntJets(const edm::Handle<L1GctInternJetDataCollection> &i
 	intJetE_Of_->Fill(intJetsE->at(i).oflow());
 	return;
       }
+
+      //plot the (et,eta,phi) distribution of the intermediate jets (for non-zero et)
+      if(intJetsE->at(i).et()) intJetEtEtaPhiE_->Fill(intJetsE->at(i).regionId().ieta(),intJetsE->at(i).regionId().iphi(),intJetsE->at(i).et());
 
     }
   }
@@ -1384,11 +1454,23 @@ GctErrorAnalyzer::plotMissingHt(const edm::Handle<L1GctHtMissCollection> &missin
 }
 
 void
-GctErrorAnalyzer::plotMissingEErrors(const edm::Handle<L1GctEtMissCollection> &missingEtD, const edm::Handle<L1GctEtMissCollection> &missingEtE, const edm::Handle<L1GctHtMissCollection> &missingHtD, const edm::Handle<L1GctHtMissCollection> &missingHtE, edm::Handle<L1CaloRegionCollection> &caloRegions) {
+GctErrorAnalyzer::plotMissingEErrors(const edm::Handle<L1GctEtMissCollection> &missingEtD, const edm::Handle<L1GctEtMissCollection> &missingEtE, const edm::Handle<L1GctHtMissCollection> &missingHtD, const edm::Handle<L1GctHtMissCollection> &missingHtE, edm::Handle<L1CaloRegionCollection> &caloRegions, const edm::Handle<L1GctInternJetDataCollection> &intJetsE, const edm::Handle<L1GctInternHtMissCollection> intMissingHtD) {
 
   std::string errorDirName = "err_"; 
   if(isMissingEError) errorDirName.append("E");
   if(isMissingHError) errorDirName.append("H");
+
+  //added 05.03.2010 to highlight overflow errors in the missing energy sum calculation
+  for(unsigned int i=0; i < missingHtE->size(); i++) {
+    if(missingHtE->at(i).bx() == EmuTrigBx_) {
+      for(unsigned int j=0; j < missingHtD->size(); j++) {
+	if(missingHtD->at(j).bx() == GCTTrigBx_) {
+	  if(missingHtD->at(j).overFlow() != missingHtE->at(i).overFlow()) errorDirName.append("O");
+	}
+      }  
+    }
+  }
+
   std::stringstream caseNumber;
   caseNumber << eventNumber;
   errorDirName.append(caseNumber.str());
@@ -1408,6 +1490,59 @@ GctErrorAnalyzer::plotMissingEErrors(const edm::Handle<L1GctEtMissCollection> &m
   TH1I *errorMissingHtE_ = errorDir.make<TH1I>("errorMissingHtE", "errorMissingHtE;H_{T};Number of Events", 1024, -0.5, 1023.5);
   TH1I *errorMissingHtE_Of_ = errorDir.make<TH1I>("errorMissingHtE_Of", "errorMissingHtE_Of;Overflow Bit Status;Number of Events", 2, -0.5, 1.5);
   TH1I *errorMissingHtE_Phi_ = errorDir.make<TH1I>("errorMissingHtE_Phi", "errorMissingHtE_Phi;Missing H_{T} #phi;Number of Events", 72, -0.5, 71.5);
+
+  //Added 19.03.2010 to provide additional information in the case of missingHt failures
+  //1. The MHT from both wheel inputs (i.e. the leaf cards)
+  //2. The emulator jet et,eta,phi for all jets found in an event
+  if(doExtraMissingHTDebug_) {
+    if(checkCollections(intMissingHtD, GCT_INT_HTMISS_QUANTA, "Internal Missing Ht Data")) {
+
+      TH1I *errorMissingHtD_HtXPosLeaf1 = errorDir.make<TH1I>("errorMissingHtD_HtXPosLeaf1", "missingHtD;Missing H_{T} X PosLeaf1;Number of Events", 4096, -2048.5, 2047.5);
+      TH1I *errorMissingHtD_HtXPosLeaf2 = errorDir.make<TH1I>("errorMissingHtD_HtXPosLeaf2", "missingHtD;Missing H_{T} X PosLeaf2;Number of Events", 4096, -2048.5, 2047.5);
+      TH1I *errorMissingHtD_HtXPosLeaf3 = errorDir.make<TH1I>("errorMissingHtD_HtXPosLeaf3", "missingHtD;Missing H_{T} X PosLeaf3;Number of Events", 4096, -2048.5, 2047.5);
+      TH1I *errorMissingHtD_HtXNegLeaf1 = errorDir.make<TH1I>("errorMissingHtD_HtXNegLeaf1", "missingHtD;Missing H_{T} X NegLeaf1;Number of Events", 4096, -2048.5, 2047.5);
+      TH1I *errorMissingHtD_HtXNegLeaf2 = errorDir.make<TH1I>("errorMissingHtD_HtXNegLeaf2", "missingHtD;Missing H_{T} X NegLeaf2;Number of Events", 4096, -2048.5, 2047.5);
+      TH1I *errorMissingHtD_HtXNegLeaf3 = errorDir.make<TH1I>("errorMissingHtD_HtXNegLeaf3", "missingHtD;Missing H_{T} X NegLeaf3;Number of Events", 4096, -2048.5, 2047.5);
+
+      TH1I *errorMissingHtD_HtYPosLeaf1 = errorDir.make<TH1I>("errorMissingHtD_HtYPosLeaf1", "missingHtD;Missing H_{T} Y PosLeaf1;Number of Events", 4096, -2048.5, 2047.5);
+      TH1I *errorMissingHtD_HtYPosLeaf2 = errorDir.make<TH1I>("errorMissingHtD_HtYPosLeaf2", "missingHtD;Missing H_{T} Y PosLeaf2;Number of Events", 4096, -2048.5, 2047.5);
+      TH1I *errorMissingHtD_HtYPosLeaf3 = errorDir.make<TH1I>("errorMissingHtD_HtYPosLeaf3", "missingHtD;Missing H_{T} Y PosLeaf3;Number of Events", 4096, -2048.5, 2047.5);
+      TH1I *errorMissingHtD_HtYNegLeaf1 = errorDir.make<TH1I>("errorMissingHtD_HtYNegLeaf1", "missingHtD;Missing H_{T} Y NegLeaf1;Number of Events", 4096, -2048.5, 2047.5);
+      TH1I *errorMissingHtD_HtYNegLeaf2 = errorDir.make<TH1I>("errorMissingHtD_HtYNegLeaf2", "missingHtD;Missing H_{T} Y NegLeaf2;Number of Events", 4096, -2048.5, 2047.5);
+      TH1I *errorMissingHtD_HtYNegLeaf3 = errorDir.make<TH1I>("errorMissingHtD_HtYNegLeaf3", "missingHtD;Missing H_{T} Y NegLeaf3;Number of Events", 4096, -2048.5, 2047.5);
+
+      for(unsigned int i=0; i<intMissingHtD->size(); i++) {
+	if(intMissingHtD->at(i).bx() == GCTTrigBx_) {
+	  if(!intMissingHtD->at(i).overflow()) {
+	  
+	    if(intMissingHtD->at(i).capBlock() == 0x301 && intMissingHtD->at(i).capIndex() == 0 && intMissingHtD->at(i).isThereHtx()) errorMissingHtD_HtXPosLeaf1->Fill(intMissingHtD->at(i).htx());
+	    if(intMissingHtD->at(i).capBlock() == 0x301 && intMissingHtD->at(i).capIndex() == 1 && intMissingHtD->at(i).isThereHtx()) errorMissingHtD_HtXPosLeaf2->Fill(intMissingHtD->at(i).htx());
+	    if(intMissingHtD->at(i).capBlock() == 0x301 && intMissingHtD->at(i).capIndex() == 2 && intMissingHtD->at(i).isThereHtx()) errorMissingHtD_HtXPosLeaf3->Fill(intMissingHtD->at(i).htx());
+	    if(intMissingHtD->at(i).capBlock() == 0x701 && intMissingHtD->at(i).capIndex() == 0 && intMissingHtD->at(i).isThereHtx()) errorMissingHtD_HtXNegLeaf1->Fill(intMissingHtD->at(i).htx());
+	    if(intMissingHtD->at(i).capBlock() == 0x701 && intMissingHtD->at(i).capIndex() == 1 && intMissingHtD->at(i).isThereHtx()) errorMissingHtD_HtXNegLeaf2->Fill(intMissingHtD->at(i).htx());
+	    if(intMissingHtD->at(i).capBlock() == 0x701 && intMissingHtD->at(i).capIndex() == 2 && intMissingHtD->at(i).isThereHtx()) errorMissingHtD_HtXNegLeaf3->Fill(intMissingHtD->at(i).htx());
+	  
+	    if(intMissingHtD->at(i).capBlock() == 0x301 && intMissingHtD->at(i).capIndex() == 0 && intMissingHtD->at(i).isThereHty()) errorMissingHtD_HtYPosLeaf1->Fill(intMissingHtD->at(i).hty());
+	    if(intMissingHtD->at(i).capBlock() == 0x301 && intMissingHtD->at(i).capIndex() == 1 && intMissingHtD->at(i).isThereHty()) errorMissingHtD_HtYPosLeaf2->Fill(intMissingHtD->at(i).hty());
+	    if(intMissingHtD->at(i).capBlock() == 0x301 && intMissingHtD->at(i).capIndex() == 2 && intMissingHtD->at(i).isThereHty()) errorMissingHtD_HtYPosLeaf3->Fill(intMissingHtD->at(i).hty());
+	    if(intMissingHtD->at(i).capBlock() == 0x701 && intMissingHtD->at(i).capIndex() == 0 && intMissingHtD->at(i).isThereHty()) errorMissingHtD_HtYNegLeaf1->Fill(intMissingHtD->at(i).hty());
+	    if(intMissingHtD->at(i).capBlock() == 0x701 && intMissingHtD->at(i).capIndex() == 1 && intMissingHtD->at(i).isThereHty()) errorMissingHtD_HtYNegLeaf2->Fill(intMissingHtD->at(i).hty());
+	    if(intMissingHtD->at(i).capBlock() == 0x701 && intMissingHtD->at(i).capIndex() == 2 && intMissingHtD->at(i).isThereHty()) errorMissingHtD_HtYNegLeaf3->Fill(intMissingHtD->at(i).hty());
+	  }
+	}
+      }
+    }
+  }
+  
+  if(checkCollections(intJetsE, NUM_INT_JETS, "Intermediate Jets Emulator")) {
+    TH2I *errorIntJetsE_EtEtaPhi = errorDir.make<TH2I>("errorIntJetsE_EtEtaPhi", "errorIntJetsE_EtEtaPhi;#eta (GCT Units);#phi (GCT Units)", 22, -0.5, 21.5, 18, -0.5, 17.5);
+    
+    for(unsigned int i=0; i < intJetsE->size(); i++) {
+      if(intJetsE->at(i).bx() == EmuTrigBx_) {
+	if(!intJetsE->at(i).oflow() && intJetsE->at(i).et()) errorIntJetsE_EtEtaPhi->Fill(intJetsE->at(i).regionId().ieta(),intJetsE->at(i).regionId().iphi(),intJetsE->at(i).et());
+      }
+    }
+  }
 
   for(unsigned int i=0;i<caloRegions->size();i++) {
     if(caloRegions->at(i).bx() == RCTTrigBx_) {
@@ -1448,7 +1583,7 @@ GctErrorAnalyzer::plotMissingEErrors(const edm::Handle<L1GctEtMissCollection> &m
   for(unsigned int i=0; i < missingHtE->size(); i++) {
     if(missingHtE->at(i).bx() == EmuTrigBx_) {
       errorMissingHtE_Of_->Fill(missingHtE->at(i).overFlow());
-      if(!missingHtE->at(i).overFlow()) {
+      if(!missingHtE->at(i).overFlow()) { //to see what values the emulator outputs despite the o/f bit being set comment out this statement
 	errorMissingHtE_->Fill(missingHtE->at(i).et());
 	errorMissingHtE_Phi_->Fill(missingHtE->at(i).phi());      
       }
