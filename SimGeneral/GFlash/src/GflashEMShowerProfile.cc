@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.3 2010/04/19 16:15:22 syjun Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.4 2010/04/30 19:09:28 dwjang Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 //
@@ -50,7 +50,7 @@ void GflashEMShowerProfile::parameterization()
   // This part of code is copied from the original GFlash Fortran code.
   // reference : hep-ex/0001020v1
   // The units used in Geant4 internally are in mm, MeV.
-  // For simplicity, the units here are in cm, GeV. So w
+  // For simplicity, the units here are in cm, GeV.
 
   const double energyCutoff     = 0.01; 
   const int    maxNumberOfSpots = 100000;
