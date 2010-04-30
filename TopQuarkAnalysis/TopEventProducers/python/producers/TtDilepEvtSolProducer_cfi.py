@@ -33,5 +33,11 @@ solutions = cms.EDProducer("TtDilepEvtSolutionMaker",
     tmassstep  = cms.double(1.0),
 
     nrCombJets = cms.uint32(3),
-    bestSolFromMC = cms.bool(False)
+    bestSolFromMC = cms.bool(False),
+     
+    neutrino_parameters = cms.vdouble(30.7137,
+                                      56.2880,
+				      23.0744,
+				      59.1015,
+				      24.9145)
 )
