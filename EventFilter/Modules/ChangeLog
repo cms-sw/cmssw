@@ -1,3 +1,9 @@
+2010-04-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V00-08-00
+	* Add host_name and adler32 checksum for DQM messages to
+	  satisfy new IOPool/Streamer format
+
 2010-04-13 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-07-07
