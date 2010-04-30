@@ -118,7 +118,10 @@ def main():
             #print 'run',runnumber
             #print 'ls deadfraction'
             for cmsls,deadfraccomponent in deadresult.items():
-                print cmsls,'%.5f'%float(float(deadfraccomponent[0])/float(deadfraccomponent[1]))
+                if deadfraccomponent[1]!=0:
+                    print cmsls,'%.5f'%float(float(deadfraccomponent[0])/float(deadfraccomponent[1]))
+                else:
+                    print cmsls,'%.5f'%float(1))
         else:
             print 'no deadtime found for run ',runnumber
     del session
