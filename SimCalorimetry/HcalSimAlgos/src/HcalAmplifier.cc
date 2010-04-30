@@ -25,7 +25,11 @@ HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNo
   theNoiseSignalGenerator(0),
   theIonFeedbackSim(0),
   theStartingCapId(0), 
-  addNoise_(addNoise)
+  addNoise_(addNoise),
+  useOldHB(false),
+  useOldHE(false),
+  useOldHF(false),
+  useOldHO(false)
 {
 }
 
@@ -64,46 +68,57 @@ void HcalAmplifier::pe2fC(CaloSamples & frame) const
   frame *= parameters.photoelectronsToAnalog(frame.id());
 }
 
-void HcalAmplifier::setHBtuningParameter(double tp)
-{
-   HB_ff = tp;
-}
-
-void HcalAmplifier::setHEtuningParameter(double tp)
-{
-   HE_ff = tp;
-}
-
-void HcalAmplifier::setHFtuningParameter(double tp)
-{
-   HF_ff = tp;
-}
-
-void HcalAmplifier::setHOtuningParameter(double tp)
-{
-   HO_ff = tp;
-}
+void HcalAmplifier::setHBtuningParameter(double tp) { HB_ff = tp; }
+void HcalAmplifier::setHEtuningParameter(double tp) { HE_ff = tp; }
+void HcalAmplifier::setHFtuningParameter(double tp) { HF_ff = tp; }
+void HcalAmplifier::setHOtuningParameter(double tp) { HO_ff = tp; }
+void HcalAmplifier::setUseOldHB(bool useOld) { useOldHB = useOld; }
+void HcalAmplifier::setUseOldHE(bool useOld) { useOldHE = useOld; }
+void HcalAmplifier::setUseOldHF(bool useOld) { useOldHF = useOld; }
+void HcalAmplifier::setUseOldHO(bool useOld) { useOldHO = useOld; }
 
 void HcalAmplifier::addPedestals(CaloSamples & frame) const
 {
-  assert(theDbService != 0);
-  HcalGenericDetId hcalGenDetId(frame.id());
-  HcalGenericDetId::HcalGenericSubdetector hcalSubDet = hcalGenDetId.genericSubdet();
+   assert(theDbService != 0);
+   HcalGenericDetId hcalGenDetId(frame.id());
+   HcalGenericDetId::HcalGenericSubdetector hcalSubDet = hcalGenDetId.genericSubdet();
 
-  const HcalCalibrationWidths & calibWidths =
-    theDbService->getHcalCalibrationWidths(hcalGenDetId);
-  const HcalCalibrations& calibs = theDbService->getHcalCalibrations(hcalGenDetId);
+   bool useOld;
+   if(hcalSubDet==HcalGenericDetId::HcalGenBarrel) useOld = useOldHB;
+   if(hcalSubDet==HcalGenericDetId::HcalGenEndcap) useOld = useOldHE;
+   if(hcalSubDet==HcalGenericDetId::HcalGenForward) useOld = useOldHF;
+   if(hcalSubDet==HcalGenericDetId::HcalGenOuter) useOld = useOldHO;
+   
+   if(useOld)
+   {
+     const HcalCalibrationWidths & calibWidths =
+       theDbService->getHcalCalibrationWidths(hcalGenDetId);
+     const HcalCalibrations& calibs = theDbService->getHcalCalibrations(hcalGenDetId);
+   
+     double noise [32] = {0.}; //big enough
+     if(addNoise_)
+     {
+       double gauss [32]; //big enough
+       for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
+       makeNoiseOld(hcalSubDet, calibWidths, frame.size(), gauss, noise);
+     }
+   
+     for (int tbin = 0; tbin < frame.size(); ++tbin) {
+       int capId = (theStartingCapId + tbin)%4;
+       double pedestal = calibs.pedestal(capId) + noise[tbin];
+       frame[tbin] += pedestal;
+     }
+     return;
+   }
+
 
   double fudgefactor = 1;
   if(hcalSubDet==HcalGenericDetId::HcalGenBarrel) fudgefactor = HB_ff;
   if(hcalSubDet==HcalGenericDetId::HcalGenEndcap) fudgefactor = HE_ff;
   if(hcalSubDet==HcalGenericDetId::HcalGenForward) fudgefactor = HF_ff;
   if(hcalSubDet==HcalGenericDetId::HcalGenOuter) fudgefactor = HO_ff;
-  bool useOld = false;
-  if(fudgefactor==0) useOld = true;
   if(hcalGenDetId.isHcalCastorDetId()) return;
   if(hcalGenDetId.isHcalZDCDetId()) return;
-  
 
   const HcalCholeskyMatrix * thisChanCholesky = myCholeskys->getValues(hcalGenDetId);
   const HcalPedestal * thisChanADCPeds = myADCPeds->getValues(hcalGenDetId);
@@ -114,12 +129,7 @@ void HcalAmplifier::addPedestals(CaloSamples & frame) const
   {
     double gauss [32]; //big enough
     for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
-    if(!useOld)
-    {
-       makeNoise(*thisChanCholesky, frame.size(), gauss, noise, (int)theStartingCapId_2);
-    }else{
-       makeNoiseOld(hcalSubDet, calibWidths, frame.size(), gauss, noise);
-    }
+    makeNoise(*thisChanCholesky, frame.size(), gauss, noise, (int)theStartingCapId_2);
   }
 
   const HcalQIECoder* coder = theDbService->getHcalCoder(hcalGenDetId);
@@ -127,19 +137,12 @@ void HcalAmplifier::addPedestals(CaloSamples & frame) const
 
   for (int tbin = 0; tbin < frame.size(); ++tbin) {
     int capId = (theStartingCapId_2 + tbin)%4;
-
-    if(!useOld)
-    {
-       double x = noise[tbin] * fudgefactor + thisChanADCPeds->getValue(capId);//*(values+capId); //*.70 goes here!
-       int x1=(int)std::floor(x);
-       int x2=(int)std::floor(x+1);
-       float y2=coder->charge(*shape,x2,capId);
-       float y1=coder->charge(*shape,x1,capId);
-       frame[tbin] = (y2-y1)*(x-x1)+y1;
-    }else{
-       double pedestal = calibs.pedestal(capId) + noise[tbin];
-       frame[tbin] += pedestal;
-    }
+    double x = noise[tbin] * fudgefactor + thisChanADCPeds->getValue(capId);//*(values+capId); //*.70 goes here!
+    int x1=(int)std::floor(x);
+    int x2=(int)std::floor(x+1);
+    float y2=coder->charge(*shape,x2,capId);
+    float y1=coder->charge(*shape,x1,capId);
+    frame[tbin] = (y2-y1)*(x-x1)+y1;
   }
 }
 
