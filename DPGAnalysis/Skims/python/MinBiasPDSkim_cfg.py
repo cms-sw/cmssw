@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.23 $'),
+    version = cms.untracked.string('$Revision: 1.24 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -37,7 +37,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5000)
+    input = cms.untracked.int32(100)
 )
 
 
@@ -55,7 +55,9 @@ process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration/StandardSequences/Reconstruction_cff")
 process.load('Configuration/EventContent/EventContent_cff')
 
-process.FEVTEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')
+#drop collections created on the fly
+process.FEVTEventContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
+process.FEVTEventContent.outputCommands.append("drop *_*_*_SKIM")
 
 #
 #  Load common sequences
@@ -401,7 +403,7 @@ process.trackFilter = cms.EDFilter("TrackCountFilter",
                                    )
 
 process.nottoomanytracks = cms.EDFilter("NMaxPerLumi",
-                                        nMaxPerLumi = cms.uint32(5)
+                                        nMaxPerLumi = cms.uint32(8)
                                         )
 process.relvaltrackskim = cms.Path(process.primaryVertexFilter+process.noscraping+
                                    process.trackSelector + process.trackFilter + process.nottoomanytracks )
@@ -431,9 +433,6 @@ process.outputvalskim = cms.OutputModule("PoolOutputModule",
     ),
                                          SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('relvaltrackskim','relvalmuonskim')
                                                                            ))
-process.load('Configuration/EventContent/EventContent_cff')
-#drop everything from that process name, no to keep the collections created on the fly
-process.outputvalskim.outputCommands.append("drop *_*_*_SKIM")
 
 
 ###########################################################################
