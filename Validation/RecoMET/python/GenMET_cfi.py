@@ -5,23 +5,14 @@ import FWCore.ParameterSet.Config as cms
 # Date: 03.04.2008
 #
 # Fill validation histograms for MET.
-genMetAnalyzer = cms.EDAnalyzer(
-    "METTester",
-    InputMETLabel = cms.InputTag("genMet"),
-    METType = cms.untracked.string('GenMET'),
-    FineBinning = cms.untracked.bool(True),                            
-    FolderName = cms.untracked.string("RecoMETV/MET_Global/")
-)
 
-genMetNoNuBSMAnalyzer = cms.EDAnalyzer(
+genMptTrueAnalyzer = cms.EDAnalyzer(
     "METTester",
-    InputMETLabel = cms.InputTag("genMetNoNuBSM"),
-    METType = cms.untracked.string('GenMET'),
+    InputMETLabel = cms.InputTag("genMptTrue"),
+    METType = cms.untracked.string("GenMET"),
     FineBinning = cms.untracked.bool(True),
     FolderName = cms.untracked.string("RecoMETV/MET_Global/")
-)
-
-
+    )
 
 genMetTrueAnalyzer = cms.EDAnalyzer(
     "METTester",
@@ -34,6 +25,14 @@ genMetTrueAnalyzer = cms.EDAnalyzer(
 genMetCaloAnalyzer = cms.EDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("genMetCalo"),
+    METType = cms.untracked.string("GenMET"),
+    FineBinning = cms.untracked.bool(True),
+    FolderName = cms.untracked.string("RecoMETV/MET_Global/")
+    )
+
+genMptCaloAnalyzer = cms.EDAnalyzer(
+    "METTester",
+    InputMETLabel = cms.InputTag("genMptCalo"),
     METType = cms.untracked.string("GenMET"),
     FineBinning = cms.untracked.bool(True),
     FolderName = cms.untracked.string("RecoMETV/MET_Global/")
