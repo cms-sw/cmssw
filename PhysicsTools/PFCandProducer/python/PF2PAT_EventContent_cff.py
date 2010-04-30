@@ -1,6 +1,47 @@
 
 import FWCore.ParameterSet.Config as cms
 
+ModifiedPF2PATEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+    # Gen information
+#    'drop *',  
+
+#   'drop *_caloRecoTau*_*_*',
+#   'drop *_*PFTau*_*_*',
+#   'drop *_pfRecoTauTagInfoProducer_*_*',
+#   'drop *_*CaloJets_*_*',
+#   'drop *_*BJetTags_*_*',   
+#   'drop *_*TracksAssociatorAtVertex_*_*',
+#   'drop *_scalersRawToDigi_*_*',
+#   'drop *_kt*Jets_*_*',
+#   'drop *_sisCone*_*_*',   
+#   'drop *_tevMuons_*_*',
+#    'drop *_PhotonIDProd_*_*',
+#    'drop recoTrackJets_*_*_*',
+#    'drop *_impactParameterTagInfos_*_*',
+#   'drop *_sisCone7PFJets_*_*',  
+
+    'keep *_generalTracks_*_*',
+    'keep *_electronGsfTracks_*_*',    
+    'keep *_genParticles_*_*',
+    'keep *_genMetTrue_*_*',
+    'keep recoGenJets_*_*_*',
+    'keep recoGsfElectronCores_gsfElectronCores_*_*', 
+    # isolated electrons and muons
+
+    'keep patMuons_*_*_*',
+    'keep patElectrons_*_*_*',
+    'keep patJets_*_*_*',
+    'keep patTaus_*_*_*',
+'keep recoPFCandidates_particleFlow_*_*',   
+'keep recoVertexs_offlinePrimaryVerticesWithBS_*_*',
+
+    # Trigger
+    'keep *_TriggerResults_*_*',
+    'keep *_hltTriggerSummaryAOD_*_*',
+    'keep *_pfElectronTranslator_*_*',
+          )
+)
 
 PF2PATEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
