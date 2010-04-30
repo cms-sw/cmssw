@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.7 2010/04/15 20:15:15 amraktad Exp $
+// $Id: FWEveView.h,v 1.8 2010/04/16 13:44:06 amraktad Exp $
 //
 
 
@@ -21,6 +21,7 @@
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
+#include "Fireworks/Core/interface/FWEnumParameter.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
 
 // forward declarations
@@ -104,7 +105,7 @@ private:
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
    FWDoubleParameter   m_imageScale;
 #endif
-   FWLongParameter   m_eventInfoLevel;
+   FWEnumParameter   m_eventInfoLevel;
    FWBoolParameter   m_drawCMSLogo;
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,26,0)

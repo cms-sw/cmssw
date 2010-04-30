@@ -27,6 +27,8 @@
   <class name="FWStringParameter"/>
   <class name="FWLongParameterSetter"/>
   <class name="FWLongParameter"/>
+  <class name="FWEnumParameterSetter"/>
+  <class name="FWEnumParameter"/>
   <class name="FWConfiguration::KeyValues"/>
   <class name="CSGAction"/>
   <class name="CmsShowMainFrame"/>

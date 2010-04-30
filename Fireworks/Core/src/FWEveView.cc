@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.10 2010/04/22 17:29:52 amraktad Exp $
+// $Id: FWEveView.cc,v 1.11 2010/04/28 15:14:44 amraktad Exp $
 //
 
 
@@ -98,6 +98,10 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type) :
    
    m_overlayEventInfo = new FWEventAnnotation(embeddedViewer);
    m_overlayEventInfo->setLevel(0);
+
+   m_eventInfoLevel.addEntry(0, "Nothing");
+   m_eventInfoLevel.addEntry(1, "Run / event");
+   m_eventInfoLevel.addEntry(2, "Run / event / lumi");
    m_eventInfoLevel.changed_.connect(boost::bind(&FWEventAnnotation::setLevel,m_overlayEventInfo, _1));
    
    m_overlayLogo = new CmsAnnotation(embeddedViewer, 0.02, 0.98);
