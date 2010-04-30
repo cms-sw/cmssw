@@ -40,6 +40,10 @@ public:
   void setHEtuningParameter(double tp);
   void setHFtuningParameter(double tp);
   void setHOtuningParameter(double tp);
+  void setUseOldHB(bool useOld);
+  void setUseOldHE(bool useOld);
+  void setUseOldHF(bool useOld);
+  void setUseOldHO(bool useOld);
   void setCholesky(const HcalCholeskyMatrices * Cholesky) { myCholeskys = Cholesky; }
   void setADCPeds(const HcalPedestals * ADCPeds) { myADCPeds = ADCPeds; }
 
@@ -58,6 +62,10 @@ private:
   HPDIonFeedbackSim * theIonFeedbackSim;
   unsigned theStartingCapId;
   bool addNoise_;
+  bool useOldHB;
+  bool useOldHE;
+  bool useOldHF;
+  bool useOldHO;
 
   double HB_ff;
   double HE_ff;
