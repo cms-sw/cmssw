@@ -5,6 +5,7 @@
 #include "stack_zmm1hlt.C"
 #include "stack_zmm2hlt.C"
 #include "stack_zmmNotIso.C"
+#include "stack_zmm0neLess2p4.C"
 
 void stack_all() {
   stack_zGolden();
@@ -14,4 +15,5 @@ void stack_all() {
   stack_zmm1hlt();
   stack_zmm2hlt();
   stack_zmmNotIso();
+  stack_zmm0neLess2p4();
 }
