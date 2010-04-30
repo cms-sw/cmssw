@@ -5,27 +5,37 @@ process = cms.Process("SIMDIGI")
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
+# 1 Generate (process: source)
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+
+# 2 Vtx Smearing
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
-process.load("Geometry.CMSCommonData.cmsSimIdealGeometryXML_cfi")
+# 3 Mix for (no) Pile Up
+process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
+# 4 Simulate Hits
+process.load("Configuration.StandardSequences.Sim_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.load("SimG4Core.Application.g4SimHits_cfi")
+process.load('Configuration.StandardSequences.GeometryExtended_cff')
 
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+#process.load("Configuration.StandardSequences.GeometryNoCastor_cff")
 
-process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
-
+# 5 Digitize SimHits
+#process.load("CalibMuon.RPCCalibration.RPCFakeESProducer_cfi")
+#process.load("CalibMuon.RPCCalibration.RPC_Calibration_cff")
 process.load("SimMuon.RPCDigitizer.muonRPCDigis_cfi")
 
-process.load("CalibMuon.RPCCalibration.RPCFakeESProducer_cfi")
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-process.load("SimGeneral.MixingModule.mixNoPU_cfi")
+process.GlobalTag.globaltag = 'MC_37Y_V1::All'
+
+
+process.MessageLogger = cms.Service("MessageLogger",
+     destinations = cms.untracked.vstring('digi')
+)
+                                    
 
 
 process.MessageLogger = cms.Service("MessageLogger",

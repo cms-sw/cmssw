@@ -4,8 +4,6 @@
 /** \class RPCTrigger
  *  \brief Implements RPC trigger emulation
  *
- *  $Date: 2009/03/26 12:28:33 $
- *  $Revision: 1.16 $
  *  \author Tomasz Fruboes
  */
 
@@ -37,12 +35,9 @@
 #include "L1Trigger/RPCTrigger/interface/RPCPacData.h"
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 #include "L1Trigger/RPCTrigger/interface/RPCPacManager.h"
-
-
 #include "CondFormats/DataRecord/interface/L1RPCHsbConfigRcd.h"
 #include "CondFormats/L1TObjects/interface/L1RPCHsbConfig.h"
-
-
+#include "DataFormats/RPCDigi/interface/RPCDigiL1Link.h"
 #include <memory>
 #include <vector>
 
@@ -72,8 +67,9 @@ class RPCTrigger : public edm::EDProducer {
     bool m_firstRun;   
     int m_triggerDebug;
     unsigned long long m_cacheID;
-    std::vector<L1MuRegionalCand> giveFinallCandindates(L1RpcTBMuonsVec finalMuons, int type, int bx);
-
+    // TODO keep L1MuRegionalCandVec equally as RPCDigiL1LinkVec
+    std::vector<L1MuRegionalCand> giveFinallCandindates(L1RpcTBMuonsVec finalMuons, int type, int bx,   
+                                     edm::Handle<RPCDigiCollection> rpcDigis, std::vector<RPCDigiL1Link> & retRPCDigiLink);
 
     std::string m_label;
 

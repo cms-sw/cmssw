@@ -50,10 +50,16 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
-            'file:digi.root'
+            'file:/tmp/fruboes/SingleMuPt10_cfi_py_GEN_SIM_DIGI.root'
 
     )
 )
 
-#process.a = cms.Path(process.rpcunpacker*process.l1RpcEmulDigis)
 process.a = cms.Path(process.l1RpcEmulDigis)
+
+process.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('l1.root')
+)
+
+#process.this_is_the_end = cms.EndPath(process.out)
+

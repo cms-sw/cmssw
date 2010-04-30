@@ -13,6 +13,8 @@
 #include "CondFormats/DataRecord/interface/L1RPCBxOrConfigRcd.h"
 #include "CondFormats/L1TObjects/interface/L1RPCBxOrConfig.h"
 
+
+
 //#define ML_DEBUG 
 
 
@@ -25,7 +27,9 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
 {
   produces<std::vector<L1MuRegionalCand> >("RPCb");
   produces<std::vector<L1MuRegionalCand> >("RPCf");
-  
+
+  produces<std::vector<RPCDigiL1Link> >("RPCb");
+  produces<std::vector<RPCDigiL1Link> >("RPCf");
 
   m_firstRun = true;
   m_cacheID = 0;
@@ -105,6 +109,7 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  iEvent.getByType(rpcDigis);
   //iEvent.getByLabel("muonRPCDigis",rpcDigis);
   iEvent.getByLabel(m_label, rpcDigis);
+
   std::auto_ptr<std::vector<L1MuRegionalCand> > candBarell(new std::vector<L1MuRegionalCand>);
   std::auto_ptr<std::vector<L1MuRegionalCand> > candForward(new std::vector<L1MuRegionalCand>);
   if (!rpcDigis.isValid()) 
@@ -129,6 +134,9 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
 
+
+  std::auto_ptr<std::vector<RPCDigiL1Link> >  brlLinks(new std::vector<RPCDigiL1Link>);
+  std::auto_ptr<std::vector<RPCDigiL1Link> >  fwdLinks(new std::vector<RPCDigiL1Link>);
     
   for (int iBx = -1; iBx < 2; ++ iBx) {
     
@@ -168,19 +176,28 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // finalMuons[0]=barell, finalMuons[1]=endcap
     LogDebug("RPCTrigger") << "---Filling candindates in new event--- " 
                           << maxFiredPlanes << std::endl;
+<<<<<<< RPCTrigger.cc
     */
     
-    std::vector<L1MuRegionalCand> RPCb = giveFinallCandindates(finalMuons[0],1, iBx);
-    std::vector<L1MuRegionalCand> RPCf = giveFinallCandindates(finalMuons[1],3, iBx);
+//    std::vector<L1MuRegionalCand> RPCb = giveFinallCandindates(finalMuons[0],1, iBx);
+//    std::vector<L1MuRegionalCand> RPCf = giveFinallCandindates(finalMuons[1],3, iBx);
+    std::vector<RPCDigiL1Link> dlBrl;  
+    std::vector<RPCDigiL1Link> dlFwd;  
+    std::vector<L1MuRegionalCand> RPCb = giveFinallCandindates(finalMuons[0],1, iBx, rpcDigis, dlBrl);
+    std::vector<L1MuRegionalCand> RPCf = giveFinallCandindates(finalMuons[1],3, iBx, rpcDigis, dlFwd);
       
     
-    candBarell->insert(candBarell->end(), RPCb.begin(), RPCb.end());
-  
+    brlLinks->insert(brlLinks->end(), dlBrl.begin(), dlBrl.end() );
+    fwdLinks->insert(fwdLinks->end(), dlFwd.begin(), dlFwd.end() );
 
+    candBarell->insert(candBarell->end(), RPCb.begin(), RPCb.end());
     candForward->insert(candForward->end(), RPCf.begin(), RPCf.end());
 
     if ( m_triggerDebug == 1)  MuonsGrabber::Instance().writeDataForRelativeBX(iBx);  
   }  
+
+  iEvent.put(fwdLinks, "RPCf");
+  iEvent.put(brlLinks, "RPCb");
   iEvent.put(candBarell, "RPCb");
   iEvent.put(candForward, "RPCf");
   
@@ -194,16 +211,55 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  *
  */
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec finalMuons, int type, int bx){
+std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec finalMuons, int type, int bx,   
+                                     edm::Handle<RPCDigiCollection> rpcDigis, std::vector<RPCDigiL1Link> & retRPCDigiLink)
+{
 
   std::vector<L1MuRegionalCand> RPCCand;
-  
+
   for(unsigned int iMu = 0; iMu < finalMuons.size(); iMu++)
   {
 
     if (finalMuons[iMu].getPtCode()==0){
       continue; 
     } 
+
+    RPCDigiL1Link newDigiLink;
+
+    //std::cout << "######################################## " << std::endl;
+    //std::cout << finalMuons[iMu].getPhiAddr() << " " << finalMuons[iMu].getEtaAddr() << std::endl;
+    RPCMuon::TDigiLinkVec digiIVec = finalMuons[iMu].getDigiIdxVec();
+    // Here the iteration has to be the same as in 
+    short int digiIndex = 0;
+    RPCDigiCollection::DigiRangeIterator detUnitIt;
+    for (detUnitIt=rpcDigis->begin();
+         detUnitIt!=rpcDigis->end();
+         ++detUnitIt)
+    {
+
+      const RPCDetId& id = (*detUnitIt).first;
+      uint32_t rawId = id.rawId();
+      const RPCDigiCollection::Range& range = (*detUnitIt).second;
+
+
+      for (RPCDigiCollection::const_iterator digiIt = range.first;
+           digiIt!=range.second;
+           ++digiIt)
+      {
+        ++digiIndex;
+
+        RPCMuon::TDigiLinkVec::iterator it = digiIVec.begin();
+        for(;it!=digiIVec.end();++it) {
+           if (digiIndex==it->m_digiIdx) {
+             newDigiLink.setLink(it->m_layer+1, rawId, digiIt->strip(), digiIt->bx() );
+             //std::cout << type << " " << iMu << " layer: " << it->m_layer <<  " index " << it->m_digiIdx << std::endl;
+             //std::cout << "         " << id << " " << " |bx " << digiIt->bx() << " strip " << digiIt->strip() << std::endl;  
+           }
+        }
+      }
+    }
+    retRPCDigiLink.push_back(newDigiLink);
+
 
     L1MuRegionalCand l1Cand;
     

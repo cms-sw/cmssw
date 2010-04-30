@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Mar  3 13:34:20 CET 2008
-// $Id: RPCConeBuilderFromES.cc,v 1.7 2009/03/20 10:28:30 fruboes Exp $
+// $Id: RPCConeBuilderFromES.cc,v 1.8 2010/02/26 15:50:46 fruboes Exp $
 //
 
 // system include files
@@ -52,6 +52,8 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
   
   // Build cones from digis
   // first build loghits
+
+  short int digiIndex = 0; 
   RPCDigiCollection::DigiRangeIterator detUnitIt;
   for (detUnitIt=rpcDigis->begin();
        detUnitIt!=rpcDigis->end();
@@ -73,6 +75,8 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
     {
       
       if ( digiIt->bx() < bxOrDef->getFirstBX() + bx || digiIt->bx() > bxOrDef->getLastBX() +bx  ){
+      //if ( digiIt->bx() < hwConfig->getFirstBX() + bx || digiIt->bx() > hwConfig->getLastBX() +bx  ){
+        ++digiIndex;
         continue;
       }
       
@@ -85,8 +89,12 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
       // Iterate over uncompressed connections, convert digis to logHits 
       for (; it!=itPair.second;++it){
          //std::cout << " Not empty!" << std::endl;
-         if ( hwConfig->isActive(it->m_tower, it->m_PAC)  )
-             logHitsFromUncomp.push_back( RPCLogHit(it->m_tower, it->m_PAC, it->m_logplane, it->m_logstrip) );
+         if ( hwConfig->isActive(it->m_tower, it->m_PAC)  ){
+
+             RPCLogHit lh(it->m_tower, it->m_PAC, it->m_logplane, it->m_logstrip); 
+             lh.setDigiIdx(digiIndex);  
+             logHitsFromUncomp.push_back( lh );
+         } 
       }
 
       /*
@@ -102,7 +110,9 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
          if ( hwConfig->isActive(itComp->m_tower, itComp->m_PAC)){
            int logstrip = itComp->getLogStrip(digiIt->strip(),coneDef->getLPSizeVec());
            if (logstrip!=-1){
-               logHits.push_back( RPCLogHit(itComp->m_tower, itComp->m_PAC, itComp->m_logplane, logstrip ) );
+               RPCLogHit lh(itComp->m_tower, itComp->m_PAC, itComp->m_logplane, logstrip );
+               lh.setDigiIdx(digiIndex);
+               logHits.push_back( lh );
            }
            /*
            if (printOut){
@@ -116,7 +126,6 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
       }
 
     } // strip iteration ends
-    
     
   }
   

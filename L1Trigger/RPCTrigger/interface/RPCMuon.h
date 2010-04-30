@@ -66,7 +66,19 @@ public:
   * + m_CurrConeCrdnts.m_LogSector * 96 + m_CurrConeCrdnts.m_LogSegment * 8;
   */
   int getRefStripNum() const;
-    
+ 
+ 
+  struct TDigiLink {
+     TDigiLink(short int l, short int d) : m_layer(l), m_digiIdx(d) {};
+     short int m_layer;
+     short int m_digiIdx;  // vec?
+  };
+
+  typedef std::vector<TDigiLink > TDigiLinkVec; 
+
+  TDigiLinkVec getDigiIdxVec() {return m_digiIdxVec;};
+  void setDigiIdxVec(TDigiLinkVec d) {m_digiIdxVec = d;};
+  
 protected:
   ///The coordinates of LogCone, in which the muon was found.
   RPCConst::l1RpcConeCrdnts m_ConeCrdnts;
@@ -89,6 +101,10 @@ protected:
   unsigned short m_FiredPlanes;
 
   int m_RefStripNum;
+
+
+  TDigiLinkVec m_digiIdxVec;
+
 };
 
 typedef std::vector<RPCMuon> L1RpcMuonsVec;

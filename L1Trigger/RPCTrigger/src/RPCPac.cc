@@ -55,6 +55,7 @@ RPCPacMuon RPCPac::runTrackPatternsGroup(const RPCLogCone & cone) const
   for(unsigned int vecNum = 0;
        vecNum < m_pacData->m_TrackPatternsGroup.m_PatternsItVec.size(); vecNum++)
     {
+      RPCMuon::TDigiLinkVec digiIdx; 
       unsigned short firedPlanes = 0;
       int firedPlanesCount = 0;
       unsigned short one = 1;
@@ -77,6 +78,9 @@ RPCPacMuon RPCPac::runTrackPatternsGroup(const RPCLogCone & cone) const
                 {
                   firedPlanes = firedPlanes | one;
                   firedPlanesCount++;
+                  std::vector<int> dIVec = cone.getLogStripDigisIdxs(logPlane, bitNumber);
+                  if (!dIVec.empty()) digiIdx.push_back( RPCMuon::TDigiLink(logPlane, *dIVec.begin())  );
+                        	
                   break;
                 }
             }
@@ -101,6 +105,7 @@ RPCPacMuon RPCPac::runTrackPatternsGroup(const RPCLogCone & cone) const
                   if(bufMuon > bestMuon)
                     {
                       bestMuon = bufMuon;
+                      bestMuon.setDigiIdxVec(digiIdx); 
                     }
                 }
             }
@@ -154,6 +159,7 @@ RPCPac::runEnergeticPatternsGroups(const RPCLogCone & cone) const
       for(unsigned int vecNum = 0; vecNum < iEGroup->m_PatternsItVec.size();
            vecNum++)
         {
+          RPCMuon::TDigiLinkVec digiIdx; 
           const RPCPattern::RPCPatVec::const_iterator patternIt =
             iEGroup->m_PatternsItVec[vecNum];
           const RPCPattern & pattern = *patternIt;
@@ -175,20 +181,30 @@ RPCPac::runEnergeticPatternsGroups(const RPCLogCone & cone) const
                   wasHit = false;
                   for(int bitNumber = fromBit; bitNumber < toBit;
                        bitNumber++)
-                    wasHit = wasHit
-                      || cone.getLogStripState(logPlane, bitNumber);
-                  if(!wasHit)
+                  {
+                    wasHit = wasHit || cone.getLogStripState(logPlane, bitNumber);
+                    if (wasHit) { // no sense to check more
+                      std::vector<int> dIVec = cone.getLogStripDigisIdxs(logPlane, bitNumber);
+                      if (!dIVec.empty()) digiIdx.push_back( RPCMuon::TDigiLink(logPlane, *dIVec.begin())  );
+                      break;
+                    }
+                  }
+
+                  if(!wasHit){
                     break;
+                  } 
                 }
             }
           if(wasHit)
             {
               bufMuon.setAll(pattern, quality, firedPlanes);
+              bufMuon.setDigiIdxVec(digiIdx); 
               break;            //if one pattern fits, thers no point to check other patterns from group
             }
         }                       //end of patterns loop
-      if(bufMuon > bestMuon)
+      if(bufMuon > bestMuon){
         bestMuon = bufMuon;
+      }
       if(bestMuon.getQuality() == m_pacData->m_MaxQuality)
         return bestMuon;
     }                           //end of EGroup loop
