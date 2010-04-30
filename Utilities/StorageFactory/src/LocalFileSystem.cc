@@ -199,9 +199,10 @@ LocalFileSystem::statFSInfo(FSInfo *i)
     if (lstat(i->dir, &s) < 0)
     {
       int nerr = errno;
-      edm::LogWarning("LocalFileSystem::statFSInfo()")
-	<< "Cannot lstat('" << i->dir << "'): "
-	<< strerror(nerr) << " (error " << nerr << ")";
+      if (nerr != ENOENT && nerr != EACCES)
+        edm::LogWarning("LocalFileSystem::statFSInfo()")
+	  << "Cannot lstat('" << i->dir << "'): "
+	  << strerror(nerr) << " (error " << nerr << ")";
       return -1;
     }
 
@@ -342,12 +343,14 @@ LocalFileSystem::isLocalPath(const std::string &path)
     and the environment variable is empty, "/tmp" is used instead.
 
     Returns the first path in @a paths which satisfies the criteria,
-    expanded to environment variable value if appropriate.  If no
-    suitable path can be found, returns an empty string.
+    expanded to environment variable value if appropriate, resolved
+    to full absolute path.  If no suitable path can be found, returns
+    an empty string.
 
-    Does not throw exceptions.  If any errors occur, the errors are
-    reported as message logger warnings but the actual error is
-    swallowed and the directory concerned is skipped. */
+    Does not throw exceptions.  If any serious errors occur, the errors
+    are reported as message logger warnings but the actual error is
+    swallowed and the directory concerned is skipped.  Non-existent
+    and inaccessible directories are silently ignored without warning. */
 std::string
 LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
 			       double minFreeSpace)
@@ -372,15 +375,21 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
     if (! (fullpath = realpath(path, 0)))
       fullpath = strdup(path);
 
+    edm::LogInfo("LocalFileSystem")
+      << "Checking if '" << fullpath << "', from '"
+      << inpath << "' is valid cache path with "
+      << minFreeSpace << " free space";
+
     if (lstat(fullpath, &s) < 0)
     {
       int nerr = errno;
-      edm::LogWarning("LocalFileSystem::findCachePath()")
-	<< "Cannot lstat('" << fullpath << "', from '"
-	<< inpath << "'): " << strerror(nerr) << " (error "
-	<< nerr << ")";
+      if (nerr != ENOENT && nerr != EACCES)
+        edm::LogWarning("LocalFileSystem::findCachePath()")
+	  << "Cannot lstat('" << fullpath << "', from '"
+	  << inpath << "'): " << strerror(nerr) << " (error "
+	  << nerr << ")";
       free(fullpath);
-      return false;
+      continue;
     }
     
     if (statfs(fullpath, &sfs) < 0)
@@ -391,17 +400,28 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
 	<< inpath << "'): " << strerror(nerr) << " (error "
 	<< nerr << ")";
       free(fullpath);
-      return false;
+      continue;
     }
 
     FSInfo *m = findMount(fullpath, &sfs, &s);
-    free(fullpath);
+    edm::LogInfo("LocalFileSystem")
+      << "Candidate '" << fullpath << "': "
+      << "found=" << (m ? 1 : 0)
+      << " local=" << (m && m->local)
+      << " free=" << (m ? m->freespc : 0)
+      << " access=" << access(fullpath, W_OK);
 
     if (m
 	&& m->local
 	&& m->freespc >= minFreeSpace
 	&& access(fullpath, W_OK) == 0)
-      return path;
+    {
+      std::string result(fullpath);
+      free(fullpath);
+      return result;
+    }
+
+    free(fullpath);
   }
 
   return std::string();
