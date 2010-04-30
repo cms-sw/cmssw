@@ -16,12 +16,20 @@ namespace fireworks
       return;
     }
 
+    else if ( ring == 4 )
+    {
+      assert(station == 1); // Only station 1 has a 4th ring
+      length = 162.0;
+      thickness = 14.7; // ME1/4 (a.k.a. ME1a)
+      return;
+    }
+    
     else if ( ring == 1 )
     {
       if ( station == 1 )
       {
         length = 162.0;
-        thickness = 14.7; // ME1/1
+        thickness = 14.7; // ME1/1 (a.k.a. ME1b)
         return;
       }
       else if ( station == 2 )

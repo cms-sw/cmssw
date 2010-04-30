@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegmentProxyBuilder.cc,v 1.5 2010/04/20 20:49:43 amraktad Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.6 2010/04/22 12:54:48 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -51,7 +51,9 @@ FWCSCSegmentProxyBuilder::build(const CSCSegment& iData,
   double length = 0.0;
   double thickness = 0.0;
  
-  fireworks::fillCSCChamberParameters(iData.cscDetId().station(), iData.cscDetId().ring(), length, thickness);
+  fireworks::fillCSCChamberParameters(iData.cscDetId().station(), 
+                                      iData.cscDetId().ring(), 
+                                      length, thickness);
 
   std::stringstream s;
   s << "chamber" << iIndex;
