@@ -53,7 +53,6 @@ void stack_zGolden() {
 
   makeStack(h1, h2, h3, h4, hdata, 0.0001, rebin);
 
-  stat(h1, h2, h3, h4, hdata);
-
-  c1->SaveAs("zGolden");
+  c1->SaveAs("zGolden.eps");
+  c1->SaveAs("zGolden.gif");
 }

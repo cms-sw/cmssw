@@ -45,6 +45,37 @@ void setHisto(TH1 * h, Color_t fill, Color_t line, double scale, int rebin) {
   h->Rebin(rebin);  
 }
 
+void stat(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata, int rebin) {
+  double a = mMin/rebin, b = mMax/rebin;
+  double i1 = h1->Integral(a, b);
+  double i2 = h2->Integral(a, b);
+  double i3 = h3->Integral(a, b);
+  double i4 = h4->Integral(a, b);
+  double idata = hdata != 0 ? hdata->Integral(a, b) : 0;
+  std::cout.setf(0,ios::floatfield);
+  std::cout.setf(ios::fixed,ios::floatfield);
+  std::cout.precision(1);
+  std::cout <<"Zmm (" << mMin << ", " << mMax << ") = ";
+  std::cout.precision(8);
+  std::cout << i1 <<std::endl;
+  std::cout.precision(1);
+  std::cout <<"Wmn (" << mMin << ", " << mMax << ") = ";
+  std::cout.precision(8);
+  std::cout << i2 <<std::endl;
+  std::cout.precision(1);
+  std::cout <<"QCD (" << mMin << ", " << mMax << ") = ";
+  std::cout.precision(8);
+  std::cout << i4 <<std::endl;
+  std::cout.precision(1);
+  std::cout <<"tt~ (" << mMin << ", " << mMax << ") = ";
+  std::cout.precision(8);
+  std::cout << i3 <<std::endl; 
+  std::cout.precision(1);
+  std::cout <<"dat (" << mMin << ", " << mMax << ") = ";
+  std::cout.precision(8);
+  std::cout << idata <<std::endl; 
+}
+
 void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata,
 	       double min, int rebin) {
   setHisto(h1, zFillColor, zLineColor, lumi/lumiZ, rebin);
@@ -105,32 +136,8 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata,
   leg->SetShadowColor(kWhite);
   leg->Draw();
   c1->SetLogy();
-}
 
-void stat(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata) {
-  double i1 = h1->Integral(mMin, mMax);
-  double i2 = h2->Integral(mMin, mMax);
-  double i3 = h3->Integral(mMin, mMax);
-  double i4 = h4->Integral(mMin, mMax);
-  double idata = hdata != 0 ? hdata->Integral(mMin, mMax) : 0;
-  std::cout.setf(0,ios::floatfield);
-  std::cout.setf(ios::fixed,ios::floatfield);
-  std::cout.precision(1);
-  std::cout <<"zmm (" << mMin << ", " << mMax << ") = ";
-  std::cout.precision(8);
-  std::cout << i1 <<std::endl;
-  std::cout.precision(1);
-  std::cout <<"w (" << mMin << ", " << mMax << ") = ";
-  std::cout.precision(8);
-  std::cout << i2 <<std::endl;
-  std::cout.precision(1);
-  std::cout <<"QCD (" << mMin << ", " << mMax << ") = ";
-  std::cout.precision(8);
-  std::cout << i4 <<std::endl;
-  std::cout.precision(1);
-  std::cout <<"ttbar (" << mMin << ", " << mMax << ") = ";
-  std::cout.precision(8);
-  std::cout << i3 <<std::endl; 
+  stat(h1, h2, h3, h4, hdata, rebin);
 }
 
 void makePlots(const char * name, int rebin, const char * plot,
@@ -143,7 +150,6 @@ void makePlots(const char * name, int rebin, const char * plot,
   TH1F *hdata = doData? (TH1F*)data.Get(name) : 0;
 
   makeStack(h1, h2, h3, h4, hdata, min, rebin);
-  stat(h1, h2, h3, h4, hdata);
   c1->SaveAs((std::string(plot)+".eps").c_str());
   c1->SaveAs((std::string(plot)+".gif").c_str());
 }
