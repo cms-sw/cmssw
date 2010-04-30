@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.25 2010/04/15 12:40:46 andreasp Exp $
+#  $Id: EventContent_cff.py,v 1.26 2010/04/19 09:39:23 cerminar Exp $
 #
 #
 #
@@ -123,6 +123,15 @@ RECOEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0)
 )
+#
+#
+# RAWRECO Data Tiere definition
+#
+#
+RAWRECOEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0)
+    )
 #
 #
 # AOD Data Tier definition
@@ -310,6 +319,9 @@ RECOEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 RECOEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 RECOEventContent.outputCommands.extend(CommonEventContent.outputCommands)
+
+RAWRECOEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+RAWRECOEventContent.outputCommands.extend(RECOEventContent.outputCommands)
 
 AODEventContent.outputCommands.extend(RecoLocalTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoLocalMuonAOD.outputCommands)
