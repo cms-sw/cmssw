@@ -18,7 +18,6 @@ void stack_zGolden() {
     int val = hZ_1HLT->GetBinContent(i) + hZ_2HLT->GetBinContent(i) + hZ_1HLTAB->GetBinContent(i);
     h1->SetBinContent(i, val);
   }
-  setHisto(h1, zFillColor, zLineColor, lumi/lumiZ, rebin);
   
   TH1F *hW_1HLT = (TH1F*)w.Get("goodZToMuMu1HLTPlots/zMass");
   TH1F *hW_2HLT = (TH1F*)w.Get("goodZToMuMu2HLTPlots/zMass");
@@ -29,7 +28,6 @@ void stack_zGolden() {
     val = hW_1HLT->GetBinContent(i) + hW_2HLT->GetBinContent(i) + hW_1HLTAB->GetBinContent(i);
     h2->SetBinContent(i , val );
   }
-  setHisto(h2, wFillColor, wLineColor, lumi/lumiW, rebin);
   
   TH1F *hT_1HLT = (TH1F*)tt.Get("goodZToMuMu1HLTPlots/zMass");
   TH1F *hT_2HLT = (TH1F*)tt.Get("goodZToMuMu2HLTPlots/zMass");
@@ -40,7 +38,6 @@ void stack_zGolden() {
     val = hT_1HLT->GetBinContent(i) + hT_2HLT->GetBinContent(i) + hT_1HLTAB->GetBinContent(i);
     h3->SetBinContent(i , val );
   }
-  setHisto(h3, ttFillColor, ttLineColor, lumi/lumiT, rebin);
   
   TH1F *hQ_1HLT = (TH1F*)qcd.Get("goodZToMuMu1HLTPlots/zMass");
   TH1F *hQ_2HLT = (TH1F*)qcd.Get("goodZToMuMu2HLTPlots/zMass");
@@ -51,11 +48,10 @@ void stack_zGolden() {
     int val = hQ_1HLT->GetBinContent(i) + hQ_2HLT->GetBinContent(i) + hQ_1HLTAB->GetBinContent(i);
     h4->SetBinContent(i , val );
   }
-  setHisto(h4, qcdFillColor, qcdLineColor, lumi/lumiQ, rebin);
-
   TH1F *hdata = 0;
 
-  makeStack(h1, h2, h3, h4, hdata, "events/GeV/c^{2}", 0.0001);
+
+  makeStack(h1, h2, h3, h4, hdata, "events/GeV/c^{2}", 0.0001, rebin);
 
   stat(h1, h2, h3, h4, hdata);
 

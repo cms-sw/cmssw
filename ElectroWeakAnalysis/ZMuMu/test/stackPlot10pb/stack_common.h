@@ -44,7 +44,12 @@ void setHisto(TH1 * h, Color_t fill, Color_t line, double scale, int rebin) {
 }
 
 void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata, const char * yTag,
-	       double min) {
+	       double min, int rebin) {
+  setHisto(h1, zFillColor, zLineColor, lumi/lumiZ, rebin);
+  setHisto(h2, wFillColor, wLineColor, lumi/lumiW, rebin);
+  setHisto(h3, ttFillColor, ttLineColor, lumi/lumiT, rebin);
+  setHisto(h4, qcdFillColor, qcdLineColor, lumi/lumiQ, rebin);
+
   THStack * hs = new THStack("hs","");
   hs->Add(h4);
   hs->Add(h3);
@@ -104,21 +109,13 @@ void makePlots(const char * name, const char * tag, int rebin, const char * plot
 	       double min = 0.0001,
 	       bool doData = false) {
   TH1F *h1 = (TH1F*)z.Get(name);
-  setHisto(h1, zFillColor, zLineColor, lumi/lumiZ, rebin);
-
   TH1F *h2 = (TH1F*)w.Get(name);
-  setHisto(h2, wFillColor, wLineColor, lumi/lumiW, rebin); 
-  
   TH1F *h3 = (TH1F*)tt.Get(name);
-  setHisto(h3, ttFillColor, ttLineColor, lumi/lumiT, rebin);
- 
   TH1F *h4 = (TH1F*)qcd.Get(name);
-  setHisto(h4, qcdFillColor, qcdLineColor, lumi/lumiQ, rebin);
- 
   TH1F *hdata = doData? (TH1F*)data.Get(name) : 0;
 
   std::cout << "min = " << min << std::endl;
-  makeStack(h1, h2, h3, h4, hdata, tag, min);
+  makeStack(h1, h2, h3, h4, hdata, tag, min, rebin);
 
   stat(h1, h2, h3, h4, hdata);
 
