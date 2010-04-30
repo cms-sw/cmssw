@@ -274,16 +274,8 @@ muonAssociationCosmic_seq = cms.Sequence((tpToTkCosmicMuonAssociation+tpToStaCos
                                          +(tpToTkCosmicTrackAssociation+tpToStaCosmicTrackAssociation+tpToGlbCosmicTrackAssociation))
 
 muonAssociationHLT_seq = cms.Sequence(
-    (tpToL2MuonAssociation
-     +tpToL2UpdMuonAssociation
-     +tpToL3MuonAssociation
-     +tpToL3TkMuonAssociation)
-    +(
-    tpToL2TrackAssociation
-    +tpToL2UpdTrackAssociation
-    +tpToL3TrackAssociation
-    +tpToL3TkTrackTrackAssociation
-    )
+    (tpToL2MuonAssociation+tpToL2UpdMuonAssociation+tpToL3MuonAssociation+tpToL3TkMuonAssociation)
+    +(tpToL2TrackAssociation+tpToL2UpdTrackAssociation+tpToL3TrackAssociation+tpToL3TkTrackTrackAssociation)
 )
 
 
@@ -385,6 +377,8 @@ tpToTkMuonAssociationFS   = baseMuonAssociatorFS.clone()
 tpToStaMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToStaUpdMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToGlbMuonAssociationFS  = baseMuonAssociatorFS.clone()
+tpToTevFirstMuonAssociationFS = baseMuonAssociatorFS.clone()
+tpToTevPickyMuonAssociationFS = baseMuonAssociatorFS.clone()
 tpToL3TkMuonAssociationFS = baseMuonAssociatorFS.clone()
 tpToL2MuonAssociationFS   = baseMuonAssociatorFS.clone()
 tpToL2UpdMuonAssociationFS   = baseMuonAssociatorFS.clone()
@@ -405,6 +399,14 @@ tpToStaUpdMuonAssociationFS.UseMuon = True
 tpToGlbMuonAssociationFS.tracksTag = 'globalMuons'
 tpToGlbMuonAssociationFS.UseTracker = True
 tpToGlbMuonAssociationFS.UseMuon = True
+
+tpToTevFirstMuonAssociationFS.tracksTag = 'tevMuons:firstHit'
+tpToTevFirstMuonAssociationFS.UseTracker = True
+tpToTevFirstMuonAssociationFS.UseMuon = True
+
+tpToTevPickyMuonAssociationFS.tracksTag = 'tevMuons:picky'
+tpToTevPickyMuonAssociationFS.UseTracker = True
+tpToTevPickyMuonAssociationFS.UseMuon = True
 
 tpToL3TkMuonAssociationFS.tracksTag = 'hltL3TkTracksFromL2'
 tpToL3TkMuonAssociationFS.UseTracker = True
@@ -432,13 +434,15 @@ tpToL3MuonAssociationFS.UseGrouped = False
 
 
 
-muonAssociationFastSim_seq = cms.Sequence(tpToTkmuTrackAssociationFS+tpToStaTrackAssociationFS+tpToStaUpdTrackAssociationFS+tpToGlbTrackAssociationFS
+muonAssociationFastSim_seq = cms.Sequence(tpToTkMuonAssociationFS
+                                          +tpToStaMuonAssociationFS+tpToStaUpdMuonAssociationFS+tpToGlbMuonAssociationFS
+                                          +tpToTevFirstMuonAssociationFS+tpToTevPickyMuonAssociationFS
+                                          +tpToTkmuTrackAssociationFS
+                                          +tpToStaTrackAssociationFS+tpToStaUpdTrackAssociationFS+tpToGlbTrackAssociationFS
                                           +tpToTevFirstTrackAssociationFS+tpToTevPickyTrackAssociationFS)
 
 muonAssociationHLTFastSim_seq = cms.Sequence(
-    tpToL2TrackAssociationFS
-    +tpToL2UpdTrackAssociationFS
-    +tpToL3TrackAssociationFS
-    +tpToL3TkTrackTrackAssociationFS
+    tpToL2MuonAssociationFS+tpToL2UpdMuonAssociationFS+tpToL3MuonAssociationFS+tpToL3TkMuonAssociationFS
+    +tpToL2TrackAssociationFS+tpToL2UpdTrackAssociationFS+tpToL3TrackAssociationFS+tpToL3TkTrackTrackAssociationFS
 )
 
