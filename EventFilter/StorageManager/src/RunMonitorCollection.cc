@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.cc,v 1.9 2010/03/16 17:55:57 mommsen Exp $
+// $Id: RunMonitorCollection.cc,v 1.10.2.1 2010/04/22 14:04:08 mommsen Exp $
 /// @file: RunMonitorCollection.cc
 
 #include <string>
@@ -88,6 +88,8 @@ void RunMonitorCollection::do_updateInfoSpaceItems()
 
 void RunMonitorCollection::addUnwantedEvent(const I2OChain& ioc)
 {
+  if ( ioc.faulty() || !ioc.complete() ) return;
+
   _unwantedEventIDsReceived.addSample(ioc.eventNumber());
 
   uint32 outputModuleId = ioc.outputModuleId();

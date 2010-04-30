@@ -1,4 +1,5 @@
-// $Id: EndLumiSectMsgData.cc,v 1.2 2009/12/17 18:28:58 mommsen Exp $
+// $Id: EndLumiSectMsgData.cc,v 1.3.2.1 2010/04/22 14:09:04 mommsen Exp $
+/// @file: EndLumiSectMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
 
@@ -16,13 +17,15 @@ namespace stor
 
     EndLumiSectMsgData::EndLumiSectMsgData(toolbox::mem::Reference* pRef):
       #if (INTERFACESHARED_VERSION_MAJOR*1000 + INTERFACESHARED_VERSION_MINOR)>1010
-      ChainData(pRef, I2O_EVM_LUMISECTION),
+      ChainData(I2O_EVM_LUMISECTION),
       #else
-      ChainData(pRef),
+      ChainData(),
       #endif
       _runNumber(0),
       _lumiSection(0)
     {
+      addFirstFragment(pRef);
+
       #if (INTERFACEEVB_VERSION_MAJOR*1000 + INTERFACEEVB_VERSION_MINOR)>1008
 
       if (validateDataLocation(pRef, INVALID_INITIAL_REFERENCE) &&

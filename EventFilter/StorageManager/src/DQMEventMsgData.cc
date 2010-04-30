@@ -1,4 +1,5 @@
-// $Id: DQMEventMsgData.cc,v 1.3 2010/03/06 08:39:38 mommsen Exp $
+// $Id: DQMEventMsgData.cc,v 1.4.2.4 2010/04/23 15:33:29 mommsen Exp $
+/// @file: DQMEventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
 
@@ -11,13 +12,14 @@ namespace stor
   {
 
     DQMEventMsgData::DQMEventMsgData(toolbox::mem::Reference* pRef) :
-      ChainData(pRef, I2O_SM_DQM, Header::DQM_EVENT),
+      ChainData(I2O_SM_DQM, Header::DQM_EVENT),
       _headerFieldsCached(false)
     {
+      addFirstFragment(pRef);
       parseI2OHeader();
     }
 
-    inline std::string DQMEventMsgData::do_topFolderName() const
+    std::string DQMEventMsgData::do_topFolderName() const
     {
 
       if( faulty() || !complete() )
@@ -25,14 +27,28 @@ namespace stor
           std::stringstream msg;
           msg << "A top folder name can not be determined from a ";
           msg << "faulty or incomplete DQM event message.";
-          XCEPT_RAISE( stor::exception::IncompleteInitMessage, msg.str() );
+          XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
         }
 
       if( !_headerFieldsCached ) {cacheHeaderFields();}
       return _topFolderName;
     }
 
-    inline DQMKey DQMEventMsgData::do_dqmKey() const
+    uint32 DQMEventMsgData::do_adler32Checksum() const
+    {
+      if( faulty() || !complete() )
+        {
+          std::stringstream msg;
+          msg << "An adler32 checksum can not be determined from a ";
+          msg << "faulty or incomplete DQM event message.";
+          XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
+        }
+
+      if( !_headerFieldsCached ) {cacheHeaderFields();}
+      return _adler32;
+    }
+
+    DQMKey DQMEventMsgData::do_dqmKey() const
     {
 
       if( faulty() || !complete() )
@@ -40,16 +56,46 @@ namespace stor
           std::stringstream msg;
           msg << "The DQM key can not be determined from a ";
           msg << "faulty or incomplete DQM event message.";
-          XCEPT_RAISE( stor::exception::IncompleteInitMessage, msg.str() );
+          XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
         }
 
       if( !_headerFieldsCached ) {cacheHeaderFields();}
       return _dqmKey;
     }
 
+    uint32 DQMEventMsgData::do_runNumber() const
+    {
+
+      if( faulty() || !complete() )
+        {
+          std::stringstream msg;
+          msg << "The run number can not be determined from a ";
+          msg << "faulty or incomplete DQM event message.";
+          XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
+        }
+
+      if( !_headerFieldsCached ) {cacheHeaderFields();}
+      return _dqmKey.runNumber;
+    }
+
+    uint32 DQMEventMsgData::do_lumiSection() const
+    {
+
+      if( faulty() || !complete() )
+        {
+          std::stringstream msg;
+          msg << "The lumi section can not be determined from a ";
+          msg << "faulty or incomplete DQM event message.";
+          XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
+        }
+
+      if( !_headerFieldsCached ) {cacheHeaderFields();}
+      return _dqmKey.lumiSection;
+    }
+
     void DQMEventMsgData::do_assertRunNumber(uint32 runNumber)
     {
-      if ( do_dqmKey().runNumber != runNumber )
+      if ( !faulty() && do_runNumber() != runNumber )
       {
         std::ostringstream errorMsg;
         errorMsg << "Run number " << do_runNumber() 
@@ -137,9 +183,10 @@ namespace stor
           msgView.reset(new DQMEventMsgView(&_headerCopy[0]));
         }
 
-      _headerSize = msgView->headerSize();
+      _headerSize = msgView->headerSize() + sizeof(uint32); //FIXME
       _headerLocation = msgView->startAddress();
       _topFolderName = msgView->topFolderName();
+      _adler32 = msgView->adler32_chksum();
 
       _dqmKey.runNumber = msgView->runNumber();
       _dqmKey.lumiSection = msgView->lumiSection();
@@ -151,3 +198,11 @@ namespace stor
   } // namespace detail
 
 } // namespace stor
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

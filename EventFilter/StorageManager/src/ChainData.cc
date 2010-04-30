@@ -1,4 +1,7 @@
-// $Id: ChainData.cc,v 1.4 2010/02/11 13:34:26 mommsen Exp $
+// $Id: ChainData.cc,v 1.5.2.5 2010/04/26 08:10:05 mommsen Exp $
+/// @file: ChainData.cc
+
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
@@ -20,15 +23,17 @@
 using namespace stor;
 
 // A ChainData object may or may not contain a Reference.
-detail::ChainData::ChainData(toolbox::mem::Reference* pRef,
-                             const unsigned short i2oMessageCode,
+detail::ChainData::ChainData(const unsigned short i2oMessageCode,
                              const unsigned int messageCode) :
   _streamTags(),
   _eventConsumerTags(),
   _dqmEventConsumerTags(),
-  _ref(pRef),
+  _creationTime(-1),
+  _lastFragmentTime(-1),
+  _staleWindowStartTime(-1),
+  _ref(0),
   _complete(false),
-  _faultyBits(0),
+  _faultyBits(INCOMPLETE_MESSAGE),
   _messageCode(messageCode),
   _i2oMessageCode(i2oMessageCode),
   _fragKey(Header::INVALID,0,0,0,0,0),
@@ -39,11 +44,66 @@ detail::ChainData::ChainData(toolbox::mem::Reference* pRef,
   _hltInstance(0),
   _hltTid(0),
   _fuProcessId(0),
-  _fuGuid(0),
-  _creationTime(-1),
-  _lastFragmentTime(-1),
-  _staleWindowStartTime(-1)
+  _fuGuid(0)
+{}
+
+// A ChainData that has a Reference is in charge of releasing
+// it. Because releasing a Reference can throw an exception, we have
+// to be prepared to swallow the exception. This is fairly gross,
+// because we lose any exception information. But allowing an
+// exception to escape from a destructor is even worse, so we must
+// do what we must do.
+//
+detail::ChainData::~ChainData()
 {
+  if (_ref) 
+    {
+      //std::cout << std::endl << std::endl << std::hex
+      //          << "### releasing 0x" << ((int) _ref)
+      //          << std::dec << std::endl << std::endl;
+      try { _ref->release(); }
+      catch (...) { /* swallow any exception. */ }
+    }
+}
+
+bool detail::ChainData::empty() const
+{
+  return !_ref;
+}
+
+bool detail::ChainData::complete() const
+{
+  return _complete;
+}
+
+bool detail::ChainData::faulty() const
+{
+  if (_complete)
+    return (_faultyBits != 0);
+  else
+    return (_faultyBits != INCOMPLETE_MESSAGE);
+}
+
+unsigned int detail::ChainData::faultyBits() const
+{
+  return _faultyBits;
+}
+
+bool detail::ChainData::parsable() const
+{
+  return (_ref) && 
+    ((_faultyBits & INVALID_INITIAL_REFERENCE & ~INCOMPLETE_MESSAGE) == 0) &&
+    ((_faultyBits & CORRUPT_INITIAL_HEADER & ~INCOMPLETE_MESSAGE) == 0);
+}
+
+void detail::ChainData::addFirstFragment(toolbox::mem::Reference* pRef)
+{
+  if (_ref)
+  {
+    XCEPT_RAISE(stor::exception::I2OChain, "Cannot add a first fragment to a non-empty I2OChain.");
+  }
+  _ref = pRef;
+
   // Avoid the situation in which all unparsable chains
   // have the same fragment key.  We do this by providing a 
   // variable default value for one of the fragKey fields.
@@ -55,7 +115,7 @@ detail::ChainData::ChainData(toolbox::mem::Reference* pRef,
     }
   else
     {
-        _fragKey.secondaryId_ = static_cast<uint32>( time(0) );
+      _fragKey.secondaryId_ = static_cast<uint32>( time(0) );
     }
 
   if (pRef)
@@ -103,55 +163,14 @@ detail::ChainData::ChainData(toolbox::mem::Reference* pRef,
     }
 }
 
-// A ChainData that has a Reference is in charge of releasing
-// it. Because releasing a Reference can throw an exception, we have
-// to be prepared to swallow the exception. This is fairly gross,
-// because we lose any exception information. But allowing an
-// exception to escape from a destructor is even worse, so we must
-// do what we must do.
-//
-detail::ChainData::~ChainData()
-{
-  if (_ref) 
-    {
-      //std::cout << std::endl << std::endl << std::hex
-      //          << "### releasing 0x" << ((int) _ref)
-      //          << std::dec << std::endl << std::endl;
-      try { _ref->release(); }
-      catch (...) { /* swallow any exception. */ }
-    }
-}
-
-bool detail::ChainData::empty() const
-{
-  return !_ref;
-}
-
-bool detail::ChainData::complete() const
-{
-  return _complete;
-}
-
-bool detail::ChainData::faulty() const
-{
-  return (_faultyBits != 0);
-}
-
-unsigned int detail::ChainData::faultyBits() const
-{
-  return _faultyBits;
-}
-
-bool detail::ChainData::parsable() const
-{
-  return (_ref) && ((_faultyBits & INVALID_INITIAL_REFERENCE) == 0) &&
-    ((_faultyBits & CORRUPT_INITIAL_HEADER) == 0);
-}
-
-// this method currently does NOT support operation on empty chains
-// (both the existing chain and the new part must be non-empty!)
 void detail::ChainData::addToChain(ChainData const& newpart)
 {
+  if ( this->empty() )
+  {
+    addFirstFragment(newpart._ref);
+    return;
+  }
+
   // if either the current chain or the newpart are faulty, we
   // simply append the new stuff to the end of the existing chain
   if (faulty() || newpart.faulty())
@@ -274,7 +293,7 @@ void detail::ChainData::addToChain(ChainData const& newpart)
 		  fragmentWasAdded = true;
 		  break;
 		}
-	      
+              
 	      curRef = nextRef;
 	    }
 	}
@@ -308,7 +327,9 @@ void detail::ChainData::addToChain(ChainData const& newpart)
 
 void detail::ChainData::markComplete()
 {
+  _faultyBits &= ~INCOMPLETE_MESSAGE; // reset incomplete bit
   _complete = true;
+  validateAdler32Checksum();
 }
 
 void detail::ChainData::markFaulty()
@@ -599,6 +620,11 @@ uint32 detail::ChainData::eventNumber() const
   return do_eventNumber();
 }
 
+uint32 detail::ChainData::adler32Checksum() const
+{
+  return do_adler32Checksum();
+}
+
 void detail::ChainData::tagForStream(StreamID streamId)
 {
   _streamTags.push_back(streamId);
@@ -731,6 +757,56 @@ detail::ChainData::validateMessageCode(toolbox::mem::Reference* ref,
   return true;
 }
 
+bool detail::ChainData::validateAdler32Checksum()
+{
+  if ( !complete() ) return false;
+
+  const uint32 expected = adler32Checksum();
+  if (expected == 0) return false; // Adler32 not available
+
+  const uint32 calculated = calculateAdler32();
+
+  if ( calculated != expected )
+  {
+    _faultyBits |= WRONG_CHECKSUM;
+    return false;
+  }
+  return true;
+}
+
+uint32 detail::ChainData::calculateAdler32() const
+{
+  uint32 adlerA = 1;
+  uint32 adlerB = 0;
+  
+  toolbox::mem::Reference* curRef = _ref;
+
+  I2O_SM_MULTIPART_MESSAGE_FRAME* smMsg =
+    (I2O_SM_MULTIPART_MESSAGE_FRAME*) curRef->getDataLocation();
+
+  //skip event header in first fragment
+  unsigned long headerSize = do_headerSize();
+  unsigned long dataSize = smMsg->dataSize - headerSize;
+  char* dataLocation =
+    (char*)do_fragmentLocation((unsigned char*)curRef->getDataLocation())
+    + headerSize;
+  
+  cms::Adler32(dataLocation, dataSize, adlerA, adlerB);
+  
+  curRef = curRef->getNextReference();
+
+  while (curRef)
+  {
+    smMsg = (I2O_SM_MULTIPART_MESSAGE_FRAME*) curRef->getDataLocation();
+    dataLocation = (char*)do_fragmentLocation((unsigned char*)curRef->getDataLocation());
+    cms::Adler32(dataLocation, smMsg->dataSize, adlerA, adlerB);
+
+    curRef = curRef->getNextReference();
+  }
+
+  return (adlerB << 16) | adlerA;
+}
+
 unsigned long detail::ChainData::do_headerSize() const
 {
   return 0;
@@ -845,6 +921,11 @@ uint32 detail::ChainData::do_eventNumber() const
   msg << "An event number is only available from a valid, ";
   msg << "complete EVENT or ERROR_EVENT message.";
   XCEPT_RAISE(stor::exception::WrongI2OMessageType, msg.str());
+}
+
+uint32 detail::ChainData::do_adler32Checksum() const
+{
+  return 0;
 }
 
 

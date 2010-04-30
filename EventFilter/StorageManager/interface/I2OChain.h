@@ -1,4 +1,4 @@
-// $Id: I2OChain.h,v 1.7 2010/01/07 18:00:16 mommsen Exp $
+// $Id: I2OChain.h,v 1.8.2.1 2010/04/21 09:44:25 mommsen Exp $
 /// @file: I2OChain.h 
 
 #ifndef StorageManager_I2OChain_h
@@ -28,8 +28,8 @@ namespace stor {
    * the last instance of I2OChain goes out of scope.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2010/01/07 18:00:16 $
+   * $Revision: 1.8.2.1 $
+   * $Date: 2010/04/21 09:44:25 $
    */
 
 
@@ -527,6 +527,12 @@ namespace stor {
        Otherwise an exception is thrown.
      */
     uint32 eventNumber() const;
+
+    /**
+       Returns the adler32 checksum as found in the message if available.
+       Otherwise 0 is returned.
+     */
+    uint32 adler32Checksum() const;
 
     /**
        Checks that the run number found in the I2OChain header

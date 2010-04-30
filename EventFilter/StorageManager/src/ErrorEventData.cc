@@ -1,4 +1,5 @@
-// $Id: ErrorEventData.cc,v 1.1 2009/09/29 15:29:59 dshpakov Exp $
+// $Id: ErrorEventData.cc,v 1.2.2.2 2010/04/22 14:08:44 mommsen Exp $
+/// @file: ErrorEventData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
 
@@ -11,9 +12,10 @@ namespace stor
   {
 
     ErrorEventMsgData::ErrorEventMsgData(toolbox::mem::Reference* pRef) :
-      ChainData(pRef, I2O_SM_ERROR, Header::ERROR_EVENT),
+      ChainData(I2O_SM_ERROR, Header::ERROR_EVENT),
       _headerFieldsCached(false)
     {
+      addFirstFragment(pRef);
       parseI2OHeader();
     }
 
@@ -57,7 +59,7 @@ namespace stor
     void
     ErrorEventMsgData::do_assertRunNumber(uint32 runNumber)
     {
-      if ( do_runNumber() != runNumber )
+      if ( !faulty() && do_runNumber() != runNumber )
       {
         std::ostringstream errorMsg;
         errorMsg << "Run number " << do_runNumber() 
@@ -155,15 +157,14 @@ namespace stor
         }
 
       boost::shared_ptr<FRDEventMsgView> msgView;
-      std::vector<unsigned char> tempBuffer;
       if (useFirstFrag)
         {
           msgView.reset(new FRDEventMsgView(firstFragLoc));
         }
       else
         {
-          copyFragmentsIntoBuffer(tempBuffer);
-          msgView.reset(new FRDEventMsgView(&tempBuffer[0]));
+          copyFragmentsIntoBuffer(_headerCopy);
+          msgView.reset(new FRDEventMsgView(&_headerCopy[0]));
         }
 
       _headerSize = sizeof(FRDEventHeader_V2);
@@ -179,3 +180,11 @@ namespace stor
   } // namespace detail
 
 } // namespace stor
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

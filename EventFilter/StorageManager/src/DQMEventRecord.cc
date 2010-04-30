@@ -1,4 +1,4 @@
-// $Id: DQMEventRecord.cc,v 1.12 2010/03/06 08:39:03 mommsen Exp $
+// $Id: DQMEventRecord.cc,v 1.13.2.2 2010/04/22 14:03:01 mommsen Exp $
 /// @file: DQMEventRecord.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
@@ -13,6 +13,7 @@
 #include "TROOT.h"
 
 #include <sstream>
+#include <unistd.h>
 
 using namespace stor;
 
@@ -35,6 +36,8 @@ _dqmEventMonColl(dqmEventMonColl),
 _sentEvents(0)
 {
   gROOT->SetBatch(kTRUE);
+  int got_host = gethostname(host_name_, 255);
+  if(got_host != 0) strcpy(host_name_, "noHostNameFoundOrTooLong");
 }
 
 
@@ -105,6 +108,8 @@ DQMEventRecord::GroupRecord DQMEventRecord::populateAndGetGroup(const std::strin
     zeit,
     getLumiSection(),
     getUpdateNumber(),
+    (uint32)serializer.adler32_chksum(),
+    host_name_,
     _releaseTag,
     groupName,
     table

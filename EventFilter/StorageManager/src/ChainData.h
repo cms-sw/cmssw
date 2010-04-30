@@ -1,4 +1,5 @@
-// $Id: ChainData.h,v 1.7 2010/01/07 18:05:03 mommsen Exp $
+// $Id: ChainData.h,v 1.8.2.4 2010/04/23 15:33:49 mommsen Exp $
+/// @file: ChainData.h
 
 #ifndef CHAINDATA_H
 #define CHAINDATA_H
@@ -48,12 +49,12 @@ namespace stor
                                FRAGMENTS_OUT_OF_ORDER = 0x20,
                                DUPLICATE_FRAGMENT = 0x40,
                                INCOMPLETE_MESSAGE = 0x80,
+                               WRONG_CHECKSUM = 0x100,
                                EXTERNALLY_REQUESTED = 0x10000 };
 
 
     public:
-      explicit ChainData(toolbox::mem::Reference*,
-                         unsigned short i2oMessageCode = 0x9999,
+      explicit ChainData(unsigned short i2oMessageCode = 0x9999,
                          unsigned int messageCode = Header::INVALID);
       virtual ~ChainData();
       bool empty() const;
@@ -61,7 +62,8 @@ namespace stor
       bool faulty() const;
       unsigned int faultyBits() const;
       bool parsable() const;
-      void addToChain(ChainData const& newpart);
+      void addFirstFragment(toolbox::mem::Reference*);
+      void addToChain(ChainData const&);
       void markComplete();
       void markFaulty();
       void markCorrupt();
@@ -110,6 +112,7 @@ namespace stor
       uint32 runNumber() const;
       uint32 lumiSection() const;
       uint32 eventNumber() const;
+      uint32 adler32Checksum() const;
 
       std::string topFolderName() const;
       DQMKey dqmKey() const;
@@ -134,6 +137,13 @@ namespace stor
       std::vector<QueueID> _eventConsumerTags;
       std::vector<QueueID> _dqmEventConsumerTags;
 
+      utils::time_point_t _creationTime;
+      utils::time_point_t _lastFragmentTime;
+      utils::time_point_t _staleWindowStartTime;
+
+      bool validateAdler32Checksum();
+      uint32 calculateAdler32() const;
+
     protected:
       toolbox::mem::Reference* _ref;
 
@@ -151,10 +161,6 @@ namespace stor
       unsigned int _hltTid;
       unsigned int _fuProcessId;
       unsigned int _fuGuid;
-
-      utils::time_point_t _creationTime;
-      utils::time_point_t _lastFragmentTime;
-      utils::time_point_t _staleWindowStartTime;
 
       bool validateDataLocation(toolbox::mem::Reference* ref,
                                 BitMasksForFaulty maskToUse);
@@ -191,6 +197,7 @@ namespace stor
       virtual uint32 do_runNumber() const;
       virtual uint32 do_lumiSection() const;
       virtual uint32 do_eventNumber() const;
+      virtual uint32 do_adler32Checksum() const;
 
     }; // class ChainData
 
@@ -212,6 +219,7 @@ namespace stor
       unsigned long do_headerSize() const;
       unsigned char* do_headerLocation() const;
       unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
+      uint32 do_adler32Checksum() const;
       uint32 do_outputModuleId() const;
       std::string do_outputModuleLabel() const;
       void do_hltTriggerNames(Strings& nameList) const;
@@ -227,6 +235,7 @@ namespace stor
       mutable std::vector<unsigned char> _headerCopy;
       mutable unsigned long _headerSize;
       mutable unsigned char* _headerLocation;
+      mutable uint32 _adler32;
       mutable uint32 _outputModuleId;
       mutable std::string _outputModuleLabel;
       mutable Strings _hltTriggerNames;
@@ -260,6 +269,7 @@ namespace stor
       uint32 do_runNumber() const;
       uint32 do_lumiSection() const;
       uint32 do_eventNumber() const;
+      uint32 do_adler32Checksum() const;
 
     private:
 
@@ -276,6 +286,7 @@ namespace stor
       mutable uint32 _runNumber;
       mutable uint32 _lumiSection;
       mutable uint32 _eventNumber;
+      mutable uint32 _adler32;
 
     }; // EventMsgData
 
@@ -297,9 +308,12 @@ namespace stor
       unsigned long do_headerSize() const;
       unsigned char* do_headerLocation() const;
       unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
+      uint32 do_adler32Checksum() const;
       std::string do_topFolderName() const;
       DQMKey do_dqmKey() const;
       void do_assertRunNumber(uint32 runNumber);
+      uint32 do_runNumber() const;
+      uint32 do_lumiSection() const;
 
     private:
 
@@ -312,6 +326,7 @@ namespace stor
       mutable unsigned char* _headerLocation;
       mutable std::string _topFolderName;
       mutable DQMKey _dqmKey;
+      mutable uint32 _adler32;
 
     }; // class DQMEventMsgData
 
@@ -344,6 +359,7 @@ namespace stor
       void cacheHeaderFields() const;
 
       mutable bool _headerFieldsCached;
+      mutable std::vector<unsigned char> _headerCopy;
       mutable unsigned long _headerSize;
       mutable unsigned char* _headerLocation;
       mutable uint32 _runNumber;

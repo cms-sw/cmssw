@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.14 2010/02/18 11:23:28 mommsen Exp $
+// $Id: EventDistributor.cc,v 1.15.2.1 2010/04/21 09:54:24 mommsen Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -38,17 +38,18 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
   // special handling for faulty or incomplete events
   if ( ioc.faulty() || !ioc.complete() )
   {
-
+    std::ostringstream msg;
+    msg << "Faulty or incomplete I2OChain: 0x"
+      << std::hex << ioc.faultyBits()
+      << " received from " << ioc.hltURL();
     XCEPT_DECLARE( stor::exception::IncompleteEventMessage,
-                   xcept,
-                   "Faulty or incomplete I2OChain." );
+      xcept, msg.str());
     _sharedResources->_statisticsReporter->alarmHandler()->
       notifySentinel(AlarmHandler::ERROR, xcept);
 
     DataSenderMonitorCollection& dataSenderMonColl =
       _sharedResources->_statisticsReporter->getDataSenderMonitorCollection();
     dataSenderMonColl.addStaleChainSample(ioc);
-
   }
   else
   {

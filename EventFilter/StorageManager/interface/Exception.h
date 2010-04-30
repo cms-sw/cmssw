@@ -1,4 +1,4 @@
-// $Id: Exception.h,v 1.12 2009/12/08 15:38:38 dshpakov Exp $
+// $Id: Exception.h,v 1.13.2.1 2010/04/22 14:00:59 mommsen Exp $
 /// @file: Exception.h 
 
 #ifndef StorageManager_Exception_h
@@ -31,9 +31,9 @@ namespace stor {
   /**
      List of exceptions thrown by the StorageManager
 
-     $Author: dshpakov $
-     $Revision: 1.12 $
-     $Date: 2009/12/08 15:38:38 $
+     $Author: mommsen $
+     $Revision: 1.13.2.1 $
+     $Date: 2010/04/22 14:00:59 $
   */
 }
 
@@ -96,6 +96,11 @@ XCEPT_DEFINE_EXCEPTION(stor, IncompleteInitMessage)
  * Exception raised in case of requesting information from a faulty or incomplete event message
  */
 XCEPT_DEFINE_EXCEPTION(stor, IncompleteEventMessage)
+
+/**
+ * Exception raised in case of requesting information from a faulty or incomplete DQM event message
+ */
+XCEPT_DEFINE_EXCEPTION(stor, IncompleteDQMEventMessage)
 
 /**
  * Exception raised if event selector cannot be initialized
