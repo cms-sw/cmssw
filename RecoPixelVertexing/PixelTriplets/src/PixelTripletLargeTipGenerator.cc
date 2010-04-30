@@ -45,6 +45,7 @@ PixelTripletLargeTipGenerator::PixelTripletLargeTipGenerator(const edm::Paramete
       useMScat(cfg.getParameter<bool>("useMultScattering")),
       useBend(cfg.getParameter<bool>("useBending"))
 {
+  theMaxElement=cfg.getParameter<unsigned int>("maxElement");
   if (useFixedPreFiltering)
     dphi = cfg.getParameter<double>("phiPreFiltering");
 }
@@ -260,7 +261,11 @@ void PixelTripletLargeTipGenerator::hitTriplets(
 
          if (!rangeRZ.inside(barrelLayer ? p3_z : p3_r))
            continue;
-
+	 if (theMaxElement!=0 && result.size() >= theMaxElement){
+	   result.clear();
+	   edm::LogError("TooManySeeds")<<" number of triples exceed maximum. no triplets produced.";
+	   break;
+	 }
          result.push_back(OrderedHitTriplet(ip->inner(), ip->outer(), *th)); 
       }
     }

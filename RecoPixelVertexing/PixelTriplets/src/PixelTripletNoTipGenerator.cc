@@ -164,7 +164,14 @@ void PixelTripletNoTipGenerator::hitTriplets(
          double curvatureMS = PixelRecoUtilities::curvature(1./region.ptMin(),es);
          bool ptCut = (predictionRPhi.curvature()-theNSigma*predictionRPhi.errorCurvature() < curvatureMS); 
          bool chi2Cut = (predictionRPhi.chi2() < theChi2Cut);
-         if (inside && ptCut && chi2Cut) { result.push_back( OrderedHitTriplet( (*ip).inner(), (*ip).outer(), *th)); }
+         if (inside && ptCut && chi2Cut) { 
+	   if (theMaxElement!=0 && result.size() >= theMaxElement){
+	     result.clear();
+	     edm::LogError("TooManySeeds")<<" number of triples exceed maximum. no triplets produced.";
+	     break;
+	   }
+	   result.push_back( OrderedHitTriplet( (*ip).inner(), (*ip).outer(), *th)); 
+	 }
          predictionRPhi.remove(p3,p3_errorRPhi);
       } 
     }

@@ -25,9 +25,9 @@ PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg
       extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")),
       extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")),
       useMScat(cfg.getParameter<bool>("useMultScattering")),
-      useBend(cfg.getParameter<bool>("useBending")),
-      theMaxTriplets(cfg.getParameter<unsigned int>("maxTriplets"))
+      useBend(cfg.getParameter<bool>("useBending"))
 {
+  theMaxElement=cfg.getParameter<unsigned int>("maxElement");
   dphi =  (useFixedPreFiltering) ?  cfg.getParameter<double>("phiPreFiltering") : 0;
 }
 
@@ -140,7 +140,11 @@ void PixelTripletHLTGenerator::hitTriplets(
       typedef vector<Hit>::const_iterator IH;
       for (IH th=thirdHits.begin(), eh=thirdHits.end(); th < eh; ++th) {
 
-        if (result.size() >= theMaxTriplets) break; 
+        if (theMaxElement!=0 && result.size() >= theMaxElement){
+	  result.clear();
+	  edm::LogError("TooManySeeds")<<" number of triples exceed maximum. no triplets produced.";
+	  break; 
+	}
         const Hit& hit = (*th);
         GlobalPoint point(hit->globalPosition().x()-region.origin().x(),
                           hit->globalPosition().y()-region.origin().y(),
@@ -178,7 +182,6 @@ void PixelTripletHLTGenerator::hitTriplets(
       } 
     }
   }
-  if (result.size() >= theMaxTriplets) edm::LogWarning("PixelTripletHLTGenerator")<<" number of triples exceed maximum, truncated";
 
   delete [] thirdHitMap;
 }

@@ -31,10 +31,16 @@ template <class T> T sqr( T t) {return t*t;}
 #include "FWCore/Framework/interface/ESHandle.h"
 
 HitPairGeneratorFromLayerPair::HitPairGeneratorFromLayerPair(
-    const Layer& inner, const Layer& outer, LayerCacheType* layerCache, unsigned int nSize)
+							     const Layer& inner, 
+							     const Layer& outer, 
+							     LayerCacheType* layerCache,
+							     unsigned int nSize,
+							     unsigned int max)
   : HitPairGenerator(nSize),
     theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner)
-{ }
+{
+  theMaxElement=max;
+}
 
 void HitPairGeneratorFromLayerPair::hitPairs(
     const TrackingRegion & region, OrderedHitPairs & result,
@@ -86,6 +92,11 @@ void HitPairGeneratorFromLayerPair::hitPairs(
       }
       Range crossRange = allowed.intersection(hitRZ);
       if (! crossRange.empty() ) {
+	if (theMaxElement!=0 && result.size() >= theMaxElement){
+	  result.clear();
+	  edm::LogError("TooManySeeds")<<"number of pairs exceed maximum, no pairs produced";
+	  break;
+	}
         result.push_back( OrderedHitPair( *ih, *oh) );
       }
     }
