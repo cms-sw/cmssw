@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.168.2.1 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: reco_FirstCollisions_ZeroBias_35X -s RAW2DIGI,L1Reco,RECO,DQM,ALCA:SiStripCalZeroBias --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --conditions GR09_R_35X_V7::All --customise Configuration/GlobalRuns/customise_Collision_35X.py --no_exec --python_filename=rereco_FirstCollisions_ZeroBias_35X.py
+# with command line options: reco_FirstCollisions_ZeroBias_35X -s RAW2DIGI,L1Reco,RECO,DQM,ALCA:SiStripCalZeroBias --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --conditions GR_R_35X_V8::All --customise Configuration/GlobalRuns/customise_Collision_35X.py --no_exec --python_filename=rereco_FirstCollisions_ZeroBias_35X.py
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('RECO')
@@ -68,7 +68,7 @@ process.ALCARECOStreamSiStripCalZeroBias = cms.OutputModule("PoolOutputModule",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'GR09_R_35X_V7::All'
+process.GlobalTag.globaltag = 'GR_R_35X_V8::All'
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -141,6 +141,8 @@ def customise(process):
     process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
     process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 10000
     process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+    process.thPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 10000
+    process.thPLSeeds.ClusterCheckPSet.MaxNumberOfPixelClusters = 2000
 
     ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
@@ -193,48 +195,21 @@ def customise(process):
     process.hfreco.samplesToAdd = 4
     
     ## EGAMMA
-    process.gsfElectrons.applyPreselection = cms.bool(False)
-    process.photons.minSCEtBarrel = 2.
-    process.photons.minSCEtEndcap =2.
-    process.photonCore.minSCEt = 2.
-    process.conversionTrackCandidates.minSCEt =1.
-    process.conversions.minSCEt =1.
-    process.trackerOnlyConversions.AllowTrackBC = cms.bool(False)
-    process.trackerOnlyConversions.AllowRightBC = cms.bool(False)
-    process.trackerOnlyConversions.MinApproach = cms.double(-.25)
-    process.trackerOnlyConversions.DeltaCotTheta = cms.double(.07)
-    process.trackerOnlyConversions.DeltaPhi = cms.double(.2)
+    process.photons.minSCEtBarrel = 5.
+    process.photons.minSCEtEndcap =5.
+    process.photonCore.minSCEt = 5.
+    process.conversionTrackCandidates.minSCEt =5.
+    process.conversions.minSCEt =5.
+    process.trackerOnlyConversions.AllowTrackBC = False
+    process.trackerOnlyConversions.AllowRightBC = False
+    process.trackerOnlyConversions.rCut = 2.
+    process.trackerOnlyConversions.vtxChi2 = 0.0005
     
     ###
     ###  end of top level replacements
     ###
     ###############################################################################################
 
-
-    
-    # produce L1 trigger object maps (temporary fix for HLT mistake 
-    # in event content definition of RAW datatier for stream A)
-    import L1Trigger.GlobalTrigger.gtDigis_cfi
-    process.hltL1GtObjectMap = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone(
-        GmtInputTag = cms.InputTag( "gtDigis" ),
-        GctInputTag = cms.InputTag( "gctDigis" ),
-        CastorInputTag = cms.InputTag( "castorL1Digis" ),
-        ProduceL1GtDaqRecord = cms.bool( False ),
-        ProduceL1GtEvmRecord = cms.bool( False ),
-        ProduceL1GtObjectMapRecord = cms.bool( True ),
-        WritePsbL1GtDaqRecord = cms.bool( False ),
-        ReadTechnicalTriggerRecords = cms.bool( True ),
-        EmulateBxInEvent = cms.int32( 1 ),
-        AlternativeNrBxBoardDaq = cms.uint32( 0 ),
-        AlternativeNrBxBoardEvm = cms.uint32( 0 ),
-        BstLengthBytes = cms.int32( -1 ),
-        TechnicalTriggersInputTags = cms.VInputTag( 'simBscDigis' ),
-        RecordLength = cms.vint32( 3, 0 )
-        )
-    process.L1GtObjectMap_step = cms.Path(process.hltL1GtObjectMap)
-    process.schedule.insert(process.schedule.index(process.raw2digi_step)+1,process.L1GtObjectMap_step)
-
-    
     return (process)
 
 
