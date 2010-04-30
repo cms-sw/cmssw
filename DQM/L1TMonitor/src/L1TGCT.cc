@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2010/04/02 16:32:42 $
- * $Revision: 1.47 $
+ * $Date: 2010/04/05 11:34:58 $
+ * $Revision: 1.48 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.48  2010/04/05 11:34:58  tapper
+ * Changed scales on 2D HF correlation plots. No idea why they had eta phi scales when they only have 3 bits....
+ *
  * Revision 1.47  2010/04/02 16:32:42  tapper
  * 1. Changed GCT unpacker settings to unpack 5 BXs.
  * 2. Changed L1TGCT to plot only central BX distributions but all 5 BXs for timing plots.
@@ -174,6 +177,10 @@ const float EMETAMAX = 21.5;
 const unsigned int METPHIBINS = 72;
 const float METPHIMIN = -0.5;
 const float METPHIMAX = 71.5;
+
+const unsigned int MHTPHIBINS = 18;
+const float MHTPHIMIN = -0.5;
+const float MHTPHIMAX = 17.5;
 
 const unsigned int PHIBINS = 18;
 const float PHIMIN = -0.5;
@@ -348,7 +355,7 @@ void L1TGCT::beginJob(void)
     l1GctEtMissOf_  = dbe->book1D("EtMissOf", "MISSING E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
     l1GctEtMissOccBx_ = dbe->book2D("EtMissOccBx","MISSING E_{T} PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
     l1GctHtMiss_    = dbe->book1D("HtMiss", "MISSING H_{T}", R7BINS, R7MIN, R7MAX);
-    l1GctHtMissPhi_ = dbe->book1D("HtMissPhi", "MISSING H_{T} #phi", R5BINS, R5MIN, R5MAX);
+    l1GctHtMissPhi_ = dbe->book1D("HtMissPhi", "MISSING H_{T} #phi", MHTPHIBINS, MHTPHIMIN, MHTPHIMAX);
     l1GctHtMissOf_  = dbe->book1D("HtMissOf", "MISSING H_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
     l1GctHtMissOccBx_ = dbe->book2D("HtMissOccBx","MISSING H_{T} PER BX",BXBINS,BXMIN,BXMAX,R7BINS,R7MIN,R7MAX);
     l1GctEtMissHtMissCorr_ = dbe->book2D("EtMissHtMissCorr", "MISSING E_{T} MISSING H_{T} CORRELATION",
@@ -356,7 +363,7 @@ void L1TGCT::beginJob(void)
                                          R7BINS, R7MIN, R7MAX); 
     l1GctEtMissHtMissCorrPhi_ = dbe->book2D("EtMissHtMissPhiCorr", "MISSING E_{T} MISSING H_{T} #phi CORRELATION",
                                             METPHIBINS, METPHIMIN, METPHIMAX,
-                                            R5BINS, R5MIN, R5MAX);
+                                            MHTPHIBINS, MHTPHIMIN, MHTPHIMAX);
     l1GctEtTotal_   = dbe->book1D("EtTotal", "TOTAL E_{T}", R12BINS, R12MIN, R12MAX);
     l1GctEtTotalOf_ = dbe->book1D("EtTotalOf", "TOTAL E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
     l1GctEtTotalOccBx_ = dbe->book2D("EtTotalOccBx","TOTAL E_{T} PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
