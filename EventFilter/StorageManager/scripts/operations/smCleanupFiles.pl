@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: smCleanupFiles.pl,v 1.6 2010/01/06 16:39:46 babar Exp $
+# $Id: smCleanupFiles.pl,v 1.7 2010/04/27 01:55:20 gbauer Exp $
 
 use strict;
 use warnings;
@@ -567,7 +567,7 @@ $dbh->disconnect;
 my $hour = `date +%H`+0;
 my $min  = `date +%M`+0;
 my $hourPC = ( 2*($node-12) + 10*($rack-6) )%18 + ($rack-6);
-if($now || ( $hourPC == $hour && $min < $interval+2) ) { 
+if($now || ( $hourPC == $hour && $min < $interval+10) ) { 
     deleteCopyManager(); 
 }
 
