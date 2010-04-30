@@ -241,17 +241,19 @@ if ( (badStatusBitsDetailed_.enabled && aAPVErr.APVStatusBit) ||
      (apvAddressErrorDetailed_.enabled && aAPVErr.APVAddressError)
      ) bookFEDHistograms(aFedId,fullDebug);
 
-  if (aAPVErr.APVStatusBit) fillHistogram(badStatusBitsDetailedMap_[aFedId],lChId);
-  if (aAPVErr.APVError) fillHistogram(apvErrorDetailedMap_[aFedId],lChId);
-  if (aAPVErr.APVAddressError) fillHistogram(apvAddressErrorDetailedMap_[aFedId],lChId);
+ if (aAPVErr.APVStatusBit) fillHistogram(badStatusBitsDetailedMap_[aFedId],lChId);
+ if (aAPVErr.APVError) fillHistogram(apvErrorDetailedMap_[aFedId],lChId);
+ if (aAPVErr.APVAddressError) fillHistogram(apvAddressErrorDetailedMap_[aFedId],lChId);
 }
 
 
 
 void FEDHistograms::fillLumiHistograms(const FEDErrors::LumiErrors & aLumErr){
-  lumiErrorFraction_.monitorEle->Reset();
-  for (unsigned int iD(0); iD<aLumErr.nTotal.size(); iD++){
-    if (aLumErr.nTotal[iD] > 0) fillHistogram(lumiErrorFraction_,iD+1,static_cast<float>(aLumErr.nErrors[iD])/aLumErr.nTotal[iD]);
+  if (lumiErrorFraction_.enabled && lumiErrorFraction_.monitorEle) {
+    lumiErrorFraction_.monitorEle->Reset();
+    for (unsigned int iD(0); iD<aLumErr.nTotal.size(); iD++){
+      if (aLumErr.nTotal[iD] > 0) fillHistogram(lumiErrorFraction_,iD+1,static_cast<float>(aLumErr.nErrors[iD])/aLumErr.nTotal[iD]);
+    }
   }
 }
 
@@ -588,13 +590,15 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 		"SubDetId");
 
   //Set special property for lumi ME
-  lumiErrorFraction_.monitorEle->setLumiFlag();
-  lumiErrorFraction_.monitorEle->setBinLabel(1, "TECB");
-  lumiErrorFraction_.monitorEle->setBinLabel(2, "TECF");
-  lumiErrorFraction_.monitorEle->setBinLabel(3, "TIB");
-  lumiErrorFraction_.monitorEle->setBinLabel(4, "TIDB");
-  lumiErrorFraction_.monitorEle->setBinLabel(5, "TIDF");
-  lumiErrorFraction_.monitorEle->setBinLabel(6, "TOB");
+  if (lumiErrorFraction_.enabled && lumiErrorFraction_.monitorEle) {
+    lumiErrorFraction_.monitorEle->setLumiFlag();
+    lumiErrorFraction_.monitorEle->setBinLabel(1, "TECB");
+    lumiErrorFraction_.monitorEle->setBinLabel(2, "TECF");
+    lumiErrorFraction_.monitorEle->setBinLabel(3, "TIB");
+    lumiErrorFraction_.monitorEle->setBinLabel(4, "TIDB");
+    lumiErrorFraction_.monitorEle->setBinLabel(5, "TIDF");
+    lumiErrorFraction_.monitorEle->setBinLabel(6, "TOB");
+  }
 
   //book map after, as it creates a new folder...
   if (tkMapConfig_.enabled){
