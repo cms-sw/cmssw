@@ -28,23 +28,6 @@ class LayerWithHits
   } 
 
 
-
- struct Pointer {
-    template<typename H> 
-    const TrackingRecHit* operator()(H const& h) const { return &h;}
-  };
- // DetSetVector
-  template<typename C> 
-  LayerWithHits( const DetLayer *dl, typename C::Range range) {
-    theDetLayer = dl;
-    for(typename C::const_iterator id=range.first; id!=range.second; id++){
-      size_t cs = theHits.size();
-      theHits.resize(cs+range.second-range.first);
-      std::transform((*id).begin(),(*id).end(),theHits.begin()+cs,Pointer());
-    }
-  }
-
-
   //destructor
   ~LayerWithHits(){}
   
