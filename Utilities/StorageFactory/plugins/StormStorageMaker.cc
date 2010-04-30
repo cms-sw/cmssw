@@ -56,8 +56,7 @@ class StormStorageMaker : public StorageMaker
 public:
   virtual Storage *open (const std::string &proto,
 			 const std::string &surl,
-			 int mode,
-			 const std::string &tmpdir)
+			 int mode)
   {
     StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
@@ -69,7 +68,9 @@ public:
     else
       mode |= IOFlags::OpenUnbuffered;
 
-    return new File (getTURL(surl), mode); 
+    std::string path = getTURL(surl);
+    File *file = new File (path, mode); 
+    return f->wrapNonLocalFile (file, proto, path, mode);
   }
 
   virtual bool check (const std::string &proto,

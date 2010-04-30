@@ -26,7 +26,7 @@ StorageMaker::check (const std::string &proto,
   // destructor or close method.
   bool found = false;
   int mode = IOFlags::OpenRead | IOFlags::OpenUnbuffered;
-  if (Storage *s = open (proto, path, mode, "."))
+  if (Storage *s = open (proto, path, mode))
   {
     if (size)
       *size = s->size ();

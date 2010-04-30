@@ -2,6 +2,7 @@
 # define STORAGE_FACTORY_STORAGE_FACTORY_H
 
 # include "Utilities/StorageFactory/interface/StorageMaker.h"
+# include "Utilities/StorageFactory/interface/LocalFileSystem.h"
 # include "Utilities/StorageFactory/interface/IOTypes.h"
 # include "Utilities/StorageFactory/interface/IOFlags.h"
 # include <string>
@@ -41,15 +42,21 @@ public:
   bool		enableAccounting (bool enabled);
   bool		accounting (void) const;
 
-  void		setTempDir (const std::string &s);
+  void		setTempDir (const std::string &s, double minFreeSpace);
   std::string	tempDir (void) const;
+  std::string	tempPath (void) const;
+  double	tempMinFree (void) const;
 
   void		stagein (const std::string &url);
   Storage *	open (const std::string &url,
-	    	      int mode = IOFlags::OpenRead,
-	    	      const std::string &tmpdir = "");
+	    	      int mode = IOFlags::OpenRead);
   bool		check (const std::string &url,
 	    	       IOOffset *size = 0);
+
+  Storage *	wrapNonLocalFile (Storage *s,
+				  const std::string &proto,
+				  const std::string &path,
+				  int mode);
 
 protected:
   typedef std::map<std::string, StorageMaker *> MakerTable;
@@ -64,7 +71,10 @@ protected:
   CacheHint	m_cacheHint;
   ReadHint	m_readHint;
   bool		m_accounting;
+  double	m_tempfree;
+  std::string	m_temppath;
   std::string	m_tempdir;
+  LocalFileSystem m_lfs;
   static StorageFactory s_instance;
 };
 

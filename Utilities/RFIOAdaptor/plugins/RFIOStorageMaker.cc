@@ -101,8 +101,7 @@ public:
 
   virtual Storage *open (const std::string &proto,
 		         const std::string &path,
-			 int mode,
-			 const std::string &tmpdir)
+			 int mode)
   {
     StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
@@ -115,15 +114,7 @@ public:
       mode |= IOFlags::OpenUnbuffered;
 
     Storage *file = new RFIOFile(normalise(path), mode);
-    if ((cacheHint == StorageFactory::CACHE_HINT_LAZY_DOWNLOAD
-	 || cacheHint == StorageFactory::CACHE_HINT_AUTO_DETECT)
-	&& ! (mode & IOFlags::OpenWrite))
-    {
-      if (f->accounting())
-        file = new StorageAccountProxy(proto, file);
-      file = new LocalCacheFile(file, f->tempDir());
-    }
-    return file;
+    return f->wrapNonLocalFile(file, proto, std::string(), mode);
   }
 
   virtual void stagein (const std::string &proto,

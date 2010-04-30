@@ -15,8 +15,11 @@ StorageFactory::StorageFactory (void)
   : m_cacheHint(CACHE_HINT_AUTO_DETECT),
     m_readHint(READ_HINT_AUTO),
     m_accounting (false),
-    m_tempdir(".")
-{}
+    m_tempfree (4.), // GB
+    m_temppath (".:$TMPDIR")
+{
+  setTempDir(m_temppath, m_tempfree);
+}
 
 StorageFactory::~StorageFactory (void)
 {
@@ -57,12 +60,50 @@ StorageFactory::readHint(void) const
 { return m_readHint; }
 
 void
-StorageFactory::setTempDir(const std::string &s)
-{ m_tempdir = s; }
+StorageFactory::setTempDir(const std::string &s, double minFreeSpace)
+{
+  edm::LogInfo("StorageFactory")
+    << "Considering path '" << s
+    << "', min free space " << minFreeSpace
+    << "GB for temp dir";
+
+  size_t begin = 0;
+  std::vector<std::string> dirs;
+  dirs.reserve(std::count(s.begin(), s.end(), ':') + 1);
+
+  while (true)
+  {
+    size_t end = s.find(':', begin);
+    if (end == std::string::npos)
+    {
+      dirs.push_back(s.substr(begin, end));
+      break;
+    }
+    else
+    {
+      dirs.push_back(s.substr(begin, end - begin));
+      begin = end+1;
+    }
+  }
+
+  m_temppath = s;
+  m_tempfree = minFreeSpace;
+  m_tempdir = m_lfs.findCachePath(dirs, minFreeSpace);
+
+  edm::LogInfo("StorageFactory") << "Using '" << m_tempdir << "' for temp dir";
+}
 
 std::string
 StorageFactory::tempDir(void) const
 { return m_tempdir; }
+
+std::string
+StorageFactory::tempPath(void) const
+{ return m_temppath; }
+
+double
+StorageFactory::tempMinFree(void) const
+{ return m_tempfree; }
 
 StorageMaker *
 StorageFactory::getMaker (const std::string &proto)
@@ -96,12 +137,10 @@ StorageFactory::getMaker (const std::string &url,
 }
    
 Storage *
-StorageFactory::open (const std::string &url, int mode, const std::string &tmpdir /* = "" */)
+StorageFactory::open (const std::string &url, int mode /* = IOFlags::OpenRead */)
 { 
   std::string protocol;
   std::string rest;
-  const std::string &tmp = (tmpdir.empty() ? m_tempdir : tmpdir);
-  
   Storage *ret = 0;
   boost::shared_ptr<StorageAccount::Stamp> stats;
   if (StorageMaker *maker = getMaker (url, protocol, rest))
@@ -110,7 +149,7 @@ StorageFactory::open (const std::string &url, int mode, const std::string &tmpdi
       stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "open")));
     try
     {
-      if (Storage *storage = maker->open (protocol, rest, mode, tmp))
+      if (Storage *storage = maker->open (protocol, rest, mode))
       {
 	if (dynamic_cast<LocalCacheFile *>(storage))
 	  protocol = "local-cache";
@@ -185,4 +224,25 @@ StorageFactory::check (const std::string &url, IOOffset *size /* = 0 */)
   }
  
   return ret;
+}
+
+Storage *
+StorageFactory::wrapNonLocalFile (Storage *s,
+				  const std::string &proto,
+				  const std::string &path,
+				  int mode)
+{
+  StorageFactory::CacheHint hint = cacheHint();
+  if ((hint == StorageFactory::CACHE_HINT_LAZY_DOWNLOAD
+       || hint == StorageFactory::CACHE_HINT_AUTO_DETECT)
+      && ! (mode & IOFlags::OpenWrite)
+      && ! m_tempdir.empty()
+      && (path.empty() || ! m_lfs.isLocalPath(path)))
+  {
+    if (accounting())
+      s = new StorageAccountProxy(proto, s);
+    s = new LocalCacheFile(s, m_tempdir);
+  }
+
+  return s;
 }
