@@ -40,6 +40,8 @@ private:
 
   edm::ParameterSet theParSet;
   double theBField;
+  double theEnergyScaleEB;
+  double theEnergyScaleEE;
 
   GflashShowino *theShowino;
   GflashHistogram* theHisto;
