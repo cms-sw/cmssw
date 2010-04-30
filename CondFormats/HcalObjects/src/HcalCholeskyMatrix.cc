@@ -15,7 +15,7 @@ HcalCholeskyMatrix::getValue(int capid, int i,int j) const
    int ii = i + 1;
    int jj = j + 1;
    float blah = (float)(cmatrix[capid][(ii*(ii-1)/2+jj)-1]);
-   return blah/100000;
+   return blah/1000;
 }
 
 void
@@ -24,6 +24,6 @@ HcalCholeskyMatrix::setValue(int capid, int i, int j, float val)
    if(i < j) return;
    int ii = i + 1;
    int jj = j + 1;
-   cmatrix[capid][(int)(ii*(ii-1)/2+jj)-1] = (int)(floor)(val*100000);
+   cmatrix[capid][(int)(ii*(ii-1)/2+jj)-1] = (signed short int)(floor)(val*10000);
 }
 
