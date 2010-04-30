@@ -34,48 +34,9 @@ import commands, re, time
 import datetime
 import ConfigParser
 import optparse
-
-USAGE = re.compile(r'(?s)\s*usage: (.*?)(\n[ \t]*\n|$)')
-
-########################################################################
-def nonzero(self): # will become the nonzero method of optparse.Values
-    "True if options were given"
-    for v in self.__dict__.itervalues():
-        if v is not None: return True
-    return False
-
-optparse.Values.__nonzero__ = nonzero # dynamically fix optparse.Values
-
-class ParsingError(Exception): pass
-
-
-########################################################################
-def exit(msg=""):
-    raise SystemExit(msg or optionstring.replace("%prog",sys.argv[0]))
-
-########################################################################
-def parse(docstring, arglist=None):
-    global optionstring
-    global tagType
-    optionstring = docstring
-    match = USAGE.search(optionstring)
-    if not match: raise ParsingError("Cannot find the option string")
-    optlines = match.group(1).splitlines()
-    try:
-        p = optparse.OptionParser(optlines[0])
-        for line in optlines[1:]:
-            opt, help=line.split(':')[:2]
-            short,long=opt.split(',')[:2]
-            if '=' in opt:
-                action='store'
-                long=long.split('=')[0]
-            else:
-                action='store_true'
-            p.add_option(short.strip(),long.strip(),
-                         action = action, help = help.strip())
-    except (IndexError,ValueError):
-        raise ParsingError("Cannot parse the option string correctly")
-    return p.parse_args(arglist)
+from BeamSpotObj import BeamSpot
+from IOVObj import IOV
+from CommonMethods import *
 
 #####################################################################################
 # lumi tools CondCore/Utilities/python/timeUnitHelper.py
@@ -195,8 +156,8 @@ def getNewRunList(fromDir,lastUploadedIOV):
     return newRunList        
 
 ########################################################################
-def getListOfFilesToCopy(listOfFilesToProcess,newRunList):
-    listOfFilesToCopy = []
+def selectFilesToProcess(listOfFilesToProcess,newRunList):
+    selectedFiles = []
     runsToProcess = {}
     processedRuns = {}
     for file in listOfFilesToProcess:
@@ -228,10 +189,10 @@ def getListOfFilesToCopy(listOfFilesToProcess,newRunList):
             if processedRuns[run] == runsToProcess[run]:
                 for file in newRunList:
                     if run == getRunNumberFromFileName(file):
-                        listOfFilesToCopy.append(file)
+                        selectedFiles.append(file)
             else:
                 exit("ERROR: For run " + str(run) + " I have processed " + str(processedRuns[run]) + " files but in DBS there are " + str(runsToProcess[run]) + " files!")
-    return listOfFilesToCopy            
+    return selectedFiles            
 
 ########################################################################
 def cp(fromDir,toDir,listOfFiles):
@@ -280,6 +241,7 @@ if __name__ == '__main__':
     workingDir  = configuration.get('Common','WORKING_DIR')
     databaseTag = configuration.get('Common','DBTAG')
     dataSet     = configuration.get('Common','DATASET')
+    IOVBase     = configuration.get('Common','IOV_BASE')
     mailList    = configuration.get('Common','EMAIL')
 
     ######### DIRECTORIES SETUP #################
@@ -317,7 +279,7 @@ if __name__ == '__main__':
         if len(copiedFiles) == len(newProcessedRunList):
             break;
     if len(copiedFiles) != len(newProcessedRunList):
-        error = "ERROR: I copied only " + str(len(copiedFiles)) + " out of " + str(len(newProcessedRunList)) 
+        error = "ERROR: I can't copy more than " + str(len(copiedFiles)) + " files out of " + str(len(newProcessedRunList)) 
         sendEmail(mailList,error)
         exit(error)
 
@@ -325,7 +287,34 @@ if __name__ == '__main__':
     ######### Get from DBS the list of files after last IOV    
     listOfFilesToProcess = getListOfFilesToProcess(dataSet,lastUploadedIOV) 
 
-    ######### Get list of files to copy and process for DB
-#    listOfFilesToCopy = getListOfFilesToCopy(listOfFilesToProcess,newProcessedRunList)
+    ######### Get list of files to process for DB
+    selectedFilesToProcess = selectFilesToProcess(listOfFilesToProcess,copiedFiles)
 
+    ######### Copy files to working directory
+    for i in range(3):
+        copiedFiles = cp(archiveDir,workingDir,selectedFilesToProcess)    
+        if len(copiedFiles) == len(selectedFilesToProcess):
+            break;
+    if len(copiedFiles) != len(selectedFilesToProcess):
+        error = "ERROR: I can't copy more than " + str(len(copiedFiles)) + " files out of " + str(len(selectedFilesToProcess)) 
+        sendEmail(mailList,error)
+        exit(error)
 
+    beamSpotObjList = []
+    for fileName in copiedFiles:
+        readBeamSpotFile(workingDir+fileName,beamSpotObjList,IOVBase)
+
+    sortAndCleanBeamList(beamSpotObjList,IOVBase)
+
+    payloadFileName = "PayloadFile.txt"
+
+    createWeightedPayloads(workingDir+payloadFileName,beamSpotObjList,True)
+
+    #Create and upload payloads
+#    aCommand = "./createPayload.py -d " + workingDir+payloadFileName + " -t " + databaseTag
+#    tmpStatus = commands.getstatusoutput( aCommand )
+#    print aCommand
+#    if tmpStatus[0] == 0:
+#        print "Done!"
+#    else:
+#        print "Something wrong"
