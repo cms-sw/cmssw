@@ -2,6 +2,16 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
+def sisCone5Warning():
+    print "NOTE TO USER: YOU HAVE SELECTED SC5 JETS IN YOUR CONFIGURATION FILE."
+    print "              this jet collection is not any longer officially sup- "
+    print "              ported. It is not part of the CMSSW_3_6_X definition  "
+    print "              of the RECO event content. There are also no JEC fac- "
+    print "              tors more recent then 'Summer09_7TeV_ReReco332' for   "
+    print "              this jet algorithm. Please contact SWGuidePAT#Support "
+    print "              if you still want/need to use this jet collection or  "
+    print "              move on to more supported algorithms like AK5.        "
+
 def patchJetCorrFactors_(jetCorrFactors, newAlgo):
     """
     ------------------------------------------------------------------
@@ -310,7 +320,7 @@ class AddJetCollection(ConfigToolBase):
                  jetIdLabel         = None,
                  standardAlgo       = None,
                  standardType       = None):
-    
+
         if jetCollection  is None:
             jetCollection=self._defaultParameters['jetCollection'].value
         if algoLabel is None:
@@ -373,9 +383,10 @@ class AddJetCollection(ConfigToolBase):
         standardAlgo=self._parameters['standardAlgo'].value
         standardType=self._parameters['standardType'].value
 
-        ## define common label for pre pat jet 
-        ## creation steps in makePatJets    
-        #label=standardAlgo+standardType
+        ## voice a warning for users that still want to
+        ## use sc5 jets, which are not suipported anymore
+        ## from 36X on
+        if (algoLabel=='SC5'): sisCone5Warning()
 
         ## create old module label from standardAlgo
         ## and standardType and return
@@ -622,7 +633,6 @@ class SwitchJetCollection(ConfigToolBase):
         jetIdLabel=self._parameters['jetIdLabel'].value
         postfix=self._parameters['postfix'].value
 
-
         ## save label of old input jet collection
         oldLabel = applyPostfix(process, "patJets", postfix).jetSource;
     
@@ -699,6 +709,11 @@ class SwitchJetCollection(ConfigToolBase):
             ## check for the correct format
             if (type(jetCorrLabel)!=type(('AK5','Calo'))): 
                 raise ValueError, "In switchJetCollection 'jetCorrLabel' must be 'None', or of type ('Algo','Type')"
+
+            ## voice a warning for users that still want to
+            ## use sc5 jets, which are not suipported anymore
+            ## from 36X on
+            if (jetCorrLabel[0]=='SC5'): sisCone5Warning()
 
             ## switch JEC parameters to the new jet collection
             applyPostfix(process, "patJetCorrFactors", postfix).jetSource = jetCollection            
