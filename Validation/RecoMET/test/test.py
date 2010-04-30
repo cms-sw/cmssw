@@ -62,11 +62,7 @@ process.DQMStore = cms.Service("DQMStore")
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
-      '/store/relval/CMSSW_3_6_0_pre2/RelValBeamHalo/GEN-SIM-RECO/START3X_V24-v1/0001/642ECDEC-6E27-DF11-ACE7-002618FDA259.root',
-      '/store/relval/CMSSW_3_6_0_pre2/RelValBeamHalo/GEN-SIM-RECO/START3X_V24-v1/0000/5C43E498-EF26-DF11-9DC8-001731AF65EB.root'
-      
-
-
+    '/store/relval/CMSSW_3_7_0_pre2/RelValZMM/GEN-SIM-RECO/START37_V1-v1/0017/78448BF0-A252-DF11-B3DC-00261894392B.root'
     )
                             
 
