@@ -38,7 +38,6 @@ TFile data(dataName.c_str()) ;
 
 TCanvas *c1 = new TCanvas("c1","Stack plot",10,10,canvasSizeX, canvasSizeY);
 
-
 void setHisto(TH1 * h, Color_t fill, Color_t line, double scale, int rebin) {
   h->SetFillColor(fill);
   h->SetLineColor(line);
@@ -76,10 +75,12 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata,
 
   std::string yTag = "";
   switch(rebin) {
-  case 1: yTag = "events/GeV/c^{2}"; break;
-  case 2: yTag = "events/2 GeV/c^{2}"; break;
-  case 4: yTag = "events/4 GeV/c^{2}"; break;
-  case 5: yTag = "events/5 GeV/c^{2}"; break;
+  case 1: yTag = "events/(GeV/c^{2})"; break;
+  case 2: yTag = "events/(2 GeV/c^{2})"; break;
+  case 3: yTag = "events/(3 GeV/c^{2})"; break;
+  case 4: yTag = "events/(4 GeV/c^{2})"; break;
+  case 5: yTag = "events/(5 GeV/c^{2})"; break;
+  case 10: yTag = "events/(10 GeV/c^{2})"; break;
   default:
     std::cerr << ">>> ERROR: set y tag for rebin = " << rebin << std::endl;
   };
