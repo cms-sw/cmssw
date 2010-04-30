@@ -561,8 +561,8 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
 
   phoIso.setVetoClustered(vetoClusteredHits);
   phoIso.setUseNumCrystals(useNumXtals);
-  //if(fabs(peta) < 1.479) 
-    //phoIso.doSpikeRemoval(ecalhitsCollH.product(),chStatus.product(),severityLevelCut_,severityRecHitThreshold_,spId_,spikeIdThreshold_);
+  if(fabs(peta) < 1.479) 
+    phoIso.doSpikeRemoval(ecalhitsCollH.product(),chStatus.product(),severityLevelCut_,severityRecHitThreshold_,spId_,spikeIdThreshold_);
 
   ecalIsol = phoIso.getEtSum(photon);
   //  delete phoIso;
