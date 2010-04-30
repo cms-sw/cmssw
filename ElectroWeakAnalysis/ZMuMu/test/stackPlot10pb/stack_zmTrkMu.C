@@ -5,6 +5,6 @@
 #include "stack_common.h"
 
 void stack_zmTrkMu() {
-  makePlots("goodZToMuMuOneTrackerMuonPlots/zMass", "events/5 GeV/c^{2}", 5, "zmTrkMu.eps", 
+  makePlots("goodZToMuMuOneTrackerMuonPlots/zMass", 5, "zmTrkMu", 
 	    0.0001);
 }

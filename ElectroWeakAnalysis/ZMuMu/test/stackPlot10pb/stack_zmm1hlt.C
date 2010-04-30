@@ -5,6 +5,6 @@
 #include "stack_common.h"
 
 void stack_zmm1hlt() {
-  makePlots("goodZToMuMu1HLTPlots/zMass", "events/GeV/c^{2}", 1, "zmm1hlt.eps", 
+  makePlots("goodZToMuMu1HLTPlots/zMass",  1, "zmm1hlt", 
 	    0.0001);
 }

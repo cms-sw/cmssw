@@ -5,6 +5,6 @@
 #include "stack_common.h"
 
 void stack_zmmNotIso() {
-  makePlots("nonIsolatedZToMuMuPlots/zMass", "events/5 GeV/c^{2}", 5, "zmmNotIso.eps", 
+  makePlots("nonIsolatedZToMuMuPlots/zMass",  5, "zmmNotIso", 
 	    0.0001);
 }

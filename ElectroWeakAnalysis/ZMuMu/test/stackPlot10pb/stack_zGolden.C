@@ -51,9 +51,9 @@ void stack_zGolden() {
   TH1F *hdata = 0;
 
 
-  makeStack(h1, h2, h3, h4, hdata, "events/GeV/c^{2}", 0.0001, rebin);
+  makeStack(h1, h2, h3, h4, hdata, 0.0001, rebin);
 
   stat(h1, h2, h3, h4, hdata);
 
-  c1->SaveAs("zGolden.eps");
+  c1->SaveAs("zGolden");
 }

@@ -43,7 +43,7 @@ void setHisto(TH1 * h, Color_t fill, Color_t line, double scale, int rebin) {
   h->Rebin(rebin);  
 }
 
-void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata, const char * yTag,
+void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata,
 	       double min, int rebin) {
   setHisto(h1, zFillColor, zLineColor, lumi/lumiZ, rebin);
   setHisto(h2, wFillColor, wLineColor, lumi/lumiW, rebin);
@@ -71,7 +71,17 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata, const char *
   hs->SetMinimum(min);
   hs->GetXaxis()->SetTitle("m_{#mu #mu} (GeV/c^{2})");
 
-  hs->GetYaxis()->SetTitle(yTag);
+  std::string yTag = "";
+  switch(rebin) {
+  case 1: yTag = "events/GeV/c^{2}"; break;
+  case 2: yTag = "events/2 GeV/c^{2}"; break;
+  case 4: yTag = "events/4 GeV/c^{2}"; break;
+  case 5: yTag = "events/5 GeV/c^{2}"; break;
+  default:
+    std::cerr << ">>> ERROR: set y tag for rebin = " << rebin << std::endl;
+  };
+
+  hs->GetYaxis()->SetTitle(yTag.c_str());
   hs->GetXaxis()->SetTitleSize(0.05);
   hs->GetYaxis()->SetTitleSize(0.05);
   hs->GetXaxis()->SetTitleOffset(1.0);
@@ -105,7 +115,7 @@ void stat(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata) {
   std::cout<<"ttbar (60-120) = " << i3 <<std::endl; 
 }
 
-void makePlots(const char * name, const char * tag, int rebin, const char * plot,
+void makePlots(const char * name, int rebin, const char * plot,
 	       double min = 0.0001,
 	       bool doData = false) {
   TH1F *h1 = (TH1F*)z.Get(name);
@@ -115,11 +125,12 @@ void makePlots(const char * name, const char * tag, int rebin, const char * plot
   TH1F *hdata = doData? (TH1F*)data.Get(name) : 0;
 
   std::cout << "min = " << min << std::endl;
-  makeStack(h1, h2, h3, h4, hdata, tag, min, rebin);
+  makeStack(h1, h2, h3, h4, hdata, min, rebin);
 
   stat(h1, h2, h3, h4, hdata);
 
-  c1->SaveAs(plot);
+  c1->SaveAs((std::string(plot)+".eps").c_str());
+  c1->SaveAs((std::string(plot)+".gif").c_str());
 }
 
 #endif

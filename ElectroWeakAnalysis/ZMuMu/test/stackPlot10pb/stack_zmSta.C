@@ -6,7 +6,7 @@
 
 
 void stack_zmSta() {
-  makePlots("goodZToMuMuOneStandAloneMuonPlots/zMass", "events/5 GeV/c^{2}", 5, "zmSta.eps",
+  makePlots("goodZToMuMuOneStandAloneMuonPlots/zMass",  5, "zmSta",
 	    0.0001);
 }
 
