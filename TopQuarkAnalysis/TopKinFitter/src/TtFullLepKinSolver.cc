@@ -10,13 +10,13 @@ TtFullLepKinSolver::TtFullLepKinSolver()
   EventShape_->SetParameters(30.7137,56.2880,23.0744,59.1015,24.9145);
 }
 
-TtFullLepKinSolver::TtFullLepKinSolver(double b, double e, double s, double xx, double yy) 
+TtFullLepKinSolver::TtFullLepKinSolver(double b, double e, double s, std::vector<double> nupars) 
 {
   topmass_begin = b;
   topmass_end = e;
   topmass_step = s;
-  pxmiss_ = xx;
-  pymiss_ = yy;
+  pxmiss_ = 0;
+  pymiss_ = 0;
   mw = 80.22;
   maw = 80.22;
   mab = 4.800;
@@ -24,7 +24,7 @@ TtFullLepKinSolver::TtFullLepKinSolver(double b, double e, double s, double xx, 
   // That crude parametrisation has been obtained from a fit of O(1000) pythia events.
   // It is normalized to 1.
   EventShape_ = new TF2("landau2D","[0]*TMath::Landau(x,[1],[2],0)*TMath::Landau(y,[3],[4],0)",0,500,0,500);
-  EventShape_->SetParameters(30.7137,56.2880,23.0744,59.1015,24.9145);
+  EventShape_->SetParameters(nupars[0],nupars[1],nupars[2],nupars[3],nupars[4]);
 }
 
 //
@@ -34,6 +34,8 @@ TtFullLepKinSolver::~TtFullLepKinSolver()
 {
   delete EventShape_;
 }
+
+
 
 TtDilepEvtSolution TtFullLepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol) 
 {
@@ -123,6 +125,12 @@ TtDilepEvtSolution TtFullLepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol)
   fitsol.setRecWeightMax(weightmax);
   
   return fitsol;
+}
+
+void TtFullLepKinSolver::SetConstraints(double xx, double yy)
+{
+  pxmiss_ = xx;
+  pymiss_ = yy;
 }
 
 TtFullLepKinSolver::NeutrinoSolution TtFullLepKinSolver::getNuSolution(TLorentzVector LV_l, 

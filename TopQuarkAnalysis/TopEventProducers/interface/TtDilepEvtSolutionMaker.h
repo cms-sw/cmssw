@@ -6,7 +6,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include <DataFormats/Candidate/interface/Candidate.h>
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/TtFullLepKinSolver.h"
 
 class TtDilepLRSignalSelObservables;
 
@@ -17,6 +18,7 @@ class TtDilepEvtSolutionMaker : public edm::EDProducer {
     explicit TtDilepEvtSolutionMaker(const edm::ParameterSet & iConfig);
     ~TtDilepEvtSolutionMaker();
   
+    virtual void beginJob();
     virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
   private:  
@@ -39,7 +41,10 @@ class TtDilepEvtSolutionMaker : public edm::EDProducer {
     bool matchToGenEvt_, calcTopMass_, useMCforBest_;
     bool eeChannel_, emuChannel_, mumuChannel_, etauChannel_, mutauChannel_, tautauChannel_;
     double tmassbegin_, tmassend_, tmassstep_;
-   TtDilepLRSignalSelObservables        * myLRSignalSelObservables;
+    std::vector<double> nupars_;    
+    
+    TtDilepLRSignalSelObservables* myLRSignalSelObservables;
+    TtFullLepKinSolver* solver;
 };
 
 inline bool TtDilepEvtSolutionMaker::PTComp(const reco::Candidate* l1, const reco::Candidate* l2) const 

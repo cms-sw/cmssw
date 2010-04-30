@@ -1,11 +1,10 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.24 2009/04/29 13:29:11 snaumann Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.25 2010/03/25 09:22:17 snaumann Exp $
 //
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "TopQuarkAnalysis/TopKinFitter/interface/TtFullLepKinSolver.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtDilepLRSignalSelObservables.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
@@ -38,7 +37,8 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConf
   tmassbegin_     = iConfig.getParameter<double>       ("tmassbegin");
   tmassend_       = iConfig.getParameter<double>       ("tmassend");
   tmassstep_      = iConfig.getParameter<double>       ("tmassstep");
-  
+  nupars_         = iConfig.getParameter<std::vector<double> >("neutrino_parameters");
+    
   // define what will be produced
   produces<std::vector<TtDilepEvtSolution> >();
   
@@ -48,6 +48,11 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConf
 
 TtDilepEvtSolutionMaker::~TtDilepEvtSolutionMaker() 
 {
+}
+
+void TtDilepEvtSolutionMaker::beginJob()
+{
+  solver = new TtFullLepKinSolver(tmassbegin_, tmassend_, tmassstep_, nupars_);
 }
 
 void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
@@ -359,9 +364,9 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 	} 
 	// If asked, use the kin fitter to compute the top mass
         if (calcTopMass_) {
-          TtFullLepKinSolver solver(tmassbegin_, tmassend_, tmassstep_, xconstraint, yconstraint);
-	  solver.useWeightFromMC(useMCforBest_);
-          asol = solver.addKinSolInfo(&asol);
+          solver->SetConstraints(xconstraint, yconstraint);
+	  solver->useWeightFromMC(useMCforBest_);
+          asol = solver->addKinSolInfo(&asol);
         }
 
      // these lines calculate the observables to be used in the TtDilepSignalSelection LR

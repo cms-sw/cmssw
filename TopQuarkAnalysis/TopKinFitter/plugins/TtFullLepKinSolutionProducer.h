@@ -2,7 +2,7 @@
 #define TtFullLepKinSolutionProducer_h
 
 //
-// $Id: TtFullLepKinSolutionProducer.h,v 1.6 2010/02/15 13:41:07 snaumann Exp $
+// $Id: TtFullLepKinSolutionProducer.h,v 1.7 2010/03/25 09:22:18 snaumann Exp $
 //
 #include <memory>
 #include <string>
@@ -10,12 +10,12 @@
 #include "TLorentzVector.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TopQuarkAnalysis/TopKinFitter/interface/TtFullLepKinSolver.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/TtFullLepKinSolver.h"
 
 
 class TtFullLepKinSolutionProducer : public edm::EDProducer {
@@ -24,7 +24,8 @@ class TtFullLepKinSolutionProducer : public edm::EDProducer {
 
     explicit TtFullLepKinSolutionProducer(const edm::ParameterSet & iConfig);
     ~TtFullLepKinSolutionProducer();
-  
+    
+    virtual void beginJob();
     virtual void produce(edm::Event & evt, const edm::EventSetup & iSetup);
 
   private:  
@@ -49,6 +50,9 @@ class TtFullLepKinSolutionProducer : public edm::EDProducer {
     int maxNJets_, maxNComb_;
     bool eeChannel_, emuChannel_, mumuChannel_, searchWrongCharge_;
     double tmassbegin_, tmassend_, tmassstep_;
+    std::vector<double> nupars_;
+    
+    TtFullLepKinSolver* solver;
 };
 
 inline bool TtFullLepKinSolutionProducer::PTComp(const reco::Candidate* l1, const reco::Candidate* l2) const 
@@ -83,6 +87,7 @@ TtFullLepKinSolutionProducer::TtFullLepKinSolutionProducer(const edm::ParameterS
   tmassbegin_       = iConfig.getParameter<double>("tmassbegin");
   tmassend_         = iConfig.getParameter<double>("tmassend");
   tmassstep_        = iConfig.getParameter<double>("tmassstep");
+  nupars_           = iConfig.getParameter<std::vector<double> >("neutrino_parameters");
   
   // define what will be produced
   produces<std::vector<std::vector<int> > >  (); // vector of the particle inices (b, bbar, e1, e2, mu1, mu2)
@@ -94,6 +99,11 @@ TtFullLepKinSolutionProducer::TtFullLepKinSolutionProducer(const edm::ParameterS
 
 TtFullLepKinSolutionProducer::~TtFullLepKinSolutionProducer() 
 {
+}
+
+void TtFullLepKinSolutionProducer::beginJob()
+{
+  solver = new TtFullLepKinSolver(tmassbegin_, tmassend_, tmassstep_, nupars_);
 }
 
 void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSetup & iSetup) 
@@ -378,8 +388,8 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
         yconstraint += (*jets)[ib].py() + (*jets)[ibbar].py() + (*mets)[0].py();
 			 
         // calculate neutrino momenta and eventweight
-        TtFullLepKinSolver solver(tmassbegin_, tmassend_, tmassstep_, xconstraint, yconstraint);
-        TtFullLepKinSolver::NeutrinoSolution nuSol= solver.getNuSolution( LV_l1, LV_l2 , LV_b, LV_bbar);
+        solver->SetConstraints(xconstraint, yconstraint);
+        TtFullLepKinSolver::NeutrinoSolution nuSol= solver->getNuSolution( LV_l1, LV_l2 , LV_b, LV_bbar);
 		
 	// add solution to the vectors of solutions if solution exists 
 	if(nuSol.weight>0){

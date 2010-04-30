@@ -48,7 +48,23 @@ kinSolutionTtFullLepEvent = cms.EDProducer("TtFullLepKinSolutionProducer",
     # ------------------------------------------------    
     tmassbegin = cms.double(100),
     tmassend   = cms.double(300),
-    tmassstep  = cms.double(  1)
+    tmassstep  = cms.double(  1),
+    
+    # ------------------------------------------------
+    # neutrino reference spectrum
+    # five parameters:
+    #   norm, 
+    #   position nu, 
+    #   width nu,     
+    #   postion nubar, 
+    #   width nubar
+    # ------------------------------------------------  
+    neutrino_parameters = cms.vdouble(30.7137,
+                                      56.2880,
+				      23.0744,
+				      59.1015,
+				      24.9145)
+      
 )
 
 

@@ -15,11 +15,13 @@ class TtFullLepKinSolver {
  public:
  
   TtFullLepKinSolver();
-  TtFullLepKinSolver(double,double,double, double xx = 0, double yy = 0);
+  TtFullLepKinSolver(double,double,double,std::vector<double>);
   ~TtFullLepKinSolver();
   
   inline void useWeightFromMC(bool useMC) { useMCforBest_ = useMC; }
   TtDilepEvtSolution addKinSolInfo(TtDilepEvtSolution * asol); 
+  
+  void SetConstraints(double xx=0, double yy=0);
   
   struct NeutrinoSolution {
     double weight;
