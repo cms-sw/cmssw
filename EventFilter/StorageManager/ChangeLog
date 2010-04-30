@@ -1,3 +1,12 @@
+2010-04-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-00-00
+	* Check Adler32 checksum for the data blob in init, event,
+	  and DQM event messages to match the one calculated in the EPs.
+	  This requires the new IOPool/Streamer data format.
+	* First round of refactoring of the consumer handling code to
+	  make it usable for the SM proxy server.
+
 2010-04-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-10-02
