@@ -9,7 +9,7 @@ using namespace std;
 HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
 {
   // use simple values in default constructor
-  minthreshold_=10; // minimum energy threshold (in GeV)
+  minthreshold_=40; // minimum energy threshold (in GeV)
   recoFirstSample_=0;
   recoSamplesToAdd_=10;
   firstSample_=3;
