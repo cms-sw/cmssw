@@ -4,7 +4,6 @@
 #include <algorithm> // for "max"
 #include <math.h>
 #include <iostream>
-using namespace std;
 
 HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
 {
@@ -20,25 +19,35 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
   coef0_= 0.93;
   coef1_ = -0.38275;
   coef2_ = -0.012667;
+  // Minimum energy of 10 GeV required
+  HFwindowEthresh_=(40);
+  HFwindowMinTime_.clear();
+  HFwindowMinTime_.push_back(-8);
+  HFwindowMaxTime_.clear();
+  HFwindowMaxTime_.push_back(10);
 }
 
 HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(int recoFirstSample,
 						   int recoSamplesToAdd,
-						   int firstSample, 
-						   int samplesToAdd, 
-						   int expectedPeak,
-						   double minthreshold,
-						   double coef0, double coef1, double coef2)
+						   const edm::ParameterSet& HFDigiTimeParams,
+						   const edm::ParameterSet& HFTimeInWindowParams)
 {
   recoFirstSample_    = recoFirstSample;
   recoSamplesToAdd_   = recoSamplesToAdd;
-  firstSample_        = firstSample;
-  samplesToAdd_       = samplesToAdd;
-  expectedPeak_       = expectedPeak;
-  minthreshold_       = minthreshold;
-  coef0_              = coef0;
-  coef1_              = coef1;
-  coef2_              = coef2;
+
+  // Specify parameters used in forming the HFDigiTime flag
+  firstSample_        = HFDigiTimeParams.getParameter<int>("HFdigiflagFirstSample");
+  samplesToAdd_       = HFDigiTimeParams.getParameter<int>("HFdigiflagSamplesToAdd");
+  expectedPeak_       = HFDigiTimeParams.getParameter<int>("HFdigiflagExpectedPeak");
+  minthreshold_       = HFDigiTimeParams.getParameter<double>("HFdigiflagMinEthreshold");
+  coef0_              = HFDigiTimeParams.getParameter<double>("HFdigiflagCoef0");
+  coef1_              = HFDigiTimeParams.getParameter<double>("HFdigiflagCoef1");
+  coef2_              = HFDigiTimeParams.getParameter<double>("HFdigiflagCoef2");
+
+  // Specify parameters used in forming HFInTimeWindow flag
+  HFwindowMinTime_    = HFTimeInWindowParams.getParameter<std::vector<double> >("hfMinWindowTime");
+  HFwindowMaxTime_    = HFTimeInWindowParams.getParameter<std::vector<double> >("hfMaxWindowTime");
+  HFwindowEthresh_    = HFTimeInWindowParams.getParameter<double>("Ethresh");
 }
 
 HcalHFStatusBitFromDigis::~HcalHFStatusBitFromDigis(){}
@@ -47,8 +56,6 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 						 const HFDataFrame& digi,
 						 const HcalCalibrations& calib)
 {
-  int status=0;
-
   // The following 3 values are computed using the default reconstruction window (for Shuichi's algorithm)
   double maxInWindow=-10; // maximum value found in reco window
   int maxCapid=-1;
@@ -59,6 +66,8 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
   double peakCharge=0;
   double RecomputedEnergy=0;
 
+
+  // Compute quantities needed for HFDigiTime, Fraction2TS FLAGS
   for (int i=0;i<digi.size();++i)
     {
       int capid=digi.sample(i).capid();
@@ -86,7 +95,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 	}
     }
 
-  
+  // FLAG:  HcalCaloLabel::Fraction2TS
   // Shuichi's Algorithm:  Compare size of peak in digi to charge in TS immediately before peak
   int TSfrac_counter=1; 
   // get pedestals for each capid -- add 4 to each capid, and then check mod 4.
@@ -96,19 +105,31 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
     TSfrac_counter=int(50*((digi[maxTS-1].nominal_fC()-calib.pedestal((maxCapid+3)%4))/(digi[maxTS].nominal_fC()-calib.pedestal((maxCapid+4)%4)))+1); // 6-bit counter to hold peak ratio info
   hf.setFlagField(TSfrac_counter, HcalCaloFlagLabels::Fraction2TS,6);
 
+  // FLAG:  HcalCaloLabels::HFDigiTime
   // Igor's algorithm:  compare charge in peak to total charge in window
-  if (RecomputedEnergy<minthreshold_) return; // don't set noise flags for cells below a given threshold?
-
-  // Calculate allowed minimum value of (TS4/TS3+4+5+6):
-  double cutoff=coef0_-exp(coef1_+coef2_*RecomputedEnergy);
+  if (RecomputedEnergy>=minthreshold_)  // don't set noise flags for cells below a given threshold
+    {
+      // Calculate allowed minimum value of (TS4/TS3+4+5+6):
+      double cutoff=coef0_-exp(coef1_+coef2_*RecomputedEnergy);
+      
+      if (peakCharge/totalCharge<cutoff)
+	hf.setFlagField(1,HcalCaloFlagLabels::HFDigiTime);
+    }
   
-  if (peakCharge/totalCharge<cutoff)
-    status=1;
-  else
-    status=0;
-
-  // set flag  at index HFDigiTime
-  hf.setFlagField(status,HcalCaloFlagLabels::HFDigiTime);
+  // FLAG:  HcalCaloLabels:: HFinTimeWindow
+  // Timing algorithm
+  if (hf.energy()>=HFwindowEthresh_)
+    {
+      double en = hf.energy();
+      double mintime=0;
+      double maxtime=0;
+      for (unsigned int i=0;i<HFwindowMinTime_.size();++i)
+	mintime+=HFwindowMinTime_[i]*pow(en,i);
+      for (unsigned int i=0;i<HFwindowMaxTime_.size();++i)
+	maxtime+=HFwindowMaxTime_[i]*pow(en,i);
+      if (hf.time()<mintime || hf.time()>maxtime)
+	hf.setFlagField(1,HcalCaloFlagLabels::HFInTimeWindow);
+    }
 
   return;
 }

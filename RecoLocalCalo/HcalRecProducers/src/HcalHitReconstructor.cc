@@ -106,16 +106,12 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     if (setNoiseFlags_)
       {
 	const edm::ParameterSet& psdigi    =conf.getParameter<edm::ParameterSet>("digistat");
+	const edm::ParameterSet& psTimeWin =conf.getParameter<edm::ParameterSet>("HFInWindowStat");
 	const edm::ParameterSet& psrechit  =conf.getParameter<edm::ParameterSet>("rechitstat");
 	hfdigibit_=new HcalHFStatusBitFromDigis(conf.getParameter<int>("firstSample"),
 						conf.getParameter<int>("samplesToAdd"),
-						psdigi.getParameter<int>("HFdigiflagFirstSample"),
-						psdigi.getParameter<int>("HFdigiflagSamplesToAdd"),
-						psdigi.getParameter<int>("HFdigiflagExpectedPeak"),
-						psdigi.getParameter<double>("HFdigiflagMinEthreshold"),
-						psdigi.getParameter<double>("HFdigiflagCoef0"),
-						psdigi.getParameter<double>("HFdigiflagCoef1"),
-						psdigi.getParameter<double>("HFdigiflagCoef2"));
+						psdigi, psTimeWin);
+
 	hfrechitbit_=new HcalHFStatusBitFromRecHits(psrechit.getParameter<double>("short_HFlongshortratio"),
 						    psrechit.getParameter<double>("short_HFETthreshold"),
 						    psrechit.getParameter<double>("short_HFEnergythreshold"),

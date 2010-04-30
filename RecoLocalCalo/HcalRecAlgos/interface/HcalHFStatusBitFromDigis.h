@@ -5,13 +5,14 @@
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /** \class HcalHFStatusBitFromDigis
     
    This class sets status bit in the status words for the revised CaloRecHit objets according to informatino from the digi associated to the hit.
     
-   $Date: 2010/04/28 17:06:16 $
-   $Revision: 1.4 $
+   $Date: 2010/04/28 17:48:58 $
+   $Revision: 1.5 $
    \author J. Temple -- University of Maryland and E. Yazgan
 */
 
@@ -19,11 +20,10 @@ class HcalHFStatusBitFromDigis {
 public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
   HcalHFStatusBitFromDigis();
-  HcalHFStatusBitFromDigis(int recoFirstSample, int recoSamplesToAdd,
-			   int firstSample, int samplesToAdd, int expectedPeak,
-			   double minthreshold,
-			   double coef0, double coef1, double coef2);
-  
+  HcalHFStatusBitFromDigis(int recoFirstSample,
+			   int recoSamplesToAdd,
+			   const edm::ParameterSet& HFDigiTimeParams,
+			   const edm::ParameterSet& HFTimeInWindowParams);
   // Destructor
   ~HcalHFStatusBitFromDigis();
 
@@ -53,6 +53,12 @@ private:
   double coef0_;
   double coef1_;
   double coef2_;
+
+  // Store minimum/maximum allowed rechit times.  
+  // (Times outside window are flagged)
+  double HFwindowEthresh_;
+  std::vector<double> HFwindowMinTime_;
+  std::vector<double> HFwindowMaxTime_;
 };
 
 #endif

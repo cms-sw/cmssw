@@ -25,7 +25,9 @@ namespace HcalCaloFlagLabels
   enum HOStatusFlag{HOBit=0};
 
   enum HFStatusFlag{HFLongShort=0,
-		    HFDigiTime=1};
+		    HFDigiTime=1,
+		    HFInTimeWindow=2 // requires hit be within certain time window
+  };
 
 
   enum ZDCStatusFlag{ZDCBit=0};

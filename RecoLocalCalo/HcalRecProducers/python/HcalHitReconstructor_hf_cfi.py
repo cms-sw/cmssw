@@ -33,9 +33,15 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                            # Following parameters are used for determining
                                            # minimum threshold fC(peak)/sum_fC(HFsamplesToAdd) > [0] +exp([1]+[2]*Energy)
                                            HFdigiflagCoef0           = cms.double(0.93),
-                                           HFdigiflagCoef1           = cms.double(0.),
-                                           HFdigiflagCoef2           = cms.double(0.)
+                                           HFdigiflagCoef1           = cms.double(-0.38275),
+                                           HFdigiflagCoef2           = cms.double(-0.012667)
                                            ),
+
+                        # Window Parameters require that reconstructed time occurs min and max window time
+                        # Time Parameters are expressed as coefficients in polynomial expansion in energy:  [0]+[1]*E + ...
+                        HFInWindowStat = cms.PSet(hfMinWindowTime=cms.vdouble([-8]),
+                                                  hfMaxWindowTime=cms.vdouble([10]),
+                                                  Ethresh=cms.double(40.)),
                         
                         rechitstat = cms.PSet(short_HFlongshortratio = cms.double(0.995), # max allowed ratio of (L-S)/(L+S)
                                             short_HFETthreshold    = cms.double(0.), # minimum ET (in GeV) required for a cell to be considered hot (started at 0.5, loosened to 2.0 after pion studies)
@@ -80,6 +86,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
 
                         
                         saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127)),
+
                         hfTimingTrustParameters = cms.PSet(hfTimingTrustLevel1=cms.int32(1), # 1ns timing accuracy
                                                            hfTimingTrustLevel2=cms.int32(4)  # 4ns timing accuracy
                                                            )
