@@ -27,6 +27,9 @@ const double lumiW = 10.;
 const double lumiQ = 10.;
 const double lumiT =10.;
 
+const double mMin = 60;
+const double mMax = 120;
+
 TFile z(zmmName.c_str()) ; 
 TFile w( wmnName.c_str()) ; 
 TFile tt(ttbarName.c_str()) ; 
@@ -104,15 +107,29 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata,
 }
 
 void stat(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata) {
-  double i1 = h1->Integral(60,120);
-  double i2 = h2->Integral(60,120);
-  double i3 = h3->Integral(60,120);
-  double i4 = h4->Integral(60,120);
-  double idata = hdata != 0 ? hdata->Integral(60,120) : 0;
-  std::cout<<"zmm (60-120) = " << i1 <<std::endl;
-  std::cout<<"w (60-120) = " << i2 <<std::endl;
-  std::cout<<"QCD (60-120) = " << i4 <<std::endl;
-  std::cout<<"ttbar (60-120) = " << i3 <<std::endl; 
+  double i1 = h1->Integral(mMin, mMax);
+  double i2 = h2->Integral(mMin, mMax);
+  double i3 = h3->Integral(mMin, mMax);
+  double i4 = h4->Integral(mMin, mMax);
+  double idata = hdata != 0 ? hdata->Integral(mMin, mMax) : 0;
+  std::cout.setf(0,ios::floatfield);
+  std::cout.setf(ios::fixed,ios::floatfield);
+  std::cout.precision(1);
+  std::cout <<"zmm (" << mMin << ", " << mMax << ") = ";
+  std::cout.precision(8);
+  std::cout << i1 <<std::endl;
+  std::cout.precision(1);
+  std::cout <<"w (" << mMin << ", " << mMax << ") = ";
+  std::cout.precision(8);
+  std::cout << i2 <<std::endl;
+  std::cout.precision(1);
+  std::cout <<"QCD (" << mMin << ", " << mMax << ") = ";
+  std::cout.precision(8);
+  std::cout << i4 <<std::endl;
+  std::cout.precision(1);
+  std::cout <<"ttbar (" << mMin << ", " << mMax << ") = ";
+  std::cout.precision(8);
+  std::cout << i3 <<std::endl; 
 }
 
 void makePlots(const char * name, int rebin, const char * plot,
@@ -124,11 +141,8 @@ void makePlots(const char * name, int rebin, const char * plot,
   TH1F *h4 = (TH1F*)qcd.Get(name);
   TH1F *hdata = doData? (TH1F*)data.Get(name) : 0;
 
-  std::cout << "min = " << min << std::endl;
   makeStack(h1, h2, h3, h4, hdata, min, rebin);
-
   stat(h1, h2, h3, h4, hdata);
-
   c1->SaveAs((std::string(plot)+".eps").c_str());
   c1->SaveAs((std::string(plot)+".gif").c_str());
 }
