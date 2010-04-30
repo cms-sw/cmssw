@@ -21,7 +21,7 @@
 ESRecHitWorker::ESRecHitWorker(const edm::ParameterSet& ps) :
         ESRecHitWorkerBaseClass( ps )
 {
-  recoAlgo_ = ps.getUntrackedParameter<int>("ESRecoAlgo", 0);
+  recoAlgo_ = ps.getParameter<int>("ESRecoAlgo");
 
   if (recoAlgo_ == 0)
     algoW_ = new ESRecHitSimAlgo();
