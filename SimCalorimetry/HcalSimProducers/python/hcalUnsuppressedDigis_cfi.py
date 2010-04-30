@@ -39,6 +39,7 @@ es_cholesky = cms.ESSource("PoolDBESSource",
         )),
 #    connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierProd/CMS_COND_31X_HCAL'),
     connect = cms.string('sqlite_file:CondFormats/HcalObjects/data/cholesky_sql.db'),
+    appendToDataLabel = cms.string('reference'),
     authenticationMethod = cms.untracked.uint32(0),
 )
 
