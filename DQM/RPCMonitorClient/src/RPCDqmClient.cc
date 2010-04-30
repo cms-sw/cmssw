@@ -65,15 +65,14 @@ void RPCDqmClient::beginJob(){
   dbe_ = Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
   
-
   //Do whatever the begin jobs of all client modules do
   for(vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
    (*it)->beginJob(dbe_);
   
 }
 
-void  RPCDqmClient::endRun(const Run& r, const EventSetup& c){
-   LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: End Run";
+void  RPCDqmClient::beginRun(const Run& r, const EventSetup& c){
+   LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: Begin Run";
   if (!enableDQMClients_) return;
 
   init_ = false;
@@ -85,6 +84,7 @@ void  RPCDqmClient::endRun(const Run& r, const EventSetup& c){
   c.get<MuonGeometryRecord>().get(rpcGeo);
  
   dbe_->setCurrentFolder(prefixDir_);
+
 
  
   //loop on all geometry and get all histos
@@ -98,13 +98,14 @@ void  RPCDqmClient::endRun(const Run& r, const EventSetup& c){
 	RPCDetId detId = (*r)->id();
 	
 	//Get Occupancy ME for roll
-	RPCGeomServ RPCname(detId);	   
+	RPCGeomServ RPCname(detId);
 	RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
 
+ 
 	//loop on clients
 	for( unsigned int cl = 0; cl<clientModules_.size(); cl++ ){
 
- 	  MonitorElement * myMe = dbe_->get(prefixDir_+"/"+ folderStr->folderStructure(detId)+"/"+clientHisto_[cl]+ "_"+RPCname.name()); 
+ 	  MonitorElement * myMe = dbe_->get(prefixDir_+"/"+folderStr->folderStructure(detId)+"/"+clientHisto_[cl]+ "_"+RPCname.name()); 
 
 	  if (!myMe || find(myMeVect.begin(), myMeVect.end(), myMe)!=myMeVect.end())continue;
 
@@ -118,18 +119,7 @@ void  RPCDqmClient::endRun(const Run& r, const EventSetup& c){
   }//end loop on all geometry and get all histos  
   
   for (vector<RPCClient*>::iterator  it= clientModules_.begin(); it!=clientModules_.end(); it++ )
-    (*it)->endRun(r,c,myMeVect, myDetIds);
-
-  MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
-
-  float   rpcevents = minimumEvents_;
-  if(RPCEvents) rpcevents = RPCEvents -> getEntries();
-    
-  if(rpcevents < minimumEvents_) return;
-
-  for (vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
-    (*it)->clientOperation(c);
-
+    (*it)->beginRun(r,c,myMeVect, myDetIds);
 }
 
 void RPCDqmClient::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
@@ -153,18 +143,28 @@ void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::
 
   edm::LogVerbatim ("rpcdqmclient") <<"[RPCDqmClient]: End of LS ";
  
-  if (!enableDQMClients_ ) return;
-    
+  MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
+  float   rpcevents = RPCEvents -> getEntries();
+  
+  if(!init_ && rpcevents < minimumEvents_) return;
+  else if(!init_) {
+    init_=true;
+    numLumBlock_ = prescaleGlobalFactor_;
+  }else numLumBlock_++;
+   
+  if (!enableDQMClients_ || numLumBlock_ % prescaleGlobalFactor_ != 0 ) return;
+  
+  
   for (vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
     (*it)->endLuminosityBlock( lumiSeg, c);
 }
 
 
-void  RPCDqmClient::beginRun(const Run& r, const EventSetup& c){
+void  RPCDqmClient::endRun(const Run& r, const EventSetup& c){
 
  if (!enableDQMClients_) return;
    for ( vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
-    (*it)->beginRun(r,c);
+    (*it)->endRun(r,c);
 }
 
 
