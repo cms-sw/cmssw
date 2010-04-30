@@ -1,7 +1,6 @@
 /** \class HcalGenericDetId
     \author F.Ratnikov, UMd
    Generic HCAL detector ID suitable for all Hcal subdetectors
-   $Id: HcalGenericDetId.cc,v 1.13 2009/04/03 22:48:48 elmer Exp $
 */
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
@@ -94,7 +93,7 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
 
   int zside=0, ietaAbs=0, ieta=0, iphi=0, depth=0, channel=0, sector=0, module=0;
 
-  switch (id.genericSubdet()) {
+  switch (genericSubdet()) {
     // HB valid DetIds: phi=1-72,eta=1-14,depth=1; phi=1-72,eta=15-16,depth=1-2
   case HcalGenericDetId::HcalGenBarrel:
     {
