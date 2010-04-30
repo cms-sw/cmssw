@@ -50,13 +50,21 @@ namespace ora {
 
     bool getDependentMappingsForContainer( int containerId, std::vector<MappingElement>& destination  );
 
+    bool getDependentClassesForContainer( int containerId, std::set<std::string>& list );
+
+    bool getClassVersionListForMappingVersion( const std::string& mappingVersion, std::set<std::string>& destination );
+
     void insertClassVersion( const Reflex::Type& dictionaryEntry, int dependencyIndex, int containerId, const std::string& mappingVersion, bool asBase=false );
+
+    void insertClassVersion( const std::string& className, const std::string& classVersion, int dependencyIndex, int containerId, const std::string& mappingVersion, bool asBase=false );
 
     void setMappingVersionForClass( const Reflex::Type& dictionaryEntry, int containerId, const std::string& mappingVersion , bool dependency=false);
 
     void storeMapping( const MappingTree& mappingStructure );
     
     bool getMappingVersionsForContainer( int containerId, std::set<std::string>& versionList );
+
+    const std::set<std::string>& versions();
     
     void clear();
     

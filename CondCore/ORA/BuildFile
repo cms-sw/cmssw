@@ -3,11 +3,12 @@
 <use name=CoralKernel>
 <use name=RelationalAccess>
 <use name=FWCore/Framework>
-<use name=CondCore/DBCommon>
+<use name=FWCore/Utilities>
 
 <export>
   <use name=boost>
   <use name=FWCore/Framework>
+  <use name=FWCore/Utilities>
   <use name=CoralCommon>
   <use name=CoralKernel>
   <use name=RelationalAccess>

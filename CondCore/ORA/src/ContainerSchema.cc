@@ -153,12 +153,6 @@ void ora::ContainerSchema::drop(){
 }
 
 void ora::ContainerSchema::evolve(){
-  // will be always enabled?
-  //bool schemaEvolutionEnabled = true;
-  //if(!schemaEvolutionEnabled){
-  //  throwException("No mapping available for the provided class version","ContainerSchema::create");
-  //}
-  checkClassDict();
   MappingGenerator mapGen( m_session.schema().storageSchema() );
   // retrieve the base mapping
   MappingTree baseMapping;
@@ -167,10 +161,6 @@ void ora::ContainerSchema::evolve(){
                    "ContainerSchema::evolve");
   }
   mapGen.createNewMapping( m_containerName, m_classDict, baseMapping,  m_mapping );
-  //if(!mapGen.createNewMapping( m_containerName, m_classDict, baseMapping,  m_mapping )){
-  //  throwException("Mapping generation failed..",
-  //                 "ContainerSchema::evolve");
-  //}
   std::string newMappingVersion = m_session.mappingDatabase().newMappingVersionForContainer( m_containerName );
   m_mapping.setVersion( newMappingVersion );
   m_session.mappingDatabase().storeMapping( m_mapping );
@@ -180,23 +170,49 @@ void ora::ContainerSchema::evolve(){
   m_loaded = true;
 }
 
+void ora::ContainerSchema::evolve( const Reflex::Type& dependentClass, MappingTree& baseMapping ){
+  std::string className = dependentClass.Name(Reflex::SCOPED);
+  MappingGenerator mapGen( m_session.schema().storageSchema() );
+  std::map<std::string,MappingTree*>::iterator iDep =
+    m_dependentMappings.insert( std::make_pair( className, new MappingTree ) ).first;
+  if( baseMapping.className() != dependentClass.Name(Reflex::SCOPED) ){
+    throwException("Provided base mapping does not map class \""+dependentClass.Name(Reflex::SCOPED)+"\".",
+                   "ContainerSchema::evolve");    
+  }
+  mapGen.createNewDependentMapping( dependentClass, m_mapping, baseMapping, *iDep->second );
+  std::string newMappingVersion = m_session.mappingDatabase().newMappingVersionForContainer( m_containerName );
+  iDep->second->setVersion( newMappingVersion );
+  m_session.mappingDatabase().storeMapping( *iDep->second );
+  m_session.mappingDatabase().insertClassVersion( dependentClass, 1, m_containerId, newMappingVersion, false );
+}
+
 const Reflex::Type& ora::ContainerSchema::type(){
   return m_classDict;
 }
 
-ora::MappingTree& ora::ContainerSchema::mapping(){
+ora::MappingTree& ora::ContainerSchema::mapping( bool writeEnabled ){
   checkClassDict();
   if(!m_loaded ){
     if( !m_session.mappingDatabase().getMappingForContainer( m_classDict, m_containerId, m_mapping ) ){
-      evolve();
+      // if enabled, invoke the evolution
+      if( writeEnabled && m_session.configuration().properties().getFlag( Configuration::automaticSchemaEvolution() )){
+        evolve();
+      }
+    } else {
+      m_loaded = true;
     }
-    m_loaded = true;
+    
+  }
+  if( m_mapping.topElement().find( m_className )==m_mapping.topElement().end() ){
+    throwException( "Mapping for container class \""+m_className+"\" could not be loaded.",
+                    "ContainerSchema::mapping");
   }
   return m_mapping;
 }
 
 bool ora::ContainerSchema::loadMappingForDependentClass( const Reflex::Type& dependentClassDict ){
-  checkClassDict();
+  if( !dependentClassDict ) throwException("The dependent class has not been found in the dictionary.",
+                                    "ContainerSchema::loadMappingForDependentClass");
   std::string className = dependentClassDict.Name(Reflex::SCOPED);
   std::map<std::string,MappingTree*>::iterator iDep = m_dependentMappings.find( className );
   if( iDep ==  m_dependentMappings.end() ){
@@ -210,30 +226,29 @@ bool ora::ContainerSchema::loadMappingForDependentClass( const Reflex::Type& dep
   return true;  
 }
 
-void ora::ContainerSchema::extend( const Reflex::Type& dependentClassDict ){
+void ora::ContainerSchema::create( const Reflex::Type& dependentClassDict ){
   std::string className = dependentClassDict.Name(Reflex::SCOPED);
   std::map<std::string,MappingTree*>::iterator iDep =
     m_dependentMappings.insert( std::make_pair( className, new MappingTree ) ).first;
   MappingGenerator mapGen( m_session.schema().storageSchema() );
-  MappingTree baseMapping;
-  bool foundBase = m_session.mappingDatabase().getBaseMappingForContainer( className, m_containerId, baseMapping );
   MappingToSchema mapping2Schema( m_session.schema().storageSchema() );
-  if( foundBase ){
-    // evolution required...
-    mapGen.createNewDependentMapping( dependentClassDict, m_mapping, baseMapping, *iDep->second );
-    mapping2Schema.alter(  *iDep->second  );
-  } else {
-    // new mapping from scratch...
-    mapGen.createNewDependentMapping( dependentClassDict, m_mapping, *iDep->second );
-    mapping2Schema.create(  *iDep->second  );
-  }
-  //if(!okGen) throwException("Mapping generation failed.",
-  //                          "ContainerSchema::extend");
+  mapGen.createNewDependentMapping( dependentClassDict, m_mapping, *iDep->second );
+  mapping2Schema.create(  *iDep->second  );
   std::string newMappingVersion = m_session.mappingDatabase().newMappingVersionForContainer( m_containerName );
   iDep->second->setVersion( newMappingVersion );
   m_session.mappingDatabase().storeMapping( *iDep->second );
-  //m_session.mappingDatabase().insertClassVersion( m_classDict, 1, m_containerId, newMappingVersion, !foundBase );
-  m_session.mappingDatabase().insertClassVersion( dependentClassDict, 1, m_containerId, newMappingVersion, !foundBase );
+  m_session.mappingDatabase().insertClassVersion( dependentClassDict, 1, m_containerId, newMappingVersion, true );
+}
+
+void ora::ContainerSchema::extend( const Reflex::Type& dependentClassDict ){
+  std::string className = dependentClassDict.Name(Reflex::SCOPED);
+  MappingTree baseMapping;
+  if( !m_session.mappingDatabase().getBaseMappingForContainer( className,
+                                                               m_containerId, baseMapping ) ){
+    create( dependentClassDict );
+  } else {
+    evolve( dependentClassDict, baseMapping );
+  }
 }
 
 bool ora::ContainerSchema::extendIfRequired( const Reflex::Type& dependentClassDict ){
@@ -245,15 +260,28 @@ bool ora::ContainerSchema::extendIfRequired( const Reflex::Type& dependentClassD
   return ret;
 }
 
-ora::MappingElement& ora::ContainerSchema::mappingForDependentClass( const Reflex::Type& dependentClassDict ){
-  if( ! loadMappingForDependentClass( dependentClassDict ) ){
-    // new mapping genereation required...
-    if( m_session.configuration().properties().getFlag( Configuration::automaticDatabaseCreation()) ||
-        m_session.configuration().properties().getFlag( Configuration::automaticContainerCreation() ) ){
-      extend( dependentClassDict );
-    } 
-  }
+ora::MappingElement& ora::ContainerSchema::mappingForDependentClass( const Reflex::Type& dependentClassDict,
+                                                                     bool writeEnabled ){
   std::string className = dependentClassDict.Name(Reflex::SCOPED);
+  if( ! loadMappingForDependentClass( dependentClassDict ) ){
+    if( writeEnabled ){
+      // check if a base is available:
+      MappingTree baseMapping;
+      if( !m_session.mappingDatabase().getBaseMappingForContainer( className,
+                                                                   m_containerId, baseMapping ) ){
+        // mapping has to be generated from scratch
+        if( m_session.configuration().properties().getFlag( Configuration::automaticDatabaseCreation()) ||
+            m_session.configuration().properties().getFlag( Configuration::automaticContainerCreation() ) ){
+          create( dependentClassDict );
+        }
+      } else {
+        // evolve if allowed
+        if( m_session.configuration().properties().getFlag( Configuration::automaticSchemaEvolution() )){
+          evolve( dependentClassDict, baseMapping );
+        }
+      }
+    }
+  }
   std::map<std::string,MappingTree*>::iterator iDep = m_dependentMappings.find( className );
   if( iDep ==  m_dependentMappings.end() ){
     throwException( "Mapping for class \""+ className + "\" is not available in the database.",

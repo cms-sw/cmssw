@@ -94,8 +94,9 @@ namespace ora {
     virtual void storeMapping( const MappingRawData& data ) = 0;
     virtual void removeMapping( const std::string& version ) = 0;
     virtual bool getContainerTableMap( std::map<std::string, int>& destination ) = 0;
-    //virtual bool getTableListForContainer( int containerId, std::set<std::string>& destination ) = 0;
     virtual bool getMappingVersionListForContainer( int containerId, std::set<std::string>& destination, bool onlyDependency=false ) = 0;
+    virtual bool getDependentClassesInContainerMapping( int containerId, std::set<std::string>& destination ) = 0;
+    virtual bool getClassVersionListForMappingVersion( const std::string& mappingVersion, std::set<std::string>& destination ) = 0;
     virtual bool getMappingVersionListForTable( const std::string& tableName, std::set<std::string>& destination ) = 0;
     virtual bool selectMappingVersion( const std::string& classId, int containerId, std::string& destination ) = 0;
     virtual bool containerForMappingVersion( const std::string& mappingVersion, int& destination ) = 0;

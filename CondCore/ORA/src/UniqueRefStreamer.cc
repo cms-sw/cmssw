@@ -233,7 +233,7 @@ void ora::UniqueRefWriter::write( int oid,
     refId = m_schema.containerSequences().getNextId( MappingRules::sequenceNameForDependentClass( m_schema.containerName(),className ));
     
     // building the dependent buffer
-    MappingElement& depMapping =  m_schema.mappingForDependentClass( refType );    
+    MappingElement& depMapping =  m_schema.mappingForDependentClass( refType, true );    
 
     DependentClassWriter writer;
     writer.build( refType, depMapping, m_schema, m_operationBuffer->addVolatileBuffer() );

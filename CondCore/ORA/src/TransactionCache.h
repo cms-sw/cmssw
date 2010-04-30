@@ -9,6 +9,7 @@
 namespace ora {
 
   class DatabaseContainer;
+  class DatabaseUtilitySession;
 
   class TransactionCache {
     public:
@@ -34,6 +35,10 @@ namespace ora {
 
     const std::map<int, Handle<DatabaseContainer> >& containers();
 
+    void setUtility( Handle<DatabaseUtilitySession>& utility );
+
+    Handle<DatabaseUtilitySession> utility();
+
     bool isLoaded();
 
     void setLoaded();
@@ -42,6 +47,7 @@ namespace ora {
     std::pair<bool,bool> m_dbExists;
     std::map<std::string, int> m_containersByName;
     std::map<int, Handle<DatabaseContainer> > m_containersById;
+    Handle<DatabaseUtilitySession> m_utility;
     bool m_loaded;
   };
 }

@@ -876,6 +876,35 @@ bool ora::PoolMappingSchema::getMappingVersionListForContainer( int containerId,
 }
 
 
+bool ora::PoolMappingSchema::getDependentClassesInContainerMapping( int,
+                                                                    std::set<std::string>& ){
+  // not implemented for the moment
+  return false;
+}
+
+bool ora::PoolMappingSchema::getClassVersionListForMappingVersion( const std::string& mappingVersion,
+                                                                   std::set<std::string>& destination ){
+  
+  bool ret = false;
+  coral::ITable& classVersionTable = m_schema.tableHandle( PoolClassVersionTable::tableName() );
+  std::auto_ptr<coral::IQuery> query( classVersionTable.newQuery() );
+  query->setDistinct();
+  query->addToOutputList( PoolClassVersionTable::classVersionColumn() );
+  std::ostringstream condition;
+  condition <<PoolClassVersionTable::mappingVersionColumn()<<" =:"<<PoolClassVersionTable::mappingVersionColumn();
+  coral::AttributeList condData;
+  condData[ PoolClassVersionTable::mappingVersionColumn() ].data< std::string >() = mappingVersion;
+  query->setCondition(condition.str(),condData);
+  coral::ICursor& cursor = query->execute();
+  while ( cursor.next() ) {
+    ret = true;
+    const coral::AttributeList& currentRow = cursor.currentRow();
+    std::string classVersion = currentRow[ PoolClassVersionTable::classVersionColumn() ].data<std::string>();
+    destination.insert( classVersion );
+  }
+  return ret;
+}
+
 bool ora::PoolMappingSchema::getMappingVersionListForTable( const std::string&,
                                                             std::set<std::string>& ){
   // not implemented for the moment

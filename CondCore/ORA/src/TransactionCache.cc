@@ -5,6 +5,7 @@ ora::TransactionCache::TransactionCache():
   m_dbExists(false,false),
   m_containersByName(),
   m_containersById(),
+  m_utility(),
   m_loaded( false ){
 }
 
@@ -19,6 +20,7 @@ void ora::TransactionCache::clear(){
        iCont != m_containersById.end(); iCont++ ){
     iCont->second.clear();
   }
+  m_utility.clear();
   m_containersById.clear();
   m_containersByName.clear();
   m_loaded = false;
@@ -70,6 +72,14 @@ ora::Handle<ora::DatabaseContainer> ora::TransactionCache::getContainer( const s
 
 const std::map<int,ora::Handle<ora::DatabaseContainer> >& ora::TransactionCache::containers(){
   return m_containersById;  
+}
+
+void ora::TransactionCache::setUtility( Handle<DatabaseUtilitySession>& utility ){
+  m_utility = utility;
+}
+
+ora::Handle<ora::DatabaseUtilitySession> ora::TransactionCache::utility(){
+  return m_utility;
 }
 
 bool ora::TransactionCache::isLoaded(){

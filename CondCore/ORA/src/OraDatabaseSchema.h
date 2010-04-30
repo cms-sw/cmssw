@@ -142,7 +142,8 @@ namespace ora {
     void removeMapping( const std::string& version );
     bool getContainerTableMap( std::map<std::string, int>& destination );
     bool getMappingVersionListForContainer( int containerId, std::set<std::string>& destination, bool onlyDependency=false );
-    //bool getTableListForContainer( int containerId, std::set<std::string>& destination );
+    bool getDependentClassesInContainerMapping( int containerId, std::set<std::string>& destination );
+    bool getClassVersionListForMappingVersion( const std::string& mappingVersion, std::set<std::string>& destination );
     bool getMappingVersionListForTable( const std::string& tableName, std::set<std::string>& destination );
     bool selectMappingVersion( const std::string& classId, int containerId, std::string& destination );
     bool containerForMappingVersion( const std::string& mappingVersion, int& destination );

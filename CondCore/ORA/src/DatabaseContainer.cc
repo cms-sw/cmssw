@@ -25,7 +25,7 @@ namespace ora {
         m_writer(),
         m_topLevelInsert( 0 ){
 
-        MappingElement& topLevelMapping = contSchema.mapping().topElement();
+        MappingElement& topLevelMapping = contSchema.mapping( true ).topElement();
         m_topLevelInsert = &m_operationBuffer.newInsert( topLevelMapping.tableName() );
         m_topLevelInsert->addId(  topLevelMapping.columnNames()[ 0 ] );
         const Reflex::Type& type = contSchema.type();
@@ -92,7 +92,7 @@ namespace ora {
         m_depDeleter->build( m_operationBuffer );
         dependentMappings.clear();
 
-        MappingElement& topLevelMapping = contSchema.mapping().topElement();
+        MappingElement& topLevelMapping = contSchema.mapping( true ).topElement();
         m_topLevelUpdate = &m_operationBuffer.newUpdate( topLevelMapping.tableName() );
         m_topLevelUpdate->addId(  topLevelMapping.columnNames()[ 0 ] );
         m_topLevelUpdate->addWhereId(  topLevelMapping.columnNames()[ 0 ] );
@@ -252,7 +252,7 @@ namespace ora {
 ora::IteratorBuffer::IteratorBuffer( ContainerSchema& schema,
                                      ReadBuffer& buffer ):
   m_query( schema.mapping().topElement().tableName(), schema.storageSchema() ),
-  m_validRow( false ),
+  m_itemId( -1 ),
   m_readBuffer( buffer ){
   const std::string& idCol = schema.mapping().topElement().columnNames()[0];
   m_query.addId( idCol );
@@ -267,18 +267,23 @@ void ora::IteratorBuffer::reset(){
 }
 
 bool ora::IteratorBuffer::next(){
-  bool prevValid = m_validRow;
-  m_validRow = m_query.nextCursorRow();
-  if( !m_validRow && prevValid ) m_query.clear();
-  return m_validRow;
+  bool prevValid = (m_itemId != -1);
+  bool currValid = false;
+  m_itemId = -1;
+  if( m_query.nextCursorRow() ){
+    coral::AttributeList& row = m_query.data();
+    m_itemId = row.begin()->data<int>();
+    currValid = true;
+  }
+  
+  if( !currValid && prevValid ) m_query.clear();
+  return currValid;
 }
 
 void* ora::IteratorBuffer::getItem(){
   void* ret = 0;
-  if( m_validRow ){
-    coral::AttributeList& row = m_query.data();
-    int id = row.begin()->data<int>();
-    ret =  m_readBuffer.read( id );
+  if( m_itemId != -1 ){
+    ret =  m_readBuffer.read( m_itemId );
   }
   return ret;
 }
@@ -289,6 +294,10 @@ void* ora::IteratorBuffer::getItemAsType( const Reflex::Type& asType ){
                    type().Name(Reflex::SCOPED)+"\"","IteratorBuffer::getItemAsType");
   } 
   return getItem();
+}
+
+int ora::IteratorBuffer::itemId(){
+  return m_itemId;
 }
 
 const Reflex::Type& ora::IteratorBuffer::type(){

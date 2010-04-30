@@ -17,11 +17,17 @@ namespace ora {
     public:
     ContainerIterator( Handle<IteratorBuffer>& iteratorBuffer );
     
+    ContainerIterator( const ContainerIterator& rhs );
+    
     virtual ~ContainerIterator();
+
+    ContainerIterator& operator=( const ContainerIterator& rhs );
 
     Object getItem();
 
     template <typename T> boost::shared_ptr<T> get();
+
+    int itemId();
 
     bool next();
 
@@ -39,8 +45,12 @@ namespace ora {
     public:
     Container( Handle<DatabaseContainer>& dbContainer );
 
+    Container( const Container& rhs );
+
     virtual ~Container();
 
+    Container& operator=( const Container& rhs );
+    
     int id();
 
     const std::string& name();

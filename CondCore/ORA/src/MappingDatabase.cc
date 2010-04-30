@@ -240,6 +240,26 @@ bool ora::MappingDatabase::getDependentMappingsForContainer( int containerId,
   return ret;
 }
 
+bool ora::MappingDatabase::getClassVersionListForMappingVersion( const std::string& mappingVersion,
+                                                                 std::set<std::string>& destination ){
+  return m_schema.mappingSchema().getClassVersionListForMappingVersion( mappingVersion, destination );
+}
+
+void ora::MappingDatabase::insertClassVersion( const std::string& className,
+                                               const std::string& classVersion,
+                                               int dependencyIndex,
+                                               int containerId,
+                                               const std::string& mappingVersion,
+                                               bool asBase ){
+  std::string classId = MappingRules::classId( className, classVersion );
+  m_schema.mappingSchema().insertClassVersion( className, classVersion, classId, dependencyIndex, containerId, mappingVersion );  
+  if( asBase ){
+    m_schema.mappingSchema().insertClassVersion( className, MappingRules::baseClassVersion(), MappingRules::baseIdForClass( className ), dependencyIndex, containerId, mappingVersion );
+  }
+}
+
+
+
 void ora::MappingDatabase::insertClassVersion( const Reflex::Type& dictionaryEntry,
                                                int depIndex,
                                                int containerId,
@@ -247,12 +267,7 @@ void ora::MappingDatabase::insertClassVersion( const Reflex::Type& dictionaryEnt
                                                bool asBase  ){
   std::string className = dictionaryEntry.Name( Reflex::SCOPED );
   std::string classVersion = versionOfClass( dictionaryEntry );
-  std::string classId = MappingRules::classId( className, classVersion );
-  m_schema.mappingSchema().insertClassVersion( className, classVersion, classId, depIndex, containerId, mappingVersion );
-  if( asBase ){
-    std::string baseId = MappingRules::baseIdForClass( className );
-    m_schema.mappingSchema().insertClassVersion( className, MappingRules::baseClassVersion(), baseId, depIndex, containerId, mappingVersion );
-  }
+  insertClassVersion( className, classVersion, depIndex, containerId, mappingVersion, asBase );
 }
 
 void ora::MappingDatabase::setMappingVersionForClass( const Reflex::Type& dictionaryEntry,
@@ -282,6 +297,19 @@ void ora::MappingDatabase::storeMapping( const MappingTree& mapping ){
 
 bool ora::MappingDatabase::getMappingVersionsForContainer( int containerId, std::set<std::string>& versionList ){
   return m_schema.mappingSchema().getMappingVersionListForContainer( containerId, versionList );
+}
+
+const std::set<std::string>& ora::MappingDatabase::versions(){
+  if(!m_isLoaded){
+    m_schema.mappingSchema().getVersionList( m_versions );
+    m_isLoaded = true;
+  }
+  return m_versions;
+}
+
+bool ora::MappingDatabase::getDependentClassesForContainer( int containerId,
+                                                            std::set<std::string>& list ){
+  return m_schema.mappingSchema().getDependentClassesInContainerMapping( containerId, list );
 }
 
 void ora::MappingDatabase::clear(){

@@ -224,7 +224,6 @@ namespace ora {
         std::stringstream mess;
         mess <<" code="<<code<<" in string ["<<s<<"] found a wrong char=["<<s[i]<<"].";
         if( thro ) throwException( mess.str(),"validChars");
-        std::cout << mess <<std::endl;
       }
     }
     
@@ -466,7 +465,6 @@ std::string ora::MappingRules::formatName( const std::string& variableName,
 std::string
 ora::MappingRules::shortName( const std::string& nameCut,
                               size_t maxLength){
-  std::cout << "### shorting name="<<nameCut<<" max="<<maxLength<<std::endl;
 
   size_t siz = nameCut.size();
   if( siz < maxLength ) return nameCut;

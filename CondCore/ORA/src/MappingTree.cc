@@ -16,6 +16,26 @@ ora::MappingTree::MappingTree( const std::string& version ):
   m_parentTable(){
 }
 
+ora::MappingTree::MappingTree( const MappingTree& rhs ):
+  m_version( rhs.m_version ),
+  m_element( rhs.m_element ),
+  m_parentTable(){
+  if( rhs.m_parentTable.get()) m_parentTable.reset( new TableInfo( *rhs.m_parentTable ) );
+}
+
+ora::MappingTree::~MappingTree(){
+}
+
+ora::MappingTree& ora::MappingTree::operator=( const MappingTree& rhs ){
+  if( this != &rhs ){
+    m_version = rhs.m_version;
+    m_element = rhs.m_element;
+    m_parentTable.reset();
+    if( rhs.m_parentTable.get()) m_parentTable.reset( new TableInfo( *rhs.m_parentTable ) );
+  }
+  return *this;
+}
+
 ora::MappingElement&
 ora::MappingTree::setTopElement( const std::string& className,
                                  const std::string& tableName,

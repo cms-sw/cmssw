@@ -24,6 +24,8 @@ namespace ora {
     /// Destructor
     ~MappingToSchema();
 
+    bool check( const MappingTree& mapping );
+
     void create( const MappingTree& mapping );
 
     void alter( const MappingTree& mapping );

@@ -11,8 +11,8 @@ int main(){
   db.configuration().setMessageVerbosity( coral::Debug );
   try {
 
-    std::string connStr( "oracle://devdb10/giacomo" );
-    //std::string connStr( "sqlite_file:test.db" );
+    //std::string connStr( "oracle://devdb10/giacomo" );
+    std::string connStr( "sqlite_file:test.db" );
   db.connect( connStr );
   db.transaction().start( false );
   bool exists = db.exists();
@@ -177,7 +177,7 @@ int main(){
   while( iter1.next() ){
     boost::shared_ptr<std::string> s = iter1.get<std::string>();
     std::cout << " **** Cont="<<contHRR1.name()<<" val="<<*s<<std::endl;
-  }
+    }
   db.transaction().commit();
   db.disconnect();  
   } catch ( const ora::Exception& exc ){

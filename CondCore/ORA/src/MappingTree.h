@@ -57,9 +57,13 @@ namespace ora {
     /// Constructor
     explicit MappingTree( const std::string& version );
 
-    /// Destructor
-    ~MappingTree() {}
+    MappingTree( const MappingTree& rhs );
 
+    /// Destructor
+    ~MappingTree();
+
+    MappingTree& operator=( const MappingTree& rhs );
+    
     void setVersion( const std::string& version);
     
     /**

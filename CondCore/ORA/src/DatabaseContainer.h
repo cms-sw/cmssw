@@ -37,11 +37,13 @@ namespace ora {
 
     void* getItemAsType( const Reflex::Type& type );
 
+    int itemId();
+
     const Reflex::Type& type();
       
     private:
     SelectOperation m_query;
-    bool m_validRow;
+    int m_itemId;
     ReadBuffer& m_readBuffer;
   };
   

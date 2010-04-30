@@ -773,6 +773,52 @@ bool ora::OraMappingSchema::getContainerTableMap( std::map<std::string, int>& de
 }
 **/
 
+bool ora::OraMappingSchema::getDependentClassesInContainerMapping( int containerId,
+                                                                   std::set<std::string>& destination ){
+  bool ret = false;
+  std::auto_ptr<coral::IQuery> query( m_schema.tableHandle( OraClassVersionTable::tableName() ).newQuery() );
+  query->setDistinct();
+  query->addToOutputList( OraClassVersionTable::classNameColumn() );
+  std::ostringstream condition;
+  condition <<OraClassVersionTable::containerIdColumn()<<" =:"<<OraClassVersionTable::containerIdColumn();
+  condition << " AND "<< OraClassVersionTable::dependencyIndexColumn()<<" > 0";
+  coral::AttributeList condData;
+  condData.extend< int >( OraClassVersionTable::containerIdColumn() );
+  condData[ OraClassVersionTable::containerIdColumn() ].data< int >() = containerId;
+  query->setCondition(condition.str(),condData);
+  coral::ICursor& cursor = query->execute();
+  while ( cursor.next() ) {
+    ret = true;
+    const coral::AttributeList& currentRow = cursor.currentRow();
+    std::string className = currentRow[ OraClassVersionTable::classNameColumn() ].data<std::string>();
+    destination.insert( className );
+  }
+  return ret;
+}
+
+bool ora::OraMappingSchema::getClassVersionListForMappingVersion( const std::string& mappingVersion,
+                                                                  std::set<std::string>& destination ){
+  
+  bool ret = false;
+  std::auto_ptr<coral::IQuery> query( m_schema.tableHandle( OraClassVersionTable::tableName() ).newQuery() );
+  query->setDistinct();
+  query->addToOutputList( OraClassVersionTable::classVersionColumn() );
+  std::ostringstream condition;
+  condition <<OraClassVersionTable::mappingVersionColumn()<<" =:"<<OraClassVersionTable::mappingVersionColumn();
+  coral::AttributeList condData;
+  condData.extend< std::string >( OraClassVersionTable::mappingVersionColumn() );  
+  condData[ OraClassVersionTable::mappingVersionColumn() ].data< std::string >() = mappingVersion;
+  query->setCondition(condition.str(),condData);
+  coral::ICursor& cursor = query->execute();
+  while ( cursor.next() ) {
+    ret = true;
+    const coral::AttributeList& currentRow = cursor.currentRow();
+    std::string classVersion = currentRow[ OraClassVersionTable::classVersionColumn() ].data<std::string>();
+    destination.insert( classVersion );
+  }
+  return ret;
+}
+
 bool ora::OraMappingSchema::getMappingVersionListForContainer( int containerId,
                                                                std::set<std::string>& dest,
                                                                bool onlyDependency ){

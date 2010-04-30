@@ -39,7 +39,7 @@ bool ora::Transaction::rollback(){
   return rolled;
 }
 
-bool ora::Transaction::isActive() const {
-  return m_session.isTransactionActive();
+bool ora::Transaction::isActive( bool checkIfReadOnly ) const {
+  return m_session.isTransactionActive( checkIfReadOnly );
 }
 

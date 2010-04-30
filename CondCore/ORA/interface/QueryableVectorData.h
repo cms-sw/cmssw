@@ -4,8 +4,6 @@
 #include "PVector.h"
 //
 #include <boost/shared_ptr.hpp>
-//
-    #include <iostream>
 
 namespace ora    {
 
@@ -333,7 +331,6 @@ namespace ora    {
     bool operator!=(const QueryableVectorData& rhs) const { return m_vec!=rhs.m_vec; }
 
     const void* storageAddress() const {
-      std::cout << "### calling storage addresse ="<<&m_vec<<std::endl;
       return &m_vec;
     }
 

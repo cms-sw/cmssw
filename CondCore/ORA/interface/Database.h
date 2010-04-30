@@ -3,8 +3,9 @@
 
 #include "Object.h"
 #include "OId.h"
-#include "Configuration.h"
 #include "Container.h"
+#include "Configuration.h"
+#include "DatabaseUtility.h"
 #include "Exception.h"
 //
 #include <set>
@@ -14,11 +15,10 @@
 
 namespace ora {
 
-  class Transaction;
-  class Container;
-
   class ConnectionPool;
-  class DatabaseSession;
+  class Transaction;
+  class DatabaseImpl;
+  class SharedSession;
 
   class Database {
     public:
@@ -30,6 +30,9 @@ namespace ora {
 
     // 
     Database();
+
+    //
+    Database( const Database& rhs );
     
     // 
     Database(boost::shared_ptr<ConnectionPool>& connectionPool);
@@ -38,6 +41,9 @@ namespace ora {
     virtual ~Database();
 
     /// 
+    Database& operator=( const Database& rhs );
+
+    ///
     Configuration& configuration();
 
     /// 
@@ -109,6 +115,14 @@ namespace ora {
     ///
     void flush();
 
+    ///
+    DatabaseUtility utility();
+
+    public:
+
+    ///
+    SharedSession& storageAccessSession();
+
     private:
 
     ///
@@ -131,9 +145,7 @@ namespace ora {
     
     private:
 
-    Configuration m_configuration;
-    std::auto_ptr<DatabaseSession> m_session;
-    std::auto_ptr<Transaction> m_transaction;
+    boost::shared_ptr<DatabaseImpl> m_impl;
     
   };
 

@@ -3,6 +3,7 @@
 
 #include "CondCore/ORA/interface/Handle.h"
 #include "CondCore/ORA/interface/ConnectionPool.h"
+#include "CondCore/ORA/interface/Configuration.h"
 //
 #include <string>
 #include <memory>
@@ -21,6 +22,7 @@ namespace ora {
   class IDatabaseSchema;
   class TransactionCache;
   class DatabaseContainer;
+  class DatabaseUtilitySession;
 
   class ContainerUpdateTable {
     public:
@@ -36,9 +38,9 @@ namespace ora {
   class DatabaseSession  {
     
     public:
-    explicit DatabaseSession( Configuration& configuration );
+    DatabaseSession();
 
-    DatabaseSession(boost::shared_ptr<ConnectionPool>& connectionPool, Configuration& configuration );
+    explicit DatabaseSession( boost::shared_ptr<ConnectionPool>& connectionPool );
 
     virtual ~DatabaseSession();
 
@@ -56,7 +58,7 @@ namespace ora {
 
     void rollbackTransaction();
 
-    bool isTransactionActive();
+    bool isTransactionActive( bool checkIfReadOnly=false );
     
     bool exists();
 
@@ -67,6 +69,8 @@ namespace ora {
     void open();
 
     Handle<DatabaseContainer> createContainer( const std::string& containerName, const Reflex::Type& type );
+
+    Handle<ora::DatabaseContainer> addContainer( const std::string& containerName, const std::string& className );
     
     void dropContainer( const std::string& name );
 
@@ -75,6 +79,8 @@ namespace ora {
     Handle<DatabaseContainer> containerHandle( int contId );
 
     const std::map<int, Handle<DatabaseContainer> >& containers();
+
+    Handle<DatabaseUtilitySession> utility();
 
     public:
     IDatabaseSchema& schema();
@@ -86,6 +92,10 @@ namespace ora {
     ContainerUpdateTable& containerUpdateTable();
 
     Configuration& configuration();
+    
+    public:
+    SharedSession& storageAccessSession();
+    boost::shared_ptr<ConnectionPool>& connectionPool();
     
     private:
     void clearTransaction();
@@ -99,7 +109,7 @@ namespace ora {
     std::auto_ptr<MappingDatabase> m_mappingDb;
     std::auto_ptr<TransactionCache> m_transactionCache;
     ContainerUpdateTable m_containerUpdateTable;
-    Configuration& m_configuration;
+    Configuration m_configuration;
   };
   
 

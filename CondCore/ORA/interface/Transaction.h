@@ -27,7 +27,7 @@ namespace ora {
     bool rollback();
 
     /// Checks if the transaction is active
-    bool isActive() const;
+    bool isActive( bool checkIfReadOnly=false ) const;
     private:
     DatabaseSession& m_session;
     bool m_localActive;

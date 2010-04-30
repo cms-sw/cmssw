@@ -122,4 +122,17 @@ void ora::MappingToSchema::alter( const MappingTree& mapping ){
   }
 }
 
+bool ora::MappingToSchema::check( const MappingTree& mapping ){
+  bool ok = true;
+  std::vector<TableInfo> tableList = mapping.tables();
+  for( std::vector<TableInfo>::iterator iT = tableList.begin();
+       iT != tableList.end(); ++iT ){
+    if( m_schema.existsTable( iT->m_tableName ) ){
+      ok = false;
+    }
+  }
+  return ok;
+}
+
+
 

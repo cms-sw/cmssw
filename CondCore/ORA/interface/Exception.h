@@ -1,12 +1,12 @@
 #ifndef INCLUDE_ORA_EXCEPTION_H
 #define INCLUDE_ORA_EXCEPTION_H
 
-#include "CondCore/DBCommon/interface/Exception.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace ora {
 
   /// Base exception class for the object to relational access 
-  class Exception : public cond::Exception {
+  class Exception : public cms::Exception {
   public:
     /// Constructor
     Exception( const std::string& message, const std::string& methodName );

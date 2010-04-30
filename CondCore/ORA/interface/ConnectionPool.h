@@ -38,6 +38,7 @@ namespace ora {
     virtual ~ConnectionPool();
 
     coral::IConnectionService& connectionService();
+    coral::IConnectionServiceConfiguration& configuration();
 
     SharedSession connect( const std::string& connectionString, coral::AccessMode accessMode );
 

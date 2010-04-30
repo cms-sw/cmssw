@@ -49,6 +49,9 @@ ora::ConnectionPool::~ConnectionPool(){
 coral::IConnectionService& ora::ConnectionPool::connectionService(){
   return m_connectionService;
 }
+coral::IConnectionServiceConfiguration& ora::ConnectionPool::configuration(){
+  return m_connectionService.configuration();
+}
 
 ora::SharedSession ora::ConnectionPool::connect( const std::string& connectionString,
                                                   coral::AccessMode accessMode ){

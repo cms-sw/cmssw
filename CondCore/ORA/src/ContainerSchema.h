@@ -37,13 +37,17 @@ namespace ora {
 
     void evolve();
 
+    void create( const Reflex::Type& dependentClass );
+
+    void evolve( const Reflex::Type& dependentClass, MappingTree& baseMapping );
+    
     const Reflex::Type& type();
 
-    MappingTree& mapping();
+    MappingTree& mapping( bool writeEnabled=false);
 
     bool extendIfRequired( const Reflex::Type& dependentClass );
     
-    MappingElement& mappingForDependentClass( const Reflex::Type& dependentClass );
+    MappingElement& mappingForDependentClass( const Reflex::Type& dependentClass, bool writeEnabled=false );
 
     bool mappingForDependentClasses( std::vector<MappingElement>& destination );
 

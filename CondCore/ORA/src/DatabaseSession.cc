@@ -1,4 +1,5 @@
 #include "CondCore/ORA/interface/Configuration.h"
+#include "CondCore/ORA/interface/ConnectionPool.h"
 #include "CondCore/ORA/interface/Exception.h"
 #include "DatabaseSession.h"
 #include "IDatabaseSchema.h"
@@ -8,6 +9,7 @@
 #include "DatabaseContainer.h"
 #include "ClassUtils.h"
 #include "MappingRules.h"
+#include "DatabaseUtilitySession.h"
 // externals
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
@@ -36,7 +38,7 @@ void ora::ContainerUpdateTable::clear(){
   m_table.clear();
 }
 
-ora::DatabaseSession::DatabaseSession( Configuration& configuration ):
+ora::DatabaseSession::DatabaseSession():
   m_connectionPool( new ConnectionPool ),
   m_dbSession(),
   m_connectionString( "" ),
@@ -45,11 +47,10 @@ ora::DatabaseSession::DatabaseSession( Configuration& configuration ):
   m_mappingDb(),
   m_transactionCache(),
   m_containerUpdateTable(),
-  m_configuration( configuration ){
+  m_configuration(){
 }
 
-ora::DatabaseSession::DatabaseSession(boost::shared_ptr<ConnectionPool>& connectionPool,
-                                      Configuration& configuration ):
+ora::DatabaseSession::DatabaseSession(boost::shared_ptr<ConnectionPool>& connectionPool ):
   m_connectionPool( connectionPool ),
   m_dbSession(),
   m_connectionString( "" ),
@@ -58,7 +59,7 @@ ora::DatabaseSession::DatabaseSession(boost::shared_ptr<ConnectionPool>& connect
   m_mappingDb(),
   m_transactionCache(),
   m_containerUpdateTable(),
-  m_configuration( configuration ){
+  m_configuration(){
 }
 
 ora::DatabaseSession::~DatabaseSession(){
@@ -124,8 +125,16 @@ void ora::DatabaseSession::rollbackTransaction(){
   }
 }
 
-bool ora::DatabaseSession::isTransactionActive(){
-  return m_transactionCache.get() != 0;
+bool ora::DatabaseSession::isTransactionActive( bool checkIfReadOnly ){
+  bool ret = false;
+  if( m_dbSession.get().transaction().isActive() ){
+    if( checkIfReadOnly ){
+      if( m_dbSession.get().transaction().isReadOnly() ) ret = true;
+    } else {
+      ret = true;
+    }
+  }
+  return ret;
 }
 
 bool ora::DatabaseSession::exists(){
@@ -160,6 +169,16 @@ void ora::DatabaseSession::open(){
   }
 }
 
+ora::Handle<ora::DatabaseContainer> ora::DatabaseSession::addContainer( const std::string& containerName,
+                                                                        const std::string& className ){
+  int newContId = m_contIdSequence->getNextId( true );
+  m_schema->containerHeaderTable().addContainer( newContId, containerName, className );
+  Handle<DatabaseContainer> container( new DatabaseContainer( newContId, containerName,
+                                                              className, 0, *this ) );
+  m_transactionCache->addContainer( newContId, containerName, container );
+  return container;
+}
+
 ora::Handle<ora::DatabaseContainer> ora::DatabaseSession::createContainer( const std::string& containerName,
                                                                            const Reflex::Type& type ){
   // create the container
@@ -190,6 +209,14 @@ const std::map<int, ora::Handle<ora::DatabaseContainer> >& ora::DatabaseSession:
   return m_transactionCache->containers();
 }
 
+ora::Handle<ora::DatabaseUtilitySession> ora::DatabaseSession::utility(){
+  if( !m_transactionCache->utility() ){
+    Handle<DatabaseUtilitySession> util ( new DatabaseUtilitySession( *this ) );
+    m_transactionCache->setUtility( util );
+  }
+  return m_transactionCache->utility();
+}
+
 ora::IDatabaseSchema& ora::DatabaseSession::schema(){
   return *m_schema;  
 }
@@ -204,6 +231,14 @@ ora::MappingDatabase& ora::DatabaseSession::mappingDatabase(){
 
 ora::Configuration& ora::DatabaseSession::configuration(){
   return m_configuration;
+}
+
+ora::SharedSession& ora::DatabaseSession::storageAccessSession(){
+  return m_dbSession;
+}
+
+boost::shared_ptr<ora::ConnectionPool>& ora::DatabaseSession::connectionPool(){
+  return m_connectionPool;
 }
 
 ora::ContainerUpdateTable& ora::DatabaseSession::containerUpdateTable(){

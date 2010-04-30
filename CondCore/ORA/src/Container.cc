@@ -6,7 +6,16 @@ ora::ContainerIterator::ContainerIterator( Handle<IteratorBuffer>& iteratorBuffe
   m_buffer( iteratorBuffer ){
 }
 
+ora::ContainerIterator::ContainerIterator( const ContainerIterator& rhs ):
+  m_buffer( rhs.m_buffer ){
+}
+
 ora::ContainerIterator::~ContainerIterator(){
+}
+
+ora::ContainerIterator& ora::ContainerIterator::operator=( const ContainerIterator& rhs ){
+  if(this != &rhs ) m_buffer = rhs.m_buffer;
+  return *this;
 }
 
 void ora::ContainerIterator::reset(){
@@ -15,6 +24,10 @@ void ora::ContainerIterator::reset(){
 
 bool ora::ContainerIterator::next(){
   return m_buffer->next();
+}
+
+int ora::ContainerIterator::itemId(){
+  return m_buffer->itemId();
 }
 
 ora::Object ora::ContainerIterator::getItem(){
@@ -31,7 +44,16 @@ ora::Container::Container( Handle<DatabaseContainer>& dbContainer ):
   m_dbContainer( dbContainer ){
 }
 
+ora::Container::Container( const Container& rhs ):
+  m_dbContainer( rhs.m_dbContainer ){
+}
+
 ora::Container::~Container(){
+}
+
+ora::Container& ora::Container::operator=( const Container& rhs ){
+  if(this != &rhs ) m_dbContainer = rhs.m_dbContainer;
+  return *this;  
 }
 
 int ora::Container::id(){
