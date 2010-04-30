@@ -113,7 +113,7 @@ def main():
     if args.action == 'deadfrac':
         deadresult=deadfracForRun(session,c,runnumber)
         #print deadresult
-        print 'LS','deadtimebeamactive/tech[0]'
+        print 'LS','deadtimebeamactive/bit_0'
         if deadresult and len(deadresult)!=0:
             #print 'run',runnumber
             #print 'ls deadfraction'
@@ -121,7 +121,7 @@ def main():
                 if deadfraccomponent[1]!=0:
                     print cmsls,'%.5f'%float(float(deadfraccomponent[0])/float(deadfraccomponent[1]))
                 else:
-                    print cmsls,'%.5f'%float(1))
+                    print cmsls,'no beam'
         else:
             print 'no deadtime found for run ',runnumber
     del session
