@@ -126,6 +126,18 @@ float EcalSeverityLevelAlgo::E1OverE9( const DetId id, const EcalRecHitCollectio
                         }
                 }
                 return recHitE(id, recHits) / s9;
+        } else if( id.subdetId() == EcalEndcap ) {
+                // select recHits with Et above recHitEtThreshold
+                if ( recHitApproxEt( id, recHits ) < recHitEtThreshold ) return 0;
+                EEDetId eeId( id );
+                float s9 = 0;
+                for ( int dx = -1; dx <= +1; ++dx ) {
+                        for ( int dy = -1; dy <= +1; ++dy ) {
+                                s9 += recHitE( id, recHits, dx, dy );
+                        }
+                }
+                return recHitE(id, recHits) / s9;
+
         }
         return 0;
 }
@@ -149,14 +161,31 @@ float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollect
                 s4 += recHitE( id, recHits,  0,  1 );
                 s4 += recHitE( id, recHits,  0, -1 );
                 return 1 - s4 / e1;
+        } else if ( id.subdetId() == EcalEndcap ) {
+                EEDetId eeId( id );
+                // select recHits with Et above recHitEtThreshold
+                if ( recHitApproxEt( id, recHits ) < recHitEtThreshold ) return 0;
+                float s4 = 0;
+                float e1 = recHitE( id, recHits );
+                s4 += recHitE( id, recHits,  1,  0 );
+                s4 += recHitE( id, recHits, -1,  0 );
+                s4 += recHitE( id, recHits,  0,  1 );
+                s4 += recHitE( id, recHits,  0, -1 );
+                return 1 - s4 / e1;
         }
         return 0;
 }
 
 float EcalSeverityLevelAlgo::recHitE( const DetId id, const EcalRecHitCollection & recHits,
-                                           int dEta, int dPhi )
+                                           int di, int dj )
 {
-        DetId nid = EBDetId::offsetBy( id, dEta, dPhi );
+        // in the barrel:   di = dEta   dj = dPhi
+        // in the endcap:   di = dX     dj = dY
+  
+        DetId nid;
+        if( id.subdetId() == EcalBarrel) nid = EBDetId::offsetBy( id, di, dj );
+        else if( id.subdetId() == EcalEndcap) nid = EEDetId::offsetBy( id, di, dj );
+
         return ( nid == DetId(0) ? 0 : recHitE( nid, recHits ) );
 }
 
