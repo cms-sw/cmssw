@@ -13,7 +13,6 @@
 
 using namespace stor;
 
-using stor::testhelper::allocate_frame_with_basic_header;
 using stor::testhelper::allocate_frame_with_init_msg;
 
 class testInitMsgCollection : public CppUnit::TestFixture

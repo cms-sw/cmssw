@@ -29,7 +29,6 @@
 
 using namespace stor;
 
-using stor::testhelper::allocate_frame_with_basic_header;
 using stor::testhelper::allocate_frame_with_init_msg;
 using stor::testhelper::allocate_frame_with_event_msg;
 using stor::testhelper::allocate_frame_with_error_msg;

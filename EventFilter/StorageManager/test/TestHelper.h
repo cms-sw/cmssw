@@ -1,4 +1,4 @@
-// $Id: TestHelper.h,v 1.3 2009/08/21 07:16:10 mommsen Exp $
+// $Id: TestHelper.h,v 1.4 2010/04/30 07:56:47 mommsen Exp $
 
 #ifndef StorageManager_TestHelper_h
 #define StorageManager_TestHelper_h
@@ -12,17 +12,20 @@
 #include <string>
 
 #include "DataFormats/Common/interface/HLTenums.h"
-#include "EventFilter/StorageManager/interface/I2OChain.h"
-#include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
-#include "FWCore/Utilities/interface/Adler32Calculator.h"
-#include "IOPool/Streamer/interface/MsgHeader.h"
-#include "IOPool/Streamer/interface/InitMsgBuilder.h"
-#include "IOPool/Streamer/interface/EventMsgBuilder.h"
-
-#include "IOPool/Streamer/interface/DQMEventMsgBuilder.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
+#include "EventFilter/StorageManager/interface/I2OChain.h"
+#include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
+
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
+
+#include "IOPool/Streamer/interface/InitMsgBuilder.h"
+#include "IOPool/Streamer/interface/InitMessage.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
+#include "IOPool/Streamer/interface/EventMsgBuilder.h"
+#include "IOPool/Streamer/interface/DQMEventMsgBuilder.h"
+#include "IOPool/Streamer/interface/DQMEventMessage.h"
+#include "IOPool/Streamer/interface/MsgHeader.h"
 
 #include "toolbox/mem/HeapAllocator.h"
 #include "toolbox/mem/Reference.h"
@@ -100,7 +103,41 @@ namespace stor
       smMsg->numFrames = totalFrameCount;
       smMsg->frameCount = frameIndex;
       smMsg->dataSize = bufferSize - sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME);
-      
+
+      switch(code)
+      {
+        case I2O_SM_PREAMBLE:
+        {
+          char psetid[] = "1234567890123456";
+          I2O_SM_PREAMBLE_MESSAGE_FRAME* initMsg =
+            (I2O_SM_PREAMBLE_MESSAGE_FRAME*) smMsg;
+          InitHeader* h = (InitHeader*)initMsg->dataPtr();
+          new (&h->version_) Version(8,(const uint8*)psetid);
+          h->header_.code_ = Header::INIT;
+          break;
+        }
+
+        case I2O_SM_DATA:
+        {
+          I2O_SM_DATA_MESSAGE_FRAME* eventMsg =
+            (I2O_SM_DATA_MESSAGE_FRAME*) smMsg;
+          EventHeader* h = (EventHeader*)eventMsg->dataPtr();
+          h->protocolVersion_ = 8;
+          h->header_.code_ = Header::EVENT;
+          break;
+        }
+
+        case I2O_SM_DQM:
+        {
+          I2O_SM_DQM_MESSAGE_FRAME* dqmMsg =
+            (I2O_SM_DQM_MESSAGE_FRAME*) smMsg;
+          DQMEventHeader* h = (DQMEventHeader*)dqmMsg->dataPtr();
+          convert(static_cast<uint16>(3), h->protocolVersion_);
+          h->header_.code_ = Header::DQM_EVENT;
+          break;
+        }
+      }
+
       return temp;
     }
     
@@ -141,6 +178,10 @@ namespace stor
       smMsg->fuProcID = value3;
       smMsg->fuGUID = value4;
       smMsg->dataSize = bufferSize - sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME);
+      char psetid[] = "1234567890123456";
+      InitHeader* h = (InitHeader*)smMsg->dataPtr();
+      new (&h->version_) Version(8,(const uint8*)psetid);
+      h->header_.code_ = Header::INIT;
       
       return temp;
     }
@@ -196,7 +237,7 @@ namespace stor
       char test_value[] = "This is a test, This is a";
       uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
       char host_name[255];
-      gethostname(host_name, 255);
+      gethostname(host_name, sizeof(host_name));
 
       InitMsgBuilder
         initBuilder(smMsg->dataPtr(), smMsg->dataSize, 100,
@@ -204,10 +245,10 @@ namespace stor
                     processName.c_str(), outputModuleLabel.c_str(),
                     outputModuleId, hlt_names, hlt_selections, l1_names,
                     adler32_chksum, host_name);
-
       initBuilder.setDataLength(sizeof(test_value));
       std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
                 initBuilder.dataAddress());
+      smMsg->dataSize = initBuilder.headerSize() + sizeof(test_value);
 
       return ref;
     }
@@ -253,7 +294,7 @@ namespace stor
       char test_value_event[] = "This is a test Event, This is a";
       uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
       char host_name[255];
-      gethostname(host_name, 255);
+      gethostname(host_name, sizeof(host_name));
 
       EventMsgBuilder
         eventBuilder(smEventMsg->dataPtr(), smEventMsg->dataSize, runNumber,
@@ -264,6 +305,7 @@ namespace stor
       eventBuilder.setEventLength(sizeof(test_value_event));
       std::copy(&test_value_event[0],&test_value_event[0]+sizeof(test_value_event),
                 eventBuilder.eventAddr());
+      smEventMsg->dataSize = eventBuilder.headerSize() + sizeof(test_value_event);
 
       return ref;
     }
@@ -312,14 +354,14 @@ namespace stor
       I2O_SM_DQM_MESSAGE_FRAME* msg = (I2O_SM_DQM_MESSAGE_FRAME*)ref->getDataLocation();
 
       // no data yet to get a checksum (not needed for test)
-      uint32_t adler32_chksum = 0;
+      uint32 adler32_chksum = 0;
       char host_name[255];
-      gethostname(host_name, 255);
+      gethostname(host_name, sizeof(host_name));
 
       DQMEventMsgBuilder b( (void*)(msg->dataPtr()), msg->dataSize, run, eventNumber,
                             ts,
                             lumi_section, update_number,
-                            (uint32)adler32_chksum,
+                            adler32_chksum,
                             host_name,
                             release_tag,
                             topFolder,
