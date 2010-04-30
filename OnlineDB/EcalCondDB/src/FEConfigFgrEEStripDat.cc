@@ -61,8 +61,8 @@ void FEConfigFgrEEStripDat::writeDB(const EcalLogicID* ecid, const FEConfigFgrEE
   try {
     m_writeStmt->setInt(1, iconfID);
     m_writeStmt->setInt(2, logicID);
-    m_writeStmt->setInt(3, item->getThreshold());
-    m_writeStmt->setInt(4, item->getLutFg());
+    m_writeStmt->setUInt(3, item->getThreshold());
+    m_writeStmt->setUInt(4, item->getLutFg());
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
@@ -105,8 +105,8 @@ void FEConfigFgrEEStripDat::fetchData(map< EcalLogicID, FEConfigFgrEEStripDat >*
 			     rset->getInt(5),        // id3
 			     rset->getString(6));    // maps_to
 
-      dat.setThreshold( rset->getInt(7) );  
-      dat.setLutFg( rset->getInt(8) );  
+      dat.setThreshold( rset->getUInt(7) );  
+      dat.setLutFg( rset->getUInt(8) );  
 
       p.second = dat;
       fillMap->insert(p);
@@ -129,8 +129,8 @@ void FEConfigFgrEEStripDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFg
   int nrows=data->size(); 
   int* ids= new int[nrows];
   int* iconfid_vec= new int[nrows];
-  int* xx= new int[nrows];
-  int* yy= new int[nrows];
+  unsigned int* xx= new unsigned int[nrows];
+  unsigned int* yy= new unsigned int[nrows];
 
 
   ub2* ids_len= new ub2[nrows];
@@ -152,8 +152,8 @@ void FEConfigFgrEEStripDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFg
 
 	dataitem = &(p->second);
 	// dataIface.writeDB( channel, dataitem, iconf);
-	int x=dataitem->getThreshold();
-	int y=dataitem->getLutFg();
+	unsigned int x=dataitem->getThreshold();
+	unsigned int y=dataitem->getLutFg();
 
 	xx[count]=x;
 	yy[count]=y;
@@ -172,8 +172,8 @@ void FEConfigFgrEEStripDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFg
   try {
     m_writeStmt->setDataBuffer(1, (dvoid*)iconfid_vec, OCCIINT, sizeof(iconfid_vec[0]),iconf_len);
     m_writeStmt->setDataBuffer(2, (dvoid*)ids, OCCIINT, sizeof(ids[0]), ids_len );
-    m_writeStmt->setDataBuffer(3, (dvoid*)xx, OCCIINT , sizeof(xx[0]), x_len );
-    m_writeStmt->setDataBuffer(4, (dvoid*)yy, OCCIINT , sizeof(yy[0]), y_len );
+    m_writeStmt->setDataBuffer(3, (dvoid*)xx, OCCIUNSIGNED_INT , sizeof(xx[0]), x_len );
+    m_writeStmt->setDataBuffer(4, (dvoid*)yy, OCCIUNSIGNED_INT , sizeof(yy[0]), y_len );
 
     m_writeStmt->executeArrayUpdate(nrows);
 

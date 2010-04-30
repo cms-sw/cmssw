@@ -17,14 +17,14 @@ class FEConfigFgrEEStripDat : public IDataItem {
   // User data methods
   inline std::string getTable() { return "FE_CONFIG_FGREEST_DAT"; }
 
-  inline void setThreshold(int mean) { m_thresh = mean; }
-  inline int getThreshold() const { return m_thresh; }
-  inline void setLutFg(int mean) { m_lut_fg = mean; }
-  inline int getLutFg() const { return m_lut_fg; }
-  inline void setLUTFgr(int mean) { m_lut_fg = mean; }
-  inline int getLUTFgr() const { return m_lut_fg; }
-  inline void setLutFgr(int mean) { m_lut_fg = mean; }
-  inline int getLutFgr() const { return m_lut_fg; }
+  inline void setThreshold(unsigned int mean) { m_thresh = mean; }
+  inline unsigned int getThreshold() const { return m_thresh; }
+  inline void setLutFg(unsigned int mean) { m_lut_fg = mean; }
+  inline unsigned int getLutFg() const { return m_lut_fg; }
+  inline void setLUTFgr(unsigned int mean) { m_lut_fg = mean; }
+  inline unsigned int getLUTFgr() const { return m_lut_fg; }
+  inline void setLutFgr(unsigned int mean) { m_lut_fg = mean; }
+  inline unsigned int getLutFgr() const { return m_lut_fg; }
 
  private:
   void prepareWrite() 
