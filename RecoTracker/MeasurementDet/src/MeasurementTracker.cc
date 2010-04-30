@@ -41,8 +41,23 @@
 #include <iostream>
 #include <typeinfo>
 #include <map>
+#include <algorithm>
 
 using namespace std;
+
+namespace {
+
+  struct CmpTKD {
+    bool operator()(TkStripMeasurementDet* rh, TkStripMeasurementDet* lh) {
+      return rh->geomDet().geographicalId().rawId() < lh->geomDet().geographicalId().rawId();
+    }
+  };
+
+  void sortTKD( std::vector<TkStripMeasurementDet*> & det) {
+    std::sort(det.begin(),det.end(),CmpTKD());
+  }
+}
+
 
 MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              conf,
 				       const PixelClusterParameterEstimator* pixelCPE,
@@ -95,6 +110,11 @@ void MeasurementTracker::initialize() const
   addStripDets( theTrackerGeom->detsTID());
   addStripDets( theTrackerGeom->detsTOB());
   addStripDets( theTrackerGeom->detsTEC());  
+
+  sortTKD(theStripDets);
+  sortTKD(thePixelDets);
+  sortTKD(theGluedDets);
+
 }
 
 
@@ -283,11 +303,12 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
 
   // Strip Clusters
   std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
-  if( !stripClusterProducer.compare("") ) { //clusters have not been produced
-    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-	 i!=theStripDets.end(); i++) {
+  //first clear all of them
+  for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+       i!=theStripDets.end(); i++) {
       (**i).setEmpty();
     }
+  if( !stripClusterProducer.compare("") ) { //clusters have not been produced
   }else{
     //=========  actually load cluster =============
     if(!isRegional_){
@@ -295,31 +316,28 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
       event.getByLabel(stripClusterProducer, clusterHandle);
       const edmNew::DetSetVector<SiStripCluster>* clusterCollection = clusterHandle.product();
 
-      for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-	   i!=theStripDets.end(); i++) {
-	
-	// foreach det get cluster range
-	unsigned int id = (**i).geomDet().geographicalId().rawId();
+      std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+      std::vector<TkStripMeasurementDet*>::const_iterator endDet=theStripDets.end();
+      edmNew::DetSetVector<SiStripCluster>::const_iterator it = clusterCollection.begin();
+      edmNew::DetSetVector<SiStripCluster>::const_iterator endColl = clusterCollection.end();
+      // cluster and det and in order (both) and unique so let's use set intersection
+      for (;it!=endColl; ++it) {
+	StripDetSet detSet = *it;
+	unsigned int id = detSet.id();
+	while ( id != (**i).geomDet().geographicalId().rawId()) { // eventually change to lower_range
+	  ++i;
+	  if (i==endDet) throw "we have a problem!!!!";
+	}
+
         if (!rawInactiveDetIds.empty() && std::binary_search(rawInactiveDetIds.begin(), rawInactiveDetIds.end(), id)) {
             (**i).setActiveThisEvent(false); continue;
         }
-	edmNew::DetSetVector<SiStripCluster>::const_iterator it = clusterCollection->find( id );
-	if ( it != clusterCollection->end() ){
-	  StripDetSet detSet = (*clusterCollection)[ id ];
 	  // push cluster range in det
-	  (**i).update( detSet, clusterHandle, id );
+	(**i).update( detSet, clusterHandle, id );
 	  
-	}else{
-	  (**i).setEmpty();
-	}
       }
     }else{
-      //first clear all of them
-      for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-	   i!=theStripDets.end(); i++) {
-	(**i).setEmpty();
-      }
-            
+              
       //then set the not-empty ones only
       edm::Handle<edm::RefGetter<SiStripCluster> > refClusterHandle;
       event.getByLabel(stripClusterProducer, refClusterHandle);
