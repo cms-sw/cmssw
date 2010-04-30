@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonProxyBuilder.cc,v 1.7 2010/04/27 18:08:28 amraktad Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.8 2010/04/29 12:16:52 mccauley Exp $
 //
 #include "TEveCompound.h"
 #include "TEveStraightLineSet.h"
@@ -50,7 +50,6 @@ FWPhotonProxyBuilder::buildViewType(const reco::Photon& photon, unsigned int iIn
   double lEB = 300.0;  // half-length of the EB (cm)
   double rEB = 124.0;  // inner radius of the EB (cm)
 
-  double energy = photon.energy();
   double eta = photon.eta();
   double phi = photon.phi();
 
@@ -98,7 +97,7 @@ FWPhotonProxyBuilder::buildViewType(const reco::Photon& photon, unsigned int iIn
                                     photon.phi(),
                                     oItemHolder);
 
-  else if ( type == FWViewType::k3D || type == FWViewType::kISpy )
+  else if ( type == FWViewType::kISpy )
   {
     std::vector<std::pair<DetId, float> > detIds = photon.superCluster()->hitsAndFractions ();
     
