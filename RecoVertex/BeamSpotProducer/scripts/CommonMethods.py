@@ -1,5 +1,4 @@
-import math,re
-import optparse
+import math, re, optparse, commands, os
 from BeamSpotObj import BeamSpot
 from IOVObj import IOV
 
@@ -560,3 +559,104 @@ def createWeightedPayloadsNew(fileName,listbeam=[],weighted=True):
     for iload in newlistbeam:
         dump( iload, payloadfile )
     payloadfile.close()
+
+###########################################################################################
+def writeSqliteFile(sqliteFileName,tagName,timeType,beamSpotFile,sqliteTemplateFile,tmpDir="/tmp/"):
+    writeDBOut = tmpDir + "write2DB_" + tagName + ".py"
+    wFile      = open(sqliteTemplateFile)
+    wNewFile   = open(writeDBOut,'w')
+    
+    writeDBTags = [('SQLITEFILE','sqlite_file:' + sqliteFileName),
+                   ('TAGNAME',tagName),
+                   ('TIMETYPE',timeType),
+                   ('BEAMSPOTFILE',beamSpotFile)]
+    
+    for line in wFile:
+        for itag in writeDBTags:
+            line = line.replace(itag[0],itag[1])
+        wNewFile.write(line)
+            
+    wNewFile.close()
+    print "writing sqlite file ..."
+    status_wDB = commands.getstatusoutput('cmsRun '+ writeDBOut)
+    #print status_wDB[1]
+        
+    os.system("rm -f " + writeDBOut)
+    return not status_wDB[0]
+
+###########################################################################################
+def readSqliteFile(sqliteFileName,tagName,sqliteTemplateFile,tmpDir="/tmp/"):
+    readDBOut = tmpDir + "readDB_" + tagName + ".py"
+    
+    rFile = open(sqliteTemplateFile)
+    rNewFile = open(readDBOut,'w')
+    
+    readDBTags = [('SQLITEFILE','sqlite_file:' + sqliteFileName),
+		  ('TAGNAME',tagName)]
+
+    for line in rFile:
+        for itag in readDBTags:
+            line = line.replace(itag[0],itag[1])
+        rNewFile.write(line)
+
+    rNewFile.close()
+    status_rDB = commands.getstatusoutput('cmsRun '+ readDBOut)
+    
+    outtext = status_rDB[1]
+    print outtext
+    os.system("rm -f " + readDBOut)
+    return not status_rDB[0]
+
+###########################################################################################
+def appendSqliteFile(combinedSqliteFileName, sqliteFileName, tagName, IOVSince, IOVTill ,tmpDir="/tmp/"):
+    aCommand = "cmscond_export_iov -d sqlite_file:" + tmpDir + combinedSqliteFileName + " -s sqlite_file:" + sqliteFileName + " -i " + tagName + " -t " + tagName + " -l sqlite_file:" + tmpDir + "log.db" + " -b " + IOVSince + " -e " + IOVTill
+    #print aCommand
+    std = commands.getstatusoutput(aCommand)
+    print std[1]
+    return not std[0]
+
+###########################################################################################
+def uploadSqliteFile(sqliteFileDirName, sqliteFileName, dropbox="/DropBox"):
+    # Changing permissions to metadata
+    acmd = "chmod a+w " + sqliteFileDirName + sqliteFileName + ".txt"
+    outcmd = commands.getstatusoutput(acmd)
+    print acmd
+#    print outcmd[1]
+    if outcmd[0]:
+        print "Can't change permission to file: " + sqliteFileDirName + sqliteFileName + ".txt"
+        return False
+
+    acmd = "scp -p " + sqliteFileDirName + sqliteFileName + ".db " + sqliteFileDirName + sqliteFileName + ".txt webcondvm.cern.ch:/tmp"
+    print acmd
+    outcmd = commands.getstatusoutput(acmd)
+    print outcmd[1]
+    if outcmd[0]:
+        print "Couldn't scp the files!"
+        return False
+
+#    acmd = "scp -p " + sqliteFileDirName + sqliteFileName + ".txt webcondvm.cern.ch:/tmp"
+#    outcmd = commands.getstatusoutput(acmd)
+#    print acmd
+#    print outcmd[1]
+#    if outcmd[0]:
+#        print "Can't change permission to file: " + sqliteFileName + ".txt"
+#        return False
+
+    acmd = "ssh webcondvm.cern.ch \"mv /tmp/" + sqliteFileName + ".db /tmp/" + sqliteFileName + ".txt " + dropbox +"\""
+    print acmd
+    outcmd = commands.getstatusoutput(acmd)
+    print outcmd[1]
+    if outcmd[0]:
+        print "Can't move files from tmp to dropbox!"
+        return False
+
+#    acmd = "ssh webcondvm.cern.ch \"mv /tmp/" + final_sqlite_file_name + ".txt "+dropbox +"\""
+#    outcmd = commands.getstatusoutput(acmd)
+#    print acmd
+#    print outcmd[1]
+#    if outcmd[0]:
+#        print "Can't change permission to file: " + sqliteFileName + ".txt"
+#        return False
+
+    return True
+

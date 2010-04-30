@@ -332,67 +332,20 @@ if __name__ == '__main__':
         
 	beam_file = beam_file_tmp
 
-	writedb_out = workflowdirTmp + "write2DB_" + tagname + suffix + ".py"
-	wfile = open(writedb_template)
-	wnewfile = open(writedb_out,'w')
-	
-	writedb_tags = [('SQLITEFILE','sqlite_file:' + sqlite_file),
-			('TAGNAME',tagname),
-                        ('TIMETYPE',timetype),
-			('BEAMSPOTFILE',beam_file)]
-    
-	for line in wfile:
+        if not writeSqliteFile(sqlite_file,tagname,timetype,beam_file,writedb_template,workflowdirTmp):
+            print "An error occurred while writing the sqlite file: " + sqlite_file
 
-	    for itag in writedb_tags:
-
-		line = line.replace(itag[0],itag[1])
-
-	    wnewfile.write(line)
-
-	wnewfile.close()
-	print "writing sqlite file ..."
-    	status_wDB = commands.getstatusoutput('cmsRun '+ writedb_out)
-        #print status_wDB[1]
-        
 	commands.getstatusoutput('rm -f ' + beam_file)
-	os.system("rm "+ writedb_out)
-    ##### READ and check sqlite file
-	
-	print "read back sqlite file to check content ..."
-    
-	readdb_out = workflowdirTmp + "readDB_" + tagname + ".py"
-    
-	rfile = open(readdb_template)
-	rnewfile = open(readdb_out,'w')
-    
-	readdb_tags = [('SQLITEFILE','sqlite_file:' + sqlite_file),
-		       ('TAGNAME',tagname)]
-
-	for line in rfile:
-
-	    for itag in readdb_tags:
-
-		line = line.replace(itag[0],itag[1])
-
-	    rnewfile.write(line)
-
-	rnewfile.close()
-	status_rDB = commands.getstatusoutput('cmsRun '+ readdb_out)
-    
-	outtext = status_rDB[1]
-	print outtext
-	os.system("rm "+ readdb_out)
-	
+        ##### READ and check sqlite file
+        readSqliteFile(sqlite_file,tagname,readdb_template,workflowdirTmp)
+        
         #### Merge sqlite files
         if not os.path.isdir(workflowdirArchive + 'payloads'):
             os.mkdir(workflowdirArchive + 'payloads')
         
         print " merge sqlite file ..."
-        acmd = "cmscond_export_iov -d sqlite_file:"+workflowdirArchive+"payloads/Combined.db -s sqlite_file:"+sqlite_file+ " -i "+tagname+" -t "+tagname+" -l sqlite_file:"+workflowdirTmp+"log.db"+" -b "+iov_since+" -e "+iov_till
-        print acmd
-        std = commands.getstatusoutput(acmd)
-        print std[1]
-
+        appendSqliteFile("Combined.db", sqlite_file, tagname, iov_since, iov_till ,workflowdirTmp)
+        
         # keep last payload for express, and prompt tags
         if nfile == total_files:
             print " this is the last IOV. You can use this payload for express and prompt conditions."
@@ -401,10 +354,10 @@ if __name__ == '__main__':
             print workflowdirArchive+"payloads/express.db"
         
         # clean up
-	os.system("rm "+sqlite_file)
+	os.system("rm "+ sqlite_file)
         print " clean up done."
 
-
+    os.system("mv " + workflowdirTmp + "Combined.db " + workflowdirArchive + "payloads/")
     allfile.close()
             
     #### CREATE payload for merged output
@@ -452,25 +405,4 @@ if __name__ == '__main__':
         if option.Test:
             dropbox = "/DropBox_test"
 
-        acmd = "chmod a+w " + workflowdirLastPayloads + final_sqlite_file_name + ".txt"
-        outcmd = commands.getstatusoutput(acmd)
-        print acmd
-        print outcmd[1]
-        acmd = "scp -p " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/tmp"
-        outcmd = commands.getstatusoutput(acmd)
-        print acmd
-        print outcmd[1]
-        acmd = "scp -p " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/tmp"
-        outcmd = commands.getstatusoutput(acmd)
-        print acmd
-        print outcmd[1]
-        acmd = "ssh webcondvm.cern.ch \"mv /tmp/" + final_sqlite_file_name + ".db "+dropbox +"\""
-        outcmd = commands.getstatusoutput(acmd)
-        print acmd
-        print outcmd[1]
-        acmd = "ssh webcondvm.cern.ch \"mv /tmp/" + final_sqlite_file_name + ".txt "+dropbox +"\""
-        outcmd = commands.getstatusoutput(acmd)
-        print acmd
-        print outcmd[1]
-        
-
+        uploadSqliteFile(workflowdirLastPayloads,final_sqlite_file_name,dropbox)

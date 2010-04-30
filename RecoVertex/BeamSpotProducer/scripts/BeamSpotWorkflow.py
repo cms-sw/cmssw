@@ -19,9 +19,10 @@
 
    usage: %prog -d <data file/directory> -t <tag name>
    -o, --overwrite : Overwrite results files when copying.
-   -u, --upload : Upload files to offline drop box via scp.
-   -z, --zlarge : Enlarge sigmaZ to 10 +/- 0.005 cm.
-   
+   -T, --Test      : Upload files to Test dropbox for data validation.   
+   -u, --upload    : Upload files to offline drop box via scp.
+   -z, --zlarge    : Enlarge sigmaZ to 10 +/- 0.005 cm.
+
    Francisco Yumiceva (yumiceva@fnal.gov)
    Lorenzo Uplegger   (send an email to Francisco)
    Fermilab 2010
@@ -66,8 +67,8 @@ def unpackLumiid(i):
 #####################################################################################
 # General functions
 #####################################################################################
-def getLastUploadedIOV(tagName):
-    listIOVCommand = "cmscond_list_iov -c oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSPOT -P /afs/cern.ch/cms/DB/conddb -t " + tagName 
+def getLastUploadedIOV(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSPOT"):
+    listIOVCommand = "cmscond_list_iov -c " + destDB + " -P /afs/cern.ch/cms/DB/conddb -t " + tagName 
     aCommand       = listIOVCommand + " | grep DB= | tail -1 | awk \'{print $1}\'"
 #    print " >> " + aCommand
     output = commands.getstatusoutput( aCommand )
@@ -230,6 +231,12 @@ if __name__ == '__main__':
     ######### COMMAND LINE OPTIONS ##############
     option,args = parse(__doc__)
 
+    #Right now always in the test DB
+#    destDB = 'oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT'
+    destDB = 'oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT'
+    if option.Test:
+        destDB = 'oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT'
+
     ######### CONFIGURATION FILE ################
     configurationFile = 'BeamSpotWorkflow.cfg'
     configuration     = ConfigParser.ConfigParser()
@@ -265,7 +272,7 @@ if __name__ == '__main__':
         os.system("rm -f "+ workingDir + "*") 
 
 
-#    lastUploadedIOV = getLastUploadedIOV(databaseTag) 
+#    lastUploadedIOV = getLastUploadedIOV(databaseTag,destDB) 
     lastUploadedIOV = 133885
 
     ######### Get list of files processed after the last IOV  
