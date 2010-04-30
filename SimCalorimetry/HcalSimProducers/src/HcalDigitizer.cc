@@ -132,6 +132,10 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode"))
 {
   bool doNoise = ps.getParameter<bool>("doNoise");
+  bool useOldNoiseHB = ps.getParameter<bool>("useOldHB");
+  bool useOldNoiseHE = ps.getParameter<bool>("useOldHE");
+  bool useOldNoiseHF = ps.getParameter<bool>("useOldHF");
+  bool useOldNoiseHO = ps.getParameter<bool>("useOldHO");
   bool doEmpty = ps.getParameter<bool>("doEmpty");
   double HBtp = ps.getParameter<double>("HBTuningParameter");
   double HEtp = ps.getParameter<double>("HETuningParameter");
@@ -147,6 +151,11 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHBHEAmplifier->setHEtuningParameter(HEtp);
   theHFAmplifier->setHFtuningParameter(HFtp);
   theHOAmplifier->setHOtuningParameter(HOtp);
+  theHBHEAmplifier->setUseOldHB(useOldNoiseHB);
+  theHBHEAmplifier->setUseOldHE(useOldNoiseHE);
+  theHFAmplifier->setUseOldHF(useOldNoiseHF);
+  theHOAmplifier->setUseOldHO(useOldNoiseHO);
+
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
   theHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theCoderFactory);
   theHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theCoderFactory);
