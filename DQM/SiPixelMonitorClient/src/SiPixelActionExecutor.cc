@@ -204,6 +204,8 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
   //bei->cd();
   fillSummary(bei, endcap_structure_name, endcap_me_names, false); // Endcap
   bei->setCurrentFolder("Pixel/");
+  fillDeviations(bei);
+  bei->setCurrentFolder("Pixel/");
   //bei->cd();
   if(source_type_==0||source_type_==5 || source_type_ == 20){//do this only if RawData source is present
     string federror_structure_name;
@@ -224,6 +226,260 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
   if (configWriter_) delete configWriter_;
   configWriter_ = 0;
 //  cout<<"leaving SiPixelActionExecutor::createSummary..."<<endl;
+}
+
+//=============================================================================================================
+void SiPixelActionExecutor::bookDeviations(DQMStore* bei) {
+  bei->cd();
+  bei->setCurrentFolder("Pixel/Barrel");
+  DEV_adc_Barrel = bei->book1D("DEV_adc_Barrel","Deviation from reference;Module;<adc_ref>-<adc>",768,0.,768.);
+  DEV_ndigis_Barrel = bei->book1D("DEV_ndigis_Barrel","Deviation from reference;Module;<ndigis_ref>-<ndigis>",768,0.,768.);
+  DEV_charge_Barrel = bei->book1D("DEV_charge_Barrel","Deviation from reference;Module;<charge_ref>-<charge>",768,0.,768.);
+  DEV_nclusters_Barrel = bei->book1D("DEV_nclusters_Barrel","Deviation from reference;Module;<nclusters_ref>-<nclusters>",768,0.,768.);
+  DEV_size_Barrel = bei->book1D("DEV_size_Barrel","Deviation from reference;Module;<size_ref>-<size>",768,0.,768.);
+  bei->cd();
+  bei->setCurrentFolder("Pixel/Endcap");
+  DEV_adc_Endcap = bei->book1D("DEV_adc_Endcap","Deviation from reference;Module;<adc_ref>-<adc>",672,0.,672.);
+  DEV_ndigis_Endcap = bei->book1D("DEV_ndigis_Endcap","Deviation from reference;Module;<ndigis_ref>-<ndigis>",672,0.,672.);
+  DEV_charge_Endcap = bei->book1D("DEV_charge_Endcap","Deviation from reference;Module;<charge_ref>-<charge>",672,0.,672.);
+  DEV_nclusters_Endcap = bei->book1D("DEV_nclusters_Endcap","Deviation from reference;Module;<nclusters_ref>-<nclusters>",672,0.,672.);
+  DEV_size_Endcap = bei->book1D("DEV_size_Endcap","Deviation from reference;Module;<size_ref>-<size>",672,0.,672.);  
+  bei->cd();
+}
+
+
+void SiPixelActionExecutor::fillDeviations(DQMStore* bei) {
+  ifstream infile1(edm::FileInPath("DQM/SiPixelMonitorClient/test/RefValuesBarrelOnlineDump.dat").fullPath().c_str(),ios::in);
+  ifstream infile2(edm::FileInPath("DQM/SiPixelMonitorClient/test/RefValuesEndcapOnlineDump.dat").fullPath().c_str(),ios::in);
+  int n = 768;
+  float* Barrel_adc = NULL; 
+  Barrel_adc = new float[n];
+  float* Barrel_ndigis = NULL;
+  Barrel_ndigis = new float[n]; 
+  float* Barrel_charge = NULL; 
+  Barrel_charge = new float[n];
+  float* Barrel_nclusters = NULL;
+  Barrel_nclusters = new float[n]; 
+  float* Barrel_size = NULL;
+  Barrel_size = new float[n];
+  for(int i=0; i!=n; i++){
+    Barrel_adc[i] = 0; Barrel_ndigis[i] = 0; Barrel_charge[i] = 0;
+    Barrel_nclusters[i] = 0; Barrel_size[i] = 0;
+  }
+  
+  int nLinesInFile=1;
+  while(!infile1.eof() && nLinesInFile!=3841) {
+    //std::cout<<"Line1: "<<nLinesInFile<<std::endl;
+    if(nLinesInFile>=1 && nLinesInFile<=768) infile1 >> Barrel_adc[nLinesInFile] ;
+    if(nLinesInFile>=769 && nLinesInFile<=1536) infile1 >> Barrel_ndigis[nLinesInFile-768] ;
+    if(nLinesInFile>=1537 && nLinesInFile<=2304) infile1 >> Barrel_charge[nLinesInFile-1536] ;
+    if(nLinesInFile>=2305 && nLinesInFile<=3072) infile1 >> Barrel_nclusters[nLinesInFile-2304] ;
+    if(nLinesInFile>=3073 && nLinesInFile<=3840) infile1 >> Barrel_size[nLinesInFile-3072] ;
+    nLinesInFile++;
+  }
+  infile1.close();
+
+  MonitorElement* me1; MonitorElement* me2; 
+  MonitorElement* me3; MonitorElement* me4; 
+  MonitorElement* me5; MonitorElement* me6; 
+  MonitorElement* me7; MonitorElement* me8; 
+  MonitorElement* me9; MonitorElement* me10;
+  me1 = bei->get("Pixel/Barrel/SUMDIG_adc_Barrel");
+  me2 = bei->get("Pixel/Barrel/DEV_adc_Barrel");
+  me3 = bei->get("Pixel/Barrel/SUMDIG_ndigis_Barrel");
+  me4 = bei->get("Pixel/Barrel/DEV_ndigis_Barrel");
+  me5 = bei->get("Pixel/Barrel/SUMCLU_charge_Barrel");
+  me6 = bei->get("Pixel/Barrel/DEV_charge_Barrel");
+  me7 = bei->get("Pixel/Barrel/SUMCLU_nclusters_Barrel");
+  me8 = bei->get("Pixel/Barrel/DEV_nclusters_Barrel");
+  me9 = bei->get("Pixel/Barrel/SUMCLU_size_Barrel");
+  me10 = bei->get("Pixel/Barrel/DEV_size_Barrel");
+  for(int i=1; i!=n+1; i++){
+    float ref_value; float new_value;
+    float RefValue; float NewValue; float DevValue;    
+    stringstream ss_adc; stringstream tt_adc; stringstream uu_adc;
+    stringstream ss_ndigis; stringstream tt_ndigis; stringstream uu_ndigis;
+    stringstream ss_charge; stringstream tt_charge; stringstream uu_charge;
+    stringstream ss_nclusters; stringstream tt_nclusters; stringstream uu_nclusters;
+    stringstream ss_size; stringstream tt_size; stringstream uu_size;
+    // Barrel adc: 
+    if(me1) if(me2){
+      ref_value = Barrel_adc[i]; 
+      new_value = me1->getBinContent(i);
+      ss_adc << setprecision(4) << ref_value; ss_adc >> RefValue;
+      tt_adc << setprecision(4) << new_value; tt_adc >> NewValue;   
+      uu_adc << setprecision(2) << RefValue-NewValue; uu_adc >> DevValue;
+      me2->setBinContent(i,DevValue);
+      //std::cout<<"Barrel adc: "<<i<<" , "<<RefValue<<" , "<<NewValue<<" , "<<DevValue<<std::endl;
+    }
+    //Barrel ndigis:
+    if(me3) if(me4){
+      ref_value = Barrel_ndigis[i]; 
+      new_value = me3->getBinContent(i);
+      ss_ndigis << setprecision(4) << ref_value; ss_ndigis >> RefValue;
+      tt_ndigis << setprecision(4) << new_value; tt_ndigis >> NewValue;
+      uu_ndigis << setprecision(2) << RefValue-NewValue; uu_ndigis >> DevValue;
+      me4->setBinContent(i,DevValue);
+      //std::cout<<"Barrel ndigis: "<<i<<" , "<<RefValue<<" , "<<NewValue<<" , "<<DevValue<<std::endl;
+    }
+    // Barrel cluster charge:
+    if(me5) if(me6){
+      ref_value = Barrel_charge[i]; 
+      new_value = me5->getBinContent(i);
+      ss_charge << setprecision(4) << ref_value; ss_charge >> RefValue;
+      tt_charge << setprecision(4) << new_value; tt_charge >> NewValue;
+      uu_charge << setprecision(2) << RefValue-NewValue; uu_charge >> DevValue;
+      me6->setBinContent(i,DevValue);
+      //std::cout<<"Barrel charge: "<<i<<" , "<<RefValue<<" , "<<NewValue<<" , "<<DevValue<<std::endl;
+    }
+    // Barrel nclusters:
+    if(me7) if(me8){
+      ref_value = Barrel_nclusters[i]; 
+      new_value = me7->getBinContent(i);
+      ss_nclusters << setprecision(4) << ref_value; ss_nclusters >> RefValue;
+      tt_nclusters << setprecision(4) << new_value; tt_nclusters >> NewValue;
+      uu_nclusters << setprecision(2) << RefValue-NewValue; uu_nclusters >> DevValue;
+      me8->setBinContent(i,DevValue);
+      //std::cout<<"Barrel nclusters: "<<i<<" , "<<RefValue<<" , "<<NewValue<<" , "<<DevValue<<std::endl;
+    }
+    // Barrel cluster size:
+    if(me9) if(me10){
+      ref_value = Barrel_size[i]; 
+      new_value = me9->getBinContent(i);
+      ss_size << setprecision(4) << ref_value; ss_size >> RefValue;
+      tt_size << setprecision(4) << new_value; tt_size >> NewValue;
+      uu_size << setprecision(2) << RefValue-NewValue; uu_size >> DevValue;
+      me10->setBinContent(i,DevValue);
+      //std::cout<<"Barrel size: "<<i<<" , "<<RefValue<<" , "<<NewValue<<" , "<<DevValue<<std::endl;
+    }
+  }
+
+
+  delete [] Barrel_adc;
+  Barrel_adc = NULL;
+  delete [] Barrel_ndigis;
+  Barrel_ndigis = NULL;
+  delete [] Barrel_charge;
+  Barrel_charge = NULL;
+  delete [] Barrel_nclusters;
+  Barrel_nclusters = NULL;
+  delete [] Barrel_size;
+  Barrel_size = NULL;  
+   
+  int nn = 672;
+  float* Endcap_adc = NULL; 
+  Endcap_adc = new float[nn];
+  float* Endcap_ndigis = NULL;
+  Endcap_ndigis = new float[nn]; 
+  float* Endcap_charge = NULL; 
+  Endcap_charge = new float[nn];
+  float* Endcap_nclusters = NULL;
+  Endcap_nclusters = new float[nn]; 
+  float* Endcap_size = NULL;
+  Endcap_size = new float[nn];
+  for(int i=0; i!=nn; i++){
+    Endcap_adc[i] = 0; Endcap_ndigis[i] = 0; Endcap_charge[i] = 0;
+    Endcap_nclusters[i] = 0; Endcap_size[i] = 0;
+  }
+
+  nLinesInFile = 1;
+  while(!infile2.eof() && nLinesInFile!=3361) {
+    //std::cout<<"Line2: "<<nLinesInFile<<std::endl;
+    if(nLinesInFile>=1 && nLinesInFile<=672) infile2 >> Endcap_adc[nLinesInFile] ;
+    if(nLinesInFile>=673 && nLinesInFile<=1344) infile2 >> Endcap_ndigis[nLinesInFile-672] ;
+    if(nLinesInFile>=1345 && nLinesInFile<=2016) infile2 >> Endcap_charge[nLinesInFile-1344] ;
+    if(nLinesInFile>=2017 && nLinesInFile<=2688) infile2 >> Endcap_nclusters[nLinesInFile-2016] ;
+    if(nLinesInFile>=2689 && nLinesInFile<=3360) infile2 >> Endcap_size[nLinesInFile-2688] ;
+    nLinesInFile++;
+  }
+  infile2.close();
+
+  MonitorElement* me11; MonitorElement* me12; 
+  MonitorElement* me13; MonitorElement* me14; 
+  MonitorElement* me15; MonitorElement* me16; 
+  MonitorElement* me17; MonitorElement* me18; 
+  MonitorElement* me19; MonitorElement* me20;
+  me11 = bei->get("Pixel/Endcap/SUMDIG_adc_Endcap");
+  me12 = bei->get("Pixel/Endcap/DEV_adc_Endcap");
+  me13 = bei->get("Pixel/Endcap/SUMDIG_ndigis_Endcap");
+  me14 = bei->get("Pixel/Endcap/DEV_ndigis_Endcap");
+  me15 = bei->get("Pixel/Endcap/SUMCLU_charge_Endcap");
+  me16 = bei->get("Pixel/Endcap/DEV_charge_Endcap");
+  me17 = bei->get("Pixel/Endcap/SUMCLU_nclusters_Endcap");
+  me18 = bei->get("Pixel/Endcap/DEV_nclusters_Endcap");
+  me19 = bei->get("Pixel/Endcap/SUMCLU_size_Endcap");
+  me20 = bei->get("Pixel/Endcap/DEV_size_Endcap");
+  for(int i=1; i!=nn+1; i++){
+    float ref_value1; float new_value1;
+    float RefValue1; float NewValue1; float DevValue1;    
+    stringstream ss_adc1; stringstream tt_adc1; stringstream uu_adc1;
+    stringstream ss_ndigis1; stringstream tt_ndigis1; stringstream uu_ndigis1;
+    stringstream ss_charge1; stringstream tt_charge1; stringstream uu_charge1;
+    stringstream ss_nclusters1; stringstream tt_nclusters1; stringstream uu_nclusters1;
+    stringstream ss_size1; stringstream tt_size1; stringstream uu_size1;
+    // Endcap adc: 
+    if(me11) if(me12){
+      ref_value1 = Endcap_adc[i]; 
+      new_value1 = me11->getBinContent(i);
+      ss_adc1 << setprecision(4) << ref_value1; ss_adc1 >> RefValue1;
+      tt_adc1 << setprecision(4) << new_value1; tt_adc1 >> NewValue1;   
+      uu_adc1 << setprecision(2) << RefValue1-NewValue1; uu_adc1 >> DevValue1;
+      me12->setBinContent(i,DevValue1);
+      //std::cout<<"Endcap adc: "<<i<<" , "<<RefValue1<<" , "<<NewValue1<<" , "<<DevValue1<<std::endl;
+    }
+    //Endcap ndigis:
+    if(me13) if(me14){
+      ref_value1 = Endcap_ndigis[i]; 
+      new_value1 = me13->getBinContent(i);
+      ss_ndigis1 << setprecision(4) << ref_value1; ss_ndigis1 >> RefValue1;
+      tt_ndigis1 << setprecision(4) << new_value1; tt_ndigis1 >> NewValue1;
+      uu_ndigis1 << setprecision(2) << RefValue1-NewValue1; uu_ndigis1 >> DevValue1;
+      me14->setBinContent(i,DevValue1);
+      //std::cout<<"Endcap ndigis: "<<i<<" , "<<RefValue1<<" , "<<NewValue1<<" , "<<DevValue1<<std::endl;
+    }
+    // Endcap cluster charge:
+    if(me15) if(me16){
+      ref_value1 = Endcap_charge[i]; 
+      new_value1 = me15->getBinContent(i);
+      ss_charge1 << setprecision(4) << ref_value1; ss_charge1 >> RefValue1;
+      tt_charge1 << setprecision(4) << new_value1; tt_charge1 >> NewValue1;
+      uu_charge1 << setprecision(2) << RefValue1-NewValue1; uu_charge1 >> DevValue1;
+      me16->setBinContent(i,DevValue1);
+      //std::cout<<"Endcap charge: "<<i<<" , "<<RefValue1<<" , "<<NewValue1<<" , "<<DevValue1<<std::endl;
+    }
+    // Endcap nclusters:
+    if(me17) if(me18){
+      ref_value1 = Endcap_nclusters[i]; 
+      new_value1 = me17->getBinContent(i);
+      ss_nclusters1 << setprecision(4) << ref_value1; ss_nclusters1 >> RefValue1;
+      tt_nclusters1 << setprecision(4) << new_value1; tt_nclusters1 >> NewValue1;
+      uu_nclusters1 << setprecision(2) << RefValue1-NewValue1; uu_nclusters1 >> DevValue1;
+      me18->setBinContent(i,DevValue1);
+      //std::cout<<"Endcap nclusters: "<<i<<" , "<<RefValue1<<" , "<<NewValue1<<" , "<<DevValue1<<std::endl;
+    }
+    // Endcap cluster size:
+    if(me19) if(me20){
+      ref_value1 = Endcap_size[i]; 
+      new_value1 = me19->getBinContent(i);
+      ss_size1 << setprecision(4) << ref_value1; ss_size1 >> RefValue1;
+      tt_size1 << setprecision(4) << new_value1; tt_size1 >> NewValue1;
+      uu_size1 << setprecision(2) << RefValue1-NewValue1; uu_size1 >> DevValue1;
+      me20->setBinContent(i,DevValue1);
+      //std::cout<<"Endcap size: "<<i<<" , "<<RefValue1<<" , "<<NewValue1<<" , "<<DevValue1<<std::endl;
+    }
+  }
+
+  delete [] Endcap_adc;
+  Endcap_adc = NULL;
+  delete [] Endcap_ndigis;
+  Endcap_ndigis = NULL;
+  delete [] Endcap_charge;
+  Endcap_charge = NULL;
+  delete [] Endcap_nclusters;
+  Endcap_nclusters = NULL;
+  delete [] Endcap_size;
+  Endcap_size = NULL;
+  
 }
 
 //=============================================================================================================
@@ -2027,6 +2283,79 @@ void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei, edm::EventSetup con
     }
   }
 	
+}
+
+//=============================================================================================================
+///// Dump Module paths and IDs on screen:
+void SiPixelActionExecutor::dumpRefValues(DQMStore * bei, edm::EventSetup const& eSetup){
+  //printing cout<<"Going to dump module IDs now!"<<endl;
+  bei->cd();
+  dumpBarrelRefValues(bei,eSetup);
+  bei->cd();
+  dumpEndcapRefValues(bei,eSetup);
+  bei->cd();
+  //printing cout<<"Done dumping module IDs!"<<endl;
+}
+
+
+//=============================================================================================================
+void SiPixelActionExecutor::dumpBarrelRefValues(DQMStore * bei, edm::EventSetup const& eSetup){
+  MonitorElement* me;
+  me = bei->get("Pixel/Barrel/SUMDIG_adc_Barrel");
+  if(me){
+    std::cout<<"SUMDIG_adc_Barrel: "<<std::endl;
+    for(int i=1; i!=769; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Barrel/SUMDIG_ndigis_Barrel");
+  if(me){
+    std::cout<<"SUMDIG_ndigis_Barrel: "<<std::endl;
+    for(int i=1; i!=769; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Barrel/SUMCLU_charge_Barrel");
+  if(me){
+    std::cout<<"SUMCLU_charge_Barrel: "<<std::endl;
+    for(int i=1; i!=769; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Barrel/SUMCLU_nclusters_Barrel");
+  if(me){
+    std::cout<<"SUMCLU_nclusters_Barrel: "<<std::endl;
+    for(int i=1; i!=769; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Barrel/SUMCLU_size_Barrel");
+  if(me){
+    std::cout<<"SUMCLU_size_Barrel: "<<std::endl;
+    for(int i=1; i!=769; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+}
+
+//=============================================================================================================
+void SiPixelActionExecutor::dumpEndcapRefValues(DQMStore * bei, edm::EventSetup const& eSetup){
+  MonitorElement* me;
+  me = bei->get("Pixel/Endcap/SUMDIG_adc_Endcap");
+  if(me){
+    std::cout<<"SUMDIG_adc_Endcap: "<<std::endl;
+    for(int i=1; i!=673; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Endcap/SUMDIG_ndigis_Endcap");
+  if(me){
+    std::cout<<"SUMDIG_ndigis_Endcap: "<<std::endl;
+    for(int i=1; i!=673; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Endcap/SUMCLU_charge_Endcap");
+  if(me){
+    std::cout<<"SUMCLU_charge_Endcap: "<<std::endl;
+    for(int i=1; i!=673; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Endcap/SUMCLU_nclusters_Endcap");
+  if(me){
+    std::cout<<"SUMCLU_nclusters_Endcap: "<<std::endl;
+    for(int i=1; i!=673; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Endcap/SUMCLU_size_Endcap");
+  if(me){
+    std::cout<<"SUMCLU_size_Endcap: "<<std::endl;
+    for(int i=1; i!=673; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
 }
 
 //=============================================================================================================

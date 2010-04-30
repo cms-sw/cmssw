@@ -53,6 +53,7 @@ class SiPixelActionExecutor {
  ~SiPixelActionExecutor();
 
  void createSummary(    	    DQMStore    		 * bei);
+ void bookDeviations(               DQMStore                     * bei);
  void bookEfficiency(    	    DQMStore    		 * bei);
  void createEfficiency(    	    DQMStore    		 * bei);
  void fillEfficiency(    	    DQMStore    		 * bei,
@@ -88,6 +89,12 @@ class SiPixelActionExecutor {
                                     edm::EventSetup const        & eSetup);
  void dumpEndcapModIds(             DQMStore     		 * bei,
                                     edm::EventSetup const        & eSetup);
+ void dumpRefValues(                   DQMStore     		 * bei,
+                                    edm::EventSetup const        & eSetup);
+ void dumpBarrelRefValues(             DQMStore     		 * bei,
+                                    edm::EventSetup const        & eSetup);
+ void dumpEndcapRefValues(             DQMStore     		 * bei,
+                                    edm::EventSetup const        & eSetup);
  void createMaps(DQMStore* bei, std::string type, std::string name, funcType ff);
  void bookTrackerMaps(DQMStore* bei, std::string name);
 
@@ -104,6 +111,7 @@ private:
                                     std::string 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names,
 				    bool isbarrel);
+  void fillDeviations(              DQMStore     		 * bei);
   void fillFEDErrorSummary(         DQMStore     		 * bei, 
                                     std::string 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names);
@@ -144,6 +152,17 @@ private:
   MonitorElement * HitEfficiency_Dp2;
   MonitorElement * HitEfficiency_Dm1;
   MonitorElement * HitEfficiency_Dm2;
+  MonitorElement * DEV_adc_Barrel;
+  MonitorElement * DEV_ndigis_Barrel;
+  MonitorElement * DEV_charge_Barrel;
+  MonitorElement * DEV_nclusters_Barrel;
+  MonitorElement * DEV_size_Barrel;
+  MonitorElement * DEV_adc_Endcap;
+  MonitorElement * DEV_ndigis_Endcap;
+  MonitorElement * DEV_charge_Endcap;
+  MonitorElement * DEV_nclusters_Endcap;
+  MonitorElement * DEV_size_Endcap;
+  
   
   int createMap(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, bool isBarrel);
   void getData(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, Int_t i, Int_t j, Int_t k, Int_t l);
