@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.18 2010/03/09 23:53:23 wmtan Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.19 2010/03/11 15:40:12 meschi Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
@@ -106,6 +106,9 @@ FUShmDQMOutputService::FUShmDQMOutputService(const edm::ParameterSet &pset,
   gettimeofday(&now, &dummyTZ);
   // we will count lumi section numbers from this time
   timeInSecSinceUTC_ = static_cast<double>(now.tv_sec) + (static_cast<double>(now.tv_usec)/1000000.0);
+
+  int got_host = gethostname(host_name_, sizeof(host_name_));
+  if(got_host != 0) strcpy(host_name_, "noHostNameFoundOrTooLong");
 
   if (! fuIdsInitialized_) {
     fuIdsInitialized_ = true;
@@ -270,6 +273,8 @@ void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::Eve
                                      lb.run(), lb.luminosityBlock(),
 				     lb.endTime(),
                                      lumiSectionTag, updateNumber_,
+                                     (uint32)serializeWorker_.adler32_chksum(),
+                                     host_name_,
                                      edm::getReleaseVersion(), dirName,
                                      toTable);
 

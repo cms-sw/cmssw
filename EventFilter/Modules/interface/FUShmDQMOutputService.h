@@ -9,7 +9,7 @@
  * 27-Dec-2006 - KAB  - Initial Implementation
  * 31-Mar-2007 - HWKC - modification for shared memory usage
  *
- * $Id: FUShmDQMOutputService.h,v 1.7 2010/02/15 13:43:15 meschi Exp $
+ * $Id: FUShmDQMOutputService.h,v 1.8 2010/03/05 16:51:00 meschi Exp $
  */
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -79,6 +79,7 @@ class FUShmDQMOutputService : public evf::ServiceWeb
   evf::FUShmBuffer* shmBuffer_;
 
   xdata::UnsignedInteger32 nbUpdates_;
+  char host_name_[255];
 
   static bool fuIdsInitialized_;
   static uint32 fuProcId_;
