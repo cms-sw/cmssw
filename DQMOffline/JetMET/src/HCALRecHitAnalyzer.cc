@@ -245,14 +245,14 @@ void HCALRecHitAnalyzer::BookHistos(){
         hHCAL_D2_MEyvsieta         = dbe_->book2D("METTask_HCAL_D2_MEyvsieta","",83,-41,42, 500,-500,500);
         hHCAL_D3_MEyvsieta         = dbe_->book2D("METTask_HCAL_D3_MEyvsieta","",83,-41,42, 500,-500,500);
         hHCAL_D4_MEyvsieta         = dbe_->book2D("METTask_HCAL_D4_MEyvsieta","",83,-41,42, 500,-500,500);
-
+	
       }
-
-      }
-
+    
+  }
+  
   // Inspect Setup for CaloTower Geometry
   //  FillGeometry(iSetup);
-
+  
 }
 
 void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)

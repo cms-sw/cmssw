@@ -197,7 +197,93 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
 
   // DAQ Tools
   DQMStore* dqm;
-  std::map<std::string , MonitorElement*> ME;
+
+  MonitorElement* hEcalHaloData_PhiWedgeMultiplicity;
+  MonitorElement* hEcalHaloData_PhiWedgeConstituents;
+  MonitorElement* hEcalHaloData_PhiWedgeZDirectionConfidence;
+  MonitorElement* hEcalHaloData_SuperClusterShowerShapes;
+  MonitorElement* hEcalHaloData_SuperClusterEnergy;
+  MonitorElement* hEcalHaloData_SuperClusterNHits;
+  
+  MonitorElement* hEcalHaloData_PhiWedgeEnergy;
+  MonitorElement* hEcalHaloData_PhiWedgeMinTime;
+  MonitorElement* hEcalHaloData_PhiWedgeMaxTime;
+  MonitorElement* hEcalHaloData_PhiWedgeiPhi;
+  MonitorElement* hEcalHaloData_PhiWedgePlusZDirectionConfidence;
+  MonitorElement* hEcalHaloData_PhiWedgeMinVsMaxTime;
+  MonitorElement* hEcalHaloData_SuperClusterPhiVsEta;
+  
+  MonitorElement* hHcalHaloData_PhiWedgeMultiplicity;
+  MonitorElement* hHcalHaloData_PhiWedgeConstituents;
+  MonitorElement* hHcalHaloData_PhiWedgeZDirectionConfidence;
+  
+  MonitorElement* hHcalHaloData_PhiWedgeEnergy;
+  MonitorElement* hHcalHaloData_PhiWedgeiPhi;
+  MonitorElement* hHcalHaloData_PhiWedgeMinTime;
+  MonitorElement* hHcalHaloData_PhiWedgeMaxTime;
+  MonitorElement* hHcalHaloData_PhiWedgePlusZDirectionConfidence;
+  MonitorElement* hHcalHaloData_PhiWedgeMinVsMaxTime;
+
+  MonitorElement* hCSCHaloData_TrackMultiplicity;
+  MonitorElement* hCSCHaloData_TrackMultiplicityMEPlus;
+  MonitorElement* hCSCHaloData_TrackMultiplicityMEMinus;
+  MonitorElement* hCSCHaloData_InnerMostTrackHitR;
+  MonitorElement* hCSCHaloData_InnerMostTrackHitPhi;
+  MonitorElement* hCSCHaloData_L1HaloTriggersMEPlus;
+  MonitorElement* hCSCHaloData_L1HaloTriggersMEMinus;
+  MonitorElement* hCSCHaloData_L1HaloTriggers;
+  MonitorElement* hCSCHaloData_HLHaloTriggers;
+  MonitorElement* hCSCHaloData_NOutOfTimeTriggersvsL1HaloExists;
+  MonitorElement* hCSCHaloData_NOutOfTimeTriggersMEPlus;
+  MonitorElement* hCSCHaloData_NOutOfTimeTriggersMEMinus;
+  MonitorElement* hCSCHaloData_NOutOfTimeTriggers;
+  MonitorElement* hCSCHaloData_NOutOfTimeHits;
+
+  MonitorElement* hCSCHaloData_InnerMostTrackHitXY;
+  MonitorElement* hCSCHaloData_InnerMostTrackHitRPlusZ;
+  MonitorElement* hCSCHaloData_InnerMostTrackHitRMinusZ;
+  MonitorElement* hCSCHaloData_InnerMostTrackHitiPhi;
+
+  MonitorElement* hGlobalHaloData_MExCorrection;
+  MonitorElement* hGlobalHaloData_MEyCorrection;
+  MonitorElement* hGlobalHaloData_SumEtCorrection;
+  MonitorElement* hGlobalHaloData_HaloCorrectedMET;
+  MonitorElement* hGlobalHaloData_RawMETMinusHaloCorrectedMET;
+  MonitorElement* hGlobalHaloData_RawMETOverSumEt;
+  MonitorElement* hGlobalHaloData_MatchedHcalPhiWedgeMultiplicity;
+  MonitorElement* hGlobalHaloData_MatchedHcalPhiWedgeEnergy;
+  MonitorElement* hGlobalHaloData_MatchedHcalPhiWedgeConstituents;
+  MonitorElement* hGlobalHaloData_MatchedHcalPhiWedgeiPhi;
+  MonitorElement* hGlobalHaloData_MatchedHcalPhiWedgeMinTime;
+  MonitorElement* hGlobalHaloData_MatchedHcalPhiWedgeMaxTime;
+  MonitorElement* hGlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence;
+  MonitorElement* hGlobalHaloData_MatchedEcalPhiWedgeMultiplicity;
+  MonitorElement* hGlobalHaloData_MatchedEcalPhiWedgeEnergy;
+  MonitorElement* hGlobalHaloData_MatchedEcalPhiWedgeConstituents;
+  MonitorElement* hGlobalHaloData_MatchedEcalPhiWedgeiPhi;
+  MonitorElement* hGlobalHaloData_MatchedEcalPhiWedgeMinTime;
+  MonitorElement* hGlobalHaloData_MatchedEcalPhiWedgeMaxTime;
+  MonitorElement* hGlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence;
+
+  MonitorElement* hBeamHaloSummary_Id;
+
+  MonitorElement* hBeamHaloSummary_BXN;
+  MonitorElement* hExtra_InnerMostTrackHitR;
+  MonitorElement* hExtra_CSCActivityWithMET;
+  MonitorElement* hExtra_HcalToF;
+  MonitorElement* hExtra_HcalToF_HaloId;
+  MonitorElement* hExtra_EcalToF;
+  MonitorElement* hExtra_EcalToF_HaloId;
+  MonitorElement* hExtra_CSCTrackInnerOuterDPhi;
+  MonitorElement* hExtra_CSCTrackInnerOuterDEta;
+  MonitorElement* hExtra_CSCTrackChi2Ndof;
+  MonitorElement* hExtra_CSCTrackNHits;
+  MonitorElement* hExtra_InnerMostTrackHitXY;
+  MonitorElement* hExtra_InnerMostTrackHitRPlusZ;
+  MonitorElement* hExtra_InnerMostTrackHitRMinusZ;
+  MonitorElement* hExtra_InnerMostTrackHitiPhi;
+  MonitorElement* hExtra_InnerMostTrackHitPhi;
+  MonitorElement* hExtra_BXN;
 };
 
 #endif

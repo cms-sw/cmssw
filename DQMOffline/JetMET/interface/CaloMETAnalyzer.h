@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2010/02/24 19:08:53 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/03/02 02:11:49 $
+ *  $Revision: 1.16 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -35,6 +35,13 @@
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
+
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
+#include "DataFormats/Common/interface/ValueMap.h"  
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -103,6 +110,9 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   edm::InputTag BeamHaloSummaryTag;
   edm::InputTag vertexTag;
   edm::InputTag gtTag;
+
+  edm::InputTag inputMuonLabel;
+  edm::InputTag inputBeamSpotLabel;
 
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
@@ -177,11 +187,89 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   double _HaMetPhi;
 
   //
+  math::XYZPoint bspot;
+
+  edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > corMetGlobalMuons_ValueMap_Handle;
+  edm::Handle< reco::MuonCollection > muon_h;
+  edm::Handle< reco::BeamSpot > beamSpot_h;
+
+  //
   DQMStore *_dbe;
 
+  //trigger histos
+  MonitorElement* hTriggerName_HighPtJet;
+  MonitorElement* hTriggerName_LowPtJet;
+  MonitorElement* hTriggerName_HighMET;
+  MonitorElement* hTriggerName_LowMET;
+  MonitorElement* hTriggerName_Ele;
+  MonitorElement* hTriggerName_Muon;
+
   //the histos
+  MonitorElement* hCaloMETRate;
 
-  std::map<std::string, MonitorElement*> me;
-
+  MonitorElement* hmetME;
+  MonitorElement* hNevents;
+  MonitorElement* hCaloMEx;
+  MonitorElement* hCaloMEy;
+  MonitorElement* hCaloEz;
+  MonitorElement* hCaloMETSig;
+  MonitorElement* hCaloMET;
+  MonitorElement* hCaloMETPhi;
+  MonitorElement* hCaloSumET;
+  
+  MonitorElement* hCaloMET_logx;
+  MonitorElement* hCaloSumET_logx;
+  
+  MonitorElement* hCaloMETIonFeedbck;
+  MonitorElement* hCaloMETHPDNoise;
+  MonitorElement* hCaloMETRBXNoise;
+  
+  MonitorElement* hCaloMETPhi002;
+  MonitorElement* hCaloMETPhi010;
+  MonitorElement* hCaloMETPhi020;
+  
+  MonitorElement* hCaloMExLS;
+  MonitorElement* hCaloMEyLS;
+  
+  MonitorElement* hCaloMaxEtInEmTowers;
+  MonitorElement* hCaloMaxEtInHadTowers;
+  MonitorElement* hCaloEtFractionHadronic;
+  MonitorElement* hCaloEmEtFraction;
+  
+  MonitorElement* hCaloEmEtFraction002;
+  MonitorElement* hCaloEmEtFraction010;
+  MonitorElement* hCaloEmEtFraction020;
+  
+  MonitorElement* hCaloHadEtInHB;
+  MonitorElement* hCaloHadEtInHO;
+  MonitorElement* hCaloHadEtInHE;
+  MonitorElement* hCaloHadEtInHF;
+  MonitorElement* hCaloEmEtInHF;
+  MonitorElement* hCaloEmEtInEE;
+  MonitorElement* hCaloEmEtInEB;
+  
+  MonitorElement* hCaloEmMEx;
+  MonitorElement* hCaloEmMEy;
+  MonitorElement* hCaloEmEz;
+  MonitorElement* hCaloEmMET;
+  MonitorElement* hCaloEmMETPhi;
+  MonitorElement* hCaloEmSumET;
+  
+  MonitorElement* hCaloHaMEx;
+  MonitorElement* hCaloHaMEy;
+  MonitorElement* hCaloHaEz;
+  MonitorElement* hCaloHaMET;
+  MonitorElement* hCaloHaMETPhi;
+  MonitorElement* hCaloHaSumET;
+  
+  MonitorElement* hmuPt;
+  MonitorElement* hmuEta;
+  MonitorElement* hmuNhits;
+  MonitorElement* hmuChi2;
+  MonitorElement* hmuD0;
+  MonitorElement* hMExCorrection;
+  MonitorElement* hMEyCorrection;
+  MonitorElement* hMuonCorrectionFlag;
+  
 };
 #endif

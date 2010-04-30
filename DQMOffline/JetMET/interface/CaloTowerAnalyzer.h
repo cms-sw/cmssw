@@ -30,7 +30,6 @@ private:
 
   // DAQ Tools
   DQMStore* dbe_;
-  std::map<std::string, MonitorElement*> me;
 
   // Inputs from Configuration
   edm::InputTag caloTowersLabel_;

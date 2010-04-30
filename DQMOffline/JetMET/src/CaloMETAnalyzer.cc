@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/04/02 12:33:13 $
- *  $Revision: 1.37 $
+ *  $Date: 2010/04/03 14:36:22 $
+ *  $Revision: 1.38 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -87,6 +87,10 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
   theCaloMETCollectionLabel       = parameters.getParameter<edm::InputTag>("METCollectionLabel");
   _source                         = parameters.getParameter<std::string>("Source");
 
+  if (theCaloMETCollectionLabel.label() == "corMetGlobalMuons" ) {
+    inputBeamSpotLabel      = parameters.getParameter<edm::InputTag>("InputBeamSpotLabel");
+  }
+  
   // Other data collections
   theCaloTowersLabel          = parameters.getParameter<edm::InputTag>("CaloTowersLabel");
   theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
@@ -309,7 +313,17 @@ void CaloMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=
     hCaloHaMETPhi->setAxisTitle("HA METPhi [rad]",1);
     hCaloHaSumET= _dbe->book1D("METTask_CaloHaSumET","METTask_CaloHaSumET",500,0,2000);
     hCaloHaSumET->setAxisTitle("HA SumET [GeV]",1);
-
+  }
+  
+  if (theCaloMETCollectionLabel.label() == "corMetGlobalMuons" ) {
+    hmuPt    = _dbe->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
+    hmuEta   = _dbe->book1D("METTask_muonEta", "METTask_muonEta", 60, -3.0, 3.0);
+    hmuNhits = _dbe->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
+    hmuChi2  = _dbe->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
+    hmuD0    = _dbe->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
+    hMExCorrection       = _dbe->book1D("METTask_MExCorrection", "METTask_MExCorrection", 100, -500.0,500.0);
+    hMEyCorrection       = _dbe->book1D("METTask_MEyCorrection", "METTask_MEyCorrection", 100, -500.0,500.0);
+    hMuonCorrectionFlag  = _dbe->book1D("METTask_CorrectionFlag","METTask_CorrectionFlag", 5, -0.5, 4.5);
   }
 
 }
@@ -507,6 +521,20 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   calomet = &(calometcol->front());
   
   LogTrace(metname)<<"[CaloMETAnalyzer] Call to the CaloMET analyzer";
+
+  //Only for corMetGlobalMuons
+  if (theCaloMETCollectionLabel.label() == "corMetGlobalMuons" ) {
+    
+    iEvent.getByLabel("muonMETValueMapProducer" , "muCorrData", corMetGlobalMuons_ValueMap_Handle);
+    iEvent.getByLabel("muons", muon_h);
+    iEvent.getByLabel(inputBeamSpotLabel, beamSpot_h);
+    
+    if(!beamSpot_h.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
+    
+    bspot = ( beamSpot_h.isValid() ) ? beamSpot_h->position() : math::XYZPoint(0, 0, 0);
+    
+  }
+
 
   // ==========================================================
   //
@@ -1066,6 +1094,27 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
 
     } // _allhist
 
+    if (theCaloMETCollectionLabel.label() == "corMetGlobalMuons" ) {
+      
+      for( reco::MuonCollection::const_iterator muonit = muon_h->begin(); muonit != muon_h->end(); muonit++ ) {
+	const reco::TrackRef siTrack = muonit->innerTrack();
+	hmuPt->Fill( muonit->p4().pt() );
+	hmuEta->Fill( muonit->p4().eta() );
+	hmuNhits->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
+	hmuChi2->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
+	double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;
+	hmuD0->Fill( d0 );
+      }
+      
+      const unsigned int nMuons = muon_h->size();      
+      for( unsigned int mus = 0; mus < nMuons; mus++ ) {
+	reco::MuonRef muref( muon_h, mus);
+	reco::MuonMETCorrectionData muCorrData = (*corMetGlobalMuons_ValueMap_Handle)[muref];
+ 	hMExCorrection -> Fill(muCorrData.corrY());
+ 	hMEyCorrection -> Fill(muCorrData.corrX());
+ 	hMuonCorrectionFlag-> Fill(muCorrData.type());
+      }
+    }    
   } // et threshold cut
 
 }

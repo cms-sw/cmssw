@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for MET (Mu corrected/TcMET)
  *
- *  $Date: 2010/02/24 19:08:54 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/03/02 02:11:45 $
+ *  $Revision: 1.13 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -195,9 +195,55 @@ class METAnalyzer : public METAnalyzerBase {
   //
   DQMStore *_dbe;
 
-  //the histos
+  //trigger histos
+  MonitorElement* hTriggerName_HighPtJet;
+  MonitorElement* hTriggerName_LowPtJet;
+  MonitorElement* hTriggerName_HighMET;
+  MonitorElement* hTriggerName_LowMET;
+  MonitorElement* hTriggerName_Ele;
+  MonitorElement* hTriggerName_Muon;
 
-  std::map<std::string, MonitorElement*> me;
+  //the histos
+  MonitorElement* hMETRate;
+
+  MonitorElement* hmetME;
+  MonitorElement* hNevents;
+  MonitorElement* hMEx;
+  MonitorElement* hMEy;
+  MonitorElement* hEz;
+  MonitorElement* hMETSig;
+  MonitorElement* hMET;
+  MonitorElement* hMETPhi;
+  MonitorElement* hSumET;
+
+  MonitorElement* hMET_logx;
+  MonitorElement* hSumET_logx;
+
+  MonitorElement* hMETIonFeedbck;
+  MonitorElement* hMETHPDNoise;
+  MonitorElement* hMETRBXNoise;
+
+  MonitorElement* hMExLS;
+  MonitorElement* hMEyLS;
+
+  MonitorElement* htrkPt;
+  MonitorElement* htrkEta;
+  MonitorElement* htrkNhits;
+  MonitorElement* htrkChi2;
+  MonitorElement* htrkD0;
+  MonitorElement* helePt;
+  MonitorElement* heleEta;
+  MonitorElement* heleHoE;
+  MonitorElement* hmuPt;
+  MonitorElement* hmuEta;
+  MonitorElement* hmuNhits;
+  MonitorElement* hmuChi2;
+  MonitorElement* hmuD0;
+  
+  MonitorElement* hMExCorrection;
+  MonitorElement* hMEyCorrection;
+  MonitorElement* hMuonCorrectionFlag;
+
 
 };
 #endif

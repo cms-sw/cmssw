@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/04/02 12:33:19 $
- *  $Revision: 1.24 $
+ *  $Date: 2010/04/03 14:36:22 $
+ *  $Revision: 1.25 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -91,8 +91,6 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
     inputTrackLabel         = parameters.getParameter<edm::InputTag>("InputTrackLabel");    
     inputMuonLabel          = parameters.getParameter<edm::InputTag>("InputMuonLabel");
     inputElectronLabel      = parameters.getParameter<edm::InputTag>("InputElectronLabel");
-    inputBeamSpotLabel      = parameters.getParameter<edm::InputTag>("InputBeamSpotLabel");
-  } else if (theMETCollectionLabel.label() == "corMetGlobalMuons" ) {
     inputBeamSpotLabel      = parameters.getParameter<edm::InputTag>("InputBeamSpotLabel");
   }
 
@@ -267,12 +265,6 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
     hmuNhits  = _dbe->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
     hmuChi2   = _dbe->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
     hmuD0     = _dbe->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
-  } else if (theMETCollectionLabel.label() == "corMetGlobalMuons" ) {
-    hmuPt    = _dbe->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
-    hmuEta   = _dbe->book1D("METTask_muonEta", "METTask_muonEta", 60, -3.0, 3.0);
-    hmuNhits = _dbe->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
-    hmuChi2  = _dbe->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
-    hmuD0    = _dbe->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
   }
 
   hMExCorrection       = _dbe->book1D("METTask_MExCorrection", "METTask_MExCorrection", 100, -500.0,500.0);
@@ -467,7 +459,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   LogTrace(metname)<<"[METAnalyzer] Call to the MET analyzer";
 
   // ==========================================================
-  // TCMET and corMetGlobalMuons only
+  // TCMET 
 
   if (theMETCollectionLabel.label() == "tcMet" ) {
 
@@ -480,17 +472,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(!muon_h.isValid())     edm::LogInfo("OutputInfo") << "falied to retrieve muon data require by MET Task";
     if(!track_h.isValid())    edm::LogInfo("OutputInfo") << "falied to retrieve track data require by MET Task";
     if(!electron_h.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve electron data require by MET Task";
-    if(!beamSpot_h.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
-
-    bspot = ( beamSpot_h.isValid() ) ? beamSpot_h->position() : math::XYZPoint(0, 0, 0);
-    
-  }
-  else if (theMETCollectionLabel.label() == "corMetGlobalMuons" ) {
-
-    iEvent.getByLabel("muonMETValueMapProducer" , "muCorrData", corMetGlobalMuons_ValueMap_Handle);
-    iEvent.getByLabel("muons", muon_h);
-    iEvent.getByLabel(inputBeamSpotLabel, beamSpot_h);
-
     if(!beamSpot_h.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
 
     bspot = ( beamSpot_h.isValid() ) ? beamSpot_h->position() : math::XYZPoint(0, 0, 0);
@@ -900,31 +881,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	  hMuonCorrectionFlag-> Fill(muCorrData.type());
 	}
       }
-      
-      ////////////////////////////////////
-    } else if (theMETCollectionLabel.label() == "corMetGlobalMuons" ) {
-
-      for( reco::MuonCollection::const_iterator muonit = muon_h->begin(); muonit != muon_h->end(); muonit++ ) {
-      const reco::TrackRef siTrack = muonit->innerTrack();
-      hmuPt->Fill( muonit->p4().pt() );
-      hmuEta->Fill( muonit->p4().eta() );
-      hmuNhits->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
-      hmuChi2->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
-      double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;
-      hmuD0->Fill( d0 );
-      }
-
-      const unsigned int nMuons = muon_h->size();      
-      for( unsigned int mus = 0; mus < nMuons; mus++ ) {
-	reco::MuonRef muref( muon_h, mus);
-	reco::MuonMETCorrectionData muCorrData = (*corMetGlobalMuons_ValueMap_Handle)[muref];
- 	hMExCorrection -> Fill(muCorrData.corrY());
- 	hMEyCorrection -> Fill(muCorrData.corrX());
- 	hMuonCorrectionFlag-> Fill(muCorrData.type());
-      }
-      
-    }    
-    ////////////////////////////////////
+    }
 
   } // et threshold cut
 

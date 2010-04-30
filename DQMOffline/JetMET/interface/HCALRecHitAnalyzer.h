@@ -18,7 +18,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 class HCALRecHitAnalyzer: public edm::EDAnalyzer {
-public:
+ public:
 
   explicit HCALRecHitAnalyzer(const edm::ParameterSet&);
 
@@ -27,11 +27,10 @@ public:
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endJob();
 
-private:
+ private:
 
   // DAQ Tools
   DQMStore* dbe_;
-  std::map<std::string, MonitorElement*> me;
 
   // Inputs from Configuration
   edm::InputTag hBHERecHitsLabel_;
@@ -44,6 +43,83 @@ private:
   void FillGeometry(const edm::EventSetup&);
   virtual void BookHistos();
   int Nevents;
+
+  //histos
+  MonitorElement* hHCAL_ieta_iphi_HBMap;
+  MonitorElement* hHCAL_ieta_iphi_HEMap;
+  MonitorElement* hHCAL_ieta_iphi_HFMap;
+  MonitorElement* hHCAL_ieta_iphi_HOMap;
+  MonitorElement* hHCAL_ieta_iphi_etaMap;
+  MonitorElement* hHCAL_ieta_iphi_phiMap;
+  MonitorElement* hHCAL_ieta_detaMap;
+  MonitorElement* hHCAL_ieta_dphiMap;
+  
+  MonitorElement* hHCAL_Nevents;
+  
+  MonitorElement* hHCAL_D1_energy_ieta_iphi;
+  MonitorElement* hHCAL_D2_energy_ieta_iphi;
+  MonitorElement* hHCAL_D3_energy_ieta_iphi;
+  MonitorElement* hHCAL_D4_energy_ieta_iphi;
+  
+  MonitorElement* hHCAL_D1_Minenergy_ieta_iphi;
+  MonitorElement* hHCAL_D2_Minenergy_ieta_iphi;
+  MonitorElement* hHCAL_D3_Minenergy_ieta_iphi;
+  MonitorElement* hHCAL_D4_Minenergy_ieta_iphi;
+  
+  MonitorElement* hHCAL_D1_Maxenergy_ieta_iphi;
+  MonitorElement* hHCAL_D2_Maxenergy_ieta_iphi;
+  MonitorElement* hHCAL_D3_Maxenergy_ieta_iphi;
+  MonitorElement* hHCAL_D4_Maxenergy_ieta_iphi;
+  
+  MonitorElement* hHCAL_D1_Occ_ieta_iphi;
+  MonitorElement* hHCAL_D2_Occ_ieta_iphi;
+  MonitorElement* hHCAL_D3_Occ_ieta_iphi;
+  MonitorElement* hHCAL_D4_Occ_ieta_iphi;
+  
+  MonitorElement* hHCAL_D1_energyvsieta;
+  MonitorElement* hHCAL_D2_energyvsieta;
+  MonitorElement* hHCAL_D3_energyvsieta;
+  MonitorElement* hHCAL_D4_energyvsieta;
+  
+  MonitorElement* hHCAL_D1_Minenergyvsieta;
+  MonitorElement* hHCAL_D2_Minenergyvsieta;
+  MonitorElement* hHCAL_D3_Minenergyvsieta;
+  MonitorElement* hHCAL_D4_Minenergyvsieta;
+  
+  MonitorElement* hHCAL_D1_Maxenergyvsieta;
+  MonitorElement* hHCAL_D2_Maxenergyvsieta;
+  MonitorElement* hHCAL_D3_Maxenergyvsieta;
+  MonitorElement* hHCAL_D4_Maxenergyvsieta;
+  
+  MonitorElement* hHCAL_D1_Occvsieta;
+  MonitorElement* hHCAL_D2_Occvsieta;
+  MonitorElement* hHCAL_D3_Occvsieta;
+  MonitorElement* hHCAL_D4_Occvsieta;
+  
+  MonitorElement* hHCAL_D1_SETvsieta;
+  MonitorElement* hHCAL_D2_SETvsieta;
+  MonitorElement* hHCAL_D3_SETvsieta;
+  MonitorElement* hHCAL_D4_SETvsieta;
+  
+  MonitorElement* hHCAL_D1_METvsieta;
+  MonitorElement* hHCAL_D2_METvsieta;
+  MonitorElement* hHCAL_D3_METvsieta;
+  MonitorElement* hHCAL_D4_METvsieta;
+  
+  MonitorElement* hHCAL_D1_METPhivsieta;
+  MonitorElement* hHCAL_D2_METPhivsieta;
+  MonitorElement* hHCAL_D3_METPhivsieta;
+  MonitorElement* hHCAL_D4_METPhivsieta;
+  
+  MonitorElement* hHCAL_D1_MExvsieta;
+  MonitorElement* hHCAL_D2_MExvsieta;
+  MonitorElement* hHCAL_D3_MExvsieta;
+  MonitorElement* hHCAL_D4_MExvsieta;
+  
+  MonitorElement* hHCAL_D1_MEyvsieta;
+  MonitorElement* hHCAL_D2_MEyvsieta;
+  MonitorElement* hHCAL_D3_MEyvsieta;
+  MonitorElement* hHCAL_D4_MEyvsieta;
 };
 
 #endif
