@@ -26,6 +26,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 
 #include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -210,6 +211,18 @@ namespace edm {
          FDEBUG(10) << "StreamerInputSource::deserializeRegistry protocolVersion_= "<< protocolVersion_<< std::endl;
     }
     
+   // calculate the adler32 checksum
+   uint32_t adler32_chksum = cms::Adler32((char*)initView.descData(),initView.descLength());
+   //std::cout << "Adler32 checksum of init message = " << adler32_chksum << std::endl;
+   //std::cout << "Adler32 checksum of init messsage from header = " << initView.adler32_chksum() << " "
+   //          << "host name = " << initView.hostName() << " len = " << initView.hostName_len() << std::endl;
+    if((uint32)adler32_chksum != initView.adler32_chksum()) {
+      std::cerr << "Error from StreamerInputSource: checksum of Init registry blob failed " 
+                << " chksum from registry data = " << adler32_chksum << " from header = " 
+                << initView.adler32_chksum() << " host name = " << initView.hostName() << std::endl;
+      // skip event (based on option?) or throw exception?
+    }
+    
     TClass* desc = getTClass(typeid(SendJobHeader));
 
     TBufferFile xbuf(TBuffer::kRead, initView.descLength(),
@@ -265,6 +278,7 @@ namespace edm {
          << eventView.event() << " "
          << eventView.run() << " "
          << eventView.size() << " "
+         << eventView.adler32_chksum() << " "
          << eventView.eventLength() << " "
          << eventView.eventData()
          << std::endl;
@@ -275,6 +289,16 @@ namespace edm {
     unsigned long origsize = eventView.origDataSize();
     unsigned long dest_size; //(should be >= eventView.origDataSize() )
 
+    uint32_t adler32_chksum = cms::Adler32((char*)eventView.eventData(), eventView.eventLength());
+    //std::cout << "Adler32 checksum of event = " << adler32_chksum << std::endl;
+    //std::cout << "Adler32 checksum from header = " << eventView.adler32_chksum() << " "
+    //          << "host name = " << eventView.hostName() << " len = " << eventView.hostName_len() << std::endl;
+    if((uint32)adler32_chksum != eventView.adler32_chksum()) {
+      std::cerr << "Error from StreamerInputSource: checksum of event data blob failed " 
+                << " chksum from event = " << adler32_chksum << " from header = " 
+                << eventView.adler32_chksum() << " host name = " << eventView.hostName() << std::endl;
+      // skip event (based on option?) or throw exception?
+    }
     if(origsize != 78 && origsize != 0)
     {
       // compressed
@@ -386,11 +410,11 @@ namespace edm {
 				       unsigned int expectedFullSize)
   {
     unsigned long origSize = expectedFullSize;
-    unsigned long uncompressedSize = expectedFullSize;
+    unsigned long uncompressedSize = expectedFullSize*1.1;
     FDEBUG(1) << "Uncompress: original size = " << origSize
               << ", compressed size = " << inputSize
               << std::endl;
-    outputBuffer.resize(origSize);
+    outputBuffer.resize(uncompressedSize);
     int ret = uncompress(&outputBuffer[0], &uncompressedSize,
                          inputBuffer, inputSize); // do not need compression level
     //std::cout << "unCompress Return value: " << ret << " Okay = " << Z_OK << std::endl;

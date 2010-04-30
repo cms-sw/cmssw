@@ -18,6 +18,9 @@ code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Eve
 Protocol Version 7: No change to protocol, only description blob (and event data blob) changed
 code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Event Header Size 4| releaseTagLength 1 | ReleaseTag var| processNameLength 1 | processName var| outputModuleLabelLength 1 | outputModuleLabel var | outputModuleId 4 | HLT Trig count 4| HLT Trig Length 4 | HLT Trig names var | HLT Selection count 4| HLT Selection Length 4 | HLT Selection names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var |desc legth 4 | description blob var
 
+Protocol Version 8: added data blob checksum and hostname
+code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Event Header Size 4| releaseTagLength 1 | ReleaseTag var| processNameLength 1 | processName var| outputModuleLabelLength 1 | outputModuleLabel var | outputModuleId 4 | HLT Trig count 4| HLT Trig Length 4 | HLT Trig names var | HLT Selection count 4| HLT Selection Length 4 | HLT Selection names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var | adler32 chksum | host name length | host name |desc legth 4 | description blob var
+
 */
 
 #ifndef IOPool_Streamer_InitMessage_h
@@ -83,6 +86,9 @@ public:
   const uint8* descData() const { return desc_start_; }
   uint32 headerSize() const {return desc_start_-buf_;}
   uint32 eventHeaderSize() const;
+  uint32 adler32_chksum() const {return adler32_chksum_;}
+  std::string hostName() const;
+  uint32 hostName_len() const {return host_name_len_;}
 
 private:
   uint8* buf_;
@@ -107,6 +113,9 @@ private:
   uint8* l1_trig_start_; // points to the string
   uint32 l1_trig_count_; // number of strings
   uint32 l1_trig_len_; // length of strings character array only
+  uint32 adler32_chksum_;
+  uint8* host_name_start_;
+  uint32 host_name_len_;
 
   // does not need to be present in the message sent over the network,
   // but is needed for the index file

@@ -30,6 +30,8 @@ int main()
   uint32 lumiSection = 789;
   uint32 updateNumber = 111;
   char topFolderName[]="TopFolder";
+  uint32_t adler32_chksum = 42;
+  std::string host_name = "mytestnode.cms";
 
   DQMEvent::TObjectTable toTable;
   
@@ -43,6 +45,8 @@ int main()
 				     //fakeTime.value(),
 				     fakeTime,
                                      lumiSection, updateNumber,
+                                     (uint32)adler32_chksum,
+                                     host_name.c_str(),
                                      edm::getReleaseVersion(), topFolderName,
                                      toTable);
 

@@ -30,6 +30,9 @@
  * - Number of Monitor Elements in Subfolder I (4 bytes)   | Repeated
  * - Subfolder I Name Length (4 bytes)                     | for each
  * - Subfolder I Name (varies)                             | subfolder
+ * - DQM Event Data checksum (4 bytes)
+ * - Host name length (1 byte)
+ * - Host name (variable)
  * - DQM Event Data Length (4 bytes)
  * - DQM Event Data (varies)
  */
@@ -39,6 +42,7 @@
 
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
+
 // ------------------ dqm event message builder ----------------
 
 class DQMEventMsgBuilder
@@ -47,6 +51,8 @@ class DQMEventMsgBuilder
   DQMEventMsgBuilder(void* buf, uint32 bufSize, uint32 run, uint32 event,
 		     edm::Timestamp timeStamp,
                      uint32 lumiSection, uint32 updateNumber,
+                     uint32 adler32_chksum,
+                     const char* host_name,
                      std::string const& releaseTag,
                      std::string const& topFolderName,
                      DQMEvent::TObjectTable monitorElementsBySubFolder);

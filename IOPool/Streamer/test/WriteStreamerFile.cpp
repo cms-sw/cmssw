@@ -20,8 +20,11 @@ Disclaimer: Most of the code here is randomly written during
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
 #include "IOPool/Streamer/interface/StreamerOutputIndexFile.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
+
 
 #include "zlib.h"
 
@@ -31,7 +34,7 @@ int main()
 { 
   typedef std::vector<uint8> Buffer;
   Buffer buf(1024);
-  Buffer buf2(1024);
+  Buffer buf2(11024);
 
   // ----------- init
 
@@ -62,11 +65,15 @@ int main()
   Bytef* crcbuf = (Bytef*) outputModuleLabel.data();
   crc = crc32(crc, crcbuf, outputModuleLabel.length());
 
+  uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
+  std::string host_name = "mytestnode.cms";
+
   InitMsgBuilder init(&buf[0],buf.size(),12,
-                      Version(7,(const uint8*)psetid),
+                      Version(8,(const uint8*)psetid),
                       (const char*)reltag, processName.c_str(),
                       outputModuleLabel.c_str(), crc,
-                      hlt_names,hlt_names,l1_names);
+                      hlt_names,hlt_names,l1_names,
+                      adler32_chksum, host_name.c_str());
 
   init.setDataLength(sizeof(test_value));
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
@@ -80,7 +87,7 @@ int main()
   StreamerOutputFile stream_writer(initfilename);
   
   //Start Index file
-  std::cout << "Trying to Write Out The Index Binary File" << initfilename << std::endl;
+  std::cout << "Trying to Write Out The Index Binary File " << initfilename << std::endl;
   std::string indexfilename = "testindexfile.ind";
   StreamerOutputIndexFile index_writer(indexfilename);
 
@@ -99,20 +106,22 @@ int main()
 
   std::vector<bool> l1bit(11);
   uint8 hltbits[] = "4567";
-  //const int hltsize = (sizeof(hltbits)-1)*4;
   const int hltsize = 9;  /** I am interested in 9 bits only */
 
   l1bit[0]=true;  l1bit[4]=true;  l1bit[8]=false;  //l1bit[12]=true;
   l1bit[1]=true;  l1bit[5]=false;  l1bit[9]=false;  //l1bit[13]=false;
   l1bit[2]=false;  l1bit[6]=true;  l1bit[10]=true;  //l1bit[14]=false;
-  l1bit[3]=false;  l1bit[7]=false;  l1bit[11]=true;  //l1bit[15]=true;
+  l1bit[3]=false;  l1bit[7]=false;  //l1bit[11]=true;  //l1bit[15]=true;
   //l1bit[16]=false;  l1bit[17]=false;  l1bit[18]=true;  l1bit[19]=true;
 
   //Lets Build 10 Events ad then Write them into Streamer/Index file.
   
+  adler32_chksum = (uint32)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
+  //host_name = "mytestnode.cms";
+
   for (uint32 eventId = 2000; eventId != 2000+NO_OF_EVENTS; ++eventId) {
-    EventMsgBuilder emb(&buf[0],buf.size(),45,eventId,2,0xdeadbeef,
-                      l1bit,hltbits,hltsize);            
+    EventMsgBuilder emb(&buf2[0],buf2.size(),45,eventId,2,0xdeadbeef,
+                      l1bit,hltbits,hltsize,adler32_chksum, host_name.c_str());
     emb.setOrigDataSize(78);
     emb.setEventLength(sizeof(test_value_event));
     std::copy(&test_value_event[0],&test_value_event[0]+sizeof(test_value_event),

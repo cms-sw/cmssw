@@ -8,6 +8,7 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/StreamDQMSerializer.h"
 #include "IOPool/Streamer/interface/StreamSerializer.h"
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 
 #include <cstdlib>
 
@@ -27,7 +28,8 @@ namespace edm
     curr_event_size_(),
     curr_space_used_(),
     rootbuf_(TBuffer::kWrite,init_size),
-    ptr_((unsigned char*)rootbuf_.Buffer())
+    ptr_((unsigned char*)rootbuf_.Buffer()),
+    adler32_chksum_(0)
   { }
 
   /**
@@ -74,6 +76,9 @@ namespace edm
             curr_space_used_ = dest_size;
           }
       }
+    // calculate the adler32 checksum 
+    adler32_chksum_ = cms::Adler32((char*)ptr_, curr_space_used_);
+
 
     return curr_space_used_;
   }

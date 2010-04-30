@@ -27,6 +27,14 @@ l1_count 4| l1bits l1_count/8  |
 hlt_count 4| hltbits hlt_count/4 |
 eventdatalength 4 | eventdata blob {variable} 
 
+Protocol Version 8:  // add in checksum of data blob changes
+code 1 | size 4 | protocol version 1 |
+run 4 | event 4 | lumi 4 | origDataSize 4 | outModId 4 |
+l1_count 4| l1bits l1_count/8  | 
+hlt_count 4| hltbits hlt_count/4 |
+adler32_chksum 4 | host name length 1 | host name {Fixed size}
+eventdatalength 4 | eventdata blob {variable} 
+
 */
 
 #ifndef IOPool_Streamer_EventMessage_h
@@ -73,6 +81,9 @@ public:
 
   uint32 hltCount() const {return hlt_bits_count_;}
   uint32 l1Count() const {return l1_bits_count_;}
+  uint32 adler32_chksum() const {return adler32_chksum_;}
+  std::string hostName() const;
+  uint32 hostName_len() const {return host_name_len_;}
 
 private:
   uint8* buf_;
@@ -84,6 +95,9 @@ private:
   uint32 l1_bits_count_;
   uint8* event_start_;
   uint32 event_len_;
+  uint32 adler32_chksum_;
+  uint8* host_name_start_;
+  uint32 host_name_len_;
   bool v2Detected_;
 };
 

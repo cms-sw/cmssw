@@ -33,6 +33,7 @@ namespace edm
     unsigned char* bufferPointer() const { return ptr_; }
     unsigned int currentSpaceUsed() const { return curr_space_used_; }
     unsigned int currentEventSize() const { return curr_event_size_; }
+    uint32_t adler32_chksum() const { return adler32_chksum_; }
 
   private:
 
@@ -51,6 +52,7 @@ namespace edm
     unsigned int curr_space_used_; // less than curr_event_size_ if compressed
     TBufferFile rootbuf_;
     unsigned char* ptr_; // set to the place where the last event stored
+    uint32_t  adler32_chksum_; // adler32 check sum for the (compressed) data
 
   };
 

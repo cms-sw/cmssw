@@ -11,7 +11,8 @@ public:
   EventMsgBuilder(void* buf, uint32 size,
                   uint32 run, uint32 event, uint32 lumi, uint32 outModId,
                   std::vector<bool>& l1_bits,
-                  uint8* hlt_bits, uint32 hlt_bit_count);
+                  uint8* hlt_bits, uint32 hlt_bit_count, 
+                  uint32 adler32_chksum, const char* host_name);
 
   void setOrigDataSize(uint32);
   uint8* startAddress() const { return buf_; }

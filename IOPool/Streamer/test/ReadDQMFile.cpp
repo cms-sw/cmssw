@@ -30,15 +30,17 @@ int main()
   StreamDQMInputFile dqm_file("dqm_file.dqm");
 
   while(dqm_file.next()) {
-	cout << "----------DQM EVENT-----------" << std::endl;
+	std::cout << "----------DQM EVENT-----------" << std::endl;
 	const DQMEventMsgView* dqmMsgView = dqm_file.currentRecord();
-	cout
+	std::cout
 		<< "code = " << dqmMsgView->code()<< ", "
 		<< "\nsize = " << dqmMsgView->size()<< ", "
 		<< "\nrun = " << dqmMsgView->runNumber() << ", "
 		<< "\ntimeStamp = " << dqmMsgView->timeStamp().value() << " "
 		<< "\neventLength = " << dqmMsgView->eventLength() << ", "
 		<< "\nevent = " << dqmMsgView->eventNumberAtUpdate() << "\n"
+		<< "checksum = " << dqmMsgView->adler32_chksum() << "\n"
+		<< "host name = " << dqmMsgView->hostName() << "\n"
 		<< "topFolderName = " << dqmMsgView->topFolderName() << "\n"
 		<< "release = " << dqmMsgView->releaseTag() << "\n";
   }

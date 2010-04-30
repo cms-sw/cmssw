@@ -30,6 +30,10 @@ void dumpInitHeader(const InitMsgView* view)
     std::cout << "outputModuleId=0x" << std::hex << view->outputModuleId()
               << std::dec << std::endl;
   }
+  if (view->protocolVersion() >= 8) {
+    std::cout << "Checksum for Registry data = " << view->adler32_chksum()
+              << " Hostname = " << view->hostName() << std::endl;
+  }
 
   //PSet 16 byte non-printable representation, stored in message.
   uint8 vpset[16];
@@ -145,6 +149,8 @@ void dumpEventHeader(const EventMsgView* eview)
        << "lumi=" << eview->lumi() << "\n"
        << "origDataSize=" << eview->origDataSize() << "\n"
        << "outModId=0x" << std::hex << eview->outModId() << std::dec << "\n"
+       << "adler32 chksum= " << eview->adler32_chksum() << "\n"
+       << "host name= " << eview->hostName() << "\n"
        << "event length=" << eview->eventLength() << "\n";
 
   std::vector<bool> l1_out;
@@ -207,6 +213,8 @@ void dumpDQMEventHeader(const DQMEventMsgView* dview)
        << "event = " << dview->eventNumberAtUpdate() << "\n"
        << "lumi = " << dview->lumiSection() << "\n"
        << "update = " << dview->updateNumber() << "\n"
+       << "checksum = " << dview->adler32_chksum() << "\n"
+       << "host name= " << dview->hostName() << "\n"
        << "compressionFlag = " << dview->compressionFlag() << "\n"
        << "fuProcessId = " << dview->fuProcessId() << "\n"
        << "fuGuid = 0x" << std::hex << dview->fuGuid() << std::dec << "\n"

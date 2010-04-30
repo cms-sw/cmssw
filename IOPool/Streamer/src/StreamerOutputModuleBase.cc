@@ -14,6 +14,7 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include <string>
+#include <unistd.h>
 #include "zlib.h"
 
 static SerializeDataBuffer serialize_databuffer;
@@ -84,6 +85,8 @@ namespace edm {
       }
     }
     serialize_databuffer.bufs_.resize(maxEventSize_);
+    int got_host = gethostname(host_name_, 255);
+    if(got_host != 0) strcpy(host_name_, "noHostNameFoundOrTooLong");
     //loadExtraClasses();
     // do the line below instead of loadExtraClasses() to avoid Root errors
     RootAutoLibraryLoader::enable();
@@ -154,7 +157,7 @@ namespace edm {
     //  std::cout << "HEX Representation of Process PSetID: " << hexy << std::endl;  
 
     //Setting protocol version V
-    Version v(7,(uint8*)toplevel.compactForm().c_str());
+    Version v(8,(uint8*)toplevel.compactForm().c_str());
 
     Strings hltTriggerNames = getAllTriggerNames();
     hltsize_ = hltTriggerNames.size();
@@ -178,7 +181,8 @@ namespace edm {
         new InitMsgBuilder(&serialize_databuffer.header_buf_[0], serialize_databuffer.header_buf_.size(),
                            run, v, getReleaseVersion().c_str() , processName.c_str(),
                            moduleLabel.c_str(), outputModuleId_,
-                           hltTriggerNames, hltTriggerSelections_, l1_names));
+                           hltTriggerNames, hltTriggerSelections_, l1_names,
+                           (uint32)serialize_databuffer.adler32_chksum(), host_name_));
 
 
     // copy data into the destination message
@@ -264,7 +268,8 @@ namespace edm {
     std::auto_ptr<EventMsgBuilder> 
       msg(new EventMsgBuilder(&serialize_databuffer.bufs_[0], serialize_databuffer.bufs_.size(), e.id().run(),
                               e.id().event(), lumi_, outputModuleId_,
-                              l1bit_, (uint8*)&hltbits_[0], hltsize_) );
+                              l1bit_, (uint8*)&hltbits_[0], hltsize_,
+                              (uint32)serialize_databuffer.adler32_chksum(), host_name_) );
     msg->setOrigDataSize(origSize_); // we need this set to zero
 
     // copy data into the destination message

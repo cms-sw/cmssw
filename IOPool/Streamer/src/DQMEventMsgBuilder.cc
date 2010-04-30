@@ -8,6 +8,9 @@
 #include "IOPool/Streamer/interface/DQMEventMsgBuilder.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <cassert>
+#include <cstring>
+
 
 /**
  * Constructor.
@@ -17,6 +20,8 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
 			    edm::Timestamp timeStamp,
 		            //uint64 timeStamp,
                             uint32 lumiSection, uint32 updateNumber,
+                            uint32 adler_chksum,
+                            const char* host_name,
                             std::string const& releaseTag,
                             std::string const& topFolderName,
                             DQMEvent::TObjectTable monitorElementsBySubFolder):
@@ -25,7 +30,7 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
   DQMEventHeader* evtHdr;
   uint8* bufPtr;
   uint32 len;
-  uint32 protocolVersion = 2;
+  uint32 protocolVersion = 3;
 
   // fill in event header information
   bufPtr = buf_ + sizeof(DQMEventHeader);
@@ -99,6 +104,18 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
       subFolderName.copy((char*) bufPtr, len);
       bufPtr += len;
     }
+  // adler32 check sum of data blob
+  convert(adler_chksum, bufPtr);
+  bufPtr +=  sizeof(uint32);
+
+  // put host name (Length and then Name) right after check sum
+  uint32 host_name_len = strlen(host_name);
+  assert(host_name_len < 0x00ff);
+  //Put host_name_len
+  *bufPtr++ = host_name_len;
+  //Put host_name 
+  memcpy(bufPtr,host_name,host_name_len);
+  bufPtr += host_name_len;
 
   // set the header size and the event address, taking into account the
   // size of the event length field

@@ -54,6 +54,7 @@ namespace edm {
     std::vector<bool> l1bit_;
     std::vector<unsigned char> hltbits_;
     uint32 origSize_;
+    char host_name_[255];
 
     Strings hltTriggerSelections_;
     uint32 outputModuleId_;

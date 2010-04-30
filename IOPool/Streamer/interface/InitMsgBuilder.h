@@ -17,7 +17,8 @@ public:
                  uint32 output_module_id,
                  const Strings& hlt_names,
                  const Strings& hlt_selections,
-                 const Strings& l1_names);
+                 const Strings& l1_names,
+                 uint32 adler32_chksum, const char* host_name);
 
   uint8* startAddress() const { return buf_; }
   void setDataLength(uint32 registry_length);

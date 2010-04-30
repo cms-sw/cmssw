@@ -18,6 +18,7 @@ Disclaimer: Most of the code here is randomly written during
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "IOPool/Streamer/interface/DumpTools.h"
 #include "zlib.h"
 
@@ -55,10 +56,14 @@ int main()
   Bytef* crcbuf = (Bytef*) outputModuleLabel.data();
   crc = crc32(crc, crcbuf, outputModuleLabel.length());
 
+  uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
+  std::string host_name = "mytestnode.cms";
+
   InitMsgBuilder init(&buf[0],buf.size(),12,
-                      Version(7,(const uint8*)psetid),(const char*)reltag,
+                      Version(8,(const uint8*)psetid),(const char*)reltag,
 		      processName.c_str(),outputModuleLabel.c_str(), crc,
-                      hlt_names,hlt_names,l1_names);
+                      hlt_names,hlt_names,l1_names,
+                      adler32_chksum, host_name.c_str());
 
 
   init.setDataLength(sizeof(test_value));
@@ -73,13 +78,19 @@ int main()
   view.hltTriggerNames(hlt2);
   view.l1TriggerNames(l12);
 
+  uint32 adler32_2 = view.adler32_chksum();
+  std::string host_name2 = view.hostName();
+
+
   InitMsgBuilder init2(&buf2[0],buf2.size(),
                        view.run(),
                        Version(view.protocolVersion(),
                                (const uint8*)psetid2),
                        view.releaseTag().c_str(),
                        processName.c_str(),outputModuleLabel.c_str(), crc,
-                       hlt2,hlt2,l12);
+                       hlt2,hlt2,l12,
+                       adler32_2,
+                       host_name2.c_str());
 
   init2.setDataLength(view.descLength());
   std::copy(view.descData(),view.descData()+view.size(),
@@ -104,8 +115,11 @@ int main()
   l1bit[2]=false;  l1bit[6]=true;  l1bit[10]=true;  l1bit[14]=false;
   l1bit[3]=false;  l1bit[7]=false;  l1bit[11]=true;  l1bit[15]=true;
 
+  adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
+  //host_name = "mytestnode.cms";
+
   EventMsgBuilder emb(&buf[0],buf.size(),45,2020,2,0xdeadbeef,
-                      l1bit,hltbits,hltsize);
+                      l1bit,hltbits,hltsize, adler32_chksum, host_name.c_str());
 
   emb.setOrigDataSize(78);
   emb.setEventLength(sizeof(test_value));
@@ -120,6 +134,8 @@ int main()
   uint8 hlt_out[10];
   eview.l1TriggerBits(l1_out);
   eview.hltTriggerBits(hlt_out);
+  adler32_2 = eview.adler32_chksum();
+  host_name2 = eview.hostName();
 
   EventMsgBuilder emb2(&buf2[0],buf.size(),
                        eview.run(),
@@ -128,7 +144,9 @@ int main()
                        eview.outModId(),
                        l1_out,
                        hlt_out,
-                       hltsize);
+                       hltsize,
+                       adler32_2,
+                       host_name2.c_str());
 
   emb2.setOrigDataSize(eview.origDataSize());
   emb2.setEventLength(eview.eventLength());

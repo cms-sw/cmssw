@@ -28,7 +28,7 @@ DQMEventMsgView::DQMEventMsgView(void* buf):
     }
 
   // verify that the message has a protocol that we support
-  if (this->protocolVersion() != 2)
+  if (this->protocolVersion() != 3)
     {
       throw cms::Exception("MessageDecoding", "DQMEventMsgView")
         << "Unsupport protocol version (" << this->protocolVersion() << ").\n";
@@ -90,6 +90,13 @@ DQMEventMsgView::DQMEventMsgView(void* buf):
       nameListPtr_->push_back(subFolderName);
       subFolderIndexTable_[subFolderName] = idx;
     }
+  adler32_chksum_ = convert32(bufPtr);
+  bufPtr += sizeof(uint32);
+
+  host_name_len_ = *bufPtr;
+  bufPtr += sizeof(uint8);
+  host_name_start_ = bufPtr;
+  bufPtr += host_name_len_;
 
   // determine the event length and address
   eventLen_ = convert32(bufPtr);
@@ -265,5 +272,10 @@ edm::Timestamp DQMEventMsgView::timeStamp() const
 {
   DQMEventHeader* h = (DQMEventHeader*)buf_;
   return edm::Timestamp(convert64(h->timeStamp_));
+}
+
+std::string DQMEventMsgView::hostName() const
+{
+   return std::string(reinterpret_cast<char *>(host_name_start_),host_name_len_);
 }
 

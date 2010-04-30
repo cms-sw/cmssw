@@ -15,9 +15,9 @@ EventMsgView::EventMsgView(void* buf):
 
   // 18-Jul-2008, wmtan - payload changed for version 7.
   // So we no longer support previous formats.
-  if (protocolVersion() != 7) {
+  if (protocolVersion() != 8) {
     throw cms::Exception("EventMsgView", "Invalid Message Version:")
-      << "Only message version 7 is currently supported \n"
+      << "Only message version 8 is currently supported \n"
       << "(invalid value = " << protocolVersion() << ").\n"
       << "We support only reading and converting streamer files\n"
       << "using the same version of CMSSW used to created the\n"
@@ -34,11 +34,13 @@ EventMsgView::EventMsgView(void* buf):
   uint8* l1_bit_size_ptr = buf_ + sizeof(EventHeader); //Just after Header 
   l1_bits_count_ = convert32(l1_bit_size_ptr); 
   uint32 l1_sz = l1_bits_count_;
-  //Lets detect if thats V2 message
-  if (l1_bits_count_ == 11) {
-          l1_sz = 1; 
-          v2Detected_=true;
-  }
+// No point! Not supporting older versions and causes problems in unit
+// tests that uses l1_bits_count_ == 11, and could cause problems later if using 11
+  //Lets detect if thats V2 message 
+  //if (l1_bits_count_ == 11) {
+  //        l1_sz = 1; 
+  //        v2Detected_=true;
+  //}
 
   l1_bits_start_ = buf_ + sizeof(EventHeader) + sizeof(uint32); 
 
@@ -52,7 +54,12 @@ EventMsgView::EventMsgView(void* buf):
   if (hlt_sz != 0) hlt_sz = 1+ ((hlt_sz-1)/4);
 
   if(v2Detected_) hlt_sz=2;
-  event_start_ = hlt_bits_start_ + hlt_sz; 
+  uint8* adler32_start = hlt_bits_start_ + hlt_sz; 
+  adler32_chksum_ = convert32(adler32_start);
+  host_name_start_ = adler32_start + sizeof(uint32);
+  host_name_len_ = *host_name_start_;
+  host_name_start_ += sizeof(uint8);
+  event_start_ = host_name_start_ + host_name_len_;
   event_len_ = convert32(event_start_); 
   event_start_ += sizeof(char_uint32); 
 }
@@ -111,6 +118,18 @@ void EventMsgView::hltTriggerBits(uint8* put_here) const
 
   std::copy(hlt_bits_start_,hlt_bits_start_ + hlt_sz,
             put_here);
+}
+
+std::string EventMsgView::hostName() const
+{
+   //return std::string(reinterpret_cast<char *>(host_name_start_),host_name_len_);
+   std::string host_name(reinterpret_cast<char *>(host_name_start_),host_name_len_);
+   size_t found = host_name.find('\0');
+   if(found != std::string::npos) {
+     return std::string(host_name, 0, found);
+   } else {
+     return host_name;
+   }
 }
 
 

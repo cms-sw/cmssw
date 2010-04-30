@@ -85,7 +85,7 @@ void readfile(std::string filename, std::map<uint32, uint32> &dupEventMap) {
   std::vector<unsigned char> compress_buffer(7000000);
   try{
     // ----------- init
-    StreamerInputFile stream_reader (filename);
+    edm::StreamerInputFile stream_reader (filename);
 
     std::cout << "Trying to Read The Init message from Streamer File: " << std::endl
          << filename << std::endl;
@@ -99,6 +99,7 @@ void readfile(std::string filename, std::map<uint32, uint32> &dupEventMap) {
 
     bool first_event(true);
     std::auto_ptr<EventMsgView> firstEvtView(0);
+    std::vector<unsigned char> savebuf(0);
     const EventMsgView* eview(0);
     std::map<uint32, uint32> seenEventMap;
     seenEventMap.clear();
@@ -127,7 +128,6 @@ void readfile(std::string filename, std::map<uint32, uint32> &dupEventMap) {
         std::cout<<"----------dumping first EVENT-----------"<< std::endl;
         dumpEventView(eview);
         first_event = false;
-        std::vector<unsigned char> savebuf(0);
         unsigned char* src = (unsigned char*)eview->startAddress();
         unsigned int srcSize = eview->size();
         savebuf.resize(srcSize);
@@ -161,7 +161,7 @@ void readfile(std::string filename, std::map<uint32, uint32> &dupEventMap) {
           good_event=false;
         }
       }
-      if((num_events % 1000) == 0) {
+      if((num_events % 50) == 0) {
         std::cout << "Read " << num_events << " events, and "
                   << num_badevents << " events with bad headers, and "
                   << num_baduncompress << " events with bad uncompress" << std::endl;
@@ -240,8 +240,8 @@ bool uncompressBuffer(unsigned char *inputBuffer,
                               unsigned int expectedFullSize)
   {
     unsigned long origSize = expectedFullSize;
-    unsigned long uncompressedSize = expectedFullSize;
-    outputBuffer.resize(origSize);
+    unsigned long uncompressedSize = expectedFullSize*1.1;
+    outputBuffer.resize(uncompressedSize);
     int ret = uncompress(&outputBuffer[0], &uncompressedSize,
                          inputBuffer, inputSize);
     if(ret == Z_OK) {
@@ -266,7 +266,7 @@ void studyDupInFile(std::string filename, std::map<uint32, uint32> &dupEventMap)
   std::vector<unsigned char> compress_buffer(7000000);
   try{
     // ----------- init
-    StreamerInputFile stream_reader (filename);
+    edm::StreamerInputFile stream_reader (filename);
 
     std::cout << std::endl << "Trying to Study duplicate events in Streamer File: " << std::endl
          << filename << std::endl;

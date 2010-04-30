@@ -29,7 +29,8 @@ struct SerializeDataBuffer
     rootbuf_(TBuffer::kWrite,init_size),
     ptr_((unsigned char*)rootbuf_.Buffer()),
     header_buf_(),
-    bufs_()
+    bufs_(),
+    adler32_chksum_(0)
   { }
 
   // This object caches the results of the last INIT or event 
@@ -39,6 +40,7 @@ struct SerializeDataBuffer
   unsigned char* bufferPointer() const { return ptr_; }
   unsigned int currentSpaceUsed() const { return curr_space_used_; }
   unsigned int currentEventSize() const { return curr_event_size_; }
+  uint32_t adler32_chksum() const { return adler32_chksum_; }
 
   std::vector<unsigned char> comp_buf_; // space for compressed data
   unsigned int curr_event_size_;
@@ -47,6 +49,7 @@ struct SerializeDataBuffer
   unsigned char* ptr_; // set to the place where the last event stored
   SBuffer header_buf_; // place for INIT message creation
   SBuffer bufs_;       // place for EVENT message creation
+  uint32_t  adler32_chksum_; // adler32 check sum for the (compressed) data
 };
 
 class EventMsgBuilder;

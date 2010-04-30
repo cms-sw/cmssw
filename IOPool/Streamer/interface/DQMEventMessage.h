@@ -30,6 +30,9 @@
  * - Number of Monitor Elements in Subfolder I (4 bytes)   | Repeated
  * - Subfolder I Name Length (4 bytes)                     | for each
  * - Subfolder I Name (varies)                             | subfolder
+ * - DQM Event Data checksum (4 bytes)
+ * - Host name length (1 byte)
+ * - Host name (variable)
  * - DQM Event Data Length (4 bytes)
  * - DQM Event Data (varies)
  */
@@ -78,6 +81,9 @@ class DQMEventMsgView
   uint8* startAddress() const { return buf_; }
   uint8* eventAddress() const { return eventAddr_; }
   uint32 eventLength() const { return eventLen_; }
+  uint32 adler32_chksum() const {return adler32_chksum_;}
+  std::string hostName() const;
+  uint32 hostName_len() const {return host_name_len_;}
 
   uint32 protocolVersion() const;
   uint32 headerSize() const;
@@ -109,6 +115,9 @@ class DQMEventMsgView
   std::string folderName_;
   uint8* eventAddr_;
   uint32 eventLen_;
+  uint32 adler32_chksum_;
+  uint8* host_name_start_;
+  uint32 host_name_len_;
   uint32 subFolderCount_;
   std::map<std::string, uint32> subFolderIndexTable_;
   boost::shared_ptr< std::vector<std::string> > nameListPtr_;
