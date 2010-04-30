@@ -1,7 +1,7 @@
 /** \class HcalGenericDetId
     \author F.Ratnikov, UMd
    Generic HCAL detector ID suitable for all Hcal subdetectors
-   $Id: HcalGenericDetId.cc,v 1.12 2009/03/24 16:05:59 rofierzy Exp $
+   $Id: HcalGenericDetId.cc,v 1.13 2009/04/03 22:48:48 elmer Exp $
 */
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
@@ -94,25 +94,29 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
 
   int zside=0, ietaAbs=0, ieta=0, iphi=0, depth=0, channel=0, sector=0, module=0;
 
-  // HB valid DetIds: phi=1-72,eta=1-14,depth=1; phi=1-72,eta=15-16,depth=1-2
-  if (genericSubdet() == HcalGenericDetId::HcalGenBarrel )
+  switch (id.genericSubdet()) {
+    // HB valid DetIds: phi=1-72,eta=1-14,depth=1; phi=1-72,eta=15-16,depth=1-2
+  case HcalGenericDetId::HcalGenBarrel:
     {
       HcalDetId tid(rawId() ); 
       zside = tid.zside();
       ietaAbs = tid.ietaAbs();
       iphi = tid.iphi();
       depth = tid.depth();
+      
+      // if (ietaAbs < 16)   index = (iphi - 1)*18 + (ietaAbs - 1) + (depth - 1);
+      // if (ietaAbs == 16)  index = (iphi - 1)*18 + ietaAbs + (depth - 1);
 
-      if (ietaAbs < 16)   index = (iphi - 1)*18 + (ietaAbs - 1) + (depth - 1);
-      if (ietaAbs == 16)  index = (iphi - 1)*18 + ietaAbs + (depth - 1);
+      index = (iphi - 1)*18 + ietaAbs + depth - 2;
+      if (ietaAbs == 16) ++index;
       
       if (zside == -1) index += HBhalf;
     }
-  
-  // HE valid DetIds: phi=1-72,eta=16-17,depth=1; phi=1-72,eta=18-20,depth=1-2; 
-  //                  phi=1-71(in steps of 2),eta=21-26,depth=1-2; phi=1-71(in steps of 2),eta=27-28,depth=1-3
-  //                  phi=1-71(in steps of 2),eta=29,depth=1-2
-  if (genericSubdet() ==  HcalGenericDetId::HcalGenEndcap )
+    break;
+    // HE valid DetIds: phi=1-72,eta=16-17,depth=1; phi=1-72,eta=18-20,depth=1-2; 
+    //                  phi=1-71(in steps of 2),eta=21-26,depth=1-2; phi=1-71(in steps of 2),eta=27-28,depth=1-3
+    //                  phi=1-71(in steps of 2),eta=29,depth=1-2
+  case HcalGenericDetId::HcalGenEndcap:
     {
       HcalDetId tid(rawId() ); 
       zside = tid.zside();
@@ -131,21 +135,22 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
       else
 	{
 	  // make as general as possible, don't care about tight packing for the moment
-	  index = (iphi-1)*4*14 + (ietaAbs - 16)*4 + (depth - 1);
-
-//	  if (ietaAbs == 16)                   index = (iphi - 1)*11 + (iphi/2)*20 + (ietaAbs - 16);
-//	  if (ietaAbs == 17)                   index = (iphi - 1)*11 + (iphi/2)*20 + 1 + (ietaAbs - 17) + (depth - 1);
-//	  if (ietaAbs >= 18 && ietaAbs <= 20)  index = (iphi - 1)*11 + (iphi/2)*20 + 5  + 2*(ietaAbs-18) + (depth - 1);
-//	  if (ietaAbs >= 21 && ietaAbs <= 26)  index = (iphi - 1)*11 + (iphi/2)*20 + 11 + 2*(ietaAbs-21) + (depth - 1);
-//	  if (ietaAbs >= 27 && ietaAbs <= 28)  index = (iphi - 1)*11 + (iphi/2)*20 + 23 + 3*(ietaAbs-27) + (depth - 1);
-//	  if (ietaAbs == 29)                   index = (iphi - 1)*11 + (iphi/2)*20 + 29 + 2*(ietaAbs-29) + (depth - 1);
+	  //	  index = (iphi-1)*(4*14) + (ietaAbs - 16)*4 + (depth - 1);
+	  index = 4*( 14*(iphi-1) + (ietaAbs - 16)) + (depth - 1);
+	  
+	  //	  if (ietaAbs == 16)                   index = (iphi - 1)*11 + (iphi/2)*20 + (ietaAbs - 16);
+	  //	  if (ietaAbs == 17)                   index = (iphi - 1)*11 + (iphi/2)*20 + 1 + (ietaAbs - 17) + (depth - 1);
+	  //	  if (ietaAbs >= 18 && ietaAbs <= 20)  index = (iphi - 1)*11 + (iphi/2)*20 + 5  + 2*(ietaAbs-18) + (depth - 1);
+	  //	  if (ietaAbs >= 21 && ietaAbs <= 26)  index = (iphi - 1)*11 + (iphi/2)*20 + 11 + 2*(ietaAbs-21) + (depth - 1);
+	  //	  if (ietaAbs >= 27 && ietaAbs <= 28)  index = (iphi - 1)*11 + (iphi/2)*20 + 23 + 3*(ietaAbs-27) + (depth - 1);
+	  //	  if (ietaAbs == 29)                   index = (iphi - 1)*11 + (iphi/2)*20 + 29 + 2*(ietaAbs-29) + (depth - 1);
 	}
       if (zside == -1) index += HEhalf;
-
+      
     }
-
+    break;
   // HO valid DetIds: phi=1-72,eta=1-15,depth=4!
-  if (genericSubdet() == HcalGenericDetId::HcalGenOuter )
+  case HcalGenericDetId::HcalGenOuter:
     {
       HcalDetId tid(rawId() ); 
       zside = tid.zside();
@@ -154,47 +159,47 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
       depth = tid.depth();
       
       index = (iphi - 1)*15 + (ietaAbs - 1);
-
+      
       if (zside == -1) index += HOhalf;
-  }
-
-  // HF valid DetIds: phi=1-71(in steps of 2),eta=29-39,depth=1-2; phi=3-71(in steps of 4),eta=40-41,depth=1-2
-  if (genericSubdet() == HcalGenericDetId::HcalGenForward )
+    }
+    break;
+    // HF valid DetIds: phi=1-71(in steps of 2),eta=29-39,depth=1-2; phi=3-71(in steps of 4),eta=40-41,depth=1-2
+  case HcalGenericDetId::HcalGenForward:
     {
       HcalDetId tid(rawId() ); 
       zside = tid.zside();
       ietaAbs = tid.ietaAbs();
       iphi = tid.iphi();
       depth = tid.depth();
-
+      
       index = ((iphi-1)/4)*4 + ((iphi-1)/2)*22 + 2*(ietaAbs-29) + (depth - 1);
-
+      
       if (zside == -1)  index += HFhalf;
     }
-
+    break;
   // TriggerTower:
-  if (genericSubdet() == HcalGenericDetId::HcalGenTriggerTower )
+  case HcalGenericDetId::HcalGenTriggerTower:
     {
       HcalTrigTowerDetId tid(rawId() ); 
       zside = tid.zside();
       ietaAbs = tid.ietaAbs();
       iphi = tid.iphi();
-
+      
       if ((iphi-1)%4==0) index = (iphi-1)*32 + (ietaAbs-1) - (12*((iphi-1)/4));
       else               index = (iphi-1)*28 + (ietaAbs-1) + (4*(((iphi-1)/4)+1));
-
+      
       if (zside == -1) index += HThalf;
-      ieta = ietaAbs*zside;      
+      // ieta = ietaAbs*zside;      
     }
-
+    break;
   // ZDC: ZDC_EM: 1 to 5, ZDC_HAD: 1 to 4, ZDC_LUM: 1,2, eta = +1, -1
-  if (genericSubdet() == HcalGenericDetId::HcalGenZDC )
+  case HcalGenericDetId::HcalGenZDC:
     {
       HcalZDCDetId tid(rawId() ); 
       zside   = tid.zside();
       channel = tid.channel();
       //depth   = tid.depth();//depth is not unique, channel is
-
+      
       switch (tid.section() ) {
       case HcalZDCDetId::EM:   index = (channel-1); break;
       case HcalZDCDetId::HAD:  index = 5 + (channel-1); break;
@@ -203,31 +208,31 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
       }
       if (zside == -1) index += ZDChalf;
     }
-
-  // Castor: zside +-1, sector (phi-segmentation) 1..16, module (z segm.) 1..14
-  // total: 14*16=224 per zside
-  if (genericSubdet() == HcalGenericDetId::HcalGenCastor )
+    break;
+    // Castor: zside +-1, sector (phi-segmentation) 1..16, module (z segm.) 1..14
+    // total: 14*16=224 per zside
+  case HcalGenericDetId::HcalGenCastor:
     {
       HcalCastorDetId tid(rawId() ); 
       zside = tid.zside();
       sector = tid.sector();
       module = tid.module();
-
+      
       index = 14*(sector-1) + (module-1);
       if (zside == -1) index += CASTORhalf;
-
+      
     }
-
+    break;
   // Calibration channels: no zside=-1 ! with current naming convention
-  if (genericSubdet() == HcalGenericDetId::HcalGenCalibration )
+  case HcalGenericDetId::HcalGenCalibration:
     {
       HcalCalibDetId tid(rawId() );
       channel = tid.cboxChannel();
       ieta = tid.ieta();
       iphi = tid.iphi();
       zside = tid.zside();
-
-
+      
+      
       if (tid.calibFlavor()==HcalCalibDetId::CalibrationBox) {
 	
 	HcalSubdetector subDet = tid.hcalSubdet();
@@ -282,7 +287,12 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
       }
       //std::cout << "  " << ieta << "  " << zside << "  " << iphi << "  " << depth << "  " << index << std::endl;
     }
-  //std::cout << "eta:  " << ieta << "  side:  " << zside << "  phi:  " << iphi << "  depth:  " << depth << "  index:  " << index << std::endl;
+    //std::cout << "eta:  " << ieta << "  side:  " << zside << "  phi:  " << iphi << "  depth:  " << depth << "  index:  " << index << std::endl;
+
+    break;
+  default: break;
  
+  } // end switch
+  
   return index;
 }
