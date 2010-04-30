@@ -143,7 +143,8 @@ void PixelTripletHLTGenerator::hitTriplets(
         if (theMaxElement!=0 && result.size() >= theMaxElement){
 	  result.clear();
 	  edm::LogError("TooManySeeds")<<" number of triples exceed maximum. no triplets produced.";
-	  break; 
+	  delete [] thirdHitMap;
+	  return;
 	}
         const Hit& hit = (*th);
         GlobalPoint point(hit->globalPosition().x()-region.origin().x(),

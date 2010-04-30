@@ -95,7 +95,8 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 	if (theMaxElement!=0 && result.size() >= theMaxElement){
 	  result.clear();
 	  edm::LogError("TooManySeeds")<<"number of pairs exceed maximum, no pairs produced";
-	  break;
+	  delete checkRZ;
+	  return;
 	}
         result.push_back( OrderedHitPair( *ih, *oh) );
       }

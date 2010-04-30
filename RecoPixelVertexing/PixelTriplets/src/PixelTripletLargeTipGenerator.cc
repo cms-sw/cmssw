@@ -264,7 +264,8 @@ void PixelTripletLargeTipGenerator::hitTriplets(
 	 if (theMaxElement!=0 && result.size() >= theMaxElement){
 	   result.clear();
 	   edm::LogError("TooManySeeds")<<" number of triples exceed maximum. no triplets produced.";
-	   break;
+	   delete[] thirdHitMap;
+	   return;
 	 }
          result.push_back(OrderedHitTriplet(ip->inner(), ip->outer(), *th)); 
       }
