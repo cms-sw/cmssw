@@ -5,7 +5,7 @@
 // Package:     Muons
 // Class  :     FWMuonBuilder
 //
-// $Id: FWMuonBuilder.h,v 1.6 2010/04/16 10:29:09 yana Exp $
+// $Id: FWMuonBuilder.h,v 1.7 2010/04/20 20:49:43 amraktad Exp $
 //
 #include "Fireworks/Core/interface/FWEvePtr.h"
 
@@ -46,7 +46,6 @@ private:
    void calculateField(const reco::Muon& iData, FWMagField* field);
 
    // ---------- member data --------------------------------
-   FWEvePtr<TEveTrackPropagator> m_trackerPropagator;
 };
 
 #endif

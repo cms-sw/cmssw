@@ -171,20 +171,10 @@ buggyMuon( const reco::Muon* muon,
 //
 FWMuonBuilder::FWMuonBuilder()
 {
-   //NOTE: We call IncRefCount and IncDenyDestroy since TEveTrackPropagator actually has two reference counts being done on it
-   // We only want the one using IncRefCount to actually cause the deletion which is why 'IncDenyDestroy' does not have a matching
-   // DecDenyDestroy.  I'm still using a edm::FWEvePtr to hold the Propagator since I want to know if the propagator is deleted
-   m_trackerPropagator.reset(new TEveTrackPropagator()); // propagate within tracker
-   m_trackerPropagator->IncRefCount();
-   m_trackerPropagator->IncDenyDestroy();
-   m_trackerPropagator->SetMaxR( 850 );
-   m_trackerPropagator->SetMaxZ( 1100 );
-   m_trackerPropagator->SetDelta(0.05);
 }
 
 FWMuonBuilder::~FWMuonBuilder()
 {
-   m_trackerPropagator->DecRefCount();
 }
 
 //
@@ -195,19 +185,20 @@ FWMuonBuilder::~FWMuonBuilder()
 void
 FWMuonBuilder::calculateField(const reco::Muon& iData, FWMagField* field)
 {
+
    // if auto field estimation mode, do extra loop over muons.
    // use both inner and outer track if available
-   if( field->getAutodetect() ) {
-     if( fabs( iData.eta() ) > 2.0 || iData.pt() < 3 ) return;
-     if( iData.innerTrack().isAvailable() ){
-        double estimate = fw::estimate_field( *( iData.innerTrack() ), true );
-	if( estimate >= 0 ) field->guessField( estimate );
+   if ( field->getAutodetect() ) {
+      if ( fabs( iData.eta() ) > 2.0 || iData.pt() < 3 ) return;
+      if ( iData.innerTrack().isAvailable() ){
+         double estimate = fw::estimate_field( *( iData.innerTrack() ), true );
+         if ( estimate >= 0 ) field->guessField( estimate );
 	 
-     }
-     if( iData.outerTrack().isAvailable() ){
-       double estimate = fw::estimate_field( *( iData.outerTrack() ) );
-       if( estimate >= 0 ) field->guessFieldIsOn( estimate > 0.5 );
-     }
+      }
+      if ( iData.outerTrack().isAvailable() ){
+         double estimate = fw::estimate_field( *( iData.outerTrack() ) );
+         if ( estimate >= 0 ) field->guessFieldIsOn( estimate > 0.5 );
+      }
    }
 }
 
@@ -222,12 +213,7 @@ FWMuonBuilder::buildMuon(FWProxyBuilderBase* pb,
 {
    calculateField(*muon, pb->context().getField());
 
-   // workaround for missing GetFieldObj() in TEveTrackPropagator, default stepper is kHelix
-   if (m_trackerPropagator->GetStepper() == TEveTrackPropagator::kHelix) {
-      m_trackerPropagator->SetStepper(TEveTrackPropagator::kRungeKutta);
-      m_trackerPropagator->SetMagFieldObj(pb->context().getField(), false);
-   }
-
+  
    TEveRecTrack recTrack;
    recTrack.fBeta = 1.;
 
@@ -246,7 +232,7 @@ FWMuonBuilder::buildMuon(FWProxyBuilderBase* pb,
 	!buggyMuon( &*muon, pb->context().getGeom() ) )
    {
       TEveTrack* trk = fireworks::prepareTrack(*(muon->innerTrack()),
-					       m_trackerPropagator.get(),
+                                               pb->context().getMuonTrackPropagator(),
 					       getRecoTrajectoryPoints(muon,pb->item()) );
       trk->MakeTrack();
       pb->setupAddElement(trk, tList);
@@ -276,7 +262,7 @@ FWMuonBuilder::buildMuon(FWProxyBuilderBase* pb,
 					   muon->outerTrack()->outerPosition().z()) );
       }
       TEveTrack* trk = fireworks::prepareTrack(*(muon->globalTrack()),
-                                               m_trackerPropagator.get(),
+                                               pb->context().getMuonTrackPropagator(),
                                                extraPoints);
       trk->MakeTrack();
       pb->setupAddElement(trk, tList);
@@ -285,8 +271,7 @@ FWMuonBuilder::buildMuon(FWProxyBuilderBase* pb,
 
    if ( muon->innerTrack().isAvailable() )
    {
-      TEveTrack* trk = fireworks::prepareTrack(*(muon->innerTrack()),
-                                               m_trackerPropagator.get());
+      TEveTrack* trk = fireworks::prepareTrack(*(muon->innerTrack()), pb->context().getMuonTrackPropagator());
       trk->MakeTrack();
       pb->setupAddElement(trk, tList);
       return;
@@ -294,8 +279,7 @@ FWMuonBuilder::buildMuon(FWProxyBuilderBase* pb,
 
    if ( muon->outerTrack().isAvailable() )
    {
-      TEveTrack* trk = fireworks::prepareTrack(*(muon->outerTrack()),
-                                               m_trackerPropagator.get());
+      TEveTrack* trk = fireworks::prepareTrack(*(muon->outerTrack()), pb->context().getMuonTrackPropagator());
       trk->MakeTrack();
       pb->setupAddElement(trk, tList);
       return;
@@ -303,8 +287,7 @@ FWMuonBuilder::buildMuon(FWProxyBuilderBase* pb,
    
    // if got that far it means we have nothing but a candidate
    // show it anyway.
-   TEveTrack* trk = fireworks::prepareCandidate(*muon,
-						m_trackerPropagator.get());
+   TEveTrack* trk = fireworks::prepareCandidate(*muon, pb->context().getMuonTrackPropagator());
    trk->MakeTrack();
    pb->setupAddElement(trk, tList);
 }

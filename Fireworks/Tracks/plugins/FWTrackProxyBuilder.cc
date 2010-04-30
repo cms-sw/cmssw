@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackProxyBuilder.cc,v 1.7 2010/04/29 14:25:51 amraktad Exp $
+// $Id: FWTrackProxyBuilder.cc,v 1.8 2010/04/29 14:28:52 yana Exp $
 //
 
 // system include files
@@ -39,23 +39,14 @@ private:
    const FWTrackProxyBuilder& operator=(const FWTrackProxyBuilder&); // stop default
 
    void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder);
-
-   FWEvePtr<TEveTrackPropagator> m_trackerPropagator;
 };
 
 FWTrackProxyBuilder::FWTrackProxyBuilder()
-   : m_trackerPropagator( new TEveTrackPropagator )
 {
-   m_trackerPropagator->IncRefCount();
-   m_trackerPropagator->IncDenyDestroy();
-   m_trackerPropagator->SetMaxR( 850 );
-   m_trackerPropagator->SetMaxZ( 1100 );
-   m_trackerPropagator->SetDelta(0.01);
 }
 
 FWTrackProxyBuilder::~FWTrackProxyBuilder()
 {
-   m_trackerPropagator->DecRefCount();
 }
 
 void
@@ -68,13 +59,7 @@ FWTrackProxyBuilder::build( const reco::Track& iData, unsigned int iIndex,TEveEl
       }
    }
 
-   // workaround for missing GetFieldObj() in TEveTrackPropagator, default stepper is kHelix
-   if( m_trackerPropagator->GetStepper() == TEveTrackPropagator::kHelix ) {
-      m_trackerPropagator->SetStepper( TEveTrackPropagator::kRungeKutta );
-      m_trackerPropagator->SetMagFieldObj( context().getField(), false);
-   }
-
-   TEveTrackPropagator* propagator = ( !iData.extra().isAvailable() ) ? m_trackerPropagator.get() : context().getTrackPropagator();
+   TEveTrackPropagator* propagator = ( !iData.extra().isAvailable() ) ?  context().getTrackerTrackPropagator() : context().getTrackPropagator();
 
    TEveTrack* trk = fireworks::prepareTrack( iData, propagator );
    trk->MakeTrack();

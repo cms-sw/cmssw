@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id: Context.h,v 1.10 2010/04/16 13:58:34 amraktad Exp $
+// $Id: Context.h,v 1.11 2010/04/29 16:58:04 amraktad Exp $
 //
 
 // system include files
@@ -62,12 +62,15 @@ public:
       return m_colorManager;
    }
 
-   TEveTrackPropagator* getTrackPropagator() const { return m_propagator; }
-   FWMagField*          getField()           const { return m_magField; }
+   TEveTrackPropagator* getTrackPropagator()        const { return m_propagator;        }
+   TEveTrackPropagator* getTrackerTrackPropagator() const { return m_trackerPropagator; }
+   TEveTrackPropagator* getMuonTrackPropagator()    const { return m_muonPropagator;    }
+
+   FWMagField*          getField()             const { return m_magField; }
 
    TEveCaloDataHist*    getCaloData()  const { return m_caloData; }
 
-  const  DetIdToMatrix*  getGeom()  const { return m_geom; }   
+  const  DetIdToMatrix* getGeom()  const { return m_geom; }   
 
    // ---------- member functions ---------------------------
 
@@ -93,6 +96,9 @@ private:
    const DetIdToMatrix  *m_geom;
 
    TEveTrackPropagator  *m_propagator;
+   TEveTrackPropagator  *m_trackerPropagator;
+   TEveTrackPropagator  *m_muonPropagator;
+
    FWMagField           *m_magField;
 
    TEveCaloDataHist     *m_caloData;

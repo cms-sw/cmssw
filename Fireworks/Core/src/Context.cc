@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.12 2010/04/20 08:41:44 amraktad Exp $
+// $Id: Context.cc,v 1.13 2010/04/29 16:58:05 amraktad Exp $
 //
 
 // system include files
@@ -50,6 +50,8 @@ Context::Context(FWModelChangeManager* iCM,
    m_colorManager(iColorM),
    m_geom(0),
    m_propagator(0),
+   m_trackerPropagator(0),
+   m_muonPropagator(0),
    m_magField(0),
    m_caloData(0)
 {
@@ -57,6 +59,7 @@ Context::Context(FWModelChangeManager* iCM,
 
 Context::~Context()
 {
+   delete m_magField;
 }
 
 void
@@ -64,12 +67,28 @@ Context::initEveElements()
 {
    m_magField = new FWMagField();
 
+   // common propagator, helix stepper
    m_propagator = new TEveTrackPropagator();
+   m_propagator->SetMagFieldObj(m_magField, false);
    m_propagator->SetMaxR(123.0);
    m_propagator->SetMaxZ(300.0);
-   m_propagator->SetMagFieldObj(m_magField);
    m_propagator->IncDenyDestroy();
-
+   // tracker propagator
+   m_trackerPropagator = new TEveTrackPropagator();
+   m_trackerPropagator->SetStepper( TEveTrackPropagator::kRungeKutta );
+   m_trackerPropagator->SetMagFieldObj(m_magField, false);
+   m_trackerPropagator->SetDelta(0.02);
+   m_trackerPropagator->SetMaxR(123.0);
+   m_trackerPropagator->SetMaxZ(300.0);
+   m_trackerPropagator->IncDenyDestroy();
+   // muon propagator
+   m_muonPropagator = new TEveTrackPropagator();
+   m_muonPropagator->SetStepper( TEveTrackPropagator::kRungeKutta );
+   m_muonPropagator->SetMagFieldObj(m_magField, false);
+   m_muonPropagator->SetDelta(0.05);
+   m_muonPropagator->SetMaxR(850.f);
+   m_muonPropagator->SetMaxZ(110.f);
+   m_muonPropagator->IncDenyDestroy();
 
    // calo data
    m_caloData = new TEveCaloDataHist();
@@ -91,6 +110,8 @@ void
 Context::deleteEveElements()
 {
    m_propagator->DecDenyDestroy();
+   m_trackerPropagator->DecDenyDestroy();
+   m_muonPropagator->DecDenyDestroy();
    m_caloData->DecDenyDestroy();
 }
 
