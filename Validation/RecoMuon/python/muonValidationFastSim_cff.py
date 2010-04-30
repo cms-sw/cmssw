@@ -53,8 +53,6 @@ recoMuonVTrackAssocFS.glbMuAssocLabel = 'tpToGlbTrackAssociationFS'
 muonValidationFastSim_seq = cms.Sequence(trkMuonTrackVTrackAssocFS
                                          +staMuonTrackVMuonAssocFS+staUpdMuonTrackVMuonAssocFS+glbMuonTrackVMuonAssocFS
                                          +tevMuonFirstTrackVMuonAssocFS+tevMuonPickyTrackVMuonAssocFS
-                                         +staMuonTrackVTrackAssocFS+staUpdMuonTrackVTrackAssocFS+glbMuonTrackVTrackAssocFS
-                                         +tevMuonFirstTrackVTrackAssocFS+tevMuonPickyTrackVTrackAssocFS
                                          +recoMuonVMuAssocFS)
 
 

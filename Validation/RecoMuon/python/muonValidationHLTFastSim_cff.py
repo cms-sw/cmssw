@@ -38,9 +38,8 @@ l3MuonMuTrackFSV.beamSpot = 'offlineBeamSpot'
 
 # # Muon validation sequence
 muonValidationHLTFastSim_seq = cms.Sequence(
-     (l2MuonMuTrackFSV+l2UpdMuonMuTrackFSV+l3MuonMuTrackFSV+l3TkMuonMuTrackFSV)
-     +(l2MuonTrackFSV+l2UpdMuonTrackFSV+l3MuonTrackFSV+l3TkMuonTrackFSV)
-     )
+    l2MuonMuTrackFSV+l2UpdMuonMuTrackFSV+l3MuonMuTrackFSV+l3TkMuonMuTrackFSV
+    )
 
 
 # The muon HLT association and validation sequence
