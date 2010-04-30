@@ -120,6 +120,11 @@ def dump( beam, file):
     file.write("BeginTimeOfFit "+str(beam.IOVBeginTime)+end)
     file.write("EndTimeOfFit "+str(beam.IOVEndTime)+end)
     file.write("LumiRange "+str(beam.IOVfirst)+" - "+str(beam.IOVlast)+end)
+    dumpValues(beam, file)
+
+###########################################################################################
+def dumpValues( beam, file):
+    end = "\n"
     file.write("Type "+str(beam.Type)+end)
     file.write("X0 "+str(beam.X)+end)
     file.write("Y0 "+str(beam.Y)+end)
@@ -473,7 +478,7 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
     for iload in newlistbeam:
         dump( iload, payloadfile )
     payloadfile.close()
-
+    return newlistbeam
 ###########################################################################################
 def createWeightedPayloadsNew(fileName,listbeam=[],weighted=True):
     newlistbeam = []

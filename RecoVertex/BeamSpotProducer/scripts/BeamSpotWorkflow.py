@@ -315,9 +315,39 @@ if __name__ == '__main__':
 
     payloadFileName = "PayloadFile.txt"
 
-    createWeightedPayloads(workingDir+payloadFileName,beamSpotObjList,True)
+    payloadList = createWeightedPayloads(workingDir+payloadFileName,beamSpotObjList,True)
 
-    #Create and upload payloads
+    tmpPayloadFileName = workingDir + "SingleTmpPayloadFile.txt"
+    tmpSqliteFileName  = workingDir + "SingleTmpSqliteFile.txt"
+    ##############################################################
+    #WARNING timetype is fixed to run
+    timetype = 'runnumber'
+    ##############################################################
+    writeDBTemplate = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/test/write2DB_template.py"
+    readDBTemplate  = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/test/readDB_template.py"
+    for payload in payloadList:
+        if option.zlarge:
+            payload.sigmaZ = 10
+            payload.sigmaZerr = 2.5e-05
+        tmpFile = file(tmpPayloadFileName,'w')
+        dumpValues(payload,tmpFile)
+        tmpFile.close()
+        if not writeSqliteFile(tmpSqliteFileName,databaseTag,timetype,tmpPayloadFileName,writeDBTemplate,workingDir):
+            print "An error occurred while writing the sqlite file: " + tmpSqliteFileName
+
+        readSqliteFile(tmpSqliteFileName,databaseTag,readDBTemplate,workingDir)
+
+        
+        ##############################################################
+        #WARNING iovs are fixed on runumber
+        iov_since = payload.Run
+        iov_till  = iov_since
+        appendSqliteFile("Combined.db", tmpSqliteFileName, databaseTag, iov_since, iov_till ,workingDir)
+
+	os.system("rm -f " + tmpPayloadFileName)
+        
+        
+   #Create and upload payloads
 #    aCommand = "./createPayload.py -d " + workingDir+payloadFileName + " -t " + databaseTag
 #    tmpStatus = commands.getstatusoutput( aCommand )
 #    print aCommand
