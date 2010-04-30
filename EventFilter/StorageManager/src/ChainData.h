@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.8.2.4 2010/04/23 15:33:49 mommsen Exp $
+// $Id: ChainData.h,v 1.9 2010/04/30 07:44:56 mommsen Exp $
 /// @file: ChainData.h
 
 #ifndef CHAINDATA_H
@@ -175,6 +175,7 @@ namespace stor
       bool validateMessageCode(toolbox::mem::Reference* ref,
                                unsigned short expectedI2OMessageCode);
 
+      virtual size_t do_i2oFrameSize() const;
       virtual unsigned long do_headerSize() const;
       virtual unsigned char* do_headerLocation() const;
 
@@ -216,6 +217,7 @@ namespace stor
 
     protected:
 
+      size_t do_i2oFrameSize() const;
       unsigned long do_headerSize() const;
       unsigned char* do_headerLocation() const;
       unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
@@ -259,6 +261,7 @@ namespace stor
 
     protected:
 
+      size_t do_i2oFrameSize() const;
       unsigned long do_headerSize() const;
       unsigned char* do_headerLocation() const;
       unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
@@ -305,6 +308,7 @@ namespace stor
 
     protected:
 
+      size_t do_i2oFrameSize() const;
       unsigned long do_headerSize() const;
       unsigned char* do_headerLocation() const;
       unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
@@ -345,6 +349,7 @@ namespace stor
 
     protected:
 
+      size_t do_i2oFrameSize() const;
       unsigned long do_headerSize() const;
       unsigned char* do_headerLocation() const;
       unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;

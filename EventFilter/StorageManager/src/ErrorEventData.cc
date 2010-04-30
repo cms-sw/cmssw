@@ -1,4 +1,4 @@
-// $Id: ErrorEventData.cc,v 1.2.2.2 2010/04/22 14:08:44 mommsen Exp $
+// $Id: ErrorEventData.cc,v 1.3 2010/04/30 07:44:56 mommsen Exp $
 /// @file: ErrorEventData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -17,6 +17,11 @@ namespace stor
     {
       addFirstFragment(pRef);
       parseI2OHeader();
+    }
+
+    inline size_t ErrorEventMsgData::do_i2oFrameSize() const
+    {
+      return sizeof(I2O_SM_DATA_MESSAGE_FRAME);
     }
 
     unsigned long ErrorEventMsgData::do_headerSize() const

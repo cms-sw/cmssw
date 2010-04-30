@@ -1,4 +1,4 @@
-// $Id: InitMsgData.cc,v 1.2.2.2 2010/04/23 15:33:49 mommsen Exp $
+// $Id: InitMsgData.cc,v 1.3 2010/04/30 07:44:56 mommsen Exp $
 /// @file: InitMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -17,6 +17,11 @@ namespace stor
     {
       addFirstFragment(pRef);
       parseI2OHeader();
+    }
+
+    inline size_t InitMsgData::do_i2oFrameSize() const
+    {
+      return sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME);
     }
 
     unsigned long InitMsgData::do_headerSize() const
@@ -211,3 +216,11 @@ namespace stor
   } // namespace detail
 
 } // namespace stor
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

@@ -1,4 +1,4 @@
-// $Id: DQMEventMsgData.cc,v 1.4.2.4 2010/04/23 15:33:29 mommsen Exp $
+// $Id: DQMEventMsgData.cc,v 1.5 2010/04/30 07:44:56 mommsen Exp $
 /// @file: DQMEventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -17,6 +17,11 @@ namespace stor
     {
       addFirstFragment(pRef);
       parseI2OHeader();
+    }
+
+    inline size_t DQMEventMsgData::do_i2oFrameSize() const
+    {
+      return sizeof(I2O_SM_DQM_MESSAGE_FRAME);
     }
 
     std::string DQMEventMsgData::do_topFolderName() const
