@@ -1,4 +1,4 @@
-// $Id: TestHelper.h,v 1.2 2009/06/10 08:15:30 dshpakov Exp $
+// $Id: TestHelper.h,v 1.3 2009/08/21 07:16:10 mommsen Exp $
 
 #ifndef StorageManager_TestHelper_h
 #define StorageManager_TestHelper_h
@@ -14,12 +14,15 @@
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 
 #include "IOPool/Streamer/interface/DQMEventMsgBuilder.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 
 #include "toolbox/mem/HeapAllocator.h"
 #include "toolbox/mem/Reference.h"
@@ -190,11 +193,21 @@ namespace stor
       smMsg->fuProcID = value2;
       smMsg->fuGUID = value3;
 
+      char test_value[] = "This is a test, This is a";
+      uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
+      char host_name[255];
+      gethostname(host_name, 255);
+
       InitMsgBuilder
         initBuilder(smMsg->dataPtr(), smMsg->dataSize, 100,
-                    Version(7,(const uint8*)psetid), (const char*) reltag,
+                    Version(8,(const uint8*)psetid), (const char*) reltag,
                     processName.c_str(), outputModuleLabel.c_str(),
-                    outputModuleId, hlt_names, hlt_selections, l1_names);
+                    outputModuleId, hlt_names, hlt_selections, l1_names,
+                    adler32_chksum, host_name);
+
+      initBuilder.setDataLength(sizeof(test_value));
+      std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
+                initBuilder.dataAddress());
 
       return ref;
     }
@@ -237,10 +250,20 @@ namespace stor
       smEventMsg->fuProcID = value2;
       smEventMsg->fuGUID = value3;
 
+      char test_value_event[] = "This is a test Event, This is a";
+      uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
+      char host_name[255];
+      gethostname(host_name, 255);
+
       EventMsgBuilder
         eventBuilder(smEventMsg->dataPtr(), smEventMsg->dataSize, runNumber,
                      eventNumber, lumiNumber, outputModuleId,
-                     l1Bits, &hltBits[0], hltBitCount);
+                     l1Bits, &hltBits[0], hltBitCount, adler32_chksum, host_name);
+
+      eventBuilder.setOrigDataSize(78);
+      eventBuilder.setEventLength(sizeof(test_value_event));
+      std::copy(&test_value_event[0],&test_value_event[0]+sizeof(test_value_event),
+                eventBuilder.eventAddr());
 
       return ref;
     }
@@ -288,9 +311,16 @@ namespace stor
 
       I2O_SM_DQM_MESSAGE_FRAME* msg = (I2O_SM_DQM_MESSAGE_FRAME*)ref->getDataLocation();
 
+      // no data yet to get a checksum (not needed for test)
+      uint32_t adler32_chksum = 0;
+      char host_name[255];
+      gethostname(host_name, 255);
+
       DQMEventMsgBuilder b( (void*)(msg->dataPtr()), msg->dataSize, run, eventNumber,
                             ts,
                             lumi_section, update_number,
+                            (uint32)adler32_chksum,
+                            host_name,
                             release_tag,
                             topFolder,
                             mon_elts );

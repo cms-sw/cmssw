@@ -18,6 +18,8 @@
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
+
 using stor::testhelper::outstanding_bytes;
 using stor::testhelper::allocate_frame;
 using stor::testhelper::allocate_frame_with_basic_header;
@@ -1739,11 +1741,21 @@ testI2OChain::init_msg_header()
     smMsg->fuProcID = value2;
     smMsg->fuGUID = value3;
 
+    char test_value[] = "This is a test, This is a";
+    uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
+    char host_name[255];
+    gethostname(host_name, 255);
+
     InitMsgBuilder
       initBuilder(smMsg->dataPtr(), smMsg->dataSize, 100,
-                  Version(7,(const uint8*)psetid), (const char*) reltag,
+                  Version(8,(const uint8*)psetid), (const char*) reltag,
                   processName.c_str(), outputModuleLabel.c_str(),
-                  outputModuleId, hlt_names, hlt_selections, l1_names);
+                  outputModuleId, hlt_names, hlt_selections, l1_names,
+                  adler32_chksum, host_name);
+
+    initBuilder.setDataLength(sizeof(test_value));
+    std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
+              initBuilder.dataAddress());
 
     stor::I2OChain initMsgFrag(ref);
     CPPUNIT_ASSERT(initMsgFrag.messageCode() == Header::INIT);
@@ -1838,10 +1850,20 @@ testI2OChain::event_msg_header()
     smMsg->fuProcID = value2;
     smMsg->fuGUID = value3;
 
+    char test_value_event[] = "This is a test Event, This is a";
+    uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
+    char host_name[255];
+    gethostname(host_name, 255);
+
     EventMsgBuilder
       eventBuilder(smMsg->dataPtr(), smMsg->dataSize, runNumber,
                    eventNumber, lumiNumber, outputModuleId,
-                   l1Bits, &hltBits[0], hltBitCount);
+                   l1Bits, &hltBits[0], hltBitCount, adler32_chksum, host_name);
+
+    eventBuilder.setOrigDataSize(78);
+    eventBuilder.setEventLength(sizeof(test_value_event));
+    std::copy(&test_value_event[0],&test_value_event[0]+sizeof(test_value_event),
+              eventBuilder.eventAddr());
 
     stor::I2OChain eventMsgFrag(ref);
     CPPUNIT_ASSERT(eventMsgFrag.messageCode() == Header::EVENT);
@@ -2092,11 +2114,22 @@ testI2OChain::split_init_header()
     std::vector<unsigned char> tmpBuffer;
     tmpBuffer.resize(bufferSize);
 
+    char test_value[] = "This is a test, This is a";
+    uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
+    char host_name[255];
+    gethostname(host_name, 255);
+
     InitMsgBuilder
       initBuilder(&tmpBuffer[0], bufferSize, 100,
-                  Version(7,(const uint8*)psetid), (const char*) reltag,
+                  Version(8,(const uint8*)psetid), (const char*) reltag,
                   processName.c_str(), outputModuleLabel.c_str(),
-                  outputModuleId, hlt_names, hlt_selections, l1_names);
+                  outputModuleId, hlt_names, hlt_selections, l1_names,
+                  adler32_chksum, host_name);
+
+    initBuilder.setDataLength(sizeof(test_value));
+    std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
+              initBuilder.dataAddress());
+
     //std::cout << "Size = " << initBuilder.size() << std::endl;
 
     uint32 fragmentSize = 50;
@@ -2265,10 +2298,21 @@ testI2OChain::split_event_header()
     std::vector<unsigned char> tmpBuffer;
     tmpBuffer.resize(bufferSize);
 
+    char test_value_event[] = "This is a test Event, This is a";
+    uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
+    char host_name[255];
+    gethostname(host_name, 255);
+
     EventMsgBuilder
       eventBuilder(&tmpBuffer[0], bufferSize, runNumber,
                    eventNumber, lumiNumber, outputModuleId,
-                   l1Bits, &hltBits[0], hltBitCount);
+                   l1Bits, &hltBits[0], hltBitCount, adler32_chksum, host_name);
+
+    eventBuilder.setOrigDataSize(78);
+    eventBuilder.setEventLength(sizeof(test_value_event));
+    std::copy(&test_value_event[0],&test_value_event[0]+sizeof(test_value_event),
+              eventBuilder.eventAddr());
+
     //std::cout << "Size = " << eventBuilder.size() << std::endl;
 
     uint32 fragmentSize = 10;
