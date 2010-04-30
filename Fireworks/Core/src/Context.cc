@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.13 2010/04/29 16:58:05 amraktad Exp $
+// $Id: Context.cc,v 1.14 2010/04/30 12:29:29 amraktad Exp $
 //
 
 // system include files
@@ -87,7 +87,7 @@ Context::initEveElements()
    m_muonPropagator->SetMagFieldObj(m_magField, false);
    m_muonPropagator->SetDelta(0.05);
    m_muonPropagator->SetMaxR(850.f);
-   m_muonPropagator->SetMaxZ(110.f);
+   m_muonPropagator->SetMaxZ(1100.f);
    m_muonPropagator->IncDenyDestroy();
 
    // calo data
