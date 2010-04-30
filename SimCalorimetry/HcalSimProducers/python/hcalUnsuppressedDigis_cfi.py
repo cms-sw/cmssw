@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
+from CondCore.DBCommon.CondDBSetup_cfi import *
 
 # make a block so other modules, such as the data mixing module, can
 # also run simulation
@@ -29,7 +30,7 @@ hcalSimBlock = cms.PSet(
 )
 
 es_cholesky = cms.ESSource("PoolDBESSource",
-    process.CondDBSetup,
+    CondDBSetup,
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(
         cms.PSet(
