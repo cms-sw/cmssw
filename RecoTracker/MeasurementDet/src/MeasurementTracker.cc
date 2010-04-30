@@ -48,12 +48,13 @@ using namespace std;
 namespace {
 
   struct CmpTKD {
-    bool operator()(TkStripMeasurementDet* rh, TkStripMeasurementDet* lh) {
+    bool operator()(MeasurementDet* rh, MeasurementDet* lh) {
       return rh->geomDet().geographicalId().rawId() < lh->geomDet().geographicalId().rawId();
     }
   };
 
-  void sortTKD( std::vector<TkStripMeasurementDet*> & det) {
+  template<typename TKD>
+  void sortTKD( std::vector<TKD*> & det) {
     std::sort(det.begin(),det.end(),CmpTKD());
   }
 }
@@ -318,8 +319,8 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
 
       std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
       std::vector<TkStripMeasurementDet*>::const_iterator endDet=theStripDets.end();
-      edmNew::DetSetVector<SiStripCluster>::const_iterator it = clusterCollection.begin();
-      edmNew::DetSetVector<SiStripCluster>::const_iterator endColl = clusterCollection.end();
+      edmNew::DetSetVector<SiStripCluster>::const_iterator it = (*clusterCollection).begin();
+      edmNew::DetSetVector<SiStripCluster>::const_iterator endColl = (*clusterCollection).end();
       // cluster and det and in order (both) and unique so let's use set intersection
       for (;it!=endColl; ++it) {
 	StripDetSet detSet = *it;
