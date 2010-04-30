@@ -10,12 +10,13 @@
   The user can then turn individual cuts on and off at will. 
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.7 2010/04/13 14:38:33 srappocc Exp $
+  \version  $Id: Selector.h,v 1.8 2010/04/25 17:06:34 hegner Exp $
 */
 
 
 #include "PhysicsTools/SelectorUtils/interface/strbitset.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Common/interface/EventBase.h"
 #include <fstream>
 #include <functional>
 
@@ -80,6 +81,23 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
     return (bool)retInternal_;
   }
   
+
+  /// This provides an alternative signature that includes extra information
+  virtual bool operator()( T const & t, edm::EventBase const & e, pat::strbitset & ret)
+  {
+    return operator()(t, ret);
+  }
+
+  /// This provides an alternative signature that includes extra information
+  virtual bool operator()( T const & t, edm::EventBase const & e)
+  {
+    retInternal_.set(false);
+    operator()(t, e, retInternal_);
+    setIgnored(retInternal_);
+    return (bool)retInternal_;
+  }
+
+
   /// Set a given selection cut, on or off
   void set(std::string s, bool val = true) {
     bits_[s] = val;
