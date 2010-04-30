@@ -5,6 +5,7 @@
 #include "RecoLocalCalo/EcalRecProducers/interface/ESRecHitWorkerBaseClass.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/ESRecHitSimAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/ESRecHitFitAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/ESRecHitAnalyticAlgo.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
@@ -38,6 +39,7 @@ class ESRecHitWorker : public ESRecHitWorkerBaseClass {
   int recoAlgo_;  
   ESRecHitSimAlgo *algoW_;
   ESRecHitFitAlgo *algoF_;
+  ESRecHitAnalyticAlgo *algoA_;
 
   edm::ESHandle<ESGain> esgain_;
   edm::ESHandle<ESMIPToGeVConstant> esMIPToGeV_;

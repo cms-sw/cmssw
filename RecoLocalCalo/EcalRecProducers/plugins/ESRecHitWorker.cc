@@ -25,15 +25,19 @@ ESRecHitWorker::ESRecHitWorker(const edm::ParameterSet& ps) :
 
   if (recoAlgo_ == 0)
     algoW_ = new ESRecHitSimAlgo();
-  else 
+  else if (recoAlgo_ == 1) 
     algoF_ = new ESRecHitFitAlgo();
+  else 
+    algoA_ = new ESRecHitAnalyticAlgo();
 }
 
 ESRecHitWorker::~ESRecHitWorker() {
   if (recoAlgo_ == 0)
     delete algoW_;
-  else
+  else if (recoAlgo_ == 1)
     delete algoF_;
+  else 
+    delete algoA_;
 }
 
 void ESRecHitWorker::set(const edm::EventSetup& es) {
@@ -76,13 +80,20 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
     algoW_->setIntercalibConstants(mips);
     algoW_->setChannelStatus(channelStatus);
     algoW_->setRatioCuts(ratioCuts);
-  } else {
+  } else if (recoAlgo_ == 1) {
     algoF_->setESGain(ESGain);
     algoF_->setMIPGeV(ESMIPToGeV);
     algoF_->setPedestals(peds);
     algoF_->setIntercalibConstants(mips);
     algoF_->setChannelStatus(channelStatus);
     algoF_->setRatioCuts(ratioCuts);
+  } else {
+    algoA_->setESGain(ESGain);
+    algoA_->setMIPGeV(ESMIPToGeV);
+    algoA_->setPedestals(peds);
+    algoA_->setIntercalibConstants(mips);
+    algoA_->setChannelStatus(channelStatus);
+    algoA_->setRatioCuts(ratioCuts);
   }
 }
 
@@ -93,8 +104,10 @@ ESRecHitWorker::run( const edm::Event & evt,
 {
   if (recoAlgo_ == 0)
     result.push_back( algoW_->reconstruct(*itdg) );
-  else 
+  else if (recoAlgo_ == 1)
     result.push_back( algoF_->reconstruct(*itdg) );
+  else 
+    result.push_back( algoA_->reconstruct(*itdg) );
   return true;
 }
 
