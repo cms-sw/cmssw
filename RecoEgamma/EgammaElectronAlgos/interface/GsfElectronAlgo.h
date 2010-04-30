@@ -132,6 +132,8 @@ class GsfElectronAlgo {
        float mva, GsfElectronPtrCollection & outEle ) ;
 
     void preselectElectrons( GsfElectronPtrCollection & inEle, GsfElectronPtrCollection & outEle, const reco::BeamSpot& ) ;
+    bool preselectCutBasedFlag( reco::GsfElectron * ele, const reco::BeamSpot & ) ;
+    bool preselectMvaFlag( reco::GsfElectron * ele ) ;
 
     void resolveElectrons( GsfElectronPtrCollection &, reco::GsfElectronCollection & outEle,
        edm::Handle<EcalRecHitCollection> & reducedEBRecHits,

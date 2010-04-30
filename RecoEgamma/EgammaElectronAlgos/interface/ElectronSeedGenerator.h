@@ -56,11 +56,14 @@ class ElectronSeedGenerator
   ~ElectronSeedGenerator();
 
   void setupES(const edm::EventSetup& setup);
-  void run(edm::Event&, const edm::EventSetup& setup, const reco::SuperClusterRefVector &, TrajectorySeedCollection *seeds, reco::ElectronSeedCollection&);
+  void run(
+    edm::Event&, const edm::EventSetup& setup,
+    const reco::SuperClusterRefVector &, const std::vector<float> & hoe1s, const std::vector<float> & hoe2s,
+    TrajectorySeedCollection *seeds, reco::ElectronSeedCollection&);
 
  private:
 
-  void seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster, reco::ElectronSeedCollection & out);
+  void seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster, float hoe1, float hoe2, reco::ElectronSeedCollection & out);
   bool prepareElTrackSeed(ConstRecHitPointer outerhit,ConstRecHitPointer innerhit, const GlobalPoint& vertexPos);
 
   bool dynamicphiroad_;
@@ -87,7 +90,7 @@ class ElectronSeedGenerator
 
   //  edm::Handle<TrajectorySeedCollection> theInitialSeedColl;
   TrajectorySeedCollection* theInitialSeedColl;
-  
+
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<TrackerGeometry>              theTrackerGeometry;
   //edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;

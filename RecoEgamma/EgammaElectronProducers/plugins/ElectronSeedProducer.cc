@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.14 2010/03/11 22:51:26 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.15 2010/03/12 12:42:03 chamont Exp $
 //
 //
 
@@ -130,17 +130,21 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   matcher_->setupES(iSetup);
 
   // get initial TrajectorySeeds if necessary
-  if (fromTrackerSeeds_) {
-    if (!prefilteredSeeds_) {
+  if (fromTrackerSeeds_)
+   {
+    if (!prefilteredSeeds_)
+     {
       edm::Handle<TrajectorySeedCollection> hSeeds;
       e.getByLabel(initialSeeds_, hSeeds);
       theInitialSeedColl = const_cast<TrajectorySeedCollection *> (hSeeds.product());
-    }
-    else theInitialSeedColl =new TrajectorySeedCollection;
-  }else
-    theInitialSeedColl=0;// not needed in this case
+     }
+    else
+     { theInitialSeedColl = new TrajectorySeedCollection ; }
+   }
+  else
+   { theInitialSeedColl = 0 ; } // not needed in this case
 
-  ElectronSeedCollection *seeds= new ElectronSeedCollection;
+  ElectronSeedCollection * seeds = new ElectronSeedCollection ;
 
   // loop over barrel + endcap
   for (unsigned int i=0; i<2; i++)
@@ -149,10 +153,11 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
     if (e.getByLabel(superClusters_[i],clusters))
      {
       SuperClusterRefVector clusterRefs ;
-      filterClusters(clusters,/*mhbhe_,*/clusterRefs) ;
+      std::vector<float> hoe1s, hoe2s ;
+      filterClusters(clusters,/*mhbhe_,*/clusterRefs,hoe1s,hoe2s) ;
       if ((fromTrackerSeeds_) && (prefilteredSeeds_))
        { filterSeeds(e,iSetup,clusterRefs) ; }
-      matcher_->run(e,iSetup,clusterRefs,theInitialSeedColl,*seeds) ;
+      matcher_->run(e,iSetup,clusterRefs,hoe1s,hoe2s,theInitialSeedColl,*seeds) ;
      }
    }
 
@@ -182,7 +187,8 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 
 void ElectronSeedProducer::filterClusters
  ( const edm::Handle<reco::SuperClusterCollection> & superClusters,
-   /*HBHERecHitMetaCollection * mhbhe,*/ SuperClusterRefVector & sclRefs )
+   /*HBHERecHitMetaCollection * mhbhe,*/ SuperClusterRefVector & sclRefs,
+   std::vector<float> & hoe1s, std::vector<float> & hoe2s )
  {
   for (unsigned int i=0;i<superClusters->size();++i)
    {
@@ -192,15 +198,30 @@ void ElectronSeedProducer::filterClusters
 //      if ((applyHOverECut_==true)&&((hcalHelper_->hcalESum(scl)/scl.energy()) > maxHOverE_))
 //       { continue ; }
 //      sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
-       double had;
-       bool HoeVeto = false;
-       if (applyHOverECut_==true) {
-         had=hcalHelper_->hcalESum(scl);
+       double had1, had2, had, scle ;
+       bool HoeVeto = false ;
+       if (applyHOverECut_==true)
+        {
+         had1 = hcalHelper_->hcalESumDepth1(scl);
+         had2 = hcalHelper_->hcalESumDepth2(scl);
+         had = had1+had2 ;
+         scle = scl.energy() ;
          int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
-         if (detector==EcalBarrel && (had<maxHBarrel_ || had/scl.energy()<maxHOverEBarrel_)) HoeVeto=true;
-         else if (detector==EcalEndcap && (had<maxHEndcaps_ || had/scl.energy()<maxHOverEEndcaps_)) HoeVeto=true;
-       }
-       if (!applyHOverECut_ || HoeVeto) sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
+         if (detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
+         else if (detector==EcalEndcap && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
+         if (HoeVeto)
+          {
+           sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
+           hoe1s.push_back(had1/scle) ;
+           hoe2s.push_back(had2/scle) ;
+          }
+        }
+       else
+        {
+         sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
+         hoe1s.push_back(std::numeric_limits<float>::infinity()) ;
+         hoe2s.push_back(std::numeric_limits<float>::infinity()) ;
+        }
      }
    }
   LogDebug("ElectronSeedProducer")<<"Filtered out "<<sclRefs.size()<<" superclusters from "<<superClusters->size() ;

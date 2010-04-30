@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.93 2010/03/12 12:30:01 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.94 2010/03/26 04:07:58 mwlebour Exp $
 //
 //
 
@@ -131,7 +131,7 @@ GsfElectronAlgo::GsfElectronAlgo
    double intRadiusHcal, double etMinHcal,
    double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
    double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps,
-   bool vetoClustered, bool useNumCrystals, int severityLevelCut, float severityRecHitThreshold, 
+   bool vetoClustered, bool useNumCrystals, int severityLevelCut, float severityRecHitThreshold,
    float spIdThreshold, std::string spIdString
  )
  : minSCEtBarrel_(minSCEtBarrel), minSCEtEndcaps_(minSCEtEndcaps), maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps),
@@ -161,8 +161,8 @@ GsfElectronAlgo::GsfElectronAlgo
    intRadiusBarrelTk_(intRadiusBarrelTk), intRadiusEndcapTk_(intRadiusEndcapTk), stripBarrelTk_(stripBarrelTk), stripEndcapTk_(stripEndcapTk),
    ptMinTk_(ptMinTk),  maxVtxDistTk_(maxVtxDistTk),  maxDrbTk_(maxDrbTk),
    intRadiusHcal_(intRadiusHcal), etMinHcal_(etMinHcal), intRadiusEcalBarrel_(intRadiusEcalBarrel),  intRadiusEcalEndcaps_(intRadiusEcalEndcaps),  jurassicWidth_(jurassicWidth),
-   etMinBarrel_(etMinBarrel),  eMinBarrel_(eMinBarrel),  etMinEndcaps_(etMinEndcaps),  eMinEndcaps_(eMinEndcaps), 
-   vetoClustered_(vetoClustered), useNumCrystals_(useNumCrystals), severityLevelCut_(severityLevelCut), 
+   etMinBarrel_(etMinBarrel),  eMinBarrel_(eMinBarrel),  etMinEndcaps_(etMinEndcaps),  eMinEndcaps_(eMinEndcaps),
+   vetoClustered_(vetoClustered), useNumCrystals_(useNumCrystals), severityLevelCut_(severityLevelCut),
    severityRecHitThreshold_(severityRecHitThreshold), spikeIdThreshold_(spIdThreshold), spikeIdString_(spIdString),
    ctfTracksCheck_(false), cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0),cacheChStatus_(0),
    superClusterErrorFunction_(0),
@@ -329,7 +329,7 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   hcalHelper_->readEvent(e) ;
   hcalHelperPflow_->readEvent(e) ;
 
-  // temporay array for electrons before preselection and before amb. solving
+  // temporary array for electrons before preselection and before amb. solving
   ExceptionSafeStlPtrCol<GsfElectronPtrCollection> tempEle ;
   GsfElectronPtrCollection tempEle1 ;
 
@@ -432,9 +432,9 @@ void GsfElectronAlgo::process(
   EgammaRecHitIsolation ecalEndcapIsol04(egIsoConeSizeOutLarge,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,theCaloGeom,&ecalEndcapHits,DetId::Ecal);
   ecalBarrelIsol03.setUseNumCrystals(useNumCrystals_);
   ecalBarrelIsol03.setVetoClustered(vetoClustered_);
-  ecalBarrelIsol03.doSpikeRemoval(reducedEBRecHits.product(),theChStatus.product(),severityLevelCut_,severityRecHitThreshold_,spId_,spikeIdThreshold_); 
-  ecalBarrelIsol04.setUseNumCrystals(useNumCrystals_);                                                                                            
-  ecalBarrelIsol04.setVetoClustered(vetoClustered_);                                                                                              
+  ecalBarrelIsol03.doSpikeRemoval(reducedEBRecHits.product(),theChStatus.product(),severityLevelCut_,severityRecHitThreshold_,spId_,spikeIdThreshold_);
+  ecalBarrelIsol04.setUseNumCrystals(useNumCrystals_);
+  ecalBarrelIsol04.setVetoClustered(vetoClustered_);
   ecalBarrelIsol04.doSpikeRemoval(reducedEBRecHits.product(),theChStatus.product(),severityLevelCut_,severityRecHitThreshold_,spId_,spikeIdThreshold_);
   ecalEndcapIsol03.setUseNumCrystals(useNumCrystals_);
   ecalEndcapIsol03.setVetoClustered(vetoClustered_);
@@ -514,126 +514,142 @@ void GsfElectronAlgo::process(
   } // loop over tracks
 }
 
-void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfElectronPtrCollection & outEle, const reco::BeamSpot& bs )
+void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfElectronPtrCollection & outEle, const reco::BeamSpot & bs )
  {
   GsfElectronPtrCollection::size_type ei, emax = inEle.size() ;
-  GsfElectronPtrCollection::iterator e1 ;
-  for( ei=1, e1=inEle.begin() ;  e1!=inEle.end() ; ++ei, ++e1 )
+  GsfElectronPtrCollection::iterator eitr ;
+  for( ei=1, eitr=inEle.begin() ;  eitr!=inEle.end() ; ++ei, ++eitr )
    {
     LogTrace("GsfElectronAlgo")<<"========== pre-selection "<<ei<<"/"<<emax<<"==========" ;
-
-    // kind of construction algorithm
-    bool eg = (*e1)->core()->ecalDrivenSeed();
-    bool pf = (*e1)->core()->trackerDrivenSeed() && !(*e1)->core()->ecalDrivenSeed() ;
-    if (eg&&pf) { throw cms::Exception("GsfElectronAlgo|BothEcalAndPureTrackerDriven")<<"An electron cannot be both egamma and purely pflow" ; }
-    if ((!eg)&&(!pf)) { throw cms::Exception("GsfElectronAlgo|NeitherEcalNorPureTrackerDriven")<<"An electron cannot be neither egamma nor purely pflow" ; }
-
-    // Or MVA
-    if ( (eg && ((*e1)->mva()>=minMVA_)) || (pf && ((*e1)->mva()>=minMVAPflow_)) )
-     {
-      outEle.push_back(*e1) ;
-      LogTrace("GsfElectronAlgo") << "electron has passed preselection criteria ";
-      LogTrace("GsfElectronAlgo") << "=================================================";
-      continue ;
-     }
-//    // And MVA
-//    if (eg && ((*e1)->mva()<minMVA_)) continue ;
-//    if (pf && ((*e1)->mva()<minMVAPflow_)) continue ;
-
-
-    // Et cut
-    LogTrace("GsfElectronAlgo") << "Et : " << (*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta());
-    if (eg && (*e1)->isEB() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtBarrel_)) continue;
-    if (eg && (*e1)->isEE() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtEndcaps_)) continue;
-    if (pf && (*e1)->isEB() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtBarrelPflow_)) continue;
-    if (pf && (*e1)->isEE() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtEndcapsPflow_)) continue;
-
-    // E/p cut
-    LogTrace("GsfElectronAlgo") << "E/p : " << (*e1)->eSuperClusterOverP();
-    if (eg && (*e1)->isEB() && ((*e1)->eSuperClusterOverP() > maxEOverPBarrel_)) continue;
-    if (eg && (*e1)->isEE() && ((*e1)->eSuperClusterOverP() > maxEOverPEndcaps_)) continue;
-    if (eg && (*e1)->isEB() && ((*e1)->eSuperClusterOverP() < minEOverPBarrel_)) continue;
-    if (eg && (*e1)->isEE() && ((*e1)->eSuperClusterOverP() < minEOverPEndcaps_)) continue;
-    if (pf && (*e1)->isEB() && ((*e1)->eSuperClusterOverP() > maxEOverPBarrelPflow_)) continue;
-    if (pf && (*e1)->isEE() && ((*e1)->eSuperClusterOverP() > maxEOverPEndcapsPflow_)) continue;
-    if (pf && (*e1)->isEB() && ((*e1)->eSuperClusterOverP() < minEOverPBarrelPflow_)) continue;
-    if (pf && (*e1)->isEE() && ((*e1)->eSuperClusterOverP() < minEOverPEndcapsPflow_)) continue;
-    LogTrace("GsfElectronAlgo") << "E/p criteria is satisfied ";
-
-    // HoE cuts
-    LogTrace("GsfElectronAlgo") << "HoE1 : " << (*e1)->hcalDepth1OverEcal() << "HoE2 : " << (*e1)->hcalDepth2OverEcal();
-//     if ( eg && (*e1)->isEB() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1Barrel_) ) continue;
-//     if ( eg && (*e1)->isEE() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1Endcaps_) ) continue;
-//     if ( eg && ((*e1)->hcalDepth2OverEcal() > maxHOverEDepth2_) ) continue;
-//     if ( pf && (*e1)->isEB() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1BarrelPflow_) ) continue;
-//     if ( pf && (*e1)->isEE() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1EndcapsPflow_) ) continue;
-//     if ( pf && ((*e1)->hcalDepth2OverEcal() > maxHOverEDepth2Pflow_) ) continue;
-    double had = (*e1)->hcalOverEcal()*(*e1)->superCluster()->energy();
-    bool HoEveto = false;
-    const reco::CaloCluster & seedCluster = *((*e1)->superCluster()->seed()) ;
-    int detector = seedCluster.hitsAndFractions()[0].first.subdetId() ;
-    if (detector==EcalBarrel && (had<maxHBarrel_ || (had/(*e1)->superCluster()->energy())<maxHOverEBarrel_)) HoEveto=true;
-    else if (detector==EcalEndcap && (had<maxHEndcaps_ || (had/(*e1)->superCluster()->energy())<maxHOverEEndcaps_)) HoEveto=true;
-    if ( eg && !HoEveto ) continue;
-    bool HoEvetoPflow = false;
-    if (detector==EcalBarrel && (had<maxHBarrelPflow_ || (had/(*e1)->superCluster()->energy())<maxHOverEBarrelPflow_)) HoEvetoPflow=true;
-    else if (detector==EcalEndcap && (had<maxHEndcapsPflow_ || (had/(*e1)->superCluster()->energy())<maxHOverEEndcapsPflow_)) HoEvetoPflow=true;
-    if ( pf && !HoEvetoPflow ) continue;
-    LogTrace("GsfElectronAlgo") << "H/E criteria is satisfied ";
-
-    // delta eta criteria
-    double deta = (*e1)->deltaEtaSuperClusterTrackAtVtx();
-    LogTrace("GsfElectronAlgo") << "delta eta : " << deta;
-    if (eg && (*e1)->isEB() && (fabs(deta) > maxDeltaEtaBarrel_)) continue;
-    if (eg && (*e1)->isEE() && (fabs(deta) > maxDeltaEtaEndcaps_)) continue;
-    if (pf && (*e1)->isEB() && (fabs(deta) > maxDeltaEtaBarrelPflow_)) continue;
-    if (pf && (*e1)->isEE() && (fabs(deta) > maxDeltaEtaEndcapsPflow_)) continue;
-    LogTrace("GsfElectronAlgo") << "Delta eta criteria is satisfied ";
-
-    // delta phi criteria
-    double dphi = (*e1)->deltaPhiSuperClusterTrackAtVtx();
-    LogTrace("GsfElectronAlgo") << "delta phi : " << dphi;
-    if (eg && (*e1)->isEB() && (fabs(dphi) > maxDeltaPhiBarrel_)) continue;
-    if (eg && (*e1)->isEE() && (fabs(dphi) > maxDeltaPhiEndcaps_)) continue;
-    if (pf && (*e1)->isEB() && (fabs(dphi) > maxDeltaPhiBarrelPflow_)) continue;
-    if (pf && (*e1)->isEE() && (fabs(dphi) > maxDeltaPhiEndcapsPflow_)) continue;
-    LogTrace("GsfElectronAlgo") << "Delta phi criteria is satisfied ";
-
-    //
-    if (eg && (*e1)->isEB() && ((*e1)->sigmaIetaIeta() > maxSigmaIetaIetaBarrel_)) continue;
-    if (eg && (*e1)->isEE() && ((*e1)->sigmaIetaIeta() > maxSigmaIetaIetaEndcaps_)) continue;
-    if (pf && (*e1)->isEB() && ((*e1)->sigmaIetaIeta() > maxSigmaIetaIetaBarrelPflow_)) continue;
-    if (pf && (*e1)->isEE() && ((*e1)->sigmaIetaIeta() > maxSigmaIetaIetaEndcapsPflow_)) continue;
-
-    // fiducial
-    if (eg && !(*e1)->isEB() && isBarrel_) continue;
-    if (eg && !(*e1)->isEE() && isEndcaps_) continue;
-    if (eg && ((*e1)->isEBEEGap() || (*e1)->isEBEtaGap() || (*e1)->isEBPhiGap() || (*e1)->isEERingGap() || (*e1)->isEEDeeGap())
-     && isFiducial_) continue;
-    if (pf && !(*e1)->isEB() && isBarrelPflow_) continue;
-    if (pf && !(*e1)->isEE() && isEndcapsPflow_) continue;
-    if (pf && ((*e1)->isEBEEGap() || (*e1)->isEBEtaGap() || (*e1)->isEBPhiGap() || (*e1)->isEERingGap() || (*e1)->isEEDeeGap())
-     && isFiducialPflow_) continue;
-
-    // seed in TEC
-    edm::RefToBase<TrajectorySeed> seed = (*e1)->gsfTrack()->extra()->seedRef() ;
-    ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>() ;
-    if (eg && !seedFromTEC_)
-     {
-      if (elseed.isNull())
-	   { throw cms::Exception("GsfElectronAlgo|NotElectronSeed")<<"The GsfTrack seed is not an ElectronSeed ?!" ; }
-	  else
-	   { if (elseed->subDet2()==6) continue ; }
-     }
-
-    // transverse impact parameter
-    if (eg && fabs((*e1)->gsfTrack()->dxy(bs.position()))>maxTIP_) continue;
-    if (pf && fabs((*e1)->gsfTrack()->dxy(bs.position()))>maxTIPPflow_) continue;
-
-    outEle.push_back(*e1) ;
-    LogTrace("GsfElectronAlgo") << "electron has passed preselection criteria ";
-    LogTrace("GsfElectronAlgo") << "=================================================";
+    (*eitr)->setPassCutBasedPreselection(preselectCutBasedFlag(*eitr,bs)) ;
+    (*eitr)->setPassMvaPreselection(preselectMvaFlag(*eitr)) ;
+    if (((*eitr)->passingCutBasedPreselection())||((*eitr)->passingMvaPreselection()))
+     { outEle.push_back(*eitr) ; }
    }
+ }
+
+bool GsfElectronAlgo::preselectCutBasedFlag( GsfElectron * ele, const reco::BeamSpot & bs )
+ {
+  // kind of seeding
+  bool eg = ele->core()->ecalDrivenSeed() ;
+  bool pf = ele->core()->trackerDrivenSeed() && !ele->core()->ecalDrivenSeed() ;
+  if (eg&&pf) { throw cms::Exception("GsfElectronAlgo|BothEcalAndPureTrackerDriven")<<"An electron cannot be both egamma and purely pflow" ; }
+  if ((!eg)&&(!pf)) { throw cms::Exception("GsfElectronAlgo|NeitherEcalNorPureTrackerDriven")<<"An electron cannot be neither egamma nor purely pflow" ; }
+
+  // Et cut
+  double etValue = ele->superCluster()->energy()/cosh(ele->superCluster()->eta()) ;
+  LogTrace("GsfElectronAlgo") << "Et : " << etValue ;
+  if (eg && ele->isEB() && (etValue < minSCEtBarrel_)) return false ;
+  if (eg && ele->isEE() && (etValue < minSCEtEndcaps_)) return false ;
+  if (pf && ele->isEB() && (etValue < minSCEtBarrelPflow_)) return false ;
+  if (pf && ele->isEE() && (etValue < minSCEtEndcapsPflow_)) return false ;
+  LogTrace("GsfElectronAlgo") << "Et criteria are satisfied";
+
+  // E/p cut
+  double eopValue = ele->eSuperClusterOverP() ;
+  LogTrace("GsfElectronAlgo") << "E/p : " << eopValue ;
+  if (eg && ele->isEB() && (eopValue > maxEOverPBarrel_)) return false ;
+  if (eg && ele->isEE() && (eopValue > maxEOverPEndcaps_)) return false ;
+  if (eg && ele->isEB() && (eopValue < minEOverPBarrel_)) return false ;
+  if (eg && ele->isEE() && (eopValue < minEOverPEndcaps_)) return false ;
+  if (pf && ele->isEB() && (eopValue > maxEOverPBarrelPflow_)) return false ;
+  if (pf && ele->isEE() && (eopValue > maxEOverPEndcapsPflow_)) return false ;
+  if (pf && ele->isEB() && (eopValue < minEOverPBarrelPflow_)) return false ;
+  if (pf && ele->isEE() && (eopValue < minEOverPEndcapsPflow_)) return false ;
+  LogTrace("GsfElectronAlgo") << "E/p criteria are satisfied";
+
+  // HoE cuts
+  LogTrace("GsfElectronAlgo") << "HoE1 : " << ele->hcalDepth1OverEcal() << ", HoE2 : " << ele->hcalDepth2OverEcal();
+  double had = ele->hcalOverEcal()*ele->superCluster()->energy() ;
+  const reco::CaloCluster & seedCluster = *(ele->superCluster()->seed()) ;
+  int detector = seedCluster.hitsAndFractions()[0].first.subdetId() ;
+  if (eg)
+   {
+    bool HoEveto = false ;
+    if (detector==EcalBarrel && (had<maxHBarrel_ || (had/ele->superCluster()->energy())<maxHOverEBarrel_)) HoEveto=true;
+    else if (detector==EcalEndcap && (had<maxHEndcaps_ || (had/ele->superCluster()->energy())<maxHOverEEndcaps_)) HoEveto=true;
+    if ( !HoEveto ) return false ;
+   }
+  if (pf)
+   {
+    bool HoEvetoPflow = false ;
+    if (detector==EcalBarrel && (had<maxHBarrelPflow_ || (had/ele->superCluster()->energy())<maxHOverEBarrelPflow_)) HoEvetoPflow=true;
+    else if (detector==EcalEndcap && (had<maxHEndcapsPflow_ || (had/ele->superCluster()->energy())<maxHOverEEndcapsPflow_)) HoEvetoPflow=true;
+    if ( !HoEvetoPflow ) return false ;
+   }
+  LogTrace("GsfElectronAlgo") << "H/E criteria are satisfied";
+
+  // delta eta criteria
+  double deta = ele->deltaEtaSuperClusterTrackAtVtx();
+  LogTrace("GsfElectronAlgo") << "delta eta : " << deta;
+  if (eg && ele->isEB() && (fabs(deta) > maxDeltaEtaBarrel_)) return false ;
+  if (eg && ele->isEE() && (fabs(deta) > maxDeltaEtaEndcaps_)) return false ;
+  if (pf && ele->isEB() && (fabs(deta) > maxDeltaEtaBarrelPflow_)) return false ;
+  if (pf && ele->isEE() && (fabs(deta) > maxDeltaEtaEndcapsPflow_)) return false ;
+  LogTrace("GsfElectronAlgo") << "Delta eta criteria are satisfied";
+
+  // delta phi criteria
+  double dphi = ele->deltaPhiSuperClusterTrackAtVtx();
+  LogTrace("GsfElectronAlgo") << "delta phi : " << dphi;
+  if (eg && ele->isEB() && (fabs(dphi) > maxDeltaPhiBarrel_)) return false ;
+  if (eg && ele->isEE() && (fabs(dphi) > maxDeltaPhiEndcaps_)) return false ;
+  if (pf && ele->isEB() && (fabs(dphi) > maxDeltaPhiBarrelPflow_)) return false ;
+  if (pf && ele->isEE() && (fabs(dphi) > maxDeltaPhiEndcapsPflow_)) return false ;
+  LogTrace("GsfElectronAlgo") << "Delta phi criteria are satisfied";
+
+  // sigma ieta ieta
+  LogTrace("GsfElectronAlgo") << "sigma ieta ieta : " << ele->sigmaIetaIeta();
+  if (eg && ele->isEB() && (ele->sigmaIetaIeta() > maxSigmaIetaIetaBarrel_)) return false ;
+  if (eg && ele->isEE() && (ele->sigmaIetaIeta() > maxSigmaIetaIetaEndcaps_)) return false ;
+  if (pf && ele->isEB() && (ele->sigmaIetaIeta() > maxSigmaIetaIetaBarrelPflow_)) return false ;
+  if (pf && ele->isEE() && (ele->sigmaIetaIeta() > maxSigmaIetaIetaEndcapsPflow_)) return false ;
+  LogTrace("GsfElectronAlgo") << "Sigma ieta ieta criteria are satisfied";
+
+  // fiducial
+  if (eg && !ele->isEB() && isBarrel_) return false ;
+  if (eg && !ele->isEE() && isEndcaps_) return false ;
+  if (eg && isFiducial_ && (ele->isEBEEGap()||ele->isEBEtaGap()||ele->isEBPhiGap()||ele->isEERingGap()||ele->isEEDeeGap())) return false ;
+  if (pf && !ele->isEB() && isBarrelPflow_) return false ;
+  if (pf && !ele->isEE() && isEndcapsPflow_) return false ;
+  if (pf && isFiducialPflow_ && (ele->isEBEEGap()||ele->isEBEtaGap()||ele->isEBPhiGap()||ele->isEERingGap()||ele->isEEDeeGap())) return false ;
+  LogTrace("GsfElectronAlgo") << "Fiducial flags criteria are satisfied";
+
+  // seed in TEC
+  edm::RefToBase<TrajectorySeed> seed = ele->gsfTrack()->extra()->seedRef() ;
+  ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>() ;
+  if (eg && !seedFromTEC_)
+   {
+    if (elseed.isNull())
+     { throw cms::Exception("GsfElectronAlgo|NotElectronSeed")<<"The GsfTrack seed is not an ElectronSeed ?!" ; }
+    else
+     { if (elseed->subDet2()==6) return false ; }
+   }
+
+  // transverse impact parameter
+  if (eg && fabs(ele->gsfTrack()->dxy(bs.position()))>maxTIP_) return false ;
+  if (pf && fabs(ele->gsfTrack()->dxy(bs.position()))>maxTIPPflow_) return false ;
+  LogTrace("GsfElectronAlgo") << "TIP criterion is satisfied" ;
+
+  LogTrace("GsfElectronAlgo") << "All cut based criteria are satisfied" ;
+  return true ;
+ }
+
+bool GsfElectronAlgo::preselectMvaFlag( GsfElectron * ele )
+ {
+  bool res = false ;
+
+  if (ele->core()->ecalDrivenSeed())
+   { if (ele->mva()>=minMVA_) res = true ; }
+  else
+   { if (ele->mva()>=minMVAPflow_) res = true ; }
+
+  if (res)
+   {
+    LogTrace("GsfElectronAlgo") << "Mva criterion is satisfied" ;
+    return true ;
+   }
+  else
+   { return false ; }
  }
 
 // utilities for constructor

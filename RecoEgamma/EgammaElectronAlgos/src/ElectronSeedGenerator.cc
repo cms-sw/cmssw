@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedGenerator.cc,v 1.8 2010/03/15 00:17:55 charlot Exp $
+// $Id: ElectronSeedGenerator.cc,v 1.9 2010/03/18 14:52:37 chamont Exp $
 //
 //
 
@@ -165,8 +165,11 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup& setup) {
 
 }
 
-void  ElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const reco::SuperClusterRefVector &sclRefs, TrajectorySeedCollection *seeds, reco::ElectronSeedCollection & out){
-
+void  ElectronSeedGenerator::run
+ ( edm::Event & e, const edm::EventSetup & setup,
+   const reco::SuperClusterRefVector & sclRefs, const std::vector<float> & hoe1s, const std::vector<float> & hoe2s,
+   TrajectorySeedCollection * seeds, reco::ElectronSeedCollection & out )
+ {
   theInitialSeedColl=seeds;
 
   theSetup= &setup;
@@ -189,7 +192,7 @@ void  ElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, co
     recHits_.clear();
 
     LogDebug ("run") << "new cluster, calling seedsFromThisCluster";
-    seedsFromThisCluster(sclRefs[i],out);
+    seedsFromThisCluster(sclRefs[i],hoe1s[i],hoe2s[i],out);
   }
 
   LogDebug ("run") << ": For event "<<e.id();
@@ -197,15 +200,18 @@ void  ElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, co
    <<", no. of ElectronSeeds found  = " << out.size();
 }
 
-void ElectronSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCollection> seedCluster, reco::ElectronSeedCollection& result)
+void ElectronSeedGenerator::seedsFromThisCluster
+ ( edm::Ref<reco::SuperClusterCollection> seedCluster,
+   float hoe1, float hoe2,
+   reco::ElectronSeedCollection & result )
  {
-  float clusterEnergy = seedCluster->energy();
+  float clusterEnergy = seedCluster->energy() ;
   GlobalPoint clusterPos
    ( seedCluster->position().x(),
 		 seedCluster->position().y(),
 	   seedCluster->position().z() ) ;
-  LogDebug("") << "[ElectronSeedGenerator::seedsFromThisCluster] new supercluster with energy: " << clusterEnergy;
-  LogDebug("") << "[ElectronSeedGenerator::seedsFromThisCluster] and position: " << clusterPos;
+  LogDebug("") << "[ElectronSeedGenerator::seedsFromThisCluster] new supercluster with energy: " << clusterEnergy ;
+  LogDebug("") << "[ElectronSeedGenerator::seedsFromThisCluster] and position: " << clusterPos ;
 
   if (dynamicphiroad_)
    {
@@ -285,7 +291,7 @@ void ElectronSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCol
        {
         reco::ElectronSeed seed(s->seed()) ;
         reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
-        seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2(),s->subDet1(),s->dRz1(),s->dPhi1()) ;
+        seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2(),s->subDet1(),s->dRz1(),s->dPhi1(),hoe1,hoe2) ;
         result.push_back(seed) ;
        }
      }
@@ -329,7 +335,7 @@ void ElectronSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCol
        {
   	    reco::ElectronSeed seed(s->seed()) ;
         reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
-        seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2(),s->subDet1(),s->dRz1(),s->dPhi1()) ;
+        seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2(),s->subDet1(),s->dRz1(),s->dPhi1(),hoe1,hoe2) ;
         result.push_back(seed);
        }
      }
@@ -399,7 +405,7 @@ void ElectronSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCol
          {
           reco::ElectronSeed seed(s->seed()) ;
           reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
-          seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2(),s->subDet1(),s->dRz1(),s->dPhi1()) ;
+          seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2(),s->subDet1(),s->dRz1(),s->dPhi1(),hoe1,hoe2) ;
           result.push_back(seed);
 	       }
        }
@@ -440,7 +446,7 @@ void ElectronSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCol
          {
           reco::ElectronSeed seed(s->seed()) ;
           reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
-          seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2(),s->subDet1(),s->dRz1(),s->dPhi1()) ;
+          seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2(),s->subDet1(),s->dRz1(),s->dPhi1(),hoe1,hoe2) ;
           result.push_back(seed);
          }
        }
