@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.172 $"
+__version__ = "$Revision: 1.173 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -435,6 +435,8 @@ class ConfigBuilder(object):
 	    self.eventcontent='FEVT'
 
         if self._options.scenario=='HeavyIons':
+            self.VALIDATIONDefaultCFF="Configuration/StandardSequences/ValidationHeavyIons_cff"
+            self.VALIDATIONDefaultSeq='validationHeavyIons'
             self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentHeavyIons_cff"
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionHeavyIons_cff"
    	    self.RECODefaultSeq='reconstructionHeavyIons'
@@ -845,7 +847,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.172 $"),
+              (version=cms.untracked.string("$Revision: 1.173 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
