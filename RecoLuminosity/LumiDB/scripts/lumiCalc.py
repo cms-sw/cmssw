@@ -8,6 +8,7 @@ class constants(object):
     def __init__(self):
         self.NORM=1.0
         self.LUMIVERSION='0001'
+        self.NBX=3564
         self.BEAMMODE='stable' #possible choices stable,quiet,either
         self.VERBOSE=False
     def defaultfrontierConfigString(self):
@@ -57,7 +58,7 @@ def deliveredLumiForRun(dbsession,c,runnum):
             if delivereddata:
                 totalls=totallsdata
                 norbits=norbitsdata
-                lstime=lslengthsec(norbits,3564)
+                lstime=lslengthsec(norbits,c.NBX)
                 delivered=delivereddata*c.NORM*lstime
         del query
         dbsession.transaction().commit()
@@ -88,7 +89,7 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
     recorded=0.0
     lumidata=[] #[runnumber,trgtable,deadtable]
     trgtable={} #{hltpath:[l1seed,hltprescale,l1prescale]}
-    deadtable={} #{lsnum:[deadtime,instlumi,norbits]}
+    deadtable={} #{lsnum:[deadtime,instlumi,bit_0,norbits]}
     lumidata.append(runnum)
     lumidata.append(trgtable)
     lumidata.append(deadtable)
@@ -170,6 +171,7 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
         query.addToOutputList("lumisummary.CMSLSNUM","cmsls")
         query.addToOutputList("lumisummary.INSTLUMI","instlumi")
         query.addToOutputList("lumisummary.NUMORBIT","norbits")
+        query.addToOutputList("trg.TRGCOUNT","trgcount")
         query.addToOutputList("trg.BITNAME","bitname")
         query.addToOutputList("trg.DEADTIME","trgdeadtime")
         query.addToOutputList("trg.PRESCALE","trgprescale")
@@ -181,6 +183,7 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
         result.extend("cmsls","unsigned int")
         result.extend("instlumi","float")
         result.extend("norbits","unsigned int")
+        result.extend("trgcount","unsigned int")
         result.extend("bitname","string")
         result.extend("trgdeadtime","unsigned long long")
         result.extend("trgprescale","unsigned int")
@@ -192,6 +195,7 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
             cmsls=cursor.currentRow()["cmsls"].data()
             instlumi=cursor.currentRow()["instlumi"].data()*c.NORM
             norbits=cursor.currentRow()["norbits"].data()
+            trgcount=cursor.currentRow()["trgcount"].data()
             trgbitname=cursor.currentRow()["bitname"].data()
             trgdeadtime=cursor.currentRow()["trgdeadtime"].data()
             trgprescale=cursor.currentRow()["trgprescale"].data()
@@ -204,6 +208,7 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
                     deadtable[cmsls]=[]
                     deadtable[cmsls].append(trgdeadtime)
                     deadtable[cmsls].append(instlumi)
+                    deadtable[cmsls].append(trgcount)
                     deadtable[cmsls].append(norbits)
         cursor.close()
         del query
@@ -264,14 +269,19 @@ def dumpData(lumidata,filename):
 
 def calculateTotalRecorded(deadtable):
     """
-    input: {lsnum:[deadtime,instlumi,norbits]}
+    input: {lsnum:[deadtime,instlumi,bit_0,norbits]}
     output: recordedLumi
     """
     recordedLumi=0.0
     for myls,d in deadtable.items():
         instLumi=d[1]
-        deadfrac=float(d[0])/float(d[2]*3564)
-        lstime=lslengthsec(d[2],3564)
+        #deadfrac=float(d[0])/float(d[2]*3564)
+        #print myls,float(d[2])
+        if float(d[2])==0.0:
+            deadfrac=1.0
+        else:
+            deadfrac=float(d[0])/float(d[2])
+        lstime=lslengthsec(d[3],3564)
         recordedLumi+=instLumi*(1.0-deadfrac)*lstime
     return recordedLumi
 
@@ -306,12 +316,13 @@ def calculateEffective(trgtable,totalrecorded):
 
 def getDeadfractions(deadtable):
     """
-    inputtable: {lsnum:[deadtime,instlumi,norbits]}
+    inputtable: {lsnum:[deadtime,instlumi,bit_0,norbits]}
     output: {lsnum:deadfraction}
     """
     result={}
     for myls,d in deadtable.items():
-        deadfrac=float(d[0])/(float(d[2])*float(3564))
+        #deadfrac=float(d[0])/(float(d[2])*float(3564))
+        deadfrac=float(d[0])/(float(d[2]))
         result[myls]=deadfrac
     return result
 
@@ -329,7 +340,7 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
             continue
         perlsdata=dataperRun[2]
         recordedLumi=0.0
-        norbits=perlsdata.values()[0][2]
+        #norbits=perlsdata.values()[0][3]
         recordedLumi=calculateTotalRecorded(perlsdata)
         trgdict=dataperRun[1]
         effective=calculateEffective(trgdict,recordedLumi)
@@ -389,7 +400,7 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
             deadT=getDeadfractions(perlsdata)
             t=''
             for myls,de in deadT.items():
-                t+=str(myls)+':'+'%.3f'%(de)+' '
+                t+=str(myls)+':'+'%.5f'%(de)+' '
             deadtoprint.append([str(runnum),t])
         print '==='
         print tablePrinter.indent(deadtimelabels+deadtoprint,hasHeader=True,separateRows=True,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,80))
@@ -406,7 +417,7 @@ def dumpRecordedLumi(lumidata,hltpath=''):
             continue
         perlsdata=dataperRun[2]
         recordedLumi=0.0
-        norbits=perlsdata.values()[0][2]
+        #norbits=perlsdata.values()[0][3]
         recordedLumi=calculateTotalRecorded(perlsdata)
         trgdict=dataperRun[1]
         effective=calculateEffective(trgdict,recordedLumi)
