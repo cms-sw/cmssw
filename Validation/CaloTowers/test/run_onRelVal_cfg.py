@@ -23,16 +23,22 @@ process.source = cms.Source("PoolSource",
 
 process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
     outputFile               = cms.untracked.string('CaloTowersValidationRelVal.root'),
+
     CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
     hcalselector             = cms.untracked.string('all'),
-    mc                       = cms.untracked.string('no')
+
+    mc                       = cms.untracked.string('no'),
+    useAllHistos             = cms.untracked.bool(False)                         
 )
 
 process.hcalNoiseRates = cms.EDAnalyzer('NoiseRates',
     outputFile   = cms.untracked.string('NoiseRatesRelVal.root'),
+
     rbxCollName  = cms.untracked.InputTag('hcalnoise'),
     minRBXEnergy = cms.untracked.double(20.0),
-    minHitEnergy = cms.untracked.double(1.5)
+    minHitEnergy = cms.untracked.double(1.5),
+
+    useAllHistos = cms.untracked.bool(False)                         
 )
 
 process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
@@ -45,7 +51,9 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     eventype                  = cms.untracked.string('multi'),
     ecalselector              = cms.untracked.string('yes'),
     hcalselector              = cms.untracked.string('all'),
-    mc                        = cms.untracked.string('no')
+
+    mc                        = cms.untracked.string('no'),                                         
+    useAllHistos              = cms.untracked.bool(False)                                                                   
 )
 
 process.p = cms.Path(process.hcalTowerAnalyzer * process.hcalNoiseRates * process.hcalRecoAnalyzer)

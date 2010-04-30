@@ -32,15 +32,20 @@ NoiseRates::NoiseRates(const edm::ParameterSet& iConfig)
   }
 
   // set parameters
-  rbxCollName_      = iConfig.getUntrackedParameter<edm::InputTag>("rbxCollName");
-  minRBXEnergy_     = iConfig.getUntrackedParameter<double>("minRBXEnergy");
-  minHitEnergy_     = iConfig.getUntrackedParameter<double>("minHitEnergy");
+  rbxCollName_   = iConfig.getUntrackedParameter<edm::InputTag>("rbxCollName");
+  minRBXEnergy_  = iConfig.getUntrackedParameter<double>("minRBXEnergy");
+  minHitEnergy_  = iConfig.getUntrackedParameter<double>("minHitEnergy");
+
+  useAllHistos_  = iConfig.getUntrackedParameter<bool>("useAllHistos", false);
 
   // book histograms
 
-  sprintf  (histo, "hLumiBlockCount" );
-  hLumiBlockCount_ = dbe_->book1D(histo, histo, 1, -0.5, 0.5);
-
+  //Lumi block is not drawn; the rest are
+  if (useAllHistos_){
+    sprintf  (histo, "hLumiBlockCount" );
+    hLumiBlockCount_ = dbe_->book1D(histo, histo, 1, -0.5, 0.5);
+  }
+  
   sprintf  (histo, "hRBXEnergy" );
   hRBXEnergy_ = dbe_->book1D(histo, histo, 300, 0, 3000);
 
@@ -116,9 +121,9 @@ NoiseRates::beginJob(){}
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 NoiseRates::endJob() {
-
-  hLumiBlockCount_->Fill(0.0, lumiCountMap_.size());
-
+  
+  if (useAllHistos_) hLumiBlockCount_->Fill(0.0, lumiCountMap_.size());
+  
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 
 }

@@ -54,6 +54,7 @@ class NoiseRates : public edm::EDAnalyzer {
   edm::InputTag rbxCollName_;          // label for the rbx collection
   double minRBXEnergy_;                // RBX energy threshold
   double minHitEnergy_;                // RecHit energy threshold
+  bool   useAllHistos_;
 
   MonitorElement* hLumiBlockCount_;
   MonitorElement* hRBXEnergy_;

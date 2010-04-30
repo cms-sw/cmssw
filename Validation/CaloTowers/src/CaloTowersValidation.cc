@@ -12,7 +12,9 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
   hcalselector_ = conf.getUntrackedParameter<std::string>("hcalselector", "all");
+
   mc_           = conf.getUntrackedParameter<std::string>("mc", "yes");
+  useAllHistos_ = conf.getUntrackedParameter<bool>("useAllHistos", false);
 
   etaMin[0] = 0.;
   etaMax[0] = 1.4;
@@ -47,35 +49,47 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     dbe_->setCurrentFolder("CaloTowersV/CaloTowersTask");
   }
 
+  //These two histos are not drawn by our macros, but they are used
+  //in the EndJob for norms and such so I am leaving them alone for now
+  //-------------------------------------------------------------------------------------------
   sprintf  (histo, "Ntowers_per_event_vs_ieta" );
   Ntowers_vs_ieta = dbe_->book1D(histo, histo, 82, -41., 41.);
-
-  sprintf  (histo, "emean_vs_ieta_E" );
-  emean_vs_ieta_E = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
-  sprintf  (histo, "emean_vs_ieta_H" );
-  emean_vs_ieta_H = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
-  sprintf  (histo, "emean_vs_ieta_EH" );
-  emean_vs_ieta_EH = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
   
+  sprintf  (histo, "CaloTowersTask_map_Nentries" );
+  mapEnergy_N = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+  //-------------------------------------------------------------------------------------------
 
+  //These the single pion scan histos
+  //-------------------------------------------------------------------------------------------
+  //The first three are not used
+  if (useAllHistos_){
+    sprintf  (histo, "emean_vs_ieta_E" );
+    emean_vs_ieta_E = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+    sprintf  (histo, "emean_vs_ieta_H" );
+    emean_vs_ieta_H = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+    sprintf  (histo, "emean_vs_ieta_EH" );
+    emean_vs_ieta_EH = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+  }
+  //These are drawn
   sprintf  (histo, "emean_vs_ieta_E1" );
   emean_vs_ieta_E1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
   sprintf  (histo, "emean_vs_ieta_H1" );
   emean_vs_ieta_H1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
   sprintf  (histo, "emean_vs_ieta_EH1" );
   emean_vs_ieta_EH1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
-  
+  //-------------------------------------------------------------------------------------------
 
-  sprintf  (histo, "CaloTowersTask_map_energy_E" );
-  mapEnergy_E = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-  sprintf  (histo, "CaloTowersTask_map_energy_H");
-  mapEnergy_H = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-  sprintf  (histo, "CaloTowersTask_map_energy_EH" );
-  mapEnergy_EH = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+  //Map energy histos are not drawn
+  if (useAllHistos_){
+    sprintf  (histo, "CaloTowersTask_map_energy_E" );
+    mapEnergy_E = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+    sprintf  (histo, "CaloTowersTask_map_energy_H");
+    mapEnergy_H = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+    sprintf  (histo, "CaloTowersTask_map_energy_EH" );
+    mapEnergy_EH = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+  }
 
-  sprintf  (histo, "CaloTowersTask_map_Nentries" );
-  mapEnergy_N = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-
+  //All ECAL cell histos are used
   // XXX: ECAL 0-25 [0-26, 26 bins]   HCAL 0-4 [0-5, 5 bins]
   sprintf  (histo, "number_of_bad_cells_Ecal_EB");
   numBadCellsEcal_EB = dbe_->book1D(histo, histo, 26, 0, 26);
@@ -90,26 +104,24 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   sprintf  (histo, "number_of_problematic_cells_Ecal_EE");
   numPrbCellsEcal_EE = dbe_->book1D(histo, histo, 26, 0, 26); 
 
+  //Occupancy vs. ieta is drawn, occupancy map is needed to draw it 
   sprintf  (histo, "CaloTowersTask_map_occupancy" );
   occupancy_map = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+
   sprintf  (histo, "CaloTowersTask_occupancy_vs_ieta" );
   occupancy_vs_ieta = dbe_->book1D(histo, histo, 82, -41, 41);
-
-
+  
   if( isub == 1 || isub == 0) {
+    //All cell histos are used
     sprintf  (histo, "number_of_bad_cells_Hcal_HB");
     numBadCellsHcal_HB = dbe_->book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_recovered_cells_Hcal_HB");
     numRcvCellsHcal_HB = dbe_->book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_problematic_cells_Hcal_HB");
     numPrbCellsHcal_HB = dbe_->book1D(histo, histo, 5, 0, 5); 
-  
-    sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HB") ;
-    meEnergyHcalvsEcal_HB    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
     
-    sprintf (histo, "CaloTowersTask_energy_OUTER_HB" ) ;
-    meEnergyHO_HB    = dbe_->book1D(histo, histo, 1640, -200, 8000);   
-    
+    //These are the five oldest CaloTower histos used: NTowers, E in HCAL/ECAL, MET and SET
+    //-------------------------------------------------------------------------------------------
     sprintf (histo, "CaloTowersTask_energy_HCAL_HB" ) ;
     meEnergyHcal_HB    = dbe_->book1D(histo, histo, 4100, -200, 8000);  
     
@@ -118,32 +130,16 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_HB" ) ;
     meNumFiredTowers_HB = dbe_->book1D(histo, histo, 1000, 0, 2000); 
-    
-    sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower_HB" ) ;
-    meEnergyEcalTower_HB = dbe_->book1D(histo, histo, 440, -200, 2000); 
-    
-    sprintf (histo, "CaloTowersTask_energy_of_HCAL_component_of_tower_HB" ) ;
-    meEnergyHcalTower_HB = dbe_->book1D(histo, histo, 440 , -200 , 2000); 
-    
-    sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO_HB" ) ;
-    meTotEnergy_HB = dbe_->book1D(histo, histo,400, 0., 2000.) ;
-    
-    sprintf  (histo, "CaloTowersTask_map_energy_HB" );
-    mapEnergy_HB = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-    sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HB");
-    mapEnergyHcal_HB = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-    sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HB" );
-    mapEnergyEcal_HB = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-    
+
     sprintf  (histo, "CaloTowersTask_MET_HB" ) ;
     MET_HB = dbe_->book1D(histo, histo, 3000, 0. , 3000. ) ;
     
     sprintf  (histo, "CaloTowersTask_SET_HB" ) ;
     SET_HB = dbe_->book1D(histo, histo, 8000, 0. , 8000. ) ;
-    
-    sprintf  (histo, "CaloTowersTask_phi_MET_HB" ) ;
-    phiMET_HB = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
+    //-------------------------------------------------------------------------------------------
 
+    //Timing histos and profiles -- all six are necessary
+    //-------------------------------------------------------------------------------------------
     sprintf  (histo, "CaloTowersTask_EM_Timing_HB" ) ;
     emTiming_HB = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
 
@@ -161,9 +157,39 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HB" ) ;
     hadEnergyTiming_profile_HB = dbe_->bookProfile(histo, histo, 4000, 0. , 4000., 200, -100., 100. ) ;
-  }
+    //-------------------------------------------------------------------------------------------
 
+    //Everything else is not drawn
+    if (useAllHistos_){
+      sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HB") ;
+      meEnergyHcalvsEcal_HB    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
+      
+      sprintf (histo, "CaloTowersTask_energy_OUTER_HB" ) ;
+      meEnergyHO_HB    = dbe_->book1D(histo, histo, 1640, -200, 8000);   
+      
+      sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower_HB" ) ;
+      meEnergyEcalTower_HB = dbe_->book1D(histo, histo, 440, -200, 2000); 
+      
+      sprintf (histo, "CaloTowersTask_energy_of_HCAL_component_of_tower_HB" ) ;
+      meEnergyHcalTower_HB = dbe_->book1D(histo, histo, 440 , -200 , 2000); 
+      
+      sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO_HB" ) ;
+      meTotEnergy_HB = dbe_->book1D(histo, histo,400, 0., 2000.) ;
+      
+      sprintf  (histo, "CaloTowersTask_map_energy_HB" );
+      mapEnergy_HB = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HB");
+      mapEnergyHcal_HB = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HB" );
+      mapEnergyEcal_HB = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      
+      sprintf  (histo, "CaloTowersTask_phi_MET_HB" ) ;
+      phiMET_HB = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
+    }
+  } 
+  
   if( isub == 2 || isub == 0) {
+    //All cell histos are used
     sprintf  (histo, "number_of_bad_cells_Hcal_HE");
     numBadCellsHcal_HE = dbe_->book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_recovered_cells_Hcal_HE");
@@ -171,12 +197,8 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     sprintf  (histo, "number_of_problematic_cells_Hcal_HE");
     numPrbCellsHcal_HE = dbe_->book1D(histo, histo, 5, 0, 5); 
 
-    sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HE") ;
-    meEnergyHcalvsEcal_HE    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
-    
-    sprintf (histo, "CaloTowersTask_energy_OUTER_HE" ) ;
-    meEnergyHO_HE    = dbe_->book1D(histo, histo, 440, -200, 2000);   
-    
+    //These are the five oldest CaloTower histos used: NTowers, E in HCAL/ECAL, MET and SET
+    //-------------------------------------------------------------------------------------------
     sprintf (histo, "CaloTowersTask_energy_HCAL_HE" ) ;
     meEnergyHcal_HE    = dbe_->book1D(histo, histo, 440, -200, 2000);  
     
@@ -185,32 +207,16 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_HE" ) ;
     meNumFiredTowers_HE = dbe_->book1D(histo, histo, 1000, 0, 2000); 
-    
-    sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower_HE" ) ;
-    meEnergyEcalTower_HE = dbe_->book1D(histo, histo, 1100, -200, 2000); 
-    
-    sprintf (histo, "CaloTowersTask_energy_of_HCAL_component_of_tower_HE" ) ;
-    meEnergyHcalTower_HE = dbe_->book1D(histo, histo, 1100 , -200 , 2000); 
-    
-    sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO_HE" ) ;
-    meTotEnergy_HE = dbe_->book1D(histo, histo,400, 0., 2000.) ;
-    
-    sprintf  (histo, "CaloTowersTask_map_energy_HE" );
-    mapEnergy_HE = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-    sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HE");
-    mapEnergyHcal_HE = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-    sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HE" );
-    mapEnergyEcal_HE = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-    
+
     sprintf  (histo, "CaloTowersTask_MET_HE" ) ;
     MET_HE = dbe_->book1D(histo, histo, 1000, 0. , 1000. ) ;
     
     sprintf  (histo, "CaloTowersTask_SET_HE" ) ;
     SET_HE = dbe_->book1D(histo, histo, 2000, 0. , 2000. ) ;
-    
-    sprintf  (histo, "CaloTowersTask_phi_MET_HE" ) ;
-    phiMET_HE = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
+    //-------------------------------------------------------------------------------------------
 
+    //Timing histos and profiles -- all six are necessary
+    //-------------------------------------------------------------------------------------------
     sprintf  (histo, "CaloTowersTask_EM_Timing_HE" ) ;
     emTiming_HE = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
 
@@ -228,10 +234,40 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HE" ) ;
     hadEnergyTiming_profile_HE = dbe_->bookProfile(histo, histo, 2000, 0. , 2000., 200, -100., 100. ) ;
+    //-------------------------------------------------------------------------------------------
+
+    //Everything else is not drawn
+    if (useAllHistos_){
+      sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HE") ;
+      meEnergyHcalvsEcal_HE    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
+      
+      sprintf (histo, "CaloTowersTask_energy_OUTER_HE" ) ;
+      meEnergyHO_HE    = dbe_->book1D(histo, histo, 440, -200, 2000);   
+      
+      sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower_HE" ) ;
+      meEnergyEcalTower_HE = dbe_->book1D(histo, histo, 1100, -200, 2000); 
+      
+      sprintf (histo, "CaloTowersTask_energy_of_HCAL_component_of_tower_HE" ) ;
+      meEnergyHcalTower_HE = dbe_->book1D(histo, histo, 1100 , -200 , 2000); 
+      
+      sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO_HE" ) ;
+      meTotEnergy_HE = dbe_->book1D(histo, histo,400, 0., 2000.) ;
+      
+      sprintf  (histo, "CaloTowersTask_map_energy_HE" );
+      mapEnergy_HE = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HE");
+      mapEnergyHcal_HE = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HE" );
+      mapEnergyEcal_HE = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      
+      sprintf  (histo, "CaloTowersTask_phi_MET_HE" ) ;
+      phiMET_HE = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
+    }
   }
 
 
   if( isub == 3 || isub == 0) {
+    //All cell histos are used
     sprintf  (histo, "number_of_bad_cells_Hcal_HF");
     numBadCellsHcal_HF = dbe_->book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_recovered_cells_Hcal_HF");
@@ -239,46 +275,26 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     sprintf  (histo, "number_of_problematic_cells_Hcal_HF");
     numPrbCellsHcal_HF = dbe_->book1D(histo, histo, 5, 0, 5); 
 
-    sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HF") ;
-    meEnergyHcalvsEcal_HF    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
-    
-    sprintf (histo, "CaloTowersTask_energy_OUTER_HF" ) ;
-    meEnergyHO_HF    = dbe_->book1D(histo, histo, 440, -200, 2000);   
-    
+    //These are the five oldest CaloTower histos used: NTowers, E in HCAL/ECAL, MET and SET
+    //-------------------------------------------------------------------------------------------
     sprintf (histo, "CaloTowersTask_energy_HCAL_HF" ) ;
     meEnergyHcal_HF    = dbe_->book1D(histo, histo, 440, -200, 2000);  
     
     sprintf (histo, "CaloTowersTask_energy_ECAL_HF" ) ;
     meEnergyEcal_HF    = dbe_->book1D(histo, histo, 440, -200, 2000); 
-    
+
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_HF" ) ;
     meNumFiredTowers_HF = dbe_->book1D(histo, histo, 1000, 0, 2000); 
-    
-    sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower_HF" ) ;
-    meEnergyEcalTower_HF = dbe_->book1D(histo, histo, 440, -200, 2000); 
-    
-    sprintf (histo, "CaloTowersTask_energy_of_HCAL_component_of_tower_HF" ) ;
-    meEnergyHcalTower_HF = dbe_->book1D(histo, histo, 440 , -200 , 2000); 
-    
-    sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO_HF" ) ;
-    meTotEnergy_HF = dbe_->book1D(histo, histo, 400, 0., 2000.) ;
-    
-    sprintf  (histo, "CaloTowersTask_map_energy_HF" );
-    mapEnergy_HF = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-    sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HF");
-    mapEnergyHcal_HF = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-    sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HF" );
-    mapEnergyEcal_HF = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-    
+
     sprintf  (histo, "CaloTowersTask_MET_HF" ) ;
     MET_HF = dbe_->book1D(histo, histo, 500, 0. , 500. ) ;
     
     sprintf  (histo, "CaloTowersTask_SET_HF" ) ;
     SET_HF = dbe_->book1D(histo, histo, 200, 0. , 200. ) ;
-    
-    sprintf  (histo, "CaloTowersTask_phi_MET_HF" ) ;
-    phiMET_HF = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
+    //-------------------------------------------------------------------------------------------
 
+    //Timing histos and profiles -- all six are necessary
+    //-------------------------------------------------------------------------------------------
     sprintf  (histo, "CaloTowersTask_EM_Timing_HF" ) ;
     emTiming_HF = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
 
@@ -296,6 +312,35 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HF" ) ;
     hadEnergyTiming_profile_HF = dbe_->bookProfile(histo, histo, 500, 0. , 500., 200, -100., 100. ) ;
+    //-------------------------------------------------------------------------------------------
+
+    //Everything else is not drawn
+    if (useAllHistos_){
+      sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HF") ;
+      meEnergyHcalvsEcal_HF    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
+      
+      sprintf (histo, "CaloTowersTask_energy_OUTER_HF" ) ;
+      meEnergyHO_HF    = dbe_->book1D(histo, histo, 440, -200, 2000);   
+      
+      sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower_HF" ) ;
+      meEnergyEcalTower_HF = dbe_->book1D(histo, histo, 440, -200, 2000); 
+      
+      sprintf (histo, "CaloTowersTask_energy_of_HCAL_component_of_tower_HF" ) ;
+      meEnergyHcalTower_HF = dbe_->book1D(histo, histo, 440 , -200 , 2000); 
+      
+      sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO_HF" ) ;
+      meTotEnergy_HF = dbe_->book1D(histo, histo, 400, 0., 2000.) ;
+      
+      sprintf  (histo, "CaloTowersTask_map_energy_HF" );
+      mapEnergy_HF = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HF");
+      mapEnergyHcal_HF = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HF" );
+      mapEnergyEcal_HF = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      
+      sprintf  (histo, "CaloTowersTask_phi_MET_HF" ) ;
+      phiMET_HF = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
+    }
   }
 
 }
@@ -332,10 +377,11 @@ void CaloTowersValidation::endJob() {
     float sumphi = 0.;
 
     for (int j = 1; j <= ny; j++) {      
-
+      
       // Emean
       cnorm   = mapEnergy_N -> getBinContent(i,j);
-      if(cnorm > 0.000001) {
+      //Phi histos are not used in the macros
+      if(cnorm > 0.000001 && useAllHistos_) {
 	
 	cont = mapEnergy_E -> getBinContent(i,j) / cnorm ;
 	mapEnergy_E -> setBinContent(i,j,cont);	      
@@ -347,14 +393,15 @@ void CaloTowersValidation::endJob() {
 	mapEnergy_EH -> setBinContent(i,j,cont);	      
       }
       
-      // Occupancy
+      // Occupancy (needed for occupancy vs ieta)
       cnorm   = occupancy_map -> getBinContent(i,j) / fev; 
       if(cnorm > 1.e-30) occupancy_map -> setBinContent(i,j,cnorm);
-
+      
       sumphi += cnorm;
-
+      
     } // end of iphy cycle (j)
-
+    
+    //Occupancy vs ieta histo is drawn
     // phi-factor evaluation for occupancy_vs_ieta calculation
     int ieta = i - 42;        // -41 -1, 0 40 
     if(ieta >=0 ) ieta +=1;   // -41 -1, 1 41  - to make it detector-like
@@ -507,6 +554,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
           else if( HcalDetId(detId).subdet()==HcalForward ) inHcals[2] =1;
        }
     }
+    //All cell histos are used
     if( inEcals[0] ) {
        numBadCellsEcal_EB->Fill(numBadEcalCells);
        numRcvCellsEcal_EB->Fill(numRcvEcalCells);
@@ -539,22 +587,25 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
       }
     }
       
-
+    //Ntowers is used in EndJob, occupancy_map is used for occupancy vs ieta
     Ntowers_vs_ieta -> Fill(double(ieta),1.);
     occupancy_map -> Fill(double(ieta),double(iphi));
     
 
     if((isub == 0 || isub == 1) 
        && (fabs(etaT) <  etaMax[0] && fabs(etaT) >= etaMin[0] )) {
-
+      
+      //All cell histos are used
       numBadCellsHcal_HB->Fill(numBadHcalCells);
       numRcvCellsHcal_HB->Fill(numRcvHcalCells);
       numPrbCellsHcal_HB->Fill(numPrbHcalCells);
-
-      mapEnergy_HB     -> Fill(double(ieta), double(iphi), en); 
-      mapEnergyHcal_HB -> Fill(double(ieta), double(iphi), eH); 
-      mapEnergyEcal_HB -> Fill(double(ieta), double(iphi), eE); 
       
+      //Map energy histos are not used
+      if (useAllHistos_){
+	mapEnergy_HB     -> Fill(double(ieta), double(iphi), en); 
+	mapEnergyHcal_HB -> Fill(double(ieta), double(iphi), eH); 
+	mapEnergyEcal_HB -> Fill(double(ieta), double(iphi), eE); 
+      }
       //      std::cout << " e_ecal = " << eE << std::endl;
       
       //  simple sums
@@ -564,8 +615,11 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
       
       numFiredTowers_HB++;
       
-      meEnergyEcalTower_HB->Fill(eE);
-      meEnergyHcalTower_HB->Fill(eH);    
+      //Not used
+      if (useAllHistos_){
+	meEnergyEcalTower_HB->Fill(eE);
+	meEnergyHcalTower_HB->Fill(eH);    
+      }
       
       // MET, SET & phimet
       //  double  etT = cal->et();
@@ -573,7 +627,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
       mety_HB += mom.y();  //etT * sin(phiT);          
       sEt_HB  += etT;
 
-      //Timing
+      //Timing (all histos are used)
       emTiming_HB->Fill(em_tm);
       hadTiming_HB->Fill(had_tm);
       emEnergyTiming_HB->Fill(eE, em_tm);
@@ -585,14 +639,17 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     if((isub == 0 || isub == 2) 
        && (fabs(etaT) <  etaMax[1] && fabs(etaT) >= etaMin[1] )) {
      
+      //All cell histos are used
       numBadCellsHcal_HE->Fill(numBadHcalCells);
       numRcvCellsHcal_HE->Fill(numRcvHcalCells);
       numPrbCellsHcal_HE->Fill(numPrbHcalCells);
     
-      mapEnergy_HE     -> Fill(double(ieta), double(iphi), en); 
-      mapEnergyHcal_HE -> Fill(double(ieta), double(iphi), eH); 
-      mapEnergyEcal_HE -> Fill(double(ieta), double(iphi), eE); 
-      
+      //Map energy histos are not used
+      if (useAllHistos_){
+	mapEnergy_HE     -> Fill(double(ieta), double(iphi), en); 
+	mapEnergyHcal_HE -> Fill(double(ieta), double(iphi), eH); 
+	mapEnergyEcal_HE -> Fill(double(ieta), double(iphi), eE); 
+      }
       //      std::cout << " e_ecal = " << eE << std::endl;
       
       //  simple sums
@@ -602,16 +659,18 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
       
       numFiredTowers_HE++;
       
-      meEnergyEcalTower_HE->Fill(eE);
-      meEnergyHcalTower_HE->Fill(eH);    
-      
+      //Not used
+      if (useAllHistos_){
+	meEnergyEcalTower_HE->Fill(eE);
+	meEnergyHcalTower_HE->Fill(eH);    
+      }
       // MET, SET & phimet
       //  double  etT = cal->et();
       metx_HE += mom.x();   
       mety_HE += mom.y();  //etT * sin(phiT);          
       sEt_HE  += etT;    
 
-      //Timing
+      //Timing (all histos are used)
       emTiming_HE->Fill(em_tm);
       hadTiming_HE->Fill(had_tm);
       emEnergyTiming_HE->Fill(eE, em_tm);
@@ -623,14 +682,17 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     if((isub == 0 || isub == 3) 
        && (fabs(etaT) <  etaMax[2] && fabs(etaT) >= etaMin[2] )) {
       
+      //All cell histos are used
       numBadCellsHcal_HF->Fill(numBadHcalCells);
       numRcvCellsHcal_HF->Fill(numRcvHcalCells);
       numPrbCellsHcal_HF->Fill(numPrbHcalCells);
      
-      mapEnergy_HF     -> Fill(double(ieta), double(iphi), en); 
-      mapEnergyHcal_HF -> Fill(double(ieta), double(iphi), eH); 
-      mapEnergyEcal_HF -> Fill(double(ieta), double(iphi), eE); 
-      
+      //Map energy histos are not used
+      if (useAllHistos_){
+	mapEnergy_HF     -> Fill(double(ieta), double(iphi), en); 
+	mapEnergyHcal_HF -> Fill(double(ieta), double(iphi), eH); 
+	mapEnergyEcal_HF -> Fill(double(ieta), double(iphi), eE); 
+      }
       //      std::cout << " e_ecal = " << eE << std::endl;
       
       //  simple sums
@@ -640,16 +702,18 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
       
       numFiredTowers_HF++;
       
-      meEnergyEcalTower_HF->Fill(eE);
-      meEnergyHcalTower_HF->Fill(eH);    
-      
+      //Not used
+      if (useAllHistos_){
+	meEnergyEcalTower_HF->Fill(eE);
+	meEnergyHcalTower_HF->Fill(eH);    
+      }
       // MET, SET & phimet
       //  double  etT = cal->et();
       metx_HF += mom.x();   
       mety_HF += mom.y();  //etT * sin(phiT);          
       sEt_HF  += etT;    
 
-      //Timing
+      //Timing (all histos are used)
       emTiming_HF->Fill(em_tm);
       hadTiming_HF->Fill(had_tm);
       emEnergyTiming_HF->Fill(eE, em_tm);
@@ -662,17 +726,22 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 
   } // end of Towers cycle 
 
-  emean_vs_ieta_E  -> Fill(double(ieta_MC), Econe); 
-  emean_vs_ieta_H  -> Fill(double(ieta_MC), Hcone); 
-  emean_vs_ieta_EH -> Fill(double(ieta_MC), Econe+Hcone); 
-  
+  //These are the six single pion histos; only the second set is used
+  if (useAllHistos_){
+    emean_vs_ieta_E  -> Fill(double(ieta_MC), Econe); 
+    emean_vs_ieta_H  -> Fill(double(ieta_MC), Hcone); 
+    emean_vs_ieta_EH -> Fill(double(ieta_MC), Econe+Hcone); 
+  }
   emean_vs_ieta_E1  -> Fill(double(ieta_MC), Ee1); 
   emean_vs_ieta_H1  -> Fill(double(ieta_MC), Eh1); 
   emean_vs_ieta_EH1 -> Fill(double(ieta_MC), Ee1+Eh1); 
-
-  mapEnergy_E -> Fill(double(ieta_MC), double(iphi_MC), Ee1); 
-  mapEnergy_H -> Fill(double(ieta_MC), double(iphi_MC), Eh1); 
-  mapEnergy_EH -> Fill(double(ieta_MC), double(iphi_MC), Ee1+Eh1); 
+  
+  //Map histos are not used except the last one in EndJob
+  if (useAllHistos_){
+    mapEnergy_E -> Fill(double(ieta_MC), double(iphi_MC), Ee1); 
+    mapEnergy_H -> Fill(double(ieta_MC), double(iphi_MC), Eh1); 
+    mapEnergy_EH -> Fill(double(ieta_MC), double(iphi_MC), Ee1+Eh1);
+  } 
   mapEnergy_N  -> Fill(double(ieta_MC), double(iphi_MC), 1.); 
 
 
@@ -680,17 +749,21 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     met    = sqrt(metx_HB*metx_HB + mety_HB*mety_HB);
     Vector metv(metx_HB,mety_HB,metz_HB);
     phimet = metv.phi();
-    
-    meEnergyHcalvsEcal_HB->Fill(sumEnergyEcal_HB, sumEnergyHcal_HB);
-    meEnergyHO_HB->        Fill(sumEnergyHO_HB);
+
+    //Five oldest drawn histos first; the rest are not used
     meEnergyHcal_HB->      Fill(sumEnergyHcal_HB);
     meEnergyEcal_HB->      Fill(sumEnergyEcal_HB);
     meNumFiredTowers_HB->  Fill(numFiredTowers_HB);
-    meTotEnergy_HB->       Fill(sumEnergyHcal_HB+sumEnergyEcal_HB
-				+sumEnergyHO_HB);    
     MET_HB    -> Fill (met); 
-    phiMET_HB -> Fill (phimet); 
     SET_HB    -> Fill (sEt_HB); 
+    
+    if (useAllHistos_){
+      meEnergyHcalvsEcal_HB->Fill(sumEnergyEcal_HB, sumEnergyHcal_HB);
+      meEnergyHO_HB->        Fill(sumEnergyHO_HB);
+      meTotEnergy_HB->       Fill(sumEnergyHcal_HB+sumEnergyEcal_HB
+				  +sumEnergyHO_HB);    
+      phiMET_HB -> Fill (phimet);
+    } 
   }    
 
 
@@ -698,17 +771,21 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     met    = sqrt(metx_HE*metx_HE + mety_HE*mety_HE);
     Vector metv(metx_HE,mety_HE,metz_HE);
     phimet = metv.phi();
-    
-    meEnergyHcalvsEcal_HE->Fill(sumEnergyEcal_HE, sumEnergyHcal_HE);
-    meEnergyHO_HE->        Fill(sumEnergyHO_HE);
+
+    //Five oldest drawn histos first; the rest are not used
     meEnergyHcal_HE->      Fill(sumEnergyHcal_HE);
     meEnergyEcal_HE->      Fill(sumEnergyEcal_HE);
     meNumFiredTowers_HE->  Fill(numFiredTowers_HE);
-    meTotEnergy_HE->       Fill(sumEnergyHcal_HE+sumEnergyEcal_HE
-				+sumEnergyHO_HE);    
     MET_HE    -> Fill (met); 
-    phiMET_HE -> Fill (phimet); 
     SET_HE    -> Fill (sEt_HE); 
+    
+    if (useAllHistos_){
+      meEnergyHcalvsEcal_HE->Fill(sumEnergyEcal_HE, sumEnergyHcal_HE);
+      meEnergyHO_HE->        Fill(sumEnergyHO_HE);
+      meTotEnergy_HE->       Fill(sumEnergyHcal_HE+sumEnergyEcal_HE
+				  +sumEnergyHO_HE);    
+      phiMET_HE -> Fill (phimet); 
+    }
   }
 
   if(isub == 0 || isub == 3) {
@@ -716,16 +793,20 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     Vector metv(metx_HF,mety_HF,metz_HF);
     phimet = metv.phi();
     
-    meEnergyHcalvsEcal_HF->Fill(sumEnergyEcal_HF, sumEnergyHcal_HF);
-    meEnergyHO_HF->        Fill(sumEnergyHO_HF);
+    //Five oldest drawn histos first; the rest are not used
     meEnergyHcal_HF->      Fill(sumEnergyHcal_HF);
     meEnergyEcal_HF->      Fill(sumEnergyEcal_HF);
     meNumFiredTowers_HF->  Fill(numFiredTowers_HF);
-    meTotEnergy_HF->       Fill(sumEnergyHcal_HF+sumEnergyEcal_HF
-				+sumEnergyHO_HF);    
     MET_HF    -> Fill (met); 
-    phiMET_HF -> Fill (phimet); 
     SET_HF    -> Fill (sEt_HF); 
+
+    if (useAllHistos_){
+      meEnergyHcalvsEcal_HF->Fill(sumEnergyEcal_HF, sumEnergyHcal_HF);
+      meEnergyHO_HF->        Fill(sumEnergyHO_HF);
+      meTotEnergy_HF->       Fill(sumEnergyHcal_HF+sumEnergyEcal_HF
+				  +sumEnergyHO_HF);    
+      phiMET_HF -> Fill (phimet);
+    }
   }
 
 }

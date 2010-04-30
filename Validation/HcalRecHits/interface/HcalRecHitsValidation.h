@@ -78,6 +78,7 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   std::string sign_;
   std::string mc_;
   bool        famos_;
+  bool        useAllHistos_;
 
   //RecHit Collection input tags
   edm::InputTag theHBHERecHitCollectionLabel;

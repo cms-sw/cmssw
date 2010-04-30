@@ -45,6 +45,7 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   std::string outputFile_;
   std::string hcalselector_;
   std::string mc_;
+  bool        useAllHistos_;
 
   typedef math::RhoEtaPhiVector Vector;
 
