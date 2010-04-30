@@ -8,7 +8,7 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed Apr 22 16:54:31 CEST 2009
-// $Id$
+// $Id: SecSourceAnalyzer.h,v 1.1 2009/04/24 13:35:34 ebecheva Exp $
 //
 //
 
@@ -63,9 +63,7 @@ class SecSourceAnalyzer : public edm::EDAnalyzer {
       bool dataStep2_;
       edm::InputTag label_;
       
-      std::vector<edm::EventID> eventIDs_;
-      std::vector<int> fileSeqNrs_;
-      std::vector<unsigned int> nrEvents_;
+      std::vector<std::vector<edm::EventID> > vectorEventIDs_;
 
       boost::shared_ptr<PileUp> input_;
 

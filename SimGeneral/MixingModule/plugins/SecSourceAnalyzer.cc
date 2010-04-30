@@ -13,7 +13,7 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed Apr 22 16:54:31 CEST 2009
-// $Id: SecSourceAnalyzer.cc,v 1.1 2009/04/24 13:35:34 ebecheva Exp $
+// $Id: SecSourceAnalyzer.cc,v 1.2 2009/05/25 17:10:31 ebecheva Exp $
 //
 //
 
@@ -84,12 +84,10 @@ SecSourceAnalyzer::~SecSourceAnalyzer()
 void
 SecSourceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  
-   fileSeqNrs_.resize(maxBunch_-minBunch_+1);
-   eventIDs_.resize(maxBunch_-minBunch_+1);
-   nrEvents_.resize(maxBunch_-minBunch_+1);
 
-   input_->readPileUp(pileup_[0],eventIDs_, fileSeqNrs_, nrEvents_);
+   vectorEventIDs_.resize(maxBunch_-minBunch_+1);
+   
+   input_->readPileUp(pileup_[0],vectorEventIDs_);
    
    std::cout << "-> The std::vector<EventPrincipalVector> of the secondary source 'input' has been filled with " 
    	     << pileup_[0].size() << " element corresponding to " << maxBunch_-minBunch_+1 
@@ -116,7 +114,6 @@ void SecSourceAnalyzer::Loop(const EventPrincipalVector& vec) {
 
 void  SecSourceAnalyzer::getBranches(EventPrincipal *ep)
   { 
-    //std::cout << " ### SecSourceAnalyzer::getBranches - begin " << std::endl;
     std::cout << "-> dataStep2_ = " << dataStep2_ << std::endl;
     tag_ = InputTag(label_);
     
@@ -151,8 +148,6 @@ void  SecSourceAnalyzer::getBranches(EventPrincipal *ep)
 	
     }
  
-    
-   //std::cout << " ### SecSourceAnalyzer::getBranches - end " << std::endl;
   }
 
 
