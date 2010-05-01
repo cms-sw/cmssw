@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleZSPJPTJetCorrector.cc,v 1.3 2010/03/21 19:04:13 dlange Exp $
+// $Id: SimpleZSPJPTJetCorrector.cc,v 1.4 2010/05/01 19:49:47 kodolova Exp $
 //
 // ZSP Jet Corrector
 //
@@ -83,6 +83,8 @@ double SimpleZSPJPTJetCorrector::correctionEtEtaPhiP (double fEt, double fEta, d
 //  double koef = 1. - p[2]*exp(p[3]*et)-p[4]*exp(p[5]*et);
   
   double koef = 1. - mFunc->Eval(et);
+
+  if(koef <= 0.000001) {std::cout<<"SimpleZSPJPTJetCorrector::Problem with ZSP corrections "<<koef<<std::endl; koef = 1.;}
 
   double etnew = et/koef;
 
