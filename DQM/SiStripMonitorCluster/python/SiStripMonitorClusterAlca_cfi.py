@@ -198,7 +198,7 @@ SiStripCalZeroBiasMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
     HistoryProducer = cms.InputTag("consecutiveHEs"),
     ApvPhaseProducer = cms.InputTag("APVPhases"),
 
-    UserDCSFiltering = cms.bool(True),
+    UseDCSFiltering = cms.bool(True),
                                                   
     ShowControlView = cms.bool(False),
     ShowReadoutView = cms.bool(False)
