@@ -1,7 +1,7 @@
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -13,18 +13,19 @@
 //
 // class declaration
 //
-class HSCParticleSelector : public edm::EDProducer {
+class HSCParticleSelector : public edm::EDFilter {
    public:
       explicit HSCParticleSelector(const edm::ParameterSet&);
       ~HSCParticleSelector();
 
    private:
       virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
       edm::InputTag sourceTag_;
 
+      bool			      Filter_;
       std::vector<CandidateSelector*> Selectors;
 };
 
@@ -37,6 +38,7 @@ HSCParticleSelector::HSCParticleSelector(const edm::ParameterSet& iConfig)
 
    // Input products
    sourceTag_     = iConfig.getParameter<edm::InputTag> ("source");
+   Filter_        = iConfig.getParameter<bool>          ("filter");
 
    // Load all the selections
    std::vector<edm::ParameterSet> SelectionParameters = iConfig.getParameter<std::vector<edm::ParameterSet> >("SelectionParameters");
@@ -58,13 +60,13 @@ void HSCParticleSelector::endJob(){
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-void HSCParticleSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HSCParticleSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
       // Source Collection
       edm::Handle<susybsm::HSCParticleCollection > SourceHandle;
       if (!iEvent.getByLabel(sourceTag_, SourceHandle)) {
             edm::LogError("") << ">>> HSCParticleCollection does not exist !!!";
-            return;
+            return false;
       }
       susybsm::HSCParticleCollection Source = *SourceHandle.product();
 
@@ -82,7 +84,12 @@ void HSCParticleSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSe
             output->push_back(*newhscp);
          }
       }
+
+      bool filterResult = !Filter_ || (Filter_ && output->size()>=1);
+
       iEvent.put(result);
+
+      return filterResult;
 }
 
 DEFINE_FWK_MODULE(HSCParticleSelector);

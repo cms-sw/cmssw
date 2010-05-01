@@ -41,7 +41,7 @@ HSCPSelectionDefault.minMuonPt                = cms.double(5)
 
 HSCPSelectionHighdEdx = HSCPSelectionDefault.clone()
 HSCPSelectionHighdEdx.onlyConsiderTrack       = cms.bool(True)
-HSCPSelectionHighdEdx.minDedxEstimator        = cms.double(4.5)
+HSCPSelectionHighdEdx.minDedxEstimator        = cms.double(3.5)
 
 HSCPSelectionHighTOF = HSCPSelectionDefault.clone()
 HSCPSelectionHighTOF.onlyConsiderMuon         = cms.bool(True)

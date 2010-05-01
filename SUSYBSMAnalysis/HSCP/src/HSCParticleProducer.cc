@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.14 2010/04/15 14:17:27 querten Exp $
+// $Id: HSCParticleProducer.cc,v 1.15 2010/04/17 06:42:51 querten Exp $
 //
 //
 
@@ -24,6 +24,9 @@
 HSCParticleProducer::HSCParticleProducer(const edm::ParameterSet& iConfig) {
   using namespace edm;
   using namespace std;
+
+  // the Act as Event filter
+   Filter_        = iConfig.getParameter<bool>          ("filter");
 
   // the input collections
   m_trackTag      = iConfig.getParameter<edm::InputTag>("tracks");
@@ -67,8 +70,8 @@ HSCParticleProducer::~HSCParticleProducer() {
 //
 
 // ------------ method called to produce the data  ------------
-void
-HSCParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool
+HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   using namespace edm;
   using namespace reco;
@@ -125,8 +128,12 @@ HSCParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
      }
   }
 
+   bool filterResult = !Filter_ || (Filter_ && hscp->size()>=1);
+
   // output result
   iEvent.put(result); 
+
+   return filterResult;
 }
 
 // ------------ method called once each job just before starting event loop  ------------

@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.h,v 1.2 2010/04/14 14:43:19 querten Exp $
+// $Id: HSCParticleProducer.h,v 1.3 2010/04/15 14:17:26 querten Exp $
 
 
 // system include files
@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -54,19 +54,21 @@
 // class decleration
 //
 using namespace susybsm;
-class HSCParticleProducer : public edm::EDProducer {
+class HSCParticleProducer : public edm::EDFilter {
   public:
     explicit HSCParticleProducer(const edm::ParameterSet&);
     ~HSCParticleProducer();
 
   private:
     virtual void beginJob() ;
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual bool filter(edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;
 
     std::vector<HSCParticle> getHSCPSeedCollection(edm::Handle<reco::TrackCollection>& trackCollectionHandle,  edm::Handle<reco::MuonCollection>& muonCollectionHandle);
 
     // ----------member data ---------------------------
+    bool          Filter_;
+
     edm::InputTag m_trackTag;
     edm::InputTag m_muonsTag;
 

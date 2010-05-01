@@ -114,6 +114,9 @@ from SUSYBSMAnalysis.HSCP.HSCPSelections_cff import *
 HSCParticleProducer = cms.EDProducer("HSCParticleProducer",
    TrackAssociatorParameterBlock, #Needed for ECAL/Track Matching
 
+   #DOES THE PRODUCER ACT AS AN EDFILTER?
+   filter = cms.bool(True),
+
    #WHAT (BETA) INFORMATION TO COMPUTE
    useBetaFromTk      = cms.bool(True),
    useBetaFromMuon    = cms.bool(True),
@@ -150,8 +153,9 @@ HSCParticleProducer = cms.EDProducer("HSCParticleProducer",
 #   HSCParticle Selector  (Just an Example of what we can do)
 ####################################################################################
 
-HSCParticleSelector = cms.EDProducer("HSCParticleSelector",
+HSCParticleSelector = cms.EDFilter("HSCParticleSelector",
    source = cms.InputTag("HSCParticleProducer"),
+   filter = cms.bool(True),
 
    SelectionParameters = cms.VPSet(
       HSCPSelectionHighdEdx, #THE OR OF THE TWO SELECTION WILL BE APPLIED
