@@ -215,7 +215,7 @@ inline bool operator==(mathSSE::Vec3F a, mathSSE::Vec3F b) {
 
 inline mathSSE::Vec3F operator-(mathSSE::Vec3F a) {
   const __m128 neg = _mm_set_ps ( -0.0 , -0.0 , -0.0, -0.0);
-  return _mm_xor_ps(a,neg);
+  return _mm_xor_ps(a.vec,neg);
 }
 
 inline mathSSE::Vec3F operator+(mathSSE::Vec3F a, mathSSE::Vec3F b) {
@@ -245,8 +245,8 @@ inline mathSSE::Vec3F operator*(mathSSE::Vec3F b,float a) {
 
 // double op 2d
 inline mathSSE::Vec2D operator-(mathSSE::Vec2D a) {
-  const __m128d neg = _mm_set_ps ( -0.0 , -0.0);
-  return _mm_xor_pd(a,neg);
+  const __m128d neg = _mm_set_pd ( -0.0 , -0.0);
+  return _mm_xor_pd(a.vec,neg);
 }
 
 inline mathSSE::Vec2D operator+(mathSSE::Vec2D a, mathSSE::Vec2D b) {
@@ -304,7 +304,7 @@ inline bool operator==(mathSSE::Vec3D a, mathSSE::Vec3D b) {
 }
 
 inline mathSSE::Vec3D operator-(mathSSE::Vec3D a) {
-  const __m128d neg = _mm_set_ps ( -0.0 , -0.0);
+  const __m128d neg = _mm_set_pd ( -0.0 , -0.0);
   return mathSSE::Vec3D(_mm_xor_pd(a.vec[0],neg),_mm_xor_pd(a.vec[1],neg));
 }
 
