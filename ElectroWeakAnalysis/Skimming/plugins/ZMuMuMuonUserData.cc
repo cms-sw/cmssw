@@ -130,7 +130,6 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
     //cout<<"iso5 "<<iso[4]<<endl;
     float  zDauMuEnergyEm =  m.calEnergy().em;
     float  zDauMuEnergyHad = m.calEnergy().had;
-
     TrackRef muGlbRef = m.globalTrack();
     TrackRef muTrkRef = m.innerTrack();
     TrackRef muSaRef = m.outerTrack();
@@ -138,14 +137,20 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
     float zDaudzFromBS = -1;
     float zDaudxyFromPV = -1;
     float zDaudzFromPV = -1;
+    int zDauNofMuChambers =   m.numberOfChambers(); 
+    int zDauNofMuMatches = m.numberOfMatches(); 
+    //  for the following variables looking at global/trk and sta at the same time 
     float zDauChi2 = -1;
     float zDauTrkChi2 = -1;
     float zDauSaChi2 = -1;
     float zDauNofMuonHits = -1; 
+    float zDauSaNofMuonHits = -1; 
     float zDauNofStripHits = -1; 
+    float zDauTrkNofStripHits = -1; 
     float zDauNofPixelHits = -1; 
-    int zDauNofMuChambers = -1 ;
-    int zDauNofMuMatches = -1;
+    float zDauTrkNofPixelHits = -1; 
+    
+    
 
 
     if (muGlbRef.isNonnull() && m.isGlobalMuon() == true){
@@ -157,34 +162,32 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
       zDauTrkChi2 = muTrkRef->normalizedChi2();
       zDauSaChi2 = muSaRef->normalizedChi2();
       zDauNofMuonHits = muGlbRef->hitPattern().numberOfValidMuonHits();
+      zDauSaNofMuonHits = muSaRef->hitPattern().numberOfValidMuonHits();
       zDauNofStripHits = muGlbRef->hitPattern().numberOfValidStripHits();
+      zDauTrkNofStripHits = muTrkRef->hitPattern().numberOfValidStripHits();
       zDauNofPixelHits = muGlbRef->hitPattern().numberOfValidPixelHits();
-      zDauNofMuChambers =m.numberOfChambers();
-      zDauNofMuMatches = m.numberOfMatches();
-    
-    }	
-    if (muTrkRef.isNonnull() && m.isTrackerMuon() == true){
-      zDaudxyFromBS = muTrkRef->dxy(beamSpotHandle->position());
-      zDaudzFromBS = muTrkRef->dz(beamSpotHandle->position());
-      zDaudxyFromPV = muTrkRef->dxy(primaryVertices->begin()->position() );
-      zDaudzFromPV = muTrkRef->dz(primaryVertices->begin()->position() );
-      zDauChi2 = muTrkRef->normalizedChi2();
-      zDauTrkChi2 = muTrkRef->normalizedChi2();
-      zDauNofStripHits = muTrkRef->hitPattern().numberOfValidStripHits();
-      zDauNofPixelHits = muTrkRef->hitPattern().numberOfValidPixelHits();
-
-    }	
-    else if (muSaRef.isNonnull() && m.isStandAloneMuon() == true){
+      zDauTrkNofPixelHits = muTrkRef->hitPattern().numberOfValidPixelHits();
+    }
+ else if (muSaRef.isNonnull() && m.isStandAloneMuon() == true){
       zDaudxyFromBS = muSaRef->dxy(beamSpotHandle->position());
       zDaudzFromBS = muSaRef->dz(beamSpotHandle->position());
       zDaudxyFromPV = muSaRef->dxy(primaryVertices->begin()->position() );
       zDaudzFromPV = muSaRef->dz(primaryVertices->begin()->position() );
-      zDauChi2 = muSaRef->normalizedChi2();
       zDauSaChi2 = muSaRef->normalizedChi2();
-      zDauNofMuonHits = muSaRef->hitPattern().numberOfValidMuonHits(); 
-      zDauNofMuChambers = m.numberOfChambers();
-      zDauNofMuMatches = m.numberOfMatches();
-    }
+      zDauSaNofMuonHits = muSaRef->hitPattern().numberOfValidMuonHits(); 
+
+    }  
+     else if (muTrkRef.isNonnull() && m.isTrackerMuon() == true){
+      zDaudxyFromBS = muTrkRef->dxy(beamSpotHandle->position());
+      zDaudzFromBS = muTrkRef->dz(beamSpotHandle->position());
+      zDaudxyFromPV = muTrkRef->dxy(primaryVertices->begin()->position() );
+      zDaudzFromPV = muTrkRef->dz(primaryVertices->begin()->position() );
+      zDauTrkChi2 = muTrkRef->normalizedChi2();
+      zDauTrkNofStripHits = muTrkRef->hitPattern().numberOfValidStripHits();
+      zDauTrkNofPixelHits = muTrkRef->hitPattern().numberOfValidPixelHits();
+
+    }	
+   
     const pat::TriggerObjectStandAloneCollection muHLTMatches =  m.triggerObjectMatchesByPath( hltPath_);
     float muHLTBit;
     int dimTrig = muHLTMatches.size();
@@ -202,9 +205,12 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
     m.addUserFloat("zDau_Chi2", zDauChi2);
     m.addUserFloat("zDau_TrkChi2", zDauTrkChi2);
     m.addUserFloat("zDau_SaChi2", zDauSaChi2);
-    m.addUserFloat("zDau_NofMuonHits" , zDauNofMuonHits ); 
+    m.addUserFloat("zDau_NofMuonHits" , zDauNofMuonHits );
+    m.addUserFloat("zDau_SaNofMuonHits" , zDauSaNofMuonHits ); 
     m.addUserFloat("zDau_NofStripHits" , zDauNofStripHits ); 
+    m.addUserFloat("zDau_TrkNofStripHits" , zDauTrkNofStripHits ); 
     m.addUserFloat("zDau_NofPixelHits" , zDauNofPixelHits ); 
+    m.addUserFloat("zDau_TrkNofPixelHits" , zDauTrkNofPixelHits ); 
     m.addUserFloat("zDau_NofMuChambers" , zDauNofMuChambers ); 
     m.addUserFloat("zDau_NofMuMatches" , zDauNofMuMatches ); 
     m.addUserFloat("zDau_MuEnergyEm", zDauMuEnergyEm ); 
