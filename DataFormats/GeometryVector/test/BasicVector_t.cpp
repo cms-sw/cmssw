@@ -58,6 +58,7 @@ int main() {
 
   Basic3DVectorF  z = x.cross(y);
   std::cout << z << std::endl;
+  std::cout << -z << std::endl;
 
   {
     std::cout << "f" << std::endl;
