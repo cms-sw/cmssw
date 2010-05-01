@@ -39,6 +39,29 @@ public:
   T eta() const { return theEta;}
 
 
+  // multiply inverse is faster
+  class ToLocal {
+  public:
+    ToLocal(GloballyPositioned const & frame) :
+      thePos(frame.position()), theRot(frame.rotation().transposed()){}
+    
+    LocalPoint toLocal( const GlobalPoint& gp) const {
+      return LocalPoint( theRot.multiplyInverse( gp.basicVector()) -
+			 thePos.basicVector());
+    }
+    
+    LocalVector toLocal( const GlobalVector& gv) const {
+      return LocalVector(theRot.multiplyInverse(gv.basicVector()));
+    } 
+    
+  private:
+    PositionType  thePos;
+    RotationType  theRot;
+    
+  };
+
+  
+
   /** Transform a local point (i.e. a point with coordinates in the
    *  local frame) to the global frame
    */

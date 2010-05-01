@@ -60,9 +60,11 @@ int  go() {
 // test
     GlobalPoint gp( 11,22,33);
     LocalPoint p_in1 = f1.toLocal( gp);
+    Frame::ToLocal ff1(f1);
     LocalPoint p_in2 = f2.toLocal( gp);
     LocalPoint p_in3 = f3.toLocal( GlobalPoint(p_in1.basicVector()));
     cout << "p_in1 " << p_in1 << endl;
+    cout << "p_in1 " << ff1.toLocal( gp) << endl;
     cout << "p_in2 " << p_in2 << endl;
     cout << "p_in3 " << p_in3 << endl;
 
