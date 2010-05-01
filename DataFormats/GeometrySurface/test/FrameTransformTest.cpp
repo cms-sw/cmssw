@@ -39,7 +39,7 @@ int  go() {
     cout << "f2.position() " << f2.position() << endl;
     cout << "f2.rotation() " << endl << f2.rotation() << endl;
 
-// transform f2 to f1 so that f1 becomes the "global" frame of f3
+    // transform f2 to f1 so that f1 becomes the "global" frame of f3
     // Rotation r3 = r2.multiplyInverse(r1);
     // Rotation r3 = r2*r1;
 
@@ -60,7 +60,7 @@ int  go() {
 // test
     GlobalPoint gp( 11,22,33);
     LocalPoint p_in1 = f1.toLocal( gp);
-    Frame::ToLocal ff1(f1);
+    typename Frame::ToLocal ff1(f1);
     LocalPoint p_in2 = f2.toLocal( gp);
     LocalPoint p_in3 = f3.toLocal( GlobalPoint(p_in1.basicVector()));
     cout << "p_in1 " << p_in1 << endl;
