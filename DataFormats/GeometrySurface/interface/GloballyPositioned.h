@@ -46,8 +46,9 @@ public:
       thePos(frame.position()), theRot(frame.rotation().transposed()){}
     
     LocalPoint toLocal( const GlobalPoint& gp) const {
-      return LocalPoint( theRot.multiplyInverse( gp.basicVector()) -
-			 thePos.basicVector());
+      return LocalPoint( theRot.multiplyInverse( gp.basicVector() -
+			 thePos.basicVector()) 
+                       );
     }
     
     LocalVector toLocal( const GlobalVector& gv) const {
