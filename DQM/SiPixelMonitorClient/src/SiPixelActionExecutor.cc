@@ -204,7 +204,7 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
   //bei->cd();
   fillSummary(bei, endcap_structure_name, endcap_me_names, false); // Endcap
   bei->setCurrentFolder("Pixel/");
-  fillDeviations(bei);
+  if(!Tier0Flag_) fillDeviations(bei);
   bei->setCurrentFolder("Pixel/");
   //bei->cd();
   if(source_type_==0||source_type_==5 || source_type_ == 20){//do this only if RawData source is present

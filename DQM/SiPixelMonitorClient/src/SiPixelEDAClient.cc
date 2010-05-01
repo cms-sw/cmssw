@@ -164,7 +164,7 @@ void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   // Creating Summary Histos:
   sipixelActionExecutor_->createSummary(bei_);
   // Booking Deviation Histos:
-  sipixelActionExecutor_->bookDeviations(bei_);
+  if(!Tier0Flag_) sipixelActionExecutor_->bookDeviations(bei_);
   // Booking Efficiency Histos:
   if(doHitEfficiency_) sipixelActionExecutor_->bookEfficiency(bei_);
   // Creating occupancy plots:
