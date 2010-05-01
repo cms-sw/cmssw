@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-jetMETHLTOfflineSource = cms.EDFilter("JetMETHLTOfflineSource",
+jetMETHLTOfflineSource = cms.EDAnalyzer("JetMETHLTOfflineSource",
  
 dirname = cms.untracked.string("HLT/JetMET"),
     DQMStore = cms.untracked.bool(True),                      
