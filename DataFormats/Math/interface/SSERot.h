@@ -43,10 +43,13 @@ namespace mathSSE {
 		   );
     }
 
+    // toLocal...
     Vec3<T> rotate(Vec3<T> v) const {
       return transpose().rotateBack(v);
     }
 
+
+    // toGlobal...
     Vec3<T> rotateBack(Vec3<T> v) const {
       return v.get1(0)*axis[0] +  v.get1(1)*axis[1] + v.get1(2)*axis[2];
     }

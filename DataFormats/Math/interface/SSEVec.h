@@ -213,6 +213,11 @@ inline bool operator==(mathSSE::Vec3F a, mathSSE::Vec3F b) {
   return _mm_movemask_ps(_mm_cmpeq_ps(a.vec,b.vec))==0xf;
 }
 
+inline mathSSE::Vec3F operator-(mathSSE::Vec3F a) {
+  const __m128 neg = _mm_set_ps ( -0.0 , -0.0 , -0.0, -0.0);
+  return _mm_xor_ps(a,neg);
+}
+
 inline mathSSE::Vec3F operator+(mathSSE::Vec3F a, mathSSE::Vec3F b) {
   return  _mm_add_ps(a.vec,b.vec);
 }
@@ -239,6 +244,11 @@ inline mathSSE::Vec3F operator*(mathSSE::Vec3F b,float a) {
 
 
 // double op 2d
+inline mathSSE::Vec2D operator-(mathSSE::Vec2D a) {
+  const __m128d neg = _mm_set_ps ( -0.0 , -0.0);
+  return _mm_xor_pd(a,neg);
+}
+
 inline mathSSE::Vec2D operator+(mathSSE::Vec2D a, mathSSE::Vec2D b) {
   return  _mm_add_pd(a.vec,b.vec);
 }
@@ -291,6 +301,11 @@ inline bool operator==(mathSSE::Vec3D a, mathSSE::Vec3D b) {
   return 
     _mm_movemask_pd(_mm_cmpeq_pd(a.vec[0],b.vec[0]))==0x3 && 
     _mm_movemask_pd(_mm_cmpeq_pd(a.vec[1],b.vec[1]))==0x3 ;
+}
+
+inline mathSSE::Vec3D operator-(mathSSE::Vec3D a) {
+  const __m128d neg = _mm_set_ps ( -0.0 , -0.0);
+  return mathSSE::Vec3D(_mm_xor_pd(a.vec[0],neg),_mm_xor_pd(a.vec[1],neg));
 }
 
 
