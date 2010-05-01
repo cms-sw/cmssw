@@ -346,12 +346,58 @@ if __name__ == '__main__':
 
 	os.system("rm -f " + tmpPayloadFileName)
         
-        
-   #Create and upload payloads
-#    aCommand = "./createPayload.py -d " + workingDir+payloadFileName + " -t " + databaseTag
-#    tmpStatus = commands.getstatusoutput( aCommand )
-#    print aCommand
-#    if tmpStatus[0] == 0:
-#        print "Done!"
-#    else:
-#        print "Something wrong"
+    #### CREATE payload for merged output
+
+    print " create MERGED payload card for dropbox ..."
+
+    sqlite_file   = workingDir + "Combined.db"
+    metadata_file = workingDir + "Combined.txt"
+    dfile = open(metadata_file,'w')
+
+    dfile.write('destDB '+ destDB +'\n')
+    dfile.write('tag '+ databaseTag +'\n')
+    dfile.write('inputtag' +'\n')
+    dfile.write('since ' + payloadList[0].Run +'\n')
+    #        dfile.write('till ' + iov_till +'\n')
+    ###################################################
+    #WARNING IOVbase set to runbase fixed
+    IOVbase = "runbase"
+    if IOVbase == "runbase":
+        dfile.write('Timetype runnumber\n')
+    elif IOVbase == "lumibase":
+        dfile.write('Timetype lumiid\n')
+
+    ###################################################
+    # WARNING tagType forced to offline
+    tagType = "offline"
+    checkType = tagType
+    if tagType == "express":
+        checkType = "hlt"
+        dfile.write('IOVCheck ' + checkType + '\n')
+        dfile.write('usertext ' + iov_comment +'\n')
+            
+    dfile.close()
+
+                                                                                                
+    uuid = commands.getstatusoutput('uuidgen -t')[1]
+    final_sqlite_file_name = "PayloadsRun" + payloadList[0].Run + "-" + payloadList[len(payloadList)-1].Run + "_" + databaseTag + '@' + uuid
+
+    if not os.path.isdir(archiveDir + 'payloads'):
+        os.mkdir(archiveDir + 'payloads')
+    commands.getstatusoutput('mv ' + sqlite_file   + ' ' + archiveDir + 'payloads/' + final_sqlite_file_name + '.db')
+    commands.getstatusoutput('mv ' + metadata_file + ' ' + archiveDir + 'payloads/' + final_sqlite_file_name + '.txt')
+   
+   
+    print archiveDir + "payloads/" + final_sqlite_file_name + '.db'
+    print archiveDir + "payloads/" + final_sqlite_file_name + '.txt'
+   
+    if option.upload:
+        print " scp files to offline Drop Box"
+        dropbox = "/DropBox"
+        #WARNIG fixed to dropbox test
+        option.Test = True
+        if option.Test:
+            dropbox = "/DropBox_test"
+        print "UPLOADING TO TEST DB"
+#        uploadSqliteFile(archiveDir + "payloads/",final_sqlite_file_name,dropbox)
+                   
