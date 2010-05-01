@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleZSPJPTJetCorrector.cc,v 1.2 2010/03/08 10:35:37 kodolova Exp $
+// $Id: SimpleZSPJPTJetCorrector.cc,v 1.3 2010/03/21 19:04:13 dlange Exp $
 //
 // ZSP Jet Corrector
 //
@@ -31,6 +31,11 @@ SimpleZSPJPTJetCorrector::SimpleZSPJPTJetCorrector ()
 SimpleZSPJPTJetCorrector::SimpleZSPJPTJetCorrector (const std::string& fDataFile) 
 {
   mParameters = new JetCorrectorParameters (fDataFile,"");
+
+  std::cout<<" Formula "<<((mParameters->definitions()).formula()).c_str()<<std::endl;
+
+  mFunc            = new TFormula("function",((mParameters->definitions()).formula()).c_str());
+
 // Read parameters
  if (zspjpt::debug) {
   std::cout<<" Size of parameters as read by SimpleJetCorrectorParameters "<<mParameters->size()<<std::endl;
@@ -65,15 +70,23 @@ double SimpleZSPJPTJetCorrector::correctionEtEtaPhiP (double fEt, double fEta, d
 
   const std::vector<float> p = mParameters->record (band).parameters ();
 
+ // Set parameters 
+  for(unsigned int i=0; i<p.size();i++) {
+     mFunc->SetParameter(i,p[i]);
+  }
+
   if (zspjpt::debug) {
      cout<<" Et and eta of jet "<<et<<" "<<eta<<" bin "<<band<<" "<<p[1]<<" "<<p[2]<<" "<<p[3]<<
      " "<<p[4]<<" "<<p[5]<<endl;
   } 
 
-  double koef = 1. - p[2]*exp(p[3]*et)-p[4]*exp(p[5]*et);
+//  double koef = 1. - p[2]*exp(p[3]*et)-p[4]*exp(p[5]*et);
+  
+  double koef = 1. - mFunc->Eval(et);
+
   double etnew = et/koef;
 
-  if (zspjpt::debug) cout<<" The new energy found "<<etnew<<" "<<et<<endl;
+  if (zspjpt::debug) cout<<" The new energy found "<<etnew<<" "<<et<<" "<<koef<<endl;
   
   return etnew/et;
 }

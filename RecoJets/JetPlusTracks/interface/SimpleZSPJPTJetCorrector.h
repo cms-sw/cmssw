@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleZSPJPTJetCorrector.h,v 1.1 2010/03/04 13:11:52 kodolova Exp $
+// $Id: SimpleZSPJPTJetCorrector.h,v 1.2 2010/03/08 10:35:36 kodolova Exp $
 //
 // MC Jet Corrector
 //
@@ -9,6 +9,7 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include <map>
 #include <string>
+#include <TFormula.h>
 
 /// classes declaration
 
@@ -28,6 +29,7 @@ class SimpleZSPJPTJetCorrector {
   SimpleZSPJPTJetCorrector (const SimpleZSPJPTJetCorrector&);
   SimpleZSPJPTJetCorrector& operator= (const SimpleZSPJPTJetCorrector&);
   JetCorrectorParameters* mParameters; 
+  TFormula*               mFunc;   
 };
 
 #endif
