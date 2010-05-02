@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "EventFilter/StorageManager/src/EventStreamHttpReader.h"
-#include "EventFilter/StorageManager/src/OnlineHttpReader.h"
 #include "EventFilter/StorageManager/src/DQMHttpSource.h"
 
 using edm::EventStreamHttpReader;
