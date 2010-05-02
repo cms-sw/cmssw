@@ -88,6 +88,9 @@ namespace mathSSE {
     void set(float f1, float f2, float f3, float f4=0) {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
     }
+    void set1(float f1) {
+      arr[0] = f1; arr[1] = f1; arr[2] = f1; arr[3]=f1;
+    }
     Vec3 get1(unsigned int n) const {
       return Vec3(arr[n],arr[n],arr[n],arr[n]);
     }
@@ -116,7 +119,9 @@ namespace mathSSE {
     void set(float f1, float f2, float f3, float f4=0) {
       vec = _mm_set_ps(f4, f3, f2, f1);
     }
-  
+    void set1(float f1) {
+      _mm_set1_ps(f1);
+    }
     Vec3 get1(unsigned int n) const { 
       return _mm_shuffle_ps(vec, vec, _MM_SHUFFLE(n, n, n, n)); 
   }
@@ -144,6 +149,11 @@ namespace mathSSE {
     void set(double f1, double f2) {
       arr[0] = f1; arr[1] = f2;
     }
+
+    void set1(double f1) {
+      _mm_set1_pd(f1);
+    }
+
     Vec2 get1(unsigned int n) const {
       return Vec2(arr[n],arr[n]);
     }
@@ -180,6 +190,12 @@ namespace mathSSE {
     void set(double f1, double f2, double f3, double f4=0) {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
     }
+
+    void set1(double f1) {
+      vec[0] = vec[1]= _mm_set1_pd(f1);
+    }
+
+
     Vec3 get1(unsigned int n) const {
       return Vec3(arr[n],arr[n],arr[n],arr[n]);
     }
