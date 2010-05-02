@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.37 2010/04/27 23:26:19 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.38 2010/04/28 16:25:10 hdyoo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -739,7 +739,7 @@ void HLTMuonDQMSource::beginJob()
 	  }
 	}
       }
-      //dbe_->showDirStructure();
+      if(verbose_)dbe_->showDirStructure();
     }
     // Muon det id is 2 pushed in bits 28:31
     const unsigned int detector_id = 2<<28;
