@@ -192,7 +192,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
       Vec3F ccssimd(s2, c2, c2, 0);
       Vec3F csssimd(s2, s2, c2, 0);
       Vec3F l2simd; l2simd.set1(l2);
-      Vec3F sigmap22simd(sigmap22);
+      Vec3F sigmap22simd; sigmap22simd.set1(sigmap22);
       Vec3F result = invdet2simd * (sigmap22simd * cslsimd + sigmap12simd * ccssimd * csssimd * l2simd);
       
       
