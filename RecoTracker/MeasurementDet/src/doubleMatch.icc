@@ -42,8 +42,8 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   // hits in both mono and stero
   // match
     
-  LocalVector trackdirection = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
-  bool notk = trackdirection.mag2()<FLT_MIN;
+  LocalVector trdir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
+  bool notk = trdir.mag2()<FLT_MIN;
 
  // toGlobal is fast,  toLocal is slow
   ToGlobal const & stripDetTrans =  specificGeomDet().monoDet()->surface();
@@ -76,7 +76,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
       LocalPoint lcenterofstrip=monoRH->localPositionFast();
       GlobalPoint gcenterofstrip= stripDetTrans.toGlobal(lcenterofstrip);
       GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
-      trackdirection=gluedDetInvTrans.toLocal(gtrackdirection);
+      trdir=gluedDetInvTrans.toLocal(gtrackdirection);
     }
 
 	      
