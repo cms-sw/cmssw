@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.84 2010/04/26 19:13:33 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.85 2010/04/28 13:28:28 dinardo Exp $
 
 
 #include "DQM/BeamMonitor/interface/Vx3DHLTAnalyzer.h"
@@ -1115,11 +1115,11 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
       Vx_XY->setAxisTitle("Entries [#]",3);
 
-      Vx_ZX_profile = dbe->bookProfile("zx profile","ZX Profile", rint(zRange/zStep/10.), -zRange/2., zRange/2., rint(xRange/xStep/10.), -xRange/2., xRange/2., "");
+      Vx_ZX_profile = dbe->bookProfile("zx profile","ZX Profile", rint(zRange/zStep/20.), -zRange/2., zRange/2., rint(xRange/xStep/20.), -xRange/2., xRange/2., "");
       Vx_ZX_profile->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZX_profile->setAxisTitle("Primary Vertices X [cm]",2);
 
-      Vx_ZY_profile = dbe->bookProfile("zy profile","ZY Profile", rint(zRange/zStep/10.), -zRange/2., zRange/2., rint(yRange/yStep/10.), -yRange/2., yRange/2., "");
+      Vx_ZY_profile = dbe->bookProfile("zy profile","ZY Profile", rint(zRange/zStep/20.), -zRange/2., zRange/2., rint(yRange/yStep/20.), -yRange/2., yRange/2., "");
       Vx_ZY_profile->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZY_profile->setAxisTitle("Primary Vertices Y [cm]",2);
 
