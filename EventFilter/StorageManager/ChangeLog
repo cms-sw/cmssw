@@ -1,3 +1,8 @@
+2010-05-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-00-01
+	* Remove include for no longer existing OnlineHttpReader.h.
+
 2010-04-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-00-00
