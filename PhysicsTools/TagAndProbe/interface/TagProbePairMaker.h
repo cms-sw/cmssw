@@ -10,10 +10,11 @@ namespace tnp {
     
     /// a simple struct to hold tag, probe and mass
     struct TagProbePair {
-        reco::CandidateBaseRef tag, probe;
+        reco::CandidateBaseRef tag, probe, pair;
         float mass;
         TagProbePair() {}
-        TagProbePair(const reco::CandidateBaseRef &t, const reco::CandidateBaseRef &p, float m) : tag(t), probe(p), mass(m) {}
+        TagProbePair(const reco::CandidateBaseRef &t, const reco::CandidateBaseRef &p, 
+                     const reco::CandidateBaseRef &tp, float m) : tag(t), probe(p), pair(tp), mass(m) {}
     };
     typedef std::vector<TagProbePair> TagProbePairs;
 

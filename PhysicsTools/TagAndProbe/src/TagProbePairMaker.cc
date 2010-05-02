@@ -30,7 +30,8 @@ tnp::TagProbePairMaker::run(const edm::Event &iEvent) const
     for (reco::CandidateView::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         const reco::Candidate & mother = *it;
         if (mother.numberOfDaughters() != 2) throw cms::Exception("CorruptData") << "Tag&Probe pair with " << mother.numberOfDaughters() << " daughters\n";
-        pairs.push_back(tnp::TagProbePair(mother.daughter(0)->masterClone(), mother.daughter(1)->masterClone(), mother.mass()));
+        pairs.push_back(tnp::TagProbePair(mother.daughter(0)->masterClone(), mother.daughter(1)->masterClone(), 
+                                          src->refAt(it - src->begin()), mother.mass()));
     }
 
     if ((arbitration_ != None) && (pairs.size() > 1)) {

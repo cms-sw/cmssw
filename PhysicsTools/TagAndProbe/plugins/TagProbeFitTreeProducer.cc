@@ -13,7 +13,7 @@
 //
 // Original Author:  Sep 15 09:45
 //         Created:  Mon Sep 15 09:49:08 CEST 2008
-// $Id: TagProbeFitTreeProducer.cc,v 1.5 2010/03/08 23:05:07 kalanand Exp $
+// $Id: TagProbeFitTreeProducer.cc,v 1.6 2010/03/22 16:19:05 gpetrucc Exp $
 //
 //
 
@@ -82,7 +82,10 @@ class TagProbeFitTreeProducer : public edm::EDAnalyzer {
       std::auto_ptr<tnp::TPTreeFiller> treeFiller_; 
       /// The object that actually computes variables and fills the tree for unbiased MC
       std::auto_ptr<tnp::BaseTreeFiller> mcUnbiasFiller_;
+      std::auto_ptr<tnp::BaseTreeFiller> oldTagFiller_;
       std::auto_ptr<tnp::BaseTreeFiller> tagFiller_;
+      std::auto_ptr<tnp::BaseTreeFiller> pairFiller_;
+      std::auto_ptr<tnp::BaseTreeFiller> mcFiller_;
 };
 
 //
@@ -94,7 +97,7 @@ TagProbeFitTreeProducer::TagProbeFitTreeProducer(const edm::ParameterSet& iConfi
     checkMotherInUnbiasEff_(makeMCUnbiasTree_ ? iConfig.getParameter<bool>("checkMotherInUnbiasEff") : false),
     tagProbePairMaker_(iConfig),
     treeFiller_(new tnp::TPTreeFiller(iConfig)),
-    tagFiller_((iConfig.existsAs<bool>("fillTagTree") && iConfig.getParameter<bool>("fillTagTree")) ? new tnp::BaseTreeFiller("tag_tree",iConfig) : 0)
+    oldTagFiller_((iConfig.existsAs<bool>("fillTagTree") && iConfig.getParameter<bool>("fillTagTree")) ? new tnp::BaseTreeFiller("tag_tree",iConfig) : 0)
 {
     if (isMC_) { 
         // For mc efficiency we need the MC matches for tags & probes
@@ -114,6 +117,19 @@ TagProbeFitTreeProducer::TagProbeFitTreeProducer(const edm::ParameterSet& iConfi
             mcUnbiasFiller_.reset(new tnp::BaseTreeFiller("mcUnbias_tree",iConfig));
         }
     }
+
+    edm::ParameterSet tagPSet;
+    if (iConfig.existsAs<edm::ParameterSet>("tagVariables")) tagPSet.addParameter<edm::ParameterSet>("variables", iConfig.getParameter<edm::ParameterSet>("tagVariables"));
+    if (iConfig.existsAs<edm::ParameterSet>("tagFlags"    )) tagPSet.addParameter<edm::ParameterSet>("flags",     iConfig.getParameter<edm::ParameterSet>("tagFlags"));
+    if (!tagPSet.empty()) { tagFiller_.reset(new tnp::BaseTreeFiller(*treeFiller_, tagPSet, "tag_")); }
+    edm::ParameterSet mcPSet;
+    if (iConfig.existsAs<edm::ParameterSet>("mcVariables")) mcPSet.addParameter<edm::ParameterSet>("variables", iConfig.getParameter<edm::ParameterSet>("mcVariables"));
+    if (iConfig.existsAs<edm::ParameterSet>("mcFlags"    )) mcPSet.addParameter<edm::ParameterSet>("flags",     iConfig.getParameter<edm::ParameterSet>("mcFlags"));
+    if (!mcPSet.empty()) { mcFiller_.reset(new tnp::BaseTreeFiller(*treeFiller_, mcPSet, "mc_")); }
+    edm::ParameterSet pairPSet;
+    if (iConfig.existsAs<edm::ParameterSet>("pairVariables")) pairPSet.addParameter<edm::ParameterSet>("variables", iConfig.getParameter<edm::ParameterSet>("pairVariables"));
+    if (iConfig.existsAs<edm::ParameterSet>("pairFlags"    )) pairPSet.addParameter<edm::ParameterSet>("flags",     iConfig.getParameter<edm::ParameterSet>("pairFlags"));
+    if (!pairPSet.empty()) { pairFiller_.reset(new tnp::BaseTreeFiller(*treeFiller_, pairPSet, "pair_")); }
 }
 
 
@@ -135,7 +151,10 @@ TagProbeFitTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
     Handle<Association<vector<reco::GenParticle> > > tagMatches, probeMatches;
 
     treeFiller_->init(iEvent); // read out info from the event if needed (external vars, list of passing probes, ...)
-    if (tagFiller_.get()) tagFiller_->init(iEvent);
+    if (oldTagFiller_.get()) oldTagFiller_->init(iEvent);
+    if (tagFiller_.get())    tagFiller_->init(iEvent);
+    if (pairFiller_.get())   pairFiller_->init(iEvent);
+    if (mcFiller_.get())     mcFiller_->init(iEvent);
 
     // on mc we want to load also the MC match info
     if (isMC_) {
@@ -152,9 +171,12 @@ TagProbeFitTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
         if (isMC_) {
             reco::GenParticleRef mtag = (*tagMatches)[it->tag], mprobe = (*probeMatches)[it->probe];
             mcTrue = checkMother(mtag) && checkMother(mprobe);
+            if (mcTrue && mcFiller_.get()) mcFiller_->fill(reco::CandidateBaseRef(mprobe));
         }
         // fill in the variables for this t+p pair
-	if (tagFiller_.get()) tagFiller_->fill(it->tag);
+	if (tagFiller_.get())    tagFiller_->fill(it->tag);
+	if (oldTagFiller_.get()) oldTagFiller_->fill(it->tag);
+	if (pairFiller_.get())   pairFiller_->fill(it->pair);
 	treeFiller_->fill(it->probe, it->mass, mcTrue);
     } 
 
