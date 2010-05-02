@@ -46,6 +46,15 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 
 struct take_address { template<typename T> const T * operator()(const T &val) const { return &val; } };
 
+
+#ifdef DOUBLE_MATCH
+template<typename Collector>
+void
+TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, Collector & collector) const
+{
+  doubleMatch(ts,collector);
+}
+#else
 template<typename Collector>
 void
 TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, Collector & collector) const
@@ -96,6 +105,7 @@ TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, Colle
       //GIO// std::cerr << "TkGluedMeasurementDet hits " << monoHits.size() << "/" << stereoHits.size() << " => " << result.size() << std::endl;
   }
 }
+#endif
 
 std::vector<TrajectoryMeasurement> 
 TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
