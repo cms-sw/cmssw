@@ -38,6 +38,7 @@ private:
   const TkStripMeasurementDet*       theStereoDet;
 
 
+  template<typename Collector>
   void doubleMatch(const TrajectoryStateOnSurface& ts, Collector & collector) const;
 
   template<typename Collector>

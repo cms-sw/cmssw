@@ -7,6 +7,7 @@
 
 #include "DataFormats/Math/interface/SSEVec.h"
 
+template<typename Collector>
 void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Collector & collector) const {
 
   using  mathSSE::Vec3F;
