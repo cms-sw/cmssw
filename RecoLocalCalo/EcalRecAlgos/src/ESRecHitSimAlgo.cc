@@ -43,7 +43,7 @@ double* ESRecHitSimAlgo::EvalAmplitude(const ESDataFrame& digi, const double& pe
   double n = 1.798;
   double w = 0.07291;
   double DeltaT = 25.;
-  double aaa = (A1 != 0.) ? log(A2/A1)/n : 20.; // if A1=0, t0=20
+  double aaa = (A2 > 0 && A1 > 0) ? log(A2/A1)/n : 20.; // if A1=0, t0=20
   double bbb = w/n*DeltaT;
   double ccc= exp(aaa+bbb);
 
