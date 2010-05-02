@@ -10,7 +10,7 @@
   The user can then turn individual cuts on and off at will. 
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.8 2010/04/25 17:06:34 hegner Exp $
+  \version  $Id: Selector.h,v 1.9 2010/04/30 14:30:07 srappocc Exp $
 */
 
 
@@ -43,7 +43,7 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
   virtual ~Selector() {}
 
   /// This is the registration of an individual cut string
-  virtual void push_back( std::string s) {
+  virtual void push_back( std::string const & s) {
     bits_.push_back(s);
     // don't need to check to see if the key is already there,
     // bits_ does that.
@@ -52,7 +52,7 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
 
 
   /// This is the registration of an individual cut string, with an int cut value
-  virtual void push_back( std::string s, int cut) {
+  virtual void push_back( std::string const & s, int cut) {
     bits_.push_back(s);
     intCuts_[s] = cut;
     // don't need to check to see if the key is already there,
@@ -61,7 +61,7 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
   }
 
   /// This is the registration of an individual cut string, with a double cut value
-  virtual void push_back( std::string s, double cut) {
+  virtual void push_back( std::string const & s, double cut) {
     bits_.push_back(s);
     doubleCuts_[s] = cut;
     // don't need to check to see if the key is already there,
@@ -99,41 +99,41 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
 
 
   /// Set a given selection cut, on or off
-  void set(std::string s, bool val = true) {
+  void set(std::string const & s, bool val = true) {
     bits_[s] = val;
   }
 
   /// Set a given selection cut, on or off, and reset int cut value
-  void set(std::string s, int cut, bool val = true) {
+  void set(std::string const & s, int cut, bool val = true) {
     bits_[s] = val;
     intCuts_[s] = cut;
   }
 
   /// Set a given selection cut, on or off, and reset int cut value
-  void set(std::string s, double cut, bool val = true) {
+  void set(std::string const & s, double cut, bool val = true) {
     bits_[s] = val;
     doubleCuts_[s] = cut;
   }
 
   /// Turn off a given selection cut. 
-  void clear(std::string s) {
+  void clear(std::string const & s) {
     bits_[s] = false;
   }
 
   /// Access the selector cut at index "s".
   /// "true" means to consider the cut.
   /// "false" means to ignore the cut.
-  bool operator[] ( std::string s ) const {
+  bool operator[] ( std::string const & s ) const {
     return bits_[s];
   }
 
   /// consider the cut at index "s"
-  bool considerCut( std::string s ) const {
+  bool considerCut( std::string const & s ) const {
     return bits_[s] == true;
   }
 
   /// ignore the cut at index "s"
-  bool ignoreCut( std::string s ) const {
+  bool ignoreCut( std::string const & s ) const {
     return bits_[s] == false;
   }
 
@@ -225,6 +225,20 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
     } 
     out << std::endl;
   }
+
+  /// Return the number of passing cases 
+  double getPasses( std::string const & s ) const {
+    cut_flow_map::iterator found = cutFlow_.end();
+    for ( cut_flow_map::iterator cutsBegin = cutFlow_.begin(),
+            cutsEnd = cutFlow_.end(), icut = cutsBegin;
+          icut != cutsEnd && found == cutsEnd; ++icut ) {
+      if ( icut->first == s ) {
+	found = icut;
+      }
+    }
+    return found->second;
+  }
+
 
  protected:
   pat::strbitset bits_;        //!< the bitset indexed by strings
