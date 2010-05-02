@@ -7,6 +7,7 @@ RecoEcalFEVT = cms.PSet(
         'keep *_islandBasicClusters_*_*', 
         'keep *_islandSuperClusters_*_*', 
         'keep *_hybridSuperClusters_*_*', 
+        'keep *_uncleanedHybridSuperClusters_*_*',
         'keep *_correctedFixedMatrix*_*_*', 
         'keep *_cosmicBasicClusters_*_*', 
         'keep *_cosmicSuperClusters_*_*', 
@@ -20,7 +21,8 @@ RecoEcalFEVT = cms.PSet(
 RecoEcalRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_islandBasicClusters_*_*', 
         'keep *_fixedMatrixBasicClusters_*_*', 
-        'keep *_hybridSuperClusters_*_*', 
+        'keep *_hybridSuperClusters_*_*',
+        'keep *_uncleanedHybridSuperClusters_*_*',                                           
         'keep *_cosmicBasicClusters_*_*', 
         'keep *_cosmicSuperClusters_*_*', 
         'drop recoSuperClusters_hybridSuperClusters_*_*', 

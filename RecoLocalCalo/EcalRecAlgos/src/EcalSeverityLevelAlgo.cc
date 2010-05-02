@@ -96,19 +96,22 @@ float EcalSeverityLevelAlgo::spikeFromNeighbours( const DetId id,
                                                   SpikeId spId
                                                   )
 {
-        switch( spId ) {
-                case kE1OverE9:
-                        return E1OverE9( id, recHits, recHitEtThreshold );
-                        break;
-                case kSwissCross:
-                        return swissCross( id, recHits, recHitEtThreshold );
-                        break;
-                default:
-                        edm::LogInfo("EcalSeverityLevelAlgo") << "Algorithm number " << spId
-                                << " not known. Please check the enum in EcalSeverityLevelAlgo.h";
-                        break;
-
-        }
+  switch( spId ) {
+  case kE1OverE9:
+    return E1OverE9( id, recHits, recHitEtThreshold );
+    break;
+  case kSwissCross:
+    return swissCross( id, recHits, recHitEtThreshold , true);
+    break;
+  case kSwissCrossBordersIncluded:
+    return swissCross( id, recHits, recHitEtThreshold , false);
+    break;
+  default:
+    edm::LogInfo("EcalSeverityLevelAlgo") << "Algorithm number " << spId
+					  << " not known. Please check the enum in EcalSeverityLevelAlgo.h";
+    break;
+    
+  }
         return 0;
 }
 
@@ -142,7 +145,7 @@ float EcalSeverityLevelAlgo::E1OverE9( const DetId id, const EcalRecHitCollectio
         return 0;
 }
 
-float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollection & recHits, float recHitEtThreshold )
+float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollection & recHits, float recHitEtThreshold , bool avoidIeta85)
 {
         // compute swissCross
         if ( id.subdetId() == EcalBarrel ) {
@@ -151,7 +154,7 @@ float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollect
                 // (may improve considering also eta module borders, but no
                 // evidence for the time being that there the performance is
                 // different)
-                if ( abs(ebId.ieta())==85 ) return 0;
+                if ( abs(ebId.ieta())==85 && avoidIeta85) return 0;
                 // select recHits with Et above recHitEtThreshold
                 if ( recHitApproxEt( id, recHits ) < recHitEtThreshold ) return 0;
                 float s4 = 0;

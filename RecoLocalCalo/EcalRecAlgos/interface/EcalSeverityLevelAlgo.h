@@ -17,7 +17,7 @@ class EcalSeverityLevelAlgo {
 
                 enum EcalSeverityLevel { kGood=0, kProblematic, kRecovered, kWeird, kBad };
 
-                enum SpikeId { kE1OverE9=0, kSwissCross };
+                enum SpikeId { kE1OverE9=0, kSwissCross, kSwissCrossBordersIncluded };
 
                 /** compute the severity level
                  */
@@ -46,7 +46,7 @@ class EcalSeverityLevelAlgo {
                 /** 1 - the ratio between the energy in the swiss cross around
                  * a crystal and the crystal energy (also called S4/S1, Rook)
                  */
-                static float swissCross( const DetId id, const EcalRecHitCollection &, float recHitEtThreshold = 0. );
+                static float swissCross( const DetId id, const EcalRecHitCollection &, float recHitEtThreshold = 0. , bool avoidIeta85=true);
 
         private:
 
