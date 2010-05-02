@@ -11,10 +11,11 @@ template<typename Collector>
 void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Collector & collector) const {
 
   using  mathSSE::Vec3F;
+  using  mathSSE::Vec2D;
   using  mathSSE::Vec3D;
   using  mathSSE::Rot3F;
   typedef  GloballyPositioned<float> ToGlobal;
-  typedef  Typename GloballyPositioned<float>::ToLocal ToLocal;
+  typedef  typename GloballyPositioned<float>::ToLocal ToLocal;
 
   GlobalVector glbDir = (ts.isValid() ? ts.globalParameters().momentum() : position()-GlobalPoint(0,0,0));
  
@@ -45,8 +46,8 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   bool notk = trackdirection.mag2()<FLT_MIN;
 
  // toGlobal is fast,  toLocal is slow
-  ToGlobal const & stripDetTrans =  specificGeomDet().monoDet().surface();
-  ToGlobal const & partnerStripDetTrans = specificGeomDet().stereoDet().surface();
+  ToGlobal const & stripDetTrans =  specificGeomDet().monoDet()->surface();
+  ToGlobal const & partnerStripDetTrans = specificGeomDet().stereoDet()->surface();
   ToLocal          gluedDetInvTrans(specificGeomDet().surface());
 
   const GluedGeomDet* gluedDet = &specificGeomDet();
@@ -176,11 +177,11 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
       double l2 = 1./(c2*c2+s2*s2);
       double sigmap22 =secondHit.sigmaPitch();
       if (sigmap22<0) {
-	LocalError tmpError((*seconditer)->localPositionErrorFast());
+	LocalError tmpError( secondHit.localPositionErrorFast());
 	HelpertRecHit2DLocalPos::updateWithAPE(tmpError, *partnerstripdet);
 	MeasurementError errorstereoRH=partnertopol.measurementError(secondHit.localPositionFast(),tmpError);
 
-	double pitch=partnertopol.localPitch((*seconditer)->localPositionFast());
+	double pitch=partnertopol.localPitch(secondHit.localPositionFast());
 	secondHit.setSigmaPitch(sigmap22=errorstereoRH.uu()*pitch*pitch);
       }
       
