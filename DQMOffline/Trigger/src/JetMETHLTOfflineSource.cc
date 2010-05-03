@@ -165,44 +165,6 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 void JetMETHLTOfflineSource::fillMEforMonTriggerSummary(){
   // Trigger summary for all paths
-/*    bool muTrig = false;
-    bool mbTrig = false;
-    for(size_t i=0;i<MuonTrigPaths_.size();++i)if(isHLTPathAccepted(MuonTrigPaths_[i]))muTrig = true;
-    for(size_t i=0;i<MBTrigPaths_.size();++i)if(isHLTPathAccepted(MBTrigPaths_[i]))mbTrig = true;
-    for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v )
-        {
-         double binV = TriggerPosition(v->getPath());       
-         if(isHLTPathAccepted(v->getPath()))
-         {
-          rate_All->Fill(binV);
-          if(muTrig)rate_AllWrtMu->Fill(binV);
-          if(mbTrig)rate_AllWrtMB->Fill(binV);
-         }
-         if(isHLTPathAccepted(v->getPath()))
-         {
-          correlation_All->Fill(binV,binV);
-          if(muTrig)correlation_AllWrtMu->Fill(binV,binV);
-          if(mbTrig)correlation_AllWrtMB->Fill(binV,binV);
-         }
-         for(PathInfoCollection::iterator w = v+1; w!= hltPathsAll_.end(); ++w )
-           {
-           double binW = TriggerPosition(w->getPath()); 
-           if(isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))
-           {
-            correlation_All->Fill(binV,binW);
-            if(muTrig)correlation_AllWrtMu->Fill(binV,binW);
-            if(mbTrig)correlation_AllWrtMB->Fill(binV,binW); 
-           }
-           if(!isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))
-           {
-            correlation_All->Fill(binW,binV); 
-            if(muTrig)correlation_AllWrtMu->Fill(binW,binV);
-            if(mbTrig)correlation_AllWrtMB->Fill(binW,binV);
-
-           }
-           }
-        }
-*/
 
     bool muTrig = false;
     bool mbTrig = false;
@@ -362,7 +324,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
             std::vector<double>hltEtaVec;
             std::vector<double>hltPxVec;
             std::vector<double>hltPyVec;
- 
+            bool fillL1HLT = false;  // This will be used to find out punch throgh trigger 
             //---------------------------------------------
             edm::InputTag l1Tag(v->getl1Path(),"",processname_);
             const int l1Index = triggerObj_->filterIndex(l1Tag);
@@ -422,6 +384,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
                   {
                   double hltTrigEta = -100;
                   double hltTrigPhi = -100;
+                  fillL1HLT = true;
             //--------------------------------------------------
                   if(v->getObjectType() == trigger::TriggerMET)
                     {
@@ -551,7 +514,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
             
             }
     //-----------------------------------------------------      
-       if(v->getPath().find("L1") != std::string::npos)
+       if(v->getPath().find("L1") != std::string::npos && !fillL1HLT)
          {
          if ( l1Index >= triggerObj_->sizeFilters() ) {
           edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
@@ -625,7 +588,12 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
      }
 
     bool muTrig = false;
-    for(size_t i=0;i<MuonTrigPaths_.size();++i)if(isHLTPathAccepted(MuonTrigPaths_[i]))muTrig = true;
+    for(size_t i=0;i<MuonTrigPaths_.size();++i){
+     if(isHLTPathAccepted(MuonTrigPaths_[i])){
+      muTrig = true;
+      break;
+     }
+   }
     if(muTrig)
     {
   //-----------------------------------------------------  
@@ -646,7 +614,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
             std::vector<double>hltEtaVec;
             std::vector<double>hltPxVec;
             std::vector<double>hltPyVec;
- 
+            bool fillL1HLT = false;
             //---------------------------------------------
             edm::InputTag l1Tag(v->getl1Path(),"",processname_);
             const int l1Index = triggerObj_->filterIndex(l1Tag);
@@ -706,6 +674,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
                   {
                   double hltTrigEta = -100;
                   double hltTrigPhi = -100;
+                  fillL1HLT = true;
             //--------------------------------------------------
                   if(v->getObjectType() == trigger::TriggerMET)
                     {
@@ -836,7 +805,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
             
             }
     //-----------------------------------------------------      
-       if(v->getPath().find("L1") != std::string::npos)
+       if(v->getPath().find("L1") != std::string::npos && !fillL1HLT)
          {
          if ( l1Index >= triggerObj_->sizeFilters() ) {
           edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
@@ -1022,7 +991,12 @@ int npath;
   }
   bool muTrig = false;
   bool denompassed = false;
-  for(size_t i=0;i<MuonTrigPaths_.size();++i)if(isHLTPathAccepted(MuonTrigPaths_[i]))muTrig = true;
+  for(size_t i=0;i<MuonTrigPaths_.size();++i){
+     if(isHLTPathAccepted(MuonTrigPaths_[i])){
+      muTrig = true;
+      break;
+     }
+   }
   for(PathInfoCollection::iterator v = hltPathsEffWrtMu_.begin(); v!= hltPathsEffWrtMu_.end(); ++v )
     {
      bool numpassed   = false; 
@@ -1130,7 +1104,12 @@ int npath;
   }
   bool mbTrig = false;
   bool denompassed = false;
-  for(size_t i=0;i<MBTrigPaths_.size();++i)if(isHLTPathAccepted(MBTrigPaths_[i]))mbTrig = true;
+  for(size_t i=0;i<MBTrigPaths_.size();++i){
+     if(isHLTPathAccepted(MBTrigPaths_[i])){
+      mbTrig = true;
+      break;
+     }
+   }
   for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffWrtMB_.end(); ++v )
     {
      bool numpassed   = false; 
@@ -1668,8 +1647,6 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    h = EtaPhi_L1->getTH1();                                                                                        
    h->Sumw2();                                
 
-  if(!(v->getPath().find("L1") != std::string::npos))
-    {
    histoname = labelname+"_hltObjN";         
    title     = labelname+"_hltObjN;HLT multiplicity"+trigPath;
    N_HLT = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
@@ -1754,7 +1731,6 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    h = PhiCorrelation_L1HLT->getTH1();
    h->Sumw2();
 
-   }
   
    histoname = labelname+"_hltRecObjPtResolution";
    title = labelname+"_hltRecObjPtResolution;(Pt(HLT)-Pt(Reco))/Pt(HLT)"+trigPath;
@@ -1864,7 +1840,6 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    h = Phi_L1->getTH1();                                                               
    h->Sumw2();                                                                
 
-   if(!(v->getPath().find("L1") != std::string::npos)){
 
    histoname = labelname+"_hltObjPt";
    title = labelname+"_hltObjPt;HLT Pt[GeV/c]"+trigPath;
@@ -1908,7 +1883,6 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    h = PhiCorrelation_L1HLT->getTH1();
    h->Sumw2();
 
-  }
 
    histoname = labelname+"_hltRecObjPtResolution";
    title = labelname+"_hltRecObjPtResolution;(Pt(HLT)-Pt(Reco))/Pt(HLT)"+trigPath;
@@ -2138,8 +2112,6 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    h = EtaPhi_L1->getTH1();                                                                                        
    h->Sumw2();                                
 
-  if(!(v->getPath().find("L1") != std::string::npos))
-    {
    histoname = labelname+"_hltObjN";         
    title     = labelname+"_hltObjN;HLT multiplicity"+trigPath;
    N_HLT = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
@@ -2224,7 +2196,6 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    h = PhiCorrelation_L1HLT->getTH1();
    h->Sumw2();
 
-   }
   
    histoname = labelname+"_hltRecObjPtResolution";
    title = labelname+"_hltRecObjPtResolution;(Pt(HLT)-Pt(Reco))/Pt(HLT)"+trigPath;
@@ -2334,7 +2305,6 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    h = Phi_L1->getTH1();                                                               
    h->Sumw2();                                                                
 
-   if(!(v->getPath().find("L1") != std::string::npos)){
 
    histoname = labelname+"_hltObjPt";
    title = labelname+"_hltObjPt;HLT Pt[GeV/c]"+trigPath;
@@ -2378,7 +2348,6 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
    h = PhiCorrelation_L1HLT->getTH1();
    h->Sumw2();
 
-  }
 
    histoname = labelname+"_hltRecObjPtResolution";
    title = labelname+"_hltRecObjPtResolution;(Pt(HLT)-Pt(Reco))/Pt(HLT)"+trigPath;
@@ -3137,12 +3106,8 @@ bool JetMETHLTOfflineSource::isHLTPathAccepted(std::string pathName){
   // triggerResults_, triggerNames_ has to be defined first before calling this method
   bool output=false;
   if(&triggerResults_) {
-    int npath = triggerResults_->size();
-    for(int i = 0; i < npath; ++i) {
-      if (triggerNames_.triggerName(i).find(pathName) != std::string::npos
-          && triggerResults_->accept(i))
-        { output = true; break; }
-    }
+   unsigned index = triggerNames_.triggerIndex(pathName);
+   if(index < triggerNames_.size() && triggerResults_->accept(index)) output = true;
   }
   return output;
 }
