@@ -74,6 +74,16 @@ parser.add_option("--trackerAPE",
                   type="string",
                   default="AlignmentErrors",
                   dest="trackerAPE")
+parser.add_option("--gprcdconnect",
+                  help="connect string for GlobalPositionRcd (frontier://... or sqlite_file:...)",
+                  type="string",
+                  default="",
+                  dest="gprcdconnect")
+parser.add_option("--gprcd",
+                  help="name of GlobalPositionRcd tag",
+                  type="string",
+                  default="SurveyGeometry",
+                  dest="gprcd")
 parser.add_option("--iscosmics",
                   help="if invoked, use cosmic track refitter instead of the standard one",
                   action="store_true",
@@ -167,6 +177,8 @@ trackerconnect = options.trackerconnect
 trackeralignment = options.trackeralignment
 trackerAPEconnect = options.trackerAPEconnect
 trackerAPE = options.trackerAPE
+gprcdconnect = options.gprcdconnect
+gprcd = options.gprcd
 iscosmics = str(options.iscosmics)
 station123params = options.station123params
 station4params = options.station4params
@@ -226,6 +238,7 @@ for iteration in range(1, ITERATIONS+1):
         copytrackerdb = ""
         if trackerconnect[0:12] == "sqlite_file:": copytrackerdb += "%s " % trackerconnect[12:]
         if trackerAPEconnect[0:12] == "sqlite_file:": copytrackerdb += "%s " % trackerAPEconnect[12:]
+        if gprcdconnect[0:12] == "sqlite_file:": copytrackerdb += "%s " % gprcdconnect[12:]
 
         if len(inputfiles) > 0:
             file(gather_fileName, "w").write("""#/bin/sh
@@ -249,6 +262,8 @@ export ALIGNMENT_TRACKERCONNECT=%(trackerconnect)s
 export ALIGNMENT_TRACKERALIGNMENT=%(trackeralignment)s
 export ALIGNMENT_TRACKERAPECONNECT=%(trackerAPEconnect)s
 export ALIGNMENT_TRACKERAPE=%(trackerAPE)s
+export ALIGNMENT_GPRCDCONNECT=%(gprcdconnect)s
+export ALIGNMENT_GPRCD=%(gprcd)s
 export ALIGNMENT_ISCOSMICS=%(iscosmics)s
 export ALIGNMENT_STATION123PARAMS=%(station123params)s
 export ALIGNMENT_STATION4PARAMS=%(station4params)s
@@ -306,6 +321,7 @@ process.PoolDBESSource.toGet = cms.VPSet(
     copytrackerdb = ""
     if trackerconnect[0:12] == "sqlite_file:": copytrackerdb += "%s " % trackerconnect[12:]
     if trackerAPEconnect[0:12] == "sqlite_file:": copytrackerdb += "%s " % trackerAPEconnect[12:]
+    if gprcdconnect[0:12] == "sqlite_file:": copytrackerdb += "%s " % gprcdconnect[12:]
 
     file("%salign.sh" % directory, "w").write("""#!/bin/sh
 # %(commandline)s
@@ -322,6 +338,8 @@ export ALIGNMENT_TRACKERCONNECT=%(trackerconnect)s
 export ALIGNMENT_TRACKERALIGNMENT=%(trackeralignment)s
 export ALIGNMENT_TRACKERAPECONNECT=%(trackerAPEconnect)s
 export ALIGNMENT_TRACKERAPE=%(trackerAPE)s
+export ALIGNMENT_GPRCDCONNECT=%(gprcdconnect)s
+export ALIGNMENT_GPRCD=%(gprcd)s
 export ALIGNMENT_ISCOSMICS=%(iscosmics)s
 export ALIGNMENT_STATION123PARAMS=%(station123params)s
 export ALIGNMENT_STATION4PARAMS=%(station4params)s
