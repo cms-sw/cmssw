@@ -1,53 +1,8 @@
-# /dev/CMSSW_3_6_0/GRun/V6
+# /dev/CMSSW_3_6_0/GRun/V7
 
 import FWCore.ParameterSet.Config as cms
 
 # dump of the Stream A Datasets defined in the HLT table
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMETTauMonitor_selector
-streamA_datasetJetMETTauMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetJetMETTauMonitor_selector.l1tResults = cms.InputTag('')
-streamA_datasetJetMETTauMonitor_selector.throw      = cms.bool(False)
-streamA_datasetJetMETTauMonitor_selector.triggerConditions = cms.vstring('HLT_L1Jet10U_NoBPTX', 
-    'HLT_L1SingleCenJet_NoBPTX', 
-    'HLT_L1SingleTauJet_NoBPTX', 
-    'HLT_L1Jet6U', 
-    'HLT_L1Jet6U_NoBPTX', 
-    'HLT_L1SingleCenJet', 
-    'HLT_L1SingleForJet', 
-    'HLT_L1SingleTauJet', 
-    'HLT_L1MET20', 
-    'HLT_L1SingleForJet_NoBPTX', 
-    'HLT_L1Jet10U')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetRandomTriggers_selector
-streamA_datasetRandomTriggers_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetRandomTriggers_selector.l1tResults = cms.InputTag('')
-streamA_datasetRandomTriggers_selector.throw      = cms.bool(False)
-streamA_datasetRandomTriggers_selector.triggerConditions = cms.vstring('HLT_Random')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalHPDNoise_selector
-streamA_datasetHcalHPDNoise_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetHcalHPDNoise_selector.l1tResults = cms.InputTag('')
-streamA_datasetHcalHPDNoise_selector.throw      = cms.bool(False)
-streamA_datasetHcalHPDNoise_selector.triggerConditions = cms.vstring('HLT_TechTrigHCALNoise', 
-    'HLT_GlobalRunHPDNoise')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetZeroBias_selector
-streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetZeroBias_selector.l1tResults = cms.InputTag('')
-streamA_datasetZeroBias_selector.throw      = cms.bool(False)
-streamA_datasetZeroBias_selector.triggerConditions = cms.vstring('HLT_L1_BPTX_PlusOnly', 
-    'HLT_L1_BPTX_MinusOnly', 
-    'HLT_L1_BPTX', 
-    'HLT_ZeroBias')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuMonitor_selector
-streamA_datasetMuMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetMuMonitor_selector.l1tResults = cms.InputTag('')
-streamA_datasetMuMonitor_selector.throw      = cms.bool(False)
-streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_L1Mu', 
-    'HLT_L1MuOpen')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMu_selector
 streamA_datasetMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -100,13 +55,6 @@ streamA_datasetJetMETTau_selector.triggerConditions = cms.vstring('HLT_BTagIP_Je
     'HLT_BTagMu_Jet10U', 
     'HLT_DoubleJet15U_ForwardBackward')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalNZS_selector
-streamA_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
-streamA_datasetHcalNZS_selector.throw      = cms.bool(False)
-streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_8E29', 
-    'HLT_HcalPhiSym')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCosmics_selector
 streamA_datasetCosmics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetCosmics_selector.l1tResults = cms.InputTag('')
@@ -117,7 +65,7 @@ streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_TrackerCosm
     'HLT_CSCBeamHaloOverlapRing2', 
     'HLT_CSCBeamHaloOverlapRing1', 
     'HLT_CSCBeamHalo', 
-    'HLT_L1MuOpen_NoBPTX', 
+    'HLT_L1MuOpen', 
     'HLT_L1Tech_BSC_halo', 
     'HLT_L1MuOpen_AntiBPTX', 
     'HLT_TkMu3_NoVertex', 
@@ -128,12 +76,10 @@ streamA_datasetEGMonitor_selector.hltResults = cms.InputTag('TriggerResults', ''
 streamA_datasetEGMonitor_selector.l1tResults = cms.InputTag('')
 streamA_datasetEGMonitor_selector.throw      = cms.bool(False)
 streamA_datasetEGMonitor_selector.triggerConditions = cms.vstring('HLT_EgammaSuperClusterOnly_L1R', 
-    'HLT_L1SingleEG2_NoBPTX', 
+    'HLT_L1SingleEG2', 
     'HLT_L1DoubleEG5', 
     'HLT_L1SingleEG8', 
-    'HLT_L1SingleEG5_NoBPTX', 
-    'HLT_L1SingleEG5', 
-    'HLT_L1SingleEG2')
+    'HLT_L1SingleEG5')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEG_selector
 streamA_datasetEG_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -182,7 +128,7 @@ streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_Activit
     'HLT_MinBiasEcal', 
     'HLT_MinBiasHcal', 
     'HLT_MinBiasBSC_OR', 
-    'HLT_MinBiasBSC', 
+    'HLT_MinBiasBSC_BPTX', 
     'HLT_StoppedHSCP_8E29', 
     'HLT_Activity_DT_Tuned', 
     'HLT_SelectEcalSpikes_L1R', 
@@ -191,9 +137,61 @@ streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_Activit
     'HLT_Activity_Ecal', 
     'HLT_Activity_PixelClusters', 
     'HLT_Activity_L1A', 
-    'HLT_MinBiasBSC_NoBPTX', 
-    'HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX', 
-    'HLT_HighMult40', 
+    'HLT_MinBiasBSC', 
+    'HLT_PixelTracks_Multiplicity40', 
     'HLT_L1Tech_BSC_halo_forPhysicsBackground', 
-    'HLT_L1_BscMinBiasOR_BeamGas')
+    'HLT_L1_BscMinBiasOR_BeamGas', 
+    'HLT_PixelTracks_Multiplicity70')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalHPDNoise_selector
+streamA_datasetHcalHPDNoise_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHcalHPDNoise_selector.l1tResults = cms.InputTag('')
+streamA_datasetHcalHPDNoise_selector.throw      = cms.bool(False)
+streamA_datasetHcalHPDNoise_selector.triggerConditions = cms.vstring('HLT_TechTrigHCALNoise', 
+    'HLT_GlobalRunHPDNoise')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetZeroBias_selector
+streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetZeroBias_selector.l1tResults = cms.InputTag('')
+streamA_datasetZeroBias_selector.throw      = cms.bool(False)
+streamA_datasetZeroBias_selector.triggerConditions = cms.vstring('HLT_L1_BPTX_PlusOnly', 
+    'HLT_L1_BPTX_MinusOnly', 
+    'HLT_L1_BPTX', 
+    'HLT_ZeroBias')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalNZS_selector
+streamA_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
+streamA_datasetHcalNZS_selector.throw      = cms.bool(False)
+streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_8E29', 
+    'HLT_HcalPhiSym')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMETTauMonitor_selector
+streamA_datasetJetMETTauMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetJetMETTauMonitor_selector.l1tResults = cms.InputTag('')
+streamA_datasetJetMETTauMonitor_selector.throw      = cms.bool(False)
+streamA_datasetJetMETTauMonitor_selector.triggerConditions = cms.vstring('HLT_L1Jet10U', 
+    'HLT_L1SingleCenJet', 
+    'HLT_L1SingleTauJet', 
+    'HLT_L1Jet6U_BPTX', 
+    'HLT_L1Jet6U', 
+    'HLT_L1SingleCenJet_BPTX', 
+    'HLT_L1SingleForJet_BPTX', 
+    'HLT_L1SingleTauJet_BPTX', 
+    'HLT_L1MET20', 
+    'HLT_L1SingleForJet', 
+    'HLT_L1Jet10U_BPTX')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuMonitor_selector
+streamA_datasetMuMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetMuMonitor_selector.l1tResults = cms.InputTag('')
+streamA_datasetMuMonitor_selector.throw      = cms.bool(False)
+streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_L1Mu', 
+    'HLT_L1MuOpen_BPTX')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetRandomTriggers_selector
+streamA_datasetRandomTriggers_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetRandomTriggers_selector.l1tResults = cms.InputTag('')
+streamA_datasetRandomTriggers_selector.throw      = cms.bool(False)
+streamA_datasetRandomTriggers_selector.triggerConditions = cms.vstring('HLT_Random')
 

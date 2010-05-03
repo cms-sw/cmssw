@@ -110,7 +110,7 @@ AlCa_EcalEta_1E31
 AlCa_RPCMuonNoHits
 AlCa_RPCMuonNoTriggers
 AlCa_RPCMuonNormalisation
-HLT_HighMult40
+HLT_PixelTracks_Multiplicity70
 HLTriggerFinalPath
 HLTAnalyzerEndpath
 HLTOutput
