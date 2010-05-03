@@ -298,7 +298,8 @@ thStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurit
 
 thStep = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
     TrackProducer1 = 'thStepVtx',
-    TrackProducer2 = 'thStepTrk'
+    TrackProducer2 = 'thStepTrk',
+    promoteTrackQuality = True
     )
 
 thirdStep = cms.Sequence(secfilter*
