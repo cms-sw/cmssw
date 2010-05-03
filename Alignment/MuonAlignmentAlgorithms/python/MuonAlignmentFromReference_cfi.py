@@ -32,4 +32,6 @@ MuonAlignmentFromReference = cms.PSet(
 
     # where reporting will go
     reportFileName = cms.string("MuonAlignmentFromReference_report.py"),  # Python-formatted output
+
+    maxResSlopeY = cms.double(10.)
     )

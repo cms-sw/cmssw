@@ -30,6 +30,7 @@ minAlignmentHits = int(os.environ["ALIGNMENT_MINALIGNMENTHITS"])
 combineME11 = (os.environ["ALIGNMENT_COMBINEME11"] == "True")
 maxEvents = int(os.environ["ALIGNMENT_MAXEVENTS"])
 skipEvents = int(os.environ["ALIGNMENT_SKIPEVENTS"])
+maxResSlopeY = float(os.environ["ALIGNMENT_MAXRESSLOPEY"])
 
 process = cms.Process("GATHER")
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputfiles), skipEvents = cms.untracked.uint32(skipEvents))
@@ -53,6 +54,7 @@ process.looper.algoConfig.twoBin = twoBin
 process.looper.algoConfig.weightAlignment = weightAlignment
 process.looper.algoConfig.minAlignmentHits = minAlignmentHits
 process.looper.algoConfig.combineME11 = combineME11
+process.looper.algoConfig.maxResSlopeY = maxResSlopeY
 
 process.looper.monitorConfig = cms.PSet(monitors = cms.untracked.vstring())
 

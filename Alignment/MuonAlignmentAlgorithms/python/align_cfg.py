@@ -24,6 +24,7 @@ twoBin = (os.environ["ALIGNMENT_TWOBIN"] == "True")
 weightAlignment = (os.environ["ALIGNMENT_WEIGHTALIGNMENT"] == "True")
 minAlignmentHits = int(os.environ["ALIGNMENT_MINALIGNMENTHITS"])
 combineME11 = (os.environ["ALIGNMENT_COMBINEME11"] == "True")
+maxResSlopeY = float(os.environ["ALIGNMENT_MAXRESSLOPEY"])
 
 process = cms.Process("ALIGN")
 process.source = cms.Source("EmptySource")
@@ -43,6 +44,7 @@ process.looper.algoConfig.twoBin = twoBin
 process.looper.algoConfig.weightAlignment = weightAlignment
 process.looper.algoConfig.minAlignmentHits = minAlignmentHits
 process.looper.algoConfig.combineME11 = combineME11
+process.looper.algoConfig.maxResSlopeY = maxResSlopeY
 process.looper.algoConfig.residualsModel = cms.string("GaussPowerTails")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

@@ -88,6 +88,7 @@ private:
   bool m_combineME11;
   bool m_weightAlignment;
   std::string m_reportFileName;
+  double m_maxResSlopeY;
 
   AlignableNavigator *m_alignableNavigator;
   AlignmentParameterStore *m_alignmentParameterStore;
@@ -116,6 +117,7 @@ private:
   long m_counter_cscvalid;
   long m_counter_cschits;
   long m_counter_cscaligning;
+  long m_counter_resslopey;
 };
 
 MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &iConfig)
@@ -139,6 +141,7 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   , m_combineME11(iConfig.getParameter<bool>("combineME11"))
   , m_weightAlignment(iConfig.getParameter<bool>("weightAlignment"))
   , m_reportFileName(iConfig.getParameter<std::string>("reportFileName"))
+  , m_maxResSlopeY(iConfig.getParameter<double>("maxResSlopeY"))
 {
   // alignment requires a TFile to provide plots to check the fit output
   // just filling the residuals lists does not
@@ -168,6 +171,7 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   m_counter_cscvalid = 0;
   m_counter_cschits = 0;
   m_counter_cscaligning = 0;
+  m_counter_resslopey = 0;
 }
 
 MuonAlignmentFromReference::~MuonAlignmentFromReference() {
@@ -505,19 +509,22 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
 			      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(dt13->chamberAlignable());
 			      if (fitter != m_fitters.end()) {
 				 m_counter_station123aligning++;
+				 if (fabs(dt2->resslope()) < m_maxResSlopeY) {
+				    m_counter_resslopey++;
 
-				 double *residdata = new double[MuonResiduals6DOFFitter::kNData];
-				 residdata[MuonResiduals6DOFFitter::kResidX] = dt13->residual();
-				 residdata[MuonResiduals6DOFFitter::kResidY] = dt2->residual();
-				 residdata[MuonResiduals6DOFFitter::kResSlopeX] = dt13->resslope();
-				 residdata[MuonResiduals6DOFFitter::kResSlopeY] = dt2->resslope();
-				 residdata[MuonResiduals6DOFFitter::kPositionX] = dt13->trackx();
-				 residdata[MuonResiduals6DOFFitter::kPositionY] = dt13->tracky();
-				 residdata[MuonResiduals6DOFFitter::kAngleX] = dt13->trackdxdz();
-				 residdata[MuonResiduals6DOFFitter::kAngleY] = dt13->trackdydz();
-				 residdata[MuonResiduals6DOFFitter::kRedChi2] = (dt13->chi2() + dt2->chi2()) / double(dt13->ndof() + dt2->ndof());
-				 fitter->second->fill(charge, residdata);
+				   double *residdata = new double[MuonResiduals6DOFFitter::kNData];
+				   residdata[MuonResiduals6DOFFitter::kResidX] = dt13->residual();
+				   residdata[MuonResiduals6DOFFitter::kResidY] = dt2->residual();
+				   residdata[MuonResiduals6DOFFitter::kResSlopeX] = dt13->resslope();
+				   residdata[MuonResiduals6DOFFitter::kResSlopeY] = dt2->resslope();
+				   residdata[MuonResiduals6DOFFitter::kPositionX] = dt13->trackx();
+				   residdata[MuonResiduals6DOFFitter::kPositionY] = dt13->tracky();
+				   residdata[MuonResiduals6DOFFitter::kAngleX] = dt13->trackdxdz();
+				   residdata[MuonResiduals6DOFFitter::kAngleY] = dt13->trackdydz();
+				   residdata[MuonResiduals6DOFFitter::kRedChi2] = (dt13->chi2() + dt2->chi2()) / double(dt13->ndof() + dt2->ndof());
+				   fitter->second->fill(charge, residdata);
 				 // the MuonResidualsFitter will delete the array when it is destroyed
+				 }
 			      }
 			   }}}
 		  }
@@ -603,6 +610,7 @@ void MuonAlignmentFromReference::terminate() {
 	    << "COUNT{                 station123dt13hits: " << m_counter_station123dt13hits << " }" << std::endl
 	    << "COUNT{                   station123dt2hits: " << m_counter_station123dt2hits << " }" << std::endl
 	    << "COUNT{                     station123aligning: " << m_counter_station123aligning << " }" << std::endl
+            << "COUNT{                       resslopey: " << m_counter_resslopey << " }" << std::endl
 	    << "COUNT{             station4: " << m_counter_station4 << " }" << std::endl
 	    << "COUNT{               station4valid: " << m_counter_station4valid << " }" << std::endl
 	    << "COUNT{                 station4hits: " << m_counter_station4hits << " }" << std::endl

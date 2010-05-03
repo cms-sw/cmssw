@@ -159,6 +159,11 @@ parser.add_option("--validationLabel",
                   type="string",
                   default="",
                   dest="validationLabel")
+parser.add_option("--maxResSlopeY",
+                  help="maximum residual slope y component",
+                  type="string",
+                  default="10",
+                  dest="maxResSlopeY")
 
 if len(sys.argv) < 5:
     raise SystemError, "Too few arguments.\n\n"+parser.format_help()
@@ -195,6 +200,7 @@ combineME11 = str(options.combineME11)
 maxEvents = options.maxEvents
 skipEvents = options.skipEvents
 validationLabel = options.validationLabel
+maxResSlopeY = options.maxResSlopeY
 
 execfile(INPUTFILES)
 stepsize = int(math.ceil(1.*len(fileNames)/options.subjobs))
@@ -279,6 +285,7 @@ export ALIGNMENT_MINALIGNMENTHITS=%(minAlignmentHits)s
 export ALIGNMENT_COMBINEME11=%(combineME11)s
 export ALIGNMENT_MAXEVENTS=%(maxEvents)s
 export ALIGNMENT_SKIPEVENTS=%(skipEvents)s
+export ALIGNMENT_MAXRESSLOPEY=%(maxResSlopeY)s
 
 cp -f %(directory)sgather_cfg.py %(inputdbdir)s%(inputdb)s %(copytrackerdb)s $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/
@@ -353,6 +360,7 @@ export ALIGNMENT_TWOBIN=%(twoBin)s
 export ALIGNMENT_WEIGHTALIGNMENT=%(weightAlignment)s
 export ALIGNMENT_MINALIGNMENTHITS=%(minAlignmentHits)s
 export ALIGNMENT_COMBINEME11=%(combineME11)s
+export ALIGNMENT_MAXRESSLOPEY=%(maxResSlopeY)s
 
 cp -f %(directory)salign_cfg.py %(directory)sconvert-db-to-xml_cfg.py %(inputdbdir)s%(inputdb)s %(directory)s*.tmp  %(copytrackerdb)s $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/
