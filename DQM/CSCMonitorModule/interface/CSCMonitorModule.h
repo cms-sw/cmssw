@@ -91,7 +91,13 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
   public:
 
     const CSCDetId getCSCDetId(const unsigned int crateId, const unsigned int dmbId) const { 
-      return pcrate->detId(crateId, dmbId, 0, 0); 
+      // This throws exceptions on wrong parameters
+      try {
+        return pcrate->detId(crateId, dmbId, 0, 0); 
+      } catch (cms::Exception e) {
+        // Create a fake DetId, a caller should check it!
+        return CSCDetId();
+      }
     }
     cscdqm::MonitorObject *bookMonitorObject (const cscdqm::HistoBookRequest& p_req); 
 
