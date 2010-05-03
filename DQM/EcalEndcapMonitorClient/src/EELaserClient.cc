@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2010/04/14 16:13:39 $
- * $Revision: 1.127 $
+ * $Date: 2010/04/14 16:24:42 $
+ * $Revision: 1.128 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -199,8 +199,8 @@ EELaserClient::EELaserClient(const edm::ParameterSet& ps) {
   pedPnDiscrepancyMean_[0] = 100.0;
   pedPnDiscrepancyMean_[1] = 100.0;
 
-  pedPnRMSThreshold_[0] = 10.;
-  pedPnRMSThreshold_[1] = 10.;
+  pedPnRMSThreshold_[0] = 999.;
+  pedPnRMSThreshold_[1] = 999.;
 
 }
 

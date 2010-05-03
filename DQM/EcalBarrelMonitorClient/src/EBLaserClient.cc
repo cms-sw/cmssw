@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/03/27 20:11:08 $
- * $Revision: 1.262 $
+ * $Date: 2010/04/14 16:13:39 $
+ * $Revision: 1.263 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -197,8 +197,8 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps) {
   pedPnDiscrepancyMean_[0] = 100.0;
   pedPnDiscrepancyMean_[1] = 100.0;
 
-  pedPnRMSThreshold_[0] = 10.;
-  pedPnRMSThreshold_[1] = 10.;
+  pedPnRMSThreshold_[0] = 999.;
+  pedPnRMSThreshold_[1] = 999.;
 
 }
 
