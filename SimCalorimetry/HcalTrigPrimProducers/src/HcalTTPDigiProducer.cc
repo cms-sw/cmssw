@@ -56,7 +56,8 @@ HcalTTPDigiProducer::HcalTTPDigiProducer(const edm::ParameterSet& ps)
                 << "Unable to read logic for technical trigger" ;
         }
     }
-    
+
+    id_         = ps.getUntrackedParameter<int>("id",-1) ; 
     samples_    = ps.getParameter<int>("samples") ; 
     presamples_ = ps.getParameter<int>("presamples") ; 
     iEtaMin_    = ps.getParameter<int>("iEtaMin") ; 
@@ -159,7 +160,7 @@ void HcalTTPDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSet
     // Step D: Compute trigger decision and fill TTP digi 
     uint8_t trigOutput[8] ;
     uint32_t algoDepBits[8] ;
-    HcalTTPDigi ttpDigi(-1,samples_,presamples_,0,fwAlgo_,0) ;
+    HcalTTPDigi ttpDigi(id_,samples_,presamples_,0,fwAlgo_,0) ;
     for (int linSample=0; linSample<8; linSample++) {
         trigOutput[linSample] = 0 ; algoDepBits[linSample] = 0 ;
         if ( linSample<samples_) {

@@ -27,7 +27,7 @@ private:
     int calc_[4] ; 
     int nHits_[4], nHFp_[4], nHFm_[4] ;
     char pReq_[4], mReq_[4], pmLogic_[4] ; 
-    int samples_, presamples_ ;
+    int id_, samples_, presamples_ ;
     int fwAlgo_ ; 
     int iEtaMin_, iEtaMax_ ;
     unsigned int threshold_ ;
