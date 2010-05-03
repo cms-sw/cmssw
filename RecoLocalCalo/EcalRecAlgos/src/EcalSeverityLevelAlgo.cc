@@ -10,6 +10,7 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
                 float spIdThreshold
                 )
 {
+
         // get DB flag
         uint16_t dbStatus = retrieveDBStatus( id, chStatus );
         // get recHit flags
@@ -29,11 +30,13 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
         } else {
                 // the channel is in the recHit collection
                 // .. is it a spike?
-                if ( spikeFromNeighbours(id, recHits, recHitEtThreshold, spId) > spIdThreshold  ) return kWeird;
+                if ( id.subdetId() == EcalBarrel && (spikeFromNeighbours(id, recHits, recHitEtThreshold, spId) > spIdThreshold)  ) return kWeird;
+                // for now no filtering on VPT discharges in the endcap
+
                 // .. not a spike, return the normal severity level
                 return severityLevel( *it, chStatus );
         }
-        return 0;
+        return kGood;
 }
 
 int EcalSeverityLevelAlgo::severityLevel( const EcalRecHit &recHit, 
