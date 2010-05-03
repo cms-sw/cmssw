@@ -7,12 +7,6 @@ if [[ $SMDEV_FU_PROCESS_COUNT -gt 8 ]] ; then
     SMDEV_FU_PROCESS_COUNT=8
 fi
 
-if [[ `grep -c "pt::atcp" $STMGR_CONFIG` > 0 ]] ; then
-    firstAppToStart=1
-else
-    firstAppToStart=3
-fi
-
 # This map is ordered accoriding to the starting sequence of the applications.
 # The order of stopping is different
 app_name[1]=pt::atcp::PeerTransportATCP ; app_host[1]=STMGR_DEV_BU_HOST      ; app_port[1]=STMGR_DEV_BU_PORT
@@ -31,6 +25,19 @@ app_name[13]=evf::FUEventProcessor      ; app_host[13]=STMGR_DEV_FU7_HOST    ; a
 app_name[14]=evf::FUEventProcessor      ; app_host[14]=STMGR_DEV_FU8_HOST    ; app_port[14]=STMGR_DEV_FU8_PORT
 app_name[15]=evf::FUEventProcessor      ; app_host[15]=STMGR_DEV_CONSFU_HOST ; app_port[15]=STMGR_DEV_CONSFU_PORT
 
+# ATCP can only be configured/enabled once (emulating connect)
+for appcount in 1 2 ; do
+    state=`./paramGet.pl ${app_host[$appcount]} ${app_port[$appcount]} ${app_name[$appcount]} 0 stateName string`
+    if [[ $state == "Halted" ]] ; then
+        echo ""
+        echo "========================================"
+        echo "Connecting pt::atcp..."
+        echo "========================================"
+        ./sendSimpleCmdToApp ${app_host[$appcount]} ${app_port[$appcount]} ${app_name[$appcount]} 0 Configure
+        ./sendSimpleCmdToApp ${app_host[$appcount]} ${app_port[$appcount]} ${app_name[$appcount]} 0 Enable
+    fi
+done
+
 # if we're running the playback system, we need to send commands to the playback FUEP,
 # and we should skip sending commands to the SMProxyServer.  So, we'll replace the
 # SMPS in the application maps.
@@ -41,11 +48,10 @@ fi
 
 if [[ $command == "Configure" || 
       $command == "Enable" ]] ; then
-    sequence="$( seq $firstAppToStart $(($SMDEV_FU_PROCESS_COUNT+6)) ) 15"
+    sequence="$( seq 3 $(($SMDEV_FU_PROCESS_COUNT+6)) ) 15"
 elif [[ $command == "Halt" ||
         $command == "Stop" ]] ; then
-    #Note: ptatcp cannot be stopped...
-    sequence="$( seq 5 $(($SMDEV_FU_PROCESS_COUNT+6)) ) 15 3 4"
+    sequence="5 $( seq 7 $(($SMDEV_FU_PROCESS_COUNT+6)) ) 6 4 3 15"
 else
     echo "Unknown state machine command: $command"
     exit 1
