@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.4 2010/04/16 18:37:18 amraktad Exp $
+// $Id: FWRPZView.h,v 1.5 2010/05/03 15:47:37 amraktad Exp $
 //
 
 // system include files
@@ -80,8 +80,8 @@ private:
    FWBoolParameter    m_compressMuon;
    FWDoubleParameter  m_caloFixedScale;
    FWBoolParameter    m_caloAutoScale;
- // FWBoolParameter*   m_showHF;
- // FWBoolParameter*   m_showEndcaps;
+   FWBoolParameter*   m_showHF;
+   FWBoolParameter*   m_showEndcaps;
 
 };
 

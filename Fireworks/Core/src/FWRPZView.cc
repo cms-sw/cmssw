@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.7 2010/04/27 13:36:33 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.8 2010/05/03 15:47:38 amraktad Exp $
 //
 
 // system include files
@@ -55,9 +55,9 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_showProjectionAxes(this,"Show projection axes", false),
    m_compressMuon(this,"Compress detector",false),
    m_caloFixedScale(this,"Calo scale (GeV/meter)",2.,0.01,100.),
-   m_caloAutoScale(this,"Calo auto scale",false)
-  // m_showHF(0),
-  // m_showEndcaps(0)
+   m_caloAutoScale(this,"Calo auto scale",false),
+   m_showHF(0),
+   m_showEndcaps(0)
 {
    TEveProjection::EPType_e projType = (id == FWViewType::kRhoZ) ? TEveProjection::kPT_RhoZ : TEveProjection::kPT_RPhi;
 
@@ -82,14 +82,14 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_axes.reset(new TEveProjectionAxes(m_projMgr.get()));
    m_showProjectionAxes.changed_.connect(boost::bind(&FWRPZView::showProjectionAxes,this));
    eventScene()->AddElement(m_axes.get());
-   /*
+
    if ( id == FWViewType::kRhoPhi ) {
       m_showEndcaps = new FWBoolParameter(this,"Show calo endcaps", true);
       m_showEndcaps->changed_.connect(  boost::bind(&FWRPZView::updateCaloParameters, this) );
       m_showHF = new FWBoolParameter(this,"Show HF", true);
       m_showHF->changed_.connect(  boost::bind(&FWRPZView::updateCaloParameters, this) );
    }
-    */
+
    m_caloDistortion.changed_.connect(boost::bind(&FWRPZView::doDistortion,this));
    m_muonDistortion.changed_.connect(boost::bind(&FWRPZView::doDistortion,this));
    m_compressMuon.changed_.connect(boost::bind(&FWRPZView::doCompression,this,_1));
@@ -177,12 +177,11 @@ FWRPZView::setFrom(const FWConfiguration& iFrom)
 void
 FWRPZView::updateCaloParameters()
 {
-   /*
    double eta_range = 5.191;
    if ( m_showHF && !m_showHF->value() ) eta_range = 3.0;
    if ( m_showEndcaps && !m_showEndcaps->value() ) eta_range = 1.479;
    m_calo->SetEta(-eta_range,eta_range);
-   */
+
    m_calo->SetMaxValAbs( 150/m_caloFixedScale.value() );
    m_calo->SetScaleAbs( !m_caloAutoScale.value() );
    m_calo->ElementChanged();
