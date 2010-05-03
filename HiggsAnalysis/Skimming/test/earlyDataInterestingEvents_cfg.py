@@ -8,6 +8,12 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 ### Load cff file
 process.load("HiggsAnalysis.Skimming.earlyDataInterestingEvents_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.GeometryExtended_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "GR10_E_V4::All"  
+
 
 ### Define source and max events 
 ## -------------------------------
