@@ -83,10 +83,11 @@ void  RPCDqmClient::beginRun(const Run& r, const EventSetup& c){
   ESHandle<RPCGeometry> rpcGeo;
   c.get<MuonGeometryRecord>().get(rpcGeo);
  
+
+  numLumBlock_ = prescaleGlobalFactor_ ;
+
   dbe_->setCurrentFolder(prefixDir_);
 
-
- 
   //loop on all geometry and get all histos
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
     if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
@@ -141,22 +142,24 @@ void RPCDqmClient::analyze(const Event& iEvent, const EventSetup& iSetup)
 
 void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c){
 
+  if (!enableDQMClients_ )  return;
+
   edm::LogVerbatim ("rpcdqmclient") <<"[RPCDqmClient]: End of LS ";
  
   MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
   float   rpcevents = RPCEvents -> getEntries();
   
-  if(!init_ && rpcevents < minimumEvents_) return;
-  else if(!init_) {
-    init_=true;
-    numLumBlock_ = prescaleGlobalFactor_;
-  }else numLumBlock_++;
-   
-  if (!enableDQMClients_ || numLumBlock_ % prescaleGlobalFactor_ != 0 ) return;
-  
-  
+  if(rpcevents < minimumEvents_) return;
+
+  if (numLumBlock_ % prescaleGlobalFactor_ != 0 ){
+    numLumBlock_++;
+    return;
+  }
+
   for (vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
     (*it)->endLuminosityBlock( lumiSeg, c);
+
+  numLumBlock_++;
 }
 
 
