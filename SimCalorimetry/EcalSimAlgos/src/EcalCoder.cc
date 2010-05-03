@@ -160,8 +160,8 @@ EcalCoder::encode( const CaloSamples& caloSamples ,
       {
 	 ++igain ;
 
-	 if( igain != gainId ) std::cout <<"$$$$ Gain switch from " << gainId
-					 <<" to "<< igain << std::endl ;
+//	 if( igain != gainId ) std::cout <<"$$$$ Gain switch from " << gainId
+//					 <<" to "<< igain << std::endl ;
 
 	 if( 1 != igain                    &&   // not high gain
 	     m_addNoise                    &&   // want to add noise
@@ -170,7 +170,7 @@ EcalCoder::encode( const CaloSamples& caloSamples ,
 	 {
 	    noisy[igain-1]->noisify( noiseframe[igain-1] ,
 				     &noisy[0]->vecgau()   ) ;
-	    std::cout<<"....noisifying gain level = "<<igain<<std::endl ;
+//	    std::cout<<"....noisifying gain level = "<<igain<<std::endl ;
 	 }
 	
 	 // noiseframe filled with zeros if !m_addNoise
