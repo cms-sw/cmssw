@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_0/GRun/V7 (CMSSW_3_6_0_HLT3)
+# /dev/CMSSW_3_6_0/GRun/V8 (CMSSW_3_6_0_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/GRun/V7')
+  tableName = cms.string('/dev/CMSSW_3_6_0/GRun/V8')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -16,6 +16,8 @@ process.streams = cms.PSet(
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   DQM = cms.vstring(  ),
   HLTDQM = cms.vstring(  ),
+  EventDisplay = cms.vstring(  ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'Mu',
     'JetMETTau',
     'Cosmics',
@@ -28,8 +30,6 @@ process.streams = cms.PSet(
     'JetMETTauMonitor',
     'MuMonitor',
     'RandomTriggers' ),
-  EventDisplay = cms.vstring(  ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   Offline = cms.vstring(  ),
@@ -168,7 +168,16 @@ process.datasets = cms.PSet(
     'HLT_HT100U',
     'HLT_MET100',
     'HLT_MET45',
+    'HLT_L1_BptxXOR_BscMinBiasOR',
     'HLT_PixelTracks_Multiplicity70' ),
+  ExpressPhysics = cms.vstring( 'HLT_Jet50U',
+    'HLT_L1DoubleMuOpen',
+    'HLT_L1Mu',
+    'HLT_L1MuOpen_BPTX',
+    'HLT_L1Tech_HCAL_HF_coincidence_PM',
+    'HLT_MET100',
+    'HLT_MinBiasBSC_BPTX',
+    'HLT_ZeroBias' ),
   Mu = cms.vstring( 'HLT_L1Mu14_L1ETM30',
     'HLT_L1Mu14_L1SingleJet6U',
     'HLT_L1Mu14_L1SingleEG10',
@@ -277,6 +286,7 @@ process.datasets = cms.PSet(
     'HLT_PixelTracks_Multiplicity40',
     'HLT_L1Tech_BSC_halo_forPhysicsBackground',
     'HLT_L1_BscMinBiasOR_BeamGas',
+    'HLT_L1_BptxXOR_BscMinBiasOR',
     'HLT_PixelTracks_Multiplicity70' ),
   HcalHPDNoise = cms.vstring( 'HLT_TechTrigHCALNoise',
     'HLT_GlobalRunHPDNoise' ),
@@ -300,14 +310,6 @@ process.datasets = cms.PSet(
   MuMonitor = cms.vstring( 'HLT_L1Mu',
     'HLT_L1MuOpen_BPTX' ),
   RandomTriggers = cms.vstring( 'HLT_Random' ),
-  ExpressPhysics = cms.vstring( 'HLT_Jet50U',
-    'HLT_L1DoubleMuOpen',
-    'HLT_L1Mu',
-    'HLT_L1MuOpen_BPTX',
-    'HLT_L1Tech_HCAL_HF_coincidence_PM',
-    'HLT_MET100',
-    'HLT_MinBiasBSC_BPTX',
-    'HLT_ZeroBias' ),
   LogMonitor = cms.vstring( 'HLT_LogMonitor' ),
   FEDMonitor = cms.vstring( 'HLT_DTErrors' ),
   TestEnables = cms.vstring( 'HLT_Calibration' ),
@@ -8254,6 +8256,18 @@ process.hltL1sBeamGas = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
 process.hltPreBeamGas = cms.EDFilter( "HLTPrescaler" )
+process.hltL1sL1BptxXORBscMinBiasOR = cms.EDFilter( "HLTLevel1GTSeed",
+    L1UseL1TriggerObjectMaps = cms.bool( True ),
+    L1NrBxInEvent = cms.int32( 5 ),
+    L1TechTriggerSeeding = cms.bool( False ),
+    L1UseAliasesForSeeding = cms.bool( True ),
+    L1SeedsLogicalExpression = cms.string( "L1_BptxXOR_BscMinBiasOR" ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
+    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
+    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
+)
+process.hltPreL1BptxXORBscMinBiasOR = cms.EDFilter( "HLTPrescaler" )
 process.hltL1sL1TechBSChalo = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1NrBxInEvent = cms.int32( 5 ),
@@ -10117,6 +10131,7 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_L1Tech_BSC_halo_forPhysicsBackground',
   'HLT_L2Mu5',
   'HLT_L1_BscMinBiasOR_BeamGas',
+  'HLT_L1_BptxXOR_BscMinBiasOR',
   'HLT_PixelTracks_Multiplicity70' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
@@ -10260,6 +10275,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_L1_BPTX_PlusOnly',
   'HLT_L1Tech_BSC_halo',
   'HLT_L1_BscMinBiasOR_BptxPlusORMinus',
+  'HLT_L1_BptxXOR_BscMinBiasOR',
   'HLT_PixelTracks_Multiplicity70',
   'HLT_L1_HFtech',
   'HLT_L2Mu0_NoVertex',
@@ -10498,6 +10514,7 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_L1_HFtech',
   'HLT_L2Mu0_NoVertex',
   'HLT_L2Mu11',
+  'HLT_L1_BptxXOR_BscMinBiasOR',
   'HLT_PixelTracks_Multiplicity70' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep edmTriggerResults_*_*_*',
@@ -10712,6 +10729,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_HT100U',
   'HLT_MET100',
   'HLT_MET45',
+  'HLT_L1_BptxXOR_BscMinBiasOR',
   'HLT_PixelTracks_Multiplicity70' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
@@ -11014,6 +11032,7 @@ process.HLT_HighMultiplicityBSC = cms.Path( process.HLTBeginSequenceBPTX + proce
 process.HLT_SplashBSC = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sSplashBSC + process.hltPreSplashBSC + process.HLTEndSequence )
 process.HLT_L1_BscMinBiasOR_BptxPlusORMinus = cms.Path( process.HLTBeginSequence + process.hltL1sL1BscMinBiasORBptxPlusORMinus + process.hltPreL1BscMinBiasORBptxPlusORMinus + process.HLTEndSequence )
 process.HLT_L1_BscMinBiasOR_BeamGas = cms.Path( process.HLTBeginSequence + process.hltL1sBeamGas + process.hltPreBeamGas + process.HLTEndSequence )
+process.HLT_L1_BptxXOR_BscMinBiasOR = cms.Path( process.HLTBeginSequence + process.hltL1sL1BptxXORBscMinBiasOR + process.hltPreL1BptxXORBscMinBiasOR + process.HLTEndSequence )
 process.HLT_L1Tech_BSC_halo = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1TechBSChalo + process.hltPreL1TechBSChalo + process.HLTEndSequence )
 process.HLT_L1Tech_BSC_halo_forPhysicsBackground = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1TechBSChalo + process.hltPreL1TechBSChalo_forPhysicsBackground + process.HLTEndSequence )
 process.HLT_L1Tech_RPC_TTU_RBst1_collisions = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1TechRPCTTURBst1collisions + process.hltPreL1TechRPCTTURBst1collisions + process.HLTEndSequence )

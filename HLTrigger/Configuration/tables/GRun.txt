@@ -129,6 +129,7 @@ HLT_TechTrigHCALNoise
 HLT_L1_BPTX
 HLT_L1_BPTX_MinusOnly
 HLT_L1_BPTX_PlusOnly
+HLT_L1_BptxXOR_BscMinBiasOR
 HLT_L1_BscMinBiasOR_BptxPlusORMinus
 HLT_L1_BscMinBiasOR_BeamGas
 HLT_L1_HFtech
