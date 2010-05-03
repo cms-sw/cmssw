@@ -1,87 +1,66 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.6 2010/04/23 17:01:19 yana Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.7 2010/04/23 21:02:00 amraktad Exp $
 //
 
-// system include files
-#include "TEveManager.h"
 #include "TEveCompound.h"
 #include "TEveGeoNode.h"
 #include "TEveStraightLineSet.h"
 
-// user include files
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
-class FWSiStripClusterProxyBuilder : public FWProxyBuilderBase
+class FWSiStripClusterProxyBuilder : public FWSimpleProxyBuilderTemplate<SiStripCluster>
 {
 public:
    FWSiStripClusterProxyBuilder() {}
-  
    virtual ~FWSiStripClusterProxyBuilder() {}
 
    REGISTER_PROXYBUILDER_METHODS();
+
 private:
-   virtual void build( const FWEventItem* iItem, TEveElementList* product);
+   FWSiStripClusterProxyBuilder(const FWSiStripClusterProxyBuilder&);
+   const FWSiStripClusterProxyBuilder& operator=(const FWSiStripClusterProxyBuilder&);              
   
-   FWSiStripClusterProxyBuilder( const FWSiStripClusterProxyBuilder& );    // stop default
-   const FWSiStripClusterProxyBuilder& operator=( const FWSiStripClusterProxyBuilder& );    // stop default
-   void modelChanges( const FWModelIds& iIds, TEveElement* iElements, FWViewType::EType);
-   void applyChangesToAllModels( TEveElement* iElements, FWViewType::EType);
+  void build(const SiStripCluster& iData, unsigned int iIndex, TEveElement& oItemHolder);
 };
 
 void
-FWSiStripClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product )
-{
-   const edmNew::DetSetVector<SiStripCluster>* clusters = 0;
-   iItem->get( clusters );
-   if( 0 == clusters ) return;
-   
-   for( edmNew::DetSetVector<SiStripCluster>::const_iterator set = clusters->begin(), setEnd = clusters->end();
-       set != setEnd; ++set) {
-      unsigned int id = set->detId();
-      TEveCompound* compound = createCompound();
-      if( iItem->getGeom() ) {
-	TEveGeoShape* shape = iItem->getGeom()->getShape( id );
-	if( 0 != shape ) {
-            shape->SetMainTransparency( 75 );
-	    setupAddElement( shape, compound );
-         }
-      }
-      TEveStraightLineSet *scposition = new TEveStraightLineSet( "strip" );
-      for( edmNew::DetSet<SiStripCluster>::const_iterator ic = set->begin (), icEnd = set->end (); ic != icEnd; ++ic ) { 
-	 double bc = (*ic).barycenter();
-	 TVector3 point;
-	 TVector3 pointA;
-	 TVector3 pointB;
-	 fireworks::localSiStrip( point, pointA, pointB, bc, id, iItem );
-	 scposition->AddLine( pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z() );
-	 scposition->SetLineColor( kRed );
-      }
-      product->AddElement( scposition );
-      setupAddElement( compound, product );
-   }
-}
-
-void
-FWSiStripClusterProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements, FWViewType::EType vt)
-{
-   applyChangesToAllModels(iElements, vt);
-}
+FWSiStripClusterProxyBuilder::build(const SiStripCluster& iData,           
+                                    unsigned int iIndex, TEveElement& oItemHolder)
+{  
+  DetId detid(iData.geographicalId());
  
-void
-FWSiStripClusterProxyBuilder::applyChangesToAllModels(TEveElement* iElements, FWViewType::EType )
-{
-   if(0!=iElements && item() && item()->size()) {
-     //make the bad assumption that everything is being changed indentically
-     const FWEventItem::ModelInfo info(item()->defaultDisplayProperties(),false);
-   }
+  TEveGeoShape* shape = item()->getGeom()->getShape(detid);
+  
+  if ( shape ) 
+  {
+    shape->SetMainTransparency(75);  // FIXME: Magic number
+    setupAddElement(shape, &oItemHolder);
+  }
+
+
+  TEveStraightLineSet *scposition = new TEveStraightLineSet( "strip" );
+  
+  double bc = iData.barycenter();
+
+  TVector3 point;
+  TVector3 pointA;
+  TVector3 pointB;
+
+  fireworks::localSiStrip(point, pointA, pointB, bc, detid, item());
+
+  scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), 
+                      pointB.X(), pointB.Y(), pointB.Z() );
+  
+  scposition->SetLineColor(kRed);
+
+  setupAddElement(scposition, &oItemHolder);
 }
 
-REGISTER_FWPROXYBUILDER( FWSiStripClusterProxyBuilder, edmNew::DetSetVector<SiStripCluster>, "SiStripCluster", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+
+REGISTER_FWPROXYBUILDER( FWSiStripClusterProxyBuilder, SiStripCluster, "SiStripCluster", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

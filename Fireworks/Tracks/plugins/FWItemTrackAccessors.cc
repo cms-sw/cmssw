@@ -7,7 +7,7 @@
 //
 // Original Author:  Tom McCauley
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemTrackAccessors.cc,v 1.4 2010/04/29 10:03:52 eulisse Exp $
+// $Id: FWItemTrackAccessors.cc,v 1.5 2010/04/29 13:06:01 mccauley Exp $
 //
 
 #include <assert.h>
@@ -26,5 +26,5 @@
 REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemDetSetAccessor<edm::DetSetVector<SiStripDigi> >,edm::DetSetVector<SiStripDigi>, "SiStripDigiCollectionAccessor" );
 REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemDetSetAccessor<edm::DetSetVector<PixelDigi> >, edm::DetSetVector<PixelDigi>, "SiPixelDigiCollectionAccessor" );
 REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemNewDetSetAccessor<edmNew::DetSetVector<SiStripCluster> >, edmNew::DetSetVector<SiStripCluster>, "SiStripClusterCollectionNewAccessor" );
-REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemNewDetSetAccessor<edmNew::DetSetVector<SiPixelCluster> >, edmNew::DetSetVector<SiPixelCluster>, "SiPixelClusterCollectionNewAccessor" );
+//REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemNewDetSetAccessor<edmNew::DetSetVector<SiPixelCluster> >, edmNew::DetSetVector<SiPixelCluster>, "SiPixelClusterCollectionNewAccessor" );
 
