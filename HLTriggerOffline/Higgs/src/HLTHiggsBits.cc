@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/11 00:12:23 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/02/16 22:33:13 $
+ *  $Revision: 1.5 $
  *
  *  \author Mika Huhtinen
  *
@@ -85,10 +85,10 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
  // cout << "Analyzing Higgs channel number " << n_channel_ << endl;
 
   // open the histogram file
-  m_file=0; // set to null
-  m_file=new TFile((histName+".root").c_str(),"RECREATE");
-  m_file->cd();
-  outfile.open((histName+".output").c_str());
+ // m_file=0; // set to null
+ // m_file=new TFile((histName+".root").c_str(),"RECREATE");
+ // m_file->cd();
+ // outfile.open((histName+".output").c_str());
 
 
   // Initialize the tree
@@ -693,10 +693,10 @@ HLTHiggsBits::endJob()
 
 
 
-  HltTree->Fill();
-  m_file->cd(); 
-  HltTree->Write();
-  delete HltTree;
+ // HltTree->Fill();
+ // m_file->cd(); 
+ // HltTree->Write();
+ // delete HltTree;
   
  if(outputMEsInRootFile){
     dbe->showDirStructure();
@@ -704,13 +704,13 @@ HLTHiggsBits::endJob()
   }
 
   
-  HltTree = 0;
+ // HltTree = 0;
 
-  if (m_file!=0) { // if there was a tree file...
-    m_file->Write(); // write out the branches
-    delete m_file; // close and delete the file
-    m_file=0; // set to zero to clean up
-  }
+//  if (m_file!=0) { // if there was a tree file...
+ //   m_file->Write(); // write out the branches
+ //   delete m_file; // close and delete the file
+ //   m_file=0; // set to zero to clean up
+ // }
 
 
   return;
