@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/04/29 14:35:14 $
-//  $Revision: 1.78 $
+//  $Date: 2010/05/03 09:50:52 $
+//  $Revision: 1.79 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -126,6 +126,8 @@
 #include "TMinuit.h"
 #include <vector>
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+
 // To use callgrind for code profiling uncomment also the following define.
 // #define USE_CALLGRIND
 
@@ -233,6 +235,9 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) : MuScleFitBase( pset ), t
   // Option to skip simTracks comparison
   compareToSimTracks_ = pset.getParameter<bool>("compareToSimTracks");
   simTracksCollection_ = pset.getUntrackedParameter<edm::InputTag>("SimTracksCollection", edm::InputTag("g4SimHits"));
+
+  triggerResultsLabel_ = pset.getUntrackedParameter<edm::InputTag>("TriggerResultsLabel", edm::InputTag("HLT"));
+  negateTrigger_ = pset.getUntrackedParameter<bool>("NegateTrigger", false);
 
   PATmuons_ = pset.getUntrackedParameter<bool>("PATmuons", false);
   genParticlesName_ = pset.getUntrackedParameter<std::string>("GenParticlesName", "genParticles");
@@ -495,6 +500,11 @@ void MuScleFit::endOfFastLoop( const unsigned int iLoop )
 // -----------------------
 edm::EDLooper::Status MuScleFit::duringLoop( const edm::Event & event, const edm::EventSetup& eventSetup )
 {
+  edm::Handle<edm::TriggerResults> triggerResults;
+  event.getByLabel(triggerResultsLabel_, triggerResults);
+  if( negateTrigger_ && (triggerResults->accept(0)) ) return kContinue;
+  else if( !(negateTrigger_) && !(triggerResults->accept(0)) ) return kContinue;
+
 #ifdef USE_CALLGRIND
   CALLGRIND_START_INSTRUMENTATION;
 #endif

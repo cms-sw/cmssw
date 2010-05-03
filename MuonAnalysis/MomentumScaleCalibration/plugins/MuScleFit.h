@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2010/03/29 18:15:57 $
- *  $Revision: 1.30 $
+ *  $Date: 2010/04/29 14:35:16 $
+ *  $Revision: 1.31 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -158,6 +158,9 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   std::string outputRootTreeFileName_;
   // Maximum number of events from root tree. It works in the same way as the maxEvents to configure a input source.
   int maxEventsFromRootTree_;
+
+  edm::InputTag triggerResultsLabel_;
+  bool negateTrigger_;
 };
 
 template<typename T>
