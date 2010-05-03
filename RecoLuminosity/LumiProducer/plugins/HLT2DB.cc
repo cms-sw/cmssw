@@ -74,7 +74,7 @@ namespace lumi{
     srcsession->transaction().start(true);
     coral::ISchema& hltSchemaHandle=srcsession->schema(hltschema);
     if( !hltSchemaHandle.existsTable(tabname) || !hltSchemaHandle.existsTable(maptabname) ){
-      throw lumi::Exception("missing hlt tables" ,"retrieveData","HLTConf2DB");
+      throw lumi::Exception("missing hlt tables" ,"retrieveData","HLT2DB");
     }
     std::vector< std::vector<HLT2DB::hltinfo> > hltresult;
     coral::AttributeList bindVariableList;
