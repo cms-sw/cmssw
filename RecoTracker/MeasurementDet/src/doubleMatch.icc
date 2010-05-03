@@ -63,9 +63,10 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   const GeomDetUnit* stripdet = specificGeomDet().monoDet();
   const GeomDetUnit* partnerstripdet = specificGeomDet().stereoDet();
   const StripTopology& topol=(const StripTopology&)stripdet->topology();
+  const StripTopology& partnertopol=(const StripTopology&)partnerstripdet->topology();
 
 
-  std::vector<SteroInfo> cache;
+  std::vector<StereoInfo> cache;
   cache.reserve(simpleSteroHitsByValue.size());
   //iterate on stereo rechits
   // fill cache with relevant info
@@ -113,7 +114,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
     Vec2D c1vec; c1vec.set1(m11*ret1.arr[1] + m10 * ret1.arr[0]);
 
       // store
-    StereoInfo info = {&secondHit,sigmap22,m10,m11,c1vec};
+    StereoInfo info = {c1vec,&secondHit,sigmap22,m10,m11};
     cache.push_back(info);
   }
 
@@ -163,8 +164,6 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 
     // ret1o = ret1o + (trdir * (ret1o.getSimd(2) / trdirz));
     // ret2o = ret2o + (trdir * (ret2o.getSimd(2) / trdirz));
-    
-    const StripTopology& partnertopol=(const StripTopology&)partnerstripdet->topology();
     
     double m00 = -(projend.arr[1] - projini.arr[1]);//-(projectedstripmono.second.y()-projectedstripmono.first.y()); 
     double m01 =  (projend.arr[0] - projini.arr[0]); // (projectedstripmono.second.x()-projectedstripmono.first.x());
