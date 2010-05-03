@@ -17,7 +17,7 @@ class MuScleFitBase
 {
 public:
   MuScleFitBase(const edm::ParameterSet& iConfig) :
-    probabilitiesFileInPath_( iConfig.getUntrackedParameter<std::string>( "ProbabilitiesFileInPath" , "MuonAnalysis/MomentumScaleCalibration/test/Probs_JPsiFSR.root" ) ),
+    probabilitiesFileInPath_( iConfig.getUntrackedParameter<std::string>( "ProbabilitiesFileInPath" , "MuonAnalysis/MomentumScaleCalibration/test/Probs_new_Horace_CTEQ_1000.root" ) ),
     probabilitiesFile_( iConfig.getUntrackedParameter<std::string>( "ProbabilitiesFile" , "" ) ),
     theMuonType_( iConfig.getParameter<int>( "MuonType" ) ),
     theMuonLabel_( iConfig.getParameter<edm::InputTag>( "MuonLabel" ) ),
