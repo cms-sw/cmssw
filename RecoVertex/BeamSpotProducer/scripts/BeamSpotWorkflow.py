@@ -74,6 +74,8 @@ def getLastUploadedIOV(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEA
     output = commands.getstatusoutput( aCommand )
     if output[1] == '' :
         dbError = commands.getstatusoutput( listIOVCommand )
+        if dbError[1].find("metadata entry \"" + tagName + "\" does not exist"):
+            return 133928
         exit("ERROR: Can\'t connect to db because:\n" + dbError[1])
     #WARNING when we pass to lumi IOV this should be long long
     return long(output[1])
@@ -238,7 +240,7 @@ if __name__ == '__main__':
         destDB = 'oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT'
 
     ######### CONFIGURATION FILE ################
-    configurationFile = 'BeamSpotWorkflow.cfg'
+    configurationFile = "/afs/cern.ch/user/u/uplegger/scratch0/CMSSW/CMSSW_3_5_7/src/RecoVertex/BeamSpotProducer/scripts/BeamSpotWorkflow.cfg"
     configuration     = ConfigParser.ConfigParser()
     print 'Reading configuration from ', configurationFile
     configuration.read(configurationFile)
@@ -272,8 +274,8 @@ if __name__ == '__main__':
         os.system("rm -f "+ workingDir + "*") 
 
 
-#    lastUploadedIOV = getLastUploadedIOV(databaseTag,destDB) 
-    lastUploadedIOV = 133885
+    lastUploadedIOV = getLastUploadedIOV(databaseTag,destDB) 
+#    lastUploadedIOV = 133885
 
     ######### Get list of files processed after the last IOV  
     newProcessedRunList      = getNewRunList(sourceDir,lastUploadedIOV)
@@ -399,5 +401,5 @@ if __name__ == '__main__':
         if option.Test:
             dropbox = "/DropBox_test"
         print "UPLOADING TO TEST DB"
-#        uploadSqliteFile(archiveDir + "payloads/",final_sqlite_file_name,dropbox)
+        uploadSqliteFile(archiveDir + "payloads/",final_sqlite_file_name,dropbox)
                    
