@@ -110,6 +110,22 @@ public:
      return iChamberType( station(), ring() );
    }
 
+   /**
+    * Geometric channel no. from geometric strip no. - identical except for ME1a ganged strips
+    *
+    * Note that 'Geometric' means increasing number corresponds to increasing local x coordinate. 
+    * \warning There is no attempt here to handle cabling or readout questions. 
+    * If you need that look at CondFormats/CSCObjects/CSCChannelTranslator.
+    */
+   int channel( int istrip ) { 
+     if ( ring()== 4 ) 
+       // strips 1-48 mapped to channels 1-16:
+       // 1+17+33->1, 2+18+34->2, .... 16+32+48->16
+       return 1 + (istrip-1)%16; 
+     else 
+       return istrip; 
+   }
+
   // static methods
   // Used when we need information about subdetector labels.
 
