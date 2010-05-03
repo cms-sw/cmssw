@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1EtMissParticleProxyBuilder.cc,v 1.3 2010/04/20 20:49:40 amraktad Exp $
+// $Id: FWL1EtMissParticleProxyBuilder.cc,v 1.4 2010/04/21 15:38:20 yana Exp $
 //
 
 // system include files
@@ -33,11 +33,11 @@ private:
    FWL1EtMissParticleProxyBuilder(const FWL1EtMissParticleProxyBuilder&);    // stop default
    const FWL1EtMissParticleProxyBuilder& operator=(const FWL1EtMissParticleProxyBuilder&);    // stop default
   
-   virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWL1EtMissParticleProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+FWL1EtMissParticleProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    double scale = 10;
    float r_ecal = fireworks::Context::s_ecalR;
@@ -77,11 +77,11 @@ private:
    FWL1EtMissParticleGlimpseProxyBuilder(const FWL1EtMissParticleGlimpseProxyBuilder&);    // stop default
    const FWL1EtMissParticleGlimpseProxyBuilder& operator=(const FWL1EtMissParticleGlimpseProxyBuilder&);    // stop default
   
-   virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWL1EtMissParticleGlimpseProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+FWL1EtMissParticleGlimpseProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    char title[1024];
    sprintf( title, "L1 MET: %0.1f GeV", iData.et() );
@@ -115,11 +115,11 @@ private:
    FWL1EtMissParticleLegoProxyBuilder(const FWL1EtMissParticleLegoProxyBuilder&);    // stop default
    const FWL1EtMissParticleLegoProxyBuilder& operator=(const FWL1EtMissParticleLegoProxyBuilder&);    // stop default
   
-   virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWL1EtMissParticleLegoProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+FWL1EtMissParticleLegoProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    char title[1024];
    sprintf(title, "L1 MET: %0.1f GeV", iData.et());

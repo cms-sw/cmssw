@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.9 2010/04/23 21:02:00 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.10 2010/04/27 18:08:28 amraktad Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWInteractionList.h"
-
+#include "Fireworks/Core/interface/FWViewContext.h"
 
 //
 // constants, enums and typedefs
@@ -38,6 +38,23 @@
 //
 // constructors and destructor
 //
+
+
+FWProxyBuilderBase::Product::Product(FWViewType::EType t, const FWViewContext* c) : m_viewType(t), m_viewContext(c), m_elements(0)
+{
+   m_elements = new TEveElementList("ProxyProduct");
+   m_elements->IncDenyDestroy();
+}
+
+
+FWProxyBuilderBase::Product::~Product()
+{
+   m_elements->DestroyElements();
+   m_elements->DecDenyDestroy();
+}
+
+//______________________________________________________________________________
+
 FWProxyBuilderBase::FWProxyBuilderBase():
    m_interactionList(0),
    m_item(0),
@@ -107,11 +124,11 @@ FWProxyBuilderBase::build()
 
          if (haveSingleProduct())
          {
-            build(m_item, elms);
+            build(m_item, elms, (*i)->m_viewContext);
          }
          else
          {
-            buildViewType(m_item, elms, (*i)->m_viewType);
+            buildViewType(m_item, elms, (*i)->m_viewType, (*i)->m_viewContext);
          }
 
          // Project all children of current product.
@@ -137,23 +154,23 @@ void
 FWProxyBuilderBase::applyChangesToAllModels()
 {
    for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
-      applyChangesToAllModels((*i)->m_elements, (*i)->m_viewType);
+      applyChangesToAllModels(*i);
 
    m_modelsChanged=false;
 }
 
 void
-FWProxyBuilderBase::applyChangesToAllModels(TEveElement* elms, FWViewType::EType viewType)
+FWProxyBuilderBase::applyChangesToAllModels(Product* p)
 {
    FWModelIds ids(m_ids.begin(), m_ids.end());
-   modelChanges(ids, elms, viewType);
+   modelChanges(ids, p);
 }
 
 //______________________________________________________________________________
 void
-FWProxyBuilderBase::modelChanges(const FWModelIds& iIds,
-                                 TEveElement* elms, FWViewType::EType viewType)
+FWProxyBuilderBase::modelChanges(const FWModelIds& iIds, Product* p)
 {
+   TEveElementList* elms = p->m_elements;
    assert(m_item && static_cast<int>(m_item->size()) == elms->NumChildren() && "can not use default modelChanges implementation");
 
    TEveElement::List_i itElement = elms->BeginChildren();
@@ -169,7 +186,7 @@ FWProxyBuilderBase::modelChanges(const FWModelIds& iIds,
          ++index;
          assert(itElement != elms->EndChildren());
       }
-      if (specialModelChangeHandling(*it,*itElement, viewType))
+      if (specialModelChangeHandling(*it, *itElement, p->m_viewType, p->m_viewContext))
       {
          elms->ProjectChild(*itElement);
       }
@@ -182,7 +199,7 @@ FWProxyBuilderBase::modelChanges(const FWModelIds& iIds)
   if(m_haveWindow) {
     for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
     {
-       modelChanges(iIds, (*i)->m_elements, (*i)->m_viewType);
+       modelChanges(iIds, *i);
     }
     m_modelsChanged=false;
   } else {
@@ -218,25 +235,29 @@ FWProxyBuilderBase::canHandle(const FWEventItem& item)
 //______________________________________________________________________________
 
 TEveElementList*
-FWProxyBuilderBase::createProduct(const FWViewType::EType viewType, FWViewContext* viewContext)
+FWProxyBuilderBase::createProduct(const FWViewType::EType viewType, const FWViewContext* viewContext)
 {
-   if (haveSingleProduct() == false || m_products.empty())
+   if ( haveSingleProduct() && havePerViewProduct(viewType) == false && m_products.empty() == false)
    {
-      m_products.push_back(new Product(viewType, viewContext));
-
-      if (viewContext)
-      {
-         // TODO auto-scale  viewContext.scaleChanged_connect(boost::bind(&FWProxyBuilderBase::setScale, this))
-      }
-
-      if (item()) 
-      {
-         // debug info in eve browser       
-         m_products.back()->m_elements->SetElementName(item()->name().c_str());
-      }
+      // printf("reuse product \n");fflush(stdout);
+      return m_products.back()->m_elements;
    }
 
-   return m_products.back()->m_elements;
+   // printf("new product %s for item %s \n", FWViewType::idToName(viewType).c_str(), item()->name().c_str()); fflush(stdout);
+ 
+   Product* product = new Product(viewType, viewContext);
+   m_products.push_back(product);
+    if (viewContext)
+   {
+      viewContext->scaleChanged_.connect(boost::bind(&FWProxyBuilderBase::scaleChanged, this, _1));
+   }
+
+   if (item()) 
+   {
+      // debug info in eve browser       
+      product->m_elements->SetElementName(item()->name().c_str());
+   }
+   return product->m_elements;
 }
 
 //------------------------------------------------------------------------------
@@ -251,9 +272,22 @@ FWProxyBuilderBase::setInteractionList(FWInteractionList* l, const std::string& 
 
 
 bool
-FWProxyBuilderBase::specialModelChangeHandling(const FWModelId&, TEveElement*, FWViewType::EType)
+FWProxyBuilderBase::specialModelChangeHandling(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*)
 {
-  return false;
+   return false;
+}
+
+void
+FWProxyBuilderBase::scaleChanged(const FWViewContext* vc)
+{
+   for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
+   {  
+      if ( havePerViewProduct((*i)->m_viewType) && (*i)->m_viewContext == vc)
+      {
+         scaleProduct((*i)->m_elements, (*i)->m_viewType, (*i)->m_viewContext);
+      }
+   }
+   gEve->Redraw3D();
 }
 
 void
@@ -277,14 +311,14 @@ FWProxyBuilderBase::cleanLocal()
 
 
 void
-FWProxyBuilderBase::build(const FWEventItem*, TEveElementList*)
+FWProxyBuilderBase::build(const FWEventItem*, TEveElementList*, const FWViewContext*)
 {
    // TODO when design is complete this has to be abstract function
    assert(false && "Function used, but not implemented.");
 }
 
 void 
-FWProxyBuilderBase::buildViewType(const FWEventItem*, TEveElementList*, FWViewType::EType)
+FWProxyBuilderBase::buildViewType(const FWEventItem*, TEveElementList*, FWViewType::EType, const FWViewContext*)
 {
    // TODO when design is complete this has to be abstract function
    assert(false && "Function used, but not implemented.");

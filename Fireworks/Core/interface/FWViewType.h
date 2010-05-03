@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Mar 22 12:08:40 CET 2010
-// $Id: FWViewType.h,v 1.6 2010/04/16 11:28:03 amraktad Exp $
+// $Id: FWViewType.h,v 1.7 2010/04/20 19:35:19 chrjones Exp $
 //
 #include <string>
 
@@ -47,7 +47,8 @@ public:
    static  std::string  kGlimpseName;
    
    const static std::string& idToName(int);
-
+   static bool isProjected(int);
+   
    FWViewType(EType);
    virtual ~FWViewType();
 

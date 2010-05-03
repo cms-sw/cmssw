@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.13 2010/04/27 18:08:28 amraktad Exp $
+// $Id: FWElectronProxyBuilder.cc,v 1.14 2010/04/29 12:16:52 mccauley Exp $
 //
 #include "TEveCompound.h"
 #include "TEveTrack.h"
@@ -46,7 +46,7 @@ private:
    FWElectronProxyBuilder( const FWElectronProxyBuilder& ); // stop default
    const FWElectronProxyBuilder& operator=( const FWElectronProxyBuilder& ); // stop default
   
-   virtual void buildViewType(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type );
+   virtual void buildViewType(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
 
    TEveElementList* requestCommon();
 
@@ -97,7 +97,7 @@ FWElectronProxyBuilder::cleanLocal()
 }
 
 void
-FWElectronProxyBuilder::buildViewType(const reco::GsfElectron& electron, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type )
+FWElectronProxyBuilder::buildViewType(const reco::GsfElectron& electron, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*)
 {
    TEveElementList*   tracks = requestCommon();
    TEveElement::List_i trkIt = tracks->BeginChildren();
@@ -145,11 +145,11 @@ private:
 
    const FWElectronGlimpseProxyBuilder& operator=(const FWElectronGlimpseProxyBuilder&); // stop default
 
-   virtual void build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder);
+   virtual void build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 };
 
 void
-FWElectronGlimpseProxyBuilder::build( const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder ) 
+FWElectronGlimpseProxyBuilder::build( const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder , const FWViewContext*) 
 {
    FWEveScalableStraightLineSet* marker = new FWEveScalableStraightLineSet("", "");
    marker->SetLineWidth(2);

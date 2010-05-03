@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWDTRecHitProxyBuilder
 //
-// $Id: FWDTRecHitProxyBuilder.cc,v 1.5 2010/04/20 20:49:43 amraktad Exp $
+// $Id: FWDTRecHitProxyBuilder.cc,v 1.3 2010/04/22 13:15:24 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -29,12 +29,12 @@ private:
    FWDTRecHitProxyBuilder(const FWDTRecHitProxyBuilder&); 
    const FWDTRecHitProxyBuilder& operator=(const FWDTRecHitProxyBuilder&);
 
-  void build(const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder);
+  void build(const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 };
 
 void
 FWDTRecHitProxyBuilder::build(const DTRecHit1DPair& iData,           
-                              unsigned int iIndex, TEveElement& oItemHolder)
+                              unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*)
 {
   DTChamberId chamberId(iData.geographicalId());
 

@@ -8,17 +8,19 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.7 2010/04/21 15:38:20 yana Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.8 2010/04/22 13:05:49 yana Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
-#include "TEveStraightLineSet.h"
+#include "TEveScalableStraightLineSet.h"
+#include "TEveElement.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/FWViewContext.h"
 
 #include "Fireworks/Calo/interface/FW3DEveJet.h"
 #include "Fireworks/Calo/interface/FWGlimpseEveJet.h"
@@ -32,17 +34,17 @@ public:
    FWJetProxyBuilder() {}
    virtual ~FWJetProxyBuilder() {}
 
-  REGISTER_PROXYBUILDER_METHODS();
-
+   REGISTER_PROXYBUILDER_METHODS();
+   
 private:
    FWJetProxyBuilder( const FWJetProxyBuilder& ); // stop default
    const FWJetProxyBuilder& operator=( const FWJetProxyBuilder& ); // stop default
 
-   virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWJetProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+FWJetProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    FW3DEveJet* cone = new FW3DEveJet( iData, "jet" );
    cone->SetPickable( kTRUE );
@@ -50,25 +52,61 @@ FWJetProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveEleme
 
    setupAddElement( cone, &oItemHolder );
 }
+
 //------------------------------------------------------------------------------
 
-class FWJetRhoPhiProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Jet>
+class FWJetRPZProxyBuilderBase : public FWSimpleProxyBuilderTemplate<reco::Jet>
+{
+public:
+   FWJetRPZProxyBuilderBase() {}
+   virtual ~FWJetRPZProxyBuilderBase() {}
+
+   virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
+
+   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+
+private:
+   FWJetRPZProxyBuilderBase( const FWJetRPZProxyBuilderBase& ); // stop default
+   const FWJetRPZProxyBuilderBase& operator=( const FWJetRPZProxyBuilderBase& ); // stop default
+};
+
+void
+FWJetRPZProxyBuilderBase::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
+{
+   for (TEveElement::List_i i = parent->BeginChildren(); i!= parent->EndChildren(); ++i)
+   {
+      TEveElement* comp = (*i);
+      for (TEveElement::List_i j = comp->BeginChildren(); j!= comp->EndChildren(); ++j)
+      {
+         TEveScalableStraightLineSet* ls = dynamic_cast<TEveScalableStraightLineSet*> (*j);
+         if (ls ) 
+         {
+            ls->SetScale(vc->getEnergyScale());
+            TEveProjected* proj = *ls->BeginProjecteds();
+            proj->UpdateProjection();
+         }
+      }
+   }
+}
+
+//______________________________________________________________________________
+
+class FWJetRhoPhiProxyBuilder : public FWJetRPZProxyBuilderBase
 {
 public:
    FWJetRhoPhiProxyBuilder() {}
    virtual ~FWJetRhoPhiProxyBuilder() {}
-
-  REGISTER_PROXYBUILDER_METHODS();
+   REGISTER_PROXYBUILDER_METHODS();
 
 private:
    FWJetRhoPhiProxyBuilder( const FWJetRhoPhiProxyBuilder& ); // stop default
    const FWJetRhoPhiProxyBuilder& operator=( const FWJetRhoPhiProxyBuilder& ); // stop default
 
-   virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWJetRhoPhiProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+FWJetRhoPhiProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* vc) 
 {
    float ecalR = fireworks::Context::s_ecalR;
    double phi = iData.phi();
@@ -98,7 +136,7 @@ FWJetRhoPhiProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEv
    points[6] = points[0];
    points[7] = points[1];
    for( int i = 0; i<8; ++i ) {
-     points[i+8] = points[i];
+      points[i+8] = points[i];
    }
    
    TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur() );
@@ -107,18 +145,21 @@ FWJetRhoPhiProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEv
 					 item()->defaultDisplayProperties().color() );
    element->SetMainTransparency( 90 );
    setupAddElement( element, &oItemHolder );
-   
-   TEveStraightLineSet* marker = new TEveStraightLineSet( "energy" );
-   marker->SetLineWidth( 4 );
-   marker->AddLine( ecalR*cos(phi), ecalR*sin(phi), 0,
-		    (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
+
+   TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
+   marker->SetLineWidth(4);
+   marker->SetLineColor(  item()->defaultDisplayProperties().color() );
+
+   marker->SetScaleCenter( ecalR*cos(phi), ecalR*sin(phi), 0 );
+   marker->AddLine( ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
+   marker->SetScale(vc->getEnergyScale());
    setupAddElement( marker, &oItemHolder );
-}
+} 
 
 //______________________________________________________________________________
 
 
-class FWJetRhoZProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Jet>
+class FWJetRhoZProxyBuilder : public FWJetRPZProxyBuilderBase
 {
 public:
    FWJetRhoZProxyBuilder() {}
@@ -130,12 +171,12 @@ private:
    FWJetRhoZProxyBuilder( const FWJetRhoZProxyBuilder& ); // stop default
    const FWJetRhoZProxyBuilder& operator=( const FWJetRhoZProxyBuilder& ); // stop default
 
-   virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 
 void
-FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* vc) 
 {
    static const std::vector<std::pair<double,double> > thetaBins = fireworks::thetaBins();
 
@@ -159,12 +200,20 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
    double size = iData.et();
    double etaSize = sqrt( iData.etaetaMoment() );
    
-   TEveStraightLineSet* marker = new TEveStraightLineSet( "energy" );
+   
+
+   TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
    marker->SetLineWidth(4);
+   marker->SetLineColor(  item()->defaultDisplayProperties().color() );
+   marker->SetScaleCenter( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
+
    marker->AddLine( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
 		    0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
-   setupAddElement( marker, &oItemHolder );
+
    
+   marker->SetScale(vc->getEnergyScale());
+   setupAddElement( marker, &oItemHolder );
+
    double min_theta = 2*atan(exp(-( eta+etaSize )));
    double max_theta = 2*atan(exp(-( eta-etaSize )));
    Double_t points[16];
@@ -235,17 +284,19 @@ public:
    FWJetGlimpseProxyBuilder() {}
    virtual ~FWJetGlimpseProxyBuilder() {}
   
+   virtual bool havePerViewProduct() const { return true; }
+   
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
    FWJetGlimpseProxyBuilder( const FWJetGlimpseProxyBuilder& ); // stop default
    const FWJetGlimpseProxyBuilder& operator=( const FWJetGlimpseProxyBuilder& ); // stop default
 
-   virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWJetGlimpseProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+FWJetGlimpseProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    FWGlimpseEveJet* cone = new FWGlimpseEveJet( &iData, "jet" );
    cone->SetMainTransparency( 50 );
@@ -269,11 +320,11 @@ private:
    FWJetLegoProxyBuilder( const FWJetLegoProxyBuilder& ); // stop default
    const FWJetLegoProxyBuilder& operator=( const FWJetLegoProxyBuilder& ); // stop default
 
-   virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWJetLegoProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+FWJetLegoProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    TEveStraightLineSet* container = new TEveStraightLineSet( "circle" );
 

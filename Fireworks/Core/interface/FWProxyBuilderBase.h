@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:12 CET 2010
-// $Id: FWProxyBuilderBase.h,v 1.6 2010/04/20 20:49:41 amraktad Exp $
+// $Id: FWProxyBuilderBase.h,v 1.7 2010/04/23 21:01:59 amraktad Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 #include "Fireworks/Core/interface/FWProxyBuilderFactory.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
 #include "Fireworks/Core/interface/FWModelIdFromEveSelector.h"
+#include "Fireworks/Core/interface/FWViewContext.h"
 
 // forward declarations
 
@@ -36,7 +37,6 @@ class FWEventItem;
 class TEveElementList;
 class TEveElement;
 class FWModelId;
-class FWViewContext;
 class FWInteractionList;
 
 namespace fireworks {
@@ -46,6 +46,16 @@ namespace fireworks {
 class FWProxyBuilderBase
 {
 public:
+
+   struct Product
+   {
+      FWViewType::EType     m_viewType;
+      const FWViewContext*  m_viewContext;
+      TEveElementList*      m_elements;
+
+      Product(FWViewType::EType t, const FWViewContext* c);
+      ~Product();
+   };
 
    FWProxyBuilderBase();
    virtual ~FWProxyBuilderBase();
@@ -67,17 +77,18 @@ public:
 
    void modelChanges(const FWModelIds&);
    void itemChanged(const FWEventItem*);
+   void scaleChanged(const FWViewContext*);
 
    virtual bool canHandle(const FWEventItem&);//note pass FWEventItem to see if type and container match
 
-   virtual TEveElementList* createProduct(FWViewType::EType, FWViewContext*);
+   virtual TEveElementList* createProduct(FWViewType::EType, const FWViewContext*);
 
    virtual void setInteractionList(FWInteractionList*, const std::string&);
    virtual void itemBeingDestroyed(const FWEventItem*);
 
    // const member functions   
    virtual bool haveSingleProduct() const { return true; }
-   virtual bool havePerViewProduct() const { return false; }
+   virtual bool havePerViewProduct(FWViewType::EType) const { return false; }
    virtual bool willHandleInteraction() const { return false; }
    bool getHaveWindow() const { return m_haveWindow; }
    void setupElement(TEveElement* el, bool color = true) const;
@@ -86,42 +97,23 @@ public:
 
  
 protected:
-
-   struct Product
-   {
-      FWViewType::EType m_viewType;
-      FWViewContext*    m_viewContext;
-      TEveElementList*  m_elements;
-
-      Product(FWViewType::EType t, FWViewContext* c) : m_viewType(t), m_viewContext(c), m_elements(0)
-      {
-         m_elements = new TEveElementList("ProxyProduct");
-         m_elements->IncDenyDestroy();
-      }
-        
-      ~Product()
-      {
-         m_elements->DecDenyDestroy();
-         m_elements->DestroyElements();
-      }
-   };
-
-
    std::vector<FWModelIdFromEveSelector>& ids() {
       return m_ids;
    }
    
    //Override this if you need to special handle selection or other changes
-   virtual bool specialModelChangeHandling(const FWModelId&, TEveElement*, FWViewType::EType);
-   virtual void applyChangesToAllModels(TEveElement*, FWViewType::EType);
+   virtual bool specialModelChangeHandling(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*);
+   virtual void applyChangesToAllModels(Product*);
 
-   virtual void modelChanges(const FWModelIds&, TEveElement*, FWViewType::EType);
+   virtual void modelChanges(const FWModelIds&, Product*);
+
+   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) {};
 
    FWProxyBuilderBase(const FWProxyBuilderBase&); // stop default
    const FWProxyBuilderBase& operator=(const FWProxyBuilderBase&); // stop default
 
-   virtual void build(const FWEventItem* iItem, TEveElementList* product);
-   virtual void buildViewType(const FWEventItem* iItem,TEveElementList* product, FWViewType::EType);
+   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
+   virtual void buildViewType(const FWEventItem* iItem, TEveElementList*, FWViewType::EType, const FWViewContext*);
 
    void clean();
    virtual void cleanLocal();
@@ -129,7 +121,7 @@ protected:
    // utility
    TEveCompound* createCompound(bool set_color = true, bool propagate_color_to_all_children = true) const;
 
-   FWInteractionList*    m_interactionList;
+
 private:
    void applyChangesToAllModels();
    void cleanProduct(Product* p);
@@ -138,10 +130,12 @@ private:
    // ---------- member data --------------------------------
    typedef std::vector<Product*>::iterator Product_it;
 
+   FWInteractionList*    m_interactionList;
+   std::vector<Product*> m_products;
+
    const FWEventItem* m_item;
 
    std::vector<FWModelIdFromEveSelector> m_ids;
-   std::vector<Product*> m_products;
 
    bool m_modelsChanged;
    bool m_haveWindow;

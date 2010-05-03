@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1EmParticleProxyBuilder.cc,v 1.2 2010/04/20 20:49:40 amraktad Exp $
+// $Id: FWL1EmParticleProxyBuilder.cc,v 1.3 2010/04/21 15:38:20 yana Exp $
 //
 
 // system include files
@@ -32,11 +32,11 @@ private:
    FWL1EmParticleProxyBuilder(const FWL1EmParticleProxyBuilder&);    // stop default
    const FWL1EmParticleProxyBuilder& operator=(const FWL1EmParticleProxyBuilder&);    // stop default
   
-   virtual void build( const l1extra::L1EmParticle& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const l1extra::L1EmParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWL1EmParticleProxyBuilder::build( const l1extra::L1EmParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+FWL1EmParticleProxyBuilder::build( const l1extra::L1EmParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    double scale = 10;
    float r_ecal = fireworks::Context::s_ecalR;

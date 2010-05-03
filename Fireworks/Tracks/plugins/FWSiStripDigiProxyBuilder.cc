@@ -21,14 +21,14 @@ public:
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  virtual void build(const FWEventItem* iItem, TEveElementList* product);
+  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
   FWSiStripDigiProxyBuilder(const FWSiStripDigiProxyBuilder&);    
   const FWSiStripDigiProxyBuilder& operator=(const FWSiStripDigiProxyBuilder&);
    void modelChanges(const FWModelIds& iIds, TEveElement* iElements, int);
    void applyChangesToAllModels(TEveElement* iElements, int);
 };
 
-void FWSiStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product)
+void FWSiStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
    const edm::DetSetVector<SiStripDigi>* digis = 0;
    iItem->get(digis);

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 09:56:09 EST 2008
-// $Id: FWCandidateProxyBuilder.cc,v 1.5 2010/04/16 11:28:03 amraktad Exp $
+// $Id: FWCandidateProxyBuilder.cc,v 1.6 2010/04/20 20:49:41 amraktad Exp $
 //
 
 #include "TEveTrack.h"
@@ -33,12 +33,12 @@ private:
    FWCandidateProxyBuilder(const FWCandidateProxyBuilder&); // stop default
    const FWCandidateProxyBuilder& operator=(const FWCandidateProxyBuilder&); // stop default
 
-   void build(const reco::Candidate& iData, unsigned int iIndex, TEveElement& oItemHolder);
+   void build(const reco::Candidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 };
 
 
 void 
-FWCandidateProxyBuilder::build(const reco::Candidate& iData, unsigned int iIndex, TEveElement& oItemHolder) 
+FWCandidateProxyBuilder::build(const reco::Candidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
    TEveTrack* trk = fireworks::prepareCandidate( iData, context().getTrackPropagator() ); 
    

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegmentProxyBuilder.cc,v 1.6 2010/04/22 12:54:48 mccauley Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.7 2010/04/30 10:57:08 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -32,12 +32,12 @@ private:
    FWCSCSegmentProxyBuilder(const FWCSCSegmentProxyBuilder&);   
    const FWCSCSegmentProxyBuilder& operator=(const FWCSCSegmentProxyBuilder&);
 
-  void build(const CSCSegment& iData, unsigned int iIndex, TEveElement& oItemHolder);
+  void build(const CSCSegment& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 };
 
 void
 FWCSCSegmentProxyBuilder::build(const CSCSegment& iData,           
-                                unsigned int iIndex, TEveElement& oItemHolder)
+                                unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*)
 {
   const TGeoHMatrix* matrix = item()->getGeom()->getMatrix(iData.cscDetId().rawId());
   

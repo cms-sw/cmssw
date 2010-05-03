@@ -3,7 +3,6 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Calo/interface/CaloUtils.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
-#include "TEveCompound.h"
 
 class FWCaloRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<CaloRecHit>
 {
@@ -22,11 +21,11 @@ private:
    // Disable default assignment operator
    const FWCaloRecHitProxyBuilder& operator=(const FWCaloRecHitProxyBuilder&);
 
-   void build(const CaloRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder);
+   void build(const CaloRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 };
 
 void
-FWCaloRecHitProxyBuilder::build(const CaloRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder) 
+FWCaloRecHitProxyBuilder::build(const CaloRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
    std::vector<TEveVector> corners = item()->getGeom()->getPoints(iData.detid());
    if( corners.empty() ) {

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.6 2010/04/23 15:46:07 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.7 2010/04/23 21:01:45 amraktad Exp $
 //
 
 // system includes
@@ -49,7 +49,7 @@ FWCaloTowerProxyBuilderBase::~FWCaloTowerProxyBuilderBase()
 
 void
 FWCaloTowerProxyBuilderBase::build(const FWEventItem* iItem,
-                                   TEveElementList* /*product*/)
+                                   TEveElementList*, const FWViewContext*)
 {
    m_towers=0;
    iItem->get(m_towers);
@@ -104,13 +104,13 @@ FWCaloTowerProxyBuilderBase::build(const FWEventItem* iItem,
 }
 
 void
-FWCaloTowerProxyBuilderBase::modelChanges(const FWModelIds&, TEveElement* iElements, FWViewType::EType vt)
+FWCaloTowerProxyBuilderBase::modelChanges(const FWModelIds&, Product* p)
 {
-   applyChangesToAllModels(iElements, vt);
+   applyChangesToAllModels(p);
 }
 
 void
-FWCaloTowerProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements, FWViewType::EType)
+FWCaloTowerProxyBuilderBase::applyChangesToAllModels(Product* p)
 {
    if(caloData() && m_towers && item()) {
       m_hist->Reset();

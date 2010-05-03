@@ -18,14 +18,14 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
   
 private:
-   void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder);
+   void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*);
 
    FWTracksRecHitsProxyBuilder(const FWTracksRecHitsProxyBuilder&);    // stop default
    const FWTracksRecHitsProxyBuilder& operator=(const FWTracksRecHitsProxyBuilder&);    // stop default
 };
 
 void
-FWTracksRecHitsProxyBuilder::build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder) 
+FWTracksRecHitsProxyBuilder::build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
    if( iData.extra().isAvailable() )
       fireworks::addHits(iData, item(), &oItemHolder, false);
@@ -40,14 +40,14 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
   
 private:
-   void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder);
+   void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*);
 
    FWTracksModulesProxyBuilder(const FWTracksModulesProxyBuilder&);    // stop default
    const FWTracksModulesProxyBuilder& operator=(const FWTracksModulesProxyBuilder&);    // stop default
 };
 
 void
-FWTracksModulesProxyBuilder::build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder) 
+FWTracksModulesProxyBuilder::build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
    if( iData.extra().isAvailable() )
       fireworks::addModules(iData, item(), &oItemHolder, false);

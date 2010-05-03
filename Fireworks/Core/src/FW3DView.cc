@@ -8,10 +8,11 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.36 2010/04/16 10:59:51 amraktad Exp $
+// $Id: FW3DView.cc,v 1.37 2010/04/16 13:44:07 amraktad Exp $
 //
 
 // system include files
+#include <boost/bind.hpp>
 
 // user include files
 #include "TGLScenePad.h"
@@ -20,6 +21,7 @@
 
 #include "Fireworks/Core/interface/FW3DView.h"
 #include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/FWViewContext.h"
 
 //
 // constants, enums and typedefs
@@ -34,8 +36,12 @@
 //
 FW3DView::FW3DView(TEveWindowSlot* slot, FWViewType::EType typeId):
    FW3DViewBase(slot, typeId),
+   m_caloFixedScale(this,"Calo scale (GeV/meter)",2.,0.001,100.),
+   m_caloAutoScale (this,"Calo auto scale",true),
    m_calo(0)
 {
+   m_caloFixedScale.changed_.connect(boost::bind(&FW3DView::updateCaloParameters, this));
+   m_caloAutoScale.changed_.connect(boost::bind(&FW3DView::updateCaloParameters, this));
 }
 
 // FW3DView::FW3DView(const FW3DView& rhs)
@@ -67,28 +73,41 @@ void FW3DView::setContext(fireworks::Context& context)
    FW3DViewBase::setContext(context);
   
    TEveCaloData* data = context.getCaloData();
-   for (TEveElement::List_i i = data->BeginChildren(); i!= data->EndChildren(); ++i)
-   {
-      if( dynamic_cast<TEveCalo3D*>(*i))
-      {
-         m_calo = dynamic_cast<TEveCalo3D*>(*i);
-         break;
-      }
-   }
-   // create if not exist
-   if (m_calo == 0)
-   {
-      TEveCaloData* data = context.getCaloData();
-      m_calo = new TEveCalo3D(data);
-      m_calo->SetMaxTowerH( 150 );
-      m_calo->SetScaleAbs( false );
-      m_calo->SetBarrelRadius(129);
-      m_calo->SetEndCapPos(310);
-      m_calo->SetFrameTransparency(80);
-   }
+
+   m_calo = new TEveCalo3D(data);
+   m_calo->SetMaxTowerH( 150 );
+   m_calo->SetScaleAbs( false );
+   m_calo->SetBarrelRadius(129);
+   m_calo->SetEndCapPos(310);
+   m_calo->SetFrameTransparency(80);
 
    eventScene()->AddElement(m_calo);
 }
+
+void FW3DView::updateCaloParameters()
+{
+   m_calo->SetMaxValAbs(150/m_caloFixedScale.value());
+   m_calo->SetScaleAbs(!m_caloAutoScale.value());
+   m_calo->ElementChanged();
+   updateScaleParameters();
+}
+
+void FW3DView::updateScaleParameters()
+{
+   viewContext()->setEnergyScale(m_calo->GetValToHeight());
+}
+
+
+void
+FW3DView::eventEnd()
+{
+   FWEveView::eventEnd();
+   if (m_caloAutoScale.value())
+   {
+      updateScaleParameters();
+   }
+}
+
 //
 // const member functions
 //

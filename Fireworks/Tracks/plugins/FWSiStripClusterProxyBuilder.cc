@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.7 2010/04/23 21:02:00 amraktad Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.8 2010/05/03 10:36:42 mccauley Exp $
 //
 
 #include "TEveCompound.h"
@@ -26,12 +26,12 @@ private:
    FWSiStripClusterProxyBuilder(const FWSiStripClusterProxyBuilder&);
    const FWSiStripClusterProxyBuilder& operator=(const FWSiStripClusterProxyBuilder&);              
   
-  void build(const SiStripCluster& iData, unsigned int iIndex, TEveElement& oItemHolder);
+   void build(const SiStripCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 };
 
 void
 FWSiStripClusterProxyBuilder::build(const SiStripCluster& iData,           
-                                    unsigned int iIndex, TEveElement& oItemHolder)
+                                    unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*)
 {  
   DetId detid(iData.geographicalId());
  

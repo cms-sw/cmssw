@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Mar 26 12:25:02 CET 2010
-// $Id: FWViewType.cc,v 1.7 2010/04/16 10:59:51 amraktad Exp $
+// $Id: FWViewType.cc,v 1.8 2010/04/20 19:35:19 chrjones Exp $
 //
 
 // system include files
@@ -100,5 +100,10 @@ FWViewType::idToName(int id)
       default:
          return errName;
    }
+}
 
+bool
+FWViewType::isProjected(int id)
+{
+   return (id == kRhoPhi || id == kRhoZ);
 }

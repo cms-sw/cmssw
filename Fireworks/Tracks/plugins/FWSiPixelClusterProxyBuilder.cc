@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.7 2010/04/23 21:02:00 amraktad Exp $
+// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.8 2010/04/25 09:48:21 amraktad Exp $
 //
 
 // system include files
@@ -32,7 +32,7 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
 private:
-   virtual void build( const FWEventItem* iItem, TEveElementList* product );
+   virtual void build( const FWEventItem* iItem, TEveElementList* product , const FWViewContext*);
    FWSiPixelClusterProxyBuilder( const FWSiPixelClusterProxyBuilder& );    // stop default
    const FWSiPixelClusterProxyBuilder& operator=( const FWSiPixelClusterProxyBuilder& );    // stop default
    //void modelChanges( const FWModelIds& iIds, TEveElement* iElements, int);
@@ -45,7 +45,7 @@ protected:
 
 //______________________________________________________________________________
 
-void FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product )
+void FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product , const FWViewContext*)
 {
    const SiPixelClusterCollectionNew* pixels = 0;
    iItem->get( pixels );

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.3 2010/04/12 12:43:09 amraktad Exp $
+// $Id: FWRPZView.h,v 1.4 2010/04/16 18:37:18 amraktad Exp $
 //
 
 // system include files
@@ -61,19 +61,15 @@ private:
 
    void doDistortion();
    void doCompression(bool);
-   // void doZoom(double);
-
+   
    void updateCaloParameters();
    void updateScaleParameters();
-   void updateCalo(TEveElement*, bool dataChanged = false);
-   void updateCaloLines(TEveElement*);
 
    void showProjectionAxes( );
    // ---------- member data --------------------------------
    FWEvePtr<TEveProjectionManager> m_projMgr;
-
-   double m_caloScale;
-   FWEvePtr<TEveProjectionAxes> m_axes;
+   FWEvePtr<TEveProjectionAxes>    m_axes;
+   TEveCalo2D*                     m_calo;
 
    // parameters
    FWLongParameter    m_overlayEventInfoLevel;
@@ -84,8 +80,8 @@ private:
    FWBoolParameter    m_compressMuon;
    FWDoubleParameter  m_caloFixedScale;
    FWBoolParameter    m_caloAutoScale;
-   FWBoolParameter*   m_showHF;
-   FWBoolParameter*   m_showEndcaps;
+ // FWBoolParameter*   m_showHF;
+ // FWBoolParameter*   m_showEndcaps;
 
 };
 

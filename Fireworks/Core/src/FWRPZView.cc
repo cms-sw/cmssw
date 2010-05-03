@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.6 2010/04/16 18:37:18 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.7 2010/04/27 13:36:33 amraktad Exp $
 //
 
 // system include files
@@ -42,21 +42,22 @@
 #include "Fireworks/Core/interface/FWRPZViewGeometry.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/FWViewContext.h"
 
 //
 // constructors and destructor
 //
 FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    FWEveView(iParent, id),
-   m_caloScale(1),
+   m_calo(0),
    m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
    m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
    m_showProjectionAxes(this,"Show projection axes", false),
-   m_compressMuon(this,"Compress detectors",false),
-   m_caloFixedScale(this,"Calo scale (GeV/meter)",2.,0.001,100.),
-   m_caloAutoScale(this,"Calo auto scale",false),
-   m_showHF(0),
-   m_showEndcaps(0)
+   m_compressMuon(this,"Compress detector",false),
+   m_caloFixedScale(this,"Calo scale (GeV/meter)",2.,0.01,100.),
+   m_caloAutoScale(this,"Calo auto scale",false)
+  // m_showHF(0),
+  // m_showEndcaps(0)
 {
    TEveProjection::EPType_e projType = (id == FWViewType::kRhoZ) ? TEveProjection::kPT_RhoZ : TEveProjection::kPT_RPhi;
 
@@ -71,7 +72,6 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 370, 0.2);
       m_projMgr->GetProjection()->AddPreScaleEntry(1, 580, 0.2);
    }
-   
 
    // camera  
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
@@ -82,19 +82,19 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_axes.reset(new TEveProjectionAxes(m_projMgr.get()));
    m_showProjectionAxes.changed_.connect(boost::bind(&FWRPZView::showProjectionAxes,this));
    eventScene()->AddElement(m_axes.get());
-   
-   // signals
+   /*
    if ( id == FWViewType::kRhoPhi ) {
       m_showEndcaps = new FWBoolParameter(this,"Show calo endcaps", true);
       m_showEndcaps->changed_.connect(  boost::bind(&FWRPZView::updateCaloParameters, this) );
       m_showHF = new FWBoolParameter(this,"Show HF", true);
       m_showHF->changed_.connect(  boost::bind(&FWRPZView::updateCaloParameters, this) );
    }
+    */
    m_caloDistortion.changed_.connect(boost::bind(&FWRPZView::doDistortion,this));
    m_muonDistortion.changed_.connect(boost::bind(&FWRPZView::doDistortion,this));
    m_compressMuon.changed_.connect(boost::bind(&FWRPZView::doCompression,this,_1));
-   m_caloFixedScale.changed_.connect( boost::bind(&FWRPZView::updateScaleParameters, this) );
-   m_caloAutoScale.changed_.connect(  boost::bind(&FWRPZView::updateScaleParameters, this) );
+   m_caloFixedScale.changed_.connect( boost::bind(&FWRPZView::updateCaloParameters, this) );
+   m_caloAutoScale.changed_.connect(  boost::bind(&FWRPZView::updateCaloParameters, this) );
 }
 
 FWRPZView::~FWRPZView()
@@ -115,25 +115,13 @@ FWRPZView::setContext(fireworks::Context& context)
 
    // calo
    TEveCaloData* data = context.getCaloData();
-   TEveCalo3D* calo3d = 0;
-   for (TEveElement::List_i i= data->BeginChildren(); i!= data->EndChildren(); ++i)
-   {
-      calo3d = dynamic_cast<TEveCalo3D*>(*i);
-      if (calo3d) break;
-   }
-   // create if not exist
-   if (calo3d == 0)
-   {
-      TEveCaloData* data = context.getCaloData();
-      calo3d = new TEveCalo3D(data);
-      calo3d->SetMaxTowerH( 150 );
-      calo3d->SetScaleAbs( false );
-      calo3d->SetBarrelRadius(129);
-      calo3d->SetEndCapPos(310);
-      calo3d->SetFrameTransparency(80);
-   }
-
-   m_projMgr->ImportElements(calo3d, eventScene());
+   TEveCalo3D* calo3d = new TEveCalo3D(data);
+   m_calo = static_cast<TEveCalo2D*> (m_projMgr->ImportElements(calo3d, eventScene()));
+   
+   m_calo->SetBarrelRadius(129);
+   m_calo->SetEndCapPos(310);
+   m_calo->SetMaxTowerH( 150 );
+   m_calo->SetScaleAbs( false );
 }
 
 void
@@ -162,54 +150,6 @@ FWRPZView::doCompression(bool flag)
    gEve->Redraw3D();
 }
 
-
-void
-FWRPZView::updateCalo(TEveElement* iParent, bool dataChanged)
-{
-   TEveElementIter child(iParent);
-   while ( TEveElement* element = child.current() )
-   {
-      if ( TEveCalo2D* calo2d = dynamic_cast<TEveCalo2D*>(element) ) {
-         calo2d->SetValueIsColor(kFALSE);
-         calo2d->SetMaxTowerH( 150 );
-         calo2d->SetMaxValAbs( 150/m_caloFixedScale.value() );
-         calo2d->SetScaleAbs( !m_caloAutoScale.value() );
-         if ( dataChanged ) calo2d->GetData()->DataChanged();
-         double eta_range = 5.191;
-         if ( m_showHF && !m_showHF->value() ) eta_range = 3.0;
-         if ( m_showEndcaps && !m_showEndcaps->value() ) eta_range = 1.479;
-         calo2d->SetEta(-eta_range,eta_range);
-         calo2d->ElementChanged();
-         m_caloScale = calo2d->GetValToHeight();
-         if ( m_axes ) {
-            if ( m_showProjectionAxes.value() )
-               m_axes->SetRnrState(kTRUE);
-            else
-               m_axes->SetRnrState(kFALSE);
-         }
-      }
-      child.next();
-   }
-}
-
-void
-FWRPZView::updateCaloLines(TEveElement* iParent)
-{
-   TEveElementIter child(iParent);
-   while ( TEveElement* element = child.current() )
-   {
-      if ( TEveStraightLineSetProjected* projected = dynamic_cast<TEveStraightLineSetProjected*>(element) )
-         if ( TEveScalableStraightLineSet* line = dynamic_cast<TEveScalableStraightLineSet*>(projected->GetProjectable()) )
-         {
-            line->SetScale( m_caloScale );
-            line->ElementChanged();
-            projected->UpdateProjection();
-            projected->ElementChanged();
-         }
-      child.next();
-   }
-}
-
 void
 FWRPZView::importElements(TEveElement* iChildren, TEveElement* iProjectedParent)
 {
@@ -234,23 +174,29 @@ FWRPZView::setFrom(const FWConfiguration& iFrom)
    setFromOrthoCamera(camera, iFrom);
 }
 
+void
+FWRPZView::updateCaloParameters()
+{
+   /*
+   double eta_range = 5.191;
+   if ( m_showHF && !m_showHF->value() ) eta_range = 3.0;
+   if ( m_showEndcaps && !m_showEndcaps->value() ) eta_range = 1.479;
+   m_calo->SetEta(-eta_range,eta_range);
+   */
+   m_calo->SetMaxValAbs( 150/m_caloFixedScale.value() );
+   m_calo->SetScaleAbs( !m_caloAutoScale.value() );
+   m_calo->ElementChanged();
+   updateScaleParameters();
+}
 
 void
 FWRPZView::updateScaleParameters()
 {
-   updateCalo(m_projMgr.get());
-   updateCaloLines(m_projMgr.get());
-}
-
-void
-FWRPZView::updateCaloParameters()
-{
-   updateCalo(m_projMgr.get());
+   viewContext()->setEnergyScale(m_calo->GetValToHeight());
 }
 
 void FWRPZView::showProjectionAxes( )
 {   
-   if ( !m_axes ) return; // just in case
    if ( m_showProjectionAxes.value() )
       m_axes->SetRnrState(kTRUE);
    else
@@ -264,7 +210,8 @@ FWRPZView::eventEnd()
 {
    FWEveView::eventEnd();
    if (m_caloAutoScale.value())
+   {
       updateScaleParameters();
-   
+   }
 }
 

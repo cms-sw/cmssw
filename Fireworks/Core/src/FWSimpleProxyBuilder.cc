@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Tue March 28 09:46:41 EST 2010
-// $Id: FWSimpleProxyBuilder.cc,v 1.4 2010/04/20 20:49:41 amraktad Exp $
+// $Id: FWSimpleProxyBuilder.cc,v 1.5 2010/04/23 21:02:00 amraktad Exp $
 //
 
 // system include files
@@ -75,7 +75,7 @@ FWSimpleProxyBuilder::itemChangedImp(const FWEventItem* iItem)
 
 void
 FWSimpleProxyBuilder::build(const FWEventItem* iItem,
-                            TEveElementList* product)
+                            TEveElementList* product, const FWViewContext* vc)
 {
    size_t size = iItem->size();
    for (int index = 0; index < static_cast<int>(size); ++index)
@@ -85,14 +85,14 @@ FWSimpleProxyBuilder::build(const FWEventItem* iItem,
       if (iItem->modelInfo(index).displayProperties().isVisible())
       {
          const void* modelData = iItem->modelData(index);
-         build(m_helper.offsetObject(modelData),index, *itemHolder);
+         build(m_helper.offsetObject(modelData),index, *itemHolder, vc);
       }
    }
 }
 
 void
 FWSimpleProxyBuilder::buildViewType(const FWEventItem* iItem,
-                                    TEveElementList* product, FWViewType::EType viewType)
+                                    TEveElementList* product, FWViewType::EType viewType, const FWViewContext* vc)
 {
    size_t size = iItem->size();
    for (int index = 0; index < static_cast<int>(size); ++index)
@@ -102,22 +102,23 @@ FWSimpleProxyBuilder::buildViewType(const FWEventItem* iItem,
       if (iItem->modelInfo(index).displayProperties().isVisible())
       {
          const void* modelData = iItem->modelData(index);
-         buildViewType(m_helper.offsetObject(modelData),index, *itemHolder, viewType);
+         buildViewType(m_helper.offsetObject(modelData),index, *itemHolder, viewType, vc);
       }
    }
 }
 
 
 bool
-FWSimpleProxyBuilder::specialModelChangeHandling(const FWModelId& iId, TEveElement* iCompound, FWViewType::EType viewType) {
+FWSimpleProxyBuilder::specialModelChangeHandling(const FWModelId& iId, TEveElement* iCompound, FWViewType::EType viewType, const FWViewContext* vc)
+{
    const FWEventItem::ModelInfo& info = iId.item()->modelInfo(iId.index());
    bool returnValue = false;
    if(info.displayProperties().isVisible() && iCompound->NumChildren()==0) {
       const void* modelData = iId.item()->modelData(iId.index());
       if (haveSingleProduct())      
-         build(m_helper.offsetObject(modelData),iId.index(),*iCompound);
+         build(m_helper.offsetObject(modelData),iId.index(),*iCompound, vc);
       else
-         buildViewType(m_helper.offsetObject(modelData),iId.index(),*iCompound, viewType);
+         buildViewType(m_helper.offsetObject(modelData),iId.index(),*iCompound, viewType, vc);
       returnValue=true;
    }
    return returnValue;

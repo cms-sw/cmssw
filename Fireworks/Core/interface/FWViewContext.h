@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr 14 18:31:27 CEST 2010
-// $Id$
+// $Id: FWViewContext.h,v 1.1 2010/04/15 20:15:15 amraktad Exp $
 //
 
 // system include files
@@ -34,13 +34,13 @@ public:
    virtual ~FWViewContext();
 
    // ---------- const member functions ---------------------
-
    float getEnergyScale() const;
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
    void  setEnergyScale(float);
-   sigc::signal<void> scaleChanged_;
+   mutable sigc::signal<void, const FWViewContext*> scaleChanged_;
+   
 private:
    FWViewContext(const FWViewContext&); // stop default
 

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.9 2010/04/22 13:05:49 yana Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.10 2010/04/23 21:01:47 amraktad Exp $
 //
 
 // system include files
@@ -39,7 +39,11 @@ public:
    FWMETProxyBuilder() {}
    virtual ~FWMETProxyBuilder() {}
 
-   virtual bool haveSingleProduct() const { return false; }
+   virtual bool haveSingleProduct() const { return false; } // use buildViewType instead of buildView
+
+   virtual bool havePerViewProduct(FWViewType::EType) const { return true; } // used energy scaling
+   
+   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -47,22 +51,41 @@ private:
    FWMETProxyBuilder( const FWMETProxyBuilder& );    // stop default
    const FWMETProxyBuilder& operator=( const FWMETProxyBuilder& );    // stop default
 
-   virtual void buildViewType(const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type );
+   virtual void buildViewType(const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
 };
 
 void
-FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type )
+FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
+{
+   for (TEveElement::List_i i = parent->BeginChildren(); i!= parent->EndChildren(); ++i)
+   {
+      TEveElement* comp = (*i);
+      for (TEveElement::List_i j = comp->BeginChildren(); j!= comp->EndChildren(); ++j)
+      {
+         TEveScalableStraightLineSet* ls = dynamic_cast<TEveScalableStraightLineSet*> (*j);
+         if (ls ) 
+         {
+            ls->SetScale(vc->getEnergyScale());
+            if (FWViewType::isProjected(type))
+            {
+               TEveProjected* proj = *ls->BeginProjecteds();
+               proj->UpdateProjection();
+            }
+         }
+      }
+   }
+}
+
+void
+FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext* vc)
 {
    float r_ecal = fireworks::Context::s_ecalR;
-
-   // FIXME: The scale should be managed centrally. 
-   double scale = 2.0;
    double phi  = met.phi();
-   double size = met.et()*scale;
+   double size = met.et();
 
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet( "energy" );
-   marker->SetLineWidth( 2 );
    marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
+   marker->SetLineWidth( 2 );
    const double dx = 0.9*size*0.1;
    const double dy = 0.9*size*cos(0.1);
    marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0,
@@ -72,6 +95,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
    marker->AddLine( -dx*sin(phi) + (dy+r_ecal)*cos(phi), dx*cos(phi) + (dy+r_ecal)*sin(phi), 0,
                     (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
 
+   marker->SetScale(vc->getEnergyScale());
    setupAddElement( marker, &oItemHolder );
       
    if( type == FWViewType::kRhoPhi )
@@ -84,17 +108,23 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
       element->SetPickable( kTRUE );
       setupAddElement( element, &oItemHolder );
    }
-   else if( type == FWViewType::kRhoZ ) 
+   /*
+   // lines bellow do not have effect are 
+   // paralel to energy main line
+   else if ( type == FWViewType::kRhoZ ) 
    {
-      TEveScalableStraightLineSet* tip = new TEveScalableStraightLineSet( "tip" );
-      tip->SetLineWidth(2);
-      tip->SetScaleCenter(0., (phi>0 ? r_ecal : -r_ecal), 0);
-      tip->AddLine(0., (phi>0 ? r_ecal+dy : -(r_ecal+dy) ), dx,
-                   0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
-      tip->AddLine(0., (phi>0 ? r_ecal+dy : -(r_ecal+dy) ), -dx,
-                   0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
-      setupAddElement( tip, &oItemHolder );
-   }      
+
+   TEveScalableStraightLineSet* tip = new TEveScalableStraightLineSet( "tip" );
+   tip->SetLineWidth(2);
+   tip->SetScaleCenter(0., (phi>0 ? r_ecal : -r_ecal), 0);
+   tip->AddLine(0., (phi>0 ? r_ecal+dy : -(r_ecal+dy) ), dx,
+   0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
+   tip->AddLine(0., (phi>0 ? r_ecal+dy : -(r_ecal+dy) ), -dx,
+   0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
+   tip->SetScale(vc->getEnergyScale());
+   setupAddElement( tip, &oItemHolder );
+   }   
+   */   
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -117,11 +147,11 @@ private:
    FWMETGlimpseProxyBuilder( const FWMETGlimpseProxyBuilder& );    // stop default
    const FWMETGlimpseProxyBuilder& operator=( const FWMETGlimpseProxyBuilder& );    // stop default
 
-   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
-void
-FWMETGlimpseProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+void 
+FWMETGlimpseProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    double phi = iData.phi();
    double size = iData.et();
@@ -151,11 +181,11 @@ private:
    FWMETLegoProxyBuilder( const FWMETLegoProxyBuilder& );    // stop default
    const FWMETLegoProxyBuilder& operator=( const FWMETLegoProxyBuilder& );    // stop default
 
-   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWMETLegoProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+FWMETLegoProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    TEveStraightLineSet* mainLine = new TEveStraightLineSet( "MET phi" );
    mainLine->AddLine(-5.191, iData.phi(), 0.1, 5.191, iData.phi(), 0.1 );

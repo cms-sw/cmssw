@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:28:07 EST 2008
-// $Id: FWMuonProxyBuilder.cc,v 1.4 2010/04/16 16:40:13 yana Exp $
+// $Id: FWMuonProxyBuilder.cc,v 1.5 2010/04/20 20:49:43 amraktad Exp $
 //
 
 #include "TEvePointSet.h"
@@ -36,13 +36,13 @@ private:
    const FWMuonProxyBuilder& operator=(const FWMuonProxyBuilder&); // stop default
 
    // ---------- member data --------------------------------
-   virtual void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder);
+   virtual void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 
    mutable FWMuonBuilder m_builder;
 };
 
 void
-FWMuonProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) 
+FWMuonProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
    m_builder.buildMuon(this, &iData, &oItemHolder, true, false);
    
@@ -68,13 +68,13 @@ private:
    const FWMuonRhoPhiProxyBuilder& operator=(const FWMuonRhoPhiProxyBuilder&); // stop default
 
    // ---------- member data --------------------------------
-   void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder);
+   void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 
    mutable FWMuonBuilder m_builder;
 };
 
 void
-FWMuonRhoPhiProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) 
+FWMuonRhoPhiProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
    // To build in RhoPhi we should simply disable the Endcap drawing
    // by passing a false flag to a muon builder:
@@ -96,13 +96,13 @@ private:
    FWMuonLegoProxyBuilder(const FWMuonLegoProxyBuilder&); // stop default
    const FWMuonLegoProxyBuilder& operator=(const FWMuonLegoProxyBuilder&); // stop default
 
-   virtual void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder);
+   virtual void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 
    mutable FWMuonBuilder m_builder;
 };
 
 void
-FWMuonLegoProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder) 
+FWMuonLegoProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
    TEvePointSet* points = new TEvePointSet("points");
    setupAddElement(points, &oItemHolder);
@@ -160,11 +160,11 @@ private:
    const FWMuonGlimpseProxyBuilder& operator=(const FWMuonGlimpseProxyBuilder&); // stop default
 
    // ---------- member data --------------------------------
-   void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder);
+   void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 };
 
 void
-FWMuonGlimpseProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder)
+FWMuonGlimpseProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*)
 {
    FWEveScalableStraightLineSet* marker = new FWEveScalableStraightLineSet( "", "");
    marker->SetLineWidth(2);

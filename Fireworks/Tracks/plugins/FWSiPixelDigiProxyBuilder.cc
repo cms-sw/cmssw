@@ -20,14 +20,14 @@ public:
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  virtual void build(const FWEventItem* iItem, TEveElementList* product);
+  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
   FWSiPixelDigiProxyBuilder(const FWSiPixelDigiProxyBuilder&);    
   const FWSiPixelDigiProxyBuilder& operator=(const FWSiPixelDigiProxyBuilder&);
    void modelChanges(const FWModelIds& iIds, TEveElement* iElements, FWViewType::EType);
    void applyChangesToAllModels(TEveElement* iElements, FWViewType::EType);
 };
 
-void FWSiPixelDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product)
+void FWSiPixelDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
   product->SetMainColor( iItem->defaultDisplayProperties().color());
 

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSecVertexProxyBuilder.cc,v 1.1 2010/04/08 12:05:11 yana Exp $
+// $Id: FWSecVertexProxyBuilder.cc,v 1.2 2010/04/20 20:49:45 amraktad Exp $
 //
 #include <vector>
 
@@ -32,11 +32,11 @@ private:
    const FWSecVertexProxyBuilder& operator=(const FWSecVertexProxyBuilder&); // stop default
    
    // ---------- member data --------------------------------
-   void build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex, TEveElement& oItemHolder);
+   void build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 };
 
 void 
-FWSecVertexProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex,TEveElement& oItemHolder) 
+FWSecVertexProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) 
 {
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    TEvePointSet* pointSet = new TEvePointSet();

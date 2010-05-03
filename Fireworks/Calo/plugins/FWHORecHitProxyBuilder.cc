@@ -20,7 +20,7 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   virtual void build(const FWEventItem* iItem, TEveElementList* product);
+   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
 
    Float_t m_maxEnergy;
 
@@ -31,7 +31,7 @@ private:
 };
 
 void
-FWHORecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product)
+FWHORecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
    const HORecHitCollection* collection = 0;
    iItem->get(collection);

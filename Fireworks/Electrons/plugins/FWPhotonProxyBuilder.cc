@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonProxyBuilder.cc,v 1.8 2010/04/29 12:16:52 mccauley Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.9 2010/04/30 11:17:14 mccauley Exp $
 //
 #include "TEveCompound.h"
 #include "TEveStraightLineSet.h"
@@ -40,11 +40,11 @@ private:
    FWPhotonProxyBuilder(const FWPhotonProxyBuilder&); // stop default
    const FWPhotonProxyBuilder& operator=(const FWPhotonProxyBuilder&); // stop default
 
-   virtual void buildViewType(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type );
+   virtual void buildViewType(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
 };
 
 void
-FWPhotonProxyBuilder::buildViewType(const reco::Photon& photon, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type )
+FWPhotonProxyBuilder::buildViewType(const reco::Photon& photon, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*)
 {  
   // FIXME: these numbers also appear in makeSuperCluster
   double lEB = 300.0;  // half-length of the EB (cm)

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DViewBase.h,v 1.3 2010/04/12 12:43:09 amraktad Exp $
+// $Id: FW3DViewBase.h,v 1.4 2010/04/16 13:44:06 amraktad Exp $
 //
 
 // system include files
@@ -72,8 +72,6 @@ private:
    FWBoolParameter m_showTrackerEndcap;
    FWBoolParameter m_showWireFrame;
    FWLongParameter m_geomTransparency;
-   FWDoubleParameter  m_caloFixedScale;
-   FWBoolParameter    m_caloAutoScale;
    
    void showWireFrame( bool );
 };

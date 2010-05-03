@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPFTauProxyBuilder.cc,v 1.8 2010/04/21 15:38:20 yana Exp $
+// $Id: FWPFTauProxyBuilder.cc,v 1.9 2010/04/22 13:05:49 yana Exp $
 //
 
 // system include files
@@ -46,7 +46,7 @@ private:
    FWPFTauProxyBuilder( const FWPFTauProxyBuilder& );    // stop default
    const FWPFTauProxyBuilder& operator=( const FWPFTauProxyBuilder& );    // stop default
 
-   virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type );
+   virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type , const FWViewContext*);
 
    // Add Tracks which passed quality cuts and
    // are inside a tracker signal cone around leading Track
@@ -56,7 +56,7 @@ private:
 };
 
 void
-FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type )
+FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type , const FWViewContext*)
 {
    reco::PFTauCollection const * pfTaus = 0;
    iItem->get( pfTaus );
@@ -199,11 +199,11 @@ private:
    FWPFTauGlimpseProxyBuilder( const FWPFTauGlimpseProxyBuilder& );    // stop default
    const FWPFTauGlimpseProxyBuilder& operator=( const FWPFTauGlimpseProxyBuilder& );    // stop default
 
-   virtual void build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWPFTauGlimpseProxyBuilder::build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+FWPFTauGlimpseProxyBuilder::build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    const reco::PFTauTagInfo *tauTagInfo = dynamic_cast<const reco::PFTauTagInfo*>( iData.pfTauTagInfoRef().get() );
    const reco::PFJet *jet = dynamic_cast<const reco::PFJet*>( tauTagInfo->pfjetRef().get() );
@@ -234,11 +234,11 @@ private:
    FWPFTauLegoProxyBuilder( const FWPFTauLegoProxyBuilder& );    // stop default
    const FWPFTauLegoProxyBuilder& operator=( const FWPFTauLegoProxyBuilder& );    // stop default
 
-   virtual void build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWPFTauLegoProxyBuilder::build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+FWPFTauLegoProxyBuilder::build( const reco::PFTau& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    const unsigned int nLineSegments = 20;
    const double jetRadius = 0.17;   //10 degree

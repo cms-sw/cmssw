@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.12 2010/04/30 15:29:44 matevz Exp $
+// $Id: FWEveView.cc,v 1.13 2010/05/03 06:56:33 matevz Exp $
 //
 
 
@@ -42,6 +42,7 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/FWViewContext.h"
 
 namespace fireworks
 {
@@ -57,6 +58,7 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type) :
    m_type(type),
    m_viewer(0),
    m_eventScene(0),
+   m_ownedProducts(0),
    m_geoScene(0),
    m_overlayEventInfo(0),
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
@@ -66,8 +68,9 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type) :
 #else
    m_eventInfoLevel(this, "Overlay Event Info", 0l, 0l, 2l),
    m_drawCMSLogo(this,"Show Logo",false),
-   m_lineWidth(this,"Line width",1.0,1.0,10.0)
+   m_lineWidth(this,"Line width",1.0,1.0,10.0),
 #endif
+   m_viewContext(new FWViewContext())
 {
    m_viewer = new TEveViewer(typeName().c_str());
 
@@ -81,6 +84,9 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type) :
    gEve->GetViewers()->AddElement(m_viewer);
 
    m_eventScene =  gEve->SpawnNewScene(Form("EventScene %s", typeName().c_str()));
+   m_ownedProducts = new TEveElementList("ViewSpecificProducts");
+   m_eventScene->AddElement(m_ownedProducts);
+
    m_viewer->AddScene(m_eventScene);
 
    // spawn geo scene
@@ -273,8 +279,6 @@ FWEveView::setFromOrthoCamera(TGLOrthoCamera* camera,  const FWConfiguration& iF
       viewerGL()->ResetCamerasAfterNextUpdate();      
    }
 }
-
-
  
 void
 FWEveView::addToPerspectiveCamera(TGLPerspectiveCamera* cam, const std::string& name, FWConfiguration& iTo) const

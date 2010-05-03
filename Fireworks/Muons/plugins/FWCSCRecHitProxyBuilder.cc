@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWCSCRecHitProxyBuilder
 //
-// $Id: FWCSCRecHitProxyBuilder.cc,v 1.3 2010/04/22 12:23:25 mccauley Exp $
+// $Id: FWCSCRecHitProxyBuilder.cc,v 1.4 2010/04/22 12:54:48 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -26,12 +26,12 @@ private:
    FWCSCRecHitProxyBuilder(const FWCSCRecHitProxyBuilder&);
    const FWCSCRecHitProxyBuilder& operator=(const FWCSCRecHitProxyBuilder&);
 
-   void build(const CSCRecHit2D& iData, unsigned int iIndex, TEveElement& oItemHolder);
+   void build(const CSCRecHit2D& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 };
 
 void
 FWCSCRecHitProxyBuilder::build(const CSCRecHit2D& iData,           
-                               unsigned int iIndex, TEveElement& oItemHolder)
+                               unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*)
 {       
   const TGeoHMatrix* matrix = item()->getGeom()->getMatrix(iData.cscDetId().rawId());
   

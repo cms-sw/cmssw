@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackProxyBuilder.cc,v 1.8 2010/04/29 14:28:52 yana Exp $
+// $Id: FWTrackProxyBuilder.cc,v 1.9 2010/04/30 12:29:30 amraktad Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@ private:
 
    const FWTrackProxyBuilder& operator=(const FWTrackProxyBuilder&); // stop default
 
-   void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder);
+   void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*);
 };
 
 FWTrackProxyBuilder::FWTrackProxyBuilder()
@@ -50,7 +50,7 @@ FWTrackProxyBuilder::~FWTrackProxyBuilder()
 }
 
 void
-FWTrackProxyBuilder::build( const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder ) 
+FWTrackProxyBuilder::build( const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder , const FWViewContext*) 
 {
    if( context().getField()->getAutodetect() ) {
       if( fabs( iData.eta() ) < 2.0 && iData.pt() > 0.5 && iData.pt() < 30 ) {

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.15 2010/04/27 16:48:18 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.16 2010/04/27 18:08:28 amraktad Exp $
 //
 
 // system include files
@@ -153,7 +153,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
          FWProxyBuilderBase* builder = FWProxyBuilderFactory::get()->create(builderName);
          if (builder)
          {
-            //  printf("FWEveViewManager::makeProxyBuilderFor NEW builder %s \n", builderName.c_str());
+            // printf("FWEveViewManager::makeProxyBuilderFor NEW builder %s \n", builderName.c_str());
             
             boost::shared_ptr<FWProxyBuilderBase> pB( builder );
             builder->setItem(iItem);
@@ -188,17 +188,20 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
                if (viewBit & builderViewBit)
                {   
                   // printf("%s builder %s supportsd view %s \n",  iItem->name().c_str(), builderName.c_str(), FWViewType::idToName(viewType).c_str());
-                  if (builder->havePerViewProduct())
+                  if (builder->havePerViewProduct((FWViewType::EType)viewType))
                   { 
                      for (EveViewVec_it i = m_views[viewType].begin(); i!= m_views[viewType].end(); ++i)
                      {
-                        TEveElementList* product = builder->createProduct((FWViewType::EType)viewType, i->get()->getViewContext());
-                        i->get()->privateScene()->AddElement(product);
+                        TEveElementList* product = builder->createProduct((FWViewType::EType)viewType, i->get()->viewContext());
 
-                        if (viewType == FWViewType::kRhoPhi || viewType == FWViewType::kRhoZ )
+                        if (FWViewType::isProjected(viewType))
                         {
                            FWRPZView* rpzView = dynamic_cast<FWRPZView*> (i->get());
-                           rpzView->importElements(product, rpzView->eventScene());
+                           rpzView->importElements(product, rpzView->ownedProducts());
+                        }
+                        else
+                        {
+                           i->get()->ownedProducts()->AddElement(product);
                         }
                      }
                   }
@@ -209,7 +212,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
 
                      for (EveViewVec_it i = m_views[viewType].begin(); i!= m_views[viewType].end(); ++i)
                      { 
-                        if (viewType == FWViewType::kRhoPhi || viewType == FWViewType::kRhoZ )
+                        if (FWViewType::isProjected(viewType))
                         {
                            FWRPZView* rpzView = dynamic_cast<FWRPZView*> (i->get());
                            rpzView->importElements(product,  rpzView->eventScene());
@@ -281,13 +284,15 @@ FWEveViewManager::createGlimpseView(TEveWindowSlot* iParent)
 FWEveView*
 FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
 {
-   view->setContext(context());
-
    // printf("new view %s added \n", view->typeName().c_str());
-   int typeId = view->typeId();
-   int viewerBit = 1 << typeId;
-   
-   if (m_views[typeId].size() == 1)
+   gEve->DisableRedraw();
+
+   // set geometry and calo data
+   view->setContext(context()); 
+
+   // set proxies have a window falg
+   int viewerBit = 1 << view->typeId();   
+   if (m_views[view->typeId()].size() == 1)
    {
       for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
       {
@@ -303,20 +308,49 @@ FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
       }
    }
    
-   // import elements for projected views
-   if (typeId == FWViewType::kRhoPhi || typeId == FWViewType::kRhoZ )
+   // import shared products
+   if (FWViewType::isProjected(view->typeId()))
    { 
       FWRPZView* rpzView = (FWRPZView*)(view.get());
-      rpzView->importElements(m_viewProducts[typeId], rpzView->eventScene());
+      rpzView->importElements(m_viewProducts[view->typeId()], rpzView->eventScene());
    }
    else
    {
-      view->eventScene()->AddElement(m_viewProducts[typeId]);
+      view->eventScene()->AddElement(m_viewProducts[view->typeId()]);
+   }
+
+   // create view owned products
+   for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
+   {
+      int builderViewBit = i->first;
+      BuilderVec& bv =  i->second;
+      if (viewerBit == (builderViewBit & viewerBit))
+      { 
+         for(BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt)
+         {
+           
+            if ((*bIt)->havePerViewProduct((FWViewType::EType)view->typeId()))
+            {
+               TEveElementList* product = (*bIt)->createProduct(view->typeId(), view->viewContext());
+               (*bIt)->build();
+               if (FWViewType::isProjected(view->typeId()))
+               {
+                  FWRPZView* rpzView = dynamic_cast<FWRPZView*> (view.get());
+                  rpzView->importElements(product, rpzView->ownedProducts());
+               }
+               else
+               {
+                  view->ownedProducts()->AddElement(product);
+               }
+            }
+         }
+      }
    }
 
    view->beingDestroyed_.connect(boost::bind(&FWEveViewManager::beingDestroyed,this,_1));
-   gEve->Redraw3D();
-   
+
+   gEve->EnableRedraw();
+   gEve->Redraw3D();   
    return view.get();
 }
 
@@ -436,11 +470,18 @@ FWEveViewManager::removeItem(const FWEventItem* item)
 {
    for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
    {
-      for(BuilderVec_it bIt = i->second.begin(); bIt != i->second.end(); ++bIt)
+      BuilderVec_it bIt = i->second.begin();
+      while( bIt != i->second.end() )
       {
          if ((*bIt)->item() == item)
-         {
+         { 
+            // TODO caching of proxy builders
             (*bIt)->itemBeingDestroyed(item);
+            bIt = i->second.erase(bIt);
+         }
+         else
+         {
+            ++bIt;
          }
       }
    }

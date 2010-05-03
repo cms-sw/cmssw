@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWGenParticleProxyBuilder.cc,v 1.3 2010/04/16 11:28:04 amraktad Exp $
+// $Id: FWGenParticleProxyBuilder.cc,v 1.4 2010/04/20 20:49:42 amraktad Exp $
 // 
 
 #include "TDatabasePDG.h"
@@ -41,7 +41,7 @@ private:
 
    const FWGenParticleProxyBuilder& operator=(const FWGenParticleProxyBuilder&); // stop default
    
-   void build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder);
+   void build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*);
 
    // ---------- member data --------------------------------
    static TDatabasePDG* s_pdg;
@@ -52,7 +52,7 @@ private:
 TDatabasePDG* FWGenParticleProxyBuilder::s_pdg = 0;
 
 void
-FWGenParticleProxyBuilder::build(const reco::GenParticle& iData, unsigned int iIndex, TEveElement& oItemHolder) 
+FWGenParticleProxyBuilder::build(const reco::GenParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
    if (!s_pdg)
       s_pdg = new TDatabasePDG();

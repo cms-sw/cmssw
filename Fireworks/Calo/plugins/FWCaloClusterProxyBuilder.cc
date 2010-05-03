@@ -3,7 +3,6 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Calo/interface/CaloUtils.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "TEveCompound.h"
 
 class FWCaloClusterProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::CaloCluster>
 {
@@ -17,11 +16,11 @@ private:
    FWCaloClusterProxyBuilder(const FWCaloClusterProxyBuilder&); 			// stop default
    const FWCaloClusterProxyBuilder& operator=(const FWCaloClusterProxyBuilder&); 	// stop default
 
-   void build(const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder);
+   void build(const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 };
 
 void
-FWCaloClusterProxyBuilder::build(const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder) 
+FWCaloClusterProxyBuilder::build(const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
    std::vector<std::pair<DetId, float> > clusterDetIds = iData.hitsAndFractions ();
    Float_t scale = 10.0; 	// FIXME: The scale should be taken form somewhere else

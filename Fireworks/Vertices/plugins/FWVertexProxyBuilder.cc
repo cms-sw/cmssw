@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWVertexProxyBuilder.cc,v 1.1 2010/04/08 12:05:11 yana Exp $
+// $Id: FWVertexProxyBuilder.cc,v 1.2 2010/04/20 20:49:45 amraktad Exp $
 //
 
 // system include files
@@ -32,14 +32,14 @@ private:
    FWVertexProxyBuilder(const FWVertexProxyBuilder&); // stop default
    const FWVertexProxyBuilder& operator=(const FWVertexProxyBuilder&); // stop default
 
-   virtual void build(const reco::Vertex& iData, unsigned int iIndex,TEveElement& oItemHolder);
+   virtual void build(const reco::Vertex& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*);
 };
 
 //
 // member functions
 //
 void
-FWVertexProxyBuilder::build(const reco::Vertex& iData, unsigned int iIndex, TEveElement& oItemHolder) 
+FWVertexProxyBuilder::build(const reco::Vertex& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
    TEvePointSet* pointSet = new TEvePointSet();
    pointSet->SetMainColor( item()->defaultDisplayProperties().color() );

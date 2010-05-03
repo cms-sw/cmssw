@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.8 2010/04/16 13:44:06 amraktad Exp $
+// $Id: FWEveView.h,v 1.9 2010/04/30 15:29:44 matevz Exp $
 //
 
 
@@ -74,8 +74,8 @@ public:
    TEveScene*  geoScene()    { return m_geoScene; }
    TGLViewer*  viewerGL() const;
 
-   TEveScene*     privateScene()   { return 0; } // TODO auto-scale
-   FWViewContext* getViewContext() { return 0; } // TODO auto-scale
+   TEveElement*   ownedProducts()  { return m_ownedProducts; }
+   FWViewContext* viewContext() { return m_viewContext.get(); }
 
 protected:
    virtual void resetCamera();
@@ -96,6 +96,7 @@ private:
    FWViewType           m_type;
    TEveViewer*          m_viewer;
    TEveScene*           m_eventScene;
+   TEveElement*         m_ownedProducts;
    TEveScene*           m_geoScene;
 
    FWEventAnnotation*   m_overlayEventInfo;  
@@ -113,6 +114,7 @@ private:
 #endif
 
    boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
+   std::auto_ptr<FWViewContext> m_viewContext;
 };
 
 

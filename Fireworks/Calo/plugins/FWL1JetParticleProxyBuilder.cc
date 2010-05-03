@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1JetParticleProxyBuilder.cc,v 1.3 2010/04/20 20:49:40 amraktad Exp $
+// $Id: FWL1JetParticleProxyBuilder.cc,v 1.4 2010/04/21 15:38:20 yana Exp $
 //
 
 // system include files
@@ -32,11 +32,11 @@ private:
    FWL1JetParticleProxyBuilder(const FWL1JetParticleProxyBuilder&);    // stop default
    const FWL1JetParticleProxyBuilder& operator=(const FWL1JetParticleProxyBuilder&);    // stop default
   
-   virtual void build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWL1JetParticleProxyBuilder::build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+FWL1JetParticleProxyBuilder::build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    double scale = 10;
    float r_ecal = fireworks::Context::s_ecalR;
@@ -76,11 +76,11 @@ private:
    FWL1JetParticleLegoProxyBuilder(const FWL1JetParticleLegoProxyBuilder&);    // stop default
    const FWL1JetParticleLegoProxyBuilder& operator=(const FWL1JetParticleLegoProxyBuilder&);    // stop default
   
-   virtual void build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder );
+   virtual void build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWL1JetParticleLegoProxyBuilder::build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder ) 
+FWL1JetParticleLegoProxyBuilder::build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    const unsigned int nLineSegments = 6;
    const double jetRadius = 0.5;

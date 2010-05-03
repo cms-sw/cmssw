@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr 14 18:31:58 CEST 2010
-// $Id$
+// $Id: FWViewContext.cc,v 1.1 2010/04/15 20:15:15 amraktad Exp $
 //
 
 // system include files
@@ -61,6 +61,7 @@ void
 FWViewContext::setEnergyScale(float s)
 {
    m_energyScale = s;
+   scaleChanged_.emit(this);
 }
 
 //
