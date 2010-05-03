@@ -12,6 +12,7 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/RecoMuonObjects"/>
 <use   name="CondFormats/PhysicsToolsObjects"/>
+<use   name="DataFormats/PatCandidates"/>
 <use   name="hepmc"/>
 <use   name="heppdt"/>
 <use   name="CLHEP"/>
