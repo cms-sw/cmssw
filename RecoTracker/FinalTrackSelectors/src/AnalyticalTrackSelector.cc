@@ -1,4 +1,5 @@
 #include "RecoTracker/FinalTrackSelectors/interface/AnalyticalTrackSelector.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include <Math/DistFunc.h>
 #include "TMath.h"
@@ -16,10 +17,10 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
                          false ),  // as this is what you expect from a well behaved selector
     setQualityBit_( false ),
     qualityToSet_( TrackBase::undefQuality ),
+    // parameters for vertex selection
     vtxNumber_( cfg.getParameter<int32_t>("vtxNumber") ),
-    vtxNdof_( cfg.getParameter<double>("vtxNdof") ),
-    vtxChi2Prob_( cfg.getParameter<double>("vtxChi2Prob") ),
-	//  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
+    vertexCut_(cfg.getParameter<std::string>("vertexCut")),
+    //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
     res_par_(cfg.getParameter< std::vector<double> >("res_par") ),
     chi2n_par_( cfg.getParameter<double>("chi2n_par") ),
     d0_par1_(cfg.getParameter< std::vector<double> >("d0_par1")),
@@ -35,7 +36,9 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     // Cuts on numbers of layers with hits/3D hits/lost hits.
     min_layers_(cfg.getParameter<uint32_t>("minNumberLayers") ),
     min_3Dlayers_(cfg.getParameter<uint32_t>("minNumber3DLayers") ),
-    max_lostLayers_(cfg.getParameter<uint32_t>("maxNumberLostLayers") )
+    max_lostLayers_(cfg.getParameter<uint32_t>("maxNumberLostLayers")),
+    // Flag to apply absolute cuts if no PV passes the selection
+    applyAbsCutsIfNoPV_(cfg.getParameter<bool>("applyAbsCutsIfNoPV"))
 {
     if (cfg.exists("qualityBit")) {
         std::string qualityStr = cfg.getParameter<std::string>("qualityBit");
@@ -48,6 +51,10 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
             "If you set 'keepAllTracks' to true, you must specify which qualityBit to set.\n";
     if (setQualityBit_ && (qualityToSet_ == TrackBase::undefQuality)) throw cms::Exception("Configuration") <<
             "You can't set the quality bit " << cfg.getParameter<std::string>("qualityBit") << " as it is 'undefQuality' or unknown.\n";
+    if (applyAbsCutsIfNoPV_) {
+      max_d0NoPV_ = cfg.getParameter<double>("max_d0NoPV");
+      max_z0NoPV_ = cfg.getParameter<double>("max_z0NoPV");
+    }
 
     std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
 	produces<reco::TrackCollection>().setBranchAlias( alias + "Tracks");
@@ -113,7 +120,13 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
             if (!keepAllTracks_) continue;
         }
 	selTracks_->push_back( Track( trk ) ); // clone and store
-        if (ok && setQualityBit_) selTracks_->back().setQuality(qualityToSet_);
+        if (ok && setQualityBit_) {
+	  selTracks_->back().setQuality(qualityToSet_);
+	  if (!points.empty()) {
+	    if (qualityToSet_==TrackBase::loose) selTracks_->back().setQuality(TrackBase::looseSetWithPV);
+	    else if (qualityToSet_==TrackBase::highPurity) selTracks_->back().setQuality(TrackBase::highPuritySetWithPV);
+	  }
+	}
         if (copyExtras_) {
             // TrackExtras
             selTrackExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
@@ -225,11 +238,9 @@ bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const
    if (points.empty()) { //If not primaryVertices are reconstructed, check just the compatibility with the BS
      //z0 within (n sigma + dzCut) of the beam spot z, if no good vertex is found
      if ( abs(dz) < hypot(vertexBeamSpot.sigmaZ()*nSigmaZ_,dzCut) ) primaryVertexZCompatibility = true;  
-
      // d0 compatibility with beam line
      if (abs(d0) < d0Cut) primaryVertexD0Compatibility = true;     
    }
-
 
    for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
      if(primaryVertexZCompatibility && primaryVertexD0Compatibility) break;
@@ -239,12 +250,14 @@ bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const
      if (abs(d0PV) < d0Cut) primaryVertexD0Compatibility = true;     
    }
 
-
-   // Absolute cuts on all tracks impact parameters with respect to beam-spot.
-   // If BS is not compatible, verify if at least the reco-vertex is compatible (useful for incorrect BS settings)
-   if (abs(d0) > max_d0_ && !primaryVertexD0Compatibility) return false;
-   if (abs(dz) > max_z0_ && !primaryVertexZCompatibility) return false;
-
+   if (points.empty() && applyAbsCutsIfNoPV_) {
+     if ( abs(dz) > max_z0NoPV_ || abs(d0) > max_d0NoPV_) return false;
+   }  else {
+     // Absolute cuts on all tracks impact parameters with respect to beam-spot.
+     // If BS is not compatible, verify if at least the reco-vertex is compatible (useful for incorrect BS settings)
+     if (abs(d0) > max_d0_ && !primaryVertexD0Compatibility) return false;
+     if (abs(dz) > max_z0_ && !primaryVertexZCompatibility) return false;
+   }
 
    if (applyAdaptedPVCuts_) {
      return (primaryVertexD0Compatibility && primaryVertexZCompatibility);
@@ -259,10 +272,13 @@ void AnalyticalTrackSelector::selectVertices(const reco::VertexCollection &vtxs,
     using namespace reco;
     int32_t toTake = vtxNumber_; 
     for (VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
-        if ((it->ndof() >= vtxNdof_)  && 
-                ( (it->chi2() == 0.0) || (TMath::Prob(it->chi2(), static_cast<int32_t>(it->ndof()) ) >= vtxChi2Prob_) ) ) {
-            points.push_back(it->position()); 
-            toTake--; if (toTake == 0) break;
-        }
+
+      StringCutObjectSelector<Vertex> stringSelector(vertexCut_);
+      Vertex vtx = *it;
+      bool pass = stringSelector( vtx );
+      if( pass ) { 
+	points.push_back(it->position()); 
+	toTake--; if (toTake == 0) break;
+      }
     }
 }

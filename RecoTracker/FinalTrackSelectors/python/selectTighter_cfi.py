@@ -4,11 +4,11 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
     src = cms.InputTag("generalTracks"),
     keepAllTracks = cms.bool(False), ## if set to true tracks failing this filter are kept in the output
     beamspot = cms.InputTag("offlineBeamSpot"),
-                           
+
+    # vertex selection
     vertices = cms.InputTag("pixelVertices"),
     vtxNumber = cms.int32(-1),
-    vtxNdof = cms.double(2.), ## 3D: ndof = 2*sum(weights) - 3; 1D: ndof = tracks - 1
-    vtxChi2Prob = cms.double(0.01), ## at least 1% chi2nprobability (if it has a chi2)
+    vertexCut = cms.string('ndof>=2&((chi2==0.0)|(chi2prob(chi2,ndof)>=0.01))'),
 
     #untracked bool copyTrajectories = true // when doing retracking before
     copyTrajectories = cms.untracked.bool(False),
@@ -33,7 +33,10 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
     # Cuts on numbers of layers with hits/3D hits/lost hits. 
     minNumberLayers = cms.uint32(4),
     minNumber3DLayers = cms.uint32(4),
-    maxNumberLostLayers = cms.uint32(2)
+    maxNumberLostLayers = cms.uint32(2),
+
+    # Absolute cuts in case of no PV. If yes, please define also max_d0NoPV and max_z0NoPV
+    applyAbsCutsIfNoPV = cms.bool(False)
 
 )
 

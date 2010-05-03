@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.15 $
+ * \version $Revision: 1.16 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.15 2010/03/03 16:49:49 gpetrucc Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.16 2010/03/05 17:55:39 gpetrucc Exp $
  *
  */
 
@@ -66,17 +66,16 @@ namespace reco { namespace modules {
 
             /// vertex cuts
             int32_t vtxNumber_;
-            double  vtxNdof_;
-            double  vtxChi2Prob_;
+	    std::string vertexCut_;
 
-			//  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
-			std::vector<double> res_par_;
+	    //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
+	    std::vector<double> res_par_;
             double  chi2n_par_;
-			std::vector<double> d0_par1_;
-			std::vector<double> dz_par1_;
-			std::vector<double> d0_par2_;
-			std::vector<double> dz_par2_;
-			// Boolean indicating if adapted primary vertex compatibility cuts are to be applied.
+	    std::vector<double> d0_par1_;
+	    std::vector<double> dz_par1_;
+	    std::vector<double> d0_par2_;
+	    std::vector<double> dz_par2_;
+	    // Boolean indicating if adapted primary vertex compatibility cuts are to be applied.
             bool applyAdaptedPVCuts_;
 			
             /// Impact parameter absolute cuts
@@ -85,9 +84,14 @@ namespace reco { namespace modules {
             double nSigmaZ_;
 
             /// Cuts on numbers of layers with hits/3D hits/lost hits. 
-			uint32_t min_layers_;
-			uint32_t min_3Dlayers_;
-			uint32_t max_lostLayers_;
+	    uint32_t min_layers_;
+	    uint32_t min_3Dlayers_;
+	    uint32_t max_lostLayers_;
+	    
+	    // Flag and absolute cuts if no PV passes the selection
+	    bool applyAbsCutsIfNoPV_;
+	    double max_d0NoPV_;
+	    double max_z0NoPV_;
 			
             /// storage
             std::auto_ptr<reco::TrackCollection> selTracks_;

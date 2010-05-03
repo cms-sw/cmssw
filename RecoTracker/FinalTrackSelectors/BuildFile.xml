@@ -23,6 +23,7 @@
 <use   name="RecoLocalTracker/SiStripClusterizer"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="RecoTracker/TrackProducer"/>
+<use   name="CommonTools/Utils"/>
 <use   name="clhep"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
