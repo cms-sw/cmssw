@@ -201,6 +201,7 @@ process.looper = cms.Looper(
     # If you need to read the events in every iteration put this to false.
     # FastLoop = cms.untracked.bool(False),
 
+    ProbabilitiesFileInPath = cms.untracked.string("MuonAnalysis/MomentumScaleCalibration/test/Probs_JPsiFSR.root"),
 
     # Only used when reading events from a root tree
     MaxEventsFromRootTree = cms.int32(-1),
