@@ -655,5 +655,4 @@ DoHLTMinBiasPixelTracks = cms.Path(
     hltSiPixelDigis + 
     hltSiPixelClusters + 
     hltSiPixelRecHits +
-    hltPixelTracksForMinBias +
-    hltPixelCands)
+    hltPixelTracksForMinBias)
