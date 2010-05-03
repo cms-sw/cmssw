@@ -1292,4 +1292,17 @@ int HitPattern::numberOfDTStationsWithRZView() const {
   return stations[0]+stations[1]+stations[2]+stations[3];
 }
 
+int HitPattern::numberOfDTStationsWithBothViews() const {
+  int stations[4][2] = { {0,0}, {0,0}, {0,0}, {0,0} };
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (pattern == 0) break;
+    if (muonDTHitFilter(pattern) && validHitFilter(pattern)) {
+        stations[getMuonStation(pattern)-1][getDTSuperLayer(pattern) == 2] = 1;
+    }
+  }
+  return stations[0][0]*stations[0][1] + stations[1][0]*stations[1][1] + stations[2][0]*stations[2][1] + stations[3][0]*stations[3][1];
+}
+
+
 

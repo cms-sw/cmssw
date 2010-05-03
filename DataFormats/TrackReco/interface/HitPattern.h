@@ -303,6 +303,7 @@ namespace reco {
 
     int numberOfDTStationsWithRPhiView() const ;
     int numberOfDTStationsWithRZView() const ;
+    int numberOfDTStationsWithBothViews() const ;
   private:
 
     // number of 32 bit integers to store the full pattern
