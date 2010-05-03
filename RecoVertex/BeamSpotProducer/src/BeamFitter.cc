@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.51 2010/04/30 22:36:08 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.52 2010/05/03 20:16:11 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -480,7 +480,7 @@ bool BeamFitter::runFitter() {
     fbeamspot = tmpbs;
     fbeamspot.setType(reco::BeamSpot::Fake);
     if(debug_) std::cout << "Not enough good tracks selected! No beam fit!" << std::endl;
-    if(writeTxt_ && fasciiFile.is_open()) dumpTxtFile(outputTxt_,true);  // all results
+    if(writeTxt_) dumpTxtFile(outputTxt_,true);  // all results
     if(writeDIPTxt_ && fasciiDIP.is_open()) dumpTxtFile(outputDIPTxt_,false);// for DQM/DIP
   }
   fitted_ = true;
