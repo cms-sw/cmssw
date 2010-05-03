@@ -16,16 +16,25 @@ earlyDataPreFilter = cms.Sequence(oneGoodVertexFilter * noScraping)
 
 ### Define basic "good" electrons and muons
 ## ---------------------------------
-ELECTRON_BASE_CUT=("(fbrem > 0 &&" +
-                   " eSuperClusterOverP < 3 &&" +
-                   " hcalOverEcal < 0.15 &&" +
-                   " abs(deltaPhiSuperClusterTrackAtVtx) < 0.10 &&" +
-                   " abs(deltaEtaSuperClusterTrackAtVtx) < 0.02 &&" +
-                   " (( isEB && sigmaIetaIeta > 0.008) ||" +  ### NOTE for the lazy people that don't read things carefully (e.g. myself)
-                   "  (!isEB && sigmaIetaIeta > 0.02)) )");   ###  the cut is "sigma > something", and it's meant to cut away spikes.
-                                                              ### it's not the usual electron id cut "sigma < something" to reject qcd.
+
+from EGamma.ECGelec.stdPreselectionSelector_cfi import *
+from EGamma.ECGelec.spikeRemovalSelector_cfi import *
+#process.load('EGamma.ECGelec.stdPreselectionSelector_cfi')
+#process.load('EGamma.ECGelec.spikeRemovalSelector_cfi')
+spikeRemovalSelector.src = cms.InputTag("stdardPreselectionSelector")
+
+ELECTRON_BASE_CUT=("(pt > 5 &&" +
+                   " fbrem > -0.1 &&" +
+                   " eSeedClusterOverPout > 0.5 &&"+
+                   " hcalOverEcal < 0.1 &&" +
+                   " abs(deltaPhiSuperClusterTrackAtVtx) < 0.1 &&" +
+                   " abs(deltaEtaSuperClusterTrackAtVtx) < 0.015 &&" +
+                   " (( isEB && sigmaIetaIeta < 0.025 && sigmaIetaIeta > 0.005) ||" +
+                   "  (!isEB && sigmaIetaIeta < 0.065 && sigmaIetaIeta > 0.015)) )"); 
+
+
 goodElectrons = cms.EDFilter("GsfElectronRefSelector",
-    src = cms.InputTag("gsfElectrons"),
+    src = cms.InputTag("spikeRemovalSelector"),
     cut = cms.string(ELECTRON_BASE_CUT),
 )
 
@@ -60,7 +69,7 @@ isolatedGoodElectrons = cms.EDFilter("GsfElectronRefSelector",
 
 singleLeptons = cms.Sequence(
     goodMuons     +
-    goodElectrons +
+    stdardPreselectionSelector*spikeRemovalSelector*goodElectrons +
     highEnergyMuons     +
     highEnergyElectrons +
     isolatedGoodMuons      +
