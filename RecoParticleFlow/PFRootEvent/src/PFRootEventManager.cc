@@ -843,12 +843,15 @@ void PFRootEventManager::readOptions(const char* file,
 
   std::vector<double> DPtovPtCut;
   std::vector<unsigned> NHitCut;
+  bool useIterTracking;
   options_->GetOpt("particle_flow", "DPtoverPt_Cut", DPtovPtCut);
   options_->GetOpt("particle_flow", "NHit_Cut", NHitCut);
+  options_->GetOpt("particle_flow", "useIterTracking", useIterTracking);
 
   try {
     pfBlockAlgo_.setParameters( DPtovPtCut, 
 				NHitCut,
+				useIterTracking,
 				useConvBremPFRecTracks_); 
   }  
   catch( std::exception& err ) {

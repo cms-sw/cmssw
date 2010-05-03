@@ -66,7 +66,8 @@ class PFBlockAlgo {
 
   void setParameters( std::vector<double>& DPtovPtCut, 
 		      std::vector<unsigned>& NHitCut,
-		      bool useConvBremPFRecTracks );
+		      bool useConvBremPFRecTracks,
+		      bool useIterTracking);
   
   typedef std::vector<bool> Mask;
 
@@ -272,6 +273,9 @@ class PFBlockAlgo {
   /// Number of layers crossed cut for creating atrack element
   std::vector<unsigned> NHitCut_;
   
+  // Flag to turn off quality cuts which require iterative tracking (for heavy-ions)
+  bool useIterTracking_;
+
   /// switch on/off Conversions Brem Recovery with KF Tracks
   bool  useConvBremPFRecTracks_;
 

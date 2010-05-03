@@ -347,6 +347,7 @@ particle_flow	on/off	1
 // and if nHit >= nHitCut
 particle_flow DPtoverPt_Cut  -1. -1. -1. -1. -1. 
 particle_flow NHit_Cut 3 3 3 3 3
+particle_flow useIterTracking 1
 
 // Treatment of muons : 
 // Expected energy in ECAL and HCAL, and RMS

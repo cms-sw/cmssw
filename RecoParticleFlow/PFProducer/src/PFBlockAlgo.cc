@@ -22,6 +22,7 @@ PFBlockAlgo::PFBlockAlgo() :
   blocks_( new reco::PFBlockCollection ),
   DPtovPtCut_(std::vector<double>(4,static_cast<double>(999.))),
   NHitCut_(std::vector<unsigned int>(4,static_cast<unsigned>(0))), 
+  useIterTracking_(true),
   resPSpitch_ (0),
   resPSlength_ (0),
   debug_(false) {}
@@ -30,10 +31,12 @@ PFBlockAlgo::PFBlockAlgo() :
 
 void PFBlockAlgo::setParameters( std::vector<double>& DPtovPtCut,
 				 std::vector<unsigned int>& NHitCut,
-				 bool useConvBremPFRecTracks ) {
+				 bool useConvBremPFRecTracks,
+				 bool useIterTracking) {
   
   DPtovPtCut_    = DPtovPtCut;
   NHitCut_       = NHitCut;
+  useIterTracking_ = useIterTracking;
   useConvBremPFRecTracks_ = useConvBremPFRecTracks;
   double strip_pitch = 0.19;
   double strip_length = 6.1;
@@ -1510,6 +1513,8 @@ PFBlockAlgo::goodPtResolution( const reco::TrackRef& trackref) {
   // Protection against 0 momentum tracks
   if ( P < 0.05 ) return false;
 
+  if(useIterTracking_){
+
   // Temporary : Reject all tracking iteration beyond 5th step. 
   if ( Algo > 4 ) return false;
  
@@ -1538,6 +1543,8 @@ PFBlockAlgo::goodPtResolution( const reco::TrackRef& trackref) {
 	      << std::endl;
     */
     return false;
+  }
+
   }
   /*
   std::cout << "Track Accepted : ";

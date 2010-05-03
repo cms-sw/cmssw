@@ -44,6 +44,8 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     # Run particle flow at HLT (hence no RecMuons, no GSF tracks)
     usePFatHLT = cms.bool(False),
 
+    # Turn of track quality cuts that require iterative tracking for heavy-ions
+    useIterTracking = cms.bool(True),
 )
 
 

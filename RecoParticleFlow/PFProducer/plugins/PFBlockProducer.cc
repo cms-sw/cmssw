@@ -103,9 +103,13 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   std::vector<unsigned> NHitCut 
      = iConfig.getParameter<std::vector<unsigned> >("pf_NHit_Cut");   
 
+  bool useIterTracking
+    = iConfig.getParameter<bool>("useIterTracking");
+
   pfBlockAlgo_.setParameters( DPtovPtCut,
 			      NHitCut,
-			      useConvBremPFRecTracks );
+			      useConvBremPFRecTracks,
+			      useIterTracking);
   
   pfBlockAlgo_.setDebug(debug_);
 
