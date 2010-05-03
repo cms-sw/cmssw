@@ -147,8 +147,8 @@ void ZMuMuTrackUserData::produce( Event & evt, const EventSetup & ) {
     tk.addUserFloat("zDau_dxyFromPV", zDaudxyFromPV);
     tk.addUserFloat("zDau_dzFromPV", zDaudzFromPV);
     tk.addUserFloat("zDau_NofMuonHits" , zDauNofMuonHits ); 
-    tk.addUserFloat("zDau_NofStripHits" , zDauNofStripHits ); 
-    tk.addUserFloat("zDau_NofPixelHits" , zDauNofPixelHits ); 
+    tk.addUserFloat("zDau_TrkNofStripHits" , zDauNofStripHits ); 
+    tk.addUserFloat("zDau_TrkNofPixelHits" , zDauNofPixelHits ); 
     tk.addUserFloat("zDau_NofMuChambers", zDauNofMuChambers);
     tk.addUserFloat("zDau_NofMuMatches", zDauNofMuMatches);
     tk.addUserFloat("zDau_Chi2", zDauChi2);
