@@ -39,7 +39,7 @@ class express(Scenario):
 
         skims = ['SiStripCalZeroBias',
                  'TkAlMinBias',
-                 'RpcCalHLT',
+                 'DtCalib',
                  'MuAlCalIsolatedMu']
         step = stepALCAPRODUCER(skims)
         options = Options()
