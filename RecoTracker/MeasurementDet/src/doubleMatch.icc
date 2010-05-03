@@ -7,6 +7,15 @@
 
 #include "DataFormats/Math/interface/SSEVec.h"
 
+namespace {
+  struct StereoInfo {
+    mathSSE::Vec2D c1vec;
+    const SiStripRecHit2D * secondHit;
+    double sigmap22;
+    double m10, m11;
+  };
+}
+
 template<typename Collector>
 void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Collector & collector) const {
 
@@ -56,6 +65,60 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   const StripTopology& topol=(const StripTopology&)stripdet->topology();
 
 
+  std::vector<SteroInfo> cache;
+  cache.reserve(simpleSteroHitsByValue.size());
+  //iterate on stereo rechits
+  // fill cache with relevant info
+  for ( std::vector<SiStripRecHit2D>::const_iterator seconditer=simpleSteroHitsByValue.begin();  
+	seconditer!=simpleSteroHitsByValue.end();
+	++seconditer
+	){
+
+    const SiStripRecHit2D & secondHit = (*seconditer);
+    
+    double sigmap22 =secondHit.sigmaPitch();
+    if (sigmap22<0) {
+      LocalError tmpError( secondHit.localPositionErrorFast());
+      HelpertRecHit2DLocalPos::updateWithAPE(tmpError, *partnerstripdet);
+      MeasurementError errorstereoRH=partnertopol.measurementError(secondHit.localPositionFast(),tmpError);
+      
+      double pitch=partnertopol.localPitch(secondHit.localPositionFast());
+      secondHit.setSigmaPitch(sigmap22=errorstereoRH.uu()*pitch*pitch);
+    }
+    
+    
+    double STEREOpointX=partnertopol.measurementPosition( secondHit.localPositionFast()).x();
+    MeasurementPoint STEREOpointini(STEREOpointX,-0.5);
+    MeasurementPoint STEREOpointend(STEREOpointX,0.5);
+    
+    LocalPoint locp1 = partnertopol.localPosition(STEREOpointini);
+    LocalPoint locp2 = partnertopol.localPosition(STEREOpointend);
+    
+    GlobalPoint globalpointini=partnerStripDetTrans.toGlobal(locp1);
+    GlobalPoint globalpointend=partnerStripDetTrans.toGlobal(locp2);
+    
+    // position of the initial and final point of the strip in glued local coordinates
+    LocalPoint positiononGluedini=gluedDetInvTrans.toLocal(globalpointini);
+    LocalPoint positiononGluedend=gluedDetInvTrans.toLocal(globalpointend); 
+    
+    Vec3F offset = trdir.basicVector().v * positiononGluedini.basicVector().v.get1(2)/trdir.basicVector().v.get1(2);
+    
+    
+    Vec3F ret1 = positiononGluedini.basicVector().v - offset;
+    Vec3F ret2 = positiononGluedend.basicVector().v - offset;
+    
+    double m10=-(ret2.arr[1] - ret1.arr[1]); 
+    double m11=  ret2.arr[0] - ret1.arr[0];
+    
+    Vec2D c1vec; c1vec.set1(m11*ret1.arr[1] + m10 * ret1.arr[0]);
+
+      // store
+    StereoInfo info = {&secondHit,sigmap22,m10,m11,c1vec};
+    cache.push_back(info);
+  }
+
+
+
   for (RecHitContainer::const_iterator monoHit = monoHits.begin();
        monoHit != monoHits.end(); ++monoHit) {
     const TrackingRecHit* tkhit = (**monoHit).hit();
@@ -71,6 +134,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
     LocalPoint locp1o = topol.localPosition(RPHIpointini);
     LocalPoint locp2o = topol.localPosition(RPHIpointend);
 
+    /*
     // in case of no track hypothesis assume a track from the origin through the center of the strip
     if(notk){
       LocalPoint lcenterofstrip=monoRH->localPositionFast();
@@ -78,7 +142,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
       GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
       trdir=gluedDetInvTrans.toLocal(gtrackdirection);
     }
-
+    */
 	      
     //project mono hit on glued det
     //StripPosition projectedstripmono=project(stripdet,gluedDet,stripmono,trackdirection);
@@ -132,58 +196,22 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
     const Vec3F cslsimd = scc1 * ssc1 * l1vec;
     Vec3F sigmap12simd; sigmap12simd.set1(sigmap12);
     
-    for ( std::vector<SiStripRecHit2D>::const_iterator seconditer=simpleSteroHitsByValue.begin();  
-	  seconditer!=simpleSteroHitsByValue.end();
-	  ++seconditer
-	  ){//iterate on stereo rechits
+    for (size_t i=0; i!=cache.size(); ++i) {
+      StereoInfo const si = cache[i];
 
-      const SiStripRecHit2D & secondHit = (*seconditer);
-
-      double STEREOpointX=partnertopol.measurementPosition( secondHit.localPositionFast()).x();
-      MeasurementPoint STEREOpointini(STEREOpointX,-0.5);
-      MeasurementPoint STEREOpointend(STEREOpointX,0.5);
-      
-      LocalPoint locp1 = partnertopol.localPosition(STEREOpointini);
-      LocalPoint locp2 = partnertopol.localPosition(STEREOpointend);
-      
-      GlobalPoint globalpointini=partnerStripDetTrans.toGlobal(locp1);
-      GlobalPoint globalpointend=partnerStripDetTrans.toGlobal(locp2);
-    
-      // position of the initial and final point of the strip in glued local coordinates
-      LocalPoint positiononGluedini=gluedDetInvTrans.toLocal(globalpointini);
-      LocalPoint positiononGluedend=gluedDetInvTrans.toLocal(globalpointend); 
-    
-      Vec3F offset = trdir.basicVector().v * positiononGluedini.basicVector().v.get1(2)/trdir.basicVector().v.get1(2);
-    
-
-      Vec3F ret1 = positiononGluedini.basicVector().v - offset;
-      Vec3F ret2 = positiononGluedend.basicVector().v - offset;
-  
-      double m10=-(ret2.arr[1] - ret1.arr[1]); 
-      double m11=  ret2.arr[0] - ret1.arr[0];
-      
-      Vec2D minv10(m11, -m10);
-      Vec2D mult; mult.set1(1./(m00*m11 - m01*m10));
-      Vec2D c1vec; c1vec.set1(m11*ret1.arr[1] + m10 * ret1.arr[0]);
-      Vec2D resultmatmul = mult * (minv10 * c0vec + minv00 * c1vec);
+      // match 
+      Vec2D minv10(si.m11, -si.m10);
+      Vec2D mult; mult.set1(1./(m00*si.m11 - m01*si.m10));
+      Vec2D resultmatmul = mult * (minv10 * c0vec + minv00 * si.c1vec);
 	       
       LocalPoint position(resultmatmul.arr[0], resultmatmul.arr[1]);
 
       LocalError tempError (100,0,100);
       if (!((gluedDet->surface()).bounds().inside(position,tempError,theMatcher->scale_))) continue;                                                       
       
-      double c2 = -m10;
-      double s2 = -m11;
+      double c2 = -si.m10;
+      double s2 = -si.m11;
       double l2 = 1./(c2*c2+s2*s2);
-      double sigmap22 =secondHit.sigmaPitch();
-      if (sigmap22<0) {
-	LocalError tmpError( secondHit.localPositionErrorFast());
-	HelpertRecHit2DLocalPos::updateWithAPE(tmpError, *partnerstripdet);
-	MeasurementError errorstereoRH=partnertopol.measurementError(secondHit.localPositionFast(),tmpError);
-
-	double pitch=partnertopol.localPitch(secondHit.localPositionFast());
-	secondHit.setSigmaPitch(sigmap22=errorstereoRH.uu()*pitch*pitch);
-      }
       
       double diff=(c1*s2-c2*s1);
       double invdet2 = 1/(diff*diff*l1*l2);
@@ -192,7 +220,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
       Vec3F ccssimd(s2, c2, c2, 0);
       Vec3F csssimd(s2, s2, c2, 0);
       Vec3F l2simd; l2simd.set1(l2);
-      Vec3F sigmap22simd; sigmap22simd.set1(sigmap22);
+      Vec3F sigmap22simd; sigmap22simd.set1(si.sigmap22);
       Vec3F result = invdet2simd * (sigmap22simd * cslsimd + sigmap12simd * ccssimd * csssimd * l2simd);
       
       
@@ -205,7 +233,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 	//...and add it to the Rechit collection 
 	
 	collector.collector()(SiStripMatchedRecHit2D(position, error,gluedDet->geographicalId() ,
-						     monoRH,&secondHit));
+						     monoRH,si.secondHit));
       }
 
     }
