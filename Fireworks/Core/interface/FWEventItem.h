@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.39 2010/03/04 21:31:47 chrjones Exp $
+// $Id: FWEventItem.h,v 1.40 2010/04/09 11:17:46 amraktad Exp $
 //
 
 // system include files
@@ -155,6 +155,9 @@ public:
    
    // ---------- static member functions --------------------
 
+   static int minLayerValue();
+   static int maxLayerValue();
+
    // ---------- member functions ---------------------------
    void setEvent(const fwlite::Event* iEvent);
 
@@ -177,6 +180,7 @@ public:
    /**change layering*/
    void moveToFront();
    void moveToBack();
+   void moveToLayer(int layer);
 
    void unselect(int iIndex) const;
    void select(int iIndex) const;

@@ -8,11 +8,12 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.41 2010/03/04 21:31:47 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.42 2010/04/09 11:17:46 amraktad Exp $
 //
 
 // system include files
 #include <iostream>
+#include <algorithm>
 #include <exception>
 #include <TClass.h>
 #include "TVirtualCollectionProxy.h"
@@ -46,6 +47,17 @@ defaultMemberFunctionNames()
    }
    return s_names;
 }
+
+int FWEventItem::minLayerValue()
+{
+   return -100;
+}
+
+int FWEventItem::maxLayerValue()
+{
+   return 100;
+}
+
 
 //
 // constructors and destructor
@@ -296,13 +308,13 @@ FWEventItem::moveToFront()
                                            itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
        ++it) {
-      if( (*it) && (*it)->layer() > largest) {
+      if ((*it) && (*it != this) && (*it)->layer() > largest) {
          largest= (*it)->layer();
       }
    }
 
-   if(largest != layer()) {
-      m_layer = largest+1;
+   if(largest >= layer()) {
+      m_layer = std::min(largest+1, maxLayerValue());
    }
 
    m_itemInfos.clear();
@@ -319,15 +331,26 @@ FWEventItem::moveToBack()
                                            itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
        ++it) {
-      if( (*it) && (*it)->layer() < smallest) {
+      if((*it) && (*it != this) && (*it)->layer() < smallest) {
          smallest= (*it)->layer();
       }
    }
 
-   if(smallest != layer()) {
-      m_layer = smallest-1;
+   if(smallest <= layer()) {
+      m_layer = std::max(smallest-1, minLayerValue());
    }
-   FWChangeSentry sentry(*(this->changeManager()));
+
+   m_itemInfos.clear();
+   m_accessor->reset();
+   handleChange();
+}
+
+void
+FWEventItem::moveToLayer(int layer)
+{
+   assert(0!=m_context->eventItemsManager());
+
+   m_layer = std::max(std::min(layer, maxLayerValue()), minLayerValue());
 
    m_itemInfos.clear();
    m_accessor->reset();
@@ -457,7 +480,7 @@ FWEventItem::isInFront() const
                                            itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
        ++it) {
-      if((*it) && (*it)->layer() > layer()) {
+      if((*it) && (*it != this) && (*it)->layer() >= layer()) {
          return false;
       }
    }
@@ -472,7 +495,7 @@ FWEventItem::isInBack() const
                                            itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
        ++it) {
-      if((*it) && (*it)->layer() < layer()) {
+      if((*it) && (*it != this) && (*it)->layer() <= layer()) {
          return false;
       }
    }

@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.12 2009/05/27 15:40:13 chrjones Exp $
+// $Id: CmsShowEDI.h,v 1.13 2009/08/12 18:17:21 chrjones Exp $
 //
 
 // system include files
@@ -35,6 +35,7 @@ class FWEventItem;
 class TGLabel;
 class FWColorSelect;
 class TGCheckButton;
+class TGNumberEntry;
 class TGTextEntry;
 class TGTextButton;
 class TGTextView;
@@ -70,8 +71,11 @@ public:
    void runFilter();
    void runSelection();
    void selectAll();
+
+   void updateLayerControls();
    void moveToBack();
    void moveToFront();
+   void moveToLayer(Long_t);
 
    void show(FWDataCategories);
 private:
@@ -86,6 +90,7 @@ private:
    TGTextButton* m_removeButton;
    TGTextButton* m_frontButton;
    TGTextButton* m_backButton;
+   TGNumberEntry* m_layerEntry;
    FWColorSelect* m_colorSelectWidget;
    TGCheckButton* m_isVisibleButton;
    FWGUIValidatingTextEntry* m_filterExpressionEntry;

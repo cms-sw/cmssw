@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.28 2009/08/12 19:18:45 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.29 2009/11/20 17:57:21 chrjones Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "TGString.h"
 #include "TColor.h"
 #include "TG3DLine.h"
+#include "TGNumberEntry.h"
 #include "TGTextEntry.h"
 #include "TGTextView.h"
 #include "TGLayout.h"
@@ -95,14 +96,22 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    graphicsFrame->AddFrame(m_isVisibleButton);
    TGHorizontal3DLine* separator = new TGHorizontal3DLine(graphicsFrame, 200, 5);
    graphicsFrame->AddFrame(separator, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
-   TGLabel* orderLabel = new TGLabel(graphicsFrame, "Set Drawing Order");
+   TGLabel* orderLabel = new TGLabel(graphicsFrame, "Drawing Order of 2D Projections");
    graphicsFrame->AddFrame(orderLabel);
-   m_frontButton = new TGTextButton(graphicsFrame,"Move Projected to Front");
-   m_frontButton->SetEnabled(kFALSE);
-   graphicsFrame->AddFrame(m_frontButton);
-   m_backButton = new TGTextButton(graphicsFrame,"Move Projected to Back");
-   m_backButton->SetEnabled(kFALSE);
-   graphicsFrame->AddFrame(m_backButton);
+   {
+      TGHorizontalFrame *hf = new TGHorizontalFrame(graphicsFrame, 20, 20);
+      m_backButton = new TGTextButton(hf,"To Back");
+      m_backButton->SetEnabled(kFALSE);
+      hf->AddFrame(m_backButton);
+      m_layerEntry = new TGNumberEntry(hf, 0.0, 4, -1, TGNumberFormat::kNESInteger,
+                                       TGNumberFormat::kNEAAnyNumber, TGNumberFormat::kNELLimitMinMax,
+                                       FWEventItem::minLayerValue(), FWEventItem::maxLayerValue());
+      hf->AddFrame(m_layerEntry);
+      m_frontButton = new TGTextButton(hf,"To Front");
+      m_frontButton->SetEnabled(kFALSE);
+      hf->AddFrame(m_frontButton);
+      graphicsFrame->AddFrame(hf);
+   }
    m_tabs->AddTab("Graphics", graphicsFrame);
 
    // Filter tab
@@ -216,7 +225,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_selectAllButton->Connect("Clicked()", "CmsShowEDI", this, "selectAll()");
    m_frontButton->Connect("Clicked()","CmsShowEDI",this,"moveToFront()");
    m_backButton->Connect("Clicked()","CmsShowEDI",this,"moveToBack()");
-
+   m_layerEntry->Connect("ValueSet(Long_t)","CmsShowEDI",this,"moveToLayer(Long_t)");
 
    SetWindowName("Collection Controller");
    Resize(GetDefaultSize());
@@ -244,6 +253,7 @@ CmsShowEDI::~CmsShowEDI()
    m_removeButton->Disconnect("Clicked()", this, "removeItem()");
    m_frontButton->Disconnect("Clicked()",this,"moveToFront()");
    m_backButton->Disconnect("Clicked()",this,"moveToBack()");
+   m_layerEntry->Disconnect("ValueSet(Long_t)",this,"moveToLayer(Long_t)");
 
    //  delete m_objectLabel;
    //  delete m_colorSelectWidget;
@@ -303,8 +313,8 @@ CmsShowEDI::fillEDIFrame() {
          m_selectButton->SetEnabled(kTRUE);
          m_selectAllButton->SetEnabled(kTRUE);
          m_removeButton->SetEnabled(kTRUE);
-         if(!m_item->isInFront()) {m_frontButton->SetEnabled(kTRUE);}
-         if(!m_item->isInBack()) {m_backButton->SetEnabled(kTRUE);}
+         updateLayerControls();
+         m_layerEntry->SetState(kTRUE);
          m_displayChangedConn = m_item->defaultDisplayPropertiesChanged_.connect(boost::bind(&CmsShowEDI::updateDisplay, this));
          m_modelChangedConn = m_item->changed_.connect(boost::bind(&CmsShowEDI::updateFilter, this));
          //    m_selectionChangedConn = m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowEDI::updateSelection, this));
@@ -350,24 +360,30 @@ CmsShowEDI::updateDisplay() {
 }
 
 void
+CmsShowEDI::updateLayerControls()
+{
+   m_backButton->SetEnabled(!m_item->isInBack());
+   m_frontButton->SetEnabled(!m_item->isInFront());
+   m_layerEntry->SetIntNumber(m_item->layer());
+}
+void
 CmsShowEDI::moveToBack()
 {
    m_item->moveToBack();
-   m_backButton->SetEnabled(kFALSE);
-   if(!m_item->isInFront()) {
-      m_frontButton->SetEnabled(kTRUE);
-   }
+   updateLayerControls();
 }
 void
 CmsShowEDI::moveToFront()
 {
    m_item->moveToFront();
-   m_frontButton->SetEnabled(kFALSE);
-   if(!m_item->isInBack()) {
-      m_backButton->SetEnabled(kTRUE);
-   }
+   updateLayerControls();
 }
-
+void
+CmsShowEDI::moveToLayer(Long_t)
+{
+   m_item->moveToLayer(static_cast<Int_t>(m_layerEntry->GetIntNumber()));
+   updateLayerControls(); 
+}
 
 void
 CmsShowEDI::updateFilter() {
@@ -400,6 +416,11 @@ CmsShowEDI::disconnectAll() {
       m_selectButton->SetEnabled(kFALSE);
       m_selectAllButton->SetEnabled(kFALSE);
       m_removeButton->SetEnabled(kFALSE);
+      m_backButton->SetEnabled(kFALSE);
+      m_frontButton->SetEnabled(kFALSE);
+      m_layerEntry->SetIntNumber(0);
+      m_layerEntry->SetState(kFALSE);
+
    }
 }
 
