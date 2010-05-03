@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.12 2009/09/24 09:54:09 mommsen Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.13 2009/10/01 14:58:27 mommsen Exp $
 /// @file: DataSenderMonitorCollection.h 
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
@@ -26,8 +26,8 @@ namespace stor {
    * and events by their source (resource broker, filter unit, etc.)
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/09/24 09:54:09 $
+   * $Revision: 1.13 $
+   * $Date: 2009/10/01 14:58:27 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -145,7 +145,8 @@ namespace stor {
       MonitoredQuantity mediumIntervalEventSize;
       MonitoredQuantity dqmEventSize;
       MonitoredQuantity errorEventSize;
-      MonitoredQuantity staleChainSize;
+      MonitoredQuantity faultyEventSize;
+      MonitoredQuantity faultyDQMEventSize;
       MonitoredQuantity dataDiscardCount;
       MonitoredQuantity dqmDiscardCount;
       MonitoredQuantity skippedDiscardCount;
@@ -160,7 +161,8 @@ namespace stor {
       ) :
         key(fuKey), shortIntervalEventSize(updateInterval,10),
         mediumIntervalEventSize(updateInterval,300), dqmEventSize(updateInterval,10),
-        errorEventSize(updateInterval,10), staleChainSize(updateInterval,10),
+        errorEventSize(updateInterval,10),
+        faultyEventSize(updateInterval,10), faultyDQMEventSize(updateInterval,10),
         dataDiscardCount(updateInterval,10),dqmDiscardCount(updateInterval,10),
         skippedDiscardCount(updateInterval,10),
         initMsgCount(0), lastRunNumber(0), lastEventNumber(0) {}
@@ -178,7 +180,8 @@ namespace stor {
       MonitoredQuantity eventSize;
       MonitoredQuantity dqmEventSize;
       MonitoredQuantity errorEventSize;
-      MonitoredQuantity staleChainSize;
+      MonitoredQuantity faultyEventSize;
+      MonitoredQuantity faultyDQMEventSize;
       MonitoredQuantity dataDiscardCount;
       MonitoredQuantity dqmDiscardCount;
       MonitoredQuantity skippedDiscardCount;
@@ -192,7 +195,8 @@ namespace stor {
         const utils::duration_t& updateInterval
       ) :
         key(rbKey), eventSize(updateInterval,10), dqmEventSize(updateInterval,10),
-        errorEventSize(updateInterval,10), staleChainSize(updateInterval,10),
+        errorEventSize(updateInterval,10),
+        faultyEventSize(updateInterval,10), faultyDQMEventSize(updateInterval,10),
         dataDiscardCount(updateInterval,10),dqmDiscardCount(updateInterval,10),
         skippedDiscardCount(updateInterval,10),
         initMsgCount(0), lastRunNumber(0), lastEventNumber(0) {}
@@ -227,7 +231,8 @@ namespace stor {
       MonitoredQuantity::Stats eventStats;
       MonitoredQuantity::Stats dqmEventStats;
       MonitoredQuantity::Stats errorEventStats;
-      MonitoredQuantity::Stats staleChainStats;
+      MonitoredQuantity::Stats faultyEventStats;
+      MonitoredQuantity::Stats faultyDQMEventStats;
       MonitoredQuantity::Stats dataDiscardStats;
       MonitoredQuantity::Stats dqmDiscardStats;
       MonitoredQuantity::Stats skippedDiscardStats;
@@ -261,7 +266,8 @@ namespace stor {
       MonitoredQuantity::Stats mediumIntervalEventStats;
       MonitoredQuantity::Stats dqmEventStats;
       MonitoredQuantity::Stats errorEventStats;
-      MonitoredQuantity::Stats staleChainStats;
+      MonitoredQuantity::Stats faultyEventStats;
+      MonitoredQuantity::Stats faultyDQMEventStats;
       MonitoredQuantity::Stats dataDiscardStats;
       MonitoredQuantity::Stats dqmDiscardStats;
       MonitoredQuantity::Stats skippedDiscardStats;
@@ -311,9 +317,9 @@ namespace stor {
     void addErrorEventSample(I2OChain const&);
 
     /**
-     * Adds the specified stale chain to the monitor collection.
+     * Adds the specified faulty chain to the monitor collection.
      */
-    void addStaleChainSample(I2OChain const&);
+    void addFaultyEventSample(I2OChain const&);
 
     /**
      * Increments the number of data discard messages tracked by the monitor collection.
@@ -366,7 +372,7 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
-    void staleChainAlarm(const unsigned int&) const;
+    void faultyEventsAlarm(const unsigned int&) const;
     void ignoredDiscardAlarm(const unsigned int&) const;
 
     bool getAllNeededPointers(I2OChain const& i2oChain,
@@ -404,7 +410,7 @@ namespace stor {
     xdata::UnsignedInteger32 _activeEPs;
     xdata::Integer32 _outstandingDataDiscards;
     xdata::Integer32 _outstandingDQMDiscards;
-    xdata::UnsignedInteger32 _staleChains;
+    xdata::UnsignedInteger32 _faultyEvents;
     xdata::UnsignedInteger32 _ignoredDiscards;
 
     OutputModuleRecordMap _outputModuleMap;

@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.15.2.1 2010/04/21 09:54:24 mommsen Exp $
+// $Id: EventDistributor.cc,v 1.16 2010/04/30 07:44:56 mommsen Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -49,7 +49,7 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
 
     DataSenderMonitorCollection& dataSenderMonColl =
       _sharedResources->_statisticsReporter->getDataSenderMonitorCollection();
-    dataSenderMonColl.addStaleChainSample(ioc);
+    dataSenderMonColl.addFaultyEventSample(ioc);
   }
   else
   {
@@ -219,7 +219,7 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
       // but it's probably better than nothing in the short term.
       DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
         _statisticsReporter->getDataSenderMonitorCollection();
-      dataSenderMonColl.addStaleChainSample(ioc);
+      dataSenderMonColl.addFaultyEventSample(ioc);
 
       break;
     }

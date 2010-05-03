@@ -1,4 +1,4 @@
-// $Id: Exception.h,v 1.13.2.1 2010/04/22 14:00:59 mommsen Exp $
+// $Id: Exception.h,v 1.14 2010/04/30 07:44:16 mommsen Exp $
 /// @file: Exception.h 
 
 #ifndef StorageManager_Exception_h
@@ -32,8 +32,8 @@ namespace stor {
      List of exceptions thrown by the StorageManager
 
      $Author: mommsen $
-     $Revision: 1.13.2.1 $
-     $Date: 2010/04/22 14:00:59 $
+     $Revision: 1.14 $
+     $Date: 2010/04/30 07:44:16 $
   */
 }
 
@@ -189,9 +189,9 @@ XCEPT_DEFINE_EXCEPTION( stor, SataBeast )
 XCEPT_DEFINE_EXCEPTION( stor, StateTransition )
 
 /**
- * Exception for sentinel alarm if stale chains are found
+ * Exception for sentinel alarm if faulty chains are found
  */
-XCEPT_DEFINE_EXCEPTION( stor, StaleChain )
+XCEPT_DEFINE_EXCEPTION( stor, FaultyEvents )
 
 /**
  * Exception for sentinel alarm if discards are ignored
