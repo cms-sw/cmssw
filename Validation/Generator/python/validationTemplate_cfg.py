@@ -1,9 +1,13 @@
 import FWCore.ParameterSet.Config as cms
   
-process = cms.Process("TopDQM")
+process = cms.Process("TOPVAL")
 
-## define MessageLogger
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
+## Message Logger (see: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMessageLogger for more information)
+process.MessageLogger = cms.Service("MessageLogger",
+	categories = cms.untracked.vstring('MainResults'
+#					  ,'Debug'
+	)
+)
 
 ## DQM Services
 process.load("DQMServices.Core.DQM_cfg")
@@ -13,15 +17,13 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 ## source Input File
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
    ## the following files are in for testing
-   '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0006/14920B0A-0DE8-DE11-B138-002618943926.root',
-   '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0006/1AD1F37E-0BE8-DE11-8D83-00261894396A.root',
-   '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0006/AC476888-0CE8-DE11-8EDC-0026189438D4.root',
-   '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0007/4ADBBCAE-37E8-DE11-AE89-00304867C1BA.root',
-   '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0007/6ABDD43B-13E8-DE11-8A47-001A92971BA0.root',
-   '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0007/744B08B2-12E8-DE11-A729-001A928116B8.root',
-   '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0007/A2CC4B57-11E8-DE11-B413-003048678D9A.root',
-   '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0007/B69516B8-12E8-DE11-982F-00304867BFAE.root',
-   '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0007/CEFA8143-12E8-DE11-A51F-0018F3D096E4.root'   
+   '/store/relval/CMSSW_3_1_2/RelValTTbar/GEN-SIM-RECO/MC_31X_V3-v1/0007/CE243FB9-A778-DE11-8891-000423D98BC4.root',
+   '/store/relval/CMSSW_3_1_2/RelValTTbar/GEN-SIM-RECO/MC_31X_V3-v1/0006/D63BFAF8-5178-DE11-8439-001D09F24F65.root',
+   '/store/relval/CMSSW_3_1_2/RelValTTbar/GEN-SIM-RECO/MC_31X_V3-v1/0006/B8BA4AF7-5178-DE11-9F72-001D09F23A6B.root',
+   '/store/relval/CMSSW_3_1_2/RelValTTbar/GEN-SIM-RECO/MC_31X_V3-v1/0006/9C8FF416-5278-DE11-B809-0019B9F70607.root',
+   '/store/relval/CMSSW_3_1_2/RelValTTbar/GEN-SIM-RECO/MC_31X_V3-v1/0006/98079214-5278-DE11-8880-001D09F27067.root',
+   '/store/relval/CMSSW_3_1_2/RelValTTbar/GEN-SIM-RECO/MC_31X_V3-v1/0006/62B58021-5278-DE11-9574-0019B9F6C674.root',
+   '/store/relval/CMSSW_3_1_2/RelValTTbar/GEN-SIM-RECO/MC_31X_V3-v1/0006/3AEF4E28-5278-DE11-A2D4-000423D6CA72.root'
   )
 )
 ## define maximal number of events to loop over

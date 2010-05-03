@@ -1,0 +1,20 @@
+<use name=Alignment/TrackerAlignment>
+<use name=FWCore/Framework>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=Geometry/TrackingGeometryAligner>
+<use name=CondCore/DBOutputService>
+<use name=AnalysisDataFormats/SiStripClusterInfo>
+<use name=RecoTracker/TransientTrackingRecHit>
+
+# ESProducers for misaligned tracker geometry
+<library name=AlignmentTrackerAlignmentPlugin file="*Misalign*.cc">
+  <flags EDM_PLUGIN=1>
+</library>
+
+# modules for tracker AlCaSkims
+<library name=AlignmentTrackerAlignmentSkimPlugin file="AlignmentPrescaler.cc,TkAlCaSkimTreeMerger.cc,TkAlCaOverlapTagger.cc">
+ <use name=DataFormats/TrackerRecHit2D>
+ <use name=DataFormats/Alignment>
+ <flags EDM_PLUGIN=1>
+</library>

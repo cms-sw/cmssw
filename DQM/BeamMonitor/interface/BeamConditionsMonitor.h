@@ -3,8 +3,8 @@
 
 /** \class BeamConditionsMonitor
  * *
- *  $Date: 2010/01/17 13:57:33 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/11/04 22:43:11 $
+ *  $Revision: 1.3 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -58,7 +58,7 @@ class BeamConditionsMonitor : public edm::EDAnalyzer {
   
   edm::ParameterSet parameters_;
   std::string monitorName_;
-  edm::InputTag bsSrc_; // beam spot
+  std::string bsSrc_; // beam spot
   bool debug_;
   
   DQMStore* dbe_;

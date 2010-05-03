@@ -119,60 +119,60 @@ void SiPixelBadModuleReader::analyze( const edm::Event& e, const edm::EventSetup
 
 	  //Histograms in "colz":  those with 2 hits are totally fine.  Those with 1 are dead.  Done this way to visualize where ROCs are
 	  //fill histograms for ALL modules
-	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) && PixelBarrelName::PixelBarrelName(detId).layerName() == 1){
+	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) && PixelBarrelName(detId).layerName() == 1){
 	       _TH2F_dead_modules_BPIX_lay1->Fill(detZ, detPhi);  _TH2F_dead_modules_BPIX_lay1->SetOption("colz");  
 	     }
 
-	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) && PixelBarrelName::PixelBarrelName(detId).layerName() == 2){
+	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) && PixelBarrelName(detId).layerName() == 2){
 	       _TH2F_dead_modules_BPIX_lay2->Fill(detZ, detPhi);  _TH2F_dead_modules_BPIX_lay2->SetOption("colz");
 	     }
 
-	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) && PixelBarrelName::PixelBarrelName(detId).layerName() == 3){
+	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) && PixelBarrelName(detId).layerName() == 3){
 	       _TH2F_dead_modules_BPIX_lay3->Fill(detZ, detPhi);   _TH2F_dead_modules_BPIX_lay3->SetOption("colz");
 	     }
-	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName::PixelEndcapName(detId).diskName() == 1 && (PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 2 || PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 1)) {  //mI = 2, mO = 1
+	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName(detId).diskName() == 1 && (PixelEndcapName(detId).halfCylinder() == 2 || PixelEndcapName(detId).halfCylinder() == 1)) {  //mI = 2, mO = 1
 	       _TH2F_dead_modules_FPIX_minusZ_disk1->Fill(detX, detY);   _TH2F_dead_modules_FPIX_minusZ_disk1->SetOption("colz");
 		 }
 
-	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName::PixelEndcapName(detId).diskName() == 2 && (PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 2 || PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 1)) {  //mI = 2, mO = 1
+	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName(detId).diskName() == 2 && (PixelEndcapName(detId).halfCylinder() == 2 || PixelEndcapName(detId).halfCylinder() == 1)) {  //mI = 2, mO = 1
 	       _TH2F_dead_modules_FPIX_minusZ_disk2->Fill(detX, detY);   _TH2F_dead_modules_FPIX_minusZ_disk2->SetOption("colz");
 		 }
 
-	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName::PixelEndcapName(detId).diskName() == 1 && (PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 3 || PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 4)) {  //p0 = 3, pI = 4
+	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName(detId).diskName() == 1 && (PixelEndcapName(detId).halfCylinder() == 3 || PixelEndcapName(detId).halfCylinder() == 4)) {  //p0 = 3, pI = 4
 	       _TH2F_dead_modules_FPIX_plusZ_disk1->Fill(detX, detY);    _TH2F_dead_modules_FPIX_plusZ_disk1->SetOption("colz");
 		 }
 
-	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName::PixelEndcapName(detId).diskName() == 2 && (PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 3 || PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 4)) {  //p0 = 3, pI = 4
+	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName(detId).diskName() == 2 && (PixelEndcapName(detId).halfCylinder() == 3 || PixelEndcapName(detId).halfCylinder() == 4)) {  //p0 = 3, pI = 4
 	       _TH2F_dead_modules_FPIX_plusZ_disk2->Fill(detX, detY);    _TH2F_dead_modules_FPIX_plusZ_disk2->SetOption("colz");
 		 }
 
 
 	   //fill histograms for when all ROCs are OK
 	   if (SiPixelBadModule_->IsModuleBad(id) == false && SiPixelBadModule_->getBadRocs(id) ==0){
-	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) && PixelBarrelName::PixelBarrelName(detId).layerName() == 1){
+	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) && PixelBarrelName(detId).layerName() == 1){
 	       _TH2F_dead_modules_BPIX_lay1->Fill(detZ, detPhi);   _TH2F_dead_modules_BPIX_lay1->SetOption("colz");
 	     }
 
-	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) && PixelBarrelName::PixelBarrelName(detId).layerName() == 2){
+	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) && PixelBarrelName(detId).layerName() == 2){
 	       _TH2F_dead_modules_BPIX_lay2->Fill(detZ, detPhi);   _TH2F_dead_modules_BPIX_lay2->SetOption("colz");
 	     }
 
-	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) && PixelBarrelName::PixelBarrelName(detId).layerName() == 3){
+	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) && PixelBarrelName(detId).layerName() == 3){
 	       _TH2F_dead_modules_BPIX_lay3->Fill(detZ, detPhi);    _TH2F_dead_modules_BPIX_lay3->SetOption("colz");
 	     }
-	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName::PixelEndcapName(detId).diskName() == 1 && (PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 2 || PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 1)) {  //mI = 2, mO = 1
+	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName(detId).diskName() == 1 && (PixelEndcapName(detId).halfCylinder() == 2 || PixelEndcapName(detId).halfCylinder() == 1)) {  //mI = 2, mO = 1
 	       _TH2F_dead_modules_FPIX_minusZ_disk1->Fill(detX, detY);   _TH2F_dead_modules_FPIX_minusZ_disk1->SetOption("colz");
 		 }
 
-	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName::PixelEndcapName(detId).diskName() == 2 && (PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 2 || PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 1)) {  //mI = 2, mO = 1
+	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName(detId).diskName() == 2 && (PixelEndcapName(detId).halfCylinder() == 2 || PixelEndcapName(detId).halfCylinder() == 1)) {  //mI = 2, mO = 1
 	       _TH2F_dead_modules_FPIX_minusZ_disk2->Fill(detX, detY);   _TH2F_dead_modules_FPIX_minusZ_disk2->SetOption("colz");
 		 }
 
-	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName::PixelEndcapName(detId).diskName() == 1 && (PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 3 || PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 4)) {  //p0 = 3, pI = 4
+	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName(detId).diskName() == 1 && (PixelEndcapName(detId).halfCylinder() == 3 || PixelEndcapName(detId).halfCylinder() == 4)) {  //p0 = 3, pI = 4
 	       _TH2F_dead_modules_FPIX_plusZ_disk1->Fill(detX, detY);   _TH2F_dead_modules_FPIX_plusZ_disk1->SetOption("colz");
 		 }
 
-	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName::PixelEndcapName(detId).diskName() == 2 && (PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 3 || PixelEndcapName::PixelEndcapName(detId).halfCylinder() == 4)) {  //p0 = 3, pI = 4
+	     if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) && PixelEndcapName(detId).diskName() == 2 && (PixelEndcapName(detId).halfCylinder() == 3 || PixelEndcapName(detId).halfCylinder() == 4)) {  //p0 = 3, pI = 4
 	       _TH2F_dead_modules_FPIX_plusZ_disk2->Fill(detX, detY);   _TH2F_dead_modules_FPIX_plusZ_disk2->SetOption("colz");
 		 }
 	   }

@@ -88,7 +88,7 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset(Tm timeStart) {
 
   ResultSet* rset = NULL;
   string query="SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, " 
-    " d.actual_vmon, '600' nominal_value ,  d.change_date " 
+    " d.actual_vmon, '800' nominal_value ,  d.change_date " 
     " FROM "+ getEEAccount()+".FWCAENCHANNEL d " 
     " JOIN "+ getEEAccount()+".EE_HVA_MAPPING h on h.DPID = d.DPID " 
     " join "+ getEEAccount()+".CHANNELVIEW cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name "
@@ -131,7 +131,7 @@ ResultSet *RunDCSHVDat::getEndcapDynodeRset(Tm timeStart) {
 }
 
 
-
+/*
 ResultSet *RunDCSHVDat::getBarrelRset() {
   ResultSet* rset = NULL;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
@@ -148,12 +148,29 @@ ResultSet *RunDCSHVDat::getBarrelRset() {
   }
   return rset;
 }
+*/
+ResultSet *RunDCSHVDat::getBarrelRset() {
+  ResultSet* rset = NULL;
+  string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
+    " d.value, h.nominal_value , d.since "
+    "FROM "+ getEBAccount()+".WBM_DCSLASTVALUE_VOLTAGE_VMON d "
+    " JOIN "+ getEBAccount()+".HV_MAPPING h on "
+    " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name "; 
+  try {
+    m_readStmt->setSQL(query);
+    rset = m_readStmt->executeQuery();
+  }
+  catch (SQLException e) {
+    throw(runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+  }
+  return rset;
+}
 
 ResultSet *RunDCSHVDat::getEndcapAnodeRset() {
   ResultSet* rset = NULL;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-    " d.value, '600' NOMINAL_VALUE , d.since "
-    "FROM "+ getEEAccount()+".DCSLASTVALUE_HV_VMON d "
+    " d.value, '800' NOMINAL_VALUE , d.since "
+    "FROM "+ getEEAccount()+".WBM_DCSLASTVALUE_HV_VMON d "
     " JOIN "+ getEEAccount()+".EE_HVA_MAPPING h on "
     " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name"; 
   try {
@@ -169,8 +186,8 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset() {
 ResultSet *RunDCSHVDat::getEndcapDynodeRset() {
   ResultSet* rset = NULL;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-    " d.value, '800' NOMINAL_VALUE , d.since "
-    "FROM "+ getEEAccount()+".DCSLASTVALUE_HV_VMON d "
+    " d.value, '600' NOMINAL_VALUE , d.since "
+    "FROM "+ getEEAccount()+".WBM_DCSLASTVALUE_HV_VMON d "
     " JOIN "+ getEEAccount()+".EE_HVD_MAPPING h on "
     " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name";
   try {
@@ -223,15 +240,16 @@ void RunDCSHVDat::fillTheMap(ResultSet *rset,
 
 
 
-void RunDCSHVDat::fillTheMapByTime(ResultSet *rset, 
-			       std::list< std::pair< Tm, std::map< EcalLogicID, RunDCSHVDat > > >* fillMap) {
+void RunDCSHVDat::fillTheMapByTime(ResultSet *rset,
+				   std::list<  DataReducer<RunDCSHVDat>::MyData<RunDCSHVDat>  >* my_data_list ) {
+ 
+  //			       std::list< std::pair< Tm, std::map< EcalLogicID, RunDCSHVDat > > >* fillMap) {
 
   // method for historic queries
 
   RunDCSHVDat dat;
   DateHandler dh(m_env, m_conn);
 
-  std::list< std::pair< Tm, DataReducer<RunDCSHVDat>::DataItem > > my_data_list;
 
   try {
     int count=-1;
@@ -266,16 +284,16 @@ void RunDCSHVDat::fillTheMapByTime(ResultSet *rset,
       std::pair< Tm, std::pair< EcalLogicID, RunDCSHVDat > > p;
       p.first=sinceTm; 
       p.second = d;
-      
-      my_data_list.push_back(p);
-      count++;
-      if(count<100) std::cout<<"DCS DB : size:"<< my_data_list.size()<<" Tm " <<sinceTm.str()<<" "<<ec.getID1()<<" "<<ec.getID2()<<" "<<dat.getHV()<<std::endl;
-    }
-      std::cout<<"DCS DB : size:"<< my_data_list.size()<<std::endl;
 
-    DataReducer<RunDCSHVDat> my_dr;
-    my_dr.setDataList(my_data_list);
-    my_dr.getReducedDataList(fillMap);
+      DataReducer<RunDCSHVDat>::MyData<RunDCSHVDat> pp;
+      pp.m_iData=p;
+
+      my_data_list->push_back(pp);
+      count++;
+      if(count<100) std::cout<<"DCS DB : size:"<< my_data_list->size()<<" Tm " <<sinceTm.str()<<" "<<ec.getID1()<<" "<<ec.getID2()<<" "<<dat.getHV()<<std::endl;
+    }
+      std::cout<<"DCS DB : size:"<< my_data_list->size()<<std::endl;
+
 
   }
   catch (SQLException &e) {
@@ -366,20 +384,28 @@ void RunDCSHVDat::fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLog
 
   fillMap->clear();
 
+  std::list<  DataReducer<RunDCSHVDat>::MyData<RunDCSHVDat>  > my_data_list;
+
+
   try {
 
     std::pair< EcalLogicID, RunDCSHVDat > p;
     RunDCSHVDat dat;
 
-    ResultSet* rset = getBarrelRset(timeStart);
-    fillTheMapByTime(rset, fillMap);
+    ResultSet* rset1 = getBarrelRset(timeStart);
+    fillTheMapByTime(rset1, &my_data_list);
 
-    /*
-    rset = getEndcapAnodeRset(timeStart);
-    fillTheMapByTime(rset, fillMap);
+    ResultSet* rset2 = getEndcapAnodeRset(timeStart);
+    fillTheMapByTime(rset2, &my_data_list);
 
-    rset = getEndcapDynodeRset(timeStart);
-    fillTheMapByTime(rset, fillMap);  */
+    ResultSet* rset3 = getEndcapDynodeRset(timeStart);
+    fillTheMapByTime(rset3, &my_data_list);  
+
+
+    DataReducer<RunDCSHVDat> my_dr;
+    my_dr.setDataList(my_data_list);
+    my_dr.getReducedDataList(fillMap);
+
 
   } 
   catch (SQLException &e) {

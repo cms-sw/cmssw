@@ -76,11 +76,6 @@ class L1GctMet
     unsigned phi;
   };
 
-
-  /// Private method to check for an overflow condition on the input components
-  /// Allows the check to depend on the algorithm type
-  const bool inputOverFlow() const;
-
   etComponentType m_exComponent;
   etComponentType m_eyComponent;
   metAlgoType     m_algoType;

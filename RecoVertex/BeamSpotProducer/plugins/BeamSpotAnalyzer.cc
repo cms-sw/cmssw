@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.20 2010/03/20 14:40:56 jengbou Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.17 2010/02/28 20:05:08 wmtan Exp $
 
 ________________________________________________________________**/
 
@@ -31,17 +31,15 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
   runallfitters_  = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("RunAllFitters");
   fitNLumi_       = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getUntrackedParameter<int>("fitEveryNLumi",-1);
   resetFitNLumi_  = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getUntrackedParameter<int>("resetEveryNLumi",-1);
-  runbeamwidthfit_  = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("RunBeamWidthFit");
-  
+
   theBeamFitter = new BeamFitter(iConfig);
   theBeamFitter->resetTrkVector();
   theBeamFitter->resetLSRange();
   theBeamFitter->resetCutFlow();
-  theBeamFitter->resetRefTime();
-  theBeamFitter->resetPVFitter();
 
   ftotalevents = 0;
   ftmprun0 = ftmprun = -1;
+  ftmplumi0 = ftmplumi = -1;
   countLumi_ = 0;
 }
 
@@ -58,6 +56,11 @@ BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	ftotalevents++;
 	theBeamFitter->readEvent(iEvent);
 	ftmprun = iEvent.id().run();
+	int tmplumi = iEvent.luminosityBlock();
+	if (tmplumi > ftmplumi) 
+	  ftmplumi = tmplumi;
+	if (tmplumi < ftmplumi0)
+	  ftmplumi0 = tmplumi;
 }
 
 
@@ -72,13 +75,14 @@ void
 BeamSpotAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 									   const edm::EventSetup& context) {
 
-  if ( countLumi_ == 0 || (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) ) {
-    ftmprun0 = lumiSeg.run();
-    ftmprun = ftmprun0;
-  }
-  countLumi_++;
-  //std::cout << "Lumi # " << countLumi_ << std::endl;
-  
+	if ( countLumi_ == 0 || (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) ) {
+		ftmprun0 = lumiSeg.run();
+        ftmprun = ftmprun0;
+		ftmplumi0 = lumiSeg.id().luminosityBlock();
+	}
+	countLumi_++;
+	//std::cout << "Lumi # " << countLumi_ << std::endl;
+	
 }
 
 //--------------------------------------------------------
@@ -86,16 +90,17 @@ void
 BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 									 const edm::EventSetup& iSetup) {
 
+    ftmplumi = lumiSeg.id().luminosityBlock();
+    
 	if ( fitNLumi_ == -1 && resetFitNLumi_ == -1 ) return;
 	
 	if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
 
-	int * LSRange = theBeamFitter->getFitLSRange();
 	if (theBeamFitter->runFitter()){
 		reco::BeamSpot bs = theBeamFitter->getBeamSpot();
 		std::cout << "\n RESULTS OF DEFAULT FIT " << std::endl;
 		std::cout << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl;
-		std::cout << " for lumi blocks : " << LSRange[0] << " - " << LSRange[1] << std::endl;
+		std::cout << " for lumi blocks : " << ftmplumi0 << " - " << ftmplumi << std::endl;
 		std::cout << " lumi counter # " << countLumi_ << std::endl;
 		std::cout << bs << std::endl;
 		std::cout << "[BeamFitter] fit done. \n" << std::endl;	
@@ -105,7 +110,7 @@ BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 		bs.setType(reco::BeamSpot::Fake);
 		std::cout << "\n Empty Beam spot fit" << std::endl;
 		std::cout << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl;
-		std::cout << " for lumi blocks : " << LSRange[0] << " - " << LSRange[1] << std::endl;
+		std::cout << " for lumi blocks : " << ftmplumi0 << " - " << ftmplumi << std::endl;
 		std::cout << " lumi counter # " << countLumi_ << std::endl;
 		std::cout << bs << std::endl;
 		std::cout << "[BeamFitter] fit failed \n" << std::endl;
@@ -119,8 +124,6 @@ BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 		theBeamFitter->resetTrkVector();
 		theBeamFitter->resetLSRange();
 		theBeamFitter->resetCutFlow();
-		theBeamFitter->resetRefTime();
-		theBeamFitter->resetPVFitter();
 		countLumi_=0;
 	}
 
@@ -137,11 +140,10 @@ BeamSpotAnalyzer::endJob() {
 	  
 	  if(theBeamFitter->runFitter()){
 		  reco::BeamSpot beam_default = theBeamFitter->getBeamSpot();
-		  int * LSRange = theBeamFitter->getFitLSRange();
-
+    
 		  std::cout << "\n RESULTS OF DEFAULT FIT:" << std::endl;
 		  std::cout << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl;
-		  std::cout << " for lumi blocks : " << LSRange[0] << " - " << LSRange[1] << std::endl;
+		  std::cout << " for lumi blocks : " << ftmplumi0 << " - " << ftmplumi << std::endl;
 		  std::cout << " lumi counter # " << countLumi_ << std::endl;
 		  std::cout << beam_default << std::endl;
     
@@ -156,12 +158,6 @@ BeamSpotAnalyzer::endJob() {
 		  }
 
 	  }
-      if ((runbeamwidthfit_)){ 
-                 theBeamFitter->runBeamWidthFitter();
-                 reco::BeamSpot beam_width = theBeamFitter->getBeamWidth();
-                 std::cout <<beam_width<< std::endl;
-      }
-
 	  else std::cout << "[BeamSpotAnalyzer] beamfit fails !!!" << std::endl;
   }
   

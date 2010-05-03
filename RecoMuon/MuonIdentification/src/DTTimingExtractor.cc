@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.cc,v 1.6 2009/12/07 16:20:00 ptraczyk Exp $
+// $Id: DTTimingExtractor.cc,v 1.5 2009/12/03 08:40:21 ptraczyk Exp $
 //
 //
 
@@ -70,6 +70,10 @@ namespace edm {
 
 class MuonServiceProxy;
 
+using namespace std;
+using namespace edm;
+using namespace reco;
+
 //
 // constructors and destructor
 //
@@ -83,10 +87,10 @@ DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig)
   requireBothProjections_(iConfig.getParameter<bool>("RequireBothProjections")),
   debug(iConfig.getParameter<bool>("debug"))
 {
-  edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
+  ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
   
-  edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
+  ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
 
   theMatcher = new MuonSegmentMatcher(matchParameters, theService);
 }
@@ -111,14 +115,14 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 //  using reco::TrackCollection;
 
   if (debug) 
-    std::cout << " *** Muon Timimng Extractor ***" << std::endl;
+    cout << " *** Muon Timimng Extractor ***" << endl;
 
   theService->update(iSetup);
 
   const GlobalTrackingGeometry *theTrackingGeometry = &*theService->trackingGeometry();
 
   // get the DT geometry
-  edm::ESHandle<DTGeometry> theDTGeom;
+  ESHandle<DTGeometry> theDTGeom;
   iSetup.get<MuonGeometryRecord>().get(theDTGeom);
   
   edm::ESHandle<Propagator> propagator;
@@ -128,7 +132,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
   double invbeta=0;
   double invbetaerr=0;
   int totalWeight=0;
-  std::vector<TimeMeasurement> tms;
+  vector<TimeMeasurement> tms;
 
   math::XYZPoint  pos=muonTrack->innerPosition();
   math::XYZVector mom=muonTrack->innerMomentum();
@@ -137,10 +141,10 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
   FreeTrajectoryState muonFTS(posp, momv, (TrackCharge)muonTrack->charge(), theService->magneticField().product());
 
   // get the DT segments that were used to construct the muon
-  std::vector<const DTRecSegment4D*> range = theMatcher->matchDT(*muonTrack,iEvent);
+  vector<const DTRecSegment4D*> range = theMatcher->matchDT(*muonTrack,iEvent);
 
   // create a collection on TimeMeasurements for the track        
-  for (std::vector<const DTRecSegment4D*>::iterator rechit = range.begin(); rechit!=range.end();++rechit) {
+  for (vector<const DTRecSegment4D*>::iterator rechit = range.begin(); rechit!=range.end();++rechit) {
 
     // Create the ChamberId
     DetId id = (*rechit)->geographicalId();
@@ -162,10 +166,10 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
       if (!segm->specificRecHits().size()) continue;
 
       const GeomDet* geomDet = theTrackingGeometry->idToDet(segm->geographicalId());
-      const std::vector<DTRecHit1D> hits1d = segm->specificRecHits();
+      const vector<DTRecHit1D> hits1d = segm->specificRecHits();
 
       // store all the hits from the segment
-      for (std::vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
+      for (vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
 
 	const GeomDet* dtcell = theTrackingGeometry->idToDet(hiti->geographicalId());
 	TimeMeasurement thisHit;
@@ -201,7 +205,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
   } // rechit
       
   bool modified = false;
-  std::vector <double> dstnc, dsegm, dtraj, hitWeight, left;
+  vector <double> dstnc, dsegm, dtraj, hitWeight, left;
     
   // Now loop over the measurements, calculate 1/beta and cut away outliers
   do {    
@@ -213,16 +217,16 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
     hitWeight.clear();
     left.clear();
       
-    std::vector <int> hit_idx;
+    vector <int> hit_idx;
     totalWeight=0;
       
     // Rebuild segments
     for (int sta=1;sta<5;sta++)
       for (int phi=0;phi<2;phi++) {
-          std::vector <TimeMeasurement> seg;
-          std::vector <int> seg_idx;
+	vector <TimeMeasurement> seg;
+	vector <int> seg_idx;
 	int tmpos=0;
-	for (std::vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) {
+	for (vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) {
 	  if ((tm->station==sta) && (tm->isPhi==phi)) {
 	    seg.push_back(*tm);
 	    seg_idx.push_back(tmpos);
@@ -235,9 +239,9 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	if (segsize<theHitsMin_) continue;
 
 	double a=0, b=0;
-    std::vector <double> hitxl,hitxr,hityl,hityr;
+	vector <double> hitxl,hitxr,hityl,hityr;
 
-	for (std::vector<TimeMeasurement>::iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
+	for (vector<TimeMeasurement>::iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
  
 	  DetId id = tm->driftCell;
 	  const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
@@ -257,7 +261,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 
 	if (!fitT0(a,b,hitxl,hityl,hitxr,hityr)) {
 	  if (debug)
-	    std::cout << "     t0 = zero, Left hits: " << hitxl.size() << " Right hits: " << hitxr.size() << std::endl;
+	    cout << "     t0 = zero, Left hits: " << hitxl.size() << " Right hits: " << hitxr.size() << endl;
 	  continue;
 	}
           
@@ -265,7 +269,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	if ((!hitxl.size()) || (!hityl.size())) continue;
 
 	int segidx=0;
-	for (std::vector<TimeMeasurement>::const_iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
+	for (vector<TimeMeasurement>::const_iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
 
 	  DetId id = tm->driftCell;
 	  const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
@@ -293,7 +297,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 
     // calculate the value and error of 1/beta from the complete set of 1D hits
     if (debug)
-      std::cout << " Points for global fit: " << dstnc.size() << std::endl;
+      cout << " Points for global fit: " << dstnc.size() << endl;
 
     // inverse beta - weighted average of the contributions from individual hits
     invbeta=0;
@@ -301,7 +305,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
       invbeta+=(1.+dsegm.at(i)/dstnc.at(i)*30.)*hitWeight.at(i)/totalWeight;
 
     double chimax=0.;
-    std::vector<TimeMeasurement>::iterator tmmax;
+    vector<TimeMeasurement>::iterator tmmax;
     
     // the dispersion of inverse beta
     double diff;
@@ -324,7 +328,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
     }    
 
     if (debug)
-      std::cout << " Measured 1/beta: " << invbeta << " +/- " << invbetaerr << std::endl;
+      cout << " Measured 1/beta: " << invbeta << " +/- " << invbetaerr << endl;
 
   } while (modified);
 
@@ -339,7 +343,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 }
 
 double
-DTTimingExtractor::fitT0(double &a, double &b, std::vector<double> xl, std::vector<double> yl, std::vector<double> xr, std::vector<double> yr ) {
+DTTimingExtractor::fitT0(double &a, double &b, vector<double> xl, vector<double> yl, vector<double> xr, vector<double> yr ) {
 
   double sx=0,sy=0,sxy=0,sxx=0,ssx=0,ssy=0,s=0,ss=0;
 

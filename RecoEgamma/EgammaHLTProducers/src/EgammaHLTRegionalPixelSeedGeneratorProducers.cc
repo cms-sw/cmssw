@@ -2,7 +2,7 @@
 // Package:         RecoEgamma/EgammaHLTProducers
 // Class:           EgammaHLTRegionalPixelSeedGeneratorProducers
 //  Modified from TkSeedGeneratorFromTrk by Jeremy Werner, Princeton University, USA
-// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.8 2007/09/19 23:39:01 ratnik Exp $
+// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.9 2008/02/15 16:11:01 ghezzi Exp $
 //
 
 #include <iostream>
@@ -59,6 +59,21 @@ EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGenerato
   useZvertex_  = conf_.getParameter<bool>("UseZInVertex");
   BSProducer_ = conf.getParameter<edm::InputTag>("BSProducer");
   // setup orderedhits setup (in order to tell seed generator to use pairs/triplets, which layers)
+}
+
+// Virtual destructor needed.
+EgammaHLTRegionalPixelSeedGeneratorProducers::~EgammaHLTRegionalPixelSeedGeneratorProducers() { 
+}  
+
+void EgammaHLTRegionalPixelSeedGeneratorProducers::endRun(edm::Run &run, const edm::EventSetup& es)
+{
+  delete combinatorialSeedGenerator;
+  combinatorialSeedGenerator=0;
+}
+
+
+void EgammaHLTRegionalPixelSeedGeneratorProducers::beginRun(edm::Run &run, const edm::EventSetup& es)
+{
   edm::ParameterSet hitsfactoryPSet =
       conf_.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
@@ -69,13 +84,7 @@ EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGenerato
 
   // start seed generator
   combinatorialSeedGenerator = new SeedGeneratorFromRegionHits( hitsGenerator, conf_);
-
 }
-
-// Virtual destructor needed.
-EgammaHLTRegionalPixelSeedGeneratorProducers::~EgammaHLTRegionalPixelSeedGeneratorProducers() { 
-  delete combinatorialSeedGenerator;
-}  
 
 // Functions that gets called by framework every event
 void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)

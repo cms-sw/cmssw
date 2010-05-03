@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/20 15:53:10 $
- *  $Revision: 1.26 $
+ *  $Date: 2009/08/11 07:16:32 $
+ *  $Revision: 1.25 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -580,7 +580,7 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
 	Dimensions sizes = grid->dimensions();
 	cout << "Grid has 3 dimensions " 
 	     << " number of nodes is " << sizes.w << " " << sizes.h
-	     << " " << sizes.d << endl;
+	     << " " << sizes.h << endl;
       
 	const double tolerance = 0.03;
 

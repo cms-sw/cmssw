@@ -47,7 +47,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTIBL1" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.7</PARAM>
+	<PARAM name="maxMean">3.0</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -59,7 +59,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTIBL2" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.5</PARAM>
+	<PARAM name="maxMean">2.4</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -71,7 +71,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTIBL3" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.9</PARAM>
+	<PARAM name="maxMean">1.6</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -83,7 +83,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTIBL4" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.9</PARAM>
+	<PARAM name="maxMean">1.6</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -95,7 +95,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTIDD1" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.5</PARAM>
+	<PARAM name="maxMean">2.4</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -107,7 +107,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTIDD2" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.5</PARAM>
+	<PARAM name="maxMean">2.4</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -119,7 +119,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTIDD3" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.5</PARAM>
+	<PARAM name="maxMean">2.4</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -131,7 +131,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTOBL1" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.0</PARAM>
+	<PARAM name="maxMean">1.5</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -143,7 +143,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTOBL2" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.0</PARAM>
+	<PARAM name="maxMean">1.5</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -155,7 +155,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTOBL3" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.95</PARAM>
+	<PARAM name="maxMean">1.2</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -167,7 +167,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTOBL4" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.95</PARAM>
+	<PARAM name="maxMean">1.2</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -179,7 +179,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTOBL5" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.2</PARAM>
+	<PARAM name="maxMean">1.8</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -191,7 +191,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTOBL6" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.2</PARAM>
+	<PARAM name="maxMean">1.8</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -203,7 +203,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTECW1" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.5</PARAM>
+	<PARAM name="maxMean">2.0</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -215,7 +215,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTECW2" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.5</PARAM>
+	<PARAM name="maxMean">2.0</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -227,7 +227,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTECW3" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.5</PARAM>
+	<PARAM name="maxMean">2.0</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -239,7 +239,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTECW4" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.2</PARAM>
+	<PARAM name="maxMean">1.9</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -251,7 +251,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTECW5" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.35</PARAM>
+	<PARAM name="maxMean">1.9</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -263,7 +263,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTECW6" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.4</PARAM>
+	<PARAM name="maxMean">1.9</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -275,7 +275,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTECW7" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.4</PARAM>
+	<PARAM name="maxMean">1.9</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -287,7 +287,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTECW8" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.4</PARAM>
+	<PARAM name="maxMean">1.9</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -299,7 +299,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfDigiTECW9" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">1.4</PARAM>
+	<PARAM name="maxMean">1.8</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -311,7 +311,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTIBL1" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.17</PARAM>
+	<PARAM name="maxMean">0.33</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -323,7 +323,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTIBL2" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.11</PARAM>
+	<PARAM name="maxMean">0.24</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -335,7 +335,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTIBL3" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.08</PARAM>
+	<PARAM name="maxMean">0.15</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -347,7 +347,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTIBL4" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.07</PARAM>
+	<PARAM name="maxMean">0.12</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -359,7 +359,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTIDD1" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.19</PARAM>
+	<PARAM name="maxMean">0.42</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -371,7 +371,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTIDD2" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.19</PARAM>
+	<PARAM name="maxMean">0.45</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -383,7 +383,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTIDD3" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.23</PARAM>
+	<PARAM name="maxMean">0.47</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -395,7 +395,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTOBL1" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.1</PARAM>
+	<PARAM name="maxMean">0.18</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -407,7 +407,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTOBL2" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.09</PARAM>
+	<PARAM name="maxMean">0.15</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -419,7 +419,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTOBL3" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.07</PARAM>
+	<PARAM name="maxMean">0.12</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -431,7 +431,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTOBL4" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.07</PARAM>
+	<PARAM name="maxMean">0.12</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -443,7 +443,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTOBL5" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.05</PARAM>
+	<PARAM name="maxMean">0.1</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -455,7 +455,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTOBL6" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.05</PARAM>
+	<PARAM name="maxMean">0.1</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -467,7 +467,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTECW1" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.2</PARAM>
+	<PARAM name="maxMean">0.38</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -479,7 +479,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTECW2" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.2</PARAM>
+	<PARAM name="maxMean">0.38</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -491,7 +491,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTECW3" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.21</PARAM>
+	<PARAM name="maxMean">0.43</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -503,7 +503,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTECW4" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.19</PARAM>
+	<PARAM name="maxMean">0.36</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -515,7 +515,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTECW5" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.18</PARAM>
+	<PARAM name="maxMean">0.36</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -527,7 +527,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTECW6" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.18</PARAM>
+	<PARAM name="maxMean">0.37</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -539,7 +539,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTECW7" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.11</PARAM>
+	<PARAM name="maxMean">0.27</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -551,7 +551,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTECW8" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.13</PARAM>
+	<PARAM name="maxMean">0.27</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>
@@ -563,7 +563,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoNumberOfClusterTECW9" activate="true">
 	<TYPE>ContentsWithinExpected</TYPE>
 	<PARAM name="minMean">0</PARAM>
-	<PARAM name="maxMean">0.12</PARAM>
+	<PARAM name="maxMean">0.22</PARAM>
 	<PARAM name="minRMS">0</PARAM>
 	<PARAM name="maxRMS">0</PARAM>
 	<PARAM name="toleranceMean">-1</PARAM>

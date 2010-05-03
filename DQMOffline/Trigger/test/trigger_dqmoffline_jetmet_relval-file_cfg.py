@@ -21,19 +21,13 @@ process.load("DQMOffline.Trigger.FourVectorHLTOffline_cfi")
 process.load("DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi")
 process.load("DQMOffline.Trigger.JetMETHLTOfflineSource_cfi")
 process.load("DQMOffline.Trigger.JetMETHLTOfflineClient_cfi")
-process.load("DQMOffline.Trigger.HLTJetMETQualityTester_cfi")
-process.load("DQMServices.Components.MEtoEDMConverter_cff")
- 
-# configure HLT
-process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
-process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
-process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
-process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('40 OR 41')
+#process.load("DQMOffline.Trigger.L1TMonitor_dqmoffline_cff")
+#process.load("DQMOffline.Trigger.Tau.HLTTauDQMOffline_cff")
+#process.load("DQMOffline.Trigger.EgammaHLTOffline_cfi")
+#process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
 from DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi import *
 from DQMOffline.Trigger.JetMETHLTOfflineClient_cfi import *
-
-process.load("DQMServices.Components.DQMStoreStats_cfi")
 
 process.hltclient = cms.Sequence(hltFourVectorClient)
 
@@ -45,8 +39,13 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.source = cms.Source("PoolSource",
-    fileNames =
-cms.untracked.vstring('/store/relval/CMSSW_3_6_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_36Y_V2-v1/0004/102CC3BD-642F-DF11-811A-003048678F26.root')
+    fileNames = 
+	#cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre6/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/IDEAL_31X_v1/0002/F2DD152F-2D33-DE11-B6F4-000423D9870C.root')
+	#cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre6/RelValQCD_Pt_80_120/GEN-SIM-RECO/IDEAL_31X_v1/0002/F4802588-F232-DE11-A617-000423D94524.root')
+	#cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP_31X_A_v1/0000/C69ACB56-532B-DE11-870F-001617C3B69C.root')
+	cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre4/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0003/E650DA99-1316-DE11-B057-000423D9A2AE.root')
+	#cms.untracked.vstring('file:test.root')
+        #cms.untracked.vstring('/store/relval/CMSSW_2_1_7/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0001/0C3B40D7-F87D-DD11-A9FB-000423D998BA.root','/store/relval/CMSSW_2_1_7/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0001/3A5455F3-F87D-DD11-AEF4-000423D94534.root')
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -71,9 +70,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 
 
-#process.psource = cms.Path(process.hltLevel1GTSeed*process.jetMETHLTOfflineSource*process.hltJetMETOfflineQualityTests*process.dqmStoreStats) 
-process.psource = cms.Path(process.hltLevel1GTSeed*process.jetMETHLTOfflineSource*process.jetMETHLTOfflineClient*process.hltJetMETOfflineQualityTests*process.dqmStoreStats)
-
+process.psource = cms.Path(process.jetMETHLTOfflineSource*process.jetMETHLTOfflineClient)
 process.p = cms.EndPath(process.dqmSaver)
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = ''

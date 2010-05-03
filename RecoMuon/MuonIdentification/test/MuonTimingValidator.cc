@@ -13,7 +13,7 @@
 //
 // Original Author:  Piotr Traczyk
 //         Created:  Wed Sep 27 14:54:28 EDT 2006
-// $Id: MuonTimingValidator.cc,v 1.8 2010/02/11 00:14:30 wmtan Exp $
+// $Id: MuonTimingValidator.cc,v 1.7 2010/01/15 14:07:32 ptraczyk Exp $
 //
 //
 
@@ -85,8 +85,8 @@ MuonTimingValidator::MuonTimingValidator(const edm::ParameterSet& iConfig)
   TKtrackTags_(iConfig.getUntrackedParameter<edm::InputTag>("TKtracks")),
   MuonTags_(iConfig.getUntrackedParameter<edm::InputTag>("Muons")),
   TimeTags_(iConfig.getUntrackedParameter<edm::InputTag>("Timing")),
-  out(iConfig.getParameter<std::string>("out")),
-  open(iConfig.getParameter<std::string>("open")),
+  out(iConfig.getParameter<string>("out")),
+  open(iConfig.getParameter<string>("open")),
   theMinEta(iConfig.getParameter<double>("etaMin")),
   theMaxEta(iConfig.getParameter<double>("etaMax")),
   theMinPt(iConfig.getParameter<double>("simPtMin")),
@@ -122,8 +122,12 @@ MuonTimingValidator::~MuonTimingValidator()
 void
 MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-//  std::cout << "*** Begin Muon Timing Validatior " << std::endl;
-//  std::cout << " Event: " << iEvent.id() << "  Orbit: " << iEvent.orbitNumber() << "  BX: " << iEvent.bunchCrossing() << std::endl;
+  //using namespace edm;
+  using reco::TrackCollection;
+  using reco::MuonCollection;
+
+//  cout << "*** Begin Muon Timing Validatior " << endl;
+//  cout << " Event: " << iEvent.id() << "  Orbit: " << iEvent.orbitNumber() << "  BX: " << iEvent.bunchCrossing() << endl;
 
   iEvent.getByLabel( TKtrackTags_, TKTrackCollection);
   reco::TrackCollection tkTC;
@@ -140,10 +144,10 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByLabel(TimeTags_.label(),"csc",timeMap3);
   const reco::MuonTimeExtraMap & timeMapCSC = *timeMap3;
 
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
-  reco::MuonCollection::const_iterator imuon;
+  MuonCollection::const_iterator imuon;
   
   bool debug=false;
 
@@ -154,7 +158,7 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     // if (imuon->pt()>100 && imuon->isGlobalMuon()) debug=true;
     
     if (debug)
-      std::cout << " Event: " << iEvent.id() << " Found muon. Pt: " << imuon->p() << std::endl;
+      cout << " Event: " << iEvent.id() << " Found muon. Pt: " << imuon->p() << endl;
     
     if ((fabs(imuon->eta())<theMinEta) || (fabs(imuon->eta())>theMaxEta)) continue;
     
@@ -179,7 +183,7 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       hi_glb_eta->Fill((*glbTrack).eta()); 
       
       if (debug)
-        std::cout << " Global Pt: " << (*glbTrack).pt() << std::endl;
+        cout << " Global Pt: " << (*glbTrack).pt() << endl;
     }
 
     // Analyze the short info stored directly in reco::Muon
@@ -187,7 +191,7 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     reco::MuonTime muonTime;
     if (imuon->isTimeValid()) { 
       muonTime = imuon->time();
-//      std::cout << "    Time points: " << muonTime.nDof << "  time: " << muonTime.timeAtIpInOut << std::endl;
+//      cout << "    Time points: " << muonTime.nDof << "  time: " << muonTime.timeAtIpInOut << endl;
       if (muonTime.nDof) {
         hi_mutime_vtx->Fill(muonTime.timeAtIpInOut);
         hi_mutime_vtx_err->Fill(muonTime.timeAtIpInOutErr);
@@ -210,7 +214,7 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           hi_ecal_time_err->Fill(emErr);
           hi_ecal_time_pull->Fill((muonE.ecal_time-1.)/emErr);
           if (debug)
-            std::cout << "     ECAL time: " << muonE.ecal_time << " +/- " << emErr << std::endl;
+            cout << "     ECAL time: " << muonE.ecal_time << " +/- " << emErr << endl;
         }
       }
 
@@ -224,15 +228,15 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         hi_hcal_time_err->Fill(hadErr);
         hi_hcal_time_pull->Fill((muonE.hcal_time-1.)/hadErr);
         if (debug)
-          std::cout << "     HCAL time: " << muonE.hcal_time << " +/- " << hadErr << std::endl;
+          cout << "     HCAL time: " << muonE.hcal_time << " +/- " << hadErr << endl;
       }
     }
     
     // Analyze the MuonTimeExtra information
     reco::MuonRef muonR(MuCollection,imucount);
-    reco::MuonTimeExtra timec = timeMapCmb[muonR];
-    reco::MuonTimeExtra timedt = timeMapDT[muonR];
-    reco::MuonTimeExtra timecsc = timeMapCSC[muonR];
+    MuonTimeExtra timec = timeMapCmb[muonR];
+    MuonTimeExtra timedt = timeMapDT[muonR];
+    MuonTimeExtra timecsc = timeMapCSC[muonR];
 
     hi_cmbtime_ndof->Fill(timec.nDof());
     hi_dttime_ndof->Fill(timedt.nDof());
@@ -240,9 +244,9 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     if (timedt.nDof()>theDtCut) {
       if (debug) {
-        std::cout << "          DT nDof: " << timedt.nDof() << std::endl;
-        std::cout << "          DT Time: " << timedt.timeAtIpInOut() << " +/- " << timedt.inverseBetaErr() << std::endl;
-        std::cout << "         DT FreeB: " << timedt.freeInverseBeta() << " +/- " << timedt.freeInverseBetaErr() << std::endl;
+        cout << "          DT nDof: " << timedt.nDof() << endl;
+        cout << "          DT Time: " << timedt.timeAtIpInOut() << " +/- " << timedt.inverseBetaErr() << endl;
+        cout << "         DT FreeB: " << timedt.freeInverseBeta() << " +/- " << timedt.freeInverseBetaErr() << endl;
       }
       hi_dttime_ibt->Fill(timedt.inverseBeta());
       hi_dttime_ibt_pt->Fill(imuon->pt(),timedt.inverseBeta());
@@ -275,9 +279,9 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     if (timecsc.nDof()>theCscCut) {
       if (debug) {
-        std::cout << "         CSC nDof: " << timecsc.nDof() << std::endl;
-        std::cout << "         CSC Time: " << timecsc.timeAtIpInOut() << " +/- " << timecsc.inverseBetaErr() << std::endl;
-        std::cout << "        CSC FreeB: " << timecsc.freeInverseBeta() << " +/- " << timecsc.freeInverseBetaErr() << std::endl;
+        cout << "         CSC nDof: " << timecsc.nDof() << endl;
+        cout << "         CSC Time: " << timecsc.timeAtIpInOut() << " +/- " << timecsc.inverseBetaErr() << endl;
+        cout << "        CSC FreeB: " << timecsc.freeInverseBeta() << " +/- " << timecsc.freeInverseBetaErr() << endl;
       }
       hi_csctime_ibt->Fill(timecsc.inverseBeta());
       hi_csctime_ibt_pt->Fill(imuon->pt(),timecsc.inverseBeta());
@@ -306,9 +310,9 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     
     if (timec.nDof()>0) {
       if (debug) {
-        std::cout << "    Combined nDof: " << timec.nDof() << std::endl;
-        std::cout << "    Combined Time: " << timec.timeAtIpInOut() << " +/- " << timec.inverseBetaErr() << std::endl;
-        std::cout << "   Combined FreeB: " << timec.freeInverseBeta() << " +/- " << timec.freeInverseBetaErr() << std::endl;
+        cout << "    Combined nDof: " << timec.nDof() << endl;
+        cout << "    Combined Time: " << timec.timeAtIpInOut() << " +/- " << timec.inverseBetaErr() << endl;
+        cout << "   Combined FreeB: " << timec.freeInverseBeta() << " +/- " << timec.freeInverseBetaErr() << endl;
       }
       hi_cmbtime_ibt->Fill(timec.inverseBeta());
       hi_cmbtime_ibt_pt->Fill(imuon->pt(),timec.inverseBeta());
@@ -580,7 +584,7 @@ TH1F* MuonTimingValidator::divideErr(TH1F* h1, TH1F* h2, TH1F* hout) {
     Float_t eff = hout->GetBinContent(i) ;
     Float_t Err = 0.;
     if (tot > 0) Err = tot_e / tot * sqrt( eff* (1-eff) );
-    if (eff == 1. || isnan(Err) || !std::isfinite(Err) ) Err=1.e-3;
+    if (eff == 1. || isnan(Err) || !isfinite(Err) ) Err=1.e-3;
     hout->SetBinError(i, Err);
   }
   return hout;

@@ -37,8 +37,7 @@ if (isData):
 # Meanwhile...:
 
 if (isData):
-    # GLOBAL_TAG='GR09_H_V6OFF::All' # collisions 2009
-    GLOBAL_TAG='GR10_H_V4::All' # collisions2010
+    GLOBAL_TAG='GR09_H_V6OFF::All' # run122314
 else:
     GLOBAL_TAG='MC_31X_V2::All'
     if (MENU == "LUMI8e29"): GLOBAL_TAG= 'STARTUP3X_V15::All'
@@ -73,9 +72,6 @@ process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = GLOBAL_TAG
-process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
-process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
-
 
 process.load('Configuration/StandardSequences/SimL1Emulator_cff')
 

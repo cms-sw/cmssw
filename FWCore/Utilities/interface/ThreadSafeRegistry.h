@@ -50,6 +50,11 @@ namespace edm {
       /// If we return 'false, no matching key was found, and
       /// the value of 'result' is undefined.
       bool getMapped(key_type const& k, value_type& result) const;
+      
+      /** Retrieve a pointer to the value_type object with the given key.
+       If there is no object associated with the given key 0 is returned.
+       */
+      value_type const* getMapped(key_type const& k) const;
 
       /// Insert the given value_type object into the
       /// registry. If there was already a value_type object
@@ -159,6 +164,21 @@ namespace edm {
       return found;
     }
 
+    template <typename KEY, typename T, typename E>
+    typename ThreadSafeRegistry<KEY,T,E>::value_type const*
+    ThreadSafeRegistry<KEY,T,E>::getMapped(key_type const& k) const {
+      bool found;
+      const_iterator i;
+      {
+         // This scope limits the lifetime of the lock to the shorted
+         // required interval.
+         boost::mutex::scoped_lock lock(registry_mutex);
+         i = data_.find(k);
+         found = (i != data_.end());
+      }
+      return found ? &(i->second) : static_cast<value_type const*> (0);
+    }
+     
     template <typename KEY, typename T, typename E>
     bool 
     ThreadSafeRegistry<KEY,T,E>::insertMapped(value_type const& v) {

@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Case
 //         Created:  Mon 2006/10/02
-// $Id: MuonNumberingTester.cc,v 1.2 2006/10/27 01:35:30 wmtan Exp $
+// $Id: MuonNumberingTester.cc,v 1.1 2006/10/09 18:25:36 case Exp $
 //
 //
 
@@ -29,7 +29,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -95,7 +94,7 @@ MuonNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& i
    std::cout << "Here I am " << std::endl;
 
    edm::ESHandle<MuonDDDConstants> pMNDC;
-   edm::ESTransientHandle<DDCompactView> pDD;
+   edm::ESHandle<DDCompactView> pDD;
    iSetup.get<IdealGeometryRecord>().get( pDD );
    iSetup.get<MuonNumberingRecord>().get( pMNDC );
 

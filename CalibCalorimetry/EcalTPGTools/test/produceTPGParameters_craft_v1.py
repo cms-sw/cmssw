@@ -87,17 +87,17 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     DBpass  = cms.string('0r4cms_3c4lc0nf'),
     DBport  = cms.uint32(10121),
 
-    TPGWritePed = cms.uint32(1),
-    TPGWriteLin = cms.uint32(1),
-    TPGWriteSli = cms.uint32(1),
-    TPGWriteWei = cms.uint32(1),
+    TPGWritePed = cms.uint32(0),
+    TPGWriteLin = cms.uint32(0),
+    TPGWriteSli = cms.uint32(0),
+    TPGWriteWei = cms.uint32(0),
     TPGWriteLut = cms.uint32(1),
-    TPGWriteFgr = cms.uint32(1),
+    TPGWriteFgr = cms.uint32(0),
     TPGWriteBxt = cms.uint32(0),
-    TPGWriteBtt = cms.uint32(0), #do not change
+    TPGWriteBtt = cms.uint32(2162), #do not change
 
     writeToFiles = cms.bool(True),
-    outFile = cms.string('TPG_new_craft.txt'),
+    outFile = cms.string('TPG_craft.txt'),
    #### TPG config tag and version (if not given it will be automatically given ) ####
     TPGtag = cms.string('CRAFT'),
     TPGversion = cms.uint32(1),

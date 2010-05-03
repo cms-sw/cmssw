@@ -100,7 +100,7 @@ class SiStripFEDCheckPlugin : public edm::EDAnalyzer
 //
 
 SiStripFEDCheckPlugin::SiStripFEDCheckPlugin(const edm::ParameterSet& iConfig)
-  : rawDataTag_(iConfig.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("source",""))),
+  : rawDataTag_(iConfig.getParameter<edm::InputTag>("RawDataTag")),
     dirName_(iConfig.getUntrackedParameter<std::string>("DirName","SiStrip/FEDIntegrity/")),
     printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
     writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
@@ -165,7 +165,7 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     //create an object to fill all errors
     //third param to false:save time by not initialising anything not used here
-    lFedErrors.initialiseFED(fedId,cabling_,false);
+    lFedErrors.initialise(fedId,cabling_,false);
 
 
     //check data exists

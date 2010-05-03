@@ -1,40 +1,40 @@
 import FWCore.ParameterSet.Config as cms
 
 patEventContentNoCleaning = [
-    'keep *_selectedPatPhotons*_*_*',
-    'keep *_selectedPatElectrons*_*_*',
-    'keep *_selectedPatMuons*_*_*',
-    'keep *_selectedPatTaus*_*_*',
+    'keep *_selectedPatPhotons_*_*',
+    'keep *_selectedPatElectrons_*_*',
+    'keep *_selectedPatMuons_*_*',
+    'keep *_selectedPatTaus_*_*',
     'keep *_selectedPatJets*_*_*',
     'keep *_patMETs*_*_*',
-    'keep *_selectedPatPFParticles*_*_*',
-    'keep *_selectedPatTrackCands*_*_*'
+    'keep *_selectedPatPFParticles_*_*',
+    'keep *_selectedPatTrackCands_*_*'
 ]
 
 patEventContent = [
-    'keep *_cleanPatPhotons*_*_*',
-    'keep *_cleanPatElectrons*_*_*',
-    'keep *_cleanPatMuons*_*_*',
-    'keep *_cleanPatTaus*_*_*',
+    'keep *_cleanPatPhotons_*_*',
+    'keep *_cleanPatElectrons_*_*',
+    'keep *_cleanPatMuons_*_*',
+    'keep *_cleanPatTaus_*_*',
     'keep *_cleanPatJets*_*_*',
     'keep *_patMETs*_*_*',
-    'keep *_cleanPatHemispheres*_*_*',
-    'keep *_cleanPatPFParticles*_*_*',
-    'keep *_cleanPatTrackCands*_*_*'
+    'keep *_cleanPatHemispheres_*_*',
+    'keep *_cleanPatPFParticles_*_*',
+    'keep *_cleanPatTrackCands_*_*'
 ]
 
 patExtraAodEventContent = [
     # GEN
-    'keep recoGenParticles_genParticles*_*_*',
+    'keep recoGenParticles_genParticles_*_*',
     'keep GenEventInfoProduct_*_*_*',
     'keep GenRunInfoProduct_*_*_*',
     # RECO
-    'keep recoTracks_generalTracks*_*_*',
+    'keep recoTracks_generalTracks_*_*',
     'keep *_towerMaker_*_*',
     'keep *_offlineBeamSpot_*_*',
-    'keep *_offlinePrimaryVertices*_*_*',
+    'keep *_offlinePrimaryVertices_*_*',
     # TRIGGER
-    'keep edmTriggerResults_TriggerResults*_*_*',
+    'keep edmTriggerResults_TriggerResults_*_*',
     'keep *_hltTriggerSummaryAOD_*_*'
 ]
 
@@ -66,7 +66,7 @@ patHiEventContent = [
 ]
 
 patHiExtraAodEventContent = [
-    'keep recoGenParticles_hiGenParticles*_*_*',
-    'keep recoGenJets_iterativeCone5HiGenJets*_*_*', # until a better solution
-    'keep recoTracks_hiSelectedTracks*_*_*'
+    'keep recoGenParticles_hiGenParticles_*_*',
+    'keep recoGenJets_iterativeCone5HiGenJets_*_*', # until a better solution
+    'keep recoTracks_hiSelectedTracks_*_*'
 ]

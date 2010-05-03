@@ -4,7 +4,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
-#include <iomanip>
 
 class CCAmap {
 public:
@@ -273,19 +272,65 @@ CCAmap::CCAmap(const char* fname){
 
 class CCApatternmaker {
 public:
-  void makePattern(char* rbxchar,const char* fname);
+  void makePattern(int rbx,const char* fname);
 private:
-  
+  void packPair(unsigned char q0, unsigned char q1, unsigned char& b0, unsigned char& b1);
+  std::vector<unsigned char> packCCA(int rbx, int rm, int card, int cca);
   std::vector<unsigned char> makeSequence(int rbx, int rm, int card, int cca, int ccaq);
-  
+  int rmCode(int rbx, int rm,int card);
   CCAmap* theMap;
 };
 
 
+int CCApatternmaker::rmCode(int rbx, int rm,int card) {
+  if(((rbx>0)&&(rbx<19))||((rbx>90)&&(rbx<109))) {// this is valid for HB
+    switch (rm) {
+    case(1):return 16;
+    case(2):return 8;
+    case(3):return 2;
+    case(4):return 1;
+    default: return 0;
+    }
+  }
+  
+  if(((rbx>18)&&(rbx<37))||((rbx>108)&&(rbx<127))) {// this is valid for HE
+    switch (rm) {
+    case(1):return 32;
+    case(2):return 16;
+    case(3):return 2;
+    case(4):return 1;
+    default: return 0;
+    }
+  }
+  
+  if(((rbx>54)&&(rbx<67))||((rbx>143)&&(rbx<168))) {// this is valid for HO
+    switch (rm) {
+    case(1):return 16;
+    case(2):return 8;
+    case(3):return 2;
+    case(4):return 1;
+    default: return 0;
+    }
+  }
+  
 
+  if(((rbx>36)&&(rbx<49))||((rbx>126)&&(rbx<139))) {//HF,assuming simplest map, unverified
+    if((rm==1)&&(card==1)){
+      return 2;}
+    else if((rm==1)&&(card>1)){
+      return 4;}
+    else if((rm==2)&&(card<3)){
+      return 8;}
+    else if((rm==2)&&(card>2)){
+      return 16;}
+    else if((rm==3)&&(card==1)){
+      return 16;}
+    else if((rm==3)&&(card>1)){
+      return 32;} else return 0;
+  }
+}
 
-void CCApatternmaker::makePattern(char* rbxchar,const char* fname){
-  std::string rbxstr=rbxchar;  
+void CCApatternmaker::makePattern(int rbx,const char* fname){
   theMap=new CCAmap(fname);
   int rm_mx,card_mx;
   bool in_he = false;
@@ -293,56 +338,229 @@ void CCApatternmaker::makePattern(char* rbxchar,const char* fname){
   bool in_hf = false;
   bool in_ho = false;
   time_t Now=time(0);
- 
-  std::string timeStamp=ctime(&Now);
-  timeStamp[timeStamp.length()-1] = 0; // remove '\n'
+  std::cout <<"; RBX:" <<rbx <<" "<< ctime(&Now)<<std::endl;
+  if(((rbx>0)&&(rbx<19))||((rbx>90)&&(rbx<109))) {// this is valid for HB
+    rm_mx=4;
+    card_mx=3;in_hb=true;}
 
-  std::cout << "<?xml version='1.0'?>"<<std::endl;
-  
-  std::cout << "<CFGBrick>"<<std::endl;
-  std::cout << " <Parameter name='RBX' type='string'>"<< rbxstr << "</Parameter>"<<std::endl;
-  std::cout << "  <Parameter name='INFOTYPE' type='string'>PATTERNS</Parameter>"<<std::endl;
-  std::cout << " <Parameter name='CREATIONTAG' type='string'>CableMappingPattern</Parameter>"<<std::endl;
-  std::cout << "  <Parameter name='CREATIONSTAMP' type='string'>"<<timeStamp<<"</Parameter>"<<std::endl;
- 
-  
-  int detnum,PorM,rbx;
-  std::string det = rbxstr.substr(0,2);
-  std::string PM = rbxstr.substr(2,1);
-  std::string rbxnum = rbxstr.substr(3);  
-  if(det=="HB"){detnum=1;rm_mx=4;card_mx=3;}
-  else if(det=="HE"){detnum=2;rm_mx=4;card_mx=3;}
-  else if(det=="HF"){detnum=3;rm_mx=3;card_mx=4;}
-  else if (det=="HO"){detnum=4;rm_mx=4;card_mx=3;}//not verified
-  PorM=(PM=="P")?(1):(0);
-  rbx=(detnum-1)*18+PorM*90+(atoi (rbxnum.c_str()));//HO 0 not inclueded yet
-  
- 
+  else if(((rbx>18)&&(rbx<37))||((rbx>108)&&(rbx<127))) {//this is valid for HE
+    rm_mx=4;card_mx=3;in_he=true;}
+  else if(((rbx>36)&&(rbx<49))||((rbx>126)&&(rbx<139))) {//HF
+    rm_mx=3;card_mx=4;in_hf=true;}
+  else if(((rbx>54)&&(rbx<67))||((rbx>143)&&(rbx<168))) {// this is valid for HO
+    rm_mx=4;card_mx=3;in_ho=true;}//not verified
+
   for (int rm=1; rm<=rm_mx; rm++) {
-    //std::cout << "; rm " << rm << std::endl;
+    std::cout << "; rm " << rm << std::endl;
     for (int card=1; card<=card_mx; card++) {
       for (int cca=0; cca<3; cca++) {
-	for (int ccaq=0; ccaq<2; ccaq++) {
+	std::vector<unsigned char> ccadata=packCCA(rbx,rm,card,cca);
+	
+	
+	std::cout << "w 0 " << rmCode(rbx,rm,card) << " 10 ";
+	int dev;
+	if(!in_hf){
+	  dev=cca;
+	  if (card==2) dev+=16;
+	  if (card==3) dev+=32;
+	}else {
 	  
-	  std::vector<unsigned char> ccadata=makeSequence(rbx,rm,card,cca,ccaq);
-	  
-	  std::cout<<"<Data elements='10' encoding='hex' rm='"<<rm<<"' card='"<<card<<"' qie='"<<(cca*2+ccaq)<<"' >";
-	  
-	  for (int i=0;i<10;i++){
-	    std::cout<<" "<<std::setw(2)<<std::setfill('0')<<std::hex<<(int)ccadata[i];
-	 }
-	  std::cout <<"</Data>"<<std::endl;
-	}
+	  if(((card==2)&&((rm==1)||(rm==3)))||((rm==2)&&((card==1)||(card==3)))){dev=cca;}
+	  if(((card==3)&&((rm==1)||(rm==3)))||((rm==2)&&((card==2)||(card==4)))){dev=cca+16;}
+	  if(((rm==1)||(rm==3))&&((card==1)||(card==4))){dev=cca+32;}
+	}	
+	std::cout << dev << " 0x8";
+	for (int i=0; i<10; i++)
+	  std::cout << ' ' << (int)ccadata[i];
+	std::cout << std::endl;
+	
+	std::cout << "w 0 " << rmCode(rbx,rm,card) << " 10 ";
+	std::cout << dev << " 0x12";
+	
+	for (int i=10; i<20; i++)
+	  std::cout << ' ' << (int)ccadata[i];
+	std::cout << std::endl;
       }
     }
+    //set test pattern enable bit
+    std::cout<<std::endl;
+    std::cout << "; set test pattern enable bit"<<std::endl;
+    if (in_hb){
+      if (rm==1){
+	std::cout << "w 0 16 1 0 0 2"<<std::endl;
+	std::cout << "w 0 16 1 1 0 2"<<std::endl;
+	std::cout << "w 0 16 1 2 0 2"<<std::endl;
+	std::cout << "w 0 16 1 16 0 2"<<std::endl;
+	std::cout << "w 0 16 1 17 0 2"<<std::endl;
+	std::cout << "w 0 16 1 18 0 2"<<std::endl;
+	std::cout << "w 0 16 1 32 0 2"<<std::endl;
+	std::cout << "w 0 16 1 33 0 2"<<std::endl;
+	std::cout << "w 0 16 1 34 0 2"<<std::endl;
+	
+      }else if (rm==2){
+      		std::cout << "w 0 1 1 0 0 2"<<std::endl;
+	std::cout << "w 0 8 1 1 0 2"<<std::endl;
+	std::cout << "w 0 8 1 2 0 2"<<std::endl;
+	std::cout << "w 0 8 1 16 0 2"<<std::endl;
+	std::cout << "w 0 8 1 17 0 2"<<std::endl;
+	std::cout << "w 0 8 1 18 0 2"<<std::endl;
+	std::cout << "w 0 8 1 32 0 2"<<std::endl;
+	std::cout << "w 0 8 1 33 0 2"<<std::endl;
+	std::cout << "w 0 8 1 34 0 2"<<std::endl;
+      }else if (rm==3){
+	std::cout << "w 0 2 1 0 0 2"<<std::endl;
+	std::cout << "w 0 2 1 1 0 2"<<std::endl;
+	std::cout << "w 0 2 1 2 0 2"<<std::endl;
+	std::cout << "w 0 2 1 16 0 2"<<std::endl;
+	std::cout << "w 0 2 1 17 0 2"<<std::endl;
+	std::cout << "w 0 2 1 18 0 2"<<std::endl;
+	std::cout << "w 0 2 1 32 0 2"<<std::endl;
+	std::cout << "w 0 2 1 33 0 2"<<std::endl;
+	std::cout << "w 0 2 1 34 0 2"<<std::endl;
+      }else if (rm==4){
+	std::cout << "w 0 1 1 0 0 2"<<std::endl;
+	std::cout << "w 0 1 1 1 0 2"<<std::endl;
+	std::cout << "w 0 1 1 2 0 2"<<std::endl;
+	std::cout << "w 0 1 1 16 0 2"<<std::endl;
+	std::cout << "w 0 1 1 17 0 2"<<std::endl;
+	std::cout << "w 0 1 1 18 0 2"<<std::endl;
+	std::cout << "w 0 1 1 32 0 2"<<std::endl;
+	std::cout << "w 0 1 1 33 0 2"<<std::endl;
+	std::cout << "w 0 1 1 34 0 2"<<std::endl;
+      }
+    
+    }else if (in_he){
+      if (rm==1){
+	std::cout << "w 0 32 1 0 0 2"<<std::endl;
+	std::cout << "w 0 32 1 1 0 2"<<std::endl;
+	std::cout << "w 0 32 1 2 0 2"<<std::endl;
+	std::cout << "w 0 32 1 16 0 2"<<std::endl;
+	std::cout << "w 0 32 1 17 0 2"<<std::endl;
+	std::cout << "w 0 32 1 18 0 2"<<std::endl;
+	std::cout << "w 0 32 1 32 0 2"<<std::endl;
+	std::cout << "w 0 32 1 33 0 2"<<std::endl;
+	std::cout << "w 0 32 1 34 0 2"<<std::endl;
+      }else if (rm==2){
+      		std::cout << "w 0 1 1 0 0 2"<<std::endl;
+	std::cout << "w 0 16 1 1 0 2"<<std::endl;
+	std::cout << "w 0 16 1 2 0 2"<<std::endl;
+	std::cout << "w 0 16 1 16 0 2"<<std::endl;
+	std::cout << "w 0 16 1 17 0 2"<<std::endl;
+	std::cout << "w 0 16 1 18 0 2"<<std::endl;
+	std::cout << "w 0 16 1 32 0 2"<<std::endl;
+	std::cout << "w 0 16 1 33 0 2"<<std::endl;
+	std::cout << "w 0 16 1 34 0 2"<<std::endl;
+      }else if (rm==3){
+	std::cout << "w 0 2 1 0 0 2"<<std::endl;
+	std::cout << "w 0 2 1 1 0 2"<<std::endl;
+	std::cout << "w 0 2 1 2 0 2"<<std::endl;
+	std::cout << "w 0 2 1 16 0 2"<<std::endl;
+	std::cout << "w 0 2 1 17 0 2"<<std::endl;
+	std::cout << "w 0 2 1 18 0 2"<<std::endl;
+	std::cout << "w 0 2 1 32 0 2"<<std::endl;
+	std::cout << "w 0 2 1 33 0 2"<<std::endl;
+	std::cout << "w 0 2 1 34 0 2"<<std::endl;
+      }else if (rm==4){
+	std::cout << "w 0 1 1 0 0 2"<<std::endl;
+	std::cout << "w 0 1 1 1 0 2"<<std::endl;
+	std::cout << "w 0 1 1 2 0 2"<<std::endl;
+	std::cout << "w 0 1 1 16 0 2"<<std::endl;
+	std::cout << "w 0 1 1 17 0 2"<<std::endl;
+	std::cout << "w 0 1 1 18 0 2"<<std::endl;
+	std::cout << "w 0 1 1 32 0 2"<<std::endl;
+	std::cout << "w 0 1 1 33 0 2"<<std::endl;
+	std::cout << "w 0 1 1 34 0 2"<<std::endl;
+      }
+
+    }else if(in_hf){//unverified
+      if (rm==1){
+	std::cout << "w 0 2 1 32 0 2"<<std::endl;
+	std::cout << "w 0 2 1 33 0 2"<<std::endl;
+	std::cout << "w 0 2 1 34 0 2"<<std::endl;
+	std::cout << "w 0 4 1 0 0 2"<<std::endl;
+	std::cout << "w 0 4 1 1 0 2"<<std::endl;
+	std::cout << "w 0 4 1 2 0 2"<<std::endl;
+	std::cout << "w 0 4 1 16 0 2"<<std::endl;
+	std::cout << "w 0 4 1 17 0 2"<<std::endl;
+	std::cout << "w 0 4 1 18 0 2"<<std::endl;
+	std::cout << "w 0 4 1 32 0 2"<<std::endl;
+	std::cout << "w 0 4 1 33 0 2"<<std::endl;
+	std::cout << "w 0 4 1 34 0 2"<<std::endl;
+      }else if (rm==2){
+      	std::cout << "w 0 8 1 0 0 2"<<std::endl;
+	std::cout << "w 0 8 1 1 0 2"<<std::endl;
+	std::cout << "w 0 8 1 2 0 2"<<std::endl;
+	std::cout << "w 0 8 1 16 0 2"<<std::endl;
+	std::cout << "w 0 8 1 17 0 2"<<std::endl;
+	std::cout << "w 0 8 1 18 0 2"<<std::endl;
+	std::cout << "w 0 16 1 0 0 2"<<std::endl;
+	std::cout << "w 0 16 1 1 0 2"<<std::endl;
+	std::cout << "w 0 16 1 2 0 2"<<std::endl;
+	std::cout << "w 0 16 1 16 0 2"<<std::endl;
+	std::cout << "w 0 16 1 17 0 2"<<std::endl;
+	std::cout << "w 0 16 1 18 0 2"<<std::endl;
+      }else if (rm==3){
+      	std::cout << "w 0 16 1 32 0 2"<<std::endl;
+	std::cout << "w 0 16 1 33 0 2"<<std::endl;
+	std::cout << "w 0 16 1 34 0 2"<<std::endl;
+	std::cout << "w 0 32 1 0 0 2"<<std::endl;
+	std::cout << "w 0 32 1 1 0 2"<<std::endl;
+	std::cout << "w 0 32 1 2 0 2"<<std::endl;
+	std::cout << "w 0 32 1 16 0 2"<<std::endl;
+	std::cout << "w 0 32 1 17 0 2"<<std::endl;
+	std::cout << "w 0 32 1 18 0 2"<<std::endl;
+	std::cout << "w 0 32 1 32 0 2"<<std::endl;
+	std::cout << "w 0 32 1 33 0 2"<<std::endl;
+	std::cout << "w 0 32 1 34 0 2"<<std::endl;
+      }
+    }//else if(in_ho){} //map unmade
+    
+    std::cout<<std::endl;
+    
   }
-  std::cout<<std::dec<<" </CFGBrick>"<<std::endl;
-  //std::cout<<rbx<<std::endl;
+  std::cout<<std::endl;
+  std::cout << "get 0; do a read for a delay"<<std::endl;
+  std::cout << "get 1; do a read for a delay"<<std::endl;
+  std::cout << "put 63 12; Write to Control Register issue a QIE Reset & Leave clock to backplane Enabled"<<std::endl;
+  std::cout << "get 0; do a read for a delay"<<std::endl;
+  std::cout << "get 1; do a read for a delay"<<std::endl;
+  std::cout << "put 61 1 ; enable B0 from TTC"<<std::endl;
+  
+}
+std::vector<unsigned char> CCApatternmaker::packCCA(int rbx, int rm, int card, int cca) {
+  std::vector<unsigned char> q0=makeSequence(rbx,rm,card,cca,0);
+  std::vector<unsigned char> q1=makeSequence(rbx,rm,card,cca,1);
+  std::vector<unsigned char> data;
+  for (int i=0; i<10; i++) {
+    unsigned char b0,b1;
+    packPair(q0[i],q1[i],b0,b1);
+    data.push_back(b0);
+    data.push_back(b1);
+ }
+  return data;
 }
 
+void CCApatternmaker::packPair(unsigned char q0, unsigned char q1, unsigned char& b0, unsigned char& b1) {
+
+  b0 = 0;
+  if (q0&0x01){ b0|=0x40;}
+  if (q0&0x02){ b0|=0x20;}
+  if (q0&0x04){ b0|=0x10;}
+  if (q0&0x08){ b0|=0x08;}
+  if (q0&0x10){ b0|=0x04;}
+  if (q0&0x20){ b0|=0x02;}
+  if (q0&0x40){ b0|=0x01;}
 
 
-
+ b1 = 0;
+  if (q1&0x01){ b1|=0x80;}
+  if (q1&0x02){ b1|=0x40;}
+  if (q1&0x04){ b1|=0x20;}
+  if (q1&0x08){ b1|=0x10;}
+  if (q1&0x10){ b1|=0x08;}
+  if (q1&0x20){ b1|=0x04;}
+  if (q1&0x40){ b1|=0x02;}
+}
 
 
 
@@ -376,7 +594,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   CCApatternmaker maker;
-  maker.makePattern(argv[1], argv[2]);
+  maker.makePattern(atoi(argv[1]), argv[2]);
   
   return 0;
 }

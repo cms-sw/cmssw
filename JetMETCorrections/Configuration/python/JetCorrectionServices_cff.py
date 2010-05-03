@@ -9,6 +9,9 @@
 ################################################################################
 import FWCore.ParameterSet.Config as cms
 
+from JetMETCorrections.Configuration.JetCorrectionEra_cff import *
+
+
 #
 # SINGLE LEVEL CORRECTION SERVICES
 #
@@ -16,15 +19,16 @@ import FWCore.ParameterSet.Config as cms
 # L1 (Offset) Correction Service
 L1Offset = cms.ESSource(
     'LXXXCorrectionService',
-    level     = cms.string('L1Offset'),
-    algorithm = cms.string('1PU_IC5Calo'),
+    era = cms.string(''),
+    level = cms.string('L1Offset'),
     section   = cms.string(''),
-    useCondDB = cms.untracked.bool(False)
+    algorithm = cms.string('1PU_IC5Calo')
     )
 
 # L1 (Fastjet PU&UE Subtraction) Correction Service
 L1Fastjet = cms.ESSource(
     'L1FastjetCorrectionService',
+    era = cms.string(''),
     level       = cms.string(''),
     algorithm   = cms.string('1PU_IC5Calo'),
     section     = cms.string(''),
@@ -34,18 +38,20 @@ L1Fastjet = cms.ESSource(
 # L2 (relative eta-conformity) Correction Services
 ak5CaloL2Relative = cms.ESSource(
     'LXXXCorrectionService',
+    JetCorrectionEra,
+    section   = cms.string(''),
     level     = cms.string('L2Relative'),
-    algorithm = cms.string('AK5Calo'),
-    section   = cms.string('')
+    algorithm = cms.string('AK5Calo')
     )
 ak5PFL2Relative = ak5CaloL2Relative.clone( algorithm = 'AK5PF' )
 
 # L3 (absolute) Correction Services
 ak5CaloL3Absolute = cms.ESSource(
     'LXXXCorrectionService',
+    JetCorrectionEra,
+    section   = cms.string(''),
     level     = cms.string('L3Absolute'),
-    algorithm = cms.string('AK5Calo'),
-    section   = cms.string('')
+    algorithm = cms.string('AK5Calo')
     )
 ak5PFL3Absolute   = ak5CaloL3Absolute.clone( algorithm = 'AK5PF' )
 
@@ -53,18 +59,20 @@ ak5PFL3Absolute   = ak5CaloL3Absolute.clone( algorithm = 'AK5PF' )
 # L6 (semileptonically decaying b-jet) Correction Services
 ak5CaloL6SLB = cms.ESSource(
     'L6SLBCorrectionService',
+    era                 = cms.string(''),
     level               = cms.string('L6SLB'),
-    algorithm           = cms.string(''),
     section             = cms.string(''),
+    algorithm           = cms.string(''),
     addMuonToJet        = cms.bool(True),
     srcBTagInfoElectron = cms.InputTag('ak5CaloJetsSoftElectronTagInfos'),
     srcBTagInfoMuon     = cms.InputTag('ak5CaloJetsSoftMuonTagInfos')
     )
 ak5PFL6SLB = cms.ESSource(
     'L6SLBCorrectionService',
+    era                 = cms.string(''),
     level               = cms.string('L6SLB'),
-    algorithm           = cms.string(''),
     section             = cms.string(''),
+    algorithm           = cms.string(''),
     addMuonToJet        = cms.bool(False),
     srcBTagInfoElectron = cms.InputTag('ak5PFJetsSoftElectronTagInfos'),
     srcBTagInfoMuon     = cms.InputTag('ak5PFJetsSoftMuonTagInfos')

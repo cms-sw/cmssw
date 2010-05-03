@@ -19,6 +19,7 @@
 // user include files
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
 
+using namespace CLHEP;
 
 // STL classes
 

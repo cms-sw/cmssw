@@ -36,6 +36,7 @@ HLT_L1Mu
 HLT_L1Mu20
 HLT_L2Mu0
 HLT_L2Mu3
+HLT_L2Mu5
 HLT_L2Mu9
 HLT_L2Mu11
 HLT_L2DoubleMu0
@@ -133,6 +134,7 @@ HLT_L1_BPTX_MinusOnly
 HLT_L1_BPTX_PlusOnly
 HLT_L1_BscMinBiasOR_BptxPlusORMinus
 HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX
+HLT_L1_BscMinBiasOR_BeamGas
 HLT_L1_HFtech
 HLT_L1Tech_BSC_halo
 HLT_L1Tech_BSC_halo_forPhysicsBackground
@@ -141,7 +143,6 @@ HLT_L2Mu0_NoVertex
 HLT_TkMu3_NoVertex
 HLT_EgammaSuperClusterOnly_L1R
 HLT_LogMonitor
-HLT_PhysicsDeclared
 HLT_HighMult40
 DQM_FEDIntegrity
 HLTriggerFinalPath

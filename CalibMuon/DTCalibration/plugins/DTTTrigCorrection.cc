@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/19 09:51:31 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/03/25 16:38:34 $
+ *  $Revision: 1.7 $
  *  \author S. Maselli - INFN Torino
  *          A. Vilela Pereira
  */
@@ -39,8 +39,6 @@ DTTTrigCorrection::DTTTrigCorrection(const ParameterSet& pset) {
   // Get the concrete algo from the factory
   string theAlgoName = pset.getParameter<string>("correctionAlgo");
   correctionAlgo_ = DTTTrigCorrectionFactory::get()->create(theAlgoName,pset.getParameter<ParameterSet>("correctionAlgoConfig"));
-
-  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
 }
 
 DTTTrigCorrection::~DTTTrigCorrection(){
@@ -51,7 +49,7 @@ DTTTrigCorrection::~DTTTrigCorrection(){
 void DTTTrigCorrection::beginRun( const edm::Run& run, const edm::EventSetup& setup ) {
   // Get tTrig record from DB
   ESHandle<DTTtrig> tTrig;
-  setup.get<DTTtrigRcd>().get(dbLabel,tTrig);
+  setup.get<DTTtrigRcd>().get(tTrig);
   tTrigMap_ = &*tTrig;
   LogVerbatim("Calibration") << "[DTTTrigCorrection]: TTrig version: " << tTrig->version() << endl;
 

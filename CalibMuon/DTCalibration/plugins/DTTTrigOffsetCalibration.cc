@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/16 10:03:23 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/03/25 16:38:34 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -47,8 +47,6 @@ DTTTrigOffsetCalibration::DTTTrigOffsetCalibration(const ParameterSet& pset) {
   theFile_ = new TFile(rootFileName.c_str(), "RECREATE");
   theFile_->cd();
 
-  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
-
   // Do t0-seg correction to ttrig
   doTTrigCorrection_ = pset.getUntrackedParameter<bool>("doT0SegCorrection", false);
 
@@ -74,7 +72,7 @@ DTTTrigOffsetCalibration::DTTTrigOffsetCalibration(const ParameterSet& pset) {
 void DTTTrigOffsetCalibration::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   if(doTTrigCorrection_){
     ESHandle<DTTtrig> tTrig;
-    setup.get<DTTtrigRcd>().get(dbLabel,tTrig);
+    setup.get<DTTtrigRcd>().get(tTrig);
     tTrigMap = &*tTrig;
     LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration]: TTrig version: " << tTrig->version() << endl; 
   }

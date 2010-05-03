@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.16 2010/03/30 16:35:50 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.14 2010/02/25 18:56:00 amagnan Exp $
 //
 
 #include <sstream>
@@ -156,7 +156,7 @@ SiStripCMMonitorPlugin::SiStripCMMonitorPlugin(const edm::ParameterSet& iConfig)
 
  cmHists_.initialise(iConfig,pDebugStream);
 
- doTkHistoMap_ = cmHists_.tkHistoMapEnabled();
+ doTkHistoMap_ = cmHists_.isTkHistoMapEnabled(cmHists_.tkHistoMapName());
 
  CommonModes_.clear();
  CommonModesAPV0minusAPV1_.clear();
@@ -211,7 +211,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
     const FEDRawData& fedData = rawDataCollection.FEDData(fedId);
 
     //create an object to fill all errors
-    lFedErrors.initialiseFED(fedId,cabling_);
+    lFedErrors.initialise(fedId,cabling_);
 
     //Do detailed check
     //first check if data exists

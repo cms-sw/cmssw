@@ -2,11 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 dqmBeamMonitor_pixelless = cms.EDFilter("BeamMonitor",
                               monitorName = cms.untracked.string('BeamMonitor_PixelLess'),
-                              beamSpot = cms.untracked.InputTag('offlineBeamSpot'), ## hltOfflineBeamSpot for HLTMON
-                              fitEveryNLumi = cms.untracked.int32(5),
+                              beamSpot = cms.untracked.string('offlineBeamSpot'), ## hltOfflineBeamSpot for HLTMON
+                              fitEveryNLumi = cms.untracked.int32(1),
                               resetEveryNLumi = cms.untracked.int32(40),
-                              fitPVEveryNLumi = cms.untracked.int32(1),
-                              resetPVEveryNLumi = cms.untracked.int32(2),
                               Debug = cms.untracked.bool(False),
                               BeamFitter = cms.PSet(
         			Debug = cms.untracked.bool(False),
@@ -15,7 +13,6 @@ dqmBeamMonitor_pixelless = cms.EDFilter("BeamMonitor",
                                 WriteAscii = cms.untracked.bool(False),
                                 AsciiFileName = cms.untracked.string('BeamFit.txt'),
 				SaveNtuple = cms.untracked.bool(False),
-				SaveFitResults = cms.untracked.bool(False),
 				OutputFileName = cms.untracked.string('BeamFit.root'),
                                 MinimumPt = cms.untracked.double(1.),
                                 MaximumEta = cms.untracked.double(2.4),

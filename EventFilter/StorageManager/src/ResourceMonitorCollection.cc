@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.31 2010/02/09 14:54:55 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.34 2010/04/12 15:25:05 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -45,25 +45,34 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
 
   _nLogicalDisks = std::max(dwParams._nLogicalDisk, 1);
   _diskUsageList.clear();
-  _diskUsageList.reserve(_nLogicalDisks+dwParams._otherDiskPaths.size());
+  _diskUsageList.reserve(_nLogicalDisks+dwParams._otherDiskPaths.size()+1);
 
   for (unsigned int i=0; i<_nLogicalDisks; ++i) {
 
-    DiskUsagePtr diskUsage( new DiskUsage() );
-    diskUsage->pathName = dwParams._filePath;
+    std::ostringstream pathName;
+    pathName << dwParams._filePath;
     if( dwParams._nLogicalDisk > 0 ) {
-      std::ostringstream oss;
-      oss << "/" << std::setfill('0') << std::setw(2) << i; 
-      diskUsage->pathName += oss.str();
+      pathName << "/" << std::setfill('0') << std::setw(2) << i; 
     }
-    retrieveDiskSize(diskUsage);
-    _diskUsageList.push_back(diskUsage);
+    addDisk(pathName.str());
   }
+  addDisk(dwParams._dbFilePath);
 
   if ( _alarmParams._isProductionSystem )
   {
     addOtherDisks();
   }
+}
+
+
+void ResourceMonitorCollection::addDisk(const std::string& pathname)
+{
+  if ( pathname.empty() ) return;
+
+  DiskUsagePtr diskUsage( new DiskUsage() );
+  diskUsage->pathName = pathname;
+  retrieveDiskSize(diskUsage);
+  _diskUsageList.push_back(diskUsage);
 }
 
 
@@ -75,10 +84,7 @@ void ResourceMonitorCollection::addOtherDisks()
         it != itEnd;
         ++it)
   {
-    DiskUsagePtr diskUsage( new DiskUsage() );
-    diskUsage->pathName = (*it);
-    retrieveDiskSize(diskUsage);
-    _diskUsageList.push_back(diskUsage);
+    addDisk(*it);
   }
 }
 
@@ -236,11 +242,11 @@ void ResourceMonitorCollection::retrieveDiskSize(DiskUsagePtr diskUsage)
       diskUsage->diskSize -
       buf.f_bavail * blksize / 1024 / 1024 / 1024;
     diskUsage->relDiskUsage = (100 * (diskUsage->absDiskUsage / diskUsage->diskSize)); 
-    if ( diskUsage->relDiskUsage > _dwParams._highWaterMark*100 )
+    if ( diskUsage->relDiskUsage > _dwParams._highWaterMark )
     {
       emitDiskSpaceAlarm(diskUsage);
     }
-    else if ( diskUsage->relDiskUsage < _dwParams._highWaterMark*95 )
+    else if ( diskUsage->relDiskUsage < _dwParams._highWaterMark*0.95 )
       // do not change alarm level if we are close to the high water mark
     {
       revokeDiskAlarm(diskUsage);
@@ -281,17 +287,27 @@ void ResourceMonitorCollection::emitDiskAlarm(DiskUsagePtr diskUsage, error_t e)
 
 void ResourceMonitorCollection::emitDiskSpaceAlarm(DiskUsagePtr diskUsage)
 {
+  if ( diskUsage->relDiskUsage > _dwParams._failHighWaterMark )
+  {
+    failIfImportantDisk(diskUsage);
+  }
+
   diskUsage->alarmState = AlarmHandler::WARNING;
 
-  std::ostringstream msg;
-  msg << std::fixed << std::setprecision(1) <<
-    "Disk space usage for " << diskUsage->pathName <<
-    " is " << diskUsage->relDiskUsage << "% (" <<
-    diskUsage->absDiskUsage << "GB of " <<
-    diskUsage->diskSize << "GB).";
-
-  XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, msg.str());
+  XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, diskUsage->toString());
   _alarmHandler->raiseAlarm(diskUsage->pathName, diskUsage->alarmState, ex);
+}
+
+
+void ResourceMonitorCollection::failIfImportantDisk(DiskUsagePtr diskUsage)
+{
+  // do not fail if the disk is one of the other disks
+  DiskWritingParams::OtherDiskPaths::const_iterator begin = _dwParams._otherDiskPaths.begin();
+  DiskWritingParams::OtherDiskPaths::const_iterator end = _dwParams._otherDiskPaths.end();
+  if ( std::find(begin, end, diskUsage->pathName) != end ) return;
+  
+  diskUsage->alarmState = AlarmHandler::FATAL;
+  XCEPT_RAISE(stor::exception::DiskSpaceAlarm, diskUsage->toString());
 }
 
 
@@ -596,6 +612,18 @@ int ResourceMonitorCollection::getProcessCount(const std::string& processName, c
   free(namelist);
   
   return count;
+}
+
+
+std::string ResourceMonitorCollection::DiskUsage::toString()
+{
+  std::ostringstream msg;
+  msg << std::fixed << std::setprecision(1) <<
+    "Disk space usage for " << pathName <<
+    " is " << relDiskUsage << "% (" <<
+    absDiskUsage << "GB of " <<
+    diskSize << "GB).";
+  return msg.str();
 }
 
 

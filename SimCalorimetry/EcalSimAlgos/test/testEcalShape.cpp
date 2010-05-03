@@ -1,7 +1,6 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/APDShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,7 +19,6 @@ int main()
 
    const EcalSimParameterMap parameterMap ;
 
-   const APDShape theAPDShape( 74.5, 40.5 ) ;
    const EBShape theEBShape ;
    const EEShape theEEShape ;
 
@@ -29,19 +27,13 @@ int main()
 
    const unsigned int histsiz = nsamp*tconv;
 
-   for( unsigned int i ( 0 ) ; i != 3 ; ++i )
+   for( unsigned int i ( 0 ) ; i != 2 ; ++i )
    {
 
-      const DetId id ( 0 == i || 2 == i ?
-		       (DetId) EBDetId(1,1) :
-		       (DetId) EEDetId(1,50,1) ) ;
+      const DetId id ( 0 == i ? (DetId) EBDetId(1,1) : (DetId) EEDetId(1,50,1) ) ;
 
-      const EcalShapeBase* theShape ( 0 == i ? 
-				      (EcalShapeBase*) &theEBShape : 
-				      ( 1 == i ? 
-					(EcalShapeBase*) &theEEShape :
-					(EcalShapeBase*) &theAPDShape  ) ) ;
-      
+      const EcalShapeBase* theShape ( 0 == i ? (EcalShapeBase*) &theEBShape : (EcalShapeBase*) &theEEShape ) ;
+
       const double ToM ( theShape->timeOfMax()  ) ;
       const double T0  ( theShape->timeOfThr()  ) ;
       const double rT  ( theShape->timeToRise() ) ;
@@ -85,9 +77,7 @@ int main()
   delete deriv1;
 */
 
-      const std::string name ( 0 == i ? "Barrel" : 
-			       ( 1 == i ? "Endcap" :
-				 "APD" ) ) ;
+      const std::string name ( 0 == i ? "Barrel" : "Endcap" ) ;
 
       std::cout << "\n ********************* "
 		<< name 

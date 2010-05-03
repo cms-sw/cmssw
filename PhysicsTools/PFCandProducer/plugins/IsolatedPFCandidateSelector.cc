@@ -6,8 +6,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/PFCandProducer/interface/IsolatedPFCandidateSelectorDefinition.h"
+#include "PhysicsTools/PFCandProducer/plugins/IsolatedPFCandidateSelectorDefinition.h"
 
-typedef ObjectSelector<pf2pat::IsolatedPFCandidateSelectorDefinition> IsolatedPFCandidateSelector;
+typedef ObjectSelector<IsolatedPFCandidateSelectorDefinition> IsolatedPFCandidateSelector;
 
 DEFINE_FWK_MODULE(IsolatedPFCandidateSelector);

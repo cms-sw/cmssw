@@ -1,8 +1,7 @@
-// Authors: F. Ambroglini, L. Fano', F. Bechtel
+// Authors: F. Ambroglini, L. Fano'
 #include <QCDAnalysis/UEAnalysis/interface/AnalysisRootpleProducer.h>
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "FWCore/Common/interface/TriggerNames.h"
-
+ 
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -34,50 +33,98 @@ public:
     return a.pt() > b.pt();
   }
 };
-
-
-
-
  
+
 void AnalysisRootpleProducer::store(){
 
   AnalysisTree->Fill();
 
+  NumberMCParticles=0;
+  NumberTracks=0;
+  NumberInclusiveJet=0;
+  NumberChargedJet=0;
+  NumberTracksJet=0;
+  NumberCaloJet=0;
 }
 
 void AnalysisRootpleProducer::fillEventInfo(int e){
   EventKind = e;
 }
 
+void AnalysisRootpleProducer::fillMCParticles(float p, float pt, float eta, float phi){
+  MomentumMC[NumberMCParticles]=p;
+  TransverseMomentumMC[NumberMCParticles]=pt;
+  EtaMC[NumberMCParticles]=eta;
+  PhiMC[NumberMCParticles]=phi;
+  NumberMCParticles++;
+}
+
+void AnalysisRootpleProducer::fillTracks(float p, float pt, float eta, float phi){
+  MomentumTK[NumberTracks]=p;
+  TransverseMomentumTK[NumberTracks]=pt;
+  EtaTK[NumberTracks]=eta;
+  PhiTK[NumberTracks]=phi;
+  NumberTracks++;
+}
+
+void AnalysisRootpleProducer::fillInclusiveJet(float p, float pt, float eta, float phi){
+  MomentumIJ[NumberInclusiveJet]=p;
+  TransverseMomentumIJ[NumberInclusiveJet]=pt;
+  EtaIJ[NumberInclusiveJet]=eta;
+  PhiIJ[NumberInclusiveJet]=phi;
+  NumberInclusiveJet++;
+}
+
+void AnalysisRootpleProducer::fillChargedJet(float p, float pt, float eta, float phi){
+  MomentumCJ[NumberChargedJet]=p;
+  TransverseMomentumCJ[NumberChargedJet]=pt;
+  EtaCJ[NumberChargedJet]=eta;
+  PhiCJ[NumberChargedJet]=phi;
+  NumberChargedJet++;
+}
+
+void AnalysisRootpleProducer::fillTracksJet(float p, float pt, float eta, float phi){
+  MomentumTJ[NumberTracksJet]=p;
+  TransverseMomentumTJ[NumberTracksJet]=pt;
+  EtaTJ[NumberTracksJet]=eta;
+  PhiTJ[NumberTracksJet]=phi;
+  NumberTracksJet++;
+}
+
+void AnalysisRootpleProducer::fillCaloJet(float p, float pt, float eta, float phi){
+  MomentumEHJ[NumberCaloJet]=p;
+  TransverseMomentumEHJ[NumberCaloJet]=pt;
+  EtaEHJ[NumberCaloJet]=eta;
+  PhiEHJ[NumberCaloJet]=phi;
+  NumberCaloJet++;
+}
 
 AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
 {
   // flag to ignore gen-level analysis
-  onlyRECO = pset.getParameter<bool>("OnlyRECO");
+  onlyRECO = pset.getUntrackedParameter<bool>("OnlyRECO",false);
 
   // particle, track and jet collections
-  mcEvent             = pset.getParameter<InputTag>( "MCEvent"                   );
-  genJetCollName      = pset.getParameter<InputTag>( "GenJetCollectionName"      );
-  chgJetCollName      = pset.getParameter<InputTag>( "ChgGenJetCollectionName"   );
-  tracksJetCollName   = pset.getParameter<InputTag>( "TracksJetCollectionName"   );
-  recoCaloJetCollName = pset.getParameter<InputTag>( "RecoCaloJetCollectionName" );
-  chgGenPartCollName  = pset.getParameter<InputTag>( "ChgGenPartCollectionName"  );
-  tracksCollName      = pset.getParameter<InputTag>( "TracksCollectionName"      );
-  genEventScaleTag    = pset.getParameter<InputTag>( "genEventScale"             );
-
-  //   cout << genJetCollName.label() << endl;
-  //   cout << chgJetCollName.label() << endl;
-  //   cout << tracksJetCollName.label() << endl;
-  //   cout << recoCaloJetCollName.label() << endl;
+  mcEvent = pset.getUntrackedParameter<InputTag>("MCEvent",std::string(""));
+  genJetCollName = pset.getUntrackedParameter<InputTag>("GenJetCollectionName",std::string(""));
+  chgJetCollName = pset.getUntrackedParameter<InputTag>("ChgGenJetCollectionName",std::string(""));
+  tracksJetCollName = pset.getUntrackedParameter<InputTag>("TracksJetCollectionName",std::string(""));
+  recoCaloJetCollName = pset.getUntrackedParameter<InputTag>("RecoCaloJetCollectionName",std::string(""));
+  chgGenPartCollName = pset.getUntrackedParameter<InputTag>("ChgGenPartCollectionName",std::string(""));
+  tracksCollName = pset.getUntrackedParameter<InputTag>("TracksCollectionName",std::string(""));
 
   // trigger results
   triggerResultsTag = pset.getParameter<InputTag>("triggerResults");
-  triggerEventTag   = pset.getParameter<InputTag>("triggerEvent"  );
   //   hltFilterTag      = pset.getParameter<InputTag>("hltFilter");
   //   triggerName       = pset.getParameter<InputTag>("triggerName");
 
   piG = acos(-1.);
-  pdgidList.reserve(200);
+  NumberMCParticles=0;
+  NumberTracks=0;
+  NumberInclusiveJet=0;
+  NumberChargedJet=0;
+  NumberTracksJet=0;
+  NumberCaloJet=0;
 }
 
 void AnalysisRootpleProducer::beginJob()
@@ -88,21 +135,60 @@ void AnalysisRootpleProducer::beginJob()
 
   AnalysisTree->Branch("EventKind",&EventKind,"EventKind/I");
 
+  // store p, pt, eta, phi for particles and jets
+
+  // GenParticles at hadron level  
+  AnalysisTree->Branch("NumberMCParticles",&NumberMCParticles,"NumberMCParticles/I");
+  AnalysisTree->Branch("MomentumMC",MomentumMC,"MomentumMC[NumberMCParticles]/F");
+  AnalysisTree->Branch("TransverseMomentumMC",TransverseMomentumMC,"TransverseMomentumMC[NumberMCParticles]/F");
+  AnalysisTree->Branch("EtaMC",EtaMC,"EtaMC[NumberMCParticles]/F");
+  AnalysisTree->Branch("PhiMC",PhiMC,"PhiMC[NumberMCParticles]/F");
+  
+  // tracks
+  AnalysisTree->Branch("NumberTracks",&NumberTracks,"NumberTracks/I");
+  AnalysisTree->Branch("MomentumTK",MomentumTK,"MomentumTK[NumberTracks]/F");
+  AnalysisTree->Branch("TrasverseMomentumTK",TransverseMomentumTK,"TransverseMomentumTK[NumberTracks]/F");
+  AnalysisTree->Branch("EtaTK",EtaTK,"EtaTK[NumberTracks]/F");
+  AnalysisTree->Branch("PhiTK",PhiTK,"PhiTK[NumberTracks]/F");
+  
+  // GenJets
+  AnalysisTree->Branch("NumberInclusiveJet",&NumberInclusiveJet,"NumberInclusiveJet/I");
+  AnalysisTree->Branch("MomentumIJ",MomentumIJ,"MomentumIJ[NumberInclusiveJet]/F");
+  AnalysisTree->Branch("TrasverseMomentumIJ",TransverseMomentumIJ,"TransverseMomentumIJ[NumberInclusiveJet]/F");
+  AnalysisTree->Branch("EtaIJ",EtaIJ,"EtaIJ[NumberInclusiveJet]/F");
+  AnalysisTree->Branch("PhiIJ",PhiIJ,"PhiIJ[NumberInclusiveJet]/F");
+  
+  // jets from charged GenParticles
+  AnalysisTree->Branch("NumberChargedJet",&NumberChargedJet,"NumberChargedJet/I");
+  AnalysisTree->Branch("MomentumCJ",MomentumCJ,"MomentumCJ[NumberChargedJet]/F");
+  AnalysisTree->Branch("TrasverseMomentumCJ",TransverseMomentumCJ,"TransverseMomentumCJ[NumberChargedJet]/F");
+  AnalysisTree->Branch("EtaCJ",EtaCJ,"EtaCJ[NumberChargedJet]/F");
+  AnalysisTree->Branch("PhiCJ",PhiCJ,"PhiCJ[NumberChargedJet]/F");
+  
+  // jets from tracks
+  AnalysisTree->Branch("NumberTracksJet",&NumberTracksJet,"NumberTracksJet/I");
+  AnalysisTree->Branch("MomentumTJ",MomentumTJ,"MomentumTJ[NumberTracksJet]/F");
+  AnalysisTree->Branch("TrasverseMomentumTJ",TransverseMomentumTJ,"TransverseMomentumTJ[NumberTracksJet]/F");
+  AnalysisTree->Branch("EtaTJ",EtaTJ,"EtaTJ[NumberTracksJet]/F");
+  AnalysisTree->Branch("PhiTJ",PhiTJ,"PhiTJ[NumberTracksJet]/F");
+  
+  // jets from calorimeter towers
+  AnalysisTree->Branch("NumberCaloJet",&NumberCaloJet,"NumberCaloJet/I");
+  AnalysisTree->Branch("MomentumEHJ",MomentumEHJ,"MomentumEHJ[NumberCaloJet]/F");
+  AnalysisTree->Branch("TrasverseMomentumEHJ",TransverseMomentumEHJ,"TransverseMomentumEHJ[NumberCaloJet]/F");
+  AnalysisTree->Branch("EtaEHJ",EtaEHJ,"EtaEHJ[NumberCaloJet]/F");
+  AnalysisTree->Branch("PhiEHJ",PhiEHJ,"PhiEHJ[NumberCaloJet]/F");
+  
+
+  // alternative storage method:
   // save TClonesArrays of TLorentzVectors
   // i.e. store 4-vectors of particles and jets
-  
- 
+
   MonteCarlo = new TClonesArray("TLorentzVector", 10000);
   AnalysisTree->Branch("MonteCarlo", "TClonesArray", &MonteCarlo, 128000, 0);
 
-  MonteCarlo2 = new TClonesArray("TVector", 10000);
-  AnalysisTree->Branch("MonteCarlo2", "TClonesArray", &MonteCarlo2,128000, 0);
-
   Track = new TClonesArray("TLorentzVector", 10000);
   AnalysisTree->Branch("Track", "TClonesArray", &Track, 128000, 0);
-
-  AssVertex = new TClonesArray("TLorentzVector", 10000);
-  AnalysisTree->Branch("AssVertex", "TClonesArray", &AssVertex, 128000, 0);
 
   InclusiveJet = new TClonesArray("TLorentzVector", 10000);
   AnalysisTree->Branch("InclusiveJet", "TClonesArray", &InclusiveJet, 128000, 0);
@@ -119,186 +205,54 @@ void AnalysisRootpleProducer::beginJob()
   acceptedTriggers = new TClonesArray("TObjString", 10000);
   AnalysisTree->Branch("acceptedTriggers", "TClonesArray", &acceptedTriggers, 128000, 0);
 
-  AnalysisTree->Branch("genEventScale", &genEventScale, "genEventScale/D");
- 
-  AnalysisTree->Branch("eventNum",&eventNum,"eventNum/I");
-  AnalysisTree->Branch("lumiBlock",&lumiBlock,"lumiBlock/I");
-  AnalysisTree->Branch("runNumber",&runNumber,"runNumber/I");
-  AnalysisTree->Branch("bx",&bx,"bx/I");
-
-  //AnalysisTree->Branch("npv",&m_npv,"npv/I");
-  //AnalysisTree->Branch("pvx",m_pvx, "pvx[npv]/D");
-  //AnalysisTree->Branch("pvy",m_pvy, "pvy[npv]/D");
-  //AnalysisTree->Branch("pvz",m_pvz, "pvz[npv]/D");
-  //AnalysisTree->Branch("pvxErr",m_pvxErr, "pvxErr[npv]/D");
-  //AnalysisTree->Branch("pvyErr",m_pvyErr, "pvyErr[npv]/D");
-  //AnalysisTree->Branch("pvzErr",m_pvzErr, "pvzErr[npv]/D");
-  //  AnalysisTree->Branch("pvntk", m_pvntk, "pvntk[npv]/I");
-  
-  //AnalysisTree->Branch("pvtkp",m_pvtkp,"pvtkp[npv]/D");
-  //AnalysisTree->Branch("pvtkpt",m_pvtkpt,"pvtkpt[5000]/D");
-  //AnalysisTree->Branch("pvtketa",m_pvtketa,"pvtketa[5000]/D");
-  //AnalysisTree->Branch("pvtkphi",m_pvtkphi,"pvtkphi[5000]/D");
-  //AnalysisTree->Branch("pvtkchi2norm",m_pvtkchi2norm,"pvtkchi2norm[5000]/D");
-  //AnalysisTree->Branch("pvtknhit",m_pvtknhit,"pvtknhit[5000]/D");
-  //AnalysisTree->Branch("pvtkd0",m_pvtkd0,"pvtkd0[5000]/D");
-  //AnalysisTree->Branch("pvtkd0Err",m_pvtkd0Err,"pvtkd0Err[5000]/D");
-  //AnalysisTree->Branch("pvtkdz",m_pvtkdz,"pvtkdz[5000]/D");
-  //AnalysisTree->Branch("pvtkdzErr",m_pvtkdzErr,"pvtkdzErr[5000]/D");
-
-  //AnalysisTree->Branch("ntk",&m_ntk,"ntk/I");
-  //AnalysisTree->Branch("tkpt",m_tkpt,"tkpt[ntk]/D");
-  //AnalysisTree->Branch("tketa",m_tketa,"tketa[ntk]/D");
-  //AnalysisTree->Branch("tkphi",m_tkphi,"tkphi[ntk]/D");
-  //AnalysisTree->Branch("tkchi2norm",m_tkchi2norm,"tkchi2norm[ntk]/D");
-  //AnalysisTree->Branch("tknhit",m_tknhit,"tknhit[ntk]/D");
-  //AnalysisTree->Branch("tkd0",m_tkd0,"tkd0[ntk]/D");
-  //AnalysisTree->Branch("tkd0Err",m_tkd0Err,"tkd0Err[ntk]/D");
-  //AnalysisTree->Branch("tkdz",m_tkdz,"tkdz[ntk]/D");
-  //AnalysisTree->Branch("tkdzErr",m_tkdzErr,"tkdzErr[ntk]/D");
-
 }
 
   
 void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 {
-  ///
-  /// Pythia: genEventScaleTag = "genEventScale"
-  /// Herwig: genEventScaleTag = "genEventKTValue"
-  ///
+  
+  e.getByLabel( triggerResultsTag, triggerResults );
+  const edm::TriggerNames & triggerNames = e.triggerNames(*triggerResults);
 
-  // if ( e.getByLabel( genEventScaleTag, genEventScaleHandle ) ) genEventScale = *genEventScaleHandle;
- 
-  eventNum   = e.id().event() ;
-  runNumber  = e.id().run() ;
-  lumiBlock  = e.luminosityBlock() ;
-  bx = e.bunchCrossing();
-  if(!onlyRECO){
-  Handle<GenEventInfoProduct> hEventInfo;
-  e.getByLabel(genEventScaleTag , hEventInfo);
- if (hEventInfo->binningValues().size() > 0)
-   { 
-    genEventScale = hEventInfo->binningValues()[0];
-   }  
-  }
-// access trigger bits by TriggerEvent
-  //   acceptedTriggers->Clear();
-  //   unsigned int iAcceptedTriggers( 0 );
-  //   if (e.getByLabel( triggerEventTag, triggerEvent ) )
-  //     {
-  //        // look at TriggerEvent 
-  
-  //       LogDebug("UEAnalysis") << "triggerEvent has " << triggerEvent.product()->sizeFilters() << " filters and "
-  // 			     << "triggerEvent has " << triggerEvent.product()->sizeObjects() << " objects";
-  
-  //       LogDebug("UEAnalysis") << "size of object collection is " << triggerEvent.product()->getObjects().size() 
-  // 			     << "usedProcessName() " << triggerEvent.product()->usedProcessName();
-  
-  //       for ( size_type index( 0 ) ; index < triggerEvent.product()->sizeFilters() ; ++index )
-  // 	{
-  // 	  LogDebug("UEAnalysis") << "filterLabel(size_type index) " << triggerEvent.product()->filterLabel(index);
-  
-  // 	  // save name of accepted trigger
-  // 	  new((*acceptedTriggers)[iAcceptedTriggers]) TObjString( triggerEvent.product()->filterLabel(index).c_str() );
-  // 	  ++iAcceptedTriggers;  
-  // 	}
-  //     }
-
-
-  // access trigger bits by TriggerResults
-  if (e.getByLabel( triggerResultsTag, triggerResults ) )
+  acceptedTriggers->Clear();
+  unsigned int iAcceptedTriggers( 0 ); 
+  if ( triggerResults.product()->wasrun() )
     {
-      const edm::TriggerNames & triggerNames = e.triggerNames(*triggerResults);
-      
-      acceptedTriggers->Clear();
-      unsigned int iAcceptedTriggers( 0 ); 
-      if ( triggerResults.product()->wasrun() )
-   	{
-   	  LogDebug("UEAnalysis") << "at least one path out of " << triggerResults.product()->size() 
-				 << " ran? " << triggerResults.product()->wasrun();
+      //cout << "at least one path out of " << triggerResults.product()->size() << " ran? " << triggerResults.product()->wasrun() << endl;
   
-   	  if ( triggerResults.product()->accept() ) 
-   	    {
-   	      LogDebug("UEAnalysis") << "at least one path accepted? " << triggerResults.product()->accept() ;
-  
-   	      const unsigned int n_TriggerResults( triggerResults.product()->size() );
-   	      for ( unsigned int itrig( 0 ); itrig < n_TriggerResults; ++itrig )
-   		{
-   		  LogDebug("UEAnalysis") << "path " << triggerNames.triggerName( itrig ) 
-   					 << ", module index " << triggerResults.product()->index( itrig )
-   					 << ", state (Ready = 0, Pass = 1, Fail = 2, Exception = 3) " << triggerResults.product()->state( itrig )
-   					 << ", accept " << triggerResults.product()->accept( itrig );
-  
-     		  if ( triggerResults.product()->accept( itrig ) )
-   		    {
-   		      // save name of accepted trigger path
-   		      new((*acceptedTriggers)[iAcceptedTriggers]) TObjString( (triggerNames.triggerName( itrig )).c_str() );
-   		      ++iAcceptedTriggers;
-   		    }
-   		}
-   	    }
-   	}
+      if ( triggerResults.product()->accept() ) 
+	{
+	  //cout << endl << "at least one path accepted? " << triggerResults.product()->accept() << endl;
+
+	  const unsigned int n_TriggerResults( triggerResults.product()->size() );
+	  for ( unsigned int itrig( 0 ); itrig < n_TriggerResults; ++itrig )
+	    {
+	      if ( triggerResults.product()->accept( itrig ) )
+		{
+		  //cout << "path " << triggerNames.triggerName( itrig );
+		  //cout << ", module index " << triggerResults.product()->index( itrig );
+		  //cout << ", state (Ready = 0, Pass = 1, Fail = 2, Exception = 3) " << triggerResults.product()->state( itrig );
+		  //cout << ", accept " << triggerResults.product()->accept( itrig );
+		  //cout << endl;
+
+		  // save name of accepted trigger path
+		  new((*acceptedTriggers)[iAcceptedTriggers]) TObjString( (triggerNames.triggerName( itrig )).c_str() );
+		  ++iAcceptedTriggers;
+		}
+	    }
+	}
     }
 
   // gen level analysis
   // skipped, if onlyRECO flag set to true
-  
+
   if(!onlyRECO){
     
     e.getByLabel( mcEvent           , EvtHandle        );
     e.getByLabel( chgGenPartCollName, CandHandleMC     );
     e.getByLabel( chgJetCollName    , ChgGenJetsHandle );
     e.getByLabel( genJetCollName    , GenJetsHandle    );
-
-
-    //Primary Vertex
- //primary vertex extraction --------------------------------------------------------------------------
-
-  int ipv = 0;
-  edm::Handle<reco::VertexCollection> primaryVertexHandle;
-  e.getByLabel("offlinePrimaryVertices",primaryVertexHandle);
-  /* 
- if(primaryVertexHandle->size()>0){
-
-for(reco::VertexCollection::const_iterator it = primaryVertexHandle->begin(), ed = primaryVertexHandle->end();
-	 it != ed; ++it) {
-  reco::Vertex pv;
-  pv = (*it);
-  m_pvx[ipv] = pv.x();
-  m_pvy[ipv] = pv.y();
-  m_pvz[ipv] = pv.z();
-  
-  m_pvxErr[ipv] = pv.xError();
-  m_pvyErr[ipv] = pv.yError();
-  m_pvzErr[ipv] = pv.zError();
-  
-  // int ipvtk=0;
-  // for(reco::Vertex::trackRef_iterator pvt = pv.tracks_begin(); pvt!= pv.tracks_end(); pvt++){
-  // const reco::Track & track = *pvt->get();
-  //  
-  // m_pvtkpt[ipv+ipvtk]=track.pt();
-  //  m_pvtkp[ipv+ipvtk]=track.p();
-  //  m_pvtketa[ipv+ipvtk]=track.eta();
-  //  m_pvtkphi[ipv+ipvtk]=track.phi();
-  //  m_pvtkchi2norm[ipv+ipvtk]=track.normalizedChi2();
-  //  m_pvtkd0[ipv+ipvtk]=track.d0();
-  //  m_pvtkd0Err[ipv+ipvtk]=track.d0Error();
-  //  m_pvtkdz[ipv+ipvtk]=track.dz();
-  //  m_pvtkdzErr[ipv+ipvtk]=track.dzError();
-  //  m_pvtknhit[ipv+ipvtk]=track.recHitsSize();
-       
-  // ipvtk++;
-  // }
-  //   m_pvntk[ipv] = ipvtk;
-   ipv++;
-}
-  }
-  m_npv = ipv;
-*/
-
-
-
-  ///-------------------------------
+    
     const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
     
     EventKind = Evt->signal_process_id();
@@ -328,6 +282,7 @@ for(reco::VertexCollection::const_iterator it = primaryVertexHandle->begin(), ed
       std::vector<GenJet>::const_iterator it(ChgGenJetContainer.begin()), itEnd(ChgGenJetContainer.end());
       for ( int iChargedJet(0); it != itEnd; ++it, ++iChargedJet)
 	{
+	  fillChargedJet(it->p(),it->pt(),it->eta(),it->phi());
 	  new((*ChargedJet)[iChargedJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
 	}
     }
@@ -340,17 +295,6 @@ for(reco::VertexCollection::const_iterator it = primaryVertexHandle->begin(), ed
 	    it!=itEnd; ++it )
 	{
 	  GenJetContainer.push_back(*it);
-
-	  // 	  Jet::Constituents constituents( (*it).getJetConstituents() );
-	  // 	  //cout << "get " << constituents.size() << " constituents" << endl;
-	  // 	  for (int iJC(0); iJC<constituents.size(); ++iJC )
-	  // 	    {
-	  // 	      //cout << "[" << iJC << "] constituent pT = " << constituents[iJC]->pt() << endl;
-	  // 	      if (constituents[iJC]->et()<0.5)
-	  // 		{
-	  // 		  cout << "ERROR!!! [" << iJC << "] constituent pT = " << constituents[iJC]->pt() << endl;
-	  // 		}
-	  // 	    }
 	}
 
       std::stable_sort(GenJetContainer.begin(),GenJetContainer.end(),GenJetSort());
@@ -358,6 +302,7 @@ for(reco::VertexCollection::const_iterator it = primaryVertexHandle->begin(), ed
       std::vector<GenJet>::const_iterator it(GenJetContainer.begin()), itEnd(GenJetContainer.end());
       for ( int iInclusiveJet(0); it != itEnd; ++it, ++iInclusiveJet)
 	{
+	  fillInclusiveJet(it->p(),it->pt(),it->eta(),it->phi());
 	  new((*InclusiveJet)[iInclusiveJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
 	}
     }
@@ -365,32 +310,10 @@ for(reco::VertexCollection::const_iterator it = primaryVertexHandle->begin(), ed
 
     // hadron level particles
     if (CandHandleMC->size()){
-    
+      
       for (vector<GenParticle>::const_iterator it(CandHandleMC->begin()), itEnd(CandHandleMC->end());
 	   it != itEnd;it++)
 	{
-
-
-	  //======
-	  // 	  bool found( false );
-	  // 	  for (int iParticle(0), iParticleEnd( pdgidList.size() ); iParticle<iParticleEnd; ++iParticle) 
-	  // 	    {
-	  // 	      //cout << "Particle pdgid " << it->pdgId() << " charge " << it->charge() << endl; 
-	  // 	      if ( it->pdgId()==pdgidList[iParticle] )
-	  // 		{
-	  // 		  found = true;
-	  // 		  break;
-	  // 		}
-	  // 	    }
-	  // 	  if (!found) 
-	  // 	    {
-	  // 	      //cout << "Particle pdgid " << it->pdgId() << " status " << it->status() << endl; 
-	  // 	      //cout << "Particle pdgid " << it->pdgId() << " charge " << it->charge() << endl;
-	  // 	      pdgidList.push_back( it->pdgId() );
-	  // 	    }
-	  //======
-
-
 	  GenPart.push_back(it->p4());
 	}
 
@@ -399,9 +322,8 @@ for(reco::VertexCollection::const_iterator it = primaryVertexHandle->begin(), ed
       std::vector<math::XYZTLorentzVector>::const_iterator it(GenPart.begin()), itEnd(GenPart.end());
       for( int iMonteCarlo(0); it != itEnd; ++it, ++iMonteCarlo )
 	{
-	 
+	  fillMCParticles(it->P(),it->Pt(),it->Eta(),it->Phi());
 	  new((*MonteCarlo)[iMonteCarlo]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
-	
 	}
     }
 
@@ -409,119 +331,71 @@ for(reco::VertexCollection::const_iterator it = primaryVertexHandle->begin(), ed
 
   
   // reco level analysis
-
+  
+  e.getByLabel( tracksCollName     , CandHandleRECO     );
+  e.getByLabel( recoCaloJetCollName, RecoCaloJetsHandle );
+  e.getByLabel( tracksJetCollName  , TracksJetsHandle   );
+  
   std::vector<math::XYZTLorentzVector> Tracks;
-  std::vector<math::XYZPoint> AssVertices; 
-  std::vector<CaloJet> RecoCaloJetContainer;
   std::vector<BasicJet> TracksJetContainer;
-
+  std::vector<CaloJet> RecoCaloJetContainer;
+  
   Tracks.clear();
-  RecoCaloJetContainer.clear();
   TracksJetContainer.clear();
-  //new   
-  std::vector<math::XYZTLorentzVector> TracksT;
-  TracksT.clear();
-
+  RecoCaloJetContainer.clear();
+  
   Track->Clear();
   TracksJet->Clear();
   CalorimeterJet->Clear();
 
-
-  if ( e.getByLabel( recoCaloJetCollName, RecoCaloJetsHandle ) )
+  if(RecoCaloJetsHandle->size())
     {
-      if(RecoCaloJetsHandle->size())
-	{
-	  for(CaloJetCollection::const_iterator it(RecoCaloJetsHandle->begin()), itEnd(RecoCaloJetsHandle->end());
-	      it!=itEnd;++it)
-	    {
-	      RecoCaloJetContainer.push_back(*it);
-	    }
-	  std::stable_sort(RecoCaloJetContainer.begin(),RecoCaloJetContainer.end(),CaloJetSort());
-	  
-	  std::vector<CaloJet>::const_iterator it(RecoCaloJetContainer.begin()), itEnd(RecoCaloJetContainer.end());
-	  for( int iCalorimeterJet(0); it != itEnd; ++it, ++iCalorimeterJet)
-	    {
-	      new((*CalorimeterJet)[iCalorimeterJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
-	    }
-	}
+    for(CaloJetCollection::const_iterator it(RecoCaloJetsHandle->begin()), itEnd(RecoCaloJetsHandle->end());
+	it!=itEnd;++it)
+      {
+	RecoCaloJetContainer.push_back(*it);
+      }
+    std::stable_sort(RecoCaloJetContainer.begin(),RecoCaloJetContainer.end(),CaloJetSort());
+
+    std::vector<CaloJet>::const_iterator it(RecoCaloJetContainer.begin()), itEnd(RecoCaloJetContainer.end());
+    for( int iCalorimeterJet(0); it != itEnd; ++it, ++iCalorimeterJet)
+      {
+	fillCaloJet(it->p(),it->pt(),it->eta(),it->phi());
+	new((*CalorimeterJet)[iCalorimeterJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
+      }
     }
     
+  if(TracksJetsHandle->size())
+    {
+      for(BasicJetCollection::const_iterator it(TracksJetsHandle->begin()), itEnd(TracksJetsHandle->end());
+	  it!=itEnd;++it)
+	{
+	  TracksJetContainer.push_back(*it);
+	}
+      std::stable_sort(TracksJetContainer.begin(),TracksJetContainer.end(),BasicJetSort());
+    
+      std::vector<BasicJet>::const_iterator it(TracksJetContainer.begin()), itEnd(TracksJetContainer.end());
+      for(int iTracksJet(0); it != itEnd; ++it, ++iTracksJet)
+	{
+	  fillTracksJet(it->p(),it->pt(),it->eta(),it->phi());
+	  new((*TracksJet)[iTracksJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
+	}
+    }
   
-if ( e.getByLabel( tracksJetCollName, TracksJetsHandle ) )
+  if(CandHandleRECO->size())
     {
-      if(TracksJetsHandle->size())
+      for(CandidateCollection::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
+	  it!=itEnd;++it)
 	{
-	  for(BasicJetCollection::const_iterator it(TracksJetsHandle->begin()), itEnd(TracksJetsHandle->end());
-	      it!=itEnd;++it)
-	    {
-	      TracksJetContainer.push_back(*it);
-
-	      // 	      Jet::Constituents constituents( (*it).getJetConstituents() );
-	      // 	      //cout << "get " << constituents.size() << " constituents" << endl;
-	      // 	      for (int iJC(0); iJC<constituents.size(); ++iJC )
-	      // 		{
-	      // 		  //cout << "[" << iJC << "] constituent pT = " << constituents[iJC]->pt() << endl;
-	      // 		  if (constituents[iJC]->et()<0.5)
-	      // 		    {
-	      // 		      cout << "ERROR!!! [" << iJC << "] constituent pT = " << constituents[iJC]->pt() << endl;
-	      // 		    }
-	      // 		}
-	    }
-	  std::stable_sort(TracksJetContainer.begin(),TracksJetContainer.end(),BasicJetSort());
-	  
-	  std::vector<BasicJet>::const_iterator it(TracksJetContainer.begin()), itEnd(TracksJetContainer.end());
-	  for(int iTracksJet(0); it != itEnd; ++it, ++iTracksJet)
-	    {
-	      new((*TracksJet)[iTracksJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
-	    }
+	  Tracks.push_back(it->p4());
 	}
-    }
-
-// edm::Handle< reco::TrackCollection  > trackColl;
-// e.getByLabel(tracksCollName,trackColl);
-
-
-// for (reco::TrackCollection::const_iterator it = trackColl->begin();
-//                                           it != trackColl->end();
-//                                           it++){
-//   m_tkpt[m_ntk]=it->pt();
-//   m_tkp[m_ntk]=it->p();
-//   m_tketa[m_ntk]=it->eta();
-//   m_tkphi[m_ntk]=it->phi();
-//   m_tkchi2norm[m_ntk]=it->normalizedChi2();
-//   m_tkd0[m_ntk]=it->d0();
-//   m_tkd0Err[m_ntk]=it->d0Error();
-//   m_tkdz[m_ntk]=it->dz();
-//   m_tkdzErr[m_ntk]=it->dzError();
+      std::stable_sort(Tracks.begin(),Tracks.end(),GreaterPt());
     
-//   m_ntk++;    
-//   }
-
-
- int iTracks=0;
-  if ( e.getByLabel( tracksCollName , CandHandleRECO ) )
-    {
-      if(CandHandleRECO->size())
+      std::vector<math::XYZTLorentzVector>::const_iterator it( Tracks.begin()), itEnd(Tracks.end());
+      for(int iTracks(0); it != itEnd; ++it, ++iTracks)
 	{
-	  
-	  //for(CandidateCollection::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
-	  for(edm::View<reco::Candidate>::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
-	      it!=itEnd;++it)
-	    {
-	      new ((*Track)[iTracks]) TLorentzVector(it->p4().Px(), it->p4().Py(), it->p4().Pz(), it->p4().E());
-	      //Tracks.push_back(it->p4());
-	      // AssVertices.push_back(it->vertex());	
-	     new ((*AssVertex)[iTracks]) TLorentzVector(it->vertex().x(),it->vertex().y(),it->vertex().z(),0); 
-	     iTracks++; 
-	    }
-	  // std::stable_sort(Tracks.begin(),Tracks.end(),GreaterPt());
-	  
-	  //  std::vector<math::XYZTLorentzVector>::const_iterator it( Tracks.begin()), itEnd(Tracks.end());
-	  //   for(int iTracks(0); it != itEnd; ++it, ++iTracks)
-	  //  {
-	  //   new ((*Track)[iTracks]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
-	  
-	  //   }
+	  fillTracks(it->P(),it->Pt(),it->Eta(),it->Phi());
+	  new ((*Track)[iTracks]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
 	}
     }
   
@@ -530,11 +404,5 @@ if ( e.getByLabel( tracksJetCollName, TracksJetsHandle ) )
 
 void AnalysisRootpleProducer::endJob()
 {
-  //   cout << "Printing list of PDG id's: " << endl;
-  //   std::sort(pdgidList.begin(), pdgidList.end());
-  //   for (int iParticle(0), iParticleEnd( pdgidList.size() ); iParticle<iParticleEnd; ++iParticle)
-  //     {
-  //       cout << pdgidList[iParticle] << endl;
-  //     }
 }
 

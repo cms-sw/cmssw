@@ -389,11 +389,11 @@ void L1GctJetFinderBase::doHtSums() {
       unsigned ieta  = m_outputJets.at(i).rctEta();
       unsigned htJet = m_outputJets.at(i).calibratedEt(m_jetEtCalLuts.at(ieta));
       // Scalar sum of Htt, with associated threshold
-      if (htJet >= m_HttSumJetThreshold) {
+      if (htJet > m_HttSumJetThreshold) {
 	htt += htJet;
       } 
       // Strip sums, for input to Htm calculation, with associated threshold
-      if (htJet >= m_HtmSumJetThreshold) {
+      if (htJet > m_HtmSumJetThreshold) {
 	if (m_outputJets.at(i).rctPhi() == 0) {
 	  ht0 += htJet;
 	}

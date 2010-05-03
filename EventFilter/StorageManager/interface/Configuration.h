@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.16 2010/02/09 14:50:19 mommsen Exp $
+// $Id: Configuration.h,v 1.18 2010/04/12 12:05:43 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -31,11 +31,13 @@ namespace stor
     std::string _streamConfiguration;
     std::string _fileName;
     std::string _filePath;
+    std::string _dbFilePath;
     std::string _fileCatalog;
     std::string _setupLabel;
     int _nLogicalDisk;
     int _maxFileSizeMB;
     double _highWaterMark;
+    double _failHighWaterMark;
     utils::duration_t _lumiSectionTimeOut;
     utils::duration_t _errorEventsTimeOut;
     utils::duration_t _fileClosingTestInterval;
@@ -157,8 +159,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.16 $
-   * $Date: 2010/02/09 14:50:19 $
+   * $Revision: 1.18 $
+   * $Date: 2010/04/12 12:05:43 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -335,12 +337,14 @@ namespace stor
     xdata::String _streamConfiguration;
     xdata::String _fileName;
     xdata::String _filePath;
+    xdata::String _dbFilePath;
     xdata::Vector<xdata::String> _otherDiskPaths;
     xdata::String _fileCatalog;
     xdata::String _setupLabel;
     xdata::Integer _nLogicalDisk;
     xdata::Integer _maxFileSize;
     xdata::Double _highWaterMark;
+    xdata::Double _failHighWaterMark;
     xdata::Double _lumiSectionTimeOut;
     xdata::Double _errorEventsTimeOut;
     xdata::Integer _fileClosingTestInterval;

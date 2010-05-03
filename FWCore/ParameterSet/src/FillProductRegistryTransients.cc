@@ -28,9 +28,8 @@ namespace edm {
       ProcessConfigurationID pcid = i->id();
       std::string const& processName = i->processName();
       ParameterSetID const& processParameterSetID = i->parameterSetID();
-      ParameterSet processParameterSet;
-      pset::Registry::instance()->getMapped(processParameterSetID, processParameterSet);
-      if (processParameterSet.empty()) {
+      ParameterSet const* processParameterSet = pset::Registry::instance()->getMapped(processParameterSetID);
+      if (0==processParameterSet || processParameterSet->empty()) {
         continue;
       }
       for (ProductRegistry::ProductList::const_iterator it = preg.productList().begin(),
@@ -47,10 +46,10 @@ namespace edm {
         } else if (moduleLabel == source) {
           moduleLabel = input;
         } 
-	if (processParameterSet.existsAs<ParameterSet>(moduleLabel)) {
-          ParameterSet const& moduleParameterSet = processParameterSet.getParameterSet(moduleLabel);
+	if (processParameterSet->existsAs<ParameterSet>(moduleLabel)) {
+          ParameterSet const& moduleParameterSet = processParameterSet->getParameterSet(moduleLabel);
 	  if (okToRegister && !moduleParameterSet.isRegistered()) {
-            ParameterSet moduleParameterSetCopy = processParameterSet.getParameter<ParameterSet>(moduleLabel);
+            ParameterSet moduleParameterSetCopy = processParameterSet->getParameter<ParameterSet>(moduleLabel);
 	    moduleParameterSetCopy.registerIt();
             bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSetCopy.id()));
 	  } else {

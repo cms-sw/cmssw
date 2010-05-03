@@ -18,8 +18,8 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
     processname                = cms.string("HLT"),
-    JetLo                      = cms.string("HLT_L1Jet6U"),
-    JetHi                      = cms.string("HLT_Jet50U"),
+    JetLo                      = cms.string("HLT_Jet30"),
+    JetHi                      = cms.string("HLT_Jet110"),
 
     #
     # Jet-related

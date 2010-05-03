@@ -30,7 +30,6 @@ private:
 
   // see if it's OK to add
   bool check(const MuonRecHitContainer & segments);
-  void markAsUsed(int nr, const MuonRecHitContainer &recHits, bool* used) const;
   bool isCrack(const ConstMuonRecHitPointer & segment) const;
   void rememberCrackSegments(const MuonRecHitContainer & segments,
                              MuonRecHitContainer & crackSegments) const;

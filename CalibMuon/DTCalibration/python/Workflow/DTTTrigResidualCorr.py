@@ -32,7 +32,7 @@ class DTTTrigResidualCorr:
         self.pset_opts['DumpDBToFile_ResidCorr_cfg.py'] = {'INPUTFILE':ttrig_ResidCorr_db,
                                                            'OUTPUTFILE':ttrig_ResidCorr_txt}
 
-        self.task = CmsswTask(self.desc,self.configs,self.pset_templates,self.common_opts,self.pset_opts)
+        self.task = CmsswTask(self.desc,self.configs,self.common_opts,self.pset_templates,self.pset_opts)
 
     def run(self):
         self.task.run()

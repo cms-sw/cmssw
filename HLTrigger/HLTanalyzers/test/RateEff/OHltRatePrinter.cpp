@@ -141,15 +141,14 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
         } 
       } 
     } 
-
     for (unsigned int j=0;j<vtmp.size();j++) { 
+      tempTrigSeeds = tempTrigSeeds + vtmp[j]; 
       tempTrigSeedPrescales += itmp[j]; 
       if (j<(vtmp.size()-1)) { 
+	tempTrigSeeds = tempTrigSeeds + " or "; 
 	tempTrigSeedPrescales = tempTrigSeedPrescales + ", "; 
       } 
     } 
-
-    tempTrigSeeds = menu->GetSeedCondition(menu->GetTriggerName(i));
 
     outFile << "| !"<< menu->GetTriggerName(i)
 	    << " | !" << tempTrigSeeds
@@ -713,12 +712,13 @@ void OHltRatePrinter::printHLTDatasets(OHltConfig *cfg, OHltMenu *menu
 						} 
 					} 
 					for (unsigned int j=0;j<vtmp.size();j++) { 
+						tempTrigSeeds = tempTrigSeeds + vtmp[j]; 
 						tempTrigSeedPrescales += itmp[j]; 
 						if (j<(vtmp.size()-1)) { 
+							tempTrigSeeds = tempTrigSeeds + " or "; 
 							tempTrigSeedPrescales = tempTrigSeedPrescales + ", "; 
 						} 
 					} 
-					tempTrigSeeds = menu->GetSeedCondition(menu->GetTriggerName(i));
 
 					TString iMenuTriggerName(menu->GetTriggerName(i));
 					if (DStriggerName.CompareTo(iMenuTriggerName)==0) {
