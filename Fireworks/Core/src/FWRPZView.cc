@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.9 2010/05/03 17:25:30 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.10 2010/05/03 18:40:45 amraktad Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
    m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
    m_showProjectionAxes(this,"Show projection axes", false),
-   m_compressMuon(this,"Compress detector",false),
+   m_compressMuon(this,"Compress detectors",false),
    m_caloFixedScale(this,"Calo scale (GeV/meter)",2.,0.01,100.),
    m_caloAutoScale(this,"Calo auto scale",false),
    m_showHF(0),

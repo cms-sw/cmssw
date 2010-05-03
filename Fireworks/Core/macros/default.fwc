@@ -361,13 +361,13 @@
      <string>32</string>
    </config>
    <config name="y" version="0">
-     <string>59</string>
+     <string>50</string>
    </config>
    <config name="width" version="0">
      <string>992</string>
    </config>
    <config name="height" version="0">
-     <string>719</string>
+     <string>720</string>
    </config>
    <config name="leftWeight" version="0">
      <string>1.22259</string>
@@ -531,7 +531,7 @@
       <string>1</string>
     </config>
     <config name="cameraZoomLego" version="0">
-      <string>113.758</string>
+      <string>20</string>
     </config>
     <config name="cameraMatrix0Lego" version="0">
       <string>1</string>
@@ -1314,16 +1314,16 @@
        <string>1</string>
      </config>
      <config name="x" version="0">
-       <string>1021</string>
+       <string>1024</string>
      </config>
      <config name="y" version="0">
-       <string>91</string>
+       <string>50</string>
      </config>
      <config name="width" version="0">
-       <string>375</string>
+       <string>360</string>
      </config>
      <config name="height" version="0">
-       <string>316</string>
+       <string>340</string>
      </config>
     </config>
    </config>
@@ -1353,13 +1353,13 @@
        <string>1024</string>
      </config>
      <config name="y" version="0">
-       <string>428</string>
+       <string>404</string>
      </config>
      <config name="width" version="0">
-       <string>362</string>
+       <string>360</string>
      </config>
      <config name="height" version="0">
-       <string>374</string>
+       <string>380</string>
      </config>
     </config>
    </config>
