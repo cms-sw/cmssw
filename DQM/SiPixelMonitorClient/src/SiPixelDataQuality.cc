@@ -711,7 +711,7 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
        ic != subDirVec.end(); ic++) {
     bei->cd(*ic);
     init=false;
-    computeGlobalQualityFlag(bei,init,nFEDs,Tier0Flag);
+    computeGlobalQualityFlagByLumi(bei,init,nFEDs,Tier0Flag,nEvents_lastLS_);
     bei->goUp();
   }
   
