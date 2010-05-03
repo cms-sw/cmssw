@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.77 2009/09/10 10:39:27 vlimant Exp $
+ * \version $Id: TrackBase.h,v 1.78 2009/10/21 13:04:14 mangano Exp $
  *
  */
 
@@ -91,7 +91,7 @@ namespace reco {
     static const std::string algoNames[];
 
     /// track quality
-    enum TrackQuality { undefQuality=-1, loose=0, tight=1, highPurity=2, confirmed=3, goodIterative=4, qualitySize=5};
+    enum TrackQuality { undefQuality=-1, loose=0, tight=1, highPurity=2, confirmed=3, goodIterative=4, looseSetWithPV=5, highPuritySetWithPV=6, qualitySize=7 };
     static const std::string qualityNames[];
 
     /// default constructor

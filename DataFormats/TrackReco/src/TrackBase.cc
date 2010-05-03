@@ -15,7 +15,7 @@ std::string const TrackBase::algoNames[] = { "undefAlgorithm", "ctf", "rs", "cos
 					     "beamhalo" , 
 					     "gsf" };
 
-std::string const TrackBase::qualityNames[] = { "loose", "tight", "highPurity", "confirmed", "goodIterative"};
+std::string const TrackBase::qualityNames[] = { "loose", "tight", "highPurity", "confirmed", "goodIterative", "looseSetWithPV", "highPuritySetWithPV"};
 
 TrackBase::TrackBase() :
   chi2_(0), ndof_(0), vertex_(0,0,0), momentum_(0,0,0), charge_(0), algorithm_(undefAlgorithm), quality_(0) {
