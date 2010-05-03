@@ -34,6 +34,7 @@ namespace edm
 	    const std::string rfioType (void) const;
 
             const std::string* sourceCacheTempDir() const;
+            const double* sourceCacheMinFree() const;
             const std::string* sourceCacheHint() const;
             const std::string* sourceReadHint() const;
             const unsigned int* sourceTTreeCacheSize() const;
@@ -51,6 +52,8 @@ namespace edm
 	    bool		m_connected;	    
             std::string         m_cacheTempDir;
             std::string const*  m_cacheTempDirPtr;
+	    double		m_cacheMinFree;
+	    double const *	m_cacheMinFreePtr;
             std::string         m_cacheHint;
             std::string const*  m_cacheHintPtr;
             std::string         m_readHint;

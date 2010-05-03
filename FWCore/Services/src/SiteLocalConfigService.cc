@@ -36,6 +36,14 @@ inline unsigned int _toUInt(const XMLCh *toTranscode)
    return returnValue;
 }
 
+inline double _toDouble(const XMLCh *toTranscode)
+{
+   std::istringstream iss(_toString(toTranscode));
+   double returnValue;
+   iss >> returnValue;
+   return returnValue;
+}
+
 inline XMLCh*  _toDOMS( std::string temp )
 {
     XMLCh* buff = XMLString::transcode(temp.c_str());    
@@ -90,6 +98,7 @@ edm::service::SiteLocalConfigService::SiteLocalConfigService (const edm::Paramet
 							      const edm::ActivityRegistry &activityRegistry)
     : m_connected (false),
       m_cacheTempDirPtr(0),
+      m_cacheMinFreePtr(0),
       m_cacheHintPtr(0),
       m_readHintPtr(0),
       m_ttreeCacheSizePtr(0),
@@ -107,6 +116,7 @@ edm::service::SiteLocalConfigService::SiteLocalConfigService (const edm::Paramet
    
    //apply overrides
    overrideFromPSet("overrideSourceCacheTempDir",pset,m_cacheTempDir, m_cacheTempDirPtr);
+   overrideFromPSet("overrideSourceCacheMinFree",pset,m_cacheMinFree, m_cacheMinFreePtr);
    overrideFromPSet("overrideSourceCacheHintDir",pset,m_cacheHint,m_cacheHintPtr);
    overrideFromPSet("overrideSourceReadHint",pset,m_readHint,m_readHintPtr);
    overrideFromPSet("overrideSourceNativeProtocols",pset,m_nativeProtocols,m_nativeProtocolsPtr);
@@ -216,6 +226,12 @@ const std::string*
 edm::service::SiteLocalConfigService::sourceCacheTempDir() const
 {
    return m_cacheTempDirPtr;
+}
+
+const double*
+edm::service::SiteLocalConfigService::sourceCacheMinFree() const
+{
+   return m_cacheMinFreePtr;
 }
 
 const std::string* 
@@ -374,6 +390,18 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
                      m_cacheTempDirPtr = &m_cacheTempDir;
                   }
                   
+                  DOMNodeList *cacheMinFreeList
+                  = sourceConfig->getElementsByTagName (_toDOMS ("cache-min-free"));
+                  
+                  if (cacheMinFreeList->getLength () > 0)
+                  {
+                     DOMElement *cacheMinFree
+                     = static_cast <DOMElement *> (cacheMinFreeList->item (0));
+                     
+                     m_cacheMinFree = _toDouble(cacheMinFree->getAttribute (_toDOMS ("value")));
+                     m_cacheMinFreePtr = &m_cacheMinFree;
+                  }
+
                   DOMNodeList *cacheHintList
                   = sourceConfig->getElementsByTagName (_toDOMS ("cache-hint"));
                   
