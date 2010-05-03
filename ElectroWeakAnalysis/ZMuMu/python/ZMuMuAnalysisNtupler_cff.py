@@ -249,32 +249,16 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_SaNofMuonHits')")
     ),
     cms.PSet(
-    tag = cms.untracked.string("Dau1NofStripHits"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_NofStripHits')")
-    ),
-    cms.PSet(
     tag = cms.untracked.string("Dau1TrkNofStripHits"),
     quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_TrkNofStripHits')")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("Dau2NofStripHits"),
-    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_NofStripHits')")
     ),
     cms.PSet(
     tag = cms.untracked.string("Dau2TrkNofStripHits"),
     quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_TrkNofStripHits')")
     ),  
     cms.PSet(
-    tag = cms.untracked.string("Dau1NofPixelHits"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_NofPixelHits')")
-    ),
-    cms.PSet(
     tag = cms.untracked.string("Dau1TrkNofPixelHits"),
     quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_TrkNofPixelHits')")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("Dau2NofPixelHits"),
-    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_NofPixelHits')")
     ),
     cms.PSet(
     tag = cms.untracked.string("Dau2TrkNofPixelHits"),
@@ -374,6 +358,25 @@ zMuMu=(
     tag = cms.untracked.string("Dau2TrackerMuonBit"),
     quantity = cms.untracked.string("daughter(1).masterClone.isTrackerMuon")
     ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1NofStripHits"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_NofStripHits')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2NofStripHits"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_NofStripHits')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1NofPixelHits"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_NofPixelHits')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2NofPixelHits"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_NofPixelHits')")
+    ),
+
+
+
                 
     )
 
