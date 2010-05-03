@@ -24,6 +24,8 @@ BeamSpotOnlineProducer::BeamSpotOnlineProducer(const ParameterSet& iconf)
   theMaxR2*=theMaxR2;
   theMaxZ = iconf.getParameter<double>("maxZ");
 
+  theSetSigmaZ = iconf.getParameter<double>("setSigmaZ");
+
   produces<reco::BeamSpot>();
 
 } 
@@ -62,8 +64,12 @@ BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup)
   matrix(2,2) = spotOnline.err_z()*spotOnline.err_z();
   matrix(3,3) = spotOnline.err_sigma_z()*spotOnline.err_sigma_z();
 
+  double sigmaZ = spotOnline.sigma_z();
+  if (theSetSigmaZ>0)
+    sigmaZ = theSetSigmaZ;
+
   aSpot = reco::BeamSpot( apoint,
-			  spotOnline.sigma_z(),
+			  sigmaZ,
 			  spotOnline.dxdz(),
 			  f* spotOnline.dydz(),
 			  spotOnline.width_x(),

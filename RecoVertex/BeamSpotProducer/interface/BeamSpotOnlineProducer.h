@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotOnlineProducer.h,v 1.3 2010/04/15 19:40:27 yumiceva Exp $
+ version $Id: BeamSpotOnlineProducer.h,v 1.4 2010/04/30 22:23:25 vlimant Exp $
 
 ________________________________________________________________**/
 
@@ -38,7 +38,7 @@ class BeamSpotOnlineProducer: public edm::EDProducer {
 	
 	InputTag scalertag_;
 	bool changeFrame_;
-	double theMaxZ,theMaxR2;
+	double theMaxZ,theMaxR2,theSetSigmaZ;
 };
 
 #endif
