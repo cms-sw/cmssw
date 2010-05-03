@@ -44,7 +44,7 @@ class ESFastTDigitizer
   
   ~ESFastTDigitizer() 
       { delete histoDistribution_;
-	 delete refHistos_; }
+	 delete [] refHistos_; }
 
   /// set ES Gain
   void setGain (const int gain) { 
