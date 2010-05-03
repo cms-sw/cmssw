@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.53 2010/05/03 21:50:45 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.54 2010/05/03 22:07:16 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -165,21 +165,6 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   // Primary vertex fitter
   MyPVFitter = new PVFitter(iConfig);
   MyPVFitter->resetAll();
-
-  //open txt files at begin of run
-  
-  if (writeDIPTxt_)
-      fasciiDIP.open(outputDIPTxt_.c_str());
-  if (writeTxt_) {
-      std::string tmpname = outputTxt_;
-      char index[15];
-      if (appendRunTxt_) {
-          sprintf(index,"%s%i","_Run", int(iEvent.id().run()));
-          tmpname.insert(outputTxt_.length()-4,index);
-      }
-      fasciiFile.open(tmpname.c_str());
-      outputTxt_ = tmpname;
-  }
   
 }
 
@@ -540,6 +525,15 @@ void BeamFitter::dumpBWTxtFile(std::string & fileName ){
 
 void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
   std::ofstream outFile;
+
+  std::string tmpname = outputTxt_;
+  char index[15];
+  if (appendRunTxt_) {
+      sprintf(index,"%s%i","_Run", frun );
+      tmpname.insert(outputTxt_.length()-4,index);
+      fileName = tmpname;
+  }
+  
   if (!append)
     outFile.open(fileName.c_str());
   else
