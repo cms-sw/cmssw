@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.54 2010/05/03 22:07:16 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.55 2010/05/03 22:17:03 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -165,6 +165,9 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   // Primary vertex fitter
   MyPVFitter = new PVFitter(iConfig);
   MyPVFitter->resetAll();
+
+  // check filename
+  ffilename_changed = false;
   
 }
 
@@ -528,10 +531,11 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
 
   std::string tmpname = outputTxt_;
   char index[15];
-  if (appendRunTxt_) {
+  if (appendRunTxt_ && !ffilename_changed ) {
       sprintf(index,"%s%i","_Run", frun );
       tmpname.insert(outputTxt_.length()-4,index);
       fileName = tmpname;
+      ffilename_changed = true;
   }
   
   if (!append)
