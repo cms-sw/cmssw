@@ -3,7 +3,6 @@
  *  CMSSW
  *
  *  Created by Chris Jones on 8/8/05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
  *
  */
 

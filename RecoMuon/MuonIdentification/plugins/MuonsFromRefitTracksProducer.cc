@@ -3,7 +3,7 @@
   \brief    Replaces the kinematic information in the input muons with those of the chosen refit tracks.
 
   \author   Jordan Tucker
-  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.8 2009/10/31 05:19:45 slava77 Exp $
+  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.7 2009/10/06 13:50:36 tucker Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -19,12 +19,16 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
-reco::TrackRef tevOptimizedTMR(const reco::Muon& muon, const reco::TrackToTrackMap& fmsMap,
-			 const double cut) {
-  const reco::TrackRef& combinedTrack = muon.globalTrack();
-  const reco::TrackRef& trackerTrack  = muon.innerTrack();
+using namespace std;
+using namespace edm;
+using namespace reco;
 
-  reco::TrackToTrackMap::const_iterator fmsTrack = fmsMap.find(combinedTrack);
+TrackRef tevOptimizedTMR(const Muon& muon, const TrackToTrackMap& fmsMap,
+			 const double cut) {
+  const TrackRef& combinedTrack = muon.globalTrack();
+  const TrackRef& trackerTrack  = muon.innerTrack();
+
+  TrackToTrackMap::const_iterator fmsTrack = fmsMap.find(combinedTrack);
 
   double probTK  = 0;
   double probFMS = 0;
@@ -51,9 +55,9 @@ reco::TrackRef tevOptimizedTMR(const reco::Muon& muon, const reco::TrackToTrackM
     return combinedTrack;
 }
 
-reco::TrackRef sigmaSwitch(const reco::Muon& muon, const double nSigma, const double ptThreshold) {
-  const reco::TrackRef& combinedTrack = muon.globalTrack();
-  const reco::TrackRef& trackerTrack  = muon.innerTrack();
+TrackRef sigmaSwitch(const Muon& muon, const double nSigma, const double ptThreshold) {
+  const TrackRef& combinedTrack = muon.globalTrack();
+  const TrackRef& trackerTrack  = muon.innerTrack();
 
   if (combinedTrack->pt() < ptThreshold || trackerTrack->pt() < ptThreshold)
     return trackerTrack;
@@ -64,27 +68,27 @@ reco::TrackRef sigmaSwitch(const reco::Muon& muon, const double nSigma, const do
   return delta > threshold ? trackerTrack : combinedTrack;
 }
 
-class MuonsFromRefitTracksProducer : public edm::EDProducer {
+class MuonsFromRefitTracksProducer : public EDProducer {
 public:
-  explicit MuonsFromRefitTracksProducer(const edm::ParameterSet&);
+  explicit MuonsFromRefitTracksProducer(const ParameterSet&);
   ~MuonsFromRefitTracksProducer() {}
 
 private:
   virtual void beginJob() {}
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(Event&, const EventSetup&);
   virtual void endJob() {}
 
   // Store the track-to-track map(s) used when using TeV refit tracks.
-  bool storeMatchMaps(const edm::Event& event);
+  bool storeMatchMaps(const Event& event);
 
   // Take the muon passed in, clone it (so that we save all the muon
   // id information such as isolation, calo energy, etc.) and replace
   // its combined muon track with the passed in track.
-  reco::Muon* cloneAndSwitchTrack(const reco::Muon& muon,
-			    const reco::TrackRef& newTrack) const;
+  Muon* cloneAndSwitchTrack(const Muon& muon,
+			    const TrackRef& newTrack) const;
 
   // The input muons -- i.e. the merged collection of reco::Muons.
-  edm::InputTag src;
+  InputTag src;
 
   // Allow building the muon from just the tracker track. This
   // functionality should go away after understanding the difference
@@ -105,7 +109,7 @@ private:
   // Optionally switch out the combined muon track for one of the TeV
   // muon refit tracks, specified by the input tag here
   // (e.g. "tevMuons:firstHit").
-  std::string tevMuonTracks;
+  string tevMuonTracks;
 
   // Whether to make a cocktail muon instead of using just the one
   // type in tevMuonTracks, where "cocktail" means use the result of
@@ -132,19 +136,19 @@ private:
   // If we're not making cocktail muons, trackMap is the map that maps
   // global tracks to the desired TeV refit (e.g. from globalMuons to
   // tevMuons:picky).
-  edm::Handle<reco::TrackToTrackMap> trackMap;
+  Handle<TrackToTrackMap> trackMap;
 
   // All the track maps used in making cocktail muons.
-  edm::Handle<reco::TrackToTrackMap> trackMapDefault;
-  edm::Handle<reco::TrackToTrackMap> trackMapFirstHit;
-  edm::Handle<reco::TrackToTrackMap> trackMapPicky;
+  Handle<TrackToTrackMap> trackMapDefault;
+  Handle<TrackToTrackMap> trackMapFirstHit;
+  Handle<TrackToTrackMap> trackMapPicky;
 };
 
-MuonsFromRefitTracksProducer::MuonsFromRefitTracksProducer(const edm::ParameterSet& cfg)
-  : src(cfg.getParameter<edm::InputTag>("src")),
+MuonsFromRefitTracksProducer::MuonsFromRefitTracksProducer(const ParameterSet& cfg)
+  : src(cfg.getParameter<InputTag>("src")),
     fromTrackerTrack(cfg.getParameter<bool>("fromTrackerTrack")),
     fromGlobalTrack(cfg.getParameter<bool>("fromGlobalTrack")),
-    tevMuonTracks(cfg.getParameter<std::string>("tevMuonTracks")),
+    tevMuonTracks(cfg.getParameter<string>("tevMuonTracks")),
     fromCocktail(cfg.getParameter<bool>("fromCocktail")),
     fromTMR(cfg.getParameter<bool>("fromTMR")),
     TMRcut(cfg.getParameter<double>("TMRcut")),
@@ -153,10 +157,10 @@ MuonsFromRefitTracksProducer::MuonsFromRefitTracksProducer(const edm::ParameterS
     ptThreshold(cfg.getParameter<double>("ptThreshold"))
 {
   fromTeVRefit = tevMuonTracks != "none";
-  produces<reco::MuonCollection>();
+  produces<MuonCollection>();
 }
 
-bool MuonsFromRefitTracksProducer::storeMatchMaps(const edm::Event& event) {
+bool MuonsFromRefitTracksProducer::storeMatchMaps(const Event& event) {
   if (fromCocktail || fromTMR) {
     event.getByLabel(tevMuonTracks, "default",  trackMapDefault);
     event.getByLabel(tevMuonTracks, "firstHit", trackMapFirstHit);
@@ -165,27 +169,27 @@ bool MuonsFromRefitTracksProducer::storeMatchMaps(const edm::Event& event) {
       !trackMapFirstHit.failedToGet() && !trackMapPicky.failedToGet();
   }
   else {
-    event.getByLabel(edm::InputTag(tevMuonTracks), trackMap);
+    event.getByLabel(InputTag(tevMuonTracks), trackMap);
     return !trackMap.failedToGet();
   }
 }
 
-reco::Muon* MuonsFromRefitTracksProducer::cloneAndSwitchTrack(const reco::Muon& muon,
-							const reco::TrackRef& newTrack) const {
+Muon* MuonsFromRefitTracksProducer::cloneAndSwitchTrack(const Muon& muon,
+							const TrackRef& newTrack) const {
   // Muon mass to make a four-vector out of the new track.
   static const double muMass = 0.10566;
 
-  reco::TrackRef tkTrack  = muon.innerTrack();
-  reco::TrackRef muTrack  = muon.outerTrack();
+  TrackRef tkTrack  = muon.innerTrack();
+  TrackRef muTrack  = muon.outerTrack();
 	  
   // Make up a real Muon from the tracker track.
-  reco::Particle::Point vtx(newTrack->vx(), newTrack->vy(), newTrack->vz());
-  reco::Particle::LorentzVector p4;
+  Particle::Point vtx(newTrack->vx(), newTrack->vy(), newTrack->vz());
+  Particle::LorentzVector p4;
   double p = newTrack->p();
   p4.SetXYZT(newTrack->px(), newTrack->py(), newTrack->pz(),
 	     sqrt(p*p + muMass*muMass));
 
-  reco::Muon* mu = muon.clone();
+  Muon* mu = muon.clone();
   mu->setCharge(newTrack->charge());
   mu->setP4(p4);
   mu->setVertex(vtx);
@@ -195,9 +199,9 @@ reco::Muon* MuonsFromRefitTracksProducer::cloneAndSwitchTrack(const reco::Muon& 
   return mu;
 }
 
-void MuonsFromRefitTracksProducer::produce(edm::Event& event, const edm::EventSetup& eSetup) {
+void MuonsFromRefitTracksProducer::produce(Event& event, const EventSetup& eSetup) {
   // Get the global muons from the event.
-  edm::Handle<edm::View<reco::Muon> > muons;
+  Handle<View<Muon> > muons;
   event.getByLabel(src, muons);
 
   // If we can't get the global muon collection, or below the
@@ -214,10 +218,10 @@ void MuonsFromRefitTracksProducer::produce(edm::Event& event, const edm::EventSe
     ok = storeMatchMaps(event);
 
   // Make the output collection.
-  std::auto_ptr<reco::MuonCollection> cands(new reco::MuonCollection);
+  auto_ptr<MuonCollection> cands(new MuonCollection);
 
   if (ok) {
-    edm::View<reco::Muon>::const_iterator muon;
+    View<Muon>::const_iterator muon;
     for (muon = muons->begin(); muon != muons->end(); muon++) {
       // Filter out the so-called trackerMuons and stand-alone muons
       // (and caloMuons, if they were ever to get into the input muons
@@ -226,7 +230,7 @@ void MuonsFromRefitTracksProducer::produce(edm::Event& event, const edm::EventSe
 
       if (fromTeVRefit || fromSigmaSwitch) {
 	// Start out with a null TrackRef.
-    reco::TrackRef tevTk;
+	TrackRef tevTk;
       
 	// If making a cocktail muon, use tevOptimized() to get the track
 	// desired. Otherwise, get the refit track from the desired track
@@ -239,7 +243,7 @@ void MuonsFromRefitTracksProducer::produce(edm::Event& event, const edm::EventSe
 	else if (fromSigmaSwitch)
 	  tevTk = sigmaSwitch(*muon, nSigmaSwitch, ptThreshold);
 	else {
-        reco::TrackToTrackMap::const_iterator tevTkRef =
+	  TrackToTrackMap::const_iterator tevTkRef =
 	    trackMap->find(muon->combinedMuon());
 	  if (tevTkRef != trackMap->end())
 	    tevTk = tevTkRef->val;
@@ -261,7 +265,7 @@ void MuonsFromRefitTracksProducer::produce(edm::Event& event, const edm::EventSe
 	// Just cloning does not work in the case of the source being
 	// a pat::Muon with embedded track references -- these do not
 	// get copied. Explicitly set them.
-    reco::Muon& last = cands->at(cands->size()-1);
+	Muon& last = cands->at(cands->size()-1);
 	if (muon->globalTrack().isTransient())
 	  last.setGlobalTrack(muon->globalTrack());
 	if (muon->innerTrack().isTransient())

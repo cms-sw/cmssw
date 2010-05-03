@@ -5,6 +5,8 @@ ecalPreshowerRecHit = cms.EDProducer("ESRecHitProducer",
                                      ESrechitCollection = cms.string('EcalRecHitsES'),
                                      ESdigiCollection = cms.InputTag("ecalPreshowerDigis"),
                                      algo = cms.string("ESRecHitWorker"),
-                                     ESRecoAlgo = cms.untracked.int32(0),
-                                     ESWeights = cms.untracked.vdouble(0.0, 0.725, 0.4525)
+                                     ESGain = cms.int32(2),
+                                     ESBaseline = cms.int32(1000),
+                                     ESMIPADC = cms.double(55),
+                                     ESMIPkeV = cms.double(81.08)
 )

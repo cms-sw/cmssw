@@ -61,7 +61,7 @@ process.source = cms.Source("PoolSource",
 ###                                   )
 
 ### run the quality tests as defined in QualityTests.xml
-#@#process.qTester = cms.EDAnalyzer("QualityTester",
+#@#process.qTester = cms.EDFilter("QualityTester",
 #@#    qtList = cms.untracked.FileInPath('DQM/HLTEvF/python/JetMETQualityTests.xml'),
 #@#    prescaleFactor = cms.untracked.int32(1),                               
 #@#    testInEventloop = cms.untracked.bool(True),

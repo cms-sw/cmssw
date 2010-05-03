@@ -5,8 +5,8 @@
  *  Class which read a ttrig DB and modifies it introducing
  *  shifts with chamber granularity
  *
- *  $Date: 2010/01/19 09:51:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/09 17:55:38 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -40,8 +40,6 @@ protected:
 private:
   const DTTtrig *tTrigMap;
   edm::ESHandle<DTGeometry> muonGeom;
-
-  std::string dbLabel;
 
   std::vector<std::vector<int> > chambers;
   std::vector<double> shifts;

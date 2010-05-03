@@ -8,7 +8,7 @@ removeCleaning( process )
 # Define the path
 process.p = cms.Path(
     process.patDefaultSequence
-  )
+)
 
 process.maxEvents.input     = 1000 # Reduce number of events for testing.
 process.out.fileName        = 'edmPatTrigger.root'
@@ -16,29 +16,24 @@ process.options.wantSummary = False # to suppress the long output at the end of 
 
 # PAT trigger
 process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff" )
-process.muonTriggerMatchHLTMuons = cms.EDFilter(
-    "PATTriggerMatcherDRLessByR"
-  , src     = cms.InputTag( "selectedPatMuons" )
-  , matched = cms.InputTag( "patTrigger" )
-  , andOr          = cms.bool( False )
-  , filterIdsEnum  = cms.vstring( 'TriggerMuon' )
-  , filterIds      = cms.vint32( 0 )
-  , filterLabels   = cms.vstring( '*' )
-  , pathNames      = cms.vstring( '*' )
-  , collectionTags = cms.vstring( '*' )
-  , maxDPtRel = cms.double( 0.5 )
-  , maxDeltaR = cms.double( 0.5 )
-  , resolveAmbiguities    = cms.bool( True )
-  , resolveByMatchQuality = cms.bool( True )
-  )
+process.muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRLessByR",
+    src     = cms.InputTag( "selectedLayer1Muons" ),
+    matched = cms.InputTag( "patTrigger" ),
+    andOr          = cms.bool( False ),
+    filterIdsEnum  = cms.vstring( 'TriggerMuon' ),
+    filterIds      = cms.vint32( 0 ),
+    filterLabels   = cms.vstring( '*' ),
+    pathNames      = cms.vstring( '*' ),
+    collectionTags = cms.vstring( '*' ),
+    maxDPtRel = cms.double( 0.5 ),
+    maxDeltaR = cms.double( 0.5 ),
+    resolveAmbiguities    = cms.bool( True ),
+    resolveByMatchQuality = cms.bool( True )
+)
 process.patTriggerMatcher += process.muonTriggerMatchHLTMuons
-process.patTriggerMatcher.remove( process.patTriggerMatcherElectron )
-process.patTriggerMatcher.remove( process.patTriggerMatcherMuon )
-process.patTriggerMatcher.remove( process.patTriggerMatcherTau )
-process.patTriggerEvent.patTriggerMatches = [
-    "muonTriggerMatchHLTMuons"
-  ]
+process.patTriggerMatcher.remove( process.patTriggerElectronMatcher )
+process.patTriggerMatcher.remove( process.patTriggerMuonMatcher )
+process.patTriggerMatcher.remove( process.patTriggerTauMatcher )
+process.patTriggerEvent.patTriggerMatches = [ "muonTriggerMatchHLTMuons" ]
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
 switchOnTrigger( process )
-
-

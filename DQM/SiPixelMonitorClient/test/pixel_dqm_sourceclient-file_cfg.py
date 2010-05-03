@@ -81,7 +81,9 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
 #process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 ###process.GlobalTag.globaltag = "GR09_R_V4::All"
-process.GlobalTag.globaltag = "CRAFT09_R_V9::All"
+###process.GlobalTag.globaltag = "CRAFT09_R_V9::All"
+process.GlobalTag.globaltag = "GR09_R_36X_V3::All"
+
 
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.source = cms.Source("PoolSource",
@@ -116,8 +118,9 @@ process.DQMmodules = cms.Sequence(process.qTester*process.dqmEnv*process.dqmSave
 
 process.p = cms.Path(
 		     process.LocalReco*
-		     #process.TrackReco*
+		     process.TrackReco*
 		     process.DQMmodules*
-		     process.siPixelP5DQM_source_woTrack*
+		     #process.siPixelP5DQM_source_woTrack*
+		     process.siPixelP5DQM_source*
 		     process.PixelP5DQMClientWithDataCertification
 		    )

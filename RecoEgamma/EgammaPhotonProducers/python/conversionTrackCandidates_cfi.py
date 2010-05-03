@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates_cfi.py,v 1.22 2009/07/09 12:50:54 mangano Exp $
+#  $Id: conversionTrackCandidates_cfi.py,v 1.23 2009/11/09 14:18:54 nancy Exp $
 #
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -19,9 +19,12 @@ from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from RecoEgamma.EgammaPhotonProducers.trajectoryFilterForConversions_cfi import *
 #TrajectoryBuilder
 from RecoEgamma.EgammaPhotonProducers.trajectoryBuilderForConversions_cfi import *
+#TrajectoryCleaning
+from RecoEgamma.EgammaPhotonProducers.trajectoryCleanerBySharedHitsForConversions_cfi import *
 #Propagators
 from RecoEgamma.EgammaPhotonProducers.propAlongMomentumWithMaterialForElectrons_cfi import *
 from RecoEgamma.EgammaPhotonProducers.propOppoMomentumWithMaterialForElectrons_cfi import *
+
 
 conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
 #    beamSpot = cms.InputTag("offlineBeamSpot"),
@@ -40,6 +43,7 @@ conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
     minSCEt = cms.double(10.0),
     hOverEConeSize = cms.double(0.15),
     maxHOverE = cms.double(0.5),
+    fractionShared = cms.double(0.5),
     TrajectoryBuilder = cms.string('TrajectoryBuilderForConversions'),
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('alongMomElePropagator'),

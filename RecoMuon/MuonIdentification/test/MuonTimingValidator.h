@@ -4,8 +4,8 @@
 /** \class MuonTimingValidator
  *  Analyzer of the timing information in the reco::Muon object
  *
- *  $Date: 2010/01/15 14:07:32 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/10/07 13:12:00 $
+ *  $Revision: 1.2 $
  *  \author P. Traczyk    CERN
  */
 
@@ -47,14 +47,18 @@ class TH2F;
 //class MuonRef;
 class MuonServiceProxy;
 
+using namespace std;
+using namespace edm;
+using namespace reco;
+
 class MuonTimingValidator : public edm::EDAnalyzer {
 public:
   explicit MuonTimingValidator(const edm::ParameterSet&);
   ~MuonTimingValidator();
   
-  typedef std::pair< reco::TrackRef, SimTrackRef> CandToSim;
-  typedef std::pair< reco::TrackRef, SimTrackRef> CandStaSim;
-  typedef std::pair< reco::TrackRef, SimTrackRef> CandMuonSim;
+  typedef std::pair< TrackRef, SimTrackRef> CandToSim;
+  typedef std::pair< TrackRef, SimTrackRef> CandStaSim;
+  typedef std::pair< TrackRef, SimTrackRef> CandMuonSim;
   
 private:
   virtual void beginJob() ;
@@ -72,25 +76,25 @@ private:
   edm::InputTag TimeTags_; 
   edm::InputTag SIMtrackTags_; 
 
-  std::string out, open;
+  string out, open;
   double  theMinEta, theMaxEta, theMinPt, thePtCut, theMinPtres, theMaxPtres, theScale;
   int theDtCut, theCscCut;
   int theNBins;
 
-  edm::Handle<reco::MuonCollection> MuCollection;
-  edm::Handle<reco::MuonCollection> MuCollectionT;
-  edm::Handle<reco::TrackCollection> TKTrackCollection;
-  edm::Handle<reco::TrackCollection> STATrackCollection;
-  edm::Handle<reco::TrackCollection> GLBTrackCollection;
-  edm::Handle<reco::TrackCollection> PMRTrackCollection;
-  edm::Handle<reco::TrackCollection> GMRTrackCollection;
-  edm::Handle<reco::TrackCollection> FMSTrackCollection;
-  edm::Handle<reco::TrackCollection> SLOTrackCollection;
-  edm::Handle<edm::SimTrackContainer> SIMTrackCollection;
+  Handle<reco::MuonCollection> MuCollection;
+  Handle<reco::MuonCollection> MuCollectionT;
+  Handle<reco::TrackCollection> TKTrackCollection;
+  Handle<reco::TrackCollection> STATrackCollection;
+  Handle<reco::TrackCollection> GLBTrackCollection;
+  Handle<reco::TrackCollection> PMRTrackCollection;
+  Handle<reco::TrackCollection> GMRTrackCollection;
+  Handle<reco::TrackCollection> FMSTrackCollection;
+  Handle<reco::TrackCollection> SLOTrackCollection;
+  Handle<edm::SimTrackContainer> SIMTrackCollection;
 
-  edm::Handle<reco::MuonTimeExtraMap> timeMap1;
-  edm::Handle<reco::MuonTimeExtraMap> timeMap2;
-  edm::Handle<reco::MuonTimeExtraMap> timeMap3;
+  Handle<reco::MuonTimeExtraMap> timeMap1;
+  Handle<reco::MuonTimeExtraMap> timeMap2;
+  Handle<reco::MuonTimeExtraMap> timeMap3;
   
   //ROOT Pointers
   TFile* hFile;

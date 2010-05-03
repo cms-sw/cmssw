@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFPtMixLUT
 //
 // 
-//   $Date: 2007/04/02 15:45:38 $
-//   $Revision: 1.3 $
+//   $Date: 2006/11/17 08:25:34 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -44,9 +44,9 @@ unsigned L1MuGMTLFPtMixLUT::TheLookupFunction (int idx, unsigned pt_dtcsc, unsig
   // OUTPUTS: pt_mixed(5) 
 
 
-  // choosing maximum pt
+  // implement minimum by default
   
-  return pt_dtcsc < pt_rpc ? pt_rpc : pt_dtcsc;
+  return pt_dtcsc > pt_rpc ? pt_rpc : pt_dtcsc;
 }
 
 

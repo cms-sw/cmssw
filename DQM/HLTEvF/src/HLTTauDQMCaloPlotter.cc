@@ -162,15 +162,19 @@ HLTTauDQMCaloPlotter::~HLTTauDQMCaloPlotter()
 void
 HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,const LVColl& McInfo)
 {
-   edm::Handle<reco::L2TauInfoAssociation> l2TauInfoAssoc;
-   edm::Handle<reco::CaloJetCollection> l2Isolated;
-   edm::Handle<reco::CaloJetCollection> l2Regional;
-   reco::CaloJetCollection l2RegionalJets;
+   using namespace edm;
+   using namespace reco;
+
+   edm::Handle<L2TauInfoAssociation> l2TauInfoAssoc;
+   edm::Handle<CaloJetCollection> l2Isolated;
+   edm::Handle<CaloJetCollection> l2Regional;
+   CaloJetCollection l2RegionalJets;
+
 
 
    
    //Merge the L2 Regional Collections!
-   reco::CaloJetCollection l2MergedJets;
+   CaloJetCollection l2MergedJets;
 
    for(unsigned int j=0;j<l2preJets_.size();++j) {
 
@@ -195,10 +199,10 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    std::sort(l2MergedJets.begin(),l2MergedJets.end(),sorter);
 
    //Remove Collinear Jets
-   reco::CaloJetCollection l2CleanJets;
+   CaloJetCollection l2CleanJets;
    while(l2MergedJets.size()>0) {
      l2CleanJets.push_back(l2MergedJets.at(0));
-     reco::CaloJetCollection tmp;
+     CaloJetCollection tmp;
      for(unsigned int i=1 ;i<l2MergedJets.size();++i) {
        double DR = ROOT::Math::VectorUtil::DeltaR(l2MergedJets.at(0).p4(),l2MergedJets.at(i).p4());
        if(DR>0.1) 
@@ -215,7 +219,7 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
    if(doRef_)     {
        for(unsigned int i=0;i<McInfo.size();++i) {
-	 std::pair<bool,reco::CaloJet> m = inverseMatch(McInfo.at(i),l2CleanJets);
+	 std::pair<bool,CaloJet> m = inverseMatch(McInfo.at(i),l2CleanJets);
 	 if(m.first) {
 	   preJetEt->Fill(m.second.pt());
 	   preJetEta->Fill(m.second.eta());
@@ -229,7 +233,7 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    }
    else {
      for(unsigned int i=0;i<l2CleanJets.size();++i) {
-       reco::CaloJet jet = l2CleanJets.at(i);
+       CaloJet jet = l2CleanJets.at(i);
 	   preJetEt->Fill(jet.pt());
 	   preJetEta->Fill(jet.eta());
 	   preJetPhi->Fill(jet.phi());
@@ -254,13 +258,13 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
      if(gotL2)     {
        //If the Collection exists do work
        if(l2TauInfoAssoc->size()>0)
-	 for(reco::L2TauInfoAssociation::const_iterator p = l2TauInfoAssoc->begin();p!=l2TauInfoAssoc->end();++p)
+	 for(L2TauInfoAssociation::const_iterator p = l2TauInfoAssoc->begin();p!=l2TauInfoAssoc->end();++p)
 	   {
 	     //Retrieve The L2TauIsolationInfo Class from the AssociationMap
-	     const reco::L2TauIsolationInfo l2info = p->val;
+	     const L2TauIsolationInfo l2info = p->val;
        
 	     //Retrieve the Jet From the AssociationMap
-	     const reco::Jet& jet =*(p->key);
+	     const Jet& jet =*(p->key);
 	     
 	     std::pair<bool,LV> m =match(jet,McInfo); 
 	     

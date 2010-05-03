@@ -18,37 +18,40 @@ regionalCosmicMuonSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
    RegionFactoryPSet = cms.PSet(                                 
       ComponentName = cms.string( "CosmicRegionalSeedGenerator" ),
       RegionPSet = cms.PSet(
-        tp_label       = cms.InputTag("mergedtruth","MergedTrackTruth"),
         ptMin          = cms.double( 1.0 ),
         rVertex        = cms.double( 5 ),
         zVertex        = cms.double( 5 ),
         deltaEtaRegion = cms.double( 0.1 ),
         deltaPhiRegion = cms.double( 0.1 ),
         precise        = cms.bool( True ),
+        measurementTrackerName = cms.string('')
         ),
-      HLTPSet = cms.PSet(
-        hltTag               = cms.InputTag("hltDiMuonL2PreFiltered0","",""),
-        triggerSummaryLabel  = cms.string("hltTriggerSummaryAOD"),
-        thePropagatorName    = cms.string("AnalyticalPropagator"),
-        seeding              = cms.string("")
+      ToolsPSet = cms.PSet(
+        thePropagatorName           = cms.string("AnalyticalPropagator"),
+        regionBase                  = cms.string("")
         ),
-      CollectionsForSeedingPSet = cms.PSet(
-        l2MuonsRecoTracksCollection = cms.InputTag("hltL2Muons"),
-        staMuonsCollection          = cms.InputTag("muons")
-      )
+      CollectionsPSet = cms.PSet(
+        muonsCollection          = cms.InputTag("muons"),
+        cosmicMuonsCollection       = cms.InputTag("cosmicMuons")
+        )
     ),
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string( "GenericPairGenerator"),
         #ComponentName = cms.string( "GenericTripletGenerator"),
         LayerPSet = cms.PSet(
            layerInfo,
-           layerList = cms.vstring(#'TOB6+TOB5+TOB4',
-                                   'TOB6+TOB5',
+           layerList = cms.vstring('TOB6+TOB5',
                                    'TOB6+TOB4', 
                                    'TOB6+TOB3',
                                    'TOB5+TOB4',
                                    'TOB5+TOB3',
                                    'TOB4+TOB3',
+                                   'TEC1_neg+TOB6',
+                                   'TEC1_neg+TOB5',
+                                   'TEC1_neg+TOB4',
+                                   'TEC1_pos+TOB6',
+                                   'TEC1_pos+TOB5',
+                                   'TEC1_pos+TOB4'                                   
                                    )
            ),
         ##PropagationDirection = cms.string('alongMomentum'),
@@ -57,7 +60,7 @@ regionalCosmicMuonSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
 
     ClusterCheckPSet = cms.PSet (
       MaxNumberOfCosmicClusters = cms.double( 50000 ),
-      ClusterCollectionLabel = cms.InputTag( "hltSiStripClusters" ),
+      ClusterCollectionLabel = cms.InputTag( "siStripClusters" ),
       doClusterCheck = cms.bool( False )
     ) ,
 

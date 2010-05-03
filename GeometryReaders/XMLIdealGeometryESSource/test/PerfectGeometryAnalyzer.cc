@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.17 2009/11/09 15:44:33 case Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.16 2009/09/16 22:22:46 case Exp $
 //
 //
 
@@ -29,7 +29,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -117,7 +117,7 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
 
    std::cout << "Here I am " << std::endl;
 
-   edm::ESTransientHandle<DDCompactView> pDD;
+   edm::ESHandle<DDCompactView> pDD;
    if (!isMagField_) {
      iSetup.get<IdealGeometryRecord>().get(label_, pDD );
    } else {
@@ -129,7 +129,7 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
      edm::LogWarning("PerfectGeometryAnalyzer") << "NO label found pDD.description() returned false.";
    }
    if (!pDD.isValid()) {
-     edm::LogError("PerfectGeometryAnalyzer") << "ESTransientHandle<DDCompactView> pDD is not valid!";
+     edm::LogError("PerfectGeometryAnalyzer") << "ESHandle<DDCompactView> pDD is not valid!";
    }
    GeometryInfoDump gidump;
    gidump.dumpInfo( dumpHistory_, dumpSpecs_, dumpPosInfo_, *pDD, fname_, nNodes_ );

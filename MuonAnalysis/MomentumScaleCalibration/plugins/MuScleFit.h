@@ -4,15 +4,15 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2010/03/16 12:02:36 $
- *  $Revision: 1.29 $
+ *  $Date: 2009/10/28 16:54:27 $
+ *  $Revision: 1.23 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
 // Base Class Headers
 // ------------------
 #include "FWCore/Framework/interface/EDLooper.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include <CLHEP/Vector/LorentzVector.h>
 #include <vector>
@@ -58,8 +58,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
 
   // Operations
   // ----------
-  void beginOfJob (const edm::EventSetup& eventSetup);
-  //  virtual void beginOfJob();
+  virtual void beginOfJob();
   virtual void endOfJob();
 
   virtual void startingNewLoop( unsigned int iLoop );
@@ -72,44 +71,33 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
    * This method performs all needed operations on the muon pair. It reads the muons from SavedPair and uses the iev
    * counter to keep track of the event number. The iev is incremented internally and reset to 0 in startingNewLoop.
    */
-  virtual void duringFastLoop();
+  virtual edm::EDLooper::Status duringFastLoop();
 
   template<typename T>
-  std::vector<reco::LeafCandidate> fillMuonCollection( const std::vector<T>& tracks );
+  std::vector<reco::LeafCandidate> fillMuonCollection( const std::vector<T>& tracks ); 
  private:
 
  protected:
-  /**
-   * Selects the muon pairs and fills the SavedPair and (if needed) the genPair vector.
-   * This version reads the events from the edm root file and performs a selection of the muons according to the parameters in the cfg.
-   */
-  void selectMuons(const edm::Event & event);
-  /**
-   * Selects the muon pairs and fills the SavedPair and (if needed) the genPair vector.
-   * This version reads the events from a tree in the file specified in the cfg. The tree only contains one muon pair per event. This
-   * means that no selection is performed and we use preselected muons.
-   */
-  void selectMuons(const int maxEvents, const TString & treeFileName);
-
   /// Template method used to fill the track collection starting from reco::muons or pat::muons
   template<typename T>
-  void takeSelectedMuonType(const T & muon, std::vector<reco::Track> & tracks);
+  void takeSelectedMuonType(const T & muon, vector<reco::Track> & tracks);
 
   /// Check if two lorentzVector are near in deltaR
   bool checkDeltaR( reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu );
   /// Fill the reco vs gen and reco vs sim comparison histograms
-  void fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recoMu, const std::string & inputName, const int charge );
-
-  /// Apply the smearing if needed using the function in MuScleFitUtils
-  void applySmearing( reco::Particle::LorentzVector & mu );
-  /// Apply the bias if needed using the function in MuScleFitUtils
-  void applyBias( reco::Particle::LorentzVector & mu, const int charge );
+  void fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recoMu, const string & inputName, const int charge );
 
   /**
    * Simple method to check parameters consistency. It aborts the job if the parameters
    * are not consistent.
    */
   void checkParameters();
+
+//   // Fill, clean and write to file the Map of Histograms
+//   // ---------------------------------------------------
+//   void fillHistoMap(TFile* outputFile, unsigned int iLoop);
+//   void clearHistoMap();
+//   void writeHistoMap();
 
   MuonServiceProxy *theService;
 
@@ -125,7 +113,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
 
   // Constants
   // ---------
-  double minResMass_hwindow[6];
+  double minResMass_hwindow[6]; 
   double maxResMass_hwindow[6];
 
   // Total number of loops
@@ -134,6 +122,9 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   unsigned int loopCounter;
 
   bool fastLoop;
+
+  // Tree with muon info for Likelihood evaluation
+  // TTree* muonTree;
 
   MuScleFitPlotter *plotter;
 
@@ -146,14 +137,6 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   bool compareToSimTracks_;
   edm::InputTag simTracksCollection_;
   bool PATmuons_;
-  std::string genParticlesName_;
-
-  // Input Root Tree file name. If empty events are read from the edm root file.
-  std::string inputRootTreeFileName_;
-  // Output Root Tree file name. If not empty events are dumped to this file at the end of the last iteration.
-  std::string outputRootTreeFileName_;
-  // Maximum number of events from root tree. It works in the same way as the maxEvents to configure a input source.
-  int maxEventsFromRootTree_;
 };
 
 template<typename T>
@@ -168,12 +151,18 @@ std::vector<reco::LeafCandidate> MuScleFit::fillMuonCollection( const std::vecto
     // Apply smearing if needed, and then bias
     // ---------------------------------------
     MuScleFitUtils::goodmuon++;
-    if (debug_>0) std::cout <<std::setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon
-                       << ": initial value   Pt = " << mu.Pt() << std::endl;
-
-    applySmearing(mu);
-    applyBias(mu, track->charge());
-
+    if (debug_>0) cout <<setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon 
+                       << ": initial value   Pt = " << mu.Pt() << endl;
+    if (MuScleFitUtils::SmearType>0) {
+      mu = MuScleFitUtils::applySmearing( mu );
+      if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
+                         << ": after smearing  Pt = " << mu.Pt() << endl;
+    } 
+    if (MuScleFitUtils::BiasType>0) {
+      mu = MuScleFitUtils::applyBias( mu, track->charge() );
+      if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
+                         << ": after bias      Pt = " << mu.Pt() << endl;
+    }
     reco::LeafCandidate muon(track->charge(),mu);
     // Store modified muon
     // -------------------
@@ -183,9 +172,9 @@ std::vector<reco::LeafCandidate> MuScleFit::fillMuonCollection( const std::vecto
 }
 
 template<typename T>
-void MuScleFit::takeSelectedMuonType(const T & muon, std::vector<reco::Track> & tracks)
+void MuScleFit::takeSelectedMuonType(const T & muon, vector<reco::Track> & tracks)
 {
-  // std::cout<<"muon "<<muon->isGlobalMuon()<<muon->isStandAloneMuon()<<muon->isTrackerMuon()<<std::endl;
+  // cout<<"muon "<<muon->isGlobalMuon()<<muon->isStandAloneMuon()<<muon->isTrackerMuon()<<endl;
   //NNBB: one muon can be of many kinds at once but with the theMuonType_ we are sure
   // to avoid double counting of the same muon
   if(muon->isGlobalMuon() && theMuonType_==1)

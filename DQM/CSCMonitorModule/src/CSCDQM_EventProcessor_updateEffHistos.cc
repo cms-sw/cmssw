@@ -214,7 +214,8 @@ namespace cscdqm {
         adr.mask.side = adr.mask.station = adr.mask.ring = true;
         adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
   
-        double e_detector = 0.0, e_side = 0.0, e_station = 0.0, e_ring = 0.0;
+        double   e_detector = 0.0, e_side = 0.0, e_station = 0.0, e_ring = 0.0;
+        uint32_t e_detector_ch = 0, e_side_ch = 0, e_station_ch = 0;
       
         const HistoId parameters [] = {
           h::PAR_CSC_SIDEPLUS_STATION01_RING01,
@@ -247,47 +248,70 @@ namespace cscdqm {
           h::PAR_CSC_SIDEMINUS
         };
 
-        if (config->getNEvents() == 0) {
+        bool calc = (config->getNEvents() > 0);
+
+        if (!calc) {
           e_detector = e_side = e_station = e_ring = -1.0;
         }
 
         unsigned int parameter = 0;
         for (adr.side = 1; adr.side <= N_SIDES; adr.side++) {
-          if (config->getNEvents() > 0) {
-            e_side = 0;
+          
+          if (calc) {
+            e_side = 0.0;
+            e_side_ch = 0;
           }
+
           adr.mask.station = true;
           for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
-            if (config->getNEvents() > 0) {
-              e_station = 0;
+            
+            if (calc) {
+              e_station = 0.0;
+              e_station_ch = 0;
             }
+            
             adr.mask.ring = true;
             for (adr.ring = 1; adr.ring <= summary.getDetector().NumberOfRings(adr.station); adr.ring++) {
-              if (config->getNEvents() > 0) {
+
+              if (calc) {
                 e_ring = summary.GetEfficiencyHW(adr);
-                e_station += e_ring;
+                uint32_t ch = summary.getDetector().NumberOfChambers(adr.station, adr.ring);
+                e_station += (e_ring * ch);
+                e_station_ch += ch;
               }
+
               if (summary.getDetector().NumberOfRings(adr.station) > 1) {
                 if (getParHisto(parameters[parameter++], me)) me->Fill(e_ring);
               }
+
             }
+
             adr.mask.ring = false;
-            if (config->getNEvents() > 0) {
-              e_station = e_station / summary.getDetector().NumberOfRings(adr.station);
+            if (calc) {
               e_side += e_station;
+              e_side_ch += e_station_ch;
+              e_station = e_station / e_station_ch;
             }
+
             if (getParHisto(parameters[parameter++], me)) me->Fill(e_station);
+
           }
+
           adr.mask.station = false;
-          if (config->getNEvents() > 0) {
-            e_side = e_side / N_STATIONS;
+          if (calc) {
             e_detector += e_side; 
+            e_detector_ch += e_side_ch;
+            e_side = e_side / e_side_ch;
           }
+
           if (getParHisto(parameters[parameter++], me)) me->Fill(e_side);
+
         }
-        if (config->getNEvents() > 0) {
-          e_detector = e_detector / N_SIDES;
+
+        if (calc) {
+          e_detector = e_detector / e_detector_ch;
         }
+
         if (getParHisto(h::PAR_REPORT_SUMMARY, me)) me->Fill(e_detector);
 
       }

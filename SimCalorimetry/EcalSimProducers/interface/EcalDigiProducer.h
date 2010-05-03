@@ -5,8 +5,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESShape.h"
@@ -16,14 +14,8 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
-#include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/ESIntercalibConstantsRcd.h"
-#include "CondFormats/ESObjects/interface/ESMIPToGeVConstant.h"
-#include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
-#include "CondFormats/ESObjects/interface/ESGain.h"
-#include "CondFormats/DataRecord/interface/ESGainRcd.h"
-#include "CondFormats/ESObjects/interface/ESPedestals.h"
-#include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
+
+
 
 class CaloHitResponse ;
 class EcalSimParameterMap ;
@@ -67,7 +59,7 @@ class EcalDigiProducer : public edm::EDProducer
       const EcalSimParameterMap* m_ParameterMap ;
       const EBShape              m_EBShape ;
       const EEShape              m_EEShape ;
-      ESShape*         m_ESShape ;
+      const ESShape*             m_ESShape ;
 
       CaloHitResponse* m_EBResponse ;
       CaloHitResponse* m_EEResponse ;
@@ -93,7 +85,6 @@ class EcalDigiProducer : public edm::EDProducer
       double m_EEs25notCont ;
 
       bool   m_doFast ; 
-
 };
 
 #endif 

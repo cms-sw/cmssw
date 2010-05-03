@@ -1,81 +1,34 @@
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-
-#include "TH1D.h"
-#include "TH2D.h"
-
-#include <string>
-#include <map>
-
-
-namespace pat {
-
-  class PatTriggerAnalyzer : public edm::EDAnalyzer {
-
-    public:
-
-      explicit PatTriggerAnalyzer( const edm::ParameterSet & iConfig );
-      ~PatTriggerAnalyzer() {};
-
-    private:
-
-      virtual void beginJob() ;
-      virtual void analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup );
-      virtual void endJob();
-
-      edm::InputTag trigger_;
-      edm::InputTag triggerEvent_;
-      edm::InputTag muons_;
-      std::string   muonMatch_;
-
-      unsigned minID_;
-      unsigned maxID_;
-
-      std::map< std::string, TH1D* > histos1D_;
-      std::map< std::string, TH2D* > histos2D_;
-
-      std::map< unsigned, unsigned > sumN_;
-      std::map< unsigned, double >   sumPt_;
-  };
-
-}
-
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TMath.h"
+#include "PhysicsTools/PatExamples/plugins/PatTriggerAnalyzer.h"
 
 #include "PhysicsTools/PatUtils/interface/TriggerHelper.h"
 
+#include "TMath.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 using namespace pat;
 using namespace pat::helper;
 using namespace TMath;
 
-
-PatTriggerAnalyzer::PatTriggerAnalyzer( const edm::ParameterSet & iConfig )
-  : trigger_( iConfig.getParameter< edm::InputTag >( "trigger" ) )
-  , triggerEvent_( iConfig.getParameter< edm::InputTag >( "triggerEvent" ) )
-  , muons_( iConfig.getParameter< edm::InputTag >( "muons" ) )
-  , muonMatch_( iConfig.getParameter< std::string >( "muonMatch" ) )
-  , minID_( iConfig.getParameter< unsigned >( "minID" ) )
-  , maxID_( iConfig.getParameter< unsigned >( "maxID" ) )
-  , histos1D_()
-  , histos2D_()
+PatTriggerAnalyzer::PatTriggerAnalyzer( const edm::ParameterSet & iConfig ) :
+  trigger_( iConfig.getParameter< edm::InputTag >( "trigger" ) ),
+  triggerEvent_( iConfig.getParameter< edm::InputTag >( "triggerEvent" ) ),
+  muons_( iConfig.getParameter< edm::InputTag >( "muons" ) ),
+  muonMatch_( iConfig.getParameter< std::string >( "muonMatch" ) ),
+  minID_( iConfig.getParameter< unsigned >( "minID" ) ),
+  maxID_( iConfig.getParameter< unsigned >( "maxID" ) ),
+  histos1D_(),
+  histos2D_()
 {
 }
 
+PatTriggerAnalyzer::~PatTriggerAnalyzer()
+{
+}
 
 void PatTriggerAnalyzer::beginJob()
 {
-
   edm::Service< TFileService > fileService;
   // histogram definitions
 //   YOUR HISTOGRAM DEFINITIONS GO HERE!
@@ -99,16 +52,19 @@ void PatTriggerAnalyzer::beginJob()
     sumN_[ id ] = 0;
     sumPt_[ id ] = 0.;
   }
-
 }
-
 
 void PatTriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup )
 {
-
   // PAT trigger information
   edm::Handle< TriggerEvent > triggerEvent;
   iEvent.getByLabel( triggerEvent_, triggerEvent );
+  edm::Handle< TriggerPathCollection > triggerPaths;
+  iEvent.getByLabel( trigger_, triggerPaths );
+  edm::Handle< TriggerFilterCollection > triggerFilters;
+  iEvent.getByLabel( trigger_, triggerFilters );
+  edm::Handle< TriggerObjectCollection > triggerObjects;
+  iEvent.getByLabel( trigger_, triggerObjects );
 
   // PAT object collection
   edm::Handle< MuonCollection > muons;
@@ -145,11 +101,9 @@ void PatTriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSet
 
 void PatTriggerAnalyzer::endJob()
 {
-
   for ( unsigned id = minID_; id <= maxID_; ++id ) {
     if ( sumN_[ id ] != 0 ) histos1D_[ "ptMean" ]->Fill( id, sumPt_[ id ]/sumN_[ id ] );
   }
-
 }
 
 

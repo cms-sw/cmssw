@@ -195,29 +195,6 @@ using namespace std;
 
   }
 
-  void CSCValHists::fill1DHistByStation(float x, string name, string title, CSCDetId id,
-                                        int bins, float xmin, float xmax, string folder){
-
-    string endcap;
-    if (id.endcap() == 1) endcap = "+";
-    if (id.endcap() == 2) endcap = "-";
-
-    map<string,pair<TH1*,string> >::iterator it;
-    ostringstream oss1;
-    ostringstream oss2;
-    oss1 << name << endcap << id.station();
-    oss2 << title << "  (Station " << endcap << id.station() << ")";
-    name = oss1.str();
-    title = oss2.str();
-    it = theMap.find(name);
-    if (it == theMap.end()){
-      theMap[name] = pair<TH1*,string>(new TH1F(name.c_str(),title.c_str(),bins,xmin,xmax), folder);
-    }
-
-    theMap[name].first->Fill(x);
-
-  }
-
 
   void CSCValHists::fill2DHistByStation(float x, float y, string name, string title, CSCDetId id,
                                         int binsx, float xmin, float xmax,

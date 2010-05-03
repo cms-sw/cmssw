@@ -9,7 +9,7 @@ class FastL1BitInfo
 
 public:
 
-FastL1BitInfo(): m_eta(0), m_phi(0), m_energy(0), m_et(0), m_TauVeto(false), m_EmTauVeto(false), m_HadTauVeto(false), m_IsolationVeto(false), m_PartialIsolationVeto(false), m_SumEtBelowThres(false), m_maxEt(false), m_soft(false), m_hard(false)
+FastL1BitInfo(): m_eta(0), m_phi(0), m_energy(0), m_et(0), m_TauVeto(false), m_EmTauVeto(false), m_HadTauVeto(false), m_IsolationVeto(false), m_SumEtBelowThres(false), m_maxEt(false), m_soft(false), m_hard(false)
 {
 }
 
@@ -25,8 +25,6 @@ void setTauVeto(bool tauVeto){m_TauVeto = tauVeto;}
 void setEmTauVeto(bool emTauVeto){m_EmTauVeto = emTauVeto;}
 void setHadTauVeto(bool hadTauVeto){m_HadTauVeto = hadTauVeto;}
 void setIsolationVeto(bool isolationVeto){m_IsolationVeto = isolationVeto;}
-void setPartialIsolationVeto(bool pisolationVeto){m_PartialIsolationVeto = pisolationVeto;}
-void setTauVetoForPartIso(bool tauVeto){m_TauVetoForPartIso = tauVeto;}
 void setSumEtBelowThres(bool sumEtBelowThres){m_SumEtBelowThres = sumEtBelowThres;}
 void setMaxEt(bool MaxEt){m_maxEt = MaxEt;}
 void setSoft(bool Soft){m_soft = Soft;}
@@ -48,8 +46,6 @@ bool getTauVeto() const {return m_TauVeto;}
 bool getEmTauVeto() const {return m_EmTauVeto;}
 bool getHadTauVeto() const {return m_HadTauVeto;}
 bool getIsolationVeto() const {return m_IsolationVeto;}
-bool getTauVetoForPartIso() const {return m_TauVetoForPartIso;}
-bool getPartialIsolationVeto() const {return m_PartialIsolationVeto;}
 bool getSumEtBelowThres() const {return m_SumEtBelowThres;}
 bool getMaxEt() const {return m_maxEt;}
 bool getSoft() const {return m_soft;}
@@ -74,8 +70,6 @@ private:
   bool m_EmTauVeto;
   bool m_HadTauVeto;
   bool m_IsolationVeto;
-  bool m_TauVetoForPartIso;
-  bool m_PartialIsolationVeto;
   bool m_SumEtBelowThres;
   bool m_maxEt;
   bool m_soft;

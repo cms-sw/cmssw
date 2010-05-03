@@ -28,7 +28,7 @@ SETSeedFinder::SETSeedFinder(const ParameterSet& parameterSet)
   ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("SETTrajBuilderParameters");
   apply_prePruning = trajectoryBuilderParameters.getParameter<bool>("Apply_prePruning");
   // load pT seed parameters
-  thePtExtractor = new MuonSeedPtExtractor::MuonSeedPtExtractor(trajectoryBuilderParameters);
+  thePtExtractor = new MuonSeedPtExtractor(trajectoryBuilderParameters);
 
 } 
 

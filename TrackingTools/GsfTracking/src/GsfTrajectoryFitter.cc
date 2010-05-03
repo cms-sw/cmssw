@@ -83,18 +83,10 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       //       TimeMe t(*updateTimer,false);
       currTsos = updator()->update(predTsos, *preciseHit);
     }
-    if (!predTsos.isValid() || !currTsos.isValid()){
-      edm::LogError("InvalidState")<<"first hit";
-      return std::vector<Trajectory>();
-    }
     myTraj.push(TM(predTsos, currTsos, preciseHit, 0., theGeometry->idToLayer(preciseHit->geographicalId() )),
 		estimator()->estimate(predTsos, *preciseHit).second);
   } else {
     currTsos = predTsos;
-    if (!predTsos.isValid()){
-      edm::LogError("InvalidState")<<"first invalid hit";
-      return std::vector<Trajectory>();
-    }
     myTraj.push(TM(predTsos, *hits.begin(),0., theGeometry->idToLayer((*hits.begin())->geographicalId()) ));
   }
   
@@ -153,19 +145,11 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 	// 	TimeMe t(*updateTimer,false);
 	currTsos = updator()->update(predTsos, *preciseHit);
       }
-      if (!predTsos.isValid() || !currTsos.isValid()){
-	edm::LogError("InvalidState")<<"inside hit";
-	return std::vector<Trajectory>();
-      }
       myTraj.push(TM(predTsos, currTsos, preciseHit,
 		     estimator()->estimate(predTsos, *preciseHit).second,
 		     theGeometry->idToLayer(preciseHit->geographicalId() )));
     } else {
       currTsos = predTsos;
-      if (!predTsos.isValid()){
-      edm::LogError("InvalidState")<<"inside invalid hit";
-      return std::vector<Trajectory>();
-      }
       myTraj.push(TM(predTsos, *ihit,0., theGeometry->idToLayer( (*ihit)->geographicalId()) ));
     }
   }

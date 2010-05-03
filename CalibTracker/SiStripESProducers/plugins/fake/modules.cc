@@ -88,9 +88,6 @@ DEFINE_FWK_EVENTSETUP_SOURCE(SiStripDetVOffFakeESSource);
 
 //------------------------------------//
 
-// Producers starting from existing tags
+// Producer from existing tag
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripApvGainBuilderFromTag.h"
 DEFINE_FWK_MODULE(SiStripApvGainBuilderFromTag);
-
-#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripNoiseNormalizedWithApvGainBuilder.h"
-DEFINE_FWK_MODULE(SiStripNoiseNormalizedWithApvGainBuilder);

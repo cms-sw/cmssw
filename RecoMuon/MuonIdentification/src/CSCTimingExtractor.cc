@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: CSCTimingExtractor.cc,v 1.2 2009/10/16 09:32:57 ptraczyk Exp $
+// $Id: CSCTimingExtractor.cc,v 1.1 2009/07/30 09:59:56 ptraczyk Exp $
 //
 //
 
@@ -64,6 +64,10 @@ namespace edm {
 
 class MuonServiceProxy;
 
+using namespace std;
+using namespace edm;
+using namespace reco;
+
 //
 // constructors and destructor
 //
@@ -74,10 +78,10 @@ CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig)
   theTimeOffset_(iConfig.getParameter<double>("CSCTimeOffset")),
   debug(iConfig.getParameter<bool>("debug"))
 {
-  edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
+  ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
   
-  edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
+  ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
 
   theMatcher = new MuonSegmentMatcher(matchParameters, theService);
 }
@@ -100,7 +104,7 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
 {
 
   if (debug) 
-    std::cout << " *** CSC Timimng Extractor ***" << std::endl;
+    cout << " *** CSC Timimng Extractor ***" << endl;
 
   theService->update(iSetup);
 
@@ -113,7 +117,7 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
   double invbeta=0;
   double invbetaerr=0;
   int totalWeight=0;
-  std::vector<TimeMeasurement> tms;
+  vector<TimeMeasurement> tms;
 
   math::XYZPoint  pos=muonTrack->innerPosition();
   math::XYZVector mom=muonTrack->innerMomentum();
@@ -122,10 +126,10 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
   FreeTrajectoryState muonFTS(posp, momv, (TrackCharge)muonTrack->charge(), theService->magneticField().product());
 
   // get the CSC segments that were used to construct the muon
-  std::vector<const CSCSegment*> range = theMatcher->matchCSC(*muonTrack,iEvent);
+  vector<const CSCSegment*> range = theMatcher->matchCSC(*muonTrack,iEvent);
 
   // create a collection on TimeMeasurements for the track        
-  for (std::vector<const CSCSegment*>::iterator rechit = range.begin(); rechit!=range.end();++rechit) {
+  for (vector<const CSCSegment*>::iterator rechit = range.begin(); rechit!=range.end();++rechit) {
 
     // Create the ChamberId
     DetId id = (*rechit)->geographicalId();
@@ -134,10 +138,10 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
 
     if (!(*rechit)->specificRecHits().size()) continue;
 
-    const std::vector<CSCRecHit2D> hits2d = (*rechit)->specificRecHits();
+    const vector<CSCRecHit2D> hits2d = (*rechit)->specificRecHits();
 
     // store all the hits from the segment
-    for (std::vector<CSCRecHit2D>::const_iterator hiti=hits2d.begin(); hiti!=hits2d.end(); hiti++) {
+    for (vector<CSCRecHit2D>::const_iterator hiti=hits2d.begin(); hiti!=hits2d.end(); hiti++) {
 
       const GeomDet* cscDet = theTrackingGeometry->idToDet(hiti->geographicalId());
       TimeMeasurement thisHit;
@@ -154,14 +158,14 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
       thisHit.timeCorr = hiti->tpeak()-theTimeOffset_;
       tms.push_back(thisHit);
       
-//      std::cout << " CSC Hit. Dist= " << dist << "    Time= " << thisHit.timeCorr 
-//           << "   invBeta= " << (1.+thisHit.timeCorr/dist*30.) << std::endl;
+//      cout << " CSC Hit. Dist= " << dist << "    Time= " << thisHit.timeCorr 
+//           << "   invBeta= " << (1.+thisHit.timeCorr/dist*30.) << endl;
     }
 
   } // rechit
       
   bool modified = false;
-  std::vector <double> dstnc, dsegm, dtraj, hitWeight;
+  vector <double> dstnc, dsegm, dtraj, hitWeight;
 
   // Now loop over the measurements, calculate 1/beta and cut away outliers
   do {    
@@ -174,7 +178,7 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
       
     totalWeight=0;
       
-	for (std::vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) {
+	for (vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) {
 	  dstnc.push_back(tm->distIP);
 	  dsegm.push_back(tm->timeCorr);
 	  hitWeight.push_back(1.);
@@ -185,7 +189,7 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
 
     // calculate the value and error of 1/beta from the complete set of 1D hits
     if (debug)
-      std::cout << " Points for global fit: " << dstnc.size() << std::endl;
+      cout << " Points for global fit: " << dstnc.size() << endl;
 
     // inverse beta - weighted average of the contributions from individual hits
     invbeta=0;
@@ -193,7 +197,7 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
       invbeta+=(1.+dsegm.at(i)/dstnc.at(i)*30.)*hitWeight.at(i)/totalWeight;
 
     double chimax=0.;
-    std::vector<TimeMeasurement>::iterator tmmax;
+    vector<TimeMeasurement>::iterator tmmax;
     
     // the dispersion of inverse beta
     double diff;
@@ -216,11 +220,11 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
     }    
 
     if (debug)
-      std::cout << " Measured 1/beta: " << invbeta << " +/- " << invbetaerr << std::endl;
+      cout << " Measured 1/beta: " << invbeta << " +/- " << invbetaerr << endl;
 
   } while (modified);
 
-  // std::cout << " *** FINAL Measured 1/beta: " << invbeta << " +/- " << invbetaerr << std::endl;
+  // cout << " *** FINAL Measured 1/beta: " << invbeta << " +/- " << invbetaerr << endl;
 
   for (unsigned int i=0;i<dstnc.size();i++) {
     tmSequence.dstnc.push_back(dstnc.at(i));

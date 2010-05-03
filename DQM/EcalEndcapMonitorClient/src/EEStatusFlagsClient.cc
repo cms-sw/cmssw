@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2010/02/16 10:53:18 $
- * $Revision: 1.37 $
+ * $Date: 2010/04/14 15:13:47 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -221,11 +221,14 @@ void EEStatusFlagsClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int itt = ecid.getID2();
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int itt = ecid.getID2();
 
         if ( itt > 70 ) continue;
 

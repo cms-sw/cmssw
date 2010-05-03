@@ -112,22 +112,13 @@ public:
   };
 
 
-  struct LumiErrors {
-    std::vector<unsigned int> nTotal;
-    std::vector<unsigned int> nErrors;
-  };
-
   FEDErrors();
 
   ~FEDErrors();
 
-  void initialiseLumiBlock();
-
-  void initialiseEvent();
-
-  void initialiseFED(const unsigned int aFedID,
-		     const SiStripFedCabling* aCabling,
-		     bool initVars = true);
+  void initialise(const unsigned int aFedID,
+		  const SiStripFedCabling* aCabling,
+		  bool initVars = true);
 
   //return false if no data, with or without cabled channels.
   bool checkDataPresent(const FEDRawData& aFedData);
@@ -207,8 +198,6 @@ public:
 
   std::vector<std::pair<unsigned int, bool> > & getBadChannels();
 
-  const LumiErrors & getLumiErrors();
-
   void addBadFE(const FELevelErrors & aFE);
 
   void addBadChannel(const ChannelLevelErrors & aChannel);
@@ -233,10 +222,6 @@ protected:
   
 private:
 
-  void incrementLumiErrors(const bool hasError,
-			   const unsigned int aSubDet);
-
-
   void processDet(const uint32_t aPrevId,
 		  const uint16_t aPrevTot,
 		  const bool doTkHistoMap,
@@ -259,8 +244,6 @@ private:
   std::vector<std::pair<unsigned int,bool> > chErrors_;
 
   bool failUnpackerFEDCheck_;
-
-  LumiErrors lumiErr_;
 
 };//class
 

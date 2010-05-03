@@ -21,36 +21,10 @@
 /**
    \class   TopDecayChannelChecker TopDecayChannelChecker.h "Validation/Generator/plugins/TopDecayChannelChecker.h"
 
-   \brief   Plugin to monitor the properties of top monte carlo samples on generator level
+   \brief   Plugin to monitor the properties of top Monte Carlo samples on generator level
 
-   The module monitors the properties of top monte carlo samples from different generators 
-   on generator level. The following generators are explicitely supported:
-
-   * Pythia (lund fragmentation model)
-   * MC@NLO (herwig cluster hadronization model)
-   * Madgraph (lund fragmentation model)
-
-   while other generators (using the same fragmentation models) might be implicitely supported.
-   The validity of the decay chain and the decay branches are checked. And the following histo-
-   grams are written to file: 
-
-   * TopDecayChannel  : No of events per decay channel (full hadronic, single leptonic, dilep-
-                        tonic).
-
-   * TopDecayWBosons  : No of W bosons in the decay chain.
-
-   * SemiLeptonType   : No of semi-leptonic events with different lepton types in the final 
-                        state.
-   * FullLeptonType   : No of dileptonic events with different lepton types in the final 
-                        state.
-   * TauDecayMode     : No of tau candidates with different decay modes in the final state.
-
-   * TopDecayQuark    : No of different quark types, which were produced via the top quark 
-                        decay.
-
-   For more details on the filling have a look for the comments given in the implementation of
-   the module or have a look to the TopValidationTutorialGEN TWiki page. The module exploits 
-   the DQM infrastructure to be compatible with the DQM GUI.
+   The module monitors the properties of top Monte Carlo samples from different generators 
+   on generator level. The validity ot the decay chain and the decay branches are checked.
 */
 
 
@@ -91,18 +65,20 @@ class TopDecayChannelChecker : public edm::EDAnalyzer {
 
  private:
   /// this will be the name of the output file 
-  std::string outputFile_;
+  std::string outputFileName_;
   /// number of events for which to print the 
   /// full decay chain to the log output
   unsigned int log_;
   /// generated particle collection src
   edm::InputTag src_;
+  /// DQM service
+  bool saveDQMMEs_ ;
 
   /// event counter for decay chain 
   /// logging
   unsigned int evts_;
   /// DQM service
-  DQMStore* store_;
+  DQMStore* dqmStore_;
   /// histogram container
   std::map<std::string, MonitorElement*> hists_;
 };

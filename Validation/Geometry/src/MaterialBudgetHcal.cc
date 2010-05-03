@@ -2,7 +2,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
@@ -39,7 +39,7 @@ MaterialBudgetHcal::~MaterialBudgetHcal() {
 void MaterialBudgetHcal::update(const BeginOfJob* job) {
   //----- Check that selected volumes are indeed part of the geometry
   // Numbering From DDD
-  edm::ESTransientHandle<DDCompactView> pDD;
+  edm::ESHandle<DDCompactView> pDD;
   (*job)()->get<IdealGeometryRecord>().get(pDD);
   if (theHistoHcal)   theHistoHcal->fillBeginJob((*pDD));
 

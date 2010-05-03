@@ -63,7 +63,6 @@ public:
 			  bool fullDebug
 			  );
 
-  void fillLumiHistograms(const FEDErrors::LumiErrors & aLumErr);
 
   bool cmHistosEnabled();
 
@@ -77,7 +76,7 @@ public:
 
   void bookAllFEDHistograms();
 
-  bool tkHistoMapEnabled(unsigned int aIndex=0);
+  std::string tkHistoMapName(unsigned int aIndex=0);
 
   TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0);
 
@@ -88,98 +87,87 @@ protected:
 private:
 
   //counting histograms (histogram of number of problems per event)
-  HistogramConfig nFEDErrors_, 
-    nFEDDAQProblems_, 
-    nFEDsWithFEProblems_, 
-    nFEDCorruptBuffers_, 
-    nBadChannelStatusBits_,
-    nBadActiveChannelStatusBits_,
-    nUnconnectedChannels_,
-    nFEDsWithFEOverflows_, 
-    nFEDsWithFEBadMajorityAddresses_, 
-    nFEDsWithMissingFEs_;
+  MonitorElement *nFEDErrors_, 
+    *nFEDDAQProblems_, 
+    *nFEDsWithFEProblems_, 
+    *nFEDCorruptBuffers_, 
+    *nBadChannelStatusBits_,
+    *nBadActiveChannelStatusBits_,
+    *nUnconnectedChannels_,
+    *nFEDsWithFEOverflows_, 
+    *nFEDsWithFEBadMajorityAddresses_, 
+    *nFEDsWithMissingFEs_;
 
-  HistogramConfig nFEDErrorsvsTime_;
-  HistogramConfig nFEDCorruptBuffersvsTime_;
-  HistogramConfig nFEDsWithFEProblemsvsTime_;
+  MonitorElement *nFEDErrorsvsTime_;
+  MonitorElement *nFEDCorruptBuffersvsTime_;
+  MonitorElement *nFEDsWithFEProblemsvsTime_;
 
-  HistogramConfig nTotalBadChannels_;
-  HistogramConfig nTotalBadActiveChannels_;
+  MonitorElement *nTotalBadChannels_;
+  MonitorElement *nTotalBadActiveChannels_;
 
-  HistogramConfig nTotalBadChannelsvsTime_;
-  HistogramConfig nTotalBadActiveChannelsvsTime_;
+  MonitorElement *nTotalBadChannelsvsTime_;
+  MonitorElement *nTotalBadActiveChannelsvsTime_;
 
-  HistogramConfig nAPVStatusBit_;
-  HistogramConfig nAPVError_;
-  HistogramConfig nAPVAddressError_;
-  HistogramConfig nUnlocked_;
-  HistogramConfig nOutOfSync_;
+  MonitorElement *nAPVStatusBit_;
+  MonitorElement *nAPVError_;
+  MonitorElement *nAPVAddressError_;
+  MonitorElement *nUnlocked_;
+  MonitorElement *nOutOfSync_;
 
-  HistogramConfig nAPVStatusBitvsTime_;
-  HistogramConfig nAPVErrorvsTime_;
-  HistogramConfig nAPVAddressErrorvsTime_;
-  HistogramConfig nUnlockedvsTime_;
-  HistogramConfig nOutOfSyncvsTime_;
+  MonitorElement *nAPVStatusBitvsTime_;
+  MonitorElement *nAPVErrorvsTime_;
+  MonitorElement *nAPVAddressErrorvsTime_;
+  MonitorElement *nUnlockedvsTime_;
+  MonitorElement *nOutOfSyncvsTime_;
 
   //top level histograms
-  HistogramConfig anyFEDErrors_, 
-    anyDAQProblems_, 
-    corruptBuffers_, 
-    invalidBuffers_, 
-    badIDs_, 
-    badChannelStatusBits_, 
-    badActiveChannelStatusBits_,
-    badDAQCRCs_, 
-    badFEDCRCs_, 
-    badDAQPacket_, 
-    dataMissing_, 
-    dataPresent_, 
-    feOverflows_, 
-    badMajorityAddresses_, 
-    feMissing_, 
-    anyFEProblems_;
+  MonitorElement *anyFEDErrors_, 
+    *anyDAQProblems_, 
+    *corruptBuffers_, 
+    *invalidBuffers_, 
+    *badIDs_, 
+    *badChannelStatusBits_, 
+    *badActiveChannelStatusBits_,
+    *badDAQCRCs_, 
+    *badFEDCRCs_, 
+    *badDAQPacket_, 
+    *dataMissing_, 
+    *dataPresent_, 
+    *feOverflows_, 
+    *badMajorityAddresses_, 
+    *feMissing_, 
+    *anyFEProblems_;
 
-  HistogramConfig feTimeDiffTIB_,
-    feTimeDiffTOB_,
-    feTimeDiffTECB_,
-    feTimeDiffTECF_;
+  MonitorElement *feTimeDiffTIB_,
+    *feTimeDiffTOB_,
+    *feTimeDiffTECB_,
+    *feTimeDiffTECF_;
 
-  HistogramConfig apveAddress_;
-  HistogramConfig feMajAddress_;
+  MonitorElement *apveAddress_;
+  MonitorElement *feMajAddress_;
 
-  HistogramConfig medianAPV0_;
-  HistogramConfig medianAPV1_;
+  MonitorElement *medianAPV0_;
+  MonitorElement *medianAPV1_;
 
-  HistogramConfig feOverflowDetailed_, 
+
+  //FED level histograms
+  std::map<unsigned int,MonitorElement*> feOverflowDetailed_, 
     badMajorityAddressDetailed_, 
     feMissingDetailed_;
 
-  HistogramConfig badStatusBitsDetailed_, 
+  std::map<unsigned int,MonitorElement*> badStatusBitsDetailed_, 
     apvErrorDetailed_, 
     apvAddressErrorDetailed_, 
     unlockedDetailed_, 
     outOfSyncDetailed_;
-  
-  //FED level histograms
-  std::map<unsigned int,MonitorElement*> feOverflowDetailedMap_, 
-    badMajorityAddressDetailedMap_, 
-    feMissingDetailedMap_;
-
-  std::map<unsigned int,MonitorElement*> badStatusBitsDetailedMap_, 
-    apvErrorDetailedMap_, 
-    apvAddressErrorDetailedMap_, 
-    unlockedDetailedMap_, 
-    outOfSyncDetailedMap_;
 
 
   //has individual FED histogram been booked? (index is FedId)
   std::vector<bool> histosBooked_, 
     debugHistosBooked_;
 
-  HistogramConfig tkMapConfig_;
+  std::string tkMapConfigName_;
   TkHistoMap *tkmapFED_;
-
-  HistogramConfig lumiErrorFraction_;
 
 
 };//class

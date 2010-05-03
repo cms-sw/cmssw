@@ -17,8 +17,6 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   WriteDQMStore = cms.untracked.bool(False),
   DQMStoreFileName = cms.untracked.string('DQMStore.root'),
   #Histogram configuration
-  #lumi histogram
-  ErrorFractionByLumiBlockHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),          
   #Global/summary histograms
   DataPresentHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   AnyFEDErrorsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),

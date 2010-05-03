@@ -30,6 +30,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 template <class T> void
 TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
@@ -106,9 +107,9 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	for (trackingRecHit_iterator i=theT->recHitsBegin(); i!=theT->recHitsEnd(); i++){
 	     if (reMatchSplitHits_){
 	   	//re-match hits that belong together
-      		trackingRecHit_iterator next = iH; next++;
-                if (next != theT->recHitsEnd() && (*iH)->isValid()){
-			TransientTrackingRecHit::RecHitPointer hit=builder->build(&**iH );
+      		trackingRecHit_iterator next = i; next++;
+                if (next != theT->recHitsEnd() && (*i)->isValid()){
+			TransientTrackingRecHit::RecHitPointer hit=builder->build(&**i );
 			TransientTrackingRecHit::RecHitPointer nexthit = builder->build(&**next );
 			//check whether hit and nexthit are on glued module
 			DetId hitId = hit->geographicalId();
@@ -126,12 +127,12 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 			      const SiStripRecHit2D *mono=0;
 			      const SiStripRecHit2D *stereo=0;
 			      if (stripId.stereo()==0){
-				mono=dynamic_cast<const SiStripRecHit2D *>(&**iH);
+				mono=dynamic_cast<const SiStripRecHit2D *>(&**i);
 				stereo=dynamic_cast<const SiStripRecHit2D *>(&**next);
 			      }
 			      else{
 				mono=dynamic_cast<const SiStripRecHit2D *>(&**next);
-				stereo=dynamic_cast<const SiStripRecHit2D *>(&**iH);
+				stereo=dynamic_cast<const SiStripRecHit2D *>(&**i);
 			      }
 			      if (!mono	|| !stereo){
 					edm::LogError("TrackProducerAlgorithm")
@@ -145,7 +146,7 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 			      SiStripMatchedRecHit2D rematchedH(pos,err,gluedId,mono,stereo);
 			      hits.push_back(builder->build(&rematchedH));
 			      //the local position and error is dummy but the fitter does not need that anyways
-			      iH++;
+			      i++;
 			      continue;//go to next.
 			    }//consecutive hits are on parterns module.
 		  }}//is a strip module

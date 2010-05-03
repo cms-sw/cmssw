@@ -14,6 +14,7 @@
 #include <sstream>
 #include <string>
 
+using namespace std;
 using namespace sistrip;
 
 // only one constructor
@@ -240,11 +241,6 @@ void SiStripPsuDetIdMap::getDcuPsuMap(DcuPsusRange &pRange, DcuPsusRange &cRange
 
 void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile )
 {
-  BuildMap(mapFile, pgMap);
-}
-
-void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, PsuDetIdMap & map )
-{
   edm::FileInPath file(mapFile.c_str());
   ifstream ifs( file.fullPath().c_str() );
   string line;
@@ -256,7 +252,7 @@ void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, PsuDetIdMap & ma
       uint32_t detId;
       ss >> detId;
       ss >> dpName;
-      map.push_back( std::make_pair(detId, dpName) );
+      pgMap.push_back( std::make_pair(detId, dpName) );
     }
   }
 }

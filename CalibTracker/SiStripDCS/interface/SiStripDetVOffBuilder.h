@@ -125,7 +125,6 @@ class SiStripDetVOffBuilder
   std::vector<int> tDefault, tmax_par, tmin_par, tset_par;
 
   std::string detIdListFile_;
-  std::string excludedDetIdListFile_;
   // Threshold to consider a high voltage channel on
   double highVoltageOnThreshold_;
 

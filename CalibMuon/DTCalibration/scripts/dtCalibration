@@ -5,10 +5,19 @@ from CalibMuon.DTCalibration.Workflow.DTTTrigCorrFirst import DTTTrigCorrFirst
 from CalibMuon.DTCalibration.Workflow.DTTTrigValid import DTTTrigValid
 from CalibMuon.DTCalibration.Workflow.DTTTrigResidualCorr import DTTTrigResidualCorr
 from CalibMuon.DTCalibration.Workflow.DTValidSummary import DTValidSummary
-from CalibMuon.DTCalibration.Workflow.DTDqm import DTDqm
 from CalibMuon.DTCalibration.Workflow.CrabWatch import CrabWatch
-from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor,haddInCastor,parseInput
+from CalibMuon.DTCalibration.Workflow.tools import haddInCastor,parseInput
 import sys,os,time
+
+"""
+#FIXME: This should come from some configuration module
+castor_prefix = '/castor/cern.ch/cms/store/caf/user/antoniov/'
+ 
+def_crab_opts = {'DATASETPATH':'/StreamExpress/CRAFT09-MuAlCalIsolatedMu-v1/ALCARECO',
+                 'EMAIL':'vilela@to.infn.it'}
+
+def_pset_opts = {'GLOBALTAG':'GR09_P_V1::All'}
+"""
 
 def runTtrigProd(run,runselection,trial,config):
 
@@ -97,23 +106,14 @@ def runTtrigValidResidCorr(run,runselection,trial,input_file,config):
     castor_dir = config.castor_prefix + dtTtrigValid_ResidCorr.crab_opts['USERDIRCAF']
     haddInCastor(castor_dir,result_file,'residuals')
 
-def runTtrigValidSummary(input_file,output_file,config):
+def runTtrigValidSummary(run,input_file,config):
+    #input_file = os.path.abspath(result_file)
 
-    print "Processing Validation Summary"
-    dtTtrigValidSummary = DTValidSummary(config.run_dir,input_file,output_file,config.template_path)
-    dtTtrigValidSummary.writeCfg()
+    dtTtrigValidSummary = DTValidSummary(run,input_file,config.pset_opts,config.result_dir,config.template_path)
     dtTtrigValidSummary.run()
- 
-    print "...Validation Summary finished"
-def runDQMMerge(castor_dir,config):
 
-    print "Processing DQM Merge"
-    dqm_files = listFilesInCastor(castor_dir,'DQM')
-    dtDqmFinal = DTDqm(config.run_dir,dqm_files,config.result_dir,config.template_path)
-    dtDqmFinal.writeCfg()
-    dtDqmFinal.run()
-
-    print "...DQM Merge finished" 
+    print "Finished processing:"
+    for pset in dtTtrigValidSummary.configs: print "--->",pset
 
 if __name__ == '__main__':
     start = time.time()
@@ -147,15 +147,13 @@ if __name__ == '__main__':
 
     #print run,runselection,trial,config.castor_prefix,config.crab_opts,config.pset_opts,config.template_path
 
-    run_dir = 'Run%s/Ttrig/Exec' % run
-    if not os.path.exists(run_dir): os.makedirs(run_dir)
-    config.run_dir = run_dir
-
-    result_dir = 'Run%s/Ttrig/Results' % run
+    result_dir = 'Run%s'%run
+    result_dir += '/Ttrig/Results'
     if not os.path.exists(result_dir): os.makedirs(result_dir)
     config.result_dir = result_dir
 
-    log_dir = 'Run%s/Ttrig/Log' % run
+    log_dir = 'Run%s'%run
+    log_dir += '/Ttrig/Log'
     if not os.path.exists(log_dir): os.makedirs(log_dir)
     config.log_dir = log_dir 
 
@@ -164,7 +162,6 @@ if __name__ == '__main__':
 
     print "DT Calibration starting for Run",run
     print "Using runs",runselection
-    print "Running at",run_dir
     print "Results at",result_dir 
     #print "Log file at",logFileName
  
@@ -203,12 +200,9 @@ if __name__ == '__main__':
 
     summaryResiduals = os.path.abspath(result_dir + '/' + 'SummaryResiduals_' + run + '.root')
 
-    if not os.path.exists(summaryResiduals): runTtrigValidSummary(residualsResidCorr,summaryResiduals,config)
+    if not os.path.exists(summaryResiduals): runTtrigValidSummary(run,residualsResidCorr,config)
 
     if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s'%summaryResiduals
-
-    castorDirResidCorr = config.castor_prefix + 'TTRIGCalibration/Validation/ResidCorr/Run' + str(run) + '/v' + str(trial)
-    runDQMMerge(castorDirResidCorr,config)
 
     #sys.stdout = stdout_original
  

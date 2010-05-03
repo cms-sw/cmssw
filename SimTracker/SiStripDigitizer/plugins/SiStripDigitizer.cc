@@ -48,11 +48,8 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
-#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-
 
 //Random Number
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -139,7 +136,6 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::ESHandle<SiStripNoises> noiseHandle;
   edm::ESHandle<SiStripThreshold> thresholdHandle;
   edm::ESHandle<SiStripPedestals> pedestalHandle;
-  edm::ESHandle<SiStripBadStrip> deadChannelHandle;
   std::string LAname = conf_.getParameter<std::string>("LorentzAngle");
   iSetup.get<SiStripLorentzAngleSimRcd>().get(LAname,lorentzAngleHandle);
   std::string gainLabel = conf_.getParameter<std::string>("Gain");
@@ -147,8 +143,7 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
   iSetup.get<SiStripThresholdRcd>().get(thresholdHandle);
   iSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
-  iSetup.get<SiStripBadChannelRcd>().get(deadChannelHandle);
-  
+
   theDigiAlgo->setParticleDataTable(&*pdt);
 
   // Step B: LOOP on StripGeomDetUnit
@@ -171,7 +166,7 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       edm::DetSet<StripDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
       float langle = (lorentzAngleHandle.isValid()) ? lorentzAngleHandle->getLorentzAngle((*iu)->geographicalId().rawId()) : 0.;
       theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[(*iu)->geographicalId().rawId()],sgd,bfield,langle,
-	 	       gainHandle,thresholdHandle,noiseHandle,pedestalHandle, deadChannelHandle);
+		       gainHandle,thresholdHandle,noiseHandle,pedestalHandle);
       if(zeroSuppression){
         if(collectorZS.data.size()>0){
           theDigiVector.push_back(collectorZS);

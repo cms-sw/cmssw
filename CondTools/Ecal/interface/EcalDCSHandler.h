@@ -61,16 +61,17 @@ namespace popcon
 			~EcalDCSHandler(); 
 			void printHVDataSet( const map<EcalLogicID, RunDCSHVDat>* dataset,int ) const;
 			void printLVDataSet( const map<EcalLogicID, RunDCSLVDat>* dataset,int ) const ;
-			uint16_t  updateHV( RunDCSHVDat* hv, uint16_t dbStatus) const ; 
+			uint16_t  updateHV( RunDCSHVDat* hv, uint16_t dbStatus, int modo=0) const ; 
 			uint16_t  updateLV( RunDCSLVDat* lv, uint16_t dbStatus) const ; 
 			bool  insertHVDataSetToOffline( const map<EcalLogicID, RunDCSHVDat>* dataset, EcalDCSTowerStatus* dcs_temp ) const;
-			bool  insertLVDataSetToOffline( const map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp ) const;
+			bool  insertLVDataSetToOffline( const map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp, std::vector<EcalLogicID> ) const;
 
 			void getNewObjects();
 			std::string id() const { return m_name;}
 			EcalCondDBInterface* econn;
 
 			int * HVLogicIDToDetID(int, int) const;
+			int * HVEELogicIDToDetID(int, int) const;
 			int * LVLogicIDToDetID(int, int) const;
 
 			int detIDToLogicID(int, int, int);
@@ -85,7 +86,7 @@ namespace popcon
 			std::string m_user;
 			std::string m_pass;
 			std::string m_name;
-
+			
 	};
 }
 #endif

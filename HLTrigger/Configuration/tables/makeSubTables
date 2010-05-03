@@ -5,8 +5,8 @@
 # usage: ./runMe.sh
 #
 
-MASTER="/dev/CMSSW_3_6_0/pre4/HLT"   # no version, take the latest one
-TARGET="/dev/CMSSW_3_6_0/pre4"       # directory where to store the sub-tables
+MASTER="/dev/CMSSW_3_6_0/patch1/HLT" # no version, take the latest one
+TARGET="/dev/CMSSW_3_6_0/patch1"     # directory where to store the sub-tables
 TABLES="1E31 8E29 GRun HIon"         # which sub-ytables to create
 
 # hltdev
@@ -29,6 +29,7 @@ function makeCreateConfig() {
 
 function runCreateConfig() {
   java \
+    -Xmx2048m \
     -classpath "$CMSSW_BASE/src/EventFilter/ConfigDB/ext/ojdbc14.jar:$CMSSW_BASE/src/EventFilter/ConfigDB/lib/cmssw-evf-confdb-gui.jar" \
     confdb.db.ConfDBCreateConfig \
     --dbHost $DBHOST \

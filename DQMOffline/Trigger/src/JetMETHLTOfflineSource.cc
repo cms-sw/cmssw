@@ -35,8 +35,7 @@ using namespace edm;
 using namespace std;
 
   
-JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig):
-  isSetup_(false)
+JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
    {
   LogDebug("JetMETHLTOfflineSource") << "constructor....";
 
@@ -150,16 +149,18 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 void JetMETHLTOfflineSource::fillMEforMonTriggerSummary(){
   // Trigger summary for all paths
+    int trignum_1 = -1;
     for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v )
         {
-         double binV = TriggerPosition(v->getPath());       
-         if(isHLTPathAccepted(v->getPath()))rate_All->Fill(binV);
-         if(isHLTPathAccepted(v->getPath()))correlation_All->Fill(binV,binV);
+         trignum_1++;
+         if(isHLTPathAccepted(v->getPath()))rate_All->Fill(trignum_1);
+         if(isHLTPathAccepted(v->getPath()))correlation_All->Fill(trignum_1,trignum_1);
+         int trignum_2 = trignum_1;
          for(PathInfoCollection::iterator w = v+1; w!= hltPathsAll_.end(); ++w )
            {
-           double binW = TriggerPosition(w->getPath()); 
-           if(isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_All->Fill(binV,binW);
-           if(!isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_All->Fill(binW,binV); 
+           trignum_2++;
+           if(isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_All->Fill(trignum_1,trignum_2);
+           if(!isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_All->Fill(trignum_2,trignum_1); 
            }
         }
   // Trigger summary for all paths wrt Muon trigger
@@ -167,16 +168,18 @@ void JetMETHLTOfflineSource::fillMEforMonTriggerSummary(){
     for(size_t i=0;i<MuonTrigPaths_.size();++i)if(isHLTPathAccepted(MuonTrigPaths_[i]))muTrig = true;  
     if(muTrig )
     { 
+    trignum_1 = -1;
     for(PathInfoCollection::iterator v = hltPathsWrtMu_.begin(); v!= hltPathsWrtMu_.end(); ++v )
         {
-         double binV = TriggerPosition(v->getPath());
-         if(isHLTPathAccepted(v->getPath()))rate_AllWrtMu->Fill(binV);
-         if(isHLTPathAccepted(v->getPath()))correlation_AllWrtMu->Fill(binV,binV);
+         trignum_1++;
+         if(isHLTPathAccepted(v->getPath()))rate_AllWrtMu->Fill(trignum_1);
+         if(isHLTPathAccepted(v->getPath()))correlation_AllWrtMu->Fill(trignum_1,trignum_1);
+         int trignum_2 = trignum_1;
          for(PathInfoCollection::iterator w = v+1; w!= hltPathsWrtMu_.end(); ++w )
            {
-           double binW = TriggerPosition(w->getPath());
-           if(isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_AllWrtMu->Fill(binV,binW);
-           if(!isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_AllWrtMu->Fill(binW,binV);
+           trignum_2++;
+           if(isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_AllWrtMu->Fill(trignum_1,trignum_2);
+           if(!isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_AllWrtMu->Fill(trignum_2,trignum_1);
            }
         } 
   }// Muon trigger fired
@@ -186,16 +189,18 @@ void JetMETHLTOfflineSource::fillMEforMonTriggerSummary(){
     for(size_t i=0;i<MBTrigPaths_.size();++i)if(isHLTPathAccepted(MBTrigPaths_[i]))mbTrig = true;
     if(mbTrig )
     {
+    trignum_1 = -1;
     for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffWrtMB_.end(); ++v )
         {
-         double binV = TriggerPosition(v->getPath());
-         if(isHLTPathAccepted(v->getPath()))rate_AllWrtMB->Fill(binV);
-         if(isHLTPathAccepted(v->getPath()))correlation_AllWrtMB->Fill(binV,binV);
+         trignum_1++;
+         if(isHLTPathAccepted(v->getPath()))rate_AllWrtMB->Fill(trignum_1);
+         if(isHLTPathAccepted(v->getPath()))correlation_AllWrtMB->Fill(trignum_1,trignum_1);
+         int trignum_2 = trignum_1;
          for(PathInfoCollection::iterator w = v+1; w!= hltPathsEffWrtMB_.end(); ++w )
            {
-           double binW = TriggerPosition(w->getPath());
-           if(isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_AllWrtMB->Fill(binV,binW);
-           if(!isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_AllWrtMB->Fill(binW,binV);
+           trignum_2++;
+           if(isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_AllWrtMB->Fill(trignum_1,trignum_2);
+           if(!isHLTPathAccepted(w->getPath()) && isHLTPathAccepted(v->getPath()))correlation_AllWrtMB->Fill(trignum_2,trignum_1);
            }
         }
   }// MB trigger fired
@@ -808,6 +813,7 @@ int npath;
         }// Loop over paths  
 
              if(denompassed){
+              ME_Denominator_rate->Fill(denom); 
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
               if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
               {
@@ -839,6 +845,7 @@ int npath;
 
       if (numpassed)
              {
+              ME_Numerator_rate->Fill(num);
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
               if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
               {
@@ -1057,8 +1064,7 @@ void JetMETHLTOfflineSource::beginJob(){
 
 // BeginRun
 void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c){
-if(!isSetup_)
- { 
+
  DQMStore *dbe = 0;
   dbe = Service<DQMStore>().operator->();
   if (dbe) {
@@ -1071,11 +1077,21 @@ if(!isSetup_)
 
  //--- htlConfig_
   bool changed(true);
-   if (!hltConfig_.init(run, c, processname_, changed)) {
-      LogDebug("HLTJetMETDQMSource") << "HLTConfigProvider failed to initialize.";
+  if (hltConfig_.init(run,c,processname_,changed)) {
+    if (changed) {
+      //if(verbose_) 
+      //hltConfig_.dump("Triggers");
+      LogInfo("HLTJetMETDQMSource") 	<< "HLTJetMETDQMSource:analyze: The number of valid triggers has changed since beginning of job." << std::endl;
+      //	<< "Processing of events halted for summary histograms"  << std::endl;
+      //<< "Summary histograms do not support changing configurations." << std::endl
+     
+    }
   }
-
    
+  if ( hltConfig_.size() <= 0 ) {
+    LogError("HLTJetMETDQMSource") << "HLT config size error" << std::endl;
+    return;
+  }
 
 /*
 Here we select the Single Jet, DiJet, MET trigger. SingleJet and DiJet trigger are saved under same object type "TriggerJet". We can easily separate out sing
@@ -1169,76 +1185,78 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
   } //Loop over paths
 
     //---book trigger summary histos
-   if(!isSetup_)
-    {
     std::string foldernm = "/TriggerSummary/";
     if (dbe)   {
       dbe->setCurrentFolder(dirname_ + foldernm);
     }
-    int     TrigBins_ = hltPathsAll_.size();
-    double  TrigMin_ = -0.5;
-    double  TrigMax_ = hltPathsAll_.size()-0.5;
+
     std::string histonm="JetMET_TriggerRate";
     std::string histot="JetMET TriggerRate Summary";
      
-    rate_All = dbe->book1D(histonm.c_str(),histot.c_str(),TrigBins_,TrigMin_,TrigMax_);
+    rate_All = dbe->book1D(histonm.c_str(),histot.c_str(),
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5);
 
 
     histonm="JetMET_TriggerRate_Correlation";
     histot="JetMET TriggerRate Correlation Summary;y&&!x;x&&y";
 
-    correlation_All = dbe->book2D(histonm.c_str(),histot.c_str(),TrigBins_,TrigMin_,TrigMax_,TrigBins_,TrigMin_,TrigMax_);
+    correlation_All = dbe->book2D(histonm.c_str(),histot.c_str(),
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5,hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5);
 
 
     histonm="JetMET_TriggerRate_WrtMuTrigger";
     histot="JetMET TriggerRate Summary Wrt Muon Trigger ";
     
-    rate_AllWrtMu = dbe->book1D(histonm.c_str(),histot.c_str(),TrigBins_,TrigMin_,TrigMax_);
+    rate_AllWrtMu = dbe->book1D(histonm.c_str(),histot.c_str(),
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5);
 
 
     histonm="JetMET_TriggerRate_Correlation_WrtMuTrigger";
     histot="JetMET TriggerRate Correlation Summary Wrt Muon Trigger;y&&!x;x&&y";
 
-    correlation_AllWrtMu = dbe->book2D(histonm.c_str(),histot.c_str(),TrigBins_,TrigMin_,TrigMax_,TrigBins_,TrigMin_,TrigMax_);
+    correlation_AllWrtMu = dbe->book2D(histonm.c_str(),histot.c_str(),
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5,hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5);
 
     histonm="JetMET_TriggerRate_WrtMBTrigger";
     histot="JetMET TriggerRate Summary Wrt MB Trigger";
 
-    rate_AllWrtMB = dbe->book1D(histonm.c_str(),histot.c_str(),TrigBins_,TrigMin_,TrigMax_);
+    rate_AllWrtMB = dbe->book1D(histonm.c_str(),histot.c_str(),
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5);
 
 
     histonm="JetMET_TriggerRate_Correlation_WrtMBTrigger";
     histot="JetMET TriggerRate Correlation Wrt MB Trigger;y&&!x;x&&y";
 
-    correlation_AllWrtMB = dbe->book2D(histonm.c_str(),histot.c_str(),TrigBins_,TrigMin_,TrigMax_,TrigBins_,TrigMin_,TrigMax_);
-    isSetup_ = true;
+    correlation_AllWrtMB = dbe->book2D(histonm.c_str(),histot.c_str(),
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5,hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5);
+   
 
-    }
+    ME_Denominator_rate  = dbe->book1D("ME_Denominator_rate","rate Denominator Triggers",
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5);
+    ME_Numerator_rate  = dbe->book1D("ME_Numerator_rate","rate of Numerator Triggers",
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5); 
+
     //---Set bin label
+    int nname=0;
  
     for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
       std::string labelnm("dummy");
+      std::string denomlabelnm("dummy");
       labelnm = v->getPath(); 
-      int nbins = rate_All->getTH1()->GetNbinsX();
-      for(int ibin=1; ibin<nbins+1; ibin++)
-       {
-       const char * binLabel = rate_All->getTH1()->GetXaxis()->GetBinLabel(ibin);
-       std::string binLabel_str = string(binLabel);
-       if(binLabel_str.compare(labelnm)==0)break;
-       if(binLabel[0]=='\0')
-        {
-        rate_All->setBinLabel(ibin,labelnm);
-        rate_AllWrtMu->setBinLabel(ibin,labelnm);
-        rate_AllWrtMB->setBinLabel(ibin,labelnm);
-        correlation_All->setBinLabel(ibin,labelnm,1);
-        correlation_AllWrtMu->setBinLabel(ibin,labelnm,1);
-        correlation_AllWrtMB->setBinLabel(ibin,labelnm,1);
-        correlation_All->setBinLabel(ibin,labelnm,2);
-        correlation_AllWrtMu->setBinLabel(ibin,labelnm,2);
-        correlation_AllWrtMB->setBinLabel(ibin,labelnm,2);
-        break; 
-        } 
-       }     
+      denomlabelnm = v->getDenomPath();
+      
+      rate_All->setBinLabel(nname+1,labelnm); 
+      rate_AllWrtMu->setBinLabel(nname+1,labelnm);
+      rate_AllWrtMB->setBinLabel(nname+1,labelnm);
+      correlation_All->setBinLabel(nname+1,labelnm,1);
+      correlation_AllWrtMu->setBinLabel(nname+1,labelnm,1);
+      correlation_AllWrtMB->setBinLabel(nname+1,labelnm,1); 
+      correlation_All->setBinLabel(nname+1,labelnm,2);
+      correlation_AllWrtMu->setBinLabel(nname+1,labelnm,2);
+      correlation_AllWrtMB->setBinLabel(nname+1,labelnm,2);
+      ME_Denominator_rate->setBinLabel(nname+1,denomlabelnm);
+      ME_Numerator_rate->setBinLabel(nname+1,labelnm);
+      nname++;
 
     }
 
@@ -3217,7 +3235,7 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffW
 
 }
 
-}  
+  
 }
 
 //--------------------------------------------------------
@@ -3282,24 +3300,8 @@ bool JetMETHLTOfflineSource::isHLTPathAccepted(std::string pathName){
   }
   return output;
 }
-// This returns the position of trigger name defined in summary histograms
-double JetMETHLTOfflineSource::TriggerPosition(std::string trigName){
-      int nbins = rate_All->getTH1()->GetNbinsX();
-      double binVal = -100;
-      for(int ibin=1; ibin<nbins+1; ibin++)
-       {
-       const char * binLabel = rate_All->getTH1()->GetXaxis()->GetBinLabel(ibin);
-       if(binLabel[0]=='\0')continue;
-       std::string binLabel_str = string(binLabel);
-       if(binLabel_str.compare(trigName)!=0)continue;
 
-       if(binLabel_str.compare(trigName)==0){
-         binVal = rate_All->getTH1()->GetBinCenter(ibin);
-         break;
-         }
-       }
-     return binVal;
-}
+
 bool JetMETHLTOfflineSource::isTriggerObjectFound(std::string objectName){
   // processname_, triggerObj_ has to be defined before calling this method
   bool output=false;

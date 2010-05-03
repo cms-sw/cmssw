@@ -194,7 +194,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   LogTrace("TestHits") << "\nnew event";
 
   iEvent.getByLabel(srcName,theTCCollection ); 
-  hitAssociator = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
+  hitAssociator = new TrackerHitAssociator(iEvent);
 
   TrajectoryStateCombiner combiner;
 

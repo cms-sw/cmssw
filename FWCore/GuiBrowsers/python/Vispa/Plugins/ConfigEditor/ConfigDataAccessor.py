@@ -38,7 +38,6 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         self._file = None
         self._filename=""
         self._isReplaceConfig = False
-        self._history=None
         self._cancelOperationsFlag = False
         self._initLists()
     
@@ -135,7 +134,6 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             self._filename = str(filename)
         global imported_configs
         self._isReplaceConfig = False
-        self._history=None
 
 # import input-config and make list of all imported configs
         for i in imported_configs.iterkeys():
@@ -174,7 +172,6 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if self.process():
             self.setProcess(self.process())
             self._readHeaderInfo()
-            self._history=self.process().dumpHistory()
             if not self._isReplaceConfig and hasattr(self.process(),"resetHistory"):
                 self.process().resetHistory()
         else:
@@ -248,15 +245,10 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def dumpPython(self):
         """ dump python configuration """
         logging.debug(__name__ + ": dumpPython")
-        text = None
+        text = ""
         if self.process():
-            text = self.process().dumpPython()
+            text += self.process().dumpPython()
         return text
-
-    def history(self):
-        """ configuration history """
-        logging.debug(__name__ + ": history")
-        return self._history
 
     def configFile(self):
         return self._filename
@@ -562,30 +554,24 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def inputEventContent(self):
         content = []
         allLabels = [self.label(object) for object in self._allObjects]
-        content_objects = {}
         for object in self._allObjects:
             for key, value in self.inputTags(object):
                 elements=str(value).split(":")
                 module = elements[0]
-                if len(elements)>1:
+                if len(elements)>1 and elements[1]!="":
                     product = elements[1]
                 else:
-                    product = ""
-                if len(elements)>2:
+                    product = "*"
+                if len(elements)>2 and elements[2]!="":
                     process = elements[2]
                 else:
                     process = "*"
-                if not module in allLabels:
-                    if not ("*",module,product,process) in content:
-                        content += [("*",module,product,process)]
-                    if "*_"+module+"_"+product+"_"+process in content_objects.keys():
-                        content_objects["*_"+module+"_"+product+"_"+process]+=","+self.label(object)
-                    else:
-                        content_objects["*_"+module+"_"+product+"_"+process]=self.label(object)
-        return (content,content_objects)
+                if not module in allLabels and not ("*",module,product,process) in content:
+                    content += [("*",module,product,process)]
+        return content
 
     def outputEventContent(self):
-        content = [("*",self.label(object),"*",self.process().process) for object in self._allObjects\
+        content = [("*",self.label(object),"*","*") for object in self._allObjects\
                  if self.type(object) in ["EDProducer", "EDFilter", "EDAnalyzer"]]
         return content
     
@@ -600,7 +586,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def outputCommands(self):
         outputModules = [object for object in self._allObjects\
                         if self.type(object) == "OutputModule"]
-        if len(outputModules) > 0 and hasattr(outputModules[0], "outputCommands"):
+        if len(outputModules) > 0 and hasattr(outputModules[0], "inputCommands"):
             return outputModules[0].outputCommands
         else:
             return []
