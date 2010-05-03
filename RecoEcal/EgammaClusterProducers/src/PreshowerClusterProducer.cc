@@ -33,6 +33,9 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "CondFormats/DataRecord/interface/ESGainRcd.h"
+#include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
+#include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
 #include <fstream>
 
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerClusterProducer.h"
@@ -56,12 +59,6 @@ PreshowerClusterProducer::PreshowerClusterProducer(const edm::ParameterSet& ps) 
   preshNclust_             = ps.getParameter<int>("preshNclust");
 
   etThresh_ =  ps.getParameter<double>("etThresh");
-
-  // calibration parameters:
-  calib_planeX_ = ps.getParameter<double>("preshCalibPlaneX");
-  calib_planeY_ = ps.getParameter<double>("preshCalibPlaneY");
-  gamma_        = ps.getParameter<double>("preshCalibGamma");
-  mip_          = ps.getParameter<double>("preshCalibMIP");
 
   assocSClusterCollection_ = ps.getParameter<std::string>("assocSClusterCollection");
 
@@ -100,6 +97,8 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   edm::ESHandle<CaloGeometry> geoHandle;
   es.get<CaloGeometryRecord>().get(geoHandle);
 
+  // retrieve ES-EE intercalibration constants
+  set(es);
 
   const CaloSubdetectorGeometry *geometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   const CaloSubdetectorGeometry *& geometry_p = geometry;
@@ -130,6 +129,8 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
    std::map<DetId, EcalRecHit> rechits_map;
    EcalRecHitCollection::const_iterator it;
    for (it = rechits->begin(); it != rechits->end(); it++) {
+     // remove bad ES rechits
+     if (it->recoFlag()==14 || (it->recoFlag()<=10 && it->recoFlag()>=5)) continue;
      //Make the map of DetID, EcalRecHit pairs
      rechits_map.insert(std::make_pair(it->id(), *it));   
    }
@@ -215,7 +216,7 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
 	 // GeV to #MIPs
 	 e1 = e1 / mip_;
 	 e2 = e2 / mip_;
-	 deltaE = gamma_*(calib_planeX_*e1+calib_planeY_*e2);       
+	 deltaE = gamma_*(e1+alpha_*e2);       
        }
        
        //corrected Energy
@@ -253,4 +254,19 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
 
 }
 
- 
+void PreshowerClusterProducer::set(const edm::EventSetup& es) {
+
+  es.get<ESGainRcd>().get(esgain_);
+  const ESGain *gain = esgain_.product();
+
+  es.get<ESMIPToGeVConstantRcd>().get(esMIPToGeV_);
+  const ESMIPToGeVConstant *mipToGeV = esMIPToGeV_.product();
+
+  es.get<ESEEIntercalibConstantsRcd>().get(esEEInterCalib_);
+  const ESEEIntercalibConstants *esEEInterCalib = esEEInterCalib_.product();
+
+  double ESGain = gain->getESGain();
+  mip_ = (ESGain == 1) ? mipToGeV->getESValueLow() : mipToGeV->getESValueHigh(); 
+  gamma_ = (ESGain == 1) ? esEEInterCalib->getGammaLow() : esEEInterCalib->getGammaHigh();
+  alpha_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow() : esEEInterCalib->getAlphaHigh();
+}

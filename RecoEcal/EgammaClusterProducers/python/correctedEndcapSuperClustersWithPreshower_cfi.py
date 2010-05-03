@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # Preshower cluster producer
 correctedEndcapSuperClustersWithPreshower = cms.EDProducer("PreshowerClusterProducer",
-    preshCalibGamma = cms.double(0.024), ## 0.020
 
     preshStripEnergyCut = cms.double(0.0),
     preshClusterCollectionY = cms.string('preshowerYClusters'),
@@ -15,9 +14,6 @@ correctedEndcapSuperClustersWithPreshower = cms.EDProducer("PreshowerClusterProd
     preshRecHitProducer = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     # name for output collections
     preshClusterCollectionX = cms.string('preshowerXClusters'),
-    preshCalibPlaneY = cms.double(0.7),
-    preshCalibPlaneX = cms.double(1.0),
-    preshCalibMIP = cms.double(81.1e-6), ## 78.5e-6 
 
     #InputTag endcapSClusterProducer  = islandSuperClusters:islandEndcapSuperClusters
     endcapSClusterProducer = cms.InputTag("correctedIslandEndcapSuperClusters"),

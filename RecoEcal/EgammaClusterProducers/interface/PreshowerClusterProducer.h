@@ -6,16 +6,15 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterAlgo.h"
-
-
+#include "CondFormats/ESObjects/interface/ESGain.h"
+#include "CondFormats/ESObjects/interface/ESMIPToGeVConstant.h"
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 
 class PreshowerClusterProducer : public edm::EDProducer {
 
@@ -28,6 +27,7 @@ class PreshowerClusterProducer : public edm::EDProducer {
   ~PreshowerClusterProducer();
 
   virtual void produce( edm::Event& evt, const edm::EventSetup& es);
+  void set(const edm::EventSetup& es);
 
  private:
 
@@ -49,10 +49,12 @@ class PreshowerClusterProducer : public edm::EDProducer {
   // association parameters:
   std::string assocSClusterCollection_;    // name of super cluster output collection
 
-  double calib_planeX_;
-  double calib_planeY_;
+  edm::ESHandle<ESGain> esgain_;
+  edm::ESHandle<ESMIPToGeVConstant> esMIPToGeV_;
+  edm::ESHandle<ESEEIntercalibConstants> esEEInterCalib_;
   double mip_;
   double gamma_;
+  double alpha_;
 
   PreshowerClusterAlgo * presh_algo; // algorithm doing the real work
    // The set of used DetID's
