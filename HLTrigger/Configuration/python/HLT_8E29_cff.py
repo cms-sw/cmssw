@@ -1,13 +1,16 @@
-# /dev/CMSSW_3_6_0/8E29/V8 (CMSSW_3_6_0_HLT3)
+# /dev/CMSSW_3_6_0/8E29/V9 (CMSSW_3_6_0_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/8E29/V8')
+  tableName = cms.string('/dev/CMSSW_3_6_0/8E29/V9')
 )
 
 streams = cms.PSet( 
+  Offline = cms.vstring(  ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  RPCMON = cms.vstring( 'RPCMonitor' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   Calibration = cms.vstring( 'TestEnables' ),
@@ -23,18 +26,19 @@ streams = cms.PSet(
     'Cosmics',
     'EGMonitor',
     'EG',
-    'MinimumBias',
     'HcalHPDNoise',
     'ZeroBias',
     'HcalNZS',
     'JetMETTauMonitor',
     'MuMonitor',
-    'RandomTriggers' ),
-  Offline = cms.vstring(  ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  RPCMON = cms.vstring( 'RPCMonitor' )
+    'MinimumBias',
+    'RandomTriggers' )
 )
 datasets = cms.PSet( 
+  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
+  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNormalisation',
+    'AlCa_RPCMuonNoHits',
+    'AlCa_RPCMuonNoTriggers' ),
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
@@ -201,6 +205,13 @@ datasets = cms.PSet(
     'HLT_DoublePhoton4_Upsilon_L1R',
     'HLT_DoublePhoton4_eeRes_L1R',
     'HLT_DoublePhoton5_L1R' ),
+  HcalHPDNoise = cms.vstring(  ),
+  ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
+  HcalNZS = cms.vstring( 'HLT_HcalNZS_8E29',
+    'HLT_HcalPhiSym' ),
+  JetMETTauMonitor = cms.vstring( 'HLT_L1Jet6U',
+    'HLT_L1MET20' ),
+  MuMonitor = cms.vstring( 'HLT_L1Mu' ),
   MinimumBias = cms.vstring( 'HLT_IsoTrackHB_8E29',
     'HLT_IsoTrackHE_8E29',
     'HLT_HighMultiplicityBSC',
@@ -212,18 +223,7 @@ datasets = cms.PSet(
     'HLT_StoppedHSCP_8E29',
     'HLT_PixelTracks_Multiplicity40',
     'HLT_PixelTracks_Multiplicity70' ),
-  HcalHPDNoise = cms.vstring(  ),
-  ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
-  HcalNZS = cms.vstring( 'HLT_HcalNZS_8E29',
-    'HLT_HcalPhiSym' ),
-  JetMETTauMonitor = cms.vstring( 'HLT_L1Jet6U',
-    'HLT_L1MET20' ),
-  MuMonitor = cms.vstring( 'HLT_L1Mu' ),
-  RandomTriggers = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
-  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNormalisation',
-    'AlCa_RPCMuonNoHits',
-    'AlCa_RPCMuonNoTriggers' )
+  RandomTriggers = cms.vstring(  )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",

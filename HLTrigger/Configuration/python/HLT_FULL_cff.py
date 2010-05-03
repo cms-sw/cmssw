@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/HLT/V57 (CMSSW_3_6_0_HLT3)
+# /dev/CMSSW_3_6_0/HLT/V58 (CMSSW_3_6_0_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HLT/V57')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HLT/V58')
 )
 
 streams = cms.PSet( 
@@ -26,12 +26,12 @@ streams = cms.PSet(
     'Cosmics',
     'EGMonitor',
     'EG',
-    'MinimumBias',
     'HcalHPDNoise',
     'ZeroBias',
     'HcalNZS',
     'JetMETTauMonitor',
     'MuMonitor',
+    'MinimumBias',
     'RandomTriggers' )
 )
 datasets = cms.PSet( 
@@ -262,6 +262,28 @@ datasets = cms.PSet(
     'HLT_DoublePhoton4_Upsilon_L1R',
     'HLT_DoublePhoton4_eeRes_L1R',
     'HLT_DoublePhoton5_L1R' ),
+  HcalHPDNoise = cms.vstring( 'HLT_TechTrigHCALNoise',
+    'HLT_GlobalRunHPDNoise' ),
+  ZeroBias = cms.vstring( 'HLT_L1_BPTX_PlusOnly',
+    'HLT_L1_BPTX_MinusOnly',
+    'HLT_L1_BPTX',
+    'HLT_Physics',
+    'HLT_ZeroBias' ),
+  HcalNZS = cms.vstring( 'HLT_HcalNZS_8E29',
+    'HLT_HcalPhiSym' ),
+  JetMETTauMonitor = cms.vstring( 'HLT_L1Jet10U',
+    'HLT_L1SingleCenJet',
+    'HLT_L1SingleTauJet',
+    'HLT_L1Jet6U_BPTX',
+    'HLT_L1Jet6U',
+    'HLT_L1SingleCenJet_BPTX',
+    'HLT_L1SingleForJet_BPTX',
+    'HLT_L1SingleTauJet_BPTX',
+    'HLT_L1MET20',
+    'HLT_L1SingleForJet',
+    'HLT_L1Jet10U_BPTX' ),
+  MuMonitor = cms.vstring( 'HLT_L1Mu',
+    'HLT_L1MuOpen_BPTX' ),
   MinimumBias = cms.vstring( 'HLT_Activity_DT',
     'HLT_L1Tech_HCAL_HF_coincidence_PM',
     'HLT_L1_HFtech',
@@ -295,28 +317,6 @@ datasets = cms.PSet(
     'HLT_L1_BscMinBiasOR_BeamGas',
     'HLT_L1_BptxXOR_BscMinBiasOR',
     'HLT_PixelTracks_Multiplicity70' ),
-  HcalHPDNoise = cms.vstring( 'HLT_TechTrigHCALNoise',
-    'HLT_GlobalRunHPDNoise' ),
-  ZeroBias = cms.vstring( 'HLT_L1_BPTX_PlusOnly',
-    'HLT_L1_BPTX_MinusOnly',
-    'HLT_L1_BPTX',
-    'HLT_Physics',
-    'HLT_ZeroBias' ),
-  HcalNZS = cms.vstring( 'HLT_HcalNZS_8E29',
-    'HLT_HcalPhiSym' ),
-  JetMETTauMonitor = cms.vstring( 'HLT_L1Jet10U',
-    'HLT_L1SingleCenJet',
-    'HLT_L1SingleTauJet',
-    'HLT_L1Jet6U_BPTX',
-    'HLT_L1Jet6U',
-    'HLT_L1SingleCenJet_BPTX',
-    'HLT_L1SingleForJet_BPTX',
-    'HLT_L1SingleTauJet_BPTX',
-    'HLT_L1MET20',
-    'HLT_L1SingleForJet',
-    'HLT_L1Jet10U_BPTX' ),
-  MuMonitor = cms.vstring( 'HLT_L1Mu',
-    'HLT_L1MuOpen_BPTX' ),
   RandomTriggers = cms.vstring( 'HLT_Random' )
 )
 
@@ -13047,7 +13047,7 @@ hltL1sL1BptxXORBscMinBiasOR = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 5 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_BptxXOR_BscMinBiasOR" ),
+    L1SeedsLogicalExpression = cms.string( "L1_BscMinBiasOR" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
