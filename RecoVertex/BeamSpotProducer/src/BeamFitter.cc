@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.50 2010/04/13 10:52:57 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.51 2010/04/30 22:36:08 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -445,7 +445,7 @@ bool BeamFitter::runFitter() {
       // 	fbeamspot.setType(reco::BeamSpot::Bad); // bad d0-phi and PV fits ==> FIXME: Add type to BeamSpot.h?
     }
 
-    if(writeTxt_ && fasciiFile.is_open()) dumpTxtFile(outputTxt_,true); // all reaults
+    if(writeTxt_ ) dumpTxtFile(outputTxt_,true); // all reaults
     if(writeDIPTxt_ && fasciiDIP.is_open()) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
 
     // retrieve histogram for Vz

@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.20 2010/03/20 14:40:56 jengbou Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.21 2010/04/03 10:17:13 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -43,6 +43,8 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
   ftotalevents = 0;
   ftmprun0 = ftmprun = -1;
   countLumi_ = 0;
+  beginLumiOfBSFit_ = endLumiOfBSFit_ = -1;
+  
 }
 
 
@@ -75,10 +77,12 @@ BeamSpotAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   if ( countLumi_ == 0 || (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) ) {
     ftmprun0 = lumiSeg.run();
     ftmprun = ftmprun0;
+    beginLumiOfBSFit_ = lumiSeg.luminosityBlock();
   }
+    
   countLumi_++;
   //std::cout << "Lumi # " << countLumi_ << std::endl;
-  
+
 }
 
 //--------------------------------------------------------
@@ -86,12 +90,16 @@ void
 BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 									 const edm::EventSetup& iSetup) {
 
+    endLumiOfBSFit_ = lumiSeg.luminosityBlock();
+    
 	if ( fitNLumi_ == -1 && resetFitNLumi_ == -1 ) return;
 	
 	if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
 
-	int * LSRange = theBeamFitter->getFitLSRange();
-	if (theBeamFitter->runFitter()){
+    theBeamFitter->setFitLSRange(beginLumiOfBSFit_,endLumiOfBSFit_);
+    int * LSRange = theBeamFitter->getFitLSRange();
+
+    if (theBeamFitter->runFitter()){
 		reco::BeamSpot bs = theBeamFitter->getBeamSpot();
 		std::cout << "\n RESULTS OF DEFAULT FIT " << std::endl;
 		std::cout << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl;
