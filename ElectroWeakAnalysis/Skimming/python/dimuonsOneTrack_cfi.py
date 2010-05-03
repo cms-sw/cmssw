@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dimuonsOneTrack = cms.EDFilter("CandViewShallowCloneCombiner",
+dimuonsOneTrack = cms.EDProducer("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(False),
     cut = cms.string('mass > 20'),
 #    decay = cms.string('selectedLayer1Muons@+ goodTracks@-')
