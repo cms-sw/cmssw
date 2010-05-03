@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: mangano $
-// $Date: 2009/09/29 14:22:16 $
-// $Revision: 1.24 $
+// $Author: stenson $
+// $Date: 2010/05/03 23:24:55 $
+// $Revision: 1.25 $
 //
 
 #include <memory>
@@ -112,6 +112,7 @@ namespace cms
     double shareFrac =  conf_.getParameter<double>("ShareFrac");
   
     bool promoteQuality = conf_.getParameter<bool>("promoteTrackQuality");
+    bool allowFirstHitShare = conf_.getParameter<bool>("allowFirstHitShare");
 //
 
     // New track quality should be read from the file
@@ -291,6 +292,7 @@ namespace cms
 	std::vector<const TrackingRecHit*>& jHits = rh2[track2]; 
 	unsigned nh2 = jHits.size();
         int noverlap=0;
+        int firstoverlap=0;
 	for ( unsigned ih=0; ih<nh1; ++ih ) { 
 	  const TrackingRecHit* it = iHits[ih];
           if (it->isValid()){
@@ -301,11 +303,17 @@ namespace cms
 	      if (jt->isValid()){
                if (!use_sharesInput){
                 float delta = fabs ( it->localPosition().x()-jt->localPosition().x() ); 
-                if ((it->geographicalId()==jt->geographicalId())&&(delta<epsilon))noverlap++;
+                if ((it->geographicalId()==jt->geographicalId())&&(delta<epsilon)) {
+		  noverlap++;
+		  if ( allowFirstHitShare && ( ih == 0 ) && ( jh == 0 ) ) firstoverlap=1;
+		}
                }else{
-                if ( it->sharesInput(jt,TrackingRecHit::some) )noverlap++;
-               }
-              }
+		if ( it->sharesInput(jt,TrackingRecHit::some) ) {
+		  noverlap++;
+		  if ( allowFirstHitShare && ( ih == 0 ) && ( jh == 0 ) ) firstoverlap=1;
+		}
+	       }
+	      }
             }
           }
         }
@@ -313,7 +321,7 @@ namespace cms
 	int nhit1 = track->numberOfValidHits();
 	int nhit2 = track2->numberOfValidHits();
 	//std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->numberOfValidHits() << " "  << track2->numberOfValidHits() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
-        if ( noverlap > (std::min(nhit1,nhit2))*shareFrac ) {
+        if ( (noverlap-firstoverlap) > (std::min(nhit1,nhit2)-firstoverlap)*shareFrac ) {
           if ( nhit1 > nhit2 ){
             selected2[j]=0; 
 	    selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1

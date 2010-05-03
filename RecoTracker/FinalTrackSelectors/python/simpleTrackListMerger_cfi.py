@@ -36,6 +36,7 @@ simpleTrackListMerger = cms.EDProducer("SimpleTrackListMerger",
     TrackProducer1 = cms.string(''),
     # set new quality for confirmed tracks
     promoteTrackQuality = cms.bool(False),
+    allowFirstHitShare = cms.bool(True),
     newQuality = cms.string('confirmed'),
     copyExtras = cms.untracked.bool(False)
 )
