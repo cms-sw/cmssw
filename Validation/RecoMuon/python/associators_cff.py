@@ -37,21 +37,18 @@ tpToStaTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByDeltaR'),
     label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
     label_tr = cms.InputTag('standAloneMuons','')
-#    label_tr = cms.InputTag('muonSta')
 )
 
 tpToStaUpdTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByDeltaR'),
     label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
     label_tr = cms.InputTag('standAloneMuons','UpdatedAtVtx')
-#    label_tr = cms.InputTag('muonSta')
 )
 
 tpToGlbTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByDeltaR'),
     label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
     label_tr = cms.InputTag('globalMuons')
-#    label_tr = cms.InputTag('muonGlb')
 )
 
 tpToStaSETTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
@@ -262,14 +259,13 @@ tpToGlbCosmicMuonAssociation.UseMuon = True
 #
 
 muonAssociation_seq = cms.Sequence(
-    tpToTkMuonAssociation
-    +tpToStaMuonAssociation+tpToStaUpdMuonAssociation+tpToGlbMuonAssociation
-    +tpToTkmuTrackAssociation
-#    +tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToStaUpdTrackAssociation+tpToGlbTrackAssociation
+    (tpToTkMuonAssociation+tpToStaMuonAssociation+tpToStaUpdMuonAssociation+tpToGlbMuonAssociation)
+    +(tpToTkmuTrackAssociation)
+#   +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToStaUpdTrackAssociation+tpToGlbTrackAssociation)
 )
-muonAssociationTEV_seq = cms.Sequence((
-    tpToTevFirstMuonAssociation+tpToTevPickyMuonAssociation)
-#    +(tpToTevFirstTrackAssociation+tpToTevPickyTrackAssociation))
+muonAssociationTEV_seq = cms.Sequence(
+    (tpToTevFirstMuonAssociation+tpToTevPickyMuonAssociation)
+#    +(tpToTevFirstTrackAssociation+tpToTevPickyTrackAssociation)
 )
 muonAssociationSET_seq = cms.Sequence(
     (tpToStaSETMuonAssociation+tpToStaSETUpdMuonAssociation+tpToGlbSETMuonAssociation)

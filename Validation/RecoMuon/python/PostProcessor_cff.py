@@ -92,7 +92,7 @@ postProcessorMuonMultiTrackCompFS = cms.EDAnalyzer("DQMGenericClient",
 
 
 postProcessorRecoMuon = cms.EDAnalyzer("DQMGenericClient",
-    subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_*",),
+    subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc"),
 
     efficiency = cms.vstring("Trk/EffP   'Efficiency vs p'     Trk/P   Muons/SimP  ",
                              "Trk/EffPt  'Efficiency vs p_{T}' Trk/Pt  Muons/SimPt ",
@@ -159,7 +159,7 @@ postProcessorRecoMuon = cms.EDAnalyzer("DQMGenericClient",
 
 postProcessorRecoMuonComp = cms.EDAnalyzer(
     "DQMGenericClient",
-    subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc", "Muons/RecoMuonV/RecoMuon_TrackAssoc",),
+    subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc"),
     efficiency = cms.vstring(
     "Eff_GlbTrk_Eta 'Eff_{GLB,TK} vs #eta' Glb/EffEta Trk/EffEta",
     "Eff_GlbTrk_P 'Eff_{GLB,TK} vs p' Glb/EffP Trk/EffP",
