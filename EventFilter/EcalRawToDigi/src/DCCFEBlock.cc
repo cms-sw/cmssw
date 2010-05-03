@@ -69,16 +69,16 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   
   ////////////////////////////////////////////////////
   // check that expected fe_id==fe_expected is on
-  if( checkFeId_              &&
+  if (checkFeId_              &&
       expTowerID_ != towerId_ &&
       expTowerID_ <= mapper_->getNumChannelsInDcc(activeDCC) ){ // fe_id must be within range foreseen in the FED 
-    if( ! DCCDataUnpacker::silentMode_ ){
+    if (! DCCDataUnpacker::silentMode_) {
       edm::LogWarning("IncorrectBlock")
-        <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
-        <<"\n Expected FE_id is "<<expTowerID_<<" while "<<towerId_<<" was found "
-        <<"\n => Skipping to next FE block...";
-     } 
-   
+        << "Expected tower ID is " << expTowerID_ << " while " << towerId_ << " was found"
+        << " (L1A " << event_->l1A() << " fed " << mapper_->getActiveDCC() << ")\n"
+        << "  => Skipping to next FE block...";
+    }
+    
     fillEcalElectronicsError(invalidTTIds_); 
     
     updateEventPointers();

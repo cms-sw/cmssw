@@ -103,11 +103,10 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
       if( ( stripId == lastStripId_ && xtalId <= lastXtalId_ ) ||
           (stripId < lastStripId_))
         {
-          if( ! DCCDataUnpacker::silentMode_ ){  
-              edm::LogWarning("IncorrectBlock")
-              <<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-              <<"\n Xtal id was expected to increase but it didn't. "
-              <<"\n Last valid unpacked xtal was "<<lastXtalId_<<" while current xtal is "<<xtalId<<".";
+          if (! DCCDataUnpacker::silentMode_) {
+            edm::LogWarning("IncorrectBlock")
+              << "Xtal id was expected to increase but it didn't - last valid xtal id was " << lastXtalId_ << " while current xtal is " << xtalId
+              << " (LV1 " << event_->l1A() << " fed " << mapper_->getActiveDCC() << " tower " << towerId_ << ")";
           }
           
           int st = lastStripId_;
@@ -190,10 +189,10 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
       }
     // get rid of channels which are stuck in gain0
     if(firstGainZeroSampID<3) {isSaturation=false; }
-
+    
     if (! DCCDataUnpacker::silentMode_) {
       edm::LogWarning("IncorrectBlock")
-        << "Gain zero " << (isSaturation ? "with features of saturation" : "" )
+        << "Gain zero" << (isSaturation ? " with features of saturation" : " " )
         << " was found for Tower Block in strip " << stripId << " and xtal " << xtalId
         << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC() << " tower " << towerId_ << ")";
     }
@@ -231,19 +230,19 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   }
   
   
-  if (numGainWrong>0) {
-    if( ! DCCDataUnpacker::silentMode_ ){
+  if (numGainWrong > 0) {
+    if (! DCCDataUnpacker::silentMode_) {
       edm::LogWarning("IncorrectBlock")
-        <<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-        <<"\n A wrong gain transition switch was found in strip "<<stripId<<" and xtal "<<xtalId;    
+        << "A wrong gain transition switch was found for Tower Block in strip " << stripId << " and xtal " << xtalId
+        << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC() << " tower " << towerId_ << ")";
     }
     
     (*invalidGainsSwitch_)->push_back(*pDetId_);
     errorOnXtal = true;
-  } 
+  }
   
   //Add frame to collection only if all data format and gain rules are respected
-  if(errorOnXtal&&addedFrame) {
+  if (errorOnXtal && addedFrame) {
     (*digis_)->pop_back();
   }
   

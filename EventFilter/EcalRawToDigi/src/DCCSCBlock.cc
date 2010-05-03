@@ -67,13 +67,13 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
 
   // check id in case of 0suppressed data
 
-  else if(zs_){
+  else if(zs_) {
 
     // Check for valid Ids 1) values out of range
 
-    if(stripId == 0 || stripId > 5 || xtalId == 0 || xtalId > 5){
-
-      if( ! DCCDataUnpacker::silentMode_ ){
+    if (stripId == 0 || stripId > 5 || xtalId == 0 || xtalId > 5) {
+      
+      if (! DCCDataUnpacker::silentMode_ ) {
         edm::LogWarning("IncorrectBlock")
           <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\n Invalid strip : "<<stripId<<" or xtal : "<<xtalId
@@ -97,21 +97,19 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
 
       // return here, so to skip all following checks
       return SKIP_BLOCK_UNPACKING;
-
-    }else{
-                  
+    }
+    else {
       // Check for zs valid Ids 2) if channel-in-strip has increased wrt previous xtal
       //                        3) if strip has increased wrt previous xtal
-      if( ( stripId == lastStripId_ && xtalId <= lastXtalId_ ) ||
+      if ((stripId == lastStripId_ && xtalId <= lastXtalId_ ) ||
           (stripId < lastStripId_))
         {
-          if( ! DCCDataUnpacker::silentMode_ ){ 
+          if (! DCCDataUnpacker::silentMode_) {
             edm::LogWarning("IncorrectBlock")
-              <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-              <<"\n Xtal id was expected to increase but it didn't. "
-              <<"\n Last unpacked xtal was "<<lastXtalId_<<" while current xtal is "<<xtalId<<".";
+              << "Xtal id was expected to increase but it didn't - last xtal id was " << lastXtalId_ << " while current xtal is " << xtalId
+              << " (LV1 " << event_->l1A() << " fed " << mapper_->getActiveDCC() << " tower " << towerId_ << ")";
           }
-
+          
           int st = lastStripId_;
           int ch = lastXtalId_;
           ch++;
@@ -229,20 +227,20 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
       }
     }
     
-    if (numGainWrong>0) {
-      if( ! DCCDataUnpacker::silentMode_ ){
+    if (numGainWrong > 0) {
+      if (! DCCDataUnpacker::silentMode_) {
         edm::LogWarning("IncorrectBlock")
-          <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-          <<"\n A wrong gain transition switch was found in strip "<<stripId<<" and xtal "<<xtalId;    
+          << "A wrong gain transition switch was found for SC Block in strip " << stripId << " and xtal " << xtalId
+          << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC() << " tower " << towerId_ << ")";
       }
       
       (*invalidGainsSwitch_)->push_back(*pDetId_);
       
       errorOnXtal = true;
-    } 
+    }
     
     //Add frame to collection only if all data format and gain rules are respected
-    if(errorOnXtal&&addedFrame) {
+    if (errorOnXtal && addedFrame) {
       (*digis_)->pop_back();
     }
     
