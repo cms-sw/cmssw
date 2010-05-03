@@ -219,6 +219,34 @@ if ( @done_runs == 0 ) {
 
           }
 
+          if ( -e "$config{'ec_mon_master_rundir'}/dqm-data/status/.$loc.$num.$lun.$out.$fun.$fil.$ful.LED-STD.mon_done" ) {
+
+            print "Transferring led run $config{'ec_mon_master_rundir'}/daq-data/$run.dat to LMF\n" if ( $opts{'debug'} );
+
+            $status = 0;
+            system("scp -p -o StrictHostKeyChecking=no $config{'ec_mon_master_rundir'}/daq-data/$run.dat ecallaser\@srv-C2D17-19:/localdata/disk0/ecallaser/data/streams/LocalRuns/ >> /dev/null 2>&1") unless ( $opts{'norun'} );
+
+            if ( $status ) {
+
+              print "Problems with the transfer of led run $config{'ec_mon_master_rundir'}/daq-data/$run.dat to LMF\n";
+
+              open LOGFILE, ">>$config{'ec_mon_master_rundir'}/dqm-data/$config{'ec_mon_master_log'}";
+              print LOGFILE localtime()." - ec_mon_archive: problems with the transfer of led run $config{'ec_mon_master_rundir'}/daq-data/$run.dat to LMF\n";
+              close LOGFILE;
+
+              system("rm $config{'ec_mon_master_rundir'}/dqm-data/.ec_mon_master_archive_lock$config{'ec_mon_master_name'}");
+              exit 1;
+
+            }
+
+            print "Copied led run $config{'ec_mon_master_rundir'}/daq-data/$run.dat to LMF\n" if ( $opts{'debug'} );
+
+            open LOGFILE, ">>$config{'ec_mon_master_rundir'}/dqm-data/$config{'ec_mon_master_log'}";
+            print LOGFILE localtime()." - ec_mon_archive: copied led run $config{'ec_mon_master_rundir'}/daq-data/$run.dat to LMF\n";
+            close LOGFILE;
+
+          }
+
         }
 
       }
