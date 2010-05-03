@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2010/03/28 09:21:49 $
- * $Revision: 1.196 $
+ * $Date: 2010/04/14 14:33:14 $
+ * $Revision: 1.197 $
  * \author G. Della Ricca
  *
 */
@@ -2129,7 +2129,9 @@ void EESummaryClient::analyze(void) {
 
               if ( h2 && h3 ) {
 
-                float emulErrorVal = h2->GetBinContent( ix, iy ) + h3->GetBinContent( ix, iy );
+                // float emulErrorVal = h2->GetBinContent( ix, iy ) + h3->GetBinContent( ix, iy );
+                float emulErrorVal = h2->GetBinContent( ix, iy );
+
                 if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
 
               }

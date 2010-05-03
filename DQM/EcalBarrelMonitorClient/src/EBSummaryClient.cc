@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/04/14 14:54:29 $
- * $Revision: 1.208 $
+ * $Date: 2010/04/14 14:55:49 $
+ * $Revision: 1.209 $
  * \author G. Della Ricca
  *
 */
@@ -1545,9 +1545,11 @@ void EBSummaryClient::analyze(void) {
 
               if ( h2 && h3 ) {
 
-                float emulErrorVal = h2->GetBinContent( ie, ip ) + h3->GetBinContent( ie, ip );
-                if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
+                // float emulErrorVal = h2->GetBinContent( ie, ip ) + h3->GetBinContent( ie, ip );
+                float emulErrorVal = h2->GetBinContent( ie, ip );
 
+                if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
+                
               }
 
               if ( xval!=0 && hadNonZeroInterest ) xval = 1;
