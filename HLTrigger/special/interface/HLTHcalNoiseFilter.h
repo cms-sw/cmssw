@@ -2,7 +2,7 @@
 #define HLTHcalNoiseFilter_h
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class HLTHcalNoiseFilter : public HLTFilter {
    public:

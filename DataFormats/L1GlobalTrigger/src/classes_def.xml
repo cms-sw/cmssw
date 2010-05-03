@@ -60,4 +60,7 @@
   <class name="L1GtLogicParser::TokenRPN"/>
   <class name="std::vector<L1GtLogicParser::TokenRPN> "/>
 
+  <class name="L1GtTriggerMenuLite"/>
+  <class name="edm::Wrapper<L1GtTriggerMenuLite>" splitLevel="0"/>
+
 </lcgdict>

@@ -17,6 +17,10 @@
 #include "FWCore/Sources/interface/ExternalInputSource.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+
+#include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
 
 #include <unistd.h>
 #include <string>
@@ -25,6 +29,12 @@
 #include <cstring>
 #include "interface/shared/fed_header.h"
 #include "interface/shared/fed_trailer.h"
+
+
+namespace errorstreamsource{
+  static unsigned int gtpEvmId_ =  FEDNumbering::MINTriggerGTPFEDID;
+  static unsigned int gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
+}
 
 
 class ErrorStreamSource : public edm::ExternalInputSource
@@ -137,6 +147,9 @@ bool ErrorStreamSource::produce(edm::Event& e)
   for (unsigned int i=0;i<1024;i++) {
     totalEventSize += fedSize[i];
   }
+  unsigned int gtpevmsize = fedSize[errorstreamsource::gtpEvmId_];
+  if(gtpevmsize>0)
+    evf::evtn::evm_board_setformat(gtpevmsize);
   char *event = new char[totalEventSize];
   fin_.read(event,totalEventSize);
   while(totalEventSize>0) {
@@ -147,6 +160,13 @@ bool ErrorStreamSource::produce(edm::Event& e)
     totalEventSize -= (fedsize - 8);
     fedh_t *fedh = (fedh_t *)(event+totalEventSize);
     unsigned int soid = FED_SOID_EXTRACT(fedh->sourceid);
+    if(soid==errorstreamsource::gtpEvmId_){
+      unsigned int gpsl = evf::evtn::getgpslow((unsigned char*)fedh);
+      unsigned int gpsh = evf::evtn::getgpshigh((unsigned char*)fedh);
+      edm::TimeValue_t time = gpsh;
+      time = (time << 32) + gpsl;
+      setTime(time);
+    }
     FEDRawData& fedData=result->FEDData(soid);
     fedData.resize(fedsize);
     memcpy(fedData.data(),event+totalEventSize,fedsize);

@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -25,6 +24,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 class HLTMonBitSummary : public edm::EDAnalyzer {
  public:
@@ -37,10 +37,13 @@ class HLTMonBitSummary : public edm::EDAnalyzer {
   virtual void endJob() ;
   virtual void beginRun(const edm::Run  & r, const edm::EventSetup  &);
   //  virtual void endRun(const edm::Run &, const edm::EventSetup &);
+  virtual void configSelector(std::vector<std::string > selectTriggers, std::vector<std::string > & theSelectTriggers );
 
   edm::InputTag inputTag_;
-  edm::TriggerNames triggerNames_;
   DQMStore * dbe_;
+
+  HLTConfigProvider hltConfig_;
+  bool hltchange_;
 
   std::vector<std::string > HLTPathsByName_;
   std::vector<std::string > HLTPathNamesConfig_;
@@ -48,6 +51,7 @@ class HLTMonBitSummary : public edm::EDAnalyzer {
   std::vector<std::string > HLTPathNamesKey_;
 
   std::vector<std::string > HLTPathDenomName_;
+  std::vector<std::string > HLTPathDenomNamePreVal_;
   std::vector<std::string > filterTypes_;
   std::vector<unsigned int> HLTPathsByIndex_;
   std::string denominator_;

@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.39 2009/12/18 20:44:50 wmtan Exp $
+// $Id: FourVectorHLTOffline.h,v 1.45 2010/03/16 13:29:17 rekovic Exp $
 //
 //
 
@@ -54,7 +54,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
@@ -75,6 +74,9 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/JetReco/interface/JetFloatAssociation.h"
 /* MC
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
@@ -88,14 +90,14 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
-#include "DataFormats/JetReco/interface/JetFloatAssociation.h"
-
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 
+namespace edm {
+   class TriggerNames;
+}
 
 typedef std::multimap<float,int> fimmap ;
 typedef std::set<fimmap , less<fimmap> > mmset;
@@ -107,6 +109,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       void cleanDRMatchSet(mmset& tempSet);
 
+      edm::Handle<trigger::TriggerEvent> fTriggerObj;
+
    private:
       virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
@@ -117,10 +121,19 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       // EndRun
       void endRun(const edm::Run& run, const edm::EventSetup& c);
-      void fillHltMatrix(vector<std::string>);
+      void fillHltMatrix(const edm::TriggerNames & triggerNames);
       void setupHltMatrix(std::string label, vector<std::string>  paths);
+
       void setupHltLsPlots();
       void setupHltBxPlots();
+      void countHLTPathHitsEndLumiBlock(const int& lumi);
+      void countHLTGroupHitsEndLumiBlock(const int& lumi);
+      void countHLTGroupL1HitsEndLumiBlock(const int& lumi);
+      void countHLTGroupBXHitsEndLumiBlock(const int& lumi);
+      int getTriggerTypeParsePathName(const string& pathname);
+      const std::string getL1ConditionModuleName(const string& pathname);
+      bool hasL1Passed(const string& pathname, const edm::TriggerNames & triggerNames);
+      bool hasHLTPassed(const string& pathname, const edm::TriggerNames& triggerNames);
 
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
@@ -144,7 +157,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       */
 
       MonitorElement* ME_HLTAll_LS_;
-      MonitorElement* ME_HLT_bx_;
+      MonitorElement* ME_HLT_BX_;
+      MonitorElement* ME_HLT_CUSTOM_BX_;
       std::vector<MonitorElement*> v_ME_HLTAll_LS_;
 
       std::string pathsSummaryFolder_;
@@ -153,14 +167,20 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::string pathsSummaryFilterCountsFolder_;
       std::string pathsSummaryHLTPathsPerLSFolder_;
       std::string pathsIndividualHLTPathsPerLSFolder_;
+      std::string pathsSummaryHLTPathsPerBXFolder_;
+      std::string fCustomBXPath;
+
+      std::vector<std::string> fGroupName;
 
       unsigned int nLS_; 
+      unsigned int referenceBX_; 
 
       bool plotAll_;
       bool resetMe_;
       int currentRun_;
- 
+      
       unsigned int nBins_; 
+      unsigned int nBinsOneOverEt_; 
       double ptMin_ ;
       double ptMax_ ;
       
@@ -198,6 +218,10 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::vector <std::vector <std::string> > triggerFilters_;
       std::vector <std::vector <uint> > triggerFilterIndices_;
       std::vector <std::pair<std::string, int> > fPathTempCountPair;
+      std::vector <std::pair<std::string, vector<int> > > fPathBxTempCountPair;
+      std::vector <std::pair<std::string, int> > fGroupTempCountPair;
+      std::vector <std::pair<std::string, int> > fGroupL1TempCountPair;
+      std::vector <std::pair<std::string, std::vector<string> > > fGroupNamePathsPair;
 
       std::vector<std::string> specialPaths_;
 
@@ -222,10 +246,16 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
        public:
 
+          void setFilterHistos(MonitorElement* const filters) 
+          {
+              filters_   =  filters;
+          }
+
           void setHistos(
 
             MonitorElement* const NOn, 
             MonitorElement* const onEtOn, 
+            MonitorElement* const onOneOverEtOn, 
             MonitorElement* const onEtavsonPhiOn,  
             MonitorElement* const NOff, 
             MonitorElement* const offEtOff, 
@@ -253,12 +283,12 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
             MonitorElement* const offEtavsoffPhiOnOffUM,
             MonitorElement* const offDRL1Off, 
             MonitorElement* const offDROnOff, 
-            MonitorElement* const l1DRL1On,  
-            MonitorElement* const filters ) 
+            MonitorElement* const l1DRL1On)  
          {
 
               NOn_ = NOn;
               onEtOn_ = onEtOn;
+              onOneOverEtOn_ = onOneOverEtOn;
               onEtavsonPhiOn_ = onEtavsonPhiOn;
               NOff_ = NOff;
               offEtOff_ = offEtOff;
@@ -287,7 +317,6 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
               offDRL1Off_ =  offDRL1Off; 
               offDROnOff_ =  offDROnOff; 
               l1DRL1On_   =  l1DRL1On;
-              filters_   =  filters;
 
          }
 
@@ -296,6 +325,9 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
          }
          MonitorElement * getOnEtOnHisto() {
            return onEtOn_;
+         }
+         MonitorElement * getOnOneOverEtOnHisto() {
+           return onOneOverEtOn_;
          }
          MonitorElement * getOnEtaVsOnPhiOnHisto() {
            return onEtavsonPhiOn_;
@@ -422,7 +454,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
           filterName_(filterName), 
           processName_(processName), 
           objectType_(type),
-          NOn_(0), onEtOn_(0), onEtavsonPhiOn_(0),
+          NOn_(0), onEtOn_(0), onOneOverEtOn_(0), onEtavsonPhiOn_(0), 
           NOff_(0), offEtOff_(0), offEtavsoffPhiOff_(0),
           NL1_(0), l1EtL1_(0), l1Etavsl1PhiL1_(0),
           NL1On_(0), l1EtL1On_(0), l1Etavsl1PhiL1On_(0),
@@ -440,6 +472,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
         PathInfo(std::string denomPathName, std::string pathName, std::string l1pathName, std::string filterName, std::string processName, size_t type,
           MonitorElement *NOn,
           MonitorElement *onEtOn,
+          MonitorElement *onOneOverEtOn,
           MonitorElement *onEtavsonPhiOn,
           MonitorElement *NOff,
           MonitorElement *offEtOff,
@@ -475,7 +508,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
             denomPathName_(denomPathName), 
             pathName_(pathName), l1pathName_(l1pathName), 
             filterName_(filterName), processName_(processName), objectType_(type),
-            NOn_(NOn), onEtOn_(onEtOn), onEtavsonPhiOn_(onEtavsonPhiOn),
+            NOn_(NOn), onEtOn_(onEtOn), onOneOverEtOn_(onOneOverEtOn), onEtavsonPhiOn_(onEtavsonPhiOn), 
             NOff_(NOff), offEtOff_(offEtOff), offEtavsoffPhiOff_(offEtavsoffPhiOff),
             NL1_(NL1), l1EtL1_(l1EtL1), l1Etavsl1PhiL1_(l1Etavsl1PhiL1),
             NL1On_(NL1On), l1EtL1On_(l1EtL1On), l1Etavsl1PhiL1On_(l1Etavsl1PhiL1On),
@@ -492,9 +525,14 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
         {
         };
 
-        bool operator==(const std::string v) 
+        bool operator==(const std::string& v) 
         {
           return v==filterName_;
+        }
+
+        bool operator!=(const std::string& v) 
+        {
+          return v!=filterName_;
         }
 
         float getPtMin() const { return ptmin_; }
@@ -514,7 +552,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
         int objectType_;
         
         // we don't own this data
-        MonitorElement *NOn_, *onEtOn_, *onEtavsonPhiOn_;
+        MonitorElement *NOn_, *onEtOn_, *onOneOverEtOn_, *onEtavsonPhiOn_;
         MonitorElement *NOff_, *offEtOff_, *offEtavsoffPhiOff_;
         MonitorElement *NL1_, *l1EtL1_, *l1Etavsl1PhiL1_;
         MonitorElement *NL1On_, *l1EtL1On_, *l1Etavsl1PhiL1On_;
@@ -563,10 +601,17 @@ class BaseMonitor
 {
   public:
     virtual void clearSets( void ) = 0;
-    virtual void monitorDenominator(FourVectorHLTOffline::PathInfoCollection::iterator v, bool l1accept, const trigger::Vids & idtype, const trigger::Keys & l1k, const trigger::TriggerObjectCollection& toc) = 0;
+    virtual void setPath(FourVectorHLTOffline::PathInfoCollection::iterator v) = 0;
+    virtual void monitorOffline( void ) = 0;
+    virtual void monitorL1( const int l1Index, FourVectorHLTOffline* fv) = 0;
+    virtual void monitorOnline(const int hltIndex, const int l1Index, FourVectorHLTOffline* fv) = 0;
+
+    virtual void matchL1Offline(const trigger::TriggerObject& l1FV, FourVectorHLTOffline* fv, const int& NL1, unsigned int& NL1OffUM) = 0;
+    virtual void matchOnlineL1(const trigger::TriggerObject& onlineFV, const int& l1Index, FourVectorHLTOffline* fv, const int& NOn) = 0;
+    virtual void matchOnlineOffline(const trigger::TriggerObject& onlineFV, FourVectorHLTOffline* fv, const int& NOn) = 0;
+
     virtual void fillL1Match(FourVectorHLTOffline* fv) = 0;
-    virtual void monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc, unsigned int & NOn) = 0;
-    virtual void fillOnlineMatch(FourVectorHLTOffline* fv, const trigger::Keys & l1k,  const trigger::TriggerObjectCollection & toc) = 0;
+    virtual void fillOnlineMatch(const int l1Index, FourVectorHLTOffline* fv) = 0;
 
     virtual bool isTriggerType(int t) = 0;
     virtual ~BaseMonitor(){}
@@ -591,32 +636,21 @@ public:
     void setReco(edm::Handle<T> offColl) { offColl_ = offColl; }
     void setRecoB(edm::Handle<reco::JetTagCollection> offCollB) { offCollB_ = offCollB; }
 
-    void fillOff();
-    void monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1k, const trigger::TriggerObjectCollection & toc);
-    void monitorDenominator(FourVectorHLTOffline::PathInfoCollection::iterator v, bool l1accept, const trigger::Vids & idtype, const trigger::Keys & l1k, const trigger::TriggerObjectCollection& toc);
 
-    void fillL1OffMatch(FourVectorHLTOffline* fv);
-    void fillL1Match(FourVectorHLTOffline* fv)
-    {
-      fillL1OffMatch(fv);
-    }
+    // Monitor methods
 
-    void monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc, unsigned int & NOn);
+    void monitorOffline();
+    void monitorL1(const int l1Index, FourVectorHLTOffline* fv);
+    void monitorOnline(const int hltIndex, const int l1Index, FourVectorHLTOffline* fv);
+    void matchL1Offline(const trigger::TriggerObject& l1FV, FourVectorHLTOffline* fv, const int& NL1, unsigned int& NL1OffUM);
+    void matchOnlineL1(const trigger::TriggerObject& onlineFV, const int& l1Index, FourVectorHLTOffline* fv, const int& NOn);
+    void matchOnlineOffline(const trigger::TriggerObject& onlineFV, FourVectorHLTOffline* fv, const int& NOn);
+    void fillOnlineMatch(const int l1Index, FourVectorHLTOffline* fv);
     void fillOnOffMatch(FourVectorHLTOffline* fv);
-    void fillOnL1Match(FourVectorHLTOffline* fv, const trigger::Keys & l1k,  const trigger::TriggerObjectCollection & toc);
-    void fillOnlineMatch(FourVectorHLTOffline* fv, const trigger::Keys & l1k,  const trigger::TriggerObjectCollection & toc)
-    {
+    void fillOnL1Match(const int l1Index, FourVectorHLTOffline* fv);
+    void fillL1Match(FourVectorHLTOffline* fv);
+    void fillL1OffMatch(FourVectorHLTOffline* fv);
 
-      if(! isTriggerType(v_->getObjectType()) ) return;
-      fillOnOffMatch(fv);
-      fillOnL1Match(fv, l1k, toc);
-
-    }
-
-    void fillOffMatch(FourVectorHLTOffline* fv)
-    {
-      if(! isTriggerType(v_->getObjectType()) ) return;
-    }
     void clearSets();
 
     bool isTriggerType(int t);
@@ -672,6 +706,8 @@ bool objMonData<T>::isTriggerType(int t)
 
   } // end for
 
+  if (t==0) rc = true;
+
   return rc;
 
 }
@@ -694,25 +730,13 @@ bool objMonData<T>::isL1TriggerType(int t)
 }
 
 
+
+
 template <class T> 
-void objMonData<T>::monitorDenominator(FourVectorHLTOffline::PathInfoCollection::iterator v, bool l1accept, const trigger::Vids & idtype, const trigger::Keys & l1k, const trigger::TriggerObjectCollection& toc)
+void objMonData<T>::monitorOffline()
 {
 
- setPath(v);
- 
  if(! isTriggerType(v_->getObjectType()) ) return;
-
- fillOff();
-
- if (l1accept) monitorL1(idtype, l1k, toc);
-
-
-}
-
-
-template <class T> 
-void objMonData<T>::fillOff()
-{
 
  unsigned int NOff = 0;
 
@@ -773,14 +797,24 @@ void objMonData<T>::fillOff()
 
 
 template <class T> 
-void objMonData<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1k, const trigger::TriggerObjectCollection& toc)
+void objMonData<T>::monitorL1(const int l1Index, FourVectorHLTOffline* fv)
 {
 
- unsigned int NL1=0;
- unsigned int NL1OffUM=0;
+  if ( l1Index >= fv->fTriggerObj->sizeFilters() ) return;
 
- trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
- for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
+  unsigned int NL1=0;
+  unsigned int NL1OffUM=0;
+
+  const trigger::TriggerObjectCollection & toc(fv->fTriggerObj->getObjects());
+	const trigger::Vids & idtype = fv->fTriggerObj->filterIds(l1Index);
+	const trigger::Keys & l1k = fv->fTriggerObj->filterKeys(l1Index);
+	bool l1accept = l1k.size() > 0;
+
+  if(!l1accept) return;
+
+  trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+
+  for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
 
    trigger::TriggerObject l1FV = toc[*l1ki];
    if(isL1TriggerType(*idtypeiter))
@@ -803,84 +837,7 @@ void objMonData<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys 
 
       }
 
-      fimmap L1OffDRMatchMap;
-
-      if (offCollB_.isValid()) {
-
-        int j=0;
-        typedef typename reco::JetTagCollection::const_iterator const_iterator;
-        for( const_iterator iter = offCollB_->begin(), iend = offCollB_->end(); iter != iend; ++iter )
-        {
-
-          float recoEta = (*iter).first->eta();
-          float recoPhi = (*iter).first->phi();
-          float recoPt = (*iter).first->pt();
-
-          if (fabs(recoEta) <= EtaMax_ && recoPt >=  EtMin_ )
-          {
-
-            // fill UM histos (no matching required)
-            if(NL1 == 1) {
-
-              NL1OffUM++;
-              v_->getOffEtL1OffUMHisto()->Fill(recoPt);
-              v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(recoEta,recoPhi);
-
-            }
-
-             // make maps of matched objects
-            float dR = reco::deltaR(recoEta,recoPhi,l1FV.eta(),l1FV.phi());
-            if ( dR < 1.0)
-            {
-
-              L1OffDRMatchMap.insert(std::pair<float,int>(dR,j));
-
-            }
-
-          }
-
-          j++;
-
-        }
-
-      }
-      else if (offColl_.isValid()) {
-
-        int j=0;
-        typedef typename T::const_iterator const_iterator;
-        for( const_iterator iter = offColl_->begin(), iend = offColl_->end(); iter != iend; ++iter )
-        {
-
-          if (fabs(iter->eta()) <= EtaMax_ && iter->pt() >=  EtMin_ )
-          {
-
-            // fill UM histos (no matching required)
-            if(NL1 == 1) {
-
-              NL1OffUM++;
-              v_->getOffEtL1OffUMHisto()->Fill(iter->pt());
-              v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(iter->eta(),iter->phi());
-
-            }
-
-            // make maps of matched objects
-            float dR = reco::deltaR(iter->eta(),iter->phi(),l1FV.eta(),l1FV.phi());
-            if ( dR < 1.0) 
-            {
-
-             L1OffDRMatchMap.insert(std::pair<float,int>(dR,j));
-
-            }
-
-          }
-
-          j++;
-
-        }
-
-       }
-       if(! L1OffDRMatchMap.empty())  L1OffDRMatchSet.insert(L1OffDRMatchMap);
-
+      matchL1Offline(l1FV, fv, NL1, NL1OffUM);
 
      } // end if isL1TriggerType
      ++idtypeiter;
@@ -894,32 +851,199 @@ void objMonData<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys 
 
 
 template <class T> 
-void objMonData<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc, unsigned int & NOn)
+void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVectorHLTOffline* fv, const int& NL1, unsigned int& NL1OffUM)
+{
+
+  fimmap L1OffDRMatchMap;
+
+  if (offCollB_.isValid()) {
+
+    int j=0;
+    typedef typename reco::JetTagCollection::const_iterator const_iterator;
+    for( const_iterator iter = offCollB_->begin(), iend = offCollB_->end(); iter != iend; ++iter )
+    {
+
+      float recoEta = (*iter).first->eta();
+      float recoPhi = (*iter).first->phi();
+      float recoPt = (*iter).first->pt();
+
+      if (fabs(recoEta) <= EtaMax_ && recoPt >=  EtMin_ )
+      {
+
+        // fill UM histos (no matching required)
+        if(NL1 == 1) {
+
+          NL1OffUM++;
+          v_->getOffEtL1OffUMHisto()->Fill(recoPt);
+          v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(recoEta,recoPhi);
+
+        }
+
+         // make maps of matched objects
+        float dR = reco::deltaR(recoEta,recoPhi,l1FV.eta(),l1FV.phi());
+        if ( dR < 1.0)
+        {
+
+          L1OffDRMatchMap.insert(std::pair<float,int>(dR,j));
+
+        }
+
+      }
+
+      j++;
+
+    }
+
+  }
+  else if (offColl_.isValid()) {
+
+    int j=0;
+    typedef typename T::const_iterator const_iterator;
+    for( const_iterator iter = offColl_->begin(), iend = offColl_->end(); iter != iend; ++iter )
+    {
+
+      if (fabs(iter->eta()) <= EtaMax_ && iter->pt() >=  EtMin_ )
+      {
+
+        // fill UM histos (no matching required)
+        if(NL1 == 1) {
+
+          NL1OffUM++;
+          v_->getOffEtL1OffUMHisto()->Fill(iter->pt());
+          v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(iter->eta(),iter->phi());
+
+        }
+
+        // make maps of matched objects
+        float dR = reco::deltaR(iter->eta(),iter->phi(),l1FV.eta(),l1FV.phi());
+        if ( dR < 1.0) 
+        {
+
+         L1OffDRMatchMap.insert(std::pair<float,int>(dR,j));
+
+        }
+
+      }
+
+      j++;
+
+    }
+
+  }
+  if(! L1OffDRMatchMap.empty())  L1OffDRMatchSet.insert(L1OffDRMatchMap);
+
+}
+
+
+template <class T> 
+void objMonData<T>::monitorOnline(const int hltIndex, const int l1Index, FourVectorHLTOffline* fv)
+{
+
+  //if(! isTriggerType(v_->getObjectType()) ) return;
+
+  // Get keys of objects passed by the last filter
+  const trigger::Keys & k = fv->fTriggerObj->filterKeys(hltIndex);
+
+  const trigger::TriggerObjectCollection & toc(fv->fTriggerObj->getObjects());
+
+  unsigned int NOn=0;
+
+  // Loop over HLT objects
+  for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+
+	  trigger::TriggerObject onlineFV = toc[*ki];
+	
+	  if (fabs(onlineFV.eta()) <= EtaMax_ && onlineFV.pt() >= EtMin_)
+	  { 
+	
+	    NOn++;    
+	
+	    v_->getOnEtOnHisto()->Fill(onlineFV.pt());
+	    v_->getOnOneOverEtOnHisto()->Fill(1./onlineFV.pt());
+	    v_->getOnEtaVsOnPhiOnHisto()->Fill(onlineFV.eta(), onlineFV.phi());
+	
+	  }
+	  else {
+	
+	    return;
+	
+	  }
+
+    matchOnlineL1(onlineFV,l1Index, fv, NOn);
+    matchOnlineOffline(onlineFV,fv, NOn);
+
+  } // end loop over HLT objects
+  
+  if(NOn>0) v_->getNOnHisto()->Fill(NOn);
+
+}
+
+template <class T> 
+void objMonData<T>::matchOnlineL1(const trigger::TriggerObject& onlineFV, const int& l1Index, FourVectorHLTOffline* fv, const int& NOn)
+{
+
+  if ( l1Index >= fv->fTriggerObj->sizeFilters() ) return;
+
+  unsigned int NOnL1UM=0;
+
+  const trigger::TriggerObjectCollection & toc(fv->fTriggerObj->getObjects());
+	const trigger::Vids & idtype = fv->fTriggerObj->filterIds(l1Index);
+	const trigger::Keys & l1k = fv->fTriggerObj->filterKeys(l1Index);
+
+  fimmap OnL1DRMatchMap;
+  int j=0;
+  trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+  for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) 
+  {
+
+      
+
+      if(isL1TriggerType(*idtypeiter))
+      {
+
+        trigger::TriggerObject l1FV = toc[*l1ki];
+
+        if ( fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_ )
+        {
+
+           // fill UM histos (no matching required)
+           if(NOn == 1) {
+
+            NOnL1UM++;
+            v_->getL1EtL1OnUMHisto()->Fill(l1FV.pt());
+            v_->getL1EtaVsL1PhiL1OnUMHisto()->Fill(l1FV.eta(),l1FV.phi());
+
+            }
+
+
+            float dR = reco::deltaR(l1FV.eta(),l1FV.phi(),onlineFV.eta(),onlineFV.phi());
+
+            if ( dR < 1.0) 
+            {
+
+              OnL1DRMatchMap.insert(std::pair<float,int>(dR,j));
+
+            }
+
+          } // end if l1FV eta, pt
+
+       } // end if isL1TriggerType
+
+       ++idtypeiter;
+       j++;
+
+  } // end for
+
+  if(! OnL1DRMatchMap.empty()) OnL1DRMatchSet.insert(OnL1DRMatchMap);
+
+}
+
+
+template <class T> 
+void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, FourVectorHLTOffline* fv, const int& NOn)
 {
 
   unsigned int NOnOffUM=0;
-  unsigned int NOnL1UM=0;
-
-  if(! isTriggerType(v_->getObjectType()) ) return;
-
-  trigger::TriggerObject onlineFV = toc[*ki];
-
-
-  if (fabs(onlineFV.eta()) <= EtaMax_ && onlineFV.pt() >= EtMin_)
-  { 
-
-    NOn++;    
-
-    v_->getOnEtOnHisto()->Fill(onlineFV.pt());
-    v_->getOnEtaVsOnPhiOnHisto()->Fill(onlineFV.eta(), onlineFV.phi());
-
-  }
-  else {
-
-    return;
-
-  }
-
 
   fimmap OnOffDRMatchMap;
 
@@ -961,8 +1085,8 @@ void objMonData<T>::monitorOnline(const trigger::Vids & idtype, const trigger::K
 
      }
 
-   }
-   else if (offColl_.isValid()) {
+  }
+  else if (offColl_.isValid()) {
 
      int j=0;
 
@@ -998,68 +1122,11 @@ void objMonData<T>::monitorOnline(const trigger::Vids & idtype, const trigger::K
 
      }
 
-    }
+  }
 
-    if(! OnOffDRMatchMap.empty())  OnOffDRMatchSet.insert(OnOffDRMatchMap);
-
-
-
-    fimmap OnL1DRMatchMap;
-    int j=0;
-    trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-    for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) 
-    {
-
-      
-
-      if(isL1TriggerType(*idtypeiter))
-      {
-
-        trigger::TriggerObject l1FV = toc[*l1ki];
-
-        if ( fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_ )
-        {
-
-           // fill UM histos (no matching required)
-           if(NOn == 1) {
-
-            NOnL1UM++;
-            v_->getL1EtL1OnUMHisto()->Fill(l1FV.pt());
-            v_->getL1EtaVsL1PhiL1OnUMHisto()->Fill(l1FV.eta(),l1FV.phi());
-
-            }
-
-
-            float dR = reco::deltaR(l1FV.eta(),l1FV.phi(),onlineFV.eta(),onlineFV.phi());
-
-            if ( dR < 1.0) 
-            {
-
-              OnL1DRMatchMap.insert(std::pair<float,int>(dR,j));
-
-            }
-
-          } // end if l1FV eta, pt
-
-       } // end if isL1TriggerType
-
-       ++idtypeiter;
-       j++;
-
-   } // end for
-
-   if(! OnL1DRMatchMap.empty()) OnL1DRMatchSet.insert(OnL1DRMatchMap);
-
-
-   /*
-   v_->getNOnHisto()->Fill(NOn);
-   v_->getNOnOffUMHisto()->Fill(NOnOffUM);
-   v_->getNL1OnUMHisto()->Fill(NOnL1UM);
-   LogTrace("FourVectorHLTOffline") << "NOn = " << NOn << endl;
-   */
-
+  if(! OnOffDRMatchMap.empty())  OnOffDRMatchSet.insert(OnOffDRMatchMap);
+ 
 }
-
 
 template <class T> 
 void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
@@ -1180,8 +1247,11 @@ void objMonData<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
 
 
 template <class T> 
-void objMonData<T>::fillOnL1Match(FourVectorHLTOffline* fv, const trigger::Keys & l1k,  const trigger::TriggerObjectCollection & toc)
+void objMonData<T>::fillOnL1Match(const int l1Index, FourVectorHLTOffline* fv)
 {
+
+  const trigger::TriggerObjectCollection & toc(fv->fTriggerObj->getObjects());
+	const trigger::Keys & l1k = fv->fTriggerObj->filterKeys(l1Index);
 
   unsigned int NOnL1=0;
 
@@ -1218,6 +1288,25 @@ void objMonData<T>::fillOnL1Match(FourVectorHLTOffline* fv, const trigger::Keys 
 
 }
 
+template <class T> 
+void objMonData<T>::fillOnlineMatch(const int l1Index, FourVectorHLTOffline* fv)
+{
+
+  if(! isTriggerType(v_->getObjectType()) ) return;
+  fillOnOffMatch(fv);
+
+  if ( l1Index >= fv->fTriggerObj->sizeFilters() ) return;
+  fillOnL1Match(l1Index, fv);
+
+}
+
+template <class T> 
+void objMonData<T>::fillL1Match(FourVectorHLTOffline* fv)
+{
+
+  fillL1OffMatch(fv);
+
+}
 
 template <class T> 
 void objMonData<T>::clearSets()

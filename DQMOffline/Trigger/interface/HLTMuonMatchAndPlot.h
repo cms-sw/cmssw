@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/10/09 12:54:03 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/02/17 17:49:56 $
+ *  $Revision: 1.11 $
  *  
  *  \author  J. Slaunwhite, based on code from Jeff Klukas
  */
@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -103,9 +103,11 @@ public:
 
   /// Constructor
   HLTMuonMatchAndPlot( const edm::ParameterSet& pset, std::string triggerName,
-                      std::vector<std::string> moduleNames, MuonSelectionStruct inputSelection,
-                      std::string customName,
-                      std::vector<std::string> validTriggers );
+                       std::vector<std::string> moduleNames, MuonSelectionStruct inputSelection,
+                       std::string customName,
+                       std::vector<std::string> validTriggers,
+                       const edm::Run & currentRun,
+                       const edm::EventSetup & currentEventSetup );
 
   // Operations
   virtual void            begin  ( );

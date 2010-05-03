@@ -12,7 +12,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Thu Oct 29 11:04:22 CET 2009
-// $Id: RPCHLTFilter.cc,v 1.1 2009/11/17 10:05:25 carrillo Exp $
+// $Id: HLTRPCFilter.cc,v 1.1 2010/01/26 15:05:35 carrillo Exp $
 //
 //
 
@@ -41,7 +41,7 @@ HLTRPCFilter::HLTRPCFilter(const edm::ParameterSet& iConfig)
   rpcRecHitsLabel = iConfig.getParameter<edm::InputTag>("rpcRecHits");
   rpcDTPointsLabel  = iConfig.getParameter<edm::InputTag>("rpcDTPoints");
   rpcCSCPointsLabel  = iConfig.getParameter<edm::InputTag>("rpcCSCPoints");
-
+  
 }
 
 
@@ -64,6 +64,13 @@ bool HLTRPCFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<RPCRecHitCollection> rpcHits;
   iEvent.getByLabel(rpcRecHitsLabel,rpcHits);
 
+  RPCRecHitCollection::const_iterator rpcPoint;
+ 
+  if(rpcHits->begin()==rpcHits->end()){
+    //std::cout<<" skiped preventing no RPC runs"<<std::endl;
+    return false;
+  }
+
   edm::Handle<RPCRecHitCollection> rpcDTPoints;
   iEvent.getByLabel(rpcDTPointsLabel,rpcDTPoints);
 
@@ -72,8 +79,6 @@ bool HLTRPCFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   float cluSize = 0;
   
-  RPCRecHitCollection::const_iterator rpcPoint;
-
   //DTPart
 
   for(rpcPoint = rpcDTPoints->begin(); rpcPoint != rpcDTPoints->end(); rpcPoint++){
@@ -95,7 +100,7 @@ bool HLTRPCFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	cluSize = recHit->clusterSize();
       }
     }
-    if(fabs(minres)>=(rangestrips+cluSize*0.5)*3){ //3 is a typyical strip with for RPCs
+    if(fabs(minres)>=(rangestrips+cluSize*0.5)*3){ //3 is a typyical strip width for RPCs
       //std::cout<<"DT passed, RecHits but far away "<<rpcId<<std::endl;
       return true;
     }
@@ -122,7 +127,7 @@ bool HLTRPCFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	cluSize = recHit->clusterSize();
       }
     }
-    if(fabs(minres)>=(rangestrips+cluSize*0.5)*3){ //3 is a typyical strip with for RPCs
+    if(fabs(minres)>=(rangestrips+cluSize*0.5)*3){ //3 is a typyical strip width for RPCs
       //std::cout<<"CSC passed, RecHits but far away "<<rpcId<<std::endl;
       return true;
     }

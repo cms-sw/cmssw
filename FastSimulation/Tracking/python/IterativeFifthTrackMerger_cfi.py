@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-iterativeFifthTrackMerging = cms.EDFilter("FastTrackMerger",
+iterativeFifthTrackMerging = cms.EDProducer("FastTrackMerger",
                                           TrackProducers = cms.VInputTag(cms.InputTag("iterativeFifthTrackCandidatesWithPairs"),
                                                                          cms.InputTag("iterativeFifthTracksWithPairs")),
                                           RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("zeroStepFilter"), #prova

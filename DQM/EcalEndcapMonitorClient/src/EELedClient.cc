@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2009/10/28 08:18:23 $
- * $Revision: 1.102 $
+ * $Date: 2010/04/14 16:13:40 $
+ * $Revision: 1.116 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -38,13 +38,11 @@
 #include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+
 #include <DQM/EcalEndcapMonitorClient/interface/EELedClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EELedClient::EELedClient(const ParameterSet& ps) {
+EELedClient::EELedClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -56,7 +54,7 @@ EELedClient::EELedClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -64,18 +62,18 @@ EELedClient::EELedClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   ledWavelengths_.reserve(2);
   for ( unsigned int i = 1; i <= 2; i++ ) ledWavelengths_.push_back(i);
-  ledWavelengths_ = ps.getUntrackedParameter<vector<int> >("ledWavelengths", ledWavelengths_);
+  ledWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("ledWavelengths", ledWavelengths_);
 
   if ( verbose_ ) {
-    cout << " Led wavelengths:" << endl;
+    std::cout << " Led wavelengths:" << std::endl;
     for ( unsigned int i = 0; i < ledWavelengths_.size(); i++ ) {
-      cout << " " << ledWavelengths_[i];
+      std::cout << " " << ledWavelengths_[i];
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -146,12 +144,17 @@ EELedClient::EELedClient(const ParameterSet& ps) {
 
   }
 
-  percentVariation_ = 999.; // not used nor not normalized VPTs
+  percentVariation01_ = 999.; // not used nor not normalized VPTs
+  percentVariation03_ = 999.; // not used nor not normalized VPTs
 
-  amplitudeThreshold_ = 100.;
+  amplitudeThreshold01_ = 2.;
+  amplitudeThreshold03_ = 2.;
 
-  amplitudeThresholdPnG01_ = 50.;
-  amplitudeThresholdPnG16_ = 50.;
+  rmsThreshold01_ = 10.;
+  rmsThreshold03_ = 10.;
+
+  amplitudeThresholdPnG01_ = 100.;
+  amplitudeThresholdPnG16_ = 100.;
 
   pedPnExpectedMean_[0] = 750.0;
   pedPnExpectedMean_[1] = 750.0;
@@ -159,8 +162,8 @@ EELedClient::EELedClient(const ParameterSet& ps) {
   pedPnDiscrepancyMean_[0] = 100.0;
   pedPnDiscrepancyMean_[1] = 100.0;
 
-  pedPnRMSThreshold_[0] = 1.0; // value at h4; expected nominal: 0.5
-  pedPnRMSThreshold_[1] = 3.0; // value at h4; expected nominal: 1.6
+  pedPnRMSThreshold_[0] = 10.;
+  pedPnRMSThreshold_[1] = 10.;
 
 }
 
@@ -170,9 +173,9 @@ EELedClient::~EELedClient() {
 
 void EELedClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EELedClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EELedClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -181,7 +184,7 @@ void EELedClient::beginJob(void) {
 
 void EELedClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EELedClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EELedClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -191,7 +194,7 @@ void EELedClient::beginRun(void) {
 
 void EELedClient::endJob(void) {
 
-  if ( debug_ ) cout << "EELedClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EELedClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -199,7 +202,7 @@ void EELedClient::endJob(void) {
 
 void EELedClient::endRun(void) {
 
-  if ( debug_ ) cout << "EELedClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EELedClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -594,8 +597,8 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
     }
 
     if ( verbose_ ) {
@@ -636,9 +639,9 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L1 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -673,9 +676,9 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L2 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -712,16 +715,16 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonLedDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonLedDat ..." << std::endl;
       if ( dataset1_l1.size() != 0 ) econn->insertDataArraySet(&dataset1_l1, moniov);
       if ( dataset1_l2.size() != 0 ) econn->insertDataArraySet(&dataset1_l2, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
-  if ( verbose_ ) cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
   MonPNLed1Dat pn_l1;
   map<EcalLogicID, MonPNLed1Dat> dataset2_l1;
@@ -733,8 +736,8 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
     }
 
     if ( verbose_ ) {
@@ -795,10 +798,10 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
         if ( i == 1 ) {
 
           if ( verbose_ ) {
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-            cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
-            cout << endl;
+            std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+            std::cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << std::endl;
+            std::cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << std::endl;
+            std::cout << std::endl;
           }
 
         }
@@ -837,10 +840,10 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
         if ( i == 1 ) {
 
           if ( verbose_ ) {
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-            cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << endl;
-            cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << endl;
-            cout << endl;
+            std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+            std::cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << std::endl;
+            std::cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << std::endl;
+            std::cout << std::endl;
           }
 
         }
@@ -880,16 +883,16 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonPnDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonPnDat ..." << std::endl;
       if ( dataset2_l1.size() != 0 ) econn->insertDataArraySet(&dataset2_l1, moniov);
       if ( dataset2_l2.size() != 0 ) econn->insertDataArraySet(&dataset2_l2, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
-  if ( verbose_ ) cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
   MonTimingLed1CrystalDat t_l1;
   map<EcalLogicID, MonTimingLed1CrystalDat> dataset3_l1;
@@ -901,8 +904,8 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
     }
 
     for ( int ix = 1; ix <= 50; ix++ ) {
@@ -930,9 +933,9 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
           if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L1 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -964,9 +967,9 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
           if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L2 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -1000,12 +1003,12 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonTimingLaserCrystalDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonTimingLaserCrystalDat ..." << std::endl;
       if ( dataset3_l1.size() != 0 ) econn->insertDataArraySet(&dataset3_l1, moniov);
       if ( dataset3_l2.size() != 0 ) econn->insertDataArraySet(&dataset3_l2, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
@@ -1019,14 +1022,12 @@ void EELedClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EELedClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EELedClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   uint64_t bits01 = 0;
   bits01 |= EcalErrorDictionary::getMask("LED_MEAN_WARNING");
   bits01 |= EcalErrorDictionary::getMask("LED_RMS_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("LED_MEAN_OVER_PN_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("LED_RMS_OVER_PN_WARNING");
 
   uint64_t bits02 = 0;
   bits02 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_WARNING");
@@ -1045,16 +1046,6 @@ void EELedClient::analyze(void) {
   bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
   bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
   bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
-
-#ifdef WITH_ECAL_COND_DB
-  map<EcalLogicID, RunCrystalErrorsDat> mask1;
-  map<EcalLogicID, RunPNErrorsDat> mask2;
-  map<EcalLogicID, RunTTErrorsDat> mask3;
-
-  EcalErrorMask::fetchDataSet(&mask1);
-  EcalErrorMask::fetchDataSet(&mask2);
-  EcalErrorMask::fetchDataSet(&mask3);
-#endif
 
   char histo[200];
 
@@ -1295,7 +1286,7 @@ void EELedClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean01 - meanAmplL1) > fabs(percentVariation_ * meanAmplL1) || mean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
+          if ( mean01 < amplitudeThreshold01_ || rms01 > rmsThreshold01_ )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
@@ -1319,7 +1310,7 @@ void EELedClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean03 - meanAmplL2) > fabs(percentVariation_ * meanAmplL2) || mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
+          if (  mean03 < amplitudeThreshold03_ || rms03 > rmsThreshold03_ )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
@@ -1411,57 +1402,6 @@ void EELedClient::analyze(void) {
           }
 
         }
-
-        // masking
-
-#ifdef WITH_ECAL_COND_DB
-        if ( mask1.size() != 0 ) {
-          map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-          for (m = mask1.begin(); m != mask1.end(); m++) {
-
-            int jx = ix + Numbers::ix0EE(ism);
-            int jy = iy + Numbers::iy0EE(ism);
-
-            if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
-
-            if ( ! Numbers::validEE(ism, jx, jy) ) continue;
-
-            int ic = Numbers::indexEE(ism, jx, jy);
-
-            if ( ic == -1 ) continue;
-
-            EcalLogicID ecid = m->first;
-
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );
-                UtilsClient::maskBinContent( meg02_[ism-1], ix, iy );
-              }
-            }
-
-          }
-        }
-#endif
-
-        // TT masking
-
-#ifdef WITH_ECAL_COND_DB
-        if ( mask3.size() != 0 ) {
-          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = mask3.begin(); m != mask3.end(); m++) {
-
-            EcalLogicID ecid = m->first;
-
-            int itt = Numbers::iSC(ism, EcalEndcap, ix, iy);
-
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );                           UtilsClient::maskBinContent( meg02_[ism-1], ix, iy );                         }
-            }
-
-          }
-        }
-#endif
 
       }
     }
@@ -1588,30 +1528,6 @@ void EELedClient::analyze(void) {
 
       }
 
-      // masking
-
-#ifdef WITH_ECAL_COND_DB
-      if ( mask2.size() != 0 ) {
-        map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
-        for (m = mask2.begin(); m != mask2.end(); m++) {
-
-          EcalLogicID ecid = m->first;
-
-          if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1).getLogicID() ) {
-            if ( (m->second).getErrorBits() & (bits01|bits02) ) {
-              UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
-              UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
-            }
-            if ( (m->second).getErrorBits() & (bits01|bits04) ) {
-              UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
-              UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );
-            }
-          }
-
-        }
-      }
-#endif
-
     }
 
     for ( int i = 1; i <= 10; i++ ) {
@@ -1635,6 +1551,140 @@ void EELedClient::analyze(void) {
     }
 
   }
+
+#ifdef WITH_ECAL_COND_DB
+  if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
+    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_crystal_number") != 0 ) continue;
+
+        int iz = ecid.getID1();
+        int ix = ecid.getID2();
+        int iy = ecid.getID3();
+
+        for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+          int ism = superModules_[i];
+          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+          if (iter == superModules_.end()) continue;
+          if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
+            int jx = 101 - ix - Numbers::ix0EE(ism);
+            int jy = iy - Numbers::iy0EE(ism);
+            if ( Numbers::validEE(ism, ix, iy) ) {
+              UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
+              UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
+            }
+          }
+          if ( iz == +1 && ( ism >= 10 && ism <= 18 ) ) {
+            int jx = ix - Numbers::ix0EE(ism);
+            int jy = iy - Numbers::iy0EE(ism);
+            if ( Numbers::validEE(ism, ix, iy) ) {
+              UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
+              UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
+            }
+          }
+        }
+
+      }
+
+    }
+  }
+
+  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
+    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
+
+        int idcc = ecid.getID1() - 600;
+
+        int ism = -1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int itt = ecid.getID2();
+
+        if ( itt > 70 ) continue;
+
+        if ( itt >= 42 && itt <= 68 ) continue;
+
+        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
+
+        if ( itt >= 1 && itt <= 68 ) {
+          std::vector<DetId>* crystals = Numbers::crystals( idcc, itt );
+          for ( unsigned int i=0; i<crystals->size(); i++ ) {
+            EEDetId id = (*crystals)[i];
+            int ix = id.ix();
+            int iy = id.iy();
+            if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
+            int jx = ix - Numbers::ix0EE(ism);
+            int jy = iy - Numbers::iy0EE(ism);
+            UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
+            UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
+          }
+        }
+
+      }
+
+    }
+  }
+
+  if ( EcalErrorMask::mapPNErrors_.size() != 0 ) {
+    map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapPNErrors_.begin(); m != EcalErrorMask::mapPNErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & (bits01|bits02) ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_LM_PN") != 0 ) continue;
+
+        int idcc = ecid.getID1() - 600;
+
+        int ism = -1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int i = ecid.getID2() - 1;
+
+        UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
+
+      }
+
+      if ( (m->second).getErrorBits() & (bits01|bits04) ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_LM_PN") != 0 ) continue;
+
+        int idcc = ecid.getID1() - 600;
+
+        int ism = -1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int i = ecid.getID2() - 1;
+
+        UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );
+
+      }
+
+    }
+  }
+#endif
 
 }
 

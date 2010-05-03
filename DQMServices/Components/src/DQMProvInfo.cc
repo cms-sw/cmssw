@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2009/12/13 14:15:02 $
- * $Revision: 1.10 $
+ * $Date: 2010/03/29 18:34:06 $
+ * $Revision: 1.16 $
  * $Author: ameyer $
  *
  */
@@ -11,28 +11,19 @@
 #include "DQMProvInfo.h"
 #include <TSystem.h>
 #include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-// Framework
+const static int XBINS=2000;
 
-
-#include <stdio.h>
-#include <sstream>
-#include <math.h>
-
-using namespace edm;
-using namespace std;
-
-DQMProvInfo::DQMProvInfo(const ParameterSet& ps){
+DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps){
   
   parameters_ = ps;
 
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  provinfofolder_ = parameters_.getUntrackedParameter<string>("provInfoFolder", "ProvInfo") ;
-  subsystemname_ = parameters_.getUntrackedParameter<string>("subSystemFolder", "Info") ;
+  provinfofolder_ = parameters_.getUntrackedParameter<std::string>("provInfoFolder", "ProvInfo") ;
+  subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "Info") ;
   
   // initialize
   physDecl_=true; // set true and switch off in case a single event in a given LS does not have it set.
@@ -53,7 +44,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
 
   reportSummary_=dbe_->bookFloat("reportSummary");
   reportSummaryMap_ = dbe_->book2D("reportSummaryMap",
-                     "HV and GT vs Lumi", 200, 1., 201., 26, 0., 26.);
+                     "HV and GT vs Lumi", XBINS, 1., XBINS+1, 26, 0., 26.);
   reportSummaryMap_->setBinLabel(1," CSC+",2);   
   reportSummaryMap_->setBinLabel(2," CSC-",2);   
   reportSummaryMap_->setBinLabel(3," DT0",2);    
@@ -79,6 +70,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   reportSummaryMap_->setBinLabel(23,"TECm",2);  
   reportSummaryMap_->setBinLabel(24,"CASTOR",2);
   reportSummaryMap_->setBinLabel(25,"PhysDecl",2);
+  reportSummaryMap_->setBinLabel(26,"Valid",2);
   reportSummaryMap_->setAxisTitle("Luminosity Section");
 
   // initialize
@@ -87,7 +79,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   lastlumi_=0;
 } 
 
-void DQMProvInfo::analyze(const Event& e, const EventSetup& c){
+void DQMProvInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
  
   makeDcsInfo(e);
   makeGtInfo(e);
@@ -100,21 +92,38 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
 {
 
   int nlumi = l.id().luminosityBlock();
-  if (nlumi > 200) 
+  if (nlumi > XBINS) 
   {
-    cout << "DQMProvInfo: lumi " << nlumi << " exceeds histogram boundaries " << endl;
+    edm::LogWarning("DQMProvInfo") 
+         << " lumi " << nlumi << " exceeds histogram boundaries " ;
     return;
   }
   if (nlumi <= lastlumi_ ) return;
-  
 
-  // set to -1 in case there was a jump or no previous fill
-  reportSummaryMap_->setBinContent(nlumi,25+1,1.);
+
+  // set to previous in case there was a jump or no previous fill
   for (int l=lastlumi_+1;l<nlumi;l++)
-    for (int i=0;i<25;i++)
-      reportSummaryMap_->setBinContent(l,i+1,-1.);
+  {
+    if (lastlumi_ > 0 && reportSummaryMap_->getBinContent(lastlumi_,25+1) == 1) 
+    {
+      reportSummaryMap_->setBinContent(l,25+1,0.);
+      for (int i=0;i<25;i++)
+      {
+	  float lastvalue = reportSummaryMap_->getBinContent(lastlumi_,i+1);
+	  reportSummaryMap_->setBinContent(l,i+1,lastvalue);
+      }
+    }
+    else
+    {
+      reportSummaryMap_->setBinContent(l,25+1,0.);
+      for (int i=0;i<25;i++)
+	reportSummaryMap_->setBinContent(l,i+1,-1.);
+    }
+  }
+
       
   // fill dcs vs lumi
+  reportSummaryMap_->setBinContent(nlumi,25+1,1.);
   for (int i=0;i<24;i++)
   {
     if (dcs24[i])
@@ -123,27 +132,24 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
       reportSummaryMap_->setBinContent(nlumi,i+1,0.);
 
     // set next lumi to -1 for better visibility
-    reportSummaryMap_->setBinContent(nlumi+1,i+1,-1.);
+    if (nlumi < XBINS)
+      reportSummaryMap_->setBinContent(nlumi+1,i+1,-1.);
     dcs24[i]=true;
   }
-
-  // set DT0 and CASTOR to -1  
-  reportSummaryMap_->setBinContent(nlumi,2+1,-1.);
-  reportSummaryMap_->setBinContent(nlumi,23+1,-1.);
 
   // fill physics decl. bit in y bin 10.
   if (physDecl_) 
   {
     reportSummary_->Fill(1.); 
     reportSummaryMap_->setBinContent(nlumi,24+1,1.);
-    if (nlumi < 200) 
+    if (nlumi < XBINS) 
       reportSummaryMap_->setBinContent(nlumi+1,24+1,-1.);
   }
   else
   {
     reportSummary_->Fill(0.); 
     reportSummaryMap_->setBinContent(nlumi,24+1,0.);
-    if (nlumi < 200) 
+    if (nlumi < XBINS) 
       reportSummaryMap_->setBinContent(nlumi+1,24+1,-1.);
   }
 
@@ -172,7 +178,7 @@ DQMProvInfo::getShowTags(void)
      line.ReplaceAll(" ","");
      out = out + line + ";";
      if (line.Contains("-------------------")) break;
-     if (out.Length()>2000) break;
+     if (out.Length()>XBINS) break;
    }
    out.ReplaceAll("--","");
    out.ReplaceAll(";-",";");
@@ -192,10 +198,10 @@ DQMProvInfo::getShowTags(void)
    size_t found=str.find_first_not_of(safestr);
    if (found!=std::string::npos)
    {
-     std::cout << "DQMProvInfo::ShowTags: Illegal character found: " 
+     edm::LogWarning("DQMProvInfo::ShowTags") << " Illegal character found: " 
                << str[found] 
                << " at position " 
-               << int(found) << std::endl;
+               << int(found) ;
      return "notags";
    }   
    return str;
@@ -235,7 +241,7 @@ DQMProvInfo::makeDcsInfo(const edm::Event& e)
   for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
                             dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) 
   {
-      cout << "DCS status: 0x" << hex << dcsStatusItr->ready() << dec << endl;
+      // std::cout << "DCS status: 0x" << std::hex << dcsStatusItr->ready() << std::dec << std::endl;
       if (!dcsStatusItr->ready(DcsStatus::CSCp))   dcs24[0]=false;
       if (!dcsStatusItr->ready(DcsStatus::CSCm))   dcs24[1]=false;   
       if (!dcsStatusItr->ready(DcsStatus::DT0))    dcs24[2]=false;
@@ -277,7 +283,8 @@ DQMProvInfo::makeGtInfo(const edm::Event& e)
     fdlWord = gtrr->gtFdlWord();
   else
   {
-    cout << "DQMProvInfo: phys decl. bit not accessible !!!"  << endl;
+    edm::LogWarning("DQMProvInfo") << " phys decl. bit not accessible !!!" ;
+    physDecl_=false;
     return;
   }
 

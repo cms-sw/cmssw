@@ -21,11 +21,13 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimingShapedFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalADCSaturationFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFTimingTrustFlag.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_S9S1algorithm.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_PETalgorithm.h"
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2009/08/14 19:42:03 $
-    $Revision: 1.5 $
+    $Date: 2009/08/29 18:38:53 $
+    $Revision: 1.6 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -43,6 +45,8 @@
       HBHETimingShapedFlagSetter* hbheTimingShapedFlagSetter_;
       HcalHFStatusBitFromRecHits* hfrechitbit_;
       HcalHFStatusBitFromDigis*   hfdigibit_;
+      HcalHF_S9S1algorithm*       hfS9S1_;
+      HcalHF_PETalgorithm*        hfPET_;
  
       DetId::Detector det_;
       int subdet_;
@@ -54,8 +58,8 @@
       bool setHSCPFlags_;  // turn on/off HSCP noise flags
       bool setSaturationFlags_; // turn on/off flag indicating ADC saturation
       bool setTimingTrustFlags_; // turn on/off HF timing uncertainty flag 
-
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
+      int HFNoiseAlgo_;
     };
 
 #endif

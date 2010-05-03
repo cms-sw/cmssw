@@ -13,14 +13,13 @@
 #include <iostream>
 #include <ios>
 #include <assert.h>
-#include <stdexcept>
+
 
 
 using namespace pos;
 
 
 PixelTBMSettings::PixelTBMSettings(std::vector < std::vector< std::string> > &tableMat):PixelConfigBase("","",""){
-  std::string mthn = "]\t[PixelTBMSettings::PixelTBMSettings()]\t\t\t    " ;
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
@@ -74,17 +73,17 @@ PixelTBMSettings::PixelTBMSettings(std::vector < std::vector< std::string> > &ta
   }//end for
   for(unsigned int n=0; n<colNames.size(); n++){
     if(colM.find(colNames[n]) == colM.end()){
-      std::cerr << __LINE__ << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
+      std::cerr << "[PixelTBMSettings::PixelTBMSettings()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
       assert(0);
     }
   }
  
   if(tableMat.size() >1)
     {
-      //std::cout << __LINE__ << mthn << "Module from DB: " << tableMat[1][colM["MODULE_NAME"]]<< std::endl ;
+		  std::cout << "[PixelTBMSettings::PixelTBMSettings()]\tModule from DB: " << tableMat[1][colM["MODULE_NAME"]]<< std::endl ;
       PixelROCName tmp(tableMat[1][colM["MODULE_NAME"]]);
       rocid_ = tmp ;
-      //std::cout << __LINE__ << mthn << "Built ROCNAME: " << rocid_.rocname()<< std::endl ;
+		  std::cout << "[PixelTBMSettings::PixelTBMSettings()]\tBuilt ROCNAME: " << rocid_.rocname()<< std::endl ;
       
       analogInputBias_  = atoi(tableMat[1][colM["ANLG_INBIAS_VAL"]].c_str());
       analogOutputBias_ = atoi(tableMat[1][colM["ANLG_OUTBIAS_VAL"]].c_str());
@@ -104,14 +103,14 @@ PixelTBMSettings::PixelTBMSettings(std::vector < std::vector< std::string> > &ta
 PixelTBMSettings::PixelTBMSettings(std::string filename):
   PixelConfigBase("","",""){
 
-    std::string mthn = "]\t[PixelTBMSettings::PixelTBMSettings()]\t\t\t    " ;
+
     if (filename[filename.size()-1]=='t'){
 
 	std::ifstream in(filename.c_str());
 
 	if (!in.good()){
-	    std::cout << __LINE__ << mthn << "Could not open:"<<filename<<std::endl;
-	    throw std::runtime_error("Failed to open file "+filename);
+	    std::cout << "[PixelTBMSettings::PixelTBMSettings()]\t\tCould not open:"<<filename<<std::endl;
+	    assert(0);
 	}
 	else {
 	  // std::cout << "Opened:"<<filename<<std::endl;
@@ -161,11 +160,11 @@ PixelTBMSettings::PixelTBMSettings(std::string filename):
 	std::ifstream in(filename.c_str(),std::ios::binary);
 
 	if (!in.good()){
-	    std::cout << __LINE__ << mthn << "Could not open:"<<filename<<std::endl;
+	    std::cout << "Could not open:"<<filename<<std::endl;
 	    assert(0);
 	}
 	else {
-	    std::cout << __LINE__ << mthn << "Opened:"<<filename<<std::endl;
+	    std::cout << "Opened:"<<filename<<std::endl;
 	}
 
 	char nchar;
@@ -206,11 +205,7 @@ void PixelTBMSettings::setTBMGenericValue(std::string what, int value)
  else if( what == "analogOutputBias" ) {analogOutputBias_ = (unsigned char)value;}
  else if( what == "analogOutputGain" ) {analogOutputGain_ = (unsigned char)value;}
  else if( what == "Mode" )             {singlemode_       = (bool)value;         }
- else 
- {
-   std::cout << __LINE__ << "]\t[PixelTBMSettings::setTBMGenericValue()]\t\tFATAL: invalid key/value pair: " << what << "/" << value << std::endl ; 
-   assert(0);
- }
+ else {std::cout << "[PixelTBMSettings::setTBMGenericValue()]\t\tFATAL: invalid key/value pair: " << what << "/" << value << std::endl ; assert(0);}
 }
  
 void PixelTBMSettings::writeBinary(std::string filename) const {
@@ -277,13 +272,11 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 2, 0x14, 0);
     //setting speed to 40MHz
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 0, 1, 0);
-    // setting the mode, we should always stay in the CAL mode
-    // since the EventNumberClear Mode does not work correctly
-    //if (physics) {  // comment out, stau always in the CAL mode,  d.k. 27/09/09
-    //pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 1, 0x80, 0);
-    //} else {
-    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 1, 0xc0, 0);
-    //}
+    if (physics) {
+      pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 1, 0x80, 0);
+    } else {
+      pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 1, 0xc0, 0);
+    }
     //Enable token and analog output
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 4, 0x0, 0);
 
@@ -300,7 +293,7 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 
     //setting speed to 40MHz
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 0, 1, 0);
-    //pre-calibration, stay always in this mode
+    //pre-calibration FIXME can not be used for data taking
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 1, 0xc0, 0);
     //Reset TBM and reset ROC
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 2, 0x14, 0);
@@ -338,10 +331,10 @@ void PixelTBMSettings::writeXMLHeader(pos::PixelConfigKey key,
                                       std::ofstream *out1stream,
                                       std::ofstream *out2stream) const
 {
-  std::string mthn = "]\t[PixelTBMSettings::writeXMLHeader()]\t\t\t    " ;
+  std::string mthn = "[PixelTBMSettings::writeXMLHeader()]\t\t\t    " ;
   std::stringstream fullPath ;
   fullPath << path << "/Pixel_TbmParameters_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  std::cout << __LINE__ << mthn << "Writing to: " << fullPath.str() << std::endl ;
+  std::cout << mthn << "Writing to: " << fullPath.str() << std::endl ;
   
   outstream->open(fullPath.str().c_str()) ;
   
@@ -356,7 +349,9 @@ void PixelTBMSettings::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>Pixel TBM Parameters</RUN_TYPE>" 		                                     << std::endl ;
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"					         	             << std::endl ;
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ;
-  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                            << std::endl ; 
+  *outstream << "   <COMMENT_DESCRIPTION>Pixel TBM Parameters</COMMENT_DESCRIPTION>"      	             << std::endl ;
+  *outstream << "   <LOCATION>CERN TAC</LOCATION>"					         	     << std::endl ;
+  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"			 	     << std::endl ;
   *outstream << "  </RUN>"								         	     << std::endl ;
   *outstream << " </HEADER>"								         	     << std::endl ;
   *outstream << ""										 	     << std::endl ;
@@ -365,9 +360,7 @@ void PixelTBMSettings::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                 << std::endl ;
   *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                              << std::endl ;
   *outstream << "  </PART>"                                                                                  << std::endl ;
-  *outstream << "  <VERSION>"             << version      << "</VERSION>"				     << std::endl ;
-  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			     << std::endl ;
-  *outstream << "  <CREATED_BY_USER>"     << getAuthor()  << "</CREATED_BY_USER>"  			     << std::endl ;
+  *outstream << "  <VERSION>" << version << "</VERSION>"				         	     << std::endl ;
   *outstream << " "				         	                                             << std::endl ;
 }
 
@@ -376,7 +369,7 @@ void PixelTBMSettings::writeXML(std::ofstream *outstream,
                                 std::ofstream *out1stream,
                                 std::ofstream *out2stream) const 
 {
-  std::string mthn = "]\t[PixelTBMSettings::writeXML()]\t\t\t    " ;
+  std::string mthn = "[PixelTBMSettings::writeXML()]\t\t\t    " ;
 
   PixelModuleName module(rocid_.rocname());
   													     
@@ -399,7 +392,7 @@ void PixelTBMSettings::writeXMLTrailer(std::ofstream *outstream,
                                        std::ofstream *out1stream,
                                        std::ofstream *out2stream) const 
 {
-  std::string mthn = "]\t[PixelTBMSettings::writeXMLTrailer()]\t\t\t    " ;
+  std::string mthn = "[PixelTBMSettings::writeXMLTrailer()]\t\t\t    " ;
   
   *outstream << " " 						    	 	              	             << std::endl ;
   *outstream << " </DATA_SET>" 						    	 	              	     << std::endl ;

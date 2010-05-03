@@ -6,7 +6,7 @@
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "PhysicsTools/HepMCCandAlgos/interface/MCCandMatcher.h"
 
 template<typename C1, typename C2 = C1>

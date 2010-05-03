@@ -1,4 +1,4 @@
-// $Id: I2OChain.h,v 1.6 2009/08/28 16:41:50 mommsen Exp $
+// $Id: I2OChain.h,v 1.7 2010/01/07 18:00:16 mommsen Exp $
 /// @file: I2OChain.h 
 
 #ifndef StorageManager_I2OChain_h
@@ -28,8 +28,8 @@ namespace stor {
    * the last instance of I2OChain goes out of scope.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/08/28 16:41:50 $
+   * $Revision: 1.7 $
+   * $Date: 2010/01/07 18:00:16 $
    */
 
 
@@ -348,6 +348,13 @@ namespace stor {
        from a particular event.
      */
     FragKey fragmentKey() const;
+
+
+    /**
+       Returns the total memory occupied by all message fragments in
+       the chain. This includes all I2O headers and
+     */
+    size_t memoryUsed() const;
 
     /**
        Returns the number of frames currently contained in the chain.

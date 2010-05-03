@@ -485,6 +485,53 @@ EEDetId::idOuterRing( int iPhi , int zEnd )
    return EEDetId( cx, cy, ( zEnd > 0 ? 1 : -1 ) ) ;
 }
 
+
+EEDetId 
+EEDetId::offsetBy(int nrStepsX, int nrStepsY ) const
+{
+        int newX = ix() + nrStepsX;
+        int newY = iy() + nrStepsY;
+
+        if( validDetId( newX, newY, zside() ) ) {
+                return EEDetId( newX, newY, zside() );
+        } else {
+                return EEDetId(0);
+        }
+}
+
+EEDetId
+EEDetId::switchZSide() const
+{
+        int newZSide = -1 * zside();
+        if( validDetId(ix(), iy(), newZSide ) ) {
+                return EEDetId( ix(), iy(), newZSide );
+        } else {
+                return EEDetId(0);
+        }
+}
+
+DetId 
+EEDetId::offsetBy( const DetId startId, int nrStepsX, int nrStepsY )
+{
+        if( startId.det() == DetId::Ecal && startId.subdetId() == EcalEndcap ) {
+                EEDetId eeStartId( startId );
+                return eeStartId.offsetBy( nrStepsX, nrStepsY ).rawId();
+        } else {
+                return DetId(0);
+        }
+}
+
+DetId 
+EEDetId::switchZSide( const DetId startId )
+{
+        if( startId.det() == DetId::Ecal && startId.subdetId() == EcalEndcap ) {
+                EEDetId eeStartId(startId);
+                return eeStartId.switchZSide().rawId();
+        } else {
+                return DetId(0);
+        }
+}
+
 bool 
 EEDetId::isOuterRing() const
 {

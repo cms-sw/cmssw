@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.CSCMonitorModule.csc_dqm_masked_hw_cfi import *
 
-dqmCSCOfflineClient = cms.EDFilter("CSCOfflineClient",
+dqmCSCOfflineClient = cms.EDAnalyzer("CSCOfflineClient",
 
   MASKEDHW = CSCMaskedHW,
 

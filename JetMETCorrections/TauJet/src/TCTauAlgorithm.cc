@@ -28,34 +28,11 @@ void TCTauAlgorithm::init(){
 
 	trackAssociator = new TrackDetectorAssociator();
   	trackAssociator->useDefaultPropagator();
-	/*
-	etCaloOverTrackMin = -0.9;
-	etCaloOverTrackMax = 0.0;
-	etHcalOverTrackMin = -0.3;
-	etHcalOverTrackMax = 1.0;
 
-        signalCone         = 0.2;
-	ecalCone           = 0.5;
-	matchingCone       = 0.1;
-	tkptmin            = 1.0;
-
-	tkmaxipt	   = 0.03;
-	tkmaxChi2	   = 100;
-	tkminPixelHitsn    = 2;
-	tkminTrackerHitsn  = 8; 
-
-	trackInput          = InputTag("generalTracks");
-	vertexInput         = InputTag("offlinePrimaryVertices");
-
-	EcalRecHitsEB_input = InputTag("ecalRecHit:EcalRecHitsEB");
-	EcalRecHitsEE_input = InputTag("ecalRecHit:EcalRecHitsEE");
-	HBHERecHits_input   = InputTag("hbhereco");
-	HORecHits_input     = InputTag("horeco");
-	HFRecHits_input     = InputTag("hfreco");
-	*/
         all    = 0;
         passed = 0;
 	prongs = -1;
+	algoComponentUsed = 0;
 }
 
 void TCTauAlgorithm::inputConfig(const edm::ParameterSet& iConfig){
@@ -101,6 +78,10 @@ int TCTauAlgorithm::allTauCandidates(){
         return all;
 }
 
+int TCTauAlgorithm::algoComponent(){
+        return algoComponentUsed;
+}
+
 void TCTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup& iSetup){
 
 	event = &iEvent;
@@ -112,7 +93,6 @@ void TCTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup& 
 
         // geometry initialization
         ESHandle<CaloGeometry> geometry;
-////        iSetup.get<IdealGeometryRecord>().get(geometry);
         iSetup.get<CaloGeometryRecord>().get(geometry);
 
 
@@ -223,6 +203,7 @@ math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& c
         all++;
 
         math::XYZTLorentzVector p4(0,0,0,0);
+	algoComponentUsed = TCAlgoUndetermined;
 
         if(leadTk.isNull()) return p4;
 
@@ -302,11 +283,13 @@ math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& c
                              EcalCluster.Z()   + momentum.Z(),
                              EcalCluster.R()   + momentum.R());
                   p4 += p4photons;
+		  algoComponentUsed = TCAlgoMomentumECAL;
                 }else{
-	                p4.SetXYZT(momentum.X(),
-	                           momentum.Y(),
-        	                   momentum.Z(),
-                	           momentum.R());
+	          p4.SetXYZT(momentum.X(),
+	                     momentum.Y(),
+        	             momentum.Z(),
+                	     momentum.R());
+                  algoComponentUsed = TCAlgoMomentum;
 		}
         }
         if( eCaloOverTrack  > etCaloOverTrackMax ) {
@@ -318,11 +301,19 @@ math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& c
                              EcalCluster.Z()   + momentum.Z(),
                              EcalCluster.R()   + momentum.R());
                   p4 += p4photons;
+                  algoComponentUsed = TCAlgoMomentumECAL;
                 }
                 if ( eHcalOverTrack  < etHcalOverTrackMin ) {
                   p4.SetXYZT(caloJet.px(),caloJet.py(),caloJet.pz(),caloJet.energy());
+                  algoComponentUsed = TCAlgoCaloJet;
                 }
+		if ( eHcalOverTrack  < etHcalOverTrackMax ) {
+		  algoComponentUsed = TCAlgoHadronicJet; // reject
+		}
         }
+	if( eCaloOverTrack  < etCaloOverTrackMin ) {
+	          algoComponentUsed = TCAlgoTrackProblem; // reject
+	}
 	if(p4.Et() > 0) passed++;
 
 	return p4;

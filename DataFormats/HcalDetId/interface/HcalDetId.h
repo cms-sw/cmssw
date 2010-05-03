@@ -9,8 +9,8 @@
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors, precision readout cells only
  *
- *  $Date: 2008/11/06 10:30:38 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/06/25 22:13:29 $
+ *  $Revision: 1.12 $
  *  \author J. Mans - Minnesota
  *
  *  Rev.1.11: A.Kubik,R.Ofierzynski: add the hashed_index
@@ -39,7 +39,7 @@ public:
   /// get the cell iphi
   int iphi() const { return id_&0x7F; }
   /// get the tower depth
-  int depth() const { return (id_>>14)&0x1F; }
+  int depth() const { return (id_>>14)&0x7; }
   /// get the smallest crystal_ieta of the crystal in front of this tower (HB and HE tower 17 only)
   int crystal_ieta_low() const { return ((ieta()-zside())*5)+zside(); }
   /// get the largest crystal_ieta of the crystal in front of this tower (HB and HE tower 17 only)

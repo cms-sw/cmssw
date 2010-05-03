@@ -4,15 +4,14 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2009/12/11 16:08:51 $
- * $Revision: 1.54 $
+ * $Date: 2010/01/25 21:12:23 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  *
 */
 
 #include <vector>
 #include <string>
-#include <fstream>
 
 #include "TROOT.h"
 #include "TProfile2D.h"

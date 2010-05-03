@@ -11,11 +11,7 @@
 #include <libconfig.h++>
 #include <TMath.h>
 
-using namespace std;
-using namespace libconfig;
-
 class OHltRateCounter {
-
  public:
 
   OHltRateCounter(unsigned int size);
@@ -65,16 +61,16 @@ class OHltRateCounter {
   
   
   // Data
-  vector<int> iCount;
-  vector<int> sPureCount;
-  vector<int> pureCount;
-  vector< vector<int> > overlapCount;
-  vector<int> prescaleCount;
+  std::vector<int> iCount;
+  std::vector<int> sPureCount;
+  std::vector<int> pureCount;
+  std::vector< std::vector<int> > overlapCount;
+  std::vector<int> prescaleCount;
 
-  vector< vector<int> > perLumiSectionCount;
-  vector<int> perLumiSectionTotCount;
-  vector<int> runID;
-  vector<int> lumiSection;
+  std::vector< std::vector<int> > perLumiSectionCount;
+  std::vector<int> perLumiSectionTotCount;
+  std::vector<int> runID;
+  std::vector<int> lumiSection;
 
 };
 #endif

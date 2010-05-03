@@ -234,8 +234,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   tpgFactor->GetYaxis()->SetTitle("eta") ;
   tpgFactor->GetXaxis()->SetTitle("phi") ;  
 
-  TH1F * hshapeEB = new TH1F("shapeEB", "shapeEB", 250, 0., 10.) ;
-  TH1F * hshapeEE = new TH1F("shapeEE", "shapeEE", 250, 0., 10.) ;
 
 
   ////////////////////////////
@@ -390,7 +388,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       fgr_conf_id_=fe_main_info.getFgrId();
       sli_conf_id_=fe_main_info.getSliId();
       if(fe_main_info.getBxtId()>0) bxt_conf_id_=fe_main_info.getBxtId();
-      if(fe_main_info.getBttId()>0 && btt_conf_id_==0 ) btt_conf_id_=fe_main_info.getBttId();
+      if(fe_main_info.getBxtId()>0) btt_conf_id_=fe_main_info.getBttId();
       // those that are not written specifically in this program are propagated
       // from the previous record with the same tag and the highest version
 
@@ -851,9 +849,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   double    phase = parameterMap.simParameters(barrel).timePhase();
   EcalShape shape(phase); 
 #endif
-
-  std::vector<unsigned int> weights = computeWeights(shape, hshapeEB) ;
-
+  std::vector<unsigned int> weights = computeWeights(shape) ;
 
   if (weights.size() == 5) {
     if (writeToFiles_) {
@@ -1245,8 +1241,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   tpgFactorEEMinus->Write() ;
   IC->Write() ;
   tpgFactor->Write() ;
-  hshapeEB->Write() ;
-  hshapeEE->Write() ;
   saving.Close () ;
 
 }
@@ -1435,9 +1429,9 @@ double EcalTPGParamBuilder::uncodeWeight(int iweight, int complement2)
 }
 
 #if (CMSSW_VERSION>=340)
-std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShapeBase & shape, TH1F * histo)
+std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShapeBase & shape)
 #else
-std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape, TH1F * histo)
+std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape)
 #endif
 {
   std::cout<<"Computing Weights..."<<std::endl ;
@@ -1454,7 +1448,6 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
     sumf += shape(time)/max ;
     sumf2 += shape(time)/max * shape(time)/max ;
-    for (int subtime = 0 ; subtime<25 ; subtime++) histo->Fill(float(sample*25. + subtime)/25., shape(time+subtime)) ;
   }
   double lambda = 1./(sumf2-sumf*sumf/nSample_) ;
   double gamma = -lambda*sumf/nSample_ ;
@@ -1692,7 +1685,7 @@ void EcalTPGParamBuilder::realignBaseline(linStruc & lin, bool forceBase12to0)
 
   for (int i=0 ; i<3 ; i++) {
     //cout<<lin.pedestal_[i]<<" "<<base[i]<<endl ;
-    lin.pedestal_[i] = base[i] ;
+    //lin.pedestal_[i] = base[i] ;
   }
 
 }

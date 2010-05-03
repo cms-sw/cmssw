@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.6 2009/10/12 13:15:29 dshpakov Exp $
+// $Id: ChainData.h,v 1.7 2010/01/07 18:05:03 mommsen Exp $
 
 #ifndef CHAINDATA_H
 #define CHAINDATA_H
@@ -86,6 +86,7 @@ namespace stor
       void resetStaleWindowStartTime() {
         _staleWindowStartTime = utils::getCurrentTime();
       }
+      size_t memoryUsed() const;
       unsigned long totalDataSize() const;
       unsigned long dataSize(int fragmentIndex) const;
       unsigned char* dataLocation(int fragmentIndex) const;

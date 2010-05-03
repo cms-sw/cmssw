@@ -43,7 +43,7 @@ class RPCRecHitReader : public edm::EDAnalyzer
   /// Constructor
    RPCRecHitReader(const edm::ParameterSet& pset);
   
-  virtual void beginJob( const edm::EventSetup& );
+   virtual void beginRun(const edm::Run&, const edm::EventSetup& );
   virtual void endJob();
   
   /// Destructor

@@ -4,7 +4,7 @@ from DQMOffline.Trigger.EgHLTOffFiltersToMon_cfi import *
 from DQMOffline.Trigger.EgHLTOffQTests_cfi import *
 
 
-egHLTOffQTester = cms.EDFilter("QualityTester",
+egHLTOffQTester = cms.EDAnalyzer("QualityTester",
      qtList = cms.untracked.FileInPath('DQMOffline/Trigger/data/EgHLTOffQualityTests.xml'),
      verboseQT = cms.untracked.bool(False),
      qtestOnEndJob =cms.untracked.bool(False),
@@ -15,7 +15,7 @@ egHLTOffQTester = cms.EDFilter("QualityTester",
 
 
 
-egHLTOffDQMSummaryClient = cms.EDFilter("EgHLTOfflineSummaryClient",
+egHLTOffDQMSummaryClient = cms.EDAnalyzer("EgHLTOfflineSummaryClient",
                                         egHLTOffFiltersToMon,
                                         DQMDirName=cms.string("HLT/EgOffline"),
                                         hltTag = cms.string("HLT"),

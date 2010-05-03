@@ -3,6 +3,7 @@
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/SaveConfiguration.h"
 #include "FWCore/Utilities/interface/Exception.h" 
 
 
@@ -19,7 +20,7 @@ namespace edm {
   class Timestamp;
   namespace service {
 
-    class PrescaleService
+    class PrescaleService : public edm::serviceregistry::SaveConfiguration
     {
     public:
       //
@@ -47,6 +48,11 @@ namespace edm {
       void preModule(ModuleDescription const&) {}
       void postModule(ModuleDescription const&) {}
       
+      typedef std::vector<std::string>                         VString_t;
+      typedef std::map<std::string, std::vector<unsigned int> > PrescaleTable_t;
+      unsigned int getLvl1IndexDefault() const {return iLvl1IndexDefault_;}
+      const VString_t& getLvl1Labels() const {return lvl1Labels_;}
+      const PrescaleTable_t& getPrescaleTable() const {return prescaleTable_;}
 
     private:
       //
@@ -57,8 +63,6 @@ namespace edm {
       //
       // member data
       //
-      typedef std::vector<std::string>                         VString_t;
-      typedef std::map<std::string, std::vector<unsigned int> > PrescaleTable_t;
 
       bool	      configured_;
       VString_t       lvl1Labels_; 

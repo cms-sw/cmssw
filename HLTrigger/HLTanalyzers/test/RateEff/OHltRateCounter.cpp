@@ -1,5 +1,8 @@
 #include "OHltRateCounter.h"
 
+using namespace std;
+using namespace libconfig;
+
 OHltRateCounter::OHltRateCounter(unsigned int size) {
   vector<int> itmp;
   for (unsigned int i=0;i<size;i++) {

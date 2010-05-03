@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForMonitorable.h,v 1.11 2009/11/03 17:23:56 wto Exp $
+// Last commit: $Id: ConstantsForMonitorable.h,v 1.10 2009/02/10 21:45:54 lowette Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForMonitorable_H
 #define DataFormats_SiStripCommon_ConstantsForMonitorable_H
@@ -91,8 +91,8 @@ namespace sistrip {
   static const char noiseKSAllStrips_[]     = "StripNoiseKS";
   static const char noiseChi2AllStrips_[]   = "StripNoiseChi2";
   static const char noiseGausAllStrips_[]   = "StripNoiseGaus";
-  static const char noisebin84Percent_[]  = "Bin84Percent";
-  static const char noiseSignif_[]  = "StripNoiseSignif";
+  static const char noisebin84Percent_[]  	= "Bin84Percent";
+  static const char noiseSignif_[]  		= "StripNoiseSignif";
   
   // Fine Delay
   static const char fineDelayPos_[]       = "FineDelayPosition";
@@ -162,6 +162,7 @@ namespace sistrip {
 		     FED_TIMING_BASE     = 1205, 
 		     FED_TIMING_PEAK     = 1206, 
 		     FED_TIMING_HEIGHT   = 1207,
+
 		     OPTO_SCAN_LLD_GAIN_SETTING  = 401,
 		     OPTO_SCAN_LLD_BIAS_SETTING  = 402,
 		     OPTO_SCAN_MEASURED_GAIN     = 403, 
@@ -191,13 +192,13 @@ namespace sistrip {
 		     NOISE_MIN        = 210, 
 		     NUM_OF_DEAD      = 211, 
 		     NUM_OF_NOISY     = 212,
-		     NOISE_KS_ALL_STRIPS = 215,
-		     NOISE_GAUS_ALL_STRIPS  = 216,
-		     NOISE_BIN_84_PERCENT  = 217,
-		     NOISE_CHI2_ALL_STRIPS = 218,
-		     NOISE_SIGNIF_ALL_STRIPS = 219,
-		     FINE_DELAY_POS = 601,
-		     FINE_DELAY_ERROR = 602,
+             NOISE_KS_ALL_STRIPS = 215,
+			 NOISE_GAUS_ALL_STRIPS  = 216,
+             NOISE_BIN_84_PERCENT  = 217,
+             NOISE_CHI2_ALL_STRIPS = 218,
+             NOISE_SIGNIF_ALL_STRIPS = 219,
+             FINE_DELAY_POS = 601,
+             FINE_DELAY_ERROR = 602,
 
 		     CALIBRATION_AMPLITUDE    = 701,
 		     CALIBRATION_TAIL         = 702,
@@ -230,3 +231,5 @@ namespace sistrip {
 }
   
 #endif // DataFormats_SiStripCommon_ConstantsForMonitorable_H
+
+

@@ -47,12 +47,12 @@ dz_par2 = ( 1.0, 4.0 )
 ##thStep.TrackProducer2 = 'thStepTrk'
 
 
-thStep = cms.EDFilter("FastTrackMerger",
+thStep = cms.EDProducer("FastTrackMerger",
                       TrackProducers = cms.VInputTag(cms.InputTag("thStepVtx"),
                                                      cms.InputTag("thStepTrk"))
 )
 
-thfilter = cms.EDFilter("QualityFilter",
+thfilter = cms.EDProducer("QualityFilter",
     TrackQuality = cms.string('highPurity'),
     recTracks = cms.InputTag("thStep")
 )

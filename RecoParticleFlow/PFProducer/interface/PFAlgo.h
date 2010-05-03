@@ -73,8 +73,12 @@ class PFAlgo {
 			  const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
 			  bool applyCrackCorrections=true,
 			  bool usePFSCEleCalib=true);
-  
-  void setPFConversionParameters( bool usePFConversions );
+
+  void setDisplacedVerticesParameters(bool rejectTracks_Bad,
+				      bool rejectTracks_Step45,
+				      bool usePFNuclearInteractions,
+				      bool usePFConversions,
+				      bool usePFDecays);
   
   //MIKEB : Parameters for the vertices..
   void setPFVertexParameters(bool useVertex,
@@ -205,9 +209,14 @@ class PFAlgo {
   bool applyCrackCorrectionsElectrons_;
   bool usePFSCEleCalib_;
   PFElectronAlgo *pfele_;
+  
+  bool rejectTracks_Bad_;
+  bool rejectTracks_Step45_;
+  bool usePFNuclearInteractions_;
   bool usePFConversions_;
   PFConversionAlgo* pfConversion_;
-  
+  bool usePFDecays_;
+
   // Variables for muons and fakes
   std::vector<double> muonHCAL_;
   std::vector<double> muonECAL_;

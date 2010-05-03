@@ -1,14 +1,14 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.17 2009/08/09 10:05:52 loizides Exp $
+# $Id: sm_hookscript.pl,v 1.18 2010/01/28 14:10:03 gbauer Exp $
 ################################################################################
 
 use strict;
 use warnings;
 
 #define parameters for copy to LOOKAREA
-my $lookfreq   = 10;     #copy cycle: copy every n-th LumiSec
+my $lookfreq   = 20;     #copy cycle: copy every n-th LumiSec
 my $lookhosts  = 16;     #max-number of hosts assumed
-my $lookmodulo   = $lookfreq*$lookfreq;
+my $lookmodulo   = $lookfreq*$lookhosts;
 
 
 my $filename   =  $ENV{'SM_FILENAME'};

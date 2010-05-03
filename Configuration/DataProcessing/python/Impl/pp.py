@@ -10,13 +10,14 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import Scenario
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER
 import FWCore.ParameterSet.Config as cms
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
 from Configuration.PyReleaseValidation.ConfigBuilder import addOutputModule
-
+from Configuration.GlobalRuns.reco_TLR import reco_TLR
 
 class pp(Scenario):
     """
@@ -28,24 +29,26 @@ class pp(Scenario):
     """
 
 
-    def promptReco(self, globalTag, skims = [], writeTiers = ['RECO','ALCA']):
+    def promptReco(self, globalTag, writeTiers = ['RECO','ALCARECO']):
         """
         _promptReco_
 
         Proton collision data taking prompt reco
 
         """
-        if len(skims) >0:
-          step = ',ALCAPRODUCER:'
-          for skim in skims:
-            step += (skim+"+")
-          step = step.rstrip('+')
-        else:
-          step = ''
+
+        skims = ['SiStripCalZeroBias',
+                 'TkAlMinBias',
+                 'TkAlMuonIsolated',
+                 'MuAlCalIsolatedMu',
+                 'MuAlOverlaps',
+                 'HcalCalIsoTrk',
+                 'HcalCalDijets']
+        step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO:reconstruction_withPixellessTk'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -66,8 +69,11 @@ class pp(Scenario):
 
 
         for tier in writeTiers: 
-          addOutputModule(process, tier, "RECO")        
+          addOutputModule(process, tier, tier)        
 
+        #add the former top level patches here
+        reco_TLR(process)
+        
         return process
 
     def expressProcessing(self, globalTag,  writeTiers = [],
@@ -110,6 +116,9 @@ class pp(Scenario):
         # // TODO: Install Alca output
         #//
         
+        #add the former top level patches here
+        reco_TLR(process)
+
         return process
     
 

@@ -1,18 +1,17 @@
-#ifndef DQMProvInfo_H
-#define DQMProvInfo_H
+#ifndef DQMPROVINFO_H
+#define DQMPROVINFO_H
 
 /*
  * \file DQMProvInfo.h
  *
- * $Date: 2009/12/12 13:31:22 $
- * $Revision: 1.6 $
+ * $Date: 2009/12/15 23:07:13 $
+ * $Revision: 1.7 $
  * \author A.Meyer - DESY
  *
 */
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/Run.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
@@ -22,13 +21,8 @@
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
 
-#include <memory>
-#include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
-#include <map>
-#include <sys/time.h>
 
 class DQMProvInfo: public edm::EDAnalyzer{
 

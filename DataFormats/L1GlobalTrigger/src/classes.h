@@ -13,6 +13,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -93,6 +94,10 @@ namespace { struct dictionary {
 
     L1GtLogicParser::TokenRPN dummy140;
     std::vector<L1GtLogicParser::TokenRPN> dummy141;
+
+    //
+    L1GtTriggerMenuLite dummy150;
+    edm::Wrapper<L1GtTriggerMenuLite> dummy151;
 
 }; }
 

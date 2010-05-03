@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: XHTMLMaker.h,v 1.5 2009/07/20 13:06:11 mommsen Exp $
+// $Id: XHTMLMaker.h,v 1.7 2010/02/16 09:55:58 mommsen Exp $
 /// @file: XHTMLMaker.h 
 
 #ifndef XHTMLMAKER_H
@@ -13,14 +13,14 @@
 #include <map>
 #include <string>
 #include <iostream>
-
+#include <stdint.h>
 
 /**
    Helper class to build XHTML pages
 
    $Author: mommsen $
-   $Revision: 1.5 $
-   $Date: 2009/07/20 13:06:11 $
+   $Revision: 1.7 $
+   $Date: 2010/02/16 09:55:58 $
 */
 
 class XHTMLMaker
@@ -95,6 +95,21 @@ public:
      Add an integer
   */
   void addInt( Node* parent, int value );
+
+  /**
+     Add an unsigned int 32
+  */
+  void addInt( Node* parent, uint32_t value );
+
+  /**
+     Add a long long
+  */
+  void addInt( Node* parent, long long value );
+
+  /**
+     Add a unsigned long long
+  */
+  void addInt( Node* parent, unsigned long long value );
 
   /**
      Add a double

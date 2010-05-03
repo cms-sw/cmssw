@@ -99,7 +99,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , buInstance_(0)
   , smClassName_("StorageManager")
   , smInstance_(0)
-  , shmResourceTableTimeout_(130000)
+  , shmResourceTableTimeout_(200000)
   , monSleepSec_(2)
   , watchSleepSec_(10)
   , timeOutSec_(30)
@@ -361,10 +361,10 @@ void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
 void FUResourceBroker::I2O_EVM_LUMISECTION_Callback(toolbox::mem::Reference* bufRef)
 {
   resourceTable_->postEndOfLumiSection(bufRef); // this method dummy for now
-  I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *msg =
-    (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *)bufRef->getDataLocation();
+//   I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *msg =
+//     (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *)bufRef->getDataLocation();
   
-  LOG4CPLUS_WARN(log_, "Received END-OF-LS from EVM for LS " << msg->lumiSection);
+//   LOG4CPLUS_WARN(log_, "Received END-OF-LS from EVM for LS " << msg->lumiSection);
 
 }
 

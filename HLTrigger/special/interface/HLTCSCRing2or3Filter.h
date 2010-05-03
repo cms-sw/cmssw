@@ -5,7 +5,7 @@
 #include <map>
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "TH1F.h"
 
 class HLTCSCRing2or3Filter : public HLTFilter {

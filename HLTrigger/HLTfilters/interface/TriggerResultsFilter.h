@@ -10,8 +10,8 @@
  *  It has been written as an extension of the HLTHighLevel and HLTHighLevelDev 
  *  filters.
  *
- *  $Date: 2010/01/21 15:26:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/02/18 14:43:54 $
+ *  $Revision: 1.6.2.1 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -20,7 +20,6 @@
 #include <vector>
 #include <string>
 
-#include "FWCore/Framework/interface/TriggerNames.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionData.h"
 
@@ -40,6 +39,9 @@ public:
   virtual bool filter(edm::Event &, const edm::EventSetup &);
 
 private:
+  /// parse the logical expression into functionals
+  void parse(const std::string & expression);
+
   /// evaluator for the trigger condition
   triggerExpression::Evaluator * m_expression;
 

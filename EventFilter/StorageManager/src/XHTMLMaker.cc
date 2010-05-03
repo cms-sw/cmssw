@@ -1,4 +1,4 @@
-// $Id: XHTMLMaker.cc,v 1.4 2009/09/18 10:22:23 dshpakov Exp $
+// $Id: XHTMLMaker.cc,v 1.5 2009/12/27 05:41:11 elmer Exp $
 /// @file: XHTMLMaker.cc
 
 #include "EventFilter/StorageManager/interface/XHTMLMaker.h"
@@ -181,6 +181,36 @@ void XHTMLMaker::addText( Node* parent, const string& data )
 //// Add an integer: ////
 /////////////////////////
 void XHTMLMaker::addInt( Node* parent, int value )
+{
+    ostringstream tmpString;
+    tmpString << value;
+    addText( parent, tmpString.str() );
+}
+
+////////////////////////
+//// Add an uint32: ////
+////////////////////////
+void XHTMLMaker::addInt( Node* parent, uint32_t value )
+{
+    ostringstream tmpString;
+    tmpString << value;
+    addText( parent, tmpString.str() );
+}
+
+//////////////////////////
+//// Add a long long: ////
+//////////////////////////
+void XHTMLMaker::addInt( Node* parent, long long value )
+{
+    ostringstream tmpString;
+    tmpString << value;
+    addText( parent, tmpString.str() );
+}
+
+////////////////////////////////////
+//// Add an unsigned long long: ////
+////////////////////////////////////
+void XHTMLMaker::addInt( Node* parent, unsigned long long value )
 {
     ostringstream tmpString;
     tmpString << value;

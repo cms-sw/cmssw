@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2009/08/23 20:59:51 $
- * $Revision: 1.96 $
+ * $Date: 2010/02/12 21:37:57 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  *
 */
@@ -28,19 +28,15 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
 // #define COMMON_NOISE_ANALYSIS
 
-EBPedestalTask::EBPedestalTask(const ParameterSet& ps){
+EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -91,7 +87,7 @@ void EBPedestalTask::beginJob(void){
 
 }
 
-void EBPedestalTask::beginRun(const Run& r, const EventSetup& c) {
+void EBPedestalTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -99,7 +95,7 @@ void EBPedestalTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBPedestalTask::endRun(const Run& r, const EventSetup& c) {
+void EBPedestalTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -335,19 +331,19 @@ void EBPedestalTask::cleanup(void){
 
 void EBPedestalTask::endJob(void){
 
-  LogInfo("EBPedestalTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBPedestalTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
+void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool enable = false;
   int runType[36];
   for (int i=0; i<36; i++) runType[i] = -1;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -366,7 +362,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBPedestalTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EBPedestalTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -376,7 +372,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EBDigiCollection> digis;
+  edm::Handle<EBDigiCollection> digis;
 
   if ( e.getByLabel(EBDigiCollection_, digis) ) {
 
@@ -414,9 +410,6 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_STD ||
                runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
-
-      LogDebug("EBPedestalTask") << " det id = " << id;
-      LogDebug("EBPedestalTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       EBDataFrame dataframe = (*digiItr);
 
@@ -517,11 +510,11 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBPedestalTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EBPedestalTask") << EBDigiCollection_ << " not available";
 
   }
 
-  Handle<EcalPnDiodeDigiCollection> pns;
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
 
   if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
 
@@ -538,9 +531,6 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_STD ||
                runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
-
-      LogDebug("EBPedestalTask") << " det id = " << pnItr->id();
-      LogDebug("EBPedestalTask") << " sm, num " << ism << " " << num;
 
       for (int i = 0; i < 50; i++) {
 
@@ -561,7 +551,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBPedestalTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EBPedestalTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 

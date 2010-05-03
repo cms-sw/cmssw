@@ -14,11 +14,11 @@
  *
  * \author Michele de Gruttola, INFN Naples
  *
- * \id $Id: ZMuMuAnalyzer.cc,v 1.5 2009/11/19 16:55:51 fabozzi Exp $
+ * \id $Id: ZMuMuAnalyzer.cc,v 1.6 2010/01/10 19:08:08 hegner Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Candidate/interface/OverlapChecker.h"

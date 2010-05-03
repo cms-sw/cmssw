@@ -525,7 +525,7 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
             headerOffset = 0
             if isinstance(self.parent(), VispaWidget):
                 headerOffset = self.parent().getDistance("titleFieldBottom")
-            self._menuWidget.move(max(0, self.x() - 0.5* (self._menuWidget.width() - self.width())), max(0, headerOffset, self.y() - self._menuWidget.height() +1))
+            self._menuWidget.move(max(0, self.x() + 0.3* self.width(), self.x() - 0.5* (self._menuWidget.width() - self.width())), max(0, headerOffset, self.y() - self._menuWidget.height() +1))
         
     def dragWidget(self, pPos):
         VispaWidget.dragWidget(self, pPos)

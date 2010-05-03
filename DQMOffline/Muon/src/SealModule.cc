@@ -9,10 +9,10 @@
 #include "DQMOffline/Muon/src/MuonRecoTest.h"
 #include "DQMOffline/Muon/src/MuonTestSummary.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(MuonAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(MuonTrackResidualsTest);
-DEFINE_ANOTHER_FWK_MODULE(MuonRecoTest);
-DEFINE_ANOTHER_FWK_MODULE(DTSegmentsTask);
-DEFINE_ANOTHER_FWK_MODULE(MuonTestSummary);
+
+DEFINE_FWK_MODULE(MuonAnalyzer);
+DEFINE_FWK_MODULE(MuonTrackResidualsTest);
+DEFINE_FWK_MODULE(MuonRecoTest);
+DEFINE_FWK_MODULE(DTSegmentsTask);
+DEFINE_FWK_MODULE(MuonTestSummary);
 

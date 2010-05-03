@@ -5,7 +5,7 @@
 //
 #include "JetMETCorrections/Algorithms/interface/ZSPJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/SimpleZSPJetCorrector.h"
-#include "CondFormats/JetMETObjects/interface/SimpleJetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/SimpleL1OffsetCorrector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,7 +26,7 @@ ZSPJetCorrector::ZSPJetCorrector (const edm::ParameterSet& fConfig) {
  for(vector<string>::iterator it=theFilesL1Offset.begin(); it != theFilesL1Offset.end(); it++) {
    std::string file="CondFormats/JetMETObjects/data/"+(*it)+".txt";
    edm::FileInPath f2(file);
-   mSimpleCorrectorOffset.push_back(new SimpleJetCorrector (f2.fullPath()));
+   mSimpleCorrectorOffset.push_back(new SimpleL1OffsetCorrector (f2.fullPath()));
  }
  }
 
@@ -45,28 +45,20 @@ ZSPJetCorrector::~ZSPJetCorrector () {
 
 double ZSPJetCorrector::correction (const LorentzVector& fJet) const {
   double a = mSimpleCorrector[fixedPU]->correctionPtEtaPhiE (fJet.Pt(), fJet.Eta(), fJet.Phi(),fJet.E());
-
-  double b = 1.;
-
+  double b=1.;
   if(iPU >= 0) {
    if(mSimpleCorrectorOffset.size()>0) {
-     std::vector<float> binVar,parVar;
-     binVar.push_back(fJet.eta());
-     parVar.push_back(a*fJet.E());
-     b = mSimpleCorrectorOffset[fixedPU]->correction(binVar,parVar);
-   }
+    b = mSimpleCorrectorOffset[fixedPU]->correctionEnEta (a*fJet.E(), fJet.Eta());
+   } 
   }
-  double c = a*b;
+  double c = a * b;
   return c;
 }
 
 double ZSPJetCorrector::correction (const reco::Jet& fJet) const {
   return correction (fJet.p4 ());
 }
-double ZSPJetCorrector::correction(const reco::Jet& fJet,
-				   const edm::RefToBase<reco::Jet>& fJetRef,
-				   const edm::Event& iEvent,
-				   const edm::EventSetup& iSetup) const
+double ZSPJetCorrector::correction( const reco::Jet& fJet, const edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    double b=1.;
    int nPU = 0;
@@ -79,16 +71,12 @@ double ZSPJetCorrector::correction(const reco::Jet& fJet,
 
 
   double a = mSimpleCorrector[nPU]->correctionPtEtaPhiE (fJet.p4().Pt(), fJet.p4().Eta(), fJet.p4().Phi(),fJet.p4().E());
-
   if(iPU >= 0) {
     if(mSimpleCorrectorOffset.size()>0) {
-      std::vector<float> binVar,parVar;
-      binVar.push_back(fJet.eta());
-      parVar.push_back(a*fJet.p4().E());
-      b = mSimpleCorrectorOffset[nPU]->correction(binVar,parVar);
+     b = mSimpleCorrectorOffset[nPU]->correctionEnEta (a*fJet.p4().E(), fJet.p4().Eta());
     } 
   }
-  double c=a*b; 
-  return c;
+   double c = a * b; 
+   return c;
 }
 

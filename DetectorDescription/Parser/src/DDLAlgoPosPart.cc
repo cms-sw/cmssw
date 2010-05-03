@@ -120,10 +120,8 @@ void DDLAlgoPosPart::processElement (const std::string& name, const std::string&
     }
   
   algo.setParameters(st,ed,ic,parS,parE);
-  // for efficiency, I do not want to make a DDAlgoPositioner every time this is called.
-  // so DDCompactView must have a way to position inside itself as well.
-  cpv.algoPosPart(self, parent, algo);
-  //  ap_(self, parent, algo);
+  //cpv.algoPosPart(self, parent, algo);
+  DDalgoPosPart(self, parent, algo);
   // clear all "children" and attributes
   myChild->clear();
   myParent->clear();

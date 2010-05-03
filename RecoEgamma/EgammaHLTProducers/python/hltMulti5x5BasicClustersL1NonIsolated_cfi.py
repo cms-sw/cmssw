@@ -24,6 +24,7 @@ hltMulti5x5BasicClustersL1NonIsolated = cms.EDProducer("EgammaHLTMulti5x5Cluster
     l1TagNonIsolated = cms.InputTag("hltL1extraParticles","NonIsolated"),
     barrelHitProducer = cms.InputTag("hltEcalRegionalEgammaRecHit"),
     l1LowerThrIgnoreIsolation = cms.double(999.0),
+    RecHitFlagToBeExcluded = cms.vint32(),
     posCalc_t0_barl = cms.double(7.4),
     doBarrel = cms.bool(False)
 )

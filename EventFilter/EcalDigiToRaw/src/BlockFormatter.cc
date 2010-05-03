@@ -24,7 +24,6 @@ void BlockFormatter::SetParam(EcalDigiToRaw* base) {
  debug_   = base -> GetDebug();
  porbit_number_ = (base -> GetOrbit());
  plv1_ = (base -> GetLV1());
- dccFOV_ = (base -> GetFOV());
  pbx_  = (base -> GetBX());
  prunnumber_ = (base -> GetRunNumber());
  doBarrel_ = base -> GetDoBarrel();
@@ -43,7 +42,6 @@ void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData) {
  int orbit_number_ = *porbit_number_;
  int bx = *pbx_;
  int lv1 = *plv1_;
- int dccFOV =* dccFOV_;
 
  if (debug_) cout << "in BlockFormatter::DigiToRaw  run_number orbit_number bx lv1 " << dec << run_number << " " <<
          orbit_number_ << " " << bx << " " << lv1 << endl;
@@ -56,36 +54,32 @@ void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData) {
  
 	int FEDid = FEDNumbering::MINECALFEDID + idcc;
 	FEDRawData& rawdata = productRawData -> FEDData(FEDid);
-        unsigned char * pData;                      // treated as an array, pData walks in steps of bytes (i.e. 0xFF) and comprises 8
+        unsigned char * pData;
         short int DCC_ERRORS = 0;
 
 	if (rawdata.size() == 0) {
                 rawdata.resize(8);
                 pData = rawdata.data();
+
                 Word64 word = 0x18 + ((FEDid & 0xFFF)<<8)
 			    + ((Word64)((Word64)bx & 0xFFF)<<20)
                             + ((Word64)((Word64)lv1 & 0xFFFFFF)<<32)
                             + (Word64)((Word64)0x51<<56);
                 Word64* pw = reinterpret_cast<Word64*>(const_cast<unsigned char*>(pData));
-                *pw = word;                                // DAQ header
+                *pw = word;    // DAQ header
 
-                rawdata.resize(rawdata.size() + 8*8);      // DCC header
+                rawdata.resize(rawdata.size() + 8*8);   // DCC header
                 pData = rawdata.data();
-                pData[11] = DCC_ERRORS & 0xFF;             // word 2 bits 24-31   (referting to note CMS NOTE 2005/021, being updates!)
-                pData[12] = run_number & 0xFF;             // word 2 bits 32-55   (word 2 is here, word 1 is "DAQ header")
+                pData[11] = DCC_ERRORS & 0xFF;
+                pData[12] = run_number & 0xFF;
                 pData[13] = (run_number >>8) & 0xFF;
                 pData[14] = (run_number >> 16) & 0xFF;
                 pData[15] = 0x01;
 
-		// treated as an array, pData walks in steps of bytes, i.e. 0xFF
-                for (int i=16; i <= 22; i++) {             // DCC header 2  ranges (word 3)
+                for (int i=16; i <= 22; i++) {
                  pData[i] = 0;    // to be filled for local data taking or calibration
                 }
-		if (debug_) std::cout << "dccFOV is: "<<  dccFOV_ << std::endl;
-		// DCC_FOV is bits 51-48 of word 3, within pData[21];
-		pData[22] = dccFOV & 0xFF;
-
-                pData[23] = 0x02;                          // start DCC header 3
+                pData[23] = 0x02;
                 pData[24] = orbit_number_ & 0xFF;
 		pData[25] = (orbit_number_ >>8) & 0xFF;
 		pData[26] = (orbit_number_ >>16) & 0xFF;

@@ -6,8 +6,8 @@
  *  Build a TrackingRegion around a standalone muon
  *
  *
- *  $Date: 2008/06/30 16:27:00 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/04/20 17:07:10 $
+ *  $Revision: 1.9 $
  *
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University 
@@ -16,7 +16,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class MuonServiceProxy;
 class RectangularEtaPhiTrackingRegion;

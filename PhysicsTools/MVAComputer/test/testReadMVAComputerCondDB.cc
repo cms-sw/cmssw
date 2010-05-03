@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
@@ -98,5 +98,4 @@ void testReadMVAComputerCondDB::endJob()
 }
 
 // define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(testReadMVAComputerCondDB);
+DEFINE_FWK_MODULE(testReadMVAComputerCondDB);

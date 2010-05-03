@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <DataFormats/Common/interface/Handle.h>
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>

@@ -3,7 +3,6 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Math/interface/invertPosDefMatrix.h"
 
 using namespace std;
 
@@ -48,9 +47,9 @@ Chi2StripEstimator::estimate(const TrajectoryStateOnSurface& state,
   C(1,1) = me.vv();
 
   AlgebraicVector2 r(m - x);
-  AlgebraicSymMatrix22 R(V+C);
-  bool ierr =  !invertPosDefMatrix(R);
-  if (ierr) {
+  AlgebraicSymMatrix22 R(V + C);
+  int ierr = ! R.Invert();
+  if (ierr != 0) {
     edm::LogError("Chi2StripEstimator")<<" could not invert matrix:\n"<<(V+C);
     return returnIt( 0.0 );
   }

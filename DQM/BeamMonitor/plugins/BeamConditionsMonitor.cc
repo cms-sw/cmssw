@@ -2,8 +2,8 @@
  * \file BeamConditionsMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/11/05 21:38:17 $
- * $Revision: 1.4 $
+ * $Date: 2010/01/17 13:57:33 $
+ * $Revision: 1.5 $
  *
  */
 
@@ -30,7 +30,7 @@ BeamConditionsMonitor::BeamConditionsMonitor( const ParameterSet& ps ) :
 
   parameters_     = ps;
   monitorName_    = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
-  bsSrc_          = parameters_.getUntrackedParameter<string>("beamSpot","offlineBeamSpot");
+  bsSrc_          = parameters_.getUntrackedParameter<InputTag>("beamSpot");
   debug_          = parameters_.getUntrackedParameter<bool>("Debug");
   
   dbe_            = Service<DQMStore>().operator->();

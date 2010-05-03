@@ -9,6 +9,8 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -66,6 +68,13 @@ PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
   shortFibre_Cut = iConfig.getParameter<double>("ShortFibre_Cut");
   longFibre_Fraction = iConfig.getParameter<double>("LongFibre_Fraction");
 
+  ECAL_Compensate_ = iConfig.getParameter<bool>("ECAL_Compensate");
+  ECAL_Threshold_ = iConfig.getParameter<double>("ECAL_Threshold");
+  ECAL_Compensation_ = iConfig.getParameter<double>("ECAL_Compensation");
+  ECAL_Dead_Code_ = iConfig.getParameter<unsigned int>("ECAL_Dead_Code");
+
+  EM_Depth_ = iConfig.getParameter<double>("EM_Depth");
+  HAD_Depth_ = iConfig.getParameter<double>("HAD_Depth");
 
   //--ab
   produces<reco::PFRecHitCollection>("HFHAD").setBranchAlias("HFHADRecHits");
@@ -80,6 +89,7 @@ PFRecHitProducerHCAL::~PFRecHitProducerHCAL() {}
 
 
 void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
+					 vector<reco::PFRecHit>& rechitsCleaned,
 					 edm::Event& iEvent, 
 					 const edm::EventSetup& iSetup ) {
 
@@ -177,30 +187,48 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	
 	//get the constituents of the tower
 	const std::vector<DetId>& hits = ct.constituents();
+	const std::vector<DetId>& allConstituents = theTowerConstituentsMap->constituentsOf(ct.id());
 
 
 	//Reserve the DetId we are looking for:
 
 	HcalDetId detid;
+	// EcalDetId edetid;
 	bool foundHCALConstituent = false;
 
  
-	//Loop on them and search for HCAL
-	for(unsigned int i=0;i< hits.size();++i)
-	  {
-	    if(hits[i].det()==DetId::Hcal)
-	      {
-		foundHCALConstituent = true;
-		detid = hits[i];
-		break;
+	//Loop on the calotower constituents and search for HCAL
+	double dead = 0.;
+	double alive = 0.;
+	for(unsigned int i=0;i< hits.size();++i) {
+	  if(hits[i].det()==DetId::Hcal) { 
+	    foundHCALConstituent = true;
+	    detid = hits[i];
+	    // An HCAL tower was found: Look for dead ECAL channels in the same CaloTower.
+	    if ( ECAL_Compensate_ && energy > ECAL_Threshold_ ) {
+	      for(unsigned int j=0;j<allConstituents.size();++j) { 
+		if ( allConstituents[j].det()==DetId::Ecal ) { 
+		  alive += 1.;
+		  EcalChannelStatus::const_iterator chIt = theEcalChStatus->find(allConstituents[j]);
+		  unsigned int dbStatus = chIt != theEcalChStatus->end() ? chIt->getStatusCode() : 0;
+		  if ( dbStatus > ECAL_Dead_Code_ ) dead += 1.;
+		}
 	      }
-
+	    } 
+	    break;
 	  }
+	}
+
+	// In case of dead ECAL channel, rescale the HCAL energy...
+	double rescaleFactor = alive > 0. ? 1. + ECAL_Compensation_*dead/alive : 1.;
 	  
 	reco::PFRecHit* pfrh = 0;
+	reco::PFRecHit* pfrhCleaned = 0;
 	//---ab: need 2 rechits for the HF:
 	reco::PFRecHit* pfrhHFEM = 0;
 	reco::PFRecHit* pfrhHFHAD = 0;
+	reco::PFRecHit* pfrhHFEMCleaned = 0;
+	reco::PFRecHit* pfrhHFHADCleaned = 0;
 
 	if(foundHCALConstituent)
 	  {
@@ -210,22 +238,46 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	      {
 		if(energy < thresh_Barrel_ ) continue;
 		if ( HCAL_Calib_ ) energy   *= myPFCorr->getValues(detid)->getValue();
+		//if ( rescaleFactor > 1. ) 
+		// std::cout << "Barrel HCAL energy rescaled from = " << energy << " to " << energy*rescaleFactor << std::endl;
+		if ( rescaleFactor > 1. ) { 
+		  pfrhCleaned = createHcalRecHit( detid, 
+						  energy, 
+						  PFLayer::HCAL_BARREL1, 
+						  hcalBarrelGeometry,
+						  ct.id().rawId() );
+		  pfrhCleaned->setRescale(rescaleFactor);
+		  energy *= rescaleFactor;
+		}
 		pfrh = createHcalRecHit( detid, 
 					 energy, 
 					 PFLayer::HCAL_BARREL1, 
 					 hcalBarrelGeometry,
 					 ct.id().rawId() );
+		pfrh->setRescale(rescaleFactor);
 	      }
 	      break;
 	    case HcalEndcap:
 	      {
 		if(energy < thresh_Endcap_ ) continue;
 		if ( HCAL_Calib_ ) energy   *= myPFCorr->getValues(detid)->getValue();
+		//if ( rescaleFactor > 1. ) 
+		// std::cout << "End-cap HCAL energy rescaled from = " << energy << " to " << energy*rescaleFactor << std::endl;
+		if ( rescaleFactor > 1. ) { 
+		  pfrhCleaned = createHcalRecHit( detid, 
+						  energy, 
+						  PFLayer::HCAL_BARREL1, 
+						  hcalBarrelGeometry,
+						  ct.id().rawId() );
+		  pfrhCleaned->setRescale(rescaleFactor);
+		  energy *= rescaleFactor;
+		}
 		pfrh = createHcalRecHit( detid, 
 					 energy, 
 					 PFLayer::HCAL_ENDCAP, 
 					 hcalEndcapGeometry,
 					 ct.id().rawId() );
+		pfrh->setRescale(rescaleFactor);
 	      }
 	      break;
 	    case HcalOuter:
@@ -247,13 +299,22 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		double shortFibre = energyhadHF/2.;
 		int ieta = detid.ieta();
 		int iphi = detid.iphi();
-		if ( longFibre/shortFibre < longFibre_Fraction && shortFibre > shortFibre_Cut ) {
+		if ( shortFibre > shortFibre_Cut && longFibre/shortFibre < longFibre_Fraction ) {
 		  // Check if the long-fibre hit was not cleaned already (because hot)
 		  // In this case don't apply the cleaning
 		  HcalDetId theLongDetId (HcalForward, ieta, iphi, 1);
 		  const HcalChannelStatus* theStatus = theHcalChStatus->getValues(theLongDetId);
 		  unsigned theStatusValue = theStatus->getValue();
+		  // The channel is killed
 		  if ( !theStatusValue ) { 
+		    rescaleFactor = 0. ;
+		    pfrhHFHADCleaned = createHcalRecHit( detid, 
+							 energyhadHF, 
+							 PFLayer::HF_HAD, 
+							 hcalEndcapGeometry,
+							 ct.id().rawId() );
+		    pfrhHFHADCleaned->setRescale(rescaleFactor);
+		    energyhadHF *= rescaleFactor;
 		    /*
 		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
 			      << ", Energy em/had/long/short = " 
@@ -262,7 +323,6 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 			      << ". The status value is " << theStatusValue
 			      << ". Short fibres were cleaned." << std::endl;
 		    */
-		    continue;
 		  }
 		}
 
@@ -280,6 +340,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		  energyemHF *= myPFCorr->getValues(detid)->getValue();
 		}
 		
+		
 		// Create an EM and a HAD rechit if above threshold.
 		if ( energyemHF > thresh_HF_ || energyhadHF > thresh_HF_ ) { 
 		  pfrhHFEM = createHcalRecHit( detid, 
@@ -292,7 +353,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 						PFLayer::HF_HAD, 
 						hcalEndcapGeometry,
 						ct.id().rawId() );
-		  pfrhHFEM->setEnergyUp(energyhadHF);		  
+		  pfrhHFEM->setEnergyUp(energyhadHF);
 		  pfrhHFHAD->setEnergyUp(energyemHF);
 		}
 		
@@ -309,6 +370,10 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	      idSortedRecHits.insert( make_pair(ct.id().rawId(), 
 						rechits.size()-1 ) ); 
 	    }
+	    if(pfrhCleaned) { 
+	      rechitsCleaned.push_back( *pfrhCleaned );
+	      delete pfrhCleaned;
+	    }
 	    //---ab: 2 rechits for HF:	   
 	    if(pfrhHFEM) { 
 	      HFEMRecHits->push_back( *pfrhHFEM );
@@ -323,6 +388,14 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 						HFHADRecHits->size()-1 ) ); 
 	    }
 	    //---ab	   
+	    if(pfrhHFEMCleaned) { 
+	      rechitsCleaned.push_back( *pfrhHFEMCleaned );
+	      delete pfrhHFEMCleaned;
+	    }
+	    if(pfrhHFHADCleaned) { 
+	      rechitsCleaned.push_back( *pfrhHFHADCleaned );
+	      delete pfrhHFHADCleaned;
+	    }
 	  }
       }
       // do navigation 
@@ -458,12 +531,23 @@ PFRecHitProducerHCAL::createHcalRecHit( const DetId& detid,
   
   const GlobalPoint& position = thisCell->getPosition();
   
-  
+  double depth_correction = 0.;
+  switch ( layer ) { 
+  case PFLayer::HF_EM:
+    depth_correction = position.z() > 0. ? EM_Depth_ : -EM_Depth_;
+    break;
+  case PFLayer::HF_HAD:
+    depth_correction = position.z() > 0. ? HAD_Depth_ : -HAD_Depth_;
+    break;
+  default:
+    break;
+  }
+
   unsigned id = detid;
   if(newDetId) id = newDetId;
   reco::PFRecHit *rh = 
     new reco::PFRecHit( id,  layer, energy, 
-			position.x(), position.y(), position.z(), 
+			position.x(), position.y(), position.z()+depth_correction, 
 			0,0,0 );
  
   
@@ -474,10 +558,10 @@ PFRecHitProducerHCAL::createHcalRecHit( const DetId& detid,
 
   assert( corners.size() == 8 );
 
-  rh->setNECorner( corners[0].x(), corners[0].y(),  corners[0].z() );
-  rh->setSECorner( corners[1].x(), corners[1].y(),  corners[1].z() );
-  rh->setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z() );
-  rh->setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z() );
+  rh->setNECorner( corners[0].x(), corners[0].y(),  corners[0].z()+depth_correction );
+  rh->setSECorner( corners[1].x(), corners[1].y(),  corners[1].z()+depth_correction );
+  rh->setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z()+depth_correction );
+  rh->setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z()+depth_correction );
  
   return rh;
 }
@@ -640,16 +724,21 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   // all the following detids will be CaloTowerDetId
   CaloTowerDetId north;
   CaloTowerDetId northwest;
+  CaloTowerDetId northwest2;
   CaloTowerDetId west;
+  CaloTowerDetId west2;
   CaloTowerDetId southwest;
+  CaloTowerDetId southwest2;
   CaloTowerDetId south;
   CaloTowerDetId southeast;
+  CaloTowerDetId southeast2;
   CaloTowerDetId east;
+  CaloTowerDetId east2;
   CaloTowerDetId northeast;
+  CaloTowerDetId northeast2;
   
   // for north and south, there is no ambiguity : 1 or 0 neighbours
-  string err("PFRecHitProducerHCAL::findRecHitNeighboursCT : incorrect number of neighbours "); 
-  char n[20];
+  stringstream err("PFRecHitProducerHCAL::findRecHitNeighboursCT : incorrect number of neighbours "); 
   
   switch( northids.size() ) {
   case 0: 
@@ -658,9 +747,8 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
     north = northids[0];
     break;
   default:
-    sprintf(n, "north: %d", northids.size() );
-    err += n;
-    throw( err ); 
+    err<<"north: "<<northids.size();
+    throw( err.str() ); 
   }
 
   switch( southids.size() ) {
@@ -670,9 +758,8 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
     south = southids[0];
     break;
   default:
-    sprintf(n, "south %d", southids.size() );
-    err += n;
-    throw( err ); 
+    err<<"south: "<<southids.size();
+    throw( err.str() ); 
   }
   
   // for east and west, one must take care 
@@ -689,13 +776,15 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   case 2:  
     // in this case, 0 is more on the north than 1
     east = eastids[0];
+    east2 = eastids[1];
     northeast = getNorth(east, topology );
-    southeast = getSouth(eastids[1], topology);    
+    southeast = getSouth(east2, topology);    
+    northeast2 = getNorth(northeast, topology );
+    southeast2 = getSouth(southeast, topology);    
     break;
   default:
-    sprintf(n, "%d", eastids.size() );
-    err += n;
-    throw( err ); 
+    err<<"eastids: "<<eastids.size();
+    throw( err.str() ); 
   }
   
   
@@ -710,13 +799,15 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   case 2:  
     // in this case, 0 is more on the north than 1
     west = westids[0];
+    west2 = westids[1];
     northwest = getNorth(west, topology );
-    southwest = getSouth(westids[1], topology );    
+    southwest = getSouth(west2, topology );    
+    northwest2 = getNorth(northwest, topology );
+    southwest2 = getSouth(southwest, topology );    
     break;
   default:
-    sprintf(n, "%d", westids.size() );
-    err += n;
-    throw( err ); 
+    err<<"westids: "<< westids.size();
+    throw( err.str() ); 
   }
 
 
@@ -732,6 +823,10 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   if(i != sortedHits.end() ) 
     rh.add8Neighbour( i->second );
   
+  i = sortedHits.find( northeast2.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
+  
   i = sortedHits.find( south.rawId() );
   if(i != sortedHits.end() ) 
     rh.add4Neighbour( i->second );
@@ -740,7 +835,15 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   if(i != sortedHits.end() ) 
     rh.add8Neighbour( i->second );
     
+  i = sortedHits.find( southwest2.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
+    
   i = sortedHits.find( east.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add4Neighbour( i->second );
+    
+  i = sortedHits.find( east2.rawId() );
   if(i != sortedHits.end() ) 
     rh.add4Neighbour( i->second );
     
@@ -748,11 +851,23 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   if(i != sortedHits.end() ) 
     rh.add8Neighbour( i->second );
     
+  i = sortedHits.find( southeast2.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
+    
   i = sortedHits.find( west.rawId() );
   if(i != sortedHits.end() ) 
      rh.add4Neighbour( i->second );
    
+  i = sortedHits.find( west2.rawId() );
+  if(i != sortedHits.end() ) 
+     rh.add4Neighbour( i->second );
+   
   i = sortedHits.find( northwest.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
+
+  i = sortedHits.find( northwest2.rawId() );
   if(i != sortedHits.end() ) 
     rh.add8Neighbour( i->second );
 

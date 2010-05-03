@@ -3,7 +3,7 @@
 # batch mode for cmsRun, March 2009
 
 
-import os, sys,  imp, re, pprint
+import os, sys,  imp, re, pprint, string
 from optparse import OptionParser
 
 # particle flow specific
@@ -165,6 +165,10 @@ class MyBatchManager( BatchManager ):
 
 batchManager = MyBatchManager()
 
+
+file = open('cmsBatch.txt', 'w')
+file.write(string.join(sys.argv) + "\n")
+file.close()
 
 batchManager.parser_.usage = "%prog [options] <number of input files per job> <your_cfg.py>. Submits a number of jobs taking your_cfg.py as a template. your_cfg.py can either read events from input files, or produce them with a generator. In the later case, the seeds are of course updated for each job.\n\nExample:\tcmsBatch.py 10 fastSimWithParticleFlow_cfg.py -o Out2 -r /castor/cern.ch/user/c/cbern/CMSSW312/SinglePions/display.root"
 batchManager.parser_.add_option("-p", "--program", dest="prog",

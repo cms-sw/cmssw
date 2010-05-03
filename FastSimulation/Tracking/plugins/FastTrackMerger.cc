@@ -11,6 +11,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h" 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -77,6 +78,9 @@ FastTrackMerger::FastTrackMerger(const edm::ParameterSet& conf)
     produces<TrackingRecHitCollection>();
     produces<std::vector<Trajectory> >();
     produces<TrajTrackAssociationCollection>();
+  } else {
+    produces<reco::TrackExtraCollection>();
+    produces<TrackingRecHitCollection>();
   }
 }
 
@@ -109,6 +113,11 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
   std::auto_ptr<std::vector<Trajectory> > recoTrajectories(new std::vector<Trajectory>);
   std::auto_ptr<TrajTrackAssociationCollection> recoTrajTrackMap(new TrajTrackAssociationCollection());
 
+  //prepare the ref to copy the extras
+  reco::TrackExtraRefProd rTrackExtras = e.getRefBeforePut<reco::TrackExtraCollection>();
+  TrackingRecHitRefProd rHits = e.getRefBeforePut<TrackingRecHitCollection>();
+  std::vector<reco::TrackRef> trackRefs;
+
   // No seed -> output an empty track collection
   if(trackProducers.size() == 0) {
     e.put(recoTracks);
@@ -117,6 +126,9 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
       e.put(recoHits);
       e.put(recoTrajectories);
       e.put(recoTrajTrackMap);
+    } else {
+      e.put(recoTrackExtras);
+      e.put(recoHits);
     }
     return;
   }
@@ -174,11 +186,12 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
     reco::TrackCollection::const_iterator aTrack = theTrackCollection->begin();
     reco::TrackCollection::const_iterator lastTrack = theTrackCollection->end();
 
-    // Only tracks are to be copied -> loop on the track collection and copy
+    //Copy Tracks and TracksExtra 
     if ( tracksOnly ) { 
 
-      // edm:: Handle<reco::TrackExtraCollection > theTrackExtraCollection;
-      // bool isTrackExtraCollection = e.getByLabel(trackProducers[aProducer],theTrackExtraCollection); 
+      edm:: Handle<reco::TrackExtraCollection > theTrackExtraCollection;
+      //      bool isTrackExtraCollection = e.getByLabel(trackProducers[aProducer],theTrackExtraCollection); 
+
       bool index = 0;
       for ( ; aTrack!=lastTrack; ++aTrack,++index ) {
 
@@ -220,19 +233,36 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	
 	// A copy of the track + save the transient reference to the track extra reference
 	reco::Track aRecoTrack(*aTrack);
-	// const reco::TrackExtraRef theTrackExtraRef(*theTrackExtraCollection,index);
-	// if ( isTrackExtraCollection ) aRecoTrack.setExtra(theTrackExtraRef);
 	recoTracks->push_back(aRecoTrack);
+	
+
+	recoTrackExtras->push_back(reco::TrackExtra(aRecoTrack.outerPosition(), aRecoTrack.outerMomentum(), aRecoTrack.outerOk(),
+					       aRecoTrack.innerPosition(), aRecoTrack.innerMomentum(), aRecoTrack.innerOk(),
+					       aRecoTrack.outerStateCovariance(), aRecoTrack.outerDetId(),
+					       aRecoTrack.innerStateCovariance(), aRecoTrack.innerDetId(),
+					       aRecoTrack.seedDirection(), aRecoTrack.seedRef() ) ); 
+
+
+	recoTracks->back().setExtra(reco::TrackExtraRef(rTrackExtras,recoTrackExtras->size()-1)); 
+
+	reco::TrackExtra & tx = recoTrackExtras->back();
+	tx.setResiduals(aRecoTrack.residuals());
+	//TrackingRecHits
+	for( trackingRecHit_iterator hit = aRecoTrack.recHitsBegin(); hit != aRecoTrack.recHitsEnd(); ++ hit ) {
+	  recoHits->push_back( (*hit)->clone() );
+	  tx.add( TrackingRecHitRef( rHits , recoHits->size() - 1) );
+	}
+	
 	// Save the quality if requested
 	if (promoteQuality) recoTracks->back().setQuality(qualityToSet);
 	if ( trackAlgo ) recoTracks->back().setAlgorithm(algo);
 	
       }
       
-
-    // All extras are to be copied too -> loop on the Trajectory/Track map association 
+      
+      // All extras are to be copied too -> loop on the Trajectory/Track map association 
     } else { 
-
+      
       edm:: Handle<std::vector<Trajectory> > theTrajectoryCollection;
       edm::Handle<TrajTrackAssociationCollection> theAssoMap;  
 
@@ -355,6 +385,9 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
   if ( tracksOnly ) { 
     // Save only the tracks (with transient reference to track extras)
     e.put(recoTracks);
+    e.put(recoTrackExtras);
+    e.put(recoHits);
+
 
   } else { 
     // Save the tracking recHits

@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2009/12/08 10:34:45 $
- * $Revision: 1.66 $
+ * $Date: 2010/03/18 12:50:55 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -36,19 +36,15 @@
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEOccupancyTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
+EEOccupancyTask::EEOccupancyTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
   initGeometry_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -64,6 +60,7 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
     meOccupancy_[i]    = 0;
     meOccupancyMem_[i] = 0;
     meEERecHitEnergy_[i] = 0;
+    meSpectrum_[i] = 0;
   }
 
   meEERecHitSpectrum_[0] = 0;
@@ -136,7 +133,7 @@ void EEOccupancyTask::beginJob(void){
 
 }
 
-void EEOccupancyTask::beginRun(const Run& r, const EventSetup& c) {
+void EEOccupancyTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if( !initGeometry_ ) {
     // ideal
@@ -150,7 +147,7 @@ void EEOccupancyTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EEOccupancyTask::endRun(const Run& r, const EventSetup& c) {
+void EEOccupancyTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -160,6 +157,7 @@ void EEOccupancyTask::reset(void) {
     if ( meOccupancy_[i] ) meOccupancy_[i]->Reset();
     if ( meOccupancyMem_[i] ) meOccupancyMem_[i]->Reset();
     if ( meEERecHitEnergy_[i] ) meEERecHitEnergy_[i]->Reset(); 
+    if ( meSpectrum_[i] ) meSpectrum_[i]->Reset();
   }
 
   if ( meEERecHitSpectrum_[0] ) meEERecHitSpectrum_[0]->Reset();
@@ -242,6 +240,11 @@ void EEOccupancyTask::setup(void){
       meEERecHitEnergy_[i]->setAxisTitle("jy", 2);
       meEERecHitEnergy_[i]->setAxisTitle("energy (GeV)", 3);
       dqmStore_->tag(meEERecHitEnergy_[i], i+1);
+
+      sprintf(histo, "EEOT energy spectrum %s", Numbers::sEE(i+1).c_str());
+      meSpectrum_[i] = dqmStore_->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrum_[i]->setAxisTitle("energy (GeV)", 1);
+      dqmStore_->tag(meSpectrum_[i], i+1);
     }
 
     sprintf(histo, "EEOT rec hit spectrum EE -");
@@ -440,6 +443,8 @@ void EEOccupancyTask::cleanup(void){
       meOccupancyMem_[i] = 0;
       if ( meEERecHitEnergy_[i] ) dqmStore_->removeElement( meEERecHitEnergy_[i]->getName() );
       meEERecHitEnergy_[i] = 0;
+      if ( meSpectrum_[i] ) dqmStore_->removeElement( meSpectrum_[i]->getName() );
+      meSpectrum_[i] = 0;
     }
 
     if ( meEERecHitSpectrum_[0] ) dqmStore_->removeElement( meEERecHitSpectrum_[0]->getName() );
@@ -545,13 +550,13 @@ void EEOccupancyTask::cleanup(void){
 
 void EEOccupancyTask::endJob(void) {
 
-  LogInfo("EEOccupancyTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EEOccupancyTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
+void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
@@ -559,7 +564,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   int runType[18] = { notdata };
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -589,10 +594,10 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EEOccupancyTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EEOccupancyTask") << EcalRawDataCollection_ << " not available";
   }
 
-  Handle<EEDigiCollection> digis;
+  edm::Handle<EEDigiCollection> digis;
 
   if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
@@ -605,8 +610,10 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       int ix = id.ix();
       int iy = id.iy();
-      float eta = pGeometry_->getGeometry(id)->getPosition().eta();
-      float phi = pGeometry_->getGeometry(id)->getPosition().phi();
+
+      const GlobalPoint pos = pGeometry_->getGeometry(id)->getPosition();
+      float eta = pos.eta();
+      float phi = pos.phi();
 
       int ism = Numbers::iSM( id );
 
@@ -615,13 +622,10 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
       float xix = ix - 0.5;
       float xiy = iy - 0.5;
 
-      LogDebug("EEOccupancyTask") << " det id = " << id;
-      LogDebug("EEOccupancyTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
       if ( xix <= 0. || xix >= 100. || xiy <= 0. || xiy >= 100. ) {
-        LogWarning("EEOccupancyTask") << " det id = " << id;
-        LogWarning("EEOccupancyTask") << " sm, ix, iw " << ism << " " << ix << " " << iy;
-        LogWarning("EEOccupancyTask") << " xix, xiy " << xix << " " << xiy;
+        edm::LogWarning("EEOccupancyTask") << " det id = " << id;
+        edm::LogWarning("EEOccupancyTask") << " sm, ix, iw " << ism << " " << ix << " " << iy;
+        edm::LogWarning("EEOccupancyTask") << " xix, xiy " << xix << " " << xiy;
       }
 
       if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill( xix, xiy );
@@ -690,11 +694,11 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEOccupancyTask") << EEDigiCollection_ << " not available";
+    edm::LogWarning("EEOccupancyTask") << EEDigiCollection_ << " not available";
 
   }
 
-  Handle<EcalPnDiodeDigiCollection> PNs;
+  edm::Handle<EcalPnDiodeDigiCollection> PNs;
 
   if ( e.getByLabel(EcalPnDiodeDigiCollection_, PNs) ) {
 
@@ -723,7 +727,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEOccupancyTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EEOccupancyTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 
@@ -732,7 +736,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
   c.get<EcalChannelStatusRcd>().get(pChannelStatus);
   const EcalChannelStatus *chStatus = pChannelStatus.product();
 
-  Handle<EcalRecHitCollection> rechits;
+  edm::Handle<EcalRecHitCollection> rechits;
 
   if ( e.getByLabel(EcalRecHitCollection_, rechits) ) {
 
@@ -745,8 +749,10 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       int eex = id.ix();
       int eey = id.iy();
-      float eta = pGeometry_->getGeometry(id)->getPosition().eta();
-      float phi = pGeometry_->getGeometry(id)->getPosition().phi();
+
+      const GlobalPoint pos = pGeometry_->getGeometry(id)->getPosition();
+      float eta = pos.eta();
+      float phi = pos.phi();
 
       int ism = Numbers::iSM( id );
 
@@ -771,7 +777,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
         }
 
         uint32_t flag = rechitItr->recoFlag();      
-        uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*rechitItr), *chStatus );
+        uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *rechits, *chStatus );
 
         if ( rechitItr->energy() > recHitEnergyMin_ && flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
           
@@ -785,11 +791,11 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
             if ( meEERecHitOccupancyProPhiThr_[1] ) meEERecHitOccupancyProPhiThr_[1]->Fill( phi );
           }
           
-          if ( meEERecHitEnergy_[ism-1] ) meEERecHitEnergy_[ism-1]->Fill( xix, xiy, rechitItr->energy() );
-
         }
 
-        if ( rechitItr->recoFlag() == EcalRecHit::kGood ) {
+        if ( flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
+          if ( meEERecHitEnergy_[ism-1] ) meEERecHitEnergy_[ism-1]->Fill( xix, xiy, rechitItr->energy() );
+          if ( meSpectrum_[ism-1] ) meSpectrum_[ism-1]->Fill( rechitItr->energy() );
           if (  ism >= 1 && ism <= 9  ) meEERecHitSpectrum_[0]->Fill( rechitItr->energy() );
           else meEERecHitSpectrum_[1]->Fill( rechitItr->energy() );
         }
@@ -799,11 +805,11 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEOccupancyTask") << EcalRecHitCollection_ << " not available";
+    edm::LogWarning("EEOccupancyTask") << EcalRecHitCollection_ << " not available";
 
   }
 
-  Handle<EcalTrigPrimDigiCollection> trigPrimDigis;
+  edm::Handle<EcalTrigPrimDigiCollection> trigPrimDigis;
 
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, trigPrimDigis) ) {
 
@@ -816,16 +822,18 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( tpdigiItr->id() );
 
-      vector<DetId> crystals = Numbers::crystals( tpdigiItr->id() );
+      vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
 
-      for ( unsigned int i=0; i<crystals.size(); i++ ) {
+      for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
-        EEDetId id = crystals[i];
+        EEDetId id = (*crystals)[i];
 
         int eex = id.ix();
         int eey = id.iy();
-        float eta = pGeometry_->getGeometry(id)->getPosition().eta();
-        float phi = pGeometry_->getGeometry(id)->getPosition().phi();
+
+        const GlobalPoint pos = pGeometry_->getGeometry(id)->getPosition();
+        float eta = pos.eta();
+        float phi = pos.phi();
 
         float xeex = eex - 0.5;
         float xeey = eey - 0.5;
@@ -862,7 +870,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEOccupancyTask") << EcalTrigPrimDigiCollection_ << " not available";
+    edm::LogWarning("EEOccupancyTask") << EcalTrigPrimDigiCollection_ << " not available";
 
   }
 

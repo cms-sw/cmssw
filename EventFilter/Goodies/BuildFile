@@ -1,0 +1,10 @@
+<use name=EventFilter/Utilities>
+<use name=root>
+<use name=rootgraphics>
+<Flags CPPFLAGS='-g'>
+<Flags LDFLAGS='-g'>
+
+<export>
+  <lib name=EventFilterGoodies>
+</export>
+

@@ -11,8 +11,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/08/30 12:27:55 $
- *   $Revision: 1.3 $
+ *   $Date: 2006/09/15 12:07:37 $
+ *   $Revision: 1.4 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -20,7 +20,7 @@
 //--------------------------------------------------
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
