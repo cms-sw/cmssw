@@ -49,6 +49,7 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
   else if (mode == "sum2Relative") mode_ = Sum2Relative;
   else if (mode == "max") mode_ = Max;                  
   else if (mode == "maxRelative") mode_ = MaxRelative;
+  else if (mode == "nearestDR") mode_ = NearestDR;
   else if (mode == "count") mode_ = Count;
   else throw cms::Exception("Not Implemented") << "Mode '" << mode << "' not implemented. " <<
     "Supported modes are 'sum', 'sumRelative', 'count'." << 
@@ -102,6 +103,7 @@ double CandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateBas
         case Sum2:         return weight * dep.sum2Within(deltaR_, vetos_, skipDefaultVeto_);
         case Sum2Relative: return weight * dep.sum2Within(deltaR_, vetos_, skipDefaultVeto_) / (dep.candEnergy() * dep.candEnergy()) ;
         case Max:          return weight * dep.maxWithin(deltaR_, vetos_, skipDefaultVeto_);
+        case NearestDR:    return weight * dep.nearestDR(deltaR_, vetos_, skipDefaultVeto_);
         case MaxRelative:  return weight * dep.maxWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.candEnergy() ;
     }
     throw cms::Exception("Logic error") << "Should not happen at " << __FILE__ << ", line " << __LINE__; // avoid gcc warning
