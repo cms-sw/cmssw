@@ -4,7 +4,7 @@ hltMuonQualityTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath(
         'HLTriggerOffline/Muon/data/HLTMuonQualityTests.xml'
     ),
-    reportThreshold         = cms.untracked.string('black'),
+    #reportThreshold         = cms.untracked.string('black'),
     prescaleFactor          = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
     qtestOnEndJob           = cms.untracked.bool(True),

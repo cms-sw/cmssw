@@ -4,7 +4,7 @@ hltJetMetQualityTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath(
         'HLTriggerOffline/JetMET/data/QualityTests.xml'
     ),
-    reportThreshold         = cms.untracked.string('black'),
+    #reportThreshold         = cms.untracked.string('black'),
     prescaleFactor          = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
     qtestOnEndJob           = cms.untracked.bool(False),
