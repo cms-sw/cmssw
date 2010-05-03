@@ -14,7 +14,7 @@
 // Define when two rechits are equals
 struct EqualsBySharesInput { 
     bool operator()(const TransientTrackingRecHit *h1, const TransientTrackingRecHit *h2) const {
-        return (h1 == h2) || ((h1->geographicalId() == h2->geographicalId()) && (h1->hit()->sharesInput(h2->hit(), TrackingRecHit::all)));
+        return (h1 == h2) || ((h1->geographicalId() == h2->geographicalId()) && (h1->hit()->sharesInput(h2->hit(), TrackingRecHit::some)));
     }
 };
 // Define a hash, i.e. a number that must be equal if hits are equal, and should be different if they're not
@@ -24,7 +24,6 @@ struct HashByDetId : std::unary_function<const TransientTrackingRecHit *, std::s
         return hasher(hit->geographicalId().rawId());
     }
 };
-
 
 using namespace std;
 
@@ -46,7 +45,7 @@ void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) cons
   for (TrajectoryPointerContainer::iterator
 	 it = tc.begin(); it != tc.end(); ++it) {
     DEBUG_PRINT(std::cout << "  Processing trajectory " << *it << " (" << (*it)->foundHits() << " valid hits)" << std::endl);
-    const Trajectory::DataContainer & pd = (*it)->data();
+    const Trajectory::DataContainer & pd = (*it)->measurements();
     for (Trajectory::DataContainer::const_iterator im = pd.begin();
     	 im != pd.end(); im++) {
       const TransientTrackingRecHit* theRecHit = &(*(*im).recHit());
@@ -66,7 +65,7 @@ void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) cons
     if((*itt)->isValid()){  
       DEBUG_PRINT(std::cout << "  Processing trajectory " << *itt << " (" << (*itt)->foundHits() << " valid hits)" << std::endl);
       theTrajMap.clear();
-      const Trajectory::DataContainer & pd = (*itt)->data();
+      const Trajectory::DataContainer & pd = (*itt)->measurements();
       for (Trajectory::DataContainer::const_iterator im = pd.begin();
 	   im != pd.end(); ++im) {
 	//RC const TransientTrackingRecHit* theRecHit = ((*im).recHit());
@@ -89,25 +88,35 @@ void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) cons
       if(!theTrajMap.empty() > 0){
 	for(TrajMap::iterator imapp = theTrajMap.begin(); 
 	    imapp != theTrajMap.end(); ++imapp){
-	  //          int nhit1 = (*itt).data().size();
-	  //          int nhit2 = (*imapp).first->data().size();
-          int nhit1 = (*itt)->foundHits();
-          int nhit2 = (*imapp).first->foundHits();
-	  if((*imapp).second >= (min(nhit1, nhit2) * theFraction)){
-	    Trajectory* badtraj;
-	    if (nhit1 != nhit2)
-	      // select the shortest trajectory
-	      badtraj = (nhit1 > nhit2) ?
-		(*imapp).first : *itt;
-	    else
-	      // select the trajectory with less chi squared
-	      badtraj = ((*imapp).first->chiSquared() > (*itt)->chiSquared()) ?
-		(*imapp).first : *itt;
-	    badtraj->invalidate();  // invalidate this trajectory
+	  if((*imapp).second > 0 ){
+	    int innerHit = 0;
+	    if ( allowSharedFirstHit ) {
+	      const TrajectoryMeasurement innerMeasure1 = ( (*itt)->direction() == alongMomentum ) ? 
+		(*itt)->firstMeasurement() : (*itt)->lastMeasurement();
+	      const TransientTrackingRecHit* h1 = &(*(innerMeasure1).recHit());
+	      const TrajectoryMeasurement innerMeasure2 = ( (*imapp).first->direction() == alongMomentum ) ? 
+		(*imapp).first->firstMeasurement() : (*imapp).first->lastMeasurement();
+	      const TransientTrackingRecHit* h2 = &(*(innerMeasure2).recHit());
+	      if ( (h1 == h2) || ((h1->geographicalId() == h2->geographicalId()) && 
+				  (h1->hit()->sharesInput(h2->hit(), TrackingRecHit::some))) ) {
+		innerHit = 1;
+	      }
+	    }
+	    int nhit1 = (*itt)->foundHits();
+	    int nhit2 = (*imapp).first->foundHits();
+	    if( ((*imapp).second - innerHit) >= ( (min(nhit1, nhit2)-innerHit) * theFraction) ){
+	      Trajectory* badtraj;
+	      if (nhit1 != nhit2)
+		// remove the shortest trajectory
+		badtraj = (nhit1 > nhit2) ? (*imapp).first : *itt;
+	      else
+		// remove the trajectory with largest chi squared
+		badtraj = ((*imapp).first->chiSquared() > (*itt)->chiSquared()) ? (*imapp).first : *itt;
+	      badtraj->invalidate();  // invalidate this trajectory
+	    }
 	  }
 	}
       } 
     }
   }
 }
-
