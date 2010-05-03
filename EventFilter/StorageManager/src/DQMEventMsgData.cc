@@ -1,4 +1,4 @@
-// $Id: DQMEventMsgData.cc,v 1.5 2010/04/30 07:44:56 mommsen Exp $
+// $Id: DQMEventMsgData.cc,v 1.6 2010/04/30 14:24:18 mommsen Exp $
 /// @file: DQMEventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -188,7 +188,10 @@ namespace stor
           msgView.reset(new DQMEventMsgView(&_headerCopy[0]));
         }
 
-      _headerSize = msgView->headerSize() + sizeof(uint32); //FIXME
+      _headerSize = msgView->headerSize()
+        + sizeof(uint32); // in contrast to other message types,
+                          // DQM messages do not contain the data
+                          // length entry (uint32) in headerSize()
       _headerLocation = msgView->startAddress();
       _topFolderName = msgView->topFolderName();
       _adler32 = msgView->adler32_chksum();
