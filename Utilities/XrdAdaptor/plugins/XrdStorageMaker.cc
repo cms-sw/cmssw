@@ -11,8 +11,7 @@ public:
       @a mode bits.  No temporary files are downloaded.  */
   virtual Storage *open (const std::string &proto,
 			 const std::string &path,
-			 int mode,
-			 const std::string &tmpdir)
+			 int mode)
   {
     std::string fullpath(proto + ":" + path);
     return new XrdFile (fullpath, mode);
