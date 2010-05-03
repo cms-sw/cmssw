@@ -44,7 +44,8 @@ class cosmics(Scenario):
                  'MuAlStandAloneCosmics',
                  'MuAlGlobalCosmics',
                  'MuAlCalIsolatedMu',
-                 'HcalCalHOCosmics']
+                 'HcalCalHOCosmics',
+                 'DtCalib']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
@@ -82,14 +83,10 @@ class cosmics(Scenario):
 
         """
 
-        skims = ['TkAlBeamHalo',
-                 'MuAlBeamHaloOverlaps',
-                 'MuAlBeamHalo',
-                 'TkAlCosmics0T',
-                 'MuAlStandAloneCosmics',
-                 'MuAlGlobalCosmics',
-                 'MuAlCalIsolatedMu',
-                 'HcalCalHOCosmics']
+        skims = ['SiStripCalZeroBias',
+                 'TkAlMinBias',
+                 'DtCalib',
+                 'MuAlCalIsolatedMu']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
