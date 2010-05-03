@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 11:20:00 EST 2008
-// $Id: FWSimpleProxyBuilderTemplate.h,v 1.4 2010/04/27 18:08:28 amraktad Exp $
+// $Id: FWSimpleProxyBuilderTemplate.h,v 1.5 2010/05/03 15:47:37 amraktad Exp $
 //
 
 // system include files
@@ -68,12 +68,12 @@ private:
    */
    virtual void build(const T& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*)
    {
-      assert();
+      assert(false);
    }
 
    virtual void buildViewType(const T& iData, unsigned int iIndex,TEveElement& oItemHolder, FWViewType::EType viewType, const FWViewContext*) 
    { 
-      assert();
+      assert(false);
    };
 
    // ---------- member data --------------------------------
