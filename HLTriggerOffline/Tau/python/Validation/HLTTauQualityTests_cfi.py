@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltTauQualityTesterForZ8E29 = cms.EDAnalyzer("QualityTester",
                                         qtList = cms.untracked.FileInPath('HLTriggerOffline/Tau/data/QTDefault.xml'),
-                                        reportThreshold         = cms.untracked.string('black'),
+                                        #reportThreshold         = cms.untracked.string('black'),
                                         prescaleFactor          = cms.untracked.int32(1),
                                         getQualityTestsFromFile = cms.untracked.bool(True),
                                         qtestOnEndJob           = cms.untracked.bool(True),
@@ -15,7 +15,7 @@ hltTauQualityTesterForZ8E29 = cms.EDAnalyzer("QualityTester",
 
 hltTauQualityTesterForZ8E29Custom = cms.EDAnalyzer("HLTTauRelvalQTester",
                                         qtList = cms.untracked.FileInPath('HLTriggerOffline/Tau/data/QTDefault.xml'),
-                                        reportThreshold         = cms.untracked.string('black'),
+                                        #reportThreshold         = cms.untracked.string('black'),
                                         prescaleFactor          = cms.untracked.int32(1),
                                         getQualityTestsFromFile = cms.untracked.bool(True),
                                         qtestOnEndJob           = cms.untracked.bool(True),
@@ -25,3 +25,4 @@ hltTauQualityTesterForZ8E29Custom = cms.EDAnalyzer("HLTTauRelvalQTester",
                                         refMothers              = cms.InputTag("TauMCProducer","Mothers"),
                                         mothers                 = cms.vint32(23)
                                     )
+
