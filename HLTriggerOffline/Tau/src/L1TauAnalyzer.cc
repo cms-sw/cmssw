@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Fri Feb 22 09:20:55 CST 2008
-// $Id: L1TauAnalyzer.cc,v 1.4 2008/07/23 15:19:50 chinhan Exp $
+// $Id: L1TauAnalyzer.cc,v 1.5 2009/12/18 20:44:55 wmtan Exp $
 //
 //
 
@@ -303,7 +303,7 @@ L1TauAnalyzer::endJob() {
   convertToIntegratedEff(h_L1SingleTauEffPFMCMatchEt,(double)_nEventsPFMatchGenTauHad);
   convertToIntegratedEff(h_L1DoubleTauEffPFMCMatchEt,(double)_nEventsPFMatchDoubleGenTauHads);
 
-  printTrigReport();
+  //printTrigReport();
 }
 
 void
