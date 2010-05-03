@@ -13,6 +13,8 @@ trackerconnect = os.environ["ALIGNMENT_TRACKERCONNECT"]
 trackeralignment = os.environ["ALIGNMENT_TRACKERALIGNMENT"]
 trackerAPEconnect = os.environ["ALIGNMENT_TRACKERAPECONNECT"]
 trackerAPE = os.environ["ALIGNMENT_TRACKERAPE"]
+gprcdconnect = os.environ["ALIGNMENT_GPRCDCONNECT"]
+gprcd = os.environ["ALIGNMENT_GPRCD"]
 iscosmics = (os.environ["ALIGNMENT_ISCOSMICS"] == "True")
 station123params = os.environ["ALIGNMENT_STATION123PARAMS"]
 station4params = os.environ["ALIGNMENT_STATION4PARAMS"]
@@ -122,6 +124,14 @@ if trackerAPEconnect != "":
                                                    connect = cms.string(trackerAPEconnect),
                                                    toGet = cms.VPSet(cms.PSet(cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"), tag = cms.string(trackerAPE)))))
     process.es_prefer_TrackerAlignmentErrorInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentErrorInputDB")
+
+if gprcdconnect != "":
+    from CondCore.DBCommon.CondDBSetup_cfi import *
+    process.GlobalPositionInputDB = cms.ESSource("PoolDBESSource",
+                                                   CondDBSetup,
+                                                   connect = cms.string(gprcdconnect),
+                                                   toGet = cms.VPSet(cms.PSet(record = cms.string("GlobalPositionRcd"), tag = cms.string(gprcd))))
+    process.es_prefer_GlobalPositionInputDB = cms.ESPrefer("PoolDBESSource", "GlobalPositionInputDB")
 
 process.looper.saveToDB = False
 process.looper.saveApeToDB = False
