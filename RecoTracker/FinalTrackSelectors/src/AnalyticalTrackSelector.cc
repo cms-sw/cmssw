@@ -187,6 +187,8 @@ bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const
 
    using namespace std; 
 
+   if ( tk.ndof() < 1E-5 ) return false;
+
    // Cuts on numbers of layers with hits/3D hits/lost hits.
    uint32_t nlayers     = tk.hitPattern().trackerLayersWithMeasurement();
    uint32_t nlayers3D   = tk.hitPattern().pixelLayersWithMeasurement() +

@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: jmuelmen $
-// $Date: 2009/05/27 02:37:00 $
-// $Revision: 1.23 $
+// $Author: mangano $
+// $Date: 2009/09/29 14:22:16 $
+// $Revision: 1.24 $
 //
 
 #include <memory>
@@ -257,115 +257,6 @@ namespace cms
       }//end loop over tracks
    }//end more than 0 track
 
-   //DON'T BELIEVE WE NEED THIS LOOP
-   /*
-  //
-  //  L1 has > 1 track - try merging
-  //
-   if ( 1<tC1.size() ){
-    i=-1;
-    for (reco::TrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); track++){
-      i++; 
-      //std::cout << "Track number "<< i << std::endl ; 
-      if (!selected1[i])continue;
-      int j=-1;
-      for (reco::TrackCollection::const_iterator track2=tC1.begin(); track2!=tC1.end(); track2++){
-        j++;
-        if ((j<=i)||(!selected1[j])||(!selected1[i]))continue;
-        int noverlap=0;
-        for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
-          if ((*it)->isValid()){
-            for (trackingRecHit_iterator jt = track2->recHitsBegin();  jt != track2->recHitsEnd(); jt++){
-	      if ((*jt)->isValid()){
-//                if (((*it)->geographicalId()==(*jt)->geographicalId())&&((*it)->localPosition().x()==(*jt)->localPosition().x()))noverlap++;
-               if (!use_sharesInput){
-                float delta = fabs ( (*it)->localPosition().x()-(*jt)->localPosition().x() ); 
-                if (((*it)->geographicalId()==(*jt)->geographicalId())&&(delta<epsilon))noverlap++;
-               }else{
-                const TrackingRecHit* kt = &(**jt);
-                if ( (*it)->sharesInput(kt,TrackingRecHit::some) )noverlap++;
-               }
-              }
-            }
-          }
-        }
-        float fi=float(noverlap)/float(track->numberOfValidHits()); float fj=float(noverlap)/float(track2->numberOfValidHits());
-        //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->numberOfValidHits() << " "  << track2->numberOfValidHits() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
-        if ((fi>shareFrac)||(fj>shareFrac)){
-          if (fi<fj){
-            selected1[j]=0;
-            //std::cout << " removing 2nd trk in pair " << std::endl;
-          }else{
-            if (fi>fj){
-              selected1[i]=0; 
-              //std::cout << " removing 1st trk in pair " << std::endl;
-            }else{
-              //std::cout << " removing worst chisq in pair " << std::endl;
-              if (track->normalizedChi2() > track2->normalizedChi2()){selected1[i]=0;}else{selected1[j]=0;}
-            }//end fi > or = fj
-          }//end fi < fj
-        }//end got a duplicate
-      }//end track2 loop
-    }//end track loop
-   }//end more than 1 track
-   */
-
-   //DON'T BELIEVE WE NEED THIS LOOP EITHER
-   /*
-  //
-  //  L2 has > 1 track - try merging
-  //
-   if ( 1<tC2.size() ){
-    int i=-1;
-    for (reco::TrackCollection::const_iterator track=tC2.begin(); track!=tC2.end(); track++){
-      i++; 
-      //std::cout << "Track number "<< i << std::endl ; 
-      if (!selected2[i])continue;
-      int j=-1;
-      for (reco::TrackCollection::const_iterator track2=tC2.begin(); track2!=tC2.end(); track2++){
-        j++;
-        if ((j<=i)||(!selected2[j])||(!selected2[i]))continue;
-        int noverlap=0;
-        for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
-          if ((*it)->isValid()){
-            for (trackingRecHit_iterator jt = track2->recHitsBegin();  jt != track2->recHitsEnd(); jt++){
-	      if ((*jt)->isValid()){
-//                if (((*it)->geographicalId()==(*jt)->geographicalId())&&((*it)->localPosition().x()==(*jt)->localPosition().x()))noverlap++;
-               if (!use_sharesInput){
-                float delta = fabs ( (*it)->localPosition().x()-(*jt)->localPosition().x() ); 
-                if (((*it)->geographicalId()==(*jt)->geographicalId())&&(delta<epsilon))noverlap++;
-               }else{
-                const TrackingRecHit* kt = &(**jt);
-                if ( (*it)->sharesInput(kt,TrackingRecHit::some) )noverlap++;
-               }
-              }
-            }
-          }
-        }
-        float fi=float(noverlap)/float(track->numberOfValidHits()); float fj=float(noverlap)/float(track2->numberOfValidHits());
-        //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->numberOfValidHits() << " "  << track2->numberOfValidHits() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
-        if ((fi>shareFrac)||(fj>shareFrac)){
-          if (fi<fj){
-            selected2[j]=0; 
-            //std::cout << " removing 2nd trk in pair " << std::endl;
-          }else{
-            if (fi>fj){
-              selected2[i]=0; 
-              //std::cout << " removing 1st trk in pair " << std::endl;
-            }else{
-              //std::cout << " removing worst chisq in pair " << std::endl;
-              if (track->normalizedChi2() > track2->normalizedChi2()){selected2[i]=0;}else{selected2[j]=0;}
-            }//end fi > or = fj
-          }//end fi < fj
-        }//end got a duplicate
-      }//end track2 loop
-    }//end track loop
-   }//end more than 1 track
-   */
-
-  //
-  //  L1 and L2 both have > 0 track - try merging
-  //
    std::map<reco::TrackCollection::const_iterator, std::vector<const TrackingRecHit*> > rh1;
    std::map<reco::TrackCollection::const_iterator, std::vector<const TrackingRecHit*> > rh2;
    for (reco::TrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); ++track){
@@ -412,23 +303,23 @@ namespace cms
                 float delta = fabs ( it->localPosition().x()-jt->localPosition().x() ); 
                 if ((it->geographicalId()==jt->geographicalId())&&(delta<epsilon))noverlap++;
                }else{
-                const TrackingRecHit* kt = jt;
-                if ( it->sharesInput(kt,TrackingRecHit::some) )noverlap++;
+                if ( it->sharesInput(jt,TrackingRecHit::some) )noverlap++;
                }
               }
             }
           }
         }
 	int newQualityMask = (qualityMaskT1 | track2->qualityMask()); // take OR of trackQuality 
-        float fi=float(noverlap)/float(track->numberOfValidHits()); float fj=float(noverlap)/float(track2->numberOfValidHits());
+	int nhit1 = track->numberOfValidHits();
+	int nhit2 = track2->numberOfValidHits();
 	//std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->numberOfValidHits() << " "  << track2->numberOfValidHits() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
-        if ((fi>shareFrac)||(fj>shareFrac)){
-          if (fi<fj){
+        if ( noverlap > (std::min(nhit1,nhit2))*shareFrac ) {
+          if ( nhit1 > nhit2 ){
             selected2[j]=0; 
 	    selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
             //std::cout << " removing L2 trk in pair " << std::endl;
           }else{
-            if (fi>fj){
+            if ( nhit1 < nhit2 ){
               selected1[i]=0; 
 	      selected2[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
               //std::cout << " removing L1 trk in pair " << std::endl;
