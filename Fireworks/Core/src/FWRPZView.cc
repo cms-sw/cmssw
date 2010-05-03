@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.8 2010/05/03 15:47:38 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.9 2010/05/03 17:25:30 amraktad Exp $
 //
 
 // system include files
@@ -151,8 +151,14 @@ FWRPZView::doCompression(bool flag)
 }
 
 void
-FWRPZView::importElements(TEveElement* iChildren, TEveElement* iProjectedParent)
+FWRPZView::importElements(TEveElement* iChildren, float iLayer, TEveElement* iProjectedParent)
 {
+   float oldLayer = m_projMgr->GetCurrentDepth();
+   m_projMgr->SetCurrentDepth(iLayer);
+   //make sure current depth is reset even if an exception is thrown
+   boost::shared_ptr<TEveProjectionManager> sentry(m_projMgr.get(),
+                                                   boost::bind(&TEveProjectionManager::SetCurrentDepth,
+                                                               _1,oldLayer));
    m_projMgr->ImportElements(iChildren,iProjectedParent);
 }
 

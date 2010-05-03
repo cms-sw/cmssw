@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.10 2010/04/27 18:08:28 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.11 2010/05/03 15:47:38 amraktad Exp $
 //
 
 // system include files
@@ -237,17 +237,27 @@ FWProxyBuilderBase::canHandle(const FWEventItem& item)
 TEveElementList*
 FWProxyBuilderBase::createProduct(const FWViewType::EType viewType, const FWViewContext* viewContext)
 {
-   if ( haveSingleProduct() && havePerViewProduct(viewType) == false && m_products.empty() == false)
+   if ( havePerViewProduct(viewType) == false && m_products.empty() == false)
    {
-      // printf("reuse product \n");fflush(stdout);
-      return m_products.back()->m_elements;
+      if (haveSingleProduct())
+      {
+         return m_products.back()->m_elements;
+      }
+      else
+      {
+         for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
+         {
+            if (viewType == (*i)->m_viewType)  
+               return (*i)->m_elements;
+         }
+      }
    }
 
    // printf("new product %s for item %s \n", FWViewType::idToName(viewType).c_str(), item()->name().c_str()); fflush(stdout);
  
    Product* product = new Product(viewType, viewContext);
    m_products.push_back(product);
-    if (viewContext)
+   if (viewContext)
    {
       viewContext->scaleChanged_.connect(boost::bind(&FWProxyBuilderBase::scaleChanged, this, _1));
    }

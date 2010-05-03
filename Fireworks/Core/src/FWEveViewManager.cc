@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.16 2010/04/27 18:08:28 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.17 2010/05/03 15:47:38 amraktad Exp $
 //
 
 // system include files
@@ -197,7 +197,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
                         if (FWViewType::isProjected(viewType))
                         {
                            FWRPZView* rpzView = dynamic_cast<FWRPZView*> (i->get());
-                           rpzView->importElements(product, rpzView->ownedProducts());
+                           rpzView->importElements(product, iItem->layer(), rpzView->ownedProducts());
                         }
                         else
                         {
@@ -215,7 +215,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
                         if (FWViewType::isProjected(viewType))
                         {
                            FWRPZView* rpzView = dynamic_cast<FWRPZView*> (i->get());
-                           rpzView->importElements(product,  rpzView->eventScene());
+                           rpzView->importElements(product, iItem->layer(), rpzView->eventScene());
                         }
                      }
                   }
@@ -307,19 +307,8 @@ FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
          }
       }
    }
-   
-   // import shared products
-   if (FWViewType::isProjected(view->typeId()))
-   { 
-      FWRPZView* rpzView = (FWRPZView*)(view.get());
-      rpzView->importElements(m_viewProducts[view->typeId()], rpzView->eventScene());
-   }
-   else
-   {
-      view->eventScene()->AddElement(m_viewProducts[view->typeId()]);
-   }
-
-   // create view owned products
+    
+   FWRPZView* rpzView = dynamic_cast<FWRPZView*>(view.get());
    for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
    {
       int builderViewBit = i->first;
@@ -328,20 +317,35 @@ FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
       { 
          for(BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt)
          {
-           
+            // it is ok to call create even for shared productsm since
+            // builder map key garanties that
+            TEveElementList* product = (*bIt)->createProduct(view->typeId(), view->viewContext());
+
             if ((*bIt)->havePerViewProduct((FWViewType::EType)view->typeId()))
             {
-               TEveElementList* product = (*bIt)->createProduct(view->typeId(), view->viewContext());
+               // view owned
                (*bIt)->build();
-               if (FWViewType::isProjected(view->typeId()))
+               if (rpzView)
                {
-                  FWRPZView* rpzView = dynamic_cast<FWRPZView*> (view.get());
-                  rpzView->importElements(product, rpzView->ownedProducts());
+                  rpzView->importElements(product, (*bIt)->item()->layer(), rpzView->ownedProducts());
                }
                else
                {
                   view->ownedProducts()->AddElement(product);
                }
+            }
+            else
+            {
+               // shared
+               if (rpzView)
+               {
+                  rpzView->importElements(product, (*bIt)->item()->layer(), rpzView->eventScene());
+               }
+               else
+               {
+                  view->eventScene()->AddElement(product);
+               }
+                 
             }
          }
       }
