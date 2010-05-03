@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.52 2010/05/03 20:16:11 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.53 2010/05/03 21:50:45 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -165,6 +165,22 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   // Primary vertex fitter
   MyPVFitter = new PVFitter(iConfig);
   MyPVFitter->resetAll();
+
+  //open txt files at begin of run
+  
+  if (writeDIPTxt_)
+      fasciiDIP.open(outputDIPTxt_.c_str());
+  if (writeTxt_) {
+      std::string tmpname = outputTxt_;
+      char index[15];
+      if (appendRunTxt_) {
+          sprintf(index,"%s%i","_Run", int(iEvent.id().run()));
+          tmpname.insert(outputTxt_.length()-4,index);
+      }
+      fasciiFile.open(tmpname.c_str());
+      outputTxt_ = tmpname;
+  }
+  
 }
 
 BeamFitter::~BeamFitter() {
@@ -188,21 +204,7 @@ BeamFitter::~BeamFitter() {
 void BeamFitter::readEvent(const edm::Event& iEvent)
 {
 
-  //open txt files at begin of run
-  if (frun == -1) {
-    if (writeDIPTxt_)
-      fasciiDIP.open(outputDIPTxt_.c_str());
-    if (writeTxt_) {
-      std::string tmpname = outputTxt_;
-      char index[15];
-      if (appendRunTxt_) {
-          sprintf(index,"%s%i","_Run", int(iEvent.id().run()));
-          tmpname.insert(outputTxt_.length()-4,index);
-      }
-      fasciiFile.open(tmpname.c_str());
-      outputTxt_ = tmpname;
-    }
-  }
+  
   frun = iEvent.id().run();
   const edm::TimeValue_t ftimestamp = iEvent.time().value();
   const std::time_t ftmptime = ftimestamp >> 32;

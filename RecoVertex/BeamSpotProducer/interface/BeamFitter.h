@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.28 2010/04/09 16:39:21 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.29 2010/05/03 22:07:15 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -71,7 +71,7 @@ class BeamFitter {
     fbeginLumiOfFit = ls0;
     fendLumiOfFit = ls1;
   }
-  void setRun( int run) { fRun = run; }
+  void setRun( int run) { frun = run; }
   
 
  private:
