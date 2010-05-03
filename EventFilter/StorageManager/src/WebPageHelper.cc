@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.45 2010/02/18 11:22:53 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.46 2010/04/16 14:40:14 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -2282,7 +2282,7 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
   std::sort(rbResultsList.begin(), rbResultsList.end(), compareRBResultPtrValues);
 
   XHTMLMaker::AttrMap colspanAttr;
-  colspanAttr[ "colspan" ] = "14";
+  colspanAttr[ "colspan" ] = "15";
 
   XHTMLMaker::AttrMap tableLabelAttr = _tableLabelAttr;
   tableLabelAttr[ "align" ] = "center";
@@ -2313,13 +2313,15 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of error events");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "# of faulty events");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of outstanding data discards");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of DQM events");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
-  maker.addText(tableDiv, "# of outstanding DQM discards");
+  maker.addText(tableDiv, "# of faulty DQM events");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
-  maker.addText(tableDiv, "# of stale chains");
+  maker.addText(tableDiv, "# of outstanding DQM discards");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of ignored discards");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
@@ -2363,6 +2365,16 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addInt( tableDiv, rbResultsList[idx]->errorEventStats.getSampleCount() );
 
+      if (rbResultsList[idx]->faultyEventStats.getSampleCount() != 0)
+      {
+        tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
+      }
+      else
+      {
+        tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      }
+      maker.addInt( tableDiv, rbResultsList[idx]->faultyEventStats.getSampleCount() );
+
       if (rbResultsList[idx]->outstandingDataDiscardCount != 0)
       {
         tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
@@ -2376,6 +2388,16 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addInt( tableDiv, rbResultsList[idx]->dqmEventStats.getSampleCount() );
 
+      if (rbResultsList[idx]->faultyDQMEventStats.getSampleCount() != 0)
+      {
+        tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
+      }
+      else
+      {
+        tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      }
+      maker.addInt( tableDiv, rbResultsList[idx]->faultyDQMEventStats.getSampleCount() );
+
       if (rbResultsList[idx]->outstandingDQMDiscardCount != 0)
       {
         tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
@@ -2385,16 +2407,6 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
         tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       }
       maker.addInt( tableDiv, rbResultsList[idx]->outstandingDQMDiscardCount );
-
-      if (rbResultsList[idx]->staleChainStats.getSampleCount() != 0)
-      {
-        tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
-      }
-      else
-      {
-        tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      }
-      maker.addInt( tableDiv, rbResultsList[idx]->staleChainStats.getSampleCount() );
 
       const int skippedDiscards = rbResultsList[idx]->skippedDiscardStats.getSampleCount();
       if (skippedDiscards != 0)
@@ -2510,6 +2522,12 @@ void WebPageHelper::addResourceBrokerDetails(XHTMLMaker& maker,
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+  maker.addText(tableDiv, "Faulty Event Count");
+  tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+  maker.addInt( tableDiv, rbResultPtr->faultyEventStats.getSampleCount() );
+
+  tableRow = maker.addNode("tr", table, _rowAttr);
+  tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Data Discard Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   maker.addInt( tableDiv, rbResultPtr->dataDiscardStats.getSampleCount() );
@@ -2522,15 +2540,15 @@ void WebPageHelper::addResourceBrokerDetails(XHTMLMaker& maker,
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
-  maker.addText(tableDiv, "DQM Discard Count");
+  maker.addText(tableDiv, "Faulty DQM Event Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addInt( tableDiv, rbResultPtr->dqmDiscardStats.getSampleCount() );
+  maker.addInt( tableDiv, rbResultPtr->faultyDQMEventStats.getSampleCount() );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
-  maker.addText(tableDiv, "Stale Chains Count");
+  maker.addText(tableDiv, "DQM Discard Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addInt( tableDiv, rbResultPtr->staleChainStats.getSampleCount() );
+  maker.addInt( tableDiv, rbResultPtr->dqmDiscardStats.getSampleCount() );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
@@ -2579,7 +2597,7 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
     dsmc.getFilterUnitResultsForRB(uniqueRBID);
 
   XHTMLMaker::AttrMap colspanAttr;
-  colspanAttr[ "colspan" ] = "12";
+  colspanAttr[ "colspan" ] = "13";
 
   XHTMLMaker::AttrMap tableLabelAttr = _tableLabelAttr;
   tableLabelAttr[ "align" ] = "center";
@@ -2604,13 +2622,15 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of error events");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "# of faulty events");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of outstanding data discards");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of DQM events");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
-  maker.addText(tableDiv, "# of outstanding DQM discards");
+  maker.addText(tableDiv, "# of faulty DQM events");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
-  maker.addText(tableDiv, "# of stale chains");
+  maker.addText(tableDiv, "# of outstanding DQM discards");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of ignored discards");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
@@ -2645,6 +2665,16 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addInt( tableDiv, fuResultsList[idx]->errorEventStats.getSampleCount() );
 
+      if (fuResultsList[idx]->faultyEventStats.getSampleCount() != 0)
+      {
+        tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
+      }
+      else
+      {
+        tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      }
+      maker.addInt( tableDiv, fuResultsList[idx]->faultyEventStats.getSampleCount() );
+
       if (fuResultsList[idx]->outstandingDataDiscardCount != 0)
       {
         tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
@@ -2658,6 +2688,16 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addInt( tableDiv, fuResultsList[idx]->dqmEventStats.getSampleCount() );
 
+      if (fuResultsList[idx]->faultyDQMEventStats.getSampleCount() != 0)
+      {
+        tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
+      }
+      else
+      {
+        tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      }
+      maker.addInt( tableDiv, fuResultsList[idx]->faultyDQMEventStats.getSampleCount() );
+
       if (fuResultsList[idx]->outstandingDQMDiscardCount != 0)
       {
         tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
@@ -2667,16 +2707,6 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
         tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       }
       maker.addInt( tableDiv, fuResultsList[idx]->outstandingDQMDiscardCount );
-
-      if (fuResultsList[idx]->staleChainStats.getSampleCount() != 0)
-      {
-        tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
-      }
-      else
-      {
-        tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      }
-      maker.addInt( tableDiv, fuResultsList[idx]->staleChainStats.getSampleCount() );
 
       const int skippedDiscards = fuResultsList[idx]->skippedDiscardStats.getSampleCount();
       if (skippedDiscards != 0)
