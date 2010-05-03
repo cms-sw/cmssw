@@ -44,7 +44,9 @@ class pp(Scenario):
                  'MuAlOverlaps',
                  'HcalCalIsoTrk',
                  'HcalCalDijets',
-                 'SiStripCalMinBias']
+                 'SiStripCalMinBias',
+                 'EcalCalElectron',
+                 'DtCalib']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
@@ -86,12 +88,8 @@ class pp(Scenario):
 
         skims = ['SiStripCalZeroBias',
                  'TkAlMinBias',
-                 'TkAlMuonIsolated',
-                 'MuAlCalIsolatedMu',
-                 'MuAlOverlaps',
-                 'HcalCalIsoTrk',
-                 'HcalCalDijets',
-                 'SiStripCalMinBias']
+                 'DtCalib',
+                 'MuAlCalIsolatedMu']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
