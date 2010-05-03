@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.22 2010/05/03 20:16:10 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.23 2010/05/03 21:50:44 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -109,7 +109,8 @@ BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     theBeamFitter->setFitLSRange(beginLumiOfBSFit_,endLumiOfBSFit_);
     theBeamFitter->setRefTime(refBStime[0],refBStime[1]);
-
+    theBeamFitter->setRun(ftmprun0);
+    
     int * LSRange = theBeamFitter->getFitLSRange();
 
     if (theBeamFitter->runFitter()){
