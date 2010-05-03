@@ -1,5 +1,5 @@
 /**
- * $Id: SoapUtils.cc,v 1.2 2009/07/09 08:52:10 mommsen Exp $
+ * $Id: SoapUtils.cc,v 1.3 2009/07/20 13:07:28 mommsen Exp $
 /// @file: SoapUtils.cc
  */
 
@@ -15,9 +15,7 @@
 #include "xoap/domutils.h"
 
 #include "xdaq2rc/version.h"
-#if (XDAQ2RC_VERSION_MAJOR*10+XDAQ2RC_VERSION_MINOR)>16
 #include "xdaq2rc/SOAPParameterExtractor.hh"
-#endif
 
 namespace stor
 {
@@ -28,33 +26,11 @@ namespace stor
     {
       std::string command;
 
-#if (XDAQ2RC_VERSION_MAJOR*10+XDAQ2RC_VERSION_MINOR)>16
-
       // Extract the command name and update any configuration parameter
       // found in the SOAP message in the application infospace
       xdaq2rc::SOAPParameterExtractor soapParameterExtractor(app);
       command = soapParameterExtractor.extractParameters(msg);
       return command;
-
-#else
-
-      // Only extract the FSM command name from the SOAP message
-      DOMNode* node  = msg->getSOAPPart().getEnvelope().getBody().getDOMNode();
-      DOMNodeList* bodyList = node->getChildNodes();
-      
-      for(unsigned int i=0; i<bodyList->getLength(); i++)
-      {
-        node = bodyList->item(i);
-        
-        if(node->getNodeType() == DOMNode::ELEMENT_NODE)
-        {
-          command = xoap::XMLCh2String(node->getLocalName());
-          return command;
-        }
-      }
-      XCEPT_RAISE(xoap::exception::Exception, "FSM event not found");
-
-#endif
     }
 
 

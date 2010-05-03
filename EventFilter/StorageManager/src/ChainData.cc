@@ -1,4 +1,4 @@
-// $Id: ChainData.cc,v 1.6 2010/04/30 07:44:56 mommsen Exp $
+// $Id: ChainData.cc,v 1.7 2010/04/30 14:24:18 mommsen Exp $
 /// @file: ChainData.cc
 
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
@@ -657,11 +657,7 @@ std::vector<QueueID> const& detail::ChainData::getDQMEventConsumerTags() const
 
 bool detail::ChainData::isEndOfLumiSectionMessage() const
 {
-  #if (INTERFACESHARED_VERSION_MAJOR*1000 + INTERFACESHARED_VERSION_MINOR)>1010
   return ( _i2oMessageCode == I2O_EVM_LUMISECTION );
-  #else
-  return false;
-  #endif
 }
 
 bool

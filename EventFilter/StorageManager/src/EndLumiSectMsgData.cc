@@ -1,4 +1,4 @@
-// $Id: EndLumiSectMsgData.cc,v 1.3.2.1 2010/04/22 14:09:04 mommsen Exp $
+// $Id: EndLumiSectMsgData.cc,v 1.4 2010/04/30 07:44:56 mommsen Exp $
 /// @file: EndLumiSectMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -16,17 +16,11 @@ namespace stor
   {
 
     EndLumiSectMsgData::EndLumiSectMsgData(toolbox::mem::Reference* pRef):
-      #if (INTERFACESHARED_VERSION_MAJOR*1000 + INTERFACESHARED_VERSION_MINOR)>1010
       ChainData(I2O_EVM_LUMISECTION),
-      #else
-      ChainData(),
-      #endif
       _runNumber(0),
       _lumiSection(0)
     {
       addFirstFragment(pRef);
-
-      #if (INTERFACEEVB_VERSION_MAJOR*1000 + INTERFACEEVB_VERSION_MINOR)>1008
 
       if (validateDataLocation(pRef, INVALID_INITIAL_REFERENCE) &&
           validateMessageCode(pRef, _i2oMessageCode))
@@ -39,8 +33,6 @@ namespace stor
           _lumiSection = msg_frame->lumiSection;
         }
       }
-
-      #endif
     }
 
     uint32 EndLumiSectMsgData::do_runNumber() const

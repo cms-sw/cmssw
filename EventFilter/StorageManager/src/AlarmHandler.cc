@@ -1,11 +1,9 @@
-//$Id: AlarmHandler.cc,v 1.8 2009/09/29 08:04:58 mommsen Exp $
+//$Id: AlarmHandler.cc,v 1.9 2010/02/16 09:58:58 mommsen Exp $
 /// @file: AlarmHandler.cc
 
 
 #include "sentinel/utils/version.h"
-#if SENTINELUTILS_VERSION_MAJOR>1
 #include "sentinel/utils/Alarm.h"
-#endif
 
 #include "xcept/tools.h"
 #include "xdata/InfoSpaceFactory.h"
@@ -18,7 +16,6 @@ using namespace stor;
 AlarmHandler::AlarmHandler(xdaq::Application* app) :
 _app(app)
 {
-#if SENTINELUTILS_VERSION_MAJOR>1
   try
   {
     _alarmInfoSpace = xdata::getInfoSpaceFactory()->get("urn:xdaq-sentinel:alarms");
@@ -28,7 +25,6 @@ _app(app)
     // sentinel is not available
     _alarmInfoSpace = 0;
   }
-#endif
 }
 
 
@@ -123,8 +119,6 @@ bool AlarmHandler::raiseAlarm
 
   boost::mutex::scoped_lock sl( _mutex );
 
-  #if SENTINELUTILS_VERSION_MAJOR>1
-  
   sentinel::utils::Alarm *alarm =
     new sentinel::utils::Alarm(level, exception, _app);
   try
@@ -137,12 +131,6 @@ bool AlarmHandler::raiseAlarm
     return false;
   }
   return true;
-
-  #else
-
-  return false;
-
-  #endif
 }
 
 
@@ -155,8 +143,6 @@ void AlarmHandler::revokeAlarm
 
   boost::mutex::scoped_lock sl( _mutex );
 
-  #if SENTINELUTILS_VERSION_MAJOR>1
-  
   sentinel::utils::Alarm *alarm;
   try
   {
@@ -172,9 +158,6 @@ void AlarmHandler::revokeAlarm
   
   _alarmInfoSpace->fireItemRevoked(name, _app);
   delete alarm;
-
-  #endif
-
 }
 
 

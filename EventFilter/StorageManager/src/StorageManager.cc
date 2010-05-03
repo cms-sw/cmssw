@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.128 2010/03/19 13:21:37 mommsen Exp $
+// $Id: StorageManager.cc,v 1.129 2010/04/16 12:31:58 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
@@ -39,7 +39,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: $ $Name: $")
+    "$Id: StorageManager.cc,v 1.129 2010/04/16 12:31:58 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -95,13 +95,10 @@ void StorageManager::bindI2OCallbacks()
             &StorageManager::receiveDQMMessage,
             I2O_SM_DQM,
             XDAQ_ORGANIZATION_ID);
-
-  #if (INTERFACESHARED_VERSION_MAJOR*1000 + INTERFACESHARED_VERSION_MINOR)>1010
   i2o::bind(this,
             &StorageManager::receiveEndOfLumiSectionMessage,
             I2O_EVM_LUMISECTION,
             XDAQ_ORGANIZATION_ID);
-  #endif
 }
 
 

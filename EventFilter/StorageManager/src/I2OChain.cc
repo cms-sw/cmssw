@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.18.2.2 2010/04/22 14:09:35 mommsen Exp $
+// $Id: I2OChain.cc,v 1.19 2010/04/30 07:44:56 mommsen Exp $
 /// @file: I2OChain.cc
 
 #include <algorithm>
@@ -62,13 +62,11 @@ namespace stor
               break;
             }
 
-          #if (INTERFACESHARED_VERSION_MAJOR*1000 + INTERFACESHARED_VERSION_MINOR)>1010
           case I2O_EVM_LUMISECTION:
             {
               _data.reset(new detail::EndLumiSectMsgData(pRef));
               break;
             }
-          #endif
 
           case I2O_SM_ERROR:
             {
