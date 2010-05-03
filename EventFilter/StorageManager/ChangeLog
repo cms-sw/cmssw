@@ -1,3 +1,10 @@
+2010-05-03 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-00-02
+	* Fix bookkeeping of outstanding discard counts in case of
+	  faulty/stale events.
+	* Remove demoSystem setups and code for ancient xdaq releases.
+
 2010-05-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-00-01
