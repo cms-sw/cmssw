@@ -8,7 +8,7 @@
 //
 // Original Author:  matevz
 //         Created:  Fri Apr 30 15:17:33 CEST 2010
-// $Id$
+// $Id: FWEnumParameterSetter.cc,v 1.1 2010/04/30 15:29:44 matevz Exp $
 //
 
 // system include files
@@ -72,7 +72,7 @@ FWEnumParameterSetter::build(TGFrame* iParent)
 
    m_widget = new TGComboBox(iParent);
    std::map<Long_t, std::string>::const_iterator me = m_param->entryMap().begin();
-   Int_t max_len = 0;
+   UInt_t max_len = 0;
    while (me != m_param->entryMap().end())
    {
       m_widget->AddEntry(me->second.c_str(), static_cast<Int_t>(me->first));
