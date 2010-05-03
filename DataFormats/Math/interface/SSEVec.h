@@ -120,7 +120,7 @@ namespace mathSSE {
       vec = _mm_set_ps(f4, f3, f2, f1);
     }
     void set1(float f1) {
-      _mm_set1_ps(f1);
+     vec =  _mm_set1_ps(f1);
     }
     Vec3 get1(unsigned int n) const { 
       return _mm_shuffle_ps(vec, vec, _MM_SHUFFLE(n, n, n, n)); 
@@ -151,7 +151,7 @@ namespace mathSSE {
     }
 
     void set1(double f1) {
-      _mm_set1_pd(f1);
+      vec = _mm_set1_pd(f1);
     }
 
     Vec2 get1(unsigned int n) const {
