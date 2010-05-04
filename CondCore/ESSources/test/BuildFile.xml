@@ -36,6 +36,3 @@
   <use   name="CondCore/PluginSystem"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-
-# <bin   file="testmySiStripNoises.cpp">
-# </bin>
