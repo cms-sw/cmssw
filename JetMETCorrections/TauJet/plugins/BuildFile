@@ -21,3 +21,7 @@
 <library file="TCRecoTauDiscriminationAgainstHadronicJets.cc" name=TCRecoTauDiscriminationAgainstHadronicJets>
       <flags EDM_PLUGIN=1>
 </library>
+
+<library file="TCRecoTauDiscriminationAlgoComponent.cc" name=TCRecoTauDiscriminationAlgoComponent>
+      <flags EDM_PLUGIN=1>
+</library>
