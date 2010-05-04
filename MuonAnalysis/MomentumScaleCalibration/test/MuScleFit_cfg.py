@@ -217,6 +217,11 @@ process.looper = cms.Looper(
     StartWithSimplex = cms.bool(True),
     ComputeMinosErrors = cms.bool(False),
     MinimumShapePlots = cms.bool(False),
+
+    # The following parameters can be used to filter events
+    TriggerResultsLabel = cms.untracked.InputTag("TriggerResults"),
+    # Negate the result of the trigger
+    NegateTrigger = cms.untracked.bool(False),
 )
 
 # Timing information
