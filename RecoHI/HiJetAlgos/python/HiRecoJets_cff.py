@@ -125,6 +125,7 @@ kt4CaloJets.doPUOffsetCorr = False
 kt6CaloJets = ktPu6CaloJets.clone()
 kt6CaloJets.doPUOffsetCorr = False
 
-hiRecoJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets+iterativeConePu7CaloJets+ic5CaloJets+ic7CaloJets+akPu5CaloJets+akPu7CaloJets+ak5CaloJets+ak7CaloJets + ktPu4CaloJets + ktPu6CaloJets +  kt4CaloJets + kt6CaloJets)
+hiRecoJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets)
+hiRecoAllJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets+iterativeConePu7CaloJets+ic5CaloJets+ic7CaloJets+akPu5CaloJets+akPu7CaloJets+ak5CaloJets+ak7CaloJets + ktPu4CaloJets + ktPu6CaloJets +  kt4CaloJets + kt6CaloJets)
 
 
