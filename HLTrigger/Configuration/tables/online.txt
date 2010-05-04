@@ -90,9 +90,6 @@ HLT_ZeroBias
 HLT_ZeroBiasPixel_SingleTrack
 HLT_MinBiasBSC
 HLT_MinBiasBSC_BPTX
-HLT_MinBiasBSC_OR
-HLT_MinBiasEcal
-HLT_MinBiasHcal
 HLT_MinBiasPixel_SingleTrack
 HLT_MinBiasPixel_DoubleTrack
 HLT_MinBiasPixel_DoubleIsoTrack5
@@ -100,10 +97,7 @@ HLT_CSCBeamHalo
 HLT_CSCBeamHaloOverlapRing1
 HLT_CSCBeamHaloOverlapRing2
 HLT_CSCBeamHaloRing2or3
-HLT_BackwardBSC
-HLT_ForwardBSC
-HLT_HighMultiplicityBSC
-HLT_SplashBSC
+HLT_L1Tech_BSC_HighMultiplicity
 HLT_RPCBarrelCosmics
 HLT_TrackerCosmics
 HLT_L1Tech_RPC_TTU_RBst1_collisions
@@ -130,11 +124,9 @@ HLT_L1_BPTX_MinusOnly
 HLT_L1_BPTX_PlusOnly
 HLT_L1_BptxXOR_BscMinBiasOR
 HLT_L1_BscMinBiasOR_BptxPlusORMinus
-HLT_L1_BscMinBiasOR_BeamGas
-HLT_L1_HFtech
+HLT_L1Tech_HCAL_HF
 HLT_L1Tech_BSC_halo
 HLT_L1Tech_BSC_halo_forPhysicsBackground
-HLT_L1Tech_HCAL_HF_coincidence_PM
 HLT_L2Mu0_NoVertex
 HLT_TkMu3_NoVertex
 HLT_EgammaSuperClusterOnly_L1R
