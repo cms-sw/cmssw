@@ -11,8 +11,8 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
 process.GlobalTag.globaltag = "START3X_V20::All"
 
-process.load("JetMETCorrections.Type1MET.MuonMETValueMapProducer_cff")
-process.load("JetMETCorrections.Type1MET.MetMuonCorrections_cff")
+process.load("RecoMET.METAlgorithms.MuonMETValueMapProducer_cff")
+process.load("RecoMET.METAlgorithms.MetMuonCorrections_cff")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = ''
