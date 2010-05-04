@@ -19,6 +19,8 @@
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
 #include "CondFormats/DataRecord/interface/CSCcrosstalkRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCDBChipSpeedCorrection.h"
+#include "CondFormats/DataRecord/interface/CSCDBChipSpeedCorrectionRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCIdentifier.h"
 #include "CondFormats/DataRecord/interface/CSCIdentifierRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
@@ -57,6 +59,7 @@ REGISTER_PLUGIN(CSCcrosstalkRcd,CSCcrosstalk);
 REGISTER_PLUGIN(CSCDBCrosstalkRcd,CSCDBCrosstalk);
 REGISTER_PLUGIN(CSCNoiseMatrixRcd,CSCNoiseMatrix);
 REGISTER_PLUGIN(CSCDBNoiseMatrixRcd,CSCDBNoiseMatrix);
+REGISTER_PLUGIN(CSCDBChipSpeedCorrectionRcd,CSCDBChipSpeedCorrection);
 REGISTER_PLUGIN(CSCChamberMapRcd,CSCChamberMap);
 REGISTER_PLUGIN(CSCChamberIndexRcd,CSCChamberIndex);
 REGISTER_PLUGIN(CSCCrateMapRcd,CSCCrateMap);
