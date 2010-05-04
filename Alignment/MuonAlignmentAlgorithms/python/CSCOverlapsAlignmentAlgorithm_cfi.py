@@ -16,6 +16,7 @@ CSCOverlapsAlignmentAlgorithm = cms.PSet(
     # selection and fitting parameters
     minP = cms.double(5.),
     minHitsPerChamber = cms.int32(5),
+    maxdrdz = cms.double(0.2),
     maxRedChi2 = cms.double(10.),
     fiducial = cms.bool(True),
     useHitWeights = cms.bool(True),

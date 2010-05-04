@@ -3,6 +3,7 @@
 CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::ParameterSet& iConfig)
    : AlignmentAlgorithmBase(iConfig)
    , m_minHitsPerChamber(iConfig.getParameter<int>("minHitsPerChamber"))
+   , m_maxdrdz(iConfig.getParameter<double>("maxdrdz"))
    , m_fiducial(iConfig.getParameter<bool>("fiducial"))
    , m_useHitWeights(iConfig.getParameter<bool>("useHitWeights"))
    , m_slopeFromTrackRefit(iConfig.getParameter<bool>("slopeFromTrackRefit"))

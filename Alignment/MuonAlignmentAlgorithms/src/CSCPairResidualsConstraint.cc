@@ -237,6 +237,11 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
   double radial_intercept = ((sumxx*sumy) - (sumx*sumxy))/radial_delta;
   double radial_slope = ((sum1*sumxy) - (sumx*sumy))/radial_delta;
 
+  if (m_parent->m_makeHistograms) {
+    m_parent->m_drdz->Fill(radial_slope);
+  }
+  if (m_parent->m_maxdrdz > 0.  &&  fabs(radial_slope) > m_parent->m_maxdrdz) return false;
+
   double quantity = 0.;
   double quantityError2 = 0.;
   if (m_parent->m_mode == kModePhiy) {  // phiy comes from track d(rphi)/dz
@@ -313,8 +318,6 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
     m_parent->m_residuals_weighted->Fill(residual, 1./residualError2);
     m_parent->m_residuals_normalized->Fill(residual/sqrt(residualError2));
     
-    m_parent->m_drdz->Fill(radial_slope);
-
     double ringbin = 0;
     if (m_id_i.endcap() == 2  &&  m_id_i.station() == 4  &&  m_id_i.ring() == 2) ringbin = 1.5;
     else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 4  &&  m_id_i.ring() == 1) ringbin = 2.5;

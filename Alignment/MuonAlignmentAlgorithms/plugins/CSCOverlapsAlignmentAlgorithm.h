@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.5 2009/04/03 08:59:34 flucke Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.h,v 1.1 2010/05/04 01:16:04 pivarski Exp $
 //
 //
 
@@ -112,6 +112,7 @@ public:
 
   int m_mode;
   int m_minHitsPerChamber;
+  double m_maxdrdz;
   bool m_fiducial;
   bool m_useHitWeights;
   bool m_slopeFromTrackRefit;
