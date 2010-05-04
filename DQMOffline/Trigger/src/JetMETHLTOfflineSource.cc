@@ -231,8 +231,8 @@ void JetMETHLTOfflineSource::fillMEforTriggerNTfired(){
   }
   for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v )
     {
-     for(int i = 0; i < npath; ++i) {
-       if (triggerNames_.triggerName(i).find(v->getPath()) != std::string::npos )
+       unsigned index = triggerNames_.triggerIndex(v->getPath()); 
+       if (index < triggerNames_.size() )
              {
              v->getMEhisto_TriggerSummary()->Fill(0.);
              edm::InputTag l1Tag(v->getl1Path(),"",processname_);
@@ -240,15 +240,13 @@ void JetMETHLTOfflineSource::fillMEforTriggerNTfired(){
              bool l1found = false;
              if ( l1Index < triggerObj_->sizeFilters() ) l1found = true;
              if(!l1found)v->getMEhisto_TriggerSummary()->Fill(1.);
-             if(!l1found && !(triggerResults_->accept(i)))v->getMEhisto_TriggerSummary()->Fill(2.);
-             if(!l1found && (triggerResults_->accept(i)))v->getMEhisto_TriggerSummary()->Fill(3.);
+             if(!l1found && !(triggerResults_->accept(index)))v->getMEhisto_TriggerSummary()->Fill(2.);
+             if(!l1found && (triggerResults_->accept(index)))v->getMEhisto_TriggerSummary()->Fill(3.);
              if(l1found)v->getMEhisto_TriggerSummary()->Fill(4.);
-             if(l1found && (triggerResults_->accept(i)))v->getMEhisto_TriggerSummary()->Fill(5.); 
-             if(l1found && !(triggerResults_->accept(i)))v->getMEhisto_TriggerSummary()->Fill(6.);
-             if(!(triggerResults_->accept(i)))
+             if(l1found && (triggerResults_->accept(index)))v->getMEhisto_TriggerSummary()->Fill(5.); 
+             if(l1found && !(triggerResults_->accept(index)))v->getMEhisto_TriggerSummary()->Fill(6.);
+             if(!(triggerResults_->accept(index)) && l1found)
              { 
-             if(l1found)
-             {
              
              if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && (calojetColl_.isValid()) && calojet.size())
               
@@ -291,8 +289,6 @@ void JetMETHLTOfflineSource::fillMEforTriggerNTfired(){
          } // L1 is fired
        }//
        }// trigger not fired
-      }//All paths
-     }//path collections  
  
 
 
@@ -310,8 +306,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
   const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects()); 
   for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v )
     {
-     for(int i = 0; i < npath; ++i) { 
-       if (triggerNames_.triggerName(i).find(v->getPath()) != std::string::npos && triggerResults_->accept(i))
+       if (isHLTPathAccepted(v->getPath()))
              {
             std::vector<double>jetPtVec;
             std::vector<double>jetPhiVec; 
@@ -572,7 +567,6 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
          }// L1 is fired but not HLT       
   //-----------------------------------    
       }//Trigger is fired
-     }// trigger under study
     }//Loop over all trigger paths
 
 }
@@ -600,9 +594,8 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
   const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects()); 
   for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v )
     {
-     for(int i = 0; i < npath; ++i) { 
-       if (triggerNames_.triggerName(i).find(v->getPath()) != std::string::npos && triggerResults_->accept(i))
-             {
+       if (isHLTPathAccepted(v->getPath()))     
+          {
             std::vector<double>jetPtVec;
             std::vector<double>jetPhiVec; 
             std::vector<double>jetEtaVec;
@@ -863,7 +856,6 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
          }// L1 is fired but not HLT       
   //-----------------------------------    
       }//Trigger is fired
-     }// trigger under study
     }//Loop over all trigger paths
   
 
@@ -887,10 +879,12 @@ int npath;
      denom++;
      bool denompassed = false;
      bool numpassed   = false; 
-     for(int i = 0; i < npath; ++i) {
-       if (triggerNames_.triggerName(i).find(v->getDenomPath()) != std::string::npos && triggerResults_->accept(i))denompassed = true;
-       if (triggerNames_.triggerName(i).find(v->getPath()) != std::string::npos && triggerResults_->accept(i))numpassed = true;
-        }// Loop over paths  
+
+     unsigned indexNum = triggerNames_.triggerIndex(v->getPath());
+     unsigned indexDenom = triggerNames_.triggerIndex(v->getDenomPath());
+
+      if(indexNum < triggerNames_.size() && triggerResults_->accept(indexNum))numpassed   = true;
+      if(indexDenom < triggerNames_.size() && triggerResults_->accept(indexDenom))denompassed   = true; 
 
              if(denompassed){
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
@@ -1000,11 +994,10 @@ int npath;
   for(PathInfoCollection::iterator v = hltPathsEffWrtMu_.begin(); v!= hltPathsEffWrtMu_.end(); ++v )
     {
      bool numpassed   = false; 
-     for(int i = 0; i < npath; ++i) {
-       
-       if (triggerNames_.triggerName(i).find(v->getPath()) != std::string::npos && triggerResults_->accept(i))numpassed = true;
-       if(muTrig)denompassed = true;
-        }// Loop over paths  
+     if(muTrig)denompassed = true;
+     
+     unsigned indexNum = triggerNames_.triggerIndex(v->getPath());
+     if(indexNum < triggerNames_.size() && triggerResults_->accept(indexNum))numpassed   = true;
 
              if(denompassed){
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
@@ -1113,11 +1106,10 @@ int npath;
   for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffWrtMB_.end(); ++v )
     {
      bool numpassed   = false; 
-     for(int i = 0; i < npath; ++i) {
-       
-       if (triggerNames_.triggerName(i).find(v->getPath()) != std::string::npos && triggerResults_->accept(i))numpassed = true;
-       if(mbTrig)denompassed = true;
-        }// Loop over paths  
+     if(mbTrig)denompassed = true;
+
+     unsigned indexNum = triggerNames_.triggerIndex(v->getPath());
+     if(indexNum < triggerNames_.size() && triggerResults_->accept(indexNum))numpassed   = true;
 
              if(denompassed){
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
