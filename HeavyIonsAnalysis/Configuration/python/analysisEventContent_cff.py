@@ -14,7 +14,6 @@ jetContent = cms.PSet(
   )
 
 jetContentExtended = jetContent.clone()
-jetContentExtended.outputCommands.extend(RecoHiJetsRECO.outputCommands)
 jetContentExtended.outputCommands.extend(cms.untracked.vstring('keep *_caloTowers_*_*',
                                                                'keep *_towerMaker_*_*'))
 
