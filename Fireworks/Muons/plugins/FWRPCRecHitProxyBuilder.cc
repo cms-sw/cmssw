@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWRPCRecHitProxyBuilder.cc,v 1.3 2010/04/16 16:40:13 yana Exp $
+// $Id: FWRPCRecHitProxyBuilder.cc,v 1.4 2010/04/23 14:31:31 mccauley Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -31,12 +31,12 @@ private:
   const FWRPCRecHitProxyBuilder& operator=(const FWRPCRecHitProxyBuilder&); 
   
   void build(const RPCRecHit& iData,
-             unsigned int iIndex, TEveElement& oItemHolder);
+             unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 };
 
 void
 FWRPCRecHitProxyBuilder::build(const RPCRecHit& iData,
-                               unsigned int iIndex, TEveElement& oItemHolder)
+                               unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*)
 {
   RPCDetId rpcId = iData.rpcId();
 
