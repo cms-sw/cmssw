@@ -304,7 +304,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     return 1.;
   }
   
-  if (type_ == "classbased" && (version_ == "V02" || version_ == "")) {
+  if (type_ == "classbased" and version_ == "V02") {
     double result = 0.;
 
     int bin = 0;
@@ -363,7 +363,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     return result;
   }
 
-  if (type_ == "classbased" && (version_ == "V04" || version_ == "")) {
+  if (type_ == "classbased" && (version_ == "V03" || version_ == "V04" || version_ == "")) {
     double result = 0.;
     
     int bin = 0;
@@ -381,8 +381,8 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     float iso_sum = tkIso + ecalIso + hcalIso;
     float iso_sum_corrected = iso_sum*pow(40./scEt, 2);
 
-    std::vector<double> cutIsoSum = cuts_.getParameter<std::vector<double> >("cutisotk");
-    std::vector<double> cutIsoSumCorr = cuts_.getParameter<std::vector<double> >("cutisoecal");
+    std::vector<double> cutIsoSum = cuts_.getParameter<std::vector<double> >("cutiso_sum");
+    std::vector<double> cutIsoSumCorr = cuts_.getParameter<std::vector<double> >("cutiso_sumoet");
     if ((iso_sum < cutIsoSum[cat+bin*9]) and
         (iso_sum_corrected < cutIsoSumCorr[cat+bin*9]))
       result += 2.;
@@ -393,11 +393,11 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
       //std::cout << "see" << sigmaee << std::endl;
       cut = cuts_.getParameter<std::vector<double> >("cutsee");
       //std::cout << "dphiin" << fabs(deltaPhiIn) << std::endl;
-      cut = cuts_.getParameter<std::vector<double> >("cutdphi");
+      cut = cuts_.getParameter<std::vector<double> >("cutdphiin");
       //std::cout << "detain" << fabs(deltaEtaIn) << std::endl;
-      cut = cuts_.getParameter<std::vector<double> >("cutdeta");
+      cut = cuts_.getParameter<std::vector<double> >("cutdetain");
       //std::cout << "eseedopin " << eSeedOverPin << std::endl;
-      cut = cuts_.getParameter<std::vector<double> >("cuteopin");
+      cut = cuts_.getParameter<std::vector<double> >("cuteseedopcor");
 
       if ((hOverE < cut[cat+bin*9]) and
           (sigmaee < cut[cat+bin*9]) and
@@ -408,11 +408,11 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     }
 
     //std::cout << "ip" << ip << std::endl;
-    cut = cuts_.getParameter<std::vector<double> >("cutip");
+    cut = cuts_.getParameter<std::vector<double> >("cutip_gsf");
     if (ip < cut[cat+bin*9])
       result += 4;
 
-    cut = cuts_.getParameter<std::vector<double> >("cutmishits");
+    cut = cuts_.getParameter<std::vector<double> >("cutfmishits");
     if (mishits < cut[cat+bin*9])
       result += 8;
 
