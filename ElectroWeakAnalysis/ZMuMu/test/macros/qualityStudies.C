@@ -487,7 +487,7 @@ void qualityStudiesZGlbTrk(TFile *output_file){
   // caveat: I'm  requiring isolations
   TH1F * dauChi2 = new TH1F("duaChi2", "dauChi2", 1000, 0, 100);
   // TH1F * h2 = new TH1F("h2", "h2", 1000, 0, 100);
-  Events.Project("dua1Chi2", "zMuTrkDau1Chi2", cut_zMuTrk );
+  Events.Project("duaChi2", "zMuTrkDau1Chi2", cut_zMuTrk );
   // Events.Project("h2", "zMuTrkDau2Chi2", cut_zMuTrk );
   //dauChi2->Add(h2);
   dauChi2->Write();
@@ -498,7 +498,7 @@ void qualityStudiesZGlbTrk(TFile *output_file){
   dir->cd();
   TH1F * zMass = new TH1F("zMassOneDauChi2Higher10", "zMassOneDauChi2Higher10", 200, 0, 200);
   //  Events.Draw("zMuTrkMass");
-  Events.Project("zMassOneDauChi2Higher10", "zMuTrkMass", cut_zMuTrk +"zMuTrkDau1Chi2>10");
+  Events.Project("zMassOneDauChi2Higher10", "zMuTrkMass", cut_zMuTrk +"zMuTrkDau1TrkChi2>10");
   setGraphics(zMass);
   zMass->Write();
   cout<<"Number of zCandidate with the global daughter with Chi2 higher than 10: "<<zMass->GetEntries()<<endl;
