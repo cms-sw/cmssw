@@ -1,14 +1,13 @@
-# /dev/CMSSW_3_6_0/HIon/V9 (CMSSW_3_6_0_HLT3)
+# /dev/CMSSW_3_6_0/HIon/V10 (CMSSW_3_6_0_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V9')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V10')
 )
 
 streams = cms.PSet( 
-  Offline = cms.vstring(  ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   Calibration = cms.vstring( 'TestEnables' ),
@@ -21,18 +20,19 @@ streams = cms.PSet(
   HLTDQM = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  A = cms.vstring( 'Mu',
-    'JetMETTau',
-    'Cosmics',
+  A = cms.vstring( 'Cosmics',
     'EGMonitor',
-    'EG',
     'HcalHPDNoise',
     'ZeroBias',
     'HcalNZS',
     'JetMETTauMonitor',
     'MuMonitor',
-    'MinimumBias',
-    'RandomTriggers' )
+    'RandomTriggers',
+    'Mu',
+    'JetMETTau',
+    'EG',
+    'MinimumBias' ),
+  Offline = cms.vstring(  )
 )
 datasets = cms.PSet( 
   LogMonitor = cms.vstring(  ),
@@ -44,18 +44,18 @@ datasets = cms.PSet(
   RPCMonitor = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
-  Mu = cms.vstring(  ),
-  JetMETTau = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
-  EG = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
   MuMonitor = cms.vstring(  ),
-  MinimumBias = cms.vstring(  ),
-  RandomTriggers = cms.vstring(  )
+  RandomTriggers = cms.vstring(  ),
+  Mu = cms.vstring(  ),
+  JetMETTau = cms.vstring(  ),
+  EG = cms.vstring(  ),
+  MinimumBias = cms.vstring(  )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1765,7 +1765,7 @@ hltHIPixelTracks = cms.EDProducer( "PixelTrackProducer",
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
         extraHitRZtolerance = cms.double( 0.06 ),
-        maxTriplets = cms.uint32( 10000 )
+        maxElement = cms.uint32( 10000 )
       )
     ),
     FitterPSet = cms.PSet( 
