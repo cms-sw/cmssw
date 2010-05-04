@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: CSCOverlapsTrackPreparation.cc,v 1.5 2010/03/25 00:59:12 pivarski Exp $
+// $Id: CSCOverlapsTrackPreparation.cc,v 1.3 2009/03/27 09:20:48 flucke Exp $
 //
 //
 
@@ -67,9 +67,9 @@ class CSCOverlapsTrackPreparation : public edm::EDProducer {
    private:
       enum {kNothing, kSimpleFit, kAllButOne, kExtrapolate};
 
-      virtual void beginJob() ;
+      virtual void beginJob();
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void endJob();
       
       // ----------member data ---------------------------
       edm::InputTag m_src;
@@ -108,12 +108,6 @@ CSCOverlapsTrackPreparation::~CSCOverlapsTrackPreparation()
 // ------------ method called to produce the data  ------------
 void
 CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // fiduciality cuts
-  const double cut_ME11 = 0.086;
-  const double cut_ME12 = 0.090;
-  const double cut_MEx1 = 0.1790;
-  const double cut_MEx2 = 0.0905;
-
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByLabel(m_src, tracks);
 
@@ -140,84 +134,8 @@ CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& 
   for (reco::TrackCollection::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {
     trackCounter++;
 
-    // linear fits for a fiduciality cut: "x" is local z and "y" is localphi
-    std::vector<CSCDetId> keys;
-    std::map<CSCDetId,double> sum_w;
-    std::map<CSCDetId,double> sum_x;
-    std::map<CSCDetId,double> sum_xx;
-    std::map<CSCDetId,double> sum_y;
-    std::map<CSCDetId,double> sum_xy;
-    for (trackingRecHit_iterator hit = track->recHitsBegin();  hit != track->recHitsEnd();  ++hit) {
-      DetId id = (*hit)->geographicalId();
-      if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
-	CSCDetId cscid(id.rawId());
-	CSCDetId chamberid(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber(), 0);
-
-	int strip = cscGeometry->layer(id)->geometry()->nearestStrip((*hit)->localPosition());
-	double angle = cscGeometry->layer(id)->geometry()->stripAngle(strip) - M_PI/2.;
-	double sinAngle = sin(angle);
-	double cosAngle = cos(angle);
-
-	double localphi = atan2((*hit)->localPosition().x(), cscGeometry->idToDet(id)->toGlobal((*hit)->localPosition()).perp());
-	double z = cscGeometry->idToDet(chamberid)->toLocal(cscGeometry->idToDet(id)->toGlobal((*hit)->localPosition())).z();
-
-	double xx = (*hit)->localPositionError().xx();
-	double xy = (*hit)->localPositionError().xy();
-	double yy = (*hit)->localPositionError().yy();
-	double err2 = xx*cosAngle*cosAngle + 2.*xy*sinAngle*cosAngle + yy*sinAngle*sinAngle;
-	  
-	if (sum_w.find(chamberid) == sum_w.end()) {
-	  keys.push_back(chamberid);
-	  sum_w[chamberid] = 0.;
-	  sum_x[chamberid] = 0.;
-	  sum_xx[chamberid] = 0.;
-	  sum_y[chamberid] = 0.;
-	  sum_xy[chamberid] = 0.;
-	}
-	sum_w[chamberid] += 1./err2;
-	sum_x[chamberid] += z/err2;
-	sum_xx[chamberid] += z*z/err2;
-	sum_y[chamberid] += localphi/err2;
-	sum_xy[chamberid] += z*localphi/err2;
-	  
-      } // end if CSC
-    } // end first loop over hits
-
-      // do the fits and determine whether the endpoints are inside the fiducial region
-    std::map<CSCDetId,bool> okay;
-    for (std::vector<CSCDetId>::const_iterator key = keys.begin();  key != keys.end();  ++key) {
-      double delta = (sum_w[*key] * sum_xx[*key]) - (sum_x[*key] * sum_x[*key]);
-      double intercept = ((sum_xx[*key] * sum_y[*key]) - (sum_x[*key] * sum_xy[*key]))/delta;
-      double slope = ((sum_w[*key] * sum_xy[*key]) - (sum_x[*key] * sum_y[*key]))/delta;
-
-      CSCDetId layer1 = CSCDetId(key->endcap(), key->station(), key->ring(), key->chamber(), 1);
-      CSCDetId layer6 = CSCDetId(key->endcap(), key->station(), key->ring(), key->chamber(), 6);
-      double z1 = cscGeometry->idToDet(*key)->toLocal(cscGeometry->idToDet(layer1)->toGlobal(LocalPoint(0., 0., 0.))).z();
-      double z6 = cscGeometry->idToDet(*key)->toLocal(cscGeometry->idToDet(layer6)->toGlobal(LocalPoint(0., 0., 0.))).z();
-
-      double localphi1 = intercept + slope*z1;
-      double localphi6 = intercept + slope*z6;
-
-      if (key->station() == 1  &&  (key->ring() == 1  ||  key->ring() == 4)) {
-	okay[*key] = (fabs(localphi1) < cut_ME11  &&  fabs(localphi6) < cut_ME11);
-      }
-      else if (key->station() == 1  &&  key->ring() == 2) {
-	okay[*key] = (fabs(localphi1) < cut_ME12  &&  fabs(localphi6) < cut_ME12);
-      }
-      else if (key->station() > 1  &&  key->ring() == 1) {
-	okay[*key] = (fabs(localphi1) < cut_MEx1  &&  fabs(localphi6) < cut_MEx1);
-      }
-      else if (key->station() > 1  &&  key->ring() == 2) {
-	okay[*key] = (fabs(localphi1) < cut_MEx2  &&  fabs(localphi6) < cut_MEx2);
-      }
-      else {
-	okay[*key] = false;
-      }
-
-    } // end loop over hit chambers
-
-      // now we'll actually put hits on the new trajectory
-      // these must be in lock-step
+    // now we'll actually put hits on the new trajectory
+    // these must be in lock-step
     edm::OwnVector<TrackingRecHit> clonedHits;
     std::vector<TrajectoryMeasurement::ConstRecHitPointer> transHits;
     std::vector<TrajectoryStateOnSurface> TSOSes;
@@ -225,35 +143,22 @@ CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& 
     for (trackingRecHit_iterator hit = track->recHitsBegin();  hit != track->recHitsEnd();  ++hit) {
       DetId id = (*hit)->geographicalId();
       if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
-	CSCDetId cscid(id.rawId());
-	CSCDetId chamberid(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber(), 0);
+	const Surface &layerSurface = cscGeometry->idToDet(id)->surface();
+	TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&**hit, globalGeometry));
 
-	if (okay.find(chamberid) != okay.end()  &&  okay[chamberid]) {
-	  double localphi = atan2((*hit)->localPosition().x(), cscGeometry->idToDet(id)->toGlobal((*hit)->localPosition()).perp());
-	  if ((chamberid.station() == 1  &&  (chamberid.ring() == 1  ||  chamberid.ring() == 4)  &&  fabs(localphi) < cut_ME11)  ||
-	      (chamberid.station() == 1  &&  chamberid.ring() == 2  &&  fabs(localphi) < cut_ME12)  ||
-	      (chamberid.station() > 1  &&  chamberid.ring() == 1  &&  fabs(localphi) < cut_MEx1)  ||
-	      (chamberid.station() > 1  &&  chamberid.ring() == 2  &&  fabs(localphi) < cut_MEx2)) {
+	AlgebraicVector params(5);   // meaningless, CSCOverlapsAlignmentAlgorithm does the fit internally
+	params[0] = 1.;  // straight-forward direction
+	params[1] = 0.;
+	params[2] = 0.;
+	params[3] = 0.;  // center of the chamber
+	params[4] = 0.;
+	LocalTrajectoryParameters localTrajectoryParameters(params, 1., false);
+	LocalTrajectoryError localTrajectoryError(0.001, 0.001, 0.001, 0.001, 0.001);
 
-	    const Surface &layerSurface = cscGeometry->idToDet(id)->surface();
-	    TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&**hit, globalGeometry));
-
-	    AlgebraicVector params(5);   // meaningless, CSCOverlapsAlignmentAlgorithm does the fit internally
-	    params[0] = 1.;  // straight-forward direction
-	    params[1] = 0.;
-	    params[2] = 0.;
-	    params[3] = 0.;  // center of the chamber
-	    params[4] = 0.;
-	    LocalTrajectoryParameters localTrajectoryParameters(params, 1., false);
-	    LocalTrajectoryError localTrajectoryError(0.001, 0.001, 0.001, 0.001, 0.001);
-
-	    // these must be in lock-step
-	    clonedHits.push_back((*hit)->clone());
-	    transHits.push_back(hitPtr);
-	    TSOSes.push_back(TrajectoryStateOnSurface(localTrajectoryParameters, localTrajectoryError, layerSurface, &*magneticField));
-
-	  } // end hit fiduciality cut
-	} // end track fiduciality cut
+	// these must be in lock-step
+	clonedHits.push_back((*hit)->clone());
+	transHits.push_back(hitPtr);
+	TSOSes.push_back(TrajectoryStateOnSurface(localTrajectoryParameters, localTrajectoryError, layerSurface, &*magneticField));
       } // end if CSC
     } // end loop over hits
 
