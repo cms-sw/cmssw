@@ -6,7 +6,6 @@ from Configuration.EventContent.EventContentHeavyIons_cff import *
 #jets
 jetContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
-    'drop *',
     'keep double*_*CaloJets_*_*',
     'drop recoCaloJets_*_*_*',
     'keep recoGenJets_*_*_*',
