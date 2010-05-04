@@ -138,6 +138,8 @@ namespace lumi{
     }
     //
     //select LUMISEGMENTNR,GTALGOCOUNTS,BIT from cms_wbm.LEVEL1_TRIGGER_ALGO_CONDITIONS where RUNNUMBER=133881 order by LUMISEGMENTNR,BIT;
+    //note: LUMISEGMENTNR count from 1
+    //note: BIT count from 0-127
     //
     coral::IQuery* Queryalgo=wbmschemaHandle.newQuery();
     Queryalgo->addToTableList(algoname);
@@ -153,18 +155,26 @@ namespace lumi{
     Queryalgo->addToOrderList("BIT");
     Queryalgo->defineOutput(qalgoOutput);
     coral::ICursor& c=Queryalgo->execute();
-    
     unsigned int s=0;
     while( c.next() ){
       const coral::AttributeList& row = c.currentRow();     
+      //row.toOutputStream( std::cout ) << std::endl;
+      unsigned int lsnr=row["lsnr"].data<unsigned int>();
       unsigned int count=row["counts"].data<unsigned int>();
-      unsigned int algobit=row["algobit"].data<unsigned int>();
       mybitcount_algo.push_back(count);
+      unsigned int algobit=row["algobit"].data<unsigned int>();
       if(algobit==(lumi::N_TRGALGOBIT-1)){
+	++s;
+	while(s!=lsnr){
+	  std::cout<<"ALGO COUNT alert: found hole in LS range"<<std::endl;
+	  std::cout<<"    fill all algocount 0 for LS "<<s<<std::endl;
+	  std::vector<unsigned int> tmpzero(lumi::N_TRGALGOBIT,0);
+	  algocount.push_back(tmpzero);
+	  ++s;
+	}
 	algocount.push_back(mybitcount_algo);
 	mybitcount_algo.clear();
       }
-      ++s;
     }
     if(s==0){
       c.close();
@@ -177,6 +187,8 @@ namespace lumi{
     //std::cout<<"read algo counts"<<std::endl;
     //
     //select LUMISEGMENTNR,GTTECHCOUNTS,BIT from cms_wbm.LEVEL1_TRIGGER_TECH_CONDITIONS where RUNNUMBER=133881 order by LUMISEGMENTNR,BIT;
+    //note: LUMISEGMENTNR count from 1
+    //note: BIT count from 0-63
     //
     transaction.start(true);
     coral::IQuery* Querytech=wbmschemaHandle.newQuery();
@@ -198,15 +210,22 @@ namespace lumi{
     while( techcursor.next() ){
       const coral::AttributeList& row = techcursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
-      //unsigned int lsnr=row["lsnr"].data<unsigned int>();
+      unsigned int lsnr=row["lsnr"].data<unsigned int>();
       unsigned int count=row["counts"].data<unsigned int>();
       unsigned int techbit=row["techbit"].data<unsigned int>();
       mybitcount_tech.push_back(count);
       if(techbit==(lumi::N_TRGTECHBIT-1)){
+	++s;
+	while( s!=lsnr){
+	  std::cout<<"TECH COUNT alert: found hole in LS range"<<std::endl;
+	  std::cout<<"     fill all techcount with 0 for LS "<<s<<std::endl;
+	  std::vector<unsigned int> tmpzero(lumi::N_TRGTECHBIT,0);
+	  techcount.push_back(tmpzero);
+	  ++s;
+	}
 	techcount.push_back(mybitcount_tech);
 	mybitcount_tech.clear();
       }
-      ++s;
     }
     if(s==0){
       techcursor.close();
@@ -219,6 +238,7 @@ namespace lumi{
     //std::cout<<"read tech counts"<<std::endl;
     //
     //select LUMISEGMENTNR,DEADTIMEBEAMACTIVE from cms_wbm.LEVEL1_TRIGGER_CONDITIONS where RUNNUMBER=133881 order by LUMISEGMENTNR;
+    //Note: LUMISEGMENTNR counts from 1
     //
     transaction.start(true);
     coral::IQuery* Querydead=wbmschemaHandle.newQuery();
@@ -239,11 +259,18 @@ namespace lumi{
     while( deadcursor.next() ){
       const coral::AttributeList& row = deadcursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
-      //unsigned int lsnr=row["lsnr"].data<unsigned int>();
+      ++s;
+      unsigned int lsnr=row["lsnr"].data<unsigned int>();
+      while(s!=lsnr){
+	std::cout<<"DEADTIME alert: found hole in LS range"<<std::endl;
+	std::cout<<"         fill deadtimebeamactive 0 for LS "<<s<<std::endl;
+	deadtimeresult.push_back(0);
+	++s;
+      }
       unsigned int count=row["counts"].data<unsigned int>();
       deadtimeresult.push_back(count);
-      ++s;
     }
+    //std::cout<<"deadtimeresult raw "<<deadtimeresult.size()<<std::endl;
     if(s==0){
       deadcursor.close();
       delete Querydead;
@@ -251,7 +278,6 @@ namespace lumi{
       throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for deadcounts"),"retrieveData","TRGWBM2DB");
       return;
     }
-    //transaction.commit();
     delete Querydead;
     transaction.commit();
     //std::cout<<"read dead counts"<<std::endl;
