@@ -591,6 +591,7 @@ inline void FillUnphysicalHEHFBins(EtaPhiHists &hh)
   // First 2 depths have 5-10-20 degree corrections
   for (unsigned int d=0;d<3;++d)
     {
+      if (!hh.depth[d]) continue;
       for (int eta=0;eta<hh.depth[d]->getNbinsX();++eta)
 	{
 	  ieta=CalcIeta(eta,d+1);
