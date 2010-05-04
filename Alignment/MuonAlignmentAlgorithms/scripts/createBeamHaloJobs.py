@@ -43,6 +43,10 @@ parser.add_option("--globalTag",
                   type="string",
                   default="GR_R_35X_V8A::All",
                   dest="globaltag")
+parser.add_option("--photogrammetry",
+                  help="if invoked, alignment will be constrained to photogrammetry",
+                  action="store_true",
+                  dest="photogrammetry")
 
 parser.add_option("--minP",
                   help="minimum track momentum (measured via radial component of fringe fields)",
@@ -104,6 +108,7 @@ INPUTFILES = sys.argv[4]
 
 options, args = parser.parse_args(sys.argv[5:])
 globaltag = options.globaltag
+photogrammetry = options.photogrammetry
 minP = options.minP
 minHitsPerChamber = options.minHitsPerChamber
 maxdrdz = options.maxdrdz
@@ -212,6 +217,17 @@ process.PoolDBESSource.toGet = cms.VPSet(
       )
 """ % vars())
 
+    constraints = ""
+    if photogrammetry and (mode == "phipos" or mode == "phiz"):
+        constraints += """
+export ALIGNMENT_CONVERTXML=%(inputdb)s
+cmsRun $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/python/convertToXML_global_cfg.py 
+python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConstraints.py %(inputdb)s_global.xml $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/data/Photogrammetry2007.%(mode)s PGFrame > constraints_cff.py
+""" % vars()
+    else:
+        constraints += """echo \"\" > constraints_cff.py\n"""
+    constraints += """cp -f constraints_cff.py $ALIGNMENT_AFSDIR/%(directory)sconstraints_cff.py\n""" % vars()
+
     file("%salign.sh" % directory, "w").write("""#!/bin/sh
 # %(commandline)s
 
@@ -240,6 +256,8 @@ export ALIGNMENT_minStationsInTrackRefits=%(minStationsInTrackRefits)s
 cp -f %(directory)salignBH_cfg.py %(directory)sconvert-db-to-xml_cfg.py %(inputdbdir)s%(inputdb)s %(directory)s*.tmp inertGlobalPositionRcd.db $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/
 export ALIGNMENT_ALIGNMENTTMP=`ls alignment*.tmp`
+
+%(constraints)s
 
 ls -l
 cmsRun alignBH_cfg.py

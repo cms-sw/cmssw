@@ -29,6 +29,7 @@ geometry = MuonGeometry(sys.argv[1])
 constraints = file(sys.argv[2])
 frameName = sys.argv[3]
 
+empty = True
 byRing = {"ME+1/1": [], "ME+1/2": [], "ME+2/1": [], "ME+2/2": [], "ME+3/1": [], "ME+3/2": [], "ME+4/1": [], "ME+4/2": [], "ME-1/1": [], "ME-1/2": [], "ME-2/1": [], "ME-2/2": [], "ME-3/1": [], "ME-3/2": [], "ME-4/1": [], "ME-4/2": []}
 for line in constraints.readlines():
     match = re.match(r"(ME[\+\-/0-9]+)\s+([\+\-\.eE0-9]+)\s+([\+\-\.eE0-9]+)", line)
@@ -43,26 +44,28 @@ for line in constraints.readlines():
         else: raise Exception
         station = int(chamber[3])
         ring = int(chamber[5])
-        chamber = int(chamber[7:9])
+        cham = int(chamber[7:9])
 
         if mode == "phiy":
-            geom = geometry.csc[endcap, station, ring, chamber].phiy
+            geom = geometry.csc[endcap, station, ring, cham].phiy
         elif mode == "phipos":
-            geom = math.atan2(geometry.csc[endcap, station, ring, chamber].y, geometry.csc[endcap, station, ring, chamber].x)
+            geom = math.atan2(geometry.csc[endcap, station, ring, cham].y, geometry.csc[endcap, station, ring, cham].x)
         elif mode == "phiz":
-            geom = geometry.csc[endcap, station, ring, chamber].phiz
+            geom = geometry.csc[endcap, station, ring, cham].phiz
 
         relative = value - geom
 
         if ringName in byRing:
             byRing[ringName].append("""cms.PSet(i = cms.string("%(frameName)s"), j = cms.string("%(chamber)s"), value = cms.double(%(relative)g), error = cms.double(%(error)g))""" % vars())
+            empty = False
 
-keys = byRing.keys()
-keys.sort()
-print "constraints = {"
-for ringName in keys:
-    print "    \"%s\": [" % ringName
-    for line in byRing[ringName]:
-        print "        " + line + ","
-    print "    ],"
-print "}"
+if not empty:
+    keys = byRing.keys()
+    keys.sort()
+    print "for fitter in process.looper.algoConfig.fitters:"
+    for ringName in keys:
+        if len(byRing[ringName]) > 0:
+            print "    if fitter.name.value() == \"%(ringName)s\":" % vars()
+            print "        fitter.alignables.append(\"%(frameName)s\")" % vars()
+            for line in byRing[ringName]:
+                print "        fitter.constraints.append(%(line)s)" % vars()

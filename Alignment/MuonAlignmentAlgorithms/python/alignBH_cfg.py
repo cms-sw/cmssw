@@ -2,6 +2,7 @@ import os
 import FWCore.ParameterSet.Config as cms
 
 alignmenttmp = os.environ["ALIGNMENT_ALIGNMENTTMP"].split("\n")
+if alignmenttmp == [""]: alignmenttmp = []
 iteration = int(os.environ["ALIGNMENT_ITERATION"])
 mode = os.environ["ALIGNMENT_MODE"]
 inputdb = os.environ["ALIGNMENT_INPUTDB"]
@@ -43,6 +44,8 @@ process.looper.algoConfig.useTrackWeights = useTrackWeights
 process.looper.algoConfig.errorFromRMS = errorFromRMS
 process.looper.algoConfig.slopeFromTrackRefit = slopeFromTrackRefit
 process.looper.algoConfig.minStationsInTrackRefits = minStationsInTrackRefits
+
+execfile("constraints_cff.py")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string(globaltag)
