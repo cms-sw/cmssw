@@ -4,6 +4,10 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 //#include "DataFormats/TrackReco/interface/Track.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
+//#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+//#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
   
@@ -34,6 +38,7 @@ void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
 
 int CutBasedElectronID::classify(const reco::GsfElectron* electron) {
   
+  double eta = fabs(electron->superCluster()->eta());
   double eOverP = electron->eSuperClusterOverP();
   //double pin  = electron->trackMomentumAtVtx().R(); 
   //double pout = electron->trackMomentumOut().R(); 
@@ -51,7 +56,7 @@ int CutBasedElectronID::classify(const reco::GsfElectron* electron) {
     
     return cat;
 
-  } else {
+  } else if (version_ == "V02") {
     if (electron->isEB()) {       // BARREL
       if(fBrem < 0.12)
         cat=1;
@@ -69,7 +74,38 @@ int CutBasedElectronID::classify(const reco::GsfElectron* electron) {
     }
     
     return cat;
+  } else if (version_ == "V03" || version_ == "V04" ||version_ == "") {
+    if (electron->isEB()) {
+      if ((fBrem >= 0.12) and (eOverP > 0.9) and (eOverP < 1.2))
+        cat = 0;
+      else if ((electron->trackerDrivenSeed()) and (!electron->ecalDrivenSeed()))
+        cat = 8;
+      else if (fBrem < 0.12)
+        cat = 1;
+      else if ((eta >  .445   and eta <  .45  ) ||
+               (eta >  .79    and eta <  .81  ) ||
+               (eta > 1.137   and eta < 1.157 ) ||
+               (eta > 1.47285 and eta < 1.4744))
+        cat = 6;
+      else
+        cat = 2;
+    } else {
+      if ((fBrem >= 0.2) and (eOverP > 0.82) and (eOverP < 1.22))
+        cat = 3;
+      else if ((electron->trackerDrivenSeed()) and (!electron->ecalDrivenSeed()))
+        cat = 8;
+      else if (fBrem < 0.2)
+        cat = 4;
+      else if (eta > 1.5 and eta <  1.58)
+        cat = 7;
+      else
+        cat = 5;
+    }
+
+    return cat;
   }
+
+  return -1;
 }
 
 double CutBasedElectronID::result(const reco::GsfElectron* electron ,
@@ -105,6 +141,20 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
   double hcalIso = electron->dr04HcalTowerSumEt();
   double hcalIso1 = electron->dr04HcalDepth1TowerSumEt();
   double hcalIso2 = electron->dr04HcalDepth2TowerSumEt();
+  //
+  // calculate the conversion track partner related criteria
+  // calculate the reference point of the track
+  const math::XYZPoint tpoint = electron->gsfTrack()->referencePoint();
+  const GlobalPoint gp(tpoint.x(), tpoint.y(), tpoint.z());
+  // calculate the magnetic field for that point
+  edm::ESHandle<MagneticField> magneticField;
+  es.get<IdealMagneticFieldRecord>().get(magneticField);
+  const  MagneticField *mField = magneticField.product();
+  double bfield = mField->inTesla(gp).mag();
+  //
+  edm::Handle<reco::TrackCollection> ctfTracks;
+  e.getByLabel("generalTracks", ctfTracks); 
+  ConversionFinder convFinder;
 
   if (version_ == "V00") {
      std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
@@ -113,7 +163,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
        sigmaee = sigmaee - 0.02*(fabs(eta) - 2.3);   //correct sigmaetaeta dependence on eta in endcap
   }
 
-  if (version_ == "V02" || version_ == "") {
+  if (version_ != "V01" and version_ != "V00") {
     edm::Handle<reco::VertexCollection> vtxH;
     e.getByLabel(verticesCollection, vtxH);
     if (vtxH->size() != 0) {
@@ -127,7 +177,20 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
       sigmaee = sqrt(vCov[0]); 
     } 
   }
-  
+
+  if (version_ == "V03" and type_ == "robust") {
+    edm::Handle<reco::BeamSpot> pBeamSpot;
+    // uses the same name for the vertex collection to avoid adding more new names
+    e.getByLabel(verticesCollection, pBeamSpot); 
+    if (pBeamSpot.isValid()) {
+      const reco::BeamSpot *bspot = pBeamSpot.product();
+      const math::XYZPoint bspotPosition = bspot->position();
+      ip = fabs(electron->gsfTrack()->dxy(bspotPosition));
+    } else
+      ip = fabs(electron->gsfTrack()->dxy());
+  }
+
+  // .....................................................................................
   std::vector<double> cut;
   // ROBUST Selection
   if (type_ == "robust") {
@@ -139,7 +202,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
       cut = cuts_.getParameter<std::vector<double> >("barrel");
     else
       cut = cuts_.getParameter<std::vector<double> >("endcap");
-    
+    // check isolations: if only isolation passes result = 2   
     if (quality_ == "highenergy") {
       if ((tkIso > cut[6] || hcalIso2 > cut[11]) ||
           (electron->isEB() && ((ecalIso + hcalIso1) > cut[7]+cut[8]*scEt)) ||
@@ -149,11 +212,12 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
       else
         result = 2;
     } else {
-      if ((tkIso > cut[6]) || (ecalIso > cut[7]) || (hcalIso > cut[8]))
+      if ((tkIso > cut[6]) || (ecalIso > cut[7]) || (hcalIso > cut[8]) || (hcalIso1 > cut[9]) || (hcalIso2 > cut[10]) || ((tkIso+ecalIso+hcalIso) > cut[11]) )
         result = 0.;
       else
         result = 2.;
     }
+
 
     if (hOverE > cut[0]) 
       return result;    
@@ -168,9 +232,28 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
       return result;    
     
     if (e25Maxoe55 < cut[4] && e15oe55 < cut[5])
-         return result;
+      return result;
+    // some extra electron id cuts
+    if (sigmaee < cut[12]) // inverted sigmaee cut - spike removal related
+      return result;
+
+    if (  eOverP < cut[13] ||  eOverP > cut[14]) // lower and upper cut in E/P
+      return result;
     
     result = result + 1;
+
+    if (ip > cut[15])
+      return result;
+    if (mishits > cut[16]) // expected missing hits
+      return result;
+    // positive cut[17] means to demand a valid hit in 1st layer PXB 
+    if (cut[17] >0 && not (electron->gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel()))
+      return result;
+    // cut[18]: Dist cut[19]: dcot
+    if (convFinder.isElFromConversion(*electron, ctfTracks, bfield, cut[18], cut[19]))
+      return result;
+      
+    result += 4;
     
     return result;
   }
@@ -252,44 +335,86 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     else
       result = 2.;
 
-    if (fBrem < -2)
-      return result;
+    if (fBrem > -2) {
 
-    //std::cout << "hoe" << hOverE << std::endl;
-    cut = cuts_.getParameter<std::vector<double> >("cuthoe");
-    if (hOverE > cut[cat+3*eb+bin*6])
-      return result;
+      //std::cout << "hoe" << hOverE << std::endl;
+      cut = cuts_.getParameter<std::vector<double> >("cuthoe");
+      //std::cout << "see" << sigmaee << std::endl;
+      cut = cuts_.getParameter<std::vector<double> >("cutsee");
+      //std::cout << "dphiin" << fabs(deltaPhiIn) << std::endl;
+      cut = cuts_.getParameter<std::vector<double> >("cutdphi");
+      //std::cout << "detain" << fabs(deltaEtaIn) << std::endl;
+      cut = cuts_.getParameter<std::vector<double> >("cutdeta");
+      //std::cout << "eseedopin " << eSeedOverPin << std::endl;
+      cut = cuts_.getParameter<std::vector<double> >("cuteopin");
+      //std::cout << "ip" << ip << std::endl;
+      cut = cuts_.getParameter<std::vector<double> >("cutip");
+      cut = cuts_.getParameter<std::vector<double> >("cutmishits");
 
-    //std::cout << "see" << sigmaee << std::endl;
-    cut = cuts_.getParameter<std::vector<double> >("cutsee");
-    if (sigmaee > cut[cat+3*eb+bin*6])
-      return result;
+      if ((hOverE < cut[cat+3*eb+bin*6]) and
+          (sigmaee < cut[cat+3*eb+bin*6]) and
+          (fabs(deltaPhiIn) < cut[cat+3*eb+bin*6]) and
+          (fabs(deltaEtaIn) < cut[cat+3*eb+bin*6]) and
+          (eSeedOverPin > cut[cat+3*eb+bin*6]) and
+          (ip < cut[cat+3*eb+bin*6]) and
+          (mishits < cut[cat+3*eb+bin*6]))
+        result = result + 1.;
+    }
+    return result;
+  }
 
-    //std::cout << "dphiin" << fabs(deltaPhiIn) << std::endl;
-    cut = cuts_.getParameter<std::vector<double> >("cutdphi");
-    if (fabs(deltaPhiIn) > cut[cat+3*eb+bin*6])
-      return result;  
+  if (type_ == "classbased" && (version_ == "V04" || version_ == "")) {
+    double result = 0.;
+    
+    int bin = 0;
+    
+    if (scEt < 20.)
+      bin = 2;
+    else if (scEt > 30.)
+      bin = 0;
+    else
+      bin = 1;
 
-    //std::cout << "detain" << fabs(deltaEtaIn) << std::endl;
-    cut = cuts_.getParameter<std::vector<double> >("cutdeta");
-    if (fabs(deltaEtaIn) > cut[cat+3*eb+bin*6])
-      return result;
+    if (fBrem > 0)
+      eSeedOverPin = eSeedOverPin + fBrem;
+    
+    float iso_sum = tkIso + ecalIso + hcalIso;
+    float iso_sum_corrected = iso_sum*pow(40./scEt, 2);
 
-    //std::cout << "eseedopin " << eSeedOverPin << std::endl;
-    cut = cuts_.getParameter<std::vector<double> >("cuteopin");
-    if (eSeedOverPin < cut[cat+3*eb+bin*6])
-      return result;
+    std::vector<double> cutIsoSum = cuts_.getParameter<std::vector<double> >("cutisotk");
+    std::vector<double> cutIsoSumCorr = cuts_.getParameter<std::vector<double> >("cutisoecal");
+    if ((iso_sum < cutIsoSum[cat+bin*9]) and
+        (iso_sum_corrected < cutIsoSumCorr[cat+bin*9]))
+      result += 2.;
+
+    if (fBrem > -2) {
+      //std::cout << "hoe" << hOverE << std::endl;
+      cut = cuts_.getParameter<std::vector<double> >("cuthoe");
+      //std::cout << "see" << sigmaee << std::endl;
+      cut = cuts_.getParameter<std::vector<double> >("cutsee");
+      //std::cout << "dphiin" << fabs(deltaPhiIn) << std::endl;
+      cut = cuts_.getParameter<std::vector<double> >("cutdphi");
+      //std::cout << "detain" << fabs(deltaEtaIn) << std::endl;
+      cut = cuts_.getParameter<std::vector<double> >("cutdeta");
+      //std::cout << "eseedopin " << eSeedOverPin << std::endl;
+      cut = cuts_.getParameter<std::vector<double> >("cuteopin");
+
+      if ((hOverE < cut[cat+bin*9]) and
+          (sigmaee < cut[cat+bin*9]) and
+          (fabs(deltaPhiIn) < cut[cat+bin*9]) and
+          (fabs(deltaEtaIn) < cut[cat+bin*9]) and
+          (eSeedOverPin > cut[cat+bin*9]))
+        result += 1.;
+    }
 
     //std::cout << "ip" << ip << std::endl;
     cut = cuts_.getParameter<std::vector<double> >("cutip");
-    if (ip > cut[cat+3*eb+bin*6])
-      return result;
+    if (ip < cut[cat+bin*9])
+      result += 4;
 
     cut = cuts_.getParameter<std::vector<double> >("cutmishits");
-    if (mishits > cut[cat+3*eb+bin*6])
-      return result;
-
-    result = result + 1.;
+    if (mishits < cut[cat+bin*9])
+      result += 8;
 
     return result;
   }

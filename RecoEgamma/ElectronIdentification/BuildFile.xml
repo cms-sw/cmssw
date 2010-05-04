@@ -3,6 +3,9 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="MagneticField/Records"/>
+<use   name="MagneticField/Engine"/>
+<use   name="RecoEgamma/EgammaTools"/>
 <export>
   <lib   name="1"/>
 </export>

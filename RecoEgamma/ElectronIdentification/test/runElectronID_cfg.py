@@ -5,15 +5,21 @@ process = cms.Process("runElectronID")
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('Configuration/StandardSequences/Geometry_cff')
+process.load("Configuration.StandardSequences.MagneticField_cff")
+
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 
 process.maxEvents = cms.untracked.PSet(
-   input = cms.untracked.int32(100)
+   input = cms.untracked.int32(200)
 )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    'file:/data/CMSSWtestFolder/Relval310pre3SingleElectronPt35_newElectronProto_100evts_newpresel.root'
+    '/store/relval/CMSSW_3_7_0_pre2/RelValZEE/GEN-SIM-RECO/START37_V1-v1/0018/9C59B317-F752-DF11-94D0-0026189438A7.root',
+        '/store/relval/CMSSW_3_7_0_pre2/RelValZEE/GEN-SIM-RECO/START37_V1-v1/0017/DC6EC4F6-9D52-DF11-AF94-00261894383E.root',
+        '/store/relval/CMSSW_3_7_0_pre2/RelValZEE/GEN-SIM-RECO/START37_V1-v1/0017/D203FD36-9F52-DF11-9631-00261894383F.root',
+        '/store/relval/CMSSW_3_7_0_pre2/RelValZEE/GEN-SIM-RECO/START37_V1-v1/0017/B89969B0-9C52-DF11-9E8B-002618943946.root',
+        '/store/relval/CMSSW_3_7_0_pre2/RelValZEE/GEN-SIM-RECO/START37_V1-v1/0017/9CDDFFA7-9B52-DF11-8F03-00261894389C.root'
     ),
     secondaryFileNames = cms.untracked.vstring (
    )
