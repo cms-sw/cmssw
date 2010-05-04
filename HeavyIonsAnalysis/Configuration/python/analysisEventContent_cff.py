@@ -14,8 +14,7 @@ jetContent = cms.PSet(
   )
 
 jetContentExtended = jetContent.clone()
-jetContentExtended.outputCommands.extend(cms.untracked.vstring('keep *_caloTowers_*_*',
-                                                               'keep *_towerMaker_*_*'))
+jetContentExtended.outputCommands.extend(cms.untracked.vstring('keep *_towerMaker_*_*'))
 
 #tracks
 trkContent = cms.PSet(
@@ -24,6 +23,13 @@ trkContent = cms.PSet(
       'keep recoTracks_hiSelectedTracks_*_*',
       'keep recoTracks_hiPixel3PrimTracks_*_*' # low-fake selection to lower pt?
       )
+    )
+
+lightTrackContent = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+    'keep *_offlineBeamSpot_*_*',
+    'keep *_allTracks_*_*' # Selected Charged Candidates
+    )
     )
 
 #muons
@@ -78,7 +84,7 @@ hiAnalysisSkimContent.outputCommands.extend(corrContent.outputCommands)
 # [highpt] skim
 jetTrkSkimContent = hiCommon.clone()
 jetTrkSkimContent.outputCommands.extend(jetContentExtended.outputCommands)
-jetTrkSkimContent.outputCommands.extend(trkContent.outputCommands)
+jetTrkSkimContent.outputCommands.extend(lightTrackContent.outputCommands)
 
 # [dilepton] skim
 muonTrkSkimContent = hiCommon.clone()
