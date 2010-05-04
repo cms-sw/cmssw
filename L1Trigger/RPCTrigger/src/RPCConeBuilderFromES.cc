@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Mar  3 13:34:20 CET 2008
-// $Id: RPCConeBuilderFromES.cc,v 1.8 2010/02/26 15:50:46 fruboes Exp $
+// $Id: RPCConeBuilderFromES.cc,v 1.9 2010/04/30 12:49:51 fruboes Exp $
 //
 
 // system include files
@@ -74,9 +74,9 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
          ++digiIt)
     {
       
+      ++digiIndex;
       if ( digiIt->bx() < bxOrDef->getFirstBX() + bx || digiIt->bx() > bxOrDef->getLastBX() +bx  ){
       //if ( digiIt->bx() < hwConfig->getFirstBX() + bx || digiIt->bx() > hwConfig->getLastBX() +bx  ){
-        ++digiIndex;
         continue;
       }
       
