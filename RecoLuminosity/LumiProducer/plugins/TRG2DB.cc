@@ -141,6 +141,8 @@ namespace lumi{
     }
     //
     //select counts,lsnr,algobit from cms_gt_mon.gt_mon_trig_algo_view where runnr=:runnumber order by lsnr,algobit;
+    //note: algobit count from 0-127
+    //note: lsnr count from 1 
     //
     coral::IQuery* Queryalgoview=gtmonschemaHandle.newQuery();
     Queryalgoview->addToTableList(algoviewname);
@@ -161,15 +163,22 @@ namespace lumi{
     while( c.next() ){
       const coral::AttributeList& row = c.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
-      //unsigned int lsnr=row["lsnr"].data<unsigned int>();
+      unsigned int lsnr=row["lsnr"].data<unsigned int>();
       unsigned int count=row["counts"].data<unsigned int>();
       unsigned int algobit=row["algobit"].data<unsigned int>();
       mybitcount_algo.push_back(count);
       if(algobit==(lumi::N_TRGALGOBIT-1)){
+	++s;
+	while(s!=lsnr){
+	  std::cout<<"ALGO COUNT alert: found hole in LS range"<<std::endl;
+	  std::cout<<"    fill all algocount 0 for LS "<<s<<std::endl;
+	  std::vector<unsigned int> tmpzero(lumi::N_TRGALGOBIT,0);
+	  algocount.push_back(tmpzero);
+	  ++s;
+	}
 	algocount.push_back(mybitcount_algo);
 	mybitcount_algo.clear();
       }
-      ++s;
     }
     if(s==0){
       c.close();
@@ -180,6 +189,8 @@ namespace lumi{
     delete Queryalgoview;
     //
     //select counts,lsnr,techbit from cms_gt_mon.gt_mon_trig_tech_view where runnr=:runnumber order by lsnr,techbit;
+    //note: techobit count from 0-63
+    //note: lsnr count from 1 
     //
     coral::IQuery* Querytechview=gtmonschemaHandle.newQuery();
     Querytechview->addToTableList(techviewname);
@@ -200,15 +211,22 @@ namespace lumi{
     while( techcursor.next() ){
       const coral::AttributeList& row = techcursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
-      //unsigned int lsnr=row["lsnr"].data<unsigned int>();
+      unsigned int lsnr=row["lsnr"].data<unsigned int>();
       unsigned int count=row["counts"].data<unsigned int>();
       unsigned int techbit=row["techbit"].data<unsigned int>();
       mybitcount_tech.push_back(count);
       if(techbit==(lumi::N_TRGTECHBIT-1)){
+	++s;
+	while(s!=lsnr){
+	  std::cout<<"TECH COUNT alert: found hole in LS range"<<std::endl;
+	  std::cout<<"     fill all techcount with 0 for LS "<<s<<std::endl;
+	  std::vector<unsigned int> tmpzero(lumi::N_TRGTECHBIT,0);
+	  techcount.push_back(tmpzero);
+	  ++s;
+	}
 	techcount.push_back(mybitcount_tech);
 	mybitcount_tech.clear();
       }
-      ++s;
     }
     if(s==0){
       techcursor.close();
@@ -219,6 +237,8 @@ namespace lumi{
     delete Querytechview;
     //
     //select counts,lsnr from cms_gt_mon.gt_mon_trig_dead_view where runnr=:runnumber and deadcounter=:countername order by lsnr;
+    //
+    //note: lsnr count from 1 
     //
     coral::IQuery* Querydeadview=gtmonschemaHandle.newQuery();
     Querydeadview->addToTableList(deadviewname);
@@ -231,7 +251,7 @@ namespace lumi{
     bindVariablesDead.extend("runnumber",typeid(int));
     bindVariablesDead.extend("countername",typeid(std::string));
     bindVariablesDead["runnumber"].data<int>()=runnumber;
-    bindVariablesDead["countername"].data<std::string>()=std::string("Deadtime");
+    bindVariablesDead["countername"].data<std::string>()=std::string("DeadtimeBeamActive");
     Querydeadview->setCondition("RUNNR =:runnumber AND DEADCOUNTER =:countername",bindVariablesDead);
     Querydeadview->addToOrderList("lsnr");
     Querydeadview->defineOutput(qdeadOutput);
@@ -240,20 +260,26 @@ namespace lumi{
     while( deadcursor.next() ){
       const coral::AttributeList& row = deadcursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
-      //unsigned int lsnr=row["lsnr"].data<unsigned int>();
+      ++s;
+      unsigned int lsnr=row["lsnr"].data<unsigned int>();
+      while(s!=lsnr){
+	std::cout<<"DEADTIME alert: found hole in LS range"<<std::endl;
+	std::cout<<"         fill deadtimebeamactive 0 for LS "<<s<<std::endl;
+	deadtimeresult.push_back(0);
+	++s;
+      }
       unsigned int count=row["counts"].data<unsigned int>();
       deadtimeresult.push_back(count);
-      ++s;
     }
     if(s==0){
       deadcursor.close();
       delete Querydeadview;
       transaction.commit();
- throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for deadcounts"),"retrieveData","TRG2DB");
- return;
+      throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for deadcounts"),"retrieveData","TRG2DB");
+      return;
     }
-    //transaction.commit();
     delete Querydeadview;
+    //transaction.commit();
     /**
        Part II
        query tables in schema cms_gt
@@ -421,6 +447,7 @@ namespace lumi{
     //
     coral::ISessionProxy* lumisession=svc->connect(m_dest,coral::Update);
     unsigned int totalcmsls=deadtimeresult.size();
+    std::cout<<"inserting totalcmsls "<<totalcmsls<<std::endl;
     try{
       lumisession->transaction().start(false);
       coral::ISchema& schema=lumisession->nominalSchema();
