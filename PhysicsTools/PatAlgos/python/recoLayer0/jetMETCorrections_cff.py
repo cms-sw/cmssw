@@ -10,8 +10,8 @@ from JetMETCorrections.Type1MET.MetType1Corrections_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
 
 # MET correction for Muons
-from JetMETCorrections.Type1MET.MuonMETValueMapProducer_cff import *
-from JetMETCorrections.Type1MET.MetMuonCorrections_cff import corMetGlobalMuons
+from RecoMET.METAlgorithms.MuonMETValueMapProducer_cff import *
+from RecoMET.METAlgorithms.MetMuonCorrections_cff import corMetGlobalMuons
 metJESCorAK5CaloJetMuons = corMetGlobalMuons.clone(uncorMETInputTag = cms.InputTag('metJESCorAK5CaloJet'))
 patMETCorrections = cms.Sequence(metJESCorAK5CaloJet * metJESCorAK5CaloJetMuons)
 
