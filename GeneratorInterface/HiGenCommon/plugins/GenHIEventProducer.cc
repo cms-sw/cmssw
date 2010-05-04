@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Thu Aug 13 08:39:51 EDT 2009
-// $Id: GenHIEventProducer.cc,v 1.2 2010/02/20 21:00:22 wmtan Exp $
+// $Id: GenHIEventProducer.cc,v 1.1 2010/05/04 16:05:50 yilmaz Exp $
 //
 //
 
@@ -50,18 +50,8 @@ class GenHIEventProducer : public edm::EDProducer {
       ~GenHIEventProducer();
 
    private:
-      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      
-      // ----------member data ---------------------------
-
-   bool doMC_;
-   bool doReco_;
    std::vector<std::string> hepmcSrc_;
-   edm::InputTag centSrc_;
-   edm::InputTag evtPlaneSrc_;
-
 };
 
 //
@@ -78,24 +68,8 @@ class GenHIEventProducer : public edm::EDProducer {
 //
 GenHIEventProducer::GenHIEventProducer(const edm::ParameterSet& iConfig)
 {
-   //register your products
-   //   produces<pat::HeavyIon>();
    produces<edm::GenHIEvent>();
-
-   //now do what ever other initialization is needed
-   doReco_ = iConfig.getParameter<bool>("doReco");
-   if(doReco_){
-      centSrc_ = iConfig.getParameter<edm::InputTag>("centrality");
-      evtPlaneSrc_ = iConfig.getParameter<edm::InputTag>("evtPlane");
-   }
-
-   doMC_ = iConfig.getParameter<bool>("doMC");
-   if(doMC_){
-      hepmcSrc_ = iConfig.getParameter<std::vector<std::string> >("generators");
-   }
-  
-   doReco_ = false;
-   doMC_ = true;
+   hepmcSrc_ = iConfig.getParameter<std::vector<std::string> >("generators");
 }
 
 
@@ -150,17 +124,6 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       iEvent.put(pGenHI);
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-GenHIEventProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-GenHIEventProducer::endJob() {
 }
 
 //define this as a plug-in
