@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.17 2010/05/03 15:47:38 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.18 2010/05/03 18:40:45 amraktad Exp $
 //
 
 // system include files
@@ -216,6 +216,10 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
                         {
                            FWRPZView* rpzView = dynamic_cast<FWRPZView*> (i->get());
                            rpzView->importElements(product, iItem->layer(), rpzView->eventScene());
+                        }
+                        else
+                        {
+                           i->get()->eventScene()->AddElement(product);
                         }
                      }
                   }
