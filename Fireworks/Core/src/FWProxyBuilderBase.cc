@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.11 2010/05/03 15:47:38 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.12 2010/05/03 18:40:45 amraktad Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWInteractionList.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 //
 // constants, enums and typedefs
@@ -115,36 +116,44 @@ FWProxyBuilderBase::build()
 {
    if (m_item)
    {
-      bool firstTime = m_products.size();
-      clean();
-      for (Product_it i = m_products.begin(); i != m_products.end(); ++i)
+      try 
       {
-         // printf("build() %s \n", m_item->name().c_str());
-         TEveElementList* elms = (*i)->m_elements;
-
-         if (haveSingleProduct())
+         bool firstTime = m_products.size();
+         clean();
+         for (Product_it i = m_products.begin(); i != m_products.end(); ++i)
          {
-            build(m_item, elms, (*i)->m_viewContext);
-         }
-         else
-         {
-            buildViewType(m_item, elms, (*i)->m_viewType, (*i)->m_viewContext);
-         }
+            // printf("build() %s \n", m_item->name().c_str());
+            TEveElementList* elms = (*i)->m_elements;
 
-         // Project all children of current product.
-         // If product is not registered into any projection-manager,
-         // this does nothing.
-         // It might be cleaner to check view-type / supported view-types.
-         if (firstTime) setProjectionLayer(item()->layer());
-         elms->ProjectAllChildren();
+            if (haveSingleProduct())
+            {
+               build(m_item, elms, (*i)->m_viewContext);
+            }
+            else
+            {
+               buildViewType(m_item, elms, (*i)->m_viewType, (*i)->m_viewContext);
+            }
 
+            // Project all children of current product.
+            // If product is not registered into any projection-manager,
+            // this does nothing.
+            // It might be cleaner to check view-type / supported view-types.
+            if (firstTime) setProjectionLayer(item()->layer());
+            elms->ProjectAllChildren();
 
-         if (m_interactionList)
-         {
-            unsigned int idx = 0;
-            for (TEveElement::List_i it = elms->BeginChildren(); it !=  elms->EndChildren(); ++it)
-               m_interactionList->added(*it, idx++);
+            if (m_interactionList)
+            {
+               unsigned int idx = 0;
+               for (TEveElement::List_i it = elms->BeginChildren(); it !=  elms->EndChildren(); ++it)
+                  m_interactionList->added(*it, idx++);
+            }
          }
+      }
+      catch (const std::runtime_error& iException)
+      { 
+         fwLog(fwlog::kError) << "Caught exception in build function for item " << m_item->name() << ":\n"
+                              << iException.what() << std::endl;
+         exit(1);
       }
    }
    m_mustBuild = false;
@@ -323,15 +332,13 @@ FWProxyBuilderBase::cleanLocal()
 void
 FWProxyBuilderBase::build(const FWEventItem*, TEveElementList*, const FWViewContext*)
 {
-   // TODO when design is complete this has to be abstract function
-   assert(false && "Function used, but not implemented.");
+   assert("virtual build(const FWEventItem*, TEveElementList*, const FWViewContext*) not implemented by inherited class");
 }
 
 void 
 FWProxyBuilderBase::buildViewType(const FWEventItem*, TEveElementList*, FWViewType::EType, const FWViewContext*)
 {
-   // TODO when design is complete this has to be abstract function
-   assert(false && "Function used, but not implemented.");
+   assert("virtual buildViewType(const FWEventItem*, TEveElementList*, FWViewType::EType, const FWViewContext*) not implemented by inherited class");
 }
 
 void

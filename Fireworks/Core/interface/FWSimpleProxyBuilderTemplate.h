@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 11:20:00 EST 2008
-// $Id: FWSimpleProxyBuilderTemplate.h,v 1.5 2010/05/03 15:47:37 amraktad Exp $
+// $Id: FWSimpleProxyBuilderTemplate.h,v 1.6 2010/05/03 15:53:18 amraktad Exp $
 //
 
 // system include files
@@ -68,12 +68,12 @@ private:
    */
    virtual void build(const T& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*)
    {
-      assert(false);
+      throw std::runtime_error("virtual build(const T&, unsigned int, TEveElement&, const FWViewContext*) not implemented by inherited class.");
    }
 
    virtual void buildViewType(const T& iData, unsigned int iIndex,TEveElement& oItemHolder, FWViewType::EType viewType, const FWViewContext*) 
    { 
-      assert(false);
+      throw std::runtime_error("virtual buildViewType(const T&, unsigned int, TEveElement&, FWViewType::EType, const FWViewContext*) not implemented by inherited class");
    };
 
    // ---------- member data --------------------------------
