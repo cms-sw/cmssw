@@ -137,7 +137,7 @@ void RunList::fetchRuns(int min_run, int max_run)
     stmt0->setInt(1, tagID);
     stmt0->setInt(2, my_min_run);
     stmt0->setInt(3, my_max_run);
-  
+    
     ResultSet* rset0 = stmt0->executeQuery();
     if (rset0->next()) {
       nruns = rset0->getInt(1);
@@ -149,7 +149,8 @@ void RunList::fetchRuns(int min_run, int max_run)
     m_vec_runiov.reserve(nruns);
     
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT iov_id, tag_id, run_num, run_start, run_end FROM run_iov "
+    stmt->setSQL("SELECT iov_id, tag_id, run_num, run_start, run_end, " 
+		 "db_timestamp FROM run_iov "
 		 " WHERE tag_id = :tag_id "
 		 " and run_iov.run_num> :min_run and run_iov.run_num< :max_run " 
 		 " order by run_num " );
