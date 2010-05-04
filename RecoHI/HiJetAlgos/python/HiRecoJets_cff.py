@@ -107,6 +107,12 @@ akPu7CaloJets.doPVCorrection = False
 akPu7CaloJets.jetPtMin = 10
 akPu7CaloJets.radiusPU = 0.7
 
+ic5CaloJets = akPu5CaloJets.clone()
+ic5CaloJets.doPUOffsetCorr = False
+
+ic7CaloJets = akPu7CaloJets.clone()
+ic7CaloJets.doPUOffsetCorr = False
+
 ak5CaloJets = akPu5CaloJets.clone()
 ak5CaloJets.doPUOffsetCorr = False
 
@@ -119,6 +125,6 @@ kt4CaloJets.doPUOffsetCorr = False
 kt6CaloJets = ktPu6CaloJets.clone()
 kt6CaloJets.doPUOffsetCorr = False
 
-hiRecoJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets+iterativeConePu7CaloJets+akPu5CaloJets+akPu7CaloJets+ak5CaloJets+ak7CaloJets + ktPu4CaloJets + ktPu6CaloJets +  kt4CaloJets + kt6CaloJets)
+hiRecoJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets+iterativeConePu7CaloJets+ic5CaloJets+ic7CaloJets+akPu5CaloJets+akPu7CaloJets+ak5CaloJets+ak7CaloJets + ktPu4CaloJets + ktPu6CaloJets +  kt4CaloJets + kt6CaloJets)
 
 
