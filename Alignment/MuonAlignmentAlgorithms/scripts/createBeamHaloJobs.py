@@ -34,6 +34,10 @@ parser.add_option("-s", "--submitJobs",
                   type="string",
                   default="submitJobs.sh",
                   dest="submitJobs")
+parser.add_option("-b", "--big",
+                  help="if invoked, subjobs will also be run on cmscaf1nd",
+                  action="store_true",
+                  dest="big")
 parser.add_option("--globalTag",
                   help="GlobalTag for calibration conditions",
                   type="string",
@@ -175,15 +179,16 @@ cd $ALIGNMENT_CAFDIR/
 ls -l
 cmsRun gatherBH_cfg.py
 ls -l
-cp -f *.tmp *.root ALIGNMENT_AFSDIR/%(directory)s
+cp -f *.tmp *.root $ALIGNMENT_AFSDIR/%(directory)s
 """ % vars())
             os.system("chmod +x %s" % gather_fileName)
             bsubfile.append("echo %sgather%03d.sh" % (directory, jobnumber))
 
             if last_align is None: waiter = ""
             else: waiter = "-w \"ended(%s)\"" % last_align
-            queue = "cmscaf1nh"
-
+            if options.big: queue = "cmscaf1nd"
+            else: queue = "cmscaf1nh"
+            
             bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" %s gather%03d.sh" % (queue, director, jobnumber, waiter, jobnumber))
 
             bsubnames.append("ended(%s_gather%03d)" % (director, jobnumber))
