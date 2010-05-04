@@ -29,6 +29,7 @@ function makeCreateConfig() {
 
 function runCreateConfig() {
   java \
+    -Xmx1024m \
     -classpath "$CMSSW_BASE/src/EventFilter/ConfigDB/ext/ojdbc14.jar:$CMSSW_BASE/src/EventFilter/ConfigDB/lib/cmssw-evf-confdb-gui.jar" \
     confdb.db.ConfDBCreateConfig \
     --dbHost $DBHOST \
