@@ -36,23 +36,6 @@
                          further what the meaning of this parameter exactly is before we can 
 			 decide about its future. This parameter is OPTIONAL.
    
-   A potential module definition as expects by thisd class will look like this: 
-
-   ...
-   parametrization = cms.string ('EtEtaPhi'),
-                                  
-   functions = VPSet(
-     ...
-     PSet(
-       bin = cms.string("0.145<=eta && eta<0.375"),
-       et  = cms.string("et * (sqrt(5.6*5.6/(et*et) + 1.25/et + 0.033)"),
-       eta = cms.string("0.03  + 1.0/et"),
-       phi = cms.string("0.015 + 1.5/et"),
-       contstraint = cms.vdouble(0)
-    ),
-   ...    
-   )
-
    We expect that cfi files of this form will be generated automatically. edm::ParameterSets 
    for other represenations will be implemented on request.
 */
@@ -71,17 +54,16 @@ class StringResolutionProvider : public KinematicResolutionProvider {
   virtual pat::CandKinResolution getResolution(const reco::Candidate& cand) const;
 
  private:
-  /// resolution functions (this needs an extension)
-  /// StringObjectFunction is not default constructible :-(
-  std::auto_ptr<Function> resols_[4]; 
   /// a vector of constrtaints for the CanKinResolution 
   /// object
   std::vector<pat::CandKinResolution::Scalar> constraints_;
   /// a parametrization for the CanKinResolution object
   /// (this needs an extension)
   pat::CandKinResolution::Parametrization parametrization_;
-  /// determines the dimenaion for variable transformations
-  int dimension_;
+  /// a vector of strings for the binning
+  std::vector<std::string> bins_;
+  /// vectors for the resolution functions
+  std::vector<std::string> funcEt_, funcEta_, funcPhi_;
 };
 
 #endif

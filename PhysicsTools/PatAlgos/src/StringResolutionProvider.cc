@@ -1,62 +1,55 @@
-#include "PhysicsTools/PatAlgos/interface/StringResolutionProvider.h"
-
-#include "DataFormats/PatCandidates/interface/ParametrizationHelper.h"
-
+#include <map>
 #include <Math/Functions.h>
 
-#include <map>
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "PhysicsTools/PatAlgos/interface/StringResolutionProvider.h"
+#include "DataFormats/PatCandidates/interface/ParametrizationHelper.h"
 
-
-/*
- How to use the StringCutObjectSelector<Object>:
- -----------------------------------------------
-  #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-
-  ...
-  /// string cut selector
-  StringCutObjectSelector<reco::Candidate> select_;
-  ...
-
-  /// assume that reco::Candidate& cand is available from somewhere
-  if(select_(cand)){
-  // do something...
-  }
-
-  For more explanations have a look at: SWGuidePhysicsCutParser
-*/
-
-
-StringResolutionProvider::StringResolutionProvider(const edm::ParameterSet &iConfig) :
-    constraints_() 
+StringResolutionProvider::StringResolutionProvider(const edm::ParameterSet& cfg): constraints_() 
 { 
-    using namespace std;
-    typedef pat::CandKinResolution::Parametrization Parametrization;
-
-    std::vector<double> cons = iConfig.getParameter< std::vector<double> > ("constraints");
-    constraints_.insert(constraints_.end(), cons.begin(), cons.end());
-
-    std::string parametrization(iConfig.getParameter< std::string > ("parametrization") );
-    parametrization_ = pat::helper::ParametrizationHelper::fromString(parametrization);
- 
-    dimension_ = pat::helper::ParametrizationHelper::dimension(parametrization_); 
-    std::vector< std::string > vstr = iConfig.getParameter < std::vector< std::string > >("resolutions");
-    if (vstr.size() != static_cast<size_t>(dimension_)) {
-        throw cms::Exception("StringResolutionProvider") << "Parameterization " << parametrization.c_str() << " needs " << dimension_ << " functions.";
-    }
-    for (int i = 0; i < dimension_; ++i) {
-        resols_[i] = std::auto_ptr<Function>(new Function(vstr[i])); //std::auto_ptr<Function>( new Function(vstr[i]) );
-    }
+  typedef pat::CandKinResolution::Parametrization Parametrization;
+  
+  // 
+  std::vector<double> constr = cfg.getParameter<std::vector<double> > ("constraints");
+  constraints_.insert(constraints_.end(), constr.begin(), constr.end());
+  
+  std::string parametrization(cfg.getParameter<std::string> ("parametrization") );
+  parametrization_ = pat::helper::ParametrizationHelper::fromString(parametrization);
+  
+  std::vector<edm::ParameterSet> functionSets_ = cfg.getParameter <std::vector<edm::ParameterSet> >("functions");
+  for(std::vector<edm::ParameterSet>::const_iterator iSet = functionSets_.begin(); iSet != functionSets_.end(); ++iSet){
+    bins_.push_back(iSet->getParameter<std::string>("bin"));
+    funcEt_.push_back(iSet->getParameter<std::string>("et"));
+    funcEta_.push_back(iSet->getParameter<std::string>("eta"));
+    funcPhi_.push_back(iSet->getParameter<std::string>("phi"));
+  }
 }
 
-StringResolutionProvider::~StringResolutionProvider() { }
+StringResolutionProvider::~StringResolutionProvider()
+{
+}
  
 pat::CandKinResolution
-StringResolutionProvider::getResolution(const reco::Candidate &c) const { 
-    //AlgebraicVector4 vec = pat::helper::ParametrizationHelper::parametersFromP4(parametrization_, c.polarP4()); // polar is generally better
-    //for (int i = dimension_; i < 4; ++i) { vec[i] = constraints_[i-dimension_]; }
-    std::vector<pat::CandKinResolution::Scalar> covariances(dimension_);
-    for (int i = 0; i < dimension_; ++i) {
-        covariances[i] = ROOT::Math::Square(resols_[i]->operator()(c));
+StringResolutionProvider::getResolution(const reco::Candidate& cand) const 
+{ 
+  int selectedBin=-1;
+  for(unsigned int i=0; i<bins_.size(); ++i){
+    StringCutObjectSelector<reco::Candidate> select_(bins_[i]);
+    if(select_(cand)){
+      selectedBin = i;
+      break;
     }
-    return pat::CandKinResolution(parametrization_, covariances, constraints_);
+  }
+  std::vector<pat::CandKinResolution::Scalar> covariances(3);
+  if(selectedBin>=0){
+    covariances[0] = ROOT::Math::Square(Function(funcEt_ [selectedBin]).operator()(cand));
+    covariances[1] = ROOT::Math::Square(Function(funcEta_[selectedBin]).operator()(cand));
+    covariances[2] = ROOT::Math::Square(Function(funcPhi_[selectedBin]).operator()(cand));
+  }
+  // fill dummy value for not selected candidates
+  // check whether these numbers make sense or this
+  // should be 0
+  else for(int i=0; i<3; ++i){covariances[i] = 9999.;} 
+  
+  return pat::CandKinResolution(parametrization_, covariances, constraints_);
 }
