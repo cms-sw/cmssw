@@ -17,6 +17,8 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
 // Geometry
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -26,6 +28,7 @@
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
+
 
 // Level 1 Trigger
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
@@ -86,7 +89,23 @@ EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::Parame
                                    ps.getParameter<double>("ewing"),
                                    ps.getParameter<std::vector<int> >("RecHitFlagToBeExcluded"),
                                    posCalculator_,
-                                   debugL);
+                                   debugL,
+			           ps.getParameter<bool>("dynamicEThresh"),
+                                   ps.getParameter<double>("eThreshA"),
+                                   ps.getParameter<double>("eThreshB"),
+				   ps.getParameter<std::vector<int> >("RecHitSeverityToBeExcluded"),
+				   ps.getParameter<double>("severityRecHitThreshold"),
+				   ps.getParameter<int>("severitySpikeId"),
+				   ps.getParameter<double>("severitySpikeThreshold"),
+				   ps.getParameter<bool>("excludeFlagged")
+				   );
+
+  bool dynamicPhiRoad = ps.getParameter<bool>("dynamicPhiRoad");
+    if (dynamicPhiRoad) {
+     edm::ParameterSet bremRecoveryPset = ps.getParameter<edm::ParameterSet>("bremRecoveryPset");
+     hybrid_p->setDynamicPhiRoad(bremRecoveryPset);
+  }
+
 
   produces< reco::BasicClusterCollection >(basicclusterCollection_);
   produces< reco::SuperClusterCollection >(superclusterCollection_);
@@ -120,6 +139,10 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   const CaloGeometry& geometry = *geoHandle;
   const CaloSubdetectorGeometry *geometry_p;
   std::auto_ptr<const CaloSubdetectorTopology> topology;
+
+  edm::ESHandle<EcalChannelStatus> chStatus;
+  es.get<EcalChannelStatusRcd>().get(chStatus);
+  const EcalChannelStatus* theEcalChStatus = chStatus.product();
 
   //if (debugL == HybridClusterAlgo::pDEBUG)
   //std::cout << "\n\n\n" << hitcollection_ << "\n\n" << std::endl;
@@ -238,7 +261,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
 
   // make the Basic clusters!
   reco::BasicClusterCollection basicClusters;
-  hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, true, regions);
+  hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, true, regions,theEcalChStatus);
   //if (debugL == HybridClusterAlgo::pDEBUG)
   //std::cout << "Hybrid Finished clustering - BasicClusterCollection returned to producer..." << std::endl;
 
