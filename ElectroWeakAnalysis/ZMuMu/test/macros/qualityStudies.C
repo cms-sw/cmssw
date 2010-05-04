@@ -118,16 +118,16 @@ void qualityStudies(){
 
  // Number of  Strips Hits
   dir->cd();
-  TH1F * zMass = new TH1F("zMassBothDauNofStripsHitsHigher10","zMassBothDauNofStripsHitsHigher10" , 200, 0, 200);
-  Events.Project("zMassBothDauNofStripsHitsHigher10", "zGoldenMass", cut_zGolden +"zGoldenDau1NofStripHits<10 && zGoldenDau2NofStripHits<10");
+  TH1F * zMass = new TH1F("zMassBothDauNofStripsHitsLower10","zMassBothDauNofStripsHitsLower10" , 200, 0, 200);
+  Events.Project("zMassBothDauNofStripsHitsLower10", "zGoldenMass", cut_zGolden +"zGoldenDau1NofStripHits<10 && zGoldenDau2NofStripHits<10");
   cout<<"Number of zCandidate with both daughters with nmber of strips hits lower than 10: "<<zMass->GetEntries()<<endl;
   setGraphics(zMass);
   zMass->Write();
   delete zMass;
 
   dir->cd();
-  TH1F * zMass = new TH1F("zMassOneDauNofStripsHitsHigher10","zMassOneDauNofStripsHitsHigher10" , 200, 0, 200);
-  Events.Project("zMassOneDauNofStripsHitsHigher10", "zGoldenMass", cut_zGolden + "zGoldenDau1NofStripHits<10 || zGoldenDau2NofStripHits<10"  );
+  TH1F * zMass = new TH1F("zMassOneDauNofStripsHitsLower10","zMassOneDauNofStripsHitsLower10" , 200, 0, 200);
+  Events.Project("zMassOneDauNofStripsHitsLower10", "zGoldenMass", cut_zGolden + "zGoldenDau1NofStripHits<10 || zGoldenDau2NofStripHits<10"  );
   cout<<"Number of zCandidate with at least one daughter with number of strips hits lower than 10: "<<zMass->GetEntries()<<endl;
   setGraphics(zMass);
   zMass->Write();
@@ -223,15 +223,15 @@ void qualityStudies(){
   // Eta distribution if MuonHits is zero
   
   dir->cd();
-  TH1F * zEta = new TH1F("zEtaBothDauNofMuonHitsLower10","zEtaBothDauNofMuonHitsLower10" , 200, -3, 3);
-  Events.Project("zEtaBothDauNofMuonHitsLower10", "zGoldenEta", cut_zGolden + "zGoldenDau1NofMuonHits==0 && zGoldenDau2NofMuonHits==0"  );
+  TH1F * zEta = new TH1F("zEtaBothDauNofMuonHitsLower1","zEtaBothDauNofMuonHitsLower1" , 200, -3, 3);
+  Events.Project("zEtaBothDauNofMuonHitsLower1", "zGoldenEta", cut_zGolden + "zGoldenDau1NofMuonHits==0 && zGoldenDau2NofMuonHits==0"  );
   setGraphics(zEta);
   zEta->Write();
   delete zEta;
 
   dir->cd();
-  TH1F * zEta = new TH1F("zEtaOneDauNofMuonHitsLower0","zEtaOneDauNofMuonHitsLower0" , 200, -3, 3);
-  Events.Project("zEtaOneDauNofMuonHitsLower0", "zGoldenEta", cut_zGolden + "zGoldenDau1NofMuonHits==0 || zGoldenDau2NofMuonHits==0"  );
+  TH1F * zEta = new TH1F("zEtaOneDauNofMuonHitsLower1","zEtaOneDauNofMuonHitsLower1" , 200, -3, 3);
+  Events.Project("zEtaOneDauNofMuonHitsLower1", "zGoldenEta", cut_zGolden + "zGoldenDau1NofMuonHits==0 || zGoldenDau2NofMuonHits==0"  );
   setGraphics(zEta);
   zEta->Write();
   delete zEta;
