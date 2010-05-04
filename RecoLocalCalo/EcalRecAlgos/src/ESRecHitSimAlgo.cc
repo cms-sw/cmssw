@@ -82,7 +82,7 @@ EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
   double t0       = results[1];
   int status      = (int) results[2];
   double otenergy = results[3] * 1000000.; // set out-of-time energy to keV
-  delete results;
+  delete[] results;
 
   energy *= MIPGeV_/(*it_mip);
   otenergy *= MIPGeV_/(*it_mip);

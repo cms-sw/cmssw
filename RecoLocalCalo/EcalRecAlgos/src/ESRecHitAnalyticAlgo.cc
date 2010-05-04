@@ -85,7 +85,7 @@ EcalRecHit ESRecHitAnalyticAlgo::reconstruct(const ESDataFrame& digi) const {
   double energy = results[0];
   double t0 = results[1];
   int status = (int) results[2];
-  delete results;
+  delete[] results;
 
   energy *= MIPGeV_/(*it_mip);
 
