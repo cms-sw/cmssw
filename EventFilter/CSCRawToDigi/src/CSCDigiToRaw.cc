@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/05/27 11:46:09 $
- *  $Revision: 1.39 $
+ *  $Date: 2010/04/23 23:03:04 $
+ *  $Revision: 1.40 $
  *  \author A. Tumanov - Rice
  *  But long, long ago...
  */
@@ -28,7 +28,8 @@ using namespace edm;
 using namespace std;
 
 CSCDigiToRaw::CSCDigiToRaw(const edm::ParameterSet & pset)
-: requirePreTrigger_(pset.getParameter<bool>("requirePreTrigger"))
+: requirePreTrigger_(pset.getParameter<bool>("requirePreTrigger")),
+  requireCLCTForComparators_(pset.getParameter<bool>("requireCLCTForComparators"))
 {}
 
 void CSCDigiToRaw::beginEvent(const CSCChamberMap* electronicsMap)
@@ -40,20 +41,16 @@ void CSCDigiToRaw::beginEvent(const CSCChamberMap* electronicsMap)
 
 CSCEventData & CSCDigiToRaw::findEventData(const CSCDetId & cscDetId) 
 {
-  CSCDetId chamberID = cscDetId.chamberId();
-  // translate ME1A to ME11
-  if(chamberID.ring() ==4)
-  {
-    chamberID = CSCDetId(chamberID.endcap(), chamberID.station(), 1, chamberID.chamber(), 0);
-  }
+  CSCDetId chamberId = chamberID(cscDetId);
+
   //std::cout<<"wire id"<<cscDetId<<std::endl;
   // find the entry into the map
-  map<CSCDetId, CSCEventData>::iterator chamberMapItr = theChamberDataMap.find(chamberID);
+  map<CSCDetId, CSCEventData>::iterator chamberMapItr = theChamberDataMap.find(chamberId);
   if(chamberMapItr == theChamberDataMap.end())
     {
       // make an entry, telling it the correct chamberType
-      int chamberType = chamberID.iChamberType();
-      chamberMapItr = theChamberDataMap.insert(pair<CSCDetId, CSCEventData>(chamberID, CSCEventData(chamberType))).first;
+      int chamberType = chamberId.iChamberType();
+      chamberMapItr = theChamberDataMap.insert(pair<CSCDetId, CSCEventData>(chamberId, CSCEventData(chamberType))).first;
     }
   CSCEventData & cscData = chamberMapItr->second;
   cscData.dmbHeader()->setCrateAddress(theElectronicsMap->crate(cscDetId), theElectronicsMap->dmb(cscDetId));
@@ -62,20 +59,16 @@ CSCEventData & CSCDigiToRaw::findEventData(const CSCDetId & cscDetId)
 
 
   
-void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis, const CSCCLCTPreTriggerCollection & preTriggers)
+void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis, 
+                       const CSCCLCTPreTriggerCollection & preTriggers)
 {  //iterate over chambers with strip digis in them
   for (CSCStripDigiCollection::DigiRangeIterator j=stripDigis.begin(); j!=stripDigis.end(); ++j)
     {
       CSCDetId cscDetId=(*j).first;
-      CSCDetId chamberId = cscDetId.chamberId();
-      if(chamberId.ring() ==4)
-      {
-        chamberId = CSCDetId(chamberId.endcap(), chamberId.station(), 1, chamberId.chamber(), 0);
-      }
+      CSCDetId chamberId = chamberID(cscDetId);
 
       // only digitize if there are pre-triggers
       CSCCLCTPreTriggerCollection::Range preTriggerRange = preTriggers.get(chamberId);
-
       if(!requirePreTrigger_ || preTriggerRange.first != preTriggerRange.second)
       {
         bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
@@ -117,16 +110,21 @@ void CSCDigiToRaw::add(const CSCWireDigiCollection& wireDigis)
 
 }
 
-void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis)
+void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis,
+                       const CSCCLCTDigiCollection & clctDigis)
 {
   for (CSCComparatorDigiCollection::DigiRangeIterator j=comparatorDigis.begin(); j!=comparatorDigis.end(); ++j)
     {
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
-      
-      bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
+     
+      CSCDetId chamberId = chamberID(cscDetId);
+      CSCCLCTDigiCollection::Range chamberClcts = clctDigis.get(chamberId);
+      if(!requireCLCTForComparators_ || chamberClcts.first != chamberClcts.second)
+      {
+        bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
 
-      BOOST_FOREACH(CSCComparatorDigi digi, (*j).second)
+        BOOST_FOREACH(CSCComparatorDigi digi, (*j).second)
         {
 	  // Move ME1/A comparators from CFEB=0 to CFEB=4 if this has not
 	  // been done already.
@@ -140,6 +138,7 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis)
 	    cscData.add(digi, cscDetId.layer());
 	  }
         }
+      }
     }
 }
 
@@ -178,6 +177,16 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis)
 }
 
 
+CSCDetId CSCDigiToRaw::chamberID(const CSCDetId & cscDetId) const {
+  CSCDetId chamberId = cscDetId.chamberId();
+  if(chamberId.ring() ==4)
+  {
+    chamberId = CSCDetId(chamberId.endcap(), chamberId.station(), 1, chamberId.chamber(), 0);
+  }
+  return chamberId;
+}
+
+
 void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                                     const CSCWireDigiCollection& wireDigis,
                                     const CSCComparatorDigiCollection& comparatorDigis,
@@ -197,7 +206,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   beginEvent(mapping);
   add(stripDigis, preTriggers);
   add(wireDigis);
-  add(comparatorDigis);
+  add(comparatorDigis, clctDigis);
   add(alctDigis);
   add(clctDigis);
   add(correlatedLCTDigis);

@@ -3,8 +3,8 @@
 
 /** \class CSCDigiToRaw
  *
- *  $Date: 2008/06/27 02:56:35 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/04/23 23:03:04 $
+ *  $Revision: 1.10 $
  *  \author A. Tumanov - Rice
  */
 
@@ -46,7 +46,9 @@ private:
   void add(const CSCStripDigiCollection& stripDigis, 
            const CSCCLCTPreTriggerCollection& preTriggers);
   void add(const CSCWireDigiCollection& wireDigis);
-  void add(const CSCComparatorDigiCollection & comparatorDigis);
+  // may require CLCTs to read out comparators.  Doesn't add CLCTs.
+  void add(const CSCComparatorDigiCollection & comparatorDigis,
+           const CSCCLCTDigiCollection & clctDigis);
   void add(const CSCALCTDigiCollection & alctDigis);
   void add(const CSCCLCTDigiCollection & clctDigis);
   void add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis);
@@ -54,10 +56,14 @@ private:
   /// pick out the correct data object for this chamber
   CSCEventData & findEventData(const CSCDetId & cscDetId);
 
+  /// takes layer ID, converts to chamber ID, switching ME1A to ME11
+  CSCDetId chamberID(const CSCDetId & cscDetId) const;
+
   std::map<CSCDetId, CSCEventData> theChamberDataMap;
   const CSCChamberMap* theElectronicsMap;
   // used to zero-suppress strips
   bool requirePreTrigger_;
+  bool requireCLCTForComparators_;
 };
 
 
