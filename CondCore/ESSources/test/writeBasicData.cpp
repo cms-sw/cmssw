@@ -8,11 +8,18 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
+
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+
 int main(){
   try{
     // for runnumber
     cond::TimeType timetype = cond::runnumber;
     cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue;
+    edmplugin::PluginManager::Config config;
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
+
 
     cond::DbConnection connection;
     connection.configuration().setMessageLevel( coral::Error );
