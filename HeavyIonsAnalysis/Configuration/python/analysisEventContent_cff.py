@@ -6,9 +6,13 @@ from Configuration.EventContent.EventContentHeavyIons_cff import *
 #jets
 jetContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
-      'keep patJets_selected*_*_*'
-      )
+    'drop *',
+    'keep double*_*CaloJets_*_*',
+    'drop recoCaloJets_*_*_*',
+    'keep recoGenJets_*_*_*',
+    'keep patJets_*_*_*'
     )
+  )
 
 jetContentExtended = jetContent.clone()
 jetContentExtended.outputCommands.extend(RecoHiJetsRECO.outputCommands)
@@ -57,9 +61,11 @@ hiCommon = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
       'keep *_TriggerResults_*_HLT',
       'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
-      'keep recoVertexs_hiSelectedVertex_*_*'                              
-      )
+      'keep recoVertexs_hiSelectedVertex_*_*',                              
+      'keep *_heavyIon_*_*',
+      'keep *_hiCentrality_*_*'
     )
+)
 
 ##### combinations for specific skims
 
