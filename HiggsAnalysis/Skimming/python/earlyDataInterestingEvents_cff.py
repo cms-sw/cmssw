@@ -115,7 +115,7 @@ diElectronsJPsi = cms.EDProducer("CandViewShallowCloneCombiner",
 diElectronsZ = cms.EDProducer("CandViewShallowCloneCombiner",
     decay       = cms.string("goodElectrons goodElectrons"), # no sign specified: allow also the SS electrons in.
     checkCharge = cms.bool(False),           # can be changed to goodElectrons@+ goodElectrons@- to keep only OS
-    cut         = cms.string("(mass > 60) && " + DILEPTON_PT + ONE_GLOBAL_MU),
+    cut         = cms.string("(mass > 60) && " + DILEPTON_PT),
 )
 
 ## Then we make a E+Mu skim
