@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Thu Aug 13 08:39:51 EDT 2009
-// $Id: PATHeavyIonProducer.cc,v 1.1 2009/10/28 12:14:31 yilmaz Exp $
+// $Id: PATHeavyIonProducer.cc,v 1.2 2010/02/20 21:00:22 wmtan Exp $
 //
 //
 
@@ -113,73 +113,7 @@ PATHeavyIonProducer::~PATHeavyIonProducer()
 void
 PATHeavyIonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
 
-   Handle<reco::CentralityCollection> cent;
-   Handle<reco::EvtPlaneCollection> evtplane;
-
-   if(doReco_){
-      iEvent.getByLabel(centSrc_,cent);
-      iEvent.getByLabel(evtPlaneSrc_,evtplane);
-   }
-
-   double b = 0;
-   int npart = 0;
-   int ncoll = 0;
-   int nhard = 0;
-   double phi = 0;
-
-   if(doMC_){
-      for(size_t ihep = 0; ihep < hepmcSrc_.size(); ++ihep){
-	 Handle<edm::HepMCProduct> hepmc;
-	 iEvent.getByLabel(hepmcSrc_[ihep],hepmc);
-	 const HepMC::HeavyIon* hi = hepmc->GetEvent()->heavy_ion();
-	 if(hi){
-	    ncoll = ncoll + hi->Ncoll();
-	    nhard = nhard + hi->Ncoll_hard();
-	    int np = hi->Npart_proj() + hi->Npart_targ();
-	    if(np > 0){
-	       npart = np;
-	       b = hi->impact_parameter();
-	       phi = hi->event_plane_angle();
-	    }
-	 }
-      }
-   }
-   
-   const reco::CentralityCollection * pcent = 0;
-   const reco::EvtPlaneCollection * pevtp = 0;
-
-   if(doReco_){
-      pcent = cent.product();
-      pevtp = evtplane.product();
-   }else{
-      pcent = new reco::CentralityCollection();
-      pevtp = new reco::EvtPlaneCollection();
-   }
-   
-   if(doMC_){
-      std::auto_ptr<pat::HeavyIon> pOut(new pat::HeavyIon(*pcent,
-							  *pevtp,
-							  b,
-							  npart,
-							  ncoll,
-							  nhard,
-							  phi
-							  ));
-
-      iEvent.put(pOut);
-   }else{
-      std::auto_ptr<pat::HeavyIon> pOut(new pat::HeavyIon(*pcent,
-                                                          *pevtp
-							  ));
-      iEvent.put(pOut);
-   }
-
-   if(!doReco_){
-     if(pcent) delete pcent;
-     if(pevtp) delete pevtp;
-   }
 }
 
 // ------------ method called once each job just before starting event loop  ------------
