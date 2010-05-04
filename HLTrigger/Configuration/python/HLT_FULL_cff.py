@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/HLT/V60 (CMSSW_3_6_0_HLT4)
+# /dev/CMSSW_3_6_0/HLT/V61 (CMSSW_3_6_0_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HLT/V60')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HLT/V61')
 )
 
 streams = cms.PSet( 
@@ -21,7 +21,8 @@ streams = cms.PSet(
   HLTDQM = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  A = cms.vstring( 'Cosmics',
+  A = cms.vstring( 'MinimumBias',
+    'Cosmics',
     'EGMonitor',
     'HcalHPDNoise',
     'ZeroBias',
@@ -31,8 +32,7 @@ streams = cms.PSet(
     'RandomTriggers',
     'Mu',
     'JetMETTau',
-    'EG',
-    'MinimumBias' )
+    'EG' )
 )
 datasets = cms.PSet( 
   LogMonitor = cms.vstring( 'HLT_LogMonitor' ),
@@ -185,6 +185,39 @@ datasets = cms.PSet(
     'HLT_MET100',
     'HLT_MinBiasBSC_BPTX',
     'HLT_ZeroBias' ),
+  MinimumBias = cms.vstring( 'HLT_Activity_DT',
+    'HLT_L1Tech_HCAL_HF_coincidence_PM',
+    'HLT_L1_HFtech',
+    'HLT_IsoTrackHB_8E29',
+    'HLT_IsoTrackHE_8E29',
+    'HLT_L1Tech_RPC_TTU_RBst1_collisions',
+    'HLT_L1_BscMinBiasOR_BptxPlusORMinus',
+    'HLT_SplashBSC',
+    'HLT_HighMultiplicityBSC',
+    'HLT_ForwardBSC',
+    'HLT_BackwardBSC',
+    'HLT_MinBiasPixel_DoubleIsoTrack5',
+    'HLT_MinBiasPixel_DoubleTrack',
+    'HLT_MinBiasPixel_SingleTrack',
+    'HLT_ZeroBiasPixel_SingleTrack',
+    'HLT_MinBiasEcal',
+    'HLT_MinBiasHcal',
+    'HLT_MinBiasBSC_OR',
+    'HLT_MinBiasBSC_BPTX',
+    'HLT_StoppedHSCP_8E29',
+    'HLT_Activity_DT_Tuned',
+    'HLT_SelectEcalSpikes_L1R',
+    'HLT_SelectEcalSpikesHighEt_L1R',
+    'HLT_Activity_EcalREM',
+    'HLT_Activity_Ecal',
+    'HLT_Activity_PixelClusters',
+    'HLT_Activity_L1A',
+    'HLT_MinBiasBSC',
+    'HLT_PixelTracks_Multiplicity40',
+    'HLT_L1Tech_BSC_halo_forPhysicsBackground',
+    'HLT_L1_BscMinBiasOR_BeamGas',
+    'HLT_L1_BptxXOR_BscMinBiasOR',
+    'HLT_PixelTracks_Multiplicity70' ),
   Cosmics = cms.vstring( 'HLT_TrackerCosmics',
     'HLT_RPCBarrelCosmics',
     'HLT_CSCBeamHaloRing2or3',
@@ -284,40 +317,7 @@ datasets = cms.PSet(
     'HLT_DoublePhoton4_Jpsi_L1R',
     'HLT_DoublePhoton4_Upsilon_L1R',
     'HLT_DoublePhoton4_eeRes_L1R',
-    'HLT_DoublePhoton5_L1R' ),
-  MinimumBias = cms.vstring( 'HLT_Activity_DT',
-    'HLT_L1Tech_HCAL_HF_coincidence_PM',
-    'HLT_L1_HFtech',
-    'HLT_IsoTrackHB_8E29',
-    'HLT_IsoTrackHE_8E29',
-    'HLT_L1Tech_RPC_TTU_RBst1_collisions',
-    'HLT_L1_BscMinBiasOR_BptxPlusORMinus',
-    'HLT_SplashBSC',
-    'HLT_HighMultiplicityBSC',
-    'HLT_ForwardBSC',
-    'HLT_BackwardBSC',
-    'HLT_MinBiasPixel_DoubleIsoTrack5',
-    'HLT_MinBiasPixel_DoubleTrack',
-    'HLT_MinBiasPixel_SingleTrack',
-    'HLT_ZeroBiasPixel_SingleTrack',
-    'HLT_MinBiasEcal',
-    'HLT_MinBiasHcal',
-    'HLT_MinBiasBSC_OR',
-    'HLT_MinBiasBSC_BPTX',
-    'HLT_StoppedHSCP_8E29',
-    'HLT_Activity_DT_Tuned',
-    'HLT_SelectEcalSpikes_L1R',
-    'HLT_SelectEcalSpikesHighEt_L1R',
-    'HLT_Activity_EcalREM',
-    'HLT_Activity_Ecal',
-    'HLT_Activity_PixelClusters',
-    'HLT_Activity_L1A',
-    'HLT_MinBiasBSC',
-    'HLT_PixelTracks_Multiplicity40',
-    'HLT_L1Tech_BSC_halo_forPhysicsBackground',
-    'HLT_L1_BscMinBiasOR_BeamGas',
-    'HLT_L1_BptxXOR_BscMinBiasOR',
-    'HLT_PixelTracks_Multiplicity70' )
+    'HLT_DoublePhoton5_L1R' )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -14511,7 +14511,7 @@ hltPixelTracksForHighMult = cms.EDProducer( "PixelTrackProducer",
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
         extraHitRZtolerance = cms.double( 0.06 ),
-        maxTriplets = cms.uint32( 10000 )
+        maxElement = cms.uint32( 10000 )
       )
     ),
     FitterPSet = cms.PSet( 

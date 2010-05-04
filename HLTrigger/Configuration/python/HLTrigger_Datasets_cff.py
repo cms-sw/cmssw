@@ -1,8 +1,46 @@
-# /dev/CMSSW_3_6_0/GRun/V10
+# /dev/CMSSW_3_6_0/GRun/V11
 
 import FWCore.ParameterSet.Config as cms
 
 # dump of the Stream A Datasets defined in the HLT table
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMinimumBias_selector
+streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetMinimumBias_selector.l1tResults = cms.InputTag('')
+streamA_datasetMinimumBias_selector.throw      = cms.bool(False)
+streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_Activity_DT', 
+    'HLT_L1Tech_HCAL_HF_coincidence_PM', 
+    'HLT_L1_HFtech', 
+    'HLT_IsoTrackHB_8E29', 
+    'HLT_IsoTrackHE_8E29', 
+    'HLT_L1Tech_RPC_TTU_RBst1_collisions', 
+    'HLT_L1_BscMinBiasOR_BptxPlusORMinus', 
+    'HLT_SplashBSC', 
+    'HLT_HighMultiplicityBSC', 
+    'HLT_ForwardBSC', 
+    'HLT_BackwardBSC', 
+    'HLT_MinBiasPixel_DoubleIsoTrack5', 
+    'HLT_MinBiasPixel_DoubleTrack', 
+    'HLT_MinBiasPixel_SingleTrack', 
+    'HLT_ZeroBiasPixel_SingleTrack', 
+    'HLT_MinBiasEcal', 
+    'HLT_MinBiasHcal', 
+    'HLT_MinBiasBSC_OR', 
+    'HLT_MinBiasBSC_BPTX', 
+    'HLT_StoppedHSCP_8E29', 
+    'HLT_Activity_DT_Tuned', 
+    'HLT_SelectEcalSpikes_L1R', 
+    'HLT_SelectEcalSpikesHighEt_L1R', 
+    'HLT_Activity_EcalREM', 
+    'HLT_Activity_Ecal', 
+    'HLT_Activity_PixelClusters', 
+    'HLT_Activity_L1A', 
+    'HLT_MinBiasBSC', 
+    'HLT_PixelTracks_Multiplicity40', 
+    'HLT_L1Tech_BSC_halo_forPhysicsBackground', 
+    'HLT_L1_BscMinBiasOR_BeamGas', 
+    'HLT_L1_BptxXOR_BscMinBiasOR', 
+    'HLT_PixelTracks_Multiplicity70')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCosmics_selector
 streamA_datasetCosmics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -157,42 +195,4 @@ streamA_datasetEG_selector.triggerConditions = cms.vstring('HLT_DoublePhoton10_L
     'HLT_DoublePhoton4_Upsilon_L1R', 
     'HLT_DoublePhoton4_eeRes_L1R', 
     'HLT_DoublePhoton5_L1R')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMinimumBias_selector
-streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetMinimumBias_selector.l1tResults = cms.InputTag('')
-streamA_datasetMinimumBias_selector.throw      = cms.bool(False)
-streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_Activity_DT', 
-    'HLT_L1Tech_HCAL_HF_coincidence_PM', 
-    'HLT_L1_HFtech', 
-    'HLT_IsoTrackHB_8E29', 
-    'HLT_IsoTrackHE_8E29', 
-    'HLT_L1Tech_RPC_TTU_RBst1_collisions', 
-    'HLT_L1_BscMinBiasOR_BptxPlusORMinus', 
-    'HLT_SplashBSC', 
-    'HLT_HighMultiplicityBSC', 
-    'HLT_ForwardBSC', 
-    'HLT_BackwardBSC', 
-    'HLT_MinBiasPixel_DoubleIsoTrack5', 
-    'HLT_MinBiasPixel_DoubleTrack', 
-    'HLT_MinBiasPixel_SingleTrack', 
-    'HLT_ZeroBiasPixel_SingleTrack', 
-    'HLT_MinBiasEcal', 
-    'HLT_MinBiasHcal', 
-    'HLT_MinBiasBSC_OR', 
-    'HLT_MinBiasBSC_BPTX', 
-    'HLT_StoppedHSCP_8E29', 
-    'HLT_Activity_DT_Tuned', 
-    'HLT_SelectEcalSpikes_L1R', 
-    'HLT_SelectEcalSpikesHighEt_L1R', 
-    'HLT_Activity_EcalREM', 
-    'HLT_Activity_Ecal', 
-    'HLT_Activity_PixelClusters', 
-    'HLT_Activity_L1A', 
-    'HLT_MinBiasBSC', 
-    'HLT_PixelTracks_Multiplicity40', 
-    'HLT_L1Tech_BSC_halo_forPhysicsBackground', 
-    'HLT_L1_BscMinBiasOR_BeamGas', 
-    'HLT_L1_BptxXOR_BscMinBiasOR', 
-    'HLT_PixelTracks_Multiplicity70')
 
