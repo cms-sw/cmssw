@@ -7,6 +7,7 @@
 //#if !defined(__CINT__) && !defined(__MAKECINT__)                                                                                                          
 #include <string>
 #include <iostream>
+#include <sstream>
 //#endif   
 
 void setGraphics(TH1F *histo){
@@ -25,6 +26,17 @@ void qualityStudiesZGolden(TFile * output_file){
   gROOT->SetStyle("Plain");
   using namespace std;
 
+
+  TChain Events("Events"); 
+  
+  int nFiles = 13;
+
+  for(int j=1;j<nFiles;++j){
+    ostringstream oss;
+    oss<<j;
+    string name= "../zmm/NtupleLooseTestNew_oneshot_all_Test_"+oss.str()+"_None.root";
+    Events.Add(name.c_str());
+  }
   //  #include <exception>;
 
   //    TFile *file = TFile::Open("rfio:/castor/cern.ch/user/d/degrutto/incl15WithBsPv/NtupleLoose_test_inclu15_1_2.root");
@@ -32,13 +44,13 @@ void qualityStudiesZGolden(TFile * output_file){
 //TFile *file = TFile::Open("rfio:/castor/cern.ch/user/d/degrutto/zmmWithBsPv/NtupleLoose_test.root");
 //    TTree * Events = dynamic_cast< TTree *> (file->Get("Events"));
 
-  TChain Events("Events"); 
+
   
-  Events.Add("NtupleLooseTestNew_oneshot_all_Test_1_None.root");
- Events.Add("NtupleLooseTestNew_oneshot_all_Test_2_None.root");
- Events.Add("NtupleLooseTestNew_oneshot_all_Test_6_None.root");
-  //  Events.Add("../NutpleLooseTestNew_oneshot_all_11_1.root");
-  //  Events.Add("../NutpleLooseTestNew_oneshot_all_12_1.root");
+//Events.Add("NtupleLooseTestNew_oneshot_all_Test_1_None.root");
+//Events.Add("NtupleLooseTestNew_oneshot_all_Test_2_None.root");
+//Events.Add("NtupleLooseTestNew_oneshot_all_Test_6_None.root");
+  //Events.Add("../NutpleLooseTestNew_oneshot_all_11_1.root");
+  //Events.Add("../NutpleLooseTestNew_oneshot_all_12_1.root");
   //Events.Add("../NutpleLooseTestNew_oneshot_all_13_1.root");
   //Events.Add("../NutpleLooseTestNew_oneshot_all_4_1.root");
   //Events.Add("../NutpleLooseTestNew_oneshot_all_5_1.root");
