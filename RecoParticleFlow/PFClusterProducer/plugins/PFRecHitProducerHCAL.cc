@@ -334,12 +334,11 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		  if ( !theStatusValue ) { 
 		    rescaleFactor = 0. ;
 		    pfrhHFHADCleaned = createHcalRecHit( detid, 
-							 energyhadHF, 
+							 shortFibre, 
 							 PFLayer::HF_HAD, 
 							 hcalEndcapGeometry,
 							 ct.id().rawId() );
 		    pfrhHFHADCleaned->setRescale(rescaleFactor);
-		    energyhadHF *= rescaleFactor;
 		    /*
 		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
 			      << ", Energy em/had/long/short = " 
@@ -348,8 +347,13 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 			      << ". The status value is " << theStatusValue
 			      << ". Short fibres were cleaned." << std::endl;
 		    */
+		    shortFibre *= rescaleFactor;
 		  }
 		}
+
+		// Determine EM and HAD after cleaning of short and long fibres
+		energyhadHF = 2.*shortFibre;
+		energyemHF = longFibre - shortFibre;
 
 		// The EM energy might be negative, as it amounts to Long - Short
 		// In that case, put the EM "energy" in the HAD energy
