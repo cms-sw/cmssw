@@ -14,18 +14,18 @@
 //
 // Original Author:
 //         Created:  Wed May  5 17:12:46 CEST 2010
-// $Id$
+// $Id: FWSimpleProxyBuilder.template,v 1.1 2010/05/05 15:25:06 amraktad Exp $
 //
 
 // system include files
 
 // user include files
+//#include "TEvePointSet.h"
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 
 // forward declarations
 
-class _NAME_
-{
+class _NAME_ : public FWSimpleProxyBuilderTemplate<_TYPE_> {
 public:
    _NAME_();
    virtual ~_NAME_();
