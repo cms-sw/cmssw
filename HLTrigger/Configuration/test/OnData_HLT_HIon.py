@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_0/HIon/V14 (CMSSW_3_6_0_HLT6)
+# /dev/CMSSW_3_6_0/HIon/V15 (CMSSW_3_6_0_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V14')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V15')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -2365,7 +2365,7 @@ process.Level1MenuOverride = cms.ESSource( "PoolDBESSource",
     ),
     toGet = cms.VPSet(
       cms.PSet(  record = cms.string( "L1GtTriggerMenuRcd" ),
-        tag = cms.string( "L1GtTriggerMenu_L1Menu_Commissioning2010_v2_mc" )
+        tag = cms.string( "L1GtTriggerMenu_L1Menu_MC2010_v0_mc" )
       )
     ),
     timetype = cms.string( "runnumber" ),

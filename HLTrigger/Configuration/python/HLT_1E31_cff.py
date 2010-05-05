@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/1E31/V14 (CMSSW_3_6_0_HLT6)
+# /dev/CMSSW_3_6_0/1E31/V15 (CMSSW_3_6_0_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/1E31/V14')
+  tableName = cms.string('/dev/CMSSW_3_6_0/1E31/V15')
 )
 
 streams = cms.PSet( 
@@ -57,9 +57,9 @@ datasets = cms.PSet(
     'HLT_Photon15_L1R',
     'HLT_Photon10_L1R',
     'HLT_Ele15_SiStrip_L1R' ),
-  MinimumBias = cms.vstring( 'HLT_L1Tech_BSC_HighMultiplicity',
-    'HLT_ZeroBiasPixel_SingleTrack',
-    'HLT_PixelTracks_Multiplicity70' ),
+  MinimumBias = cms.vstring( 'HLT_PixelTracks_Multiplicity70',
+    'HLT_L1Tech_BSC_HighMultiplicity',
+    'HLT_ZeroBiasPixel_SingleTrack' ),
   Mu = cms.vstring( 'HLT_L1Mu14_L1SingleEG10',
     'HLT_Mu0_L1MuOpen',
     'HLT_Mu0_Track0_Jpsi',

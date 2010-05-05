@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_0/GRun/V14
+# /dev/CMSSW_3_6_0/GRun/V15
 
 import FWCore.ParameterSet.Config as cms
 
@@ -186,5 +186,6 @@ streamA_datasetJetMETTau_selector.triggerConditions = cms.vstring('HLT_BTagIP_Je
     'HLT_Jet30U', 
     'HLT_Jet15U', 
     'HLT_BTagMu_Jet10U', 
-    'HLT_DoubleJet15U_ForwardBackward')
+    'HLT_DoubleJet15U_ForwardBackward', 
+    'HLT_Jet15U_HcalNoiseFiltered')
 
