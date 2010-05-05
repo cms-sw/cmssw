@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.27 2009/12/07 01:15:09 dmytro Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.28 2009/12/07 16:09:17 chrjones Exp $
 //
 
 // system include files
@@ -464,6 +464,8 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
                 ++itInfo) {
                purposes.insert(itInfo->purpose());
             }
+            if(purposes.empty())
+              purposes.insert("Table");
             for(std::set<std::string>::const_iterator itPurpose = purposes.begin(),
                                                       itEnd = purposes.end();
                 itPurpose != itEnd;
