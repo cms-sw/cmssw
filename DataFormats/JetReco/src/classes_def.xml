@@ -177,6 +177,8 @@
   <class name="edm::reftobase::RefHolder<reco::PFJetRef>" />
   <class name="edm::reftobase::Holder<reco::Jet, reco::TrackJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::TrackJetRef>" />
+  <class name="edm::reftobase::Holder<reco::Jet, reco::JPTJetRef>" />
+  <class name="edm::reftobase::RefHolder<reco::JPTJetRef>" />
 
   <class name="reco::JetID" />
   <class name="std::vector<reco::JetID>" />
