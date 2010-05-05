@@ -3,7 +3,7 @@ def castorlayout(i, p, *rows): i["Castor/Layouts/" + p] = DQMItem(layout=rows)
 
 castorlayout(dqmitems, "CASTOR Channel Status",
            [{ 'path': "Castor/EventInfo/reportSummaryMap",
-             'description':"1 - OK, 0 - dead, -1 - noisy"}]
+             'description':"green - OK, red - dead, yellow - noisy"}]
            )
 
 castorlayout(dqmitems, "CASTOR event products",
@@ -33,7 +33,17 @@ castorlayout(dqmitems, "CASTOR RecHitEnergy 2D Map",
 	  	  
 castorlayout(dqmitems, "CASTOR All Digi Values",
            [{ 'path': "Castor/CastorDigiMonitor/Castor All Digi Values",
-             'description':""}]
+             'description':"all CASTOR ADC values"}]
+           )
+
+castorlayout(dqmitems, "CASTOR hits 3D- cumulative",
+           [{ 'path': "Castor/CastorEventDisplay/CASTOR 3D hits- cumulative",
+             'description':"cumulative event display"}]
+           )         
+
+castorlayout(dqmitems, "CASTOR hits 3D- event with the largest deposited E",
+           [{ 'path': "Castor/CastorEventDisplay/CASTOR 3D hits- event with the largest deposited E",
+             'description':"display of the event with largest deposited energy"}]
            )         
 
 castorlayout(dqmitems, "CASTOR average pulse in bunch crossings",
