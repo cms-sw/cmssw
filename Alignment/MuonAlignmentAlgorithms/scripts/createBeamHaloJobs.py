@@ -84,7 +84,7 @@ parser.add_option("--truncateSlopeResid",
 parser.add_option("--truncateOffsetResid",
                   help="maximum allowed offset residual in mm (like the histograms in a phipos or phiz job)",
                   type="string",
-                  default="30.",
+                  default="15.",
                   dest="truncateOffsetResid")
 parser.add_option("--combineME11",
                   help="if invoked, combine ME1/1a and ME1/1b chambers",
