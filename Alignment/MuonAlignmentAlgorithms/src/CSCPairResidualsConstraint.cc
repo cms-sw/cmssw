@@ -21,7 +21,7 @@ double CSCPairResidualsConstraint::value() const {
 double CSCPairResidualsConstraint::error() const {
   if (m_parent->m_errorFromRMS) {
     assert(m_sum1 > 0.);
-    return sqrt((m_sumyy/m_sum1) - pow(m_sumy/m_sum1, 2));
+    return sqrt((m_sumyy/m_sum1) - pow(m_sumy/m_sum1, 2))/sqrt(m_sumN);
   }
   else {
     double delta = (m_sum1*m_sumxx) - (m_sumx*m_sumx);
