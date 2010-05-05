@@ -247,13 +247,13 @@ int main(int argc, char* argv[])
   // Decide whether to enable creation of job report xml file 
   //  We do this first so any errors will be reported
   // 
-  std::auto_ptr<std::ofstream> jobReportStreamPtr;
+  std::string jobReportFile;
   if (vm.count("jobreport")) {
-    std::string jobReportFile = vm["jobreport"].as<std::string>();
-    jobReportStreamPtr = std::auto_ptr<std::ofstream>( new std::ofstream(jobReportFile.c_str()) );
+    jobReportFile = vm["jobreport"].as<std::string>();
   } else if (vm.count("enablejobreport")) {
-    jobReportStreamPtr = std::auto_ptr<std::ofstream>( new std::ofstream("FrameworkJobReport.xml") );
+    jobReportFile = "FrameworkJobReport.xml";
   } 
+  std::auto_ptr<std::ofstream> jobReportStreamPtr = std::auto_ptr<std::ofstream>(jobReportFile.empty() ? 0 : new std::ofstream(jobReportFile.c_str()));
   //
   // Make JobReport Service up front
   // 
@@ -307,7 +307,7 @@ int main(int argc, char* argv[])
     EventProcessorWithSentry procTmp(procP);
     proc = procTmp;
     proc->beginJob();
-    if(!proc->forkProcess()) {
+    if(!proc->forkProcess(jobReportFile)) {
       return 0;
     }
     proc.on();

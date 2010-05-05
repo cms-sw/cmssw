@@ -964,7 +964,7 @@ namespace edm {
   };
   
   bool 
-  EventProcessor::forkProcess() {
+  EventProcessor::forkProcess(std::string const& jobReportFile) {
 
     if(0 == numberOfForkedChildren_) {return true;}
     assert(0<numberOfForkedChildren_);
@@ -1031,17 +1031,27 @@ namespace edm {
       }
     }
     std::cout <<"  done prefetching"<<std::endl;
+{
+    // make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
+    Service<JobReport> jobReport;
+    jobReport->parentBeforeFork(jobReportFile, numberOfForkedChildren_);
 
     //Now actually do the forking
     actReg_->preForkReleaseResourcesSignal_();
     input_->doPreForkReleaseResources();
     schedule_->preForkReleaseResources();
-
+}
     installCustomHandler(SIGCHLD, ep_sigchld);
+
     unsigned int childIndex = 0;
     unsigned int const kMaxChildren = numberOfForkedChildren_;
     std::vector<pid_t> childrenIds;
     childrenIds.reserve(kMaxChildren);
+{
+    // make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
+    Service<JobReport> jobReport;
     for(; childIndex < kMaxChildren; ++childIndex) {
       pid_t value = fork();
       if(value == 0) {
@@ -1056,8 +1066,7 @@ namespace edm {
     }
 
     if(childIndex < kMaxChildren) {
-      //make the services available
-      ServiceRegistry::Operate operate(serviceToken_);
+      jobReport->childAfterFork(jobReportFile, childIndex, kMaxChildren);
       actReg_->postForkReacquireResourcesSignal_(childIndex, kMaxChildren);
       input_->doPostForkReacquireResources(childIndex, kMaxChildren, numberOfSequentialEventsPerChild_);
       schedule_->postForkReacquireResources(childIndex, kMaxChildren);
@@ -1065,6 +1074,8 @@ namespace edm {
       //rewindInput();
       return true;
     }
+    jobReport->parentAfterFork(jobReportFile);
+}
     
     //this is the original which is now the master for all the children
     

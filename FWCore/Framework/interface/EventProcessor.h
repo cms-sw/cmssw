@@ -339,7 +339,7 @@ namespace edm {
     virtual bool alreadyHandlingException() const;
 
      //returns 'true' if this was a child and we should continue processing
-     bool forkProcess();
+     bool forkProcess(std::string const& jobReportFile);
 
   private:
     //------------------------------------------------------------------
