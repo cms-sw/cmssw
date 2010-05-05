@@ -27,7 +27,7 @@ particleFlowRecHitHCAL = cms.EDProducer("PFRecHitProducerHCAL",
 
 # Cut short fibres if no long fibre energy
     ShortFibre_Cut = cms.double(60.),
-    LongFibre_Fraction = cms.double(0.05),
+    LongFibre_Fraction = cms.double(0.10),
 
 # Compensate for ECAL dead channels                                        
     ECAL_Compensate = cms.bool(False),
