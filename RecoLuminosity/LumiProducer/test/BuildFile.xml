@@ -16,6 +16,11 @@
   <use name="RecoLuminosity/LumiProducer"/>
 </bin>
 
+<bin file="loadLumiDB-orcoff.cpp" name="loadLumiDB-orcoff">
+  <use name="FWCore/PluginManager"/>
+  <use name="RecoLuminosity/LumiProducer"/>
+</bin>
+
 <bin file="testWriteHLTConf2LumiDB.cpp" name="testWriteHLTConf2LumiDB">
   <use name="FWCore/PluginManager"/>
   <use name="RecoLuminosity/LumiProducer"/>
