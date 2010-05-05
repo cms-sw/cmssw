@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelClusterDetProxyBuilder.cc,v 1.9 2010/05/03 15:47:44 amraktad Exp $
+// $Id: FWSiPixelClusterDetProxyBuilder.cc,v 1.1 2010/05/04 17:52:34 mccauley Exp $
 //
 
 #include "TEveCompound.h"
@@ -40,28 +40,31 @@ void FWSiPixelClusterDetProxyBuilder::build( const FWEventItem* iItem, TEveEleme
   
   iItem->get(pixels);
   
-  if( 0 == pixels ) 
+  if( ! pixels ) 
     return;
     
   for( SiPixelClusterCollectionNew::const_iterator set = pixels->begin(), setEnd = pixels->end();
        set != setEnd; ++set) 
   {
-    TEveCompound* compound = createCompound();
     unsigned int id = set->detId();
     DetId detid(id);
       
     if( iItem->getGeom() ) 
     {
-      TEveGeoShape* shape = iItem->getGeom()->getShape( id );
-        
-      if( 0 != shape ) 
+      const edmNew::DetSet<SiPixelCluster> & clusters = *set;
+      
+      for( edmNew::DetSet<SiPixelCluster>::const_iterator itc = clusters.begin(), edc = clusters.end(); 
+           itc != edc; ++itc ) 
       {
-        shape->SetMainTransparency( 50 );
-        setupAddElement( shape, compound );
+        TEveGeoShape* shape = iItem->getGeom()->getShape(detid);
+       
+        if ( shape )
+        {
+          shape->SetMainTransparency(50);
+          setupAddElement(shape, product);
+        }
       }
     }
-    
-    setupAddElement(compound, product);
   }
 }
 
