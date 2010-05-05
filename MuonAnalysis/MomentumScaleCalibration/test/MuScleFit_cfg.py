@@ -6,8 +6,170 @@ process = cms.Process("TEST")
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-"rfio:/castor/cern.ch/cms/store/relval/CMSSW_3_5_5/RelValJpsiMM/GEN-SIM-RECO/START3X_V25-v1/0006/2642321B-B437-DF11-A90D-002618943800.root"
-    )
+
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_10_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_11_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_12_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_13_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_14_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_15_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_16_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_17_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_18_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_19_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_1_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_20_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_21_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_22_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_23_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_24_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_25_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_26_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_27_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_28_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_2_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_3_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_4_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_5_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_6_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_7_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_8_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_FirstData2010_9_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_10_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_11_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_12_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_13_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_14_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_15_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_1_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_2_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_3_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_4_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_5_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_6_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_7_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_8_1.root",
+# "rfio:/castor/cern.ch/user/c/covarell/temp/PAT_VeryFirstData2010_9_1.root",
+
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV8_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v8_10_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV8_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v8_11_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV8_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v8_12_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV8_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v8_13_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV8_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v8_1_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV8_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v8_2_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV8_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v8_3_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV8_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v8_4_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV8_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v8_5_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV8_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v8_6_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV8_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v8_7_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV8_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v8_8_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV8_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v8_9_1.root",
+
+
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_11_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_12_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_13_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_14_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_15_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_16_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_17_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_18_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_19_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_1_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_20_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_21_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_22_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_23_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_24_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_25_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_26_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_27_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_28_2.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_29_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_2_2.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_3_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_4_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_5_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_7_1.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_8_0.root",
+"rfio:/castor/cern.ch/user/s/sbologne/cmst3/Data/CSOniaV9_lessCuts/PAT-MinimumBias-Commissioning10-CS_Onia-v9_9_0.root"
+
+
+#NOT YET ALL THE STATISTICS for ppMuX
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_11_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_12_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_14_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_15_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_16_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_18_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_19_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_1_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_20_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_21_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_22_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_23_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_24_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_25_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_2_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_4_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_6_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_8_1.root",
+# "rfio:/castor/cern.ch/user/s/sbologne/cmst3/MCSpring10/ppMuX/PAT-ppMuX-Spring10-START3X_V26_S09-v1_9_1.root"
+
+    ),
+      lumisToProcess = cms.untracked.VLuminosityBlockRange('132440:157-132440:401',
+                                                         '132442:1-132442:133',
+                                                         '132442:136-132442:271',
+                                                         '132596:382-132596:453',
+                                                         '132597:1-132597:48',
+                                                         '132598:1-132598:188',
+                                                         '132599:1-132599:538',
+                                                         '132601:1-132601:207',
+                                                         '132601:209-132601:259',
+                                                         '132601:261-132601:1131',
+                                                         '132602:1-132602:83',
+                                                         '132605:1-132605:829',
+                                                         '132605:831-132605:968',
+                                                         '132606:1-132606:37',
+                                                         '132656:1-132656:140',
+                                                         '132658:1-132658:177',
+                                                         '132659:1-132659:84',
+                                                         '132661:1-132661:130',
+                                                         '132662:1-132662:130',
+                                                         '132662:132-132662:165',
+                                                         '132716:220-132716:640',
+                                                         '132959:1-132959:417',
+                                                         '132960:1-132960:190',
+                                                         '132961:1-132961:427',
+                                                         '132965:1-132965:107',
+                                                         '132968:1-132968:173',
+                                                         '133029:101-133029:115',
+                                                         '133029:129-133029:350',
+                                                         '133031:1-133031:18',
+                                                         '133034:131-133034:325',
+                                                         '133035:1-133035:306',
+                                                         '133036:1-133036:225',
+                                                         '133046:1-133046:43',
+                                                         '133046:45-133046:323',
+                                                         '133082:1-133082:608',
+                                                         '133158:65-133158:786',
+                                                         '133321:1-133321:383',
+                                                         '133446:105-133446:273',
+                                                         '133448:1-133448:516',
+                                                         '133450:1-133450:658',
+                                                         '133474:1-133474:95',
+                                                         '133474:157-133474:189',
+                                                         '133483:94-133483:591',
+                                                         '133483:652-133483:658',
+                                                         '133874:166-133874:875',
+                                                         '133875:1-133875:49',
+                                                         '133877:1-133877:77',
+                                                         '133877:82-133877:231',
+                                                         '133877:236-133877:1997',
+                                                         '133881:1-133881:562',
+                                                         '133885:1-133885:728',
+                                                         '133927:1-133927:57',
+                                                         '133928:1-133928:645')
 )
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
@@ -18,13 +180,12 @@ process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
 process.load("Alignment.CommonAlignmentProducer.GlobalPosition_Fake_cff")
 process.load("MagneticField.Engine.uniformMagneticField_cfi")
 
-
 process.maxEvents = cms.untracked.PSet(
     # This are the total background events from InclusivePPmuX (89150) +
     # the number of Upsilon1S events.
     # input = cms.untracked.int32(89355)
 
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(-1)
 )
 process.looper = cms.Looper(
     "MuScleFit",
@@ -34,14 +195,15 @@ process.looper = cms.Looper(
     # -------------------------------------------
 
     # // all muons //
-    MuonLabel = cms.InputTag("muons"),
+    MuonLabel = cms.InputTag("patMuons"),
     # Defines what type of muons to use:
+    # -1 = onia guys selection
     # 1 = global muon
     # 2 = standalone muon
     # 3 = tracker muon
     # 4 = calo muon
     # 10 = innerTrack of global muon
-    MuonType = cms.int32(1),
+    MuonType = cms.int32(-1),
 
     # // standalone muons //
     # MuonLabel = cms.InputTag("standAloneMuons:UpdatedAtVtx"),
@@ -57,7 +219,7 @@ process.looper = cms.Looper(
 
     # Output settings
     # ---------------
-    OutputFileName = cms.untracked.string('MuScleFit.root'),
+    OutputFileName = cms.untracked.string('MuScleFitData.root'),
     debug = cms.untracked.int32(10),
 
     # Likelihood settings
@@ -65,8 +227,8 @@ process.looper = cms.Looper(
     maxLoopNumber = cms.untracked.int32(3),
     # Select which fits to do in which loop (0 = do not, 1 = do)
     doResolFit =      cms.vint32(0, 1, 0),
-    doScaleFit =      cms.vint32(1, 0, 0),
-    doBackgroundFit = cms.vint32(0, 0, 0),
+    doScaleFit =      cms.vint32(0, 0, 0),
+    doBackgroundFit = cms.vint32(1, 0, 0),
     doCrossSectionFit = cms.vint32(0, 0, 0),
 
     # Fit parameters and fix flags (1 = use par)
@@ -179,8 +341,8 @@ process.looper = cms.Looper(
     resfind = cms.vint32(0, 0, 0, 0, 0, 1),
     FitStrategy = cms.int32(2),
 
-    speedup = cms.bool(False),
-    OutputGenInfoFileName = cms.untracked.string("genSimRecoPlots.root"),
+    speedup = cms.bool(True),
+    OutputGenInfoFileName = cms.untracked.string("genSimRecoPlotsData.root"),
     # Set this to false if you do not want to use simTracks.
     # (Note that this is skipped anyway if speedup == True).
     compareToSimTracks = cms.bool(True),
@@ -191,7 +353,7 @@ process.looper = cms.Looper(
     # Sherpa = cms.untracked.bool(True),
 
     # This line allows to switch to PAT muons. Default is false.
-    # PATmuons = cms.untracked.bool(True),
+     PATmuons = cms.untracked.bool(True),
 
     # This line allows to use the EDLooper or to loop by hand.
     # All the necessary information is saved during the first loop so there is not need
@@ -219,9 +381,14 @@ process.looper = cms.Looper(
     MinimumShapePlots = cms.bool(False),
 
     # The following parameters can be used to filter events
-    TriggerResultsLabel = cms.untracked.InputTag("TriggerResults"),
+    TriggerResultsLabel = cms.untracked.string("TriggerResults"),
+    TriggerResultsProcess = cms.untracked.string("HLT"),
+    # TriggerPath: "" = No trigger requirements, "All" = No specific path
+    #TriggerPath = cms.untracked.string("HLT_L1MuOpen"),
+    TriggerPath = cms.untracked.string("All"),
     # Negate the result of the trigger
     NegateTrigger = cms.untracked.bool(False),
+
 )
 
 # Timing information
