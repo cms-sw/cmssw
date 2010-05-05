@@ -1,8 +1,8 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.172 
-# Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: reco_FirstCollisions_36X -s RAW2DIGI,L1Reco,RECO,DQM --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --conditions GR_R_36X_V6::All --customise Configuration/GlobalRuns/customise_Collision_36X.py --no_exec --python_filename=rereco_FirstCollisions_36X.py
+# Revision: 1.177 
+# Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
+# with command line options: reco_FirstCollisions_36X -s RAW2DIGI,L1Reco,RECO,DQM --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --conditions GR_R_36X_V6::All --customise Configuration/GlobalRuns/customise_Collision_36X.py --no_exec --python_filename=rereco_FirstCollisions_36X.py --process RERECO
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('RERECO')
@@ -11,7 +11,7 @@ process = cms.Process('RERECO')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.StandardSequences.GeometryExtended_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -22,13 +22,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('reco_FirstCollisions_36X nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-#    input = cms.untracked.int32(1)
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1)
 )
 process.options = cms.untracked.PSet(
 
@@ -96,7 +95,10 @@ def customise(process):
     process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
     process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
     process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
-        
+
+    ## local tracker strip reconstruction
+    process.OutOfTime.TOBlateBP=0.071
+    process.OutOfTime.TIBlateBP=0.036
 
     ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
