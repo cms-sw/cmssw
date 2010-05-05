@@ -1,6 +1,6 @@
 # Auto generated configuration file
 # using: 
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 import FWCore.ParameterSet.Config as cms
 
@@ -21,7 +21,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -61,6 +61,8 @@ process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 10000
 process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+process.thPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 10000
+process.thPLSeeds.ClusterCheckPSet.MaxNumberOfPixelClusters = 2000
 
 ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
@@ -113,17 +115,15 @@ process.hfreco.firstSample  = 3
 process.hfreco.samplesToAdd = 4
 
 ## EGAMMA
-process.gsfElectrons.applyPreselection = cms.bool(False)
-process.photons.minSCEtBarrel = 2.
-process.photons.minSCEtEndcap =2.
-process.photonCore.minSCEt = 2.
-process.conversionTrackCandidates.minSCEt =1.
-process.conversions.minSCEt =1.
-process.trackerOnlyConversions.AllowTrackBC = cms.bool(False)
-process.trackerOnlyConversions.AllowRightBC = cms.bool(False)
-process.trackerOnlyConversions.MinApproach = cms.double(-.25)
-process.trackerOnlyConversions.DeltaCotTheta = cms.double(.07)
-process.trackerOnlyConversions.DeltaPhi = cms.double(.2)
+process.photons.minSCEtBarrel = 5.
+process.photons.minSCEtEndcap =5.
+process.photonCore.minSCEt = 5.
+process.conversionTrackCandidates.minSCEt = 5.
+process.conversions.minSCEt =5.
+process.trackerOnlyConversions.AllowTrackBC = False
+process.trackerOnlyConversions.AllowRightBC = False
+process.trackerOnlyConversions.rCut = 2.
+process.trackerOnlyConversions.vtxChi2 = 0.0005
 
 ## scaler beamspot
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
