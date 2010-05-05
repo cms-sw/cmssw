@@ -9,7 +9,7 @@ from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 
 # before pat: conversion to track candidates for pat; isolation 
 from ElectroWeakAnalysis.Skimming.patAODTrackCandSequence_cff import *
-patAODTrackCands.cut = 'pt > 10.'
+patAODTrackCands.cut = 'pt > 15.'
 
 # pat tracks
 from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import patGenericParticles
@@ -43,7 +43,7 @@ allPatTracks = patGenericParticles.clone(
 )
 
 from PhysicsTools.PatAlgos.selectionLayer1.trackSelector_cfi import *
-selectedPatTracks.cut = 'pt > 10.'
+selectedPatTracks.cut = 'pt > 15.'
 
 # PAT MUONS
 
@@ -94,7 +94,7 @@ patMuons.embedTpfmsMuon = cms.bool(False)
 patMuons.embedPFCandidate = cms.bool(False)
 
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
-selectedPatMuons.cut = 'pt > 10. & abs(eta) < 100.0'
+selectedPatMuons.cut = 'pt > 15. & abs(eta) < 100.0'
 
 # trigger info
 from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
