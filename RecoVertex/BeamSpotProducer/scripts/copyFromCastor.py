@@ -1,13 +1,15 @@
+#!/usr/bin/env python
 import sys,os,commands
 
 def main():
-    if not sys.argv[0] or not sys.argv[1]:
+    if len(sys.argv) < 3:
         print "Usage: cpFromCastor fromDir toDir (optional runnumber)"
         exit(0)
     user = os.getenv("USER")
     castorDir = "/castor/cern.ch/cms/store/caf/user/" + user + "/" + sys.argv[1] + "/"
     aCommand = "nsls " + castorDir
-    if sys.argv[3]:
+    
+    if len(sys.argv) > 3:
         aCommand += " | grep " + sys.argv[3]
     output = commands.getstatusoutput(aCommand)
     if output[0] != 0:
