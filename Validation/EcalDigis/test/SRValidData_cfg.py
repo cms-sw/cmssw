@@ -37,6 +37,11 @@ process.GlobalTag.globaltag = 'GR10_P_V4::All'
  
 # ECAL digitization sequence
 process.load("SimCalorimetry.Configuration.ecalDigiSequence_cff")
+process.simEcalDigis.trigPrimProducer = cms.string('ecalEBunpacker')
+process.simEcalDigis.trigPrimCollection =  cms.string('EcalTriggerPrimitives')
+process.simEcalDigis.digiProducer = cms.string('ecalEBunpacker')
+process.simEcalDigis.EBdigiCollection = cms.string('ebDigis')
+process.simEcalDigis.EEdigiCollection = cms.string('eeDigis')
 
 # Defines Ecal seletive readout validation module, ecalSelectiveReadoutValidation:
 process.load("Validation.EcalDigis.ecalSelectiveReadoutValidation_cfi")
@@ -52,8 +57,8 @@ process.ecalSelectiveReadoutValidation.EeDigiCollection = cms.InputTag("ecalEBun
 #process.ecalSelectiveReadoutValidation.EeUnsuppressedDigiCollection = cms.InputTag("simEcalUnsuppressedDigis")
 process.ecalSelectiveReadoutValidation.EbSrFlagCollection = cms.InputTag("ecalEBunpacker","")
 process.ecalSelectiveReadoutValidation.EeSrFlagCollection = cms.InputTag("ecalEBunpacker","")
-#process.ecalSelectiveReadoutValidation.EbSrFlagFromTTCollection = cms.InputTag("simEcalDigis","ebSrFlagsFromTT")
-#process.ecalSelectiveReadoutValidation.EeSrFlagFromTTCollection = cms.InputTag("simEcalDigis","eeSrFlagsFromTT")
+process.ecalSelectiveReadoutValidation.EbSrFlagFromTTCollection = cms.InputTag("simEcalDigis","ebSrFlags")
+process.ecalSelectiveReadoutValidation.EeSrFlagFromTTCollection = cms.InputTag("simEcalDigis","eeSrFlags")
 #rocess.ecalSelectiveReadoutValidation.EbSimHitCollection = cms.InputTag("g4SimHits","EcalHitsEB")
 #process.ecalSelectiveReadoutValidation.EeSimHitCollection = cms.InputTag("g4SimHits","EcalHitsEE")
 process.ecalSelectiveReadoutValidation.TrigPrimCollection = cms.InputTag("ecalEBunpacker", "EcalTriggerPrimitives")
@@ -120,6 +125,8 @@ process.ecalSelectiveReadoutValidation.histograms = [ 'all' ]
 #"zsEeHiFIRemu",
 #"zsEeLiFIRemu"
 #]
+#process.ecalSelectiveReadoutValidation.useEventRate = False
+process.ecalSelectiveReadoutValidation.LocalReco = cms.bool(False)
 
 # ECAL Unpacker:
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
@@ -137,5 +144,5 @@ process.tpparams12 = cms.ESSource("EmptyESSource",
 
 #process.load("pgras.ListCollection.ListCollection_cfi")
 
-process.p1 = cms.Path(process.ecalEBunpacker*process.ecalSelectiveReadoutValidation)
+process.p1 = cms.Path(process.ecalEBunpacker*process.simEcalDigis*process.ecalSelectiveReadoutValidation)
 process.DQM.collectorHost = ''
