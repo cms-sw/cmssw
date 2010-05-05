@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio (Update: Amnon Harel)
-  \version  $Id: JetIDSelectionFunctor.h,v 1.8 2010/04/13 14:55:50 srappocc Exp $
+  \version  $Id: JetIDSelectionFunctor.h,v 1.9 2010/04/25 17:06:33 hegner Exp $
 */
 
 
@@ -39,34 +39,25 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
     std::string qualityStr = parameters.getParameter<std::string>("quality");
     Quality_t quality = N_QUALITY;
 
+    if      ( qualityStr == "MINIMAL" )   quality = MINIMAL;
+    else if ( qualityStr == "LOOSE_AOD" ) quality = LOOSE_AOD;
+    else if ( qualityStr == "LOOSE" )     quality = LOOSE;
+    else if ( qualityStr == "TIGHT" )     quality = TIGHT;
+    else       
+      throw cms::Exception("InvalidInput") << "Expect quality to be one of MINIMAL, LOOSE_AOD, LOOSE,TIGHT" << std::endl;
+
+
     if ( versionStr == "CRAFT08" ) {
-      if      ( qualityStr == "MINIMAL" )   quality = MINIMAL;
-      else if ( qualityStr == "LOOSE_AOD" ) quality = LOOSE_AOD;
-      else if ( qualityStr == "LOOSE" )     quality = LOOSE;
-      else                                  quality = TIGHT;
-      
       initialize( CRAFT08, quality );
     } 
     else if ( versionStr == "PURE09" ) {
-      if      ( qualityStr == "MINIMAL" )   quality = MINIMAL;
-      else if ( qualityStr == "LOOSE_AOD" ) quality = LOOSE_AOD;
-      else if ( qualityStr == "LOOSE" )     quality = LOOSE;
-      else                                  quality = TIGHT;
-
       initialize( PURE09, quality );
-      
     }
     else if ( versionStr == "DQM09" ) {
-      
-      if      ( qualityStr == "MINIMAL" )   quality = MINIMAL;
-      else if ( qualityStr == "LOOSE_AOD" ) quality = LOOSE_AOD;
-      else if ( qualityStr == "LOOSE" )     quality = LOOSE;
-      else                                  quality = TIGHT;
-
       initialize( DQM09, quality );
     }
     else {
-      throw cms::Exception("InvalidInput") << "Expect version to be one of SUMMER08, FIRSTDATA," << std::endl;
+      throw cms::Exception("InvalidInput") << "Expect version to be one of CRAFT08, PURE09, DQM09" << std::endl;
     }
   }
 
