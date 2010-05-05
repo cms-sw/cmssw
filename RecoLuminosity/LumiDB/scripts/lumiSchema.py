@@ -181,7 +181,7 @@ def main():
     args=parser.parse_args()
     connectstring=args.connect
     svc = coral.ConnectionService()
-    if len(args.authpath)!=0:
+    if args.authpath and len(args.authpath)!=0:
         os.environ['CORAL_AUTH_PATH']=args.authpath
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     if args.action == 'create':
