@@ -903,7 +903,7 @@ c      INTEGER PYK,PYCHGE,PYCOMP
        qm2=(scm-((um+ep0)**2))*(scm-((um-ep0)**2))/scm  
        bub=4.d0*tauu/TC   
        alf=6.d0*pi/((33.d0-2.d0*nf)*dlog(max(bub,1.d-10)))
-       z=pi*4.d0*tauu*tauu*alf*(1.+nf/6.d0)  
+       z=abs(pi*4.d0*tauu*tauu*alf*(1.+nf/6.d0))  
        bubs=dsqrt(abs(z))/TC 
        alfs=6.d0*pi/((33.d0-2.d0*nf)*dlog(max(bubs,1.d-10))) 
        phmin2=z 
