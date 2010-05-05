@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.23 2010/05/03 21:50:44 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.24 2010/05/03 22:07:16 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -60,8 +60,6 @@ BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	ftotalevents++;
 	theBeamFitter->readEvent(iEvent);
 	ftmprun = iEvent.id().run();
-    refBStime[0] = refBStime[1] = 0;
-    beginLumiOfBSFit_ = endLumiOfBSFit_ = 0;
 
 }
 
