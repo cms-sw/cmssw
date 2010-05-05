@@ -29,13 +29,7 @@ function getConfigForCVS() {
   # for things in CMSSW CVS
   local CONFIG="$1"
   local NAME="$2"
-  if [ "${NAME}" == "8E29" ] || [ "${NAME}" == "GRun" ]; then
-   $GETHLT --cff --mc --l1 L1Menu_Commissioning2010_v2 $CONFIG $NAME
-  elif [ "${NAME}" == "1E31" ] || [ "${NAME}" == "HIon" ]; then
-   $GETHLT --cff --mc --l1 L1Menu_MC2010_v0 $CONFIG $NAME
-  else
-   $GETHLT --cff --mc $CONFIG $NAME
-  fi
+  $GETHLT --cff --mc $CONFIG $NAME
 }
 
 function getContentForCVS() {
@@ -56,16 +50,8 @@ function getConfigForOnline() {
   # for things NOT in CMSSW CVS:
   local CONFIG="$1"
   local NAME="$2"
-  if [ "${NAME}" == "8E29" ] || [ "${NAME}" == "GRun" ]; then
-   $GETHLT --full --offline --data --l1 L1Menu_Commissioning2010_v2 $CONFIG $NAME
-   $GETHLT --full --offline --mc   --l1 L1Menu_Commissioning2010_v2 $CONFIG $NAME
-  elif [ "${NAME}" == "1E31" ] || [ "${NAME}" == "HIon" ]; then
-   $GETHLT --full --offline --data --l1 L1Menu_MC2010_v0 $CONFIG $NAME
-   $GETHLT --full --offline --mc   --l1 L1Menu_MC2010_v0 $CONFIG $NAME
-  else
-   $GETHLT --full --offline --data $CONFIG $NAME
-   $GETHLT --full --offline --mc   $CONFIG $NAME
-  fi
+  $GETHLT --full --offline --data $CONFIG $NAME
+  $GETHLT --full --offline --mc   $CONFIG $NAME
 }
 
 # make sure we're using *this* working area
