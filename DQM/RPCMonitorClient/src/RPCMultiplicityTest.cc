@@ -36,9 +36,9 @@ void RPCMultiplicityTest::beginJob(DQMStore *  dbe ){
 }
 
 
-void RPCMultiplicityTest::endRun(const Run& r, const EventSetup& iSetup,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
+void RPCMultiplicityTest::beginRun(const Run& r, const EventSetup& iSetup,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
 
-  edm::LogVerbatim ("multiplicity") << "[RPCMultiplicityTest]: End run";
+  edm::LogVerbatim ("multiplicity") << "[RPCMultiplicityTest]: Begin run";
   
   MonitorElement* me=NULL;
   dbe_->setCurrentFolder(globalFolder_);
@@ -90,9 +90,10 @@ void RPCMultiplicityTest::endRun(const Run& r, const EventSetup& iSetup,vector<M
       dbe_->removeElement(me->getName());
     }
     MULTDisk[i+offset]   = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+     
     rpcUtils.labelXAxisSegment(MULTDisk[i+offset]);
     rpcUtils.labelYAxisRing(MULTDisk[i+offset], numberOfRings_);
-
+  
     histoName.str("");
     histoName<<"NumberOfDigi_Mean_Distribution_Disk"<<i;
     me = 0;
@@ -133,11 +134,9 @@ void RPCMultiplicityTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, E
 
 void RPCMultiplicityTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c){}
 
-void RPCMultiplicityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {}
+void RPCMultiplicityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {
 
-void RPCMultiplicityTest::clientOperation(EventSetup const& iSetup) {
-
-  edm::LogVerbatim ("multiplicity") <<"[RPCMultiplicityTest]: Client Operation";
+  edm::LogVerbatim ("multiplicity") <<"[RPCMultiplicityTest]: End of LS transition, performing the DQM client operation";
 
   //Clear Distributions
   int limit = numberOfDisks_ * 2;
@@ -157,7 +156,7 @@ void RPCMultiplicityTest::clientOperation(EventSetup const& iSetup) {
   }//End loop on MEs
 }
  
-void RPCMultiplicityTest::beginRun(const Run& r, const EventSetup& c){}
+void RPCMultiplicityTest::endRun(const Run& r, const EventSetup& c){}
 
  void RPCMultiplicityTest::endJob(){}
 
@@ -183,24 +182,23 @@ void  RPCMultiplicityTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe)
   }
 
   if ( MULT && MULTD ){
-    
-    int xBin,yBin;
-    if(detId.region()==0){//Barrel
-      xBin= detId.sector();
-      rpcdqm::utils rollNumber;
-      yBin = rollNumber.detId2RollNr(detId);
-    }else{//Endcap
-      //get segment number
-      RPCGeomServ RPCServ(detId);
-      xBin = RPCServ.segment();
-      (numberOfRings_ == 3 ? yBin= detId.ring()*3-detId.roll()+1 : yBin= (detId.ring()-1)*3-detId.roll()+1);
-    }
-    
-    float mean = myMe->getMean();
-    
-    MULT->setBinContent(xBin,yBin, mean );
-    MULTD->Fill(mean);
+
+   int xBin,yBin;
+   if(detId.region()==0){//Barrel
+     xBin= detId.sector();
+     rpcdqm::utils rollNumber;
+     yBin = rollNumber.detId2RollNr(detId);
+   }else{//Endcap
+     //get segment number
+     RPCGeomServ RPCServ(detId);
+     xBin = RPCServ.segment();
+     (numberOfRings_ == 3 ? yBin= detId.ring()*3-detId.roll()+1 : yBin= (detId.ring()-1)*3-detId.roll()+1);
+   }
+   
+   float mean = myMe->getMean();
+ 
+   MULT->setBinContent(xBin,yBin, mean );
+   MULTD->Fill(mean);
   }
-  
-  
+
 }

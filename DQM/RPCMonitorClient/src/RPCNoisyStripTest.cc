@@ -1,9 +1,3 @@
-/**************************************
- *         Autor: David Lomidze       *
- *           INFN di Napoli           *
- *           06 March 2009            *
- *************************************/
-
 #include <DQM/RPCMonitorClient/interface/RPCNoisyStripTest.h>
 #include "DQM/RPCMonitorDigi/interface/utils.h"
 
@@ -17,8 +11,6 @@
 //Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
-
-
 using namespace edm;
 using namespace std;
 
@@ -29,7 +21,6 @@ RPCNoisyStripTest::RPCNoisyStripTest(const ParameterSet& ps ){
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
- 
 }
 
 RPCNoisyStripTest::~RPCNoisyStripTest(){dbe_=0;}
@@ -37,11 +28,10 @@ RPCNoisyStripTest::~RPCNoisyStripTest(){dbe_=0;}
 void RPCNoisyStripTest::beginJob(DQMStore * dbe){
  LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: Begin job ";
  dbe_ = dbe;
-
 }
 
-void RPCNoisyStripTest::endRun(const Run& r, const EventSetup& iSetup,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
- LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: End run";
+void RPCNoisyStripTest::beginRun(const Run& r, const EventSetup& iSetup,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
+ LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: Begin run";
  
  
  MonitorElement* me;
@@ -119,7 +109,8 @@ void RPCNoisyStripTest::endRun(const Run& r, const EventSetup& iSetup,vector<Mon
      dbe_->removeElement(me->getName());
    }
    
-   NOISEDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str() , 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+   NOISEDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str() ,36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+
    rpcUtils.labelXAxisSegment(NOISEDisk[w+offset]);
    rpcUtils.labelYAxisRing(NOISEDisk[w+offset], numberOfRings_);
 
@@ -152,12 +143,9 @@ void RPCNoisyStripTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 
 void RPCNoisyStripTest::analyze(const Event& iEvent, const EventSetup& c) {}
 
-void RPCNoisyStripTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {}
+void RPCNoisyStripTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  
 
-void RPCNoisyStripTest::clientOperation(EventSetup const& iSetup) {  
-
-
-  LogVerbatim ("rpcnoisetest") <<"[RPCNoisyStripTest]: Client Operation";
+  LogVerbatim ("rpcnoisetest") <<"[RPCNoisyStripTest]: End of LS transition, performing DQM client operation";
   
   //Clear Distributions
   int limit = numberOfDisks_ * 2;
@@ -183,13 +171,13 @@ void RPCNoisyStripTest::clientOperation(EventSetup const& iSetup) {
 
 
  
-void  RPCNoisyStripTest::beginRun(const Run& r, const EventSetup& c){}
+void  RPCNoisyStripTest::endRun(const Run& r, const EventSetup& c){}
 
 void  RPCNoisyStripTest::endJob(){}
 
 void  RPCNoisyStripTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe,EventSetup const& iSetup){
 
- //   ESHandle<RPCGeometry> rpcgeo;
+  //   ESHandle<RPCGeometry> rpcgeo;
 //     iSetup.get<MuonGeometryRecord>().get(rpcgeo);
  
     stringstream meName;
@@ -253,6 +241,5 @@ void  RPCNoisyStripTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe,Ev
 	NOISED ->Fill(noisyStrips);
       }
     }
-
 }
 
