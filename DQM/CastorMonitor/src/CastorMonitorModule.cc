@@ -44,7 +44,8 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   DigiMon_ = NULL; 
   LedMon_ = NULL;    
   PSMon_ = NULL;    
-  CQMon_ = NULL;  
+  CQMon_ = NULL;
+  EDMon_ = NULL;  
 
  ////---- get DQMStore service  
   dbe_ = Service<DQMStore>().operator->();
@@ -92,6 +93,17 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
     PSMon_->setup(ps, dbe_);
   }
  //------------------------------------------------------------//
+
+ //---------------------- EDMonitor ----------------------// 
+  if ( ps.getUntrackedParameter<bool>("EDMonitor", false) ) {
+    if(fVerbosity>0) cout << "CastorMonitorModule: ED monitor flag is on...." << endl;
+    EDMon_ = new CastorEventDisplay();
+    EDMon_->setup(ps, dbe_);
+  }
+ //------------------------------------------------------------//
+
+
+
 
 
    ////---- ADD OTHER MONITORS HERE !!!
@@ -263,8 +275,9 @@ void CastorMonitorModule::endJob(void) {
   if(DigiMon_!=NULL) DigiMon_->done();
   if(LedMon_!=NULL) LedMon_->done();
   if(CQMon_!=NULL) CQMon_->done();
-   if(PSMon_!=NULL) PSMon_->done();
-  
+  if(PSMon_!=NULL) PSMon_->done();
+  if(EDMon_!=NULL) EDMon_->done();
+
   /* LEAVE IT OUT FOR THE MOMENT
   // TO DUMP THE OUTPUT TO DATABASE FILE
   if (dump2database_){
@@ -285,6 +298,7 @@ void CastorMonitorModule::reset(){
   if(LedMon_!=NULL)      LedMon_->reset();
   if(CQMon_!=NULL)       CQMon_->reset();
   if(PSMon_!=NULL)       PSMon_->reset();
+  if(EDMon_!=NULL)       EDMon_->reset();
 
 }
 
@@ -471,6 +485,22 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       if (PSMon_!=NULL) cout <<"TIMER:: PULSE SHAPE  ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
+  
+   
+  //---------------- EventDisplay monitor task ------------------------//
+  ////---- get calo geometry
+  edm::ESHandle<CaloGeometry> caloGeometry;
+  eventSetup.get<CaloGeometryRecord>().get(caloGeometry);
+  
+  if(rechitOK_) EDMon_->processEvent(*CastorHits, *caloGeometry);
+ if (showTiming_){
+      cpu_timer.stop();
+      if (EDMon_!=NULL) cout <<"TIMER:: EVENTDISPLAY MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+   
+
+
 
 
   if(fVerbosity>0 && ievt_%100 == 0)
