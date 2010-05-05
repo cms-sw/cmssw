@@ -5,35 +5,12 @@ use warnings;
 
 my $dir = "src/Fireworks";
 
-my @proxy_types = (
-    ["Projected 2D view (rho-phi and rho-z projections)",
-	"FWRPZProxyBuilder.template",
-	"RPZProxyBuilder"],
-    ["Lego - eta-phi view on the calorimeter surface",
-	"FWLegoProxyBuilder.template",
-	"LegoProxyBuilder"],
-    ["Plain 3D view", 
-	"FW3DProxyBuilder.template",
-	"3DProxyBuilder"],
-    ["Glimpse - special 3D view where size of objects is energy",
-	"FWGlimpseProxyBuilder.template",
-	"GlimpseProxyBuilder"]
-);
-
-print "Available views:\n";
-foreach my $i(1..@proxy_types){
-    printf("  %2s) %s\n",$i,$proxy_types[$i-1]->[0]);
-}
-print "Select type: ";
-my $selection = <STDIN>;
-$selection =~ s/\n//;
-die "Incorrect input. Abort\n" if ($selection !~/^\d+$/ || $selection > scalar @proxy_types);
-
 print "\nA data proxy builder maps a data collection of the form std::vector<T>\n",
   "to a collection of TEveElements - ROOT graphical primitives.\n",
   "What is the data type(T) type you want to read: "; 
 my $type = <STDIN>;
 $type =~ s/\n//;
+
 
 print "\nProxy builders for various views with the same input data types are grouped\n",
   "by their \"purpose\". For example reco::Track collections can be \"Tracks\",\n", 
@@ -44,10 +21,10 @@ print "What is the \"purpose\" of the new proxy builder? ";
 my $purpose = <STDIN>;
 $purpose =~ s/\n//;
 
-my $name = "FW$purpose".$proxy_types[$selection-1]->[2];
+my $name = "FW$purpose"."SimpleProxyBuilder";
 
-my $template = "src/Fireworks/Macros/$proxy_types[$selection-1]->[1]";
-my $output = "src/Fireworks/User/plugins/$name.cc";
+my $template = "src/Fireworks/Macros/FWSimpleProxyBuilder.template";
+my $output = "$name.cc";
 open (IN, $template)|| die "Cannot open file $template\n$!\n";
 system("mkdir -p src/Fireworks/User/plugins");
 open (OUT, "> $output")|| die "Cannot write to file $output\n$!\n";
