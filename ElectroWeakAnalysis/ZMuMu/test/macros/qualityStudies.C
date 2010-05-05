@@ -1099,17 +1099,17 @@ void qualityStudies(){
 
 TChain * Events= new TChain("Events"); 
   
-  int nFiles = 13;
+  int nFiles = 220;
 
   for(int j=1;j<nFiles;++j){
     ostringstream oss;
     oss<<j;
-    string name= "zmmNtuple/NtupleLooseTestNew_oneshot_all_Test_"+oss.str()+"_None.root";
-    //string name= "/tmp/degrutto/NtupleLooseTestNew_oneshot_all_Test_"+oss.str()+"_None.root";
+    //string name= "zmmNtuple/NtupleLooseTestNew_oneshot_all_Test_"+oss.str()+"_None.root";
+    string name= "/tmp/degrutto/NtupleLooseTestNew_oneshot_all_Test_"+oss.str()+"_None.root";
     Events->Add(name.c_str());
   }
 
-TFile * output_file = TFile::Open("histo_zmm.root", "RECREATE");
+TFile * output_file = TFile::Open("histo_qcd.root", "RECREATE");
 qualityStudiesZGolden(output_file, Events);
  qualityStudiesZGoldenNotIso(output_file, Events);
   qualityStudiesZGlbTrk(output_file, Events);
