@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_CSCPairResidualsConstraint_H
 
 /** \class CSCPairResidualsConstraint
- *  $Date: Tue Mar 30 02:53:16 CDT 2010 $
- *  $Revision: 1.0 $
+ *  $Date: 2010/05/04 01:16:04 $
+ *  $Revision: 1.1 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -27,7 +27,7 @@ public:
   CSCPairResidualsConstraint(unsigned int identifier, int i, int j, CSCDetId id_i, CSCDetId id_j)
     : CSCPairConstraint(i, j, 0., 0.)
     , m_identifier(identifier), m_id_i(id_i), m_id_j(id_j)
-    , m_sum1(0.), m_sumx(0.), m_sumy(0.), m_sumxx(0.), m_sumyy(0.), m_sumxy(0.)
+    , m_sum1(0.), m_sumx(0.), m_sumy(0.), m_sumxx(0.), m_sumyy(0.), m_sumxy(0.), m_sumN(0)
     , m_Zplane(1000.), m_iZ1(1000.), m_iZ6(1000.), m_jZ1(1000.), m_jZ6(1000.), m_cscGeometry(NULL), m_surface_i(NULL), m_surface_j(NULL), m_propagator(NULL)
   {};
   virtual ~CSCPairResidualsConstraint() {};
@@ -42,6 +42,7 @@ public:
   double error() const;
   CSCDetId id_i() const { return m_id_i; };
   CSCDetId id_j() const { return m_id_j; };
+  bool valid() const;
 
   void configure(CSCOverlapsAlignmentAlgorithm *parent);
   void setZplane(const CSCGeometry *cscGeometry);
@@ -59,6 +60,7 @@ protected:
   unsigned int m_identifier;
   CSCDetId m_id_i, m_id_j;
   double m_sum1, m_sumx, m_sumy, m_sumxx, m_sumyy, m_sumxy;
+  int m_sumN;
 
   CSCOverlapsAlignmentAlgorithm *m_parent;
 

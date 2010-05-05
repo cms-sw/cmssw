@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.h,v 1.1 2010/05/04 01:16:04 pivarski Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.h,v 1.2 2010/05/04 19:07:41 pivarski Exp $
 //
 //
 
@@ -117,9 +117,12 @@ public:
   bool m_useHitWeights;
   bool m_slopeFromTrackRefit;
   int m_minStationsInTrackRefits;
+  double m_truncateSlopeResid;
+  double m_truncateOffsetResid;
   bool m_combineME11;
   bool m_useTrackWeights;
   bool m_errorFromRMS;
+  int m_minTracksPerOverlap;
   bool m_makeHistograms;
 
 private:

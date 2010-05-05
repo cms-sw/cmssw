@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_CSCPairConstraint_H
 
 /** \class CSCPairConstraint
- *  $Date: Fri Mar 26 10:47:07 CDT 2010 $
- *  $Revision: 1.0 $
+ *  $Date: 2010/05/04 01:16:04 $
+ *  $Revision: 1.1 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -21,6 +21,7 @@ public:
   virtual int j() const { return m_j; };
   virtual double value() const { return m_value; };
   virtual double error() const { return m_error; };
+  virtual bool valid() const { return true; };
 
 protected:
   int m_i, m_j;

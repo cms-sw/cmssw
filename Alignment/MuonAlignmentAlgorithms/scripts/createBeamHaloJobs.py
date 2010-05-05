@@ -76,6 +76,16 @@ parser.add_option("--useHitWeights",
                   help="if invoked, use hit weights in tracklet fits",
                   action="store_true",
                   dest="useHitWeights")
+parser.add_option("--truncateSlopeResid",
+                  help="maximum allowed slope residual in mrad (like the histograms in a phiy job)",
+                  type="string",
+                  default="30.",
+                  dest="truncateSlopeResid")
+parser.add_option("--truncateOffsetResid",
+                  help="maximum allowed offset residual in mm (like the histograms in a phipos or phiz job)",
+                  type="string",
+                  default="30.",
+                  dest="truncateOffsetResid")
 parser.add_option("--combineME11",
                   help="if invoked, combine ME1/1a and ME1/1b chambers",
                   action="store_true",
@@ -88,6 +98,11 @@ parser.add_option("--errorFromRMS",
                   help="if invoked, determine residuals uncertainties from the RMS of the residuals distribution",
                   action="store_true",
                   dest="errorFromRMS")
+parser.add_option("--minTracksPerOverlap",
+                  help="minimum number of tracks needed for an overlap constraint to be valid",
+                  type="string",
+                  default="10",
+                  dest="minTracksPerOverlap")
 parser.add_option("--slopeFromTrackRefit",
                   help="if invoked, determine direction of tracklets by refitting track to all other stations",
                   action="store_true",
@@ -115,9 +130,12 @@ maxdrdz = options.maxdrdz
 maxRedChi2 = options.maxRedChi2
 fiducial = options.fiducial
 useHitWeights = options.useHitWeights
+truncateSlopeResid = options.truncateSlopeResid
+truncateOffsetResid = options.truncateOffsetResid
 combineME11 = options.combineME11
 useTrackWeights = options.useTrackWeights
 errorFromRMS = options.errorFromRMS
+minTracksPerOverlap = options.minTracksPerOverlap
 slopeFromTrackRefit = options.slopeFromTrackRefit
 minStationsInTrackRefits = options.minStationsInTrackRefits
 
@@ -173,9 +191,12 @@ export ALIGNMENT_maxdrdz=%(maxdrdz)s
 export ALIGNMENT_maxRedChi2=%(maxRedChi2)s
 export ALIGNMENT_fiducial=%(fiducial)s
 export ALIGNMENT_useHitWeights=%(useHitWeights)s
+export ALIGNMENT_truncateSlopeResid=%(truncateSlopeResid)s
+export ALIGNMENT_truncateOffsetResid=%(truncateOffsetResid)s
 export ALIGNMENT_combineME11=%(combineME11)s
 export ALIGNMENT_useTrackWeights=%(useTrackWeights)s
 export ALIGNMENT_errorFromRMS=%(errorFromRMS)s
+export ALIGNMENT_minTracksPerOverlap=%(minTracksPerOverlap)s
 export ALIGNMENT_slopeFromTrackRefit=%(slopeFromTrackRefit)s
 export ALIGNMENT_minStationsInTrackRefits=%(minStationsInTrackRefits)s
 
@@ -247,9 +268,12 @@ export ALIGNMENT_maxdrdz=%(maxdrdz)s
 export ALIGNMENT_maxRedChi2=%(maxRedChi2)s
 export ALIGNMENT_fiducial=%(fiducial)s
 export ALIGNMENT_useHitWeights=%(useHitWeights)s
+export ALIGNMENT_truncateSlopeResid=%(truncateSlopeResid)s
+export ALIGNMENT_truncateOffsetResid=%(truncateOffsetResid)s
 export ALIGNMENT_combineME11=%(combineME11)s
 export ALIGNMENT_useTrackWeights=%(useTrackWeights)s
 export ALIGNMENT_errorFromRMS=%(errorFromRMS)s
+export ALIGNMENT_minTracksPerOverlap=%(minTracksPerOverlap)s
 export ALIGNMENT_slopeFromTrackRefit=%(slopeFromTrackRefit)s
 export ALIGNMENT_minStationsInTrackRefits=%(minStationsInTrackRefits)s
 

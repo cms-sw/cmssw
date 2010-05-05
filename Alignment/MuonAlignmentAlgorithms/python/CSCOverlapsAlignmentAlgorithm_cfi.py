@@ -20,9 +20,12 @@ CSCOverlapsAlignmentAlgorithm = cms.PSet(
     maxRedChi2 = cms.double(10.),
     fiducial = cms.bool(True),
     useHitWeights = cms.bool(True),
+    truncateSlopeResid = cms.double(30.),
+    truncateOffsetResid = cms.double(15.),
     combineME11 = cms.bool(True),
     useTrackWeights = cms.bool(False),
     errorFromRMS = cms.bool(False),
+    minTracksPerOverlap = cms.int32(10),
 
     # if we refit tracks using the standard refitter (for dphi/dz track slopes), we need a configured TrackTransformer
     slopeFromTrackRefit = cms.bool(False),

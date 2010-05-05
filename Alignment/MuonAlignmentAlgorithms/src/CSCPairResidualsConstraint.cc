@@ -8,7 +8,7 @@
 
 double CSCPairResidualsConstraint::value() const {
   double delta = (m_sum1*m_sumxx) - (m_sumx*m_sumx);
-  if (delta <= 0.) return 0.;
+  assert(delta > 0.);
   if (m_parent->m_mode == kModePhiy  ||  m_parent->m_mode == kModePhiPos) {
     return ((m_sumxx*m_sumy) - (m_sumx*m_sumxy))/delta;
   }
@@ -20,12 +20,12 @@ double CSCPairResidualsConstraint::value() const {
 
 double CSCPairResidualsConstraint::error() const {
   if (m_parent->m_errorFromRMS) {
-    if (m_sum1 <= 0.) return 100.;
+    assert(m_sum1 > 0.);
     return sqrt((m_sumyy/m_sum1) - pow(m_sumy/m_sum1, 2));
   }
   else {
     double delta = (m_sum1*m_sumxx) - (m_sumx*m_sumx);
-    if (delta <= 0.) return 100.;
+    assert(delta > 0.);
     if (m_parent->m_mode == kModePhiy  ||  m_parent->m_mode == kModePhiPos) {
       return sqrt(m_sumxx/delta);
     }
@@ -34,6 +34,10 @@ double CSCPairResidualsConstraint::error() const {
     }
     else assert(false);
   }
+}
+
+bool CSCPairResidualsConstraint::valid() const {
+   return (m_sumN >= m_parent->m_minTracksPerOverlap);
 }
 
 void CSCPairResidualsConstraint::configure(CSCOverlapsAlignmentAlgorithm *parent) {
@@ -260,10 +264,16 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
 
   if (quantityError2 == 0.) return false;
 
+  double slopeResid = (slope_i - slope_j) * radial_intercept * 1000.;
+  double offsetResid = (intercept_i - intercept_j) * radial_intercept * 10.;
+  if (m_parent->m_truncateSlopeResid > 0.  &&  fabs(slopeResid) > m_parent->m_truncateSlopeResid) return false;
+  if (m_parent->m_truncateOffsetResid > 0.  &&  fabs(offsetResid) > m_parent->m_truncateOffsetResid) return false;
+
   double weight = 1.;
   if (m_parent->m_useTrackWeights) weight = 1./quantityError2;
 
   // fill the running sums for this CSCPairResidualsConstraint
+  m_sumN += 1;
   m_sum1 += weight;
   m_sumx += (radial_intercept - m_averageRadius);
   m_sumy += quantity;
@@ -445,10 +455,11 @@ bool CSCPairResidualsConstraint::dphidzFromTrack(const std::vector<TrajectoryMea
 void CSCPairResidualsConstraint::write(std::ofstream &output) {
   output << std::setprecision(14) << std::fixed;
   output << "CSCPairResidualsConstraint " << m_identifier << " " << i() << " " << j() << " "
-	 << m_sum1 << " " << m_sumx << " " << m_sumy << " " << m_sumxx << " " << m_sumyy << " " << m_sumxy << " EOLN" << std::endl;
+	 << m_sumN << " " << m_sum1 << " " << m_sumx << " " << m_sumy << " " << m_sumxx << " " << m_sumyy << " " << m_sumxy << " EOLN" << std::endl;
 }
 
 void CSCPairResidualsConstraint::read(std::vector<std::ifstream*> &input, std::vector<std::string> &filenames) {
+  m_sumN = 0;
   m_sum1 = 0.;
   m_sumx = 0.;
   m_sumy = 0.;
@@ -466,9 +477,10 @@ void CSCPairResidualsConstraint::read(std::vector<std::ifstream*> &input, std::v
       std::string name, eoln;
       unsigned int identifier;
       int i, j;
+      int sumN;
       double sum1, sumx, sumy, sumxx, sumyy, sumxy;
     
-      (**inputiter) >> name >> identifier >> i >> j >> sum1 >> sumx >> sumy >> sumxx >> sumyy >> sumxy >> eoln;
+      (**inputiter) >> name >> identifier >> i >> j >> sumN >> sum1 >> sumx >> sumy >> sumxx >> sumyy >> sumxy >> eoln;
 
       if (!(*inputiter)->eof()  &&  (name != "CSCPairResidualsConstraint"  ||  eoln != "EOLN")) throw cms::Exception("CorruptTempFile") << "Temporary file " << *filename << " is incorrectly formatted on line " << linenumber << std::endl;
 
@@ -476,6 +488,7 @@ void CSCPairResidualsConstraint::read(std::vector<std::ifstream*> &input, std::v
 	if (i != m_i  ||  j != m_j) throw cms::Exception("CorruptTempFile") << "Wrong (i,j) for CSCPairResidualsConstraint " << m_identifier << " (" << m_i << "," << m_j << ") in file " << *filename << " on line " << linenumber << std::endl;
 	touched = true;
 
+	m_sumN += sumN;
 	m_sum1 += sum1;
 	m_sumx += sumx;
 	m_sumy += sumy;

@@ -14,9 +14,12 @@ maxdrdz = float(os.environ["ALIGNMENT_maxdrdz"])
 maxRedChi2 = float(os.environ["ALIGNMENT_maxRedChi2"])
 fiducial = (os.environ["ALIGNMENT_fiducial"] == "True")
 useHitWeights = (os.environ["ALIGNMENT_useHitWeights"] == "True")
+truncateSlopeResid = float(os.environ["ALIGNMENT_truncateSlopeResid"])
+truncateOffsetResid = float(os.environ["ALIGNMENT_truncateOffsetResid"])
 combineME11 = (os.environ["ALIGNMENT_combineME11"] == "True")
 useTrackWeights = (os.environ["ALIGNMENT_useTrackWeights"] == "True")
 errorFromRMS = (os.environ["ALIGNMENT_errorFromRMS"] == "True")
+minTracksPerOverlap = int(os.environ["ALIGNMENT_minTracksPerOverlap"])
 slopeFromTrackRefit = (os.environ["ALIGNMENT_slopeFromTrackRefit"] == "True")
 minStationsInTrackRefits = int(os.environ["ALIGNMENT_minStationsInTrackRefits"])
 
@@ -42,9 +45,12 @@ process.looper.algoConfig.maxdrdz = maxdrdz
 process.looper.algoConfig.maxRedChi2 = maxRedChi2
 process.looper.algoConfig.fiducial = fiducial
 process.looper.algoConfig.useHitWeights = useHitWeights
+process.looper.algoConfig.truncateSlopeResid = truncateSlopeResid
+process.looper.algoConfig.truncateOffsetResid = truncateOffsetResid
 process.looper.algoConfig.combineME11 = combineME11
 process.looper.algoConfig.useTrackWeights = useTrackWeights
 process.looper.algoConfig.errorFromRMS = errorFromRMS
+process.looper.algoConfig.minTracksPerOverlap = minTracksPerOverlap
 process.looper.algoConfig.slopeFromTrackRefit = slopeFromTrackRefit
 process.looper.algoConfig.minStationsInTrackRefits = minStationsInTrackRefits
 
