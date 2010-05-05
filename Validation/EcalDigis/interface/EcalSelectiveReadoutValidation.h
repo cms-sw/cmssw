@@ -4,8 +4,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.h
  *
- * $Date: 2009/11/04 09:51:16 $
- * $Revision: 1.11 $
+ * $Date: 2010/01/04 15:10:59 $
+ * $Revision: 1.12 $
  *
  */
 
@@ -731,9 +731,13 @@ private:
    */
   std::vector<int> firWeights_;
 
-  /** ZS threshold in 1/4th ADC count
+  /** ZS threshold in 1/4th ADC count for EB
    */
-  int zsThr_;
+  int ebZsThr_;
+
+  /** ZS threshold in 1/4th ADC count for EE
+   */
+  int eeZsThr_;
   
   /** Switch for uncompressing TP value
    */
