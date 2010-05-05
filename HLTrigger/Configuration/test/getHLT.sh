@@ -50,7 +50,13 @@ function getConfigForOnline() {
   # for things NOT in CMSSW CVS:
   local CONFIG="$1"
   local NAME="$2"
-  $GETHLT --full --offline --data $CONFIG $NAME --l1 L1Menu_Commissioning2010_v2
+  if [ "$NAME" == "8E29" ] || [ "$NAME" == "GRun" ]; then
+    $GETHLT --full --offline --data $CONFIG $NAME --l1 L1Menu_Commissioning2010_v2
+  elif [ "$NAME" == "1E31" ] || [ "$NAME" == "HIon" ]; then
+    $GETHLT --full --offline --data $CONFIG $NAME --l1 L1Menu_MC2010_v0
+  else
+    $GETHLT --full --offline --data $CONFIG $NAME
+  fi
   $GETHLT --full --offline --mc   $CONFIG $NAME
 }
 
