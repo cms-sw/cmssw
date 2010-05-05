@@ -625,6 +625,7 @@ inline void FillUnphysicalHEHFBins(MonitorElement* hh)
 {
   // Fills unphysical HE/HF bins for Summary Histogram
   // Summary Histogram is binned with the same binning as the Depth 1 EtaPhiHists
+  if (hh==0) return; 
   int ieta=0;
   int iphi=0;
   int etabins = hh->getNbinsX();

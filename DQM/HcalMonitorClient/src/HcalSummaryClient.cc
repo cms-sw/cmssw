@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/03/25 21:29:38 $
- * $Revision: 1.93 $
+ * $Date: 2010/04/29 19:37:27 $
+ * $Revision: 1.94 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -374,7 +374,6 @@ void HcalSummaryClient::beginJob()
   EnoughEvents_=0;
   MinEvents_=0;
   MinErrorRate_=0;
-
 }
 
 void HcalSummaryClient::endJob(){}
@@ -444,6 +443,14 @@ void HcalSummaryClient::beginRun(void)
     {
       MinErrorRate_->setBinLabel(i+1,clients_[i]->name());
       MinErrorRate_->setBinContent(i+1,clients_[i]->minerrorrate_);
+    }
+
+  // Extra fix provided by Giuseppe
+  
+  if (SummaryMapByDepth!=0)
+    {
+      delete SummaryMapByDepth;
+      SummaryMapByDepth=0;
     }
 
   if (SummaryMapByDepth==0) 
