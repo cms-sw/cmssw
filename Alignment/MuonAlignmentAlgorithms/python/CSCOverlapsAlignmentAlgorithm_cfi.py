@@ -7,7 +7,7 @@ CSCOverlapsAlignmentAlgorithm = cms.PSet(
     mode = cms.string("phipos"),
 
     # global control and output file names
-    reportFileName = cms.string("reports.py"),
+    reportFileName = cms.string("report.py"),
     writeTemporaryFile = cms.string(""),
     readTemporaryFiles = cms.vstring("test.tmp"),
     doAlignment = cms.bool(True),
