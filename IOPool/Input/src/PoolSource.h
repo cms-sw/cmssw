@@ -58,6 +58,7 @@ namespace edm {
     virtual void readManySequential_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
     virtual void readManySpecified_(std::vector<EventID> const& events, EventPrincipalVector& result);
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
+    virtual void preForkReleaseResources();
     virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents);
 
     RootServiceChecker rootServiceChecker_;

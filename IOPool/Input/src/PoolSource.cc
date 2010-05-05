@@ -221,6 +221,11 @@ namespace edm {
   }
 
   void
+  PoolSource::preForkReleaseResources() {
+    primaryFileSequence_->closeFile_();
+  }
+
+  void
   PoolSource::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents) {
     numberOfEventsInBigSkip_ = iNumberOfSequentialEvents * (iNumberOfChildren - 1);
     numberOfEventsBeforeBigSkip_ = iNumberOfSequentialEvents;
