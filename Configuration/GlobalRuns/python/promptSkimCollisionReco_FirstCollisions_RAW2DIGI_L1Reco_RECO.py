@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('promptSkimCollisionReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -135,6 +135,10 @@ process.trackerOnlyConversions.AllowRightBC = cms.bool(False)
 process.trackerOnlyConversions.MinApproach = cms.double(-.25)
 process.trackerOnlyConversions.DeltaCotTheta = cms.double(.07)
 process.trackerOnlyConversions.DeltaPhi = cms.double(.2)
+
+## scaler beamspot
+import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 
 ###
 ###  end of top level replacements
