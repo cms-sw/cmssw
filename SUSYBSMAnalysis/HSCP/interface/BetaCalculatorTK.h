@@ -29,8 +29,12 @@ class  BetaCalculatorTK{
       BetaCalculatorTK(const edm::ParameterSet& iConfig);
       void  addInfoToCandidate(HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-      edm::InputTag m_dedxEstimatorTag;
-      edm::InputTag m_dedxDiscriminatorTag;
+      edm::InputTag m_dedxEstimator1Tag;
+      edm::InputTag m_dedxEstimator2Tag;
+      edm::InputTag m_dedxEstimator3Tag;
+      edm::InputTag m_dedxDiscriminator1Tag;
+      edm::InputTag m_dedxDiscriminator2Tag;
+      edm::InputTag m_dedxDiscriminator3Tag;
 };
 
 

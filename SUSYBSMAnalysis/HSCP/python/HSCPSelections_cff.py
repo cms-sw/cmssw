@@ -15,8 +15,8 @@ HSCPSelectionEmpty = cms.PSet(
          minTrackP                = cms.double(0),
          minTrackPt               = cms.double(0),
 
-         minDedxEstimator         = cms.double(0),
-         minDedxDiscriminator     = cms.double(0),
+         minDedxEstimator1        = cms.double(0),
+         minDedxDiscriminator1    = cms.double(0),
 
          minMuonP                 = cms.double(0),
          minMuonPt                = cms.double(0),
@@ -41,7 +41,7 @@ HSCPSelectionDefault.minMuonPt                = cms.double(5)
 
 HSCPSelectionHighdEdx = HSCPSelectionDefault.clone()
 HSCPSelectionHighdEdx.onlyConsiderTrack       = cms.bool(True)
-HSCPSelectionHighdEdx.minDedxEstimator        = cms.double(3.5)
+HSCPSelectionHighdEdx.minDedxEstimator1       = cms.double(3.5)
 
 HSCPSelectionHighTOF = HSCPSelectionDefault.clone()
 HSCPSelectionHighTOF.onlyConsiderMuon         = cms.bool(True)

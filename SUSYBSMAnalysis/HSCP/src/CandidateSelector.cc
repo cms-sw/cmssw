@@ -13,8 +13,8 @@ CandidateSelector::CandidateSelector(const edm::ParameterSet& iConfig){
    minTrackP             = iConfig.getParameter<double> ("minTrackP");
    minTrackPt            = iConfig.getParameter<double> ("minTrackPt");
 
-   minDedxEstimator      = iConfig.getParameter<double> ("minDedxEstimator");
-   minDedxDiscriminator  = iConfig.getParameter<double> ("minDedxDiscriminator");
+   minDedxEstimator1     = iConfig.getParameter<double> ("minDedxEstimator1");
+   minDedxDiscriminator1 = iConfig.getParameter<double> ("minDedxDiscriminator1");
 
    minMuonP              = iConfig.getParameter<double> ("minMuonP");
    minMuonPt             = iConfig.getParameter<double> ("minMuonPt");
@@ -46,8 +46,8 @@ bool CandidateSelector::isSelected(HSCParticle& candidate)
       if(candidate.trackRef()->p()     < minTrackP   )return false;
       if(candidate.trackRef()->pt()    < minTrackPt  )return false;
 
-      if(candidate.hasDedxEstim()   && candidate.dedxEstimator    ().dEdx()<minDedxEstimator)    return false;
-      if(candidate.hasDedxDiscrim() && candidate.dedxDiscriminator().dEdx()<minDedxDiscriminator)return false;
+      if(candidate.hasDedxEstim1()   && candidate.dedxEstimator1    ().dEdx()<minDedxEstimator1)    return false;
+      if(candidate.hasDedxDiscrim1() && candidate.dedxDiscriminator1().dEdx()<minDedxDiscriminator1)return false;
    }
 
    if(candidate.hasMuonRef()){
