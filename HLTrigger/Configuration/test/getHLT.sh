@@ -50,7 +50,7 @@ function getConfigForOnline() {
   # for things NOT in CMSSW CVS:
   local CONFIG="$1"
   local NAME="$2"
-  $GETHLT --full --offline --data $CONFIG $NAME
+  $GETHLT --full --offline --data $CONFIG $NAME --l1 L1Menu_Commissioning2010_v2
   $GETHLT --full --offline --mc   $CONFIG $NAME
 }
 
