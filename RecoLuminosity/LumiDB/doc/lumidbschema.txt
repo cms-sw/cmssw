@@ -48,7 +48,7 @@ columns:
           bitnum(uint32),       NOT NULL //range : 0-127 algo;128-192 tech
           bitname(string),      NOT NULL
           trgcount(uint32),     NOT NULL
-          deadtime(uint64),     NOT NULL
+          deadtime(uint64),     NOT NULL //deadtimebeamactive 
           prescale(uint32),     NOT NULL
 
 ======
