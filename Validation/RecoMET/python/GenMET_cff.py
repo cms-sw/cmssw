@@ -6,5 +6,4 @@ import FWCore.ParameterSet.Config as cms
 #
 # Fill validation histograms for MET. Assumes genMet and genMetNoNuBSM are in the event.
 from Validation.RecoMET.GenMET_cfi import *
-analyzeOldGenMET = cms.Sequence(genMetAnalyzer*genMetNoNuBSMAnalyzer)
 analyzeGenMET = cms.Sequence(genMetTrueAnalyzer*genMetCaloAnalyzer*genMetCaloAndNonPromptAnalyzer)
