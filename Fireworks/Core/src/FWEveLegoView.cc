@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.77 2010/04/15 20:15:15 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.78 2010/04/16 13:44:07 amraktad Exp $
 //
 
 // system include files
@@ -220,8 +220,6 @@ FWEveLegoView::addTo(FWConfiguration& iTo) const
 {
    FWEveView::addTo(iTo);
    
-   printf("addtoo version %d \n", iTo.version());
-
    bool topView =  viewerGL()->CurrentCamera().IsOrthographic();
    std::ostringstream s;
    s << topView;
