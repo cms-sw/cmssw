@@ -46,7 +46,7 @@ def matchingFiles( dir, regexp, protocol=None, castor=True):
     return matchingFiles
 
 # cleanup files with a size that is too small, out of a given tolerance. 
-def cleanFiles( castorDir, regexp, tolerance):
+def cleanFiles( castorDir, regexp, tolerance = 999999.):
 
     try:
         pattern = re.compile( regexp )
@@ -57,37 +57,41 @@ def cleanFiles( castorDir, regexp, tolerance):
     allFiles = os.popen("rfdir %s | awk '{print $9}'" % (castorDir))
     sizes = os.popen("rfdir %s | awk '{print $5}'" % (castorDir))
 
-    averageSize = 0
+    averageSize = 0.
     count = 0.
 
     matchingFiles = []
     print 'Matching files: '
     for file,size in zip( allFiles.readlines(), sizes.readlines()):
         file = file.rstrip()
-        size = float(size.rstrip())
+        fsize = float(size.rstrip())
 
         m = pattern.match( file )
         if m:
-            print file
+            print file, fsize
             fullCastorFile = '%s/%s' % (castorDir, file)
-            matchingFiles.append( (fullCastorFile, size) )
-            averageSize += size
+            matchingFiles.append( (fullCastorFile, fsize) )
+            averageSize += fsize
             count += 1
 
+    if count==0:
+        print "none. check your regexps!"
+        sys.exit(2)
+    
     averageSize /= count
     print 'average file size = ',averageSize
 
     cleanFiles = []
     dirtyFiles = []
 
-    for file, size in matchingFiles:
-        relDiff = (averageSize - size) / averageSize
-        if relDiff < tolerance:
+    for file, fsize in matchingFiles:
+        relDiff = (averageSize - fsize) / averageSize
+        if relDiff<float(tolerance):
             # ok
-            print file, size, relDiff
+            print file, fsize, relDiff
             cleanFiles.append( file )
         else:
-            print 'skipping', file, ': size too small: ', size, relDiff
+            print 'skipping', file, ': size too small: ', fsize, relDiff
             dirtyFiles.append( file )
 
     return (cleanFiles, dirtyFiles)
