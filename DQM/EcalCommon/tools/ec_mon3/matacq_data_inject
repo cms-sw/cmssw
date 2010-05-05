@@ -26,7 +26,7 @@ my $inject_timeout = 10 * 60; #10 minutes in secs
 $inject_timeout = 0 if ( $opts{'now'} );
 
 #time after which to remove a 'failed' run
-my $remove_timeout = 24 * 60 * 60; #24 hours in secs
+my $remove_timeout = 6 * 60 * 60; #6 hours in secs
 
 $remove_timeout = 0 if ( $opts{'now'} );
 
