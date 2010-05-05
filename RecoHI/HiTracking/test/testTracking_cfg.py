@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os 
 
-process = cms.Process("RERECO")
+process = cms.Process("TEST")
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -12,7 +12,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 
 #global tags for conditions data: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_36Y_V3::All'
+process.GlobalTag.globaltag = 'MC_37Y_V1::All'
 
 ##################################################################################
 
@@ -21,7 +21,7 @@ options = VarParsing.VarParsing ('standard')
 
 # setup any defaults you want
 options.output = 'test_out.root'
-options.files= '/store/relval/CMSSW_3_6_0_pre3/RelValPyquen_DiJet_pt80to120_2760GeV/GEN-SIM-RECO/MC_36Y_V2-v1/0005/E2A5F92F-2930-DF11-89F8-003048678FB4.root'
+options.files= '/store/relval/CMSSW_3_7_0_pre2/RelValHydjetQ_B0_2760GeV/GEN-SIM-RAW/MC_37Y_V1-v1/0018/3E6CC7B5-B852-DF11-9991-002618943916.root'
 options.maxEvents = 1 
 
 # get and parse the command line arguments
@@ -88,7 +88,7 @@ process.rechits = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecH
 process.vtxreco = cms.Sequence(process.offlineBeamSpot * process.trackerlocalreco * process.hiPixelVertices)
 process.pxlreco = cms.Sequence(process.vtxreco * process.hiPixel3PrimTracks)
 process.trkreco = cms.Sequence(process.offlineBeamSpot * process.trackerlocalreco * process.heavyIonTracking)
-#process.reco = cms.Path(process.RawToDigi * process.trkreco)
-process.rereco = cms.Path(process.rechits * process.heavyIonTracking)
+process.reco = cms.Path(process.RawToDigi * process.trkreco)
+#process.rereco = cms.Path(process.rechits * process.heavyIonTracking)
 process.save = cms.EndPath(process.output)
 
