@@ -18,7 +18,10 @@ StringResolutionProvider::StringResolutionProvider(const edm::ParameterSet& cfg)
   
   std::vector<edm::ParameterSet> functionSets_ = cfg.getParameter <std::vector<edm::ParameterSet> >("functions");
   for(std::vector<edm::ParameterSet>::const_iterator iSet = functionSets_.begin(); iSet != functionSets_.end(); ++iSet){
-    bins_.push_back(iSet->getParameter<std::string>("bin"));
+    if(iSet->exists("bin"))bins_.push_back(iSet->getParameter<std::string>("bin"));
+    else if(functionSets_.size()==1)bins_.push_back("");
+    else throw cms::Exception("WrongConfig") << "Parameter 'bin' is needed if more than one PSet is specified\n";
+
     funcEt_.push_back(iSet->getParameter<std::string>("et"));
     funcEta_.push_back(iSet->getParameter<std::string>("eta"));
     funcPhi_.push_back(iSet->getParameter<std::string>("phi"));
@@ -46,10 +49,8 @@ StringResolutionProvider::getResolution(const reco::Candidate& cand) const
     covariances[1] = ROOT::Math::Square(Function(funcEta_[selectedBin]).operator()(cand));
     covariances[2] = ROOT::Math::Square(Function(funcPhi_[selectedBin]).operator()(cand));
   }
-  // fill dummy value for not selected candidates
-  // check whether these numbers make sense or this
-  // should be 0
-  else for(int i=0; i<3; ++i){covariances[i] = 9999.;} 
+  // fill 0. for not selected candidates
+  else for(int i=0; i<3; ++i){covariances[i] = 0.;}
   
   return pat::CandKinResolution(parametrization_, covariances, constraints_);
 }
