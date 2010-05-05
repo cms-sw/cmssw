@@ -118,10 +118,10 @@ int SiStripDetVOff::getLVoffCounts() const
     if( IsModuleLVOff(*it)) summaryLV.add(*it);
   }
   int totalCount = 0;
-  std::map<int, int> counts = summaryLV.getCounts();
-  std::map<int, int>::const_iterator mapIt = counts.begin();
+  std::map<unsigned int, SiStripDetSummary::Values> counts = summaryLV.getCounts();
+  std::map<unsigned int, SiStripDetSummary::Values>::const_iterator mapIt = counts.begin();
   for( ; mapIt != counts.end(); ++mapIt ) {
-    totalCount += mapIt->second;
+    totalCount += mapIt->second.count;
   }
   return totalCount;
 }
@@ -136,10 +136,10 @@ int SiStripDetVOff::getHVoffCounts() const
     if( IsModuleHVOff(*it)) summaryHV.add(*it);
   }
   int totalCount = 0;
-  std::map<int, int> counts = summaryHV.getCounts();
-  std::map<int, int>::const_iterator mapIt = counts.begin();
+  std::map<unsigned int, SiStripDetSummary::Values> counts = summaryHV.getCounts();
+  std::map<unsigned int, SiStripDetSummary::Values>::const_iterator mapIt = counts.begin();
   for( ; mapIt != counts.end(); ++mapIt ) {
-    totalCount += mapIt->second;
+    totalCount += mapIt->second.count;
   }
   return totalCount;
 }

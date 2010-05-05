@@ -33,7 +33,7 @@ class SiStripDetSummary
 public:
   SiStripDetSummary() : computeMean_(true)
   {
-    // Initialize countMap_ with zeros
+    // Initialize valueMap_ with zeros
     // WARNING: this initialization is strongly connected with how the map is filled in the add method
     // TIB: layers = 4, stereo = the first 2
     // TOB: layers = 6, stereo = the first 2
@@ -41,11 +41,12 @@ public:
     // TID: wheels = 3, stereo = 3
     unsigned int layers[] = {4, 6, 9, 3};
     unsigned int stereo[] = {2, 2, 9, 3};
+    Values initValues;
     for( unsigned int subDet = 0; subDet < 4; ++subDet ) {
       // Layers start from 1
       for( unsigned int layer = 1; layer <= layers[subDet]; ++layer ) {
-	countMap_[1000*(subDet+1)+layer*10] = 0;
-	if( layer <= stereo[subDet] ) countMap_[1000*(subDet+1)+layer*10+1] = 0;
+	valueMap_[1000*(subDet+1)+layer*10] = initValues;
+	if( layer <= stereo[subDet] ) valueMap_[1000*(subDet+1)+layer*10+1] = initValues;
       }
     }
   }
@@ -65,15 +66,20 @@ public:
    */
   void print(std::stringstream& ss, const bool mean = true) const;
 
-  std::map<int, int> getCounts()
+  struct Values
   {
-    return countMap_;
+    Values() : mean(0.), rms(0.), count(0) {}
+    double mean;
+    double rms;
+    unsigned int count;
+  };
+  std::map<unsigned int, Values> getCounts()
+  {
+    return valueMap_;
   }
 protected:
   // Maps to store the value and the counts
-  std::map<int, double> meanMap_;
-  std::map<int, double> rmsMap_;
-  std::map<int, int> countMap_;
+  std::map<unsigned int, Values> valueMap_;
   bool computeMean_;
 };
 
