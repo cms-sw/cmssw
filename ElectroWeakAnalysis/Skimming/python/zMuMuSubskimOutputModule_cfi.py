@@ -1,11 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.EventContent.EventContent_cff import *
 
-zMuMuSubskimOutputModule = cms.OutputModule("PoolOutputModule",
+# Output module configuration
+from Configuration.EventContent.EventContent_cff import *
+EWK_zMuMuSkimEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring()
+)
+
+EWK_zMuMuSkimEventContent.outputCommands.extend(RECOEventContent.outputCommands)
+
+
+EWK_zMuMuSkimEventSelection = cms.PSet(
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring(
+    'dimuonsPath',
+    'dimuonsOneTrackPath')
+        )
+    )
+
+
+dimuonsEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
-      'drop *',
-####   to access the position at the momentum system for global and standalone muons
       'keep recoTrackExtras_standAloneMuons_*_*',
       'keep recoTracks_standAloneMuons_UpdatedAtVtx_*',
       'keep recoCaloMuons_calomuons_*_*',
@@ -26,16 +41,69 @@ zMuMuSubskimOutputModule = cms.OutputModule("PoolOutputModule",
       ### to save jet information
       #'keep *_sisCone5CaloJets_*_*',
       #'keep *_ak5CaloJets_*_*',
-      ),
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring(
-           'dimuonsPath',
-           'dimuonsOneTrackPath')
-    ),
+    )
+ )
+
+
+EWK_zMuMuSkimEventContent.outputCommands.extend(dimuonsEventContent.outputCommands)
+
+
+
+zMuMuSubskimOutputModule = cms.OutputModule("PoolOutputModule",
+    EWK_zMuMuSkimEventContent,
+    EWK_zMuMuSkimEventSelection,
     dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('zmumu'),
-        dataTier = cms.untracked.string('USER')
-   ),
-   fileName = cms.untracked.string('zMuMuSubskim.root')
+    filterName = cms.untracked.string('zmumu'),
+    dataTier = cms.untracked.string('USER')
+    ),
+    fileName = cms.untracked.string('zMuMuSubskim.root')
+ 
+
 )
+
+
+
+
+
+
+
+
+
+
+## zMuMuSubskimOutputModule = cms.OutputModule("PoolOutputModule",
+##     outputCommands = cms.untracked.vstring(
+##       'drop *',
+## ####   to access the position at the momentum system for global and standalone muons
+##       'keep recoTrackExtras_standAloneMuons_*_*',
+##       'keep recoTracks_standAloneMuons_UpdatedAtVtx_*',
+##       'keep recoCaloMuons_calomuons_*_*',
+##       #'keep *_selectedPatMuonsTriggerMatch_*_*',
+##       #'keep *_selectedPatTracks_*_*',
+##       'keep *_userDataMuons_*_*',
+##       'keep *_userDataTracks_*_*',
+##       'keep *_userDataDimuons_*_*',
+##       'keep *_userDataDimuonsOneTrack_*_*',
+##       #'keep *_dimuons_*_*',
+##       #'keep *_dimuonsOneTrack_*_*',
+##       'keep *_dimuonsGlobal_*_*',
+##       'keep *_dimuonsOneStandAloneMuon_*_*',
+##       'keep *_dimuonsOneTrackerMuon_*_*',
+##       ### to access vertex information
+##       'keep *_offlineBeamSpot_*_*',
+##       'keep *_offlinePrimaryVerticesWithBS_*_*',
+##       ### to save jet information
+##       #'keep *_sisCone5CaloJets_*_*',
+##       #'keep *_ak5CaloJets_*_*',
+##       ),
+##     SelectEvents = cms.untracked.PSet(
+##         SelectEvents = cms.vstring(
+##            'dimuonsPath',
+##            'dimuonsOneTrackPath')
+##     ),
+##     dataset = cms.untracked.PSet(
+##         filterName = cms.untracked.string('zmumu'),
+##         dataTier = cms.untracked.string('USER')
+##    ),
+##    fileName = cms.untracked.string('zMuMuSubskim.root')
+## )
 
