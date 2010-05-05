@@ -12,8 +12,18 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "SimG4CMS/Calo/interface/CaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "DataFormats/Provenance/interface/EventID.h"  
 
@@ -31,10 +41,12 @@
 #include "DQM/CastorMonitor/interface/CastorChannelQualityMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorLEDMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorPSMonitor.h"
+#include "DQM/CastorMonitor/interface/CastorEventDisplay.h"
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h" //-- use to get/dump Calib to DB 
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h" //-- use to get/hold channel status
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
+
 
 //// #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h" //-- 
 
@@ -180,7 +192,8 @@ public:
   CastorDigiMonitor*        DigiMon_;
   CastorLEDMonitor*         LedMon_;
   CastorPSMonitor*          PSMon_;
-  
+  CastorEventDisplay*       EDMon_;
+
   MonitorElement* meEVT_;
 
   edm::ESHandle<CastorDbService> conditions_;
