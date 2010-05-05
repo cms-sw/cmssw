@@ -12,6 +12,11 @@
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 
 namespace susybsm {
+
+ /// define arbitration schemes
+ namespace HSCParticleType{
+    enum Type { innerTrack, standAloneMuon, matchedStandAloneMuon, globalMuon, unknown };
+ }
  
  class RPCHit4D
   {
@@ -49,8 +54,12 @@ namespace susybsm {
       HSCParticle(){
          hasMuonRef_          = false;
          hasTrackRef_         = false;
-         hasDedxEstim_        = false;
-         hasDedxDiscrim_      = false;
+         hasDedxEstim1_       = false;
+         hasDedxEstim2_       = false;
+         hasDedxEstim3_       = false;
+         hasDedxDiscrim1_     = false;
+         hasDedxDiscrim2_     = false;
+         hasDedxDiscrim3_     = false;
          hasMuonTimeDt_       = false;
          hasMuonTimeCsc_      = false;
          hasMuonTimeCombined_ = false;
@@ -61,8 +70,12 @@ namespace susybsm {
       // check available infos
       bool  hasMuonRef()          const { return hasMuonRef_;          }
       bool  hasTrackRef()         const { return hasTrackRef_;         }
-      bool  hasDedxEstim()        const { return hasDedxEstim_;        }
-      bool  hasDedxDiscrim()      const { return hasDedxDiscrim_;      }
+      bool  hasDedxEstim1()       const { return hasDedxEstim1_;       }
+      bool  hasDedxEstim2()       const { return hasDedxEstim2_;       }
+      bool  hasDedxEstim3()       const { return hasDedxEstim3_;       }
+      bool  hasDedxDiscrim1()     const { return hasDedxDiscrim1_;     }
+      bool  hasDedxDiscrim2()     const { return hasDedxDiscrim2_;     }
+      bool  hasDedxDiscrim3()     const { return hasDedxDiscrim3_;     }
       bool  hasMuonTimeDt()       const { return hasMuonTimeDt_;       }
       bool  hasMuonTimeCsc()      const { return hasMuonTimeCsc_;      }
       bool  hasMuonTimeCombined() const { return hasMuonTimeCombined_; }
@@ -70,36 +83,49 @@ namespace susybsm {
       bool  hasCaloInfo()         const { return hasCalo_;             }
 
       // set infos
-      void setMuon             (const reco::MuonRef&       data) {muonRef_          = data; hasMuonRef_          = true;}
-      void setTrack            (const reco::TrackRef&      data) {trackRef_         = data; hasTrackRef_         = true;}
-      void setDedxEstimator    (const reco::DeDxData&      data) {dedxEstim_        = data; hasDedxEstim_        = true;}
-      void setDedxDiscriminator(const reco::DeDxData&      data) {dedxDiscrim_      = data; hasDedxDiscrim_      = true;}
-      void setMuonTimeDt       (const reco::MuonTimeExtra& data) {muonTimeDt_       = data; hasMuonTimeDt_       = true;}
-      void setMuonTimeCsc      (const reco::MuonTimeExtra& data) {muonTimeCsc_      = data; hasMuonTimeCsc_      = true;}
-      void setMuonTimeCombined (const reco::MuonTimeExtra& data) {muonTimeCombined_ = data; hasMuonTimeCombined_ = true;}
-      void setRpc              (const RPCBetaMeasurement&  data) {rpc_              = data; hasRpc_              = true;}
-      void setCalo             (const CaloBetaMeasurement& data) {calo_             = data; hasCalo_             = true;}
+      void setMuon              (const reco::MuonRef&       data) {muonRef_          = data; hasMuonRef_          = true;}
+      void setTrack             (const reco::TrackRef&      data) {trackRef_         = data; hasTrackRef_         = true;}
+      void setDedxEstimator1    (const reco::DeDxData&      data) {dedxEstim1_       = data; hasDedxEstim1_       = true;}
+      void setDedxEstimator2    (const reco::DeDxData&      data) {dedxEstim2_       = data; hasDedxEstim2_       = true;}
+      void setDedxEstimator3    (const reco::DeDxData&      data) {dedxEstim3_       = data; hasDedxEstim3_       = true;}
+      void setDedxDiscriminator1(const reco::DeDxData&      data) {dedxDiscrim1_     = data; hasDedxDiscrim1_     = true;}
+      void setDedxDiscriminator2(const reco::DeDxData&      data) {dedxDiscrim2_     = data; hasDedxDiscrim2_     = true;}
+      void setDedxDiscriminator3(const reco::DeDxData&      data) {dedxDiscrim3_     = data; hasDedxDiscrim3_     = true;}
+      void setMuonTimeDt        (const reco::MuonTimeExtra& data) {muonTimeDt_       = data; hasMuonTimeDt_       = true;}
+      void setMuonTimeCsc       (const reco::MuonTimeExtra& data) {muonTimeCsc_      = data; hasMuonTimeCsc_      = true;}
+      void setMuonTimeCombined  (const reco::MuonTimeExtra& data) {muonTimeCombined_ = data; hasMuonTimeCombined_ = true;}
+      void setRpc               (const RPCBetaMeasurement&  data) {rpc_              = data; hasRpc_              = true;}
+      void setCalo              (const CaloBetaMeasurement& data) {calo_             = data; hasCalo_             = true;}
 
       // get infos
-      reco::TrackRef             trackRef         () const { return trackRef_;        }
-      reco::MuonRef              muonRef          () const { return muonRef_;         }
-      const reco::DeDxData&      dedxEstimator    () const { return dedxEstim_;       }
-      const reco::DeDxData&      dedxDiscriminator() const { return dedxDiscrim_;     }
-      const reco::MuonTimeExtra& muonTimeDt       () const { return muonTimeDt_;      }
-      const reco::MuonTimeExtra& muonTimeCsc      () const { return muonTimeCsc_;     }
-      const reco::MuonTimeExtra& muonTimeCombined () const { return muonTimeCombined_;}
-      const RPCBetaMeasurement&  rpc              () const { return rpc_;             }
-      const CaloBetaMeasurement& calo             () const { return calo_;            }
+      reco::TrackRef             trackRef          () const { return trackRef_;        }
+      reco::MuonRef              muonRef           () const { return muonRef_;         }
+      const reco::DeDxData&      dedxEstimator1    () const { return dedxEstim1_;      }
+      const reco::DeDxData&      dedxEstimator2    () const { return dedxEstim2_;      }
+      const reco::DeDxData&      dedxEstimator3    () const { return dedxEstim3_;      }
+      const reco::DeDxData&      dedxDiscriminator1() const { return dedxDiscrim1_;    }
+      const reco::DeDxData&      dedxDiscriminator2() const { return dedxDiscrim2_;    }
+      const reco::DeDxData&      dedxDiscriminator3() const { return dedxDiscrim3_;    }
+      const reco::MuonTimeExtra& muonTimeDt        () const { return muonTimeDt_;      }
+      const reco::MuonTimeExtra& muonTimeCsc       () const { return muonTimeCsc_;     }
+      const reco::MuonTimeExtra& muonTimeCombined  () const { return muonTimeCombined_;}
+      const RPCBetaMeasurement&  rpc               () const { return rpc_;             }
+      const CaloBetaMeasurement& calo              () const { return calo_;            }
 
       // shortcut of long function
-      float p ()  const;
-      float pt()  const;
+      float p ()   const;
+      float pt()   const;
+      int   type() const;
 
    private:
       bool hasMuonRef_;
       bool hasTrackRef_;
-      bool hasDedxEstim_;
-      bool hasDedxDiscrim_;
+      bool hasDedxEstim1_;
+      bool hasDedxEstim2_;
+      bool hasDedxEstim3_;
+      bool hasDedxDiscrim1_;
+      bool hasDedxDiscrim2_;
+      bool hasDedxDiscrim3_;
       bool hasMuonTimeDt_;
       bool hasMuonTimeCsc_;
       bool hasMuonTimeCombined_;
@@ -108,8 +134,12 @@ namespace susybsm {
 
       reco::TrackRef      trackRef_;
       reco::MuonRef       muonRef_;
-      reco::DeDxData      dedxEstim_;
-      reco::DeDxData      dedxDiscrim_;
+      reco::DeDxData      dedxEstim1_;
+      reco::DeDxData      dedxEstim2_;
+      reco::DeDxData      dedxEstim3_;
+      reco::DeDxData      dedxDiscrim1_;
+      reco::DeDxData      dedxDiscrim2_;
+      reco::DeDxData      dedxDiscrim3_;
       reco::MuonTimeExtra muonTimeDt_;
       reco::MuonTimeExtra muonTimeCsc_;
       reco::MuonTimeExtra muonTimeCombined_;
