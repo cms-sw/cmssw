@@ -1,65 +1,65 @@
-# /dev/CMSSW_3_6_0/HIon/V13 (CMSSW_3_6_0_HLT4)
+# /dev/CMSSW_3_6_0/HIon/V14 (CMSSW_3_6_0_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V13')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V14')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
   'TooManyProducts',
   'TooFewProducts' ) )
 process.streams = cms.PSet( 
+  Offline = cms.vstring(  ),
+  A = cms.vstring( 'HcalHPDNoise',
+    'ZeroBias',
+    'HcalNZS',
+    'JetMETTauMonitor',
+    'MuMonitor',
+    'Cosmics',
+    'RandomTriggers',
+    'EGMonitor',
+    'EG',
+    'MinimumBias',
+    'Mu',
+    'JetMETTau' ),
+  EventDisplay = cms.vstring(  ),
+  Express = cms.vstring( 'ExpressPhysics' ),
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  DQM = cms.vstring(  ),
+  HLTDQM = cms.vstring(  ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   Calibration = cms.vstring( 'TestEnables' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
-  DQM = cms.vstring(  ),
-  HLTDQM = cms.vstring(  ),
-  EventDisplay = cms.vstring(  ),
-  Express = cms.vstring( 'ExpressPhysics' ),
-  A = cms.vstring( 'EGMonitor',
-    'HcalHPDNoise',
-    'ZeroBias',
-    'EG',
-    'HcalNZS',
-    'JetMETTauMonitor',
-    'MuMonitor',
-    'Mu',
-    'JetMETTau',
-    'Cosmics',
-    'MinimumBias',
-    'RandomTriggers' ),
-  Offline = cms.vstring(  )
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' )
 )
 process.datasets = cms.PSet( 
+  HcalHPDNoise = cms.vstring(  ),
+  ZeroBias = cms.vstring(  ),
+  HcalNZS = cms.vstring(  ),
+  JetMETTauMonitor = cms.vstring(  ),
+  MuMonitor = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
+  RandomTriggers = cms.vstring(  ),
+  EGMonitor = cms.vstring(  ),
+  EG = cms.vstring(  ),
+  MinimumBias = cms.vstring(  ),
+  Mu = cms.vstring(  ),
+  JetMETTau = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  ),
+  OfflineMonitor = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
   EcalLaser = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
-  OfflineMonitor = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
-  EGMonitor = cms.vstring(  ),
-  HcalHPDNoise = cms.vstring(  ),
-  ZeroBias = cms.vstring(  ),
-  EG = cms.vstring(  ),
-  HcalNZS = cms.vstring(  ),
-  JetMETTauMonitor = cms.vstring(  ),
-  MuMonitor = cms.vstring(  ),
-  Mu = cms.vstring(  ),
-  JetMETTau = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
-  MinimumBias = cms.vstring(  ),
-  RandomTriggers = cms.vstring(  )
+  AlCaPhiSymEcal = cms.vstring(  )
 )
 
 process.source = cms.Source( "PoolSource",
