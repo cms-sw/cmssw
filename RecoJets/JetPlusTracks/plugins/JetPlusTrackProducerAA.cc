@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova,40 R-A12,+41227671273,
 //         Created:  Fri Feb 19 10:14:02 CET 2010
-// $Id: JetPlusTrackProducerAA.cc,v 1.2 2010/03/08 21:03:36 kodolova Exp $
+// $Id: JetPlusTrackProducerAA.cc,v 1.3 2010/05/05 13:58:08 kodolova Exp $
 //
 //
 
@@ -197,7 +197,7 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    double Pout2 = 0.;
    double Pout = 0.;
    double denominator_tracks = 0.;
-   double ntracks = 0.;
+   int ntracks = 0;
 
    for( reco::TrackRefVector::const_iterator it = pions.inVertexInCalo_.begin(); it != pions.inVertexInCalo_.end(); it++) {
     double deR = deltaR((*it)->eta(), (*it)->phi(), p4.eta(), p4.phi());
