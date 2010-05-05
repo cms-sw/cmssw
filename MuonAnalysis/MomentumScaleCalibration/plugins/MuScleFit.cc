@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/05/03 09:50:52 $
-//  $Revision: 1.79 $
+//  $Date: 2010/05/03 17:02:33 $
+//  $Revision: 1.80 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -127,6 +127,7 @@
 #include <vector>
 
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 // To use callgrind for code profiling uncomment also the following define.
 // #define USE_CALLGRIND
@@ -236,7 +237,9 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) : MuScleFitBase( pset ), t
   compareToSimTracks_ = pset.getParameter<bool>("compareToSimTracks");
   simTracksCollection_ = pset.getUntrackedParameter<edm::InputTag>("SimTracksCollection", edm::InputTag("g4SimHits"));
 
-  triggerResultsLabel_ = pset.getUntrackedParameter<edm::InputTag>("TriggerResultsLabel", edm::InputTag("HLT"));
+  triggerResultsLabel_ = pset.getUntrackedParameter<std::string>("TriggerResultsLabel");
+  triggerResultsProcess_ = pset.getUntrackedParameter<std::string>("TriggerResultsProcess");
+  triggerPath_ = pset.getUntrackedParameter<std::string>("TriggerPath");
   negateTrigger_ = pset.getUntrackedParameter<bool>("NegateTrigger", false);
 
   PATmuons_ = pset.getUntrackedParameter<bool>("PATmuons", false);
@@ -282,13 +285,19 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) : MuScleFitBase( pset ), t
   }
   MuScleFitUtils::goodmuon = 0;
 
-  MuScleFitUtils::MuonType = theMuonType_-1;
-  if( MuScleFitUtils::MuonType < 3 ) {
+  if(theMuonType_ >0 &&  theMuonType_<4) {
     MuScleFitUtils::MuonTypeForCheckMassWindow = theMuonType_-1;
+    MuScleFitUtils::MuonType = theMuonType_-1;
   }
-  else {
+  else if(theMuonType_ == 4 || theMuonType_ ==10 || theMuonType_==-1 ) {
     MuScleFitUtils::MuonTypeForCheckMassWindow = 2;
+    MuScleFitUtils::MuonType = 2;
   }
+  else{
+    std::cout<<"Wrong muon type "<<theMuonType_<<std::endl;
+    exit(1);
+  }
+
 
   // Initialize ResMaxSigma And ResHalfWidth - 0 = global, 1 = SM, 2 = tracker
   // -------------------------------------------------------------------------
@@ -363,6 +372,7 @@ MuScleFit::~MuScleFit () {
 void MuScleFit::beginOfJob (const edm::EventSetup& eventSetup) {
 // void MuScleFit::beginOfJob () {
 
+  if (debug_>0) std::cout << "[MuScleFit]: beginOfJob" << std::endl;
   //if(maxLoopNumber>1)
   readProbabilityDistributionsFromFile();
 
@@ -501,9 +511,32 @@ void MuScleFit::endOfFastLoop( const unsigned int iLoop )
 edm::EDLooper::Status MuScleFit::duringLoop( const edm::Event & event, const edm::EventSetup& eventSetup )
 {
   edm::Handle<edm::TriggerResults> triggerResults;
-  event.getByLabel(triggerResultsLabel_, triggerResults);
-  if( negateTrigger_ && (triggerResults->accept(0)) ) return kContinue;
-  else if( !(negateTrigger_) && !(triggerResults->accept(0)) ) return kContinue;
+  event.getByLabel(edm::InputTag(triggerResultsLabel_.c_str(), "", triggerResultsProcess_.c_str()), triggerResults);
+  //event.getByLabel(InputTag(triggerResultsLabel_),triggerResults);
+  bool isFired = false;
+
+  if(triggerPath_ == "")
+    isFired = true;
+  else if(triggerPath_ == "All"){
+    isFired =triggerResults->accept();
+    if(debug_>0)
+      std::cout<<"Trigger "<<isFired<<std::endl;
+  }
+  else{
+   HLTConfigProvider hltConfig;
+    hltConfig.init(triggerResultsProcess_);
+    unsigned int triggerIndex( hltConfig.triggerIndex(triggerPath_));
+    // triggerIndex must be less than the size of HLTR or you get a CMSException: _M_range_check
+    if (triggerIndex < triggerResults->size()) {
+      isFired = triggerResults->accept(triggerIndex);
+      if(debug_>0)
+	std::cout<<triggerPath_<<" "<<isFired<<std::endl;
+    }
+  }
+
+  if( negateTrigger_ && isFired ) return kContinue;
+  else if( !(negateTrigger_) && !isFired ) return kContinue;
+
 
 #ifdef USE_CALLGRIND
   CALLGRIND_START_INSTRUMENTATION;
