@@ -127,6 +127,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 
   // register products
   produces<reco::PFCandidateCollection>();
+  produces<reco::PFCandidateCollection>("Cleaned");
 
   if (usePFElectrons_)
     produces<reco::PFCandidateCollection>(electronOutputCol_);
@@ -189,13 +190,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 
   bool usePFDecays
     = iConfig.getParameter<bool>("usePFDecays");
-
-
-
-
-
-
-
 
   boost::shared_ptr<PFEnergyCalibration> 
     calibration( new PFEnergyCalibration( e_slope,
@@ -271,6 +265,32 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 				      ptError,
 				      factors45);
   
+  //Post cleaning of the HF
+  bool postHFCleaning
+    = iConfig.getParameter<bool>("postHFCleaning");
+
+  double minHFCleaningPt 
+    = iConfig.getParameter<double>("minHFCleaningPt");
+  double minSignificance
+    = iConfig.getParameter<double>("minSignificance");
+  double maxSignificance
+    = iConfig.getParameter<double>("maxSignificance");
+  double minSignificanceReduction
+    = iConfig.getParameter<double>("minSignificanceReduction");
+  double maxDeltaPhiPt
+    = iConfig.getParameter<double>("maxDeltaPhiPt");
+  double minDeltaMet
+    = iConfig.getParameter<double>("minDeltaMet");
+
+  // Set post HF cleaning muon parameters
+  pfAlgo_->setPostHFCleaningParameters(postHFCleaning,
+				       minHFCleaningPt,
+				       minSignificance,
+				       maxSignificance,
+				       minSignificanceReduction,
+				       maxDeltaPhiPt,
+				       minDeltaMet);
+
   
   //MIKE: Vertex Parameters
   vertices_ = iConfig.getParameter<edm::InputTag>("vertexCollection");
@@ -373,6 +393,9 @@ PFProducer::produce(Event& iEvent,
   auto_ptr< reco::PFCandidateCollection > 
     pOutputCandidateCollection( pfAlgo_->transferCandidates() ); 
   
+  auto_ptr< reco::PFCandidateCollection > 
+    pCleanedCandidateCollection( pfAlgo_->transferCleanedCandidates() ); 
+  
 
 
   
@@ -386,6 +409,7 @@ PFProducer::produce(Event& iEvent,
   }
   
   iEvent.put(pOutputCandidateCollection);
+  iEvent.put(pCleanedCandidateCollection,"Cleaned");
   if(usePFElectrons_)
     {
       auto_ptr< reco::PFCandidateCollection >  

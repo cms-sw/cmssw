@@ -68,6 +68,7 @@ class PFAlgo {
 				  double nSigmaTRACK,
 				  double ptError,
 				  std::vector<double> factors45);   
+
   void setPFEleParameters(double mvaEleCut,
 			  std::string mvaWeightFileEleID,
 			  bool usePFElectrons,
@@ -76,6 +77,13 @@ class PFAlgo {
 			  bool usePFSCEleCalib=true,
 			  bool useEGElectrons=false);
 
+  void setPostHFCleaningParameters(bool postHFCleaning,
+				   double minHFCleaningPt,
+				   double minSignificance,
+				   double maxSignificance,
+				   double minSignificanceReduction,
+				   double maxDeltaPhiPt,
+				   double minDeltaMet);
 
   void setDisplacedVerticesParameters(bool rejectTracks_Bad,
 				      bool rejectTracks_Step45,
@@ -108,6 +116,11 @@ class PFAlgo {
    std::auto_ptr< reco::PFCandidateCollection> transferElectronCandidates()  {
       return pfElectronCandidates_;
     }
+
+  /// \return collection of cleaned candidates
+   std::auto_ptr< reco::PFCandidateCollection >& transferCleanedCandidates() {
+    return pfCleanedCandidates_;
+  }
 
   
   /// \return auto_ptr to the collection of candidates (transfers ownership)
@@ -164,7 +177,8 @@ class PFAlgo {
   std::auto_ptr< reco::PFCandidateCollection >    pfCandidates_;
   // the unfiltered electron collection 
   std::auto_ptr< reco::PFCandidateCollection >    pfElectronCandidates_;
-
+  // the post-HF-cleaned candidates
+  std::auto_ptr< reco::PFCandidateCollection >    pfCleanedCandidates_;
 
   ///Checking if a given cluster is a satellite cluster
   ///of a given charged hadron (track)
@@ -179,6 +193,9 @@ class PFAlgo {
 			   const reco::PFBlock::LinkData& linkData, 
 			   std::vector<bool>& active, 
 			   std::vector<double>& psEne);
+
+  // Post HF Cleaning
+  void postCleaning();
 
  private:
   /// create a reference to a block, transient or persistent 
@@ -230,6 +247,15 @@ class PFAlgo {
   double nSigmaTRACK_;
   double ptError_;
   std::vector<double> factors45_;
+
+  // Parameters for post HF cleaning
+  bool postHFCleaning_;
+  double minHFCleaningPt_;
+  double minSignificance_;
+  double maxSignificance_;
+  double minSignificanceReduction_;
+  double maxDeltaPhiPt_;
+  double minDeltaMet_;
 
   //MIKE -May19th: Add option for the vertices....
   reco::Vertex       primaryVertex_;

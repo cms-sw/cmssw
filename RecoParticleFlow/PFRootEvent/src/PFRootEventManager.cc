@@ -1037,6 +1037,39 @@ void PFRootEventManager::readOptions(const char* file,
     exit(1);
   }
   
+  bool postHFCleaning = true;
+  options_->GetOpt("particle_flow", "postHFCleaning", postHFCleaning);
+  double minHFCleaningPt = 5.;
+  options_->GetOpt("particle_flow", "minHFCleaningPt", minHFCleaningPt);
+  double minSignificance = 2.5;
+  options_->GetOpt("particle_flow", "minSignificance", minSignificance);
+  double maxSignificance = 2.5;
+  options_->GetOpt("particle_flow", "maxSignificance", maxSignificance);
+  double minSignificanceReduction = 1.4;
+  options_->GetOpt("particle_flow", "minSignificanceReduction", minSignificanceReduction);
+  double maxDeltaPhiPt = 7.0;
+  options_->GetOpt("particle_flow", "maxDeltaPhiPt", maxDeltaPhiPt);
+  double minDeltaMet = 0.4;
+  options_->GetOpt("particle_flow", "minDeltaMet", minDeltaMet);
+
+  // Set post HF cleaning muon parameters
+  try { 
+    pfAlgo_.setPostHFCleaningParameters(postHFCleaning,
+					minHFCleaningPt,
+					minSignificance,
+					maxSignificance,
+					minSignificanceReduction,
+					maxDeltaPhiPt,
+					minDeltaMet);
+  }
+  catch( std::exception& err ) {
+    cerr<<"exception setting post HF cleaning parameters: "
+        <<err.what()<<". terminating."<<endl;
+    delete this;
+    exit(1);
+  }
+  
+
 
 
   bool usePFElectrons = false;   // set true to use PFElectrons
@@ -1806,7 +1839,7 @@ bool PFRootEventManager::processEntry(int entry) {
   readEventAuxiliary( entry ); 
 
   if(verbosity_ == VERBOSE  || 
-     //entry < 10000 ||
+     // entry < 10000 ||
      (entry < 100 && entry%10 == 0) || 
      (entry < 1000 && entry%100 == 0) || 
      entry%1000 == 0 ) 
@@ -1859,6 +1892,7 @@ bool PFRootEventManager::processEntry(int entry) {
   
   if(doParticleFlow_) { 
     particleFlow();
+
     if (doCompare_) pfCandCompare(entry);
   }
 

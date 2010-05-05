@@ -133,6 +133,22 @@ PFAlgo::setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
   factors45_ = factors45;
 }
   
+void 
+PFAlgo::setPostHFCleaningParameters(bool postHFCleaning,
+				    double minHFCleaningPt,
+				    double minSignificance,
+				    double maxSignificance,
+				    double minSignificanceReduction,
+				    double maxDeltaPhiPt,
+				    double minDeltaMet) { 
+  postHFCleaning_ = postHFCleaning;
+  minHFCleaningPt_ = minHFCleaningPt;
+  minSignificance_ = minSignificance;
+  maxSignificance_ = maxSignificance;
+  minSignificanceReduction_= minSignificanceReduction;
+  maxDeltaPhiPt_ = maxDeltaPhiPt;
+  minDeltaMet_ = minDeltaMet;
+}
 
 void 
 PFAlgo::setDisplacedVerticesParameters(bool rejectTracks_Bad,
@@ -193,6 +209,11 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
     pfElectronCandidates_->clear();
   else
     pfElectronCandidates_.reset( new reco::PFCandidateCollection);
+
+  if(pfCleanedCandidates_.get() ) 
+    pfCleanedCandidates_->clear();
+  else
+    pfCleanedCandidates_.reset( new reco::PFCandidateCollection );
   
 
   if( debug_ ) {
@@ -256,6 +277,9 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
   for( IBR ie = ecalBlockRefs.begin(); ie!=ecalBlockRefs.end(); ++ie) {
     processBlock( *ie, empty, empty );
   }
+
+  // Post HF Cleaning
+  postCleaning();
 }
 
 
@@ -2862,7 +2886,120 @@ PFAlgo::associatePSClusters(unsigned iEcal,
 
 }
 
-void  PFAlgo::setEGElectronCollection(const reco::GsfElectronCollection & egelectrons) {
+void  
+PFAlgo::setEGElectronCollection(const reco::GsfElectronCollection & egelectrons) {
   if(useEGElectrons_ && pfele_) pfele_->setEGElectronCollection(egelectrons);
 }
 
+void 
+PFAlgo::postCleaning() { 
+  
+  // Check if the post HF Cleaning was requested - if not, do nothing
+  if ( !postHFCleaning_ ) return;
+
+  //Compute met and met significance (met/sqrt(SumEt))
+  double metX = 0.;
+  double metY = 0.;
+  double sumet = 0;
+  std::vector<unsigned int> pfCandidatesToBeRemoved;
+  for(unsigned i=0; i<pfCandidates_->size(); i++) {
+    const PFCandidate& pfc = (*pfCandidates_)[i];
+    metX += pfc.px();
+    metY += pfc.py();
+    sumet += pfc.pt();
+  }    
+  double met2 = metX*metX+metY*metY;
+  // Select events with large MET significance.
+  double significance = std::sqrt(met2/sumet);
+  double significanceCor = significance;
+  if ( significance > minSignificance_ ) { 
+    
+    double metXCor = metX;
+    double metYCor = metY;
+    double sumetCor = sumet;
+    double met2Cor = met2;
+    double deltaPhi = 3.14159;
+    double deltaPhiPt = 100.;
+    double deltaPhiCor = 3.14159;
+    double deltaPhiPtCor = 100.;
+    bool next = true;
+    unsigned iCor = 1E9;
+
+    // Find the HF candidate with the largest effect on the MET
+    while ( next ) { 
+
+      double metReduc = -1.;
+      double setReduc = -1.;
+      // Loop on the candidates
+      for(unsigned i=0; i<pfCandidates_->size(); ++i) {
+	const PFCandidate& pfc = (*pfCandidates_)[i];
+
+	// Check that the pfCandidate is in the HF
+	if ( pfc.particleId() != reco::PFCandidate::h_HF && 
+	     pfc.particleId() != reco::PFCandidate::egamma_HF ) continue;
+
+	// Check if has meaningful pt
+	if ( pfc.pt() < minHFCleaningPt_ ) continue;
+	
+	// Check that it is  not already scheculed to be cleaned
+	bool skip = false;
+	for(unsigned j=0; j<pfCandidatesToBeRemoved.size(); ++j) {
+	  if ( i == pfCandidatesToBeRemoved[j] ) skip = true;
+	  if ( skip ) break;
+	}
+	if ( skip ) continue;
+	
+	// Check that the pt and the MET are aligned
+	deltaPhi = std::acos((metX*pfc.px()+metY*pfc.py())/(pfc.pt()*std::sqrt(met2)));
+	deltaPhiPt = deltaPhi*pfc.pt();
+	if ( deltaPhiPt > maxDeltaPhiPt_ ) continue;
+
+	// Now remove the candidate from the MET
+	double metXInt = metX - pfc.px();
+	double metYInt = metY - pfc.py();
+	double sumetInt = sumet - pfc.pt();
+	double met2Int = metXInt*metXInt+metYInt*metYInt;
+	if ( met2Int < met2Cor ) {
+	  metXCor = metXInt;
+	  metYCor = metYInt;
+	  metReduc = (met2-met2Int)/met2Int; 
+	  setReduc = (std::sqrt(met2Int)-std::sqrt(met2))/(sumetInt-sumet); 
+	  met2Cor = met2Int;
+	  sumetCor = sumetInt;
+	  significanceCor = std::sqrt(met2Cor/sumetCor);
+	  iCor = i;
+	  deltaPhiCor = deltaPhi;
+	  deltaPhiPtCor = deltaPhiPt;
+	}
+      }
+      //
+      // If the MET must be significanly reduced, schedule the candidate to be cleaned
+      if ( metReduc > minDeltaMet_ ) { 
+	pfCandidatesToBeRemoved.push_back(iCor);
+	metX = metXCor;
+	metY = metYCor;
+	sumet = sumetCor;
+	met2 = met2Cor;
+      } else { 
+      // Otherwise just stop the loop
+	next = false;
+      }
+    }
+    //
+    // The significance must be significantly reduced to indeed clean the candidates
+    if ( significance - significanceCor > minSignificanceReduction_ && 
+	 significanceCor < maxSignificance_ ) {
+      std::cout << "Significance reduction = " << significance << " -> " 
+		<< significanceCor << " = " << significanceCor - significance 
+		<< std::endl;
+      for(unsigned j=0; j<pfCandidatesToBeRemoved.size(); ++j) {
+	std::cout << "Removed : " << (*pfCandidates_)[pfCandidatesToBeRemoved[j]] << std::endl;
+	pfCleanedCandidates_->push_back( (*pfCandidates_)[ pfCandidatesToBeRemoved[j] ] );
+	(*pfCandidates_)[pfCandidatesToBeRemoved[j]].rescaleMomentum(0.);
+	//reco::PFCandidate::ParticleType unknown = reco::PFCandidate::X;
+	//(*pfCandidates_)[pfCandidatesToBeRemoved[j]].setParticleType(unknown);
+      }
+    }
+  }
+
+}

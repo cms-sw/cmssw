@@ -41,21 +41,12 @@ root convBremGsfrecTracks_branch   recoGsfPFRecTracks_pfTrackElec_Secondary_PROD
 
 // Muon branch
 root muon_branch           recoMuons_muons__PROD.obj
-
-
-
-
 // Conversion branch
-root conversion_branch recoPFConversions_pfConversions__PROD.obj
-
+root conversion_branch     recoPFConversions_pfConversions__PROD.obj
 // V0 branch
 root V0_branch recoPFV0s_pfV0__PROD.obj
-
 // PFDisplacedTrackerVertex branch
 root PFDisplacedVertex_branch recoPFDisplacedTrackerVertexs_pfDisplacedTrackerVertex__PROD.obj
-
-
-
 root caloTowers_branch     CaloTowersSorted_towerMaker__PROD.obj
 
 // reconstructed tracks branch
@@ -362,6 +353,23 @@ particle_flow   pt_error 1.0
 // Factors to be applied in the four and fifth steps to the pt error
 particle_flow   factors_45 10. 100.
 
+// Post HF cleaning
+particle_flow   postHFCleaning 0
+// Clean only objects with pt larger than this value
+particle_flow   minHFCleaningPt 5.
+// Clean only if the initial MET/sqrt(sumet) is larger than this value
+particle_flow   maxSignificance 2.5                          
+// Clean only if the final MET/sqrt(sumet) is smaller than this value
+particle_flow   minSignificance 2.5
+// Clean only if the significance reduction is larger than this value
+particle_flow   minSignificanceReduction 1.4
+// Clean only if the MET and the to-be-cleaned object satisfy this DeltaPhi * Pt cut
+// (the MET angular resoution is in 1/MET) 
+particle_flow   maxDeltaPhiPt 7.0
+// Clean only if the MET relative reduction from the to-be-cleaned object
+// is larger than this value
+particle_flow   minDeltaMet 0.4
+
 // number of sigmas for neutral energy detection
 particle_flow   nsigma_ECAL    0.0
 particle_flow   nsigma_HCAL    1.0
@@ -495,7 +503,7 @@ print PFBlocks     0
 // print reconstructed particles (PFCandidates) yes/no
 print PFCandidates  0
 // print PFCandidates pt threshold
-print PFCandidates_ptmin  0.0
+print PFCandidates_ptmin 0.0001
 
 // print jets yes/no
 print jets 0

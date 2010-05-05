@@ -55,6 +55,23 @@ particleFlow = cms.EDProducer("PFProducer",
     # Factors to be applied in the four and fifth steps to the pt error
     factors_45 = cms.vdouble(10.,100.),
 
+    # Post HF cleaning
+    postHFCleaning = cms.bool(False),
+    # Clean only objects with pt larger than this value
+    minHFCleaningPt = cms.double(5.),
+    # Clean only if the initial MET/sqrt(sumet) is larger than this value
+    maxSignificance = cms.double(2.5),                          
+    # Clean only if the final MET/sqrt(sumet) is smaller than this value
+    minSignificance = cms.double(2.5),
+    # Clean only if the significance reduction is larger than this value
+    minSignificanceReduction = cms.double(1.4),
+    # Clean only if the MET and the to-be-cleaned object satisfy this DeltaPhi * Pt cut
+    # (the MET angular resoution is in 1/MET) 
+    maxDeltaPhiPt = cms.double(7.0),
+    # Clean only if the MET relative reduction from the to-be-cleaned object
+    # is larger than this value
+    minDeltaMet = cms.double(0.4),
+
     # number of sigmas for neutral energy detection
     pf_nsigma_ECAL = cms.double(0.0),
     pf_nsigma_HCAL = cms.double(1.0),
