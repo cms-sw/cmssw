@@ -1,14 +1,13 @@
-# /dev/CMSSW_3_6_0/HIon/V12 (CMSSW_3_6_0_HLT4)
+# /dev/CMSSW_3_6_0/HIon/V13 (CMSSW_3_6_0_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V12')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V13')
 )
 
 streams = cms.PSet( 
-  Offline = cms.vstring(  ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   Calibration = cms.vstring( 'TestEnables' ),
@@ -32,7 +31,8 @@ streams = cms.PSet(
     'JetMETTau',
     'Cosmics',
     'MinimumBias',
-    'RandomTriggers' )
+    'RandomTriggers' ),
+  Offline = cms.vstring(  )
 )
 datasets = cms.PSet( 
   LogMonitor = cms.vstring(  ),
