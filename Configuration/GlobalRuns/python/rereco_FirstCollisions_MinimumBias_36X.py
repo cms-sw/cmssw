@@ -1,6 +1,6 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.169 
+# Revision: 1.177 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 # with command line options: reco_FirstCollisions_MinimumBias_36X -s RAW2DIGI,L1Reco,RECO,DQM,ALCA:SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib+EcalCalElectron --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --conditions GR_R_36X_V6::All --customise Configuration/GlobalRuns/customise_Collision_36X.py --no_exec --python_filename=rereco_FirstCollisions_MinimumBias_36X.py
 import FWCore.ParameterSet.Config as cms
@@ -11,7 +11,7 @@ process = cms.Process('RECO')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.StandardSequences.GeometryExtended_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -23,19 +23,19 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.169 $'),
+    version = cms.untracked.string('$Revision: 1.177 $'),
     annotation = cms.untracked.string('reco_FirstCollisions_MinimumBias_36X nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1)
 )
 process.options = cms.untracked.PSet(
 
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/Commissioning10/MinimumBias/RAW/v4/000/132/440/EA896425-F93B-DF11-B971-000423D99AAE.root')
+    fileNames = cms.untracked.vstring('reco_FirstCollisions_MinimumBias_36X_DIGI2RAW.root')
 )
 
 # Output definition
@@ -310,7 +310,10 @@ def customise(process):
     process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
     process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
     process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
-        
+
+    ## local tracker strip reconstruction
+    process.OutOfTime.TOBlateBP=0.071
+    process.OutOfTime.TIBlateBP=0.036
 
     ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
