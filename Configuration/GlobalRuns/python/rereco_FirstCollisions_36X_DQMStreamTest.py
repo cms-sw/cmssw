@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.7 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('reco_FirstCollisions_36X nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -57,8 +57,8 @@ process.outputDQMStream = cms.OutputModule("PoolOutputModule",
         'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('DQMStream.root'),
     dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('DQMStream')
+        filterName = cms.untracked.string('DQM'),
+        dataTier = cms.untracked.string('USER')
     )
 )
 
