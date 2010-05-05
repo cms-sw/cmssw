@@ -37,7 +37,7 @@ void qualityStudiesZGolden(TFile * output_file, TChain *Events){
 
 
   // zGolden plots
-  TCut cut_zGolden("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && zGoldenDau1Iso< 3.0 && zGoldenDau2Iso < 3.0 && zGoldenDau1Eta<2.1 &&  zGoldenDau2Eta<2.1");
+  TCut cut_zGolden("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && zGoldenDau1TrkIso< 3.0 && zGoldenDau2TrkIso < 3.0 && zGoldenDau1Eta<2.1 &&  zGoldenDau2Eta<2.1");
   TDirectory * dir = output_file->mkdir("goodZToMuMuPlots");
   dir->cd();
 
@@ -356,7 +356,7 @@ void qualityStudiesZMuSta(TFile * output_file, TChain *Events){
 
 
   // zzMuSta plots
-  TCut cut_zMuSta("zMuStaMass>60 && zMuStaMass<120 && zMuStaDau1Pt> 20 && zMuStaDau2Pt>20 && zMuStaDau1Iso< 3.0 && zMuStaDau2Iso < 3.0 && zMuStaDau1Eta<2.1 &&  zMuStaDau2Eta<2.1");
+  TCut cut_zMuSta("zMuStaMass>60 && zMuStaMass<120 && zMuStaDau1Pt> 20 && zMuStaDau2Pt>20 && zMuStaDau1TrkIso< 3.0 && zMuStaDau2TrkIso < 3.0 && zMuStaDau1Eta<2.1 &&  zMuStaDau2Eta<2.1");
   TDirectory * dir = output_file->mkdir("goodZToMuMuOneStandAloneMuonPlots");
   dir->cd();
 
@@ -557,7 +557,7 @@ void qualityStudiesZGoldenNotIso(TFile * output_file, TChain *Events){
 
 
   // zGolden plots
-  TCut cut_zGolden("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && (zGoldenDau1Iso> 3.0 || zGoldenDau2Iso > 3.0 ) && zGoldenDau1Eta<2.1 &&  zGoldenDau2Eta<2.1");
+  TCut cut_zGolden("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && (zGoldenDau1TrkIso> 3.0 || zGoldenDau2TrkIso > 3.0 ) && zGoldenDau1Eta<2.1 &&  zGoldenDau2Eta<2.1");
   TDirectory * dir = output_file->mkdir("nonIsolatedZToMuMuPlots");
   dir->cd();
 
@@ -881,7 +881,7 @@ void qualityStudiesZGlbTrk(TFile *output_file, TChain * Events){
 
 
   // zMuTrk plots
-  TCut cut_zMuTrk("zMuTrkMass>60 && zMuTrkMass<120 && zMuTrkDau1Pt> 20 && zMuTrkDau2Pt>20 && zMuTrkDau1Iso< 3.0 && zMuTrkDau2Iso < 3.0 && zMuTrkDau1Eta<2.1 &&  zMuTrkDau2Eta<2.1");
+  TCut cut_zMuTrk("zMuTrkMass>60 && zMuTrkMass<120 && zMuTrkDau1Pt> 20 && zMuTrkDau2Pt>20 && zMuTrkDau1TrkIso< 3.0 && zMuTrkDau2TrkIso < 3.0 && zMuTrkDau1Eta<2.1 &&  zMuTrkDau2Eta<2.1");
   TDirectory * dir = output_file->mkdir("goodZToMuMuOneTrackPlots");
   dir->cd();
 
@@ -1105,10 +1105,11 @@ TChain * Events= new TChain("Events");
     ostringstream oss;
     oss<<j;
     string name= "zmmNtuple/NtupleLooseTestNew_oneshot_all_Test_"+oss.str()+"_None.root";
+    //string name= "/tmp/degrutto/NtupleLooseTestNew_oneshot_all_Test_"+oss.str()+"_None.root";
     Events->Add(name.c_str());
   }
 
-TFile * output_file = TFile::Open("histo.root", "RECREATE");
+TFile * output_file = TFile::Open("histo_zmm.root", "RECREATE");
 qualityStudiesZGolden(output_file, Events);
  qualityStudiesZGoldenNotIso(output_file, Events);
   qualityStudiesZGlbTrk(output_file, Events);
