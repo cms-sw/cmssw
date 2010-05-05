@@ -1,0 +1,79 @@
+// -*- C++ -*-
+//
+// Package:     Fireworks
+// Cla_NAME_  :     FWSimpleProxyBuilder
+
+/*
+
+ Description: [one line class summary]
+
+ Usage:
+    <usage>
+
+*/
+//
+// Original Author:
+//         Created:  Wed May  5 17:12:46 CEST 2010
+// $Id$
+//
+
+// system include files
+
+// user include files
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+
+// forward declarations
+
+class _NAME_
+{
+public:
+   _NAME_();
+   virtual ~_NAME_();
+
+   // ---------- const member functions ---------------------
+
+   // ---------- static member functions --------------------
+
+   // ---------- member functions ---------------------------
+
+private:
+   _NAME_(const _NAME_&); // stop default
+   const _NAME_& operator=(const _NAME_&); // stop default
+   
+   void build(const _TYPE_&, unsigned int, TEveElement&, const FWViewContext*) const;
+
+   // ---------- member data --------------------------------
+};
+
+//
+// constructors and destructor
+//
+FWSimpleProxyBuilder::FWSimpleProxyBuilder()
+{
+}
+
+FWSimpleProxyBuilder::~FWSimpleProxyBuilder()
+{
+}
+
+//
+// member functions
+//
+void 
+_NAME_::build(const _TYPE_& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) const
+{
+   //// Just an example that creates a bunch of points
+   // TEvePointSet* pointSet = new TEvePointSet();
+   // pointSet->SetNextPoint( iData.x(), iData.y(), iData.z() );
+   // setupAddElement(pointSet, &oItemHolder);
+}
+
+//
+// const member functions
+//
+
+//
+// static member functions
+//
+
+REGISTER_FW3DLEGODATAPROXYBUILDER(_NAME_,_TYPE_,"_PURPOSE_", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
