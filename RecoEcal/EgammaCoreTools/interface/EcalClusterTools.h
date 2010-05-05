@@ -33,6 +33,16 @@ class DetId;
 class CaloTopology;
 class CaloGeometry;
 
+struct Cluster2ndMoments {
+
+  // major and minor cluster moments wrt principale axes:
+  float sMaj;
+  float sMin;
+  // angle between sMaj and phi:
+  float alpha;
+
+};
+
 class EcalClusterTools {
         public:
                 EcalClusterTools() {};
@@ -95,6 +105,11 @@ class EcalClusterTools {
                 static std::vector<float> localCovariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits, const CaloTopology *topology, float w0 = 4.7);
                 
                 static std::vector<float> scLocalCovariances(const reco::SuperCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology, float w0 = 4.7);
+
+                // cluster second moments with respect to principal axes:
+                static Cluster2ndMoments cluster2ndMoments( const reco::BasicCluster &basicCluster, const EcalRecHitCollection &recHits, double phiCorrectionFactor=0.8, double w0=4.7, bool useLogWeights=true);
+                static Cluster2ndMoments cluster2ndMoments( const reco::SuperCluster &superCluster, const EcalRecHitCollection &recHits, double phiCorrectionFactor=0.8, double w0=4.7, bool useLogWeights=true);
+                static Cluster2ndMoments cluster2ndMoments( std::vector<const EcalRecHit*> RH_ptrs, double  phiCorrectionFactor=0.8, double  w0=4.7, bool useLogWeights=true);
 
                 static double zernike20( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
                 static double zernike42( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
