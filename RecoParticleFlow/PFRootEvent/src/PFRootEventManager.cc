@@ -922,6 +922,24 @@ void PFRootEventManager::readOptions(const char* file,
   shared_ptr<PFSCEnergyCalibration>  
     thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_barrel,calibPFSCEle_endcap ));
   
+  bool useEGammaSupercluster;
+  double sumEtEcalIsoForEgammaSC_barrel;
+  double sumEtEcalIsoForEgammaSC_endcap;
+  double coneEcalIsoForEgammaSC;
+  double sumPtTrackIsoForEgammaSC_barrel;
+  double sumPtTrackIsoForEgammaSC_endcap;
+  unsigned int nTrackIsoForEgammaSC;
+  double coneTrackIsoForEgammaSC;
+  bool useEGammaElectrons;
+  options_->GetOpt("particle_flow","useEGammaSupercluster",useEGammaSupercluster);
+  options_->GetOpt("particle_flow","sumEtEcalIsoForEgammaSC_barrel",sumEtEcalIsoForEgammaSC_barrel);
+  options_->GetOpt("particle_flow","sumEtEcalIsoForEgammaSC_endcap",sumEtEcalIsoForEgammaSC_endcap);
+  options_->GetOpt("particle_flow","coneEcalIsoForEgammaSC",coneEcalIsoForEgammaSC);
+  options_->GetOpt("particle_flow","sumPtTrackIsoForEgammaSC_barrel",sumPtTrackIsoForEgammaSC_barrel);
+  options_->GetOpt("particle_flow","sumPtTrackIsoForEgammaSC_endcap",sumPtTrackIsoForEgammaSC_endcap);
+  options_->GetOpt("particle_flow","nTrackIsoForEgammaSC",nTrackIsoForEgammaSC);
+  options_->GetOpt("particle_flow","coneTrackIsoForEgammaSC",coneTrackIsoForEgammaSC);
+  options_->GetOpt("particle_flow","useEGammaElectrons",useEGammaElectrons);
 
   //--ab: get calibration factors for HF:
   bool calibHF_use = false;
@@ -1094,8 +1112,17 @@ void PFRootEventManager::readOptions(const char* file,
 				 mvaWeightFileEleID,
 				 usePFElectrons,
 				 thePFSCEnergyCalibration,
+				 sumEtEcalIsoForEgammaSC_barrel,
+				 sumEtEcalIsoForEgammaSC_endcap,
+				 coneEcalIsoForEgammaSC,
+				 sumPtTrackIsoForEgammaSC_barrel,
+				 sumPtTrackIsoForEgammaSC_endcap,
+				 nTrackIsoForEgammaSC,
+				 coneTrackIsoForEgammaSC,
 				 applyCrackCorrections,
-				 usePFSCEleCalib);
+				 usePFSCEleCalib,
+				 useEGammaElectrons,
+				 useEGammaSupercluster);
     }
     catch( std::exception& err ) {
       cerr<<"exception setting PFAlgo Electron parameters: "

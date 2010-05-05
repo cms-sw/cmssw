@@ -27,9 +27,16 @@ class PFElectronAlgo {
 		 const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
 		 bool applyCrackCorrections,
 		 bool usePFSCEleCalib,
-		 bool useEGElectrons);
-		
-  
+		 bool useEGElectrons,
+		 bool useEGammaSupercluster,
+		 double sumEtEcalIsoForEgammaSC_barrel,
+		 double sumEtEcalIsoForEgammaSC_endcap,
+		 double coneEcalIsoForEgammaSC,
+		 double sumPtTrackIsoForEgammaSC_barrel,
+		 double sumPtTrackIsoForEgammaSC_endcap,
+		 unsigned int nTrackIsoForEgammaSC,
+		 double coneTrackIsoForEgammaSC);
+
   //destructor
   ~PFElectronAlgo(){delete tmvaReader_;};
   
@@ -100,7 +107,15 @@ class PFElectronAlgo {
   bool applyCrackCorrections_;
   bool usePFSCEleCalib_;
   bool useEGElectrons_;
- 
+  bool useEGammaSupercluster_;
+  double sumEtEcalIsoForEgammaSC_barrel_;
+  double sumEtEcalIsoForEgammaSC_endcap_;
+  double coneEcalIsoForEgammaSC_;
+  double sumPtTrackIsoForEgammaSC_barrel_;
+  double sumPtTrackIsoForEgammaSC_endcap_;
+  unsigned int nTrackIsoForEgammaSC_;
+  double coneTrackIsoForEgammaSC_;
+
   const char  *mvaWeightFile_;
 
   // New BDT observables

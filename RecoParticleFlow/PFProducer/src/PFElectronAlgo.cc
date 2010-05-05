@@ -26,12 +26,28 @@ PFElectronAlgo::PFElectronAlgo(const double mvaEleCut,
 			       const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
 			       bool applyCrackCorrections,
 			       bool usePFSCEleCalib,
-			       bool useEGElectrons):
+			       bool useEGElectrons,
+			       bool useEGammaSupercluster,
+			       double sumEtEcalIsoForEgammaSC_barrel,
+			       double sumEtEcalIsoForEgammaSC_endcap,
+			       double coneEcalIsoForEgammaSC,
+			       double sumPtTrackIsoForEgammaSC_barrel,
+			       double sumPtTrackIsoForEgammaSC_endcap,
+			       unsigned int nTrackIsoForEgammaSC,
+			       double coneTrackIsoForEgammaSC):
   mvaEleCut_(mvaEleCut),
   thePFSCEnergyCalibration_(thePFSCEnergyCalibration),
   applyCrackCorrections_(applyCrackCorrections),
   usePFSCEleCalib_(usePFSCEleCalib),
-  useEGElectrons_(useEGElectrons)
+  useEGElectrons_(useEGElectrons),
+  useEGammaSupercluster_(useEGammaSupercluster),
+  sumEtEcalIsoForEgammaSC_barrel_(sumEtEcalIsoForEgammaSC_barrel),
+  sumEtEcalIsoForEgammaSC_endcap_(sumEtEcalIsoForEgammaSC_endcap),
+  coneEcalIsoForEgammaSC_(coneEcalIsoForEgammaSC),
+  sumPtTrackIsoForEgammaSC_barrel_(sumPtTrackIsoForEgammaSC_barrel),
+  sumPtTrackIsoForEgammaSC_endcap_(sumPtTrackIsoForEgammaSC_endcap),
+  nTrackIsoForEgammaSC_(nTrackIsoForEgammaSC),
+  coneTrackIsoForEgammaSC_(coneTrackIsoForEgammaSC)								   
 {
   // Set the tmva reader
   tmvaReader_ = new TMVA::Reader();
@@ -107,7 +123,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
   unsigned int CutIndex = 100000;
   double CutGSFECAL = 10000. ;  
   // no other cut are not used anymore. We use the default of PFBlockAlgo
-
+  PFEnergyCalibration pfcalib_;  
   bool DebugSetLinksSummary = false;
   bool DebugSetLinksDetailed = false;
 
@@ -120,6 +136,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 
   vector<unsigned int> trackIs(0);
   vector<unsigned int> gsfIs(0);
+  vector<unsigned int> ecalIs(0);
 
   std::vector<bool> localactive(elements.size(),true);
  
@@ -159,6 +176,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
       continue;
     case PFBlockElement::ECAL: 
       if ( active[iEle]  ) { 
+	ecalIs.push_back( iEle );
   	if (DebugSetLinksDetailed) 
 	  cout<<"ECAL, stored index, continue "<< iEle << endl;
       }
@@ -837,11 +855,14 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 		    for(unsigned int ikeyecal = 0; 
 			ikeyecal<EcalIndex.size(); ikeyecal++){
 		      // EcalIndex can have the same cluster save twice (because of the late brem cluster).
+		      bool foundcluster = false;
 		      if(ikeyecal > 0) {
 			for(unsigned int i2 = 0; i2<ikeyecal-1; i2++) {
-			  if(EcalIndex[ikeyecal] == EcalIndex[i2]) continue;
+			  if(EcalIndex[ikeyecal] == EcalIndex[i2]) 
+			    foundcluster = true;
 			}
 		      }
+		      if(foundcluster) continue;
 		      const reco::PFBlockElementCluster * clusasso =  
 			dynamic_cast<const reco::PFBlockElementCluster*>((&elements[(EcalIndex[ikeyecal])])); 
 		      totenergy += clusasso->clusterRef()->energy();
@@ -883,6 +904,238 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	}
       }
  
+      // 4May import EG supercluster
+      if(EcalIndex.size() > 0 && useEGammaSupercluster_) {
+	double sumEtEcalInTheCone  = 0.;
+	
+	// Position of the first cluster
+	const reco::PFBlockElementCluster * clust =  
+	  dynamic_cast<const reco::PFBlockElementCluster*>((&elements[EcalIndex[0]])); 
+	double PhiFC  = clust->clusterRef()->position().Phi();
+	double EtaFC =  clust->clusterRef()->position().Eta();
+
+	// Compute ECAL isolation ->
+	for(unsigned int iEcal=0; iEcal<ecalIs.size(); iEcal++) {
+	  bool foundcluster = false;
+	  for(unsigned int ikeyecal = 0; 
+	      ikeyecal<EcalIndex.size(); ikeyecal++){
+	    if(ecalIs[iEcal] == EcalIndex[ikeyecal])
+	      foundcluster = true;
+	  }
+	  
+	  // -> only for clusters not already in the PFSCCluster
+	  if(foundcluster == false) {
+	    const reco::PFBlockElementCluster * clustExt =  
+	      dynamic_cast<const reco::PFBlockElementCluster*>((&elements[ecalIs[iEcal]])); 
+	    double eta_clust =  clustExt->clusterRef()->position().Eta();
+	    double phi_clust =  clustExt->clusterRef()->position().Phi();
+	    double theta_clust =  clustExt->clusterRef()->position().Theta();
+	    double deta_clust = eta_clust - EtaFC;
+	    double dphi_clust = phi_clust - PhiFC;
+	    if ( dphi_clust < -M_PI ) 
+	      dphi_clust = dphi_clust + 2.*M_PI;
+	    else if ( dphi_clust > M_PI ) 
+	      dphi_clust = dphi_clust - 2.*M_PI;
+	    double  DR = sqrt(deta_clust*deta_clust+
+			      dphi_clust*dphi_clust);		  
+	    
+	    //Jurassic veto in deta
+	    if(fabs(deta_clust) > 0.05 && DR < coneEcalIsoForEgammaSC_) {
+	      vector<double> ps1Ene(0);
+	      vector<double> ps2Ene(0);
+	      double ps1,ps2;
+	      ps1=ps2=0.;
+	      double EE_calib = pfcalib_.energyEm(*(clustExt->clusterRef()),ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections_);
+	      double ET_calib = EE_calib*sin(theta_clust);
+	      sumEtEcalInTheCone += ET_calib;
+	    }
+	  }
+	} //EndLoop Additional ECAL clusters in the block
+	
+	// Compute track isolation: number of tracks && sumPt
+	unsigned int sumNTracksInTheCone = 0;
+	double sumPtTracksInTheCone = 0.;
+	for(unsigned int iTrack=0; iTrack<trackIs.size(); iTrack++) {
+	  // the track from the electron are already locked at this stage
+	  if(localactive[(trackIs[iTrack])]==true) {
+	    const reco::PFBlockElementTrack * kfEle =  
+	      dynamic_cast<const reco::PFBlockElementTrack*>((&elements[(trackIs[iTrack])])); 	
+	    reco::TrackRef trkref = kfEle->trackRef();
+	    if (trkref.isNonnull()) {
+	      double deta_trk =  trkref->eta() - RefGSF->etaMode();
+	      double dphi_trk =  trkref->phi() - RefGSF->phiMode();
+	      if ( dphi_trk < -M_PI ) 
+		dphi_trk = dphi_trk + 2.*M_PI;
+	      else if ( dphi_trk > M_PI ) 
+		dphi_trk = dphi_trk - 2.*M_PI;
+	      double  DR = sqrt(deta_trk*deta_trk+
+				dphi_trk*dphi_trk);
+	      
+	      reco::HitPattern kfHitPattern = trkref->hitPattern();
+	      int NValPixelHit = kfHitPattern.numberOfValidPixelHits();
+	      
+	      if(DR < coneTrackIsoForEgammaSC_ && NValPixelHit >=3) {
+		sumNTracksInTheCone++;
+		sumPtTracksInTheCone+=trkref->pt();
+	      }
+	    }
+	  }
+	}
+
+	
+	bool isBarrelIsolated = false;
+	if( fabs(EtaFC < 1.478) && 
+	    (sumEtEcalInTheCone < sumEtEcalIsoForEgammaSC_barrel_ && 
+	     (sumNTracksInTheCone < nTrackIsoForEgammaSC_  || sumPtTracksInTheCone < sumPtTrackIsoForEgammaSC_barrel_)))
+	  isBarrelIsolated = true;
+	
+	
+	bool isEndcapIsolated = false;
+	if( fabs(EtaFC >= 1.478) && 
+	    (sumEtEcalInTheCone < sumEtEcalIsoForEgammaSC_endcap_ &&  
+	     (sumNTracksInTheCone < nTrackIsoForEgammaSC_  || sumPtTracksInTheCone < sumPtTrackIsoForEgammaSC_endcap_)))
+	  isEndcapIsolated = true;
+	
+
+	// only print out
+	if(DebugSetLinksDetailed) {
+	  if(fabs(EtaFC < 1.478) && isBarrelIsolated == false) {
+	    cout << "**** PFElectronAlgo:: SUPERCLUSTER FOUND BUT FAILS ISOLATION:BARREL *** " 
+		 << " sumEtEcalInTheCone " <<sumEtEcalInTheCone 
+		 << " sumNTracksInTheCone " << sumNTracksInTheCone 
+		 << " sumPtTracksInTheCone " << sumPtTracksInTheCone << endl;
+	  }
+	  if(fabs(EtaFC >= 1.478) && isEndcapIsolated == false) {
+	    cout << "**** PFElectronAlgo:: SUPERCLUSTER FOUND BUT FAILS ISOLATION:ENDCAP *** " 
+		 << " sumEtEcalInTheCone " <<sumEtEcalInTheCone 
+		 << " sumNTracksInTheCone " << sumNTracksInTheCone 
+		 << " sumPtTracksInTheCone " << sumPtTracksInTheCone << endl;
+	  }
+	}
+
+
+
+	
+	if(isBarrelIsolated || isEndcapIsolated ) {
+	  
+	  
+	  // Compute TotEnergy
+	  double totenergy = 0.;
+	  for(unsigned int ikeyecal = 0; 
+	      ikeyecal<EcalIndex.size(); ikeyecal++){
+	    // EcalIndex can have the same cluster save twice (because of the late brem cluster).
+	    bool foundcluster = false;
+	    if(ikeyecal > 0) {
+	      for(unsigned int i2 = 0; i2<ikeyecal-1; i2++) {
+		if(EcalIndex[ikeyecal] == EcalIndex[i2]) 
+		  foundcluster = true;;
+	      }
+	    }
+	    if(foundcluster) continue;
+	    const reco::PFBlockElementCluster * clusasso =  
+	      dynamic_cast<const reco::PFBlockElementCluster*>((&elements[(EcalIndex[ikeyecal])])); 
+	    totenergy += clusasso->clusterRef()->energy();
+	  }
+	  // End copute TotEnergy
+
+
+	  // Find extra cluster from e/g importing
+	  for(unsigned int ikeyecal = 0; 
+	      ikeyecal<EcalIndex.size(); ikeyecal++){
+	    // EcalIndex can have the same cluster save twice (because of the late brem cluster).
+	    bool foundcluster = false;
+	    if(ikeyecal > 0) {
+	      for(unsigned int i2 = 0; i2<ikeyecal-1; i2++) {
+		if(EcalIndex[ikeyecal] == EcalIndex[i2]) 
+		  foundcluster = true;
+	      }
+	    }	  
+	    if(foundcluster) continue;
+	    
+	    
+	    std::multimap<double, unsigned int> ecalFromSuperClusterElems;
+	    block.associatedElements( EcalIndex[ikeyecal],linkData,
+				      ecalFromSuperClusterElems,
+				      reco::PFBlockElement::ECAL,
+				      reco::PFBlock::LINKTEST_ALL);
+	    if(ecalFromSuperClusterElems.size() > 0) {
+	      for(std::multimap<double, unsigned int>::iterator itsc = ecalFromSuperClusterElems.begin();
+		  itsc != ecalFromSuperClusterElems.end(); ++itsc) {
+		if(localactive[itsc->second] == false) {
+		  continue;
+		}
+		
+		std::multimap<double, unsigned int> ecalOtherKFPrimElems;
+		block.associatedElements( itsc->second,linkData,
+					  ecalOtherKFPrimElems,
+					  reco::PFBlockElement::TRACK,
+					  reco::PFBlock::LINKTEST_ALL);
+		if(ecalOtherKFPrimElems.size() > 0) {
+		  if(localactive[ecalOtherKFPrimElems.begin()->second] == true) {
+		    if (DebugSetLinksDetailed)
+		      cout << "**** PFElectronAlgo:: SUPERCLUSTER FOUND BUT FAILS KF VETO *** " << endl;
+		    continue;
+		  }
+		}
+		bool isInTheEtaRange = false;
+		const reco::PFBlockElementCluster * clustToAdd =  
+		  dynamic_cast<const reco::PFBlockElementCluster*>((&elements[itsc->second])); 
+		double deta_clustToAdd = clustToAdd->clusterRef()->position().Eta() - EtaFC;
+		double ene_clustToAdd = clustToAdd->clusterRef()->energy();
+		
+		if(fabs(deta_clustToAdd) < 0.05)
+		  isInTheEtaRange = true;
+		
+		// check for both KF and GSF
+		bool isBetterEpin = false;
+		if(isInTheEtaRange == false ) {
+		  if (DebugSetLinksDetailed)
+		    cout << "**** PFElectronAlgo:: SUPERCLUSTER FOUND BUT FAILS GAMMA DETA RANGE  *** " 
+			 << fabs(deta_clustToAdd) << endl;
+		  
+		  if(KfGsf_index < CutIndex) {		    
+		    //GSF
+		    double res_before_gsf = fabs((totenergy-Pin_gsf)/Pin_gsf);
+		    double res_after_gsf = fabs(((totenergy+ene_clustToAdd)-Pin_gsf)/Pin_gsf);
+
+		    //KF
+		    const reco::PFBlockElementTrack * trackEl =  
+		      dynamic_cast<const reco::PFBlockElementTrack*>((&elements[KfGsf_index])); 
+		    double Pin_kf = trackEl->trackRef()->p();
+		    double res_before_kf = fabs((totenergy-Pin_kf)/Pin_kf);
+		    double res_after_kf = fabs(((totenergy+ene_clustToAdd)-Pin_kf)/Pin_kf);			      
+		    
+		    // The new cluster improve both the E/pin?
+		    if(res_after_gsf < res_before_gsf && res_after_kf < res_before_kf ) {
+		      isBetterEpin = true;
+		    }
+		    else {
+		      if (DebugSetLinksDetailed)
+			cout << "**** PFElectronAlgo:: SUPERCLUSTER FOUND AND FAILS ALSO RES_EPIN" 
+			     << " tot energy " << totenergy 
+			     << " Pin_gsf " << Pin_gsf 
+			     << " Pin_kf " << Pin_kf 
+			     << " cluster from SC to ADD " <<  ene_clustToAdd 
+			     << " Res before GSF " <<  res_before_gsf << " res_after_gsf " << res_after_gsf 
+			     << " Res before KF " <<  res_before_kf << " res_after_kf " << res_after_kf  << endl;
+		    }
+		  }
+		}
+		
+		if(isInTheEtaRange || isBetterEpin) {		
+		  if (DebugSetLinksDetailed)
+		    cout << "!!!! PFElectronAlgo:: ECAL from SUPERCLUSTER FOUND !!!!! " << endl;
+		  GsfElemIndex.push_back(itsc->second);
+		  EcalIndex.push_back(itsc->second);
+		  localactive[(itsc->second)] = false;
+		}
+	      }
+	    }
+	  }
+	} // END ISOLATION IF
+      }
+
+
       if(KfGsf_index < CutIndex) 
 	GsfElemIndex.push_back(KfGsf_index);
       else if(KfGsf_secondIndex < CutIndex) 

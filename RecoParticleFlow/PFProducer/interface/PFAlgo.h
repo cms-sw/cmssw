@@ -73,9 +73,17 @@ class PFAlgo {
 			  std::string mvaWeightFileEleID,
 			  bool usePFElectrons,
 			  const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+			  double sumEtEcalIsoForEgammaSC_barrel,
+			  double sumEtEcalIsoForEgammaSC_endcap,
+			  double coneEcalIsoForEgammaSC,
+			  double sumPtTrackIsoForEgammaSC_barrel,
+			  double sumPtTrackIsoForEgammaSC_endcap,
+			  unsigned int nTrackIsoForEgammaSC,
+			  double coneTrackIsoForEgammaSC,
 			  bool applyCrackCorrections=false,
 			  bool usePFSCEleCalib=true,
-			  bool useEGElectrons=false);
+			  bool useEGElectrons=false,
+			  bool useEGammaSupercluster = true);
 
   void setPostHFCleaningParameters(bool postHFCleaning,
 				   double minHFCleaningPt,
@@ -232,6 +240,14 @@ class PFAlgo {
   bool applyCrackCorrectionsElectrons_;
   bool usePFSCEleCalib_;
   bool useEGElectrons_;
+  bool useEGammaSupercluster_;
+  double sumEtEcalIsoForEgammaSC_barrel_;
+  double sumEtEcalIsoForEgammaSC_endcap_;
+  double coneEcalIsoForEgammaSC_;
+  double sumPtTrackIsoForEgammaSC_barrel_;
+  double sumPtTrackIsoForEgammaSC_endcap_;
+  double coneTrackIsoForEgammaSC_;
+  unsigned int nTrackIsoForEgammaSC_;
   PFElectronAlgo *pfele_;
   
   bool rejectTracks_Bad_;

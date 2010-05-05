@@ -123,7 +123,15 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   boost::shared_ptr<PFSCEnergyCalibration>  
     thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_barrel,calibPFSCEle_endcap ));
 			       
-  
+  bool useEGammaSupercluster = iConfig.getParameter<bool>("useEGammaSupercluster");
+  double sumEtEcalIsoForEgammaSC_barrel = iConfig.getParameter<double>("sumEtEcalIsoForEgammaSC_barrel");
+  double sumEtEcalIsoForEgammaSC_endcap = iConfig.getParameter<double>("sumEtEcalIsoForEgammaSC_endcap");
+  double coneEcalIsoForEgammaSC = iConfig.getParameter<double>("coneEcalIsoForEgammaSC");
+  double sumPtTrackIsoForEgammaSC_barrel = iConfig.getParameter<double>("sumPtTrackIsoForEgammaSC_barrel");
+  double sumPtTrackIsoForEgammaSC_endcap = iConfig.getParameter<double>("sumPtTrackIsoForEgammaSC_endcap");
+  double coneTrackIsoForEgammaSC = iConfig.getParameter<double>("coneTrackIsoForEgammaSC");
+  unsigned int nTrackIsoForEgammaSC  = iConfig.getParameter<unsigned int>("nTrackIsoForEgammaSC");
+
 
   // register products
   produces<reco::PFCandidateCollection>();
@@ -225,9 +233,17 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 			      path_mvaWeightFileEleID,
 			      usePFElectrons_,
 			      thePFSCEnergyCalibration,
+			      sumEtEcalIsoForEgammaSC_barrel,
+			      sumEtEcalIsoForEgammaSC_endcap,
+			      coneEcalIsoForEgammaSC,
+			      sumPtTrackIsoForEgammaSC_barrel,
+			      sumPtTrackIsoForEgammaSC_endcap,
+			      nTrackIsoForEgammaSC,
+			      coneTrackIsoForEgammaSC,
 			      applyCrackCorrectionsForElectrons,
 			      usePFSCEleCalib,
-			      useEGammaElectrons_);
+			      useEGammaElectrons_,
+			      useEGammaSupercluster);
   
   //  pfAlgo_->setPFConversionParameters(usePFConversions);
   

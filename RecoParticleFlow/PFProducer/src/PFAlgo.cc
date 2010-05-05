@@ -90,9 +90,17 @@ PFAlgo::setPFEleParameters(double mvaEleCut,
 			   string mvaWeightFileEleID,
 			   bool usePFElectrons,
 			   const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+			   double sumEtEcalIsoForEgammaSC_barrel,
+			   double sumEtEcalIsoForEgammaSC_endcap,
+			   double coneEcalIsoForEgammaSC,
+			   double sumPtTrackIsoForEgammaSC_barrel,
+			   double sumPtTrackIsoForEgammaSC_endcap,
+			   unsigned int nTrackIsoForEgammaSC,
+			   double coneTrackIsoForEgammaSC,
 			   bool applyCrackCorrections,
 			   bool usePFSCEleCalib,
-			   bool useEGElectrons) {
+			   bool useEGElectrons,
+			   bool useEGammaSupercluster) {
   
   mvaEleCut_ = mvaEleCut;
   usePFElectrons_ = usePFElectrons;
@@ -100,6 +108,16 @@ PFAlgo::setPFEleParameters(double mvaEleCut,
   usePFSCEleCalib_ = usePFSCEleCalib;
   thePFSCEnergyCalibration_ = thePFSCEnergyCalibration;
   useEGElectrons_ = useEGElectrons;
+  useEGammaSupercluster_ = useEGammaSupercluster;
+  sumEtEcalIsoForEgammaSC_barrel_ = sumEtEcalIsoForEgammaSC_barrel;
+  sumEtEcalIsoForEgammaSC_endcap_ = sumEtEcalIsoForEgammaSC_endcap;
+  coneEcalIsoForEgammaSC_ = coneEcalIsoForEgammaSC;
+  sumPtTrackIsoForEgammaSC_barrel_ = sumPtTrackIsoForEgammaSC_barrel;
+  sumPtTrackIsoForEgammaSC_endcap_ = sumPtTrackIsoForEgammaSC_endcap;
+  coneTrackIsoForEgammaSC_ = coneTrackIsoForEgammaSC;
+  nTrackIsoForEgammaSC_ = nTrackIsoForEgammaSC;
+
+
   if(!usePFElectrons_) return;
   mvaWeightFileEleID_ = mvaWeightFileEleID;
   FILE * fileEleID = fopen(mvaWeightFileEleID_.c_str(), "r");
@@ -116,7 +134,15 @@ PFAlgo::setPFEleParameters(double mvaEleCut,
 			     thePFSCEnergyCalibration_,
 			     applyCrackCorrectionsElectrons_,
 			     usePFSCEleCalib_,
-			     useEGElectrons_);
+			     useEGElectrons_,
+			     useEGammaSupercluster_,
+			     sumEtEcalIsoForEgammaSC_barrel_,
+			     sumEtEcalIsoForEgammaSC_endcap_,
+			     coneEcalIsoForEgammaSC_,
+			     sumPtTrackIsoForEgammaSC_barrel_,
+			     sumPtTrackIsoForEgammaSC_endcap_,
+			     nTrackIsoForEgammaSC_,
+			     coneTrackIsoForEgammaSC_);
 }
 
 void 
