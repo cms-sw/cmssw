@@ -6,8 +6,6 @@ TYPELOOKUP_DATA_REG(SiStripApvGain);
 TYPELOOKUP_DATA_REG(SiStripBadStrip);
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 TYPELOOKUP_DATA_REG(SiStripLorentzAngle);
-#include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
-TYPELOOKUP_DATA_REG(SiStripModuleHV);
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 TYPELOOKUP_DATA_REG(SiStripDetVOff);
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
@@ -16,8 +14,6 @@ TYPELOOKUP_DATA_REG(SiStripLatency);
 TYPELOOKUP_DATA_REG(SiStripNoises);
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 TYPELOOKUP_DATA_REG(SiStripPedestals);
-#include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
-TYPELOOKUP_DATA_REG(SiStripPerformanceSummary);
 #include "CondFormats/SiStripObjects/interface/SiStripRunSummary.h"
 TYPELOOKUP_DATA_REG(SiStripRunSummary);
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"

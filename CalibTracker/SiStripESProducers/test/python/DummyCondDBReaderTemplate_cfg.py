@@ -37,7 +37,7 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
     ))
 )
 
-process.reader = cms.EDFilter("TAGNAMEDummyPrinter")
+process.reader = cms.EDAnalyzer("TAGNAMEDummyPrinter")
 
 
 process.p1 = cms.Path(process.reader)

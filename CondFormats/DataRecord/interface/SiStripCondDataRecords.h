@@ -22,9 +22,6 @@ class SiStripFedCablingRcd : public edm::eventsetup::EventSetupRecordImplementat
 class SiStripLorentzAngleRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripLorentzAngleRcd> {};
 class SiStripLorentzAngleSimRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripLorentzAngleSimRcd> {};
 
-/*Record associated to SiStripModuleHV object*/
-class SiStripModuleHVRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripModuleHVRcd> {};
-class SiStripModuleLVRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripModuleLVRcd> {};
 class SiStripDetVOffRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripDetVOffRcd> {};
 
 class SiStripLatencyRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripLatencyRcd> {};
@@ -32,8 +29,6 @@ class SiStripLatencyRcd : public edm::eventsetup::EventSetupRecordImplementation
 class SiStripNoisesRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripNoisesRcd> {};
 
 class SiStripPedestalsRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripPedestalsRcd> {};
-
-class SiStripPerformanceSummaryRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripPerformanceSummaryRcd> {};
 
 class SiStripRunSummaryRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripRunSummaryRcd> {};
 

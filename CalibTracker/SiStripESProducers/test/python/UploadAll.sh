@@ -50,10 +50,6 @@ run
 # #
 cat DummyCondDBWriter_SiStripDetVOff_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" > DummyCondDBWriter_tmp_cfg.py
 run
-cat DummyCondDBWriter_SiStripModuleHV_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" > DummyCondDBWriter_tmp_cfg.py
-run
-cat DummyCondDBWriter_SiStripModuleLV_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" > DummyCondDBWriter_tmp_cfg.py
-run
 # #
 cat DummyCondDBWriter_SiStripNoises_cfg.py | sed -e "s@$oldDest@$newDest@" -e "s@$oldTag@$newTag@" > DummyCondDBWriter_tmp_cfg.py
 run

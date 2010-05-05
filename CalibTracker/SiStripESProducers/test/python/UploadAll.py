@@ -103,8 +103,6 @@ tagList = [
     Tag("SiStripLorentzAngle", "StartUp", "-e \"s@TIB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.)@TIB_PerCent_Errs=cms.vdouble(20.,20.,20.,20.)@\" -e \"s@TOB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.,    0.,    0.)@TOB_PerCent_Errs=cms.vdouble(20.,20.,20.,20.,20.,20.)@\""),
     # Voltages from DCS
     Tag("SiStripDetVOff", "Ideal"),
-    # Tag("ModuleHV", "Ideal"),
-    # Tag("ModuleLV", "Ideal"),
     # Noise
     Tag("SiStripNoises_DecMode", "Ideal", "", "SiStripNoisesRcd"),
     Tag("SiStripNoises_PeakMode", "Ideal", "", "SiStripNoisesRcd"),
@@ -117,8 +115,8 @@ tagList = [
     ]
 
 # Create the tables in the destination db (for now hardcoded sqlite_file for safety)
-os.system("rm dbfile.db")
-os.system("$CMSSW_RELEASE_BASE/src/CondTools/SiStrip/scripts/CreatingTables.sh sqlite_file:dbfile.db a a")
+# os.system("rm dbfile.db")
+# os.system("$CMSSW_RELEASE_BASE/src/CondTools/SiStrip/scripts/CreatingTables.sh sqlite_file:dbfile.db a a")
 
 createAllTags(tagList)
 

@@ -62,10 +62,6 @@ DEFINE_FWK_MODULE(SiStripBadChannelDummyDBWriter);
 typedef DummyCondDBWriter<SiStripQuality,SiStripBadStrip,SiStripQualityRcd> SiStripBadStripFromQualityDummyDBWriter;
 DEFINE_FWK_MODULE(SiStripBadStripFromQualityDummyDBWriter);
 
-#include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
-typedef DummyCondDBWriter<SiStripModuleHV,SiStripModuleHV,SiStripModuleHVRcd> SiStripModuleHVDummyDBWriter;
-DEFINE_FWK_MODULE(SiStripModuleHVDummyDBWriter);
-
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 typedef DummyCondDBWriter<SiStripDetVOff,SiStripDetVOff,SiStripDetVOffRcd> SiStripDetVOffDummyDBWriter;
 DEFINE_FWK_MODULE(SiStripDetVOffDummyDBWriter);
