@@ -15,7 +15,10 @@ def customise(process):
     process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
     process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
     process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
-        
+
+    ## local tracker strip reconstruction
+    process.OutOfTime.TOBlateBP=0.071
+    process.OutOfTime.TIBlateBP=0.036
 
     ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
