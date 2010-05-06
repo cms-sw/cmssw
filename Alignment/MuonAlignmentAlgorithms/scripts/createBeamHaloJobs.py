@@ -47,6 +47,11 @@ parser.add_option("--photogrammetry",
                   help="if invoked, alignment will be constrained to photogrammetry",
                   action="store_true",
                   dest="photogrammetry")
+parser.add_option("--photogrammetryScale",
+                  help="scale factor for photogrammetry constraint: 1 is default and 10 *weakens* the constraint by a factor of 10",
+                  type="string",
+                  default="1.",
+                  dest="photogrammetryScale")
 
 parser.add_option("--minP",
                   help="minimum track momentum (measured via radial component of fringe fields)",
@@ -124,6 +129,7 @@ INPUTFILES = sys.argv[4]
 options, args = parser.parse_args(sys.argv[5:])
 globaltag = options.globaltag
 photogrammetry = options.photogrammetry
+photogrammetryScale = options.photogrammetryScale
 minP = options.minP
 minHitsPerChamber = options.minHitsPerChamber
 maxdrdz = options.maxdrdz
@@ -243,7 +249,7 @@ process.PoolDBESSource.toGet = cms.VPSet(
         constraints += """
 export ALIGNMENT_CONVERTXML=%(inputdb)s
 cmsRun $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/python/convertToXML_global_cfg.py 
-python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConstraints.py %(inputdb)s_global.xml $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/data/Photogrammetry2007.%(mode)s PGFrame > constraints_cff.py
+python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConstraints.py %(inputdb)s_global.xml $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/data/Photogrammetry2007.%(mode)s PGFrame --scaleErrors %(photogrammetryScale)s > constraints_cff.py
 """ % vars()
     else:
         constraints += """echo \"\" > constraints_cff.py\n"""
