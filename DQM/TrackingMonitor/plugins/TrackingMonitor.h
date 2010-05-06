@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.4 2010/01/17 20:00:42 dutta Exp $
+// $Id: TrackingMonitor.h,v 1.5 2010/04/19 21:54:40 dutta Exp $
 
 #include <memory>
 #include <fstream>
@@ -38,6 +38,7 @@ class TrackingMonitor : public edm::EDAnalyzer
 
         virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup);
         virtual void analyze(const edm::Event&, const edm::EventSetup&);
+        virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
     private:
         void doProfileX(TH2 * th2, MonitorElement* me);

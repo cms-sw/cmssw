@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/27 10:38:12 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/04/19 21:54:40 $
+ *  $Revision: 1.13 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -301,14 +301,17 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         return;
     }
 }
-
+void TrackingMonitor::endRun(const edm::Run&, const edm::EventSetup&) 
+{
+  if (doLumiAnalysis) {
+    dqmStore_->disableSoftReset(NumberOfTracks);
+    theTrackAnalyzer->undoSoftReset(dqmStore_);    
+  }
+  
+}
 
 void TrackingMonitor::endJob(void) 
 {
-    if (doLumiAnalysis) {
-      dqmStore_->disableSoftReset(NumberOfTracks);
-      theTrackAnalyzer->undoSoftReset(dqmStore_);    
-    }
     bool outputMEsInRootFile   = conf_.getParameter<bool>("OutputMEsInRootFile");
     std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
     if(outputMEsInRootFile)
