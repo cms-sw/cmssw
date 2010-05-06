@@ -3,8 +3,28 @@
 # strip of the directory name for this shell script
 export SHELLDIR=`dirname $0`
 # if no directory specified we need to use the local directory
-if [ ! -n "$SHELLDIR" ] ; then
-  export SHELLDIR=.
+if [ ! -n "$SHELLDIR" ] || [ "$SHELLDIR" == "." ] ; then
+  export SHELLDIR=$PWD
+fi
+
+# see if we are running in standalone mode
+if [ -n "$CMSSW_BASE" ] && [ `expr "$SHELLDIR" : "$CMSSW_BASE"` -gt 0 ]; then
+  export SHELLFROMRELEASE='true'
+  #echo "from CMSSW_BASE"
+fi
+if [ -n "$CMSSW_RELEASE_BASE" ] && [ `expr "$SHELLDIR" : "$CMSSW_RELEASE_BASE"` -gt 0 ]; then
+  export SHELLFROMRELEASE='true'
+  #echo "from CMSSW_RELEASE_BASE"
+fi
+if [ ! -n "$SHELLFROMRELEASE" ]; then
+  export CMSSW_BASE=$SHELLDIR
+  export CMSSW_SEARCH_PATH="."
+  export CMSSW_DATA_PATH="."
+  export ROOTSYS=$CMSSW_BASE/external/root 
+  export LD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/gcc/lib:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
+  export LD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
+  export DYLD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$DYLD_LIBRARY_PATH
+  export PATH=${ROOTSYS}/bin:$PATH
 fi
 
 # parse arguments to find ones handled by this script
