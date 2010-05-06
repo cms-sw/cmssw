@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.15 2010/03/14 20:03:37 amraktad Exp $
+// $Id: FWTableViewManager.cc,v 1.16 2010/05/06 18:03:08 amraktad Exp $
 //
 
 // system include files
@@ -150,6 +150,12 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
    column("et", 1, "Et").
    column("eta", 3).
    column("phi", 3);
+   
+   table("CaloRecHit").
+   column("id", TableEntry::INT,"detid.rawId").
+   column("energy",3).
+   column("time",3).
+   column("flags",TableEntry::INT,"flags");
 }
 
 FWTableViewManager::~FWTableViewManager()
