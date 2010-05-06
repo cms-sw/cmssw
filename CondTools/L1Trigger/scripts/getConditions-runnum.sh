@@ -39,7 +39,12 @@ export SCRAM_ARCH=slc5_ia32_gcc434
 eval `scramv1 run -sh`
 
 echo "`date` : initializing sqlite file"
-$CMSSW_BASE/src/CondTools/L1Trigger/test/bootstrap.com -l
+if [ -e $CMSSW_BASE/src/CondFormats/L1TObjects/xml ]
+    then
+    $CMSSW_BASE/src/CondTools/L1Trigger/test/bootstrap.com -l
+else
+    $CMSSW_RELEASE_BASE/src/CondTools/L1Trigger/test/bootstrap.com
+fi
 
 # copy default objects
 cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadCondDB_cfg.py tagBase=${tagbase}_hlt inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb runNumber=${runnum}
