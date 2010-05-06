@@ -631,12 +631,53 @@ def uploadSqliteFile(sqliteFileDirName, sqliteFileName, dropbox="/DropBox"):
         print "Can't change permission to file: " + sqliteFileDirName + sqliteFileName + ".txt"
         return False
 
-    acmd = "scp -p " + sqliteFileDirName + sqliteFileName + ".db " + sqliteFileDirName + sqliteFileName + ".txt webcondvm.cern.ch:/tmp"
+    acmd = "cp " + sqliteFileDirName + sqliteFileName + ".db " + sqliteFileDirName + sqliteFileName + ".txt ." 
     print acmd
     outcmd = commands.getstatusoutput(acmd)
     print outcmd[1]
     if outcmd[0]:
-        print "Couldn't scp the files!"
+        print "Couldn't cd to " + sqliteFileDirName
+        return False
+
+    acmd = "tar -cvjf " + sqliteFileName + ".tar.bz2 " + sqliteFileName + ".db " + sqliteFileName + ".txt"
+    print acmd
+    outcmd = commands.getstatusoutput(acmd)
+    print outcmd[1]
+    if outcmd[0]:
+        print "Couldn't zip the files!"
+        return False
+
+    acmd = "chmod a+w " + sqliteFileName + ".tar.bz2"
+    outcmd = commands.getstatusoutput(acmd)
+    print acmd
+#    print outcmd[1]
+    if outcmd[0]:
+        print "Can't change permission to file: " + sqliteFileDirName + sqliteFileName + ".tar.bz2"
+        return False
+
+    acmd = "scp -p " + sqliteFileName + ".tar.bz2" + " webcondvm.cern.ch:" + dropbox
+    print acmd
+    outcmd = commands.getstatusoutput(acmd)
+    print outcmd[1]
+    if outcmd[0]:
+        print "Couldn't scp the files to DropBox!"
+        return False
+
+
+    acmd = "mv " + sqliteFileName + ".tar.bz2 " + sqliteFileDirName
+    print acmd
+    outcmd = commands.getstatusoutput(acmd)
+    print outcmd[1]
+    if outcmd[0]:
+        print "Couldn't mv the file to " + sqliteFileDirName
+        return False
+
+    acmd = "rm " + sqliteFileName + ".db " + sqliteFileName + ".txt"
+    print acmd
+    outcmd = commands.getstatusoutput(acmd)
+    print outcmd[1]
+    if outcmd[0]:
+        print "Couldn't rm the db and txt files"
         return False
 
 #    acmd = "scp -p " + sqliteFileDirName + sqliteFileName + ".txt webcondvm.cern.ch:/tmp"
@@ -647,12 +688,12 @@ def uploadSqliteFile(sqliteFileDirName, sqliteFileName, dropbox="/DropBox"):
 #        print "Can't change permission to file: " + sqliteFileName + ".txt"
 #        return False
 
-    acmd = "ssh webcondvm.cern.ch \"mv /tmp/" + sqliteFileName + ".db /tmp/" + sqliteFileName + ".txt " + dropbox +"\""
-    print acmd
-    outcmd = commands.getstatusoutput(acmd)
-    print outcmd[1]
-    if outcmd[0]:
-        print "Can't move files from tmp to dropbox!"
+#    acmd = "ssh webcondvm.cern.ch \"mv /tmp/" + sqliteFileName + ".db /tmp/" + sqliteFileName + ".txt " + dropbox +"\""
+#    print acmd
+#    outcmd = commands.getstatusoutput(acmd)
+#    print outcmd[1]
+#    if outcmd[0]:
+#        print "Can't move files from tmp to dropbox!"
         return False
 
 #    acmd = "ssh webcondvm.cern.ch \"mv /tmp/" + final_sqlite_file_name + ".txt "+dropbox +"\""
