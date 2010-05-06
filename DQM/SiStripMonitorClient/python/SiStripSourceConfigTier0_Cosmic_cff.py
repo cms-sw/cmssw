@@ -28,22 +28,18 @@ import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_cosmicTk  = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrack_cosmicTk.TrackProducer = 'cosmictrackfinderP5'
 SiStripMonitorTrack_cosmicTk.Mod_On        = False
-SiStripMonitorTrack_cosmicTk.FolderName    = 'Tracking/TrackParameters'
-SiStripMonitorTrack_cosmicTk.TH1ClusterStoNCorr.Nbinx = 200
+
 # Clone for CKF Tracks
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_ckf = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrack_ckf.TrackProducer      = 'ctfWithMaterialTracksP5'
 SiStripMonitorTrack_ckf.Mod_On             = False
-SiStripMonitorTrack_ckf.FolderName         = 'Tracking/TrackParameters'
-SiStripMonitorTrack_ckf.TH1ClusterStoNCorr.Nbinx = 200
+
 # Clone for Road Search  Tracks
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_rs = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrack_rs.TrackProducer       = 'rsWithMaterialTracksP5'
 SiStripMonitorTrack_rs.Mod_On              = False
-SiStripMonitorTrack_rs.FolderName          = 'Tracking/TrackParameters'
-SiStripMonitorTrack_rs.TH1ClusterStoNCorr.Nbinx = 200
 
 # TrackerMonitorTrack ####
 # Clone for Cosmic Track Finder
