@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.35 2009/10/15 01:18:02 srappocc Exp $
+// $Id: Jet.cc,v 1.36 2009/11/13 17:30:03 cbern Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -101,13 +101,16 @@ Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
 }
 
 /// constructor helper that tries to import the specific info from the source jet
-void Jet::tryImportSpecific(const reco::Jet &source) {
-    const std::type_info & type = typeid(source);
-    if (type == typeid(reco::CaloJet)) {
-        specificCalo_.push_back( (static_cast<const reco::CaloJet &>(source)).getSpecific() );
-    } else if (type == typeid(reco::PFJet)) {
-        specificPF_.push_back( (static_cast<const reco::PFJet &>(source)).getSpecific() );
-    }
+void Jet::tryImportSpecific(const reco::Jet& source) 
+{
+  const std::type_info & type = typeid(source);
+  if( type == typeid(reco::CaloJet) ){
+    specificCalo_.push_back( (static_cast<const reco::CaloJet&>(source)).getSpecific() );
+  } else if( type == typeid(reco::JPTJet) ){
+    specificJPT_.push_back( (static_cast<const reco::JPTJet&>(source)).getSpecific() );
+  } else if( type == typeid(reco::PFJet) ){
+    specificPF_.push_back( (static_cast<const reco::PFJet&>(source)).getSpecific() );
+  } 
 }
 
 /// destructor
