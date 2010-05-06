@@ -40,10 +40,10 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         # Window Parameters require that reconstructed time occurs min and max window time
                         # Time Parameters are expressed as coefficients in polynomial expansion in 1/energy:  [0]+[1]/E + ...
                         HFInWindowStat = cms.PSet(hflongMinWindowTime=cms.vdouble([-10]),
-                                                  hflongMaxWindowTime=cms.vdouble([8]),
+                                                  hflongMaxWindowTime=cms.vdouble([10]),
                                                   hflongEthresh=cms.double(40.),
-                                                  hfshortMinWindowTime=cms.vdouble([-10]),
-                                                  hfshortMaxWindowTime=cms.vdouble([8]),
+                                                  hfshortMinWindowTime=cms.vdouble([-12]),
+                                                  hfshortMaxWindowTime=cms.vdouble([10]),
                                                   hfshortEthresh=cms.double(40.),
                                                   ),
                         
