@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:32 EST 2008
-// $Id: FWConfigurationManager.cc,v 1.11 2010/04/26 07:19:14 yana Exp $
+// $Id: FWConfigurationManager.cc,v 1.12 2010/05/06 12:49:09 amraktad Exp $
 //
 
 // system include files
@@ -117,7 +117,7 @@ FWConfigurationManager::writeToFile(const std::string& iName) const
       }
       FWConfiguration top;
       to(top);
-      fwLog(fwlog::kInfo) << "Writing to file "<< iName.c_str() << "...";
+      fwLog(fwlog::kInfo) << "Writing to file "<< iName.c_str() << "...\n";
       fflush(stdout);
 
       streamTo(file, top, "top");

@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.200 2010/04/28 14:08:12 eulisse Exp $
+// $Id: FWGUIManager.cc,v 1.201 2010/04/29 16:58:05 amraktad Exp $
 
 //
 
@@ -284,7 +284,19 @@ FWGUIManager::createView(const std::string& iName, TEveWindowSlot* slot)
       throw std::runtime_error(std::string("Unable to create view named ")+iName+" because it is unknown");
    }
    
-   if (!slot) slot = m_viewSecPack->NewSlot();
+   if (!slot)
+   {
+      if (m_viewSecPack)
+      {
+         slot = m_viewSecPack->NewSlot();
+      }
+      else
+      {
+         slot = m_viewPrimPack->NewSlot();
+         m_viewSecPack = m_viewPrimPack->NewSlot()->MakePack();
+         m_viewSecPack->SetShowTitleBar(kFALSE);
+      }
+   }
    TEveCompositeFrame *ef = slot->GetEveFrame();
    FWViewBase* viewBase = itFind->second(slot);
    //in future, get context from 'view'

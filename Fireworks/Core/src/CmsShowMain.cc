@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.158 2010/04/29 16:58:05 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.159 2010/05/06 12:49:08 amraktad Exp $
 //
 
 // system include files
@@ -588,185 +588,18 @@ CmsShowMain::setupConfiguration()
 {
    m_guiManager->updateStatus("Setting up configuration...");
    if(m_configFileName.empty() ) {
-      std::cout << "WARNING: no configuration is loaded." << std::endl;
+      fwLog(fwlog::kInfo) << "no configuration is loaded." << std::endl;
+      m_guiManager->getMainFrame()->MapSubwindows();
+      m_guiManager->getMainFrame()->Layout();
+      m_guiManager->getMainFrame()->MapRaised();
       m_configFileName = "newconfig.fwc";
-      m_guiManager->createView("Rho Phi");
-      m_guiManager->createView("Rho Z");
-      m_guiManager->createView("3D Lego");
-      m_guiManager->createView("Glimpse");
-
-      FWPhysicsObjectDesc ecal("ECal",
-                               TClass::GetClass("CaloTowerCollection"),
-                               "ECal",
-                               FWDisplayProperties(kRed),
-                               "towerMaker",
-                               "",
-                               "",
-                               "",
-                               2);
-
-      FWPhysicsObjectDesc hcal("HCal",
-                               TClass::GetClass("CaloTowerCollection"),
-                               "HCal",
-                               FWDisplayProperties(kBlue),
-                               "towerMaker",
-                               "",
-                               "",
-                               "",
-                               2);
-
-      FWPhysicsObjectDesc jets("Jets",
-                               TClass::GetClass("reco::CaloJetCollection"),
-                               "Jets",
-                               FWDisplayProperties(kYellow),
-                               "iterativeCone5CaloJets",
-                               "",
-                               "",
-                               "$.pt()>15",
-                               3);
-
-
-      FWPhysicsObjectDesc l1EmTrigs("L1EmTrig",
-                                    TClass::GetClass("l1extra::L1EmParticleCollection"),
-                                    "L1EmTrig",
-                                    FWDisplayProperties(kOrange),
-                                    "hltL1extraParticles",
-                                    "Isolated",
-                                    "",
-                                    "$.pt()>15",
-                                    3);
-
-      FWPhysicsObjectDesc l1Muons("L1-Muons",
-                                  TClass::GetClass("l1extra::L1MuonParticleCollection"),
-                                  "L1-Muons",
-                                  FWDisplayProperties(kViolet),
-                                  "hltL1extraParticles",
-                                  "",
-                                  "",
-                                  "",
-                                  3);
-
-      FWPhysicsObjectDesc l1MET("L1-MET",
-                                TClass::GetClass("l1extra::L1EtMissParticleCollection"),
-                                "L1-MET",
-                                FWDisplayProperties(kTeal),
-                                "hltL1extraParticles",
-                                "",
-                                "",
-                                "",
-                                3);
-
-      FWPhysicsObjectDesc l1Jets("L1-Jets",
-                                 TClass::GetClass("l1extra::L1JetParticleCollection"),
-                                 "L1-Jets",
-                                 FWDisplayProperties(kMagenta),
-                                 "hltL1extraParticles",
-                                 "Central",
-                                 "",
-                                 "$.pt()>15",
-                                 3);
-
-
-      FWPhysicsObjectDesc tracks("Tracks",
-                                 TClass::GetClass("reco::TrackCollection"),
-                                 "Tracks",
-                                 FWDisplayProperties(kGreen),
-                                 "generalTracks",
-                                 "",
-                                 "",
-                                 "$.pt()>2",
-                                 1);
-
-      FWPhysicsObjectDesc muons("Muons",
-                                TClass::GetClass("reco::MuonCollection"),
-                                "Muons",
-                                FWDisplayProperties(kRed),
-                                "muons",
-                                "",
-                                "",
-                                "$.isGlobalMuon()",
-                                5);
-
-      FWPhysicsObjectDesc electrons("Electrons",
-                                    TClass::GetClass("reco::GsfElectronCollection"),
-                                    "Electrons",
-                                    FWDisplayProperties(kCyan),
-                                    "pixelMatchGsfElectrons",
-                                    "",
-                                    "",
-                                    "$.hadronicOverEm()<0.05",
-                                    3);
-
-      FWPhysicsObjectDesc genParticles("GenParticles",
-                                       TClass::GetClass("reco::GenParticleCollection"),
-                                       "GenParticles",
-                                       FWDisplayProperties(kMagenta),
-                                       "genParticles",
-                                       "",
-                                       "",
-                                       "abs($.pdgId())==11 || abs($.pdgId())==13",
-                                       6);
-
-      // Vertices
-      FWPhysicsObjectDesc vertices("Vertices",
-                                   TClass::GetClass("std::vector<reco::Vertex>"),
-                                   "Vertices",
-                                   FWDisplayProperties(kYellow),
-                                   "offlinePrimaryVertices",
-                                   "",
-                                   "",
-                                   "",
-                                   10);
-
-      FWPhysicsObjectDesc mets("MET",
-                               TClass::GetClass("reco::CaloMETCollection"),
-                               "MET",
-                               FWDisplayProperties(kRed),
-                               "metNoHF",
-                               "",
-                               "",
-                               "",
-                               3);
-
-      FWPhysicsObjectDesc dtSegments("DT-segments",
-                                     TClass::GetClass("DTRecSegment4DCollection"),
-                                     "DT-segments",
-                                     FWDisplayProperties(kBlue),
-                                     "dt4DSegments",
-                                     "",
-                                     "",
-                                     "",
-                                     1);
-
-      FWPhysicsObjectDesc cscSegments("CSC-segments",
-                                      TClass::GetClass("CSCSegmentCollection"),
-                                      "CSC-segments",
-                                      FWDisplayProperties(kBlue),
-                                      "cscSegments",
-                                      "",
-                                      "",
-                                      "",
-                                      1);
-      registerPhysicsObject(ecal);
-      registerPhysicsObject(hcal);
-      registerPhysicsObject(jets);
-      registerPhysicsObject(l1EmTrigs);
-      registerPhysicsObject(l1Muons);
-      registerPhysicsObject(l1MET);
-      registerPhysicsObject(l1Jets);
-      registerPhysicsObject(tracks);
-      registerPhysicsObject(muons);
-      registerPhysicsObject(electrons);
-      registerPhysicsObject(genParticles);
-      registerPhysicsObject(vertices);
-      registerPhysicsObject(mets);
-      registerPhysicsObject(dtSegments);
-      registerPhysicsObject(cscSegments);
-
-   } else {
+      m_guiManager->createView("Rho Phi"); 
+      m_guiManager->createView("Rho Z"); 
+   }
+   else {
       char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
       if(0==whereConfig) {
-         std::cerr <<"unable to load configuration file '"<<m_configFileName<<"' will load default instead."<<std::endl;
+         fwLog(fwlog::kInfo) <<"unable to load configuration file '"<<m_configFileName<<"' will load default instead."<<std::endl;
          whereConfig = gSystem->Which(TROOT::GetMacroPath(), "default.fwc", kReadPermission);
          assert(whereConfig && "Default configuration cannot be found. Malformed Fireworks installation?");
          m_configFileName = whereConfig;
