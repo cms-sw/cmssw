@@ -20,7 +20,8 @@ addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
                  doL1Cleaning = False,
                  doL1Counters = True,                 
                  genJetCollection = cms.InputTag("ak5GenJets"),
-                 doJetID      = False
+                 doJetID      = True,
+                 jetIdLabel   = "ak5"
                  )
 
 ## uncomment the following lines to add ak7CaloJets to your PAT output
