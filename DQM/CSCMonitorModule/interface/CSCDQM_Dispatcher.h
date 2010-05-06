@@ -52,6 +52,9 @@ namespace cscdqm {
       /** If full standby was already processed? */
       bool fullStandbyProcessed;
 
+      /** Last standby value. To be checked for HV changes */
+      HWStandbyType lastStandby;
+
     public:
 
       /**
@@ -94,14 +97,17 @@ namespace cscdqm {
        * @param  standby Standby information
        */
       void processStandby(HWStandbyType& standby) {
-        processor.standbyEfficiencyHistos(standby);
-        if (config->getIN_FULL_STANDBY()) {
-          // Lets mark CSCs as BAD - have not ever ever been in !STANDBY 
-          if (!fullStandbyProcessed) {
-            processor.standbyEfficiencyHistos(standby);
-            processor.writeShifterHistograms();
-            fullStandbyProcessed = true;
+        if (lastStandby != standby) {
+          processor.standbyEfficiencyHistos(standby);
+          if (config->getIN_FULL_STANDBY()) {
+            // Lets mark CSCs as BAD - have not ever ever been in !STANDBY 
+            if (!fullStandbyProcessed) {
+              processor.standbyEfficiencyHistos(standby);
+              processor.writeShifterHistograms();
+              fullStandbyProcessed = true;
+            }
           }
+          lastStandby = standby;
         }
       }
 

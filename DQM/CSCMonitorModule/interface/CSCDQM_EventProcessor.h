@@ -57,6 +57,7 @@ namespace cscdqm {
   struct HWStandbyType {
   
     // if standby flag should be considered at all?
+    // at the start it will be false, thus good for last value ;)
     bool process;
 
     // ME+
@@ -77,8 +78,23 @@ namespace cscdqm {
       MeM = MeM || !ready;
     }
 
-    bool fullStandby() {
+    bool fullStandby() const {
       return (MeM && MeP);
+    }
+
+    bool operator==(const HWStandbyType& t) const {
+      return (t.MeP == MeP && t.MeM == MeM && t.process == process);
+    }
+
+    bool operator!=(const HWStandbyType& t) const {
+      return !(*this == t);
+    }
+
+    const HWStandbyType& operator= (const HWStandbyType& t) {
+      MeP = t.MeP;
+      MeM = t.MeM;
+      process = t.process;
+      return *this;
     }
 
   };
