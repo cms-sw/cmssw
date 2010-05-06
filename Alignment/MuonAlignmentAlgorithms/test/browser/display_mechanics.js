@@ -4,6 +4,7 @@
 var baseURL="http://hepr8.physics.tamu.edu/vadim/cms/mual/plots/";
 //var ResultsFolder="";
 var ResultsFolder = baseURL + "commissioning2/";
+//var ResultsFolder = baseURL + "hw/";
 var refURL=baseURL+"ref.plots";
 
 var RunsList="runs_list.js";
@@ -100,13 +101,14 @@ var CSC_TYPES = [
 			['ME+1/ALL','ALL', 36],
 			['ME+1/3','3', 36],
 			['ME+1/2','2', 36],
-			['ME+1/1','1', 36],
-			['ME+1/4','4', 36]]
+			['ME+1/1','1', 36]
+			//['ME+1/4','4', 36]
+			]
 		]]
 	],
 	['ME-','m',[
 		['ME-1','1',[
-			['ME-1/4','4', 36],
+			//['ME-1/4','4', 36],
 			['ME-1/1','1', 36],
 			['ME-1/2','2', 36],
 			['ME-1/3','3', 36],
@@ -561,7 +563,7 @@ function showCSCTable(id)
 				if (c_list[i] && c_list[i].length > 0) {
 					var side = c_list[i][0];
 					var stations =  c_list[i][2];
-					out += "<tr class='me'><td rowspan='15' id='"+side+"' class='me' >"+side+"</td>";
+					out += "<tr class='me'><td rowspan='14' id='"+side+"' class='me' >"+side+"</td>";
 					if (stations && stations.length > 0) { // first endcap's all rings first
 						for (var s=0; s< stations.length; s++) {
 							if (side=='ME-') break;
