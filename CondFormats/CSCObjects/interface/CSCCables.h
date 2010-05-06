@@ -2,6 +2,7 @@
 #define CSCCables_h
 
 #include <vector>
+#include <string>
 
 class CSCCables{
  public:
