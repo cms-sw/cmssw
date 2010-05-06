@@ -5,8 +5,8 @@ particleFlowDisplacedVertex = cms.EDProducer("PFDisplacedVertexProducer",
     vertexCandidatesLabel = cms.InputTag("particleFlowDisplacedVertexCandidate"),
 
     # verbosity 
-    verbose = cms.untracked.bool(False),
-                                   
+    verbose = cms.untracked.bool(True),
+                                  
     # Debug flag
     debug = cms.untracked.bool(False),
 
@@ -65,11 +65,11 @@ particleFlowDisplacedVertex = cms.EDProducer("PFDisplacedVertexProducer",
         # Minimal sum pt of secondary tracks for displaced vertices.
         # Below this value we find either loopers splitted in two parts eiter
         # fake vertices in forward direction
-        pt_min = cms.double(.2),
+        pt_min = cms.double(0.5),
         # Minimal pT and log10(P_primary/P_secondary) for primary track in kinks (Primary+Secondary)
         # which are not identifier as K-+ decays
-        pt_kink_min = cms.double(1.4),
-        logPrimSec_min = cms.double(0.2),
+        pt_kink_min = cms.double(3.0),
+        logPrimSec_min = cms.double(0.0),
         # maximum absoluta value of eta for loopers
         looper_eta_max = cms.double(0.1),
         # Masses cuts for selections
@@ -78,7 +78,7 @@ particleFlowDisplacedVertex = cms.EDProducer("PFDisplacedVertexProducer",
         # Angle between the primaryVertex-secondaryVertex direction and secondary tracks direction
         # this angle means that the final system shall propagate in the same direction than initial system
         #                    all_max, CV and V0 max
-        angles = cms.vdouble(60,      40)
+        angles = cms.vdouble(15,      15)
     ),
 
     # Adaptive Vertex Fitter parameters identical to the default ones except sigmacut.

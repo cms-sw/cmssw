@@ -51,13 +51,11 @@ PFDisplacedVertexHelper::isTrackSelected(const reco::Track& trk,
   bool isGoodTrack = false;
     
   bool isHighPurity = trk.quality( trk.qualityByName(tracksSelector_.quality().data()) );
-    
-  // High Purity is always kept
-  if (isHighPurity) return true;
-    
+        
   double nChi2  = trk.normalizedChi2(); 
   double pt = trk.pt();
-    
+  int nHits = trk.numberOfValidHits();
+
   bool bIsPrimary = 
     (
      (vertexTrackType == reco::PFDisplacedVertex::T_TO_VERTEX)
@@ -69,12 +67,12 @@ PFDisplacedVertexHelper::isTrackSelected(const reco::Track& trk,
   if (bIsPrimary) {
     // Primary or merged track selection
     isGoodTrack = 
-      nChi2 > tracksSelector_.nChi2_min()
-      && nChi2 <  tracksSelector_.nChi2_max()
+      ( ( nChi2 > tracksSelector_.nChi2_min()
+          && nChi2 <  tracksSelector_.nChi2_max())
+	|| isHighPurity )
       && pt >  tracksSelector_.pt_min();
   } else {
     // Secondary tracks selection
-    int nHits = trk.numberOfValidHits();
     int nOuterHits = trk.trackerExpectedHitsOuter().numberOfHits();
 
     double dxy = trk.dxy(pvtx_);
@@ -181,8 +179,8 @@ PFDisplacedVertexHelper::identifyVertex(const reco::PFDisplacedVertex& v) const{
 
     bool bKMass = isKaonMass(v);
  
-    bool isKMinus = bKMass && c1 > 0;
-    bool isKPlus = bKMass && c1 < 0;
+    bool isKPlus = bKMass && c1 > 0;
+    bool isKMinus = bKMass && c1 < 0;
 
     if(isKMinus) return PFDisplacedVertex::KMINUS_DECAY_LOOSE;
     if(isKPlus) return PFDisplacedVertex::KPLUS_DECAY_LOOSE;
@@ -202,7 +200,8 @@ PFDisplacedVertexHelper::identifyVertex(const reco::PFDisplacedVertex& v) const{
 
   // A vertex with at least 3 tracks is considered as high purity nuclear interaction
   // the only exception is K- decay into 3 prongs. To be studied.
-  bool isNuclearHighPurity = nTracks > 2; 
+  bool isNuclearHighPurity = nTracks > 2 && mass_ee > vertexIdentifier_.mNucl_min(); 
+  bool isFakeHighPurity = nTracks > 2 && mass_ee < vertexIdentifier_.mNucl_min();
   // Two secondary tracks with some minimal tracks angular opening are still accepted
   // as nuclear interactions
   bool isNuclearLowPurity = 
@@ -231,13 +230,21 @@ PFDisplacedVertexHelper::identifyVertex(const reco::PFDisplacedVertex& v) const{
 
   if (isNuclearHighPurity) return PFDisplacedVertex::NUCL;
   if (isNuclearLowPurity) return PFDisplacedVertex::NUCL_LOOSE;
-  if (isFakeKink || isFakeNucl) return  PFDisplacedVertex::FAKE;
+  if (isFakeKink || isFakeNucl || isFakeHighPurity) return  PFDisplacedVertex::FAKE;
   if (isNuclearKink)  return  PFDisplacedVertex::NUCL_KINK;
   
 
   return PFDisplacedVertex::ANY;
 
 }
+
+
+
+
+
+
+
+
 
 double PFDisplacedVertexHelper::angle(const PFDisplacedVertex& v) const {
 

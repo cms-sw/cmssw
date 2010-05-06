@@ -43,6 +43,9 @@ class PFDisplacedVertexHelper {
   /// Vertex identification tool
   reco::PFDisplacedVertex::VertexType identifyVertex(const reco::PFDisplacedVertex& v) const;
 
+  /// Set Vertex direction using the primary vertex
+  math::XYZPoint primaryVertex() const { return pvtx_;}
+
   void Dump(std::ostream& out = std::cout) const;
 
  private:

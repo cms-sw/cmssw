@@ -468,6 +468,8 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 			       pattern, vertexTrackType, weight);
 
 
+    displacedVertex.setPrimaryDirection(helper_.primaryVertex());
+
   }
   
   if (debug_) cout << "== End vertexing procedure ==" << endl;
