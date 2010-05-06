@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_0/GRun/V15 (CMSSW_3_6_0_HLT6)
+# /dev/CMSSW_3_6_0/GRun/V17 (CMSSW_3_6_0_HLT6)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/GRun/V15')
+  tableName = cms.string('/dev/CMSSW_3_6_0/GRun/V17')
 )
 
 
@@ -105,7 +105,7 @@ ESUnpackerWorkerESProducer = cms.ESProducer( "ESUnpackerWorkerESProducer",
     ESMIPkeV = cms.double( 81.08 ),
     ESMIPADC = cms.double( 55.0 ),
     ESBaseline = cms.int32( 0 ),
-    ESRecoAlgo = cms.untracked.int32( 0 )
+    ESRecoAlgo = cms.int32( 0 )
   )
 )
 EcalBarrelGeometryFromDBEP = cms.ESProducer( "EcalBarrelGeometryFromDBEP",
