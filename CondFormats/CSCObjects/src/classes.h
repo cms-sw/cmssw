@@ -18,6 +18,7 @@
 #include "CondFormats/CSCObjects/interface/CSCChamberIndex.h"
 #include "CondFormats/CSCObjects/interface/CSCDQM_DCSData.h"
 #include "CondFormats/CSCObjects/interface/CSCDBChipSpeedCorrection.h"
+#include "CondFormats/CSCObjects/interface/CSCCables.h"
 
 
 namespace {

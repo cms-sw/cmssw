@@ -60,6 +60,9 @@
  <class name="CSCChamberIndex"/>
  <class name="std::vector< CSCMapItem::MapItem >"/>
 
+ <class name="CSCCables"/>
+ <class name="std::vector< CSCCables::Cables >"/>
+
  <class name="CSCCrateMap"/>
 
  <class name="CSCDDUMap"/>
