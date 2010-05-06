@@ -43,6 +43,8 @@
 <use name=Geometry/EcalAlgo>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/Records>
+
+<use name=RecoLocalCalo/EcalRecAlgos>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/TrackAssociator>
