@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/20 17:29:27 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/03/01 10:27:09 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -71,6 +71,7 @@ void DTT0ValidateHandler::addNewObject( int runNumber ) {
   int sec;
   int qua;
   int lay;
+  int ldb;
   int cel;
   int cur;
   int ndt = 20;
@@ -93,6 +94,7 @@ void DTT0ValidateHandler::addNewObject( int runNumber ) {
                ( qua == 2 ) ) continue;
           lay = 5;
           while ( --lay ) {
+            ldb = ( runNumber <= 3 ? lay : lay + 10 );
             cur = ndt;
             while ( --cur ) {
               cel = ( ckrun ? cur : ndt - cur );
@@ -100,13 +102,13 @@ void DTT0ValidateHandler::addNewObject( int runNumber ) {
               t0rms  = random() * 0.2 / 0x7fffffff;
               t0mean -= 4.0;
 //              t0rms  /= 4.0;
-              status = t0->set( whe, sta, sec, qua, lay, cel,
+              status = t0->set( whe, sta, sec, qua, ldb, cel,
                                 t0mean, t0rms, DTTimeUnits::counts );
               outFile << whe << " "
                       << sta << " "
                       << sec << " "
                       << qua << " "
-                      << lay << " "
+                      << ldb << " "
                       << cel << " "
                       << t0mean << " "
                       << t0rms  << std::endl;
@@ -115,17 +117,17 @@ void DTT0ValidateHandler::addNewObject( int runNumber ) {
                                     << sta << " "
                                     << sec << " "
                                     << qua << " "
-                                    << lay << " "
+                                    << ldb << " "
                                     << cel << " , status = "
                                     << status << std::endl;
-              status = t0->get( whe, sta, sec, qua, lay, cel,
+              status = t0->get( whe, sta, sec, qua, ldb, cel,
                                 ckmean, ckrms, DTTimeUnits::counts );
               if ( status ) logFile << "ERROR while checking cell T0 "
                                     << whe << " "
                                     << sta << " "
                                     << sec << " "
                                     << qua << " "
-                                    << lay << " "
+                                    << ldb << " "
                                     << cel << " , status = "
                                     << status << std::endl;
               if ( ( fabs( ckmean - t0mean ) > 0.0001 ) ||
@@ -135,7 +137,7 @@ void DTT0ValidateHandler::addNewObject( int runNumber ) {
                            << sta << " "
                            << sec << " "
                            << qua << " "
-                           << lay << " "
+                           << ldb << " "
                            << cel << " : "
                            << t0mean << " " << t0rms << " -> "
                            << ckmean << " " << ckrms << std::endl;
