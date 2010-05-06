@@ -38,10 +38,14 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                            ),
 
                         # Window Parameters require that reconstructed time occurs min and max window time
-                        # Time Parameters are expressed as coefficients in polynomial expansion in energy:  [0]+[1]*E + ...
-                        HFInWindowStat = cms.PSet(hfMinWindowTime=cms.vdouble([-10]),
-                                                  hfMaxWindowTime=cms.vdouble([8]),
-                                                  Ethresh=cms.double(40.)),
+                        # Time Parameters are expressed as coefficients in polynomial expansion in 1/energy:  [0]+[1]/E + ...
+                        HFInWindowStat = cms.PSet(hflongMinWindowTime=cms.vdouble([-10]),
+                                                  hflongMaxWindowTime=cms.vdouble([8]),
+                                                  hflongEthresh=cms.double(40.),
+                                                  hfshortMinWindowTime=cms.vdouble([-10]),
+                                                  hfshortMaxWindowTime=cms.vdouble([8]),
+                                                  hfshortEthresh=cms.double(40.),
+                                                  ),
                         
                         rechitstat = cms.PSet(short_HFlongshortratio = cms.double(0.995), # max allowed ratio of (L-S)/(L+S)
                                             short_HFETthreshold    = cms.double(0.), # minimum ET (in GeV) required for a cell to be considered hot (started at 0.5, loosened to 2.0 after pion studies)

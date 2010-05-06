@@ -20,11 +20,16 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
   coef1_ = -0.38275;
   coef2_ = -0.012667;
   // Minimum energy of 10 GeV required
-  HFwindowEthresh_=(40);
-  HFwindowMinTime_.clear();
-  HFwindowMinTime_.push_back(-8);
-  HFwindowMaxTime_.clear();
-  HFwindowMaxTime_.push_back(10);
+  HFlongwindowEthresh_=40;
+  HFlongwindowMinTime_.clear();
+  HFlongwindowMinTime_.push_back(-10);
+  HFlongwindowMaxTime_.clear();
+  HFlongwindowMaxTime_.push_back(8);
+  HFlongwindowEthresh_=40;
+  HFlongwindowMinTime_.clear();
+  HFlongwindowMinTime_.push_back(-10);
+  HFlongwindowMaxTime_.clear();
+  HFlongwindowMaxTime_.push_back(8);
 }
 
 HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(int recoFirstSample,
@@ -45,9 +50,12 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(int recoFirstSample,
   coef2_              = HFDigiTimeParams.getParameter<double>("HFdigiflagCoef2");
 
   // Specify parameters used in forming HFInTimeWindow flag
-  HFwindowMinTime_    = HFTimeInWindowParams.getParameter<std::vector<double> >("hfMinWindowTime");
-  HFwindowMaxTime_    = HFTimeInWindowParams.getParameter<std::vector<double> >("hfMaxWindowTime");
-  HFwindowEthresh_    = HFTimeInWindowParams.getParameter<double>("Ethresh");
+  HFlongwindowMinTime_    = HFTimeInWindowParams.getParameter<std::vector<double> >("hflongMinWindowTime");
+  HFlongwindowMaxTime_    = HFTimeInWindowParams.getParameter<std::vector<double> >("hflongMaxWindowTime");
+  HFlongwindowEthresh_    = HFTimeInWindowParams.getParameter<double>("hflongEthresh");
+  HFshortwindowMinTime_    = HFTimeInWindowParams.getParameter<std::vector<double> >("hfshortMinWindowTime");
+  HFshortwindowMaxTime_    = HFTimeInWindowParams.getParameter<std::vector<double> >("hfshortMaxWindowTime");
+  HFshortwindowEthresh_    = HFTimeInWindowParams.getParameter<double>("hfshortEthresh");
 }
 
 HcalHFStatusBitFromDigis::~HcalHFStatusBitFromDigis(){}
@@ -118,17 +126,35 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
   
   // FLAG:  HcalCaloLabels:: HFinTimeWindow
   // Timing algorithm
-  if (hf.energy()>=HFwindowEthresh_)
+  if (hf.id().depth()==1)
     {
-      double en = hf.energy();
-      double mintime=0;
-      double maxtime=0;
-      for (unsigned int i=0;i<HFwindowMinTime_.size();++i)
-	mintime+=HFwindowMinTime_[i]*pow(en,i);
-      for (unsigned int i=0;i<HFwindowMaxTime_.size();++i)
-	maxtime+=HFwindowMaxTime_[i]*pow(en,i);
-      if (hf.time()<mintime || hf.time()>maxtime)
-	hf.setFlagField(1,HcalCaloFlagLabels::HFInTimeWindow);
+      if (hf.energy()>=HFlongwindowEthresh_)
+	{
+	  double en = hf.energy();
+	  double mintime=0;
+	  double maxtime=0;
+	  for (unsigned int i=0;i<HFlongwindowMinTime_.size();++i)
+	    mintime+=HFlongwindowMinTime_[i]*pow(1./en,i);
+	  for (unsigned int i=0;i<HFlongwindowMaxTime_.size();++i)
+	    maxtime+=HFlongwindowMaxTime_[i]*pow(1./en,i);
+	  if (hf.time()<mintime || hf.time()>maxtime)
+	    hf.setFlagField(1,HcalCaloFlagLabels::HFInTimeWindow);
+	}
+    }
+  else if (hf.id().depth()==2)
+    {
+      if (hf.energy()>=HFshortwindowEthresh_)
+	{
+	  double en = hf.energy();
+	  double mintime=0;
+	  double maxtime=0;
+	  for (unsigned int i=0;i<HFshortwindowMinTime_.size();++i)
+	    mintime+=HFshortwindowMinTime_[i]*pow(1./en,i);
+	  for (unsigned int i=0;i<HFshortwindowMaxTime_.size();++i)
+	    maxtime+=HFshortwindowMaxTime_[i]*pow(1./en,i);
+	  if (hf.time()<mintime || hf.time()>maxtime)
+	    hf.setFlagField(1,HcalCaloFlagLabels::HFInTimeWindow);
+	}
     }
 
   return;

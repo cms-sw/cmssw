@@ -11,8 +11,8 @@
     
    This class sets status bit in the status words for the revised CaloRecHit objets according to informatino from the digi associated to the hit.
     
-   $Date: 2010/04/28 17:48:58 $
-   $Revision: 1.5 $
+   $Date: 2010/04/30 19:26:50 $
+   $Revision: 1.6 $
    \author J. Temple -- University of Maryland and E. Yazgan
 */
 
@@ -56,9 +56,12 @@ private:
 
   // Store minimum/maximum allowed rechit times.  
   // (Times outside window are flagged)
-  double HFwindowEthresh_;
-  std::vector<double> HFwindowMinTime_;
-  std::vector<double> HFwindowMaxTime_;
+  double HFlongwindowEthresh_;
+  std::vector<double> HFlongwindowMinTime_;
+  std::vector<double> HFlongwindowMaxTime_;
+  double HFshortwindowEthresh_;
+  std::vector<double> HFshortwindowMinTime_;
+  std::vector<double> HFshortwindowMaxTime_;
 };
 
 #endif
