@@ -8,21 +8,25 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4NavigationHistory.hh"
+#include "Randomize.hh"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-//#define DebugLog
+#define DebugLog
 
 HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
 			     edm::ParameterSet const & p) : showerLibrary(0),
 							    fibre(0), 
-							    gflash(0) {
+							    gflash(0),
+							    fillHisto(false) {
 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeV");
@@ -43,6 +47,22 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
                            << ", use of parametrization for last part set to "
                            << parametrizeLast;
 
+#ifdef DebugLog
+  edm::Service<TFileService> tfile;
+  if (tfile.isAvailable()) {
+    fillHisto = true;
+    edm::LogInfo("HFShower") << "HFShowerParam::Save histos in directory "
+			     << "ProfileFromParam";
+    TFileDirectory showerDir = tfile->mkdir("ProfileFromParam");
+    em_2d         = showerDir.make<TH2F>("em_2d","Lateral Profile vs. Shower Depth;Radiation Length;Moliere Radius",800,800.0,1600.0,100,0.0,5.0);
+    em_long       = showerDir.make<TH1F>("em_long","Longitudinal Profile;Radiation Length;Number of Spots",800,800.0,1600.0);
+    em_lateral    = showerDir.make<TH1F>("em_lateral","Lateral Profile;Radiation Length;Moliere Radius",100,0.0,5.0);
+  } else {
+    fillHisto = false;
+    edm::LogInfo("HFShower") << "HFShowerParam::No file is available for "
+			     << "saving histos so the flag is set to false";
+  }
+#endif
   
   G4String attribute = "ReadOutName";
   G4String value     = name;
@@ -151,25 +171,45 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
 	    hit.edep     = 1;
 	    hits.push_back(hit);
 #ifdef DebugLog
+
+	    if (fillHisto) {
+	      em_2d->Fill(hit.position.z()/cm, hit.position.r()/cm);
+	      em_lateral->Fill(hit.position.r()/cm);
+	      em_long->Fill(hit.position.z()/cm);
+	    }
+
 	    LogDebug("HFShower") << "HFShowerParam: Hit at depth " << hit.depth
 				 << " with edep " << hit.edep << " Time " 
 				 << hit.time;
 #endif
 	  }
 	} else {
-	  std::vector<HFGflash::Hit>  hitSL = gflash->gfParameterization(*track, pin);
+	  std::vector<HFGflash::Hit>  hitSL = gflash->gfParameterization(aStep,kill, onlyLong);
 	  for (unsigned int i=0; i<hitSL.size(); i++) {
 	    bool ok = true;
 	    double zv  = std::abs(hitSL[i].position.z()) - gpar[4];
-	    if (zv < 0 || zv > gpar[1]) ok = false;
-	    if (hitSL[i].depth == 2 && zv < gpar[0]) ok = false;
+	    //depth
+	    int depth    = 1;
+	    if (G4UniformRand() > 0.5) depth = 2;
+	    if (zv < 0 || zv > gpar[1])     ok = false;
+	    if (depth == 2 && zv < gpar[0]) ok = false;
 	    if (ok) {
+	      //attenuation
+	      double time = fibre->tShift(localPoint,depth,0); //remaining part
+
 	      hit.position = hitSL[i].position;
-	      hit.depth    = hitSL[i].depth;
-	      hit.time     = hitSL[i].time;
-	      hit.edep     = hitSL[i].edep;
+	      hit.depth    = depth;
+	      hit.time     = time + hitSL[i].time;
+	      hit.edep     = 1;
 	      hits.push_back(hit);
 #ifdef DebugLog
+
+	    if (fillHisto) {
+	      em_2d->Fill(hit.position.z()/cm, hit.position.r()/cm);
+	      em_lateral->Fill(hit.position.r()/cm);
+	      em_long->Fill(hit.position.z()/cm);
+	    }
+
 	      LogDebug("HFShower") << "HFShowerParam: Hit at depth " << hit.depth
 				   << " with edep " << hit.edep << " Time " 
 				   << hit.time;

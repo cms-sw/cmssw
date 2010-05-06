@@ -42,7 +42,7 @@ public:
     double              pez;
   };
 
-  std::vector<Hit> gfParameterization(const G4Track& track, double incomingEnergy);
+  std::vector<Hit> gfParameterization(G4Step * aStep, bool & ok, bool onlyLong=false);
 
 private:    
 
@@ -53,19 +53,19 @@ private:
 
   Gflash::CalorimeterNumber jCalorimeter;
 
-  bool theWatcherOn;
-  bool theFillHisto;
+  bool     theWatcherOn;
+  bool     theFillHisto;
   G4double theBField;
 
-  G4int showerType ;
+  G4int    showerType ;
   G4double energyToDeposit; 
   G4double energyScale[Gflash::kNumberCalorimeter]; 
   G4double longHcal[Gflash::NPar];  
   G4double longEcal[Gflash::NPar];  
   G4double lateralPar[4]; 
 
-  TH1F  *em_incE, *em_ssp_rho, *em_ssp_z, *em_long, *em_long_sd, *em_nSpots_sd;
-  TH2F  *em_lateral, *em_lateral_sd;
+  TH1F     *em_incE, *em_ssp_rho, *em_ssp_z, *em_long, *em_lateral, *em_long_sd, *em_lateral_sd, *em_nSpots_sd;
+  TH2F     *em_2d, *em_2d_sd;
 };
 
 #endif // HFGflash_h

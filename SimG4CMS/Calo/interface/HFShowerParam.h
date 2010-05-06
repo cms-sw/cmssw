@@ -18,6 +18,8 @@
 class DDCompactView;
 class G4Step;
 
+#include <TH1F.h>
+#include <TH2F.h>
 #include <string>
 #include <vector>
  
@@ -53,6 +55,9 @@ private:
   bool                  trackEM, onlyLong, parametrizeLast;
   G4int                 emPDG, epPDG, gammaPDG;
   std::vector<double>   gpar;
+  bool                  fillHisto;
+  TH1F                  *em_long, *em_lateral;
+  TH2F                  *em_2d;
 };
 
 #endif // HFShowerParam_h
