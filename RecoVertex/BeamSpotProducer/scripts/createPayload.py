@@ -334,7 +334,6 @@ if __name__ == '__main__':
 
         if not writeSqliteFile(sqlite_file,tagname,timetype,beam_file,writedb_template,workflowdirTmp):
             print "An error occurred while writing the sqlite file: " + sqlite_file
-        exit("suca")
 
 	commands.getstatusoutput('rm -f ' + beam_file)
         ##### READ and check sqlite file
