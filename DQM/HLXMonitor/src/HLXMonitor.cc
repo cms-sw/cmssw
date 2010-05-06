@@ -689,7 +689,7 @@ void HLXMonitor::SetupEventInfo( )
    processName_= dbe_->bookString("processName",subSystemName_);
    workingDir_= dbe_->bookString("workingDir",gSystem->pwd());
    cmsswVer_= dbe_->bookString("CMSSW_Version",edm::getReleaseVersion());
-   dqmPatch_= dbe_->bookString("DQM_Patch",dbe_->getDQMPatchVersion());
+   // dqmPatch_= dbe_->bookString("DQM_Patch",dbe_->getDQMPatchVersion());
 
    // Go to the standard EventInfo folder (in the case online case where this
    // is different).
