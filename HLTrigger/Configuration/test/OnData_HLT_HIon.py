@@ -1,18 +1,17 @@
-# /dev/CMSSW_3_6_0/HIon/V15 (CMSSW_3_6_0_HLT6)
+# /dev/CMSSW_3_6_0/HIon/V16 (CMSSW_3_6_0_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V15')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V16')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
   'TooManyProducts',
   'TooFewProducts' ) )
 process.streams = cms.PSet( 
-  Offline = cms.vstring(  ),
   A = cms.vstring( 'HcalHPDNoise',
     'ZeroBias',
     'HcalNZS',
@@ -36,7 +35,8 @@ process.streams = cms.PSet(
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' )
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  Offline = cms.vstring(  )
 )
 process.datasets = cms.PSet( 
   HcalHPDNoise = cms.vstring(  ),
@@ -260,7 +260,8 @@ process.ESUnpackerWorkerESProducer = cms.ESProducer( "ESUnpackerWorkerESProducer
     ESMIPkeV = cms.double( 81.08 ),
     ESMIPADC = cms.double( 55.0 ),
     ESBaseline = cms.int32( 0 ),
-    ESRecoAlgo = cms.untracked.int32( 0 )
+    ESRecoAlgo = cms.untracked.int32( 0 ),
+    ESWeights = cms.untracked.vdouble( 0.0, 0.725, 0.4525 )
   )
 )
 process.EcalBarrelGeometryFromDBEP = cms.ESProducer( "EcalBarrelGeometryFromDBEP",
