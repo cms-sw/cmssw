@@ -1,11 +1,12 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.8 2010/05/03 10:36:42 mccauley Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.9 2010/05/03 15:47:45 amraktad Exp $
 //
 
 #include "TEveCompound.h"
 #include "TEveGeoNode.h"
 #include "TEveStraightLineSet.h"
 
+#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
@@ -43,7 +44,13 @@ FWSiStripClusterProxyBuilder::build(const SiStripCluster& iData,
     setupAddElement(shape, &oItemHolder);
   }
 
-
+  else
+  {
+    fwLog(fwlog::kWarning) 
+      <<"ERROR: failed to get shape of SiStripCluster with detid: "
+      << detid <<std::endl;
+  }
+  
   TEveStraightLineSet *scposition = new TEveStraightLineSet( "strip" );
   
   double bc = iData.barycenter();

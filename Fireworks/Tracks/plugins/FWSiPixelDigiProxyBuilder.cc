@@ -1,8 +1,20 @@
+// -*- C++ -*-
+//
+// Package:     Tracks
+// Class  :     FWSiPixelDigiProxyBuilder
+//
+//
+// Original Author:
+//         Created:  Thu Dec  6 18:01:21 PST 2007
+// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.11 2010/05/05 10:42:18 mccauley Exp $
+//
+
 #include "TEveManager.h"
 #include "TEveCompound.h"
 #include "TEvePointSet.h"
 #include "TEveVSDStructs.h"
 
+#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
@@ -23,20 +35,21 @@ private:
   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
   FWSiPixelDigiProxyBuilder(const FWSiPixelDigiProxyBuilder&);    
   const FWSiPixelDigiProxyBuilder& operator=(const FWSiPixelDigiProxyBuilder&);
-   void modelChanges(const FWModelIds& iIds, TEveElement* iElements, FWViewType::EType);
-   void applyChangesToAllModels(TEveElement* iElements, FWViewType::EType);
 };
 
 void FWSiPixelDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-  product->SetMainColor( iItem->defaultDisplayProperties().color());
+  product->SetMainColor(iItem->defaultDisplayProperties().color());
 
   const edm::DetSetVector<PixelDigi>* digis = 0;
   iItem->get(digis);
 
-  if( 0 == digis ) 
+  if ( ! digis )
+  {
+    fwLog(fwlog::kWarning)<<"ERROR: failed get SiPixelDigis"<<std::endl;
     return;
-
+  }
+  
   std::vector<TVector3> pixelDigiPoints;
 
   for ( edm::DetSetVector<PixelDigi>::const_iterator it = digis->begin(), end = digis->end();
@@ -74,19 +87,5 @@ void FWSiPixelDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
   } // end of iteration over the DetSetVector
 }
 
-void
-FWSiPixelDigiProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements, FWViewType::EType vt)
-{
-   applyChangesToAllModels(iElements, vt);
-}
-
-void
-FWSiPixelDigiProxyBuilder::applyChangesToAllModels(TEveElement* iElements, FWViewType::EType)
-{
-   if( 0 != iElements && item() && item()->size() ) 
-   {
-
-   }
-}
 
 REGISTER_FWPROXYBUILDER( FWSiPixelDigiProxyBuilder,edm::DetSetVector<PixelDigi>,"SiPixelDigi", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:     Tracks
@@ -6,11 +7,12 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.10 2010/05/04 17:52:07 mccauley Exp $
+// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.11 2010/05/05 10:42:18 mccauley Exp $
 //
 
 #include "TEvePointSet.h"
 
+#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
@@ -41,9 +43,12 @@ void FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementL
   
   iItem->get(pixels);
   
-  if( ! pixels ) 
+  if ( ! pixels ) 
+  {    
+    fwLog(fwlog::kWarning)<<"ERROR: failed get SiPixelDigis"<<std::endl;
     return;
-
+  }
+  
   int row, column;
 
   double lx;
@@ -55,47 +60,45 @@ void FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementL
     unsigned int id = set->detId();
     DetId detid(id);
       
-    if( iItem->getGeom() ) 
+    const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( detid );
+      
+    if ( ! matrix ) 
     {
-      const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( detid );
+      fwLog(fwlog::kWarning) 
+        <<"ERROR: failed get geometry of SiPixelCluster with detid: "
+        << detid << std::endl;
+      return;
+    }
+
+    const edmNew::DetSet<SiPixelCluster> & clusters = *set;
       
-      if ( ! matrix ) 
-      {
-        std::cout << "ERROR: failed get geometry of SiPixelCluster with detid: "
-                  << detid << std::endl;
-        return;
-      }
+    for( edmNew::DetSet<SiPixelCluster>::const_iterator itc = clusters.begin(), edc = clusters.end(); 
+         itc != edc; ++itc ) 
+    {
+      TEvePointSet* pointSet = new TEvePointSet();
+      pointSet->SetMarkerSize(1);
+      pointSet->SetMarkerStyle(4);
+      pointSet->SetMarkerColor(iItem->defaultDisplayProperties().color());
 
-      const edmNew::DetSet<SiPixelCluster> & clusters = *set;
+      row = (*itc).minPixelRow();
+      column = (*itc).minPixelCol();
+
+      lx = 0.0;
+      ly = 0.0;
+
+      fireworks::pixelLocalXY(row, column, detid, lx, ly);
+        
+      double localPoint[3] = 
+        {     
+          lx, ly, 0.0
+        };
+
+      double globalPoint[3];
+        
+      matrix->LocalToMaster(localPoint, globalPoint);
       
-      for( edmNew::DetSet<SiPixelCluster>::const_iterator itc = clusters.begin(), edc = clusters.end(); 
-           itc != edc; ++itc ) 
-      {
-        TEvePointSet* pointSet = new TEvePointSet();
-        pointSet->SetMarkerSize(1);
-        pointSet->SetMarkerStyle(4);
-        pointSet->SetMarkerColor(iItem->defaultDisplayProperties().color());
-
-        row = (*itc).minPixelRow();
-        column = (*itc).minPixelCol();
-
-        lx = 0.0;
-        ly = 0.0;
-
-        fireworks::pixelLocalXY(row, column, detid, lx, ly);
-        
-        double localPoint[3] = 
-          {     
-            lx, ly, 0.0
-          };
-
-        double globalPoint[3];
-        
-        matrix->LocalToMaster(localPoint, globalPoint);
-
-        pointSet->SetNextPoint(globalPoint[0], globalPoint[1], globalPoint[2]);
-        setupAddElement(pointSet, product);
-      } 
+      pointSet->SetNextPoint(globalPoint[0], globalPoint[1], globalPoint[2]);
+      setupAddElement(pointSet, product); 
     }
   }    
 }
