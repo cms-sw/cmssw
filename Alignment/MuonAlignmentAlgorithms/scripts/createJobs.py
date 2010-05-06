@@ -164,6 +164,11 @@ parser.add_option("--maxResSlopeY",
                   type="string",
                   default="10",
                   dest="maxResSlopeY")
+parser.add_option("--motionPolicyNSigma",
+                  help="minimum nsigma(deltax) position displacement in order to move a chamber for the final alignment result; default NSIGMA=3",
+                  type="int",
+                  default=3,
+                  dest="motionPolicyNSigma")
 
 if len(sys.argv) < 5:
     raise SystemError, "Too few arguments.\n\n"+parser.format_help()
@@ -201,6 +206,7 @@ maxEvents = options.maxEvents
 skipEvents = options.skipEvents
 validationLabel = options.validationLabel
 maxResSlopeY = options.maxResSlopeY
+theNSigma = options.motionPolicyNSigma
 
 execfile(INPUTFILES)
 stepsize = int(math.ceil(1.*len(fileNames)/options.subjobs))
@@ -209,6 +215,19 @@ pwd = str(os.getcwdu())
 bsubfile = ["#!/bin/sh", ""]
 bsubnames = []
 last_align = None
+
+#####################################################################
+# step 0: convert initial geometry to xml
+INITIALXML = INITIALGEOM + '.xml'
+if INITIALGEOM[-3:]=='.db':
+  INITIALXML = INITIALGEOM[:-3] + '.xml'
+print "Converting",INITIALGEOM,"to",INITIALXML," ...will be done in several seconds..."
+exit_code = os.system("./Alignment/MuonAlignmentAlgorithms/scripts/convertSQLiteXML.py  %s %s" % (INITIALGEOM,INITIALXML))
+if exit_code>0:
+  print "problem: conversion exited with code:", exit_code
+  sys.exit()
+
+#####################################################################
 
 directory = ""
 for iteration in range(1, ITERATIONS+1):
@@ -382,6 +401,20 @@ if [ \"$ALIGNMENT_ITERATION\" == \"1\" ] || [ \"$ALIGNMENT_ITERATION\" == \"%(IT
     hadd -f1 %(directory)s%(director)s_plotting.root %(directory)splotting0*.root
     #if [ $? == 0 ]; then rm %(directory)splotting0*.root; fi
   fi
+fi
+
+# if it's last iteration, apply chamber motion policy
+if [ \"$ALIGNMENT_ITERATION\" == \"%(ITERATIONS)s\" ]; then
+  # convert this iteration's geometry to detailed xml
+  ./Alignment/MuonAlignmentAlgorithms/scripts/convertSQLiteXML.py %(directory)s%(director)s.db %(directory)s%(director)s_extra.xml
+  # perform motion policy 
+  ./Alignment/MuonAlignmentAlgorithms/scripts/motionPolicyChamber.py \
+      %(INITIALXML)s  %(directory)s%(director)s_extra.xml \
+      %(directory)s%(director)s_report.py \
+      %(directory)s%(director)s_final.xml \
+      --nsigma %(theNSigma)s
+  # convert the resulting xml into the final sqlite geometry
+  ./Alignment/MuonAlignmentAlgorithms/scripts/convertSQLiteXML.py %(directory)s%(director)s_final.xml %(directory)s%(director)s_final.db
 fi
 
 """ % vars())
