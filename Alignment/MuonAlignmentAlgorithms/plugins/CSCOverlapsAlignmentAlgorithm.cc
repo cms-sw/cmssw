@@ -26,7 +26,8 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
   if (m_mode_string == std::string("phiy")) m_mode = CSCPairResidualsConstraint::kModePhiy;
   else if (m_mode_string == std::string("phipos")) m_mode = CSCPairResidualsConstraint::kModePhiPos;
   else if (m_mode_string == std::string("phiz")) m_mode = CSCPairResidualsConstraint::kModePhiz;
-  else throw cms::Exception("BadConfig") << "mode must be one of \"phiy\", \"phipos\", \"phiz\"" << std::endl;
+  else if (m_mode_string == std::string("radius")) m_mode = CSCPairResidualsConstraint::kModeRadius;
+  else throw cms::Exception("BadConfig") << "mode must be one of \"phiy\", \"phipos\", \"phiz\", \"radius\"" << std::endl;
 
   std::vector<edm::ParameterSet> fitters = iConfig.getParameter<std::vector<edm::ParameterSet> >("fitters");
   for (std::vector<edm::ParameterSet>::const_iterator fitter = fitters.begin();  fitter != fitters.end();  ++fitter) {
@@ -72,15 +73,11 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
     m_slope_MEm3 = tFileService->make<TH1F>("slope_MEm3", "", 100, -0.5, 0.5);
     m_slope_MEm4 = tFileService->make<TH1F>("slope_MEm4", "", 100, -0.5, 0.5);
 
-    std::string units;
-    if (m_mode == CSCPairResidualsConstraint::kModePhiy) units = std::string("(mrad)");
-    else units = std::string("(mm)");
-
-    m_slopeResiduals = tFileService->make<TH1F>("slopeResiduals", units.c_str(), 300, -30., 30.);
-    m_slopeResiduals_weighted = tFileService->make<TH1F>("slopeResiduals_weighted", units.c_str(), 300, -30., 30.);
+    m_slopeResiduals = tFileService->make<TH1F>("slopeResiduals", "mrad", 300, -30., 30.);
+    m_slopeResiduals_weighted = tFileService->make<TH1F>("slopeResiduals_weighted", "mrad", 300, -30., 30.);
     m_slopeResiduals_normalized = tFileService->make<TH1F>("slopeResiduals_normalized", "", 200, -20., 20.);
-    m_offsetResiduals = tFileService->make<TH1F>("offsetResiduals", units.c_str(), 300, -30., 30.);
-    m_offsetResiduals_weighted = tFileService->make<TH1F>("offsetResiduals_weighted", units.c_str(), 300, -30., 30.);
+    m_offsetResiduals = tFileService->make<TH1F>("offsetResiduals", "mm", 300, -30., 30.);
+    m_offsetResiduals_weighted = tFileService->make<TH1F>("offsetResiduals_weighted", "mm", 300, -30., 30.);
     m_offsetResiduals_normalized = tFileService->make<TH1F>("offsetResiduals_normalized", "", 200, -20., 20.);
 
     m_drdz = tFileService->make<TH1F>("drdz", "", 100, -0.5, 0.5);
@@ -368,15 +365,23 @@ void CSCOverlapsAlignmentAlgorithm::terminate() {
     }
 
     for (std::vector<CSCChamberFitter>::const_iterator fitter = m_fitters.begin();  fitter != m_fitters.end();  ++fitter) {
-      std::vector<CSCAlignmentCorrections*> corrections;
-      fitter->fit(corrections);
+      if (m_mode == CSCPairResidualsConstraint::kModeRadius) {
+	fitter->radiusCorrection(m_alignableNavigator, m_alignmentParameterStore, m_combineME11);
+	
 
-      // corrections only exist if the fit was successful
-      for (std::vector<CSCAlignmentCorrections*>::iterator correction = corrections.begin();  correction != corrections.end();  ++correction) {
 
-	(*correction)->applyAlignment(m_alignableNavigator, m_alignmentParameterStore, m_mode, m_combineME11);
-	if (m_makeHistograms) (*correction)->plot();
-	if (writeReport) (*correction)->report(report);
+      }
+      else {
+	std::vector<CSCAlignmentCorrections*> corrections;
+	fitter->fit(corrections);
+	 
+	// corrections only exist if the fit was successful
+	for (std::vector<CSCAlignmentCorrections*>::iterator correction = corrections.begin();  correction != corrections.end();  ++correction) {
+	   
+	   (*correction)->applyAlignment(m_alignableNavigator, m_alignmentParameterStore, m_mode, m_combineME11);
+	   if (m_makeHistograms) (*correction)->plot();
+	   if (writeReport) (*correction)->report(report);
+	}
       }
     }
   }

@@ -324,3 +324,64 @@ bool CSCChamberFitter::fit(std::vector<CSCAlignmentCorrections*> &corrections) c
   corrections.push_back(correction);
   return true;
 }
+
+void CSCChamberFitter::radiusCorrection(AlignableNavigator *alignableNavigator, AlignmentParameterStore *alignmentParameterStore, bool combineME11) const {
+   std::cout << "Radius corrections for " << m_name << std::endl;
+
+   double sum_phipos_residuals = 0.;
+   double num_valid = 0.;
+   double sum_radius = 0.;
+   double num_total = 0.;
+   for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
+      CSCPairResidualsConstraint *residualsConstraint = dynamic_cast<CSCPairResidualsConstraint*>(*constraint);
+      if (residualsConstraint != NULL) {
+
+	 if (residualsConstraint->valid()) {
+	    sum_phipos_residuals += residualsConstraint->value();
+	    num_valid += 1.;
+	 }
+
+	 sum_radius += residualsConstraint->radius(true);
+	 num_total += 1.;
+      }
+   }
+   if (num_valid == 0.  ||  num_total == 0.) return;
+   double average_phi_residual = sum_phipos_residuals / num_valid;
+   double average_radius = sum_radius / num_total;
+
+   double radial_correction = average_phi_residual * average_radius * num_total / (2.*M_PI);
+
+   std::cout << "average_phi_residual * average_radius * num_total / (2.*M_PI) = " << average_phi_residual << " * " << average_radius << " * " << num_total << " / (2.*M_PI) = " << radial_correction << std::endl;
+
+   for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
+      CSCPairResidualsConstraint *residualsConstraint = dynamic_cast<CSCPairResidualsConstraint*>(*constraint);
+      if (residualsConstraint != NULL) {
+
+	 const DetId id(residualsConstraint->id_i());
+	 Alignable *alignable = alignableNavigator->alignableFromDetId(id).alignable();
+	 Alignable *also = NULL;
+	 if (combineME11  &&  residualsConstraint->id_i().station() == 1  &&  residualsConstraint->id_i().ring() == 1) {
+	    CSCDetId alsoid(residualsConstraint->id_i().endcap(), 1, 4, residualsConstraint->id_i().chamber(), 0);
+	    const DetId alsoid2(alsoid);
+	    also = alignableNavigator->alignableFromDetId(alsoid2).alignable();
+	 }
+      
+	 AlgebraicVector params(6);
+	 AlgebraicSymMatrix cov(6);
+
+	 params[1] = radial_correction;
+	 cov[1][1] = 1e-6;
+
+	 AlignmentParameters *parnew = alignable->alignmentParameters()->cloneFromSelected(params, cov);
+	 alignable->setAlignmentParameters(parnew);
+	 alignmentParameterStore->applyParameters(alignable);
+	 alignable->alignmentParameters()->setValid(true);
+	 if (also != NULL) {
+	    AlignmentParameters *parnew2 = also->alignmentParameters()->cloneFromSelected(params, cov);
+	    also->setAlignmentParameters(parnew2);
+	    alignmentParameterStore->applyParameters(also);
+	    also->alignmentParameters()->setValid(true);
+	 }
+      }
+   }
+}

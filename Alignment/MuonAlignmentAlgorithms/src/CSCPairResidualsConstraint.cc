@@ -9,7 +9,7 @@
 double CSCPairResidualsConstraint::value() const {
   double delta = (m_sum1*m_sumxx) - (m_sumx*m_sumx);
   assert(delta > 0.);
-  if (m_parent->m_mode == kModePhiy  ||  m_parent->m_mode == kModePhiPos) {
+  if (m_parent->m_mode == kModePhiy  ||  m_parent->m_mode == kModePhiPos  ||  m_parent->m_mode == kModeRadius) {
     return ((m_sumxx*m_sumy) - (m_sumx*m_sumxy))/delta;
   }
   else if (m_parent->m_mode == kModePhiz) {
@@ -26,7 +26,7 @@ double CSCPairResidualsConstraint::error() const {
   else {
     double delta = (m_sum1*m_sumxx) - (m_sumx*m_sumx);
     assert(delta > 0.);
-    if (m_parent->m_mode == kModePhiy  ||  m_parent->m_mode == kModePhiPos) {
+    if (m_parent->m_mode == kModePhiy  ||  m_parent->m_mode == kModePhiPos  ||  m_parent->m_mode == kModeRadius) {
       return sqrt(m_sumxx/delta);
     }
     else if (m_parent->m_mode == kModePhiz) {
@@ -282,7 +282,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
     quantity = (slope_i*radial_intercept_i) - (slope_j*radial_intercept_j);
     quantityError2 = (slopeError2_i)*pow(radial_intercept_i, 2) + (slopeError2_j)*pow(radial_intercept_j, 2);
   }
-  else if (m_parent->m_mode == kModePhiPos) {  // phipos comes from phi intercepts
+  else if (m_parent->m_mode == kModePhiPos  ||  m_parent->m_mode == kModeRadius) {  // phipos comes from phi intercepts
     quantity = intercept_i - intercept_j;
     quantityError2 = interceptError2_i + interceptError2_j;
   }

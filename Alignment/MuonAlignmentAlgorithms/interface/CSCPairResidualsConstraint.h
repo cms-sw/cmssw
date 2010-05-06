@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_CSCPairResidualsConstraint_H
 
 /** \class CSCPairResidualsConstraint
- *  $Date: 2010/05/05 04:00:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/05/06 03:09:31 $
+ *  $Revision: 1.3 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -35,7 +35,8 @@ public:
   enum {
     kModePhiy,
     kModePhiPos,
-    kModePhiz
+    kModePhiz,
+    kModeRadius
   };
 
   double value() const;
@@ -43,6 +44,7 @@ public:
   CSCDetId id_i() const { return m_id_i; };
   CSCDetId id_j() const { return m_id_j; };
   bool valid() const;
+  double radius(bool is_i) const { return m_cscGeometry->idToDet((is_i ? m_id_i : m_id_j))->surface().position().perp(); };
 
   void configure(CSCOverlapsAlignmentAlgorithm *parent);
   void setZplane(const CSCGeometry *cscGeometry);

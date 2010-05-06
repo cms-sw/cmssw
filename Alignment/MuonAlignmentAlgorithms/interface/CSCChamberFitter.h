@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_CSCChamberFitter_H
 
 /** \class CSCChamberFitter
- *  $Date: Fri Mar 26 11:14:26 CDT 2010 $
- *  $Revision: 1.0 $
+ *  $Date: 2010/05/04 01:16:04 $
+ *  $Revision: 1.1 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -11,6 +11,11 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"  
+#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"  
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"  
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/CSCPairConstraint.h"
 #include "Alignment/MuonAlignmentAlgorithms/interface/CSCPairResidualsConstraint.h"
@@ -22,6 +27,7 @@ public:
   virtual ~CSCChamberFitter() {};
 
   bool fit(std::vector<CSCAlignmentCorrections*> &corrections) const;
+  void radiusCorrection(AlignableNavigator *alignableNavigator, AlignmentParameterStore *alignmentParameterStore, bool combineME11) const;
 
 protected:
   int index(std::string alignable) const;
