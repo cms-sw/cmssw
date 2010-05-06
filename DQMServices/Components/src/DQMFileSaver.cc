@@ -8,6 +8,7 @@
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <iostream>
@@ -39,22 +40,27 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
     sprintf(rewrite, "\\1Run %d/\\2/Run summary", run);
   else
     sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun_, ilumi_, ilumi_);
-    
+
   size_t pos = 0;
   std::string wflow;
   wflow.reserve(workflow.size() + 3);
   wflow = workflow;
   while ((pos = wflow.find('/', pos)) != std::string::npos)
     wflow.replace(pos++, 1, "__");
+    
+  std::string filename = fileBaseName_ + suffix + wflow + ".root";
 
   if (lumi == 0) // save for run
   {
     // set run end flag
     dbe_->cd();
     dbe_->setCurrentFolder("Info/ProvInfo");
- 
-    MonitorElement* me = dbe_->get("Info/ProvInfo/runIsComplete");
-     
+
+    // do this, because ProvInfo is not yet run in offline DQM
+    MonitorElement* me = dbe_->get("Info/ProvInfo/CMSSW"); 
+    if (!me) me = dbe_->bookString("CMSSW",edm::getReleaseVersion().c_str() );
+    
+    me = dbe_->get("Info/ProvInfo/runIsComplete");
     if (!me) me = dbe_->bookFloat("runIsComplete");
 
     if (me)
@@ -65,10 +71,13 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
         me->Fill(0.);
     }
 
-    dbe_->save(fileBaseName_ + suffix + wflow + ".root",
-	     "", "^(Reference/)?([^/]+)", rewrite,
+    dbe_->save(filename,
+             "", 
+	     "^(Reference/)?([^/]+)", 
+	     rewrite,
 	     (DQMStore::SaveReferenceTag) saveReference_,
-	     saveReferenceQMin_);
+	     saveReferenceQMin_,
+	     fileUpdate_);
   }
   else // save EventInfo folders for luminosity sections
   {
@@ -76,18 +85,30 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
 
     std::cout << " DQMFileSaver: storing EventInfo folders for Run: " 
               << irun_ << ", Lumi Section: " << ilumi_ << ", Subsystems: " ;
+	      
     for (size_t i = 0, e = systems.size(); i != e; ++i) {
       if (systems[i] != "Reference") {
         dbe_->cd();
 	std::cout << systems[i] << "  " ;
-        dbe_->save(fileBaseName_ + suffix + wflow + ".root",
+        dbe_->save(filename,
 	   systems[i]+"/EventInfo", "^(Reference/)?([^/]+)", rewrite,
 	   DQMStore::SaveWithoutReference,
-	   dqm::qstatus::STATUS_OK);
+	   dqm::qstatus::STATUS_OK,
+	   fileUpdate_);
       }
     }
     std::cout << "\n";
-  }  
+  }
+
+  if (fileUpdate_=="RECREATE") 
+  {
+    // from now on update newly created file
+    fileUpdate_="UPDATE";
+    // save JobReport upon creation of file (once per job)
+    // FIXME, check if jobreport should not be created at jobend
+    saveJobReport(filename);
+  }
+  
 }
 
 static void
@@ -101,7 +122,8 @@ doSaveForOnline(std::list<std::string> &pastSavedFiles,
 		DQMStore::SaveReferenceTag saveref,
 		int saveRefQMin)
 {
-  store->save(filename, "" , "^(Reference/)?([^/]+)", rewrite, saveref, saveRefQMin);
+  store->save(filename, "" , "^(Reference/)?([^/]+)", 
+         rewrite, saveref, saveRefQMin);
   pastSavedFiles.push_back(filename);
   if (pastSavedFiles.size() > numKeepSavedFiles)
   {
@@ -142,6 +164,22 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
 	              saveReferenceQMin_);
 }
 
+void
+DQMFileSaver::saveJobReport(const std::string &filename)
+{
+
+  // Report the file to job report service.
+  edm::Service<edm::JobReport> jr;
+  if (jr.isAvailable())
+  {
+    std::map<std::string, std::string> info;
+    info["Source"] = "DQMStore";
+    info["FileClass"] = "DQM";
+    jr->reportAnalysisFile(filename, info);
+  }
+
+}
+
 //--------------------------------------------------------
 DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   : convention_ (Offline),
@@ -160,6 +198,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     saveReferenceQMin_ (dqm::qstatus::STATUS_OK),
     forceRunNumber_ (-1),
     fileBaseName_ (""),
+    fileUpdate_ ("RECREATE"),
     dbe_ (&*edm::Service<DQMStore>()),
     irun_ (-1),
     ilumi_ (-1),
@@ -447,4 +486,5 @@ DQMFileSaver::endJob(void)
 	<< "Internal error.  Can only save files at the end of the"
 	<< " job in Offline mode with run number overridden.";
   }
+    
 }
