@@ -23,26 +23,17 @@
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "TMath.h"
 
-static const uint16_t _NUM_SISTRIP_SUBDET_ = 4;
-static std::string SubDet[_NUM_SISTRIP_SUBDET_]={"TIB","TID","TOB","TEC"};
-static std::string flags[2] = {"OnTrack","OffTrack"};
-
 SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf): 
   dbe(edm::Service<DQMStore>().operator->()),
   conf_(conf),
-  folder_organizer(), 
   tracksCollection_in_EventTree(true),
   firstEvent(-1)
 {
   Cluster_src_   = conf.getParameter<edm::InputTag>("Cluster_src");
   Mod_On_        = conf.getParameter<bool>("Mod_On");
   Trend_On_      = conf.getParameter<bool>("Trend_On");
-  OffHisto_On_   = conf.getParameter<bool>("OffHisto_On");
-  HistoFlag_On_  = conf.getParameter<bool>("HistoFlag_On");
   flag_ring      = conf.getParameter<bool>("RingFlag_On");
   TkHistoMap_On_ = conf.getParameter<bool>("TkHistoMap_On");
-  //  RawDigis_On_   = conf.getParameter<bool>("RawDigis_On");
-  //  CCAnalysis_On_ = conf.getParameter<bool>("CCAnalysis_On");
 
   TrackProducer_ = conf_.getParameter<std::string>("TrackProducer");
   TrackLabel_ = conf_.getParameter<std::string>("TrackLabel");
@@ -55,12 +46,6 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   widthLowerLimit_     = cluster_condition.getParameter<double>("minWidth"); 
   widthUpperLimit_     = cluster_condition.getParameter<double>("maxWidth"); 
 
-  for(int i=0;i<4;++i) for(int j=0;j<2;++j) NClus[i][j]=0;
-  if(OffHisto_On_){
-    off_Flag = 2;
-  }else{
-    off_Flag = 1;
-  }
 
   // Create DCS Status
   bool checkDCS    = conf_.getParameter<bool>("UseDCSFiltering");
@@ -104,61 +89,46 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   runNb   = e.id().run();
   eventNb = e.id().event();
   vPSiStripCluster.clear();
-  countOn=0;
-  countOff=0;
   
   iOrbitSec = e.orbitNumber()/11223.0;
 
+  // initialise # of clusters
+  for (std::map<std::string, SubDetMEs>::iterator iSubDet = SubDetMEsMap.begin();
+       iSubDet != SubDetMEsMap.end(); iSubDet++) {
+    iSubDet->second.totNClustersOnTrack = 0;
+    iSubDet->second.totNClustersOffTrack = 0;
+  }  
   
   //Perform track study
   trackStudy(e, es);
   
   //Perform Cluster Study (irrespectively to tracks)
 
-  if(OffHisto_On_) AllClusters(e, es); //analyzes the off Track Clusters
+   AllClusters(e, es); //analyzes the off Track Clusters
 
   //Summary Counts of clusters
   std::map<std::string, MonitorElement*>::iterator iME;
-  std::map<std::string, ModMEs>::iterator          iModME ;
   std::map<std::string, LayerMEs>::iterator        iLayerME;
-  
-  for (int j=0;j<off_Flag;++j){ // loop over ontrack, offtrack
-    int nTot=0;
-    std::string name;
-    for (int i=0;i<4;++i){ // loop over TIB, TID, TOB, TEC
-      name=flags[j]+"_in_"+SubDet[i];      
-      iLayerME = LayerMEsMap.find(name);
-      if(iLayerME!=LayerMEsMap.end()) {
-	if(flags[j]=="OnTrack" && NClus[i][j]){
-	  fillME(   iLayerME->second.nClusters,      NClus[i][j]);
-	}else if(flags[j]=="OffTrack"){
-	  fillME(   iLayerME->second.nClusters,      NClus[i][j]);
-	}
-	if(Trend_On_){
-	  fillME(iLayerME->second.nClustersTrend,iOrbitSec,NClus[i][j]);
-	}
-      }
-      nTot+=NClus[i][j];
-      NClus[i][j]=0;
-    } // loop over TIB, TID, TOB, TEC
-    
-    name=flags[j]+"_TotalNumberOfClusters";
-    iME = MEMap.find(name);
-    if(iME!=MEMap.end() && nTot) iME->second->Fill(nTot);
-    if(Trend_On_){
-      iME = MEMap.find(name+"Trend");
-      if(iME!=MEMap.end()){
-	fillME(iME->second,iOrbitSec,nTot);
-      }
+ 
+  for (std::map<std::string, SubDetMEs>::iterator iSubDet = SubDetMEsMap.begin();
+       iSubDet != SubDetMEsMap.end(); iSubDet++) {
+    SubDetMEs subdet_mes = iSubDet->second;
+    if (subdet_mes.totNClustersOnTrack > 0) {
+      fillME(subdet_mes.nClustersOnTrack, subdet_mes.totNClustersOnTrack);
     }
-  } // loop over ontrack, offtrack
-  
+    fillME(subdet_mes.nClustersOffTrack, subdet_mes.totNClustersOffTrack);
+    if (Trend_On_) {
+      fillME(subdet_mes.nClustersTrendOnTrack,iOrbitSec,subdet_mes.totNClustersOnTrack);
+      fillME(subdet_mes.nClustersTrendOffTrack,iOrbitSec,subdet_mes.totNClustersOffTrack);
+    }
+  }  
 }
 
 //------------------------------------------------------------------------  
 void SiStripMonitorTrack::book() 
 {
   
+  SiStripFolderOrganizer folder_organizer;
   //******** TkHistoMaps
   if (TkHistoMap_On_) {
     tkhisto_StoNCorrOnTrack = new TkHistoMap("SiStrip/TkHisto" ,"TkHMap_StoNCorrOnTrack",0.0,1); 
@@ -178,90 +148,60 @@ void SiStripMonitorTrack::book()
       continue;
     }
 
-    // set the DQM directory
-    std::string MEFolderName = conf_.getParameter<std::string>("FolderName");    
-    dbe->setCurrentFolder(MEFolderName);
     
     std::string name;    
-    for (int j=0;j<off_Flag;j++) { // Loop on onTrack, offTrack
-      name=flags[j]+"_TotalNumberOfClusters";
-      if(MEMap.find(name)==MEMap.end()) {
-	if(flags[j] == "OnTrack"){
-	  MEMap[name]=bookME1D("TH1nClustersOn", name.c_str());
-	}else{
-	  MEMap[name]=bookME1D("TH1nClustersOff", name.c_str());
-	}
-	if(Trend_On_){
-	  name+="Trend";
-	  if(flags[j] == "OnTrack"){
-	    MEMap[name]=bookMETrend("TH1nClustersOn", name.c_str());
-	  }else{
-	    MEMap[name]=bookMETrend("TH1nClustersOff", name.c_str());
-	  }
-	}      
-      }
-    }// End Loop on onTrack, offTrack
     
-    // 	LogTrace("SiStripMonitorTrack") << " Detid " << *detid 
-    //					<< " SubDet " << GetSubDetAndLayer(*detid).first 
-    //					<< " Layer "  << GetSubDetAndLayer(*detid).second;
-
-     
-    // book Layer and RING plots      
-    if (DetectedLayers.find(folder_organizer.GetSubDetAndLayer(detid,flag_ring)) == DetectedLayers.end()){
-      
-      DetectedLayers[folder_organizer.GetSubDetAndLayer(detid,flag_ring)]=true;
-      for (int j=0;j<off_Flag;j++){     
-	folder_organizer.setLayerFolder(*detid_iter,folder_organizer.GetSubDetAndLayer(*detid_iter,flag_ring).second,flag_ring);
-	bookTrendMEs("layer",(folder_organizer.GetSubDetAndLayer(*detid_iter,flag_ring)).second,*detid_iter,flags[j]);
-      }
-    }
+    // book Layer and RING plots
+    std::pair<std::string,int32_t> det_layer_pair = folder_organizer.GetSubDetAndLayer(detid,flag_ring);
     
-    if(Mod_On_){
-      //    book module plots
-      folder_organizer.setDetectorFolder(*detid_iter);
-      bookModMEs("det",*detid_iter);
+    SiStripHistoId hidmanager;
+    std::string layer_id = hidmanager.getSubdetid(detid, flag_ring);
+    std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(layer_id);
+    if(iLayerME==LayerMEsMap.end()){
+      folder_organizer.setLayerFolder(detid, det_layer_pair.second, flag_ring);
+      bookLayerMEs(detid, layer_id);
     }
-
-    DetectedLayers[folder_organizer.GetSubDetAndLayer(*detid_iter,flag_ring)] |= (DetectedLayers.find(folder_organizer.GetSubDetAndLayer(*detid_iter,flag_ring)) == DetectedLayers.end());
+    // book sub-detector plots
+    std::pair<std::string,std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid);
+    if (SubDetMEsMap.find(sdet_pair.second) == SubDetMEsMap.end()){
+      dbe->setCurrentFolder(sdet_pair.first);
+      bookSubDetMEs(sdet_pair.second);        
+    }
+    // book module plots
+    if(Mod_On_) {
+      folder_organizer.setDetectorFolder(detid);
+      bookModMEs(*detid_iter);
+    } 
   }//end loop on detectors detid
-  
-  //  book SubDet plots  std::string name;
-  for (std::map<std::pair<std::string,int32_t>,bool>::const_iterator iter=DetectedLayers.begin(); iter!=DetectedLayers.end();iter++){
-    for (int j=0;j<off_Flag;j++){ // Loop on onTrack, offTrack
-      folder_organizer.setDetectorFolder(0);
-      dbe->cd("SiStrip/MechanicalView/"+iter->first.first);
-      string name = flags[j] + "_in_" + iter->first.first;
-      bookSubDetMEs(name, flags[j]); //for subdets
-    }//end loop on onTrack,offTrack
-  }  
-
 }
   
 //--------------------------------------------------------------------------------
-void SiStripMonitorTrack::bookModMEs(std::string name, uint32_t id)//Histograms at MODULE level
+void SiStripMonitorTrack::bookModMEs(const uint32_t & id)//Histograms at MODULE level
 {
+  std::string name = "det";
   SiStripHistoId hidmanager;
   std::string hid = hidmanager.createHistoId("",name,id);
   std::map<std::string, ModMEs>::iterator iModME  = ModMEsMap.find(hid);
   if(iModME==ModMEsMap.end()){
     ModMEs theModMEs; 
+    theModMEs.ClusterStoNCorr   = 0;
+    theModMEs.ClusterCharge     = 0;
+    theModMEs.ClusterChargeCorr = 0;
+    theModMEs.ClusterWidth      = 0;
+    theModMEs.ClusterPos        = 0;
+    theModMEs.ClusterPGV        = 0;
+
     // Cluster Width
     theModMEs.ClusterWidth=bookME1D("TH1ClusterWidth", hidmanager.createHistoId("ClusterWidth_OnTrack",name,id).c_str()); 
     dbe->tag(theModMEs.ClusterWidth,id); 
     // Cluster Charge
     theModMEs.ClusterCharge=bookME1D("TH1ClusterCharge", hidmanager.createHistoId("ClusterCharge_OnTrack",name,id).c_str());
     dbe->tag(theModMEs.ClusterCharge,id); 
-    // Cluster StoN
-    if(HistoFlag_On_){
-      theModMEs.ClusterStoN=bookME1D("TH1ClusterStoN", hidmanager.createHistoId("ClusterStoN_OnTrack",name,id).c_str());
-      dbe->tag(theModMEs.ClusterStoN,id); 
     // Cluster Charge Corrected
-      theModMEs.ClusterChargeCorr=bookME1D("TH1ClusterChargeCorr", hidmanager.createHistoId("ClusterChargeCorr_OnTrack",name,id).c_str());
-      dbe->tag(theModMEs.ClusterChargeCorr,id); 
-    }
+    theModMEs.ClusterChargeCorr=bookME1D("TH1ClusterChargeCorr", hidmanager.createHistoId("ClusterChargeCorr_OnTrack",name,id).c_str());
+    dbe->tag(theModMEs.ClusterChargeCorr,id); 
     // Cluster StoN Corrected
-    theModMEs.ClusterStoNCorr=bookME1D("TH1ClusterStoNCorr", hidmanager.createHistoId("ClusterStoNCorr_OnTrack",name,id).c_str());
+    theModMEs.ClusterStoNCorr=bookME1D("TH1ClusterStoNCorrMod", hidmanager.createHistoId("ClusterStoNCorr_OnTrack",name,id).c_str());
     dbe->tag(theModMEs.ClusterStoNCorr,id); 
     // Cluster Position
     short total_nr_strips = SiStripDetCabling_->nApvPairs(id) * 2 * 128;
@@ -274,164 +214,120 @@ void SiStripMonitorTrack::bookModMEs(std::string name, uint32_t id)//Histograms 
     ModMEsMap[hid]=theModMEs;
   }
 }
-
-void SiStripMonitorTrack::bookTrendMEs(std::string name,int32_t layer,uint32_t id,std::string flag)//Histograms and Trends at LAYER LEVEL
+//
+// -- Book Layer Level Histograms and Trend plots
+//
+void SiStripMonitorTrack::bookLayerMEs(const uint32_t& mod_id, std::string& layer_id)
 {
-
+  std::string name = "layer";  
+  std::string hname;
   SiStripHistoId hidmanager;
-  std::string rest = hidmanager.getSubdetid(id,flag_ring);
-  std::string layer_id = flag + "_" + rest;
-  std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(rest);
-  if(iLayerME==LayerMEsMap.end()){
-    LayerMEs theLayerMEs; 
- 
-    // Cluster Width
-    theLayerMEs.ClusterWidth=bookME1D("TH1ClusterWidth", hidmanager.createHistoLayer("Summary_ClusterWidth",name,rest,flag).c_str()); 
-    dbe->tag(theLayerMEs.ClusterWidth,layer); 
-    
-    // Cluster Noise
-    theLayerMEs.ClusterNoise=bookME1D("TH1ClusterNoise", hidmanager.createHistoLayer("Summary_ClusterNoise",name,rest,flag).c_str()); 
-    dbe->tag(theLayerMEs.ClusterNoise,layer); 
-    
-    // Cluster Charge
-    theLayerMEs.ClusterCharge=bookME1D("TH1ClusterCharge", hidmanager.createHistoLayer("Summary_ClusterCharge",name,rest,flag).c_str());
-    dbe->tag(theLayerMEs.ClusterCharge,layer);
-    
-    // Cluster StoN
-    theLayerMEs.ClusterStoN=bookME1D("TH1ClusterStoN", hidmanager.createHistoLayer("Summary_ClusterStoN",name,rest,flag).c_str());
-    dbe->tag(theLayerMEs.ClusterStoN,layer); 
 
-    // Trends
-    if(Trend_On_){
-      // Cluster Width
-      theLayerMEs.ClusterWidthTrend=bookMETrend("TH1ClusterWidth", hidmanager.createHistoLayer("Trend_ClusterWidth",name,rest,flag).c_str()); 
-      dbe->tag(theLayerMEs.ClusterWidthTrend,layer); 
-      // Cluster Noise
-      theLayerMEs.ClusterNoiseTrend=bookMETrend("TH1ClusterNoise", hidmanager.createHistoLayer("Trend_ClusterNoise",name,rest,flag).c_str()); 
-      dbe->tag(theLayerMEs.ClusterNoiseTrend,layer); 
-      // Cluster Charge
-      theLayerMEs.ClusterChargeTrend=bookMETrend("TH1ClusterCharge", hidmanager.createHistoLayer("Trend_ClusterCharge",name,rest,flag).c_str());
-      dbe->tag(theLayerMEs.ClusterChargeTrend,layer); 
-      // Cluster StoN
-      theLayerMEs.ClusterStoNTrend=bookMETrend("TH1ClusterStoN", hidmanager.createHistoLayer("Trend_ClusterStoN",name,rest,flag).c_str());
-      dbe->tag(theLayerMEs.ClusterStoNTrend,layer); 
-    }
-    
-    if(flag=="OnTrack"){
-      // Cluster Charge Corrected
-      theLayerMEs.ClusterChargeCorr=bookME1D("TH1ClusterChargeCorr", hidmanager.createHistoLayer("Summary_ClusterChargeCorr",name,rest,flag).c_str());
-      dbe->tag(theLayerMEs.ClusterChargeCorr,layer); 
-      // Cluster StoN Corrected
-      theLayerMEs.ClusterStoNCorr=bookME1D("TH1ClusterStoNCorr", hidmanager.createHistoLayer("Summary_ClusterStoNCorr",name,rest,flag).c_str());
-      dbe->tag(theLayerMEs.ClusterStoNCorr,layer); 
-      
-      if(Trend_On_){
-	// Cluster Charge Corrected
-	theLayerMEs.ClusterChargeCorrTrend=bookMETrend("TH1ClusterChargeCorr", hidmanager.createHistoLayer("Trend_ClusterChargeCorr",name,rest,flag).c_str());
-	dbe->tag(theLayerMEs.ClusterChargeCorrTrend,layer); 
-	
-	// Cluster StoN Corrected
-	theLayerMEs.ClusterStoNCorrTrend=bookMETrend("TH1ClusterStoNCorr", hidmanager.createHistoLayer("Trend_ClusterStoNCorr",name,rest,flag).c_str());
-	dbe->tag(theLayerMEs.ClusterStoNCorrTrend,layer); 
-	
-      }
-      
-    }
-    
-    //Cluster Position
-    short total_nr_strips = SiStripDetCabling_->nApvPairs(id) * 2 * 128; 
-    if (rest.find("TEC") != string::npos && !flag_ring)  total_nr_strips = 3 * 2 * 128;
-    theLayerMEs.ClusterPos= dbe->book1D(hidmanager.createHistoLayer("Summary_ClusterPosition",name,rest,flag).c_str(),hidmanager.createHistoLayer("Summary_ClusterPosition",name,rest,flag).c_str(),total_nr_strips, 0.5,total_nr_strips+0.5);
-    dbe->tag(theLayerMEs.ClusterPos,layer); 
-    
-    //bookeeping
-    LayerMEsMap[layer_id]=theLayerMEs;
-  }
+  LayerMEs theLayerMEs; 
+  theLayerMEs.ClusterStoNCorrOnTrack   = 0;
+  theLayerMEs.ClusterChargeCorrOnTrack = 0;
+  theLayerMEs.ClusterChargeOnTrack     = 0;
+  theLayerMEs.ClusterChargeOffTrack    = 0;
+  theLayerMEs.ClusterNoiseOnTrack      = 0;
+  theLayerMEs.ClusterNoiseOffTrack     = 0;
+  theLayerMEs.ClusterWidthOnTrack      = 0;
+  theLayerMEs.ClusterWidthOffTrack     = 0;
+  theLayerMEs.ClusterPosOnTrack        = 0;
+  theLayerMEs.ClusterPosOffTrack       = 0;
   
+  // Cluster StoN Corrected
+  hname = hidmanager.createHistoLayer("Summary_ClusterStoNCorr",name,layer_id,"OnTrack");
+  theLayerMEs.ClusterStoNCorrOnTrack = bookME1D("TH1ClusterStoNCorr", hname.c_str());
+  
+  // Cluster Charge Corrected
+  hname = hidmanager.createHistoLayer("Summary_ClusterChargeCorr",name,layer_id,"OnTrack");
+  theLayerMEs.ClusterChargeCorrOnTrack = bookME1D("TH1ClusterChargeCorr", hname.c_str());
+  
+  // Cluster Charge (On and Off Track)
+  hname = hidmanager.createHistoLayer("Summary_ClusterCharge",name,layer_id,"OnTrack");
+  theLayerMEs.ClusterChargeOnTrack = bookME1D("TH1ClusterCharge", hname.c_str());
+  
+  hname = hidmanager.createHistoLayer("Summary_ClusterCharge",name,layer_id,"OffTrack");
+  theLayerMEs.ClusterChargeOffTrack = bookME1D("TH1ClusterCharge", hname.c_str());
+  
+  // Cluster Noise (On and Off Track)
+  hname = hidmanager.createHistoLayer("Summary_ClusterNoise",name,layer_id,"OnTrack");
+  theLayerMEs.ClusterNoiseOnTrack = bookME1D("TH1ClusterNoise", hname.c_str()); 
+  
+  hname = hidmanager.createHistoLayer("Summary_ClusterNoise",name,layer_id,"OffTrack");
+  theLayerMEs.ClusterNoiseOffTrack = bookME1D("TH1ClusterNoise", hname.c_str()); 
+  
+  // Cluster Width (On and Off Track)
+  hname = hidmanager.createHistoLayer("Summary_ClusterWidth",name,layer_id,"OnTrack");
+  theLayerMEs.ClusterWidthOnTrack = bookME1D("TH1ClusterWidth", hname.c_str()); 
+  
+  hname = hidmanager.createHistoLayer("Summary_ClusterWidth",name,layer_id,"OffTrack");
+  theLayerMEs.ClusterWidthOffTrack = bookME1D("TH1ClusterWidth", hname.c_str()); 
+  
+  //Cluster Position
+  short total_nr_strips = SiStripDetCabling_->nApvPairs(mod_id) * 2 * 128; 
+  if (layer_id.find("TEC") != string::npos && !flag_ring)  total_nr_strips = 3 * 2 * 128;
+  
+  hname = hidmanager.createHistoLayer("Summary_ClusterPosition",name,layer_id,"OnTrack");
+  theLayerMEs.ClusterPosOnTrack = dbe->book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
+  
+  hname = hidmanager.createHistoLayer("Summary_ClusterPosition",name,layer_id,"OffTrack");
+  theLayerMEs.ClusterPosOffTrack = dbe->book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
+  
+  //bookeeping
+  LayerMEsMap[layer_id]=theLayerMEs;
 }
+//
+// -- Book Histograms at Sub-Detector Level
+//
+void SiStripMonitorTrack::bookSubDetMEs(std::string& name){
 
-void SiStripMonitorTrack::bookSubDetMEs(std::string& name, std::string& flag)//Histograms at SubDet level
-{
-  std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(name);
+  std::string subdet_tag;
+  subdet_tag = "__" + name;
   string completeName;
-  if(iLayerME==LayerMEsMap.end()){
-    LayerMEs theLayerMEs;
-    
+
+  SubDetMEs theSubDetMEs;
+  theSubDetMEs.totNClustersOnTrack    = 0;
+  theSubDetMEs.totNClustersOffTrack   = 0;
+  theSubDetMEs.nClustersOnTrack       = 0;
+  theSubDetMEs.nClustersTrendOnTrack  = 0;
+  theSubDetMEs.nClustersOffTrack      = 0;
+  theSubDetMEs.nClustersTrendOffTrack = 0;
+  theSubDetMEs.ClusterStoNCorrOnTrack = 0;
+  theSubDetMEs.ClusterChargeOffTrack  = 0;
+  theSubDetMEs.ClusterStoNOffTrack    = 0;
+
+  // TotalNumber of Cluster OnTrack
+  completeName = "Summary_TotalNumberOfClusters_OnTrack" + subdet_tag;
+  theSubDetMEs.nClustersOnTrack = bookME1D("TH1nClustersOn", completeName.c_str());
+  theSubDetMEs.nClustersOnTrack->getTH1()->StatOverflows(kTRUE);
+  
+  // TotalNumber of Cluster OffTrack
+  completeName = "Summary_TotalNumberOfClusters_OffTrack" + subdet_tag;
+  theSubDetMEs.nClustersOffTrack = bookME1D("TH1nClustersOff", completeName.c_str());
+  theSubDetMEs.nClustersOffTrack->getTH1()->StatOverflows(kTRUE);
+  
+  // Cluster StoN On Track
+  completeName = "Summary_ClusterStoNCorr_OnTrack"  + subdet_tag;
+  theSubDetMEs.ClusterStoNCorrOnTrack = bookME1D("TH1ClusterStoNCorr", completeName.c_str());
+  
+  // Cluster Charge Off Track
+  completeName = "Summary_ClusterCharge_OffTrack" + subdet_tag;
+  theSubDetMEs.ClusterChargeOffTrack=bookME1D("TH1ClusterCharge", completeName.c_str());
+  
+  // Cluster Charge StoN Off Track
+  completeName = "Summary_ClusterStoN_OffTrack"  + subdet_tag;
+  theSubDetMEs.ClusterStoNOffTrack = bookME1D("TH1ClusterStoN", completeName.c_str());
+  
+  if(Trend_On_){
     // TotalNumber of Cluster 
-
-    if (flag=="OnTrack"){
-      completeName = "Summary_TotalNumberOfClusters_" + name;
-      theLayerMEs.nClusters=bookME1D("TH1nClustersOn", completeName.c_str());
-      theLayerMEs.nClusters->getTH1()->StatOverflows(kTRUE);
-    }else{
-      completeName = "Summary_TotalNumberOfClusters_" + name;
-      theLayerMEs.nClusters=bookME1D("TH1nClustersOff", completeName.c_str());
-      theLayerMEs.nClusters->getTH1()->StatOverflows(kTRUE);
-    }
-    
-    // Cluster Width
-    completeName = "Summary_ClusterWidth_" + name;
-    theLayerMEs.ClusterWidth=bookME1D("TH1ClusterWidth", completeName.c_str());
-    
-    // Cluster Noise
-    completeName = "Summary_ClusterNoise_" + name;
-    theLayerMEs.ClusterNoise=bookME1D("TH1ClusterNoise", completeName.c_str());
-    
-    // Cluster Charge
-    completeName = "Summary_ClusterCharge_" + name;
-    theLayerMEs.ClusterCharge=bookME1D("TH1ClusterCharge", completeName.c_str());
-    
-    // Cluster StoN
-    completeName = "Summary_ClusterStoN_" + name;
-    theLayerMEs.ClusterStoN=bookME1D("TH1ClusterStoN", completeName.c_str());
-
-
-    if(Trend_On_){
-      if (flag=="OnTrack"){
-	// TotalNumber of Cluster 
-	completeName = "Trend_TotalNumberOfClusters_" + name;
-	theLayerMEs.nClustersTrend=bookMETrend("TH1nClustersOn", completeName.c_str());
-      }else{
-	completeName = "Trend_TotalNumberOfClusters_" + name;
-	theLayerMEs.nClustersTrend=bookMETrend("TH1nClustersOff", completeName.c_str());
-      }
-      // Cluster Width
-      completeName = "Trend_ClusterWidth_" + name;
-      theLayerMEs.ClusterWidthTrend=bookMETrend("TH1ClusterWidth", completeName.c_str());
-      // Cluster Noise
-      completeName = "Trend_ClusterNoise_" + name;
-      theLayerMEs.ClusterNoiseTrend=bookMETrend("TH1ClusterNoise", completeName.c_str());
-      // Cluster Charge
-      completeName = "Trend_ClusterCharge_" + name;
-      theLayerMEs.ClusterChargeTrend=bookMETrend("TH1ClusterCharge", completeName.c_str());
-      // Cluster StoN
-      completeName = "Trend_ClusterStoN_" + name;
-      theLayerMEs.ClusterStoNTrend=bookMETrend("TH1ClusterStoN", completeName.c_str()); 
-    }
-
-    if (flag=="OnTrack"){
-      //Cluster StoNCorr
-      completeName = "Summary_ClusterStoNCorr_" + name;
-      theLayerMEs.ClusterStoNCorr=bookME1D("TH1ClusterStoNCorr", completeName.c_str());
-      
-      // Cluster ChargeCorr
-      completeName = "Summary_ClusterChargeCorr_" + name;
-      theLayerMEs.ClusterChargeCorr=bookME1D("TH1ClusterChargeCorr", completeName.c_str());
-      
-      if(Trend_On_){ 
-	// Cluster StoNCorr
-	completeName = "Trend_ClusterStoNCorr_" + name;
-	theLayerMEs.ClusterStoNCorrTrend=bookMETrend("TH1ClusterStoNCorr", completeName.c_str());     
-	// Cluster ChargeCorr
-	completeName = "Trend_ClusterChargeCorr_" + name;
-	theLayerMEs.ClusterChargeCorrTrend=bookMETrend("TH1ClusterChargeCorr", completeName.c_str());
-
-      }
-    }
-    
-    //bookeeping
-    LayerMEsMap[name]=theLayerMEs;
+    completeName = "Trend_TotalNumberOfClusters_OnTrack"  + subdet_tag;
+    theSubDetMEs.nClustersTrendOnTrack = bookMETrend("TH1nClustersOn", completeName.c_str());
+    completeName = "Trend_TotalNumberOfClusters_OffTrack"  + subdet_tag;
+    theSubDetMEs.nClustersTrendOffTrack = bookMETrend("TH1nClustersOff", completeName.c_str());
   }
+  //bookeeping
+  SubDetMEsMap[name]=theSubDetMEs;
 }
 //--------------------------------------------------------------------------------
 
@@ -647,7 +543,6 @@ template <class T> void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit, Local
             
       if ( clusterInfos(&SiStripClusterInfo_,detid,"OnTrack", LV ) ) {
 	vPSiStripCluster.push_back(SiStripCluster_);
-	countOn++;
       }
     }else{
      edm::LogError("SiStripMonitorTrack") << "NULL hit" << std::endl;
@@ -674,9 +569,7 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
     for(; ClusIter!=DSViter->end(); ClusIter++) {
       if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
 	SiStripClusterInfo SiStripClusterInfo_(*ClusIter,es);
-	if ( clusterInfos(&SiStripClusterInfo_,detid,"OffTrack",LV) ) {
-	  countOff++;
-	}
+	clusterInfos(&SiStripClusterInfo_,detid,"OffTrack",LV);
       }
     }
   }
@@ -685,7 +578,7 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
 //------------------------------------------------------------------------
 bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, const LocalVector LV)
 {
-  //folder_organizer.setDetectorFolder(0);
+  SiStripFolderOrganizer folder_organizer;
   if (cluster==0) return false;
   // if one imposes a cut on the clusters, apply it
   if( (applyClusterQuality_) &&
@@ -695,11 +588,12 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
        cluster->width() > widthUpperLimit_) ) return false;
   // start of the analysis
   
-  int SubDet_enum = StripSubdetector(detid).subdetId()-3;
-  int iflag =0;
-  if      (flag=="OnTrack")  iflag=0;
-  else if (flag=="OffTrack") iflag=1;
-  NClus[SubDet_enum][iflag]++;
+  std::pair<std::string,std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid);
+  std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(sdet_pair.second);
+  if(iSubdet != SubDetMEsMap.end()){ 
+    if (flag=="OnTrack") iSubdet->second.totNClustersOnTrack++;
+    else if (flag=="OffTrack") iSubdet->second.totNClustersOffTrack++;
+  }
   
   float cosRZ = -2;
   LogDebug("SiStripMonitorTrack")<< "\n\tLV " << LV.x() << " " << LV.y() << " " << LV.z() << " " << LV.mag() << std::endl;
@@ -744,15 +638,19 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,std::string nam
 {
   std::map<std::string, ModMEs>::iterator iModME  = ModMEsMap.find(name);
   if(iModME!=ModMEsMap.end()){
-    fillME(iModME->second.ClusterStoNCorr ,cluster->signalOverNoise()*cos);
-    fillME(iModME->second.ClusterCharge,cluster->charge());
 
-    if(HistoFlag_On_){
-      fillME(iModME->second.ClusterStoN  ,cluster->signalOverNoise());
-      fillME(iModME->second.ClusterChargeCorr,cluster->charge()*cos);
-    }
-    fillME(iModME->second.ClusterWidth ,cluster->width());
-    fillME(iModME->second.ClusterPos   ,cluster->baryStrip());
+    float    StoN     = cluster->signalOverNoise();
+    uint16_t charge   = cluster->charge();
+    uint16_t width    = cluster->width();
+    float    position = cluster->baryStrip(); 
+
+    fillME(iModME->second.ClusterStoNCorr ,StoN*cos);
+    fillME(iModME->second.ClusterCharge,charge);
+
+    fillME(iModME->second.ClusterChargeCorr,charge*cos);
+
+    fillME(iModME->second.ClusterWidth ,width);
+    fillME(iModME->second.ClusterPos   ,position);
     
     //fill the PGV histo
     float PGVmax = cluster->maxCharge();
@@ -771,12 +669,12 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,std::string nam
 //------------------------------------------------------------------------
 void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid,float cos, std::string flag)
 { 
+  SiStripFolderOrganizer folder_organizer;
   std::pair<std::string,int32_t> SubDetAndLayer = folder_organizer.GetSubDetAndLayer(detid,flag_ring);
   SiStripHistoId hidmanager1;
-  std::string layer_id = flag + "_" +hidmanager1.getSubdetid(detid,flag_ring); 
-
-  std::string subdet_id = flag + "_in_" +folder_organizer.GetSubDetAndLayer(detid,flag_ring).first;
-
+  std::string layer_id = hidmanager1.getSubdetid(detid,flag_ring); 
+  
+  std::pair<std::string,std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid);
   float    StoN     = cluster->signalOverNoise();
   float    noise    = cluster->noiseRescaledByGain();
   uint16_t charge   = cluster->charge();
@@ -784,38 +682,38 @@ void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid,flo
   float    position = cluster->baryStrip(); 
    
   std::map<std::string, LayerMEs>::iterator iLayer  = LayerMEsMap.find(layer_id);
-  std::map<std::string, LayerMEs>::iterator iSubdet  = LayerMEsMap.find(subdet_id);
-  if(iLayer != LayerMEsMap.end() && iSubdet != LayerMEsMap.end() ){
-    
+  if (iLayer != LayerMEsMap.end()) {
     if(flag=="OnTrack"){
-      fillME(iSubdet->second.ClusterStoNCorr,StoN*cos);
-      fillME(iSubdet->second.ClusterStoNCorrTrend,iOrbitSec,StoN*cos);
-      fillME(iSubdet->second.ClusterChargeCorr,charge*cos);
-      fillME(iSubdet->second.ClusterChargeCorrTrend,iOrbitSec,charge*cos);
-      fillME(iLayer->second.ClusterStoNCorr,StoN*cos);
-      fillME(iLayer->second.ClusterStoNCorrTrend,iOrbitSec,StoN*cos);
-      fillME(iLayer->second.ClusterChargeCorr,charge*cos);
-      fillME(iLayer->second.ClusterChargeCorrTrend,iOrbitSec,charge*cos);
+      fillME(iLayer->second.ClusterStoNCorrOnTrack, StoN*cos);
+      fillME(iLayer->second.ClusterChargeCorrOnTrack, charge*cos);
+      fillME(iLayer->second.ClusterChargeOnTrack, charge);
+      fillME(iLayer->second.ClusterNoiseOnTrack, noise);
+      fillME(iLayer->second.ClusterWidthOnTrack, width);
+      fillME(iLayer->second.ClusterPosOnTrack, position);
+    } else {
+      fillME(iLayer->second.ClusterChargeOffTrack, charge);
+      fillME(iLayer->second.ClusterNoiseOffTrack, noise);
+      fillME(iLayer->second.ClusterWidthOffTrack, width);
+      fillME(iLayer->second.ClusterPosOffTrack, position);
     }
-    fillME(iSubdet->second.ClusterStoN  ,StoN);
-    fillME(iSubdet->second.ClusterStoNTrend,iOrbitSec, StoN);
-    fillME(iSubdet->second.ClusterCharge,charge);
-    fillME(iSubdet->second.ClusterChargeTrend,iOrbitSec,charge);
-    fillME(iSubdet->second.ClusterNoise ,noise);
-    fillME(iSubdet->second.ClusterNoiseTrend,iOrbitSec,noise);
-    fillME(iSubdet->second.ClusterWidth ,width);
-    fillME(iSubdet->second.ClusterWidthTrend,iOrbitSec,width);
-    fillME(iSubdet->second.ClusterPos   ,position);
-
-    fillME(iLayer->second.ClusterStoN  ,StoN);
-    fillME(iLayer->second.ClusterStoNTrend,iOrbitSec, StoN);
-    fillME(iLayer->second.ClusterCharge,charge);
-    fillME(iLayer->second.ClusterChargeTrend,iOrbitSec,charge);
-    fillME(iLayer->second.ClusterNoise ,noise);
-    fillME(iLayer->second.ClusterNoiseTrend,iOrbitSec,noise);
-    fillME(iLayer->second.ClusterWidth ,width);
-    fillME(iLayer->second.ClusterWidthTrend,iOrbitSec,width);
-    fillME(iLayer->second.ClusterPos   ,position);
+  }
+  std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(sdet_pair.second);
+  if(iSubdet != SubDetMEsMap.end() ){
+    if(flag=="OnTrack"){
+      fillME(iSubdet->second.ClusterStoNCorrOnTrack,StoN*cos);
+    } else {
+      fillME(iSubdet->second.ClusterChargeOffTrack,charge);
+      fillME(iSubdet->second.ClusterStoNOffTrack,StoN);
+    }
   }
 }
+//
+// -- Get Subdetector Tag from the Folder name
+//
+void SiStripMonitorTrack::getSubDetTag(std::string& folder_name, std::string& tag){
 
+  tag =  folder_name.substr(folder_name.find("MechanicalView")+15);
+  if (tag.find("side_") != std::string::npos) {
+    tag.replace(tag.find_last_of("/"),1,"_");
+  }
+}   
