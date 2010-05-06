@@ -76,9 +76,12 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
     if (m_mode == CSCPairResidualsConstraint::kModePhiy) units = std::string("(mrad)");
     else units = std::string("(mm)");
 
-    m_residuals = tFileService->make<TH1F>("residuals", units.c_str(), 300, -30., 30.);
-    m_residuals_weighted = tFileService->make<TH1F>("residuals_weighted", units.c_str(), 300, -30., 30.);
-    m_residuals_normalized = tFileService->make<TH1F>("residuals_normalized", "", 200, -20., 20.);
+    m_slopeResiduals = tFileService->make<TH1F>("slopeResiduals", units.c_str(), 300, -30., 30.);
+    m_slopeResiduals_weighted = tFileService->make<TH1F>("slopeResiduals_weighted", units.c_str(), 300, -30., 30.);
+    m_slopeResiduals_normalized = tFileService->make<TH1F>("slopeResiduals_normalized", "", 200, -20., 20.);
+    m_offsetResiduals = tFileService->make<TH1F>("offsetResiduals", units.c_str(), 300, -30., 30.);
+    m_offsetResiduals_weighted = tFileService->make<TH1F>("offsetResiduals_weighted", units.c_str(), 300, -30., 30.);
+    m_offsetResiduals_normalized = tFileService->make<TH1F>("offsetResiduals_normalized", "", 200, -20., 20.);
 
     m_drdz = tFileService->make<TH1F>("drdz", "", 100, -0.5, 0.5);
 
@@ -154,9 +157,12 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
     m_slope_MEm2 = NULL;
     m_slope_MEm3 = NULL;
     m_slope_MEm4 = NULL;
-    m_residuals = NULL;
-    m_residuals_weighted = NULL;
-    m_residuals_normalized = NULL;
+    m_slopeResiduals = NULL;
+    m_slopeResiduals_weighted = NULL;
+    m_slopeResiduals_normalized = NULL;
+    m_offsetResiduals = NULL;
+    m_offsetResiduals_weighted = NULL;
+    m_offsetResiduals_normalized = NULL;
     m_drdz = NULL;
     m_occupancy = NULL;
     m_XYpos_mep1 = NULL;

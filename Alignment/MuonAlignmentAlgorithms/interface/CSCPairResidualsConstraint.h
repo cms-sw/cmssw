@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_CSCPairResidualsConstraint_H
 
 /** \class CSCPairResidualsConstraint
- *  $Date: 2010/05/04 01:16:04 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/05/05 04:00:38 $
+ *  $Revision: 1.2 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -28,7 +28,7 @@ public:
     : CSCPairConstraint(i, j, 0., 0.)
     , m_identifier(identifier), m_id_i(id_i), m_id_j(id_j)
     , m_sum1(0.), m_sumx(0.), m_sumy(0.), m_sumxx(0.), m_sumyy(0.), m_sumxy(0.), m_sumN(0)
-    , m_Zplane(1000.), m_iZ1(1000.), m_iZ6(1000.), m_jZ1(1000.), m_jZ6(1000.), m_cscGeometry(NULL), m_surface_i(NULL), m_surface_j(NULL), m_propagator(NULL)
+    , m_Zplane(1000.), m_iZ1(1000.), m_iZ6(1000.), m_jZ1(1000.), m_jZ6(1000.), m_cscGeometry(NULL), m_propagator(NULL)
   {};
   virtual ~CSCPairResidualsConstraint() {};
 
@@ -64,13 +64,13 @@ protected:
 
   CSCOverlapsAlignmentAlgorithm *m_parent;
 
-  double m_Zplane, m_iZ1, m_iZ6, m_jZ1, m_jZ6, m_averageRadius;
+  double m_Zplane, m_iZ, m_jZ, m_iZ1, m_iZ6, m_jZ1, m_jZ6, m_averageRadius;
   const CSCGeometry *m_cscGeometry;
-  const Surface *m_surface_i, *m_surface_j;
   const Propagator *m_propagator;
   Plane::PlanePointer m_Zsurface;
 
-  TH1F *m_residuals;
+  TH1F *m_slopeResiduals;
+  TH1F *m_offsetResiduals;
   TH1F *m_radial;
 };
 

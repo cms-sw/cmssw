@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.h,v 1.2 2010/05/04 19:07:41 pivarski Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.h,v 1.3 2010/05/05 04:00:39 pivarski Exp $
 //
 //
 
@@ -86,9 +86,12 @@ public:
   TH1F *m_slope_MEm3;
   TH1F *m_slope_MEm4;
 
-  TH1F *m_residuals;
-  TH1F *m_residuals_weighted;
-  TH1F *m_residuals_normalized;
+  TH1F *m_slopeResiduals;
+  TH1F *m_slopeResiduals_weighted;
+  TH1F *m_slopeResiduals_normalized;
+  TH1F *m_offsetResiduals;
+  TH1F *m_offsetResiduals_weighted;
+  TH1F *m_offsetResiduals_normalized;
 
   TH1F *m_drdz;
 

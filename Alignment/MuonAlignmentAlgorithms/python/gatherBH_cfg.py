@@ -57,6 +57,8 @@ process.looper.algoConfig.minStationsInTrackRefits = minStationsInTrackRefits
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string(globaltag)
 
+print "========================================", inputdb
+
 process.muonAlignment.connect = cms.string("sqlite_file:%s" % inputdb)
 
 process.looper.saveToDB = False

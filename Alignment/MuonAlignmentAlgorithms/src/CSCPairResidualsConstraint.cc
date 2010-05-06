@@ -46,36 +46,42 @@ void CSCPairResidualsConstraint::configure(CSCOverlapsAlignmentAlgorithm *parent
   if (m_parent->m_makeHistograms) {
     edm::Service<TFileService> tFileService;
 
-    std::stringstream name, name2, title;
-    name << "residuals_" << m_identifier;
+    std::stringstream name, name2, name3, title;
     title << "i =" << m_id_i << " j =" << m_id_j;
-    m_residuals = tFileService->make<TH1F>(name.str().c_str(), title.str().c_str(), 300, -30., 30.);
 
-    name2 << "radial_" << m_identifier;
-    m_radial = tFileService->make<TH1F>(name2.str().c_str(), title.str().c_str(), 700, 0., 700.);
+    name << "slopeResiduals_" << m_identifier;
+    m_slopeResiduals = tFileService->make<TH1F>(name.str().c_str(), title.str().c_str(), 300, -30., 30.);
+
+    name2 << "offsetResiduals_" << m_identifier;
+    m_offsetResiduals = tFileService->make<TH1F>(name2.str().c_str(), title.str().c_str(), 300, -30., 30.);
+
+    name3 << "radial_" << m_identifier;
+    m_radial = tFileService->make<TH1F>(name3.str().c_str(), title.str().c_str(), 700, 0., 700.);
   }
   else {
-    m_residuals = NULL;
+    m_slopeResiduals = NULL;
+    m_offsetResiduals = NULL;
     m_radial = NULL;
   }
 }
 
 void CSCPairResidualsConstraint::setZplane(const CSCGeometry *cscGeometry) {
   m_cscGeometry = cscGeometry;
-  m_surface_i = &(m_cscGeometry->idToDet(m_id_i)->surface());
-  m_surface_j = &(m_cscGeometry->idToDet(m_id_j)->surface());
 
-  m_Zplane = (m_surface_i->toGlobal(LocalPoint(0., 0., 0.)).z() + m_surface_j->toGlobal(LocalPoint(0., 0., 0.)).z()) / 2.;
-  m_averageRadius = (m_surface_i->toGlobal(LocalPoint(0., 0., 0.)).perp() + m_surface_j->toGlobal(LocalPoint(0., 0., 0.)).perp()) / 2.;
+  m_Zplane = (m_cscGeometry->idToDet(m_id_i)->surface().position().z() + m_cscGeometry->idToDet(m_id_j)->surface().position().z()) / 2.;
+  m_averageRadius = (m_cscGeometry->idToDet(m_id_i)->surface().position().perp() + m_cscGeometry->idToDet(m_id_j)->surface().position().perp()) / 2.;
+
+  m_iZ = m_cscGeometry->idToDet(m_id_i)->surface().position().z();
+  m_jZ = m_cscGeometry->idToDet(m_id_j)->surface().position().z();
 
   CSCDetId i1(m_id_i.endcap(), m_id_i.station(), m_id_i.ring(), m_id_i.chamber(), 1);
   CSCDetId i6(m_id_i.endcap(), m_id_i.station(), m_id_i.ring(), m_id_i.chamber(), 6);
   CSCDetId j1(m_id_j.endcap(), m_id_j.station(), m_id_j.ring(), m_id_j.chamber(), 1);
   CSCDetId j6(m_id_j.endcap(), m_id_j.station(), m_id_j.ring(), m_id_j.chamber(), 6);
-  m_iZ1 = m_surface_i->toLocal(m_cscGeometry->idToDet(i1)->surface().toGlobal(LocalPoint(0., 0., 0.))).z();
-  m_iZ6 = m_surface_i->toLocal(m_cscGeometry->idToDet(i6)->surface().toGlobal(LocalPoint(0., 0., 0.))).z();
-  m_jZ1 = m_surface_j->toLocal(m_cscGeometry->idToDet(j1)->surface().toGlobal(LocalPoint(0., 0., 0.))).z();
-  m_jZ6 = m_surface_j->toLocal(m_cscGeometry->idToDet(j6)->surface().toGlobal(LocalPoint(0., 0., 0.))).z();
+  m_iZ1 = m_cscGeometry->idToDet(m_id_i)->surface().toLocal(m_cscGeometry->idToDet(i1)->surface().position()).z();
+  m_iZ6 = m_cscGeometry->idToDet(m_id_i)->surface().toLocal(m_cscGeometry->idToDet(i6)->surface().position()).z();
+  m_jZ1 = m_cscGeometry->idToDet(m_id_j)->surface().toLocal(m_cscGeometry->idToDet(j1)->surface().position()).z();
+  m_jZ6 = m_cscGeometry->idToDet(m_id_j)->surface().toLocal(m_cscGeometry->idToDet(j6)->surface().position()).z();
 
   m_Zsurface = Plane::build(Plane::PositionType(0., 0., m_Zplane), Plane::RotationType());
 }
@@ -176,7 +182,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
       double phi, phierr2;
       calculatePhi(*hit, phi, phierr2, false, true);
       double z = (*hit)->globalPosition().z() - m_Zplane;
-	
+
       double weight = 1.;
       if (m_parent->m_useHitWeights) weight = 1./phierr2;
       sum1_i += weight;
@@ -221,25 +227,49 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
     else return false;
   }
 
-  // we also need to know the radial coordinate of this tracklet at the Zplane
-  double sum1 = 0.;
-  double sumx = 0.;
-  double sumy = 0.;
-  double sumxx = 0.;
-  double sumxy = 0.;
+  // from hits on the two chambers, determine radial_intercepts separately and radial_slope together
+  double sum1_ri = 0.;
+  double sumx_ri = 0.;
+  double sumy_ri = 0.;
+  double sumxx_ri = 0.;
+  double sumxy_ri = 0.;
   for (std::vector<const TransientTrackingRecHit*>::const_iterator hit = hits_i.begin();  hit != hits_i.end();  ++hit) {
-    double r = (*hit)->globalPosition().perp();
-    double z = (*hit)->globalPosition().z() - m_Zplane;
-    sum1 += 1.;
-    sumx += z;
-    sumy += r;
-    sumxx += z*z;
-    sumxy += z*r;
+      double r = (*hit)->globalPosition().perp();
+      double z = (*hit)->globalPosition().z() - m_Zplane;
+      sum1_ri += 1.;
+      sumx_ri += z;
+      sumy_ri += r;
+      sumxx_ri += z*z;
+      sumxy_ri += z*r;
   }
-  double radial_delta = (sum1*sumxx) - (sumx*sumx);
+  double radial_delta_i = (sum1_ri*sumxx_ri) - (sumx_ri*sumx_ri);
+  if (radial_delta_i == 0.) return false;
+  double radial_slope_i = ((sum1_ri*sumxy_ri) - (sumx_ri*sumy_ri))/radial_delta_i;
+  double radial_intercept_i = ((sumxx_ri*sumy_ri) - (sumx_ri*sumxy_ri))/radial_delta_i + radial_slope_i*(m_iZ - m_Zplane);
+
+  double sum1_rj = 0.;
+  double sumx_rj = 0.;
+  double sumy_rj = 0.;
+  double sumxx_rj = 0.;
+  double sumxy_rj = 0.;
+  for (std::vector<const TransientTrackingRecHit*>::const_iterator hit = hits_j.begin();  hit != hits_j.end();  ++hit) {
+      double r = (*hit)->globalPosition().perp();
+      double z = (*hit)->globalPosition().z() - m_Zplane;
+      sum1_rj += 1.;
+      sumx_rj += z;
+      sumy_rj += r;
+      sumxx_rj += z*z;
+      sumxy_rj += z*r;
+  }
+  double radial_delta_j = (sum1_rj*sumxx_rj) - (sumx_rj*sumx_rj);
+  if (radial_delta_j == 0.) return false;
+  double radial_slope_j = ((sum1_rj*sumxy_rj) - (sumx_rj*sumy_rj))/radial_delta_j;
+  double radial_intercept_j = ((sumxx_rj*sumy_rj) - (sumx_rj*sumxy_rj))/radial_delta_j + radial_slope_j*(m_jZ - m_Zplane);
+
+  double radial_delta = ((sum1_ri + sum1_rj)*(sumxx_ri + sumxx_rj)) - ((sumx_ri + sumx_rj)*(sumx_ri + sumx_rj));
   if (radial_delta == 0.) return false;
-  double radial_intercept = ((sumxx*sumy) - (sumx*sumxy))/radial_delta;
-  double radial_slope = ((sum1*sumxy) - (sumx*sumy))/radial_delta;
+  double radial_intercept = (((sumxx_ri + sumxx_rj)*(sumy_ri + sumy_rj)) - ((sumx_ri + sumx_rj)*(sumxy_ri + sumxy_rj)))/radial_delta;
+  double radial_slope = (((sum1_ri + sum1_rj)*(sumxy_ri + sumxy_rj)) - ((sumx_ri + sumx_rj)*(sumy_ri + sumy_rj)))/radial_delta;
 
   if (m_parent->m_makeHistograms) {
     m_parent->m_drdz->Fill(radial_slope);
@@ -249,12 +279,12 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
   double quantity = 0.;
   double quantityError2 = 0.;
   if (m_parent->m_mode == kModePhiy) {  // phiy comes from track d(rphi)/dz
-    quantity = (slope_i - slope_j) * radial_intercept;
-    quantityError2 = (slopeError2_i + slopeError2_j) * pow(radial_intercept, 2);
+    quantity = (slope_i*radial_intercept_i) - (slope_j*radial_intercept_j);
+    quantityError2 = (slopeError2_i)*pow(radial_intercept_i, 2) + (slopeError2_j)*pow(radial_intercept_j, 2);
   }
   else if (m_parent->m_mode == kModePhiPos) {  // phipos comes from phi intercepts
-    quantity = (intercept_i - intercept_j);
-    quantityError2 = (interceptError2_i + interceptError2_j);
+    quantity = intercept_i - intercept_j;
+    quantityError2 = interceptError2_i + interceptError2_j;
   }
   else if (m_parent->m_mode == kModePhiz) {  // phiz comes from the slope of rphi intercepts
     quantity = (intercept_i - intercept_j) * radial_intercept;
@@ -264,8 +294,11 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
 
   if (quantityError2 == 0.) return false;
 
-  double slopeResid = (slope_i - slope_j) * radial_intercept * 1000.;
+  double slopeResid = ((slope_i*radial_intercept_i) - (slope_j*radial_intercept_j)) * 1000.;
+  double slopeResidError2 = ((slopeError2_i)*pow(radial_intercept_i, 2) + (slopeError2_j)*pow(radial_intercept_j, 2)) * 1000. * 1000.;
   double offsetResid = (intercept_i - intercept_j) * radial_intercept * 10.;
+  double offsetResidError2 = (interceptError2_i + interceptError2_j) * pow(radial_intercept, 2) * 10. * 10.;
+
   if (m_parent->m_truncateSlopeResid > 0.  &&  fabs(slopeResid) > m_parent->m_truncateSlopeResid) return false;
   if (m_parent->m_truncateOffsetResid > 0.  &&  fabs(offsetResid) > m_parent->m_truncateOffsetResid) return false;
 
@@ -282,8 +315,8 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
   m_sumxy += (radial_intercept - m_averageRadius)*quantity;
 
   if (m_parent->m_makeHistograms) {
-    double rphi_slope_i = slope_i * radial_intercept;
-    double rphi_slope_j = slope_j * radial_intercept;
+    double rphi_slope_i = slope_i * radial_intercept_i;
+    double rphi_slope_j = slope_j * radial_intercept_j;
 
     if (m_parent->m_slopeFromTrackRefit) {
       m_parent->m_slope->Fill(rphi_slope_i);  // == rphi_slope_j
@@ -310,24 +343,18 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
       if (m_id_i.endcap() == 2  &&  m_id_i.station() == 4) { m_parent->m_slope_MEm4->Fill(rphi_slope_i); m_parent->m_slope_MEm4->Fill(rphi_slope_j); }
     }
 
-    double residual = 0.;
-    double residualError2 = 0.;
-    if (m_parent->m_mode == kModePhiy) {
-      residual = (slope_i - slope_j) * radial_intercept * 1000.;
-      residualError2 = (slopeError2_i + slopeError2_j) * pow(radial_intercept * 1000., 2);
-    }
-    else {
-      residual = (intercept_i - intercept_j) * radial_intercept * 10.;
-      residualError2 = (interceptError2_i + interceptError2_j) * pow(radial_intercept * 10., 2);
-    }
-
-    m_residuals->Fill(residual);
+    m_slopeResiduals->Fill(slopeResid);
+    m_offsetResiduals->Fill(offsetResid);
     m_radial->Fill(radial_intercept);
 
-    m_parent->m_residuals->Fill(residual);
-    m_parent->m_residuals_weighted->Fill(residual, 1./residualError2);
-    m_parent->m_residuals_normalized->Fill(residual/sqrt(residualError2));
-    
+    m_parent->m_slopeResiduals->Fill(slopeResid);
+    m_parent->m_slopeResiduals_weighted->Fill(slopeResid, 1./slopeResidError2);
+    m_parent->m_slopeResiduals_normalized->Fill(slopeResid/sqrt(slopeResidError2));
+
+    m_parent->m_offsetResiduals->Fill(offsetResid);
+    m_parent->m_offsetResiduals_weighted->Fill(offsetResid, 1./offsetResidError2);
+    m_parent->m_offsetResiduals_normalized->Fill(offsetResid/sqrt(offsetResidError2));
+
     double ringbin = 0;
     if (m_id_i.endcap() == 2  &&  m_id_i.station() == 4  &&  m_id_i.ring() == 2) ringbin = 1.5;
     else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 4  &&  m_id_i.ring() == 1) ringbin = 2.5;
@@ -577,7 +604,7 @@ bool CSCPairResidualsConstraint::isFiducial(std::vector<const TransientTrackingR
   for (std::vector<const TransientTrackingRecHit*>::const_iterator hit = hits.begin();  hit != hits.end();  ++hit) {
     double phi, phierr2;
     calculatePhi(*hit, phi, phierr2);
-    double z = (is_i ? m_surface_i : m_surface_j)->toLocal((*hit)->globalPosition()).z();
+    double z = (is_i ? m_cscGeometry->idToDet(m_id_i)->surface() : m_cscGeometry->idToDet(m_id_j)->surface()).toLocal((*hit)->globalPosition()).z();
 
     if (m_parent->m_makeHistograms) {
       if (m_id_i.station() == 1  &&  (m_id_i.ring() == 1  ||  m_id_i.ring() == 4)) {
