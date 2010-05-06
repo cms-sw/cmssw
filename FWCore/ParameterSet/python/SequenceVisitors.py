@@ -15,7 +15,8 @@ class EndPathValidator(object):
 	    if (visitee.type_() not in ["TriggerResultsFilter", "HLTPrescaler"]):
                 raise ValueError("EndPath cannot contain an EDFilter, "+visitee.type_()+", with label "+visitee.label_())
         if isinstance(visitee,EDProducer):
-            raise ValueError("EndPath cannot contain an EDProducer, "+visitee.type_()+", with label "+visitee.label_())
+	    if (visitee.type_() not in ["MEtoEDMConverter"]):
+                raise ValueError("EndPath cannot contain an EDProducer, "+visitee.type_()+", with label "+visitee.label_())
     def leave(self,visitee):
         pass
 
