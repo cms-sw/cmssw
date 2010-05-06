@@ -1,6 +1,7 @@
 import ROOT, array, os, re, random
 from math import *
 import time
+import pickle
 
 # python 2.6 has json modue; <2.6 could use simplejson
 try:
@@ -11,6 +12,15 @@ except ImportError:
 # my common muon types structures
 from mutypes import *
 
+CPP_LOADED = False
+
+# containers for test results for map plots
+MAP_RESULTS_SAWTOOTH = {}
+MAP_RESULTS_FITSIN = {}
+MAP_RESULTS_BINS = {}
+
+# general container for all test results
+TEST_RESULTS = {}
 
 #############################################################
 # Convenience functions
@@ -1136,120 +1146,174 @@ signConventions = {
 ("CSC", 2, 4, 2, 36): (1, 1, -1, 526.5, -0.174533, -1037.34),
 }
 
-phiedges_me11 = [
-    0.087266462599716474, 0.26179938550504211, 0.43633230751381297, 0.61086524309298951, 0.78539818789089832, 0.95993106410343132,
+
+######################################################################################################
+## sector phi edges in: me11 me12 me13 me14 me21 me22 me31 me32 me41 me42 mb1 mb2 mb3 mb4
+## index:               0    1    2    3    4    5    6    7    8    9    10  11  12  13
+phiedges = [
+   [0.087266462599716474, 0.26179938550504211, 0.43633230751381297, 0.61086524309298951, 0.78539818789089832, 0.95993106410343132,
     1.13446400890134, 1.3089969444805165, 1.4835298664892873, 1.6580627893946129, 1.8325957122999386, 2.0071286343087094,
     2.1816615698878858, 2.3561945146857948, 2.5307273908983277, 2.7052603356962366, 2.8797932712754131, 3.0543261932841839,
     -3.0543261909900767, -2.8797932680847511, -2.7052603460759803, -2.5307274104968038, -2.3561944656988949, -2.181661589486362,
     -2.0071286446884531, -1.8325957091092766, -1.6580627871005058, -1.4835298641951802, -1.3089969412898546, -1.1344640192810838,
-    -0.95993108370190716, -0.78539813890399834, -0.61086526269146535, -0.43633231789355653, -0.26179938231437999, -0.087266460305609153]
-phiedges_me12 = [
-    0.087266462599716474, 0.26179938297741073, 0.43633231700542385, 0.61086526005981812, 0.78539815872971441, 0.95993109326461523,
+    -0.95993108370190716, -0.78539813890399834, -0.61086526269146535, -0.43633231789355653, -0.26179938231437999, -0.087266460305609153],
+   [0.087266462599716474, 0.26179938297741073, 0.43633231700542385, 0.61086526005981812, 0.78539815872971441, 0.95993109326461523,
     1.1344639919345114, 1.3089969349889057, 1.4835298690169187, 1.6580627893946129, 1.8325957097723073, 2.0071286438003204, 
     2.1816615868547147, 2.3561944855246111, 2.5307274200595118, 2.7052603187294082, 2.879793261783802, 3.0543261958118153, 
     -3.0543261909900767, -2.8797932706123825, -2.7052603365843693, -2.5307273935299754, -2.356194494860079, -2.1816615603251783,
     -2.0071286616552819, -1.8325957186008877, -1.6580627845728746, -1.4835298641951802, -1.308996943817486, -1.1344640097894729,
-    -0.95993106673507855, -0.78539816806518226, -0.61086523353028144, -0.43633233486038514, -0.26179939180599088, -0.087266457777977771]
-phiedges_me13 = [
-    0.087266462599716474, 0.26179938235213535, 0.43633230952414037, 0.61086523916470359, 0.78539817763669606, 0.95993107435763347,
+    -0.95993106673507855, -0.78539816806518226, -0.61086523353028144, -0.43633233486038514, -0.26179939180599088, -0.087266457777977771],
+   [0.087266462599716474, 0.26179938235213535, 0.43633230952414037, 0.61086523916470359, 0.78539817763669606, 0.95993107435763347,
     1.1344640128296259, 1.3089969424701891, 1.4835298696421941, 1.6580627893946129, 1.832595709147032, 2.0071286363190368,
     2.1816615659596001, 2.3561945044315924, 2.53072740115253, 2.7052603396245227, 2.8797932692650856, 3.0543261964370907,
     -3.0543261909900767, -2.8797932712376579, -2.7052603440656529, -2.53072741442509, -2.3561944759530973, -2.1816615792321596,
     -2.0071286407601674, -1.8325957111196041, -1.6580627839475992, -1.4835298641951802, -1.3089969444427614, -1.1344640172707563,
-    -0.95993108763019308, -0.7853981491582005, -0.61086525243726308, -0.43633231396527061, -0.2617993843247074, -0.087266457152702412]
-phiedges_me14 = [
-    0.087266462599716474, 0.26179938550504211, 0.43633230751381297, 0.61086524309298951, 0.78539818789089832, 0.95993106410343132,
+    -0.95993108763019308, -0.7853981491582005, -0.61086525243726308, -0.43633231396527061, -0.2617993843247074, -0.087266457152702412],
+   [0.087266462599716474, 0.26179938550504211, 0.43633230751381297, 0.61086524309298951, 0.78539818789089832, 0.95993106410343132,
     1.13446400890134, 1.3089969444805165, 1.4835298664892873, 1.6580627893946129, 1.8325957122999386, 2.0071286343087094,
     2.1816615698878858, 2.3561945146857948, 2.5307273908983277, 2.7052603356962366, 2.8797932712754131, 3.0543261932841839,
     -3.0543261909900767, -2.8797932680847511, -2.7052603460759803, -2.5307274104968038, -2.3561944656988949, -2.181661589486362,
     -2.0071286446884531, -1.8325957091092766, -1.6580627871005058, -1.4835298641951802, -1.3089969412898546, -1.1344640192810838,
-    -0.95993108370190716, -0.78539813890399834, -0.61086526269146535, -0.43633231789355653, -0.26179938231437999, -0.087266460305609153]
-phiedges_me21 = [
-    0.26179938481428705, 0.6108652193791777, 0.95993108859688125, 1.3089969578145848, 1.6580627923794755, 2.0071286538798305,
+    -0.95993108370190716, -0.78539813890399834, -0.61086526269146535, -0.43633231789355653, -0.26179938231437999, -0.087266460305609153],
+   [0.26179938481428705, 0.6108652193791777, 0.95993108859688125, 1.3089969578145848, 1.6580627923794755, 2.0071286538798305,
     2.356194498693418, 2.7052603320901376, 3.0543261769037247, -2.8797932687755066, -2.5307274342106156, -2.1816615649929121,
-    -1.8325956957752083, -1.4835298612103178, -1.1344639997099626, -0.78539815489637521, -0.43633232149965551, -0.087266476686068212]
-phiedges_me22 = [
-    0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153,
+    -1.8325956957752083, -1.4835298612103178, -1.1344639997099626, -0.78539815489637521, -0.43633232149965551, -0.087266476686068212],
+   [0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153,
     1.1344640106980168, 1.308996936417627, 1.483529863283664, 1.6580627893946129, 1.8325957155055621, 2.0071286423715993,
     2.1816615680912093, 2.3561944997593747, 2.5307274058247482, 2.7052603374929136, 2.8797932632125236, 3.0543261900785605,
     -3.0543261909900767, -2.8797932648791278, -2.7052603380130908, -2.5307274122934809, -2.3561944806253154, -2.1816615745599419,
     -2.0071286428917765, -1.8325957171721663, -1.6580627903061294, -1.4835298641951802, -1.3089969380842312, -1.1344640112181943,
-    -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586]
-phiedges_me31 = [
-    0.26179938498198485, 0.61086523665761272, 0.95993108859688125, 1.3089969405361499, 1.6580627922117777, 2.0071286313120122,
+    -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586],
+   [0.26179938498198485, 0.61086523665761272, 0.95993108859688125, 1.3089969405361499, 1.6580627922117777, 2.0071286313120122,
     2.3561944778405319, 2.7052603529430232, 3.0543261994715434, -2.8797932686078087, -2.530727416932181, -2.1816615649929121,
-    -1.8325957130536434, -1.4835298613780155, -1.1344640222777811, -0.78539817574926085, -0.43633230064676976, -0.087266454118249653]
-phiedges_me32 = [
-    0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153,
+    -1.8325957130536434, -1.4835298613780155, -1.1344640222777811, -0.78539817574926085, -0.43633230064676976, -0.087266454118249653],
+   [0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153,
     1.1344640106980168, 1.308996936417627, 1.483529863283664, 1.6580627893946129, 1.8325957155055621, 2.0071286423715993,
     2.1816615680912093, 2.3561944997593747, 2.5307274058247482, 2.7052603374929136, 2.8797932632125236, 3.0543261900785605,
     -3.0543261909900767, -2.8797932648791278, -2.7052603380130908, -2.5307274122934809, -2.3561944806253154, -2.1816615745599419,
     -2.0071286428917765, -1.8325957171721663, -1.6580627903061294, -1.4835298641951802, -1.3089969380842312, -1.1344640112181943,
-    -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586]
-phiedges_me41 = [
-    0.26179938879942166, 0.61086525092924071, 0.95993108859688125, 1.3089969262645218, 1.6580627883943408, 2.0071286288299772, 
+    -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586],
+   [0.26179938879942166, 0.61086525092924071, 0.95993108859688125, 1.3089969262645218, 1.6580627883943408, 2.0071286288299772, 
     2.3561945088997609, 2.7052603218837943, 3.0543262019535784, -2.8797932647903717, -2.5307274026605526, -2.1816615649929121, 
-    -1.8325957273252713, -1.4835298651954525, -1.1344640247598159, -0.785398144690032, -0.43633233170599861, -0.087266451636214853]
-phiedges_me42 = [
-    0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153,
+    -1.8325957273252713, -1.4835298651954525, -1.1344640247598159, -0.785398144690032, -0.43633233170599861, -0.087266451636214853],
+   [0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153,
     1.1344640106980168, 1.308996936417627, 1.483529863283664, 1.6580627893946129, 1.8325957155055621, 2.0071286423715993,
     2.1816615680912093, 2.3561944997593747, 2.5307274058247482, 2.7052603374929136, 2.8797932632125236, 3.0543261900785605,
     -3.0543261909900767, -2.8797932648791278, -2.7052603380130908, -2.5307274122934809, -2.3561944806253154, -2.1816615745599419,
     -2.0071286428917765, -1.8325957171721663, -1.6580627903061294, -1.4835298641951802, -1.3089969380842312, -1.1344640112181943,
-    -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586]
-
-phiedges1 = [
-    0.35228048120123945, 0.87587781482541827, 1.3994776462193192, 1.923076807996136, 2.4466741416203148, 2.970273973014216,
-    -2.7893121723885534, -2.2657148387643748, -1.7421150073704739, -1.2185158455936571, -0.69491851196947851, -0.17131868057557731]
-phiedges2 = [
-    0.22000706229660855, 0.74360690430428489, 1.267204926935573, 1.7908033890915052, 2.3144032310991816, 2.8380012537304697,
-    -2.9215855912931841, -2.3979857492855081, -1.8743877266542202, -1.3507892644982882, -0.82718942249061178, -0.30359139985932365]
-phiedges3 = [
-    0.29751957124275596, 0.82111826253905784, 1.3447162969496083, 1.8683158980376524, 2.3919145893339548, 2.915512623744505,
-    -2.844073082347037, -2.3204743910507353, -1.7968763566401849, -1.2732767555521407, -0.74967806425583894, -0.22608002984528835]
-phiedges4 = [
-    3.0136655290752188, -2.7530905195097337, -2.2922883025568734, -1.9222915077192773, -1.5707963267948966, -1.2193011458705159,
+    -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586],
+   [0.35228048120123945, 0.87587781482541827, 1.3994776462193192, 1.923076807996136, 2.4466741416203148, 2.970273973014216,
+    -2.7893121723885534, -2.2657148387643748, -1.7421150073704739, -1.2185158455936571, -0.69491851196947851, -0.17131868057557731],
+   [0.22000706229660855, 0.74360690430428489, 1.267204926935573, 1.7908033890915052, 2.3144032310991816, 2.8380012537304697,
+    -2.9215855912931841, -2.3979857492855081, -1.8743877266542202, -1.3507892644982882, -0.82718942249061178, -0.30359139985932365],
+   [0.29751957124275596, 0.82111826253905784, 1.3447162969496083, 1.8683158980376524, 2.3919145893339548, 2.915512623744505,
+    -2.844073082347037, -2.3204743910507353, -1.7968763566401849, -1.2732767555521407, -0.74967806425583894, -0.22608002984528835],
+   [3.0136655290752188, -2.7530905195097337, -2.2922883025568734, -1.9222915077192773, -1.5707963267948966, -1.2193011458705159,
     -0.84930435103291968, -0.38850213408005951, 0.127927124514574, 0.65152597487624719, 1.1322596819239259, 1.5707963267948966, 
-    2.0093329716658674, 2.4900666787135459]
+    2.0093329716658674, 2.4900666787135459]]
 
-######################################################################################################
+def phiedges2c():
+  lines = []
+  for ed in phiedges[:]:
+    ed.sort()
+    #print ed
+    ed.extend([999 for n in range(0,37-len(ed))])
+    lines.append('{' + ', '.join(map(str, ed)) + '}')
+  #print lines
+  res = ', '.join(lines)
+  ff = open("phiedges_export.h",mode="w")
+  print>>ff,'double phiedges[14][37] = {' + res + '};'
+  ff.close()
 
-def philines(station, window, abscissa):
-    global philine_tlines
+class SawTeethFunction:
+  def __init__(self, name):
+    self.name = name
+    self.edges = (phiedges[stationIndex(name)])[:]
+    self.ed = sorted(self.edges)
+    # add some padding to the end
+    self.ed.append(pi+1.)
+    self.n = len(self.edges)
+  def __call__(self, xx, par):
+    # wrap x in the most negative phi sector into positive phi
+    x = xx[0]
+    if x < self.ed[0]: x += 2*pi
+    # locate sector
+    for i in range(0,self.n):
+      if x <= self.ed[i]: continue
+      if x > self.ed[i+1]: continue
+      return par[i*2] + par[i*2+1]*(x - self.ed[i])
+    return 0
+  def pp(self):
+    print self.name, self.n
+    print self.edges
+    print self.ed
+
+
+def stationIndex(name):
+  if ("MB" in name or "ME" in name):
+    # assume the name is ID
+    pa = idToPostalAddress(name)
+    if pa is None: return None
+    if pa[0]=="CSC":
+      if pa[2]==1 and pa[3]==1: return 0
+      if pa[2]==1 and pa[3]==1: return 1
+      if pa[2]==1 and pa[3]==1: return 2
+      if pa[2]==1 and pa[3]==1: return 3
+      if pa[2]==1 and pa[3]==1: return 4
+      if pa[2]==1 and pa[3]==1: return 5
+      if pa[2]==1 and pa[3]==1: return 6
+      if pa[2]==1 and pa[3]==1: return 7
+      if pa[2]==1 and pa[3]==1: return 8
+      if pa[2]==1 and pa[3]==1: return 9
+    if pa[0]=="DT":
+      if pa[2]==1: return 10
+      if pa[2]==2: return 11
+      if pa[2]==3: return 12
+      if pa[2]==2: return 13
+  else:
+    if ("mem11" in name or "mep11" in name): return 0
+    if ("mem12" in name or "mep12" in name): return 1
+    if ("mem13" in name or "mep13" in name): return 2
+    if ("mem14" in name or "mep14" in name): return 3
+    if ("mem21" in name or "mep21" in name): return 4
+    if ("mem22" in name or "mep22" in name): return 5
+    if ("mem31" in name or "mep31" in name): return 6
+    if ("mem32" in name or "mep32" in name): return 7
+    if ("mem41" in name or "mep41" in name): return 8
+    if ("mem42" in name or "mep42" in name): return 9
+    if ("st1" in name): return 10
+    if ("st2" in name): return 11
+    if ("st3" in name): return 12
+    if ("st4" in name): return 13
+
+
+
+def philines(name, window, abscissa):
+    global philine_tlines, philine_labels
     philine_tlines = []
-    if station == "me11": phiedges = phiedges_me11
-    if station == "me12": phiedges = phiedges_me12
-    if station == "me13": phiedges = phiedges_me13
-    if station == "me14": phiedges = phiedges_me14
-    if station == "me21": phiedges = phiedges_me21
-    if station == "me22": phiedges = phiedges_me22
-    if station == "me31": phiedges = phiedges_me31
-    if station == "me32": phiedges = phiedges_me32
-    if station == "me41": phiedges = phiedges_me41
-    if station == "me42": phiedges = phiedges_me42
-    if station == 1: phiedges = phiedges1
-    if station == 2: phiedges = phiedges2
-    if station == 3: phiedges = phiedges3
-    if station == 4: phiedges = phiedges4
-    for phi in phiedges:
+    edges = phiedges[stationIndex(name)]
+    #print name, len(edges)
+    for phi in edges:
         if abscissa is None or abscissa[0] < phi < abscissa[1]:
             philine_tlines.append(ROOT.TLine(phi, -window, phi, window))
             philine_tlines[-1].SetLineStyle(2)
             philine_tlines[-1].Draw()
-    if station in (1, 2, 3, 4):
+    if "st" in name: # DT labels
         philine_labels = []
-        phiedges = phiedges[:]
-        phiedges.sort()
-        if station in (1, 2, 3):
-            labels = [" 8", " 9", "10", "11", "12", " 1", " 2", " 3", " 4", " 5", " 6"]
-            phiedges = phiedges[1:]
-        else: 
+        edges = edges[:]
+        edges.sort()
+        if "st4" in name:
             labels = [" 7", " 8", " 9", "14", "10", "11", "12", " 1", " 2", " 3", "13", " 4", " 5", " 6"]
-        for phi, label in zip(phiedges, labels):
+        else: 
+            labels = [" 8", " 9", "10", "11", "12", " 1", " 2", " 3", " 4", " 5", " 6"]
+            edges = edges[1:]
+        for phi, label in zip(edges, labels):
             littlebit = 0.
             if label in (" 7", " 9", "14", "10", "11"): littlebit = 0.05
-            philine_labels.append(ROOT.TText(phi-0.35+littlebit, -0.9*window, label)); philine_labels[-1].Draw()
-        philine_labels.append(ROOT.TText(-2.9, -0.75*window, "Sector:")); philine_labels[-1].Draw()
+            philine_labels.append(ROOT.TText(phi-0.35+littlebit, -0.9*window, label))
+            philine_labels[-1].Draw()
+        philine_labels.append(ROOT.TText(-2.9, -0.75*window, "Sector:"))
+        philine_labels[-1].Draw()
 
 def zlines(window, abscissa):
     global zline_tlines
@@ -1658,6 +1722,7 @@ def nameToId(name):
     ring = name[4]
     chamber = name[6:8]
     return "ME%s%s/%s/%s" % (endcap, station, ring, chamber)
+  return None
 
 
 def availableCellsDT(reports):
@@ -1685,6 +1750,10 @@ def availableCellsDT(reports):
       for sector in range(1,station[2]+1):
         ssector = "%02d" % sector
         label = "MBwh%sst%ssec%s" % (wheelLetter(int(wheel[1])),station[1],ssector)
+        if len(reports)==0:
+          # no reports case: do not include chambers 
+          #dts.append(wheel[0]+'/'+station[1]+'/'+ssector)
+          continue
         found = False
         for r in reports:
           if r.name == label:
@@ -1726,6 +1795,18 @@ def availableCellsCSC(reports):
             if chamber<9 or chamber>13: continue
           schamber = "%02d" % chamber
           label = "ME%s%s%s_%s" % (endcap[1], station[1], ring[1], schamber)
+          if len(reports)==0:
+            # no reports case: do not include chambers 
+            #cscs.append(endcap[0]+station[1]+'/'+ring[1]+'/'+schamber)
+            continue
+          found = False
+          for r in reports:
+            if r.name == label:
+              found = True
+              break
+          if not found: continue
+          if r.status == "TOOFEWHITS" and r.posNum+r.negNum==0: continue
+          if r.status == "NOFIT": continue
           cscs.append(endcap[0]+station[1]+'/'+ring[1]+'/'+schamber)
   return cscs
 
@@ -1741,14 +1822,53 @@ DQM_SEVERITY = [
   {"idx":7, "name": "CRITICAL", "color": "red", "hex":"#FF0000"}];
 
 
+def addToTestResults(c,res):
+  if len(res)>0:
+    if TEST_RESULTS.has_key(c): TEST_RESULTS[c].extend(res)
+    else: TEST_RESULTS[c] = res
+
+
 def testEntry(testID,scope,descr,severity):
   s = 0
   for sev in DQM_SEVERITY:
     if sev["name"]==severity: s = sev["idx"]
   return {"testID":testID,"scope":scope,"descr":descr,"severity":s}
 
-def doTestsForReport(cells,reports):
+
+def testZeroWithin5Sigma(x):
+  if abs(x[1])==0.: return 0.
+  pull = abs(x[0])/abs(x[1])
+  if pull <= 5: return 0.
+  else: return pull
+
+
+def testDeltaWithin5Sigma(x,sx):
+  n = len(x)
   res = []
+  dr = []
+  #print x
+  #print sx
+  for i in range(1,n+1):
+    x1 = x[i-1]
+    sx1 = sx[i-1]
+    x2 = x[0]
+    sx2 = sx[0]
+    if i<n: 
+      x2 = x[i]
+      sx2 = sx[i]
+    sig1 = sqrt( (sx1[0]-sx1[1])**2 + x1[1]**2 )
+    sig2 = sqrt( (sx2[0]-sx2[1])**2 + x2[1]**2 )
+    df = abs(x1[0]-x2[0]) - 3*( sig1 + sig2 )
+    #df = abs(sx1[1]-sx2[0]) - 5*(abs(x1[1]) + abs(x2[1]))
+    #print i, df, '= abs(',sx1[1],'-',sx2[0],')-5*(abs(',x1[1],')+abs(',x2[1],'))'
+    dr.append(df)
+    if df > 0: res.append(i)
+  #print dr
+  #print res
+  return res
+
+
+def doTestsForReport(cells,reports):
   for c in cells:
     # can a cell be converted to a chamber postal address?
     postal_address = idToPostalAddress(c)
@@ -1763,50 +1883,121 @@ def doTestsForReport(cells,reports):
     if not found: continue
 
     # chamber's tests result
-    cres = []
+    res = []
     scope = postal_address[0]
     
     # noting could be done if fitting fails
     if r.status == "FAIL" or r.status == "MINUITFAIL":
-      cres.append(testEntry("FAILURE",scope,r.status+" failure","CRITICAL"))
-      res.append({"objID":c, "name":c, "list":cres})
+      res.append(testEntry("FAILURE",scope,r.status+" failure","CRITICAL"))
+      addToTestResults(c,res)
       continue
 
     # noting could be done if TOOFEWHITS
     nseg = r.posNum + r.negNum
     if r.status == "TOOFEWHITS" and nseg>0:
-      cres.append(testEntry("LOW_STAT",scope,"low stat, #segments=%d"%nseg,"LOWSTAT"))
-      res.append({"objID":c, "name":c, "list":cres})
+      res.append(testEntry("LOW_STAT",scope,"low stat, #segments=%d"%nseg,"LOWSTAT"))
+      addToTestResults(c,res)
       continue
 
     # set shades of light green according to sidma(dx)
     sdx = 10.*r.deltax.error
     if sdx>0.5:
-      if sdx<0.75: cres.append(testEntry("LOW_STAT_DDX05",scope,"low stat, delta(dx)=%f #segments=%d" % (sdx,nseg),"LOWSTAT05"))
-      elif sdx<1.: cres.append(testEntry("LOW_STAT_DDX075",scope,"low stat, delta(dx)=%f #segments=%d" % (sdx,nseg),"LOWSTAT075"))
-      else: cres.append(testEntry("LOW_STAT_DDX1",scope,"low stat, delta(dx)=%f #segments=%d" % (sdx,nseg),"LOWSTAT1"))
+      if sdx<0.75: res.append(testEntry("LOW_STAT_DDX05",scope,"low stat, delta(dx)=%f #segments=%d" % (sdx,nseg),"LOWSTAT05"))
+      elif sdx<1.: res.append(testEntry("LOW_STAT_DDX075",scope,"low stat, delta(dx)=%f #segments=%d" % (sdx,nseg),"LOWSTAT075"))
+      else: res.append(testEntry("LOW_STAT_DDX1",scope,"low stat, delta(dx)=%f #segments=%d" % (sdx,nseg),"LOWSTAT1"))
 
     # check chi2
     if r.redchi2 > 2.5:
-      cres.append(testEntry("BIG_CHI2",scope,"chi2=%f>2.5" % r.redchi2,"TOLERABLE"))
+      res.append(testEntry("BIG_CHI2",scope,"chi2=%f>2.5" % r.redchi2,"TOLERABLE"))
 
     # check medians
     medx, meddx = 10.*r.median_x, 1000.*r.median_dxdz
     #medy, meddy = 10.*r.median_y, 1000.*r.median_dydz
-    if medx>2:  cres.append(testEntry("BIG_MED_X",scope,"median dx=%f>2 mm"%medx,"SEVERE"))
-    #if medy>3: cres.append(testEntry("BIG_MED_Y",scope,"median dy=%f>3 mm"%medy,"SEVERE"))
-    if meddx>2: cres.append(testEntry("BIG_MED_DXDZ",scope,"median d(dx/dz)=%f>2 mrad"%meddx,"SEVERE"))
-    #if meddy>3: cres.append(testEntry("BIG_MED_DYDZ",scope,"median d(dy/dz)=%f>3 mrad"%meddy,"SEVERE"))
+    if medx>2:  res.append(testEntry("BIG_MED_X",scope,"median dx=%f>2 mm"%medx,"SEVERE"))
+    #if medy>3: res.append(testEntry("BIG_MED_Y",scope,"median dy=%f>3 mm"%medy,"SEVERE"))
+    if meddx>2: res.append(testEntry("BIG_MED_DXDZ",scope,"median d(dx/dz)=%f>2 mrad"%meddx,"SEVERE"))
+    #if meddy>3: res.append(testEntry("BIG_MED_DYDZ",scope,"median d(dy/dz)=%f>3 mrad"%meddy,"SEVERE"))
 
     # check residuals far from zero
     dx, ddx = 10.*r.deltax.value, 1000.*r.deltaphix.value
     #dy, ddy = 10.*r.deltay.value, 1000.*r.deltaphiy.value
-    if dx>0.3:   cres.append(testEntry("BIG_DX",scope,"dx=%f>0.3 mm"%dx,"CRITICAL"))
-    if ddx>0.03: cres.append(testEntry("BIG_DX",scope,"dphix=%f>0.03 mrad"%ddx,"CRITICAL"))
+    if dx>0.3:   res.append(testEntry("BIG_DX",scope,"dx=%f>0.3 mm"%dx,"CRITICAL"))
+    if ddx>0.03: res.append(testEntry("BIG_DX",scope,"dphix=%f>0.03 mrad"%ddx,"CRITICAL"))
 
-    if len(cres)>0: res.append({"objID":c, "name":c, "list":cres})
+    addToTestResults(c,res)
 
-  return res
+
+def doTestsForMapPlots(cells):
+  for c in cells:
+    res = []
+    
+    scope = "zzz"
+    if c[0:2]=="MB": scope = "DT"
+    if c[0:2]=="ME": scope = "CSC"
+    if scope == "zzz":
+      print "strange cell ID: ", c
+      return None
+    
+    if MAP_RESULTS_FITSIN.has_key(c):
+      t = MAP_RESULTS_FITSIN[c]
+      t_a = testZeroWithin5Sigma(t['a'])
+      t_s = testZeroWithin5Sigma(t['sin'])
+      t_c = testZeroWithin5Sigma(t['cos'])
+      if t_a+t_s+t_c >0:
+        descr = "map fitsin 5 sigma away from 0; pulls : a=%.2f sin=%.2f, cos=%.2f" % (t_a,t_s,t_c)
+        res.append(testEntry("MAP_FITSIN",scope,descr,"SEVERE"))
+    
+    if MAP_RESULTS_SAWTOOTH.has_key(c):
+      t = MAP_RESULTS_SAWTOOTH[c]
+      
+      t_a = testDeltaWithin5Sigma(t['a'],t['da'])
+      if len(t_a)>0:
+        descr = "map discontinuities: %s" % ",".join(map(str,t_a))
+        res.append(testEntry("MAP_DISCONTIN",scope,descr,"SEVERE"))
+
+      t_b = map(testZeroWithin5Sigma, t['b'])
+      t_bi = []
+      for i in range(0,len(t_b)):
+        if t_b[i]>0: t_bi.append(i+1)
+      if len(t_bi)>0:
+        descr = "map sawteeth: %s" % ",".join(map(str,t_bi))
+        res.append(testEntry("MAP_SAWTEETH",scope,descr,"TOLERABLE"))
+
+    addToTestResults(c,res)
+
+
+def saveTestResultsMap(run_name):
+  if len(MAP_RESULTS_SAWTOOTH)+len(MAP_RESULTS_FITSIN)==0: return None
+  ff = open("tmp_test_results_map__%s.pkl" % run_name, "wb")
+  pickle.dump(MAP_RESULTS_SAWTOOTH, ff)
+  pickle.dump(MAP_RESULTS_FITSIN, ff)
+  ff.close()
+
+
+def loadTestResultsMap(run_name):
+  print "tmp_test_results_map__%s.pkl" % run_name, os.access("tmp_test_results_map__%s.pkl" % run_name,os.F_OK)
+  if not os.access("tmp_test_results_map__%s.pkl" % run_name,os.F_OK): return None
+  global MAP_RESULTS_FITSIN, MAP_RESULTS_SAWTOOTH
+  ff = open("tmp_test_results_map__%s.pkl" % run_name, "rb")
+  MAP_RESULTS_SAWTOOTH = pickle.load(ff)
+  MAP_RESULTS_FITSIN = pickle.load(ff)
+  ff.close()
+  #execfile("tmp_test_results_map__%s.py" % run_name)
+  #print 'asasas', MAP_RESULTS_FITSIN
+  return True
+
+def writeDQMReport(fname_dqm, run_name):
+  tests = []
+  for c in TEST_RESULTS:
+    tests.append({"objID":c, "name":c, "list":TEST_RESULTS[c]})
+  lt = time.localtime(time.time())
+  lts = "%04d-%02d-%02d %02d:%02d:%02d %s" % (lt[0], lt[1], lt[2], lt[3], lt[4], lt[5], time.tzname[1])
+  dqm_report = {"run":run_name, "genDate": lts, "report":tests}
+  ff = open(fname_dqm,mode="w")
+  print >>ff, "var DQM_REPORT = "
+  json.dump(dqm_report,ff)
+  #print >>ff, "];"
+  ff.close()
 
 
 def doTests(reports,fname_base, fname_dqm, run_name):
@@ -1820,16 +2011,14 @@ def doTests(reports,fname_base, fname_dqm, run_name):
   print >>ff, "];"
   ff.close()
   
-  rall = doTestsForReport(dts,reports)
-  rall.extend(doTestsForReport(cscs,reports))
-  lt = time.localtime(time.time())
-  lts = "%04d-%02d-%02d %02d:%02d:%02d %s" % (lt[0], lt[1], lt[2], lt[3], lt[4], lt[5], time.tzname[1])
-  dqm_report = {"run":run_name, "genDate": lts, "report":rall}
-  ff = open(fname_dqm,mode="w")
-  print >>ff, "var DQM_REPORT = "
-  json.dump(dqm_report,ff)
-  #print >>ff, "];"
-  ff.close()
+  doTestsForReport(dts,reports)
+  doTestsForReport(cscs,reports)
+  
+  loadTestResultsMap(run_name)
+  doTestsForMapPlots(dts)
+  doTestsForMapPlots(cscs)
+  
+  writeDQMReport(fname_dqm, run_name)
 
 
 ######################################################################################################
@@ -2002,7 +2191,7 @@ def plotmedians(reports1, reports2, selection=None, binsx=50, windowx=3., ceilin
 ######################################################################################################
 
 def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title="", 
-            widebins=False, fitsine=False, fitline=False, reset_palette=False):
+            widebins=False, fitsine=False, fitline=False, reset_palette=False, fitsawteeth=False):
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(0)
     tdrStyle.SetOptStat(0)
@@ -2016,6 +2205,12 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     
     if reset_palette: set_palette("blues")
     global hist, hist2d, hist2dweight, tline1, tline2, tline3
+    
+    if fitsine or fitsawteeth:
+        id = mapNameToId(name)
+        if not id:
+            print "bad id for ", name
+            raise Exception
     
     hdir = "AlignmentMonitorMuonSystemMap1D/iter1/"
     hpref= "%s_%s" % (name, param)
@@ -2057,8 +2252,10 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
                 hist.SetBinContent(i/skip+1, tmp.GetMean())
                 hist.SetBinError(i/skip+1, tmp.GetRMS() / sqrt(tmp.GetEntries()))
             else:
-                hist.SetBinContent(i/skip+1, 2000.)
-                hist.SetBinError(i/skip+1, 1000.)
+                #hist.SetBinContent(i/skip+1, 2000.)
+                #hist.SetBinError(i/skip+1, 1000.)
+                hist.SetBinContent(i/skip+1, 0.)
+                hist.SetBinError(i/skip+1, 0.)
         
     elif mode == "weighted":
         if weights.GetEntries() == 0:
@@ -2080,27 +2277,6 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
 
     else:
         raise Exception
-
-    if fitsine:
-        f = ROOT.TF1("f", "[0] + [1]*sin(x) + [2]*cos(x)", -pi, pi)
-        hist2d.Fit(f, "q")
-        hist2d.GetFunction("f").SetLineColor(ROOT.kRed)
-        global fitsine_const, fitsine_sin, fitsine_cos, fitsine_chi2, fitsine_ndf
-        fitsine_const = hist2d.GetFunction("f").GetParameter(0), hist2d.GetFunction("f").GetParError(0)
-        fitsine_sin = hist2d.GetFunction("f").GetParameter(1), hist2d.GetFunction("f").GetParError(1)
-        fitsine_cos = hist2d.GetFunction("f").GetParameter(2), hist2d.GetFunction("f").GetParError(2)
-        fitsine_chi2 = hist2d.GetFunction("f").GetChisquare()
-        fitsine_ndf = hist2d.GetFunction("f").GetNDF()
-
-    if fitline:
-        f = ROOT.TF1("f", "[0] + [1]*x", -1000., 1000.)
-        hist2d.Fit(f, "q")
-        hist2d.GetFunction("f").SetLineColor(ROOT.kRed)
-        global fitline_const, fitline_linear, fitline_chi2, fitline_ndf
-        fitline_const = hist2d.GetFunction("f").GetParameter(0), hist2d.GetFunction("f").GetParError(0)
-        fitline_linear = hist2d.GetFunction("f").GetParameter(1), hist2d.GetFunction("f").GetParError(1)
-        fitline_chi2 = hist2d.GetFunction("f").GetChisquare()
-        fitline_ndf = hist2d.GetFunction("f").GetNDF()
 
     hist.SetAxisRange(-window, window, "Y")
     if abscissa is not None: hist.SetAxisRange(abscissa[0], abscissa[1], "X")
@@ -2129,39 +2305,48 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     hist2d.Draw("colzsame")
     if widebins: hist.Draw("samee1")
     else: hist.Draw("same")
-    if fitsine:
-        hist2d.GetFunction("f").Draw("same")
+
+    if fitsine and "vsphi" in name:
+        global fitsine_const, fitsine_sin, fitsine_cos, fitsine_chi2, fitsine_ndf
+        f = ROOT.TF1("f", "[0] + [1]*sin(x) + [2]*cos(x)", -pi, pi)
+        hist.Fit(f,"Nq")
+        f.SetLineColor(ROOT.kRed)
+        fitsine_const = f.GetParameter(0), f.GetParError(0)
+        fitsine_sin = f.GetParameter(1), f.GetParError(1)
+        fitsine_cos = f.GetParameter(2), f.GetParError(2)
+        fitsine_chi2 = f.GetChisquare()
+        fitsine_ndf = f.GetNDF()
+        global MAP_RESULTS_FITSIN
+        MAP_RESULTS_FITSIN[id] = {'a':fitsine_const, 'sin': fitsine_sin, 'cos': fitsine_cos, 'chi2': fitsine_chi2, 'ndf': fitsine_ndf}
+        f.Draw("same")
         global fitsine_ttext
-        fitsine_ttext = ROOT.TText(-1., 0.8*window, 
-                "%.3g + %.3g sin(phi) + %.3g cos(phi)" % (fitsine_const[0], fitsine_sin[0], fitsine_cos[0]))
+        fitsine_ttext = ROOT.TLatex(-1., 0.8*window, 
+                "%.3g %+.3g sin(#phi) %+.3g cos(#phi)" % (fitsine_const[0], fitsine_sin[0], fitsine_cos[0]))
         fitsine_ttext.SetTextColor(ROOT.kRed)
         fitsine_ttext.Draw()
+
     if fitline:
+        f = ROOT.TF1("f", "[0] + [1]*x", -1000., 1000.)
+        hist2d.Fit(f, "q")
+        hist2d.GetFunction("f").SetLineColor(ROOT.kRed)
+        global fitline_const, fitline_linear, fitline_chi2, fitline_ndf
+        fitline_const = hist2d.GetFunction("f").GetParameter(0), hist2d.GetFunction("f").GetParError(0)
+        fitline_linear = hist2d.GetFunction("f").GetParameter(1), hist2d.GetFunction("f").GetParError(1)
+        fitline_chi2 = hist2d.GetFunction("f").GetChisquare()
+        fitline_ndf = hist2d.GetFunction("f").GetNDF()
         hist2d.GetFunction("f").Draw("same")
         global fitline_ttext
         if "vsz" in name: which = "Z"
         elif "vsr" in name: which = "R"
-        fitline_ttext = ROOT.TText(hist.GetBinCenter(hist.GetNbinsX()/2), 
-                0.8*window, "%.3g + %.3g %s" % (fitline_const[0], fitline_linear[0], which))
+        fitline_ttext = ROOT.TText(hist.GetBinCenter(hist.GetNbinsX()/4), 
+                0.8*window, "%.3g %+.3g %s" % (fitline_const[0], fitline_linear[0], which))
         fitline_ttext.SetTextColor(ROOT.kRed)
         fitline_ttext.Draw()
+
     ROOT.gPad.RedrawAxis()
 
     if "vsphi" in name: 
-        if ("mem11" in name or "mep11" in name) and not widebins: philines("me11", window, abscissa)
-        elif ("mem12" in name or "mep12" in name) and not widebins: philines("me12", window, abscissa)
-        elif ("mem13" in name or "mep13" in name) and not widebins: philines("me13", window, abscissa)
-        elif ("mem14" in name or "mep14" in name) and not widebins: philines("me14", window, abscissa)
-        elif ("mem21" in name or "mep21" in name) and not widebins: philines("me21", window, abscissa)
-        elif ("mem22" in name or "mep22" in name) and not widebins: philines("me22", window, abscissa)
-        elif ("mem31" in name or "mep31" in name) and not widebins: philines("me31", window, abscissa)
-        elif ("mem32" in name or "mep32" in name) and not widebins: philines("me32", window, abscissa)
-        elif ("mem41" in name or "mep41" in name) and not widebins: philines("me41", window, abscissa)
-        elif ("mem42" in name or "mep42" in name) and not widebins: philines("me42", window, abscissa)
-        elif ("st1" in name) and not widebins: philines(1, window, abscissa)
-        elif ("st2" in name) and not widebins: philines(2, window, abscissa)
-        elif ("st3" in name) and not widebins: philines(3, window, abscissa)
-        elif ("st4" in name) and not widebins: philines(4, window, abscissa)
+        if not widebins: philines(name, window, abscissa)
         if abscissa is None:
             tline1 = ROOT.TLine(-pi, 0, pi, 0); tline1.Draw()
             tline2 = ROOT.TLine(-pi, -window, pi, -window); tline2.SetLineWidth(2); tline2.Draw()
@@ -2194,12 +2379,97 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
             tline2 = ROOT.TLine(abscissa[0], -window, abscissa[1], -window); tline2.SetLineWidth(2); tline2.Draw()
             tline3 = ROOT.TLine(abscissa[0], window, abscissa[1], window); tline3.Draw()
 
-    ROOT.SetOwnership(hist,False)
+    if "vsphi" in name and fitsawteeth:
+        global CPP_LOADED
+        if not CPP_LOADED:
+            phiedges2c()
+            ROOT.gROOT.ProcessLine(".L phiedges_fitfunctions.C++")
+            CPP_LOADED = True
+        fn={0: ROOT.fitf0,
+            1: ROOT.fitf2,
+            2: ROOT.fitf2,
+            3: ROOT.fitf3,
+            4: ROOT.fitf4,
+            5: ROOT.fitf5,
+            6: ROOT.fitf6,
+            7: ROOT.fitf7,
+            8: ROOT.fitf8,
+            9: ROOT.fitf9,
+            10: ROOT.fitf10,
+            11: ROOT.fitf11,
+            12: ROOT.fitf12,
+            13: ROOT.fitf13
+        } [stationIndex(name)]
+        fn.SetNpx(5000)
+        fn.SetLineColor(ROOT.kYellow)
+        hist.Fit(fn,"N")
+        fn.Draw("same")
+
+        # get properly arranged phi edges
+        edges = (phiedges[stationIndex(name)])[:]
+        ed = sorted(edges)
+        # add some padding to the end
+        ed.append(pi+abs(ed[0]))
+
+        global sawtooth_a, sawtooth_b
+        sawtooth_a = []
+        sawtooth_da = []
+        sawtooth_b = []
+        for pr in range(0,fn.GetNpar(),2):
+            sawtooth_a.append( (fn.GetParameter(pr), fn.GetParError(pr)) )
+            sawtooth_b.append( (fn.GetParameter(pr+1), fn.GetParError(pr+1)) )
+            sawtooth_da.append( (fn.Eval(ed[pr/2]+0.01), fn.Eval(ed[pr/2+1]-0.01)) )
+        global MAP_RESULTS_SAWTOOTH
+        MAP_RESULTS_SAWTOOTH[id] = {'a': sawtooth_a, 'da': sawtooth_da, 'b': sawtooth_b, 'chi2': fn.GetChisquare(), 'ndf': fn.GetNDF()}
+
+    # fill number of contributiong bins
+    
+    
+    #ROOT.SetOwnership(hist,False)
     ROOT.SetOwnership(hist2d,False)
     ROOT.SetOwnership(hist2dweight,False)
     ROOT.SetOwnership(tline1,False)
     ROOT.SetOwnership(tline2,False)
     ROOT.SetOwnership(tline3,False)
+    return hist
+
+
+def mapNameToId(name):
+  if "DT" in name:
+    wh = "-ALL"
+    if name.find('wh')>1: wh = name[name.find('wh')+2]
+    if   wh == "A": w = "-2"
+    elif wh == "B": w = "-1"
+    elif wh == "C": w = "-0"
+    elif wh == "D": w = "+1"
+    elif wh == "E": w = "+2"
+    elif wh == "-ALL": w = "-ALL"
+    else: return None
+    station=''
+    if wh == "-ALL": 
+        if name.find('sec')<0: return None
+        station = name[name.find('sec')-1]
+        sector = ''
+        sector = name[name.find('sec')+3:name.find('sec')+5]
+        return "MB%s/%s/%s" % (w, station, sector)
+    if name.find('st')>1: station = name[name.find('st')+2]
+    else: return None
+    return "MB%s/%s" % (w, station)
+  elif "CSC" in name:
+    p = name.find('me')
+    if p<0: return None
+    if name[p+2]=="p": endcap = "+"
+    elif name[p+2]=="m": endcap = "-"
+    else: return None
+    station = name[p+3]
+    pch = name.find('ch')
+    if pch<0:
+        ring = name[p+4]
+        return "ME%s%s/%s" % (endcap, station, ring)
+    ring = 'ALL'
+    chamber = name[pch+2:pch+4]
+    return "ME%s%s/%s/%s" % (endcap, station, ring, chamber)
+  return None
 
 
 def curvatureplot(tfiles, name, param, mode="from2d", window=15., widebins=False, title="", fitgauss=False, reset_palette=True):
