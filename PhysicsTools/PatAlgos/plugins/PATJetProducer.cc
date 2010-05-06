@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.43 2009/09/29 15:50:59 srappocc Exp $
+// $Id: PATJetProducer.cc,v 1.44 2009/11/13 17:30:40 cbern Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -292,19 +292,22 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     
     if (addAssociatedTracks_) ajet.setAssociatedTracks( (*hTrackAss)[jetRef] );
 
-    if (addJetCharge_)        ajet.setJetCharge( (*hJetChargeAss)[jetRef] );
+    if (addJetCharge_) ajet.setJetCharge( (*hJetChargeAss)[jetRef] );
 
     // add jet ID for calo jets
     if (addJetID_ && ajet.isCaloJet() ) {
       reco::JetID jetId = (*hJetIDMap)[ jetRef ];
       ajet.setJetID( jetId );
     }
-
+    // add jet ID jpt jets
+    else if ( addJetID_ && ajet.isJPTJet() ){
+      const reco::JPTJet *jptj = dynamic_cast<const reco::JPTJet *>(jetRef.get());
+      reco::JetID jetId = (*hJetIDMap)[ jptj->getCaloJetRef() ];
+      ajet.setJetID( jetId );
+    } 
     if ( useUserData_ ) {
       userDataHelper_.add( ajet, iEvent, iSetup );
     }
-    
-
     patJets->push_back(ajet);
   }
 
