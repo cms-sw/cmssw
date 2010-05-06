@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/04 13:38:22 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/03/08 23:46:01 $
+ *  $Revision: 1.20 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -16,6 +16,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 //#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
+#include "CondFormats/DTObjects/interface/DTSequentialLayerNumber.h"
 
 //---------------
 // C++ Headers --
@@ -35,7 +36,10 @@ DTT0::DTT0():
   dataVersion( " " ),
   nsPerCount( 25.0 / 32.0 ) {
   dataList.reserve( 12000 );
-  dBuf = sortedLayers = 0;
+//  dBuf = sortedLayers = 0;
+  dBuf = 0;
+  sortedLayers = 0;
+  sequencePtr = 0;
 }
 
 
@@ -43,7 +47,10 @@ DTT0::DTT0( const std::string& version ):
   dataVersion( version ),
   nsPerCount( 25.0 / 32.0 ) {
   dataList.reserve( 12000 );
-  dBuf = sortedLayers = 0;
+//  dBuf = sortedLayers = 0;
+  dBuf = 0;
+  sortedLayers = 0;
+  sequencePtr = 0;
 }
 
 
@@ -69,6 +76,7 @@ DTT0Data::DTT0Data() :
 DTT0::~DTT0() {
   delete dBuf;
   delete sortedLayers;
+  delete sequencePtr;
 }
 
 
@@ -97,6 +105,8 @@ int DTT0::get( int   wheelId,
   t0rms  = 0.0;
 
   if ( ( dBuf == 0 ) && ( sortedLayers == 0 ) ) checkOrder();
+//  if ( sortedLayers != 0 ) std::cout << "sorted data" << std::endl;
+//  else                     std::cout << "random data" << std::endl;
   if ( sortedLayers != 0 ) return getSorted( wheelId, stationId, sectorId,
                                                 slId,   layerId,   cellId,
                                               t0mean,     t0rms,     unit );
@@ -117,16 +127,25 @@ int DTT0::getRandom( int   wheelId,
                      float& t0rms,
                      DTTimeUnits::type unit ) const {
 
-  DTWireId detId( wheelId, stationId, sectorId,
-                  slId,   layerId,   cellId );
-  int chanKey = detId.rawId();
+//  DTWireId detId( wheelId, stationId, sectorId,
+//                  slId,   layerId,   cellId );
+//  int chanKey = detId.rawId();
+  std::vector<int> chanKey;
+  chanKey.reserve(6);
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+  chanKey.push_back(      slId );
+  chanKey.push_back(   layerId );
+  chanKey.push_back(    cellId );
 
   int ientry;
-  std::map<int,int>::const_iterator buf_iter = dBuf->find( chanKey );
-  std::map<int,int>::const_iterator buf_iend = dBuf->end();
-  int searchStatus = ( buf_iter == buf_iend );
+//  std::map<int,int>::const_iterator buf_iter = dBuf->find( chanKey );
+//  std::map<int,int>::const_iterator buf_iend = dBuf->end();
+//  int searchStatus = ( buf_iter == buf_iend );
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
   if ( !searchStatus ) {
-    ientry = buf_iter->second;
+//    ientry = buf_iter->second;
     const DTT0Data& data( dataList[ientry].second );
     t0mean = data.t0mean;
     t0rms  = data.t0rms;
@@ -141,6 +160,11 @@ int DTT0::getRandom( int   wheelId,
 }
 
 
+int DTT0::maxCellsPerLayer() const {
+  return 2000;
+}
+
+
 int DTT0::getSorted( int   wheelId,
                      int stationId,
                      int  sectorId,
@@ -151,18 +175,38 @@ int DTT0::getSorted( int   wheelId,
                      float& t0rms,
                      DTTimeUnits::type unit ) const {
 
-  DTLayerId detId( wheelId, stationId, sectorId,
-                      slId,   layerId );
-  int chanKey = detId.rawId();
+  int lCode;
+  int seqId;
+  std::vector<int>& sequenceLay = *sequencePtr;
 
-  std::map<int,int>::iterator layer_iter = sortedLayers->find( chanKey );
-  std::map<int,int>::iterator layer_iend = sortedLayers->end();
+  if ( ( seqId = DTSequentialLayerNumber::id( wheelId, stationId, sectorId,
+                                              slId,   layerId ) ) < 0 ) {
+//  DTLayerId detId( wheelId, stationId, sectorId,
+//                      slId,   layerId );
+//  int chanKey = detId.rawId();
+    std::vector<int> chanKey;
+    chanKey.reserve(6);
+    chanKey.push_back(   wheelId );
+    chanKey.push_back( stationId );
+    chanKey.push_back(  sectorId );
+    chanKey.push_back(      slId );
+    chanKey.push_back(   layerId );
 
-  if ( layer_iter == layer_iend ) return 1;
-
-  int& lCode = layer_iter->second;
-  int idprev = lCode / 1000;
-  int length = lCode % 1000;
+//  std::map<int,int>::iterator layer_iter = sortedLayers->find( chanKey );
+//  std::map<int,int>::iterator layer_iend = sortedLayers->end();
+//
+//  if ( layer_iter == layer_iend ) return 1;
+//
+//  int& lCode = layer_iter->second;
+    if ( sortedLayers->find( chanKey.begin(), chanKey.end(), lCode ) )
+         return 1;
+  }
+  else {
+    lCode = sequenceLay[seqId];
+  }
+  int mCells = maxCellsPerLayer();
+  int idprev = lCode / mCells;
+  int length = lCode % mCells;
   int idnext = idprev + length;
 
   --idprev;
@@ -249,17 +293,27 @@ int DTT0::set( int   wheelId,
 
   if ( dBuf == 0 ) cacheMap();
 
-  DTWireId detId( wheelId, stationId, sectorId,
-                  slId,   layerId,   cellId );
-  int chanKey = detId.rawId();
+//  DTWireId detId( wheelId, stationId, sectorId,
+//                  slId,   layerId,   cellId );
+//  int chanKey = detId.rawId();
+  if ( dBuf == 0 ) cacheMap();
+  std::vector<int> chanKey;
+  chanKey.reserve(6);
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+  chanKey.push_back(      slId );
+  chanKey.push_back(   layerId );
+  chanKey.push_back(    cellId );
 
   int ientry;
-  std::map<int,int>::const_iterator buf_iter = dBuf->find( chanKey );
-  std::map<int,int>::const_iterator buf_iend = dBuf->end();
-  int searchStatus = ( buf_iter == buf_iend );
+//  std::map<int,int>::const_iterator buf_iter = dBuf->find( chanKey );
+//  std::map<int,int>::const_iterator buf_iend = dBuf->end();
+//  int searchStatus = ( buf_iter == buf_iend );
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
 
   if ( !searchStatus ) {
-    ientry = buf_iter->second;
+//    ientry = buf_iter->second;
     DTT0Data& data( dataList[ientry].second );
     data.t0mean = t0mean;
     data.t0rms  = t0rms;
@@ -278,7 +332,8 @@ int DTT0::set( int   wheelId,
     data.t0rms  = t0rms;
     ientry = dataList.size();
     dataList.push_back( std::pair<const DTT0Id,DTT0Data>( key, data ) );
-    dBuf->insert( std::pair<int,int>( detId.rawId(), ientry ) );
+//    dBuf->insert( std::pair<int,int>( detId.rawId(), ientry ) );
+    dBuf->insert( chanKey.begin(), chanKey.end(), ientry );
     return 0;
   }
 
@@ -312,9 +367,13 @@ void DTT0::sortData() {
   if ( sortedLayers != 0 ) return;
   if ( dBuf == 0 ) return;
   std::vector< std::pair<DTT0Id,DTT0Data> > tempList;
-  std::map<int,int>::const_iterator iter = dBuf->begin();
-  std::map<int,int>::const_iterator iend = dBuf->end();
-  while ( iter != iend ) tempList.push_back( dataList[iter++->second] );
+//  std::map<int,int>::const_iterator iter = dBuf->begin();
+//  std::map<int,int>::const_iterator iend = dBuf->end();
+//  while ( iter != iend ) tempList.push_back( dataList[iter++->second] );
+  std::vector<int> indexList = dBuf->contList();
+  std::vector<int>::const_iterator iter = indexList.begin();
+  std::vector<int>::const_iterator iend = indexList.end();
+  while ( iter != iend ) tempList.push_back( dataList[*iter++] );
   dataList = tempList;
   delete dBuf;
   dBuf = 0;
@@ -340,34 +399,102 @@ std::string DTT0::mapName() const {
 
 
 bool DTT0::checkOrder() const {
+
   delete sortedLayers;
-  sortedLayers = new std::map<int,int>;
+  delete sequencePtr;
+//  sortedLayers = new std::map<int,int>;
+  sortedLayers = new DTBufferTree<int,int>;
+//  sequencePtr = new std::vector<int>;
+//  sequencePtr->reserve( DTSequentialLayerNumber::max() + 2 );
+  sequencePtr = new std::vector<int>( DTSequentialLayerNumber::max() + 2 );
+  std::vector<int>::iterator iter = sequencePtr->begin();
+  std::vector<int>::iterator iend = sequencePtr->end();
+  while ( iter != iend ) *iter++ = 0;
+
   int entryNum = 0;
+  int mCells = maxCellsPerLayer();
   int entryMax = dataList.size();
-  int oldId = 0;
+//  int oldId = 0;
+  std::vector<int> chanOld;
   int lCell = -999999999;
   bool layerOrder = true;
+
+  int lCode;
+  int seqId;
+  int oldId = 0;
+  std::vector<int>& sequenceLay = *sequencePtr;
+
+  std::vector<int> chanKey;
+  chanKey.reserve(6);
+
   while ( entryNum < entryMax ) {
     const DTT0Id& chan = dataList[entryNum].first;
-    DTLayerId detId( chan.  wheelId, chan.stationId, chan. sectorId,
-                     chan.     slId, chan.  layerId );
-    int rawId = detId.rawId();
-    std::map<int,int>::iterator layer_iter = sortedLayers->find( rawId );
-    std::map<int,int>::iterator layer_iend = sortedLayers->end();
-    if ( layer_iter == layer_iend ) {
-      sortedLayers->insert( std::pair<int,int>( rawId,
-                                                1 + ( entryNum * 1000 ) ) );
-      oldId = rawId;
+    if ( ( seqId = DTSequentialLayerNumber::id( chan.  wheelId,
+                                                chan.stationId,
+                                                chan. sectorId,
+                                                chan.     slId,
+                                                chan.  layerId ) ) < 0 ) {
+      oldId = 0;
+//      std::cout << "out of sequence" << std::endl;
+//    DTLayerId detId( chan.  wheelId, chan.stationId, chan. sectorId,
+//                     chan.     slId, chan.  layerId );
+//    int rawId = detId.rawId();
+      chanKey.clear();
+      chanKey.push_back( chan.  wheelId );
+      chanKey.push_back( chan.stationId );
+      chanKey.push_back( chan. sectorId );
+      chanKey.push_back( chan.     slId );
+      chanKey.push_back( chan.  layerId );
+//    std::map<int,int>::iterator layer_iter = sortedLayers->find( rawId );
+//    std::map<int,int>::iterator layer_iend = sortedLayers->end();
+//    if ( layer_iter == layer_iend ) {
+      if ( sortedLayers->find( chanKey.begin(), chanKey.end(), lCode ) ) {
+//      sortedLayers->insert( std::pair<int,int>( rawId,
+//                                                1 + ( entryNum * 1000 ) ) );
+//      oldId = rawId;
+        sortedLayers->insert( chanKey.begin(), chanKey.end(),
+                              1 + ( entryNum * mCells ) );
+        chanOld = chanKey;
+      }
+      else {
+//      int& lCode = layer_iter->second;
+        int offset = lCode / mCells;
+        int length = lCode % mCells;
+        int ncells = entryNum - offset;
+//      if ( ( ncells != length     ) ||
+//           (  rawId != oldId      ) ||
+//           ( chan.cellId <= lCell ) ) layerOrder = false;
+//      layer_iter->second = ( offset * 1000 ) + ncells + 1;
+        if ( ( ncells      >= mCells     ) ||
+             ( ncells      != length     ) ||
+             ( chanKey[0]  != chanOld[0] ) ||
+             ( chanKey[1]  != chanOld[1] ) ||
+             ( chanKey[2]  != chanOld[2] ) ||
+             ( chanKey[3]  != chanOld[3] ) ||
+             ( chanKey[4]  != chanOld[4] ) ||
+             ( chan.cellId <= lCell      ) ) layerOrder = false;
+        sortedLayers->insert( chanKey.begin(), chanKey.end(),
+                              ( offset * mCells ) + ncells + 1 );
+      }
     }
     else {
-      int& lCode = layer_iter->second;
-      int offset = lCode / 1000;
-      int length = lCode % 1000;
-      int ncells = entryNum - offset;
-      if ( ( ncells != length     ) ||
-           (  rawId != oldId      ) ||
-           ( chan.cellId <= lCell ) ) layerOrder = false;
-      layer_iter->second = ( offset * 1000 ) + ncells + 1;
+      chanOld.clear();
+//      std::cout << "inside sequence" << std::endl;
+      lCode = sequenceLay[seqId];
+      if ( lCode == 0 ) {
+        sequenceLay[seqId] = 1 + ( entryNum * mCells );
+        oldId = seqId;
+      }
+      else {
+        int offset = lCode / mCells;
+        int length = lCode % mCells;
+        int ncells = entryNum - offset;
+        if ( ( ncells      >= mCells     ) ||
+             ( ncells      != length     ) ||
+             ( seqId       != oldId      ) ||
+             ( chan.cellId <= lCell      ) ) layerOrder = false;
+        sequenceLay[seqId] = ( offset * mCells ) + ncells + 1;
+      }
     }
     lCell = chan.cellId;
     entryNum++;
@@ -381,16 +508,28 @@ void DTT0::cacheMap() const {
 
   delete sortedLayers;
   sortedLayers = 0;
-  dBuf = new std::map<int,int>;
+//  dBuf = new std::map<int,int>;
+  dBuf = new DTBufferTree<int,int>;
 
   int entryNum = 0;
   int entryMax = dataList.size();
+  std::vector<int> chanKey;
+  chanKey.reserve(6);
   while ( entryNum < entryMax ) {
 
-    const DTT0Id& chan = dataList[entryNum].first;
-    DTWireId detId( chan.  wheelId, chan.stationId, chan. sectorId,
-                    chan.     slId, chan.  layerId, chan.   cellId );
-    dBuf->insert( std::pair<int,int>( detId.rawId(), entryNum++ ) );
+   const DTT0Id& chan = dataList[entryNum].first;
+
+//    DTWireId detId( chan.  wheelId, chan.stationId, chan. sectorId,
+//                    chan.     slId, chan.  layerId, chan.   cellId );
+//    dBuf->insert( std::pair<int,int>( detId.rawId(), entryNum++ ) );
+    chanKey.clear();
+    chanKey.push_back( chan.  wheelId );
+    chanKey.push_back( chan.stationId );
+    chanKey.push_back( chan. sectorId );
+    chanKey.push_back( chan.     slId );
+    chanKey.push_back( chan.  layerId );
+    chanKey.push_back( chan.   cellId );
+    dBuf->insert( chanKey.begin(), chanKey.end(), entryNum++ );
 
   }
 

@@ -6,8 +6,8 @@
  *       Class to hold drift tubes T0s
  *             ( cell by cell time offsets )
  *
- *  $Date: 2010/01/20 18:20:08 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/03/01 10:27:08 $
+ *  $Revision: 1.10 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -21,6 +21,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 //---------------
@@ -165,13 +166,17 @@ class DTT0 {
 
   std::vector< std::pair<DTT0Id,DTT0Data> > dataList;
 
-  mutable std::map<int,int>* dBuf;
-  mutable std::map<int,int>* sortedLayers;
+  mutable std::vector<int>* sequencePtr;
+  mutable DTBufferTree<int,int>* sortedLayers;
+  mutable DTBufferTree<int,int>* dBuf;
+//  mutable std::map<int,int>* sortedLayers;
+//  mutable std::map<int,int>* dBuf;
 
   /// read and store full content
   bool checkOrder() const;
   void cacheMap() const;
   std::string mapName() const;
+  int maxCellsPerLayer() const;
   int getRandom( int   wheelId,
                  int stationId,
                  int  sectorId,
