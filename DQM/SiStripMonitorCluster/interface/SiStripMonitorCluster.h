@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.34 2010/03/23 22:18:05 dutta Exp $
+// $Id: SiStripMonitorCluster.h,v 1.35 2010/04/22 16:26:59 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -67,6 +67,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   };
 
   struct SubDetMEs{ // MEs for Subdetector Level
+    int totNClusters; 
     MonitorElement* SubDetTotClusterTH1;
     MonitorElement* SubDetTotClusterProf;
     MonitorElement* SubDetClusterApvProf;
@@ -106,8 +107,8 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
  private:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
-  std::map<uint32_t, ModMEs> ModuleMEMap;
-  std::map<std::string, LayerMEs> LayerMEMap;
+  std::map<uint32_t, ModMEs> ModuleMEsMap;
+  std::map<std::string, LayerMEs> LayerMEsMap;
   std::map<std::string, std::vector< uint32_t > > LayerDetMap;
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetPhasePartMap;
@@ -121,8 +122,6 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
 
   edm::ParameterSet Parameters;
 
-  std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
-  
   // TkHistoMap added
   TkHistoMap* tkmapcluster; 
 
