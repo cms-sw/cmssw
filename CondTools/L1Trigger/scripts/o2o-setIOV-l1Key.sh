@@ -58,6 +58,7 @@ trap "rm -f o2o-setIOV.lock; mv tmp.log tmp.log.save; exit" 1 2 3 4 5 6 7 8 9 10
 rm -f tmp.log
 echo "`date` : setting TSC IOVs" >& tmp.log
 tscKey=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -t ${l1Key}`
+echo "`date` : parsed tscKey = ${tscKey}" >& tmp.log
 $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${run} ${tscKey} CRAFT09 >> tmp.log 2>&1
 o2ocode1=$?
 
