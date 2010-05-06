@@ -111,8 +111,8 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 						edm::LogInfo("CSCTFAnalyzer: CSC digi are out of range: ");
 						continue;
 					}
-					//edm::LogInfo("CSCTFAnalyzer")<<"   Front data   endcap: "<<(*csc).first.endcap()<<"  station: "<<(station+1)<<"  sector: "<<(sector+1)<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<(cscId+1)<<"  fpga: "<<(fpga+1)<<" "<<
-					//	"LCT(vp="<<lct->isValid()<<",qual="<<lct->getQuality()<<",wg="<<lct->getKeyWG()<<",strip="<<lct->getStrip()<<")";
+					edm::LogInfo("CSCTFAnalyzer")<<"   Front data   endcap: "<<(*csc).first.endcap()<<"  station: "<<(station+1)<<"  sector: "<<(sector+1)<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<(cscId+1)<<"  fpga: "<<(fpga+1)<<" "<<
+						"LCT(vp="<<lct->isValid()<<",qual="<<lct->getQuality()<<",wg="<<lct->getKeyWG()<<",strip="<<lct->getStrip()<<")";
 				}
 			}
 		} else edm::LogInfo("CSCTFAnalyzer")<<"  No valid CSCCorrelatedLCTDigiCollection products found";
@@ -126,8 +126,33 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 			for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk<tracks->end(); trk++,nTrk++){
 				int sector = 6*(trk->first.endcap()-1)+trk->first.sector()-1;
 				int tbin   = trk->first.BX();
-				//edm::LogInfo("CSCTFAnalyzer") << "   Track sector: "<<(sector+1)<<"  tbin: "<<tbin<<" "<<
-				//	"TRK(mode="<<((trk->first.ptLUTAddress()>>16)&0xF)<<",eta="<<trk->first.eta_packed()<<",phi="<<trk->first.localPhi()<<")";
+				edm::LogInfo("CSCTFAnalyzer") << "   Track sector: "<<(sector+1)<<"  tbin: "<<tbin<<" "<<
+					"TRK(mode="<<((trk->first.ptLUTAddress()>>16)&0xF)<<",eta="<<trk->first.eta_packed()<<",phi="<<trk->first.localPhi()<<") IDs:"
+					<<" me1D="<<trk->first.me1ID()<<" t1="<<trk->first.me1Tbin()
+					<<" me2D="<<trk->first.me2ID()<<" t2="<<trk->first.me2Tbin()
+					<<" me3D="<<trk->first.me3ID()<<" t3="<<trk->first.me3Tbin()
+					<<" me4D="<<trk->first.me4ID()<<" t4="<<trk->first.me4Tbin()
+					<<" mb1D="<<trk->first.mb1ID()<<" tb="<<trk->first.mb1Tbin();
+
+			for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=trk->second.begin(); csc!=trk->second.end(); csc++){
+				int lctId=0;
+				CSCCorrelatedLCTDigiCollection::Range range1 = trk->second.get((*csc).first);
+				for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range1.first; lct!=range1.second; lct++,lctId++){
+					int station = (*csc).first.station()-1;
+					int cscId   = (*csc).first.triggerCscId()-1;
+					int sector  = (*csc).first.triggerSector()-1;// + ( (*csc).first.endcap()==1 ? 0 : 6 );
+					int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
+					int tbin    = lct->getBX();
+					int fpga    = ( subSector ? subSector-1 : station+1 );
+					// If Det Id is within range
+					if( sector<0 || sector>11 || station<0 || station>3 || cscId<0 || cscId>8 || lctId<0 || lctId>1){
+						edm::LogInfo("CSCTFAnalyzer: CSC digi are out of range: ");
+						continue;
+					}
+					edm::LogInfo("CSCTFAnalyzer")<<"       Linked LCT: "<<(*csc).first.endcap()<<"  station: "<<(station+1)<<"  sector: "<<(sector+1)<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<(cscId+1)<<"  fpga: "<<(fpga+1)<<" "<<
+						"LCT(vp="<<lct->isValid()<<",qual="<<lct->getQuality()<<",wg="<<lct->getKeyWG()<<",strip="<<lct->getStrip()<<")";
+				}
+			}
 			}
 		} else edm::LogInfo("CSCTFAnalyzer")<<"  No valid L1CSCTrackCollection products found";
 	}
