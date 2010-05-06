@@ -405,7 +405,7 @@ fi
 
 # if it's last iteration, apply chamber motion policy
 if [ \"$ALIGNMENT_ITERATION\" == \"%(ITERATIONS)s\" ]; then
-  # convert this iteration's geometry to detailed xml
+  # convert this iteration's geometry into detailed xml
   ./Alignment/MuonAlignmentAlgorithms/scripts/convertSQLiteXML.py %(directory)s%(director)s.db %(directory)s%(director)s_extra.xml
   # perform motion policy 
   ./Alignment/MuonAlignmentAlgorithms/scripts/motionPolicyChamber.py \
@@ -495,7 +495,7 @@ fi
 ./createTree.py -i $ALIGNMENT_CAFDIR/out
 
 timestamp=`date \"+%%y-%%m-%%d %%H:%%M:%%S\"`
-echo \"%(validationLabel)s (${timestamp})\" > out/label.txt
+echo \"%(validationLabel)s.plots (${timestamp})\" > out/label.txt
 
 ls -l out/
 timestamp=`date +%%Y%%m%%d%%H%%M%%S`
