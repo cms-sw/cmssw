@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegmentProxyBuilder.cc,v 1.7 2010/04/30 10:57:08 mccauley Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.8 2010/05/03 15:47:42 amraktad Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -17,6 +17,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Muons/interface/CSCUtils.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 
@@ -43,7 +44,7 @@ FWCSCSegmentProxyBuilder::build(const CSCSegment& iData,
   
   if ( ! matrix ) 
   {
-    std::cout<<"ERROR: failed to get geometry of CSC chamber with detid: " 
+    fwLog(fwlog::kError) << " failed to get geometry of CSC chamber with detid: " 
              << iData.cscDetId().rawId() <<std::endl;
     return;
   }

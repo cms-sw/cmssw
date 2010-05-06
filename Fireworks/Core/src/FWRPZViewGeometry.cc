@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 20:33:06 CET 2010
-// $Id$
+// $Id: FWRPZViewGeometry.cc,v 1.1 2010/04/06 20:00:36 amraktad Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -370,7 +371,7 @@ void FWRPZViewGeometry::estimateProjectionSizeCSC( const TGeoHMatrix* matrix, co
    // const TGeoTrap* trap = dynamic_cast<const TGeoTrap*>( shape );
    const TGeoBBox* bb = dynamic_cast<const TGeoBBox*>( shape );
    if ( !bb ) {
-      std::cout << "WARNING: CSC shape is not TGeoBBox. Ignored\n";
+      fwLog(fwlog::kWarning) << "CSC shape is not TGeoBBox. Ignored\n";
       shape->IsA()->Print();
       return;
    }

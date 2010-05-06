@@ -17,7 +17,6 @@ FWCaloTowerDetailView::~FWCaloTowerDetailView()
 //
 void FWCaloTowerDetailView::build(const FWModelId &id, const CaloTower*)
 {
-   printf("build tower detail view\n");
 }
 
 void

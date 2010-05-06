@@ -1,4 +1,4 @@
-// $Id: FWTableViewTableManager.cc,v 1.13 2010/04/16 19:48:15 chrjones Exp $
+// $Id: FWTableViewTableManager.cc,v 1.14 2010/04/23 21:36:28 chrjones Exp $
 
 #include <math.h>
 #include <sstream>
@@ -9,6 +9,7 @@
 #include "Fireworks/Core/interface/FWTableView.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
 #include "Fireworks/TableWidget/interface/FWFramedTextTableCellRenderer.h"
@@ -90,7 +91,7 @@ FWTableCellRendererBase *FWTableViewTableManager::cellRenderer(int iSortedRowNum
 	       ret = m_evaluators[iCol].evalExpression(m_view->item()->modelData(realRowNumber));
 	  } catch (...) {
 	    if (!m_caughtExceptionInCellRender){
-	      printf("Error: caught exception in the cell renderer while evaluating an expression. Return -999. Error is suppressed in future\n");
+               fwLog(fwlog::kError) << "Error: caught exception in the cell renderer while evaluating an expression. Return -999. Error is suppressed in future\n";
 	    }
 	    m_caughtExceptionInCellRender = true;
 	    ret = -999;
@@ -261,7 +262,7 @@ void FWTableViewTableManager::updateEvaluators ()
 	  try {
 	       ev.push_back(FWExpressionEvaluator(i->expression, item->modelType()->GetName()));
 	  } catch (...) {
-	       printf("expression %s is not valid, skipping\n", i->expression.c_str());
+             fwLog(fwlog::kError) << "expression "<< i->expression << " is not valid, skipping\n";
 	       ev.push_back(FWExpressionEvaluator("0", item->modelType()->GetName()));
 	  }
      }

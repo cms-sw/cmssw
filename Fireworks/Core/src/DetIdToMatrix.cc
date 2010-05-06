@@ -266,7 +266,7 @@ std::vector<TEveVector> DetIdToMatrix::getPoints(unsigned int id) const
    // reco geometry points
    std::map<unsigned int, std::vector<TEveVector> >::const_iterator points = idToPoints_.find(id);
    if ( points == idToPoints_.end() ) {
-      printf("Warning: no reco geometry is found for id: %d\n", id);
+      fwLog(fwlog::kWarning) << "no reco geometry is found for id "<<  id << std::endl;
       return std::vector<TEveVector>();
    } else {
       return points->second;

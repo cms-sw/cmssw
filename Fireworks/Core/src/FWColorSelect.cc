@@ -25,6 +25,7 @@
 
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 //------------------------------FWColorFrame------------------------------//
 FWColorFrame::FWColorFrame(const TGWindow *p, Pixel_t color, Int_t index) :
@@ -310,7 +311,7 @@ void FWColorPopup::SetSelection(Pixel_t iColor)
       foundIn = fSecondRow;
       index = foundIn->FindColorIndex(iColor);
       if(-1==index) {
-         std::cout <<"could not find color "<<iColor<<std::endl;
+         fwLog(fwlog::kError) <<"could not find color "<<iColor<<std::endl;
          return;
       }
    }

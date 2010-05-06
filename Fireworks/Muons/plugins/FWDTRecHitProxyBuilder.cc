@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWDTRecHitProxyBuilder
 //
-// $Id: FWDTRecHitProxyBuilder.cc,v 1.3 2010/04/22 13:15:24 mccauley Exp $
+// $Id: FWDTRecHitProxyBuilder.cc,v 1.4 2010/05/03 15:47:42 amraktad Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -11,6 +11,7 @@
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
@@ -42,7 +43,7 @@ FWDTRecHitProxyBuilder::build(const DTRecHit1DPair& iData,
     
    if( ! matrix ) 
    {
-     std::cout <<"ERROR: failed get geometry of DT chamber with detid: " 
+     fwLog(fwlog::kError) << " failed get geometry of DT chamber with detid: " 
                << chamberId << std::endl;
      return;
    }

@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWCSCRecHitProxyBuilder
 //
-// $Id: FWCSCRecHitProxyBuilder.cc,v 1.4 2010/04/22 12:54:48 mccauley Exp $
+// $Id: FWCSCRecHitProxyBuilder.cc,v 1.5 2010/05/03 15:47:42 amraktad Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -11,6 +11,7 @@
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 
@@ -37,7 +38,7 @@ FWCSCRecHitProxyBuilder::build(const CSCRecHit2D& iData,
   
   if ( ! matrix ) 
   {
-    std::cout<<"ERROR: failed to get geometry of CSC layer with detid: " 
+     fwLog(fwlog::kError) << " failed to get geometry of CSC layer with detid: " 
              << iData.cscDetId().rawId() <<std::endl;
     return;
   }

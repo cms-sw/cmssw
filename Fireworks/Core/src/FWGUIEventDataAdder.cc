@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.28 2009/12/07 16:09:17 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.29 2010/05/05 11:09:57 matevz Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/FWLite/interface/Event.h"
@@ -288,7 +289,7 @@ FWGUIEventDataAdder::addNewItem()
    }
 
    if ( m_manager->find( name ) ) {
-      std::cout << "Event item " << name <<
+      fwLog(fwlog::kWarning) << "Event item " << name <<
       " is already registered. Please use another name" << std::endl;
       return;
    }

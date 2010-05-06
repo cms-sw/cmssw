@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.19 2009/12/11 16:04:50 chrjones Exp $
+// $Id: FWTableView.cc,v 1.20 2010/04/22 17:29:52 amraktad Exp $
 //
 
 // system include files
@@ -65,6 +65,7 @@
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/FWExpressionEvaluator.h"
 #include "Fireworks/Core/interface/FWTableViewTableManager.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/src/FWExpressionValidator.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
@@ -570,8 +571,7 @@ void FWTableView::selectCollection (Int_t i_coll)
      }
      if (not m_useColumnsFromConfig) {
 	  if (m_manager->tableFormats(*item->modelType()) == m_manager->m_tableFormats.end()) {
-	       printf("No table format for objects of this type (%s)\n",
-		      item->modelType()->GetName());
+               fwLog(fwlog::kInfo) << "No table format for objects of this type " << item->modelType()->GetName() << std::endl;
 	       m_tableManager->m_tableFormats->clear();
 	  } else {
 	       m_tableManager->m_tableFormats = &m_manager->tableFormats(*item->modelType())->second;
@@ -623,12 +623,11 @@ void FWTableView::addColumn ()
      long int prec = strtol(m_column_prec_field->GetText(), &endptr, 0);
      if (name == "" || expr == "" || 
 	 m_column_prec_field->GetText() == 0 || *endptr != 0) {
-	  printf("bad input\n");
+        fwLog(fwlog::kInfo) << "bad input\n";
 	  fflush(stdout);
 	  return;
      }
-     printf("adding column %s: %s, precision %ld\n", name.c_str(), expr.c_str(), 
-	    prec);
+     fwLog(fwlog::kInfo) << "adding column "<<  name << ": " << expr << ", precision " << prec << std::endl;
      fflush(stdout);
 //      m_manager->tableFormats(*item->modelType())
      FWTableViewManager::TableEntry e = { expr, name, prec };
@@ -664,12 +663,11 @@ void FWTableView::modifyColumn ()
      long int prec = strtol(m_column_prec_field->GetText(), &endptr, 0);
      if (name == "" || expr == "" || 
 	 m_column_prec_field->GetText() == 0 || *endptr != 0) {
-	  printf("bad input\n");
+        fwLog(fwlog::kInfo) << "bad input\n";
 	  fflush(stdout);
 	  return;
      }
-     printf("modifying column %s: %s, precision %ld\n", name.c_str(), expr.c_str(), 
-	    prec);
+     fwLog(fwlog::kInfo) << "modify column "<<  name << ": " << expr << ", precision " << prec << std::endl;
      fflush(stdout);
 //      m_manager->tableFormats(*item->modelType())
      FWTableViewManager::TableEntry e = { expr, name, prec };

@@ -24,6 +24,7 @@
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -57,7 +58,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
       }
       catch (...)
       {
-         std::cout <<"no barrel ECAL rechits are available, "
+         fwLog(fwlog::kWarning) <<"no barrel ECAL rechits are available, "
          "showing crystal location but not energy" << std::endl;
       }
    } else {
@@ -68,7 +69,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
       }
       catch (...)
       {
-         std::cout <<"no endcap ECAL rechits are available, "
+         fwLog(fwlog::kWarning) <<"no endcap ECAL rechits are available, "
          "showing crystal location but not energy" << std::endl;
       }
    }
@@ -205,7 +206,7 @@ FWECALDetailViewBuilder::showSuperClusters( Color_t color1, Color_t color2 )
       }
       catch (...)
       {
-         std::cout <<"no barrel superclusters are available" << std::endl;
+         fwLog(fwlog::kWarning) <<"no barrel superclusters are available" << std::endl;
       }
    } else {
       try {
@@ -213,7 +214,7 @@ FWECALDetailViewBuilder::showSuperClusters( Color_t color1, Color_t color2 )
       }
       catch (...)
       {
-         std::cout <<"no endcap superclusters are available" << std::endl;
+         fwLog(fwlog::kWarning) <<"no endcap superclusters are available" << std::endl;
       }
    }
    if( collection.isValid() )
@@ -246,7 +247,7 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
         k != kEnd; ++k ) {
       const TGeoHMatrix *matrix = m_geom->getMatrix( k->id().rawId() );
       if( matrix == 0 ) {
-         printf("Warning: cannot get geometry for DetId: %d. Ignored.\n",k->id().rawId());
+         fwLog(fwlog::kInfo) << " cannot get geometry for DetId: "<< k->id().rawId()  <<". Ignored.\n";
          continue;
       }
 

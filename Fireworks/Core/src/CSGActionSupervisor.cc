@@ -13,6 +13,7 @@
 
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 #include "Fireworks/Core/interface/CSGAction.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 // constructors and destructor
 //
@@ -38,7 +39,7 @@ CSGActionSupervisor::getAction(const std::string& name)
       if ((*it_act)->getName() == name)
          return *it_act;
    }
-   printf( "No action is found with name %s \n", name.c_str());
+   fwLog(fwlog::kWarning) << "No action is found with name " <<  name.c_str() << std::endl;
    return 0;
 }
 
@@ -53,7 +54,7 @@ const std::vector<CSGAction *>& CSGActionSupervisor::getListOfActions() const {
 void
 CSGActionSupervisor::defaultAction()
 {
-   printf("Default action.");
+   fwLog(fwlog::kInfo) << "Default action.\n";
 }
 
 void

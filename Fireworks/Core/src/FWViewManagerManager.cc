@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id: FWViewManagerManager.cc,v 1.15 2009/11/05 22:06:02 dmytro Exp $
+// $Id: FWViewManagerManager.cc,v 1.16 2009/12/06 22:21:18 amraktad Exp $
 //
 
 // system include files
@@ -21,6 +21,7 @@
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
@@ -85,7 +86,7 @@ void
 FWViewManagerManager::registerEventItem(const FWEventItem*iItem)
 {
    if ( m_typeToItems.find(iItem->name()) != m_typeToItems.end() ) {
-      printf("WARNING: item %s was already registered. Request ignored.\n", iItem->name().c_str() );
+      fwLog(fwlog::kWarning) << "WARNING: item "<< iItem->name() <<" was already registered. Request ignored.\n";
       return;
    }
    m_typeToItems[iItem->name()]=iItem;

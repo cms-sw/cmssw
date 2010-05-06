@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.14 2010/03/04 18:06:18 eulisse Exp $
+// $Id: FWTableViewManager.cc,v 1.15 2010/03/14 20:03:37 amraktad Exp $
 //
 
 // system include files
@@ -36,6 +36,7 @@
 #include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 
 //
@@ -438,7 +439,7 @@ FWTableViewManager::setFrom(const FWConfiguration &iFrom)
       const FWConfiguration *typeNames = iFrom.valueForKey(kConfigTypeNames);
       if (typeNames == 0)
       {
-         std::cout << "no table column configuration stored, using defaults\n";
+         fwLog(fwlog::kWarning) << "no table column configuration stored, using defaults\n";
          return;
       }
             

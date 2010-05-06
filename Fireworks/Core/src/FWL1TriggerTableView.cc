@@ -5,6 +5,7 @@
 #include "Fireworks/Core/interface/FWL1TriggerTableView.h"
 #include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWL1TriggerTableViewTableManager.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 
 #include "DataFormats/FWLite/interface/Handle.h"
@@ -84,7 +85,7 @@ FWL1TriggerTableView::typeName(void) const
 void
 FWL1TriggerTableView::saveImageTo(const std::string& iName) const
 {
-  std::cout << "FWL1TriggerTableView::saveImageTo is not implemented." << std::endl;
+  fwLog(fwlog::kWarning) << "FWL1TriggerTableView::saveImageTo is not implemented." << std::endl;
 }
 
 void FWL1TriggerTableView::dataChanged(void)
@@ -107,7 +108,7 @@ void FWL1TriggerTableView::dataChanged(void)
 	 }
 	 catch(cms::Exception&)
 	 {
-	    std::cout << "Warning: no L1Trigger menu is available" << std::endl;
+	    fwLog(fwlog::kWarning) << "Warning: no L1Trigger menu is available" << std::endl;
 	    m_tableManager->dataChanged();
 	    return;
 	 }

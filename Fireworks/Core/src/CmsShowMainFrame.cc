@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.90 2010/04/22 17:29:52 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.91 2010/04/28 14:08:11 eulisse Exp $
 //
 // hacks
 #include "DataFormats/FWLite/interface/Event.h"
@@ -52,6 +52,7 @@
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
 
 #include "Fireworks/Core/interface/FWIntValueListener.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
 #include <fstream>
@@ -618,7 +619,7 @@ void CmsShowMainFrame::HandleMenu(Int_t id) {
       }
       break;
       default:
-         printf("Invalid menu id\n");
+         fwLog(fwlog::kInfo) << "Invalid menu id\n";
          break;
    }
 }
