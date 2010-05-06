@@ -3,7 +3,7 @@
 
 // Original Author:  Giovanni Petrucciani
 //         Created:  Fri May 25 10:06:02 CEST 2007
-// $Id: TrackWithVertexSelector.h,v 1.3 2010/02/11 00:10:52 wmtan Exp $
+// $Id: TrackWithVertexSelector.h,v 1.4 2010/04/07 08:56:18 gpetrucc Exp $
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -29,6 +29,7 @@ class TrackWithVertexSelector {
       double   ptMin_, ptMax_, etaMin_, etaMax_;
       double   dzMax_,   d0Max_;
       double   ptErrorCut_;
+      std::string quality_;
 
       uint32_t      nVertices_;
       edm::InputTag vertexTag_;
