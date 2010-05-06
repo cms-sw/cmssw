@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/8E29/V16 (CMSSW_3_6_0_HLT6)
+# /dev/CMSSW_3_6_0/8E29/V17 (CMSSW_3_6_0_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/8E29/V16')
+  tableName = cms.string('/dev/CMSSW_3_6_0/8E29/V17')
 )
 
 streams = cms.PSet( 
@@ -124,7 +124,35 @@ datasets = cms.PSet(
     'HLT_MET100',
     'HLT_ZeroBias',
     'HLT_L1SingleEG5' ),
-  OfflineMonitor = cms.vstring( 'HLT_Mu9',
+  OfflineMonitor = cms.vstring( 'HLT_L1MET20',
+    'HLT_QuadJet15U',
+    'HLT_DiJetAve30U_8E29',
+    'HLT_DiJetAve15U_8E29',
+    'HLT_FwdJet20U',
+    'HLT_Jet50U',
+    'HLT_Jet30U',
+    'HLT_Jet15U',
+    'HLT_BTagMu_Jet10U',
+    'HLT_DoubleMu3',
+    'HLT_DoubleJet15U_ForwardBackward',
+    'HLT_PixelTracks_Multiplicity40',
+    'HLT_L1Jet6U',
+    'HLT_Mu0_L1MuOpen',
+    'HLT_Mu0_Track0_Jpsi',
+    'HLT_Mu3_L1MuOpen',
+    'HLT_Mu3_Track0_Jpsi',
+    'HLT_Mu5_L1MuOpen',
+    'HLT_Mu5_Track0_Jpsi',
+    'HLT_DoublePhoton4_Jpsi_L1R',
+    'HLT_DoublePhoton4_Upsilon_L1R',
+    'HLT_DoublePhoton4_eeRes_L1R',
+    'HLT_DoublePhoton5_L1R',
+    'HLT_L2DoubleMu0',
+    'HLT_Mu0_L2Mu0',
+    'HLT_Mu3_L2Mu0',
+    'HLT_Mu5_L2Mu0',
+    'HLT_DoubleMu0',
+    'HLT_Mu9',
     'HLT_Mu5',
     'HLT_Mu3',
     'HLT_IsoMu3',
@@ -178,35 +206,7 @@ datasets = cms.PSet(
     'HLT_HT100U',
     'HLT_MET100',
     'HLT_MET45',
-    'HLT_PixelTracks_Multiplicity70',
-    'HLT_L1MET20',
-    'HLT_QuadJet15U',
-    'HLT_DiJetAve30U_8E29',
-    'HLT_DiJetAve15U_8E29',
-    'HLT_FwdJet20U',
-    'HLT_Jet50U',
-    'HLT_Jet30U',
-    'HLT_Jet15U',
-    'HLT_BTagMu_Jet10U',
-    'HLT_DoubleMu3',
-    'HLT_DoubleJet15U_ForwardBackward',
-    'HLT_PixelTracks_Multiplicity40',
-    'HLT_L1Jet6U',
-    'HLT_Mu0_L1MuOpen',
-    'HLT_Mu0_Track0_Jpsi',
-    'HLT_Mu3_L1MuOpen',
-    'HLT_Mu3_Track0_Jpsi',
-    'HLT_Mu5_L1MuOpen',
-    'HLT_Mu5_Track0_Jpsi',
-    'HLT_DoublePhoton4_Jpsi_L1R',
-    'HLT_DoublePhoton4_Upsilon_L1R',
-    'HLT_DoublePhoton4_eeRes_L1R',
-    'HLT_DoublePhoton5_L1R',
-    'HLT_L2DoubleMu0',
-    'HLT_Mu0_L2Mu0',
-    'HLT_Mu3_L2Mu0',
-    'HLT_Mu5_L2Mu0',
-    'HLT_DoubleMu0' ),
+    'HLT_PixelTracks_Multiplicity70' ),
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
@@ -326,8 +326,7 @@ ESUnpackerWorkerESProducer = cms.ESProducer( "ESUnpackerWorkerESProducer",
     ESMIPkeV = cms.double( 81.08 ),
     ESMIPADC = cms.double( 55.0 ),
     ESBaseline = cms.int32( 0 ),
-    ESRecoAlgo = cms.untracked.int32( 0 ),
-    ESWeights = cms.untracked.vdouble( 0.0, 0.725, 0.4525 )
+    ESRecoAlgo = cms.int32( 0 )
   )
 )
 EcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",

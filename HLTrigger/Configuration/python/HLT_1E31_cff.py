@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/1E31/V16 (CMSSW_3_6_0_HLT6)
+# /dev/CMSSW_3_6_0/1E31/V17 (CMSSW_3_6_0_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/1E31/V16')
+  tableName = cms.string('/dev/CMSSW_3_6_0/1E31/V17')
 )
 
 streams = cms.PSet( 
@@ -235,8 +235,7 @@ ESUnpackerWorkerESProducer = cms.ESProducer( "ESUnpackerWorkerESProducer",
     ESMIPkeV = cms.double( 81.08 ),
     ESMIPADC = cms.double( 55.0 ),
     ESBaseline = cms.int32( 0 ),
-    ESRecoAlgo = cms.untracked.int32( 0 ),
-    ESWeights = cms.untracked.vdouble( 0.0, 0.725, 0.4525 )
+    ESRecoAlgo = cms.int32( 0 )
   )
 )
 EcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
