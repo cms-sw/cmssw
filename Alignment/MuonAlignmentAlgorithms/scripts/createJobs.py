@@ -452,6 +452,7 @@ cd Alignment/MuonAlignmentAlgorithms/scripts/
 cp -f plotscripts.py $ALIGNMENT_CAFDIR/
 cp -f mutypes.py $ALIGNMENT_CAFDIR/
 cp -f alignmentValidation.py $ALIGNMENT_CAFDIR/
+cp -f phiedges_fitfunctions.C $ALIGNMENT_CAFDIR/
 cp -f createTree.py $ALIGNMENT_CAFDIR/
 cd -
 cp Alignment/MuonAlignmentAlgorithms/test/browser/tree* $ALIGNMENT_CAFDIR/out/
