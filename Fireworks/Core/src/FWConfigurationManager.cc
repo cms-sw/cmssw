@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:32 EST 2008
-// $Id: FWConfigurationManager.cc,v 1.10 2010/04/23 08:57:29 eulisse Exp $
+// $Id: FWConfigurationManager.cc,v 1.11 2010/04/26 07:19:14 yana Exp $
 //
 
 // system include files
@@ -23,6 +23,7 @@
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWConfigurable.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/src/SimpleSAXParser.h"
 
 //
@@ -116,7 +117,7 @@ FWConfigurationManager::writeToFile(const std::string& iName) const
       }
       FWConfiguration top;
       to(top);
-      printf("Writing to file %s ...\n", iName.c_str());
+      fwLog(fwlog::kInfo) << "Writing to file "<< iName.c_str() << "...";
       fflush(stdout);
 
       streamTo(file, top, "top");

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.157 2010/04/28 16:51:55 eulisse Exp $
+// $Id: CmsShowMain.cc,v 1.158 2010/04/29 16:58:05 amraktad Exp $
 //
 
 // system include files
@@ -193,7 +193,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }
 
       if(vm.count(kPlainRootCommandOpt)) {
-         std::cout << "Plain ROOT prompt requested" <<std::endl;
+         fwLog(fwlog::kInfo) << "Plain ROOT prompt requested" << std::endl;
          return;
       }
 
@@ -208,39 +208,38 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }
 
       if (!m_inputFiles.size())
-         std::cout << "No data file given." << std::endl;
+         fwLog(fwlog::kInfo) << "No data file given." << std::endl;
       else if (m_inputFiles.size() == 1)
-         std::cout << "Input: " << m_inputFiles.front() << std::endl;
+         fwLog(fwlog::kInfo) << "Input " << m_inputFiles.front() << std::endl;
       else
-         std::cout << m_inputFiles.size() << " input files; first: " << m_inputFiles.front() << ", last: " << m_inputFiles.back() << std::endl;
+         fwLog(fwlog::kInfo) << m_inputFiles.size() << " input files; first: " << m_inputFiles.front() << ", last: " << m_inputFiles.back() << std::endl;
 
       // configuration file
       if (vm.count(kConfigFileOpt)) {
          m_configFileName = vm[kConfigFileOpt].as<std::string>();
       } else {
          if (vm.count(kNoConfigFileOpt)) {
-            printf("No configuration is loaded, show everything.\n");
+            fwLog(fwlog::kInfo) << "No configuration is loaded, show everything.\n";
             m_configFileName = "";
          } else {
             m_configFileName = "src/Fireworks/Core/macros/default.fwc";
          }
       }
-      std::cout << "Config: "  <<  m_configFileName.c_str() << std::endl;
+      fwLog(fwlog::kInfo) << "Config "  <<  m_configFileName.c_str() << std::endl;
 
       // geometry
       if (vm.count(kGeomFileOpt)) {
          m_geomFileName = vm[kGeomFileOpt].as<std::string>();
       } else {
-         printf("No geom file name.  Choosing default.\n");
-         // m_geomFileName =cmspath;
+         fwLog(fwlog::kInfo) << "No geom file name.  Choosing default.\n";
          m_geomFileName.append("cmsGeom10.root");
       }
-      std::cout << "Geom: " <<  m_geomFileName.c_str() << std::endl;
+      fwLog(fwlog::kInfo) << "Geom " <<  m_geomFileName.c_str() << std::endl;
 
       // non-restricted palette
       if (vm.count(kFreePaletteCommandOpt)) {
          m_colorManager->initialize(false);
-         std::cout << "Palette restriction removed on user request!\n";
+          fwLog(fwlog::kInfo) << "Palette restriction removed on user request!\n";
       } else {
          m_colorManager->initialize(true);
       }
@@ -529,12 +528,20 @@ void CmsShowMain::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 
 void
 CmsShowMain::loadGeometry()
-{      // prepare geometry service
+{   // prepare geometry service
    // ATTN: this should be made configurable
-   m_guiManager->updateStatus("Loading geometry...");
-   m_detIdToGeo.loadGeometry( m_geomFileName.c_str() );
-   m_detIdToGeo.loadMap( m_geomFileName.c_str() );
-   m_context->setGeom(&m_detIdToGeo);
+   try {
+      m_guiManager->updateStatus("Loading geometry...");
+      m_detIdToGeo.loadGeometry( m_geomFileName.c_str() );
+      m_detIdToGeo.loadMap( m_geomFileName.c_str() );
+      m_context->setGeom(&m_detIdToGeo);
+   }
+   catch (const std::runtime_error& iException)
+   {
+      fwLog(fwlog::kError) << "CmsShowMain::loadGeometry() caught exception: \n"
+                           << iException.what() << std::endl;
+      exit(0);
+   }
 }
 
 void

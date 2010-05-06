@@ -1,7 +1,5 @@
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include <stdexcept>
+
 #include "TGeoManager.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -17,6 +15,13 @@
 #include "TEveVSDStructs.h"
 #include "TGeoCompositeShape.h"
 #include "TGeoBoolNode.h"
+
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/fwLog.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+
 DetIdToMatrix::~DetIdToMatrix()
 {
    // ATTN: not sure I own the manager
@@ -65,11 +70,10 @@ void DetIdToMatrix::loadGeometry(const char* fileName)
       manager_ = (TGeoManager*)f->Get("cmsGeo");
       f->Close();
    } else {
-      std::cout << "ERROR: failed to find geometry file. Initialization failed." << std::endl;
-      return;
+      throw std::runtime_error("failed to find geometry file. Initialization failed.");
    }
    if (!manager_) {
-      std::cout << "ERROR: cannot find geometry in the file. Initialization failed." << std::endl;
+      throw std::runtime_error("cannot find geometry in the file. Initialization failed.");
       return;
    }
 }
@@ -77,18 +81,18 @@ void DetIdToMatrix::loadGeometry(const char* fileName)
 void DetIdToMatrix::loadMap(const char* fileName)
 {
    if (!manager_) {
-      std::cout << "ERROR: CMS detector geometry is not available. DetId to Matrix map Initialization failed." << std::endl;
+      throw std::runtime_error("CMS detector geometry is not available. DetId to Matrix map Initialization failed.");
       return;
    }
 
    TFile* f = findFile(fileName);
    if ( !f )  {
-      std::cout << "ERROR: failed to find geometry file. Initialization failed." << std::endl;
+      throw std::runtime_error("ERROR: failed to find geometry file. Initialization failed.");
       return;
    }
    TTree* tree = (TTree*)f->Get("idToGeo");
    if (!tree) {
-      std::cout << "ERROR: cannot find detector id map in the file. Initialization failed." << std::endl;
+      throw std::runtime_error("cannot find detector id map in the file. Initialization failed.");
       return;
    }
    unsigned int id;
@@ -118,7 +122,7 @@ const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const
    const char* path = getPath( id );
    if ( !path ) return 0;
    if ( !manager_->cd(path) ) {
-      std::cout << "ERROR: incorrect path " << path << "\nfor DetId: " << id << std::endl;
+      fwLog(fwlog::kError) << "incorrect path " << path << "\nfor DetId: " << id << std::endl;
       return 0;
    }
 
