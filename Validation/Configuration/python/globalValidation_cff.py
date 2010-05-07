@@ -6,13 +6,11 @@ from Validation.TrackerRecHits.trackerRecHitsValidation_cff import *
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
 from Validation.RecoTrack.SiTrackingRecHitsValid_cff import *
 from Validation.RecoTrack.TrackValidation_cff import *
-#multiTrackValidator.UseAssociators = True
 from Validation.EcalHits.ecalSimHitsValidationSequence_cff import *
 from Validation.EcalDigis.ecalDigisValidationSequence_cff import *
 from Validation.EcalRecHits.ecalRecHitsValidationSequence_cff import *
 from Validation.EcalClusters.ecalClustersValidationSequence_cff import *
 from Validation.HcalHits.HcalSimHitStudy_cfi import *
-#from Validation.HcalDigis.hcalDigisValidationSequence_cff import *
 from Validation.HcalRecHits.hcalRecHitsValidationSequence_cff import *
 from Validation.CaloTowers.calotowersValidationSequence_cff import *
 from Validation.MuonHits.muonHitsValidation_cfi import *
@@ -25,6 +23,7 @@ from Validation.MuonIdentification.muonIdVal_cff import *
 from Validation.Mixing.mixCollectionValidation_cfi import *
 from Validation.RecoJets.JetValidation_cff import *
 from Validation.RecoMET.METRelValForDQM_cff import *
+from Validation.RecoVertex.VertexValidation_cff import *
 
 globalValidation = cms.Sequence(   trackerHitsValidation 
                                  + trackerDigisValidation 
@@ -47,4 +46,5 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + muonIdValDQMSeq 
                                  + mixCollectionValidation 
                                  + JetValidation 
-                                 + METValidation )
+                                 + METValidation
+                                 + vertexValidation )
