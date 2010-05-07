@@ -394,7 +394,7 @@
       <string>0.2</string>
     </config>
     <config name="Show projection axes" version="0">
-      <string>0</string>
+      <string>1</string>
     </config>
     <config name="Compress detectors" version="0">
       <string>0</string>
