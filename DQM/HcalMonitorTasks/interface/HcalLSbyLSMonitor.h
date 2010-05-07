@@ -7,8 +7,8 @@
 
 /** \class HcalLSbyLSMonitor
   *
-  * $Date: 2010/03/25 11:00:57 $
-  * $Revision: 1.38 $
+  * $Date: 2010/05/07 09:32:02 $
+  * $Revision: 1.1 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -39,7 +39,7 @@ class HcalLSbyLSMonitor: public HcalBaseDQMonitor {
   void endJob();
 
   // analyze function
-  void analyze(edm::Event const&e, edm::EventSetup const&s){};
+  //void analyze(edm::Event const&e, edm::EventSetup const&s){};
 
   // Begin LumiBlock
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
