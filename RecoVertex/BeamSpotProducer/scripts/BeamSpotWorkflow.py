@@ -35,9 +35,19 @@ import commands, re, time
 import datetime
 import ConfigParser
 import optparse
+import xmlrpclib
 from BeamSpotObj import BeamSpot
 from IOVObj import IOV
 from CommonMethods import *
+
+try: # FUTURE: Python 2.6, prior to 2.6 requires simplejson
+    import json
+except:
+    try:
+        import simplejson as json
+    except:
+        print "Please set a crab environment in order to get the proper JSON lib"
+        sys.exit(1)
 
 #####################################################################################
 # lumi tools CondCore/Utilities/python/timeUnitHelper.py
@@ -91,6 +101,75 @@ def getListOfFilesToProcess(dataSet,lastRun=-1):
     return output[1].split('\n')
 
 ########################################################################
+def getListOfRunsAndLumiFromDBS(dataSet,lastRun=-1):
+    queryCommand = "dbs --search --query \"find run,lumi where dataset=" + dataSet
+    if lastRun != -1:
+        queryCommand = queryCommand + " and run > " + str(lastRun)
+    queryCommand += "\""
+    print " >> " + queryCommand
+    output = commands.getstatusoutput( queryCommand )
+    outputList = output[1].split('\n')
+    runsAndLumis = {}
+    for out in outputList:
+        regExp = re.search('(\d+)\s+(\d+)',out)
+        if regExp:
+            run  = long(regExp.group(1))
+            lumi = long(regExp.group(2))
+            if not run in runsAndLumis:
+                runsAndLumis[run] = []
+            runsAndLumis[run].append(lumi)
+
+#    print runsAndLumis
+#    exit("ok")
+    return runsAndLumis
+
+########################################################################
+def getListOfRunsAndLumiFromRR(dataSet,lastRun=-1):
+    #RunReg=http://pccmsdqm04.cern.ch/runregistry
+    RunReg  = "http://localhost:40010/runregistry"
+    #Dataset=%Online%
+    Dataset = "%Express%"
+    Group   = "Collisions10"
+
+    # get handler to RR XML-RPC server
+    FULLADDRESS=RunReg + "/xmlrpc"
+    #print "RunRegistry from: ",FULLADDRESS
+    server = xmlrpclib.ServerProxy(FULLADDRESS)
+    sel_runtable="{groupName} ='" + Group + "' and {runNumber} > " + str(lastRun) + " and {datasetName} LIKE '" + Dataset + "'"
+    sel_dcstable="{groupName} ='" + Group + "' and {runNumber} > " + str(lastRun) + " and {parDcsBpix} = 1 and {parDcsFpix} = 1 and {parDcsTibtid} = 1 and {parDcsTecM} = 1 and {parDcsTecP} = 1 and {parDcsTob} = 1 and {parDcsEbminus} = 1 and {parDcsEbplus} = 1 and {parDcsEeMinus} = 1 and {parDcsEePlus} = 1 and {parDcsEsMinus} = 1 and {parDcsEsPlus} = 1 and {parDcsHbheA} = 1 and {parDcsHbheB} = 1 and {parDcsHbheC} = 1 and {parDcsH0} = 1 and {parDcsHf} = 1"
+
+    tries = 0;
+    while tries<10:
+        try:
+            run_data = server.DataExporter.export('RUN'           , 'GLOBAL', 'csv_runs', sel_runtable)
+            dcs_data = server.DataExporter.export('RUNLUMISECTION', 'GLOBAL', 'json'    , sel_dcstable)
+            break
+        except:
+            print "Something wrong in accessing runregistry, retrying in 5s...."
+            tries += 1
+            time.sleep(5)
+        if tries==10:
+            error = "Run registry unaccessible.....exiting now"
+            sys.exit(error)
+    
+
+    listOfRuns=[]
+    for line in run_data.split("\n"):
+        run=line.split(',')[0]
+        if run.isdigit():
+            listOfRuns.append(run)
+
+
+    selected_dcs={}
+    jsonList=json.loads(dcs_data)
+
+    for element in jsonList:
+        if element in listOfRuns:
+            selected_dcs[long(element)]=jsonList[element]
+
+    return selected_dcs
+
+########################################################################
 def getLastClosedRun(DBSListOfFiles):
     runs = []
     for file in DBSListOfFiles:
@@ -135,14 +214,14 @@ def dirExists(dir):
 
 ########################################################################
 def getRunNumberFromFileName(fileName):
-    regExp = re.search('(\w+)_(\d+)_(\d+)_(\d+)',fileName)
+    regExp = re.search('(\D+)_(\d+)_(\d+)_(\d+)',fileName)
     if not regExp:
         return -1
     return long(regExp.group(3))
 
 ########################################################################
 def getRunNumberFromDBSName(fileName):
-    regExp = re.search('(\w+)/(\d+)/(\d+)/(\d+)/(\w+)',fileName)
+    regExp = re.search('(\D+)/(\d+)/(\d+)/(\d+)/(\D+)',fileName)
     if not regExp:
         return -1
     return long(regExp.group(3)+regExp.group(4))
@@ -159,7 +238,115 @@ def getNewRunList(fromDir,lastUploadedIOV):
     return newRunList        
 
 ########################################################################
-def selectFilesToProcess(listOfFilesToProcess,newRunList):
+def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRunList,runListDir):
+    runsAndLumisProcessed = {}
+    runsAndFiles = {}
+    for fileName in newRunList:
+        file = open(runListDir+fileName)
+        for line in file:
+            if line.find("Runnumber") != -1:
+                run = long(line.replace('\n','').split(' ')[1])
+            elif line.find("LumiRange") != -1:
+                lumiLine = line.replace('\n','').split(' ')
+                begLumi = long(lumiLine[1])
+                endLumi = long(lumiLine[3])
+                if begLumi != endLumi:
+                    error = "The lumi range is greater than 1 for run " + str(run) + " " + line + " in file: " + runListDir + fileName
+                    exit(error)
+                else:
+                    if not run in runsAndLumisProcessed:
+                        runsAndLumisProcessed[run] = []
+                    runsAndLumisProcessed[run].append(begLumi)
+        if not run in runsAndFiles:
+            runsAndFiles[run] = []
+        runsAndFiles[run].append(fileName)    
+        file.close()
+    filesToProcess = []
+    print "WARNING WARNING YOU MUST CHANGE THIS LINE BEFORE YOU CAN REALLY RUN THE SCRIPT!!!!!!"
+    #for run in listOfRunsAndLumiFromRR:
+    for run in listOfRunsAndLumiFromDBS:
+        if run in runsAndLumisProcessed:
+            if not run in listOfRunsAndLumiFromDBS:
+                error = "Impossible but run " + str(run) + " has been processed and it is also in the run registry but it is not in DBS!" 
+                exit(error)
+            errors = []
+            badProcessed,badDBS = compareLumiLists(runsAndLumisProcessed[run],listOfRunsAndLumiFromDBS[run],errors)
+            for i in range(0,len(errors)):
+                errors[i] = errors[i].replace("listA","the processed lumis")
+                errors[i] = errors[i].replace("listB","DBS")
+            #print errors
+            #print badProcessed
+            #print badDBS
+            
+            if len(errors) != 0:
+                RRList = []
+                for lumiRange in listOfRunsAndLumiFromRR[run]:
+                    print lumiRange
+                    for l in range(lumiRange[0],lumiRange[1]+1):
+                        RRList.append(long(l))
+
+                badProcessed,badRunRegistry = compareLumiLists(runsAndLumisProcessed[run],RRList,errors)
+                for i in range(0,len(errors)):
+                    errors[i] = errors[i].replace("listA","the processed lumis")
+                    errors[i] = errors[i].replace("listB","Run Registry")
+                #print errors
+                #print badProcessed
+                #print badRunRegistry
+                    
+            if len(errors) != 0:    
+                exit(errors)
+            else:
+                for file in runsAndFiles[run]:
+                    filesToProcess.append(file)    
+                
+            #If I get here it means that I passed or the DBS or the RR test            
+                            
+    return filesToProcess
+########################################################################
+def compareLumiLists(listA,listB,errors=[]):
+    lenA = len(listA)
+    lenB = len(listB)
+    if lenA != lenB:
+        errors.append("The number of lumi sections is different: listA(" + str(lenA) + ")!=(" + str(lenB) + ")listB")
+    #print "Lumis are matching!"
+    listA.sort()
+    listB.sort()
+    shorter = lenA
+    if lenB < shorter:
+        shorter = lenB
+    a = 0
+    b = 0
+    badA = []
+    badB = []
+    while a < shorter or b < shorter:
+        #print str(a) + ":" + str(b) + ": "  + listA[a] + listB[b]
+        if listA[a] > listB[b]:
+            badA.append(listB[b])
+            errors.append("Lumi (" + str(listB[b]) + ") is in listB but not in listA")
+            b += 1
+        elif listA[a] < listB[b]:
+            badB.append(listA[a])
+            errors.append("Lumi (" + str(listA[a]) + ") is in listA but not in listB")
+            a += 1
+        else:
+            a += 1
+            b += 1
+    bigger = a
+    if b > bigger:
+        bigger = b
+
+    if lenA < lenB:
+        for n in range(bigger,lenB):
+            badA.append(listB[n])
+            errors.append("Lumi (" + str(listB[n]) + ") is in listB but not in listA")
+    else:
+        for n in range(bigger,lenA):
+            badB.append(listA[n])
+            errors.append("Lumi (" + str(listA[n]) + ") is in listA but not in listB")
+    return badA,badB
+
+########################################################################
+def aselectFilesToProcess(listOfFilesToProcess,newRunList):
     selectedFiles = []
     runsToProcess = {}
     processedRuns = {}
@@ -189,6 +376,9 @@ def selectFilesToProcess(listOfFilesToProcess,newRunList):
     for run in processedRunsKeys:
         if run <= lastClosedRun :
             print "For run " + str(run) + " I have processed " + str(processedRuns[run]) + " files and in DBS there are " + str(runsToProcess[run]) + " files!"
+            if not run in runsToProcess:
+                exit("ERROR: I have a result file for run " + str(run) + " but it doesn't exist in DBS. Impossible but it happened!")
+            lumiList = getDBSLumiListForRun(run)
             if processedRuns[run] == runsToProcess[run]:
                 for file in newRunList:
                     if run == getRunNumberFromFileName(file):
@@ -240,7 +430,7 @@ if __name__ == '__main__':
         destDB = 'oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT'
 
     ######### CONFIGURATION FILE ################
-    configurationFile = "/afs/cern.ch/user/u/uplegger/scratch0/CMSSW/CMSSW_3_5_7/src/RecoVertex/BeamSpotProducer/scripts/BeamSpotWorkflow.cfg"
+    configurationFile = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/scripts/BeamSpotWorkflow.cfg"
     configuration     = ConfigParser.ConfigParser()
     print 'Reading configuration from ', configurationFile
     configuration.read(configurationFile)
@@ -283,6 +473,7 @@ if __name__ == '__main__':
         exit("There are no new runs after " + str(lastUploadedIOV))
 
     ######### Copy files to archive directory
+    copiedFiles = []
     for i in range(3):
         copiedFiles = cp(sourceDir,archiveDir,newProcessedRunList)    
         if len(copiedFiles) == len(newProcessedRunList):
@@ -295,11 +486,18 @@ if __name__ == '__main__':
 
     ######### Get from DBS the list of files after last IOV    
     listOfFilesToProcess = getListOfFilesToProcess(dataSet,lastUploadedIOV) 
+    listOfRunsAndLumiFromDBS = getListOfRunsAndLumiFromDBS(dataSet,lastUploadedIOV) 
+    listOfRunsAndLumiFromRR  = getListOfRunsAndLumiFromRR(dataSet,lastUploadedIOV) 
 
     ######### Get list of files to process for DB
-    selectedFilesToProcess = selectFilesToProcess(listOfFilesToProcess,copiedFiles)
-
+#    selectedFilesToProcess = selectFilesToProcess(listOfFilesToProcess,copiedFiles)
+    selectedFilesToProcess = selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,copiedFiles,archiveDir)
+    if len(selectedFilesToProcess) == 0:
+       exit("There are no files to process")
+        
+    #print selectedFilesToProcess
     ######### Copy files to working directory
+    copiedFiles = []
     for i in range(3):
         copiedFiles = cp(archiveDir,workingDir,selectedFilesToProcess)    
         if len(copiedFiles) == len(selectedFilesToProcess):
@@ -314,6 +512,10 @@ if __name__ == '__main__':
         readBeamSpotFile(workingDir+fileName,beamSpotObjList,IOVBase)
 
     sortAndCleanBeamList(beamSpotObjList,IOVBase)
+
+    if len(beamSpotObjList) == 0:
+        error = "WARNING: None of the processed and copied payloads has a valid fit so there are no results. This shouldn't happen since we are filtering using the run register, so there should be at least one good run."
+        exit(error)
 
     payloadFileName = "PayloadFile.txt"
 
