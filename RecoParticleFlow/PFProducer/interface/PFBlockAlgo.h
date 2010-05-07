@@ -51,8 +51,8 @@
 
 /// \brief Particle Flow Algorithm
 /*!
-\author Colin Bernet
-\date January 2006
+  \author Colin Bernet
+  \date January 2006
 */
 
 class PFBlockAlgo {
@@ -198,19 +198,19 @@ class PFBlockAlgo {
   double testECALAndHCAL(const reco::PFCluster& ecal, 
 			 const reco::PFCluster& hcal) const;
 			 
- /// tests association between a PS1 v cluster and a PS2 h cluster
- /// returns distance
- double testPS1AndPS2(const reco::PFCluster& ps1,
-		      const reco::PFCluster& ps2) const;
+  /// tests association between a PS1 v cluster and a PS2 h cluster
+  /// returns distance
+  double testPS1AndPS2(const reco::PFCluster& ps1,
+		       const reco::PFCluster& ps2) const;
 
   //tests association between a track and a cluster by rechit
- double testTrackAndClusterByRecHit( const reco::PFRecTrack& track, 
-				     const reco::PFCluster& cluster,
-				     bool isBrem = false) const;  
+  double testTrackAndClusterByRecHit( const reco::PFRecTrack& track, 
+				      const reco::PFCluster& cluster,
+				      bool isBrem = false) const;  
 
   //tests association between ECAL and PS clusters by rechit
- double testECALAndPSByRecHit( const reco::PFCluster& clusterECAL, 
-			       const reco::PFCluster& clusterPS)  const;
+  double testECALAndPSByRecHit( const reco::PFCluster& clusterECAL, 
+				const reco::PFCluster& clusterPS)  const;
 
   /// test association between HFEM and HFHAD, by rechit
   double testHFEMAndHFHADByRecHit( const reco::PFCluster& clusterHFEM, 
@@ -222,7 +222,7 @@ class PFBlockAlgo {
 
   /// computes a chisquare
   double computeDist( double eta1, double phi1, 
-					double eta2, double phi2 ) const;
+		      double eta2, double phi2 ) const;
 
   /// checks size of the masks with respect to the vectors
   /// they refer to. throws std::length_error if one of the
@@ -477,12 +477,16 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
 	elements_.push_back( trkFromConversionElement );
 
+	trkFromConversionElement = new reco::PFBlockElementTrack(convRef->pfTracks()[iTk]);
+	trkFromConversionElement->setConversionRef( convRef->originalConversion(), reco::PFBlockElement::T_FROM_GAMMACONV);
+	elements_.push_back( trkFromConversionElement );
+
 	if (debug_){
 	  std::cout << "PF Block Element from Conversion electron " << 
 	    (*trkFromConversionElement).trackRef().key() << std::endl;
 	  std::cout << *trkFromConversionElement << std::endl;
 	}
-	
+       
       }     
     }  
   }
@@ -536,9 +540,9 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 				    reco::PFBlockElement::T_FROM_V0 );
 	  
 	if (debug_){
-	    std::cout << "PF Block Element from V0 track New = " << bNew 
-		      << (*trkFromV0Element).trackRef().key() << std::endl;
-	    std::cout << *trkFromV0Element << std::endl;
+	  std::cout << "PF Block Element from V0 track New = " << bNew 
+		    << (*trkFromV0Element).trackRef().key() << std::endl;
+	  std::cout << *trkFromV0Element << std::endl;
 	}
 
 	
@@ -556,69 +560,84 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
       const reco::PFDisplacedTrackerVertexRef dispacedVertexRef( displacedh, i );
 
-      unsigned int trackSize= dispacedVertexRef->pfRecTracks().size();
-      if (debug_){
-	std::cout << "" << std::endl;
-	std::cout << "Displaced Vertex " << i << std::endl;
-	//	dispacedVertexRef->displacedVertexRef()->Dump();
-      }
-      for(unsigned iTk=0;iTk < trackSize; iTk++) {
+      //      std::cout << "In PFBlockAlgo" << std::endl;
 
-	reco::PFRecTrackRef newPFRecTrackRef = dispacedVertexRef->pfRecTracks()[iTk]; 
-	reco::TrackBaseRef newTrackBaseRef(newPFRecTrackRef->trackRef());
-	bool bNew = true;
-	reco::PFBlockElement::TrackType blockType;
+      //      dispacedVertexRef->displacedVertexRef()->Dump();
+      //bool bIncludeVertices = true;
 
-	/// One need to cross check if those tracks was not already filled
-	/// from the conversion or V0 collections
-	for(IE iel = elements_.begin(); iel != elements_.end(); iel++){
-	  reco::TrackBaseRef elemTrackBaseRef((*iel)->trackRef());
-	  if (newTrackBaseRef == elemTrackBaseRef){
-	    trkFromDisplacedVertexElement = *iel;
-	    bNew = false;
-	    continue;
-	  }
-	}
-
-	/// The primary KF tracks associated the GSF seed are not labeled secondary
-	/// This can be changed but PFElectronAlgo.cc needs to changed too. Contact Daniele
-	bool isPrimGSF = false;
-	for(unsigned ikfgsf =0; ikfgsf<primaryKF_GSF.size();ikfgsf++) {
-	  reco::TrackBaseRef elemTrackBaseRef(primaryKF_GSF[ikfgsf]->trackRef());
-	  if(newTrackBaseRef == elemTrackBaseRef){  
-	    isPrimGSF = true;
-	    continue;
-	  }
-	} 
-	if(isPrimGSF) continue;
-
-	/// This is a new track not yet included into the elements collection
-	if (bNew) { 
-	  trkFromDisplacedVertexElement = new reco::PFBlockElementTrack(newPFRecTrackRef);
-	  elements_.push_back( trkFromDisplacedVertexElement );
-	}
-
-	if (dispacedVertexRef->isIncomingTrack(newPFRecTrackRef)) 
-	  blockType = reco::PFBlockElement::T_TO_DISP;
-	else if (dispacedVertexRef->isOutgoingTrack(newPFRecTrackRef)) 
-	  blockType = reco::PFBlockElement::T_FROM_DISP;
-	else 
-	  blockType = reco::PFBlockElement::DEFAULT;
-
-	/// Fill the displaced vertex ref
-	trkFromDisplacedVertexElement->setDisplacedVertexRef( dispacedVertexRef, blockType );
+      
+      bool bIncludeVertices = dispacedVertexRef->displacedVertexRef()->isNucl()
+	|| dispacedVertexRef->displacedVertexRef()->isNucl_Loose()
+	|| dispacedVertexRef->displacedVertexRef()->isNucl_Kink();
+      
 
 
+      if (dispacedVertexRef->displacedVertexRef()->position().rho() > 2.9 && bIncludeVertices){
+
+	unsigned int trackSize= dispacedVertexRef->pfRecTracks().size();
 	if (debug_){
-	  std::cout << "PF Block Element from DisplacedTrackingVertex track New = " << bNew
-		    << (*trkFromDisplacedVertexElement).trackRef().key() << std::endl;
-	  std::cout << *trkFromDisplacedVertexElement << std::endl;
+	  std::cout << "" << std::endl;
+	  std::cout << "Displaced Vertex " << i << std::endl;
+	  dispacedVertexRef->displacedVertexRef()->Dump();
 	}
+	for(unsigned iTk=0;iTk < trackSize; iTk++) {
+
+	  reco::PFRecTrackRef newPFRecTrackRef = dispacedVertexRef->pfRecTracks()[iTk]; 
+	  reco::TrackBaseRef newTrackBaseRef(newPFRecTrackRef->trackRef());
+	  bool bNew = true;
+	  reco::PFBlockElement::TrackType blockType;
+
+	  /// One need to cross check if those tracks was not already filled
+	  /// from the conversion or V0 collections
+	  for(IE iel = elements_.begin(); iel != elements_.end(); iel++){
+	    reco::TrackBaseRef elemTrackBaseRef((*iel)->trackRef());
+	    if (newTrackBaseRef == elemTrackBaseRef){
+	      trkFromDisplacedVertexElement = *iel;
+	      bNew = false;
+	      continue;
+	    }
+	  }
+
+	  /// The primary KF tracks associated the GSF seed are not labeled secondary
+	  /// This can be changed but PFElectronAlgo.cc needs to changed too. Contact Daniele
+	  bool isPrimGSF = false;
+	  for(unsigned ikfgsf =0; ikfgsf<primaryKF_GSF.size();ikfgsf++) {
+	    reco::TrackBaseRef elemTrackBaseRef(primaryKF_GSF[ikfgsf]->trackRef());
+	    if(newTrackBaseRef == elemTrackBaseRef){  
+	      isPrimGSF = true;
+	      continue;
+	    }
+	  } 
+	  if(isPrimGSF) continue;
+
+	  /// This is a new track not yet included into the elements collection
+	  if (bNew) { 
+	    trkFromDisplacedVertexElement = new reco::PFBlockElementTrack(newPFRecTrackRef);
+	    elements_.push_back( trkFromDisplacedVertexElement );
+	  }
+
+	  if (dispacedVertexRef->isIncomingTrack(newPFRecTrackRef)) 
+	    blockType = reco::PFBlockElement::T_TO_DISP;
+	  else if (dispacedVertexRef->isOutgoingTrack(newPFRecTrackRef)) 
+	    blockType = reco::PFBlockElement::T_FROM_DISP;
+	  else 
+	    blockType = reco::PFBlockElement::DEFAULT;
+
+	  /// Fill the displaced vertex ref
+	  trkFromDisplacedVertexElement->setDisplacedVertexRef( dispacedVertexRef, blockType );
+
+
+	  if (debug_){
+	    std::cout << "PF Block Element from DisplacedTrackingVertex track New = " << bNew
+		      << (*trkFromDisplacedVertexElement).trackRef().key() << std::endl;
+	    std::cout << *trkFromDisplacedVertexElement << std::endl;
+	  }
 	
 	
+	}
       }
-    }
-  
+    }  
+
     if (debug_) std::cout << "" << std::endl;
 
   }
@@ -685,14 +704,14 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       if( !thisIsAPotentialMuon && !goodPtResolution( ref->trackRef() ) ) continue;
 
       if (thisIsAPotentialMuon && debug_) std::cout << "Potential Muon P " <<  ref->trackRef()->p() 
-					       << " pt " << ref->trackRef()->p() << std::endl; 
+						    << " pt " << ref->trackRef()->p() << std::endl; 
 
       reco::PFBlockElement* primaryElement = new reco::PFBlockElementTrack( ref );
 
       if( muId_ != -1 ) {
-          // if a muon has been found
-          reco::MuonRef muonref( muonh, muId_ );
-          primaryElement->setMuonRef( muonref );
+	// if a muon has been found
+	reco::MuonRef muonref( muonh, muId_ );
+	primaryElement->setMuonRef( muonref );
       }
       
       // set track type T_FROM_GAMMA for pfrectracks associated to conv brems
@@ -891,7 +910,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       }
       reco::PFBlockElement* tp
         = new reco::PFBlockElementCluster( ref,
-                                     type );
+					   type );
       elements_.push_back( tp );
       
     }
