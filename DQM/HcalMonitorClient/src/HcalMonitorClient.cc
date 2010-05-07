@@ -1,8 +1,8 @@
 /*
  * \file HcalMonitorClient.cc
  * 
- * $Date: 2010/04/12 08:59:48 $
- * $Revision: 1.95 $
+ * $Date: 2010/04/16 09:44:20 $
+ * $Revision: 1.96 $
  * \author J. Temple
  * 
  */
@@ -72,6 +72,8 @@ HcalMonitorClient::HcalMonitorClient(const edm::ParameterSet& ps)
   databasedir_   = ps.getUntrackedParameter<std::string>("databaseDir","");
   databaseUpdateTime_ = ps.getUntrackedParameter<int>("databaseUpdateTime",0);
   databaseFirstUpdate_ = ps.getUntrackedParameter<int>("databaseFirstUpdate",10);
+
+  saveByLumiSection_  = ps.getUntrackedParameter<bool>("saveByLumiSection",false);
 
   if (debug_>0)
     {
@@ -324,7 +326,16 @@ void HcalMonitorClient::analyze(int LS)
   for (unsigned int i=0;i<clients_.size();++i)
     clients_[i]->analyze();
   if (summaryClient_!=0)
-    summaryClient_->analyze(LS);
+    {
+      if (saveByLumiSection_==false)
+	{
+	  summaryClient_->analyze(LS);
+	}
+      else
+	{
+	  summaryClient_->fillReportSummaryLSbyLS(LS);
+	}
+    }
 } // void HcalMonitorClient::analyze()
 
 
@@ -374,6 +385,11 @@ void HcalMonitorClient::endRun(void)
 {
   begin_run_ = false;
   end_run_   = true;
+
+  // Always fill summaryClient at end of run (as opposed to the end-lumi fills, which may just contain info for a single LS)
+  // At the end of this run, set LS=-1  (LS-based plotting in doesn't work yet anyway)
+  if (summaryClient_)
+    summaryClient_->analyze(-1);
 
   if (databasedir_.size()>0)
     this->writeChannelStatus();
