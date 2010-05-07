@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/24 21:43:21 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/05/07 15:42:50 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -93,6 +93,20 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
       }
     }
   } else {
+    // dump previous
+    dumpReport();
+    // clear
+    nEvents_=0;
+    nWasRun_=0;
+    nAccept_=0;
+    nErrors_=0;
+    hlWasRun_.clear();
+    hltL1s_.clear();
+    hltPre_.clear();
+    hlAccept_.clear();
+    hlErrors_.clear();
+    posL1s_.clear();
+    posPre_.clear();
     hlNames_.clear();
   }
   return;
