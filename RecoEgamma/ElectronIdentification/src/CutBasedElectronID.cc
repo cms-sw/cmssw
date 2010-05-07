@@ -80,26 +80,26 @@ int CutBasedElectronID::classify(const reco::GsfElectron* electron) {
     if (electron->isEB()) {
       if ((fBrem >= 0.12) and (eOverP > 0.9) and (eOverP < 1.2))
         cat = 0;
-      else if ((electron->trackerDrivenSeed()) and (!electron->ecalDrivenSeed()))
-        cat = 8;
-      else if (fBrem < 0.12)
-        cat = 1;
       else if ((eta >  .445   and eta <  .45  ) ||
                (eta >  .79    and eta <  .81  ) ||
                (eta > 1.137   and eta < 1.157 ) ||
                (eta > 1.47285 and eta < 1.4744))
         cat = 6;
+      else if ((electron->trackerDrivenSeed()) and (!electron->ecalDrivenSeed()))
+        cat = 8;
+      else if (fBrem < 0.12)
+        cat = 1;
       else
         cat = 2;
     } else {
       if ((fBrem >= 0.2) and (eOverP > 0.82) and (eOverP < 1.22))
         cat = 3;
+      else if (eta > 1.5 and eta <  1.58)
+        cat = 7;
       else if ((electron->trackerDrivenSeed()) and (!electron->ecalDrivenSeed()))
         cat = 8;
       else if (fBrem < 0.2)
         cat = 4;
-      else if (eta > 1.5 and eta <  1.58)
-        cat = 7;
       else
         cat = 5;
     }
@@ -423,11 +423,28 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     std::vector<double> cutip = cuts_.getParameter<std::vector<double> >("cutip_gsf");
     if (ip < cutip[cat+bin*9])
       result += 8;
-
+    
     std::vector<double> cutmishits = cuts_.getParameter<std::vector<double> >("cutfmishits");
-    if (mishits < cutmishits[cat+bin*9])
+    std::vector<double> cutdcotdist = cuts_.getParameter<std::vector<double> >("cutdcotdist");
+    
+    std::pair<double, double> convParam(9999., 9999.);
+    reco::TrackRef convTk = convFinder.getConversionPartnerTrack(*electron, ctfTracks, bfield, 0.04, 0.04, 0.45);
+    if (convTk.isNonnull()) {
+      math::XYZTLorentzVector tklv(convTk->px(), convTk->py(),
+                                   convTk->pz(), convTk->p());
+      
+      convParam = convFinder.getConversionInfo(electron->p4(), electron->charge(), 
+                                                electron->gsfTrack()->d0(), 
+                                                tklv, convTk->charge(), 
+                                                convTk->d0(), bfield);  
+    }
+    
+    Float_t dcotdistcomb = ((0.4 - std::max(convParam.first, convParam.second)) > 0?(0.4 - std::max(convParam.first, convParam.second)):0);
+    
+    if ((mishits < cutmishits[cat+bin*9]) and 
+        (dcotdistcomb < cutdcotdist[cat+bin*9]))
       result += 4;
-
+    
     return result;
   }
 
