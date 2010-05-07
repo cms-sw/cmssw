@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.159 2010/05/06 12:49:08 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.160 2010/05/06 14:28:16 amraktad Exp $
 //
 
 // system include files
@@ -94,7 +94,7 @@ static const char* const kHelpOpt        = "help";
 static const char* const kHelpCommandOpt = "help,h";
 static const char* const kSoftCommandOpt = "soft";
 static const char* const kPortCommandOpt = "port";
-static const char* const kPlainRootCommandOpt = "root";
+static const char* const kPlainRootCommandOpt = "prompt";
 static const char* const kRootInteractiveCommandOpt = "root-interactive,r";
 static const char* const kChainCommandOpt = "chain";
 static const char* const kLiveCommandOpt  = "live";

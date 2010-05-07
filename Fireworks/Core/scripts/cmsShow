@@ -39,6 +39,8 @@ do
       --soft)  softflag=on;;
       -d)  debugflag=on;;
       --debug) debugflag=on;;
+      --eve) originalOptions="${originalOptions} -r";;
+      --prompt) originalOptions="${originalOptions} -r";;
       --root-interactive) rootflag=on;;
       -r) rootflag=on;;
     esac
