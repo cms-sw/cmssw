@@ -13,7 +13,7 @@ if [ ! -r $STMGR_DIR ]; then
     return 1
 fi
 
-for directory in db/open db/closed db/log log/builderUnit log/client log/client1 log/clien2 \
+for directory in db/open db/closed db/log log/builderUnit log/client log/client1 log/client2 \
     log/consFU log/filterUnit log/smProxy log/storageManager log/watchdog smDQM smpsDQM ; do
     [[ -r  $STMGR_DIR/$directory ]] || mkdir -p $STMGR_DIR/$directory
 done
