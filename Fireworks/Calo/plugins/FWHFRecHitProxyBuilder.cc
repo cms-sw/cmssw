@@ -56,9 +56,9 @@ FWHFRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product
       if( corners.empty() ) {
 	return;
       }
-   
+
       TEveCompound* compound = createCompound();
-      fireworks::drawEnergyScaledBox3D(corners, energy / m_maxEnergy, compound, this);
+      fireworks::drawEnergyScaledBox3D(corners, energy / m_maxEnergy, compound, this, true );
       setupAddElement(compound, product);
    }
 }

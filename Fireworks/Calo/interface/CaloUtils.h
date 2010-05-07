@@ -7,10 +7,11 @@
 class TEveElement;
 class FWProxyBuilderBase;
 
-namespace fireworks {
-void addBox( const std::vector<TEveVector> &corners, TEveElement*,  FWProxyBuilderBase*);
-   void addInvertedBox( const std::vector<TEveVector> &corners, TEveElement*,  FWProxyBuilderBase*);
-   void drawEnergyScaledBox3D( std::vector<TEveVector> &corners, float scale, TEveElement*,  FWProxyBuilderBase*);
+namespace fireworks
+{
+   void addBox( const std::vector<TEveVector> &corners, TEveElement*,  FWProxyBuilderBase*);
+
+   void drawEnergyScaledBox3D( std::vector<TEveVector> &corners, float scale, TEveElement*,  FWProxyBuilderBase*, bool invert);
    void drawEnergyTower3D( std::vector<TEveVector> &corners, float scale, TEveElement*, FWProxyBuilderBase*);
 }
 
