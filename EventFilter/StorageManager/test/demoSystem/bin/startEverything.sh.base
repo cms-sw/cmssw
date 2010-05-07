@@ -8,6 +8,15 @@ then
     playbackRequested="yes"
 fi
 
+if [ ! -r $STMGR_DIR ]; then
+    echo "Cannot access $STMGR_DIR. Bailing out..."
+    return 1
+fi
+
+for directory in db/open db/closed db/log log/builderUnit log/client log/client1 log/clien2 \
+    log/consFU log/filterUnit log/smProxy log/storageManager log/watchdog smDQM smpsDQM ; do
+    [[ -r  $STMGR_DIR/$directory ]] || mkdir -p $STMGR_DIR/$directory
+done
 
 TIMESTAMP=`date '+%Y%m%d%H%M%S'`
 RUNNUMBER_TIMESTAMP=`date '+%y%m%d%H%M' | sed 's/^0//'`
