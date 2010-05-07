@@ -61,6 +61,7 @@
  <class name="std::vector< CSCMapItem::MapItem >"/>
 
  <class name="CSCCables"/>
+ <class name="CSCCables::Cables"/>
  <class name="std::vector< CSCCables::Cables >"/>
 
  <class name="CSCCrateMap"/>
