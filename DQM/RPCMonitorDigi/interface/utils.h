@@ -8,7 +8,6 @@
 #include <iomanip>
 #include <string>
 
-
 namespace rpcdqm{
 
   enum RPCMeFLag{OCCUPANCY = 1, CLUSTERSIZE = 2, MULTIPLICITY =3};
