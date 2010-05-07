@@ -17,10 +17,11 @@ from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *
 SiStripMonitorDigi.Mod_On = False
 SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 
-# SiStripMonitorDigi ####
+# SiStripMonitorCluster ####
 from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorCluster.Mod_On = False
 SiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon = True
+SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
 
 # SiStripMonitorTrack ####
 # Clone for Cosmic Tracks
