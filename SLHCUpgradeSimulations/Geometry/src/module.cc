@@ -8,6 +8,7 @@
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
 #include "SLHCUpgradeSimulations/Geometry/interface/DDPixFwdDiskAlgo.h"
 #include "SLHCUpgradeSimulations/Geometry/interface/DDPixBarLayerUpgradeAlgo.h"
+#include "SLHCUpgradeSimulations/Geometry/interface/DDPixBarLayerUpgradeAlgoCoverage.h"
 
 #include "SLHCUpgradeSimulations/Geometry/interface/PrintGeomMatInfo.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
@@ -20,5 +21,6 @@ DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixBarTPGStackLayerAlgo,"track:DDPixBar
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixBarStackTrigLayerAlgo, "track:DDPixBarStackTrigLayerAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixFwdDiskAlgo,      "track:DDPixFwdDiskAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixBarLayerUpgradeAlgo, "track:DDPixBarLayerUpgradeAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixBarLayerUpgradeAlgoCoverage, "track:DDPixBarLayerUpgradeAlgoCoverage");
 DEFINE_SEAL_MODULE ();
 DEFINE_SIMWATCHER(PrintGeomMatInfo);
