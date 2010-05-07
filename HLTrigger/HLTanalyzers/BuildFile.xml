@@ -35,6 +35,7 @@
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/Records"/>
 <use   name="Geometry/EcalMapping"/>
+<use   name="HLTrigger/HLTcore"/>
 <use   name="L1Trigger/RegionalCaloTrigger"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>

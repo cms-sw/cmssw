@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/17 17:50:08 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/02/24 21:43:21 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -29,10 +29,14 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
   nAccept_(0),
   nErrors_(0),
   hlWasRun_(0),
+  hltL1s_(0),
+  hltPre_(0),
   hlAccept_(0),
   hlErrors_(0),
+  posL1s_(0),
+  posPre_(0),
   hlNames_(0),
-  init_(false)
+  hltConfig_()
 {
   LogDebug("HLTrigReport") << "HL TiggerResults: " + hlTriggerResults_.encode();
 }
@@ -44,6 +48,57 @@ HLTrigReport::~HLTrigReport()
 // member functions
 //
 
+void
+HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
+{
+  using namespace std;
+  using namespace edm;
+  
+  bool changed (true);
+  if (hltConfig_.init(iRun,iSetup,hlTriggerResults_.process(),changed)) {
+    if (changed) {
+      // dump previous
+      dumpReport();
+      nEvents_=0;
+      nWasRun_=0;
+      nAccept_=0;
+      nErrors_=0;
+      // const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTR);
+      hlNames_=hltConfig_.triggerNames();
+      const unsigned int n(hlNames_.size());
+      hlWasRun_.resize(n);
+      hltL1s_.resize(n);
+      hltPre_.resize(n);
+      hlAccept_.resize(n);
+      hlErrors_.resize(n);
+      posL1s_.resize(n);
+      posPre_.resize(n);
+      for (unsigned int i=0; i!=n; ++i) {
+	hlWasRun_[i]=0;
+	hltL1s_[i]=0;
+	hltPre_[i]=0;
+	hlAccept_[i]=0;
+	hlErrors_[i]=0;
+	posL1s_[i]=-1;
+	posPre_[i]=-1;
+	const std::vector<std::string>& moduleLabels(hltConfig_.moduleLabels(i));
+	for (unsigned int j=0; j<moduleLabels.size(); ++j) {
+	  if (hltConfig_.moduleType(moduleLabels[j])=="HLTLevel1GTSeed") {
+	    posL1s_[i]=j;
+	  }
+	  if (hltConfig_.moduleType(moduleLabels[j])=="HLTPrescaler"   ) {
+	    posPre_[i]=j;
+	  }
+	}
+      }
+    }
+  } else {
+    hlNames_.clear();
+  }
+  return;
+}
+      
+    
 // ------------ method called to produce the data  ------------
 void
 HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -70,28 +125,20 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     return;
   }
 
-  // initialisation (could be made dynamic)
-  if (!init_) {
-    init_=true;
-    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTR);
-    hlNames_=triggerNames.triggerNames();
-    const unsigned int n(hlNames_.size());
-    hlWasRun_.resize(n);
-    hlAccept_.resize(n);
-    hlErrors_.resize(n);
-    for (unsigned int i=0; i!=n; ++i) {
-      hlWasRun_[i]=0;
-      hlAccept_[i]=0;
-      hlErrors_[i]=0;
-    }
-  }
-
   // decision for each HL algorithm
   const unsigned int n(hlNames_.size());
   for (unsigned int i=0; i!=n; ++i) {
     if (HLTR->wasrun(i)) hlWasRun_[i]++;
     if (HLTR->accept(i)) hlAccept_[i]++;
     if (HLTR->error(i) ) hlErrors_[i]++;
+    const int index(static_cast<int>(HLTR->index(i)));
+    if (HLTR->accept(i)) {
+      if (index>=posL1s_[i]) hltL1s_[i]++;
+      if (index>=posPre_[i]) hltPre_[i]++;
+    } else {
+      if (index> posL1s_[i]) hltL1s_[i]++;
+      if (index> posPre_[i]) hltPre_[i]++;
+    }
   }
 
   return;
@@ -101,11 +148,20 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void
 HLTrigReport::endJob()
 {
+  dumpReport();
+  return;
+}
+
+void
+HLTrigReport::dumpReport()
+{
   // final printout of accumulated statistics
 
   using namespace std;
   using namespace edm;
   const unsigned int n(hlNames_.size());
+
+  if ((n==0) && (nEvents_==0)) return;
 
     LogVerbatim("HLTrigReport") << dec << endl;
     LogVerbatim("HLTrigReport") << "HLT-Report " << "---------- Event  Summary ------------" << endl;
@@ -119,23 +175,31 @@ HLTrigReport::endJob()
     LogVerbatim("HLTrigReport") << endl;
     LogVerbatim("HLTrigReport") << "HLT-Report " << "---------- HLTrig Summary ------------" << endl;
     LogVerbatim("HLTrigReport") << "HLT-Report "
-	 << right << setw(10) << "HLT  Bit#" << " "
-	 << right << setw(10) << "WasRun" << " "
-	 << right << setw(10) << "Passed" << " "
-	 << right << setw(10) << "Errors" << " "
+	 << right << setw(7) << "HLT #" << " "
+	 << right << setw(7) << "WasRun" << " "
+	 << right << setw(7) << "L1S" << " "
+	 << right << setw(7) << "Pre" << " "
+	 << right << setw(7) << "HLT" << " "
+	 << right << setw(9) << "%L1sPre" << " "
+	 << right << setw(7) << "Errors" << " "
 	 << "Name" << endl;
 
-  if (init_) {
+  if (n>0) {
     for (unsigned int i=0; i!=n; ++i) {
       LogVerbatim("HLTrigReport") << "HLT-Report "
-	   << right << setw(10) << i << " "
-	   << right << setw(10) << hlWasRun_[i] << " "
-	   << right << setw(10) << hlAccept_[i] << " "
-	   << right << setw(10) << hlErrors_[i] << " "
+	   << right << setw(7) << i << " "
+	   << right << setw(7) << hlWasRun_[i] << " "
+	   << right << setw(7) << hltL1s_[i] << " "
+	   << right << setw(7) << hltPre_[i] << " "
+	   << right << setw(7) << hlAccept_[i] << " "
+	   << right << setw(9) << fixed << setprecision(5)
+	   << static_cast<float>(100*hlAccept_[i])/
+	      static_cast<float>(max(hltPre_[i],1u)) << " "
+	   << right << setw(7) << hlErrors_[i] << " "
 	   << hlNames_[i] << endl;
     }
   } else {
-    LogVerbatim("HLTrigReport") << "HLT-Report - No HL TriggerResults found!" << endl;
+    LogVerbatim("HLTrigReport") << "HLT-Report - No HLT paths found!" << endl;
   }
 
     LogVerbatim("HLTrigReport") << endl;
