@@ -47,6 +47,15 @@ int EcalTriggerPrimitiveDigi::ttFlag() const
     return -1;
 } 
 
+int EcalTriggerPrimitiveDigi::l1aSpike() const
+{
+  int sample = sampleOfInterest();
+  if (sample != -1)
+    return data_[sample].l1aSpike();
+  else
+    return -1;
+}
+
 bool EcalTriggerPrimitiveDigi::isDebug() const
 {
   if (size_ == 1)

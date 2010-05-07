@@ -41,14 +41,20 @@ class EcalTriggerPrimitiveDigi {
   
   /// get the Trigger tower Flag of interesting sample
   int ttFlag() const; 
+
+  /// gets the L1A spike detection flag. 
+  /// @return 1 if the trigger primitive was forced to zero because a spike was detected by L1 trigger,
+  ///         0 if it wasn't
+  ///         -1 if failed to retrieve the sample of interest (see #sampleOfInterest())), that contains this information:
+  int l1aSpike() const;
   
   /// True if debug mode (# of samples > 1)
   bool isDebug() const;
 
   /// Gets the interesting sample
   int sampleOfInterest() const;
-  
- private:
+
+private:
   
   EcalTrigTowerDetId id_;
   int size_;
