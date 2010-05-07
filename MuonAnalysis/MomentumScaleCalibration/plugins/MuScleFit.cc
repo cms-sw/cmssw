@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/05/03 17:02:33 $
-//  $Revision: 1.80 $
+//  $Date: 2010/05/05 13:57:55 $
+//  $Revision: 1.81 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -536,7 +536,6 @@ edm::EDLooper::Status MuScleFit::duringLoop( const edm::Event & event, const edm
 
   if( negateTrigger_ && isFired ) return kContinue;
   else if( !(negateTrigger_) && !isFired ) return kContinue;
-
 
 #ifdef USE_CALLGRIND
   CALLGRIND_START_INSTRUMENTATION;
