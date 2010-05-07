@@ -17,7 +17,8 @@
 PropagateToMuon::PropagateToMuon(const edm::ParameterSet & iConfig) :
     useSimpleGeometry_(iConfig.getParameter<bool>("useSimpleGeometry")),
     whichTrack_(None), whichState_(AtVertex),
-    cosmicPropagation_(iConfig.existsAs<bool>("cosmicPropagationHypothesis") ? iConfig.getParameter<bool>("cosmicPropagationHypothesis") : false)
+    cosmicPropagation_(iConfig.existsAs<bool>("cosmicPropagationHypothesis") ? iConfig.getParameter<bool>("cosmicPropagationHypothesis") : false),
+    barrelCylinder_(0), endcapDiskPos_(0), endcapDiskNeg_(0)
 {
     std::string whichTrack = iConfig.getParameter<std::string>("useTrack");
     if      (whichTrack == "none")    { whichTrack_ = None; }
@@ -89,6 +90,7 @@ PropagateToMuon::startingState(const reco::Candidate &reco) const {
 
 FreeTrajectoryState 
 PropagateToMuon::startingState(const reco::Track &tk) const {
+    if (!magfield_.isValid()) throw cms::Exception("NotInitialized") << "PropagateToMuon: You must call init(const edm::EventSetup &iSetup) before using this object.\n"; 
     WhichState state = whichState_;
     if (cosmicPropagation_) { 
         if (whichState_ == Innermost) {
@@ -110,6 +112,7 @@ PropagateToMuon::startingState(const reco::Track &tk) const {
 
 FreeTrajectoryState 
 PropagateToMuon::startingState(const SimTrack &tk, const edm::SimVertexContainer &vtxs) const {
+    if (!magfield_.isValid()) throw cms::Exception("NotInitialized") << "PropagateToMuon: You must call init(const edm::EventSetup &iSetup) before using this object.\n"; 
     if (tk.noVertex()) throw cms::Exception("UnsupportedOperation") << "I can't propagate simtracks without a vertex, I don't know where to start from.\n";
     const math::XYZTLorentzVectorD & vtx = (vtxs)[tk.vertIndex()].position();
     return FreeTrajectoryState(  GlobalPoint(vtx.X(), vtx.Y(), vtx.Z()),
@@ -122,6 +125,10 @@ PropagateToMuon::startingState(const SimTrack &tk, const edm::SimVertexContainer
 
 TrajectoryStateOnSurface
 PropagateToMuon::extrapolate(const FreeTrajectoryState &start) const {
+    if (!magfield_.isValid() || barrelCylinder_ == 0) {
+        throw cms::Exception("NotInitialized") << "PropagateToMuon: You must call init(const edm::EventSetup &iSetup) before using this object.\n"; 
+    }
+
     TrajectoryStateOnSurface final;
     if (start.momentum().mag() == 0) return final;
     double eta = start.momentum().eta();
