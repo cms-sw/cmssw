@@ -439,7 +439,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
                                                 convTk->d0(), bfield);  
     }
     
-    Float_t dcotdistcomb = ((0.4 - std::max(convParam.first, convParam.second)) > 0?(0.4 - std::max(convParam.first, convParam.second)):0);
+    float dcotdistcomb = ((0.4 - std::max(convParam.first, convParam.second)) > 0?(0.4 - std::max(convParam.first, convParam.second)):0);
     
     if ((mishits < cutmishits[cat+bin*9]) and 
         (dcotdistcomb < cutdcotdist[cat+bin*9]))
