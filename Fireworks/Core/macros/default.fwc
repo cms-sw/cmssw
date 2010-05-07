@@ -430,7 +430,7 @@
       <string>0.98</string>
     </config>
     <config name="cameraZoomRho Phi" version="0">
-      <string>0.244692</string>
+      <string>2.61804</string>
     </config>
     <config name="cameraMatrix0Rho Phi" version="0">
       <string>1</string>
@@ -531,7 +531,7 @@
       <string>1</string>
     </config>
     <config name="cameraZoomLego" version="0">
-      <string>20</string>
+      <string>0.936</string>
     </config>
     <config name="cameraMatrix0Lego" version="0">
       <string>1</string>
@@ -570,7 +570,7 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix12Lego" version="0">
-      <string>375</string>
+      <string>16.1268</string>
     </config>
     <config name="cameraMatrix13Lego" version="0">
       <string>0</string>
@@ -629,7 +629,7 @@
       <string>0.98</string>
     </config>
     <config name="cameraZoomRho Z" version="0">
-      <string>0.144723</string>
+      <string>2.22975</string>
     </config>
     <config name="cameraMatrix0Rho Z" version="0">
       <string>1</string>
@@ -839,6 +839,20 @@
     </config>
    </config>
    <config name="Table" version="1">
+    <config name="CaloRecHit" version="1">
+      <string>id</string>
+      <string>detid.rawId</string>
+      <string>0</string>
+      <string>energy</string>
+      <string>energy</string>
+      <string>3</string>
+      <string>time</string>
+      <string>time</string>
+      <string>3</string>
+      <string>flags</string>
+      <string>flags</string>
+      <string>0</string>
+    </config>
     <config name="CaloTower" version="1">
       <string>emEt</string>
       <string>emEt</string>
@@ -1092,6 +1106,7 @@
       <string>0</string>
     </config>
     <config name="typeNames" version="1">
+      <string>CaloRecHit</string>
       <string>CaloTower</string>
       <string>edm::RangeMap&lt;CSCDetId,edm::OwnVector&lt;CSCSegment,edm::ClonePolicy&lt;CSCSegment&gt; &gt;,edm::ClonePolicy&lt;CSCSegment&gt; &gt;</string>
       <string>edm::RangeMap&lt;DTChamberId,edm::OwnVector&lt;DTRecSegment4D,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;</string>
@@ -1148,12 +1163,6 @@
     </config>
     <config name="Detector Transparency" version="0">
       <string>95</string>
-    </config>
-    <config name="Calo scale (GeV/meter)" version="0">
-      <string>2</string>
-    </config>
-    <config name="Calo auto scale" version="0">
-      <string>1</string>
     </config>
     <config name="EventInfoTextSize" version="0">
       <string>0.03</string>
