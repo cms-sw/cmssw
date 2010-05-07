@@ -711,7 +711,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	        string path1 = fullpathname;
 		path1 = path1.replace(path1.find("NErrors"),7,"errorType");
 		MonitorElement * me1 = bei->get(path1);
-		bool othererror=false;
+		bool notReset=true;
 	        if(me1){
 	          for(int jj=1; jj<16; jj++){
 	            if(me1->getBinContent(jj)>0.){
@@ -719,15 +719,12 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	                string path2 = path1;
 			path2 = path2.replace(path2.find("errorType"),9,"TBMMessage");
 	                MonitorElement * me2 = bei->get(path2);
-	                if(me2) for(int kk=1; kk<9; kk++) if(me2->getBinContent(kk)>0.) if(kk!=6 && kk!=7) 
-			  othererror=true;
-		      }else{ //not reset, but other error
-		        othererror=true;
+	                if(me2) if(me2->getBinContent(6)>0. || me2->getBinContent(7)>0.) notReset=false;
 		      }
 		    }
 		  }
 		}
-		if(othererror) (*isum)->Fill(ndet, me1->getEntries());
+		if(notReset) (*isum)->Fill(ndet, me1->getEntries());
 	      }else if ((sname.find("_charge_")!=string::npos && sname.find("Track_")==string::npos && 
 	                me->getName().find("Track_")==string::npos) ||
 			(sname.find("_charge_")!=string::npos && sname.find("_OnTrack_")!=string::npos && 
@@ -959,7 +956,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	          string path1 = fullpathname;
 		  path1 = path1.replace(path1.find("NErrors"),7,"errorType");
 		  MonitorElement * me1 = bei->get(path1);
-		  bool othererror=false;
+		  bool notReset=true;
 	          if(me1){
 	            for(int jj=1; jj<16; jj++){
 	              if(me1->getBinContent(jj)>0.){
@@ -967,17 +964,12 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	                  string path2 = path1;
 			  path2 = path2.replace(path2.find("errorType"),9,"TBMMessage");
 	                  MonitorElement * me2 = bei->get(path2);
-	                  if(me2) for(int kk=1; kk<9; kk++) if(me2->getBinContent(kk)>0.) if(kk!=6 && kk!=7) 
-			    othererror=true;
-		        }else{ //not reset, but other error
-		          othererror=true;
+	                  if(me2) if(me2->getBinContent(6)>0. || me2->getBinContent(7)>0.) notReset=false; 
 		        }
 		      }
 		    }
 		  }
-//		  if(othererror) (*isum)->Fill(ndet-1, me->getMean());
-//	        }else (*isum)->Fill(ndet-1, me->getMean());
-		  if(othererror) (*isum)->setBinContent(ndet, (*isum)->getBinContent(ndet) + me1->getEntries());
+		  if(notReset) (*isum)->setBinContent(ndet, (*isum)->getBinContent(ndet) + me1->getEntries());
 	        }else (*isum)->setBinContent(ndet, (*isum)->getBinContent(ndet) + me->getEntries());
 	      }
 	      (*isum)->setAxisTitle("FED #",1);

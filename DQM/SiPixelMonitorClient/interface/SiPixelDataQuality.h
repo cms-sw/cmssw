@@ -155,5 +155,12 @@ class SiPixelDataQuality {
   
   // Track Cuts:
   MonitorElement * NPixelTracks;
+    
+  int count1;
+  int count2;
+  int count3;
+  int count4;
+  int count5;
+  int count6;
 };
 #endif

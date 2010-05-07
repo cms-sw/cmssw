@@ -304,7 +304,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
 	  //cout<<"changing histo name to: "<<full_path<<endl;
 	  me = bei->get(full_path);
 	  if(!me) continue;
-	  bool type30=false; bool othererror=false; bool reset=false;
+	  bool type30=false; bool othererror=false; bool notReset=false;
 	  for(int jj=1; jj<16; jj++){
 	    if(me->getBinContent(jj)>0.){
 	      if(jj!=6) othererror=true;
@@ -315,14 +315,9 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
 	    full_path = full_path.replace(full_path.find("errorType"),9,"TBMMessage");
 	    me = bei->get(full_path);
 	    if(!me) continue;
-	    for(int kk=1; kk<9; kk++){
-              if(me->getBinContent(kk)>0.){
-		if(kk!=6 && kk!=7) othererror=true;
-		else reset=true;
-	      }
-	    }
+            if(me->getBinContent(6)>0. || me->getBinContent(7)>0.) notReset=false;
 	  }
-	  if(othererror || (type30 && !reset)){
+	  if(othererror || (type30 && notReset)){
             if(currDir.find("Pixel")!=string::npos) errorMods_++;
             if(currDir.find("Barrel")!=string::npos) n_errors_barrel_++;
             if(currDir.find("Endcap")!=string::npos) n_errors_endcap_++;
@@ -980,6 +975,12 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
   if(init){
     count=0; errcount=0;
     init=false;
+    count1=0;
+    count2=0;
+    count3=0;
+    count4=0;
+    count5=0;
+    count6=0;
   }
   
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
@@ -1043,10 +1044,9 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 	  allmodsMap->Fill(fedId,linkId);
 	  //cout<<"this is a module that has digis and/or errors: "<<detId<<","<<fedId<<","<<linkId<<endl;
 	  //use presence of any FED error as error flag (except for TBM or ROC resets):
-          bool anyerr=false; bool type30=false; bool othererr=false;
+          bool type30=false; bool othererr=false; bool notReset=true;
           if(full_path.find("ndigis")!=string::npos) full_path = full_path.replace(full_path.find("ndigis"),6,"NErrors");
 	  me = bei->get(full_path);
-	  if(me && me->getMean()>0.) anyerr=true;
           //cout<<"here is an error: "<<detId<<","<<me->getMean()<<endl;
 	  if(full_path.find("NErrors")!=string::npos) full_path = full_path.replace(full_path.find("NErrors"),7,"errorType");
 	  me = bei->get(full_path);
@@ -1062,15 +1062,11 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 	      full_path = full_path.replace(full_path.find("errorType"),9,"TBMMessage");
 	      me = bei->get(full_path);
 	      if(me){
-	        for(int kk=1; kk<9; kk++){
-		  if(me->getBinContent(kk)>0.){
-		    if(kk!=6 && kk!=7) othererr=true;
-		  }
-		}
+		if(me->getBinContent(6)>0. || me->getBinContent(7)>0.) notReset=false;
 	      }
 	    }
 	  }
-          if(anyerr && othererr){
+          if(othererr || (type30&&notReset)){
 	    errmodsMap->Fill(fedId,linkId);
 	    //cout<<"this is a module that has errors: "<<detId<<","<<fedId<<","<<linkId<<endl;
 	  }
@@ -1096,19 +1092,115 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
     if(SummaryReportMap){ 
       float contents=0.;
       if(!Tier0Flag){ // Online
-        for(int i=1; i!=41; i++)for(int j=1; j!=37; j++){
+        for(int i=0; i!=40; i++)for(int j=1; j!=37; j++){
           //cout<<"bin: "<<i<<","<<j<<endl;
-          contents = (allmodsMap->GetBinContent(i,j))-(errmodsMap->GetBinContent(i,j));
-          goodmodsMap->SetBinContent(i,j,contents);
-          //cout<<"\t the map: "<<allmodsMap->GetBinContent(i,j)<<","<<errmodsMap->GetBinContent(i,j)<<endl;
-          if(allmodsMap->GetBinContent(i,j)>0){
-            contents = (goodmodsMap->GetBinContent(i,j))/(allmodsMap->GetBinContent(i,j));
+          contents = (allmodsMap->GetBinContent(i+1,j))-(errmodsMap->GetBinContent(i+1,j));
+          goodmodsMap->SetBinContent(i+1,j,contents);
+          //cout<<"\t the map: "<<allmodsMap->GetBinContent(i+1,j)<<","<<errmodsMap->GetBinContent(i+1,j)<<endl;
+          if(allmodsMap->GetBinContent(i+1,j)>0){
+            contents = (goodmodsMap->GetBinContent(i+1,j))/(allmodsMap->GetBinContent(i+1,j));
           }else{
             contents = -1.;
           }
+	  if(i==13&&j==17&&contents>0) count1++;
+	  if(i==13&&j==18&&contents>0) count2++;
+	  if(i==15&&j==5&&contents>0) count3++;
+	  if(i==15&&j==6&&contents>0) count4++;
           //cout<<"\t\t MAP: "<<i<<","<<j<<","<<contents<<endl;
-          SummaryReportMap->setBinContent(i,j,contents);
-        }
+	  if(((i==0||i==2||i==3||i==5||i==11||i==8)&&(j==1||j==8||j==13||j==17||j==20))||
+	     ((i==1||i==9||i==10||i==13)&&(j==1||j==5||j==8||j==20||j==22))||
+	     ((i==4||i==12)&&(j==5||j==10||j==13||j==17||j==22))||
+	     ((i==2||i==5||i==6||i==7||i==14)&&(j==5||j==10||j==22))||
+	     ((i==7||i==10)&&(j==13||j==17))||
+	     ((i==6||i==14)&&(j==1||j==20))||
+	     ((i==10||i==13)&&(j==10))||
+	     ((i==4||i==12)&&(j==2))||
+	     ((i==14)&&(j==15))){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+1));
+	  }else if(((i==16||i==19||i==21||i==24||i==26||i==27||i==29)&&(j==2||j==9||j==14||j==18||j==21))||
+	     ((i==17||i==18||i==25)&&(j==2||j==6||j==9||j==21||j==23))||
+	     ((i==20||i==23||i==28||i==31)&&(j==6||j==11||j==14||j==18||j==23))||
+	     ((i==21||i==22||i==26||i==29||i==30)&&(j==6||j==11||j==23))||
+	     ((i==18)&&(j==14||j==18))||
+	     ((i==22||i==30)&&(j==2||j==21))||
+	     ((i==18)&&(j==11))||
+	     ((i==17||i==25)&&(j==16))||
+	     ((i==19||i==27)&&(j==5))){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-1));
+	  }else if(i==6&&(j==14||j==15)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+2));
+	  }else if((i==14)&&j==14){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+3));
+	  }else if((i==17||i==25)&&j==17){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-3));
+	  }else if(((i==0||i==2||i==3||i==5||i==8||i==10||i==11||i==13)&&(j==3||j==15))||
+	           ((i==1||i==9)&&j==3)||
+	           ((i==7||i==12||i==15)&&j==15)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+4));
+	  }else if(((i==16||i==18||i==19||i==21||i==24||i==26||i==27||i==29)&&(j==7||j==19))||
+	           ((i==17||i==25)&&j==7)||
+	           ((i==20||i==23||i==28||i==31)&&j==19)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-4));
+	  }else if((i==6||i==14)&&(j==13||j==19)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+5));
+	  }else if((i==17||i==25)&&(j==18||j==24)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-5));
+	  }else if(((i==4||i==12)&&j==1)||
+	           ((i==3||i==11)&&j==6)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+6));
+	  }else if((i==9||i==1)&&j==4){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+8));
+	  }else if((i==17||i==25)&&j==12){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-8));
+	  }else if(((i==20||i==28)&&j==20)||
+	           ((i==19||i==27)&&j==22)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-11));
+	  }else if(((i==20||i==28)&&j==21)||
+	           ((i==19||i==27)&&j==23)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-13));
+          }else{
+	    SummaryReportMap->setBinContent(i+1,j,contents);
+	  }
+        }//end for loop over summaryReportMap bins
+        for(int i=0; i!=40; i++)for(int j=1; j!=37; j++){ // catch the last few holes...
+	  if(((i==2||i==4||i==5||i==6||i==7||i==10||i==12||i==13||i==14||i==15)&&j==12)||
+             ((i==0||i==2||i==3||i==4||i==5||i==7||i==8||i==10||i==11||i==12||i==13||i==15)&&j==24)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-8));
+	  }else if(((i==18||i==20||i==21||i==22||i==23||i==26||i==28||i==29||i==30||i==31)&&j==4)||
+             ((i==16||i==18||i==19||i==20||i==21||i==23||i==24||i==26||i==27||i==28||i==29||i==31)&&j==16)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+8));
+	  }else if(((i==6||i==14)&&j==9)||
+	           ((i==3||i==11)&&j==5)||
+		   ((i==1||i==9)&&(j==11||j==16))){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-1));
+	  }else if(((i==17||i==25)&&j==10)||
+		   ((i==22||i==30)&&(j==8||j==15))||
+		   ((i==20||i==28)&&(j==2))){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+1));
+	  }else if((i==1||i==9)&&j==17){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-3));
+	  }else if((i==22||i==30)&&j==14){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+3));
+	  }else if((i==6||i==14)&&j==7){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-4));
+	  }else if((i==22||i==30)&&j==3){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+4));
+	  }else if((i==1||i==9)&&(j==18||j==24)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-5));
+	  }else if((i==22||i==30)&&(j==13||j==19)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+5));
+	  }else if(((i==20||i==28)&&j==1)||
+	           ((i==19||i==27)&&j==6)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+6));
+	  }else if(((i==4||i==12)&&j==20)||
+	           ((i==3||i==11)&&j==22)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-11));
+	  }else if(((i==4||i==12)&&j==21)||
+	           ((i==3||i==11)&&j==23)){
+	    SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-13));
+	  }
+	}
+	//std::cout<<"COUNTERS: "<<count1<<" , "<<count2<<" , "<<count3<<" , "<<count4<<" , "<<count5<<" , "<<count6<<std::endl;
       }else{ // Offline
         float barrel_errors_temp[1]={-1.}; int barrel_cuts_temp[6]={6*-1}; 
         float endcap_errors_temp[1]={-1.}; int endcap_cuts_temp[6]={6*-1}; 

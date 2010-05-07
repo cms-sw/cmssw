@@ -104,13 +104,13 @@ process.source = cms.Source("PoolSource",
     #'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/275/A8E551ED-F9E9-DE11-A59E-001D09F29849.root'
     #'/store/data/Commissioning10/Cosmics/RAW/v4/000/133/874/F40E13A3-6B4F-DF11-A156-000423D987FC.root',
     #'/store/data/Commissioning10/Cosmics/RAW/v4/000/133/874/F0F602C6-794F-DF11-B259-001D09F23A84.root'
-    #'/store/data/Commissioning10/MinimumBias/RAW/v4/000/133/877/FAC1761E-A64F-DF11-BD37-003048D2BDD8.root',
+    '/store/data/Commissioning10/MinimumBias/RAW/v4/000/133/877/FAC1761E-A64F-DF11-BD37-003048D2BDD8.root',
     '/store/data/Commissioning10/MinimumBias/RAW/v4/000/133/877/FADF1B51-BF4F-DF11-9CE2-001D09F24353.root'
     
 	    )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(2000)
 )
 
 ##----## Sequences and Paths:
