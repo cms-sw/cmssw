@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.10 2010/04/23 21:01:47 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.11 2010/05/03 15:47:35 amraktad Exp $
 //
 
 // system include files
@@ -108,23 +108,20 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
       element->SetPickable( kTRUE );
       setupAddElement( element, &oItemHolder );
    }
-   /*
-   // lines bellow do not have effect are 
-   // paralel to energy main line
+   
    else if ( type == FWViewType::kRhoZ ) 
    {
-
-   TEveScalableStraightLineSet* tip = new TEveScalableStraightLineSet( "tip" );
-   tip->SetLineWidth(2);
-   tip->SetScaleCenter(0., (phi>0 ? r_ecal : -r_ecal), 0);
-   tip->AddLine(0., (phi>0 ? r_ecal+dy : -(r_ecal+dy) ), dx,
-   0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
-   tip->AddLine(0., (phi>0 ? r_ecal+dy : -(r_ecal+dy) ), -dx,
-   0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
-   tip->SetScale(vc->getEnergyScale());
-   setupAddElement( tip, &oItemHolder );
+      TEveScalableStraightLineSet* tip = new TEveScalableStraightLineSet( "tip" );
+      tip->SetLineWidth(2);
+      tip->SetScaleCenter(0., (phi>0 ? r_ecal : -r_ecal), 0);
+      tip->AddLine(0., (phi>0 ? r_ecal+dy : -(r_ecal+dy) ), dx,
+                   0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
+      tip->AddLine(0., (phi>0 ? r_ecal+dy : -(r_ecal+dy) ), -dx,
+                   0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
+      tip->SetScale(vc->getEnergyScale());
+      setupAddElement( tip, &oItemHolder );
    }   
-   */   
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
