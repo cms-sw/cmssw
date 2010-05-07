@@ -141,7 +141,6 @@ namespace reco
     virtual void endRun(edm::Run&, const edm::EventSetup&);
 
     //CSCHaloAlgo
-    
     CSCHaloAlgo CSCAlgo;
     
     //Digi Level

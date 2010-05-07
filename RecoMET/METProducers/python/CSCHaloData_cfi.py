@@ -37,6 +37,10 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
                              InnerRMaxParam = cms.double(310.),
                              OuterRMaxParam = cms.double(310.),
 
+                             MinOuterMomentumTheta = cms.double(.10),
+                             MaxOuterMomentumTheta = cms.double(3.0),
+                             MatchingDPhiThreshold = cms.double(0.18),
+                             MatchingDWireThreshold = cms.int32(5),
                              # The expected time of a collision recHit will be t = time_0 + time-of-flight
                              # A recHit more than +/- time_window from collision timing will be declared "out-of-time"                      
                              # recHit times are in [ns]

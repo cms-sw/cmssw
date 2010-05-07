@@ -23,9 +23,22 @@ CSCHaloAlgo::CSCHaloAlgo()
   recHit_t0=200;
   recHit_twindow=500;
   expected_BX=3;
+  
+  min_outer_theta = 0.;
+  max_outer_theta = TMath::Pi();
+  
+  matching_dphi_threshold = 0.18; //radians
+  matching_dwire_threshold = 5.;
 }
 
-reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm::Handle<reco::TrackCollection>& TheCSCTracks, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout,edm::Handle<edm::TriggerResults>& TheHLTResults, const edm::TriggerNames * triggerNames, const edm::Handle<CSCALCTDigiCollection>& TheALCTs)
+reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
+					 edm::Handle<reco::TrackCollection>& TheCSCTracks, 
+					 edm::Handle<reco::MuonCollection>& TheMuons,
+					 edm::Handle<CSCSegmentCollection>& TheCSCSegments, 
+					 edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,
+					 edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout,
+					 edm::Handle<edm::TriggerResults>& TheHLTResults,
+					 const edm::TriggerNames * triggerNames, const edm::Handle<CSCALCTDigiCollection>& TheALCTs)
 {
   reco::CSCHaloData TheCSCHaloData;
   if( TheCSCTracks.isValid() )
@@ -155,6 +168,62 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm:
 		{
 		  if ((*iter1).isFineHalo ())
 		    {
+		      float halophi = iter1->phiValue();
+		      halophi = halophi > TMath::Pi() ? halophi - 2.*TMath::Pi() : halophi;
+
+		      bool HaloIsGood = true;
+		      // Check if halo trigger is faked by any collision muons
+		      if( TheMuons.isValid() )
+			{
+			  for( reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu != TheMuons->end() && HaloIsGood ; mu++ )
+			    {
+			      if(!mu->isTrackerMuon())
+				{
+				  if( mu->isStandAloneMuon() )
+				    {
+				      //make sure that this SA muon is not actually a halo-like muon
+				      float theta =  mu->outerTrack()->outerMomentum().theta();
+				      float deta = TMath::Abs(mu->outerTrack()->outerPosition().eta() - mu->outerTrack()->innerPosition().eta());
+				      if( theta > min_outer_theta || theta < min_outer_theta ) 
+					continue;
+				      else if ( deta > deta_threshold ) 
+					continue;
+				    }
+				}
+			      
+			      float dphi = 999.;
+			      const std::vector<MuonChamberMatch> chambers = mu->matches();
+			      for(std::vector<MuonChamberMatch>::const_iterator iChamber = chambers.begin();
+				  iChamber != chambers.end() ; iChamber ++ )
+				{
+				  if( iChamber->detector() != MuonSubdetId::CSC ) continue;
+				  for( std::vector<reco::MuonSegmentMatch>::const_iterator iSegment = iChamber->segmentMatches.begin() ; 
+				       iSegment != iChamber->segmentMatches.end(); ++iSegment )
+				    {
+				      edm::Ref<CSCSegmentCollection> cscSegment = iSegment->cscSegmentRef;
+				      std::vector<CSCRecHit2D> hits = cscSegment -> specificRecHits();
+				      for( std::vector<CSCRecHit2D>::iterator iHit = hits.begin();
+					   iHit != hits.end() ; iHit++ )
+					{
+					  DetId TheDetUnitId(iHit->cscDetId());
+					  const GeomDetUnit *TheUnit = TheCSCGeometry.idToDetUnit(TheDetUnitId);
+					  LocalPoint TheLocalPosition = iHit->localPosition();
+					  const BoundPlane& TheSurface = TheUnit->surface();
+					  GlobalPoint TheGlobalPosition = TheSurface.toGlobal(TheLocalPosition);
+					  
+					  float x_ = TheGlobalPosition.x();
+					  float y_ = TheGlobalPosition.y();
+					  float phi_ = TMath::ATan2(y_,x_);
+					  dphi = dphi < TMath::Abs( phi_ - halophi ) ? dphi : TMath::Abs( phi_ - halophi );
+					}
+				    }
+				}
+			      if ( dphi < matching_dphi_threshold ) 
+				HaloIsGood = false; //collision muon likely faked halo trigger
+			    }
+			}
+		      if( !HaloIsGood ) 
+			continue;
 		      if( (*iter1).etaValue() > 0 )
 			PlusZ++;
 		      else
@@ -183,6 +252,65 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm:
 	     {
 	       if( (*digiIt).isValid() && ( (*digiIt).getBX() < expected_BX ) )
 		 {
+		   int digi_endcap  = detId.endcap();
+		   int digi_station = detId.station();
+		   int digi_ring    = detId.ring();
+		   int digi_chamber = detId.chamber();
+		   int digi_wire    = digiIt->getKeyWG();
+		   if( digi_station == 1 && digi_ring == 4 )   //hack
+		     digi_ring = 1;
+		   
+		   int dwire = 999.;
+		   if( TheMuons.isValid() ) 
+		     {
+		       //Check if there are any collision muons with hits in the vicinity of the digi
+		       for(reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu!= TheMuons->end(); mu++ )
+			 {
+			    if(!mu->isTrackerMuon())
+				{
+				  if( mu->isStandAloneMuon() )
+				    {
+				      //make sure that this SA muon is not actually a halo-like muon
+				      float theta =  mu->outerTrack()->outerMomentum().theta();
+				      float deta = TMath::Abs(mu->outerTrack()->outerPosition().eta() - mu->outerTrack()->innerPosition().eta());
+				      if( theta > min_outer_theta || theta < min_outer_theta ) 
+					continue;
+				      else if ( deta > deta_threshold ) 
+					continue;
+				    }
+				}
+
+			  
+			   const std::vector<MuonChamberMatch> chambers = mu->matches();
+			   for(std::vector<MuonChamberMatch>::const_iterator iChamber = chambers.begin();
+			       iChamber != chambers.end(); iChamber ++ )
+			     {
+			       if( iChamber->detector() != MuonSubdetId::CSC ) continue;
+			       for( std::vector<reco::MuonSegmentMatch>::const_iterator iSegment = iChamber->segmentMatches.begin();
+				    iSegment != iChamber->segmentMatches.end(); iSegment++ )
+				 {
+				   edm::Ref<CSCSegmentCollection> cscSegRef = iSegment->cscSegmentRef;
+				   std::vector<CSCRecHit2D> hits = cscSegRef->specificRecHits();
+				   for( std::vector<CSCRecHit2D>::iterator iHit = hits.begin();
+					iHit != hits.end(); iHit++ )
+				     {
+				       if( iHit->cscDetId().endcap() != digi_endcap ) continue;
+				       if( iHit->cscDetId().station() != digi_station ) continue;
+				       if( iHit->cscDetId().ring() != digi_ring ) continue;
+				       if( iHit->cscDetId().chamber() != digi_chamber ) continue;
+				       CSCRecHit2D::ChannelContainer hitwires = iHit->wgroups();
+				       int nwires = hitwires.size();
+				       int center_id = nwires/2 + 1;
+				       int hit_wire = hitwires[center_id -1 ];
+				       dwire = dwire < TMath::Abs(hit_wire - digi_wire)? dwire : TMath::Abs(hit_wire - digi_wire );
+				     }
+				 }
+			     }
+			 }
+		     }
+		   
+		   // only count out of time digis if they are not matched to collision muons
+		   if( dwire <=  matching_dwire_threshold ) continue; 
 		   if( detId.endcap() == 1 ) 
 		     n_alctsP++;
 		   else if ( detId.endcap() ==  2) 

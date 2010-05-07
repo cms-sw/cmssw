@@ -82,7 +82,12 @@ class CSCHaloAlgo {
  public:
   CSCHaloAlgo();
   ~CSCHaloAlgo(){}
-  reco::CSCHaloData Calculate(const CSCGeometry& TheCSCGeometry,edm::Handle<reco::TrackCollection>& TheCSCTracks, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout, edm::Handle<edm::TriggerResults>& TheHLTResults, const edm::TriggerNames * triggerNames, const edm::Handle<CSCALCTDigiCollection>& TheALCTs);
+  reco::CSCHaloData Calculate(const CSCGeometry& TheCSCGeometry,edm::Handle<reco::TrackCollection>& TheCSCTracks, 
+			      edm::Handle<reco::MuonCollection>& TheMuons, edm::Handle<CSCSegmentCollection>& TheCSCSegments, 
+			      edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout,
+			      edm::Handle<edm::TriggerResults>& TheHLTResults, const edm::TriggerNames * triggerNames, 
+			      const edm::Handle<CSCALCTDigiCollection>& TheALCTs);
+
   std::vector<edm::InputTag> vIT_HLTBit;
 
   void SetDetaThreshold(float x ){ deta_threshold = x;}
@@ -93,9 +98,13 @@ class CSCHaloAlgo {
   void SetRecHitTime0(float x) { recHit_t0 = x;}
   void SetRecHitTimeWindow(float x) { recHit_twindow = x; }
   void SetExpectedBX(int x) { expected_BX = x ;}
-
+  void SetMinMaxOuterMomentumTheta(float min , float max){ min_outer_theta = min;  max_outer_theta = max;}
+  void SetMatchingDPhiThreshold(float x) { matching_dphi_threshold = x;}
+  void SetMatchingDWireThreshold(int x) { matching_dwire_threshold = x;}
  private:
   float deta_threshold;
+  float max_outer_theta;
+  float min_outer_theta;
   float min_inner_radius;
   float max_inner_radius;
   float min_outer_radius;
@@ -105,6 +114,8 @@ class CSCHaloAlgo {
   float recHit_t0;
   float recHit_twindow;
   int expected_BX;
+  float matching_dphi_threshold;
+  int matching_dwire_threshold;
 
 };
 

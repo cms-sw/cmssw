@@ -39,10 +39,11 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   CSCAlgo.SetNormChi2Threshold( (float) iConfig.getParameter<double>("NormChi2Param") );
  
   CSCAlgo.SetExpectedBX( (short int) iConfig.getParameter<int>("ExpectedBX") );
-  
   CSCAlgo.SetRecHitTime0( (float) iConfig.getParameter<double>("RecHitTime0") );
   CSCAlgo.SetRecHitTimeWindow( (float) iConfig.getParameter<double>("RecHitTimeWindow") );
-
+  CSCAlgo.SetMinMaxOuterMomentumTheta( (float)iConfig.getParameter<double>("MinOuterMomentumTheta"), (float)iConfig.getParameter<double>("MaxOuterMomentumTheta") );
+  CSCAlgo.SetMatchingDPhiThreshold( (float)iConfig.getParameter<double>("MatchingDPhiThreshold") );
+  CSCAlgo.SetMatchingDWireThreshold(iConfig.getParameter<int>("MatchingDWireThreshold") );
   produces<CSCHaloData>();
 }
 
@@ -56,6 +57,10 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   edm::Handle< reco::TrackCollection > TheCosmics;
   iEvent.getByLabel(IT_CosmicMuon, TheCosmics);
   
+  //Collision Muon Collection
+  edm::Handle< reco::MuonCollection> TheMuons;
+  iEvent.getByLabel(IT_Muon, TheMuons);
+
   //Get CSC Segments
   edm::Handle<CSCSegmentCollection> TheCSCSegments;
   iEvent.getByLabel(IT_CSCSegment, TheCSCSegments);
@@ -81,7 +86,7 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
     triggerNames = &iEvent.triggerNames(*TheHLTResults);
   }
 
-  std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, TheHLTResults, triggerNames, TheALCTs) ) );
+  std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheMuons, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, TheHLTResults, triggerNames, TheALCTs) ) );
   // Put it in the event                                                                                                                                                
   iEvent.put(TheCSCData);
   return;
