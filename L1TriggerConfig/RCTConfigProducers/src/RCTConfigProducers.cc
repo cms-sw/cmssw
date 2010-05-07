@@ -13,7 +13,7 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: RCTConfigProducers.cc,v 1.10 2008/07/31 14:13:46 lgray Exp $
+// $Id: RCTConfigProducers.cc,v 1.11 2010/03/03 23:02:24 wsun Exp $
 //
 //
 
@@ -32,6 +32,8 @@
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1RCTNoisyChannelMaskRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RCTNoisyChannelMask.h"
 
 //
 // class declaration
@@ -48,11 +50,13 @@ public:
   //ReturnType produce(const L1RCTParametersRcd&);
   boost::shared_ptr<L1RCTParameters> produceL1RCTParameters(const L1RCTParametersRcd&);
   boost::shared_ptr<L1RCTChannelMask> produceL1RCTChannelMask(const L1RCTChannelMaskRcd&);
+  boost::shared_ptr<L1RCTNoisyChannelMask> produceL1RCTNoisyChannelMask(const L1RCTNoisyChannelMaskRcd&);
 
 private:
   // ----------member data ---------------------------
   L1RCTParameters rctParameters;
   L1RCTChannelMask rctChannelMask;
+  L1RCTNoisyChannelMask rctNoisyChannelMask;
 };
 
 //
@@ -73,6 +77,7 @@ RCTConfigProducers::RCTConfigProducers(const edm::ParameterSet& iConfig)
    //setWhatProduced(this);
   setWhatProduced(this, &RCTConfigProducers::produceL1RCTParameters);
   setWhatProduced(this, &RCTConfigProducers::produceL1RCTChannelMask);
+  setWhatProduced(this, &RCTConfigProducers::produceL1RCTNoisyChannelMask);
 
    //now do what ever other initialization is needed
    rctParameters = 
@@ -105,6 +110,8 @@ RCTConfigProducers::RCTConfigProducers(const edm::ParameterSet& iConfig)
 			 iConfig.getParameter<std::vector< double > >("HoverE_high_Lindsey")
 			 );
 
+
+
    // value of true if channel is masked, false if not masked
    for (int i = 0; i < 18; i++)
      {
@@ -121,6 +128,34 @@ RCTConfigProducers::RCTConfigProducers(const edm::ParameterSet& iConfig)
 	     }
 	 }
      }
+
+
+
+   //Now the hot tower mask
+   
+   //first the thresholds
+   
+   rctNoisyChannelMask.ecalThreshold = 0.0;
+   rctNoisyChannelMask.hcalThreshold = 0.0;
+   rctNoisyChannelMask.hfThreshold = 0.0;
+
+   for (int i = 0; i < 18; i++)
+     {
+       for (int j = 0; j < 2; j++)
+	 {
+	   for (int k = 0; k < 28; k++)
+	     {
+	       rctNoisyChannelMask.ecalMask[i][j][k] = false;
+	       rctNoisyChannelMask.hcalMask[i][j][k] = false;
+	     }
+	   for (int k = 0; k < 4; k++)
+	     {
+	       rctNoisyChannelMask.hfMask[i][j][k] = false;
+	     }
+	 }
+     }
+
+
 }
 
 
@@ -157,6 +192,16 @@ RCTConfigProducers::produceL1RCTChannelMask(const L1RCTChannelMaskRcd& iRecord)
      boost::shared_ptr<L1RCTChannelMask>( new L1RCTChannelMask( rctChannelMask ) ) ;
    return pL1RCTChannelMask ;
 }
+
+boost::shared_ptr<L1RCTNoisyChannelMask>
+RCTConfigProducers::produceL1RCTNoisyChannelMask(const L1RCTNoisyChannelMaskRcd& iRecord)
+{
+  using namespace edm::es;
+   boost::shared_ptr<L1RCTNoisyChannelMask> pL1RCTChannelMask =
+     boost::shared_ptr<L1RCTNoisyChannelMask>( new L1RCTNoisyChannelMask( rctNoisyChannelMask ) ) ;
+   return pL1RCTChannelMask ;
+}
+
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(RCTConfigProducers);
