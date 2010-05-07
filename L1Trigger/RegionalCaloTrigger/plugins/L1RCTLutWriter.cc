@@ -6,6 +6,8 @@
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 #include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RCTNoisyChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1RCTNoisyChannelMaskRcd.h"
 
 // default scales
 #include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
@@ -60,29 +62,12 @@ L1RCTLutWriter::~L1RCTLutWriter()
 void
 L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //   using namespace edm;
-
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
-   
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
    
    // get all the configuration information from the event, set it
    // in the lookuptable
    edm::ESHandle<L1RCTParameters> rctParameters;
    iSetup.get<L1RCTParametersRcd>().get(rctParameters);
    rctParameters_ = rctParameters.product();
-   //   edm::ESHandle<L1CaloHcalScale> hcalScale;
-   //   iSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
-   //   const L1CaloHcalScale* h = hcalScale.product();
-   //   edm::ESHandle<L1CaloEcalScale> ecalScale;
-   //   iSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
-   //   const L1CaloEcalScale* e = ecalScale.product();
    edm::ESHandle<L1CaloEtScale> emScale;
    iSetup.get<L1EmEtScaleRcd>().get(emScale);
    const L1CaloEtScale* s = emScale.product();
@@ -105,6 +90,32 @@ L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     }
 	 }
      }
+
+
+   //Same for Noisy mask
+   // make dummy channel mask -- we don't want to mask
+   // any channels when writing LUTs, that comes afterwards
+   L1RCTNoisyChannelMask* m2 = new L1RCTNoisyChannelMask;
+   for (int i = 0; i < 18; i++)
+     {
+       for (int j = 0; j < 2; j++)
+	 {
+	   for (int k = 0; k < 28; k++)
+	     {
+	       m2->ecalMask[i][j][k] = false;
+	       m2->hcalMask[i][j][k] = false;
+	     }
+	   for (int k = 0; k < 4; k++)
+	     {
+	       m2->hfMask[i][j][k] = false;
+	     }
+	 }
+     }
+   m2->ecalThreshold = 0.0;
+   m2->hcalThreshold = 0.0;
+   m2->hfThreshold = 0.0;
+
+
    
   // use these dummies to get the delete right when using old-style
   // scales to create set of L1CaloXcalScales
@@ -206,6 +217,7 @@ L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    lookupTable_->setRCTParameters(rctParameters_);
    lookupTable_->setChannelMask(m);
+   lookupTable_->setNoisyChannelMask(m2);
    //lookupTable_->setHcalScale(h);
    //lookupTable_->setEcalScale(e);
    lookupTable_->setL1CaloEtScale(s);
@@ -339,16 +351,6 @@ L1RCTLutWriter::writeRcLutFile(unsigned short card)
 		  unsigned short heFgVetoBit = (output>>7)&1;
 		  data = (heFgVetoBit<<7)+etIn7Bits;
 		  lutFile_ << std::hex << data << std::dec << std::endl;
-		  /*
-		  if (((ecalEt % 100) == 0) && ((hcalEt % 45) == 0)) 
-		    {
-		      std::cout << "Writer: ecalEt=" << ecalEt << " hcalEt=" 
-				<< hcalEt
-				<< " ecalfg=" << ecalfg << " etIn7Bits="
-				<< etIn7Bits << " heFgVetoBit="
-				<< heFgVetoBit << std::endl;
-		    }
-		  */
                 }
             }
         }

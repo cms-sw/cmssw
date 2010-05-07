@@ -25,6 +25,8 @@
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 #include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RCTNoisyChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1RCTNoisyChannelMaskRcd.h"
 
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"

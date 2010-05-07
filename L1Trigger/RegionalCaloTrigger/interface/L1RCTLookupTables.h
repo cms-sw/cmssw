@@ -3,6 +3,7 @@
 
 class L1RCTParameters;
 struct L1RCTChannelMask;
+struct L1RCTNoisyChannelMask;
 class L1CaloEcalScale;
 class L1CaloHcalScale;
 class L1CaloEtScale;
@@ -27,6 +28,11 @@ class L1RCTLookupTables {
     {
       channelMask_ = channelMask;
     }
+  void setNoisyChannelMask(const L1RCTNoisyChannelMask* channelMask)
+    {
+      noisyChannelMask_ = channelMask;
+    }
+
   // ditto for hcal TPG scale
   void setHcalScale(const L1CaloHcalScale* hcalScale)
     {
@@ -75,6 +81,7 @@ class L1RCTLookupTables {
 
   const L1RCTParameters* rctParameters_;
   const L1RCTChannelMask* channelMask_;
+  const L1RCTNoisyChannelMask* noisyChannelMask_;
   const L1CaloEcalScale* ecalScale_;
   const L1CaloHcalScale* hcalScale_;
   const L1CaloEtScale* etScale_;

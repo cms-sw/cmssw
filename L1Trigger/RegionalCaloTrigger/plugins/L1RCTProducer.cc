@@ -71,6 +71,15 @@ void L1RCTProducer::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
   edm::ESHandle<L1RCTChannelMask> channelMask;
   eventSetup.get<L1RCTChannelMaskRcd>().get(channelMask);
   const L1RCTChannelMask* cEs = channelMask.product();
+
+
+  // list of Noisy RCT channels to mask
+  edm::ESHandle<L1RCTNoisyChannelMask> hotChannelMask;
+  eventSetup.get<L1RCTNoisyChannelMaskRcd>().get(hotChannelMask);
+  const L1RCTNoisyChannelMask* cEsNoise = hotChannelMask.product();
+  rctLookupTables->setNoisyChannelMask(cEsNoise);
+
+
   
   //Update the channel mask according to the FED VECTOR
   //This is the beginning of run. We delete the old
@@ -118,13 +127,6 @@ void L1RCTProducer::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
     for(crateSection cs = c_min; cs <= c_max; cs = crateSection(cs +1)) {
       bool fedFound = false;
 
-
-//       for(vector<int>::iterator fv = caloFeds.begin(); fv != caloFeds.end(); ++fv) {
-// 	if(crateFED[cr][cs] == *fv){
-// 	  fedFound = true;
-// 	  break;
-// 	}
-//       }
 
       //Try to find the FED
       vector<int>::iterator fv = std::find(caloFeds.begin(),caloFeds.end(),crateFED[cr][cs]);

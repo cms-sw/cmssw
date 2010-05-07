@@ -12,6 +12,7 @@ using std::endl;
 
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
+#include "CondFormats/L1TObjects/interface/L1RCTNoisyChannelMask.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
 #include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
@@ -29,6 +30,9 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
   if(channelMask_ == 0)
     throw cms::Exception("L1RCTChannelMask Invalid")
       << "L1RCTChannelMask should be set every event" << channelMask_;
+  if(noisyChannelMask_ == 0)
+    throw cms::Exception("L1RCTNoisyChannelMask Invalid")
+      << "L1RCTNoisyChannelMask should be set every event" << noisyChannelMask_;
   if(ecalInput > 0xFF) 
     throw cms::Exception("Invalid Data") 
       << "ECAL compressedET should be less than 0xFF, is " << ecalInput;
@@ -54,14 +58,26 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
 
 
   // using channel mask to mask off ecal channels
-  if (channelMask_->ecalMask[crtNo][phiSide][iAbsEta-1] ||
+  //Mike: Introducing the hot channel mask 
+  //If the Et is above the threshold then mask it as well
+
+
+  
+  float ecalBeforeMask = convertEcal(ecalInput, iAbsEta, sign);
+
+
+  bool resetECAL = (channelMask_->ecalMask[crtNo][phiSide][iAbsEta-1]) || //channel mask
+    (noisyChannelMask_->ecalMask[crtNo][phiSide][iAbsEta-1] &&
+     ecalBeforeMask<noisyChannelMask_->ecalThreshold)||//hot mask
       (rctParameters_->eGammaECalScaleFactors()[iAbsEta-1] == 0.&&
-       rctParameters_->jetMETECalScaleFactors()[iAbsEta-1] == 0.))       
-    {
+       rctParameters_->jetMETECalScaleFactors()[iAbsEta-1] == 0.);       
+    
+
+
+  if (resetECAL)    {
       ecalAfterMask=0;
     }
-  else
-    {
+  else    {
       ecalAfterMask=ecalInput;
     }
 
@@ -69,36 +85,31 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
 
 
   // masking off hcal for channels in channel mask
-  if (channelMask_->hcalMask[crtNo][phiSide][iAbsEta-1] ||
+  float hcalBeforeMask = convertHcal(hcalInput, iAbsEta, sign);
+
+  bool resetHCAL = channelMask_->hcalMask[crtNo][phiSide][iAbsEta-1]||
+    (noisyChannelMask_->hcalMask[crtNo][phiSide][iAbsEta-1] &&
+     hcalBeforeMask<noisyChannelMask_->hcalThreshold)||//hot mask
       (rctParameters_->eGammaHCalScaleFactors()[iAbsEta-1] == 0.&&
-       rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1] == 0.))       
-    {
+       rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1] == 0.);
+
+  if (resetHCAL)    {
       hcalAfterMask=0;
     }
-  else
-    {
+  else    {
       hcalAfterMask=hcalInput;
     }
 
-    float hcal = convertHcal(hcalAfterMask, iAbsEta, sign);
+  float hcal = convertHcal(hcalAfterMask, iAbsEta, sign);
 
-
-  // couts!
-  //std::cout << "LUTs: ecalInput=" << ecalInput << " ecalConverted="
-  //	    << ecal << std::endl;
   unsigned long etIn7Bits;
   unsigned long etIn9Bits;
-  // Saturated input towers cause tower ET pegging at the highest value
-  /*if(ecalInput == 0xFF || hcal == 0xFF)
+
+  if((ecalAfterMask == 0 && hcalAfterMask > 0) &&
+     ((rctParameters_->noiseVetoHB() && iAbsEta > 0 && iAbsEta < 18)
+      || (rctParameters_->noiseVetoHEplus() && iAbsEta>17 && crtNo>8)
+      || (rctParameters_->noiseVetoHEminus() && iAbsEta>17 && crtNo<9)))
     {
-      etIn7Bits = 0x7F;
-      etIn9Bits = 0x1FF;
-      }*/
-  /*else*/ if((ecalAfterMask == 0 && hcalAfterMask > 0) &&
-  	  ((rctParameters_->noiseVetoHB() && iAbsEta > 0 && iAbsEta < 18)
-  	   || (rctParameters_->noiseVetoHEplus() && iAbsEta>17 && crtNo>8)
-  	   || (rctParameters_->noiseVetoHEminus() && iAbsEta>17 && crtNo<9)))
-   {
       etIn7Bits = 0;
       etIn9Bits = 0;
     }
@@ -170,22 +181,19 @@ unsigned int L1RCTLookupTables::lookup(unsigned short hfInput,
   if(iAbsEta < 29 || iAbsEta > 32) 
     throw cms::Exception("Invalid Data") 
       << "29 <= |iEta| <= 32, is " << iAbsEta;
-  float et;
-  if (channelMask_->hfMask[crtNo][phiSide][iAbsEta-29])
+
+  float et = convertHcal(hfInput, iAbsEta, sign);;
+
+
+
+  if (channelMask_->hfMask[crtNo][phiSide][iAbsEta-29]||
+      (noisyChannelMask_->hfMask[crtNo][phiSide][iAbsEta-29]&&
+       et<noisyChannelMask_->hfThreshold))
     {
       et = 0;
     }
-  else
-    {
-      et = convertHcal(hfInput, iAbsEta, sign);
-    }
+
   unsigned int result = convertToInteger(et, rctParameters_->jetMETLSB(), 8);
-  /*  std::cout << "HF input: " << hfInput << "  |ieta|: " << iAbsEta
-	    << "  |ieta|-29: " << iAbsEta-29 << "  crtNo: " << crtNo
-	    << "  phiSide: " << phiSide
-	    << "  hfmask: " << channelMask_->hfMask[crtNo][phiSide][iAbsEta-29]
-	    << "  converted et: " 
-	    << et << "  output: " << result << std::endl; */
   return result;
 }
 
