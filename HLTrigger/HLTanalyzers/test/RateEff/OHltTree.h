@@ -1692,24 +1692,28 @@ public :
   Int_t           L1GoodDoubleMuRPC[10];   //[NL1GoodDoubleMu]
   Int_t           L1GoodDoubleMuQal[10];   //[NL1GoodDoubleMu]
 
-  TH1F *hEta[5][2][2]; //kNbInstances, kNbStages, kNbCuts
-  TH1F *hPt[5][2][2];
-  TH1F *hHits[5][2][2];
-  TH1F *hNormChi2[5][2][2];
-  TH1F *hDxy[5][2][2];
-  TH1F *hDz[5][2][2];
-  TH1F *hP[5][2][2];
+/*   TH1F *hEta[10][2][2]; //kNbInstances, kNbStages, kNbCuts */
+/*   TH1F *hPt[10][2][2]; */
+/*   TH1F *hHits[10][2][2]; */
+/*   TH1F *hNormChi2[10][2][2]; */
+/*   TH1F *hDxy[10][2][2]; */
+/*   TH1F *hDz[10][2][2]; */
+/*   TH1F *hP[10][2][2]; */
 
-  TH1F *hOniaEta[5][2][4];
-  TH1F *hOniaRap[5][2][4];
-  TH1F *hOniaPt[5][2][4];
-  TH1F *hOniaP[5][2][4];
-  TH1F *hOniaMass[5][2][4];
-  TH2F *hOniaEtaPt[5][2][4];
-  TH2F *hOniaRapP[5][2][4];
+/*   TH1F *hOniaEta[10][2][4]; */
+/*   TH1F *hOniaRap[10][2][4]; */
+/*   TH1F *hOniaPt[10][2][4]; */
+/*   TH1F *hOniaP[10][2][4]; */
+/*   TH1F *hOniaMass[10][2][4]; */
+/*   TH2F *hOniaEtaPt[10][2][4]; */
+/*   TH2F *hOniaRapP[10][2][4]; */
 
-  TH1F *hNCand[5][2];
-
+/*   TH1F *hNCand[10][2]; */
+/*   TH1F *hPixCanddr[10]; */
+/*   TH1F *hPixCandEta[10]; */
+/*   TH1F *hPixCandPt[10]; */
+/*   TH1F *hPixCandP[10]; */
+  
   OHltTree(TTree *tree=0, OHltMenu *menu=0);
   virtual ~OHltTree();
   virtual Bool_t   Notify();
@@ -1879,232 +1883,104 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
   for(int i=0;i<8000 ;i++)   
     { ohEleLWL1Dupl[i] = true;}
 
-  /*
-  Int_t binEta = 120;
-  Double_t EtabinMin = -3.0, EtabinMax = 3.0;
 
-  Int_t binPt = 60;
-  Double_t PtbinMin = 0., PtbinMax = 30.;
+/*   int binEta = 120; */
+/*   double EtabinMin = -4.0, EtabinMax = 4.0; */
 
-  Int_t binP = 100;
-  Double_t PbinMin = 0., PbinMax = 50.;
+/*   int binPt = 100; */
+/*   double PtbinMin = 0., PtbinMax = 30.; */
 
-  Int_t binRap = 120;
-  Double_t RapbinMin = -3.0;
-  Double_t RapbinMax = 3.0;
+/*   int binP = 100; */
+/*   double PbinMin = 0., PbinMax = 50.; */
 
-  Int_t binMass = 160;
-  Double_t MassbinMin = 2.;
-  Double_t MassbinMax = 10.;
+/*   int binRap = 120; */
+/*   double RapbinMin = -3.0; */
+/*   double RapbinMax = 3.0; */
 
-  Char_t *Onia[5] = {"Mu0Track_JPsi","Mu3Track_JPsi", "Mu5Track_JPsi",
-                     "Mu3Track_JPsi_L1DoubleMOpen","Mu5Track_Ups"};
-  Char_t *Track[2] = {"Pixel","Track"};
-  Char_t *OniaCutP[4] = {"","_MassCut","_MassChgCut","_MassChgDzMuPixCut"};
-  Char_t *OniaCutT[4] = {"","_MassCut","_MassChgCut","_MassChgDzMuTrkCut"};
-  Char_t *OniaCutPix[4] = {"","2.6<M<3.6","2.6<M<3.6, checkChargePix = false","2.6<M<3.6, checkChargePix = false, DzMuouPix<999."};
-  Char_t *OniaCutTrk[4] = {"","2.9<M<3.3","2.9<M<3.3, checkChargeTrack = true","2.9<M<3.3, checkChargeTrack = true, DzMuonTrack = 0.5"};
-  Char_t *OniaL1DMT[4] = {"","2.8<M<3.4","2.8<M<3.4, checkChargeTrack = true","2.8<M<3.4, checkChargeTrack = true, DzMuonTrack = 0.5"};
-  Char_t name[100], title[300];
+/*   int binMass = 240; */
+/*   double MassbinMin = 0.; */
+/*   double MassbinMax = 12.; */
 
-  for(Int_t iOnia=0;iOnia<5;iOnia++){
-    for(Int_t iTrk=0;iTrk<2;iTrk++){
+/*   const char *histIndex[10] = {"Mu0_Track0_Jpsi","Mu1_Track0_Jpsi","Mu1p5_Track0_Jpsi","Mu2_Track0_Jpsi",  */
+/*                            "Mu2p5_Track0_Jpsi","Mu3_Track0_Jpsi","Mu5_Track0_Jpsi", */
+/*                            "Mu0_Track0_Ups","Mu3_Track0_Ups","Mu5_Track0_Ups"}; */
+  
+/*   const char *Track[2] = {"Pixel","Track"}; */
+/*   const char *histIdxCut[4] = {"","_MassCut","_MassChgCut","_MassChgDzMuPixCut"}; */
+/*   //char name[100], title[300]; */
 
-      sprintf(name, "h%s%sEta", Onia[iOnia], Track[iTrk]);
-      sprintf(title, "%s: %s #eta",Onia[iOnia], Track[iTrk]);
+/*   for(Int_t ihistIdx=0;ihistIdx<10;ihistIdx++){ */
 
-      hEta[iOnia][iTrk][0] = new TH1F(name, title, binEta,EtabinMin,EtabinMax);
+/*      hPixCanddr[ihistIdx] = new TH1F(Form("h%s_PixCanddr",histIndex[ihistIdx]), */
+/*                                      Form("%s: PixelCand;#DeltaR",histIndex[ihistIdx]),100,0,10); */
+/*      hPixCandEta[ihistIdx] = new TH1F(Form("h%s_PixCandEta",histIndex[ihistIdx]), */
+/*                                       Form("%s: PixelCand;#eta",histIndex[ihistIdx]),binEta,EtabinMin,EtabinMax); */
+/*      hPixCandPt[ihistIdx] = new TH1F(Form("h%s_PixCandPt",histIndex[ihistIdx]), */
+/*                                      Form("%s: PixelCand;p_{T} [GeV/c]",histIndex[ihistIdx]),100,0,10); */
+/*      hPixCandP[ihistIdx] = new TH1F(Form("h%s_PixCandP",histIndex[ihistIdx]), */
+/*                                     Form("%s: PixelCand;p [GeV/c]",histIndex[ihistIdx]),100,0,20); */
 
-      sprintf(name, "h%s%sPt", Onia[iOnia], Track[iTrk]);
-      sprintf(title, "%s: %s P_{T}",Onia[iOnia], Track[iTrk]);
+/*      for(Int_t iTrk=0;iTrk<2;iTrk++){ */
 
-      hPt[iOnia][iTrk][0] = new TH1F(name,title, binPt,PtbinMin,PtbinMax);
+/*         hEta[ihistIdx][iTrk][0] = new TH1F(Form("h%s_%sEta", histIndex[ihistIdx],Track[iTrk]), */
+/*                                            Form("%s: %s;#eta",histIndex[ihistIdx], Track[iTrk]),binEta,EtabinMin,EtabinMax); */
+/*         hPt[ihistIdx][iTrk][0] = new TH1F(Form("h%s_%sPt", histIndex[ihistIdx], Track[iTrk]), */
+/*                                           Form("%s: %s;p_{T} [GeV/c]",histIndex[ihistIdx], Track[iTrk]), binPt,PtbinMin,PtbinMax); */
+/*         hHits[ihistIdx][iTrk][0] = new TH1F(Form("h%s_%sHits", histIndex[ihistIdx], Track[iTrk]),  */
+/*                                             Form("%s: # of %s Hits;#Hits",histIndex[ihistIdx], Track[iTrk]),11, -0.5, 10.5); */
+/*         hNormChi2[ihistIdx][iTrk][0] = new TH1F(Form("h%s_%sNormChi2", histIndex[ihistIdx], Track[iTrk]), */
+/*                                                 Form("%s: %s;#chi^{2} / ndf",histIndex[ihistIdx], Track[iTrk]),200,0.,20.); */
+/*         hDxy[ihistIdx][iTrk][0] = new TH1F(Form("h%s_%sDxy", histIndex[ihistIdx], Track[iTrk]), */
+/*                                            Form("%s: %s;d_{xy} [cm]",histIndex[ihistIdx], Track[iTrk]),100,-0.5,0.5); */
+/*         hDz[ihistIdx][iTrk][0] = new TH1F(Form("h%s_%sDz", histIndex[ihistIdx], Track[iTrk]), */
+/*                                           Form("%s: %s;d_{z} [cm]",histIndex[ihistIdx], Track[iTrk]),100,-20.,20.); */
+/*         hP[ihistIdx][iTrk][0] = new TH1F(Form("h%s_%sP", histIndex[ihistIdx], Track[iTrk]), */
+/*                                          Form("%s: %s;p [GeV/c]",histIndex[ihistIdx], Track[iTrk]),binPt,PtbinMin,PtbinMax); */
+/*         hEta[ihistIdx][iTrk][1] = new TH1F(Form("h%s_%sEta_EtaCut", histIndex[ihistIdx], Track[iTrk]), */
+/*                                            Form("%s: %s;#eta",histIndex[ihistIdx], Track[iTrk]), binEta,EtabinMin,EtabinMax); */
+/*         hPt[ihistIdx][iTrk][1] = new TH1F(Form("h%s_%sPt_PtCut", histIndex[ihistIdx], Track[iTrk]), */
+/*                                           Form("%s: %s;p_{T} [GeV/c]",histIndex[ihistIdx], Track[iTrk]), binPt,PtbinMin,PtbinMax); */
 
-      sprintf(name, "h%s%sHits", Onia[iOnia], Track[iTrk]);
-      sprintf(title, "%s: # of %s Hits",Onia[iOnia], Track[iTrk]);
+/*         hHits[ihistIdx][iTrk][1] = new TH1F(Form("h%s_%sHits_HitCut", histIndex[ihistIdx], Track[iTrk]), */
+/*                                             Form("%s: # of %s Hits;#Hits",histIndex[ihistIdx], Track[iTrk]), 11, -0.5, 10.5); */
+/*         hNormChi2[ihistIdx][iTrk][1] = new TH1F(Form("h%s_%sNormChi2_Chi2Cut", histIndex[ihistIdx], Track[iTrk]), */
+/*                                                 Form("%s: %s;#chi^{2} / ndf",histIndex[ihistIdx], Track[iTrk]),200,0.,20.); */
+/*         hDxy[ihistIdx][iTrk][1] = new TH1F(Form("h%s_%sDxy_DxyCut", histIndex[ihistIdx], Track[iTrk]), */
+/*                                            Form("%s: %s;d_{xy} [cm]",histIndex[ihistIdx], Track[iTrk]),100,-0.5,0.5); */
+/*         hDz[ihistIdx][iTrk][1] = new TH1F(Form("h%s_%sDz_DzCut", histIndex[ihistIdx], Track[iTrk]), */
+/*                                           Form("%s: %s;d_{z} [cm]",histIndex[ihistIdx], Track[iTrk]),80,-20.,20.); */
+/*         hP[ihistIdx][iTrk][1] = new TH1F(Form("h%s_%sP_PCut", histIndex[ihistIdx], Track[iTrk]), */
+/*                                          Form("%s: %s;p [GeV/c]",histIndex[ihistIdx], Track[iTrk]),binPt,PtbinMin,PtbinMax); */
+/*         hNCand[ihistIdx][iTrk] = new TH1F(Form("h%s_%sNCand", histIndex[ihistIdx], Track[iTrk]), */
+/*                                           Form("%s: # of %s Candidates;#Cands",histIndex[ihistIdx], Track[iTrk]),12,-0.5,11.5); */
 
-      hHits[iOnia][iTrk][0] = new TH1F(name,title, 11, -0.5, 10.5);
+/*         for(Int_t iCut=0; iCut<4; iCut++){ */
 
-      sprintf(name, "h%s%sNormChi2", Onia[iOnia], Track[iTrk]);
-      sprintf(title, "%s: %s NormChi2",Onia[iOnia], Track[iTrk]);
+/*           hOniaEta[ihistIdx][iTrk][iCut] = new TH1F(Form("h%s_%sMuEta%s", histIndex[ihistIdx], Track[iTrk], histIdxCut[iCut]), */
+/*                                                     Form("%s: (%s+Mu)%s;#eta", histIndex[ihistIdx], Track[iTrk], histIdxCut[iCut]), */
+/*                                                     binEta,EtabinMin,EtabinMax); */
+/*           hOniaRap[ihistIdx][iTrk][iCut] = new TH1F(Form("h%s_%sMuRap%s", histIndex[ihistIdx], Track[iTrk], histIdxCut[iCut]), */
+/*                                                     Form("%s: (%s+Mu)%s;y", histIndex[ihistIdx], Track[iTrk], histIdxCut[iCut]), */
+/*                                                     binRap,RapbinMin,RapbinMax); */
+/*           hOniaPt[ihistIdx][iTrk][iCut] = new TH1F(Form("h%s_%sMuPt%s", histIndex[ihistIdx],Track[iTrk],histIdxCut[iCut]), */
+/*                                                    Form("%s: (%s+Mu)%s;p_{T} [GeV/c]",histIndex[ihistIdx],Track[iTrk],histIdxCut[iCut]), */
+/*                                                    binPt,PtbinMin,PtbinMax); */
+/*           hOniaP[ihistIdx][iTrk][iCut] = new TH1F(Form("h%s_%sMuP%s", histIndex[ihistIdx], Track[iTrk], histIdxCut[iCut]), */
+/*                                                   Form("%s: (%s+Mu)%s;p [GeV/c]", histIndex[ihistIdx], Track[iTrk], histIdxCut[iCut]), */
+/*                                                   binP,PbinMin,PbinMax); */
+/*           hOniaMass[ihistIdx][iTrk][iCut] = new TH1F(Form("h%s_%sMuMass%s", histIndex[ihistIdx], Track[iTrk], histIdxCut[iCut]), */
+/*                                                      Form("%s: (%s+Mu)%s;M [GeV/c^{2}]", histIndex[ihistIdx], Track[iTrk], histIdxCut[iCut]), */
+/*                                                      binMass,MassbinMin,MassbinMax); */
+/*           hOniaEtaPt[ihistIdx][iTrk][iCut] = new TH2F(Form("h%s_%sMuEtaPt%s", histIndex[ihistIdx], Track[iTrk], histIdxCut[iCut]), */
+/*                                              Form("%s: (%s+Mu)%s;#eta;p_{T} [GeV/c]", histIndex[ihistIdx], Track[iTrk], histIdxCut[iCut]), */
+/*                                              binEta,EtabinMin,EtabinMax,binPt,PtbinMin,PtbinMax); */
+/*           hOniaRapP[ihistIdx][iTrk][iCut] = new TH2F(Form("h%s_%sMuRapP%s", histIndex[ihistIdx], Track[iTrk], histIdxCut[iCut]), */
+/*                                                      Form("%s: (%s+Mu)%s;y;p [GeV/c]", histIndex[ihistIdx],Track[iTrk],histIdxCut[iCut]), */
+/*                                                      binRap,RapbinMin,RapbinMax,binP,PbinMin,PbinMax); */
+/*         } */
+/*      } */
+/*   } */
 
-      hNormChi2[iOnia][iTrk][0] = new TH1F(name,title,150,0.,150.);
-
-      sprintf(name, "h%s%sDxy", Onia[iOnia], Track[iTrk]);
-      sprintf(title, "%s: %s Dxy",Onia[iOnia], Track[iTrk]);
-
-      hDxy[iOnia][iTrk][0] = new TH1F(name,title,100,-0.5,0.5);
-
-      sprintf(name, "h%s%sDz", Onia[iOnia], Track[iTrk]);
-      sprintf(title, "%s: %s Dz",Onia[iOnia], Track[iTrk]);
-
-      hDz[iOnia][iTrk][0] = new TH1F(name,title,100,-20.,20.);
-
-      sprintf(name, "h%s%sP", Onia[iOnia], Track[iTrk]);
-      sprintf(title, "%s: %s P",Onia[iOnia], Track[iTrk]);
-
-      hP[iOnia][iTrk][0] = new TH1F(name,title,binPt,PtbinMin,PtbinMax);
-
-      sprintf(name, "h%s%sEtaAfterEtaCut", Onia[iOnia], Track[iTrk]);
-
-      if(iOnia==1 || iTrk==0){sprintf(title, "%s: %s |#eta|<999.",Onia[iOnia], Track[iTrk]);}
-      if(iTrk==1){sprintf(title, "%s: %s |#eta|<1.2",Onia[iOnia], Track[iTrk]); }
-
-      hEta[iOnia][iTrk][1] = new TH1F(name, title, binEta,EtabinMin,EtabinMax);
-
-      sprintf(name, "h%s%sPtAfterPtCut", Onia[iOnia], Track[iTrk]);
-      sprintf(title, "%s: %s P_{T}>0GeV/c",Onia[iOnia], Track[iTrk]);
-
-      hPt[iOnia][iTrk][1] = new TH1F(name,title, binPt,PtbinMin,PtbinMax);
-
-      sprintf(name, "h%s%sHitsAfterHitCut", Onia[iOnia], Track[iTrk]);
-
-      if(iTrk==0){sprintf(title, "%s: # of %s Hits>3",Onia[iOnia], Track[iTrk]);}
-      if(iTrk==1){sprintf(title, "%s: # of %s Hits>5",Onia[iOnia], Track[iTrk]);}
-
-      hHits[iOnia][iTrk][1] = new TH1F(name,title, 11, -0.5, 10.5);
-
-      sprintf(name, "h%s%sNormChi2AfterChi2Cut", Onia[iOnia], Track[iTrk]);
-      sprintf(title, "%s: %s NormChi2<99999999.",Onia[iOnia], Track[iTrk]);
-
-      hNormChi2[iOnia][iTrk][1] = new TH1F(name,title,300,0.,300.);
-
-      sprintf(name, "h%s%sDxyAfterDxyCut", Onia[iOnia], Track[iTrk]);
-      sprintf(title, "%s: %s Dxy<999.",Onia[iOnia], Track[iTrk]);
-
-      hDxy[iOnia][iTrk][1] = new TH1F(name,title,100,-0.5,0.5);
-
-      sprintf(name, "h%s%sDzAfterDzCut", Onia[iOnia], Track[iTrk]);
-      sprintf(title, "%s: %s Dz<999.",Onia[iOnia], Track[iTrk]);
-
-      hDz[iOnia][iTrk][1] = new TH1F(name,title,80,-20.,20.);
-
-      sprintf(name, "h%s%sPAfterPCut", Onia[iOnia], Track[iTrk]);
-      sprintf(title, "%s: %s P>3GeV/c",Onia[iOnia], Track[iTrk]);
-
-      hP[iOnia][iTrk][1] = new TH1F(name,title,binPt,PtbinMin,PtbinMax);
-
-      sprintf(name, "h%s%sNCand", Onia[iOnia], Track[iTrk]);
-      sprintf(title, "%s: # of %s Candidates",Onia[iOnia], Track[iTrk]);
-      hNCand[iOnia][iTrk] = new TH1F(name,title,12,-0.5,11.5);
-
-      for(Int_t iCut=0; iCut<4; iCut++){
-
-	if(iTrk==0){
-	  sprintf(name, "h%s%sMuEta%s", Onia[iOnia], Track[iTrk], OniaCutP[iCut]);
-	  sprintf(title, "%s:(%s+Mu) #eta %s", Onia[iOnia], Track[iTrk], OniaCutPix[iCut]);
-	}
-	if(iTrk==1){
-	  sprintf(name, "h%s%sMuEta%s", Onia[iOnia], Track[iTrk], OniaCutT[iCut]);
-	  if(iOnia==1){
-	    sprintf(title, "%s:(%s+Mu) #eta %s", Onia[iOnia], Track[iTrk], OniaL1DMT[iCut]);
-	  }
-	  else{
-	    sprintf(title, "%s:(%s+Mu) #eta %s", Onia[iOnia], Track[iTrk], OniaCutTrk[iCut]);
-	  }
-	}
-
-	hOniaEta[iOnia][iTrk][iCut] = new TH1F(name,title,binEta,EtabinMin,EtabinMax);
-
-	if(iTrk==0){
-	  sprintf(name, "h%s%sMuRap%s", Onia[iOnia], Track[iTrk], OniaCutP[iCut]);
-	  sprintf(title, "%s:(%s+Mu) y %s", Onia[iOnia], Track[iTrk], OniaCutPix[iCut]);
-	}
-	if(iTrk==1){
-	  sprintf(name, "h%s%sMuRap%s", Onia[iOnia], Track[iTrk], OniaCutT[iCut]);
-	  if(iOnia==1){
-	    sprintf(title, "%s:(%s+Mu) y %s", Onia[iOnia], Track[iTrk], OniaL1DMT[iCut]);
-	  }
-	  else{
-	    sprintf(title, "%s:(%s+Mu) y %s", Onia[iOnia], Track[iTrk], OniaCutTrk[iCut]);
-	  }
-	}
-
-	hOniaRap[iOnia][iTrk][iCut] = new TH1F(name,title,binRap,RapbinMin,RapbinMax);
-
-	if(iTrk==0){
-	  sprintf(name, "h%s%sMuPt%s", Onia[iOnia], Track[iTrk], OniaCutP[iCut]);
-	  sprintf(title, "%s:(%s+Mu) P_{T} %s", Onia[iOnia], Track[iTrk], OniaCutPix[iCut]);
-	}
-	if(iTrk==1){
-	  sprintf(name, "h%s%sMuPt%s", Onia[iOnia], Track[iTrk], OniaCutT[iCut]);
-	  if(iOnia==1){
-	    sprintf(title, "%s:(%s+Mu) P_{T} %s", Onia[iOnia], Track[iTrk], OniaL1DMT[iCut]);
-	  }
-	  else{
-	    sprintf(title, "%s:(%s+Mu) P_{T} %s", Onia[iOnia], Track[iTrk], OniaCutTrk[iCut]);
-	  }
-	}
-
-	hOniaPt[iOnia][iTrk][iCut] = new TH1F(name,title,binPt,PtbinMin,PtbinMax);
-
-	if(iTrk==0){
-	  sprintf(name, "h%s%sMuP%s", Onia[iOnia], Track[iTrk], OniaCutP[iCut]);
-	  sprintf(title, "%s:(%s+Mu) P %s", Onia[iOnia], Track[iTrk], OniaCutPix[iCut]);
-	}
-	if(iTrk==1){
-	  sprintf(name, "h%s%sMuP%s", Onia[iOnia], Track[iTrk], OniaCutT[iCut]);
-	  if(iOnia==1){
-	    sprintf(title, "%s:(%s+Mu) P %s", Onia[iOnia], Track[iTrk], OniaL1DMT[iCut]);
-	  }
-	  else{
-	    sprintf(title, "%s:(%s+Mu) P %s", Onia[iOnia], Track[iTrk], OniaCutTrk[iCut]);
-	  }
-	}
-
-	hOniaP[iOnia][iTrk][iCut] = new TH1F(name,title,binP,PbinMin,PbinMax);
-
-	if(iTrk==0){
-	  sprintf(name, "h%s%sMuMass%s", Onia[iOnia], Track[iTrk], OniaCutP[iCut]);
-	  sprintf(title, "%s:(%s+Mu) Mass %s", Onia[iOnia], Track[iTrk], OniaCutPix[iCut]);
-	}
-	if(iTrk==1){
-	  sprintf(name, "h%s%sMuMass%s", Onia[iOnia], Track[iTrk], OniaCutT[iCut]);
-	  if(iOnia==1){
-	    sprintf(title, "%s:(%s+Mu) Mass %s", Onia[iOnia], Track[iTrk], OniaL1DMT[iCut]);
-	  }
-	  else{
-	    sprintf(title, "%s:(%s+Mu) Mass %s", Onia[iOnia], Track[iTrk], OniaCutTrk[iCut]);
-	  }
-	}
-
-	hOniaMass[iOnia][iTrk][iCut] = new TH1F(name,title,binMass,MassbinMin,MassbinMax);
-
-	if(iTrk==0){
-	  sprintf(name, "h%s%sMuEtaPt%s", Onia[iOnia], Track[iTrk], OniaCutP[iCut]);
-	  sprintf(title, "%s:(%s+Mu) #eta vs. P_{T} %s", Onia[iOnia], Track[iTrk], OniaCutPix[iCut]);
-	}
-	if(iTrk==1){
-	  sprintf(name, "h%s%sMuEtaPt%s", Onia[iOnia], Track[iTrk], OniaCutT[iCut]);
-	  if(iOnia==1){
-	    sprintf(title, "%s:(%s+Mu) #eta vs. P_{T} %s", Onia[iOnia], Track[iTrk], OniaL1DMT[iCut]);
-	  }
-	  else{
-	    sprintf(title, "%s:(%s+Mu) #eta vs. P_{T} %s", Onia[iOnia], Track[iTrk], OniaCutTrk[iCut]);
-	  }
-	}
-
-	hOniaEtaPt[iOnia][iTrk][iCut] = new TH2F(name,title,binEta,EtabinMin,EtabinMax,binPt,PtbinMin,PtbinMax);
-
-	if(iTrk==0){
-	  sprintf(name, "h%s%sMuRapP%s", Onia[iOnia], Track[iTrk], OniaCutP[iCut]);
-	  sprintf(title, "%s:(%s+Mu) y vs. P %s", Onia[iOnia], Track[iTrk], OniaCutPix[iCut]);
-	}
-	if(iTrk==1){
-	  sprintf(name, "h%s%sMuRapP%s", Onia[iOnia], Track[iTrk], OniaCutT[iCut]);
-	  if(iOnia==1){
-	    sprintf(title, "%s:(%s+Mu) y vs. P %s", Onia[iOnia], Track[iTrk], OniaL1DMT[iCut]);
-	  }
-	  else{
-	    sprintf(title, "%s:(%s+Mu) y vs. P %s", Onia[iOnia], Track[iTrk], OniaCutTrk[iCut]);
-	  }
-	}
-
-	hOniaRapP[iOnia][iTrk][iCut] = new TH2F(name,title,binRap,RapbinMin,RapbinMax,binP,PbinMin,PbinMax);
-      }
-    }
-  }
-  */
 
   //SetMapL1SeedsOfStandardHLTPath(menu);
 
