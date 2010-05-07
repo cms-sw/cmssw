@@ -478,7 +478,7 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string>energy&gt;2</string>
+     <string></string>
    </config>
    <config name="color" version="0">
      <string>5</string>
@@ -490,7 +490,7 @@
      <string>17</string>
    </config>
    <config name="purpose" version="0">
-     <string>Calo RecHit</string>
+     <string>HBHE RecHit</string>
    </config>
   </config>
   <config name="horeco" version="3">
@@ -519,7 +519,7 @@
      <string>18</string>
    </config>
    <config name="purpose" version="0">
-     <string>Calo RecHit</string>
+     <string>HO RecHit</string>
    </config>
   </config>
   <config name="hfreco" version="3">
@@ -548,7 +548,7 @@
      <string>19</string>
    </config>
    <config name="purpose" version="0">
-     <string>Calo RecHit</string>
+     <string>HF RecHit</string>
    </config>
   </config>
  </config>
@@ -590,10 +590,10 @@
  <config name="GUI" version="1">
   <config name="main window" version="2">
    <config name="x" version="0">
-     <string>6</string>
+     <string>36</string>
    </config>
    <config name="y" version="0">
-     <string>27</string>
+     <string>36</string>
    </config>
    <config name="width" version="0">
      <string>1312</string>
@@ -662,7 +662,7 @@
       <string>0.98</string>
     </config>
     <config name="cameraZoomRho Phi" version="0">
-      <string>0.24038</string>
+      <string>0.78</string>
     </config>
     <config name="cameraMatrix0Rho Phi" version="0">
       <string>1</string>
@@ -701,13 +701,13 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix12Rho Phi" version="0">
-      <string>375</string>
+      <string>2337.41</string>
     </config>
     <config name="cameraMatrix13Rho Phi" version="0">
-      <string>5.10856</string>
+      <string>0</string>
     </config>
     <config name="cameraMatrix14Rho Phi" version="0">
-      <string>-17.1112</string>
+      <string>0</string>
     </config>
     <config name="cameraMatrix15Rho Phi" version="0">
       <string>1</string>
@@ -909,7 +909,7 @@
       <string>0.98</string>
     </config>
     <config name="cameraZoomRho Z" version="0">
-      <string>0.15778</string>
+      <string>0.78</string>
     </config>
     <config name="cameraMatrix0Rho Z" version="0">
       <string>1</string>
@@ -948,7 +948,7 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix12Rho Z" version="0">
-      <string>375</string>
+      <string>2855.02</string>
     </config>
     <config name="cameraMatrix13Rho Z" version="0">
       <string>0</string>
@@ -1152,12 +1152,6 @@
     <config name="Detector Transparency" version="0">
       <string>95</string>
     </config>
-    <config name="Calo scale (GeV/meter)" version="0">
-      <string>2</string>
-    </config>
-    <config name="Calo auto scale" version="0">
-      <string>1</string>
-    </config>
     <config name="EventInfoTextSize" version="0">
       <string>0.0412192</string>
     </config>
@@ -1177,22 +1171,22 @@
       <string>0.98</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
-      <string>0.49469</string>
+      <string>-0.606621</string>
     </config>
     <config name="cameraMatrix1Plain3D" version="0">
-      <string>-0.865968</string>
+      <string>-0.781176</string>
     </config>
     <config name="cameraMatrix2Plain3D" version="0">
-      <string>-0.0733488</string>
+      <string>0.147563</string>
     </config>
     <config name="cameraMatrix3Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix4Plain3D" version="0">
-      <string>0.868307</string>
+      <string>0.789822</string>
     </config>
     <config name="cameraMatrix5Plain3D" version="0">
-      <string>0.496026</string>
+      <string>-0.613336</string>
     </config>
     <config name="cameraMatrix6Plain3D" version="0">
       <string>0</string>
@@ -1201,25 +1195,25 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix8Plain3D" version="0">
-      <string>0.036383</string>
+      <string>0.0905056</string>
     </config>
     <config name="cameraMatrix9Plain3D" version="0">
-      <string>-0.0636893</string>
+      <string>0.116548</string>
     </config>
     <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.997306</string>
+      <string>0.989053</string>
     </config>
     <config name="cameraMatrix11Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix12Plain3D" version="0">
-      <string>1556.01</string>
+      <string>-2029.97</string>
     </config>
     <config name="cameraMatrix13Plain3D" version="0">
-      <string>-2873.78</string>
+      <string>-2614.09</string>
     </config>
     <config name="cameraMatrix14Plain3D" version="0">
-      <string>-260.641</string>
+      <string>493.797</string>
     </config>
     <config name="cameraMatrix15Plain3D" version="0">
       <string>1</string>
@@ -1261,13 +1255,13 @@
       <string>0</string>
     </config>
     <config name="cameraMatrixBase12Plain3D" version="0">
-      <string>3.60315</string>
+      <string>-0.180542</string>
     </config>
     <config name="cameraMatrixBase13Plain3D" version="0">
-      <string>1.47809</string>
+      <string>0.521286</string>
     </config>
     <config name="cameraMatrixBase14Plain3D" version="0">
-      <string>6.74479</string>
+      <string>24.0227</string>
     </config>
     <config name="cameraMatrixBase15Plain3D" version="0">
       <string>1</string>
@@ -1325,10 +1319,10 @@
        <string>1</string>
      </config>
      <config name="x" version="0">
-       <string>504</string>
+       <string>397</string>
      </config>
      <config name="y" version="0">
-       <string>149</string>
+       <string>291</string>
      </config>
      <config name="width" version="0">
        <string>1042</string>
@@ -1353,6 +1347,20 @@
  <config name="L1TriggerTables" version="1">
  </config>
  <config name="Tables" version="1">
+  <config name="CaloRecHit" version="1">
+    <string>id</string>
+    <string>detid.rawId</string>
+    <string>0</string>
+    <string>energy</string>
+    <string>energy</string>
+    <string>3</string>
+    <string>time</string>
+    <string>time</string>
+    <string>3</string>
+    <string>flags</string>
+    <string>flags</string>
+    <string>0</string>
+  </config>
   <config name="CaloTower" version="1">
     <string>emEt</string>
     <string>emEt</string>
@@ -1606,6 +1614,7 @@
     <string>0</string>
   </config>
   <config name="typeNames" version="1">
+    <string>CaloRecHit</string>
     <string>CaloTower</string>
     <string>edm::RangeMap&lt;CSCDetId,edm::OwnVector&lt;CSCSegment,edm::ClonePolicy&lt;CSCSegment&gt; &gt;,edm::ClonePolicy&lt;CSCSegment&gt; &gt;</string>
     <string>edm::RangeMap&lt;DTChamberId,edm::OwnVector&lt;DTRecSegment4D,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;</string>
