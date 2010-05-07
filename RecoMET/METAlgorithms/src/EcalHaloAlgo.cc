@@ -16,11 +16,8 @@ bool CompareTime(const EcalRecHit* x, const EcalRecHit* y){ return x->time() < y
 
 EcalHaloAlgo::EcalHaloAlgo()
 {
-  for(unsigned int i = 0  ; i < 3 ; i++)
-    {
-      RoundnessCut = 0 ;
-      AngleCut = 0 ;
-    }
+  RoundnessCut = 0 ;
+  AngleCut = 0 ;
   EBRecHitEnergyThreshold = 0.;
   EERecHitEnergyThreshold = 0.;
   ESRecHitEnergyThreshold = 0.;
@@ -31,17 +28,6 @@ EcalHaloAlgo::EcalHaloAlgo()
 EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::Handle<reco::PhotonCollection>& ThePhotons, edm::Handle<reco::SuperClusterCollection>& TheSuperClusters, edm::Handle<EBRecHitCollection>& TheEBRecHits, edm::Handle<EERecHitCollection>& TheEERecHits, edm::Handle<ESRecHitCollection>& TheESRecHits)
 {  
   EcalHaloData TheEcalHaloData;
-
-  /*
-  // Store energy sum of rechits as a function of iPhi (iphi goes from 1 to 72)
-  float SumE[73];
-  // Store number of rechits as a function of iPhi 
-  int NumHits[73];
-  // Store minimum time of rechit as a function of iPhi
-  float MinTimeHits[73];
-  // Store maximum time of rechit as a function of iPhi
-  float MaxTimeHits[73];
-  */
 
   // Store energy sum of rechits as a function of iPhi (iphi goes from 1 to 72)       
   float SumE[361];           
@@ -150,23 +136,36 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
   std::vector<float> vShowerShapes_Angle ;
   for(reco::SuperClusterCollection::const_iterator cluster = TheSuperClusters->begin() ; cluster != TheSuperClusters->end() ; cluster++ )
     {
-      /* R. Remington :  Commenting out until we debug the showerRoundness() function for 34X. 
-       */
-      if( abs(cluster->eta()) <= 1.47 && cluster->energy() > 5.0)
+      if( abs(cluster->eta()) <= 1.48  )
 	{ 
-	  //vector<float> shapes = EcalClusterTools::showerRoundness( *cluster, &(*TheEBRecHits.product()) );
-	  //EcalClusterTools ECT;
 	  vector<float> shapes = EcalClusterTools::roundnessBarrelSuperClusters( *cluster, (*TheEBRecHits.product()));
 	  float roundness = shapes[0];
 	  float angle = shapes[1];
 	  
-	  // Check if supercluster passes the cuts on roundness and angle, if so store the reference to it
+	  // Check if supercluster belongs to photon and passes the cuts on roundness and angle, if so store the reference to it
 	  if( (roundness >=0 && roundness < GetRoundnessCut()) &&  angle >= 0 && angle < GetAngleCut() )
 	    {
-	      edm::Ref<SuperClusterCollection> TheClusterRef( TheSuperClusters, cluster - TheSuperClusters->begin() ) ;
-	      TheEcalHaloData.GetSuperClusters().push_back( TheClusterRef ) ; 
+	      edm::Ref<SuperClusterCollection> TheClusterRef( TheSuperClusters, cluster - TheSuperClusters->begin());
+	      bool BelongsToPhoton = false;
+	      if( ThePhotons.isValid() )
+		{
+		  for(reco::PhotonCollection::const_iterator iPhoton = ThePhotons->begin() ; iPhoton != ThePhotons->end() ; iPhoton++ )
+		    {
+		      if(iPhoton->isEB())
+			if ( TheClusterRef ==  iPhoton->superCluster() )
+			  {
+			    BelongsToPhoton = true;
+			    break;
+			  }
+		    }
+		}
+	      //Only store refs to suspicious EB SuperClusters which belong to Photons
+	      //Showershape variables are more discriminating for these cases  
+	      if( BelongsToPhoton )
+		{ 
+		  TheEcalHaloData.GetSuperClusters().push_back( TheClusterRef ) ; 
+		}
 	    }
-	  
 	  vShowerShapes_Roundness.push_back(shapes[0]);
 	  vShowerShapes_Angle.push_back(shapes[1]);
 	}
@@ -175,8 +174,6 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	  vShowerShapes_Roundness.push_back(-1.);
 	  vShowerShapes_Angle.push_back(-1.);
 	}
-      //vShowerShapes_Roundness.push_back(-1.);         
-      //vShowerShapes_Angle.push_back(-1.);      
     }
   
   edm::ValueMap<float>::Filler TheRoundnessFiller( TheEcalHaloData.GetShowerShapesRoundness() );
