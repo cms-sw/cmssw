@@ -73,6 +73,10 @@ SiPixelDataQuality::SiPixelDataQuality(bool offlineXMLfile) : offlineXMLfile_(of
   allMods_=0;
   errorMods_=0;
   qflag_=1.;
+
+  allmodsMap=0;
+  errmodsMap=0;
+  goodmodsMap=0;
 }
 
 //------------------------------------------------------------------------------
