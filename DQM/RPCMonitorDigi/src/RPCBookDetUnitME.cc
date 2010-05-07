@@ -189,8 +189,8 @@ map<string, MonitorElement*> RPCMonitorDigi::bookRegionRing(int region, int ring
     }
     for(int i=1; i<22; i++) {
       if((ring == 2 || ring == -2) && i == 7) 
-	meMap[os.str()] ->setBinLabel(i, mylabel.YLabel(i), 2);
-      else  meMap[os.str()] ->setBinLabel(i, mylabel.YLabel(0), 2);
+	meMap[os.str()] ->setBinLabel(i, mylabel.YLabel(0), 2);
+      else  meMap[os.str()] ->setBinLabel(i, mylabel.YLabel(i), 2);
     }
   } //end of Barrel 
     
