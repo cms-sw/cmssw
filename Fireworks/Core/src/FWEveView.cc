@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.14 2010/05/03 15:47:38 amraktad Exp $
+// $Id: FWEveView.cc,v 1.15 2010/05/04 18:22:24 amraktad Exp $
 //
 
 
@@ -252,11 +252,13 @@ FWEveView::addToOrthoCamera(TGLOrthoCamera* camera, FWConfiguration& iTo) const
 void
 FWEveView::setFromOrthoCamera(TGLOrthoCamera* camera,  const FWConfiguration& iFrom)
 {
-   if ( iFrom.version() > 1)
-   {
+   try {
       // zoom
       std::string zoomName("cameraZoom"); zoomName += typeName();
-      assert( 0!=iFrom.valueForKey(zoomName) );
+      if (iFrom.valueForKey(zoomName) == 0 )
+      {
+         throw std::runtime_error("can't restore parameter cameraZoom");
+      }
       std::istringstream s(iFrom.valueForKey(zoomName)->value());
       s>>(camera->fZoom);
       
@@ -266,18 +268,21 @@ FWEveView::setFromOrthoCamera(TGLOrthoCamera* camera,  const FWConfiguration& iF
          std::ostringstream os;
          os << i;
          const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + typeName() );
-         assert( value );
+         if ( value ==  0 )
+         {
+            throw std::runtime_error ("can't restore parameter cameraMatrix.");
+         }
          std::istringstream s(value->value());
          s>> (camera->RefCamTrans()[i]);
       }
-      
-      camera->IncTimeStamp();
    }
-   else {
-      // reset camera if version not supported 
-      fwLog(fwlog::kInfo) << "Can't restore camera parameters in view " << typeName() <<". Version of configuration too old. Set default camera parameters." << std::endl;   
+   catch (const std::runtime_error& iException)
+   {
+      fwLog(fwlog::kInfo) << "Caught exception while restoring camera parameters in view " << typeName() << "\n.";
       viewerGL()->ResetCamerasAfterNextUpdate();      
+
    }
+   camera->IncTimeStamp();
 }
  
 void
@@ -312,14 +317,16 @@ FWEveView::addToPerspectiveCamera(TGLPerspectiveCamera* cam, const std::string& 
 void
 FWEveView::setFromPerspectiveCamera(TGLPerspectiveCamera* cam, const std::string& name, const FWConfiguration& iFrom)
 {
-   if ( iFrom.version() > 1)
-   {
+   try {
       std::string matrixName("cameraMatrix");
       for ( unsigned int i = 0; i < 16; ++i ){
          std::ostringstream os;
          os << i;
          const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + name );
-         assert( value );
+         if ( value ==  0 )
+         {
+            throw std::runtime_error ("can't restore parameter cameraMatrix.");
+         }
          std::istringstream s(value->value());
          s>>((cam->RefCamTrans())[i]);
       }
@@ -330,27 +337,32 @@ FWEveView::setFromPerspectiveCamera(TGLPerspectiveCamera* cam, const std::string
          std::ostringstream os;
          os << i;
          const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + name );
-         assert( value );
+         if ( value ==  0 )
+         {
+            throw std::runtime_error ("can't restore parameter cameraMatrixBase.");
+         }
+     
          std::istringstream s(value->value());
          s>>((cam->RefCamBase())[i]);
       }
       
       {
          const FWConfiguration* value = iFrom.valueForKey( name + " FOV" );
-         if (value) // assert not necessary in version 1
+         if ( value ==  0 )
          {
-            std::istringstream s(value->value());
-            s>>cam->fFOV;
+            throw std::runtime_error ("can't restore parameter cameraMatrixBase.");
          }
+         std::istringstream s(value->value());
+         s>>cam->fFOV;
       }
       
       cam->IncTimeStamp();
    }
-   else
+   catch (const std::runtime_error& iException)
    {
-      // reset camera if version not supported
-      fwLog(fwlog::kInfo) << "Can't restore camera parameters in view " << typeName() <<". Version of configuration too old. Set default camera parameters." << std::endl;   
-      viewerGL()->ResetCamerasAfterNextUpdate();      
+      fwLog(fwlog::kInfo) << "Caught exception while restoring camera parameters in view " << typeName() << "\n.";
+      viewerGL()->ResetCamerasAfterNextUpdate();  
+      fwLog(fwlog::kDebug) << "Reset camera fo view "  << typeName() << "\n.";
    }
 }
 

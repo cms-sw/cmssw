@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.18 2010/05/03 18:40:45 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.19 2010/05/04 13:53:09 amraktad Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 #include "TEveScene.h"
 #include "TEveCompound.h"
 #include "TEveCalo.h"
+#include "TGLViewer.h"
 
 // common
 #include "Fireworks/Core/interface/FWEveViewManager.h"
@@ -284,7 +285,6 @@ FWEveViewManager::createGlimpseView(TEveWindowSlot* iParent)
    return finishViewCreate(m_views[t].back());
 }
 
-
 FWEveView*
 FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
 {
@@ -357,8 +357,12 @@ FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
 
    view->beingDestroyed_.connect(boost::bind(&FWEveViewManager::beingDestroyed,this,_1));
 
+  
+
    gEve->EnableRedraw();
+   view->viewerGL()->UpdateScene();
    gEve->Redraw3D();   
+
    return view.get();
 }
 
