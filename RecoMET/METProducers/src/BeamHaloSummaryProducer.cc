@@ -59,12 +59,14 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.getByLabel(IT_CSCHaloData, TheCSCHaloData);
 
   const CSCHaloData CSCData = (*TheCSCHaloData.product() );
-  //Loose Id 
-  if( CSCData.NumberOfHaloTriggers() || CSCData.NumberOfHaloTracks() || CSCData.CSCHaloHLTAccept() )
+  //Loose Id (any one of the three criteria)
+  if( CSCData.NumberOfHaloTriggers() || CSCData.NumberOfHaloTracks() || CSCData.NumberOfOutOfTimeTriggers() )
     TheBeamHaloSummary->GetCSCHaloReport()[0] = 1;
 
-  //Tight Id 
-  if( (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfHaloTracks()) || (CSCData.CSCHaloHLTAccept() && CSCData.NumberOfHaloTracks() ) )
+  //Tight Id (any two of the previous three criteria)
+  if( (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfHaloTracks()) ||
+      (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfOutOfTimeTriggers()) ||
+      (CSCData.NumberOfHaloTracks() && CSCData.NumberOfOutOfTimeTriggers() ) )
     TheBeamHaloSummary->GetCSCHaloReport()[1] = 1;
   
   // Ecal Specific Halo Data
@@ -106,10 +108,12 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   edm::ValueMap<float> vm_Angle = EcalData.GetShowerShapesAngle();
   edm::ValueMap<float> vm_Roundness = EcalData.GetShowerShapesRoundness();
+
   //Access selected SuperClusters
   for(unsigned int n = 0 ; n < EcalData.GetSuperClusters().size() ; n++ )
     {
       edm::Ref<SuperClusterCollection> cluster(EcalData.GetSuperClusters(), n );
+
       float angle = vm_Angle[cluster];
       float roundness = vm_Roundness[cluster];
 
