@@ -47,7 +47,7 @@ namespace cscdqm {
     config->fnGetHisto = boost::bind(&Dispatcher::getHisto, this, _1, _2);
 
     /** Link/share getCSCDetId function */
-    config->fnGetCSCDetId = boost::bind(&MonitorObjectProvider::getCSCDetId, provider, _1, _2);
+    config->fnGetCSCDetId = boost::bind(&MonitorObjectProvider::getCSCDetId, provider, _1, _2, _3);
 
     /** Link/share booking function */
     config->fnBook = boost::bind(&MonitorObjectProvider::bookMonitorObject, provider, _1);

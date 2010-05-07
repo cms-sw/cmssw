@@ -57,6 +57,11 @@ static const char DIR_DCSINFO[]          = "CSC/EventInfo/DCSContents/";
 static const char DIR_DAQINFO[]          = "CSC/EventInfo/DAQContents/";
 static const char DIR_CRTINFO[]          = "CSC/EventInfo/CertificationContents/";
 
+static const unsigned int MIN_CRATE_ID = 1;
+static const unsigned int MAX_CRATE_ID = 60;
+static const unsigned int MIN_DMB_SLOT = 1;
+static const unsigned int MAX_DMB_SLOT = 10;
+
 /**
  * @class CSCMonitorModule
  * @brief Common CSC DQM Module that uses CSCDQM Framework  
@@ -90,15 +95,15 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
 
   public:
 
-    const CSCDetId getCSCDetId(const unsigned int crateId, const unsigned int dmbId) const { 
-      // This throws exceptions on wrong parameters
-      try {
-        return pcrate->detId(crateId, dmbId, 0, 0); 
-      } catch (cms::Exception e) {
-        // Create a fake DetId, a caller should check it!
-        return CSCDetId();
+    bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId& detId) const { 
+      // Check parameter values
+      if (crateId < MIN_CRATE_ID || crateId > MAX_CRATE_ID || dmbId < MIN_DMB_SLOT || dmbId > MAX_DMB_SLOT) {
+        return false;
       }
+      detId = pcrate->detId(crateId, dmbId, 0, 0);
+      return (detId.rawId() != 0);
     }
+
     cscdqm::MonitorObject *bookMonitorObject (const cscdqm::HistoBookRequest& p_req); 
 
   /** 

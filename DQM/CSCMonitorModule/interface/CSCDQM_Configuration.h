@@ -263,7 +263,7 @@ namespace cscdqm {
       boost::function< MonitorObject* (const HistoBookRequest&) > fnBook;
 
       /** Pointer to CSC Det Id function */
-      boost::function< CSCDetId (const unsigned int, const unsigned int) > fnGetCSCDetId;
+      boost::function< bool (const unsigned int, const unsigned int, CSCDetId&) > fnGetCSCDetId;
 
       /** Parameter Getters */
       BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_GETTER_MACRO, _, CONFIG_PARAMETERS_SEQ)

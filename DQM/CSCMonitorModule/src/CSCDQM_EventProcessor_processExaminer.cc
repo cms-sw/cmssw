@@ -72,8 +72,8 @@ namespace cscdqm {
 
         // Check if in standby!
         { 
-          CSCDetId cid = config->fnGetCSCDetId(crateID, dmbSlot);
-          if (summary.isChamberStandby(cid)) {
+          CSCDetId cid;
+          if (!config->fnGetCSCDetId(crateID, dmbSlot, cid)) {
             continue;
           } 
         }
@@ -270,8 +270,8 @@ namespace cscdqm {
          
         // Check if in standby!
         { 
-          CSCDetId cid = config->fnGetCSCDetId(crateID, dmbSlot);
-          if (summary.isChamberStandby(cid)) {
+          CSCDetId cid;
+          if (!config->fnGetCSCDetId(crateID, dmbSlot, cid)) {
             continue;
           } 
         }
@@ -341,8 +341,8 @@ namespace cscdqm {
  
         // Check if in standby!
         { 
-          CSCDetId cid = config->fnGetCSCDetId(crateID, dmbSlot);
-          if (summary.isChamberStandby(cid)) {
+          CSCDetId cid;
+          if (!config->fnGetCSCDetId(crateID, dmbSlot, cid)) {
             continue;
           } 
         }
