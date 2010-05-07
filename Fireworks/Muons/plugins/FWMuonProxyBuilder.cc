@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:28:07 EST 2008
-// $Id: FWMuonProxyBuilder.cc,v 1.5 2010/04/20 20:49:43 amraktad Exp $
+// $Id: FWMuonProxyBuilder.cc,v 1.6 2010/05/03 15:47:42 amraktad Exp $
 //
 
 #include "TEvePointSet.h"
@@ -177,7 +177,7 @@ FWMuonGlimpseProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, T
 //
 // static member functions
 //
-REGISTER_FWPROXYBUILDER(FWMuonProxyBuilder, reco::Muon, "Muons", FWViewType::k3DBit | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWMuonProxyBuilder, reco::Muon, "Muons", FWViewType::kAll3DBits | FWViewType::kRhoZBit);
 REGISTER_FWPROXYBUILDER(FWMuonRhoPhiProxyBuilder, reco::Muon, "Muons", FWViewType::kRhoPhiBit);
 REGISTER_FWPROXYBUILDER(FWMuonLegoProxyBuilder, reco::Muon, "Muons", FWViewType::kLegoBit);
 REGISTER_FWPROXYBUILDER(FWMuonGlimpseProxyBuilder, reco::Muon, "Muons", FWViewType::kGlimpseBit);
