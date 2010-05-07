@@ -1034,7 +1034,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
   
   if (deadmon_test_digis_)
     {
-      NumberOfRecentMissingDigisHE->Fill(currentLS,unoccupiedHB);
+      NumberOfRecentMissingDigisHB->Fill(currentLS,unoccupiedHB);
       NumberOfRecentMissingDigisHE->Fill(currentLS,unoccupiedHE);
       NumberOfRecentMissingDigisHO->Fill(currentLS,unoccupiedHO);
       NumberOfRecentMissingDigisHF->Fill(currentLS,unoccupiedHF);
