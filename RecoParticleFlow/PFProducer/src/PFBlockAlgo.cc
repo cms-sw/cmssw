@@ -1587,10 +1587,8 @@ PFBlockAlgo::muAssocToTrack( const reco::TrackRef& trackref,
 
 void 
 PFBlockAlgo::checkDisplacedVertexLinks( reco::PFBlock& block ) const {
-  // method which removes link between primary tracks and clusters
-  // if at least one of the associated secondary tracks is closer 
-  // to these same clusters
-  /*
+  // method which removes link between primary tracks and the clusters
+  
   typedef std::multimap<double, unsigned>::iterator IE;
 
   const edm::OwnVector< reco::PFBlockElement >& els = block.elements();
@@ -1608,39 +1606,14 @@ PFBlockAlgo::checkDisplacedVertexLinks( reco::PFBlock& block ) const {
       unsigned iprim     = ie->second;
       // if this track a primary track (T_TO_DISP)
       // the new strategy gouzevitch: remove all the links from primary track
-      if( els[iprim].trackType(PFBlockElement::T_TO_DISP) )  {
-	    block.setLink( i1, iprim, -1, block.linkData(),
-			   PFBlock::LINKTEST_RECHIT );
-	    
-	      // here the old startegy
-	std::multimap<double, unsigned> secTracks; 
-	// get associated secondary tracks
-	block.associatedElements( iprim,  block.linkData(),
-				  secTracks,
-				  reco::PFBlockElement::TRACK,
-				  reco::PFBlock::LINKTEST_ALL );
-	for( IE ie2 = secTracks.begin(); ie2 != secTracks.end(); ++ie2) { 
-	  unsigned isec = ie2->second;
-	  double distsec = block.dist( i1, isec, block.linkData(),
-				       PFBlock::LINKTEST_RECHIT );
+      if( els[iprim].isPrimary()) {
 
-	  // at present associatedElement return first the chi2 by chi2
-	  // maybe in the futur return the min between chi2 and rechit! 
-	  // if one secondary tracks has a chi2 < chi2prim 
-	  // remove the link between the element and the primary
-	  if( distsec < 0 ) continue;
-	  else if( distsec < distprim ) { 
 	    block.setLink( i1, iprim, -1, block.linkData(),
-			   PFBlock::LINKTEST_RECHIT );
-	    continue;
-	  }
-	} // loop on all associated secondary tracks
-	    
-      } // test if track is T_TO_DISP
-                             
+			   PFBlock::LINKTEST_RECHIT );	    
+      }
     } // loop on all associated tracks
   } // loop on all elements
-  */
+ 
 }
 
   
