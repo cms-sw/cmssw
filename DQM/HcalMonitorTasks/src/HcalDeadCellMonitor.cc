@@ -92,6 +92,7 @@ void HcalDeadCellMonitor::setup()
   ProblemsVsLB_HF=dbe_->bookProfile("TotalDeadCells_HF_vs_LS",
 				     "Total Number of Dead HF Cells vs lumi section;Lumi Section;Dead Cells",
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
+  
   (ProblemsVsLB->getTProfile())->SetMarkerStyle(20);
   (ProblemsVsLB_HB->getTProfile())->SetMarkerStyle(20);
   (ProblemsVsLB_HE->getTProfile())->SetMarkerStyle(20);
@@ -400,6 +401,8 @@ void HcalDeadCellMonitor::cleanup()
       dbe_->removeContents();
       dbe_->setCurrentFolder(subdir_+"dead_cell_parameters");
       dbe_->removeContents();
+      dbe_->setCurrentFolder(subdir_+"LSvalues");
+      dbe_->removeContents();
     }
   return;
 } // void HcalDeadCellMonitor::cleanup()
@@ -412,6 +415,10 @@ void HcalDeadCellMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
   // skip old lumi sections
   if (this->LumiInOrder(lumiSeg.luminosityBlock())==false) return;
 
+  // Reset current LS histogram
+  if (ProblemsCurrentLB)
+      ProblemsCurrentLB->Reset();
+
   // Here is where we determine whether or not to process an event
   // Not enough events
   if (deadevt_<minDeadEventCount_)
@@ -422,6 +429,17 @@ void HcalDeadCellMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
   fillNevents_recentdigis();
   fillNevents_recentrechits();
 
+  if (ProblemsCurrentLB)
+    {
+      ProblemsCurrentLB->setBinContent(0,0, levt_);  // underflow bin contains number of events
+      ProblemsCurrentLB->setBinContent(1,1, NumBadHB*levt_);
+      ProblemsCurrentLB->setBinContent(2,1, NumBadHE*levt_);
+      ProblemsCurrentLB->setBinContent(3,1, NumBadHO*levt_);
+      ProblemsCurrentLB->setBinContent(4,1, NumBadHF*levt_);
+      ProblemsCurrentLB->setBinContent(5,1, NumBadHO0*levt_);
+      ProblemsCurrentLB->setBinContent(6,1, NumBadHO12*levt_);
+      ProblemsCurrentLB->setBinContent(7,1, NumBadHFLUMI*levt_);
+    }
   zeroCounters();
   deadevt_=0;
   return;
@@ -874,7 +892,10 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
   NumBadHE=0;
   NumBadHO=0;
   NumBadHF=0;
-  
+  NumBadHFLUMI=0;
+  NumBadHO0=0;
+  NumBadHO12=0;
+
   unsigned int neverpresentHB=0;
   unsigned int neverpresentHE=0;
   unsigned int neverpresentHO=0;
@@ -940,8 +961,20 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 		    {
 		      if (subdet==HcalBarrel)       ++NumBadHB;
 		      else if (subdet==HcalEndcap)  ++NumBadHE;
-		      else if (subdet==HcalOuter)   ++NumBadHO;
-		      else if (subdet==HcalForward) ++NumBadHF;
+		      else if (subdet==HcalOuter)  
+			{
+			  ++NumBadHO;
+			  if (abs(ieta)<5) ++NumBadHO0;
+			  else ++NumBadHO12;
+			}
+		      else if (subdet==HcalForward)
+			{
+			  ++NumBadHF;
+			  if (depth==1 && (abs(ieta)==33 || abs(ieta)==34))
+			    ++NumBadHFLUMI;
+			  else if (depth==2 && (abs(ieta)==35 || abs(ieta)==36))
+			    ++NumBadHFLUMI;
+			}
 		    }
 		  if (present_digi[eta][phi][depth]==0)
 		    {

@@ -6,8 +6,8 @@
 /*
  * \file HcalBaseDQMonitor.cc
  *
- * $Date: 2010/03/25 10:43:21 $
- * $Revision: 1.1.2.13 $
+ * $Date: 2010/03/25 11:00:59 $
+ * $Revision: 1.2 $
  * \author J Temple
  *
  * Base class for all Hcal DQM analyzers
@@ -43,7 +43,7 @@ HcalBaseDQMonitor::HcalBaseDQMonitor(const edm::ParameterSet& ps)
   ProblemsVsLB_HE=0;
   ProblemsVsLB_HF=0;
   ProblemsVsLB_HO=0;
-
+  ProblemsCurrentLB=0;
 } //HcalBaseDQMonitor::HcalBaseDQMonitor(const ParameterSet& ps)
 
 
@@ -126,6 +126,21 @@ void HcalBaseDQMonitor::setup(void)
   if (meTevt_) meTevt_->Fill(-1);
   meTevtHist_=dbe_->book1D("Events_Processed_Task_Histogram","Counter of Events Processed By This Task",1,0.5,1.5);
   if (meTevtHist_) meTevtHist_->Reset();
+  dbe_->setCurrentFolder(subdir_+"LSvalues");
+  ProblemsCurrentLB=dbe_->book2D("ProblemsThisLS","Problem Channels in current Lumi Section",
+				 7,0,7,1,0,1);
+  if (ProblemsCurrentLB)
+    {
+      (ProblemsCurrentLB->getTH2F())->GetXaxis()->SetBinLabel(1,"HB");
+      (ProblemsCurrentLB->getTH2F())->GetXaxis()->SetBinLabel(2,"HE");
+      (ProblemsCurrentLB->getTH2F())->GetXaxis()->SetBinLabel(3,"HO");
+      (ProblemsCurrentLB->getTH2F())->GetXaxis()->SetBinLabel(4,"HF");
+      (ProblemsCurrentLB->getTH2F())->GetXaxis()->SetBinLabel(5,"HO0");
+      (ProblemsCurrentLB->getTH2F())->GetXaxis()->SetBinLabel(6,"HO12");
+      (ProblemsCurrentLB->getTH2F())->GetXaxis()->SetBinLabel(7,"HFlumi");
+      (ProblemsCurrentLB->getTH2F())->GetYaxis()->SetBinLabel(1,"Status");
+      ProblemsCurrentLB->Reset();
+    }
 } // setup()
 
 
@@ -136,6 +151,8 @@ void HcalBaseDQMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg
   currentLS=lumiSeg.luminosityBlock();
   levt_=0;
   if (meLevt_!=0) meLevt_->Fill(-1);
+  if (ProblemsCurrentLB)
+    ProblemsCurrentLB->Reset();
 }
 
 void HcalBaseDQMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,

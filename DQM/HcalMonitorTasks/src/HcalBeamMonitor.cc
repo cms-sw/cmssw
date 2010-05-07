@@ -139,6 +139,8 @@ void HcalBeamMonitor::cleanup()
     {
       dbe_->setCurrentFolder(subdir_);
       dbe_->removeContents();
+      dbe_->setCurrentFolder(subdir_+"LSvalues");
+      dbe_->removeContents();
     } // if (dbe_)
 } // void HcalBeamMonitor::cleanup()
 
@@ -1113,6 +1115,7 @@ void HcalBeamMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   HcalBaseDQMonitor::beginLuminosityBlock(lumiSeg,c);
 
   if (lumiSeg.luminosityBlock()==lastProcessedLS_) return; // we're seeing more events from current lumi section (after some break) -- should not reset histogram
+  ProblemsCurrentLB->Reset();
   HFlumi_occ_LS->Reset();
   std::stringstream title;
   title <<"HFlumi occupancy for LS # " <<currentLS;
@@ -1208,8 +1211,12 @@ void HcalBeamMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 	} // loop over y
     } // loop over x
 
+  // Fill problem histogram underflow bind with number of events
+  ProblemsCurrentLB->Fill(-1,-1,levt_);
   if (ndeadcells+nhotcells>=minBadCells_)
     {
+      // Fill with number of error channels * events (assume bad for all events in LS)
+      ProblemsCurrentLB->Fill(6,0,(ndeadcells+nhotcells)*levt_);
       for (int x=1;x<=HFlumi_occ_LS->getTH2F()->GetNbinsX();++x)
 	{
 	  for (int y=1;y<=HFlumi_occ_LS->getTH2F()->GetNbinsY();++y)
