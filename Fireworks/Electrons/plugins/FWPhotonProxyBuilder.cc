@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonProxyBuilder.cc,v 1.10 2010/05/03 15:47:40 amraktad Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.11 2010/05/06 14:13:26 mccauley Exp $
 //
 
 #include "TEveCompound.h"
@@ -27,22 +27,22 @@
 
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 
-class FWPhotonProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Photon> {
-
+class FWPhotonProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Photon> 
+{
 public:
-   FWPhotonProxyBuilder() {}
+  FWPhotonProxyBuilder() {}
 
-   virtual ~FWPhotonProxyBuilder() {}
-
-   virtual bool haveSingleProduct() const { return false; }
-
-   REGISTER_PROXYBUILDER_METHODS();
+  virtual ~FWPhotonProxyBuilder() {}
+  
+  virtual bool haveSingleProduct() const { return false; }
+  
+  REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWPhotonProxyBuilder(const FWPhotonProxyBuilder&); // stop default
-   const FWPhotonProxyBuilder& operator=(const FWPhotonProxyBuilder&); // stop default
-
-   virtual void buildViewType(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
+  FWPhotonProxyBuilder(const FWPhotonProxyBuilder&);
+  const FWPhotonProxyBuilder& operator=(const FWPhotonProxyBuilder&);
+  
+  virtual void buildViewType(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
 };
 
 void

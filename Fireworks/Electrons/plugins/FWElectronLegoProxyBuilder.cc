@@ -3,12 +3,7 @@
 // Package:     Muons
 // Class  :     FWElectronLegoProxyBuilder
 //
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  
-//         Created:  Thu Dec  4 19:28:07 EST 2008
-// $Id: FWElectronLegoBuilder.cc,v 1.6 2010/05/03 15:47:42 amraktad Exp $
+// $Id: FWElectronLegoProxyBuilder.cc,v 1.1 2010/05/06 14:13:26 mccauley Exp $
 //
 
 #include "TEvePointSet.h"
