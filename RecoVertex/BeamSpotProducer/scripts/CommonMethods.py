@@ -353,7 +353,6 @@ def sortAndCleanBeamList(listbeam=[],IOVbase="lumibase"):
     # first clean list of data for consecutive duplicates and bad fits
     tmpremovelist = []
     for ii in range(0,len(listbeam)):
-        
         ibeam = listbeam[ii]
         datax = ibeam.IOVfirst
         #print str(ii) + "  " +datax
@@ -385,94 +384,93 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
     maxNlumis = 100
     if weighted:
         maxNlumis = 999999999
-	for ii in range(0,len(listbeam)):
+    for ii in range(0,len(listbeam)):
 	
-	    ibeam = listbeam[ii]
-	    inextbeam = BeamSpot()
-	    iNNbeam = BeamSpot()
-	    if docreate:
-		tmpbeam.IOVfirst = ibeam.IOVfirst
-		tmpbeam.IOVBeginTime = ibeam.IOVBeginTime
-		tmpbeam.Run = ibeam.Run
-		tmpbeam.Type = 2
-	    docheck = False
-	    docreate = False
+        ibeam = listbeam[ii]
+        inextbeam = BeamSpot()
+        iNNbeam = BeamSpot()
+        if docreate:
+            tmpbeam.IOVfirst = ibeam.IOVfirst
+            tmpbeam.IOVBeginTime = ibeam.IOVBeginTime
+            tmpbeam.Run = ibeam.Run
+            tmpbeam.Type = 2
+        docheck = False
+        docreate = False
 	    
-	    # check last iov
-	    if ii < len(listbeam) - 1: 
-		inextbeam = listbeam[ii+1]
-		docheck = True
-		if ii < len(listbeam) -2:
-		    iNNbeam = listbeam[ii+2]
-	    else:
-		print "close payload because end of data has been reached. Run "+ibeam.Run
-		docreate = True
-            # check we run over the same run
-	    if ibeam.Run != inextbeam.Run:
-		print "close payload because end of run "+ibeam.Run
-		docreate = True
-	    # check maximum lumi counts
-	    if countlumi == maxNlumis:
-		print "close payload because maximum lumi sections accumulated within run "+ibeam.Run
-		docreate = True
-		countlumi = 0
-	    # weighted average position
-	    (tmpbeam.X, tmpbeam.Xerr) = weight(tmpbeam.X, tmpbeam.Xerr, ibeam.X, ibeam.Xerr)
-	    (tmpbeam.Y, tmpbeam.Yerr) = weight(tmpbeam.Y, tmpbeam.Yerr, ibeam.Y, ibeam.Yerr)
-	    (tmpbeam.Z, tmpbeam.Zerr) = weight(tmpbeam.Z, tmpbeam.Zerr, ibeam.Z, ibeam.Zerr)
-	    (tmpbeam.sigmaZ, tmpbeam.sigmaZerr) = weight(tmpbeam.sigmaZ, tmpbeam.sigmaZerr, ibeam.sigmaZ, ibeam.sigmaZerr)
-	    (tmpbeam.dxdz, tmpbeam.dxdzerr) = weight(tmpbeam.dxdz, tmpbeam.dxdzerr, ibeam.dxdz, ibeam.dxdzerr)
-	    (tmpbeam.dydz, tmpbeam.dydzerr) = weight(tmpbeam.dydz, tmpbeam.dydzerr, ibeam.dydz, ibeam.dydzerr)
-	    #print "wx = " + ibeam.beamWidthX + " err= "+ ibeam.beamWidthXerr
-	    (tmpbeam.beamWidthX, tmpbeam.beamWidthXerr) = weight(tmpbeam.beamWidthX, tmpbeam.beamWidthXerr, ibeam.beamWidthX, ibeam.beamWidthXerr)
-	    (tmpbeam.beamWidthY, tmpbeam.beamWidthYerr) = weight(tmpbeam.beamWidthY, tmpbeam.beamWidthYerr, ibeam.beamWidthY, ibeam.beamWidthYerr)
-
-            if weighted:
-                docheck = False
-	    # check offsets
-	    if docheck:
-		deltaX = delta(ibeam.X, ibeam.Xerr, inextbeam.X, inextbeam.Xerr) > 1.5
-		deltaY = delta(ibeam.Y, ibeam.Yerr, inextbeam.Y, inextbeam.Yerr) > 1.5
-		deltaZ = delta(ibeam.Z, ibeam.Zerr, inextbeam.Z, inextbeam.Zerr) > 2.5
+        # check last iov
+        if ii < len(listbeam) - 1: 
+            inextbeam = listbeam[ii+1]
+            docheck = True
+            if ii < len(listbeam) -2:
+                iNNbeam = listbeam[ii+2]
+        else:
+            print "close payload because end of data has been reached. Run "+ibeam.Run
+            docreate = True
+        # check we run over the same run
+        if ibeam.Run != inextbeam.Run:
+            print "close payload because end of run "+ibeam.Run
+            docreate = True
+        # check maximum lumi counts
+        if countlumi == maxNlumis:
+            print "close payload because maximum lumi sections accumulated within run "+ibeam.Run
+            docreate = True
+            countlumi = 0
+        # weighted average position
+        (tmpbeam.X, tmpbeam.Xerr) = weight(tmpbeam.X, tmpbeam.Xerr, ibeam.X, ibeam.Xerr)
+        (tmpbeam.Y, tmpbeam.Yerr) = weight(tmpbeam.Y, tmpbeam.Yerr, ibeam.Y, ibeam.Yerr)
+        (tmpbeam.Z, tmpbeam.Zerr) = weight(tmpbeam.Z, tmpbeam.Zerr, ibeam.Z, ibeam.Zerr)
+        (tmpbeam.sigmaZ, tmpbeam.sigmaZerr) = weight(tmpbeam.sigmaZ, tmpbeam.sigmaZerr, ibeam.sigmaZ, ibeam.sigmaZerr)
+        (tmpbeam.dxdz, tmpbeam.dxdzerr) = weight(tmpbeam.dxdz, tmpbeam.dxdzerr, ibeam.dxdz, ibeam.dxdzerr)
+        (tmpbeam.dydz, tmpbeam.dydzerr) = weight(tmpbeam.dydz, tmpbeam.dydzerr, ibeam.dydz, ibeam.dydzerr)
+        #print "wx = " + ibeam.beamWidthX + " err= "+ ibeam.beamWidthXerr
+        (tmpbeam.beamWidthX, tmpbeam.beamWidthXerr) = weight(tmpbeam.beamWidthX, tmpbeam.beamWidthXerr, ibeam.beamWidthX, ibeam.beamWidthXerr)
+        (tmpbeam.beamWidthY, tmpbeam.beamWidthYerr) = weight(tmpbeam.beamWidthY, tmpbeam.beamWidthYerr, ibeam.beamWidthY, ibeam.beamWidthYerr)
+        
+        if weighted:
+            docheck = False
+        # check offsets
+        if docheck:
+            deltaX = delta(ibeam.X, ibeam.Xerr, inextbeam.X, inextbeam.Xerr) > 1.5
+            deltaY = delta(ibeam.Y, ibeam.Yerr, inextbeam.Y, inextbeam.Yerr) > 1.5
+            deltaZ = delta(ibeam.Z, ibeam.Zerr, inextbeam.Z, inextbeam.Zerr) > 2.5
 				
-		deltasigmaZ = delta(ibeam.sigmaZ, ibeam.sigmaZerr, inextbeam.sigmaZ, inextbeam.sigmaZerr) > 2.5
-		deltadxdz   = delta(ibeam.dxdz, ibeam.dxdzerr, inextbeam.dxdz, inextbeam.dxdzerr) > 2.5
-		deltadydz   = delta(ibeam.dydz, ibeam.dydzerr, inextbeam.dydz, inextbeam.dydzerr) > 2.5
-		
-		deltawidthX = delta(ibeam.beamWidthX, ibeam.beamWidthXerr, inextbeam.beamWidthX, inextbeam.beamWidthXerr) > 3
-		deltawidthY = delta(ibeam.beamWidthY, ibeam.beamWidthYerr, inextbeam.beamWidthY, inextbeam.beamWidthYerr) > 3
+            deltasigmaZ = delta(ibeam.sigmaZ, ibeam.sigmaZerr, inextbeam.sigmaZ, inextbeam.sigmaZerr) > 2.5
+            deltadxdz   = delta(ibeam.dxdz, ibeam.dxdzerr, inextbeam.dxdz, inextbeam.dxdzerr) > 2.5
+            deltadydz   = delta(ibeam.dydz, ibeam.dydzerr, inextbeam.dydz, inextbeam.dydzerr) > 2.5
+            
+            deltawidthX = delta(ibeam.beamWidthX, ibeam.beamWidthXerr, inextbeam.beamWidthX, inextbeam.beamWidthXerr) > 3
+            deltawidthY = delta(ibeam.beamWidthY, ibeam.beamWidthYerr, inextbeam.beamWidthY, inextbeam.beamWidthYerr) > 3
 
-		#if iNNbeam.Type != -1:
-		#    deltaX = deltaX and delta(ibeam.X, ibeam.Xerr, iNNbeam.X, iNNbeam.Xerr) > 1.5
-		#    deltaY = deltaY and delta(ibeam.Y, ibeam.Yerr, iNNbeam.Y, iNNbeam.Yerr) > 1.5
-		#    deltaZ = deltaZ and delta(ibeam.Z, ibeam.Zerr, iNNbeam.Z, iNNbeam.Zerr) > 1.5
-		#		
-		#    deltasigmaZ = deltasigmaZ and delta(ibeam.sigmaZ, ibeam.sigmaZerr, iNNbeam.sigmaZ, iNNbeam.sigmaZerr) > 2.5
-		#    deltadxdz   = deltadxdz and delta(ibeam.dxdz, ibeam.dxdzerr, iNNbeam.dxdz, iNNbeam.dxdzerr) > 2.5
-		#    deltadydz   = deltadydz and delta(ibeam.dydz, ibeam.dydzerr, iNNbeam.dydz, iNNbeam.dydzerr) > 2.5
-		#
-		#    deltawidthX = deltawidthX and delta(ibeam.beamWidthX, ibeam.beamWidthXerr, iNNbeam.beamWidthX, iNNbeam.beamWidthXerr) > 3
-		#    deltawidthY = deltawidthY and delta(ibeam.beamWidthY, ibeam.beamWidthYerr, iNNbeam.beamWidthY, iNNbeam.beamWidthYerr) > 3
+            #if iNNbeam.Type != -1:
+            #    deltaX = deltaX and delta(ibeam.X, ibeam.Xerr, iNNbeam.X, iNNbeam.Xerr) > 1.5
+            #    deltaY = deltaY and delta(ibeam.Y, ibeam.Yerr, iNNbeam.Y, iNNbeam.Yerr) > 1.5
+            #    deltaZ = deltaZ and delta(ibeam.Z, ibeam.Zerr, iNNbeam.Z, iNNbeam.Zerr) > 1.5
+            #		
+            #    deltasigmaZ = deltasigmaZ and delta(ibeam.sigmaZ, ibeam.sigmaZerr, iNNbeam.sigmaZ, iNNbeam.sigmaZerr) > 2.5
+            #    deltadxdz   = deltadxdz and delta(ibeam.dxdz, ibeam.dxdzerr, iNNbeam.dxdz, iNNbeam.dxdzerr) > 2.5
+            #    deltadydz   = deltadydz and delta(ibeam.dydz, ibeam.dydzerr, iNNbeam.dydz, iNNbeam.dydzerr) > 2.5
+            #
+            #    deltawidthX = deltawidthX and delta(ibeam.beamWidthX, ibeam.beamWidthXerr, iNNbeam.beamWidthX, iNNbeam.beamWidthXerr) > 3
+            #    deltawidthY = deltawidthY and delta(ibeam.beamWidthY, ibeam.beamWidthYerr, iNNbeam.beamWidthY, iNNbeam.beamWidthYerr) > 3
 
-		if deltaX or deltaY or deltaZ or deltasigmaZ or deltadxdz or deltadydz or deltawidthX or deltawidthY:
-		    docreate = True
-		    #print "shift here: x="+str(deltaX)+" y="+str(deltaY)
-		    #print "x1 = "+ibeam.X + " x1err = "+ibeam.Xerr
-		    #print "x2 = "+inextbeam.X + " x2err = "+inextbeam.Xerr
-		    #print "Lumi1: "+str(ibeam.IOVfirst) + " Lumi2: "+str(inextbeam.IOVfirst)
-		    #print " x= "+ibeam.X+" +/- "+ibeam.Xerr
-		    #print "weighted average x = "+tmpbeam.X +" +//- "+tmpbeam.Xerr
-		    print "close payload because of movement in X= "+str(deltaX)+", Y= "+str(deltaY) + ", Z= "+str(deltaZ)+", sigmaZ= "+str(deltasigmaZ)+", dxdz= "+str(deltadxdz)+", dydz= "+str(deltadydz)+", widthX= "+str(deltawidthX)+", widthY= "+str(deltawidthY)
-	    if docreate:
+            if deltaX or deltaY or deltaZ or deltasigmaZ or deltadxdz or deltadydz or deltawidthX or deltawidthY:
+                docreate = True
+                #print "shift here: x="+str(deltaX)+" y="+str(deltaY)
+                #print "x1 = "+ibeam.X + " x1err = "+ibeam.Xerr
+                #print "x2 = "+inextbeam.X + " x2err = "+inextbeam.Xerr
+                #print "Lumi1: "+str(ibeam.IOVfirst) + " Lumi2: "+str(inextbeam.IOVfirst)
+                #print " x= "+ibeam.X+" +/- "+ibeam.Xerr
+                #print "weighted average x = "+tmpbeam.X +" +//- "+tmpbeam.Xerr
+                print "close payload because of movement in X= "+str(deltaX)+", Y= "+str(deltaY) + ", Z= "+str(deltaZ)+", sigmaZ= "+str(deltasigmaZ)+", dxdz= "+str(deltadxdz)+", dydz= "+str(deltadydz)+", widthX= "+str(deltawidthX)+", widthY= "+str(deltawidthY)
+        if docreate:
             #if ii == len(listbeam)-1:
-		tmpbeam.IOVlast = ibeam.IOVlast
-		tmpbeam.IOVEndTime = ibeam.IOVEndTime
-		print "  Run: "+tmpbeam.Run +" Lumi1: "+str(tmpbeam.IOVfirst) + " Lumi2: "+str(tmpbeam.IOVlast)
-		newlistbeam.append(tmpbeam)
-		tmpbeam = BeamSpot()
-	    tmprun = ibeam.Run
-	    countlumi += 1
-
+            tmpbeam.IOVlast = ibeam.IOVlast
+            tmpbeam.IOVEndTime = ibeam.IOVEndTime
+            print "  Run: "+tmpbeam.Run +" Lumi1: "+str(tmpbeam.IOVfirst) + " Lumi2: "+str(tmpbeam.IOVlast)
+            newlistbeam.append(tmpbeam)
+            tmpbeam = BeamSpot()
+        tmprun = ibeam.Run
+        countlumi += 1
 
     payloadfile = open(fileName,"w")
     for iload in newlistbeam:

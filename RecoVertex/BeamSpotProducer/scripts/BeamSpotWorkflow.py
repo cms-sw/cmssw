@@ -388,7 +388,7 @@ def aselectFilesToProcess(listOfFilesToProcess,newRunList):
     return selectedFiles            
 
 ########################################################################
-def cp(fromDir,toDir,listOfFiles):
+def cp(fromDir,toDir,listOfFiles,overwrite=False):
     cpCommand   = ''
     copiedFiles = []
     if fromDir.find('castor') != -1:
@@ -396,7 +396,7 @@ def cp(fromDir,toDir,listOfFiles):
 
     for file in listOfFiles:
         if os.path.isfile(toDir+file):
-            if option.overwrite:
+            if overwrite:
                 print "File " + file + " already exists in destination directory. We will overwrite it."
             else:
                 print "File " + file + " already exists in destination directory. We will Keep original file."
@@ -418,8 +418,7 @@ def sendEmail(mailList,error):
 
 
 ########################################################################
-if __name__ == '__main__':
-
+def main():
     ######### COMMAND LINE OPTIONS ##############
     option,args = parse(__doc__)
 
@@ -440,7 +439,8 @@ if __name__ == '__main__':
     workingDir  = configuration.get('Common','WORKING_DIR')
     databaseTag = configuration.get('Common','DBTAG')
     dataSet     = configuration.get('Common','DATASET')
-    IOVBase     = configuration.get('Common','IOV_BASE')
+    fileIOVBase = configuration.get('Common','FILE_IOV_BASE')
+    dbIOVBase   = configuration.get('Common','DB_IOV_BASE')
     mailList    = configuration.get('Common','EMAIL')
 
     ######### DIRECTORIES SETUP #################
@@ -509,9 +509,9 @@ if __name__ == '__main__':
 
     beamSpotObjList = []
     for fileName in copiedFiles:
-        readBeamSpotFile(workingDir+fileName,beamSpotObjList,IOVBase)
+        readBeamSpotFile(workingDir+fileName,beamSpotObjList,fileIOVBase)
 
-    sortAndCleanBeamList(beamSpotObjList,IOVBase)
+    sortAndCleanBeamList(beamSpotObjList,fileIOVBase)
 
     if len(beamSpotObjList) == 0:
         error = "WARNING: None of the processed and copied payloads has a valid fit so there are no results. This shouldn't happen since we are filtering using the run register, so there should be at least one good run."
@@ -519,36 +519,60 @@ if __name__ == '__main__':
 
     payloadFileName = "PayloadFile.txt"
 
-    payloadList = createWeightedPayloads(workingDir+payloadFileName,beamSpotObjList,True)
+    runBased = False
+    if dbIOVBase == "runnumber":
+        runBased = True
+        
+    payloadList = createWeightedPayloads(workingDir+payloadFileName,beamSpotObjList,runBased)
+    if len(payloadList) == 0:
+        error = "WARNING: I wasn't able to create any payload even if I have some BeamSpot objects."
+        exit(error)
+       
 
     tmpPayloadFileName = workingDir + "SingleTmpPayloadFile.txt"
-    tmpSqliteFileName  = workingDir + "SingleTmpSqliteFile.txt"
-    ##############################################################
-    #WARNING timetype is fixed to run
-    timetype = 'runnumber'
-    ##############################################################
+    tmpSqliteFileName  = workingDir + "SingleTmpSqliteFile.db"
+
     writeDBTemplate = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/test/write2DB_template.py"
     readDBTemplate  = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/test/readDB_template.py"
+    payloadNumber = -1
+    iovSinceFirst = 0;
+    iovTillLast   = 0;
     for payload in payloadList:
+        payloadNumber += 1
         if option.zlarge:
             payload.sigmaZ = 10
             payload.sigmaZerr = 2.5e-05
         tmpFile = file(tmpPayloadFileName,'w')
         dumpValues(payload,tmpFile)
         tmpFile.close()
-        if not writeSqliteFile(tmpSqliteFileName,databaseTag,timetype,tmpPayloadFileName,writeDBTemplate,workingDir):
-            print "An error occurred while writing the sqlite file: " + tmpSqliteFileName
-
+        if not writeSqliteFile(tmpSqliteFileName,databaseTag,dbIOVBase,tmpPayloadFileName,writeDBTemplate,workingDir):
+            error = "An error occurred while writing the sqlite file: " + tmpSqliteFileName
+            exit(error)
         readSqliteFile(tmpSqliteFileName,databaseTag,readDBTemplate,workingDir)
-
         
         ##############################################################
-        #WARNING iovs are fixed on runumber
-        iov_since = payload.Run
-        iov_till  = iov_since
+        #WARNING I am not sure if I am packing the right values
+        if dbIOVBase == "runnumber":
+            iov_since = payload.Run
+            iov_till  = iov_since
+        elif dbIOVBase == "lumiid":
+	    iov_since = str( pack(int(payload.Run), int(payload.IOVfirst)) )
+            iov_till  = str( pack(int(payload.Run), int(payload.IOVlast)) )
+        elif dbIOVBase == "timestamp":
+            error = "ERROR: IOV " + dbIOVBase + " still not implemented."
+            exit(error)
+        else:
+            error = "ERROR: IOV " + dbIOVBase + " unrecognized!"
+            exit(error)
+
+        if payloadNumber == 0:
+            iovSinceFirst = iov_since
+        elif payloadNumber == len(payloadList)-1:
+            iovTillLast   = iov_till
+            
         appendSqliteFile("Combined.db", tmpSqliteFileName, databaseTag, iov_since, iov_till ,workingDir)
 
-	os.system("rm -f " + tmpPayloadFileName)
+    os.system("rm -f " + tmpPayloadFileName + " " + tmpSqliteFileName)
         
     #### CREATE payload for merged output
 
@@ -558,33 +582,28 @@ if __name__ == '__main__':
     metadata_file = workingDir + "Combined.txt"
     dfile = open(metadata_file,'w')
 
-    dfile.write('destDB '+ destDB +'\n')
-    dfile.write('tag '+ databaseTag +'\n')
-    dfile.write('inputtag' +'\n')
-    dfile.write('since ' + payloadList[0].Run +'\n')
-    #        dfile.write('till ' + iov_till +'\n')
-    ###################################################
-    #WARNING IOVbase set to runbase fixed
-    IOVbase = "runbase"
-    if IOVbase == "runbase":
-        dfile.write('Timetype runnumber\n')
-    elif IOVbase == "lumibase":
-        dfile.write('Timetype lumiid\n')
+    dfile.write('destDB '  + destDB        +'\n')
+    dfile.write('tag '     + databaseTag   +'\n')
+    dfile.write('inputtag'                 +'\n')
+    dfile.write('since '   + iovSinceFirst +'\n')
+    #dfile.write('till '    + iov_till      +'\n')
+    dfile.write('Timetype '+ dbIOVBase     +'\n')
 
     ###################################################
     # WARNING tagType forced to offline
+    print "WARNING TAG TYPE forced to be just offline"
     tagType = "offline"
     checkType = tagType
     if tagType == "express":
         checkType = "hlt"
-        dfile.write('IOVCheck ' + checkType + '\n')
-        dfile.write('usertext ' + iov_comment +'\n')
+    dfile.write('IOVCheck ' + checkType + '\n')
+    dfile.write('usertext Beam spot position\n')
             
     dfile.close()
 
                                                                                                 
     uuid = commands.getstatusoutput('uuidgen -t')[1]
-    final_sqlite_file_name = "PayloadsRun" + payloadList[0].Run + "-" + payloadList[len(payloadList)-1].Run + "_" + databaseTag + '@' + uuid
+    final_sqlite_file_name = "Payloads_" + iovSinceFirst + "_" + iovTillLast + "_" + databaseTag + '@' + uuid
 
     if not os.path.isdir(archiveDir + 'payloads'):
         os.mkdir(archiveDir + 'payloads')
@@ -605,3 +624,6 @@ if __name__ == '__main__':
         print "UPLOADING TO TEST DB"
         uploadSqliteFile(archiveDir + "payloads/",final_sqlite_file_name,dropbox)
                    
+
+if __name__ == '__main__':
+    main()
