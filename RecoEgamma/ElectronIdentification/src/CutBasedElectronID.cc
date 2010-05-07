@@ -9,6 +9,8 @@
 //#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+#include <algorithm>
+
 void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
   
   // Get all the parameters
@@ -113,7 +115,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
                                   const edm::EventSetup& es) { 
 
   double scTheta = (2*atan(exp(-electron->superCluster()->eta())));
-  double scEt = electron->superCluster()->energy()*sin(scTheta); 
+  double scEt = electron->superCluster()->energy()*sin(scTheta);
  
   double eta = electron->p4().Eta();
   double eOverP = electron->eSuperClusterOverP();
@@ -138,6 +140,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
   int mishits = electron->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
   double tkIso = electron->dr03TkSumPt();
   double ecalIso = electron->dr04EcalRecHitSumEt();
+  double ecalIsoPed = (electron->isEB())?std::max(0.,ecalIso-1.):ecalIso;
   double hcalIso = electron->dr04HcalTowerSumEt();
   double hcalIso1 = electron->dr04HcalDepth1TowerSumEt();
   double hcalIso2 = electron->dr04HcalDepth2TowerSumEt();
@@ -145,12 +148,12 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
   // calculate the conversion track partner related criteria
   // calculate the reference point of the track
   const math::XYZPoint tpoint = electron->gsfTrack()->referencePoint();
-  const GlobalPoint gp(tpoint.x(), tpoint.y(), tpoint.z());
+  //const GlobalPoint gp(tpoint.x(), tpoint.y(), tpoint.z());
   // calculate the magnetic field for that point
   edm::ESHandle<MagneticField> magneticField;
   es.get<IdealMagneticFieldRecord>().get(magneticField);
   const  MagneticField *mField = magneticField.product();
-  double bfield = mField->inTesla(gp).mag();
+  double bfield = mField->inTesla(GlobalPoint(0.,0.,0.)).z();//mField->inTesla(gp).mag();
   //
   edm::Handle<reco::TrackCollection> ctfTracks;
   e.getByLabel("generalTracks", ctfTracks); 
@@ -212,7 +215,14 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
       else
         result = 2;
     } else {
-      if ((tkIso > cut[6]) || (ecalIso > cut[7]) || (hcalIso > cut[8]) || (hcalIso1 > cut[9]) || (hcalIso2 > cut[10]) || ((tkIso+ecalIso+hcalIso) > cut[11]) )
+
+      //if (electron->isEB() && (version_ == "V03" || version_ == "V04" || version_ == "")) 
+      //  ecalIso = std::max(0., ecalIso - 1.);
+        
+      if ((tkIso > cut[6]) || (ecalIso > cut[7]) || (hcalIso > cut[8]) || (hcalIso1 > cut[9]) || (hcalIso2 > cut[10]) || 
+	  (tkIso/electron->p4().Pt() > cut[11]) || (ecalIso/electron->p4().Pt() > cut[12]) || (hcalIso/electron->p4().Pt() > cut[13]) ||
+	  ((tkIso+ecalIso+hcalIso)>cut[14]) || (((tkIso+ecalIso+hcalIso)/ electron->p4().Pt()) > cut[15]) || 
+	  ((tkIso+ecalIsoPed+hcalIso)>cut[16]) || (((tkIso+ecalIsoPed+hcalIso)/ electron->p4().Pt()) > cut[17])  )
         result = 0.;
       else
         result = 2.;
@@ -234,23 +244,23 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     if (e25Maxoe55 < cut[4] && e15oe55 < cut[5])
       return result;
     // some extra electron id cuts
-    if (sigmaee < cut[12]) // inverted sigmaee cut - spike removal related
+    if (sigmaee < cut[18]) // inverted sigmaee cut - spike removal related
       return result;
 
-    if (  eOverP < cut[13] ||  eOverP > cut[14]) // lower and upper cut in E/P
+    if (  eOverP < cut[19] ||  eOverP > cut[20]) // lower and upper cut in E/P
       return result;
     
     result = result + 1;
 
-    if (ip > cut[15])
+    if (ip > cut[21])
       return result;
-    if (mishits > cut[16]) // expected missing hits
+    if (mishits > cut[22]) // expected missing hits
       return result;
-    // positive cut[17] means to demand a valid hit in 1st layer PXB 
-    if (cut[17] >0 && not (electron->gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel()))
+    // positive cut[23] means to demand a valid hit in 1st layer PXB 
+    if (cut[23] >0 && not (electron->gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel()))
       return result;
-    // cut[18]: Dist cut[19]: dcot
-    if (convFinder.isElFromConversion(*electron, ctfTracks, bfield, cut[18], cut[19]))
+    // cut[24]: Dist cut[25]: dcot
+    if (convFinder.isElFromConversion(*electron, ctfTracks, bfield, cut[24], cut[25]))
       return result;
       
     result += 4;
@@ -338,26 +348,26 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     if (fBrem > -2) {
 
       //std::cout << "hoe" << hOverE << std::endl;
-      cut = cuts_.getParameter<std::vector<double> >("cuthoe");
+      std::vector<double> cuthoe = cuts_.getParameter<std::vector<double> >("cuthoe");
       //std::cout << "see" << sigmaee << std::endl;
-      cut = cuts_.getParameter<std::vector<double> >("cutsee");
+      std::vector<double> cutsee = cuts_.getParameter<std::vector<double> >("cutsee");
       //std::cout << "dphiin" << fabs(deltaPhiIn) << std::endl;
-      cut = cuts_.getParameter<std::vector<double> >("cutdphi");
+      std::vector<double> cutdphi = cuts_.getParameter<std::vector<double> >("cutdphi");
       //std::cout << "detain" << fabs(deltaEtaIn) << std::endl;
-      cut = cuts_.getParameter<std::vector<double> >("cutdeta");
+      std::vector<double> cutdeta = cuts_.getParameter<std::vector<double> >("cutdeta");
       //std::cout << "eseedopin " << eSeedOverPin << std::endl;
-      cut = cuts_.getParameter<std::vector<double> >("cuteopin");
+      std::vector<double> cuteopin = cuts_.getParameter<std::vector<double> >("cuteopin");
       //std::cout << "ip" << ip << std::endl;
-      cut = cuts_.getParameter<std::vector<double> >("cutip");
-      cut = cuts_.getParameter<std::vector<double> >("cutmishits");
+      std::vector<double> cutip = cuts_.getParameter<std::vector<double> >("cutip");
+      std::vector<double> cutmishits = cuts_.getParameter<std::vector<double> >("cutmishits");
 
-      if ((hOverE < cut[cat+3*eb+bin*6]) and
-          (sigmaee < cut[cat+3*eb+bin*6]) and
-          (fabs(deltaPhiIn) < cut[cat+3*eb+bin*6]) and
-          (fabs(deltaEtaIn) < cut[cat+3*eb+bin*6]) and
-          (eSeedOverPin > cut[cat+3*eb+bin*6]) and
-          (ip < cut[cat+3*eb+bin*6]) and
-          (mishits < cut[cat+3*eb+bin*6]))
+      if ((hOverE < cuthoe[cat+3*eb+bin*6]) and
+          (sigmaee < cutsee[cat+3*eb+bin*6]) and
+          (fabs(deltaPhiIn) < cutdphi[cat+3*eb+bin*6]) and
+          (fabs(deltaEtaIn) < cutdeta[cat+3*eb+bin*6]) and
+          (eSeedOverPin > cuteopin[cat+3*eb+bin*6]) and
+          (ip < cutip[cat+3*eb+bin*6]) and
+          (mishits < cutmishits[cat+3*eb+bin*6]))
         result = result + 1.;
     }
     return result;
@@ -389,32 +399,34 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
 
     if (fBrem > -2) {
       //std::cout << "hoe" << hOverE << std::endl;
-      cut = cuts_.getParameter<std::vector<double> >("cuthoe");
+      std::vector<double> cuthoe = cuts_.getParameter<std::vector<double> >("cuthoe");
       //std::cout << "see" << sigmaee << std::endl;
-      cut = cuts_.getParameter<std::vector<double> >("cutsee");
+      std::vector<double> cutsee = cuts_.getParameter<std::vector<double> >("cutsee");
       //std::cout << "dphiin" << fabs(deltaPhiIn) << std::endl;
-      cut = cuts_.getParameter<std::vector<double> >("cutdphiin");
+      std::vector<double> cutdphi = cuts_.getParameter<std::vector<double> >("cutdphiin");
       //std::cout << "detain" << fabs(deltaEtaIn) << std::endl;
-      cut = cuts_.getParameter<std::vector<double> >("cutdetain");
+      std::vector<double> cutdeta = cuts_.getParameter<std::vector<double> >("cutdetain");
       //std::cout << "eseedopin " << eSeedOverPin << std::endl;
-      cut = cuts_.getParameter<std::vector<double> >("cuteseedopcor");
+      std::vector<double> cuteopin = cuts_.getParameter<std::vector<double> >("cuteseedopcor");
+      std::vector<double> cutet = cuts_.getParameter<std::vector<double> >("cutet");
 
-      if ((hOverE < cut[cat+bin*9]) and
-          (sigmaee < cut[cat+bin*9]) and
-          (fabs(deltaPhiIn) < cut[cat+bin*9]) and
-          (fabs(deltaEtaIn) < cut[cat+bin*9]) and
-          (eSeedOverPin > cut[cat+bin*9]))
+      if ((hOverE < cuthoe[cat+bin*9]) and
+          (sigmaee < cutsee[cat+bin*9]) and
+          (fabs(deltaPhiIn) < cutdphi[cat+bin*9]) and
+          (fabs(deltaEtaIn) < cutdeta[cat+bin*9]) and
+          (eSeedOverPin > cuteopin[cat+bin*9]) and
+          (scEt > cutet[cat+bin*9]))
         result += 1.;
     }
 
     //std::cout << "ip" << ip << std::endl;
-    cut = cuts_.getParameter<std::vector<double> >("cutip_gsf");
-    if (ip < cut[cat+bin*9])
-      result += 4;
-
-    cut = cuts_.getParameter<std::vector<double> >("cutfmishits");
-    if (mishits < cut[cat+bin*9])
+    std::vector<double> cutip = cuts_.getParameter<std::vector<double> >("cutip_gsf");
+    if (ip < cutip[cat+bin*9])
       result += 8;
+
+    std::vector<double> cutmishits = cuts_.getParameter<std::vector<double> >("cutfmishits");
+    if (mishits < cutmishits[cat+bin*9])
+      result += 4;
 
     return result;
   }
