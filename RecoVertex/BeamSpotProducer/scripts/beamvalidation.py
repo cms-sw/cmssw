@@ -339,6 +339,28 @@ def write_plots(lines, plots,web):
 	    lines.append("</tr>"+end)
 
     lines.append('</table>'+end)
+    
+#________________________________
+def get_productionFiles( directory ):
+
+    list = commands.getstatusoutput('ls -t '+directory)
+    list = list[1]
+    newlist = []
+    for i in list:
+        if i.find('BeamFit_')!=-1:
+            newlist.append(i)
+
+    return newlist
+#_______________________________
+def get_productionIOVs( directory ):
+
+    files = get_productionFiles( directory )
+    listofruns = []
+    for f in files:
+        ii = f.find('Run')
+        arun = f[ii:len(f)-4]
+        listofruns.append(arun)
+    return listofruns
 
 #______________________________
 if __name__ == '__main__':
@@ -363,6 +385,9 @@ if __name__ == '__main__':
         
     # Get the latest IOVs from last tag
     list_lastIOVs = get_lastIOVs( list_tags, dest, auth)
+
+    # get latest processed runs
+    processedruns = get_productionIOVs('/afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/yumiceva/tmp_lumi_workflow/')
     
     # create web page
     lines = []
@@ -381,7 +406,8 @@ if __name__ == '__main__':
     
     lines.append('<h2>Latest data processed</h2>'+end)
     lines.append(br)
-    lines.append('to be written'+end)
+    #lines.append('to be written'+end)
+    lines.append(processedruns[0]+', '+processedruns[1]+', '+processedruns[2])
     lines.append(br)
 
     lines.append('<h2>The Latest Tags</h2>'+end)
