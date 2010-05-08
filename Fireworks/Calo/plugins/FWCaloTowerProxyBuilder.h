@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:08 EST 2008
-// $Id: FWCaloTowerProxyBuilder.h,v 1.4 2010/04/23 21:01:45 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.h,v 1.5 2010/05/03 15:47:33 amraktad Exp $
 //
 
 #include "Rtypes.h"
@@ -62,8 +62,6 @@ private:
    TH2F* m_hist;
    Int_t m_sliceIndex;
    const CaloTowerCollection* m_towers;
-
-   TEveCaloDataHist* caloData() const;
 };
 
 //

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:33 CDT 2009
-// $Id: FWFromTEveCaloDataSelector.cc,v 1.5 2009/10/28 15:37:04 chrjones Exp $
+// $Id: FWFromTEveCaloDataSelector.cc,v 1.6 2009/10/28 18:03:46 amraktad Exp $
 //
 
 // system include files
@@ -103,7 +103,7 @@ FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(TEveCaloData* iData):
 m_data(iData),
 m_changeManager(0)
 {
-   m_sliceSelectors.reserve(2);
+   m_sliceSelectors.resize(m_data->GetNSlices(), FWFromSliceSelector(0, 0));
 }
 
 // FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector& rhs)
@@ -135,15 +135,23 @@ FWFromTEveCaloDataSelector::doSelect()
 {
    assert(m_changeManager);
    FWChangeSentry sentry(*m_changeManager);
-   std::for_each(m_sliceSelectors.begin(),
-                 m_sliceSelectors.end(),
-                 boost::bind(&FWFromSliceSelector::clear,_1));
+   
+   for (std::vector<FWFromSliceSelector>::iterator i = m_sliceSelectors.begin(); i!= m_sliceSelectors.end(); ++i)
+   {
+      if ((*i).m_item)
+      {
+         (*i).clear();
+      }
+   }
+   
    const TEveCaloData::vCellId_t& cellIds = m_data->GetCellsSelected();
    for(TEveCaloData::vCellId_t::const_iterator it = cellIds.begin(),itEnd=cellIds.end();
        it != itEnd;
        ++it) {
-      assert(it->fSlice < static_cast<int>(m_sliceSelectors.size()));
-      m_sliceSelectors[it->fSlice].doSelect(*it);
+      if (m_sliceSelectors[it->fSlice].m_item)
+      {
+         m_sliceSelectors[it->fSlice].doSelect(*it);
+      }
    }
 }
 
@@ -158,8 +166,10 @@ FWFromTEveCaloDataSelector::doUnselect()
    for(TEveCaloData::vCellId_t::const_iterator it = cellIds.begin(),itEnd=cellIds.end();
        it != itEnd;
        ++it) {
-      assert(it->fSlice < static_cast<int>(m_sliceSelectors.size()));
-      m_sliceSelectors[it->fSlice].doUnselect(*it);
+      if (m_sliceSelectors[it->fSlice].m_item)
+      {
+         m_sliceSelectors[it->fSlice].doUnselect(*it);
+      }
    }
 }
 
@@ -170,17 +180,14 @@ FWFromTEveCaloDataSelector::addSliceSelector(int iSlice, const FWFromSliceSelect
    if(0==m_changeManager) {
       m_changeManager = iSelector.changeManager();
    }
-   if(iSlice ==static_cast<int>(m_sliceSelectors.size())) {
-      m_sliceSelectors.push_back(iSelector);
-   } else if (iSlice>static_cast<int>(m_sliceSelectors.size())) {
-      //insert dummies
-      while (iSlice >=static_cast<int>(m_sliceSelectors.size())) {
-         m_sliceSelectors.push_back(iSelector);         
-      }
-   } else {
-      assert(iSlice<static_cast<int>(m_sliceSelectors.size()));
-      m_sliceSelectors[iSlice]=iSelector;
-   }
+   m_sliceSelectors[iSlice]=iSelector;
+}
+
+void 
+FWFromTEveCaloDataSelector::removeSliceSelector(int iSlice)
+{
+   m_sliceSelectors[iSlice].m_item = 0;
+   m_sliceSelectors[iSlice].m_hist = 0;
 }
 
 //
