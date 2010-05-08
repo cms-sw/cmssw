@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.14 2010/04/30 12:29:29 amraktad Exp $
+// $Id: Context.cc,v 1.15 2010/04/30 14:51:10 amraktad Exp $
 //
 
 // system include files
@@ -72,6 +72,8 @@ Context::initEveElements()
    m_propagator->SetMagFieldObj(m_magField, false);
    m_propagator->SetMaxR(123.0);
    m_propagator->SetMaxZ(300.0);
+   m_propagator->SetProjTrackBreaking(TEveTrackPropagator::kPTB_UseLastPointPos);
+   m_propagator->SetRnrPTBMarkers(kTRUE);
    m_propagator->IncDenyDestroy();
    // tracker propagator
    m_trackerPropagator = new TEveTrackPropagator();
@@ -80,6 +82,8 @@ Context::initEveElements()
    m_trackerPropagator->SetDelta(0.02);
    m_trackerPropagator->SetMaxR(123.0);
    m_trackerPropagator->SetMaxZ(300.0);
+   m_trackerPropagator->SetProjTrackBreaking(TEveTrackPropagator::kPTB_UseLastPointPos);
+   m_trackerPropagator->SetRnrPTBMarkers(kTRUE);
    m_trackerPropagator->IncDenyDestroy();
    // muon propagator
    m_muonPropagator = new TEveTrackPropagator();
@@ -88,6 +92,8 @@ Context::initEveElements()
    m_muonPropagator->SetDelta(0.05);
    m_muonPropagator->SetMaxR(850.f);
    m_muonPropagator->SetMaxZ(1100.f);
+   m_muonPropagator->SetProjTrackBreaking(TEveTrackPropagator::kPTB_UseLastPointPos);
+   m_muonPropagator->SetRnrPTBMarkers(kTRUE);
    m_muonPropagator->IncDenyDestroy();
 
    // calo data
