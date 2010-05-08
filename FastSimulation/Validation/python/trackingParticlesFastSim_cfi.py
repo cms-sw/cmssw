@@ -1,5 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+#
+# Cloned from SimGeneral.TrackingAnalysis.trackingParticles_cfi
+# to allow different tracking particles for tracker and muon
+# validation (until FastSim gets able to deal with a single
+# trackingParticle collection)
+#
+
 mergedtruth = cms.EDProducer("TrackingTruthProducer",
 
     simHitLabel = cms.string('famosSimHits'),
