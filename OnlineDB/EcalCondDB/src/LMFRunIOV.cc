@@ -235,6 +235,7 @@ void LMFRunIOV::getParameters(ResultSet *rset) {
     setInt("seq_id", seq->getID());
   } else {
     seq = new LMFSeqDat;
+    seq->setConnection(m_env, m_conn);
     seq->setByID(rset->getInt(2));
     setInt("seq_id", seq->getID());
     delete seq;
