@@ -58,17 +58,17 @@ namespace rpcdqm{
 	  }
 	} else if(_id.station()==4) {//Station 4
 	  if (_id.sector()== 4) {	  
-	    if ( _id.subsector()==2){//RB4--
+	    if ( _id.subsector()==1){//RB4--
 	      if(_id.roll()==1)
 		_cnr=14;
 	      else
 		_cnr=15;
-	    }else if (_id.subsector()==3){//RB4-
+	    }else if (_id.subsector()==2){//RB4-
 	      if(_id.roll()==1)
 		_cnr=16;
 	      else
 		_cnr=17;
-	    }else  if ( _id.subsector()==1) {//RB4+
+	    }else  if ( _id.subsector()==3) {//RB4+
 	      if(_id.roll()==1)
 		_cnr=18;
 	      else
@@ -156,21 +156,23 @@ namespace rpcdqm{
       
       ylabel[7] = "RB2in_M";
       ylabel[0] = "RB2out_M";
-      
+
+
       ylabel[8] = "RB2out_B";
       ylabel[9] = "RB2out_F";
       ylabel[10] = "RB3-_B";
       ylabel[11] = "RB3-_F";
       ylabel[12] = "RB3+_B";
       ylabel[13] = "RB3+_F";
-      ylabel[14] = "RB4,-_B";
-      ylabel[15] = "RB4,-_F";
-      ylabel[16] = "RB4+_B";
-      ylabel[17] = "RB4+_F";
-      ylabel[18] = "RB4--_B";
-      ylabel[19] = "RB4--_F";
+      ylabel[14] = "RB4,-,--_B";
+      ylabel[15] = "RB4,-,--_F";
+      ylabel[16] = "RB4+,-+_B";
+      ylabel[17] = "RB4+,-+_F";
+      ylabel[18] = "RB4+-_B";
+      ylabel[19] = "RB4+-_F";
       ylabel[20] = "RB4++_B";
       ylabel[21] = "RB4++_F";
+
     }
 
 
@@ -360,18 +362,18 @@ std::string detId2ChamberLabel(const RPCDetId & _id){
 	  if (_id.sector()== 4) {	  
 	    if ( _id.subsector()==1){
 	      
-	      ChLabel="RB4-";
+	      ChLabel="RB4--";
 	      
 	    }else if (_id.subsector()==2){
-	      ChLabel="RB4+";
+	      ChLabel="RB4-+";
 	    }else  if ( _id.subsector()==3) {
-	      ChLabel="RB4--";
+	      ChLabel="RB4+-";
 	    }else if ( _id.subsector()==4){
 	      ChLabel="RB4++";
 	    }
 	  } else {
 	    if(_id.subsector()==1) ChLabel="RB4-";
-	    else ChLabel="RB4-";
+	    else ChLabel="RB4+";
 	  } 
 	}
       }else{//Endcap
