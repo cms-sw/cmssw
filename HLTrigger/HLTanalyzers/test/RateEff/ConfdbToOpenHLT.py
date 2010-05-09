@@ -172,34 +172,31 @@ class ConfdbToOpenHLT:
         myschedule = process.HLTSchedule
         for path in myschedule:
             pathinschedname = path.label_()
-            print pathinschedname
-        return
+            mypaths = process.paths_()
+            for name, value in mypaths.iteritems():
+                if name == pathinschedname:
+                    # Get L1-seeding modules of HLT paths
+                    aliasedseeds = []
+                    thepaths.append(name)
+                    thingsinpath = str(value).split('+')
+                    for thinginpath in thingsinpath:
+                        if(thinginpath.startswith('hltL1s')):
+                            self.hltl1modulemap[name] = thinginpath
+                            seedexpression = self.l1modulenameseedmap[thinginpath]
+                            splitseedexpression = seedexpression.split()
 
-        # Get L1-seeding modules of HLT paths
-        mypaths = process.paths_()
-        for name, value in mypaths.iteritems():
-            aliasedseeds = []
-            thepaths.append(name)
-            thingsinpath = str(value).split('+')
-            for thinginpath in thingsinpath:
-                if(thinginpath.startswith('hltL1s')):
-                    self.hltl1modulemap[name] = thinginpath
-                    seedexpression = self.l1modulenameseedmap[thinginpath]
-                    splitseedexpression = seedexpression.split()
+                            for splitseed in splitseedexpression:
+                                if(splitseed in self.l1aliasmap):
+                                    splitseed = self.l1aliasmap[splitseed]
+                                aliasedseeds.append(splitseed)
 
-                    for splitseed in splitseedexpression:
-                        if(splitseed in self.l1aliasmap):
-                            splitseed = self.l1aliasmap[splitseed]
-                        aliasedseeds.append(splitseed)
+                        reconstructedseedexpression = "" 
+                        for aliasedseed in aliasedseeds:
+                            reconstructedseedexpression = reconstructedseedexpression + " " + aliasedseed
 
-                    reconstructedseedexpression = "" 
-                    for aliasedseed in aliasedseeds:
-                        reconstructedseedexpression = reconstructedseedexpression + " " + aliasedseed
-
-                    self.hltl1seedmap[name] = reconstructedseedexpression.lstrip().rstrip()
-                    if(name in self.hltprescalemap):
-                        theprescale = self.hltprescalemap[name]
-
+                        self.hltl1seedmap[name] = reconstructedseedexpression.lstrip().rstrip()
+                        if(name in self.hltprescalemap):
+                            theprescale = self.hltprescalemap[name]
 
         # Now we have all the information, construct any configuration/branch changes
         for thepathname in thepaths:
