@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.86 2010/05/02 13:47:51 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.87 2010/05/09 10:30:56 dinardo Exp $
 
 
 #include "DQM/BeamMonitor/interface/Vx3DHLTAnalyzer.h"
@@ -972,7 +972,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       fitResults->setBinContent(2, 4, sqrt(vals[13]));
       fitResults->setBinContent(2, 3, sqrt(vals[14]));
       fitResults->setBinContent(2, 2, sqrt(vals[15]));
-      fitResults->setBinContent(2, 1, 0.0);
+      fitResults->setBinContent(2, 1, sqrt(counterVx));
 
       // Linear fit to the historical plots
       TF1* myLinFit = new TF1("myLinFit", "[0] + [1]*x", mXlumi->getTH1()->GetXaxis()->GetXmin(), mXlumi->getTH1()->GetXaxis()->GetXmax());
