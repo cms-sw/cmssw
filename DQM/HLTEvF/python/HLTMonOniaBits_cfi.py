@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Bit Plotting
 hltMonOniaBits = cms.EDAnalyzer("HLTMonBitSummary",
-     directory = cms.untracked.string('HLT/HLTMonMuon/Onia/Summary/'),
+     directory = cms.untracked.string('HLT/Onia/Summary/'),
      histLabel = cms.untracked.string('Onia'),
      HLTPaths = cms.vstring('HLT_L1MuOpen',
                             'HLT_Mu0_Track0_Jpsi',
