@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltOniaSource = cms.EDAnalyzer("HLTOniaSource",
       # DQM Folder
-      SubSystemFolder = cms.untracked.string("HLT/HLTMonMuon/Onia"),
+      SubSystemFolder = cms.untracked.string("HLT/Onia"),
       # Trigger Process info
       TriggerProcessName = cms.untracked.string(""),  # --- Fill only for DEBUG reasons ---
       TriggerPathNames = cms.untracked.vstring("HLT_Mu0_Track0_Jpsi","HLT_Mu3_Track0_Jpsi","HLT_Mu5_Track0_Jpsi"),# --- Fill only for DEBUG reasons ---

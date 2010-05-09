@@ -7,5 +7,5 @@ from DQM.HLTEvF.HLTOniaSource_cfi import *
 from DQM.HLTEvF.HLTMonOniaBits_cfi import *
 
 
-hltMonOnia = cms.Sequence(hltOniaSource * hltMonOniaBits)
+hltMonOnia = cms.Path(hltOniaSource * hltMonOniaBits)
 
