@@ -49,7 +49,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cout << " ... ok" << endl;
 
     // temporary vars
-    const char* stmp; float ftmp; bool btmp; int itmp;
+    const char* stmp; float ftmp; bool btmp; int itmp; 
 
     /**** General Menu & Run conditions ****/
     cfg.lookupValue("run.nEntries",nEntries);
@@ -212,7 +212,7 @@ void OHltConfig::fillRunBlockList()
 void OHltConfig::fillMenu(OHltMenu *omenu)
 {
   // temporary vars
-  const char* stmp; float ftmp; int itmp; //bool btmp; 
+  const char* stmp; float ftmp; int itmp; int refprescaletmp; //bool btmp; 
   const char* seedstmp;
     
   /**** Menu ****/ 
@@ -259,7 +259,20 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
       ftmp = tt2;
       //cout << "SampleSize: "<< ftmp << endl;
 
-      omenu->AddTrigger(stmp,seedstmp,itmp,ftmp);
+      // JH - testing reference prescale
+      refprescaletmp = 1; 
+      TString ss4 = "menu.triggers.["; ss4 +=i; ss4=ss4+"].[4]"; 
+      if(cfg.exists(ss4.Data())) 
+        { 
+          Setting &tt4 = cfg.lookup(ss4.Data()); 
+          refprescaletmp = tt4; 
+        } 
+      else 
+        { 
+          refprescaletmp = 1; 
+        } 
+
+      omenu->AddTrigger(stmp,seedstmp,itmp,ftmp,refprescaletmp);
 
     }
   }
