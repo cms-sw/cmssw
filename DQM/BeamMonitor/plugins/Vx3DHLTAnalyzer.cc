@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.85 2010/04/28 13:28:28 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.86 2010/05/02 13:47:51 dinardo Exp $
 
 
 #include "DQM/BeamMonitor/interface/Vx3DHLTAnalyzer.h"
@@ -1137,15 +1137,15 @@ void Vx3DHLTAnalyzer::beginJob()
 
       fitResults = dbe->book2D("fit results","Results of Beam Spot Fit", 2, 0., 2., 9, 0., 9.);
       fitResults->setAxisTitle("Fitted Beam Spot [cm]", 1);
-      fitResults->setBinLabel(9, "X0", 2);
-      fitResults->setBinLabel(8, "Y0", 2);
-      fitResults->setBinLabel(7, "Z0", 2);
-      fitResults->setBinLabel(6, "sigmaZ0", 2);
-      fitResults->setBinLabel(5, "dX/dZ", 2);
-      fitResults->setBinLabel(4, "dY/dZ", 2);
-      fitResults->setBinLabel(3, "sigmaX0", 2);
-      fitResults->setBinLabel(2, "sigmaY0", 2);
-      fitResults->setBinLabel(1, "Vertices", 2);
+      fitResults->setBinLabel(9, "X", 2);
+      fitResults->setBinLabel(8, "Y", 2);
+      fitResults->setBinLabel(7, "Z", 2);
+      fitResults->setBinLabel(6, "\\sigma_{Z}", 2);
+      fitResults->setBinLabel(5, "#frac{dX}{dZ}[rad]", 2);
+      fitResults->setBinLabel(4, "#frac{dY}{dZ}[rad]", 2);
+      fitResults->setBinLabel(3, "\\sigma_{X}", 2);
+      fitResults->setBinLabel(2, "\\sigma_{Y}", 2);
+      fitResults->setBinLabel(1, "N.vertices", 2);
       fitResults->setBinLabel(1, "Value", 1);
       fitResults->setBinLabel(2, "Stat. Error", 1);
       fitResults->getTH1()->SetOption("text");
