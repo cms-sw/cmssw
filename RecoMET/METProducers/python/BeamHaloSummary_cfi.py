@@ -15,20 +15,20 @@ BeamHaloSummary = cms.EDProducer("BeamHaloSummaryProducer",
                                  l_EcalPhiWedgeConstituents = cms.int32(6),
                                  l_EcalPhiWedgeToF = cms.double(-200.),  ### needs to be tuned when absolute timing in  EB/EE is understood w.r.t LHC
                                  l_EcalPhiWedgeConfidence = cms.double(.7),
-                                 l_EcalShowerShapesRoundness = cms.double(.75),
-                                 l_EcalShowerShapesAngle = cms.double(1.2),
-                                 l_EcalSuperClusterEnergy = cms.double(4.),
-                                 l_EcalSuperClusterSize = cms.int32(6),
+                                 l_EcalShowerShapesRoundness = cms.double(.42),
+                                 l_EcalShowerShapesAngle = cms.double(.42),
+                                 l_EcalSuperClusterEnergy = cms.double(10.), # This  will be Et
+                                 l_EcalSuperClusterSize = cms.int32(3),
 
                                  ## Ecal Tight Id
                                  t_EcalPhiWedgeEnergy = cms.double(20.),
                                  t_EcalPhiWedgeConstituents = cms.int32(8),
                                  t_EcalPhiWedgeToF = cms.double(-200.), ### needs to be tuned when absolute timing in  EB/EE is understood w.r.t LHC
                                  t_EcalPhiWedgeConfidence = cms.double(0.9),
-                                 t_EcalShowerShapesRoundness = cms.double(.5),
-                                 t_EcalShowerShapesAngle = cms.double(0.8),
-                                 t_EcalSuperClusterEnergy = cms.double(8.),
-                                 t_EcalSuperClusterSize = cms.int32(6),
+                                 t_EcalShowerShapesRoundness = cms.double(.23),
+                                 t_EcalShowerShapesAngle = cms.double(0.51),
+                                 t_EcalSuperClusterEnergy = cms.double(10.), # This will be Et 
+                                 t_EcalSuperClusterSize = cms.int32(3),
 
                                  ## Hcal Loose Id 
                                  l_HcalPhiWedgeEnergy = cms.double(20.),
