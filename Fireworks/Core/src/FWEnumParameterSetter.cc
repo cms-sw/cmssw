@@ -8,7 +8,7 @@
 //
 // Original Author:  matevz
 //         Created:  Fri Apr 30 15:17:33 CEST 2010
-// $Id: FWEnumParameterSetter.cc,v 1.1 2010/04/30 15:29:44 matevz Exp $
+// $Id: FWEnumParameterSetter.cc,v 1.2 2010/05/03 14:08:12 matevz Exp $
 //
 
 // system include files
@@ -70,7 +70,7 @@ FWEnumParameterSetter::build(TGFrame* iParent)
 {
    TGCompositeFrame *frame = new TGHorizontalFrame(iParent);
 
-   m_widget = new TGComboBox(iParent);
+   m_widget = new TGComboBox(frame);
    std::map<Long_t, std::string>::const_iterator me = m_param->entryMap().begin();
    UInt_t max_len = 0;
    while (me != m_param->entryMap().end())
@@ -80,7 +80,7 @@ FWEnumParameterSetter::build(TGFrame* iParent)
       ++me;
    }
    frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,8,2,2));
-   m_widget->Resize(8*max_len, 20);
+   m_widget->Resize(8*max_len + 20, 20);
    m_widget->Select(static_cast<Int_t>(m_param->value()), kFALSE);
 
    m_widget->Connect("Selected(Int_t)", "FWEnumParameterSetter", this, "doUpdate(Int_t)");

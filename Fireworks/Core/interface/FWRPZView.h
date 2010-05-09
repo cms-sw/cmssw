@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.6 2010/05/03 17:25:30 amraktad Exp $
+// $Id: FWRPZView.h,v 1.7 2010/05/03 18:40:45 amraktad Exp $
 //
 
 // system include files
@@ -32,7 +32,6 @@
 class TEveProjectionManager;
 class TGLMatrix;
 class TEveCalo2D;
-class TEveProjectionAxes;
 class TEveWindowSlot;
 class FWColorManager;
 
@@ -68,15 +67,12 @@ private:
    void showProjectionAxes( );
    // ---------- member data --------------------------------
    FWEvePtr<TEveProjectionManager> m_projMgr;
-   FWEvePtr<TEveProjectionAxes>    m_axes;
    TEveCalo2D*                     m_calo;
 
    // parameters
-   FWLongParameter    m_overlayEventInfoLevel;
-   FWBoolParameter    m_drawCMSLogo;
    FWDoubleParameter  m_caloDistortion;
    FWDoubleParameter  m_muonDistortion;
-   FWBoolParameter    m_showProjectionAxes;
+   FWEnumParameter    m_showProjectionAxes;
    FWBoolParameter    m_compressMuon;
    FWDoubleParameter  m_caloFixedScale;
    FWBoolParameter    m_caloAutoScale;

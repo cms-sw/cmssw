@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.10 2010/05/03 18:40:45 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.11 2010/05/03 21:18:29 amraktad Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 #include "TClass.h"
 #include "TGLViewer.h"
 #include "TGLScenePad.h"
+#include "TGLCameraOverlay.h"
 
 #include "TEveManager.h"
 #include "TEveElement.h"
@@ -30,7 +31,6 @@
 #include "TEveProjectionBases.h"
 #include "TEvePolygonSetProjected.h"
 #include "TEveProjections.h"
-#include "TEveProjectionAxes.h"
 #include "TEveScalableStraightLineSet.h"
 
 #include "TEveCalo.h"
@@ -52,7 +52,7 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_calo(0),
    m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
    m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
-   m_showProjectionAxes(this,"Show projection axes", false),
+   m_showProjectionAxes(this,"Show projection axes", 0l, 0l, 3l),
    m_compressMuon(this,"Compress detectors",false),
    m_caloFixedScale(this,"Calo scale (GeV/meter)",2.,0.01,100.),
    m_caloAutoScale(this,"Calo auto scale",false),
@@ -78,10 +78,12 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(viewerGL()->CurrentCamera()) ) ) {
       camera->SetZoomMax(1e6);
    }
-
-   m_axes.reset(new TEveProjectionAxes(m_projMgr.get()));
+   
+   m_showProjectionAxes.addEntry(0, "No guides");
+   m_showProjectionAxes.addEntry(1, "Axis");
+   m_showProjectionAxes.addEntry(2, "Grid");
+   m_showProjectionAxes.addEntry(3, "Bar");
    m_showProjectionAxes.changed_.connect(boost::bind(&FWRPZView::showProjectionAxes,this));
-   eventScene()->AddElement(m_axes.get());
 
    if ( id == FWViewType::kRhoPhi ) {
       m_showEndcaps = new FWBoolParameter(this,"Show calo endcaps", true);
@@ -201,12 +203,23 @@ FWRPZView::updateScaleParameters()
 }
 
 void FWRPZView::showProjectionAxes( )
-{   
-   if ( m_showProjectionAxes.value() )
-      m_axes->SetRnrState(kTRUE);
-   else
-      m_axes->SetRnrState(kFALSE);
-   gEve->Redraw3D();
+{ 
+   TGLCameraOverlay* ov = viewerGL()->GetCameraOverlay();
+   ov->SetShowOrthographic(m_showProjectionAxes.value());
+   
+   if (m_showProjectionAxes.value() == 1)
+   {
+      ov->SetOrthographicMode(TGLCameraOverlay::kAxis);
+   }
+   else if (m_showProjectionAxes.value() == 2)
+   {
+      ov->SetOrthographicMode(TGLCameraOverlay::kGridFront);
+   }
+   else if (m_showProjectionAxes.value() == 3)
+   {
+      ov->SetOrthographicMode(TGLCameraOverlay::kBar);
+   }
+   viewerGL()->RequestDraw();
 }
 
 
