@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.11 2010/05/03 21:18:29 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.12 2010/05/09 10:02:35 amraktad Exp $
 //
 
 // system include files
@@ -81,8 +81,8 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    
    m_showProjectionAxes.addEntry(0, "No guides");
    m_showProjectionAxes.addEntry(1, "Axis");
-   m_showProjectionAxes.addEntry(2, "Grid");
-   m_showProjectionAxes.addEntry(3, "Bar");
+   m_showProjectionAxes.addEntry(2, "Grid Front");
+   m_showProjectionAxes.addEntry(3, "Grid Back");
    m_showProjectionAxes.changed_.connect(boost::bind(&FWRPZView::showProjectionAxes,this));
 
    if ( id == FWViewType::kRhoPhi ) {
@@ -217,7 +217,7 @@ void FWRPZView::showProjectionAxes( )
    }
    else if (m_showProjectionAxes.value() == 3)
    {
-      ov->SetOrthographicMode(TGLCameraOverlay::kBar);
+      ov->SetOrthographicMode(TGLCameraOverlay::kGridBack);
    }
    viewerGL()->RequestDraw();
 }
