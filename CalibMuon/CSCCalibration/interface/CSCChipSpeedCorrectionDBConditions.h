@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include "CondFormats/CSCObjects/interface/CSCDChipSpeedCorrection.h"
+#include "CondFormats/CSCObjects/interface/CSCDBChipSpeedCorrection.h"
 #include "CondFormats/DataRecord/interface/CSCDBChipSpeedCorrectionRcd.h"
 
 class CSCChipSpeedCorrectionDBConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
@@ -54,9 +54,9 @@ inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBC
 
 
      
-  /*
+  
    return cndbChipCorr;
-  */
+  
 }
 
 #endif
