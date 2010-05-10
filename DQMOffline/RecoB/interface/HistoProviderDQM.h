@@ -31,6 +31,11 @@ class HistoProviderDQM  {
                       const int& nchX, float *xbinsize,
                       const int& nchY, float *ybinsize) ;
 
+  virtual MonitorElement* bookProfile       (const std::string &name,
+                      const std::string &title,
+                      int nchX, double lowX, double highX,
+                      int nchY, double lowY, double highY) ;
+
   void setDir(const std::string&);
 
   virtual MonitorElement * access(const std::string &name);

@@ -9,6 +9,7 @@
 // #include "BTagPlotPrintC.h"
 
 #include "TH2F.h"
+#include "TProfile.h"
 #include "TCanvas.h"
 #include "TROOT.h"
 #include "TSystem.h"
@@ -30,10 +31,11 @@ class FlavourHistograms2D {
 
 public:
 
-  FlavourHistograms2D (const std::string& baseNameTitle_ , const std::string& baseNameDescription_ ,
-		       const int& nBinsX_ , const double& lowerBoundX_ , const double& upperBoundX_ ,
-                       const int& nBinsY_ , const double& lowerBoundY_ , const double& upperBoundY_ ,
-		       const bool& statistics_ , const bool& update, const std::string& folder, const bool& mc) ;
+  FlavourHistograms2D (TString baseNameTitle_ , TString baseNameDescription_ ,
+		      int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
+                      int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
+		      bool statistics_ , bool update, std::string folder, bool mc,
+                      bool createProfile) ;
 
   virtual ~FlavourHistograms2D () ;
 
@@ -82,7 +84,20 @@ public:
   inline TH2F * histo_dus  () const { return theHisto_dus->getTH2F()  ; }
   inline TH2F * histo_dusg () const { return theHisto_dusg->getTH2F() ; }
 
+  TProfile * profile_all  () const { return theProfile_all->getTProfile()  ; }    
+  TProfile * profile_d    () const { return theProfile_d ->getTProfile()   ; }    
+  TProfile * profile_u    () const { return theProfile_u->getTProfile()    ; }
+  TProfile * profile_s    () const { return theProfile_s->getTProfile()    ; }
+  TProfile * profile_c    () const { return theProfile_c->getTProfile()    ; }
+  TProfile * profile_b    () const { return theProfile_b->getTProfile()    ; }
+  TProfile * profile_g    () const { return theProfile_g->getTProfile()    ; }
+  TProfile * profile_ni   () const { return theProfile_ni->getTProfile()   ; }
+  TProfile * profile_dus  () const { return theProfile_dus->getTProfile()  ; }
+  TProfile * profile_dusg () const { return theProfile_dusg->getTProfile() ; }
+
   std::vector<TH2F*> getHistoVector() const;
+
+  std::vector<TProfile*> getProfileVector() const;
 
   
 
@@ -124,6 +139,18 @@ protected:
   MonitorElement *theHisto_dus  ;
   MonitorElement *theHisto_dusg ;
 
+  // the profiles
+  MonitorElement *theProfile_all  ;    
+  MonitorElement *theProfile_d    ;    
+  MonitorElement *theProfile_u    ;
+  MonitorElement *theProfile_s    ;
+  MonitorElement *theProfile_c    ;
+  MonitorElement *theProfile_b    ;
+  MonitorElement *theProfile_g    ;
+  MonitorElement *theProfile_ni   ;
+  MonitorElement *theProfile_dus  ;
+  MonitorElement *theProfile_dusg ;
+
   //  DQMStore * dqmStore_; 
 
 
@@ -132,23 +159,25 @@ protected:
   FlavourHistograms2D(){}
 
   bool mcPlots_;
+  bool createProfile_;
 
 } ;
 
 
 
 template <class T, class G>
-FlavourHistograms2D<T, G>::FlavourHistograms2D (const std::string& baseNameTitle_ , const std::string& baseNameDescription_ ,
-					        const int& nBinsX_ , const double& lowerBoundX_ , const double& upperBoundX_ ,
-                                                const int& nBinsY_ , const double& lowerBoundY_ , const double& upperBoundY_ ,
-					        const bool& statistics_ , const bool& update, const std::string& folder, const bool& mc) :
+FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString baseNameDescription_ ,
+					  int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
+                                          int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
+					  bool statistics_ ,
+					  bool update, std::string folder, bool mc, bool createProfile) :
   // BaseFlavourHistograms2D () ,
   // theVariable ( variable_ ) ,
   theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_ ) , theBaseNameDescription ( baseNameDescription_ ) ,
   theNBinsX ( nBinsX_ ) , theNBinsY (nBinsY_), 
   theLowerBoundX ( lowerBoundX_ ) , theUpperBoundX ( upperBoundX_ ) ,
   theLowerBoundY ( lowerBoundY_ ) , theUpperBoundY ( upperBoundY_ ) ,
-  theStatistics ( statistics_ ) , theMin(-1.), theMax(-1.), mcPlots_(mc)
+  theStatistics ( statistics_ ) , theMin(-1.), theMax(-1.), mcPlots_(mc), createProfile_(createProfile)
 {
   // defaults for array dimensions
   theArrayDimension = 0  ;
@@ -178,11 +207,48 @@ FlavourHistograms2D<T, G>::FlavourHistograms2D (const std::string& baseNameTitle
       theHisto_dus = 0;
       theHisto_dusg = 0;
     }
+
+    if (createProfile_) {
+      theProfile_all = (prov.bookProfile( theBaseNameTitle + "_Profile_ALL" , theBaseNameDescription + " all jets" , theNBinsX, theLowerBoundX, theUpperBoundX, theNBinsY, theLowerBoundY, theUpperBoundY));
+      if (mcPlots_) {
+        theProfile_d     = (prov.bookProfile ( theBaseNameTitle + "_Profile_D"    , theBaseNameDescription + " d-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY )) ; 
+        theProfile_u     = (prov.bookProfile ( theBaseNameTitle + "_Profile_U"    , theBaseNameDescription + " u-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+        theProfile_s     = (prov.bookProfile ( theBaseNameTitle + "_Profile_S"    , theBaseNameDescription + " s-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+        theProfile_c     = (prov.bookProfile ( theBaseNameTitle + "_Profile_C"    , theBaseNameDescription + " c-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+        theProfile_b     = (prov.bookProfile ( theBaseNameTitle + "_Profile_B"    , theBaseNameDescription + " b-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+        theProfile_g     = (prov.bookProfile ( theBaseNameTitle + "_Profile_G"    , theBaseNameDescription + " g-jets"    , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+        theProfile_ni    = (prov.bookProfile ( theBaseNameTitle + "_Profile_NI"   , theBaseNameDescription + " ni-jets"   , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+        theProfile_dus   = (prov.bookProfile ( theBaseNameTitle + "_Profile_DUS"  , theBaseNameDescription + " dus-jets"  , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ; 
+        theProfile_dusg  = (prov.bookProfile ( theBaseNameTitle + "_Profile_DUSG" , theBaseNameDescription + " dusg-jets" , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY)) ;
+      } else{
+          theProfile_d = 0;
+          theProfile_u = 0;
+          theProfile_s = 0;
+          theProfile_c = 0;
+          theProfile_b = 0;
+          theProfile_g = 0;
+          theProfile_ni = 0;
+          theProfile_dus = 0;
+          theProfile_dusg = 0;
+      } 
+    }  else {
+          theProfile_all = 0;
+          theProfile_d = 0;
+          theProfile_u = 0;
+          theProfile_s = 0;
+          theProfile_c = 0;
+          theProfile_b = 0;
+          theProfile_g = 0;
+          theProfile_ni = 0;
+          theProfile_dus = 0;
+          theProfile_dusg = 0;
+    }
       // statistics if requested
     if ( theStatistics ) {
       theHisto_all ->getTH2F()->Sumw2() ; 
+      if(createProfile)
+        theProfile_all ->getTProfile()->Sumw2() ; 
       if (mcPlots_) {  
-	
 	theHisto_d   ->getTH2F()->Sumw2() ; 
 	theHisto_u   ->getTH2F()->Sumw2() ; 
 	theHisto_s   ->getTH2F()->Sumw2() ; 
@@ -192,6 +258,18 @@ FlavourHistograms2D<T, G>::FlavourHistograms2D (const std::string& baseNameTitle
 	theHisto_ni  ->getTH2F()->Sumw2() ; 
 	theHisto_dus ->getTH2F()->Sumw2() ; 
 	theHisto_dusg->getTH2F()->Sumw2() ;
+
+        if(createProfile) {
+	  theProfile_d   ->getTProfile()->Sumw2() ; 
+	  theProfile_u   ->getTProfile()->Sumw2() ; 
+	  theProfile_s   ->getTProfile()->Sumw2() ; 
+	  theProfile_c   ->getTProfile()->Sumw2() ; 
+	  theProfile_b   ->getTProfile()->Sumw2() ; 
+	  theProfile_g   ->getTProfile()->Sumw2() ; 
+	  theProfile_ni  ->getTProfile()->Sumw2() ; 
+	  theProfile_dus ->getTProfile()->Sumw2() ; 
+	  theProfile_dusg->getTProfile()->Sumw2() ;
+        }
       }
     }
   } else {
@@ -208,6 +286,21 @@ FlavourHistograms2D<T, G>::FlavourHistograms2D (const std::string& baseNameTitle
       theHisto_ni    =prov.access(theBaseNameTitle + "NI"  ) ; 
       theHisto_dus   =prov.access(theBaseNameTitle + "DUS" ) ; 
       theHisto_dusg  =prov.access(theBaseNameTitle + "DUSG") ;
+    }
+
+    if(createProfile_) {
+      theProfile_all = prov.access(theBaseNameTitle + "_Profile_ALL");
+      if(mcPlots_) {
+        theProfile_d     = prov.access(theBaseNameTitle + "_Profile_D"   ) ; 
+        theProfile_u     = prov.access(theBaseNameTitle + "_Profile_U"   ) ; 
+        theProfile_s     = prov.access(theBaseNameTitle + "_Profile_S"   ) ; 
+        theProfile_c     = prov.access(theBaseNameTitle + "_Profile_C"   ) ; 
+        theProfile_b     =prov.access(theBaseNameTitle + "_Profile_B"   ) ; 
+        theProfile_g     =prov.access(theBaseNameTitle + "_Profile_G"   ) ; 
+        theProfile_ni    =prov.access(theBaseNameTitle + "_Profile_NI"  ) ; 
+        theProfile_dus   =prov.access(theBaseNameTitle + "_Profile_DUS" ) ; 
+        theProfile_dusg  =prov.access(theBaseNameTitle + "_Profile_DUSG") ;
+      }
     }
   }
 }
@@ -288,6 +381,32 @@ void FlavourHistograms2D<T, G>::settitle(const char* titleX, const char* titleY)
       if(theHisto_dus) theHisto_dus ->setAxisTitle(titleY, 2) ;
       if(theHisto_dusg)theHisto_dusg->setAxisTitle(titleY, 2) ;
     }
+
+  if(createProfile_) {
+    if(theProfile_all) theProfile_all ->setAxisTitle(titleX) ;
+    if(theProfile_all) theProfile_all ->setAxisTitle(titleY, 2) ;
+    if (mcPlots_ == true) {  
+      
+      if(theProfile_d)  theProfile_d   ->setAxisTitle(titleX) ;
+      if(theProfile_u)  theProfile_u   ->setAxisTitle(titleX) ;
+      if(theProfile_s)  theProfile_s   ->setAxisTitle(titleX) ;
+      if(theProfile_c)  theProfile_c   ->setAxisTitle(titleX) ;
+      if(theProfile_b)  theProfile_b   ->setAxisTitle(titleX) ;
+      if(theProfile_g)  theProfile_g   ->setAxisTitle(titleX) ;
+      if(theProfile_ni) theProfile_ni  ->setAxisTitle(titleX) ;
+      if(theProfile_dus) theProfile_dus ->setAxisTitle(titleX) ;
+      if(theProfile_dusg)theProfile_dusg->setAxisTitle(titleX) ;
+      if(theProfile_d)  theProfile_d   ->setAxisTitle(titleY, 2) ;
+      if(theProfile_u)  theProfile_u   ->setAxisTitle(titleY, 2) ;
+      if(theProfile_s)  theProfile_s   ->setAxisTitle(titleY, 2) ;
+      if(theProfile_c)  theProfile_c   ->setAxisTitle(titleY, 2) ;
+      if(theProfile_b)  theProfile_b   ->setAxisTitle(titleY, 2) ;
+      if(theProfile_g)  theProfile_g   ->setAxisTitle(titleY, 2) ;
+      if(theProfile_ni) theProfile_ni  ->setAxisTitle(titleY, 2) ;
+      if(theProfile_dus) theProfile_dus ->setAxisTitle(titleY, 2) ;
+      if(theProfile_dusg)theProfile_dusg->setAxisTitle(titleY, 2) ;
+    }
+  }
 }
 
 // needed for efficiency computations -> this / b
@@ -318,6 +437,8 @@ template <class T, class G>
 void FlavourHistograms2D<T, G>::fillVariable ( const int & flavour , const T & varX , const G & varY ) const {
   // all
   theHisto_all                ->Fill ( varX, varY ) ;
+  if(createProfile_)
+    theProfile_all->Fill( varX, varY );
   // flavour specific
   if (!mcPlots_) return;
 
@@ -326,29 +447,51 @@ void FlavourHistograms2D<T, G>::fillVariable ( const int & flavour , const T & v
       theHisto_d->Fill( varX, varY );
       theHisto_dus->Fill( varX, varY );
       theHisto_dusg->Fill( varX, varY );
+      if(createProfile_) {
+        theProfile_d->Fill(varX, varY);
+        theProfile_dus->Fill(varX, varY);
+        theProfile_dusg->Fill(varX, varY);
+      }
       return;
     case 2:
       theHisto_u->Fill( varX, varY );
       theHisto_dus->Fill( varX, varY );
       theHisto_dusg->Fill( varX, varY );
+      if(createProfile_) {
+        theProfile_u->Fill(varX, varY);
+        theProfile_dus->Fill(varX, varY);
+        theProfile_dusg->Fill(varX, varY);
+      }
       return;
     case 3:
       theHisto_s->Fill( varX, varY );
       theHisto_dus->Fill( varX, varY );
       theHisto_dusg->Fill( varX, varY );
+      if(createProfile_) {
+        theProfile_s->Fill(varX, varY);
+        theProfile_dus->Fill(varX, varY);
+        theProfile_dusg->Fill(varX, varY);
+      }
       return;
     case 4:
       theHisto_c->Fill( varX, varY );
+      if(createProfile_) theProfile_c->Fill(varX, varY);
       return;
     case 5:
       theHisto_b->Fill( varX, varY );
+      if(createProfile_) theProfile_b->Fill(varX, varY);
       return;
     case 21:
       theHisto_g->Fill( varX, varY );
       theHisto_dusg->Fill( varX, varY );
+      if(createProfile_) {
+        theProfile_g->Fill(varX, varY);
+        theProfile_dusg->Fill(varX, varY);
+      }
       return;
     default:
       theHisto_ni->Fill( varX, varY );
+      if(createProfile_) theProfile_ni->Fill(varX, varY);
       return;
   }
 }
@@ -371,4 +514,26 @@ std::vector<TH2F*> FlavourHistograms2D<T, G>::getHistoVector() const
     }
   return histoVector;
 }
+
+template <class T, class G>
+std::vector<TProfile*> FlavourHistograms2D<T, G>::getProfileVector() const
+{
+  std::vector<TProfile*> profileVector;
+  if(createProfile_) {
+    profileVector.push_back ( theProfile_all->getTProfile() );
+      if (mcPlots_) {  
+        profileVector.push_back ( theProfile_d->getTProfile()   );
+        profileVector.push_back ( theProfile_u->getTProfile()   );
+        profileVector.push_back ( theProfile_s->getTProfile()   );
+        profileVector.push_back ( theProfile_c->getTProfile()   );
+        profileVector.push_back ( theProfile_b->getTProfile()   );
+        profileVector.push_back ( theProfile_g ->getTProfile()  );
+        profileVector.push_back ( theProfile_ni->getTProfile()  );
+        profileVector.push_back ( theProfile_dus->getTProfile() );
+        profileVector.push_back ( theProfile_dusg->getTProfile());
+      }
+  }
+  return profileVector;
+}
+
 #endif

@@ -469,11 +469,11 @@ TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
 
   trackMultVsJetPtHisto = new FlavourHistograms2D<double, int>
        ("trackMultVsJetPt" + theExtensionString, "Track Multiplicity vs Jet Pt for Tracks Associated to Jets",
-        50, 0.0, 250.0, 21, -0.5, 30.5, false, update, trackIPDir, mc);
+        50, 0.0, 250.0, 21, -0.5, 30.5, false, update, trackIPDir, mc, true);
 
   selectedTrackMultVsJetPtHisto = new FlavourHistograms2D<double, int>
        ("selectedTrackMultVsJetPt" + theExtensionString, "Track Multiplicity vs Jet Pt for Selected Tracks Associated to Jets",
-        50, 0.0, 250.0, 21, -0.5, 20.5, false, update, trackIPDir, mc);
+        50, 0.0, 250.0, 21, -0.5, 20.5, false, update, trackIPDir, mc, true);
 
   if (willFinalize_) createPlotsForFinalize();
 

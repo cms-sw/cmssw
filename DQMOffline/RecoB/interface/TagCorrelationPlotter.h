@@ -25,6 +25,7 @@ class TagCorrelationPlotter : public BaseBTagPlotter {
   protected:
     double lowerBound1_, lowerBound2_;
     double upperBound1_, upperBound2_;
+    bool createProfile_;
 
     FlavourHistograms2D<double, double>* correlationHisto_;
 };
