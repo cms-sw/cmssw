@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/22 09:31:22 $
- *  $Revision: 1.58 $
+ *  $Date: 2010/03/25 11:03:03 $
+ *  $Revision: 1.59 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -412,15 +412,16 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
 
     //sanity check
-    assert(triggerResults->size()==hltConfig_.size());
-    //check the trigger results
-    for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
-      if (triggerResults->accept(j)){
-        if (hltpathME) hltpathME->Fill(j);
+    if (_hlt_initialized && hltConfig_.size() && triggerResults->size()==hltConfig_.size()){
+      //check the trigger results
+      for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
+	if (triggerResults->accept(j)){
+	  if (hltpathME) hltpathME->Fill(j);
+	}
       }
     }
   }
-
+  
   if (DEBUG)  std::cout << "trigger label " << theTriggerResultsLabel << std::endl;
 
   Int_t JetLoPass = 0;
