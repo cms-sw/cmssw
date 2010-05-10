@@ -26,7 +26,8 @@ L3Muons = cms.EDProducer("L3MuonProducer",
             BeamSpotPositionErrors = cms.vdouble(0.1, 0.1, 5.3)
         ),
         SmoothTkTrack = cms.untracked.bool(False),
-        DoSmoothing = cms.bool(True)
+        DoSmoothing = cms.bool(True),
+        beamSpot = cms.InputTag("hltOfflineBeamSpot")
     ),
     L3TrajBuilderParameters = cms.PSet(
         ScaleTECxFactor = cms.double(-1.0),
