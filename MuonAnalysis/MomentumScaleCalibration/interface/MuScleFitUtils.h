@@ -5,8 +5,8 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2010/03/29 18:15:56 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/04/15 15:59:56 $
+ *  $Revision: 1.21 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -248,7 +248,8 @@ public:
   static bool minimumShapePlots_;
 
   /// Method to check if the mass value is within the mass window of the i-th resonance.
-  static bool checkMassWindow( const double & mass, const int ires, const double & resMass, const double & leftFactor = 1., const double & rightFactor = 1. );
+  // static bool checkMassWindow( const double & mass, const int ires, const double & resMass, const double & leftFactor = 1., const double & rightFactor = 1. );
+  static bool checkMassWindow( const double & mass, const double & leftBorder, const double & rightBorder );
 
   /// Computes the probability given the mass, mass resolution and the arrays with the probabilities and the normalizations.
   static double probability( const double & mass, const double & massResol,

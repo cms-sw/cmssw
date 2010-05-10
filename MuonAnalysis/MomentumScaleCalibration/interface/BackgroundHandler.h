@@ -20,8 +20,8 @@ class BackgroundHandler
 {
 public:
   BackgroundHandler( const std::vector<int> & identifiers,
-                     const std::vector<double> & leftWindowFactors,
-                     const std::vector<double> & rightWindowFactors,
+                     const std::vector<double> & leftWindowBorders,
+                     const std::vector<double> & rightWindowBorders,
                      const double * ResMass,
                      const double * massWindowHalfWidth );
   ~BackgroundHandler();
@@ -50,8 +50,8 @@ public:
   /// returns true if the parameter is to be unlocked
   bool unlockParameter(const std::vector<int> & resfind, const unsigned int ipar);
 
-  /// Returns the appropriate window factors depending on whether the background is being fitted and on the resonance
-  std::pair<double, double> windowFactors( const bool doBackgroundFit, const int ires );
+  /// Returns the appropriate window borders depending on whether the background is being fitted and on the resonance
+  std::pair<double, double> windowBorders( const bool doBackgroundFit, const int ires );
 
   /**
    * Returns the appropriate resMass value depending on whether the background is being fitted and on the resonance. <br>
@@ -82,8 +82,8 @@ public:
 private:
   /// Used to check the consistency of passed parameters
   void consistencyCheck( const std::vector<int> & identifiers,
-                         const std::vector<double> & leftWindowFactors,
-                         const std::vector<double> & rightWindowFactors ) const throw(cms::Exception);
+                         const std::vector<double> & leftWindowBorders,
+                         const std::vector<double> & rightWindowBorders ) const throw(cms::Exception);
 
   // Correspondence between regions and halfWidths used:
   // - for the Upsilons region we use the Upsilon
@@ -106,8 +106,8 @@ private:
   // before the parResonances).
   int parNumsResonances_[6];
 
-  std::vector<double> leftWindowFactors_;
-  std::vector<double> rightWindowFactors_;
+  // std::vector<double> leftWindowFactors_;
+  // std::vector<double> rightWindowFactors_;
 
   std::vector<MassWindow> resonanceWindow_;
   std::vector<MassWindow> backgroundWindow_;

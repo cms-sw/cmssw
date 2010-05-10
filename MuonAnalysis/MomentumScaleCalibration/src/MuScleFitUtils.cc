@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/03/29 18:15:57 $
- *  $Revision: 1.34 $
+ *  $Date: 2010/04/15 16:01:28 $
+ *  $Revision: 1.35 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -1068,11 +1068,13 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
   // Do this only if we want to use the rapidity bins for the Z
   if( MuScleFitUtils::rapidityBinsForZ_ ) {
     // ATTENTION: cut on Z rapidity at 2.4 since we only have histograms up to that value
-    std::pair<double, double> windowFactors = backgroundHandler->windowFactors( useBackgroundWindow, 0 );
+    // std::pair<double, double> windowFactors = backgroundHandler->windowFactors( useBackgroundWindow, 0 );
+    std::pair<double, double> windowBorders = backgroundHandler->windowBorders( useBackgroundWindow, 0 );
     if( resfind[0]>0
-        && checkMassWindow( mass, 0,
-                            backgroundHandler->resMass( useBackgroundWindow, 0 ),
-                            windowFactors.first, windowFactors.second )
+        // && checkMassWindow( mass, 0,
+        //                     backgroundHandler->resMass( useBackgroundWindow, 0 ),
+        //                     windowFactors.first, windowFactors.second )
+        && checkMassWindow( mass, windowBorders.first, windowBorders.second )
         // && fabs(rapidity)<2.4
         ) {
 
@@ -1108,7 +1110,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
     else {
       if( debug > 0 ) {
         std::cout << "Mass = " << mass << " outside range with rapidity = " << rapidity << std::endl;
-        std::cout << "with resMass = " << backgroundHandler->resMass( useBackgroundWindow, 0 ) << " and left factor = " << windowFactors.first << " right factor = " << windowFactors.second << std::endl;
+        std::cout << "with resMass = " << backgroundHandler->resMass( useBackgroundWindow, 0 ) << " and left border = " << windowBorders.first << " right border = " << windowBorders.second << std::endl;
       }
     }
   }
@@ -1119,10 +1121,9 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
   for( int ires=firstRes; ires<6; ++ires ) {
     if( resfind[ires] > 0 ) {
       // First is left, second is right (returns (1,1) in the case of resonances, it could be improved avoiding the call in this case)
-      std::pair<double, double> windowFactor = backgroundHandler->windowFactors( useBackgroundWindow, ires );
-      if( checkMassWindow(mass, ires, backgroundHandler->resMass( useBackgroundWindow, ires ),
-                          windowFactor.first, windowFactor.second) ) {
-        // if( checkMassWindow(mass, ires, ResMass[ires], 1., 1.) ) {
+      // std::pair<double, double> windowFactor = backgroundHandler->windowFactors( useBackgroundWindow, ires );
+      std::pair<double, double> windowBorder = backgroundHandler->windowBorders( useBackgroundWindow, ires );
+      if( checkMassWindow(mass, windowBorder.first, windowBorder.second) ) {
         if (MuScleFitUtils::debug>1) std::cout << "massProb:resFound = " << ires << std::endl;
 
         // In this case the rapidity value is instead the resonance index again.
@@ -1173,10 +1174,14 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
 }
 
 // Method to check if the mass value is within the mass window of the i-th resonance.
-inline bool MuScleFitUtils::checkMassWindow( const double & mass, const int ires, const double & resMass, const double & leftFactor, const double & rightFactor )
+// inline bool MuScleFitUtils::checkMassWindow( const double & mass, const int ires, const double & resMass, const double & leftFactor, const double & rightFactor )
+// {
+//   return( mass-resMass > -leftFactor*massWindowHalfWidth[MuonTypeForCheckMassWindow][ires]
+//           && mass-resMass < rightFactor*massWindowHalfWidth[MuonTypeForCheckMassWindow][ires] );
+// }
+inline bool MuScleFitUtils::checkMassWindow( const double & mass, const double & leftBorder, const double & rightBorder )
 {
-  return( mass-resMass > -leftFactor*massWindowHalfWidth[MuonTypeForCheckMassWindow][ires]
-          && mass-resMass < rightFactor*massWindowHalfWidth[MuonTypeForCheckMassWindow][ires] );
+  return( (mass > leftBorder) && (mass < rightBorder) );
 }
 
 // Function that returns the weight for a muon pair
@@ -1198,9 +1203,11 @@ double MuScleFitUtils::computeWeight( const double & mass, const int iev, const 
 
   for (int ires=0; ires<6; ires++) {
     if (resfind[ires]>0 && weight==0.) {
-      std::pair<double, double> windowFactor = backgroundHandler->windowFactors( useBackgroundWindow, ires );
-      if( checkMassWindow(mass, ires, backgroundHandler->resMass( useBackgroundWindow, ires ),
-                          windowFactor.first, windowFactor.second) ) {
+      // std::pair<double, double> windowFactor = backgroundHandler->windowFactors( useBackgroundWindow, ires );
+      std::pair<double, double> windowBorder = backgroundHandler->windowBorders( useBackgroundWindow, ires );
+      // if( checkMassWindow(mass, ires, backgroundHandler->resMass( useBackgroundWindow, ires ),
+      //                     windowFactor.first, windowFactor.second) ) {
+      if( checkMassWindow(mass, windowBorder.first, windowBorder.second) ) {
         weight = 1.0;
         if( doUseBkgrWindow && (debug > 0) ) std::cout << "setting weight to = " << weight << std::endl;
       }
@@ -1509,6 +1516,8 @@ void MuScleFitUtils::minimizeLikelihood()
       // events and hopefully the margin will avoid them to get a probability = 0 (which causes a discontinuity
       // in the likelihood function). The width of this smaller window must be optimized, but we can start using
       // an 90% of the normalization window.
+      double protectionFactor = 0.9;
+
       MuScleFitUtils::ReducedSavedPair.clear();
       for( unsigned int nev=0; nev<MuScleFitUtils::SavedPair.size(); ++nev ) {
         const lorentzVector * recMu1 = &(MuScleFitUtils::SavedPair[nev].first);
@@ -1517,9 +1526,14 @@ void MuScleFitUtils::minimizeLikelihood()
         // Test all resonances to see if the mass is inside at least one of the windows
         bool check = false;
         for( int ires = 0; ires < 6; ++ires ) {
-	  std::pair<double, double> windowFactor = backgroundHandler->windowFactors( doBackgroundFit[loopCounter], ires );
-          if( resfind[ires] && checkMassWindow( mass, ires, backgroundHandler->resMass( doBackgroundFit[loopCounter], ires ),
-						0.9*windowFactor.first, 0.9*windowFactor.second ) ) {
+	  // std::pair<double, double> windowFactor = backgroundHandler->windowFactors( doBackgroundFit[loopCounter], ires );
+	  std::pair<double, double> windowBorder = backgroundHandler->windowBorders( doBackgroundFit[loopCounter], ires );
+          // if( resfind[ires] && checkMassWindow( mass, ires, backgroundHandler->resMass( doBackgroundFit[loopCounter], ires ),
+          //                                       0.9*windowFactor.first, 0.9*windowFactor.second ) ) {
+	  double resMassValue = backgroundHandler->resMass( doBackgroundFit[loopCounter], ires );
+	  double windowBorderLeft = resMassValue - protectionFactor*(resMassValue - windowBorder.first);
+	  double windowBorderRight = resMassValue + protectionFactor*(windowBorder.second - resMassValue);
+          if( resfind[ires] && checkMassWindow( mass, windowBorderLeft, windowBorderRight ) ) {
             check = true;
           }
         }

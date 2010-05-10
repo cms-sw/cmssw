@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/05/05 13:57:55 $
-//  $Revision: 1.81 $
+//  $Date: 2010/05/07 09:07:09 $
+//  $Revision: 1.82 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -321,8 +321,8 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) : MuScleFitBase( pset ), t
   MuScleFitUtils::massWindowHalfWidth[2][5] = 0.2;
 
   MuScleFitUtils::backgroundHandler = new BackgroundHandler( pset.getParameter<std::vector<int> >("BgrFitType"),
-                                                             pset.getParameter<std::vector<double> >("LeftWindowFactor"),
-                                                             pset.getParameter<std::vector<double> >("RightWindowFactor"),
+                                                             pset.getParameter<std::vector<double> >("LeftWindowBorder"),
+                                                             pset.getParameter<std::vector<double> >("RightWindowBorder"),
                                                              MuScleFitUtils::ResMass,
                                                              MuScleFitUtils::massWindowHalfWidth[MuScleFitUtils::MuonTypeForCheckMassWindow] );
 

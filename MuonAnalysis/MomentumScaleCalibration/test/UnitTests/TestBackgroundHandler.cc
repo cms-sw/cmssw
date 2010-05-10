@@ -26,15 +26,24 @@ public:
   void setUp()
   {
     fill_n(back_inserter(identifiers), 3, 2);
-    fill_n(back_inserter(leftWindowFactors), 3, 2);
-    fill_n(back_inserter(rightWindowFactors), 3, 2);
+    // fill_n(back_inserter(leftWindowFactors), 3, 2);
+    // fill_n(back_inserter(rightWindowFactors), 3, 2);
+
+    leftWindowBorders.push_back(2.5);
+    rightWindowBorders.push_back(3.5);
+
+    leftWindowBorders.push_back(8.1);
+    rightWindowBorders.push_back(12.2);
+
+    leftWindowBorders.push_back(80.);
+    rightWindowBorders.push_back(100.);
 
     double tempResMass[] = {91.1876, 10.3552, 10.0233, 9.4603, 3.68609, 3.0969};
     std::copy(tempResMass, tempResMass+6, ResMass);
     double tempMassWindowHalfWidth[] = { 20., 0.5, 0.5, 0.5, 0.2, 0.2 };
     std::copy(tempMassWindowHalfWidth, tempMassWindowHalfWidth+6, massWindowHalfWidth);
 
-    backgroundHandler_ = new BackgroundHandler(identifiers, leftWindowFactors, rightWindowFactors,
+    backgroundHandler_ = new BackgroundHandler(identifiers, leftWindowBorders, rightWindowBorders,
                                                ResMass, massWindowHalfWidth);
   }
   void tearDown()
@@ -63,13 +72,12 @@ public:
     resMassForRegion[0] = ResMass[0];
     resMassForRegion[1] = (ResMass[1]+ResMass[2]+ResMass[3])/3;
     resMassForRegion[2] = (ResMass[4]+ResMass[5])/2;
-    int * regToResHW_ = backgroundHandler_->regToResHW_;
     i = 0;
     BOOST_FOREACH( const MassWindow & backgroundWindow, backgroundHandler_->backgroundWindow_)
     {
       CPPUNIT_ASSERT(backgroundWindow.mass() == resMassForRegion[i]);
-      CPPUNIT_ASSERT(float(backgroundWindow.lowerBound()) == float(resMassForRegion[i] - leftWindowFactors[i]*massWindowHalfWidth[regToResHW_[i]]));
-      CPPUNIT_ASSERT(float(backgroundWindow.upperBound()) == float(resMassForRegion[i] + rightWindowFactors[i]*massWindowHalfWidth[regToResHW_[i]]));
+      CPPUNIT_ASSERT(float(backgroundWindow.lowerBound()) == float(leftWindowBorders[i]));
+      CPPUNIT_ASSERT(float(backgroundWindow.upperBound()) == float(rightWindowBorders[i]));
       ++i;
     }
   }
@@ -104,8 +112,8 @@ public:
   }
 
   std::vector<int> identifiers;
-  std::vector<double> leftWindowFactors;
-  std::vector<double> rightWindowFactors;
+  std::vector<double> leftWindowBorders;
+  std::vector<double> rightWindowBorders;
   double ResMass[6];
   double massWindowHalfWidth[6];
 

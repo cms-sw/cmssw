@@ -306,8 +306,8 @@ process.looper = cms.Looper(
     # ------------------------- #
 
     # Window factors for: Z, Upsilons and (J/Psi,Psi2S) regions
-    LeftWindowFactor = cms.vdouble(1., 10., 10.),
-    RightWindowFactor = cms.vdouble(1., 10., 10.),
+    LeftWindowBorder = cms.vdouble(70., 8., 1.391495),
+    RightWindowBorder = cms.vdouble(110., 12., 5.391495),
 
     # The parameter of BgrFitType=1 is the bgr fraction
     # -------------------------------------------------
@@ -353,7 +353,7 @@ process.looper = cms.Looper(
     # Sherpa = cms.untracked.bool(True),
 
     # This line allows to switch to PAT muons. Default is false.
-     PATmuons = cms.untracked.bool(True),
+    PATmuons = cms.untracked.bool(True),
 
     # This line allows to use the EDLooper or to loop by hand.
     # All the necessary information is saved during the first loop so there is not need

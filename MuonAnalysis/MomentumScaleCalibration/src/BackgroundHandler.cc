@@ -8,13 +8,14 @@
 #include <boost/foreach.hpp>
 
 BackgroundHandler::BackgroundHandler( const std::vector<int> & identifiers,
-                                      const std::vector<double> & leftWindowFactors,
-                                      const std::vector<double> & rightWindowFactors,
+                                      const std::vector<double> & leftWindowBorders,
+                                      const std::vector<double> & rightWindowBorders,
                                       const double * ResMass,
-                                      const double * massWindowHalfWidth ) :
-  leftWindowFactors_(leftWindowFactors),
-  rightWindowFactors_(rightWindowFactors)
+                                      const double * massWindowHalfWidth )
 {
+  // : leftWindowFactors_(leftWindowFactors),
+  // rightWindowFactors_(rightWindowFactors)
+
   // Define the correspondence between regions and halfWidth to use
   // Defines also the function type to use (but they are checked to be consistent over a region)
   regToResHW_[0] = 0; // Region 0 use the one from Z
@@ -30,7 +31,7 @@ BackgroundHandler::BackgroundHandler( const std::vector<int> & identifiers,
   resToReg_[5] = 2; // J/Psi
 
   // Throws cms::Exception("Configuration") in case the parameters are not what is expected
-  consistencyCheck(identifiers, leftWindowFactors, rightWindowFactors);
+  consistencyCheck(identifiers, leftWindowBorders, rightWindowBorders);
 
   // Build the resonance windows
   for( unsigned int i=0; i<6; ++i ) {
@@ -63,10 +64,12 @@ BackgroundHandler::BackgroundHandler( const std::vector<int> & identifiers,
   unsigned int i=0;
   typedef std::vector<unsigned int> indexVec;
   BOOST_FOREACH(const indexVec & index, indexes) {
-    double lowerLimit = resMassForRegion[i] - massWindowHalfWidth[regToResHW_[i]]*leftWindowFactors[i];
-    double upperLimit = resMassForRegion[i] + massWindowHalfWidth[regToResHW_[i]]*rightWindowFactors[i];
-    backgroundWindow_.push_back( MassWindow( resMassForRegion[i], lowerLimit, upperLimit, index,
-                                             backgroundFunctionService(identifiers[i], lowerLimit, upperLimit ) ) );
+    //     double lowerLimit = resMassForRegion[i] - massWindowHalfWidth[regToResHW_[i]]*leftWindowFactors[i];
+    //     double upperLimit = resMassForRegion[i] + massWindowHalfWidth[regToResHW_[i]]*rightWindowFactors[i];
+    //     backgroundWindow_.push_back( MassWindow( resMassForRegion[i], lowerLimit, upperLimit, index,
+    //                                              backgroundFunctionService(identifiers[i], lowerLimit, upperLimit ) ) );
+    backgroundWindow_.push_back( MassWindow( resMassForRegion[i], leftWindowBorders[i], rightWindowBorders[i], index,
+                                             backgroundFunctionService(identifiers[i], leftWindowBorders[i], rightWindowBorders[i] ) ) );
     ++i;
   }
   // Initialize the parNums to be used in the shifts of parval
@@ -126,15 +129,28 @@ bool BackgroundHandler::unlockParameter(const std::vector<int> & resfind, const 
   return false;
 }
 
-std::pair<double, double> BackgroundHandler::windowFactors( const bool doBackgroundFit, const int ires )
+// std::pair<double, double> BackgroundHandler::windowFactors( const bool doBackgroundFit, const int ires )
+// {
+//   if( doBackgroundFit ) {
+//     // Fitting the background: use the regions
+//     return std::make_pair(leftWindowFactors_[resToReg_[ires]], rightWindowFactors_[resToReg_[ires]]);
+//   }
+//   else {
+//     // Not fitting the background: use the resonances
+//     return std::make_pair(1.,1.);
+//   }
+// }
+
+std::pair<double, double> BackgroundHandler::windowBorders( const bool doBackgroundFit, const int ires )
 {
   if( doBackgroundFit ) {
     // Fitting the background: use the regions
-    return std::make_pair(leftWindowFactors_[resToReg_[ires]], rightWindowFactors_[resToReg_[ires]]);
+    return std::make_pair(backgroundWindow_[resToReg_[ires]].lowerBound(), backgroundWindow_[resToReg_[ires]].upperBound());
   }
   else {
     // Not fitting the background: use the resonances
-    return std::make_pair(1.,1.);
+    // return std::make_pair(1.,1.);
+    return std::make_pair(resonanceWindow_[ires].lowerBound(), resonanceWindow_[ires].upperBound());
   }
 }
 
@@ -245,16 +261,16 @@ void BackgroundHandler::countEventsInAllWindows(const std::vector<std::pair<reco
 }
 
 void BackgroundHandler::consistencyCheck(const std::vector<int> & identifiers,
-                                         const std::vector<double> & leftWindowFactors,
-                                         const std::vector<double> & rightWindowFactors) const throw(cms::Exception)
+                                         const std::vector<double> & leftWindowBorders,
+                                         const std::vector<double> & rightWindowBorders) const throw(cms::Exception)
 {
-  if( leftWindowFactors_.size() != rightWindowFactors_.size() ) {
-    throw cms::Exception("Configuration") << "BackgroundHandler::BackgroundHandler: leftWindowFactors_.size() = " << leftWindowFactors_.size()
-                                          << " != rightWindowFactors_.size() = " << rightWindowFactors_.size() << std::endl;
+  if( leftWindowBorders.size() != rightWindowBorders.size() ) {
+    throw cms::Exception("Configuration") << "BackgroundHandler::BackgroundHandler: leftWindowBorders.size() = " << leftWindowBorders.size()
+                                          << " != rightWindowBorders.size() = " << rightWindowBorders.size() << std::endl;
   }
-  if( leftWindowFactors_.size() != 3 ) {
-    throw cms::Exception("Configuration") << "BackgroundHandler::BackgroundHandler: leftWindowFactors_.size() = rightWindowFactors_.size() = "
-                                          << leftWindowFactors_.size() << " != 3" << std::endl;
+  if( leftWindowBorders.size() != 3 ) {
+    throw cms::Exception("Configuration") << "BackgroundHandler::BackgroundHandler: leftWindowBorders.size() = rightWindowBorders.size() = "
+                                          << leftWindowBorders.size() << " != 3" << std::endl;
   }
   if( identifiers.size() != 3 ) {
     throw cms::Exception("Configuration") << "BackgroundHandler::BackgroundHandler: identifiers must match the number of regions = 3" << std::endl;
