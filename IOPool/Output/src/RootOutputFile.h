@@ -103,6 +103,7 @@ namespace edm {
     FileIndex::EntryNumber_t lumiEntryNumber_;
     FileIndex::EntryNumber_t runEntryNumber_;
     TTree* metaDataTree_;
+    TTree* parameterSetsTree_;
     TTree* parentageTree_;
     TTree* eventHistoryTree_;
     EventAuxiliary const*           pEventAux_;

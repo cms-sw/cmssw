@@ -78,6 +78,7 @@ namespace edm {
       lumiEntryNumber_(0LL),
       runEntryNumber_(0LL),
       metaDataTree_(0),
+      parameterSetsTree_(0),
       parentageTree_(0),
       eventHistoryTree_(0),
       pEventAux_(0),
@@ -130,6 +131,7 @@ namespace edm {
     // Don't split metadata tree or event description tree
     metaDataTree_         = RootOutputTree::makeTTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
     parentageTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::parentageTreeName(), 0);
+    parameterSetsTree_    = RootOutputTree::makeTTree(filePtr_.get(), poolNames::parameterSetsTreeName(), 0);
 
     // Create the tree that will carry (event) History objects.
     eventHistoryTree_     = RootOutputTree::makeTTree(filePtr_.get(), poolNames::eventHistoryTreeName(), om_->splitLevel());
@@ -479,13 +481,19 @@ namespace edm {
   }
 
   void RootOutputFile::writeParameterSetRegistry() { 
-    typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
-    ParameterSetMap psetMap;
-    pset::fillMap(pset::Registry::instance(), psetMap);
-    ParameterSetMap* pPsetMap = &psetMap;
-    TBranch* b = metaDataTree_->Branch(poolNames::parameterSetMapBranchName().c_str(), &pPsetMap, om_->basketSize(), 0);
-    assert(b);
-    b->Fill();
+    std::pair<ParameterSetID, ParameterSetBlob> idToBlob;
+    std::pair<ParameterSetID, ParameterSetBlob>* pIdToBlob = &idToBlob;
+    TBranch* b = parameterSetsTree_->Branch(poolNames::idToParameterSetBlobsBranchName().c_str(),&pIdToBlob,om_->basketSize(), 0);
+    
+    for(pset::Registry::const_iterator it = pset::Registry::instance()->begin(),
+        itEnd = pset::Registry::instance()->end();
+        it != itEnd;
+        ++it) {
+      idToBlob.first = it->first;
+      idToBlob.second.pset() = it->second.toString();
+      
+      b->Fill();
+    }
   }
 
   void RootOutputFile::writeProductDescriptionRegistry() { 
@@ -523,6 +531,7 @@ namespace edm {
   void RootOutputFile::finishEndFile() { 
     metaDataTree_->SetEntries(-1);
     RootOutputTree::writeTTree(metaDataTree_);
+    RootOutputTree::writeTTree(parameterSetsTree_);
 
     RootOutputTree::writeTTree(parentageTree_);
 
