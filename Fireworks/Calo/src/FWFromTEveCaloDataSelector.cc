@@ -37,6 +37,8 @@ m_item(iItem)
 void
 FWFromSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell)
 {
+   if (!m_item) return;
+
    const CaloTowerCollection* towers=0;
    m_item->get(towers);
    assert(0!=towers);
@@ -55,6 +57,8 @@ FWFromSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell)
 void 
 FWFromSliceSelector::clear()
 {
+   if (!m_item) return;
+
    const CaloTowerCollection* towers=0;
    m_item->get(towers);
    
@@ -77,6 +81,8 @@ FWFromSliceSelector::changeManager() const {
 void
 FWFromSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell)
 {
+   if (!m_item) return;
+
    const CaloTowerCollection* towers=0;
    m_item->get(towers);
    assert(0!=towers);
@@ -92,6 +98,13 @@ FWFromSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell)
    }
 }
 
+void
+FWFromSliceSelector::reset()
+{
+   m_item = 0;
+   m_hist = 0;
+}
+
 //
 // static data member definitions
 //
@@ -103,7 +116,9 @@ FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(TEveCaloData* iData):
 m_data(iData),
 m_changeManager(0)
 {
-   m_sliceSelectors.resize(m_data->GetNSlices(), FWFromSliceSelector(0, 0));
+   // reserve 3 , first slice is background
+   m_sliceSelectors.reserve(3);
+   m_sliceSelectors.push_back(FWFromSliceSelector(0, 0));
 }
 
 // FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector& rhs)
@@ -135,23 +150,15 @@ FWFromTEveCaloDataSelector::doSelect()
 {
    assert(m_changeManager);
    FWChangeSentry sentry(*m_changeManager);
-   
-   for (std::vector<FWFromSliceSelector>::iterator i = m_sliceSelectors.begin(); i!= m_sliceSelectors.end(); ++i)
-   {
-      if ((*i).m_item)
-      {
-         (*i).clear();
-      }
-   }
-   
+   std::for_each(m_sliceSelectors.begin(),
+                 m_sliceSelectors.end(),
+                 boost::bind(&FWFromSliceSelector::clear,_1));
    const TEveCaloData::vCellId_t& cellIds = m_data->GetCellsSelected();
    for(TEveCaloData::vCellId_t::const_iterator it = cellIds.begin(),itEnd=cellIds.end();
        it != itEnd;
        ++it) {
-      if (m_sliceSelectors[it->fSlice].m_item)
-      {
-         m_sliceSelectors[it->fSlice].doSelect(*it);
-      }
+      assert(it->fSlice < static_cast<int>(m_sliceSelectors.size()));
+      m_sliceSelectors[it->fSlice].doSelect(*it);
    }
 }
 
@@ -166,30 +173,32 @@ FWFromTEveCaloDataSelector::doUnselect()
    for(TEveCaloData::vCellId_t::const_iterator it = cellIds.begin(),itEnd=cellIds.end();
        it != itEnd;
        ++it) {
-      if (m_sliceSelectors[it->fSlice].m_item)
-      {
-         m_sliceSelectors[it->fSlice].doUnselect(*it);
-      }
+      assert(it->fSlice < static_cast<int>(m_sliceSelectors.size()));
+      m_sliceSelectors[it->fSlice].doUnselect(*it);
    }
 }
 
 void 
 FWFromTEveCaloDataSelector::addSliceSelector(int iSlice, const FWFromSliceSelector& iSelector)
 {
-   assert(iSlice>-1);
+   assert(iSlice>0 && (iSlice >=static_cast<int>(m_sliceSelectors.size())));
+
    if(0==m_changeManager) {
       m_changeManager = iSelector.changeManager();
    }
-   m_sliceSelectors[iSlice]=iSelector;
-}
 
+   if(iSlice ==static_cast<int>(m_sliceSelectors.size())) {
+      m_sliceSelectors.push_back(iSelector);
+   } else {
+      assert(iSlice<static_cast<int>(m_sliceSelectors.size()));
+      m_sliceSelectors[iSlice]=iSelector;
+   }
+}
 void 
-FWFromTEveCaloDataSelector::removeSliceSelector(int iSlice)
+FWFromTEveCaloDataSelector::resetSliceSelector(int iSlice)
 {
-   m_sliceSelectors[iSlice].m_item = 0;
-   m_sliceSelectors[iSlice].m_hist = 0;
+   m_sliceSelectors[iSlice].reset();
 }
-
 //
 // const member functions
 //

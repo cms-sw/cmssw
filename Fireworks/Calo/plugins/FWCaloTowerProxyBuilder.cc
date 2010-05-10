@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.9 2010/05/08 22:03:20 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.8 2010/05/03 15:47:33 amraktad Exp $
 //
 
 // system includes
@@ -34,7 +34,6 @@
 // constructors , dectructors
 //
 FWCaloTowerProxyBuilderBase::FWCaloTowerProxyBuilderBase() :
-   m_caloData(0),
    m_hist(0)
 {
 }
@@ -52,11 +51,6 @@ void
 FWCaloTowerProxyBuilderBase::build(const FWEventItem* iItem,
                                    TEveElementList*, const FWViewContext*)
 {
-   if (!m_caloData) 
-   {
-      m_caloData = context().getCaloData();  
-   }
-   
    m_towers=0;
    iItem->get(m_towers);
 
@@ -64,28 +58,35 @@ FWCaloTowerProxyBuilderBase::build(const FWEventItem* iItem,
    if(0==m_towers) {
       if(0!=m_hist) {
          m_hist->Reset();
-         m_caloData->DataChanged();
+         caloData()->DataChanged();
       }
       return;
    }
 
    if(0==m_hist) {
-      m_hist = m_caloData->GetHist(sliceIndex());
-      m_caloData->RefSliceInfo(sliceIndex()).Setup(histName().c_str(), 0., iItem->defaultDisplayProperties().color());
-   
+      Bool_t status = TH1::AddDirectoryStatus();
+      TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
+      m_hist = new TH2F(histName().c_str(),
+                        (std::string("CaloTower ")+histName()+" Et distribution").c_str(),
+                        82, fw3dlego::xbins,
+                        72, -M_PI, M_PI);
+      TH1::AddDirectory(status);
+      m_sliceIndex = caloData()->AddHistogram(m_hist);
+      caloData()->RefSliceInfo(m_sliceIndex).Setup(histName().c_str(), 0., iItem->defaultDisplayProperties().color());
+
       FWFromTEveCaloDataSelector* sel = 0;
-      if (m_caloData->GetUserData())
+      if (caloData()->GetUserData())
       {
-         FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*>(m_caloData->GetUserData());
+         FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*>(caloData()->GetUserData());
          assert(0!=base);
          sel = dynamic_cast<FWFromTEveCaloDataSelector*> (base);
          assert(0!=sel);
       }
       else
       {
-         sel = new FWFromTEveCaloDataSelector(m_caloData);
+         sel = new FWFromTEveCaloDataSelector(caloData());
          //make sure it is accessible via the base class
-         m_caloData->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
+         caloData()->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
       }
 
       sel->addSliceSelector(m_sliceIndex,FWFromSliceSelector(m_hist,iItem));      
@@ -94,12 +95,12 @@ FWCaloTowerProxyBuilderBase::build(const FWEventItem* iItem,
 
 
    if(iItem->defaultDisplayProperties().isVisible()) {
-      m_caloData->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
+      caloData()->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
       for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower) {
          (m_hist)->Fill(tower->eta(),tower->phi(), getEt(*tower));
       }
    }
-   m_caloData->DataChanged();
+   caloData()->DataChanged();
 }
 
 void
@@ -111,13 +112,13 @@ FWCaloTowerProxyBuilderBase::modelChanges(const FWModelIds&, Product* p)
 void
 FWCaloTowerProxyBuilderBase::applyChangesToAllModels(Product* p)
 {
-   if(m_caloData && m_towers && item()) {
+   if(caloData() && m_towers && item()) {
       m_hist->Reset();
 
       //find all selected cell ids which are not from this FWEventItem and preserve only them
       // do this by moving them to the end of the list and then clearing only the end of the list
       // this avoids needing any additional memory
-      TEveCaloData::vCellId_t& selected = m_caloData->GetCellsSelected();
+      TEveCaloData::vCellId_t& selected = caloData()->GetCellsSelected();
       
       TEveCaloData::vCellId_t::iterator itEnd = selected.end();
       for(TEveCaloData::vCellId_t::iterator it = selected.begin();
@@ -161,18 +162,18 @@ FWCaloTowerProxyBuilderBase::applyChangesToAllModels(Product* p)
       }
 
       if(!selected.empty()) {
-         if(0==m_caloData->GetSelectedLevel()) {
-            gEve->GetSelection()->AddElement(m_caloData);
+         if(0==caloData()->GetSelectedLevel()) {
+            gEve->GetSelection()->AddElement(caloData());
          }
       } else {
-         if(1==m_caloData->GetSelectedLevel()||2==m_caloData->GetSelectedLevel()) {
-            gEve->GetSelection()->RemoveElement(m_caloData);
+         if(1==caloData()->GetSelectedLevel()||2==caloData()->GetSelectedLevel()) {
+            gEve->GetSelection()->RemoveElement(caloData());
          }
       }
       
-      m_caloData->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
-      m_caloData->CellSelectionChanged();
-      m_caloData->DataChanged();
+      caloData()->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
+      caloData()->CellSelectionChanged();
+      caloData()->DataChanged();
 
    }
 }
@@ -184,13 +185,19 @@ FWCaloTowerProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
    if(0!=m_hist) {
       m_hist->Reset();
    }
-   
-   FWFromTEveCaloDataSelector* sel = reinterpret_cast<FWFromTEveCaloDataSelector*>(m_caloData->GetUserData());
-   sel->removeSliceSelector(m_sliceIndex);   
-   
-   if(m_caloData) {
-      m_caloData->DataChanged();
+
+   FWFromTEveCaloDataSelector* sel = reinterpret_cast<FWFromTEveCaloDataSelector*>(iItem->context().getCaloData()->GetUserData());
+   sel->resetSliceSelector(m_sliceIndex);
+
+   if(0 != iItem->context().getCaloData()) {
+      iItem->context().getCaloData()->DataChanged();
    }
+}
+
+TEveCaloDataHist*
+FWCaloTowerProxyBuilderBase::caloData() const
+{
+   return context().getCaloData();
 }
 
 REGISTER_FWPROXYBUILDER(FWECalCaloTowerProxyBuilder,CaloTowerCollection,"ECal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kLegoBit);

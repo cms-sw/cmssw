@@ -31,15 +31,15 @@ class FWEventItem;
 class FWModelChangeManager;
 
 class FWFromSliceSelector {
-   friend class FWFromTEveCaloDataSelector;
 public:
    FWFromSliceSelector( TH2F* iHist,
                        const FWEventItem*);
    void doSelect(const TEveCaloData::CellId_t&);
    void doUnselect(const TEveCaloData::CellId_t&);
    void clear();
+   void reset();
    FWModelChangeManager* changeManager() const;
-protected:
+private:
     TH2F* m_hist;
    const FWEventItem* m_item;
 };
@@ -57,11 +57,10 @@ public:
    
    // ---------- member functions ---------------------------
    void doSelect();
-   void doUnselect();
-   
-   void addSliceSelector(int iSlice, const FWFromSliceSelector&);   
-   void removeSliceSelector(int iSlice);
-   
+   void doUnselect();   
+
+   void addSliceSelector(int iSlice, const FWFromSliceSelector&);
+   void resetSliceSelector(int iSlice);
 private:
    FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector&); // stop default
    
@@ -69,10 +68,9 @@ private:
    
    // ---------- member data --------------------------------
    std::vector<FWFromSliceSelector> m_sliceSelectors;
-   TEveCaloData* m_data;
+   TEveCaloData* m_data; // cached
    FWModelChangeManager* m_changeManager;
-   
-
+  
 };
 
 

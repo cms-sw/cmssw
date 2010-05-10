@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:08 EST 2008
-// $Id: FWCaloTowerProxyBuilder.h,v 1.6 2010/05/08 22:03:20 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.h,v 1.5 2010/05/03 15:47:33 amraktad Exp $
 //
 
 #include "Rtypes.h"
@@ -39,13 +39,9 @@ public:
    virtual double getEt(const CaloTower&) const = 0;
 
    virtual bool willHandleInteraction() const { return true; }
-
-   int sliceIndex() const { return m_sliceIndex; }
-
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void setSliceIndex(int s) { m_sliceIndex = s; }
 
 private:
    FWCaloTowerProxyBuilderBase(const FWCaloTowerProxyBuilderBase&); // stop default
@@ -66,6 +62,8 @@ private:
    TH2F* m_hist;
    Int_t m_sliceIndex;
    const CaloTowerCollection* m_towers;
+
+   TEveCaloDataHist* caloData() const;
 };
 
 //
@@ -75,7 +73,6 @@ private:
 class FWECalCaloTowerProxyBuilder : public FWCaloTowerProxyBuilderBase {
 public:
    FWECalCaloTowerProxyBuilder() {
-      setSliceIndex(0);
    }
    virtual ~FWECalCaloTowerProxyBuilder() {
    }
@@ -103,7 +100,6 @@ private:
 class FWHCalCaloTowerProxyBuilder : public FWCaloTowerProxyBuilderBase {
 public:
    FWHCalCaloTowerProxyBuilder() {
-      setSliceIndex(1);
    }
    virtual ~FWHCalCaloTowerProxyBuilder(){
    }
