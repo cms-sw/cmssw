@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.25 2010/04/10 08:12:27 elmer Exp $
+// $Id: SiPixelClusterSource.cc,v 1.26 2010/04/19 20:36:53 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -247,7 +247,7 @@ void SiPixelClusterSource::bookMEs(){
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   theDMBE->setCurrentFolder("Pixel");
   char title[80]; sprintf(title, "Rate of events with >%i FPIX clusters;LumiSection;Rate of large FPIX events per LS [Hz]",bigEventSize);
-  bigFpixClusterEventRate = theDMBE->book1D("bigFpixClusterEventRate",title,2000,0.,2000.);
+  bigFpixClusterEventRate = theDMBE->book1D("bigFpixClusterEventRate",title,5000,0.,5000.);
 
 
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
