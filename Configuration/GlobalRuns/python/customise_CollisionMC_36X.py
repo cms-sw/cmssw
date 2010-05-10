@@ -57,7 +57,6 @@ def customise(process):
     ## HCAL temporary fixes
     process.hfreco.firstSample  = 1
     process.hfreco.samplesToAdd = 4
-    process.hfreco.PETstat.short_R = cms.vdouble([0.8])
     
     ## EGAMMA
     process.photons.minSCEtBarrel = 5.
