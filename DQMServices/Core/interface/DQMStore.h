@@ -306,10 +306,10 @@ public:
 				     const std::string &path ="",
 				     const std::string &prepend = "",
   				     OpenRunDirs stripdirs = KeepRunDirs,
-				     bool fmustexist = true);
+				     bool fileMustExist = true);
   bool                          load(const std::string &filename,
 				     OpenRunDirs stripdirs = StripRunDirs,
-				     bool fmustexist = true);
+				     bool fileMustExist = true);
 
   //-------------------------------------------------------------------------
   // ---------------------- Public print methods -----------------------------
@@ -337,7 +337,7 @@ private:
 					 const std::string &path ="",
 					 const std::string &prepend = "",
 					 OpenRunDirs stripdirs = StripRunDirs,
-					 bool fmustexist = true);
+					 bool fileMustExist = true);
   void				makeDirectory(const std::string &path);
   unsigned int			readDirectory(TFile *file,
 					      bool overwrite,

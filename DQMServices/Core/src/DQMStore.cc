@@ -2200,9 +2200,9 @@ DQMStore::open(const std::string &filename,
 	       const std::string &onlypath /* ="" */,
 	       const std::string &prepend /* ="" */, 
                OpenRunDirs stripdirs /* =KeepRunDirs */, 
-	       bool fmustexist /* =true */)
+	       bool fileMustExist /* =true */)
 {
-  return readFile(filename,overwrite,onlypath,prepend,stripdirs,fmustexist);
+  return readFile(filename,overwrite,onlypath,prepend,stripdirs,fileMustExist);
 }
 
 /// public load root file <filename>, and copy MonitorElements;
@@ -2212,7 +2212,7 @@ DQMStore::open(const std::string &filename,
 bool 
 DQMStore::load(const std::string &filename,
                OpenRunDirs stripdirs /* =StripRunDirs */, 
-	       bool fmustexist /* =true */)
+	       bool fileMustExist /* =true */)
 {
   bool overwrite = true;
   if (collateHistograms_) overwrite = false;
@@ -2225,7 +2225,7 @@ DQMStore::load(const std::string &filename,
       std::cout << "DQMStore::load: in overwrite mode   " << "\n";
   }
     
-  return readFile(filename,overwrite,"","",stripdirs,fmustexist);
+  return readFile(filename,overwrite,"","",stripdirs,fileMustExist);
      
 }
 
@@ -2240,13 +2240,13 @@ DQMStore::readFile(const std::string &filename,
 		   const std::string &onlypath /* ="" */,
 		   const std::string &prepend /* ="" */,
 		   OpenRunDirs stripdirs /* =StripRunDirs */,
-		   bool fmustexist /* =true */)
+		   bool fileMustExist /* =true */)
 {
 
   FileStat_t buf;
   if (gSystem->GetPathInfo(filename.c_str(), buf)) // returns zero if file exists !!!
   {
-    if (fmustexist)
+    if (fileMustExist)
       raiseDQMError("DQMStore", "file '%s'", filename.c_str()," does not exist");
     else 
     {
