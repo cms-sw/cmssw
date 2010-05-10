@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:33 CDT 2009
-// $Id: FWFromTEveCaloDataSelector.cc,v 1.6 2009/10/28 18:03:46 amraktad Exp $
+// $Id: FWFromTEveCaloDataSelector.cc,v 1.8 2010/05/10 11:49:40 amraktad Exp $
 //
 
 // system include files
@@ -181,7 +181,7 @@ FWFromTEveCaloDataSelector::doUnselect()
 void 
 FWFromTEveCaloDataSelector::addSliceSelector(int iSlice, const FWFromSliceSelector& iSelector)
 {
-   assert(iSlice>0 && (iSlice >=static_cast<int>(m_sliceSelectors.size())));
+   assert(iSlice>0 && (iSlice <= static_cast<int>(m_sliceSelectors.size())));
 
    if(0==m_changeManager) {
       m_changeManager = iSelector.changeManager();
@@ -194,6 +194,7 @@ FWFromTEveCaloDataSelector::addSliceSelector(int iSlice, const FWFromSliceSelect
       m_sliceSelectors[iSlice]=iSelector;
    }
 }
+
 void 
 FWFromTEveCaloDataSelector::resetSliceSelector(int iSlice)
 {
