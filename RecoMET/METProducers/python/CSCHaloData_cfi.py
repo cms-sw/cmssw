@@ -29,7 +29,7 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
                              MuonLabel = cms.InputTag("muons"),
                              SALabel  =  cms.InputTag("standAloneMuons"),
 
-                             DetaParam = cms.double(0.05),
+                             DetaParam = cms.double(0.1),
                              DphiParam = cms.double(1.00),
                              NormChi2Param = cms.double(8.),
                              InnerRMinParam = cms.double(140.),
