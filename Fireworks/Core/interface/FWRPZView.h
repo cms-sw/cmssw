@@ -32,6 +32,7 @@
 class TEveProjectionManager;
 class TGLMatrix;
 class TEveCalo2D;
+class TEveProjectionAxes;
 class TEveWindowSlot;
 class FWColorManager;
 
@@ -67,12 +68,15 @@ private:
    void showProjectionAxes( );
    // ---------- member data --------------------------------
    FWEvePtr<TEveProjectionManager> m_projMgr;
+   FWEvePtr<TEveProjectionAxes>    m_axes;
    TEveCalo2D*                     m_calo;
 
    // parameters
+   FWLongParameter    m_overlayEventInfoLevel;
+   FWBoolParameter    m_drawCMSLogo;
    FWDoubleParameter  m_caloDistortion;
    FWDoubleParameter  m_muonDistortion;
-   FWEnumParameter    m_showProjectionAxes;
+   FWBoolParameter    m_showProjectionAxes;
    FWBoolParameter    m_compressMuon;
    FWDoubleParameter  m_caloFixedScale;
    FWBoolParameter    m_caloAutoScale;
