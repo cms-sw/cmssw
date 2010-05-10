@@ -185,9 +185,9 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 				      //make sure that this SA muon is not actually a halo-like muon
 				      float theta =  mu->outerTrack()->outerMomentum().theta();
 				      float deta = TMath::Abs(mu->outerTrack()->outerPosition().eta() - mu->outerTrack()->innerPosition().eta());
-				      if( theta > min_outer_theta || theta < min_outer_theta ) 
+				      if( theta < min_outer_theta || theta > max_outer_theta )  //halo-like
 					continue;
-				      else if ( deta > deta_threshold ) 
+				      else if ( deta > deta_threshold ) //halo-like
 					continue;
 				    }
 				}
@@ -274,9 +274,9 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 				      //make sure that this SA muon is not actually a halo-like muon
 				      float theta =  mu->outerTrack()->outerMomentum().theta();
 				      float deta = TMath::Abs(mu->outerTrack()->outerPosition().eta() - mu->outerTrack()->innerPosition().eta());
-				      if( theta > min_outer_theta || theta < min_outer_theta ) 
+				      if( theta < min_outer_theta || theta > max_outer_theta )  //halo-like
 					continue;
-				      else if ( deta > deta_threshold ) 
+				      else if ( deta > deta_threshold ) //halo-like
 					continue;
 				    }
 				}
