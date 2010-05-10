@@ -256,7 +256,7 @@ def recordedLumiForRange(dbsession,c,fileparsingResult):
 
 def printDeliveredLumi(lumidata,mode):
     labels=[('Run','Delivered LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Beam Mode')]
-    print tablePrinter.indent(labels+lumidata,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,20) )
+    print tablePrinter.indent(labels+lumidata,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace(x,20) )
 
 def dumpData(lumidata,filename):
     """
@@ -322,7 +322,10 @@ def getDeadfractions(deadtable):
     result={}
     for myls,d in deadtable.items():
         #deadfrac=float(d[0])/(float(d[2])*float(3564))
-        deadfrac=float(d[0])/(float(d[2]))
+        if float(d[2])==0.0: ##no beam
+            deadfrac=-1.0
+        else:
+            deadfrac=float(d[0])/(float(d[2]))
         result[myls]=deadfrac
     return result
 
@@ -385,7 +388,7 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
             datatoprint.append(rowdata)
     #print datatoprint
     print '==='
-    print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace_strict(x,22))
+    print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace_strict(x,22))
     if isVerbose:
         deadtoprint=[]
         deadtimelabels=[('Run','Lumi section : Dead fraction')]
@@ -400,10 +403,13 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
             deadT=getDeadfractions(perlsdata)
             t=''
             for myls,de in deadT.items():
-                t+=str(myls)+':'+'%.5f'%(de)+' '
+                if de<0:
+                    t+=str(myls)+':nobeam '
+                else:
+                    t+=str(myls)+':'+'%.5f'%(de)+' '
             deadtoprint.append([str(runnum),t])
         print '==='
-        print tablePrinter.indent(deadtimelabels+deadtoprint,hasHeader=True,separateRows=True,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,80))
+        print tablePrinter.indent(deadtimelabels+deadtoprint,hasHeader=True,separateRows=True,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace(x,80))
         
 def dumpRecordedLumi(lumidata,hltpath=''):
     #labels=['Run','HLT path','Recorded']
@@ -445,8 +451,12 @@ def dumpRecordedLumi(lumidata,hltpath=''):
             datatodump.append(rowdata)
     return datatodump
 def printOverviewData(delivered,recorded,hltpath=''):
-    toprowlabels=[('Run','Delivered LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Selected LS','Recorded'+u' (/\u03bcb)'.encode('utf-8'),hltpath+u'  (/\u03bcb)'.encode('utf-8') )]
-    lastrowlabels=[('Delivered LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Selected LS','Recorded'+u' (/\u03bcb)'.encode('utf-8'),hltpath+u' (/\u03bcb)'.encode('utf-8'))]
+    if len(hltpath)==0 or hltpath=='all':
+        toprowlabels=[('Run','Delivered LS','Delivered'+u'(/\u03bcb)'.encode('utf-8'),'Selected LS','Recorded'+u'(/\u03bcb)'.encode('utf-8') )]
+        lastrowlabels=[('Delivered LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Selected LS','Recorded'+u'(/\u03bcb)'.encode('utf-8') ) ]
+    else:
+        toprowlabels=[('Run','Delivered LS','Delivered'+u'(/\u03bcb)'.encode('utf-8'),'Selected LS','Recorded'+u'(/\u03bcb)'.encode('utf-8'),'Effective'+u'(/\u03bcb) '.encode('utf-8')+hltpath )]
+        lastrowlabels=[('Delivered LS','Delivered'+u'(/\u03bcb)'.encode('utf-8'),'Selected LS','Recorded'+u'(/\u03bcb)'.encode('utf-8'),'Effective '+u'(/\u03bcb) '.encode('utf-8')+hltpath)]
     datatable=[]
     totaldata=[]
     totalDeliveredLS=0
@@ -476,14 +486,18 @@ def printOverviewData(delivered,recorded,hltpath=''):
             else:
                 rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'N/A']
         else:
-            rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'%.3f'%(recordedLumi)]
+            #rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'%.3f'%(recordedLumi)]
+            rowdata+=[selectedlsStr,'%.3f'%(recordedLumi)]
         totalSelectedLS+=len(selectedls)
         totalRecorded+=recordedLumi
         datatable.append(rowdata)
-    totaltable=[[str(totalDeliveredLS),'%.3f'%(totalDelivered),str(totalSelectedLS),'%.3f'%(totalRecorded),'%.3f'%(totalRecordedInPath)]]
-    print tablePrinter.indent(toprowlabels+datatable,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,10))
+    if hltpath!='' and hltpath!='all':
+        totaltable=[[str(totalDeliveredLS),'%.3f'%(totalDelivered),str(totalSelectedLS),'%.3f'%(totalRecorded),'%.3f'%(totalRecordedInPath)]]
+    else:
+        totaltable=[[str(totalDeliveredLS),'%.3f'%(totalDelivered),str(totalSelectedLS),'%.3f'%(totalRecorded)]]
+    print tablePrinter.indent(toprowlabels+datatable,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace(x,20))
     print '=== Total : '
-    print tablePrinter.indent(lastrowlabels+totaltable,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,20))
+    print tablePrinter.indent(lastrowlabels+totaltable,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace(x,20))
 
 
 def dumpOverview(delivered,recorded,hltpath=''):
