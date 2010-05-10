@@ -125,8 +125,8 @@ def getListOfRunsAndLumiFromDBS(dataSet,lastRun=-1):
 
 ########################################################################
 def getListOfRunsAndLumiFromRR(dataSet,lastRun=-1):
-    #RunReg=http://pccmsdqm04.cern.ch/runregistry
-    RunReg  = "http://localhost:40010/runregistry"
+    RunReg  ="http://pccmsdqm04.cern.ch/runregistry"
+    #RunReg  = "http://localhost:40010/runregistry"
     #Dataset=%Online%
     Dataset = "%Express%"
     Group   = "Collisions10"
@@ -262,9 +262,9 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
         runsAndFiles[run].append(fileName)    
         file.close()
     filesToProcess = []
-    print "WARNING WARNING YOU MUST CHANGE THIS LINE BEFORE YOU CAN REALLY RUN THE SCRIPT!!!!!!"
-    #for run in listOfRunsAndLumiFromRR:
-    for run in listOfRunsAndLumiFromDBS:
+    #print "WARNING WARNING YOU MUST CHANGE THIS LINE BEFORE YOU CAN REALLY RUN THE SCRIPT!!!!!!"
+    for run in listOfRunsAndLumiFromRR:
+    #for run in listOfRunsAndLumiFromDBS:
         if run in runsAndLumisProcessed:
             if not run in listOfRunsAndLumiFromDBS:
                 error = "Impossible but run " + str(run) + " has been processed and it is also in the run registry but it is not in DBS!" 
@@ -294,10 +294,10 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                 #print badRunRegistry
                     
             if len(errors) != 0:    
+                #print errors
                 exit(errors)
-            else:
-                for file in runsAndFiles[run]:
-                    filesToProcess.append(file)    
+            for file in runsAndFiles[run]:
+                filesToProcess.append(file)    
                 
             #If I get here it means that I passed or the DBS or the RR test            
                             
