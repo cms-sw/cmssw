@@ -21,11 +21,11 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    lastRun = cms.untracked.uint32(1),
+    lastValue = cms.uint64(1),
     timetype = cms.string('runnumber'),
     #change the firstRun if you want a different IOV
-    firstRun = cms.untracked.uint32(1),
-    interval = cms.uint32(1)
+    firstValue = cms.uint64(1),
+    interval = cms.uint64(1)
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
