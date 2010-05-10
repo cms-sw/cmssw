@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.25 $'),
+    version = cms.untracked.string('$Revision: 1.26 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -38,7 +38,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5000)
+    input = cms.untracked.int32(100)
 )
 
 
@@ -446,24 +446,26 @@ process.load('DPGAnalysis/Skims/electronTagProbeFilters_cff')
 process.load('DPGAnalysis/Skims/singlePhotonSkim_cff')
 process.load('DPGAnalysis/Skims/jetSkim_cff')
 process.load('DPGAnalysis/Skims/METSkim_cff')
+process.load('DPGAnalysis/Skims/singlePfTauSkim_cff')
 
-process.singleMuPt20SkimPath=cms.Path(process.singleMuPt20RecoQualitySeq)
-process.singleMuPt15SkimPath=cms.Path(process.singleMuPt15RecoQualitySeq)
-process.singleMuPt10SkimPath=cms.Path(process.singleMuPt10RecoQualitySeq)
+#process.singleMuPt20SkimPath=cms.Path(process.singleMuPt20RecoQualitySeq)
+#process.singleMuPt15SkimPath=cms.Path(process.singleMuPt15RecoQualitySeq)
+#process.singleMuPt10SkimPath=cms.Path(process.singleMuPt10RecoQualitySeq)
 process.singleMuPt5SkimPath=cms.Path(process.singleMuPt5RecoQualitySeq)
-process.singleElectronPt20SkimPath=cms.Path(process.singleElectronPt20RecoQualitySeq)
-process.singleElectronPt15SkimPath=cms.Path(process.singleElectronPt15RecoQualitySeq)
-process.singleElectronPt10SkimPath=cms.Path(process.singleElectronPt10RecoQualitySeq)
+#process.singleElectronPt20SkimPath=cms.Path(process.singleElectronPt20RecoQualitySeq)
+#process.singleElectronPt15SkimPath=cms.Path(process.singleElectronPt15RecoQualitySeq)
+#process.singleElectronPt10SkimPath=cms.Path(process.singleElectronPt10RecoQualitySeq)
 process.singleElectronPt5SkimPath=cms.Path(process.singleElectronPt5RecoQualitySeq)
-process.singlePhotonPt20SkimPath=cms.Path(process.singlePhotonPt20QualitySeq)
-process.singlePhotonPt15SkimPath=cms.Path(process.singlePhotonPt15QualitySeq)
-process.singlePhotonPt10SkimPath=cms.Path(process.singlePhotonPt10QualitySeq)
+#process.singlePhotonPt20SkimPath=cms.Path(process.singlePhotonPt20QualitySeq)
+#process.singlePhotonPt15SkimPath=cms.Path(process.singlePhotonPt15QualitySeq)
+#process.singlePhotonPt10SkimPath=cms.Path(process.singlePhotonPt10QualitySeq)
 process.singlePhotonPt5SkimPath=cms.Path(process.singlePhotonPt5QualitySeq)
-process.muonZMMSkimPath=cms.Path(process.muonZMMRecoQualitySeq)
+#process.muonZMMSkimPath=cms.Path(process.muonZMMRecoQualitySeq)
 process.muonJPsiMMSkimPath=cms.Path(process.muonJPsiMMRecoQualitySeq)
-process.electronZEESkimPath=cms.Path(process.electronZEERecoQualitySeq)
+#process.electronZEESkimPath=cms.Path(process.electronZEERecoQualitySeq)
 process.jetSkimPath=cms.Path(process.jetRecoQualitySeq)
-process.METSkimPath=cms.Path(process.METQualitySeq)
+#process.METSkimPath=cms.Path(process.METQualitySeq)
+process.singlePfTauPt15SkimPath=cms.Path(process.singlePfTauPt15QualitySeq) 
 
 process.outTPGSkim = cms.OutputModule("PoolOutputModule",
     outputCommands = process.FEVTHLTALLEventContent.outputCommands,
@@ -472,23 +474,25 @@ process.outTPGSkim = cms.OutputModule("PoolOutputModule",
       dataTier = cms.untracked.string('TriggerTest'),
       filterName = cms.untracked.string('TPGSkim')
     ),
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('singleMuPt20SkimPath',
-                                                                 'singleMuPt15SkimPath',
-                                                                 'singleMuPt10SkimPath',
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring(
+                                                                 #'singleMuPt20SkimPath',
+                                                                 #'singleMuPt15SkimPath',
+                                                                 #'singleMuPt10SkimPath',
                                                                  'singleMuPt5SkimPath',
-                                                                 'singleElectronPt20SkimPath',
-                                                                 'singleElectronPt15SkimPath',
-                                                                 'singleElectronPt10SkimPath',
+                                                                 #'singleElectronPt20SkimPath',
+                                                                 #'singleElectronPt15SkimPath',
+                                                                 #'singleElectronPt10SkimPath',
                                                                  'singleElectronPt5SkimPath',
-                                                                 'singlePhotonPt20SkimPath',
-                                                                 'singlePhotonPt15SkimPath',
-                                                                 'singlePhotonPt10SkimPath',
+                                                                 #'singlePhotonPt20SkimPath',
+                                                                 #'singlePhotonPt15SkimPath',
+                                                                 #'singlePhotonPt10SkimPath',
                                                                  'singlePhotonPt5SkimPath',
-                                                                 'muonZMMSkimPath',
+                                                                 #'muonZMMSkimPath',
                                                                  'muonJPsiMMSkimPath',
-                                                                 'electronZEESkimPath',
+                                                                 #'electronZEESkimPath',
                                                                  'jetSkimPath',
-                                                                 'METSkimPath'))
+                                                                 #'METSkimPath',
+                                                                 'singlePfTauPt15SkimPath'))
 )
 
 
