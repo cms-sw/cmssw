@@ -5,7 +5,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 //#include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
-//#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 //#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -260,7 +260,10 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     if (cut[23] >0 && not (electron->gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel()))
       return result;
     // cut[24]: Dist cut[25]: dcot
-    if (convFinder.isElFromConversion(*electron, ctfTracks, bfield, cut[24], cut[25]))
+    
+    ConversionInfo convInfo = convFinder.getConversionInfo(*electron, ctfTracks, bfield);
+
+    if (convFinder.isFromConversion(cut[24], cut[25]))
       return result;
       
     result += 4;
@@ -427,19 +430,12 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     std::vector<double> cutmishits = cuts_.getParameter<std::vector<double> >("cutfmishits");
     std::vector<double> cutdcotdist = cuts_.getParameter<std::vector<double> >("cutdcotdist");
     
-    std::pair<double, double> convParam(9999., 9999.);
-    reco::TrackRef convTk = convFinder.getConversionPartnerTrack(*electron, ctfTracks, bfield, 0.04, 0.04, 0.45);
-    if (convTk.isNonnull()) {
-      math::XYZTLorentzVector tklv(convTk->px(), convTk->py(),
-                                   convTk->pz(), convTk->p());
-      
-      convParam = convFinder.getConversionInfo(electron->p4(), electron->charge(), 
-                                                electron->gsfTrack()->d0(), 
-                                                tklv, convTk->charge(), 
-                                                convTk->d0(), bfield);  
-    }
+    ConversionInfo convInfo = convFinder.getConversionInfo(*electron, ctfTracks, bfield);
     
-    float dcotdistcomb = ((0.4 - std::max(convParam.first, convParam.second)) > 0?(0.4 - std::max(convParam.first, convParam.second)):0);
+    float dist = (convInfo.dist() == -9999.? 9999:convInfo.dist());
+    float dcot = (convInfo.dcot() == -9999.? 9999:convInfo.dcot());
+
+    float dcotdistcomb = ((0.4 - std::max(dist, dcot)) > 0?(0.4 - std::max(dist, dcot)):0);
     
     if ((mishits < cutmishits[cat+bin*9]) and 
         (dcotdistcomb < cutdcotdist[cat+bin*9]))
