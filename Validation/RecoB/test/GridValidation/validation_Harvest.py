@@ -18,7 +18,7 @@ process.load("RecoBTag.Configuration.RecoBTag_cff")
 process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")  
 
 process.load("Validation.RecoB.bTagAnalysis_harvesting_cfi")
-process.bTagValidationHarvest.jetMCSrc = 'IC5byValAlgo'
+process.bTagValidationHarvest.jetMCSrc = 'AK5byValAlgo'
 process.bTagValidationHarvest.allHistograms = True 
 
 process.maxEvents = cms.untracked.PSet(

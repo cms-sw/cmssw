@@ -17,7 +17,7 @@ process.load("RecoBTag.Configuration.RecoBTag_cff")
 
 process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")  
 process.load("Validation.RecoB.bTagAnalysis_firststep_cfi")
-process.bTagValidationFirstStep.jetMCSrc = 'IC5byValAlgo'
+process.bTagValidationFirstStep.jetMCSrc = 'AK5byValAlgo'
 process.bTagValidationFirstStep.allHistograms = True 
 #process.bTagValidation.fastMC = True
 
@@ -35,7 +35,7 @@ process.EDM = cms.OutputModule("PoolOutputModule",
                                )
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
-process.plots = cms.Path(process.myPartons* process.iterativeCone5Flavour * process.bTagValidationFirstStep* process.MEtoEDMConverter)
+process.plots = cms.Path(process.myPartons* process.AK5Flavour * process.bTagValidationFirstStep* process.MEtoEDMConverter)
 
 process.outpath = cms.EndPath(process.EDM)
 
