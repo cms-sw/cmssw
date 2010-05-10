@@ -1,8 +1,8 @@
 /*
  * \file HcalMonitorClient.cc
  * 
- * $Date: 2010/04/16 09:44:20 $
- * $Revision: 1.96 $
+ * $Date: 2010/05/07 18:05:00 $
+ * $Revision: 1.97 $
  * \author J. Temple
  * 
  */
@@ -327,14 +327,11 @@ void HcalMonitorClient::analyze(int LS)
     clients_[i]->analyze();
   if (summaryClient_!=0)
     {
-      if (saveByLumiSection_==false)
-	{
-	  summaryClient_->analyze(LS);
-	}
-      else
-	{
-	  summaryClient_->fillReportSummaryLSbyLS(LS);
-	}
+      // Always call basic analyze to form histograms for each task
+      summaryClient_->analyze(LS);
+      // Call this if LS-by-LS enabling is set to true
+      if (saveByLumiSection_==true)
+	summaryClient_->fillReportSummaryLSbyLS(LS);
     }
 } // void HcalMonitorClient::analyze()
 

@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/05/07 09:09:12 $
- * $Revision: 1.96 $
+ * $Date: 2010/05/07 18:05:00 $
+ * $Revision: 1.97 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -386,7 +386,6 @@ void HcalSummaryClient::fillReportSummaryLSbyLS(int LS)
       int events=me->getBinContent(-1);
       if (events>0)
 	{
-	  std::cout <<"EVENTS = "<<events<<std::endl;
 	  std::map<std::string, int>::const_iterator it;
 	  int totalcells=0;
 
@@ -433,7 +432,7 @@ void HcalSummaryClient::fillReportSummaryLSbyLS(int LS)
 	    status_HFlumi=1-(status_HFlumi)/events/it->second;
 	  if (totalcells>0)
 	    status_global=1-status_global/events/totalcells;
-	  std::cout <<"STATUS = "<<status_HB<<" "<<status_HE<<" "<<status_HO<<" "<<status_HF<<"  GLOBAL = "<<status_global<<std::endl;
+	  //std::cout <<"STATUS = "<<status_HB<<" "<<status_HE<<" "<<status_HO<<" "<<status_HF<<"  GLOBAL = "<<status_global<<std::endl;
 	} // if (events(>0)
     } // if (me!=0)
 
