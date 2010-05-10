@@ -305,10 +305,18 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
   // Strip Clusters
   std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
   //first clear all of them
-  for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-       i!=theStripDets.end(); i++) {
+
+  {
+    std::vector<TkStripMeasurementDet*>::const_iterator end = theStripDets.end()-200;
+    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+         i!=end; i++) {
       (**i).setEmpty();
+      _mm_prefetch(((char *)(*(i+200))),_MM_HINT_T0); 
     }
+   for (std::vector<TkStripMeasurementDet*>::const_iterator i=end;
+         i!=theStripDets.end(); i++)
+      (**i).setEmpty();
+  }
   if( !stripClusterProducer.compare("") ) { //clusters have not been produced
   }else{
     //=========  actually load cluster =============
