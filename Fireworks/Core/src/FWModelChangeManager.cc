@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 19:13:46 EST 2008
-// $Id: FWModelChangeManager.cc,v 1.10 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWModelChangeManager.cc,v 1.11 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 
@@ -121,12 +122,12 @@ FWModelChangeManager::endChanges()
             try {
                (*itSlot)(*itChanges);
             } catch(const cms::Exception& iE) {
-               std::cerr <<(*itChanges)->name()<<" had the failure\n"<<iE.what()<<std::endl;
+               fwLog(fwlog::kError) <<(*itChanges)->name()<<" had the failure in process FWItemChanged signals\n"<<iE.what()<<std::endl;
             } catch(const std::bad_alloc& iE) {
                std::cerr <<"Ran out of memory while processing "<<(*itChanges)->name()<<std::endl;
                exit(1);
             } catch(const std::exception& iE) {
-               std::cerr <<(*itChanges)->name()<<" had the failure\n"<<iE.what()<<std::endl;
+                fwLog(fwlog::kError) <<(*itChanges)->name()<<" had the failure in process FWItemChanged signals (2) \n"<<iE.what()<<std::endl;
             }
          }
       }
@@ -150,12 +151,12 @@ FWModelChangeManager::endChanges()
                try {
                   (*itSlot)(*itChanges);
                } catch(const cms::Exception& iE) {
-                  std::cerr <<(*itChanges).begin()->item()->name()<<" had the failure\n"<<iE.what()<<std::endl;
+                 fwLog(fwlog::kError) <<(*itChanges).begin()->item()->name()<<" had the failure in process FWModelChangeSignals\n"<<iE.what()<<std::endl;
                } catch(const std::bad_alloc& iE) {
                   std::cerr <<"Ran out of memory while processing "<<(*itChanges).begin()->item()->name()<<std::endl;
                   exit(1);
                } catch(const std::exception& iE) {
-                  std::cerr <<(*itChanges).begin()->item()->name()<<" had the failure\n"<<iE.what()<<std::endl;
+                  fwLog(fwlog::kError) <<(*itChanges).begin()->item()->name()<<" had the failure in process FWModelChangeSignals (2)\n"<<iE.what()<<std::endl;
                }
             }
             itChanges->clear();
