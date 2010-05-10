@@ -15,8 +15,8 @@ BeamHaloSummary = cms.EDProducer("BeamHaloSummaryProducer",
                                  l_EcalPhiWedgeConstituents = cms.int32(6),
                                  l_EcalPhiWedgeToF = cms.double(-200.),  ### needs to be tuned when absolute timing in  EB/EE is understood w.r.t LHC
                                  l_EcalPhiWedgeConfidence = cms.double(.7),
-                                 l_EcalShowerShapesRoundness = cms.double(.42),
-                                 l_EcalShowerShapesAngle = cms.double(.42),
+                                 l_EcalShowerShapesRoundness = cms.double(.41),
+                                 l_EcalShowerShapesAngle = cms.double(.51),
                                  l_EcalSuperClusterEnergy = cms.double(10.), # This  will be Et
                                  l_EcalSuperClusterSize = cms.int32(3),
 

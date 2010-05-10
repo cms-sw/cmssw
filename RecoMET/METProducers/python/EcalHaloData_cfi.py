@@ -22,8 +22,8 @@ EcalHaloData= cms.EDProducer("EcalHaloDataProducer",
                              NHitsEcalThresholdParam = cms.int32(4),
 
                              # Shower Shape cut parameters (defaults need to be optimized)
-                             RoundnessCutParam  = cms.double(0.42),
-                             AngleCutParam      = cms.double(0.42),
+                             RoundnessCutParam  = cms.double(0.41),
+                             AngleCutParam      = cms.double(0.51),
                              
                              )
 
