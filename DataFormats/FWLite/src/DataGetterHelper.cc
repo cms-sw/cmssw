@@ -8,7 +8,7 @@
 //
 // Original Author: Eric Vaandering
 //         Created:  Fri Jan 29 11:58:01 CST 2010
-// $Id: DataGetterHelper.cc,v 1.2 2010/02/16 16:28:21 ewv Exp $
+// $Id: DataGetterHelper.cc,v 1.3 2010/03/04 02:47:09 dsr Exp $
 //
 
 // system include files
@@ -35,12 +35,6 @@
 
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
-#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #define TTCACHE_SIZE 20*1024*1024
