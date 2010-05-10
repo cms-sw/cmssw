@@ -1,0 +1,21 @@
+<bin   name="edmProvDump" file="EdmProvDump.cc,">
+  <use   name="rootcore"/>
+  <use   name="DataFormats/Provenance"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="uuid"/>
+</bin>
+<bin   name="edmFileUtil" file="EdmFileUtil.cpp,CollUtil.cc">
+  <use   name="boost"/>
+  <use   name="boost_program_options"/>
+  <use   name="rootcore"/>
+  <use   name="roothistmatrix"/>
+  <use   name="DataFormats/Provenance"/>
+  <use   name="FWCore/Catalog"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="uuid"/>
+</bin>
