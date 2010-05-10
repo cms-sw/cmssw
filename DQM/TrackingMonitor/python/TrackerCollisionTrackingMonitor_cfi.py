@@ -23,3 +23,14 @@ TrackerCollisionTrackMon.doBeamSpotPlots       = cms.bool(True)
 TrackerCollisionTrackMon.doSeedParameterHistos = cms.bool(True)
 
 TrackerCollisionTrackMon.doLumiAnalysis        = cms.bool(True)                       
+
+# Number of Tracks per Event
+TrackerCollisionTrackMon.TkSizeBin             = cms.int32(200)
+TrackerCollisionTrackMon.TkSizeMax             = cms.double(199.5)                        
+TrackerCollisionTrackMon.TkSizeMin             = cms.double(-0.5)
+
+# chi2 dof
+TrackerCollisionTrackMon.Chi2NDFBin            = cms.int32(100)
+TrackerCollisionTrackMon.Chi2NDFMax            = cms.double(49.5)
+TrackerCollisionTrackMon.Chi2NDFMin            = cms.double(-0.5)
+                

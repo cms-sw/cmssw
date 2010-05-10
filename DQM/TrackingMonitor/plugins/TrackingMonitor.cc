@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/04/19 21:54:40 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/05/06 06:48:50 $
+ *  $Revision: 1.14 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -202,8 +202,6 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
         for (reco::TrackCollection::const_iterator track = trackCollection.begin(); track!=trackCollection.end(); ++track) 
         {
-            // kludge --> do better
-            if( trackCollection.size() > 100) continue;
 
             if( Quality == "highPurity") 
             {
