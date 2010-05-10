@@ -35,7 +35,8 @@
 #include "DataFormats/METReco/interface/HcalHaloData.h"
 #include "DataFormats/METReco/interface/GlobalHaloData.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
-
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Handle.h"

@@ -69,16 +69,19 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
       (CSCData.NumberOfHaloTracks() && CSCData.NumberOfOutOfTimeTriggers() ) )
     TheBeamHaloSummary->GetCSCHaloReport()[1] = 1;
   
-  // Ecal Specific Halo Data
+  //Ecal Specific Halo Data
   Handle<EcalHaloData> TheEcalHaloData;
   iEvent.getByLabel(IT_EcalHaloData, TheEcalHaloData);
   
   const EcalHaloData EcalData = (*TheEcalHaloData.product() );
-  const std::vector<PhiWedge> EcalWedges = EcalData.GetPhiWedges();
+
   bool EcalLooseId = false, EcalTightId = false;
+  /*  COMMENTED OUT, NEEDS TO BE TUNED 
+  const std::vector<PhiWedge> EcalWedges = EcalData.GetPhiWedges();
   for( std::vector<PhiWedge>::const_iterator iWedge = EcalWedges.begin() ; iWedge != EcalWedges.end() ; iWedge++ )
     {
       bool EcaliPhi = false;
+      
       //Loose Id
       if(iWedge-> Energy() > L_EcalPhiWedgeEnergy && iWedge->NumberOfConstituents() > L_EcalPhiWedgeConstituents && abs(iWedge->ZDirectionConfidence()) > L_EcalPhiWedgeConfidence)
 	{
@@ -104,8 +107,9 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
       if( EcaliPhi ) 
 	TheBeamHaloSummary->GetEcaliPhiSuspects().push_back( iWedge->iPhi() ) ;
-    }
-  
+	}
+  */
+
   edm::ValueMap<float> vm_Angle = EcalData.GetShowerShapesAngle();
   edm::ValueMap<float> vm_Roundness = EcalData.GetShowerShapesRoundness();
 
@@ -170,7 +174,6 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	      continue;
             }
 	}
-
       if( HcaliPhi ) 
 	TheBeamHaloSummary->GetHcaliPhiSuspects().push_back( iWedge->iPhi() ) ;
     }
