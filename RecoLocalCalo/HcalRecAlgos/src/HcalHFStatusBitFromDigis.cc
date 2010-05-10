@@ -25,11 +25,11 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
   HFlongwindowMinTime_.push_back(-10);
   HFlongwindowMaxTime_.clear();
   HFlongwindowMaxTime_.push_back(8);
-  HFlongwindowEthresh_=40;
-  HFlongwindowMinTime_.clear();
-  HFlongwindowMinTime_.push_back(-10);
-  HFlongwindowMaxTime_.clear();
-  HFlongwindowMaxTime_.push_back(8);
+  HFshortwindowEthresh_=40;
+  HFshortwindowMinTime_.clear();
+  HFshortwindowMinTime_.push_back(-10);
+  HFshortwindowMaxTime_.clear();
+  HFshortwindowMaxTime_.push_back(8);
 }
 
 HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(int recoFirstSample,
@@ -124,19 +124,22 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 	hf.setFlagField(1,HcalCaloFlagLabels::HFDigiTime);
     }
   
-  // FLAG:  HcalCaloLabels:: HFinTimeWindow
+  // FLAG:  HcalCaloLabels:: HFInTimeWindow
   // Timing algorithm
   if (hf.id().depth()==1)
     {
       if (hf.energy()>=HFlongwindowEthresh_)
 	{
-	  double en = hf.energy();
-	  double mintime=0;
-	  double maxtime=0;
+	  float mult=1./hf.energy();
+	  float enPow=1.;
+	  float mintime=0;
+	  float maxtime=0;
 	  for (unsigned int i=0;i<HFlongwindowMinTime_.size();++i)
-	    mintime+=HFlongwindowMinTime_[i]*pow(1./en,i);
-	  for (unsigned int i=0;i<HFlongwindowMaxTime_.size();++i)
-	    maxtime+=HFlongwindowMaxTime_[i]*pow(1./en,i);
+	    {
+	      mintime+=HFlongwindowMinTime_[i]*enPow;
+	      maxtime+=HFlongwindowMinTime_[i]*enPow;
+	      enPow*=mult;
+	    }
 	  if (hf.time()<mintime || hf.time()>maxtime)
 	    hf.setFlagField(1,HcalCaloFlagLabels::HFInTimeWindow);
 	}
@@ -145,13 +148,16 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
     {
       if (hf.energy()>=HFshortwindowEthresh_)
 	{
-	  double en = hf.energy();
-	  double mintime=0;
-	  double maxtime=0;
+	  float mult=1./hf.energy();
+	  float enPow=1.;
+	  float mintime=0;
+	  float maxtime=0;
 	  for (unsigned int i=0;i<HFshortwindowMinTime_.size();++i)
-	    mintime+=HFshortwindowMinTime_[i]*pow(1./en,i);
-	  for (unsigned int i=0;i<HFshortwindowMaxTime_.size();++i)
-	    maxtime+=HFshortwindowMaxTime_[i]*pow(1./en,i);
+	    {
+	      mintime+=HFshortwindowMinTime_[i]*enPow;
+	      maxtime+=HFshortwindowMinTime_[i]*enPow;
+	      enPow*=mult;
+	    }
 	  if (hf.time()<mintime || hf.time()>maxtime)
 	    hf.setFlagField(1,HcalCaloFlagLabels::HFInTimeWindow);
 	}
