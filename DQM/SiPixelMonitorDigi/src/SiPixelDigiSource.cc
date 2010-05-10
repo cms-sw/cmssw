@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.36 2010/03/10 15:27:15 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.37 2010/04/10 08:12:26 elmer Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -126,10 +126,10 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   
   //float iOrbitSec = iEvent.orbitNumber()/11223.;
-  //int bx = iEvent.bunchCrossing();
+  int bx = iEvent.bunchCrossing();
   //long long tbx = (long long)iEvent.orbitNumber() * 3564 + bx;
   int lumiSection = (int)iEvent.luminosityBlock();
-  int nEventDigis = 0;
+  int nEventDigis = 0; int nActiveModules = 0;
   
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
@@ -137,23 +137,28 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 				ladOn, layOn, phiOn, 
 				bladeOn, diskOn, ringOn, 
 				twoDimOn, reducedSet, twoDimModOn, twoDimOnlyLayDisk);
-    nEventDigis = nEventDigis + numberOfDigis;    
+    nEventDigis = nEventDigis + numberOfDigis;  
+    if(numberOfDigis>0) nActiveModules++;  
   }
   
 //  if(lumiSection>lumSec){ lumSec = lumiSection; nLumiSecs++; }
 //  if(nEventDigis>bigEventSize) nBigEvents++;
 //  if(nLumiSecs%5==0){
-
+  MonitorElement* me; MonitorElement* me1;
   if(nEventDigis>bigEventSize){
-    MonitorElement* me = theDMBE->get("Pixel/bigEventRate");
-    if(me){ 
-      me->Fill(lumiSection,1./23.);    
-//      me->setBinContent(lumiSection+1,(float)nBigEvents/(5.*93.));
-//      me->setBinError(lumiSection+1,sqrt(nBigEvents)/(5.*93.));
-//      nBigEvents=0;
-    }
+    me = theDMBE->get("Pixel/bigEventRate");
+    if(me) me->Fill(lumiSection,1./23.);    
   }
   //std::cout<<"nEventDigis: "<<nEventDigis<<" , nLumiSecs: "<<nLumiSecs<<" , nBigEvents: "<<nBigEvents<<std::endl;
+  
+  if(nActiveModules>=4){
+    me = theDMBE->get("Pixel/pixEvtsPerBX");
+    if(me) me->Fill(float(bx));
+    me1 = theDMBE->get("Pixel/pixEventRate");
+    if(me1) me1->Fill(lumiSection, 1./23.);
+  }
+
+
   
   
   // slow down...
@@ -232,9 +237,12 @@ void SiPixelDigiSource::bookMEs(){
   // Get DQM interface
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   theDMBE->setCurrentFolder("Pixel");
-  char title[80]; sprintf(title, "Rate of events with >%i digis;LumiSection;Rate of large events per LS [Hz]",bigEventSize);
-  bigEventRate = theDMBE->book1D("bigEventRate",title,2000,0.,2000.);
-  //bigEventRate->getTH1F()->SetBit(TH1::kCanRebin);
+  char title[80]; sprintf(title, "Rate of events with >%i digis;LumiSection;Rate [Hz]",bigEventSize);
+  bigEventRate = theDMBE->book1D("bigEventRate",title,5000,0.,5000.);
+  char title1[80]; sprintf(title1, "Pixel events vs. BX;BX;# events",pixEvtsPerBX);
+  pixEvtsPerBX = theDMBE->book1D("pixEvtsPerBX",title1,9000,0.,9000.);
+  char title2[80]; sprintf(title2, "Rate of Pixel events;LumiSection;Rate [Hz]",pixEventRate);
+  pixEventRate = theDMBE->book1D("pixEventRate",title2,5000,0.,5000.);
   
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
  
