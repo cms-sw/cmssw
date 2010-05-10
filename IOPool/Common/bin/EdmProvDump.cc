@@ -376,8 +376,20 @@ ProvenanceDumper::work_() {
   meta->SetBranchAddress(edm::poolNames::productDescriptionBranchName().c_str(), &pReg);
 
   ParameterSetMap* pPsm = &psm_;
-  meta->SetBranchAddress(edm::poolNames::parameterSetMapBranchName().c_str(), &pPsm);
-
+  if(meta->FindBranch(edm::poolNames::parameterSetMapBranchName().c_str()) != 0) {
+    meta->SetBranchAddress(edm::poolNames::parameterSetMapBranchName().c_str(), &pPsm);
+  } else {
+    TTree* psetTree = dynamic_cast<TTree *>(f->Get(edm::poolNames::parameterSetsTreeName().c_str()));
+    assert(0!=psetTree);
+    typedef std::pair<edm::ParameterSetID, edm::ParameterSetBlob> IdToBlobs;
+    IdToBlobs idToBlob;
+    IdToBlobs* pIdToBlob = &idToBlob;
+    psetTree->SetBranchAddress(edm::poolNames::idToParameterSetBlobsBranchName().c_str(), &pIdToBlob);
+    for(long long i = 0; i != psetTree->GetEntries(); ++i) {
+      psetTree->GetEntry(i);
+      psm_.insert(idToBlob);
+    }
+  }
   edm::ProcessConfigurationVector* pPhc = &phc_;
   if (meta->FindBranch(edm::poolNames::processConfigurationBranchName().c_str()) != 0) {
     meta->SetBranchAddress(edm::poolNames::processConfigurationBranchName().c_str(), &pPhc);

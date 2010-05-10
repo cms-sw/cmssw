@@ -170,10 +170,27 @@ namespace edm {
     ProductRegistry *ppReg = &inputProdDescReg;
     metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
 
+    //backwards compatibility
     typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
     PsetMap psetMap;
     PsetMap *psetMapPtr = &psetMap;
-    metaDataTree->SetBranchAddress(poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
+    if(metaDataTree->FindBranch(poolNames::parameterSetMapBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
+    } else {
+      TTree* psetTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::parameterSetsTreeName().c_str()));
+      if(0==psetTree) {
+        throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::parameterSetsTreeName()
+        << " in the input file.\n";
+      }
+      typedef std::pair<ParameterSetID, ParameterSetBlob> IdToBlobs;
+      IdToBlobs idToBlob;
+      IdToBlobs* pIdToBlob = &idToBlob;
+      psetTree->SetBranchAddress(poolNames::idToParameterSetBlobsBranchName().c_str(), &pIdToBlob);
+      for(long long i = 0; i != psetTree->GetEntries(); ++i) {
+        psetTree->GetEntry(i);
+        psetMap.insert(idToBlob);
+      }
+    }
 
     // backward compatibility
     ProcessHistoryRegistry::collection_type pHistMap;

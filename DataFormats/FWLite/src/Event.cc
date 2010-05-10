@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.43 2010/03/04 02:47:09 dsr Exp $
+// $Id: Event.cc,v 1.44 2010/03/23 16:21:09 chrjones Exp $
 //
 
 // system include files
@@ -456,32 +456,40 @@ Event::fillParameterSetRegistry() const
     fft->GetEntry(0);
   }
 
+  typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
+  PsetMap psetMap;
+  TTree* psetTree(0);
   if (meta->FindBranch(edm::poolNames::parameterSetMapBranchName().c_str()) != 0) {
-    typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
-    PsetMap psetMap;
     PsetMap *psetMapPtr = &psetMap;
     TBranch* b = meta->GetBranch(edm::poolNames::parameterSetMapBranchName().c_str());
     b->SetAddress(&psetMapPtr);
     b->GetEntry(0);
-
-    edm::ParameterSetConverter::ParameterSetIdConverter psetIdConverter;
-    if(!fileFormatVersion.triggerPathsTracked()) {
-      edm::ParameterSetConverter converter(psetMap, psetIdConverter, fileFormatVersion.parameterSetsByReference());
-    } else {
-      // Merge into the parameter set registry.
-      edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
-      for(PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end();
-          i != iEnd; ++i) {
-        edm::ParameterSet pset(i->second.pset());
-        pset.setID(i->first);
-        psetRegistry.insertMapped(pset);
-      }
-    }
+  } else if( 0 == (psetTree = dynamic_cast<TTree *>(branchMap_.getFile()->Get(edm::poolNames::parameterSetsTreeName().c_str())))) {
+    throw cms::Exception("NoParameterSetMapTree")
+    << "The TTree "
+    << edm::poolNames::parameterSetsTreeName()<<" could not be found in the file.";
+  } else {
+    typedef std::pair<edm::ParameterSetID, edm::ParameterSetBlob> IdToBlobs;
+    IdToBlobs idToBlob;
+    IdToBlobs* pIdToBlob = &idToBlob;
+    psetTree->SetBranchAddress(edm::poolNames::idToParameterSetBlobsBranchName().c_str(), &pIdToBlob);
+    for(long long i = 0; i != psetTree->GetEntries(); ++i) {
+      psetTree->GetEntry(i);
+      psetMap.insert(idToBlob);
+    }    
   }
-  else {
-    throw cms::Exception("NoParameterSetMapBranch")
-      << "The TTree does not contain a TBranch named "
-      << edm::poolNames::parameterSetMapBranchName();
+  edm::ParameterSetConverter::ParameterSetIdConverter psetIdConverter;
+  if(!fileFormatVersion.triggerPathsTracked()) {
+    edm::ParameterSetConverter converter(psetMap, psetIdConverter, fileFormatVersion.parameterSetsByReference());
+  } else {
+    // Merge into the parameter set registry.
+    edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
+    for(PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end();
+        i != iEnd; ++i) {
+      edm::ParameterSet pset(i->second.pset());
+      pset.setID(i->first);
+      psetRegistry.insertMapped(pset);
+    }
   }
 }
 

@@ -368,9 +368,24 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   m_->reg_->setFrozen();
   typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
   PsetMap psetMap;
-  PsetMap *psetMapPtr = &psetMap;
-  metaDataTree->SetBranchAddress(edm::poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
-
+  PsetMap *psetMapPtr = &psetMap;  
+  if(metaDataTree->FindBranch(edm::poolNames::parameterSetMapBranchName().c_str()) != 0) {
+    metaDataTree->SetBranchAddress(edm::poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
+  } else {
+    TTree* psetTree = dynamic_cast<TTree *>(iFile.Get(edm::poolNames::parameterSetsTreeName().c_str()));
+    if(0==psetTree) {
+      throw edm::Exception(edm::errors::FileReadError) << "Could not find tree " << edm::poolNames::parameterSetsTreeName()
+      << " in the input file.\n";
+    }
+    typedef std::pair<edm::ParameterSetID, edm::ParameterSetBlob> IdToBlobs;
+    IdToBlobs idToBlob;
+    IdToBlobs* pIdToBlob = &idToBlob;
+    psetTree->SetBranchAddress(edm::poolNames::idToParameterSetBlobsBranchName().c_str(), &pIdToBlob);
+    for(long long i = 0; i != psetTree->GetEntries(); ++i) {
+      psetTree->GetEntry(i);
+      psetMap.insert(idToBlob);
+    }    
+  }
 
   edm::ProcessHistoryRegistry::vector_type pHistVector;
   edm::ProcessHistoryRegistry::vector_type *pHistVectorPtr = &pHistVector;
