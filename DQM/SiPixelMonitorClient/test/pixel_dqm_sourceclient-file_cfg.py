@@ -26,6 +26,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
 ##----## Central DQM:
 process.load("DQMServices.Core.DQM_cfg")
+process.DQMStore.referenceFileName = 'tmp/pixel_reference.root'
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.DQM.collectorHost = ''
 process.dqmSaver.convention = 'Online'
@@ -110,7 +111,7 @@ process.source = cms.Source("PoolSource",
 	    )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2000)
+    input = cms.untracked.int32(1000)
 )
 
 ##----## Sequences and Paths:
@@ -128,4 +129,6 @@ process.p = cms.Path(
 		     process.siPixelP5DQM_source_woTrack*
 		     #process.siPixelP5DQM_source*
 		     process.PixelP5DQMClientWithDataCertification
+		     #process.siPixelOfflineDQM_source*
+		     #process.PixelOfflineDQMClientWithDataCertification
 		    )
