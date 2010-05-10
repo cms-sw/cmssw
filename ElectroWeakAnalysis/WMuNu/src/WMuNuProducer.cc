@@ -54,7 +54,7 @@ private:
 
   unsigned int nall;
 
-  bool saveAllCandidates_;
+  bool saveOnlyHighestPtCandidate_;
 
 };
 
@@ -89,7 +89,7 @@ WMuNuProducer::WMuNuProducer( const ParameterSet & cfg ) :
       // Input collections
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
       metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
-      saveAllCandidates_(cfg.getUntrackedParameter<bool> ("saveAllCandidates", false))
+      saveOnlyHighestPtCandidate_(cfg.getUntrackedParameter<bool> ("OnlyHighestPtCandidate", true))
 {
   produces< WMuNuCandidateCollection >();
 }
@@ -154,11 +154,11 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
       LogTrace("") << "\t... acop:  " << WCand->acop();
       LogTrace("") << "\t... Muon pt, px, py, pz: "<<WCand->getMuon().pt()<<", "<<WCand->getMuon().px()<<", "<<WCand->getMuon().py()<<", "<< WCand->getMuon().pz()<<" [GeV]";
       LogTrace("") << "\t... Met  met_et, met_px, met_py : "<<WCand->getNeutrino().pt()<<", "<<WCand->getNeutrino().px()<<", "<<WCand->getNeutrino().py()<<" [GeV]";
-  	if (saveAllCandidates_) WMuNuCandidates->push_back(*WCand);
+  	if (!saveOnlyHighestPtCandidate_) WMuNuCandidates->push_back(*WCand);
       else if (muon->pt() > ptmax) { ptmax=muon->pt(); WCandSel=WCand;}   
-       } 
+      } 
 
-      if(saveAllCandidates_) {std::sort(WMuNuCandidates->begin(),WMuNuCandidates->end(),ptComparator);}      
+      if(!saveOnlyHighestPtCandidate_) {std::sort(WMuNuCandidates->begin(),WMuNuCandidates->end(),ptComparator);}      
       else if(NCands>0) {WMuNuCandidates->push_back(*WCandSel);}
       ev.put(WMuNuCandidates);
 

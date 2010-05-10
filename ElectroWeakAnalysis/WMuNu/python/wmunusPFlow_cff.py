@@ -16,7 +16,8 @@ muonsWithPFIso = cms.EDFilter("MuonWithPFIsoProducer",
 pfWMuNus = cms.EDProducer("WMuNuProducer",
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muonsWithPFIso"),
-      METTag = cms.untracked.InputTag("pfMet")
+      METTag = cms.untracked.InputTag("pfMet"),
+      OnlyHighestPtCandidate = cms.untracked.bool(True) # Only 1 Candidate saved in the event
 )
 
 # Select them:

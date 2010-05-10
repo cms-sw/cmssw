@@ -9,9 +9,6 @@
 //    --> Pre-Selection of events based in event cuts (trigger, Z rejection, ttbar rejection)                           //
 //    --> The Ws are selected from the highest pt muon in the event (applying the standard WMuNu Selection cuts)        //
 //                                                                                                                      //
-//    --> Be careful: if this Selector is used as a filter for further analysis you still have to make sure that        //
-//                    the W Candidate you use for your modules is the first one in the collection!!                     //
-//                                                                                                                      //
 //    Optionally, plots selection variables sequentially after cuts,                                                    //
 //    and 2D histograms for background determination.                                                                   //
 //                                                                                                                      //
@@ -356,6 +353,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
  
       if(plotHistograms_){
              h1_["hNWCand_sel"]->Fill(WMuNuCollection->size());
+             // If the producer is set to only build 1 WMuNuCandidate per event, this plot is irrelevant..
       }
 
       ncands++;
@@ -369,8 +367,8 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       LogTrace("") << "> WMuNu Candidate with: ";
       const WMuNuCandidate& WMuNu = WMuNuCollection->at(0);
-      // WMuNuCandidates are ordered by Pt! 
-      // The Inclusive Selection WMuNu Candidate is the first one 
+      // By default there is only 1 WMuNu Candidate per event, the highest pt one
+      // If you want to have all muons converted into WMuNuCandidates (for example, for a WZ analysis) modify the producer 
      
       const reco::Muon & mu = WMuNu.getMuon();
       const reco::MET  & met =WMuNu.getNeutrino();
