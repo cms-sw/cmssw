@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.8 2010/05/03 15:47:33 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.9 2010/05/08 22:03:20 amraktad Exp $
 //
 
 // system includes
@@ -70,16 +70,9 @@ FWCaloTowerProxyBuilderBase::build(const FWEventItem* iItem,
    }
 
    if(0==m_hist) {
-      Bool_t status = TH1::AddDirectoryStatus();
-      TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
-      m_hist = new TH2F(histName().c_str(),
-                        (std::string("CaloTower ")+histName()+" Et distribution").c_str(),
-                        82, fw3dlego::xbins,
-                        72, -M_PI, M_PI);
-      TH1::AddDirectory(status);
-      m_sliceIndex = m_caloData->AddHistogram(m_hist);
-      m_caloData->RefSliceInfo(m_sliceIndex).Setup(histName().c_str(), 0., iItem->defaultDisplayProperties().color());
-
+      m_hist = m_caloData->GetHist(sliceIndex());
+      m_caloData->RefSliceInfo(sliceIndex()).Setup(histName().c_str(), 0., iItem->defaultDisplayProperties().color());
+   
       FWFromTEveCaloDataSelector* sel = 0;
       if (m_caloData->GetUserData())
       {

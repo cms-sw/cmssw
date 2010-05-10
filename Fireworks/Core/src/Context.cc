@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.15 2010/04/30 14:51:10 amraktad Exp $
+// $Id: Context.cc,v 1.16 2010/05/08 17:45:17 matevz Exp $
 //
 
 // system include files
@@ -100,16 +100,30 @@ Context::initEveElements()
    m_caloData = new TEveCaloDataHist();
    m_caloData->IncDenyDestroy();
 
-   Bool_t status = TH1::AddDirectoryStatus();
-   TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
-   TH2F* dummy = new TH2F("background",
-                          "background",
-                          82, fw3dlego::xbins,
-                          72, -1*TMath::Pi(), TMath::Pi());
+   {
+      Bool_t status = TH1::AddDirectoryStatus();
+      TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
+      TH2F* dummy = new TH2F("ECal",
+                             "Calo Tower E/Et distibution",
+                             82, fw3dlego::xbins,
+                             72, -1*TMath::Pi(), TMath::Pi());
 
-   TH1::AddDirectory(status);
-   Int_t sliceIndex = m_caloData->AddHistogram(dummy);
-   (m_caloData)->RefSliceInfo(sliceIndex).Setup("background", 0., 0);
+      TH1::AddDirectory(status);
+      Int_t sliceIndex = m_caloData->AddHistogram(dummy);
+      (m_caloData)->RefSliceInfo(sliceIndex).Setup("ECal", 0., 0);
+   }
+   {
+      Bool_t status = TH1::AddDirectoryStatus();
+      TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
+      TH2F* dummy = new TH2F("HCal",
+                             "HCal Tower E/Et distibution",
+                             82, fw3dlego::xbins,
+                             72, -1*TMath::Pi(), TMath::Pi());
+
+      TH1::AddDirectory(status);
+      Int_t sliceIndex = m_caloData->AddHistogram(dummy);
+      (m_caloData)->RefSliceInfo(sliceIndex).Setup("HCal", 0., 0);
+   }
 }
 
 void
