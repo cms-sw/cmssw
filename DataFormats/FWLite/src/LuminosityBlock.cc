@@ -14,7 +14,7 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan  13 15:01:20 EDT 2007
-// $Id: LuminosityBlock.cc,v 1.9 2010/02/18 20:45:56 ewv Exp $
+// $Id: LuminosityBlock.cc,v 1.10 2010/03/04 15:20:27 dsr Exp $
 //
 
 // system include files
@@ -39,12 +39,6 @@
 
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
-#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/FWLite/interface/LumiHistoryGetter.h"
 #include "DataFormats/FWLite/interface/RunFactory.h"
@@ -65,7 +59,6 @@ namespace fwlite {
     pAux_(&aux_),
     pOldAux_(0),
     fileVersion_(-1),
-    parameterSetRegistryFilled_(false),
     dataHelper_(branchMap_->getLuminosityBlockTree(),
                 boost::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)),
                 branchMap_)
@@ -112,7 +105,6 @@ namespace fwlite {
     pAux_(&aux_),
     pOldAux_(0),
     fileVersion_(-1),
-    parameterSetRegistryFilled_(false),
     dataHelper_(branchMap_->getLuminosityBlockTree(),
                 boost::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)),
                 branchMap_),

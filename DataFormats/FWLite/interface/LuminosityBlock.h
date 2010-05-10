@@ -16,7 +16,7 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan 13 15:01:20 EDT 2007
-// $Id: LuminosityBlock.h,v 1.7 2010/02/18 20:44:57 ewv Exp $
+// $Id: LuminosityBlock.h,v 1.8 2010/03/12 14:55:38 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -141,7 +141,6 @@ namespace fwlite {
          edm::LuminosityBlockAux* pOldAux_;
          TBranch* auxBranch_;
          int fileVersion_;
-         mutable bool parameterSetRegistryFilled_;
 
          DataGetterHelper dataHelper_;
          mutable boost::shared_ptr<RunFactory> runFactory_;

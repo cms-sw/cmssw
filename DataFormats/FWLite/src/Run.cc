@@ -39,12 +39,6 @@
 
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
-#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/FWLite/interface/RunHistoryGetter.h"
 
@@ -64,7 +58,6 @@ namespace fwlite {
     pAux_(&aux_),
     pOldAux_(0),
     fileVersion_(-1),
-    parameterSetRegistryFilled_(false),
     dataHelper_(branchMap_->getRunTree(),
                 boost::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)),
                 branchMap_)
@@ -111,7 +104,6 @@ namespace fwlite {
     pAux_(&aux_),
     pOldAux_(0),
     fileVersion_(-1),
-    parameterSetRegistryFilled_(false),
     dataHelper_(branchMap_->getRunTree(),
                 boost::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)),
                 branchMap_)

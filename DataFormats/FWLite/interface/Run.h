@@ -16,7 +16,7 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan 13 15:01:20 EDT 2007
-// $Id: Run.h,v 1.3 2010/02/16 16:28:21 ewv Exp $
+// $Id: Run.h,v 1.4 2010/03/12 14:55:39 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -134,7 +134,6 @@ namespace fwlite {
          edm::RunAux* pOldAux_;
          TBranch* auxBranch_;
          int fileVersion_;
-         mutable bool parameterSetRegistryFilled_;
 
          fwlite::DataGetterHelper dataHelper_;
    };
