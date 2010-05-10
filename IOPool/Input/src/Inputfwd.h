@@ -20,6 +20,7 @@ namespace edm {
   class RootDelayedReader;
   class RootTree;
   namespace input {
+    unsigned int const defaultCacheSize = 20 * 1024 * 1024;
     struct BranchInfo {
       BranchInfo(ConstBranchDescription const& prod) :
         branchDescription_(prod),

@@ -764,6 +764,9 @@ namespace edm {
     while(fileIndexIter_ != fileIndexEnd_ && fileIndexIter_->getEntryType() != FileIndex::kEvent) {
       ++fileIndexIter_;
     }
+
+    eventTree_.resetTraining();
+
     return (fileIndexIter_ == fileIndexEnd_);
   }
 

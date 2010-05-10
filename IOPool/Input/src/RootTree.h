@@ -69,6 +69,7 @@ namespace edm {
     } // backward compatibility
 
     TBranch *const branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
+    void resetTraining() {trained_ = kFALSE;}
 
   private:
     boost::shared_ptr<TFile> filePtr_;
@@ -85,6 +86,7 @@ namespace edm {
     EntryNumber entryNumber_;
     std::vector<std::string> branchNames_;
     boost::shared_ptr<BranchMap> branches_;
+    bool trained_; // Set to true if the ROOT TTreeCache started training.
 
     // below for backward compatibility
     std::vector<ProductStatus> productStatuses_; // backward compatibility

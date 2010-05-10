@@ -43,6 +43,7 @@ namespace edm {
     entryNumber_(-1),
     branchNames_(),
     branches_(new BranchMap),
+    trained_(kFALSE),
     productStatuses_(), // backward compatibility
     pProductStatuses_(&productStatuses_), // backward compatibility
     infoTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)), // backward compatibility
@@ -134,11 +135,11 @@ namespace edm {
   void
   RootTree::setEntryNumber(EntryNumber theEntryNumber) {
     filePtr_->SetCacheRead(treeCache_);
-    if (treeCache_) {
+    if (treeCache_ && !trained_ && theEntryNumber >= 0) {
       assert(treeCache_->GetOwner() == tree_);
-      if (theEntryNumber >= 0 && treeCache_->IsLearning()) {
-	treeCache_->SetLearnEntries(1);
-      }
+      treeCache_->SetLearnEntries(20);
+      treeCache_->SetEntryRange(theEntryNumber, tree_->GetEntries());
+      trained_ = kTRUE;
     }
     entryNumber_ = theEntryNumber;
     tree_->LoadTree(theEntryNumber);
@@ -153,6 +154,7 @@ namespace edm {
     auxBranch_  = branchEntryInfoBranch_ = statusBranch_ = 0;
     tree_ = metaTree_ = infoTree_ = 0;
     treeCache_ = 0;
+    trained_ = kFALSE;
     filePtr_.reset();
   }
 

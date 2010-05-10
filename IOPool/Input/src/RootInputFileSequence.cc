@@ -66,7 +66,7 @@ namespace edm {
     numberOfEventsToSkip_(primarySequence ? pset.getUntrackedParameter<unsigned int>("skipEvents", 0U) : 0U),
     noEventSort_(primarySequence ? pset.getUntrackedParameter<bool>("noEventSort", false) : false),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
-    treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", 0U)),
+    treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", input::defaultCacheSize)),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
@@ -676,7 +676,7 @@ namespace edm {
     desc.addUntracked<unsigned int>("skipEvents", 0U);
     desc.addUntracked<bool>("noEventSort", false);
     desc.addUntracked<bool>("skipBadFiles", false);
-    desc.addUntracked<unsigned int>("cacheSize", 0U);
+    desc.addUntracked<unsigned int>("cacheSize", input::defaultCacheSize);
     desc.addUntracked<int>("treeMaxVirtualSize", -1);
     desc.addUntracked<unsigned int>("setRunNumber", 0U);
     desc.addUntracked<bool>("dropDescendantsOfDroppedBranches", true);
