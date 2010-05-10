@@ -155,7 +155,6 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
       // Convert global phi to iPhi
       int global_EcaliPhi = Phi_To_EcaliPhi( global_phi );
       int global_HcaliPhi = Phi_To_HcaliPhi( global_phi );
-      
       bool MATCHED = false;
       
       //Loop over Ecal Phi Wedges 
@@ -190,7 +189,7 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
 		  vHcaliPhi.push_back( iWedge->iPhi() ) ;
 		  PhiWedge NewWedge(*iWedge);
 		  NewWedge.SetOverlappingCSCSegments( HcalOverlapping_CSCSegments[iWedge->iPhi()] );
-		  NewWedge.SetOverlappingCSCRecHits( HcalOverlapping_CSCRecHits[iWedge->iPhi()] );		  
+		  NewWedge.SetOverlappingCSCRecHits(  HcalOverlapping_CSCRecHits[iWedge->iPhi()] );		  
 		  PhiWedge wedge(*iWedge);
 		  TheGlobalHaloData.GetMatchedHcalPhiWedges().push_back( NewWedge ) ; 
 		}
