@@ -25,6 +25,7 @@ class TFileAdaptor
   std::string cacheHint_;
   std::string readHint_;
   std::string tempDir_;
+  double minFree_;
   std::vector<std::string> native_;
 
   static void addType(TPluginManager *mgr, const char *type)
@@ -54,7 +55,8 @@ public:
       doStats_(true),
       cacheHint_("application-only"),
       readHint_("auto-detect"),
-      tempDir_(".")
+      tempDir_(),
+      minFree_(0)
   {
     if (! (enabled_ = p.getUntrackedParameter<bool> ("enable", enabled_)))
       return;
@@ -63,7 +65,8 @@ public:
     doStats_ = p.getUntrackedParameter<bool> ("stats", doStats_);
     cacheHint_ = p.getUntrackedParameter<std::string> ("cacheHint", cacheHint_);
     readHint_ = p.getUntrackedParameter<std::string> ("readHint", readHint_);
-    tempDir_ = p.getUntrackedParameter<std::string> ("tempDir", tempDir_);
+    tempDir_ = p.getUntrackedParameter<std::string> ("tempDir", f->tempPath());
+    minFree_ = p.getUntrackedParameter<double> ("tempMinFree", f->tempMinFree());
     native_ = p.getUntrackedParameter<std::vector<std::string> >("native", native_);
     ar.watchPostEndJob(this, &TFileAdaptor::termination);
      
@@ -71,19 +74,22 @@ public:
     // any values set for this service.  This is to allow backwards compatibility
     // for WMDM tools until we switch to only using the site local config for this info
     edm::Service<edm::SiteLocalConfig> pSLC;
-    if(pSLC.isAvailable()) {
-       if(pSLC->sourceCacheTempDir()) {
-          tempDir_=*(pSLC->sourceCacheTempDir());
-       }
-       if(pSLC->sourceCacheHint()) {
-          cacheHint_ = *(pSLC->sourceCacheHint());
-       }
-       if(pSLC->sourceReadHint()) {
-          readHint_ = *(pSLC->sourceReadHint());
-       }
-       if(pSLC->sourceNativeProtocols()) {
-          native_=*(pSLC->sourceNativeProtocols());
-       }
+    if (pSLC.isAvailable())
+    {
+      if (const std::string *p = pSLC->sourceCacheTempDir())
+        tempDir_ = *p;
+
+      if (const double *p = pSLC->sourceCacheMinFree())
+	minFree_ = *p;
+
+      if (const std::string *p = pSLC->sourceCacheHint())
+        cacheHint_ = *p;
+
+      if (const std::string *p = pSLC->sourceReadHint())
+        readHint_ = *p;
+
+      if (const std::vector<std::string> *p = pSLC->sourceNativeProtocols())
+        native_ = *p;
     }
 
     // tell factory how clients should access files
@@ -117,7 +123,7 @@ public:
     f->enableAccounting(doStats_);
 
     // tell where to save files.
-    f->setTempDir(tempDir_);
+    f->setTempDir(tempDir_, minFree_);
 
     // set our own root plugins
     TPluginManager *mgr = gROOT->GetPluginManager();
