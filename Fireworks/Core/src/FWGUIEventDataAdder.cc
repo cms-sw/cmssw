@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.29 2010/05/05 11:09:57 matevz Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.30 2010/05/06 18:03:08 amraktad Exp $
 //
 
 // system include files
@@ -40,9 +40,11 @@
 
 //Had to hide this type from Cint
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
+
 //
 // constants, enums and typedefs
 //
+
 static const std::string& dataForColumn( const FWGUIEventDataAdder::Data& iData, int iCol)
 {
    switch (iCol) {
@@ -69,7 +71,9 @@ static const std::string& dataForColumn( const FWGUIEventDataAdder::Data& iData,
 }
 
 static const unsigned int kNColumns = 5;
-class DataAdderTableManager : public FWTableManagerBase {
+
+class DataAdderTableManager : public FWTableManagerBase
+{
 public:
    DataAdderTableManager(const std::vector<FWGUIEventDataAdder::Data>* iData) :
       m_data(iData), m_selectedRow(-1) {
@@ -144,6 +148,7 @@ public:
       dataChanged();
    }
    sigc::signal<void,int> indexSelected_;
+
 private:
    void changeSelection(int iRow) {
       if(iRow != m_selectedRow) {
@@ -162,7 +167,8 @@ private:
    mutable FWTextTableCellRenderer m_renderer;
 };
 
-namespace {
+namespace
+{
    template <typename TMap>
    void doSort(int col,
                const std::vector<FWGUIEventDataAdder::Data>& iData,
@@ -419,58 +425,56 @@ void
 FWGUIEventDataAdder::fillData(const TFile* iFile)
 {
    m_useableData.clear();
-   if(0!=m_presentEvent) {
+
+   if (m_presentEvent != 0)
+   {
       const std::vector<std::string>& history = m_presentEvent->getProcessHistory();
       //Turns out, in the online system we do sometimes gets files without any history, 
       // this really should be investigated
       //assert(0!=history.size());
-      if(0==history.size()) {
+      if (history.empty())
+      {
          std::cerr <<"WARNING: the file '"<<iFile->GetName()<<"' contains no processing history and therefore should have no accessible data";
       }
       std::copy(history.rbegin(),history.rend(),
                 std::back_inserter(m_processNamesInFile));
       
-      static const std::string s_blank;
-      const std::vector<edm::BranchDescription>& branches =
-         m_presentEvent->getBranchDescriptions();
-      Data d;
+      const std::vector<edm::BranchDescription>& branches = m_presentEvent->getBranchDescriptions();
 
       //I'm not going to modify TFile but I need to see what it is holding
       TTree* eventsTree = dynamic_cast<TTree*>(const_cast<TFile*>(iFile)->Get("Events"));
-      assert(0!=eventsTree);
+      assert(eventsTree != 0);
 
       std::set<std::string> branchNamesInFile;
       TIter nextBranch(eventsTree->GetListOfBranches());
-      while(TBranch* branch = static_cast<TBranch*>(nextBranch())) {
+      while(TBranch* branch = static_cast<TBranch*>(nextBranch()))
+      {
          branchNamesInFile.insert(branch->GetName());
       }
 
 
-      std::set<std::string> purposes;
-      for(std::vector<edm::BranchDescription>::const_iterator itBranch =
-             branches.begin(), itEnd=branches.end();
-          itBranch != itEnd;
-          ++itBranch) {
-         if(itBranch->present() &&
-            branchNamesInFile.end() != branchNamesInFile.find(itBranch->branchName())){
+      for (std::vector<edm::BranchDescription>::const_iterator itBranch = branches.begin(); itBranch != branches.end(); ++itBranch)
+      {
+         if (itBranch->present() && branchNamesInFile.find(itBranch->branchName()) != branchNamesInFile.end())
+         {
             const std::vector<FWRepresentationInfo>& infos = m_typeAndReps->representationsForType(itBranch->fullClassName());
 
             //std::cout <<"try to find match "<<itBranch->fullClassName()<<std::endl;
             //the infos list can contain multiple items with the same purpose so we will just find
             // the unique ones
-            purposes.clear();
-            for(std::vector<FWRepresentationInfo>::const_iterator itInfo = infos.begin(),
-                                                                  itInfoEnd = infos.end();
-                itInfo != itInfoEnd;
-                ++itInfo) {
+            std::set<std::string> purposes;
+
+            for(std::vector<FWRepresentationInfo>::const_iterator itInfo = infos.begin(); itInfo != infos.end(); ++itInfo)
+            {
                purposes.insert(itInfo->purpose());
             }
-            if(purposes.empty())
-              purposes.insert("Table");
-            for(std::set<std::string>::const_iterator itPurpose = purposes.begin(),
-                                                      itEnd = purposes.end();
-                itPurpose != itEnd;
-                ++itPurpose) {
+            if (purposes.empty())
+            {
+               purposes.insert("Table");
+            }
+            for (std::set<std::string>::const_iterator itPurpose = purposes.begin(); itPurpose != purposes.end(); ++itPurpose)
+            {
+               Data d;
                d.purpose_ = *itPurpose;
                d.type_ = itBranch->fullClassName();
                d.moduleLabel_ = itBranch->moduleLabel();
@@ -494,15 +498,18 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
 void
 FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
 {
-   if(-1 != iSelectedIndex) {
-      m_purpose =m_useableData[iSelectedIndex].purpose_;
-      m_type = m_useableData[iSelectedIndex].type_;
+   if (iSelectedIndex != -1)
+   {
       std::string oldModuleLabel = m_moduleLabel;
-      m_moduleLabel = m_useableData[iSelectedIndex].moduleLabel_;
+
+      m_purpose              = m_useableData[iSelectedIndex].purpose_;
+      m_type                 = m_useableData[iSelectedIndex].type_;
+      m_moduleLabel          = m_useableData[iSelectedIndex].moduleLabel_;
       m_productInstanceLabel = m_useableData[iSelectedIndex].productInstanceLabel_;
-      m_processName = m_useableData[iSelectedIndex].processName_;
+      m_processName          = m_useableData[iSelectedIndex].processName_;
       
-      if(strlen(m_name->GetText())==0 || oldModuleLabel == m_name->GetText()) {
+      if (strlen(m_name->GetText()) == 0 || oldModuleLabel == m_name->GetText())
+      {
          m_name->SetText(m_moduleLabel.c_str());
       }
       m_apply->SetEnabled(true);
@@ -513,33 +520,38 @@ FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
       // process name in order to correctly get the data they want
       bool isMostRecentProcess =true;
       int index = 0;
-      for(std::vector<Data>::iterator it = m_useableData.begin(), itEnd = m_useableData.end();
-          it != itEnd && isMostRecentProcess;
-          ++it,++index) {
-         if(index == iSelectedIndex) {continue;}
-         if(it->moduleLabel_ == m_moduleLabel &&
-            it->purpose_ == m_purpose &&
-            it->type_ == m_type &&
-            it->productInstanceLabel_ == m_productInstanceLabel) {
+      for (std::vector<Data>::iterator it = m_useableData.begin(); it != m_useableData.end() && isMostRecentProcess;
+           ++it,++index)
+      {
+         if (index == iSelectedIndex) {
+            continue;
+         }
+         if (it->moduleLabel_ == m_moduleLabel &&
+             it->purpose_     == m_purpose &&
+             it->type_        == m_type &&
+             it->productInstanceLabel_ == m_productInstanceLabel)
+         {
             //see if this process is newer than the data requested
-            for(std::vector<std::string>::iterator itHist = m_processNamesInFile.begin(),itHistEnd = m_processNamesInFile.end();
-                itHist != itHistEnd;
-                ++itHist) {
+            for (std::vector<std::string>::iterator itHist = m_processNamesInFile.begin(); itHist != m_processNamesInFile.end(); ++itHist)
+            {
                if (m_processName == *itHist) {
                   break;
                }
-               if(it->processName_ == *itHist) {
+               if (it->processName_ == *itHist) {
                   isMostRecentProcess = false;
                   break;
                }
             }
          }
       }
-      if(isMostRecentProcess) {
-         if(!m_doNotUseProcessName->IsEnabled()) {
+      if (isMostRecentProcess)
+      {
+         if (!m_doNotUseProcessName->IsEnabled()) {
             m_doNotUseProcessName->SetEnabled(true);
          }
-      } else {
+      }
+      else
+      {
          //NOTE: must remember state before we get here because 'enable' and 'on' are mutually
          // exlcusive :(
          m_doNotUseProcessName->SetEnabled(false);

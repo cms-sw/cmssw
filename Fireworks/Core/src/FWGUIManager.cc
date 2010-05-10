@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.201 2010/04/29 16:58:05 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.202 2010/05/06 14:28:16 amraktad Exp $
 
 //
 
@@ -169,10 +169,11 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       m_cmsShowMainFrame->SetWindowName("CmsShow");
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
 
-      m_detailViewManager = new FWDetailViewManager(m_colorManager);
+      m_detailViewManager  = new FWDetailViewManager(m_colorManager);
       m_contextMenuHandler = new FWModelContextMenuHandler(iSelMgr,m_detailViewManager,m_colorManager,this);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
+      getAction(cmsshow::sExportAllImages)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImagesOfAllViews));
       getAction(cmsshow::sLoadConfig)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForLoadConfigurationFile));
       getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
       getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForSaveConfigurationFile));
@@ -843,6 +844,40 @@ FWGUIManager::exportImageOfMainView()
    TGFrameElementPack* frameEL = (TGFrameElementPack*) m_viewPrimPack->GetPack()->GetList()->At(1);
    TEveCompositeFrame* ef = dynamic_cast<TEveCompositeFrame*>(frameEL->fFrame);
    m_viewMap[ef->GetEveWindow()]->promptForSaveImageTo(m_cmsShowMainFrame);
+}
+
+void
+FWGUIManager::exportImagesOfAllViews()
+{
+   try {
+      static TString dir(".");
+      const char *  kImageExportTypes[] = {"PNG",                     "*.png",
+                                           "GIF",                     "*.gif",
+                                           "JPEG",                    "*.jpg",
+                                           "PDF",                     "*.pdf",
+                                           "Encapsulated PostScript", "*.eps",
+                                           0, 0};
+
+      TGFileInfo fi;
+      fi.fFileTypes = kImageExportTypes;
+      fi.fIniDir    = StrDup(dir);
+      new TGFileDialog(gClient->GetDefaultRoot(), m_cmsShowMainFrame,
+                       kFDSave,&fi);
+      dir = fi.fIniDir;
+      if (fi.fFilename != 0) {
+         std::string name = fi.fFilename;
+         // fi.fFileTypeIdx points to the name of the file type
+         // selected in the drop-down menu, so fi.fFileTypeIdx gives us
+         // the extension
+         std::string ext = kImageExportTypes[fi.fFileTypeIdx + 1] + 1;
+         if (name.find(ext) == name.npos)
+            name += ext;
+         // now add format trailing before the extension
+         name.insert(name.rfind('.'), "-%d_%d_%d_%s");
+         exportAllViews(name);
+      }
+   }
+   catch (std::runtime_error &e) { std::cout << e.what() << std::endl; }
 }
 
 void

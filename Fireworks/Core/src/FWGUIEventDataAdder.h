@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:12:36 EDT 2008
-// $Id: FWGUIEventDataAdder.h,v 1.10 2009/09/23 20:28:17 chrjones Exp $
+// $Id: FWGUIEventDataAdder.h,v 1.11 2009/10/09 15:06:05 chrjones Exp $
 //
 
 // system include files
@@ -41,8 +41,10 @@ namespace fwlite {
 class FWTableWidget;
 class DataAdderTableManager;
 
-class FWGUIEventDataAdder {
+class FWGUIEventDataAdder
+{
    RQ_OBJECT("FWGUIEventDataAdder")
+
 public:
    FWGUIEventDataAdder(UInt_t w,UInt_t,
                        FWEventItemsManager*, TGFrame*,
@@ -51,7 +53,8 @@ public:
                        const FWTypeToRepresentations& iTypeAndReps);
    virtual ~FWGUIEventDataAdder();
 
-   struct Data {
+   struct Data
+   {
       std::string purpose_;
       std::string type_;
       std::string moduleLabel_;
@@ -71,6 +74,7 @@ public:
    void update(const TFile*, const fwlite::Event*);
    
    void rowClicked(Int_t iRow,Int_t iButton,Int_t iKeyMod,Int_t,Int_t);
+
 private:
    FWGUIEventDataAdder(const FWGUIEventDataAdder&); // stop default
    void createWindow();
@@ -83,11 +87,11 @@ private:
    FWEventItemsManager* m_manager;
    const fwlite::Event* m_presentEvent;
 
-   TGFrame* m_parentFrame;
-
+   TGFrame*          m_parentFrame;
    TGTransientFrame* m_frame;
-   TGTextEntry* m_name;
-   TGCheckButton* m_doNotUseProcessName;
+   TGTextEntry*      m_name;
+   TGCheckButton*    m_doNotUseProcessName;
+   TGTextButton*     m_apply;
 
    std::string m_purpose;
 
@@ -98,12 +102,11 @@ private:
 
    std::vector<std::string> m_processNamesInFile;
    
-   DataAdderTableManager* m_tableManager;
-   FWTableWidget* m_tableWidget;
-   TGTextButton* m_apply;
+   DataAdderTableManager*   m_tableManager;
+   FWTableWidget*           m_tableWidget;
 
    FWTypeToRepresentations* m_typeAndReps;
-   std::vector<Data> m_useableData;
+   std::vector<Data>        m_useableData;
 };
 
 

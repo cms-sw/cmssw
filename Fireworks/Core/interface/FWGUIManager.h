@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.100 2010/04/27 13:36:33 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.101 2010/04/28 14:08:11 eulisse Exp $
 //
 
 // system include files
@@ -122,6 +122,8 @@ public:
    
    TGVerticalFrame* createList(TGSplitFrame *p);
    void createViews(TGTab *p);
+   void exportImageOfMainView();
+   void exportImagesOfAllViews();
    void exportAllViews(const std::string& format);
 
    void createEDIFrame();
@@ -220,8 +222,6 @@ private:
    TEveWindow* getSwapCandidate();
    
    void newItem(const FWEventItem*);
-   
-   void exportImageOfMainView();
 
    bool promptForConfigurationFile(std::string &result, enum EFileDialogMode mode);
    void promptForSaveConfigurationFile();

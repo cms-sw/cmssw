@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.91 2010/04/28 14:08:11 eulisse Exp $
+// $Id: CmsShowMainFrame.cc,v 1.92 2010/05/06 18:03:07 amraktad Exp $
 //
 // hacks
 #include "DataFormats/FWLite/interface/Event.h"
@@ -87,7 +87,8 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *loadConfig = new CSGAction(this, cmsshow::sLoadConfig.c_str());
    CSGAction *saveConfig   = new CSGAction(this, cmsshow::sSaveConfig.c_str());
    CSGAction *saveConfigAs = new CSGAction(this, cmsshow::sSaveConfigAs.c_str());
-   CSGAction *exportImage   = new  CSGAction(this, cmsshow::sExportImage.c_str());
+   CSGAction *exportImage  = new CSGAction(this, cmsshow::sExportImage.c_str());
+   CSGAction *exportImages = new CSGAction(this, cmsshow::sExportAllImages.c_str());
    CSGAction *quit = new CSGAction(this, cmsshow::sQuit.c_str());
    CSGAction *undo = new CSGAction(this, cmsshow::sUndo.c_str());
    undo->disable(); //NOTE: All disables happen again later in this routine
@@ -156,6 +157,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    fileMenu->AddSeparator();
     
    exportImage->createMenuEntry(fileMenu);
+   exportImages->createMenuEntry(fileMenu);
    fileMenu->AddSeparator();
 
    quit->createMenuEntry(fileMenu);
@@ -165,6 +167,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    saveConfig->createShortcut(kKey_S, "CTRL", GetId());
    saveConfigAs->createShortcut(kKey_S, "CTRL+SHIFT", GetId());
    exportImage->createShortcut(kKey_P, "CTRL", GetId());
+   exportImages->createShortcut(kKey_P, "CTRL+SHIFT", GetId());
    quit->createShortcut(kKey_Q, "CTRL", GetId());
 
    TGPopupMenu *editMenu = new TGPopupMenu(gClient->GetRoot());
