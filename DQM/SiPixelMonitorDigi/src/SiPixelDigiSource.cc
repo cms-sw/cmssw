@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.37 2010/04/10 08:12:26 elmer Exp $
+// $Id: SiPixelDigiSource.cc,v 1.38 2010/05/10 15:13:08 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -239,9 +239,9 @@ void SiPixelDigiSource::bookMEs(){
   theDMBE->setCurrentFolder("Pixel");
   char title[80]; sprintf(title, "Rate of events with >%i digis;LumiSection;Rate [Hz]",bigEventSize);
   bigEventRate = theDMBE->book1D("bigEventRate",title,5000,0.,5000.);
-  char title1[80]; sprintf(title1, "Pixel events vs. BX;BX;# events",pixEvtsPerBX);
-  pixEvtsPerBX = theDMBE->book1D("pixEvtsPerBX",title1,9000,0.,9000.);
-  char title2[80]; sprintf(title2, "Rate of Pixel events;LumiSection;Rate [Hz]",pixEventRate);
+  char title1[80]; sprintf(title1, "Pixel events vs. BX;BX;# events");
+  pixEvtsPerBX = theDMBE->book1D("pixEvtsPerBX",title1,3565,0.,3565.);
+  char title2[80]; sprintf(title2, "Rate of Pixel events;LumiSection;Rate [Hz]");
   pixEventRate = theDMBE->book1D("pixEventRate",title2,5000,0.,5000.);
   
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
