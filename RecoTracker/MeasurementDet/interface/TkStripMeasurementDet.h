@@ -91,6 +91,10 @@ public:
 
 
   bool  isEmpty() {return empty;}
+
+  unsigned int rawId() const { return id_; }
+
+
   const detset& theSet() {return detSet_;}
   int  size() {return endCluster - beginCluster ; }
 
@@ -139,17 +143,19 @@ private:
 
   bool activeThisEvent_,activeThisPeriod_;
 
-  bool bad128Strip_[6];
-  bool hasAny128StripBad_, maskBad128StripBlocks_;
-
   unsigned int id_;
+
+  detset detSet_;
+  edm::Handle<edmNew::DetSetVector<SiStripCluster> > handle_;
 
 
   const StripGeomDetUnit*               theStripGDU;
   const StripClusterParameterEstimator* theCPE;
 
-  detset detSet_;
-  edm::Handle<edmNew::DetSetVector<SiStripCluster> > handle_;
+
+
+  bool bad128Strip_[6];
+  bool hasAny128StripBad_, maskBad128StripBlocks_;
 
   std::vector<BadStripBlock> badStripBlocks_;  
   int totalStrips_;

@@ -325,7 +325,7 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
       for (;it!=endColl; ++it) {
 	StripDetSet detSet = *it;
 	unsigned int id = detSet.id();
-	while ( id != (**i).geomDet().geographicalId().rawId()) { // eventually change to lower_range
+	while ( id != (**i).rawId()) { // eventually change to lower_range
 	  ++i;
 	  if (i==endDet) throw "we have a problem!!!!";
 	}
