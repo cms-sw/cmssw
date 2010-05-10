@@ -65,7 +65,6 @@ inline CSCCables *  CSCCableValues::fillCables()
     cableobj->cables[i-1].cfeb_tmb_skew_delay=cfeb_tmb_skew_delay;
     cableobj->cables[i-1].cfeb_timing_corr=cfeb_timing_corr;
     count=count+1;
-    std::cout<<"count "<<count<<std::endl;
   }
   return cableobj;
 }
