@@ -62,8 +62,9 @@ void MatchJet::matchCollections(
 
 	std::vector<Vector> corrRefJets;
 	refJets.clear();
-	for(unsigned int i = 0; i < refJets_.size(); i++) {
-		edm::RefToBase<reco::Jet> jetRef = refJets_[i];
+	for(edm::RefToBaseVector<reco::Jet>::const_iterator iter = refJets.begin();
+            iter != refJets_.end(); ++iter) {
+		edm::RefToBase<reco::Jet> jetRef = *iter;
 		reco::Jet jet = refJetCorrector(*jetRef);
 		if (jet.energy() < threshold)
 			continue;
@@ -74,8 +75,9 @@ void MatchJet::matchCollections(
 
 	std::vector<Vector> corrRecJets;
 	recJets.clear();
-	for(unsigned int i = 0; i < recJets_.size(); i++) {
-		edm::RefToBase<reco::Jet> jetRec = recJets_[i];
+	for(edm::RefToBaseVector<reco::Jet>::const_iterator iter = recJets.begin();
+            iter != recJets_.end(); ++iter) {
+		edm::RefToBase<reco::Jet> jetRec = *iter;
 		reco::Jet jet = recJetCorrector(*jetRec);
 		if (jet.energy() < threshold)
 			continue;
@@ -97,7 +99,7 @@ void MatchJet::matchCollections(
 	                          		sigmaDeltaR, sigmaDeltaE));
 	typedef Matching<double>::Match Match;
 
-	std::vector<Match> matches =
+	const std::vector<Match>& matches =
 		matching.match(std::less<double>(),
 		               std::bind2nd(std::less<double>(), maxChi2));
 	for(std::vector<Match>::const_iterator iter = matches.begin();
@@ -114,7 +116,7 @@ MatchJet::operator() (const edm::RefToBase<reco::Jet> & recJet) const
 	if (recJet.id() != recJets.id())
 		return result;
 
-	for(unsigned int i = 0; i < recJets.size(); i++) {
+	for(unsigned int i = 0; i != recJets.size(); ++i) {
 		if (recJets[i] == recJet) {
 			int match = recToRef[i];
 			if (match >= 0)

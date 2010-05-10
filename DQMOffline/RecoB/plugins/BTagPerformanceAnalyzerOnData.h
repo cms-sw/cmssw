@@ -15,6 +15,7 @@
 #include "DQMOffline/RecoB/interface/BTagDifferentialPlot.h"
 #include "DQMOffline/RecoB/interface/AcceptJet.h"
 #include "DQMOffline/RecoB/interface/JetTagPlotter.h"
+#include "DQMOffline/RecoB/interface/TagCorrelationPlotter.h"
 #include "DQMOffline/RecoB/interface/BaseTagInfoPlotter.h"
 #include "DQMOffline/RecoB/interface/Tools.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -52,32 +53,30 @@ class BTagPerformanceAnalyzerOnData : public edm::EDAnalyzer {
   };
 
   // Get histogram plotting options from configuration.
-  void init(const edm::ParameterSet& iConfig);
   void bookHistos(const edm::ParameterSet& pSet);
-  EtaPtBin getEtaPtBin(int iEta, int iPt);
+  EtaPtBin getEtaPtBin(const int& iEta, const int& iPt);
 
-  vector<std::string> tiDataFormatType;
+  std::vector<std::string> tiDataFormatType;
   bool partonKinematics;
-  double etaMin, etaMax;
-  double ptRecJetMin, ptRecJetMax;
-  double ratioMin, ratioMax;
   AcceptJet jetSelector;   // Decides if jet and parton satisfy kinematic cuts.
   std::vector<double> etaRanges, ptRanges;
   bool produceEps, producePs;
-  TString psBaseName, epsBaseName, inputFile;
+  std::string psBaseName, epsBaseName, inputFile;
   bool update, allHisto;
   bool finalize;
   bool finalizeOnly;
   edm::InputTag slInfoTag;
 
-  vector< vector<JetTagPlotter*> > binJetTagPlotters;
-  vector< vector<BaseTagInfoPlotter*> > binTagInfoPlotters;
-  vector<edm::InputTag> jetTagInputTags;
-  vector< vector<edm::InputTag> > tagInfoInputTags;
+  std::vector< std::vector<JetTagPlotter*> > binJetTagPlotters;
+  std::vector< std::vector<TagCorrelationPlotter*> > binTagCorrelationPlotters;
+  std::vector< std::vector<BaseTagInfoPlotter*> > binTagInfoPlotters;
+  std::vector<edm::InputTag> jetTagInputTags;
+  std::vector< std::pair<edm::InputTag, edm::InputTag> > tagCorrelationInputTags;
+  std::vector< std::vector<edm::InputTag> > tagInfoInputTags;
   // Contains plots for each bin of rapidity and pt.
-  vector< vector<BTagDifferentialPlot*> > differentialPlots;
-  vector<edm::ParameterSet> moduleConfig;
-  map<BaseTagInfoPlotter*, size_t> binTagInfoPlottersToModuleConfig;
+  std::vector< std::vector<BTagDifferentialPlot*> > differentialPlots;
+  std::vector<edm::ParameterSet> moduleConfig;
+  std::map<BaseTagInfoPlotter*, size_t> binTagInfoPlottersToModuleConfig;
 
   bool mcPlots_;
 

@@ -1,60 +1,61 @@
 #include "DQMOffline/RecoB/interface/TrackProbabilityTagPlotter.h"
+#include "DQMOffline/RecoB/interface/Tools.h"
 
-TrackProbabilityTagPlotter::TrackProbabilityTagPlotter(const TString & tagName,
+using namespace std;
+using namespace RecoBTag;
+
+TrackProbabilityTagPlotter::TrackProbabilityTagPlotter(const std::string & tagName,
 	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet,
-	bool update, bool mc, bool wf) :
-  BaseTagInfoPlotter(tagName, etaPtBin), willFinalize_(wf)
+	const bool& update, const bool& mc, const bool& wf) :
+  BaseTagInfoPlotter(tagName, etaPtBin),
+  nBinEffPur_(pSet.getParameter<int>("nBinEffPur")),
+  startEffPur_(pSet.getParameter<double>("startEffPur")),
+  endEffPur_(pSet.getParameter<double>("endEffPur")),
+  finalized(false), mcPlots_(mc), willFinalize_(wf)
 {
-  mcPlots_ = mc;
-  nBinEffPur_  = pSet.getParameter<int>("nBinEffPur");
-  startEffPur_ = pSet.getParameter<double>("startEffPur");
-  endEffPur_   = pSet.getParameter<double>("endEffPur");
+  const std::string dir("TrackProbability"+theExtensionString);
 
-  finalized = false;
-  if (update){
-  TString dir= "TrackProbability"+theExtensionString;
-  }
   tkcntHistosSig3D[4] = new FlavourHistograms<double>
        ("ips_3D" + theExtensionString, "3D Probability of impact parameter",
-	50, -1.0, 1.0, false, true, true, "b", update,std::string((const char *)("TrackProbabilityPlots"+theExtensionString)), mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
 
   tkcntHistosSig3D[0] = new FlavourHistograms<double>
        ("ips1_3D" + theExtensionString, "3D Probability of impact parameter 1st trk",
-	50, -1.0, 1.0, false, true, true, "b", update,std::string((const char *)("TrackProbabilityPlots"+theExtensionString)), mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
 
   tkcntHistosSig3D[1] = new FlavourHistograms<double>
        ("ips2_3D" + theExtensionString, "3D Probability of impact parameter 2nd trk",
-	50, -1.0, 1.0, false, true, true, "b", update,std::string((const char *)("TrackProbabilityPlots"+theExtensionString)), mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
 
   tkcntHistosSig3D[2] = new FlavourHistograms<double>
        ("ips3_3D" + theExtensionString, "3D Probability of impact parameter 3rd trk",
-	50, -1.0, 1.0, false, true, true, "b", update,std::string((const char *)("TrackProbabilityPlots"+theExtensionString)), mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
 
   tkcntHistosSig3D[3] = new FlavourHistograms<double>
        ("ips4_3D" + theExtensionString, "3D Probability of impact parameter 4th trk",
-	50, -1.0, 1.0, false, true, true, "b", update,std::string((const char *)("TrackProbabilityPlots"+theExtensionString)), mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
 
   tkcntHistosSig2D[4] = new FlavourHistograms<double>
        ("ips_2D" + theExtensionString, "2D Probability of impact parameter",
-	50, -1.0, 1.0, false, true, true, "b", update,std::string((const char *)("TrackProbabilityPlots"+theExtensionString)), mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
 
   tkcntHistosSig2D[0] = new FlavourHistograms<double>
        ("ips1_2D" + theExtensionString, "2D Probability of impact parameter 1st trk",
-	50, -1.0, 1.0, false, true, true, "b", update,std::string((const char *)("TrackProbabilityPlots"+theExtensionString)), mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
 
   tkcntHistosSig2D[1] = new FlavourHistograms<double>
        ("ips2_2D" + theExtensionString, "2D Probability of impact parameter 2nd trk",
-	50, -1.0, 1.0, false, true, true, "b", update,std::string((const char *)("TrackProbabilityPlots"+theExtensionString)), mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
 
   tkcntHistosSig2D[2] = new FlavourHistograms<double>
        ("ips3_2D" + theExtensionString, "2D Probability of impact parameter 3rd trk",
-	50, -1.0, 1.0, false, true, true, "b", update,std::string((const char *)("TrackProbabilityPlots"+theExtensionString)), mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
 
   tkcntHistosSig2D[3] = new FlavourHistograms<double>
        ("ips4" + theExtensionString, "2D Probability of impact parameter 4th trk",
-	50, -1.0, 1.0, false, true, true, "b", update,std::string((const char *)("TrackProbabilityPlots"+theExtensionString)), mc) ;
+	50, -1.0, 1.0, false, true, true, "b", update,dir, mc) ;
 
-  if (willFinalize_ == true) createPlotsForFinalize();
+  if (willFinalize_) createPlotsForFinalize();
  
 }
 
@@ -62,12 +63,12 @@ TrackProbabilityTagPlotter::TrackProbabilityTagPlotter(const TString & tagName,
 TrackProbabilityTagPlotter::~TrackProbabilityTagPlotter ()
 {
 
-  for(int n=0; n <= 4; n++) {
+  for(int n=0; n != 5; ++n) {
     delete tkcntHistosSig2D[n];
     delete tkcntHistosSig3D[n];
   }
   if (finalized) {
-    for(int n=0; n < 4; n++) delete effPurFromHistos[n];
+    for(int n=0; n != 4; ++n) delete effPurFromHistos[n];
   }
 }
 
@@ -83,27 +84,29 @@ void TrackProbabilityTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagIn
       << "BTagPerformanceAnalyzer: Extended TagInfo not of type TrackProbabilityTagInfo. " << endl;
   }
 
-  for(int n=0; n < tagInfo->selectedTracks(1) && n < 4; n++)
+  for(int n=0; n != tagInfo->selectedTracks(1) && n != 4; ++n)
     tkcntHistosSig2D[n]->fill(jetFlavour, tagInfo->probability(n,1));
-  for(int n=0; n < tagInfo->selectedTracks(0) && n < 4; n++)
+  for(int n=0; n != tagInfo->selectedTracks(0) && n != 4; ++n)
     tkcntHistosSig3D[n]->fill(jetFlavour, tagInfo->probability(n,0));
 
-  for(int n=0; n < tagInfo->selectedTracks(1); n++)
+  for(int n=0; n != tagInfo->selectedTracks(1); ++n)
     tkcntHistosSig2D[4]->fill(jetFlavour, tagInfo->probability(n,1));
-  for(int n=0; n < tagInfo->selectedTracks(0); n++)
+  for(int n=0; n != tagInfo->selectedTracks(0); ++n)
     tkcntHistosSig3D[4]->fill(jetFlavour, tagInfo->probability(n,0));
 }
 
 
 
 void TrackProbabilityTagPlotter::createPlotsForFinalize(){
-  effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],std::string((const char *)("TrackProbabilityPlots"+theExtensionString)),mcPlots_, 
+  const std::string dir("TrackProbability"+theExtensionString);
+
+  effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],dir,mcPlots_, 
 		nBinEffPur_, startEffPur_, endEffPur_);
-  effPurFromHistos[1] = new EffPurFromHistos (tkcntHistosSig3D[2],std::string((const char *)("TrackProbabilityPlots"+theExtensionString)),mcPlots_, 
+  effPurFromHistos[1] = new EffPurFromHistos (tkcntHistosSig3D[2],dir,mcPlots_, 
 		nBinEffPur_, startEffPur_, endEffPur_);
-  effPurFromHistos[2] = new EffPurFromHistos (tkcntHistosSig2D[1],std::string((const char *)("TrackProbabilityPlots"+theExtensionString)),mcPlots_, 
+  effPurFromHistos[2] = new EffPurFromHistos (tkcntHistosSig2D[1],dir,mcPlots_, 
 		nBinEffPur_, startEffPur_, endEffPur_);
-  effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],std::string((const char *)("TrackProbabilityPlots"+theExtensionString)),mcPlots_, 
+  effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],dir,mcPlots_, 
 		nBinEffPur_, startEffPur_, endEffPur_);  
 }
 
@@ -113,40 +116,40 @@ void TrackProbabilityTagPlotter::finalize ()
   // final processing:
   // produce the misid. vs. eff histograms
   //
-  for(int n=0; n < 4; n++) effPurFromHistos[n]->compute();
+  for(int n=0; n != 4; ++n) effPurFromHistos[n]->compute();
   finalized = true;
 }
 
-void TrackProbabilityTagPlotter::psPlot(const TString & name)
+void TrackProbabilityTagPlotter::psPlot(const std::string & name)
 {
-  TString cName = "TrackProbabilityPlots"+ theExtensionString;
+  const std::string cName("TrackProbabilityPlots"+ theExtensionString);
   setTDRStyle()->cd();
-  TCanvas canvas(cName, "TrackProbabilityPlots"+ theExtensionString, 600, 900);
+  TCanvas canvas(cName.c_str(), cName.c_str(), 600, 900);
   canvas.UseCurrentStyle();
   canvas.Divide(2,3);
-  canvas.Print(name + cName + ".ps[");
+  canvas.Print((name + cName + ".ps[").c_str());
   canvas.cd(1);
 
   tkcntHistosSig3D[4]->plot();
-  for(int n=0; n < 4; n++) {
+  for(int n=0; n != 4; ++n) {
     canvas.cd(2+n);
     tkcntHistosSig3D[n]->plot();
   }
 
-  canvas.Print(name + cName + ".ps");
+  canvas.Print((name + cName + ".ps").c_str());
   canvas.Clear();
   canvas.Divide(2,3);
 
   canvas.cd(1);
   tkcntHistosSig2D[4]->plot();
-  for(int n=0; n < 4; n++) {
+  for(int n=0; n != 4; ++n) {
     canvas.cd(2+n);
     tkcntHistosSig2D[n]->plot();
   }
 
   if (finalized) {
-    for(int n=0; n < 2; n++) {
-      canvas.Print(name + cName + ".ps");
+    for(int n=0; n != 2; ++n) {
+      canvas.Print((name + cName + ".ps").c_str());
       canvas.Clear();
       canvas.Divide(2,3);
       canvas.cd(1);
@@ -164,18 +167,18 @@ void TrackProbabilityTagPlotter::psPlot(const TString & name)
     }
   }
 
-  canvas.Print(name + cName + ".ps");
-  canvas.Print(name + cName + ".ps]");
+  canvas.Print((name + cName + ".ps").c_str());
+  canvas.Print((name + cName + ".ps]").c_str());
 }
 
 
-void TrackProbabilityTagPlotter::epsPlot(const TString & name)
+void TrackProbabilityTagPlotter::epsPlot(const std::string & name)
 {
-  for(int n=0; n <= 4; n++) {
+  for(int n=0; n != 5; ++n) {
     tkcntHistosSig2D[n]->epsPlot(name);
     tkcntHistosSig3D[n]->epsPlot(name);
   }
   if (finalized) {
-    for(int n=0; n < 4; n++) effPurFromHistos[n]->epsPlot(name);
+    for(int n=0; n != 4; ++n) effPurFromHistos[n]->epsPlot(name);
   }
 }

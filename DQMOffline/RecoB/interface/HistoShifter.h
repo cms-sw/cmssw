@@ -3,14 +3,12 @@
 
 #include "TH1F.h"
 
-class TH1F;
-
 class HistoShifter {
  public:
   HistoShifter (){}
   ~HistoShifter(){}
-  bool insertAndShift(TH1F * in, float value);
-  bool insertAndShift(TH1F * in, float value, float error);
+  bool insertAndShift(TH1F * in, const float& value);
+  bool insertAndShift(TH1F * in, const float& value, const float& error);
 };
 
 #endif

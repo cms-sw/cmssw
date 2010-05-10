@@ -16,8 +16,8 @@ using namespace RecoBTag;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-double RecoBTag::HistoBinWidth ( TH1F * theHisto , int iBin ) {
-  int nBins = theHisto->GetSize() ; // includes underflow/overflow
+double RecoBTag::HistoBinWidth ( const TH1F * theHisto , const int& iBin ) {
+  const int& nBins = theHisto->GetSize() ; // includes underflow/overflow
   // return 0.0 , if invalid bin
   if ( iBin < 0 || iBin >= nBins ) return 0.0 ;
   // return first binwidth, if underflow bin
@@ -31,18 +31,18 @@ double RecoBTag::HistoBinWidth ( TH1F * theHisto , int iBin ) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-double RecoBTag::IntegrateHistogram ( TH1F * theHisto ) {
+double RecoBTag::IntegrateHistogram ( const TH1F * theHisto ) {
   // include underflow and overflow: assign binwidth of first/last bin to them!!
   // integral = sum ( entry_i * binwidth_i )
   //
   double histoIntegral = 0.0 ;
-  int    nBins = theHisto->GetSize() ;
+  const int&    nBins = theHisto->GetSize() ;
   //
   // loop over bins:
   // bin 0       : underflow
   // bin nBins-1 : overflow
-  for ( int iBin = 0 ; iBin < nBins ; iBin++ ) {
-    double binWidth = HistoBinWidth ( theHisto , iBin )  ;
+  for ( int iBin = 0 ; iBin != nBins ; ++iBin ) {
+    const double& binWidth = HistoBinWidth ( theHisto , iBin )  ;
     histoIntegral += (*theHisto)[iBin] * binWidth ;
   }
   //
@@ -54,18 +54,18 @@ double RecoBTag::IntegrateHistogram ( TH1F * theHisto ) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void RecoBTag::HistoToNormalizedArrays ( TH1F * theHisto , TArrayF & theNormalizedArray , TArrayF & theLeftOfBinArray , TArrayF & theBinWidthArray ) {
+void RecoBTag::HistoToNormalizedArrays ( const TH1F * theHisto , TArrayF & theNormalizedArray , TArrayF & theLeftOfBinArray , TArrayF & theBinWidthArray ) {
 
-  int nBins = theHisto->GetSize() ;
+  const int& nBins = theHisto->GetSize() ;
 
   // check that all arrays/histo have the same size
   if  ( nBins == theNormalizedArray.GetSize()   &&
 	nBins == theLeftOfBinArray .GetSize()   &&
 	nBins == theBinWidthArray  .GetSize()       ) {
 
-    double histoIntegral = IntegrateHistogram ( theHisto ) ;
+    const double& histoIntegral = IntegrateHistogram ( theHisto ) ;
 
-    for ( int iBin = 0 ; iBin < nBins ; iBin++ ) {
+    for ( int iBin = 0 ; iBin != nBins ; ++iBin ) {
       theNormalizedArray[iBin] = (*theHisto)[iBin] / histoIntegral  ;
       theLeftOfBinArray [iBin] = theHisto->GetBinLowEdge(iBin) ;
       theBinWidthArray  [iBin] = HistoBinWidth ( theHisto , iBin )  ;
@@ -93,9 +93,9 @@ void RecoBTag::HistoToNormalizedArrays ( TH1F * theHisto , TArrayF & theNormaliz
 double RecoBTag::IntegrateArray ( const TArrayF & theArray , const TArrayF & theBinWidth ) {
 
   double arrayIntegral = 0.0 ;
-  int    nBins = theArray.GetSize() ;
+  const int&    nBins = theArray.GetSize() ;
   //
-  for ( int iBin = 0 ; iBin < nBins ; iBin++ ) {
+  for ( int iBin = 0 ; iBin != nBins ; ++iBin ) {
     arrayIntegral += theArray[iBin] * theBinWidth[iBin] ;
   }
   //
@@ -106,7 +106,7 @@ double RecoBTag::IntegrateArray ( const TArrayF & theArray , const TArrayF & the
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void RecoBTag::PrintCanvasHistos ( TCanvas * canvas , TString psFile , TString epsFile , TString gifFile ) {
+void RecoBTag::PrintCanvasHistos ( TCanvas * canvas , const std::string& psFile , const std::string& epsFile , const std::string& gifFile ) {
   //
   //
   // to create gif in 'batch mode' (non-interactive) see
@@ -116,26 +116,26 @@ void RecoBTag::PrintCanvasHistos ( TCanvas * canvas , TString psFile , TString e
   //
   // if string = "" don't print to corresponding file
   //
-  if ( psFile  != "" ) canvas->Print ( psFile.Data() ) ;
-  if ( epsFile != "" ) canvas->Print ( epsFile.Data() , "eps" ) ;
+  if ( psFile  != "" ) canvas->Print ( psFile.c_str() ) ;
+  if ( epsFile != "" ) canvas->Print ( epsFile.c_str() , "eps" ) ;
   // if in batch: use a converter tool
-  TString rootVersion ( gROOT->GetVersion() ) ;
-  bool rootCanGif = rootVersion.BeginsWith ("4") || rootVersion.BeginsWith ("5") ;
+  const std::string& rootVersion ( gROOT->GetVersion() ) ;
+  const bool& rootCanGif = rootVersion.find("4") == 0 || rootVersion.find("5") == 0 ;
   if ( gifFile != "" ) {
     if ( !(gROOT->IsBatch()) || rootCanGif )  { // to find out if running in batch mode
       cout << "--> Print directly gif!" << endl ;
-      canvas->Print ( gifFile.Data() , "gif" ) ;
+      canvas->Print ( gifFile.c_str() , "gif" ) ;
     }
     else {
       if ( epsFile != "" ) {   // eps file must have been created before
 	cout << "--> Print gif via scripts!" << endl ;
-	TString executeString1 = "pstopnm -ppm -xborder 0 -yborder 0 -portrait " + epsFile ;
-	gSystem->Exec(executeString1) ;
-	TString ppmFile = epsFile + "001.ppm" ;
-	TString executeString2 = "ppmtogif " + ppmFile + " > " + gifFile ;
-	gSystem->Exec(executeString2) ;
-	TString executeString3 = "rm " + ppmFile  ;
-	gSystem->Exec(executeString3) ; // delete the intermediate file
+	const std::string& executeString1 = "pstopnm -ppm -xborder 0 -yborder 0 -portrait " + epsFile ;
+	gSystem->Exec(executeString1.c_str()) ;
+	const std::string& ppmFile = epsFile + "001.ppm" ;
+	const std::string& executeString2 = "ppmtogif " + ppmFile + " > " + gifFile ;
+	gSystem->Exec(executeString2.c_str()) ;
+	const std::string& executeString3 = "rm " + ppmFile  ;
+	gSystem->Exec(executeString3.c_str()) ; // delete the intermediate file
       }
     }
   }
@@ -144,24 +144,20 @@ void RecoBTag::PrintCanvasHistos ( TCanvas * canvas , TString psFile , TString e
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-TObjArray RecoBTag::getHistArray ( TFile * histoFile , TString baseName ) {
+TObjArray RecoBTag::getHistArray ( TFile * histoFile , const std::string& baseName ) {
   //
   // return the TObjArray built from the basename
   //
   //
   TObjArray histos (3) ;  // reserve 3
   //
-  TString nameB    ( baseName ) ;
-  TString nameC    ( baseName ) ;
-  TString nameDUSG ( baseName ) ;
+  const std::string nameB    ( baseName + "B" ) ;
+  const std::string nameC    ( baseName + "C" ) ;
+  const std::string nameDUSG ( baseName + "DUSG" ) ;
   //
-  nameB    += "B"    ;
-  nameC    += "C"    ;
-  nameDUSG += "DUSG" ;
-  // Data() converts TString to a char*
-  histos.Add ( (TH1F*)histoFile->Get( nameB   .Data() ) ) ;
-  histos.Add ( (TH1F*)histoFile->Get( nameC   .Data() ) ) ;
-  histos.Add ( (TH1F*)histoFile->Get( nameDUSG.Data() ) ) ;
+  histos.Add ( (TH1F*)histoFile->Get( nameB.c_str() ) ) ;
+  histos.Add ( (TH1F*)histoFile->Get( nameC.c_str() ) ) ;
+  histos.Add ( (TH1F*)histoFile->Get( nameDUSG.c_str() ) ) ;
   //
   return histos ;
 }
@@ -169,19 +165,23 @@ TObjArray RecoBTag::getHistArray ( TFile * histoFile , TString baseName ) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-TString RecoBTag::flavour ( int flav ) {
-  // THIS ONE IS VERY SLOW BECAUSE IT USES TSTRING!!
-  // ==> AVOID TO USE!!
-  TString FlavString = "" ;
-
-  if ( flav == 1  ) FlavString = "d";
-  if ( flav == 2  ) FlavString = "u";
-  if ( flav == 3  ) FlavString = "s";
-  if ( flav == 4  ) FlavString = "c";
-  if ( flav == 5  ) FlavString = "b";
-  if ( flav == 21 ) FlavString = "g";
-
-  return FlavString ;
+std::string RecoBTag::flavour ( const int& flav ) {
+  switch(flav) {
+    case 1 : 
+      return "d";
+    case 2 :
+      return "u";
+    case 3 : 
+      return "s";
+    case 4 :
+      return "c";
+    case 5 : 
+      return "b";
+    case 21 : 
+      return "g";
+    default :
+      return "";
+  }
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -202,14 +202,14 @@ bool RecoBTag::flavourIsNI  ( const int & flav ) { return !( flavourIsD(flav) ||
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int  RecoBTag::checkCreateDirectory ( TString directory ) {
+int  RecoBTag::checkCreateDirectory ( const std::string& directory ) {
   cout << "====>>>> ToolsC:checkCreateDirectory() : " << endl ;
-  int exists = gSystem->Exec ( "ls -d " + directory ) ;
+  int exists = gSystem->Exec ( ("ls -d " + directory).c_str() ) ;
   // create it if it doesn't exist
   if ( exists != 0 ) {
     cout << "====>>>> ToolsC:checkCreateDirectory() : The directory does not exist : " << directory << endl ;
     cout << "====>>>> ToolsC:checkCreateDirectory() : I'll try to create it" << endl ;
-    int create = gSystem->Exec ( "mkdir " + directory ) ;
+    const int& create = gSystem->Exec ( ("mkdir " + directory).c_str() ) ;
     if ( create != 0 ) {
       cout << "====>>>> ToolsC:checkCreateDirectory() : Creation of directory failed : " << directory << endl
 	   << "====>>>> ToolsC:checkCreateDirectory() : Please check your write permissions!" << endl ;
@@ -218,7 +218,7 @@ int  RecoBTag::checkCreateDirectory ( TString directory ) {
       cout << "====>>>> ToolsC:checkCreateDirectory() : Creation of directory successful!" << endl ;
       // check again if it exists now
       cout << "====>>>> ToolsC:checkCreateDirectory() : " << endl ;
-      exists = gSystem->Exec ( "ls -d " + directory ) ;
+      exists = gSystem->Exec ( ("ls -d " + directory).c_str() ) ;
       if ( exists != 0 ) cout << "ToolsC:checkCreateDirectory() : However, it still doesn't exist!?" << endl ;
     }
   }
@@ -230,7 +230,7 @@ int  RecoBTag::checkCreateDirectory ( TString directory ) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int RecoBTag::findBinClosestYValue ( TH1F * histo , float yVal , float yLow , float yHigh ) {
+int RecoBTag::findBinClosestYValue ( const TH1F * histo , const float& yVal , const float& yLow , const float& yHigh ) {
   //
   // Find the bin in a 1-dim. histogram which has its y-value closest to
   // the given value yVal where the value yVal has to be in the range yLow < yVal < yHigh.
@@ -240,13 +240,13 @@ int RecoBTag::findBinClosestYValue ( TH1F * histo , float yVal , float yLow , fl
   //
 
   // init
-  int   nBins = histo->GetNbinsX() - 2 ; // -2 because we don't include under/overflow alos in this loop
+  const int&   nBins = histo->GetNbinsX() - 2 ; // -2 because we don't include under/overflow alos in this loop
   int   iBinClosestInit = 0    ;
   // init start value properly: must avoid that the real one is not filled
   float yClosestInit ;
   //
-  float maxInHisto = histo->GetMaximum() ;
-  float minInHisto = histo->GetMinimum() ;
+  const float& maxInHisto = histo->GetMaximum() ;
+  const float& minInHisto = histo->GetMinimum() ;
   //
   // if yVal is smaller than max -> take any value well above the maximum
   if ( yVal <= maxInHisto ) {
@@ -260,8 +260,8 @@ int RecoBTag::findBinClosestYValue ( TH1F * histo , float yVal , float yLow , fl
   float yClosest    = yClosestInit ;
 
   // loop over bins of histogram
-  for ( int iBin = 1 ; iBin <= nBins ; iBin++ ) {
-    float yBin = histo->GetBinContent(iBin) ;
+  for ( int iBin = 1 ; iBin <= nBins ; ++iBin ) {
+    const float& yBin = histo->GetBinContent(iBin) ;
     if ( fabs(yBin-yVal) < fabs(yClosest-yVal) ) {
       yClosest = yBin  ;
       iBinClosest = iBin ;
@@ -431,7 +431,7 @@ TStyle* RecoBTag::setTDRStyle() {
 }
 // tdrGrid: Turns the grid lines on (true) or off (false)
 
-void RecoBTag::tdrGrid(bool gridOn) {
+void RecoBTag::tdrGrid(const bool& gridOn) {
   TStyle *tdrStyle = setTDRStyle();
   tdrStyle->SetPadGridX(gridOn);
   tdrStyle->SetPadGridY(gridOn);
@@ -445,9 +445,9 @@ void RecoBTag::fixOverlay() {
 }
 
 
-string RecoBTag::itos(int i)	// convert int to string
+string RecoBTag::itos(const int& i)	// convert int to string
 {
-	stringstream s;
+	ostringstream s;
 	s << i;
 	return s.str();
 }

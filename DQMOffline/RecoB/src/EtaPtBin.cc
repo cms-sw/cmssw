@@ -1,10 +1,13 @@
 #include "DQMOffline/RecoB/interface/EtaPtBin.h"
 
+#include <algorithm>
+#include <sstream>
 
 
 
-EtaPtBin::EtaPtBin ( bool etaActive_ , double etaMin_ , double etaMax_ ,
-		     bool ptActive_  , double ptMin_  , double ptMax_ )
+
+EtaPtBin::EtaPtBin ( const bool& etaActive_ , const double& etaMin_ , const double& etaMax_ ,
+		     const bool& ptActive_  , const double& ptMin_  , const double& ptMax_ )
   : etaActive ( etaActive_ ) , etaMin ( etaMin_ ) , etaMax ( etaMax_ ) ,
     ptActive  (  ptActive_ ) , ptMin  (  ptMin_ ) , ptMax  (  ptMax_ )   {
 
@@ -14,30 +17,26 @@ EtaPtBin::EtaPtBin ( bool etaActive_ , double etaMin_ , double etaMax_ ,
 
 
 
-TString EtaPtBin::buildDescriptionString
-		( bool etaActive_ , double etaMin_ , double etaMax_ ,
-		  bool ptActive_  , double ptMin_  , double ptMax_)
+std::string EtaPtBin::buildDescriptionString
+		( const bool& etaActive_ , const double& etaMin_ , const double& etaMax_ ,
+		  const bool& ptActive_  , const double& ptMin_  , const double& ptMax_)
 {
   // create string only from the active parts
-  TString descr ( "" );
+  std::stringstream stream ( "" );
 
   if ( etaActive_ ) {
-    descr += "_ETA_";
-    descr += etaMin_;
-    descr += "-";
-    descr += etaMax_;
+    stream << "_ETA_" << etaMin_ << "-" << etaMax_;
   }
 
   if ( ptActive_ ) {
-    descr += "_PT_";
-    descr += ptMin_;
-    descr += "-";
-    descr += ptMax_;
+    stream << "_PT_" << ptMin_ << "-" << ptMax_;
   }
-  if (!(etaActive_||ptActive_)) descr="_GLOBAL";
+  if (!(etaActive_||ptActive_)) stream << "_GLOBAL";
+
+  std::string descr(stream.str());
   // remove blanks which are introduced when adding doubles
-  descr.ReplaceAll ( " " , "" );
-  descr.ReplaceAll ( "." , "v" );
+  std::remove(descr.begin(), descr.end(), ' ');
+  std::replace(descr.begin(), descr.end(), '.' , 'v' );
 
   return descr;
 }
@@ -55,19 +54,15 @@ bool EtaPtBin::inBin(const reco::Jet & jet) const
 
 
 bool EtaPtBin::inBin (const double & eta , const double & pt ) const {
-  bool inEta = true;
-  //
   if ( etaActive ) {
-    if ( fabs(eta) < etaMin ) inEta = false;
-    if ( fabs(eta) > etaMax ) inEta = false;
+    if ( fabs(eta) < etaMin ) return false;
+    if ( fabs(eta) > etaMax ) return false;
   }
 
-  bool inPt = true;
-  //
   if ( ptActive ) {
-    if ( pt < ptMin ) inPt = false;
-    if ( pt > ptMax ) inEta = false;
+    if ( pt < ptMin ) return false;
+    if ( pt > ptMax ) return false;
   }
 
-  return ( inEta && inPt );
+  return true;
 }

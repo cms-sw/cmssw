@@ -23,10 +23,10 @@ class Matching {
 	{
 		index_type i = 0;
 		for(typename V1::const_iterator iter1 = v1.begin();
-		    iter1 != v1.end(); ++iter1, i++) {
+		    iter1 != v1.end(); ++iter1, ++i) {
 			index_type j = 0;
 			for(typename V2::const_iterator iter2 = v2.begin();
-			    iter2 != v2.end(); ++iter2, j++)
+			    iter2 != v2.end(); ++iter2, ++j)
 				matrix(i, j) = separation(*iter1, *iter2);
 					
 		}
@@ -74,7 +74,7 @@ class Matching {
 			CutCriterion cutCriterion = CutCriterion())
 	{
 		std::vector<index_type> matches(matrix.size());
-		for(index_type i = 0; i != matrix.size(); i++)
+		for(index_type i = 0; i != matrix.size(); ++i)
 			matches[i] = i;
 
 		std::sort(matches.begin(), matches.end(),

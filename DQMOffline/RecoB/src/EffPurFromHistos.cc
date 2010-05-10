@@ -17,29 +17,28 @@ using namespace RecoBTag;
 
 
 
-EffPurFromHistos::EffPurFromHistos ( const TString & ext, TH1F * h_d, TH1F * h_u,
+EffPurFromHistos::EffPurFromHistos ( const std::string & ext, TH1F * h_d, TH1F * h_u,
 	TH1F * h_s, TH1F * h_c, TH1F * h_b, TH1F * h_g,	TH1F * h_ni,
-	TH1F * h_dus, TH1F * h_dusg,std::string label,bool mc, int nBin, double startO, double endO) :
+	TH1F * h_dus, TH1F * h_dusg, const std::string& label, const bool& mc, int nBin, double startO, double endO) :
 	//BTagPlotPrintC(),
+        fromDiscriminatorDistr(false),
 	histoExtension(ext), effVersusDiscr_d(h_d), effVersusDiscr_u(h_u),
 	effVersusDiscr_s(h_s), effVersusDiscr_c(h_c), effVersusDiscr_b(h_b),
 	effVersusDiscr_g(h_g), effVersusDiscr_ni(h_ni), effVersusDiscr_dus(h_dus),
 	effVersusDiscr_dusg(h_dusg), nBinOutput(nBin), startOutput(startO),
 	endOutput(endO),  mcPlots_(mc), label_(label)
 {
-  fromDiscriminatorDistr = false;
   // consistency check
   check();
 }
 
 EffPurFromHistos::EffPurFromHistos 
-	(const FlavourHistograms<double> * dDiscriminatorFC,std::string label, bool mc, int nBin,
+	(const FlavourHistograms<double> * dDiscriminatorFC, const std::string& label, const bool& mc, int nBin,
 	double startO, double endO) :
-	  nBinOutput(nBin), startOutput(startO), endOutput(endO),  mcPlots_(mc), label_(label){
+	  fromDiscriminatorDistr(true), nBinOutput(nBin), startOutput(startO), endOutput(endO),  mcPlots_(mc), label_(label){
   histoExtension = "_"+dDiscriminatorFC->baseNameTitle();
 
 
-  fromDiscriminatorDistr = true;
   discrNoCutEffic = new FlavourHistograms<double> (
 	"totalEntries" + histoExtension, "Total Entries: " + dDiscriminatorFC->baseNameDescription(),
 	dDiscriminatorFC->nBins(), dDiscriminatorFC->lowerBound(),
@@ -52,7 +51,7 @@ EffPurFromHistos::EffPurFromHistos
 	dDiscriminatorFC->nBins(), dDiscriminatorFC->lowerBound(),
 	dDiscriminatorFC->upperBound(), false, true, false, "b", false, label , mcPlots_ );
   discrCutEfficScan->SetMinimum(1E-4);
-  if (mcPlots_ == true){ 
+  if (mcPlots_){ 
     
     effVersusDiscr_d =    discrCutEfficScan->histo_d   ();
     effVersusDiscr_u =    discrCutEfficScan->histo_u   ();
@@ -105,13 +104,13 @@ EffPurFromHistos::EffPurFromHistos
   // discr no cut
   vector<TH1F*> discrCutHistos = discrCutEfficScan->getHistoVector();
 
-  int dimHistos = discrCfHistos.size(); // they all have the same size
+  const int& dimHistos = discrCfHistos.size(); // they all have the same size
 
   // DISCR-CUT LOOP:
   // fill the histos for eff-pur computations by scanning the discriminatorFC histogram
 
   // better to loop over bins -> discrCut no longer needed
-  int nBins = dDiscriminatorFC->nBins();
+  const int& nBins = dDiscriminatorFC->nBins();
 
   // loop over flavours
   for ( int iFlav = 0; iFlav < dimHistos; iFlav++ ) {
@@ -121,7 +120,7 @@ EffPurFromHistos::EffPurFromHistos
 
     // In Root histos, bin counting starts at 1 to nBins.
     // bin 0 is the underflow, and nBins+1 is the overflow.
-    double nJetsFlav = discrCfHistos[iFlav]->GetEntries ();
+    const double& nJetsFlav = discrCfHistos[iFlav]->GetEntries ();
     double sum = discrCfHistos[iFlav]->GetBinContent( nBins+1 ); //+1 to get the overflow.
     
     for ( int iDiscr = nBins; iDiscr > 0 ; --iDiscr ) {
@@ -159,7 +158,7 @@ EffPurFromHistos::~EffPurFromHistos () {
 
 
 
-void EffPurFromHistos::epsPlot(const TString & name)
+void EffPurFromHistos::epsPlot(const std::string & name)
 {
   if ( fromDiscriminatorDistr) {
     discrNoCutEffic->epsPlot(name);
@@ -168,17 +167,17 @@ void EffPurFromHistos::epsPlot(const TString & name)
   plot(name, ".eps");
 }
 
-void EffPurFromHistos::psPlot(const TString & name)
+void EffPurFromHistos::psPlot(const std::string & name)
 {
   plot(name, ".ps");
 }
 
-void EffPurFromHistos::plot(const TString & name, const TString & ext)
+void EffPurFromHistos::plot(const std::string & name, const std::string & ext)
 {
-   TCanvas tc ("FlavEffVsBEff" +histoExtension ,
-	"Flavour misidentification vs. b-tagging efficiency " + histoExtension);
+   TCanvas tc (("FlavEffVsBEff" +histoExtension).c_str() ,
+	("Flavour misidentification vs. b-tagging efficiency " + histoExtension).c_str());
    plot(&tc);
-   tc.Print(TString(name + "FlavEffVsBEff" + histoExtension + ext));
+   tc.Print((name + "FlavEffVsBEff" + histoExtension + ext).c_str());
 }
 
 void EffPurFromHistos::plot (TPad * plotCanvas /* = 0 */) {
@@ -313,17 +312,17 @@ void EffPurFromHistos::plot (TPad * plotCanvas /* = 0 */) {
 
 void EffPurFromHistos::check () {
   // number of bins
-  int nBins_d    = effVersusDiscr_d    -> GetNbinsX();
-  int nBins_u    = effVersusDiscr_u    -> GetNbinsX();
-  int nBins_s    = effVersusDiscr_s    -> GetNbinsX();
-  int nBins_c    = effVersusDiscr_c    -> GetNbinsX();
-  int nBins_b    = effVersusDiscr_b    -> GetNbinsX();
-  int nBins_g    = effVersusDiscr_g    -> GetNbinsX();
-  int nBins_ni   = effVersusDiscr_ni   -> GetNbinsX();
-  int nBins_dus  = effVersusDiscr_dus  -> GetNbinsX();
-  int nBins_dusg = effVersusDiscr_dusg -> GetNbinsX();
+  const int& nBins_d    = effVersusDiscr_d    -> GetNbinsX();
+  const int& nBins_u    = effVersusDiscr_u    -> GetNbinsX();
+  const int& nBins_s    = effVersusDiscr_s    -> GetNbinsX();
+  const int& nBins_c    = effVersusDiscr_c    -> GetNbinsX();
+  const int& nBins_b    = effVersusDiscr_b    -> GetNbinsX();
+  const int& nBins_g    = effVersusDiscr_g    -> GetNbinsX();
+  const int& nBins_ni   = effVersusDiscr_ni   -> GetNbinsX();
+  const int& nBins_dus  = effVersusDiscr_dus  -> GetNbinsX();
+  const int& nBins_dusg = effVersusDiscr_dusg -> GetNbinsX();
 
-  bool lNBins =
+  const bool& lNBins =
     ( nBins_d == nBins_u    &&
       nBins_d == nBins_s    &&
       nBins_d == nBins_c    &&
@@ -340,17 +339,17 @@ void EffPurFromHistos::check () {
 
 
   // start
-  float sBin_d    = effVersusDiscr_d    -> GetBinCenter(1);
-  float sBin_u    = effVersusDiscr_u    -> GetBinCenter(1);
-  float sBin_s    = effVersusDiscr_s    -> GetBinCenter(1);
-  float sBin_c    = effVersusDiscr_c    -> GetBinCenter(1);
-  float sBin_b    = effVersusDiscr_b    -> GetBinCenter(1);
-  float sBin_g    = effVersusDiscr_g    -> GetBinCenter(1);
-  float sBin_ni   = effVersusDiscr_ni   -> GetBinCenter(1);
-  float sBin_dus  = effVersusDiscr_dus  -> GetBinCenter(1);
-  float sBin_dusg = effVersusDiscr_dusg -> GetBinCenter(1);
+  const float& sBin_d    = effVersusDiscr_d    -> GetBinCenter(1);
+  const float& sBin_u    = effVersusDiscr_u    -> GetBinCenter(1);
+  const float& sBin_s    = effVersusDiscr_s    -> GetBinCenter(1);
+  const float& sBin_c    = effVersusDiscr_c    -> GetBinCenter(1);
+  const float& sBin_b    = effVersusDiscr_b    -> GetBinCenter(1);
+  const float& sBin_g    = effVersusDiscr_g    -> GetBinCenter(1);
+  const float& sBin_ni   = effVersusDiscr_ni   -> GetBinCenter(1);
+  const float& sBin_dus  = effVersusDiscr_dus  -> GetBinCenter(1);
+  const float& sBin_dusg = effVersusDiscr_dusg -> GetBinCenter(1);
 
-  bool lSBin =
+  const bool& lSBin =
     ( sBin_d == sBin_u    &&
       sBin_d == sBin_s    &&
       sBin_d == sBin_c    &&
@@ -367,17 +366,17 @@ void EffPurFromHistos::check () {
 
 
   // end
-  float eBin_d    = effVersusDiscr_d    -> GetBinCenter( nBins_d - 1 );
-  float eBin_u    = effVersusDiscr_u    -> GetBinCenter( nBins_d - 1 );
-  float eBin_s    = effVersusDiscr_s    -> GetBinCenter( nBins_d - 1 );
-  float eBin_c    = effVersusDiscr_c    -> GetBinCenter( nBins_d - 1 );
-  float eBin_b    = effVersusDiscr_b    -> GetBinCenter( nBins_d - 1 );
-  float eBin_g    = effVersusDiscr_g    -> GetBinCenter( nBins_d - 1 );
-  float eBin_ni   = effVersusDiscr_ni   -> GetBinCenter( nBins_d - 1 );
-  float eBin_dus  = effVersusDiscr_dus  -> GetBinCenter( nBins_d - 1 );
-  float eBin_dusg = effVersusDiscr_dusg -> GetBinCenter( nBins_d - 1 );
+  const float& eBin_d    = effVersusDiscr_d    -> GetBinCenter( nBins_d - 1 );
+  const float& eBin_u    = effVersusDiscr_u    -> GetBinCenter( nBins_d - 1 );
+  const float& eBin_s    = effVersusDiscr_s    -> GetBinCenter( nBins_d - 1 );
+  const float& eBin_c    = effVersusDiscr_c    -> GetBinCenter( nBins_d - 1 );
+  const float& eBin_b    = effVersusDiscr_b    -> GetBinCenter( nBins_d - 1 );
+  const float& eBin_g    = effVersusDiscr_g    -> GetBinCenter( nBins_d - 1 );
+  const float& eBin_ni   = effVersusDiscr_ni   -> GetBinCenter( nBins_d - 1 );
+  const float& eBin_dus  = effVersusDiscr_dus  -> GetBinCenter( nBins_d - 1 );
+  const float& eBin_dusg = effVersusDiscr_dusg -> GetBinCenter( nBins_d - 1 );
 
-  bool lEBin =
+  const bool& lEBin =
     ( eBin_d == eBin_u    &&
       eBin_d == eBin_s    &&
       eBin_d == eBin_c    &&
@@ -396,7 +395,7 @@ void EffPurFromHistos::check () {
 
 void EffPurFromHistos::compute ()
 {
-  if (mcPlots_ == false) {
+  if (!mcPlots_) {
 
     EffFlavVsBEff_d = 0;
        EffFlavVsBEff_u = 0; 
@@ -414,8 +413,8 @@ void EffPurFromHistos::compute ()
  
 
   // to have shorter names ......
-  TString & hE = histoExtension;
-  TString hB = "FlavEffVsBEff_";
+  const std::string & hE = histoExtension;
+  const std::string & hB = "FlavEffVsBEff_";
 
 
   // create histograms from base name and extension as given from user
@@ -475,17 +474,17 @@ void EffPurFromHistos::compute ()
   // any of the histos to be created can be taken here:
   MonitorElement * EffFlavVsBEff = EffFlavVsBEff_b;
 
-  int nBinB = EffFlavVsBEff->getTH1F()->GetNbinsX();
+  const int& nBinB = EffFlavVsBEff->getTH1F()->GetNbinsX();
 
   for ( int iBinB = 1; iBinB <= nBinB; iBinB++ ) {  // loop over the bins on the x-axis of the histograms to be filled
 
-    float effBBinWidth = EffFlavVsBEff->getTH1F()->GetBinWidth  ( iBinB );
-    float effBMid      = EffFlavVsBEff->getTH1F()->GetBinCenter ( iBinB ); // middle of b-efficiency bin
-    float effBLeft     = effBMid - 0.5*effBBinWidth;              // left edge of bin
-    float effBRight    = effBMid + 0.5*effBBinWidth;              // right edge of bin
+    const float& effBBinWidth = EffFlavVsBEff->getTH1F()->GetBinWidth  ( iBinB );
+    const float& effBMid      = EffFlavVsBEff->getTH1F()->GetBinCenter ( iBinB ); // middle of b-efficiency bin
+    const float& effBLeft     = effBMid - 0.5*effBBinWidth;              // left edge of bin
+    const float& effBRight    = effBMid + 0.5*effBBinWidth;              // right edge of bin
     // find the corresponding bin in the efficiency versus discriminator cut histo: closest one in efficiency
-    int   binClosest = findBinClosestYValue ( effVersusDiscr_b , effBMid , effBLeft , effBRight );
-    bool  binFound   = ( binClosest > 0 ) ;
+    const int&   binClosest = findBinClosestYValue ( effVersusDiscr_b , effBMid , effBLeft , effBRight );
+    const bool&  binFound   = ( binClosest > 0 ) ;
     //
     if ( binFound ) {
       // fill the histos

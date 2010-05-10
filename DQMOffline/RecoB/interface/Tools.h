@@ -11,7 +11,6 @@
 #include "TArrayF.h"
 #include "TObjArray.h"
 #include "TCanvas.h"
-#include "TString.h"
 #include "TFile.h"
 class TStyle;
 
@@ -21,21 +20,21 @@ class TStyle;
 
 
 namespace RecoBTag {
-  double HistoBinWidth ( TH1F * theHisto , int iBin ) ;
+  double HistoBinWidth ( const TH1F * theHisto , const int& iBin ) ;
 
-  double IntegrateHistogram ( TH1F * theHisto ) ;
+  double IntegrateHistogram ( const TH1F * theHisto ) ;
 
-  void HistoToNormalizedArrays ( TH1F * theHisto , TArrayF & theNormalizedArray , TArrayF & theLeftOfBinArray , TArrayF & theBinWidthArray ) ;
+  void HistoToNormalizedArrays ( const TH1F * theHisto , TArrayF & theNormalizedArray , TArrayF & theLeftOfBinArray , TArrayF & theBinWidthArray ) ;
 
   double IntegrateArray ( const TArrayF & theArray , const TArrayF & theBinWidth ) ;
 
-  void PrintHistos ( TString psFile , TString epsFile , TString gifFile ) ;
+  void PrintHistos ( const std::string& psFile , const std::string& epsFile , const std::string& gifFile ) ;
 
-  void PrintCanvasHistos ( TCanvas * canvas , TString psFile , TString epsFile , TString gifFile ) ;
+  void PrintCanvasHistos ( TCanvas * canvas , const std::string& psFile , const std::string& epsFile , const std::string& gifFile ) ;
 
-  TObjArray getHistArray ( TFile * histoFile , TString baseName ) ;
+  TObjArray getHistArray ( TFile * histoFile , const std::string& baseName ) ;
 
-  TString flavour ( const int flav ) ;
+  std::string flavour ( const int& flav ) ;
 
   bool flavourIsD ( const int & flav )    ;
   bool flavourIsU ( const int & flav )    ;
@@ -47,17 +46,17 @@ namespace RecoBTag {
   bool flavourIsDUSG ( const int & flav ) ;
   bool flavourIsNI  ( const int & flav )  ;
 
-  int  checkCreateDirectory ( TString ) ;
+  int  checkCreateDirectory ( const std::string& ) ;
 
-  int findBinClosestYValue ( TH1F * , float yVal , float yLow , float yHigh ) ;
+  int findBinClosestYValue ( const TH1F * , const float& yVal , const float& yLow , const float& yHigh ) ;
 
   TStyle* setTDRStyle();
 
-  void tdrGrid(bool gridOn);
+  void tdrGrid(const bool& gridOn);
 
   void fixOverlay();
 
-  std::string itos(int i);	// convert int to string
+  std::string itos(const int& i);	// convert int to string
 
 }
 #endif

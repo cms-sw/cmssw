@@ -10,8 +10,8 @@
 class SoftLeptonTagPlotter : public BaseTagInfoPlotter {
 public:
 
-  SoftLeptonTagPlotter(const TString & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, bool mc, bool update);
+  SoftLeptonTagPlotter(const std::string & tagName, const EtaPtBin & etaPtBin,
+	const edm::ParameterSet& pSet, const bool& mc, const bool& update);
   
   ~SoftLeptonTagPlotter( void ) ;
 
@@ -20,8 +20,8 @@ public:
   virtual void finalize( void ) {}
 
 
-  void psPlot( const TString & name );
-  void epsPlot( const TString & name );
+  void psPlot( const std::string & name );
+  void epsPlot( const std::string & name );
 
 private:
 

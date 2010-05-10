@@ -9,8 +9,9 @@
 
 using namespace std;
 
-BaseTagInfoPlotter*  TagInfoPlotterFactory::buildPlotter(string dataFormatType, const TString & tagName,
-	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, bool update, bool mc, bool wf)
+BaseTagInfoPlotter*  TagInfoPlotterFactory::buildPlotter(const string& dataFormatType, const std::string & tagName,
+	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, const bool& update, const bool& mc, 
+        const bool& wf)
 {
   if (dataFormatType == "TrackCounting") {
     return new TrackCountingTagPlotter(tagName, etaPtBin, pSet, update, mc, wf);

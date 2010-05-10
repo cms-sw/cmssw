@@ -2,8 +2,8 @@
 
 #include "TH1F.h"
 
-bool HistoShifter::insertAndShift(TH1F* in, float value){
-  int nBins = in->GetNbinsX();
+bool HistoShifter::insertAndShift(TH1F* in, const float& value){
+  const int& nBins = in->GetNbinsX();
   
   for (int i=2; i<nBins; ++i){
     in->SetBinContent(i-1,in->GetBinContent(i));
@@ -14,8 +14,8 @@ bool HistoShifter::insertAndShift(TH1F* in, float value){
   return true;
 }
 
-bool HistoShifter::insertAndShift(TH1F* in, float value, float error){
-  bool ok = insertAndShift(in, value);
+bool HistoShifter::insertAndShift(TH1F* in, const float& value, const float& error){
+  const bool& ok = insertAndShift(in, value);
   in->SetBinError(in->GetNbinsX(),error);
   return ok;
 }

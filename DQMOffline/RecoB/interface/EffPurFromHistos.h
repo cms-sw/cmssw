@@ -5,9 +5,9 @@
 #include "DQMOffline/RecoB/interface/HistoProviderDQM.h"
 
 #include "TH1F.h"
-#include "TString.h"
 #include "TCanvas.h"
 
+#include <string>
 
 //class DQMStore;
 
@@ -16,13 +16,13 @@ class EffPurFromHistos {
 
  public:
 
-  EffPurFromHistos ( const TString & ext, TH1F * h_d, TH1F * h_u,
+  EffPurFromHistos ( const std::string & ext, TH1F * h_d, TH1F * h_u,
 	TH1F * h_s, TH1F * h_c, TH1F * h_b, TH1F * h_g,	TH1F * h_ni,
-		     TH1F * h_dus, TH1F * h_dusg, std::string label, bool mc,
+		     TH1F * h_dus, TH1F * h_dusg, const std::string& label, const bool& mc,
 	int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
 	// defaults reasonable for lifetime based tags
 
-  EffPurFromHistos (const FlavourHistograms<double> * dDiscriminatorFC, std::string label, bool mc,
+  EffPurFromHistos (const FlavourHistograms<double> * dDiscriminatorFC, const std::string& label, const bool& mc,
 	int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
 	// defaults reasonable for lifetime based tags
 
@@ -45,13 +45,13 @@ class EffPurFromHistos {
 
  
 
-  void epsPlot(const TString & name);
+  void epsPlot(const std::string & name);
 
-  void psPlot(const TString & name);
+  void psPlot(const std::string & name);
 
   void plot(TPad * theCanvas = 0) ;
 
-  void plot(const TString & name, const TString & ext);
+  void plot(const std::string & name, const std::string & ext);
 
 //   void print () const ;
 
@@ -66,8 +66,8 @@ class EffPurFromHistos {
   bool fromDiscriminatorDistr;
 
 
-  // the TString for the histo name extension
-  TString histoExtension ;
+  // the string for the histo name extension
+  std::string histoExtension ;
 
   FlavourHistograms<double> * discrNoCutEffic, *discrCutEfficScan;
 

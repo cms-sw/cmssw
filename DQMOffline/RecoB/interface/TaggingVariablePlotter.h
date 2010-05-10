@@ -18,8 +18,8 @@ class TaggingVariablePlotter : public BaseTagInfoPlotter {
 
  public:
 
-  TaggingVariablePlotter (const TString & tagName, const EtaPtBin & etaPtBin,
-			  const edm::ParameterSet& pSet, bool update, bool mc,
+  TaggingVariablePlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
+			  const edm::ParameterSet& pSet, const bool& update, const bool& mc,
 	const std::string &category = std::string());
 
   ~TaggingVariablePlotter () ;
@@ -31,9 +31,9 @@ class TaggingVariablePlotter : public BaseTagInfoPlotter {
   virtual void finalize ();
 
 
-  void epsPlot(const TString & name);
+  void epsPlot(const std::string & name);
 
-  void psPlot(const TString & name);
+  void psPlot(const std::string & name);
 
  private:
 
@@ -41,7 +41,7 @@ class TaggingVariablePlotter : public BaseTagInfoPlotter {
 
   struct VariableConfig {
     VariableConfig(const std::string &name, const edm::ParameterSet& pSet,
-                   bool update, const std::string &category, std::string label, bool mc);
+                   const bool& update, const std::string &category, const std::string& label, const bool& mc);
 
     reco::TaggingVariableName	var;
     unsigned int		nBins;

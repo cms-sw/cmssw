@@ -6,35 +6,34 @@ class DQMStore;
 class MonitorElement;
 
 #include <string>
-#include "TString.h"
 
 class HistoProviderDQM  {
  public:
-  HistoProviderDQM(std::string prefix, std::string label);
+  HistoProviderDQM(const std::string& prefix, const std::string& label);
   virtual ~HistoProviderDQM(){}
   void show();
 
-  virtual MonitorElement* book1D       (const TString &name,
-                      const TString &title,
-                      int nchX, double lowX, double highX) ;
+  virtual MonitorElement* book1D       (const std::string &name,
+                      const std::string &title,
+                      const int& nchX, const double& lowX, const double& highX) ;
   
-  virtual MonitorElement* book1D       (const TString &name,
-                      const TString &title,
-                      int nchX, float *xbinsize) ;
+  virtual MonitorElement* book1D       (const std::string &name,
+                      const std::string &title,
+                      const int& nchX, float *xbinsize) ;
 
-  virtual MonitorElement* book2D       (const TString &name,
-                      const TString &title,
-                      int nchX, double lowX, double highX,
-                      int nchY, double lowY, double highY) ;
+  virtual MonitorElement* book2D       (const std::string &name,
+                      const std::string &title,
+                      const int& nchX, const double& lowX, const double& highX,
+                      const int& nchY, const double& lowY, const double& highY) ;
   
-  virtual MonitorElement* book2D       (const TString &name,
-                      const TString &title,
-                      int nchX, float *xbinsize,
-                      int nchY, float *ybinsize) ;
+  virtual MonitorElement* book2D       (const std::string &name,
+                      const std::string &title,
+                      const int& nchX, float *xbinsize,
+                      const int& nchY, float *ybinsize) ;
 
-  void setDir(std::string);
+  void setDir(const std::string&);
 
-  virtual MonitorElement * access(const TString &name);
+  virtual MonitorElement * access(const std::string &name);
 
  private:
   DQMStore * dqmStore_;

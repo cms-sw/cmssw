@@ -2,8 +2,8 @@
 #define JetTagPlotter_H
 
 #include "TH1F.h"
-#include "TString.h"
 
+#include <string>
 #include <vector>
 #include "DQMOffline/RecoB/interface/FlavourHistorgrams.h"
 #include "DQMOffline/RecoB/interface/BaseBTagPlotter.h"
@@ -16,13 +16,13 @@ class JetTagPlotter : public BaseBTagPlotter {
 
  public:
 
-  JetTagPlotter (const TString & tagName, const EtaPtBin & etaPtBin,
-		 const edm::ParameterSet& pSet, bool mc , bool update, bool willFinalize);
+  JetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
+		 const edm::ParameterSet& pSet, const bool& mc , const bool& update, const bool& willFinalize);
 
   virtual ~JetTagPlotter () ;
 
   void analyzeTag (const reco::JetTag & jetTag, const int & jetFlavour);
-  void analyzeTag (const reco::Jet & jet, float discriminator, int jetFlavour);
+  void analyzeTag (const reco::Jet & jet, const float& discriminator, const int& jetFlavour);
 
   // final computation, plotting, printing .......
   void createPlotsForFinalize();
@@ -32,9 +32,9 @@ class JetTagPlotter : public BaseBTagPlotter {
   EffPurFromHistos * getEffPurFromHistos () { return effPurFromHistos ; }
 
 
-    void epsPlot(const TString & name);
+    void epsPlot(const std::string & name);
 
-  void psPlot(const TString & name);
+  void psPlot(const std::string & name);
 
   int nBinEffPur() const {return nBinEffPur_;}
   double startEffPur() const {return startEffPur_;}

@@ -17,8 +17,8 @@ class MVAJetTagPlotter : public BaseTagInfoPlotter {
 
  public:
 
-  MVAJetTagPlotter (const TString & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, bool update, bool mc);
+  MVAJetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
+	const edm::ParameterSet& pSet, const bool& update, const bool& mc);
 
   ~MVAJetTagPlotter ();
 
@@ -27,9 +27,9 @@ class MVAJetTagPlotter : public BaseTagInfoPlotter {
   virtual void finalize ();
 
 
-  void epsPlot(const TString & name);
+  void epsPlot(const std::string & name);
 
-  void psPlot(const TString & name);
+  void psPlot(const std::string & name);
 
   virtual void setEventSetup (const edm::EventSetup & setup);
   virtual std::vector<std::string> tagInfoRequirements () const;

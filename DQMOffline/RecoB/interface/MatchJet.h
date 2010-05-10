@@ -22,7 +22,7 @@ class MatchJet {
   MatchJet() {}
   MatchJet(const edm::ParameterSet& pSet);
 
-  void setThreshold(double energy) { threshold = energy; }
+  void setThreshold(const double& energy) { threshold = energy; }
 
   /// match the collections
   void matchCollections(const edm::RefToBaseVector<reco::Jet> & refJets,

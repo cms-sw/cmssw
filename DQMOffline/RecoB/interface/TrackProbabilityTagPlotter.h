@@ -14,8 +14,8 @@ class TrackProbabilityTagPlotter : public BaseTagInfoPlotter {
 
  public:
 
-  TrackProbabilityTagPlotter (const TString & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, bool update, bool mc, bool wf);
+  TrackProbabilityTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
+	const edm::ParameterSet& pSet, const bool& update, const bool& mc, const bool& wf);
 
   ~TrackProbabilityTagPlotter () ;
 
@@ -24,9 +24,9 @@ class TrackProbabilityTagPlotter : public BaseTagInfoPlotter {
   virtual void createPlotsForFinalize ();
   virtual void finalize ();
 
-  void epsPlot(const TString & name);
+  void epsPlot(const std::string & name);
 
-  void psPlot(const TString & name);
+  void psPlot(const std::string & name);
 
  private:
 

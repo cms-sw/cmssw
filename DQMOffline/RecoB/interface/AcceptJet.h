@@ -14,11 +14,10 @@
 class AcceptJet {
 
  public:
-  AcceptJet();
+  AcceptJet(const double& etaMin_, const double& etaMax_, const double& ptMin_, const double& ptMax_,
+            const double& pMin_, const double& pMax_, const double& ratioMin_, const double& ratioMax_);
   /// Returns true if jet and associated parton satisfy kinematic cuts.
   bool operator() (const reco::Jet & jet, const int & jetFlavour, const edm::Handle<reco::SoftLeptonTagInfoCollection> & infos) const;
-  /// Finds the ratio of the momentum of any leptons in the jet to jet energy
-  double ratio(const reco::Jet & jet, const edm::Handle<reco::SoftLeptonTagInfoCollection> & infos) const;
 
   /// Set cut parameters
   void setEtaMin            ( double d ) { etaMin            = d ; } 
@@ -36,6 +35,9 @@ class AcceptJet {
 //   void setPtPartonMax       ( double d ) { ptPartonMax       = d ; } 
 
  protected:
+
+  /// Finds the ratio of the momentum of any leptons in the jet to jet energy
+  double ratio(const reco::Jet & jet, const edm::Handle<reco::SoftLeptonTagInfoCollection> & infos) const;
 
   // eta range 
   double etaMin ;   // these are meant as |eta| !!

@@ -1,7 +1,8 @@
 #ifndef EtaPtBin_H
 #define EtaPtBin_H
 
-#include "TString.h"
+#include <string>
+
 #include "DataFormats/JetReco/interface/Jet.h"
 // #include "RecoBTag/MCTools/interface/JetFlavour.h"
 
@@ -15,19 +16,19 @@ class EtaPtBin {
 
  public:
 
-  EtaPtBin(bool etaActive_ , double etaMin_ , double etaMax_ ,
-	    bool ptActive_  , double ptMin_  , double ptMax_ ) ;
+  EtaPtBin(const bool& etaActive_ , const double& etaMin_ , const double& etaMax_ ,
+	    const bool& ptActive_  , const double& ptMin_  , const double& ptMax_ ) ;
 
   ~EtaPtBin () {} ;
 
   /// String describes rapidity/pt range.
-  TString getDescriptionString () const { return descriptionString ; } 
+  std::string getDescriptionString () const { return descriptionString ; } 
 
   /// method to build the string from other quantities
   /// (static for easy external use)
-  static TString buildDescriptionString 
-  	( bool etaActive_ , double etaMin_ , double etaMax_ ,
-	  bool ptActive_  , double ptMin_  , double ptMax_ ) ;  // pt
+  static std::string buildDescriptionString 
+  	( const bool& etaActive_ , const double& etaMin_ , const double& etaMax_ ,
+	  const bool& ptActive_  , const double& ptMin_  , const double& ptMax_ ) ;  // pt
   
   
   /// Get rapidity/pt ranges and check whether rapidity/pt cuts are active.
@@ -59,7 +60,7 @@ class EtaPtBin {
   
 
   // description string as built from bin definition
-  TString descriptionString ;
+  std::string descriptionString ;
   
   
 } ;
