@@ -1,31 +1,31 @@
-# /dev/CMSSW_3_6_0/HIon/V17 (CMSSW_3_6_0_HLT6)
+# /dev/CMSSW_3_6_0/HIon/V18 (CMSSW_3_6_0_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V17')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V18')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
   'TooManyProducts',
   'TooFewProducts' ) )
 process.streams = cms.PSet( 
+  EventDisplay = cms.vstring(  ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'HcalHPDNoise',
     'ZeroBias',
     'HcalNZS',
     'JetMETTauMonitor',
     'MuMonitor',
-    'Cosmics',
     'RandomTriggers',
     'EGMonitor',
     'EG',
     'MinimumBias',
+    'Cosmics',
     'Mu',
     'JetMETTau' ),
-  EventDisplay = cms.vstring(  ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   DQM = cms.vstring(  ),
   HLTDQM = cms.vstring(  ),
@@ -39,19 +39,19 @@ process.streams = cms.PSet(
   Offline = cms.vstring(  )
 )
 process.datasets = cms.PSet( 
+  ExpressPhysics = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
   MuMonitor = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
   EG = cms.vstring(  ),
   MinimumBias = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
   Mu = cms.vstring(  ),
   JetMETTau = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
@@ -2114,7 +2114,8 @@ process.hltL2Muons = cms.EDProducer( "L2MuonProducer",
         Propagator = cms.string( "FastSteppingHelixPropagatorOpposite" ),
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
-      VertexConstraint = cms.bool( True )
+      VertexConstraint = cms.bool( True ),
+      beamSpot = cms.InputTag( "hltOfflineBeamSpot" )
     )
 )
 process.hltL2MuonCandidates = cms.EDProducer( "L2MuonCandidateProducer",

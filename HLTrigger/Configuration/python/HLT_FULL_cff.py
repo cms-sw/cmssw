@@ -1,27 +1,27 @@
-# /dev/CMSSW_3_6_0/HLT/V78 (CMSSW_3_6_0_HLT6)
+# /dev/CMSSW_3_6_0/HLT/V79 (CMSSW_3_6_0_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HLT/V78')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HLT/V79')
 )
 
 streams = cms.PSet( 
+  EventDisplay = cms.vstring(  ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'HcalHPDNoise',
     'ZeroBias',
     'HcalNZS',
     'JetMETTauMonitor',
     'MuMonitor',
-    'Cosmics',
     'RandomTriggers',
     'EGMonitor',
     'EG',
     'MinimumBias',
+    'Cosmics',
     'Mu',
     'JetMETTau' ),
-  EventDisplay = cms.vstring(  ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   DQM = cms.vstring(  ),
   HLTDQM = cms.vstring(  ),
@@ -35,6 +35,15 @@ streams = cms.PSet(
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' )
 )
 datasets = cms.PSet( 
+  ExpressPhysics = cms.vstring( 'HLT_Jet50U',
+    'HLT_L1DoubleMuOpen',
+    'HLT_L1Mu',
+    'HLT_L1MuOpen_BPTX',
+    'HLT_MET100',
+    'HLT_ZeroBias',
+    'HLT_L1SingleEG2',
+    'HLT_L1SingleEG5',
+    'HLT_L1_BscMinBiasOR_BptxPlusORMinus' ),
   HcalHPDNoise = cms.vstring( 'HLT_TechTrigHCALNoise',
     'HLT_GlobalRunHPDNoise' ),
   ZeroBias = cms.vstring( 'HLT_L1_BPTX_PlusOnly',
@@ -57,17 +66,6 @@ datasets = cms.PSet(
     'HLT_L1Jet10U_BPTX' ),
   MuMonitor = cms.vstring( 'HLT_L1Mu',
     'HLT_L1MuOpen_BPTX' ),
-  Cosmics = cms.vstring( 'HLT_TrackerCosmics',
-    'HLT_RPCBarrelCosmics',
-    'HLT_CSCBeamHaloRing2or3',
-    'HLT_CSCBeamHaloOverlapRing2',
-    'HLT_CSCBeamHaloOverlapRing1',
-    'HLT_CSCBeamHalo',
-    'HLT_L1MuOpen',
-    'HLT_L1Tech_BSC_halo',
-    'HLT_L1MuOpen_AntiBPTX',
-    'HLT_TkMu3_NoVertex',
-    'HLT_L2Mu0_NoVertex' ),
   RandomTriggers = cms.vstring( 'HLT_Random' ),
   EGMonitor = cms.vstring( 'HLT_EgammaSuperClusterOnly_L1R',
     'HLT_L1SingleEG2',
@@ -119,6 +117,17 @@ datasets = cms.PSet(
     'HLT_L1Tech_BSC_halo_forPhysicsBackground',
     'HLT_L1_BptxXOR_BscMinBiasOR',
     'HLT_PixelTracks_Multiplicity70' ),
+  Cosmics = cms.vstring( 'HLT_TrackerCosmics',
+    'HLT_RPCBarrelCosmics',
+    'HLT_CSCBeamHaloRing2or3',
+    'HLT_CSCBeamHaloOverlapRing2',
+    'HLT_CSCBeamHaloOverlapRing1',
+    'HLT_CSCBeamHalo',
+    'HLT_L1MuOpen',
+    'HLT_L1Tech_BSC_halo',
+    'HLT_L1MuOpen_AntiBPTX',
+    'HLT_TkMu3_NoVertex',
+    'HLT_L2Mu0_NoVertex' ),
   Mu = cms.vstring( 'HLT_L1Mu14_L1ETM30',
     'HLT_L1Mu14_L1SingleJet6U',
     'HLT_L1Mu14_L1SingleEG10',
@@ -161,15 +170,6 @@ datasets = cms.PSet(
     'HLT_BTagMu_Jet10U',
     'HLT_DoubleJet15U_ForwardBackward',
     'HLT_Jet15U_HcalNoiseFiltered' ),
-  ExpressPhysics = cms.vstring( 'HLT_Jet50U',
-    'HLT_L1DoubleMuOpen',
-    'HLT_L1Mu',
-    'HLT_L1MuOpen_BPTX',
-    'HLT_MET100',
-    'HLT_ZeroBias',
-    'HLT_L1SingleEG2',
-    'HLT_L1SingleEG5',
-    'HLT_L1_BscMinBiasOR_BptxPlusORMinus' ),
   OfflineMonitor = cms.vstring( 'HLT_L1MET20',
     'HLT_QuadJet15U',
     'HLT_DiJetAve30U_8E29',
@@ -4467,7 +4467,8 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
         Propagator = cms.string( "FastSteppingHelixPropagatorOpposite" ),
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
-      VertexConstraint = cms.bool( True )
+      VertexConstraint = cms.bool( True ),
+      beamSpot = cms.InputTag( "hltOfflineBeamSpot" )
     )
 )
 hltL2MuonCandidates = cms.EDProducer( "L2MuonCandidateProducer",
@@ -5021,7 +5022,8 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
       SmoothTkTrack = cms.untracked.bool( False ),
-      DoSmoothing = cms.bool( True )
+      DoSmoothing = cms.bool( True ),
+      beamSpot = cms.InputTag( "hltOfflineBeamSpot" )
     )
 )
 hltL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducer",
@@ -14856,7 +14858,8 @@ hltCosmicMuonBarrelOnly = cms.EDProducer( "CosmicMuonProducer",
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
       SmoothTkTrack = cms.untracked.bool( False ),
-      DoSmoothing = cms.bool( False )
+      DoSmoothing = cms.bool( False ),
+      beamSpot = cms.InputTag( "hltOfflineBeamSpot" )
     )
 )
 hltMuonPointingFilter = cms.EDFilter( "HLTMuonPointingFilter",
