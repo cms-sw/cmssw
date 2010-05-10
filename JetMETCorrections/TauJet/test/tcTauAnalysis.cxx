@@ -18,6 +18,7 @@ void tcTauAnalysis(){
 	float tau_pt_cut = 10;
 	float tau_eta_cut = 2.1;
 
+	int algoCounter[6] = {0,0,0,0,0,0};
 
 	TFile* inFile = TFile::Open("tctau.root");
 	TTree* tauTree = (TTree *) (inFile->Get("tauTree"));
@@ -27,7 +28,7 @@ void tcTauAnalysis(){
         float MCTau_pt,MCTau_eta,MCTau_phi;
         float PFTau_pt,PFTau_eta,PFTau_phi,PFTau_nProngs,PFTau_ltrackPt,PFTau_d_isol,PFTau_d_1,PFTau_d_2;
         float CaloTau_pt,CaloTau_eta,CaloTau_phi,CaloTau_nProngs,CaloTau_ltrackPt,CaloTau_d_isol,CaloTau_d_1,CaloTau_d_2;
-        float TCTau_pt,TCTau_eta,TCTau_phi,TCTau_nProngs,TCTau_ltrackPt,TCTau_d_1,TCTau_d_2;
+        float TCTau_pt,TCTau_eta,TCTau_phi,TCTau_nProngs,TCTau_ltrackPt,TCTau_d_1,TCTau_d_2,TCTau_algo;
 	float TCTau_pt_raw,TCTau_eta_raw,TCTau_phi_raw;
 
 	tauTree->SetBranchAddress("MCTau_pt",&MCTau_pt);
@@ -47,6 +48,7 @@ void tcTauAnalysis(){
         tauTree->SetBranchAddress("TCTau_phi_raw",&TCTau_phi_raw);
         tauTree->SetBranchAddress("TCTau_nProngs",&TCTau_nProngs);
         tauTree->SetBranchAddress("TCTau_ltrackPt",&TCTau_ltrackPt);
+	tauTree->SetBranchAddress("TCTau_algo",&TCTau_algo);
         tauTree->SetBranchAddress("PFTau_pt",&PFTau_pt);
         tauTree->SetBranchAddress("PFTau_eta",&PFTau_eta);
         tauTree->SetBranchAddress("PFTau_phi",&PFTau_phi);
@@ -101,6 +103,9 @@ void tcTauAnalysis(){
 			h_CaloTau_dEtRatio->Fill(CaloTau_pt/MCTau_pt);
 		}
 		if(TCTau_pt > tau_pt_cut && fabs(TCTau_eta) < tau_eta_cut && CaloTau_d_isol != 0) {
+
+			algoCounter[int(TCTau_algo)]++;
+
 			nTCTaus++;
                         double tcTauReso = (TCTau_pt - MCTau_pt)/MCTau_pt;
                         if(fabs(tcTauReso) < 0.1) nTCTausIn01Counter++;
@@ -133,6 +138,24 @@ void tcTauAnalysis(){
 	cout << " Isolated PFTaus   " << nPFTaus << endl;
 	cout << endl;
 
+        enum  {TCAlgoUndetermined,
+               TCAlgoMomentum,
+               TCAlgoTrackProblem,
+               TCAlgoMomentumECAL,
+               TCAlgoCaloJet,
+               TCAlgoHadronicJet};
+
+	cout << "TCAlgoUndetermined " << algoCounter[TCAlgoUndetermined] << endl;
+	cout << "TCAlgoMomentum     " << algoCounter[TCAlgoMomentum] << endl;
+	cout << "TCAlgoTrackProblem " << algoCounter[TCAlgoTrackProblem] << endl;
+	cout << "TCAlgoMomentumECAL " << algoCounter[TCAlgoMomentumECAL] << endl;
+	cout << "TCAlgoCaloJet      " << algoCounter[TCAlgoCaloJet] << endl;
+	cout << "TCAlgoHadronicJet  " << algoCounter[TCAlgoHadronicJet] << endl;
+	int sum = 0;
+	for(int iAlgo = 0; iAlgo < 6; ++ iAlgo) sum += algoCounter[iAlgo];
+	cout << "Sum                " << sum << endl;
+
+	
 	//TH1F* h_tcTauEff = (TH1F*) (inFile->Get("h_tcTauEff"));
 	//cout << " TCTau algorithm efficiency " << h_tcTauEff->GetBinContent(3) << endl;
 

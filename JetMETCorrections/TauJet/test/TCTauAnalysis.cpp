@@ -54,7 +54,7 @@ class TCTauAnalysis : public edm::EDAnalyzer {
 	float MCTau_pt,MCTau_eta,MCTau_phi;
 	float PFTau_pt,PFTau_eta,PFTau_phi,PFTau_nProngs,PFTau_ltrackPt,PFTau_d_isol,PFTau_d_1,PFTau_d_2;
 	float CaloTau_pt,CaloTau_eta,CaloTau_phi,CaloTau_nProngs,CaloTau_ltrackPt,CaloTau_d_isol,CaloTau_d_1,CaloTau_d_2;
-	float TCTau_pt,TCTau_eta,TCTau_phi,TCTau_nProngs,TCTau_ltrackPt,TCTau_d_isol,TCTau_d_1,TCTau_d_2;
+	float TCTau_pt,TCTau_eta,TCTau_phi,TCTau_nProngs,TCTau_ltrackPt,TCTau_d_isol,TCTau_d_1,TCTau_d_2,TCTau_algo;
         float TCTau_pt_raw,TCTau_eta_raw,TCTau_phi_raw;
 
 	int nMCTaus,
@@ -84,6 +84,7 @@ class TCTauAnalysis : public edm::EDAnalyzer {
 
         Handle<CaloTauCollection>    theTCTauHandle;
         Handle<CaloTauDiscriminator> theTCTauDiscriminatorHandle;
+	Handle<CaloTauDiscriminator> theTCTauAlgoHandle;
 
         Handle<PFTauCollection>      thePFTauHandle;
         Handle<PFTauDiscriminator>   thePFTauDiscriminatorHandle;
@@ -123,35 +124,36 @@ TCTauAnalysis::TCTauAnalysis(const edm::ParameterSet& iConfig){
         MCTau_phi = 0; tauTree->Branch("MCTau_phi", &MCTau_phi, "MCTau_phi/F");
 	}
 
-        PFTau_pt  = 0; tauTree->Branch("PFTau_pt",  &PFTau_pt,  "PFTau_pt/F");
-        PFTau_eta = 0; tauTree->Branch("PFTau_eta", &PFTau_eta, "PFTau_eta/F");
-        PFTau_phi = 0; tauTree->Branch("PFTau_phi", &PFTau_phi, "PFTau_phi/F");
+        PFTau_pt  = 0;      tauTree->Branch("PFTau_pt",  &PFTau_pt,  "PFTau_pt/F");
+        PFTau_eta = 0;      tauTree->Branch("PFTau_eta", &PFTau_eta, "PFTau_eta/F");
+        PFTau_phi = 0;      tauTree->Branch("PFTau_phi", &PFTau_phi, "PFTau_phi/F");
 	PFTau_nProngs = 0;  tauTree->Branch("PFTau_nProngs",  &PFTau_nProngs,  "PFTau_nProngs/F");
 	PFTau_ltrackPt = 0; tauTree->Branch("PFTau_ltrackPt",  &PFTau_ltrackPt,  "PFTau_ltrackPt/F");
 	PFTau_d_isol = 0;   tauTree->Branch("PFTau_d_isol",  &PFTau_d_isol,  "PFTau_d_isol/F"); //DiscriminationByIsolation
 	PFTau_d_1 = 0;      tauTree->Branch("PFTau_d_1",  &PFTau_d_1,  "PFTau_d_1/F");
 	PFTau_d_2 = 0;      tauTree->Branch("PFTau_d_2",  &PFTau_d_2,  "PFTau_d_2/F");
 
-        CaloTau_pt  = 0; tauTree->Branch("CaloTau_pt",  &CaloTau_pt,  "CaloTau_pt/F");
-        CaloTau_eta = 0; tauTree->Branch("CaloTau_eta", &CaloTau_eta, "CaloTau_eta/F");
-        CaloTau_phi = 0; tauTree->Branch("CaloTau_phi", &CaloTau_phi, "CaloTau_phi/F");
+        CaloTau_pt  = 0;      tauTree->Branch("CaloTau_pt",  &CaloTau_pt,  "CaloTau_pt/F");
+        CaloTau_eta = 0;      tauTree->Branch("CaloTau_eta", &CaloTau_eta, "CaloTau_eta/F");
+        CaloTau_phi = 0;      tauTree->Branch("CaloTau_phi", &CaloTau_phi, "CaloTau_phi/F");
         CaloTau_nProngs = 0;  tauTree->Branch("CaloTau_nProngs",  &CaloTau_nProngs,  "CaloTau_nProngs/F");
         CaloTau_ltrackPt = 0; tauTree->Branch("CaloTau_ltrackPt",  &CaloTau_ltrackPt,  "CaloTau_ltrackPt/F");
 	CaloTau_d_isol = 0;   tauTree->Branch("CaloTau_d_isol",  &CaloTau_d_isol,  "CaloTau_d_isol/F");
         CaloTau_d_1 = 0;      tauTree->Branch("CaloTau_d_1",  &CaloTau_d_1,  "CaloTau_d_1/F");
         CaloTau_d_2 = 0;      tauTree->Branch("CaloTau_d_2",  &CaloTau_d_2,  "CaloTau_d_2/F");
 
-        TCTau_pt  = 0; tauTree->Branch("TCTau_pt",  &TCTau_pt,  "TCTau_pt/F");
-        TCTau_eta = 0; tauTree->Branch("TCTau_eta", &TCTau_eta, "TCTau_eta/F");
-        TCTau_phi = 0; tauTree->Branch("TCTau_phi", &TCTau_phi, "TCTau_phi/F");
+        TCTau_pt  = 0;      tauTree->Branch("TCTau_pt",  &TCTau_pt,  "TCTau_pt/F");
+        TCTau_eta = 0;      tauTree->Branch("TCTau_eta", &TCTau_eta, "TCTau_eta/F");
+        TCTau_phi = 0;      tauTree->Branch("TCTau_phi", &TCTau_phi, "TCTau_phi/F");
         TCTau_nProngs = 0;  tauTree->Branch("TCTau_nProngs",  &TCTau_nProngs,  "TCTau_nProngs/F");
         TCTau_ltrackPt = 0; tauTree->Branch("TCTau_ltrackPt",  &TCTau_ltrackPt,  "TCTau_ltrackPt/F");
         TCTau_d_isol = 0;   tauTree->Branch("TCTau_d_isol",  &TCTau_d_isol,  "TCTau_d_isol/F");
         TCTau_d_1 = 0;      tauTree->Branch("TCTau_d_1",  &TCTau_d_1,  "TCTau_d_1/F");
         TCTau_d_2 = 0;      tauTree->Branch("TCTau_d_2",  &TCTau_d_2,  "TCTau_d_2/F");
-        TCTau_pt_raw  = 0; tauTree->Branch("TCTau_pt_raw",  &TCTau_pt_raw,  "TCTau_pt_raw/F");
-        TCTau_eta_raw = 0; tauTree->Branch("TCTau_eta_raw", &TCTau_eta_raw, "TCTau_eta_raw/F");
-        TCTau_phi_raw = 0; tauTree->Branch("TCTau_phi_raw", &TCTau_phi_raw, "TCTau_phi_raw/F");
+	TCTau_algo = 0;     tauTree->Branch("TCTau_algo",  &TCTau_algo,  "TCTau_algo/F");
+        TCTau_pt_raw  = 0;  tauTree->Branch("TCTau_pt_raw",  &TCTau_pt_raw,  "TCTau_pt_raw/F");
+        TCTau_eta_raw = 0;  tauTree->Branch("TCTau_eta_raw", &TCTau_eta_raw, "TCTau_eta_raw/F");
+        TCTau_phi_raw = 0;  tauTree->Branch("TCTau_phi_raw", &TCTau_phi_raw, "TCTau_phi_raw/F");
 }
 
 TCTauAnalysis::~TCTauAnalysis(){
@@ -201,6 +203,7 @@ void TCTauAnalysis::resetNtuple(){
 	TCTau_d_isol   = 0;
         TCTau_d_1      = 0;
         TCTau_d_2      = 0;
+	TCTau_algo     = 0;
         TCTau_pt_raw   = 0;
         TCTau_eta_raw  = 0;
         TCTau_phi_raw  = 0;
@@ -209,14 +212,15 @@ void TCTauAnalysis::resetNtuple(){
 void TCTauAnalysis::beginJob(){}
 
 void TCTauAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-	
+
 	iEvent.getByLabel(CaloTaus,theCaloTauHandle);
         iEvent.getByLabel(InputTag("caloRecoTau"+Discriminator.label(),"",CaloTaus.process()),
                           theCaloTauDiscriminatorHandle);
-	
+
         iEvent.getByLabel(TCTaus,theTCTauHandle);
         iEvent.getByLabel(InputTag("caloRecoTau"+Discriminator.label()),
                           theTCTauDiscriminatorHandle);
+	iEvent.getByLabel("tcRecoTauDiscriminationAlgoComponent",theTCTauAlgoHandle);
 
 	string pfTau = PFTaus.label();
 	pfTau = pfTau.substr(0,pfTau.find("Producer"));
@@ -332,9 +336,13 @@ void TCTauAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 void TCTauAnalysis::fillCaloTau(CaloTauRef theTau){
 
 	if(theTau->pt() == 0) return;
-	
+
         CaloTau theCaloTau = *theTau;
+/*
+cout << "check TCTauAnalysis::fillCaloTau 1.1"<< endl;
         CaloTauElementsOperators op(theCaloTau);
+cout << "check TCTauAnalysis::fillCaloTau 1.2"<< endl;
+
         double d_trackIsolation = op.discriminatorByIsolTracksN(
                 metric,
                 matchingConeSize,
@@ -346,8 +354,9 @@ void TCTauAnalysis::fillCaloTau(CaloTauRef theTau){
                 isolationConeSize,
                 isolationAnnulus_Tracksmaxn);
 
+cout << "check TCTauAnalysis::fillCaloTau 2"<< endl;
         const TrackRef leadingTrack =op.leadTk(metric,matchingConeSize,ptLeadingTrackMin);
-
+*/
 	double theDiscriminator = (*theCaloTauDiscriminatorHandle)[theTau];
 
 	cout << "CaloTau Et = " << theCaloTau.pt() <<endl;
@@ -358,13 +367,15 @@ void TCTauAnalysis::fillCaloTau(CaloTauRef theTau){
 	CaloTau_eta      = theCaloTau.eta();
 	CaloTau_phi      = theCaloTau.phi();
 	CaloTau_d_isol   = theDiscriminator;
-	CaloTau_d_1	 = d_trackIsolation;
+////	CaloTau_d_1	 = d_trackIsolation;
 
+/*
 	if(leadingTrack.isNonnull()) {
 		const TrackRefVector signalTracks = op.tracksInCone(leadingTrack->momentum(),metric,signalConeSize,ptOtherTracksMin);
 		CaloTau_nProngs  = signalTracks.size();
 		CaloTau_ltrackPt = leadingTrack->pt();
 	}
+*/
 }
 
 void TCTauAnalysis::fillTCTau(CaloTauRef theTau){
@@ -388,6 +399,8 @@ void TCTauAnalysis::fillTCTau(CaloTauRef theTau){
 
         double theDiscriminator = (*theTCTauDiscriminatorHandle)[theTau];
 
+	double theAlgo          = (*theTCTauAlgoHandle)[theTau];
+
         cout << "CaloTau+JPT+TCTau Et = " << jptTCTauCorrected.pt() <<endl;
 
         nTCTaus++;
@@ -397,8 +410,9 @@ void TCTauAnalysis::fillTCTau(CaloTauRef theTau){
         TCTau_phi      = jptTCTauCorrected.phi();
         TCTau_d_isol   = theDiscriminator;
         TCTau_d_1      = d_trackIsolation;
+	TCTau_algo     = theAlgo;
 
-        TCTau_pt_raw   = jptTCTauCorrected.caloTauTagInfoRef()->calojetRef()->et();
+        TCTau_pt_raw   = jptTCTauCorrected.rawJetRef()->et();
 	cout << "TCTau Raw Et         = " << TCTau_pt_raw << endl;
 
         if(leadingTrack.isNonnull()) {
