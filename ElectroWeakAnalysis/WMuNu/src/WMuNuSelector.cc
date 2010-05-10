@@ -281,6 +281,13 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       }
       unsigned int muonCollectionSize = muonCollection->size();
 
+
+      bool trigger_fired = false;
+      if ( trigTag_.label() == ""){
+      LogTrace("") << ">>> Careful, you are not requesting any trigger, event will be always fired";
+      trigger_fired = true;
+      }
+      else {
       // Trigger
       Handle<TriggerResults> triggerResults;
       if (!ev.getByLabel(trigTag_, triggerResults)) {
@@ -289,10 +296,10 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             return 0;
       }
       const edm::TriggerNames & triggerNames = ev.triggerNames(*triggerResults);
-      bool trigger_fired = false;
       int itrig1 = triggerNames.triggerIndex(muonTrig_);
       if (triggerResults->accept(itrig1)) trigger_fired = true;
       LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << muonTrig_ << ")";
+      }
 
       // Loop to reject/control Z->mumu is done separately
       unsigned int nmuonsForZ1 = 0;
@@ -307,10 +314,16 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
 
+
+      int njets = 0;
+      if(jetTag_.label()==""){
+      LogTrace("")<<">>> Careful, you are not requesting any jet collection";
+      }else{
       // Jet collection
       Handle<View<Jet> > jetCollection;
       if (!ev.getByLabel(jetTag_, jetCollection)) {
             LogError("") << ">>> JET collection does not exist !!!";
+            LogError("") << " (if you dont want to check jets variables, edit your .py so that JetTag="", otherwise check your input file)";
             return 0;
       }
       unsigned int jetCollectionSize = jetCollection->size();
@@ -321,7 +334,8 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       }
       LogTrace("") << ">>> Total number of jets: " << jetCollectionSize;
       LogTrace("") << ">>> Number of jets above " << eJetMin_ << " [GeV]: " << njets;
-
+      }
+      
 
       // Beam spot
       Handle<reco::BeamSpot> beamSpotHandle;

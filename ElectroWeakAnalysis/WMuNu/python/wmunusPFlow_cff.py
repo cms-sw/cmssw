@@ -1,19 +1,34 @@
-from ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi import *
+import FWCore.ParameterSet.Config as cms
+# VBTF analysis using a full PF-Based approach (PFIsolation & PFMet)
 
-# Paths for WMuNuSelector filtering of events
-# Be careful: events may contain more than one WMunuCandidate if they
-#             contain more than one muon. 
-# The "real" WMuNuCandidate selected is the first one of the collection
+# Create a new reco::Muon collection with PFLow Iso information
+# This is the first version of the producer. Please get cvs co -r V00-02-04 ElectroWeakAnalysis/Utilities 
+muonsWithPFIso = cms.EDFilter("MuonWithPFIsoProducer",
+        MuonTag = cms.untracked.InputTag("muons")
+      , PfTag = cms.untracked.InputTag("particleFlow")
+      , UsePfMuonsOnly = cms.untracked.bool(False)
+      , TrackIsoVeto = cms.untracked.double(0.01) # This is to be compatible with the standard Muon isolation vetos
+      , GammaIsoVeto = cms.untracked.double(0.07) 
+      , NeutralHadronIsoVeto = cms.untracked.double(0.1)
+)
 
-selcorMet = cms.EDFilter("WMuNuSelector",
+# Build WMuNu Collection:
+pfWMuNus = cms.EDProducer("WMuNuProducer",
+      # Input collections ->
+      MuonTag = cms.untracked.InputTag("muonsWithPFIso"),
+      METTag = cms.untracked.InputTag("pfMet")
+)
+
+# Select them:
+selPFWMuNus = cms.EDFilter("WMuNuSelector",
       # Fill Basc Histograms? ->
       plotHistograms = cms.untracked.bool(False),
 
       # Input collections ->
-      MuonTag = cms.untracked.InputTag("muons"),
+      MuonTag = cms.untracked.InputTag("muonsWithPFIso"),
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
-      JetTag = cms.untracked.InputTag("ak5CaloJets"), # CAREFUL --> If you run on Summer09 MC, this was called "antikt5CaloJets"
-      WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus"),
+      JetTag = cms.untracked.InputTag("ak5PFJets"), # CAREFUL --> If you run on Summer09 MC, this was called "antikt5CaloJets"
+      WMuNuCollectionTag = cms.untracked.InputTag("pfWMuNus"),
 
       # Preselection! 
       MuonTrig = cms.untracked.string("HLT_Mu9"),
@@ -46,16 +61,5 @@ selcorMet = cms.EDFilter("WMuNuSelector",
 
 )
 
-selpfMet = selcorMet.clone()
-selpfMet.WMuNuCollectionTag = cms.untracked.InputTag("pfMetWMuNus")
-
-seltcMet = selcorMet.clone()
-seltcMet.WMuNuCollectionTag = cms.untracked.InputTag("tcMetWMuNus")
-
-selectCaloMetWMuNus = cms.Sequence(corMetWMuNus+selcorMet)
-
-selectPfMetWMuNus = cms.Sequence(pfMetWMuNus+selpfMet)
-
-selectTcMetWMuNus = cms.Sequence(tcMetWMuNus+seltcMet)
-
+selectPFWMuNus = cms.Sequence(muonsWithPFIso+pfWMuNus+selPFWMuNus)
 
