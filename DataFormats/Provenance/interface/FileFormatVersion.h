@@ -22,6 +22,7 @@ namespace edm
     bool parameterSetsByReference() const;
     bool triggerPathsTracked() const;
     bool lumiInEventID() const;
+    bool parameterSetsTree() const;
     bool processHistorySameWithinRun() const;
     int value() const {return value_;}
     
