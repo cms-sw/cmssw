@@ -7,11 +7,11 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObjectStandAlone
 //
-// $Id: TriggerObjectStandAlone.h,v 1.3 2009/06/24 15:49:28 vadler Exp $
+// $Id: TriggerObjectStandAlone.h,v 1.4 2010/02/25 16:15:32 vadler Exp $
 //
 /**
   \class    pat::TriggerObjectStandAlone TriggerObjectStandAlone.h "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-  \brief    Analysis-level trigger object class
+  \brief    Analysis-level trigger object class (stand-alone)
 
    TriggerObjectStandAlone implements a container for trigger objects' information within the 'pat' namespace.
    These Trigger objects keep also information on filters and paths ot be saved independently or embedded into PAT objects.
@@ -19,7 +19,7 @@
    - [to be filled]
 
   \author   Volker Adler
-  \version  $Id: TriggerObjectStandAlone.h,v 1.3 2009/06/24 15:49:28 vadler Exp $
+  \version  $Id: TriggerObjectStandAlone.h,v 1.4 2010/02/25 16:15:32 vadler Exp $
 */
 
 

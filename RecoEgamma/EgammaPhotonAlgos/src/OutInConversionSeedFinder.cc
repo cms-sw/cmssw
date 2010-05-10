@@ -93,7 +93,7 @@ void OutInConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::Cal
 
     LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() Passing the >=1.5 GeV cut  BC eta  " << theBcEta << " phi " <<  theBcPhi << " BC energy " << theBCEnergy_ << "\n";
 
-    if (  fabs(theBcEta-theSCEta) < 0.015  && fabs(theBcPhi-theSCPhi) < 0.3 ) { 
+    if (  fabs(theBcEta-theSCEta) < 0.015  && fabs(theBcPhi-theSCPhi) < 0.25 ) { 
       LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() in et and phi range passed to the analysis " << "\n";
       fillClusterSeeds( allBC->ptrAt(i)  );
     }

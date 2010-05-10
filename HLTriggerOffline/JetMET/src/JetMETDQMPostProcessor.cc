@@ -228,121 +228,121 @@ void JetMETDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& 
       gmto->SetBinContent(ib+1,val);
       gmto->SetBinEntries(ib+1,1);
       err = gmetTrg->GetBinError(ib+1);
-      gmto->SetBinError(ib+1,sqrt(err*err+val*val));
+      gmto->SetBinError(ib+1,err);
       //genmet data
       val = gmetTrg2->GetBinContent(ib+1);
       gmtol->SetBinContent(ib+1,val);
       gmtol->SetBinEntries(ib+1,1);
       err = gmetTrg2->GetBinError(ib+1);
-      gmtol->SetBinError(ib+1,sqrt(err*err+val*val));
+      gmtol->SetBinError(ib+1,err);
       //recmet relval
       val = rmetTrg->GetBinContent(ib+1);
       rmto->SetBinContent(ib+1,val);
       rmto->SetBinEntries(ib+1,1);
       err = rmetTrg->GetBinError(ib+1);
-      rmto->SetBinError(ib+1,sqrt(err*err+val*val));
+      rmto->SetBinError(ib+1,err);
       //recmet data
       val = rmetTrg2->GetBinContent(ib+1);
       rmtol->SetBinContent(ib+1,val);
       rmtol->SetBinEntries(ib+1,1);
       err = rmetTrg2->GetBinError(ib+1);
-      rmtol->SetBinError(ib+1,sqrt(err*err+val*val));
+      rmtol->SetBinError(ib+1,err);
       //genjet relval
       val = gjetTrg->GetBinContent(ib+1);
       gjto->SetBinContent(ib+1,val);
       gjto->SetBinEntries(ib+1,1);
       err = gjetTrg->GetBinError(ib+1);
-      gjto->SetBinError(ib+1,sqrt(err*err+val*val));
+      gjto->SetBinError(ib+1,err);
       //genjet data
       val = gjetTrg2->GetBinContent(ib+1);
       gjtol->SetBinContent(ib+1,val);
       gjtol->SetBinEntries(ib+1,1);
       err = gjetTrg2->GetBinError(ib+1);
-      gjtol->SetBinError(ib+1,sqrt(err*err+val*val));
+      gjtol->SetBinError(ib+1,err);
       //recjet relval
       val = rjetTrg->GetBinContent(ib+1);
       rjto->SetBinContent(ib+1,val);
       rjto->SetBinEntries(ib+1,1);
       err = rjetTrg->GetBinError(ib+1);
-      rjto->SetBinError(ib+1,sqrt(err*err+val*val));
+      rjto->SetBinError(ib+1,err);
       //recjet data
       val = rjetTrg2->GetBinContent(ib+1);
       rjtol->SetBinContent(ib+1,val);
       rjtol->SetBinEntries(ib+1,1);
       err = rjetTrg2->GetBinError(ib+1);
-      rjtol->SetBinError(ib+1,sqrt(err*err+val*val));
+      rjtol->SetBinError(ib+1,err);
       //genjeteta relval
       val = gjetEtaTrg->GetBinContent(ib+1);
       gjeto->SetBinContent(ib+1,val);
       gjeto->SetBinEntries(ib+1,1);
       err = gjetEtaTrg->GetBinError(ib+1);
-      gjeto->SetBinError(ib+1,sqrt(err*err+val*val));
+      gjeto->SetBinError(ib+1,err);
       //genjeteta data
       val = gjetEtaTrg2->GetBinContent(ib+1);
       gjetol->SetBinContent(ib+1,val);
       gjetol->SetBinEntries(ib+1,1);
       err = gjetEtaTrg2->GetBinError(ib+1);
-      gjetol->SetBinError(ib+1,sqrt(err*err+val*val));
+      gjetol->SetBinError(ib+1,err);
       //recjeteta relval
       val = rjetEtaTrg->GetBinContent(ib+1);
       rjeto->SetBinContent(ib+1,val);
       rjeto->SetBinEntries(ib+1,1);
       err = rjetEtaTrg->GetBinError(ib+1);
-      rjeto->SetBinError(ib+1,sqrt(err*err+val*val));
+      rjeto->SetBinError(ib+1,err);
       //recjeteta data
       val = rjetEtaTrg2->GetBinContent(ib+1);
       rjetol->SetBinContent(ib+1,val);
       rjetol->SetBinEntries(ib+1,1);
       err = rjetEtaTrg2->GetBinError(ib+1);
-      rjetol->SetBinError(ib+1,sqrt(err*err+val*val));
+      rjetol->SetBinError(ib+1,err);
       //genjetphi relval
       val = gjetPhiTrg->GetBinContent(ib+1);
       gjpto->SetBinContent(ib+1,val);
       gjpto->SetBinEntries(ib+1,1);
       err = gjetPhiTrg->GetBinError(ib+1);
-      gjpto->SetBinError(ib+1,sqrt(err*err+val*val));
+      gjpto->SetBinError(ib+1,err);
       //genjetphi data
       val = gjetPhiTrg2->GetBinContent(ib+1);
       gjptol->SetBinContent(ib+1,val);
       gjptol->SetBinEntries(ib+1,1);
       err = gjetPhiTrg2->GetBinError(ib+1);
-      gjptol->SetBinError(ib+1,sqrt(err*err+val*val));
+      gjptol->SetBinError(ib+1,err);
       //recjetphi relval
       val = rjetPhiTrg->GetBinContent(ib+1);
       rjpto->SetBinContent(ib+1,val);
       rjpto->SetBinEntries(ib+1,1);
       err = rjetPhiTrg->GetBinError(ib+1);
-      rjpto->SetBinError(ib+1,sqrt(err*err+val*val));
+      rjpto->SetBinError(ib+1,err);
       //recjetphi data
       val = rjetPhiTrg2->GetBinContent(ib+1);
       rjptol->SetBinContent(ib+1,val);
       rjptol->SetBinEntries(ib+1,1);
       err = rjetPhiTrg2->GetBinError(ib+1);
-      rjptol->SetBinError(ib+1,sqrt(err*err+val*val));
+      rjptol->SetBinError(ib+1,err);
       //genht relval
       val = ghtTrg->GetBinContent(ib+1);
       ghto->SetBinContent(ib+1,val);
       ghto->SetBinEntries(ib+1,1);
       err = ghtTrg->GetBinError(ib+1);
-      ghto->SetBinError(ib+1,sqrt(err*err+val*val));
+      ghto->SetBinError(ib+1,err);
       //genht data
       val = ghtTrg2->GetBinContent(ib+1);
       ghtol->SetBinContent(ib+1,val);
       ghtol->SetBinEntries(ib+1,1);
       err = ghtTrg2->GetBinError(ib+1);
-      ghtol->SetBinError(ib+1,sqrt(err*err+val*val));
+      ghtol->SetBinError(ib+1,err);
       //recht relval
       val = rhtTrg->GetBinContent(ib+1);
       rhto->SetBinContent(ib+1,val);
       rhto->SetBinEntries(ib+1,1);
       err = rhtTrg->GetBinError(ib+1);
-      rhto->SetBinError(ib+1,sqrt(err*err+val*val));
+      rhto->SetBinError(ib+1,err);
       //recht data
       val = rhtTrg2->GetBinContent(ib+1);
       rhtol->SetBinContent(ib+1,val);
       rhtol->SetBinEntries(ib+1,1);
       err = rhtTrg2->GetBinError(ib+1);
-      rhtol->SetBinError(ib+1,sqrt(err*err+val*val));
+      rhtol->SetBinError(ib+1,err);
 
 
       //std::cout <<"MET:"<<_meTurnOnMET->getBinContent(ib+1)<<" "<<gmetTrg->GetBinContent(ib+1)<<" "<<_meTurnOnMET->getBinError(ib+1)<<" "<<gmetTrg->GetBinError(ib+1)<<std::endl;

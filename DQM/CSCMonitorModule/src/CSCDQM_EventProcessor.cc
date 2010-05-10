@@ -123,8 +123,8 @@ namespace cscdqm {
   const bool EventProcessor::getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const {
     bool result = false;
 
-    if (crateId > 0 && crateId <= 60 && dmbId > 0 && dmbId <= 10) {
-      CSCDetId cid = config->fnGetCSCDetId(crateId, dmbId);
+    CSCDetId cid;
+    if (config->fnGetCSCDetId(crateId, dmbId, cid)) {
       cscPosition  = cid.chamber();
       int iring    = cid.ring();
       int istation = cid.station();
@@ -134,9 +134,11 @@ namespace cscdqm {
       result = true;
     }
     
+    /*
     if (!result) {
       LOG_ERROR << "Event #" << config->getNEvents() << ": Invalid CSC=" << CSCHistoDef::getPath(crateId, dmbId);
     }
+    */
 
     return result;
 

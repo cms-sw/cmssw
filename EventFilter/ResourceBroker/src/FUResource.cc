@@ -12,6 +12,8 @@
 #include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
+#include "EvffedFillerRB.h"
+
 #include "interface/shared/frl_header.h"
 #include "interface/shared/fed_header.h"
 #include "interface/shared/fed_trailer.h"
@@ -52,13 +54,14 @@ unsigned int FUResource::gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FUResource::FUResource(UInt_t fuResourceId,log4cplus::Logger logger)
+FUResource::FUResource(UInt_t fuResourceId,log4cplus::Logger logger, EvffedFillerRB *frb)
   : log_(logger)
   , fuResourceId_(fuResourceId)
   , superFragHead_(0)
   , superFragTail_(0)
   , nbBytes_(0)
   , superFragSize_(0)
+  , frb_(frb)
 {
   release();
 }
@@ -150,13 +153,39 @@ void FUResource::process(MemRef_t* bufRef)
       LOG4CPLUS_ERROR(log_,"EVENT LOST:"
 		      <<xcept::stdformat_exception_history(e));
       fatalError_=true;
-      bufRef->setNextReference(next); //what is this ???!?!?! - why ? - 
-      // see if removing this fixes problem with crashing RB
+      itBufRef->setNextReference(next); 
     }
     
     itBufRef=next;
   }
-  
+  if(isComplete()){
+    frb_->putHeader(evtNumber_,0);
+    frb_->putTrailer();
+    fedSize_[frb_->fedId()]=frb_->size();  
+    UChar_t *startPos = shmCell_->writeData(frb_->getPayload(),frb_->size());
+    superFragSize_=frb_->size();
+    if (!shmCell_->markSuperFrag(iSuperFrag_,superFragSize_,startPos)) {
+      nbErrors_++;
+      stringstream oss;
+      oss<<"Failed to mark super fragment in shared mem buffer."
+	 <<" fuResourceId:"<<fuResourceId_
+	 <<" evtNumber:"<<evtNumber_
+	 <<" iSuperFrag:"<<iSuperFrag_;
+      XCEPT_RAISE(evf::Exception,oss.str());
+    }
+    
+    if (!shmCell_->markFed(frb_->fedId(),frb_->size(),startPos)) {
+      nbErrors_++;
+      stringstream oss;
+      oss<<"Failed to mark fed in buffer."
+	 <<" evtNumber:"<<evtNumber_
+	 <<" fedId:"<<frb_->fedId()
+	 <<" fedSize:"<<frb_->size()
+	 <<" fedAddr:0x"<<hex<<(unsigned long)frb_->getPayload()<<dec;
+      XCEPT_RAISE(evf::Exception,oss.str());
+    }
+
+  }
   return;
 }
 
@@ -321,6 +350,7 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
 	 <<" evtNumber:"<<evtNumber_
 	 <<" buResourceId:"<<buResourceId_
 	 <<" iSuperFrag:"<<iSuperFrag_;
+      removeLastAppendedBlockFromSuperFrag();
       XCEPT_RETHROW(evf::Exception,oss.str(),e);
     }
     
@@ -458,6 +488,28 @@ void FUResource::appendBlockToSuperFrag(MemRef_t* bufRef)
   else {
     superFragTail_->setNextReference(bufRef);
     superFragTail_=bufRef;
+  }
+  return;
+}
+
+//______________________________________________________________________________
+void FUResource::removeLastAppendedBlockFromSuperFrag()
+{
+  if (0==superFragHead_) {
+    //nothing to do... why did we get here then ???
+  }
+  else if(superFragHead_==superFragTail_){
+    superFragHead_ = 0; 
+    superFragTail_ = 0;
+  }
+  else{
+    MemRef_t *next = 0;
+    MemRef_t *current = superFragHead_;
+    while((next=current->getNextReference()) != superFragTail_){
+      //get to the next-to-last block
+    }
+    superFragTail_ = current;
+    current->setNextReference(0);
   }
   return;
 }

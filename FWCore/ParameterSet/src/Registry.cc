@@ -32,18 +32,18 @@ namespace edm {
     }
   } // namespace pset
 
-  ParameterSet getProcessParameterSet() {
+  ParameterSet const& getProcessParameterSet() {
     pset::Registry* reg = pset::Registry::instance();
     ParameterSetID id = pset::getProcessParameterSetID(reg);
 
-    ParameterSet result;
-    if (!reg->getMapped(id, result)) {
+    ParameterSet const* result;
+    if (0==(result=reg->getMapped(id))) {
       throw edm::Exception(errors::EventCorruption, "Unknown ParameterSetID")
 	<< "Unable to find the ParameterSet for id: "
 	<< id
 	<< ";\nthis was supposed to be the process ParameterSet\n";
     }
-    return result;
+    return *result;
   }
 
 } // namespace edm

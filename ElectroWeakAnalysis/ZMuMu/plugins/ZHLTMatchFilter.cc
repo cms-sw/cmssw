@@ -34,10 +34,9 @@ namespace modules {
       const reco::Candidate* dau0 = z.daughter(0);
       const reco::Candidate * m0 = &*dau0->masterClone();
       const pat::Muon * mu0 = dynamic_cast<const pat::Muon*>(m0);//cast in patMuon
-      bool firstismuon = (dau0->isGlobalMuon() ? true : false); 
-      bool firstisStandAlone = (dau0->isStandAloneMuon() ? true : false); 
-      bool firstisTrackerMuon = (dau0->isTrackerMuon() ? true : false); 
-      if(mu0 != 0 && (firstismuon ||firstisStandAlone||firstisTrackerMuon )){
+      bool firstdismuon = (dau0->isGlobalMuon() ? true : false); 
+      bool firstdisStandAlone = (dau0->isStandAloneMuon() ? true : false); 
+      if(mu0 != 0){
 	// get the vector of trigger objects matched to the muon corresponding to hltPath_
 	const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
 	  mu0->triggerObjectMatchesByPath( hltPath_ );
@@ -51,9 +50,8 @@ namespace modules {
       const reco::Candidate * m1 = &*dau1->masterClone();
       bool secondismuon = (dau1->isGlobalMuon() ? true : false);    
       bool secondisStandAlone = (dau1->isStandAloneMuon() ? true : false); 
-      bool secondisTrackerMuon = (dau1->isTrackerMuon() ? true : false); 
       const pat::Muon * mu1 = dynamic_cast<const pat::Muon*>(m1);
-      if(mu1 != 0 && (secondismuon ||secondisStandAlone||secondisTrackerMuon ) ){
+      if(mu1 != 0 && (secondismuon ||secondisStandAlone) ){
 	// get the vector of trigger objects matched to the muon corresponding to hltPath_
 	const pat::TriggerObjectStandAloneCollection mu1HLTMatches = 
 	  mu1->triggerObjectMatchesByPath( hltPath_ );
@@ -64,12 +62,11 @@ namespace modules {
 	}
       }
       if(!singleTrigFlag0 && !singleTrigFlag1)return false;
-      if((singleTrigFlag0 && singleTrigFlag1) && firstismuon && secondismuon ) bothTriggerFlag = true;
-      if(((singleTrigFlag0 && !singleTrigFlag1) && firstismuon && secondismuon) || ((!singleTrigFlag0 && singleTrigFlag1) && firstismuon && secondismuon)) exactlyOneTriggerFlag = true;
-      if((((singleTrigFlag0  && firstismuon) && (secondisStandAlone || secondisTrackerMuon ) ) && !secondismuon ) || (((singleTrigFlag1 && secondismuon) && (firstisStandAlone|| firstisTrackerMuon) ) && !firstismuon))globalisTriggerFlag = true;
-
+      if((singleTrigFlag0 && singleTrigFlag1) && secondismuon ) bothTriggerFlag = true;
+      if(((singleTrigFlag0 && !singleTrigFlag1) && secondismuon) || ((!singleTrigFlag0 && singleTrigFlag1) && secondismuon)) exactlyOneTriggerFlag = true;
+      if((((singleTrigFlag0  && firstdismuon) && secondisStandAlone) && !secondismuon ) || (((singleTrigFlag1 && secondismuon) && firstdisStandAlone) && !firstdismuon))globalisTriggerFlag = true;
       if((singleTrigFlag0 && !singleTrigFlag1) && !secondismuon) FirstTriggerFlag = true;
-      if((singleTrigFlag0 || singleTrigFlag1) && firstismuon && secondismuon) atLeastOneTriggerFlag=true;
+      if((singleTrigFlag0 || singleTrigFlag1) && secondismuon) atLeastOneTriggerFlag=true;
       if(cond_=="exactlyOneMatched") return exactlyOneTriggerFlag;
       if(cond_=="atLeastOneMatched") return atLeastOneTriggerFlag;
       if(cond_=="bothMatched") return bothTriggerFlag;

@@ -106,16 +106,40 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  bool chi2=1;
  bool ctf=1;
  bool rs=0;
- 
+
+ bool hasOnlyMuonAssociatorInRef = true;
+ bool hasOnlyMuonAssociatorInSig = true;
+ TIter iter_r0( rl );
+ TIter iter_s0( sl );
+ while ( (myKey1 = (TKey*)iter_r0()) ) {
+   TString myName = myKey1->GetName();
+   collname1 = myName;
+   if ( !(collname1.Contains("tpToTkmu")) && !(collname1.Contains("MuonAssociation")) ) {
+     hasOnlyMuonAssociatorInRef = false;
+   }
+   myKey2 = (TKey*)iter_s0();
+   if (!myKey2) continue;
+   collname2 = myKey2->GetName();
+   if ( !(collname1.Contains("tpToTkmu")) && !(collname1.Contains("MuonAssociation")) ) {
+     hasOnlyMuonAssociatorInSig = false;
+   }
+ }
+ bool considerOnlyMuonAssociator = hasOnlyMuonAssociatorInRef || hasOnlyMuonAssociatorInSig;
+
+
  TIter iter_r( rl );
  TIter iter_s( sl );
  TKey * myKey1, *myKey2;
  while ( (myKey1 = (TKey*)iter_r()) ) {
    TString myName = myKey1->GetName();
    collname1 = myName;
+   if (considerOnlyMuonAssociator && 
+       !(collname1.Contains("tpToTkmu")) && !(collname1.Contains("MuonAssociation")) ) myKey1 = (TKey*)iter_r();
    myKey2 = (TKey*)iter_s();
    if (!myKey2) continue;
    collname2 = myKey2->GetName();
+   if (considerOnlyMuonAssociator && 
+       !(collname2.Contains("tpToTkmu")) && !(collname2.Contains("MuonAssociation")) ) myKey2 = (TKey*)iter_s();
    if ( (collname1 != collname2) && (collname1+"FS" != collname2) && (collname1 != collname2+"FS") ) {
      bool goodAsWell = false;
      if (collname1.BeginsWith("standAloneMuons_UpdatedAtVtx") && collname2.BeginsWith("standAloneMuons_UpdatedAtVtx")) {

@@ -38,7 +38,8 @@ namespace edm {
 //
 EventSetupRecordProvider::EventSetupRecordProvider(const EventSetupRecordKey& iKey) : key_(iKey),
     validityInterval_(), finder_(), providers_(),
-     multipleFinders_(new std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >()) 
+    multipleFinders_(new std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >()),
+    lastSyncWasBeginOfRun_(true)
 {
 }
 
@@ -139,7 +140,14 @@ EventSetupRecordProvider::addRecordToIfValid(EventSetupProvider& iEventSetupProv
 bool 
 EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime)
 {
-   resetTransients();
+   //we want to wait until after the first event of a new run before
+   // we reset any transients just in case some modules get their data at beginRun or beginLumi
+   // and others wait till the first event
+   if(!lastSyncWasBeginOfRun_) {
+      resetTransients();
+   }
+   lastSyncWasBeginOfRun_=iTime.eventID().event() == 0;
+   
    if(validityInterval_.validFor(iTime)) {
       return true;
    }

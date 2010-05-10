@@ -24,6 +24,7 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositVetoFactory.h"
 
 using namespace edm;
+using namespace std;
 using namespace reco;
 using namespace reco::isodeposit;
 
@@ -121,23 +122,23 @@ CandIsolatorFromDeposits::CandIsolatorFromDeposits(const ParameterSet& par) {
 
 /// destructor
 CandIsolatorFromDeposits::~CandIsolatorFromDeposits() {
-  std::vector<SingleDeposit>::iterator it, begin = sources_.begin(), end = sources_.end();
+  vector<SingleDeposit>::iterator it, begin = sources_.begin(), end = sources_.end();
   for (it = begin; it != end; ++it) it->cleanup();
 }
 
 /// build deposits
 void CandIsolatorFromDeposits::produce(Event& event, const EventSetup& eventSetup){
 
-  std::vector<SingleDeposit>::iterator it, begin = sources_.begin(), end = sources_.end();
+  vector<SingleDeposit>::iterator it, begin = sources_.begin(), end = sources_.end();
   for (it = begin; it != end; ++it) it->open(event, eventSetup);
 
   const IsoDepositMap & map = begin->map();
 
   if (map.size()==0) { // !!???
-        event.put(std::auto_ptr<CandDoubleMap>(new CandDoubleMap()));
+        event.put(auto_ptr<CandDoubleMap>(new CandDoubleMap()));
         return;
   }
-  std::auto_ptr<CandDoubleMap> ret(new CandDoubleMap());
+  auto_ptr<CandDoubleMap> ret(new CandDoubleMap());
   CandDoubleMap::Filler filler(*ret);
 
   typedef reco::IsoDepositMap::const_iterator iterator_i; 

@@ -39,6 +39,7 @@ patExtraAodEventContent = [
 ]
 
 patTriggerEventContent = [
+    'keep patTriggerAlgorithms_patTrigger_*_*',
     'keep patTriggerObjects_patTrigger_*_*',
     'keep patTriggerFilters_patTrigger_*_*',
     'keep patTriggerPaths_patTrigger_*_*',

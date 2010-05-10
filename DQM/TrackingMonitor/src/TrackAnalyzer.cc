@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/11 00:11:03 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/03/27 10:38:13 $
+ *  $Revision: 1.12 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -1127,6 +1127,26 @@ void TrackAnalyzer::doTrackerSpecificFillHists(const reco::Track & track)
   NumberOfPixEndcapLayersPerTrackVsEtaProfile->Fill(eta,     track.hitPattern().pixelEndcapLayersWithMeasurement());
 
 }
-
+//
+// -- Set Lumi Flag
+//
+void TrackAnalyzer::setLumiFlag() {
+  if (Chi2oNDF) Chi2oNDF->setLumiFlag();
+  if (NumberOfRecHitsPerTrack) NumberOfRecHitsPerTrack->setLumiFlag();
+}
+//
+// -- Apply SoftReset 
+//
+void TrackAnalyzer::doSoftReset(DQMStore * dqmStore_) {
+  dqmStore_->softReset(Chi2oNDF);
+  dqmStore_->softReset(NumberOfRecHitsPerTrack);
+}
+//
+// -- Remove SoftReset
+//
+void TrackAnalyzer::undoSoftReset(DQMStore * dqmStore_) {
+  dqmStore_->disableSoftReset(Chi2oNDF);
+  dqmStore_->disableSoftReset(NumberOfRecHitsPerTrack);
+}
 
 

@@ -7,7 +7,9 @@
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CoralBase/TimeStamp.h"
 
@@ -40,11 +42,14 @@ class SiStripCoralIface
   void initialize();
 
   /* member variables*/
-  std::string m_connect;
+  std::string m_connectionString;
   std::map<std::string,unsigned int> m_id_map;
-  cond::DBSession* session;
-  cond::CoralTransaction* m_coraldb;
-  cond::Connection* con;
+  // cond::DBSession* session;
+  cond::DbConnection m_connection;
+  cond::DbSession m_session;
+  // cond::CoralTransaction* m_coraldb;
+  // cond::Connection* con;
+  std::auto_ptr<cond::DbScopedTransaction> m_transaction;
 
   bool debug_;
 };

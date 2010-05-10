@@ -1,8 +1,3 @@
-2010-03-17  Konstantinos KOUSOURIS  <konstantinos.kousouris@cern.ch>
-
-        * migration to CondDB
-        * JPT migration to RecoJets
-
 2009-11-15  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* slim down python/JetCorrectionServices_cff.py and

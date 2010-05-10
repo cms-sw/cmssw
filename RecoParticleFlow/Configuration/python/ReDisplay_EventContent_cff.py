@@ -33,7 +33,9 @@ DisplayEventContent = cms.PSet(
         'keep *_photons_*_REPROD',
 	'keep *_generalV0Candidates_*_REPROD',
 	'keep recoPFDisplacedVertexCandidates_*_*_REPROD',
-	'keep recoPFDisplacedVertexs_*_*_REPROD'                                  
+	'keep recoPFDisplacedVertexs_*_*_REPROD',
+        'keep *_correctedHybridSuperClusters_*_*',
+        'keep *_correctedMulti5x5SuperClustersWithPreshower_*_*'                             
    )
 )
 

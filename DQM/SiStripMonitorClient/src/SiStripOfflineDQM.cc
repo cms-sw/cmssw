@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.34 2010/03/12 20:10:35 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.35 2010/03/27 11:21:55 dutta Exp $
 //
 //
 
@@ -141,6 +141,7 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
   if (!usedWithEDMtoMEConverter_) {
     if (!openInputFile()) createSummary_ = false;
   }
+  if (globalStatusFilling_ > 0) actionExecutor_->createStatus(dqmStore_);
 }
 /** 
  * @brief
@@ -164,6 +165,9 @@ void SiStripOfflineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSet
 */
 void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
   edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endLuminosityBlock";
+  if (trackerFEDsFound_) {
+    if (globalStatusFilling_ > 0) actionExecutor_->fillStatusAtLumi(dqmStore_);
+  }
 }
 /** 
  * @brief 

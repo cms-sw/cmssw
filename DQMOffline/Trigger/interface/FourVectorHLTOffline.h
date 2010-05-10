@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.47 2010/03/25 15:03:38 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.51 2010/04/23 16:35:37 rekovic Exp $
 //
 //
 
@@ -143,19 +143,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       int nev_;
       DQMStore * dbe_;
       bool fLumiFlag;
+      bool fIsSetup;
 
-      /*
-      MonitorElement* total_;
-      MonitorElement* ME_HLTPassPass_;
-      MonitorElement* ME_HLTPassPass_Normalized_;
-      MonitorElement* ME_HLTPass_Normalized_Any_;
-      MonitorElement* ME_HLTPassFail_;
-      MonitorElement* ME_HLTPassFail_Normalized_;
-
-      std::vector<MonitorElement*> v_ME_HLTPassPass_;
-      std::vector<MonitorElement*> v_ME_HLTPassPass_Normalized_;
-      std::vector<MonitorElement*> v_ME_HLTPass_Normalized_Any_;
-      */
 
       MonitorElement* ME_HLTAll_LS;
       MonitorElement* ME_HLT_BX;
@@ -175,6 +164,9 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       std::vector<std::string> fGroupName;
 
+      reco::MuonCollection * fSelectedMuons;
+      edm::Handle<reco::MuonCollection> fSelMuonsHandle;
+
       unsigned int nLS_; 
       double LSsize_ ;
       unsigned int referenceBX_; 
@@ -188,34 +180,44 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       unsigned int nBinsOneOverEt_; 
       double ptMin_ ;
       double ptMax_ ;
+      double dRMax_ ;
       
       double electronEtaMax_;
       double electronEtMin_;
       double electronDRMatch_;
+      double electronL1DRMatch_;
       double muonEtaMax_;
       double muonEtMin_;
       double muonDRMatch_;
+      double muonL1DRMatch_;
       double tauEtaMax_;
       double tauEtMin_;
       double tauDRMatch_;
+      double tauL1DRMatch_;
       double jetEtaMax_;
       double jetEtMin_;
       double jetDRMatch_;
+      double jetL1DRMatch_;
       double bjetEtaMax_;
       double bjetEtMin_;
       double bjetDRMatch_;
+      double bjetL1DRMatch_;
       double photonEtaMax_;
       double photonEtMin_;
       double photonDRMatch_;
+      double photonL1DRMatch_;
       double trackEtaMax_;
       double trackEtMin_;
       double trackDRMatch_;
+      double trackL1DRMatch_;
       double metEtaMax_;
       double metMin_;
       double metDRMatch_;
+      double metL1DRMatch_;
       double htEtaMax_;
       double htMin_;
       double htDRMatch_;
+      double htL1DRMatch_;
       double sumEtMin_;
 
       std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
@@ -428,19 +430,19 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
            filterName_ = labelName;
            return;
          }
-         const std::string getPath(void ) const {
+         const std::string & getPath(void ) const {
            return pathName_;
          }
-         const std::string getl1Path(void ) const {
+         const std::string & getl1Path(void ) const {
            return l1pathName_;
          }
          const int getL1ModuleIndex(void ) const {
            return l1ModuleIndex_;
          }
-         const std::string getDenomPath(void ) const {
+         const std::string & getDenomPath(void ) const {
            return denomPathName_;
          }
-         const std::string getProcess(void ) const {
+         const std::string & getProcess(void ) const {
            return processName_;
          }
          const int getObjectType(void ) const {
@@ -631,12 +633,14 @@ class BaseMonitor
 template <class T> 
 class objMonData:public BaseMonitor {
 public:
-    objMonData() { EtaMax_= 2.5; EtMin_=3.0; GenJetsFlag_ = false; BJetsFlag_ = false; }
-    void setLimits(float etaMax, float etMin, float drMatch) 
+    objMonData() { EtaMax_= 2.5; EtMin_=3.0; GenJetsFlag_ = false; BJetsFlag_ = false; fL2MuFlag = false; }
+    void setLimits(float etaMax, float etMin, float drMatch, float l1drMatch, float dRRange = 2.) 
     {
      EtaMax_= etaMax; 
      EtMin_= etMin; 
      DRMatch_= drMatch;
+     L1DRMatch_= l1drMatch;
+     DRRange_ = dRRange;
     }
     void setTriggerType(std::vector<int> trigType) { triggerType_ = trigType; }
     void pushTriggerType(int trigType) { triggerType_.push_back(trigType); }
@@ -645,6 +649,9 @@ public:
     void setPath(FourVectorHLTOffline::PathInfoCollection::iterator v) { v_ = v; }
     void setReco(edm::Handle<T> offColl) { offColl_ = offColl; }
     void setRecoB(edm::Handle<reco::JetTagCollection> offCollB) { offCollB_ = offCollB; }
+
+    void setRecoMu(edm::Handle<reco::MuonCollection> offCollMu) { offCollMu_ = offCollMu; }
+
 
 
     // Monitor methods
@@ -678,6 +685,10 @@ public:
     { 
       BJetsFlag_ = flag; 
     }
+    void setL2MuFlag(bool flag) 
+    { 
+      fL2MuFlag = flag; 
+    }
     
 
 private:
@@ -689,15 +700,19 @@ private:
     float EtMin_;
 
     float DRMatch_;
+    float L1DRMatch_;
+    float DRRange_;
 
     bool GenJetsFlag_;
     bool BJetsFlag_;
+    bool fL2MuFlag;
 
     std::vector<int> triggerType_;
     std::vector<int> l1triggerType_;
 
     edm::Handle<T> offColl_;
     edm::Handle<reco::JetTagCollection> offCollB_;
+    edm::Handle<reco::MuonCollection> offCollMu_;
 
     FourVectorHLTOffline::PathInfoCollection::iterator v_;
 
@@ -846,6 +861,8 @@ void objMonData<T>::monitorL1(const int l1Index, FourVectorHLTOffline* fv)
         continue;
 
       }
+      /*
+      */
 
       matchL1Offline(l1FV, fv, NL1, NL1OffUM);
 
@@ -891,7 +908,49 @@ void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVecto
 
          // make maps of matched objects
         float dR = reco::deltaR(recoEta,recoPhi,l1FV.eta(),l1FV.phi());
-        if ( dR < 1.0)
+        if ( dR < DRRange_)
+        {
+
+          L1OffDRMatchMap.insert(std::pair<float,int>(dR,j));
+
+        }
+
+      }
+
+      j++;
+
+    }
+
+  }
+  else if (offCollMu_.isValid()) {
+
+    int j=0;
+    typedef typename reco::MuonCollection::const_iterator const_iterator;
+    for( const_iterator iter = offCollMu_->begin(), iend = offCollMu_->end(); iter != iend; ++iter )
+    {
+
+      // get Eta, Phi of the MuonDetectorTrack, 
+      // looking at the detector most inner Position
+      // This should be close to what L1 sees
+      float recoEta = iter->outerTrack()->innerPosition().eta();
+      float recoPhi = iter->outerTrack()->innerPosition().phi();
+      float recoPt = iter->pt();
+
+      if (fabs(recoEta) <= EtaMax_ && recoPt >=  EtMin_ )
+      {
+
+        // fill UM histos (no matching required)
+        if(NL1 == 1) {
+
+          NL1OffUM++;
+          v_->getOffEtL1OffUMHisto()->Fill(recoPt);
+          v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(recoEta,recoPhi);
+
+        }
+
+         // make maps of matched objects
+        float dR = reco::deltaR(recoEta,recoPhi,l1FV.eta(),l1FV.phi());
+        if ( dR < DRRange_)
         {
 
           L1OffDRMatchMap.insert(std::pair<float,int>(dR,j));
@@ -926,7 +985,7 @@ void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVecto
 
         // make maps of matched objects
         float dR = reco::deltaR(iter->eta(),iter->phi(),l1FV.eta(),l1FV.phi());
-        if ( dR < 1.0) 
+        if ( dR < DRRange_) 
         {
 
          L1OffDRMatchMap.insert(std::pair<float,int>(dR,j));
@@ -978,6 +1037,8 @@ void objMonData<T>::monitorOnline(const int hltIndex, const int l1Index, FourVec
 	    return;
 	
 	  }
+    /*
+    */
 
     matchOnlineL1(onlineFV,l1Index, fv, NOn);
     matchOnlineOffline(onlineFV,fv, NOn);
@@ -1028,7 +1089,7 @@ void objMonData<T>::matchOnlineL1(const trigger::TriggerObject& onlineFV, const 
 
             float dR = reco::deltaR(l1FV.eta(),l1FV.phi(),onlineFV.eta(),onlineFV.phi());
 
-            if ( dR < 1.0) 
+            if ( dR < DRRange_) 
             {
 
               OnL1DRMatchMap.insert(std::pair<float,int>(dR,j));
@@ -1082,7 +1143,7 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
 
           // make maps of matched objects
          float dR = reco::deltaR(recoEta,recoPhi,onlineFV.eta(),onlineFV.phi());
-         if ( dR < 1.0)
+         if ( dR < DRRange_)
          {
 
            OnOffDRMatchMap.insert(std::pair<float,int>(dR,j));
@@ -1096,6 +1157,49 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
      }
 
   }
+  else if (offCollMu_.isValid() && fL2MuFlag) {
+
+    int j=0;
+    typedef typename reco::MuonCollection::const_iterator const_iterator;
+    for( const_iterator iter = offCollMu_->begin(), iend = offCollMu_->end(); iter != iend; ++iter )
+    {
+
+      // get Eta, Phi of the MuonDetectorTrack, 
+      // looking at the detector most inner Position
+      // This should be close to what L1 sees
+      float recoEta = iter->outerTrack()->innerPosition().eta();
+      float recoPhi = iter->outerTrack()->innerPosition().phi();
+      float recoPt = iter->pt();
+
+      if (fabs(recoEta) <= EtaMax_ && recoPt >=  EtMin_ )
+      {
+         // fill UM histos (no matching required)
+         if(NOn == 1) {
+
+           NOnOffUM++;
+           v_->getOffEtOnOffUMHisto()->Fill(iter->pt());
+           v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(iter->eta(),iter->phi());
+
+         }
+
+          // make maps of matched objects
+         float dR = reco::deltaR(recoEta,recoPhi,onlineFV.eta(),onlineFV.phi());
+         if ( dR < DRRange_)
+         {
+
+           OnOffDRMatchMap.insert(std::pair<float,int>(dR,j));
+
+         }
+
+       }
+
+       j++;
+
+
+     }
+
+  }
+
   else if (offColl_.isValid()) {
 
      int j=0;
@@ -1118,7 +1222,7 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
 
           // make maps of matched objects
          float dR = reco::deltaR(iter->eta(),iter->phi(),onlineFV.eta(),onlineFV.phi());
-         if ( dR < 1.0)
+         if ( dR < DRRange_)
          {
 
            OnOffDRMatchMap.insert(std::pair<float,int>(dR,j));
@@ -1162,7 +1266,7 @@ void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
        float dR = (*it).first;
        v_->getOffDRL1OffHisto()->Fill(dR);
 
-       if (dR > DRMatch_) continue;
+       if (dR > L1DRMatch_) continue;
        if( offCollB_.isValid()) {
 
          typedef typename JetTagCollection::const_iterator const_iterator;
@@ -1174,6 +1278,18 @@ void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
          v_->getOffEtL1OffHisto()->Fill((*iter).first->pt());
          v_->getOffEtaVsOffPhiL1OffHisto()->Fill((*iter).first->eta(),(*iter).first->phi());
 
+
+      }
+      else if( offCollMu_.isValid()) {
+
+        typedef typename MuonCollection::const_iterator const_iterator;
+        const_iterator iter = offCollMu_->begin();
+        for (int count = 0; count < i; count++) iter++;
+
+
+        NL1Off++;
+        v_->getOffEtL1OffHisto()->Fill(iter->pt());
+        v_->getOffEtaVsOffPhiL1OffHisto()->Fill(iter->outerTrack()->innerPosition().eta(),iter->outerTrack()->innerPosition().phi());
 
       }
       else if( offColl_.isValid()) {
@@ -1237,6 +1353,18 @@ void objMonData<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
          v_->getOffEtaVsOffPhiOnOffHisto()->Fill((*iter).first->eta(),(*iter).first->phi());
 
        }
+       else if( offCollMu_.isValid() && fL2MuFlag) {
+
+         typedef typename MuonCollection::const_iterator const_iterator;
+         const_iterator iter = offCollMu_->begin();
+         for (int count = 0; count < i; count++) iter++;
+
+
+         NOnOff++;
+         v_->getOffEtOnOffHisto()->Fill(iter->pt());
+         v_->getOffEtaVsOffPhiOnOffHisto()->Fill(iter->outerTrack()->innerPosition().eta(),iter->outerTrack()->innerPosition().phi());
+
+      }
        else if( offColl_.isValid()) {
 
          typedef typename T::const_iterator const_iterator;
@@ -1283,7 +1411,7 @@ void objMonData<T>::fillOnL1Match(const int l1Index, FourVectorHLTOffline* fv)
     float dR = (*it).first;
     v_->getL1DROnL1Histo()->Fill(dR);
 
-    if (dR > DRMatch_) continue;
+    if (dR > L1DRMatch_) continue;
 
     trigger::Keys::const_iterator l1ki = l1k.begin();
     for (int count = 0; count < i; count++) l1ki++;

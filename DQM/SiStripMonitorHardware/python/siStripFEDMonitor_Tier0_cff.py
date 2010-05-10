@@ -4,6 +4,8 @@ from DQM.SiStripMonitorHardware.siStripFEDMonitor_cfi import *
 
 #disable error output: enabled in P5 configuration for errors.
 siStripFEDMonitor.PrintDebugMessages = 0
+#lumi histogram
+siStripFEDMonitor.ErrorFractionByLumiBlockHistogramConfig.Enabled = True
 #Global/summary histograms
 siStripFEDMonitor.DataPresentHistogramConfig.Enabled = True
 siStripFEDMonitor.AnyFEDErrorsHistogramConfig.Enabled = True

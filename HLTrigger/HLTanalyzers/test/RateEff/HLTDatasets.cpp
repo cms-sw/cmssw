@@ -184,7 +184,7 @@ void Dataset::setup(const std::vector<Dataset>& datasets)
 }
 
 
-void Dataset::computeRate(Double_t collisionRate, Double_t mu, UInt_t numProcessedEvents)
+void Dataset::computeRate(Double_t collisionRate, Double_t mu, UInt_t numProcessedEvents) //MC ONLY
 {
   rate                = toRate            (collisionRate, mu, numEventsPassed, numProcessedEvents);
   rateUncertainty2    = toRateUncertainty2(collisionRate, mu, numEventsPassed, numProcessedEvents);
@@ -197,6 +197,16 @@ void Dataset::computeRate(Double_t collisionRate, Double_t mu, UInt_t numProcess
   ////std::cout << "  +   " << name << " : " << numEventsPassed << " -> " << rate << std::endl;
 }
 
+void Dataset::computeRate(float scaleddenominator) //DATA ONLY
+{
+  rate                =  (double)numEventsPassed/(double)scaleddenominator;
+  rateUncertainty2    =  (double)numEventsPassed/(double)(scaleddenominator*scaleddenominator);
+  const UInt_t        numDatasets  = datasetIndices.size();
+  for (UInt_t iSet = 0; iSet < numDatasets; ++iSet) {
+    addedRate         [iSet]       = (double)numEventsAdded[iSet]/(double)scaleddenominator;
+    addedUncertainty2 [iSet]       = (double)numEventsAdded[iSet]/(double)(scaleddenominator*scaleddenominator);
+	}
+}
 
 void Dataset::report(std::ofstream& output, const std::vector<Dataset>& datasets, const Char_t* errata, 
                      const Int_t significantDigits) const
@@ -344,6 +354,7 @@ void SampleDiagnostics::computeRate(Double_t collisionRate, Double_t mu)
 
   const UInt_t                numDatasets   = size();
   for (UInt_t iSet = 0; iSet < numDatasets; ++iSet) {
+		std::cout << "Dataset(" << at(iSet).name << ") : Size = " << at(iSet).numEventsPassed << " events " << std::endl;
     at(iSet).computeRate(collisionRate, mu, numProcessedEvents);
     for (UInt_t jSet = 0; jSet <= numDatasets; ++jSet) {
       commonRates             [iSet][jSet]  = toRate            (collisionRate, mu, commonEvents[iSet][jSet], numProcessedEvents);
@@ -352,6 +363,22 @@ void SampleDiagnostics::computeRate(Double_t collisionRate, Double_t mu)
   } // end loop over datasets
 }
 
+void SampleDiagnostics::computeRate(float scaleddenominator)
+{
+  passedRate                  =  (double)numPassedEvents/(double)scaleddenominator;
+  passedRateUncertainty2      =  (double)numPassedEvents/(double)(scaleddenominator*scaleddenominator);
+  std::cout << "computeRate(" << name << ") : PassedRate = " << passedRate << " +/- " << sqrt(passedRateUncertainty2) << std::endl;
+
+  const UInt_t                numDatasets   = size();
+  for (UInt_t iSet = 0; iSet < numDatasets; ++iSet) {
+		std::cout << "Dataset(" << at(iSet).name << ") : Size = " << at(iSet).numEventsPassed << " events " << std::endl;
+    at(iSet).computeRate(scaleddenominator);
+    for (UInt_t jSet = 0; jSet <= numDatasets; ++jSet) {
+      commonRates             [iSet][jSet]  = (double)commonEvents[iSet][jSet]/(double)scaleddenominator;
+      commonRateUncertainties2[iSet][jSet]  = (double)commonEvents[iSet][jSet]/(double)(scaleddenominator*scaleddenominator);
+    } // end loop over other datasets
+  } // end loop over datasets
+}
 void SampleDiagnostics::write() const
 {
   if (passedRate == 0) {

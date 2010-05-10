@@ -6,9 +6,9 @@ from FastSimulation.Event.Early10TeVCollisionVertexGenerator_cfi import *
 # 14 TeV pile-up files
 #from FastSimulation.PileUpProducer.PileUpSimulator_cfi import *
 # 10 TeV pile-up files
-from FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi import *
+#from FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi import *
 # 7 TeV pile-up files
-#from FastSimulation.PileUpProducer.PileUpSimulator7TeV_cfi import *
+from FastSimulation.PileUpProducer.PileUpSimulator7TeV_cfi import *
 ###
 # Gaussian or flat or no primary vertex smearing
 # include "FastSimulation/Event/data/GaussianVertexGenerator.cfi"

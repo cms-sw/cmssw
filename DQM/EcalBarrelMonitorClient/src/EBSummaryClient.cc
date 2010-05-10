@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/03/27 20:30:37 $
- * $Revision: 1.206 $
+ * $Date: 2010/04/14 14:55:49 $
+ * $Revision: 1.209 $
  * \author G. Della Ricca
  *
 */
@@ -1545,9 +1545,11 @@ void EBSummaryClient::analyze(void) {
 
               if ( h2 && h3 ) {
 
-                float emulErrorVal = h2->GetBinContent( ie, ip ) + h3->GetBinContent( ie, ip );
-                if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
+                // float emulErrorVal = h2->GetBinContent( ie, ip ) + h3->GetBinContent( ie, ip );
+                float emulErrorVal = h2->GetBinContent( ie, ip );
 
+                if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
+                
               }
 
               if ( xval!=0 && hadNonZeroInterest ) xval = 1;
@@ -1899,8 +1901,8 @@ void EBSummaryClient::analyze(void) {
         float val_po = mePedestalOnline_->getBinContent(ipx,iex);
         float val_tm = meTiming_->getBinContent(ipx,iex);
         float val_sf = meStatusFlags_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
-	// float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
-	float val_ee = 1;
+        // float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
+        float val_ee = 1;
 
         // combine all the available wavelenghts in unique laser status
         // for each laser turn dark color and yellow into bright green

@@ -15,6 +15,7 @@
 class OHltRatePrinter {
  public:
   
+	static const float fTwo=2.;
   OHltRatePrinter(){};
   virtual ~OHltRatePrinter(){};
 

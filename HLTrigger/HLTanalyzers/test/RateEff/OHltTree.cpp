@@ -45,8 +45,14 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
   // Modify only if you know what you do!
   if (cfg->doSelectBranches) {
     fChain->SetBranchStatus("*",kFALSE);
+    fChain->SetBranchStatus("*",kFALSE);
     fChain->SetBranchStatus("MCmu*",kTRUE); // for ppMuX
     fChain->SetBranchStatus("MCel*",kTRUE); // for ppEleX
+    fChain->SetBranchStatus("Run",kTRUE);
+    fChain->SetBranchStatus("Event",kTRUE);
+    fChain->SetBranchStatus("LumiBlock",kTRUE);
+    fChain->SetBranchStatus("Bx",kTRUE);
+    fChain->SetBranchStatus("Orbit",kTRUE);
     // fChain->SetBranchStatus("L1TechnicalTriggerBits",kTRUE);
     if (cfg->selectBranchL1) {
       fChain->SetBranchStatus("L1_*",kTRUE);
@@ -74,8 +80,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     fChain->SetBranchStatus("*",kTRUE);
   }
 
-  //  TFile*   theHistFile = new TFile("Histograms_Quarkonia.root", "RECREATE");
-  //  cout<< "Histogram root file created: Histograms_Quarkonia.root"  << endl;
+//   TFile*   theHistFile = new TFile("Histograms_Quarkonia.root", "RECREATE");
+//   cout<< "Histogram root file created: Histograms_Quarkonia.root"  << endl;
   
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
@@ -201,19 +207,27 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       //////////////////////////////////////////////////////////////////
       // Standard paths
       TString st = menu->GetTriggerName(i);
-      if (st.BeginsWith("HLT_") || st.BeginsWith("L1_") || st.BeginsWith("AlCa_")) {
+      if (st.BeginsWith("HLT_") || st.BeginsWith("L1_")  || st.BeginsWith("L1Tech_") || st.BeginsWith("AlCa_")) {
 	// Prefixes reserved for Standard HLT&L1	
-	if ( (map_BitOfStandardHLTPath.find(st)->second==1) ) {	
-	  if (map_L1BitOfStandardHLTPath.find(st)->second>0) {
-	    if (prescaleResponse(menu,cfg,rc,i)) { triggerBit[i] = true; }
+	//	if(st.BeginsWith("HLT_")) { cout << st << ", prescalecount = " << rc->prescaleCount[i] << ", "; }
+	if (map_L1BitOfStandardHLTPath.find(st)->second>0) {
+	  //	  if(st.BeginsWith("HLT_")) 
+	  //	    {cout << "L1 passed, "; }
+	  if (prescaleResponse(menu,cfg,rc,i)) {
+	    //	    if(st.BeginsWith("HLT_")) { cout << "Prescale passed, "; }
+	    if ( (map_BitOfStandardHLTPath.find(st)->second==1) ) { 
+	      triggerBit[i] = true; 
+	      //	      if(st.BeginsWith("HLT_")) { cout << "HLT passed"; }
+	    }
 	  }
 	}
       } else {
 	CheckOpenHlt(cfg,menu,rc,i);
       }
+      //      if(st.BeginsWith("HLT_")) { cout << endl; }
     }
     primaryDatasetsDiagnostics.fill(triggerBit);  //SAK -- record primary datasets decisions
-
+    
     /* ******************************** */
     // 2. Loop to check overlaps
     for (int it = 0; it < nTrig; it++){
@@ -242,40 +256,45 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     
   }
 
-  /*
-  theHistFile->cd();
+//   theHistFile->cd();
 
-  for(int iOnia=0;iOnia<5;iOnia++){
-    for(int iTrk=0;iTrk<2;iTrk++){
+//   for(int ihistIdx=0;ihistIdx<10;ihistIdx++){
 
-      hNCand[iOnia][iTrk]->Write();
+//      hPixCanddr[ihistIdx]->Write();
+//      hPixCandEta[ihistIdx]->Write();
+//      hPixCandPt[ihistIdx]->Write();
+//      hPixCandP[ihistIdx]->Write();
 
-      for(int i=0;i<2;i++){
-	hEta[iOnia][iTrk][i]->Write();
-	hPt[iOnia][iTrk][i]->Write();
-	hHits[iOnia][iTrk][i]->Write();
-	hNormChi2[iOnia][iTrk][i]->Write();
-	hDxy[iOnia][iTrk][i]->Write();
-	hDz[iOnia][iTrk][i]->Write();
-	hP[iOnia][iTrk][i]->Write();
-	hP[iOnia][iTrk][i]->Write();
-      }
+//      for(int iTrk=0;iTrk<2;iTrk++){
 
-      for(int j=0;j<4;j++){
+//          hNCand[ihistIdx][iTrk]->Write();
 
-	//if(iTrk==0) continue;
-	hOniaEta[iOnia][iTrk][j]->Write();
-	hOniaRap[iOnia][iTrk][j]->Write();
-	hOniaPt[iOnia][iTrk][j]->Write();
-	hOniaP[iOnia][iTrk][j]->Write();
-	hOniaMass[iOnia][iTrk][j]->Write();
-	hOniaEtaPt[iOnia][iTrk][j]->Write();
-	hOniaRapP[iOnia][iTrk][j]->Write();
-      }
-    }
-  }
-  theHistFile->Close();
-  */
+//          for(int i=0;i<2;i++){
+//              hEta[ihistIdx][iTrk][i]->Write();
+//              hPt[ihistIdx][iTrk][i]->Write();
+//              hHits[ihistIdx][iTrk][i]->Write();
+//              hNormChi2[ihistIdx][iTrk][i]->Write();
+//              hDxy[ihistIdx][iTrk][i]->Write();
+//              hDz[ihistIdx][iTrk][i]->Write();
+//              hP[ihistIdx][iTrk][i]->Write();
+//              hP[ihistIdx][iTrk][i]->Write();
+//          }
+
+//          for(int j=0;j<4;j++){
+
+//              //if(iTrk==0) continue;
+//              hOniaEta[ihistIdx][iTrk][j]->Write();
+//              hOniaRap[ihistIdx][iTrk][j]->Write();
+//              hOniaPt[ihistIdx][iTrk][j]->Write();
+//              hOniaP[ihistIdx][iTrk][j]->Write();
+//              hOniaMass[ihistIdx][iTrk][j]->Write();
+//              hOniaEtaPt[ihistIdx][iTrk][j]->Write();
+//              hOniaRapP[ihistIdx][iTrk][j]->Write();
+//           }
+//       }
+//   }
+//   theHistFile->Close();
+
 }
 
 void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression) {
@@ -303,8 +322,8 @@ bool OHltTree::prescaleResponse(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *
 
 bool OHltTree::prescaleResponseL1(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
   if (cfg->doDeterministicPrescale) {
-    (rc->prescaleCount[i])++;
-    return ((rc->prescaleCount[i]) % menu->GetL1Prescale(i) == 0); //
+    (rc->prescaleCountL1[i])++;
+    return ((rc->prescaleCountL1[i]) % menu->GetL1Prescale(i) == 0); //
   } else {
     return (GetIntRandom() % menu->GetL1Prescale(i) == 0);
   }

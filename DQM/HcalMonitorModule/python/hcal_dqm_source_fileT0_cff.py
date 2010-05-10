@@ -58,7 +58,7 @@ hcalHotCellMonitor.minEvents = 200
 
 
 hcalOfflineDQMSource = cms.Sequence(hcalMonitor
-                                    # + zdcMonitor # re-enable once tested
+                                    + zdcMonitor # re-enable once tested
                                     + hcalMonitorTasksOfflineSequence + dqmInfoHcal)
 
 # Adde special parameters for hcalMonitor later

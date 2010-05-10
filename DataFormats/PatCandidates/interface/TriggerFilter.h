@@ -7,24 +7,24 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerFilter
 //
-// $Id: TriggerFilter.h,v 1.3 2009/04/27 20:45:16 vadler Exp $
+// $Id: TriggerFilter.h,v 1.4 2009/06/24 15:49:28 vadler Exp $
 //
 /**
   \class    pat::TriggerFilter TriggerFilter.h "DataFormats/PatCandidates/interface/TriggerFilter.h"
-  \brief    Analysis-level trigger object class
+  \brief    Analysis-level HLTrigger filter class
 
    TriggerFilter implements a container for trigger filters' information within the 'pat' namespace.
    It has the following data members:
    - [to be filled]
 
   \author   Volker Adler
-  \version  $Id: TriggerFilter.h,v 1.3 2009/04/27 20:45:16 vadler Exp $
+  \version  $Id: TriggerFilter.h,v 1.4 2009/06/24 15:49:28 vadler Exp $
 */
 
 
 #include <string>
 #include <vector>
-   
+
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -34,7 +34,7 @@
 namespace pat {
 
   class TriggerFilter {
-    
+
       /// data members
       std::string             label_;
       std::string             type_;
@@ -49,7 +49,7 @@ namespace pat {
       TriggerFilter( const std::string & label, int status = -1 );
       TriggerFilter( const edm::InputTag & tag, int status = -1 );
       virtual ~TriggerFilter() {};
-      
+
       /// setters & getters
       void setLabel( const std::string & label ) { label_ = label; };
       void setType( const std::string & type )   { type_  = type; };
@@ -58,14 +58,14 @@ namespace pat {
       bool setStatus( int status ); // only -1,0,1 accepted; returns 'false' (and does not modify the status) otherwise
       std::string             label() const      { return label_; };
       std::string             type() const       { return type_; };
-      std::vector< unsigned > objectKeys() const { return objectKeys_; };                 
+      std::vector< unsigned > objectKeys() const { return objectKeys_; };
       std::vector< int >      objectIds() const  { return objectIds_; };
       int                     status() const     { return status_; };
       bool                    hasObjectKey( unsigned objectKey ) const;
       bool                    hasObjectId( int objectId ) const;
-        
+
   };
-  
+
 
   /// collection of TriggerFilter
   typedef std::vector< TriggerFilter >                      TriggerFilterCollection;

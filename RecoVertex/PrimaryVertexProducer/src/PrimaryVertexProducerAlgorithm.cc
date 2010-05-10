@@ -23,9 +23,7 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
     theVertexSelector(VertexDistanceXY(), 
 		      conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("maxDistanceToBeam"))
 {
-  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
-    << "Initializing PV producer algorithm" << "\n";
-  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
+  edm::LogInfo("PVDebugInfo") 
     << "PVSelParameters::maxDistanceToBeam = " 
     << conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("maxDistanceToBeam") << "\n";
 
@@ -33,7 +31,7 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
   fUseBeamConstraint = conf.getParameter<bool>("useBeamConstraint");
   fVerbose           = conf.getUntrackedParameter<bool>("verbose", false);
   fMinNdof           = conf.getParameter<double>("minNdof");
-  fFailsafe          = true;
+  fFailsafe          = true; //conf.getUntrackedParameter<bool>("failsafe",true);
 
 
   // select and configure the track clusterizer
@@ -60,12 +58,12 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
     throw VertexException("PrimaryVertexProducerAlgorithm: unknown algorithm: " + algorithm);  
   }
 
-  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
+  edm::LogInfo("PVDebugInfo") 
     << "Using " << algorithm << "\n";
-  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
+  edm::LogInfo("PVDebugInfo") 
     << "beam-constraint  " << fUseBeamConstraint << "\n"; 
 
-  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
+  edm::LogInfo("PVDebugInfo") 
     << "PV producer algorithm initialization: done" << "\n";
 
 }

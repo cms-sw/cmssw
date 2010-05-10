@@ -3,7 +3,6 @@
 <use name=root>
 <use name=rootminuit>
 <use name=FWCore/MessageLogger>
-<use name=CondFormats/ESObjects>
 <export>
   <lib name=RecoLocalCaloEcalRecAlgos>
   <use name=clhep>
@@ -11,5 +10,4 @@
   <use name=root>
   <use name=rootminuit>
   <use name=FWCore/MessageLogger>
-  <use name=CondFormats/ESObjects>
 </export>

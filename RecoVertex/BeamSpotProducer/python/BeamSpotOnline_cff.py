@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import *
 
-scalers = cms.EDProducer('ScalersRawToDigi')
+#scalers = cms.EDProducer('ScalersRawToDigi')
 
-onlineBeamSpot = cms.Sequence( scalers + onlineBeamSpotProducer )
+onlineBeamSpot = cms.Sequence( onlineBeamSpotProducer )
 

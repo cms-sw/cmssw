@@ -19,11 +19,12 @@ void OHltMenu::AddTrigger(TString trign, int presc, float eventS) {
   eventSizes[trign] 	       	= eventS;
 }
 
-void OHltMenu::AddTrigger(TString trign, TString seedcond, int presc, float eventS) {
+void OHltMenu::AddTrigger(TString trign, TString seedcond, int presc, float eventS, int refpresc) {
   names.push_back(trign);
   seedcondition[trign] 	       	= seedcond;
   prescales[trign] 	       	= presc;
   eventSizes[trign] 	       	= eventS;
+  referenceRunPrescales[trign]  = refpresc;
 }
 
 void OHltMenu::AddL1forPreLoop(TString trign, int presc) {

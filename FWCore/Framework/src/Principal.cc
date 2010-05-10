@@ -147,6 +147,7 @@ namespace edm {
       assert(history.notEmpty());
       bool found = history.getMapped(hist, *processHistoryPtr_);
       assert(found);
+      checkProcessHistory();
     }
     preg_->productLookup().reorderIfNecessary(branchType_, *processHistoryPtr_,
 					 processConfiguration_->processName());
@@ -201,7 +202,7 @@ namespace edm {
   }
 
   void
-  Principal::addToProcessHistory() const {
+  Principal::checkProcessHistory() const {
     if (processHistoryModified_) return;
     ProcessHistory& ph = *processHistoryPtr_;
     std::string const& processName = processConfiguration_->processName();
@@ -212,6 +213,12 @@ namespace edm {
 	  << "Please modify the configuration file to use a distinct process name.\n";
       }
     }
+  }
+
+  void
+  Principal::addToProcessHistory() const {
+    if (processHistoryModified_) return;
+    ProcessHistory& ph = *processHistoryPtr_;
     ph.push_back(*processConfiguration_);
     //OPTIMIZATION NOTE:  As of 0_9_0_pre3
     // For very simple Sources (e.g. EmptySource) this routine takes up nearly 50% of the time per event.
@@ -555,7 +562,7 @@ namespace edm {
          << "The branch id is " << bid << "\n"
          << "Contact a framework developer.\n";
     }
-    if (!g->product() && !g->productProvenancePtr()) {
+    if (!g->provenance() || (!g->product() && !g->productProvenancePtr())) {
       return OutputHandle();
     }
     return OutputHandle(g->product().get(), &g->branchDescription(), g->productProvenancePtr());

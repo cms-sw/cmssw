@@ -10,5 +10,3 @@
 <use name=boost>
 <use name=geant4core>
 <use name=CommonTools/UtilAlgos>
-<use name=MagneticField/Engine>
-<use name=MagneticField/Records>

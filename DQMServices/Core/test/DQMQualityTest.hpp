@@ -1,7 +1,7 @@
-#include "DQMServices/Core/interface/QTest.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/Standalone.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/QTest.h"
 
 #include <TRandom.h>
 
@@ -16,8 +16,15 @@ class DQMQualityTest
   // arguments: # of bins and range for histogram to be tested
   DQMQualityTest(int NBINS, float XMIN, float XMAX)
   { 
+    // Process each file given as argument.
+    edm::ParameterSet emptyps;
+    std::vector<edm::ParameterSet> emptyset;
+    edm::ServiceToken services(edm::ServiceRegistry::createSet(emptyset));
 
-    dbe_ = edm::Service<DQMStore>().operator->();
+    edm::ServiceRegistry::Operate operate(services);
+
+    //dbe_ = edm::Service<DQMStore>().operator->();
+    DQMStore* dbe_ = new DQMStore(emptyps);	
 
     xmin_ = XMIN; xmax_ = XMAX;
     // distribution: gaussian w/ parameters: mean, sigma
@@ -80,8 +87,6 @@ class DQMQualityTest
 
   ~DQMQualityTest()
   {
-    delete my_ref;
-    delete my_test;
     delete chi2_test_;
     delete ks_test_;
     delete xrange_test_;
@@ -91,6 +96,7 @@ class DQMQualityTest
     delete equalH_test_;
     delete meanNear_test_;
 //    delete emu_test_;
+    delete dbe_;
   }
   // N_ref: statistics for reference histogram
   // N_test: statistics for test histogram

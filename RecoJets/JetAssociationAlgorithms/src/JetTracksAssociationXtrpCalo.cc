@@ -1,6 +1,6 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationXtrpCalo.cc,v 1.8 2009/03/30 15:06:33 bainbrid Exp $
+// $Id: JetTracksAssociationXtrpCalo.cc,v 1.1 2010/03/16 21:49:00 srappocc Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationXtrpCalo.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
@@ -66,12 +66,26 @@ void JetTracksAssociationXtrpCalo::associateInputTracksToJet( reco::TrackRefVect
 
   // now cache the mapping of (det ID --> track)
 
+//  std::cout<<" New jet "<<jetEta<<" "<<jetPhi<<" Jet ET "<<pCaloJet->et()<<std::endl;
+
   for ( std::vector<reco::TrackExtrapolation>::const_iterator xtrpBegin = fExtrapolations.begin(),
 	  xtrpEnd = fExtrapolations.end(), ixtrp = xtrpBegin;
 	ixtrp != xtrpEnd; ++ixtrp ) {
+//	
+// Do nothing with invalid propagation	
+//
+	if( ixtrp->isValid().at(0) == 0 ) continue;
+	
     reco::TrackBase::Point const & point = ixtrp->positions().at(0);
+
+
     double dr = reco::deltaR<double>( jetEta, jetPhi, point.eta(), point.phi() );
     if ( dr < dR ) {
+
+//    std::cout<<" JetTracksAssociationXtrpCalo::associateInputTracksToJet:: initial track "<<ixtrp->track()->pt()<<" "<<ixtrp->track()->eta()<<
+//    " "<<ixtrp->track()->phi()<< " Extrapolated position "<<point.eta()<<" "<<point.phi()<<" Valid? "<<ixtrp->isValid().at(0)<<" Jet eta, phi "<<jetEta<<" "<<jetPhi<<" Jet ET "<<pCaloJet->et()<<
+//    " dr "<<dr<<" dR "<<dR<<std::endl;
+
       reco::TrackRef matchedTrack = ixtrp->track(); 
       associated.push_back( matchedTrack );      
     }

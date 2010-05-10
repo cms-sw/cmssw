@@ -70,20 +70,20 @@ namespace cscdqm {
 
     public:
 
-      static const bool regexMatch(const std::string& expression, const std::string& message);
-      static const bool regexMatch(const TPRegexp& re_expression, const std::string& message);
+      static bool regexMatch(const std::string& expression, const std::string& message);
+      static bool regexMatch(const TPRegexp& re_expression, const std::string& message);
       static void regexReplace(const std::string& expression, std::string& message, const std::string replace = "");
       static void regexReplace(const TPRegexp& re_expression, std::string& message, const std::string replace = "");
       static std::string regexReplaceStr(const std::string& expression, const std::string& message, const std::string replace = "");
       static std::string regexReplaceStr(const TPRegexp& re_expression, const std::string& message, const std::string replace = "");
 
-      static const int getCSCTypeBin(const std::string& cstr);
-      static const std::string getCSCTypeLabel(int endcap, int station, int ring);
-      static const int tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " ");
-      static void splitString(std::string str, const std::string delim, std::vector<std::string>& results);
+      static int getCSCTypeBin(const std::string& cstr);
+      static std::string getCSCTypeLabel(int endcap, int station, int ring);
+      static int tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " ");
+      static void splitString(const std::string& str, const std::string& delim, std::vector<std::string>& results);
       static void trimString(std::string& str);
-      static uint32_t fastHash(const char * data, int len);
-      static uint32_t fastHash(const char * data) { return fastHash(data, strlen(data)); }
+      static uint32_t fastHash(const char* data, int len);
+      static uint32_t fastHash(const char* data) { return fastHash(data, strlen(data)); }
 
       static short  checkOccupancy(const unsigned int N, const unsigned int n, const double low_threshold, const double high_threshold, const double low_sigfail, const double high_sigfail);
       static bool   checkError(const unsigned int N, const unsigned int n, const double threshold, const double sigfail);

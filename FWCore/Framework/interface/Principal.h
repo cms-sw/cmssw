@@ -125,6 +125,8 @@ namespace edm {
     // current Process.
     void addToProcessHistory() const;
 
+    void checkProcessHistory() const;
+
     // merge Principals containing different groups.
     void recombine(Principal& other, std::vector<BranchID> const& bids);
 

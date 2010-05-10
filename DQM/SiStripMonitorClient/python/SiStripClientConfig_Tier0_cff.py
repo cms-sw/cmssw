@@ -7,7 +7,22 @@ siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
     SummaryConfigPath        = cms.untracked.string("DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml"),
     UsedWithEDMtoMEConverter = cms.untracked.bool(True),
     PrintFaultyModuleList    = cms.untracked.bool(True),
-    CreateTkMap              = cms.untracked.bool(False) 
+    CreateTkMap              = cms.untracked.bool(False), 
+    TrackRatePSet            = cms.PSet(
+           Name     = cms.string("NumberOfTracks_"),
+                  LowerCut = cms.double(1.0),
+                  UpperCut = cms.double(1000.0),
+               ),
+                                            TrackChi2PSet            = cms.PSet(
+           Name     = cms.string("Chi2oNDF_"),
+                  LowerCut = cms.double(0.0),
+                  UpperCut = cms.double(25.0),
+               ),
+                                            TrackHitPSet            = cms.PSet(
+           Name     = cms.string("NumberOfRecHitsPerTrack_"),
+                  LowerCut = cms.double(3.0),
+                  UpperCut = cms.double(20.0),
+               )
 )
 
 siStripQTester = cms.EDAnalyzer("QualityTester",

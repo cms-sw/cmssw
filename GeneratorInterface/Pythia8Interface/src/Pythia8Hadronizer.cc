@@ -264,43 +264,46 @@ bool Pythia8Hadronizer::residualDecay()
 
 void Pythia8Hadronizer::finalizeEvent()
 {
-#if 0
-	for(HepMC::GenEvent::particle_iterator iter = event->particles_begin();
-	    iter != event->particles_end(); iter++)
-		(*iter)->set_status(getStatus(*iter));
-#endif
+  bool lhe = lheEvent() != 0;
 
-	event()->set_signal_process_id(pythia->info.code());
-	event()->set_event_scale(pythia->info.pTHat());	//FIXME
+  event()->set_signal_process_id(pythia->info.code());
+  event()->set_event_scale(pythia->info.pTHat());	//FIXME
 
-	int id1 = pythia->info.id1();
-	int id2 = pythia->info.id2();
-	if (id1 == 21) id1 = 0;
-	if (id2 == 21) id2 = 0;
-	double x1 = pythia->info.x1();
-	double x2 = pythia->info.x2();
-	double Q = pythia->info.QRen();
-	double pdf1 = pythia->info.pdf1() / pythia->info.x1();
-	double pdf2 = pythia->info.pdf2() / pythia->info.x2();
-	event()->set_pdf_info(HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2));
+  int id1 = pythia->info.id1();
+  int id2 = pythia->info.id2();
+  if (id1 == 21) id1 = 0;
+  if (id2 == 21) id2 = 0;
+  double x1 = pythia->info.x1();
+  double x2 = pythia->info.x2();
+  double Q = pythia->info.QRen();
+  double pdf1 = pythia->info.pdf1() / pythia->info.x1();
+  double pdf2 = pythia->info.pdf2() / pythia->info.x2();
+  event()->set_pdf_info(HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2));
 
-	event()->weights().push_back(pythia->info.weight());
+  event()->weights().push_back(pythia->info.weight());
 
-    // now create the GenEventInfo product from the GenEvent and fill
-    // the missing pieces
-    eventInfo().reset( new GenEventInfoProduct( event().get() ) );
+  // now create the GenEventInfo product from the GenEvent and fill
+  // the missing pieces
+  eventInfo().reset( new GenEventInfoProduct( event().get() ) );
 
-	//******** Verbosity ********
+  // in pythia pthat is used to subdivide samples into different bins
+  // in LHE mode the binning is done by the external ME generator
+  // which is likely not pthat, so only filling it for Py6 internal mode
+  if (!lhe) {
+    eventInfo()->setBinningValues(std::vector<double>(1, pythia->info.pTHat()));
+  }
 
-	if (maxEventsToPrint > 0 &&
-	    (pythiaPylistVerbosity || pythiaHepMCVerbosity)) {
-		maxEventsToPrint--;
-		if (pythiaPylistVerbosity) {
-			pythia->info.list(std::cout); 
-			pythia->event.list(std::cout);
-		} 
+  //******** Verbosity ********
 
-		if (pythiaHepMCVerbosity) {
+  if (maxEventsToPrint > 0 &&
+      (pythiaPylistVerbosity || pythiaHepMCVerbosity)) {
+    maxEventsToPrint--;
+    if (pythiaPylistVerbosity) {
+      pythia->info.list(std::cout); 
+      pythia->event.list(std::cout);
+    } 
+
+	if (pythiaHepMCVerbosity) {
 			std::cout << "Event process = "
 			          << pythia->info.code() << "\n"
 			          << "----------------------" << std::endl;

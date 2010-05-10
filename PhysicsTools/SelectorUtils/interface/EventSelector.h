@@ -8,12 +8,11 @@
   This is a placeholder. 
 
   \author Salvatore Rappoccio
-  \version  $Id: EventSelector.h,v 1.2 2009/10/23 20:07:23 wdd Exp $
+  \version  $Id: EventSelector.h,v 1.1 2009/12/21 19:27:08 srappocc Exp $
 */
 
 
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
-#include "FWCore/Common/interface/EventBase.h"
 #include <fstream>
 #include <functional>
 

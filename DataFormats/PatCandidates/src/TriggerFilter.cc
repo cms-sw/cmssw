@@ -1,5 +1,5 @@
 //
-// $Id: TriggerFilter.cc,v 1.2 2009/03/26 21:49:08 vadler Exp $
+// $Id: TriggerFilter.cc,v 1.3 2009/04/27 20:45:18 vadler Exp $
 //
 
 
@@ -7,6 +7,7 @@
 
 
 using namespace pat;
+
 
 /// default constructor
 

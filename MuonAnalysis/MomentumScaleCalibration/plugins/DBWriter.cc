@@ -15,24 +15,28 @@
 #include "DBWriter.h"
 #include "CondFormats/RecoMuonObjects/interface/MuScleFitDBobject.h"
 
+using namespace std;
+using namespace edm;
+
 DBWriter::DBWriter(const edm::ParameterSet& ps)
 {
   // This string is one of: scale, resolution, background.
-  std::string type( ps.getUntrackedParameter<std::string>("Type") );
+  string type( ps.getUntrackedParameter<string>("Type") );
   // Create the corrector and set the parameters
-  if( type == "scale" ) corrector_.reset(new MomentumScaleCorrector( ps.getUntrackedParameter<std::string>("CorrectionsIdentifier") ) );
-  else if( type == "resolution" ) corrector_.reset(new ResolutionFunction( ps.getUntrackedParameter<std::string>("CorrectionsIdentifier") ) );
-  else if( type == "background" ) corrector_.reset(new BackgroundFunction( ps.getUntrackedParameter<std::string>("CorrectionsIdentifier") ) );
+  if( type == "scale" ) corrector_.reset(new MomentumScaleCorrector( ps.getUntrackedParameter<string>("CorrectionsIdentifier") ) );
+  else if( type == "resolution" ) corrector_.reset(new ResolutionFunction( ps.getUntrackedParameter<string>("CorrectionsIdentifier") ) );
+  else if( type == "background" ) corrector_.reset(new BackgroundFunction( ps.getUntrackedParameter<string>("CorrectionsIdentifier") ) );
   else {
-    std::cout << "Error: unrecognized type. Use one of those: 'scale', 'resolution', 'background'" << std::endl;
+    cout << "Error: unrecognized type. Use one of those: 'scale', 'resolution', 'background'" << endl;
     exit(1);
   }
 }
 
 DBWriter::~DBWriter()
 {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
+
 }
 
 // ------------ method called to for each event  ------------
@@ -45,18 +49,18 @@ DBWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   dbObject->parameters = corrector_->parameters();
 
 //   if( dbObject->identifiers.size() != dbObject->parameters.size() ) {
-//     std::cout << "Error: size of parameters("<<dbObject->parameters.size()<<") and identifiers("<<dbObject->identifiers.size()<<") don't match" << std::endl;
+//     cout << "Error: size of parameters("<<dbObject->parameters.size()<<") and identifiers("<<dbObject->identifiers.size()<<") don't match" << endl;
 //     exit(1);
 //   }
 
-//   std::vector<std::vector<double> >::const_iterator parVec = dbObject->parameters.begin();
-//   std::vector<int>::const_iterator id = dbObject->identifiers.begin();
+//   vector<vector<double> >::const_iterator parVec = dbObject->parameters.begin();
+//   vector<int>::const_iterator id = dbObject->identifiers.begin();
 //   for( ; id != dbObject->identifiers.end(); ++id, ++parVec ) {
-//     std::cout << "id = " << *id << std::endl;
-//     std::vector<double>::const_iterator par = parVec->begin();
+//     cout << "id = " << *id << endl;
+//     vector<double>::const_iterator par = parVec->begin();
 //     int i=0;
 //     for( ; par != parVec->end(); ++par, ++i ) {
-//       std::cout << "par["<<i<<"] = " << *par << std::endl;
+//       cout << "par["<<i<<"] = " << *par << endl;
 //     }
 //   }
 

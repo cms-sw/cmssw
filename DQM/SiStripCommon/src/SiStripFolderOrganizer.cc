@@ -9,7 +9,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
 
-// $Id: SiStripFolderOrganizer.cc,v 1.27 2009/10/19 19:06:05 dutta Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.28 2010/03/27 11:03:34 dutta Exp $
 //
 
 #include <iostream>
@@ -308,36 +308,8 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer, bo
 
 void SiStripFolderOrganizer::getSubDetFolder(const uint32_t& detid, std::string& folder_name){
 
-  std::string subdet_folder;
-  switch(StripSubdetector::SubDetector(StripSubdetector(detid).subdetId()))
-    {
-    case StripSubdetector::TIB:
-      subdet_folder="TIB";
-      break;
-    case StripSubdetector::TOB:
-      subdet_folder="TOB";
-      break;
-    case StripSubdetector::TID:
-      if (TIDDetId(detid).side() == 2) {
-	subdet_folder = "TID/side_2";
-      } else if (TIDDetId(detid).side() == 1) {
-	subdet_folder = "TID/side_1";
-      }
-      break;
-    case StripSubdetector::TEC:
-      if (TECDetId(detid).side() == 2) {
-	subdet_folder = "TEC/side_2";
-      } else if (TECDetId(detid).side() == 1) {
-	subdet_folder = "TEC/side_1";
-      }
-      break;
-    default:
-      {
-	edm::LogWarning("SiStripCommon") << "WARNING!!! this detid does not belong to tracker" << std::endl;
-        subdet_folder = "";
-      } 
-    }
-  folder_name = TopFolderName + sep + MechanicalFolderName + sep + subdet_folder;
+  std::pair<std::string, std::string> subdet_and_tag = getSubDetFolderAndTag(detid); 
+  folder_name = subdet_and_tag.first;
 }
 //
 // -- Get the name of Subdetector Layer folder
@@ -378,4 +350,49 @@ void SiStripFolderOrganizer::getLayerFolderName(std::stringstream& ss, uint32_t 
     edm::LogWarning("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<stripdet.subDetector()<<" no folder set!"<<std::endl;
     return;
   }
+}
+//
+// -- Get Subdetector Folder name and the Tag
+//
+std::pair<std::string, std::string> SiStripFolderOrganizer::getSubDetFolderAndTag(const uint32_t& detid) {
+
+  std::string subdet_folder;
+  std::string subdet_tag;
+  switch(StripSubdetector::SubDetector(StripSubdetector(detid).subdetId()))
+    {
+    case StripSubdetector::TIB:
+      subdet_folder="TIB";
+      subdet_tag = subdet_folder;
+      break;
+    case StripSubdetector::TOB:
+      subdet_folder="TOB";
+      subdet_tag = subdet_folder;
+      break;
+    case StripSubdetector::TID:
+      if (TIDDetId(detid).side() == 2) {
+        subdet_folder = "TID/side_2";
+	subdet_tag    = "TID__side__2";
+      } else if (TIDDetId(detid).side() == 1) {
+        subdet_folder = "TID/side_1";
+	subdet_tag    = "TID__side__1";
+      }
+      break;
+    case StripSubdetector::TEC:
+      if (TECDetId(detid).side() == 2) {
+        subdet_folder = "TEC/side_2";
+	subdet_tag    = "TEC__side__2";
+      } else if (TECDetId(detid).side() == 1) {
+        subdet_folder = "TEC/side_1";
+	subdet_tag    = "TEC__side__1";
+      }
+      break;
+    default:
+      {
+	edm::LogWarning("SiStripCommon") << "WARNING!!! this detid does not belong to tracker" << std::endl;
+        subdet_folder = "";
+        subdet_tag    = "";
+      }
+    }
+  std::string folder_name = TopFolderName + sep + MechanicalFolderName + sep + subdet_folder;
+  return std::make_pair(folder_name,subdet_tag);
 }

@@ -1628,7 +1628,7 @@ namespace edm {
       e << exceptionMessageLumis_;
       e << exceptionMessageRuns_;
       e << exceptionMessageFiles_;
-      throw e;
+      throw;
     }
     catch (std::bad_alloc& e) {
       alreadyHandlingException_ = true;

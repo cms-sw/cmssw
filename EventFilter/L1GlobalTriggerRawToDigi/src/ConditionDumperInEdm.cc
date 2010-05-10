@@ -85,11 +85,11 @@ ConditionDumperInEdm::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const L1GtfeExtWord& gtfeBlockData = gtReadoutRecordData->gtfeWord();
 
   //lumi info
-  lumiBlock_.beamMomentum=gtfeBlockData.beamMomentum();
   lumiBlock_.totalIntensityBeam1=gtfeBlockData.totalIntensityBeam1();
   lumiBlock_.totalIntensityBeam2=gtfeBlockData.totalIntensityBeam2();
 
   //run info
+  runBlock_.beamMomentum=gtfeBlockData.beamMomentum();
   runBlock_.beamMode=gtfeBlockData.beamMode();
   //  runBlock_.particleTypeBeam1=gtfeBlockData.particleTypeBeam1();
   //  runBlock_.particleTypeBeam2=gtfeBlockData.particleTypeBeam2();

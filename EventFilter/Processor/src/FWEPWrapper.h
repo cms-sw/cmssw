@@ -24,7 +24,7 @@
 #include "log4cplus/logger.h"
 
 #include <string>
-#include "MsgBuf.h"
+#include "EventFilter/Utilities/interface/MsgBuf.h"
 
 namespace xdaq{
   class ApplicationDescriptor;

@@ -11,8 +11,8 @@
 /*
  * \file HcalHotCellClient.cc
  * 
- * $Date: 2010/03/25 11:02:25 $
- * $Revision: 1.70 $
+ * $Date: 2010/03/25 21:24:52 $
+ * $Revision: 1.71 $
  * \author J. Temple
  * \brief Hot Cell Client class
  */
@@ -70,7 +70,7 @@ void HcalHotCellClient::calculateProblems()
       (ProblemCells->getTH2F())->SetMaximum(1.05);
       (ProblemCells->getTH2F())->SetMinimum(0.);
     }
-  for  (unsigned int d=0;d<ProblemCellsByDepth->depth.size();++d)
+  for  (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]!=0) 
 	{
@@ -118,7 +118,7 @@ void HcalHotCellClient::calculateProblems()
   // Because we're clearing and re-forming the problem cell histogram here, we don't need to do any cute
   // setting of the underflow bin to 0, and we can plot results as a raw rate between 0-1.
 
-  for (unsigned int d=0;d<ProblemCellsByDepth->depth.size();++d)
+  for (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]==0) continue;
       if (HotAboveThresholdByDepth[d]) totalevents = HotAboveThresholdByDepth[d]->GetBinContent(0);

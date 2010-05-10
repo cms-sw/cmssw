@@ -36,10 +36,6 @@ ClusterShapeTrackFilter::ClusterShapeTrackFilter
   edm::ESHandle<ClusterShapeHitFilter> shape;
   es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
   theFilter = shape.product();
-
-  // Get ptMin if available
-  ptMin = (ps.exists("ptMin") ? ps.getParameter<double>("ptMin") : 0.);
-  ptMax = (ps.exists("ptMax") ? ps.getParameter<double>("ptMax") : 999999.);
 }
 
 /*****************************************************************************/
@@ -127,22 +123,8 @@ vector<GlobalPoint> ClusterShapeTrackFilter::getGlobalPoss
 
 /*****************************************************************************/
 bool ClusterShapeTrackFilter::operator()
-  (const reco::Track* track,
-   const vector<const TrackingRecHit *> & recHits) const
+  (const reco::Track* track, const vector<const TrackingRecHit *> & recHits) const
 {
-  // Do not even look at pairs
-  if(recHits.size() <= 2) return true;
-
-  // Check pt
-  if(track->pt() < ptMin ||
-     track->pt() > ptMax)
-  {
-    LogTrace("ClusterShapeTrackFilter")
-       << "  [ClusterShapeTrackFilter] pt not in range: "
-       << ptMin << " " << track->pt() << " " << ptMax;
-    return false;
-  }
-
   // Get global positions
   vector<GlobalPoint>  globalPoss = getGlobalPoss(recHits);
 
@@ -153,7 +135,7 @@ bool ClusterShapeTrackFilter::operator()
 
   // Check whether shape of pixel cluster is compatible
   // with local track direction
-  for(unsigned int i = 0; i < recHits.size(); i++)
+  for(int i = 0; i < 3; i++)
   {
     const SiPixelRecHit* pixelRecHit =
       dynamic_cast<const SiPixelRecHit *>(recHits[i]);
@@ -165,7 +147,7 @@ bool ClusterShapeTrackFilter::operator()
 
     if(! theFilter->isCompatible(*pixelRecHit, globalDirs[i]) )
     {
-      LogTrace("ClusterShapeTrackFilter")
+      LogTrace("MinBiasTracking")
          << "  [ClusterShapeTrackFilter] clusShape problem"
          << HitInfo::getInfo(*recHits[i]);
 

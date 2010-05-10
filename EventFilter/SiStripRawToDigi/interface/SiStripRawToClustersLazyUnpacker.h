@@ -7,7 +7,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerFactory.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingAlgorithms.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"

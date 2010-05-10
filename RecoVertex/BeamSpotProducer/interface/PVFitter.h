@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: PVFitter.h,v 1.2 2010/03/24 22:36:42 jengbou Exp $
+ version $Id: PVFitter.h,v 1.3 2010/03/30 19:18:13 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -30,6 +30,10 @@
 #include "TH2F.h"
 
 #include <fstream>
+
+namespace reco {
+  class Vertex;
+}
 
 class PVFitter {
  public:
@@ -54,6 +58,7 @@ class PVFitter {
     resetLSRange();
     resetRefTime();
     pvStore_.clear();
+    dynamicQualityCut_ = 1.e30;
     hPVx->Reset();
     hPVy->Reset();
   };
@@ -64,7 +69,13 @@ class PVFitter {
     tmp[1] = fendLumiOfFit;
     return tmp;
   }
-  
+  /// reduce size of primary vertex cache by increasing quality limit
+  void compressStore ();
+  /// vertex quality measure
+  double pvQuality (const reco::Vertex& pv) const;
+  /// vertex quality measure
+  double pvQuality (const BeamSpotFitPVData& pv) const;
+
  private:
 
   reco::BeamSpot fbeamspot;
@@ -76,6 +87,7 @@ class PVFitter {
   bool writeTxt_;
   std::string outputTxt_;
 
+  unsigned int maxNrVertices_;
   unsigned int minNrVertices_;
   double minVtxNdf_;
   double maxVtxNormChi2_;
@@ -126,6 +138,8 @@ class PVFitter {
   double fdydzErr;
 
   std::vector<BeamSpotFitPVData> pvStore_; //< cache for PV data
+  double dynamicQualityCut_;               //< quality cut for vertices (dynamic adjustment)
+  std::vector<double> pvQualities_;        //< working space for PV store adjustement
 };
 
 #endif

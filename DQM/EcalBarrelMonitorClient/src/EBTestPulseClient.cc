@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2010/03/27 20:17:49 $
- * $Revision: 1.225 $
+ * $Date: 2010/03/27 20:30:37 $
+ * $Revision: 1.226 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1050,8 +1050,10 @@ void EBTestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int ic = ecid.getID2();
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
 
+        int ic = ecid.getID2();
         int ie = (ic-1)/20 + 1;
         int ip = (ic-1)%20 + 1;
 
@@ -1065,8 +1067,10 @@ void EBTestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int ic = ecid.getID2();
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
 
+        int ic = ecid.getID2();
         int ie = (ic-1)/20 + 1;
         int ip = (ic-1)%20 + 1;
 
@@ -1080,8 +1084,10 @@ void EBTestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int ic = ecid.getID2();
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
 
+        int ic = ecid.getID2();
         int ie = (ic-1)/20 + 1;
         int ip = (ic-1)%20 + 1;
 
@@ -1102,8 +1108,10 @@ void EBTestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int itt = ecid.getID2();
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
 
+        int itt = ecid.getID2();
         int iet = (itt-1)/4 + 1;
         int ipt = (itt-1)%4 + 1;
 
@@ -1121,8 +1129,10 @@ void EBTestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int itt = ecid.getID2();
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
 
+        int itt = ecid.getID2();
         int iet = (itt-1)/4 + 1;
         int ipt = (itt-1)%4 + 1;
 
@@ -1140,8 +1150,10 @@ void EBTestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int itt = ecid.getID2();
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
 
+        int itt = ecid.getID2();
         int iet = (itt-1)/4 + 1;
         int ipt = (itt-1)%4 + 1;
 
@@ -1166,6 +1178,9 @@ void EBTestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
         int i = ecid.getID2() - 1;
 
         UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
@@ -1178,6 +1193,9 @@ void EBTestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
         int i = ecid.getID2() - 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );

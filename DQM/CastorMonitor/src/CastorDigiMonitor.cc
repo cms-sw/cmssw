@@ -87,7 +87,7 @@ void CastorDigiMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 //==================================================================//
 //=========================== processEvent  ========================//
 //==================================================================//
-void CastorDigiMonitor::processEvent(const CastorDigiCollection& cast, const CastorDbService& cond)
+void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis, const CastorDbService& cond)
 {
   
  if(fVerbosity>0) cout << "==>CastorDigiMonitor::processEvent !!!"<< endl;
@@ -105,10 +105,10 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& cast, const Cas
 
 
   CaloSamples tool;  
-  
  
-   try{
-    for (CastorDigiCollection::const_iterator j=cast.begin(); j!=cast.end(); j++){
+  if(castorDigis.size()>0) {
+
+   for (CastorDigiCollection::const_iterator j=castorDigis.begin(); j!=castorDigis.end(); j++){
       const CastorDataFrame digi = (const CastorDataFrame)(*j);	
  
 
@@ -170,8 +170,8 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& cast, const Cas
 
     }
   } 
-   catch (...) {
-    if(fVerbosity>0) cout << "CastorDigiMonitor::processEvent  No Castor Digis." << endl;
+   else {
+    if(fVerbosity>0) cout << "CastorPSMonitor::processEvent NO Castor Digis !!!" << endl;
   }
 
  if (showTiming) { 

@@ -36,7 +36,7 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
     TH1NumberOfDigis = cms.PSet(
         Nbinx = cms.int32(50),
         xmin = cms.double(-0.5),
-        xmax = cms.double(499.5),
+        xmax = cms.double(999.5),
         layerswitchon = cms.bool(True),
         moduleswitchon = cms.bool(True)
     ),
@@ -69,7 +69,7 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
     ),
 
     TProfTotalNumberOfDigis = cms.PSet(
-        Nbins = cms.int32(600),
+        Nbins = cms.int32(360),
         xmin = cms.double(0.0),
         xmax = cms.double(1.0*60*60),
         ymin = cms.double(0.0),
@@ -114,6 +114,8 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
     HistoryProducer = cms.InputTag("consecutiveHEs"),
     ApvPhaseProducer = cms.InputTag("APVPhases"),
 
+    UseDCSFiltering = cms.bool(True),
+                                    
     # rest of parameters
     SelectAllDetectors = cms.bool(False),
     ShowMechanicalStructureView = cms.bool(True),

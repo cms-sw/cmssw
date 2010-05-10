@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewVersion='3_6_0_pre3'
-RefVersion='3_6_0_pre2'
+NewVersion='3_7_0_pre3'
+RefVersion='3_7_0_pre2'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
@@ -112,9 +112,9 @@ for sample in samples :
     if(os.path.exists(RefRelease+'/'+RefTag+'/'+sample)==False):
         os.makedirs(RefRelease+'/'+RefTag+'/'+sample)
 
-    checkFile = NewRelease+'/'+NewTag+'/'+sample+'/globalMuons_tpToGlbAssociation.pdf'
+    checkFile = NewRelease+'/'+NewTag+'/'+sample+'/general_tpToTkmuAssociation.pdf'
     if (RefFastSim):
-        checkFile = NewRelease+'/'+NewTag+'/'+sample+'/globalMuons_tpToGlbAssociationFS.pdf'
+        checkFile = NewRelease+'/'+NewTag+'/'+sample+'/general_tpToTkmuAssociationFS.pdf'
     if (os.path.isfile(checkFile)==True):
         print "Files of type "+checkFile+' exist alredy: delete them first, if you really want to overwrite them'
     else:

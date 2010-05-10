@@ -1,5 +1,6 @@
 #include <TFile.h>
 
+int loadme  = gSystem->Load("libRooFit.so");
 int loadme2 = gSystem->Load("libPhysicsToolsFWLite.so");
 #include "PhysicsTools/FWLite/interface/Scanner.h"
 
@@ -78,4 +79,9 @@ void testScanner_CINT() {
     heta = sc.draw("eta","","SAME");
     heta->Sumw2(); heta->Scale(1.0/sc.countEvents());
     c1->Print("eta_twotracks.png");
+
+    sc.setMaxEvents(20); 
+    RooDataSet *ds = sc.fillDataSet("pt:eta:@hits=hitPattern.numberOfValidHits", "@highPurity=quality('highPurity'):@highPt=pt>2", "pt > 0.5");
+    ds->Print("v");
+    delete ds;
 }

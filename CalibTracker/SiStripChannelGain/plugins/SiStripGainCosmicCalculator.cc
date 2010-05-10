@@ -3,7 +3,7 @@
 // Class:      SiStripGainCosmicCalculator
 // Original Author:  G. Bruno, D. Kcira
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainCosmicCalculator.cc,v 1.8 2008/04/23 08:47:10 querten Exp $
+// $Id: SiStripGainCosmicCalculator.cc,v 1.9 2009/05/27 11:40:29 fabiocos Exp $
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainCosmicCalculator.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -37,7 +37,7 @@
 //#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 
 //---------------------------------------------------------------------------------------------------------
-SiStripGainCosmicCalculator::SiStripGainCosmicCalculator(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>::ConditionDBWriter<SiStripApvGain>(iConfig){
+SiStripGainCosmicCalculator::SiStripGainCosmicCalculator(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>(iConfig){
   edm::LogInfo("SiStripGainCosmicCalculator::SiStripGainCosmicCalculator");
   ExpectedChargeDeposition = 200.;
   edm::LogInfo("SiStripApvGainCalculator::SiStripApvGainCalculator")<<"ExpectedChargeDeposition="<<ExpectedChargeDeposition;

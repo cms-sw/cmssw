@@ -5,7 +5,6 @@ root outtree 1
 //colin	mode 1
 
 root file ../../Configuration/test/display.root
-
 // filter ------------------------------------------------------------
 
 // filter   nparticles  1
@@ -41,20 +40,8 @@ root convBremGsfrecTracks_branch   recoGsfPFRecTracks_pfTrackElec_Secondary_PROD
 
 // Muon branch
 root muon_branch           recoMuons_muons__PROD.obj
-
-
-
-
 // Conversion branch
-root conversion_branch recoPFConversions_pfConversions__PROD.obj
-
-// V0 branch
-root V0_branch recoPFV0s_pfV0__PROD.obj
-
-// PFDisplacedTrackerVertex branch
-root PFDisplacedVertex_branch recoPFDisplacedTrackerVertexs_pfDisplacedTrackerVertex__PROD.obj
-
-
+root conversion_branch     recoPFConversions_pfConversions__PROD.obj
 
 root caloTowers_branch     CaloTowersSorted_towerMaker__PROD.obj
 
@@ -377,27 +364,9 @@ particle_flow   calibPFSCEle_endcap  0.9995 -12.313 2.8784 -1.057e-04 10.282 3.0
 
 // PF Converted Bremsstrahlung recovery
 particle_flow   useConvBremGsfTracks    0
-particle_flow   useConvBremPFRecTracks  1
-
-
-// rejectTracks_Bad
-particle_flow   rejectTracks_Bad   1
-
-// rejectTracks_Step45
-particle_flow   rejectTracks_Step45   1
-
 
 // PFConversions
 particle_flow   usePFConversions      0
-
-// PFDecays
-particle_flow   usePFV0s      0
-
-// PFDisplacedTrackerVertexs
-particle_flow   usePFDisplacedVertexs 0
-
-
-
 
 // Naive calibration
 // particle_flow   ecalib 0.108 1.050

@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.35 2010/01/11 16:17:03 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.36 2010/03/10 15:27:15 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -196,11 +196,11 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 	uint32_t id = detId();
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
        
-        PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
-        int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
-        int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
-        int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).pannelName();
-        int module = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).plaquetteName();
+        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id)).halfCylinder();
+        int disk   = PixelEndcapName(DetId(id)).diskName();
+        int blade  = PixelEndcapName(DetId(id)).bladeName();
+        int panel  = PixelEndcapName(DetId(id)).pannelName();
+        int module = PixelEndcapName(DetId(id)).plaquetteName();
 
         char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
         char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);

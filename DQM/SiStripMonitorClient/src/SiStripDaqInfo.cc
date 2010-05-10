@@ -54,37 +54,39 @@ void SiStripDaqInfo::beginJob() {
 void SiStripDaqInfo::bookStatus() {
    edm::LogInfo( "SiStripDcsInfo") << " SiStripDaqInfo::bookStatus " << bookedStatus_;
   if (!bookedStatus_) {
+    dqmStore_->cd();
     std::string strip_dir = "";
     SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir);
-    if (strip_dir.size() > 0) {
+    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
+    else dqmStore_->setCurrentFolder("SiStrip/EventInfo");
 
-      dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
     
-      DaqFraction_= dqmStore_->bookFloat("DAQSummary");  
+    DaqFraction_= dqmStore_->bookFloat("DAQSummary");  
+
+    dqmStore_->cd();    
+    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DAQContents");
+    else dqmStore_->setCurrentFolder("SiStrip/EventInfo/DAQContents");
       
-      dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DAQContents");
+    std::vector<std::string> det_type;
+    det_type.push_back("TIB");
+    det_type.push_back("TOB");
+    det_type.push_back("TIDF");
+    det_type.push_back("TIDB");
+    det_type.push_back("TECF");
+    det_type.push_back("TECB");
       
-      std::vector<std::string> det_type;
-      det_type.push_back("TIB");
-      det_type.push_back("TOB");
-      det_type.push_back("TIDF");
-      det_type.push_back("TIDB");
-      det_type.push_back("TECF");
-      det_type.push_back("TECB");
+    for ( std::vector<std::string>::iterator it = det_type.begin(); it != det_type.end(); it++) {
+      std::string det = (*it);
       
-      for ( std::vector<std::string>::iterator it = det_type.begin(); it != det_type.end(); it++) {
-	std::string det = (*it);
-	
-	SubDetMEs local_mes;	
-	std::string me_name;
-	me_name = "SiStrip_" + det;    
-	local_mes.DaqFractionME = dqmStore_->bookFloat(me_name);  	
-	local_mes.ConnectedFeds = 0;
-	SubDetMEsMap.insert(make_pair(det, local_mes));
-      } 
-      bookedStatus_ = true;
-      dqmStore_->cd();
-    }
+      SubDetMEs local_mes;	
+      std::string me_name;
+      me_name = "SiStrip_" + det;    
+      local_mes.DaqFractionME = dqmStore_->bookFloat(me_name);  	
+      local_mes.ConnectedFeds = 0;
+      SubDetMEsMap.insert(make_pair(det, local_mes));
+    } 
+    bookedStatus_ = true;
+    dqmStore_->cd();
   }
 }
 //
@@ -117,38 +119,13 @@ void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
     readFedIds(fedCabling_);
   }
   if (!bookedStatus_) bookStatus();  
-}
-//
-// -- Analyze
-//
-void SiStripDaqInfo::analyze(edm::Event const& event, edm::EventSetup const& eSetup) {
-}
-
-//
-// -- End Luminosity Block
-//
-void SiStripDaqInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
-  edm::LogInfo( "SiStripDaqInfo") << "SiStripDaqInfo::endLuminosityBlock";
-}
-//
-// -- End Run
-//
-void SiStripDaqInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
-  edm::LogInfo ("SiStripDaqInfo") <<"SiStripDaqInfo::EndRun";
-  fillDummyStatus();
-
   if (nFedTotal == 0) {
-   edm::LogInfo ("SiStripDaqInfo") <<" SiStripDaqInfo::No FEDs Connected!!!";
-   return;
-  }
-
-  if (!bookedStatus_) {
-    edm::LogError("SiStripDaqInfo") << " SiStripDaqInfo::endRun : MEs missing ";
+    fillDummyStatus();
+    edm::LogInfo ("SiStripDaqInfo") <<" SiStripDaqInfo::No FEDs Connected!!!";
     return;
   }
-
+  
   float nFEDConnected = 0.0;
-
   const FEDNumbering numbering;
   const int siStripFedIdMin = numbering.MINSiStripFEDID;
   const int siStripFedIdMax = numbering.MAXSiStripFEDID; 
@@ -175,6 +152,24 @@ void SiStripDaqInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
       }
     }
   } 
+}
+//
+// -- Analyze
+//
+void SiStripDaqInfo::analyze(edm::Event const& event, edm::EventSetup const& eSetup) {
+}
+
+//
+// -- End Luminosity Block
+//
+void SiStripDaqInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
+  edm::LogInfo( "SiStripDaqInfo") << "SiStripDaqInfo::endLuminosityBlock";
+}
+//
+// -- End Run
+//
+void SiStripDaqInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
+  edm::LogInfo ("SiStripDaqInfo") <<"SiStripDaqInfo::EndRun";
 }
 //
 // -- Read Sub Detector FEDs

@@ -51,7 +51,7 @@ class OHltRateCounter {
     float af = float(a),bf = float(b),r = af/bf;
     float unc = sqrt(af + (r*r*bf) )/bf;
     return unc;
-  }
+  } 
   static inline float effErrb(float a, float b){
     if (b==0.){return -1.;}
     float af = float(a),bf = float(b),r = af/bf;
@@ -59,6 +59,30 @@ class OHltRateCounter {
     return unc;
   }
   
+  static inline float errRate2(float a, float b){
+    if (b==0.){return -1.;}
+    float af = float(a),bf = float(b);
+    float unc = af/(bf*bf);
+    
+    //float unc = sqrt(af + (r*r*bf) )/bf;
+    return unc;
+  } 
+  static inline float errRate2(int a, int b){
+    if (b==0.){return -1.;}
+    float af = float(a),bf = float(b);
+    float unc = af/(bf*bf);
+    
+    //float unc = sqrt(af + (r*r*bf) )/bf;
+    return unc;
+  } 
+  static inline float errRate2(int a, float b){
+    if (b==0.){return -1.;}
+    float af = float(a),bf = float(b);
+    float unc = af/(bf*bf);
+    
+    //float unc = sqrt(af + (r*r*bf) )/bf;
+    return unc;
+  } 
   
   // Data
   std::vector<int> iCount;
@@ -66,6 +90,7 @@ class OHltRateCounter {
   std::vector<int> pureCount;
   std::vector< std::vector<int> > overlapCount;
   std::vector<int> prescaleCount;
+  std::vector<int> prescaleCountL1;
 
   std::vector< std::vector<int> > perLumiSectionCount;
   std::vector<int> perLumiSectionTotCount;

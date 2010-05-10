@@ -1,8 +1,8 @@
 /*
  * \file HcalMonitorClient.cc
  * 
- * $Date: 2010/03/25 09:43:42 $
- * $Revision: 1.92.2.22 $
+ * $Date: 2010/04/12 08:59:48 $
+ * $Revision: 1.95 $
  * \author J. Temple
  * 
  */
@@ -88,7 +88,9 @@ HcalMonitorClient::HcalMonitorClient(const edm::ParameterSet& ps)
   fC_WidthFromDBByDepth=0;
 
   // Add all relevant clients
-  //clients_.reserve(12); // any reason to reserve ahead of time?
+  clients_.clear();
+  clients_.reserve(14); // any reason to reserve ahead of time?
+  summaryClient_=0;
 
   clients_.push_back(new HcalBaseDQClient((std::string)"HcalMonitorModule",ps));
   if (find(enabledClients_.begin(), enabledClients_.end(),"DeadCellMonitor")!=enabledClients_.end())
@@ -117,9 +119,6 @@ HcalMonitorClient::HcalMonitorClient(const edm::ParameterSet& ps)
     clients_.push_back(new HcalDetDiagNoiseMonitorClient((std::string)"DetDiagNoiseMonitor",ps));
   if (find(enabledClients_.begin(), enabledClients_.end(),"DetDiagTimingMonitor")!=enabledClients_.end())
     clients_.push_back(new HcalDetDiagTimingClient((std::string)"DetDiagTimingMonitor",ps));
-
-
-
 
   if (find(enabledClients_.begin(), enabledClients_.end(),"Summary")!=enabledClients_.end())
     summaryClient_ = new HcalSummaryClient((std::string)"ReportSummaryClient",ps);
@@ -460,15 +459,17 @@ void HcalMonitorClient::writeHtml()
   for (unsigned int i=0;i<clients_.size();++i)
     {
       if (clients_[i]->validHtmlOutput()==true)
-	clients_[i]->htmlOutput(htmlDir);
-      // Always print thes out?  Or only when validHtmlOutput is true? 
-      htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << std::endl;
-      htmlFile << "<td WIDTH=\"35%\"><a href=\"" << clients_[i]->name_ << ".html"<<"\">"<<clients_[i]->name_<<"</a></td>" << std::endl;
-      if(clients_[i]->hasErrors_Temp()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << std::endl;
-      else if(clients_[i]->hasWarnings_Temp()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << std::endl;
-      else if(clients_[i]->hasOther_Temp()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << std::endl;
-      else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << std::endl;
-      htmlFile << "</tr></table>" << std::endl;
+	{
+	  clients_[i]->htmlOutput(htmlDir);
+	  // Always print this out?  Or only when validHtmlOutput is true? 
+	  htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << std::endl;
+	  htmlFile << "<td WIDTH=\"35%\"><a href=\"" << clients_[i]->name_ << ".html"<<"\">"<<clients_[i]->name_<<"</a></td>" << std::endl;
+	  if(clients_[i]->hasErrors_Temp()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << std::endl;
+	  else if(clients_[i]->hasWarnings_Temp()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << std::endl;
+	  else if(clients_[i]->hasOther_Temp()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << std::endl;
+	  else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << std::endl;
+	  htmlFile << "</tr></table>" << std::endl;
+	}
     }
 
   // Add call to reportSummary html output

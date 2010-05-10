@@ -6,6 +6,7 @@
 <use name=DataFormats/CLHEP>
 <use name=DataFormats/GeometryCommonDetAlgo>
 <use name=DataFormats/GeometrySurface>
+<use name=DataFormats/Math>
 <use name=DataFormats/TrackingRecHit>
 <use name=MagneticField/Records>
 <use name=TrackingTools/GeomPropagators>

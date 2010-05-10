@@ -243,7 +243,7 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
   float all_clust_alpha;
   float all_clust_beta;
 
-  static const int maxpix = 10000;
+  static const int maxpix = 100;
   float all_pixrow[maxpix];
   float all_pixcol[maxpix];
   float all_pixadc[maxpix];

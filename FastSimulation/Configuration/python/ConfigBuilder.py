@@ -6,6 +6,11 @@ __triggerTable = {
         'FastSimulation/Configuration/HLT_8E29_cff', 
     ),
 
+    # HLT trigger table for the 2009 Global Run menu
+    'GRun': (
+        'FastSimulation/Configuration/HLT_GRun_cff',
+    ),
+
     # HLT trigger table for the 2009 STARTUP 1E31 menu
     '1E31': ( 
         'FastSimulation/Configuration/HLT_1E31_cff', 
