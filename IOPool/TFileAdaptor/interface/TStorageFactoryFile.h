@@ -3,6 +3,8 @@
 
 # include "TFile.h"
 
+#define READ_COALESCE_SIZE 256 * 1024
+
 class Storage;
 
 /** TFile wrapper around #StorageFactory and #Storage.  */
