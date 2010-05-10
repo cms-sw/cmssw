@@ -85,8 +85,12 @@ def getLastUploadedIOV(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEA
     if output[1] == '' :
         dbError = commands.getstatusoutput( listIOVCommand )
         if dbError[1].find("metadata entry \"" + tagName + "\" does not exist"):
+            print "Creating a new tag because I got the following error contacting the DB"
+            print output[1]
+            #return 1
             return 133928
-        exit("ERROR: Can\'t connect to db because:\n" + dbError[1])
+        else:
+            exit("ERROR: Can\'t connect to db because:\n" + dbError[1])
     #WARNING when we pass to lumi IOV this should be long long
     return long(output[1])
 
@@ -125,8 +129,8 @@ def getListOfRunsAndLumiFromDBS(dataSet,lastRun=-1):
 
 ########################################################################
 def getListOfRunsAndLumiFromRR(dataSet,lastRun=-1):
-    RunReg  ="http://pccmsdqm04.cern.ch/runregistry"
-    #RunReg  = "http://localhost:40010/runregistry"
+    #RunReg  ="http://pccmsdqm04.cern.ch/runregistry"
+    RunReg  = "http://localhost:40010/runregistry"
     #Dataset=%Online%
     Dataset = "%Express%"
     Group   = "Collisions10"
@@ -238,7 +242,7 @@ def getNewRunList(fromDir,lastUploadedIOV):
     return newRunList        
 
 ########################################################################
-def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRunList,runListDir):
+def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRunList,runListDir,tolerance):
     runsAndLumisProcessed = {}
     runsAndFiles = {}
     for fileName in newRunList:
@@ -263,14 +267,14 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
         file.close()
     filesToProcess = []
     #print "WARNING WARNING YOU MUST CHANGE THIS LINE BEFORE YOU CAN REALLY RUN THE SCRIPT!!!!!!"
-    for run in listOfRunsAndLumiFromRR:
-    #for run in listOfRunsAndLumiFromDBS:
+    #for run in listOfRunsAndLumiFromRR:
+    for run in listOfRunsAndLumiFromDBS:
         if run in runsAndLumisProcessed:
             if not run in listOfRunsAndLumiFromDBS:
                 error = "Impossible but run " + str(run) + " has been processed and it is also in the run registry but it is not in DBS!" 
                 exit(error)
             errors = []
-            badProcessed,badDBS = compareLumiLists(runsAndLumisProcessed[run],listOfRunsAndLumiFromDBS[run],errors)
+            badProcessed,badDBS = compareLumiLists(runsAndLumisProcessed[run],listOfRunsAndLumiFromDBS[run],errors,tolerance)
             for i in range(0,len(errors)):
                 errors[i] = errors[i].replace("listA","the processed lumis")
                 errors[i] = errors[i].replace("listB","DBS")
@@ -278,37 +282,44 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
             #print badProcessed
             #print badDBS
             
-            if len(errors) != 0:
+            if len(errors) != 0 and errors[0].find("ERROR") != -1 and run in listOfRunsAndLumiFromRR:
                 RRList = []
                 for lumiRange in listOfRunsAndLumiFromRR[run]:
                     print lumiRange
                     for l in range(lumiRange[0],lumiRange[1]+1):
                         RRList.append(long(l))
 
-                badProcessed,badRunRegistry = compareLumiLists(runsAndLumisProcessed[run],RRList,errors)
+                badProcessed,badRunRegistry = compareLumiLists(runsAndLumisProcessed[run],RRList,errors,tolerance)
                 for i in range(0,len(errors)):
                     errors[i] = errors[i].replace("listA","the processed lumis")
                     errors[i] = errors[i].replace("listB","Run Registry")
                 #print errors
                 #print badProcessed
                 #print badRunRegistry
+            else:
+                print "No problem for run: " + str(run)
                     
-            if len(errors) != 0:    
-                #print errors
-                exit(errors)
-            for file in runsAndFiles[run]:
-                filesToProcess.append(file)    
+            if len(errors) != 0 and errors[0].find("ERROR") != -1:    
+                print "I have errors in run: " + str(run)
+                print errors
+                #exit(errors)
+                return filesToProcess
+            else:
+                for file in runsAndFiles[run]:
+                    filesToProcess.append(file)    
                 
             #If I get here it means that I passed or the DBS or the RR test            
                             
     return filesToProcess
 ########################################################################
-def compareLumiLists(listA,listB,errors=[]):
+def compareLumiLists(listA,listB,errors=[],tolerance=0):
     lenA = len(listA)
     lenB = len(listB)
-    if lenA != lenB:
-        errors.append("The number of lumi sections is different: listA(" + str(lenA) + ")!=(" + str(lenB) + ")listB")
-    #print "Lumis are matching!"
+    if lenA <= lenB-(lenB*float(tolerance)/100):
+        errors.append("ERROR: The number of lumi sections is different: listA(" + str(lenA) + ")!=(" + str(lenB) + ")listB")
+    else:
+        errors.append("Lumi check ok!listA(" + str(lenA) + ")-(" + str(lenB) + ")listB")
+    print errors
     listA.sort()
     listB.sort()
     shorter = lenA
@@ -441,6 +452,7 @@ def main():
     dataSet     = configuration.get('Common','DATASET')
     fileIOVBase = configuration.get('Common','FILE_IOV_BASE')
     dbIOVBase   = configuration.get('Common','DB_IOV_BASE')
+    dbsTolerance= configuration.get('Common','DBS_TOLERANCE')
     mailList    = configuration.get('Common','EMAIL')
 
     ######### DIRECTORIES SETUP #################
@@ -464,15 +476,18 @@ def main():
         os.system("rm -f "+ workingDir + "*") 
 
 
+    print "Getting last IOV for tag: " + databaseTag
     lastUploadedIOV = getLastUploadedIOV(databaseTag,destDB) 
 #    lastUploadedIOV = 133885
 
     ######### Get list of files processed after the last IOV  
+    print "Getting list of files processed after IOV " + str(lastUploadedIOV)
     newProcessedRunList      = getNewRunList(sourceDir,lastUploadedIOV)
     if len(newProcessedRunList) == 0:
         exit("There are no new runs after " + str(lastUploadedIOV))
 
     ######### Copy files to archive directory
+    print "Copying files to archive directory"
     copiedFiles = []
     for i in range(3):
         copiedFiles = cp(sourceDir,archiveDir,newProcessedRunList)    
@@ -485,18 +500,22 @@ def main():
 
 
     ######### Get from DBS the list of files after last IOV    
-    listOfFilesToProcess = getListOfFilesToProcess(dataSet,lastUploadedIOV) 
+    #listOfFilesToProcess = getListOfFilesToProcess(dataSet,lastUploadedIOV) 
+    print "Getting list of files from DBS"
     listOfRunsAndLumiFromDBS = getListOfRunsAndLumiFromDBS(dataSet,lastUploadedIOV) 
+    print "Getting list of files from RR"
     listOfRunsAndLumiFromRR  = getListOfRunsAndLumiFromRR(dataSet,lastUploadedIOV) 
 
     ######### Get list of files to process for DB
 #    selectedFilesToProcess = selectFilesToProcess(listOfFilesToProcess,copiedFiles)
-    selectedFilesToProcess = selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,copiedFiles,archiveDir)
+    print "Getting list of files to process"
+    selectedFilesToProcess = selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,copiedFiles,archiveDir,dbsTolerance)
     if len(selectedFilesToProcess) == 0:
        exit("There are no files to process")
         
     #print selectedFilesToProcess
     ######### Copy files to working directory
+    print "Copying files from archive to working directory"
     copiedFiles = []
     for i in range(3):
         copiedFiles = cp(archiveDir,workingDir,selectedFilesToProcess)    
@@ -507,6 +526,7 @@ def main():
         sendEmail(mailList,error)
         exit(error)
 
+    print "Sorting and cleaning beamlist"
     beamSpotObjList = []
     for fileName in copiedFiles:
         readBeamSpotFile(workingDir+fileName,beamSpotObjList,fileIOVBase)
