@@ -11,8 +11,8 @@
     
    This class sets status bit in the status words for the revised CaloRecHit objets according to informatino from the digi associated to the hit.
     
-   $Date: 2010/04/30 19:26:50 $
-   $Revision: 1.6 $
+   $Date: 2010/05/06 15:20:20 $
+   $Revision: 1.7 $
    \author J. Temple -- University of Maryland and E. Yazgan
 */
 
@@ -29,16 +29,11 @@ public:
 
   // The important stuff!  Methods for setting the status flag values
   void hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame& digi, const HcalCalibrations& calib);
-  
-
-  double bit(){return HcalCaloFlagLabels::HFDigiTime;}
-  double threshold(){return minthreshold_;}
-
-  // setter functions
-  void setthreshold(double x){minthreshold_=x; return;}
 
 private:
   // variables for cfg files
+
+  // VARIABLES FOR SETTING HFDigiTime FLAG
   double minthreshold_;
   // Reco Window
   int recoFirstSample_;
@@ -54,8 +49,7 @@ private:
   double coef1_;
   double coef2_;
 
-  // Store minimum/maximum allowed rechit times.  
-  // (Times outside window are flagged)
+  // VARIABLES FOR SETTING HFInTimeWindow FLAG
   double HFlongwindowEthresh_;
   std::vector<double> HFlongwindowMinTime_;
   std::vector<double> HFlongwindowMaxTime_;
