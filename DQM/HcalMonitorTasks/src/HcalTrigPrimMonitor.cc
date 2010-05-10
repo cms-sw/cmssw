@@ -35,9 +35,8 @@ HcalTrigPrimMonitor::reset () {
 
 void
 HcalTrigPrimMonitor::setup() {
-
    HcalBaseDQMonitor::setup();
-
+   
    if (dbe_ == 0)
       return;
 

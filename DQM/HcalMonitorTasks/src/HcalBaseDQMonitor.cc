@@ -6,8 +6,8 @@
 /*
  * \file HcalBaseDQMonitor.cc
  *
- * $Date: 2010/03/25 11:00:59 $
- * $Revision: 1.2 $
+ * $Date: 2010/05/07 09:32:37 $
+ * $Revision: 1.3 $
  * \author J Temple
  *
  * Base class for all Hcal DQM analyzers
@@ -101,6 +101,7 @@ void HcalBaseDQMonitor::reset(void)
   if (meTevt_) meTevt_->Fill(-1);
   tevt_=0;
   if (meTevtHist_) meTevtHist_->Reset();
+  if (ProblemsCurrentLB) ProblemsCurrentLB->Reset();
   HBpresent_=false;
   HEpresent_=false;
   HOpresent_=false;
