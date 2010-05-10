@@ -73,6 +73,12 @@ namespace edm {
     std::string const& eventHistoryBranchName();
 
     //------------------------------------------------------------------
+    // ParameterSet Tree (1 entry per ParameterSet
+    std::string const& parameterSetsTreeName();
+    
+    std::string const& idToParameterSetBlobsBranchName();
+    
+    //------------------------------------------------------------------
     // Other tree names
     std::string const& runTreeName();
     std::string const& luminosityBlockTreeName();

@@ -80,6 +80,9 @@ namespace edm {
     std::string const fileIndex = "FileIndex";
     std::string const eventHistory = "EventHistory";
     std::string const eventBranchMapper = "EventBranchMapper";
+    
+    std::string const parameterSetsTree = "ParameterSets";
+    std::string const idToParameterSetBlobsBranch = "IdToParameterSetsBlobs";
   }
 
   std::string const& BranchTypeToString(BranchType const& branchType) {
@@ -211,6 +214,15 @@ namespace edm {
       return eventHistory;
     }
 
+    std::string const& parameterSetsTreeName() {
+      return parameterSetsTree;
+    }
+    // Branch on ParameterSets Tree
+    std::string const& idToParameterSetBlobsBranchName() {
+      return idToParameterSetBlobsBranch;
+    }
+    
+    
     std::string const& eventTreeName() {
       return events;
     }
