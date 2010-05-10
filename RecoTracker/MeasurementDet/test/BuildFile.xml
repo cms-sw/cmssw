@@ -4,3 +4,5 @@
 <library   file="*.cc" name="RecoTrackerMeasurementDetTest">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<bin file="MeasurementDetSize.cpp">
+</bin>
