@@ -23,15 +23,15 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring(
-'/store/relval/CMSSW_3_4_1/RelValZEE/GEN-SIM-RECO/MC_3XY_V14-v1/0004/EA38A37E-B5ED-DE11-8DD2-000423D6CA6E.root',
-'/store/relval/CMSSW_3_4_1/RelValZEE/GEN-SIM-RECO/MC_3XY_V14-v1/0004/A2951E1F-8FED-DE11-B23A-001D09F29114.root',
-'/store/relval/CMSSW_3_4_1/RelValZEE/GEN-SIM-RECO/MC_3XY_V14-v1/0004/9EC0D2FB-90ED-DE11-80C5-000423D8FA38.root',
-'/store/relval/CMSSW_3_4_1/RelValZEE/GEN-SIM-RECO/MC_3XY_V14-v1/0004/6C21EC4A-90ED-DE11-9F3A-0019B9F707D8.root',
-'/store/relval/CMSSW_3_4_1/RelValZEE/GEN-SIM-RECO/MC_3XY_V14-v1/0004/4E4D206B-8DED-DE11-966A-001617E30F50.root'
+'/store/mc/Spring10/ZeeJet_Pt80to120/GEN-SIM-RECO/START3X_V26_S09-v1/0013/F44C88D8-3A47-DF11-AA60-0030487F16BF.root',
+'/store/mc/Spring10/ZeeJet_Pt80to120/GEN-SIM-RECO/START3X_V26_S09-v1/0013/F07E1F27-3B47-DF11-9D50-0030487F9351.root',
+'/store/mc/Spring10/ZeeJet_Pt80to120/GEN-SIM-RECO/START3X_V26_S09-v1/0013/EE363770-4247-DF11-AD74-0030487F1A4F.root',
+'/store/mc/Spring10/ZeeJet_Pt80to120/GEN-SIM-RECO/START3X_V26_S09-v1/0013/E6335250-3947-DF11-A6B8-003048D3CD92.root',
+'/store/mc/Spring10/ZeeJet_Pt80to120/GEN-SIM-RECO/START3X_V26_S09-v1/0013/E2758F8E-3947-DF11-A621-0030487E52A3.root',
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )    
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4000) )    
 
 
 ##   ____                         ____ _           _            
@@ -124,12 +124,8 @@ process.GsfMatchedSuperClusterCands = cms.EDProducer("ElectronMatchedCandidatePr
 process.PassingIsolation = cms.EDFilter("GsfElectronRefSelector",
     src = cms.InputTag("gsfElectrons"),
     cut = cms.string(process.PassingGsf.cut.value() +
-         " && (( isEB && (dr04TkSumPt<7.2) && (dr04EcalRecHitSumEt<5.7) && (dr04HcalTowerSumEt<8.1)"
-         " && (deltaEtaSuperClusterTrackAtVtx<0.0071) && (deltaPhiSuperClusterTrackAtVtx<1.0)"
-         " && (sigmaEtaEta<0.01))"
-         " || (isEE && (dr04TkSumPt<5.1) && (dr04EcalRecHitSumEt<5.0) && (dr04HcalTowerSumEt<3.4)"
-         " && (deltaEtaSuperClusterTrackAtVtx<0.0066) && (deltaPhiSuperClusterTrackAtVtx<1.0)"
-         " && (sigmaEtaEta<0.028)))")
+         " && ( isEB && (dr04TkSumPt<7.2) && (dr04EcalRecHitSumEt<5.7) && (dr04HcalTowerSumEt<8.1))"
+         " || (isEE && (dr04TkSumPt<5.1) && (dr04EcalRecHitSumEt<5.0) && (dr04HcalTowerSumEt<3.4))")
 )
 
 ##    _____ _           _                     ___    _ 
@@ -173,9 +169,9 @@ process.PassingHLT = cms.EDProducer("trgMatchedGsfElectronProducer",
 ##   
 
 ## Here we show how to use a module to compute an external variable
-
-JET_COLL = "ak5CaloJets"
-JET_CUTS = "pt > 20 && abs(eta) < 3 && (.05 < emEnergyFraction < .9)"
+process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer09_7TeV_ReReco332_cff")
+JET_COLL = "L2L3CorJetAK5Calo"
+JET_CUTS = "pt > 20.0 && abs(eta)<2.6 && (.05 < emEnergyFraction < .9)"
 
 process.superClusterDRToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer",
     probes = cms.InputTag("goodSuperClustersClean"),
@@ -185,6 +181,14 @@ process.superClusterDRToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer
     objectSelection = cms.InputTag(JET_CUTS),
 )
 
+
+process.JetMultiplicityInSCEvents = cms.EDProducer("ObjectMultiplicityCounter",
+    probes = cms.InputTag("goodSuperClustersClean"),
+    objects = cms.InputTag(JET_COLL),
+    objectSelection = cms.InputTag(JET_CUTS),
+)
+
+
 process.GsfDRToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer",
     probes = cms.InputTag("gsfElectrons"),
     objects = cms.InputTag(JET_COLL),
@@ -192,9 +196,20 @@ process.GsfDRToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer",
 )
 
 
+
+process.JetMultiplicityInGsfEvents = cms.EDProducer("ObjectMultiplicityCounter",
+    probes = cms.InputTag("gsfElectrons"),
+    objects = cms.InputTag(JET_COLL),
+    objectSelection = cms.InputTag(JET_CUTS),
+)
+
+
 process.ext_ToNearestJet_sequence = cms.Sequence(
+    process.L2L3CorJetAK5Calo + 
     process.superClusterDRToNearestJet +
-    process.GsfDRToNearestJet 
+    process.JetMultiplicityInSCEvents + 
+    process.GsfDRToNearestJet +
+    process.JetMultiplicityInGsfEvents
     )
 
 
@@ -229,25 +244,29 @@ process.tagSC = cms.EDProducer("CandViewShallowCloneCombiner",
 
 
 process.tagGsf = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("Tag@+ PassingGsf@-"), # charge coniugate states are implied
+    decay = cms.string("Tag PassingGsf"), # charge coniugate states are implied
+    checkCharge = cms.bool(False),                                   
     cut   = cms.string("60 < mass < 120"),
 )
 
 
 process.tagIso = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("Tag@+ PassingIsolation@-"), # charge coniugate states are implied
+    decay = cms.string("Tag PassingIsolation"), # charge coniugate states are implied
+    checkCharge = cms.bool(False),                                   
     cut   = cms.string("60 < mass < 120"),
 )
 
 
 process.tagId = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("Tag@+ PassingId@-"), # charge coniugate states are implied
+    decay = cms.string("Tag PassingId"), # charge coniugate states are implied
+    checkCharge = cms.bool(False),                                  
     cut   = cms.string("60 < mass < 120"),
 )
 
 
 process.tagHLT = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("Tag@+ PassingHLT@-"), # charge coniugate states are implied
+    decay = cms.string("Tag PassingHLT"), # charge coniugate states are implied
+    checkCharge = cms.bool(False),                                   
     cut   = cms.string("60 < mass < 120"),
 )
 
@@ -268,47 +287,54 @@ process.allTagsAndProbes = cms.Sequence(
 ##                                                        
 
 process.McMatchTag = cms.EDFilter("MCTruthDeltaRMatcherNew",
-    pdgId = cms.vint32(11),
+    matchPDGId = cms.vint32(11),
     src = cms.InputTag("Tag"),
     distMin = cms.double(0.3),
-    matched = cms.InputTag("genParticles")
+    matched = cms.InputTag("genParticles"),
+    checkCharge = cms.bool(True)
 )
 
 
 process.McMatchSC = cms.EDFilter("MCTruthDeltaRMatcherNew",
-    pdgId = cms.vint32(11),
+    matchPDGId = cms.vint32(11),
     src = cms.InputTag("goodSuperClustersClean"),
     distMin = cms.double(0.3),
     matched = cms.InputTag("genParticles")
 )
 
+
 process.McMatchGsf = cms.EDFilter("MCTruthDeltaRMatcherNew",
-    pdgId = cms.vint32(11),
+    matchPDGId = cms.vint32(11),
     src = cms.InputTag("PassingGsf"),
     distMin = cms.double(0.3),
-    matched = cms.InputTag("genParticles")
+    matched = cms.InputTag("genParticles"),
+    checkCharge = cms.bool(True)
 )
 
 process.McMatchIso = cms.EDFilter("MCTruthDeltaRMatcherNew",
-    pdgId = cms.vint32(11),
+    matchPDGId = cms.vint32(11),
     src = cms.InputTag("PassingIsolation"),
     distMin = cms.double(0.3),
-    matched = cms.InputTag("genParticles")
+    matched = cms.InputTag("genParticles"),
+    checkCharge = cms.bool(True)
 )
 
 process.McMatchId = cms.EDFilter("MCTruthDeltaRMatcherNew",
-    pdgId = cms.vint32(11),
+    matchPDGId = cms.vint32(11),
     src = cms.InputTag("PassingId"),
     distMin = cms.double(0.3),
-    matched = cms.InputTag("genParticles")
+    matched = cms.InputTag("genParticles"),
+    checkCharge = cms.bool(True)
 )
 
 process.McMatchHLT = cms.EDFilter("MCTruthDeltaRMatcherNew",
-    pdgId = cms.vint32(11),
+    matchPDGId = cms.vint32(11),
     src = cms.InputTag("PassingHLT"),
     distMin = cms.double(0.3),
-    matched = cms.InputTag("genParticles")
+    matched = cms.InputTag("genParticles"),
+    checkCharge = cms.bool(True)
 )
+
 
 
 
@@ -383,6 +409,7 @@ process.SCToGsf = cms.EDAnalyzer("TagProbeFitTreeProducer",
     allProbes     = cms.InputTag("goodSuperClustersClean")
 )
 process.SCToGsf.variables.drjet = cms.InputTag("superClusterDRToNearestJet")
+process.SCToGsf.variables.nJets = cms.InputTag("JetMultiplicityInSCEvents")
 
 ##     ____      __       __    ___           
 ##    / ___|___ / _|      \ \  |_ _|___  ___  
@@ -403,6 +430,7 @@ process.GsfToIso = cms.EDAnalyzer("TagProbeFitTreeProducer",
     allProbes     = cms.InputTag("PassingGsf")
 )
 process.GsfToIso.variables.drjet = cms.InputTag("GsfDRToNearestJet")
+process.GsfToIso.variables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
 
 ##    ___                 __    ___    _ 
 ##   |_ _|___  ___        \ \  |_ _|__| |
@@ -423,6 +451,7 @@ process.IsoToId = cms.EDAnalyzer("TagProbeFitTreeProducer",
     allProbes     = cms.InputTag("PassingIsolation")
 )
 process.IsoToId.variables.drjet = cms.InputTag("GsfDRToNearestJet")
+process.IsoToId.variables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
 
 ##    ___    _       __    _   _ _   _____ 
 ##   |_ _|__| |      \ \  | | | | | |_   _|
@@ -442,6 +471,7 @@ process.IdToHLT = cms.EDAnalyzer("TagProbeFitTreeProducer",
     allProbes     = cms.InputTag("PassingId")
 )
 process.IdToHLT.variables.drjet = cms.InputTag("GsfDRToNearestJet")
+process.IdToHLT.variables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
 
 
 process.tree_sequence = cms.Sequence(

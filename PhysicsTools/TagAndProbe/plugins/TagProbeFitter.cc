@@ -239,44 +239,67 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
   setInitialValues(w);  
   RooFitResult* res;
 
+  //******* The block of code below is to make the fit converge faster.
+  // ****** This part is OPTIONAL, i.e., off be default. User can activate this
+  // ****** by setting the following parameters: "fixVars" and "floatShapeParameters"
+  // ****** Here is the full logic:
+  /////   ---> if "floatShapeParameters==true" && "fixVars is empty" : 
+  ////             Just perform the fit without any of these optimizations (this is the default logic)
+  /////   ---> if "floatShapeParameters==true" && "fixVars is NOT empty" : 
+  ////             In each bin, fix the desired parameters and perform the fit to obtain a good starting point.
+  /////            Then float these parameters and fit again.
+  ////    ---> if "floatShapeParameters==false" && "fixVars is empty" : 
+  ////             Do not perform any fit at all. Just print error message.
+  ////    ---> if "floatShapeParameters==false" && "fixVars is NOT empty" : 
+  ///              Perform a global fit to the whole sample, save the fitted values of the 
+  ///              user specified parameters, and fix them for bin-by-bin fit. 
+
+      
   if(!fixVars.empty()){
-
+    // calculate initial values for parameters user want to fix
     if(!floatShapeParameters && fixVarValues.empty()){
-      //fix vars
-      varFixer(w,true);
+      // we want to fix these parameters for each bin.
+      // the following sequence fixes them, fits, releases and fits again
+      // to get reasonable values. 
+      // ----------------------------------------------------------------------
+      // This procedure works only once with a whole dataset (without binning)
+      // ----------------------------------------------------------------------
 
-      //do fit
-      w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU));
-      
-      //release vars
-      varFixer(w,false);
-      
+      // fix them
+      varFixer(w,true);
       //do fit 
       w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU));
-
+      //release vars
+      varFixer(w,false);
+      //do fit 
+      w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU));
       //save vars
       varSaver(w);
+      // now we have a starting point. Fit will converge faster.
     }
     
-    if(!floatShapeParameters){
-      //restore vars
-      varRestorer(w);
-    }
+    // here we can use initial values if we want (this works for each bin)
+    if(!floatShapeParameters) varRestorer(w);  //restore vars
+
     
+    // if we don't want to "floatShapeParameters" we just fix, fit, 
+    //  release, and fit again. No need for global fitting above.
     //fix vars
     varFixer(w,true);
-    
     //do fit
-    res = w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU));
-  }  
+    res = w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU), Minos(true));
+  }//if(!fixVars.empty())
   
+  // (default = true) if we don't want to fix any parameters or want to fit each bin with all parameters floating
   if(floatShapeParameters){
     //release vars
     varFixer(w,false);
     
     //do fit
-    res = w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU));
+    res = w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU), Minos(true));
   }
+
+
 
 //   res = w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU));
 
