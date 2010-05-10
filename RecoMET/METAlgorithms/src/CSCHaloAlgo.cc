@@ -66,8 +66,6 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 		     }
 		   continue;
 		 }
-
-
 	      //Its a CSC Track, store it
 	      StoreTrack = true;
 
@@ -90,6 +88,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	    }
 	  float deta = TMath::Abs( OuterMostGlobalPosition.eta() - InnerMostGlobalPosition.eta() );
 	  float dphi = TMath::ACos( TMath::Cos( OuterMostGlobalPosition.phi() - InnerMostGlobalPosition.phi() ) ) ;
+	  float theta = iTrack->outerMomentum().theta();
 	  float innermost_x = InnerMostGlobalPosition.x() ;
 	  float innermost_y = InnerMostGlobalPosition.y();
 	  float outermost_x = OuterMostGlobalPosition.x();
@@ -98,6 +97,8 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	  float outermost_r = TMath::Sqrt(outermost_x *outermost_x + outermost_y * outermost_y );
 	  
 	  if( deta < deta_threshold )
+	    StoreTrack = false;
+	  if( theta > min_outer_theta && theta < max_outer_theta )
 	    StoreTrack = false;
 	  if( dphi > dphi_threshold )
 	    StoreTrack = false;
