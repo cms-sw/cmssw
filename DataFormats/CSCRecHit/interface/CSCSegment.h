@@ -6,7 +6,7 @@
  *  This is 4-dimensional since it has an origin (x,y) and a direction (x,y)
  *  in the local coordinate system of the chamber.
  *
- *  $Date: 2006/11/21 18:04:50 $
+ *  $Date: 2007/07/26 06:16:09 $
  *  \author Matteo Sani
  *  \author Rick Wilkinson
  *  \author Tim Cox
@@ -68,16 +68,32 @@ public:
     int nRecHits() const { return theCSCRecHits.size(); }        
 
     CSCDetId cscDetId() const { return  geographicalId(); }
-		
+
+    void setDuplicateSegments(std::vector<CSCSegment*> duplicates);
+
+    bool isME11a_duplicate() const { return (theDuplicateSegments.size() > 0 ? true : false); }
+    // a copy of the duplicated segments (ME1/1a only) 
+    const std::vector< CSCSegment> & duplicateSegments() const { return theDuplicateSegments; } 
+    
+    bool testSharesAllInSpecificRecHits( const std::vector<CSCRecHit2D>& specificRecHits_1,
+					 const std::vector<CSCRecHit2D>& specificRecHits_2,
+					 CSCRecHit2D::SharedInputType) const;
+    
+    //bool sharesRecHits(CSCSegment  & anotherSegment, CSCRecHit2D::SharedInputType);
+    // checks if ALL the rechits share the specific input (allWires, allStrips or all)
+    bool sharesRecHits(const CSCSegment  & anotherSegment, CSCRecHit2D::SharedInputType sharesInput) const;
+    
     void print() const;		
-   
-private:
+    
+ private:
     
     std::vector<CSCRecHit2D> theCSCRecHits;
     LocalPoint theOrigin;   // in chamber frame - the GeomDet local coordinate system
     LocalVector theLocalDirection; // in chamber frame - the GeomDet local coordinate system
     AlgebraicSymMatrix theCovMatrix; // the covariance matrix
     double theChi2;
+    bool aME11a_duplicate;
+    std::vector<CSCSegment> theDuplicateSegments;// ME1/1a only
 };
 
 std::ostream& operator<<(std::ostream& os, const CSCSegment& seg);

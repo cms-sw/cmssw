@@ -76,6 +76,10 @@ public:
   /// Returns true if the two TrackingRecHits are using the same input information, false otherwise.  In this case, looks at the geographical ID and channel numbers for strips and wires.
   bool sharesInput(const TrackingRecHit *other, CSCRecHit2D::SharedInputType what) const;
 
+  /// Returns true if the two CSCRecHits are using the same input information, false otherwise.  In this case, looks at the geographical ID and channel numbers for strips and wires.
+  bool sharesInput(const  CSCRecHit2D *otherRecHit, CSCRecHit2D::SharedInputType what) const;
+
+  void print() const;	
 private:
 	
   LocalPoint theLocalPosition;

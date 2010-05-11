@@ -1,6 +1,6 @@
 /** \file CSCSegment.cc
  *
- *  $Date: 2007/07/26 06:16:10 $
+ *  $Date: 2008/01/22 18:43:44 $
  *  \author Matteo Sani
  */
 
@@ -22,7 +22,7 @@ CSCSegment::CSCSegment(std::vector<const CSCRecHit2D*> proto_segment, LocalPoint
   theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2) {
 
-  for(unsigned int i=0; i<proto_segment.size(); i++)
+  for(unsigned int i=0; i<proto_segment.size(); ++i)
     theCSCRecHits.push_back(*proto_segment[i]);
 }
 
@@ -82,6 +82,54 @@ AlgebraicMatrix CSCSegment::projectionMatrix() const {
   return theProjectionMatrix;
 }
 
+void CSCSegment::setDuplicateSegments(std::vector<CSCSegment*> duplicates){
+  theDuplicateSegments.clear();
+  for(unsigned int i=0; i<duplicates.size(); ++i){
+    theDuplicateSegments.push_back(*duplicates[i]);
+  }
+}
+
+bool CSCSegment::testSharesAllInSpecificRecHits( const std::vector<CSCRecHit2D>& specificRecHits_1,
+						 const std::vector<CSCRecHit2D>& specificRecHits_2,
+						 CSCRecHit2D::SharedInputType sharesInput) const{
+  const std::vector<CSCRecHit2D> * rhContainer_1 = &specificRecHits_1;
+  const std::vector<CSCRecHit2D> * rhContainer_2 = &specificRecHits_2;
+  if(specificRecHits_1.size()>specificRecHits_2.size()){
+    rhContainer_2 = &specificRecHits_1;
+    rhContainer_1 = &specificRecHits_2;
+  }
+  //
+  bool shareConditionPassed = true;
+  for ( std::vector<CSCRecHit2D>::const_iterator itRH = rhContainer_1->begin();
+	itRH != rhContainer_1->end(); ++itRH) {
+    const  CSCRecHit2D *firstRecHit = &(*itRH);
+    bool sharedHit = false;
+    for ( std::vector<CSCRecHit2D>::const_iterator itRH2 = rhContainer_2->begin();
+	  itRH2 != rhContainer_2->end(); ++itRH2) {
+      if(itRH2->sharesInput(firstRecHit,sharesInput)){
+	sharedHit = true;
+	break;
+      }
+    }
+    if(!sharedHit){
+      shareConditionPassed = false;
+      break;
+    }
+  }
+  return shareConditionPassed;
+}
+
+//bool CSCSegment::sharesRecHits(CSCSegment  & anotherSegment, CSCRecHit2D::SharedInputType sharesInput){
+  // 2 tracks through a chamber leave 4 rechits per layer (2 strips x 2 wire groups) 
+  // this function finds segments sharing wires or strips (first the rechits by sharesInput() )
+  // there could probably be more complicated cases with partial sharing (but this needs studies)
+  //
+  //return testSharesAllInSpecificRecHits( theCSCRecHits , anotherSegment.specificRecHits(), sharesInput);  
+//}
+
+bool CSCSegment::sharesRecHits(const CSCSegment  & anotherSegment, CSCRecHit2D::SharedInputType sharesInput) const {
+  return testSharesAllInSpecificRecHits( theCSCRecHits , anotherSegment.specificRecHits(), sharesInput);  
+}
 
 void CSCSegment::print() const {
   std::cout << *this << std::endl;
@@ -89,8 +137,14 @@ void CSCSegment::print() const {
 
 std::ostream& operator<<(std::ostream& os, const CSCSegment& seg) {
   os << "CSCSegment: local pos = " << seg.localPosition() << 
-    " dir = " << seg.localDirection() <<
-    " chi2 = " << seg.chi2() << " #rechits = " << seg.specificRecHits().size();
+    " posErr = (" << sqrt(seg.localPositionError().xx())<<","<<sqrt(seg.localPositionError().yy())<<
+    "0,)\n"<<
+    "            dir = " << seg.localDirection() <<
+    " dirErr = (" << sqrt(seg.localDirectionError().xx())<<","<<sqrt(seg.localDirectionError().yy())<<
+    "0,)\n"<<
+    "            chi2/ndf = " << seg.chi2()/double(seg.degreesOfFreedom()) << 
+    " #rechits = " << seg.specificRecHits().size()<<
+    " ME1/1a duplicates : "<<seg.duplicateSegments().size();
   return os;  
 }
 
