@@ -39,8 +39,7 @@ particleFlow = cms.EDProducer("PFProducer",
     useEGammaElectrons = cms.bool(False),
     egammaElectrons = cms.InputTag(''),                              
 
-    # input conversions
-    #Secondary tracks and displaced vertices parameters
+    # Input displaced vertices 
                               
     rejectTracks_Bad =  cms.bool(True),
     rejectTracks_Step45 = cms.bool(True),
@@ -48,6 +47,27 @@ particleFlow = cms.EDProducer("PFProducer",
     usePFNuclearInteractions = cms.bool(False),
     usePFConversions = cms.bool(False),
     usePFDecays = cms.bool(False),
+
+    dptRel_DispVtx = cms.double(20.),
+
+    iCfgCandConnector = cms.PSet(
+    
+	 bCorrect         =  cms.bool(False), 
+	 bCalibPrimary    =  cms.bool(False),
+	 bCalibSecondary  =  cms.bool(False),
+	 nuclCalibFactors =  cms.vdouble(0.88, 0.28, 0.04)
+
+    ),
+
+    # Suggested configuration
+    #iCfgCandConnector = cms.PSet(
+    
+	# bCorrect         =  cms.bool(True), 
+	# bCalibPrimary    =  cms.bool(True),
+	# bCalibSecondary  =  cms.bool(False),
+	# nuclCalibFactors =  cms.vdouble(0.88, 0.28, 0.04)
+
+#    ),                        
 
 
     # Treatment of muons : 
