@@ -100,6 +100,8 @@ private:
   void fillChiSquared(void);
   void fillLocalDirection(void);
   void doSlopesAndChi2(void);
+  // Duplicates are found in ME1/1a only
+  void findDuplicates(std::vector<CSCSegment>  & segments );
 
   bool isGoodToMerge(bool isME11a, ChamberHitContainer newChain, ChamberHitContainer oldChain);
 

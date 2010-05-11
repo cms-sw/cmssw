@@ -151,6 +151,9 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, ChamberHit
       segments.clear(); // segments_temp needed?!?!
       segments = segments_temp; // segments_temp needed?!?!
     }
+    if ("ME1/a" == aChamber->specs()->chamberTypeName()){
+      findDuplicates(segments);
+    }
     return segments;
   }
   else {
@@ -160,6 +163,9 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, ChamberHit
       segments_temp = prune_bad_hits( theChamber, segments );
       segments.clear(); // segments_temp needed?!?!
       segments = segments_temp; // segments_temp needed?!?!
+    }
+    if ("ME1/a" == aChamber->specs()->chamberTypeName()){
+      findDuplicates(segments);
     }
     return segments;
     //return buildSegments(rechits); 
@@ -187,7 +193,7 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
   int hit_nr_worst = -1;
   int hit_nr_2ndworst = -1;
   
-  for(std::vector<CSCSegment>::iterator it=segments.begin(); it != segments.end(); it++) {
+  for(std::vector<CSCSegment>::iterator it=segments.begin(); it != segments.end(); ++it) {
     
     // do nothing for nhit <= minHitPerSegment
     if( (*it).nRecHits() <= minHitsPerSegment ) continue;
@@ -220,7 +226,7 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
 	hit_nr_worst = -1;
 	hit_nr_2ndworst = -1;
 
-	for ( std::vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
+	for ( std::vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); ++iRH) {
 	  //mark "worst" hit:
 	  
  	  float z_at_target ;
@@ -301,7 +307,7 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
       // Dirty switch: here one can select to refit all possible subsets or just the one without the 
       // tagged worst hit:
       if( use_brute_force ) { // Brute force method: loop over all possible segments:
-	for(uint bi = 0; bi < buffer.size(); bi++) {
+	for(uint bi = 0; bi < buffer.size(); ++bi) {
 	  reduced_segments.push_back(buffer);
 	  reduced_segments[bi].erase(reduced_segments[bi].begin()+(bi),reduced_segments[bi].begin()+(bi+1));
 	}
@@ -321,7 +327,7 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
     }
       
     // Loop over the subsegments and fit (only one segment if "use_brute_force" is false):
-    for(uint iSegment=0; iSegment<reduced_segments.size(); iSegment++) {
+    for(uint iSegment=0; iSegment<reduced_segments.size(); ++iSegment) {
       // loop over hits on given segment and push pointers to hits into protosegment
       protoSegment.clear();
       for(uint m = 0; m<reduced_segments[iSegment].size(); ++m ) {
@@ -1537,7 +1543,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
     ChooseSegments3( chosen_Psegments, chosen_weight_A, chosen_pseg ); 
   }
 
-  for(unsigned int iSegment=0; iSegment<GoodSegments.size();iSegment++){
+  for(unsigned int iSegment=0; iSegment<GoodSegments.size();++iSegment){
     protoSegment = GoodSegments[iSegment];
     passCondNumber=false;
     passCondNumber_2 = false;
@@ -1628,7 +1634,7 @@ void CSCSegAlgoST::ChooseSegments3(std::vector< ChamberHitContainer > chosen_seg
 
       for( int ihits = 0; ihits < int(chosen_segments[iCand].size()); ++ihits ) { // iCand and iiCand NEED to have same nr of hits! (always have by construction)
 	if( chosen_segments[iCand][ihits] == chosen_segments[chosen_seg][ihits]) {
-	  SumCommonHits++;
+	  ++SumCommonHits;
 	}
       }
 
@@ -1661,9 +1667,9 @@ void CSCSegAlgoST::ChooseSegments2(int best_seg) {
   int SumCommonHits =0;
   GoodSegments.clear();
   BadCandidate.clear();
-  for(unsigned int iCand=0;iCand<Psegments.size();iCand++) {
+  for(unsigned int iCand=0;iCand<Psegments.size();++iCand) {
     // skip here if segment was marked bad
-    for(unsigned int iiCand=iCand+1;iiCand<Psegments.size();iiCand++){
+    for(unsigned int iiCand=iCand+1;iiCand<Psegments.size();++iiCand){
       // skip here too if segment was marked bad
       SumCommonHits =0;
       if( Psegments[iCand].size() != Psegments[iiCand].size() ) {
@@ -1673,7 +1679,7 @@ void CSCSegAlgoST::ChooseSegments2(int best_seg) {
       else {
 	for( int ihits = 0; ihits < int(Psegments[iCand].size()); ++ihits ) { // iCand and iiCand NEED to have same nr of hits! (alsways have by construction)
 	  if( Psegments[iCand][ihits] == Psegments[iiCand][ihits]) {
-	    SumCommonHits++;
+	    ++SumCommonHits;
 	  }
 	}
       }
@@ -1690,11 +1696,11 @@ void CSCSegAlgoST::ChooseSegments2(int best_seg) {
     }
   }
   bool discard;
-  for(unsigned int isegm=0;isegm<Psegments.size();isegm++) {
+  for(unsigned int isegm=0;isegm<Psegments.size();++isegm) {
     // For best results another iteration/comparison over Psegments 
     //should be applied here... It would make the program much slower.
     discard = false;
-    for(unsigned int ibad=0;ibad<BadCandidate.size();ibad++) {
+    for(unsigned int ibad=0;ibad<BadCandidate.size();++ibad) {
       // can save this loop if we used an array in sync with Psegments!!!!
       if(isegm == BadCandidate[ibad]) {
 	discard = true;
@@ -2087,3 +2093,30 @@ void CSCSegAlgoST::correctTheCovMatrix(CLHEP::HepMatrix &IC){
     IC(1,2)=covAnyNumber_;
   }
 }
+//
+void CSCSegAlgoST::findDuplicates(std::vector<CSCSegment>  & segments ){
+  // this is intended for ME1/1a only - we have ghost segments because of the strips ganging 
+  // this function finds them (first the rechits by sharesInput() )
+  // if a segment shares all the rechits with another segment it is a duplicate (even if
+  // it has less rechits) 
+  for(std::vector<CSCSegment>::iterator it=segments.begin(); it != segments.end(); ++it) {
+    std::vector<CSCSegment*> duplicateSegments;
+    for(std::vector<CSCSegment>::iterator it2=segments.begin(); it2 != segments.end(); ++it2) {
+      //
+      bool allShared = true;
+      if(it!=it2){
+	allShared = it->sharesRecHits(*it2, CSCRecHit2D::all);
+      }
+      else{
+        allShared = false;
+      }
+      //
+      if(allShared){
+        duplicateSegments.push_back(&(*it2));
+      }
+    }
+    it->setDuplicateSegments(duplicateSegments);
+  }
+}
+//
+
