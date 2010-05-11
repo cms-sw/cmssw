@@ -32,7 +32,6 @@ protected :
 
   void init(TVector3* p, Double_t M, const TMatrixD* theCovMatrix);
 
-  ClassDef(TFitParticleMCMomDev, 1)     // Particle with momentum deviation 4vector parametrization and constrained mass
   
 private:
 };

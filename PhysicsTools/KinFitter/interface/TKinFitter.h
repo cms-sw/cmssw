@@ -145,7 +145,6 @@ private :
   Int_t _status;        // Status of the last fit;_
   Int_t _nbIter;        // number of iteration performed in the fit
 
-  ClassDef(TKinFitter, 1) // Class to perform kinematic fit with non-linear constraints
 };
 
 #endif

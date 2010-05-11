@@ -55,7 +55,6 @@ protected :
   TMatrixD _iniparameters;  // initialized parameters (parameters values before the fit)
   TMatrixD _parameters;     // fitted parameters
 
-  ClassDef(TAbsFitConstraint, 1)   // Abstract base class for fit constraints
 
 };
 

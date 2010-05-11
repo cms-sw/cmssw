@@ -31,7 +31,6 @@ protected :
 
   void init(TVector3* p, Double_t M, const TMatrixD* theCovMatrix);
 
-  ClassDef(TFitParticleMCSpher, 1)    // Particle with spherical 4vector parametrization and constrained mass
   
 private:
 };

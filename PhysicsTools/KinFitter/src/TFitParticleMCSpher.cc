@@ -20,7 +20,6 @@
 #include "PhysicsTools/KinFitter/interface/TFitParticleMCSpher.h"
 #include "TMath.h"
 
-ClassImp(TFitParticleMCSpher)
 
 //----------------
 // Constructor --

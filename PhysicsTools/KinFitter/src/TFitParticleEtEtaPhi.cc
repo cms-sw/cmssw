@@ -21,7 +21,6 @@
 #include "PhysicsTools/KinFitter/interface/TFitParticleEtEtaPhi.h"
 #include "TMath.h"
 
-ClassImp(TFitParticleEtEtaPhi)
 
 //----------------
 // Constructor --

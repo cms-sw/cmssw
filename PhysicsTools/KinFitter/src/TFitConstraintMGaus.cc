@@ -16,7 +16,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TClass.h"
 
-ClassImp(TFitConstraintMGaus)
 
 //----------------
 // Constructor --

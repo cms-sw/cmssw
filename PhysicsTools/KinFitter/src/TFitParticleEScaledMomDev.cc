@@ -27,7 +27,6 @@
 #include "PhysicsTools/KinFitter/interface/TFitParticleEScaledMomDev.h"
 #include "TMath.h"
 
-ClassImp(TFitParticleEScaledMomDev)
 
 //----------------
 // Constructor --

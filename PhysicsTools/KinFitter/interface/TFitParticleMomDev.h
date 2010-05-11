@@ -34,7 +34,6 @@ protected :
 
   void init(TLorentzVector* pini, const TMatrixD* theCovMatrix);
 
-  ClassDef(TFitParticleMomDev, 1)      // Particle with momentum deviation 4vector parametrization
 
 private:
   

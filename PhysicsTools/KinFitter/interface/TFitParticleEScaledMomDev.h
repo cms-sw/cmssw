@@ -30,7 +30,6 @@ protected :
 
   void init(TLorentzVector* pini, const TMatrixD* theCovMatrix);
 
-  ClassDef(TFitParticleEScaledMomDev, 1)   // Particle with momentum deviation 4vector parametrization and const. E/p
 };
 
 #endif

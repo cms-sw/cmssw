@@ -20,7 +20,6 @@
 #include "PhysicsTools/KinFitter/interface/TFitParticleCart.h"
 #include "TMath.h"
 
-ClassImp(TFitParticleCart)
 
 //----------------
 // Constructor --

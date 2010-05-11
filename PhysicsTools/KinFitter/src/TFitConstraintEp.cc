@@ -16,8 +16,6 @@
 #include <iomanip>
 #include "TClass.h"
 
-ClassImp(TFitConstraintEp)
-
 //----------------
 // Constructor --
 //----------------

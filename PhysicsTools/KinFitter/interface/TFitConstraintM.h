@@ -51,7 +51,6 @@ protected :
   std::vector<TAbsFitParticle*> _ParList2;   // Vector containing second list of constrained particles ( sum[ m_i ] - sum[ m_j ] == 0 )
   Double_t _TheMassConstraint;
   
-  ClassDef(TFitConstraintM, 1)   // Fit constraint: mass conservation
 };
 
 #endif

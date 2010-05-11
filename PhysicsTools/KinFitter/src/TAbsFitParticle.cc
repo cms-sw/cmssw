@@ -16,7 +16,6 @@
 #include <iomanip>
 #include "TClass.h"
 
-ClassImp(TAbsFitParticle)
 
 TAbsFitParticle::TAbsFitParticle():
   TNamed("NoName","NoTitle")

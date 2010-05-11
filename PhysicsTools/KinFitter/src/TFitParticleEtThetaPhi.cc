@@ -20,7 +20,6 @@
 #include "PhysicsTools/KinFitter/interface/TFitParticleEtThetaPhi.h"
 #include "TMath.h"
 
-ClassImp(TFitParticleEtThetaPhi)
 
 //----------------
 // Constructor --

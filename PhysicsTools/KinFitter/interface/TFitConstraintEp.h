@@ -51,7 +51,6 @@ private:
   Double_t _constraint;                   // Value of constraint
   TFitConstraintEp::component _component; // 4vector component to be constrained
 
-  ClassDef(TFitConstraintEp, 1)   // Fit constraint: energy and momentum conservation
 };
 
 #endif

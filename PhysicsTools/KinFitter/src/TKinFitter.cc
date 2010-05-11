@@ -17,7 +17,6 @@
 #include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
 #include "PhysicsTools/KinFitter/interface/TAbsFitConstraint.h"
 
-ClassImp(TKinFitter)
 
 TKinFitter::TKinFitter():
   TNamed("UnNamed", "UnTitled"),
