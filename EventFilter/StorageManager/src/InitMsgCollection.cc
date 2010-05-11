@@ -1,4 +1,4 @@
-// $Id: InitMsgCollection.cc,v 1.10 2009/09/16 10:44:49 mommsen Exp $
+// $Id: InitMsgCollection.cc,v 1.11 2010/04/16 12:31:58 mommsen Exp $
 /// @file: InitMsgCollection.cc
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
@@ -150,9 +150,13 @@ InitMsgSharedPtr InitMsgCollection::getElementAt(const unsigned int index) const
   boost::mutex::scoped_lock sl(listLock_);
 
   InitMsgSharedPtr ptrToElement;
-  if (index >= 0 && index < initMsgList_.size()) {
-    ptrToElement = initMsgList_[index].first;
+  try
+  {
+    ptrToElement = initMsgList_.at(index).first;
   }
+  catch (std::out_of_range& e)
+  { }
+
   return ptrToElement;
 }
 
