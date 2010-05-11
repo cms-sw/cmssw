@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.24 2010/04/28 14:08:11 eulisse Exp $
+// $Id: FWEventItemsManager.cc,v 1.25 2010/04/29 17:52:29 amraktad Exp $
 //
 
 // system include files
@@ -28,6 +28,8 @@
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 
 #include "Fireworks/Core/interface/FWItemAccessorFactory.h"
+#include "Fireworks/Core/interface/fwLog.h"
+
 //
 // constants, enums and typedefs
 //

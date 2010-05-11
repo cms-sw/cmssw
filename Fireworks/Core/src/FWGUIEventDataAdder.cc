@@ -30,6 +30,7 @@
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWItemAccessorFactory.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
@@ -40,11 +41,9 @@
 
 //Had to hide this type from Cint
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
-
 //
 // constants, enums and typedefs
 //
-
 static const std::string& dataForColumn( const FWGUIEventDataAdder::Data& iData, int iCol)
 {
    switch (iCol) {
@@ -71,9 +70,7 @@ static const std::string& dataForColumn( const FWGUIEventDataAdder::Data& iData,
 }
 
 static const unsigned int kNColumns = 5;
-
-class DataAdderTableManager : public FWTableManagerBase
-{
+class DataAdderTableManager : public FWTableManagerBase {
 public:
    DataAdderTableManager(const std::vector<FWGUIEventDataAdder::Data>* iData) :
       m_data(iData), m_selectedRow(-1) {
@@ -148,7 +145,6 @@ public:
       dataChanged();
    }
    sigc::signal<void,int> indexSelected_;
-
 private:
    void changeSelection(int iRow) {
       if(iRow != m_selectedRow) {
@@ -167,8 +163,7 @@ private:
    mutable FWTextTableCellRenderer m_renderer;
 };
 
-namespace
-{
+namespace {
    template <typename TMap>
    void doSort(int col,
                const std::vector<FWGUIEventDataAdder::Data>& iData,
@@ -421,95 +416,126 @@ FWGUIEventDataAdder::update(const TFile* iFile, const fwlite::Event* iEvent)
    }
 }
 
+/** This method inspects the opened TFile @a iFile and for each branch containing 
+    products for which we can either build a TCollectionProxy or for which
+    we have a specialized accessor, it registers it as a viewable item.
+ */
 void
 FWGUIEventDataAdder::fillData(const TFile* iFile)
 {
    m_useableData.clear();
+   
+   if (!m_presentEvent)
+      return;
 
-   if (m_presentEvent != 0)
+   const std::vector<std::string>& history = m_presentEvent->getProcessHistory();
+
+   // Turns out, in the online system we do sometimes gets files without any  
+   // history, this really should be investigated
+   if (0 == history.size())
+      fwLog(fwlog::kWarning) << "WARNING: the file '"
+         << iFile->GetName() << "' contains no processing history"
+            " and therefore should have no accessible data";
+   
+   std::copy(history.rbegin(),history.rend(),
+             std::back_inserter(m_processNamesInFile));
+   
+   static const std::string s_blank;
+   const std::vector<edm::BranchDescription>& descriptions =
+      m_presentEvent->getBranchDescriptions();
+   Data d;
+   
+   //I'm not going to modify TFile but I need to see what it is holding
+   TTree* eventsTree = dynamic_cast<TTree*>(const_cast<TFile*>(iFile)->Get("Events"));
+   assert(eventsTree);
+   
+   std::set<std::string> branchNamesInFile;
+   TIter nextBranch(eventsTree->GetListOfBranches());
+   while(TBranch* branch = static_cast<TBranch*>(nextBranch()))
+      branchNamesInFile.insert(branch->GetName());
+   
+   typedef std::set<std::string> Purposes;
+   Purposes purposes;
+   std::string classType;
+   
+   for(size_t bi = 0, be = descriptions.size(); bi != be; ++bi) 
    {
-      const std::vector<std::string>& history = m_presentEvent->getProcessHistory();
-      //Turns out, in the online system we do sometimes gets files without any history, 
-      // this really should be investigated
-      //assert(0!=history.size());
-      if (history.empty())
-      {
-         std::cerr <<"WARNING: the file '"<<iFile->GetName()<<"' contains no processing history and therefore should have no accessible data";
-      }
-      std::copy(history.rbegin(),history.rend(),
-                std::back_inserter(m_processNamesInFile));
+      const edm::BranchDescription &desc = descriptions[bi];
       
-      const std::vector<edm::BranchDescription>& branches = m_presentEvent->getBranchDescriptions();
-
-      //I'm not going to modify TFile but I need to see what it is holding
-      TTree* eventsTree = dynamic_cast<TTree*>(const_cast<TFile*>(iFile)->Get("Events"));
-      assert(eventsTree != 0);
-
-      std::set<std::string> branchNamesInFile;
-      TIter nextBranch(eventsTree->GetListOfBranches());
-      while(TBranch* branch = static_cast<TBranch*>(nextBranch()))
+      if(desc.present() &&
+         branchNamesInFile.end() != branchNamesInFile.find(desc.branchName()))
       {
-         branchNamesInFile.insert(branch->GetName());
-      }
-
-
-      for (std::vector<edm::BranchDescription>::const_iterator itBranch = branches.begin(); itBranch != branches.end(); ++itBranch)
-      {
-         if (itBranch->present() && branchNamesInFile.find(itBranch->branchName()) != branchNamesInFile.end())
+         const std::vector<FWRepresentationInfo>& infos 
+            = m_typeAndReps->representationsForType(desc.fullClassName());
+   
+         //std::cout <<"try to find match "<<itBranch->fullClassName()<<std::endl;
+         //the infos list can contain multiple items with the same purpose so we will just find
+         // the unique ones
+         purposes.clear();
+         for (size_t ii = 0, ei = infos.size(); ii != ei; ++ii)
+            purposes.insert(infos[ii].purpose());
+   
+         if (purposes.empty())
+            purposes.insert("Table");
+         
+         for (Purposes::const_iterator itPurpose = purposes.begin(),
+                                      itEnd = purposes.end();
+              itPurpose != itEnd;
+              ++itPurpose) 
          {
-            const std::vector<FWRepresentationInfo>& infos = m_typeAndReps->representationsForType(itBranch->fullClassName());
+            // Determine whether or not the class can be iterated
+            // either by using a TVirtualCollectionProxy (of the class 
+            // itself or on one of its members), or by using a 
+            // FWItemAccessor plugin.
+            TClass* theClass = TClass::GetClass(desc.fullClassName().c_str());
+            
+            if (!theClass)
+               continue;
 
-            //std::cout <<"try to find match "<<itBranch->fullClassName()<<std::endl;
-            //the infos list can contain multiple items with the same purpose so we will just find
-            // the unique ones
-            std::set<std::string> purposes;
-
-            for(std::vector<FWRepresentationInfo>::const_iterator itInfo = infos.begin(); itInfo != infos.end(); ++itInfo)
-            {
-               purposes.insert(itInfo->purpose());
-            }
-            if (purposes.empty())
-            {
-               purposes.insert("Table");
-            }
-            for (std::set<std::string>::const_iterator itPurpose = purposes.begin(); itPurpose != purposes.end(); ++itPurpose)
-            {
-               Data d;
-               d.purpose_ = *itPurpose;
-               d.type_ = itBranch->fullClassName();
-               d.moduleLabel_ = itBranch->moduleLabel();
-               d.productInstanceLabel_ = itBranch->productInstanceName();
-               d.processName_ = itBranch->processName();
-               m_useableData.push_back(d);
-               /*
-                  std::cout <<d.purpose_<<" "<<d.type_<<" "
-                  <<d.moduleLabel_<<" "
-                  <<d.productInstanceLabel_<<" "
-                  <<d.processName_<<std::endl;
-                */
-            }
+            if (!theClass->GetTypeInfo())
+               continue;
+            
+            std::string accessorName;
+            TClass *member = 0;
+            
+            // This is pretty much the same thing that happens 
+            if (!FWItemAccessorFactory::hasTVirtualCollectionProxy(theClass) 
+                && !FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(theClass, member)
+		          && !FWItemAccessorFactory::hasAccessor(theClass, accessorName))
+	         {
+		         fwLog(fwlog::kDebug) << theClass->GetName() 
+                          << " will not be displayed in table." << std::endl;
+		         continue;
+	         }
+            d.type_ = desc.fullClassName();
+            d.purpose_ = *itPurpose;
+            d.moduleLabel_ = desc.moduleLabel();
+            d.productInstanceLabel_ = desc.productInstanceName();
+            d.processName_ = desc.processName();
+            m_useableData.push_back(d);
+	         fwLog(fwlog::kDebug) << "Add collection will display " << d.type_ 
+                                 << " " << d.moduleLabel_ 
+                                 << " " << d.productInstanceLabel_
+                                 << " " << d.processName_ << std::endl;
          }
       }
-      m_tableManager->reset();
-      m_tableManager->sort(0,true);
    }
+   m_tableManager->reset();
+   m_tableManager->sort(0, true);
 }
 
 void
 FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
 {
-   if (iSelectedIndex != -1)
-   {
+   if(-1 != iSelectedIndex) {
+      m_purpose =m_useableData[iSelectedIndex].purpose_;
+      m_type = m_useableData[iSelectedIndex].type_;
       std::string oldModuleLabel = m_moduleLabel;
-
-      m_purpose              = m_useableData[iSelectedIndex].purpose_;
-      m_type                 = m_useableData[iSelectedIndex].type_;
-      m_moduleLabel          = m_useableData[iSelectedIndex].moduleLabel_;
+      m_moduleLabel = m_useableData[iSelectedIndex].moduleLabel_;
       m_productInstanceLabel = m_useableData[iSelectedIndex].productInstanceLabel_;
-      m_processName          = m_useableData[iSelectedIndex].processName_;
+      m_processName = m_useableData[iSelectedIndex].processName_;
       
-      if (strlen(m_name->GetText()) == 0 || oldModuleLabel == m_name->GetText())
-      {
+      if(strlen(m_name->GetText())==0 || oldModuleLabel == m_name->GetText()) {
          m_name->SetText(m_moduleLabel.c_str());
       }
       m_apply->SetEnabled(true);
@@ -520,38 +546,33 @@ FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
       // process name in order to correctly get the data they want
       bool isMostRecentProcess =true;
       int index = 0;
-      for (std::vector<Data>::iterator it = m_useableData.begin(); it != m_useableData.end() && isMostRecentProcess;
-           ++it,++index)
-      {
-         if (index == iSelectedIndex) {
-            continue;
-         }
-         if (it->moduleLabel_ == m_moduleLabel &&
-             it->purpose_     == m_purpose &&
-             it->type_        == m_type &&
-             it->productInstanceLabel_ == m_productInstanceLabel)
-         {
+      for(std::vector<Data>::iterator it = m_useableData.begin(), itEnd = m_useableData.end();
+          it != itEnd && isMostRecentProcess;
+          ++it,++index) {
+         if(index == iSelectedIndex) {continue;}
+         if(it->moduleLabel_ == m_moduleLabel &&
+            it->purpose_ == m_purpose &&
+            it->type_ == m_type &&
+            it->productInstanceLabel_ == m_productInstanceLabel) {
             //see if this process is newer than the data requested
-            for (std::vector<std::string>::iterator itHist = m_processNamesInFile.begin(); itHist != m_processNamesInFile.end(); ++itHist)
-            {
+            for(std::vector<std::string>::iterator itHist = m_processNamesInFile.begin(),itHistEnd = m_processNamesInFile.end();
+                itHist != itHistEnd;
+                ++itHist) {
                if (m_processName == *itHist) {
                   break;
                }
-               if (it->processName_ == *itHist) {
+               if(it->processName_ == *itHist) {
                   isMostRecentProcess = false;
                   break;
                }
             }
          }
       }
-      if (isMostRecentProcess)
-      {
-         if (!m_doNotUseProcessName->IsEnabled()) {
+      if(isMostRecentProcess) {
+         if(!m_doNotUseProcessName->IsEnabled()) {
             m_doNotUseProcessName->SetEnabled(true);
          }
-      }
-      else
-      {
+      } else {
          //NOTE: must remember state before we get here because 'enable' and 'on' are mutually
          // exlcusive :(
          m_doNotUseProcessName->SetEnabled(false);
