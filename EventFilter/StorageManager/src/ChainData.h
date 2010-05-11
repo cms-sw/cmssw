@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.9 2010/04/30 07:44:56 mommsen Exp $
+// $Id: ChainData.h,v 1.10 2010/04/30 14:24:18 mommsen Exp $
 /// @file: ChainData.h
 
 #ifndef CHAINDATA_H
@@ -62,6 +62,7 @@ namespace stor
       bool faulty() const;
       unsigned int faultyBits() const;
       bool parsable() const;
+      bool headerOkay() const;
       void addFirstFragment(toolbox::mem::Reference*);
       void addToChain(ChainData const&);
       void markComplete();

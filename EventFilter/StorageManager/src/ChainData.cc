@@ -1,4 +1,4 @@
-// $Id: ChainData.cc,v 1.7 2010/04/30 14:24:18 mommsen Exp $
+// $Id: ChainData.cc,v 1.8 2010/05/03 13:51:09 mommsen Exp $
 /// @file: ChainData.cc
 
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
@@ -96,6 +96,11 @@ bool detail::ChainData::parsable() const
     ((_faultyBits & CORRUPT_INITIAL_HEADER & ~INCOMPLETE_MESSAGE) == 0);
 }
 
+bool detail::ChainData::headerOkay() const
+{
+  return ( (_faultyBits & ~WRONG_CHECKSUM) == 0);
+}
+
 void detail::ChainData::addFirstFragment(toolbox::mem::Reference* pRef)
 {
   if (_ref)
@@ -171,43 +176,11 @@ void detail::ChainData::addToChain(ChainData const& newpart)
     return;
   }
 
-  // if either the current chain or the newpart are faulty, we
-  // simply append the new stuff to the end of the existing chain
-  if (faulty() || newpart.faulty())
-    {
-      // update our fragment count to include the new fragments
-      toolbox::mem::Reference* curRef = newpart._ref;
-      while (curRef) {
-	++_fragmentCount;
-	curRef = curRef->getNextReference();
-      }
-
-      // append the new fragments to the end of the existing chain
-      toolbox::mem::Reference* lastRef = _ref;
-      curRef = _ref->getNextReference();
-      while (curRef) {
-	lastRef = curRef;
-	curRef = curRef->getNextReference();
-      }
-      lastRef->setNextReference(newpart._ref->duplicate());
-
-      // merge the faulty flags from the new part into the existing flags
-      _faultyBits |= newpart._faultyBits;
-
-      // update the time stamps
-      _lastFragmentTime = utils::getCurrentTime();
-      _staleWindowStartTime = _lastFragmentTime;
-      if (newpart.creationTime() < _creationTime)
-	{
-	  _creationTime = newpart.creationTime();
-	}
-
-      return;
-    }
-
-  // loop over the fragments in the new part
-  toolbox::mem::Reference* newRef = newpart._ref;
-  while (newRef)
+  if (parsable() && newpart.parsable())
+  {
+    // loop over the fragments in the new part
+    toolbox::mem::Reference* newRef = newpart._ref;
+    while (newRef)
     {
       // unlink the next element in the new chain from that chain
       toolbox::mem::Reference* nextNewRef = newRef->getNextReference();
@@ -233,96 +206,131 @@ void detail::ChainData::addToChain(ChainData const& newpart)
       // verify that the total fragment counts match
       unsigned int newFragmentTotalCount = thatMsg->numFrames;
       if (newFragmentTotalCount != _expectedNumberOfFragments)
-	{
-	  _faultyBits |= TOTAL_COUNT_MISMATCH;
-	}
-
+      {
+        _faultyBits |= TOTAL_COUNT_MISMATCH;
+      }
+      
       // if the new fragment goes at the head of the chain, handle that here
       I2O_SM_MULTIPART_MESSAGE_FRAME *fragMsg =
 	(I2O_SM_MULTIPART_MESSAGE_FRAME*) _ref->getDataLocation();
       unsigned int firstIndex = fragMsg->frameCount;
       //std::cout << "firstIndex = " << firstIndex << std::endl;
       if (newIndex < firstIndex)
-	{
-	  newRef->setNextReference(_ref);
-	  _ref = newRef;
-	  fragmentWasAdded = true;
-	}
+      {
+        newRef->setNextReference(_ref);
+        _ref = newRef;
+        fragmentWasAdded = true;
+      }
 
       else
-	{
-	  // loop over the existing fragments and insert the new one
-	  // in the correct place
-	  toolbox::mem::Reference* curRef = _ref;
-	  for (unsigned int idx = 0; idx < _fragmentCount; ++idx)
-	    {
-	      // if we have a duplicate fragment, add it after the existing
-	      // one and indicate the error
-	      I2O_SM_MULTIPART_MESSAGE_FRAME *curMsg =
-		(I2O_SM_MULTIPART_MESSAGE_FRAME*) curRef->getDataLocation();
-	      unsigned int curIndex = curMsg->frameCount;
-	      //std::cout << "curIndex = " << curIndex << std::endl;
-	      if (newIndex == curIndex) 
-		{
-		  _faultyBits |= DUPLICATE_FRAGMENT;
-		  newRef->setNextReference(curRef->getNextReference());
-		  curRef->setNextReference(newRef);
-		  fragmentWasAdded = true;
-		  break;
-		}
-
-	      // if we have reached the end of the chain, add the
-	      // new fragment to the end
-	      //std::cout << "nextRef = " << ((int) nextRef) << std::endl;
-	      toolbox::mem::Reference* nextRef = curRef->getNextReference();
-	      if (nextRef == 0)
-		{
-		  curRef->setNextReference(newRef);
-		  fragmentWasAdded = true;
-		  break;
-		}
-
-	      I2O_SM_MULTIPART_MESSAGE_FRAME *nextMsg =
-		(I2O_SM_MULTIPART_MESSAGE_FRAME*) nextRef->getDataLocation();
-	      unsigned int nextIndex = nextMsg->frameCount;
-	      //std::cout << "nextIndex = " << nextIndex << std::endl;
-	      if (newIndex > curIndex && newIndex < nextIndex)
-		{
-		  newRef->setNextReference(curRef->getNextReference());
-		  curRef->setNextReference(newRef);
-		  fragmentWasAdded = true;
-		  break;
-		}
-              
-	      curRef = nextRef;
-	    }
-	}
-
+      {
+        // loop over the existing fragments and insert the new one
+        // in the correct place
+        toolbox::mem::Reference* curRef = _ref;
+        for (unsigned int idx = 0; idx < _fragmentCount; ++idx)
+        {
+          // if we have a duplicate fragment, add it after the existing
+          // one and indicate the error
+          I2O_SM_MULTIPART_MESSAGE_FRAME *curMsg =
+            (I2O_SM_MULTIPART_MESSAGE_FRAME*) curRef->getDataLocation();
+          unsigned int curIndex = curMsg->frameCount;
+          //std::cout << "curIndex = " << curIndex << std::endl;
+          if (newIndex == curIndex) 
+          {
+            _faultyBits |= DUPLICATE_FRAGMENT;
+            newRef->setNextReference(curRef->getNextReference());
+            curRef->setNextReference(newRef);
+            fragmentWasAdded = true;
+            break;
+          }
+          
+          // if we have reached the end of the chain, add the
+          // new fragment to the end
+          //std::cout << "nextRef = " << ((int) nextRef) << std::endl;
+          toolbox::mem::Reference* nextRef = curRef->getNextReference();
+          if (nextRef == 0)
+          {
+            curRef->setNextReference(newRef);
+            fragmentWasAdded = true;
+            break;
+          }
+          
+          I2O_SM_MULTIPART_MESSAGE_FRAME *nextMsg =
+            (I2O_SM_MULTIPART_MESSAGE_FRAME*) nextRef->getDataLocation();
+          unsigned int nextIndex = nextMsg->frameCount;
+          //std::cout << "nextIndex = " << nextIndex << std::endl;
+          if (newIndex > curIndex && newIndex < nextIndex)
+          {
+            newRef->setNextReference(curRef->getNextReference());
+            curRef->setNextReference(newRef);
+            fragmentWasAdded = true;
+            break;
+          }
+          
+          curRef = nextRef;
+        }
+      }
+      
       // update the fragment count and check if the chain is now complete
       if (!fragmentWasAdded)
-	{
-	  // this should never happen - if it does, there is a logic
-	  // error in the loop above
-	  XCEPT_RAISE(stor::exception::I2OChain,
-		      "A fragment was unable to be added to a chain.");
-	}
+      {
+        // this should never happen - if it does, there is a logic
+        // error in the loop above
+        XCEPT_RAISE(stor::exception::I2OChain,
+          "A fragment was unable to be added to a chain.");
+      }
       ++_fragmentCount;
-          
+      
       newRef = nextNewRef;
     }
+  }
+  else
+  {
+    // if either the current chain or the newpart are nor parsable,
+    // we simply append the new stuff to the end of the existing chain
+    
+    // update our fragment count to include the new fragments
+    toolbox::mem::Reference* curRef = newpart._ref;
+    while (curRef) {
+      ++_fragmentCount;
+      curRef = curRef->getNextReference();
+    }
+    
+    // append the new fragments to the end of the existing chain
+    toolbox::mem::Reference* lastRef = _ref;
+    curRef = _ref->getNextReference();
+    while (curRef) {
+      lastRef = curRef;
+      curRef = curRef->getNextReference();
+    }
+    lastRef->setNextReference(newpart._ref->duplicate());
+    
+    // update the time stamps
+    _lastFragmentTime = utils::getCurrentTime();
+    _staleWindowStartTime = _lastFragmentTime;
+    if (newpart.creationTime() < _creationTime)
+    {
+      _creationTime = newpart.creationTime();
+    }
+    
+    return;
+  }
+
+  // merge the faulty flags from the new part into the existing flags
+  _faultyBits |= newpart._faultyBits;
 
   // update the time stamps
   _lastFragmentTime = utils::getCurrentTime();
   _staleWindowStartTime = _lastFragmentTime;
   if (newpart.creationTime() < _creationTime)
-    {
-      _creationTime = newpart.creationTime();
-    }
+  {
+    _creationTime = newpart.creationTime();
+  }
   
-  if (!faulty() && _fragmentCount == _expectedNumberOfFragments)
-    {
-      markComplete();
-    }
+  if (_fragmentCount == _expectedNumberOfFragments)
+  {
+    markComplete();
+  }
 }
 
 void detail::ChainData::markComplete()
@@ -532,7 +540,7 @@ std::string detail::ChainData::hltURL() const
     }
   else
     {
-      return "";
+      return "unavailable";
     }
 }
 
@@ -549,7 +557,7 @@ std::string detail::ChainData::hltClassName() const
     }
   else
     {
-      return "";
+      return "unavailable";
     }
 }
 
@@ -755,7 +763,7 @@ detail::ChainData::validateMessageCode(toolbox::mem::Reference* ref,
 
 bool detail::ChainData::validateAdler32Checksum()
 {
-  if ( !complete() ) return false;
+  if ( !complete() || !headerOkay() ) return false;
 
   const uint32 expected = adler32Checksum();
   if (expected == 0) return false; // Adler32 not available

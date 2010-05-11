@@ -1,4 +1,4 @@
-// $Id: DQMEventMsgData.cc,v 1.6 2010/04/30 14:24:18 mommsen Exp $
+// $Id: DQMEventMsgData.cc,v 1.7 2010/05/03 09:31:18 mommsen Exp $
 /// @file: DQMEventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -26,14 +26,13 @@ namespace stor
 
     std::string DQMEventMsgData::do_topFolderName() const
     {
-
-      if( faulty() || !complete() )
-        {
-          std::stringstream msg;
-          msg << "A top folder name can not be determined from a ";
-          msg << "faulty or incomplete DQM event message.";
-          XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
-        }
+      if( !headerOkay() )
+      {
+        std::stringstream msg;
+        msg << "A top folder name can not be determined from a ";
+        msg << "faulty or incomplete DQM event message.";
+        XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
+      }
 
       if( !_headerFieldsCached ) {cacheHeaderFields();}
       return _topFolderName;
@@ -41,29 +40,28 @@ namespace stor
 
     uint32 DQMEventMsgData::do_adler32Checksum() const
     {
-      if( faulty() || !complete() )
-        {
-          std::stringstream msg;
-          msg << "An adler32 checksum can not be determined from a ";
-          msg << "faulty or incomplete DQM event message.";
-          XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
-        }
-
+      if( !headerOkay() )
+      {
+        std::stringstream msg;
+        msg << "An adler32 checksum can not be determined from a ";
+        msg << "faulty or incomplete DQM event message.";
+        XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
+      }
+      
       if( !_headerFieldsCached ) {cacheHeaderFields();}
       return _adler32;
     }
 
     DQMKey DQMEventMsgData::do_dqmKey() const
     {
-
-      if( faulty() || !complete() )
-        {
-          std::stringstream msg;
-          msg << "The DQM key can not be determined from a ";
-          msg << "faulty or incomplete DQM event message.";
-          XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
-        }
-
+      if( !headerOkay() )
+      {
+        std::stringstream msg;
+        msg << "The DQM key can not be determined from a ";
+        msg << "faulty or incomplete DQM event message.";
+        XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
+      }
+      
       if( !_headerFieldsCached ) {cacheHeaderFields();}
       return _dqmKey;
     }
@@ -71,14 +69,14 @@ namespace stor
     uint32 DQMEventMsgData::do_runNumber() const
     {
 
-      if( faulty() || !complete() )
-        {
-          std::stringstream msg;
-          msg << "The run number can not be determined from a ";
-          msg << "faulty or incomplete DQM event message.";
-          XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
-        }
-
+      if( !headerOkay() )
+      {
+        std::stringstream msg;
+        msg << "The run number can not be determined from a ";
+        msg << "faulty or incomplete DQM event message.";
+        XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
+      }
+      
       if( !_headerFieldsCached ) {cacheHeaderFields();}
       return _dqmKey.runNumber;
     }
@@ -86,21 +84,21 @@ namespace stor
     uint32 DQMEventMsgData::do_lumiSection() const
     {
 
-      if( faulty() || !complete() )
-        {
-          std::stringstream msg;
-          msg << "The lumi section can not be determined from a ";
-          msg << "faulty or incomplete DQM event message.";
-          XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
-        }
-
+      if( !headerOkay() )
+      {
+        std::stringstream msg;
+        msg << "The lumi section can not be determined from a ";
+        msg << "faulty or incomplete DQM event message.";
+        XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
+      }
+      
       if( !_headerFieldsCached ) {cacheHeaderFields();}
       return _dqmKey.lumiSection;
     }
 
     void DQMEventMsgData::do_assertRunNumber(uint32 runNumber)
     {
-      if ( !faulty() && do_runNumber() != runNumber )
+      if ( headerOkay() && do_runNumber() != runNumber )
       {
         std::ostringstream errorMsg;
         errorMsg << "Run number " << do_runNumber() 
@@ -115,21 +113,21 @@ namespace stor
 
     unsigned long DQMEventMsgData::do_headerSize() const
     {
-      if (faulty() || !complete())
-        {
-          return 0;
-        }
-
+      if ( !headerOkay() )
+      {
+        return 0;
+      }
+    
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _headerSize;
     }
 
     unsigned char* DQMEventMsgData::do_headerLocation() const
     {
-      if (faulty() || !complete())
-        {
-          return 0;
-        }
+      if ( !headerOkay() )
+      {
+        return 0;
+      }
 
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _headerLocation;
@@ -138,37 +136,37 @@ namespace stor
     inline unsigned char*
     DQMEventMsgData::do_fragmentLocation(unsigned char* dataLoc) const
     {
-      if (parsable())
-        {
-          I2O_SM_DQM_MESSAGE_FRAME *smMsg =
-            (I2O_SM_DQM_MESSAGE_FRAME*) dataLoc;
-          return (unsigned char*) smMsg->dataPtr();
-        }
+      if ( parsable() )
+      {
+        I2O_SM_DQM_MESSAGE_FRAME *smMsg =
+          (I2O_SM_DQM_MESSAGE_FRAME*) dataLoc;
+        return (unsigned char*) smMsg->dataPtr();
+      }
       else
-        {
-          return dataLoc;
-        }
+      {
+        return dataLoc;
+      }
     }
-
+  
     inline void DQMEventMsgData::parseI2OHeader()
     {
-      if (parsable())
-        {
-          I2O_SM_DQM_MESSAGE_FRAME *smMsg =
-            (I2O_SM_DQM_MESSAGE_FRAME*) _ref->getDataLocation();
-          _fragKey.code_ = _messageCode;
-          _fragKey.run_ = smMsg->runID;
-          _fragKey.event_ = smMsg->eventAtUpdateID;
-          _fragKey.secondaryId_ = smMsg->folderID;
-          _fragKey.originatorPid_ = smMsg->fuProcID;
-          _fragKey.originatorGuid_ = smMsg->fuGUID;
-          _rbBufferId = smMsg->rbBufferID;
-          _hltLocalId = smMsg->hltLocalId;
-          _hltInstance = smMsg->hltInstance;
-          _hltTid = smMsg->hltTid;
-          _fuProcessId = smMsg->fuProcID;
-          _fuGuid = smMsg->fuGUID;
-        }
+      if ( parsable() )
+      {
+        I2O_SM_DQM_MESSAGE_FRAME *smMsg =
+          (I2O_SM_DQM_MESSAGE_FRAME*) _ref->getDataLocation();
+        _fragKey.code_ = _messageCode;
+        _fragKey.run_ = smMsg->runID;
+        _fragKey.event_ = smMsg->eventAtUpdateID;
+        _fragKey.secondaryId_ = smMsg->folderID;
+        _fragKey.originatorPid_ = smMsg->fuProcID;
+        _fragKey.originatorGuid_ = smMsg->fuGUID;
+        _rbBufferId = smMsg->rbBufferID;
+        _hltLocalId = smMsg->hltLocalId;
+        _hltInstance = smMsg->hltInstance;
+        _hltTid = smMsg->hltTid;
+        _fuProcessId = smMsg->fuProcID;
+        _fuGuid = smMsg->fuGUID;
+      }
     }
 
     // Adapted from InitMsgData::cacheHeaderFields
@@ -179,14 +177,14 @@ namespace stor
 
       boost::shared_ptr<DQMEventMsgView> msgView;
       if (_fragmentCount == 1)
-        {
-          msgView.reset(new DQMEventMsgView(firstFragLoc));
-        }
+      {
+        msgView.reset(new DQMEventMsgView(firstFragLoc));
+      }
       else
-        {
-          copyFragmentsIntoBuffer(_headerCopy);
-          msgView.reset(new DQMEventMsgView(&_headerCopy[0]));
-        }
+      {
+        copyFragmentsIntoBuffer(_headerCopy);
+        msgView.reset(new DQMEventMsgView(&_headerCopy[0]));
+      }
 
       _headerSize = msgView->headerSize()
         + sizeof(uint32); // in contrast to other message types,

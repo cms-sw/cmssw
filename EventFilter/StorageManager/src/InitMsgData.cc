@@ -1,4 +1,4 @@
-// $Id: InitMsgData.cc,v 1.3 2010/04/30 07:44:56 mommsen Exp $
+// $Id: InitMsgData.cc,v 1.4 2010/04/30 14:24:18 mommsen Exp $
 /// @file: InitMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -26,22 +26,22 @@ namespace stor
 
     unsigned long InitMsgData::do_headerSize() const
     {
-      if (faulty() || !complete())
-        {
-          return 0;
-        }
-
+      if ( !headerOkay() )
+      {
+        return 0;
+      }
+      
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _headerSize;
     }
 
     unsigned char* InitMsgData::do_headerLocation() const
     {
-      if (faulty() || !complete())
-        {
-          return 0;
-        }
-
+      if ( !headerOkay() )
+      {
+        return 0;
+      }
+      
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _headerLocation;
     }
@@ -49,121 +49,121 @@ namespace stor
     inline unsigned char*
     InitMsgData::do_fragmentLocation(unsigned char* dataLoc) const
     {
-      if (parsable())
-        {
-          I2O_SM_PREAMBLE_MESSAGE_FRAME *smMsg =
-            (I2O_SM_PREAMBLE_MESSAGE_FRAME*) dataLoc;
-          return (unsigned char*) smMsg->dataPtr();
-        }
+      if ( parsable() )
+      {
+        I2O_SM_PREAMBLE_MESSAGE_FRAME *smMsg =
+          (I2O_SM_PREAMBLE_MESSAGE_FRAME*) dataLoc;
+        return (unsigned char*) smMsg->dataPtr();
+      }
       else
-        {
-          return dataLoc;
-        }
+      {
+        return dataLoc;
+      }
     }
 
     uint32 InitMsgData::do_adler32Checksum() const
     {
-      if (faulty() || !complete())
-        {
-          std::stringstream msg;
-          msg << "An adler32 checksum can not be determined from a ";
-          msg << "faulty or incomplete INIT message.";
-          XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
-        }
-
+      if ( !headerOkay() )
+      {
+        std::stringstream msg;
+        msg << "An adler32 checksum can not be determined from a ";
+        msg << "faulty or incomplete INIT message.";
+        XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
+      }
+      
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _adler32;
     }
 
     uint32 InitMsgData::do_outputModuleId() const
     {
-      if (faulty() || !complete())
-        {
-          std::stringstream msg;
-          msg << "An output module ID can not be determined from a ";
-          msg << "faulty or incomplete INIT message.";
-          XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
-        }
-
+      if ( !headerOkay() )
+      {
+        std::stringstream msg;
+        msg << "An output module ID can not be determined from a ";
+        msg << "faulty or incomplete INIT message.";
+        XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
+      }
+      
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _outputModuleId;
     }
 
     std::string InitMsgData::do_outputModuleLabel() const
     {
-      if (faulty() || !complete())
-        {
-          std::stringstream msg;
-          msg << "An output module label can not be determined from a ";
-          msg << "faulty or incomplete INIT message.";
-          XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
-        }
-
+      if ( !headerOkay() )
+      {
+        std::stringstream msg;
+        msg << "An output module label can not be determined from a ";
+        msg << "faulty or incomplete INIT message.";
+        XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
+      }
+      
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _outputModuleLabel;
     }
 
     void InitMsgData::do_hltTriggerNames(Strings& nameList) const
     {
-      if (faulty() || !complete())
-        {
-          std::stringstream msg;
-          msg << "The HLT trigger names can not be determined from a ";
-          msg << "faulty or incomplete INIT message.";
-          XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
-        }
-
+      if ( !headerOkay() )
+      {
+        std::stringstream msg;
+        msg << "The HLT trigger names can not be determined from a ";
+        msg << "faulty or incomplete INIT message.";
+        XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
+      }
+      
       if (! _headerFieldsCached) {cacheHeaderFields();}
       nameList = _hltTriggerNames;
     }
 
     void InitMsgData::do_hltTriggerSelections(Strings& nameList) const
     {
-      if (faulty() || !complete())
-        {
-          std::stringstream msg;
-          msg << "The HLT trigger selections can not be determined from a ";
-          msg << "faulty or incomplete INIT message.";
-          XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
-        }
-
+      if ( !headerOkay() )
+      {
+        std::stringstream msg;
+        msg << "The HLT trigger selections can not be determined from a ";
+        msg << "faulty or incomplete INIT message.";
+        XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
+      }
+      
       if (! _headerFieldsCached) {cacheHeaderFields();}
       nameList = _hltTriggerSelections;
     }
 
     void InitMsgData::do_l1TriggerNames(Strings& nameList) const
     {
-      if (faulty() || !complete())
-        {
-          std::stringstream msg;
-          msg << "The L1 trigger names can not be determined from a ";
-          msg << "faulty or incomplete INIT message.";
-          XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
-        }
-
+      if ( !headerOkay() )
+      {
+        std::stringstream msg;
+        msg << "The L1 trigger names can not be determined from a ";
+        msg << "faulty or incomplete INIT message.";
+        XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
+      }
+      
       if (! _headerFieldsCached) {cacheHeaderFields();}
       nameList = _l1TriggerNames;
     }
 
     inline void InitMsgData::parseI2OHeader()
     {
-      if (parsable())
-        {
-          I2O_SM_PREAMBLE_MESSAGE_FRAME *smMsg =
-            (I2O_SM_PREAMBLE_MESSAGE_FRAME*) _ref->getDataLocation();
-          _fragKey.code_ = _messageCode;
-          _fragKey.run_ = 0;
-          _fragKey.event_ = smMsg->hltTid;
-          _fragKey.secondaryId_ = smMsg->outModID;
-          _fragKey.originatorPid_ = smMsg->fuProcID;
-          _fragKey.originatorGuid_ = smMsg->fuGUID;
-          _rbBufferId = smMsg->rbBufferID;
-          _hltLocalId = smMsg->hltLocalId;
-          _hltInstance = smMsg->hltInstance;
-          _hltTid = smMsg->hltTid;
-          _fuProcessId = smMsg->fuProcID;
-          _fuGuid = smMsg->fuGUID;
-        }
+      if ( parsable() )
+      {
+        I2O_SM_PREAMBLE_MESSAGE_FRAME *smMsg =
+          (I2O_SM_PREAMBLE_MESSAGE_FRAME*) _ref->getDataLocation();
+        _fragKey.code_ = _messageCode;
+        _fragKey.run_ = 0;
+        _fragKey.event_ = smMsg->hltTid;
+        _fragKey.secondaryId_ = smMsg->outModID;
+        _fragKey.originatorPid_ = smMsg->fuProcID;
+        _fragKey.originatorGuid_ = smMsg->fuGUID;
+        _rbBufferId = smMsg->rbBufferID;
+        _hltLocalId = smMsg->hltLocalId;
+        _hltInstance = smMsg->hltInstance;
+        _hltTid = smMsg->hltTid;
+        _fuProcessId = smMsg->fuProcID;
+        _fuGuid = smMsg->fuGUID;
+      }
     }
 
     void InitMsgData::cacheHeaderFields() const
@@ -174,33 +174,33 @@ namespace stor
 
       // if there is only one fragment, use it
       if (_fragmentCount == 1)
-        {
-          useFirstFrag = true;
-        }
+      {
+        useFirstFrag = true;
+      }
       // otherwise, check if the first fragment is large enough to hold
       // the full INIT message header  (we require some minimal fixed
       // size in the hope that we don't parse garbage when we overlay
       // the InitMsgView on the buffer)
       else if (firstFragSize > (sizeof(InitHeader) + 16384))
+      {
+        InitMsgView view(firstFragLoc);
+        if (view.headerSize() <= firstFragSize)
         {
-          InitMsgView view(firstFragLoc);
-          if (view.headerSize() <= firstFragSize)
-            {
-              useFirstFrag = true;
-            }
+          useFirstFrag = true;
         }
+      }
 
       boost::shared_ptr<InitMsgView> msgView;
       if (useFirstFrag)
-        {
-          msgView.reset(new InitMsgView(firstFragLoc));
-        }
+      {
+        msgView.reset(new InitMsgView(firstFragLoc));
+      }
       else
-        {
-          copyFragmentsIntoBuffer(_headerCopy);
-          msgView.reset(new InitMsgView(&_headerCopy[0]));
-        }
-
+      {
+        copyFragmentsIntoBuffer(_headerCopy);
+        msgView.reset(new InitMsgView(&_headerCopy[0]));
+      }
+      
       _headerSize = msgView->headerSize();
       _headerLocation = msgView->startAddress();
       _adler32 = msgView->adler32_chksum();
