@@ -355,7 +355,7 @@ CaloTowersValidation::~CaloTowersValidation() {
 }
 
 void CaloTowersValidation::endJob() {
-
+/*
   // mean number of towers per ieta
   int nx = Ntowers_vs_ieta->getNbinsX();
   float cont;
@@ -422,7 +422,7 @@ void CaloTowersValidation::endJob() {
   } // end of ieta cycle (i)
 
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-
+*/
 }
 
 void CaloTowersValidation::beginJob(){ nevent = 0; }
