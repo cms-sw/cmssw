@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.16 2010/03/19 13:24:05 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.17 2010/03/19 17:33:54 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -18,6 +18,7 @@ StreamHandler::StreamHandler(
   const SharedResourcesPtr sharedResources,
   const DbFileHandlerPtr dbFileHandler
 ) :
+_sharedResources(sharedResources),
 _statReporter(sharedResources->_statisticsReporter),
 _streamRecord(_statReporter->getStreamsMonitorCollection().getNewStreamRecord()),
 _diskWritingParams(sharedResources->_configuration->getDiskWritingParams()),
@@ -134,11 +135,19 @@ StreamHandler::getNewFileRecord(const I2OChain& event)
   FilesMonitorCollection::FileRecordPtr fileRecord =
     _statReporter->getFilesMonitorCollection().getNewFileRecord();
   
-  fileRecord->runNumber = event.runNumber();
-  fileRecord->lumiSection = event.lumiSection();
+  try
+  {
+    fileRecord->runNumber = event.runNumber();
+    fileRecord->lumiSection = event.lumiSection();
+  }
+  catch(stor::exception::IncompleteEventMessage &e)
+  {
+    fileRecord->runNumber = _sharedResources->_configuration->getRunNumber();
+    fileRecord->lumiSection = 0;
+  }
   fileRecord->streamLabel = streamLabel();
-  fileRecord->baseFilePath = getBaseFilePath(event.runNumber(), fileRecord->entryCounter);
-  fileRecord->coreFileName = getCoreFileName(event.runNumber(), event.lumiSection());
+  fileRecord->baseFilePath = getBaseFilePath(fileRecord->runNumber, fileRecord->entryCounter);
+  fileRecord->coreFileName = getCoreFileName(fileRecord->runNumber, fileRecord->lumiSection);
   fileRecord->fileCounter = getFileCounter(fileRecord->coreFileName);
   fileRecord->whyClosed = FilesMonitorCollection::FileRecord::notClosed;
   fileRecord->isOpen = true;

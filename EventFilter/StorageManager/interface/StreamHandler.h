@@ -1,4 +1,4 @@
-// $Id: StreamHandler.h,v 1.10 2010/03/19 13:24:30 mommsen Exp $
+// $Id: StreamHandler.h,v 1.11 2010/03/19 17:34:06 mommsen Exp $
 /// @file: StreamHandler.h 
 
 #ifndef StorageManager_StreamHandler_h
@@ -24,8 +24,8 @@ namespace stor {
    * Abstract class to handle one stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2010/03/19 13:24:30 $
+   * $Revision: 1.11 $
+   * $Date: 2010/03/19 17:34:06 $
    */
   
   class StreamHandler
@@ -101,12 +101,12 @@ namespace stor {
     unsigned long long getMaxFileSize() const;
 
 
-  private:
-
     /**
      * Get the file handler responsible for the event
      */    
-    FileHandlerPtr getFileHandler(const I2OChain& event);
+    virtual FileHandlerPtr getFileHandler(const I2OChain& event);
+
+  private:
 
     /**
      * Return true if the file would become too large when
@@ -137,6 +137,7 @@ namespace stor {
 
   protected:
 
+    const SharedResourcesPtr _sharedResources;
     const StatisticsReporterPtr _statReporter;
     const StreamsMonitorCollection::StreamRecordPtr _streamRecord;
     const DiskWritingParams _diskWritingParams;

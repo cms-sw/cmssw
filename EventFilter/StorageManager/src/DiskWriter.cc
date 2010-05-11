@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.21 2010/03/19 13:24:05 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.22 2010/03/19 17:33:54 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -12,6 +12,7 @@
 #include "EventFilter/StorageManager/interface/DiskWriterResources.h"
 #include "EventFilter/StorageManager/interface/EventStreamHandler.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
+#include "EventFilter/StorageManager/interface/FaultyEventStreamHandler.h"
 #include "EventFilter/StorageManager/interface/FRDStreamHandler.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/StreamHandler.h"
@@ -146,8 +147,9 @@ void DiskWriter::writeNextEvent()
 void DiskWriter::writeEventToStreams(const I2OChain& event)
 {
   std::vector<StreamID> streams = event.getStreamTags();
+
   for (
-    std::vector<StreamID>::iterator it = streams.begin(), itEnd = streams.end();
+    std::vector<StreamID>::const_iterator it = streams.begin(), itEnd = streams.end();
     it != itEnd;
     ++it
   )
@@ -181,12 +183,14 @@ void DiskWriter::checkStreamChangeRequest()
     destroyStreams();
     if (doConfig)
     {
-      configureEventStreams(evtCfgList);
-      configureErrorStreams(errCfgList);
       _dwParams = newdwParams;
       _runNumber = newRunNumber;
       _timeout = (unsigned int) newTimeoutValue;
       _dbFileHandler->configure(_runNumber, _dwParams);
+
+      makeFaultyEventStream();
+      configureEventStreams(evtCfgList);
+      configureErrorStreams(errCfgList);
     }
     _sharedResources->_diskWriterResources->streamChangeDone();
   }
@@ -238,6 +242,17 @@ void DiskWriter::configureErrorStreams(ErrStrConfigListPtr cfgList)
   {
     makeErrorStream(*it);
   }
+}
+
+
+void DiskWriter::makeFaultyEventStream()
+{
+  if ( _dwParams._faultyEventsStream.empty() ) return;
+
+  boost::shared_ptr<FaultyEventStreamHandler> newHandler(
+    new FaultyEventStreamHandler(_sharedResources, _dbFileHandler, _dwParams._faultyEventsStream)
+  );
+  _streamHandlers.push_back(boost::dynamic_pointer_cast<StreamHandler>(newHandler));
 }
 
 
@@ -305,7 +320,7 @@ void DiskWriter::writeEndOfRunMarker() const
 
 void DiskWriter::processEndOfLumiSection(const I2OChain& msg)
 {
-  if ( msg.runNumber() != _runNumber ) return;
+  if ( msg.faulty() || msg.runNumber() != _runNumber ) return;
 
   const uint32_t lumiSection = msg.lumiSection();
 

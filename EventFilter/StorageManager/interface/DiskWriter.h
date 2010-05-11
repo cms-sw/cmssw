@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.9 2010/03/16 19:12:25 mommsen Exp $
+// $Id: DiskWriter.h,v 1.10 2010/03/19 13:24:30 mommsen Exp $
 /// @file: DiskWriter.h 
 
 #ifndef StorageManager_DiskWriter_h
@@ -33,8 +33,8 @@ namespace stor {
    * to the appropriate stream file(s) on disk. 
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2010/03/16 19:12:25 $
+   * $Revision: 1.10 $
+   * $Date: 2010/03/19 13:24:30 $
    */
   
   class DiskWriter : public toolbox::lang::Class
@@ -101,6 +101,11 @@ namespace stor {
      * Configures the error streams to be written to disk
      */    
     void configureErrorStreams(ErrStrConfigListPtr);
+
+    /**
+     * Creates the handler for faulty events detected by the SM
+     */    
+    void makeFaultyEventStream();
 
     /**
      * Creates the handler for the given event stream

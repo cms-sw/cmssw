@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.32 2010/04/12 15:25:05 mommsen Exp $
+// $Id: Configuration.cc,v 1.33 2010/04/19 10:35:23 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -184,6 +184,7 @@ namespace stor
     _diskWriteParamCopy._fileClosingTestInterval = 5.0;
     _diskWriteParamCopy._fileSizeTolerance = 0.0;
     _diskWriteParamCopy._useIndexFiles = true;
+    _diskWriteParamCopy._faultyEventsStream = "";
 
     _previousStreamCfg = _diskWriteParamCopy._streamConfiguration;
 
@@ -300,6 +301,7 @@ namespace stor
       static_cast<int>(_diskWriteParamCopy._fileClosingTestInterval);
     _fileSizeTolerance = _diskWriteParamCopy._fileSizeTolerance;
     _useIndexFiles = _diskWriteParamCopy._useIndexFiles;
+    _faultyEventsStream = _diskWriteParamCopy._faultyEventsStream;
 
     utils::getXdataVector(_diskWriteParamCopy._otherDiskPaths, _otherDiskPaths);
 
@@ -322,6 +324,7 @@ namespace stor
                                  &_fileClosingTestInterval);
     infoSpace->fireItemAvailable("fileSizeTolerance", &_fileSizeTolerance);
     infoSpace->fireItemAvailable("useIndexFiles", &_useIndexFiles);
+    infoSpace->fireItemAvailable("faultyEventsStream", &_faultyEventsStream);
 
     // special handling for the stream configuration string (we
     // want to note when it changes to see if we need to reconfigure
@@ -480,6 +483,7 @@ namespace stor
     _diskWriteParamCopy._fileClosingTestInterval = _fileClosingTestInterval;
     _diskWriteParamCopy._fileSizeTolerance = _fileSizeTolerance;
     _diskWriteParamCopy._useIndexFiles = _useIndexFiles;
+    _diskWriteParamCopy._faultyEventsStream = _faultyEventsStream;
 
     utils::getStdVector(_otherDiskPaths, _diskWriteParamCopy._otherDiskPaths);
 
@@ -593,7 +597,6 @@ namespace stor
     boost::shared_ptr<edm::ParameterSet> smPSet = pdesc->getProcessPSet();
 
     // loop over each end path
-    StreamID streamId = 0;
     std::vector<std::string> allEndPaths = 
       smPSet->getParameter<std::vector<std::string> >("@end_paths");
     for(std::vector<std::string>::iterator endPathIter = allEndPaths.begin();
@@ -640,7 +643,6 @@ namespace stor
                                                  compressionLevel,
                                                  maxEventSize,
                                                  fractionToDisk);
-            cfgInfo.setStreamId(++streamId);
             evtCfgList->push_back(cfgInfo);
           }
           else if (mod_type == "ErrorStreamFileWriter" ||
@@ -652,7 +654,6 @@ namespace stor
 
             ErrorStreamConfigurationInfo cfgInfo(streamLabel,
                                                  maxFileSizeMB);
-            cfgInfo.setStreamId(++streamId);
             errCfgList->push_back(cfgInfo);
           }
         }

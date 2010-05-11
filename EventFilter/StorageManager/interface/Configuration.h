@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.19 2010/04/12 15:25:26 mommsen Exp $
+// $Id: Configuration.h,v 1.20 2010/04/19 10:35:09 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -43,6 +43,7 @@ namespace stor
     utils::duration_t _fileClosingTestInterval;
     double _fileSizeTolerance;
     bool _useIndexFiles;  // not yet used
+    std::string _faultyEventsStream;
 
     typedef std::vector<std::string> OtherDiskPaths;
     OtherDiskPaths _otherDiskPaths;
@@ -161,8 +162,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.19 $
-   * $Date: 2010/04/12 15:25:26 $
+   * $Revision: 1.20 $
+   * $Date: 2010/04/19 10:35:09 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -352,6 +353,7 @@ namespace stor
     xdata::Integer _fileClosingTestInterval;
     xdata::Double _fileSizeTolerance;
     xdata::Boolean _useIndexFiles;
+    xdata::String _faultyEventsStream;
 
     xdata::Integer _activeConsumerTimeout;  // seconds
     xdata::Integer _consumerQueueSize;
