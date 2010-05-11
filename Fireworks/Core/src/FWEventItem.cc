@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.42 2010/04/09 11:17:46 amraktad Exp $
+// $Id: FWEventItem.cc,v 1.43 2010/05/03 16:25:53 matevz Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWItemAccessorBase.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 //
 // constants, enums and typedefs
@@ -88,8 +89,13 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
    ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
    assert(dataType != ROOT::Reflex::Type() );
 
-   std::string wrapperName = std::string("edm::Wrapper<")+dataType.Name(ROOT::Reflex::SCOPED)+" >";
-   //std::cout <<wrapperName<<std::endl;
+   std::string dataTypeName = dataType.Name(ROOT::Reflex::SCOPED);
+   if (dataTypeName[dataTypeName.size() -1] == '>')
+      dataTypeName += " ";
+   std::string wrapperName = "edm::Wrapper<" + dataTypeName + ">";
+
+   fwLog(fwlog::kDebug) << "Looking for the wrapper name" 
+                       << wrapperName << std::endl;
    m_wrapperType = ROOT::Reflex::Type::ByName(wrapperName);
 
    assert(m_wrapperType != ROOT::Reflex::Type());
