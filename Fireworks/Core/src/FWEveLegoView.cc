@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.78 2010/04/16 13:44:07 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.79 2010/05/05 14:48:49 amraktad Exp $
 //
 
 // system include files
@@ -74,56 +74,45 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, FWViewType::EType typeId) 
 
 FWEveLegoView::~FWEveLegoView()
 {
-   if (m_lego) m_lego->DecDenyDestroy();
+   m_lego->Destroy();
 }
 
 void FWEveLegoView::setContext(fireworks::Context& context)
 { 
    // get lego if exist
    TEveCaloData* data = context.getCaloData();
-   for (TEveElement::List_i i = data->BeginChildren(); i!= data->EndChildren(); ++i)
-   {
-      if( dynamic_cast<TEveCaloLego*>(*i))
-      {
-         m_lego = dynamic_cast<TEveCaloLego*>(*i);
-         break;
-      }
-   }
-   // else create 
-   if (m_lego == 0)
-   {   
-      m_lego = new TEveCaloLego(data);
-      m_lego->InitMainTrans();
-      m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::Pi());
-      m_lego->Set2DMode(TEveCaloLego::kValSize);
-      m_lego->SetDrawNumberCellPixels(20);
-      m_lego->IncDenyDestroy();
-      data->GetEtaBins()->SetTitleFont(120);
-      data->GetEtaBins()->SetTitle("h");
-      data->GetPhiBins()->SetTitleFont(120);
-      data->GetPhiBins()->SetTitle("f");
-      data->GetPhiBins()->SetLabelSize(0.02);
-      data->GetEtaBins()->SetLabelSize(0.02);
-      data->GetPhiBins()->SetTitleSize(0.03);
-      data->GetEtaBins()->SetTitleSize(0.03);
 
-      // add calorimeter boundaries
-      TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
-      boundaries->SetPickable(kFALSE);
-      boundaries->SetLineWidth(2);
-      boundaries->SetLineStyle(7);
-      boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
-      boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
-      boundaries->AddLine(-2.964,-3.1416,0.001,-2.964,3.1416,0.001);
-      boundaries->AddLine(2.964,-3.1416,0.001,2.964,3.1416,0.001);
-      boundaries->SetLineColor(context.colorManager()->geomColor(kFWLegoBoundraryColorIndex));
-      m_lego->AddElement(boundaries);
-   }
+   m_lego = new TEveCaloLego(data);
+   m_lego->InitMainTrans();
+   m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::Pi());
+   m_lego->Set2DMode(TEveCaloLego::kValSize);
+   m_lego->SetDrawNumberCellPixels(20);
+
+   data->GetEtaBins()->SetTitleFont(120);
+   data->GetEtaBins()->SetTitle("h");
+   data->GetPhiBins()->SetTitleFont(120);
+   data->GetPhiBins()->SetTitle("f");
+   data->GetPhiBins()->SetLabelSize(0.02);
+   data->GetEtaBins()->SetLabelSize(0.02);
+   data->GetPhiBins()->SetTitleSize(0.03);
+   data->GetEtaBins()->SetTitleSize(0.03);
+
+   // add calorimeter boundaries
+   TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
+   boundaries->SetPickable(kFALSE);
+   boundaries->SetLineWidth(2);
+   boundaries->SetLineStyle(7);
+   boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
+   boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
+   boundaries->AddLine(-2.964,-3.1416,0.001,-2.964,3.1416,0.001);
+   boundaries->AddLine(2.964,-3.1416,0.001,2.964,3.1416,0.001);
+   boundaries->SetLineColor(context.colorManager()->geomColor(kFWLegoBoundraryColorIndex));
+   m_lego->AddElement(boundaries);
+
    eventScene()->AddElement(m_lego);
 
-   FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL());
-   eh->SetLego(m_lego);     
-   viewerGL()->SetEventHandler(eh);
+   TEveLegoEventHandler* eh = dynamic_cast<TEveLegoEventHandler*>( viewerGL()->GetEventHandler());
+   eh->SetLego(m_lego);
   
    m_overlay = new TEveCaloLegoOverlay();
    m_overlay->SetCaloLego(m_lego);
@@ -136,29 +125,22 @@ void FWEveLegoView::setContext(fireworks::Context& context)
 void
 FWEveLegoView::setAutoRebin()
 {
-   if(m_lego) {
-      m_lego->SetAutoRebin(m_autoRebin.value());
-      m_lego->ElementChanged(kTRUE,kTRUE);
-   }
+   m_lego->SetAutoRebin(m_autoRebin.value());
+   m_lego->ElementChanged(kTRUE,kTRUE);
 }
 
 void
 FWEveLegoView::setPixelsPerBin()
 {
-   if(m_lego) {
-      m_lego->SetPixelsPerBin((Int_t) (m_pixelsPerBin.value()));
-      m_lego->ElementChanged(kTRUE,kTRUE);
-   }
+   m_lego->SetPixelsPerBin((Int_t) (m_pixelsPerBin.value()));
+   m_lego->ElementChanged(kTRUE,kTRUE);
 }
 
 void
 FWEveLegoView::plotEt()
 {
-   if (m_lego)
-   {
-      m_lego->SetPlotEt(m_plotEt.value());
-      viewerGL()->RequestDraw();
-   }
+   m_lego->SetPlotEt(m_plotEt.value());
+   viewerGL()->RequestDraw();
 }
 
 void
@@ -171,12 +153,9 @@ FWEveLegoView::showScales()
 void
 FWEveLegoView::updateLegoScale()
 {
-  if (m_lego)
-   {
-      m_lego->SetMaxValAbs( m_legoFixedScale.value() );
-      m_lego->SetScaleAbs ( ! m_legoAutoScale.value() );
-      m_lego->ElementChanged(kTRUE,kTRUE);
-   } 
+   m_lego->SetMaxValAbs( m_legoFixedScale.value() );
+   m_lego->SetScaleAbs ( ! m_legoAutoScale.value() );
+   m_lego->ElementChanged(kTRUE,kTRUE);
 }
 
 //_______________________________________________________________________________
