@@ -197,6 +197,7 @@ void JetMETDQMOfflineClient::runClient_()
 
     vector<string>::const_iterator cii;
     for(cii=getMEs.begin(); cii!=getMEs.end(); cii++) {
+      if ((*cii).find("_binom")!=string::npos) continue;
       if ((*cii).find("JIDPassFractionVS")!=string::npos){  // Look for MEs with "JIDPassFractionVS"
 	me = dbe_->get(fullPathDQMFolders[i]+"/"+(*cii));
 
@@ -213,7 +214,7 @@ void JetMETDQMOfflineClient::runClient_()
 	    tPassFraction->SetBinError(ibin+1,pow(nentries*epsilon*(1.-epsilon),0.5)); // binomial error
 	  }
 	  hPassFraction      = dbe_->book1D(tPassFraction->GetName(),tPassFraction);
-
+	  delete tPassFraction;
 	} // me->getRootObject()
 	} // me
       } // if find
