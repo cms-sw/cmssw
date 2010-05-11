@@ -9,6 +9,6 @@ eval `scramv1 runtime -sh`
 echo "CMSSW configured"
 
 echo "run python script"
-python /afs/cern.ch/user/y/yumiceva/scratch0/CMSSW_3_5_7/src/RecoVertex/BeamSpotProducer/scripts/beamvalidation.py -o /afs/cern.ch/user/y/yumiceva/public_html/beamspot/index.html -p /afs/cern.ch/user/y/yumiceva/scratch0/CMSSW_3_5_7/src/RecoVertex/BeamSpotProducer/scripts/
+python /afs/cern.ch/user/y/yumiceva/scratch0/CMSSW_3_5_7/src/RecoVertex/BeamSpotProducer/scripts/beamvalidation.py -o /afs/cern.ch/user/y/yumiceva/www/public_html/beamspot/index.html -p /afs/cern.ch/user/y/yumiceva/scratch0/CMSSW_3_5_7/src/RecoVertex/BeamSpotProducer/scripts/
 
 echo "done."
