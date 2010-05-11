@@ -35,11 +35,8 @@ function getConfigForCVS() {
 function getContentForCVS() {
   local CONFIG="$1"
 
-  echo "getConetnt A"
   $GETCONTENT $CONFIG
-  echo "getContent B"
   rm -f hltOutput*_cff.py*
-  echo "A"
 }
 
 function getDatasetsForCVS() {
@@ -70,16 +67,12 @@ hash -r
 # for things in CMSSW CVS
 echo "Extracting CVS python dumps"
 rm -f HLT*_cff.py
-echo "FULL"
 getConfigForCVS  $MASTER FULL
-echo "Content"
 getContentForCVS $MASTER
 for TABLE in $TABLES; do
-  echo "Config" $TABLE
   getConfigForCVS $(eval echo $TARGET) $TABLE
 done
 for TABLE in "GRun"; do
-  echo "Config2" $TABLE
   getDatasetsForCVS $(eval echo $TARGET) HLTrigger_Datasets_cff.py
 done
 ls -l HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_cff.py
