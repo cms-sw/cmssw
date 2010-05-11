@@ -120,7 +120,9 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
       virtual void algoBeginJob      (const edm::EventSetup&);
       virtual void algoEndJob        ();
       virtual void algoAnalyze       (const edm::Event &, const edm::EventSetup &);
+
               void algoAnalyzeTheTree();
+              void algoComputeMPVandGain();
 
               void getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange=50, double HighRange=5400);
               bool IsGoodLandauFit(double* FitResults); 
@@ -297,20 +299,59 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
    BAD        = 0;
 
    algoAnalyzeTheTree();
+   algoComputeMPVandGain();
 }
 
 
 void
-SiStripGainFromCalibTree::algoAnalyzeTheTree()
+SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+}
+
+void 
+SiStripGainFromCalibTree::algoEndJob() {
+}
+
+
+void SiStripGainFromCalibTree::getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange, double HighRange)
+{ 
+   FitResults[0]         = -0.5;  //MPV
+   FitResults[1]         =  0;    //MPV error
+   FitResults[2]         = -0.5;  //Width
+   FitResults[3]         =  0;    //Width error
+   FitResults[4]         = -0.5;  //Fit Chi2/NDF
+
+   if( InputHisto->GetEntries() < MinNrEntries)return;
+
+   // perform fit with standard landau
+   TF1* MyLandau = new TF1("MyLandau","landau",LowRange, HighRange);
+   MyLandau->SetParameter(1,300);
+   InputHisto->Fit("MyLandau","0QR WW");
+
+   // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
+   FitResults[0]         = MyLandau->GetParameter(1);  //MPV
+   FitResults[1]         = MyLandau->GetParError(1);   //MPV error
+   FitResults[2]         = MyLandau->GetParameter(2);  //Width
+   FitResults[3]         = MyLandau->GetParError(2);   //Width error
+   FitResults[4]         = MyLandau->GetChisquare() / MyLandau->GetNDF();  //Fit Chi2/NDF
+
+   delete MyLandau;
+}
+
+bool SiStripGainFromCalibTree::IsGoodLandauFit(double* FitResults){
+   if(FitResults[0] < 2             )return false;
+   if(FitResults[1] > MaxMPVError   )return false;
+   if(FitResults[4] > MaxChi2OverNDF)return false;
+   return true;   
+}
+
+
+void SiStripGainFromCalibTree::algoAnalyzeTheTree()
 {
       TChain* tree = new TChain("gainCalibrationTree/tree");
       for(unsigned int i=0;i<VInputFiles.size();i++){
          tree->Add(VInputFiles[i].c_str());
       }
-//      tree->Add("rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123592.root");
-//      tree->Add("rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123596.root");
-//      tree->Add("rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123615.root");
-//      tree->Add("rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123732.root");
 
       TString EventPrefix("");
       TString EventSuffix("");
@@ -449,45 +490,7 @@ SiStripGainFromCalibTree::algoAnalyzeTheTree()
 
 
 
-void
-SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-}
-
-void SiStripGainFromCalibTree::getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange, double HighRange)
-{ 
-   FitResults[0]         = -0.5;  //MPV
-   FitResults[1]         =  0;    //MPV error
-   FitResults[2]         = -0.5;  //Width
-   FitResults[3]         =  0;    //Width error
-   FitResults[4]         = -0.5;  //Fit Chi2/NDF
-
-   if( InputHisto->GetEntries() < MinNrEntries)return;
-
-   // perform fit with standard landau
-   TF1* MyLandau = new TF1("MyLandau","landau",LowRange, HighRange);
-   MyLandau->SetParameter(1,300);
-   InputHisto->Fit("MyLandau","0QR WW");
-
-   // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
-   FitResults[0]         = MyLandau->GetParameter(1);  //MPV
-   FitResults[1]         = MyLandau->GetParError(1);   //MPV error
-   FitResults[2]         = MyLandau->GetParameter(2);  //Width
-   FitResults[3]         = MyLandau->GetParError(2);   //Width error
-   FitResults[4]         = MyLandau->GetChisquare() / MyLandau->GetNDF();  //Fit Chi2/NDF
-
-   delete MyLandau;
-}
-
-bool SiStripGainFromCalibTree::IsGoodLandauFit(double* FitResults){
-   if(FitResults[0] < 2             )return false;
-   if(FitResults[1] > MaxMPVError   )return false;
-   if(FitResults[4] > MaxChi2OverNDF)return false;
-   return true;   
-}
-
-void 
-SiStripGainFromCalibTree::algoEndJob() {
+void SiStripGainFromCalibTree::algoComputeMPVandGain() {
    unsigned int I=0;
    TH1D* Proj = NULL;
    double FitResults[5];
