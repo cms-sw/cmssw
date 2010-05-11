@@ -195,55 +195,9 @@ class METAnalyzer : public METAnalyzerBase {
   //
   DQMStore *_dbe;
 
-  //trigger histos
-  MonitorElement* hTriggerName_HighPtJet;
-  MonitorElement* hTriggerName_LowPtJet;
-  MonitorElement* hTriggerName_HighMET;
-  MonitorElement* hTriggerName_LowMET;
-  MonitorElement* hTriggerName_Ele;
-  MonitorElement* hTriggerName_Muon;
-
   //the histos
-  MonitorElement* hMETRate;
 
-  MonitorElement* hmetME;
-  MonitorElement* hNevents;
-  MonitorElement* hMEx;
-  MonitorElement* hMEy;
-  MonitorElement* hEz;
-  MonitorElement* hMETSig;
-  MonitorElement* hMET;
-  MonitorElement* hMETPhi;
-  MonitorElement* hSumET;
-
-  MonitorElement* hMET_logx;
-  MonitorElement* hSumET_logx;
-
-  MonitorElement* hMETIonFeedbck;
-  MonitorElement* hMETHPDNoise;
-  MonitorElement* hMETRBXNoise;
-
-  MonitorElement* hMExLS;
-  MonitorElement* hMEyLS;
-
-  MonitorElement* htrkPt;
-  MonitorElement* htrkEta;
-  MonitorElement* htrkNhits;
-  MonitorElement* htrkChi2;
-  MonitorElement* htrkD0;
-  MonitorElement* helePt;
-  MonitorElement* heleEta;
-  MonitorElement* heleHoE;
-  MonitorElement* hmuPt;
-  MonitorElement* hmuEta;
-  MonitorElement* hmuNhits;
-  MonitorElement* hmuChi2;
-  MonitorElement* hmuD0;
-  
-  MonitorElement* hMExCorrection;
-  MonitorElement* hMEyCorrection;
-  MonitorElement* hMuonCorrectionFlag;
-
+  std::map<std::string, MonitorElement*> me;
 
 };
 #endif
