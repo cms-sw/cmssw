@@ -20,3 +20,5 @@ hcalClient.enabledClients    = ["DeadCellMonitor",
                                 "DetDiagNoiseMonitor",
                                 "Summary"
                                 ]
+# Enable save-by-lumi-section reportSummaries in offline only for now
+hcalClient.saveByLumiSection=True
