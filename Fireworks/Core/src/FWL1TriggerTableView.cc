@@ -108,7 +108,7 @@ void FWL1TriggerTableView::dataChanged(void)
 	 }
 	 catch(cms::Exception&)
 	 {
-	    fwLog(fwlog::kWarning) << "Warning: no L1Trigger menu is available" << std::endl;
+	    fwLog(fwlog::kWarning) << "FWL1TriggerTableView: no L1Trigger menu is available." << std::endl;
 	    m_tableManager->dataChanged();
 	    return;
 	 }
@@ -131,6 +131,12 @@ void FWL1TriggerTableView::dataChanged(void)
 	       m_columns.at(2).values.push_back(Form("%d",bitNumber));
 	    }
 	 }
+         else
+         {
+            fwLog(fwlog::kWarning) << "FWL1TriggerTableView: " <<
+               "L1GtTriggerMenuLite.isValid()=" << triggerMenuLite.isValid() << ", " <<
+               "L1GlobalTriggerReadoutRecord.isValid()=" << triggerRecord.isValid() << "." << std::endl;
+         }
       }
    }
    
