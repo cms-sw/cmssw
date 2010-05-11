@@ -13,17 +13,20 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+using namespace std;
+
 class MuScleFitBase
 {
 public:
   MuScleFitBase(const edm::ParameterSet& iConfig) :
-    probabilitiesFileInPath_( iConfig.getUntrackedParameter<std::string>( "ProbabilitiesFileInPath" , "MuonAnalysis/MomentumScaleCalibration/test/Probs_new_Horace_CTEQ_1000.root" ) ),
-    probabilitiesFile_( iConfig.getUntrackedParameter<std::string>( "ProbabilitiesFile" , "" ) ),
+    probabilitiesFileInPath_( iConfig.getUntrackedParameter<string>( "ProbabilitiesFileInPath" , "MuonAnalysis/MomentumScaleCalibration/test/Probs_new_Horace_CTEQ_1000.root" ) ),
+    probabilitiesFile_( iConfig.getUntrackedParameter<string>( "ProbabilitiesFile" , "" ) ),
     theMuonType_( iConfig.getParameter<int>( "MuonType" ) ),
     theMuonLabel_( iConfig.getParameter<edm::InputTag>( "MuonLabel" ) ),
-    theRootFileName_( iConfig.getUntrackedParameter<std::string>("OutputFileName") ),
-    theGenInfoRootFileName_( iConfig.getUntrackedParameter<std::string>("OutputGenInfoFileName", "genSimRecoPlots.root") ),
-    debug_( iConfig.getUntrackedParameter<int>("debug",0) )
+    theRootFileName_( iConfig.getUntrackedParameter<string>("OutputFileName") ),
+    theGenInfoRootFileName_( iConfig.getUntrackedParameter<string>("OutputGenInfoFileName", "genSimRecoPlots.root") ),
+    debug_( iConfig.getUntrackedParameter<int>("debug",0) ),
+    useType_( iConfig.getUntrackedParameter<unsigned int>("UseType",0) )
   {}
   virtual ~MuScleFitBase() {}
 protected:
@@ -34,45 +37,35 @@ protected:
   /// Save the histograms map to file
   void writeHistoMap( const unsigned int iLoop );
 
-  /// Read probability distributions from a local root file.
+  /**
+   * Read probability distributions from the database.
+   * These are 2-D PDFs containing a grid of 1000x1000 values of the
+   * integral of Lorentz * Gaussian as a function
+   * of mass and resolution of a given measurement,
+   * for each of the six considered di-muon resonances.
+   */
+  // void readProbabilityDistributions( const edm::EventSetup & eventSetup );
+  /// Raed probability distributions from a local root file.
   void readProbabilityDistributionsFromFile();
 
-  std::string probabilitiesFileInPath_;
-  std::string probabilitiesFile_;
+  string probabilitiesFileInPath_;
+  string probabilitiesFile_;
 
   int theMuonType_;
   edm::InputTag theMuonLabel_;
-  std::string theRootFileName_;
-  std::string theGenInfoRootFileName_;
+  string theRootFileName_;
+  string theGenInfoRootFileName_;
 
   int debug_;
 
-  /// Functor used to compute the normalization integral of probability functions
-  class ProbForIntegral
-  {
-  public:
-    ProbForIntegral( const double & massResol, const int iRes, const int iY, const bool isZ ) :
-      massResol_(massResol),
-      iRes_(iRes), iY_(iY), isZ_(isZ)
-    {}
-    double operator()(const double * mass, const double *)
-    {
-      if( isZ_ ) {
-        return( MuScleFitUtils::probability(*mass, massResol_, MuScleFitUtils::GLZValue, MuScleFitUtils::GLZNorm, iRes_, iY_) );
-      }
-      return( MuScleFitUtils::probability(*mass, massResol_, MuScleFitUtils::GLValue, MuScleFitUtils::GLNorm, iRes_, iY_) );
-    }
-  protected:
-    double massResol_;
-    int iRes_, iY_;
-    bool isZ_;
-  };
+  unsigned int useType_;
+
 
   /// The files were the histograms are saved
   std::vector<TFile*> theFiles_;
 
   /// The map of histograms
-  std::map<std::string, Histograms*> mapHisto_;
+  map<string, Histograms*> mapHisto_;
 };
 
 #endif
