@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.30 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.32 2010/05/11 09:24:55 eulisse Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 #include "TGTextEntry.h"
 #include "TGLabel.h"
 #include "TGButton.h"
+#include "TGMsgBox.h"
 #include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -290,8 +291,12 @@ FWGUIEventDataAdder::addNewItem()
    }
 
    if ( m_manager->find( name ) ) {
-      fwLog(fwlog::kWarning) << "Event item " << name <<
-      " is already registered. Please use another name" << std::endl;
+      TString msg("Event item '");
+      msg += name;
+      msg += "' is already registered. Please use another name.";
+      fwLog(fwlog::kWarning) << msg.Data() << std::endl;
+      new TGMsgBox(gClient->GetDefaultRoot(), m_frame,
+                   "Error - Name conflict", msg, kMBIconExclamation, kMBOk);
       return;
    }
 
