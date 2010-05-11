@@ -844,15 +844,19 @@ void PFRootEventManager::readOptions(const char* file,
   std::vector<double> DPtovPtCut;
   std::vector<unsigned> NHitCut;
   bool useIterTracking;
+  int nuclearInteractionsPurity;
   options_->GetOpt("particle_flow", "DPtoverPt_Cut", DPtovPtCut);
   options_->GetOpt("particle_flow", "NHit_Cut", NHitCut);
   options_->GetOpt("particle_flow", "useIterTracking", useIterTracking);
+  options_->GetOpt("particle_flow", "nuclearInteractionsPurity", nuclearInteractionsPurity);
+
 
   try {
     pfBlockAlgo_.setParameters( DPtovPtCut, 
 				NHitCut,
 				useIterTracking,
-				useConvBremPFRecTracks_); 
+				useConvBremPFRecTracks_,
+				nuclearInteractionsPurity); 
   }  
   catch( std::exception& err ) {
     cerr<<"exception setting PFBlockAlgo parameters: "
@@ -1139,6 +1143,8 @@ void PFRootEventManager::readOptions(const char* file,
   bool usePFDisplacedVertexs = false;
   bool usePFV0s = false;
 
+  double dptRel_DispVtx = 20;
+
 
   options_->GetOpt("particle_flow", "usePFConversions", usePFConversions);
 
@@ -1146,12 +1152,15 @@ void PFRootEventManager::readOptions(const char* file,
 
   options_->GetOpt("particle_flow", "usePFDisplacedVertexs", usePFDisplacedVertexs);
 
+  options_->GetOpt("particle_flow", "dptRel_DispVtx",  dptRel_DispVtx);
+
   try { 
     pfAlgo_.setDisplacedVerticesParameters(rejectTracks_Bad,
-					  rejectTracks_Step45,
-					  usePFDisplacedVertexs,
- 					  usePFConversions,
-	 				  usePFV0s);
+					   rejectTracks_Step45,
+					   usePFDisplacedVertexs,
+					   usePFConversions,
+					   usePFV0s,
+					   dptRel_DispVtx);
   }
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo Conversions parameters: "
