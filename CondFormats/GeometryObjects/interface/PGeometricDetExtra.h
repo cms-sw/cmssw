@@ -11,8 +11,7 @@ class PGeometricDetExtra{
   ~PGeometricDetExtra() { };
 
   struct Item{  
-    int _geographicalID; // to be converted to DetId
-    //    mutable DetId _geographicalId;
+    int _geographicalId; // to be converted to DetId
     //  std::vector< DDExpandedNode > _parents; DO NOT SAVE!
     //GeoHistory _parents;
     double _volume;
