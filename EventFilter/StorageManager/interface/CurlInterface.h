@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: CurlInterface.h,v 1.1 2009/08/20 13:43:18 mommsen Exp $
 /// @file: CurlInterface.h
 
 #ifndef StorageManager_CurlInterface_h
@@ -14,8 +14,8 @@ namespace stor {
    * Helper class to interact with curl
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.1 $
+   * $Date: 2009/08/20 13:43:18 $
    */
  
   class CurlInterface
@@ -31,10 +31,19 @@ namespace stor {
      * content string contains the error message.
      */
     CURLcode getContent(const std::string& url, const std::string& user, std::string& content);
-    
+
+    /**
+     * Post message a message at the given location.
+     * If the return value is CURLE_OK, the post succeeded
+     * and the reply is in the content string. Otherwise, the 
+     * content string contains the error message.
+     */
+    CURLcode postBinaryMessage(const std::string& url, void* buf, size_t size, std::string& content);
+
     
   private:
-    
+
+    CURLcode do_curl(CURL*, const std::string& url, std::string& content);
     static size_t writeToString(char* data, size_t size, size_t nmemb, std::string* buffer);
     
     char errorBuffer[CURL_ERROR_SIZE]; 

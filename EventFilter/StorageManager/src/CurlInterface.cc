@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.6 2009/07/20 13:07:27 mommsen Exp $
+// $Id: CurlInterface.cc,v 1.1 2009/08/20 13:44:38 mommsen Exp $
 /// @file: CurlInterface.cc
 
 #include "EventFilter/StorageManager/interface/CurlInterface.h"
@@ -13,13 +13,44 @@ CURLcode CurlInterface::getContent
   std::string& content
 )
 {
-  //  std::string buffer;
-
   CURL* curl = curl_easy_init();
   if ( ! curl ) return CURLE_FAILED_INIT;
 
-  curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl, CURLOPT_USERPWD, user.c_str());
+
+  return do_curl(curl, url, content);
+}
+
+
+CURLcode CurlInterface::postBinaryMessage
+(
+  const std::string& url,
+  void* buf,
+  size_t size,
+  std::string& content
+)
+{
+  CURL* curl = curl_easy_init();
+  if ( ! curl ) return CURLE_FAILED_INIT;
+
+  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, buf);
+  curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, size);
+
+  struct curl_slist *headers=NULL;
+  headers = curl_slist_append(headers, "Content-Type: application/octet-stream");
+  headers = curl_slist_append(headers, "Content-Transfer-Encoding: binary");
+  curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+  CURLcode status = do_curl(curl, url, content);
+  curl_slist_free_all(headers);
+
+  return status;
+}
+
+
+CURLcode CurlInterface::do_curl(CURL* curl, const std::string& url, std::string& content)
+{
+  curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl, CURLOPT_TIMEOUT, 4); // seconds
   curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1); // do not send any signals
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, stor::CurlInterface::writeToString);  
