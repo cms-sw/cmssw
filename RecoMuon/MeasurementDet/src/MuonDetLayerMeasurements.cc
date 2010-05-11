@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2008/12/02 03:07:19 $
- *  $Revision: 1.28 $
+ *  $Date: 2009/05/18 16:20:36 $
+ *  $Revision: 1.29 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -14,6 +14,8 @@
 
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Services/interface/UpdaterService.h"
 
 
 typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
@@ -37,7 +39,17 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
   theDTEventID(),
   theCSCEventID(),
   theRPCEventID(),
-  theEvent(0){}
+  theEvent(0){
+  std::ostringstream sDT;
+  sDT<<"MuonDetLayerMeasurements::checkDTRecHits::" << this;
+  theDTCheckName = sDT.str();
+  std::ostringstream sRPC;
+  sRPC<<"MuonDetLayerMeasurements::checkRPCRecHits::" << this;
+  theRPCCheckName = sRPC.str();
+  std::ostringstream sCSC;
+  sCSC<<"MuonDetLayerMeasurements::checkCSCRecHits::" << this;
+  theCSCCheckName = sCSC.str();
+}
 
 MuonDetLayerMeasurements::~MuonDetLayerMeasurements(){}
 
@@ -115,7 +127,8 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 void MuonDetLayerMeasurements::checkDTRecHits()
 {
   checkEvent();
-  if(theDTEventID != theEvent->id())
+  if (!edm::Service<UpdaterService>()->checkOnce(theDTCheckName)) return;
+
   {
     theDTEventID = theEvent->id();
     theEvent->getByLabel(theDTRecHitLabel, theDTRecHits);
@@ -130,7 +143,8 @@ void MuonDetLayerMeasurements::checkDTRecHits()
 void MuonDetLayerMeasurements::checkCSCRecHits()
 {
   checkEvent();
-  if(theCSCEventID != theEvent->id())
+  if (!edm::Service<UpdaterService>()->checkOnce(theCSCCheckName)) return;
+
   {
     theCSCEventID = theEvent->id();
     theEvent->getByLabel(theCSCRecHitLabel, theCSCRecHits);
@@ -145,7 +159,8 @@ void MuonDetLayerMeasurements::checkCSCRecHits()
 void MuonDetLayerMeasurements::checkRPCRecHits()
 {
   checkEvent();
-  if(theRPCEventID != theEvent->id())
+  if (!edm::Service<UpdaterService>()->checkOnce(theRPCCheckName)) return;
+
   {
     theRPCEventID = theEvent->id();
     theEvent->getByLabel(theRPCRecHitLabel, theRPCRecHits);
