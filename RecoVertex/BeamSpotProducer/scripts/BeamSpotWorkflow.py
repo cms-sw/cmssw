@@ -50,31 +50,6 @@ except:
         sys.exit(1)
 
 #####################################################################################
-# lumi tools CondCore/Utilities/python/timeUnitHelper.py
-#####################################################################################
-def pack(high,low):
-    """pack high,low 32bit unsigned int to one unsigned 64bit long long
-       Note:the print value of result number may appear signed, if the sign bit is used.
-    """
-    h=high<<32
-    return (h|low)
-
-########################################################################
-def unpack(i):
-    """unpack 64bit unsigned long long into 2 32bit unsigned int, return tuple (high,low)
-    """
-    high=i>>32
-    low=i&0xFFFFFFFF
-    return(high,low)
-
-########################################################################
-def unpackLumiid(i):
-    """unpack 64bit lumiid to dictionary {'run','lumisection'}
-    """
-    j=unpack(i)
-    return {'run':j[0],'lumisection':j[1]}
-
-#####################################################################################
 # General functions
 #####################################################################################
 def getLastUploadedIOV(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSPOT"):
@@ -132,14 +107,14 @@ def getListOfRunsAndLumiFromRR(dataSet,lastRun=-1):
     #RunReg  ="http://pccmsdqm04.cern.ch/runregistry"
     RunReg  = "http://localhost:40010/runregistry"
     #Dataset=%Online%
-    Dataset = "%Express%"
     Group   = "Collisions10"
 
     # get handler to RR XML-RPC server
     FULLADDRESS=RunReg + "/xmlrpc"
     #print "RunRegistry from: ",FULLADDRESS
     server = xmlrpclib.ServerProxy(FULLADDRESS)
-    sel_runtable="{groupName} ='" + Group + "' and {runNumber} > " + str(lastRun) + " and {datasetName} LIKE '" + Dataset + "'"
+    #sel_runtable="{groupName} ='" + Group + "' and {runNumber} > " + str(lastRun) + " and {datasetName} LIKE '" + Dataset + "'"
+    sel_runtable="{groupName} ='" + Group + "' and {runNumber} > " + str(lastRun) 
     sel_dcstable="{groupName} ='" + Group + "' and {runNumber} > " + str(lastRun) + " and {parDcsBpix} = 1 and {parDcsFpix} = 1 and {parDcsTibtid} = 1 and {parDcsTecM} = 1 and {parDcsTecP} = 1 and {parDcsTob} = 1 and {parDcsEbminus} = 1 and {parDcsEbplus} = 1 and {parDcsEeMinus} = 1 and {parDcsEePlus} = 1 and {parDcsEsMinus} = 1 and {parDcsEsPlus} = 1 and {parDcsHbheA} = 1 and {parDcsHbheB} = 1 and {parDcsHbheC} = 1 and {parDcsH0} = 1 and {parDcsHf} = 1"
 
     tries = 0;
@@ -187,35 +162,6 @@ def getLastClosedRun(DBSListOfFiles):
         runs.sort()
         return long(runs[len(runs)-2])
     
-########################################################################
-def ls(dir):
-    lsCommand      = ''
-    listOfFiles    = []
-    if dir.find('castor') != -1:
-    	lsCommand = 'ns'
-    elif not os.path.exists(dir):
-        print "ERROR: File or directory " + dir + " doesn't exist"
-        return listOfFiles
-
-    aCommand  = lsCommand  + 'ls '+ dir + " | grep .txt"
-
-    tmpStatus = commands.getstatusoutput( aCommand )
-    listOfFiles = tmpStatus[1].split('\n')
-    if len(listOfFiles) == 1:
-        if listOfFiles[0].find('No such file or directory') != -1:
-            exit("ERROR: File or directory " + path + " doesn't exist") 
-
-    return listOfFiles            
-
-########################################################################
-def dirExists(dir):
-    if dir.find("castor") != -1:
-    	lsCommand = "nsls " + dir
-        output = commands.getstatusoutput( lsCommand )
-        return not output[0]
-    else:
-        return os.path.exists(dir)
-
 ########################################################################
 def getRunNumberFromFileName(fileName):
     regExp = re.search('(\D+)_(\d+)_(\d+)_(\d+)',fileName)
@@ -267,13 +213,15 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
         file.close()
     filesToProcess = []
     #print "WARNING WARNING YOU MUST CHANGE THIS LINE BEFORE YOU CAN REALLY RUN THE SCRIPT!!!!!!"
-    #for run in listOfRunsAndLumiFromRR:
-    for run in listOfRunsAndLumiFromDBS:
+    for run in listOfRunsAndLumiFromRR:
+    #for run in listOfRunsAndLumiFromDBS:
         if run in runsAndLumisProcessed:
             if not run in listOfRunsAndLumiFromDBS:
                 error = "Impossible but run " + str(run) + " has been processed and it is also in the run registry but it is not in DBS!" 
                 exit(error)
+            print "Working on run " + str(run)    
             errors = []
+            #It is important for runsAndLumisProcessed[run] to be the first because the comparision is not ==
             badProcessed,badDBS = compareLumiLists(runsAndLumisProcessed[run],listOfRunsAndLumiFromDBS[run],errors,tolerance)
             for i in range(0,len(errors)):
                 errors[i] = errors[i].replace("listA","the processed lumis")
@@ -283,12 +231,13 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
             #print badDBS
             
             if len(errors) != 0 and errors[0].find("ERROR") != -1 and run in listOfRunsAndLumiFromRR:
+                lastError = len(errors)
                 RRList = []
                 for lumiRange in listOfRunsAndLumiFromRR[run]:
                     print lumiRange
                     for l in range(lumiRange[0],lumiRange[1]+1):
                         RRList.append(long(l))
-
+                #It is important for runsAndLumisProcessed[run] to be the first because the comparision is not ==
                 badProcessed,badRunRegistry = compareLumiLists(runsAndLumisProcessed[run],RRList,errors,tolerance)
                 for i in range(0,len(errors)):
                     errors[i] = errors[i].replace("listA","the processed lumis")
@@ -296,30 +245,36 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                 #print errors
                 #print badProcessed
                 #print badRunRegistry
-            else:
-                print "No problem for run: " + str(run)
                     
-            if len(errors) != 0 and errors[0].find("ERROR") != -1:    
-                print "I have errors in run: " + str(run)
-                print errors
-                #exit(errors)
-                return filesToProcess
-            else:
-                for file in runsAndFiles[run]:
-                    filesToProcess.append(file)    
-                
+                if len(errors) > lastError and errors[lastError].find("ERROR") != -1 and len(badProcessed) != 0:    
+                    print "I have errors in run: " + str(run)
+                    print errors
+                    exit(errors)
+                    #return filesToProcess
+                else:
+                    print "The number of lumi sections processed didn't match the one in DBS but they cover all the ones in the Run Registry, so it is ok!"
+                    print errors
+                    errors = []
+
             #If I get here it means that I passed or the DBS or the RR test            
+            if len(errors) == 0:
+                for file in runsAndFiles[run]:
+                    filesToProcess.append(file)
+            else:
+                print errors
+                print "This should never happen because if I have errors I return or exit! Run: " + str(run)
+                
                             
     return filesToProcess
 ########################################################################
 def compareLumiLists(listA,listB,errors=[],tolerance=0):
     lenA = len(listA)
     lenB = len(listB)
-    if lenA <= lenB-(lenB*float(tolerance)/100):
+    if lenA < lenB-(lenB*float(tolerance)/100):
         errors.append("ERROR: The number of lumi sections is different: listA(" + str(lenA) + ")!=(" + str(lenB) + ")listB")
-    else:
-        errors.append("Lumi check ok!listA(" + str(lenA) + ")-(" + str(lenB) + ")listB")
-    print errors
+    #else:
+        #errors.append("Lumi check ok!listA(" + str(lenA) + ")-(" + str(lenB) + ")listB")
+    #print errors
     listA.sort()
     listB.sort()
     shorter = lenA
@@ -330,7 +285,7 @@ def compareLumiLists(listA,listB,errors=[],tolerance=0):
     badA = []
     badB = []
     while a < shorter or b < shorter:
-        #print str(a) + ":" + str(b) + ": "  + listA[a] + listB[b]
+        #print str(a) + ":" + str(b) + "-"  + str(listA[a]) + ":" + str(listB[b])
         if listA[a] > listB[b]:
             badA.append(listB[b])
             errors.append("Lumi (" + str(listB[b]) + ") is in listB but not in listA")
@@ -399,31 +354,6 @@ def aselectFilesToProcess(listOfFilesToProcess,newRunList):
     return selectedFiles            
 
 ########################################################################
-def cp(fromDir,toDir,listOfFiles,overwrite=False):
-    cpCommand   = ''
-    copiedFiles = []
-    if fromDir.find('castor') != -1:
-    	cpCommand = 'rf'
-
-    for file in listOfFiles:
-        if os.path.isfile(toDir+file):
-            if overwrite:
-                print "File " + file + " already exists in destination directory. We will overwrite it."
-            else:
-                print "File " + file + " already exists in destination directory. We will Keep original file."
-                copiedFiles.append(file)
-                continue
-    	# copy to local disk
-    	aCommand = cpCommand + 'cp '+ fromDir + file + " " + toDir
-    	print " >> " + aCommand
-        tmpStatus = commands.getstatusoutput( aCommand )
-        if tmpStatus[0] == 0:
-            copiedFiles.append(file)
-        else:
-            print "[cp()]\tERROR: Can't copy file " + file
-    return copiedFiles
-
-########################################################################
 def sendEmail(mailList,error):
     print "Sending email to " + mailList + " with body: " + error
 
@@ -478,7 +408,10 @@ def main():
 
     print "Getting last IOV for tag: " + databaseTag
     lastUploadedIOV = getLastUploadedIOV(databaseTag,destDB) 
-#    lastUploadedIOV = 133885
+    #lastUploadedIOV = 133885
+    #lastUploadedIOV = 575216380019329
+    if dbIOVBase == "lumiid":
+        lastUploadedIOV = unpackLumiid(lastUploadedIOV)["run"]
 
     ######### Get list of files processed after the last IOV  
     print "Getting list of files processed after IOV " + str(lastUploadedIOV)

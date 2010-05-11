@@ -52,6 +52,65 @@ optparse.Values.__nonzero__ = nonzero # dynamically fix optparse.Values
 class ParsingError(Exception): pass
 
 ###########################################################################################
+# General utilities
+###########################################################################################
+def dirExists(dir):
+    if dir.find("castor") != -1:
+    	lsCommand = "nsls " + dir
+        output = commands.getstatusoutput( lsCommand )
+        return not output[0]
+    else:
+        return os.path.exists(dir)
+
+########################################################################
+def ls(dir):
+    lsCommand      = ''
+    listOfFiles    = []
+    if dir.find('castor') != -1:
+    	lsCommand = 'ns'
+    elif not os.path.exists(dir):
+        print "ERROR: File or directory " + dir + " doesn't exist"
+        return listOfFiles
+
+    aCommand  = lsCommand  + 'ls '+ dir + " | grep .txt"
+
+    tmpStatus = commands.getstatusoutput( aCommand )
+    listOfFiles = tmpStatus[1].split('\n')
+    if len(listOfFiles) == 1:
+        if listOfFiles[0].find('No such file or directory') != -1:
+            exit("ERROR: File or directory " + path + " doesn't exist") 
+
+    return listOfFiles            
+
+########################################################################
+def cp(fromDir,toDir,listOfFiles,overwrite=False):
+    cpCommand   = ''
+    copiedFiles = []
+    if fromDir.find('castor') != -1:
+    	cpCommand = 'rf'
+
+    for file in listOfFiles:
+        if os.path.isfile(toDir+file):
+            if overwrite:
+                print "File " + file + " already exists in destination directory. We will overwrite it."
+            else:
+                print "File " + file + " already exists in destination directory. We will Keep original file."
+                copiedFiles.append(file)
+                continue
+    	# copy to local disk
+    	aCommand = cpCommand + 'cp '+ fromDir + file + " " + toDir
+    	print " >> " + aCommand
+        tmpStatus = commands.getstatusoutput( aCommand )
+        if tmpStatus[0] == 0:
+            copiedFiles.append(file)
+        else:
+            print "[cp()]\tERROR: Can't copy file " + file
+    return copiedFiles
+
+########################################################################
+
+
+###########################################################################################
 # lumi tools CondCore/Utilities/python/timeUnitHelper.py
 ###########################################################################################
 def pack(high,low):
