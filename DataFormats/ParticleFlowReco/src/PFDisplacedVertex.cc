@@ -1,14 +1,19 @@
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
 
+#include "TMath.h"
+
 using namespace std;
 using namespace reco;
 
+
 PFDisplacedVertex::PFDisplacedVertex() : Vertex(),
-					 vertexType_(ANY)
+					 vertexType_(ANY),
+					 primaryDirection_(0,0,0)
 {}
 
 PFDisplacedVertex::PFDisplacedVertex(Vertex& v) : Vertex(v),
-						  vertexType_(ANY)
+						  vertexType_(ANY),
+						  primaryDirection_(0,0,0)
 {}
 
 void 
@@ -69,6 +74,16 @@ PFDisplacedVertex::trackPosition(const reco::TrackBaseRef& originalTrack) const 
 }
 
 
+void 
+PFDisplacedVertex::setPrimaryDirection(const math::XYZPoint& pvtx){
+  primaryDirection_ = math::XYZVector(position().x(), position().y(), position().z()); 
+  math::XYZVector vtx(pvtx.x(), pvtx.y(), pvtx.z());
+
+  primaryDirection_  = primaryDirection_ - vtx;
+  primaryDirection_ /= (sqrt(primaryDirection_.Mag2())+1e-10);
+}
+
+
 std::string 
 PFDisplacedVertex::nameVertexType() const {
   switch (vertexType_){
@@ -80,6 +95,7 @@ PFDisplacedVertex::nameVertexType() const {
   case NUCL_KINK: return "NUCL_KINK";
   case CONVERSION: return "CONVERSION";
   case CONVERSION_LOOSE: return "CONVERSION_LOOSE";
+  case CONVERTED_BREMM: return "CONVERTED_BREMM";
   case K0_DECAY: return "K0_DECAY";
   case LAMBDA_DECAY: return "LAMBDA_DECAY";
   case LAMBDABAR_DECAY: return "LAMBDABAR_DECAY";
@@ -92,7 +108,6 @@ PFDisplacedVertex::nameVertexType() const {
   }
   return "?";
 }
-
 
 
 const math::XYZTLorentzVector 
@@ -116,9 +131,9 @@ PFDisplacedVertex::momentum(string massHypo, VertexTrackType T, bool useRefitted
 	TrackBaseRef trackRef = originalTrack(refittedTracks()[i]);
 
 	double p2 = trackRef->innerMomentum().Mag2();
-	P += math::XYZTLorentzVector (trackRef->innerMomentum().x(),
-				      trackRef->innerMomentum().y(),
-				      trackRef->innerMomentum().z(),
+	P += math::XYZTLorentzVector (trackRef->momentum().x(),
+				      trackRef->momentum().y(),
+				      trackRef->momentum().z(),
 				      sqrt(m2 + p2));
       } else {
 
@@ -138,6 +153,45 @@ PFDisplacedVertex::momentum(string massHypo, VertexTrackType T, bool useRefitted
   return P;    
 
 }
+
+
+const int 
+PFDisplacedVertex::totalCharge() const {
+  
+  int charge = 0;
+
+  for (size_t i = 0; i< tracksSize(); i++){
+    if(trackTypes_[i] == T_TO_VERTEX) charge +=  refittedTracks()[i].charge();  
+    else if(trackTypes_[i] == T_FROM_VERTEX) charge -=  refittedTracks()[i].charge();  
+  }
+
+  return charge;
+}
+
+
+const double
+PFDisplacedVertex::angle_io() const {
+  math::XYZTLorentzVector momentumSec = momentum
+("MASSLESS", T_FROM_VERTEX, true, 0.0);
+  math::XYZVector p_out = momentumSec.Vect();
+
+  math::XYZVector p_in;
+
+  if (isThereKindTracks(T_TO_VERTEX) || isThereKindTracks(T_MERGED)){
+    math::XYZTLorentzVector momentumPrim = momentum("MASSLESS", T_TO_VERTEX, true, 0.0);
+    p_in = momentumPrim.Vect();
+  } else {
+    p_in = primaryDirection_;
+  }
+
+ 
+  if (p_in.Mag2() < 1e-10) return -1;
+  return acos(p_in.Dot(p_out)/sqrt(p_in.Mag2()*p_out.Mag2()))/TMath::Pi()*180.0;
+
+ 
+  
+}
+
 
 
 const double 
@@ -164,8 +218,9 @@ PFDisplacedVertex::getMass2(string massHypo, double mass) const {
 void PFDisplacedVertex::Dump( ostream& out ) const {
   if(! out ) return;
 
-  out << "      === This is a " << nameVertexType().data()
-      << " Displaced Vertex ===" << endl;
+  out << "" << endl;
+  out << "==================== This is a Displaced Vertex type " << 
+    nameVertexType() << " ===============" << endl;
 
   out << " Vertex chi2 = " << chi2() << " ndf = " << ndof()<< " normalised chi2 = " << normalizedChi2()<< endl;
 
@@ -174,7 +229,7 @@ void PFDisplacedVertex::Dump( ostream& out ) const {
       << " rho = " << position().rho() 
       << " z = " << position().z() 
       << endl;
-  
+
   out<< "\t--- Structure ---  " << endl;
   out<< "Number of tracks: "  << nTracks() 
      << " nPrimary " << nPrimaryTracks()
@@ -183,11 +238,8 @@ void PFDisplacedVertex::Dump( ostream& out ) const {
               
   vector <PFDisplacedVertex::PFTrackHitFullInfo> pattern = trackHitFullInfos();
   vector <PFDisplacedVertex::VertexTrackType> trackType = trackTypes();
-  out << "The tracks list is: " << endl; 
-
   for (unsigned i = 0; i < pattern.size(); i++){
-    out << i << " key = " << originalTrack(refittedTracks()[i]).key()
-	<< " pT = " << refittedTracks()[i].pt()
+    out << "track " << i 
 	<< " type = " << trackType[i]
 	<< " nHit BeforeVtx = " << pattern[i].first.first 
 	<< " AfterVtx = " << pattern[i].second.first
@@ -212,6 +264,27 @@ void PFDisplacedVertex::Dump( ostream& out ) const {
       << "\tPz = " << mom_sec.Pz()
       << "\tM = "  << mom_sec.M() 
       << "\tEta = " << mom_sec.Eta()
-      << "\tPhi = " << mom_prim.Phi() << endl;
+      << "\tPhi = " << mom_sec.Phi() << endl;
+
+  out << " The vertex Direction is x = " << primaryDirection().x()
+      << " y = " << primaryDirection().y()
+      << " z = " << primaryDirection().z() 
+      << " eta = " << primaryDirection().eta() 
+      << " phi = " << primaryDirection().phi() << endl;
+
+  /*
+  math::XYZVector dir_prim(mom_prim.px(), mom_prim.py(), mom_prim.pz());
+  math::XYZVector dir_sec(mom_sec.px(), mom_sec.py(), mom_sec.pz());
+  math::XYZVector primDir = primaryDirection();
+
+  double angle_primMom_pd = acos( dir_prim.Dot(primDir) / sqrt(dir_prim.Mag2()*primDir.Mag2()) ) / TMath::Pi()*180.0;
+  double angle_secMom_pd = acos( dir_sec.Dot(primDir) / sqrt(dir_sec.Mag2()*primDir.Mag2()) ) / TMath::Pi()*180.0;
+  double angle_secMom_primMom = acos( dir_sec.Dot(dir_prim) / sqrt(dir_sec.Mag2()*dir_prim.Mag2()) ) / TMath::Pi()*180.0;
+
+  out << " Angle primary track - primary direction = " << angle_primMom_pd << " deg" << endl;
+  out << " Angle secondary tracks - primary direction = " << angle_secMom_pd << " deg" << endl;
+  out << " Angle primary track - secondary tracks = " << angle_secMom_primMom << " deg" << endl;*/
+  out << " Angle_io = " << angle_io() << " deg" << endl << endl;
+  
 }
 

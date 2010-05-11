@@ -4,6 +4,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "TVector3.h"
 
 #include <vector>
 #include <string>
@@ -51,6 +52,7 @@ namespace reco {
       NUCL_KINK = 12,
       CONVERSION = 20,
       CONVERSION_LOOSE = 21,
+      CONVERTED_BREMM = 22,
       K0_DECAY = 30,
       LAMBDA_DECAY = 31,
       LAMBDABAR_DECAY = 32,
@@ -60,8 +62,6 @@ namespace reco {
       KMINUS_DECAY_LOOSE = 43,
       BSM_VERTEX = 100
     };
-
-
 
 
     /// Default constructor
@@ -81,10 +81,12 @@ namespace reco {
     /// Set the type of this vertex
     void setVertexType(VertexType vertexType) {vertexType_ = vertexType;}
 
+    /// Estimate the direction of the vertex. This function produced a unitary vector.
+    /// It is calculated the axis linking the primary vertex of the event pvtx to this vertex
+    void setPrimaryDirection(const math::XYZPoint& pvtx);
+
     /// Get the type of this vertex
     VertexType vertexType(){return vertexType_;}
-    
-    std::string nameVertexType() const;
 
     const std::vector < PFTrackHitFullInfo > trackHitFullInfos() const
       {return trackHitFullInfos_;}
@@ -135,6 +137,12 @@ namespace reco {
       return isTrack(itrk, T_MERGED);
     }
 
+    const PFTrackHitFullInfo trackHitFullInfo(const reco::TrackBaseRef& originalTrack) const{
+      size_t itrk = trackPosition(originalTrack);
+      return trackHitFullInfos_[itrk];
+    }
+
+
 
     /// Is primary or merged track
     const bool isIncomingTrack(const reco::TrackBaseRef& originalTrack) const 
@@ -149,8 +157,6 @@ namespace reco {
       size_t itrk = trackPosition(originalTrack);
       return isTrack(itrk, T_FROM_VERTEX);    
     }
-
-
 
 
     /// Number of primary tracks was identified
@@ -188,6 +194,20 @@ namespace reco {
 		      bool useRefitted = true, double mass = 0.0) const
       {return momentum(massHypo, T_TO_VERTEX, useRefitted, mass);}
 
+    
+
+    /// Total Charge
+    const int totalCharge() const;
+
+    /// Angle PrimaryVertex-DisplacedVertex (or primary track if there is)
+    /// And secondary momentum
+    const double angle_io() const;
+
+
+    /// Primary Direction
+    const math::XYZVector primaryDirection() const { return primaryDirection_;};
+
+
 
     bool isFake() const { return vertexType_ == FAKE;}
     bool isLooper() const { return vertexType_ ==  LOOPER;}
@@ -196,6 +216,7 @@ namespace reco {
     bool isNucl_Kink() const { return vertexType_ ==   NUCL_KINK;}
     bool isConv() const { return vertexType_ ==   CONVERSION;}
     bool isConv_Loose() const { return vertexType_ ==   CONVERSION_LOOSE;}
+    bool isConvertedBremm() const { return vertexType_ ==   CONVERTED_BREMM;}
     bool isK0() const { return vertexType_ ==   K0_DECAY;}
     bool isLambda() const { return vertexType_ ==   LAMBDA_DECAY;}
     bool isLambdaBar() const { return vertexType_ ==   LAMBDABAR_DECAY;}
@@ -205,6 +226,7 @@ namespace reco {
     bool isKminus_Loose() const { return vertexType_ ==   KMINUS_DECAY_LOOSE;}
     bool isBSM() const { return vertexType_ ==   BSM_VERTEX;}
 
+    std::string nameVertexType() const;
 
     /// cout function
     void Dump(std::ostream& out = std::cout) const;
@@ -253,6 +275,8 @@ namespace reco {
 
     /// Information on the distance between track's hits and the Vertex
     std::vector < PFTrackHitFullInfo > trackHitFullInfos_;
+
+    math::XYZVector primaryDirection_;
     
   };
 }
