@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.177 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: reco_FirstCollisions_MinimumBias_36X -s RAW2DIGI,L1Reco,RECO,DQM,ALCA:SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib+EcalCalElectron --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --conditions GR_R_36X_V6::All --customise Configuration/GlobalRuns/customise_Collision_36X.py --no_exec --python_filename=rereco_FirstCollisions_MinimumBias_36X.py
+# with command line options: reco_FirstCollisions_MinimumBias_36X -s RAW2DIGI,L1Reco,RECO,DQM,ALCA:SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib+EcalCalElectron --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --customise Configuration/GlobalRuns/customise_Collision_36X.py --no_exec --python_filename=rereco_FirstCollisions_MinimumBias_36X.py --conditions GR_R_36X_V9::All
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('RECO')
@@ -229,7 +229,7 @@ process.ALCARECOStreamMuAlOverlaps = cms.OutputModule("PoolOutputModule",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'GR_R_36X_V6::All'
+process.GlobalTag.globaltag = 'GR_R_36X_V9::All'
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -356,12 +356,11 @@ def customise(process):
     process.ecalPreshowerRecHit.ESBaseline = 0
 
     ##Preshower algo for data is different than for MC
-    process.ecalPreshowerRecHit.ESRecoAlgo = cms.untracked.int32(1)
+    process.ecalPreshowerRecHit.ESRecoAlgo = 1
 
     ## HCAL temporary fixes
     process.hfreco.firstSample  = 3
     process.hfreco.samplesToAdd = 4
-    process.hfreco.PETstat.short_R = cms.vdouble([0.8])
     
     ## EGAMMA
     process.photons.minSCEtBarrel = 5.
