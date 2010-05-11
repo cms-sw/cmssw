@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.87 2010/05/09 10:30:56 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.88 2010/05/09 13:21:38 dinardo Exp $
 
 
 #include "DQM/BeamMonitor/interface/Vx3DHLTAnalyzer.h"
@@ -1145,7 +1145,7 @@ void Vx3DHLTAnalyzer::beginJob()
       fitResults->setBinLabel(4, "#frac{dY}{dZ}[rad]", 2);
       fitResults->setBinLabel(3, "\\sigma_{X}", 2);
       fitResults->setBinLabel(2, "\\sigma_{Y}", 2);
-      fitResults->setBinLabel(1, "N.vertices", 2);
+      fitResults->setBinLabel(1, "Vertices", 2);
       fitResults->setBinLabel(1, "Value", 1);
       fitResults->setBinLabel(2, "Stat. Error", 1);
       fitResults->getTH1()->SetOption("text");
