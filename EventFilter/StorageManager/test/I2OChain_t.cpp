@@ -1016,9 +1016,9 @@ testI2OChain::add_fragment()
     CPPUNIT_ASSERT(frag1.messageCode() != Header::INVALID);
 
     CPPUNIT_ASSERT(frag1.fragmentCount() == 3);
-    CPPUNIT_ASSERT(frag1.getFragmentID(0) == 1);
+    CPPUNIT_ASSERT(frag1.getFragmentID(0) == 0);
     CPPUNIT_ASSERT(frag1.getFragmentID(1) == 1);
-    CPPUNIT_ASSERT(frag1.getFragmentID(2) == 0);
+    CPPUNIT_ASSERT(frag1.getFragmentID(2) == 1);
 
     CPPUNIT_ASSERT(frag1.creationTime() == creationTime1);
     CPPUNIT_ASSERT(frag1.lastFragmentTime() > lastFragmentTime3);
@@ -1065,7 +1065,7 @@ testI2OChain::add_fragment()
     frag1.addToChain(frag2);
     CPPUNIT_ASSERT(frag2.empty());
     CPPUNIT_ASSERT(!frag1.empty());
-    CPPUNIT_ASSERT(!frag1.complete());
+    CPPUNIT_ASSERT(frag1.complete());
     CPPUNIT_ASSERT(!frag2.complete());
     CPPUNIT_ASSERT(frag1.faulty());
     CPPUNIT_ASSERT(!frag2.faulty());
@@ -1137,7 +1137,7 @@ testI2OChain::chained_references()
     double lastFragmentTime1 = frag1.lastFragmentTime();
 
     CPPUNIT_ASSERT(!frag1.empty());
-    CPPUNIT_ASSERT(!frag1.complete());
+    CPPUNIT_ASSERT(frag1.complete());
     CPPUNIT_ASSERT(frag1.faulty());
     CPPUNIT_ASSERT(frag1.getFragmentID(0) == 1);
     CPPUNIT_ASSERT(frag1.getFragmentID(1) == 2);
@@ -1374,8 +1374,8 @@ testI2OChain::chained_references()
 
     CPPUNIT_ASSERT(frag1.fragmentCount() == 3);
     CPPUNIT_ASSERT(frag1.getFragmentID(0) == 0);
-    CPPUNIT_ASSERT(frag1.getFragmentID(1) == 2);
-    CPPUNIT_ASSERT(frag1.getFragmentID(2) == 1);
+    CPPUNIT_ASSERT(frag1.getFragmentID(1) == 1);
+    CPPUNIT_ASSERT(frag1.getFragmentID(2) == 2);
     CPPUNIT_ASSERT(frag1.messageCode() != Header::INVALID);
     CPPUNIT_ASSERT(frag1.rbBufferId() == 2);
 

@@ -204,6 +204,10 @@ void testEventDistributor::testStreamSelection()
   EvtStrConfigListPtr evtCfgList(new EvtStrConfigList);
   ErrStrConfigListPtr errCfgList(new ErrStrConfigList);
   parseStreamConfiguration(getSampleStreamConfig(), evtCfgList, errCfgList);
+  evtCfgList->at(0).setStreamId(1);
+  evtCfgList->at(1).setStreamId(2);
+  evtCfgList->at(2).setStreamId(3);
+  errCfgList->at(0).setStreamId(4);
   _eventDistributor->registerEventStreams(evtCfgList);
   _eventDistributor->registerErrorStreams(errCfgList);
 
@@ -267,6 +271,7 @@ void testEventDistributor::testStreamSelection()
 
   std::vector<StreamID> streamIdList = eventMsgFrag.getStreamTags();
   CPPUNIT_ASSERT(streamIdList.size() == 1);
+  std::cout << streamIdList[0] << std::endl;
   CPPUNIT_ASSERT(streamIdList[0] == 2);
 
   // *** second event message (should not pass) ***
