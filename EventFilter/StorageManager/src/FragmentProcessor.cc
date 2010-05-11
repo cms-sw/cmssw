@@ -1,4 +1,4 @@
-// $Id: FragmentProcessor.cc,v 1.13 2009/09/29 07:59:43 mommsen Exp $
+// $Id: FragmentProcessor.cc,v 1.14 2010/02/11 13:35:41 mommsen Exp $
 /// @file: FragmentProcessor.cc
 
 #include <unistd.h>
@@ -84,6 +84,11 @@ bool FragmentProcessor::processMessages(toolbox::task::WorkLoop*)
     
     errorMsg = "Failed to process an event fragment: ";
     processOneFragmentIfPossible();
+  }
+  catch(stor::exception::RBLookupFailed &e)
+  {
+    _sharedResources->_statisticsReporter->alarmHandler()->
+      notifySentinel(AlarmHandler::ERROR, e);
   }
   catch(xcept::Exception &e)
   {
