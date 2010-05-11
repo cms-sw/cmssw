@@ -28,6 +28,12 @@ private:
   void complete(MuonRecHitContainer& seedSegments,
                 const MuonRecHitContainer &recHits, bool* used=0) const;
 
+  MuonRecHitPointer
+  bestMatch(const ConstMuonRecHitPointer & first,  MuonRecHitContainer & good_rhit) const;
+  MuonRecHitPointer
+  bestMatch2(const ConstMuonRecHitPointer & first,  MuonRecHitContainer & good_rhit) const;
+
+
   // see if it's OK to add
   bool check(const MuonRecHitContainer & segments);
   bool isCrack(const ConstMuonRecHitPointer & segment) const;

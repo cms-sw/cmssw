@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2010/04/21 16:22:53 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/04/22 00:16:03 $
+ *  $Revision: 1.17 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -468,7 +468,8 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
     float eta2 = fabs( ptg2.eta() );
     // be a little more lenient in cracks
     bool crack = isCrack(recHit) || isCrack(first);
-    float detaWindow = crack ? 0.25 : 0.2;
+    //float detaWindow = 0.3;
+float detaWindow = crack ? 0.25 : 0.2;
     if ( deta > detaWindow || dphi > .2 ) {
       continue;
     }   // +vvp!!!
@@ -506,9 +507,7 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
       float dphicut = (isME1A(first) || isME1A(recHit)) ? 0.1 : 0.2;
       // segments at the edge of the barrel may not have a good eta measurement
      // float detacut = (first->isDT() || recHit->isDT()) ? 0.1 : 0.2;
-      float detacut = (first->isDT() || recHit->isDT()) ? 0.2 : 0.2;
-
-      if ( deta < detacut && dphi < dphicut ) {
+      if ( dphi < dphicut ) {
 	good_rhit.push_back(recHit);
 	if (used) markAsUsed(nr, recHits, used);
       }
@@ -518,12 +517,21 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
 
   // select the best rhit among the compatible ones (based on Dphi Glob & Dir)
 
-  MuonRecHitPointer best=0;
+  MuonRecHitPointer best=bestMatch2(first, good_rhit);
+  if(best && best->isValid() ) seedSegments.push_back(best);
+}
 
+
+
+MuonSeedOrcaPatternRecognition::MuonRecHitPointer
+MuonSeedOrcaPatternRecognition::bestMatch(const ConstMuonRecHitPointer & first,
+                                          MuonRecHitContainer & good_rhit) const
+{
+  MuonRecHitPointer best = 0;
   float best_dphiG = M_PI;
   float best_dphiD = M_PI;
 
-  if( fabs ( ptg2.eta() ) > 1.0 ) {    //  endcap & overlap.
+  if( first->isCSC() ) {    //  endcap & overlap.
       
     // select the best rhit among the compatible ones (based on Dphi Glob & Dir)
       
@@ -562,7 +570,7 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
 
   }  // eta > 1.0
 
-  if( fabs ( ptg2.eta() ) < 1.0 ) {     //  barrel only
+  else {     //  barrel only
 
     // select the best rhit among the compatible ones (based on Dphi)
 
@@ -587,14 +595,36 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
     }   //  rhit iter
 
   }  // eta < 1.0
+  return best;
+}
 
 
-  // add the best Rhit to the seed 
-  if(best)
-    if ( best->isValid() ) seedSegments.push_back(best);
-
-}  //   void complete.
-
+MuonSeedOrcaPatternRecognition::MuonRecHitPointer
+MuonSeedOrcaPatternRecognition::bestMatch2(const ConstMuonRecHitPointer & first,
+                                          MuonRecHitContainer & good_rhit) const
+{
+  MuonRecHitPointer best = 0;
+  if( first->isCSC() ) {    //  endcap & overlap.
+    double bestDiscrim = 10000.;
+    for (MuonRecHitContainer::iterator iter=good_rhit.begin(); iter!=good_rhit.end(); iter++){
+      if ((**iter).isDT()) return bestMatch(first, good_rhit);
+      float discrim = fabs((**iter).globalPosition().theta()-first->globalPosition().theta());
+      // penalize those 3-hit segments
+      int nhits = (**iter).recHits().size();
+      // better never be zero
+      discrim /= std::max(nhits-2, 1);
+      if(discrim < bestDiscrim) 
+      {
+        best = (*iter);
+        bestDiscrim = discrim;
+      }
+    }
+  }
+  else {
+    best =  bestMatch(first, good_rhit);
+  }
+  return best;
+}
 
 
 bool MuonSeedOrcaPatternRecognition::check(const MuonRecHitContainer & segments)
@@ -670,7 +700,7 @@ void MuonSeedOrcaPatternRecognition::dumpLayer(const char * name, const MuonRecH
   for(MuonRecHitContainer::const_iterator segmentItr = segments.begin();
       segmentItr != segments.end(); ++segmentItr)
   {
-    LogTrace(metname) << theDumper.dumpMuonId((**segmentItr).geographicalId());
+    LogTrace(metname)  << theDumper.dumpMuonId((**segmentItr).geographicalId());
   }
 }
 
