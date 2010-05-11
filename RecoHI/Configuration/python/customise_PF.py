@@ -4,6 +4,11 @@ def customise(process):
     process.load("RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff")
     process.localReco += process.particleFlowCluster
 
+    # avoid clustering in forward regions for dramatic timing improvement 
+    process.particleFlowClusterPS.thresh_Pt_Seed_Endcap = cms.double(99999.)
+    process.particleFlowClusterHFEM.thresh_Pt_Seed_Endcap = cms.double(99999.)
+    process.particleFlowClusterHFHAD.thresh_Pt_Seed_Endcap = cms.double(99999.)
+
     # run tracker-driven electron seeds with heavy-ion tracks
     process.load("TrackingTools.GsfTracking.FwdAnalyticalPropagator_cfi")
     process.load("RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff")
@@ -16,6 +21,7 @@ def customise(process):
     process.load("RecoParticleFlow.Configuration.RecoParticleFlow_cff")
     process.particleFlowBlock.useConvBremPFRecTracks = cms.bool(False)
     process.particleFlowBlock.usePFatHLT = cms.bool(True)
+    process.particleFlowBlock.useIterTracking = cms.bool(False)
     process.particleFlow.vertexCollection = cms.InputTag("hiSelectedVertex")
     process.particleFlow.usePFElectrons = cms.bool(False)
     process.particleFlowReco.remove(process.particleFlowTrack)
