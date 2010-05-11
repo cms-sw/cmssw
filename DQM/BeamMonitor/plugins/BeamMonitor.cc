@@ -2,12 +2,12 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/04/13 17:07:51 $
- * $Revision: 1.43 $
+ * $Date: 2010/04/15 15:29:22 $
+ * $Revision: 1.44 $
  *
  */
 
-#include "DQM/BeamMonitor/interface/BeamMonitor.h"
+#include "DQM/BeamMonitor/plugins/BeamMonitor.h"
 #include "DQMServices/Core/interface/QReport.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
