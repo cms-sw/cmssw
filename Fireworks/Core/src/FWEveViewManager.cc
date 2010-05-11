@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.19 2010/05/04 13:53:09 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.20 2010/05/07 13:08:12 amraktad Exp $
 //
 
 // system include files
@@ -90,16 +90,6 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
    }
    
    
-   
-   // create scene maps and view maps
-
-   m_viewProducts.resize(FWViewType::kSize);
-   for (int viewType = 0;  viewType < FWViewType::kSize; ++viewType)
-   {
-      const char* sceneName = Form("Shared %s", FWViewType::idToName(viewType).c_str());
-      m_viewProducts[viewType] = new TEveElementList(sceneName);
-      m_viewProducts[viewType]->IncDenyDestroy();
-   }
    m_views.resize(FWViewType::kSize); 
    
    
@@ -209,7 +199,6 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
                   else 
                   {
                      TEveElementList* product = builder->createProduct((FWViewType::EType)viewType, 0);
-                     m_viewProducts[viewType]->AddElement(product);
 
                      for (EveViewVec_it i = m_views[viewType].begin(); i!= m_views[viewType].end(); ++i)
                      { 
