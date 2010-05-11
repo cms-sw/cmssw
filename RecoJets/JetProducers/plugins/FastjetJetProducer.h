@@ -34,6 +34,8 @@ protected:
   bool useOnlyOnePV_;
   float dzTrVtxMax_;
   float dxyTrVtxMax_;
+  int minVtxNdof_;
+  float maxVtxZ_;
 
 };
 

@@ -75,6 +75,14 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     dxyTrVtxMax_          = iConfig.getParameter<double>("DxyTrVtxMax");
   else
     dxyTrVtxMax_ = 999999.;
+  if ( iConfig.exists("MinVtxNdof") )
+    minVtxNdof_ = iConfig.getParameter<int>("MinVtxNdof");
+  else
+    minVtxNdof_ = 5;
+  if ( iConfig.exists("MaxVtxZ") )
+    maxVtxZ_ = iConfig.getParameter<double>("MaxVtxZ");
+  else
+    maxVtxZ_ = 15;
 
 }
 
@@ -127,8 +135,9 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
     // define the overall output jet container
     std::auto_ptr<std::vector<reco::TrackJet> > jets(new std::vector<reco::TrackJet>() );
 
-    // loop over the vertices, clustering for each vertex separately
+    // loop over the good vertices, clustering for each vertex separately
     for (reco::VertexCollection::const_iterator itVtx = pvCollection->begin(); itVtx != pvCollection->end(); ++itVtx) {
+      if (itVtx->isFake() || itVtx->ndof() < minVtxNdof_ || fabs(itVtx->z()) > maxVtxZ_) continue;
 
       // clear the intermediate containers
       inputs_.clear();
@@ -169,8 +178,9 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
           if (fabs(dz) > dzTrVtxMax_) continue;
           if (fabs(dxy) > dxyTrVtxMax_) continue;
           bool closervtx = false;
-          // now loop over the vertices a second time
+          // now loop over the good vertices a second time
           for (reco::VertexCollection::const_iterator itVtx2 = pvCollection->begin(); itVtx2 != pvCollection->end(); ++itVtx2) {
+            if (itVtx->isFake() || itVtx->ndof() < minVtxNdof_ || fabs(itVtx->z()) > maxVtxZ_) continue;
             // and check this track is closer to any other vertex (if more than 1 vertex considered)
             if (!useOnlyOnePV_ &&
                 itVtx != itVtx2 &&
@@ -214,6 +224,7 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
         jet.setJetArea(0);
         jet.setPileup(0);
         jet.setPrimaryVertex(edm::Ref<reco::VertexCollection>(pvCollection, (int) (itVtx-pvCollection->begin())));
+        jet.setVertex(itVtx->position());
         jets->push_back(jet);
       }
 

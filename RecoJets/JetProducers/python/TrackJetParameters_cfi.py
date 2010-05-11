@@ -23,10 +23,14 @@ TrackJetParameters = cms.PSet(
     # only use the tracks that were used to fit the vertex
     UseOnlyVertexTracks = cms.bool(False),
     # only consider the highest-sum-pT PV for clustering
-    UseOnlyOnePV        = cms.bool(True),
+    UseOnlyOnePV        = cms.bool(False),
     # maximum z-distance between track and vertex for association (in cm)
-    DzTrVtxMax          = cms.double(0.5),
+    DzTrVtxMax          = cms.double(1),
     # maximum xy-distance between track and vertex for association (in cm)
-    DxyTrVtxMax         = cms.double(0.1)
+    DxyTrVtxMax         = cms.double(0.2),
+    # minimum number of degrees of freedom to call a PV a good vertex
+    MinVtxNdof          = cms.int32(5),
+    # maximum z distance to origin to call a PV a good vertex
+    MaxVtxZ             = cms.double(15.)
 
     )
