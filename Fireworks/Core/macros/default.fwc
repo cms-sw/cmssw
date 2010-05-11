@@ -739,22 +739,22 @@
       <string>0.98</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
-      <string>0.432383</string>
+      <string>0.542235</string>
     </config>
     <config name="cameraMatrix1Plain3D" version="0">
-      <string>0.848065</string>
+      <string>-0.689846</string>
     </config>
     <config name="cameraMatrix2Plain3D" version="0">
-      <string>0.306318</string>
+      <string>0.479681</string>
     </config>
     <config name="cameraMatrix3Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix4Plain3D" version="0">
-      <string>-0.890891</string>
+      <string>0.7862</string>
     </config>
     <config name="cameraMatrix5Plain3D" version="0">
-      <string>0.454217</string>
+      <string>0.617971</string>
     </config>
     <config name="cameraMatrix6Plain3D" version="0">
       <string>0</string>
@@ -763,25 +763,25 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix8Plain3D" version="0">
-      <string>-0.139136</string>
+      <string>-0.296428</string>
     </config>
     <config name="cameraMatrix9Plain3D" version="0">
-      <string>-0.272895</string>
+      <string>0.377126</string>
     </config>
     <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.951929</string>
+      <string>0.877443</string>
     </config>
     <config name="cameraMatrix11Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix12Plain3D" version="0">
-      <string>2144.44</string>
+      <string>2637.15</string>
     </config>
     <config name="cameraMatrix13Plain3D" version="0">
-      <string>4142.19</string>
+      <string>-3401.99</string>
     </config>
     <config name="cameraMatrix14Plain3D" version="0">
-      <string>1474.21</string>
+      <string>2324.13</string>
     </config>
     <config name="cameraMatrix15Plain3D" version="0">
       <string>1</string>
@@ -1130,156 +1130,12 @@
      </config>
     </config>
    </config>
-   <config name="iSpy" version="2">
-    <config name="Overlay Event Info" version="0">
-      <string>0</string>
+   <config name="TriggerTable" version="1">
+    <config name="Filter" version="0">
+      <string></string>
     </config>
-    <config name="Show Logo" version="0">
-      <string>0</string>
-    </config>
-    <config name="Line width" version="0">
-      <string>1</string>
-    </config>
-    <config name="Show Muon Barrel" version="0">
-      <string>1</string>
-    </config>
-    <config name="Show Muon Endcap" version="0">
-      <string>1</string>
-    </config>
-    <config name="Show Pixel Barrel" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Pixel Endcap" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Tracker Barrel" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Tracker Endcap" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Wire Frame" version="0">
-      <string>1</string>
-    </config>
-    <config name="Detector Transparency" version="0">
-      <string>95</string>
-    </config>
-    <config name="EventInfoTextSize" version="0">
-      <string>0.03</string>
-    </config>
-    <config name="EventInfoPosX" version="0">
-      <string>0.05</string>
-    </config>
-    <config name="EventInfoPosY" version="0">
-      <string>0.95</string>
-    </config>
-    <config name="LogoSize" version="0">
-      <string>0.2</string>
-    </config>
-    <config name="LogoPosX" version="0">
-      <string>0.02</string>
-    </config>
-    <config name="LogoPosY" version="0">
-      <string>0.98</string>
-    </config>
-    <config name="cameraMatrix0Plain3D" version="0">
-      <string>-0.6673</string>
-    </config>
-    <config name="cameraMatrix1Plain3D" version="0">
-      <string>-0.638955</string>
-    </config>
-    <config name="cameraMatrix2Plain3D" version="0">
-      <string>0.382683</string>
-    </config>
-    <config name="cameraMatrix3Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix4Plain3D" version="0">
-      <string>0.6916</string>
-    </config>
-    <config name="cameraMatrix5Plain3D" version="0">
-      <string>-0.722281</string>
-    </config>
-    <config name="cameraMatrix6Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix7Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix8Plain3D" version="0">
-      <string>0.276405</string>
-    </config>
-    <config name="cameraMatrix9Plain3D" version="0">
-      <string>0.264664</string>
-    </config>
-    <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.92388</string>
-    </config>
-    <config name="cameraMatrix11Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix12Plain3D" version="0">
-      <string>-704.389</string>
-    </config>
-    <config name="cameraMatrix13Plain3D" version="0">
-      <string>-674.468</string>
-    </config>
-    <config name="cameraMatrix14Plain3D" version="0">
-      <string>403.953</string>
-    </config>
-    <config name="cameraMatrix15Plain3D" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrixBase0Plain3D" version="0">
-      <string>-1</string>
-    </config>
-    <config name="cameraMatrixBase1Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase2Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase3Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase4Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase5Plain3D" version="0">
-      <string>-0</string>
-    </config>
-    <config name="cameraMatrixBase6Plain3D" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrixBase7Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase8Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase9Plain3D" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrixBase10Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase11Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase12Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase13Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase14Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase15Plain3D" version="0">
-      <string>1</string>
-    </config>
-    <config name="Plain3D FOV" version="0">
-      <string>30</string>
+    <config name="Process" version="0">
+      <string>HLT</string>
     </config>
    </config>
   </config>
@@ -1302,7 +1158,7 @@
    </config>
    <config name="Rho Z" version="2">
     <config name="weight" version="0">
-      <string>1.27898</string>
+      <string>0.94597</string>
     </config>
     <config name="undocked" version="0">
       <string>0</string>
@@ -1310,30 +1166,10 @@
    </config>
    <config name="3D" version="2">
     <config name="weight" version="0">
-      <string>0.655681</string>
+      <string>0.988693</string>
     </config>
     <config name="undocked" version="0">
-      <string>1</string>
-    </config>
-    <config name="UndockedWindowPos" version="2">
-     <config name="weight" version="0">
-       <string>0.655681</string>
-     </config>
-     <config name="undocked" version="0">
-       <string>1</string>
-     </config>
-     <config name="x" version="0">
-       <string>1024</string>
-     </config>
-     <config name="y" version="0">
-       <string>50</string>
-     </config>
-     <config name="width" version="0">
-       <string>360</string>
-     </config>
-     <config name="height" version="0">
-       <string>340</string>
-     </config>
+      <string>0</string>
     </config>
    </config>
    <config name="Table" version="2">
@@ -1341,10 +1177,30 @@
       <string>1.06534</string>
     </config>
     <config name="undocked" version="0">
-      <string>0</string>
+      <string>1</string>
+    </config>
+    <config name="UndockedWindowPos" version="2">
+     <config name="weight" version="0">
+       <string>1.06534</string>
+     </config>
+     <config name="undocked" version="0">
+       <string>1</string>
+     </config>
+     <config name="x" version="0">
+       <string>1026</string>
+     </config>
+     <config name="y" version="0">
+       <string>50</string>
+     </config>
+     <config name="width" version="0">
+       <string>358</string>
+     </config>
+     <config name="height" version="0">
+       <string>317</string>
+     </config>
     </config>
    </config>
-   <config name="iSpy" version="2">
+   <config name="TriggerTable" version="2">
     <config name="weight" version="0">
       <string>1</string>
     </config>
@@ -1359,16 +1215,16 @@
        <string>1</string>
      </config>
      <config name="x" version="0">
-       <string>1024</string>
+       <string>1026</string>
      </config>
      <config name="y" version="0">
-       <string>404</string>
+       <string>387</string>
      </config>
      <config name="width" version="0">
-       <string>360</string>
+       <string>358</string>
      </config>
      <config name="height" version="0">
-       <string>380</string>
+       <string>378</string>
      </config>
     </config>
    </config>
