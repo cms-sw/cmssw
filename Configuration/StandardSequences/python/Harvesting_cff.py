@@ -8,8 +8,12 @@ from HLTriggerOffline.Common.HLTValidationHarvest_cff import *
 
 from FastSimulation.Configuration.Harvesting_cff import *
 
+from Validation.RecoHI.HarvestingHI_cff import *
+
 dqmHarvesting = cms.Path(DQMOffline_SecondStep*DQMOffline_Certification)
 dqmHarvestingPOG = cms.Path(DQMOffline_SecondStep_PrePOG)
+
+dqmHarvestingPOGMC = cms.Path( DQMOffline_SecondStep_PrePOGMC )
 
 validationHarvesting = cms.Path(postValidation*hltpostvalidation)
 
@@ -19,4 +23,7 @@ validationprodHarvesting = cms.Path(postValidation*hltpostvalidation_prod)
 
 validationHarvestingFS = cms.Path(HarvestingFastSim)
 
+validationHarvestingHI = cms.Path(postValidationHI)
+
 #alcaHarvesting = cms.Path()
+

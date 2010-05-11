@@ -50,3 +50,9 @@ DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       DQMOffline_SecondStep_PrePOG *
                                       DQMMessageLoggerClient )
 
+DQMOffline_SecondStep_PrePOGMC = cms.Sequence( bTagCollectorSequence )
+
+DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
+                                           DQMOffline_SecondStep_PrePOGMC *
+                                           DQMMessageLoggerClient )
+
