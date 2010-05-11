@@ -54,6 +54,7 @@ public :
   const TAbsFitParticle* getMeasParticle( Int_t index ) { return _measParticles[index]; }
   Int_t nbUnmeasParticles() { return _unmeasParticles.size(); }
   const TAbsFitParticle* getUnmeasParticle( Int_t index ) { return _unmeasParticles[index]; }
+  Int_t nbConstraints() { return _constraints.size(); }
 
   void print();
 
