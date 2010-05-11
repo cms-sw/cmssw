@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedGenerator.cc,v 1.9 2010/03/18 14:52:37 chamont Exp $
+// $Id: ElectronSeedGenerator.cc,v 1.10 2010/04/30 13:54:23 chamont Exp $
 //
 //
 
@@ -58,6 +58,7 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
       fromTrackerSeeds_(pset.getParameter<bool>("fromTrackerSeeds")),
       useRecoVertex_(false),
       verticesTag_("offlinePrimaryVerticesWithBS"),
+      beamSpotTag_("offlineBeamSpot"),
       lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
       highPtThreshold_(pset.getParameter<double>("HighPtThreshold")),
       nSigmasDeltaZ1_(pset.getParameter<double>("nSigmasDeltaZ1")),
@@ -81,6 +82,9 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
   if (pset.exists("deltaZ1WithVertex"))
    { deltaZ1WithVertex_ = pset.getParameter<double>("deltaZ1WithVertex") ; }
 
+  // new beamSpot tag
+  if (pset.exists("beamSpot"))
+   { beamSpotTag_ = pset.getParameter<edm::InputTag>("beamSpot") ; }
 
   // Instantiate the pixel hit matchers
   myMatchEle = new PixelHitMatcher( pset.getParameter<double>("ePhiMin1"),
@@ -179,7 +183,8 @@ void  ElectronSeedGenerator::run
   //  if (fromTrackerSeeds_) e.getByLabel(initialSeeds_, theInitialSeedColl);
 
   // get the beamspot from the Event:
-  e.getByType(theBeamSpot);
+  //e.getByType(theBeamSpot);
+  e.getByLabel(beamSpotTag_,theBeamSpot);
 
   // if required get the vertices
   if (useRecoVertex_) e.getByLabel(verticesTag_,theVertices);

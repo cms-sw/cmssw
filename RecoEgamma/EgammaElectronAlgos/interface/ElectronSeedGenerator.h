@@ -73,6 +73,10 @@ class ElectronSeedGenerator
   edm::Handle<std::vector<reco::Vertex> > theVertices;
   edm::InputTag verticesTag_;
 
+  double zmin1_, zmax1_;
+  edm::Handle<reco::BeamSpot> theBeamSpot;
+  edm::InputTag beamSpotTag_;
+
   float lowPtThreshold_;
   float highPtThreshold_;
   float nSigmasDeltaZ1_; // first z window size if not using the reco vertex
@@ -81,9 +85,6 @@ class ElectronSeedGenerator
   float phimin2_,phimax2_;
   float deltaPhi1Low_, deltaPhi1High_;
   float deltaPhi2_;
-
-  double zmin1_, zmax1_;
-  edm::Handle<reco::BeamSpot> theBeamSpot;
 
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;
