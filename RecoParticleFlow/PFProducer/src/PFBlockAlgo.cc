@@ -32,7 +32,8 @@ PFBlockAlgo::PFBlockAlgo() :
 void PFBlockAlgo::setParameters( std::vector<double>& DPtovPtCut,
 				 std::vector<unsigned int>& NHitCut,
 				 bool useConvBremPFRecTracks,
-				 bool useIterTracking) {
+				 bool useIterTracking,
+				 int nuclearInteractionsPurity) {
   
   DPtovPtCut_    = DPtovPtCut;
   NHitCut_       = NHitCut;
@@ -42,7 +43,7 @@ void PFBlockAlgo::setParameters( std::vector<double>& DPtovPtCut,
   double strip_length = 6.1;
   resPSpitch_    = strip_pitch/sqrt(12.);
   resPSlength_   = strip_length/sqrt(12.);
-
+  nuclearInteractionsPurity_ = nuclearInteractionsPurity;
 }
 
 PFBlockAlgo::~PFBlockAlgo() {

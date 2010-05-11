@@ -67,7 +67,8 @@ class PFBlockAlgo {
   void setParameters( std::vector<double>& DPtovPtCut, 
 		      std::vector<unsigned>& NHitCut,
 		      bool useConvBremPFRecTracks,
-		      bool useIterTracking);
+		      bool useIterTracking,
+		      int nuclearInteractionsPurity);
   
   typedef std::vector<bool> Mask;
 
@@ -273,8 +274,18 @@ class PFBlockAlgo {
   /// Number of layers crossed cut for creating atrack element
   std::vector<unsigned> NHitCut_;
   
-  // Flag to turn off quality cuts which require iterative tracking (for heavy-ions)
+  /// Flag to turn off quality cuts which require iterative tracking (for heavy-ions)
   bool useIterTracking_;
+
+
+  // This parameters defines the level of purity of
+  // nuclear interactions choosen.
+  // Level 1 is only high Purity sample labeled as isNucl
+  // Level 2 isNucl + isNucl_Loose (2 secondary tracks vertices)
+  // Level 3 isNucl + isNucl_Loose + isNucl_Kink
+  //         (low purity sample made of 1 primary and 1 secondary track)
+  // By default the level 1 is teh safest one.
+  int nuclearInteractionsPurity_;
 
   /// switch on/off Conversions Brem Recovery with KF Tracks
   bool  useConvBremPFRecTracks_;
@@ -566,13 +577,16 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       //bool bIncludeVertices = true;
 
       
-      bool bIncludeVertices = dispacedVertexRef->displacedVertexRef()->isNucl()
-	|| dispacedVertexRef->displacedVertexRef()->isNucl_Loose()
-	|| dispacedVertexRef->displacedVertexRef()->isNucl_Kink();
-      
+      bool bIncludeVertices = false; 
+      bool bNucl = dispacedVertexRef->displacedVertexRef()->isNucl();
+      bool bNucl_Loose = dispacedVertexRef->displacedVertexRef()->isNucl_Loose();
+      bool bNucl_Kink = dispacedVertexRef->displacedVertexRef()->isNucl_Kink();
 
+      if (nuclearInteractionsPurity_ >= 1) bIncludeVertices = bNucl;
+      if (nuclearInteractionsPurity_ >= 2) bIncludeVertices = bIncludeVertices || bNucl_Loose;
+      if (nuclearInteractionsPurity_ >= 3) bIncludeVertices = bIncludeVertices || bNucl_Kink;
 
-      if (dispacedVertexRef->displacedVertexRef()->position().rho() > 2.9 && bIncludeVertices){
+      if (bIncludeVertices){
 
 	unsigned int trackSize= dispacedVertexRef->pfRecTracks().size();
 	if (debug_){

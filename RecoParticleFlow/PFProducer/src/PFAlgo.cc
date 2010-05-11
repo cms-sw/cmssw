@@ -178,10 +178,11 @@ PFAlgo::setPostHFCleaningParameters(bool postHFCleaning,
 
 void 
 PFAlgo::setDisplacedVerticesParameters(bool rejectTracks_Bad,
-			       bool rejectTracks_Step45,
-			       bool usePFNuclearInteractions,
-			       bool usePFConversions,
-			       bool usePFDecays){
+				       bool rejectTracks_Step45,
+				       bool usePFNuclearInteractions,
+				       bool usePFConversions,
+				       bool usePFDecays, 
+				       double dptRel_DispVtx){
 
   rejectTracks_Bad_ = rejectTracks_Bad;
   rejectTracks_Step45_ = rejectTracks_Step45;
@@ -189,6 +190,7 @@ PFAlgo::setDisplacedVerticesParameters(bool rejectTracks_Bad,
   usePFConversions_ = usePFConversions;
   pfConversion_ = new PFConversionAlgo();
   usePFDecays_ = usePFDecays;
+  dptRel_DispVtx_ = dptRel_DispVtx;
 
 }
 
@@ -212,7 +214,6 @@ PFAlgo::setPFVertexParameters(bool useVertex,
   useVertices_ = useVertex && primaryVertexFound; 
 
 }
-
 
 
 void PFAlgo::reconstructParticles( const reco::PFBlockHandle& blockHandle ) {
@@ -370,7 +371,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
   
   // usePFConversions_ is used to switch ON/OFF the use of the PFConversionAlgo
-  if (usePFConversions_ && 1==0) {
+  if (usePFConversions_ && false) {
     if (pfConversion_->isConversionValidCandidate(blockref, active )){
       // if at least one conversion candidate is found ,it is fed to the final list of Pflow Candidates 
       std::vector<reco::PFCandidate> PFConversionCandidates = pfConversion_->conversionCandidates();
@@ -672,7 +673,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  resol *= trackMomentum;
 	}
 
-	if ( deficit > nSigmaTRACK_*resol ) { 
+	bool isPrimary = isFromSecInt(elements[iTrack], "primary");
+
+	if ( deficit > nSigmaTRACK_*resol && !isPrimary) { 
 	  rejectFake = true;
 	  active[iTrack] = false;
 	  if ( debug_ )  
@@ -692,10 +695,18 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       
       // Some cleaning : secondary tracks without calo's and large momentum must be fake
       double DPt = trackRef->ptError();
-      if ( ecalElems.empty() && trackMomentum > 30. && DPt > 0.5 && 
+
+      if ( rejectTracks_Step45_ && ecalElems.empty() && 
+	   trackMomentum > 30. && DPt > 0.5 && 
 	   ( trackRef->algo() == TrackBase::iter3 || 
 	     trackRef->algo() == TrackBase::iter4 || 
 	     trackRef->algo() == TrackBase::iter5 ) ) {
+
+	//
+	double dPtRel = DPt/trackRef->pt()*100;
+	bool isPrimaryOrSecondary = isFromSecInt(elements[iTrack], "all");
+
+	if ( isPrimaryOrSecondary && dPtRel < dptRel_DispVtx_) continue;
 	unsigned nHits =  elements[iTrack].trackRef()->hitPattern().trackerLayersWithMeasurement();
 	unsigned int NLostHit = trackRef->hitPattern().trackerLayersWithoutMeasurement();
 
@@ -760,7 +771,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	// Check if this track is not a fake
 	bool rejectFake = false;
 	reco::TrackRef trackRef = elements[jTrack].trackRef();
-	if ( trackRef->ptError() > ptError_ ) { 
+	if ( trackRef->ptError() > ptError_) { 
 	  double deficit = trackMomentum + trackRef->p() - clusterRef->energy();
 	  double resol = nSigmaTRACK_*neutralHadronEnergyResolution(trackMomentum+trackRef->p(),
 								    clusterRef->positionREP().Eta());
@@ -942,8 +953,18 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       
       for (unsigned ic=0; ic<tmpi.size();++ic) { 
-	(*pfCandidates_)[tmpi[ic]].setEcalEnergy( calibEcal );
-	(*pfCandidates_)[tmpi[ic]].setRawEcalEnergy( totalEcal );
+	double ecalCal = calibEcal;
+	double ecalRaw = totalEcal;
+	
+	// The ECAL cluster energy is shared at prorata between different tracks
+	if ((*pfCandidates_)[tmpi[ic]].flag(PFCandidate::T_TO_DISP)){
+	  double fraction = (*pfCandidates_)[tmpi[ic]].trackRef()->p()/trackMomentum;
+	  ecalCal = calibEcal*fraction;
+	  ecalRaw = totalEcal*fraction; 
+	}
+
+	(*pfCandidates_)[tmpi[ic]].setEcalEnergy( ecalCal );
+	(*pfCandidates_)[tmpi[ic]].setRawEcalEnergy( ecalRaw );
 	(*pfCandidates_)[tmpi[ic]].setHcalEnergy( 0 );
 	(*pfCandidates_)[tmpi[ic]].setRawHcalEnergy( 0 );
 	(*pfCandidates_)[tmpi[ic]].setPs1Energy( 0 );
@@ -1391,6 +1412,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	blowError = 1E9;
 	break;
       }
+      // except if it is from an interaction
+      bool isPrimaryOrSecondary = isFromSecInt(elements[iTrack], "all");
+
+      if ( isPrimaryOrSecondary ) blowError = 1.;
+
       std::pair<unsigned,bool> tkmuon = make_pair(iTrack,thisIsALooseMuon);
       associatedTracks.insert( make_pair(-DPt*blowError, tkmuon) );     
  
@@ -1744,15 +1770,25 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	unsigned iTrack = it->second.first;
 	// Only active tracks
 	if ( !active[iTrack] ) continue;
-	// Consider only bad tracks
 	const reco::TrackRef& trackref = elements[it->second.first].trackRef();
+
+	double dptRel = fabs(it->first)/trackref->pt()*100;
+	bool isSecondary = isFromSecInt(elements[iTrack], "secondary");
+
+	if ( isSecondary && dptRel < dptRel_DispVtx_ ) continue;
+	// Consider only bad tracks
 	if ( fabs(it->first) < ptError_ ) break;
 	// What would become the block charged momentum if this track were removed
 	double wouldBeTotalChargedMomentum = 
 	  totalChargedMomentum - trackref->p();
 	// Reject worst tracks, as long as the total charged momentum 
 	// is larger than the calo energy
+
+	bool isPrimary = isFromSecInt(elements[iTrack], "primary");
+
 	if ( wouldBeTotalChargedMomentum > caloEnergy ) { 
+
+	  if(isPrimary) continue;
 	  active[iTrack] = false;
 	  totalChargedMomentum = wouldBeTotalChargedMomentum;
 	  if ( debug_ )
@@ -1761,6 +1797,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 		      << " GeV/c, algo = " << trackref->algo() << ")" << std::endl;
 	// Just rescale the nth worst track momentum to equalize the calo energy
 	} else {	
+	  if(isPrimary) break;
 	  corrTrack = iTrack;
 	  corrFact = (caloEnergy - wouldBeTotalChargedMomentum)/elements[it->second.first].trackRef()->p();
 	  if ( trackref->p()*corrFact < 0.05 ) { 
@@ -1793,6 +1830,14 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	unsigned iTrack = it->second.first;
 	reco::TrackRef trackref = elements[iTrack].trackRef();
 	if ( !active[iTrack] ) continue;
+
+	double dptRel = fabs(it->first)/trackref->pt()*100;
+	bool isPrimaryOrSecondary = isFromSecInt(elements[iTrack], "all");
+
+
+
+
+	if (isPrimaryOrSecondary && dptRel < dptRel_DispVtx_) continue;
 	//
 	switch (trackref->algo()) {
 	case TrackBase::ctf:
@@ -1805,6 +1850,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	case TrackBase::iter5:
 	  active[iTrack] = false;	
 	  totalChargedMomentum -= trackref->p();
+	  
 	  if ( debug_ ) 
 	    std::cout << "\tElement  " << elements[iTrack] 
 		      << " rejected (DPt = " << -it->first 
@@ -1877,16 +1923,16 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // if tracking errors are large take weighted average
       
       if(debug_) {
-        cout<<"\t\tcase 1: COMPATIBLE "
-            <<"|Calo Energy- total charged momentum| = "
-            <<abs(caloEnergy-totalChargedMomentum)
-            <<" < "<<nsigma<<" x "<<TotalError<<endl;
-        if (maxDPovP < 0.1 )
-          cout<<"\t\t\tmax DP/P = "<< maxDPovP 
-              <<" less than 0.1: do nothing "<<endl;
-        else 
-          cout<<"\t\t\tmax DP/P = "<< maxDPovP 
-              <<" >  0.1: take weighted averages "<<endl;
+	cout<<"\t\tcase 1: COMPATIBLE "
+	    <<"|Calo Energy- total charged momentum| = "
+	    <<abs(caloEnergy-totalChargedMomentum)
+	    <<" < "<<nsigma<<" x "<<TotalError<<endl;
+	if (maxDPovP < 0.1 )
+	  cout<<"\t\t\tmax DP/P = "<< maxDPovP 
+	      <<" less than 0.1: do nothing "<<endl;
+	else 
+	  cout<<"\t\t\tmax DP/P = "<< maxDPovP 
+	      <<" >  0.1: take weighted averages "<<endl;
       }
       
       // if max DP/P < 10%  do nothing
@@ -1905,7 +1951,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
             cout<<"\t\t\ttrack associated to hcal "<<i 
                 <<" P = "<<hcalP[i]<<" +- "
                 <<hcalDP[i]<<endl;
-          }
+	  }
           a(i,i) = 1./sigma2i + 1./sigma2E;
           b(i) = hcalP[i]/sigma2i + caloEnergy/sigma2E;
           for(int j=0; j<nrows; j++) {
@@ -2166,9 +2212,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       unsigned index = chargedHadronsIndices[ich];
       reco::PFCandidate& chargedHadron = (*pfCandidates_)[index];
       float fraction = chargedHadron.energy()/chargedHadronsTotalEnergy;
+
       chargedHadron.setHcalEnergy( fraction * totalHcalEnergyCalibrated );          
       chargedHadron.setRawHcalEnergy( fraction * totalHcal );          
-      //JB: fixing up (previously omitted) setting of ECAL energy
+      //JB: fixing up (previously omitted) setting of ECAL energy gouzevit
       chargedHadron.setEcalEnergy( fraction * totalEcalEnergyCalibrated );
       chargedHadron.setRawEcalEnergy( fraction * totalEcal );
     }
@@ -2555,7 +2602,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
     py = trackRefit.py();
     pz = trackRefit.pz();
     energy = sqrt(trackRefit.p()*trackRefit.p() + 0.13957*0.13957);
-        if (debug_) cout << "Refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
+    if (debug_) cout << "Refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
   }
   
   //  if (debug_) cout << "Final px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
@@ -2912,6 +2959,38 @@ PFAlgo::associatePSClusters(unsigned iEcal,
 
 }
 
+
+bool
+PFAlgo::isFromSecInt(const reco::PFBlockElement& eTrack, string order) const {
+
+  reco::PFBlockElement::TrackType T_TO_DISP = reco::PFBlockElement::T_TO_DISP;
+  reco::PFBlockElement::TrackType T_FROM_DISP = reco::PFBlockElement::T_FROM_DISP;
+  reco::PFBlockElement::TrackType T_FROM_GAMMACONV = reco::PFBlockElement::T_FROM_GAMMACONV;
+  reco::PFBlockElement::TrackType T_FROM_V0 = reco::PFBlockElement::T_FROM_V0;
+
+  bool bPrimary = (order.find("primary") != string::npos);
+  bool bSecondary = (order.find("secondary") != string::npos);
+  bool bAll = (order.find("all") != string::npos);
+
+  bool isToDisp = usePFNuclearInteractions_ && eTrack.trackType(T_TO_DISP);
+  bool isFromDisp = usePFNuclearInteractions_ && eTrack.trackType(T_FROM_DISP);
+
+  if (bPrimary && isToDisp) return true;
+  if (bSecondary && isFromDisp ) return true;
+  if (bAll && ( isToDisp || isFromDisp ) ) return true;
+
+  bool isFromConv = usePFConversions_ && eTrack.trackType(T_FROM_GAMMACONV);
+
+  if ((bAll || bSecondary)&& isFromConv) return true;
+
+  bool isFromDecay = (bAll || bSecondary) && usePFDecays_ && eTrack.trackType(T_FROM_V0);
+
+  return isFromDecay;
+
+
+}
+
+
 void  
 PFAlgo::setEGElectronCollection(const reco::GsfElectronCollection & egelectrons) {
   if(useEGElectrons_ && pfele_) pfele_->setEGElectronCollection(egelectrons);
@@ -3029,3 +3108,4 @@ PFAlgo::postCleaning() {
   }
 
 }
+

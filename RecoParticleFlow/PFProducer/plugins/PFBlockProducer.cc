@@ -106,10 +106,14 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   bool useIterTracking
     = iConfig.getParameter<bool>("useIterTracking");
 
+  int nuclearInteractionsPurity
+    = iConfig.getParameter<unsigned>("nuclearInteractionsPurity");
+
   pfBlockAlgo_.setParameters( DPtovPtCut,
 			      NHitCut,
 			      useConvBremPFRecTracks,
-			      useIterTracking);
+			      useIterTracking,
+			      nuclearInteractionsPurity);
   
   pfBlockAlgo_.setDebug(debug_);
 

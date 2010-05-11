@@ -54,7 +54,7 @@ class PFAlgo {
 
   void setAlgo( int algo ) {algo_ = algo;}
 
-  void setDebug( bool debug ) {debug_ = debug;}
+  void setDebug( bool debug ) {debug_ = debug; connector_.setDebug(debug_);}
 
   void setParameters(double nSigmaECAL,
                      double nSigmaHCAL, 
@@ -63,6 +63,10 @@ class PFAlgo {
 		     const boost::shared_ptr<PFEnergyCalibrationHF>& thepfEnergyCalibrationHF,
 		     unsigned int newCalib);
   
+  void setCandConnectorParameters( const edm::ParameterSet& iCfgCandConnector ){
+    connector_.setParameters(iCfgCandConnector);
+  }
+
   void setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
 				  std::vector<double> muonECAL,
 				  double nSigmaTRACK,
@@ -97,7 +101,8 @@ class PFAlgo {
 				      bool rejectTracks_Step45,
 				      bool usePFNuclearInteractions,
 				      bool usePFConversions,
-				      bool usePFDecays);
+				      bool usePFDecays,
+				      double dptRel_DispVtx);
   
   //MIKEB : Parameters for the vertices..
   void setPFVertexParameters(bool useVertex,
@@ -121,7 +126,7 @@ class PFAlgo {
   }
 
   /// \return the unfiltered electron collection
-   std::auto_ptr< reco::PFCandidateCollection> transferElectronCandidates()  {
+  std::auto_ptr< reco::PFCandidateCollection> transferElectronCandidates()  {
       return pfElectronCandidates_;
     }
 
@@ -133,8 +138,7 @@ class PFAlgo {
   
   /// \return auto_ptr to the collection of candidates (transfers ownership)
   std::auto_ptr< reco::PFCandidateCollection >  transferCandidates() {
-    PFCandConnector connector;
-    return connector.connect(pfCandidates_);
+    return connector_.connect(pfCandidates_);
   }
   
   friend std::ostream& operator<<(std::ostream& out, const PFAlgo& algo);
@@ -174,16 +178,16 @@ class PFAlgo {
   //                                    double energyECAL=-1) const;
   
 
-  // todo: use PFClusterTools for this
+  /// todo: use PFClusterTools for this
   double neutralHadronEnergyResolution( double clusterEnergy,
 					double clusterEta ) const;
 
-  // 
+ 
   double nSigmaHCAL( double clusterEnergy, 
 		     double clusterEta ) const;
 
   std::auto_ptr< reco::PFCandidateCollection >    pfCandidates_;
-  // the unfiltered electron collection 
+  /// the unfiltered electron collection 
   std::auto_ptr< reco::PFCandidateCollection >    pfElectronCandidates_;
   // the post-HF-cleaned candidates
   std::auto_ptr< reco::PFCandidateCollection >    pfCleanedCandidates_;
@@ -202,8 +206,12 @@ class PFAlgo {
 			   std::vector<bool>& active, 
 			   std::vector<double>& psEne);
 
+  bool isFromSecInt(const reco::PFBlockElement& eTrack,  std::string order) const;
+
+
   // Post HF Cleaning
   void postCleaning();
+
 
  private:
   /// create a reference to a block, transient or persistent 
@@ -232,7 +240,7 @@ class PFAlgo {
   int                algo_;
   bool               debug_;
 
-  // Variables for PFElectrons
+  /// Variables for PFElectrons
   std::string mvaWeightFileEleID_;
   std::vector<double> setchi2Values_;
   double mvaEleCut_;
@@ -249,15 +257,27 @@ class PFAlgo {
   double coneTrackIsoForEgammaSC_;
   unsigned int nTrackIsoForEgammaSC_;
   PFElectronAlgo *pfele_;
-  
+
+  /// Flags to use the protection against fakes 
+  /// and not reconstructed displaced vertices
   bool rejectTracks_Bad_;
   bool rejectTracks_Step45_;
+
   bool usePFNuclearInteractions_;
   bool usePFConversions_;
   PFConversionAlgo* pfConversion_;
   bool usePFDecays_;
 
-  // Variables for muons and fakes
+  /// Maximal relative uncertainty on the tracks going to or incoming from the 
+  /// displcaed vertex to be used in the PFAlgo
+  double dptRel_DispVtx_;
+
+
+  /// A tool used for a postprocessing of displaced vertices
+  /// based on reconstructed PFCandidates
+  PFCandConnector connector_;
+    
+  /// Variables for muons and fakes
   std::vector<double> muonHCAL_;
   std::vector<double> muonECAL_;
   double nSigmaTRACK_;

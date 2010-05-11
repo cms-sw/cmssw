@@ -199,6 +199,13 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   bool usePFDecays
     = iConfig.getParameter<bool>("usePFDecays");
 
+  double dptRel_DispVtx
+    = iConfig.getParameter<double>("dptRel_DispVtx");
+
+  edm::ParameterSet iCfgCandConnector 
+    = iConfig.getParameter<edm::ParameterSet>("iCfgCandConnector");
+
+
   boost::shared_ptr<PFEnergyCalibration> 
     calibration( new PFEnergyCalibration( e_slope,
 					  e_offset, 
@@ -253,8 +260,15 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 					  rejectTracks_Step45,
 					  usePFNuclearInteractions,
  					  usePFConversions,
-	 				  usePFDecays);
+	 				  usePFDecays,
+					  dptRel_DispVtx);
   
+
+
+
+
+
+  pfAlgo_->setCandConnectorParameters( iCfgCandConnector );
 
   // Muon parameters
   std::vector<double> muonHCAL
@@ -399,10 +413,10 @@ PFProducer::produce(Event& iEvent,
  
   pfAlgo_->reconstructParticles( blocks );
 
-
   if(verbose_) {
     ostringstream  str;
     str<<(*pfAlgo_)<<endl;
+    //    cout << (*pfAlgo_) << endl;
     LogInfo("PFProducer") <<str.str()<<endl;
   }  
 
