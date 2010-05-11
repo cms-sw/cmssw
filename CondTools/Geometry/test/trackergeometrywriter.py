@@ -14,13 +14,15 @@ process.source = cms.Source("EmptyIOVSource",
 
 
 process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder")
+process.TrackerGeometryExtraWriter = cms.EDAnalyzer("PGeometricDetExtraBuilder")
 
 process.CondDBCommon.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
 process.CondDBCommon.timetype = cms.untracked.string('runnumber')
 process.CondDBCommon.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_Test02'))
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_Test02')),
+                                                            cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECOExtra_Geometry_Test02'))
                                                             )
                                           )
 
@@ -28,5 +30,5 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.p1 = cms.Path(process.TrackerGeometryWriter)
+process.p1 = cms.Path(process.TrackerGeometryWriter*process.TrackerGeometryExtraWriter)
 

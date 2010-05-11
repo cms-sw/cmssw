@@ -9,6 +9,9 @@ DEFINE_FWK_MODULE(XMLGeometryBuilder);
 #include "CondTools/Geometry/plugins/PGeometricDetBuilder.h"
 DEFINE_FWK_MODULE(PGeometricDetBuilder);
 
+#include "CondTools/Geometry/plugins/PGeometricDetExtraBuilder.h"
+DEFINE_FWK_MODULE(PGeometricDetExtraBuilder);
+
 #include "CondTools/Geometry/plugins/PCaloGeometryBuilder.h"
 DEFINE_FWK_MODULE(PCaloGeometryBuilder);
 

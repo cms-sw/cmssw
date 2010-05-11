@@ -1,0 +1,6 @@
+destDB 
+inputtag 
+tag TKExtra_Geometry_TagXX 
+since 
+till 
+usertext

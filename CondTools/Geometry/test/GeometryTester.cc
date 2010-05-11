@@ -13,6 +13,7 @@
 
 #include "CondFormats/GeometryObjects/interface/GeometryFile.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
+#include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
 #include "CondFormats/GeometryObjects/interface/PCaloGeometry.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h" 
 #include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
@@ -72,11 +73,22 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   
   if(tktest){
     edm::ESHandle<PGeometricDet> tkgeo;
+    edm::ESHandle<PGeometricDetExtra> tkExtra;
     iSetup.get<IdealGeometryRecord>().get(tkgeo);
+    iSetup.get<IdealGeometryRecord>().get("Extra",tkExtra);
     std::cout<<"TRACKER"<<std::endl;
+    //helper map
+    std::map<uint32_t, uint32_t> diTogde;
+    for (uint32_t g=0; g<tkExtra->pgdes_.size();++g) {
+      diTogde[tkExtra->pgdes_[g]._geographicalId] = g;
+    }
     
     for(uint32_t i=0; i<tkgeo->pgeomdets_.size();i++){
-      std::cout<<tkgeo->pgeomdets_[i]._params0<<tkgeo->pgeomdets_[i]._params1<<tkgeo->pgeomdets_[i]._params2<<tkgeo->pgeomdets_[i]._params3<<tkgeo->pgeomdets_[i]._params4<<tkgeo->pgeomdets_[i]._params5<<tkgeo->pgeomdets_[i]._params6<<tkgeo->pgeomdets_[i]._params7<<tkgeo->pgeomdets_[i]._params8<<tkgeo->pgeomdets_[i]._params9<<tkgeo->pgeomdets_[i]._params10<<tkgeo->pgeomdets_[i]._x<<tkgeo->pgeomdets_[i]._y<<tkgeo->pgeomdets_[i]._z<<tkgeo->pgeomdets_[i]._phi<<tkgeo->pgeomdets_[i]._rho<<tkgeo->pgeomdets_[i]._a11<< tkgeo->pgeomdets_[i]._a12<< tkgeo->pgeomdets_[i]._a13<< tkgeo->pgeomdets_[i]._a21<< tkgeo->pgeomdets_[i]._a22<< tkgeo->pgeomdets_[i]._a23<< tkgeo->pgeomdets_[i]._a31<< tkgeo->pgeomdets_[i]._a32<< tkgeo->pgeomdets_[i]._a33<<tkgeo->pgeomdets_[i]._shape<<tkgeo->pgeomdets_[i]._name<< tkgeo->pgeomdets_[i]._ns<<tkgeo->pgeomdets_[i]._volume<<tkgeo->pgeomdets_[i]._density<<tkgeo->pgeomdets_[i]._weight<<tkgeo->pgeomdets_[i]._copy<<tkgeo->pgeomdets_[i]._material<<tkgeo->pgeomdets_[i]._radLength<<tkgeo->pgeomdets_[i]._xi<<tkgeo->pgeomdets_[i]._pixROCRows<<tkgeo->pgeomdets_[i]._pixROCCols<<tkgeo->pgeomdets_[i]._pixROCx<<tkgeo->pgeomdets_[i]._pixROCy<<tkgeo->pgeomdets_[i]._stereo<<tkgeo->pgeomdets_[i]._siliconAPVNum<<tkgeo->pgeomdets_[i]._geographicalID<<tkgeo->pgeomdets_[i]._nt0<<tkgeo->pgeomdets_[i]._nt1<<tkgeo->pgeomdets_[i]._nt2<<tkgeo->pgeomdets_[i]._nt3<<tkgeo->pgeomdets_[i]._nt4<<tkgeo->pgeomdets_[i]._nt5<<tkgeo->pgeomdets_[i]._nt6<<tkgeo->pgeomdets_[i]._nt7<<tkgeo->pgeomdets_[i]._nt8<<tkgeo->pgeomdets_[i]._nt9<<tkgeo->pgeomdets_[i]._nt10<<std::endl;
+      std::cout<<tkgeo->pgeomdets_[i]._params0<<tkgeo->pgeomdets_[i]._params1<<tkgeo->pgeomdets_[i]._params2<<tkgeo->pgeomdets_[i]._params3<<tkgeo->pgeomdets_[i]._params4<<tkgeo->pgeomdets_[i]._params5<<tkgeo->pgeomdets_[i]._params6<<tkgeo->pgeomdets_[i]._params7<<tkgeo->pgeomdets_[i]._params8<<tkgeo->pgeomdets_[i]._params9<<tkgeo->pgeomdets_[i]._params10<<tkgeo->pgeomdets_[i]._x<<tkgeo->pgeomdets_[i]._y<<tkgeo->pgeomdets_[i]._z<<tkgeo->pgeomdets_[i]._phi<<tkgeo->pgeomdets_[i]._rho<<tkgeo->pgeomdets_[i]._a11<< tkgeo->pgeomdets_[i]._a12<< tkgeo->pgeomdets_[i]._a13<< tkgeo->pgeomdets_[i]._a21<< tkgeo->pgeomdets_[i]._a22<< tkgeo->pgeomdets_[i]._a23<< tkgeo->pgeomdets_[i]._a31<< tkgeo->pgeomdets_[i]._a32<< tkgeo->pgeomdets_[i]._a33<<tkgeo->pgeomdets_[i]._shape<<tkgeo->pgeomdets_[i]._name<< tkgeo->pgeomdets_[i]._ns;
+      
+      std::cout <<tkExtra->pgdes_[diTogde[tkgeo->pgeomdets_[i]._geographicalID]]._volume<<tkExtra->pgdes_[diTogde[tkgeo->pgeomdets_[i]._geographicalID]]._density<<tkExtra->pgdes_[diTogde[tkgeo->pgeomdets_[i]._geographicalID]]._weight<<tkExtra->pgdes_[diTogde[tkgeo->pgeomdets_[i]._geographicalID]]._copy<<tkExtra->pgdes_[diTogde[tkgeo->pgeomdets_[i]._geographicalID]]._material;
+
+      std::cout <<tkgeo->pgeomdets_[i]._radLength<<tkgeo->pgeomdets_[i]._xi<<tkgeo->pgeomdets_[i]._pixROCRows<<tkgeo->pgeomdets_[i]._pixROCCols<<tkgeo->pgeomdets_[i]._pixROCx<<tkgeo->pgeomdets_[i]._pixROCy<<tkgeo->pgeomdets_[i]._stereo<<tkgeo->pgeomdets_[i]._siliconAPVNum<<tkgeo->pgeomdets_[i]._geographicalID<<tkgeo->pgeomdets_[i]._nt0<<tkgeo->pgeomdets_[i]._nt1<<tkgeo->pgeomdets_[i]._nt2<<tkgeo->pgeomdets_[i]._nt3<<tkgeo->pgeomdets_[i]._nt4<<tkgeo->pgeomdets_[i]._nt5<<tkgeo->pgeomdets_[i]._nt6<<tkgeo->pgeomdets_[i]._nt7<<tkgeo->pgeomdets_[i]._nt8<<tkgeo->pgeomdets_[i]._nt9<<tkgeo->pgeomdets_[i]._nt10<<std::endl;
     }
   }
   
