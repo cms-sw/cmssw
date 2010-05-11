@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.10 2010/04/30 14:24:18 mommsen Exp $
+// $Id: ChainData.h,v 1.11 2010/05/11 18:01:18 mommsen Exp $
 /// @file: ChainData.h
 
 #ifndef CHAINDATA_H
@@ -142,6 +142,7 @@ namespace stor
       utils::time_point_t _lastFragmentTime;
       utils::time_point_t _staleWindowStartTime;
 
+      void checkForCompleteness();
       bool validateAdler32Checksum();
       uint32 calculateAdler32() const;
 

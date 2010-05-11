@@ -1,4 +1,4 @@
-// $Id: ChainData.cc,v 1.8 2010/05/03 13:51:09 mommsen Exp $
+// $Id: ChainData.cc,v 1.9 2010/05/11 18:01:18 mommsen Exp $
 /// @file: ChainData.cc
 
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
@@ -162,10 +162,7 @@ void detail::ChainData::addFirstFragment(toolbox::mem::Reference* pRef)
 	}
     }
 
-  if (!faulty() && _fragmentCount == _expectedNumberOfFragments)
-    {
-      markComplete();
-    }
+  checkForCompleteness();
 }
 
 void detail::ChainData::addToChain(ChainData const& newpart)
@@ -327,10 +324,14 @@ void detail::ChainData::addToChain(ChainData const& newpart)
     _creationTime = newpart.creationTime();
   }
   
-  if (_fragmentCount == _expectedNumberOfFragments)
-  {
+  checkForCompleteness();
+}
+
+void detail::ChainData::checkForCompleteness()
+{
+  if ((_fragmentCount == _expectedNumberOfFragments) &&
+    ((_faultyBits & (TOTAL_COUNT_MISMATCH | FRAGMENTS_OUT_OF_ORDER | DUPLICATE_FRAGMENT)) == 0))
     markComplete();
-  }
 }
 
 void detail::ChainData::markComplete()
