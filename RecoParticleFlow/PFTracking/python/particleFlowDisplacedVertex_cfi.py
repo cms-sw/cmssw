@@ -17,8 +17,8 @@ particleFlowDisplacedVertex = cms.EDProducer("PFDisplacedVertexProducer",
     longSize = cms.double(5),
 
     # minimal radius below which we do not reconstruct interactions
-    # typically the position of the first Pixel layer
-    primaryVertexCut = cms.double(2.2),
+    # typically the position of the first Pixel layer or beam pipe
+    primaryVertexCut = cms.double(2.9),
 
     # radius below which we don't wamt to reconstruct displaced
     # vertices

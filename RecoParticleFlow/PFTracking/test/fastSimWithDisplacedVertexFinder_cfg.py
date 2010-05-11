@@ -124,8 +124,8 @@ process.outpath = cms.EndPath(process.display)
 
 process.schedule = cms.Schedule(
     process.p1,
-    process.selector,
-    process.outpath
+    process.selector
+#    process.outpath
 )
 
 
