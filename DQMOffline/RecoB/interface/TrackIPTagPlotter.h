@@ -3,7 +3,7 @@
 
 #include "DQMOffline/RecoB/interface/BaseTagInfoPlotter.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
-#include "DQMOffline/RecoB/interface/FlavourHistorgrams.h"
+#include "DQMOffline/RecoB/interface/TrackIPHistograms.h"
 #include "DQMOffline/RecoB/interface/FlavourHistorgrams2D.h"
 // #include "RecoBTag/MCTools/interface/JetFlavour.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,7 +28,7 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
 
   void psPlot(const std::string & name);
 
-  int highestTrackQual(const reco::Track* track);
+  reco::TrackBase::TrackQuality highestTrackQual(const reco::TrackRef& track) const;
 
  private:
 
@@ -38,33 +38,34 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
   bool mcPlots_;
   bool willFinalize_;
 
-  FlavourHistograms<double> * tkcntHistosSig3D[5];
-  FlavourHistograms<double> * tkcntHistosSig2D[5];
-  FlavourHistograms<double> * tkcntHistosErr3D[5];
-  FlavourHistograms<double> * tkcntHistosErr2D[5];
-  FlavourHistograms<double> * tkcntHistosVal3D[5];
-  FlavourHistograms<double> * tkcntHistosVal2D[5];
-  FlavourHistograms<double> * tkcntHistosDecayLengthVal2D[5];
-  FlavourHistograms<double> * tkcntHistosDecayLengthVal3D[5];
-  FlavourHistograms<double> * tkcntHistosJetDistVal2D[5];
-  FlavourHistograms<double> * tkcntHistosJetDistVal3D[5];
-  FlavourHistograms<double> * tkcntHistosJetDistSign2D[5];
-  FlavourHistograms<double> * tkcntHistosJetDistSign3D[5];
-  FlavourHistograms<double> * tkcntHistosTkNChiSqr2D[5];
-  FlavourHistograms<double> * tkcntHistosTkNChiSqr3D[5];
-  FlavourHistograms<double> * tkcntHistosTkPt2D[5];
-  FlavourHistograms<double> * tkcntHistosTkPt3D[5];
-  FlavourHistograms<int> * tkcntHistosTkNHits2D[5];
-  FlavourHistograms<int> * tkcntHistosTkNHits3D[5];
+  TrackIPHistograms<double> * tkcntHistosSig3D[5];
+  TrackIPHistograms<double> * tkcntHistosSig2D[5];
+  TrackIPHistograms<double> * tkcntHistosErr3D[5];
+  TrackIPHistograms<double> * tkcntHistosErr2D[5];
+  TrackIPHistograms<double> * tkcntHistosVal3D[5];
+  TrackIPHistograms<double> * tkcntHistosVal2D[5];
+  TrackIPHistograms<double> * tkcntHistosDecayLengthVal2D[5];
+  TrackIPHistograms<double> * tkcntHistosDecayLengthVal3D[5];
+  TrackIPHistograms<double> * tkcntHistosJetDistVal2D[5];
+  TrackIPHistograms<double> * tkcntHistosJetDistVal3D[5];
+  TrackIPHistograms<double> * tkcntHistosJetDistSign2D[5];
+  TrackIPHistograms<double> * tkcntHistosJetDistSign3D[5];
+  TrackIPHistograms<double> * tkcntHistosTkNChiSqr2D[5];
+  TrackIPHistograms<double> * tkcntHistosTkNChiSqr3D[5];
+  TrackIPHistograms<double> * tkcntHistosTkPt2D[5];
+  TrackIPHistograms<double> * tkcntHistosTkPt3D[5];
+  TrackIPHistograms<int> * tkcntHistosTkNHits2D[5];
+  TrackIPHistograms<int> * tkcntHistosTkNHits3D[5];
   FlavourHistograms<int> * trkNbr3D, * trkNbr2D;
   double lowerIPSBound, upperIPSBound,lowerIPBound, upperIPBound,lowerIPEBound, upperIPEBound ;
+  int nBinsIPS, nBinsIP, nBinsIPE;
 
   EffPurFromHistos * effPurFromHistos[4] ;
 
-  FlavourHistograms<float> * tkcntHistosProb3D[5];
-  FlavourHistograms<float> * tkcntHistosProb2D[5];
-  FlavourHistograms<double> *ghostTrackWeightHisto;
-  FlavourHistograms<double> *ghostTrackDistanceValuHisto, *ghostTrackDistanceSignHisto;
+  TrackIPHistograms<float> * tkcntHistosProb3D[5];
+  TrackIPHistograms<float> * tkcntHistosProb2D[5];
+  TrackIPHistograms<double> *ghostTrackWeightHisto;
+  TrackIPHistograms<double> *ghostTrackDistanceValuHisto, *ghostTrackDistanceSignHisto;
 
   FlavourHistograms<int> * trackQualHisto;
   FlavourHistograms<int> * selectedTrackQualHisto;

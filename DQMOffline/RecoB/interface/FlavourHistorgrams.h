@@ -72,6 +72,9 @@ public:
   inline bool   plotLog             () const { return thePlotLog             ; }
   inline bool   plotNormalized      () const { return thePlotNormalized      ; }
   inline std::string  plotFirst           () const { return thePlotFirst           ; }
+  inline int* arrayDimension () const { return theArrayDimension; }
+  inline int maxDimension () const {return theMaxDimension; }
+  inline int indexToPlot () const {return theIndexToPlot; }
 
   // access to the histos
   inline TH1F * histo_all  () const { return theHisto_all->getTH1F()  ; }    
@@ -259,8 +262,7 @@ FlavourHistograms<T>::fill ( const int & flavour,  const T * variable) const
     fillVariable ( flavour , *variable ) ;
   } else {
     // array      
-    int iMax = *theArrayDimension ;
-    if ( *theArrayDimension > theMaxDimension ) iMax = theMaxDimension ;
+    int iMax = (*theArrayDimension > theMaxDimension) ? theMaxDimension : *theArrayDimension ;
     //
     for ( int i = 0 ; i != iMax ; ++i ) {
       // check if only one index to be plotted (<0: switched off -> plot all)
