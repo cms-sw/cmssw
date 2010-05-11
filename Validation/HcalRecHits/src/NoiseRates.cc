@@ -121,11 +121,11 @@ NoiseRates::beginJob(){}
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 NoiseRates::endJob() {
-  
+/*  
   if (useAllHistos_) hLumiBlockCount_->Fill(0.0, lumiCountMap_.size());
   
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-
+*/
 }
 
 

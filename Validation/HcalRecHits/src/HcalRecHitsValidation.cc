@@ -659,7 +659,7 @@ HcalRecHitsValidation::~HcalRecHitsValidation() { }
 
 void HcalRecHitsValidation::endJob() { 
   //before check that histos are there....
-
+/*
   // check if ME still there (and not killed by MEtoEDM for memory saving)
   if( dbe_ )
     {
@@ -728,12 +728,14 @@ void HcalRecHitsValidation::endJob() {
 	for (unsigned int i3 = 0;  i3 < 4;  i3++) {  // depth
 	  double emin = 100000.;
 	  for (unsigned int i4 = 0;  i4 < 4;  i4++) {  // subdet
+*/
 	    /*
 	    std::cout << "* ieta, iphi, depth, sub = " 
 		      << i1 << ", " << i2 << ", " << i3 << ", " << i4
 		      << "  emap_min = " << emap_min [i1][i2][i3][i4]
 		      << std::endl;
 	    */
+/*
 	    if ( emin > emap_min [i1][i2][i3][i4]) 
 	      emin = emap_min [i1][i2][i3][i4];
 	  }
@@ -741,10 +743,12 @@ void HcalRecHitsValidation::endJob() {
           int ieta = i1-41;
 	  if( i3 == 0 && emin < 10000.) {
 	    map_depth1->Fill(double(ieta),double(i2),emin);
+*/
 	    /*
 	    std::cout << "* Fill map_depth1 " << double(ieta) << " "  
 		      << double(i2) << "  with " << emin <<  std::endl;
 	    */
+/*
 	  }
 	  if( i3 == 1 && emin < 10000.)
 	    map_depth2->Fill(double(ieta),double(i2),emin);
@@ -768,10 +772,12 @@ void HcalRecHitsValidation::endJob() {
 
     float sumphi_hb1, sumphi_hb2, sumphi_he1, sumphi_he2, sumphi_he3,
       sumphi_ho, sumphi_hf1, sumphi_hf2;
+*/
     /*
     if(nx != 82 || ny != 72) 
             std::cout << "*** problem with binning " << std::endl;
     */
+/*
     float phi_factor;  
 
     for (int i = 1; i <= nx; i++) {
@@ -863,13 +869,14 @@ void HcalRecHitsValidation::endJob() {
 	  phi_factor = 36.;
       }  
       if(ieta >= 0) ieta -= 1; // -41 -1, 0 40  - to bring back to histo num
-	       
+*/	       
       /*
       std::cout << "*** ieta = " << ieta << "  sumphi_hb1, sumphi_hb2, sumphi_he1, sumphi_he2, simphi_he3, sumphi_ho, simphi_hf1, sumphi_hf2" << std::endl 
 		<< sumphi_hb1 << " " << sumphi_hb2 << " " << sumphi_he1 << " "
 		<< sumphi_he2 << " " << simphi_he3 << " " << sumphi_ho  << " " 
 		<< simphi_hf1 << " " << sumphi_hf2 << std::endl << std::endl;
       */
+/*
       //Occupancy vs. ieta histos are drawn, RMS is not
       cnorm = sumphi_hb1 / phi_factor;
       occupancy_vs_ieta_HB1->Fill(float(ieta), cnorm);
@@ -964,6 +971,7 @@ void HcalRecHitsValidation::endJob() {
    }
    
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+*/
 }
 
 
