@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.20 2010/05/07 13:08:12 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.21 2010/05/11 10:52:27 amraktad Exp $
 //
 
 // system include files
@@ -369,16 +369,24 @@ FWEveViewManager::beingDestroyed(const FWViewBase* vb)
 
    if (m_views[typeId].empty())
    {
-      // setup proxy builders
       int viewerBit = 1 << typeId;
       for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!= m_builders.end(); ++i)
       {
          int builderBit = i->first;
          if (viewerBit == (builderBit & viewerBit)) // check only in case if connected
          {
+            BuilderVec& bv =  i->second;
+
+            // remove view-owned product
+            if (viewerBit == (builderBit & viewerBit))
+            {
+               for(BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt)
+                  (*bIt)->removePerViewProduct(view->typeId(), view->viewContext());
+            }
+
+            // and setup proxy builders have-a-window flag
             if (!haveViewForBit(builderBit))
             {
-               BuilderVec& bv =  i->second;
                if (viewerBit == (builderBit & viewerBit))
                {
                   for(BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt)

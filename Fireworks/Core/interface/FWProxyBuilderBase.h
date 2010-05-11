@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:12 CET 2010
-// $Id: FWProxyBuilderBase.h,v 1.8 2010/05/03 15:47:37 amraktad Exp $
+// $Id: FWProxyBuilderBase.h,v 1.9 2010/05/03 18:40:45 amraktad Exp $
 //
 
 // system include files
@@ -91,7 +91,7 @@ public:
    virtual bool willHandleInteraction() const { return false; }
 
    TEveElementList* createProduct(FWViewType::EType, const FWViewContext*);
-   TEveElementList* getSharedProduct(const FWViewType::EType viewType);
+   void removePerViewProduct(FWViewType::EType, const FWViewContext* vc);
 
    bool getHaveWindow() const { return m_haveWindow; }
    void setupElement(TEveElement* el, bool color = true) const;

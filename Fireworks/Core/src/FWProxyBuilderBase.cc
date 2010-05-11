@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.12 2010/05/03 18:40:45 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.13 2010/05/04 13:24:41 amraktad Exp $
 //
 
 // system include files
@@ -277,6 +277,25 @@ FWProxyBuilderBase::createProduct(const FWViewType::EType viewType, const FWView
       product->m_elements->SetElementName(item()->name().c_str());
    }
    return product->m_elements;
+}
+
+//______________________________________________________________________________
+
+void
+FWProxyBuilderBase::removePerViewProduct(FWViewType::EType type, const FWViewContext* vc)
+{
+   for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
+   {  
+      if (havePerViewProduct(type) &&  (*i)->m_viewContext == vc)
+      { 
+         if ((*i)->m_elements)
+            (*i)->m_elements->DestroyElements();
+
+         delete (*i);
+         m_products.erase(i);
+         break;
+      }
+   }
 }
 
 //------------------------------------------------------------------------------
