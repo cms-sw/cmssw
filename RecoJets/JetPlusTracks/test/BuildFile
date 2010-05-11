@@ -1,4 +1,4 @@
-<library name=RecoJetsJetPlusTracksTest file=JetPlusTrackAnalysis.cc, file=JetCollisionFilter.cc>
+<library name=RecoJetsJetPlusTracksTest file=JetPlusTrackAnalysis.cc,JetCollisionFilter.cc>
   <use name=DataFormats/CaloTowers>
   <use name=DataFormats/Candidate>
   <use name=DataFormats/Common>
