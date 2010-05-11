@@ -2,12 +2,12 @@ import FWCore.ParameterSet.Config as cms
 from Validation.RecoTau.RecoTauValidation_cfi import *
 import copy
 
-from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
-from RecoJets.Configuration.RecoGenJets_cff import *
-from RecoJets.Configuration.GenJetParticles_cff import *
-from Validation.RecoTau.ValidationOptions_cfi import *
+#from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
+from RecoJets.JetProducers.ic5PFJets_cfi import iterativeCone5PFJets
+#from RecoJets.Configuration.RecoGenJets_cff import *
+#from RecoJets.Configuration.GenJetParticles_cff import *
 
-objectTypeSelectedTauValDenominator = copy.deepcopy(iterativeCone5GenJets)
+objectTypeSelectedTauValDenominator = copy.deepcopy(iterativeCone5PFJets)
 
 PFTausBothProngsWithFakeRates = copy.deepcopy(PFTausBothProngs)
 PFTausBothProngsWithFakeRates.WeightValueMapSource = cms.PSet()
@@ -95,9 +95,9 @@ TauValNumeratorAndDenominatorWithFakeRates = cms.Sequence(
       )
 
 produceDenominator = cms.Sequence(
-      genParticlesForJets
-      *objectTypeSelectedTauValDenominator
-      *kinematicSelectedTauValDenominator
+      #iterativeCone5PFJets
+      objectTypeSelectedTauValDenominator
+      *kinematicSelectedTauValDenominatorForRealData
       )
 
 runTauValidationBatchMode = cms.Sequence(

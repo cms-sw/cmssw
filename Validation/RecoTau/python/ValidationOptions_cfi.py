@@ -16,14 +16,14 @@ options = VarParsing.VarParsing ()
 allowedOptions = {}
 
 options.register( 'maxEvents',
-                   -1,
+                   10000,
                    VarParsing.VarParsing.multiplicity.singleton,
                    VarParsing.VarParsing.varType.int,
                    "Specify events to run."
                 )
 
 options.register( 'eventType',
-                  "ZTT",
+                  "RealData",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   #"If true, generate and validate Z-TauTau (hadronic only) events. Otherwise, generate QCD FlatPt 15-3000 events."
@@ -32,10 +32,11 @@ options.register( 'eventType',
                         \n\t\t\tZTT\
                         \n\t\t\tQCD\
                         \n\t\t\tZEE\
-                        \n\t\t\tZMM\n"
+                        \n\t\t\tZMM\
+                        \n\t\t\tRealData\n"
                  )
 
-allowedOptions['eventType'] = [ 'ZTT', 'QCD', 'ZEE', 'ZMM' ]
+allowedOptions['eventType'] = [ 'ZTT', 'QCD', 'ZEE', 'ZMM', 'RealData' ]
 
 options.register( 'label',
                   "none",

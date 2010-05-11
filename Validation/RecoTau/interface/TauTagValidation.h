@@ -31,7 +31,14 @@
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 
+#include "DataFormats/JetReco/interface/GenJet.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAlgo.h"
+
+// Test
+#include "RecoTauTag/TauAnalysisTools/interface/PFTauEfficiencyAssociator.h"
 
 // Math
 #include "Math/GenVector/VectorUtil.h"
@@ -49,6 +56,7 @@
 
 typedef math::XYZTLorentzVectorD  LV;
 typedef std::vector<LV>  LVCollection;
+typedef ValueMap<pat::LookupTableRecord> EfficiencyMap;
 
 // class declaration    
 class TauTagValidation : public edm::EDAnalyzer {
@@ -84,10 +92,22 @@ private:
   edm::InputTag TauProducerInputTag_;
   std::string TauProducer_;
 
+  // To get the value maps of interest
+  edm::ParameterSet WeightValueMapProducerType_;
+  edm::ParameterSet WeightValueMapType_;
+  edm::ParameterSet WeightValueMapDiscriType_;
+
+  std::string eventType_;
+
+  std::vector<std::string> PTypes;
+  std::vector<std::string> VMTypes;
+  std::vector<std::string> DTypes;
+
   // std::vector<std::string> TauProducerDiscriminators_; 
   // std::vector<double> TauDiscriminatorCuts_;
 
   std::vector< edm::ParameterSet > discriminators_;
+
 
   // CMSSW version
 
@@ -98,7 +118,9 @@ private:
   std::map<std::string,  MonitorElement *> etaTauVisibleMap;
   std::map<std::string,  MonitorElement *> phiTauVisibleMap;
   std::map<std::string,  MonitorElement *> energyTauVisibleMap;
-  
+  std::map<std::string,  MonitorElement *> leadTrackPtTauVisibleMap; 
+  std::map<std::string,  MonitorElement *> jetwidthTauVisibleMap; 
+ 
   // All the extra MonitorElements that we would like to add for each Tau Tagging step
   // First for the PFTaus
   // Number of PFTau Candidates with a leading charged hadron in it (within a cone of 0.1 avound the jet axis and a minimum pt of 6 GeV)

@@ -3,6 +3,8 @@ import copy
 import re
 import os
 
+from Validation.RecoTau.ValidationOptions_cfi import *
+
 """
 
    RecoTauValidation_cfi.py
@@ -73,6 +75,15 @@ kinematicSelectedTauValDenominator = cms.EDFilter("GenJetSelector",
      filter = cms.bool(False)
 )
 
+kinematicSelectedTauValDenominatorForRealData = cms.EDFilter("PtMinPFJetSelector",
+     src = cms.InputTag("objectTypeSelectedTauValDenominator"),
+     ptMin = cms.double(5.)
+)
+
+if options.eventType == 'RealData':
+   denominator = cms.InputTag("kinematicSelectedTauValDenominatorForRealData")
+else:
+   denominator = cms.InputTag("kinematicSelectedTauValDenominator")
 
 """
 
@@ -90,8 +101,7 @@ StandardMatchingParameters = cms.PSet(
    MatchDeltaR_Leptons          = cms.double(0.15),
    MatchDeltaR_Jets             = cms.double(0.3),
    SaveOutputHistograms         = cms.bool(False),
-   #RefCollection                = cms.InputTag("TauGenJetProducer","selectedGenTauDecaysToHadronsPt5Cumulative"),
-   RefCollection                = cms.InputTag("kinematicSelectedTauValDenominator"),
+   RefCollection                = denominator,
 )
 
 PFTausHighEfficiencyLeadingPionBothProngs = cms.EDAnalyzer("TauTagValidation",
@@ -174,12 +184,11 @@ CaloTausBothProngs = cms.EDAnalyzer("TauTagValidation",
 )
 
 TauValNumeratorAndDenominator = cms.Sequence(
-      PFTausBothProngs+
+      PFTausBothProngs +
       CaloTausBothProngs +
-      PFTausHighEfficiencyBothProngs+
-      PFTausHighEfficiencyLeadingPionBothProngs+
-      RunTancValidation+
-      RunHPSValidation
+      PFTausHighEfficiencyBothProngs +
+      PFTausHighEfficiencyLeadingPionBothProngs +
+      RunTancValidation
       )
 
 """
@@ -200,43 +209,43 @@ TauEfficiencies = cms.EDAnalyzer("DQMHistEffProducer",
         numerator = cms.string('RecoTauV/fixedConePFTauProducer_Matched/fixedConePFTauProducerMatched_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/fixedConePFTauProducer_Matched/PFJetMatchingEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       PFTauIDLeadingTrackFindEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByLeadingTrackFinding/fixedConePFTauDiscriminationByLeadingTrackFinding_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByLeadingTrackFinding/LeadingTrackFindingEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       PFTauIDLeadingTrackPtCutEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByLeadingTrackPtCut/fixedConePFTauDiscriminationByLeadingTrackPtCut_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       PFTauIDTrackIsolationEfficienies = cms.PSet(
         numerator = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByTrackIsolation/fixedConePFTauDiscriminationByTrackIsolation_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       PFTauIDECALIsolationEfficienies = cms.PSet(
         numerator = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByECALIsolation/fixedConePFTauDiscriminationByECALIsolation_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       PFTauIDMuonRejectionEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstElectron/fixedConePFTauDiscriminationAgainstElectron_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
-      ),
-      PFTauIDElectronRejectionEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstMuon/fixedConePFTauDiscriminationAgainstMuon_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
+      ),
+      PFTauIDElectronRejectionEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstElectron/fixedConePFTauDiscriminationAgainstElectron_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
 #HPS EfficiencyCalculation
       HPSIDMatchingEfficiencies = cms.PSet(
@@ -290,160 +299,209 @@ TauEfficiencies = cms.EDAnalyzer("DQMHistEffProducer",
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_Matched/shrinkingConePFTauProducerMatched_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_Matched/PFJetMatchingEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
+      ),
+
+      PFTauHighEfficiencyIDByElectronChainEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_IdentifiedAgainstElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_IdentifiedAgainstElectron/AgainstElectronChainEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
+      ),
+      PFTauHighEfficiencyIDByMuonChainEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_IdentifiedAgainstMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_IdentifiedAgainstMuon/AgainstMuonChainEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
+      ),
+      PFTauHighEfficiencyIDByIsolationChainEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_IdentifiedByIsolation/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_IdentifiedByIsolation/ByIsolationChainEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
+      ),
+      PFTauHighEfficiencyIDByStandardChainEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChain/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChain/ByStandardChainEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       PFTauHighEfficiencyIDLeadingTrackFindEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByLeadingTrackFinding/shrinkingConePFTauDiscriminationByLeadingTrackFinding_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByLeadingTrackFinding/LeadingTrackFindingEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       PFTauHighEfficiencyIDLeadingTrackPtCutEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByLeadingTrackPtCut/shrinkingConePFTauDiscriminationByLeadingTrackPtCut_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       PFTauHighEfficiencyIDTrackIsolationEfficienies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByTrackIsolation/shrinkingConePFTauDiscriminationByTrackIsolation_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       PFTauHighEfficiencyIDECALIsolationEfficienies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByECALIsolation/shrinkingConePFTauDiscriminationByECALIsolation_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       PFTauHighEfficiencyIDMuonRejectionEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstElectron/shrinkingConePFTauDiscriminationAgainstElectron_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
-      ),
-      PFTauHighEfficiencyIDElectronRejectionEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstMuon/shrinkingConePFTauDiscriminationAgainstMuon_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
+      ),
+      PFTauHighEfficiencyIDElectronRejectionEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstElectron/shrinkingConePFTauDiscriminationAgainstElectron_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
 # PFTAUHIGHEFFICIENCY_LEADING_PION EFFICIENCY CALCULATION
       PFTauHighEfficiencyLeadingPionIDMatchingEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_Matched/shrinkingConePFTauProducerMatched_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_Matched/PFJetMatchingEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
+      PFTauHighEfficiencyLeadingPionIDByElectronChainEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedAgainstElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedAgainstElectron/AgainstElectronChainEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
+      ),
+      PFTauHighEfficiencyLeadingPionIDByMuonChainEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedAgainstMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedAgainstMuon/AgainstMuonChainEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
+      ),
+      PFTauHighEfficiencyLeadingPionIDByIsolationChainEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByIsolation/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByIsolation/ByIsolationChainEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
+      ),
+      PFTauHighEfficiencyLeadingPionIDByStandardChainEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChain/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChain/ByStandardChainEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
+      ),      
       PFTauHighEfficiencyLeadingPionIDLeadingPionPtCutEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByLeadingPionPtCut/shrinkingConePFTauDiscriminationByLeadingPionPtCut_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByLeadingPionPtCut/LeadingPionPtCutEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       PFTauHighEfficiencyLeadingPionIDTrackIsolationEfficienies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion/shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion/TrackIsolationEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       PFTauHighEfficiencyLeadingPionIDECALIsolationEfficienies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion/shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion/ECALIsolationEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       PFTauHighEfficiencyLeadingPionIDMuonRejectionEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstElectron/shrinkingConePFTauDiscriminationAgainstElectron_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
-      ),
-      PFTauHighEfficiencyLeadingPionIDElectronRejectionEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstMuon/shrinkingConePFTauDiscriminationAgainstMuon_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
+      ),
+      PFTauHighEfficiencyLeadingPionIDElectronRejectionEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstElectron/shrinkingConePFTauDiscriminationAgainstElectron_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),      
 # Tanc efficiency calculations
       ShrinkingConeTancIDMatchingEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_Matched/shrinkingConePFTauProducerMatched_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_Matched/PFJetMatchingEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       ShrinkingConeTancIDLeadingPionPtCutEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByLeadingPionPtCut/shrinkingConePFTauDiscriminationByLeadingPionPtCut_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByLeadingPionPtCut/LeadingPionPtCutEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       ShrinkingConeTancIDOnePercentEfficienies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrOnePercent/shrinkingConePFTauDiscriminationByTaNCfrOnePercent_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrOnePercent/TaNCfrOnePercentEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       ShrinkingConeTancIDHalfPercentEfficienies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrHalfPercent/shrinkingConePFTauDiscriminationByTaNCfrHalfPercent_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrHalfPercent/TaNCfrHalfPercentEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       ShrinkingConeTancIDQuarterPercentEfficienies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent/shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent/TaNCfrQuarterPercentEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       ShrinkingConeTancIDTenthPercentEfficienies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrTenthPercent/shrinkingConePFTauDiscriminationByTaNCfrTenthPercent_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrTenthPercent/TaNCfrTenthPercentEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       ShrinkingConeTancIDMuonRejectionEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstElectron/shrinkingConePFTauDiscriminationAgainstElectron_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
-      ),
-      ShrinkingConeTancIDElectronRejectionEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstMuon/shrinkingConePFTauDiscriminationAgainstMuon_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
+      ),
+      ShrinkingConeTancIDElectronRejectionEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstElectron/shrinkingConePFTauDiscriminationAgainstElectron_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),      
 # CALOTAU EFFICIENCY CALCULATIONS      
       CaloTauIDMatchingEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/caloRecoTauProducer_Matched/caloRecoTauProducerMatched_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/caloRecoTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/caloRecoTauProducer_Matched/CaloJetMatchingEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       CaloTauIDLeadingTrackFindEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByLeadingTrackFinding/caloRecoTauDiscriminationByLeadingTrackFinding_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/caloRecoTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByLeadingTrackFinding/LeadingTrackFindingEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       CaloTauIDLeadingTrackPtCutEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByLeadingTrackPtCut/caloRecoTauDiscriminationByLeadingTrackPtCut_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/caloRecoTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
       CaloTauIDIsolationEfficienies = cms.PSet(
         numerator = cms.string('RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByIsolation/caloRecoTauDiscriminationByIsolation_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/caloRecoTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByIsolation/IsolationEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       ),
-      CaloTauIDMuonRejectionEfficiencies = cms.PSet(
+      CaloTauIDElectronRejectionEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationAgainstElectron/caloRecoTauDiscriminationAgainstElectron_vs_#PAR#TauVisible'),
         denominator = cms.string('RecoTauV/caloRecoTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
         efficiency = cms.string('RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth')
       )      
     )                                
 )
@@ -461,12 +519,13 @@ PLOTTING
 
 loadTau = cms.EDAnalyzer("DQMFileLoader",
   test = cms.PSet(
-    inputFileNames = cms.vstring('/afs/cern.ch/user/f/friis/scratch0/MyValidationArea/310pre6NewTags/src/Validation/RecoTau/test/CMSSW_3_1_0_pre6_ZTT_0505Fixes.root'),
+    #inputFileNames = cms.vstring('/afs/cern.ch/user/f/friis/scratch0/MyValidationArea/310pre6NewTags/src/Validation/RecoTau/test/CMSSW_3_1_0_pre6_ZTT_0505Fixes.root'),
+    inputFileNames = cms.vstring('/opt/sbg/cms/ui4_data1/dbodin/CMSSW_3_5_1/src/TauID/QCD_recoFiles/TauVal_CMSSW_3_6_0_QCD.root'),
     scaleFactor = cms.double(1.),
     dqmDirectory_store = cms.string('test')
   ),
   reference = cms.PSet(
-    inputFileNames = cms.vstring('/afs/cern.ch/user/f/friis/CMSSW/pre6/src/Validation/RecoTau/test/CMSSW_3_1_0_pre6_ZTT.root'),
+    inputFileNames = cms.vstring('/opt/sbg/cms/ui4_data1/dbodin/CMSSW_3_5_1/src/TauID/QCD_recoFiles/TauVal_CMSSW_3_6_0_QCD.root'),
     scaleFactor = cms.double(1.),
     dqmDirectory_store = cms.string('reference')
   )
@@ -499,6 +558,16 @@ standardDrawingStuff = cms.PSet(
       xAxisTitle = cms.string('E / GeV'),
       xAxisTitleOffset = cms.double(0.9),
       xAxisTitleSize = cms.double(0.05)
+    ),
+    leadTrackPt = cms.PSet(
+      xAxisTitle = cms.string('Leading track P_{T} / GeV'),
+      xAxisTitleOffset = cms.double(0.9),
+      xAxisTitleSize = cms.double(0.05)
+    ),
+    jetwidth = cms.PSet(
+      xAxisTitle = cms.string('Jet width'),
+      xAxisTitleOffset = cms.double(0.9),
+      xAxisTitleSize = cms.double(0.05)
     )
   ),
 
@@ -522,9 +591,20 @@ standardDrawingStuff = cms.PSet(
       yAxisTitle = cms.string('#varepsilon'), 
       yAxisTitleOffset = cms.double(1.1),
       yAxisTitleSize = cms.double(0.05)
-    )
-  ),
+    ),
+    weighted = cms.PSet(
+      yScale = cms.string('linear'), # linear/log
+      minY_linear = cms.double(0.),
+      minY_log = cms.double(0.001),
+      yAxisTitle = cms.string('# of #tau candidates'), 
+      yAxisTitleOffset = cms.double(1.1),
+      yAxisTitleSize = cms.double(0.05)
+    ),
+    
+),
 
+
+   
   legends = cms.PSet(
     efficiency = cms.PSet(
       posX = cms.double(0.50),
@@ -660,7 +740,7 @@ standardDrawingStuff = cms.PSet(
       lineWidth = cms.int32(2),
       drawOption = cms.string('ex0'),
       drawOptionLegend = cms.string('p')
-    )
+    ),
   ),
 )
 
@@ -680,7 +760,7 @@ standardCompareTestAndReference = cms.PSet(
 )
 
 standardEfficiencyParameters = cms.PSet(
-      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
+      parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth'),
       xAxis = cms.string('#PAR#'),
       yAxis = cms.string('efficiency'),
       legend = cms.string('efficiency'),
@@ -689,10 +769,19 @@ standardEfficiencyParameters = cms.PSet(
 )
 
 standardEfficiencyOverlay = cms.PSet(
-      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
+      parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth'),
       title = cms.string('TauId step by step efficiencies'),
       xAxis = cms.string('#PAR#'),
       yAxis = cms.string('efficiency'),
+      legend = cms.string('efficiency_overlay'),
+      labels = cms.vstring('pt', 'eta')
+)
+
+standardWeightedOverlay = cms.PSet(
+      parameter = cms.vstring('pt', 'eta', 'phi', 'energy', 'leadTrackPt', 'jetwidth'),
+      title = cms.string('TauID VS estimated TauID with value maps'),
+      xAxis = cms.string('#PAR#'),
+      yAxis = cms.string('weighted'),
       legend = cms.string('efficiency_overlay'),
       labels = cms.vstring('pt', 'eta')
 )
@@ -710,42 +799,42 @@ plotPFTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
     PFJetMatchingEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/fixedConePFTauProducer_Matched/PFJetMatchingEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/fixedConePFTauProducer_Matched/PFJetMatchingEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       )
     ),
     LeadingTrackPtCutEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       )  
     ),
     TrackIsolationEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),
     ECALIsolationEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),
     AgainstElectronEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'), 
+        dqmMonitorElements = cms.vstring('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'), 
         processes = cms.vstring('test', 'reference')
       ),
     ),
     AgainstMuonEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'), 
+        dqmMonitorElements = cms.vstring('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'), 
         processes = cms.vstring('test', 'reference')
       ),
     ),
@@ -753,37 +842,37 @@ plotPFTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
       standardEfficiencyOverlay,
       plots = cms.VPSet(
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/fixedConePFTauProducer_Matched/PFJetMatchingEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/fixedConePFTauProducer_Matched/PFJetMatchingEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay01'),
           legendEntry = cms.string('PFJet Matching')
         ),    
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay02'),
           legendEntry = cms.string('Lead Track Finding')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay03'),
           legendEntry = cms.string('Track Iso.')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay04'),
           legendEntry = cms.string('Track + Gamma Iso.')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay05'),
           legendEntry = cms.string('Electron Rejection')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay06'),
           legendEntry = cms.string('Muon Rejection')
@@ -791,7 +880,7 @@ plotPFTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
       ),
     )
   ),
-  outputFilePath = cms.string('./fixedConePFTauProducer/'),
+  outputFilePath = cms.string('./TauID/%s_recoFiles/Plots/fixedConePFTauProducer/' % options.eventType),
 )                    
 ##################################################
 #
@@ -902,6 +991,829 @@ plotHPSEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
 #   The plotting of all the PFTauHighEfficiencies ID efficiencies
 #
 ##################################################
+plotSCEstimatedEffZTT = cms.EDAnalyzer("DQMHistPlotter",
+  standardDrawingStuff,
+  standardCompareTestAndReference,
+  drawJobs = cms.PSet(    
+    ChargeIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByCharge/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByChargeZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    NumTracksIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByNumTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByNumTracksZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadPionIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByLeadPionPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByLeadPionPtZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadTrackIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByLeadTrackPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By leading track')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByLeadTrackPtZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ChargeAndTracksIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByChargeAndTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge and tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByChargeAndTracksZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    IsolationIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByIsolation/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By Isolation')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByIsolationZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ElectronIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedAgainstElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Electrons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedAgainstElectronZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),    
+    MuonIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedAgainstMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Muons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedAgainstMuonZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChain/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByStandardChainZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoMuIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChainNoMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Muon')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByStandardChainNoMuonZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoEIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChainNoElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Electron')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByStandardChainNoElectronZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+  ),
+  outputFilePath = cms.string('./TauID/%s_recoFiles/Plots/shrinkingConePFTauProducer/' % options.eventType ),
+)
+
+plotSCEstimatedBGDiJetHighPt = cms.EDAnalyzer("DQMHistPlotter",
+  standardDrawingStuff,
+  standardCompareTestAndReference,
+  drawJobs = cms.PSet(    
+    ChargeIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByCharge/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByChargeDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    NumTracksIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByNumTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByNumTracksDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadPionIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByLeadPionPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByLeadPionPtDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadTrackIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByLeadTrackPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By leading track')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByLeadTrackPtDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ChargeAndTracksIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByChargeAndTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge and tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByChargeAndTracksDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    IsolationIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByIsolation/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By Isolation')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByIsolationDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ElectronIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedAgainstElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Electrons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedAgainstElectronDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),    
+    MuonIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedAgainstMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Muons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedAgainstMuonDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChain/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByStandardChainDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoMuIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChainNoMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Muon')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByStandardChainNoMuonDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoEIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChainNoElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Electron')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByStandardChainNoElectronDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+  ),
+  outputFilePath = cms.string('./TauID/%s_recoFiles/Plots/shrinkingConePFTauProducer/' % options.eventType ),
+)
+
+plotSCEstimatedBGDiJetSecondPt = cms.EDAnalyzer("DQMHistPlotter",
+  standardDrawingStuff,
+  standardCompareTestAndReference,
+  drawJobs = cms.PSet(    
+    ChargeIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByCharge/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByChargeDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    NumTracksIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByNumTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByNumTracksDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadPionIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByLeadPionPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByLeadPionPtDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadTrackIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByLeadTrackPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By leading track')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByLeadTrackPtDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ChargeAndTracksIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByChargeAndTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge and tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByChargeAndTracksDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    IsolationIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByIsolation/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By Isolation')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByIsolationDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ElectronIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedAgainstElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Electrons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedAgainstElectronDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),    
+    MuonIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedAgainstMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Muons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedAgainstMuonDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChain/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByStandardChainDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoMuIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChainNoMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Muon')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByStandardChainNoMuonDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoEIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChainNoElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Electron')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByStandardChainNoElectronDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+  ),
+  outputFilePath = cms.string('./TauID/%s_recoFiles/Plots/shrinkingConePFTauProducer/' % options.eventType ),
+)
+
+plotSCEstimatedBGMuEnrichedQCD = cms.EDAnalyzer("DQMHistPlotter",
+  standardDrawingStuff,
+  standardCompareTestAndReference,
+  drawJobs = cms.PSet(    
+    ChargeIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByCharge/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByChargeMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    NumTracksIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByNumTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByNumTracksMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadPionIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByLeadPionPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByLeadPionPtMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadTrackIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByLeadTrackPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By leading track')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByLeadTrackPtMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ChargeAndTracksIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByChargeAndTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge and tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByChargeAndTracksMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    IsolationIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByIsolation/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By Isolation')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByIsolationMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ElectronIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedAgainstElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Electrons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedAgainstElectronMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),    
+    MuonIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedAgainstMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Muons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedAgainstMuonMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChain/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByStandardChainMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoMuIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChainNoMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Muon')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByStandardChainNoMuonMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoEIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChainNoElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Electron')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_WeightedByStandardChainNoElectronMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+  ),
+  outputFilePath = cms.string('./TauID/%s_recoFiles/Plots/shrinkingConePFTauProducer/' % options.eventType ),
+)
 
 plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   standardDrawingStuff,
@@ -910,42 +1822,49 @@ plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
     PFJetMatchingEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducer_Matched/PFJetMatchingEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_Matched/PFJetMatchingEff#PAR#'),
+        processes = cms.vstring('test', 'reference')
+      ),
+    ),
+    ByStandardChainEff = cms.PSet(
+      standardEfficiencyParameters,
+      plots = cms.PSet(
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_IdentifiedByStandardChain/ByStandardChainEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),
     LeadingTrackPtCutEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),  
     ),
     TrackIsolationEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),
     ECALIsolationEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),    
     AgainstElectronEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'), 
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'), 
         processes = cms.vstring('test', 'reference')
       ),
     ),
     AgainstMuonEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'), 
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'), 
         processes = cms.vstring('test', 'reference')
       ),
     ),
@@ -953,37 +1872,37 @@ plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
       standardEfficiencyOverlay,
       plots = cms.VPSet(
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducer_Matched/PFJetMatchingEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_Matched/PFJetMatchingEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay01'),
           legendEntry = cms.string('PFJet Matching')
         ),    
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay02'),
           legendEntry = cms.string('Lead Track Finding')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay03'),
           legendEntry = cms.string('Track Iso.')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay04'),
           legendEntry = cms.string('Track + Gamma Iso.')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay05'),
           legendEntry = cms.string('Electron Rejection')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay06'),
           legendEntry = cms.string('Muon Rejection')
@@ -991,7 +1910,7 @@ plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
       ),
     )
   ),
-  outputFilePath = cms.string('./shrinkingConePFTauProducer/'),
+  outputFilePath = cms.string('./TauID/%s_recoFiles/Plots/shrinkingConePFTauProducer/' % options.eventType ),
 )      
 
 ##################################################
@@ -1007,28 +1926,28 @@ plotCaloTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
     CaloJetMatchingEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/caloRecoTauProducer_Matched/CaloJetMatchingEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/caloRecoTauProducer_Matched/CaloJetMatchingEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),
     LeadingTrackPtCutEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),  
     ),
     IsolationEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByIsolation/IsolationEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByIsolation/IsolationEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),
     AgainstElectronEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'), 
+        dqmMonitorElements = cms.vstring('RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'), 
         processes = cms.vstring('test', 'reference')
       ),
     ),
@@ -1036,25 +1955,25 @@ plotCaloTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
       standardEfficiencyOverlay,
       plots = cms.VPSet(
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/caloRecoTauProducer_Matched/CaloJetMatchingEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/caloRecoTauProducer_Matched/CaloJetMatchingEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay01'),
           legendEntry = cms.string('CaloJet Matching')
         ),    
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay02'),
           legendEntry = cms.string('Lead Track Finding')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByIsolation/IsolationEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByIsolation/IsolationEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay03'),
           legendEntry = cms.string('Track Isolation')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay04'),
           legendEntry = cms.string('Electron Rejection')
@@ -1062,7 +1981,7 @@ plotCaloTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
       ),
     )
   ),
-  outputFilePath = cms.string('./caloRecoTauProducer/'),
+  outputFilePath = cms.string('./TauID/%s_recoFiles/Plots/caloRecoTauProducer/' % options.eventType),
 )
 
 ##################################################
@@ -1078,56 +1997,56 @@ plotTancValidation = cms.EDAnalyzer("DQMHistPlotter",
     PFJetMatchingEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_Matched/PFJetMatchingEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_Matched/PFJetMatchingEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),
     LeadingTrackPtCutEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByLeadingPionPtCut/LeadingPionPtCutEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByLeadingPionPtCut/LeadingPionPtCutEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),  
     ),
     TaNCfrOnePercentEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrOnePercent/TaNCfrOnePercentEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrOnePercent/TaNCfrOnePercentEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),
     TaNCfrHalfPercentEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrHalfPercent/TaNCfrHalfPercentEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrHalfPercent/TaNCfrHalfPercentEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),
     TaNCfrQuarterPercentEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent/TaNCfrQuarterPercentEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent/TaNCfrQuarterPercentEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),
     TaNCfrTenthPercentEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrTenthPercent/TaNCfrTenthPercentEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrTenthPercent/TaNCfrTenthPercentEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),
     AgainstElectronEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'), 
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'), 
         processes = cms.vstring('test', 'reference')
       ),
     ),
     AgainstMuonEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'), 
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'), 
         processes = cms.vstring('test', 'reference')
       ),
     ),
@@ -1135,49 +2054,49 @@ plotTancValidation = cms.EDAnalyzer("DQMHistPlotter",
       standardEfficiencyOverlay,
       plots = cms.VPSet(
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_Matched/PFJetMatchingEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_Matched/PFJetMatchingEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay01'),
           legendEntry = cms.string('PFJet Matching')
-        ),    
+        ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByLeadingPionPtCut/LeadingPionPtCutEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByLeadingPionPtCut/LeadingPionPtCutEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay02'),
           legendEntry = cms.string('Lead Pion Finding')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrOnePercent/TaNCfrOnePercentEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrOnePercent/TaNCfrOnePercentEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay03'),
           legendEntry = cms.string('TaNC One Percent')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrHalfPercent/TaNCfrHalfPercentEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrHalfPercent/TaNCfrHalfPercentEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay03'),
           legendEntry = cms.string('TaNC Half Percent')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent/TaNCfrQuarterPercentEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent/TaNCfrQuarterPercentEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay03'),
           legendEntry = cms.string('TaNC Quarter Percent')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrTenthPercent/TaNCfrTenthPercentEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrTenthPercent/TaNCfrTenthPercentEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay03'),
           legendEntry = cms.string('TaNC Tenth Percent')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay05'),
           legendEntry = cms.string('Electron Rejection')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay06'),
           legendEntry = cms.string('Muon Rejection')
@@ -1185,7 +2104,7 @@ plotTancValidation = cms.EDAnalyzer("DQMHistPlotter",
       ),
     )
   ),
-  outputFilePath = cms.string('./shrinkingConePFTauProducerTanc/'),
+  outputFilePath = cms.string('./TauID/%s_recoFiles/Plots/shrinkingConePFTauProducerTanc/' % options.eventType),
 )
 
 
@@ -1195,6 +2114,830 @@ plotTancValidation = cms.EDAnalyzer("DQMHistPlotter",
 #
 ##################################################
 
+plotSCLPEstimatedEffZTT = cms.EDAnalyzer("DQMHistPlotter",
+  standardDrawingStuff,
+  standardCompareTestAndReference,
+  drawJobs = cms.PSet(    
+    ChargeIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByCharge/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByChargeZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    NumTracksIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByNumTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByNumTracksZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadPionIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByLeadPionPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByLeadPionPtZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadTrackIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByLeadTrackPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By leading track')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByLeadTrackPtZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ChargeAndTracksIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByChargeAndTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge and tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByChargeAndTracksZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    IsolationIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByIsolation/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By Isolation')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByIsolationZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ElectronIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedAgainstElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Electrons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedAgainstElectronZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),    
+    MuonIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedAgainstMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Muons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedAgainstMuonZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChain/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByStandardChainZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoMuIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChainNoMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Muon')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByStandardChainNoMuonZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoEIDVSWeightedZTT = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChainNoElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Electron')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByStandardChainNoElectronZTT/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+  ),
+ outputFilePath = cms.string('./TauID/%s_recoFiles/Plots/shrinkingConePFTauProducerLeadingPion/' % options.eventType )          
+)
+
+plotSCLPEstimatedBGDiJetHighPt = cms.EDAnalyzer("DQMHistPlotter",
+  standardDrawingStuff,
+  standardCompareTestAndReference,
+  drawJobs = cms.PSet(    
+    ChargeIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByCharge/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByChargeDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    NumTracksIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByNumTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByNumTracksDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadPionIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByLeadPionPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByLeadPionPtDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadTrackIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByLeadTrackPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By leading track')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByLeadTrackPtDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ChargeAndTracksIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByChargeAndTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge and tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByChargeAndTracksDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    IsolationIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByIsolation/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By Isolation')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByIsolationDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ElectronIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedAgainstElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Electrons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedAgainstElectronDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),    
+    MuonIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedAgainstMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Muons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedAgainstMuonDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChain/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByStandardChainDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoMuIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChainNoMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Muon')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByStandardChainNoMuonDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoEIDVSWeightedDiJetHighPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChainNoElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Electron')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByStandardChainNoElectronDiJetHighPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+  ),
+ outputFilePath = cms.string('./TauID/%s_recoFiles/Plots/shrinkingConePFTauProducerLeadingPion/' % options.eventType )          
+)
+
+plotSCLPEstimatedBGDiJetSecondPt = cms.EDAnalyzer("DQMHistPlotter",
+  standardDrawingStuff,
+  standardCompareTestAndReference,
+  drawJobs = cms.PSet(    
+    ChargeIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByCharge/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByChargeDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    NumTracksIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByNumTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByNumTracksDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadPionIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByLeadPionPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByLeadPionPtDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadTrackIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByLeadTrackPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By leading track')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByLeadTrackPtDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ChargeAndTracksIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByChargeAndTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge and tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByChargeAndTracksDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    IsolationIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByIsolation/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By Isolation')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByIsolationDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ElectronIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedAgainstElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Electrons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedAgainstElectronDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),    
+    MuonIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedAgainstMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Muons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedAgainstMuonDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChain/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByStandardChainDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoMuIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChainNoMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Muon')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByStandardChainNoMuonDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoEIDVSWeightedDiJetSecondPt = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChainNoElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Electron')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByStandardChainNoElectronDiJetSecondPt/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+  ),
+ outputFilePath = cms.string('./TauID/%s_recoFiles/Plots/shrinkingConePFTauProducerLeadingPion/' % options.eventType ),        
+)
+
+plotSCLPEstimatedBGMuEnrichedQCD = cms.EDAnalyzer("DQMHistPlotter",
+  standardDrawingStuff,
+  standardCompareTestAndReference,
+  drawJobs = cms.PSet(    
+    ChargeIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByCharge/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByChargeMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    NumTracksIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByNumTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByNumTracksMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadPionIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByLeadPionPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By number of tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByLeadPionPtMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    LeadTrackIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByLeadTrackPt/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By leading track')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByLeadTrackPtMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ChargeAndTracksIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByChargeAndTracks/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By charge and tracks')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByChargeAndTracksMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    IsolationIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByIsolation/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By Isolation')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByIsolationMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    ElectronIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedAgainstElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Electrons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedAgainstElectronMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),    
+    MuonIDVSWeighted = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedAgainstMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('Against Muons')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedAgainstMuonMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChain/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByStandardChainMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoMuIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChainNoMuon/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Muon')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByStandardChainNoMuonMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+    StandardChainNoEIDVSWeightedMuEnrichedQCD = cms.PSet(
+      standardWeightedOverlay,
+      #standardEfficiencyOverlay,
+      plots = cms.VPSet(
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChainNoElectron/shrinkingConePFTauProducerIdentified_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay01'),
+          legendEntry = cms.string('By standard chain no Electron')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_WeightedByStandardChainNoElectronMuEnrichedQCD/shrinkingConePFTauProducerWeighted_vs_#PAR#TauVisible'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay02'),
+          legendEntry = cms.string('Weighted by FR/Eff value maps')
+        ),
+      ),
+    ),
+  ),
+  outputFilePath = cms.string('./TauID/%s_recoFiles/Plots/shrinkingConePFTauProducerLeadingPion/' % options.eventType ),
+)
+
 plotPFTauHighEfficiencyEfficienciesLeadingPion = cms.EDAnalyzer("DQMHistPlotter",
   standardDrawingStuff,
   standardCompareTestAndReference,
@@ -1202,80 +2945,89 @@ plotPFTauHighEfficiencyEfficienciesLeadingPion = cms.EDAnalyzer("DQMHistPlotter"
     PFJetMatchingEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerLeadingPion_Matched/PFJetMatchingEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_Matched/PFJetMatchingEff#PAR#'),
+        processes = cms.vstring('test', 'reference')
+      ),
+    ),
+    ByStandardChainEff = cms.PSet(
+      standardEfficiencyParameters,
+      plots = cms.PSet(
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_IdentifiedByStandardChain/ByStandardChainEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),
     LeadingTrackPtCutEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByLeadingPionPtCut/LeadingPionPtCutEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByLeadingPionPtCut/LeadingPionPtCutEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),  
     ),
     TrackIsolationEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion/TrackIsolationEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion/TrackIsolationEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),
     ECALIsolationEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion/ECALIsolationEff#PAR#'),
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion/ECALIsolationEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
     ),
     AgainstElectronEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'), 
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'), 
         processes = cms.vstring('test', 'reference')
       ),
     ),
     AgainstMuonEff = cms.PSet(
       standardEfficiencyParameters,
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'), 
+        dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'), 
         processes = cms.vstring('test', 'reference')
       ),
     ),
+    
+
     TauIdEffStepByStep = cms.PSet(
       standardEfficiencyOverlay,
       plots = cms.VPSet(
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerLeadingPion_Matched/PFJetMatchingEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_Matched/PFJetMatchingEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay01'),
           legendEntry = cms.string('PFJet Matching')
-        ),    
+        ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByLeadingPionPtCut/LeadingPionPtCutEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByLeadingPionPtCut/LeadingPionPtCutEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay02'),
           legendEntry = cms.string('Lead Pion Finding')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion/TrackIsolationEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion/TrackIsolationEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay03'),
           legendEntry = cms.string('Track Iso. Using Lead. Pion')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion/ECALIsolationEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion/ECALIsolationEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay04'),
           legendEntry = cms.string('Track + Gamma Iso. Using Lead. Pioon')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay05'),
           legendEntry = cms.string('Electron Rejection')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
+          dqmMonitorElements = cms.vstring('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay06'),
           legendEntry = cms.string('Muon Rejection')
@@ -1283,22 +3035,45 @@ plotPFTauHighEfficiencyEfficienciesLeadingPion = cms.EDAnalyzer("DQMHistPlotter"
       ),
     )
   ),
-  outputFilePath = cms.string('./shrinkingConePFTauProducerLeadingPion/'),
+  outputFilePath = cms.string('./TauID/%s_recoFiles/Plots/shrinkingConePFTauProducerLeadingPion/' %options.eventType),
 )
 
 plotTauValidation = cms.Sequence(
-      plotPFTauEfficiencies
-      +plotPFTauHighEfficiencyEfficiencies
-      +plotCaloTauEfficiencies
-      +plotTancValidation
-      +plotPFTauHighEfficiencyEfficienciesLeadingPion
-      +plotHPSEfficiencies
-      )
 
+   plotPFTauEfficiencies
+   +plotPFTauHighEfficiencyEfficiencies
+   +plotCaloTauEfficiencies
+   +plotTancValidation
+   +plotPFTauHighEfficiencyEfficienciesLeadingPion
+)
+
+
+if options.eventType == 'QCD':
+   plotTauValidation += plotSCEstimatedBGDiJetHighPt
+   plotTauValidation += plotSCEstimatedBGDiJetSecondPt
+   plotTauValidation += plotSCEstimatedBGMuEnrichedQCD
+   plotTauValidation += plotSCLPEstimatedBGDiJetHighPt
+   plotTauValidation += plotSCLPEstimatedBGDiJetSecondPt
+   plotTauValidation += plotSCLPEstimatedBGMuEnrichedQCD
+      
+   
+if options.eventType == 'RealData':
+   plotTauValidation += plotSCEstimatedBGDiJetHighPt
+   plotTauValidation += plotSCEstimatedBGDiJetSecondPt
+   plotTauValidation += plotSCEstimatedBGMuEnrichedQCD
+   plotTauValidation += plotSCLPEstimatedBGDiJetHighPt
+   plotTauValidation += plotSCLPEstimatedBGDiJetSecondPt
+   plotTauValidation += plotSCLPEstimatedBGMuEnrichedQCD
+      
+   
+if options.eventType == 'ZTT':      
+   plotTauValidation += plotSCEstimatedEffZTT
+   plotTauValidation += plotSCLPEstimatedEffZTT
+      
 
 loadAndPlotTauValidation = cms.Sequence(
       loadTau
-      +plotTancValidation
+      +plotTauValidation
       )
 
 """
