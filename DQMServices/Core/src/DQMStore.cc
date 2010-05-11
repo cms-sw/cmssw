@@ -2242,26 +2242,29 @@ DQMStore::readFile(const std::string &filename,
 		   OpenRunDirs stripdirs /* =StripRunDirs */,
 		   bool fileMustExist /* =true */)
 {
-
-  FileStat_t buf;
-  if (gSystem->GetPathInfo(filename.c_str(), buf)) // returns zero if file exists !!!
-  {
-    if (fileMustExist)
-      raiseDQMError("DQMStore", "file '%s'", filename.c_str()," does not exist");
-    else 
-    {
-      if (verbose_)
-        std::cout << "DQMStore::readFile: file '" << filename << "' does not exist, continuing\n";
-      return false;  // quietly return false;
-    }
-  }
   
   if (verbose_)
     std::cout << "DQMStore::readFile: reading from file '" << filename << "'\n";
 
-  std::auto_ptr<TFile> f(TFile::Open(filename.c_str()));
-  if (! f.get() || f->IsZombie())
-    raiseDQMError("DQMStore", "Failed to open file '%s'", filename.c_str());
+  std::auto_ptr<TFile> f;
+
+  try 
+  {
+    f.reset(TFile::Open(filename.c_str()));
+    if (! f.get() || f->IsZombie())
+      raiseDQMError("DQMStore", "Failed to open file '%s'", filename.c_str());
+  }
+  catch (cms::Exception &)
+  {
+    if (fileMustExist)
+      throw;
+    else
+    {  
+    if (verbose_)
+      std::cout << "DQMStore::readFile: file '" << filename << "' does not exist, continuing\n";
+    return false;
+    }
+  }
 
   unsigned n = readDirectory(f.get(), overwrite, onlypath, prepend, "", stripdirs);
   f->Close();
