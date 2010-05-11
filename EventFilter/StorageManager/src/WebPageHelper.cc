@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.46 2010/04/16 14:40:14 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.47 2010/05/03 12:19:32 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -1744,8 +1744,8 @@ void WebPageHelper::addDOMforFiles(XHTMLMaker& maker,
                                    XHTMLMaker::Node *parent,
                                    FilesMonitorCollection const& fmc)
 {
-  FilesMonitorCollection::FileRecordList const& fileRecords =
-    fmc.getFileRecordsMQ();
+  FilesMonitorCollection::FileRecordList fileRecords;
+  fmc.getFileRecords(fileRecords);
 
   XHTMLMaker::AttrMap colspanAttr;
   colspanAttr[ "colspan" ] = "5";

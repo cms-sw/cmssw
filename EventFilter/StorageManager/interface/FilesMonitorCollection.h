@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.h,v 1.11 2010/01/28 13:37:19 mommsen Exp $
+// $Id: FilesMonitorCollection.h,v 1.12 2010/01/29 15:47:59 mommsen Exp $
 /// @file: FilesMonitorCollection.h 
 
 #ifndef StorageManager_FilesMonitorCollection_h
@@ -24,8 +24,8 @@ namespace stor {
    * A collection of monitoring entities for open and closed files
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2010/01/28 13:37:19 $
+   * $Revision: 1.12 $
+   * $Date: 2010/01/29 15:47:59 $
    */
   
   class FilesMonitorCollection : public MonitorCollection
@@ -81,9 +81,7 @@ namespace stor {
 
     const FileRecordPtr getNewFileRecord();
 
-    const FileRecordList& getFileRecordsMQ() const {
-      return _fileRecords;
-    }
+    void getFileRecords(FileRecordList&) const;
 
 
   private:

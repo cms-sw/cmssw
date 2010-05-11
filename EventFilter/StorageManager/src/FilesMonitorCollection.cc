@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.cc,v 1.10 2010/01/28 13:41:43 mommsen Exp $
+// $Id: FilesMonitorCollection.cc,v 1.11 2010/01/29 15:45:47 mommsen Exp $
 /// @file: FilesMonitorCollection.cc
 
 #include <string>
@@ -31,6 +31,12 @@ FilesMonitorCollection::getNewFileRecord()
   fileRecord->eventCount = 0;
   _fileRecords.push_back(fileRecord);
   return fileRecord;
+}
+
+void FilesMonitorCollection::getFileRecords(FileRecordList& fileRecords) const
+{
+  boost::mutex::scoped_lock sl(_fileRecordsMutex);
+  fileRecords = _fileRecords;
 }
 
 
