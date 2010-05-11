@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.202 2010/05/06 14:28:16 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.203 2010/05/10 11:52:17 matevz Exp $
 
 //
 
@@ -41,7 +41,6 @@
 #include "TGPack.h"
 #include "TEveWindow.h"
 #include "TEveViewer.h"
-#include "TEveCaloData.h"
 #include "TEveWindowManager.h"
 #include "TEveSelection.h"
 #include "TGFileDialog.h"
@@ -235,7 +234,10 @@ FWGUIManager::evePreTerminate()
    gEve->GetWindowManager()->Disconnect("WindowUndocked(TEveWindow*)", this, "checkSubviewAreaIconState(TEveWindow*)");
 
    // avoid emit signals at end
+   gEve->GetSelection()->Disconnect();
+   gEve->GetHighlight()->Disconnect();
    gEve->GetSelection()->RemoveElements();
+   gEve->GetHighlight()->RemoveElements();
     
    m_cmsShowMainFrame->UnmapWindow();
    for(ViewMap_i wIt = m_viewMap.begin(); wIt != m_viewMap.end(); ++wIt)
@@ -553,8 +555,6 @@ FWGUIManager::subviewDestroyAll()
          setViewPopup(0);
       subviewDestroy(*i);
    }
-
-   m_cmsShowMain->context()->getCaloData()->DestroyElements();
 
    gSystem->ProcessEvents();
    gSystem->Sleep(200);

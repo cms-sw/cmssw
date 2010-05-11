@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.15 2010/05/04 18:22:24 amraktad Exp $
+// $Id: FWEveView.cc,v 1.16 2010/05/07 13:08:12 amraktad Exp $
 //
 
 
@@ -121,7 +121,8 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type) :
 
 FWEveView::~FWEveView()
 {
-   if (m_geoScene) delete m_geoScene;
+   m_geoScene->RemoveElements();
+   m_ownedProducts->Destroy();
    m_viewer->DestroyWindowAndSlot();
 }
 
