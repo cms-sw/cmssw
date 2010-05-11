@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: TrackParameterAnalyzer.h,v 1.11 2009/03/06 15:08:42 werdmann Exp $
+// $Id: TrackParameterAnalyzer.h,v 1.12 2009/10/30 19:55:01 drell Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
