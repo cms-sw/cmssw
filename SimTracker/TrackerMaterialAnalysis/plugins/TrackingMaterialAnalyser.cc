@@ -11,7 +11,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -135,7 +135,7 @@ void TrackingMaterialAnalyser::endJob(void)
 //-------------------------------------------------------------------------
 void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
-  edm::ESHandle<DDCompactView> hDDD;
+  edm::ESTransientHandle<DDCompactView> hDDD;
   setup.get<IdealGeometryRecord>().get( hDDD );
 
   m_groups.reserve( m_groupNames.size() );
