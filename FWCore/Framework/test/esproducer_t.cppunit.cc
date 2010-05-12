@@ -33,7 +33,8 @@ CPPUNIT_TEST(decoratorTest);
 CPPUNIT_TEST(dependsOnTest);
 CPPUNIT_TEST(labelTest);
 CPPUNIT_TEST_EXCEPTION(failMultipleRegistration,cms::Exception);
-
+CPPUNIT_TEST(forceCacheClearTest);
+   
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
@@ -46,6 +47,7 @@ public:
   void dependsOnTest();
   void labelTest();
   void failMultipleRegistration();
+  void forceCacheClearTest();
 
 private:
 class Test1Producer : public ESProducer {
@@ -335,3 +337,34 @@ void testEsproducer::failMultipleRegistration()
 {
    MultiRegisterProducer dummy;
 }
+
+void testEsproducer::forceCacheClearTest()
+{
+   EventSetupProvider provider;
+   
+   boost::shared_ptr<DataProxyProvider> pProxyProv(new Test1Producer);
+   provider.add(pProxyProv);
+   
+   boost::shared_ptr<DummyFinder> pFinder(new DummyFinder);
+   provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+   
+   const edm::Timestamp time(1);
+   pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
+   const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
+   {
+      edm::ESHandle<DummyData> pDummy;
+      eventSetup.get<DummyRecord>().get(pDummy);
+      CPPUNIT_ASSERT(0 != &(*pDummy));
+      std::cout <<pDummy->value_ << std::endl;
+      CPPUNIT_ASSERT(1 == pDummy->value_);
+   }
+   provider.forceCacheClear();
+   {
+      edm::ESHandle<DummyData> pDummy;
+      eventSetup.get<DummyRecord>().get(pDummy);
+      CPPUNIT_ASSERT(0 != &(*pDummy));
+      std::cout <<pDummy->value_ << std::endl;
+      CPPUNIT_ASSERT(2 == pDummy->value_);
+   }
+}
+
