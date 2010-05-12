@@ -3,6 +3,7 @@
 <use name=DataFormats/Candidate>
 <use name=DataFormats/Math>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/JetReco>
 <use name=DataFormats/ParticleFlowCandidate>
 <use name=rootrflx>
 <export>

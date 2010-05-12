@@ -25,7 +25,9 @@ namespace reco {
     
     const CaloTauTagInfoRef& caloTauTagInfoRef()const;
     void setcaloTauTagInfoRef(const CaloTauTagInfoRef);
-    
+
+    const CaloJetRef rawJetRef() const;
+
     // signed transverse impact parameter significance of leading Track ; NaN if no leading Track
     float leadTracksignedSipt()const;
     void setleadTracksignedSipt(const float&);

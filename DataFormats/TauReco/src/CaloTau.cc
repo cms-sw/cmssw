@@ -29,6 +29,10 @@ CaloTau* CaloTau::clone()const{return new CaloTau(*this);}
 const CaloTauTagInfoRef& CaloTau::caloTauTagInfoRef()const{return CaloTauTagInfoRef_;}
 void CaloTau::setcaloTauTagInfoRef(const CaloTauTagInfoRef x) {CaloTauTagInfoRef_=x;}
 
+const CaloJetRef CaloTau::rawJetRef() const {
+	return this->caloTauTagInfoRef()->calojetRef();
+}
+
 float CaloTau::leadTracksignedSipt()const{return leadTracksignedSipt_;}
 void CaloTau::setleadTracksignedSipt(const float& x){leadTracksignedSipt_=x;}
 

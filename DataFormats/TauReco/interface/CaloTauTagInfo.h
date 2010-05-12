@@ -14,7 +14,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TauReco/interface/BaseTauTagInfo.h"
 #include "DataFormats/TauReco/interface/CaloTauTagInfoFwd.h"
-
+#include "DataFormats/JetReco/interface/JetCollection.h"
 
 namespace reco{ 
   class CaloTauTagInfo : public BaseTauTagInfo {
@@ -27,6 +27,9 @@ namespace reco{
     const CaloJetRef& calojetRef()const;
     void setcalojetRef(const CaloJetRef);
 
+    const JetBaseRef jetRef()const;
+    void setJetRef(const JetBaseRef);
+
     const std::vector<std::pair<math::XYZPoint,float> > positionAndEnergyECALRecHits()const;
     void setpositionAndEnergyECALRecHits(std::vector<std::pair<math::XYZPoint,float> >);
 
@@ -36,6 +39,7 @@ namespace reco{
     CaloJetRef CaloJetRef_;
     std::vector<std::pair<math::XYZPoint,float> > positionAndEnergyECALRecHits_;
     std::vector<BasicClusterRef> neutralECALBasicClusters_;
+    JetBaseRef JetRef_;
   };
 }
 
