@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/03/29 18:34:06 $
- * $Revision: 1.16 $
+ * $Date: 2010/03/31 10:13:07 $
+ * $Revision: 1.17 $
  * $Author: ameyer $
  *
  */
@@ -13,6 +13,7 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 const static int XBINS=2000;
 
@@ -73,6 +74,77 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   reportSummaryMap_->setBinLabel(26,"Valid",2);
   reportSummaryMap_->setAxisTitle("Luminosity Section");
 
+  dbe_->cd();  
+  dbe_->setCurrentFolder(subsystemname_ +"/LhcInfo/");
+  hBeamMode_=dbe_->book1D("beamMode","beamMode",XBINS,0.,XBINS);
+  TH1F* h1=hBeamMode_->getTH1F();
+  h1->GetYaxis()->Set(22,0.,22.);
+  h1->SetMaximum(22.);
+  
+  hBeamMode_->setAxisTitle("Luminosity Section",1);
+  hBeamMode_->setAxisTitle("Mode",2);
+  /*  
+  hBeamMode_->setBinLabel(1,"no mode",2);
+  hBeamMode_->setBinLabel(2,"setup",2);
+  hBeamMode_->setBinLabel(3,"inj pilot",2);
+  hBeamMode_->setBinLabel(4,"inj intr",2);
+  hBeamMode_->setBinLabel(5,"inj nomn",2);
+  hBeamMode_->setBinLabel(6,"pre ramp",2);
+  hBeamMode_->setBinLabel(7,"ramp",2);
+  hBeamMode_->setBinLabel(8,"flat top",2);
+  hBeamMode_->setBinLabel(9,"squeeze",2);
+  hBeamMode_->setBinLabel(10,"adjust",2);
+  hBeamMode_->setBinLabel(11,"stable",2);
+  hBeamMode_->setBinLabel(12,"unstable",2);
+  hBeamMode_->setBinLabel(13,"beam dump",2);
+  hBeamMode_->setBinLabel(14,"ramp down",2);
+  hBeamMode_->setBinLabel(15,"recovery",2);
+  hBeamMode_->setBinLabel(16,"inj dump",2);
+  hBeamMode_->setBinLabel(17,"circ dump",2);
+  hBeamMode_->setBinLabel(18,"abort",2);
+  hBeamMode_->setBinLabel(19,"cycling",2);
+  hBeamMode_->setBinLabel(20,"warn beam dump",2);
+  hBeamMode_->setBinLabel(21,"no beam",2);
+  hBeamMode_->setBinContent(0.,22.);
+  */
+  hBeamMode_->setBinLabel(1,"no md",2);
+  hBeamMode_->setBinLabel(2,"setup",2);
+  hBeamMode_->setBinLabel(3,"injpil",2);
+  hBeamMode_->setBinLabel(4,"injint",2);
+  hBeamMode_->setBinLabel(5,"injnom",2);
+  hBeamMode_->setBinLabel(6,"prermp",2);
+  hBeamMode_->setBinLabel(7,"ramp",2);
+  hBeamMode_->setBinLabel(8,"flattp",2);
+  hBeamMode_->setBinLabel(9,"squeez",2);
+  hBeamMode_->setBinLabel(10,"adjust",2);
+  hBeamMode_->setBinLabel(11,"stable",2);
+  hBeamMode_->setBinLabel(12,"unstbl",2);
+  hBeamMode_->setBinLabel(13,"bmdump",2);
+  hBeamMode_->setBinLabel(14,"rmp dn",2);
+  hBeamMode_->setBinLabel(15,"recvry",2);
+  hBeamMode_->setBinLabel(16,"injdmp",2);
+  hBeamMode_->setBinLabel(17,"crcdmp",2);
+  hBeamMode_->setBinLabel(18,"abort",2);
+  hBeamMode_->setBinLabel(19,"cyclng",2);
+  hBeamMode_->setBinLabel(20,"wrndmp",2);
+  hBeamMode_->setBinLabel(21,"nobeam",2);
+  hBeamMode_->setBinContent(0.,22.);
+  
+  hLhcFill_=dbe_->book1D("lhcFill","LHC Fill Number",XBINS,0.,XBINS);
+  hLhcFill_->setAxisTitle("Luminosity Section",1);
+  hLhcFill_->setAxisTitle("Fill Number",2);
+  
+  hMomentum_=dbe_->book1D("momentum","Beam Energy [GeV]",XBINS,0.,XBINS);
+  hMomentum_->setAxisTitle("Luminosity Section",1);
+  hMomentum_->setAxisTitle("Beam Energy",2);
+
+  hIntensity1_=dbe_->book1D("intensity1","Intensity Beam 1",XBINS,0.,XBINS);
+  hIntensity1_->setAxisTitle("Luminosity Section",1);
+  hIntensity1_->setAxisTitle("Intensity Beam 1",2);
+  hIntensity2_=dbe_->book1D("intensity2","Intensity Beam 2",XBINS,0.,XBINS);
+  hIntensity2_->setAxisTitle("Luminosity Section",1);
+  hIntensity2_->setAxisTitle("Intensity Beam 2",2);
+
   // initialize
   physDecl_=true;
   for (int i=0;i<24;i++) dcs24[i]=true;
@@ -100,6 +172,11 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
   }
   if (nlumi <= lastlumi_ ) return;
 
+  hBeamMode_->setBinContent(nlumi,beamMode_);
+  hLhcFill_->setBinContent(nlumi,lhcFill_);
+  hMomentum_->setBinContent(nlumi,momentum_);
+  hIntensity1_->setBinContent(nlumi,intensity1_);
+  hIntensity2_->setBinContent(nlumi,intensity2_);
 
   // set to previous in case there was a jump or no previous fill
   for (int l=lastlumi_+1;l<nlumi;l++)
@@ -287,9 +364,35 @@ DQMProvInfo::makeGtInfo(const edm::Event& e)
     physDecl_=false;
     return;
   }
-
   // cout << "phys decl. bit =" << static_cast<int>(fdlWord.physicsDeclared()) << endl;
   if (fdlWord.physicsDeclared() !=1) physDecl_=false;
+
+
+  //
+  edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvm_handle;
+  e.getByLabel("gtEvmDigis", gtEvm_handle);
+  L1GlobalTriggerEvmReadoutRecord const* gtevm = gtEvm_handle.product();
+
+  L1GtfeWord gtfeEvmWord;
+  L1GtfeExtWord gtfeEvmExtWord;
+  if (gtevm)
+  {
+     gtfeEvmWord = gtevm->gtfeWord();
+     gtfeEvmExtWord = gtevm->gtfeWord();
+  }
+  else
+    std::cout << " gtfeEvmWord inaccessible" ;
+   
+  lhcFill_ = gtfeEvmExtWord.lhcFillNumber();
+  beamMode_ = gtfeEvmExtWord.beamMode();
+  momentum_ = gtfeEvmExtWord.beamMomentum();
+  intensity1_ = gtfeEvmExtWord.totalIntensityBeam1();
+  intensity2_ = gtfeEvmExtWord.totalIntensityBeam2();
+  
+  std::cout << lhcFill_ << " " << beamMode_ << " " 
+            << momentum_ << " " 
+	    << intensity1_ << " " << intensity2_ 
+	    << std::endl;
 
   return;
 }

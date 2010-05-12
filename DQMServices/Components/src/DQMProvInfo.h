@@ -4,8 +4,8 @@
 /*
  * \file DQMProvInfo.h
  *
- * $Date: 2009/12/15 23:07:13 $
- * $Revision: 1.7 $
+ * $Date: 2010/03/29 18:34:06 $
+ * $Revision: 1.8 $
  * \author A.Meyer - DESY
  *
 */
@@ -58,7 +58,13 @@ private:
   
   bool physDecl_;
   bool dcs24[24];
-
+  
+  int lhcFill_;
+  int beamMode_;
+  int momentum_;
+  int intensity1_;
+  int intensity2_;
+  
    // histograms
   MonitorElement * versCMSSW_ ;
   MonitorElement * versDataset_ ;
@@ -70,6 +76,12 @@ private:
   MonitorElement * processId_;         ///The PID associated with this job
   MonitorElement * isComplete_;
   MonitorElement * fileVersion_;
+
+  MonitorElement * hBeamMode_;
+  MonitorElement * hLhcFill_;
+  MonitorElement * hMomentum_;
+  MonitorElement * hIntensity1_;
+  MonitorElement * hIntensity2_;
   
   MonitorElement * reportSummary_;
   MonitorElement * reportSummaryMap_;
