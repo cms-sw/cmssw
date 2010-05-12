@@ -1,7 +1,7 @@
 //
 // Package:     Electrons
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.24 2010/04/26 13:33:33 yana Exp $
+// $Id: FWPhotonDetailView.cc,v 1.25 2010/05/12 12:36:13 amraktad Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
@@ -55,8 +55,10 @@ void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton
 
    if ( iPhoton->superCluster().isAvailable() )
       m_builder->showSuperCluster(*(iPhoton->superCluster()), kYellow);
+
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
+   m_data->IncDenyDestroy();
    m_eveScene->AddElement(lego);
 
    // add Photon specific details

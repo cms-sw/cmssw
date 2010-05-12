@@ -3,7 +3,7 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.22 2010/05/07 09:03:40 mccauley Exp $
+// $Id: FWMuonDetailView.cc,v 1.23 2010/05/12 12:36:14 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -71,6 +71,7 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon)
 
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
+   m_data->IncDenyDestroy();
    m_eveScene->AddElement(lego);
    addSceneInfo(iMuon, m_eveScene);
 
