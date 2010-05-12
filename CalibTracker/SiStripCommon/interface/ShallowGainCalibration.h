@@ -56,8 +56,6 @@
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 
-#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "CalibTracker/Records/interface/SiStripGainRcd.h"
 
 #include <ext/hash_map>
 
