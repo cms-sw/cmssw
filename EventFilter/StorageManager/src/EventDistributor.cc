@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.17 2010/05/03 12:19:47 mommsen Exp $
+// $Id: EventDistributor.cc,v 1.18 2010/05/11 18:02:28 mommsen Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -18,6 +18,8 @@
 #include "EventFilter/StorageManager/interface/RunMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
+
+#include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 
 using namespace stor;
 
@@ -53,7 +55,8 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
       _sharedResources->_statisticsReporter->getDataSenderMonitorCollection();
     dataSenderMonColl.addFaultyEventSample(ioc);
 
-    if ( ! _sharedResources->_configuration->getDiskWritingParams()._faultyEventsStream.empty() )
+    if ( !( _sharedResources->_configuration->getDiskWritingParams()._faultyEventsStream.empty() ) &&
+      ( ioc.i2oMessageCode() == I2O_SM_DATA || ioc.i2oMessageCode() == I2O_SM_ERROR) )
       ioc.tagForStream(0); // special stream for faulty events
   }
   else
