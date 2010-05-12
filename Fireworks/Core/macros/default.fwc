@@ -394,7 +394,7 @@
       <string>0.2</string>
     </config>
     <config name="Show projection axes" version="0">
-      <string>1</string>
+      <string>0</string>
     </config>
     <config name="Compress detectors" version="0">
       <string>0</string>
@@ -403,7 +403,7 @@
       <string>2</string>
     </config>
     <config name="Calo auto scale" version="0">
-      <string>0</string>
+      <string>1</string>
     </config>
     <config name="Show calo endcaps" version="0">
       <string>1</string>
@@ -430,7 +430,7 @@
       <string>0.98</string>
     </config>
     <config name="cameraZoomRho Phi" version="0">
-      <string>2.61804</string>
+      <string>1.86325</string>
     </config>
     <config name="cameraMatrix0Rho Phi" version="0">
       <string>1</string>
@@ -469,13 +469,13 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix12Rho Phi" version="0">
-      <string>375</string>
+      <string>2337.41</string>
     </config>
     <config name="cameraMatrix13Rho Phi" version="0">
-      <string>22.6495</string>
+      <string>0</string>
     </config>
     <config name="cameraMatrix14Rho Phi" version="0">
-      <string>-28.9914</string>
+      <string>0</string>
     </config>
     <config name="cameraMatrix15Rho Phi" version="0">
       <string>1</string>
@@ -608,7 +608,7 @@
       <string>2</string>
     </config>
     <config name="Calo auto scale" version="0">
-      <string>0</string>
+      <string>1</string>
     </config>
     <config name="EventInfoTextSize" version="0">
       <string>0.03</string>
@@ -1187,10 +1187,10 @@
        <string>1</string>
      </config>
      <config name="x" version="0">
-       <string>1026</string>
+       <string>1025</string>
      </config>
      <config name="y" version="0">
-       <string>50</string>
+       <string>52</string>
      </config>
      <config name="width" version="0">
        <string>358</string>
@@ -1215,13 +1215,13 @@
        <string>1</string>
      </config>
      <config name="x" version="0">
-       <string>1026</string>
+       <string>1025</string>
      </config>
      <config name="y" version="0">
-       <string>387</string>
+       <string>391</string>
      </config>
      <config name="width" version="0">
-       <string>358</string>
+       <string>359</string>
      </config>
      <config name="height" version="0">
        <string>378</string>

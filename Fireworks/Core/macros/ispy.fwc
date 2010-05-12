@@ -14,7 +14,7 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string>$.emEt()&gt;0.2</string>
+     <string>(abs(eta)&lt;1.5&amp;&amp;energy&gt;0.2)||(energy&gt;0.5)</string>
    </config>
    <config name="color" version="0">
      <string>8</string>
@@ -43,7 +43,7 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string>$.hadEt()+$.outerEt()&gt;0.2</string>
+     <string>energy&gt;0.5</string>
    </config>
    <config name="color" version="0">
      <string>5</string>
@@ -261,35 +261,6 @@
      <string>CSC-segments</string>
    </config>
   </config>
-  <config name="Photons" version="3">
-   <config name="type" version="0">
-     <string>std::vector&lt;reco::Photon&gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>photons</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>hadronicOverEm &lt; 0.2</string>
-   </config>
-   <config name="color" version="0">
-     <string>9</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>1</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>Photons</string>
-   </config>
-  </config>
   <config name="MET" version="3">
    <config name="type" version="0">
      <string>std::vector&lt;reco::MET&gt;</string>
@@ -319,65 +290,7 @@
      <string>recoMET</string>
    </config>
   </config>
-  <config name="hybridSuperClusters" version="3">
-   <config name="type" version="0">
-     <string>std::vector&lt;reco::CaloCluster&gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>hybridSuperClusters</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string>hybridBarrelBasicClusters</string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string></string>
-   </config>
-   <config name="color" version="0">
-     <string>7</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>12</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>Calo Cluster</string>
-   </config>
-  </config>
-  <config name="multi5x5SuperClusters" version="3">
-   <config name="type" version="0">
-     <string>std::vector&lt;reco::SuperCluster&gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>multi5x5SuperClusters</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string>multi5x5EndcapSuperClusters</string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string></string>
-   </config>
-   <config name="color" version="0">
-     <string>1</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>13</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>Calo Cluster</string>
-   </config>
-  </config>
-  <config name="ecalPreshowerRecHit" version="3">
+  <config name="ESRecHit" version="3">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;EcalRecHit,edm::StrictWeakOrdering&lt;EcalRecHit&gt; &gt;</string>
    </config>
@@ -394,7 +307,7 @@
      <string></string>
    </config>
    <config name="color" version="0">
-     <string>6</string>
+     <string>8</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -406,7 +319,7 @@
      <string>Calo RecHit</string>
    </config>
   </config>
-  <config name="ecalRecHit" version="3">
+  <config name="EBRecHits" version="3">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;EcalRecHit,edm::StrictWeakOrdering&lt;EcalRecHit&gt; &gt;</string>
    </config>
@@ -420,10 +333,10 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string></string>
+     <string>energy&gt;0.2</string>
    </config>
    <config name="color" version="0">
-     <string>6</string>
+     <string>8</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -435,7 +348,7 @@
      <string>Calo RecHit</string>
    </config>
   </config>
-  <config name="ecalRecHitXX" version="3">
+  <config name="EERecHits" version="3">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;EcalRecHit,edm::StrictWeakOrdering&lt;EcalRecHit&gt; &gt;</string>
    </config>
@@ -449,10 +362,10 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string></string>
+     <string>energy&gt;0.5</string>
    </config>
    <config name="color" version="0">
-     <string>2</string>
+     <string>8</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -464,7 +377,7 @@
      <string>Calo RecHit</string>
    </config>
   </config>
-  <config name="hbhereco" version="3">
+  <config name="HCalRecHits" version="3">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;HBHERecHit,edm::StrictWeakOrdering&lt;HBHERecHit&gt; &gt;</string>
    </config>
@@ -478,7 +391,7 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string></string>
+     <string>energy&gt;0.5</string>
    </config>
    <config name="color" version="0">
      <string>5</string>
@@ -493,7 +406,7 @@
      <string>HBHE RecHit</string>
    </config>
   </config>
-  <config name="horeco" version="3">
+  <config name="HORecHits" version="3">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;HORecHit,edm::StrictWeakOrdering&lt;HORecHit&gt; &gt;</string>
    </config>
@@ -507,7 +420,7 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string></string>
+     <string>energy&gt;1</string>
    </config>
    <config name="color" version="0">
      <string>7</string>
@@ -536,7 +449,7 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string></string>
+     <string>energy&gt;10</string>
    </config>
    <config name="color" version="0">
      <string>23</string>
@@ -590,534 +503,25 @@
  <config name="GUI" version="1">
   <config name="main window" version="2">
    <config name="x" version="0">
-     <string>36</string>
+     <string>26</string>
    </config>
    <config name="y" version="0">
-     <string>36</string>
+     <string>22</string>
    </config>
    <config name="width" version="0">
-     <string>1312</string>
+     <string>1263</string>
    </config>
    <config name="height" version="0">
-     <string>880</string>
+     <string>828</string>
    </config>
    <config name="leftWeight" version="0">
-     <string>0.93463</string>
+     <string>1.23438</string>
    </config>
    <config name="rightWeight" version="0">
-     <string>1.06537</string>
+     <string>0.765627</string>
    </config>
   </config>
   <config name="views" version="1">
-   <config name="Rho Phi" version="2">
-    <config name="Overlay Event Info" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Logo" version="0">
-      <string>0</string>
-    </config>
-    <config name="Line width" version="0">
-      <string>1</string>
-    </config>
-    <config name="Calo compression" version="0">
-      <string>1</string>
-    </config>
-    <config name="Muon compression" version="0">
-      <string>0.2</string>
-    </config>
-    <config name="Show projection axes" version="0">
-      <string>0</string>
-    </config>
-    <config name="Compress detectors" version="0">
-      <string>0</string>
-    </config>
-    <config name="Calo scale (GeV/meter)" version="0">
-      <string>2</string>
-    </config>
-    <config name="Calo auto scale" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show calo endcaps" version="0">
-      <string>1</string>
-    </config>
-    <config name="Show HF" version="0">
-      <string>1</string>
-    </config>
-    <config name="EventInfoTextSize" version="0">
-      <string>0.03</string>
-    </config>
-    <config name="EventInfoPosX" version="0">
-      <string>0.05</string>
-    </config>
-    <config name="EventInfoPosY" version="0">
-      <string>0.95</string>
-    </config>
-    <config name="LogoSize" version="0">
-      <string>0.2</string>
-    </config>
-    <config name="LogoPosX" version="0">
-      <string>0.02</string>
-    </config>
-    <config name="LogoPosY" version="0">
-      <string>0.98</string>
-    </config>
-    <config name="cameraZoomRho Phi" version="0">
-      <string>0.78</string>
-    </config>
-    <config name="cameraMatrix0Rho Phi" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrix1Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix2Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix3Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix4Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix5Rho Phi" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrix6Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix7Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix8Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix9Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix10Rho Phi" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrix11Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix12Rho Phi" version="0">
-      <string>2337.41</string>
-    </config>
-    <config name="cameraMatrix13Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix14Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix15Rho Phi" version="0">
-      <string>1</string>
-    </config>
-   </config>
-   <config name="Lego" version="2">
-    <config name="Overlay Event Info" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Logo" version="0">
-      <string>0</string>
-    </config>
-    <config name="Line width" version="0">
-      <string>1</string>
-    </config>
-    <config name="Plot Et" version="0">
-      <string>1</string>
-    </config>
-    <config name="Auto rebin on zoom" version="0">
-      <string>1</string>
-    </config>
-    <config name="Pixels per bin" version="0">
-      <string>10</string>
-    </config>
-    <config name="Show scales" version="0">
-      <string>1</string>
-    </config>
-    <config name="Lego scale GeV)" version="0">
-      <string>100</string>
-    </config>
-    <config name="Lego auto scale" version="0">
-      <string>1</string>
-    </config>
-    <config name="EventInfoTextSize" version="0">
-      <string>0.03</string>
-    </config>
-    <config name="EventInfoPosX" version="0">
-      <string>0.05</string>
-    </config>
-    <config name="EventInfoPosY" version="0">
-      <string>0.95</string>
-    </config>
-    <config name="LogoSize" version="0">
-      <string>0.2</string>
-    </config>
-    <config name="LogoPosX" version="0">
-      <string>0.02</string>
-    </config>
-    <config name="LogoPosY" version="0">
-      <string>0.98</string>
-    </config>
-    <config name="topViewLego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix0Lego" version="0">
-      <string>0.396141</string>
-    </config>
-    <config name="cameraMatrix1Lego" version="0">
-      <string>0.811068</string>
-    </config>
-    <config name="cameraMatrix2Lego" version="0">
-      <string>0.430397</string>
-    </config>
-    <config name="cameraMatrix3Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix4Lego" version="0">
-      <string>-0.898551</string>
-    </config>
-    <config name="cameraMatrix5Lego" version="0">
-      <string>0.438869</string>
-    </config>
-    <config name="cameraMatrix6Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix7Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix8Lego" version="0">
-      <string>-0.188888</string>
-    </config>
-    <config name="cameraMatrix9Lego" version="0">
-      <string>-0.386733</string>
-    </config>
-    <config name="cameraMatrix10Lego" version="0">
-      <string>0.90264</string>
-    </config>
-    <config name="cameraMatrix11Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix12Lego" version="0">
-      <string>7.49136</string>
-    </config>
-    <config name="cameraMatrix13Lego" version="0">
-      <string>14.6599</string>
-    </config>
-    <config name="cameraMatrix14Lego" version="0">
-      <string>8.15894</string>
-    </config>
-    <config name="cameraMatrix15Lego" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrixBase0Lego" version="0">
-      <string>-1</string>
-    </config>
-    <config name="cameraMatrixBase1Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase2Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase3Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase4Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase5Lego" version="0">
-      <string>-1</string>
-    </config>
-    <config name="cameraMatrixBase6Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase7Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase8Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase9Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase10Lego" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrixBase11Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase12Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase13Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase14Lego" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase15Lego" version="0">
-      <string>1</string>
-    </config>
-    <config name="Lego FOV" version="0">
-      <string>18.9658</string>
-    </config>
-   </config>
-   <config name="Rho Z" version="2">
-    <config name="Overlay Event Info" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Logo" version="0">
-      <string>0</string>
-    </config>
-    <config name="Line width" version="0">
-      <string>1</string>
-    </config>
-    <config name="Calo compression" version="0">
-      <string>1</string>
-    </config>
-    <config name="Muon compression" version="0">
-      <string>0.2</string>
-    </config>
-    <config name="Show projection axes" version="0">
-      <string>0</string>
-    </config>
-    <config name="Compress detectors" version="0">
-      <string>0</string>
-    </config>
-    <config name="Calo scale (GeV/meter)" version="0">
-      <string>2</string>
-    </config>
-    <config name="Calo auto scale" version="0">
-      <string>0</string>
-    </config>
-    <config name="EventInfoTextSize" version="0">
-      <string>0.03</string>
-    </config>
-    <config name="EventInfoPosX" version="0">
-      <string>0.05</string>
-    </config>
-    <config name="EventInfoPosY" version="0">
-      <string>0.95</string>
-    </config>
-    <config name="LogoSize" version="0">
-      <string>0.2</string>
-    </config>
-    <config name="LogoPosX" version="0">
-      <string>0.02</string>
-    </config>
-    <config name="LogoPosY" version="0">
-      <string>0.98</string>
-    </config>
-    <config name="cameraZoomRho Z" version="0">
-      <string>0.78</string>
-    </config>
-    <config name="cameraMatrix0Rho Z" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrix1Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix2Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix3Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix4Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix5Rho Z" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrix6Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix7Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix8Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix9Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix10Rho Z" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrix11Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix12Rho Z" version="0">
-      <string>2855.02</string>
-    </config>
-    <config name="cameraMatrix13Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix14Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix15Rho Z" version="0">
-      <string>1</string>
-    </config>
-   </config>
-   <config name="3D" version="2">
-    <config name="Overlay Event Info" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Logo" version="0">
-      <string>0</string>
-    </config>
-    <config name="Line width" version="0">
-      <string>1</string>
-    </config>
-    <config name="Show Muon Barrel" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Muon Endcap" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Pixel Barrel" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Pixel Endcap" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Tracker Barrel" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Tracker Endcap" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Wire Frame" version="0">
-      <string>1</string>
-    </config>
-    <config name="Detector Transparency" version="0">
-      <string>95</string>
-    </config>
-    <config name="Calo scale (GeV/meter)" version="0">
-      <string>2</string>
-    </config>
-    <config name="Calo auto scale" version="0">
-      <string>1</string>
-    </config>
-    <config name="EventInfoTextSize" version="0">
-      <string>0.03</string>
-    </config>
-    <config name="EventInfoPosX" version="0">
-      <string>0.05</string>
-    </config>
-    <config name="EventInfoPosY" version="0">
-      <string>0.95</string>
-    </config>
-    <config name="LogoSize" version="0">
-      <string>0.2</string>
-    </config>
-    <config name="LogoPosX" version="0">
-      <string>0.02</string>
-    </config>
-    <config name="LogoPosY" version="0">
-      <string>0.98</string>
-    </config>
-    <config name="cameraMatrix0Plain3D" version="0">
-      <string>0.911306</string>
-    </config>
-    <config name="cameraMatrix1Plain3D" version="0">
-      <string>-0.409307</string>
-    </config>
-    <config name="cameraMatrix2Plain3D" version="0">
-      <string>0.0446101</string>
-    </config>
-    <config name="cameraMatrix3Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix4Plain3D" version="0">
-      <string>0.409715</string>
-    </config>
-    <config name="cameraMatrix5Plain3D" version="0">
-      <string>0.912214</string>
-    </config>
-    <config name="cameraMatrix6Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix7Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix8Plain3D" version="0">
-      <string>-0.0406939</string>
-    </config>
-    <config name="cameraMatrix9Plain3D" version="0">
-      <string>0.0182774</string>
-    </config>
-    <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.999004</string>
-    </config>
-    <config name="cameraMatrix11Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix12Plain3D" version="0">
-      <string>856.323</string>
-    </config>
-    <config name="cameraMatrix13Plain3D" version="0">
-      <string>-384.612</string>
-    </config>
-    <config name="cameraMatrix14Plain3D" version="0">
-      <string>41.9186</string>
-    </config>
-    <config name="cameraMatrix15Plain3D" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrixBase0Plain3D" version="0">
-      <string>-1</string>
-    </config>
-    <config name="cameraMatrixBase1Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase2Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase3Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase4Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase5Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase6Plain3D" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrixBase7Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase8Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase9Plain3D" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrixBase10Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase11Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase12Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase13Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase14Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase15Plain3D" version="0">
-      <string>1</string>
-    </config>
-    <config name="Plain3D FOV" version="0">
-      <string>30</string>
-    </config>
-   </config>
    <config name="iSpy" version="2">
     <config name="Overlay Event Info" version="0">
       <string>2</string>
@@ -1129,10 +533,10 @@
       <string>1</string>
     </config>
     <config name="Show Muon Barrel" version="0">
-      <string>0</string>
+      <string>1</string>
     </config>
     <config name="Show Muon Endcap" version="0">
-      <string>0</string>
+      <string>1</string>
     </config>
     <config name="Show Pixel Barrel" version="0">
       <string>0</string>
@@ -1147,22 +551,22 @@
       <string>0</string>
     </config>
     <config name="Show Wire Frame" version="0">
-      <string>1</string>
+      <string>0</string>
     </config>
     <config name="Detector Transparency" version="0">
-      <string>95</string>
+      <string>98</string>
     </config>
     <config name="EventInfoTextSize" version="0">
-      <string>0.0412192</string>
+      <string>0.0215528</string>
     </config>
     <config name="EventInfoPosX" version="0">
-      <string>0.165163</string>
+      <string>0.134583</string>
     </config>
     <config name="EventInfoPosY" version="0">
-      <string>0.97</string>
+      <string>0.974217</string>
     </config>
     <config name="LogoSize" version="0">
-      <string>0.2</string>
+      <string>0.0864318</string>
     </config>
     <config name="LogoPosX" version="0">
       <string>0.02</string>
@@ -1171,22 +575,22 @@
       <string>0.98</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
-      <string>-0.606621</string>
+      <string>0.347343</string>
     </config>
     <config name="cameraMatrix1Plain3D" version="0">
-      <string>-0.781176</string>
+      <string>-0.870001</string>
     </config>
     <config name="cameraMatrix2Plain3D" version="0">
-      <string>0.147563</string>
+      <string>0.349931</string>
     </config>
     <config name="cameraMatrix3Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix4Plain3D" version="0">
-      <string>0.789822</string>
+      <string>0.928719</string>
     </config>
     <config name="cameraMatrix5Plain3D" version="0">
-      <string>-0.613336</string>
+      <string>0.370785</string>
     </config>
     <config name="cameraMatrix6Plain3D" version="0">
       <string>0</string>
@@ -1195,25 +599,25 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix8Plain3D" version="0">
-      <string>0.0905056</string>
+      <string>-0.129749</string>
     </config>
     <config name="cameraMatrix9Plain3D" version="0">
-      <string>0.116548</string>
+      <string>0.324987</string>
     </config>
     <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.989053</string>
+      <string>0.936776</string>
     </config>
     <config name="cameraMatrix11Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix12Plain3D" version="0">
-      <string>-2029.97</string>
+      <string>1128.34</string>
     </config>
     <config name="cameraMatrix13Plain3D" version="0">
-      <string>-2614.09</string>
+      <string>-2949.26</string>
     </config>
     <config name="cameraMatrix14Plain3D" version="0">
-      <string>493.797</string>
+      <string>1110.42</string>
     </config>
     <config name="cameraMatrix15Plain3D" version="0">
       <string>1</string>
@@ -1267,22 +671,224 @@
       <string>1</string>
     </config>
     <config name="Plain3D FOV" version="0">
-      <string>30</string>
+      <string>16.1555</string>
+    </config>
+   </config>
+   <config name="Rho Phi" version="2">
+    <config name="Overlay Event Info" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show Logo" version="0">
+      <string>0</string>
+    </config>
+    <config name="Line width" version="0">
+      <string>1</string>
+    </config>
+    <config name="Calo compression" version="0">
+      <string>1</string>
+    </config>
+    <config name="Muon compression" version="0">
+      <string>0.2</string>
+    </config>
+    <config name="Show projection axes" version="0">
+      <string>0</string>
+    </config>
+    <config name="Compress detectors" version="0">
+      <string>0</string>
+    </config>
+    <config name="Calo scale (GeV/meter)" version="0">
+      <string>2</string>
+    </config>
+    <config name="Calo auto scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Show calo endcaps" version="0">
+      <string>1</string>
+    </config>
+    <config name="Show HF" version="0">
+      <string>1</string>
+    </config>
+    <config name="EventInfoTextSize" version="0">
+      <string>0.03</string>
+    </config>
+    <config name="EventInfoPosX" version="0">
+      <string>0.05</string>
+    </config>
+    <config name="EventInfoPosY" version="0">
+      <string>0.95</string>
+    </config>
+    <config name="LogoSize" version="0">
+      <string>0.2</string>
+    </config>
+    <config name="LogoPosX" version="0">
+      <string>0.02</string>
+    </config>
+    <config name="LogoPosY" version="0">
+      <string>0.98</string>
+    </config>
+    <config name="cameraZoomRho Phi" version="0">
+      <string>1.67554</string>
+    </config>
+    <config name="cameraMatrix0Rho Phi" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrix1Rho Phi" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix2Rho Phi" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix3Rho Phi" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix4Rho Phi" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix5Rho Phi" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrix6Rho Phi" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix7Rho Phi" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix8Rho Phi" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix9Rho Phi" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix10Rho Phi" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrix11Rho Phi" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix12Rho Phi" version="0">
+      <string>2337.41</string>
+    </config>
+    <config name="cameraMatrix13Rho Phi" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix14Rho Phi" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix15Rho Phi" version="0">
+      <string>1</string>
+    </config>
+   </config>
+   <config name="Rho Z" version="2">
+    <config name="Overlay Event Info" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show Logo" version="0">
+      <string>0</string>
+    </config>
+    <config name="Line width" version="0">
+      <string>1</string>
+    </config>
+    <config name="Calo compression" version="0">
+      <string>1</string>
+    </config>
+    <config name="Muon compression" version="0">
+      <string>0.2</string>
+    </config>
+    <config name="Show projection axes" version="0">
+      <string>0</string>
+    </config>
+    <config name="Compress detectors" version="0">
+      <string>0</string>
+    </config>
+    <config name="Calo scale (GeV/meter)" version="0">
+      <string>2</string>
+    </config>
+    <config name="Calo auto scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="EventInfoTextSize" version="0">
+      <string>0.03</string>
+    </config>
+    <config name="EventInfoPosX" version="0">
+      <string>0.05</string>
+    </config>
+    <config name="EventInfoPosY" version="0">
+      <string>0.95</string>
+    </config>
+    <config name="LogoSize" version="0">
+      <string>0.2</string>
+    </config>
+    <config name="LogoPosX" version="0">
+      <string>0.02</string>
+    </config>
+    <config name="LogoPosY" version="0">
+      <string>0.98</string>
+    </config>
+    <config name="cameraZoomRho Z" version="0">
+      <string>1.55271</string>
+    </config>
+    <config name="cameraMatrix0Rho Z" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrix1Rho Z" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix2Rho Z" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix3Rho Z" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix4Rho Z" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix5Rho Z" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrix6Rho Z" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix7Rho Z" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix8Rho Z" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix9Rho Z" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix10Rho Z" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrix11Rho Z" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix12Rho Z" version="0">
+      <string>2855.02</string>
+    </config>
+    <config name="cameraMatrix13Rho Z" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix14Rho Z" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix15Rho Z" version="0">
+      <string>1</string>
     </config>
    </config>
   </config>
   <config name="view area" version="2">
-   <config name="Rho Phi" version="2">
+   <config name="iSpy" version="2">
     <config name="weight" version="0">
-      <string>0.93463</string>
+      <string>1.23438</string>
     </config>
     <config name="undocked" version="0">
       <string>0</string>
     </config>
    </config>
-   <config name="Lego" version="2">
+   <config name="Rho Phi" version="2">
     <config name="weight" version="0">
-      <string>1.12835</string>
+      <string>1.14822</string>
     </config>
     <config name="undocked" version="0">
       <string>0</string>
@@ -1290,46 +896,10 @@
    </config>
    <config name="Rho Z" version="2">
     <config name="weight" version="0">
-      <string>1.03308</string>
+      <string>0.884859</string>
     </config>
     <config name="undocked" version="0">
       <string>0</string>
-    </config>
-   </config>
-   <config name="3D" version="2">
-    <config name="weight" version="0">
-      <string>0.77323</string>
-    </config>
-    <config name="undocked" version="0">
-      <string>0</string>
-    </config>
-   </config>
-   <config name="iSpy" version="2">
-    <config name="weight" version="0">
-      <string>1</string>
-    </config>
-    <config name="undocked" version="0">
-      <string>1</string>
-    </config>
-    <config name="UndockedWindowPos" version="2">
-     <config name="weight" version="0">
-       <string>1</string>
-     </config>
-     <config name="undocked" version="0">
-       <string>1</string>
-     </config>
-     <config name="x" version="0">
-       <string>397</string>
-     </config>
-     <config name="y" version="0">
-       <string>291</string>
-     </config>
-     <config name="width" version="0">
-       <string>1042</string>
-     </config>
-     <config name="height" version="0">
-       <string>722</string>
-     </config>
     </config>
    </config>
   </config>
@@ -1337,7 +907,7 @@
   </config>
   <config name="color control" version="1">
    <config name="background color" version="0">
-     <string>white</string>
+     <string>black</string>
    </config>
    <config name="brightness" version="0">
      <string>0</string>
