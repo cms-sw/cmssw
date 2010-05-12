@@ -131,7 +131,6 @@ HLT_L1Tech_BSC_halo
 HLT_L1Tech_BSC_halo_forPhysicsBackground
 HLT_L2Mu0_NoVertex
 HLT_TkMu3_NoVertex
-HLT_EgammaSuperClusterOnly_L1R
 HLT_LogMonitor
 HLT_PixelTracks_Multiplicity40
 HLT_PixelTracks_Multiplicity70
