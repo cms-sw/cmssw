@@ -969,6 +969,20 @@ namespace edm {
     kMaxChildAction
   };
   
+  namespace {
+    unsigned int numberOfDigitsInChildIndex(unsigned int numberOfChildren) {
+      unsigned int n = 0;
+      while (numberOfChildren != 0) {
+        ++n;
+        numberOfChildren /= 10;
+      }
+      if (n == 0) {
+        n = 3; // Protect against zero numberOfChildren
+      }
+      return n;
+    }
+  }
+
   bool 
   EventProcessor::forkProcess(std::string const& jobReportFile) {
 
@@ -1052,6 +1066,7 @@ namespace edm {
 
     unsigned int childIndex = 0;
     unsigned int const kMaxChildren = numberOfForkedChildren_;
+    unsigned int const numberOfDigitsInIndex = numberOfDigitsInChildIndex(kMaxChildren);
     std::vector<pid_t> childrenIds;
     childrenIds.reserve(kMaxChildren);
 {
@@ -1065,7 +1080,7 @@ namespace edm {
         fflush(stdout);
         fflush(stderr);
         std::stringstream stout;
-        stout << "redirectout_"<<getpgrp()<<"_"<<childIndex<<".log";
+        stout << "redirectout_" << getpgrp() << "_" << std::setw(numberOfDigitsInIndex) << std::setfill('0') << childIndex << ".log";
         if (0 == freopen(stout.str().c_str(), "w", stdout)) {
           std::cerr << "Error during freopen of child process " 
           << childIndex << std::endl;
