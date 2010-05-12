@@ -2,6 +2,7 @@ def initL1RSSubsystems( tagBase = 'IDEAL',
                         L1MuDTTFMasksRcdKey = 'dummy',
                         L1MuGMTChannelMaskRcdKey = 'dummy',
                         L1RCTChannelMaskRcdKey = 'dummy',
+                        L1RCTNoisyChannelMaskRcdKey = 'dummy',
                         L1GctChannelMaskRcdKey = 'dummy',
                         L1GtPrescaleFactorsAlgoTrigRcdKey = 'dummy',
                         L1GtPrescaleFactorsTechTrigRcdKey = 'dummy',
@@ -30,6 +31,12 @@ def initL1RSSubsystems( tagBase = 'IDEAL',
             tag = cms.string('L1RCTChannelMask_' + tagBase),
             type = cms.string('L1RCTChannelMask'),
             key = cms.string(L1RCTChannelMaskRcdKey)
+        ), 
+        cms.PSet(
+            record = cms.string('L1RCTNoisyChannelMaskRcd'),
+            tag = cms.string('L1RCTNoisyChannelMask_' + tagBase),
+            type = cms.string('L1RCTNoisyChannelMask'),
+            key = cms.string(L1RCTNoisyChannelMaskRcdKey)
         ), 
         cms.PSet(
             record = cms.string('L1GctChannelMaskRcd'),

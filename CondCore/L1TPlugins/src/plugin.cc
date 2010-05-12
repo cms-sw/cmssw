@@ -119,6 +119,11 @@ REGISTER_PLUGIN(L1RCTParametersRcd, L1RCTParameters);
 
 REGISTER_PLUGIN(L1RCTChannelMaskRcd, L1RCTChannelMask);
 
+#include "CondFormats/L1TObjects/interface/L1RCTNoisyChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1RCTNoisyChannelMaskRcd.h"
+
+REGISTER_PLUGIN(L1RCTNoisyChannelMaskRcd, L1RCTNoisyChannelMask);
+
 #include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
 #include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
 
