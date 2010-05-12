@@ -7,7 +7,7 @@
 // Package:    CommonTools/RecoUtils
 // Class:      GenericTriggerEventFlag
 //
-// $Id: GenericTriggerEventFlag.h,v 1.1 2010/04/29 21:07:08 vadler Exp $
+// $Id: GenericTriggerEventFlag.h,v 1.2 2010/05/12 12:57:36 vadler Exp $
 //
 /**
   \class    GenericTriggerEventFlag GenericTriggerEventFlag.h "CommonTools/RecoUtils/interface/GenericTriggerEventFlag.h"
@@ -16,7 +16,7 @@
    [...]
 
   \author   Volker Adler
-  \version  $Id: GenericTriggerEventFlag.h,v 1.1 2010/04/29 21:07:08 vadler Exp $
+  \version  $Id: GenericTriggerEventFlag.h,v 1.2 2010/05/12 12:57:36 vadler Exp $
 */
 
 
@@ -40,8 +40,8 @@ class GenericTriggerEventFlag {
     HLTConfigProvider                          hltConfig_;
     bool                                       hltConfigInit_;
     // Configuration parameters
-    bool andOr_;
-    bool verbose_;
+    bool     andOr_;
+    unsigned verbose_;
     bool               andOrDcs_;
     edm::InputTag      dcsInputTag_;
     std::vector< int > dcsPartitions_;
