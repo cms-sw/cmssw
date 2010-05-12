@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.5 2010/04/19 21:54:40 dutta Exp $
+// $Id: TrackingMonitor.h,v 1.6 2010/05/06 06:48:50 dutta Exp $
 
 #include <memory>
 #include <fstream>
@@ -27,6 +27,7 @@ class DQMStore;
 class TrackAnalyzer;
 class TrackBuildingAnalyzer;
 class TProfile;
+class GenericTriggerEventFlag;
 
 class TrackingMonitor : public edm::EDAnalyzer 
 {
@@ -38,6 +39,7 @@ class TrackingMonitor : public edm::EDAnalyzer
 
         virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup);
         virtual void analyze(const edm::Event&, const edm::EventSetup&);
+        virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
         virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
     private:
@@ -69,10 +71,20 @@ class TrackingMonitor : public edm::EDAnalyzer
         // Track Candidates
         MonitorElement * NumberOfTrackCandidates;
 
+        // Cluster Properties
+        MonitorElement* NumberOfPixelClus;
+        MonitorElement* NumberOfStripClus;
+        MonitorElement* RatioOfPixelAndStripClus;
+        MonitorElement* NumberOfStripVsStripClus;
+        MonitorElement* NumberOfTrkVsClus;
+
         std::string builderName;
         edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
  
+        bool doTrackerSpecific_; 
         bool doLumiAnalysis;
+
+        GenericTriggerEventFlag* genTriggerEventFlag_;
 };
 
 #endif //define TrackingMonitor_H
