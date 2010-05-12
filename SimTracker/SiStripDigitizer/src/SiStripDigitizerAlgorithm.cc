@@ -172,7 +172,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   if(zeroSuppression){
     if(noise){
 	  int RefStrip = 0; //int(numStrips/2.);
-	  while(RefStrip<=numStrips&&badChannels[RefStrip]){ //if the refstrip is bad, I move up to when I don't find it
+	  while(RefStrip<numStrips&&badChannels[RefStrip]){ //if the refstrip is bad, I move up to when I don't find it
 	  	RefStrip++;
 	  }
 	  if(RefStrip<numStrips){
@@ -225,7 +225,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 			
 	    	} else {
 			    int RefStrip = 0; //int(numStrips/2.);
-		    	while(badChannels[RefStrip]&&RefStrip<numStrips){ //if the refstrip is bad, I move up to when I don't find it
+		    	    while(RefStrip<numStrips&&badChannels[RefStrip]){ //if the refstrip is bad, I move up to when I don't find it
 					RefStrip++;
 				}
 				if(RefStrip<numStrips){
