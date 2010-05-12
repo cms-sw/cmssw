@@ -376,6 +376,16 @@ EventSetupProvider::resetRecordPlusDependentRecords(const EventSetupRecordKey& i
                             _1));
 }
 
+void 
+EventSetupProvider::forceCacheClear()
+{
+   for(Providers::iterator it=providers_.begin(), itEnd = providers_.end();
+       it != itEnd;
+       ++it) {
+      it->second->resetProxies();
+   }
+}
+
 //
 // const member functions
 //

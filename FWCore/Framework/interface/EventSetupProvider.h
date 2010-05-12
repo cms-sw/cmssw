@@ -75,6 +75,10 @@ class EventSetupProvider
       
       ///Used when we need to force a Record to reset all its proxies
       void resetRecordPlusDependentRecords(const EventSetupRecordKey& );
+   
+      ///Used when testing that all code properly updates on IOV changes of all Records
+      void forceCacheClear();
+   
    protected:
 
       template <class T>
