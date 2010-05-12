@@ -21,6 +21,7 @@
 #include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
+#include "CondFormats/L1TObjects/interface/L1RCTNoisyChannelMask.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
 #include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"

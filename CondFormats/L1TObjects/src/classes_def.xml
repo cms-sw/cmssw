@@ -46,6 +46,7 @@
   <class name="L1TriggerKeyList"/>
   <class name="L1RCTParameters"/>
   <class name="L1RCTChannelMask"/>
+  <class name="L1RCTNoisyChannelMask"/>
   <class name="L1CaloEcalScale"/>
   <class name="L1CaloHcalScale"/>
 
