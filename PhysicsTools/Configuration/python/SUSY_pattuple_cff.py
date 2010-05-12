@@ -222,7 +222,7 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep recoGenJets_*GenJets*_*_*',
         'keep recoGenMETs_*_*_*',
         # Trigger information
-        'keep edmTriggerResults_TriggerResults_*_HLT*',
+        'keep edmTriggerResults_TriggerResults_*_*',
         'keep *_hltTriggerSummaryAOD_*_*',
         'keep L1GlobalTriggerObjectMapRecord_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_*_*_*',
