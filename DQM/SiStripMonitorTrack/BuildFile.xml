@@ -12,6 +12,7 @@
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="RecoLocalTracker/SiStripClusterizer"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="CommonTools/RecoUtils"/>
 <export>
   <lib   name="1"/>
 </export>

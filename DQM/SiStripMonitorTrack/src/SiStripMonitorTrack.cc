@@ -17,6 +17,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDCSStatus.h"
+#include "CommonTools/RecoUtils/interface/GenericTriggerEventFlag.h"
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorTrack.h"
 
@@ -27,7 +28,8 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   dbe(edm::Service<DQMStore>().operator->()),
   conf_(conf),
   tracksCollection_in_EventTree(true),
-  firstEvent(-1)
+  firstEvent(-1),
+  genTriggerEventFlag_(new GenericTriggerEventFlag(conf))
 {
   Cluster_src_   = conf.getParameter<edm::InputTag>("Cluster_src");
   Mod_On_        = conf.getParameter<bool>("Mod_On");
@@ -56,6 +58,7 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
 //------------------------------------------------------------------------
 SiStripMonitorTrack::~SiStripMonitorTrack() { 
   if (dcsStatus_) delete dcsStatus_;
+  if (genTriggerEventFlag_) delete genTriggerEventFlag_;
 }
 
 //------------------------------------------------------------------------
@@ -67,6 +70,9 @@ void SiStripMonitorTrack::beginRun(const edm::Run& run,const edm::EventSetup& es
   es.get<SiStripDetCablingRcd>().get( SiStripDetCabling_ );
 
   book();
+
+  // Initialize the GenericTriggerEventFlag
+  if ( genTriggerEventFlag_->on() )genTriggerEventFlag_->initRun( run, es );
 }
 
 //------------------------------------------------------------------------
@@ -81,8 +87,11 @@ void SiStripMonitorTrack::endJob(void)
 // ------------ method called to produce the data  ------------
 void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
-  // Filter out events if DCS Event if requested
+  // Filter out events if DCS checking is requested
   if (dcsStatus_ && !dcsStatus_->getStatus(e,es)) return;
+  
+  // Filter out events if Trigger Filtering is requested
+  if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( e, es) ) return;
   
   //initialization of global quantities
   LogDebug("SiStripMonitorTrack") << "[SiStripMonitorTrack::analyse]  " << "Run " << e.id().run() << " Event " << e.id().event() << std::endl;

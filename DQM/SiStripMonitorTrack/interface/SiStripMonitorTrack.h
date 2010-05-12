@@ -47,6 +47,7 @@
 //***************************************************
 
 class SiStripDCSStatus;
+class GenericTriggerEventFlag;
 //
 // class declaration
 //
@@ -169,5 +170,6 @@ private:
   double widthUpperLimit_;
 
   SiStripDCSStatus* dcsStatus_;
+  GenericTriggerEventFlag* genTriggerEventFlag_;
 };
 #endif
