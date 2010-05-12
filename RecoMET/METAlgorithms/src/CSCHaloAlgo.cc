@@ -28,6 +28,7 @@ CSCHaloAlgo::CSCHaloAlgo()
   max_outer_theta = TMath::Pi();
   
   matching_dphi_threshold = 0.18; //radians
+  matching_deta_threshold = 0.4;
   matching_dwire_threshold = 5.;
 }
 
@@ -171,11 +172,13 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 		    {
 		      float halophi = iter1->phiValue();
 		      halophi = halophi > TMath::Pi() ? halophi - 2.*TMath::Pi() : halophi;
-
+		      float haloeta = iter1->etaValue();
 		      bool HaloIsGood = true;
 		      // Check if halo trigger is faked by any collision muons
 		      if( TheMuons.isValid() )
 			{
+			  float dphi = 9999.;
+			  float deta = 9999.;
 			  for( reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu != TheMuons->end() && HaloIsGood ; mu++ )
 			    {
 			      if(!mu->isTrackerMuon())
@@ -192,7 +195,6 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 				    }
 				}
 			      
-			      float dphi = 999.;
 			      const std::vector<MuonChamberMatch> chambers = mu->matches();
 			      for(std::vector<MuonChamberMatch>::const_iterator iChamber = chambers.begin();
 				  iChamber != chambers.end() ; iChamber ++ )
@@ -212,15 +214,15 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 					  const BoundPlane& TheSurface = TheUnit->surface();
 					  GlobalPoint TheGlobalPosition = TheSurface.toGlobal(TheLocalPosition);
 					  
-					  float x_ = TheGlobalPosition.x();
-					  float y_ = TheGlobalPosition.y();
-					  float phi_ = TMath::ATan2(y_,x_);
+					  float phi_ = TheGlobalPosition.phi();
+					  float eta_ = TheGlobalPosition.eta();
+					  deta = deta < TMath::Abs( eta_ - haloeta ) ? deta : TMath::Abs( eta_ - haloeta );
 					  dphi = dphi < TMath::Abs( phi_ - halophi ) ? dphi : TMath::Abs( phi_ - halophi );
 					}
 				    }
 				}
-			      if ( dphi < matching_dphi_threshold ) 
-				HaloIsGood = false; //collision muon likely faked halo trigger
+			      if ( dphi < matching_dphi_threshold && deta < matching_deta_threshold) 
+				HaloIsGood = false; // i.e., collision muon likely faked halo trigger
 			    }
 			}
 		      if( !HaloIsGood ) 
@@ -261,11 +263,12 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 		   if( digi_station == 1 && digi_ring == 4 )   //hack
 		     digi_ring = 1;
 		   
+		   bool DigiIsGood = true;
 		   int dwire = 999.;
 		   if( TheMuons.isValid() ) 
 		     {
 		       //Check if there are any collision muons with hits in the vicinity of the digi
-		       for(reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu!= TheMuons->end(); mu++ )
+		       for(reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu!= TheMuons->end() && DigiIsGood ; mu++ )
 			 {
 			    if(!mu->isTrackerMuon())
 				{
@@ -307,15 +310,18 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 				     }
 				 }
 			     }
+			   if( dwire <= matching_dwire_threshold ) 
+			     DigiIsGood = false;  // collision-like muon is close to this digi
 			 }
 		     }
-		   
 		   // only count out of time digis if they are not matched to collision muons
-		   if( dwire <=  matching_dwire_threshold ) continue; 
-		   if( detId.endcap() == 1 ) 
-		     n_alctsP++;
-		   else if ( detId.endcap() ==  2) 
-		     n_alctsM++;
+		   if( DigiIsGood ) 
+		     {
+		       if( detId.endcap() == 1 ) 
+			 n_alctsP++;
+		       else if ( detId.endcap() ==  2) 
+			 n_alctsM++;
+		     }
 		 }
 	     }
 	 }

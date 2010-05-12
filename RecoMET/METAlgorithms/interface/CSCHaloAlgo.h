@@ -100,7 +100,9 @@ class CSCHaloAlgo {
   void SetExpectedBX(int x) { expected_BX = x ;}
   void SetMinMaxOuterMomentumTheta(float min , float max){ min_outer_theta = min;  max_outer_theta = max;}
   void SetMatchingDPhiThreshold(float x) { matching_dphi_threshold = x;}
+  void SetMatchingDEtaTreshold(float x) { matching_deta_threshold = x;}
   void SetMatchingDWireThreshold(int x) { matching_dwire_threshold = x;}
+
  private:
   float deta_threshold;
   float max_outer_theta;
@@ -115,6 +117,7 @@ class CSCHaloAlgo {
   float recHit_twindow;
   int expected_BX;
   float matching_dphi_threshold;
+  float matching_deta_threshold;
   int matching_dwire_threshold;
 
 };
