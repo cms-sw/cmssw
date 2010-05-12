@@ -43,6 +43,7 @@ class TrackerValidationVariables  {
     float phi;
     float kappa;
     float chi2;
+    float chi2Prob;
     float normchi2;
     float d0;
     float dz;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.34 2010/03/30 13:14:52 jdraeger Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.35 2010/03/31 14:41:09 mussgill Exp $
 //
 //
 
@@ -407,7 +407,10 @@ TrackerOfflineValidation::bookGlobalHists(DirectoryWrapper& tfd )
 					 100,.0,.05));
   vTrackHistos_.push_back(tfd.make<TH1F>("h_chi2",
 					 "#chi^{2};#chi^{2}_{Track};Number of Tracks",
-					 500,-0.01,500.));	       
+					 500,-0.01,500.));
+  vTrackHistos_.push_back(tfd.make<TH1F>("h_chi2Prob",
+					 "#chi^{2} probability;#chi^{2}prob_{Track};Number of Tracks",
+					100,0.0,1.));	       
   vTrackHistos_.push_back(tfd.make<TH1F>("h_normchi2",
 					 "#chi^{2}/ndof;#chi^{2}/ndof;Number of Tracks",
 					 100,-0.01,10.));     
@@ -433,12 +436,18 @@ TrackerOfflineValidation::bookGlobalHists(DirectoryWrapper& tfd )
   vTrackProfiles_.push_back(tfd.make<TProfile>("p_chi2_vs_phi",
 					       "#chi^{2} vs. #phi;#phi_{Track};#LT #chi^{2} #GT",
 					       100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_chi2Prob_vs_phi",
+					       "#chi^{2} probablility vs. #phi;#phi_{Track};#LT #chi^{2} probability#GT",
+					       100,-3.15,3.15));
   vTrackProfiles_.push_back(tfd.make<TProfile>("p_normchi2_vs_phi",
 					       "#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT",
 					       100,-3.15,3.15));
   vTrackProfiles_.push_back(tfd.make<TProfile>("p_chi2_vs_eta",
 					       "#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT",
-					       100,-3.15,3.15));  
+					       100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_chi2Prob_vs_eta",
+					       "#chi^{2} probability vs. #eta;#eta_{Track};#LT #chi^{2} probability #GT",
+					       100,-3.15,3.15));   
   vTrackProfiles_.push_back(tfd.make<TProfile>("p_normchi2_vs_eta",
 					       "#chi^{2}/ndof vs. #eta;#eta_{Track};#LT #chi^{2}/ndof #GT",
 					       100,-3.15,3.15));
@@ -470,12 +479,18 @@ TrackerOfflineValidation::bookGlobalHists(DirectoryWrapper& tfd )
   vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_chi2_vs_phi",
 					   "#chi^{2} vs. #phi;#phi_{Track};#chi^{2}",
 					   100, -3.15, 3.15, 500, 0., 500.));
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_chi2Prob_vs_phi",
+					   "#chi^{2} probability vs. #phi;#phi_{Track};#chi^{2} probability",
+					  100, -3.15, 3.15, 100, 0., 1.));
   vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_normchi2_vs_phi",
 					   "#chi^{2}/ndof vs. #phi;#phi_{Track};#chi^{2}/ndof",
 					   100, -3.15, 3.15, 100, 0., 10.));
   vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_chi2_vs_eta",
 					   "#chi^{2} vs. #eta;#eta_{Track};#chi^{2}",
 					   100, -3.15, 3.15, 500, 0., 500.));  
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_chi2Prob_vs_eta",
+					   "#chi^{2} probaility vs. #eta;#eta_{Track};#chi^{2} probability",
+					   100, -3.15, 3.15, 100, 0., 1.));  
   vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_normchi2_vs_eta",
 					   "#chi^{2}/ndof vs. #eta;#eta_{Track};#chi^{2}/ndof",
 					   100,-3.15,3.15, 100, 0., 10.));
@@ -799,6 +814,8 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     vTrackHistos_[normchi2index]->Fill(it->normchi2);
     static const int chi2index = this->GetIndex(vTrackHistos_,"h_chi2");
     vTrackHistos_[chi2index]->Fill(it->chi2);
+    static const int chi2Probindex = this->GetIndex(vTrackHistos_,"h_chi2Prob");
+    vTrackHistos_[chi2Probindex]->Fill(it->chi2Prob);
     static const int ptindex = this->GetIndex(vTrackHistos_,"h_pt");
     vTrackHistos_[ptindex]->Fill(it->pt);
     if(it->ptError != 0.) {
@@ -816,10 +833,14 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     vTrackProfiles_[dzetaindex]->Fill(it->eta,it->dz);
     static const int chiphiindex = this->GetIndex(vTrackProfiles_,"p_chi2_vs_phi");
     vTrackProfiles_[chiphiindex]->Fill(it->phi,it->chi2);
+  static const int chiProbphiindex = this->GetIndex(vTrackProfiles_,"p_chi2Prob_vs_phi");
+    vTrackProfiles_[chiProbphiindex]->Fill(it->phi,it->chi2Prob);
     static const int normchiphiindex = this->GetIndex(vTrackProfiles_,"p_normchi2_vs_phi");
     vTrackProfiles_[normchiphiindex]->Fill(it->phi,it->normchi2);
     static const int chietaindex = this->GetIndex(vTrackProfiles_,"p_chi2_vs_eta");
     vTrackProfiles_[chietaindex]->Fill(it->eta,it->chi2);
+    static const int chiProbetaindex = this->GetIndex(vTrackProfiles_,"p_chi2Prob_vs_eta");
+    vTrackProfiles_[chiProbetaindex]->Fill(it->eta,it->chi2Prob);
     static const int normchietaindex = this->GetIndex(vTrackProfiles_,"p_normchi2_vs_eta");
     vTrackProfiles_[normchietaindex]->Fill(it->eta,it->normchi2);
     static const int kappaphiindex = this->GetIndex(vTrackProfiles_,"p_kappa_vs_phi");
@@ -842,10 +863,14 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     vTrack2DHistos_[dzetaindex_2d]->Fill(it->eta,it->dz);
     static const int chiphiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_chi2_vs_phi");
     vTrack2DHistos_[chiphiindex_2d]->Fill(it->phi,it->chi2);
+    static const int chiProbphiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_chi2Prob_vs_phi");
+    vTrack2DHistos_[chiProbphiindex_2d]->Fill(it->phi,it->chi2Prob);
     static const int normchiphiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_normchi2_vs_phi");
     vTrack2DHistos_[normchiphiindex_2d]->Fill(it->phi,it->normchi2);
     static const int chietaindex_2d = this->GetIndex(vTrack2DHistos_,"h2_chi2_vs_eta");
     vTrack2DHistos_[chietaindex_2d]->Fill(it->eta,it->chi2);
+    static const int chiProbetaindex_2d = this->GetIndex(vTrack2DHistos_,"h2_chi2Prob_vs_eta");
+    vTrack2DHistos_[chiProbetaindex_2d]->Fill(it->eta,it->chi2Prob);
     static const int normchietaindex_2d = this->GetIndex(vTrack2DHistos_,"h2_normchi2_vs_eta");
     vTrack2DHistos_[normchietaindex_2d]->Fill(it->eta,it->normchi2);
     static const int kappaphiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_kappa_vs_phi");
@@ -910,9 +935,12 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 void 
 TrackerOfflineValidation::endJob()
 {
+
   if (!tkGeom_.product()) return;
 
+
   AlignableTracker aliTracker(&(*tkGeom_));
+  edm::Service<TFileService> fs;
   
   AlignableObjectId aliobjid;
   
@@ -929,9 +957,7 @@ TrackerOfflineValidation::endJob()
   if(dqmMode_)return;
   // Should be excluded in dqmMode, since TTree is not usable
   // In dqmMode tree operations are are sourced out to the additional module TrackerOfflineValidationSummary
-  
-  edm::Service<TFileService> fs;
-  
+
   TTree *tree = fs->make<TTree>("TkOffVal","TkOffVal");
  
   TkOffTreeVariables *treeMemPtr = new TkOffTreeVariables;

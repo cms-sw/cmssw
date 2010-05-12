@@ -46,6 +46,7 @@
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 
+#include "TMath.h"
 
 TrackerValidationVariables::TrackerValidationVariables(){}
 
@@ -309,6 +310,7 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& iEvent,
     trackStruct.eta = RecoTrack->eta();
     trackStruct.phi = RecoTrack->phi();
     trackStruct.chi2 = RecoTrack->chi2();
+     trackStruct.chi2Prob= TMath::Prob(RecoTrack->chi2(),RecoTrack->ndof());
     trackStruct.normchi2 = RecoTrack->normalizedChi2();
     GlobalPoint gPoint(RecoTrack->vx(), RecoTrack->vy(), RecoTrack->vz());
     double theLocalMagFieldInInverseGeV = magneticField_->inInverseGeV(gPoint).z();
