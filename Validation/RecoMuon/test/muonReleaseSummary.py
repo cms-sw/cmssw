@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewVersion='3_7_0_pre3'
-RefVersion='3_7_0_pre2'
+NewVersion='3_6_1'
+RefVersion='3_6_0'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
