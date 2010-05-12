@@ -273,15 +273,17 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
             // face.
             for (unsigned int i=0; i<points.size(); ++i)
             {
-               if ( points[i].Perp() > 135 ) continue;
-
                double eta = points[i].Eta();
                double phi = points[i].Phi();
-             
-               minEta = TMath::Min(minEta, eta);
-               maxEta = TMath::Max(maxEta, eta);
-               minPhi = TMath::Min(minPhi, phi);
-               maxPhi = TMath::Max(maxPhi, phi);
+               if ( points[i].Perp() > 135 ) continue;
+               if ( minEta - eta > 0.01) minEta = eta;
+               if ( eta - minEta > 0 && eta - minEta < 0.01 ) minEta = eta;
+               if ( eta - maxEta > 0.01) maxEta = eta;
+               if ( maxEta - eta > 0 && maxEta - eta < 0.01 ) maxEta = eta;
+               if ( minPhi - phi > 0.01) minPhi = phi;
+               if ( phi - minPhi > 0 && phi - minPhi < 0.01 ) minPhi = phi;
+               if ( phi - maxPhi > 0.01) maxPhi = phi;
+               if ( maxPhi - phi > 0 && maxPhi - phi < 0.01 ) maxPhi = phi;
             }
          }
          else 
