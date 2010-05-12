@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/05 10:14:40 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/05/12 10:28:47 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -35,7 +35,7 @@ using namespace std;
 
 DTCalibValidation::DTCalibValidation(const ParameterSet& pset) {
 
-  debug = pset.getUntrackedParameter<bool>("debug","false");
+  debug = pset.getUntrackedParameter<bool>("debug",false);
 
   // Get the DQM needed services
 
