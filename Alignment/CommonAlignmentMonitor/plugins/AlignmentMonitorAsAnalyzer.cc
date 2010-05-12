@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Apr 26 12:36:13 CDT 2008
-// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.3 2009/02/06 15:09:02 flucke Exp $
+// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.4 2010/01/04 15:36:54 mussgill Exp $
 //
 //
 
@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
@@ -132,7 +133,7 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
    if (m_firstEvent) {
       GeometryAligner aligner;
     
-      edm::ESHandle<DDCompactView> cpv;
+      edm::ESTransientHandle<DDCompactView> cpv;
       iSetup.get<IdealGeometryRecord>().get( cpv );
       
       edm::ESHandle<GeometricDet> theGeometricDet;

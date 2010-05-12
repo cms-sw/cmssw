@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.40 $
-///  last update: $Date: 2010/01/18 12:13:19 $
-///  by         : $Author: mussgill $
+///  Revision   : $Revision: 1.41 $
+///  last update: $Date: 2010/02/25 00:27:57 $
+///  by         : $Author: wmtan $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -21,6 +21,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Run.h"
 
 // Conditions database
@@ -538,7 +539,7 @@ void AlignmentProducer::simpleMisalignment_(const Alignables &alivec, const std:
 //__________________________________________________________________________________________________
 void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
 {
-   edm::ESHandle<DDCompactView> cpv;
+   edm::ESTransientHandle<DDCompactView> cpv;
    iSetup.get<IdealGeometryRecord>().get( cpv );
 
    if (doTracker_) {
