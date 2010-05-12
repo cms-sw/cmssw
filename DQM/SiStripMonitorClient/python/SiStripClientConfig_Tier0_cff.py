@@ -31,12 +31,9 @@ siStripQTester = cms.EDAnalyzer("QualityTester",
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
-from DQM.TrackingMonitor.TrackEfficiencyClient_cfi import *
-TrackEffClient.FolderName = 'Tracking/TrackParameters/TrackEfficiency'
-TrackEffClient.AlgoName   = 'CKFTk'
 
 # Sequence
-SiStripOfflineDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser*TrackEffClient)
+SiStripOfflineDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser)
 
 
 # Services needed for TkHistoMap
