@@ -1,5 +1,4 @@
 <use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
 
@@ -70,15 +69,6 @@
   <use   name="Alignment/MuonAlignment"/>
   <use   name="CondFormats/AlignmentRecord"/>
   <use   name="CondFormats/Alignment"/>
-  <use   name="DataFormats/TrackReco"/>
-  <use   name="Geometry/CSCGeometry"/>
-  <use   name="Geometry/CSCGeometryBuilder"/>
-  <use   name="Geometry/DTGeometry"/>
-  <use   name="Geometry/DTGeometryBuilder"/>
-  <use   name="Geometry/MuonNumbering"/>
-  <use   name="Geometry/Records"/>
-  <use   name="Geometry/TrackerGeometryBuilder"/>
-  <use   name="Geometry/TrackingGeometryAligner"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 
