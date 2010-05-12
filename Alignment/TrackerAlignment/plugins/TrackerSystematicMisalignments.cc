@@ -1,5 +1,5 @@
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
@@ -83,8 +83,6 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
 	
 	edm::ESHandle<GeometricDet>  geom;
 	setup.get<IdealGeometryRecord>().get(geom);	 
-	//edm::ESHandle<DDCompactView> cpv;
-	//setup.get<IdealGeometryRecord>().get(cpv);
 	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom);
 	
 	//take geometry from DB or randomly generate geometry
