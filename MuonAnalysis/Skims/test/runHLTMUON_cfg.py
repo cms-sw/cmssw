@@ -1,6 +1,6 @@
 # save to file the HLT menu from the database with a given HLT key  
 import os
-os.system('$CMSSW_RELEASE_BASE/src/HLTrigger/Configuration/test/getHLT.py --force --offline --data orcoff:/cdaq/physics/firstCollisions10/v3.0/HLT_7TeV/V1 MUON')
+os.system('$CMSSW_RELEASE_BASE/src/HLTrigger/Configuration/test/getHLT.py --force --offline --data orcoff:/cdaq/physics/firstCollisions10/v5.1/HLT_7TeV_HR/V1 MUON')
 
 # import the menu
 from OnData_HLT_MUON import *
@@ -10,9 +10,9 @@ process.PrescaleService.prescaleTable = cms.VPSet()
 
 # test input
 process.source.fileNames = cms.untracked.vstring(
-        '/store/data/Commissioning10/MinimumBias/RAW-RECO/v8/000/132/661/AA3902F7-BE41-DF11-A2A3-00E08178C179.root',
-        '/store/data/Commissioning10/MinimumBias/RAW-RECO/v8/000/132/661/9ECF25DB-C341-DF11-A011-00E0817918C1.root',
-        '/store/data/Commissioning10/MinimumBias/RAW-RECO/v8/000/132/661/1CAF665C-BD41-DF11-ACA4-001A64789E6C.root'
+       '/store/data/Commissioning10/MinimumBias/RAW-RECO/v9/000/133/928/82A98A96-7B51-DF11-8BB9-002481E14E82.root',
+       '/store/data/Commissioning10/MinimumBias/RAW-RECO/v9/000/133/928/7AAB9CC2-7551-DF11-8A68-003048D476FA.root',
+       '/store/data/Commissioning10/MinimumBias/RAW-RECO/v9/000/133/928/7A070DDA-7351-DF11-B779-001A64789E48.root',
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )    
 
@@ -42,37 +42,6 @@ process.output = cms.OutputModule("PoolOutputModule",
         SelectEvents = cms.vstring("filterPath")
     )
 )
-
-############## before 3.6.0 and 3.5.7 ##############
-#add some missing output commands
-process.output.outputCommands.extend([
-    'keep *_hltMuTrackJpsiCtfTracks_*_*',
-    'keep *_hltMuTrackJpsiCtfTrackCands_*_*',
-    'keep *_hltMuTrackJpsiTrackSeeds_*_*',
-    'keep *_hltMuTrackJpsiPixelTrackCands_*_*',
-    'keep *_hltMuTrackJpsiPixelTrackSelector_*_*'
-])
-#other fixes
-process.hltL2Mu0L2Filtered0.SaveTag = cms.untracked.bool( True )
-process.hltSingleMu3L2Filtered3.SaveTag = cms.untracked.bool( True )
-process.hltDiMuonL2PreFiltered0.SaveTag = cms.untracked.bool( True )
-# define HLT_L2Mu5
-process.hltL2Mu5L2Filtered5 = cms.EDFilter( "HLTMuonL2PreFilter",
-    BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
-    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
-    PreviousCandTag = cms.InputTag( "hltL1SingleMu0L1Filtered0" ),
-    SeedMapTag = cms.InputTag( "hltL2Muons" ),
-    MinN = cms.int32( 1 ),
-    MaxEta = cms.double( 2.5 ),
-    MinNhits = cms.int32( 0 ),
-    MaxDr = cms.double( 9999.0 ),
-    MaxDz = cms.double( 9999.0 ),
-    MinPt = cms.double( 5.0 ),
-    NSigmaPt = cms.double( 0.0 ),
-    SaveTag = cms.untracked.bool( True )
-)
-process.HLT_L2Mu5 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMuOpenL1SingleMu0L1SingleMu3 + process.hltL1SingleMu0L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2Mu5L2Filtered5 + process.HLTEndSequence )
-########################################################
 
 # remove the endpaths from the default configuration
 import FWCore.ParameterSet.DictTypes
@@ -122,4 +91,19 @@ process.schedule = cms.Schedule(
  process.HLTriggerFinalPath,
  process.end
 )
+
+# Open mass window and lower P cut in the Jpsi triggers for studies
+process.hltMuTrackJpsiPixelTrackSelector.MinTrackP = cms.double( 2.2 )
+process.hltMu0TrackJpsiPixelMassFiltered.MinTrackP = cms.double( 2.2 )
+process.hltMu0TrackJpsiTrackMassFiltered.MinTrackP = cms.double( 2.5 )
+process.hltMu0TrackJpsiTrackMassFiltered.MinMasses = cms.vdouble( 2.6 )
+process.hltMu0TrackJpsiTrackMassFiltered.MaxMasses = cms.vdouble( 3.6 )
+process.hltMu3TrackJpsiPixelMassFiltered.MinTrackP = cms.double( 2.2 )
+process.hltMu3TrackJpsiTrackMassFiltered.MinTrackP = cms.double( 2.5 )
+process.hltMu3TrackJpsiTrackMassFiltered.MinMasses = cms.vdouble( 2.6 )
+process.hltMu3TrackJpsiTrackMassFiltered.MaxMasses = cms.vdouble( 3.6 )
+process.hltMu5TrackJpsiPixelMassFiltered.MinTrackP = cms.double( 2.2 )
+process.hltMu5TrackJpsiTrackMassFiltered.MinTrackP = cms.double( 2.5 )
+process.hltMu5TrackJpsiTrackMassFiltered.MinMasses = cms.vdouble( 2.6 )
+process.hltMu5TrackJpsiTrackMassFiltered.MaxMasses = cms.vdouble( 3.6 )
 
