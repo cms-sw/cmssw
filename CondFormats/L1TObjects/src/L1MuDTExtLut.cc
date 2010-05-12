@@ -5,8 +5,8 @@
 //   Description: Look-up tables for extrapolation
 //
 //
-//   $Date: 2009/05/04 09:20:57 $
-//   $Revision: 1.5 $
+//   $Date: 2009/05/13 06:36:48 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -35,7 +35,7 @@
 //-------------------------------
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "L1TriggerConfig/DTTrackFinder/interface/BitArray.h"
+#include "CondFormats/L1TObjects/interface/DTTFBitArray.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerLutFile.h"
 
@@ -216,9 +216,9 @@ void L1MuDTExtLut::print() const {
       iter1 = ext_lut[ext].high.find(address);
       int high    = (*iter1).second;
 
-      BitArray<10> b_address(static_cast<unsigned>(abs(address)));
-      BitArray<12> b_low(static_cast<unsigned>(abs(low)));
-      BitArray<12> b_high(static_cast<unsigned>(abs(high)));
+      DTTFBitArray<10> b_address(static_cast<unsigned>(abs(address)));
+      DTTFBitArray<12> b_low(static_cast<unsigned>(abs(low)));
+      DTTFBitArray<12> b_high(static_cast<unsigned>(abs(high)));
 
       if ( address < 0 ) b_address.twoComplement();
       if ( low < 0 ) b_low.twoComplement();

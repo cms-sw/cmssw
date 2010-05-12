@@ -5,8 +5,8 @@
 //   Description: Look-up tables for phi assignment 
 //
 //
-//   $Date: 2009/05/04 09:20:57 $
-//   $Revision: 1.5 $
+//   $Date: 2009/05/13 06:36:48 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -35,7 +35,7 @@
 //-------------------------------
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "L1TriggerConfig/DTTrackFinder/interface/BitArray.h"
+#include "CondFormats/L1TObjects/interface/DTTFBitArray.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerLutFile.h"
 
 using namespace std;
@@ -193,8 +193,8 @@ void L1MuDTPhiLut::print() const {
       int address = (*iter).first;
       int value   = (*iter).second;
 
-      BitArray<10> b_address(static_cast<unsigned>(abs(address)));
-      BitArray<12> b_value(static_cast<unsigned>(abs(value)));
+      DTTFBitArray<10> b_address(static_cast<unsigned>(abs(address)));
+      DTTFBitArray<12> b_value(static_cast<unsigned>(abs(value)));
 
       if ( address < 0 ) b_address.twoComplement();
       if ( value < 0 ) b_value.twoComplement();
