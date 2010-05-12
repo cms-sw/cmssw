@@ -30,10 +30,12 @@ DisplayEventContent = cms.PSet(
         'keep recoConversions_*_*_*',
         'keep recoPFConversions_*_*_*',
         'keep recoMuons_*_*_*',
-        'keep recoNuclearInteractions_*_*_*',       
+        'keep recoNuclearInteractions_*_*_*',
+        'keep *_pfNuclear_*_*',
 	'keep *_generalV0Candidates_*_*',
         'keep recoPFV0s_*_*_*',                      
-        'keep *_pfNuclear_*_*',
+        'keep recoPFDisplacedVertexs_*_*_*',                      
+        'keep recoPFDisplacedTrackerVertexs_*_*_*',                               
         'keep *_correctedHybridSuperClusters_*_*',
         'keep *_correctedMulti5x5SuperClustersWithPreshower_*_*'                                           
                                            )
