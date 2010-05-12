@@ -1,3 +1,24 @@
+2010-05-12 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-01-00
+	* Improve handling of corrupt I2O messages and events with wrong
+	  Adler32 checksums
+	* Add optional stream for events which are marked faulty by the
+	  StorageManager. If the parameter 'faultyEventsStream' (string)
+	  is set, each event is written into a separate file. If the event
+	  header is not corrupt, the event is written as normal data file,
+	  i.e. it includes the correct INIT message. If the header is
+	  corrupt, the data is dumped as is into a file. In the latter
+	  case the run number is derived from the configuration and the
+	  lumi section number is 0 (invalid).
+	* Fixed a potential race condition when displaying file list
+	  on hyperdaq page.
+	* Expanded CurlInterface to request binary messages.
+	* Adjustments to demoSystem scripts and configurations. The
+	  demoSystem uses now 2 slave EPs with autorestart enabled.
+	  Thus, the setting is closer to what is used in the production
+	  system.
+
 2010-05-03 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-00-02
