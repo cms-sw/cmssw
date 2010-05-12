@@ -1,3 +1,35 @@
+--the following function is JUNK right now!
+CREATE OR REPLACE FUNCTION NEVNTS_CHECK(run in number, stream in VARCHAR2,  numEvents in number)
+    RETURN NUMBER AS
+    status NUMBER(10);
+    A_Events NUMBER(10);
+BEGIN	
+    status := 0;
+
+    --Only perform Event check for Error streams 
+     IF (stream LIKE '%Error%') THEN
+
+
+      --Retrieves the number of events from the MAX stream (presumably 'A')
+      SELECT MAX(s_NEvents) INTO  A_Events   FROM  SM_SUMMARY  WHERE  RUNNUMBER=run GROUP by RUNNUMBER;
+
+      IF ( A_Events > 1000 AND A_Events/(numEvents + 1) < 1000) THEN
+            status := 1;
+            IF ( A_Events/(numEvents + 1) < 100) THEN
+              status := 2;
+            END IF;
+      END IF;
+
+
+     END IF;
+
+     
+    RETURN status;
+END NEVNTS_CHECK; 
+/ 
+
+
+--
 --provides per stream information (one row per stream each run)
 --utilizes many of the functions declared in view_summary.sql
 create or replace view view_sm_streams
@@ -25,6 +57,8 @@ AS SELECT  "RUN_NUMBER",
 	   "N_REPACKED",
 	   "HLTKEY",
 	   "SETUP_STATUS",
+	   "STREAM_STATUS",
+	   "NEVT_STATUS",
 	   "N_OPEN_STATUS",
 	   "CHECKED_STATUS",
 	   "INJECTED_STATUS",
@@ -47,11 +81,11 @@ FROM ( SELECT TO_CHAR ( RUNNUMBER ) AS RUN_NUMBER,
 	      TO_CHAR ( NVL(s_Created, 0) ) AS NFILES,
 	     (CASE NVL(s_injected, 0)
 		WHEN 0 THEN TO_CHAR('NA')
-		ELSE TO_CHAR ( ROUND ((s_filesize2D / 1048576) / (GREATEST(time_diff( STOP_WRITE_TIME, START_WRITE_TIME),1)), 2))
+		ELSE TO_CHAR ( ROUND ((s_filesize2D / 1048576) / (GREATEST(time_diff( STOP_WRITE_TIME, START_WRITE_TIME),1)), 1))
 	      END) AS RATE2D_AVG,  
 	     (CASE NVL(s_copied, 0)
 		WHEN 0 THEN TO_CHAR('NA')
-		ELSE TO_CHAR ( ROUND ((s_filesize2T0 / 1048576) / (GREATEST(time_diff( STOP_TRANS_TIME, START_TRANS_TIME),1)), 2))
+		ELSE TO_CHAR ( ROUND ((s_filesize2T0 / 1048576) / (GREATEST(time_diff( STOP_TRANS_TIME, START_TRANS_TIME),1)), 1))
 	      END) AS RATE2T_AVG,	      
 	     (CASE NVL(s_NEvents, 0)
                 WHEN 0 THEN TO_CHAR('NA')
@@ -63,24 +97,34 @@ FROM ( SELECT TO_CHAR ( RUNNUMBER ) AS RUN_NUMBER,
               END) AS EVTS_PER_FILE,
              (CASE NVL(s_NEVENTS, 0)
 		WHEN 0 then TO_CHAR('NA')
-		ELSE TO_CHAR ( ROUND (s_NEVENTS / (GREATEST(time_diff(STOP_WRITE_TIME, START_WRITE_TIME), 1)), 2))
+		ELSE TO_CHAR ( ROUND (s_NEVENTS / (GREATEST(time_diff(STOP_WRITE_TIME, START_WRITE_TIME), 1)), 1))
+--                ELSE TO_CHAR ( CAST  (s_NEVENTS / (GREATEST(time_diff(STOP_WRITE_TIME, START_WRITE_TIME), 1)) AS INTEGER ))
 	       END) AS EVT_RATE,
 	     (CASE NVL(s_filesize, 0)
                 WHEN 0 THEN TO_CHAR('NA')
-                ELSE TO_CHAR ( ROUND ( (s_filesize / s_NEVENTS)/ 1024 , 2 ) )
+                ELSE TO_CHAR ( ROUND ( (s_filesize / s_NEVENTS)/ 1024 , 1 ) )
               END) AS EVT_AVG,
 	      TO_CHAR ( NVL( s_Created, 0 ) - NVL( s_Injected, 0) ) AS N_OPEN, 
 	      TO_CHAR ( NVL(s_Injected, 0) ) AS N_CLOSED, 
-	      TO_CHAR ( NVL(s_New, 0) ) AS N_INJECTED,
-              TO_CHAR ( NVL(s_Copied, 0) ) AS N_TRANSFERRED, 
-	      TO_CHAR ( NVL(s_Checked, 0) ) AS N_CHECKED, 
-	      TO_CHAR ( NVL(s_Deleted, 0) ) AS N_DELETED, 
+	      TO_CHAR ( NVL(s_New,      0) ) AS N_INJECTED,
+              TO_CHAR ( NVL(s_Copied,   0) ) AS N_TRANSFERRED, 
+	      TO_CHAR ( NVL(s_Checked,  0) ) AS N_CHECKED, 
+	      TO_CHAR ( NVL(s_Deleted,  0) ) AS N_DELETED, 
 	      TO_CHAR ( NVL(s_Repacked, 0) ) AS N_REPACKED,
 	      TO_CHAR ( HLTKEY ) AS HLTKEY,
 	      (CASE
                 WHEN setupLabel LIKE '%TransferTest%' THEN TO_CHAR(2)
                 ELSE TO_CHAR(0)
               END) AS SETUP_STATUS,
+              (CASE  
+                WHEN  stream LIKE '%Error%'          THEN TO_CHAR(1)
+                WHEN  stream LIKE '%_DontNotifyT0%'  THEN TO_CHAR(3)
+                WHEN  stream LIKE '%_NoTransfer%'    THEN TO_CHAR(3)
+                WHEN  stream LIKE '%_TransferTest%'  THEN TO_CHAR(3)
+                WHEN  stream LIKE '%_NoRepack%'      THEN TO_CHAR(3)
+                ELSE                                      TO_CHAR(0)
+                END ) AS   STREAM_STATUS,           
+              TO_CHAR ( NEVNTS_CHECK( RUNNUMBER, STREAM, s_NEvents ) ) AS NEVT_STATUS,
 	      TO_CHAR ( OPEN_STATUS(NVL(STOP_WRITE_TIME, LAST_UPDATE_TIME), S_CREATED, S_INJECTED) ) AS N_OPEN_STATUS,
 	     (CASE 
 		WHEN (CASE NVL(s_injected,0)
