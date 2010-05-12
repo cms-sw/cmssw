@@ -43,6 +43,7 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   CSCAlgo.SetRecHitTimeWindow( (float) iConfig.getParameter<double>("RecHitTimeWindow") );
   CSCAlgo.SetMinMaxOuterMomentumTheta( (float)iConfig.getParameter<double>("MinOuterMomentumTheta"), (float)iConfig.getParameter<double>("MaxOuterMomentumTheta") );
   CSCAlgo.SetMatchingDPhiThreshold( (float)iConfig.getParameter<double>("MatchingDPhiThreshold") );
+  CSCAlgo.SetMatchingDEtaThreshold( (float)iConfig.getParameter<double>("MatchingDEtaThreshold") );
   CSCAlgo.SetMatchingDWireThreshold(iConfig.getParameter<int>("MatchingDWireThreshold") );
   produces<CSCHaloData>();
 }
