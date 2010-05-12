@@ -3,10 +3,10 @@
 // Package:     Muons
 // Class  :     FWPhotonLegoProxyBuilder
 //
-// $Id: FWPhotonLegoProxyBuilder.cc,v 1.1 2010/05/06 14:13:26 mccauley Exp $
+// $Id: FWPhotonLegoProxyBuilder.cc,v 1.1 2010/05/07 09:04:32 mccauley Exp $
 //
 
-#include "TEvePointSet.h"
+#include "TEveStraightLineSet.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -31,13 +31,14 @@ private:
 
 void FWPhotonLegoProxyBuilder::build(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
-   TEvePointSet* points = new TEvePointSet("points");
-   setupAddElement(points, &oItemHolder);
+   TEveStraightLineSet *marker = new TEveStraightLineSet("marker");
+   setupAddElement(marker, &oItemHolder);
  
-   points->SetMarkerStyle(2);
-   points->SetMarkerSize(0.2);
-    
-   points->SetNextPoint(iData.eta(), iData.phi(), 0.1);
+   const double delta = 0.1;
+   marker->AddLine(iData.eta()-delta, iData.phi()-delta, 0.1,
+		   iData.eta()+delta, iData.phi()+delta, 0.1);
+   marker->AddLine(iData.eta()-delta, iData.phi()+delta, 0.1,
+		   iData.eta()+delta, iData.phi()-delta, 0.1);
 }
 
 REGISTER_FWPROXYBUILDER(FWPhotonLegoProxyBuilder, reco::Photon, "Photons", FWViewType::kLegoBit);

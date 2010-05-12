@@ -3,10 +3,11 @@
 // Package:     Muons
 // Class  :     FWElectronLegoProxyBuilder
 //
-// $Id: FWElectronLegoProxyBuilder.cc,v 1.1 2010/05/06 14:13:26 mccauley Exp $
+// $Id: FWElectronLegoProxyBuilder.cc,v 1.2 2010/05/07 09:04:32 mccauley Exp $
 //
 
 #include "TEvePointSet.h"
+#include "TEveStraightLineSet.h"
 #include "TEveTrack.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
@@ -36,13 +37,10 @@ private:
 
 void FWElectronLegoProxyBuilder::build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
-   TEvePointSet* points = new TEvePointSet("points");
-   setupAddElement(points, &oItemHolder);
+   TEveStraightLineSet *marker = new TEveStraightLineSet("marker");
+   setupAddElement(marker, &oItemHolder);
  
-   points->SetMarkerStyle(2);
-   points->SetMarkerSize(0.2);
-    
-   TEveTrack* track;
+   TEveTrack* track(0);
    
    if( iData.gsfTrack().isAvailable() )
      track = fireworks::prepareTrack(*iData.gsfTrack(), context().getTrackPropagator());     
@@ -50,7 +48,15 @@ void FWElectronLegoProxyBuilder::build(const reco::GsfElectron& iData, unsigned 
      track = fireworks::prepareCandidate(iData, context().getTrackPropagator());
          
    track->MakeTrack();
-   points->SetNextPoint(track->GetEndMomentum().Eta(), track->GetEndMomentum().Phi(), 0.1);
+   const double delta = 0.1;
+   marker->AddLine(track->GetEndMomentum().Eta()-delta, track->GetEndMomentum().Phi()-delta, 0.1,
+		   track->GetEndMomentum().Eta()+delta, track->GetEndMomentum().Phi()+delta, 0.1);
+   marker->AddLine(track->GetEndMomentum().Eta()-delta, track->GetEndMomentum().Phi()+delta, 0.1,
+		   track->GetEndMomentum().Eta()+delta, track->GetEndMomentum().Phi()-delta, 0.1);
+   marker->AddLine(track->GetEndMomentum().Eta(), track->GetEndMomentum().Phi()-delta, 0.1,
+		   track->GetEndMomentum().Eta(), track->GetEndMomentum().Phi()+delta, 0.1);
+   marker->AddLine(track->GetEndMomentum().Eta()-delta, track->GetEndMomentum().Phi(), 0.1,
+		   track->GetEndMomentum().Eta()+delta, track->GetEndMomentum().Phi(), 0.1);
 }
 
 REGISTER_FWPROXYBUILDER(FWElectronLegoProxyBuilder, reco::GsfElectron, "Electrons", FWViewType::kLegoBit);
