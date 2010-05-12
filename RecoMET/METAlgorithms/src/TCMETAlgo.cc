@@ -45,6 +45,9 @@
 #include "TMath.h"
 
 typedef math::XYZPoint Point;
+typedef math::XYZTLorentzVector LorentzVector;
+
+
 
 //------------------------------------------------------------------------
 // Default Constructer
@@ -61,6 +64,11 @@ TCMETAlgo::~TCMETAlgo() {}
 reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig, TH2D* response_function, TH2D* showerRF)
 { 
      // get configuration parameters
+     electronVetoCone_       = iConfig.getParameter<bool>  ("electronVetoCone");
+     eVetoDeltaR_            = iConfig.getParameter<double>("eVetoDeltaR");
+     eVetoDeltaPhi_          = iConfig.getParameter<double>("eVetoDeltaPhi");
+     eVetoDeltaCotTheta_     = iConfig.getParameter<double>("eVetoDeltaCotTheta");
+     eVetoMinElectronPt_     = iConfig.getParameter<double>("eVetoMinElectronPt");
      correctShowerTracks_    = iConfig.getParameter<bool>  ("correctShowerTracks");
      checkTrackPropagation_  = iConfig.getParameter<bool>  ("checkTrackPropagation");
      usePvtxd0_              = iConfig.getParameter<bool>  ("usePvtxd0");
@@ -86,6 +94,7 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      maxchi2_   = iConfig.getParameter<double>("chi2_max" );
      minhits_   = iConfig.getParameter<double>("nhits_min");
      maxPtErr_  = iConfig.getParameter<double>("ptErr_max");
+     hOverECut_ = iConfig.getParameter<double>("hOverECut");
 
      trkQuality_ = iConfig.getParameter<std::vector<int> >("track_quality");
      trkAlgos_   = iConfig.getParameter<std::vector<int> >("track_algos"  );
@@ -241,6 +250,9 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
 
 	  if( !isGoodTrack( trkref ) ) continue;
 
+          if( electronVetoCone_ && closeToElectron( trkref ) )
+            continue;
+
 	  const TVector3 outerTrackPosition = propagateTrack( trkref );  //propagate track from vertex to calorimeter face
 
 	  if(correctShowerTracks_){
@@ -281,6 +293,38 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      return tcmet;
 
 //------------------------------------------------------------------------
+}
+
+bool TCMETAlgo::closeToElectron( const reco::TrackRef track ){
+ 
+  float trk_eta   = track->eta();
+  float trk_phi   = track->phi();
+  LorentzVector tk_p4(track->px(), track->py(),track->pz(), track->p());
+
+  for(reco::GsfElectronCollection::const_iterator electron_it = ElectronHandle->begin(); 
+      electron_it != ElectronHandle->end(); ++electron_it) {
+    
+    if( electron_it->hadronicOverEm() > hOverECut_ ) continue; 
+
+    reco::TrackRef el_track = electron_it->closestCtfTrackRef();      
+
+    if(!el_track.isNonnull()) continue;
+ 
+    if( el_track->pt() < eVetoMinElectronPt_ ) continue;
+
+    LorentzVector el_p4(el_track->px(), el_track->py(), el_track->pz(), el_track->p());
+
+    float deltaPhi   = fabs( el_track->phi() - trk_phi );
+    if( deltaPhi > TMath::Pi() ) deltaPhi = TMath::TwoPi() - deltaPhi;  
+    float deltaEta   = el_track->eta() - trk_eta;
+    float deltaR     = sqrt(deltaPhi * deltaPhi + deltaEta * deltaEta);
+    float deltaCotTh = 1. / tan( el_p4.theta() ) - 1. / tan( tk_p4.theta() );
+	    
+    if( deltaPhi < eVetoDeltaPhi_ && deltaCotTh < eVetoDeltaCotTheta_ && deltaR < eVetoDeltaR_) return true;
+    
+  }
+
+  return false;
 }
 
 bool TCMETAlgo::nearGoodShowerTrack( const reco::TrackRef track , vector<int> goodShowerTracks ){
@@ -365,7 +409,7 @@ bool TCMETAlgo::isElectron( unsigned int trk_idx ) {
 	  unsigned int ele_idx = el_track.isNonnull() ? el_track.key() : 99999;
 
 	  if( ele_idx == trk_idx ) {
-	       if( electron_it->hadronicOverEm() < 0.1 ) 
+	       if( electron_it->hadronicOverEm() < hOverECut_ ) 
 		    return true;
 	  }
      }

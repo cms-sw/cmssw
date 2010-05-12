@@ -102,11 +102,17 @@ class TCMETAlgo
   double  radius_;
   double  zdist_;
   double  corner_;
+  double  eVetoDeltaR_;
+  double  eVetoDeltaPhi_;
+  double  eVetoDeltaCotTheta_; 
+  double  eVetoMinElectronPt_;
+  double  hOverECut_;
   std::vector<int> trkQuality_;
   std::vector<int> trkAlgos_;
 
   bool isCosmics_;
   bool correctShowerTracks_;
+  bool electronVetoCone_;
   bool usePvtxd0_;
   bool checkTrackPropagation_;
 
@@ -123,6 +129,7 @@ class TCMETAlgo
   bool isMuon( unsigned int );
   bool isElectron( unsigned int ); 
   bool isGoodTrack( const reco::TrackRef );
+  bool closeToElectron( const reco::TrackRef );
   void correctMETforMuon( const reco::TrackRef, const unsigned int );
   void correctSumEtForMuon( const reco::TrackRef, const unsigned int );
   void correctMETforMuon( const unsigned int );

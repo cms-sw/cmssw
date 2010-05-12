@@ -11,6 +11,7 @@ tcMet = cms.EDProducer("METProducer",
                        METType = cms.string('TCMET'),
                        alias = cms.string('TCMET'),
                        noHF = cms.bool(False),
+                       electronVetoCone = cms.bool(True),
                        globalThreshold = cms.double(0.0),
                        InputType = cms.string('CaloMET:Electron:Muon:Track'),  #This parameter does not get used for TCMET
                        electronInputTag  = cms.InputTag("gsfElectrons"),
@@ -46,6 +47,11 @@ tcMet = cms.EDProducer("METProducer",
                        chi2_tight_max = cms.double(5.0),
                        nhits_tight_min = cms.double(9),
                        ptErr_tight_max = cms.double(0.2),
+                       eVetoDeltaR = cms.double(0.015),
+                       eVetoDeltaPhi = cms.double(100.0),
+                       eVetoDeltaCotTheta = cms.double(100.0),
+                       eVetoMinElectronPt = cms.double(10.0),
+                       hOverECut = cms.double(0.1),
                        maxTrackAlgo = cms.int32(8)
                        )
 
