@@ -1818,7 +1818,10 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
     float dpt=0; float dpt_kf=0; float dpt_gsf=0; float dpt_mean=0;
     float Eene=0; float dene=0; float Hene=0.;
     float RawEene = 0.;
-
+    double posX=0.;
+    double posY=0.;
+    double posZ=0.;
+    
 
     float de_gs = 0., de_me = 0., de_kf = 0.; 
     float m_el=0.00051;
@@ -1950,7 +1953,6 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	ps1=ps2=0.;
 	//	float EE=pfcalib_.energyEm(cl,ps1Ene,ps2Ene);
 	float EE = pfcalib_.energyEm(cl,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections_);	  
-	//	std::cout << "Test "<< EE << " " <<  " PS1 / PS2 " << ps1 << " " << ps2 << std::endl;
 	//	float RawEE = cl.energy();
 
 	float ceta=cl.position().eta();
@@ -1980,9 +1982,9 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	math::XYZTLorentzVector clusterMomentum;
 	math::XYZPoint direction=cl.position()/cl.position().R();
 	clusterMomentum.SetPxPyPzE(EE*direction.x(),
-				  EE*direction.y(),
-				  EE*direction.z(),
-				  EE);
+				   EE*direction.y(),
+				   EE*direction.z(),
+				   EE);
 	reco::PFCandidate cluster_Candidate((elecCluster)?charge:0,
 					    clusterMomentum, 
 					    (elecCluster)? reco::PFCandidate::e : reco::PFCandidate::gamma);
@@ -2012,10 +2014,13 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	    itcheck->second.push_back(cluster_Candidate);
 	  }
 	
-      Eene+=EE;
-      ps1TotEne+=ps1;
-      ps2TotEne+=ps2;
-      dene+=dE*dE;
+	Eene+=EE;
+	posX +=  EE * cl.position().X();
+	posY +=  EE * cl.position().Y();
+	posZ +=  EE * cl.position().Z();	  
+	ps1TotEne+=ps1;
+	ps2TotEne+=ps2;
+	dene+=dE*dE;
       }
       
 
@@ -2065,9 +2070,11 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	      float dE=pfresol_.getEnergyResolutionEm(EE,ceta);
 	      if( DebugIDCandidates ) 
 		cout << "SetCandidates:: BremCluster: Ene " << EE << " dE " <<  dE <<endl;	  
+
 	      Eene+=EE;
-
-
+	      posX +=  EE * clusterRef->position().X();
+	      posY +=  EE * clusterRef->position().Y();
+	      posZ +=  EE * clusterRef->position().Z();	  
 	      ps1TotEne+=ps1;
 	      ps2TotEne+=ps2;
 	      // Removed 4 March 2009. Florian. The Raw energy is the (corrected) one of the GSF cluster only
@@ -2140,9 +2147,65 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	dene = sqrt(dene)*(Eene/unCorrEene);
 	dene = dene*dene;
       }
+      
       if( DebugIDCandidates ) 
 	cout << " EneCorrected " << Eene << " Err " << dene  << endl;
-      
+
+
+      // charge determination with the majority method
+      // if the kf track exists: 2 among 3 of supercluster barycenter position
+      // gsf track and kf track
+      if(has_kf && unCorrEene > 0.) {
+	posX /=unCorrEene;
+	posY /=unCorrEene;
+	posZ /=unCorrEene;
+	math::XYZPoint sc_pflow(posX,posY,posZ);
+
+	std::multimap<double, unsigned int> bremElems;
+	block.associatedElements( gsf_index,linkData,
+				  bremElems,
+				  reco::PFBlockElement::BREM,
+				  reco::PFBlock::LINKTEST_ALL );
+
+	double phiTrack = RefGSF->phiMode();
+	if(bremElems.size()>0) {
+	  unsigned int brem_index =  bremElems.begin()->second;
+	  const reco::PFBlockElementBrem * BremEl  =  
+	    dynamic_cast<const reco::PFBlockElementBrem*>((&elements[brem_index]));
+	  phiTrack = BremEl->positionAtECALEntrance().phi();
+	}
+
+	double dphi_normalsc = sc_pflow.Phi() - phiTrack;
+	if ( dphi_normalsc < -M_PI ) 
+	  dphi_normalsc = dphi_normalsc + 2.*M_PI;
+	else if ( dphi_normalsc > M_PI ) 
+	  dphi_normalsc = dphi_normalsc - 2.*M_PI;
+	
+	int chargeGsf = RefGSF->chargeMode();
+	int chargeKf = RefKF->charge();
+
+	int chargeSC = 0;
+	if(dphi_normalsc < 0.) 
+	  chargeSC = 1;
+	else 
+	  chargeSC = -1;
+	
+	if(chargeKf == chargeGsf) 
+	  charge = chargeGsf;
+	else if(chargeGsf == chargeSC)
+	  charge = chargeGsf;
+	else 
+	  charge = chargeKf;
+
+	if( DebugIDCandidates ) 
+	  cout << "PFElectronAlgo:: charge determination " 
+	       << " charge GSF " << chargeGsf 
+	       << " charge KF " << chargeKf 
+	       << " charge SC " << chargeSC
+	       << " Final Charge " << charge << endl;
+	
+      }
+       
       // Think about this... 
       if ((nhit_gsf<8) && (has_kf)){
 	
@@ -2387,7 +2450,6 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
   }  // End loop on gsf track  
   return;
 }
-
 void PFElectronAlgo::setEGElectronCollection(const reco::GsfElectronCollection & egelectrons) {
   theGsfElectrons_ = & egelectrons;
 }
