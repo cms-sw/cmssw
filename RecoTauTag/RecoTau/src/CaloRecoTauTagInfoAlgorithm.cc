@@ -42,6 +42,26 @@ CaloTauTagInfo CaloRecoTauTagInfoAlgorithm::buildCaloTauTagInfo(Event& theEvent,
   
   return resultExtended; 
 }
+CaloTauTagInfo CaloRecoTauTagInfoAlgorithm::buildCaloTauTagInfo(Event& theEvent,const EventSetup& theEventSetup,const JetBaseRef& theJet,const TrackRefVector& theTracks,const Vertex& thePV){
+  CaloTauTagInfo resultExtended;
+  resultExtended.setJetRef(theJet);
+
+  TrackRefVector theFilteredTracks;
+  if (UsePVconstraint_) theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkminPixelHitsn_,tkminTrackerHitsn_,tkmaxipt_,tkmaxChi2_,tkPVmaxDZ_,thePV, thePV.z());
+  else theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkminPixelHitsn_,tkminTrackerHitsn_,tkmaxipt_,tkmaxChi2_,thePV);
+  if (UseTrackQuality_) theFilteredTracks = filterTracksByQualityBit(theFilteredTracks,tkQuality_);
+  resultExtended.setTracks(theFilteredTracks);
+
+  //resultExtended.setpositionAndEnergyECALRecHits(getPositionAndEnergyEcalRecHits(theEvent,theEventSetup,theCaloJet));
+
+  //reco::JPTJetRef const theJPTJetRef = theJet.castTo<reco::JPTJetRef>();
+  //reco::CaloJetRef const theCaloJet = (theJPTJetRef->getCaloJetRef()).castTo<reco::CaloJetRef>();
+  reco::CaloJetRef const theCaloJet = resultExtended.calojetRef();
+  vector<BasicClusterRef> theNeutralEcalBasicClusters=getNeutralEcalBasicClusters(theEvent,theEventSetup,theCaloJet,theFilteredTracks,ECALBasicClustersAroundCaloJet_DRConeSize_,ECALBasicClusterminE_,ECALBasicClusterpropagTrack_matchingDRConeSize_);
+  resultExtended.setneutralECALBasicClusters(theNeutralEcalBasicClusters);
+
+  return resultExtended;
+}
 /*
 vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndEnergyEcalRecHits(Event& theEvent,const EventSetup& theEventSetup,const CaloJetRef& theCaloJet){
   vector<pair<math::XYZPoint,float> > thePositionAndEnergyEcalRecHits;

@@ -28,6 +28,8 @@
 
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
+#include "DataFormats/JetReco/interface/JetCollection.h"
+
 using namespace std;
 using namespace reco;
 using namespace edm;
@@ -38,6 +40,7 @@ class  CaloRecoTauTagInfoAlgorithm  {
   CaloRecoTauTagInfoAlgorithm(const ParameterSet& parameters);
   ~CaloRecoTauTagInfoAlgorithm(){}
   CaloTauTagInfo buildCaloTauTagInfo(Event&,const EventSetup&,const CaloJetRef&,const TrackRefVector&,const Vertex&); 
+  CaloTauTagInfo buildCaloTauTagInfo(Event&,const EventSetup&,const JetBaseRef&,const TrackRefVector&,const Vertex&);
   vector<DetId> getVectorDetId(const CaloJetRef&);
 
  private:  

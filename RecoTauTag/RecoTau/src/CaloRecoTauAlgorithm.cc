@@ -55,7 +55,8 @@ void CaloRecoTauAlgorithm::setMagneticField(const MagneticField* x){MagneticFiel
 CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetup,const CaloTauTagInfoRef& myCaloTauTagInfoRef,const Vertex& myPV){
   CaloJetRef myCaloJet=(*myCaloTauTagInfoRef).calojetRef(); // catch a ref to the initial CaloJet  
   const vector<CaloTowerPtr> myCaloTowers=(*myCaloJet).getCaloConstituents();
-  CaloTau myCaloTau(numeric_limits<int>::quiet_NaN(),myCaloJet->p4()); // create the CaloTau with the initial CaloJet Lorentz-vector
+  JetBaseRef jetRef = myCaloTauTagInfoRef->jetRef();
+  CaloTau myCaloTau(numeric_limits<int>::quiet_NaN(),jetRef->p4()); // create the CaloTau with the corrected Lorentz-vector
   
   myCaloTau.setcaloTauTagInfoRef(myCaloTauTagInfoRef);
   

@@ -95,7 +95,7 @@ void CaloRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
   iEvent.getByLabel(CaloRecoTauTagInfoProducer_,theCaloTauTagInfoCollection);
   int iinfo=0;
   for(CaloTauTagInfoCollection::const_iterator i_info=theCaloTauTagInfoCollection->begin();i_info!=theCaloTauTagInfoCollection->end();i_info++) { 
-    if(i_info->calojetRef()->pt()>JetMinPt_){ 
+    if(i_info->jetRef()->pt()>JetMinPt_){ 
       CaloTau myCaloTau=CaloRecoTauAlgo_->buildCaloTau(iEvent,iSetup,Ref<CaloTauTagInfoCollection>(theCaloTauTagInfoCollection,iinfo),thePV);
       resultCaloTau->push_back(myCaloTau);
     }
