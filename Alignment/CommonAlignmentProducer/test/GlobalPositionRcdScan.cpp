@@ -52,6 +52,9 @@ void GlobalPositionRcdScan::analyze(const edm::Event& evt, const edm::EventSetup
       else if (i->rawId() == DetId(DetId::Hcal).rawId()) {
 	std::cout << "Hcal   ";
       }
+      else if (i->rawId() == DetId(DetId::Calo).rawId()) {
+	std::cout << "Calo   ";
+      }
       else {
 	std::cout << "Unknown";
       }
