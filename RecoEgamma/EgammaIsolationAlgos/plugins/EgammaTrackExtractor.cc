@@ -4,7 +4,7 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaTrackSelector.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTrackSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"

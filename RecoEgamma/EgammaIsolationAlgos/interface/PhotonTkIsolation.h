@@ -19,7 +19,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaTrackSelector.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTrackSelector.h"
 
 using egammaisolation::EgammaTrackSelector ;
 

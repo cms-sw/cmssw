@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaTrackSelector.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTrackSelector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
