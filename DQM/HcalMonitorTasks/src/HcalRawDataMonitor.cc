@@ -472,10 +472,47 @@ void HcalRawDataMonitor::analyze(const edm::Event& e, const edm::EventSetup& s){
 
   // all objects grabbed; event is good
   if (debug_>1) std::cout <<"\t<HcalRawDataMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
-
-
+  
   // Raw Data collection was grabbed successfully; process the Event
   processEvent(*rawraw, *report);
+
+  //Loop over all cells, tallying problem counts before resetting
+  //Extract the subdetector region given the location 
+  for (int d=0; d<DEPTHBINS; d++) {
+    for (int eta=0; eta<ETABINS; eta++) {
+      int ieta=CalcIeta(eta,d+1);
+      if (ieta==-9999) continue;
+      for (int phi=0; phi<PHIBINS; phi++){
+	if (problemcount[eta][phi][d]) {
+	  //	  std::cout<<" "<<eta<<","<<phi<<","<<d<<" count:"<<problemcount[eta][phi][d]<<std::endl;	    
+	  HcalSubdetector subdet=HcalEmpty;
+	  if (isHB(eta,d+1))subdet=HcalBarrel;
+	  else if (isHE(eta,d+1)) subdet=HcalEndcap;
+	  else if (isHF(eta,d+1)) subdet=HcalForward;
+	  else if (isHO(eta,d+1)) subdet=HcalOuter;
+	  if (subdet!=HcalEmpty){
+	    if (subdet==HcalBarrel)       NumBadHB+= problemcount[eta][phi][d];
+	    else if (subdet==HcalEndcap)  NumBadHE+= problemcount[eta][phi][d];
+	    else if (subdet==HcalOuter)  
+	      {
+		NumBadHO += problemcount[eta][phi][d];
+		if (abs(ieta)<5) NumBadHO0+= problemcount[eta][phi][d];
+		else NumBadHO12+= problemcount[eta][phi][d];
+	      }
+	    else if (subdet==HcalForward)
+	      {
+		NumBadHF+= problemcount[eta][phi][d];
+		if (d==1 && (abs(ieta)==33 || abs(ieta)==34))
+		  NumBadHFLUMI+= problemcount[eta][phi][d];
+		else if (d==2 && (abs(ieta)==35 || abs(ieta)==36))
+		  NumBadHFLUMI+= problemcount[eta][phi][d];
+	      }
+	  }
+	  problemcount[eta][phi][d]=0;
+	}
+      }
+    }
+  }
 }
 
 void HcalRawDataMonitor::processEvent(const FEDRawDataCollection& rawraw, 
@@ -499,6 +536,15 @@ void HcalRawDataMonitor::processEvent(const FEDRawDataCollection& rawraw,
     if (fed.size()<12) continue;  //At least the size of headers and trailers of a DCC.
     unpack(fed); //Interpret data, fill histograms, everything.
   }
+  
+  //increment problemcount[] where problemfound[], and clear problemfound[]
+  for (int x=0; x<ETABINS; x++)
+      for (int y=0; y<PHIBINS; y++)
+	for (int z=0; z<DEPTHBINS; z++) 
+	  if (problemfound[x][y][z]) {
+	    problemcount[x][y][z]++;
+	    problemfound[x][y][z]=false;
+	  }
   return;
 } //void HcalRawDataMonitor::processEvent()
 
@@ -601,6 +647,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
   }
   if (CDFProbThisDCC) {
     //Set the problem flag for the ieta, iphi of any channel in this DCC
+    mapDCCproblem(dcc_);
     if (debug_>0) std::cout <<"CDFProbThisDCC"<<std::endl;
   }
 
@@ -612,6 +659,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
   for(int i=0; i<HcalDCCHeader::SPIGOT_COUNT; i++) {
     CRC_err = ((dccHeader->getSpigotSummary(i) >> 10) & 0x00000001);
     if (CRC_err) {
+      mapDCCproblem(dcc_);
       //Set the problem flag for the ieta, iphi of any channel in this DCC
       if (debug_>0) std::cout <<"HTR Problem: CRC_err"<<std::endl;
     }
@@ -633,12 +681,14 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
   } // then check against it.
   if (dccHeader->getDCCDataFormatVersion()!= DCCEvtFormat_it->second) {
     meDCCEventFormatError_->Fill(dccid,1);
+    mapDCCproblem(dcc_);
     if (debug_>0)std::cout <<"DCC Error Type 1"<<std::endl;
   }
   /* 2 */ //Check for ones where there should always be zeros
   if (false) //dccHeader->getByte1Zeroes() || dccHeader->getByte3Zeroes() || dccHeader->getByte567Zeroes()) 
   {
     meDCCEventFormatError_->Fill(dccid,2);
+    mapDCCproblem(dcc_);
     if (debug_>0)std::cout <<"DCC Error Type 2"<<std::endl;
   }
   /* 3 */ //Check that there are zeros following the HTR Status words.
@@ -647,6 +697,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 	 | ((uint64_t) dccHeader->getSpigotSummary(SpigotPad+1)) 
 	 | ((uint64_t) dccHeader->getSpigotSummary(SpigotPad+2)))  != 0){
     meDCCEventFormatError_->Fill(dccid,3);
+    mapDCCproblem(dcc_);
   if (debug_>0)std::cout <<"DCC Error Type 3"<<std::endl;
   }
   /* 4 */ //Check that there are zeros following the HTR Payloads, if needed.
@@ -659,6 +710,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     uint64_t* lastDataWord = (uint64_t*) ( raw.data()+raw.size()-(2*sizeof(uint64_t)) );
     if ((*lastDataWord>>32) != 0x00000000){
       meDCCEventFormatError_->Fill(dccid, 4);
+      mapDCCproblem(dcc_);
       if (debug_>0)std::cout <<"DCC Error Type 4"<<std::endl;
     }
   }
@@ -675,6 +727,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     ;
   if (TTS_state & 0x2) /*SYN*/ 
     {
+      mapDCCproblem(dcc_);
       if (debug_>0)std::cout <<"TTS_state Error:sync"<<std::endl;
     }
   //Histogram per-Spigot bits from the DCC Header
@@ -696,37 +749,47 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 	DataFlowInd_[fed2offset-1][spg3offset-1]++;
       if (((WholeErrorList>>1)&0x01)!=0)  {//HammingCode Uncorrected Error
 	LRBDataCorruptionIndicators_[fed3offset+1][spg3offset+2]++;
+	mapHTRproblem(dcc_,spigot);
       }
       if (((WholeErrorList>>2)&0x01)!=0)  {//Truncated data coming into LRB
 	LRBDataCorruptionIndicators_[fed3offset+2][spg3offset+2]++;
+	mapHTRproblem(dcc_,spigot);
       }
       if (((WholeErrorList>>3)&0x01)!=0)  {//FIFO Overflow
 	LRBDataCorruptionIndicators_[fed3offset+1][spg3offset+1]++;
+	mapHTRproblem(dcc_,spigot);
       }
       if (((WholeErrorList>>4)&0x01)!=0)  {//ID (EvN Mismatch), htr payload metadeta
 	LRBDataCorruptionIndicators_[fed3offset+2][spg3offset+1]++;
+	mapHTRproblem(dcc_,spigot);
       }
       if (((WholeErrorList>>5)&0x01)!=0)  {//STatus: hdr/data/trlr error
 	LRBDataCorruptionIndicators_[fed3offset+1][spg3offset+0]++;
+	mapHTRproblem(dcc_,spigot);
       }
       if (((WholeErrorList>>6)&0x01)!=0)  {//ODD 16-bit word count from HTR
 	LRBDataCorruptionIndicators_[fed3offset+2][spg3offset+0]++;
+	mapHTRproblem(dcc_,spigot);
       }
     }
     if (!dccHeader->getSpigotPresent((unsigned int) spigot)){
       LRBDataCorruptionIndicators_[fed3offset+0][spg3offset+2]++;  //Enabled, but data not present!
+      mapHTRproblem(dcc_,spigot);
       if (debug_>0)std::cout <<"HTR Problem: Spigot Not Present"<<std::endl;
     } else {
       if ( dccHeader->getSpigotDataTruncated((unsigned int) spigot)) {
      	LRBDataCorruptionIndicators_[fed3offset-1][spg3offset+0]++;  // EventBuilder truncated babbling LRB
+	mapHTRproblem(dcc_,spigot);
 	if (debug_>0)std::cout <<"HTR Problem: Spigot Data Truncated"<<std::endl;
       }
       if ( dccHeader->getSpigotCRCError((unsigned int) spigot)) {
 	LRBDataCorruptionIndicators_[fed3offset+0][spg3offset+0]++; 
+	mapHTRproblem(dcc_,spigot);
       }
     } //else spigot marked "Present"
     if (dccHeader->getSpigotDataLength(spigot) <(unsigned long)4) {
       LRBDataCorruptionIndicators_[fed3offset+0][spg3offset+1]++;  //Lost HTR Data for sure.
+      mapHTRproblem(dcc_,spigot);
       if (debug_>0)std::cout <<"HTR Problem: Spigot Data Length too small"<<std::endl;
     }    
   }
@@ -746,6 +809,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     // check min length, correct wordcount, empty event, or total length if histo event.
     if (!htr.check()) {
       meInvHTRData_ -> Fill(spigot,dccid);
+      mapHTRproblem(dcc_,spigot);
       if (debug_>0)std::cout <<"HTR Problem: HTR check fails"<<std::endl;
     }
 
@@ -760,6 +824,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 	     (HTRwdcount != 12 + NTP + NDAQ) ||
 	     (HTRwdcount != 20 + NTP + NDAQ)    )) {
       ++HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+0];
+      mapHTRproblem(dcc_,spigot);
       if (debug_>0)std::cout <<"HTR Problem: NTP+NDAQ size consistency check fails"<<std::endl;
       //incompatible Sizes declared. Skip it.
       continue; }
@@ -777,6 +842,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 	  ||                                
 	  (!CM && ( (HTRwdcount-NDAQ-NTP) != 20) )  ) {	//incompatible Sizes declared. Skip it.
 	++HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+1];
+	mapHTRproblem(dcc_,spigot);
 	continue;} }
 
     if (htr.isHistogramEvent()) continue;
@@ -791,11 +857,13 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 	  (htrBCN  == (unsigned int) dccBCN) )  
 	!= (dccHeader->getBxMismatchWithDCC(spigot))  ){
       meDCCEventFormatError_->Fill(dccid,5);
+      mapHTRproblem(dcc_,spigot);
       if (debug_>0)std::cout <<"Orbit or BCN  HTR/DCC mismatch"<<std::endl;
     }
     if ( (htrEvtN == dccEvtNum) != 
 	 dccHeader->getSpigotValid(spigot) ) {
       meDCCEventFormatError_->Fill(dccid,5);
+      mapHTRproblem(dcc_,spigot);
       if (debug_>0)std::cout <<"DCC invalid spigot"<<std::endl;
     }
     int cratenum = htr.readoutVMECrateId();
@@ -808,6 +876,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     int EvtNdiff = htrEvtN - dccEvtNum;
     if (EvtNdiff!=0) {
       meEvtNumberSynch_->Fill(dccid,spigot);
+      mapHTRproblem(dcc_,spigot);
       meEvtNCheck_->Fill(EvtNdiff);
       if (debug_ == 1)std::cout << "++++ Evt # out of sync, ref, this HTR: "<< dccEvtNum << "  "<<htrEvtN <<std::endl;
     }
@@ -819,6 +888,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 	//|| ((dccid==727) && (spigot==8) && (dccEvtNum%3==0))
 	){
       meBCNSynch_->Fill(dccid,spigot);
+      mapHTRproblem(dcc_,spigot);
       meBCNCheck_->Fill(BCNdiff);
       if (debug_==1)std::cout << "++++ BCN # out of sync, ref, this HTR: "<< dccBCN << "  "<<htrBCN <<std::endl;
     }
@@ -827,6 +897,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     int OrNdiff = htrOrN-dccOrN;
     if (OrNdiff!=0) {
       meOrNSynch_->Fill(dccid,spigot);
+      mapHTRproblem(dcc_,spigot);
       meOrNCheck_->Fill(OrNdiff);
       meBCNwhenOrNDiff_->Fill(htrBCN); // Are there special BCN where OrN mismatched occur? Let's see.
       if (debug_==1)std::cout << "++++ OrN # out of sync, ref, this HTR: "<< dccOrN << "  "<<htrOrN <<std::endl;
@@ -863,6 +934,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     if (  (((dccHeader->getSpigotSummary( spigot))>>24)&0x00FF)
 	  != (errWord&0x00FF) ){
       meDCCEventFormatError_->Fill(dccid,6);//Low 8 bits miscopied into DCCHeader
+      mapHTRproblem(dcc_,spigot);
       if (debug_>0)std::cout <<"DCC spigot summary error or HTR error word"<<std::endl;
       //What other problems may lurk? Spooky.
     }
@@ -875,27 +947,33 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 	  tmpErr->Fill(i);
 	  //Only certain bits indicate corrupted data:
 	  switch (i) {
-	  case (14): //CT
+	  case (14): //CT (obsolete Calibration Trigger scheme used)
 	    HalfHTRDataCorruptionIndicators_[fed3offset+0][spg3offset+2]++;
+	    mapHTRproblem(dcc_,spigot);
 	    if (debug_>0)std::cout <<"HTR Problem: Case 14"<<std::endl;
 	    break;
 	  case (13): //HM
 	    HalfHTRDataCorruptionIndicators_[fed3offset+0][spg3offset+1]++;
+	    mapHTRproblem(dcc_,spigot);
 	    if (debug_>0)std::cout <<"HTR Problem: Case 13"<<std::endl;
 	    break;
 	  case (12): //TM
 	    HalfHTRDataCorruptionIndicators_[fed3offset+0][spg3offset+0]++;
+	    mapHTRproblem(dcc_,spigot);
 	    if (debug_>0)std::cout <<"HTR Problem: Case 12"<<std::endl;
 	    break;
 	  case ( 8): //BE
 	    HalfHTRDataCorruptionIndicators_[fed3offset+1][spg3offset+2]++;
+	    mapHTRproblem(dcc_,spigot);
 	    if (debug_>0)std::cout <<"HTR Problem: Case 8"<<std::endl;
 	    break;
 	  case (15): //b15
 	    HalfHTRDataCorruptionIndicators_[fed3offset+1][spg3offset+1]++;
+	    mapHTRproblem(dcc_,spigot);
 	    break;
 	  case ( 7): //CK
 	    HalfHTRDataCorruptionIndicators_[fed3offset+1][spg3offset+0]++;
+	    mapHTRproblem(dcc_,spigot);
 	    if (debug_>0)std::cout <<"HTR Problem: Case 7"<<std::endl;
 	    break;
 	  //\\case ( 5): //LW removed 2010.02.16
@@ -974,6 +1052,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 	    { //Wrong DigiSize
 	      ++ChannSumm_DataIntegrityCheck_  [fed2offset+0][spg2offset+0];
 	      ++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+0];
+	      mapChannproblem(dcc_,spigot,htrchan);
 	      if (debug_)std::cout <<"mapChannelProblem:  Wrong Digi Size"<<std::endl;
 	    } 
 	} 	
@@ -986,6 +1065,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 	if (qie_work->capid() != hope){
 	  ++ChannSumm_DataIntegrityCheck_  [fed2offset+1][spg2offset+0];
 	  ++Chann_DataIntegrityCheck_[dcc_][chn2offset+1][spg2offset+0];
+	  mapChannproblem(dcc_,spigot,htrchan);
 	  if (debug_)std::cout <<"mapChannelProblem:  Wrong Cap ID"<<std::endl;
 	}
 	lastcapid=qie_work->capid();
@@ -993,10 +1073,12 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
       //For every sample, whether the first of the channel or not, !DV, Er
       if (!(qie_work->dv())){
 	++ChannSumm_DataIntegrityCheck_  [fed2offset+0][spg2offset+1];
-	++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+1]; }
+	++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+1];
+      }
       if (qie_work->er()) {      // FEE - Front End Error
 	++ChannSumm_DataIntegrityCheck_  [fed2offset+1][spg2offset+1];
 	++Chann_DataIntegrityCheck_[dcc_][chn2offset+1][spg2offset+1]; 
+	mapChannproblem(dcc_,spigot,htrchan);
 	if (debug_)std::cout <<"mapChannelProblem:  FE Error"<<std::endl;	
       }
     } // for (qie_work = qie_begin;...)  end loop over all timesamples in this spigot
@@ -1007,6 +1089,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 	(samplecounter !=-1)             ) { //Wrong DigiSize (unexpected num. timesamples)
       ++ChannSumm_DataIntegrityCheck_  [fed2offset+0][spg2offset+0];
       ++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+0];
+      mapChannproblem(dcc_,spigot,htrchan);
       if (debug_)std::cout <<"mapChannelProblem:  Wrong Digi Size (last digi)"<<std::endl;
     } 
     unsigned int fib1BCN = htr.getFib1OrbMsgBCN();
@@ -1042,6 +1125,24 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 // End LumiBlock
 void HcalRawDataMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					    const edm::EventSetup& c){
+  std::cout<<"EndLumi!";
+	  
+
+  // Reset current LS histogram, if it exists
+  if (ProblemsCurrentLB)
+    ProblemsCurrentLB->Reset();
+  if (ProblemsCurrentLB)
+    {
+      ProblemsCurrentLB->setBinContent(0,0, levt_);  // underflow bin contains number of events
+      ProblemsCurrentLB->setBinContent(1,1, NumBadHB*levt_);
+      ProblemsCurrentLB->setBinContent(2,1, NumBadHE*levt_);
+      ProblemsCurrentLB->setBinContent(3,1, NumBadHO*levt_);
+      ProblemsCurrentLB->setBinContent(4,1, NumBadHF*levt_);
+      ProblemsCurrentLB->setBinContent(5,1, NumBadHO0*levt_);
+      ProblemsCurrentLB->setBinContent(6,1, NumBadHO12*levt_);
+      ProblemsCurrentLB->setBinContent(7,1, NumBadHFLUMI*levt_);
+    }
+
   UpdateMEs();
 }
 // EndRun -- Anything to do here?
@@ -1142,13 +1243,21 @@ void HcalRawDataMonitor::HTRPrint(const HcalHTRData& htr,int prtlvl){
 void HcalRawDataMonitor::UpdateMEs (void ) {
   tevt_=0;
   if (meTevtHist_) tevt_= meTevtHist_->getBinContent(1);
+  NumBadHB=0;
+  NumBadHE=0;
+  NumBadHO=0;
+  NumBadHF=0;
+  NumBadHFLUMI=0;
+  NumBadHO0=0;
+  NumBadHO12=0;
+
 
   meLRBDataCorruptionIndicators_->setBinContent(0,0,tevt_);
   for (int x=0; x<THREE_FED; x++)
     for (int y=0; y<THREE_SPG; y++)
-      if (LRBDataCorruptionIndicators_  [x][y])
+      if (LRBDataCorruptionIndicators_  [x][y]) 
 	meLRBDataCorruptionIndicators_->setBinContent(x+1,y+1,LRBDataCorruptionIndicators_[x][y]);
-  	 
+	
   meHalfHTRDataCorruptionIndicators_->setBinContent(0,0,tevt_);
   for (int x=0; x<THREE_FED; x++)
     for (int y=0; y<THREE_SPG; y++)
@@ -1158,9 +1267,9 @@ void HcalRawDataMonitor::UpdateMEs (void ) {
   meChannSumm_DataIntegrityCheck_->setBinContent(0,0,tevt_);  	 
   for (int x=0; x<TWO___FED; x++)
     for (int y=0; y<TWO__SPGT; y++)
-      if (ChannSumm_DataIntegrityCheck_[x][y])
+      if (ChannSumm_DataIntegrityCheck_[x][y]) 
 	meChannSumm_DataIntegrityCheck_->setBinContent(x+1,y+1,ChannSumm_DataIntegrityCheck_[x][y]);
-  
+
   for (int f=0; f<NUMDCCS; f++){
     meChann_DataIntegrityCheck_[f]->setBinContent(0,0,tevt_);
     for (int x=0; x<TWO_CHANN; x++)
@@ -1175,6 +1284,110 @@ void HcalRawDataMonitor::UpdateMEs (void ) {
       if (DataFlowInd_[x][y])
 	meDataFlowInd_->setBinContent(x+1,y+1,DataFlowInd_[x][y]);
 } //UpdateMEs
+
+//Increment the NumBad counter for this LS, for this Hcal subdet
+void HcalRawDataMonitor::whosebad(int subdet) {
+//  if (subdet==HcalBarrel)       ++NumBadHB;
+//  else if (subdet==HcalEndcap)  ++NumBadHE;
+//  else if (subdet==HcalOuter)  
+//    {
+//      ++NumBadHO;
+//      if (abs(ieta)<5) ++NumBadHO0;
+//      else ++NumBadHO12;
+//    }
+//  else if (subdet==HcalForward)
+//    {
+//      ++NumBadHF;
+//      if (depth==1 && (abs(ieta)==33 || abs(ieta)==34))
+//	++NumBadHFLUMI;
+//      else if (depth==2 && (abs(ieta)==35 || abs(ieta)==36))
+//	++NumBadHFLUMI;
+//    }
+}
+
+void HcalRawDataMonitor::mapDCCproblem(int dcc) {
+  int myeta   = 0;
+  int myphi   =-1;
+  int mydepth = 0;
+  HcalDetId HDI;
+  //Light up all affected cells.
+  for (int i=hashup(dcc); 
+       i<hashup(dcc)+(NUMSPIGS*HTRCHANMAX); 
+       i++) {
+    HDI = hashedHcalDetId_[i];
+    if (HDI==HcalDetId::Undefined) 
+      continue;
+    mydepth = HDI.depth();
+    myphi   = HDI.iphi();
+    myeta = CalcEtaBin(HDI.subdet(),
+		       HDI.ieta(),
+		       mydepth);
+    //Protect against indexing off array
+    if (myeta>=0 && myeta<85 &&
+	(myphi-1)>=0 && (myphi-1)<72 &&
+	(mydepth-1)>=0 && (mydepth-1)<4){
+      problemfound[myeta][myphi-1][mydepth-1] = true;
+      if (debug_>0)
+	std::cout<<" mapDCCproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
+    }
+  }
+}
+void HcalRawDataMonitor::mapHTRproblem(int dcc, int spigot) {
+  int myeta = 0;
+  int myphi   =-1;
+  int mydepth = 0;
+  HcalDetId HDI;
+  //Light up all affected cells.
+  for (int i=hashup(dcc,spigot); 
+       i<hashup(dcc,spigot)+(HTRCHANMAX); //nice, linear hash....
+       i++) {
+    HDI = hashedHcalDetId_[i];
+    if (HDI==HcalDetId::Undefined) {
+      continue;
+    }
+    mydepth = HDI.depth();
+    myphi   = HDI.iphi();
+    myeta = CalcEtaBin(HDI.subdet(),
+		       HDI.ieta(),
+		       mydepth);
+    //Protect against indexing off array
+    if (myeta>=0 && myeta<85 &&
+	(myphi-1)>=0 && (myphi-1)<72 &&
+	(mydepth-1)>=0 && (mydepth-1)<4){
+      problemfound[myeta][myphi-1][mydepth-1] = true;
+      if (debug_>0)
+	std::cout<<" mapDCCproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
+    }
+
+  }
+}   // void HcalRawDataMonitor::mapHTRproblem(...)
+
+void HcalRawDataMonitor::mapChannproblem(int dcc, int spigot, int htrchan) {
+  int myeta = 0;
+  int myphi   =-1;
+  int mydepth = 0;
+  HcalDetId HDI;
+  //Light up the affected cell.
+  int i=hashup(dcc,spigot,htrchan); 
+  HDI = HashToHDI(i);
+  if (HDI==HcalDetId::Undefined) {
+    return; // Do nothing at all, instead.
+  } 
+  mydepth = HDI.depth();
+  myphi   = HDI.iphi();
+  myeta = CalcEtaBin(HDI.subdet(),
+		     HDI.ieta(),
+		     mydepth);
+  //Protect against indexing off array
+  if (myeta>=0 && myeta<85 &&
+      (myphi-1)>=0 && (myphi-1)<72 &&
+      (mydepth-1)>=0 && (mydepth-1)<4){
+    problemfound[myeta][myphi-1][mydepth-1] = true;
+    if (debug_>0)
+      std::cout<<" mapDCCproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
+  }
+}   // void HcalRawDataMonitor::mapChannproblem(...)
+
 
 DEFINE_FWK_MODULE(HcalRawDataMonitor);
 
