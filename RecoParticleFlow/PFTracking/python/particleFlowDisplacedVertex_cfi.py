@@ -5,7 +5,7 @@ particleFlowDisplacedVertex = cms.EDProducer("PFDisplacedVertexProducer",
     vertexCandidatesLabel = cms.InputTag("particleFlowDisplacedVertexCandidate"),
 
     # verbosity 
-    verbose = cms.untracked.bool(True),
+    verbose = cms.untracked.bool(False),
                                   
     # Debug flag
     debug = cms.untracked.bool(False),
