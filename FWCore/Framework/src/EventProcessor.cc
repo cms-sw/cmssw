@@ -1061,11 +1061,25 @@ namespace edm {
     for(; childIndex < kMaxChildren; ++childIndex) {
       pid_t value = fork();
       if(value == 0) {
+        // this is the child process, redirect stdout and stderr to a log file
+        fflush(stdout);
+        fflush(stderr);
+        std::stringstream stout;
+        stout << "redirectout_"<<getpgrp()<<"_"<<childIndex<<".log";
+        if (0 == freopen(stout.str().c_str(), "w", stdout)) {
+          std::cerr << "Error during freopen of child process " 
+          << childIndex << std::endl;
+        }
+        if (dup2(fileno(stdout), fileno(stderr)) < 0) {
+          std::cerr << "Error during dup2 of child process" 
+          << childIndex << std::endl;
+        }
+        
         std::cout << "I am child " << childIndex << " with pgid " << getpgrp() << std::endl;
         break;
       }
       if(value < 0) {
-        std::cout << "failed to create a child" << std::endl;
+        std::cerr << "failed to create a child" << std::endl;
         exit(-1);
       }
       childrenIds.push_back(value);
