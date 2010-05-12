@@ -56,13 +56,13 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
   //  TauDiscriminatorCuts_ = iConfig.getUntrackedParameter<std::vector<double> > ("TauDiscriminatorCuts");
 
   WeightValueMapProducerType_ = ( iConfig.exists("WeightProducerType") ) ? 
-    iConfig.getParameter<edm::ParameterSet>("WeightProducerType") : edm::ParameterSet();
+    iConfig.getParameter< std::vector<std::string> >("WeightProducerType") : std::vector<std::string>();
 
   WeightValueMapType_ = ( iConfig.exists("WeightValueMapType") ) ? 
-    iConfig.getParameter<edm::ParameterSet>("WeightValueMapType") : edm::ParameterSet();
+    iConfig.getParameter< std::vector<std::string> >("WeightValueMapType") : std::vector<std::string>();
 
   WeightValueMapDiscriType_ = ( iConfig.exists("WeightDiscriType") ) ? 
-    iConfig.getParameter<edm::ParameterSet>("WeightDiscriType") : edm::ParameterSet();
+    iConfig.getParameter< std::vector<std::string> >("WeightDiscriType") : std::vector<std::string>();
 
 
   // Get the discriminators and their cuts
@@ -151,24 +151,6 @@ void TauTagValidation::beginJob()
     }
   }
 
-  //Getting the names of value maps we want to use
-  /*
-  edm::ParameterSet ValueMapProd = WeightValueMapSource_.getParameter<edm::ParameterSet>("WeightProducerType");
-  edm::ParameterSet ValueMapType = WeightValueMapSource_.getParameter<edm::ParameterSet>("WeightValueMapType");
-  edm::ParameterSet ValueDiscri = WeightValueMapSource_.getParameter<edm::ParameterSet>("WeightDiscriType");
-  */
-
-  for(size_t iPType = 0; iPType != WeightValueMapProducerType_.getParameterNamesForType<string>().size(); iPType++){
-    PTypes.push_back(WeightValueMapProducerType_.getParameter<string>((WeightValueMapProducerType_.getParameterNamesForType<string>())[iPType]));
-  }
-
-  for(size_t iVMType = 0; iVMType != WeightValueMapType_.getParameterNamesForType<string>().size(); iVMType++){
-    VMTypes.push_back(WeightValueMapType_.getParameter<string>((WeightValueMapType_.getParameterNamesForType<string>())[iVMType]));
-  }
-
-  for(size_t iDType = 0; iDType != WeightValueMapDiscriType_.getParameterNamesForType<string>().size(); iDType++){
-    DTypes.push_back(WeightValueMapDiscriType_.getParameter<string>((WeightValueMapDiscriType_.getParameterNamesForType<string>())[iDType]));
-  }
 
   if(dbeTau) {
 
@@ -232,7 +214,7 @@ void TauTagValidation::beginJob()
     jetwidthTauVisibleMap.insert( std::make_pair(TauProducer_+"Matched" ,jetwidthTemp));  
 
 
-      for(std::vector<string>::iterator iDTag = DTypes.begin(); iDTag != DTypes.end(); iDTag++){
+      for(std::vector<string>::iterator iDTag = WeightValueMapDiscriType_.begin(); iDTag != WeightValueMapDiscriType_.end(); iDTag++){
 
 	dbeTau->setCurrentFolder("RecoTauV/"+ TauProducer_ + extensionName_ + "_Identified"+(*iDTag));
 	
@@ -251,7 +233,7 @@ void TauTagValidation::beginJob()
 	jetwidthTauVisibleMap.insert( std::make_pair(TauProducer_+"Identified"+(*iDTag) ,jetwidthTemp)); 
 	
 
-	for(std::vector<string>::iterator iVMTag = VMTypes.begin(); iVMTag != VMTypes.end(); iVMTag++){
+	for(std::vector<string>::iterator iVMTag = WeightValueMapType_.begin(); iVMTag != WeightValueMapType_.end(); iVMTag++){
 	  
 	  dbeTau->setCurrentFolder("RecoTauV/"+ TauProducer_ + extensionName_ + "_Weighted"+(*iDTag)+(*iVMTag));
 	  
@@ -543,8 +525,8 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 	
 	//Loop for using of multiple efficiency-fakerate tables
-	for(std::vector<string>::iterator iPTag = PTypes.begin(); iPTag != PTypes.end(); iPTag++){
-	  for(std::vector<string>::iterator iDTag = DTypes.begin(); iDTag != DTypes.end(); iDTag++){
+	for(std::vector<string>::iterator iPTag = WeightValueMapProducerType_.begin(); iPTag != WeightValueMapProducerType_.end(); iPTag++){
+	  for(std::vector<string>::iterator iDTag = WeightValueMapDiscriType_.begin(); iDTag != WeightValueMapDiscriType_.end(); iDTag++){
 	  
 	      bool FillOK = false;
 
@@ -619,15 +601,12 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		jetwidthTauVisibleMap.find(  TauProducer_+"Identified"+(*iDTag))->second->Fill(jetWidth);
 	      }
 
-	      for(std::vector<string>::iterator iVMTag = VMTypes.begin(); iVMTag != VMTypes.end(); iVMTag++){
+	      for(std::vector<string>::iterator iVMTag = WeightValueMapType_.begin(); iVMTag != WeightValueMapType_.end(); iVMTag++){
 
-		string EffORFr; 
-		if((eventType_ == "QCD") | (eventType_ == "RealData"))EffORFr = "fr";
-		if(eventType_ == "ZTT")EffORFr = "eff";
-
-		string ExtraTag = "";
-		if((*iVMTag) == "MuEnrichedQCD")ExtraTag = "Associator";
-		if((*iVMTag) == "ZTT")	ExtraTag = "EffSimAssociator";
+		string EffORFr = ""; string ExtraTag = "";
+		if((*iVMTag) == "DiJetHighPt" || (*iVMTag) == "DiJetSecondPt" ||(*iVMTag) == "WJets") EffORFr = "fr";
+		if((*iVMTag) == "MuEnrichedQCD"){ExtraTag = "Associator"; EffORFr = "fr";}
+		if((*iVMTag) == "ZTT"){ExtraTag = "EffSimAssociator"; EffORFr = "eff";}
 
 		edm::InputTag valuemap;
 		valuemap = edm::InputTag((*iPTag)+(*iVMTag)+ExtraTag,EffORFr+(*iDTag)+(*iVMTag)+"sim");

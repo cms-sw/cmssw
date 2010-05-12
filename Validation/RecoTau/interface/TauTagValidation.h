@@ -93,15 +93,11 @@ private:
   std::string TauProducer_;
 
   // To get the value maps of interest
-  edm::ParameterSet WeightValueMapProducerType_;
-  edm::ParameterSet WeightValueMapType_;
-  edm::ParameterSet WeightValueMapDiscriType_;
+  std::vector<std::string> WeightValueMapProducerType_;
+  std::vector<std::string> WeightValueMapType_;
+  std::vector<std::string> WeightValueMapDiscriType_;
 
   std::string eventType_;
-
-  std::vector<std::string> PTypes;
-  std::vector<std::string> VMTypes;
-  std::vector<std::string> DTypes;
 
   // std::vector<std::string> TauProducerDiscriminators_; 
   // std::vector<double> TauDiscriminatorCuts_;

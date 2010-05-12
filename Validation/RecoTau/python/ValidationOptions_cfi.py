@@ -16,7 +16,7 @@ options = VarParsing.VarParsing ()
 allowedOptions = {}
 
 options.register( 'maxEvents',
-                   10000,
+                   100,
                    VarParsing.VarParsing.multiplicity.singleton,
                    VarParsing.VarParsing.varType.int,
                    "Specify events to run."
