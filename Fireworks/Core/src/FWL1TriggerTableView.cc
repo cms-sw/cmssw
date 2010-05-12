@@ -103,8 +103,8 @@ void FWL1TriggerTableView::dataChanged(void)
 	 try
 	 {
 	    // FIXME: Replace magic strings with configurable ones
-	    triggerMenuLite.getByLabel(event->getRun(), "l1GtTriggerMenuLite", "", "HLT");
-	    triggerRecord.getByLabel(*event, "gtDigis", "", "HLT");
+	    triggerMenuLite.getByLabel(event->getRun(), "l1GtTriggerMenuLite", "", "");
+	    triggerRecord.getByLabel(*event, "gtDigis", "", "");
 	 }
 	 catch(cms::Exception&)
 	 {
