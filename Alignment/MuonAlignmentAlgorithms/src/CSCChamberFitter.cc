@@ -304,8 +304,8 @@ bool CSCChamberFitter::fit(std::vector<CSCAlignmentCorrections*> &corrections) c
       modename.push_back(m_alignables[j]);
       modeid.push_back(alignableId(m_alignables[j]));
     }
-      
-    correction->insertMode(coefficient, modename, modeid, sqrt(diagonalized[i][i]));
+
+    correction->insertMode(coefficient, modename, modeid, sqrt(2. * diagonalized[i][i]));
   }
 
   for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
@@ -320,8 +320,6 @@ bool CSCChamberFitter::fit(std::vector<CSCAlignmentCorrections*> &corrections) c
 }
 
 void CSCChamberFitter::radiusCorrection(AlignableNavigator *alignableNavigator, AlignmentParameterStore *alignmentParameterStore, bool combineME11) const {
-   std::cout << "Radius corrections for " << m_name << std::endl;
-
    double sum_phipos_residuals = 0.;
    double num_valid = 0.;
    double sum_radius = 0.;
@@ -344,8 +342,6 @@ void CSCChamberFitter::radiusCorrection(AlignableNavigator *alignableNavigator, 
    double average_radius = sum_radius / num_total;
 
    double radial_correction = average_phi_residual * average_radius * num_total / (2.*M_PI);
-
-   std::cout << "average_phi_residual * average_radius * num_total / (2.*M_PI) = " << average_phi_residual << " * " << average_radius << " * " << num_total << " / (2.*M_PI) = " << radial_correction << std::endl;
 
    for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
       CSCPairResidualsConstraint *residualsConstraint = dynamic_cast<CSCPairResidualsConstraint*>(*constraint);
