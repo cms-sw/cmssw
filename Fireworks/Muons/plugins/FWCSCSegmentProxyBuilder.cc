@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegmentProxyBuilder.cc,v 1.9 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.10 2010/05/12 10:35:27 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -108,6 +108,6 @@ FWCSCSegmentProxyBuilder::build(const CSCSegment& iData,
                       globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2]);
 }
 
-REGISTER_FWPROXYBUILDER( FWCSCSegmentProxyBuilder, CSCSegment, "CSC Segments", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit | FWViewType::kRhoZBit );
+REGISTER_FWPROXYBUILDER( FWCSCSegmentProxyBuilder, CSCSegment, "CSC-segments", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit | FWViewType::kRhoZBit );
 
 

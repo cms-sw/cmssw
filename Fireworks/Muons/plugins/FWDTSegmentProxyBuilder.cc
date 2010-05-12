@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWDTSegmentProxyBuilder.cc,v 1.5 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWDTSegmentProxyBuilder.cc,v 1.6 2010/05/12 10:35:27 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -86,6 +86,6 @@ FWDTSegmentProxyBuilder::build(const DTRecSegment4D& iData,
 
 }
 
-REGISTER_FWPROXYBUILDER( FWDTSegmentProxyBuilder, DTRecSegment4D, "DT Segments", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER( FWDTSegmentProxyBuilder, DTRecSegment4D, "DT-segments", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
 
 
