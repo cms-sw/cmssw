@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.177 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     annotation = cms.untracked.string('reco_FirstCollisions_MinimumBias_36X nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -228,6 +228,18 @@ process.ALCARECOStreamMuAlOverlaps = cms.OutputModule("PoolOutputModule",
     )
 )
 
+# DQMStream output definition
+process.outputDQMStream = cms.OutputModule("PoolOutputModule",
+    outputCommands = cms.untracked.vstring('drop *',
+                                           'keep *_MEtoEDMConverter_*_*'),
+    fileName = cms.untracked.string('DQMStream.root'),
+    dataset = cms.untracked.PSet(
+         filterName = cms.untracked.string('DQM'),
+         dataTier = cms.untracked.string('DQM')
+    )
+)
+
+
 # Other statements
 process.GlobalTag.globaltag = 'GR_R_36X_V10A::All'
 
@@ -287,9 +299,10 @@ process.ALCARECOStreamHcalCalIsoTrkOutPath = cms.EndPath(process.ALCARECOStreamH
 process.ALCARECOStreamHcalCalDijetsOutPath = cms.EndPath(process.ALCARECOStreamHcalCalDijets)
 process.ALCARECOStreamEcalCalElectronOutPath = cms.EndPath(process.ALCARECOStreamEcalCalElectron)
 process.ALCARECOStreamMuAlOverlapsOutPath = cms.EndPath(process.ALCARECOStreamMuAlOverlaps)
+process.outputDQMStreamOutPath = cms.EndPath(process.outputDQMStream)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOEcalCalElectron,process.pathALCARECOHcalCalIsoTrk,process.pathALCARECOSiStripCalMinBias,process.pathALCARECODtCalib,process.pathALCARECOMuAlOverlaps,process.pathALCARECOTkAlMuonIsolated,process.pathALCARECOTkAlMinBias,process.pathALCARECOSiStripCalZeroBias,process.pathALCARECOHcalCalDijets,process.endjob_step,process.out_step,process.ALCARECOStreamTkAlMinBiasOutPath,process.ALCARECOStreamSiStripCalZeroBiasOutPath,process.ALCARECOStreamTkAlMuonIsolatedOutPath,process.ALCARECOStreamDtCalibOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath,process.ALCARECOStreamSiStripCalMinBiasOutPath,process.ALCARECOStreamHcalCalIsoTrkOutPath,process.ALCARECOStreamHcalCalDijetsOutPath,process.ALCARECOStreamEcalCalElectronOutPath,process.ALCARECOStreamMuAlOverlapsOutPath)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOEcalCalElectron,process.pathALCARECOHcalCalIsoTrk,process.pathALCARECOSiStripCalMinBias,process.pathALCARECODtCalib,process.pathALCARECOMuAlOverlaps,process.pathALCARECOTkAlMuonIsolated,process.pathALCARECOTkAlMinBias,process.pathALCARECOSiStripCalZeroBias,process.pathALCARECOHcalCalDijets,process.endjob_step,process.out_step,process.ALCARECOStreamTkAlMinBiasOutPath,process.ALCARECOStreamSiStripCalZeroBiasOutPath,process.ALCARECOStreamTkAlMuonIsolatedOutPath,process.ALCARECOStreamDtCalibOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath,process.ALCARECOStreamSiStripCalMinBiasOutPath,process.ALCARECOStreamHcalCalIsoTrkOutPath,process.ALCARECOStreamHcalCalDijetsOutPath,process.ALCARECOStreamEcalCalElectronOutPath,process.ALCARECOStreamMuAlOverlapsOutPath,process.outputDQMStreamOutPath)
 
 
 # Automatic addition of the customisation function

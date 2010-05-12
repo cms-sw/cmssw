@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.177 $'),
+    version = cms.untracked.string('$Revision: 1.10 $'),
     annotation = cms.untracked.string('reco_FirstCollisions_36X nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -49,6 +49,17 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 # Additional output definition
+# DQMStream output definition
+process.outputDQMStream = cms.OutputModule("PoolOutputModule",
+    outputCommands = cms.untracked.vstring('drop *',
+                                           'keep *_MEtoEDMConverter_*_*'),
+    fileName = cms.untracked.string('DQMStream.root'),
+    dataset = cms.untracked.PSet(
+         filterName = cms.untracked.string('DQM'),
+         dataTier = cms.untracked.string('DQM')
+         )
+)
+
 
 # Other statements
 process.GlobalTag.globaltag = 'GR_R_36X_V10A::All'
@@ -60,9 +71,10 @@ process.reconstruction_step = cms.Path(process.reconstruction)
 process.dqmoffline_step = cms.Path(process.DQMOffline)
 process.endjob_step = cms.Path(process.endOfProcess)
 process.out_step = cms.EndPath(process.output)
+process.outputDQMStreamOutPath = cms.EndPath(process.outputDQMStream)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.endjob_step,process.out_step)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.endjob_step,process.out_step,process.outputDQMStreamOutPath)
 
 
 # Automatic addition of the customisation function

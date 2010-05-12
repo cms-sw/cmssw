@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.177 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('reco_FirstCollisions_ZeroBias_36X nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -65,6 +65,16 @@ process.ALCARECOStreamSiStripCalZeroBias = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('SiStripCalZeroBias'),
         dataTier = cms.untracked.string('ALCARECO')
     )
+)
+# DQMStream output definition
+process.outputDQMStream = cms.OutputModule("PoolOutputModule",
+    outputCommands = cms.untracked.vstring('drop *',
+                                           'keep *_MEtoEDMConverter_*_*'),
+    fileName = cms.untracked.string('DQMStream.root'),
+    dataset = cms.untracked.PSet(
+         filterName = cms.untracked.string('DQM'),
+         dataTier = cms.untracked.string('DQM')
+         )
 )
 
 # Other statements
@@ -117,9 +127,10 @@ process.pathALCARECOTkAlJpsiMuMu = cms.Path(process.seqALCARECOTkAlJpsiMuMu*proc
 process.endjob_step = cms.Path(process.endOfProcess)
 process.out_step = cms.EndPath(process.output)
 process.ALCARECOStreamSiStripCalZeroBiasOutPath = cms.EndPath(process.ALCARECOStreamSiStripCalZeroBias)
+process.outputDQMStreamOutPath = cms.EndPath(process.outputDQMStream)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOSiStripCalZeroBias,process.endjob_step,process.out_step,process.ALCARECOStreamSiStripCalZeroBiasOutPath)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOSiStripCalZeroBias,process.endjob_step,process.out_step,process.ALCARECOStreamSiStripCalZeroBiasOutPath,process.outputDQMStreamOutPath)
 
 
 # Automatic addition of the customisation function
