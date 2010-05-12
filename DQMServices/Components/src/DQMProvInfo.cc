@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/03/31 10:13:07 $
- * $Revision: 1.17 $
+ * $Date: 2010/05/12 17:35:41 $
+ * $Revision: 1.18 $
  * $Author: ameyer $
  *
  */
@@ -76,7 +76,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
 
   dbe_->cd();  
   dbe_->setCurrentFolder(subsystemname_ +"/LhcInfo/");
-  hBeamMode_=dbe_->book1D("beamMode","beamMode",XBINS,0.,XBINS);
+  hBeamMode_=dbe_->book1D("beamMode","beamMode",XBINS,1.,XBINS+1);
   TH1F* h1=hBeamMode_->getTH1F();
   h1->GetYaxis()->Set(22,0.,22.);
   h1->SetMaximum(22.);
@@ -130,18 +130,18 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   hBeamMode_->setBinLabel(21,"nobeam",2);
   hBeamMode_->setBinContent(0.,22.);
   
-  hLhcFill_=dbe_->book1D("lhcFill","LHC Fill Number",XBINS,0.,XBINS);
+  hLhcFill_=dbe_->book1D("lhcFill","LHC Fill Number",XBINS,1.,XBINS+1);
   hLhcFill_->setAxisTitle("Luminosity Section",1);
   hLhcFill_->setAxisTitle("Fill Number",2);
   
-  hMomentum_=dbe_->book1D("momentum","Beam Energy [GeV]",XBINS,0.,XBINS);
+  hMomentum_=dbe_->book1D("momentum","Beam Energy [GeV]",XBINS,1.,XBINS+1);
   hMomentum_->setAxisTitle("Luminosity Section",1);
   hMomentum_->setAxisTitle("Beam Energy",2);
 
-  hIntensity1_=dbe_->book1D("intensity1","Intensity Beam 1",XBINS,0.,XBINS);
+  hIntensity1_=dbe_->book1D("intensity1","Intensity Beam 1",XBINS,1.,XBINS+1);
   hIntensity1_->setAxisTitle("Luminosity Section",1);
   hIntensity1_->setAxisTitle("Intensity Beam 1",2);
-  hIntensity2_=dbe_->book1D("intensity2","Intensity Beam 2",XBINS,0.,XBINS);
+  hIntensity2_=dbe_->book1D("intensity2","Intensity Beam 2",XBINS,1.,XBINS+1);
   hIntensity2_->setAxisTitle("Luminosity Section",1);
   hIntensity2_->setAxisTitle("Intensity Beam 2",2);
 
