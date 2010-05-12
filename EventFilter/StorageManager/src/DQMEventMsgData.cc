@@ -1,4 +1,4 @@
-// $Id: DQMEventMsgData.cc,v 1.7 2010/05/03 09:31:18 mommsen Exp $
+// $Id: DQMEventMsgData.cc,v 1.8 2010/05/11 18:01:18 mommsen Exp $
 /// @file: DQMEventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -199,6 +199,19 @@ namespace stor
 
       _headerFieldsCached = true;
 
+      #ifdef STOR_DEBUG_WRONG_ADLER
+      double r = rand()/static_cast<double>(RAND_MAX);
+      if (r < 0.01)
+      {
+        std::cout << "Simulating corrupt Adler calculation" << std::endl;
+        _headerSize += 3;
+      }
+      else if (r < 0.02)
+      {
+        std::cout << "Simulating corrupt Adler entry" << std::endl;
+        _adler32 += r*10000;
+      }
+      #endif // STOR_DEBUG_WRONG_ADLER
     }
 
   } // namespace detail

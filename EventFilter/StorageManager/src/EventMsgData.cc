@@ -1,9 +1,11 @@
-// $Id: EventMsgData.cc,v 1.4 2010/04/30 14:24:18 mommsen Exp $
+// $Id: EventMsgData.cc,v 1.5 2010/05/11 18:01:19 mommsen Exp $
 /// @file: EventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
 
 #include "IOPool/Streamer/interface/EventMessage.h"
+
+#include <stdlib.h>
 
 namespace stor
 {
@@ -248,6 +250,20 @@ namespace stor
       _adler32 = msgView->adler32_chksum();
 
       _headerFieldsCached = true;
+
+      #ifdef STOR_DEBUG_WRONG_ADLER
+      double r = rand()/static_cast<double>(RAND_MAX);
+      if (r < 0.01)
+      {
+        std::cout << "Simulating corrupt Adler calculation" << std::endl;
+        _headerSize += 3;
+      }
+      else if (r < 0.02)
+      {
+        std::cout << "Simulating corrupt Adler entry" << std::endl;
+        _adler32 += r*10000;
+      }
+      #endif // STOR_DEBUG_WRONG_ADLER
     }
 
   } // namespace detail

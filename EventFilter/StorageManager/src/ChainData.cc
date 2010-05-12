@@ -1,4 +1,4 @@
-// $Id: ChainData.cc,v 1.9 2010/05/11 18:01:18 mommsen Exp $
+// $Id: ChainData.cc,v 1.10 2010/05/11 19:10:41 mommsen Exp $
 /// @file: ChainData.cc
 
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
@@ -18,6 +18,8 @@
 
 #include "interface/shared/i2oXFunctionCodes.h"
 #include "interface/shared/version.h"
+
+#include <stdlib.h>
 
 
 using namespace stor;
@@ -45,7 +47,21 @@ detail::ChainData::ChainData(const unsigned short i2oMessageCode,
   _hltTid(0),
   _fuProcessId(0),
   _fuGuid(0)
-{}
+{
+  #ifdef STOR_DEBUG_CORRUPT_MESSAGES
+  double r = rand()/static_cast<double>(RAND_MAX);
+  if (r < 0.001)
+  {
+    // std::cout << "Simulating corrupt I2O message" << std::endl;
+    // markCorrupt();
+  }
+  else if (r < 0.02)
+  {
+    std::cout << "Simulating faulty I2O message" << std::endl;
+    markFaulty();
+  }
+  #endif // STOR_DEBUG_CORRUPT_MESSAGES
+}
 
 // A ChainData that has a Reference is in charge of releasing
 // it. Because releasing a Reference can throw an exception, we have
