@@ -4,8 +4,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2010/02/11 00:14:27 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/05/11 03:30:05 $
+ *  $Revision: 1.19 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -143,6 +143,7 @@ class MuonDetLayerMeasurements {
 
   const edm::Event* theEvent;   
 
+  // strings to uniquely identify current process
   std::string theDTCheckName;
   std::string theRPCCheckName;
   std::string theCSCCheckName;

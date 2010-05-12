@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2009/05/18 16:20:36 $
- *  $Revision: 1.29 $
+ *  $Date: 2010/05/11 03:30:05 $
+ *  $Revision: 1.30 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -40,15 +40,17 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
   theCSCEventID(),
   theRPCEventID(),
   theEvent(0){
+  static int procInstance(0);
   std::ostringstream sDT;
-  sDT<<"MuonDetLayerMeasurements::checkDTRecHits::" << this;
+  sDT<<"MuonDetLayerMeasurements::checkDTRecHits::" << procInstance;
   theDTCheckName = sDT.str();
   std::ostringstream sRPC;
-  sRPC<<"MuonDetLayerMeasurements::checkRPCRecHits::" << this;
+  sRPC<<"MuonDetLayerMeasurements::checkRPCRecHits::" << procInstance;
   theRPCCheckName = sRPC.str();
   std::ostringstream sCSC;
-  sCSC<<"MuonDetLayerMeasurements::checkCSCRecHits::" << this;
+  sCSC<<"MuonDetLayerMeasurements::checkCSCRecHits::" << procInstance;
   theCSCCheckName = sCSC.str();
+  procInstance++;
 }
 
 MuonDetLayerMeasurements::~MuonDetLayerMeasurements(){}
