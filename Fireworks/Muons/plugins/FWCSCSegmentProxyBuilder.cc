@@ -8,18 +8,22 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegmentProxyBuilder.cc,v 1.8 2010/05/03 15:47:42 amraktad Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.9 2010/05/06 18:03:08 amraktad Exp $
 //
 
 #include "TEveStraightLineSet.h"
+#include "TEvePointSet.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "Fireworks/Muons/interface/CSCUtils.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
+#include "Fireworks/Muons/interface/CSCUtils.h"
+#include "Fireworks/Muons/interface/SegmentUtils.h"
+
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 class FWCSCSegmentProxyBuilder : public FWSimpleProxyBuilderTemplate<CSCSegment>
 {
@@ -45,7 +49,7 @@ FWCSCSegmentProxyBuilder::build(const CSCSegment& iData,
   if ( ! matrix ) 
   {
     fwLog(fwlog::kError) << " failed to get geometry of CSC chamber with detid: " 
-             << iData.cscDetId().rawId() <<std::endl;
+                         << iData.cscDetId().rawId() <<std::endl;
     return;
   }
  
@@ -63,35 +67,39 @@ FWCSCSegmentProxyBuilder::build(const CSCSegment& iData,
   segmentSet->SetLineWidth(3);
   setupAddElement(segmentSet, &oItemHolder);
   
-  double localSegmentInnerPoint[3];
-  double localSegmentOuterPoint[3];
+  double localPosition[3] = 
+  {
+    iData.localPosition().x(), iData.localPosition().y(), thickness*0.5
+  };
   
-  double globalSegmentInnerPoint[3];
-  double globalSegmentOuterPoint[3];
-
-  double localPositionX = iData.localPosition().x();
-  double localPositionY = iData.localPosition().y();
-  double localPositionZ = thickness*0.5;
-
-  double localDirectionX = iData.localDirection().x();
-  double localDirectionY = iData.localDirection().y();
-  double localDirectionZ = iData.localDirection().z();
-
-  localSegmentOuterPoint[0] = localPositionX + localDirectionX*(localPositionZ/localDirectionZ);
-  localSegmentOuterPoint[1] = localPositionY + localDirectionY*(localPositionZ/localDirectionZ);
-  localSegmentOuterPoint[2] = localPositionZ;
-
   length *= 0.5;
 
-  if ( fabs(localSegmentOuterPoint[1]) > length )
-    localSegmentOuterPoint[1] = length*(localSegmentOuterPoint[1]/fabs(localSegmentOuterPoint[1]));
+  // If there is a bad recosntruction of the CSC segment one can have positions that
+  // lie outside the chamber. In this case just drawn the position but do not
+  // attempt to draw a line.
 
-  localSegmentInnerPoint[0] = localPositionX - localDirectionX*(localPositionZ/localDirectionZ);
-  localSegmentInnerPoint[1] = localPositionY - localDirectionY*(localPositionZ/localDirectionZ);
-  localSegmentInnerPoint[2] = -localPositionZ;
+  if ( fabs(localPosition[1]) > length )
+  {
+    fwLog(fwlog::kWarning) <<" position of CSC segment "<< iIndex <<" lies outside the chamber; station: "
+                           << iData.cscDetId().station() <<"  ring: "<< iData.cscDetId().ring()
+                           << std::endl;  
+    return;
+  }
 
-  if ( fabs(localSegmentInnerPoint[1]) > length )
-    localSegmentInnerPoint[1] = length*(localSegmentInnerPoint[1]/fabs(localSegmentInnerPoint[1]));
+  double localDirection[3] =
+  {
+    iData.localDirection().x(), iData.localDirection().y(), iData.localDirection().z()
+  };
+  
+  double localSegmentInnerPoint[3];
+  double localSegmentOuterPoint[3];
+ 
+  fireworks::createSegment(MuonSubdetId::CSC, false, length,
+                           localPosition, localDirection,
+                           localSegmentInnerPoint, localSegmentOuterPoint);
+
+  double globalSegmentInnerPoint[3];
+  double globalSegmentOuterPoint[3];
 
   matrix->LocalToMaster(localSegmentInnerPoint,  globalSegmentInnerPoint);
   matrix->LocalToMaster(localSegmentOuterPoint,  globalSegmentOuterPoint);

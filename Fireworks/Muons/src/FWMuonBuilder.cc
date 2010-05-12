@@ -2,10 +2,9 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.22 2010/04/29 14:25:51 amraktad Exp $
+// $Id: FWMuonBuilder.cc,v 1.24 2010/04/30 12:29:29 amraktad Exp $
 //
 
-// system include files
 #include "TEveTrackPropagator.h"
 #include "TEveVSDStructs.h"
 #include "TEveManager.h"
@@ -13,20 +12,23 @@
 #include "TEveStraightLineSet.h"
 #include "TEveGeoNode.h"
 
-// user include files
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/fwLog.h"
+
 #include "Fireworks/Candidates/interface/CandidateUtils.h"
+
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Tracks/interface/estimate_field.h"
+
 #include "Fireworks/Muons/interface/FWMuonBuilder.h"
+#include "Fireworks/Muons/interface/SegmentUtils.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-
 
 namespace  {
 std::vector<TEveVector> getRecoTrajectoryPoints( const reco::Muon* muon,
@@ -64,73 +66,122 @@ void addMatchInformation( const reco::Muon* muon,
                           TEveElement* parentList,
                           bool showEndcap)
 {
-   std::set<unsigned int> ids;
-   const DetIdToMatrix* geom = pb->context().getGeom();
-   const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
-   //need to use auto_ptr since the segmentSet may not be passed to muonList
-   std::auto_ptr<TEveStraightLineSet> segmentSet(new TEveStraightLineSet);
-   segmentSet->SetLineWidth(4);
-   std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin();
-   for ( ; chamber != matches.end(); ++chamber )
-   {
-      DetId id = chamber->id;
-      if ( ids.insert(id.rawId()).second &&  // ensure that we add same chamber only once
-           ( id.subdetId() != MuonSubdetId::CSC || showEndcap ) ){
-         TEveGeoShape* shape = geom->getShape( chamber->id.rawId() );
-         if(0!=shape) {
-            shape->RefMainTrans().Scale(0.999, 0.999, 0.999);
-            shape->SetMainTransparency(65);
-            pb->setupAddElement(shape, parentList);
-         }
+  std::set<unsigned int> ids;
+  const DetIdToMatrix* geom = pb->context().getGeom();
+  
+  const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
+   
+  //need to use auto_ptr since the segmentSet may not be passed to muonList
+  std::auto_ptr<TEveStraightLineSet> segmentSet(new TEveStraightLineSet);
+  segmentSet->SetLineWidth(4);
+
+  for ( std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin(), 
+                                                        chambersEnd = matches.end(); 
+        chamber != chambersEnd; ++chamber )
+  {
+    DetId id = chamber->id;
+
+    if ( ids.insert(id.rawId()).second &&  // ensure that we add same chamber only once
+         ( chamber->detector() != MuonSubdetId::CSC || showEndcap ) )
+    {
+      TEveGeoShape* shape = geom->getShape(id.rawId());
+   
+      if ( shape ) 
+      {
+        shape->RefMainTrans().Scale(0.999, 0.999, 0.999);
+        shape->SetMainTransparency(65);
+        pb->setupAddElement(shape, parentList);
       }
-      const TGeoHMatrix* matrix = geom->getMatrix( chamber->id.rawId() );
-      if( matrix ) {
-         // make muon segment 20 cm long along local z-axis
-         // add segments
-	 for( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin(),
-							       segmentEnd = chamber->segmentMatches.end();
-	      segment != segmentEnd; ++segment )
-         {
-	    const double segmentLength = 15;
 
-	    Double_t localSegmentInnerPoint[3];
-	    Double_t localSegmentCenterPoint[3];
-	    Double_t localSegmentOuterPoint[3];
-	    Double_t globalSegmentInnerPoint[3];
-	    Double_t globalSegmentCenterPoint[3];
-	    Double_t globalSegmentOuterPoint[3];
-
-	    localSegmentOuterPoint[0] = segment->x + segmentLength*segment->dXdZ;
-	    localSegmentOuterPoint[1] = segment->y + segmentLength*segment->dYdZ;
-	    localSegmentOuterPoint[2] = segmentLength;
-
-	    localSegmentCenterPoint[0] = segment->x;
-	    localSegmentCenterPoint[1] = segment->y;
-	    localSegmentCenterPoint[2] = 0;
-
-	    localSegmentInnerPoint[0] = segment->x - segmentLength*segment->dXdZ;
-	    localSegmentInnerPoint[1] = segment->y - segmentLength*segment->dYdZ;
-	    localSegmentInnerPoint[2] = -segmentLength;
-
-	    matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
-	    matrix->LocalToMaster( localSegmentCenterPoint, globalSegmentCenterPoint );
-	    matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
-
-	    if( globalSegmentInnerPoint[1]*globalSegmentOuterPoint[1] > 0 ) {
-	       segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-				    globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
-	    } else {
-	       if( fabs(globalSegmentInnerPoint[1]) > fabs(globalSegmentOuterPoint[1]) )
-		  segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-				       globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2] );
-	       else
-		  segmentSet->AddLine( globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2],
-				       globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
-	    }
-         }
+      else
+      {
+        fwLog(fwlog::kWarning) 
+          <<"ERROR: failed to get shape of muon chamber with detid: "
+          << id.rawId() <<std::endl;
       }
-   }
-   if ( !matches.empty() ) pb->setupAddElement( segmentSet.release(), parentList );
+    }
+     
+    const TGeoHMatrix* matrix = geom->getMatrix(id.rawId());
+    
+    if ( ! matrix )
+    {
+      fwLog(fwlog::kError) <<" failed to get matrix for muon chamber with detid: "
+                           << id.rawId() <<std::endl;
+      return;
+    }
+    
+    for( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin(),
+                                                          segmentEnd = chamber->segmentMatches.end();
+         segment != segmentEnd; ++segment )
+    {
+      double segmentLength;
+
+      // FIXME: This is not optimal but mitigates the problem of size mis-match with 
+      // separate DT and CSC segments draw by proxy builders.
+      // This will be fixed with consolidation of segment drawing.
+
+      if ( chamber->detector() == MuonSubdetId::DT )
+        segmentLength = 15.0;
+      
+      else if ( chamber->detector() == MuonSubdetId::CSC )
+        segmentLength = 10.0;
+
+      else
+      {
+        fwLog(fwlog::kWarning) <<" MuonSubdetId: "<< chamber->detector() <<std::endl;
+        return;
+      }
+
+      double segmentPosition[3] = 
+      {
+        segment->x, segment->y, 0.0
+      };
+      
+      double segmentDirection[3] = 
+      {
+        segment->dXdZ, segment->dYdZ, 0.0
+      };
+
+      double localSegmentInnerPoint[3];
+      double localSegmentOuterPoint[3];
+      
+      fireworks::createSegment(chamber->detector(), true, segmentLength,
+                               segmentPosition, segmentDirection,
+                               localSegmentInnerPoint, localSegmentOuterPoint);
+                               
+      double localSegmentCenterPoint[3] = 
+      {
+        segment->x, segment->y, 0.0
+      };
+
+      double globalSegmentInnerPoint[3];
+      double globalSegmentCenterPoint[3];
+      double globalSegmentOuterPoint[3];
+      
+      matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
+      matrix->LocalToMaster( localSegmentCenterPoint, globalSegmentCenterPoint );
+      matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
+         
+      if( globalSegmentInnerPoint[1]*globalSegmentOuterPoint[1] > 0 ) 
+      {
+        segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+                             globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+      }         
+
+      else 
+      {
+        if( fabs(globalSegmentInnerPoint[1]) > fabs(globalSegmentOuterPoint[1]) )
+          segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+                               globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2] );
+        else
+          segmentSet->AddLine( globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2],
+                               globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+      }               
+    } 
+  }
+   
+  if ( !matches.empty() ) 
+    pb->setupAddElement( segmentSet.release(), parentList );
 }
 
 //______________________________________________________________________________
