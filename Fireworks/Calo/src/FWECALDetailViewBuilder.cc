@@ -1,10 +1,8 @@
 // FIXME - needed to set fixed eta-phi limits. Without the
 //         visible area may change widely depending on energy
 //         deposition availability
-#define protected public
-#include "TEveCaloData.h"
-#undef protected
 
+#include "TEveCaloData.h"
 #include "TEveViewer.h"
 #include "TEveScene.h"
 #include "TEveManager.h"
@@ -59,7 +57,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
       catch (...)
       {
          fwLog(fwlog::kWarning) <<"no barrel ECAL rechits are available, "
-         "showing crystal location but not energy" << std::endl;
+            "showing crystal location but not energy" << std::endl;
       }
    } else {
       try {
@@ -70,7 +68,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
       catch (...)
       {
          fwLog(fwlog::kWarning) <<"no endcap ECAL rechits are available, "
-         "showing crystal location but not energy" << std::endl;
+            "showing crystal location but not energy" << std::endl;
       }
    }
      
@@ -83,35 +81,22 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    }
 
    if( handle_hits.isValid() ) 
-   // fill
+      // fill
       fillData( hits, data );
 
    // axis
    Double_t etaMin(0), etaMax(0), phiMin(0), phiMax(0);
-   if (fabs(m_eta) < 1.5) {
-      // setting requested view size
-      // data driven limits may lead to
-      // very asymmetric and hard to use regions
-      etaMin = m_eta-m_size*0.0172;
-      etaMax = m_eta+m_size*0.0172;
-      phiMin = m_phi-m_size*0.0172;
-      phiMax = m_phi+m_size*0.0172;
-      data->fEtaMin = etaMin;
-      data->fEtaMax = etaMax;
-      data->fPhiMin = phiMin;
-      data->fPhiMax = phiMax;
-   }else{
-      // it's hard to define properly visible area in X-Y,
-      // so we rely on auto limits
-      data->GetEtaLimits(etaMin, etaMax);
-      data->GetPhiLimits(phiMin, phiMax);
-      Double_t bl, bh, bw;
-      Int_t bn, n = 20;
-      THLimitsFinder::Optimize(etaMin, etaMax, n, bl, bh, bn, bw);
-      data->SetEtaBins( new TAxis(bn, bl, bh));
-      THLimitsFinder::Optimize(phiMin, phiMax, n, bl, bh, bn, bw);
-      data->SetPhiBins( new TAxis(bn, bl, bh));
-   }
+   // it's hard to define properly visible area in X-Y,
+   // so we rely on auto limits
+   data->GetEtaLimits(etaMin, etaMax);
+   data->GetPhiLimits(phiMin, phiMax);
+   Double_t bl, bh, bw;
+   Int_t bn, n = 20;
+   THLimitsFinder::Optimize(etaMin, etaMax, n, bl, bh, bn, bw);
+   data->SetEtaBins( new TAxis(bn, bl, bh));
+   THLimitsFinder::Optimize(phiMin, phiMax, n, bl, bh, bn, bw);
+   data->SetPhiBins( new TAxis(bn, bl, bh));
+
    // make tower grid
    std::vector<double> etaBinsWithinLimits;
    etaBinsWithinLimits.push_back(etaMin);
@@ -241,8 +226,10 @@ void
 FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
 				   TEveCaloDataVec *data )
 {
+   const float barrelCR = m_size*0.0172; // barrel cell range
+
    // loop on all the detids
-  for( EcalRecHitCollection::const_iterator k = hits->begin(), kEnd = hits->end();
+   for( EcalRecHitCollection::const_iterator k = hits->begin(), kEnd = hits->end();
         k != kEnd; ++k ) {
       const TGeoHMatrix *matrix = m_geom->getMatrix( k->id().rawId() );
       if( matrix == 0 ) {
@@ -273,9 +260,10 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
          if (v.Phi() < m_phi - M_PI) phi += 2 * M_PI;
 
          // check if the hit is in the window to be drawn
-         if (!(fabs(v.Eta() - m_eta) < (m_size*0.0172)
-               && fabs(phi - m_phi) < (m_size*0.0172))) continue;
+         if (!(fabs(v.Eta() - m_eta) < barrelCR
+               && fabs(phi - m_phi) < barrelCR)) continue;
 
+         double minEta(10), maxEta(-10), minPhi(4), maxPhi(-4);
          if ( points.size() == 8 ) {
             // calorimeter crystalls have slightly non-symetrical form in eta-phi projection
             // so if we simply get the largest eta and phi, cells will overlap
@@ -283,27 +271,32 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
             // we also should use only points from the inner face of the crystal, since
             // non-projecting direction of crystals leads to large shift in eta on outter
             // face.
-            double minEta(10), maxEta(-10), minPhi(4), maxPhi(-4);
-            for (unsigned int i=0; i<points.size(); ++i) {
+            for (unsigned int i=0; i<points.size(); ++i)
+            {
+               if ( points[i].Perp() > 135 ) continue;
+
                double eta = points[i].Eta();
                double phi = points[i].Phi();
-               if ( points[i].Perp() > 135 ) continue;
-               if ( minEta - eta > 0.01) minEta = eta;
-               if ( eta - minEta > 0 && eta - minEta < 0.01 ) minEta = eta;
-               if ( eta - maxEta > 0.01) maxEta = eta;
-               if ( maxEta - eta > 0 && maxEta - eta < 0.01 ) maxEta = eta;
-               if ( minPhi - phi > 0.01) minPhi = phi;
-               if ( phi - minPhi > 0 && phi - minPhi < 0.01 ) minPhi = phi;
-               if ( phi - maxPhi > 0.01) maxPhi = phi;
-               if ( maxPhi - phi > 0 && maxPhi - phi < 0.01 ) maxPhi = phi;
+             
+               minEta = TMath::Min(minEta, eta);
+               maxEta = TMath::Max(maxEta, eta);
+               minPhi = TMath::Min(minPhi, phi);
+               maxPhi = TMath::Max(maxPhi, phi);
             }
-            data->AddTower(minEta, maxEta, minPhi, maxPhi);
-         } else {
-            data->AddTower(v.Eta() - 0.0172 / 2, v.Eta() + 0.0172 / 2,
-                           phi - 0.0172 / 2, phi + 0.0172 / 2);
          }
-         data->FillSlice(slice, size);
-
+         else 
+         {
+            minEta = v.Eta() - 0.0172 / 2;
+            maxEta = v.Eta() - 0.0172 / 2;
+            minPhi = phi     + 0.0172 / 2;
+            maxPhi = phi     + 0.0172 / 2;
+         }
+         if (minPhi >= (m_phi-barrelCR) && maxPhi <= (m_phi+barrelCR) &&
+             minEta >= (m_eta-barrelCR) && maxEta <= (m_eta+barrelCR))
+         {
+            data->AddTower(minEta, maxEta, minPhi, maxPhi);
+            data->FillSlice(slice, size);
+         }
          // otherwise in the EE
       } else if (k->id().subdetId() == EcalEndcap) {
 

@@ -2,7 +2,7 @@
 //
 // Package:     Electrons
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.49 2010/04/26 13:33:33 yana Exp $
+// $Id: FWElectronDetailView.cc,v 1.50 2010/05/12 12:36:13 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -79,7 +79,6 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
       m_builder->showSuperCluster( *(iElectron->superCluster() ), kYellow );
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
-   m_eveScene->AddElement( lego->GetData() );
    m_eveScene->AddElement( lego );
    
    // add Electron specific details
