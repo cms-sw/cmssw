@@ -181,6 +181,10 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 			  float deta = 9999.;
 			  for( reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu != TheMuons->end() && HaloIsGood ; mu++ )
 			    {
+			      // Don't match with SA-only muons
+			      if( mu->isStandAloneMuon() && !mu->isTrackerMuon() && !mu->isGlobalMuon() )  continue;
+			      
+			      /*
 			      if(!mu->isTrackerMuon())
 				{
 				  if( mu->isStandAloneMuon() )
@@ -194,7 +198,8 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 					continue;
 				    }
 				}
-			      
+			      */
+			    
 			      const std::vector<MuonChamberMatch> chambers = mu->matches();
 			      for(std::vector<MuonChamberMatch>::const_iterator iChamber = chambers.begin();
 				  iChamber != chambers.end() ; iChamber ++ )
@@ -270,7 +275,9 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 		       //Check if there are any collision muons with hits in the vicinity of the digi
 		       for(reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu!= TheMuons->end() && DigiIsGood ; mu++ )
 			 {
-			    if(!mu->isTrackerMuon())
+			   if( !mu->isTrackerMuon() && !mu->isGlobalMuon() && mu->isStandAloneMuon() ) continue;
+			   /*
+			     if(!mu->isTrackerMuon())
 				{
 				  if( mu->isStandAloneMuon() )
 				    {
@@ -282,8 +289,8 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 				      else if ( deta > deta_threshold ) //halo-like
 					continue;
 				    }
-				}
-
+				    }
+			   */
 			  
 			   const std::vector<MuonChamberMatch> chambers = mu->matches();
 			   for(std::vector<MuonChamberMatch>::const_iterator iChamber = chambers.begin();
