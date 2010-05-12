@@ -417,6 +417,7 @@ namespace edm {
     bool                                          alreadyHandlingException_;
     bool                                          forceLooperToEnd_;
     bool                                          looperBeginJobRun_;
+    bool                                          forceESCacheClearOnNewRun_;
 
     int                                           numberOfForkedChildren_;
     unsigned int                                  numberOfSequentialEventsPerChild_;

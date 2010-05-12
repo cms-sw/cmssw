@@ -464,6 +464,7 @@ namespace edm {
     alreadyHandlingException_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
+    forceESCacheClearOnNewRun_(false),
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1) {
     boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
@@ -504,6 +505,7 @@ namespace edm {
     alreadyHandlingException_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
+    forceESCacheClearOnNewRun_(false),
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1) {
     boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
@@ -543,7 +545,9 @@ namespace edm {
     shouldWeStop_(false),
     alreadyHandlingException_(false),
     forceLooperToEnd_(false),
-    looperBeginJobRun_(false) {
+    looperBeginJobRun_(false),
+    forceESCacheClearOnNewRun_(false)
+  {
     init(processDesc, token, legacy);
   }
 
@@ -578,7 +582,9 @@ namespace edm {
     shouldWeStop_(false),
     alreadyHandlingException_(false),
     forceLooperToEnd_(false),
-    looperBeginJobRun_(false) {
+    looperBeginJobRun_(false),
+    forceESCacheClearOnNewRun_(false)
+  {
     if(isPython) {
       boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
       init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
@@ -605,6 +611,7 @@ namespace edm {
     fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
     handleEmptyRuns_ = optionsPset.getUntrackedParameter<bool>("handleEmptyRuns", true);
     handleEmptyLumis_ = optionsPset.getUntrackedParameter<bool>("handleEmptyLumis", true);
+    forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun",false);
     ParameterSet forking = optionsPset.getUntrackedParameter<ParameterSet>("multiProcesses", ParameterSet());
     numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses", 0);
     numberOfSequentialEventsPerChild_ = forking.getUntrackedParameter<unsigned int>("maxSequentialEventsPerChild", 1);
@@ -616,7 +623,6 @@ namespace edm {
                                                 std::make_pair(itPS->getUntrackedParameter<std::string>("type","*"),
                                                                itPS->getUntrackedParameter<std::string>("label","")));
     }
-    
     maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
     maxLumisPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet());
 
@@ -1803,6 +1809,9 @@ namespace edm {
     input_->doBeginRun(runPrincipal);
     IOVSyncValue ts(EventID(runPrincipal.run(), 0, 0),
                     runPrincipal.beginTime());
+    if(forceESCacheClearOnNewRun_){
+      esp_->forceCacheClear();
+    }
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     if(looper_ && looperBeginJobRun_==false) {
       looper_->beginOfJob(es);
