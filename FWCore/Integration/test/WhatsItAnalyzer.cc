@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: WhatsItAnalyzer.cc,v 1.9 2006/10/21 16:44:13 wmtan Exp $
+// $Id: WhatsItAnalyzer.cc,v 1.10 2007/08/08 16:44:49 wmtan Exp $
 //
 //
 
@@ -21,6 +21,7 @@
 // system include files
 #include <memory>
 #include <iostream>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -33,6 +34,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 //
 // class decleration
 //
@@ -48,6 +51,8 @@ class WhatsItAnalyzer : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
+      std::vector<int> expectedValues_;
+      unsigned int index_;
 };
 
 //
@@ -61,7 +66,9 @@ class WhatsItAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-WhatsItAnalyzer::WhatsItAnalyzer(const edm::ParameterSet& /*iConfig*/)
+WhatsItAnalyzer::WhatsItAnalyzer(const edm::ParameterSet& iConfig):
+   expectedValues_(iConfig.getUntrackedParameter<std::vector<int> >("expectedValues",std::vector<int>())),
+   index_(0)
 {
    //now do what ever initialization is needed
 
@@ -90,8 +97,15 @@ WhatsItAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iS
    iSetup.get<GadgetRcd>().get(pSetup);
 
    std::cout <<"WhatsIt "<<pSetup->a<<std::endl;
+   if(!expectedValues_.empty()) {
+      if(expectedValues_.at(index_) != pSetup->a) {
+         throw cms::Exception("TestFail")<<"expected value "<<expectedValues_[index_]
+         <<" but was got "<<pSetup->a;
+      }
+      ++index_;
+   }
+   
 }
-
 }
 using namespace edmtest;
 //define this as a plug-in
