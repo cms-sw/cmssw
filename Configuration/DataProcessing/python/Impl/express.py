@@ -114,7 +114,7 @@ class express(Scenario):
         #//
         
         #add the former top level patches here
-        customiseExpressData(process)
+        customiseExpress(process)
 
         return process
     
