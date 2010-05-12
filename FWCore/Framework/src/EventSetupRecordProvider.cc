@@ -181,6 +181,11 @@ EventSetupRecordProvider::resetProxies()
 {
   cacheReset();
   for_all(providers_, boost::bind(&DataProxyProvider::resetProxies,_1,key_));
+  //some proxies only clear if they were accessed transiently,
+  // since resetProxies resets that flag, calling resetTransients
+  // will force a clear
+  for_all(providers_, boost::bind(&DataProxyProvider::resetProxiesIfTransient,_1,key_)); 
+
 }
 
 
