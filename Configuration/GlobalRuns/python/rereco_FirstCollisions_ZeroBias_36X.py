@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.177 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: reco_FirstCollisions_ZeroBias_36X -s RAW2DIGI,L1Reco,RECO,DQM,ALCA:SiStripCalZeroBias --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --customise Configuration/GlobalRuns/customise_Collision_36X.py --no_exec --python_filename=rereco_FirstCollisions_ZeroBias_36X.py --conditions GR_R_36X_V9::All
+# with command line options: reco_FirstCollisions_ZeroBias_36X -s RAW2DIGI,L1Reco,RECO,DQM,ALCA:SiStripCalZeroBias --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --customise Configuration/GlobalRuns/customise_Collision_36X.py --no_exec --python_filename=rereco_FirstCollisions_ZeroBias_36X.py --conditions GR_R_36X_V10A::All
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('RECO')
@@ -68,7 +68,7 @@ process.ALCARECOStreamSiStripCalZeroBias = cms.OutputModule("PoolOutputModule",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'GR_R_36X_V9::All'
+process.GlobalTag.globaltag = 'GR_R_36X_V10A::All'
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -134,10 +134,10 @@ def customise(process):
     ## TRACKING:
     ## Skip events with HV off
     process.newSeedFromTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
-    process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+    process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=20000
     process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
-    process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 10000
-    process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+    process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 20000
+    process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters= 20000
     process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
     process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
 
