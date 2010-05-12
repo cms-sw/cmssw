@@ -1,7 +1,7 @@
 //
 // Package:     Electrons
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.23 2010/01/14 15:55:14 amraktad Exp $
+// $Id: FWPhotonDetailView.cc,v 1.24 2010/04/26 13:33:33 yana Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
@@ -35,6 +35,8 @@ m_builder(0)
 
 FWPhotonDetailView::~FWPhotonDetailView()
 {
+   m_eveViewer->GetGLViewer()->DeleteOverlayElements(TGLOverlayElement::kUser);
+
    if (m_data) m_data->DecDenyDestroy();
    delete m_builder;
 }

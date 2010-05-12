@@ -3,7 +3,7 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.21 2010/01/14 15:55:14 amraktad Exp $
+// $Id: FWMuonDetailView.cc,v 1.22 2010/05/07 09:03:40 mccauley Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -39,6 +39,7 @@ FWMuonDetailView::FWMuonDetailView():
 
 FWMuonDetailView::~FWMuonDetailView()
 {
+   m_eveViewer->GetGLViewer()->DeleteOverlayElements(TGLOverlayElement::kUser);
    if (m_data) m_data->DecDenyDestroy();
    delete m_builder;
 }

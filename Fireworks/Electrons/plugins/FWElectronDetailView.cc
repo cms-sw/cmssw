@@ -2,7 +2,7 @@
 //
 // Package:     Electrons
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.48 2010/01/14 15:55:14 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.49 2010/04/26 13:33:33 yana Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -15,6 +15,7 @@
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "TGLViewer.h"
+#include "TGLOverlay.h"
 #include "TCanvas.h"
 #include "TEveCaloLegoOverlay.h"
 #include "TRootEmbeddedCanvas.h"
@@ -41,9 +42,11 @@ FWElectronDetailView::FWElectronDetailView() :
 }
 
 FWElectronDetailView::~FWElectronDetailView()
-{
-   if (m_data) m_data->DecDenyDestroy();
+{  
+   m_eveViewer->GetGLViewer()->DeleteOverlayElements(TGLOverlayElement::kUser);
+
    delete m_builder;
+   if (m_data) m_data->DecDenyDestroy();
 }
 
 //
@@ -87,13 +90,15 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
    }
    
    // draw axis at the window corners
+   if (1)
+   {
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
    overlay->SetShowPlane( kFALSE );
    overlay->SetShowPerspective( kFALSE );
    overlay->SetCaloLego( lego );
    overlay->SetShowScales( 1 ); // temporary
    viewerGL()->AddOverlayElement( overlay );
-
+   }
    // set event handler and flip camera to top view at beginning
    viewerGL()->SetCurrentCamera( TGLViewer::kCameraOrthoXOY );
    TEveLegoEventHandler* eh =
