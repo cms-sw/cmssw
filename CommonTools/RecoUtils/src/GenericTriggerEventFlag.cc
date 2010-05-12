@@ -1,5 +1,5 @@
 //
-// $Id: GenericTriggerEventFlag.cc,v 1.1 2010/04/29 21:07:08 vadler Exp $
+// $Id: GenericTriggerEventFlag.cc,v 1.2 2010/04/30 12:29:52 vadler Exp $
 //
 
 
@@ -18,6 +18,7 @@
 /// To be called from the ED module's c'tor
 GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config )
   : watchDB_( 0 )
+  , verbose_( false )
   , gtDBKey_( "" )
   , l1DBKey_( "" )
   , hltDBKey_( "" )
@@ -32,6 +33,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
   // General switch(es)
   if ( config.exists( "andOr" ) ) {
     andOr_ = config.getParameter< bool >( "andOr" );
+    if ( config.exists( "verbose" ) ) verbose_ = config.getParameter< bool >( "verbose" );
   } else {
     on_    = false;
     onDcs_ = false;
@@ -152,7 +154,11 @@ bool GenericTriggerEventFlag::acceptDcs( const edm::Event & event )
   edm::Handle< DcsStatusCollection > dcsStatus;
   event.getByLabel( dcsInputTag_, dcsStatus );
   if ( ! dcsStatus.isValid() ) {
-    edm::LogError( "GenericTriggerEventFlag" ) << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode() << "\" not in event ==> decision: " << errorReplyDcs_;
+    if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode() << "\" not in event ==> decision: " << errorReplyDcs_;
+    return errorReplyDcs_;
+  }
+  if ( ( *dcsStatus ).size() == 0 ) {
+    if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode() << "\" empty ==> decision: " << errorReplyDcs_;
     return errorReplyDcs_;
   }
 
@@ -202,7 +208,7 @@ bool GenericTriggerEventFlag::acceptDcsPartition( const edm::Handle< DcsStatusCo
     case DcsStatus::ESm   :
       break;
     default:
-      edm::LogError( "GenericTriggerEventFlag" ) << "DCS partition number \"" << dcsPartition << "\" does not exist ==> decision: " << errorReplyDcs_;
+      if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "DCS partition number \"" << dcsPartition << "\" does not exist ==> decision: " << errorReplyDcs_;
       return errorReplyDcs_;
   }
 
@@ -223,7 +229,7 @@ bool GenericTriggerEventFlag::acceptGt( const edm::Event & event )
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
   event.getByLabel( gtInputTag_, gtReadoutRecord );
   if ( ! gtReadoutRecord.isValid() ) {
-    edm::LogError( "GenericTriggerEventFlag" ) << "L1GlobalTriggerReadoutRecord product with InputTag \"" << gtInputTag_.encode() << "\" not in event ==> decision: " << errorReplyGt_;
+    if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "L1GlobalTriggerReadoutRecord product with InputTag \"" << gtInputTag_.encode() << "\" not in event ==> decision: " << errorReplyGt_;
     return errorReplyGt_;
   }
 
@@ -248,14 +254,14 @@ bool GenericTriggerEventFlag::acceptGtLogicalExpression( const edm::Handle< L1Gl
 
   // Check empty std::strings
   if ( gtLogicalExpression.empty() ) {
-    edm::LogError( "GenericTriggerEventFlag" ) << "Empty logical expression ==> decision: " << errorReplyGt_;
+    if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "Empty logical expression ==> decision: " << errorReplyGt_;
     return errorReplyGt_;
   }
 
   // Negated paths
   bool negExpr( negate( gtLogicalExpression ) );
   if ( negExpr && gtLogicalExpression.empty() ) {
-    edm::LogError( "GenericTriggerEventFlag" ) << "Empty (negated) logical expression ==> decision: " << errorReplyGt_;
+    if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "Empty (negated) logical expression ==> decision: " << errorReplyGt_;
     return errorReplyGt_;
   }
 
@@ -270,7 +276,7 @@ bool GenericTriggerEventFlag::acceptGtLogicalExpression( const edm::Handle< L1Gl
     if ( gtStatusBit == "PhysDecl" || gtStatusBit == "PhysicsDeclared" ) {
       decision = ( gtReadoutRecord->gtFdlWord().physicsDeclared() == 1 );
     } else {
-      edm::LogError( "GenericTriggerEventFlag" ) << "GT status bit \"" << gtStatusBit << "\" is not defined ==> decision: " << errorReplyGt_;
+      if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "GT status bit \"" << gtStatusBit << "\" is not defined ==> decision: " << errorReplyGt_;
       decision = errorReplyDcs_;
     }
     gtAlgoLogicParser.operandTokenVector().at( iStatusBit ).tokenResult = decision;
@@ -314,14 +320,14 @@ bool GenericTriggerEventFlag::acceptL1LogicalExpression( const edm::Event & even
 
   // Check empty std::strings
   if ( l1LogicalExpression.empty() ) {
-    edm::LogError( "GenericTriggerEventFlag" ) << "Empty logical expression ==> decision: " << errorReplyL1_;
+    if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "Empty logical expression ==> decision: " << errorReplyL1_;
     return errorReplyL1_;
   }
 
   // Negated logical expression
   bool negExpr( negate( l1LogicalExpression ) );
   if ( negExpr && l1LogicalExpression.empty() ) {
-    edm::LogError( "GenericTriggerEventFlag" ) << "Empty (negated) logical expression ==> decision: " << errorReplyL1_;
+    if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "Empty (negated) logical expression ==> decision: " << errorReplyL1_;
     return errorReplyL1_;
   }
 
@@ -334,8 +340,10 @@ bool GenericTriggerEventFlag::acceptL1LogicalExpression( const edm::Event & even
     const bool decision( l1Gt_.decision( event, l1AlgoName, error ) );
     // Error checks
     if ( error != 0 ) {
-      if ( error == 1 ) edm::LogError( "GenericTriggerEventFlag" ) << "L1 algorithm \"" << l1AlgoName << "\" does not exist in the L1 menu ==> decision: "                                          << errorReplyL1_;
-      else              edm::LogError( "GenericTriggerEventFlag" )  << "L1 algorithm \"" << l1AlgoName << "\" received error code " << error << " from L1GtUtils::decisionBeforeMask ==> decision: " << errorReplyL1_;
+      if ( verbose_ ) {
+        if ( error == 1 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "L1 algorithm \"" << l1AlgoName << "\" does not exist in the L1 menu ==> decision: "                                          << errorReplyL1_;
+        else              edm::LogWarning( "GenericTriggerEventFlag" ) << "L1 algorithm \"" << l1AlgoName << "\" received error code " << error << " from L1GtUtils::decisionBeforeMask ==> decision: " << errorReplyL1_;
+      }
       l1AlgoLogicParser.operandTokenVector().at( iAlgorithm ).tokenResult = errorReplyL1_;
       continue;
     }
@@ -359,7 +367,7 @@ bool GenericTriggerEventFlag::acceptHlt( const edm::Event & event )
 
   // Checking the HLT configuration,
   if ( ! hltConfigInit_ ) {
-    edm::LogError( "GenericTriggerEventFlag" ) << "HLT config error ==> decision: " << errorReplyHlt_;
+    if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "HLT config error ==> decision: " << errorReplyHlt_;
     return errorReplyHlt_;
   }
 
@@ -367,8 +375,12 @@ bool GenericTriggerEventFlag::acceptHlt( const edm::Event & event )
   edm::Handle< edm::TriggerResults > hltTriggerResults;
   event.getByLabel( hltInputTag_, hltTriggerResults );
   if ( ! hltTriggerResults.isValid() ) {
-    edm::LogError( "GenericTriggerEventFlag" ) << "TriggerResults product with InputTag \"" << hltInputTag_.encode() << "\" not in event ==> decision: " << errorReplyHlt_;
+    if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "TriggerResults product with InputTag \"" << hltInputTag_.encode() << "\" not in event ==> decision: " << errorReplyHlt_;
     return errorReplyHlt_;
+  }
+  if ( ( *hltTriggerResults ).size() == 0 ) {
+    if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "TriggerResults product with InputTag \"" << hltInputTag_.encode() << "\" empty ==> decision: " << errorReplyHlt_;
+    return errorReplyDcs_;
   }
 
   // Determine decision of HLT logical expression combination and return
@@ -392,14 +404,14 @@ bool GenericTriggerEventFlag::acceptHltLogicalExpression( const edm::Handle< edm
 
   // Check empty std::strings
   if ( hltLogicalExpression.empty() ) {
-    edm::LogError( "GenericTriggerEventFlag" ) << "Empty logical expression ==> decision: " << errorReplyHlt_;
+    if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "Empty logical expression ==> decision: " << errorReplyHlt_;
     return errorReplyHlt_;
   }
 
   // Negated paths
   bool negExpr( negate( hltLogicalExpression ) );
   if ( negExpr && hltLogicalExpression.empty() ) {
-    edm::LogError( "GenericTriggerEventFlag" ) << "Empty (negated) logical expression ==> decision: " << errorReplyHlt_;
+    if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "Empty (negated) logical expression ==> decision: " << errorReplyHlt_;
     return errorReplyHlt_;
   }
 
@@ -411,12 +423,12 @@ bool GenericTriggerEventFlag::acceptHltLogicalExpression( const edm::Handle< edm
     const unsigned indexPath( hltConfig_.triggerIndex( hltPathName ) );
     // Further error checks
     if ( indexPath == hltConfig_.size() ) {
-      edm::LogError( "GenericTriggerEventFlag" ) << "HLT path \"" << hltPathName << "\" is not found in process " << hltInputTag_.process() << " ==> decision: " << errorReplyHlt_;
+      if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "HLT path \"" << hltPathName << "\" is not found in process " << hltInputTag_.process() << " ==> decision: " << errorReplyHlt_;
       hltAlgoLogicParser.operandTokenVector().at( iPath ).tokenResult = errorReplyHlt_;
       continue;
     }
     if ( hltTriggerResults->error( indexPath ) ) {
-      edm::LogError( "GenericTriggerEventFlag" ) << "HLT path \"" << hltPathName << "\" in error ==> decision: " << errorReplyHlt_;
+      if ( verbose_ ) edm::LogWarning( "GenericTriggerEventFlag" ) << "HLT path \"" << hltPathName << "\" in error ==> decision: " << errorReplyHlt_;
       hltAlgoLogicParser.operandTokenVector().at( iPath ).tokenResult = errorReplyHlt_;
       continue;
     }
@@ -442,7 +454,7 @@ std::vector< std::string > GenericTriggerEventFlag::expressionsFromDB( const std
   const std::map< std::string, std::string > & expressionMap = logicalExpressions->m_alcarecoToTrig;
   std::map< std::string, std::string >::const_iterator listIter = expressionMap.find( key );
   if ( listIter == expressionMap.end() ) {
-    edm::LogError( "GenericTriggerEventFlag" ) << "No logical expressions found under key " << key << " in 'AlCaRecoTriggerBitsRcd'";
+    edm::LogWarning( "GenericTriggerEventFlag" ) << "No logical expressions found under key " << key << " in 'AlCaRecoTriggerBitsRcd'";
     return std::vector< std::string >( 1, configError_ );
   }
   return logicalExpressions->decompose( listIter->second );
