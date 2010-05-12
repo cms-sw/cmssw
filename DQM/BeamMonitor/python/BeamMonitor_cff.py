@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dqmBeamMonitor = cms.EDFilter("BeamMonitor",
+dqmBeamMonitor = cms.EDAnalyzer("BeamMonitor",
                               monitorName = cms.untracked.string('BeamMonitor'),
                               beamSpot = cms.untracked.InputTag('offlineBeamSpot'), ## hltOfflineBeamSpot for HLTMON
                               primaryVertex = cms.untracked.InputTag('offlinePrimaryVertices'),
