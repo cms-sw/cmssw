@@ -13,7 +13,7 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: L1RCTChannelMaskTester.cc,v 1.1 2009/05/06 13:40:46 efron Exp $
+// $Id: L1RCTChannelMaskTester.cc,v 1.2 2009/05/06 18:16:26 efron Exp $
 //
 //
 // user include files
@@ -26,6 +26,8 @@
 
 #include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1RCTNoisyChannelMaskRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RCTNoisyChannelMask.h"
 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -62,6 +64,12 @@ void L1RCTChannelMaskTester::analyze(const edm::Event& iEvent, const edm::EventS
 
 
    rctChanMask->print(std::cout);
+
+  edm::ESHandle< L1RCTNoisyChannelMask > rctNoisyChanMask;
+   evSetup.get< L1RCTNoisyChannelMaskRcd >().get( rctNoisyChanMask) ;
+
+
+   rctNoisyChanMask->print(std::cout);
 
 
 }
