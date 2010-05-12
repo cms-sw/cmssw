@@ -1,4 +1,5 @@
 #include "Validation/HcalRecHits/interface/NoiseRatesClient.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -125,5 +126,4 @@ int NoiseRatesClient::NoiseRatesEndjob(const std::vector<MonitorElement*> &hcalM
 
 }
 
-
-
+DEFINE_FWK_MODULE(NoiseRatesClient);

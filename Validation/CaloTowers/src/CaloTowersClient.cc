@@ -1,4 +1,5 @@
 #include "Validation/CaloTowers/interface/CaloTowersClient.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -207,3 +208,4 @@ int CaloTowersClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hcalM
 
 }
 
+DEFINE_FWK_MODULE(CaloTowersClient);

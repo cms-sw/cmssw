@@ -1,4 +1,5 @@
 #include "Validation/HcalRecHits/interface/HcalRecHitsClient.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -568,3 +569,4 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
    return 1;
 }
 
+DEFINE_FWK_MODULE(HcalRecHitsClient);
