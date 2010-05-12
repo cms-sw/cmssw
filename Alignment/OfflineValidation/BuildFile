@@ -1,7 +1,6 @@
 <use name=Alignment/CommonAlignment>
 <use name=Alignment/TrackerAlignment>
 <use name=CondCore/DBOutputService>
-<use name=CondFormats/Alignment>  
 <use name=DataFormats/TrackReco>
 <use name=FWCore/PluginManager>
 <use name=FWCore/Framework>
@@ -10,35 +9,13 @@
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=TrackingTools/TrackFitters>
-#TrackingTools/Records to be added for interface/TrackerValidationVariables.h, 
-# but remove later
-#<use name=SimDataFormats/Track>
-#<use name=SimDataFormats/GeneratorProducts>
-#<use name=SimTracker/TrackAssociation>
 <use name=MagneticField/Engine>
 
 <use name=rootrflx>
 
 <use name=CLHEP>
 <use name=root>
-#<flags EDM_PLUGIN=1>
 
 <export>
  <lib name=AlignmentOfflineValidation>
-# <use name=FWCore/PluginManager>
-# <use name=FWCore/Framework>
-# <use name=FWCore/ParameterSet>
-# <use name=FWCore/MessageLogger>
-#<use name=PhysicsTools/UtilAlgos>
-#<use name=FWCore/ServiceRegistry>
-# <use name=SimDataFormats/MuonValidation>
-# <use name=DataFormats/DetId>
-# <use name=Geometry/CommonDetUnit>
-# <use name=DataFormats/MuonDetId>
-# <use name=Geometry/CSCGeometry>
-# <use name=Geometry/DTGeometry>
-# <use name=Geometry/RPCGeometry>
-# <use name=root>
-# <use name=clhep>
 </export>
-
