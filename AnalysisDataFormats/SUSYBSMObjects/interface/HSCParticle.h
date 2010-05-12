@@ -106,6 +106,7 @@ namespace susybsm {
       const reco::DeDxData&      dedxDiscriminator1() const { return dedxDiscrim1_;    }
       const reco::DeDxData&      dedxDiscriminator2() const { return dedxDiscrim2_;    }
       const reco::DeDxData&      dedxDiscriminator3() const { return dedxDiscrim3_;    }
+      const reco::DeDxData&      dedx         (int i) const;
       const reco::MuonTimeExtra& muonTimeDt        () const { return muonTimeDt_;      }
       const reco::MuonTimeExtra& muonTimeCsc       () const { return muonTimeCsc_;     }
       const reco::MuonTimeExtra& muonTimeCombined  () const { return muonTimeCombined_;}
