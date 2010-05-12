@@ -4,14 +4,14 @@ topDiLeptonDQM = cms.EDAnalyzer("TopDiLeptonDQM",
 
     moduleName = cms.untracked.string('Physics/Top/DiLepton'),
     fileOutput = cms.bool(False),
-    outputFile = cms.untracked.string('DimuonEvents.txt'),
+    outputFile = cms.untracked.string('DiLeptonEvents.txt'),
     ### 
     TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-    hltPaths       = cms.vstring('HLT_Mu3','HLT_IsoMu3','HLT_Mu5','HLT_Mu9','HLT_Mu15','HLT_IsoMu9','HLT_DoubleMu3',
-                                 'HLT_Ele15_SW_L1R','HLT_Ele20_SW_L1R'),
+    hltPaths       = cms.vstring('HLT_Mu3','HLT_Mu5','HLT_Mu9','HLT_Mu15','HLT_IsoMu3','HLT_IsoMu9','HLT_DoubleMu0','HLT_DoubleMu3',
+                                 'HLT_Ele10_LW_L1R','HLT_Ele15_LW_L1R','HLT_Ele20_LW_L1R'),
     ### 
-    hltPaths_sig   = cms.vstring('HLT_IsoMu9', 'HLT_Mu15', 'HLT_DoubleMu3', 'HLT_Mu9'),
-    hltPaths_trig  = cms.vstring('HLT_Mu9',    'HLT_Mu9',  'HLT_Mu9',       'HLT_Mu5'),
+    hltPaths_sig   = cms.vstring('HLT_Mu9', 'HLT_Mu9', 'HLT_IsoMu3', 'HLT_DoubleMu3', 'HLT_DoubleMu3', 'HLT_DoubleMu3'),
+    hltPaths_trig  = cms.vstring('HLT_Mu3', 'HLT_Mu5', 'HLT_Mu3',    'HLT_Mu3',       'HLT_IsoMu3',    'HLT_DoubleMu0'),
     ### 
     vertexCollection = cms.InputTag('offlinePrimaryVertices'),
     vertex_X_cut     = cms.double(  1.0 ),
@@ -24,13 +24,13 @@ topDiLeptonDQM = cms.EDAnalyzer("TopDiLeptonDQM",
     muon_iso_cut   = cms.double( 0.2 ),
     ### 
     elecCollection = cms.InputTag('gsfElectrons'),
-    elec_pT_cut    = cms.double( 2.0 ),
+    elec_pT_cut    = cms.double( 5.0 ),
     elec_eta_cut   = cms.double( 2.4 ),
     elec_iso_cut   = cms.double( 0.2 ),
     elec_emf_cut   = cms.double( 0.1 ),
     ### 
-    MassWindow_up   = cms.double( 3.2 ),
-    MassWindow_down = cms.double( 3.0 )
+    MassWindow_up   = cms.double( 106. ),
+    MassWindow_down = cms.double(  76. )
 
 )
 

@@ -19,7 +19,7 @@ TopDiLeptonDQM::TopDiLeptonDQM( const edm::ParameterSet& ps ) {
   moduleName_      = ps.getUntrackedParameter<string>("moduleName");
   fileOutput_      = ps.getParameter<bool>("fileOutput");
   outputFile_      = ps.getUntrackedParameter<string>("outputFile");
-  triggerResults_  = ps.getParameter<InputTag>("TriggerResults");
+  triggerResults_  = ps.getParameter<edm::InputTag>("TriggerResults");
   hltPaths_        = ps.getParameter<vector<string> >("hltPaths");
   hltPaths_sig_    = ps.getParameter<vector<string> >("hltPaths_sig");
   hltPaths_trig_   = ps.getParameter<vector<string> >("hltPaths_trig");
@@ -78,20 +78,24 @@ void TopDiLeptonDQM::beginJob() {
 
   dbe_->setCurrentFolder(moduleName_);
 
-  Events_     = dbe_->book1D("00_Events",     "Isolated dilepton events",         5,  0.,  5.);
-  Trigs_      = dbe_->book1D("01_Trigs",      "Fired muon/electron triggers",    10,  0., 10.);
-  TriggerEff_ = dbe_->book1D("02_TriggerEff", "HL Trigger Efficiencies",          5,  0.,  5.);
-  TriggerEff_->setTitle("HL Trigger Efficiencies #epsilon_{signal} = #frac{[signal] && [control]}{[control]}");
-  Ntracks_    = dbe_->book1D("Ntracks",       "Number of tracks",                50,  0., 50.);
+  Events_     = dbe_->book1D("00_Events", "Isolated dilepton events", 5,  0.,  5.);
+  Events_->setBinLabel( 2, "#mu #mu", 1);
+  Events_->setBinLabel( 3, "#mu e",   1);
+  Events_->setBinLabel( 4, "e e",     1);
 
-  Nmuons_        = dbe_->book1D("03_Nmuons",     "Number of muons",               20,    0.,  10.);
-  Nmuons_iso_    = dbe_->book1D("04_Nmuons_iso", "Number of isolated muons",      20,    0.,  10.);
-  Nmuons_charge_ = dbe_->book1D("Nmuons_charge", "Number of muons * moun charge", 19,  -10.,  10.);
-  VxVy_muons_    = dbe_->book2D("VxVy_muons",    "Vertex x-y-positon (global)",   40 ,  -1.,   1., 40 , -1., 1.);
-  Vz_muons_      = dbe_->book1D("Vz_muons",      "Vertex z-positon (global)",     40 , -20.,  20.);
-  pT_muons_      = dbe_->book1D("pT_muons",      "P_T of muons",                  40,    0., 200.);
-  eta_muons_     = dbe_->book1D("eta_muons",     "Eta of muons",                  50,   -5.,   5.);
-  phi_muons_     = dbe_->book1D("phi_muons",     "Phi of muons",                  40,   -4.,   4.);
+  Trigs_      = dbe_->book1D("01_Trigs",      "Fired muon/electron triggers", 15,  0., 15.);
+  TriggerEff_ = dbe_->book1D("02_TriggerEff", "HL Trigger Efficiencies",      10,  0., 10.);
+  TriggerEff_->setTitle("HL Trigger Efficiencies #epsilon_{signal} = #frac{[signal] && [control]}{[control]}");
+  Ntracks_    = dbe_->book1D("Ntracks",       "Number of tracks",             50,  0., 50.);
+
+  Nmuons_        = dbe_->book1D("03_Nmuons",     "Number of muons",               20,   0.,  10.);
+  Nmuons_iso_    = dbe_->book1D("04_Nmuons_iso", "Number of isolated muons",      20,   0.,  10.);
+  Nmuons_charge_ = dbe_->book1D("Nmuons_charge", "Number of muons * moun charge", 19, -10.,  10.);
+  VxVy_muons_    = dbe_->book2D("VxVy_muons",    "Vertex x-y-positon (global)",   40,  -1.,   1., 40 , -1., 1.);
+  Vz_muons_      = dbe_->book1D("Vz_muons",      "Vertex z-positon (global)",     40, -20.,  20.);
+  pT_muons_      = dbe_->book1D("pT_muons",      "P_T of muons",                  40,   0., 200.);
+  eta_muons_     = dbe_->book1D("eta_muons",     "Eta of muons",                  50,  -5.,   5.);
+  phi_muons_     = dbe_->book1D("phi_muons",     "Phi of muons",                  40,  -4.,   4.);
 
   Nelecs_        = dbe_->book1D("05_Nelecs",     "Number of electrons",           20,   0.,  10.);
   Nelecs_iso_    = dbe_->book1D("06_Nelecs_iso", "Number of isolated electrons",  20,   0.,  10.);
@@ -113,7 +117,7 @@ void TopDiLeptonDQM::beginJob() {
   ElecIso_trk_        = dbe_->book1D("ElecIso_trk",           "Electron Iso_trk",    21, -2., 40.);
   ElecIso_CombRelIso_ = dbe_->book1D("08_ElecIso_CombRelIso", "Electron CombRelIso", 20,  0.,  1.);
 
-  const int nbins = 50;
+  const int nbins = 200;
 
   double logmin = 0.;
   double logmax = 3.;  // 10^(3.)=1000
@@ -127,12 +131,12 @@ void TopDiLeptonDQM::beginJob() {
 
   }
 
-  dimassRC_       = dbe_->book1D("09_dimassRC",      "Dimuon mass RC",        50, 0., 200.);
-  dimassWC_       = dbe_->book1D("11_dimassWC",      "Dimuon mass WC",        50, 0., 200.);
-  dimassRC_LOGX_  = dbe_->book1D("10_dimassRC_LOGX", "Dimuon mass RC LOG", nbins, &bins[0]);
-  dimassWC_LOGX_  = dbe_->book1D("12_dimassWC_LOGX", "Dimuon mass WC LOG", nbins, &bins[0]);
-  dimassRC_LOG10_ = dbe_->book1D("dimassRC_LOG10",   "Dimuon mass RC LOG",    50, 0.,  2.5);
-  dimassWC_LOG10_ = dbe_->book1D("dimassWC_LOG10",   "Dimuon mass WC LOG",    50, 0.,  2.5);
+  dimassRC_       = dbe_->book1D("09_dimassRC",      "Dilepton mass RC",        50, 0., 200.);
+  dimassWC_       = dbe_->book1D("11_dimassWC",      "Dilepton mass WC",        50, 0., 200.);
+  dimassRC_LOGX_  = dbe_->book1D("10_dimassRC_LOGX", "Dilepton mass RC LOG", nbins, &bins[0]);
+  dimassWC_LOGX_  = dbe_->book1D("12_dimassWC_LOGX", "Dilepton mass WC LOG", nbins, &bins[0]);
+  dimassRC_LOG10_ = dbe_->book1D("dimassRC_LOG10",   "Dilepton mass RC LOG",    50, 0.,  2.5);
+  dimassWC_LOG10_ = dbe_->book1D("dimassWC_LOG10",   "Dilepton mass WC LOG",    50, 0.,  2.5);
 
   D_eta_muons_  = dbe_->book1D("13_D_eta_muons", "#Delta eta_muons", 20, -5., 5.);
   D_phi_muons_  = dbe_->book1D("14_D_phi_muons", "#Delta phi_muons", 20, -5., 5.);
@@ -144,7 +148,7 @@ void TopDiLeptonDQM::beginJob() {
 }
 
 
-void TopDiLeptonDQM::beginRun(const edm::Run& r, const EventSetup& context) {
+void TopDiLeptonDQM::beginRun(const edm::Run& r, const edm::EventSetup& context) {
 
 }
 
@@ -198,7 +202,7 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
     int numberTracks = primaryVertex.tracksSize();
     //    double ndof      = primaryVertex.ndof();
-    bool   fake      = primaryVertex.isFake();
+    bool fake        = primaryVertex.isFake();
 
     Ntracks_->Fill(numberTracks);
 
@@ -246,8 +250,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 	    Trigs_->Fill(i);
 	    Trigs_->setBinLabel( i+1, hltPaths_[i], 1);
 
-	    //	    cout << "Trigger: " << hltPaths_[i] << " FIRED!!! " << endl;
-
 	  }
 
 	}
@@ -293,10 +295,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
     Nmuons_->Fill( muons->size() );
 
-    //    cout << "---------------" << endl;
-    //    cout << "Nmuons    : " << muons->size() << endl;
-    //    cout << "---------------" << endl << endl;
-
     N_leptons = N_leptons + muons->size();
 
     for(muon = muons->begin(); muon!= muons->end(); ++muon) {
@@ -338,8 +336,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
       if ( muon->pt() != 0. )
 	muonCombRelIso = ( muIso03.emEt + muIso03.hadEt + muIso03.hoEt + muIso03.sumPt ) / muon->pt();
 
-      //      cout << "MuonCombRelIso: " << muonCombRelIso << endl;
-
       MuIso_CombRelIso03_->Fill( muonCombRelIso );
 
       MuIso_emEt03_->Fill(    muIso03.emEt );
@@ -354,8 +350,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
     }
 
     Nmuons_iso_->Fill(N_iso_mu);
-
-    //    cout << "Nmuons_iso: " << N_iso_mu << endl;
 
   }
 
@@ -379,10 +373,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
   if( !elecs.failedToGet() ) {
 
     Nelecs_->Fill( elecs->size() );
-
-    //    cout << "---------------" << endl;
-    //    cout << "Nelecs    : " << elecs->size() << endl;
-    //    cout << "---------------" << endl << endl;
 
     N_leptons = N_leptons + elecs->size();
 
@@ -422,8 +412,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
       if ( elec->et() != 0. )
 	elecCombRelIso = ( elecIso.ecalRecHitSumEt + elecIso.hcalDepth1TowerSumEt + elecIso.tkSumPt ) / elec->et();
 
-      //      cout << "ElecCombRelIso: " << elecCombRelIso << endl;
-
       ElecIso_CombRelIso_->Fill( elecCombRelIso );
 
       ElecIso_cal_->Fill( elecIso.ecalRecHitSumEt );
@@ -435,17 +423,9 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
     Nelecs_iso_->Fill(N_iso_el);
 
-    //    cout << "Nelecs_iso: " << N_iso_el << endl;
-
   }
 
   N_iso_lep = N_iso_el + N_iso_mu;
-
-  //  cout << "---------------" << endl;
-  //  cout << "Nleptons  : "     << N_leptons << endl;
-  //  cout << "Nlep_iso  : "     << N_iso_lep << endl;
-  //  cout << "---------------" << endl << endl;
-
 
   // --------------------
   //  TWO Isolated MUONS
@@ -461,7 +441,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
       ++N_mumu;
 
       Events_->Fill(1.);
-      Events_->setBinLabel( 2, "#mu #mu", 1);
 
       reco::MuonCollection::const_reference mu1 = muons->at(0);
       reco::MuonCollection::const_reference mu2 = muons->at(1);
@@ -481,8 +460,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 	dimassRC_LOGX_->Fill( DilepMass );
 
 	if( DilepMass > MassWindow_down_ && DilepMass < MassWindow_up_ ) {
-
-	  //	  cout << "DilepMass: " << DilepMass << endl;
 
 	  for(muon = muons->begin(); muon!= muons->end(); ++muon) {
 
@@ -520,8 +497,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
 	  // Determinating trigger efficiencies
 
-	  //	cout << "-----------------------------"   << endl;
-
 	  for( int k = 0; k < N_SignalPaths; ++k ) {
 
 	    if( Fired_Signal_Trigger[k] && Fired_Control_Trigger[k] )  ++N_sig[k];
@@ -529,11 +504,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 	    if( Fired_Control_Trigger[k] )  ++N_trig[k];
 
 	    if( N_trig[k] != 0 )  Eff[k] = N_sig[k]/static_cast<float>(N_trig[k]);
-
-	    //	    cout << "Signal Trigger  : " << hltPaths_sig_[k]  << "\t: " << N_sig[k]  << endl;
-	    //	    cout << "Control Trigger : " << hltPaths_trig_[k] << "\t: " << N_trig[k] << endl;
-	    //	    cout << "Trigger Eff.cy  : " << Eff[k]  << endl;
-	    //	    cout << "-----------------------------" << endl;
 
 	    TriggerEff_->setBinContent( k+1, Eff[k] );
 	    TriggerEff_->setBinLabel( k+1, "#frac{["+hltPaths_sig_[k]+"]}{vs. ["+hltPaths_trig_[k]+"]}", 1);
@@ -588,8 +558,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
   //  if( N_iso_el > 0 && N_iso_mu > 0 && Fired_Control_Trigger[0] ) {
   if( N_iso_el > 0 && N_iso_mu > 0 ) {
 
-    //    cout << "+++ I am a mu/e EVENT !!! +++" << endl;
-
     // Vertex cut
 
     if( vertex_X < vertex_X_cut_ && vertex_Y < vertex_Y_cut_ && vertex_Z < vertex_Z_cut_ ) {
@@ -597,7 +565,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
       ++N_muel;
 
       Events_->Fill(2.);
-      Events_->setBinLabel( 3, "#mu e", 1);
 
       reco::MuonCollection::const_reference        mu1 = muons->at(0);
       reco::GsfElectronCollection::const_reference el1 = elecs->at(0);
@@ -617,8 +584,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 	dimassRC_LOGX_->Fill( DilepMass );
 
 	if( DilepMass > MassWindow_down_ && DilepMass < MassWindow_up_ ) {
-
-	  //	  cout << "DilepMass: " << DilepMass << endl;
 
 	  for(muon = muons->begin(); muon!= muons->end(); ++muon) {
 
@@ -664,8 +629,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
 	  // Determinating trigger efficiencies
 
-	  //	  cout << "-----------------------------"   << endl;
-
 	  for( int k = 0; k < N_SignalPaths; ++k ) {
 
 	    if( Fired_Signal_Trigger[k] && Fired_Control_Trigger[k] )  ++N_sig[k];
@@ -673,11 +636,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 	    if( Fired_Control_Trigger[k] )  ++N_trig[k];
 
 	    if( N_trig[k] != 0 )  Eff[k] = N_sig[k]/static_cast<float>(N_trig[k]);
-
-	    //	    cout << "Signal Trigger  : " << hltPaths_sig_[k]  << "\t: " << N_sig[k]  << endl;
-	    //	    cout << "Control Trigger : " << hltPaths_trig_[k] << "\t: " << N_trig[k] << endl;
-	    //	    cout << "Trigger Eff.cy  : " << Eff[k]  << endl;
-	    //	    cout << "-----------------------------" << endl;
 
 	    TriggerEff_->setBinContent( k+1, Eff[k] );
 	    TriggerEff_->setBinLabel( k+1, "#frac{["+hltPaths_sig_[k]+"]}{vs. ["+hltPaths_trig_[k]+"]}", 1);
@@ -716,7 +674,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
       ++N_elel;
 
       Events_->Fill(3.);
-      Events_->setBinLabel( 4, "e e", 1);
 
       reco::GsfElectronCollection::const_reference el1 = elecs->at(0);
       reco::GsfElectronCollection::const_reference el2 = elecs->at(1);
@@ -736,8 +693,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 	dimassRC_LOGX_->Fill( DilepMass );
 
 	if( DilepMass > MassWindow_down_ && DilepMass < MassWindow_up_ ) {
-
-	  //	  cout << "DilepMass: " << DilepMass << endl;
 
 	  for(elec = elecs->begin(); elec!= elecs->end(); ++elec) {
 
@@ -775,8 +730,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
 	  // Determinating trigger efficiencies
 
-	  //	  cout << "-----------------------------"   << endl;
-
 	  for( int k = 0; k < N_SignalPaths; ++k ) {
 
 	    if( Fired_Signal_Trigger[k] && Fired_Control_Trigger[k] )  ++N_sig[k];
@@ -784,11 +737,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 	    if( Fired_Control_Trigger[k] )  ++N_trig[k];
 
 	    if( N_trig[k] != 0 )  Eff[k] = N_sig[k]/static_cast<float>(N_trig[k]);
-
-	    //	    cout << "Signal Trigger  : " << hltPaths_sig_[k]  << "\t: " << N_sig[k]  << endl;
-	    //	    cout << "Control Trigger : " << hltPaths_trig_[k] << "\t: " << N_trig[k] << endl;
-	    //	    cout << "Trigger Eff.cy  : " << Eff[k]  << endl;
-	    //	    cout << "-----------------------------" << endl;
 
 	    TriggerEff_->setBinContent( k+1, Eff[k] );
 	    TriggerEff_->setBinLabel( k+1, "#frac{["+hltPaths_sig_[k]+"]}{vs. ["+hltPaths_trig_[k]+"]}", 1);
@@ -816,7 +764,7 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 }
 
 
-void TopDiLeptonDQM::endRun(const Run& r, const EventSetup& context) {
+void TopDiLeptonDQM::endRun(const edm::Run& r, const edm::EventSetup& context) {
 
 }
 

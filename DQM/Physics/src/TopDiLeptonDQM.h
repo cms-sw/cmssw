@@ -46,7 +46,7 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
   protected:
 
     void beginRun(const edm::Run&, const edm::EventSetup&);
-    void endRun(const edm::Run&, const edm::EventSetup&);
+    void endRun(  const edm::Run&, const edm::EventSetup&);
 
   private:
 
@@ -55,11 +55,10 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     virtual void endJob();
        
-    edm::ParameterSet parameters_;
     DQMStore * dbe_;
+    bool fileOutput_;
 
     std::string moduleName_;
-    bool fileOutput_;
     std::string outputFile_;
     edm::InputTag triggerResults_;
     std::vector<std::string> hltPaths_;
