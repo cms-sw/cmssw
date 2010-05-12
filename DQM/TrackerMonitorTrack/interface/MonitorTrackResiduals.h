@@ -11,7 +11,7 @@ Monitoring source for track residuals on each detector module
 */
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.h,v 1.16 2009/10/19 19:05:11 dutta Exp $
+// $Id: MonitorTrackResiduals.h,v 1.17 2009/10/28 15:03:54 hauk Exp $
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -23,6 +23,7 @@ Monitoring source for track residuals on each detector module
 
 class MonitorElement;
 class DQMStore;
+class GenericTriggerEventFlag;
 namespace edm { class Event; }
 
 typedef std::map<int32_t, MonitorElement *> HistoClass;
@@ -54,5 +55,6 @@ class MonitorTrackResiduals : public edm::EDAnalyzer {
   unsigned long long m_cacheID_;
   bool reset_me_after_each_run;
   bool ModOn;
+  GenericTriggerEventFlag* genTriggerEventFlag_;
 };
 #endif
