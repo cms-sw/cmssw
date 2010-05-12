@@ -7,7 +7,6 @@
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
 #include "CondFormats/Calibration/interface/CalibHistograms.h"
 #include<bitset>
-#include "CondFormats/Calibration/interface/BitArray.h"
 #include "CondFormats/Calibration/interface/boostTypeObj.h"
 #include "CondFormats/Calibration/interface/mypt.h"
 #include "CondFormats/Calibration/interface/fakeMenu.h"
@@ -20,7 +19,6 @@
 
 namespace {
   struct dictionary {
-    BitArray<9> c;
     fixedArray<unsigned short,2097> d;
     std::map<std::string, Algo> e;
   };
@@ -37,7 +35,5 @@ namespace {
     cond::DataWrapper<BlobPedestals> d4; 
     pool::PolyPtr<CalibHistograms> p5;
     cond::DataWrapper<CalibHistograms> d5; 
-    pool::PolyPtr<BitArray<9> > p6;
-    cond::DataWrapper<BitArray<9> > d6;
   };
 }
