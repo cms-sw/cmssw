@@ -53,6 +53,8 @@
         <parameterSet xsi:type="xsd:string">file:../../cfg/FU_CFG_FILE</parameterSet>
         <runNumber xsi:type="xsd:unsignedInt">0</runNumber>
         <hasPrescaleService xsi:type="xsd:boolean">false</hasPrescaleService>
+        <nbSubProcesses xsi:type="xsd:unsignedInt">2</nbSubProcesses>
+        <autoRestartSlaves xsi:type="xsd:boolean">true</autoRestartSlaves>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterProcessor.so</xc:Module>
@@ -67,6 +69,8 @@
         <parameterSet xsi:type="xsd:string">file:../../cfg/FU_CFG_FILE</parameterSet>
         <runNumber xsi:type="xsd:unsignedInt">0</runNumber>
         <hasPrescaleService xsi:type="xsd:boolean">false</hasPrescaleService>
+        <nbSubProcesses xsi:type="xsd:unsignedInt">2</nbSubProcesses>
+        <autoRestartSlaves xsi:type="xsd:boolean">true</autoRestartSlaves>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterProcessor.so</xc:Module>
@@ -81,6 +85,8 @@
         <parameterSet xsi:type="xsd:string">file:../../cfg/FU_CFG_FILE</parameterSet>
         <runNumber xsi:type="xsd:unsignedInt">0</runNumber>
         <hasPrescaleService xsi:type="xsd:boolean">false</hasPrescaleService>
+        <nbSubProcesses xsi:type="xsd:unsignedInt">2</nbSubProcesses>
+        <autoRestartSlaves xsi:type="xsd:boolean">true</autoRestartSlaves>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterProcessor.so</xc:Module>
@@ -95,6 +101,8 @@
         <parameterSet xsi:type="xsd:string">file:../../cfg/FU_CFG_FILE</parameterSet>
         <runNumber xsi:type="xsd:unsignedInt">0</runNumber>
         <hasPrescaleService xsi:type="xsd:boolean">false</hasPrescaleService>
+        <nbSubProcesses xsi:type="xsd:unsignedInt">2</nbSubProcesses>
+        <autoRestartSlaves xsi:type="xsd:boolean">true</autoRestartSlaves>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterProcessor.so</xc:Module>
@@ -109,6 +117,8 @@
         <parameterSet xsi:type="xsd:string">file:../../cfg/FU_CFG_FILE</parameterSet>
         <runNumber xsi:type="xsd:unsignedInt">0</runNumber>
         <hasPrescaleService xsi:type="xsd:boolean">false</hasPrescaleService>
+        <nbSubProcesses xsi:type="xsd:unsignedInt">2</nbSubProcesses>
+        <autoRestartSlaves xsi:type="xsd:boolean">true</autoRestartSlaves>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterProcessor.so</xc:Module>
@@ -123,6 +133,8 @@
         <parameterSet xsi:type="xsd:string">file:../../cfg/FU_CFG_FILE</parameterSet>
         <runNumber xsi:type="xsd:unsignedInt">0</runNumber>
         <hasPrescaleService xsi:type="xsd:boolean">false</hasPrescaleService>
+        <nbSubProcesses xsi:type="xsd:unsignedInt">2</nbSubProcesses>
+        <autoRestartSlaves xsi:type="xsd:boolean">true</autoRestartSlaves>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterProcessor.so</xc:Module>
@@ -137,6 +149,8 @@
         <parameterSet xsi:type="xsd:string">file:../../cfg/FU_CFG_FILE</parameterSet>
         <runNumber xsi:type="xsd:unsignedInt">0</runNumber>
         <hasPrescaleService xsi:type="xsd:boolean">false</hasPrescaleService>
+        <nbSubProcesses xsi:type="xsd:unsignedInt">2</nbSubProcesses>
+        <autoRestartSlaves xsi:type="xsd:boolean">true</autoRestartSlaves>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterProcessor.so</xc:Module>
@@ -151,6 +165,8 @@
         <parameterSet xsi:type="xsd:string">file:../../cfg/FU_CFG_FILE</parameterSet>
         <runNumber xsi:type="xsd:unsignedInt">0</runNumber>
         <hasPrescaleService xsi:type="xsd:boolean">false</hasPrescaleService>
+        <nbSubProcesses xsi:type="xsd:unsignedInt">2</nbSubProcesses>
+        <autoRestartSlaves xsi:type="xsd:boolean">true</autoRestartSlaves>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterProcessor.so</xc:Module>
