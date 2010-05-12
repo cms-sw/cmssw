@@ -32,34 +32,6 @@ void Trajectory::pop() {
 }
 
 
-// bool Trajectory::inactive( const Det& det) 
-// {
-//   typedef Det::DetUnitContainer DUC;
-
-//   // DetUnit case -- straightforward
-//   const DetUnit* detu = dynamic_cast<const DetUnit*>(&det);
-//   if (detu != 0) return detu->inactive();
-//   else {
-//     const DetLayer* detl = dynamic_cast<const DetLayer*>(&det);
-//     if (detl != 0) return false; // DetLayer should have inactive() too,
-// 				 // but for the moment we skip it (see below)
-//     else { // composite case
-//       DUC duc = det.detUnits();
-//       for (DUC::const_iterator i=duc.begin(); i!=duc.end(); i++) {
-// 	if ( !(**i).inactive()) return false;
-//       }
-//       return true;
-//     }
-//   }
-//   // the loop over DetUnits works for all 
-//   // Dets, but it would be too slow for a big DetLayer; it would
-//   // require creatind and copying the vector of all DetUnit* each time
-//   // an invalid RecHit is produced by the layer, so it is penalizing
-//   // even for active layers.
-//   // Therefore the layer is not handled yet, and should eventually have
-//   // it's own inactive() method.
-// }
-  
 void Trajectory::push( const TrajectoryMeasurement& tm) {
   push( tm, tm.estimate());
 }
