@@ -63,15 +63,18 @@ CSCChamberFitter::CSCChamberFitter(const edm::ParameterSet &iConfig, std::vector
 	if (i != j  &&  id_j != -1) {
 	  CSCDetId cscid_j(id_j);
 
-	  int next_chamber = cscid_i.chamber() + 1;
-	  if (cscid_i.station() > 1  &&  cscid_i.ring() == 1  &&  next_chamber == 19) next_chamber = 1;
-	  else if (!(cscid_i.station() > 1  &&  cscid_i.ring() == 1)  &&  next_chamber == 37) next_chamber = 1;
-	  if (cscid_i.endcap() == cscid_j.endcap()  &&  cscid_i.station() == cscid_j.station()  &&  cscid_i.ring() == cscid_j.ring()  &&  next_chamber == cscid_j.chamber()) {
+	  if (!(cscid_i.station() == 1  &&  cscid_i.ring() == 3  &&  cscid_j.station() == 1  &&  cscid_j.ring() == 3)) {
+
+	     int next_chamber = cscid_i.chamber() + 1;
+	     if (cscid_i.station() > 1  &&  cscid_i.ring() == 1  &&  next_chamber == 19) next_chamber = 1;
+	     else if (!(cscid_i.station() > 1  &&  cscid_i.ring() == 1)  &&  next_chamber == 37) next_chamber = 1;
+	     if (cscid_i.endcap() == cscid_j.endcap()  &&  cscid_i.station() == cscid_j.station()  &&  cscid_i.ring() == cscid_j.ring()  &&  next_chamber == cscid_j.chamber()) {
 	    
-	    CSCPairResidualsConstraint *residualsConstraint = new CSCPairResidualsConstraint(residualsConstraints.size(), i, j, cscid_i, cscid_j);
-	    m_constraints.push_back(residualsConstraint);
-	    residualsConstraints.push_back(residualsConstraint);
-	    numConstraints++;	    
+		CSCPairResidualsConstraint *residualsConstraint = new CSCPairResidualsConstraint(residualsConstraints.size(), i, j, cscid_i, cscid_j);
+		m_constraints.push_back(residualsConstraint);
+		residualsConstraints.push_back(residualsConstraint);
+		numConstraints++;	    
+	     }
 	  }
 	}
       }
