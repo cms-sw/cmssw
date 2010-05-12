@@ -11,8 +11,8 @@
 
 /** \class CaloTPGTranscoderULUT
   *  
-  * $Date: 2009/06/23 23:28:49 $
-  * $Revision: 1.14 $
+  * $Date: 2009/10/27 12:08:49 $
+  * $Revision: 1.15 $
   * \author J. Mans - Minnesota
   */
 class CaloTPGTranscoderULUT : public CaloTPGTranscoder {
@@ -35,6 +35,7 @@ public:
   virtual bool HTvalid(const int ieta, const int iphi) const;
   virtual std::vector<unsigned char> getCompressionLUT(HcalTrigTowerDetId id) const;
   virtual void setup(const edm::EventSetup& es, Mode) const;
+  virtual int getOutputLUTId(const int ieta, const int iphi) const;
   void printDecompression() const;
 
  private:
@@ -54,7 +55,6 @@ public:
   void loadHCALCompress(const std::string& filename) const; //Compression tables from file
   void loadHCALUncompress(void) const; //Analytical decompression
   void loadHCALUncompress(const std::string& filename) const; //Decompression tables from file
-  virtual int getOutputLUTId(const int ieta, const int iphi) const;
   //int getLutGranularity(const DetId& id) const;
   //int getLutThreshold(const DetId& id) const;
 
