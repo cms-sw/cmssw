@@ -257,11 +257,11 @@ class RemoveSpecificPATObjects(ConfigToolBase):
             else:
                 if( names[obj] == 'Jets' ):
                     applyPostfix(process,"patCandidates",postfix).remove(
-                        getattr(process, jetCollectionString())+postfix )
+                        getattr(process, jetCollectionString()+postfix) )
                     applyPostfix(process,"selectedPatCandidates",postfix).remove(
-                        getattr(process, jetCollectionString('selected'))+postfix )
+                        getattr(process, jetCollectionString('selected')+postfix) )
                     applyPostfix(process,"countPatCandidates",postfix).remove(
-                        getattr(process, jetCollectionString('count'))+postfix )
+                        getattr(process, jetCollectionString('count')+postfix) )
                 else:
                     applyPostfix(process,"patCandidates",postfix).remove( 
                         getattr(process, 'pat'+names[obj]+postfix) )
