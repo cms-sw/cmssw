@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_CSCAlignmentCorrections_H
 
 /** \class CSCAlignmentCorrections
- *  $Date: Fri Mar 26 19:44:00 CDT 2010 $
- *  $Revision: 1.0 $
+ *  $Date: 2010/05/04 01:16:04 $
+ *  $Revision: 1.1 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -36,9 +36,11 @@ public:
     m_error.push_back(error);
   };
 
-  void insertResidual(std::string i, std::string j, double residual, double pull) {
+  void insertResidual(std::string i, std::string j, double before, double uncert, double residual, double pull) {
     m_i.push_back(i);
     m_j.push_back(j);
+    m_before.push_back(before);
+    m_uncert.push_back(uncert);
     m_residual.push_back(residual);
     m_pull.push_back(pull);
   };
@@ -65,6 +67,8 @@ protected:
   // there's one of these for each constraint
   std::vector<std::string> m_i;
   std::vector<std::string> m_j;
+  std::vector<double> m_before;
+  std::vector<double> m_uncert;
   std::vector<double> m_residual;
   std::vector<double> m_pull;
 

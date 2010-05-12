@@ -246,12 +246,6 @@ double CSCChamberFitter::hessian(int k, int l, double lambda) const {
 }
 
 bool CSCChamberFitter::fit(std::vector<CSCAlignmentCorrections*> &corrections) const {
-  std::cout << "for fit " << m_name << std::endl;
-  for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
-     std::cout << "constraint " << (*constraint)->i() << " " << (*constraint)->j() << " " << ((*constraint)->valid() ? "valid" : "invalid") << " " << ((*constraint)->valid() ? (*constraint)->value() : 0.) << " +- " << ((*constraint)->valid() ? (*constraint)->error() : 10.) << std::endl; 
-  }
-  std::cout << std::endl;
-
   double lambda = 1./10./10.;
 
   AlgebraicVector A(m_alignables.size());
@@ -317,7 +311,7 @@ bool CSCChamberFitter::fit(std::vector<CSCAlignmentCorrections*> &corrections) c
   for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
      if ((*constraint)->valid()) {
 	double residual = (*constraint)->value() - A[(*constraint)->i()] + A[(*constraint)->j()];
-	correction->insertResidual(m_alignables[(*constraint)->i()], m_alignables[(*constraint)->j()], residual, residual/(*constraint)->error());
+	correction->insertResidual(m_alignables[(*constraint)->i()], m_alignables[(*constraint)->j()], (*constraint)->value(), (*constraint)->error(), residual, residual/(*constraint)->error());
      }
   }
 

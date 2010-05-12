@@ -7,8 +7,14 @@ void CSCAlignmentCorrections::plot() {
   edm::Service<TFileService> tFileService;
 
   for (unsigned int i = 0;  i < m_coefficient.size();  i++) {
+    std::string modifiedName = m_fitterName;
+    if (modifiedName[2] == '-') modifiedName[2] = 'm';
+    if (modifiedName[2] == '+') modifiedName[2] = 'p';
+    modifiedName[4] = '_';
+    modifiedName[6] = '_';
+
     std::stringstream histname, histtitle;
-    histname << m_fitterName << "_mode_" << i;
+    histname << modifiedName << "_mode_" << i;
     histtitle << m_error[i];
 
     TH1F *hist = tFileService->make<TH1F>(histname.str().c_str(), histtitle.str().c_str(), m_coefficient[i].size(), 0.5, m_coefficient[i].size() + 0.5);
@@ -48,7 +54,7 @@ void CSCAlignmentCorrections::report(std::ofstream &report) {
   }
 
   for (unsigned int i = 0;  i < m_i.size();  i++) {
-    report << "cscReports[-1].addCSCConstraintResidual(\"" << m_i[i] << "\", \"" << m_j[i] << "\", " << m_residual[i] << ", " << m_pull[i] << ")" << std::endl;
+    report << "cscReports[-1].addCSCConstraintResidual(\"" << m_i[i] << "\", \"" << m_j[i] << "\", " << m_before[i] << "\", " << m_uncert[i] << "\", " << m_residual[i] << ", " << m_pull[i] << ")" << std::endl;
   }
 
   report << std::endl;

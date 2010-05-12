@@ -335,8 +335,8 @@ void CSCOverlapsAlignmentAlgorithm::terminate() {
 	     << "        self.terms[name] = coefficient" << std::endl
 	     << "        self.detids[name] = detid" << std::endl << std::endl
 	     << "class CSCConstraintResidual:" << std::endl
-	     << "    def __init__(self, i, j, residual, pull):" << std::endl
-	     << "        self.i, self.j, self.residual, self.pull = i, j, residual, pull" << std::endl << std::endl
+	     << "    def __init__(self, i, j, before, uncert, residual, pull):" << std::endl
+	     << "        self.i, self.j, self.before, self.error, self.residual, self.pull = i, j, before, uncert, residual, pull" << std::endl << std::endl
 	     << "class CSCFitterReport:" << std::endl
 	     << "    def __init__(self, name, oldchi2, newchi2):" << std::endl
 	     << "        self.name, self.oldchi2, self.newchi2 = name, oldchi2, newchi2" << std::endl
@@ -349,8 +349,8 @@ void CSCOverlapsAlignmentAlgorithm::terminate() {
 	     << "        self.errorModes.append(CSCErrorMode(error))" << std::endl << std::endl
 	     << "    def addErrorModeTerm(self, name, detid, coefficient):" << std::endl
 	     << "        self.errorModes[-1].addTerm(name, detid, coefficient)" << std::endl << std::endl
-	     << "    def addCSCConstraintResidual(self, i, j, residual, pull):" << std::endl
-	     << "        self.constraintResiduals.append(CSCConstraintResidual(i, j, residual, pull))" << std::endl << std::endl
+	     << "    def addCSCConstraintResidual(self, i, j, before, uncert, residual, pull):" << std::endl
+	     << "        self.constraintResiduals.append(CSCConstraintResidual(i, j, before, uncert, residual, pull))" << std::endl << std::endl
 	     << "import re" << std::endl
 	     << "def nameToKey(name):" << std::endl
 	     << "    match = re.match(\"ME([\\+\\-])([1-4])/([1-4])/([0-9]{2})\", name)" << std::endl
