@@ -33,37 +33,37 @@ CandidateSelector::CandidateSelector(const edm::ParameterSet& iConfig){
 
 bool CandidateSelector::isSelected(HSCParticle& candidate)
 {
-   if(isTrack   && !candidate.hasTrackRef())return false;
-   if(isMuon    && !candidate.hasMuonRef() )return false;
-   if(isMuonSTA && (!candidate.hasMuonRef() || candidate.muonRef()->standAloneMuon().isNull()) )return false;
-   if(isMuonGB  && (!candidate.hasMuonRef() || candidate.muonRef()->combinedMuon  ().isNull()) )return false;
-   if(isMuonTK  && (!candidate.hasMuonRef() || candidate.muonRef()->innerTrack    ().isNull()) )return false;
-   if(isRpc     && !candidate.hasRpcInfo() )return false;
-   if(isEcal    && !candidate.hasCaloInfo())return false;
+   if(isTrack   && !candidate.hasTrackRef()){return false;}
+   if(isMuon    && !candidate.hasMuonRef() ){return false;}
+   if(isMuonSTA && (!candidate.hasMuonRef() || candidate.muonRef()->standAloneMuon().isNull()) ){return false;}
+   if(isMuonGB  && (!candidate.hasMuonRef() || candidate.muonRef()->combinedMuon  ().isNull()) ){return false;}
+   if(isMuonTK  && (!candidate.hasMuonRef() || candidate.muonRef()->innerTrack    ().isNull()) ){return false;}
+   if(isRpc     && !candidate.hasRpcInfo() ){return false;}
+   if(isEcal    && !candidate.hasCaloInfo()){return false;}
 
    if(candidate.hasTrackRef()){
-      if(candidate.trackRef()->found() < minTrackHits)return false;
-      if(candidate.trackRef()->p()     < minTrackP   )return false;
-      if(candidate.trackRef()->pt()    < minTrackPt  )return false;
+      if(candidate.trackRef()->found() < minTrackHits){return false;}
+      if(candidate.trackRef()->p()     < minTrackP   ){return false;}
+      if(candidate.trackRef()->pt()    < minTrackPt  ){return false;}
 
-      if(candidate.hasDedxEstim1()   && candidate.dedxEstimator1    ().dEdx()<minDedxEstimator1)    return false;
-      if(candidate.hasDedxDiscrim1() && candidate.dedxDiscriminator1().dEdx()<minDedxDiscriminator1)return false;
+      if(candidate.hasDedxEstim1()   && minDedxEstimator1>=0     && candidate.dedxEstimator1    ().dEdx()<minDedxEstimator1)    {return false;}
+      if(candidate.hasDedxDiscrim1() && minDedxDiscriminator1>=0 && candidate.dedxDiscriminator1().dEdx()<minDedxDiscriminator1){return false;}
    }
 
    if(candidate.hasMuonRef()){
-      if(candidate.muonRef()->p()     < minMuonP   )return false;
-      if(candidate.muonRef()->pt()    < minMuonPt  )return false;
+      if(candidate.muonRef()->p()     < minMuonP   ){return false;}
+      if(candidate.muonRef()->pt()    < minMuonPt  ){return false;}
 
-      if(1.0/candidate.muonTimeDt().inverseBeta()       > maxMuTimeDtBeta      )return false;
-      if(1.0/candidate.muonTimeDt().nDof()              < minMuTimeDtNdof      )return false;
-      if(1.0/candidate.muonTimeCsc().inverseBeta()      > maxMuTimeCscBeta     )return false;
-      if(1.0/candidate.muonTimeCsc().nDof()             < minMuTimeCscNdof     )return false;
-      if(1.0/candidate.muonTimeCombined().inverseBeta() > maxMuTimeCombinedBeta)return false;
-      if(1.0/candidate.muonTimeCombined().nDof()        < minMuTimeCombinedNdof)return false;
+      if(maxMuTimeDtBeta      >=0 && 1.0/candidate.muonTimeDt().inverseBeta()       > maxMuTimeDtBeta      ){return false;}
+      if(minMuTimeDtNdof      >=0 && 1.0/candidate.muonTimeDt().nDof()              < minMuTimeDtNdof      ){return false;}
+      if(maxMuTimeCscBeta     >=0 && 1.0/candidate.muonTimeCsc().inverseBeta()      > maxMuTimeCscBeta     ){return false;}
+      if(minMuTimeCscNdof     >=0 && 1.0/candidate.muonTimeCsc().nDof()             < minMuTimeCscNdof     ){return false;}
+      if(maxMuTimeCombinedBeta>=0 && 1.0/candidate.muonTimeCombined().inverseBeta() > maxMuTimeCombinedBeta){return false;}
+      if(minMuTimeCombinedNdof>=0 && 1.0/candidate.muonTimeCombined().nDof()        < minMuTimeCombinedNdof){return false;}
    }
 
-   if(candidate.hasRpcInfo()  && candidate.rpc ().beta     > maxBetaRpc )return false;
-   if(candidate.hasCaloInfo() && candidate.calo().ecalbeta > maxBetaEcal)return false;
+   if(candidate.hasRpcInfo()  && maxBetaRpc>=0  && candidate.rpc ().beta     > maxBetaRpc ){return false;}
+   if(candidate.hasCaloInfo() && maxBetaEcal>=0 && candidate.calo().ecalbeta > maxBetaEcal){return false;}
 
    return true;
 }

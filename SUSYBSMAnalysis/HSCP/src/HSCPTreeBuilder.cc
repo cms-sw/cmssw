@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Thu Mar 11 12:19:07 CEST 2010
-// $Id: HSCPTreeBuilder.cc,v 1.2 2010/04/15 14:17:27 querten Exp $
+// $Id: HSCPTreeBuilder.cc,v 1.3 2010/04/29 12:35:11 querten Exp $
 //
 
 
@@ -93,6 +93,8 @@
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
+
 
 #include "TFile.h"
 #include "TObjString.h"
@@ -113,8 +115,7 @@ using namespace std;
 using namespace __gnu_cxx;
 
 #define MAX_VERTICES 1000
-#define MAX_TRACKS   10000
-#define MAX_MUONS    10000
+#define MAX_HSCPS    10000
 #define MAX_GENS     10000
 
 class HSCPTreeBuilder : public edm::EDFilter {
@@ -133,13 +134,9 @@ class HSCPTreeBuilder : public edm::EDFilter {
 		const edm::Event*      iEvent_;
 
 		edm::Service<TFileService> tfs;
-
-		std::vector<InputTag> m_dEdxDiscrimTag;
-		InputTag     m_tracksTag;
-                InputTag     m_muonsTag;
-                InputTag     m_muontimingTag;
-
-
+                InputTag       m_HSCPsTag;
+                bool           reccordVertexInfo;
+                bool           reccordGenInfo;
 
 		TTree*         MyTree;
 		bool           Event_triggerL1Bits[192];
@@ -156,74 +153,79 @@ class HSCPTreeBuilder : public edm::EDFilter {
                 float          Event_BField;
 
                 unsigned int   NVertices;
-		float	       Vertex_x         [MAX_VERTICES];
-                float          Vertex_y         [MAX_VERTICES];
-                float          Vertex_z         [MAX_VERTICES];
-                float          Vertex_x_err     [MAX_VERTICES];
-                float          Vertex_y_err     [MAX_VERTICES];
-                float          Vertex_z_err     [MAX_VERTICES];
-                int            Vertex_TrackSize [MAX_VERTICES];
-		float	       Vertex_chi2      [MAX_VERTICES];
-		float	       Vertex_ndof      [MAX_VERTICES];
-                bool           Vertex_isFake    [MAX_VERTICES];
+		float	       Vertex_x           [MAX_VERTICES];
+                float          Vertex_y           [MAX_VERTICES];
+                float          Vertex_z           [MAX_VERTICES];
+                float          Vertex_x_err       [MAX_VERTICES];
+                float          Vertex_y_err       [MAX_VERTICES];
+                float          Vertex_z_err       [MAX_VERTICES];
+                int            Vertex_TrackSize   [MAX_VERTICES];
+		float	       Vertex_chi2        [MAX_VERTICES];
+		float	       Vertex_ndof        [MAX_VERTICES];
+                bool           Vertex_isFake      [MAX_VERTICES];
 
-                unsigned int   NTracks;
-		float**        Track_dEdx;
-                float**        Track_dEdx_NOS;
-		unsigned int** Track_dEdx_NOM;
-		unsigned int   Track_NOH        [MAX_TRACKS];
-		float          Track_p          [MAX_TRACKS];
-                float          Track_px         [MAX_TRACKS];
-                float          Track_py         [MAX_TRACKS];
-                float          Track_pz         [MAX_TRACKS];
-		float          Track_pt         [MAX_TRACKS];
-                float          Track_pt_err     [MAX_TRACKS];
-		float          Track_chi2       [MAX_TRACKS];
-                unsigned int   Track_ndof       [MAX_TRACKS];
-		float          Track_eta        [MAX_TRACKS];  
-                float          Track_eta_err    [MAX_TRACKS];
-		float          Track_phi        [MAX_TRACKS];
-                float          Track_phi_err    [MAX_TRACKS];
-		float          Track_theta      [MAX_TRACKS];
-		float          Track_dz         [MAX_TRACKS];
-		float          Track_d0         [MAX_TRACKS];
-		int            Track_quality    [MAX_TRACKS];
-		int            Track_charge     [MAX_TRACKS];
-                int            Track_MuonIndex  [MAX_TRACKS];
-                float          Track_MuonDist   [MAX_TRACKS];
-
-                unsigned int   NMuons;
-                float          Muon_p             [MAX_MUONS];
-                float          Muon_px            [MAX_MUONS];
-                float          Muon_py            [MAX_MUONS];
-                float          Muon_pz            [MAX_MUONS];
-                float          Muon_pt            [MAX_MUONS];
-                float          Muon_chi2          [MAX_MUONS];
-                unsigned int   Muon_ndof          [MAX_MUONS];
-                float          Muon_eta           [MAX_MUONS];
-                float          Muon_phi           [MAX_MUONS];
-                float          Muon_theta         [MAX_MUONS];
-                int            Muon_type          [MAX_MUONS];
-                int            Muon_quality       [MAX_MUONS];
-                bool           Muon_qualityValid  [MAX_MUONS];
-                int            Muon_charge        [MAX_MUONS];
-                float          Muon_dt_IBeta      [MAX_MUONS];
-                float          Muon_dt_IBeta_err  [MAX_MUONS];
-                float          Muon_dt_fIBeta     [MAX_MUONS];
-                float          Muon_dt_fIBeta_err [MAX_MUONS];
-                float          Muon_csc_IBeta     [MAX_MUONS];
-                float          Muon_csc_IBeta_err [MAX_MUONS];
-                float          Muon_csc_fIBeta    [MAX_MUONS];
-                float          Muon_csc_fIBeta_err[MAX_MUONS];
-                float          Muon_cb_IBeta      [MAX_MUONS];
-                float          Muon_cb_IBeta_err  [MAX_MUONS];
-                float          Muon_cb_fIBeta     [MAX_MUONS];
-                float          Muon_cb_fIBeta_err [MAX_MUONS];
-                int            Muon_TrackIndex    [MAX_MUONS];
-                float          Muon_Track_pt      [MAX_MUONS];
-                float          Muon_Track_eta     [MAX_MUONS];
-                float          Muon_Track_phi     [MAX_MUONS];
-
+                unsigned int   NHSCPs;
+                bool           Hscp_hasTrack      [MAX_HSCPS];
+                bool           Hscp_hasMuon       [MAX_HSCPS];
+                bool           Hscp_hasRpc        [MAX_HSCPS];
+                bool           Hscp_hasCalo       [MAX_HSCPS];
+                int            Hscp_type          [MAX_HSCPS];
+		unsigned int   Track_NOH          [MAX_HSCPS];
+		float          Track_p            [MAX_HSCPS];
+		float          Track_pt           [MAX_HSCPS];
+                float          Track_pt_err       [MAX_HSCPS];
+		float          Track_chi2         [MAX_HSCPS];
+                unsigned int   Track_ndof         [MAX_HSCPS];
+		float          Track_eta          [MAX_HSCPS];  
+                float          Track_eta_err      [MAX_HSCPS];
+		float          Track_phi          [MAX_HSCPS];
+                float          Track_phi_err      [MAX_HSCPS];
+		float          Track_dz           [MAX_HSCPS];
+		float          Track_d0           [MAX_HSCPS];
+		int            Track_quality      [MAX_HSCPS];
+		int            Track_charge       [MAX_HSCPS];
+		float          Track_dEdxE1       [MAX_HSCPS];
+                float          Track_dEdxE1_NOS   [MAX_HSCPS];
+		unsigned int   Track_dEdxE1_NOM   [MAX_HSCPS];
+                float          Track_dEdxE2       [MAX_HSCPS];
+                float          Track_dEdxE2_NOS   [MAX_HSCPS];
+                unsigned int   Track_dEdxE2_NOM   [MAX_HSCPS];
+                float          Track_dEdxE3       [MAX_HSCPS];
+                float          Track_dEdxE3_NOS   [MAX_HSCPS];
+                unsigned int   Track_dEdxE3_NOM   [MAX_HSCPS];
+                float          Track_dEdxD1       [MAX_HSCPS];
+                float          Track_dEdxD1_NOS   [MAX_HSCPS];
+                unsigned int   Track_dEdxD1_NOM   [MAX_HSCPS];
+                float          Track_dEdxD2       [MAX_HSCPS]; 
+                float          Track_dEdxD2_NOS   [MAX_HSCPS];
+                unsigned int   Track_dEdxD2_NOM   [MAX_HSCPS];
+                float          Track_dEdxD3       [MAX_HSCPS];
+                float          Track_dEdxD3_NOS   [MAX_HSCPS];
+                unsigned int   Track_dEdxD3_NOM   [MAX_HSCPS];
+                float          Muon_p             [MAX_HSCPS];
+                float          Muon_pt            [MAX_HSCPS];
+                float          Muon_eta           [MAX_HSCPS];
+                float          Muon_phi           [MAX_HSCPS];
+                int            Muon_type          [MAX_HSCPS];
+                bool           Muon_qualityValid  [MAX_HSCPS];
+                int            Muon_charge        [MAX_HSCPS];
+                float          Muon_dt_IBeta      [MAX_HSCPS];
+                float          Muon_dt_IBeta_err  [MAX_HSCPS];
+                float          Muon_dt_fIBeta     [MAX_HSCPS];
+                float          Muon_dt_fIBeta_err [MAX_HSCPS];
+                int            Muon_dt_ndof       [MAX_HSCPS];
+                float          Muon_csc_IBeta     [MAX_HSCPS];
+                float          Muon_csc_IBeta_err [MAX_HSCPS];
+                float          Muon_csc_fIBeta    [MAX_HSCPS];
+                float          Muon_csc_fIBeta_err[MAX_HSCPS];
+                int            Muon_csc_ndof      [MAX_HSCPS];
+                float          Muon_cb_IBeta      [MAX_HSCPS];
+                float          Muon_cb_IBeta_err  [MAX_HSCPS];
+                float          Muon_cb_fIBeta     [MAX_HSCPS];
+                float          Muon_cb_fIBeta_err [MAX_HSCPS];
+                int            Muon_cb_ndof       [MAX_HSCPS];          
+                float          Calo_ecal_beta     [MAX_HSCPS];
+                float          Rpc_beta           [MAX_HSCPS];
 
                 unsigned int   NGens;
                 int            Gen_pdgId          [MAX_GENS];
@@ -237,23 +239,13 @@ class HSCPTreeBuilder : public edm::EDFilter {
                 float          Gen_phi            [MAX_GENS];
                 float          Gen_beta           [MAX_GENS];
                 float          Gen_mass           [MAX_GENS];
-
-                bool          reccordVertexInfo;
-                bool          reccordTrackInfo;
-                bool          reccordMuonInfo;
-                bool          reccordGenInfo;
 };
 
 HSCPTreeBuilder::HSCPTreeBuilder(const edm::ParameterSet& iConfig)
 {
-   m_tracksTag         = iConfig.getParameter<InputTag>              ("tracks");
-   m_dEdxDiscrimTag    = iConfig.getParameter<std::vector<InputTag> >("dEdxDiscrim");  
-   m_muonsTag          = iConfig.getParameter<InputTag>              ("muons");
-   m_muontimingTag     = iConfig.getParameter<InputTag>              ("muontiming");
+   m_HSCPsTag          = iConfig.getParameter<InputTag>              ("HSCParticles");
 
    reccordVertexInfo   = iConfig.getUntrackedParameter<bool>    ("reccordVertexInfo"  ,  true );
-   reccordTrackInfo    = iConfig.getUntrackedParameter<bool>    ("reccordTrackInfo"   ,  true );
-   reccordMuonInfo     = iConfig.getUntrackedParameter<bool>    ("reccordMuonInfo"    ,  true );
    reccordGenInfo      = iConfig.getUntrackedParameter<bool>    ("reccordGenInfo"     ,  false );
 }
 
@@ -265,17 +257,8 @@ HSCPTreeBuilder::~HSCPTreeBuilder()
 void
 HSCPTreeBuilder::beginJob()
 {
-   Track_dEdx     = new float       *[m_dEdxDiscrimTag.size()];
-   Track_dEdx_NOS = new float       *[m_dEdxDiscrimTag.size()];
-   Track_dEdx_NOM = new unsigned int*[m_dEdxDiscrimTag.size()];
-   for(unsigned int i=0;i<m_dEdxDiscrimTag.size();i++){
-      Track_dEdx    [i] = new float       [MAX_TRACKS];
-      Track_dEdx_NOS[i] = new float       [MAX_TRACKS];
-      Track_dEdx_NOM[i] = new unsigned int[MAX_TRACKS];
-   }
-
    TTree::SetMaxTreeSize(1000*Long64_t(2000000000)); // authorize Trees up to 2 Terabytes
-   MyTree = tfs->make<TTree> ("MyTree","MyTree");
+   MyTree = tfs->make<TTree> ("HscpTree","HscpTree");
 
    MyTree->Branch("Event_EventNumber"       ,&Event_EventNumber     ,"Event_EventNumber/i");
    MyTree->Branch("Event_RunNumber"         ,&Event_RunNumber       ,"Event_RunNumber/i");
@@ -304,81 +287,69 @@ HSCPTreeBuilder::beginJob()
    MyTree->Branch("Vertex_isFake"   ,Vertex_isFake   ,"Vertex_isFake[NVertices]/O");
    }
 
+   MyTree->Branch("NHSCPs"             ,&NHSCPs            ,"NHSCPs/I");
+   MyTree->Branch("Hscp_hasTrack"      ,Hscp_hasTrack      ,"Hscp_hasTrack[NHSCPs]/O");
+   MyTree->Branch("Hscp_hasMuon"       ,Hscp_hasMuon       ,"Hscp_hasMuon[NHSCPs]/O");
+   MyTree->Branch("Hscp_hasRpc"        ,Hscp_hasRpc        ,"Hscp_hasRpc[NHSCPs]/O");
+   MyTree->Branch("Hscp_hasCalo"       ,Hscp_hasCalo       ,"Hscp_hasCalo[NHSCPs]/O");
+   MyTree->Branch("Hscp_type"          ,Hscp_type          ,"Hscp_type[NHSCPs]/I");
+   MyTree->Branch("Track_NOH"          ,Track_NOH          ,"Track_NOH[NHSCPs]/I");
+   MyTree->Branch("Track_p"            ,Track_p            ,"Track_p[NHSCPs]/F");
+   MyTree->Branch("Track_pt"           ,Track_pt           ,"Track_pt[NHSCPs]/F");
+   MyTree->Branch("Track_pt_err"       ,Track_pt_err       ,"Track_pt_err[NHSCPs]/F");
+   MyTree->Branch("Track_chi2"         ,Track_chi2         ,"Track_chi2[NHSCPs]/F");
+   MyTree->Branch("Track_ndof"         ,Track_ndof         ,"Track_ndof[NHSCPs]/F");
+   MyTree->Branch("Track_eta"          ,Track_eta          ,"Track_eta[NHSCPs]/F");
+   MyTree->Branch("Track_eta_err"      ,Track_eta_err      ,"Track_eta_err[NHSCPs]/F");
+   MyTree->Branch("Track_phi"          ,Track_phi          ,"Track_phi[NHSCPs]/F");
+   MyTree->Branch("Track_phi_err"      ,Track_phi_err      ,"Track_phi_err[NHSCPs]/F");
+   MyTree->Branch("Track_d0"           ,Track_d0           ,"Track_d0[NHSCPs]/F");
+   MyTree->Branch("Track_dz"           ,Track_dz           ,"Track_dz[NHSCPs]/F");
+   MyTree->Branch("Track_quality"      ,Track_quality      ,"Track_quality[NHSCPs]/I");
+   MyTree->Branch("Track_charge"       ,Track_charge       ,"Track_charge[NHSCPs]/I");
+   MyTree->Branch("Track_dEdxE1"       ,Track_dEdxE1       ,"Track_dEdxE1[NHSCPs]/F");
+   MyTree->Branch("Track_dEdxE1_NOS"   ,Track_dEdxE1_NOS   ,"Track_dEdxE1_NOS[NHSCPs]/F");
+   MyTree->Branch("Track_dEdxE1_NOM"   ,Track_dEdxE1_NOM   ,"Track_dEdxE1_NOM[NHSCPs]/I");
+   MyTree->Branch("Track_dEdxE2"       ,Track_dEdxE2       ,"Track_dEdxE2[NHSCPs]/F");
+   MyTree->Branch("Track_dEdxE2_NOS"   ,Track_dEdxE2_NOS   ,"Track_dEdxE2_NOS[NHSCPs]/F");
+   MyTree->Branch("Track_dEdxE2_NOM"   ,Track_dEdxE2_NOM   ,"Track_dEdxE2_NOM[NHSCPs]/I");
+   MyTree->Branch("Track_dEdxE3"       ,Track_dEdxE3       ,"Track_dEdxE3[NHSCPs]/F");
+   MyTree->Branch("Track_dEdxE3_NOS"   ,Track_dEdxE3_NOS   ,"Track_dEdxE3_NOS[NHSCPs]/F");
+   MyTree->Branch("Track_dEdxE3_NOM"   ,Track_dEdxE3_NOM   ,"Track_dEdxE3_NOM[NHSCPs]/I");
+   MyTree->Branch("Track_dEdxD1"       ,Track_dEdxD1       ,"Track_dEdxD1[NHSCPs]/F");
+   MyTree->Branch("Track_dEdxD1_NOS"   ,Track_dEdxD1_NOS   ,"Track_dEdxD1_NOS[NHSCPs]/F");
+   MyTree->Branch("Track_dEdxD1_NOM"   ,Track_dEdxD1_NOM   ,"Track_dEdxD1_NOM[NHSCPs]/I");
+   MyTree->Branch("Track_dEdxD2"       ,Track_dEdxD2       ,"Track_dEdxD2[NHSCPs]/F");
+   MyTree->Branch("Track_dEdxD2_NOS"   ,Track_dEdxD2_NOS   ,"Track_dEdxD2_NOS[NHSCPs]/F");
+   MyTree->Branch("Track_dEdxD2_NOM"   ,Track_dEdxD2_NOM   ,"Track_dEdxD2_NOM[NHSCPs]/I");
+   MyTree->Branch("Track_dEdxD3"       ,Track_dEdxD3       ,"Track_dEdxD3[NHSCPs]/F");
+   MyTree->Branch("Track_dEdxD3_NOS"   ,Track_dEdxD3_NOS   ,"Track_dEdxD3_NOS[NHSCPs]/F");
+   MyTree->Branch("Track_dEdxD3_NOM"   ,Track_dEdxD3_NOM   ,"Track_dEdxD3_NOM[NHSCPs]/I");
+   MyTree->Branch("Muon_p"             ,Muon_p             ,"Muon_p[NHSCPs]/F");
+   MyTree->Branch("Muon_pt"            ,Muon_pt            ,"Muon_pt[NHSCPs]/F");
+   MyTree->Branch("Muon_eta"           ,Muon_eta           ,"Muon_eta[NHSCPs]/F");
+   MyTree->Branch("Muon_phi"           ,Muon_phi           ,"Muon_phi[NHSCPs]/F");
+   MyTree->Branch("Muon_type"          ,Muon_type          ,"Muon_type[NHSCPs]/i");
+   MyTree->Branch("Muon_qualityValid"  ,Muon_qualityValid  ,"Muon_qualityValid[NHSCPs]/O");
+   MyTree->Branch("Muon_charge"        ,Muon_charge        ,"Muon_charge[NHSCPs]/i");
+   MyTree->Branch("Muon_dt_IBeta"      ,Muon_dt_IBeta      ,"Muon_dt_IBeta[NHSCPs]/F");
+   MyTree->Branch("Muon_dt_IBeta_err"  ,Muon_dt_IBeta_err  ,"Muon_dt_IBeta_err[NHSCPs]/F");
+   MyTree->Branch("Muon_dt_fIBeta"     ,Muon_dt_fIBeta     ,"Muon_dt_fIBeta[NHSCPs]/F");
+   MyTree->Branch("Muon_dt_fIBeta_err" ,Muon_dt_fIBeta_err ,"Muon_dt_fIBeta_err[NHSCPs]/F");
+   MyTree->Branch("Muon_dt_ndof"       ,Muon_dt_ndof       ,"Muon_dt_ndof[NHSCPs]/I");
+   MyTree->Branch("Muon_csc_IBeta"     ,Muon_csc_IBeta     ,"Muon_csc_IBeta[NHSCPs]/F");
+   MyTree->Branch("Muon_csc_IBeta_err" ,Muon_csc_IBeta_err ,"Muon_csc_IBeta_err[NHSCPs]/F");
+   MyTree->Branch("Muon_csc_fIBeta"    ,Muon_csc_fIBeta    ,"Muon_csc_fIBeta[NHSCPs]/F");
+   MyTree->Branch("Muon_csc_fIBeta_err",Muon_csc_fIBeta_err,"Muon_csc_fIBeta_err[NHSCPs]/F");
+   MyTree->Branch("Muon_csc_ndof"      ,Muon_csc_ndof      ,"Muon_csc_ndof[NHSCPs]/I");
+   MyTree->Branch("Muon_cb_IBeta"      ,Muon_cb_IBeta      ,"Muon_cb_IBeta[NHSCPs]/F");
+   MyTree->Branch("Muon_cb_IBeta_err"  ,Muon_cb_IBeta_err  ,"Muon_cb_IBeta_err[NHSCPs]/F");
+   MyTree->Branch("Muon_cb_fIBeta"     ,Muon_cb_fIBeta     ,"Muon_cb_fIBeta[NHSCPs]/F");
+   MyTree->Branch("Muon_cb_fIBeta_err" ,Muon_cb_fIBeta_err ,"Muon_cb_fIBeta_err[NHSCPs]/F");
+   MyTree->Branch("Muon_cb_ndof"       ,Muon_cb_ndof       ,"Muon_cb_ndof[NHSCPs]/I");
 
-   if(reccordTrackInfo){
-   MyTree->Branch("NTracks"         ,&NTracks        ,"NTracks/I");
-   MyTree->Branch("Track_NOH"       ,Track_NOH       ,"Track_NOH[NTracks]/I");
-   MyTree->Branch("Track_p"         ,Track_p         ,"Track_p[NTracks]/F");
-   MyTree->Branch("Track_px"        ,Track_px        ,"Track_px[NTracks]/F");
-   MyTree->Branch("Track_py"        ,Track_py        ,"Track_py[NTracks]/F");
-   MyTree->Branch("Track_pz"        ,Track_pz        ,"Track_pz[NTracks]/F");
-   MyTree->Branch("Track_pt"        ,Track_pt        ,"Track_pt[NTracks]/F");
-   MyTree->Branch("Track_pt_err"    ,Track_pt_err    ,"Track_pt_err[NTracks]/F");
-   MyTree->Branch("Track_chi2"      ,Track_chi2      ,"Track_chi2[NTracks]/F");
-   MyTree->Branch("Track_ndof"      ,Track_ndof      ,"Track_ndof[NTracks]/F");
-   MyTree->Branch("Track_eta"       ,Track_eta       ,"Track_eta[NTracks]/F");
-   MyTree->Branch("Track_eta_err"   ,Track_eta_err   ,"Track_eta_err[NTracks]/F");
-   MyTree->Branch("Track_phi"       ,Track_phi       ,"Track_phi[NTracks]/F");
-   MyTree->Branch("Track_phi_err"   ,Track_phi_err   ,"Track_phi_err[NTracks]/F");
-   MyTree->Branch("Track_theta"     ,Track_theta     ,"Track_theta[NTracks]/F");
-   MyTree->Branch("Track_d0"        ,Track_d0        ,"Track_d0[NTracks]/F");
-   MyTree->Branch("Track_dz"        ,Track_dz        ,"Track_dz[NTracks]/F");
-   MyTree->Branch("Track_quality"   ,Track_quality   ,"Track_quality[NTracks]/I");
-   MyTree->Branch("Track_charge"    ,Track_charge    ,"Track_charge[NTracks]/I");
-   MyTree->Branch("Track_MuonIndex" ,Track_MuonIndex ,"Track_MuonIndex[NTracks]/i");
-   MyTree->Branch("Track_MuonDist"  ,Track_MuonDist  ,"Track_MuonDist[NTracks]/F");
-
-   for(unsigned int i=0;i<m_dEdxDiscrimTag.size();i++){
-      char name[1024];
-      char type[1024];
-      sprintf(name,"Track_dEdx_%s"               ,m_dEdxDiscrimTag[i].encode().c_str());
-      sprintf(type,"Track_dEdx_%s[NTracks]/F"    ,m_dEdxDiscrimTag[i].encode().c_str());
-      MyTree->Branch(name, Track_dEdx[i], type);
-
-      sprintf(name,"Track_dEdx_%s_NOS"           ,m_dEdxDiscrimTag[i].encode().c_str());
-      sprintf(type,"Track_dEdx_%s_NOS[NTracks]/F",m_dEdxDiscrimTag[i].encode().c_str());
-      MyTree->Branch(name, Track_dEdx_NOS[i], type);
-
-      sprintf(name,"Track_dEdx_%s_NOM"           ,m_dEdxDiscrimTag[i].encode().c_str());
-      sprintf(type,"Track_dEdx_%s_NOM[NTracks]/I",m_dEdxDiscrimTag[i].encode().c_str());
-      MyTree->Branch(name, Track_dEdx_NOM[i], type);
-   }
-   }
-
-   if(reccordMuonInfo){
-   MyTree->Branch("NMuons"             ,&NMuons            ,"NMuons/I");
-   MyTree->Branch("Muon_p"             ,Muon_p             ,"Muon_p[NMuons]/F");
-   MyTree->Branch("Muon_px"            ,Muon_px            ,"Muon_px[NMuons]/F");
-   MyTree->Branch("Muon_py"            ,Muon_py            ,"Muon_py[NMuons]/F");
-   MyTree->Branch("Muon_pz"            ,Muon_pz            ,"Muon_pz[NMuons]/F");
-   MyTree->Branch("Muon_pt"            ,Muon_pt            ,"Muon_pt[NMuons]/F");
-   MyTree->Branch("Muon_chi2"          ,Muon_chi2          ,"Muon_chi2[NMuons]/F");
-   MyTree->Branch("Muon_ndof"          ,Muon_ndof          ,"Muon_ndof[NMuons]/I");
-   MyTree->Branch("Muon_eta"           ,Muon_eta           ,"Muon_eta[NMuons]/F");
-   MyTree->Branch("Muon_phi"           ,Muon_phi           ,"Muon_phi[NMuons]/F");
-   MyTree->Branch("Muon_theta"         ,Muon_theta         ,"Muon_theta[NMuons]/F");
-   MyTree->Branch("Muon_type"          ,Muon_type          ,"Muon_type[NMuons]/i");
-   MyTree->Branch("Muon_quality"       ,Muon_quality       ,"Muon_quality[NMuons]/i");
-   MyTree->Branch("Muon_qualityValid"  ,Muon_qualityValid  ,"Muon_qualityValid[NMuons]/O");
-   MyTree->Branch("Muon_charge"        ,Muon_charge        ,"Muon_charge[NMuons]/i");
-   MyTree->Branch("Muon_dt_IBeta"      ,Muon_dt_IBeta      ,"Muon_dt_IBeta[NMuons]/F");
-   MyTree->Branch("Muon_dt_IBeta_err"  ,Muon_dt_IBeta_err  ,"Muon_dt_IBeta_err[NMuons]/F");
-   MyTree->Branch("Muon_dt_fIBeta"     ,Muon_dt_fIBeta     ,"Muon_dt_fIBeta[NMuons]/F");
-   MyTree->Branch("Muon_dt_fIBeta_err" ,Muon_dt_fIBeta_err ,"Muon_dt_fIBeta_err[NMuons]/F");
-   MyTree->Branch("Muon_csc_IBeta"     ,Muon_csc_IBeta     ,"Muon_csc_IBeta[NMuons]/F");
-   MyTree->Branch("Muon_csc_IBeta_err" ,Muon_csc_IBeta_err ,"Muon_csc_IBeta_err[NMuons]/F");
-   MyTree->Branch("Muon_csc_fIBeta"    ,Muon_csc_fIBeta    ,"Muon_csc_fIBeta[NMuons]/F");
-   MyTree->Branch("Muon_csc_fIBeta_err",Muon_csc_fIBeta_err,"Muon_csc_fIBeta_err[NMuons]/F");
-   MyTree->Branch("Muon_cb_IBeta"      ,Muon_cb_IBeta      ,"Muon_cb_IBeta[NMuons]/F");
-   MyTree->Branch("Muon_cb_IBeta_err"  ,Muon_cb_IBeta_err  ,"Muon_cb_IBeta_err[NMuons]/F");
-   MyTree->Branch("Muon_cb_fIBeta"     ,Muon_cb_fIBeta     ,"Muon_cb_fIBeta[NMuons]/F");
-   MyTree->Branch("Muon_cb_fIBeta_err" ,Muon_cb_fIBeta_err ,"Muon_cb_fIBeta_err[NMuons]/F");
-   MyTree->Branch("Muon_TrackIndex"    ,Muon_TrackIndex    ,"Muon_TrackIndex[NMuons]/i");
-   MyTree->Branch("Muon_Track_pt"      ,Muon_Track_pt      ,"Muon_Track_pt[NMuons]/F");
-   MyTree->Branch("Muon_Track_eta"     ,Muon_Track_eta     ,"Muon_Track_eta[NMuons]/F");
-   MyTree->Branch("Muon_Track_phi"     ,Muon_Track_phi     ,"Muon_Track_phi[NMuons]/F");
-   }
-
+   MyTree->Branch("Calo_eca_beta"      ,Calo_ecal_beta     ,"Calo_ecal_beta[NHSCPs]/F");
+   MyTree->Branch("Rpc_beta"           ,Rpc_beta           ,"Rpc_beta[NHSCPs]/F");
 
    if(reccordGenInfo){
    MyTree->Branch("NGens"              ,&NGens             ,"NGens/I");
@@ -425,7 +396,6 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    const MagneticField* theMagneticField = MF.product();
    Event_BField = fabs(theMagneticField->inTesla(GlobalPoint(0,0,0)).z());
 
-
    // L1 TRIGGER part:
    edm::Handle<L1GlobalTriggerReadoutRecord> h_gtReadoutRecord;
    iEvent.getByLabel("gtDigis", h_gtReadoutRecord);
@@ -442,7 +412,6 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<edm::TriggerResults> trh;
    iEvent.getByLabel("TriggerResults", trh);
    for(unsigned int i=0;i<trh->size() && i<128;++i){Event_triggerHLTBits[i] = trh->at(i).accept();}
-
 
    edm::Handle<reco::VertexCollection> recoVertexHandle;
    iEvent.getByLabel("offlinePrimaryVertices", recoVertexHandle);
@@ -465,136 +434,94 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    }
 
-   // MUON LOOP:
-   std::vector<reco::MuonRef> MuonVector;
-   if(reccordMuonInfo){
-      edm::Handle<reco::MuonCollection> muonCollectionHandle;
-      iEvent.getByLabel(m_muonsTag,muonCollectionHandle);
-      reco::MuonCollection muonCollection = *muonCollectionHandle.product();
+   // Source Collection
+   edm::Handle<susybsm::HSCParticleCollection > HSCPCollectionHandle;
+   iEvent.getByLabel(m_HSCPsTag, HSCPCollectionHandle);
+   susybsm::HSCParticleCollection HSCPCollection = *HSCPCollectionHandle.product();
 
-      Handle<reco::MuonTimeExtraMap> timeMapDT_h;
-      Handle<reco::MuonTimeExtraMap> timeMapCSC_h;
-      Handle<reco::MuonTimeExtraMap> timeMapCmb_h;
+   NHSCPs=0;
+   for(unsigned int i=0; i<HSCPCollection.size();i++){
+      susybsm::HSCParticle hscp = HSCPCollection[i]; 
+      reco::MuonRef  muon  = hscp.muonRef();
+      reco::TrackRef track = hscp.trackRef();;
 
-      if(muonCollection.size()){
-         iEvent.getByLabel(m_muontimingTag.label(),"dt",timeMapDT_h);
-         iEvent.getByLabel(m_muontimingTag.label(),"csc",timeMapCSC_h);
-         iEvent.getByLabel(m_muontimingTag.label(),"combined",timeMapCmb_h);
+       Hscp_hasTrack        [NHSCPs] = hscp.hasTrackRef();
+       Hscp_hasMuon         [NHSCPs] = hscp.hasMuonRef();
+       Hscp_hasRpc          [NHSCPs] = hscp.hasRpcInfo();
+       Hscp_hasCalo         [NHSCPs] = hscp.hasCaloInfo();
+       Hscp_type            [NHSCPs] = hscp.type();
+
+      if(track.isNonnull() && Hscp_hasTrack){
+         Track_p            [NHSCPs] = track->p();
+         Track_pt           [NHSCPs] = track->pt();
+         Track_pt_err       [NHSCPs] = track->ptError();
+         Track_eta          [NHSCPs] = track->eta();
+         Track_eta_err      [NHSCPs] = track->etaError();
+         Track_phi          [NHSCPs] = track->phi();
+         Track_phi_err      [NHSCPs] = track->phiError();
+         Track_NOH          [NHSCPs] = track->found();
+         Track_chi2         [NHSCPs] = track->chi2();
+         Track_ndof         [NHSCPs] = track->ndof();
+         Track_d0           [NHSCPs] = -1.0f * track->dxy(recoVertex[0].position());
+         Track_dz           [NHSCPs] = -1.0f * track->dz (recoVertex[0].position());
+         Track_quality      [NHSCPs] = track->qualityMask();
+         Track_charge       [NHSCPs] = track->charge(); 
+         Track_dEdxE1       [NHSCPs] = hscp.dedxEstimator1().dEdx();
+         Track_dEdxE1_NOM   [NHSCPs] = hscp.dedxEstimator1().numberOfMeasurements();
+         Track_dEdxE1_NOS   [NHSCPs] = hscp.dedxEstimator1().numberOfSaturatedMeasurements();
+         Track_dEdxE2       [NHSCPs] = hscp.dedxEstimator2().dEdx();
+         Track_dEdxE2_NOM   [NHSCPs] = hscp.dedxEstimator2().numberOfMeasurements();
+         Track_dEdxE2_NOS   [NHSCPs] = hscp.dedxEstimator2().numberOfSaturatedMeasurements();
+         Track_dEdxE3       [NHSCPs] = hscp.dedxEstimator3().dEdx();
+         Track_dEdxE3_NOM   [NHSCPs] = hscp.dedxEstimator3().numberOfMeasurements();
+         Track_dEdxE3_NOS   [NHSCPs] = hscp.dedxEstimator3().numberOfSaturatedMeasurements();
+         Track_dEdxD1       [NHSCPs] = hscp.dedxDiscriminator1().dEdx();
+         Track_dEdxD1_NOM   [NHSCPs] = hscp.dedxDiscriminator1().numberOfMeasurements();
+         Track_dEdxD1_NOS   [NHSCPs] = hscp.dedxDiscriminator1().numberOfSaturatedMeasurements();
+         Track_dEdxD2       [NHSCPs] = hscp.dedxDiscriminator2().dEdx();
+         Track_dEdxD2_NOM   [NHSCPs] = hscp.dedxDiscriminator2().numberOfMeasurements();
+         Track_dEdxD2_NOS   [NHSCPs] = hscp.dedxDiscriminator2().numberOfSaturatedMeasurements();
+         Track_dEdxD3       [NHSCPs] = hscp.dedxDiscriminator3().dEdx();
+         Track_dEdxD3_NOM   [NHSCPs] = hscp.dedxDiscriminator3().numberOfMeasurements();
+         Track_dEdxD3_NOS   [NHSCPs] = hscp.dedxDiscriminator3().numberOfSaturatedMeasurements();
       }
-      const reco::MuonTimeExtraMap & timeMapDT = *timeMapDT_h;
-      const reco::MuonTimeExtraMap & timeMapCSC = *timeMapCSC_h;
-      const reco::MuonTimeExtraMap & timeMapCmb = *timeMapCmb_h;
 
-
-
-      NMuons = 0;
-      for(unsigned int i=0; i<muonCollection.size(); i++){
-        reco::MuonRef muon  = reco::MuonRef( muonCollectionHandle, i );
-        MuonVector.push_back(muon);
-
-        Muon_p             [NMuons] = muon->p();
-        Muon_px            [NMuons] = muon->px();
-        Muon_py            [NMuons] = muon->py();
-        Muon_pz            [NMuons] = muon->pz();
-        Muon_pt            [NMuons] = muon->pt();
-      //Muon_chi2          [NMuons] = muon->chi2();
-      //Muon_ndof          [NMuons] = muon->ndof();
-        Muon_eta           [NMuons] = muon->eta();
-        Muon_phi           [NMuons] = muon->phi();
-        Muon_theta         [NMuons] = muon->theta();
-        Muon_type          [NMuons] = muon->type();
-      //Muon_quality       [NMuons] = muon->quality();
-        Muon_qualityValid  [NMuons] = muon->isQualityValid();
-        Muon_charge        [NMuons] = muon->charge();
-        Muon_dt_IBeta      [NMuons] = timeMapDT [muon].inverseBeta();
-        Muon_dt_IBeta_err  [NMuons] = timeMapDT [muon].inverseBetaErr();
-        Muon_dt_fIBeta     [NMuons] = timeMapDT [muon].freeInverseBeta();
-        Muon_dt_fIBeta_err [NMuons] = timeMapDT [muon].freeInverseBetaErr();
-        Muon_csc_IBeta     [NMuons] = timeMapCSC[muon].inverseBeta();
-        Muon_csc_IBeta_err [NMuons] = timeMapCSC[muon].inverseBetaErr();
-        Muon_csc_fIBeta    [NMuons] = timeMapCSC[muon].freeInverseBeta();
-        Muon_csc_fIBeta_err[NMuons] = timeMapCSC[muon].freeInverseBetaErr();
-        Muon_cb_IBeta      [NMuons] = timeMapCmb[muon].inverseBeta();
-        Muon_cb_IBeta_err  [NMuons] = timeMapCmb[muon].inverseBetaErr();
-        Muon_cb_fIBeta     [NMuons] = timeMapCmb[muon].freeInverseBeta();
-        Muon_cb_fIBeta_err [NMuons] = timeMapCmb[muon].freeInverseBetaErr();
-
-        TrackRef innertrack = muon->innerTrack();
-        if(innertrack.isNonnull()){ 
-           Muon_TrackIndex    [NMuons] = innertrack.key();
-           Muon_Track_pt      [NMuons] = innertrack->pt ();
-           Muon_Track_eta     [NMuons] = innertrack->eta();
-           Muon_Track_phi     [NMuons] = innertrack->phi();
-        }else{
-           Muon_TrackIndex    [NMuons] = -1;
-           Muon_Track_pt      [NMuons] = -1;
-           Muon_Track_eta     [NMuons] = -1;
-           Muon_Track_phi     [NMuons] = -1;
-        }
-
-        NMuons++;
+      if(muon.isNonnull() && Hscp_hasMuon){
+         Muon_p             [NHSCPs] = muon->p();
+         Muon_pt            [NHSCPs] = muon->pt();
+         Muon_eta           [NHSCPs] = muon->eta();
+         Muon_phi           [NHSCPs] = muon->phi();
+         Muon_type          [NHSCPs] = muon->type();
+         Muon_qualityValid  [NHSCPs] = muon->isQualityValid();
+         Muon_charge        [NHSCPs] = muon->charge();
+         Muon_dt_IBeta      [NHSCPs] = hscp.muonTimeDt().inverseBeta();
+         Muon_dt_IBeta_err  [NHSCPs] = hscp.muonTimeDt().inverseBetaErr();
+         Muon_dt_fIBeta     [NHSCPs] = hscp.muonTimeDt().freeInverseBeta();
+         Muon_dt_fIBeta_err [NHSCPs] = hscp.muonTimeDt().freeInverseBetaErr();
+         Muon_dt_ndof       [NHSCPs] = hscp.muonTimeDt().nDof();
+         Muon_csc_IBeta     [NHSCPs] = hscp.muonTimeCsc().inverseBeta();
+         Muon_csc_IBeta_err [NHSCPs] = hscp.muonTimeCsc().inverseBetaErr();
+         Muon_csc_fIBeta    [NHSCPs] = hscp.muonTimeCsc().freeInverseBeta();
+         Muon_csc_fIBeta_err[NHSCPs] = hscp.muonTimeCsc().freeInverseBetaErr();
+         Muon_csc_ndof      [NHSCPs] = hscp.muonTimeCsc().nDof();
+         Muon_cb_IBeta      [NHSCPs] = hscp.muonTimeCombined().inverseBeta();
+         Muon_cb_IBeta_err  [NHSCPs] = hscp.muonTimeCombined().inverseBetaErr();
+         Muon_cb_fIBeta     [NHSCPs] = hscp.muonTimeCombined().freeInverseBeta();
+         Muon_cb_fIBeta_err [NHSCPs] = hscp.muonTimeCombined().freeInverseBetaErr();
+         Muon_cb_ndof       [NHSCPs] = hscp.muonTimeCombined().nDof();
       }
+
+      if(Hscp_hasCalo){
+         Calo_ecal_beta     [NHSCPs] = hscp.calo().ecalbeta;     
+      }
+
+      if(Hscp_hasRpc){
+         Rpc_beta           [NHSCPs] = hscp.rpc().beta;
+      }
+
+      NHSCPs++;
    }
-
-
-   if(reccordTrackInfo){
-   // GET BEAMSPOT:
-   edm::Handle<reco::BeamSpot> beamSpotHandle;
-   iEvent.getByLabel("offlineBeamSpot", beamSpotHandle);
-   reco::BeamSpot beamSpot = *beamSpotHandle;
-
-   // TRACK LOOP:
-   edm::Handle<reco::TrackCollection> trackCollectionHandle;
-   try { iEvent.getByLabel(m_tracksTag,trackCollectionHandle); } catch (...) {;}
-   reco::TrackCollection trackCollection = *trackCollectionHandle.product();
-
-   NTracks = 0;
-   for(unsigned int i=0; i<trackCollection.size(); i++){
-     reco::TrackRef track  = reco::TrackRef( trackCollectionHandle, i );
-
-     Track_p        [NTracks] = track->p();
-     Track_px       [NTracks] = track->px();
-     Track_py       [NTracks] = track->py();
-     Track_pz       [NTracks] = track->pz();
-     Track_pt       [NTracks] = track->pt();
-     Track_pt_err   [NTracks] = track->ptError();
-     Track_eta      [NTracks] = track->eta();
-     Track_eta_err  [NTracks] = track->etaError();
-     Track_phi      [NTracks] = track->phi();
-     Track_phi_err  [NTracks] = track->phiError();
-     Track_theta    [NTracks] = track->theta();
-     Track_NOH      [NTracks] = track->found();
-     Track_chi2     [NTracks] = track->chi2();
-     Track_ndof     [NTracks] = track->ndof();
-//   Track_d0       [NTracks] = -1.0f * track->dxy(math::XYZPoint(beamSpot.x0(),beamSpot.y0(), beamSpot.z0()));
-//   Track_dz       [NTracks] = -1.0f * track->dz (math::XYZPoint(beamSpot.x0(),beamSpot.y0(), beamSpot.z0()));
-     Track_d0       [NTracks] = -1.0f * track->dxy(recoVertex[0].position());
-     Track_dz       [NTracks] = -1.0f * track->dz (recoVertex[0].position());
-     Track_quality  [NTracks] = track->qualityMask();
-     Track_charge   [NTracks] = track->charge(); 
-     Track_MuonIndex[NTracks] = ClosestMuonIndex(track, MuonVector);
-     if(Track_MuonIndex[NTracks]>=0){
-     reco::MuonRef muon = MuonVector[ Track_MuonIndex[NTracks] ];     
-     Track_MuonDist [NTracks] = deltaR(track->eta(), track->phi(),muon->eta(), muon->phi());
-     }else{
-     Track_MuonDist [NTracks] = -1;
-     }
-
-     for(unsigned int j=0;j<m_dEdxDiscrimTag.size();j++){
-        Handle<ValueMap<DeDxData> > dEdxTrackHandle;
-        try { iEvent.getByLabel(m_dEdxDiscrimTag[j], dEdxTrackHandle); } catch (...) {;}
-        const ValueMap<DeDxData> dEdxTrack = *dEdxTrackHandle.product();
-
-        (Track_dEdx    [j])[NTracks] = dEdxTrack[track].dEdx();
-        (Track_dEdx_NOS[j])[NTracks] = dEdxTrack[track].numberOfSaturatedMeasurements();
-        (Track_dEdx_NOM[j])[NTracks] = dEdxTrack[track].numberOfMeasurements();       
-     }
-  
-     NTracks++; 
-   }
-   }
-
-
+   
 
    if(reccordGenInfo){
    Handle<GenParticleCollection> genParticles;
@@ -625,24 +552,6 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    MyTree->Fill();
    return true;
 }
-
-
-
-int HSCPTreeBuilder::ClosestMuonIndex(reco::TrackRef track, std::vector<reco::MuonRef> muons){
-   double RMin      = 1000;
-   int    MuonIndex = -1;
-   for (unsigned int i=0; i<muons.size(); i++){
-      reco::MuonRef muon = muons[i];
-      if(!muon->isQualityValid())continue;
-      double dr = deltaR(track->eta(), track->phi(),muon->eta(), muon->phi());
-      if(dr<RMin){
-         MuonIndex = i;
-         RMin      = dr;
-      }
-   }
-   return MuonIndex;
-}
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HSCPTreeBuilder);

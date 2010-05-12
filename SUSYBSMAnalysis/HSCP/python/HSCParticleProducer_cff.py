@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
 ####################################################################################
 #   BEAMSPOT + TRAJECTORY BUILDERS
 ####################################################################################
@@ -8,10 +7,10 @@ import FWCore.ParameterSet.Config as cms
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.TrackProducer.TrackRefitters_cff import *
 
+
 ####################################################################################
 #   DEDX ESTIMATORS 
 ####################################################################################
-
 
 dedxHarm2 = cms.EDProducer("DeDxEstimatorProducer",
     tracks                     = cms.InputTag("TrackRefitter"),
@@ -32,19 +31,80 @@ dedxHarm2 = cms.EDProducer("DeDxEstimatorProducer",
     calibrationPath = cms.string(""),
 )
 
-dedxNPHarm2             = dedxHarm2.clone()
-dedxNPHarm2.UsePixel    = cms.bool(False)
+dedxTru40 = cms.EDProducer("DeDxEstimatorProducer",
+    tracks                     = cms.InputTag("TrackRefitter"),
+    trajectoryTrackAssociation = cms.InputTag("TrackRefitter"),
 
-dedxCHarm2                = dedxHarm2.clone()
-dedxCHarm2.UseCalibration = cms.bool(True)
-dedxCHarm2.calibrationPath = cms.string("file:Gains.root")
+    estimator      = cms.string('truncated'),
+    fraction       = cms.double(0.4),
 
-dedxCNPHarm2                = dedxNPHarm2.clone()
-dedxCNPHarm2.UseCalibration = cms.bool(True)
+    UseStrip       = cms.bool(True),
+    UsePixel       = cms.bool(True),
+    MeVperADCStrip = cms.double(3.61e-06*250),
+    MeVperADCPixel = cms.double(3.61e-06),
+
+    MisCalib_Mean      = cms.untracked.double(1.0),
+    MisCalib_Sigma     = cms.untracked.double(0.00),
+
+    UseCalibration  = cms.bool(False),
+    calibrationPath = cms.string(""),
+)
+
+
+dedxMed = cms.EDProducer("DeDxEstimatorProducer",
+    tracks                     = cms.InputTag("TrackRefitter"),
+    trajectoryTrackAssociation = cms.InputTag("TrackRefitter"),
+
+    estimator      = cms.string('median'),
+
+    UseStrip       = cms.bool(True),
+    UsePixel       = cms.bool(True),
+    MeVperADCStrip = cms.double(3.61e-06*250),
+    MeVperADCPixel = cms.double(3.61e-06),
+
+    MisCalib_Mean      = cms.untracked.double(1.0),
+    MisCalib_Sigma     = cms.untracked.double(0.00),
+
+    UseCalibration  = cms.bool(False),
+    calibrationPath = cms.string(""),
+)
+
+dedxNPHarm2                  = dedxHarm2.clone()
+dedxNPHarm2.UsePixel         = cms.bool(False)
+
+dedxNPTru40                  = dedxTru40.clone()
+dedxNPTru40.UsePixel         = cms.bool(False)
+
+dedxNPMed                    = dedxMed.clone()
+dedxNPMed.UsePixel           = cms.bool(False)
+
+dedxCHarm2                   = dedxHarm2.clone()
+dedxCHarm2.UseCalibration    = cms.bool(True)
+dedxCHarm2.calibrationPath   = cms.string("file:Gains.root")
+
+dedxCTru40                   = dedxTru40.clone()
+dedxCTru40.UseCalibration    = cms.bool(True)
+dedxCTru40.calibrationPath   = cms.string("file:Gains.root")
+
+dedxCMed                     = dedxMed.clone()
+dedxCMed.UseCalibration      = cms.bool(True)
+dedxCMed.calibrationPath     = cms.string("file:Gains.root")
+
+dedxCNPHarm2                 = dedxNPHarm2.clone()
+dedxCNPHarm2.UseCalibration  = cms.bool(True)
 dedxCNPHarm2.calibrationPath = cms.string("file:Gains.root")
 
+dedxCNPTru40                 = dedxNPTru40.clone()
+dedxCNPTru40.UseCalibration  = cms.bool(True)
+dedxCNPTru40.calibrationPath = cms.string("file:Gains.root")
+
+dedxCNPMed                   = dedxNPMed.clone()
+dedxCNPMed.UseCalibration    = cms.bool(True)
+dedxCNPMed.calibrationPath   = cms.string("file:Gains.root")
+
+
 ####################################################################################
-#   DEDX DISCRIMINATORS
+#   DEDX DISCRIMINATORS 
 ####################################################################################
 
 dedxProd               = cms.EDProducer("DeDxDiscriminatorProducer",
@@ -108,7 +168,6 @@ from Geometry.CSCGeometry.cscGeometry_cfi import *
 from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
 
 
-
 from SUSYBSMAnalysis.HSCP.HSCPSelections_cff import *
 
 HSCParticleProducer = cms.EDProducer("HSCParticleProducer",
@@ -126,21 +185,21 @@ HSCParticleProducer = cms.EDProducer("HSCParticleProducer",
    #TAG OF THE REQUIRED INPUT COLLECTION (ONLY ACTIVATED CALCULATOR)
    tracks             = cms.InputTag("TrackRefitter"),
    muons              = cms.InputTag("muons"),
-   dedxEstimator1     = cms.InputTag("dedxNPHarm2"),
-   dedxEstimator2     = cms.InputTag("dedxNPHarm2"),
-   dedxEstimator3     = cms.InputTag("dedxNPHarm2"),
-   dedxDiscriminator1 = cms.InputTag("dedxNPHarm2"),
-   dedxDiscriminator2 = cms.InputTag("dedxNPHarm2"),
-   dedxDiscriminator3 = cms.InputTag("dedxNPHarm2"),
+   dedxEstimator1     = cms.InputTag("dedxCNPHarm2"),
+   dedxEstimator2     = cms.InputTag("dedxCNPTru40"),
+   dedxEstimator3     = cms.InputTag("dedxCNPMed"),
+   dedxDiscriminator1 = cms.InputTag("dedxProd"),
+   dedxDiscriminator2 = cms.InputTag("dedxSmi"),
+   dedxDiscriminator3 = cms.InputTag("dedxASmi"),
    muontimingDt       = cms.InputTag("muontiming:dt"),
    muontimingCsc      = cms.InputTag("muontiming:csc"),
    muontimingCombined = cms.InputTag("muontiming:combined"),
 
    #TRACK SELECTION FOR THE HSCP SEED
-   minMuP             = cms.double(2),
-   minTkP             = cms.double(2),
+   minMuP             = cms.double(5),
+   minTkP             = cms.double(5),
    maxTkChi2          = cms.double(5),
-   minTkHits          = cms.uint32(9),
+   minTkHits          = cms.uint32(3),
 
    #MUON/TRACK MATCHING THRESHOLDS (ONLY IF NO MUON INNER TRACK)
    minDR              = cms.double(0.1),
@@ -171,6 +230,6 @@ HSCParticleSelector = cms.EDFilter("HSCParticleSelector",
 #   HSCP Candidate Sequence
 ####################################################################################
 
-HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxNPHarm2 + muontiming + HSCParticleProducer + HSCParticleSelector)
+HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxCNPHarm2 + dedxCNPTru40 + dedxCNPMed + dedxProd + dedxSmi + dedxASmi + muontiming + HSCParticleProducer)
 
 

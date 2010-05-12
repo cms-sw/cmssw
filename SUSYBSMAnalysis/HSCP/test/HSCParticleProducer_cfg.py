@@ -45,13 +45,13 @@ process.source = cms.Source("PoolSource",
 
 #process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducer_cff")         #IF RUNNING ON DIGI-RECO
 process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducerFromSkim_cff")  #IF RUNNING ON HSCP SKIM
-
+process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 
 process.TFileService = cms.Service("TFileService",
         fileName = cms.string('tfile_out.root')
 )
 
-process.p = cms.Path(process.HSCParticleProducerSeq)
+process.p = cms.Path(process.HSCParticleProducerSeq + process.HSCPTreeBuilder)
 
 process.OUT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring("drop *", "keep *_*_*_EXOHSCPAnalysis"),

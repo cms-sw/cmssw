@@ -11,25 +11,25 @@ HSCPSelectionEmpty = cms.PSet(
          onlyConsiderRpc          = cms.bool(False),
          onlyConsiderEcal         = cms.bool(False),
 
-         minTrackHits             = cms.int32(0),
-         minTrackP                = cms.double(0),
-         minTrackPt               = cms.double(0),
+         minTrackHits             = cms.int32 (-1),
+         minTrackP                = cms.double(-1),
+         minTrackPt               = cms.double(-1),
 
-         minDedxEstimator1        = cms.double(0),
-         minDedxDiscriminator1    = cms.double(0),
+         minDedxEstimator1        = cms.double(-1),
+         minDedxDiscriminator1    = cms.double(-1),
 
-         minMuonP                 = cms.double(0),
-         minMuonPt                = cms.double(0),
+         minMuonP                 = cms.double(-1),
+         minMuonPt                = cms.double(-1),
 
-         maxMuTimeDtBeta          = cms.double(1),
-         minMuTimeDtNdof          = cms.double(0),
-         maxMuTimeCscBeta         = cms.double(1),
-         minMuTimeCscNdof         = cms.double(0),
-         maxMuTimeCombinedBeta    = cms.double(1),
-         minMuTimeCombinedNdof    = cms.double(0),
+         maxMuTimeDtBeta          = cms.double(-1),
+         minMuTimeDtNdof          = cms.double(-1),
+         maxMuTimeCscBeta         = cms.double(-1),
+         minMuTimeCscNdof         = cms.double(-1),
+         maxMuTimeCombinedBeta    = cms.double(-1),
+         minMuTimeCombinedNdof    = cms.double(-1),
 
-         maxBetaRpc               = cms.double(0),
-         maxBetaEcal              = cms.double(0),
+         maxBetaRpc               = cms.double(-1),
+         maxBetaEcal              = cms.double(-1),
       ),
 )
 
