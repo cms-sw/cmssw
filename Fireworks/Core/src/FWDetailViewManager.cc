@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.53 2010/01/14 15:55:14 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.54 2010/05/06 18:03:08 amraktad Exp $
 //
 
 #include <stdio.h>
@@ -189,3 +189,10 @@ FWDetailViewManager::colorsChanged()
       m_detailView->setBackgroundColor(m_colorManager->background());
    }
 }
+
+void
+FWDetailViewManager::newEventCallback()
+{
+   m_mainFrame->UnmapWindow();
+}
+

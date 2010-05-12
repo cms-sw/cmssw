@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.203 2010/05/10 11:52:17 matevz Exp $
+// $Id: FWGUIManager.cc,v 1.204 2010/05/11 10:38:41 amraktad Exp $
 
 //
 
@@ -348,6 +348,7 @@ FWGUIManager::loadEvent() {
    }
    
    m_cmsShowMainFrame->loadEvent(*getCurrentEvent());
+   m_detailViewManager->newEventCallback();
    if(m_dataAdder) {
       m_dataAdder->update(m_openFile, getCurrentEvent());
    }

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.20 2009/10/08 17:44:11 amraktad Exp $
+// $Id: FWDetailViewManager.h,v 1.21 2009/10/31 22:37:35 chrjones Exp $
 //
 #include <map>
 #include <string>
@@ -35,6 +35,7 @@ public:
    std::vector<std::string> detailViewsFor(const FWModelId&) const;
    void openDetailViewFor(const FWModelId&, const std::string&);
    void colorsChanged();
+   void newEventCallback();
 
 private:
    FWDetailViewManager(const FWDetailViewManager&);    // stop default
