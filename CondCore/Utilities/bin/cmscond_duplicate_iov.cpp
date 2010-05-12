@@ -103,6 +103,7 @@ int cond::DuplicateIOVUtilities::execute(){
 
   destDb.transaction().start(true);
   cond::IOVService iovmanager( destDb );
+  iovmanager.loadDicts(iovtoken);
   std::string payload = iovmanager.payloadToken(iovtoken,from);
   destDb.transaction().commit();
   if (payload.empty()) {
@@ -182,7 +183,7 @@ int cond::DuplicateIOVUtilities::execute(){
   }
 
   ::sleep(1);
-
+  
   if (doLog){
     logdb->getWriteLock();
     logdb->logOperationNow(a,destConnect,payload,destTag,timetypestr,size);
