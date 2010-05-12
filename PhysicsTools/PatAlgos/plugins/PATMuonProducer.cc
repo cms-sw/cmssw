@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.35.16.1 2010/04/20 14:46:49 srappocc Exp $
+// $Id: PATMuonProducer.cc,v 1.36 2010/04/20 16:09:29 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -44,59 +44,55 @@ using namespace pat;
 using namespace std;
 
 
-PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), false),
-  useUserData_(iConfig.exists("userData"))
+PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserData_(iConfig.exists("userData")), 
+  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), false)
 {
+  // input source
+  muonSrc_ = iConfig.getParameter<edm::InputTag>( "muonSource" );
+  // embedding of tracks
+  embedTrack_ = iConfig.getParameter<bool>( "embedTrack" );
+  embedCombinedMuon_ = iConfig.getParameter<bool>( "embedCombinedMuon"   );
+  embedStandAloneMuon_ = iConfig.getParameter<bool>( "embedStandAloneMuon" );
 
-  
-  // general configurables
-  muonSrc_             = iConfig.getParameter<edm::InputTag>( "muonSource" );
-  
-  
+  // embedding of muon MET correction information
+  embedCaloMETMuonCorrs_ = iConfig.getParameter<bool>("embedCaloMETMuonCorrs" );
+  embedTcMETMuonCorrs_ = iConfig.getParameter<bool>("embedTcMETMuonCorrs"   );
+  caloMETMuonCorrs_ = iConfig.getParameter<edm::InputTag>("caloMETMuonCorrs" );
+  tcMETMuonCorrs_ = iConfig.getParameter<edm::InputTag>("tcMETMuonCorrs"   );
 
-  embedTrack_          = iConfig.getParameter<bool>         ( "embedTrack" );
-  embedStandAloneMuon_ = iConfig.getParameter<bool>         ( "embedStandAloneMuon" );
-  embedCombinedMuon_   = iConfig.getParameter<bool>         ( "embedCombinedMuon" );
+  // pflow specific configurables
+  useParticleFlow_  = iConfig.getParameter<bool>( "useParticleFlow" );
+  embedPFCandidate_ = iConfig.getParameter<bool>( "embedPFCandidate" );
+  pfMuonSrc_ = iConfig.getParameter<edm::InputTag>( "pfMuonSource" );
 
-  embedPickyMuon_      = iConfig.getParameter<bool>         ( "embedPickyMuon" );
-  embedTpfmsMuon_      = iConfig.getParameter<bool>         ( "embedTpfmsMuon" );
-
-  
-  //pflow specific
-  pfMuonSrc_           = iConfig.getParameter<edm::InputTag>( "pfMuonSource" );
-  useParticleFlow_        = iConfig.getParameter<bool>( "useParticleFlow" );
-
-  embedPFCandidate_   = iConfig.getParameter<bool>( "embedPFCandidate" );
-
-
-  // TeV refit names
+  // TeV track refits
   addTeVRefits_ = iConfig.getParameter<bool>("addTeVRefits");
-  if (addTeVRefits_) {
+  if(addTeVRefits_){
     pickySrc_ = iConfig.getParameter<edm::InputTag>("pickySrc");
     tpfmsSrc_ = iConfig.getParameter<edm::InputTag>("tpfmsSrc");
   }
+  // embedding of tracks from TeV refit
+  embedPickyMuon_ = iConfig.getParameter<bool>( "embedPickyMuon" );
+  embedTpfmsMuon_ = iConfig.getParameter<bool>( "embedTpfmsMuon" );
 
-
-  // MC matching configurables
-  addGenMatch_   = iConfig.getParameter<bool>         ( "addGenMatch" );
-  if (addGenMatch_) {
-    embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
-    if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
+  // Monte Carlo matching
+  addGenMatch_ = iConfig.getParameter<bool>( "addGenMatch" );
+  if(addGenMatch_){
+    embedGenMatch_ = iConfig.getParameter<bool>( "embedGenMatch" );
+    if(iConfig.existsAs<edm::InputTag>("genParticleMatch")){
       genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
     } else {
       genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
     }
   }
   
-  
-  // Efficiency configurables
+  // efficiencies
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
-  if (addEfficiencies_) {
+  if(addEfficiencies_){
     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
 
-  // Resolution configurables
+  // resolutions
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {
     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
@@ -104,16 +100,15 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
 
   // read isoDeposit labels, for direct embedding
   readIsolationLabels(iConfig, "isoDeposits", isoDepositLabels_);
-
   // read isolation value labels, for direct embedding
   readIsolationLabels(iConfig, "isolationValues", isolationValueLabels_);
   
-  // Check to see if the user wants to add user data
-  if ( useUserData_ ) {
+  // check to see if the user wants to add user data
+  if( useUserData_ ){
     userDataHelper_ = PATUserDataHelper<Muon>(iConfig.getParameter<edm::ParameterSet>("userData"));
   }
 
-  // embed high level selection variables?
+  // embed high level selection variables
   usePV_ = true;
   embedHighLevelSelection_ = iConfig.getParameter<bool>("embedHighLevelSelection");
   if ( embedHighLevelSelection_ ) {
@@ -121,29 +116,28 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
     usePV_ = iConfig.getParameter<bool>("usePV");
     pvSrc_ = iConfig.getParameter<edm::InputTag>("pvSrc");
   }
-
+  
   // produces vector of muons
   produces<std::vector<Muon> >();
-
 }
 
 
-PATMuonProducer::~PATMuonProducer() {
+PATMuonProducer::~PATMuonProducer() 
+{
 }
 
-void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
-  
+void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
+{  
   edm::Handle<edm::View<reco::Muon> > muons;
   iEvent.getByLabel(muonSrc_, muons);
 
-  // Get the ESHandle for the transient track builder, if needed for
-  // high level selection embedding
+  // get the ESHandle for the transient track builder,
+  // if needed for high level selection embedding
   edm::ESHandle<TransientTrackBuilder> trackBuilder;
 
-  if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
-
-  if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
-  if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
+  if(isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
+  if(efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
+  if(resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
 
   IsoDepositMaps deposits(isoDepositLabels_.size());
   for (size_t j = 0; j<isoDepositLabels_.size(); ++j) {
@@ -155,7 +149,6 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     iEvent.getByLabel(isolationValueLabels_[j].second, isolationValues[j]);
   }  
   
-
   // prepare the MC matching
   GenAssociations  genMatches(genMatchSrc_.size());
   if (addGenMatch_) {
@@ -164,86 +157,69 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     }
   }
 
-  // prepare the high level selection:
-  // needs beamline OR primary vertex,
-  // depending on user selection
+  // prepare the high level selection: needs beamline
+  // OR primary vertex, depending on user selection
   reco::TrackBase::Point beamPoint(0,0,0);
   reco::Vertex primaryVertex;
   if ( embedHighLevelSelection_ ) {
-    // Get the beamspot
+    // get the beamspot
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> beamSpotHandle;
     iEvent.getByLabel(beamLineSrc_, beamSpotHandle);
 
-    // Get the primary vertex
+    // get the primary vertex
     edm::Handle< std::vector<reco::Vertex> > pvHandle;
     iEvent.getByLabel( pvSrc_, pvHandle );
 
-    if ( ! usePV_ ) {
-      if ( beamSpotHandle.isValid() ){
+    if( !usePV_ ) {
+      if( beamSpotHandle.isValid() ){
 	beamSpot = *beamSpotHandle;
       } else{
 	edm::LogError("DataNotAvailable")
 	  << "No beam spot available from EventSetup, not adding high level selection \n";
       }
-      double x0 = beamSpot.x0();
-      double y0 = beamSpot.y0();
-      double z0 = beamSpot.z0();
-      beamPoint = reco::TrackBase::Point ( x0, y0, z0 );
+      beamPoint = reco::TrackBase::Point ( beamSpot.x0(), beamSpot.y0(), beamSpot.z0() );
     } else {
-      if ( pvHandle.isValid() ) {
+      if( pvHandle.isValid() ) {
 	primaryVertex = pvHandle->at(0);
       } else {
 	edm::LogError("DataNotAvailable")
 	  << "No primary vertex available from EventSetup, not adding high level selection \n";
       }
-
-      // This is needed by the IPTools methods from the tracking group
+      // this is needed by the IPTools methods from the tracking group
       iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
     }
   }
-	
 
+  // this will be the new object collection
   std::vector<Muon> * patMuons = new std::vector<Muon>();
 
-
-  if( useParticleFlow_ ) {
-
+  if( useParticleFlow_ ){
     // get the PFCandidates of type muons 
     edm::Handle< reco::PFCandidateCollection >  pfMuons;
     iEvent.getByLabel(pfMuonSrc_, pfMuons);
 
     unsigned index=0;
-    for( reco::PFCandidateConstIterator i = pfMuons->begin(); 
-	 i != pfMuons->end(); ++i, ++index) {
-      
-
+    for( reco::PFCandidateConstIterator i = pfMuons->begin(); i != pfMuons->end(); ++i, ++index) {
       const reco::PFCandidate& pfmu = *i;
-
       //const reco::IsolaPFCandidate& pfmu = *i;
-
-      // std::cout<<pfmu<<std::endl;
       const reco::MuonRef& muonRef = pfmu.muonRef();
       assert( muonRef.isNonnull() );
-
+      
       MuonBaseRef muonBaseRef(muonRef);
       Muon aMuon(muonBaseRef);
 
       reco::PFCandidateRef pfRef(pfMuons,index);
       //reco::PFCandidatePtr ptrToMother(pfMuons,index);
       reco::CandidateBaseRef pfBaseRef( pfRef ); 
-
+      
       aMuon.setPFCandidateRef( pfRef  );     
       if( embedPFCandidate_ ) aMuon.embedPFCandidate();
-
-      fillMuon( aMuon, muonBaseRef, pfBaseRef, 
-		genMatches, deposits, isolationValues );
-     
+      fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches, deposits, isolationValues );
       patMuons->push_back(aMuon); 
     } 
   }
   else {
-
     edm::Handle<edm::View<reco::Muon> > muons;
     iEvent.getByLabel(muonSrc_, muons);
 
@@ -254,17 +230,28 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       iEvent.getByLabel(tpfmsSrc_, tpfmsMap);
     }
     
+    // embedding of muon MET corrections
+    edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > caloMETMuonCorrs;
+    //edm::ValueMap<reco::MuonMETCorrectionData> caloMETmuCorValueMap;
+    if(embedCaloMETMuonCorrs_){
+      iEvent.getByLabel(caloMETMuonCorrs_, caloMETMuonCorrs);
+      //caloMETmuCorValueMap  = *caloMETmuCorValueMap_h;
+    }
+    edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > tcMETMuonCorrs;
+    //edm::ValueMap<reco::MuonMETCorrectionData> tcMETmuCorValueMap;
+    if(embedTcMETMuonCorrs_) {
+      iEvent.getByLabel(tcMETMuonCorrs_, tcMETMuonCorrs);
+      //tcMETmuCorValueMap  = *tcMETmuCorValueMap_h;
+    }
+
     for (edm::View<reco::Muon>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
-      
       // construct the Muon from the ref -> save ref to original object
       unsigned int idx = itMuon - muons->begin();
       MuonBaseRef muonRef = muons->refAt(idx);
       reco::CandidateBaseRef muonBaseRef( muonRef ); 
       
       Muon aMuon(muonRef);
-      
-      fillMuon( aMuon, muonRef, muonBaseRef, 
-		genMatches, deposits, isolationValues);
+      fillMuon( aMuon, muonRef, muonBaseRef, genMatches, deposits, isolationValues);
 
       // store the TeV refit track refs (only available for globalMuons)
       if (addTeVRefits_ && itMuon->isGlobalMuon()) {
@@ -314,13 +301,10 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	// get the tracks
 	reco::TrackRef innerTrack = itMuon->innerTrack();
 	reco::TrackRef globalTrack= itMuon->globalTrack();
-      
 	// Make sure the collection it points to is there
 	if ( innerTrack.isNonnull() && innerTrack.isAvailable() ) {
 	  unsigned int nhits = innerTrack->numberOfValidHits();
 	  aMuon.setNumberOfValidHits( nhits );
-
-
 	  // Correct to PV, or beam spot
 	  if ( !usePV_ ) {
 	    double corr_d0 = -1.0 * innerTrack->dxy( beamPoint );
@@ -332,8 +316,6 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	    double d0_err = result.second.error();
 	    aMuon.setDB( d0_corr, d0_err );
 	  }
-
-
 	}
 
 	if ( globalTrack.isNonnull() && globalTrack.isAvailable() ) {
@@ -341,10 +323,13 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	  aMuon.setNormChi2( norm_chi2 );
 	}
       }
-      
+
+      // embed MET muon corrections
+      if( embedCaloMETMuonCorrs_ ) aMuon.embedCaloMETMuonCorrs((*caloMETMuonCorrs)[muonRef]);
+      if( embedTcMETMuonCorrs_ ) aMuon.embedTcMETMuonCorrs((*tcMETMuonCorrs  )[muonRef]);      
+
       patMuons->push_back(aMuon);
     }
-    
   }
 
   // sort muons in pt
@@ -357,13 +342,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   if (isolator_.enabled()) isolator_.endEvent();
 }
 
-void PATMuonProducer::fillMuon( Muon& aMuon, 
-				const MuonBaseRef& muonRef,
-				const reco::CandidateBaseRef& baseRef,
-				const GenAssociations& genMatches, 
-				const IsoDepositMaps& deposits,
-				const IsolationValueMaps& isolationValues ) const {
-
+void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const reco::CandidateBaseRef& baseRef, const GenAssociations& genMatches, const IsoDepositMaps& deposits, const IsolationValueMaps& isolationValues ) const 
+{
   // in the particle flow algorithm, 
   // the muon momentum is recomputed. 
   // the new value is stored as the momentum of the 
@@ -392,32 +372,26 @@ void PATMuonProducer::fillMuon( Muon& aMuon,
   for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
     if(useParticleFlow_) {
       reco::CandidatePtr source = aMuon.pfCandidateRef()->sourceCandidatePtr(0);      
-      aMuon.setIsoDeposit(isoDepositLabels_[j].first, 
-			  (*deposits[j])[source]);
+      aMuon.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[source]);
     }
-    else
-      aMuon.setIsoDeposit(isoDepositLabels_[j].first,
-                          (*deposits[j])[muonRef]);
+    else{
+      aMuon.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[muonRef]);
+    }
   }
 
   for (size_t j = 0; j<isolationValues.size(); ++j) {
     if(useParticleFlow_) {
       reco::CandidatePtr source = aMuon.pfCandidateRef()->sourceCandidatePtr(0);      
-      aMuon.setIsolation(isolationValueLabels_[j].first, 
-			 (*isolationValues[j])[source]);
+      aMuon.setIsolation(isolationValueLabels_[j].first, (*isolationValues[j])[source]);
     }
-    else
-      aMuon.setIsolation(isolationValueLabels_[j].first,
-                          (*isolationValues[j])[muonRef]);
+    else{
+      aMuon.setIsolation(isolationValueLabels_[j].first, (*isolationValues[j])[muonRef]);
+    }
   }
-
-
 
   if (resolutionLoader_.enabled()) {
     resolutionLoader_.setResolutions(aMuon);
   }
-
-
 }
 
 // ParameterSet description for module
@@ -435,6 +409,12 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   iDesc.add<bool>("embedCombinedMuon", false)->setComment("embed external combined muon");
   iDesc.add<bool>("embedPickyMuon", false)->setComment("embed external picky muon");
   iDesc.add<bool>("embedTpfmsMuon", false)->setComment("embed external tpfms muon");
+
+  // embedding of MET muon corrections
+  iDesc.add<bool>("embedCaloMETMuonCorrs", true)->setComment("whether to add MET muon correction for caloMET or not");
+  iDesc.add<edm::InputTag>("caloMETMuonCorrs", edm::InputTag("muonMETValueMapProducer"  , "muCorrData"))->setComment("source of MET muon corrections for caloMET");
+  iDesc.add<bool>("embedTcMETMuonCorrs", true)->setComment("whether to add MET muon correction for tcMET or not");
+  iDesc.add<edm::InputTag>("tcMETMuonCorrs", edm::InputTag("muonTCMETValueMapProducer"  , "muCorrData"))->setComment("source of MET muon corrections for tcMET");
 
   // pf specific parameters
   iDesc.add<edm::InputTag>("pfMuonSource", edm::InputTag("pfMuons"))->setComment("particle flow input collection");
@@ -469,7 +449,6 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   isoDepositsPSet.addOptional<std::vector<edm::InputTag> >("user");
   iDesc.addOptional("isoDeposits", isoDepositsPSet);
 
-
   // isolation values configurables
   edm::ParameterSetDescription isolationValuesPSet;
   isolationValuesPSet.addOptional<edm::InputTag>("tracker"); 
@@ -480,8 +459,6 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   isolationValuesPSet.addOptional<edm::InputTag>("pfNeutralHadrons");
   isolationValuesPSet.addOptional<edm::InputTag>("pfPhotons");
   iDesc.addOptional("isolationValues", isolationValuesPSet);
-
-
 
   // Efficiency configurables
   edm::ParameterSetDescription efficienciesPSet;
@@ -509,19 +486,15 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
                  )->setComment("input with high level selection, use primary vertex (true) or beam line (false)");
 
   //descriptions.add("PATMuonProducer", iDesc);
-
 }
 
 
-void PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig,
-					   const char* psetName, 
-					   IsolationLabels& labels) {
-  
+void PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, IsolationLabels& labels) 
+{
   labels.clear();
   
   if (iConfig.exists( psetName )) {
-    edm::ParameterSet depconf 
-      = iConfig.getParameter<edm::ParameterSet>(psetName);
+    edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>(psetName);
 
     if (depconf.exists("tracker")) labels.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
     if (depconf.exists("ecal"))    labels.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
@@ -547,8 +520,6 @@ void PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig,
       }
     }
   }  
-  
-
 }
 
 

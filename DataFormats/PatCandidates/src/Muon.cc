@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.22.10.1 2010/04/20 14:43:50 srappocc Exp $
+// $Id: Muon.cc,v 1.24 2010/04/20 16:07:15 srappocc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -17,6 +17,8 @@ Muon::Muon() :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
+    embeddedCaloMETMuonCorrs_(false),
+    embeddedTCMETMuonCorrs_(false),
     embeddedPickyMuon_(false),
     embeddedTpfmsMuon_(false),
     pickyMuonRef_(),
@@ -40,6 +42,8 @@ Muon::Muon(const reco::Muon & aMuon) :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
+    embeddedCaloMETMuonCorrs_(false),
+    embeddedTCMETMuonCorrs_(false),
     embeddedPickyMuon_(false),
     embeddedTpfmsMuon_(false),
     pickyMuonRef_(),
@@ -63,6 +67,8 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
+    embeddedCaloMETMuonCorrs_(false),
+    embeddedTCMETMuonCorrs_(false),
     embeddedPickyMuon_(false),
     embeddedTpfmsMuon_(false),
     pickyMuonRef_(),
@@ -192,6 +198,20 @@ void Muon::embedCombinedMuon() {
       combinedMuon_.push_back(*reco::Muon::globalTrack());
       embeddedCombinedMuon_ = true;
   }
+}
+
+/// embed the MuonMETCorrectionData for muon corrected caloMET
+void Muon::embedCaloMETMuonCorrs(const reco::MuonMETCorrectionData& t) {
+  caloMETMuonCorrs_.clear();
+  caloMETMuonCorrs_.push_back(t);
+  embeddedCaloMETMuonCorrs_ = true;
+}
+
+/// embed the MuonMETCorrectionData for tcMET
+void Muon::embedTcMETMuonCorrs(const reco::MuonMETCorrectionData& t) {
+  tcMETMuonCorrs_.clear();
+  tcMETMuonCorrs_.push_back(t);
+  embeddedTCMETMuonCorrs_ = true;
 }
 
 /// embed the picky Track

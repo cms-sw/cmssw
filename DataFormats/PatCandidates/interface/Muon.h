@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.29.10.1 2010/04/20 14:43:50 srappocc Exp $
+// $Id: Muon.h,v 1.31 2010/04/20 16:07:14 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -17,16 +17,16 @@
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
 
-  \version  $Id: Muon.h,v 1.29.10.1 2010/04/20 14:43:50 srappocc Exp $
+  \version  $Id: Muon.h,v 1.31 2010/04/20 16:07:14 srappocc Exp $
 */
-
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
 
@@ -82,6 +82,14 @@ namespace pat {
       void embedStandAloneMuon();
       /// set reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
       void embedCombinedMuon();
+
+      // ---- methods for MuonMETCorrectionData ----
+      /// muon MET corrections for caloMET; returns the muon correction struct if embedded during pat tuple production or an empty element
+      reco::MuonMETCorrectionData caloMETMuonCorrs() const { return (embeddedCaloMETMuonCorrs_ ? caloMETMuonCorrs_.front() : reco::MuonMETCorrectionData());};
+      void embedCaloMETMuonCorrs(const reco::MuonMETCorrectionData& t);
+      /// muon MET corrections for tcMET; returns the muon correction struct if embedded during pat tuple production or an empty element
+      reco::MuonMETCorrectionData tcMETMuonCorrs() const {return (embeddedTCMETMuonCorrs_ ? tcMETMuonCorrs_.front() : reco::MuonMETCorrectionData());};
+      void embedTcMETMuonCorrs(const reco::MuonMETCorrectionData& t);
 
       // ---- methods for TeV refit tracks ----
       /// reference to Track reconstructed using hits in the tracker + "good" muon hits
@@ -159,15 +167,26 @@ namespace pat {
 
       /// Returns the segment compatibility, using muon::segmentCompatibility (DataFormats/MuonReco/interface/MuonSelectors.h)
       double segmentCompatibility(reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration) const ;
+
     protected:
 
       // ---- for content embedding ----
+      /// tracker of inner track detector
       bool embeddedTrack_;
       std::vector<reco::Track> track_;
+      /// track of muon system
       bool embeddedStandAloneMuon_;
       std::vector<reco::Track> standAloneMuon_;
+      /// track of combined fit
       bool embeddedCombinedMuon_;
       std::vector<reco::Track> combinedMuon_;
+
+      /// muon MET corrections for tcMET
+      bool embeddedTCMETMuonCorrs_;
+      std::vector<reco::MuonMETCorrectionData> tcMETMuonCorrs_;
+      /// muon MET corrections for caloMET
+      bool embeddedCaloMETMuonCorrs_;
+      std::vector<reco::MuonMETCorrectionData> caloMETMuonCorrs_;
 
       // TeV refit tracks, which are not currently stored in the
       // reco::Muon like the above tracks are. Also provide capability

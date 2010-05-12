@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.23.18.1 2010/04/20 14:46:49 srappocc Exp $
+// $Id: PATMuonProducer.h,v 1.25 2010/04/20 16:09:29 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,128 +13,132 @@
    a collection of objects of reco::Muon.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.23.18.1 2010/04/20 14:46:49 srappocc Exp $
+  \version  $Id: PATMuonProducer.h,v 1.25 2010/04/20 16:09:29 srappocc Exp $
 */
 
+#include <string>
 
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/View.h"
-
-#include "CommonTools/Utils/interface/PtComparator.h"
-
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "TrackingTools/IPTools/interface/IPTools.h"
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
 #include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
-#include "TrackingTools/IPTools/interface/IPTools.h"
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
-#include <string>
-
 
 namespace pat {
-
-  class LeptonLRCalc;
+  /// foward declarations
   class TrackerIsolationPt;
   class CaloIsolationEnergy;
 
-
+  /// class definition
   class PATMuonProducer : public edm::EDProducer {
+    
+  public:
+    /// default constructir
+    explicit PATMuonProducer(const edm::ParameterSet & iConfig);
+    /// default destructur
+    ~PATMuonProducer();
+    /// everything that needs to be done during the event loop
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    /// description of config file parameters
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
-    public:
-
-      explicit PATMuonProducer(const edm::ParameterSet & iConfig);
-      ~PATMuonProducer();
-
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-
-    private:
-
-      // configurables
-      edm::InputTag muonSrc_;
-
-      bool          embedTrack_;
-      bool          embedStandAloneMuon_;
-      bool          embedCombinedMuon_;
-
-
-      bool          embedPickyMuon_;
-      bool          embedTpfmsMuon_;
-      
-      bool          addTeVRefits_;
-      edm::InputTag pickySrc_;
-      edm::InputTag tpfmsSrc_;
-
-  
-      bool          addGenMatch_;
-      bool          embedGenMatch_;
-      std::vector<edm::InputTag> genMatchSrc_;
-      bool          addResolutions_;
-      pat::helper::KinResolutionsLoader resolutionLoader_;
-      bool          addLRValues_;
+  private:
+    /// typedefs for convenience
+    typedef edm::RefToBase<reco::Muon> MuonBaseRef;
+    typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
+    typedef std::vector< edm::Handle< edm::ValueMap<IsoDeposit> > > IsoDepositMaps;
+    typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
+    typedef std::pair<pat::IsolationKeys,edm::InputTag> IsolationLabel;
+    typedef std::vector<IsolationLabel> IsolationLabels;
 
 
-      /// Use PF2PAT?
-      bool          useParticleFlow_;
+    /// common muon filling, for both the standard and PF2PAT case
+    void fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const reco::CandidateBaseRef& baseRef, const GenAssociations& genMatches, const IsoDepositMaps& deposits, const IsolationValueMaps& isolationValues) const;
+    /// fill label vector from the contents of the parameter set, 
+    /// for the embedding of isoDeposits or userIsolation values
+    void readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, IsolationLabels& labels); 
+    
+  private:
+    /// input source
+    edm::InputTag muonSrc_;
+    /// embed the track from inner tracker into the muon
+    bool embedTrack_;
+    /// embed track from muon system into the muon
+    bool embedStandAloneMuon_;
+    /// embed track of the combined fit into the muon
+    bool embedCombinedMuon_;
+    /// embed muon MET correction info for caloMET into the muon
+    bool embedCaloMETMuonCorrs_;
+    /// source of caloMET muon corrections
+    edm::InputTag caloMETMuonCorrs_;
+    /// embed muon MET correction info for tcMET into the muon
+    bool embedTcMETMuonCorrs_;
+    /// source of tcMET muon corrections
+    edm::InputTag tcMETMuonCorrs_;
+    /// add TeV track refits for the muon
+    bool addTeVRefits_;
+    /// input tag for picky muon refit
+    edm::InputTag pickySrc_;
+    /// input tag for tpfms muon refit
+    edm::InputTag tpfmsSrc_;
+    /// embed track from picky muon fit into the muon
+    bool embedPickyMuon_;
+    /// embed track from tpfms muon fit into the muon
+    bool embedTpfmsMuon_;
+    /// add generator match information    
+    bool addGenMatch_;
+    /// input tags for generator match information
+    std::vector<edm::InputTag> genMatchSrc_;
+    /// embed the gen match information into the muon
+    bool embedGenMatch_;
+    /// add resolutions to the muon (this will be data members of th muon even w/o embedding)
+    bool addResolutions_;
+    /// helper class to add resolutions to the muon
+    pat::helper::KinResolutionsLoader resolutionLoader_;    
+    /// switch to use particle flow (PF2PAT) or not
+    bool useParticleFlow_;    
+    /// input source pfCandidates that will be to be transformed into pat::Muons, when using PF2PAT
+    edm::InputTag pfMuonSrc_;
+    /// embed pfCandidates into the muon
+    bool embedPFCandidate_;
+    /// embed high level selection variables
+    bool embedHighLevelSelection_;
+    /// input source of the primary vertex/beamspot
+    edm::InputTag beamLineSrc_;
+    /// use the primary vertex or the beamspot
+    bool usePV_;
+    /// input source of the primary vertex
+    edm::InputTag pvSrc_;
+    /// input source for isoDeposits
+    IsolationLabels isoDepositLabels_;
+    /// input source isolation value maps
+    IsolationLabels isolationValueLabels_;
+    /// add efficiencies to the muon (this will be data members of th muon even w/o embedding)
+    bool addEfficiencies_;    
+    /// add user data to the muon (this will be data members of th muon even w/o embedding)
+    bool useUserData_;
 
-      /// for the input collection of PFCandidates, to be transformed into pat::Muons
-      edm::InputTag pfMuonSrc_;
-
-      bool          embedPFCandidate_;
-
-      /// embed high level selection variables?
-      bool          embedHighLevelSelection_;
-      edm::InputTag beamLineSrc_;
-      bool          usePV_;
-      edm::InputTag pvSrc_;
-
-
-      typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
-      typedef edm::RefToBase<reco::Muon> MuonBaseRef;
-      typedef std::vector< edm::Handle< edm::ValueMap<IsoDeposit> > > IsoDepositMaps;
-      typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
-      
-      /// common muon filling, for both the standard and PF2PAT case
-      void fillMuon( Muon& aMuon, 
-		     const MuonBaseRef& muonRef,
-		     const reco::CandidateBaseRef& baseRef,
-		     const GenAssociations& genMatches, 
-		     const IsoDepositMaps& deposits, 
-		     const IsolationValueMaps& isolationValues) const;
-
-      typedef std::pair<pat::IsolationKeys,edm::InputTag> IsolationLabel;
-      typedef std::vector<IsolationLabel> IsolationLabels;
-
-      /// fill the labels vector from the contents of the parameter set, 
-      /// for the isodeposit or isolation values embedding
-      void readIsolationLabels( const edm::ParameterSet & iConfig,
-				const char* psetName, 
-				IsolationLabels& labels); 
-	
-      // tools
-      GreaterByPt<Muon>      pTComparator_;
-
-      pat::helper::MultiIsolator isolator_; 
-      pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
-
-      IsolationLabels isoDepositLabels_;
-      IsolationLabels isolationValueLabels_;
-
-      bool addEfficiencies_;
-      pat::helper::EfficiencyLoader efficiencyLoader_;
-
-      bool useUserData_;
-      pat::PATUserDataHelper<pat::Muon>      userDataHelper_;
-
+    /// --- tools ---
+    /// comparator for pt ordering
+    GreaterByPt<Muon> pTComparator_;
+    /// helper class to add userdefined isolation values to the muon
+    pat::helper::MultiIsolator isolator_; 
+    /// isolation value pair for temporary storage before being folded into the muon 
+    pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_;
+    /// helper class to add efficiencies to the muon
+    pat::helper::EfficiencyLoader efficiencyLoader_;
+    /// helper class to add userData to the muon
+    pat::PATUserDataHelper<pat::Muon> userDataHelper_;    
   };
-
 
 }
 

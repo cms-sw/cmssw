@@ -42,8 +42,15 @@ patMuons = cms.EDProducer("PATMuonProducer",
     embedStandAloneMuon = cms.bool(True),  ## embed in AOD externally stored standalone muon track
     embedPickyMuon      = cms.bool(True),  ## embed in AOD externally stored TeV-refit picky muon track
     embedTpfmsMuon      = cms.bool(True),  ## embed in AOD externally stored TeV-refit TPFMS muon track
-    embedPFCandidate    = cms.bool(True), ## embed in AOD externally stored particle flow candidate
-    
+    embedPFCandidate    = cms.bool(True),  ## embed in AOD externally stored particle flow candidate
+
+    # embedding of muon MET corrections for caloMET
+    embedCaloMETMuonCorrs = cms.bool(True),
+    caloMETMuonCorrs = cms.InputTag("muonMETValueMapProducer"  , "muCorrData"),
+    # embedding of muon MET corrections for tcMET
+    embedTcMETMuonCorrs   = cms.bool(True),
+    tcMETMuonCorrs   = cms.InputTag("muonTCMETValueMapProducer", "muCorrData"),
+                          
     # embed IsoDeposits
     isoDeposits = cms.PSet(
         #user    = cms.VInputTag(
