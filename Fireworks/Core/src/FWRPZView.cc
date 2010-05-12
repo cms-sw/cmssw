@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.11 2010/05/03 21:18:29 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.14 2010/05/10 19:36:47 amraktad Exp $
 //
 
 // system include files
@@ -81,6 +81,7 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    geoScene()->GetGLScene()->SetSelectable(kFALSE);
 
    m_axes.reset(new TEveProjectionAxes(m_projMgr.get()));
+   m_axes->SetRnrState(m_showProjectionAxes.value());
    m_showProjectionAxes.changed_.connect(boost::bind(&FWRPZView::showProjectionAxes,this));
    eventScene()->AddElement(m_axes.get());
 
