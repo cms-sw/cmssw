@@ -104,7 +104,7 @@ class ProductionDefaults(ConfigToolBase):
             cms.InputTag("isoDR41"),cms.InputTag("isoDR42"),cms.InputTag("isoDR43"),cms.InputTag("isoDR44")
             )
         patPhotons.photonIDSource = cms.InputTag("PhotonIDProd","PhotonCutBasedIDLoose")
-        
+        del patPhotons.photonIDSources
         
 productionDefaults=ProductionDefaults()
 
