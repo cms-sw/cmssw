@@ -8,6 +8,7 @@
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
 <use name=RecoLocalCalo/EcalRecAlgos>
+<use name=CommonTools/Statistics>
 <export>
    <lib name=RecoEgammaEgammaIsolationAlgos>
    <use name=FWCore/Framework>
@@ -17,4 +18,5 @@
    <use name=RecoCaloTools/Selectors>
    <use name=DataFormats/Candidate>
    <use name=DataFormats/RecoCandidate>
+   <use name=CommonTools/Statistics>
 </export>
