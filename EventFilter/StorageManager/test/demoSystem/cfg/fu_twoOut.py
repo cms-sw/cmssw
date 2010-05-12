@@ -81,10 +81,10 @@ process.prescaleBy11 = cms.EDFilter("Prescaler",
                                     prescaleOffset = cms.int32(0)
                                     )
 
-process.prescaleBy1000 = cms.EDFilter("Prescaler",
-                                      prescaleFactor = cms.int32(1000),
-                                      prescaleOffset = cms.int32(0)
-                                      )
+#process.prescaleBy1000 = cms.EDFilter("Prescaler",
+#                                      prescaleFactor = cms.int32(1000),
+#                                      prescaleOffset = cms.int32(0)
+#                                      )
 
 
 process.DiMuon = cms.Path(process.prescaleBy5 * process.m2b20 * process.m5b20000)
