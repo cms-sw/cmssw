@@ -35,8 +35,8 @@
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCDDUMap.h"
 #include "CondFormats/DataRecord/interface/CSCDDUMapRcd.h"
-#include "CondFormats/CSCObjects/interface/CSCCables.h"
-#include "CondFormats/DataRecord/interface/CSCCablesRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCChamberTimeCorrections.h"
+#include "CondFormats/DataRecord/interface/CSCChamberTimeCorrectionsRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
 #include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCBadStrips.h"
@@ -66,7 +66,7 @@ REGISTER_PLUGIN(CSCChamberMapRcd,CSCChamberMap);
 REGISTER_PLUGIN(CSCChamberIndexRcd,CSCChamberIndex);
 REGISTER_PLUGIN(CSCCrateMapRcd,CSCCrateMap);
 REGISTER_PLUGIN(CSCDDUMapRcd,CSCDDUMap);
-REGISTER_PLUGIN(CSCCablesRcd,CSCCables);
+REGISTER_PLUGIN(CSCChamberTimeCorrectionsRcd,CSCChamberTimeCorrections);
 REGISTER_PLUGIN(CSCBadChambersRcd,CSCBadChambers);
 REGISTER_PLUGIN(CSCBadStripsRcd,CSCBadStrips);
 REGISTER_PLUGIN(CSCBadWiresRcd,CSCBadWires);

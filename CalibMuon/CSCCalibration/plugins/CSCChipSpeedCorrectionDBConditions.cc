@@ -11,7 +11,7 @@ CSCChipSpeedCorrectionDBConditions::CSCChipSpeedCorrectionDBConditions(const edm
 {
   //the following line is needed to tell the framework what
   // data is being produced
- cndbChipCorr = prefillDBChipSpeedCorrection();
+  cndbChipCorr = prefillDBChipSpeedCorrection();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCChipSpeedCorrectionDBConditions::produceDBChipSpeedCorrection);
   findingRecord<CSCDBChipSpeedCorrectionRcd>();
@@ -42,9 +42,9 @@ CSCChipSpeedCorrectionDBConditions::produceDBChipSpeedCorrection(const CSCDBChip
   
 }
 
- void CSCChipSpeedCorrectionDBConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
- edm::ValidityInterval & oValidity)
- {
- oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),edm::IOVSyncValue::endOfTime());
- 
- }
+void CSCChipSpeedCorrectionDBConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
+							edm::ValidityInterval & oValidity)
+{
+  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),edm::IOVSyncValue::endOfTime());
+  
+}
