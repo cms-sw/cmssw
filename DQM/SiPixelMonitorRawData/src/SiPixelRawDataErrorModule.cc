@@ -746,7 +746,7 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
 	    int BLOCK = (errorWord >> BLOCK_shift) & BLOCK_mask;
 	    int localCH = 1*CH1+2*CH2+3*CH3+4*CH4+5*CH5;
 	    if (BLOCK%2==0) chanNmbr=(BLOCK/2)*9+localCH;
-	    else chanNmbr = (BLOCK-1)/2+4+localCH;
+	    else chanNmbr = ((BLOCK-1)/2)*9+4+localCH;
 	    if ((chanNmbr<1)||(chanNmbr>36)) chanNmbr=0;  // signifies unexpected result
 	    (meChanNmbr_)->Fill((int)chanNmbr);
 	    break; }
