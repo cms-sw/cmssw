@@ -121,13 +121,57 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
     
     //---- Check if a neighbouring strip is a dead strip
     bool deadStrip = isNearDeadStrip(id, theMaxima.at(imax)); 
+    //std::cout << " Size of theStrips from SCSHitFromStripOnly: " <<  theStrips.size() << std::endl;
+    
+    /// L1A (Begin looping)
+    /// Attempt to redefine theStrips, to encode L1A phase bits
+    std::vector<int> theL1AStrips;
+    for(int ila=0; ila<(int)theStrips.size(); ila++){
+       bool stripMatchCounter=false;
+       for ( CSCStripDigiCollection::const_iterator itl1 = rstripd.first; itl1 != rstripd.second; ++itl1 ) {
+	   int stripNproto = (*itl1).getStrip();
+           if(id_.ring() != 4){
+	   if(theStrips[ila]==stripNproto){
+             stripMatchCounter=true;
+	     std::vector<int> L1AP=(*itl1).getL1APhase();
+	     int L1AbitOnPlace=0;
+	     for(int iBit=0; iBit<(int)L1AP.size(); iBit++){
+	        L1AbitOnPlace=L1AbitOnPlace|(L1AP[iBit] << (15-iBit));		
+	     }
+	     theL1AStrips.push_back(theStrips[ila] | L1AbitOnPlace);
+	   }
+         }
+         else{
+           for(int tripl=0; tripl<3; ++tripl){
+	   if(theStrips[ila]==(stripNproto+tripl*16)){
+             stripMatchCounter=true;
+	     std::vector<int> L1AP=(*itl1).getL1APhase();
+	     int L1AbitOnPlace=0;
+	     for(int iBit=0; iBit<(int)L1AP.size(); iBit++){
+	        L1AbitOnPlace=L1AbitOnPlace|(L1AP[iBit] << (15-iBit));		
+	     }
+	     theL1AStrips.push_back(theStrips[ila] | L1AbitOnPlace);
+	    }
+          }
+        }
+      }
+    if(!stripMatchCounter){
+             theL1AStrips.push_back(theStrips[ila]);
+           }
+    }
+  /// L1A (end Looping)
 
-    // strips_adc et al are filled in findHitOnStripPosition (which is called from makeCluster above)    
-    CSCStripHit striphit( id, strippos, tmax_cluster, theStrips, strips_adc, strips_adcRaw,
+   CSCStripHit striphit( id, strippos, tmax_cluster, theL1AStrips, strips_adc, strips_adcRaw, /// L1A
 			  theConsecutiveStrips.at(imax), theClosestMaximum.at(imax), deadStrip);
-    hitsInLayer.push_back( striphit ); 
+   hitsInLayer.push_back( striphit ); 
   }
-
+  
+  /// Print statement (!!!to control StripHit content!!!) LA1
+  /*  
+      for(std::vector<CSCStripHit>::const_iterator itSHit=hitsInLayer.begin(); itSHit!=hitsInLayer.end(); ++itSHit){
+         (*itSHit).print(); 
+         }  
+  */
   return hitsInLayer;
 }
 
@@ -152,13 +196,11 @@ float CSCHitFromStripOnly::makeCluster( int centerStrip ) {
       clusterSize = 2*i - 1;  
     }
   }
-
   for ( int i = -clusterSize/2; i <= clusterSize/2; ++i ) {
     CSCStripHitData data = makeStripData(centerStrip, i);
     stripDataV.push_back( data );
     theStrips.push_back( centerStrip + i );
   }
-  
   strippos = findHitOnStripPosition( stripDataV, centerStrip );
   
   return strippos;
@@ -283,7 +325,6 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
   // for storing sca pulseheights once they may no longer be integer (e.g. after ped subtraction)
   std::vector<float> sca;
   sca.reserve(8);
-	
   for ( CSCStripDigiCollection::const_iterator it = rstripd.first; it != rstripd.second; ++it ) {
     int  thisChannel        = (*it).getStrip(); 
     std::vector<int> scaRaw = (*it).getADCCounts();

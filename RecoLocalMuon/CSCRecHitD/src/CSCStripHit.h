@@ -45,10 +45,16 @@ public:
 
   /// Strip hit maximum time bin
   int tmax() const { return theStripHitTmax; }
+  
+  /// The strips used in cluster to produce strip hit (total content)
+   const ChannelContainer& stripsTotal() const {return theStrips;} /// L1A
 
   /// The strips used in cluster to produce strip hit
-  const ChannelContainer& strips() const { return theStrips; }
-
+   const ChannelContainer& strips() const {return theStripsLowBits;} /// L1A
+  
+  /// The L1A phase in strips used to produce strip hit
+   const ChannelContainer& stripsl1a() const {return theStripsHighBits;} /// L1A
+  
   /// the ADC counts for each of the strip within cluster
   const StripHitADCContainer& s_adc() const { return theStripHitADCs; }
 
@@ -64,12 +70,17 @@ public:
   /// is a neighbouring string a dead strip?
   bool isNearDeadStrip() const {return isDeadStripAround; };
 
+  /// Print content of the striphit including L1A
+  void print() const;
   
 private:
+
   CSCDetId theDetId;
   float theStripHitPosition;
   int theStripHitTmax;
   ChannelContainer theStrips;
+  ChannelContainer theStripsLowBits; /// L1A
+  ChannelContainer theStripsHighBits; /// L1A
   StripHitADCContainer theStripHitADCs;  
   StripHitADCContainer theStripHitRawADCs;  
   int theConsecutiveStrips;

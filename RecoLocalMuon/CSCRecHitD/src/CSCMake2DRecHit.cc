@@ -169,14 +169,21 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
 						sigmaWithinTheStrip, sigmaWire );
   
   // store rechit
+
+   /// Retrive the L1APhase+strips combination
+   CSCRecHit2D::ChannelContainer L1A_and_strips = sHit.stripsTotal();        /// L1A
   // (sigmaWithinTheStrip/stripWidth) is in strip widths just like positionWithinTheStrip is!
-  CSCRecHit2D rechit( id, lp0, localerr, strips,
+     CSCRecHit2D rechit( id, lp0, localerr, L1A_and_strips,                  /// L1A
 		      adcMap, wgroups, tpeak, positionWithinTheStrip, 
 		      sigmaWithinTheStrip/stripWidth, quality);
+
+  /// To see RecHit content (L1A feature included) (to be commented out)
+  // rechit.print();
 
   LogTrace("CSCRecHit") << "CSCMake2DRecHit: rechit created in layer " << id << "... \n" << rechit << "\n";
 
   return rechit;
+
 }
 
 
