@@ -193,32 +193,6 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 	   if (myKey2 = (TKey*)iter_s())  collname2 = myKey2->GetName();
 	 }
        }
-       if ( collname1.Contains("MuonAssociation") || 
-	    (collname1.Contains("tevMuons") && !collname2.Contains("tevMuons"))) {
-	 if (myKey1 = (TKey*)iter_r()) {
-	   collname1 = myKey1->GetName();
-	 }
-	 if ( collname1.BeginsWith("hltL3TkFromL2") ) {
-	   if ( !(collname1.Contains("MuonAssociation")==collname2.Contains("MuonAssociation")) ) {
-	     if (myKey1 = (TKey*)iter_r()) {
-	       collname1 = myKey1->GetName();
-	     }
-	   }
-	 }
-       }
-       else if ( collname2.Contains("MuonAssociation") ||
-	         (collname2.Contains("tevMuons") && !collname1.Contains("tevMuons"))) {
-	 if (myKey2 = (TKey*)iter_s()) {
-	   collname2 = myKey2->GetName();
-	 }
-	 if ( collname2.BeginsWith("hltL3TkFromL2") ) {
-	   if ( !(collname1.Contains("MuonAssociation")==collname2.Contains("MuonAssociation")) ) {
-	     if (myKey2 = (TKey*)iter_s()) {
-	       collname2 = myKey2->GetName();
-	     }
-	   }
-	 }
-       }
        if ( (collname1 != collname2) && (collname1+"FS" != collname2) && (collname1 != collname2+"FS") ) {
 	 if (collname1.Contains("SET") && !collname2.Contains("SET")) {
 	   while (collname1.Contains("SET")) {
