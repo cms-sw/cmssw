@@ -23,10 +23,14 @@
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
 #include "Geometry/Records/interface/RPCRecoGeometryRcd.h"
 
+#include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
+#include "Geometry/Records/interface/GeometricDetExtraRcd.h"
+
 
 
 REGISTER_PLUGIN(GeometryFileRcd,GeometryFile);
 REGISTER_PLUGIN(IdealGeometryRecord,PGeometricDet);
+REGISTER_PLUGIN(GeometricDetExtraRcd,PGeometricDetExtra);
 REGISTER_PLUGIN(PEcalBarrelRcd,PCaloGeometry);
 REGISTER_PLUGIN(PEcalEndcapRcd,PCaloGeometry);
 REGISTER_PLUGIN(PEcalPreshowerRcd,PCaloGeometry);
