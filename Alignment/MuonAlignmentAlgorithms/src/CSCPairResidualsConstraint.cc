@@ -308,11 +308,11 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
   // fill the running sums for this CSCPairResidualsConstraint
   m_sumN += 1;
   m_sum1 += weight;
-  m_sumx += (radial_intercept - m_averageRadius);
-  m_sumy += quantity;
-  m_sumxx += pow(radial_intercept - m_averageRadius, 2);
-  m_sumyy += quantity*quantity;
-  m_sumxy += (radial_intercept - m_averageRadius)*quantity;
+  m_sumx += weight * (radial_intercept - m_averageRadius);
+  m_sumy += weight * quantity;
+  m_sumxx += weight * pow(radial_intercept - m_averageRadius, 2);
+  m_sumyy += weight * quantity*quantity;
+  m_sumxy += weight * (radial_intercept - m_averageRadius)*quantity;
 
   if (m_parent->m_makeHistograms) {
     double rphi_slope_i = slope_i * radial_intercept_i;
