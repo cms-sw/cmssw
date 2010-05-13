@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.3 2010/03/26 22:01:08 wmtan Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.4 2010/04/20 09:39:45 delaer Exp $
 //
 //
 
@@ -521,8 +521,8 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    edm::Handle<edm::TriggerResults> trh;
    iEvent.getByLabel(HLTLabel_, trh);
    size_t ntrh = trh->size();
-   for(size_t bit=0;bit<ntrh && bit<128;++bit)
-     HLTDecisionBits_[bit] = trh->at(bit).accept();
+   for(size_t bit=0;bit<128;++bit)
+     HLTDecisionBits_[bit] = bit<ntrh ? (bool)(trh->at(bit).accept()): false;
      
    // load beamspot
    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
