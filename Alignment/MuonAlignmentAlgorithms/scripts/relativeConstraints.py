@@ -76,6 +76,10 @@ for line in constraints.readlines():
 
         relative = value - geom
 
+        if mode in ("phiy", "phipos", "phiz"):
+            while relative > math.pi: relative -= 2.*math.pi
+            while relative <= -math.pi: relative += 2.*math.pi
+
         if ringName in byRing:
             byRing[ringName].append("""cms.PSet(i = cms.string("%(frameName)s"), j = cms.string("%(chamber)s"), value = cms.double(%(relative)g), error = cms.double(%(error)g))""" % vars())
             empty = False
