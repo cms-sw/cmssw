@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2010/05/10 19:26:04 $ 
+ **  $Date: 2010/05/13 20:08:34 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -197,7 +197,7 @@ void PhotonAnalyzer::beginJob()
     h_convEt_Loose_ = dbe_->book1D("convEtLoose"," Converted Loose Photon Transverse Energy ", etBin,etMin,etMax);
     h_convEt_Tight_ = dbe_->book1D("convEtTight"," Converted Tight Photon Transverse Energy ", etBin,etMin,etMax);
 
-    h_phoEta_Vertex_ = dbe_->book1D("phoEtaVertex"," Converted Photon with valid vertex Eta ",etaBin,etaMin, etaMax) ;
+    h_phoEta_Vertex_ = dbe_->book1D("phoEtaVertex"," Converted Photons before valid vertex cut: Eta ",etaBin,etaMin, etaMax) ;
 
     //Triggers passed
     
@@ -1030,12 +1030,6 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	nPho[cut][type][0]++;
 	nPho[cut][type][part]++;
 
-	if((*iPho).hasConversionTracks()){
-	  nConv[cut][0][0]++;
-	  nConv[cut][0][part]++;
-	  nConv[cut][type][0]++;
-	  nConv[cut][type][part]++;
-	}
 
 	fill3DHistoVector(h_phoE_,(*iPho).energy(),cut,type,part);
 	fill3DHistoVector(h_phoEt_,(*iPho).et(),cut,type,part);
@@ -1123,7 +1117,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
  	  } 
  	}
 	
- 	if (   atLeastOneDeadChannel ) {
+ 	if ( atLeastOneDeadChannel ) {
 	  fill2DHistoVector(h_phoPhi_BadChannels_,(*iPho).phi(),cut,type);
 	  fill2DHistoVector(h_phoEta_BadChannels_,(*iPho).eta(),cut,type);
 	  fill2DHistoVector(h_phoEt_BadChannels_,(*iPho).et(),cut,type);
@@ -1135,7 +1129,12 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 	// filling conversion-related histograms
 
-
+	if((*iPho).hasConversionTracks()){
+	  nConv[cut][0][0]++;
+	  nConv[cut][0][part]++;
+	  nConv[cut][type][0]++;
+	  nConv[cut][type][part]++;
+	}
  
 	//loop over conversions
 
@@ -1147,10 +1146,14 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 	  if ( aConv->nTracks() <2 ) continue; 
 
+	  //fill histogram for denominator of vertex reconstruction efficiency plot
+	  if(cut==0) h_phoEta_Vertex_->Fill(aConv->pairMomentum().eta());
+
+	  if ( !(aConv->conversionVertex().isValid()) ) continue;
+
 	  fill3DHistoVector(h_phoConvE_,(*iPho).energy(),cut,type,part);
 	  fill3DHistoVector(h_phoConvEt_,(*iPho).et(),cut,type,part);
 	  fill3DHistoVector(h_phoConvR9_,(*iPho).r9(),cut,type,part);
-	  
 
 	  if (cut==0 && isLoosePhoton){
 	    h_convEta_Loose_->Fill( (*iPho).eta() );
@@ -1171,36 +1174,33 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  fill2DHistoVector(h_phoConvEtaForEfficiency_,(*iPho).eta(),cut,type);
 	  fill2DHistoVector(h_phoConvPhiForEfficiency_,(*iPho).phi(),cut,type);
 
-	  if ( aConv->conversionVertex().isValid() ) {
-
-	    if(cut==0) h_phoEta_Vertex_->Fill(aConv->pairMomentum().eta());
-
-	    float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().normalizedChi2(), aConv->conversionVertex().ndof() );
-	    fill2DHistoVector(h_vertexChi2_,chi2Prob,cut,type);
-
-	    double convR= sqrt(aConv->conversionVertex().position().perp2());
-	    double scalar = aConv->conversionVertex().position().x()*aConv->pairMomentum().x() + aConv->conversionVertex().position().y()*aConv->pairMomentum().y();
-	    if ( scalar < 0 ) convR= -convR;
-
-
-	    fill2DHistoVector(h_convVtxRvsZ_,fabs( aConv->conversionVertex().position().z() ), convR,cut,type);
-
-	    if(fabs(aConv->caloCluster()[0]->eta()) > 1.5){
-	      fill2DHistoVector(h_convVtxZ_,fabs(aConv->conversionVertex().position().z()), cut,type);
-	    }
-	    else if(fabs(aConv->caloCluster()[0]->eta()) < 1){
-	      fill2DHistoVector(h_convVtxR_,convR,cut,type);
-
-
-	      fill2DHistoVector(h_convVtxYvsX_,aConv->conversionVertex().position().x(),  
-				aConv->conversionVertex().position().y(),cut,type);
-	    }
-
+	  
+	  float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().normalizedChi2(), aConv->conversionVertex().ndof() );
+	  fill2DHistoVector(h_vertexChi2_,chi2Prob,cut,type);
+	  
+	  double convR= sqrt(aConv->conversionVertex().position().perp2());
+	  double scalar = aConv->conversionVertex().position().x()*aConv->pairMomentum().x() + aConv->conversionVertex().position().y()*aConv->pairMomentum().y();
+	  if ( scalar < 0 ) convR= -convR;
+	  
+	  
+	  fill2DHistoVector(h_convVtxRvsZ_,fabs( aConv->conversionVertex().position().z() ), convR,cut,type);
+	  
+	  if(fabs(aConv->caloCluster()[0]->eta()) > 1.5){
+	    fill2DHistoVector(h_convVtxZ_,fabs(aConv->conversionVertex().position().z()), cut,type);
 	  }
-
-
+	  else if(fabs(aConv->caloCluster()[0]->eta()) < 1){
+	    fill2DHistoVector(h_convVtxR_,convR,cut,type);
+	    
+	    
+	    fill2DHistoVector(h_convVtxYvsX_,aConv->conversionVertex().position().x(),  
+			      aConv->conversionVertex().position().y(),cut,type);
+	  }
+	  
+	  
+	  
+	  
 	  std::vector<reco::TrackRef> tracks = aConv->tracks();
-
+	  
 	  for (unsigned int i=0; i<tracks.size(); i++) {
 	    fill2DHistoVector(h_tkChi2_,tracks[i]->normalizedChi2(),cut,type);
 	    fill2DHistoVector(p_tkChi2VsEta_,aConv->caloCluster()[0]->eta(),tracks[i]->normalizedChi2(),cut,type);
