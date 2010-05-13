@@ -21,7 +21,7 @@ FamosCalorimetryBlock = cms.PSet(
             # change globally the Moliere radius 
             RadiusFactor = cms.double(1.096),
             RadiusPreshowerCorrections = cms.vdouble(0.137, 10.3), # default value for maxshower depth dependence-->works fine
-            MipsinGeV = cms.vdouble(0.0000812,0.0000812),
+            MipsinGeV = cms.vdouble(0.0001421,0.0000812), # increase in mipsinGeV by 75% only in layer1
             #SpotFraction < 0 <=> deactivated. In the case, CoreIntervals and 
             #TailIntervals are used   
             SpotFraction = cms.double(-1.0),
@@ -31,10 +31,10 @@ FamosCalorimetryBlock = cms.PSet(
         CalorimeterProperties = cms.PSet(
             # triplet for each p value:  p, k_e(p), k_h(p) ...
             RespCorrP = cms.vdouble(1.0, 1.0, 1.0, 1000.0, 1.0, 1.0),  
-            PreshowerLayer2_thickness = cms.double(0.399),
+            PreshowerLayer2_thickness = cms.double(0.38), # layer2 thickness back to original 
             ECALEndcap_LightCollection = cms.double(0.023),
-            PreshowerLayer1_thickness = cms.double(1.6),
-            PreshowerLayer1_mipsPerGeV = cms.double(35.7),
+            PreshowerLayer1_thickness = cms.double(1.65), # increase in thickness of layer 1 by 3%
+            PreshowerLayer1_mipsPerGeV = cms.double(17.85),  # 50% decrease in mipsperGeV 
             PreshowerLayer2_mipsPerGeV = cms.double(59.5),
             ECALBarrel_LightCollection = cms.double(0.03),
             HCAL_Sampling = cms.double(0.0035),
