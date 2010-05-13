@@ -1,4 +1,4 @@
-#include "LumiRawDataStructures.h"
+#include "RecoLuminosity/LumiProducer/interface/LumiRawDataStructures.h"
 
 #ifdef __CINT__
 #ifndef LUMIRAWDATA_ROOTSCHEMA_LINKDEF
