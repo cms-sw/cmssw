@@ -74,7 +74,16 @@ int main(int argc, char** argv){
   std::cout<<"hlxentries "<<hlxentries<<std::endl;
   for(size_t i=0;i<hlxentries;++i){
     hlxTree->GetEntry(i);
-    std::cout<<"Lumi summary for run : "<<myLumiHeader->runNumber<<" : LS : "<<myLumiHeader->sectionNumber<<" cmsalive: "<<myLumiHeader->bCMSLive<<std::endl;
+    std::cout<<"Lumi summary for run : "<<myLumiHeader->runNumber<<" : LS : "<<myLumiHeader->sectionNumber<<" cmsalive value: "<<myLumiHeader->bCMSLive<<std::endl;
+    bool a=true;
+    if(typeid(myLumiHeader->bCMSLive)==typeid(a)){
+      std::cout<<"is bool type"<<std::endl;
+      std::cout<<"normal bool "<<a<<std::endl;
+      std::cout<<"cms alive bool "<< myLumiHeader->bCMSLive<< std::endl;
+    }else{
+      std::cout<<"not bool type"<<std::endl;
+      std::cout<<"cms alive"<< myLumiHeader->bCMSLive<< std::endl;
+    }
     //std::cout<<std::setw(20)<<"deadtime norm : "<<myLumiSummary->DeadTimeNormalization<<" : LHC norm : "<<myLumiSummary->LHCNormalization<<" : instantlumi : "<<myLumiSummary->InstantLumi<<" : instantlumiErr : "<<myLumiSummary->InstantLumiErr<<" : instantlumiQlty : "<<myLumiSummary->InstantLumiQlty<<std::endl;
     //std::cout<<std::setw(20)<<"lumi details : "<<std::endl;
     //for(size_t j=0;j<HCAL_HLX_MAX_BUNCHES;++j){
