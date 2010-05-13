@@ -308,7 +308,7 @@ bool CSCChamberFitter::fit(std::vector<CSCAlignmentCorrections*> &corrections) c
       modeid.push_back(alignableId(m_alignables[j]));
     }
 
-    correction->insertMode(coefficient, modename, modeid, sqrt(2. * diagonalized[i][i]));
+    correction->insertMode(coefficient, modename, modeid, sqrt(2. * fabs(diagonalized[i][i])) * (diagonalized[i][i] >= 0. ? 1. : -1.));
   }
 
   for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
