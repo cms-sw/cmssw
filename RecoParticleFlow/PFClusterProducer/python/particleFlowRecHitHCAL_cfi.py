@@ -4,7 +4,8 @@ particleFlowRecHitHCAL = cms.EDProducer("PFRecHitProducerHCAL",
     # verbosity 
     verbose = cms.untracked.bool(False),
     caloTowers = cms.InputTag("towerMakerPF"),
-    hcalRecHitsHBHE = cms.InputTag(""),
+    hcalRecHitsHBHE = cms.InputTag("hbhereco"),
+    hcalRecHitsHF = cms.InputTag("hfreco"),
     # cell threshold in barrel 
     thresh_Barrel = cms.double(0.4),
     # cell threshold in HF
@@ -28,6 +29,28 @@ particleFlowRecHitHCAL = cms.EDProducer("PFRecHitProducerHCAL",
 # Cut short fibres if no long fibre energy
     ShortFibre_Cut = cms.double(60.),
     LongFibre_Fraction = cms.double(0.10),
+
+# Cut long fibres if no short fibre energy
+    LongFibre_Cut = cms.double(120.),
+    ShortFibre_Fraction = cms.double(0.01),
+
+# Also apply DPG cleaning
+    ApplyLongShortDPG = cms.bool(True),
+
+# Cut on timing if sufficient energy (in both long and short fibres)
+    LongShortFibre_Cut = cms.double(1E9),
+    #MinLongTiming_Cut = cms.double(-11.),
+    #MaxLongTiming_Cut = cms.double(+8.),
+    #MinShortTiming_Cut = cms.double(-10.),
+    #MaxShortTiming_Cut = cms.double(+8.),
+    MinLongTiming_Cut = cms.double(-5.),
+    MaxLongTiming_Cut = cms.double(+5.),
+    MinShortTiming_Cut = cms.double(-5.),
+    MaxShortTiming_Cut = cms.double(+5.),
+
+# Also apply DPG cleaning
+    ApplyTimeDPG = cms.bool(False),
+    ApplyPulseDPG = cms.bool(False),
 
 # Compensate for ECAL dead channels                                        
     ECAL_Compensate = cms.bool(False),

@@ -4,6 +4,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
+#include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -31,6 +32,8 @@
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloTowerNavigator.h"
 
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+
 
 using namespace std;
 using namespace edm;
@@ -46,6 +49,9 @@ PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
   
   inputTagHcalRecHitsHBHE_ =
     iConfig.getParameter<InputTag>("hcalRecHitsHBHE");
+    
+  inputTagHcalRecHitsHF_ =
+    iConfig.getParameter<InputTag>("hcalRecHitsHF");
     
  
   inputTagCaloTowers_ = 
@@ -67,6 +73,20 @@ PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
 
   shortFibre_Cut = iConfig.getParameter<double>("ShortFibre_Cut");
   longFibre_Fraction = iConfig.getParameter<double>("LongFibre_Fraction");
+
+  longFibre_Cut = iConfig.getParameter<double>("LongFibre_Cut");
+  shortFibre_Fraction = iConfig.getParameter<double>("ShortFibre_Fraction");
+
+  applyLongShortDPG_ = iConfig.getParameter<bool>("ApplyLongShortDPG");
+
+  longShortFibre_Cut = iConfig.getParameter<double>("LongShortFibre_Cut");
+  minShortTiming_Cut = iConfig.getParameter<double>("MinShortTiming_Cut");
+  maxShortTiming_Cut = iConfig.getParameter<double>("MaxShortTiming_Cut");
+  minLongTiming_Cut = iConfig.getParameter<double>("MinLongTiming_Cut");
+  maxLongTiming_Cut = iConfig.getParameter<double>("MaxLongTiming_Cut");
+
+  applyTimeDPG_ = iConfig.getParameter<bool>("ApplyTimeDPG");
+  applyPulseDPG_ = iConfig.getParameter<bool>("ApplyPulseDPG");
 
   ECAL_Compensate_ = iConfig.getParameter<bool>("ECAL_Compensate");
   ECAL_Threshold_ = iConfig.getParameter<double>("ECAL_Threshold");
@@ -155,6 +175,38 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
     }
     else {
       assert( caloTowers.isValid() );
+
+      // get HF rechits
+      edm::Handle<HFRecHitCollection>  hfHandle;  
+      found = iEvent.getByLabel(inputTagHcalRecHitsHF_,
+				hfHandle);
+      
+      if(!found) {
+	ostringstream err;
+	err<<"could not find HF rechits "<<inputTagHcalRecHitsHF_;
+	LogError("PFRecHitProducerHCAL")<<err.str()<<endl;
+	
+	throw cms::Exception( "MissingProduct", err.str());
+      }
+      else {
+	assert( hfHandle.isValid() );
+      }
+      
+      // get HBHE rechits
+      edm::Handle<HBHERecHitCollection>  hbheHandle;  
+      found = iEvent.getByLabel(inputTagHcalRecHitsHBHE_,
+				hbheHandle);
+      
+      if(!found) {
+	ostringstream err;
+	err<<"could not find HBHE rechits "<<inputTagHcalRecHitsHBHE_;
+	LogError("PFRecHitProducerHCAL")<<err.str()<<endl;
+	
+	throw cms::Exception( "MissingProduct", err.str());
+      }
+      else {
+	assert( hbheHandle.isValid() );
+      }
       
       // create rechits
       typedef CaloTowerCollection::const_iterator ICT;
@@ -254,6 +306,8 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	reco::PFRecHit* pfrhHFHAD = 0;
 	reco::PFRecHit* pfrhHFEMCleaned = 0;
 	reco::PFRecHit* pfrhHFHADCleaned = 0;
+	reco::PFRecHit* pfrhHFEMCleaned29 = 0;
+	reco::PFRecHit* pfrhHFHADCleaned29 = 0;
 
 	if(foundHCALConstituent)
 	  {
@@ -262,6 +316,24 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	    case HcalBarrel: 
 	      {
 		if(energy < thresh_Barrel_ ) continue;
+
+		/*
+		// Check the timing
+		if ( energy > 5. ) { 
+		  for(unsigned int i=0;i< hits.size();++i) {
+		    if( hits[i].det() != DetId::Hcal ) continue; 
+		    HcalDetId theDetId = hits[i]; 
+		    typedef HBHERecHitCollection::const_iterator iHBHE;
+		    iHBHE theHit = hbheHandle->find(theDetId); 
+		    if ( theHit != hbheHandle->end() ) 
+		      std::cout << "HCAL hit : " 
+				<< theDetId.ieta() << " " << theDetId.iphi() << " " 
+				<< theHit->energy() << " " << theHit->time() << std::endl;
+		  }
+		}
+		*/
+
+
 		if ( HCAL_Calib_ ) energy   *= myPFCorr->getValues(detid)->getValue();
 		//if ( rescaleFactor > 1. ) 
 		// std::cout << "Barrel HCAL energy rescaled from = " << energy << " to " << energy*rescaleFactor << std::endl;
@@ -285,6 +357,23 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	    case HcalEndcap:
 	      {
 		if(energy < thresh_Endcap_ ) continue;
+
+		/*
+		// Check the timing
+		if ( energy > 5. ) { 
+		  for(unsigned int i=0;i< hits.size();++i) {
+		    if( hits[i].det() != DetId::Hcal ) continue; 
+		    HcalDetId theDetId = hits[i]; 
+		    typedef HBHERecHitCollection::const_iterator iHBHE;
+		    iHBHE theHit = hbheHandle->find(theDetId); 
+		    if ( theHit != hbheHandle->end() ) 
+		      std::cout << "HCAL hit : " 
+				<< theDetId.ieta() << " " << theDetId.iphi() << " " 
+				<< theHit->energy() << " " << theHit->time() << std::endl;
+		  }
+		}
+		*/
+
 		if ( HCAL_Calib_ ) energy   *= myPFCorr->getValues(detid)->getValue();
 		//if ( rescaleFactor > 1. ) 
 		// std::cout << "End-cap HCAL energy rescaled from = " << energy << " to " << energy*rescaleFactor << std::endl;
@@ -319,37 +408,374 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		// Some energy in the tower !
 		if((energyemHF+energyhadHF) < thresh_HF_ ) continue;
 
-		// Some energy must be in the long fibres is there is some energy in the short fibres ! 
+		// Some cleaning in the HF 
 		double longFibre = energyemHF + energyhadHF/2.;
 		double shortFibre = energyhadHF/2.;
 		int ieta = detid.ieta();
 		int iphi = detid.iphi();
-		if ( shortFibre > shortFibre_Cut && longFibre/shortFibre < longFibre_Fraction ) {
+		HcalDetId theLongDetId (HcalForward, ieta, iphi, 1);
+		HcalDetId theShortDetId (HcalForward, ieta, iphi, 2);
+		typedef HFRecHitCollection::const_iterator iHF;
+		iHF theLongHit = hfHandle->find(theLongDetId); 
+		iHF theShortHit = hfHandle->find(theShortDetId); 
+		double theLongHitEnergy = theLongHit != hfHandle->end() ? theLongHit->energy() : 0.;
+		double theShortHitEnergy = theShortHit != hfHandle->end() ? theShortHit->energy() : 0.;
+
+		bool flagShortDPG = applyLongShortDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFLongShort);
+		bool flagLongDPG = applyLongShortDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFLongShort);
+		bool flagShortTimeDPG = applyTimeDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFInTimeWindow);
+		bool flagLongTimeDPG = applyTimeDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFInTimeWindow);
+		bool flagShortPulseDPG = applyPulseDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFDigiTime);
+		bool flagLongPulseDPG = applyPulseDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFDigiTime);
+
+		// Then check the timing in short and long fibres in all other towers.
+		if ( theShortHitEnergy > longShortFibre_Cut && 
+		     ( theShortHit->time() < minShortTiming_Cut ||
+		       theShortHit->time() > maxShortTiming_Cut || 
+		       flagShortTimeDPG || flagShortPulseDPG ) ) { 
+		  // rescaleFactor = 0. ;
+		  pfrhHFHADCleaned = createHcalRecHit( detid, 
+						       theShortHitEnergy, 
+						       PFLayer::HF_HAD, 
+						       hcalEndcapGeometry,
+						       ct.id().rawId() );
+		  pfrhHFHADCleaned->setRescale(theShortHit->time());
+		  /*
+		  std::cout << "ieta/iphi = " << ieta << " " << iphi 
+			    << ", Energy em/had/long/short = " 
+			    << energyemHF << " " << energyhadHF << " "
+			    << theLongHitEnergy << " " << theShortHitEnergy << " " 
+			    << ". Time = " << theShortHit->time() << " " 
+			    << ". The short and long flags : " 
+			    << flagShortDPG << " " << flagLongDPG << " "  
+			    << flagShortTimeDPG << " " << flagLongTimeDPG << " "  
+			    << flagShortPulseDPG << " " << flagLongPulseDPG << " "  
+			    << ". Short fibres were cleaned." << std::endl;
+		  */
+		  shortFibre -= theShortHitEnergy;
+		  theShortHitEnergy = 0.;
+		}
+		
+		
+		if ( theLongHitEnergy > longShortFibre_Cut && 
+		     ( theLongHit->time() < minLongTiming_Cut ||
+		       theLongHit->time() > maxLongTiming_Cut  || 
+		       flagLongTimeDPG || flagLongPulseDPG ) ) { 
+		  //rescaleFactor = 0. ;
+		  pfrhHFEMCleaned = createHcalRecHit( detid, 
+						      theLongHitEnergy, 
+						      PFLayer::HF_EM, 
+						      hcalEndcapGeometry,
+						      ct.id().rawId() );
+		  pfrhHFEMCleaned->setRescale(theLongHit->time());
+		  /*
+		  std::cout << "ieta/iphi = " << ieta << " " << iphi 
+			    << ", Energy em/had/long/short = " 
+			    << energyemHF << " " << energyhadHF << " "
+			    << theLongHitEnergy << " " << theShortHitEnergy << " " 
+			    << ". Time = " << theLongHit->time() << " " 
+			    << ". The short and long flags : " 
+			    << flagShortDPG << " " << flagLongDPG << " "  
+			    << flagShortTimeDPG << " " << flagLongTimeDPG << " "  
+			    << flagShortPulseDPG << " " << flagLongPulseDPG << " "  
+			    << ". Long fibres were cleaned." << std::endl;
+		  */
+		  longFibre -= theLongHitEnergy;
+		  theLongHitEnergy = 0.;
+		}
+
+		// Some energy must be in the long fibres is there is some energy in the short fibres ! 
+		if ( theShortHitEnergy > shortFibre_Cut && 
+		     ( theLongHitEnergy/theShortHitEnergy < longFibre_Fraction || 
+		       flagShortDPG ) ) {
 		  // Check if the long-fibre hit was not cleaned already (because hot)
 		  // In this case don't apply the cleaning
-		  HcalDetId theLongDetId (HcalForward, ieta, iphi, 1);
 		  const HcalChannelStatus* theStatus = theHcalChStatus->getValues(theLongDetId);
 		  unsigned theStatusValue = theStatus->getValue();
 		  // The channel is killed
 		  if ( !theStatusValue ) { 
-		    rescaleFactor = 0. ;
+		    // rescaleFactor = 0. ;
 		    pfrhHFHADCleaned = createHcalRecHit( detid, 
-							 shortFibre, 
+							 theShortHitEnergy, 
 							 PFLayer::HF_HAD, 
 							 hcalEndcapGeometry,
 							 ct.id().rawId() );
-		    pfrhHFHADCleaned->setRescale(rescaleFactor);
+		    pfrhHFHADCleaned->setRescale(theShortHit->time());
 		    /*
 		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
 			      << ", Energy em/had/long/short = " 
 			      << energyemHF << " " << energyhadHF << " "
-			      << longFibre << " " << shortFibre << " " 
+			      << theLongHitEnergy << " " << theShortHitEnergy << " " 
+			      << ". Time = " << theShortHit->time() << " " 
 			      << ". The status value is " << theStatusValue
+			      << ". The short and long flags : " 
+			      << flagShortDPG << " " << flagLongDPG << " "  
+			      << flagShortTimeDPG << " " << flagLongTimeDPG << " "  
+			      << flagShortPulseDPG << " " << flagLongPulseDPG << " "  
 			      << ". Short fibres were cleaned." << std::endl;
 		    */
-		    shortFibre *= rescaleFactor;
+		    shortFibre -= theShortHitEnergy;
+		    theShortHitEnergy = 0.;
 		  }
 		}
+
+		if ( theLongHitEnergy > longFibre_Cut && 
+		     ( theShortHitEnergy/theLongHitEnergy < shortFibre_Fraction || 
+		       flagLongDPG ) ) {
+		  // Check if the long-fibre hit was not cleaned already (because hot)
+		  // In this case don't apply the cleaning
+		  const HcalChannelStatus* theStatus = theHcalChStatus->getValues(theShortDetId);
+		  unsigned theStatusValue = theStatus->getValue();
+		  // The channel is killed
+		  if ( !theStatusValue ) { 
+		    //rescaleFactor = 0. ;
+		    pfrhHFEMCleaned = createHcalRecHit( detid, 
+						      theLongHitEnergy, 
+						      PFLayer::HF_EM, 
+						      hcalEndcapGeometry,
+						      ct.id().rawId() );
+		    pfrhHFEMCleaned->setRescale(theLongHit->time());
+		    /*
+		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
+			      << ", Energy em/had/long/short = " 
+			      << energyemHF << " " << energyhadHF << " "
+			      << theLongHitEnergy << " " << theShortHitEnergy << " " 
+			      << ". The status value is " << theStatusValue
+			      << ". Time = " << theLongHit->time() << " " 
+			      << ". The short and long flags : " 
+			      << flagShortDPG << " " << flagLongDPG << " "  
+			      << flagShortTimeDPG << " " << flagLongTimeDPG << " "  
+			      << flagShortPulseDPG << " " << flagLongPulseDPG << " "  
+			      << ". Long fibres were cleaned." << std::endl;
+		    */
+		    longFibre -= theLongHitEnergy;
+		    theLongHitEnergy = 0.;
+		  }
+		}
+
+		// Special treatment for tower 29
+		// A tower with energy only at ieta = +/- 29 is not physical -> Clean
+		if ( abs(ieta) == 29 ) { 
+		  // rescaleFactor = 0. ;
+		  // Clean long fibres
+		  if ( theLongHitEnergy > shortFibre_Cut/2. ) { 
+		    pfrhHFEMCleaned29 = createHcalRecHit( detid, 
+							  theLongHitEnergy, 
+							  PFLayer::HF_EM, 
+							  hcalEndcapGeometry,
+							  ct.id().rawId() );
+		    pfrhHFEMCleaned29->setRescale(theLongHit->time());
+		    /*
+		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
+			      << ", Energy em/had/long/short = " 
+			      << energyemHF << " " << energyhadHF << " "
+			      << theLongHitEnergy << " " << theShortHitEnergy << " " 
+			      << ". Long fibres were cleaned." << std::endl;
+		    */
+		    longFibre -= theLongHitEnergy;
+		    theLongHitEnergy = 0.;
+		  }
+		  // Clean short fibres
+		  if ( theShortHitEnergy > shortFibre_Cut/2. ) { 
+		    pfrhHFHADCleaned29 = createHcalRecHit( detid, 
+							   theShortHitEnergy, 
+							   PFLayer::HF_HAD, 
+							   hcalEndcapGeometry,
+							   ct.id().rawId() );
+		    pfrhHFHADCleaned29->setRescale(theShortHit->time());
+		    /*
+		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
+			      << ", Energy em/had/long/short = " 
+			      << energyemHF << " " << energyhadHF << " "
+			      << theLongHitEnergy << " " << theShortHitEnergy << " " 
+			      << ". Short fibres were cleaned." << std::endl;
+		    */
+		    shortFibre -= theShortHitEnergy;
+		    theShortHitEnergy = 0.;
+		  }
+		}
+		// Check the timing of the long and short fibre rechits
+		
+		// First, check the timing of long and short fibre in eta = 29 if tower 30.
+		else if ( abs(ieta) == 30 ) { 
+		  int ieta29 = ieta > 0 ? 29 : -29;
+		  HcalDetId theLongDetId29 (HcalForward, ieta29, iphi, 1);
+		  HcalDetId theShortDetId29 (HcalForward, ieta29, iphi, 2);
+		  iHF theLongHit29 = hfHandle->find(theLongDetId29); 
+		  iHF theShortHit29 = hfHandle->find(theShortDetId29); 
+		  double theLongHitEnergy29 = theLongHit29 != hfHandle->end() ? theLongHit29->energy() : 0.;
+		  double theShortHitEnergy29 = theShortHit29 != hfHandle->end() ? theShortHit29->energy() : 0.;
+		  
+		  int flagShortDPG29 = theShortHit29->flagField(HcalCaloFlagLabels::HFLongShort);
+		  int flagLongDPG29 = theLongHit29->flagField(HcalCaloFlagLabels::HFLongShort);
+		  int flagShortTimeDPG29 = theShortHit29->flagField(HcalCaloFlagLabels::HFInTimeWindow);
+		  int flagLongTimeDPG29 = theLongHit29->flagField(HcalCaloFlagLabels::HFInTimeWindow);
+		  int flagShortPulseDPG29 = theShortHit29->flagField(HcalCaloFlagLabels::HFDigiTime);
+		  int flagLongPulseDPG29 = theLongHit29->flagField(HcalCaloFlagLabels::HFDigiTime);
+
+		  if ( theLongHitEnergy29 > longShortFibre_Cut && 
+		       ( theLongHit29->time() < minLongTiming_Cut ||
+		         theLongHit29->time() > maxLongTiming_Cut ||
+			 flagLongTimeDPG29 || flagLongPulseDPG29 ) ) { 
+		    //rescaleFactor = 0. ;
+		    pfrhHFEMCleaned29 = createHcalRecHit( detid, 
+							  theLongHitEnergy29, 
+							  PFLayer::HF_EM, 
+							  hcalEndcapGeometry,
+							  ct.id().rawId() );
+		    pfrhHFEMCleaned29->setRescale(theLongHit29->time());
+		    /*
+		    std::cout << "ieta/iphi = " << ieta29 << " " << iphi 
+			      << ", Energy em/had/long/short = " 
+			      << energyemHF << " " << energyhadHF << " "
+			      << theLongHitEnergy29 << " " << theShortHitEnergy29 << " " 
+			      << ". Time = " << theLongHit29->time() << " " 
+			      << ". The short and long flags : " 
+			      << flagShortDPG29 << " " << flagLongDPG29 << " "  
+			      << flagShortTimeDPG29 << " " << flagLongTimeDPG29 << " "  
+			      << flagShortPulseDPG29 << " " << flagLongPulseDPG29 << " "  
+			      << ". Long fibres were cleaned." << std::endl;
+		    */
+		    longFibre -= theLongHitEnergy29;
+		    theLongHitEnergy29 = 0;
+		  }
+
+		  if ( theShortHitEnergy29 > longShortFibre_Cut && 
+		       ( theShortHit29->time() < minShortTiming_Cut ||
+		         theShortHit29->time() > maxShortTiming_Cut ||
+			 flagShortTimeDPG29 || flagShortPulseDPG29 ) ) { 
+		    //rescaleFactor = 0. ;
+		    pfrhHFHADCleaned29 = createHcalRecHit( detid, 
+							 theShortHitEnergy29, 
+							 PFLayer::HF_HAD, 
+							 hcalEndcapGeometry,
+							 ct.id().rawId() );
+		    pfrhHFHADCleaned29->setRescale(theShortHit29->time());
+		    /*
+		    std::cout << "ieta/iphi = " << ieta29 << " " << iphi 
+			      << ", Energy em/had/long/short = " 
+			      << energyemHF << " " << energyhadHF << " "
+			      << theLongHitEnergy29 << " " << theShortHitEnergy29 << " " 
+			      << ". Time = " << theShortHit29->time() << " " 
+			      << ". The short and long flags : " 
+			      << flagShortDPG29 << " " << flagLongDPG29 << " "  
+			      << flagShortTimeDPG29 << " " << flagLongTimeDPG29 << " "  
+			      << flagShortPulseDPG29 << " " << flagLongPulseDPG29 << " "  
+			      << ". Short fibres were cleaned." << std::endl;
+		    */
+		    shortFibre -= theShortHitEnergy29;
+		    theShortHitEnergy29 = 0.;
+		  }
+
+		  // Some energy must be in the long fibres is there is some energy in the short fibres ! 
+		  if ( theShortHitEnergy29 > shortFibre_Cut && 
+		       ( theLongHitEnergy29/theShortHitEnergy29 < 2.*longFibre_Fraction || 
+			 flagShortDPG29 ) ) {
+		    // Check if the long-fibre hit was not cleaned already (because hot)
+		    // In this case don't apply the cleaning
+		    const HcalChannelStatus* theStatus = theHcalChStatus->getValues(theLongDetId29);
+		    unsigned theStatusValue = theStatus->getValue();
+		    // The channel is killed
+		    if ( !theStatusValue ) { 
+		      //rescaleFactor = 0. ;
+		      pfrhHFHADCleaned29 = createHcalRecHit( detid, 
+							   theShortHitEnergy29, 
+							   PFLayer::HF_HAD, 
+							   hcalEndcapGeometry,
+							   ct.id().rawId() );
+		      pfrhHFHADCleaned29->setRescale(theShortHit29->time());
+		      /*
+		      std::cout << "ieta/iphi = " << ieta29 << " " << iphi 
+				<< ", Energy em/had/long/short = " 
+				<< energyemHF << " " << energyhadHF << " "
+				<< theLongHitEnergy29 << " " << theShortHitEnergy29 << " " 
+				<< ". Time = " << theShortHit29->time() << " " 
+				<< ". The status value is " << theStatusValue
+				<< ". The short and long flags : " 
+				<< flagShortDPG29 << " " << flagLongDPG29 << " "  
+				<< flagShortTimeDPG29 << " " << flagLongTimeDPG29 << " "  
+				<< flagShortPulseDPG29 << " " << flagLongPulseDPG29 << " "  
+				<< ". Short fibres were cleaned." << std::endl;
+		      */
+		      shortFibre -= theShortHitEnergy29;
+		      theShortHitEnergy29 = 0.;
+		    }	    
+		  }
+		  
+		  // Some energy must be in the short fibres is there is some energy in the long fibres ! 
+		  if ( theLongHitEnergy29 > longFibre_Cut && 
+		       ( theShortHitEnergy29/theLongHitEnergy29 < shortFibre_Fraction || 
+			 flagLongDPG29 ) ) {
+		    // Check if the long-fibre hit was not cleaned already (because hot)
+		    // In this case don't apply the cleaning
+		    const HcalChannelStatus* theStatus = theHcalChStatus->getValues(theShortDetId29);
+		    unsigned theStatusValue = theStatus->getValue();
+		    // The channel is killed
+		    if ( !theStatusValue ) { 
+		      //rescaleFactor = 0. ;
+		      pfrhHFEMCleaned29 = createHcalRecHit( detid, 
+							    theLongHitEnergy29, 
+							    PFLayer::HF_EM, 
+							    hcalEndcapGeometry,
+							    ct.id().rawId() );
+		      pfrhHFEMCleaned29->setRescale(theLongHit29->time());
+		      /* 
+		      std::cout << "ieta/iphi = " << ieta29 << " " << iphi 
+				<< ", Energy em/had/long/short = " 
+				<< energyemHF << " " << energyhadHF << " "
+				<< theLongHitEnergy29 << " " << theShortHitEnergy29 << " " 
+				<< ". The status value is " << theStatusValue
+				<< ". Time = " << theLongHit29->time() << " " 
+				<< ". The short and long flags : " 
+				<< flagShortDPG29 << " " << flagLongDPG29 << " "  
+				<< flagShortTimeDPG29 << " " << flagLongTimeDPG29 << " "  
+				<< flagShortPulseDPG29 << " " << flagLongPulseDPG29 << " "  
+				<< ". Long fibres were cleaned." << std::endl;
+		      */
+		      longFibre -= theLongHitEnergy29;
+		      theLongHitEnergy29 = 0.;
+		    }
+		  }
+
+		  // Check that the energy in tower 29 is smaller than in tower 30
+		  // First in long fibres
+		  if ( theLongHitEnergy29 > std::max(theLongHitEnergy,shortFibre_Cut/2) ) { 
+		    pfrhHFEMCleaned29 = createHcalRecHit( detid, 
+							  theLongHitEnergy29, 
+							  PFLayer::HF_EM, 
+							  hcalEndcapGeometry,
+							  ct.id().rawId() );
+		    pfrhHFEMCleaned29->setRescale(theLongHit29->time());
+		    /*
+		    std::cout << "ieta/iphi = " << ieta29 << " " << iphi 
+			      << ", Energy L29/S29/L30/S30 = " 
+			      << theLongHitEnergy29 << " " << theShortHitEnergy29 << " "
+			      << theLongHitEnergy << " " << theShortHitEnergy << " " 
+			      << ". Long fibres were cleaned." << std::endl;
+		    */
+		    longFibre -= theLongHitEnergy29;
+		    theLongHitEnergy29 = 0.;
+		  }
+		  // Second in short fibres
+		  if ( theShortHitEnergy29 > std::max(theShortHitEnergy,shortFibre_Cut/2.) ) { 
+		    pfrhHFHADCleaned29 = createHcalRecHit( detid, 
+							   theShortHitEnergy29, 
+							   PFLayer::HF_HAD, 
+							   hcalEndcapGeometry,
+							   ct.id().rawId() );
+		    pfrhHFHADCleaned29->setRescale(theShortHit29->time());
+		    /*
+		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
+			      << ", Energy L29/S29/L30/S30 = " 
+			      << theLongHitEnergy29 << " " << theShortHitEnergy29 << " "
+			      << theLongHitEnergy << " " << theShortHitEnergy << " " 
+			      << ". Short fibres were cleaned." << std::endl;
+		    */
+		    shortFibre -= theShortHitEnergy29;
+		    theShortHitEnergy29 = 0.;
+		  }
+		}
+
 
 		// Determine EM and HAD after cleaning of short and long fibres
 		energyhadHF = 2.*shortFibre;
@@ -393,6 +819,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		<<"CaloTower constituent: unknown layer : "
 		<<detid.subdet()<<endl;
 	    } 
+
 	    if(pfrh) { 
 	      rechits.push_back( *pfrh );
 	      delete pfrh;
@@ -424,6 +851,14 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	    if(pfrhHFHADCleaned) { 
 	      rechitsCleaned.push_back( *pfrhHFHADCleaned );
 	      delete pfrhHFHADCleaned;
+	    }
+	    if(pfrhHFEMCleaned29) { 
+	      rechitsCleaned.push_back( *pfrhHFEMCleaned29 );
+	      delete pfrhHFEMCleaned29;
+	    }
+	    if(pfrhHFHADCleaned29) { 
+	      rechitsCleaned.push_back( *pfrhHFHADCleaned29 );
+	      delete pfrhHFHADCleaned29;
 	    }
 	  }
       }

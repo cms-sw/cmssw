@@ -82,6 +82,7 @@ class PFRecHitProducerHCAL : public PFRecHitProducer {
   
   // ----------access to event data
   edm::InputTag    inputTagHcalRecHitsHBHE_;
+  edm::InputTag    inputTagHcalRecHitsHF_;
   edm::InputTag    inputTagCaloTowers_;
   
   /// threshold for HF
@@ -98,6 +99,23 @@ class PFRecHitProducerHCAL : public PFRecHitProducer {
   // Don't allow large energy in short fibres if there is no energy in long fibres
   double shortFibre_Cut;  
   double longFibre_Fraction;
+
+  // Don't allow large energy in long fibres if there is no energy in short fibres
+  double longFibre_Cut;  
+  double shortFibre_Fraction;
+
+  // Also apply HCAL DPG cleaning
+  bool applyLongShortDPG_;
+
+  // Don't allow too large timing excursion if energy in long/short fibres is large enough
+  double longShortFibre_Cut;  
+  double minShortTiming_Cut;
+  double maxShortTiming_Cut;
+  double minLongTiming_Cut;
+  double maxLongTiming_Cut;
+
+  bool applyTimeDPG_;
+  bool applyPulseDPG_;
 
   // Compensate for dead ECAL channels
   bool ECAL_Compensate_;
