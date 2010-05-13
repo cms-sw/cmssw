@@ -1125,9 +1125,6 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 // End LumiBlock
 void HcalRawDataMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					    const edm::EventSetup& c){
-  std::cout<<"EndLumi!";
-	  
-
   // Reset current LS histogram, if it exists
   if (ProblemsCurrentLB)
     ProblemsCurrentLB->Reset();
