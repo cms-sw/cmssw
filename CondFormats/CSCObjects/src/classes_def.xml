@@ -60,9 +60,9 @@
  <class name="CSCChamberIndex"/>
  <class name="std::vector< CSCMapItem::MapItem >"/>
 
- <class name="CSCCables"/>
- <class name="CSCCables::Cables"/>
- <class name="std::vector< CSCCables::Cables >"/>
+ <class name="CSCChamberTimeCorrections"/>
+ <class name="CSCChamberTimeCorrections::ChamberTimeCorrections"/>
+ <class name="std::vector< CSCChamberTimeCorrections::ChamberTimeCorrections >"/>
 
  <class name="CSCCrateMap"/>
 
