@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2008/10/29 18:34:40 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/05/09 20:23:33 $
+ *  $Revision: 1.7 $
  *
  * \author N.Terentiev, CMU
  */
@@ -98,27 +98,40 @@ std::vector<int> CSCCFEBStatusDigi::getTRIG_TIME() const {
             /// Debug
 void CSCCFEBStatusDigi::print() const {
     std::cout << "CSC CFEB # : " << getCFEBNmb() <<"\n";
+    std::cout << " SCAFullCond: ";
+    if(getSCAFullCond().size()!=0){
     for (size_t i = 0; i<4; ++i ){
         std::cout <<" " <<(getSCAFullCond())[i]; }
-    std::cout<<"\n";
+	}
+    else {
+    std::cout << " " <<"BWORD is not valied";
+    }	
+    std::cout << "\n";
+    std::cout << " CRC: ";
     for (size_t i = 0; i<getCRC().size(); ++i ){
         std::cout <<" " <<(getCRC())[i]; }
     std::cout<<"\n";
+    std::cout << " TS_FLAG: ";
     for (size_t i = 0; i<getTS_FLAG().size(); ++i ){
         std::cout <<" " <<(getTS_FLAG())[i]; }
     std::cout<<"\n";
+    std::cout << " SCA_FULL: ";
     for (size_t i = 0; i<getSCA_FULL().size(); ++i ){
         std::cout <<" " <<(getSCA_FULL())[i]; }
     std::cout<<"\n";
+    std::cout << " LCT_PHASE: ";
     for (size_t i = 0; i<getLCT_PHASE().size(); ++i ){
         std::cout <<" " <<(getLCT_PHASE())[i]; }
     std::cout<<"\n";
+    std::cout << " L1A_PHASE: ";
     for (size_t i = 0; i<getL1A_PHASE().size(); ++i ){
         std::cout <<" " <<(getL1A_PHASE())[i]; }
     std::cout<<"\n";
+    std::cout << " SCA_BLK: ";
     for (size_t i = 0; i<getSCA_BLK().size(); ++i ){
         std::cout <<" " <<(getSCA_BLK())[i]; }
     std::cout<<"\n";
+    std::cout << " TRIG_TIME: ";
     for (size_t i = 0; i<getTRIG_TIME().size(); ++i ){
         std::cout <<" " <<(getTRIG_TIME())[i]; }
     std::cout<<"\n";
