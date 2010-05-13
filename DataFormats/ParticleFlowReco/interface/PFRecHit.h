@@ -104,8 +104,11 @@ namespace reco {
     /// rechit energy
     double energy() const { return energy_; }
 
-    /// rescaling factor
+    /// rescaling factor (obsolete)
     double rescale() const { return rescale_; }
+
+    /// timing for cleaned hits
+    double time() const { return rescale_; }
 
     /// For HF hits: rechit energy (and neighbour's) in the other HF layer
     double energyUp() const { return energyUp_; }
