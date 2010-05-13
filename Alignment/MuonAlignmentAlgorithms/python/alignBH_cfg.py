@@ -38,9 +38,12 @@ if disks:
     import Alignment.MuonAlignmentAlgorithms.CSCOverlapsAlignmentAlgorithm_diskfitters_cff
     process.looper.algoConfig.fitters = Alignment.MuonAlignmentAlgorithms.CSCOverlapsAlignmentAlgorithm_diskfitters_cff.fitters
 
+execfile("constraints_cff.py")
+
 if photogrammetry and mode != "phipos":
     for f in process.looper.algoConfig.fitters:
-        f.fixed = cms.string("PGFrame")
+        if "PGFrame" in f.alignables:
+            f.fixed = cms.string("PGFrame")
 
 process.looper.algoConfig.writeTemporaryFile = ""
 process.looper.algoConfig.readTemporaryFiles = cms.vstring(*alignmenttmp)
@@ -60,8 +63,6 @@ process.looper.algoConfig.errorFromRMS = errorFromRMS
 process.looper.algoConfig.minTracksPerOverlap = minTracksPerOverlap
 process.looper.algoConfig.slopeFromTrackRefit = slopeFromTrackRefit
 process.looper.algoConfig.minStationsInTrackRefits = minStationsInTrackRefits
-
-execfile("constraints_cff.py")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string(globaltag)
