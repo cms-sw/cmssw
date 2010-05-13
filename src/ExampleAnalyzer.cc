@@ -13,7 +13,7 @@
 //
 // Original Author:  Frank GOLF
 //         Created:  Wed Aug 19 18:07:32 CEST 2009
-// $Id$
+// $Id: ExampleAnalyzer.cc,v 1.1 2009/08/25 12:41:33 fgolf Exp $
 //
 //
 
@@ -136,7 +136,8 @@ ExampleAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByLabel(tcMETValueMaplabel, tcMETVMhandle);
 
   // get MET and METphi from objects
-  
+
+  /*
   float caloMET         = (caloMEThandle->front() ).et();
   float caloMETphi      = (caloMEThandle->front() ).phi();
 
@@ -151,6 +152,8 @@ ExampleAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 			  
   float pfMET           = (pfMEThandle->front() ).et();
   float pfMETphi        = (pfMEThandle->front() ).phi();
+  */
+
 
   const unsigned int nMuons = muon_h->size();
 
