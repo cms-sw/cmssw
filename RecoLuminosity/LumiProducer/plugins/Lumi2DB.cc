@@ -30,6 +30,7 @@
 namespace lumi{
   class Lumi2DB : public DataPipe{
   public:
+    const static unsigned int COMMITLSINTERVAL=400; //commit interval in LS,totalrow=nls*(1+nalgo)
     Lumi2DB(const std::string& dest);
     virtual void retrieveData( unsigned int );
     virtual const std::string dataType() const;
@@ -127,6 +128,16 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   if(!hlxtree){
     throw lumi::Exception(std::string("non-existing HLXData "),"retrieveData","Lumi2DB");
   }
+  hlxtree->Print();
+  std::auto_ptr<HCAL_HLX::LUMI_SECTION> localSection(new HCAL_HLX::LUMI_SECTION);
+  HCAL_HLX::LUMI_SECTION_HEADER* lumiheader = &(localSection->hdr);
+  HCAL_HLX::LUMI_SUMMARY* lumisummary = &(localSection->lumiSummary);
+  HCAL_HLX::LUMI_DETAIL* lumidetail = &(localSection->lumiDetail);
+  
+  hlxtree->SetBranchAddress("Header.",&lumiheader);
+  hlxtree->SetBranchAddress("Summary.",&lumisummary);
+  hlxtree->SetBranchAddress("Detail.",&lumidetail);
+   
   size_t nentries=hlxtree->GetEntries();
   //source->GetListOfKeys()->Print();
   std::map<unsigned int, Lumi2DB::beamData> dipmap;
@@ -160,16 +171,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     }
   }
   //diptree->Print();
-  //hlxtree->Print();
-  std::auto_ptr<HCAL_HLX::LUMI_SECTION> localSection(new HCAL_HLX::LUMI_SECTION);
-  HCAL_HLX::LUMI_SECTION_HEADER* lumiheader = &(localSection->hdr);
-  HCAL_HLX::LUMI_SUMMARY* lumisummary = &(localSection->lumiSummary);
-  HCAL_HLX::LUMI_DETAIL* lumidetail = &(localSection->lumiDetail);
-  
-  hlxtree->SetBranchAddress("Header.",&lumiheader);
-  hlxtree->SetBranchAddress("Summary.",&lumisummary);
-  hlxtree->SetBranchAddress("Detail.",&lumidetail);
-   
+ 
   size_t ncmslumi=0;
   std::cout<<"processing total lumi lumisection "<<nentries<<std::endl;
   //size_t lumisecid=0;
@@ -179,7 +181,9 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     lumi::Lumi2DB::PerLumiData h;
     h.cmsalive=1;
     hlxtree->GetEntry(i);
-    if(!lumiheader->bCMSLive){
+    std::cout<<"live flag "<<lumiheader->bCMSLive <<std::endl;
+    std::cout<<"live flag "<<lumiheader->sectionNumber<<std::endl;
+    if( !lumiheader->bCMSLive ){
       std::cout<<"non-CMS LS "<<lumiheader->sectionNumber<<std::endl;
       h.cmsalive=0;
       continue;
@@ -242,13 +246,9 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   coral::ISessionProxy* session=svc->connect(m_dest,coral::Update);
   coral::ITypeConverter& tpc=session->typeConverter();
   tpc.setCppTypeForSqlType("unsigned int","NUMBER(10)");
+
   unsigned int totallumils=lumiresult.size();
   try{
-    session->transaction().start(false);
-    coral::ISchema& schema=session->nominalSchema();
-    lumi::idDealer idg(schema);
-    coral::ITable& summarytable=schema.tableHandle(LumiNames::lumisummaryTableName());
-    coral::ITable& detailtable=schema.tableHandle(LumiNames::lumidetailTableName());
     coral::AttributeList summaryData;
     summaryData.extend<unsigned long long>("LUMISUMMARY_ID");
     summaryData.extend<unsigned int>("RUNNUM");
@@ -267,8 +267,6 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     summaryData.extend<float>("BEAMENERGY");
     summaryData.extend<std::string>("BEAMSTATUS");
 
-    coral::IBulkOperation* summaryInserter=summarytable.dataEditor().bulkInsert(summaryData,totallumils);
-    
     coral::AttributeList detailData;
     detailData.extend("LUMIDETAIL_ID",typeid(unsigned long long));
     detailData.extend("LUMISUMMARY_ID",typeid(unsigned long long));
@@ -276,7 +274,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     detailData.extend("BXLUMIERROR",typeid(coral::Blob));
     detailData.extend("BXLUMIQUALITY",typeid(coral::Blob));
     detailData.extend("ALGONAME",typeid(std::string));
-    coral::IBulkOperation* detailInserter=detailtable.dataEditor().bulkInsert(detailData,totallumils*lumi::N_LUMIALGO);
+
     //loop over lumi LS
     unsigned long long& lumisummary_id=summaryData["LUMISUMMARY_ID"].data<unsigned long long>();
     unsigned int& lumirunnum = summaryData["RUNNUM"].data<unsigned int>();
@@ -305,8 +303,40 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     lumi::Lumi2DB::LumiResult::const_iterator lumiIt;
     lumi::Lumi2DB::LumiResult::const_iterator lumiBeg=lumiresult.begin();
     lumi::Lumi2DB::LumiResult::const_iterator lumiEnd=lumiresult.end();
-    for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt){
-      lumisummary_id = idg.generateNextIDForTable(LumiNames::lumisummaryTableName());      
+
+    coral::IBulkOperation* summaryInserter=0;
+    coral::IBulkOperation* detailInserter=0;
+    //one loop for ids
+    //nested transaction doesn't work with bulk inserter
+    std::map< unsigned long long,std::vector<unsigned long long> > idallocationtable;
+
+    session->transaction().start(false);
+    unsigned int lumiindx=0;
+    for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt,++lumiindx){
+      std::vector< unsigned long long > allIDs;
+      allIDs.reserve(1+lumi::N_LUMIALGO);
+      lumi::idDealer idg(session->nominalSchema());
+      unsigned long long lumisummaryID = idg.generateNextIDForTable(LumiNames::lumisummaryTableName());
+      allIDs.push_back(lumisummaryID);
+      for( unsigned int j=0; j<lumi::N_LUMIALGO; ++j ){
+	unsigned long long lumidetailID=idg.generateNextIDForTable(LumiNames::lumidetailTableName());
+	allIDs.push_back(lumidetailID);
+      }
+      idallocationtable.insert(std::make_pair(lumiindx,allIDs));
+    }
+    session->transaction().commit();
+
+    lumiindx=0;
+    unsigned int comittedls=0;
+    for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt,++lumiindx){
+      if(!session->transaction().isActive()){ 
+	session->transaction().start(false);
+	coral::ITable& summarytable=session->nominalSchema().tableHandle(LumiNames::lumisummaryTableName());
+	summaryInserter=summarytable.dataEditor().bulkInsert(summaryData,totallumils);
+	coral::ITable& detailtable=session->nominalSchema().tableHandle(LumiNames::lumidetailTableName());
+	detailInserter=detailtable.dataEditor().bulkInsert(detailData,totallumils*lumi::N_LUMIALGO);    
+      }
+      lumisummary_id=idallocationtable[lumiindx][0];
       lumirunnum = runnumber;
       lumiversion = std::string(filenamecontent.version);
       dtnorm = lumiIt->dtnorm;
@@ -317,6 +347,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       lumisectionquality = lumiIt->lumisectionquality;
       cmsalive = lumiIt->cmsalive;
       cmslsnr = lumiIt->cmslsnr;
+      
       lumilsnr = lumiIt->lumilsnr;
       startorbit = lumiIt->startorbit;
       numorbit = lumiIt->numorbit;
@@ -326,9 +357,10 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       //insert the new row
       summaryInserter->processNextIteration();
       summaryInserter->flush();
-      for( unsigned int j=0; j<lumi:: N_LUMIALGO; ++j ){
-	lumidetail_id=idg.generateNextIDForTable(LumiNames::lumidetailTableName());
-	d2lumisummary_id=lumisummary_id;
+      unsigned int algoindx=1;
+      for( unsigned int j=0; j<lumi:: N_LUMIALGO; ++j,++algoindx ){
+	d2lumisummary_id=idallocationtable[lumiindx].at(0);
+	lumidetail_id=idallocationtable[lumiindx].at(algoindx);
 	std::vector<PerBXData>::const_iterator bxIt;
 	std::vector<PerBXData>::const_iterator bxBeg;
 	std::vector<PerBXData>::const_iterator bxEnd;
@@ -370,20 +402,29 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
 	std::memmove(bxlumiqualityStartAddress,lumiquality,sizeof(short)*lumi::N_BX);
 	detailInserter->processNextIteration();
       }
+      detailInserter->flush();
+      ++comittedls;
+      if(comittedls==Lumi2DB::COMMITLSINTERVAL){
+	delete summaryInserter;
+	summaryInserter=0;
+	delete detailInserter;
+	detailInserter=0;
+	session->transaction().commit();
+	comittedls=0;
+      }else if( lumiindx==(totallumils-1) ){
+	delete summaryInserter; summaryInserter=0;
+	delete detailInserter; detailInserter=0;
+	session->transaction().commit();
+      }
     }
-    detailInserter->flush();
-    delete summaryInserter;
-    delete detailInserter;
   }catch( const coral::Exception& er){
     session->transaction().rollback();
     delete session;
     delete svc;
     throw er;
   }
-  session->transaction().commit();
   delete session;
   delete svc;
-
 }
 const std::string lumi::Lumi2DB::dataType() const{
   return "LUMI";

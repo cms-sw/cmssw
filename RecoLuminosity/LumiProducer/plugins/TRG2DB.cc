@@ -27,6 +27,7 @@
 namespace lumi{
   class TRG2DB : public DataPipe{
   public:
+    const static unsigned int COMMITLSINTERVAL=20; //commit interval in LS
     explicit TRG2DB(const std::string& dest);
     virtual void retrieveData( unsigned int runnumber);
     virtual const std::string dataType() const;
@@ -446,13 +447,45 @@ namespace lumi{
     //write data into lumi db
     //
     coral::ISessionProxy* lumisession=svc->connect(m_dest,coral::Update);
+    coral::ITypeConverter& lumitpc=lumisession->typeConverter();
+    lumitpc.setCppTypeForSqlType("unsigned int","NUMBER(7)");
+    lumitpc.setCppTypeForSqlType("unsigned int","NUMBER(10)");
+    lumitpc.setCppTypeForSqlType("unsigned long long","NUMBER(20)");
+
+    TriggerDeadCountResult::const_iterator deadIt;
+    TriggerDeadCountResult::const_iterator deadBeg=deadtimeresult.begin();
+    TriggerDeadCountResult::const_iterator deadEnd=deadtimeresult.end();
+
     unsigned int totalcmsls=deadtimeresult.size();
     std::cout<<"inserting totalcmsls "<<totalcmsls<<std::endl;
+    std::map< unsigned long long, std::vector<unsigned long long> > idallocationtable;
     try{
       lumisession->transaction().start(false);
-      coral::ISchema& schema=lumisession->nominalSchema();
-      lumi::idDealer idg(schema);
-      coral::ITable& trgtable=schema.tableHandle(LumiNames::trgTableName());
+      lumi::idDealer idg(lumisession->nominalSchema());
+      unsigned int trglscount=0;
+      for(deadIt=deadBeg;deadIt!=deadEnd;++deadIt,++trglscount){
+	std::vector<unsigned long long> bitvec;
+	bitvec.reserve(lumi::N_TRGALGOBIT+lumi::N_TRGTECHBIT);
+	BITCOUNT& algoinbits=algocount[trglscount];
+	BITCOUNT& techinbits=techcount[trglscount];
+	BITCOUNT::const_iterator algoBitIt;
+	BITCOUNT::const_iterator algoBitBeg=algoinbits.begin();
+	BITCOUNT::const_iterator algoBitEnd=algoinbits.end();	
+	for(algoBitIt=algoBitBeg;algoBitIt!=algoBitEnd;++algoBitIt){
+	  unsigned long long trgID = idg.generateNextIDForTable(LumiNames::trgTableName());
+	  bitvec.push_back(trgID);
+	}
+	BITCOUNT::const_iterator techBitIt;
+	BITCOUNT::const_iterator techBitBeg=techinbits.begin();
+	BITCOUNT::const_iterator techBitEnd=techinbits.end();
+	for(techBitIt=techBitBeg;techBitIt!=techBitEnd;++techBitIt){
+	  unsigned long long trgID = idg.generateNextIDForTable(LumiNames::trgTableName());
+	  bitvec.push_back(trgID);
+	}
+	idallocationtable.insert(std::make_pair(trglscount,bitvec));
+      }
+      lumisession->transaction().commit();
+      
       coral::AttributeList trgData;
       trgData.extend<unsigned long long>("TRG_ID");
       trgData.extend<unsigned int>("RUNNUM");
@@ -462,9 +495,7 @@ namespace lumi{
       trgData.extend<unsigned int>("TRGCOUNT");
       trgData.extend<unsigned long long>("DEADTIME");
       trgData.extend<unsigned int>("PRESCALE");
-      coral::IBulkOperation* trgInserter=trgtable.dataEditor().bulkInsert(trgData,totalcmsls*192);
-      //loop over lumi LS
-      
+
       unsigned long long& trg_id=trgData["TRG_ID"].data<unsigned long long>();
       unsigned int& trgrunnum=trgData["RUNNUM"].data<unsigned int>();
       unsigned int& cmslsnum=trgData["CMSLSNUM"].data<unsigned int>();
@@ -474,11 +505,9 @@ namespace lumi{
       unsigned long long& deadtime=trgData["DEADTIME"].data<unsigned long long>();
       unsigned int& prescale=trgData["PRESCALE"].data<unsigned int>();
 
-      
-      TriggerDeadCountResult::const_iterator deadIt;
-      TriggerDeadCountResult::const_iterator deadBeg=deadtimeresult.begin();
-      TriggerDeadCountResult::const_iterator deadEnd=deadtimeresult.end();
-      unsigned int trglscount=0;      
+      trglscount=0;
+      coral::IBulkOperation* trgInserter=0; 
+      unsigned int comittedls=0;
       for(deadIt=deadBeg;deadIt!=deadEnd;++deadIt,++trglscount ){
 	unsigned int cmslscount=trglscount+1;
 	BITCOUNT& algoinbits=algocount[trglscount];
@@ -487,8 +516,13 @@ namespace lumi{
 	BITCOUNT::const_iterator algoBitIt;
 	BITCOUNT::const_iterator algoBitBeg=algoinbits.begin();
 	BITCOUNT::const_iterator algoBitEnd=algoinbits.end();
+	if(!lumisession->transaction().isActive()){ 
+	  lumisession->transaction().start(false);
+	  coral::ITable& trgtable=lumisession->nominalSchema().tableHandle(LumiNames::trgTableName());
+	  trgInserter=trgtable.dataEditor().bulkInsert(trgData,2048);
+	}
 	for(algoBitIt=algoBitBeg;algoBitIt!=algoBitEnd;++algoBitIt,++trgbitcount){
-	  trg_id = idg.generateNextIDForTable(LumiNames::trgTableName());
+	  trg_id = idallocationtable[trglscount].at(trgbitcount);
 	  deadtime=*deadIt;
 	  trgrunnum = runnumber;
 	  cmslsnum = cmslscount;
@@ -502,7 +536,7 @@ namespace lumi{
 	BITCOUNT::const_iterator techBitBeg=techinbits.begin();
 	BITCOUNT::const_iterator techBitEnd=techinbits.end();
 	for(techBitIt=techBitBeg;techBitIt!=techBitEnd;++techBitIt,++trgbitcount){
-	  trg_id = idg.generateNextIDForTable(LumiNames::trgTableName());
+	  trg_id = idallocationtable[trglscount].at(trgbitcount);
 	  deadtime=*deadIt;
 	  trgrunnum = runnumber;
 	  cmslsnum = cmslscount;
@@ -514,7 +548,15 @@ namespace lumi{
 	}
       }
       trgInserter->flush();
-      delete trgInserter;
+      ++comittedls;
+      if(comittedls==TRG2DB::COMMITLSINTERVAL){
+	delete trgInserter; trgInserter=0;
+	  lumisession->transaction().commit();
+	  comittedls=0;
+      }else if( trglscount==( totalcmsls-1) ){
+	delete trgInserter; trgInserter=0;
+	lumisession->transaction().commit();
+      }
     }catch( const coral::Exception& er){
       lumisession->transaction().rollback();
       delete lumisession;
