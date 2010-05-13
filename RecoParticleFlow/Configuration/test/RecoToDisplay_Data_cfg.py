@@ -1,4 +1,4 @@
-#import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 #import os
 
 process = cms.Process("REPROD")
@@ -112,13 +112,109 @@ process.trackerOnlyConversions.vtxChi2 = 0.0005
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-      'file:highMET.root'
+      #'file:highMET.root'
+      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_1.root',
+      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_2.root',
+      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_3.root',
+      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_4.root',
+      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_5.root',
+      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_6.root',
+      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_7.root',
+      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_8.root',
+      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_9.root',
+      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_10.root'
       ),
     #eventsToProcess = cms.untracked.VEventRange('1:195-1:200'),
     secondaryFileNames = cms.untracked.vstring(),
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
+
+
+process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange(
+	'132440:157-132440:378',
+	'132596:382-132596:382',
+	'132596:447-132596:447',
+	'132598:174-132598:176',
+	'132599:1-132599:379',
+	'132599:381-132599:437',
+	'132601:1-132601:207',
+	'132601:209-132601:259',
+	'132601:261-132601:1107',
+	'132602:1-132602:70',
+	'132605:1-132605:444',
+	'132605:446-132605:522',
+	'132605:526-132605:622',
+	'132605:624-132605:814',
+	'132605:816-132605:829',
+	'132605:831-132605:867',
+	'132605:896-132605:942',
+	'132606:1-132606:26',
+	'132656:1-132656:111',
+	'132658:1-132658:51',
+	'132658:56-132658:120',
+	'132658:127-132658:148',
+	'132659:1-132659:76',
+	'132661:1-132661:116',
+	'132662:1-132662:9',
+	'132662:25-132662:74',
+	'132716:220-132716:436',
+	'132716:440-132716:487',
+	'132716:491-132716:586',
+	'132959:326-132959:334',
+	'132960:1-132960:124',
+	'132961:1-132961:222',
+	'132961:226-132961:230',
+	'132961:237-132961:381',
+	'132965:1-132965:68',
+	'132968:1-132968:67',
+	'132968:75-132968:169',
+	'133029:101-133029:115',
+	'133029:129-133029:332',
+	'133031:1-133031:18',
+	'133034:132-133034:287',
+	'133035:1-133035:63',
+	'133035:67-133035:302',
+	'133036:1-133036:222',
+	'133046:1-133046:43',
+	'133046:45-133046:210',
+	'133046:213-133046:227',
+	'133046:229-133046:323',
+	'133158:65-133158:786',
+	#'133321:1-133321:383', !Bad run
+	#'133446:105-133446:266', !Bad Run
+	'133448:1-133448:484',
+	'133450:1-133450:329',
+	'133450:332-133450:658',
+	'133474:1-133474:95',
+	'133483:94-133483:159',
+	'133483:161-133483:591',
+	'133874:166-133874:297',
+	'133874:299-133874:721',
+	'133874:724-133874:814',
+	'133874:817-133874:864',
+	'133875:1-133875:20',
+	'133875:22-133875:37',
+	'133876:1-133876:315',
+	'133877:1-133877:77',
+	'133877:82-133877:104',
+	'133877:113-133877:231',
+	'133877:236-133877:294',
+	'133877:297-133877:437',
+	'133877:439-133877:622',
+	'133877:624-133877:853',
+	'133877:857-133877:1472',
+	'133877:1474-133877:1640',
+	'133877:1643-133877:1931',
+	'133881:1-133881:71',
+	'133881:74-133881:223',
+	'133881:225-133881:551',
+	'133885:1-133885:132',
+	'133885:134-133885:728',
+	'133927:1-133927:44',
+	'133928:1-133928:645'
+        )
+
 # Input : Run 123596
 #process.load("PFAnalyses.PFCandidate.Sources.RD.source_MinimumBias_ReReco_Feb9th_336p3_Run123596_cff")
 
@@ -178,7 +274,7 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 process.load("RecoParticleFlow.Configuration.ReDisplay_EventContent_cff")
 process.display = cms.OutputModule("PoolOutputModule",
     process.DisplayEventContent,
-    fileName = cms.untracked.string('display_highMET_Time.root')
+    fileName = cms.untracked.string('display_METSkim.root')
 )
 
 
@@ -266,6 +362,7 @@ process.schedule = cms.Schedule(
 # And the logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options = cms.untracked.PSet(
+    fileMode = cms.untracked.string('NOMERGE'),
     makeTriggerResults = cms.untracked.bool(True),
     wantSummary = cms.untracked.bool(True),
     Rethrow = cms.untracked.vstring('Unknown', 
@@ -288,5 +385,5 @@ process.options = cms.untracked.PSet(
         'NotFound')
 )
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
