@@ -177,18 +177,20 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   //size_t lumisecid=0;
   //unsigned int lumilumisecid=0;
   //runnumber=lumiheader->runNumber;
+  //
+  //hardcode the first LS is always alive
+  //
   for(size_t i=0;i<nentries;++i){
     lumi::Lumi2DB::PerLumiData h;
     h.cmsalive=1;
     hlxtree->GetEntry(i);
     //std::cout<<"live flag "<<lumiheader->bCMSLive <<std::endl;
-    if( !lumiheader->bCMSLive ){
+    if( !lumiheader->bCMSLive && i!=0){
       std::cout<<"\t non-CMS LS "<<lumiheader->sectionNumber<<std::endl;
       h.cmsalive=0;
-      continue;
-    }else{
-      ++ncmslumi;
     }
+    ++ncmslumi;
+    
     h.bxET.reserve(lumi::N_BX);
     h.bxOCC1.reserve(lumi::N_BX);
     h.bxOCC2.reserve(lumi::N_BX);
@@ -206,7 +208,11 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     }
     h.startorbit=lumiheader->startOrbit;
     h.numorbit=lumiheader->numOrbits;
-    h.cmslsnr=ncmslumi;//we record cms lumils
+    if(h.cmsalive==0){
+      h.cmslsnr=0; //the dead ls has cmsls number=0
+    }else{
+      h.cmslsnr=ncmslumi;//we guess cms lumils
+    }
     h.instlumi=lumisummary->InstantLumi;
     //std::cout<<"instant lumi "<<lumisummary->InstantLumi<<std::endl;
     h.instlumierror=lumisummary->InstantLumiErr;
@@ -311,19 +317,21 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     std::cout<<"\t allocating ids..."<<std::endl; 
     session->transaction().start(false);
     unsigned int lumiindx=0;
-    for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt,++lumiindx){
+    lumi::idDealer idg(session->nominalSchema());
+    unsigned long long lumisummaryID = idg.generateNextIDForTable(LumiNames::lumisummaryTableName(),totallumils)-(totallumils);
+    std::cout<<"lumisummaryID beg "<<lumisummaryID<<std::endl;
+    unsigned long long lumidetailID=idg.generateNextIDForTable(LumiNames::lumidetailTableName(),totallumils*lumi::N_LUMIALGO)-(totallumils*lumi::N_LUMIALGO);
+    std::cout<<"lumidetailID beg "<<lumidetailID<<std::endl;
+    session->transaction().commit();
+    for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt,++lumiindx,++lumisummaryID){
       std::vector< unsigned long long > allIDs;
       allIDs.reserve(1+lumi::N_LUMIALGO);
-      lumi::idDealer idg(session->nominalSchema());
-      unsigned long long lumisummaryID = idg.generateNextIDForTable(LumiNames::lumisummaryTableName());
       allIDs.push_back(lumisummaryID);
-      for( unsigned int j=0; j<lumi::N_LUMIALGO; ++j ){
-	unsigned long long lumidetailID=idg.generateNextIDForTable(LumiNames::lumidetailTableName());
+      for( unsigned int j=0; j<lumi::N_LUMIALGO; ++j, ++lumidetailID){
 	allIDs.push_back(lumidetailID);
       }
       idallocationtable.insert(std::make_pair(lumiindx,allIDs));
     }
-    session->transaction().commit();
     std::cout<<"\t all ids allocated"<<std::endl; 
     lumiindx=0;
     unsigned int comittedls=0;

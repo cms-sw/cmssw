@@ -9,6 +9,7 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
+#include <sstream>
 //#include <iostream>
 lumi::idDealer::idDealer( coral::ISchema& schema):m_schema(schema),m_idtablecolumnName(lumi::LumiNames::idTableColumnName()),m_idtablecolumnType(lumi::LumiNames::idTableColumnType()){
 }
@@ -27,7 +28,7 @@ unsigned long long lumi::idDealer::getIDforTable( const std::string& tableName )
   delete q;
   return result;
 }
-unsigned long long lumi::idDealer::generateNextIDForTable( const std::string& tableName ){
+unsigned long long lumi::idDealer::generateNextIDForTable( const std::string& tableName,unsigned int interval ){
   std::string idtableName=lumi::LumiNames::idTableName(tableName);
   coral::IQuery* q=m_schema.tableHandle(idtableName).newQuery();
   q->addToOutputList(m_idtablecolumnName);
@@ -43,7 +44,12 @@ unsigned long long lumi::idDealer::generateNextIDForTable( const std::string& ta
   }
   coral::ITableDataEditor& dataEditor=m_schema.tableHandle(idtableName).dataEditor();
   coral::AttributeList inputData;
-  dataEditor.updateRows(m_idtablecolumnName+"="+m_idtablecolumnName+"+1","",inputData);
+  //inputData.extend("interval",typeid(unsigned int));
+  //inputData["interval"].data<unsigned int>()=interval;
+  //dataEditor.updateRows(m_idtablecolumnName+"="+m_idtablecolumnName+"+1","",inputData);
+  std::stringstream ss;
+  ss<<interval;
+  dataEditor.updateRows(m_idtablecolumnName+"="+m_idtablecolumnName+"+"+ss.str(),"",inputData);
   delete q;
-  return r+1;
+  return r+interval;
 }
