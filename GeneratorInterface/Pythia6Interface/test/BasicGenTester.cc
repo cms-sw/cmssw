@@ -7,6 +7,7 @@
 // essentials !!!
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h" 
@@ -14,6 +15,9 @@
 #include "TH1.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "HepPDT/ParticleDataTable.hh"
 
 class BasicGenTester : public edm::EDAnalyzer
 {
@@ -27,16 +31,21 @@ class BasicGenTester : public edm::EDAnalyzer
       
       virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
       virtual void beginJob() ;
+      virtual void beginRun( const edm::Run &, const edm::EventSetup& );
       virtual void endRun( const edm::Run&, const edm::EventSetup& ) ;
       virtual void endJob() ;
 
    private:
    
-     TH1D*       fNPartFinalState ;
-     TH1D*       fPtPartFinalState ;
+     TH1D*       fNChgPartFinalState ;
+     TH1D*       fNNeuPartFinalState ;
+     TH1D*       fNPartFinalState;
+     TH1D*       fPtChgPartFinalState ;
+     TH1D*       fPtNeuPartFinalState ;
      int         fNPart;
      double      fPtMin;
      double      fPtMax;
+     edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
      
 }; 
 
@@ -44,7 +53,8 @@ using namespace edm;
 using namespace std;
 
 BasicGenTester::BasicGenTester( const ParameterSet& pset )
-  : fNPartFinalState(0), fPtPartFinalState(0)
+  : fNChgPartFinalState(0),  fNNeuPartFinalState(0), fNPartFinalState(0),
+    fPtChgPartFinalState(0), fPtNeuPartFinalState(0)
 {
 
    fNPart = pset.getUntrackedParameter<int>( "NPartForHisto", 500 );
@@ -57,11 +67,28 @@ void BasicGenTester::beginJob()
 {
   
   Service<TFileService> fs;
-  fNPartFinalState = fs->make<TH1D>(  "NPartFinalState",  "Number of final state particles", fNPart,  0., (double)fNPart );
-  fPtPartFinalState = fs->make<TH1D>( "PtPartFinalState", "Pt of final state, particles", 500, fPtMin, fPtMax );
-    
+  
+  fNChgPartFinalState = fs->make<TH1D>(  "NChgPartFinalState",  "Number of final state charged particles", 
+                                         fNPart,  0., (double)fNPart );
+  fNNeuPartFinalState = fs->make<TH1D>(  "NNeuPartFinalState",  "Number of final state neutral particles", 
+                                         fNPart,  0., (double)fNPart );
+  fNPartFinalState = fs->make<TH1D>(     "NPartFinalState",  "Total number of final state particles", 
+                                         fNPart,  0., (double)fNPart );
+  fPtChgPartFinalState = fs->make<TH1D>( "PtChgPartFinalState", "Pt of final state charged particles", 
+                                         500, fPtMin, fPtMax );
+  fPtNeuPartFinalState = fs->make<TH1D>( "PtNeuPartFinalState", "Pt of final state neutral particles", 
+                                         500, fPtMin, fPtMax );
   return ;
   
+}
+
+void BasicGenTester::beginRun( const edm::Run& r, const edm::EventSetup& es )
+{
+   
+   es.getData( fPDGTable ) ;
+   
+   return ;
+
 }
 
 void BasicGenTester::analyze( const Event& e, const EventSetup& )
@@ -96,18 +123,35 @@ void BasicGenTester::analyze( const Event& e, const EventSetup& )
   
    const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
   
-   double NPartFS = 0; 
+   double NChgPartFS = 0;
+   double NNeuPartFS = 0; 
+   double NTotPartFS = 0;
    for ( HepMC::GenEvent::particle_const_iterator part = Evt->particles_begin();
 	 part != Evt->particles_end(); ++part ) 
    {
       if ( (*part)->status() == 1 && !((*part)->end_vertex()) ) 
-      {
-         NPartFS++;
-	 fPtPartFinalState->Fill( ((*part)->momentum()).perp() );
+      {	  
+      
+         int PartID = (*part)->pdg_id();
+	 const HepPDT::ParticleData* 
+             PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
+         double charge = PData->charge();
+         if ( fabs(charge) != 0. )
+	 {
+	    NChgPartFS++;
+	    fPtChgPartFinalState->Fill( ((*part)->momentum()).perp() );
+	 }
+	 else
+	 {
+	    NNeuPartFS++;
+	    fPtNeuPartFinalState->Fill( ((*part)->momentum()).perp() );
+	 }
       }
    }
   
-   fNPartFinalState->Fill( NPartFS );
+   fNChgPartFinalState->Fill( NChgPartFS );
+   fNNeuPartFinalState->Fill( NNeuPartFS );
+   fNPartFinalState->Fill( (NChgPartFS+NNeuPartFS) );
    
    return ;
    
