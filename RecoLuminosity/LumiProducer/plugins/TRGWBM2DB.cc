@@ -27,7 +27,7 @@
 namespace lumi{
   class TRGWBM2DB : public DataPipe{
   public:
-    const static unsigned int COMMITLSINTERVAL=20; //commit interval in LS
+    const static unsigned int COMMITLSINTERVAL=400; //commit interval in LS
     explicit TRGWBM2DB(const std::string& dest);
     virtual void retrieveData( unsigned int runnumber);
     virtual const std::string dataType() const;
@@ -474,6 +474,7 @@ namespace lumi{
     std::cout<<"inserting totalcmsls "<<totalcmsls<<std::endl;
     std::map< unsigned long long, std::vector<unsigned long long> > idallocationtable;
     try{
+      std::cout<<"\t allocating ids..."<<std::endl; 
       lumisession->transaction().start(false);
       lumi::idDealer idg(lumisession->nominalSchema());
       unsigned int trglscount=0;
@@ -499,7 +500,7 @@ namespace lumi{
 	idallocationtable.insert(std::make_pair(trglscount,bitvec));
       }
       lumisession->transaction().commit();
-      
+      std::cout<<"\t all ids allocated"<<std::endl; 
       coral::AttributeList trgData;
       trgData.extend<unsigned long long>("TRG_ID");
       trgData.extend<unsigned int>("RUNNUM");
@@ -587,12 +588,16 @@ namespace lumi{
 	trgInserter->flush();//flush every ls
 	++comittedls;
 	if(comittedls==TRGWBM2DB::COMMITLSINTERVAL){
+	  std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
 	  delete trgInserter; trgInserter=0;
 	  lumisession->transaction().commit();
 	  comittedls=0;
+	  std::cout<<"\t committed "<<std::endl; 
 	}else if( trglscount==( totalcmsls-1) ){
+	  std::cout<<"\t committing at the end"<<std::endl; 
 	  delete trgInserter; trgInserter=0;
 	  lumisession->transaction().commit();
+	  std::cout<<"\t done"<<std::endl; 
 	}
       }
     }catch( const coral::Exception& er){

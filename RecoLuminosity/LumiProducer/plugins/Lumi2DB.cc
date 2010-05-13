@@ -30,7 +30,7 @@
 namespace lumi{
   class Lumi2DB : public DataPipe{
   public:
-    const static unsigned int COMMITLSINTERVAL=400; //commit interval in LS,totalrow=nls*(1+nalgo)
+    const static unsigned int COMMITLSINTERVAL=500; //commit interval in LS,totalrow=nls*(1+nalgo)
     Lumi2DB(const std::string& dest);
     virtual void retrieveData( unsigned int );
     virtual const std::string dataType() const;
@@ -128,7 +128,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   if(!hlxtree){
     throw lumi::Exception(std::string("non-existing HLXData "),"retrieveData","Lumi2DB");
   }
-  hlxtree->Print();
+  //hlxtree->Print();
   std::auto_ptr<HCAL_HLX::LUMI_SECTION> localSection(new HCAL_HLX::LUMI_SECTION);
   HCAL_HLX::LUMI_SECTION_HEADER* lumiheader = &(localSection->hdr);
   HCAL_HLX::LUMI_SUMMARY* lumisummary = &(localSection->lumiSummary);
@@ -181,10 +181,9 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     lumi::Lumi2DB::PerLumiData h;
     h.cmsalive=1;
     hlxtree->GetEntry(i);
-    std::cout<<"live flag "<<lumiheader->bCMSLive <<std::endl;
-    std::cout<<"live flag "<<lumiheader->sectionNumber<<std::endl;
+    //std::cout<<"live flag "<<lumiheader->bCMSLive <<std::endl;
     if( !lumiheader->bCMSLive ){
-      std::cout<<"non-CMS LS "<<lumiheader->sectionNumber<<std::endl;
+      std::cout<<"\t non-CMS LS "<<lumiheader->sectionNumber<<std::endl;
       h.cmsalive=0;
       continue;
     }else{
@@ -309,7 +308,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     //one loop for ids
     //nested transaction doesn't work with bulk inserter
     std::map< unsigned long long,std::vector<unsigned long long> > idallocationtable;
-
+    std::cout<<"\t allocating ids..."<<std::endl; 
     session->transaction().start(false);
     unsigned int lumiindx=0;
     for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt,++lumiindx){
@@ -325,7 +324,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       idallocationtable.insert(std::make_pair(lumiindx,allIDs));
     }
     session->transaction().commit();
-
+    std::cout<<"\t all ids allocated"<<std::endl; 
     lumiindx=0;
     unsigned int comittedls=0;
     for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt,++lumiindx){
@@ -405,16 +404,20 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       detailInserter->flush();
       ++comittedls;
       if(comittedls==Lumi2DB::COMMITLSINTERVAL){
+	std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
 	delete summaryInserter;
 	summaryInserter=0;
 	delete detailInserter;
 	detailInserter=0;
 	session->transaction().commit();
 	comittedls=0;
+	std::cout<<"\t committed "<<std::endl; 
       }else if( lumiindx==(totallumils-1) ){
+	std::cout<<"\t committing at the end"<<std::endl; 
 	delete summaryInserter; summaryInserter=0;
 	delete detailInserter; detailInserter=0;
 	session->transaction().commit();
+	std::cout<<"\t done"<<std::endl; 
       }
     }
   }catch( const coral::Exception& er){
