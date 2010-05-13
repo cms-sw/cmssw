@@ -52,6 +52,10 @@ parser.add_option("--photogrammetryScale",
                   type="string",
                   default="1.",
                   dest="photogrammetryScale")
+parser.add_option("--disks",
+                  help="align whole disks, rather than individual rings",
+                  action="store_true",
+                  dest="disks")
 
 parser.add_option("--minP",
                   help="minimum track momentum (measured via radial component of fringe fields)",
@@ -130,6 +134,7 @@ options, args = parser.parse_args(sys.argv[5:])
 globaltag = options.globaltag
 photogrammetry = options.photogrammetry
 photogrammetryScale = options.photogrammetryScale
+disks = options.disks
 minP = options.minP
 minHitsPerChamber = options.minHitsPerChamber
 maxdrdz = options.maxdrdz
@@ -171,6 +176,17 @@ for i, mode in enumerate(PATTERN):
 
     bsubfile.append("cd %s" % directory)
 
+    constraints = ""
+    if photogrammetry and (mode == "phipos" or mode == "phiz"):
+        diskswitch = ""
+        if disks: diskswitch = "--disks "
+
+        constraints += """export ALIGNMENT_CONVERTXML=%(inputdb)s
+cmsRun $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/python/convertToXML_global_cfg.py 
+python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConstraints.py %(inputdb)s_global.xml $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/data/Photogrammetry2007.%(mode)s PGFrame --scaleErrors %(photogrammetryScale)s %(diskswitch)s> constraints_cff.py""" % vars()
+    else:
+        constraints += """echo \"\" > constraints_cff.py"""
+
     for jobnumber in range(options.subjobs):
         gather_fileName = "%sgather%03d.sh" % (directory, jobnumber)
         inputfiles = " ".join(fileNames[jobnumber*stepsize:(jobnumber+1)*stepsize])
@@ -191,6 +207,7 @@ export ALIGNMENT_MODE=%(mode)s
 export ALIGNMENT_JOBNUMBER=%(jobnumber)d
 export ALIGNMENT_INPUTDB=%(inputdb)s
 export ALIGNMENT_GLOBALTAG=%(globaltag)s
+export ALIGNMENT_DISKS=%(disks)s
 export ALIGNMENT_minP=%(minP)s
 export ALIGNMENT_minHitsPerChamber=%(minHitsPerChamber)s
 export ALIGNMENT_maxdrdz=%(maxdrdz)s
@@ -208,6 +225,9 @@ export ALIGNMENT_minStationsInTrackRefits=%(minStationsInTrackRefits)s
 
 cp -f %(directory)sgatherBH_cfg.py %(inputdbdir)s%(inputdb)s inertGlobalPositionRcd.db $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/
+
+%(constraints)s
+
 ls -l
 cmsRun gatherBH_cfg.py
 ls -l
@@ -244,16 +264,7 @@ process.PoolDBESSource.toGet = cms.VPSet(
       )
 """ % vars())
 
-    constraints = ""
-    if photogrammetry and (mode == "phipos" or mode == "phiz"):
-        constraints += """
-export ALIGNMENT_CONVERTXML=%(inputdb)s
-cmsRun $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/python/convertToXML_global_cfg.py 
-python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConstraints.py %(inputdb)s_global.xml $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/data/Photogrammetry2007.%(mode)s PGFrame --scaleErrors %(photogrammetryScale)s > constraints_cff.py
-""" % vars()
-    else:
-        constraints += """echo \"\" > constraints_cff.py\n"""
-    constraints += """cp -f constraints_cff.py $ALIGNMENT_AFSDIR/%(directory)sconstraints_cff.py\n""" % vars()
+    constraints += """\ncp -f constraints_cff.py $ALIGNMENT_AFSDIR/%(directory)sconstraints_cff.py""" % vars()
 
     file("%salign.sh" % directory, "w").write("""#!/bin/sh
 # %(commandline)s
@@ -268,6 +279,7 @@ export ALIGNMENT_ITERATION=%(iteration)d
 export ALIGNMENT_MODE=%(mode)s
 export ALIGNMENT_INPUTDB=%(inputdb)s
 export ALIGNMENT_GLOBALTAG=%(globaltag)s
+export ALIGNMENT_DISKS=%(disks)s
 export ALIGNMENT_minP=%(minP)s
 export ALIGNMENT_minHitsPerChamber=%(minHitsPerChamber)s
 export ALIGNMENT_maxdrdz=%(maxdrdz)s

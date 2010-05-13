@@ -22,6 +22,10 @@ parser.add_option("--scaleErrors",
                   type="string",
                   default=1,
                   dest="scaleErrors")
+parser.add_option("--disks",
+                  help="align whole disks, rather than individual rings",
+                  action="store_true",
+                  dest="disks")
 
 if len(sys.argv) < 4:
     raise SystemError, "Too few arguments.\n\n"+parser.format_help()
@@ -40,6 +44,8 @@ options.scaleErrors = float(options.scaleErrors)
 
 empty = True
 byRing = {"ME+1/1": [], "ME+1/2": [], "ME+2/1": [], "ME+2/2": [], "ME+3/1": [], "ME+3/2": [], "ME+4/1": [], "ME+4/2": [], "ME-1/1": [], "ME-1/2": [], "ME-2/1": [], "ME-2/2": [], "ME-3/1": [], "ME-3/2": [], "ME-4/1": [], "ME-4/2": []}
+if options.disks: byRing = {"ME+1/1": [], "YE+1": [], "YE+2": [], "ME+4/1": [], "ME+4/2": [], "ME-1/1": [], "YE-1": [], "YE-2": [], "ME-4/1": [], "ME-4/2": []}
+
 for line in constraints.readlines():
     match = re.match(r"(ME[\+\-/0-9]+)\s+([\+\-\.eE0-9]+)\s+([\+\-\.eE0-9]+)", line)
     if match is not None:
@@ -47,6 +53,12 @@ for line in constraints.readlines():
         ringName = chamber[0:6]
         value = float(value)
         error = float(error) * options.scaleErrors
+
+        if options.disks:
+            if ringName in ("ME+1/2", "ME+1/3"): ringName = "YE+1"
+            elif ringName in ("ME+2/1", "ME+2/2", "ME+3/1", "ME+3/2"): ringName = "YE+2"
+            elif ringName in ("ME-1/2", "ME-1/3"): ringName = "YE-1"
+            elif ringName in ("ME-2/1", "ME-2/2", "ME-3/1", "ME-3/2"): ringName = "YE-2"
 
         if chamber[2] == "+": endcap = 1
         elif chamber[2] == "-": endcap = 2

@@ -7,6 +7,7 @@ jobnumber = int(os.environ["ALIGNMENT_JOBNUMBER"])
 mode = os.environ["ALIGNMENT_MODE"]
 inputdb = os.environ["ALIGNMENT_INPUTDB"]
 globaltag = os.environ["ALIGNMENT_GLOBALTAG"]
+disks = (os.environ["ALIGNMENT_DISKS"] == "True")
 
 minP = float(os.environ["ALIGNMENT_minP"])
 minHitsPerChamber = int(os.environ["ALIGNMENT_minHitsPerChamber"])
@@ -35,6 +36,10 @@ process.load("Alignment.MuonAlignmentAlgorithms.CSCOverlapsAlignmentAlgorithm_cf
 
 process.looper.algoConfig.mode = mode
 
+if disks:
+    import Alignment.MuonAlignmentAlgorithms.CSCOverlapsAlignmentAlgorithm_diskfitters_cff
+    process.looper.algoConfig.fitters = Alignment.MuonAlignmentAlgorithms.CSCOverlapsAlignmentAlgorithm_diskfitters_cff.fitters
+
 process.looper.algoConfig.writeTemporaryFile = "alignment%03d.tmp" % jobnumber
 process.looper.algoConfig.readTemporaryFiles = cms.vstring()
 process.looper.algoConfig.doAlignment = False
@@ -53,6 +58,8 @@ process.looper.algoConfig.errorFromRMS = errorFromRMS
 process.looper.algoConfig.minTracksPerOverlap = minTracksPerOverlap
 process.looper.algoConfig.slopeFromTrackRefit = slopeFromTrackRefit
 process.looper.algoConfig.minStationsInTrackRefits = minStationsInTrackRefits
+
+execfile("constraints_cff.py")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string(globaltag)

@@ -7,6 +7,7 @@ iteration = int(os.environ["ALIGNMENT_ITERATION"])
 mode = os.environ["ALIGNMENT_MODE"]
 inputdb = os.environ["ALIGNMENT_INPUTDB"]
 globaltag = os.environ["ALIGNMENT_GLOBALTAG"]
+disks = (os.environ["ALIGNMENT_DISKS"] == "True")
 
 minP = float(os.environ["ALIGNMENT_minP"])
 minHitsPerChamber = int(os.environ["ALIGNMENT_minHitsPerChamber"])
@@ -31,6 +32,10 @@ process.load("Alignment.MuonAlignmentAlgorithms.CSCOverlapsAlignmentAlgorithm_cf
 del process.Path
 
 process.looper.algoConfig.mode = mode
+
+if disks:
+    import Alignment.MuonAlignmentAlgorithms.CSCOverlapsAlignmentAlgorithm_diskfitters_cff
+    process.looper.algoConfig.fitters = Alignment.MuonAlignmentAlgorithms.CSCOverlapsAlignmentAlgorithm_diskfitters_cff.fitters
 
 process.looper.algoConfig.writeTemporaryFile = ""
 process.looper.algoConfig.readTemporaryFiles = cms.vstring(*alignmenttmp)
