@@ -51,7 +51,9 @@ class DataCertificationJetMET : public edm::EDAnalyzer {
    int verbose_;
    int testType_;
    bool InMemory_;
-
+   float jet_ks_thresh;
+   float met_ks_thresh;
+   float met_phi_thresh;
 };
 
 #endif

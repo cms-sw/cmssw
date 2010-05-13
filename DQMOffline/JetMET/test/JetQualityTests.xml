@@ -5,21 +5,21 @@
         <TYPE>Comp2RefKolmogorov</TYPE> 
         <PARAM name="testparam">0</PARAM>
         <PARAM name="error">0.00000001</PARAM>
-        <PARAM name="warning">0.0000001</PARAM>
+        <PARAM name="warning">0.000001</PARAM>
 </QTEST>
-<LINK name="JetMET/Jet/*/Eta*">
+<LINK name="JetMET/Jet/*/*Eta*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
-<LINK name="JetMET/Jet/*/Pt">
+<LINK name="JetMET/Jet/*/*Pt*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
-<LINK name="JetMET/Jet/*/Pt1">
+<LINK name="JetMET/Jet/*/*Pt1*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
-<LINK name="JetMET/Jet/*/Pt2">
+<LINK name="JetMET/Jet/*/*Pt2*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
-<LINK name="JetMET/Jet/*/Pt3">
+<LINK name="JetMET/Jet/*/*Pt3*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 <LINK name="JetMET/Jet/*/*Phi*">
@@ -46,16 +46,16 @@
         <PARAM name="error">0.10</PARAM>
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
-<LINK name="JetMET/Jet/*/Pt">
+<LINK name="JetMET/Jet/*/*Pt*">
    <TestName activate="true">meanJetPtTest</TestName>
 </LINK>
-<LINK name="JetMET/Jet/*/Pt1">
+<LINK name="JetMET/Jet/*/*Pt1*">
    <TestName activate="true">meanJetPtTest</TestName>
 </LINK>
-<LINK name="JetMET/Jet/*/Pt2">
+<LINK name="JetMET/Jet/*/*Pt2*">
    <TestName activate="true">meanJetPtTest</TestName>
 </LINK>
-<LINK name="JetMET/Jet/*/Pt3">
+<LINK name="JetMET/Jet/*/*Pt3*">
    <TestName activate="true">meanJetPtTest</TestName>
 </LINK>
 

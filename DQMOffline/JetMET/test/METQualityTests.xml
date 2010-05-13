@@ -3,12 +3,24 @@
 #####
 
 <QTEST name="phiQTest">    
-   <TYPE>NoisyChannel</TYPE>                          <!--  NAME OF QUALITY TEST TO RUN  -->
+   <TYPE>NoisyChannel</TYPE>
    <PARAM name="tolerance">0.5</PARAM>
    <PARAM name="neighbours">5</PARAM>
    <PARAM name="error">0.80</PARAM>
    <PARAM name="warning">0.95</PARAM>
 </QTEST>
+
+
+<!-- Noisy channel Phi tests-->
+<LINK name="JetMET/MET/*/METTask_*METPhi">              
+   <TestName activate="true">phiQTest</TestName>
+</LINK>
+<LINK name="JetMET/MET/*/*/METTask_*METPhi">              
+   <TestName activate="true">phiQTest</TestName>
+</LINK>
+<LINK name="JetMET/MET/*/*/*/METTask_*METPhi">              
+   <TestName activate="true">phiQTest</TestName>
+</LINK>
 
 <QTEST name="meanMExyTest">
         <TYPE>MeanWithinExpected</TYPE> 
@@ -22,17 +34,53 @@
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
 
+<!-- Mean tests on CaloMET -->
+<LINK name="JetMET/MET/*/METTask_*MEx">              
+   <TestName activate="true">meanMExyTest</TestName>
+</LINK>
+<LINK name="JetMET/MET/*/METTask_*MEy">              
+   <TestName activate="true">meanMExyTest</TestName>
+</LINK>
+
+<LINK name="JetMET/MET/*/*/METTask_*MEx">              
+   <TestName activate="true">meanMExyTest</TestName>
+</LINK>
+<LINK name="JetMET/MET/*/*/METTask_*MEy">              
+   <TestName activate="true">meanMExyTest</TestName>
+</LINK>
+
+<LINK name="JetMET/MET/*/*/*/METTask_*MEx">              
+   <TestName activate="true">meanMExyTest</TestName>
+</LINK>
+<LINK name="JetMET/MET/*/*/*/METTask_*MEy">              
+   <TestName activate="true">meanMExyTest</TestName>
+</LINK>
+
+
 <QTEST name="meanSumETTest">
         <TYPE>MeanWithinExpected</TYPE> 
-        <PARAM name="mean">20</PARAM>
+        <PARAM name="mean">50</PARAM>
         <PARAM name="useRMS">0</PARAM>
         <PARAM name="useSigma">0</PARAM>
         <PARAM name="useRange">1</PARAM>
         <PARAM name="xmin">0</PARAM>
-        <PARAM name="xmax">50</PARAM>
+        <PARAM name="xmax">100</PARAM>
         <PARAM name="error">0.30</PARAM>
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
+
+<LINK name="JetMET/MET/*/METTask_*MET">              
+   <TestName activate="true">meanMETTest</TestName>
+</LINK>
+
+<LINK name="JetMET/MET/*/*/METTask_*MET">              
+   <TestName activate="true">meanMETTest</TestName>
+</LINK>
+
+<LINK name="JetMET/MET/*/*/*/METTask_*MET">              
+   <TestName activate="true">meanMETTest</TestName>
+</LINK>
+
 
 <QTEST name="meanMETTest">
         <TYPE>MeanWithinExpected</TYPE> 
@@ -46,22 +94,15 @@
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
 
-<!-- Noisy channel Phi tests-->
-<LINK name="JetMET/MET/*/*/METTask_*METPhi">              <!-- NAME OF HISTOGRAM  -->
-   <TestName activate="true">phiQTest</TestName>
+<LINK name="JetMET/MET/*/METTask_*SumET">              
+   <TestName activate="true">meanSumETTest</TestName>
 </LINK>
 
-<!-- Mean tests on CaloMET -->
-<LINK name="JetMET/MET/*/*/METTask_*MET">              <!-- NAME OF HISTOGRAM  -->
-   <TestName activate="true">meanMETTest</TestName>
+<LINK name="JetMET/MET/*/*/METTask_*SumET">              
+   <TestName activate="true">meanSumETTest</TestName>
 </LINK>
-<LINK name="JetMET/MET/*/*/METTask_*MEx">              <!-- NAME OF HISTOGRAM  -->
-   <TestName activate="true">meanMExyTest</TestName>
-</LINK>
-<LINK name="JetMET/MET/*/*/METTask_*MEy">              <!-- NAME OF HISTOGRAM  -->
-   <TestName activate="true">meanMExyTest</TestName>
-</LINK>
-<LINK name="JetMET/MET/*/*/METTask_*SumET">              <!-- NAME OF HISTOGRAM  -->
+
+<LINK name="JetMET/MET/*/*/*/METTask_*SumET">              
    <TestName activate="true">meanSumETTest</TestName>
 </LINK>
 
@@ -69,23 +110,55 @@
 <QTEST name="KolmogorovTest">
         <TYPE>Comp2RefKolmogorov</TYPE> 
         <PARAM name="testparam">0</PARAM>
-        <PARAM name="error">0.00000000000001</PARAM>
-        <PARAM name="warning">0.000000000001</PARAM>
+        <PARAM name="error">0.0000000001</PARAM>
+        <PARAM name="warning">0.00000001</PARAM>
 </QTEST>
 
-<LINK name="JetMET/MET/*/METTask_*MET">              <!-- NAME OF HISTOGRAM  -->
+<LINK name="JetMET/MET/*/METTask_*MET">              
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
-<LINK name="JetMET/MET/*/METTask_*METPhi">              <!-- NAME OF HISTOGRAM  -->
+<LINK name="JetMET/MET/*/METTask_*METPhi">              
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
-<LINK name="JetMET/MET/*/METTask_*MEx">              <!-- NAME OF HISTOGRAM  -->
+<LINK name="JetMET/MET/*/METTask_*MEx">              
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
-<LINK name="JetMET/MET/*/METTask_*MEy">              <!-- NAME OF HISTOGRAM  -->
+<LINK name="JetMET/MET/*/METTask_*MEy">              
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
-<LINK name="JetMET/MET/*/METTask_*SumET">              <!-- NAME OF HISTOGRAM  -->
+<LINK name="JetMET/MET/*/METTask_*SumET">              
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+
+<LINK name="JetMET/MET/*/*/METTask_*MET">              
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+<LINK name="JetMET/MET/*/*/METTask_*METPhi">              
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+<LINK name="JetMET/MET/*/*/METTask_*MEx">              
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+<LINK name="JetMET/MET/*/*/METTask_*MEy">              
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+<LINK name="JetMET/MET/*/*/METTask_*SumET">              
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+
+<LINK name="JetMET/MET/*/*/*/METTask_*MET">              
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+<LINK name="JetMET/MET/*/*/*/METTask_*METPhi">              
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+<LINK name="JetMET/MET/*/*/*/METTask_*MEx">              
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+<LINK name="JetMET/MET/*/*/*/METTask_*MEy">              
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+<LINK name="JetMET/MET/*/*/*/METTask_*SumET">              
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 #####
