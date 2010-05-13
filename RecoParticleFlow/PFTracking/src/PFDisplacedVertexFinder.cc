@@ -121,12 +121,12 @@ PFDisplacedVertexFinder::findDisplacedVertices() {
     }
   }
 
-  if (debug_) cout << "4) Rejecting Bad Vertices" << endl;
+  if (debug_) cout << "4) Rejecting Bad Vertices and label them" << endl;
   
   // 4) Reject displaced vertices which may be considered as fakes
   vector<bool> bLocked; 
   bLocked.resize(tempDisplacedVertices.size());
-  selectVertices(tempDisplacedVertices, bLocked);
+  selectAndLabelVertices(tempDisplacedVertices, bLocked);
   
   if (debug_) cout << "5) Fill the Displaced Vertices" << endl;
 
@@ -135,10 +135,6 @@ PFDisplacedVertexFinder::findDisplacedVertices() {
 
   for(unsigned idv = 0; idv < tempDisplacedVertices.size(); idv++)
     if (!bLocked[idv]) displacedVertices_->push_back(tempDisplacedVertices[idv]);
-   
-  if (debug_) cout << "6) Label the Displaced Vertices" << endl;
-
-  labelVertices();
 
   if (debug_) cout << "========= End Find Displaced Vertices =========" << endl;
 
@@ -257,6 +253,15 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
   transTracksRef.reserve(tracksToFit.size());
   transTracksRefRaw.reserve(tracksToFit.size());
 
+
+
+  TransientVertex theVertexAdaptiveRaw;
+  TransientVertex theRecoVertex;
+
+
+  // ---- Clean for potentially poor seeds ------- //
+  // --------------------------------------------- //
+
   if (tracksToFit.size() < 2) {
     if (debug_) cout << "Only one to Fit Track" << endl;
     return true;
@@ -284,63 +289,71 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     if ( (*ie)->algo()-4 < 0 ||(*ie)->algo()-4 > 5 ) nNotIterative++;
   }
 
-  if (transTracksRaw.size() < 2) {
-    if (debug_) cout << "Only one Transient Track" << endl;
-    return true;
-  } else if (rho > 25 && nStep45 + nNotIterative < 1){
+  if (rho > 25 && nStep45 + nNotIterative < 1){
     if (debug_) cout << "Seed point at rho > 25 cm but no step 4-5 tracks" << endl;
     return true;
   }
 
   // ----------------------------------------------- //
-  // ---- Prepare transient track list is ready ---- //
+  // ---- PRESELECT GOOD TRACKS FOR FINAL VERTED --- //
   // ----------------------------------------------- //
 
-  // ---- Define Vertex fitters and fit ---- //
 
-  //  AdaptiveVertexFitter theAdaptiveFitterRaw;
+
+  // 1)If only two 
+
+
+  if ( transTracksRaw.size() == 2 ){
+
+    GlobalError globalError;
+
+    theVertexAdaptiveRaw = TransientVertex(seedPoint,  globalError, transTracksRaw, 1.);
+
+  } else {
+
+        AdaptiveVertexFitter theAdaptiveFitterRaw(GeometricAnnealing(sigmacut_, t_ini_, ratio_),
+					      DefaultLinearizationPointFinder(),
+					      KalmanVertexUpdator<5>(), 
+					      KalmanVertexTrackCompatibilityEstimator<5>(), 
+					      KalmanVertexSmoother() );
+
+  
+    try{
+      theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, seedPoint);
+    }catch( cms::Exception& exception ){
+      if(debug_) cout << "Fit Crashed" << endl;
+      return true;
+    }
+
+    if( !theVertexAdaptiveRaw.isValid() || theVertexAdaptiveRaw.totalChiSquared() < 0. ) {
+      if(debug_) cout << "Fit failed : valid? " << theVertexAdaptiveRaw.isValid() 
+		      << " totalChi2 = " << theVertexAdaptiveRaw.totalChiSquared() << endl;
+      return true;
+    }  
+
+    // To save time: reject the Displaced vertex if it is too close to the beam pipe. 
+    // Frequently it is very big vertices, with some dosens of tracks
+
+    Vertex theVtxAdaptiveRaw = theVertexAdaptiveRaw;
+
+    rho =  theVtxAdaptiveRaw.position().rho();
+
+    if (rho < primaryVertexCut_)  {
+      if (debug_) cout << "Vertex " << " geometrically rejected with " <<  transTracksRaw.size() << " tracks #rho = " << rho << endl;
+      return true;
+    }
+
+
+  }
+
 
  
-  AdaptiveVertexFitter theAdaptiveFitterRaw(GeometricAnnealing(sigmacut_, t_ini_, ratio_),
-					    DefaultLinearizationPointFinder(),
-					    KalmanVertexUpdator<5>(), 
-					    KalmanVertexTrackCompatibilityEstimator<5>(), 
-					    KalmanVertexSmoother() );
-
-
-  TransientVertex theVertexAdaptiveRaw;
-  
-  try{
-    theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, seedPoint);
-  }catch( cms::Exception& exception ){
-    if(debug_) cout << "Fit Crashed" << endl;
-    return true;
-  }
-
-  if( !theVertexAdaptiveRaw.isValid() || theVertexAdaptiveRaw.totalChiSquared() < 0. ) {
-    if(debug_) cout << "Fit failed : valid? " << theVertexAdaptiveRaw.isValid() 
-	 << " totalChi2 = " << theVertexAdaptiveRaw.totalChiSquared() << endl;
-    return true;
-  }  
-
-  // To save time: reject the Displaced vertex if it is too close to the beam pipe. 
-  // Frequently it is very big vertices, with some dosens of tracks
-
-  Vertex theVtxAdaptiveRaw = theVertexAdaptiveRaw;
-
-  rho =  theVtxAdaptiveRaw.position().rho();
-
-  if (rho < primaryVertexCut_)  {
-    if (debug_) cout << "Vertex " << " geometrically rejected with " <<  transTracksRaw.size() << " tracks #rho = " << rho << endl;
-    return true;
-  }
-
   // ---- Remove tracks with small weight or 
   //      big first (last) hit_to_vertex distance 
   //      and then refit                          ---- //
+  
 
-
-
+  
   for (unsigned i = 0; i < transTracksRaw.size(); i++) {
 
     if (theVertexAdaptiveRaw.trackWeight(transTracksRaw[i]) > minAdaptWeight_){
@@ -365,31 +378,35 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 		 << " nOuterHits = " << transTracksRaw[i].track().trackerExpectedHitsOuter().numberOfHits() << endl;
 	} 
       } else {
-
+	
 	if (debug_){ 
 	  cout << "Remove track because too far away from the vertex:" << endl;
 	}
-
+	
       }
       
     }
-    // To Do: dont forget to check consistency since you remove tracks from displaced vertex 
+   
   }
+
+
 
   if (debug_) cout << "All Tracks " << transTracksRaw.size() 
 		   << " with good weight " << transTracks.size() << endl;
 
-  if (transTracks.size() < 2) return true;
 
   // ---- Refit ---- //
 
-  TransientVertex theRecoVertex;
+  if (transTracks.size() < 2) return true;
+  else if (transTracks.size() == 2) vtxFitter == "KalmanVertexFitter";
+  else if (transTracks.size() > 2 && transTracksRaw.size() > transTracks.size()) vtxFitter == "AdaptiveVertexFitter";
+  else vtxFitter == "noFitter";
+
 
   if(vtxFitter == string("KalmanVertexFitter")){
 
     KalmanVertexFitter theKalmanFitter(true);
-    TransientVertex theVertexKalman = theKalmanFitter.vertex(transTracks, seedPoint);
-    theRecoVertex = theVertexKalman;
+    theRecoVertex = theKalmanFitter.vertex(transTracks, seedPoint);
   } else if(vtxFitter == string("AdaptiveVertexFitter")){
 
     AdaptiveVertexFitter theAdaptiveFitter( 
@@ -399,15 +416,19 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 					 KalmanVertexTrackCompatibilityEstimator<5>(), 
 					 KalmanVertexSmoother() );
 
-    TransientVertex theVertexAdaptive = theAdaptiveFitter.vertex(transTracksRaw, seedPoint);
-    theRecoVertex = theVertexAdaptive;
+    theRecoVertex = theAdaptiveFitter.vertex(transTracksRaw, seedPoint);
+
+  } else {
+
+    theRecoVertex = theVertexAdaptiveRaw;
+    
   }
  
 
   // ---- Check if the fitted vertex is valid ---- //
 
   if( !theRecoVertex.isValid() || theRecoVertex.totalChiSquared() < 0. ) {
-    cout << "Refit failed : valid? " << theRecoVertex.isValid() 
+    if (debug_) cout << "Refit failed : valid? " << theRecoVertex.isValid() 
 	 << " totalChi2 = " << theRecoVertex.totalChiSquared() << endl;
     return true;
   }
@@ -484,7 +505,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
 
 void 
-PFDisplacedVertexFinder::selectVertices(const PFDisplacedVertexCollection& tempDisplacedVertices, vector <bool>& bLocked){
+PFDisplacedVertexFinder::selectAndLabelVertices(PFDisplacedVertexCollection& tempDisplacedVertices, vector <bool>& bLocked){
 
   if (debug_) cout << " 4.1) Reject vertices " << endl;
 
@@ -570,16 +591,19 @@ PFDisplacedVertexFinder::selectVertices(const PFDisplacedVertexCollection& tempD
     }
   }
   
+  for(unsigned idv = 0; idv < tempDisplacedVertices.size(); idv++)
+    if ( !bLocked[idv] ) bLocked[idv] = rejectAndLabelVertex(tempDisplacedVertices[idv]);
+  
 
 }
 
-void 
-PFDisplacedVertexFinder::labelVertices(){
+bool
+PFDisplacedVertexFinder::rejectAndLabelVertex(PFDisplacedVertex& dv){
 
-  for(IDV idv = displacedVertices_->begin(); idv != displacedVertices_->end(); idv++){
-    PFDisplacedVertex::VertexType vertexType = helper_.identifyVertex(*idv);
-    (*idv).setVertexType(vertexType);
-  }
+  PFDisplacedVertex::VertexType vertexType = helper_.identifyVertex(dv);
+  dv.setVertexType(vertexType);
+    
+  return dv.isFake();
 
 }
 

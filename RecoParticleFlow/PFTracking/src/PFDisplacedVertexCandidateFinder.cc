@@ -209,6 +209,9 @@ PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
 				       PFDisplacedVertexCandidate::VertexLinkTest& vertexLinkTest
 				       ){
  
+  if ( fabs(el1->eta()-el2->eta()) > 1) {dist = -1; return;}
+  if ( el1->pt()>2 && el2->pt()>2 && fabs(el1->phi()-el2->phi()) > 1) {dist = -1; return;}
+
   const GlobalTrajectoryParameters& gt1 = eventTrackTrajectories_[el1.key()];
   const GlobalTrajectoryParameters& gt2 = eventTrackTrajectories_[el2.key()];
   

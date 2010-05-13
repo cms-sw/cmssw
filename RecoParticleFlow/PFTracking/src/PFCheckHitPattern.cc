@@ -107,6 +107,7 @@ pair< PFCheckHitPattern::PFTrackHitInfo, PFCheckHitPattern::PFTrackHitInfo>
 PFCheckHitPattern::analyze(edm::ESHandle<TrackerGeometry> tkerGeomHandle_, 
 			   const TrackBaseRef track, const TransientVertex& vert) 
 {
+
   // PFCheck if hit pattern of this track is consistent with it being produced
   // at given vertex. Pair.first gives number of hits on track in front of vertex.
   // Pair.second gives number of missing hits between vertex and innermost hit
