@@ -22,6 +22,7 @@ RecoParticleFlowRECO = cms.PSet(
         'keep recoPFClusters_*_*_*', 
         'keep recoPFBlocks_*_*_*',
         'keep recoPFCandidates_*_*_*',
+        'keep recoPFDisplacedVertexs_*_*_*', 
         'keep *_pfElectronTranslator_*_*',
         'keep *_trackerDrivenElectronSeeds_preid_*')
 )    
