@@ -10,17 +10,7 @@
    <PARAM name="warning">0.95</PARAM>
 </QTEST>
 
-<LINK name="JetMET/MET/CaloMET/*/METTask_CaloMETPhi">              <!-- NAME OF HISTOGRAM  -->
-   <TestName activate="true">phiQTest</TestName>
-</LINK>
-
-<LINK name="JetMET/MET/CaloMETNoHF/*/METTask_CaloMETPhi">          <!-- NAME OF HISTOGRAM  -->
-   <TestName activate="true">phiQTest</TestName>
-</LINK>
-
-#####
-
-<QTEST name="meanQTest">
+<QTEST name="meanMExyTest">
         <TYPE>MeanWithinExpected</TYPE> 
         <PARAM name="mean">0</PARAM>
         <PARAM name="useRMS">0</PARAM>
@@ -28,32 +18,59 @@
         <PARAM name="useRange">1</PARAM>
         <PARAM name="xmin">-10</PARAM>
         <PARAM name="xmax">10</PARAM>
-        <PARAM name="error">0.50</PARAM>
-        <PARAM name="warning">0.90</PARAM>
+        <PARAM name="error">0.30</PARAM>
+        <PARAM name="warning">0.70</PARAM>
 </QTEST>
 
-<LINK name="JetMET/MET/CaloMET/*/METTask_CaloMEx">              <!-- NAME OF HISTOGRAM  -->
-   <TestName activate="true">meanQTest</TestName>
+<QTEST name="meanSumETTest">
+        <TYPE>MeanWithinExpected</TYPE> 
+        <PARAM name="mean">20</PARAM>
+        <PARAM name="useRMS">0</PARAM>
+        <PARAM name="useSigma">0</PARAM>
+        <PARAM name="useRange">1</PARAM>
+        <PARAM name="xmin">0</PARAM>
+        <PARAM name="xmax">50</PARAM>
+        <PARAM name="error">0.30</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+<QTEST name="meanMETTest">
+        <TYPE>MeanWithinExpected</TYPE> 
+        <PARAM name="mean">5</PARAM>
+        <PARAM name="useRMS">0</PARAM>
+        <PARAM name="useSigma">0</PARAM>
+        <PARAM name="useRange">1</PARAM>
+        <PARAM name="xmin">0</PARAM>
+        <PARAM name="xmax">30</PARAM>
+        <PARAM name="error">0.30</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+<!-- Noisy channel Phi tests-->
+<LINK name="JetMET/MET/*/*/METTask_*METPhi">              <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">phiQTest</TestName>
 </LINK>
 
-<LINK name="JetMET/MET/CaloMET/*/METTask_CaloMEy">              <!-- NAME OF HISTOGRAM  -->
-   <TestName activate="true">meanQTest</TestName>
+<!-- Mean tests on CaloMET -->
+<LINK name="JetMET/MET/*/*/METTask_*MET">              <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">meanMETTest</TestName>
 </LINK>
-
-<LINK name="JetMET/MET/CaloMETNoHF/*/METTask_CaloMEx">          <!-- NAME OF HISTOGRAM  -->
-   <TestName activate="true">meanQTest</TestName>
+<LINK name="JetMET/MET/*/*/METTask_*MEx">              <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">meanMExyTest</TestName>
 </LINK>
-
-<LINK name="JetMET/MET/CaloMETNoHF/*/METTask_CaloMEy">          <!-- NAME OF HISTOGRAM  -->
-   <TestName activate="true">meanQTest</TestName>
+<LINK name="JetMET/MET/*/*/METTask_*MEy">              <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">meanMExyTest</TestName>
+</LINK>
+<LINK name="JetMET/MET/*/*/METTask_*SumET">              <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">meanSumETTest</TestName>
 </LINK>
 
 #####
 <QTEST name="KolmogorovTest">
         <TYPE>Comp2RefKolmogorov</TYPE> 
         <PARAM name="testparam">0</PARAM>
-        <PARAM name="error">0.10</PARAM>
-        <PARAM name="warning">0.50</PARAM>
+        <PARAM name="error">0.00000000000001</PARAM>
+        <PARAM name="warning">0.000000000001</PARAM>
 </QTEST>
 
 <LINK name="JetMET/MET/*/METTask_*MET">              <!-- NAME OF HISTOGRAM  -->
@@ -68,7 +85,9 @@
 <LINK name="JetMET/MET/*/METTask_*MEy">              <!-- NAME OF HISTOGRAM  -->
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
-
+<LINK name="JetMET/MET/*/METTask_*SumET">              <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
 #####
 
 
