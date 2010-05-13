@@ -8,7 +8,7 @@ process.maxEvents = cms.untracked.PSet(
       #input = cms.untracked.int32(100)
 )
 process.source = cms.Source("PoolSource",
-      fileNames = cms.untracked.vstring("file:/data4/Wmunu_Summer09-MC_31X_V3_AODSIM-v1/0009/F82D4260-507F-DE11-B5D6-00093D128828.root")
+      fileNames = cms.untracked.vstring("file:/ciet3b/data4/Spring10_10invpb_AODRED/Wmunu_1.root")
 )
 
 # Debug/info printouts
@@ -27,7 +27,7 @@ process.muonsWithPFIso = cms.EDFilter("MuonWithPFIsoProducer",
         MuonTag = cms.untracked.InputTag("muons")
       , PfTag = cms.untracked.InputTag("particleFlow")
       , UsePfMuonsOnly = cms.untracked.bool(False)
-      , TrackIsoVeto = cms.untracked.double(0.07)
+      , TrackIsoVeto = cms.untracked.double(0.01)
       , GammaIsoVeto = cms.untracked.double(0.07)
       , NeutralHadronIsoVeto = cms.untracked.double(0.1)
 )
@@ -53,8 +53,8 @@ process.wmnOutput = cms.OutputModule("PoolOutputModule",
 
 # Steering the process
 process.muonsWithPFIsoSelection = cms.Path(
-       process.muonsWithPFIso
-      *process.selectPfMetWMuNus
+       process.muonsWithPFIso*
+       process.selectPfMetWMuNus
 )
 
 process.end = cms.EndPath(process.wmnOutput)

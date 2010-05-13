@@ -55,15 +55,9 @@ MuonWithPFIsoProducer::MuonWithPFIsoProducer(const edm::ParameterSet& pset) {
       usePfMuonsOnly_ = pset.getUntrackedParameter<bool> ("UsePfMuonsOnly", false);
 
   // Veto cone
-      trackIsoVeto_ = pset.getUntrackedParameter<double> ("TrackIsoVeto", 0.07);
+      trackIsoVeto_ = pset.getUntrackedParameter<double> ("TrackIsoVeto", 0.01);
       gammaIsoVeto_ = pset.getUntrackedParameter<double> ("GammaIsoVeto", 0.07);
       neutralHadronIsoVeto_ = pset.getUntrackedParameter<double> ("NeutralHadronIsoVeto", 0.1);
-
-      // Protection in order not to count muon track and collinear deposits 
-      // as part of the energy outside the veto cone
-      if (trackIsoVeto_<1.e-5) trackIsoVeto_ = 1.e-5;
-      if (gammaIsoVeto_<1.e-5) gammaIsoVeto_ = 1.e-5;
-      if (neutralHadronIsoVeto_<1.e-5) neutralHadronIsoVeto_ = 1.e-5;
 
 } 
 
@@ -113,10 +107,11 @@ void MuonWithPFIsoProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
             edm::RefToBase<reco::Muon> mu = muonCollection->refAt(i);
 
             // Ask for PfMuon consistency if requested
-            bool pfMuonFound = false;
+            bool muonFound = false;
 
             // Starting bycloning this muon
             reco::Muon* newmu = mu->clone();
+            reco::TrackRef tk = mu->innerTrack();
 
             // Set isolations
             reco::MuonIsolation iso03;
@@ -126,13 +121,10 @@ void MuonWithPFIsoProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
                   edm::RefToBase<reco::PFCandidate> pf = pfCollection->refAt(j);
 
                   // Check the muon is in the PF collection when required
-                  if (usePfMuonsOnly_) {
-                        if (pf->particleId()==reco::PFCandidate::mu) {
-                              reco::MuonRef muref = pf->muonRef();
-                              if (muref.isNonnull()) {
-                                    if (muref.key()==mu.key()) pfMuonFound = true;
-                              }
-                        }
+                  bool thisIsTheMuon = false;
+                  if (tk.isNonnull() && pf->trackRef()==tk) {
+                        thisIsTheMuon = true;
+                        muonFound = true;
                   }
                          
                   // Get dR. Nothing to add if dR>0.5
@@ -143,7 +135,7 @@ void MuonWithPFIsoProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
                   if (   pf->particleId()==reco::PFCandidate::h
                       || pf->particleId()==reco::PFCandidate::e
                       || pf->particleId()==reco::PFCandidate::mu ) {
-                        if (deltaR<trackIsoVeto_) {
+                        if (deltaR<trackIsoVeto_ || thisIsTheMuon) {
                               iso05.trackerVetoPt += pf->pt();
                               iso03.trackerVetoPt += pf->pt();
                         } else {
@@ -178,7 +170,7 @@ void MuonWithPFIsoProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
             }
 
             // Do not take this muon (under explicit request) if it is not a PfMuon
-            if (usePfMuonsOnly_ && (!pfMuonFound)) continue;
+            if (usePfMuonsOnly_ && (!muonFound)) continue;
 
             // Set this isolation information in the new muon
             newmu->setIsolation(iso03,iso05);
