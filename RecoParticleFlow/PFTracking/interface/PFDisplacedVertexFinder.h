@@ -123,9 +123,9 @@ class PFDisplacedVertexFinder {
   bool fitVertexFromSeed(reco::PFDisplacedVertexSeed&, std::string, reco::PFDisplacedVertex&);
 
   /// Remove potentially fakes displaced vertices
-  void selectVertices(const reco::PFDisplacedVertexCollection&,  std::vector <bool>&);
+  void selectAndLabelVertices(reco::PFDisplacedVertexCollection&,  std::vector <bool>&);
 
-  void labelVertices();
+  bool rejectAndLabelVertex(reco::PFDisplacedVertex& dv);
 
   /// -------- Tools -------- ///
 
