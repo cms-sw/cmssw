@@ -67,6 +67,9 @@ particleFlowSimParticle.sim = 'famosSimHits'
 particleFlowRecHitHCAL.ECAL_Compensate = cms.bool(False)
 #Similarly, deactivate HF cleaning for spikes
 particleFlowRecHitHCAL.ShortFibre_Cut = cms.double(1E5)
+particleFlowRecHitHCAL.LongFibre_Cut = cms.double(1E5)
+particleFlowRecHitHCAL.LongShortFibre_Cut = cms.double(1E5)
+particleFlowRecHitHCAL.ApplyLongShortDPG = cms.bool(False)
 particleFlowClusterHFEM.thresh_Clean_Barrel = cms.double(1E5)
 particleFlowClusterHFEM.thresh_Clean_Endcap = cms.double(1E5)
 particleFlowClusterHFHAD.thresh_Clean_Barrel = cms.double(1E5)
