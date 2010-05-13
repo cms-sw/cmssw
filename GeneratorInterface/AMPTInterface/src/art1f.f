@@ -9184,6 +9184,7 @@ cc      SAVE /RNDF77/
 *----------------------------------------------------------------------
 *     PREPARATION FOR LORENTZ-TRANSFORMATIONS
 *
+      ISEED=ISEED
       IF (P0 .NE. 0.) THEN
         SIGN = P0 / ABS(P0)
       ELSE
@@ -10141,6 +10142,7 @@ cc      SAVE /RNDF77/
      2     dpp1(MAXSTR,MAXR),dppion(MAXSTR,MAXR)
         EXTERNAL IARFLV, INVFLV
       SAVE   
+        ISEED=ISEED
 * READ IN THE COORDINATES OF DELTA OR N* UNDERGOING DECAY
         PX=P(1,I)
         PY=P(2,I)
@@ -10233,9 +10235,9 @@ c     lorentz boost:
            tfdpi(NNN,IRUN)=tfnl
         endif
 
- 200    format(a30,2(1x,e10.4))
- 210    format(i6,5(1x,f8.3))
- 220    format(a2,i5,5(1x,f8.3))
+cc 200    format(a30,2(1x,e10.4))
+cc 210    format(i6,5(1x,f8.3))
+cc 220    format(a2,i5,5(1x,f8.3))
 
         RETURN
         END
@@ -10410,7 +10412,8 @@ cc      SAVE /RNDF77/
      1     dpdcy(MAXSTR),dpdpi(MAXSTR,MAXR),dpt(MAXSTR, MAXR),
      2     dpp1(MAXSTR,MAXR),dppion(MAXSTR,MAXR)
       SAVE   
-
+ 
+        ISEED=ISEED
 * READ IN THE COORDINATES OF THE N*(1440) UNDERGOING DECAY
         PX=P(1,I)
         PY=P(2,I)
@@ -10571,9 +10574,9 @@ c     lorentz boost:
            tfdpi(NNN+1,IRUN)=tfnl
         endif
 
- 200    format(a30,2(1x,e10.4))
- 210    format(i6,5(1x,f8.3))
- 220    format(a2,i5,5(1x,f8.3))
+cc 200    format(a30,2(1x,e10.4))
+cc 210    format(i6,5(1x,f8.3))
+cc 220    format(a2,i5,5(1x,f8.3))
 
         RETURN
         END
@@ -10883,6 +10886,7 @@ cc      SAVE /PD/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
+      ISEED=ISEED 
 c        if(srt.le.2.14)then
 c       b1s=0.5
 c       b2s=0.
@@ -11776,6 +11780,7 @@ clin-10/25/02-end
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
+          ISEED=ISEED 
 * THE MINIMUM MASS FOR DELTA
           DMIN = 1.078
 * Delta(1232) production
@@ -11817,6 +11822,7 @@ c     (here taken as its central value + 2* B-W fullwidth):
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
+          ISEED=ISEED
 * THE MINIMUM MASS FOR DELTA
           DMIN = 0.28
 * RHO(770) production
@@ -15039,6 +15045,7 @@ cc      SAVE /input1/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
+      NT=NT
 c
       PX0=PX
       PY0=PY
@@ -15354,8 +15361,9 @@ cc      SAVE /input1/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-
-       IBLOCK=1907
+ 
+        XSK11=XSK11
+        IBLOCK=1907
         X1 = RANART(NSEED) * SIGK
         XSK2 = XSK1 + XSK2
         XSK3 = XSK2 + XSK3
@@ -15484,6 +15492,7 @@ cc      SAVE /input1/
 cc      SAVE /RNDF77/
       SAVE   
 
+       XKY17=XKY17
        PX0=PX
        PY0=PY
        PZ0=PZ
@@ -17091,6 +17100,7 @@ cc      SAVE /TABLE/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
+       ISEED=ISEED
        ptr=0.
        if(ptmax.le.1.e-02)then
        ptr=ptmax
@@ -18106,6 +18116,7 @@ c        REAL*4 FUNCTION FD2(DMASS,aj,al,width,widb0,EM1,EM2,srt)
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
+       ISEED=ISEED
        amn=0.94
        amp=0.14
 * the maximum mass for resonance 1
@@ -18230,6 +18241,7 @@ cc      SAVE /RUN/
 cc      SAVE /input1/
       SAVE   
 *----------------------------------------------------------------------*
+       NT=NT
        ycut1=-2.6
        ycut2=2.6
        DY=0.2
@@ -18387,6 +18399,7 @@ cbz2/25/99end
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
+       ISEED=ISEED 
 C the factorial coefficients in the pion no. distribution 
 * from n=2 to 6 calculated use the formula in the reference
        factor(2)=1.
@@ -19663,7 +19676,7 @@ cc      SAVE /ppmm/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-
+      ISEED=ISEED
 c     determine which final BbarB channel occurs:
       rd=RANART(NSEED)
       wsum=0.
@@ -20008,6 +20021,7 @@ cc      SAVE /ppmm/
 * for rho rho -> pi pi, assumed a constant cross section (in mb)
       real function rtop(srt)
 *****************************************
+      srt=srt
       rtop=5.
       return
       END
@@ -20026,7 +20040,7 @@ cc      SAVE /ppmm/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-
+      iseed=iseed
       if((lb(i1).ge.3.and.lb(i1).le.5)
      1     .and.(lb(i2).ge.3.and.lb(i2).le.5)) then
          iblock=1850
@@ -20090,7 +20104,7 @@ cc      SAVE /ppmm/
 * for eta eta -> pi pi, assumed a constant cross section (in mb)
       real function etop(srt)
 *****************************************
-
+      srt=srt
 c     eta equilibration:
 c     most important channel is found to be pi pi <-> pi eta, then
 c     rho pi <-> rho eta.
@@ -20113,6 +20127,7 @@ cc      SAVE /ppmm/
 cc      SAVE /RNDF77/
       SAVE   
 
+      iseed=iseed
       if((lb(i1).ge.3.and.lb(i1).le.5)
      1     .and.(lb(i2).ge.3.and.lb(i2).le.5)) then
          iblock=1860
@@ -20179,7 +20194,7 @@ cc      SAVE /ppmm/
 * for pi eta -> pi pi, assumed a constant cross section (in mb)
       real function petopp(srt)
 *****************************************
-
+      srt=srt
 c     eta equilibration:
       petopp=5.
       return
@@ -20200,6 +20215,7 @@ cc      SAVE /ppmm/
 cc      SAVE /RNDF77/
       SAVE   
 
+      ISEED=ISEED
       if((lb(i1).ge.3.and.lb(i1).le.5)
      1     .and.(lb(i2).ge.3.and.lb(i2).le.5)) then
          iblock=1870
@@ -20270,7 +20286,7 @@ cc      SAVE /ppmm/
 * for rho eta -> rho pi, assumed a constant cross section (in mb)
       real function retorp(srt)
 *****************************************
-
+      srt=srt
 c     eta equilibration:
       retorp=5.
       return
@@ -20290,7 +20306,7 @@ cc      SAVE /ppmm/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-
+      ISEED=ISEED
       if((lb(i1).ge.25.and.lb(i1).le.27
      1     .and.lb(i2).ge.3.and.lb(i2).le.5).or.
      2     (lb(i1).ge.3.and.lb(i1).le.5
@@ -20360,7 +20376,7 @@ cc      SAVE /ppmm/
 * for omega eta -> omega pi, assumed a constant cross section (in mb)
       real function xoe2op(srt)
 *****************************************
-
+      srt=srt
 c     eta equilibration:
       xoe2op=5.
       return
@@ -20381,6 +20397,7 @@ cc      SAVE /ppmm/
 cc      SAVE /RNDF77/
       SAVE   
 
+      iseed=iseed
       if((lb(i1).ge.3.and.lb(i1).le.5.and.lb(i2).eq.28).or.
      1     (lb(i2).ge.3.and.lb(i2).le.5.and.lb(i1).eq.28)) then
          iblock=1890
@@ -20445,7 +20462,7 @@ cc      SAVE /ppmm/
 * for rho rho -> eta eta, assumed a constant cross section (in mb)
       real function rrtoee(srt)
 *****************************************
-
+      srt=srt
 c     eta equilibration:
       rrtoee=5.
       return
@@ -20466,6 +20483,7 @@ cc      SAVE /ppmm/
 cc      SAVE /RNDF77/
       SAVE   
 
+      ISEED=ISEED
       if(lb(i1).ge.25.and.lb(i1).le.27.and.
      1     lb(i2).ge.25.and.lb(i2).le.27) then
          iblock=1895
@@ -20731,6 +20749,8 @@ cc      SAVE /RNDF77/
      1     dpdcy(MAXSTR),dpdpi(MAXSTR,MAXR),dpt(MAXSTR, MAXR),
      2     dpp1(MAXSTR,MAXR),dppion(MAXSTR,MAXR)
       SAVE   
+      kp=kp
+      nt=nt
 
       px0 = px
       py0 = py
@@ -21362,6 +21382,7 @@ clin-7/26/03 improve speed
             COMMON   /BG/  BETAX,BETAY,BETAZ,GAMMA
 cc      SAVE /BG/
       SAVE   
+            deltr0=deltr0 
             Ifirst=-1
             E1=SQRT(EM1**2+PX1**2+PY1**2+PZ1**2)
 *NOW PARTICLES ARE CLOSE ENOUGH TO EACH OTHER !
