@@ -19,6 +19,6 @@
 <library   name="CSCDDUMapPopConAnalyzer" file="../src/CSCMap1.cc,stubs/CSCDDUMapHandler.cc,stubs/CSCDDUMapPopConAnalyzer.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   name="CSCCablesPopConAnalyzer" file="../src/CSCCableRead.cc,stubs/CSCCablesHandler.cc,stubs/CSCCablesPopConAnalyzer.cc">
+<library   name="CSCChamberTimeCorrectionsPopConAnalyzer" file="../src/CSCCableRead.cc,stubs/CSCChamberTimeCorrectionsHandler.cc,stubs/CSCChamberTimeCorrectionsPopConAnalyzer.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>
