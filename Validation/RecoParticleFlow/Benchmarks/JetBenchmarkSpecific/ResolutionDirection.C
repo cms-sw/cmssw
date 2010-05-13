@@ -12,7 +12,7 @@ void ResolutionDirection(bool barrel, const char* input, const char* output, con
     (TH2F*) filePF->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/EDEtavsPt");
   TH2F* phiPF2 = barrel ? 
     (TH2F*) filePF->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/BDPhivsPt") : 
-    (TH2F*) filePF->Get("DQMData/PFTask/Benchmarks/ak55PFJets/Gen/EDPhivsPt");
+    (TH2F*) filePF->Get("DQMData/PFTask/Benchmarks/ak5PFJets/Gen/EDPhivsPt");
 
   gStyle->SetOptStat(0);
   TCanvas *c = new TCanvas("c","",800, 1000);
