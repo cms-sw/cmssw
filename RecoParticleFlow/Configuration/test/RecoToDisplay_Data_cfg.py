@@ -16,12 +16,12 @@ process.GlobalTag.globaltag = 'GR_R_36X_V6::All'
 
 
 # Add PF vertices from Maxime
-process.load("RecoParticleFlow.PFTracking.particleFlowDisplacedVertexCandidate_cff")
-process.load("RecoParticleFlow.PFTracking.particleFlowDisplacedVertex_cff")
-process.particleFlowDisplacedVertexCandidate.primaryVertexCut = cms.double(2.0)
-process.particleFlowDisplacedVertex.primaryVertexCut = cms.double(2)
-process.particleFlowDisplacedVertex.tobCut = cms.double(100)
-process.particleFlowDisplacedVertex.tecCut = cms.double(200)
+#process.load("RecoParticleFlow.PFTracking.particleFlowDisplacedVertexCandidate_cff")
+#process.load("RecoParticleFlow.PFTracking.particleFlowDisplacedVertex_cff")
+#process.particleFlowDisplacedVertexCandidate.primaryVertexCut = cms.double(2.0)
+#process.particleFlowDisplacedVertex.primaryVertexCut = cms.double(2)
+#process.particleFlowDisplacedVertex.tobCut = cms.double(100)
+#process.particleFlowDisplacedVertex.tecCut = cms.double(200)
 
 # Other statements
 
@@ -178,7 +178,7 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 process.load("RecoParticleFlow.Configuration.ReDisplay_EventContent_cff")
 process.display = cms.OutputModule("PoolOutputModule",
     process.DisplayEventContent,
-    fileName = cms.untracked.string('display_highMET_New.root')
+    fileName = cms.untracked.string('display_highMET_Time.root')
 )
 
 
@@ -219,9 +219,9 @@ process.globalReReco =  cms.Sequence(process.offlineBeamSpot+
 process.pfReReco = cms.Sequence(process.particleFlowReco+
                                 process.recoPFJets+
                                 process.recoPFMET+
-                                process.PFTau+
-                                process.particleFlowDisplacedVertexCandidate+
-                                process.particleFlowDisplacedVertex
+                                process.PFTau#+
+#                                process.particleFlowDisplacedVertexCandidate+
+#                                process.particleFlowDisplacedVertex
                                 )
                                 
 # Gen Info re-processing
