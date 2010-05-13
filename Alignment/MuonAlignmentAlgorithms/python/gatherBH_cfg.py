@@ -7,6 +7,7 @@ jobnumber = int(os.environ["ALIGNMENT_JOBNUMBER"])
 mode = os.environ["ALIGNMENT_MODE"]
 inputdb = os.environ["ALIGNMENT_INPUTDB"]
 globaltag = os.environ["ALIGNMENT_GLOBALTAG"]
+photogrammetry = (os.environ["ALIGNMENT_PHOTOGRAMMETRY"] == "True")
 disks = (os.environ["ALIGNMENT_DISKS"] == "True")
 
 minP = float(os.environ["ALIGNMENT_minP"])
@@ -39,6 +40,10 @@ process.looper.algoConfig.mode = mode
 if disks:
     import Alignment.MuonAlignmentAlgorithms.CSCOverlapsAlignmentAlgorithm_diskfitters_cff
     process.looper.algoConfig.fitters = Alignment.MuonAlignmentAlgorithms.CSCOverlapsAlignmentAlgorithm_diskfitters_cff.fitters
+
+if photogrammetry and mode != "phipos":
+    for f in process.looper.algoConfig.fitters:
+        f.fixed = cms.string("PGFrame")
 
 process.looper.algoConfig.writeTemporaryFile = "alignment%03d.tmp" % jobnumber
 process.looper.algoConfig.readTemporaryFiles = cms.vstring()
