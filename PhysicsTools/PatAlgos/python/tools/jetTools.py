@@ -716,7 +716,12 @@ class SwitchJetCollection(ConfigToolBase):
             if (jetCorrLabel[0]=='SC5'): sisCone5Warning()
 
             ## switch JEC parameters to the new jet collection
-            applyPostfix(process, "patJetCorrFactors", postfix).jetSource = jetCollection            
+            applyPostfix(process, "patJetCorrFactors", postfix).jetSource = jetCollection
+            typeBuffer='Calo'  
+            if(oldLabel.__str__().find('PFJets' )>=0):
+                typeBuffer='PF'
+            if(oldLabel.__str__().find('JPTJets')>=0):
+                typeBuffer='JPT'
             switchJECParameters(applyPostfix(process, "patJetCorrFactors", postfix), jetCorrLabel[0], jetCorrLabel[1], oldAlgo='AK5',oldType='Calo')
 
             ## switch type1MET corrections off for PFJets
@@ -752,7 +757,7 @@ class SwitchJetCollection(ConfigToolBase):
             ## switch embedding of jetCorrFactors off
             ## for pat jet production
             applyPostfix(process, "patJets", postfix).addJetCorrFactors = False
-        
+            applyPostfix(process, "patJets", postfix).jetCorrFactorsSource=[]        
 
 switchJetCollection=SwitchJetCollection()
 
