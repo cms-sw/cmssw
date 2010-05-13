@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2010/01/11 14:49:28 $ 
+ **  $Date: 2010/01/13 12:08:56 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -124,16 +124,16 @@ void PhotonOfflineClient::runClient()
   dbe_->setCurrentFolder(currentFolder_.str()); 
 
   p_efficiencyVsEtaLoose_ = dbe_->book1D("EfficiencyVsEtaLoose","Fraction of Loosely Isolated Photons  vs. Eta;#eta",etaBin,etaMin, etaMax);
-  p_efficiencyVsEtLoose_ = dbe_->book1D("EfficiencyVsEtLoose","Fraction of Loosely Isolated Photons vs. Et;Et (GeV)",etBin-1,&(etBinVector[0]));
+  p_efficiencyVsEtLoose_ = dbe_->book1D("EfficiencyVsEtLoose","Fraction of Loosely Isolated Photons vs. Et;Et (GeV)",etBin,etMin,etMax);
   p_efficiencyVsEtaTight_ = dbe_->book1D("EfficiencyVsEtaTight","Fraction of Tightly Isolated Photons  vs. Eta;#eta",etaBin,etaMin, etaMax);
-  p_efficiencyVsEtTight_ = dbe_->book1D("EfficiencyVsEtTight","Fraction of Tightly Isolated Photons vs. Et;Et (GeV)",etBin-1,&(etBinVector[0]));
+  p_efficiencyVsEtTight_ = dbe_->book1D("EfficiencyVsEtTight","Fraction of Tightly Isolated Photons vs. Et;Et (GeV)",etBin,etMin,etMax);
   p_efficiencyVsEtaHLT_ = dbe_->book1D("EfficiencyVsEtaHLT","Fraction of Photons passing HLT vs. Eta;#eta",etaBin,etaMin, etaMax);
-  p_efficiencyVsEtHLT_ = dbe_->book1D("EfficiencyVsEtHLT","Fraction of Photons passing HLT vs. Et;Et (GeV)",etBin-1,&(etBinVector[0]));
+  p_efficiencyVsEtHLT_ = dbe_->book1D("EfficiencyVsEtHLT","Fraction of Photons passing HLT vs. Et;Et (GeV)",etBin,etMin,etMax);
 
   p_convFractionVsEtaLoose_ = dbe_->book1D("ConvFractionVsEtaLoose","Fraction of Loosely Isolated Photons with two tracks vs. Eta;#eta",etaBin,etaMin, etaMax);
-  p_convFractionVsEtLoose_ = dbe_->book1D("ConvFractionVsEtLoose","Fraction of Loosely Isolated Photons with two tracks vs. Et;Et (GeV)",etBin-1,&(etBinVector[0]));
+  p_convFractionVsEtLoose_ = dbe_->book1D("ConvFractionVsEtLoose","Fraction of Loosely Isolated Photons with two tracks vs. Et;Et (GeV)",etBin,etMin,etMax);
   p_convFractionVsEtaTight_ = dbe_->book1D("ConvFractionVsEtaTight","Fraction of Tightly Isolated Photons  with two tracks vs. Eta;#eta",etaBin,etaMin, etaMax);
-  p_convFractionVsEtTight_ = dbe_->book1D("ConvFractionVsEtTight","Fraction of Tightly Isolated Photons with two tracks vs. Et;Et (GeV)",etBin-1,&(etBinVector[0]));
+  p_convFractionVsEtTight_ = dbe_->book1D("ConvFractionVsEtTight","Fraction of Tightly Isolated Photons with two tracks vs. Et;Et (GeV)",etBin,etMin,etMax);
 
   
   p_vertexReconstructionEfficiencyVsEta_ = dbe_->book1D("VertexReconstructionEfficiencyVsEta","Fraction of Converted Photons having a valid vertex vs. Eta;#eta",etaBin,etaMin, etaMax);
@@ -150,7 +150,7 @@ void PhotonOfflineClient::runClient()
 
       p_convFractionVsPhi_isol_.push_back(dbe_->book1D("convFractionVsPhi","Fraction of Converted Photons  vs. Phi;#phi",phiBin,phiMin, phiMax));      
       p_convFractionVsEta_isol_.push_back(dbe_->book1D("convFractionVsEta","Fraction of Converted Photons  vs. Eta;#eta",etaBin,etaMin, etaMax));
-      p_convFractionVsEt_isol_.push_back(dbe_->book1D("convFractionVsEt","Fraction of Converted Photons vs. Et;Et (GeV)",etBin-1,&(etBinVector[0])));
+      p_convFractionVsEt_isol_.push_back(dbe_->book1D("convFractionVsEt","Fraction of Converted Photons vs. Et;Et (GeV)",etBin,etMin,etMax));
 
     }
 
@@ -174,7 +174,7 @@ void PhotonOfflineClient::runClient()
       dbe_->setCurrentFolder(currentFolder_.str());
       
       p_badChannelsFractionVsEta_isol_.push_back(dbe_->book1D("badChannelsFractionVsEta","Fraction of Photons with at least one bad channel vs. Eta;#eta",etaBin,etaMin, etaMax));
-      p_badChannelsFractionVsEt_isol_.push_back(dbe_->book1D("badChannelsFractionVsEt","Fraction of Converted Photons with at least one bad channel vs. Et;Et (GeV)",etBin-1,&(etBinVector[0])));
+      p_badChannelsFractionVsEt_isol_.push_back(dbe_->book1D("badChannelsFractionVsEt","Fraction of Converted Photons with at least one bad channel vs. Et;Et (GeV)",etBin,etMin,etMax));
       p_badChannelsFractionVsPhi_isol_.push_back(dbe_->book1D("badChannelsFractionVsPhi","Fraction of Photons with at least one bad channel vs. Phi;#phi",phiBin,phiMin, phiMax));
 
     }
@@ -298,50 +298,6 @@ void PhotonOfflineClient::runClient()
   }
   
 
-  //adjusting histogram limits on Et and E plots
-
-
-  for(uint type=0;type!=types.size();++type){
-    
-    for (int cut=0; cut !=numberOfSteps_; ++cut) {
-      
-      currentFolder_.str("");
-      currentFolder_ << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV/";
-      dbe_->setCurrentFolder(currentFolder_.str()); 
-
-      std::vector<std::string> MEVector = dbe_->getMEs();
-      for(uint i=0;i!=MEVector.size();++i){
-	if (MEVector[i].find("Eta")==std::string::npos && (MEVector[i].find("Et")!=std::string::npos || MEVector[i].find("phoE")!=std::string::npos) ){
-       	  adjustLimits(dbe_->get(currentFolder_.str()+MEVector[i]));
-	}
-      }
-
-      currentFolder_ << "Conversions/";
-      dbe_->setCurrentFolder(currentFolder_.str()); 
-      MEVector = dbe_->getMEs();
-      for(uint i=0;i!=MEVector.size();++i){
-	if (MEVector[i].find("Eta")==std::string::npos && (MEVector[i].find("Et")!=std::string::npos || MEVector[i].find("phoConvE")!=std::string::npos) ){
-       	  adjustLimits(dbe_->get(currentFolder_.str()+MEVector[i]));
-	}
-      }
-
-
-    }
-  }
-
-  adjustLimits(dbe_->get(InvMassPath+"invMassZeroWithTracks"));
-  adjustLimits(dbe_->get(InvMassPath+"invMassOneWithTracks"));
-  adjustLimits(dbe_->get(InvMassPath+"invMassTwoWithTracks"));
-  adjustLimits(dbe_->get(InvMassPath+"invMassAllIsolatedPhotons"));
-    
-  adjustLimits(dbe_->get(EffPath+"EfficiencyVsEtLoose"));
-  adjustLimits(dbe_->get(EffPath+"EfficiencyVsEtTight"));
-  adjustLimits(dbe_->get(EffPath+"EfficiencyVsEtHLT"));
-  adjustLimits(dbe_->get(EffPath+"ConvFractionVsEtLoose"));
-  adjustLimits(dbe_->get(EffPath+"ConvFractionVsEtTight"));
-
-
-
   if(standAlone_) dbe_->save(outputFileName_);
   else if(batch_) dbe_->save(inputFileName_);
  
@@ -384,87 +340,4 @@ void  PhotonOfflineClient::dividePlots(MonitorElement* dividend, MonitorElement*
     }
   }
 
-}
-
-void  PhotonOfflineClient::adjustLimits(MonitorElement* me){
-
-  //std::cout << "kind: " << me->kind() << std::endl;
-  if(me->kind()==  DQMNet::DQM_PROP_TYPE_TH1F) adjustLimitsTH1F(me);
-  else if(me->kind()==DQMNet::DQM_PROP_TYPE_TH2F) adjustLimitsTH2F(me);
-  else if(me->kind()==DQMNet::DQM_PROP_TYPE_TPROF) adjustLimitsTProfile(me);
-
-}
-
-
-void  PhotonOfflineClient::adjustLimitsTH1F(MonitorElement* me){
-
-  TH1F * histo = me->getTH1F();
-
-  int lastBin = histo->GetXaxis()->GetLast();
-  int firstBin = histo->GetXaxis()->GetFirst();
-  int newMaxBin=0;
-  bool maxFound=false;
-  
-  for(int bin=lastBin;bin!=1;--bin){
-
-    if(me->getBinContent(bin)!=0){
-      newMaxBin=int(1.1*bin);
-      maxFound=true;
-      break;
-    }
-  }
-  if(maxFound) {
-    histo->GetXaxis()->SetRange(firstBin,newMaxBin);
-  }
-}
-
-void  PhotonOfflineClient::adjustLimitsTH2F(MonitorElement* me){
-
-  TH2F * histo = me->getTH2F();
-
-  int lastBinX = histo->GetXaxis()->GetLast();
-  int firstBinX = histo->GetXaxis()->GetFirst();
-  int lastBinY = histo->GetYaxis()->GetLast();
-  int firstBinY = histo->GetYaxis()->GetFirst();
-  int newMaxBin=0;
-  bool maxFound=false;
-  
-  for(int binX=lastBinX;binX!=firstBinX;--binX){
-    for(int binY=lastBinY;binY!=firstBinY;--binY){
-
-      if(me->getBinContent(binX,binY)!=0){
-	newMaxBin=int(1.1*binX);
-	maxFound=true;
-	break;
-      }
-    }
-    if(maxFound==true)	break;    
-  }
-  if(maxFound) {
-    histo->GetXaxis()->SetRange(firstBinX,newMaxBin);
-  }
-}
-
-
-void  PhotonOfflineClient::adjustLimitsTProfile(MonitorElement* me){
-
-
-  TProfile * histo = me->getTProfile();
-
-  int lastBin = histo->GetXaxis()->GetLast();
-  int firstBin = histo->GetXaxis()->GetFirst();
-  int newMaxBin=0;
-  bool maxFound=false;
-  
-  for(int bin=lastBin;bin!=1;--bin){
-
-    if(me->getBinContent(bin)!=0){
-      newMaxBin=int(1.1*bin);
-      maxFound=true;
-      break;
-    }
-  }
-  if(maxFound) {
-    histo->GetXaxis()->SetRange(firstBin,newMaxBin);
-  }
 }

@@ -39,7 +39,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2010/01/12 13:50:25 $ 
+ **  $Date: 2010/01/13 12:08:46 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -105,13 +105,9 @@ class PhotonOfflineClient : public edm::EDAnalyzer
   MonitorElement* p_vertexReconstructionEfficiencyVsEta_;
 
 
-
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator);
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator); 
-  void adjustLimits(MonitorElement* me);      
-  void adjustLimitsTH1F(MonitorElement* me);  
-  void adjustLimitsTH2F(MonitorElement* me);  
-  void adjustLimitsTProfile(MonitorElement* me);   
+
 
   DQMStore *dbe_;
   int verbosity_;

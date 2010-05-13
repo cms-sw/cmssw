@@ -43,19 +43,16 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
 
     ##### Histogram Ranges and Bins                               
 
-    eBin = cms.int32(600),
+    eBin = cms.int32(500),
     eMin = cms.double(0.0),
-    eMax = cms.double(3000.0),
-
-
+    eMax = cms.double(500.0),
                                 
-    etBin = cms.int32(600),
+    etBin = cms.int32(500),
     etMin = cms.double(0.0),
-    etMax = cms.double(3000.0),
+    etMax = cms.double(500.0),
 
-
-    sumBin = cms.int32(200),
-    sumMin = cms.double(0.0),
+    sumBin = cms.int32(230),
+    sumMin = cms.double(-3.0),
     sumMax = cms.double(20.0),
 
     etaBin = cms.int32(200),                               
@@ -65,11 +62,10 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     phiBin = cms.int32(200),
     phiMin = cms.double(-3.14),
     phiMax = cms.double(3.14),
-                                
     
-    r9Bin = cms.int32(110),
+    r9Bin = cms.int32(120),
     r9Min = cms.double(0.0),
-    r9Max = cms.double(1.1),
+    r9Max = cms.double(1.2),
 
     hOverEBin = cms.int32(200),
     hOverEMin = cms.double(0),                               

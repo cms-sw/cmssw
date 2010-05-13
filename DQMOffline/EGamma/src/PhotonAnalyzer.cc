@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/12/15 18:27:50 $ 
+ **  $Date: 2010/05/10 19:26:04 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -159,26 +159,6 @@ void PhotonAnalyzer::beginJob()
   types.push_back("GoodCandidate");
   types.push_back("Background");
 
-  //setting variable bin sizes for E, Et plots
-  vector<float> etBinVector;
-  double etRange = etMax-etMin;
-  etBinVector.push_back(0);
-  for(int i=1;i!=etBin;++i){
-    if(i<etBin/3.) etBinVector.push_back(etBinVector.back()+float(etRange/(2*etBin)));
-    else if(i>=etBin/3. && i<etBin*(2./3.)) etBinVector.push_back(etBinVector.back()+float(2*etRange/(2*etBin)));
-    else if(i>=etBin*(2./3.)) etBinVector.push_back(etBinVector.back()+float(3*etRange/(2*etBin)));
-  }
-
-  vector<float> eBinVector;
-  double eRange = eMax-eMin;
-  eBinVector.push_back(0);
-  for(int i=1;i!=eBin;++i){
-    if(i<eBin/3.) eBinVector.push_back(eBinVector.back()+float(eRange/(2*eBin)));
-    else if(i>=eBin/3. && i<eBin*(2./3.)) eBinVector.push_back(eBinVector.back()+float(2*eRange/(2*eBin)));
-    else if(i>=eBin*(2./3.)) eBinVector.push_back(eBinVector.back()+float(3*eRange/(2*eBin)));
-  }
-
-
   //booking all histograms
 
   if (dbe_) {  
@@ -190,10 +170,10 @@ void PhotonAnalyzer::beginJob()
     dbe_->setCurrentFolder(currentFolder_.str());
     
 
-    h_invMassTwoWithTracks_= dbe_->book1D("invMassTwoWithTracks"," Two photon invariant mass: Both have tracks ",etBin-1,&(etBinVector[0]));
-    h_invMassOneWithTracks_= dbe_->book1D("invMassOneWithTracks"," Two photon invariant mass: Only one has tracks ",etBin-1,&(etBinVector[0]));
-    h_invMassZeroWithTracks_= dbe_->book1D("invMassZeroWithTracks"," Two photon invariant mass: Neither have tracks ",etBin-1,&(etBinVector[0]));
-    h_invMassAllPhotons_= dbe_->book1D("invMassAllIsolatedPhotons"," Two photon invariant mass: All isolated photons",etBin-1,&(etBinVector[0]));
+    h_invMassTwoWithTracks_= dbe_->book1D("invMassTwoWithTracks"," Two photon invariant mass: Both have tracks ",etBin,etMin,etMax);
+    h_invMassOneWithTracks_= dbe_->book1D("invMassOneWithTracks"," Two photon invariant mass: Only one has tracks ",etBin,etMin,etMax);
+    h_invMassZeroWithTracks_= dbe_->book1D("invMassZeroWithTracks"," Two photon invariant mass: Neither have tracks ",etBin,etMin,etMax);
+    h_invMassAllPhotons_= dbe_->book1D("invMassAllIsolatedPhotons"," Two photon invariant mass: All isolated photons",etBin,etMin,etMax);
 
 
 
@@ -208,14 +188,14 @@ void PhotonAnalyzer::beginJob()
     h_phoEta_Loose_ = dbe_->book1D("phoEtaLoose"," Loose Photon Eta ",etaBin,etaMin, etaMax) ;
     h_phoEta_Tight_ = dbe_->book1D("phoEtaTight"," Tight Photon Eta ",etaBin,etaMin, etaMax) ;
     h_phoEta_HLT_ = dbe_->book1D("phoEtaHLT"," Unfiltered Photon Eta ",etaBin,etaMin, etaMax) ;
-    h_phoEt_Loose_ = dbe_->book1D("phoEtLoose"," Loose Photon Transverse Energy ", etBin-1,&(etBinVector[0]));
-    h_phoEt_Tight_ = dbe_->book1D("phoEtTight"," Tight Photon Transverse Energy ", etBin-1,&(etBinVector[0]));
-    h_phoEt_HLT_ = dbe_->book1D("phoEtHLT"," Unfiltered Photon Transverse Energy ", etBin-1,&(etBinVector[0]));
+    h_phoEt_Loose_ = dbe_->book1D("phoEtLoose"," Loose Photon Transverse Energy ", etBin,etMin,etMax);
+    h_phoEt_Tight_ = dbe_->book1D("phoEtTight"," Tight Photon Transverse Energy ", etBin,etMin,etMax);
+    h_phoEt_HLT_ = dbe_->book1D("phoEtHLT"," Unfiltered Photon Transverse Energy ", etBin,etMin,etMax);
 
     h_convEta_Loose_ = dbe_->book1D("convEtaLoose"," Converted Loose Photon Eta ",etaBin,etaMin, etaMax) ;
     h_convEta_Tight_ = dbe_->book1D("convEtaTight"," Converted Tight Photon Eta ",etaBin,etaMin, etaMax) ;
-    h_convEt_Loose_ = dbe_->book1D("convEtLoose"," Converted Loose Photon Transverse Energy ", etBin-1,&(etBinVector[0]));
-    h_convEt_Tight_ = dbe_->book1D("convEtTight"," Converted Tight Photon Transverse Energy ", etBin-1,&(etBinVector[0]));
+    h_convEt_Loose_ = dbe_->book1D("convEtLoose"," Converted Loose Photon Transverse Energy ", etBin,etMin,etMax);
+    h_convEt_Tight_ = dbe_->book1D("convEtTight"," Converted Tight Photon Transverse Energy ", etBin,etMin,etMax);
 
     h_phoEta_Vertex_ = dbe_->book1D("phoEtaVertex"," Converted Photon with valid vertex Eta ",etaBin,etaMin, etaMax) ;
 
@@ -236,8 +216,8 @@ void PhotonAnalyzer::beginJob()
 
 	for(uint part=0;part!=parts.size();++part){ //looping over different parts of the ecal
 
-	  h_phoE_part_.push_back(dbe_->book1D("phoE"+parts[part],types[type]+" Photon Energy: "+parts[part]+";E (GeV)", eBin-1,&(eBinVector[0])));
-	  h_phoEt_part_.push_back(dbe_->book1D("phoEt"+parts[part],types[type]+" Photon Transverse Energy: "+parts[part]+";Et (GeV)", etBin-1,&(etBinVector[0])));
+	  h_phoE_part_.push_back(dbe_->book1D("phoE"+parts[part],types[type]+" Photon Energy: "+parts[part]+";E (GeV)", eBin,eMin,eMax));
+	  h_phoEt_part_.push_back(dbe_->book1D("phoEt"+parts[part],types[type]+" Photon Transverse Energy: "+parts[part]+";Et (GeV)", etBin,etMin,etMax));
 	  h_r9_part_.push_back(dbe_->book1D("r9"+parts[part],types[type]+" Photon r9: "+parts[part]+";R9",r9Bin,r9Min, r9Max));
 	  h_hOverE_part_.push_back(dbe_->book1D("hOverE"+parts[part],types[type]+" Photon H/E: "+parts[part]+";H/E",hOverEBin,hOverEMin,hOverEMax));
 	  h_h1OverE_part_.push_back(dbe_->book1D("h1OverE"+parts[part],types[type]+" Photon H/E for Depth 1: "+parts[part]+";H/E",hOverEBin,hOverEMin,hOverEMax));
@@ -280,7 +260,7 @@ void PhotonAnalyzer::beginJob()
 	h_phoPhi_isol_.push_back(dbe_->book1D("phoPhi",types[type]+" Photon Phi;#phi ",phiBin,phiMin,phiMax)) ;
 
 	h_phoEta_BadChannels_isol_.push_back(dbe_->book1D("phoEtaBadChannels",types[type]+"Photons with bad channels: Eta",etaBin,etaMin, etaMax)) ;
-	h_phoEt_BadChannels_isol_.push_back(dbe_->book1D("phoEtBadChannels",types[type]+"Photons with bad channels: Et ", etBin-1,&(etBinVector[0])));
+	h_phoEt_BadChannels_isol_.push_back(dbe_->book1D("phoEtBadChannels",types[type]+"Photons with bad channels: Et ", etBin,etMin,etMax));
 	h_phoPhi_BadChannels_isol_.push_back(dbe_->book1D("phoPhiBadChannels",types[type]+"Photons with bad channels: Phi ", phiBin,phiMin, phiMax));
 
 
@@ -589,8 +569,8 @@ void PhotonAnalyzer::beginJob()
 
 	for(uint part=0;part!=parts.size();++part){ //loop over different parts of the ecal
 
-	  h_phoConvE_part_.push_back(dbe_->book1D("phoConvE"+parts[part],types[type]+" Photon Energy: "+parts[part]+";E (GeV)", eBin-1,&(eBinVector[0])));
-	  h_phoConvEt_part_.push_back(dbe_->book1D("phoConvEt"+parts[part],types[type]+" Photon Transverse Energy: "+parts[part]+";Et (GeV)", etBin-1,&(etBinVector[0])));
+	  h_phoConvE_part_.push_back(dbe_->book1D("phoConvE"+parts[part],types[type]+" Photon Energy: "+parts[part]+";E (GeV)", eBin,eMin,eMax));
+	  h_phoConvEt_part_.push_back(dbe_->book1D("phoConvEt"+parts[part],types[type]+" Photon Transverse Energy: "+parts[part]+";Et (GeV)", etBin,etMin,etMax));
 	  h_phoConvR9_part_.push_back(dbe_->book1D("phoConvR9"+parts[part],types[type]+" Photon r9: "+parts[part]+";R9",r9Bin,r9Min, r9Max));
 	  h_nConv_part_.push_back(dbe_->book1D("nConv"+parts[part],"Number Of Conversions per Event:  "+parts[part]+";# conversions" ,numberBin,numberMin,numberMax));
 
