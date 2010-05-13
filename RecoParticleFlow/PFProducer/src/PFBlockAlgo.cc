@@ -1603,7 +1603,7 @@ PFBlockAlgo::checkDisplacedVertexLinks( reco::PFBlock& block ) const {
 			      reco::PFBlockElement::TRACK,
 			      reco::PFBlock::LINKTEST_ALL );
     for( IE ie = assocTracks.begin(); ie != assocTracks.end(); ++ie) {
-      double   distprim  = ie->first;
+      //double   distprim  = ie->first;
       unsigned iprim     = ie->second;
       // if this track a primary track (T_TO_DISP)
       // the new strategy gouzevitch: remove all the links from primary track
