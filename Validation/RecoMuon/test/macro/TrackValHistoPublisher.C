@@ -139,7 +139,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  while ( (myKey1 = (TKey*)iter_r()) ) {
    TString myName = myKey1->GetName();
    if (!(myName.Contains("tpToTkmu")) && considerOnlyMuonAssociator && hasOnlyTrackAssociatorInRef) {
-     myName.ReplaceAll("Association","MuonAssociation");
+     if (myName.Contains("TrackAssociation")) myName.ReplaceAll("TrackAssociation","MuonAssociation");
+     else myName.ReplaceAll("Association","MuonAssociation");
    }
    while (considerOnlyMuonAssociator && !(myName.Contains("tpToTkmu")) && !(myName.Contains("MuonAssociation")) ) {
      myKey1 = (TKey*)iter_r();
@@ -150,7 +151,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    if (!myKey2) continue;
    TString myName2 = myKey2->GetName();
    if (!(myName2.Contains("tpToTkmu")) && considerOnlyMuonAssociator && hasOnlyTrackAssociatorInSig) {
-     myName2.ReplaceAll("Association","MuonAssociation");
+     if (myName2.Contains("TrackAssociation")) myName2.ReplaceAll("TrackAssociation","MuonAssociation");
+     else myName2.ReplaceAll("Association","MuonAssociation");
    }
    while (considerOnlyMuonAssociator && !(myName2.Contains("tpToTkmu")) && !(myName2.Contains("MuonAssociation")) ) {
      myKey2 = (TKey*)iter_s();
