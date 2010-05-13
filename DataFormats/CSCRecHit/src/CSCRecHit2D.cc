@@ -11,7 +11,20 @@ CSCRecHit2D::CSCRecHit2D() :
   thePositionWithinStrip(-999.),
   theErrorWithinStrip(-999.),
   theQuality( 0 ), theBadStrip( 0 ), theBadWireGroup( 0 )
-{}
+{
+
+/// Extract low byte to account strip number
+theStripsLowBits.clear();
+for(int i=0; i<(int)theStrips.size(); i++){
+        theStripsLowBits.push_back(theStrips[i] & 0x000000FF);
+	}
+/// Extract middle byte to account L1A phase
+theStripsHighBits.clear();
+for(int i=0; i<(int)theStrips.size(); i++){
+        theStripsHighBits.push_back(theStrips[i] & 0x0000FF00);
+	}
+
+}
 
 CSCRecHit2D::CSCRecHit2D( const CSCDetId& id, 
                           const LocalPoint& pos, 
@@ -33,7 +46,20 @@ CSCRecHit2D::CSCRecHit2D( const CSCDetId& id,
   thePositionWithinStrip( posInStrip ),
   theErrorWithinStrip( errInStrip ),
   theQuality( quality ), theBadStrip( badStrip ), theBadWireGroup( badWireGroup )
-{}
+{
+
+/// Extract second byte to account strip number
+theStripsLowBits.clear();
+for(int i=0; i<(int)theStrips.size(); i++){
+        theStripsLowBits.push_back(theStrips[i] & 0x000000FF);
+	}
+/// Extract middle byte to account L1A phase
+theStripsHighBits.clear();
+for(int i=0; i<(int)theStrips.size(); i++){
+        theStripsHighBits.push_back(theStrips[i] & 0x0000FF00);
+	}
+
+}
 
 CSCRecHit2D::~CSCRecHit2D() {}
 
@@ -128,8 +154,44 @@ bool CSCRecHit2D::sharesInput(const  CSCRecHit2D *otherRecHit, CSCRecHit2D::Shar
 }
 
 void CSCRecHit2D::print() const {
+std::cout << "CSCRecHit in CSC Detector: " << cscDetId() << std::endl;
+std::cout << "  local x = " << localPosition().x() << " +/- " << sqrt( localPositionError().xx() ) <<  " y = " << localPosition().y() << " +/- " << sqrt( localPositionError().yy() ) << std::endl;
+
+/// L1A
+std::cout << "  L1A+Channels: ";
+for (int i=0; i<(int)channelsTotal().size(); i++) {std::cout 
+       << std::hex << channelsTotal()[i] << " ";}
+std::cout << std::endl;
+
+std::cout << "  Cannels: ";
+for (int i=0; i<(int)channels().size(); i++) {std::cout << std::dec << channels()[i] << " "
+     << " (" << "HEX: " << std::hex << channels()[i] << ")" << " ";
+      }
+  std::cout << std::endl;
+
+
+/// L1A
+std::cout << "  L1APhase: ";
+  for (int i=0; i<(int)channelsl1a().size(); i++) {
+       std::cout << "|";
+       for (int k=0; k<8 ; k++){ 
+       std::cout << ((channelsl1a()[i] >> (15-k)) & 0x1) << " ";}
+       std::cout << "| ";       
+       }           
+  std::cout << std::endl;
+
+ 
+std::cout << "  WireGroups: ";
+for (int i=0; i<(int)wgroups().size(); i++) {std::cout << std::dec << wgroups()[i]  
+       << " ";}
+  std::cout << std::endl;
+}
+
+/*
+void CSCRecHit2D::print() const {
   std::cout << *this << std::endl;
 }
+*/
 
 std::ostream& operator<<(std::ostream& os, const CSCRecHit2D& rh) {
   os << "CSCRecHit2D: local x = " << rh.localPosition().x() << " +/- " << sqrt( rh.localPositionError().xx() ) <<

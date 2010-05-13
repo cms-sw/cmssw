@@ -45,8 +45,15 @@ public:
   LocalError localPositionError() const { return theLocalError; }
   CSCDetId cscDetId() const { return geographicalId(); }
 
-  /// Container of strip channel numbers comprising the rechit
-  const ChannelContainer& channels() const { return theStrips; }
+  /// Extracting strip channel numbers comprising the rechit
+   const ChannelContainer& channels() const { return theStripsLowBits; } /// L1A
+  /// const ChannelContainer& channels() const { return theStrips; }
+  
+  /// Extract the L1A phase bits from the StripChannelContainer
+   const ChannelContainer& channelsl1a() const { return theStripsHighBits; } /// L1A
+  
+  /// Container of the L1A+Channels comprising the rechit
+   const ChannelContainer& channelsTotal() const { return theStrips; } /// L1A
 
   /// Map of strip ADCs for strips comprising the rechit
   const ADCContainer& adcs() const { return theADCs; }
@@ -78,13 +85,16 @@ public:
 
   /// Returns true if the two CSCRecHits are using the same input information, false otherwise.  In this case, looks at the geographical ID and channel numbers for strips and wires.
   bool sharesInput(const  CSCRecHit2D *otherRecHit, CSCRecHit2D::SharedInputType what) const;
-
-  void print() const;	
+   
+   /// Print the content of the RecHit2D including L1A (for debugging)
+   void print() const;	
 private:
 	
   LocalPoint theLocalPosition;
   LocalError theLocalError;
   ChannelContainer theStrips;
+  ChannelContainer theStripsLowBits; /// L1A
+  ChannelContainer theStripsHighBits; /// L1A
   ADCContainer theADCs;
   ChannelContainer theWireGroups;
   float theTpeak;
