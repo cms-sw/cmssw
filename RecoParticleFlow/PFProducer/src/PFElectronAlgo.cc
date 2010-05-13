@@ -1990,7 +1990,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 					    (elecCluster)? reco::PFCandidate::e : reco::PFCandidate::gamma);
 	
 	cluster_Candidate.setPs1Energy(ps1);
-	cluster_Candidate.setPs1Energy(ps2);
+	cluster_Candidate.setPs2Energy(ps2);
 	cluster_Candidate.setEcalEnergy(EE);
 	//	      std::cout << " PFElectronAlgo, adding Brem (1) " << EE << std::endl;
 	// The Raw Ecal energy will be the energy of the basic cluster. 
@@ -2093,7 +2093,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	      reco::PFCandidate photon_Candidate(0,photonMomentum, reco::PFCandidate::gamma);
 	      
 	      photon_Candidate.setPs1Energy(ps1);
-	      photon_Candidate.setPs1Energy(ps2);
+	      photon_Candidate.setPs2Energy(ps2);
 	      photon_Candidate.setEcalEnergy(EE);
 	      //	      std::cout << " PFElectronAlgo, adding Brem " << EE << std::endl;
 	      // yes, EE, we want the raw ecal energy of the daugther to have the same definition
