@@ -14,8 +14,8 @@
 /*
  * \file HcalDetDiagLEDClient.cc
  * 
- * $Date: 2010/03/25 21:21:04 $
- * $Revision: 1.6 $
+ * $Date: 2010/04/10 13:31:56 $
+ * $Revision: 1.7 $
  * \author J. Temple
  * \brief Hcal DetDiagLED Client class
  */
@@ -65,7 +65,28 @@ void HcalDetDiagLEDClient::beginJob(){
 void HcalDetDiagLEDClient::endJob(){}
 
 void HcalDetDiagLEDClient::beginRun(void){
-   nevts_=0;
+  if (!dqmStore_) 
+    {
+      if (debug_>0) std::cout <<"<HcalDetDiagLEDClient::beginRun> dqmStore does not exist!"<<std::endl;
+      return;
+    }
+  dqmStore_->setCurrentFolder(subdir_);
+  problemnames_.clear();
+
+  // Put the appropriate name of your problem summary here
+  ProblemCells=dqmStore_->book2D(" ProblemDetDiagLED",
+				 " Problem DetDiagLED Rate for all HCAL;ieta;iphi",
+				 85,-42.5,42.5,
+				 72,0.5,72.5);
+  problemnames_.push_back(ProblemCells->getName());
+  if (debug_>1)
+    std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
+  dqmStore_->setCurrentFolder(subdir_+"problem_DetDiagLED");
+  ProblemCellsByDepth = new EtaPhiHists();
+  ProblemCellsByDepth->setup(dqmStore_," Problem DetDiagLED Rate");
+  for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
+    problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
+  nevts_=0;
 }
 void HcalDetDiagLEDClient::endRun(void){analyze();}
 void HcalDetDiagLEDClient::setup(void){}
