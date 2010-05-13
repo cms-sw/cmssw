@@ -257,13 +257,16 @@ if (localDAQ == 1) | (globalDAQ == 1) | (liveECAL == 1) :
   process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
     saveByRun = cms.untracked.int32(1),
     dirName = cms.untracked.string('.'),
-    convention = cms.untracked.string('Online'),
-    referenceHandling = cms.untracked.string('qtests')
+    convention = cms.untracked.string('Online')
   )
 
   process.dqmEnv = cms.EDFilter("DQMEventInfo",
     subSystemFolder = cms.untracked.string('Ecal')
   )
+
+if (liveCMS == 1) | (playCMS == 1) :
+  process.load("DQMServices.Components.DQMEnvironment_cfi")
+  process.load("DQM.Integration.test.environment_cfi")
 
 process.dqmInfoEB = cms.EDAnalyzer("DQMEventInfo",
   subSystemFolder = cms.untracked.string('EcalBarrel')
@@ -273,19 +276,14 @@ process.dqmInfoEE = cms.EDAnalyzer("DQMEventInfo",
   subSystemFolder = cms.untracked.string('EcalEndcap')
 )
 
-if (liveCMS == 1) :
-  process.load("DQMServices.Components.DQMEnvironment_cfi")
+if (localDAQ == 1) :
+  process.dqmSaver.referenceHandling = cms.untracked.string('skip')
 
-  process.load("DQM.Integration.test.environment_cfi")
+if (globalDAQ == 1) | (liveECAL == 1) :
+  process.dqmSaver.referenceHandling = cms.untracked.string('all')
 
-  process.dqmSaver.referenceHandling = 'qtests'
-
-if (playCMS == 1) :
-  process.load("DQMServices.Components.DQMEnvironment_cfi")
-
-  process.load("DQM.Integration.test.environment_cfi")
-
-  process.dqmSaver.referenceHandling = 'qtests'
+if (liveCMS == 1) | (playCMS == 1) :
+  process.dqmSaver.referenceHandling = 'all'
 
 process.dqmQTestEB = cms.EDAnalyzer("QualityTester",
   reportThreshold = cms.untracked.string('red'),
