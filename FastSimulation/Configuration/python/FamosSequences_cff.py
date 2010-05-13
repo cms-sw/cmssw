@@ -86,8 +86,8 @@ particleFlowClusterHFHAD.thresh_Clean_Endcap = cms.double(1E5)
 
 famosParticleFlowSequence = cms.Sequence(
     caloTowersRec+
-    pfTrackElec+
-#    particleFlowTrackWithDisplacedVertex+
+#    pfTrackElec+
+    particleFlowTrackWithDisplacedVertex+
     particleFlowBlock+
     particleFlow+
     pfElectronTranslatorSequence    
