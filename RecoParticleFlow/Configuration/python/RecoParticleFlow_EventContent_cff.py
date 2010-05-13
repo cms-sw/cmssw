@@ -33,6 +33,7 @@ RecoParticleFlowAOD = cms.PSet(
         'drop *_pfElectronTranslator_*_*',
         'keep recoPFRecHits_*_Cleaned_*',
         'keep recoPFCandidates_*_*_*',
+        'keep recoPFDisplacedVertexs_*_*_*',                
         'keep recoCaloClusters_pfElectronTranslator_*_*',
         'keep recoPreshowerClusters_pfElectronTranslator_*_*',
         'keep recoSuperClusters_pfElectronTranslator_*_*')
