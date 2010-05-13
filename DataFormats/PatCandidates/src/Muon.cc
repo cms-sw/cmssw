@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.24 2010/04/20 16:07:15 srappocc Exp $
+// $Id: Muon.cc,v 1.25 2010/05/12 12:31:38 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -17,8 +17,8 @@ Muon::Muon() :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
-    embeddedCaloMETMuonCorrs_(false),
     embeddedTCMETMuonCorrs_(false),
+    embeddedCaloMETMuonCorrs_(false),
     embeddedPickyMuon_(false),
     embeddedTpfmsMuon_(false),
     pickyMuonRef_(),
@@ -42,8 +42,8 @@ Muon::Muon(const reco::Muon & aMuon) :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
-    embeddedCaloMETMuonCorrs_(false),
     embeddedTCMETMuonCorrs_(false),
+    embeddedCaloMETMuonCorrs_(false),
     embeddedPickyMuon_(false),
     embeddedTpfmsMuon_(false),
     pickyMuonRef_(),
@@ -67,8 +67,8 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
-    embeddedCaloMETMuonCorrs_(false),
     embeddedTCMETMuonCorrs_(false),
+    embeddedCaloMETMuonCorrs_(false),
     embeddedPickyMuon_(false),
     embeddedTpfmsMuon_(false),
     pickyMuonRef_(),
@@ -92,6 +92,8 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
+    embeddedTCMETMuonCorrs_(false),
+    embeddedCaloMETMuonCorrs_(false),
     embeddedPickyMuon_(false),
     embeddedTpfmsMuon_(false),
     pickyMuonRef_(),
