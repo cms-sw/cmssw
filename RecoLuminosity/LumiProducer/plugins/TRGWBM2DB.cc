@@ -27,7 +27,7 @@
 namespace lumi{
   class TRGWBM2DB : public DataPipe{
   public:
-    const static unsigned int COMMITLSINTERVAL=400; //commit interval in LS
+    const static unsigned int COMMITLSINTERVAL=20; //commit interval in LS,totalrow=nsl*192
     explicit TRGWBM2DB(const std::string& dest);
     virtual void retrieveData( unsigned int runnumber);
     virtual const std::string dataType() const;
