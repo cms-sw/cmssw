@@ -8,10 +8,16 @@ void CSCAlignmentCorrections::plot() {
 
   for (unsigned int i = 0;  i < m_coefficient.size();  i++) {
     std::string modifiedName = m_fitterName;
-    if (modifiedName[2] == '-') modifiedName[2] = 'm';
-    if (modifiedName[2] == '+') modifiedName[2] = 'p';
-    modifiedName[4] = '_';
-    modifiedName[6] = '_';
+    if (modifiedName[0] == 'M'  &&  modifiedName[1] == 'E') {
+       if (modifiedName[2] == '-') modifiedName[2] = 'm';
+       else if (modifiedName[2] == '+') modifiedName[2] = 'p';
+       if (modifiedName[4] == '/') modifiedName[4] = '_';
+       if (modifiedName[6] == '/') modifiedName[6] = '_';
+    }
+    else if (modifiedName[0] == 'Y'  &&  modifiedName[1] == 'E') {
+       if (modifiedName[2] == '-') modifiedName[2] = 'm';
+       else if (modifiedName[2] == '+') modifiedName[2] = 'p';
+    }
 
     std::stringstream histname, histtitle;
     histname << modifiedName << "_mode_" << i;
@@ -54,7 +60,7 @@ void CSCAlignmentCorrections::report(std::ofstream &report) {
   }
 
   for (unsigned int i = 0;  i < m_i.size();  i++) {
-    report << "cscReports[-1].addCSCConstraintResidual(\"" << m_i[i] << "\", \"" << m_j[i] << "\", " << m_before[i] << "\", " << m_uncert[i] << "\", " << m_residual[i] << ", " << m_pull[i] << ")" << std::endl;
+    report << "cscReports[-1].addCSCConstraintResidual(\"" << m_i[i] << "\", \"" << m_j[i] << "\", " << m_before[i] << ", " << m_uncert[i] << ", " << m_residual[i] << ", " << m_pull[i] << ")" << std::endl;
   }
 
   report << std::endl;
