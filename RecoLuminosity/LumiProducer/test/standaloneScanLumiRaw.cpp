@@ -15,17 +15,17 @@ int main(int argc, char** argv){
   //TFile *myfile=new TFile(filename,"READ");
   TFile * myfile=TFile::Open(filename);
   //TFile * myfile=TFile::Open("rfio:/castor/cern.ch/cms/store/lumi/200912/CMS_LUMI_RAW_20091212_000124025_0001_1.root");
-  HCAL_HLX::RUN_SUMMARY *myRunSummary = new HCAL_HLX::RUN_SUMMARY;
-  TTree *runsummaryTree = (TTree *) myfile->Get("RunSummary");
-  if(!runsummaryTree) std::cout<<"no run summary data"<<std::endl;
-  runsummaryTree->SetBranchAddress("RunSummary.",&myRunSummary);
-  size_t runsummaryentries=runsummaryTree->GetEntries();
-  std::cout<<"n run summary entries "<<runsummaryentries<<std::endl;
-  for(size_t i=0;i<runsummaryentries;++i){
-    runsummaryTree->GetEntry(i);
-    std::cout<<"Summary for run : "<<myRunSummary->runNumber<<std::endl;
-    std::cout<<std::setw(20)<<"timestamp : "<<myRunSummary->timestamp<<" : timestamp micros : "<<myRunSummary->timestamp_micros<<" : start orbit : "<<myRunSummary->startOrbitNumber<<" : end orbit : "<<myRunSummary->endOrbitnumber<<" : fill number : "<<myRunSummary->fillNumber<<" : number CMS LS : "<<myRunSummary->numberCMSLumiSections<<" : number DAQ LS : "<<myRunSummary->numberLumiDAQLumiSections<<std::endl;
-  }
+  //HCAL_HLX::RUN_SUMMARY *myRunSummary = new HCAL_HLX::RUN_SUMMARY;
+  //TTree *runsummaryTree = (TTree *) myfile->Get("RunSummary");
+  //if(!runsummaryTree) std::cout<<"no run summary data"<<std::endl;
+  //runsummaryTree->SetBranchAddress("RunSummary.",&myRunSummary);
+  //size_t runsummaryentries=runsummaryTree->GetEntries();
+  //std::cout<<"n run summary entries "<<runsummaryentries<<std::endl;
+  //for(size_t i=0;i<runsummaryentries;++i){
+  //runsummaryTree->GetEntry(i);
+  // std::cout<<"Summary for run : "<<myRunSummary->runNumber<<std::endl;
+  // std::cout<<std::setw(20)<<"timestamp : "<<myRunSummary->timestamp<<" : timestamp micros : "<<myRunSummary->timestamp_micros<<" : start orbit : "<<myRunSummary->startOrbitNumber<<" : end orbit : "<<myRunSummary->endOrbitnumber<<" : fill number : "<<myRunSummary->fillNumber<<" : number CMS LS : "<<myRunSummary->numberCMSLumiSections<<" : number DAQ LS : "<<myRunSummary->numberLumiDAQLumiSections<<std::endl;
+  //}
 
   HCAL_HLX::LEVEL1_TRIGGER *myTRG = new HCAL_HLX::LEVEL1_TRIGGER;
   TTree *trgTree = (TTree *) myfile->Get("L1Trigger");
@@ -45,7 +45,7 @@ int main(int argc, char** argv){
       std::cout<<" : path : "<< myTRG->GTTech[k].pathName<<" : counts : "<< myTRG->GTTech[k].counts<<" : prescale : "<< myTRG->GTTech[k].prescale<<std::endl;
     }
   }
-
+  /**
   HCAL_HLX::HLTRIGGER *myHLT = new HCAL_HLX::HLTRIGGER;
   TTree *hltTree = (TTree *) myfile->Get("HLTrigger");
   if(!hltTree) std::cout<<"no hlt data"<<std::endl;
@@ -58,6 +58,8 @@ int main(int argc, char** argv){
       std::cout<<std::setw(20)<<"HLTConfigId : "<<myHLT->HLTPaths[j].HLTConfigId<<"path : "<<myHLT->HLTPaths[j].PathName<<" : L1Pass : "<<myHLT->HLTPaths[j].L1Pass<<" : PSPass : "<<myHLT->HLTPaths[j].PSPass<<" : PAccept : "<<myHLT->HLTPaths[j].PAccept<<" : PExcept : "<<myHLT->HLTPaths[j].PExcept<<" : PReject : "<<myHLT->HLTPaths[j].PReject<<" : PSIndex : "<<myHLT->HLTPaths[j].PSIndex<<" : Prescale : "<<myHLT->HLTPaths[j].Prescale<<std::endl;
     }
   }
+  **/
+
   HCAL_HLX::LUMI_SECTION *myLumiSection=new HCAL_HLX::LUMI_SECTION;
   HCAL_HLX::LUMI_SECTION_HEADER *myLumiHeader = &(myLumiSection->hdr);
   HCAL_HLX::LUMI_SUMMARY *myLumiSummary = &(myLumiSection->lumiSummary);
@@ -72,12 +74,12 @@ int main(int argc, char** argv){
   std::cout<<"hlxentries "<<hlxentries<<std::endl;
   for(size_t i=0;i<hlxentries;++i){
     hlxTree->GetEntry(i);
-    std::cout<<"Lumi summary for run : "<<myLumiHeader->runNumber<<" : LS : "<<myLumiHeader->sectionNumber<<std::endl;
-    std::cout<<std::setw(20)<<"deadtime norm : "<<myLumiSummary->DeadTimeNormalization<<" : LHC norm : "<<myLumiSummary->LHCNormalization<<" : instantlumi : "<<myLumiSummary->InstantLumi<<" : instantlumiErr : "<<myLumiSummary->InstantLumiErr<<" : instantlumiQlty : "<<myLumiSummary->InstantLumiQlty<<std::endl;
-    std::cout<<std::setw(20)<<"lumi details : "<<std::endl;
-    for(size_t j=0;j<HCAL_HLX_MAX_BUNCHES;++j){
-      std::cout<<std::setw(20)<<"    LHCLumi : "<<myLumiDetail->LHCLumi[j]<<" : ETLumi : "<<myLumiDetail->ETLumi[j]<<" : ETLumiErr : "<<myLumiDetail->ETLumiErr[j]<<" : ETLumiQlty : "<<myLumiDetail->ETLumiQlty[j]<<" : ETBXNormalization : "<<myLumiDetail->ETBXNormalization[j]<<std::endl;
-    }
+    std::cout<<"Lumi summary for run : "<<myLumiHeader->runNumber<<" : LS : "<<myLumiHeader->sectionNumber<<" cmsalive: "<<myLumiHeader->bCMSLive<<std::endl;
+    //std::cout<<std::setw(20)<<"deadtime norm : "<<myLumiSummary->DeadTimeNormalization<<" : LHC norm : "<<myLumiSummary->LHCNormalization<<" : instantlumi : "<<myLumiSummary->InstantLumi<<" : instantlumiErr : "<<myLumiSummary->InstantLumiErr<<" : instantlumiQlty : "<<myLumiSummary->InstantLumiQlty<<std::endl;
+    //std::cout<<std::setw(20)<<"lumi details : "<<std::endl;
+    //for(size_t j=0;j<HCAL_HLX_MAX_BUNCHES;++j){
+    //  std::cout<<std::setw(20)<<"    LHCLumi : "<<myLumiDetail->LHCLumi[j]<<" : ETLumi : "<<myLumiDetail->ETLumi[j]<<" : ETLumiErr : "<<myLumiDetail->ETLumiErr[j]<<" : ETLumiQlty : "<<myLumiDetail->ETLumiQlty[j]<<" : ETBXNormalization : "<<myLumiDetail->ETBXNormalization[j]<<std::endl;
+    //}
   }
 }
 
