@@ -11,7 +11,8 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'GR10_P_V5::All'
-
+#process.GlobalTag.DumpStat=cms.untracked.bool(True)
+#process.GlobalTag.DBParameters.messageLevel = 3
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("PCastorRcd"),
              tag = cms.string("CASTORRECO_Geometry_TagXX"),
@@ -73,14 +74,14 @@ process.GlobalTag.toGet = cms.VPSet(
              connect = cms.untracked.string("sqlite_file:myfile.db"),
 #             label = cms.untracked.string("Extended")
              ),
+    cms.PSet(record = cms.string("GeometricDetExtraRcd"),
+             tag = cms.string("TKExtra_Geometry_TagXX"),
+             connect = cms.untracked.string("sqlite_file:myfile.db"),
+#             label = cms.untracked.string("Extra")
+             ),
     cms.PSet(record = cms.string("IdealGeometryRecord"),
              tag = cms.string("TKRECO_Geometry_TagXX"),
              connect = cms.untracked.string("sqlite_file:myfile.db")
-             ),
-    cms.PSet(record = cms.string("IdealGeometryRecord"),
-             tag = cms.string("TKExtra_Geometry_TagXX"),
-             connect = cms.untracked.string("sqlite_file:myfile.db"),
-             label = cms.untracked.string("Extra")
              ),
     cms.PSet(record = cms.string("PHcalRcd"),
              tag = cms.string("HCALRECO_Geometry_TagXX"),

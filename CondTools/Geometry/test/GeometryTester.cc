@@ -20,6 +20,7 @@
 
 #include "Geometry/Records/interface/GeometryFileRcd.h"    
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/GeometricDetExtraRcd.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
 #include "Geometry/Records/interface/RPCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
@@ -75,19 +76,18 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::ESHandle<PGeometricDet> tkgeo;
     edm::ESHandle<PGeometricDetExtra> tkExtra;
     iSetup.get<IdealGeometryRecord>().get(tkgeo);
-    iSetup.get<IdealGeometryRecord>().get("Extra",tkExtra);
+    iSetup.get<GeometricDetExtraRcd>().get(tkExtra);
     std::cout<<"TRACKER"<<std::endl;
     //helper map
     std::map<uint32_t, uint32_t> diTogde;
     for (uint32_t g=0; g<tkExtra->pgdes_.size();++g) {
       diTogde[tkExtra->pgdes_[g]._geographicalId] = g;
     }
-    
+    uint32_t tkeInd;
     for(uint32_t i=0; i<tkgeo->pgeomdets_.size();i++){
       std::cout<<tkgeo->pgeomdets_[i]._params0<<tkgeo->pgeomdets_[i]._params1<<tkgeo->pgeomdets_[i]._params2<<tkgeo->pgeomdets_[i]._params3<<tkgeo->pgeomdets_[i]._params4<<tkgeo->pgeomdets_[i]._params5<<tkgeo->pgeomdets_[i]._params6<<tkgeo->pgeomdets_[i]._params7<<tkgeo->pgeomdets_[i]._params8<<tkgeo->pgeomdets_[i]._params9<<tkgeo->pgeomdets_[i]._params10<<tkgeo->pgeomdets_[i]._x<<tkgeo->pgeomdets_[i]._y<<tkgeo->pgeomdets_[i]._z<<tkgeo->pgeomdets_[i]._phi<<tkgeo->pgeomdets_[i]._rho<<tkgeo->pgeomdets_[i]._a11<< tkgeo->pgeomdets_[i]._a12<< tkgeo->pgeomdets_[i]._a13<< tkgeo->pgeomdets_[i]._a21<< tkgeo->pgeomdets_[i]._a22<< tkgeo->pgeomdets_[i]._a23<< tkgeo->pgeomdets_[i]._a31<< tkgeo->pgeomdets_[i]._a32<< tkgeo->pgeomdets_[i]._a33<<tkgeo->pgeomdets_[i]._shape<<tkgeo->pgeomdets_[i]._name<< tkgeo->pgeomdets_[i]._ns;
-      
-      std::cout <<tkExtra->pgdes_[diTogde[tkgeo->pgeomdets_[i]._geographicalID]]._volume<<tkExtra->pgdes_[diTogde[tkgeo->pgeomdets_[i]._geographicalID]]._density<<tkExtra->pgdes_[diTogde[tkgeo->pgeomdets_[i]._geographicalID]]._weight<<tkExtra->pgdes_[diTogde[tkgeo->pgeomdets_[i]._geographicalID]]._copy<<tkExtra->pgdes_[diTogde[tkgeo->pgeomdets_[i]._geographicalID]]._material;
-
+      tkeInd = diTogde[tkgeo->pgeomdets_[i]._geographicalID];
+      std::cout <<tkExtra->pgdes_[tkeInd]._volume<<tkExtra->pgdes_[tkeInd]._density<<tkExtra->pgdes_[tkeInd]._weight<<tkExtra->pgdes_[tkeInd]._copy<<tkExtra->pgdes_[tkeInd]._material;
       std::cout <<tkgeo->pgeomdets_[i]._radLength<<tkgeo->pgeomdets_[i]._xi<<tkgeo->pgeomdets_[i]._pixROCRows<<tkgeo->pgeomdets_[i]._pixROCCols<<tkgeo->pgeomdets_[i]._pixROCx<<tkgeo->pgeomdets_[i]._pixROCy<<tkgeo->pgeomdets_[i]._stereo<<tkgeo->pgeomdets_[i]._siliconAPVNum<<tkgeo->pgeomdets_[i]._geographicalID<<tkgeo->pgeomdets_[i]._nt0<<tkgeo->pgeomdets_[i]._nt1<<tkgeo->pgeomdets_[i]._nt2<<tkgeo->pgeomdets_[i]._nt3<<tkgeo->pgeomdets_[i]._nt4<<tkgeo->pgeomdets_[i]._nt5<<tkgeo->pgeomdets_[i]._nt6<<tkgeo->pgeomdets_[i]._nt7<<tkgeo->pgeomdets_[i]._nt8<<tkgeo->pgeomdets_[i]._nt9<<tkgeo->pgeomdets_[i]._nt10<<std::endl;
     }
   }

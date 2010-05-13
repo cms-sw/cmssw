@@ -18,6 +18,7 @@ process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
                                            ZIP = cms.untracked.bool(True)
                                            )
 process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder")
+process.TrackerGeometryExtraWriter = cms.EDAnalyzer("PGeometricDetExtraBuilder")
 
 process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder")
 
@@ -34,6 +35,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_Extended_TagXX')),
                                                             cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_TagXX')),
+                                                            cms.PSet(record = cms.string('GeometricDetExtraRcd'),tag = cms.string('TKExtra_Geometry_TagXX')),# label=cms.string("Extra")),
                                                             cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('EBRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('EPRECO_Geometry_TagXX')),
@@ -52,5 +54,5 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.CaloGeometryWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter)
+process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.TrackerGeometryExtraWriter+process.CaloGeometryWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter)
 
