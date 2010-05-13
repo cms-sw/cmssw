@@ -133,40 +133,47 @@ else
 fi
 
 echo "Using dataset(s): "
-if [[ ! -z "$HLTDEBUGPATH" ]] ; then echo $HLTDEBUGPATH; fi
-if [[ ! -z "$RECOPATH"     ]] ; then echo $RECOPATH    ; fi
+if [[ ! -z "$HLTDEBUGPATH" ]] ; then echo "    $HLTDEBUGPATH"; fi
+if [[ ! -z "$RECOPATH"     ]] ; then echo "    $RECOPATH    "; fi
 
 RECOFILES="$(getFiles $RECOPATH)"
 HLTDEBUGFILES="$(getFiles $HLTDEBUGPATH)"
 
+ORIGDIR=`pwd`
+TEMPDIR=`mktemp -d`
+ANA_PY="ana.py"
+POST_PY="post.py"
+cd $TEMPDIR
+
 if [ $POST_ONLY = true ]; then
-    cp hltMuonPostProcessor_cfg.py post.py
-    echo "" >> post.py
-    echo "process.source.fileNames = [" >> post.py
-    cat $RECOFILES >> post.py
-    echo "]" >> post.py
-    echo "" >> post.py
-    echo "process.maxEvents.input = $N_EVENTS" >> post.py
-    cmsRun post.py
+    cp $ORIGDIR/hltMuonPostProcessor_cfg.py $POST_PY
+    echo "" >> $POST_PY
+    echo "process.source.fileNames = [" >> $POST_PY
+    cat $RECOFILES >> $POST_PY
+    echo "]" >> $POST_PY
+    echo "" >> $POST_PY
+    echo "process.maxEvents.input = $N_EVENTS" >> $POST_PY
+    cmsRun $POST_PY
     LONGNAME=$RECOPATH
 else
-    cp hltMuonValidator_cfg.py ana.py
-    echo "" >> ana.py
-    echo "process.source.fileNames = [" >> ana.py
-    cat $RECOFILES >> ana.py
-    echo "]" >> ana.py
-    echo "process.source.secondaryFileNames = [" >> ana.py
-    cat $HLTDEBUGFILES >> ana.py
-    echo "]" >> ana.py
-    echo "process.maxEvents.input = $N_EVENTS" >> ana.py
-    cmsRun ana.py
-    cmsRun hltMuonPostProcessor_cfg.py
+    cp $ORIGDIR/hltMuonValidator_cfg.py $ANA_PY
+    cp $ORIGDIR/hltMuonPostProcessor_cfg.py $POST_PY
+    echo "" >> $ANA_PY
+    echo "process.source.fileNames = [" >> $ANA_PY
+    cat $RECOFILES >> $ANA_PY
+    echo "]" >> $ANA_PY
+    echo "process.source.secondaryFileNames = [" >> $ANA_PY
+    cat $HLTDEBUGFILES >> $ANA_PY
+    echo "]" >> $ANA_PY
+    echo "process.maxEvents.input = $N_EVENTS" >> $ANA_PY
+    cmsRun $ANA_PY
+    cmsRun $POST_PY
     LONGNAME=$RECOPATH
 fi
 
 SHORTNAME=`echo $LONGNAME | sed "s/\/RelVal\(.*\)\/CMSSW_\(.*\)\/.*/\1_\2/"`
-mv DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root TEMP.root
-reduceToMuonContent TEMP.root $SHORTNAME.root
-rm TEMP.root
+mv DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root temp.root
+reduceToMuonContent temp.root $ORIGDIR/$SHORTNAME.root
+cd $ORIGDIR
+rm -r $TEMPDIR
 echo "Produced $SHORTNAME.root"
-
