@@ -9,7 +9,14 @@ from PhysicsTools.PatAlgos.tools.jetTools import *
 ## Re-configuration of PATJetProducer
 ## ------------------------------------------------------
 
-def run36xOn35xInput(process):
+
+## ------------------------------------------------------
+## Re-configuration of PATJetProducer
+## ------------------------------------------------------
+
+def run36xOn35xInput(process,
+                     genJets = "",
+                     postfix=""):
     """
     ------------------------------------------------------------------
     Reconfigure the PATJetProducer to be able to run the 36X version
@@ -42,6 +49,18 @@ def run36xOn35xInput(process):
         cms.InputTag("trackCountingHighEffBJetTags"),
         cms.InputTag("trackCountingHighPurBJetTags"),
     )
+    if genJets != "" : 
+        print "*********************************************************************"
+        print "NOTE TO USER: when running on 31X samples re-recoed in 3.5.x         "
+        print "              with this CMSSW version of PAT                         "
+        print "              it is required to re-run the GenJet production for     "
+        print "              anti-kT since that is not part of the re-reco          "
+        print "*********************************************************************"
+        process.load("RecoJets.Configuration.GenJetParticles_cff")
+        process.load("RecoJets.JetProducers." + genJets +"_cfi")
+        process.patDefaultSequence.replace( getattr(process,"patCandidates"+postfix), process.genParticlesForJets+getattr(process,genJets)+getattr(process,"patCandidates"+postfix))
+
+
 
 ## ------------------------------------------------------
 ## Re-implementation of jetTools
