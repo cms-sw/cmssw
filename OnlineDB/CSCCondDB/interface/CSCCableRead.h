@@ -23,8 +23,8 @@ class csccableread
   ~csccableread () throw (oracle::occi::SQLException);
 
 void cable_read (int chamber_index, std::string *chamber_label,
-     int *cfeb_length, std::string *cfeb_rev, int *alct_length,
-     std::string *alct_rev, int *cfeb_tmb_skew_delay, int *cfeb_timing_corr);
+     float *cfeb_length, std::string *cfeb_rev, float *alct_length,
+     std::string *alct_rev, float *cfeb_tmb_skew_delay, float *cfeb_timing_corr);
 
 }; // end of class csccableread
 #endif
