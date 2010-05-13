@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2010/01/13 12:08:56 $ 
+ **  $Date: 2010/05/13 20:12:50 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -211,8 +211,8 @@ void PhotonOfflineClient::runClient()
   dividePlots(dbe_->get(EffPath+"ConvFractionVsEtTight"), dbe_->get(EffPath+ "convEtTight"), dbe_->get(EffPath+ "phoEtTight"));
 
 
-  if(dbe_->get(AllPath + currentFolder_.str() + "Conversions/phoConvEta")->getTH1F()->GetEntries() != 0 )
-    dividePlots(dbe_->get(EffPath+"VertexReconstructionEfficiencyVsEta"),dbe_->get(EffPath + "phoEtaVertex"),dbe_->get(AllPath+currentFolder_.str() + "Conversions/phoConvEta"));
+  if(dbe_->get(EffPath + "phoEtaVertex")->getTH1F()->GetEntries() != 0 )
+    dividePlots(dbe_->get(EffPath+"VertexReconstructionEfficiencyVsEta"),dbe_->get(AllPath+currentFolder_.str() + "Conversions/phoConvEta"),dbe_->get(EffPath + "phoEtaVertex"));
 
 
 
