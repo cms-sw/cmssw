@@ -46,38 +46,11 @@ process.TFileService = cms.Service("TFileService",
    fileName = cms.string( 'raw_gctAnalyzer.root' )
 )
 
-# GCT Analyzer
-process.analyzer = cms.EDAnalyzer('GctErrorAnalyzer',
-   #Multiple BX Flags
-   doRCTMBx = cms.untracked.bool(False),
-   doEmuMBx = cms.untracked.bool(True),
-   doGCTMBx = cms.untracked.bool(True),
-   #Plot + Debug Info Flags
-   doRCT = cms.untracked.bool(True),
-   doEg = cms.untracked.bool(True),
-   doIsoDebug = cms.untracked.bool(True),
-   doNonIsoDebug = cms.untracked.bool(True),
-   doJets = cms.untracked.bool(True),
-   doCenJetsDebug = cms.untracked.bool(True),
-   doTauJetsDebug = cms.untracked.bool(True),
-   doForJetsDebug = cms.untracked.bool(True),
-   doHF = cms.untracked.bool(True),
-   doRingSumDebug = cms.untracked.bool(True),
-   doBitCountDebug = cms.untracked.bool(True),
-   doTotalEnergySums = cms.untracked.bool(True),
-   doTotalHtDebug = cms.untracked.bool(True),
-   doTotalEtDebug = cms.untracked.bool(True),
-   doMissingEnergySums = cms.untracked.bool(True),
-   doMissingETDebug = cms.untracked.bool(True),
-   doMissingHTDebug = cms.untracked.bool(True),
-   #Labels to use for data and emulator
-   dataTag = cms.untracked.InputTag("l1GctHwDigis"),
-   emuTag = cms.untracked.InputTag("valGctDigis"),
-   #Nominally, the following parameters should NOT be changed
-   RCTTrigBx = cms.untracked.int32(0),
-   EmuTrigBx = cms.untracked.int32(0),
-   GCTTrigBx = cms.untracked.int32(0),
-)
+# GCT Error Analyzer
+process.load('L1Trigger.L1GctAnalyzer.gctErrorAnalyzer_cfi')
+process.gctErrorAnalyzer.doEmuMBx = cms.untracked.bool(True)
+process.gctErrorAnalyzer.doGCTMBx = cms.untracked.bool(True)
+process.gctErrorAnalyzer.doExtraMissingHTDebug = cms.untracked.bool(True)
 
 process.defaultPath = cms.Sequence ( 
 # Text to Raw
@@ -86,8 +59,8 @@ process.gctRaw *
 process.l1GctHwDigis *
 # Emulator
 process.valGctDigis *
-# GCTAnalyzer
-process.analyzer
+# GCTErrorAnalyzer
+process.gctErrorAnalyzer
 )
 
 process.p = cms.Path(process.defaultPath)
