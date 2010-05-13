@@ -5,7 +5,8 @@
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/CSCChamberFitter.h"
 
-const double infinity = 10.;  // all alignments are alignments of angles in radians
+const double infinity = 0.1;  // this is huge because all alignments are angles in radians; but we need a not-too-large value for numerical stability
+                              // should become a parameter someday
 
 CSCChamberFitter::CSCChamberFitter(const edm::ParameterSet &iConfig, std::vector<CSCPairResidualsConstraint*> &residualsConstraints) {
   m_name = iConfig.getParameter<std::string>("name");
@@ -249,7 +250,7 @@ double CSCChamberFitter::hessian(int k, int l, double lambda) const {
 }
 
 bool CSCChamberFitter::fit(std::vector<CSCAlignmentCorrections*> &corrections) const {
-  double lambda = 1./10./10.;
+  double lambda = 1./infinity/infinity;
 
   AlgebraicVector A(m_alignables.size());
   AlgebraicVector V(m_alignables.size());
