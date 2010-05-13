@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/10/29 18:34:41 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/05/09 20:23:34 $
+ *  $Revision: 1.17 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -10,8 +10,7 @@
 #include <stdint.h>
 
 // Constructors
-CSCStripDigi::CSCStripDigi (const int & istrip, const std::vector<int> & vADCCounts, const std::vector<uint16_t> & vADCOverflow,
-			    const std::vector<uint16_t> & vOverlap, const std::vector<uint16_t> & vErrorstat ):
+CSCStripDigi::CSCStripDigi (const int & istrip, const std::vector<int> & vADCCounts, const std::vector<uint16_t> & vADCOverflow, const std::vector<uint16_t> & vOverlap, const std::vector<uint16_t> & vErrorstat ):
   strip(istrip),
   ADCCounts(vADCCounts),
   ADCOverflow(vADCOverflow),
@@ -40,6 +39,15 @@ CSCStripDigi::CSCStripDigi ():
 }
 
 std::vector<int> CSCStripDigi::getADCCounts() const { return ADCCounts; }
+
+
+/// Get L1A Phase
+std::vector<int> CSCStripDigi::getL1APhase() const {
+     std::vector<int> L1APhaseResult;  
+     for (int i=0; i<(int)getOverlappedSample().size(); i++) {
+          L1APhaseResult.push_back((getOverlappedSample()[i]>>8) & 0x1);}
+     return  L1APhaseResult;   	  
+}
 
 // Comparison
 bool
@@ -79,6 +87,19 @@ void
 CSCStripDigi::print() const {
   std::cout << "CSC Strip: " << getStrip() << "  ADC Counts: ";
   for (int i=0; i<(int)getADCCounts().size(); i++) {std::cout << getADCCounts()[i] << " ";}
+  std::cout << "\n";
+  std::cout << "            " << "  ADCOverflow: ";
+  for (int i=0; i<(int)getADCOverflow().size(); i++) {std::cout << getADCOverflow()[i] << " ";}
+  std::cout << "\n";
+  std::cout << "            " << "  OverflappedSample: ";
+  for (int i=0; i<(int)getOverlappedSample().size(); i++) {
+  //if(getOverlappedSample()[i]!=1)
+  std::cout << getOverlappedSample()[i] << " ";}
+  std::cout << "\n";
+  std::cout << "            " << "  L1APhases: ";
+  for(int i=0; i<(int)getL1APhase().size(); i++){
+     std::cout << getL1APhase()[i] << " ";
+  }
   std::cout << "\n";
 }
 

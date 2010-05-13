@@ -5,8 +5,8 @@
  *
  * Digi for CSC Cathode Strips.
  *
- *  $Date: 2008/10/29 18:34:40 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/05/09 20:23:33 $
+ *  $Revision: 1.21 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -38,9 +38,12 @@ public:
   // Get the strip number
   int getStrip() const { return strip;}
 
-  // Get ADC readings
+  /// Get ADC readings
   std::vector<int> getADCCounts() const ;
-
+  
+  /// Get L1APhase from OverlappedSample (9th bit)
+  std::vector<int> getL1APhase() const ; 
+  
   /// Other getters
   std::vector<uint16_t> getADCOverflow() const {return ADCOverflow;}
   std::vector<uint16_t> getOverlappedSample() const {return OverlappedSample;}
