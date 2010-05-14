@@ -83,6 +83,9 @@ def customisePPData(process):
     ##Preshower algo for data is different than for MC
     process.ecalPreshowerRecHit.ESRecoAlgo = cms.int32(1)
 
+    ## particle flow HF cleaning
+    process.particleFlowRecHitHCAL.LongShortFibre_Cut = 30.
+    
     return process
 
 
@@ -109,4 +112,16 @@ def customiseCosmicMC(process):
 def customiseExpress(process):
     process= customisePPData(process)
 
+    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    
+    return process
+
+##############################################################################
+def customisePrompt(process):
+    process= customisePPData(process)
+
+    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    
     return process
