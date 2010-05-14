@@ -83,28 +83,28 @@ namespace lumi{
     bindVariableList.extend("lsnumber",typeid(unsigned int));
     bindVariableList["runnumber"].data<unsigned int>()=runnumber;
     bindVariableList["lsnumber"].data<unsigned int>()=1;
-    unsigned int npath=0;
-    coral::IQuery* q1=srcsession->nominalSchema().tableHandle(tabname).newQuery();
-    coral::AttributeList nls;
-    nls.extend("npath",typeid(unsigned int));
-    q1->addToOutputList("count(distinct PATHNAME)","npath");
-    q1->setCondition("RUNNR =:runnumber AND LSNUMBER =:lsnumber",bindVariableList);
-    q1->defineOutput(nls);
-    coral::ICursor& c=q1->execute();
-    if( !c.next() ){
-      c.close();
-      delete q1;
-      throw lumi::Exception("request run doen't exist","retrieveData","HLT2DB");
-    }else{
-      npath=c.currentRow()["npath"].data<unsigned int>();
-      c.close();
-      delete q1;
-      if(npath==0){
-	std::cout<<"request run is empty, do nothing"<<std::endl;
-	return;
-      }
-    }
+    //coral::IQuery* q1=srcsession->nominalSchema().tableHandle(tabname).newQuery();
+    //coral::AttributeList nls;
+    //nls.extend("npath",typeid(unsigned int));
+    //q1->addToOutputList("count(distinct PATHNAME)","npath");
+    //q1->setCondition("RUNNR =:runnumber AND LSNUMBER =:lsnumber",bindVariableList);
+    //q1->defineOutput(nls);
+    //coral::ICursor& c=q1->execute();
+    //if( !c.next() ){
+    //c.close();
+    // delete q1;
+    //throw lumi::Exception("request run doen't exist","retrieveData","HLT2DB");
+    //}else{
+    //npath=c.currentRow()["npath"].data<unsigned int>();
+    // c.close();
+    //delete q1;
+    //if(npath==0){
+    //std::cout<<"request run is empty, do nothing"<<std::endl;
+    //return;
+    //}
+    //}
     //std::cout<<"npath "<<npath<<std::endl;
+    unsigned int npath=0;
     coral::IQuery* q2=srcsession->nominalSchema().newQuery();
     coral::AttributeList q2bindVariableList;
     q2bindVariableList.extend("runnumber",typeid(unsigned int));
@@ -121,31 +121,29 @@ namespace lumi{
     q2->addToOrderList("lsnumber");
     q2->setRowCacheSize(10692);
     coral::ICursor& cursor2=q2->execute();
-    unsigned int currentPath=0;
-    unsigned int lastLumiSection=0;
+    //unsigned int currentPath=0;
+    unsigned int lastLumiSection=1;
     unsigned int currentLumiSection=0;
-    unsigned int counter=0;
+    // unsigned int counter=0;
     std::vector<hltinfo> allpaths;
+    allpaths.reserve(200);
     while( cursor2.next() ){
       hltinfo pathcontent;
       const coral::AttributeList& row=cursor2.currentRow();
       currentLumiSection=row["lsnumber"].data<unsigned int>();
-      if(currentLumiSection != lastLumiSection){
-	++counter;
-	hltresult.push_back(allpaths);
-	allpaths.clear();
-	currentPath=0;
-      }
-      
       pathcontent.cmsluminr=currentLumiSection;
       pathcontent.hltinput=row["hltinput"].data<unsigned int>();
       pathcontent.hltaccept=row["hltratecounter"].data<unsigned int>();
       pathcontent.pathname=row["pathname"].data<std::string>();
       pathcontent.prescale=row["prescale"].data<unsigned int>();
       pathcontent.hltconfigid=row["hltconfigid"].data<unsigned int>();
-      allpaths.push_back(pathcontent);
+      if(currentLumiSection != lastLumiSection){
+	hltresult.push_back(allpaths);
+	npath=allpaths.size();
+	allpaths.clear();
+      }
       lastLumiSection=currentLumiSection;
-      ++currentPath;
+      allpaths.push_back(pathcontent);
     }
     cursor2.close();
     delete q2;
@@ -169,9 +167,11 @@ namespace lumi{
     std::vector< std::vector<HLT2DB::hltinfo> >::const_iterator hltEnd=hltresult.end();
     
     try{
-      std::cout<<"\t allocating ids..."<<std::endl; 
+      std::cout<<"\t allocating total ids "<<totalcmsls*npath<<std::endl; 
       destsession->transaction().start(false);
       lumi::idDealer idg(destsession->nominalSchema());
+      unsigned long long hltID = idg.generateNextIDForTable(LumiNames::hltTableName(),totalcmsls*npath)-totalcmsls*npath;
+      destsession->transaction().commit();
       unsigned int hltlscount=0;
       for(hltIt=hltBeg;hltIt!=hltEnd;++hltIt,++hltlscount){
 	std::vector<unsigned long long> pathvec;
@@ -179,13 +179,11 @@ namespace lumi{
 	std::vector<HLT2DB::hltinfo>::const_iterator pathIt;
 	std::vector<HLT2DB::hltinfo>::const_iterator pathBeg=hltIt->begin();
 	std::vector<HLT2DB::hltinfo>::const_iterator pathEnd=hltIt->end();
-	for(pathIt=pathBeg;pathIt!=pathEnd;++pathIt){
-	  unsigned long long hltID = idg.generateNextIDForTable(LumiNames::hltTableName());
+	for(pathIt=pathBeg;pathIt!=pathEnd;++pathIt,++hltID){
 	  pathvec.push_back(hltID);
 	}
 	idallocationtable.insert(std::make_pair(hltlscount,pathvec));
       }
-      destsession->transaction().commit();
       std::cout<<"\t all ids allocated"<<std::endl; 
 
       coral::AttributeList hltData;

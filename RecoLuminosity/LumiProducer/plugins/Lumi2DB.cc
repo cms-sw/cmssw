@@ -186,7 +186,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     hlxtree->GetEntry(i);
     //std::cout<<"live flag "<<lumiheader->bCMSLive <<std::endl;
     if( !lumiheader->bCMSLive && i!=0){
-      std::cout<<"\t non-CMS LS "<<lumiheader->sectionNumber<<std::endl;
+      std::cout<<"\t non-CMS LS "<<lumiheader->sectionNumber<<" ";
       h.cmsalive=0;
     }
     ++ncmslumi;
@@ -243,6 +243,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     }
     lumiresult.push_back(h);
   }
+  std::cout<<std::endl;
   coral::ConnectionService* svc=new coral::ConnectionService;
   lumi::DBConfig dbconf(*svc);
   if(!m_authpath.empty()){
@@ -314,14 +315,13 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     //one loop for ids
     //nested transaction doesn't work with bulk inserter
     std::map< unsigned long long,std::vector<unsigned long long> > idallocationtable;
-    std::cout<<"\t allocating ids..."<<std::endl; 
+    std::cout<<"\t allocating total lumisummary ids "<<totallumils<<std::endl; 
+    std::cout<<"\t allocating total lumidetail ids "<<totallumils*lumi::N_LUMIALGO<<std::endl; 
     session->transaction().start(false);
     unsigned int lumiindx=0;
     lumi::idDealer idg(session->nominalSchema());
-    unsigned long long lumisummaryID = idg.generateNextIDForTable(LumiNames::lumisummaryTableName(),totallumils)-(totallumils);
-    std::cout<<"lumisummaryID beg "<<lumisummaryID<<std::endl;
-    unsigned long long lumidetailID=idg.generateNextIDForTable(LumiNames::lumidetailTableName(),totallumils*lumi::N_LUMIALGO)-(totallumils*lumi::N_LUMIALGO);
-    std::cout<<"lumidetailID beg "<<lumidetailID<<std::endl;
+    unsigned long long lumisummaryID = idg.generateNextIDForTable(LumiNames::lumisummaryTableName(),totallumils)-totallumils;
+    unsigned long long lumidetailID=idg.generateNextIDForTable(LumiNames::lumidetailTableName(),totallumils*lumi::N_LUMIALGO)-totallumils*lumi::N_LUMIALGO;
     session->transaction().commit();
     for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt,++lumiindx,++lumisummaryID){
       std::vector< unsigned long long > allIDs;

@@ -474,32 +474,31 @@ namespace lumi{
     std::cout<<"inserting totalcmsls "<<totalcmsls<<std::endl;
     std::map< unsigned long long, std::vector<unsigned long long> > idallocationtable;
     try{
-      std::cout<<"\t allocating ids..."<<std::endl; 
+      std::cout<<"\t allocating total ids "<<totalcmsls*lumi::N_TRGBIT<<std::endl; 
       lumisession->transaction().start(false);
       lumi::idDealer idg(lumisession->nominalSchema());
+      unsigned long long trgID = idg.generateNextIDForTable(LumiNames::trgTableName(),totalcmsls*lumi::N_TRGBIT)-totalcmsls*lumi::N_TRGBIT;
+      lumisession->transaction().commit();
       unsigned int trglscount=0;
       for(deadIt=deadBeg;deadIt!=deadEnd;++deadIt,++trglscount){
 	std::vector<unsigned long long> bitvec;
-	bitvec.reserve(lumi::N_TRGALGOBIT+lumi::N_TRGTECHBIT);
+	bitvec.reserve(lumi::N_TRGBIT);
 	BITCOUNT& algoinbits=algocount[trglscount];
 	BITCOUNT& techinbits=techcount[trglscount];
 	BITCOUNT::const_iterator algoBitIt;
 	BITCOUNT::const_iterator algoBitBeg=algoinbits.begin();
 	BITCOUNT::const_iterator algoBitEnd=algoinbits.end();	
-	for(algoBitIt=algoBitBeg;algoBitIt!=algoBitEnd;++algoBitIt){
-	  unsigned long long trgID = idg.generateNextIDForTable(LumiNames::trgTableName());
+	for(algoBitIt=algoBitBeg;algoBitIt!=algoBitEnd;++algoBitIt,++trgID){
 	  bitvec.push_back(trgID);
 	}
 	BITCOUNT::const_iterator techBitIt;
 	BITCOUNT::const_iterator techBitBeg=techinbits.begin();
 	BITCOUNT::const_iterator techBitEnd=techinbits.end();
-	for(techBitIt=techBitBeg;techBitIt!=techBitEnd;++techBitIt){
-	  unsigned long long trgID = idg.generateNextIDForTable(LumiNames::trgTableName());
+	for(techBitIt=techBitBeg;techBitIt!=techBitEnd;++techBitIt,++trgID){
 	  bitvec.push_back(trgID);
 	}
 	idallocationtable.insert(std::make_pair(trglscount,bitvec));
       }
-      lumisession->transaction().commit();
       std::cout<<"\t all ids allocated"<<std::endl; 
       coral::AttributeList trgData;
       trgData.extend<unsigned long long>("TRG_ID");
