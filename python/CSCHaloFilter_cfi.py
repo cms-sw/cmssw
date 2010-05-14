@@ -5,7 +5,7 @@ from TrackingTools.TrackAssociator.default_cfi import *
 
 CSCBasedHaloFilter = cms.EDFilter("CSCHaloFilter",
 
-                                  ### Do you want to use L1 CSC BeamHalo Trigger to identify halo? 
+                                  ### Do you want to use L1 CSC BeamHalo Trigger to identify halo? (For < 36X, this requires the RAW-DIGI )
                                   FilterTriggerLevel = cms.bool(True),
                                   ### Do you want to use early ALCT Digis to identify halo? (requires DIGI data tier)
                                   FilterDigiLevel = cms.bool(True),
@@ -47,6 +47,8 @@ CSCBasedHaloFilter = cms.EDFilter("CSCHaloFilter",
                                   MinOuterMomentumTheta = cms.double(.10),
                                   ### higher edge of theta exclusion window of CSC cosmic track
                                   MaxOuterMomentumTheta = cms.double(3.0),
+                                  ### maximum dr/dz calculated from innermost and outermost rechit of CSC cosmic track
+                                  MaxDROverDz = cms.double(0.13),
                                   
                                   ### Phi window for matching collision muon rechits to L1 Halo Triggers
                                   MatchingDPhiThreshold = cms.double(0.18),
@@ -71,3 +73,19 @@ CSCBasedHaloFilter = cms.EDFilter("CSCHaloFilter",
                              
 
 
+CSCHaloFilterTriggerLevel = CSCBasedHaloFilter.clone()
+CSCHaloFilterTriggerLevel.FilterRecoLevel = False
+CSCHaloFilterTriggerLevel.FilterDigiLevel = False
+
+CSCHaloFilterRecoLevel = CSCBasedHaloFilter.clone()
+CSCHaloFilterRecoLevel.FilterTriggerLevel = False
+CSCHaloFilterRecoLevel.FilterDigiLevel = False
+
+CSCHaloFilterDigiLevel = CSCBasedHaloFilter.clone()
+CSCHaloFilterDigiLevel.FilterTriggerLevel = False
+CSCHaloFilterDigiLevel.FilterRecoLevel = False
+
+CSCHaloFilterRecoAndTriggerLevel = CSCBasedHaloFilter.clone()
+CSCHaloFilterRecoAndTriggerLevel.FilterDigiLevel = False
+CSCHaloFilterDigiAndTriggerLevel = CSCBasedHaloFilter.clone()
+CSCHaloFilterDigiAndTriggerLevel.FilterRecoLevel = False
