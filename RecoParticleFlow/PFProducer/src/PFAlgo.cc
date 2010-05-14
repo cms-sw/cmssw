@@ -8,6 +8,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h" 
 #include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
@@ -3103,6 +3104,112 @@ PFAlgo::postCleaning() {
 	(*pfCandidates_)[pfCandidatesToBeRemoved[j]].rescaleMomentum(0.);
 	//reco::PFCandidate::ParticleType unknown = reco::PFCandidate::X;
 	//(*pfCandidates_)[pfCandidatesToBeRemoved[j]].setParticleType(unknown);
+      }
+    }
+  }
+
+}
+
+void 
+PFAlgo::checkCleaning( const reco::PFRecHitCollection& cleanedHits ) { 
+  
+
+  // No hits to recover, leave.
+  if ( !cleanedHits.size() ) return;
+
+  //Compute met and met significance (met/sqrt(SumEt))
+  double metX = 0.;
+  double metY = 0.;
+  double sumet = 0;
+  std::vector<unsigned int> hitsToBeAdded;
+  for(unsigned i=0; i<pfCandidates_->size(); i++) {
+    const PFCandidate& pfc = (*pfCandidates_)[i];
+    metX += pfc.px();
+    metY += pfc.py();
+    sumet += pfc.pt();
+  }
+  double met2 = metX*metX+metY*metY;
+  double met2_Original = met2;
+  // Select events with large MET significance.
+  // double significance = std::sqrt(met2/sumet);
+  // double significanceCor = significance;
+  double metXCor = metX;
+  double metYCor = metY;
+  double sumetCor = sumet;
+  double met2Cor = met2;
+  bool next = true;
+  unsigned iCor = 1E9;
+  
+  // Find the cleaned hit with the largest effect on the MET
+  while ( next ) { 
+    
+    double metReduc = -1.;
+    double setReduc = -1.;
+    // Loop on the candidates
+    for(unsigned i=0; i<cleanedHits.size(); ++i) {
+      const PFRecHit& hit = cleanedHits[i];
+      double length = std::sqrt(hit.position().Mag2()); 
+      double px = hit.energy() * hit.position().x()/length;
+      double py = hit.energy() * hit.position().y()/length;
+      double pt = std::sqrt(px*px + py*py);
+      
+      // Check that it is  not already scheculed to be cleaned
+      bool skip = false;
+      for(unsigned j=0; j<hitsToBeAdded.size(); ++j) {
+	if ( i == hitsToBeAdded[j] ) skip = true;
+	if ( skip ) break;
+      }
+      if ( skip ) continue;
+      
+      // Now add the candidate to the MET
+      double metXInt = metX + px;
+      double metYInt = metY + py;
+      double sumetInt = sumet + pt;
+      double met2Int = metXInt*metXInt+metYInt*metYInt;
+
+      // And check if it could contribute to a MET reduction
+      if ( met2Int < met2Cor ) {
+	metXCor = metXInt;
+	metYCor = metYInt;
+	metReduc = (met2-met2Int)/met2Int; 
+	setReduc = (std::sqrt(met2Int)-std::sqrt(met2))/(sumetInt-sumet); 
+	met2Cor = met2Int;
+	sumetCor = sumetInt;
+	// significanceCor = std::sqrt(met2Cor/sumetCor);
+	iCor = i;
+      }
+    }
+    //
+    // If the MET must be significanly reduced, schedule the candidate to be added
+    //
+    if ( metReduc > minDeltaMet_ ) { 
+      hitsToBeAdded.push_back(iCor);
+      metX = metXCor;
+      metY = metYCor;
+      sumet = sumetCor;
+      met2 = met2Cor;
+    } else { 
+      // Otherwise just stop the loop
+      next = false;
+    }
+  }
+  //
+  // At least 10 GeV MET reduction
+  if ( std::sqrt(met2_Original) - std::sqrt(met2) > 5. ) { 
+    if ( debug_ ) { 
+      std::cout << hitsToBeAdded.size() << " hits were re-added " << std::endl;
+      std::cout << "MET reduction = " << std::sqrt(met2_Original) << " -> " 
+		<< std::sqrt(met2Cor) << " = " <<  std::sqrt(met2Cor) - std::sqrt(met2_Original)  
+		<< std::endl;
+      std::cout << "Added after cleaning check : " << std::endl; 
+    }
+    for(unsigned j=0; j<hitsToBeAdded.size(); ++j) {
+      const PFRecHit& hit = cleanedHits[hitsToBeAdded[j]];
+      PFCluster cluster(hit.layer(), hit.energy(),
+			hit.position().x(), hit.position().y(), hit.position().z() );
+      reconstructCluster(cluster,hit.energy());
+      if ( debug_ ) { 
+	std::cout << pfCandidates_->back() << ". time = " << hit.time() << std::endl;
       }
     }
   }

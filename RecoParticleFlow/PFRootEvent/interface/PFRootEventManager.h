@@ -434,11 +434,14 @@ class PFRootEventManager {
   /// HCAL rechits branch  
   TBranch*   rechitsHCALBranch_;          
   
-  /// HCAL rechits branch  
+  /// HFEM rechits branch  
   TBranch*   rechitsHFEMBranch_;          
   
-  /// HCAL rechits branch  
+  /// HFHAD rechits branch  
   TBranch*   rechitsHFHADBranch_;          
+  
+  /// HF Cleaned rechits branch  
+  TBranch*   rechitsCLEANEDBranch_;          
   
   /// PS rechits branch  
   TBranch*   rechitsPSBranch_;          
@@ -535,11 +538,14 @@ class PFRootEventManager {
   /// rechits HCAL
   reco::PFRecHitCollection rechitsHCAL_;
 
-  /// rechits HCAL
+  /// rechits HF EM
   reco::PFRecHitCollection rechitsHFEM_;
 
-  /// rechits HCAL
+  /// rechits HF HAD
   reco::PFRecHitCollection rechitsHFHAD_;
+
+  /// rechits HF CLEANED
+  reco::PFRecHitCollection rechitsCLEANED_;
 
   /// rechits PS 
   reco::PFRecHitCollection rechitsPS_;

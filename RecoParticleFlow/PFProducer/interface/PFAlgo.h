@@ -18,6 +18,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -119,6 +120,8 @@ class PFAlgo {
   /// reconstruct particles 
   virtual void reconstructParticles( const reco::PFBlockCollection& blocks );
   
+  /// Check HF Cleaning
+  void checkCleaning( const reco::PFRecHitCollection& cleanedHF );
 
   /// \return collection of candidates
   const std::auto_ptr< reco::PFCandidateCollection >& pfCandidates() const {
@@ -211,6 +214,8 @@ class PFAlgo {
 
   // Post HF Cleaning
   void postCleaning();
+
+
 
 
  private:

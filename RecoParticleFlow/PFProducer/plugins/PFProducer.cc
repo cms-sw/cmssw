@@ -7,6 +7,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include <sstream>
 
 using namespace std;
@@ -321,7 +322,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 				       maxDeltaPhiPt,
 				       minDeltaMet);
 
-  
+  // Input tags for HF cleaned rechits
+  inputTagCleanedHF_ 
+    = iConfig.getParameter<InputTag>("cleanedHF");
+
   //MIKE: Vertex Parameters
   vertices_ = iConfig.getParameter<edm::InputTag>("vertexCollection");
   useVerticesForNeutral_ = iConfig.getParameter<bool>("useVerticesForNeutral");
@@ -419,6 +423,11 @@ PFProducer::produce(Event& iEvent,
     //    cout << (*pfAlgo_) << endl;
     LogInfo("PFProducer") <<str.str()<<endl;
   }  
+
+  Handle< reco::PFRecHitCollection > hfCleaned;
+  bool foundHF = iEvent.getByLabel( inputTagCleanedHF_, hfCleaned );  
+
+  if ( foundHF ) pfAlgo_->checkCleaning( *hfCleaned );
 
   auto_ptr< reco::PFCandidateCollection > 
     pOutputCandidateCollection( pfAlgo_->transferCandidates() ); 

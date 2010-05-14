@@ -1406,6 +1406,15 @@ void PFRootEventManager::connect( const char* infilename ) {
         <<rechitsHFHADbranchname<<endl;
   }
 
+  string rechitsCLEANEDbranchname;
+  options_->GetOpt("root","rechits_CLEANED_branch", rechitsCLEANEDbranchname);
+  
+  rechitsCLEANEDBranch_ = tree_->GetBranch(rechitsCLEANEDbranchname.c_str());
+  if(!rechitsCLEANEDBranch_) {
+    cerr<<"PFRootEventManager::ReadOptions : rechits_CLEANED_branch not found : "
+        <<rechitsCLEANEDbranchname<<endl;
+  }
+
   string rechitsPSbranchname;
   options_->GetOpt("root","rechits_PS_branch", rechitsPSbranchname);
   
@@ -1752,6 +1761,7 @@ void PFRootEventManager::setAddresses() {
   if( rechitsHCALBranch_ ) rechitsHCALBranch_->SetAddress(&rechitsHCAL_);
   if( rechitsHFEMBranch_ ) rechitsHFEMBranch_->SetAddress(&rechitsHFEM_);
   if( rechitsHFHADBranch_ ) rechitsHFHADBranch_->SetAddress(&rechitsHFHAD_);
+  if( rechitsCLEANEDBranch_ ) rechitsCLEANEDBranch_->SetAddress(&rechitsCLEANED_);
   if( rechitsPSBranch_ ) rechitsPSBranch_->SetAddress(&rechitsPS_);
   if( clustersECALBranch_ ) clustersECALBranch_->SetAddress( clustersECAL_.get() );
   if( clustersHCALBranch_ ) clustersHCALBranch_->SetAddress( clustersHCAL_.get() );
@@ -1900,6 +1910,7 @@ bool PFRootEventManager::processEntry(int entry) {
     cout<<"number of HCAL rechits         : "<<rechitsHCAL_.size()<<endl;
     cout<<"number of HFEM rechits         : "<<rechitsHFEM_.size()<<endl;
     cout<<"number of HFHAD rechits        : "<<rechitsHFHAD_.size()<<endl;
+    cout<<"number of HF Cleaned rechits   : "<<rechitsCLEANED_.size()<<endl;
     cout<<"number of PS rechits           : "<<rechitsPS_.size()<<endl;
   }  
 
@@ -2113,6 +2124,9 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(rechitsHFHADBranch_) {
     rechitsHFHADBranch_->GetEntry(entry);
   }
+  if(rechitsCLEANEDBranch_) {
+    rechitsCLEANEDBranch_->GetEntry(entry);
+  }
   if(rechitsPSBranch_) {
     rechitsPSBranch_->GetEntry(entry);  
   }
@@ -2226,6 +2240,9 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   }
   if(rechitsHFHADBranch_) {
     PreprocessRecHits( rechitsHFHAD_ , findRecHitNeighbours_);
+  }
+  if(rechitsCLEANEDBranch_) {
+    PreprocessRecHits( rechitsCLEANED_ , false);
   }
   if(rechitsPSBranch_) {
     PreprocessRecHits( rechitsPS_ , findRecHitNeighbours_);
@@ -2797,6 +2814,9 @@ void PFRootEventManager::particleFlow() {
 
   pfAlgo_.reconstructParticles( *pfBlocks_.get() );
   //   pfAlgoOther_.reconstructParticles( blockh );
+
+  pfAlgo_.checkCleaning( rechitsCLEANED_ );
+
   if( debug_) cout<< pfAlgo_<<endl;
   pfCandidates_ = pfAlgo_.transferCandidates();
   //   pfCandidatesOther_ = pfAlgoOther_.transferCandidates();
