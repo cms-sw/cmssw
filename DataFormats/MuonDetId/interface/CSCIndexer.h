@@ -8,14 +8,17 @@
  * 1. Each chamber of the CSC system: range 1-468 (CSC system as installed 2008) 469-540 for ME42 <br>
  * 2. Each layer of the CSC system: range 1-2808 (CSCs 2008) 2809-3240 for ME42 <br>
  * 3. Each strip channel of the CSC system: range 1-217728 (CSCs 2008) 217729-252288 for ME42 <br>
+ * 4. Each Buckeye chip (1 for each layer in each CFEB)of the CSC system: range 1-13608 (CSCs 2008) 13609-15768 for ME42 <br>
  *
  * The chamber and layer may be specified by CSCDetId or labels for endcap, station, ring, chamber, layer.
  * The strip channel is a value 1-80 (or 64: ME13 chambers have only 64 channels.)
+ * The chip number is a value 1-30 (or 24: ME13 chambers have only 24 chips.)
  *
  * The main user interface is the set of functions <br>
  *   chamberIndex(.) <br>
  *   layerIndex(.) <br>
  *   stripChannelIndex(.) <br>
+ *   chipIndex(.) <br>
  * But the other functions are public since they may be useful in contexts other than for
  * Conditions Data for which the above functions are intended.
  *
@@ -186,6 +189,83 @@ public:
       return stripChannelIndex(id.endcap(), id.station(), id.ring(), id.chamber(), id.layer(), istrip );
    }
 
+  /** 
+   * Number of Buckeye chips per layer in a chamber in ring ir of station is.
+   *
+   * Station label range 1-4, Ring label range 1-3.
+   *
+   * WARNING: ME1a channels are the last 1 of the 5 total in each layer of an ME11 chamber, 
+   * and an input ir=4 is invalid and will give nonsense. <br>
+   * Considers ME42 as standard 5 chip per layer chambers.
+   */
+   IndexType chipsPerLayer( IndexType is, IndexType ir ) const {
+     const IndexType nCinL[12] = { 5,5,4, 5,5,0, 5,5,0, 5,5,0 };
+     return nCinL[(is-1)*3 + ir - 1];
+   }
+
+  /**
+   * Linear index for 1st Buckey chip in ring 'ir' of station 'is' in endcap 'ie'.
+   *
+   * Endcap label range 1-2, Station label range 1-4, Ring label range 1-3.
+   *
+   * WARNING: ME1a channels are the last 1 of the 5 chips total in each layer of an ME11 chamber, 
+   * and an input ir=4 is invalid and will give nonsense.
+   */
+   IndexType chipStart( IndexType ie, IndexType is, IndexType ir ) const {
+
+     // These are in the ranges 1-13608 (CSCs 2008) and 13609-15768 (ME42).
+     // There are 1-6804 chips per endcap (CSCs 2008) and 1080 channels per endcap (ME42).
+     // Start of -z channels (CSCs 2008) is 6804 + 1 = 6805
+     // Start of +z (ME42) is 13608 + 1 = 13609
+     // Start of -z (ME42) is 13608 + 1 + 1080 = 14689
+     const IndexType nStart[24] = {1, 1081, 2161, 3025, 3565, 0, 4645, 5185, 0, 6265, 13609,0,
+				    6805, 7885, 8965, 9829, 10369,0, 11449, 11989, 0, 13069, 14689 ,0 };
+                                   
+     return  nStart[(ie-1)*12 + (is-1)*3 + ir - 1];
+   }
+
+  /**
+   * Linear index for Buckeye chip 'ichip' in layer 'il' of chamber 'ic' of ring 'ir'
+   * in station 'is' of endcap 'ie'.
+   *
+   * Output is 1-13608 (CSCs 2008) or 13609-15768 (ME42).
+   *
+   * WARNING: Use at your own risk! You must input labels within hardware ranges.
+   * No trapping on out-of-range values!
+   */
+   IndexType chipIndex( IndexType ie, IndexType is, IndexType ir, IndexType ic, IndexType il, IndexType ichip ) const {
+     //printf("ME%d/%d/%d/%d layer %d  chip %d chipindex %d\n",ie,is,ir,ic,il,ichip,chipStart(ie,is,ir)+( (ic-1)*6 + il - 1 )*chipsPerLayer(is,ir) + (ichip-1));
+     return chipStart(ie,is,ir)+( (ic-1)*6 + il - 1 )*chipsPerLayer(is,ir) + (ichip-1);
+
+  }
+
+  /**
+   * Linear index for Buckeye chip 'ichip' in layer labelled by CSCDetId 'id'.
+   *
+   * Output is 1-13608 (CSCs 2008) or 13609-15768 (ME42).
+   *
+   * WARNING: Use at your own risk! The supplied CSCDetId must be a layer id.
+   * No trapping on out-of-range values!
+   */
+
+   IndexType chipIndex( const CSCDetId& id, IndexType ichip ) const {
+      return chipIndex(id.endcap(), id.station(), id.ring(), id.chamber(), id.layer(), ichip );
+   }
+
+  /**
+   * Linear index for Buckeye chip processing strip 'istrip'.
+   *
+   * Output is 1-5.
+   *
+   * WARNING: Use at your own risk! The supplied CSCDetId must be a strip id 1-80
+   * ME1/1a strips must be 65-80
+   * No trapping on out-of-range values!
+   */
+
+   IndexType chipIndex( IndexType istrip ) const {
+     return (istrip-1)/16+1;
+   }
+
   /**
    *  Decode CSCDetId from various indexes and labels
    */
@@ -194,6 +274,7 @@ public:
   CSCDetId detIdFromChamberIndex_OLD( IndexType ici ) const;
   CSCDetId detIdFromChamberLabel( IndexType ie, IndexType icl ) const;
   std::pair<CSCDetId, IndexType> detIdFromStripChannelIndex( LongIndexType ichi ) const;
+  std::pair<CSCDetId, IndexType> detIdFromChipIndex( IndexType ichi ) const;
 
   IndexType chamberLabelFromChamberIndex( IndexType ) const; // just for cross-checks
 

@@ -181,6 +181,62 @@ std::pair<CSCDetId, CSCIndexer::IndexType>  CSCIndexer::detIdFromStripChannelInd
    return std::pair<CSCDetId, IndexType>(detIdFromLayerIndex(ili), ichan);
 }
 
+
+std::pair<CSCDetId, CSCIndexer::IndexType>  CSCIndexer::detIdFromChipIndex( IndexType ici ) const {
+
+  const LongIndexType lastnonme42 = 13608; // chips in 2008 installed chambers
+  const LongIndexType lastplusznonme42 = 6804; // = 13608/2
+  const LongIndexType firstme13  = 2161; // First channel of ME13
+  const LongIndexType lastme13   = 3024; // Last channel of ME13
+
+  const IndexType lastnonme42layer = 2808;
+  const IndexType lastplusznonme42layer = 1404; // = 2808/2
+  const IndexType firstme13layer  = 433; // = 72*6 + 1 (ME13 chambers are 72-108 in range 1-234)
+  const IndexType lastme13layer   = 648; // = 108*6
+
+  // All chambers but ME13 have 5 chips/layer
+  IndexType nchipPerLayer = 5;
+
+  // Set endcap to +z. This should work for ME42 channels too, since we don't need to calculate its endcap explicitly.
+  IndexType ie = 1;
+
+  LongIndexType istart = 0;
+  IndexType layerOffset = 0;
+
+  if ( ici <= lastnonme42 ) {	
+    // Chambers as of 2008 Installation
+
+    if ( ici > lastplusznonme42 ) {
+      ie = 2;
+      ici -= lastplusznonme42;
+    }
+	
+    if ( ici > lastme13 ) { // after ME13
+      istart = lastme13;
+      layerOffset = lastme13layer;
+    }
+    else if ( ici >= firstme13 ) { // ME13
+      istart = firstme13 - 1;
+      layerOffset = firstme13layer - 1;
+      nchipPerLayer = 4;
+    }
+  }
+  else {
+     // ME42 chambers
+
+    istart = lastnonme42;
+    layerOffset = lastnonme42layer;
+  }
+
+   ici -= istart; // remove earlier group(s)
+   IndexType ichip = (ici-1)%nchipPerLayer + 1;
+   IndexType ili = (ici-1)/nchipPerLayer + 1;
+   ili += layerOffset; // add appropriate offset for earlier group(s)
+   if ( ie != 1 ) ili+= lastplusznonme42layer; // add offset to -z endcap; ME42 doesn't need this.
+	
+   return std::pair<CSCDetId, IndexType>(detIdFromLayerIndex(ili), ichip);
+}
+
 int CSCIndexer::dbIndex(const CSCDetId & id, int & channel)
 {
   int ec = id.endcap();
