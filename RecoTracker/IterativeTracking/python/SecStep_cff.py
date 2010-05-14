@@ -56,6 +56,9 @@ secTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeed
 secTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 17.5
 secTriplets.OrderedHitsFactoryPSet.SeedingLayers = 'SecLayerTriplets'
 secTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.075
+secTriplets.ClusterCheckPSet.PixelClusterCollectionLabel = 'secClusters'
+secTriplets.ClusterCheckPSet.ClusterCollectionLabel = 'secClusters'
+      
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 secTriplets.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'

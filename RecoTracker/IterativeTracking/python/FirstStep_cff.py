@@ -98,7 +98,9 @@ newSeedFromPairs = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_
 newSeedFromPairs.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 newSeedFromPairs.RegionFactoryPSet.RegionPSet.originRadius = 0.05
 newSeedFromPairs.OrderedHitsFactoryPSet.SeedingLayers = cms.string('newMixedLayerPairs')
-
+newSeedFromPairs.ClusterCheckPSet.PixelClusterCollectionLabel = 'newClusters'
+newSeedFromPairs.ClusterCheckPSet.ClusterCollectionLabel = 'newClusters'
+   
 
 
 # building 

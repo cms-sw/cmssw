@@ -74,6 +74,9 @@ fifthSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'fifthlayerPairs'
 fifthSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 fifthSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
 fifthSeeds.RegionFactoryPSet.RegionPSet.originRadius = 6.0
+fifthSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'fifthClusters'
+fifthSeeds.ClusterCheckPSet.ClusterCollectionLabel = 'fifthClusters'
+   
 
 # TRACKER DATA CONTROL
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi

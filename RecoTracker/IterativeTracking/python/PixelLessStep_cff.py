@@ -79,7 +79,9 @@ fourthPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'FourthLayerPairs'
 fourthPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.5
 fourthPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 12.0
 fourthPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.0
-
+fourthPLSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'fourthClusters'
+fourthPLSeeds.ClusterCheckPSet.ClusterCollectionLabel = 'fourthClusters'
+     
 # TRACKER DATA CONTROL
 fourthMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
     ComponentName = 'fourthMeasurementTracker',

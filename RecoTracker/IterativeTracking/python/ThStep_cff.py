@@ -105,7 +105,9 @@ thTripletsA.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyC
 thTripletsA.RegionFactoryPSet.RegionPSet.ptMin = 0.25
 thTripletsA.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 thTripletsA.RegionFactoryPSet.RegionPSet.originRadius = 2.0
-
+thTripletsA.ClusterCheckPSet.PixelClusterCollectionLabel = 'thClusters'
+thTripletsA.ClusterCheckPSet.ClusterCollectionLabel = 'thClusters'
+      
 
 thlayertripletsb = cms.ESProducer("SeedingLayersESProducer",
     ComponentName = cms.string('ThLayerTripletsB'),
@@ -137,7 +139,8 @@ thTripletsB.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyC
 thTripletsB.RegionFactoryPSet.RegionPSet.ptMin = 0.35
 thTripletsB.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 thTripletsB.RegionFactoryPSet.RegionPSet.originRadius = 2.0
-
+thTripletsB.ClusterCheckPSet.PixelClusterCollectionLabel = 'thClusters'
+thTripletsB.ClusterCheckPSet.ClusterCollectionLabel = 'thClusters'
 
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 thTriplets = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
