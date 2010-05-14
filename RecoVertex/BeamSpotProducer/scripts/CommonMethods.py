@@ -209,18 +209,18 @@ def delta(x,xerr,nextx,nextxerr):
     return math.fabs( float(x) - float(nextx) )/math.sqrt(math.pow(float(xerr),2) + math.pow(float(nextxerr),2))
 
 ###########################################################################################
-def readBeamSpotFile(fileName,listbeam=[],IOVbase="lumibase"):
+def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRun='4999999999'):
     tmpbeam = BeamSpot()
     tmpbeamsize = 0
-
-    firstRun = "1"
-    lastRun  = "4999999999"
-    if IOVbase == "lumibase":
-	firstRun = "1:1"
-	lastRun = "4999999999:4999999999"
+    
+    #firstRun = "1"
+    #lastRun  = "4999999999"
+    #if IOVbase == "lumibase":
+#	firstRun = "1:1"
+#	lastRun = "4999999999:4999999999"
 
     inputfiletype = 0
-
+    
     tmpfile = open(fileName)
     if tmpfile.readline().find('Runnumber') != -1:
 	inputfiletype = 1
@@ -229,7 +229,7 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="lumibase"):
     if inputfiletype ==1:
 	
 	for line in tmpfile:
-
+            
 	    if line.find('Type') != -1:
 		tmpbeam.Type = int(line.split()[1])
 		tmpbeamsize += 1
@@ -289,10 +289,10 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="lumibase"):
 		tmpbeam.beamWidthXerr = str(math.sqrt( float( line.split()[7] ) ) )
                 tmpbeam.beamWidthYerr = tmpbeam.beamWidthXerr
 		tmpbeamsize += 1
-	    if line.find('LumiRange')  != -1 and IOVbase=="lumibase":
-	    #tmpbeam.IOVfirst = line.split()[6].strip(',')
-		tmpbeam.IOVfirst = line.split()[1]
-		tmpbeam.IOVlast = line.split()[3]
+	    if line.find('LumiRange')  != -1:
+                if IOVbase=="lumibase":
+                    tmpbeam.IOVfirst = line.split()[1]
+                    tmpbeam.IOVlast = line.split()[3]
 		tmpbeamsize += 1
             if line.find('Runnumber') != -1:
 		tmpbeam.Run = line.split()[1]
@@ -311,6 +311,7 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="lumibase"):
 		    tmpbeam.IOVlast = time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
 		tmpbeamsize += 1
 	    if tmpbeamsize == 20:
+                
 		if IOVbase=="lumibase":
 		    tmprunfirst = int(firstRun.split(":")[0])
 		    tmprunlast  = int(lastRun.split(":")[0])
@@ -340,7 +341,7 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="lumibase"):
 			print "invalid fit, skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)
 		    else:
 			listbeam.append(tmpbeam)
-	
+                        
 		tmpbeamsize = 0
 		tmpbeam = BeamSpot()
     else:

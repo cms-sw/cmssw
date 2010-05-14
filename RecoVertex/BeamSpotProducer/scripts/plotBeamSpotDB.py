@@ -278,7 +278,7 @@ if __name__ == '__main__':
             exit()
 
     listbeam = []
-    readBeamSpotFile(datafilename,listbeam,IOVbase)
+    readBeamSpotFile(datafilename,listbeam,IOVbase,firstRun,lastRun)
 
     sortAndCleanBeamList(listbeam,IOVbase)
 	    
