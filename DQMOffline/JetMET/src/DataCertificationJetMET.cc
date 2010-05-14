@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.38 2010/03/10 08:00:10 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.39 2010/05/13 23:58:28 sturdy Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -1123,7 +1123,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     //Mean test results
     QReport_MExy[mtyp][0][0] = meMExy[mtyp][0]->getQReport("meanMExyTest"); //get QReport associated to MEx  
     QReport_MExy[mtyp][0][1] = meMExy[mtyp][1]->getQReport("meanMExyTest"); //get QReport associated to MEy  
-    QReport_MEt[mtyp][0]     = meMEt[mtyp]->getQReport("meanMETTTest"); //get QReport associated to MET
+    QReport_MEt[mtyp][0]     = meMEt[mtyp]->getQReport("meanMETTest"); //get QReport associated to MET
     QReport_SumEt[mtyp][0]   = meSumEt[mtyp]->getQReport("meanSumETTest"); //get QReport associated to SumET
     //phiQTest results
     QReport_METPhi[mtyp][0]  = meMETPhi[mtyp]->getQReport("phiQTest"); //get QReport associated to METPhi  
