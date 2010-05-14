@@ -83,7 +83,7 @@ def ls(dir):
     return listOfFiles            
 
 ########################################################################
-def cp(fromDir,toDir,listOfFiles,overwrite=False):
+def cp(fromDir,toDir,listOfFiles,overwrite=False,smallList=False):
     cpCommand   = ''
     copiedFiles = []
     if fromDir.find('castor') != -1:
@@ -95,7 +95,8 @@ def cp(fromDir,toDir,listOfFiles,overwrite=False):
                 print "File " + file + " already exists in destination directory. We will overwrite it."
             else:
                 print "File " + file + " already exists in destination directory. We will Keep original file."
-                copiedFiles.append(file)
+                if not smallList:
+                    copiedFiles.append(file)
                 continue
     	# copy to local disk
     	aCommand = cpCommand + 'cp '+ fromDir + file + " " + toDir
@@ -215,9 +216,9 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
     
     #firstRun = "1"
     #lastRun  = "4999999999"
-    #if IOVbase == "lumibase":
-#	firstRun = "1:1"
-#	lastRun = "4999999999:4999999999"
+    if IOVbase == "lumibase":
+	firstRun = "1:1"
+	lastRun = "4999999999:4999999999"
 
     inputfiletype = 0
     
@@ -642,7 +643,7 @@ def writeSqliteFile(sqliteFileName,tagName,timeType,beamSpotFile,sqliteTemplateF
     wNewFile.close()
     print "writing sqlite file ..."
     status_wDB = commands.getstatusoutput('cmsRun '+ writeDBOut)
-    #print status_wDB[1]
+    print status_wDB[1]
         
     os.system("rm -f " + writeDBOut)
     return not status_wDB[0]

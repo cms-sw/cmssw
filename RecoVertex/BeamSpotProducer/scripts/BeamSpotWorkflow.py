@@ -34,7 +34,6 @@ import sys,os
 import commands, re, time
 import datetime
 import ConfigParser
-import optparse
 import xmlrpclib
 from BeamSpotObj import BeamSpot
 from IOVObj import IOV
@@ -62,8 +61,8 @@ def getLastUploadedIOV(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEA
         if dbError[1].find("metadata entry \"" + tagName + "\" does not exist"):
             print "Creating a new tag because I got the following error contacting the DB"
             print output[1]
-            #return 1
-            return 133928
+            return 1
+            #return 133928
         else:
             exit("ERROR: Can\'t connect to db because:\n" + dbError[1])
     #WARNING when we pass to lumi IOV this should be long long
@@ -206,39 +205,61 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                 else:
                     if not run in runsAndLumisProcessed:
                         runsAndLumisProcessed[run] = []
-                    runsAndLumisProcessed[run].append(begLumi)
+                    if begLumi in runsAndLumisProcessed[run]:
+                        print "Lumi " + str(begLumi) + " in event " + str(run) + " already exist. This MUST not happen but right now I will ignore this lumi!"
+                    else:    
+                        runsAndLumisProcessed[run].append(begLumi)
         if not run in runsAndFiles:
             runsAndFiles[run] = []
         runsAndFiles[run].append(fileName)    
         file.close()
+    rrKeys = listOfRunsAndLumiFromRR.keys()
+    rrKeys.sort()
+    dbsKeys = listOfRunsAndLumiFromDBS.keys()
+    dbsKeys.sort()
+    procKeys = runsAndLumisProcessed.keys()
+    procKeys.sort()
+    #print "Run Registry:"    
+    #print rrKeys
+    #print "DBS:"    
+    #print dbsKeys
+    #print "List:"    
+    #print procKeys
     filesToProcess = []
     #print "WARNING WARNING YOU MUST CHANGE THIS LINE BEFORE YOU CAN REALLY RUN THE SCRIPT!!!!!!"
-    for run in listOfRunsAndLumiFromRR:
-    #for run in listOfRunsAndLumiFromDBS:
+    for run in rrKeys:
+    #for run in dbsKeys:
         if run in runsAndLumisProcessed:
             if not run in listOfRunsAndLumiFromDBS:
                 error = "Impossible but run " + str(run) + " has been processed and it is also in the run registry but it is not in DBS!" 
                 exit(error)
             print "Working on run " + str(run)    
-            errors = []
+            errors          = []
+            badProcessed    = []
+            badDBSProcessed = []
+            badDBS          = []
+            badRRProcessed  = []
+            badRR           = []
             #It is important for runsAndLumisProcessed[run] to be the first because the comparision is not ==
-            badProcessed,badDBS = compareLumiLists(runsAndLumisProcessed[run],listOfRunsAndLumiFromDBS[run],errors,tolerance)
+            badDBSProcessed,badDBS = compareLumiLists(runsAndLumisProcessed[run],listOfRunsAndLumiFromDBS[run],errors)
             for i in range(0,len(errors)):
                 errors[i] = errors[i].replace("listA","the processed lumis")
                 errors[i] = errors[i].replace("listB","DBS")
             #print errors
             #print badProcessed
             #print badDBS
-            
-            if len(errors) != 0 and errors[0].find("ERROR") != -1 and run in listOfRunsAndLumiFromRR:
+            #exit("ciao")
+            if len(badDBS) != 0:
+                print "This is weird because I processed more lumis than the ones that are in DBS!"
+            if len(badDBSProcessed) != 0 and run in listOfRunsAndLumiFromRR:
                 lastError = len(errors)
                 RRList = []
                 for lumiRange in listOfRunsAndLumiFromRR[run]:
-                    print lumiRange
+                    #print lumiRange
                     for l in range(lumiRange[0],lumiRange[1]+1):
                         RRList.append(long(l))
                 #It is important for runsAndLumisProcessed[run] to be the first because the comparision is not ==
-                badProcessed,badRunRegistry = compareLumiLists(runsAndLumisProcessed[run],RRList,errors,tolerance)
+                badRRProcessed,badRR = compareLumiLists(runsAndLumisProcessed[run],RRList,errors)
                 for i in range(0,len(errors)):
                     errors[i] = errors[i].replace("listA","the processed lumis")
                     errors[i] = errors[i].replace("listB","Run Registry")
@@ -246,24 +267,35 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                 #print badProcessed
                 #print badRunRegistry
                     
-                if len(errors) > lastError and errors[lastError].find("ERROR") != -1 and len(badProcessed) != 0:    
-                    print "I have errors in run: " + str(run)
-                    print errors
-                    exit(errors)
+                if len(badRRProcessed) != 0:    
+                    print "I have not processed some of the lumis that are in the run registry for run: " + str(run)
+                    for lumi in badDBSProcessed:
+                        if lumi in badRRProcessed:
+                            badProcessed.append(lumi)
+                    lenA = len(badProcessed)
+                    lenB = len(RRList)
+                    if 100.*lenA/lenB < tolerance:
+                        print "I didn't process " + str(100.*lenA/lenB) + "% of the lumis but I am within the " + str(tolerance) + "% set in the configuration."
+                        badProcessed = []
+                    else:
+                        print "I didn't process " + str(100.*lenA/lenB) + "% of the lumis and I am not within the " + str(tolerance) + "% set in the configuration."  
+                        exit(errors)
                     #return filesToProcess
-                else:
+                elif len(errors) != 0:
                     print "The number of lumi sections processed didn't match the one in DBS but they cover all the ones in the Run Registry, so it is ok!"
-                    print errors
-                    errors = []
+                    #print errors
 
             #If I get here it means that I passed or the DBS or the RR test            
-            if len(errors) == 0:
+            if len(badProcessed) == 0:
                 for file in runsAndFiles[run]:
                     filesToProcess.append(file)
             else:
-                print errors
+                #print errors
                 print "This should never happen because if I have errors I return or exit! Run: " + str(run)
-                
+        else:
+            error = "Run " + str(run) + " is in the run registry bit it has not been processed!Lore"
+            print error
+            #exit(error)
                             
     return filesToProcess
 ########################################################################
@@ -277,38 +309,32 @@ def compareLumiLists(listA,listB,errors=[],tolerance=0):
     #print errors
     listA.sort()
     listB.sort()
-    shorter = lenA
-    if lenB < shorter:
-        shorter = lenB
-    a = 0
-    b = 0
+    #shorter = lenA
+    #if lenB < shorter:
+    #    shorter = lenB
+    #a = 0
+    #b = 0
     badA = []
     badB = []
-    while a < shorter or b < shorter:
-        #print str(a) + ":" + str(b) + "-"  + str(listA[a]) + ":" + str(listB[b])
-        if listA[a] > listB[b]:
-            badA.append(listB[b])
-            errors.append("Lumi (" + str(listB[b]) + ") is in listB but not in listA")
-            b += 1
-        elif listA[a] < listB[b]:
-            badB.append(listA[a])
-            errors.append("Lumi (" + str(listA[a]) + ") is in listA but not in listB")
-            a += 1
-        else:
-            a += 1
-            b += 1
-    bigger = a
-    if b > bigger:
-        bigger = b
-
-    if lenA < lenB:
-        for n in range(bigger,lenB):
-            badA.append(listB[n])
-            errors.append("Lumi (" + str(listB[n]) + ") is in listB but not in listA")
-    else:
-        for n in range(bigger,lenA):
-            badB.append(listA[n])
-            errors.append("Lumi (" + str(listA[n]) + ") is in listA but not in listB")
+    #print listB
+    #print listA
+    #print len(listA)
+    #print len(listB)
+    #counter = 1
+    for lumi in listA:
+        #print str(counter) + "->" + str(lumi)
+        #counter += 1
+        if not lumi in listB:
+            errors.append("Lumi (" + str(lumi) + ") is in listA but not in listB")
+            badB.append(lumi)
+            #print "Bad B: " + str(lumi)
+    #exit("hola")
+    for lumi in listB:
+        if not lumi in listA:
+            errors.append("Lumi (" + str(lumi) + ") is in listB but not in listA")
+            badA.append(lumi)
+            #print "Bad A: " + str(lumi)
+            
     return badA,badB
 
 ########################################################################
@@ -382,7 +408,7 @@ def main():
     dataSet     = configuration.get('Common','DATASET')
     fileIOVBase = configuration.get('Common','FILE_IOV_BASE')
     dbIOVBase   = configuration.get('Common','DB_IOV_BASE')
-    dbsTolerance= configuration.get('Common','DBS_TOLERANCE')
+    dbsTolerance= float(configuration.get('Common','DBS_TOLERANCE'))
     mailList    = configuration.get('Common','EMAIL')
 
     ######### DIRECTORIES SETUP #################
@@ -524,8 +550,8 @@ def main():
             iovTillLast   = iov_till
             
         appendSqliteFile("Combined.db", tmpSqliteFileName, databaseTag, iov_since, iov_till ,workingDir)
+        os.system("rm -f " + tmpPayloadFileName + " " + tmpSqliteFileName)
 
-    os.system("rm -f " + tmpPayloadFileName + " " + tmpSqliteFileName)
         
     #### CREATE payload for merged output
 
