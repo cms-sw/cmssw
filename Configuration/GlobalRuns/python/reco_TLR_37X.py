@@ -10,10 +10,10 @@ def customiseCommon(process):
     ## TRACKING:
     ## Skip events with HV off
     process.newSeedFromTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
-    process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+    process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=20000
     process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
-    process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 10000
-    process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+    process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 20000
+    process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=20000
     process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
     process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
 
@@ -81,7 +81,7 @@ def customisePPData(process):
     process.hfreco.firstSample=3
 
     ##Preshower algo for data is different than for MC
-    process.ecalPreshowerRecHit.ESRecoAlgo = cms.untracked.int32(1)
+    process.ecalPreshowerRecHit.ESRecoAlgo = cms.int32(1)
 
     return process
 
@@ -95,7 +95,7 @@ def customisePPMC(process):
 
 ##############################################################################
 def customiseCosmicData(process):
-    process.ecalPreshowerRecHit.ESRecoAlgo = cms.untracked.int32(1)
+    process.ecalPreshowerRecHit.ESRecoAlgo = cms.int32(1)
     
     return process
 
