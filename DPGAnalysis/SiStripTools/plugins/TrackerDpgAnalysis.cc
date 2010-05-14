@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.4 2010/04/20 09:39:45 delaer Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.5 2010/05/13 10:25:02 delaer Exp $
 //
 //
 
@@ -47,6 +47,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include <CondFormats/SiStripObjects/interface/FedChannelConnection.h>
 #include <CondFormats/SiStripObjects/interface/SiStripFedCabling.h>
 #include <CondFormats/DataRecord/interface/SiStripFedCablingRcd.h>
@@ -65,6 +66,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include <DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h>
 #include <DataFormats/SiStripDetId/interface/SiStripDetId.h>
 #include <DataFormats/SiStripDetId/interface/TIBDetId.h>
@@ -124,6 +126,8 @@ class TrackerDpgAnalysis : public edm::EDAnalyzer {
       std::string toStringName(uint32_t);
       std::string toStringId(uint32_t);
       double sumPtSquared(const reco::Vertex&);
+      float delay(const SiStripEventSummary&);
+      std::map<uint32_t,float> delay(const std::vector<std::string>&);
 
    private:
       virtual void beginRun(const edm::Run&, const edm::EventSetup&);
@@ -179,12 +183,13 @@ class TrackerDpgAnalysis : public edm::EDAnalyzer {
       bool isValid_pvtx_, isFake_pvtx_;
       float charge_, p_, pt_;
       float bsX0_, bsY0_, bsZ0_, bsSigmaZ_, bsDxdz_, bsDydz_;
-      float thrustValue_, thrustX_, thrustY_, thrustZ_, sphericity_, planarity_, aplanarity_;
+      float thrustValue_, thrustX_, thrustY_, thrustZ_, sphericity_, planarity_, aplanarity_, delay_;
       bool L1DecisionBits_[192], L1TechnicalBits_[64], HLTDecisionBits_[128];
       uint32_t orbit_, orbitL1_, bx_, store_, time_;
       uint16_t lumiSegment_, physicsDeclared_;
       char *moduleName_, *moduleId_, *PSUname_;
       std::string cablingFileName_;
+      std::vector<std::string> delayFileNames_;
       edm::ParameterSet pset_;
 };
 
@@ -415,6 +420,7 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig)
    event_->Branch("bx",&bx_,"bx/i");
    event_->Branch("store",&store_,"store/i");
    event_->Branch("time",&time_,"time/i");
+   event_->Branch("delay",&delay_,"delay/F");
    event_->Branch("lumiSegment",&lumiSegment_,"lumiSegment/s");
    event_->Branch("physicsDeclared",&physicsDeclared_,"physicsDeclared/s");
    event_->Branch("HLTDecisionBits",HLTDecisionBits_,"HLTDecisionBits[128]/O");
@@ -447,6 +453,7 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig)
    
    // cabling
    cablingFileName_ = iConfig.getUntrackedParameter<std::string>("PSUFileName","PSUmapping.csv");
+   delayFileNames_  = iConfig.getUntrackedParameter<std::vector<std::string> >("DelayFileNames",std::vector<std::string>(0));
    psumap_ = dir->make<TTree>("psumap","PSU map");
    psumap_->Branch("PSUname",PSUname_,"PSUname/C");
    psumap_->Branch("dcuId",&dcuId_,"dcuId/i");
@@ -464,6 +471,7 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig)
    readoutmap_->Branch("fiberLength",&fiberLength_,"fiberLength/s");
    readoutmap_->Branch("moduleName",moduleName_,"moduleName/C");
    readoutmap_->Branch("moduleId",moduleId_,"moduleId/C");
+   readoutmap_->Branch("delay",&delay_,"delay/F");
 }
 
 TrackerDpgAnalysis::~TrackerDpgAnalysis()
@@ -493,6 +501,15 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    store_       = iEvent.eventAuxiliary().storeNumber();
    time_        = iEvent.eventAuxiliary().time().value();
    lumiSegment_ = iEvent.eventAuxiliary().luminosityBlock();
+
+   // Retrieve commissioning information from "event summary", when available (for standard fine delay)
+   edm::Handle<SiStripEventSummary> summary;
+   iEvent.getByLabel( "siStripDigis", summary );
+   if(summary.isValid())
+     delay_ = delay(*summary.product());
+   else
+     delay_ = 0.;
+
    // -- Magnetic field
    ESHandle<MagneticField> MF;
    iSetup.get<IdealMagneticFieldRecord>().get(MF);
@@ -916,6 +933,10 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 void 
 TrackerDpgAnalysis::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
 {
+   // read the delay offsets for each device from input files
+   // this is only for the so-called "random delay" run
+   std::map<uint32_t,float> delayMap = delay(delayFileNames_);
+   TrackerMap tmap("Delays");
    // cabling I (readout)
    iSetup.get<SiStripFedCablingRcd>().get( cabling_ );
    const std::vector< uint16_t > & feds = cabling_->feds() ;
@@ -940,10 +961,13 @@ TrackerDpgAnalysis::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
          fedId_ = conn->fedId();
          fedCh_ = conn->fedCh();
          fiberLength_ = conn->fiberLength();
+	 delay_ = delayMap[dcuId_];
 	 readoutmap_->Fill();
+         tmap.fill_current_val(detid_,delay_);
        }
      }
    }
+   if(delayMap.size()) tmap.save(true, 0, 0, "delaymap.png");
    // cabling II (DCU map)
    ifstream cablingFile(cablingFileName_.c_str());
    if(cablingFile.is_open()) {
@@ -1314,6 +1338,59 @@ double TrackerDpgAnalysis::sumPtSquared(const reco::Vertex & v)  {
     sum += pT*pT;
   }
   return sum;
+}
+
+float TrackerDpgAnalysis::delay(const SiStripEventSummary& summary) {
+  float delay = const_cast<SiStripEventSummary&>(summary).ttcrx();
+  uint32_t latencyCode = (const_cast<SiStripEventSummary&>(summary).layerScanned()>>24)&0xff;
+  int latencyShift = latencyCode & 0x3f;             // number of bunch crossings between current value and start of scan... must be positive
+  if(latencyShift>32) latencyShift -=64;             // allow negative values: we cover [-32,32].. should not be needed.
+  if((latencyCode>>6)==2) latencyShift -= 3;         // layer in deconv, rest in peak
+  if((latencyCode>>6)==1) latencyShift += 3;         // layer in peak, rest in deconv
+  float correctedDelay = delay - (latencyShift*25.); // shifts the delay so that 0 corresponds to the current settings.
+  return correctedDelay;
+}
+
+std::map<uint32_t,float> TrackerDpgAnalysis::delay(const std::vector<std::string>& files) {
+   // prepare output
+   uint32_t dcuid;
+   float delay;
+   std::map<uint32_t,float> delayMap;
+   //iterator over input files
+   for(std::vector<std::string>::const_iterator file=files.begin();file<files.end();++file){
+     // open the file
+     std::ifstream cablingFile(file->c_str());
+     if(cablingFile.is_open()) {
+       char buffer[1024];
+       // read one line
+       cablingFile.getline(buffer,1024);
+       while(!cablingFile.eof()) {
+         std::string line(buffer);
+         size_t pos = line.find("dcuid");
+         // one line containing dcuid
+         if(pos != std::string::npos) {
+           // decode dcuid
+           std::string dcuids = line.substr(pos+7,line.find(" ",pos)-pos-8);
+           std::istringstream dcuidstr(dcuids);
+           dcuidstr >> std::hex >> dcuid;
+           // decode delay
+           pos = line.find("difpll");
+           std::string diffs = line.substr(pos+8,line.find(" ",pos)-pos-9);
+           std::istringstream diffstr(diffs);
+           diffstr >> delay;
+           // fill the map
+           delayMap[dcuid] = delay;
+         }
+         // iterate
+         cablingFile.getline(buffer,1024);
+       }
+     } else {
+       edm::LogWarning("BadConfig") << " The delay file does not exist. The delay map will not be filled properly."
+                                    << std::endl << " Looking for " << file->c_str() << "." 
+          			    << std::endl << " Please specify valid filenames through the DelayFileNames untracked parameter.";
+     }
+   }
+   return delayMap;
 }
 
 //define this as a plug-in
