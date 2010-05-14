@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Puneeth Kalavase
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonMETValueMapProducer.cc,v 1.4 2010/02/16 20:58:44 kalavase Exp $
+// $Id: MuonMETValueMapProducer.cc,v 1.1 2010/05/04 11:40:40 fgolf Exp $
 //
 //
 
@@ -35,7 +35,7 @@ Implementation:
 
 
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
-
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 typedef math::XYZTLorentzVector LorentzVector;
 typedef math::XYZPoint Point;
@@ -214,3 +214,6 @@ namespace cms {
   void MuonMETValueMapProducer::endJob() {
   }
 }
+
+using cms::MuonMETValueMapProducer;
+DEFINE_FWK_MODULE(MuonMETValueMapProducer);

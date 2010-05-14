@@ -13,7 +13,7 @@
 //
 // Original Author:  Frank Golf
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonTCMETValueMapProducer.cc,v 1.8 2010/02/17 07:14:05 fgolf Exp $
+// $Id: MuonTCMETValueMapProducer.cc,v 1.1 2010/05/04 11:40:40 fgolf Exp $
 //
 //
 
@@ -45,6 +45,7 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "TH2D.h"
 #include "TVector3.h"
@@ -58,34 +59,42 @@ namespace cms {
   
 	  produces<edm::ValueMap<reco::MuonMETCorrectionData> > ("muCorrData");
 
-	  // get configuration parameters
-	  muonGlobal_   = iConfig.getParameter<bool>("global_muon");
-	  muonTracker_  = iConfig.getParameter<bool>("tracker_muon");
-	  useCaloMuons_ = iConfig.getParameter<bool>("useCaloMuons");
+	  // get input collections
+	  muonInputTag_     = iConfig.getParameter<edm::InputTag>("muonInputTag"    );
+	  beamSpotInputTag_ = iConfig.getParameter<edm::InputTag>("beamSpotInputTag");
+	  vertexInputTag_   = iConfig.getParameter<edm::InputTag>("vertexInputTag");
 
 	  rfType_     = iConfig.getParameter<int>("rf_type");
 
-	  minpt_      = iConfig.getParameter<double>("pt_min"       );
-	  maxpt_      = iConfig.getParameter<double>("pt_max"       );
-	  maxeta_     = iConfig.getParameter<double>("eta_max"      );
-	  maxchi2_    = iConfig.getParameter<double>("chi2_max"     );
-	  minhits_    = iConfig.getParameter<double>("nhits_min"    );
-	  maxd0_      = iConfig.getParameter<double>("d0_max"       );
-	  maxPtErr_   = iConfig.getParameter<double>("ptErr_max"    );
-	  trkQuality_ = iConfig.getParameter<std::vector<int> >("track_quality");
-	  trkAlgos_   = iConfig.getParameter<std::vector<int> >("track_algos"  );
+	  // get configuration parameters
+	  maxTrackAlgo_    = iConfig.getParameter<int>("trackAlgo_max");
+	  maxd0cut_        = iConfig.getParameter<double>("d0_max"       );
+	  minpt_           = iConfig.getParameter<double>("pt_min"       );
+	  maxpt_           = iConfig.getParameter<double>("pt_max"       );
+	  maxeta_          = iConfig.getParameter<double>("eta_max"      );
+	  maxchi2_         = iConfig.getParameter<double>("chi2_max"     );
+	  minhits_         = iConfig.getParameter<double>("nhits_min"    );
+	  maxPtErr_        = iConfig.getParameter<double>("ptErr_max"    );
 
-	  muonMinValidStaHits_ = iConfig.getParameter<int>("muonMinValidStaHits");
+	  trkQuality_      = iConfig.getParameter<std::vector<int> >("track_quality");
+	  trkAlgos_        = iConfig.getParameter<std::vector<int> >("track_algos"  );
+	  maxchi2_tight_   = iConfig.getParameter<double>("chi2_max_tight");
+	  minhits_tight_   = iConfig.getParameter<double>("nhits_min_tight");
+	  maxPtErr_tight_  = iConfig.getParameter<double>("ptErr_max_tight");
+	  usePvtxd0_       = iConfig.getParameter<bool>("usePvtxd0");
+	  d0cuta_          = iConfig.getParameter<double>("d0cuta");
+	  d0cutb_          = iConfig.getParameter<double>("d0cutb");
+
 	  muond0_     = iConfig.getParameter<double>("d0_muon"    );
 	  muonpt_     = iConfig.getParameter<double>("pt_muon"    );
 	  muoneta_    = iConfig.getParameter<double>("eta_muon"   );
 	  muonchi2_   = iConfig.getParameter<double>("chi2_muon"  );
 	  muonhits_   = iConfig.getParameter<double>("nhits_muon" );
+	  muonGlobal_   = iConfig.getParameter<bool>("global_muon");
+	  muonTracker_  = iConfig.getParameter<bool>("tracker_muon");
 	  muonDeltaR_ = iConfig.getParameter<double>("deltaR_muon");
-
-	  // get input collections
-	  muonInputTag_     = iConfig.getParameter<edm::InputTag>("muonInputTag"    );
-	  beamSpotInputTag_ = iConfig.getParameter<edm::InputTag>("beamSpotInputTag");
+	  useCaloMuons_ = iConfig.getParameter<bool>("useCaloMuons");
+	  muonMinValidStaHits_ = iConfig.getParameter<int>("muonMinValidStaHits");
 
 	  response_function = 0;
      }
@@ -108,6 +117,17 @@ namespace cms {
 	  //get input collections
 	  iEvent.getByLabel(muonInputTag_    , muon_h    );
 	  iEvent.getByLabel(beamSpotInputTag_, beamSpot_h);
+
+	  //get vertex collection
+	  hasValidVertex = false;
+	  if( usePvtxd0_ ){
+	       iEvent.getByLabel( vertexInputTag_  , VertexHandle  );
+       
+	       if( VertexHandle.isValid() ) {
+		    hasValidVertex = true;
+		    vertexColl = VertexHandle.product();
+	       } 
+	  }
 
 	  //get the Bfield
 	  edm::ESHandle<MagneticField> theMagField;
@@ -268,56 +288,70 @@ namespace cms {
      // ------------ check if track is good  ------------
      bool MuonTCMETValueMapProducer::isGoodTrack( const reco::Muon* muon ) {
 	  double d0    = -999;
-	  double pt    = 0;
-	  double eta   = -999;
-	  double nhits = 0;
-	  double chi2  = 999;
-	  double ptErr = 1.;
-	  int quality  = 0;
-	  int     algo = 30;
-
-	  // get d0 corrected for beam spot
-	  bool haveBeamSpot = true;
-	  if( !beamSpot_h.isValid() ) haveBeamSpot = false;
-	  Point bspot = haveBeamSpot ? beamSpot_h->position() : Point(0,0,0);
 
 	  const reco::TrackRef siTrack = muon->innerTrack();
+	  if (!siTrack.isNonnull())
+	       return false;
 
-	  if( siTrack.isNonnull() ) {
-	       d0      = -1 * siTrack->dxy( bspot );
-	       pt      = siTrack.get()->pt();
-	       eta     = siTrack.get()->eta();
-	       nhits   = siTrack->numberOfValidHits();
-	       chi2    = siTrack->normalizedChi2();
-	       ptErr   = siTrack->ptError() / siTrack->pt();
-	       quality = siTrack->qualityMask();
-	       algo    = siTrack->algo();
+	  if( hasValidVertex ){
+	       //get d0 corrected for primary vertex
+       
+	       const Point pvtx = Point(vertexColl->begin()->x(),
+					vertexColl->begin()->y(), 
+					vertexColl->begin()->z());
+       
+	       d0 = -1 * siTrack->dxy( pvtx );
+       
+	  }else{
+       
+	       // get d0 corrected for beam spot
+	       bool haveBeamSpot = true;
+	       if( !beamSpot_h.isValid() ) haveBeamSpot = false;
+       
+	       Point bspot = haveBeamSpot ? beamSpot_h->position() : Point(0,0,0);
+	       d0 = -1 * siTrack->dxy( bspot );
 	  }
 
-	  if( pt > maxpt_ )           return false;
-	  if( fabs( eta ) > maxeta_ ) return false;
-	  if( chi2 > maxchi2_ )       return false;
-	  if( nhits < minhits_ )      return false;
-	  if( fabs( d0 ) > maxd0_ )   return false;
-	  if( ptErr > maxPtErr_ )     return false;
+	  if( siTrack->algo() < maxTrackAlgo_ ){
+	       //1st 4 tracking iterations (pT-dependent d0 cut)
+       
+	       float d0cut = sqrt(pow(d0cuta_,2) + pow(d0cutb_/siTrack->pt(),2)); 
+	       if(d0cut > maxd0cut_) d0cut = maxd0cut_;
+       
+	       if( fabs( d0 ) > d0cut ) return false;    
+	  }
+	  else{
+	       //last 2 tracking iterations (tighten chi2, nhits, pt error cuts)
+     
+	       if( siTrack->normalizedChi2() > maxchi2_tight_ )             return false;
+	       if( siTrack->numberOfValidHits() < minhits_tight_ )          return false;
+	       if( (siTrack->ptError() / siTrack->pt()) > maxPtErr_tight_ )   return false;
 
-	  int cut = 0;
+	  }
+
+	  if( siTrack->numberOfValidHits() < minhits_ )         return false;
+	  if( siTrack->normalizedChi2() > maxchi2_ )            return false;
+	  if( fabs( siTrack->eta() ) > maxeta_ )                return false;
+	  if( siTrack->pt() > maxpt_ )                          return false;
+	  if( (siTrack->ptError() / siTrack->pt()) > maxPtErr_ )  return false;
+
+	  int cut = 0;	  
 	  for( unsigned int i = 0; i < trkQuality_.size(); i++ ) {
 
 	       cut |= (1 << trkQuality_.at(i));
 	  }
 
-	  if( !( (quality & cut) == cut ) ) return false;
-
+	  if( !( (siTrack->qualityMask() & cut) == cut ) ) return false;
+	  
 	  bool isGoodAlgo = false;    
 	  if( trkAlgos_.size() == 0 ) isGoodAlgo = true;
 	  for( unsigned int i = 0; i < trkAlgos_.size(); i++ ) {
 
-	       if( algo == trkAlgos_.at(i) ) isGoodAlgo = true;
+	       if( siTrack->algo() == trkAlgos_.at(i) ) isGoodAlgo = true;
 	  }
 
 	  if( !isGoodAlgo ) return false;
-
+	  
 	  return true;
      }
 
@@ -3125,3 +3159,6 @@ namespace cms {
 	  return hrf;
      }
 }
+
+using cms::MuonTCMETValueMapProducer;
+DEFINE_FWK_MODULE(MuonTCMETValueMapProducer);

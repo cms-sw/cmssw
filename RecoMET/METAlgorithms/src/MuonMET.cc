@@ -37,6 +37,7 @@ Implementation:
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 //using namespace std;
 
@@ -97,3 +98,5 @@ namespace cms
   }
 }//end namespace cms
 
+using cms::MuonMET;
+DEFINE_FWK_MODULE(MuonMET);

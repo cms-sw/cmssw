@@ -24,6 +24,8 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TH2.h"
 #include "TVector3.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -44,29 +46,41 @@ class MuonTCMETValueMapProducer : public edm::EDProducer {
       
       // ----------member data ---------------------------
       //list of cuts
-      edm::Handle<reco::MuonCollection>  muon_h;
-      edm::Handle<reco::BeamSpot>        beamSpot_h;
+      edm::Handle<reco::MuonCollection>    muon_h;
+      edm::Handle<reco::BeamSpot>          beamSpot_h;
+      edm::Handle<reco::VertexCollection>  VertexHandle;
 
       edm::InputTag muonInputTag_;  
       edm::InputTag beamSpotInputTag_;
+      edm::InputTag vertexInputTag_;
 
       const class MagneticField* bField;
+
+      const reco::VertexCollection *vertexColl;
 
       class TH2D* response_function;
 
       bool muonGlobal_;
       bool muonTracker_;
       bool useCaloMuons_;
+      bool hasValidVertex;
 
       int rfType_;
 
+      int     maxTrackAlgo_;
       double  minpt_;
       double  maxpt_;
       double  maxeta_;
       double  maxchi2_;
       double  minhits_;
-      double  maxd0_;
       double  maxPtErr_;
+      double  maxd0cut_;
+      double  maxchi2_tight_;
+      double  minhits_tight_;
+      double  maxPtErr_tight_;
+      double  d0cuta_;
+      double  d0cutb_;
+      bool    usePvtxd0_;      
       std::vector<int> trkQuality_;
       std::vector<int> trkAlgos_;
 
