@@ -43,6 +43,10 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     # Use dead channels information 
     readBadChannels = cms.bool(True),
     readBadChambers = cms.bool(True),
+    #                          
+    # Do we use the chip and chamber and L1A phase corrections when filling the recHit time?
+    #
+    CSCUseTimingCorrections = cms.bool(False),
                               
     #
     #    Parameters which are not used currently
