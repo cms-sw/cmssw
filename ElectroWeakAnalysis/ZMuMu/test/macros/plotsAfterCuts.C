@@ -18,7 +18,7 @@ void setGraphics(TH1F *histo){
 
 
 
-void plots(){
+void plotsAfterCuts(){
 
   gStyle->SetOptStat();
   gROOT->SetStyle("Plain");
@@ -32,39 +32,35 @@ void plots(){
 //    TTree * Events = dynamic_cast< TTree *> (file->Get("Events"));
 
   TChain Events("Events"); 
+  // one need 130 events... each file has 1000 ev
+  Events.Add("zmmNtuple/NtupleLooseTestNew_oneshot_all_Test_1_None.root", 65);
+  Events.Add("zmmNtuple/NtupleLooseTestNew_oneshot_all_Test_2_None.root", 65);
+
   
-  Events.Add("../NutpleLooseTestNew_oneshot_all_10_1.root");
-  Events.Add("../NutpleLooseTestNew_oneshot_all_11_1.root");
-  Events.Add("../NutpleLooseTestNew_oneshot_all_12_1.root");
-  Events.Add("../NutpleLooseTestNew_oneshot_all_13_1.root");
-  Events.Add("../NutpleLooseTestNew_oneshot_all_4_1.root");
-  Events.Add("../NutpleLooseTestNew_oneshot_all_5_1.root");
-  Events.Add("../NutpleLooseTestNew_oneshot_all_6_1.root");
-  Events.Add("../NutpleLooseTestNew_oneshot_all_7_1.root");
-  Events.Add("../NutpleLooseTestNew_oneshot_all_8_1.root");
   
-  TFile * output_file = TFile::Open("histo.root", "RECREATE");
+  TFile * output_file = TFile::Open("histoZmm.root", "RECREATE");
   // TFile * output_file = TFile::Open("histo_test.root", "RECREATE");
   
   // zGolden plots
-  TCut cut_zGolden("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && zGoldenDau1Iso< 3.0 && zGoldenDau2Iso < 3.0 && zGoldenDau1Eta<2.1 &&  zGoldenDau2Eta<2.1 && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && zGoldenDau1dxyFromBS<0.02 && zGoldenDau2dxyFromBS<0.02 ");
+  TCut cut_zGolden("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && zGoldenDau1Iso< 3.0 && zGoldenDau2Iso < 3.0 && abs(zGoldenDau1Eta)<2.1 &&  abs(zGoldenDau2Eta)<2.1 && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && abs(zGoldenDau1dxyFromBS)<0.2 && abs(zGoldenDau2dxyFromBS)<0.2 && (zGoldenDau1NofStripHits + zGoldenDau1NofPixelHits)>=10 && (zGoldenDau2NofStripHits + zGoldenDau2NofPixelHits)>=10 && zGoldenDau1NofMuonHits>0 && zGoldenDau2NofMuonHits>0 && (zGoldenDau1HLTBit==1 || zGoldenDau2HLTBit==1) ");
   TDirectory * dir = output_file->mkdir("goodZToMuMuPlots");
   dir->cd();
   TH1F * zMass = new TH1F("zMass", "zMass", 200, 0, 200);
   //  Events.Draw("zGoldenMass");
   Events.Project("zMass", "zGoldenMass", cut_zGolden );
-  cout<<"Number of zGolden : "<<zMass->GetEntries()<<endl;
+  cout<<"Number of zGoldenAA : "<<zMass->GetEntries()<<endl;
   setGraphics(zMass);
   zMass->Write();
   delete zMass;
 
   
-  TCut cut_zGoldenPt15("zGoldenMass>20 && zGoldenDau1Pt> 15 && zGoldenDau2Pt>15 && zGoldenDau1Iso< 3.0 && zGoldenDau2Iso < 3.0  && zGoldenDau1Eta<2.1 &&  zGoldenDau2Eta<2.1 && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && zGoldenDau1dxyFromBS<0.02 && zGoldenDau2dxyFromBS<0.02 ");
+  TCut cut_zGoldenPt15("zGoldenMass>20 && zGoldenDau1Pt> 15 && zGoldenDau2Pt>15 && zGoldenDau1Iso< 3.0 && zGoldenDau2Iso < 3.0  &&  abs(zGoldenDau1Eta)<2.1 &&  abs(zGoldenDau2Eta)<2.1 && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && abs(zGoldenDau1dxyFromBS)<0.2 && abs(zGoldenDau2dxyFromBS)<0.2 &&(zGoldenDau1NofStripHits + zGoldenDau1NofPixelHits)>=10 && (zGoldenDau2NofStripHits + zGoldenDau2NofPixelHits)>=10 && zGoldenDau1NofMuonHits>0 && zGoldenDau2NofMuonHits>0 && (zGoldenDau1HLTBit==1 || zGoldenDau2HLTBit==1)");
   dir->cd();
   
   TH1F * zMassPt15 = new TH1F("zMassPt15", "zMassPt15", 200, 0, 200);
   Events.Project("zMassPt15", "zGoldenMass", cut_zGoldenPt15  );
   setGraphics(zMassPt15);
+  cout<<"Number of zGoldenPt15 : "<<zMassPt15->GetEntries()<<endl;
   zMassPt15->Write();
   delete zMassPt15;
 
@@ -72,11 +68,12 @@ void plots(){
 
   output_file->cd("/");
   
-   TCut cut2_zGolden1HLT(" zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && zGoldenDau1Iso< 3.0 && zGoldenDau2Iso < 3.0 && ((zGoldenDau1HLTBit==1 && zGoldenDau2HLTBit==0) || (zGoldenDau1HLTBit==0 && zGoldenDau2HLTBit==1)) && zGoldenDau1Eta<2.1 &&  zGoldenDau2Eta<2.1 && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && zGoldenDau1dxyFromBS<0.02 && zGoldenDau2dxyFromBS<0.02 ");
+   TCut cut2_zGolden1HLT("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && zGoldenDau1Iso< 3.0 && zGoldenDau2Iso < 3.0 && abs(zGoldenDau1Eta)<2.1 &&  abs(zGoldenDau2Eta)<2.1 && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && abs(zGoldenDau1dxyFromBS)<0.2 && abs(zGoldenDau2dxyFromBS)<0.2 &&(zGoldenDau1NofStripHits + zGoldenDau1NofPixelHits)>=10 && (zGoldenDau2NofStripHits + zGoldenDau2NofPixelHits)>=10 && zGoldenDau1NofMuonHits>0 && zGoldenDau2NofMuonHits>0 && ( zGoldenDau1HLTBit ==0 || zGoldenDau2HLTBit ==0)");
   TDirectory * dir = output_file->mkdir("goodZToMuMu1HLTPlots");
   dir->cd();
   TH1F * zMass = new TH1F("zMass", "zMass", 200, 0, 200);
     Events.Project("zMass", "zGoldenMass", cut2_zGolden1HLT );
+  cout<<"Number of zGolden1HLT : "<<zMass->GetEntries()<<endl;
  zMass->Write();
   delete zMass;
  //zMass2->Write();
@@ -84,85 +81,121 @@ void plots(){
   output_file->cd("/");
 
 
-  TCut cut2_zGolden2HLT("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && zGoldenDau1Iso< 3.0 && zGoldenDau2Iso < 3.0 && ((zGoldenDau1HLTBit==1 && zGoldenDau2HLTBit==1) )  && zGoldenDau1Eta<2.1 &&  zGoldenDau2Eta<2.1 && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && zGoldenDau1dxyFromBS<0.02 && zGoldenDau2dxyFromBS<0.02 ");  
+  output_file->cd("/");
+  
+   TCut cut2_zGoldenAB1HLT("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && zGoldenDau1Iso< 3.0 && zGoldenDau2Iso < 3.0 && ( abs(zGoldenDau1Eta)<2.1 &&  2.1<abs(zGoldenDau2Eta)<2.4 ) || ( abs(zGoldenDau2Eta)<2.1 &&  2.1<abs(zGoldenDau1Eta)<2.4 )   && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && abs(zGoldenDau1dxyFromBS)<0.2 && abs(zGoldenDau2dxyFromBS)<0.2 &&(zGoldenDau1NofStripHits + zGoldenDau1NofPixelHits)>=10 && (zGoldenDau2NofStripHits + zGoldenDau2NofPixelHits)>=10 && zGoldenDau1NofMuonHits>0 && zGoldenDau2NofMuonHits>0 && ( zGoldenDau1HLTBit ==1 || zGoldenDau2HLTBit ==1)");
+  TDirectory * dir = output_file->mkdir("goodZToMuMuAB1HLTPlots");
+  dir->cd();
+  TH1F * zMass = new TH1F("zMass", "zMass", 200, 0, 200);
+    Events.Project("zMass", "zGoldenMass", cut2_zGolden1HLT );
+  cout<<"Number of zGoldenAB1HLT : "<<zMass->GetEntries()<<endl;
+ zMass->Write();
+  delete zMass;
+ //zMass2->Write();
+
+  output_file->cd("/");
+
+
+   TCut cut2_zGolden2HLT("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && zGoldenDau1Iso< 3.0 && zGoldenDau2Iso < 3.0 && abs(zGoldenDau1Eta)<2.1 &&  abs(zGoldenDau2Eta)<2.1 && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && abs(zGoldenDau1dxyFromBS)<0.2 && abs(zGoldenDau2dxyFromBS)<0.2 &&(zGoldenDau1NofStripHits + zGoldenDau1NofPixelHits)>=10 && (zGoldenDau2NofStripHits + zGoldenDau2NofPixelHits)>=10 && zGoldenDau1NofMuonHits>0 && zGoldenDau2NofMuonHits>0 && ( zGoldenDau1HLTBit ==1 && zGoldenDau2HLTBit ==1)");
+
   TDirectory * dir = output_file->mkdir("goodZToMuMu2HLTPlots");
   dir->cd();
   TH1F * zMass = new TH1F("zMass", "zMass", 200, 0, 200);
   Events.Project("zMass", "zGoldenMass", cut2_zGolden2HLT );
   zMass->Write();
+  cout<<"Number of zGolden2HLT : "<<zMass->GetEntries()<<endl;
   delete zMass;
   output_file->cd("/");
 
 
  // zGoldenOneNotIso plots
-  TCut cut_zGoldenOneNotIso("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && ((zGoldenDau1Iso> 3.0 && zGoldenDau2Iso < 3.0 ) || (zGoldenDau1Iso<3.0 && zGoldenDau2Iso > 3.0))  && zGoldenDau1Eta<2.1 &&  zGoldenDau2Eta<2.1 && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && zGoldenDau1dxyFromBS<0.02 && zGoldenDau2dxyFromBS<0.02 ");
+  TCut cut_zGoldenOneNotIso("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && ( (zGoldenDau1Iso> 3.0 &&  zGoldenDau2Iso < 3.0) || (zGoldenDau2Iso> 3.0 &&  zGoldenDau1Iso < 3.0))  && abs(zGoldenDau1Eta)<2.1 &&  abs(zGoldenDau2Eta)<2.1 && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && abs(zGoldenDau1dxyFromBS)<0.2 && abs(zGoldenDau2dxyFromBS)<0.2 &&(zGoldenDau1NofStripHits + zGoldenDau1NofPixelHits)>=10 && (zGoldenDau2NofStripHits + zGoldenDau2NofPixelHits)>=10 && zGoldenDau1NofMuonHits>0 && zGoldenDau2NofMuonHits>0 && ( zGoldenDau1HLTBit ==1 || zGoldenDau2HLTBit ==1)");
   TDirectory * dir = output_file->mkdir("oneNonIsolatedZToMuMuPlots");
   dir->cd();
   TH1F * zMass = new TH1F("zMass", "zMass", 200, 0, 200);
   Events.Project("zMass", "zGoldenMass", cut_zGoldenOneNotIso );
   zMass->Write();
+  cout<<"Number of zGoldenOneNotIso : "<<zMass->GetEntries()<<endl;
   delete zMass;
   output_file->cd("/");
 
 //  // zGoldenTwoNotIso plots
-  TCut cut_zGoldenTwoNotIso("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && ( zGoldenDau1Iso> 3.0 && zGoldenDau2Iso > 3.0 )  && zGoldenDau1Eta<2.1 &&  zGoldenDau2Eta<2.1 && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && zGoldenDau1dxyFromBS<0.02 && zGoldenDau2dxyFromBS<0.02 ");
+  TCut cut_zGoldenTwoNotIso("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && (zGoldenDau1Iso> 3.0 &&  zGoldenDau2Iso > 3.0) && abs(zGoldenDau1Eta)<2.1 &&  abs(zGoldenDau2Eta)<2.1 && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && abs(zGoldenDau1dxyFromBS)<0.2 && abs(zGoldenDau2dxyFromBS)<0.2 &&(zGoldenDau1NofStripHits + zGoldenDau1NofPixelHits)>=10 && (zGoldenDau2NofStripHits + zGoldenDau2NofPixelHits)>=10 && zGoldenDau1NofMuonHits>0 && zGoldenDau2NofMuonHits>0 && ( zGoldenDau1HLTBit ==1 || zGoldenDau2HLTBit ==1)");
   TDirectory * dir = output_file->mkdir("twoNonIsolatedZToMuMuPlots");
    dir->cd();
    TH1F * zMass = new TH1F("zMass", "zMass", 200, 0, 200);
    Events.Project("zMass","zGoldenMass", cut_zGoldenTwoNotIso );
    zMass->Write();
+  cout<<"Number of zGoldenTwoNotIso : "<<zMass->GetEntries()<<endl;
    delete zMass;
    output_file->cd("/");
 
  // zGoldenNotIso plots
-  TCut cut_zGoldenNotIso("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && ( zGoldenDau1Iso> 3.0 || zGoldenDau2Iso > 3.0 )  && zGoldenDau1Eta<2.1 &&  zGoldenDau2Eta<2.1 && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && zGoldenDau1dxyFromBS<0.02 && zGoldenDau2dxyFromBS<0.02 ");
+  TCut cut_zGoldenNotIso("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && (zGoldenDau1Iso> 3.0 ||  zGoldenDau2Iso > 3.0) && abs(zGoldenDau1Eta)<2.1 &&  abs(zGoldenDau2Eta)<2.1 && zGoldenDau1Chi2<10 && zGoldenDau2Chi2<10 && abs(zGoldenDau1dxyFromBS)<0.2 && abs(zGoldenDau2dxyFromBS)<0.2 &&(zGoldenDau1NofStripHits + zGoldenDau1NofPixelHits)>=10 && (zGoldenDau2NofStripHits + zGoldenDau2NofPixelHits)>=10 && zGoldenDau1NofMuonHits>0 && zGoldenDau2NofMuonHits>0 && ( zGoldenDau1HLTBit ==1 || zGoldenDau2HLTBit ==1)");
   TDirectory * dir = output_file->mkdir("nonIsolatedZToMuMuPlots");
   dir->cd();
   TH1F * zMass = new TH1F("zMass", "zMass", 200, 0, 200);
   Events.Project("zMass", "zGoldenMass", cut_zGoldenNotIso );
   zMass->Write() ;
+  cout<<"Number of zGoldenNotIso : "<<zMass->GetEntries()<<endl;
   delete zMass;
   output_file->cd("/");
 
   // zGoldenSameCharge plots........
-  TCut cut_zSameCharge("zSameChargeMass>20 && zSameChargeDau1Pt> 20 && zSameChargeDau2Pt>20 && ( zSameChargeDau1Iso < 3.0 && zSameChargeDau2Iso < 3.0 )  && zSameChargeDau1Eta<2.1 &&  zSameChargeDau2Eta<2.1 && zSameChargeDau1Chi2<10 && zSameChargeDau2Chi2<10 && zSameChargeDau1dxyFromBS<0.02 && zSameChargeDau2dxyFromBS<0.02");
+  TCut cut_zSameCharge("zSameChargeMass>60 && zSameChargeMass<120 && zSameChargeDau1Pt> 20 && zSameChargeDau2Pt>20 && zSameChargeDau1Iso< 3.0 && zSameChargeDau2Iso < 3.0 && abs(zSameChargeDau1Eta)<2.1 &&  abs(zSameChargeDau2Eta)<2.1 && zSameChargeDau1Chi2<10 && zSameChargeDau2Chi2<10 && abs(zSameChargeDau1dxyFromBS)<0.2 && abs(zSameChargeDau2dxyFromBS)<0.2 &&(zSameChargeDau1NofStripHits + zSameChargeDau1NofPixelHits)>=10 && (zSameChargeDau2NofStripHits + zSameChargeDau2NofPixelHits)>=10 && zSameChargeDau1NofMuonHits>0 && zSameChargeDau2NofMuonHits>0 && (zSameChargeDau1HLTBit==1 || zSameChargeDau2HLTBit==1) ");
   TDirectory * dir = output_file->mkdir("goodZToMuMuSameChargePlots");
   dir->cd();
   TH1F * zMass = new TH1F("zMass", "zMass", 200, 0, 200);
   Events.Project("zMass", "zSameChargeMass", cut_zSameCharge );
   zMass->Write();
+  cout<<"Number of zGoldenSameCharge : "<<zMass->GetEntries()<<endl;
   delete zMass;
   output_file->cd("/");
 
  // zGoldenSameChargeNotIso plots........
-  TCut cut_zSameChargeNotIso("zSameChargeMass>60 && zSameChargeMass<120 && zSameChargeDau1Pt> 20 && zSameChargeDau2Pt>20 && ( zSameChargeDau1Iso > 3.0 || zSameChargeDau2Iso > 3.0 )  && zSameChargeDau1Eta<2.1 &&  zSameChargeDau2Eta<2.1 && zSameChargeDau1Chi2<10 && zSameChargeDau2Chi2<10 && zSameChargeDau1dxyFromBS<0.02 && zSameChargeDau2dxyFromBS<0.02");
+  TCut cut_zSameChargeNotIso("zSameChargeMass>60 && zSameChargeMass<120 && zSameChargeDau1Pt> 20 && zSameChargeDau2Pt>20 && ( zSameChargeDau1Iso> 3.0 || zSameChargeDau2Iso > 3.0) && abs(zSameChargeDau1Eta)<2.1 &&  abs(zSameChargeDau2Eta)<2.1 && zSameChargeDau1Chi2<10 && zSameChargeDau2Chi2<10 && abs(zSameChargeDau1dxyFromBS)<0.2 && abs(zSameChargeDau2dxyFromBS)<0.2 &&(zSameChargeDau1NofStripHits + zSameChargeDau1NofPixelHits)>=10 && (zSameChargeDau2NofStripHits + zSameChargeDau2NofPixelHits)>=10 && zSameChargeDau1NofMuonHits>0 && zSameChargeDau2NofMuonHits>0 && (zSameChargeDau1HLTBit==1 || zSameChargeDau2HLTBit==1) ");
   TDirectory * dir = output_file->mkdir("goodZToMuMuSameChargeNotIsoPlots");
   dir->cd();
   TH1F * zMass = new TH1F("zMass", "zMass", 200, 0, 200);
   Events.Project("zMass", "zSameChargeMass", cut_zSameChargeNotIso );
   zMass->Write();
+  cout<<"Number of zGoldenSameChargeNotIso : "<<zMass->GetEntries()<<endl;
   delete zMass;
   output_file->cd("/");
 
   
 // zMuTrk plots
-  TCut cut_zMuTrk("zMuTrkMass>60 && zMuTrkMass<120 && zMuTrkDau1Pt> 20 && zMuTrkDau2Pt>20 && zMuTrkDau1Iso< 3.0 && zMuTrkDau2Iso < 3.0  && zGoldenDau1Eta<2.1 &&  zGoldenDau2Eta<2.1  && zMuTrkDau1Chi2<10 && zMuTrkDau2Chi2<10 && zMuTrkDau1dxyFromBS<0.02 && zMuTrkDau2dxyFromBS<0.02");
+  TCut cut_zMuTrk("zMuTrkMass>60 && zMuTrkMass<120 && zMuTrkDau1Pt> 20 && zMuTrkDau2Pt>20 && zMuTrkDau1Iso< 3.0 && zMuTrkDau2Iso < 3.0 && abs(zMuTrkDau1Eta)<2.1 &&  abs(zMuTrkDau2Eta)<2.1 && zMuTrkDau1Chi2<10 && zMuTrkDau2Chi2<10 && abs(zMuTrkDau1dxyFromBS)<0.2 && abs(zMuTrkDau2dxyFromBS)<0.2 &&(zMuTrkDau1TrkNofStripHits + zMuTrkDau1TrkNofPixelHits)>=10 && (zMuTrkDau2TrkNofStripHits + zMuTrkDau2TrkNofPixelHits)>=10 && zMuTrkDau1NofMuonHits>0 && zMuTrkDau2NofMuonHits>0 && (zMuTrkDau1HLTBit==1) ");
   TDirectory * dir = output_file->mkdir("goodZToMuMuOneTrackPlots");
   dir->cd();
   TH1F * zMass = new TH1F("zMass", "zMass", 200, 0, 200);
   Events.Project("zMass", "zMuTrkMass", cut_zMuTrk );
   zMass->Write();
+  cout<<"Number of zMuTrk : "<<zMass->GetEntries()<<endl;
+  delete zMass;
+  output_file->cd("/");
+
+// zMuTrkMu plots
+  TCut cut_zMuTrkMu("zMuTrkMuMass>60 && zMuTrkMuMass<120 && zMuTrkMuDau1Pt> 20 && zMuTrkMuDau2Pt>20 && zMuTrkMuDau1Iso< 3.0 && zMuTrkMuDau2Iso < 3.0 && abs(zMuTrkMuDau1Eta)<2.1 &&  abs(zMuTrkMuDau2Eta)<2.1 && zMuTrkMuDau1Chi2<10 && zMuTrkMuDau2Chi2<10 && abs(zMuTrkMuDau1dxyFromBS)<0.2 && abs(zMuTrkMuDau2dxyFromBS)<0.2 &&(zMuTrkMuDau1NofStripHits + zMuTrkMuDau1NofPixelHits)>=10 && (zMuTrkMuDau2NofStripHits + zMuTrkMuDau2NofPixelHits)>=10 && zMuTrkMuDau1NofMuonHits>0 && zMuTrkMuDau2NofMuonHits>0 && (zMuTrkMuDau1HLTBit==1) ");
+  TDirectory * dir = output_file->mkdir("goodZToMuMuOneTrackerMuonPlots");
+  dir->cd();
+  TH1F * zMass = new TH1F("zMass", "zMass", 200, 0, 200);
+  Events.Project("zMass", "zMuTrkMuMass", cut_zMuTrkMu );
+  zMass->Write();
+  cout<<"Number of zMuTrkMu : "<<zMass->GetEntries()<<endl;
   delete zMass;
   output_file->cd("/");
 
 
+
   // zMuSta plots
-  TCut cut_zMuSta("zMuStaMass>60 && zMuStaMass<120 && zMuStaDau1Pt> 20 && zMuStaDau2Pt>20 && zMuStaDau1Iso< 3.0 && zMuStaDau2Iso < 3.0  && zGoldenDau1Eta<2.1 &&  zGoldenDau2Eta<2.1  && zMuStaDau1Chi2<10 && zMuStaDau2Chi2<10 && zMuStaDau1dxyFromBS<0.02 && zMuStaDau2dxyFromBS<0.02");
+  TCut cut_zMuSta("zMuStaMass>60 && zMuStaMass<120 && zMuStaDau1Pt> 20 && zMuStaDau2Pt>20 && zMuStaDau1Iso< 3.0 && zMuStaDau2Iso < 3.0 && abs(zMuStaDau1Eta)<2.1 &&  abs(zMuStaDau2Eta)<2.1 && zMuStaDau1Chi2<10 && zMuStaDau2Chi2<10 && abs(zMuStaDau1dxyFromBS)<0.2 && abs(zMuStaDau2dxyFromBS)<0.2 &&(zMuStaDau1NofStripHits + zMuStaDau1NofPixelHits)>=10 && (zMuStaDau2NofStripHits + zMuStaDau2NofPixelHits)>=10 && zMuStaDau1NofMuonHits>0 && zMuStaDau2NofMuonHits>0 && (zMuStaDau1HLTBit==1 ) ");
   TDirectory * dir = output_file->mkdir("goodZToMuMuOneStandAloneMuonPlots");
   dir->cd();
   TH1F * zMass = new TH1F("zMass", "zMass", 200, 0, 200);
   Events.Project("zMass", "zMuStaMass", cut_zMuSta );
   zMass->Write();
+  cout<<"Number of zMuSta : "<<zMass->GetEntries()<<endl;
   delete zMass;
   output_file->cd("/");
 
