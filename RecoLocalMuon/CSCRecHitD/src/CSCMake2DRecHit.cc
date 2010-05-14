@@ -26,6 +26,7 @@ CSCMake2DRecHit::CSCMake2DRecHit(const edm::ParameterSet& ps){
     
   useCalib            = ps.getParameter<bool>("CSCUseCalibrations");
   stripWireDeltaTime  = ps.getParameter<int>("CSCstripWireDeltaTime"); //@@ Non-standard  CSC*s*trip...
+  useTimingCorrections= ps.getParameter<bool>("CSCUseTimingCorrections");
 
   xMatchGatti_        = new CSCXonStrip_MatchGatti( ps );
 
@@ -167,7 +168,23 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   // compute the errors in local x and y
   LocalError localerr = layergeom_->localError( centerStrip, 
 						sigmaWithinTheStrip, sigmaWire );
-  
+
+  // Before storing the recHit, take the opportunity to change its time
+  if (useTimingCorrections){
+    float chipCorrection = 170. - recoConditions_->chipCorrection(id,centerStrip);
+    float phaseCorrection = (sHit.stripsl1a()[0]>> (15-0) & 0x1)*25.;
+    float chamberCorrection = recoConditions_->chamberTimingCorrection(id);
+    //printf("RecHit in e:%d s:%d r:%d c:%d l:%d strip:%d \n",id.endcap(),id.station(), id.ring(),id.chamber(),id.layer(),centerStrip);
+    //printf("\t tpeak before = %5.2f \t chipCorr %5.2f phaseCorr %5.2f chamberCorr %5.2f\n",tpeak,chipCorrection, phaseCorrection,chamberCorrection;
+    tpeak = tpeak + chipCorrection + phaseCorrection + chamberCorrection;
+    // to more or less zero out the chambers (TOF will still be visible)
+    if(id.station() ==1 && (id.ring() ==1 || id.ring() == 4))
+      tpeak = tpeak - 205;//225
+    else
+      tpeak = tpeak - 216;//236
+    //printf("\t tpeak after = %5.2f\n",tpeak);
+  }
+
   // store rechit
 
    /// Retrive the L1APhase+strips combination

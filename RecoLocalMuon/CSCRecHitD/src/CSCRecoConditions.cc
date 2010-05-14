@@ -34,6 +34,27 @@ float CSCRecoConditions::pedestalSigma(const CSCDetId & id, int channel) const {
   return theConditions.pedestalSigma(idraw, iraw);
 }
 
+float CSCRecoConditions::chipCorrection(const CSCDetId & id, int geomStrip) const { 
+  //printf("RecoCondition before translation e:%d s:%d r:%d c:%d l:%d strip:%d \n",id.endcap(),id.station(), id.ring(),id.chamber(),id.layer(),geomStrip);
+  CSCChannelTranslator translate;
+  // If ME1/4, set ring = 1
+  CSCDetId idraw = translate.rawCSCDetId( id );
+  // If ME1/4, collapse 48 chips into 16 electronics channel (1-48) -> (1-16)
+  int geomChannel = translate.channelFromStrip( id, geomStrip );
+  // Translate geometry-oriented strip channels into raw channels 
+  // reordering ME+1/1a and ME-1/1b and moving ME1/1a (1-16)->(65-80)
+  int iraw = translate.rawStripChannel( id, geomChannel);
+  //printf("RecoCondition after  translation e:%d s:%d r:%d c:%d l:%d strip:%d \n",idraw.endcap(),idraw.station(), idraw.ring(),idraw.chamber(),idraw.layer(),iraw);
+  return theConditions.chipCorrection(idraw, iraw);
+}
+
+float CSCRecoConditions::chamberTimingCorrection(const CSCDetId & id) const { 
+  CSCChannelTranslator translate;
+  // If ME1/4, set ring = 1
+  CSCDetId idraw = translate.rawCSCDetId( id );
+  return theConditions.chamberTimingCorrection(idraw);
+}
+
 void CSCRecoConditions::stripWeights( const CSCDetId& id, float* weights ) const {
 
   short int is = id.station();

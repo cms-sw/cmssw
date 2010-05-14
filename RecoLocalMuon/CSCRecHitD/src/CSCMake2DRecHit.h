@@ -13,6 +13,7 @@
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 
@@ -51,11 +52,16 @@ class CSCMake2DRecHit
  private:
   
   bool useCalib;
+  bool useTimingCorrections;
   int stripWireDeltaTime;
   bool useGatti;
   float maxGattiChi2;
 
   CSCXonStrip_MatchGatti* xMatchGatti_;  
+
+  // Cache pointer to conditions for current event
+  const CSCRecoConditions* recoConditions_;
+
 };
 
 #endif

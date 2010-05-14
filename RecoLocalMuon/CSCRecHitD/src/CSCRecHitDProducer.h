@@ -37,6 +37,7 @@ public:
   unsigned iRun; 
   bool useCalib;
   bool useStaticPedestals;
+  bool useTimingCorrections;
 
   edm::InputTag stripDigiTag_;
   edm::InputTag wireDigiTag_;

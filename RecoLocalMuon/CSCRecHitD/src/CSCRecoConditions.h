@@ -57,6 +57,12 @@ class CSCRecoConditions
   /// Note that centralStrip is a 'geomStrip' and ranges 1-48 in ME1a.
   void crossTalk( const CSCDetId& id, int centralStrip, std::vector<float>& xtalks) const;
 
+   // returns chip speed correction in ns given detId (w/layer) and strip channel
+  float chipCorrection( const CSCDetId & detId, int channel ) const;
+
+   // returns chamber level timing correction (cable length and extra chamber correction) in ns 
+  float chamberTimingCorrection( const CSCDetId & detId )const;
+
   /// Is a neighbour bad?
   bool nearBadStrip( const CSCDetId& id, int geomStrip ) const;
 
