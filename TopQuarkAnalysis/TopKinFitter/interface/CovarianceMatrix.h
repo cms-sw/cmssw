@@ -15,7 +15,6 @@ class CovarianceMatrix {
   CovarianceMatrix(){};
   ~CovarianceMatrix(){};
  
-  /// initialize matrix
   template <class ObjectType>
     TMatrixD setupMatrix(const pat::PATObject<ObjectType>& object, TtSemiLepKinFitter::Param param, std::string resolutionProvider);
 };
@@ -27,20 +26,21 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object,
   TMatrixD CovM3 (3,3); CovM3.Zero();
   TMatrixD CovM4 (4,4); CovM4.Zero();
   TMatrixD* CovM = &CovM3;
+  // This part is for pat objects with resolutions embedded
   if(object.hasKinResolution())
     {
       switch(param){
       case TtSemiLepKinFitter::kEtEtaPhi :
-	CovM3(0,0) = pow(object.resolEt() , 2);
+	CovM3(0,0) = pow(object.resolEt(resolutionProvider) , 2);
 	if( dynamic_cast<const reco::MET*>(&object) )CovM3(1,1) = pow(9999., 2);
-	else CovM3(1,1) = pow(object.resolEta(), 2);
-	CovM3(2,2) = pow(object.resolPhi(), 2);
+	else CovM3(1,1) = pow(object.resolEta(resolutionProvider), 2);
+	CovM3(2,2) = pow(object.resolPhi(resolutionProvider), 2);
 	CovM = &CovM3;
 	break;
       case TtSemiLepKinFitter::kEtThetaPhi :
-	CovM3(0,0) = pow(object.resolEt()   , 2);
-	CovM3(1,1) = pow(object.resolTheta(), 2);
-	CovM3(2,2) = pow(object.resolPhi()  , 2);
+	CovM3(0,0) = pow(object.resolEt(resolutionProvider)   , 2);
+	CovM3(1,1) = pow(object.resolTheta(resolutionProvider), 2);
+	CovM3(2,2) = pow(object.resolPhi(resolutionProvider)  , 2);
 	CovM = &CovM3;
 	break;
       case TtSemiLepKinFitter::kEMom :
@@ -52,12 +52,11 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object,
 	break;
       }
     }
+  // This part is for objects without resolutions embedded
   else
     {
-      res::HelperElectron elecRes;
-      res::HelperMuon muonRes;
-      res::HelperMET metRes;
       double pt = object.pt(), eta = object.eta();
+      // if object is a jet
       if( dynamic_cast<const reco::Jet*>(&object) ) {
 	res::HelperJet jetRes;
 	switch(param){
@@ -104,6 +103,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object,
 	  break;
 	} 
       }
+      // if object is an electron
       else if( dynamic_cast<const reco::GsfElectron*>(&object) ) {
 	res::HelperElectron elecRes;
 	switch(param){
@@ -127,7 +127,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object,
 	  break;
 	}
       }
-      // if lepton is a muon
+      // if object is a muon
       else if( dynamic_cast<const reco::Muon*>(&object) ) {
 	res::HelperMuon muonRes;
 	switch(param){
@@ -151,6 +151,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object,
 	  break;
 	}
       }
+      // if object is met
       else if( dynamic_cast<const reco::MET*>(&object) ) {
 	res::HelperMET metRes;
 	switch(param){
