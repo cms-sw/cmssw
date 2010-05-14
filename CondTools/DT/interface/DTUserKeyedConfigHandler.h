@@ -1,12 +1,12 @@
-#ifndef DTUserConfigHandler_H
-#define DTUserConfigHandler_H
-/** \class DTUserConfigHandler
+#ifndef DTUserKeyedConfigHandler_H
+#define DTUserKeyedConfigHandler_H
+/** \class DTUserKeyedConfigHandler
  *
  *  Description: 
  *
  *
- *  $Date: 2009/09/25 12:03:21 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/03/18 16:06:38 $
+ *  $Revision: 1.1.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -27,6 +27,10 @@ namespace coral {
   class ISessionProxy;
 }
 
+namespace cond {
+  class KeyList;
+}
+
 //---------------
 // C++ Headers --
 //---------------
@@ -36,17 +40,17 @@ namespace coral {
 //              -- Class Interface --
 //              ---------------------
 
-class DTUserConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
+class DTUserKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
 
  public:
 
   /** Constructor
    */
-  DTUserConfigHandler( const edm::ParameterSet& ps );
+  DTUserKeyedConfigHandler( const edm::ParameterSet& ps );
 
   /** Destructor
    */
-  virtual ~DTUserConfigHandler();
+  virtual ~DTUserKeyedConfigHandler();
 
   /** Operations
    */
@@ -54,16 +58,15 @@ class DTUserConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
   void getNewObjects();
   std::string id() const;
 
+  static void setList( cond::KeyList* list );
+
  private:
 
   int         dataRun;
   std::string dataTag;
   std::string onlineConnect;
   std::string onlineAuthentication;
-  std::string offlineAuthentication;
-  std::string offlineConnect;
-  std::string offlineCatalog;
-  std::string listToken;
+  std::string brickContainer;
   std::vector<DTConfigKey> userConf;
   DTCCBConfig* ccbConfig;
 
@@ -73,10 +76,12 @@ class DTUserConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
   static bool sameConfigList( const std::vector<DTConfigKey>& cfgl,
                               const std::vector<DTConfigKey>& cfgr );
 
+  static cond::KeyList* keyList;
+
 };
 
 
-#endif // DTUserConfigHandler_H
+#endif // DTUserKeyedConfigHandler_H
 
 
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/18 18:53:42 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/04/02 10:31:44 $
+ *  $Revision: 1.7 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,7 +15,6 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-//#include "CondTools/DT/interface/DTDBSession.h"
 #include "CondTools/DT/interface/DTHVAbstractCheck.h"
 #include "CondFormats/DTObjects/interface/DTHVStatus.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"

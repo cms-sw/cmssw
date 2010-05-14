@@ -36,7 +36,7 @@ process.source = cms.Source("EmptyIOVSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-process.hv = cms.EDFilter("DTHVDump")
+process.hv = cms.EDAnalyzer("DTHVDump")
 
 process.p = cms.Path(process.hv)
 

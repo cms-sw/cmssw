@@ -27,13 +27,17 @@
 #include "CondFormats/DataRecord/interface/DTPerformanceRcd.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
+#include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
+#include "CondFormats/DataRecord/interface/DTKeyedConfigContainerRcd.h"
+#include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
 #include "CondFormats/DTObjects/interface/DTTPGParameters.h"
 #include "CondFormats/DataRecord/interface/DTTPGParametersRcd.h"
 #include "CondFormats/DTObjects/interface/DTHVStatus.h"
 #include "CondFormats/DataRecord/interface/DTHVStatusRcd.h"
 #include "CondFormats/DTObjects/interface/DTLVStatus.h"
 #include "CondFormats/DataRecord/interface/DTLVStatusRcd.h"
-
+#include "CondFormats/Common/interface/BaseKeyed.h"
+#include "CondCore/IOVService/interface/KeyListProxy.h"
 
 
 REGISTER_PLUGIN(DTReadOutMappingRcd,DTReadOutMapping);
@@ -49,3 +53,5 @@ REGISTER_PLUGIN(DTCCBConfigRcd,DTCCBConfig);
 REGISTER_PLUGIN(DTTPGParametersRcd,DTTPGParameters);
 REGISTER_PLUGIN(DTHVStatusRcd,DTHVStatus);
 REGISTER_PLUGIN(DTLVStatusRcd,DTLVStatus);
+REGISTER_PLUGIN(DTKeyedConfigContainerRcd, cond::BaseKeyed);
+REGISTER_KEYLIST_PLUGIN(DTKeyedConfigListRcd,cond::KeyList,DTKeyedConfigContainerRcd);

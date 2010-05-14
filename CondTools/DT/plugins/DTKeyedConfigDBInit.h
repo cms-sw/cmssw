@@ -1,12 +1,12 @@
-#ifndef DTConfigDBCopy_H
-#define DTConfigDBCopy_H
-/** \class DTConfigDBCopy
+#ifndef DTKeyedConfigDBInit_H
+#define DTKeyedConfigDBInit_H
+/** \class DTKeyedConfigDBInit
  *
  *  Description: 
  *
  *
- *  $Date: 2007/12/07 15:12:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/03/18 16:07:59 $
+ *  $Revision: 1.1.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -32,42 +32,32 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTConfigDBCopy: public edm::EDAnalyzer {
+class DTKeyedConfigDBInit: public edm::EDAnalyzer {
 
  public:
 
   /** Constructor
    */
-  explicit DTConfigDBCopy( const edm::ParameterSet& ps );
+  explicit DTKeyedConfigDBInit( const edm::ParameterSet& ps );
 
   /** Destructor
    */
-  virtual ~DTConfigDBCopy();
+  virtual ~DTKeyedConfigDBInit();
 
   /** Operations
    */
   /// 
   virtual void beginJob();
   virtual void analyze( const edm::Event& e, const edm::EventSetup& c );
+  virtual void endJob();
 
  private:
 
-  std::string sourceContact;
-  std::string sourceCatalog;
-  std::string sourceToken;
-  std::string sourceAuthPath;
-  std::string targetContact;
-  std::string targetCatalog;
-  std::string targetToken;
-  std::string targetAuthPath;
+  std::string container;
+  std::string iov;
 
 };
 
 
-#endif // DTConfigDBCopy_H
-
-
-
-
-
+#endif // DTKeyedConfigDBInit_H
 

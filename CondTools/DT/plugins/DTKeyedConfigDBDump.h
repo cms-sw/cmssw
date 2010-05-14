@@ -1,12 +1,12 @@
-#ifndef DTConfigDBDump_H
-#define DTConfigDBDump_H
-/** \class DTConfigDBDump
+#ifndef DTKeyedConfigDBDump_H
+#define DTKeyedConfigDBDump_H
+/** \class DTKeyedConfigDBDump
  *
  *  Description: 
  *
  *
- *  $Date: 2007/12/07 15:12:54 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/03/18 16:07:59 $
+ *  $Revision: 1.1.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -32,17 +32,17 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTConfigDBDump: public edm::EDAnalyzer {
+class DTKeyedConfigDBDump: public edm::EDAnalyzer {
 
  public:
 
   /** Constructor
    */
-  explicit DTConfigDBDump( const edm::ParameterSet& ps );
+  explicit DTKeyedConfigDBDump( const edm::ParameterSet& ps );
 
   /** Destructor
    */
-  virtual ~DTConfigDBDump();
+  virtual ~DTKeyedConfigDBDump();
 
   /** Operations
    */
@@ -52,18 +52,8 @@ class DTConfigDBDump: public edm::EDAnalyzer {
 
  private:
 
-  std::string contact;
-  std::string catalog;
-  std::string token;
-  std::string authPath;
-
 };
 
 
-#endif // DTConfigDBDump_H
-
-
-
-
-
+#endif // DTKeyedConfigDBDump_H
 

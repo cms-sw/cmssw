@@ -1,12 +1,12 @@
-#ifndef DTConfigData_H
-#define DTConfigData_H
-/** \class DTConfigData
+#ifndef DTKeyedConfig_H
+#define DTKeyedConfig_H
+/** \class DTKeyedConfig
  *
  *  Description: 
  *
  *
- *  $Date: 2007/11/24 12:29:10 $
- *  $Revision: 1.1.4.2 $
+ *  $Date: 2010/03/18 16:02:30 $
+ *  $Revision: 1.1.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -14,7 +14,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-
+#include "CondFormats/Common/interface/BaseKeyed.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -32,18 +32,18 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTConfigData {
+class DTKeyedConfig: public cond::BaseKeyed {
 
  public:
 
   /** Constructor
    */
-  DTConfigData();
-  DTConfigData( const DTConfigData& obj );
+  DTKeyedConfig();
+  DTKeyedConfig( const DTKeyedConfig& obj );
 
   /** Destructor
    */
-  virtual ~DTConfigData();
+  virtual ~DTKeyedConfig();
 
   /** Operations
    */
@@ -69,7 +69,7 @@ class DTConfigData {
 };
 
 
-#endif // DTConfigData_H
+#endif // DTKeyedConfig_H
 
 
 

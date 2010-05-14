@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/30 10:39:06 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/03/18 16:06:54 $
+ *  $Revision: 1.1.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -10,20 +10,24 @@
 //-----------------------
 // This Class' Header --
 //-----------------------
-#include "CondTools/DT/interface/DTCCBConfigHandler.h"
+#include "CondTools/DT/interface/DTKeyedConfigHandler.h"
 
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "CondTools/DT/interface/DTConfigHandler.h"
-#include "CondTools/DT/interface/DTDBSession.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
-#include "CondFormats/DTObjects/interface/DTConfigList.h"
+#include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/Connection.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
+
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondCore/DBOutputService/interface/KeyedElement.h"
+#include "CondCore/IOVService/interface/KeyList.h"
+
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
@@ -41,63 +45,36 @@
 //-------------------
 // Initializations --
 //-------------------
-
+cond::KeyList* DTKeyedConfigHandler::keyList = 0;
 
 //----------------
 // Constructors --
 //----------------
-DTCCBConfigHandler::DTCCBConfigHandler( const edm::ParameterSet& ps ):
+DTKeyedConfigHandler::DTKeyedConfigHandler( const edm::ParameterSet& ps ):
+ copyData(   ps.getUntrackedParameter<bool> ( "copyData", true ) ),
+ minBrickId( ps.getUntrackedParameter<int> ( "minBrick", 0 ) ),
+ maxBrickId( ps.getUntrackedParameter<int> ( "maxBrick", 999999999 ) ),
+ minRunId(   ps.getUntrackedParameter<int> ( "minRun", 0 ) ),
+ maxRunId(   ps.getUntrackedParameter<int> ( "maxRun", 999999999 ) ),
  dataTag(               ps.getParameter<std::string> ( "tag" ) ),
  onlineConnect(         ps.getParameter<std::string> ( "onlineDB" ) ),
  onlineAuthentication(  ps.getParameter<std::string> ( 
                         "onlineAuthentication" ) ),
- offlineAuthentication( ps.getParameter<edm::ParameterSet>( "DBParameters" )
-                          .getUntrackedParameter<std::string> (
-                        "authenticationPath" ) ),
- offlineConnect(        ps.getParameter<std::string> ( "offlineDB" ) ),
-// catalog(               ps.getParameter<std::string> ( "catalog" ) ),
- listToken(             ps.getParameter<std::string> ( "token" ) ) {
+ brickContainer(        ps.getParameter<std::string> ( "container" ) ) {
   std::cout << " PopCon application for DT configuration export "
-            <<  onlineAuthentication << " "
-            << offlineAuthentication << std::endl;
+            <<  onlineAuthentication << std::endl;
 }
 
 //--------------
 // Destructor --
 //--------------
-DTCCBConfigHandler::~DTCCBConfigHandler() {
+DTKeyedConfigHandler::~DTKeyedConfigHandler() {
 }
 
 //--------------
 // Operations --
 //--------------
-void DTCCBConfigHandler::getNewObjects() {
-
-  cond::DBSession* coralSession;
-  cond::Connection* m_connection;
-  cond::CoralTransaction* m_coraldb;
-
-  coralSession = new cond::DBSession();
-  // to get the username/passwd from $CORAL_AUTH_PATH/authentication.xml
-  coralSession->configuration().setAuthenticationMethod( cond::XML );
-  coralSession->configuration().setAuthenticationPath( onlineAuthentication );
-  // set message level to Error or Debug
-  coralSession->configuration().setMessageLevel( cond::Error );
-//  coralSession->connectionConfiguration().setConnectionRetrialTimeOut( 60 );
-  coralSession->open();
-
-  m_connection = new cond::Connection( onlineConnect );
-  m_connection->connect( coralSession );
-  m_coraldb = &( m_connection->coralTransaction() );
-  m_coraldb->start( true );
-
-//  std::cout << "get session proxy... " << std::endl;
-  isession = &( m_coraldb->coralSessionProxy() );
-//  std::cout << "session proxy got" << std::endl;
-  m_coraldb->start( true );
-
-  chkConfigList();
-//  std::cout << "get run config..." << std::endl;
+void DTKeyedConfigHandler::getNewObjects() {
 
   //to access the information on the tag inside the offline database:
   cond::TagInfo const & ti = tagInfo();
@@ -106,22 +83,27 @@ void DTCCBConfigHandler::getNewObjects() {
             << last << std::endl;
 
   std::vector<DTConfigKey> lastKey;
+  std::cout << "check for last " << std::endl;
   if ( last == 0 ) {
     DTCCBConfig* dummyConf = new DTCCBConfig( dataTag );
     dummyConf->setStamp( 0 );
     dummyConf->setFullKey( lastKey );
     cond::Time_t snc = 1;
+    std::cout << "write dummy " << std::endl;
     m_to_transfer.push_back( std::make_pair( dummyConf, snc ) );
   }
   else {
+    std::cout << "get last payload" << std::endl;
     Ref payload = lastPayload();
+    std::cout << "get last full key" << std::endl;
     lastKey = payload->fullKey();
     std::cout << "last key: " << std::endl;
     std::vector<DTConfigKey>::const_iterator keyIter = lastKey.begin();
     std::vector<DTConfigKey>::const_iterator keyIend = lastKey.end();
     while ( keyIter != keyIend ) {
-      const DTConfigKey& keyList = *keyIter++;
-      std::cout << keyList.confType << " : " << keyList.confKey << std::endl;
+      const DTConfigKey& cfgKeyList = *keyIter++;
+      std::cout << cfgKeyList.confType << " : "
+                << cfgKeyList.confKey << std::endl;
     }
   }
 
@@ -131,83 +113,56 @@ void DTCCBConfigHandler::getNewObjects() {
   //to access the lastest payload (Ref is a smart pointer)
 //  Ref payload = lastPayload();
 
+  if ( !copyData ) return;
+
   unsigned lastRun = last;
   std::cout << "check for new runs since " << lastRun << std::endl;
 
-/*
-  // Find latest runs
-  std::map<int,int> g2lMap;
-  std::map<int,int> runMap;
-  coral::ITable& runHistoryTable =
-    isession->nominalSchema().tableHandle( "RUNHISTORY" );
-  std::auto_ptr<coral::IQuery>
-    runHistoryQuery( runHistoryTable.newQuery() );
-  runHistoryQuery->addToOutputList( "RUN" );
-  runHistoryQuery->addToOutputList( "G2LID" );
-  coral::ICursor& runHistoryCursor = runHistoryQuery->execute();
-  while( runHistoryCursor.next() ) {
-    const coral::AttributeList& row = runHistoryCursor.currentRow();
-    int runId = row[  "RUN"].data<int>();
-    int g2lId = row["G2LID"].data<int>();
-    if ( static_cast<unsigned>( runId ) <= lastRun ) continue;
-    std::cout << "schedule config key copy for run "
-              << runId << std::endl;
-    if ( g2lMap.find( g2lId ) == g2lMap.end() )
-         g2lMap.insert( std::pair<int,int>( g2lId, runId ) );
-    if ( runMap.find( runId ) == runMap.end() )
-         runMap.insert( std::pair<int,int>( runId, g2lId ) );
-  }
-  if ( !runMap.size() ) std::cout << "no new run found" << std::endl;
+  std::cout << "create DbConnection" << std::endl;
+  cond::DbConnection* conn = new cond::DbConnection;
+  std::cout << "configure DbConnection" << std::endl;
+//  conn->configure( cond::CmsDefaults );
+  conn->configuration().setAuthenticationPath( onlineAuthentication );
+  conn->configure();
+  std::cout << "create DbSession" << std::endl;
+  cond::DbSession session = conn->createSession();
+  std::cout << "open session" << std::endl;
+  session.open( onlineConnect );
+  std::cout << "start transaction" << std::endl;
+  session.transaction().start();
+  std::cout << "create coralSession" << std::endl;
+  isession = &( session.coralSession() );
+  std::cout << "" << std::endl;
 
-  // get full config for latest runs
-  std::map<int,int> l2gMap;
-  std::map<int,int> cfgMap;
-  coral::ITable& runConfigTable =
-    isession->nominalSchema().tableHandle( "G2LRELATIONS" );
-  std::auto_ptr<coral::IQuery>
-    runConfigQuery( runConfigTable.newQuery() );
-  runConfigQuery->addToOutputList( "ID" );
-  runConfigQuery->addToOutputList( "CCBCSET" );
-  coral::ICursor& runConfigCursor = runConfigQuery->execute();
-  while( runConfigCursor.next() ) {
-    const coral::AttributeList& row = runConfigCursor.currentRow();
-    int g2lId = row[     "ID"].data<int>();
-    int cfgId = row["CCBCSET"].data<int>();
-    std::map<int,int>::const_iterator g2lIter = g2lMap.find( g2lId );
-    std::map<int,int>::const_iterator g2lIend = g2lMap.end();
-    if ( g2lIter == g2lIend ) continue;
-    l2gMap.insert( std::pair<int,int>( g2lId, cfgId ) );
-    if ( cfgMap.find( cfgId ) == cfgMap.end() )
-    cfgMap.insert( std::pair<int,int>( cfgId, g2lId ) );
-  }
-*/
+  chkConfigList();
+  std::cout << "get run config..." << std::endl;
 
   // Find latest runs
   std::map<int,int> runMap;
-//  std::map<int,int> cfgMap;
   std::map<int,std::vector<DTConfigKey>*> rhcMap;
   coral::ITable& runHistoryTable =
     isession->nominalSchema().tableHandle( "RUNHISTORY" );
   std::auto_ptr<coral::IQuery>
     runHistoryQuery( runHistoryTable.newQuery() );
   runHistoryQuery->addToOutputList( "RUN" );
-//  runHistoryQuery->addToOutputList( "CCBCSET" );
   runHistoryQuery->addToOutputList( "RHID" );
   coral::ICursor& runHistoryCursor = runHistoryQuery->execute();
   while( runHistoryCursor.next() ) {
     const coral::AttributeList& row = runHistoryCursor.currentRow();
     int runId = row[    "RUN"].data<int>();
-//    int cfgId = static_cast<int>( row["CCBCSET"].data<long long>() );
     int rhcId = static_cast<int>( row["RHID"].data<int>() );
     if ( static_cast<unsigned>( runId ) <= lastRun ) continue;
+    if ( runId < minRunId ) continue;
+    if ( runId > maxRunId ) continue;
     std::cout << "schedule config key copy for run "
               << runId << " ---> RHID " << rhcId << std::endl;
     if ( runMap.find( runId ) == runMap.end() )
          runMap.insert( std::pair<int,int>( runId, rhcId ) );
-//    if ( cfgMap.find( cfgId ) == cfgMap.end() )
-//         cfgMap.insert( std::pair<int,int>( cfgId, runId ) );
     if ( rhcMap.find( rhcId ) == rhcMap.end() )
-         rhcMap.insert( std::pair<int,std::vector<DTConfigKey>*>( rhcId, 0 ) );
+         rhcMap.insert( std::pair<int,std::vector<DTConfigKey>*>(
+                                            rhcId,
+                                            new std::vector<DTConfigKey> ) );
+//         rhcMap.insert( std::pair<int,std::vector<DTConfigKey>*>( rhcId, 0 ) );
   }
   if ( !runMap.size() ) std::cout << "no new run found" << std::endl;
 
@@ -283,7 +238,7 @@ void DTCCBConfigHandler::getNewObjects() {
                                                       rhcMap.end();
     if ( rhcIter == rhcIend ) continue;
     std::vector<DTConfigKey>* keyPtr = rhcIter->second;
-    if ( keyPtr == 0 ) rhcIter->second = keyPtr = new std::vector<DTConfigKey>;
+//    if ( keyPtr == 0 ) rhcIter->second = keyPtr = new std::vector<DTConfigKey>;
     DTConfigKey confList;
     confList.confType = cfg;
     confList.confKey  = key;
@@ -361,7 +316,6 @@ void DTCCBConfigHandler::getNewObjects() {
     brkPtr->push_back( brk );
   }
 
-/*
   // loop over new runs
   std::map<int,int>::const_iterator runIter = runMap.begin();
   std::map<int,int>::const_iterator runIend = runMap.end();
@@ -369,79 +323,20 @@ void DTCCBConfigHandler::getNewObjects() {
     const std::pair<int,int>& runEntry = *runIter++;
     // get full configuration
     int run = runEntry.first;
-    int g2l = runEntry.second;
-    // retrieve full configuration
-    std::map<int,int>::const_iterator l2gIter = l2gMap.find( g2l );
-    std::map<int,int>::const_iterator l2gIend = l2gMap.end();
-    if ( l2gIter == l2gIend ) continue;
-    const std::pair<int,int>& l2gEntry = *l2gIter;
-    int cfg = l2gEntry.second;
-    std::cout << "retrieve configuration bricks for run " << run
-              << " ---> g2l_id " << g2l
-              << " ---> config " << cfg << std::endl;
-    DTCCBConfig* fullConf = new DTCCBConfig( dataTag );
-    // set run and full configuration in payload
-    fullConf->setStamp(   run );
-    fullConf->setFullKey( cfg );
-    // retrieve ccb config map
-    std::map<int,std::map<int,int>*>::const_iterator keyIter =
-                                                     keyMap.find( cfg );
-    std::map<int,std::map<int,int>*>::const_iterator keyIend =
-                                                     keyMap.end();
-    std::map<int,int>* mapPtr = 0;
-    if ( keyIter != keyIend ) mapPtr = keyIter->second;
-    if ( mapPtr == 0 ) continue;
-    // loop over ccb
-    std::map<int,int>::const_iterator ccbIter = mapPtr->begin();
-    std::map<int,int>::const_iterator ccbIend = mapPtr->end();
-    while ( ccbIter != ccbIend ) {
-      const std::pair<int,int>& ccbEntry = *ccbIter++;
-      // get ccb config key
-      int ccb = ccbEntry.first;
-      int key = ccbEntry.second;
-      // retrieve chamber id
-      std::map<int,DTCCBId>::const_iterator ccbIter = ccbMap.find( ccb );
-      std::map<int,DTCCBId>::const_iterator ccbIend = ccbMap.end();
-      if ( ccbIter == ccbIend ) continue;
-      const DTCCBId& chaId = ccbIter->second;
-      // retrieve brick id list
-      std::map<int,std::vector<int>*>::const_iterator brkIter =
-                                                      brkMap.find( key );
-      std::map<int,std::vector<int>*>::const_iterator brkIend =
-                                                      brkMap.end();
-      if ( brkIter == brkIend ) continue;
-      std::vector<int>* brkPtr = brkIter->second;
-      if ( brkPtr == 0 ) continue;
-      // brick id lists in payload
-      fullConf->setConfigKey( chaId.wheelId,
-                              chaId.stationId,
-                              chaId.sectorId,
-                              *brkPtr );
-    }
-    cond::Time_t snc = runEntry.first;
-    m_to_transfer.push_back( std::make_pair( fullConf, snc ) );
-    std::cout << "writing payload : " << sizeof( *fullConf ) 
-              << " ( " << ( fullConf->end() - fullConf->begin() )
-              << " ) " << std::endl;
-  }
-*/
-
-  // loop over new runs
-  std::map<int,int>::const_iterator runIter = runMap.begin();
-  std::map<int,int>::const_iterator runIend = runMap.end();
-  while ( runIter != runIend ) {
-    const std::pair<int,int>& runEntry = *runIter++;
-    // get full configuration
-    int run = runEntry.first;
-//    int cfg = runEntry.second;
     int rhc = runEntry.second;
     std::map<int,std::vector<DTConfigKey>*>::const_iterator
              rhcIter = rhcMap.find( rhc );
     std::map<int,std::vector<DTConfigKey>*>::const_iterator
              rhcIend = rhcMap.end();
+    if ( rhcIter == rhcIend ) continue;
+    if ( rhcIter->second == 0 ) {
+      std::cout << "RHC not found for run: " << run << std::endl;
+      continue;
+    }
+    if ( rhcIter->second->size() == 0 ) 
+      std::cout << "empty RHC for run: " << run << std::endl;
     std::vector<DTConfigKey>& cfl = *( rhcIter->second );
     if ( sameConfigList( cfl, lastKey ) ) continue;
-//    if ( cfg == lastKey ) continue;
     lastKey = cfl;
     std::cout << "retrieve configuration bricks for run " << run
               << " ---> RH " << rhc << std::endl;
@@ -486,7 +381,6 @@ void DTCCBConfigHandler::getNewObjects() {
       if ( brkIter == brkIend ) continue;
       std::vector<int>* brkPtr = brkIter->second;
       if ( brkPtr == 0 ) continue;
-//      const std::vector<int>& bkFull ( *brkPtr );
       // brick id lists in payload
       std::vector<int> bkList;
       bkList.reserve( 20 );
@@ -504,10 +398,6 @@ void DTCCBConfigHandler::getNewObjects() {
                                  chaId.stationId,
                                  chaId.sectorId,
                                  bkList );
-//      fullConf->appendConfigKey( chaId.wheelId,
-//                                 chaId.stationId,
-//                                 chaId.sectorId,
-//                                 *brkPtr );
     }
     }
     cond::Time_t snc = runEntry.first;
@@ -517,29 +407,20 @@ void DTCCBConfigHandler::getNewObjects() {
               << " ) " << std::endl;
   }
 
-  delete m_connection;
-  delete coralSession;
+  session.transaction().commit();
+  session.close();
 
   return;
 
 }
 
 
-void DTCCBConfigHandler::chkConfigList() {
-  std::cout << "check for available configurations " << std::endl
-            << "create session: "
-            << offlineConnect << " , "
-            << offlineCatalog << " , "
-            << offlineAuthentication << std::endl;
+void DTKeyedConfigHandler::chkConfigList() {
 
-  DTDBSession* session = new DTDBSession( offlineConnect, offlineCatalog,
-                                          offlineAuthentication );
-  session->connect( false );
-  const DTConfigList* rs;
-//  std::cout << "read full list: " << listToken << std::endl;
-  DTConfigHandler* ri = DTConfigHandler::create( session, listToken );
-  rs = ri->getContainer();
+  std::cout << "open POOL out db " << std::endl;
+  edm::Service<cond::service::PoolDBOutputService> outdb;
 
+  std::cout << "start queries " << std::endl;
   std::map<int,bool> activeConfigMap;
   coral::ITable& fullConfigTable =
     isession->nominalSchema().tableHandle( "CONFIGSETS" );
@@ -558,8 +439,6 @@ void DTCCBConfigHandler::chkConfigList() {
     else                activeConfigMap.insert(
                         std::pair<int,bool>( fullConfigId, false ) );
     std::string fullConfigName = row["NAME"].data<std::string>();
-//    std::cout << "config " << fullConfigId
-//              << " : "     << fullConfigName << std::endl;
   }
 
 //  std::cout << " =============== CCB config list" << std::endl;
@@ -614,31 +493,45 @@ void DTCCBConfigHandler::chkConfigList() {
   brickConfigQuery->addToOutputList( "BRKID" );
   brickConfigQuery->addToOutputList( "BRKNAME" );
   coral::ICursor& brickConfigCursor = brickConfigQuery->execute();
-  DTConfigData* brickData = 0;
-//  char brickIdString[20];
+  DTKeyedConfig* brickData = 0;
   std::vector<int> missingList;
+  std::vector<unsigned long long> checkedKeys;
   while( brickConfigCursor.next() ) {
     const coral::AttributeList& row = brickConfigCursor.currentRow();
     int brickConfigId = row["BRKID"].data<int>();
+    if ( brickConfigId < minBrickId ) continue;
+    if ( brickConfigId > maxBrickId ) continue;
     std::map<int,bool>::const_iterator brkIter =
                                        activeCfgBrkMap.find( brickConfigId );
     if ( brkIter == activeCfgBrkMap.end() ) continue;
     if ( !( brkIter->second ) ) continue;
     std::string brickConfigName = row["BRKNAME"].data<std::string>();
-//    std::cout << "brick " << brickConfigId
-//              << " : "    << brickConfigName << std::endl;
-    ri->get( brickConfigId, brickData );
-    if ( brickData == 0 ) {
+    std::cout << "brick " << brickConfigId
+              << " : "    << brickConfigName << std::endl;
+    checkedKeys.push_back( brickConfigId );
+    bool brickFound = false;
+    try {
+      keyList->load( checkedKeys );
+      const DTKeyedConfig* brickCheck = keyList->get<DTKeyedConfig>( 0 );
+      if ( brickCheck != 0 ) brickFound =
+                             ( brickCheck->getId() == brickConfigId );
+    }
+    catch ( std::exception e ) {
+    }
+    if ( !brickFound ) {
       std::cout << "brick " << brickConfigId << " missing, copy request"
                 << std::endl;
       missingList.push_back( brickConfigId );
     }
+    checkedKeys.clear();
   }
+  keyList->load( checkedKeys );
 
   std::vector<int>::const_iterator brickIter = missingList.begin();
   std::vector<int>::const_iterator brickIend = missingList.end();
   while ( brickIter != brickIend ) {
     int brickConfigId = *brickIter++;
+//    std::cout << "get data for brick: " << brickConfigId << std::endl;
     coral::AttributeList bindVariableList;
     bindVariableList.extend( "brickId", typeid(int) );
     bindVariableList["brickId"].data<int>() = brickConfigId;
@@ -653,37 +546,30 @@ void DTCCBConfigHandler::chkConfigList() {
     brickDataQuery->addToOutputList( "CONFIGCMDS.CONFDATA" );
     brickDataQuery->setCondition( brickCondition, bindVariableList );
     coral::ICursor& brickDataCursor = brickDataQuery->execute();
-    brickData = new DTConfigData();
+    brickData = new DTKeyedConfig();
     brickData->setId( brickConfigId );
     while( brickDataCursor.next() ) {
       const coral::AttributeList& row = brickDataCursor.currentRow();
       brickData->add( row["CONFIGCMDS.CONFDATA"].data<std::string>() );
     }
-    cond::TypedRef<DTConfigData> brickRef( *session->poolDB(), brickData );
-    brickRef.markWrite( "DTConfigData" );
-    ri->set( brickConfigId, brickRef.token() );
+    cond::KeyedElement k( brickData, brickConfigId );
+    std::cout << "now writing brick: " << brickConfigId << std::endl;
+    outdb->writeOne( k.m_obj, k.m_sum, k.m_key, brickContainer );
   }
-
-  std::cout << "brick list updated, disconnect session" << std::endl;
-//  std::cout << "disconnect session..." << std::endl;
-  session->disconnect();
-//  std::cout << "delete session..." << std::endl;
-  delete session;
-//  std::cout << "list updated..." << std::endl;
 
   return;
 
 }
 
 
-std::string DTCCBConfigHandler::id() const {
+std::string DTKeyedConfigHandler::id() const {
   return dataTag;
 }
 
 
-bool DTCCBConfigHandler::sameConfigList(
-                         const std::vector<DTConfigKey>& cfgl,
-                         const std::vector<DTConfigKey>& cfgr ) {
+bool DTKeyedConfigHandler::sameConfigList(
+                           const std::vector<DTConfigKey>& cfgl,
+                           const std::vector<DTConfigKey>& cfgr ) {
   if ( cfgl.size() != cfgr.size() ) return false;
   std::map<int,int> lmap;
   std::vector<DTConfigKey>::const_iterator lIter = cfgl.begin();
@@ -691,7 +577,7 @@ bool DTCCBConfigHandler::sameConfigList(
   while ( lIter != lIend ) {
     const DTConfigKey& entry = *lIter++;
     lmap.insert( std::pair<int,int>( entry.confType, entry.confKey ) );
-  }
+ }
   std::map<int,int> rmap;
   std::vector<DTConfigKey>::const_iterator rIter = cfgr.begin();
   std::vector<DTConfigKey>::const_iterator rIend = cfgr.end();
@@ -711,5 +597,10 @@ bool DTCCBConfigHandler::sameConfigList(
     if ( lEntry.second != rEntry.second ) return false;
   }
   return true;
+}
+
+
+void DTKeyedConfigHandler::setList( cond::KeyList* list ) {
+  keyList = list;
 }
 

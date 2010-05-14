@@ -1,12 +1,12 @@
-#ifndef DTCCBConfigHandler_H
-#define DTCCBConfigHandler_H
-/** \class DTCCBConfigHandler
+#ifndef DTKeyedConfigHandler_H
+#define DTKeyedConfigHandler_H
+/** \class DTKeyedConfigHandler
  *
  *  Description: 
  *
  *
- *  $Date: 2008/02/15 18:15:02 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/03/18 16:06:37 $
+ *  $Revision: 1.1.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -27,6 +27,10 @@ namespace coral {
   class ISessionProxy;
 }
 
+namespace cond {
+  class KeyList;
+}
+
 //---------------
 // C++ Headers --
 //---------------
@@ -36,17 +40,17 @@ namespace coral {
 //              -- Class Interface --
 //              ---------------------
 
-class DTCCBConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
+class DTKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
 
  public:
 
   /** Constructor
    */
-  DTCCBConfigHandler( const edm::ParameterSet& ps );
+  DTKeyedConfigHandler( const edm::ParameterSet& ps );
 
   /** Destructor
    */
-  virtual ~DTCCBConfigHandler();
+  virtual ~DTKeyedConfigHandler();
 
   /** Operations
    */
@@ -54,15 +58,20 @@ class DTCCBConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
   void getNewObjects();
   std::string id() const;
 
+  static void setList( cond::KeyList* list );
+
  private:
+
+  bool copyData;
+  int minBrickId;
+  int maxBrickId;
+  int minRunId;
+  int maxRunId;
 
   std::string dataTag;
   std::string onlineConnect;
   std::string onlineAuthentication;
-  std::string offlineAuthentication;
-  std::string offlineConnect;
-  std::string offlineCatalog;
-  std::string listToken;
+  std::string brickContainer;
   DTCCBConfig* ccbConfig;
 
   coral::ISessionProxy* isession;
@@ -70,10 +79,12 @@ class DTCCBConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
   static bool sameConfigList( const std::vector<DTConfigKey>& cfgl,
                               const std::vector<DTConfigKey>& cfgr );
 
+  static cond::KeyList* keyList;
+
 };
 
 
-#endif // DTCCBConfigHandler_H
+#endif // DTKeyedConfigHandler_H
 
 
 

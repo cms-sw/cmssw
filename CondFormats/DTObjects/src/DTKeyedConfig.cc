@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:11 $
- *  $Revision: 1.1.4.2 $
+ *  $Date: 2010/03/18 16:03:17 $
+ *  $Revision: 1.1.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -10,7 +10,7 @@
 //-----------------------
 // This Class' Header --
 //-----------------------
-#include "CondFormats/DTObjects/interface/DTConfigData.h"
+#include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -31,11 +31,11 @@
 //----------------
 // Constructors --
 //----------------
-DTConfigData::DTConfigData() {
+DTKeyedConfig::DTKeyedConfig() {
 }
 
 
-DTConfigData::DTConfigData( const DTConfigData& obj ) {
+DTKeyedConfig::DTKeyedConfig( const DTKeyedConfig& obj ) {
   cfgId = obj.cfgId;
   data_iterator d_iter = obj.dataList.begin();
   data_iterator d_iend = obj.dataList.end();
@@ -49,48 +49,48 @@ DTConfigData::DTConfigData( const DTConfigData& obj ) {
 //--------------
 // Destructor --
 //--------------
-DTConfigData::~DTConfigData() {
+DTKeyedConfig::~DTKeyedConfig() {
 }
 
 //--------------
 // Operations --
 //--------------
-int DTConfigData::getId() const {
+int DTKeyedConfig::getId() const {
   return cfgId;
 }
 
 
-void DTConfigData::setId( int id ) {
+void DTKeyedConfig::setId( int id ) {
   cfgId = id;
 }
 
 
-void DTConfigData::add( const std::string& data ) {
+void DTKeyedConfig::add( const std::string& data ) {
   dataList.push_back( data );
 }
 
 
-void DTConfigData::add( int id ) {
+void DTKeyedConfig::add( int id ) {
   linkList.push_back( id );
 }
 
 
-DTConfigData::data_iterator DTConfigData::dataBegin() const {
+DTKeyedConfig::data_iterator DTKeyedConfig::dataBegin() const {
   return dataList.begin();
 }
 
 
-DTConfigData::data_iterator DTConfigData::dataEnd() const {
+DTKeyedConfig::data_iterator DTKeyedConfig::dataEnd() const {
   return dataList.end();
 }
 
 
-DTConfigData::link_iterator DTConfigData::linkBegin() const {
+DTKeyedConfig::link_iterator DTKeyedConfig::linkBegin() const {
   return linkList.begin();
 }
 
 
-DTConfigData::link_iterator DTConfigData::linkEnd() const {
+DTKeyedConfig::link_iterator DTKeyedConfig::linkEnd() const {
   return linkList.end();
 }
 

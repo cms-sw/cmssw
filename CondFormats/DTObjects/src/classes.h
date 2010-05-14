@@ -26,13 +26,11 @@
 #include "CondFormats/DTObjects/interface/DTLVStatus.h"
 #include "CondFormats/DTObjects/interface/DTHVStatus.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
-#include "CondFormats/DTObjects/interface/DTConfigList.h"
-#include "CondFormats/DTObjects/interface/DTConfigData.h"
+#include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondFormats/DTObjects/interface/DTTPGParameters.h"
 
 namespace {
   struct dictionary {
-    std::pair<              int,      DTConfigToken>   confTokenPair;
     std::pair<           DTT0Id,           DTT0Data>          t0Pair;
     std::pair<        DTTtrigId,        DTTtrigData>       tTrigPair;
     std::pair<        DTMtimeId,        DTMtimeData>       mTimePair;
@@ -46,8 +44,6 @@ namespace {
     std::pair<DTTPGParametersId,DTTPGParametersData>         tpgPair;
 
     std::vector< DTReadOutGeometryLink >            readoutMap;
-    std::vector< std::pair<              int,
-                               DTConfigToken> >   confTokenMap;
     std::vector< std::pair<           DTT0Id,
                                     DTT0Data> >          t0Map;
     std::vector< std::pair<        DTTtrigId,

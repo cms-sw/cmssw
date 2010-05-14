@@ -28,7 +28,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.dump = cms.EDFilter("DTGeometryDump"
+process.dump = cms.EDAnalyzer("DTGeometryDump"
 )
 
 process.p = cms.Path(process.dump)
