@@ -7,12 +7,7 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"
-
-//introduced to repair kinFit w/o resolutions from pat
-#include "TopQuarkAnalysis/TopObjectResolutions/interface/MET.h"
-#include "TopQuarkAnalysis/TopObjectResolutions/interface/Jet.h"
-#include "TopQuarkAnalysis/TopObjectResolutions/interface/Muon.h"
-#include "TopQuarkAnalysis/TopObjectResolutions/interface/Electron.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/CovarianceMatrix.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -186,150 +181,14 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
   TLorentzVector p4Neutrino( neutrino.px(), neutrino.py(), 0, neutrino.et() );
 
   // initialize covariance matrices
-  TMatrixD m1 (3,3), m2 (3,3), m3 (3,3), m4 (3,3);
-  TMatrixD m1b(4,4), m2b(4,4), m3b(4,4), m4b(4,4);
-  TMatrixD m5 (3,3), m6 (3,3);
-  m1 .Zero(); m2 .Zero(); m3 .Zero(); m4 .Zero();
-  m1b.Zero(); m2b.Zero(); m3b.Zero(); m4b.Zero();
-  m5 .Zero(); m6 .Zero();
+  CovarianceMatrix covM;
+  TMatrixD m1 = covM.setupMatrix(hadP,     jetParam_);
+  TMatrixD m2 = covM.setupMatrix(hadQ,     jetParam_);
+  TMatrixD m3 = covM.setupMatrix(hadB,     jetParam_, "bjet");
+  TMatrixD m4 = covM.setupMatrix(lepB,     jetParam_, "bjet");
+  TMatrixD m5 = covM.setupMatrix(lepton,   lepParam_);
+  TMatrixD m6 = covM.setupMatrix(neutrino, metParam_);
 
-  // add jet resolutions
-  {
-    //FIXME this dirty hack needs a clean solution soon!
-    double q1pt  = hadP.pt (), q2pt  = hadQ.pt ();
-    double b1pt  = hadB.pt (), b2pt  = lepB.pt ();
-    double q1eta = hadP.eta(), q2eta = hadQ.eta();
-    double b1eta = hadB.eta(), b2eta = lepB.eta();
-    
-    res::HelperJet jetRes;
-    switch(jetParam_){
-    case kEMom :
-      m1b(0,0) = pow(jetRes.a (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1b(1,1) = pow(jetRes.b (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1b(2,2) = pow(jetRes.c (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1b(3,3) = pow(jetRes.d (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m2b(0,0) = pow(jetRes.a (q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2b(1,1) = pow(jetRes.b (q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2b(2,2) = pow(jetRes.c (q2pt, q2eta, res::HelperJet::kUds), 2);
-      m2b(3,3) = pow(jetRes.d (q2pt, q2eta, res::HelperJet::kUds), 2);
-      m3b(0,0) = pow(jetRes.a (b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3b(1,1) = pow(jetRes.b (b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3b(2,2) = pow(jetRes.c (b1pt, b1eta, res::HelperJet::kB  ), 2);
-      m3b(3,3) = pow(jetRes.d (b1pt, b1eta, res::HelperJet::kB  ), 2);
-      m4b(0,0) = pow(jetRes.a (b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m4b(1,1) = pow(jetRes.b (b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m4b(2,2) = pow(jetRes.c (b2pt, b2eta, res::HelperJet::kB  ), 2);
-      m4b(3,3) = pow(jetRes.d (b2pt, b2eta, res::HelperJet::kB  ), 2);
-      break;
-    case kEtEtaPhi : 
-      m1 (0,0) = pow(jetRes.et (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1 (1,1) = pow(jetRes.eta(q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1 (2,2) = pow(jetRes.phi(q1pt, q1eta, res::HelperJet::kUds), 2);
-      m2 (0,0) = pow(jetRes.et (q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2 (1,1) = pow(jetRes.eta(q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2 (2,2) = pow(jetRes.phi(q2pt, q2eta, res::HelperJet::kUds), 2);
-      m3 (0,0) = pow(jetRes.et (b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3 (1,1) = pow(jetRes.eta(b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3 (2,2) = pow(jetRes.phi(b1pt, b1eta, res::HelperJet::kB  ), 2);
-      m4 (0,0) = pow(jetRes.et (b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m4 (1,1) = pow(jetRes.eta(b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m4 (2,2) = pow(jetRes.phi(b2pt, b2eta, res::HelperJet::kB  ), 2);
-      break;
-    case kEtThetaPhi :
-      m1 (0,0) = pow(jetRes.et   (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1 (1,1) = pow(jetRes.theta(q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1 (2,2) = pow(jetRes.phi  (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m2 (0,0) = pow(jetRes.et   (q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2 (1,1) = pow(jetRes.theta(q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2 (2,2) = pow(jetRes.phi  (q2pt, q2eta, res::HelperJet::kUds), 2);
-      m3 (0,0) = pow(jetRes.et   (b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3 (1,1) = pow(jetRes.theta(b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3 (2,2) = pow(jetRes.phi  (b1pt, b1eta, res::HelperJet::kB  ), 2);
-      m4 (0,0) = pow(jetRes.et   (b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m4 (1,1) = pow(jetRes.theta(b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m4 (2,2) = pow(jetRes.phi  (b2pt, b2eta, res::HelperJet::kB  ), 2);
-      break;
-    }
-  }
-
-  // add lepton resolutions
-  {
-    //FIXME this dirty hack needs a clean solution soon!
-    double pt  = lepton.pt ();
-    double eta = lepton.eta();
-
-    // if lepton is an electron
-    if( dynamic_cast<const reco::GsfElectron*>(&lepton) ) {
-      res::HelperElectron elecRes;
-      switch(lepParam_){
-      case kEMom :
-	m5(0,0) = pow(elecRes.a (pt, eta), 2);
-	m5(1,1) = pow(elecRes.b (pt, eta), 2); 
-	m5(2,2) = pow(elecRes.c (pt, eta), 2);
-	break;
-      case kEtEtaPhi :
-	m5(0,0) = pow(elecRes.et (pt, eta), 2);
-	m5(1,1) = pow(elecRes.eta(pt, eta), 2); 
-	m5(2,2) = pow(elecRes.phi(pt, eta), 2);
-	break;
-      case kEtThetaPhi :
-	m5(0,0) = pow(elecRes.et   (pt, eta), 2);
-	m5(1,1) = pow(elecRes.theta(pt, eta), 2); 
-	m5(2,2) = pow(elecRes.phi  (pt, eta), 2);
-	break;
-      }
-    }
-    // if lepton is a muon
-    else if( dynamic_cast<const reco::Muon*>(&lepton) ) {
-      res::HelperMuon muonRes;
-      switch(lepParam_){
-      case kEMom :
-	m5(0,0) = pow(muonRes.a (pt, eta), 2);
-	m5(1,1) = pow(muonRes.b (pt, eta), 2); 
-	m5(2,2) = pow(muonRes.c (pt, eta), 2);
-	break;
-      case kEtEtaPhi :
-	m5(0,0) = pow(muonRes.et (pt, eta), 2);
-	m5(1,1) = pow(muonRes.eta(pt, eta), 2); 
-	m5(2,2) = pow(muonRes.phi(pt, eta), 2);
-	break;
-      case kEtThetaPhi :
-	m5(0,0) = pow(muonRes.et   (pt, eta), 2);
-	m5(1,1) = pow(muonRes.theta(pt, eta), 2); 
-	m5(2,2) = pow(muonRes.phi  (pt, eta), 2);
-	break;
-      }
-    }
-    // if lepton is neither electron nor muon
-    else
-      throw edm::Exception(edm::errors::Configuration,
-			   "The lepton passed to the TtSemiLepKinFitter is neither a reco::GsfElectron nor a reco::Muon" );
-  }
-  // add neutrino resolutions
-  {
-    //FIXME this dirty hack needs a clean solution soon!
-    double pt = neutrino.pt();
-
-    res::HelperMET metRes;
-    switch(metParam_){
-    case kEMom :
-      m6(0,0) = pow(metRes.a(pt), 2);
-      m6(1,1) = pow(metRes.b(pt), 2);
-      m6(2,2) = pow(metRes.c(pt), 2);
-      break;
-    case kEtEtaPhi :
-      m6(0,0) = pow(metRes.et(pt), 2);
-      m6(1,1) = pow(          9999., 2);
-      m6(2,2) = pow(metRes.phi(pt), 2);
-      break;
-    case kEtThetaPhi :
-      m6(0,0) = pow(metRes.et(pt), 2);
-      m6(1,1) = pow(          9999., 2);
-      m6(2,2) = pow(metRes.phi(pt), 2);
-      break;
-    }
-  }
-  
   // set the kinematics of the objects to be fitted
   hadP_->setIni4Vec( &p4HadP );
   hadQ_->setIni4Vec( &p4HadQ );
@@ -338,20 +197,10 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
   lepton_->setIni4Vec( &p4Lepton );
   neutrino_->setIni4Vec( &p4Neutrino );
 
-  switch(jetParam_){
-  case kEMom :
-    hadP_->setCovMatrix( &m1b );
-    hadQ_->setCovMatrix( &m2b );
-    hadB_->setCovMatrix( &m3b );
-    lepB_->setCovMatrix( &m4b );
-    break;
-  default :
-    hadP_->setCovMatrix( &m1  );
-    hadQ_->setCovMatrix( &m2  );
-    hadB_->setCovMatrix( &m3  );
-    lepB_->setCovMatrix( &m4  );
-    break;
-  }
+  hadP_->setCovMatrix( &m1 );
+  hadQ_->setCovMatrix( &m2 );
+  hadB_->setCovMatrix( &m3 );
+  lepB_->setCovMatrix( &m4 );
   lepton_->setCovMatrix( &m5 );
   neutrino_->setCovMatrix( &m6 );
 
