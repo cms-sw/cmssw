@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerMatcher.cc,v 1.4 2009/08/28 09:30:32 mbluj Exp $
+// $Id: PATTriggerMatcher.cc,v 1.5 2010/05/14 00:19:52 hegner Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATTriggerMatchSelector.h"
 #include "CommonTools/UtilAlgos/interface/PhysObjectMatcher.h"
@@ -55,6 +55,17 @@ typedef reco::PhysObjectMatcher<
                         pat::TriggerObjectStandAloneCollection >
 > PATTriggerMatcherDRDPtLessByPt;
 
+/// Match by deltaR, ranking by deltaR (default)                                                                                                                                                               
+typedef reco::PhysObjectMatcher<
+  reco::CandidateView,
+  pat::TriggerObjectStandAloneCollection,
+  pat::PATTriggerMatchSelector< reco::CandidateView::value_type,
+                                pat::TriggerObjectStandAloneCollection::value_type>,
+  reco::MatchByDEta< reco::CandidateView::value_type,
+                      pat::TriggerObjectStandAloneCollection::value_type >
+> PATTriggerMatcherDEtaLessByDR;
+
+
 /// Match by deltaEta
 typedef reco::PhysObjectMatcher<
   reco::CandidateView,
@@ -67,9 +78,11 @@ typedef reco::PhysObjectMatcher<
                         pat::TriggerObjectStandAloneCollection >
 > PATTriggerMatcherDEtaLessByDEta;
 
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE( PATTriggerMatcherDRLessByR );
 DEFINE_FWK_MODULE( PATTriggerMatcherDRDPtLessByR );
 DEFINE_FWK_MODULE( PATTriggerMatcherDRLessByPt );
 DEFINE_FWK_MODULE( PATTriggerMatcherDRDPtLessByPt );
+DEFINE_FWK_MODULE( PATTriggerMatcherDEtaLessByDR );
 DEFINE_FWK_MODULE( PATTriggerMatcherDEtaLessByDEta );
