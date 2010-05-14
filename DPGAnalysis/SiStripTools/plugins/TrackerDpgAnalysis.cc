@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.5 2010/05/13 10:25:02 delaer Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.6 2010/05/14 12:06:34 delaer Exp $
 //
 //
 
@@ -87,6 +87,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"  
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include <MagneticField/Engine/interface/MagneticField.h>
 #include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
 #include <RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h>
@@ -184,19 +185,22 @@ class TrackerDpgAnalysis : public edm::EDAnalyzer {
       float charge_, p_, pt_;
       float bsX0_, bsY0_, bsZ0_, bsSigmaZ_, bsDxdz_, bsDydz_;
       float thrustValue_, thrustX_, thrustY_, thrustZ_, sphericity_, planarity_, aplanarity_, delay_;
-      bool L1DecisionBits_[192], L1TechnicalBits_[64], HLTDecisionBits_[128];
+      bool L1DecisionBits_[192], L1TechnicalBits_[64], HLTDecisionBits_[256];
       uint32_t orbit_, orbitL1_, bx_, store_, time_;
       uint16_t lumiSegment_, physicsDeclared_;
       char *moduleName_, *moduleId_, *PSUname_;
       std::string cablingFileName_;
       std::vector<std::string> delayFileNames_;
       edm::ParameterSet pset_;
+      std::vector<std::string>  hlNames_;  // name of each HLT algorithm
+      HLTConfigProvider hltConfig_;        // to get configuration for L1s/Pre
+
 };
 
 //
 // constructors and destructor
 //
-TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig)
+TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConfig_()
 {
    // members
    moduleName_ = new char[256];
@@ -423,7 +427,7 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig)
    event_->Branch("delay",&delay_,"delay/F");
    event_->Branch("lumiSegment",&lumiSegment_,"lumiSegment/s");
    event_->Branch("physicsDeclared",&physicsDeclared_,"physicsDeclared/s");
-   event_->Branch("HLTDecisionBits",HLTDecisionBits_,"HLTDecisionBits[128]/O");
+   event_->Branch("HLTDecisionBits",HLTDecisionBits_,"HLTDecisionBits[256]/O");
    char buffer[256];
    sprintf(buffer,"ntracks[%d]/i",trackLabel_.size());
    event_->Branch("ntracks",ntracks_,buffer);
@@ -538,8 +542,8 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    edm::Handle<edm::TriggerResults> trh;
    iEvent.getByLabel(HLTLabel_, trh);
    size_t ntrh = trh->size();
-   for(size_t bit=0;bit<128;++bit)
-     HLTDecisionBits_[bit] = bit<ntrh ? (bool)(trh->at(bit).accept()): false;
+   for(size_t bit=0;bit<256;++bit)
+     HLTDecisionBits_[bit] = bit<ntrh ? (bool)(trh->accept(bit)): false;
      
    // load beamspot
    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -931,7 +935,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TrackerDpgAnalysis::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
+TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
    // read the delay offsets for each device from input files
    // this is only for the so-called "random delay" run
@@ -993,6 +997,18 @@ TrackerDpgAnalysis::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
 
    //geometry
    iSetup.get<TrackerDigiGeometryRecord>().get(tracker_);
+
+   //HLT names
+   bool changed (true);
+   if (hltConfig_.init(iRun,iSetup,HLTLabel_.process(),changed)) {
+     if (changed) {
+       hlNames_=hltConfig_.triggerNames();
+     }
+   }
+   int i=0;
+   for(std::vector<std::string>::const_iterator it = hlNames_.begin(); it<hlNames_.end();++it) {
+     std::cout << (i++) << " = " << (*it) << std::endl;
+   } 
 
 }
 
