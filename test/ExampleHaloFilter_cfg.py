@@ -34,10 +34,14 @@ if isData:
     process.pathCSCHaloFilterRecoOrTriggerLevel = cms.Path(process.L1Tech*process.CSCHaloFilterRecoLevel*process.CSCHaloFilterTriggerLevel ) 
     process.pathCSCHaloFilterDigiAndTriggerLevel = cms.Path (process.L1Tech*process.CSCHaloFilterDigiAndTriggerLevel)
     process.pathCSCHaloFilterDigiOrTriggerLevel = cms.Path(process.L1Tech*process.CSCHaloFilterDigiLevel * process.CSCHaloFilterTriggerLevel )
+    process.pathCSCHaloFilterDigiOrRecoLevel = cms.Path(process.L1Tech*process.CSCHaloFilterDigiLevel *process.CSCHaloFilterRecoLevel)
+    process.pathCSCHaloFilterDigiAndRecoLevel = cms.Path(process.L1Tech*process.CSCHaloFilterDigiAndRecoLevel)
+    process.pathCSCHaloFilterDigiOrTriggerOrRecoLevel = cms.Path(process.L1Tech*process.CSCHaloFilterDigiLevel*process.CSCHaloFilterTriggerLevel*process.CSCHaloFilterRecoLevel)
 else:
     process.CSCBasedHaloFilter.ExpectedBX = cms.int32(6)
     process.CSCHaloFilterDigiLevel.ExpectedBX = 6
     process.CSCHaloFilterDigiAndTriggerLevel.ExpectedBX = 6
+    process.CSCHaloFilterDigiAndRecoLevel.ExpectedBX = 6
     process.CSCHaloData.ExpectedBX = cms.int32(6)
     process.GlobalTag.globaltag = 'MC_3XY_V27::All'
     process.pathCSCBasedHaloFilter = cms.Path( process.CSCBasedHaloFilter )
@@ -48,6 +52,10 @@ else:
     process.pathCSCHaloFilterRecoOrTriggerLevel = cms.Path( process.CSCHaloFilterRecoLevel*process.CSCHaloFilterTriggerLevel ) 
     process.pathCSCHaloFilterDigiAndTriggerLevel = cms.Path (process.CSCHaloFilterDigiAndTriggerLevel)
     process.pathCSCHaloFilterDigiOrTriggerLevel = cms.Path( process.CSCHaloFilterDigiLevel * process.CSCHaloFilterTriggerLevel )
+    process.pathCSCHaloFilterDigiOrRecoLevel = cms.Path(process.CSCHaloFilterDigiLevel *process.CSCHaloFilterRecoLevel)
+    process.pathCSCHaloFilterDigiAndRecoLevel = cms.Path(process.CSCHaloFilterDigiAndRecoLevel)
+    process.pathCSCHaloFilterDigiOrTriggerOrRecoLevel = cms.Path(process.CSCHaloFilterDigiLevel*process.CSCHaloFilterTriggerLevel*process.CSCHaloFilterRecoLevel)
+
     
 process.pathCSCBasedHaloFilter = cms.Path(process.CSCBasedHaloFilter)
 
@@ -132,7 +140,10 @@ process.schedule = cms.Schedule(
     process.pathCSCHaloFilterRecoAndTriggerLevel,
     process.pathCSCHaloFilterRecoOrTriggerLevel,
     process.pathCSCHaloFilterDigiAndTriggerLevel,
-    process.pathCSCHaloFilterDigiOrTriggerLevel
+    process.pathCSCHaloFilterDigiOrTriggerLevel,
+    process.pathCSCHaloFilterDigiOrRecoLevel,
+    process.pathCSCHaloFilterDigiAndRecoLevel,
+    process.pathCSCHaloFilterDigiOrTriggerOrRecoLevel 
     )
 
 
