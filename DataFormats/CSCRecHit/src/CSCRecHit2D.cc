@@ -163,7 +163,7 @@ for (int i=0; i<(int)channelsTotal().size(); i++) {std::cout
        << std::hex << channelsTotal()[i] << " ";}
 std::cout << std::endl;
 
-std::cout << "  Cannels: ";
+std::cout << "  Channels: ";
 for (int i=0; i<(int)channels().size(); i++) {std::cout << std::dec << channels()[i] << " "
      << " (" << "HEX: " << std::hex << channels()[i] << ")" << " ";
       }
