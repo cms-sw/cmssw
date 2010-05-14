@@ -375,10 +375,12 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
     if (! (fullpath = realpath(path, 0)))
       fullpath = strdup(path);
 
+/*
     edm::LogInfo("LocalFileSystem")
       << "Checking if '" << fullpath << "', from '"
       << inpath << "' is valid cache path with "
       << minFreeSpace << " free space";
+*/
 
     if (lstat(fullpath, &s) < 0)
     {
@@ -404,12 +406,14 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
     }
 
     FSInfo *m = findMount(fullpath, &sfs, &s);
+/*
     edm::LogInfo("LocalFileSystem")
       << "Candidate '" << fullpath << "': "
       << "found=" << (m ? 1 : 0)
       << " local=" << (m && m->local)
       << " free=" << (m ? m->freespc : 0)
       << " access=" << access(fullpath, W_OK);
+*/
 
     if (m
 	&& m->local

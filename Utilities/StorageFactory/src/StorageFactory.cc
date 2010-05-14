@@ -62,10 +62,12 @@ StorageFactory::readHint(void) const
 void
 StorageFactory::setTempDir(const std::string &s, double minFreeSpace)
 {
+/*
   edm::LogInfo("StorageFactory")
     << "Considering path '" << s
     << "', min free space " << minFreeSpace
     << "GB for temp dir";
+*/
 
   size_t begin = 0;
   std::vector<std::string> dirs;
@@ -90,7 +92,9 @@ StorageFactory::setTempDir(const std::string &s, double minFreeSpace)
   m_tempfree = minFreeSpace;
   m_tempdir = m_lfs.findCachePath(dirs, minFreeSpace);
 
+/*
   edm::LogInfo("StorageFactory") << "Using '" << m_tempdir << "' for temp dir";
+*/
 }
 
 std::string
