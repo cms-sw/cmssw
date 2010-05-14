@@ -172,6 +172,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     # For PF jetAnalysis
     #
     pfJetAnalysis = jetDQMParameters.clone(
+    ptThreshold = cms.double(10.),
     TightCHFMin = cms.double(0.0),
     TightNHFMax = cms.double(1.0),
     TightCEFMax = cms.double(1.0),

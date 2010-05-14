@@ -240,15 +240,16 @@ void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eve
   if (idPassed) {
     const double deltaEta = jptJet.eta() - rawJet.eta();
     const double deltaPhi = jptJet.phi() - rawJet.phi();
-    fillHistogram(JetE_,jptJet.energy());
-    fillHistogram(JetEt_,jptJet.et());
-    fillHistogram(JetP_,jptJet.p());
-    fillHistogram(JetMass_,jptJet.mass());
-    fillHistogram(JetPt_,jptJet.pt());
-    fillHistogram(JetPx_,jptJet.px());
-    fillHistogram(JetPy_,jptJet.py());
-    fillHistogram(JetPz_,jptJet.pz());
     if (jptJet.pt() > correctedPtMin_) {
+      fillHistogram(JetE_,jptJet.energy());
+      fillHistogram(JetEt_,jptJet.et());
+      fillHistogram(JetP_,jptJet.p());
+      fillHistogram(JetMass_,jptJet.mass());
+      fillHistogram(JetPt_,jptJet.pt());
+      fillHistogram(JetPx_,jptJet.px());
+      fillHistogram(JetPy_,jptJet.py());
+      fillHistogram(JetPz_,jptJet.pz());
+
       fillHistogram(JetEta_,jptJet.eta());
       fillHistogram(JetPhi_,jptJet.phi());
       fillHistogram(JetDeltaEta_,deltaEta);

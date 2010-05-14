@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/25 11:03:03 $
- *  $Revision: 1.59 $
+ *  $Date: 2010/05/10 21:11:47 $
+ *  $Revision: 1.60 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -156,7 +156,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
     theTcMETAnalyzer = new METAnalyzer(parameters.getParameter<ParameterSet>("tcMETAnalysis"));
   }
   if(theMuCorrMETAnalyzerFlag){
-    theMuCorrMETAnalyzer = new METAnalyzer(parameters.getParameter<ParameterSet>("mucorrMETAnalysis"));
+    theMuCorrMETAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("mucorrMETAnalysis"));
   }
   if(thePfMETAnalyzerFlag){
     thePfMETAnalyzer = new PFMETAnalyzer(parameters.getParameter<ParameterSet>("pfMETAnalysis"));

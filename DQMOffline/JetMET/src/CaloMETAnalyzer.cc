@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/10 21:12:19 $
- *  $Revision: 1.40 $
+ *  $Date: 2010/05/13 12:49:03 $
+ *  $Revision: 1.42 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -515,7 +515,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel(theCaloMETCollectionLabel, calometcoll);
 
   if(!calometcoll.isValid()) {
-    std::cout<<"Unable to find MET results for MET collection "<<theCaloMETCollectionLabel<<std::endl;
+    std::cout<<"Unable to find MET results for CaloMET collection "<<theCaloMETCollectionLabel<<std::endl;
     return;
   }
 

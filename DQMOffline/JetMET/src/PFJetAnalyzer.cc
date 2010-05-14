@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/25 11:03:30 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/04/03 14:36:22 $
+ *  $Revision: 1.13 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -360,9 +360,9 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     } else { 
       dphi = corr;
     }
-  }
-  }
-  }
+  } // numofjets>1
+  } // JetPt>_ptThreshold
+  } // PF jet loop
   if (mNJets)    mNJets->Fill (numofjets);
   if (mDPhi)    mDPhi->Fill (dphi);
 }
