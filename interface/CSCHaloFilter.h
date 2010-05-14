@@ -1,5 +1,5 @@
-#ifndef ALL_PURPOSE_FILTER_H
-#define ALL_PURPOSE_FILTER_H
+#ifndef CSC_HALO_FILTER_H
+#define CSC_HALO_FILTER_H
 
 #include "FWCore/Framework/interface/EDFilter.h"
 
