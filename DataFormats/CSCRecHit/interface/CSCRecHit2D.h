@@ -93,8 +93,6 @@ private:
   LocalPoint theLocalPosition;
   LocalError theLocalError;
   ChannelContainer theStrips;
-  ChannelContainer theStripsLowBits; /// L1A
-  ChannelContainer theStripsHighBits; /// L1A
   ADCContainer theADCs;
   ChannelContainer theWireGroups;
   float theTpeak;
@@ -103,6 +101,8 @@ private:
   int theQuality;
   short int theBadStrip;
   short int theBadWireGroup;
+  ChannelContainer theStripsLowBits; /// L1A
+  ChannelContainer theStripsHighBits; /// L1A
  
 };
 
