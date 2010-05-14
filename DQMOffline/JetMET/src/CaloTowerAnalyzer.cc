@@ -69,6 +69,7 @@ CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
   
   debug_               = iConfig.getParameter<bool>("Debug");
   finebinning_         = iConfig.getUntrackedParameter<bool>("FineBinning"); 
+  allhist_             = iConfig.getUntrackedParameter<bool>("AllHist"); 
   FolderName_          = iConfig.getUntrackedParameter<string>("FolderName");
 
   hltselection_        = iConfig.getUntrackedParameter<bool>("HLTSelection"); 
@@ -122,8 +123,10 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
     //--Data over eta-rings
 
     // CaloTower values
+    if(allhist_){
     if(finebinning_)
       {
+
 	hCT_etvsieta          = dbe_->book2D("METTask_CT_etvsieta","", 83,-41,42, 10001,0,1001);  
 	hCT_Minetvsieta       = dbe_->book2D("METTask_CT_Minetvsieta","", 83,-41,42, 10001,0,1001);  
 	hCT_Maxetvsieta       = dbe_->book2D("METTask_CT_Maxetvsieta","", 83,-41,42, 10001,0,1001);  
@@ -131,6 +134,7 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
 	hCT_hadEtvsieta       = dbe_->book2D("METTask_CT_hadEtvsieta","",83,-41,42, 10001,0,1001);  
 	hCT_outerEtvsieta = dbe_->book2D("METTask_CT_outerEtvsieta","",83,-41,42, 10001,0,1001);  
 	// Integrated over phi
+
 	hCT_Occvsieta         = dbe_->book2D("METTask_CT_Occvsieta","",83,-41,42, 84,0,84);  
 	hCT_SETvsieta         = dbe_->book2D("METTask_CT_SETvsieta","",83,-41,42, 20001,0,2001);  
 	hCT_METvsieta         = dbe_->book2D("METTask_CT_METvsieta","",83,-41,42, 20001,0,2001);  
@@ -141,14 +145,16 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
     else 
       {
 	
+	if(allhist_){
 	hCT_etvsieta          = dbe_->book2D("METTask_CT_etvsieta","", 83,-41,42, 200,-0.5,999.5);
         hCT_Minetvsieta       = dbe_->book2D("METTask_CT_Minetvsieta","", 83,-41,42, 200,-0.5,999.5);
         hCT_Maxetvsieta       = dbe_->book2D("METTask_CT_Maxetvsieta","", 83,-41,42, 200,-0.5,999.5);
         hCT_emEtvsieta        = dbe_->book2D("METTask_CT_emEtvsieta","",83,-41,42, 200,-0.5,999.5);
         hCT_hadEtvsieta       = dbe_->book2D("METTask_CT_hadEtvsieta","",83,-41,42, 200,-0.5,999.5);
         hCT_outerEtvsieta = dbe_->book2D("METTask_CT_outerEtvsieta","",83,-41,42, 80,-0.5,399.5);
+        // Integrated over phi
+	}
 
-        // Integrated over phi                                                                                                                                                                                 
         hCT_Occvsieta         = dbe_->book2D("METTask_CT_Occvsieta","",83,-41,42, 73,-0.5,72.5);
         hCT_SETvsieta         = dbe_->book2D("METTask_CT_SETvsieta","",83,-41,42, 200,-0.5,1999.5);
         hCT_METvsieta         = dbe_->book2D("METTask_CT_METvsieta","",83,-41,42, 200,-0.5,1999.5);
@@ -157,6 +163,7 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
         hCT_MEyvsieta         = dbe_->book2D("METTask_CT_MEyvsieta","",83,-41,42, 100,-499.5,499.5);
 	
       }
+    } // allhist
   }
 }
 
@@ -281,10 +288,12 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  hCT_hadEt_ieta_iphi->Fill(Tower_ieta,Tower_iphi,Tower_HadEt);
 	  hCT_outerEt_ieta_iphi->Fill(Tower_ieta,Tower_iphi,Tower_OuterEt);
 
+	  if (allhist_){
 	  hCT_etvsieta->Fill(Tower_ieta, Tower_ET);
 	  hCT_emEtvsieta->Fill(Tower_ieta, Tower_EMEt);
 	  hCT_hadEtvsieta->Fill(Tower_ieta,Tower_HadEt);
 	  hCT_outerEtvsieta->Fill(Tower_ieta,Tower_OuterEt);
+	  }
 
 	  if (Tower_ET > MaxEt_EtaRing[EtaRing])
 	    MaxEt_EtaRing[EtaRing] = Tower_ET;
@@ -302,6 +311,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     } // end loop over towers
   
       // Fill eta-ring MET quantities
+  if (allhist_){
   for (int iEtaRing=0; iEtaRing<83; iEtaRing++)
     { 
       hCT_Minetvsieta->Fill(iEtaRing-41, MinEt_EtaRing[iEtaRing]);  
@@ -319,7 +329,8 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  hCT_SETvsieta->Fill(iEtaRing-41, SET_EtaRing[iEtaRing]);
 	  hCT_Occvsieta->Fill(iEtaRing-41, NActiveTowers[iEtaRing]);
 	}
-    }
+    } // ietaring
+  }   // allhist_
   
   edm::LogInfo("OutputInfo") << "CT ieta range: " << CTmin_ieta << " " << CTmax_ieta;
   edm::LogInfo("OutputInfo") << "CT iphi range: " << CTmin_iphi << " " << CTmax_iphi;

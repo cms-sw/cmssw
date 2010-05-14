@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 18:11:19 $
- *  $Revision: 1.30 $
+ *  $Date: 2010/05/14 18:20:04 $
+ *  $Revision: 1.31 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -110,6 +110,7 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
   _etThreshold  = parameters.getParameter<double>("etThreshold"); // MET threshold
   _allhist      = parameters.getParameter<bool>("allHist");       // Full set of monitoring histograms
   _allSelection = parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
+  _cleanupSelection = parameters.getParameter<bool>("cleanupSelection");  // Plot with all sets of event selection
 
   _FolderName              = parameters.getUntrackedParameter<std::string>("FolderName");
 
@@ -147,8 +148,10 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
     if (*ic=="All")                  bookMESet(DirName+"/"+*ic);
+    if (_cleanupSelection){
     if (*ic=="BasicCleanup")         bookMESet(DirName+"/"+*ic);
     if (*ic=="ExtraCleanup")         bookMESet(DirName+"/"+*ic);
+    }
     if (_allSelection){
       if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
       if (*ic=="HcalNoiseFilterTight") bookMESet(DirName+"/"+*ic);
@@ -744,8 +747,10 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        ic != _FolderNames.end(); ic++){
     if (*ic=="All")                                             fillMESet(iEvent, DirName+"/"+*ic, *met);
     if (DCSFilter->filter(iEvent, iSetup)) {
+    if (_cleanupSelection){
     if (*ic=="BasicCleanup" && bBasicCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *met);
     if (*ic=="ExtraCleanup" && bExtraCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *met);
+    }
     if (_allSelection) {
       if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *met);
       if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *met);

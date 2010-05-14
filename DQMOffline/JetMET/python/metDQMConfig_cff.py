@@ -52,6 +52,7 @@ metDQMParameters = cms.PSet(
     etThreshold  = cms.double(2.),
     allHist      = cms.bool(False),
     allSelection = cms.bool(False),
+    cleanupSelection = cms.bool(True),
     
     #Parameters set only for PFMETAnalyzer
     PfJetCollectionLabel   = cms.InputTag(""),

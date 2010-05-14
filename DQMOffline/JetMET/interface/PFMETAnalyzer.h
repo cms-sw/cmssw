@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2010/03/02 02:12:33 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/05/14 18:11:18 $
+ *  $Revision: 1.14 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -172,6 +172,7 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   //
   bool _allhist;
   bool _allSelection;
+  bool _cleanupSelection;
 
   //
   std::vector<std::string> _FolderNames;

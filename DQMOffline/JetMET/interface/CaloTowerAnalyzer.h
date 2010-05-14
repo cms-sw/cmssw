@@ -37,6 +37,7 @@ private:
   edm::InputTag HLTResultsLabel_;
   bool debug_;
   double energyThreshold_;
+  bool allhist_;
   bool finebinning_;
   bool hltselection_;
   std::string FolderName_;

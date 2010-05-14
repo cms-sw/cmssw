@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2010/05/14 00:45:57 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/05/14 18:11:18 $
+ *  $Revision: 1.21 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -169,6 +169,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   //
   bool _allhist;
   bool _allSelection;
+  bool _cleanupSelection;
 
   //
   std::vector<std::string> _FolderNames;

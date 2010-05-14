@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for MET (Mu corrected/TcMET)
  *
- *  $Date: 2010/05/13 12:49:14 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/05/14 18:11:18 $
+ *  $Revision: 1.17 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -184,6 +184,7 @@ class METAnalyzer : public METAnalyzerBase {
   //
   bool _allhist;
   bool _allSelection;
+  bool _cleanupSelection;
 
   //
   std::vector<std::string> _FolderNames;

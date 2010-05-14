@@ -14,7 +14,7 @@ harvesting = (os.environ.get('HARVESTING',True))
 print 'harvesting (default=True) = '+str(harvesting)
 #
 # --- [reference histogram (default=jetMETMonitoring_test.root)]
-reference_histogram_file = (os.environ.get('REFERENCE_HISTOGRAM_FILE','jetMETMonitoring_jan29_2360gev_mc.root'))
+reference_histogram_file = (os.environ.get('REFERENCE_HISTOGRAM_FILE','jetMETMonitoring_test.root'))
 print 'reference_histogram_file = '+str(reference_histogram_file)
 #
 # --- [input file(s) for harvesting/certification (default=reco_DQM_test.root)]
@@ -31,7 +31,7 @@ if read_from_file=="True":
   finally:
     f.close()
 else:
-  input_root_files = os.environ.get('INPUTEDMFILES','file:reco_DQM_jan29_2360gev_mc.root').split(",")
+  input_root_files = os.environ.get('INPUTEDMFILES','file:reco_DQM_test.root').split(",")
   print 'input_root_files = '+str(input_root_files)
   print
   
@@ -80,7 +80,7 @@ process.DQMStore.referenceFileName = reference_histogram_file
 #-----------------------------
 # Locate a directory in DQMStore
 #-----------------------------
-process.dqmInfoJetMET = cms.EDFilter("DQMEventInfo",
+process.dqmInfoJetMET = cms.EDAnalyzer("DQMEventInfo",
                 subSystemFolder = cms.untracked.string('JetMET')
                 )
 

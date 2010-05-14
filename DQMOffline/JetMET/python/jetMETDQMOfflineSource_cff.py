@@ -6,5 +6,7 @@ from DQMOffline.JetMET.BeamHaloAnalyzer_cfi import *
 
 AnalyzeBeamHalo.StandardDQM = cms.bool(True)
 
+towerSchemeBAnalyzer.AllHist = cms.untracked.bool(False)
+
 jetMETDQMOfflineSource = cms.Sequence(analyzecaloTowersDQM*AnalyzeBeamHalo*jetMETAnalyzerSequence)
 #jetMETDQMOfflineSource = cms.Sequence(analyzecaloTowersDQM*jetMETAnalyzerSequence)

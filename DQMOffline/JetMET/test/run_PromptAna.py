@@ -15,7 +15,7 @@ import os
 import FWCore.ParameterSet.Config as cms
 #
 # --- [cosmic sequence (default=True)?]
-iscosmics = (os.environ.get('COSMIC_MODE','True'))
+iscosmics = (os.environ.get('COSMIC_MODE','False'))
 print 'iscosmics (default=True) = '+str(iscosmics)
 #
 # --- [name of job & output file (default=test)?]
@@ -181,17 +181,17 @@ process.options = cms.untracked.PSet(
 if iscosmics=="True":
   process.p = cms.Path(process.BeamHaloId
                      * process.jetMETHLTOfflineSource
-#                    * process.jetMETDQMOfflineSource
                      * process.jetMETDQMOfflineSourceCosmic
+                     * process.dqmStoreStats
                      * process.MEtoEDMConverter
-                     * process.dqmStoreStats)
+                     )
 else:
   process.p = cms.Path(process.BeamHaloId
                      * process.jetMETHLTOfflineSource
                      * process.jetMETDQMOfflineSource
-#                    * process.jetMETDQMOfflineSourceCosmic
+                     * process.dqmStoreStats
                      * process.MEtoEDMConverter
-                     * process.dqmStoreStats)
+                     )
 
 process.outpath = cms.EndPath(process.FEVT)
 process.DQM.collectorHost = ''
