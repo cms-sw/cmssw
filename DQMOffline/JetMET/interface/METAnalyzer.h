@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for MET (Mu corrected/TcMET)
  *
- *  $Date: 2010/04/30 08:00:25 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/05/13 12:49:14 $
+ *  $Revision: 1.16 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -47,6 +47,8 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+#include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
 
 class METAnalyzer : public METAnalyzerBase {
  public:
@@ -174,6 +176,10 @@ class METAnalyzer : public METAnalyzerBase {
 
   // JetID helper
   reco::helper::JetIDHelper *jetID;
+
+
+  // DCS filter
+  JetMETDQMDCSFilter *DCSFilter;
 
   //
   bool _allhist;

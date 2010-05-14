@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 00:28:58 $
- *  $Revision: 1.61 $
+ *  $Date: 2010/05/14 05:55:07 $
+ *  $Revision: 1.62 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -72,6 +72,8 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   // ==========================================================
   DCSFilterCalo = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterCalo"));
   DCSFilterPF   = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterPF"));
+  DCSFilterJPT  = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterJPT"));
+  // Used for Jet DQM - For MET DQM, DCS selection applied in ***METAnalyzer
 
   // --- do the analysis on the Jets
   if(theJetAnalyzerFlag) {
@@ -250,6 +252,10 @@ JetMETAnalyzer::~JetMETAnalyzer() {
   if(theMuCorrMETAnalyzerFlag)     delete theMuCorrMETAnalyzer;
   if(thePfMETAnalyzerFlag)         delete thePfMETAnalyzer;
   if(theHTMHTAnalyzerFlag)         delete theHTMHTAnalyzer;
+
+  delete DCSFilterCalo;
+  delete DCSFilterPF;
+  delete DCSFilterJPT;
 
 }
 
@@ -466,10 +472,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   // ==========================================================
-  //DCS information
-
-
-  // ==========================================================
   //Vertex information
   
   bool bPrimaryVertex = true;
@@ -548,7 +550,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // **** Get the AntiKt Jet container
   iEvent.getByLabel(theAKJetCollectionLabel, caloJets);    
-  if(caloJets.isValid() &&DCSFilterCalo->filter(iEvent, iSetup)) {
+  if(caloJets.isValid()) {
 
   if(theJetAnalyzerFlag){
     theAKJetAnalyzer->setJetHiPass(JetHiPass);
@@ -562,7 +564,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   }
 
-  if(caloJets.isValid() && bJetCleanup && DCSFilterCalo->filter(iEvent, iSetup)) {
+  if(caloJets.isValid() && bJetCleanup) {
+  if(DCSFilterCalo->filter(iEvent, iSetup)){
   if(theJetCleaningFlag){
     theCleanedAKJetAnalyzer->setJetHiPass(JetHiPass);
     theCleanedAKJetAnalyzer->setJetLoPass(JetLoPass);
@@ -572,30 +575,33 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned Jet Pt anti-Kt analyzer";
     theCleanedPtAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
   }
-  }
+  } // DCS
+  } // caloJets.isValid()
 
-
-  if(caloJets.isValid() && bJetCleanup && DCSFilterCalo->filter(iEvent, iSetup)){
+  if(caloJets.isValid() && bJetCleanup){
+  if(DCSFilterCalo->filter(iEvent, iSetup)){
     if(theDiJetSelectionFlag){
     theDiJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
     }
-  }
+  } // DCS
+  } // caloJets.isValid()
 
 
-  if(caloJets.isValid() && DCSFilterCalo->filter(iEvent, iSetup)){
+  if(caloJets.isValid()){
     if(theJetPtAnalyzerFlag){
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the Jet Pt anti-Kt analyzer";
       thePtAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
     }
   }
 
-  if(caloJets.isValid() && bJetCleanup && DCSFilterCalo->filter(iEvent, iSetup)){
+  if(caloJets.isValid() && bJetCleanup){
+  if(DCSFilterCalo->filter(iEvent, iSetup)){
     if(theJetPtCleaningFlag){
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned Jet Pt anti-Kt analyzer";
       theCleanedPtAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
     }
-  }
-  
+  } // DCS
+  } // caloJets.isValid() 
   
   // **** Get the SISCone Jet container
   iEvent.getByLabel(theSCJetCollectionLabel, caloJets);    
@@ -613,6 +619,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
     
     if(caloJets.isValid() && bJetCleanup){
+    if(DCSFilterCalo->filter(iEvent, iSetup)){
       if(theJetCleaningFlag){
 	theCleanedSCJetAnalyzer->setJetHiPass(JetHiPass);
 	theCleanedSCJetAnalyzer->setJetLoPass(JetLoPass);
@@ -622,7 +629,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned Jet Pt SisCone analyzer";
 	theCleanedPtSCJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
       }
-    }
+    } // DCS
+    } // caloJets.isValid()
   }
   // **** Get the Iterative Cone Jet container  
   iEvent.getByLabel(theICJetCollectionLabel, caloJets);
@@ -640,6 +648,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
     
     if(caloJets.isValid() && bJetCleanup){
+    if(DCSFilterCalo->filter(iEvent, iSetup)){
       if(theJetCleaningFlag){
 	theCleanedICJetAnalyzer->setJetHiPass(JetHiPass);
 	theCleanedICJetAnalyzer->setJetLoPass(JetLoPass);
@@ -649,7 +658,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned Jet Pt ICone analyzer";
 	theCleanedPtICJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
       }
-    }
+    } // DCS
+    } // isValid
   }
 
   // **** Get the JPT Jet container
@@ -662,9 +672,11 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
   
   if(jptJets.isValid() && bJetCleanup && theJPTJetCleaningFlag){
+    if(DCSFilterJPT->filter(iEvent, iSetup)){
     //theCleanedJPTJetAnalyzer->setJetHiPass(JetHiPass);
     //theCleanedJPTJetAnalyzer->setJetLoPass(JetLoPass);
     theCleanedJPTJetAnalyzer->analyze(iEvent, iSetup, *jptJets);
+    }
   }
   
   // **** Get the PFlow Jet container
@@ -679,11 +691,13 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       thePFJetAnalyzer->analyze(iEvent, iSetup, *pfJets);
     }
     if(thePFJetCleaningFlag){
+    if(DCSFilterPF->filter(iEvent, iSetup)){
       theCleanedPFJetAnalyzer->setJetHiPass(JetHiPass);
       theCleanedPFJetAnalyzer->setJetLoPass(JetLoPass);
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned PFJet analyzer";
       theCleanedPFJetAnalyzer->analyze(iEvent, iSetup, *pfJets);
-    }
+    } // DCS
+    }  
   } else {
     if (DEBUG) LogTrace(metname)<<"[JetMETAnalyzer] pfjets NOT VALID!!";
   }

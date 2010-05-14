@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2010/05/14 00:28:57 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/05/14 05:55:07 $
+ *  $Revision: 1.20 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -187,6 +187,7 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
 
   JetMETDQMDCSFilter * DCSFilterCalo;
   JetMETDQMDCSFilter * DCSFilterPF;
+  JetMETDQMDCSFilter * DCSFilterJPT;
 
 };
 #endif  

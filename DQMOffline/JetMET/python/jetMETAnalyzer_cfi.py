@@ -84,7 +84,10 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
      #
      caloMETHOAnalysis = metDQMParameters.clone(
          METCollectionLabel = cms.InputTag("metHO"),
-         Source             = cms.string("CaloMETHO")
+         Source             = cms.string("CaloMETHO"),
+         DetectorTypes = cms.untracked.string("ecal:hbhe:hf:ho"),
+         #DebugOn = cms.untracked.bool(True),
+         Filter = cms.untracked.bool(True)
      ),
 
      #
@@ -92,7 +95,12 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
      #
      caloMETNoHFHOAnalysis = metDQMParameters.clone(
          METCollectionLabel = cms.InputTag("metNoHFHO"),
-         Source             = cms.string("CaloMETNoHFHO")
+         Source             = cms.string("CaloMETNoHFHO"),
+         DCSFilter = cms.PSet(
+           DetectorTypes = cms.untracked.string("ecal:hbhe:hf:ho"),
+           #DebugOn = cms.untracked.bool(True),
+           Filter = cms.untracked.bool(True)
+         )
      ),
  
      #
@@ -102,7 +110,12 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
          METCollectionLabel   = cms.InputTag("pfMet"),
          Source               = cms.string("PfMET"),
          PfJetCollectionLabel = cms.InputTag("iterativeCone5PFJets"),
-         PFCandidates         = cms.InputTag("particleFlow")
+         PFCandidates         = cms.InputTag("particleFlow"),
+         DCSFilter = cms.PSet(
+           DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
+           #DebugOn = cms.untracked.bool(True),
+           Filter = cms.untracked.bool(True)
+         )
      ),
  
      #
@@ -114,7 +127,12 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
          InputTrackLabel    = cms.InputTag("generalTracks"),
          InputMuonLabel     = cms.InputTag("muons"),
          InputElectronLabel = cms.InputTag("gsfElectrons"),
-         InputBeamSpotLabel = cms.InputTag("offlineBeamSpot")
+         InputBeamSpotLabel = cms.InputTag("offlineBeamSpot"),
+         DCSFilter = cms.PSet(
+           DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
+           #DebugOn = cms.untracked.bool(True),
+           Filter = cms.untracked.bool(True)
+         )
      ),
 
      #
@@ -123,7 +141,12 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
      mucorrMETAnalysis = metDQMParameters.clone(
          METCollectionLabel = cms.InputTag("corMetGlobalMuons"),
          Source             = cms.string("MuCorrMET"),
-         InputBeamSpotLabel = cms.InputTag("offlineBeamSpot")
+         InputBeamSpotLabel = cms.InputTag("offlineBeamSpot"),
+         DCSFilter = cms.PSet(
+           DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:muon"),
+           #DebugOn = cms.untracked.bool(True),
+           Filter = cms.untracked.bool(True)
+         )
      ),
 
     #
@@ -204,21 +227,19 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     # DCS
     #                             
     DCSFilterCalo = cms.PSet(
-      DetectorTypes = cms.untracked.string("ecal:hcal"),
-      DebugOn = cms.untracked.bool(True)
+      DetectorTypes = cms.untracked.string("ecal:hbhe:hf"),
+      #DebugOn = cms.untracked.bool(True),
+      Filter = cms.untracked.bool(True)
     ),
     DCSFilterPF = cms.PSet(
-      DetectorTypes = cms.untracked.string("ecal:hcal:pixel:sistrip:es:muon"),
-      DebugOn = cms.untracked.bool(True)
+      DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
+      #DebugOn = cms.untracked.bool(True),
+      Filter = cms.untracked.bool(True)
     ),
-    #DCSFilterJPT = cms.PSet(
-    #  DetectorTypes = cms.untracked.string("ecal:hcal:pixel:sistrip:es:muon")
-    #),
-    #DCSFilterTCMET = cms.PSet(
-    #  DetectorTypes = cms.untracked.string("ecal:hcal:pixel:sistrip:es:muon")
-    #),
-    #DCSFilterMuCorrMET = cms.PSet(
-    #  DetectorTypes = cms.untracked.string("ecal:hcal:pixel:sistrip:muon")
-    #)
+    DCSFilterJPT = cms.PSet(
+      DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
+      #DebugOn = cms.untracked.bool(True),
+      Filter = cms.untracked.bool(True)
+    )
 
 )

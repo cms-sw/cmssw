@@ -61,5 +61,12 @@ metDQMParameters = cms.PSet(
     InputBeamSpotLabel = cms.InputTag(""),
     InputTrackLabel    = cms.InputTag(""),
     InputMuonLabel     = cms.InputTag(""),
-    InputElectronLabel = cms.InputTag("")
+    InputElectronLabel = cms.InputTag(""),
+
+    DCSFilter = cms.PSet(
+      DetectorTypes = cms.untracked.string("ecal:hbhe:hf"),
+      #DebugOn = cms.untracked.bool(True),
+      Filter = cms.untracked.bool(True)
+    )
+
 )

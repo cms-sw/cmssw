@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2010/05/13 12:49:20 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/05/14 00:45:57 $
+ *  $Revision: 1.20 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -21,9 +21,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-//#include "DataFormats/METReco/interface/CaloMETCollection.h"
-//#include "DataFormats/METReco/interface/CaloMET.h"
-//#include "DataFormats/METReco/interface/CaloMETFwd.h"
 //
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -45,6 +42,8 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+#include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
 
 class CaloMETAnalyzer : public CaloMETAnalyzerBase {
  public:
@@ -163,6 +162,9 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
 
   // JetID helper
   reco::helper::JetIDHelper *jetID;
+
+  // DCS filter
+  JetMETDQMDCSFilter *DCSFilter;
 
   //
   bool _allhist;

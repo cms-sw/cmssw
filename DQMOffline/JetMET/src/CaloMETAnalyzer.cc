@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 00:28:58 $
- *  $Revision: 1.43 $
+ *  $Date: 2010/05/14 00:45:47 $
+ *  $Revision: 1.44 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -69,6 +69,11 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
   _tightBHFiltering     = theCleaningParameters.getParameter<bool>("tightBHFiltering");
   _tightJetIDFiltering  = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
   _tightHcalFiltering   = theCleaningParameters.getParameter<bool>("tightHcalFiltering");
+
+  // ==========================================================
+  //DCS information
+  // ==========================================================
+  DCSFilter = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"));
 
   //Vertex requirements
   _doPVCheck          = theCleaningParameters.getParameter<bool>("doPrimaryVertexCheck");
@@ -160,6 +165,7 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
 void CaloMETAnalyzer::endJob() {
 
   delete jetID;
+  delete DCSFilter;
 
 }
 
@@ -812,6 +818,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
     if (*ic=="All")                                             fillMESet(iEvent, DirName+"/"+*ic, *calomet);
+    if (DCSFilter->filter(iEvent, iSetup)) {
     if (*ic=="BasicCleanup"   && bBasicCleanup)                 fillMESet(iEvent, DirName+"/"+*ic, *calomet);
     if (*ic=="ExtraCleanup"   && bExtraCleanup)                 fillMESet(iEvent, DirName+"/"+*ic, *calomet);
     if (_allSelection) {
@@ -825,6 +832,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       if (*ic=="Triggers"             && bTechTriggers)           fillMESet(iEvent, DirName+"/"+*ic, *calomet);
       if (*ic=="PV"                   && bPrimaryVertex)          fillMESet(iEvent, DirName+"/"+*ic, *calomet);
     }
+    } // DCS
   }
 }
 

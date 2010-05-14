@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/13 12:49:08 $
- *  $Revision: 1.28 $
+ *  $Date: 2010/05/14 00:45:40 $
+ *  $Revision: 1.29 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -70,6 +70,11 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
   _tightBHFiltering     = theCleaningParameters.getParameter<bool>("tightBHFiltering");
   _tightJetIDFiltering  = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
   _tightHcalFiltering   = theCleaningParameters.getParameter<bool>("tightHcalFiltering");
+
+  // ==========================================================
+  //DCS information
+  // ==========================================================
+  DCSFilter = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"));
 
   //Vertex requirements
   _doPVCheck          = theCleaningParameters.getParameter<bool>("doPrimaryVertexCheck");
@@ -162,6 +167,7 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
 void METAnalyzer::endJob() {
 
   delete jetID;
+  delete DCSFilter;
 
 }
 
@@ -737,6 +743,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
     if (*ic=="All")                                             fillMESet(iEvent, DirName+"/"+*ic, *met);
+    if (DCSFilter->filter(iEvent, iSetup)) {
     if (*ic=="BasicCleanup" && bBasicCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *met);
     if (*ic=="ExtraCleanup" && bExtraCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *met);
     if (_allSelection) {
@@ -750,6 +757,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if (*ic=="Triggers"             && bTechTriggers)           fillMESet(iEvent, DirName+"/"+*ic, *met);
       if (*ic=="PV"                   && bPrimaryVertex)          fillMESet(iEvent, DirName+"/"+*ic, *met);
     }
+    } // DCS
   }
 }
 

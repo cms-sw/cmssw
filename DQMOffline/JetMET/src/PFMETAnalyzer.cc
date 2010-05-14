@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/10 13:25:31 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/03/25 11:03:34 $
+ *  $Revision: 1.21 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -72,6 +72,11 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
   _tightBHFiltering     = theCleaningParameters.getParameter<bool>("tightBHFiltering");
   _tightJetIDFiltering  = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
   _tightHcalFiltering   = theCleaningParameters.getParameter<bool>("tightHcalFiltering");
+
+  // ==========================================================
+  //DCS information
+  // ==========================================================
+  DCSFilter = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"));
 
   //Vertex requirements
   _doPVCheck          = theCleaningParameters.getParameter<bool>("doPrimaryVertexCheck");
@@ -158,6 +163,7 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
 void PFMETAnalyzer::endJob() {
 
   delete jetID;
+  delete DCSFilter;
 
 }
 
@@ -705,6 +711,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
     if (*ic=="All")                                             fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+    if (DCSFilter->filter(iEvent, iSetup)) {
     if (*ic=="BasicCleanup" && bBasicCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
     if (*ic=="ExtraCleanup" && bExtraCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
     if (_allSelection) {
@@ -718,6 +725,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       if (*ic=="Triggers"             && bTechTriggers)           fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
       if (*ic=="PV"                   && bPrimaryVertex)          fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
     }
+    } // DCS
   }
 }
   

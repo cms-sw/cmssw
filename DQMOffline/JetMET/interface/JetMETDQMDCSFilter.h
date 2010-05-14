@@ -17,6 +17,7 @@ class JetMETDQMDCSFilter {
 
   private:
   bool verbose_;
+  bool filter_;
   bool detectorOn_;
   std::string detectorTypes_;
 

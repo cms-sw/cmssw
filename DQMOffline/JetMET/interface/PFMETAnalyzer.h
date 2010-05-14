@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2010/02/24 19:08:54 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/03/02 02:12:33 $
+ *  $Revision: 1.13 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -42,6 +42,8 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+#include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
 
 class PFMETAnalyzer : public PFMETAnalyzerBase {
  public:
@@ -163,6 +165,9 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
 
   // JetID helper
   reco::helper::JetIDHelper *jetID;
+
+  // DCS filter
+  JetMETDQMDCSFilter *DCSFilter;
 
   //
   bool _allhist;
