@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2010/04/30 08:00:25 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/05/13 12:49:20 $
+ *  $Revision: 1.19 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -262,14 +262,14 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* hCaloHaMETPhi;
   MonitorElement* hCaloHaSumET;
   
-  MonitorElement* hmuPt;
-  MonitorElement* hmuEta;
-  MonitorElement* hmuNhits;
-  MonitorElement* hmuChi2;
-  MonitorElement* hmuD0;
-  MonitorElement* hMExCorrection;
-  MonitorElement* hMEyCorrection;
-  MonitorElement* hMuonCorrectionFlag;
+  MonitorElement* hCalomuPt;
+  MonitorElement* hCalomuEta;
+  MonitorElement* hCalomuNhits;
+  MonitorElement* hCalomuChi2;
+  MonitorElement* hCalomuD0;
+  MonitorElement* hCaloMExCorrection;
+  MonitorElement* hCaloMEyCorrection;
+  MonitorElement* hCaloMuonCorrectionFlag;
   
 };
 #endif

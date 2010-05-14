@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/04/30 08:00:35 $
- *  $Revision: 1.26 $
+ *  $Date: 2010/05/13 12:49:08 $
+ *  $Revision: 1.28 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -817,28 +817,24 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
   if (_verbose) std::cout << "_etThreshold = " << _etThreshold << std::endl;
   if (SumET>_etThreshold){
     
-    hMEx->Fill(MEx);
-    hMEy->Fill(MEy);
-    hMET->Fill(MET);
-    hMETPhi->Fill(METPhi);
-    hSumET->Fill(SumET);
-    hMETSig->Fill(METSig);
-    hEz->Fill(Ez);
+    hMEx    = _dbe->get(DirName+"/"+"METTask_MEx");     if (hMEx           && hMEx->getRootObject())     hMEx          ->Fill(MEx);
+    hMEy    = _dbe->get(DirName+"/"+"METTask_MEy");     if (hMEy           && hMEy->getRootObject())     hMEy          ->Fill(MEy);
+    hMET    = _dbe->get(DirName+"/"+"METTask_MET");     if (hMET           && hMET->getRootObject())     hMET          ->Fill(MET);
+    hMETPhi = _dbe->get(DirName+"/"+"METTask_METPhi");  if (hMETPhi        && hMETPhi->getRootObject())  hMETPhi       ->Fill(METPhi);
+    hSumET  = _dbe->get(DirName+"/"+"METTask_SumET");   if (hSumET         && hSumET->getRootObject())   hSumET        ->Fill(SumET);
+    hMETSig = _dbe->get(DirName+"/"+"METTask_METSig");  if (hMETSig        && hMETSig->getRootObject())  hMETSig       ->Fill(METSig);
+    hEz     = _dbe->get(DirName+"/"+"METTask_Ez");      if (hEz            && hEz->getRootObject())      hEz           ->Fill(Ez);
 
-    hMET_logx->Fill(log10(MET));
-    hSumET_logx->Fill(log10(SumET));
+    hMET_logx   = _dbe->get(DirName+"/"+"METTask_MET_logx");    if (hMET_logx      && hMET_logx->getRootObject())    hMET_logx->Fill(log10(MET));
+    hSumET_logx = _dbe->get(DirName+"/"+"METTask_SumET_logx");  if (hSumET_logx    && hSumET_logx->getRootObject())  hSumET_logx->Fill(log10(SumET));
 
-    hMETIonFeedbck->Fill(MET);
-    hMETHPDNoise->Fill(MET);
+    hMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_METIonFeedbck");  if (hMETIonFeedbck && hMETIonFeedbck->getRootObject())  hMETIonFeedbck->Fill(MET);
+    hMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_METHPDNoise");    if (hMETHPDNoise   && hMETHPDNoise->getRootObject())    hMETHPDNoise->Fill(MET);
        
     if (_allhist){
       if (bLumiSecPlot){
-	if ( (_dbe->get(DirName+"/"+"METTask_MExLS")) &&
-	     ((_dbe->get(DirName+"/"+"METTask_MExLS"))->getRootObject()))
-	  hMExLS->Fill(MEx,myLuminosityBlock);
-	if ( (_dbe->get(DirName+"/"+"METTask_MEyLS")) &&
-	     ((_dbe->get(DirName+"/"+"METTask_MEyLS"))->getRootObject()))
-	  hMEyLS->Fill(MEy,myLuminosityBlock);
+	hMExLS = _dbe->get(DirName+"/"+"METTask_MExLS"); if (hMExLS  &&  hMExLS->getRootObject())   hMExLS->Fill(MEx,myLuminosityBlock);
+	hMEyLS = _dbe->get(DirName+"/"+"METTask_MEyLS"); if (hMEyLS  &&  hMEyLS->getRootObject())   hMEyLS->Fill(MEy,myLuminosityBlock);
       }
     } // _allhist
 
@@ -847,41 +843,41 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     
       if(track_h.isValid()) {
 	for( edm::View<reco::Track>::const_iterator trkit = track_h->begin(); trkit != track_h->end(); trkit++ ) {
-	  htrkPt->Fill( trkit->pt() );
-	  htrkEta->Fill( trkit->eta() );
-	  htrkNhits->Fill( trkit->numberOfValidHits() );
-	  htrkChi2->Fill( trkit->chi2() / trkit->ndof() );
+	  htrkPt    = _dbe->get(DirName+"/"+"METTask_trkPt");     if (htrkPt    && htrkPt->getRootObject())     htrkPt->Fill( trkit->pt() );
+	  htrkEta   = _dbe->get(DirName+"/"+"METTask_trkEta");    if (htrkEta   && htrkEta->getRootObject())    htrkEta->Fill( trkit->eta() );
+	  htrkNhits = _dbe->get(DirName+"/"+"METTask_trkNhits");  if (htrkNhits && htrkNhits->getRootObject())  htrkNhits->Fill( trkit->numberOfValidHits() );
+	  htrkChi2  = _dbe->get(DirName+"/"+"METTask_trkChi2");   if (htrkChi2  && htrkChi2->getRootObject())   htrkChi2->Fill( trkit->chi2() / trkit->ndof() );
 	  double d0 = -1 * trkit->dxy( bspot );
-	  htrkD0->Fill( d0 );
+	  htrkD0    = _dbe->get(DirName+"/"+"METTask_trkD0");     if (htrkD0 && htrkD0->getRootObject())        htrkD0->Fill( d0 );
 	}
       }
       
       if(electron_h.isValid()) {
 	for( edm::View<reco::GsfElectron>::const_iterator eleit = electron_h->begin(); eleit != electron_h->end(); eleit++ ) {
-	  helePt->Fill( eleit->p4().pt() );  
-	  heleEta->Fill( eleit->p4().eta() );
-	  heleHoE->Fill( eleit->hadronicOverEm() );
+	  helePt  = _dbe->get(DirName+"/"+"METTask_helePt");   if (helePt  && helePt->getRootObject())   helePt->Fill( eleit->p4().pt() );  
+	  heleEta = _dbe->get(DirName+"/"+"METTask_heleEta");  if (heleEta && heleEta->getRootObject())  heleEta->Fill( eleit->p4().eta() );
+	  heleHoE = _dbe->get(DirName+"/"+"METTask_heleHoE");  if (heleHoE && heleHoE->getRootObject())  heleHoE->Fill( eleit->hadronicOverEm() );
 	}
       }
       
       if(muon_h.isValid()) {
 	for( reco::MuonCollection::const_iterator muonit = muon_h->begin(); muonit != muon_h->end(); muonit++ ) {      
 	  const reco::TrackRef siTrack = muonit->innerTrack();      
-	  hmuPt->Fill( muonit->p4().pt() );
-	  hmuEta->Fill( muonit->p4().eta() );
-	  hmuNhits->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
-	  hmuChi2->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
-	  double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;      
-	  hmuD0->Fill( d0 );
+	  hmuPt    = _dbe->get(DirName+"/"+"METTask_muPt");     if (hmuPt    && hmuPt->getRootObject())  hmuPt   ->Fill( muonit->p4().pt() );
+	  hmuEta   = _dbe->get(DirName+"/"+"METTask_muEta");    if (hmuEta   && hmuEta->getRootObject())  hmuEta  ->Fill( muonit->p4().eta() );
+	  hmuNhits = _dbe->get(DirName+"/"+"METTask_muNhits");  if (hmuNhits && hmuNhits->getRootObject())  hmuNhits->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
+	  hmuChi2  = _dbe->get(DirName+"/"+"METTask_muChi2");   if (hmuChi2  && hmuChi2->getRootObject())  hmuChi2 ->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
+	  double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;
+	  hmuD0    = _dbe->get(DirName+"/"+"METTask_muD0");     if (hmuD0    && hmuD0->getRootObject())  hmuD0->Fill( d0 );
 	}
 	
 	const unsigned int nMuons = muon_h->size();      
 	for( unsigned int mus = 0; mus < nMuons; mus++ ) {
 	  reco::MuonRef muref( muon_h, mus);
 	  reco::MuonMETCorrectionData muCorrData = (*tcMet_ValueMap_Handle)[muref];
-	  hMExCorrection -> Fill(muCorrData.corrX());
-	  hMEyCorrection -> Fill(muCorrData.corrY());
-	  hMuonCorrectionFlag-> Fill(muCorrData.type());
+	  hMExCorrection      = _dbe->get(DirName+"/"+"METTask_MExCorrection");       if (hMExCorrection      && hMExCorrection->getRootObject())       hMExCorrection-> Fill(muCorrData.corrY());
+	  hMEyCorrection      = _dbe->get(DirName+"/"+"METTask_MEyCorrection");       if (hMEyCorrection      && hMEyCorrection->getRootObject())       hMEyCorrection-> Fill(muCorrData.corrX());
+	  hMuonCorrectionFlag = _dbe->get(DirName+"/"+"METTask_MuonCorrectionFlag");  if (hMuonCorrectionFlag && hMuonCorrectionFlag->getRootObject())  hMuonCorrectionFlag-> Fill(muCorrData.type());
 	}
       }
     }
