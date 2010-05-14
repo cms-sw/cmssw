@@ -70,7 +70,7 @@ addJetCollection(process,cms.InputTag('kt6CaloJets'),
 switchJetCollection(process,cms.InputTag('ak5PFJets'),
                  doJTA        = True,
                  doBTagging   = True,
-                 jetCorrLabel = None,
+                 jetCorrLabel = ('AK5', 'PF'),
                  doType1MET   = True,
                  genJetCollection=cms.InputTag("ak5GenJets"),
                  doJetID      = True
