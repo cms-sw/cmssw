@@ -5,10 +5,10 @@ import FWCore.ParameterSet.Config as cms
 #
 findTtSemiLepSignalSelMVA = cms.EDProducer("TtSemiLepSignalSelMVAComputer",
     ## met input
-    mets  = cms.InputTag("layer1METs"),
+    mets  = cms.InputTag("patMETs"),
     ## jet input
-    jets  = cms.InputTag("selectedLayer1Jets"),
+    jets  = cms.InputTag("selectedPatJets"),
     ## lepton input
-    muons = cms.InputTag("selectedLayer1Muons"),
-    elecs = cms.InputTag("selectedLayer1Electrons")
+    muons = cms.InputTag("selectedPatMuons"),
+    elecs = cms.InputTag("selectedPatElectrons")
 )

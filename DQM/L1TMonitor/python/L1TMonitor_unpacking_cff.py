@@ -6,7 +6,7 @@ from EventFilter.CSCTFRawToDigi.csctfunpacker_cfi import *
 from HLTrigger.special.HLTTriggerTypeFilter_cfi import *
 hltTriggerTypeFilter.SelectedTriggerType = 1
 
-l1tdttfunpack = cms.EDFilter("DTTFFEDReader",
+l1tdttfunpack = cms.EDProducer("DTTFFEDReader",
     DTTF_FED_Source = cms.InputTag("source")
 )
 

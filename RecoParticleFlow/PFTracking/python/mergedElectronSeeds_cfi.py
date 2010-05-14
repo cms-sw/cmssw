@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 
-electronMergedSeeds =cms.EDFilter("ElectronSeedMerger",
+electronMergedSeeds =cms.EDProducer("ElectronSeedMerger",
      EcalBasedSeeds = cms.InputTag("ecalDrivenElectronSeeds"),
      TkBasedSeeds  = cms.InputTag("trackerDrivenElectronSeeds:SeedsForGsf")
     )

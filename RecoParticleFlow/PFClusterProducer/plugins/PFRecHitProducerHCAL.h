@@ -41,6 +41,7 @@ class PFRecHitProducerHCAL : public PFRecHitProducer {
   /// gets hcal barrel and endcap rechits, 
   /// translate them to PFRecHits, which are stored in the rechits vector
   void createRecHits(std::vector<reco::PFRecHit>& rechits,
+		     std::vector<reco::PFRecHit>& rechitsCleaned,
 		     edm::Event&, const edm::EventSetup&);
 
 
@@ -98,6 +99,15 @@ class PFRecHitProducerHCAL : public PFRecHitProducer {
   double shortFibre_Cut;  
   double longFibre_Fraction;
 
+  // Compensate for dead ECAL channels
+  bool ECAL_Compensate_;
+  double ECAL_Threshold_;
+  double ECAL_Compensation_;
+  unsigned int ECAL_Dead_Code_;
+
+  // Depth correction for EM and HAD rechits in the HF
+  double EM_Depth_;
+  double HAD_Depth_;
 
 };
 

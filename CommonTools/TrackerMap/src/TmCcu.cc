@@ -1,7 +1,6 @@
 #include "CommonTools/TrackerMap/interface/TmCcu.h"
 #include "CommonTools/TrackerMap/interface/TmModule.h"
 #include <string>
-using namespace std;
 
 TmCcu::TmCcu(int crate,int slot,int ring, int addr){
   idex=crate*10000000+slot*100000+ring*1000+addr;

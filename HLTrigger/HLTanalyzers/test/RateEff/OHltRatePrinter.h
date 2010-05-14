@@ -12,19 +12,17 @@
 #include "OHltConfig.h"
 #include "OHltTree.h"
 
-using namespace std;
-
 class OHltRatePrinter {
  public:
   
   OHltRatePrinter(){};
   virtual ~OHltRatePrinter(){};
 
-  void SetupAll(vector<float> Rate,vector<float> RateErr,vector<float> spureRate,
-		vector<float> spureRateErr,vector<float> pureRate,
-		vector<float> pureRateErr,vector< vector<float> >coMa,
-		vector< vector<float> > RatePerLS,vector<int> tRunID,vector<int> tLumiSection,
-		vector<float> tTotalRatePerLS);
+  void SetupAll(std::vector<float> Rate,std::vector<float> RateErr,std::vector<float> spureRate,
+		std::vector<float> spureRateErr,std::vector<float> pureRate,
+		std::vector<float> pureRateErr,std::vector< std::vector<float> >coMa,
+		std::vector< std::vector<float> > RatePerLS,std::vector<int> tRunID,std::vector<int> tLumiSection,
+		std::vector<float> tTotalRatePerLS);
   void ReorderRunLS();
 
   void printRatesASCII(OHltConfig *cfg,OHltMenu *menu);
@@ -44,21 +42,21 @@ class OHltRatePrinter {
   		, HLTDatasets &hltDatasets
   		, TString   &fullPathTableName
   		, const Int_t     significantDigits);
-  int ivecMax(vector<int> ivec);
-  int ivecMin(vector<int> ivec);
+  int ivecMax(std::vector<int> ivec);
+  int ivecMin(std::vector<int> ivec);
 
-  vector<float> Rate;
-  vector<float> RateErr;
-  vector<float> spureRate;
-  vector<float> spureRateErr;
-  vector<float> pureRate;
-  vector<float> pureRateErr;
-  vector< vector<float> >coMa;
+  std::vector<float> Rate;
+  std::vector<float> RateErr;
+  std::vector<float> spureRate;
+  std::vector<float> spureRateErr;
+  std::vector<float> pureRate;
+  std::vector<float> pureRateErr;
+  std::vector< std::vector<float> >coMa;
 
-  vector< vector<float> > RatePerLS;
-  vector<float> totalRatePerLS;
-  vector<int> runID;
-  vector<int> lumiSection;
+  std::vector< std::vector<float> > RatePerLS;
+  std::vector<float> totalRatePerLS;
+  std::vector<int> runID;
+  std::vector<int> lumiSection;
 
 };
 

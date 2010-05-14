@@ -6,6 +6,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 HcalDataFormatMonitor::HcalDataFormatMonitor() {
+
   // Initialize an array of MonitorElements
   meChann_DataIntegrityCheck_[0] =meCh_DataIntegrityFED00_;
   meChann_DataIntegrityCheck_[1] =meCh_DataIntegrityFED01_;
@@ -202,7 +203,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
       label_ySpigots(meLRBDataCorruptionIndicators_, 4); // 3 bins + 1 margin each spgt
       
       //     ---------------- 
-      //     | CT | BE | LW |
+      //     | CT | BE |    |
       //     | HM | 15 | WW | (Wrong Wordcount)
       //     | TM | CK | IW | (Illegal Wordcount)
       //     ---------------- 
@@ -944,13 +945,13 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	    HalfHTRDataCorruptionIndicators_[fed3offset+1][spg3offset+0]++;
 	    if (fVerbosity>0) cout <<"HTR Problem: Case 7"<<endl;
 	    mapHTRproblem(dcc_,spigot); break;
-	  case ( 5): //LW
-	    HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+2]++;
-	    //Sometimes set spuriously at startup, per-fiber, .: Leniency: 8
-	    if (HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+2] > 8) { 
-	      if (fVerbosity>0) cout <<"HTR Problem: Case 5"<<endl;
-	      mapHTRproblem(dcc_,spigot); break; 
-	    }
+	  //\\case ( 5): //LW removed 2010.02.16
+	  //\\  HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+2]++;
+	  //\\  //Sometimes set spuriously at startup, per-fiber, .: Leniency: 8
+	  //\\  if (HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+2] > 8) { 
+	  //\\    if (fVerbosity>0) cout <<"HTR Problem: Case 5"<<endl;
+	  //\\    mapHTRproblem(dcc_,spigot); break; 
+	  //\\  }
 	  case ( 3): //L1 (previous L1A violated trigger rules)
 	    DataFlowInd_[fed2offset+1][spg3offset+0]++; break;
 	  case ( 1): //BZ

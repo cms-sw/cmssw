@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2009/10/28 08:18:21 $
- * $Revision: 1.37 $
+ * $Date: 2010/01/25 21:12:24 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,11 +29,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBOccupancyClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBOccupancyClient::EBOccupancyClient(const ParameterSet& ps) {
+EBOccupancyClient::EBOccupancyClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -45,7 +41,7 @@ EBOccupancyClient::EBOccupancyClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -53,7 +49,7 @@ EBOccupancyClient::EBOccupancyClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
     int ism = superModules_[i];
@@ -81,9 +77,9 @@ EBOccupancyClient::~EBOccupancyClient() {
 
 void EBOccupancyClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EBOccupancyClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EBOccupancyClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -92,7 +88,7 @@ void EBOccupancyClient::beginJob(void) {
 
 void EBOccupancyClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EBOccupancyClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EBOccupancyClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -102,7 +98,7 @@ void EBOccupancyClient::beginRun(void) {
 
 void EBOccupancyClient::endJob(void) {
 
-  if ( debug_ ) cout << "EBOccupancyClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EBOccupancyClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -110,7 +106,7 @@ void EBOccupancyClient::endJob(void) {
 
 void EBOccupancyClient::endRun(void) {
 
-  if ( debug_ ) cout << "EBOccupancyClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EBOccupancyClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -177,8 +173,8 @@ bool EBOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
     }
 
     const float n_min_tot = 1000.;
@@ -215,10 +211,10 @@ bool EBOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "Digi (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-              cout << "RecHitThr (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "Digi (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << std::endl;
+              std::cout << "RecHitThr (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -244,11 +240,11 @@ bool EBOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonOccupancyDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonOccupancyDat ..." << std::endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
@@ -262,7 +258,7 @@ void EBOccupancyClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EBOccupancyClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EBOccupancyClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   char histo[200];

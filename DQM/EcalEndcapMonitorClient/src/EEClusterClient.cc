@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2009/12/12 10:30:23 $
- * $Revision: 1.61 $
+ * $Date: 2010/01/25 21:12:26 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -21,11 +21,7 @@
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EEClusterClient::EEClusterClient(const ParameterSet& ps) {
+EEClusterClient::EEClusterClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -37,7 +33,7 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -45,7 +41,7 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   h01_[0] = 0;
   h01_[1] = 0;
@@ -83,9 +79,9 @@ EEClusterClient::~EEClusterClient() {
 
 void EEClusterClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EEClusterClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EEClusterClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -94,7 +90,7 @@ void EEClusterClient::beginJob(void) {
 
 void EEClusterClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EEClusterClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EEClusterClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -104,7 +100,7 @@ void EEClusterClient::beginRun(void) {
 
 void EEClusterClient::endJob(void) {
 
-  if ( debug_ ) cout << "EEClusterClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EEClusterClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -112,7 +108,7 @@ void EEClusterClient::endJob(void) {
 
 void EEClusterClient::endRun(void) {
 
-  if ( debug_ ) cout << "EEClusterClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EEClusterClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -204,7 +200,7 @@ void EEClusterClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EEClusterClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EEClusterClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   char histo[200];

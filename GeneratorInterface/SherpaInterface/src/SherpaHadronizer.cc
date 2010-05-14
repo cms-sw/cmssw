@@ -7,20 +7,8 @@
 
 #include "HepMC/GenEvent.h"
 
-// MM (18. Jan 2010) old style includes, fixed include path now
-//#include "SHERPA-MC/Sherpa.H"
-//#include "SHERPA-MC/Message.H"
-//#include "SHERPA-MC/prof.hh"
-//#include "SHERPA-MC/Random.H"
-//#include "SHERPA-MC/Exception.H"
-//#include "SHERPA-MC/Run_Parameter.H"
-//#include "SHERPA-MC/My_Root.H"
-//#include "SHERPA-MC/Input_Output_Handler.H"
-//#include "SHERPA-MC/HepMC2_Interface.H"
-
 #include "SHERPA/Main/Sherpa.H"
 #include "ATOOLS/Org/Message.H"
-//#include "SHERPA-MC/prof.hh" //??? still needed ???
 #include "ATOOLS/Math/Random.H"
 #include "ATOOLS/Org/Exception.H"
 #include "ATOOLS/Org/Run_Parameter.H"
@@ -78,12 +66,6 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   SherpaParameter(params.getParameter<edm::ParameterSet>("SherpaParameters")),
   maxEventsToPrint(params.getUntrackedParameter<int>("maxEventsToPrint", 0))
 {
-/* these have moved to BaseHadronizer
-  runInfo().setExternalXSecLO(
-			      params.getUntrackedParameter<double>("crossSection", -1.0));
-  runInfo().setFilterEfficiency(
-				params.getUntrackedParameter<double>("filterEfficiency", -1.0));
-*/  
 
   // The ids (names) of parameter sets to be read (Analysis,Run) to create Analysis.dat, Run.dat
   //They are given as a vstring.  
@@ -164,15 +146,14 @@ void SherpaHadronizer::statistics()
 {
   //calculate statistics
   Generator.SummarizeRun(); 
-  //get the xsec stored in Variable map
-  std::string s_xsec(ATOOLS::rpa.gen.Variable("TOTAL_CROSS_SECTION"));
-  //xsec = -1 if it is not stored
-  double xsec = -1;  
-  if (s_xsec!="") xsec=std::atof(s_xsec.c_str()); //convert it to double 
-  else std::cout<<"SherpaHadronizer: xsec info not available"<<std::endl;
-  //set the internal cross section of runInfo
-  runInfo().setInternalXSec(xsec);
- 
+
+  //get the xsec from EventHandler
+  SHERPA::Event_Handler* theEventHandler = Generator.GetEventHandler();
+  double xsec_val = theEventHandler->TotalXS();
+  double xsec_err = theEventHandler->TotalErr();
+  
+  //set the internal cross section in pb in GenRunInfoProduct 
+  runInfo().setInternalXSec(GenRunInfoProduct::XSec(xsec_val,xsec_err));
 
 }
 
@@ -182,11 +163,10 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
   //get the next event and check if it produced
   if (Generator.GenerateOneEvent()) { 
     //convert it to HepMC2
-    //    HepMC::GenEvent* evt = Generator.GetIOHandler()->GetHepMC2Interface()->GenEvent(); // expanded now...
     SHERPA::Input_Output_Handler* ioh = Generator.GetIOHandler();
     SHERPA::HepMC2_Interface* hm2i = ioh->GetHepMC2Interface();
     HepMC::GenEvent* evt = hm2i->GenEvent();
-    //ugly!! a hard copy, since sherpa delete the GenEvent internal
+    //ugly!! a hard copy, since sherpa deletes the GenEvent internal
     resetEvent(new HepMC::GenEvent (*evt));         
     return true;
   }

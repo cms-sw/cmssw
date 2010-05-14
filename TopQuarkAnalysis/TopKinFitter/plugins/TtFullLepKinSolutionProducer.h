@@ -2,7 +2,7 @@
 #define TtFullLepKinSolutionProducer_h
 
 //
-// $Id: TtFullLepKinSolutionProducer.h,v 1.4.2.1 2009/11/05 20:03:24 eschliec Exp $
+// $Id: TtFullLepKinSolutionProducer.h,v 1.5 2009/12/18 15:24:59 snaumann Exp $
 //
 #include <memory>
 #include <string>
@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 

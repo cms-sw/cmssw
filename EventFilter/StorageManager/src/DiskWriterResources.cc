@@ -1,4 +1,4 @@
-// $Id: DiskWriterResources.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
+// $Id: DiskWriterResources.cc,v 1.5 2010/03/16 19:10:22 mommsen Exp $
 /// @file: DiskWriterResources.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriterResources.h"
@@ -18,6 +18,8 @@ namespace stor
   (
     EvtStrConfigListPtr evtStrConfig,
     ErrStrConfigListPtr errStrConfig,
+    DiskWritingParams dwParams,
+    unsigned int runNumber,
     double timeoutValue
   )
   {
@@ -25,6 +27,8 @@ namespace stor
 
     _requestedEventStreamConfig = evtStrConfig;
     _requestedErrorStreamConfig = errStrConfig;
+    _requestedDiskWritingParams = dwParams;
+    _requestedRunNumber = runNumber;
     _requestedTimeout = timeoutValue;
     _configurationIsNeeded = true;
     _streamChangeIsNeeded = true;
@@ -42,6 +46,8 @@ namespace stor
     bool& doConfig,
     EvtStrConfigListPtr& evtStrConfig,
     ErrStrConfigListPtr& errStrConfig,
+    DiskWritingParams& dwParams,
+    unsigned int& runNumber,
     double& timeoutValue
   )
   {
@@ -57,6 +63,8 @@ namespace stor
       _configurationIsNeeded = false;
       evtStrConfig = _requestedEventStreamConfig;
       errStrConfig = _requestedErrorStreamConfig;
+      dwParams = _requestedDiskWritingParams;
+      runNumber = _requestedRunNumber;
       timeoutValue = _requestedTimeout;
     }
 
@@ -88,24 +96,6 @@ namespace stor
         _streamChangeCondition.notify_one();
       }
     _streamChangeInProgress = false;
-  }
-
-  void DiskWriterResources::requestLumiSectionClosure(const uint32_t lumiSection)
-  {
-    boost::mutex::scoped_lock sl(_lumiSectionMutex);
-
-    lumiSectionsToClose.push_back(lumiSection);
-  }
-
-  bool DiskWriterResources::lumiSectionClosureRequested(uint32_t& lumiSection)
-  {
-    boost::mutex::scoped_lock sl(_lumiSectionMutex);
-
-    if ( lumiSectionsToClose.empty() ) return false;
-
-    lumiSection = lumiSectionsToClose.front();
-    lumiSectionsToClose.pop_front();
-    return true;
   }
 
   void DiskWriterResources::setBusy(bool isBusyFlag)

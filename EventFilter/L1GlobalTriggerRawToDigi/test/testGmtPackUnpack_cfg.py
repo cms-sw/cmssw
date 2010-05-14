@@ -44,11 +44,11 @@ process.source = cms.Source("L1MuGMTHWFileReader",
     fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/i/imikulec/big/CMSSW_1_6_0_DAQ3/src/L1Trigger/GlobalMuonTrigger/test/gmt_testfile.h4mu.dat')
 )
 
-process.dump1 = cms.EDFilter("L1MuGMTDump",
+process.dump1 = cms.EDAnalyzer("L1MuGMTDump",
     GMTInputTag = cms.untracked.InputTag("gmtDigis")
 )
 
-process.dump2 = cms.EDFilter("L1MuGMTDump",
+process.dump2 = cms.EDAnalyzer("L1MuGMTDump",
     GMTInputTag = cms.untracked.InputTag("l1GtUnpack")
 )
 

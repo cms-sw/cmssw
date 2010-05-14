@@ -27,6 +27,7 @@
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 
+class TkHistoMap;
 
 class FEDErrors {
 
@@ -85,6 +86,8 @@ public:
     bool Missing;
     bool BadMajorityAddress;
     int TimeDifference;
+    unsigned int Apve;
+    unsigned int FeMaj;
   };
 
   struct ChannelLevelErrors {
@@ -114,23 +117,36 @@ public:
   ~FEDErrors();
 
   void initialise(const unsigned int aFedID,
-		  const SiStripFedCabling* aCabling);
+		  const SiStripFedCabling* aCabling,
+		  bool initVars = true);
 
   //return false if no data, with or without cabled channels.
   bool checkDataPresent(const FEDRawData& aFedData);
 
   //perform a sanity check with unpacking code check
-  bool failUnpackerFEDCheck(const FEDRawData & fedData);
-
+  bool failUnpackerFEDCheck();
 
   //return true if there were no errors at the level they are analysing
   //ie analyze FED returns true if there were no FED level errors which prevent the whole FED being unpacked
+  bool fillFatalFEDErrors(const FEDRawData& aFedData,
+			  const unsigned int aPrintDebug);
+
+  //expensive check: fatal but kept separate
+  bool fillCorruptBuffer(const sistrip::FEDBuffer* aBuffer);
+
+  //FE/Channel check: rate of channels with error (only considering connected channels)
+  float fillNonFatalFEDErrors(const sistrip::FEDBuffer* aBuffer,
+			      const SiStripFedCabling* aCabling = 0);
+
   //fill errors: define the order of importance.
   bool fillFEDErrors(const FEDRawData& aFedData,
 		     bool & aFullDebug,
 		     const unsigned int aPrintDebug,
 		     unsigned int & aCounterMonitoring,
-		     unsigned int & aCounterUnpacker
+		     unsigned int & aCounterUnpacker,
+		     const bool aDoMeds,
+		     MonitorElement *aMedianHist0,
+		     MonitorElement *aMedianHist1
 		     );
 
   bool fillFEErrors(const sistrip::FEDBuffer* aBuffer);
@@ -139,16 +155,18 @@ public:
 			 bool & aFullDebug,
 			 const unsigned int aPrintDebug,
 			 unsigned int & aCounterMonitoring,
-			 unsigned int & aCounterUnpacker
+			 unsigned int & aCounterUnpacker,
+			 const bool aDoMeds,
+			 MonitorElement *aMedianHist0,
+			 MonitorElement *aMedianHist1
 			 );
 
   //1--Add all channels of a FED if anyFEDErrors or corruptBuffer
   //2--if aFillAll = true, add all channels anyway with 0 if no errors, so TkHistoMap is filled for all valid channels ...
-  void fillBadChannelList(std::map<unsigned int,std::pair<unsigned short,unsigned short> > & aMap,
-			  const SiStripFedCabling* aCabling,
+  void fillBadChannelList(const bool doTkHistoMap,
+			  TkHistoMap *aTkMapPointer,
 			  unsigned int & aNBadChannels,
-			  unsigned int & aNBadActiveChannels,
-			  const bool aFillAll);
+			  unsigned int & aNBadActiveChannels);
 
   //bool foundFEDErrors();
 
@@ -204,11 +222,20 @@ protected:
   
 private:
 
+  void processDet(const uint32_t aPrevId,
+		  const uint16_t aPrevTot,
+		  const bool doTkHistoMap,
+		  uint16_t & nBad,
+		  TkHistoMap *aTkMapPointer);
+
   unsigned int fedID_;
 
-  bool connected_[sistrip::FEDCH_PER_FED];
-  unsigned short subDetId_[sistrip::FEUNITS_PER_FED];
+  std::vector<bool> connected_;
+  std::vector<unsigned int> detid_;
+  std::vector<unsigned short> nChInModule_;
 
+  std::vector<unsigned short> subDetId_;
+  
   FECounters feCounter_;
   FEDLevelErrors fedErrors_;
   std::vector<FELevelErrors> feErrors_;

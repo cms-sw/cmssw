@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.12 2009/12/08 10:41:13 wehrlilu Exp $
+// $Id: SiPixelClusterModule.h,v 1.13 2010/01/07 16:46:17 merkelp Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -55,7 +55,7 @@ class SiPixelClusterModule {
   /// Book histograms
   void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true, bool reducedSet=false);
   /// Fill histograms
-  void fill(const edmNew::DetSetVector<SiPixelCluster> & input, 
+  int fill(const edmNew::DetSetVector<SiPixelCluster> & input, 
             const TrackerGeometry* tracker,
             bool modon=true, 
 	    bool ladon=false, 

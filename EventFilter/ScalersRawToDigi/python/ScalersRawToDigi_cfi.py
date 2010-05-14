@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-scalersRawToDigi = cms.EDFilter("ScalersRawToDigi",
+scalersRawToDigi = cms.EDProducer("ScalersRawToDigi",
                                 scalersInputTag = cms.InputTag("source")
                                 )
 

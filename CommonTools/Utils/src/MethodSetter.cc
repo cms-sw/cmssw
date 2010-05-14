@@ -25,12 +25,13 @@ void MethodSetter::operator()(const char * begin, const char * end) const {
   string::size_type endOfExpr = name.find_last_of(' ');
   if(endOfExpr != string::npos)
     name.erase(endOfExpr, name.size());
-  //std::cerr << "Pushed [" << name << "] with " << args.size() << " args." << std::endl;
+  //std::cerr << "Pushing [" << name << "] with " << args.size() << " args " << (lazy_ ? "(lazy)" : "(immediate)") << std::endl;
   if (lazy_) lazyMethStack_.push_back(LazyInvoker(name, args)); // for lazy parsing we just push method name and arguments
   else push(name, args,begin);  // otherwise we really have to resolve the method
+  //std::cerr << "Pushed [" << name << "] with " << args.size() << " args " << (lazy_ ? "(lazy)" : "(immediate)") << std::endl;
 }
 
-void MethodSetter::push(const string & name, const vector<AnyMethodArgument> & args, const char* begin) const {
+bool MethodSetter::push(const string & name, const vector<AnyMethodArgument> & args, const char* begin,bool deep) const {
   Type type = typeStack_.back();
   vector<AnyMethodArgument> fixups;
   int error;
@@ -39,8 +40,9 @@ void MethodSetter::push(const string & name, const vector<AnyMethodArgument> & a
      Type retType = reco::returnType(mem.first);
      if(!retType) {
         throw Exception(begin)
-     	<< "member \"" << mem.first.Name() << "\" return type is ivalid: \"" 
-     	<<  mem.first.TypeOf().Name() << "\"";
+     	<< "member \"" << mem.first.Name() << "\" return type is invalid:\n" 
+        << "  member type: \"" <<  mem.first.TypeOf().Name() << "\"\n"
+     	<< "  return type: \"" << mem.first.TypeOf().ReturnType().Name() << "\"\n";
         
      }
      typeStack_.push_back(retType);
@@ -48,7 +50,8 @@ void MethodSetter::push(const string & name, const vector<AnyMethodArgument> & a
      if(mem.second) {
         //std::cout << "Mem.second, so book " << mem.first.Name() << " without fixups." << std::endl;
         methStack_.push_back(MethodInvoker(mem.first));
-        push(name, args,begin); // we have not found the method, so we have not fixupped the arguments
+        if (deep) push(name, args,begin); // note: we have not found the method, so we have not fixupped the arguments
+        else return false;
       } else {
         //std::cout << "Not mem.second, so book " << mem.first.Name() << " with #args = " << fixups.size() << std::endl;
         methStack_.push_back(MethodInvoker(mem.first, fixups));
@@ -112,5 +115,6 @@ void MethodSetter::push(const string & name, const vector<AnyMethodArgument> & a
      typeStack_.push_back(member.TypeOf());
      methStack_.push_back(MethodInvoker(member));
   }
+  return true;
 }
     

@@ -78,6 +78,7 @@ object=[]
 record=[]
 connstring=[]
 account=[]
+label=[]
 
 os.system('rm -f '+TMPTAG)
 os.system('cmscond_tagtree_list -c '+CONNSTRINGGLOBTAG+' -T '+GLOBTAG+' > '+TMPTAG)
@@ -153,6 +154,8 @@ for i in range(0,len(leafnode)):
            else:
                connstring.append(pfn[i].split('/CMS_COND')[0])
            account.append('CMS_COND'+pfn[i].split('/CMS_COND')[1])
+           #print "TAG: " + tag[i] + " LABEL: " + linesout[i2].split()[5]
+           label.append(linesout[i2].split()[5])
 
 #    print "Leafnode:",i,leafnode[i]
 #    print "Parent=",parent[i]
@@ -175,8 +178,12 @@ conf.write('\n')
 conf.write('[TAGINVENTORY]\n')
 conf.write('tagdata=\n')
 for iline in range(0,len(leafnode)):
-#    print iline
-    outline=' '+tag[iline]+'{pfn='+connstring[iline]+'/'+account[iline]+',objectname='+object[iline]+',recordname='+record[iline]+'}'
+    #    print iline
+    if label[iline] == 'None':
+        outline=' '+tag[iline]+'{pfn='+connstring[iline]+'/'+account[iline]+',objectname='+object[iline]+',recordname='+record[iline]+'}'
+    else:
+        outline=' '+tag[iline]+'{pfn='+connstring[iline]+'/'+account[iline]+',objectname='+object[iline]+',recordname='+record[iline]+',labelname='+label[iline]+'}'
+        
     if iline != len(leafnode)-1:
         outline=outline+';'
     outline=outline+'\n'

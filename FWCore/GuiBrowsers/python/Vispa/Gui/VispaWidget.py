@@ -1304,9 +1304,7 @@ class VispaWidget(ZoomableWidget):
         if event.modifiers() == Qt.ControlModifier:
             # allow deselect of individual widgets in selection
             self.select(not self.isSelected(), True)
-        elif parentIsVispaWidgetOwner and not self.parent().multiSelectEnabled():
-            # is multiSelctEnabled mouseReleaseEvent takes care of selection
-            # enables dragging of group of modules
+        elif parentIsVispaWidgetOwner and not self.isSelected():
             self.select(True)
             
         if not self._dragableFlag:
@@ -1316,13 +1314,6 @@ class VispaWidget(ZoomableWidget):
         
         if parentIsVispaWidgetOwner:
             self.parent().initWidgetMovement(self)
-            
-    def mouseReleaseEvent(self, event):
-        if event.modifiers() != Qt.ControlModifier \
-         and isinstance(self.parent(), VispaWidgetOwner) \
-         and self.parent().multiSelectEnabled() \
-         and self.parent().lastMovedWidget() != self:
-            self.select(True)
 
     def mouseMoveEvent(self, event):
         """ Call dragWidget().

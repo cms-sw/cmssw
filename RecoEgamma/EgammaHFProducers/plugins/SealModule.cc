@@ -6,6 +6,6 @@
 #include "HFRecoEcalCandidateProducer.h"
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HFEMClusterProducer);
-DEFINE_ANOTHER_FWK_MODULE(HFRecoEcalCandidateProducer);
+
+DEFINE_FWK_MODULE(HFEMClusterProducer);
+DEFINE_FWK_MODULE(HFRecoEcalCandidateProducer);

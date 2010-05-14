@@ -11,8 +11,6 @@
 #include <string>
 #include <map>
 
-using namespace std;
-
 class DQMMessageLoggerClient : public edm::EDAnalyzer {
  public:
   // Constructor
@@ -46,11 +44,10 @@ class DQMMessageLoggerClient : public edm::EDAnalyzer {
   
   DQMStore* theDbe;
   edm::ParameterSet parameters;
-  string directoryName;
+  std::string directoryName;
 
-  vector<string> binLabel;
-  vector<Double_t> binContent;
-
+  std::vector<std::string> binLabel;
+  std::vector<Double_t> binContent;
 
   int nBinsErrors;
   int nBinsWarnings;
@@ -60,7 +57,6 @@ class DQMMessageLoggerClient : public edm::EDAnalyzer {
   MonitorElement *categoriesErrorsFound;
   MonitorElement *categoriesWarningsFound;
 
-  
 };
 #endif  
 

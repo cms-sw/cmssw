@@ -1,11 +1,19 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2009/11/02 22:30:27 $
- * $Revision: 1.45 $
+ * $Date: 2010/04/02 16:32:42 $
+ * $Revision: 1.47 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.47  2010/04/02 16:32:42  tapper
+ * 1. Changed GCT unpacker settings to unpack 5 BXs.
+ * 2. Changed L1TGCT to plot only central BX distributions but all 5 BXs for timing plots.
+ * 3. Made labels more descriptive in GCT emulator expert DQM.
+ *
+ * Revision 1.46  2009/11/19 14:39:15  puigh
+ * modify beginJob
+ *
  * Revision 1.45  2009/11/02 22:30:27  tapper
  * Err that'll teach me to test it properly.... fixed a bug in the HF ring histograms.
  *
@@ -300,17 +308,13 @@ void L1TGCT::beginJob(void)
 					  PHIBINS, PHIMIN, PHIMAX); 
   
     l1GctHFRing1PosEtaNegEta_ = dbe->book2D("HFRing1Corr", "HF RING1 CORRELATION NEG POS ETA",
-                                            JETETABINS, JETETAMIN, JETETAMAX,
-                                            PHIBINS, PHIMIN, PHIMAX); 
+                                            R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX); 
     l1GctHFRing2PosEtaNegEta_ = dbe->book2D("HFRing2Corr", "HF RING2 CORRELATION NEG POS ETA",
-                                            JETETABINS, JETETAMIN, JETETAMAX,
-                                            PHIBINS, PHIMIN, PHIMAX); 
+                                            R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
     l1GctHFRing1TowerCountPosEtaNegEta_ = dbe->book2D("HFRing1TowerCountCorr", "HF RING1 TOWER COUNT CORRELATION NEG POS ETA",
-                                                      JETETABINS, JETETAMIN, JETETAMAX,
-                                                      PHIBINS, PHIMIN, PHIMAX);
+                                                      R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
     l1GctHFRing2TowerCountPosEtaNegEta_ = dbe->book2D("HFRing2TowerCountCorr", "HF RING2 TOWER COUNT CORRELATION NEG POS ETA",
-                                                      JETETABINS, JETETAMIN, JETETAMAX,
-                                                      PHIBINS, PHIMIN, PHIMAX); 
+                                                      R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
 
     //HF Ring stuff
     l1GctHFRing1TowerCountPosEta_ = dbe->book1D("HFRing1TowerCountPosEta", "POS ETA RING1 HFRING BIT", R3BINS, R3MIN, R3MAX);
@@ -325,8 +329,8 @@ void L1TGCT::beginJob(void)
     l1GctHFRingRatioPosEta_  = dbe->book1D("HFRingRatioPosEta", "RING RATIO POS ETA", R5BINS, R5MIN, R5MAX);
     l1GctHFRingRatioNegEta_  = dbe->book1D("HFRingRatioNegEta", "RING RATIO NEG ETA", R5BINS, R5MIN, R5MAX);
 
-    l1GctHFRingTowerCountOccBx_ = dbe->book2D("HFRingTowerCountOccBx", "HFRING BIT PER BX",BXBINS,BXMIN,BXMAX,R3BINS, R3MIN, R3MAX);
-    l1GctHFRingETSumOccBx_ = dbe->book2D("HFRingETSumOccBx", "HFRING ET SUM PER BX",BXBINS,BXMIN,BXMAX,R3BINS, R3MIN, R3MAX);
+    l1GctHFRingTowerCountOccBx_ = dbe->book2D("HFRingTowerCountOccBx", "HF RING BIT PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
+    l1GctHFRingETSumOccBx_ = dbe->book2D("HFRingETSumOccBx", "HF RING ET SUM PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
     
     // Rank histograms
     l1GctCenJetsRank_  = dbe->book1D("CenJetsRank", "CENTRAL JET RANK", R6BINS, R6MIN, R6MAX);
@@ -414,15 +418,18 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // Central jets
   if (l1CenJets.isValid()) {
     for (L1GctJetCandCollection::const_iterator cj = l1CenJets->begin();cj != l1CenJets->end(); cj++) {
-      l1GctCenJetsRank_->Fill(cj->rank());
-      // only plot eta and phi maps for non-zero candidates
-      if (cj->rank()) {
-        l1GctAllJetsEtEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi(),cj->rank());
-        l1GctAllJetsOccEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi());
-        l1GctCenJetsEtEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi(),cj->rank());
-        l1GctCenJetsOccEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi());
-        l1GctAllJetsOccRankBx_->Fill(cj->bx(),cj->rank());
+      // only plot central BX
+      if (cj->bx()==0) {
+        l1GctCenJetsRank_->Fill(cj->rank());
+        // only plot eta and phi maps for non-zero candidates
+        if (cj->rank()) {
+          l1GctAllJetsEtEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi(),cj->rank());
+          l1GctAllJetsOccEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi());
+          l1GctCenJetsEtEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi(),cj->rank());
+          l1GctCenJetsOccEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi());
+        }
       }
+      if (cj->rank()) l1GctAllJetsOccRankBx_->Fill(cj->bx(),cj->rank()); // for all BX
     }
   } else {    
     edm::LogWarning("DataNotFound") << " Could not find l1CenJets label was " << gctCenJetsSource_ ;
@@ -431,15 +438,18 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // Forward jets
   if (l1ForJets.isValid()) {
     for (L1GctJetCandCollection::const_iterator fj = l1ForJets->begin(); fj != l1ForJets->end(); fj++) {
-      l1GctForJetsRank_->Fill(fj->rank());
-      // only plot eta and phi maps for non-zero candidates
-      if (fj->rank()) {
-        l1GctAllJetsEtEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi(),fj->rank());
-        l1GctAllJetsOccEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi());
-        l1GctForJetsEtEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi(),fj->rank());
-        l1GctForJetsOccEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi());
-        l1GctAllJetsOccRankBx_->Fill(fj->bx(),fj->rank());
+      // only plot central BX
+      if (fj->bx()==0) {
+        l1GctForJetsRank_->Fill(fj->rank());
+        // only plot eta and phi maps for non-zero candidates
+        if (fj->rank()) {
+          l1GctAllJetsEtEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi(),fj->rank());
+          l1GctAllJetsOccEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi());
+          l1GctForJetsEtEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi(),fj->rank());
+          l1GctForJetsOccEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi());    
+        }
       }
+      if (fj->rank()) l1GctAllJetsOccRankBx_->Fill(fj->bx(),fj->rank()); // for all BX
     }
   } else {    
     edm::LogWarning("DataNotFound") << " Could not find l1ForJets label was " << gctForJetsSource_ ;
@@ -448,13 +458,16 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // Tau jets
   if (l1TauJets.isValid()) {
     for (L1GctJetCandCollection::const_iterator tj = l1TauJets->begin(); tj != l1TauJets->end(); tj++) {
-      l1GctTauJetsRank_->Fill(tj->rank());
-      // only plot eta and phi maps for non-zero candidates
-      if (tj->rank()) {
-        l1GctTauJetsEtEtaPhi_->Fill(tj->regionId().ieta(),tj->regionId().iphi(),tj->rank());
-        l1GctTauJetsOccEtaPhi_->Fill(tj->regionId().ieta(),tj->regionId().iphi());
-        l1GctAllJetsOccRankBx_->Fill(tj->bx(),tj->rank());
+      // only plot central BX
+      if (tj->bx()==0) {
+        l1GctTauJetsRank_->Fill(tj->rank());
+        // only plot eta and phi maps for non-zero candidates
+        if (tj->rank()) {
+          l1GctTauJetsEtEtaPhi_->Fill(tj->regionId().ieta(),tj->regionId().iphi(),tj->rank());
+          l1GctTauJetsOccEtaPhi_->Fill(tj->regionId().ieta(),tj->regionId().iphi());
+        }
       }
+      if (tj->rank()) l1GctAllJetsOccRankBx_->Fill(tj->bx(),tj->rank()); // for all BX
     }
   } else {    
     edm::LogWarning("DataNotFound") << " Could not find l1TauJets label was " << gctTauJetsSource_ ;
@@ -463,13 +476,16 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // Missing ET
   if (l1EtMiss.isValid()) { 
     for (L1GctEtMissCollection::const_iterator met = l1EtMiss->begin(); met != l1EtMiss->end(); met++) {
-      if (met->overFlow() == 0 && met->et() > 0) {
-        //Avoid problems with met=0 candidates affecting MET_PHI plots
-        l1GctEtMiss_->Fill(met->et());
-        l1GctEtMissPhi_->Fill(met->phi());
-        l1GctEtMissOccBx_->Fill(met->bx(),met->et());
+      // only plot central BX
+      if (met->bx()==0) {
+        if (met->overFlow() == 0 && met->et() > 0) {
+          //Avoid problems with met=0 candidates affecting MET_PHI plots
+          l1GctEtMiss_->Fill(met->et());
+          l1GctEtMissPhi_->Fill(met->phi());
+        }
+        l1GctEtMissOf_->Fill(met->overFlow());
       }
-      l1GctEtMissOf_->Fill(met->overFlow());
+      if (met->overFlow() == 0 && met->et() > 0) l1GctEtMissOccBx_->Fill(met->bx(),met->et()); // for all BX
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1EtMiss label was " << gctEnergySumsSource_ ;    
@@ -478,13 +494,16 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // Missing HT
   if (l1HtMiss.isValid()) { 
     for (L1GctHtMissCollection::const_iterator mht = l1HtMiss->begin(); mht != l1HtMiss->end(); mht++) {
-      if (mht->overFlow() == 0 && mht->et() > 0) {
-        //Avoid problems with mht=0 candidates affecting MHT_PHI plots
-         l1GctHtMiss_->Fill(mht->et());
-         l1GctHtMissPhi_->Fill(mht->phi());
-         l1GctHtMissOccBx_->Fill(mht->bx(),mht->et());
+      // only plot central BX
+      if (mht->bx()==0) {
+        if (mht->overFlow() == 0 && mht->et() > 0) {
+          //Avoid problems with mht=0 candidates affecting MHT_PHI plots
+          l1GctHtMiss_->Fill(mht->et());
+          l1GctHtMissPhi_->Fill(mht->phi());
+        }
+        l1GctHtMissOf_->Fill(mht->overFlow());
       }
-      l1GctHtMissOf_->Fill(mht->overFlow());
+      if (mht->overFlow() == 0 && mht->et() > 0) l1GctHtMissOccBx_->Fill(mht->bx(),mht->et()); // for all BX
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1HtMiss label was " << gctEnergySumsSource_ ;    
@@ -494,8 +513,9 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   if (l1HtMiss.isValid() && l1EtMiss.isValid()) { 
     if (l1HtMiss->size() == l1EtMiss->size()) {
       for (unsigned i=0; i<l1HtMiss->size(); i++) {
-        if (l1HtMiss->at(i).overFlow() == 0 && l1EtMiss->at(i).overFlow() == 0) {
-          // Avoid problems overflows
+        if (l1HtMiss->at(i).overFlow() == 0 && l1EtMiss->at(i).overFlow() == 0 && 
+            l1HtMiss->at(i).bx() == 0 && l1EtMiss->at(i).bx() == 0) {
+          // Avoid problems overflows and only plot central BX
           l1GctEtMissHtMissCorr_->Fill(l1EtMiss->at(i).et(),l1HtMiss->at(i).et());
           l1GctEtMissHtMissCorrPhi_->Fill(l1EtMiss->at(i).phi(),l1HtMiss->at(i).phi());
         }
@@ -508,9 +528,12 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // HT 
   if (l1EtHad.isValid()) {
     for (L1GctEtHadCollection::const_iterator ht = l1EtHad->begin(); ht != l1EtHad->end(); ht++) {
-      l1GctEtHad_->Fill(ht->et());
-      l1GctEtHadOccBx_->Fill(ht->bx(),ht->et());
-      l1GctEtHadOf_->Fill(ht->overFlow());
+      // only plot central BX
+      if (ht->bx()==0) {
+        l1GctEtHad_->Fill(ht->et());
+        l1GctEtHadOf_->Fill(ht->overFlow());
+      }
+      l1GctEtHadOccBx_->Fill(ht->bx(),ht->et()); // for all BX
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1EtHad label was " << gctEnergySumsSource_ ;    
@@ -519,9 +542,12 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // Total ET
   if (l1EtTotal.isValid()) {
     for (L1GctEtTotalCollection::const_iterator et = l1EtTotal->begin(); et != l1EtTotal->end(); et++) {
-      l1GctEtTotal_->Fill(et->et());
-      l1GctEtTotalOccBx_->Fill(et->bx(),et->et());
-      l1GctEtTotalOf_->Fill(et->overFlow());
+      // only plot central BX
+      if (et->bx()==0) {
+        l1GctEtTotal_->Fill(et->et());
+        l1GctEtTotalOf_->Fill(et->overFlow());
+      }
+      l1GctEtTotalOccBx_->Fill(et->bx(),et->et()); // for all BX
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1EtTotal label was " << gctEnergySumsSource_ ;    
@@ -530,17 +556,20 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   //HF Ring Et Sums
   if (l1HFSums.isValid()) {
     for (L1GctHFRingEtSumsCollection::const_iterator hfs=l1HFSums->begin(); hfs!=l1HFSums->end(); hfs++){ 
-      // Individual ring Et sums
-      l1GctHFRing1ETSumPosEta_->Fill(hfs->etSum(0));
-      l1GctHFRing1ETSumNegEta_->Fill(hfs->etSum(1));
-      l1GctHFRing2ETSumPosEta_->Fill(hfs->etSum(2));
-      l1GctHFRing2ETSumNegEta_->Fill(hfs->etSum(3));
-      // Ratio of ring Et sums
-      if (hfs->etSum(2)!=0) l1GctHFRingRatioPosEta_->Fill((hfs->etSum(0))/(hfs->etSum(2)));
-      if (hfs->etSum(3)!=0) l1GctHFRingRatioNegEta_->Fill((hfs->etSum(1))/(hfs->etSum(3)));
-      // Correlate positive and neagative eta
-      l1GctHFRing1PosEtaNegEta_->Fill(hfs->etSum(0),hfs->etSum(1));
-      l1GctHFRing2PosEtaNegEta_->Fill(hfs->etSum(2),hfs->etSum(3));
+      // only plot central BX
+      if (hfs->bx()==0) {
+        // Individual ring Et sums
+        l1GctHFRing1ETSumPosEta_->Fill(hfs->etSum(0));
+        l1GctHFRing1ETSumNegEta_->Fill(hfs->etSum(1));
+        l1GctHFRing2ETSumPosEta_->Fill(hfs->etSum(2));
+        l1GctHFRing2ETSumNegEta_->Fill(hfs->etSum(3));
+        // Ratio of ring Et sums
+        if (hfs->etSum(2)!=0) l1GctHFRingRatioPosEta_->Fill((hfs->etSum(0))/(hfs->etSum(2)));
+        if (hfs->etSum(3)!=0) l1GctHFRingRatioNegEta_->Fill((hfs->etSum(1))/(hfs->etSum(3)));
+        // Correlate positive and neagative eta
+        l1GctHFRing1PosEtaNegEta_->Fill(hfs->etSum(0),hfs->etSum(1));
+        l1GctHFRing2PosEtaNegEta_->Fill(hfs->etSum(2),hfs->etSum(3));
+      }
       // Occupancy vs BX
       for (unsigned i=0; i<4; i++){
         l1GctHFRingETSumOccBx_->Fill(hfs->bx(),hfs->etSum(i));
@@ -553,14 +582,17 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // HF Ring Counts
   if (l1HFCounts.isValid()) {
     for (L1GctHFBitCountsCollection::const_iterator hfc=l1HFCounts->begin(); hfc!=l1HFCounts->end(); hfc++){ 
-      // Individual ring counts
-      l1GctHFRing1TowerCountPosEta_->Fill(hfc->bitCount(0));
-      l1GctHFRing1TowerCountNegEta_->Fill(hfc->bitCount(1));
-      l1GctHFRing2TowerCountPosEta_->Fill(hfc->bitCount(2));
-      l1GctHFRing2TowerCountNegEta_->Fill(hfc->bitCount(3));
-      // Correlate positive and negative eta
-      l1GctHFRing1TowerCountPosEtaNegEta_->Fill(hfc->bitCount(0),hfc->bitCount(1));
-      l1GctHFRing2TowerCountPosEtaNegEta_->Fill(hfc->bitCount(2),hfc->bitCount(3));
+      // only plot central BX
+      if (hfc->bx()==0) {
+        // Individual ring counts
+        l1GctHFRing1TowerCountPosEta_->Fill(hfc->bitCount(0));
+        l1GctHFRing1TowerCountNegEta_->Fill(hfc->bitCount(1));
+        l1GctHFRing2TowerCountPosEta_->Fill(hfc->bitCount(2));
+        l1GctHFRing2TowerCountNegEta_->Fill(hfc->bitCount(3));
+        // Correlate positive and negative eta
+        l1GctHFRing1TowerCountPosEtaNegEta_->Fill(hfc->bitCount(0),hfc->bitCount(1));
+        l1GctHFRing2TowerCountPosEtaNegEta_->Fill(hfc->bitCount(2),hfc->bitCount(3));
+      }
       // Occupancy vs BX
       for (unsigned i=0; i<4; i++){
         l1GctHFRingTowerCountOccBx_->Fill(hfc->bx(),hfc->bitCount(i));
@@ -569,17 +601,20 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   } else {    
     edm::LogWarning("DataNotFound") << " Could not find l1HFCounts label was " << gctEnergySumsSource_ ;
   }
-
+  
   // Isolated EM
   if (l1IsoEm.isValid()) {
     for (L1GctEmCandCollection::const_iterator ie=l1IsoEm->begin(); ie!=l1IsoEm->end(); ie++) {
-      l1GctIsoEmRank_->Fill(ie->rank());
-      // only plot eta and phi maps for non-zero candidates
-      if (ie->rank()){ 
-        l1GctIsoEmRankEtaPhi_->Fill(ie->regionId().ieta(),ie->regionId().iphi(),ie->rank());
-        l1GctIsoEmOccEtaPhi_->Fill(ie->regionId().ieta(),ie->regionId().iphi());
-        l1GctAllEmOccRankBx_->Fill(ie->bx(),ie->rank());
+      // only plot central BX
+      if (ie->bx()==0) {
+        l1GctIsoEmRank_->Fill(ie->rank());
+        // only plot eta and phi maps for non-zero candidates
+        if (ie->rank()){ 
+          l1GctIsoEmRankEtaPhi_->Fill(ie->regionId().ieta(),ie->regionId().iphi(),ie->rank());
+          l1GctIsoEmOccEtaPhi_->Fill(ie->regionId().ieta(),ie->regionId().iphi());
+        }
       }
+      if (ie->rank()) l1GctAllEmOccRankBx_->Fill(ie->bx(),ie->rank()); // for all BX
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1IsoEm label was " << gctIsoEmSource_ ;
@@ -588,13 +623,16 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // Non-isolated EM
   if (l1NonIsoEm.isValid()) { 
     for (L1GctEmCandCollection::const_iterator ne=l1NonIsoEm->begin(); ne!=l1NonIsoEm->end(); ne++) {
-      l1GctNonIsoEmRank_->Fill(ne->rank());
-      // only plot eta and phi maps for non-zero candidates
-      if (ne->rank()){ 
-        l1GctNonIsoEmRankEtaPhi_->Fill(ne->regionId().ieta(),ne->regionId().iphi(),ne->rank());
-        l1GctNonIsoEmOccEtaPhi_->Fill(ne->regionId().ieta(),ne->regionId().iphi());
-        l1GctAllEmOccRankBx_->Fill(ne->bx(),ne->rank());
+      // only plot central BX
+      if (ne->bx()==0) {
+        l1GctNonIsoEmRank_->Fill(ne->rank());
+        // only plot eta and phi maps for non-zero candidates
+        if (ne->rank()){ 
+          l1GctNonIsoEmRankEtaPhi_->Fill(ne->regionId().ieta(),ne->regionId().iphi(),ne->rank());
+          l1GctNonIsoEmOccEtaPhi_->Fill(ne->regionId().ieta(),ne->regionId().iphi());
+        }
       }
+      if (ne->rank()) l1GctAllEmOccRankBx_->Fill(ne->bx(),ne->rank()); // for all BX
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1NonIsoEm label was " << gctNonIsoEmSource_ ;

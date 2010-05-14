@@ -7,18 +7,18 @@ from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 
 # PAT TRACKS 
 
-# before layer 1: conversion to track candidates for pat; isolation 
+# before pat: conversion to track candidates for pat; isolation 
 from ElectroWeakAnalysis.Skimming.patAODTrackCandSequence_cff import *
 patAODTrackCands.cut = 'pt > 10.'
 
-# layer 1 tracks
-import PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi as genericpartproducer_cfi
+# pat tracks
+from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import patGenericParticles
 
-allLayer1TrackCands = genericpartproducer_cfi.allLayer1GenericParticles.clone(
+allPatTracks = patGenericParticles.clone(
     src = cms.InputTag("patAODTrackCands"),
     embedTrack = cms.bool(True),
     # isolation configurables
-    isolation = cms.PSet(
+    userIsolation = cms.PSet(
       tracker = cms.PSet(
         veto = cms.double(0.015),
         src = cms.InputTag("patAODTrackIsoDepositCtfTk"),
@@ -43,39 +43,58 @@ allLayer1TrackCands = genericpartproducer_cfi.allLayer1GenericParticles.clone(
 )
 
 from PhysicsTools.PatAlgos.selectionLayer1.trackSelector_cfi import *
-selectedLayer1TrackCands.cut = 'pt > 10.'
+selectedPatTracks.cut = 'pt > 10.'
 
 # PAT MUONS
 
-# before layer 1: Merge CaloMuons into the collection of reco::Muons
-from RecoMuon.MuonIdentification.calomuons_cfi import calomuons;
-muons = cms.EDProducer("CaloMuonMerger",
-    muons = cms.InputTag("muons"), # half-dirty thing. it works aslong as we're the first module using muons in the path
-    caloMuons = cms.InputTag("calomuons"),
-    minCaloCompatibility = calomuons.minCaloCompatibility)
+# before pat: Merge CaloMuons into the collection of reco::Muons
+# Starting from 3_4_X a special recipe is needed for CaloMuons merging
+# Uncomment the following lines and follow the recipe in:
+# https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIsolation#To_remake_IsoDeposits_in_CMSSW_3
+
+#from RecoMuon.MuonIdentification.calomuons_cfi import calomuons;
+#muons = cms.EDProducer("CaloMuonMerger",
+#    muons = cms.InputTag("muons"), # half-dirty thing. it works aslong as we're the first module using muons in the path
+#    caloMuons = cms.InputTag("calomuons"),
+#    minCaloCompatibility = calomuons.minCaloCompatibility)
 
 ## And re-make isolation, as we can't use the one in AOD because our collection is different
-import RecoMuon.MuonIsolationProducers.muIsolation_cff
+#import RecoMuon.MuonIsolationProducers.muIsolation_cff
 
-# layer 1 muons
+# pat muons
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
-allLayer1Muons.userIsolation.tracker = cms.PSet(
-    veto = cms.double(0.015),
-    src = cms.InputTag("muIsoDepositTk"),
-    deltaR = cms.double(0.3),
-    cut = cms.double(3.0),
-    threshold = cms.double(1.5)
+patMuons.isoDeposits = cms.PSet(
+        tracker = cms.InputTag("muIsoDepositTk"),
+        ecal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
+        hcal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
 )
-allLayer1Muons.addGenMatch = cms.bool(False)
-allLayer1Muons.embedTrack = cms.bool(True)
-allLayer1Muons.embedCombinedMuon = cms.bool(True)
-allLayer1Muons.embedStandAloneMuon = cms.bool(True)
-allLayer1Muons.embedPickyMuon = cms.bool(False)
-allLayer1Muons.embedTpfmsMuon = cms.bool(False)
-allLayer1Muons.embedPFCandidate = cms.bool(False)
+patMuons.userIsolation = cms.PSet(
+        hcal = cms.PSet(
+            src = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
+            deltaR = cms.double(0.3)
+        ),
+        tracker = cms.PSet(
+            veto = cms.double(0.015),
+            src = cms.InputTag("muIsoDepositTk"),
+            deltaR = cms.double(0.3),
+            threshold = cms.double(1.5)
+            ),
+        ecal = cms.PSet(
+            src = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
+            deltaR = cms.double(0.3)
+        )
+    )
+
+patMuons.addGenMatch = cms.bool(False)
+patMuons.embedTrack = cms.bool(True)
+patMuons.embedCombinedMuon = cms.bool(True)
+patMuons.embedStandAloneMuon = cms.bool(True)
+patMuons.embedPickyMuon = cms.bool(False)
+patMuons.embedTpfmsMuon = cms.bool(False)
+patMuons.embedPFCandidate = cms.bool(False)
 
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
-selectedLayer1Muons.cut = 'pt > 10. & abs(eta) < 100.0'
+selectedPatMuons.cut = 'pt > 10. & abs(eta) < 100.0'
 
 # trigger info
 from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
@@ -87,7 +106,7 @@ patTrigger.triggerResults = cms.InputTag( "TriggerResults::HLT" )
 patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::HLT" )
 
 muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "selectedLayer1Muons" ),
+    src     = cms.InputTag( "selectedPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( 'TriggerMuon' ), # 'TriggerMuon' is the enum from trigger::TriggerObjectType for HLT muons
@@ -110,41 +129,41 @@ patTriggerSequence = cms.Sequence(
     patTriggerEvent
 )
 
-selectedLayer1MuonsTriggerMatch = cms.EDProducer( "PATTriggerMatchMuonEmbedder",
-    src     = cms.InputTag( "selectedLayer1Muons" ),
+selectedPatMuonsTriggerMatch = cms.EDProducer( "PATTriggerMatchMuonEmbedder",
+    src     = cms.InputTag( "selectedPatMuons" ),
     matches = cms.VInputTag( "muonTriggerMatchHLTMuons" )
 )
 
 muonTriggerMatchEmbedder = cms.Sequence(
-    selectedLayer1MuonsTriggerMatch
+    selectedPatMuonsTriggerMatch
 )
 
-# pat sequences
+# uncomment in case of CaloMuons merging
+#beforePatMuons = cms.Sequence(
+#    muons *
+#    muIsolation
+#)
 
-beforeLayer1Muons = cms.Sequence(
-    muons *
-    muIsolation
-)
-
-beforeLayer1Tracks = cms.Sequence(
+beforePatTracks = cms.Sequence(
     patAODTrackCandSequence 
 )
 
-beforePatLayer1 = cms.Sequence(
-    beforeLayer1Muons *
-    beforeLayer1Tracks
+beforePat = cms.Sequence(
+# uncomment in case of CaloMuons merging
+#    beforePatMuons *
+    beforePatTracks
 )
 
-patLayer1 = cms.Sequence(
-    allLayer1Muons *
-    selectedLayer1Muons *
-    allLayer1TrackCands *
-    selectedLayer1TrackCands
+patCandsSequence = cms.Sequence(
+    patMuons *
+    selectedPatMuons *
+    allPatTracks *
+    selectedPatTracks
 )
 
 goodMuonRecoForDimuon = cms.Sequence(
-    beforePatLayer1 *
-    patLayer1 *
+    beforePat *
+    patCandsSequence *
     patTriggerSequence *
     muonTriggerMatchEmbedder
 )

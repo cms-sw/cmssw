@@ -183,6 +183,14 @@ private:
    */
   std::string fileListName_;
 
+  /** absolute path from which filename in fileListName_ is valid
+   */
+  std::string inputDir_;
+
+  /** currently open file
+   */
+  std::string currentFileName_;
+
   std::ifstream fileList_;
 
   /** seconds to sleep before checking fileList_ for updates

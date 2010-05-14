@@ -32,6 +32,26 @@ public:
           kUnknown                   // to easy the interface with functions returning flags
   };
 
+  // ES recHit flags
+  enum ESFlags {
+          kESGood,
+          kESDead,
+          kESHot,
+          kESPassBX,
+          kESTwoGoodRatios,
+          kESBadRatioFor12,
+          kESBadRatioFor23Upper,
+          kESBadRatioFor23Lower,
+          kESTS1Largest,
+          kESTS3Largest,
+          kESTS3Negative,
+          kESSaturated,
+          kESTS2Saturated,
+          kESTS3Saturated,
+          kESTS13Sigmas,
+          kESTS15Sigmas
+  };
+
   /** bit structure of CaloRecHit::flags_ used in EcalRecHit:
    *
    *  | 32 | 31...25 | 24...12 | 11...5 | 4...1 |
@@ -44,7 +64,7 @@ public:
    */
 
   EcalRecHit();
-  EcalRecHit(const DetId& id, float energy, float time, uint32_t flags = 0);
+  EcalRecHit(const DetId& id, float energy, float time, uint32_t flags = 0, uint32_t flagBits = 0);
   /// get the id
   // For the moment not returning a specific id for subdetector
   DetId id() const { return DetId(detid());}
@@ -54,6 +74,7 @@ public:
   float outOfTimeChi2Prob() const; // not used
   float chi2() const;
   float outOfTimeChi2() const;
+  uint32_t flagBits() const { return flagBits_; }
   // set the energy for out of time events
   // (only energy >= 0 will be stored)
   float outOfTimeEnergy() const;
@@ -63,6 +84,10 @@ public:
   void setChi2( float chi2 );
   void setOutOfTimeChi2( float chi2 );
   void setOutOfTimeEnergy( float energy );
+  void setFlagBits( uint32_t flagBits ) { flagBits_ = flagBits; }
+
+private:
+  uint32_t flagBits_;
 };
 
 std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit);

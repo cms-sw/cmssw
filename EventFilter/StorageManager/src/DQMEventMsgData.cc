@@ -1,4 +1,4 @@
-// $Id: DQMEventMsgData.cc,v 1.1 2009/09/29 15:12:47 dshpakov Exp $
+// $Id: DQMEventMsgData.cc,v 1.3 2010/03/06 08:39:38 mommsen Exp $
 
 #include "EventFilter/StorageManager/src/ChainData.h"
 
@@ -20,11 +20,6 @@ namespace stor
     inline std::string DQMEventMsgData::do_topFolderName() const
     {
 
-      if( !_headerFieldsCached )
-        {
-          cacheHeaderFields();
-        }
-
       if( faulty() || !complete() )
         {
           std::stringstream msg;
@@ -33,17 +28,12 @@ namespace stor
           XCEPT_RAISE( stor::exception::IncompleteInitMessage, msg.str() );
         }
 
+      if( !_headerFieldsCached ) {cacheHeaderFields();}
       return _topFolderName;
-
     }
 
     inline DQMKey DQMEventMsgData::do_dqmKey() const
     {
-
-      if( !_headerFieldsCached )
-        {
-          cacheHeaderFields();
-        }
 
       if( faulty() || !complete() )
         {
@@ -53,8 +43,8 @@ namespace stor
           XCEPT_RAISE( stor::exception::IncompleteInitMessage, msg.str() );
         }
 
+      if( !_headerFieldsCached ) {cacheHeaderFields();}
       return _dqmKey;
-
     }
 
     void DQMEventMsgData::do_assertRunNumber(uint32 runNumber)
@@ -135,24 +125,9 @@ namespace stor
     {
 
       unsigned char* firstFragLoc = dataLocation(0);
-      unsigned long firstFragSize = dataSize(0);
-      bool useFirstFrag = false;
-
-      if (_fragmentCount == 1)
-        {
-          useFirstFrag = true;
-        }
-      else if( firstFragSize > (sizeof(DQMEventHeader) + 8192) )
-        {
-          DQMEventMsgView view( firstFragLoc );
-          if( view.headerSize() <= firstFragSize )
-            {
-              useFirstFrag = true;
-            }
-        }
 
       boost::shared_ptr<DQMEventMsgView> msgView;
-      if (useFirstFrag)
+      if (_fragmentCount == 1)
         {
           msgView.reset(new DQMEventMsgView(firstFragLoc));
         }
@@ -168,7 +143,6 @@ namespace stor
 
       _dqmKey.runNumber = msgView->runNumber();
       _dqmKey.lumiSection = msgView->lumiSection();
-      _dqmKey.updateNumber = msgView->updateNumber();
 
       _headerFieldsCached = true;
 

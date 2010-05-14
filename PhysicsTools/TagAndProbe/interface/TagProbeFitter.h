@@ -10,7 +10,7 @@
 class TagProbeFitter: public TGraphAsymmErrors{
   public:
   ///construct the fitter with the inputFileName, inputDirectoryName, inputTreeName, outputFileName and specify wether to save the workspace with data for each bin 
-  TagProbeFitter(std::string inputFileName, std::string inputDirectoryName, std::string inputTreeName, std::string outputFileName, bool saveWorkspace_ = false);
+  TagProbeFitter(std::string inputFileName, std::string inputDirectoryName, std::string inputTreeName, std::string outputFileName, int numCPU = 1, bool saveWorkspace_ = false);
 
   ///destructor closes the files
   ~TagProbeFitter();
@@ -26,7 +26,7 @@ class TagProbeFitter: public TGraphAsymmErrors{
   void addPdf(std::string pdfName, std::vector<std::string>& pdfCommands);
 
   ///calculate the efficiency for a particular binning of the data; it saves everything in the directory "dirName", uses the previously defined PDF with name "pdfName"
-  std::string calculateEfficiency(std::string dirName, std::string pdfName, std::map<std::string, std::vector<double> >& binning, std::map<std::string, std::vector<std::string> >& states, bool saveWork);
+  std::string calculateEfficiency(std::string dirName, std::string efficiencyCategory, std::string efficiencyState, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap, bool saveWork);
 
   protected:
   ///pointer to the input file that contains the TTree data
@@ -40,6 +40,9 @@ class TagProbeFitter: public TGraphAsymmErrors{
 
   ///pointer to the TDirectory in the output file that is the root directory for this fitter
   TDirectory* outputDirectory;
+
+  ///number of CPUs to use for the fit
+  int numCPU;
 
   ///the default option wether to save the workspace for each bin
   bool saveWorkspace;
@@ -69,7 +72,10 @@ class TagProbeFitter: public TGraphAsymmErrors{
   void setInitialValues(RooWorkspace* w);
 
   ///saves the fit canvas
-  void savePlot(RooWorkspace* w);
+  void saveFitPlot(RooWorkspace* w);
+
+  ///saves the distributions canvas
+  void saveDistributionsPlot(RooWorkspace* w);
 };
 
 #endif //TagProbeFitter_h

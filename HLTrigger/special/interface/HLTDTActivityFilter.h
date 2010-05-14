@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTDTActivityFilter.h,v 1.1 2009/08/21 08:11:23 bdahmes Exp $
+// $Id: HLTDTActivityFilter.h,v 1.1 2009/11/26 16:02:47 goys Exp $
 //
 //
 
@@ -26,6 +26,7 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include<bitset>
 #include <string>
 
 //
@@ -55,6 +56,7 @@ private:
   int maxBX_;
   int minActiveChambs_;
   int minChambLayers_;
+  std::bitset<15> activeSecs_;
 
 };
 

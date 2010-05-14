@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/05/20 16:40:08 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/05/20 17:51:13 $
+ *  $Revision: 1.15 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */
@@ -43,8 +43,17 @@ DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps) {
   performDataIntegrityMonitor = ps.getUntrackedParameter<bool>("performDataIntegrityMonitor",false);
   debug = ps.getUntrackedParameter<bool>("debug",false);
 
-  if (performDataIntegrityMonitor) dataMonitor = edm::Service<DTDataMonitorInterface>().operator->();
-  
+  // enable DQM if Service is available
+  if(performDataIntegrityMonitor) {
+    if (edm::Service<DTDataMonitorInterface>().isAvailable()) {
+      dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
+    } else {
+      LogWarning("DTRawToDigi|DTROS25Unpacker") << 
+	"[DTROS25Unpacker] WARNING! Data Integrity Monitoring requested but no DTDataMonitorInterface Service available" << endl;
+      performDataIntegrityMonitor = false;
+    }
+  }
+
 }
 
 

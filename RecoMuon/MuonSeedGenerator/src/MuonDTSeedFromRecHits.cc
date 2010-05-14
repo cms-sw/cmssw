@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2009/03/12 04:00:21 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/10/30 18:53:30 $
+ *  $Revision: 1.15 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -37,7 +37,7 @@ MuonDTSeedFromRecHits::MuonDTSeedFromRecHits()
 
 
 TrajectorySeed MuonDTSeedFromRecHits::seed() const {
-  double pt[16] = { 0.0 };
+  double pt[16] = { 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0. };
   // these weights are supposed to be 1/sigma^2(pt), but they're so small.
   // Instead of the 0.2-0.5 GeV here, we'll add something extra in quadrature later
   double spt[8] = { 1/0.048 , 1/0.075 , 1/0.226 , 1/0.132 , 1/0.106 , 1/0.175 , 1/0.125 , 1/0.185 }; 
@@ -204,7 +204,7 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
 
     if( stat==1 ) {
       pt[0]=(-1.0+1.46/fabs(dphi)) * ch; 
-      if ( abs(pos.z()) > 500 ) {
+      if ( fabs(pos.z()) > 500 ) {
         // overlap 
         float a1 = dir.y()/dir.x(); float a2 = pos.y()/pos.x();
         dphi = fabs((a1-a2)/(1+a1*a2));
@@ -217,7 +217,7 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
     // assign Pt from MB2 & vtx
     if( stat==2 ) {
       pt[1]=(-1.0+0.9598/fabs(dphi))*ch;
-      if ( abs(pos.z()) > 600 ) {
+      if ( fabs(pos.z()) > 600 ) {
         // overlap 
         float a1 = dir.y()/dir.x(); float a2 = pos.y()/pos.x();
         dphi = fabs((a1-a2)/(1+a1*a2));

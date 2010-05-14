@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 #
 ttSemiLepJetPartonMatch = cms.EDProducer("TtSemiLepJetPartonMatch",
     ## sources
-    jets = cms.InputTag("selectedLayer1Jets"),
+    jets = cms.InputTag("selectedPatJets"),
 
     #-------------------------------------------------
     # algorithms: totalMinDist

@@ -6,7 +6,7 @@ process = cms.Process("BeamMonitor")
 # Event Source
 #-----------------------------
 process.load("DQM.Integration.test.inputsource_cfi")
-process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_MinBiasBSC','HLT_L1_BSC'))
+#process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_MinBiasBSC','HLT_L1_BSC'))
 
 #--------------------------
 # Filters
@@ -71,7 +71,21 @@ process.MeasurementTracker.pixelClusterProducer = cms.string("")
 # Offline Beam Spot
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
+## Offline PrimaryVertices
+import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
+process.offlinePrimaryVertices = RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
+## Input track for PrimaryVertex reconstruction, uncomment the following line to use pixelLess tracks
+#process.offlinePrimaryVertices.TrackLabel = cms.InputTag("ctfPixelLess")
+process.dqmBeamMonitor.BeamFitter.TrackCollection = cms.untracked.InputTag('firstStepTracksWithQuality')
+process.offlinePrimaryVertices.TrackLabel = cms.InputTag("firstStepTracksWithQuality")
+
 #### END OF TRACKING RECONSTRUCTION ####
+
+# Change Beam Monitor variables
+process.dqmBeamMonitor.BeamFitter.WriteAscii = True
+process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
+process.dqmBeamMonitor.BeamFitter.SaveFitResults = True
+process.dqmBeamMonitor.BeamFitter.OutputFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.root'
 
 #--------------------------
 # Scheduling
@@ -81,8 +95,10 @@ process.tracking = cms.Sequence(process.siPixelDigis*process.siStripDigis*proces
 process.monitor = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv)
 process.tracking_pixelless = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.ctfTracksPixelLess)
 process.monitor_pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless*process.dqmEnvPixelLess)
+process.tracking_FirstStep = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.firstStep)
 
-process.p = cms.Path(process.phystrigger*process.tracking*process.monitor*process.dqmSaver)
-#process.p = cms.Path(process.phystrigger*process.tracking_pixelless*process.monitor_pixelless*process.dqmSaver)
-#process.p = cms.Path(process.phystrigger*process.tracking*process.monitor+process.tracking_pixelless*process.monitor_pixelless+process.dqmSaver)
+process.p = cms.Path(process.gtDigis*process.tracking_FirstStep*process.offlinePrimaryVertices*process.monitor*process.dqmSaver)
+#process.p = cms.Path(process.gtDigis*process.tracking*process.offlinePrimaryVertices*process.monitor*process.dqmSaver)
+#process.p = cms.Path(process.phystrigger*process.tracking*process.offlinePrimaryVertices*process.monitor*process.dqmSaver)
+#process.p = cms.Path(process.phystrigger*process.tracking_pixelless*process.offlinePrimaryVertices*process.monitor_pixelless*process.dqmSaver)
 

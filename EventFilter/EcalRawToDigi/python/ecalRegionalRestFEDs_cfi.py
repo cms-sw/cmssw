@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalRegionalRestFEDs = cms.EDFilter("EcalRawToRecHitRoI",
+ecalRegionalRestFEDs = cms.EDProducer("EcalRawToRecHitRoI",
     sourceTag = cms.InputTag("EcalRawToRecHitFacility"),
     type = cms.string('all')
 )

@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.121 2009/12/08 14:12:58 dshpakov Exp $
+// $Id: StorageManager.cc,v 1.127 2010/03/16 17:55:57 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
@@ -18,6 +18,7 @@
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "i2o/Method.h"
 #include "interface/shared/version.h"
@@ -40,7 +41,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.121 2009/12/08 14:12:58 dshpakov Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.127 2010/03/16 17:55:57 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -171,17 +172,16 @@ void StorageManager::initializeSharedResources()
   _sharedResources->_commandQueue.
     reset(new CommandQueue(queueParams._commandQueueSize));
   _sharedResources->_fragmentQueue.
-    reset(new FragmentQueue(queueParams._fragmentQueueSize));
+    reset(new FragmentQueue(queueParams._fragmentQueueSize, queueParams._fragmentQueueMemoryLimitMB * 1024*1024));
   _sharedResources->_registrationQueue.
     reset(new RegistrationQueue(queueParams._registrationQueueSize));
   _sharedResources->_streamQueue.
-    reset(new StreamQueue(queueParams._streamQueueSize));
+    reset(new StreamQueue(queueParams._streamQueueSize, queueParams._streamQueueMemoryLimitMB * 1024*1024));
   _sharedResources->_dqmEventQueue.
-    reset(new DQMEventQueue(queueParams._dqmEventQueueSize));
+    reset(new DQMEventQueue(queueParams._dqmEventQueueSize, queueParams._dqmEventQueueMemoryLimitMB * 1024*1024));
 
   _sharedResources->_statisticsReporter.reset(
-    new StatisticsReporter(this, _sharedResources->_configuration->
-      getWorkerThreadParams()._monitoringSleepSec)
+    new StatisticsReporter(this, _sharedResources)
   );
   _sharedResources->_initMsgCollection.reset(new InitMsgCollection());
   _sharedResources->_diskWriterResources.reset(new DiskWriterResources());
@@ -325,7 +325,11 @@ void StorageManager::receiveEndOfLumiSectionMessage(toolbox::mem::Reference *ref
   FragmentMonitorCollection& fragMonCollection =
     _sharedResources->_statisticsReporter->getFragmentMonitorCollection();
   fragMonCollection.addFragmentSample( i2oChain.totalDataSize() );
-  
+
+  RunMonitorCollection& runMonCollection =
+    _sharedResources->_statisticsReporter->getRunMonitorCollection();
+  runMonCollection.getEoLSSeenMQ().addSampleIfLarger( i2oChain.lumiSection() );
+
   _sharedResources->_streamQueue->enq_wait( i2oChain );
 }
 
@@ -704,7 +708,7 @@ StorageManager::processConsumerRegistrationRequest( xgi::Input* in, xgi::Output*
   const utils::duration_t secs2stale =
     _sharedResources->_configuration->getEventServingParams()._activeConsumerTimeout;
   const enquing_policy::PolicyTag policy = enquing_policy::DiscardOld;
-  const size_t qsize =
+  const int qsize =
     _sharedResources->_configuration->getEventServingParams()._consumerQueueSize;
 
   // Create registration info and set consumer ID:
@@ -874,7 +878,7 @@ StorageManager::processDQMConsumerRegistrationRequest( xgi::Input* in, xgi::Outp
   const utils::duration_t secs2stale =
     _sharedResources->_configuration->getEventServingParams()._DQMactiveConsumerTimeout;
   const enquing_policy::PolicyTag policy = enquing_policy::DiscardOld;
-  const size_t qsize =
+  const int qsize =
     _sharedResources->_configuration->getEventServingParams()._DQMconsumerQueueSize;
 
   // Create registration info and set consumer ID:

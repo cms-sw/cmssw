@@ -70,6 +70,9 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   bool useCornerCells =
     iConfig.getParameter<bool>("useCornerCells");
 
+  bool cleanRBXandHPDs =
+    iConfig.getParameter<bool>("cleanRBXandHPDs");
+
 
   clusterAlgo_.setThreshBarrel( threshBarrel );
   clusterAlgo_.setThreshSeedBarrel( threshSeedBarrel );
@@ -98,7 +101,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   clusterAlgo_.setShowerSigma( showerSigma );
 
   clusterAlgo_.setUseCornerCells( useCornerCells  );
-
+  clusterAlgo_.setCleanRBXandHPDs( cleanRBXandHPDs);
 
   int dcormode = 
     iConfig.getParameter<int>("depthCor_Mode");
@@ -129,6 +132,8 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
  
   // produces<reco::PFClusterCollection>(inputTagClusterCollectionName_);
    produces<reco::PFClusterCollection>();
+   produces<reco::PFRecHitCollection>("Cleaned");
+
     //---ab
 }
 
@@ -169,9 +174,10 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   
   // get clusters out of the clustering algorithm 
   // and put them in the event. There is no copy.
-  auto_ptr< vector<reco::PFCluster> > 
-    outClusters( clusterAlgo_.clusters() ); 
+  auto_ptr< vector<reco::PFCluster> > outClusters( clusterAlgo_.clusters() ); 
+  auto_ptr< vector<reco::PFRecHit> > recHitsCleaned ( clusterAlgo_.rechitsCleaned() ); 
   iEvent.put( outClusters );    
+  iEvent.put( recHitsCleaned, "Cleaned" );    
 
 }
   

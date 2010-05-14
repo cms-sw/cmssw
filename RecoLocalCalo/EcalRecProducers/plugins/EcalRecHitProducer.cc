@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.10 2009/11/15 11:33:51 franzoni Exp $
- *  $Date: 2009/11/15 11:33:51 $
- *  $Revision: 1.10 $
+ *  $Id: EcalRecHitProducer.cc,v 1.11 2009/11/18 13:27:23 ferriff Exp $
+ *  $Date: 2009/11/18 13:27:23 $
+ *  $Revision: 1.11 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -263,4 +263,4 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_ANOTHER_FWK_MODULE( EcalRecHitProducer );
+DEFINE_FWK_MODULE( EcalRecHitProducer );

@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2009/12/11 19:18:29 $
- * $Revision: 1.71 $
+ * $Date: 2010/03/27 20:08:00 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -40,18 +40,13 @@
 
 #include "TLorentzVector.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-using namespace reco;
-
-EEClusterTask::EEClusterTask(const ParameterSet& ps){
+EEClusterTask::EEClusterTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -111,6 +106,7 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   meSCMapSingleCrystal_[1] = 0;
 
   mes1s9_ = 0;
+  mes1s9thr_ = 0;
   mes9s25_ = 0;
 
   meInvMassPi0_ = 0;
@@ -144,7 +140,7 @@ void EEClusterTask::beginJob(void){
 
 }
 
-void EEClusterTask::beginRun(const Run& r, const EventSetup& c) {
+void EEClusterTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -152,7 +148,7 @@ void EEClusterTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EEClusterTask::endRun(const Run& r, const EventSetup& c) {
+void EEClusterTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -237,6 +233,8 @@ void EEClusterTask::reset(void) {
   if ( meSCMapSingleCrystal_[1] ) meSCMapSingleCrystal_[1]->Reset();
 
   if ( mes1s9_ ) mes1s9_->Reset();
+
+  if ( mes1s9thr_ ) mes1s9thr_->Reset();
 
   if ( mes9s25_ ) mes9s25_->Reset();
 
@@ -456,6 +454,10 @@ void EEClusterTask::setup(void){
     mes1s9_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);
     mes1s9_->setAxisTitle("s1/s9", 1);
 
+    sprintf(histo, "EECLT s1s9 thr");
+    mes1s9thr_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);
+    mes1s9thr_->setAxisTitle("s1/s9", 1);
+
     sprintf(histo, "EECLT s9s25");
     mes9s25_ = dqmStore_->book1D(histo, histo, 75, 0., 1.5);
     mes9s25_->setAxisTitle("s9/s25", 1);
@@ -623,6 +625,9 @@ void EEClusterTask::cleanup(void){
     if ( mes1s9_ ) dqmStore_->removeElement( mes1s9_->getName() );
     mes1s9_ = 0;
 
+    if ( mes1s9thr_ ) dqmStore_->removeElement( mes1s9thr_->getName() );
+    mes1s9thr_ = 0;
+
     if ( mes9s25_ ) dqmStore_->removeElement( mes9s25_->getName() );
     mes9s25_ = 0;
 
@@ -658,17 +663,17 @@ void EEClusterTask::cleanup(void){
 
 void EEClusterTask::endJob(void){
 
-  LogInfo("EEClusterTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EEClusterTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EEClusterTask::analyze(const Event& e, const EventSetup& c){
+void EEClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool enable = false;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -693,7 +698,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
   } else {
 
     enable = true;
-    LogWarning("EEClusterTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EEClusterTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -707,30 +712,30 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
   edm::ESHandle<CaloTopology> pTopology;
   c.get<CaloTopologyRecord>().get(pTopology);
   if ( !pTopology.isValid() ) {
-    LogWarning("EEClusterTask") << "Topology not valid"; 
+    edm::LogWarning("EEClusterTask") << "Topology not valid"; 
     return;
   }
-  const CaloTopology *topology = pTopology.product();
+  const CaloTopology* topology = pTopology.product();
 
   // recHits
   edm::Handle< EcalRecHitCollection > pEERecHits;
   e.getByLabel( EcalRecHitCollection_, pEERecHits );
   if ( !pEERecHits.isValid() ) {
-    LogWarning("EEClusterTask") << "RecHit collection " << EcalRecHitCollection_ << " not available.";
+    edm::LogWarning("EEClusterTask") << "RecHit collection " << EcalRecHitCollection_ << " not available.";
     return;
   }
-  const EcalRecHitCollection *eeRecHits = pEERecHits.product();
+  const EcalRecHitCollection* eeRecHits = pEERecHits.product();
 
-  BasicClusterCollection bcSel;
+  reco::BasicClusterCollection bcSel;
 
   // --- Endcap Basic Clusters ---
-  Handle<BasicClusterCollection> pBasicClusters;
+  edm::Handle<reco::BasicClusterCollection> pBasicClusters;
   if ( e.getByLabel(BasicClusterCollection_, pBasicClusters) ) {
 
     int nbcc = pBasicClusters->size();
     if (nbcc>0) meBCNum_->Fill(float(nbcc));
 
-    for ( BasicClusterCollection::const_iterator bCluster = pBasicClusters->begin(); bCluster != pBasicClusters->end(); ++bCluster ) {
+    for ( reco::BasicClusterCollection::const_iterator bCluster = pBasicClusters->begin(); bCluster != pBasicClusters->end(); ++bCluster ) {
 
       meBCEne_->Fill(bCluster->energy());
       meBCSiz_->Fill(float(bCluster->size()));
@@ -780,15 +785,15 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEClusterTask") << BasicClusterCollection_ << " not available";
+    edm::LogWarning("EEClusterTask") << BasicClusterCollection_ << " not available";
 
   }
 
-  for ( BasicClusterCollection::const_iterator bc1 = bcSel.begin(); bc1 != bcSel.end(); ++bc1 ) {
+  for ( reco::BasicClusterCollection::const_iterator bc1 = bcSel.begin(); bc1 != bcSel.end(); ++bc1 ) {
     TLorentzVector bc1P;
     bc1P.SetPtEtaPhiE(fabs(bc1->energy()*sin(bc1->position().theta())),
                       bc1->eta(), bc1->phi(), bc1->energy());
-    for ( BasicClusterCollection::const_iterator bc2 = bc1+1; bc2 != bcSel.end(); ++bc2 ) {
+    for ( reco::BasicClusterCollection::const_iterator bc2 = bc1+1; bc2 != bcSel.end(); ++bc2 ) {
       TLorentzVector bc2P;
       bc2P.SetPtEtaPhiE(fabs(bc2->energy()*sin(bc2->position().theta())),
                         bc2->eta(), bc2->phi(), bc2->energy());
@@ -813,7 +818,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
   }
 
   // --- Endcap Super Clusters ----
-  Handle<SuperClusterCollection> pSuperClusters;
+  edm::Handle<reco::SuperClusterCollection> pSuperClusters;
   if ( e.getByLabel(SuperClusterCollection_, pSuperClusters) ) {
 
     int nscc = pSuperClusters->size();
@@ -822,34 +827,23 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
     TLorentzVector sc1_p(0,0,0,0);
     TLorentzVector sc2_p(0,0,0,0);
 
-    SuperClusterCollection scSel;
+    reco::SuperClusterCollection scSel;
 
-    for ( SuperClusterCollection::const_iterator sCluster = pSuperClusters->begin(); sCluster != pSuperClusters->end(); sCluster++ ) {
+    for ( reco::SuperClusterCollection::const_iterator sCluster = pSuperClusters->begin(); sCluster != pSuperClusters->end(); sCluster++ ) {
 
       // energy, size
       meSCEne_->Fill(sCluster->energy());
       meSCSiz_->Fill(float(sCluster->clustersSize()));
 
-      // <= CMSSW_3_0_X
-      //BasicClusterRef theSeed = sCluster->seed();
-      // >= CMSSW_3_1_X
-      CaloClusterPtr theSeed = sCluster->seed();
+      reco::CaloClusterPtr theSeed = sCluster->seed();
 
       // Find the seed rec hit
-      // <= CMSSW_3_0_X
-      // std::vector<DetId> sIds = sCluster->getHitsByDetId();
-      // >= CMSSW_3_1_X
       std::vector< std::pair<DetId,float> > sIds = sCluster->hitsAndFractions();
 
       float eMax, e2nd;
       EcalRecHitCollection::const_iterator seedItr = eeRecHits->begin();
       EcalRecHitCollection::const_iterator secondItr = eeRecHits->begin();
 
-      // <= CMSSW_3_0_X
-      // for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
-      // if(idItr->det() != DetId::Ecal) { continue; }
-      // EcalRecHitCollection::const_iterator hitItr = eeRecHits->find((*idItr));
-      // >= CMSSW_3_1_X
       for(std::vector< std::pair<DetId,float> >::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
         DetId id = idItr->first;
         if(id.det() != DetId::Ecal) { continue; }
@@ -889,6 +883,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
       if(sIds.size() == 1) meSCMapSingleCrystal_[eeSide]->Fill(xeex, xeey);
 
       mes1s9_->Fill( eMax/e3x3 );
+      if ( eMax > 3.0 ) mes1s9thr_->Fill( eMax/e3x3 );
       mes9s25_->Fill( e3x3/e5x5 );
 
       // look for the two most energetic super clusters
@@ -919,7 +914,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEClusterTask") << SuperClusterCollection_ << " not available";
+    edm::LogWarning("EEClusterTask") << SuperClusterCollection_ << " not available";
 
   }
 

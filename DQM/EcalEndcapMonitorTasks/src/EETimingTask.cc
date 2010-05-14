@@ -1,15 +1,14 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2009/12/11 16:13:18 $
- * $Revision: 1.54 $
+ * $Date: 2010/03/27 20:08:01 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -32,19 +31,15 @@
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EETimingTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EETimingTask::EETimingTask(const ParameterSet& ps){
+EETimingTask::EETimingTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
   initGeometry_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -68,7 +63,7 @@ EETimingTask::EETimingTask(const ParameterSet& ps){
   }
 
   meTimeDelta_ = 0;
-  meDTimeVsDEnergy_ = 0;
+  meTimeDelta2D_ = 0;
 
 }
 
@@ -87,7 +82,7 @@ void EETimingTask::beginJob(void){
 
 }
 
-void EETimingTask::beginRun(const Run& r, const EventSetup& c) {
+void EETimingTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if( !initGeometry_ ) { 
     // ideal
@@ -101,7 +96,7 @@ void EETimingTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EETimingTask::endRun(const Run& r, const EventSetup& c) {
+void EETimingTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -122,7 +117,7 @@ void EETimingTask::reset(void) {
   }
 
   if ( meTimeDelta_ ) meTimeDelta_->Reset();
-  if ( meDTimeVsDEnergy_ ) meTimeDelta_->Reset();
+  if ( meTimeDelta2D_ ) meTimeDelta2D_->Reset();
 
 }
 
@@ -209,10 +204,10 @@ void EETimingTask::setup(void){
     meTimeDelta_ = dqmStore_->book1D(histo, histo, 100, -3., 3.);
     meTimeDelta_->setAxisTitle("time (ns)", 1);
 
-    sprintf(histo, "EETMT timing min vs Et min");
-    meDTimeVsDEnergy_ = dqmStore_->book2D(histo, histo, 30, 0., 3., 30, -50., 50.);
-    meDTimeVsDEnergy_->setAxisTitle("min(E_{T}^{EE+},E_{T}^{EE-}) (GeV)", 1);
-    meDTimeVsDEnergy_->setAxisTitle("min(time^{EE+},time^{EE-}) (ns)", 2);
+    sprintf(histo, "EETMT timing EE+ vs EE-");
+    meTimeDelta2D_ = dqmStore_->book2D(histo, histo, 50, -50., 50., 50, -50., 50.);
+    meTimeDelta2D_->setAxisTitle("EE- average time (ns)", 1);
+    meTimeDelta2D_->setAxisTitle("EE+ average time (ns)", 2);
 
   }
 
@@ -256,8 +251,8 @@ void EETimingTask::cleanup(void){
     if ( meTimeDelta_ ) dqmStore_->removeElement( meTimeDelta_->getName() );
     meTimeDelta_ = 0;
 
-    if ( meDTimeVsDEnergy_ ) dqmStore_->removeElement( meDTimeVsDEnergy_->getName() );
-    meDTimeVsDEnergy_ = 0;
+    if ( meTimeDelta2D_ ) dqmStore_->removeElement( meTimeDelta2D_->getName() );
+    meTimeDelta2D_ = 0;
 
   }
 
@@ -267,20 +262,20 @@ void EETimingTask::cleanup(void){
 
 void EETimingTask::endJob(void){
 
-  LogInfo("EETimingTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EETimingTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EETimingTask::analyze(const Event& e, const EventSetup& c){
+void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool isData = true;
   bool enable = false;
   int runType[18];
   for (int i=0; i<18; i++) runType[i] = -1;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -304,7 +299,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
   } else {
 
     isData = false; enable = true;
-    LogWarning("EETimingTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EETimingTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -320,12 +315,9 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
   const EcalChannelStatus *chStatus = pChannelStatus.product();
 
   float sumTime_hithr[2] = {0.,0.};
-  float wsumTime_lowthr[2] = {0.,0};
-  float wsum[2] = {0.,0.};
   int n_hithr[2] = {0,0};
-  int n_lowthr[2] = {0,0};
 
-  Handle<EcalRecHitCollection> hits;
+  edm::Handle<EcalRecHitCollection> hits;
 
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
@@ -358,9 +350,6 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
       }
 
-      LogDebug("EETimingTask") << " det id = " << id;
-      LogDebug("EETimingTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
       MonitorElement* meTime = 0;
       MonitorElement* meTimeMap = 0;
       MonitorElement* meTimeAmpli = 0;
@@ -372,65 +361,43 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       float xval = hitItr->energy();
       float yval = hitItr->time();
 
-      LogDebug("EETimingTask") << " hit amplitude " << xval;
-      LogDebug("EETimingTask") << " hit jitter " << yval;
-
       uint32_t flag = hitItr->recoFlag();      
-      uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*hitItr), *chStatus );
+      // uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *hits, *chStatus );
+      EcalChannelStatus::const_iterator chsIt = chStatus->find( id );
+      uint16_t dbStatus = 0; // 0 = good
+      if ( chsIt != chStatus->end() ) dbStatus = chsIt->getStatusCode();
 
       float theta = pGeometry_->getGeometry(id)->getPosition().theta();
       float eta = pGeometry_->getGeometry(id)->getPosition().eta();
       float phi = pGeometry_->getGeometry(id)->getPosition().phi();
       float et = hitItr->energy() * fabs(sin(theta));
 
-      if ( flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
+      if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && dbStatus == 0 ) {
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_[iz] ) meTimeAmpliSummary_[iz]->Fill(xval, yval);
-
-        if ( et > 0.300 ) {
-
-          wsum[iz] += et;
-          wsumTime_lowthr[iz] += hitItr->time() * et;
-          n_lowthr[iz]++;
-
-          if ( et > 0.600 ) {
-            if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval+50.);
-
-            // exclude the noisiest region around the hole from 1D
-            if ( fabs(ix-50) >= 5 && fabs(ix-50) <= 10 && fabs(iy-50) >= 5 && fabs(iy-50) <= 10 ) {
-              if ( meTime ) meTime->Fill(yval);
-              if ( meTimeSummary1D_[iz] ) meTimeSummary1D_[iz]->Fill(yval);
-              sumTime_hithr[iz] += yval;
-              n_hithr[iz]++;
-            }
-
-          }
-
+        if ( et > 0.600 ) {
+          if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval+50.);
+          if ( meTime ) meTime->Fill(yval);
+          if ( meTimeSummary1D_[iz] ) meTimeSummary1D_[iz]->Fill(yval);
+          
           if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(xix, xiy, yval+50.);
           if ( meTimeSummaryMapProjEta_[iz] ) meTimeSummaryMapProjEta_[iz]->Fill(eta, yval);
           if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(phi, yval);
-        
+          
+          sumTime_hithr[iz] += yval;
+          n_hithr[iz]++;
         }
+      } // good rh for timing
+    } // loop over rh
 
-      }
-    }
-
-    float mean_hithr[2], mean_lowthr[2];
-    for ( int i=0; i<2; i++ ) {
-      if ( n_hithr[i] > 0 ) mean_hithr[i] = sumTime_hithr[i] / n_hithr[i];
-      if ( wsum[i] > 0 ) mean_lowthr[i] = wsumTime_lowthr[i] / wsum[i];
-    }
-
-    if ( meTimeDelta_ && n_hithr[0] > 0 && n_lowthr[0] > 1 && n_hithr[1] > 0 && n_lowthr[1] > 1 ) meTimeDelta_->Fill( mean_hithr[1] - mean_hithr[0] );
-    if ( meDTimeVsDEnergy_ && n_lowthr[0] > 0 && n_lowthr[1] > 0 ) {
-      float mintime = TMath::Min(wsumTime_lowthr[0], wsumTime_lowthr[1]);
-      float minEt = TMath::Min(wsum[0], wsum[1]);
-      meDTimeVsDEnergy_->Fill(minEt,mintime);
+    if (n_hithr[0] > 0 && n_hithr[1] > 0 ) {
+      if ( meTimeDelta_ ) meTimeDelta_->Fill( sumTime_hithr[1]/n_hithr[1] - sumTime_hithr[0]/n_hithr[0] );
+      if ( meTimeDelta2D_ ) meTimeDelta2D_->Fill( sumTime_hithr[1]/n_hithr[1], sumTime_hithr[0]/n_hithr[0] );
     }
 
   } else {
 
-    LogWarning("EETimingTask") << EcalRecHitCollection_ << " not available";
+    edm::LogWarning("EETimingTask") << EcalRecHitCollection_ << " not available";
 
   }
 

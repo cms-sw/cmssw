@@ -1,4 +1,4 @@
-// $Id: DQMEventMonitorCollection.cc,v 1.6 2009/08/24 14:31:50 mommsen Exp $
+// $Id: DQMEventMonitorCollection.cc,v 1.8 2010/02/18 11:23:03 mommsen Exp $
 /// @file: DQMEventMonitorCollection.cc
 
 #include <string>
@@ -12,6 +12,7 @@ using namespace stor;
 
 DQMEventMonitorCollection::DQMEventMonitorCollection(const utils::duration_t& updateInterval) :
 MonitorCollection(updateInterval),
+_discardedDQMEventCounts(updateInterval, 300),
 _dqmEventSizes(updateInterval, 300),
 _servedDQMEventSizes(updateInterval, 300),
 _writtenDQMEventSizes(updateInterval, 300),
@@ -26,6 +27,8 @@ _numberOfWrittenGroups(updateInterval, 300)
 
 void DQMEventMonitorCollection::getStats(DQMEventStats& stats) const
 {
+  getDiscardedDQMEventCountsMQ().getStats(stats.discardedDQMEventCountsStats);
+
   getDQMEventSizeMQ().getStats(stats.dqmEventSizeStats);
   getServedDQMEventSizeMQ().getStats(stats.servedDQMEventSizeStats);
   getWrittenDQMEventSizeMQ().getStats(stats.writtenDQMEventSizeStats);
@@ -42,6 +45,8 @@ void DQMEventMonitorCollection::getStats(DQMEventStats& stats) const
 
 void DQMEventMonitorCollection::do_calculateStatistics()
 {
+  _discardedDQMEventCounts.calculateStatistics();
+
   _dqmEventSizes.calculateStatistics();
   _servedDQMEventSizes.calculateStatistics();
   _writtenDQMEventSizes.calculateStatistics();
@@ -73,6 +78,8 @@ void DQMEventMonitorCollection::do_calculateStatistics()
 
 void DQMEventMonitorCollection::do_reset()
 {
+  _discardedDQMEventCounts.reset();
+  
   _dqmEventSizes.reset();
   _servedDQMEventSizes.reset();
   _writtenDQMEventSizes.reset();
@@ -90,14 +97,24 @@ void DQMEventMonitorCollection::do_reset()
 void DQMEventMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
 {
   infoSpaceItems.push_back(std::make_pair("dqmFoldersPerEP", &_dqmFoldersPerEP));
+  infoSpaceItems.push_back(std::make_pair("processedDQMEvents", &_processedDQMEvents));
+  infoSpaceItems.push_back(std::make_pair("discardedDQMEvents", &_discardedDQMEvents));
 }
 
 
 void DQMEventMonitorCollection::do_updateInfoSpaceItems()
 {
-  MonitoredQuantity::Stats stats;
-  getNumberOfUpdatesMQ().getStats(stats);
-  _dqmFoldersPerEP = static_cast<xdata::Double>(stats.getValueAverage(MonitoredQuantity::RECENT));
+  DQMEventMonitorCollection::DQMEventStats stats;
+  getStats(stats);
+
+  _dqmFoldersPerEP = static_cast<xdata::Double>(
+    stats.numberOfUpdatesStats.getValueAverage(MonitoredQuantity::RECENT));
+
+  _processedDQMEvents = static_cast<xdata::UnsignedInteger32>(
+    static_cast<unsigned int>(stats.dqmEventSizeStats.getSampleCount(MonitoredQuantity::FULL)));
+
+  _discardedDQMEvents = static_cast<xdata::UnsignedInteger32>(
+    static_cast<unsigned int>(stats.discardedDQMEventCountsStats.getValueSum(MonitoredQuantity::FULL)));
 }
 
 

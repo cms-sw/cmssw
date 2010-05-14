@@ -4,7 +4,6 @@
  *
  *\author L. Gray (4/13/06)
  *
- *
  */
 
 #include <fstream>
@@ -66,7 +65,7 @@ void CSCMakePTLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
   edm::ESHandle< L1MuTriggerPtScale > ptScale ;
   iSetup.get< L1MuTriggerPtScaleRcd >().get( ptScale ) ;
 
-  myTF = new CSCTFPtLUT(LUTparam, scales.product(), ptScale.product());
+  myTF = new CSCTFPtLUT(LUTparam, scales.product(), ptScale.product() );
 
   std::string filename = std::string("L1CSCPtLUT") + ((binary) ? std::string(".bin") : std::string(".dat"));
   std::ofstream L1CSCPtLUT(filename.c_str());

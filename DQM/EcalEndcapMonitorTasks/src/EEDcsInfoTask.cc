@@ -19,15 +19,11 @@
 
 #include "DQM/EcalEndcapMonitorTasks/interface/EEDcsInfoTask.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+EEDcsInfoTask::EEDcsInfoTask(const edm::ParameterSet& ps) {
 
-EEDcsInfoTask::EEDcsInfoTask(const ParameterSet& ps) {
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  dqmStore_ = Service<DQMStore>().operator->();
-
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -63,7 +59,7 @@ void EEDcsInfoTask::beginJob(void){
     meEEDcsActiveMap_ = dqmStore_->book2D(histo,histo, 200, 0., 200., 100, 0., 100.);
     meEEDcsActiveMap_->setAxisTitle("jx", 1);
     meEEDcsActiveMap_->setAxisTitle("jy", 2);
-    
+
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSContents");
 
     for (int i = 0; i < 18; i++) {
@@ -98,7 +94,7 @@ void EEDcsInfoTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, c
 
 }
 
-void EEDcsInfoTask::beginRun(const Run& r, const EventSetup& c) {
+void EEDcsInfoTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
@@ -110,7 +106,7 @@ void EEDcsInfoTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EEDcsInfoTask::endRun(const Run& r, const EventSetup& c) {
+void EEDcsInfoTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   this->fillMonitorElements(readyRun);
 
@@ -125,7 +121,7 @@ void EEDcsInfoTask::reset(void) {
   }
 
   if ( meEEDcsActiveMap_ ) meEEDcsActiveMap_->Reset();
-  
+
 }
 
 
@@ -149,9 +145,9 @@ void EEDcsInfoTask::cleanup(void){
 
 }
 
-void EEDcsInfoTask::analyze(const Event& e, const EventSetup& c){ 
+void EEDcsInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
 
-  Handle<DcsStatusCollection> dcsh;
+  edm::Handle<DcsStatusCollection> dcsh;
 
   if ( e.getByLabel(dcsStatusCollection_, dcsh) ) {
 
@@ -174,7 +170,7 @@ void EEDcsInfoTask::analyze(const Event& e, const EventSetup& c){
     }
     
   } else {
-    LogWarning("EEDcsInfoTask") << dcsStatusCollection_ << " not available";
+    edm::LogWarning("EEDcsInfoTask") << dcsStatusCollection_ << " not available";
   }
 
 }
@@ -212,8 +208,8 @@ void EEDcsInfoTask::fillMonitorElements(int ready[40][20]) {
               if(ready[offsetSC+itx][ity]) {
                 readySum[ism-1]++;
                 readySumTot++;
-              }
-              
+              } 
+
               nValidChannels[ism-1]++;
               nValidChannelsTot++;
 

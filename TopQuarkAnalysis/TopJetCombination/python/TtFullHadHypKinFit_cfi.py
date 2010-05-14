@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 #
 ttFullHadHypKinFit = cms.EDProducer("TtFullHadHypKinFit",
     ## jet input
-    jets  = cms.InputTag("selectedLayer1Jets"),
+    jets  = cms.InputTag("selectedPatJets"),
     ## kin fit results
     match        = cms.InputTag("kinFitTtFullHadEventHypothesis"),
     status       = cms.InputTag("kinFitTtFullHadEventHypothesis","Status"),

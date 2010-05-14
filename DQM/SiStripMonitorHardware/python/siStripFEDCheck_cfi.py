@@ -4,7 +4,7 @@ siStripFEDCheck = cms.EDAnalyzer("SiStripFEDCheckPlugin",
   #Directory to book histograms in
   DirName = cms.untracked.string('SiStrip/FEDIntegrity/'),
   #Raw data collection
-  RawDataTag = cms.untracked.InputTag('source'),
+  RawDataTag = cms.InputTag('source'),
   #Number of events to cache info before updating histograms
   #(set to zero to disable cache)
   #HistogramUpdateFrequency = cms.untracked.uint32(0),
@@ -14,13 +14,13 @@ siStripFEDCheck = cms.EDAnalyzer("SiStripFEDCheckPlugin",
   #Write the DQM store to a file (DQMStore.root) at the end of the run
   WriteDQMStore = cms.untracked.bool(False),
   #Use to disable all payload (non-fatal) checks
-  DoPayloadChecks = cms.untracked.bool(False),
+  DoPayloadChecks = cms.untracked.bool(True),
   #Use to disable check on channel lengths
-  CheckChannelLengths = cms.untracked.bool(False),
+  CheckChannelLengths = cms.untracked.bool(True),
   #Use to disable check on channel packet codes
-  CheckChannelPacketCodes = cms.untracked.bool(False),
+  CheckChannelPacketCodes = cms.untracked.bool(True),
   #Use to disable check on FE unit lengths in full debug header
-  CheckFELengths = cms.untracked.bool(False),
+  CheckFELengths = cms.untracked.bool(True),
   #Use to disable check on channel status bits
-  CheckChannelStatus = cms.untracked.bool(False),
+  CheckChannelStatus = cms.untracked.bool(True),
 )

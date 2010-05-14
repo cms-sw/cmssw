@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2009/10/28 08:18:22 $
- * $Revision: 1.27 $
+ * $Date: 2010/04/14 15:13:26 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -24,17 +24,12 @@
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
-
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps) {
+EBStatusFlagsClient::EBStatusFlagsClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -46,7 +41,7 @@ EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -54,7 +49,7 @@ EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -82,9 +77,9 @@ EBStatusFlagsClient::~EBStatusFlagsClient() {
 
 void EBStatusFlagsClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EBStatusFlagsClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EBStatusFlagsClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -93,7 +88,7 @@ void EBStatusFlagsClient::beginJob(void) {
 
 void EBStatusFlagsClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EBStatusFlagsClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EBStatusFlagsClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -103,7 +98,7 @@ void EBStatusFlagsClient::beginRun(void) {
 
 void EBStatusFlagsClient::endJob(void) {
 
-  if ( debug_ ) cout << "EBStatusFlagsClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EBStatusFlagsClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -111,7 +106,7 @@ void EBStatusFlagsClient::endJob(void) {
 
 void EBStatusFlagsClient::endRun(void) {
 
-  if ( debug_ ) cout << "EBStatusFlagsClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EBStatusFlagsClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -161,8 +156,8 @@ bool EBStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, Mo
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       UtilsClient::printBadChannels(meh01_[ism-1], UtilsClient::getHisto<TH2F*>(meh01_[ism-1]), true);
     }
 
@@ -182,17 +177,11 @@ void EBStatusFlagsClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EBStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EBStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   uint64_t bits01 = 0;
   bits01 |= EcalErrorDictionary::getMask("STATUS_FLAG_ERROR");
-
-#ifdef WITH_ECAL_COND_DB
-  map<EcalLogicID, RunTTErrorsDat> mask1;
-
-  EcalErrorMask::fetchDataSet(&mask1);
-#endif
 
   char histo[200];
 
@@ -217,45 +206,39 @@ void EBStatusFlagsClient::analyze(void) {
     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
     meh03_[ism-1] = me;    
 
-    // TT masking
+  }
 
 #ifdef WITH_ECAL_COND_DB
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
-        
-        if ( mask1.size() != 0 ) {
-          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = mask1.begin(); m != mask1.end(); m++) {
-      
-            EcalLogicID ecid = m->first;
-      
-            int itt = Numbers::iSC(ism, EcalBarrel, ie, ip);
+  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
+    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
 
-            int iet = (itt-1)/4 + 1;
-            int ipt = (itt-1)%4 + 1;
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
 
-            if ( itt > 70 ) continue;
-      
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                
-                if ( itt >= 1 && itt <= 68 ) {
-                  if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( iet, ipt, 0.01 );
-                } else if ( itt == 69 || itt == 70 ) {
-                  if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( itt-68, 1, 0.01 );
-                }
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
 
-              }
-            }
-      
-          }
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int itt = ecid.getID2();
+        int iet = (itt-1)/4 + 1;
+        int ipt = (itt-1)%4 + 1;
+
+        if ( itt > 70 ) continue;
+
+        if ( itt >= 1 && itt <= 68 ) {
+          if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( iet, ipt, 0.01 );
+        } else if ( itt == 69 || itt == 70 ) {
+          if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( itt-68, 1, 0.01 );
         }
-        
-      }
-    }
-#endif
 
+      }
+
+    }
   }
+#endif
 
 }
 

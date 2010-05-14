@@ -59,7 +59,7 @@ TrigCodes::TrigBitSet TrigCodes::TrigBitSetMap::getCode(const char* descript)con
        }
     }
    
-    if(!found)  edm::LogError("TrigCodes::TrigBitSetMap") <<"TrigCodes::TrigBitSetMap::getCode : Error, Key "<<codeKey<<" not found";
+    //  if(!found)  edm::LogError("TrigCodes::TrigBitSetMap") <<"TrigCodes::TrigBitSetMap::getCode : Error, Key "<<codeKey<<" not found";
     codeKey = strtok(NULL,":"); //getting new substring
     
   }

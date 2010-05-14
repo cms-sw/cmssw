@@ -2,8 +2,8 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/10/13 13:32:40 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/11/11 13:31:50 $
+ *  $Revision: 1.10 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -158,8 +158,11 @@ void HLTMonBTagMuSource::endJob() {
 }
 
 void HLTMonBTagMuSource::beginRun(const edm::Run & run, const edm::EventSetup & setup) {
+
   HLTConfigProvider configProvider;
-  if (not configProvider.init(m_processName)) 
+
+  bool changed = false;
+  if (not configProvider.init(run, setup, m_processName, changed))
   {
     edm::LogWarning("ConfigurationError") << "process name \"" << m_processName << "\" is not valid.";
     m_init = false;

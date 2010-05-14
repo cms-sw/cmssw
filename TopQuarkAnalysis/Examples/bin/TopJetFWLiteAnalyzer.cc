@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 
   // acess branch of elecs
   char jetsName[50];
-  sprintf(jetsName, "patJets_selectedLayer1Jets__%s.obj", argv[2]);
+  sprintf(jetsName, "patJets_selectedPatJets__%s.obj", argv[2]);
   TBranch* jets_ = events_->GetBranch( jetsName ); assert( jets_!=0 );
   
   // loop over events and fill histograms

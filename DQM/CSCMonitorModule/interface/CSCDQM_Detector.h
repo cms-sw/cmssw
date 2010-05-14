@@ -166,6 +166,7 @@ class Detector {
     const unsigned int NumberOfChambers(const unsigned int station, const unsigned int ring) const;
     const unsigned int NumberOfChamberCFEBs(const unsigned int station, const unsigned int ring) const;
     const unsigned int NumberOfChamberHVs(const unsigned int station, const unsigned int ring) const;
+    unsigned int GlobalChamberIndex(unsigned int side, unsigned int station, unsigned int ring, unsigned int chamber) const;
 
   private:
 

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiPixelDigiSource = cms.EDFilter("SiPixelDigiSource",
+SiPixelDigiSource = cms.EDAnalyzer("SiPixelDigiSource",
     src = cms.InputTag("siPixelDigis"),
     outputFile = cms.string('Pixel_DQM_Digi.root'),
     saveFile = cms.untracked.bool(False),
@@ -22,7 +22,7 @@ SiPixelDigiSource = cms.EDFilter("SiPixelDigiSource",
     ringOn = cms.untracked.bool(False),
     bladeOn = cms.untracked.bool(False),
     diskOn = cms.untracked.bool(False),
-    bigEventSize = cms.untracked.int32(100)
+    bigEventSize = cms.untracked.int32(1000)
 )
 
 

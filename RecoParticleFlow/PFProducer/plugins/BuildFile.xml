@@ -1,0 +1,47 @@
+<library   name="RecoParticleFlowPFProducerSimPlugins" file="TauHadronDecayFilter.cc,PFSimParticleProducer.cc, SealModuleSim.cc">
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="DataFormats/EcalRecHit"/>
+  <use   name="DataFormats/GeometrySurface"/>
+  <use   name="DataFormats/GeometryVector"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="DataFormats/TrackerRecHit2D"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="FastSimulation/Event"/>
+  <use   name="FastSimulation/Particle"/>
+  <use   name="Geometry/CommonDetUnit"/>
+  <use   name="Geometry/Records"/>
+  <use   name="Geometry/TrackerGeometryBuilder"/>
+  <use   name="MagneticField/Engine"/>
+  <use   name="MagneticField/Records"/>
+  <use   name="RecoParticleFlow/PFClusterTools"/>
+  <use   name="RecoParticleFlow/PFProducer"/>
+  <use   name="RecoTracker/TrackProducer"/>
+  <use   name="SimDataFormats/CaloHit"/>
+  <use   name="SimGeneral/HepPDTRecord"/>
+  <use   name="TrackingTools/GeomPropagators"/>
+  <use   name="TrackingTools/PatternTools"/>
+  <use   name="TrackingTools/Records"/>
+  <use   name="TrackingTools/TrajectoryState"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   name="RecoParticleFlowPFProducerPlugins" file="EFilter.cc,PFBlockProducer.cc,PFElectronTranslator.cc,PFProducer.cc, SealModule.cc">
+  <use   name="DataFormats/CaloRecHit"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/EgammaReco"/>
+  <use   name="DataFormats/EgammaTrackReco"/>
+  <use   name="DataFormats/GsfTrackReco"/>
+  <use   name="DataFormats/MuonReco"/>
+  <use   name="DataFormats/ParticleFlowCandidate"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="RecoParticleFlow/PFClusterTools"/>
+  <use   name="RecoParticleFlow/PFProducer"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

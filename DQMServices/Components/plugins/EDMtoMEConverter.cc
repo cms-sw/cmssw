@@ -2,14 +2,16 @@
  *
  *  See header file for description of class
  *
- *  $Date: 2010/01/29 12:01:17 $
- *  $Revision: 1.28 $
+ *  $Date: 2010/03/25 08:10:12 $
+ *  $Revision: 1.30 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include <cassert>
 
 #include "DQMServices/Components/plugins/EDMtoMEConverter.h"
+
+using namespace lat;
 
 EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
   verbosity(0), frequency(0)
@@ -198,6 +200,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
           dbe->setCurrentFolder(dir);
           me1[i] = dbe->book1D(metoedmobject[i].object.GetName(),
                                &metoedmobject[i].object);
+          if (!iEndRun) me1[i]->setLumiFlag();
         } // end define new monitor elements
 
         // attach taglist
@@ -259,6 +262,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
           dbe->setCurrentFolder(dir);
           me1[i] = dbe->book1S(metoedmobject[i].object.GetName(),
                                &metoedmobject[i].object);
+          if (!iEndRun) me1[i]->setLumiFlag();
         } // end define new monitor elements
 
         // attach taglist
@@ -320,6 +324,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
           dbe->setCurrentFolder(dir);
           me1[i] = dbe->book1DD(metoedmobject[i].object.GetName(),
                                &metoedmobject[i].object);
+          if (!iEndRun) me1[i]->setLumiFlag();
         } // end define new monitor elements
 
         // attach taglist
@@ -381,6 +386,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
           dbe->setCurrentFolder(dir);
           me2[i] = dbe->book2D(metoedmobject[i].object.GetName(),
                                &metoedmobject[i].object);
+          if (!iEndRun) me2[i]->setLumiFlag();
         } // end define new monitor elements
 
         // attach taglist
@@ -442,6 +448,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
           dbe->setCurrentFolder(dir);
           me2[i] = dbe->book2S(metoedmobject[i].object.GetName(),
                                &metoedmobject[i].object);
+          if (!iEndRun) me2[i]->setLumiFlag();
         } // end define new monitor elements
 
         // attach taglist
@@ -503,6 +510,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
           dbe->setCurrentFolder(dir);
           me2[i] = dbe->book2DD(metoedmobject[i].object.GetName(),
                                &metoedmobject[i].object);
+          if (!iEndRun) me2[i]->setLumiFlag();
         } // end define new monitor elements
 
         // attach taglist
@@ -564,6 +572,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
           dbe->setCurrentFolder(dir);
           me3[i] = dbe->book3D(metoedmobject[i].object.GetName(),
                                &metoedmobject[i].object);
+          if (!iEndRun) me3[i]->setLumiFlag();
         } // end define new monitor elements
 
         // attach taglist
@@ -625,6 +634,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
           dbe->setCurrentFolder(dir);
           me4[i] = dbe->bookProfile(metoedmobject[i].object.GetName(),
                                     &metoedmobject[i].object);
+          if (!iEndRun) me4[i]->setLumiFlag();
         } // end define new monitor elements
 
         // attach taglist
@@ -686,6 +696,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
           dbe->setCurrentFolder(dir);
           me5[i] = dbe->bookProfile2D(metoedmobject[i].object.GetName(),
                                       &metoedmobject[i].object);
+          if (!iEndRun) me5[i]->setLumiFlag();
         } // end define new monitor elements
 
         // attach taglist
@@ -750,6 +761,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
           dbe->setCurrentFolder(dir);
           me6[i] = dbe->bookFloat(name);
           me6[i]->Fill(metoedmobject[i].object);
+          if (!iEndRun) me6[i]->setLumiFlag();
         } // end define new monitor elements
 
         // attach taglist
@@ -821,6 +833,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
           }
           me7[i] = dbe->bookInt(name);
           me7[i]->Fill(metoedmobject[i].object+ival);
+          if (!iEndRun) me7[i]->setLumiFlag();
         } // end define new monitor elements
 
         // attach taglist
@@ -892,6 +905,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
           }
           me7[i] = dbe->bookInt(name);
           me7[i]->Fill(metoedmobject[i].object+ival);
+          if (!iEndRun) me7[i]->setLumiFlag();
         } // end define new monitor elements
 
         // attach taglist
@@ -955,6 +969,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
           dbe->setCurrentFolder(dir);
           std::string scont = metoedmobject[i].object.Data();
           me8[i] = dbe->bookString(name,scont);
+          if (!iEndRun) me8[i]->setLumiFlag();
         } // end define new monitor elements
 
         // attach taglist

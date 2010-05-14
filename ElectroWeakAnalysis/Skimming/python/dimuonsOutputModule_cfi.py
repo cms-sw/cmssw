@@ -4,9 +4,8 @@ from Configuration.EventContent.EventContent_cff import *
 
 dimuonsEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
-#        'keep *_selectedLayer1Muons_*_*', 
-        'keep *_selectedLayer1MuonsTriggerMatch_*_*', 
-        'keep *_selectedLayer1TrackCands_*_*',
+        'keep *_selectedPatMuonsTriggerMatch_*_*', 
+        'keep *_selectedPatTracks_*_*',
         'keep *_dimuons_*_*', 
         'keep *_dimuonsOneTrack_*_*', 
         'keep *_dimuonsGlobal_*_*', 
@@ -14,11 +13,6 @@ dimuonsEventContent = cms.PSet(
         'keep *_muonMatch_*_*', 
         'keep *_trackMuMatch_*_*', 
         'keep *_allDimuonsMCMatch_*_*',
-#        'keep patTriggerObjects_patTrigger_*_*',
-#        'keep patTriggerFilters_patTrigger_*_*',
-#        'keep patTriggerPaths_patTrigger_*_*',
-#        'keep patTriggerEvent_patTriggerEvent_*_*',
-#        'keep patTriggerObjectsedmAssociation_patTriggerEvent_*_*'
         )
 )
 dimuonsEventSelection = cms.PSet(

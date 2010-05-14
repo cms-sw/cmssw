@@ -47,7 +47,7 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
 
 
 # QTest module
-process.siStripQTester = cms.EDFilter("QualityTester",
+process.siStripQTester = cms.EDAnalyzer("QualityTester",
                               qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config.xml'),
                               prescaleFactor = cms.untracked.int32(1),
                               getQualityTestsFromFile = cms.untracked.bool(True)

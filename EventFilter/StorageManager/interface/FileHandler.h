@@ -1,10 +1,11 @@
-// $Id: FileHandler.h,v 1.8 2009/10/13 15:08:33 mommsen Exp $
+// $Id: FileHandler.h,v 1.9 2010/02/01 14:08:49 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef StorageManager_FileHandler_h
 #define StorageManager_FileHandler_h
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
+#include "EventFilter/StorageManager/interface/DbFileHandler.h"
 #include "EventFilter/StorageManager/interface/FilesMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
@@ -23,8 +24,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2009/10/13 15:08:33 $
+   * $Revision: 1.9 $
+   * $Date: 2010/02/01 14:08:49 $
    */
 
   class FileHandler
@@ -34,6 +35,7 @@ namespace stor {
     FileHandler
     (
       FilesMonitorCollection::FileRecordPtr,
+      const DbFileHandlerPtr,
       const DiskWritingParams&,
       const unsigned long long& maxFileSize
      );
@@ -60,17 +62,6 @@ namespace stor {
      * beyond maxFileSize.
      */
     bool tooLarge(const unsigned long& dataSize);
-
-        
-    /////////////////////////////
-    // File information dumper //
-    /////////////////////////////
-    
-    /**
-     * Add file summary information to ostream
-     */
-    void info(std::ostream &os) const;
-    
 
 
     ////////////////////////////
@@ -205,6 +196,7 @@ namespace stor {
   protected:
 
     FilesMonitorCollection::FileRecordPtr _fileRecord;
+    const DbFileHandlerPtr _dbFileHandler;
 
     utils::time_point_t _firstEntry;                // time when first event was writen
     utils::time_point_t _lastEntry;                 // time when latest event was writen

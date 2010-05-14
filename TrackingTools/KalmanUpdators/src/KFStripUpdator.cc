@@ -1,7 +1,5 @@
 #include "TrackingTools/KalmanUpdators/interface/KFStripUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/StripMeasurementTransformator.h"
-#include "DataFormats/Math/interface/invertPosDefMatrix.h"
-
 
 TrajectoryStateOnSurface 
 KFStripUpdator::update(const TSOS& aTsos, const TransientTrackingRecHit& aHit) const {
@@ -23,7 +21,7 @@ KFStripUpdator::update(const TSOS& aTsos, const TransientTrackingRecHit& aHit) c
 
   AlgebraicSymMatrix22 R(V + pC);
   //int ierr; R.invert(ierr); // if (ierr != 0) throw exception;
-  invertPosDefMatrix(R);
+  R.Invert();
   
   // Compute Kalman gain matrix
   //  AlgebraicMatrix Hm2l(myTrafo.measurement2LocalProj());

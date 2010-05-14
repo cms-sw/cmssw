@@ -31,7 +31,7 @@
 //
 // Original Author:  Nikolaos Rompotis
 //         Created:  Thu Feb 12 11:22:04 CET 2009
-// $Id: ZeeCandidateFilter.cc,v 1.2 2009/12/09 08:56:28 rompotis Exp $
+// $Id: ZeeCandidateFilter.cc,v 1.4 2010/02/11 00:11:36 wmtan Exp $
 //
 //
 
@@ -51,11 +51,11 @@
 //
 #include <vector>
 #include <iostream>
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 //
 #include "TString.h"
 #include "TMath.h"
@@ -223,8 +223,7 @@ ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(triggerCollectionTag_, HLTResults);
    int passTrigger = 0;  
    if (HLTResults.isValid()) {
-     edm::TriggerNames triggerNames;
-     triggerNames.init(*HLTResults);
+     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
      unsigned int trigger_size = HLTResults->size();
      unsigned int trigger_position = triggerNames.triggerIndex(hltpath_);
      if (trigger_position < trigger_size)

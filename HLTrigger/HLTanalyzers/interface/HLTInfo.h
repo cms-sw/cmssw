@@ -12,7 +12,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
@@ -115,10 +114,6 @@ private:
 
   // input variables
   bool _Debug;
-
-  // trigger names
-  edm::TriggerNames triggerNames_;
-
 };
 
 #endif

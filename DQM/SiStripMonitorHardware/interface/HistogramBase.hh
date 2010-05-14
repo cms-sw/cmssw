@@ -46,16 +46,16 @@ public:
 			  ) = 0;
 
   //fill a histogram if the pointer is not NULL (ie if it has been booked)
-  void fillHistogram(MonitorElement* histogram, 
-		     double value,
-		     double weight=1.
-		     );
+  static void fillHistogram(MonitorElement* histogram, 
+			    double value,
+			    double weight=1.
+			    );
 
   //fill tkHistoMap of percentage of bad channels per module
-  void fillTkHistoMap(TkHistoMap *aMap,
-		      uint32_t & detid,
-		      float value
-		      );
+  static void fillTkHistoMap(TkHistoMap *aMap,
+			     uint32_t & detid,
+			     float value
+			     );
  
   bool isTkHistoMapEnabled(std::string aName);
 

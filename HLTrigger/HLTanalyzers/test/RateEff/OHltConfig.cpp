@@ -1,6 +1,9 @@
 #include "OHltConfig.h"
 #include "HLTDatasets.h"
 
+using namespace std;
+using namespace libconfig;
+
 OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
 {
 
@@ -98,7 +101,12 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
       itmp = isPS[i];
       pisPhysicsSample.push_back(itmp);
       stmp = pa[i];
-      ppaths.push_back(TString(stmp));
+      // LA add trailing slash to directories if missing
+      string ppath = stmp;
+      string lastChar=ppath.substr(ppath.size()-1);
+      if (lastChar.compare("/") != 0 ) ppath.append("/");
+
+      ppaths.push_back(TString(ppath));
       stmp = fn[i];
       pfnames.push_back(TString(stmp));
       ftmp = xs[i];

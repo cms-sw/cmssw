@@ -58,7 +58,7 @@ class preprodmc(Scenario):
         cb.prepare()
 
         for tier in writeTiers: 
-          addOutputModule(process, tier, "RECO")        
+          addOutputModule(process, tier, tier)        
  
         return process
 

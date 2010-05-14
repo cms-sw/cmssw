@@ -6,6 +6,7 @@
 
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexSmoother.h"
 
 #include "PhysicsTools/RecoAlgos/plugins/KalmanVertexFitter.h"
 
@@ -115,7 +116,8 @@ PFDisplacedVertexFinder::findDisplacedVertices() {
     
     if (!tempDisplacedVertexSeeds[idv].isEmpty() && !bLockedSeeds[idv]) {
       PFDisplacedVertex displacedVertex;  
-      bLockedSeeds[idv] = fitVertexFromSeed(tempDisplacedVertexSeeds[idv], "KalmanVertexFitter", displacedVertex);
+      //      bLockedSeeds[idv] = fitVertexFromSeed(tempDisplacedVertexSeeds[idv], "KalmanVertexFitter", displacedVertex);
+      bLockedSeeds[idv] = fitVertexFromSeed(tempDisplacedVertexSeeds[idv], "AdaptiveVertexFitter", displacedVertex);
       if (!bLockedSeeds[idv])  tempDisplacedVertices.push_back(displacedVertex);
     }
   }
@@ -252,43 +254,84 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
   transTracksRef.reserve(tracksToFit.size());
   transTracksRefRaw.reserve(tracksToFit.size());
 
-  if (tracksToFit.size() < 2) return true;
+  if (tracksToFit.size() < 2) {
+    if (debug_) cout << "Only one to Fit Track" << endl;
+    return true;
+  }
+
+  double rho = sqrt(seedPoint.x()*seedPoint.x()+seedPoint.y()*seedPoint.y());
+  double z = seedPoint.z();
+
+  if (rho > tobCut_ || fabs(z) > tecCut_) {
+    if (debug_) cout << "Seed Point out of the tracker rho = " << rho << " z = "<< z << " nTracks = " << tracksToFit.size() << endl;
+  return true;
+  }
+
+
+  if (debug_) cout << "Seed Point in the tracker rho = " << rho << " z = "<< z << " nTracks = " << tracksToFit.size() << endl;
+
+  int nStep45 = 0;
+  int nNotIterative = 0;
 
   // Fill vectors of TransientTracks and TrackRefs after applying preselection cuts.
   for(IEset ie = tracksToFit.begin(); ie !=  tracksToFit.end(); ie++){
-
     TransientTrack tmpTk( *((*ie).get()), magField_, globTkGeomHandle_);
     transTracksRaw.push_back( tmpTk );
     transTracksRefRaw.push_back( *ie );
+    if ( (*ie)->algo()-4 > 3 ) nStep45++;
+    if ( (*ie)->algo()-4 < 0 ||(*ie)->algo()-4 > 5 ) nNotIterative++;
   }
 
-  if (transTracksRaw.size() < 2) return true;
-
+  if (transTracksRaw.size() < 2) {
+    if (debug_) cout << "Only one Transient Track" << endl;
+    return true;
+  } else if (rho > 25 && nStep45 + nNotIterative < 1){
+    if (debug_) cout << "Seed point at rho > 25 cm but no step 4-5 tracks" << endl;
+    return true;
+  }
   // ----------------------------------------------- //
   // ---- Prepare transient track list is ready ---- //
   // ----------------------------------------------- //
 
   // ---- Define Vertex fitters and fit ---- //
 
-  AdaptiveVertexFitter theAdaptiveFitterRaw;
+  //  AdaptiveVertexFitter theAdaptiveFitterRaw;
+
+  double sigmacut = 6;
+  double Tini = 256.;
+  double ratio = 0.25;
+
+  AdaptiveVertexFitter theAdaptiveFitterRaw(
+					    GeometricAnnealing(sigmacut, Tini, ratio),
+					    DefaultLinearizationPointFinder(),
+					    KalmanVertexUpdator<5>(), 
+					    KalmanVertexTrackCompatibilityEstimator<5>(), 
+					    KalmanVertexSmoother() );
+
+
   TransientVertex theVertexAdaptiveRaw;
   
   try{
     theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, seedPoint);
   }catch( cms::Exception& exception ){
-    cout << exception.what() << endl;
+    if(debug_) cout << "Fit Crashed" << endl;
+    //    cout << exception.what() << endl;
     return true;
   }
 
-  if( !theVertexAdaptiveRaw.isValid() || theVertexAdaptiveRaw.totalChiSquared() < 0. ) return true;
-  
+  if( !theVertexAdaptiveRaw.isValid() || theVertexAdaptiveRaw.totalChiSquared() < 0. ) {
+    if(debug_) cout << "Fit failed : valid? " << theVertexAdaptiveRaw.isValid() 
+	 << " totalChi2 = " << theVertexAdaptiveRaw.totalChiSquared() << endl;
+    return true;
+  }  
+
   // To save time: reject the Displaced vertex if it is too close to the beam pipe. 
   // Frequently it is very big vertices, with some dosens of tracks
 
   Vertex theVtxAdaptiveRaw = theVertexAdaptiveRaw;
 
-  const float rho =  theVtxAdaptiveRaw.position().rho();
-	
+  rho =  theVtxAdaptiveRaw.position().rho();
+
   if (rho < primaryVertexCut_)  {
     if (debug_) cout << "Vertex " << " geometrically rejected with " <<  transTracksRaw.size() << " tracks #rho = " << rho << endl;
     return true;
@@ -331,31 +374,38 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
   // ---- Refit ---- //
 
-  KalmanVertexFitter theKalmanFitter(true);
-  TransientVertex theVertexKalman = theKalmanFitter.vertex(transTracks, seedPoint);
-
-  //  if (debug_) cout << "Second Adaptive Fit" << endl;
-
-  AdaptiveVertexFitter theAdaptiveFitter;
-  TransientVertex theVertexAdaptive = theAdaptiveFitter.vertex(transTracksRaw, seedPoint);
-
-
-  // ---- Create vertices ---- //
-
   TransientVertex theRecoVertex;
 
-  if(vtxFitter == string("KalmanVertexFitter")) theRecoVertex = theVertexKalman;
-  else if(vtxFitter == string("AdaptiveVertexFitter")) theRecoVertex = theVertexAdaptive;
+  if(vtxFitter == string("KalmanVertexFitter")){
 
-  Vertex theVtxKalman = theVertexKalman;
-  Vertex theVtxAdaptive = theVertexAdaptive;
-  Vertex theRecoVtx = theRecoVertex;
+    KalmanVertexFitter theKalmanFitter(true);
+    TransientVertex theVertexKalman = theKalmanFitter.vertex(transTracks, seedPoint);
+    theRecoVertex = theVertexKalman;
+  } else if(vtxFitter == string("AdaptiveVertexFitter")){
 
+    AdaptiveVertexFitter theAdaptiveFitter( 
+					 GeometricAnnealing(sigmacut, Tini, ratio),
+					 DefaultLinearizationPointFinder(),
+					 KalmanVertexUpdator<5>(), 
+					 KalmanVertexTrackCompatibilityEstimator<5>(), 
+					 KalmanVertexSmoother() );
+
+    TransientVertex theVertexAdaptive = theAdaptiveFitter.vertex(transTracksRaw, seedPoint);
+    theRecoVertex = theVertexAdaptive;
+  }
+ 
 
   // ---- Check if the fitted vertex is valid ---- //
 
-  if( !theVertexKalman.isValid() || theVertexKalman.totalChiSquared() < 0. ) return true;
-  if( !theVertexAdaptive.isValid() || theVertexAdaptive.totalChiSquared() < 0. ) return true;
+  if( !theRecoVertex.isValid() || theRecoVertex.totalChiSquared() < 0. ) {
+    cout << "Refit failed : valid? " << theRecoVertex.isValid() 
+	 << " totalChi2 = " << theRecoVertex.totalChiSquared() << endl;
+    return true;
+  }
+
+  // ---- Create vertex ---- //
+
+  Vertex theRecoVtx = theRecoVertex;
 
   double chi2 = theRecoVtx.chi2();
   double ndf =  theRecoVtx.ndof();
@@ -391,7 +441,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
     PFDisplacedVertex::VertexTrackType vertexTrackType = getVertexTrackType(pattern);
     
-    float weight =  theVertexAdaptive.trackWeight(transTracks[i]);
+    float weight =  theRecoVertex.trackWeight(transTracks[i]);
 
 
     if (debug_){
@@ -401,11 +451,11 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 	   << " nHitAfterVertex = " << pattern.second.first
 	   << " nMissHitBeforeVertex = " << pattern.first.second
 	   << " nMissHitAfterVertex = " << pattern.second.second
-	   << endl;
+	   << " Weight = " << weight << endl;
     }
 
     displacedVertex.addElement(transTracksRef[i], 
-			       theVertexKalman.refittedTrack(transTracks[i]).track(), 
+			       theRecoVertex.refittedTrack(transTracks[i]).track(), 
 			       pattern, vertexTrackType, weight);
 
 
@@ -449,13 +499,20 @@ PFDisplacedVertexFinder::selectVertices(const PFDisplacedVertexCollection& tempD
 
     unsigned nPrimary =  tempDisplacedVertices[idv].nPrimaryTracks();
     unsigned nMerged =  tempDisplacedVertices[idv].nMergedTracks();
-      
+    unsigned nSecondary =  tempDisplacedVertices[idv].nSecondaryTracks();      
+
     if (nPrimary + nMerged > 1) {
       bLocked[idv] = true;
       if (debug_) cout << "Vertex " << idv
 		       << " rejected because two primary or merged tracks" << endl;
       
 
+    }
+
+    if (nPrimary + nMerged + nSecondary < 2){
+      bLocked[idv] = true;
+      if (debug_) cout << "Vertex " << idv
+		       << " rejected because only one track related to the vertex" << endl;
     }
 
 
@@ -622,48 +679,9 @@ std::ostream& operator<<(std::ostream& out, const PFDisplacedVertexFinder& a) {
     out<<endl;
 
     for(PFDisplacedVertexFinder::IDV idv = displacedVertices_->begin(); 
-	idv != displacedVertices_->end(); idv++) {
+	idv != displacedVertices_->end(); idv++)
+      idv->Dump();
  
-      out << "" << endl;
-      out << "==================== This is a Displaced Vertex ===============" << endl;
-
-      out << " Vertex chi2 = " << (*idv).chi2() << " ndf = " << (*idv).ndof()<< " normalised chi2 = " << (*idv).normalizedChi2()<< endl;
-
-      out << " The vertex Fitted Position is: x = " << (*idv).position().x()
-	  << " y = " << (*idv).position().y()
-	  << " rho = " << (*idv).position().rho() 
-	  << " z = " << (*idv).position().z() 
-	  << endl;
-  
-      out<< "\t--- Structure ---  " << endl;
-      out<< "Number of tracks: "  << (*idv).nTracks() 
-	 << " nPrimary " << (*idv).nPrimaryTracks()
-	 << " nMerged " << (*idv).nMergedTracks()
-	 << " nSecondary " << (*idv).nSecondaryTracks() << endl;
-              
-      vector <PFDisplacedVertexFinder::PFTrackHitFullInfo> pattern = (*idv).trackHitFullInfos();
-      vector <PFDisplacedVertex::VertexTrackType> trackType = (*idv).trackTypes();
-      for (unsigned i = 0; i < pattern.size(); i++){
-	out << "track " << i 
-	     << " type = " << trackType[i]
-	     << " nHit BeforeVtx = " << pattern[i].first.first 
-	     << " AfterVtx = " << pattern[i].second.first
-	     << " MissHit BeforeVtx = " << pattern[i].first.second
-	     << " AfterVtx = " << pattern[i].second.second
-	     << endl;
-      }
-
-
-      out << "Primary P: E " << (*idv).primaryMomentum((string) "MASSLESS", false).E() 
-	   << " Pt = " << (*idv).primaryMomentum((string) "MASSLESS", false).Pt() 
-	   << " Pz = " << (*idv).primaryMomentum((string) "MASSLESS", false).Pz()
-	   << " M = "  << (*idv).primaryMomentum((string) "MASSLESS", false).M() << endl;
-
-      out << "Secondary P: E " << (*idv).secondaryMomentum((string) "MASSLESS", false).E() 
-	   << " Pt = " << (*idv).secondaryMomentum((string) "MASSLESS", false).Pt() 
-	   << " Pz = " << (*idv).secondaryMomentum((string) "MASSLESS", false).Pz()
-	   << " M = "  << (*idv).secondaryMomentum((string) "MASSLESS", false).M() << endl;
-    }
   }
  
   return out;

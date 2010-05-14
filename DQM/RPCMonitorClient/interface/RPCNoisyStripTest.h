@@ -39,7 +39,7 @@ public:
  private:
   
   std::string globalFolder_;
-
+  int  numberOfRings_;
   int prescaleFactor_;
  
   DQMStore* dbe_;

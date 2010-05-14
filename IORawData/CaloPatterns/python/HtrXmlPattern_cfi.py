@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-htr_xml = cms.EDFilter("HtrXmlPattern",
+htr_xml = cms.EDAnalyzer("HtrXmlPattern",
     #for non-existent electronics.
     presamples_per_event = cms.untracked.int32(4),
     sets_to_show = cms.untracked.int32(0), ##For a non-negative integer, dump an amount of data to stdout
