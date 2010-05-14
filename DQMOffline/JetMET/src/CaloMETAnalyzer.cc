@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 00:45:47 $
- *  $Revision: 1.44 $
+ *  $Date: 2010/05/14 18:11:18 $
+ *  $Revision: 1.45 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -1175,7 +1175,7 @@ bool CaloMETAnalyzer::selectLowPtJetEvent(const edm::Event& iEvent){
 // ***********************************************************
 bool CaloMETAnalyzer::selectWElectronEvent(const edm::Event& iEvent){
 
-  bool return_value=false;
+  bool return_value=true;
 
   /*
     W-electron event selection comes here
@@ -1188,7 +1188,7 @@ bool CaloMETAnalyzer::selectWElectronEvent(const edm::Event& iEvent){
 // ***********************************************************
 bool CaloMETAnalyzer::selectWMuonEvent(const edm::Event& iEvent){
 
-  bool return_value=false;
+  bool return_value=true;
 
   /*
     W-muon event selection comes here

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/25 11:03:34 $
- *  $Revision: 1.21 $
+ *  $Date: 2010/05/14 18:11:19 $
+ *  $Revision: 1.22 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -931,7 +931,7 @@ bool PFMETAnalyzer::selectLowPtJetEvent(const edm::Event& iEvent){
 // ***********************************************************
 bool PFMETAnalyzer::selectWElectronEvent(const edm::Event& iEvent){
 
-  bool return_value=false;
+  bool return_value=true;
 
   /*
     W-electron event selection comes here
@@ -944,7 +944,7 @@ bool PFMETAnalyzer::selectWElectronEvent(const edm::Event& iEvent){
 // ***********************************************************
 bool PFMETAnalyzer::selectWMuonEvent(const edm::Event& iEvent){
 
-  bool return_value=false;
+  bool return_value=true;
 
   /*
     W-muon event selection comes here
