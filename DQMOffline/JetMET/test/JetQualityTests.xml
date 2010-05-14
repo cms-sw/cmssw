@@ -1,36 +1,45 @@
 <TESTSCONFIGURATION>
 
-#####
 <QTEST name="KolmogorovTest">
         <TYPE>Comp2RefKolmogorov</TYPE> 
         <PARAM name="testparam">0</PARAM>
         <PARAM name="error">0.00000001</PARAM>
         <PARAM name="warning">0.000001</PARAM>
 </QTEST>
+
+
 <LINK name="JetMET/Jet/*/*Eta*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
+
 <LINK name="JetMET/Jet/*/*Pt*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
+
 <LINK name="JetMET/Jet/*/*Pt1*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
+
 <LINK name="JetMET/Jet/*/*Pt2*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
+
 <LINK name="JetMET/Jet/*/*Pt3*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
+
 <LINK name="JetMET/Jet/*/*Phi*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
+
 <LINK name="JetMET/Jet/*/*Constituents*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
+
 <LINK name="JetMET/Jet/*/*EFrac*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
+
 <LINK name="JetMET/Jet/JPT/*nTracks*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
@@ -46,18 +55,24 @@
         <PARAM name="error">0.10</PARAM>
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
+
+
 <LINK name="JetMET/Jet/*/*Pt*">
    <TestName activate="true">meanJetPtTest</TestName>
 </LINK>
+
 <LINK name="JetMET/Jet/*/*Pt1*">
    <TestName activate="true">meanJetPtTest</TestName>
 </LINK>
+
 <LINK name="JetMET/Jet/*/*Pt2*">
    <TestName activate="true">meanJetPtTest</TestName>
 </LINK>
+
 <LINK name="JetMET/Jet/*/*Pt3*">
    <TestName activate="true">meanJetPtTest</TestName>
 </LINK>
+
 
 <QTEST name="meanJetConstituentsTest">
         <TYPE>MeanWithinExpected</TYPE> 
@@ -70,9 +85,12 @@
         <PARAM name="error">0.10</PARAM>
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
-<LINK name="JetMET/Jet/*/*Constituents*">              <!-- NAME OF HISTOGRAM  -->
+
+
+<LINK name="JetMET/Jet/*/*Constituents*">              
    <TestName activate="true">meanJetConstituentsTest</TestName>
 </LINK>
+
 
 <QTEST name="meanEMFractionTest">
         <TYPE>MeanWithinExpected</TYPE> 
@@ -85,9 +103,12 @@
         <PARAM name="error">0.10</PARAM>
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
-<LINK name="JetMET/Jet/*/*EFrac*">              <!-- NAME OF HISTOGRAM  -->
+
+
+<LINK name="JetMET/Jet/*/*EFrac*">              
    <TestName activate="true">meanEMFractionTest</TestName>
 </LINK>
+
 
 <QTEST name="meanNTracksTest">
         <TYPE>MeanWithinExpected</TYPE> 
@@ -100,7 +121,9 @@
         <PARAM name="error">0.10</PARAM>
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
-<LINK name="JetMET/Jet/JPT/*nTracks*">              <!-- NAME OF HISTOGRAM  -->
+
+
+<LINK name="JetMET/Jet/JPT/*nTracks*">              
    <TestName activate="true">meanNTracksTest</TestName>
 </LINK>
 
