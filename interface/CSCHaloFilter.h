@@ -156,6 +156,8 @@ class CSCHaloFilter : public edm::EDFilter {
   float max_outer_radius;
   //threshold on chi2 of cosmic reco::Track in CSCs 
   float norm_chi2_threshold;
+  //max value of dr/dz calculated using innermost and outermose rechit from cosmic reco::Track in CSCs
+  float max_dr_over_dz;
 
   //expected local BX number of ALCT Digi for collision induced LCTs (3 for Data, 6 for MC)
   int expected_BX;

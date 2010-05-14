@@ -2,6 +2,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
 using namespace std;
 using namespace edm;
 
@@ -22,22 +23,24 @@ CSCHaloFilter::CSCHaloFilter(const edm::ParameterSet & iConfig)
   min_outer_radius = (float) iConfig.getParameter<double>("OuterRMin");
   max_outer_radius = (float) iConfig.getParameter<double>("OuterRMax");
   norm_chi2_threshold = (float) iConfig.getParameter<double>("NormChi2");
- 
-  expected_BX  = (short int) iConfig.getParameter<int>("ExpectedBX") ; 
   min_outer_theta = (float)iConfig.getParameter<double>("MinOuterMomentumTheta");
   max_outer_theta = (float)iConfig.getParameter<double>("MaxOuterMomentumTheta");
+  max_dr_over_dz = (float)iConfig.getParameter<double>("MaxDROverDz");
+ 
+  expected_BX  = (short int) iConfig.getParameter<int>("ExpectedBX") ; 
 
+  
   matching_dphi_threshold =  (float)iConfig.getParameter<double>("MatchingDPhiThreshold");
   matching_deta_threshold =  (float)iConfig.getParameter<double>("MatchingDEtaThreshold");
   matching_dwire_threshold  = iConfig.getParameter<int>("MatchingDWireThreshold");
 
-  min_nHaloTriggers =  iConfig.getUntrackedParameter<int>("MinNumberOfHaloTriggers",1);
-  min_nHaloDigis =  iConfig.getUntrackedParameter<int>("MinNumberOfOutOfTimeDigis",1);
-  min_nHaloTracks = iConfig.getUntrackedParameter<int>("MinNumberOfHaloTracks",1);
-
   FilterTriggerLevel = iConfig.getParameter<bool>("FilterTriggerLevel");
   FilterDigiLevel = iConfig.getParameter<bool>("FilterDigiLevel");
   FilterRecoLevel = iConfig.getParameter<bool>("FilterRecoLevel");
+
+  min_nHaloTriggers = FilterTriggerLevel ? iConfig.getUntrackedParameter<int>("MinNumberOfHaloTriggers",1) : 99999;
+  min_nHaloDigis    = FilterDigiLevel ?  iConfig.getUntrackedParameter<int>("MinNumberOfOutOfTimeDigis",1) : 99999;
+  min_nHaloTracks   = FilterRecoLevel ?  iConfig.getUntrackedParameter<int>("MinNumberOfHaloTracks",1) : 99999;
 
   // Load TrackDetectorAssociator parameters                                                                                                                   
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
@@ -50,6 +53,7 @@ CSCHaloFilter::~CSCHaloFilter(){}
 bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) 
 {
  
+
   //Get B-Field
   edm::ESHandle<MagneticField> TheMagneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(TheMagneticField);
@@ -79,12 +83,15 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
   //Handle<CSCRecHit2DCollection> TheCSCRecHits;
   //iEvent.getByLabel(IT_CSCRecHit, TheCSCRecHits);
 
+  int nHaloCands  = 0;
+  int nHaloDigis  = 0;
+  int nHaloTracks = 0;
+
   if( FilterTriggerLevel )
     {
       //Get L1MuGMT 
       edm::Handle < L1MuGMTReadoutCollection > TheL1GMTReadout ;
       iEvent.getByLabel (IT_L1MuGMTReadout, TheL1GMTReadout);
-      int nHaloCands = 0;
       if( TheL1GMTReadout.isValid() )
 	{
 	  L1MuGMTReadoutCollection const *MuGMT = TheL1GMTReadout.product ();
@@ -160,8 +167,6 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 		    }
 		}
 	    }
-	  if(nHaloCands >= min_nHaloTriggers ) 
-	    return false;
 	}
     }
 
@@ -170,7 +175,6 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
       //Get Chamber Anode Trigger Information                                                                                                                      
       edm::Handle<CSCALCTDigiCollection> TheALCTs;
       iEvent.getByLabel (IT_ALCTDigi, TheALCTs);
-      int nHaloDigis =0;
       if(TheALCTs.isValid())
 	{
 	  for (CSCALCTDigiCollection::DigiRangeIterator j=TheALCTs->begin(); j!=TheALCTs->end(); j++)
@@ -258,13 +262,10 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	    }
 	  */
 	}
-      if( nHaloDigis >= min_nHaloDigis )  
-	return false;
     }
   
   if(FilterRecoLevel)
     {
-      int nHaloTracks = 0;
       if(TheSACosmicMuons.isValid())
 	{
 	  for( reco::TrackCollection::const_iterator iTrack = TheSACosmicMuons->begin() ; iTrack != TheSACosmicMuons->end() ; iTrack++ )
@@ -320,6 +321,8 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	      float innermost_r = TMath::Sqrt(innermost_x *innermost_x + innermost_y * innermost_y );
 	      float outermost_r = TMath::Sqrt(outermost_x *outermost_x + outermost_y * outermost_y );
 	      
+	      float dr = TMath::Abs(innermost_r - outermost_r) ;
+	      float dz = TMath::Abs(InnerMostGlobalPosition.z()  - OuterMostGlobalPosition.z() );
 	      //float detadz = deta / ( innermost_global_z - outermost_global_z ) ;
 	      
 	      if( deta < deta_threshold )
@@ -338,30 +341,62 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 		TrackIsHalo = false;
 	      else if( iTrack->normalizedChi2() > norm_chi2_threshold )
 		TrackIsHalo = false;
+	      else if( dz )
+		{
+		  if( dr/dz > max_dr_over_dz ) 
+		    {
+		      TrackIsHalo = false;
+		    }
+		}
 	      
 	      if( TrackIsHalo )
 		{
 		  nHaloTracks++;
 		  /*
-		  cout << "deta " << deta << endl;
-		  cout << "dphi " << dphi << endl;
-		  cout << "theta " << theta << endl;
-		  cout << "innermost_r " << innermost_r << endl;
-		  cout << "outermost_r " << outermost_r << endl;
-		  cout << "norm_chi2 " << iTrack->normalizedChi2() << endl;
-		  cout << "NValidHits " << iTrack->numberOfValidHits() << endl;
-		  cout << "nCSCHits " << nCSCHits << endl;
-		  cout << "deta/dz " << detadz << endl;
+		    cout << "deta " << deta << endl;
+		    cout << "dphi " << dphi << endl;
+		    cout << "theta " << theta << endl;
+		    cout << "innermost_r " << innermost_r << endl;
+		    cout << "outermost_r " << outermost_r << endl;
+		    cout << "norm_chi2 " << iTrack->normalizedChi2() << endl;
+		    cout << "NValidHits " << iTrack->numberOfValidHits() << endl;
+		    cout << "nCSCHits " << nCSCHits << endl;
+		    cout << "deta/dz " << detadz << endl;
+		    cout << "dr/dz " << dr/dz << endl;
 		  */
 		}
 	    }
-	  if( nHaloTracks >= min_nHaloTracks )
-	    return false;
 	}
     }
 
+  if(FilterRecoLevel && FilterDigiLevel && FilterTriggerLevel)
+    return !( nHaloTracks >= min_nHaloTracks && nHaloDigis >= min_nHaloDigis && nHaloCands >= min_nHaloTriggers );
+
+  else if( FilterRecoLevel && FilterDigiLevel )
+    return !(nHaloTracks>= min_nHaloTracks && nHaloDigis >= min_nHaloDigis);
+
+  else if( FilterRecoLevel && FilterTriggerLevel ) 
+    return !(nHaloTracks>= min_nHaloTracks && nHaloCands >= min_nHaloTriggers );
+
+  else if( FilterDigiLevel && FilterTriggerLevel )
+    return !( nHaloDigis >= min_nHaloDigis && nHaloCands >= min_nHaloTriggers );
+
+  else if( FilterDigiLevel ) 
+    return  !(nHaloDigis >= min_nHaloDigis);
+
+  else if( FilterRecoLevel ) 
+    return !( nHaloTracks >= min_nHaloTracks );
+    
+  else if( FilterTriggerLevel ) 
+    return !( nHaloCands >= min_nHaloTriggers) ;
+
+
+  else
+    return false;
+  
   
   return true;
+
 }
   
 
