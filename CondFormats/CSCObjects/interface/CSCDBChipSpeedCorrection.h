@@ -15,10 +15,10 @@ class CSCDBChipSpeedCorrection{
   int factor_speedCorr;
 
   /////change to the correct factor for you!
-  enum factors{FCORR=10};
+  enum factors{FCORR=100};
 
   // accessor to appropriate element ->should be chip !!!!
-  const Item & item(const CSCDetId & cscId, int strip) const;
+  const Item & item(const CSCDetId & cscId, int chip) const;
 
   typedef std::vector<Item> ChipSpeedContainer;
 
