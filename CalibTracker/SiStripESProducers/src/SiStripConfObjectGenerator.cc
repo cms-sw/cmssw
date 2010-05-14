@@ -18,6 +18,14 @@ void SiStripConfObjectGenerator::createObject()
   std::vector<edm::ParameterSet>::const_iterator parIt = parameters_.begin();
   obj_ = new SiStripConfObject();
   for( ; parIt != parameters_.end(); ++parIt ) {
-    obj_->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<int32_t>("ParameterValue"));
+    if( parIt->getParameter<std::string>("ParameterType") == "int" ) {
+      obj_->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<int32_t>("ParameterValue"));
+    }
+    else if( parIt->getParameter<std::string>("ParameterType") == "double" ) {
+      obj_->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<double>("ParameterValue"));
+    }
+    if( parIt->getParameter<std::string>("ParameterType") == "string" ) {
+      obj_->put(parIt->getParameter<std::string>("ParameterName"), parIt->getParameter<std::string>("ParameterValue"));
+    }
   }
 }
