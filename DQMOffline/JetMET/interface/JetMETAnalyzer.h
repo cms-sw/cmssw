@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2010/03/10 08:00:09 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/05/14 00:28:57 $
+ *  $Revision: 1.19 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -39,8 +39,12 @@
 #include "DQMOffline/JetMET/interface/PFMETAnalyzer.h"
 #include "DQMOffline/JetMET/interface/HTMHTAnalyzer.h"
 
+#include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
+
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+#include "DataFormats/Scalers/interface/DcsStatus.h" 
 
 class JetMETAnalyzer : public edm::EDAnalyzer {
  public:
@@ -180,6 +184,9 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   PFMETAnalyzer     * thePfMETAnalyzer;
 
   HTMHTAnalyzer     * theHTMHTAnalyzer;
+
+  JetMETDQMDCSFilter * DCSFilterCalo;
+  JetMETDQMDCSFilter * DCSFilterPF;
 
 };
 #endif  

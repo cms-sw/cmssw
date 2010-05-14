@@ -198,6 +198,17 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     # For CleanedJPT jetAnalysis
     #
     CleanedJPTJetAnalysis = jptDQMParameters.clone(
+    ),
+
+    #
+    # DCS
+    #                             
+    DCSFilterCalo = cms.PSet(
+      DetectorTypes = cms.untracked.string("ecal:hcal")
+    ),
+
+    DCSFilterPF = cms.PSet(
+      DetectorTypes = cms.untracked.string("ecal:hcal:pixel:sistrip:es:muon")
     )
 
 )

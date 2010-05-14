@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/10 21:11:47 $
- *  $Revision: 1.60 $
+ *  $Date: 2010/05/14 00:28:58 $
+ *  $Revision: 1.61 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -66,6 +66,12 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   theMuCorrMETAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoMuCorrMETAnalysis",  true);
   thePfMETAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoPfMETAnalysis",  true);
   theHTMHTAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoHTMHTAnalysis",  true);
+
+  // ==========================================================
+  //DCS information
+  // ==========================================================
+  DCSFilterCalo = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterCalo"));
+  DCSFilterPF   = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterPF"));
 
   // --- do the analysis on the Jets
   if(theJetAnalyzerFlag) {
@@ -460,6 +466,10 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   // ==========================================================
+  //DCS information
+
+
+  // ==========================================================
   //Vertex information
   
   bool bPrimaryVertex = true;
@@ -538,7 +548,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // **** Get the AntiKt Jet container
   iEvent.getByLabel(theAKJetCollectionLabel, caloJets);    
-  if(caloJets.isValid()){
+  if(caloJets.isValid() &&DCSFilterCalo->filter(iEvent, iSetup)) {
+
   if(theJetAnalyzerFlag){
     theAKJetAnalyzer->setJetHiPass(JetHiPass);
     theAKJetAnalyzer->setJetLoPass(JetLoPass);
@@ -548,9 +559,10 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     LogTrace(metname)<<"[JetMETAnalyzer] Call to the Jet Pt anti-Kt analyzer";
     thePtAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
   }
-  }  
 
-  if(caloJets.isValid() && bJetCleanup){
+  }
+
+  if(caloJets.isValid() && bJetCleanup && DCSFilterCalo->filter(iEvent, iSetup)) {
   if(theJetCleaningFlag){
     theCleanedAKJetAnalyzer->setJetHiPass(JetHiPass);
     theCleanedAKJetAnalyzer->setJetLoPass(JetLoPass);
@@ -563,21 +575,21 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
 
-  if(caloJets.isValid() && bJetCleanup){
+  if(caloJets.isValid() && bJetCleanup && DCSFilterCalo->filter(iEvent, iSetup)){
     if(theDiJetSelectionFlag){
     theDiJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
     }
   }
 
 
-  if(caloJets.isValid()){
+  if(caloJets.isValid() && DCSFilterCalo->filter(iEvent, iSetup)){
     if(theJetPtAnalyzerFlag){
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the Jet Pt anti-Kt analyzer";
       thePtAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
     }
   }
 
-  if(caloJets.isValid() && bJetCleanup){
+  if(caloJets.isValid() && bJetCleanup && DCSFilterCalo->filter(iEvent, iSetup)){
     if(theJetPtCleaningFlag){
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned Jet Pt anti-Kt analyzer";
       theCleanedPtAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
