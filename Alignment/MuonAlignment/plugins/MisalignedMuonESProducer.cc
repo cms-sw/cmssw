@@ -5,8 +5,8 @@
 /// when producing Misalignment scenarios.
 ///
 /// \file
-/// $Date: 2009/03/02 10:22:16 $
-/// $Revision: 1.10 $
+/// $Date: 2009/03/26 09:56:51 $
+/// $Revision: 1.11 $
 /// \author Andre Sznajder - UERJ(Brazil)
 ///
  
@@ -14,6 +14,7 @@
 // Framework
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -105,7 +106,7 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
   
 
   // Create the Muon geometry from ideal geometry
-  edm::ESHandle<DDCompactView> cpv;
+  edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
 
   edm::ESHandle<MuonDDDConstants> mdc;

@@ -8,11 +8,12 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar  6 14:25:07 CST 2008
-// $Id: MuonAlignmentInputMethod.cc,v 1.2 2008/03/20 21:39:26 pivarski Exp $
+// $Id: MuonAlignmentInputMethod.cc,v 1.3 2009/01/19 11:07:37 flucke Exp $
 //
 
 // system include files
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 
 // user include files
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputMethod.h"
@@ -64,7 +65,7 @@ AlignableMuon *MuonAlignmentInputMethod::newAlignableMuon(const edm::EventSetup&
 }
 
 boost::shared_ptr<DTGeometry> MuonAlignmentInputMethod::idealDTGeometry(const edm::EventSetup& iSetup) const {
-   edm::ESHandle<DDCompactView> cpv;
+   edm::ESTransientHandle<DDCompactView> cpv;
    iSetup.get<IdealGeometryRecord>().get(cpv);
 
    edm::ESHandle<MuonDDDConstants> mdc;
@@ -78,7 +79,7 @@ boost::shared_ptr<DTGeometry> MuonAlignmentInputMethod::idealDTGeometry(const ed
 }
 
 boost::shared_ptr<CSCGeometry> MuonAlignmentInputMethod::idealCSCGeometry(const edm::EventSetup& iSetup) const {
-   edm::ESHandle<DDCompactView> cpv;
+   edm::ESTransientHandle<DDCompactView> cpv;
    iSetup.get<IdealGeometryRecord>().get(cpv);
 
    edm::ESHandle<MuonDDDConstants> mdc;

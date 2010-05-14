@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -106,7 +107,7 @@ TestTranslation::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   //
   // Build alignable muon geometry from event setup
   //
-  edm::ESHandle<DDCompactView> cpv;
+  edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
 
   DTGeometryBuilderFromDDD  DTGeometryBuilder;

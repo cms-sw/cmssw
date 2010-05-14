@@ -8,11 +8,12 @@
 //
 // Original Author:  
 //         Created:  Fri Mar 14 18:02:33 CDT 2008
-// $Id: MuonAlignmentOutputXML.cc,v 1.6 2008/05/17 18:10:20 pivarski Exp $
+// $Id: MuonAlignmentOutputXML.cc,v 1.7 2009/01/19 11:07:37 flucke Exp $
 //
 
 // system include files
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 
 // user include files
 #include "Alignment/MuonAlignment/interface/MuonAlignmentOutputXML.h"
@@ -121,7 +122,7 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
    std::vector<Alignable*> endcaps = alignableMuon->CSCEndcaps();
 
    if (m_relativeto == 1) {
-      edm::ESHandle<DDCompactView> cpv;
+      edm::ESTransientHandle<DDCompactView> cpv;
       iSetup.get<IdealGeometryRecord>().get(cpv);
 
       edm::ESHandle<MuonDDDConstants> mdc;
