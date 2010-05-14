@@ -28,7 +28,6 @@ CSCHaloFilter::CSCHaloFilter(const edm::ParameterSet & iConfig)
   max_dr_over_dz = (float)iConfig.getParameter<double>("MaxDROverDz");
  
   expected_BX  = (short int) iConfig.getParameter<int>("ExpectedBX") ; 
-
   
   matching_dphi_threshold =  (float)iConfig.getParameter<double>("MatchingDPhiThreshold");
   matching_deta_threshold =  (float)iConfig.getParameter<double>("MatchingDEtaThreshold");
@@ -82,6 +81,9 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
   //Get CSC RecHits
   //Handle<CSCRecHit2DCollection> TheCSCRecHits;
   //iEvent.getByLabel(IT_CSCRecHit, TheCSCRecHits);
+  
+  edm::Handle<reco::CSCHaloData> TheCSCDataHandle;
+  iEvent.getByLabel(IT_CSCHaloData,TheCSCDataHandle);
 
   int nHaloCands  = 0;
   int nHaloDigis  = 0;
@@ -160,14 +162,16 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 				  if ( dphi < matching_dphi_threshold && deta < matching_deta_threshold ) //collision likely caused it
 				    CandIsHalo = false; 
 				}
-			      if(CandIsHalo)
-				nHaloCands++;
 			    }
+			  if(CandIsHalo)
+			    nHaloCands++;
 			}
 		    }
 		}
 	    }
 	}
+      else
+	FilterTriggerLevel = false;  //NO TRIGGER DECISION CAN BE MADE
     }
 
   if(FilterDigiLevel)
@@ -242,7 +246,7 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 		}
 	    }
 	}
-      else 
+      else if( TheCSCDataHandle.isValid() )
 	{
 	  //FOR >= 36X 
 	  /*
@@ -253,8 +257,6 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	    is done until CMSSW_3_7_0.  
 	    
 	    //NOTE : THIS BLOCK OF CODE ONLY WORKS FOR >= 3_6_0 
-	    edm::Handle<reco::CSCHaloData> TheCSCDataHandle;
-	    iEvent.getByLabel(IT_CSCHaloData,TheCSCDataHandle);
 	    if(TheCSCDataHandle.isValid())
 	    {
 	    const reco::CSCHaloData CSCData = (*TheCSCDataHandle.product());
@@ -262,6 +264,8 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	    }
 	  */
 	}
+      else
+	FilterDigiLevel = false ; // NO DIGI LEVEL DECISION CAN BE MADE
     }
   
   if(FilterRecoLevel)
@@ -367,35 +371,28 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 		}
 	    }
 	}
+      else
+	FilterRecoLevel = false; //NO RECO LEVEL DECISION CAN BE MADE
     }
 
   if(FilterRecoLevel && FilterDigiLevel && FilterTriggerLevel)
     return !( nHaloTracks >= min_nHaloTracks && nHaloDigis >= min_nHaloDigis && nHaloCands >= min_nHaloTriggers );
-
   else if( FilterRecoLevel && FilterDigiLevel )
     return !(nHaloTracks>= min_nHaloTracks && nHaloDigis >= min_nHaloDigis);
-
   else if( FilterRecoLevel && FilterTriggerLevel ) 
     return !(nHaloTracks>= min_nHaloTracks && nHaloCands >= min_nHaloTriggers );
-
   else if( FilterDigiLevel && FilterTriggerLevel )
     return !( nHaloDigis >= min_nHaloDigis && nHaloCands >= min_nHaloTriggers );
-
   else if( FilterDigiLevel ) 
     return  !(nHaloDigis >= min_nHaloDigis);
-
   else if( FilterRecoLevel ) 
     return !( nHaloTracks >= min_nHaloTracks );
-    
   else if( FilterTriggerLevel ) 
     return !( nHaloCands >= min_nHaloTriggers) ;
-
-
   else
-    return false;
+    return true;
   
-  
-  return true;
+
 
 }
   

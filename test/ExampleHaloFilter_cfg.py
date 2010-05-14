@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-isData = True
+isData = False
 process.load("Configuration/StandardSequences/Geometry_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
@@ -36,12 +36,14 @@ if isData:
     process.pathCSCHaloFilterDigiOrTriggerLevel = cms.Path(process.L1Tech*process.CSCHaloFilterDigiLevel * process.CSCHaloFilterTriggerLevel )
 else:
     process.CSCBasedHaloFilter.ExpectedBX = cms.int32(6)
+    process.CSCHaloFilterDigiLevel.ExpectedBX = 6
+    process.CSCHaloFilterDigiAndTriggerLevel.ExpectedBX = 6
     process.CSCHaloData.ExpectedBX = cms.int32(6)
     process.GlobalTag.globaltag = 'MC_3XY_V27::All'
     process.pathCSCBasedHaloFilter = cms.Path( process.CSCBasedHaloFilter )
     process.pathCSCHaloFilterTriggerLevel = cms.Path(process.CSCHaloFilterTriggerLevel)
     process.pathCSCHaloFilterRecoLevel = cms.Path( process.CSCHaloFilterRecoLevel )
-    process.pathCSCHaloFilterDigiLevel = cms.Path( process.CSCHaloFilterDigiLevel )
+    process.pathCSCHaloFilterDigiLevel = cms.Path(process.muonCSCDigis*process.CSCHaloFilterDigiLevel )
     process.pathCSCHaloFilterRecoAndTriggerLevel = cms.Path( process.CSCHaloFilterRecoAndTriggerLevel ) 
     process.pathCSCHaloFilterRecoOrTriggerLevel = cms.Path( process.CSCHaloFilterRecoLevel*process.CSCHaloFilterTriggerLevel ) 
     process.pathCSCHaloFilterDigiAndTriggerLevel = cms.Path (process.CSCHaloFilterDigiAndTriggerLevel)
@@ -49,8 +51,7 @@ else:
     
 process.pathCSCBasedHaloFilter = cms.Path(process.CSCBasedHaloFilter)
 
-
-process.load("Configuration/StandardSequences/ReconstructionCosmics_cff")
+#process.load("Configuration/StandardSequences/ReconstructionCosmics_cff")
 
 process.load("RecoMuon/Configuration/RecoMuon_cff")
 
@@ -83,7 +84,7 @@ process.source = cms.Source("PoolSource",
     #'/store/relval/CMSSW_3_5_8/RelValBeamHalo/GEN-SIM-RECO/START3X_V26-v1/0017/D6AA4854-9052-DF11-9317-0030486791BA.root',
     #'/store/relval/CMSSW_3_5_8/RelValBeamHalo/GEN-SIM-RECO/START3X_V26-v1/0016/9E2F2DEB-6352-DF11-BC8D-002618943951.root'
     
-    'rfio:/castor/cern.ch/user/r/rcr/ExpressPhysics/Skims/Run130445/ExpressPhysics__Commissioning10-Express-v3__FEVT____run130445_1.root',
+    #'rfio:/castor/cern.ch/user/r/rcr/ExpressPhysics/Skims/Run130445/ExpressPhysics__Commissioning10-Express-v3__FEVT____run130445_1.root',
     #'rfio:/castor/cern.ch/user/r/rcr/ExpressPhysics/Skims/Run130445/ExpressPhysics__Commissioning10-Express-v3__FEVT____run130445_2.root',
     #    'rfio:/castor/cern.ch/user/r/rcr/ExpressPhysics/Skims/Run130445/ExpressPhysics__Commissioning10-Express-v3__FEVT____run130445_3.root',
     #    'rfio:/castor/cern.ch/user/r/rcr/ExpressPhysics/Skims/Run130445/ExpressPhysics__Commissioning10-Express-v3__FEVT____run130445_4.root',
@@ -116,7 +117,7 @@ process.source = cms.Source("PoolSource",
     #'/store/relval/CMSSW_3_5_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V26-v1/0016/36139940-4F52-DF11-9D71-00261894392C.root',
     #'/store/relval/CMSSW_3_5_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V26-v1/0016/24BBD52E-4852-DF11-87F0-003048678B00.root',
     #'/store/relval/CMSSW_3_5_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V26-v1/0016/2085B0B6-4752-DF11-911D-001A92971BCA.root'
-    #'/store/relval/CMSSW_3_5_8/RelValBeamHalo/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V26-v1/0016/7C8513EA-6352-DF11-9B7D-003048678A7E.root'
+    '/store/relval/CMSSW_3_5_8/RelValBeamHalo/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V26-v1/0016/7C8513EA-6352-DF11-9B7D-003048678A7E.root'
     ),
 )
 
