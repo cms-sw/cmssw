@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include <cassert>
 #include <cstring>
+#include <stdint.h>
 #include <unistd.h>
 
 #define MAX_INITHOSTNAME_LEN 25

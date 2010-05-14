@@ -5,6 +5,7 @@ Example code to write DQM Event Message to file
 */
 
 #include <iostream>
+#include <stdint.h>
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"

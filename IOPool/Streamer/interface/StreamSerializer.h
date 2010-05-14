@@ -12,6 +12,7 @@
 
 #include "DataFormats/Provenance/interface/Selections.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include <stdint.h>
 #include <vector>
 
 
