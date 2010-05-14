@@ -14,6 +14,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     pfMVA =  cms.InputTag("pfElectronTranslator:pf"),
     seedsTag = cms.InputTag("ecalDrivenElectronSeeds"),
+    beamSpot = cms.InputTag("offlineBeamSpot"),
     
     # backward compatibility mechanism for ctf tracks
     ctfTracksCheck = cms.bool(True),

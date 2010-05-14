@@ -13,8 +13,6 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedGenerator.cc,v 1.10 2010/04/30 13:54:23 chamont Exp $
-//
 //
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h"

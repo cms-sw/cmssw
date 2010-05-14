@@ -26,15 +26,15 @@ class MagneticField;
 
 class SeedFilter {
  public:
-  
+
   SeedFilter(const edm::ParameterSet& conf);
   ~SeedFilter();
 
   void seeds(edm::Event&, const edm::EventSetup&, const reco::SuperClusterRef &, TrajectorySeedCollection *);
-  
+
  private:
   SeedGeneratorFromRegionHits *combinatorialSeedGenerator;
-  
+
   // remove them FIXME
   double dr_, deta_, dphi_, pt_;
 
@@ -42,11 +42,14 @@ class SeedFilter {
   bool useZvertex_;
   //  edm::InputTag BSProducer_;  //FIXME?
   edm::InputTag vertexSrc_;
-  
+
   edm::ESHandle<MagneticField> theMagField;
-  FTSFromVertexToPointFactory myFTS; 
-  
+  FTSFromVertexToPointFactory myFTS;
+
   int hitsfactoryMode_;
+
+  edm::InputTag beamSpotTag_;
+
 };
 
 #endif // SeedFilter_H
