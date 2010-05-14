@@ -204,11 +204,21 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     # DCS
     #                             
     DCSFilterCalo = cms.PSet(
-      DetectorTypes = cms.untracked.string("ecal:hcal")
+      DetectorTypes = cms.untracked.string("ecal:hcal"),
+      DebugOn = cms.untracked.bool(True)
     ),
-
     DCSFilterPF = cms.PSet(
-      DetectorTypes = cms.untracked.string("ecal:hcal:pixel:sistrip:es:muon")
-    )
+      DetectorTypes = cms.untracked.string("ecal:hcal:pixel:sistrip:es:muon"),
+      DebugOn = cms.untracked.bool(True)
+    ),
+    #DCSFilterJPT = cms.PSet(
+    #  DetectorTypes = cms.untracked.string("ecal:hcal:pixel:sistrip:es:muon")
+    #),
+    #DCSFilterTCMET = cms.PSet(
+    #  DetectorTypes = cms.untracked.string("ecal:hcal:pixel:sistrip:es:muon")
+    #),
+    #DCSFilterMuCorrMET = cms.PSet(
+    #  DetectorTypes = cms.untracked.string("ecal:hcal:pixel:sistrip:muon")
+    #)
 
 )

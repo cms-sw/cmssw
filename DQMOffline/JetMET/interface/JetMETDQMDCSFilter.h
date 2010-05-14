@@ -1,16 +1,21 @@
 #ifndef JetMETDQMDCSFilter_H
 #define JetMETDQMDCSFilter_H
 
-#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- 
-class JetMETDQMDCSFilter {
- public:
- JetMETDQMDCSFilter( const edm::ParameterSet & );
- ~JetMETDQMDCSFilter();
-  bool filter(const edm::Event& , const edm::EventSetup& );
-  private:
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
+class JetMETDQMDCSFilter {
+
+ public:
+  JetMETDQMDCSFilter( const edm::ParameterSet & );
+  ~JetMETDQMDCSFilter();
+  bool filter(const edm::Event& evt, const edm::EventSetup& es);
+
+  private:
   bool verbose_;
   bool detectorOn_;
   std::string detectorTypes_;

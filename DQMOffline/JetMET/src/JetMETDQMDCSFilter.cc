@@ -16,11 +16,13 @@ JetMETDQMDCSFilter::JetMETDQMDCSFilter( const edm::ParameterSet & pset ) {
    verbose_      = pset.getUntrackedParameter<bool>( "DebugOn", false );
    detectorTypes_ = pset.getUntrackedParameter<std::string>( "DetectorTypes", "ecal:hcal");
    detectorOn_  = false;
+   if (verbose_) std::cout << "JetMETDQMDCSFilter constructor" << std::endl;
 }
 //
 // -- Destructor
 //
 JetMETDQMDCSFilter::~JetMETDQMDCSFilter() {
+   if (verbose_) std::cout << "JetMETDQMDCSFilter destructor" << std::endl;
 }
  
 bool JetMETDQMDCSFilter::filter(const edm::Event & evt, const edm::EventSetup & es) {
@@ -30,7 +32,7 @@ bool JetMETDQMDCSFilter::filter(const edm::Event & evt, const edm::EventSetup & 
 
   detectorOn_ = true;
 
-  if (!evt.isRealData()) return detectorOn_;
+  //if (!evt.isRealData()) return detectorOn_;
 
   edm::Handle<DcsStatusCollection> dcsStatus;
   evt.getByLabel("scalersRawToDigi", dcsStatus);
@@ -95,5 +97,5 @@ bool JetMETDQMDCSFilter::filter(const edm::Event & evt, const edm::EventSetup & 
 
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(JetMETDQMDCSFilter);
+//#include "FWCore/Framework/interface/MakerMacros.h"
+//DEFINE_FWK_MODULE(JetMETDQMDCSFilter);
