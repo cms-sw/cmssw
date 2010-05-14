@@ -34,11 +34,11 @@ namespace edm {
   RootTree::RootTree(boost::shared_ptr<TFile> filePtr, BranchType const& branchType) :
     filePtr_(filePtr),
     tree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()) : 0)),
-    treeCache_(0),
     metaTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : 0)),
     branchType_(branchType),
     auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : 0),
     branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : 0),
+    treeCache_(0),
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
     branchNames_(),
@@ -49,6 +49,8 @@ namespace edm {
     infoTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)), // backward compatibility
     statusBranch_(infoTree_ ? getStatusBranch(infoTree_, branchType_) : 0) // backward compatibility
   { }
+
+  RootTree::~RootTree() {}
 
   bool
   RootTree::isValid() const {
@@ -116,14 +118,14 @@ namespace edm {
   boost::shared_ptr<DelayedReader>
   RootTree::makeDelayedReader(FileFormatVersion const& fileFormatVersion) const {
     boost::shared_ptr<DelayedReader>
-        store(new RootDelayedReader(entryNumber_, branches_, treeCache_, filePtr_, fileFormatVersion));
+        store(new RootDelayedReader(entryNumber_, branches_, treeCache_.get(), filePtr_, fileFormatVersion));
     return store;
   }
 
   void
   RootTree::setCacheSize(unsigned int cacheSize) {
     tree_->SetCacheSize(static_cast<Long64_t>(cacheSize));
-    treeCache_ = dynamic_cast<TTreeCache *>(filePtr_->GetCacheRead());
+    treeCache_.reset(dynamic_cast<TTreeCache *>(filePtr_->GetCacheRead()));
     filePtr_->SetCacheRead(0);
   }
 
@@ -134,7 +136,7 @@ namespace edm {
 
   void
   RootTree::setEntryNumber(EntryNumber theEntryNumber) {
-    filePtr_->SetCacheRead(treeCache_);
+    filePtr_->SetCacheRead(treeCache_.get());
     if (treeCache_ && !trained_ && theEntryNumber >= 0) {
       assert(treeCache_->GetOwner() == tree_);
       treeCache_->SetLearnEntries(20);
@@ -149,12 +151,16 @@ namespace edm {
 
   void
   RootTree::close () {
-    // The TFile was just closed.
-    // Just to play it safe, zero all pointers to quantities in the file.
+    // The TFile is about to be closed, and destructed.
+    // Just to play it safe, zero all pointers to quantities that are owned by the TFile.
     auxBranch_  = branchEntryInfoBranch_ = statusBranch_ = 0;
     tree_ = metaTree_ = infoTree_ = 0;
-    treeCache_ = 0;
+    // We own the treeCache_.
+    // We make sure the treeCache_ is detatched from the file,
+    // so that ROOT does not also delete it.
+    filePtr_->SetCacheRead(0);
     trained_ = kFALSE;
+    // We give up our shared ownership of the TFile itself.
     filePtr_.reset();
   }
 

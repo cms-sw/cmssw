@@ -11,6 +11,7 @@ RootTree.h // used by ROOT input sources
 #include <string>
 #include <vector>
 
+#include "boost/scoped_ptr.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
@@ -31,7 +32,7 @@ namespace edm {
     typedef input::BranchMap BranchMap;
     typedef input::EntryNumber EntryNumber;
     RootTree(boost::shared_ptr<TFile> filePtr, BranchType const& branchType);
-    ~RootTree() {}
+    ~RootTree();
     
     bool isValid() const;
     void addBranch(BranchKey const& key,
@@ -53,7 +54,7 @@ namespace edm {
     template <typename T>
     void fillAux(T *& pAux) {
       auxBranch_->SetAddress(&pAux);
-      input::getEntryWithCache(auxBranch_, entryNumber_, treeCache_, filePtr_.get());
+      input::getEntryWithCache(auxBranch_, entryNumber_, treeCache_.get(), filePtr_.get());
     }
     TTree const* tree() const {return tree_;}
     TTree const* metaTree() const {return metaTree_;}
@@ -77,11 +78,14 @@ namespace edm {
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.
     TTree * tree_;
-    TTreeCache * treeCache_;
     TTree * metaTree_;
     BranchType branchType_;
     TBranch * auxBranch_;
     TBranch * branchEntryInfoBranch_;
+// We use a smart pointer to own the TTreeCache.
+// Unfortunately, ROOT owns it when attached to a TFile, but not after it is detatched.
+// So, we make sure to it is detatched before closing the TFile so there is no double delete.
+    boost::scoped_ptr<TTreeCache> treeCache_;
     EntryNumber entries_;
     EntryNumber entryNumber_;
     std::vector<std::string> branchNames_;
