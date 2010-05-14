@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.36 2009/11/13 17:30:03 cbern Exp $
+// $Id: Jet.cc,v 1.37 2010/05/06 17:28:07 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -35,6 +35,7 @@ Jet::Jet() :
 Jet::Jet(const reco::Jet & aJet) :
   PATObject<reco::Jet>(aJet),
   embeddedCaloTowers_(false),
+  embeddedPFCandidates_(false),
   partonFlavour_(0), 
   jetCharge_(0.0)
 {
@@ -58,6 +59,7 @@ Jet::Jet(const reco::Jet & aJet) :
 Jet::Jet(const edm::Ptr<reco::Jet> & aJetRef) :
   PATObject<reco::Jet>(aJetRef),
   embeddedCaloTowers_(false),
+  embeddedPFCandidates_(false),
   partonFlavour_(0), 
   jetCharge_(0.0)
 {
@@ -81,6 +83,7 @@ Jet::Jet(const edm::Ptr<reco::Jet> & aJetRef) :
 Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
   PATObject<reco::Jet>(aJetRef),
   embeddedCaloTowers_(false),
+  embeddedPFCandidates_(false),
   partonFlavour_(0), 
   jetCharge_(0.0)
 {
