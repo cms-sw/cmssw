@@ -236,8 +236,9 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
 
   TProfile* ratio1 = f2_prof[2]->Clone();
   ratio1->Divide(f1_prof[2]);
-  ratio1->SetMaximum(2.0);
-  ratio1->SetMinimum(0.0);
+  ratio1->SetMaximum(1.2);
+  ratio1->SetMinimum(0.8);
+  myc->SetGrid();  
   ratio1->Draw("hist pl");
 
   TLegend *leg = new TLegend(0.20, 0.91, 0.70, 0.99, "","brNDC");
