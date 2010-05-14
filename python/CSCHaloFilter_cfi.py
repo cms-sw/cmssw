@@ -89,3 +89,5 @@ CSCHaloFilterRecoAndTriggerLevel = CSCBasedHaloFilter.clone()
 CSCHaloFilterRecoAndTriggerLevel.FilterDigiLevel = False
 CSCHaloFilterDigiAndTriggerLevel = CSCBasedHaloFilter.clone()
 CSCHaloFilterDigiAndTriggerLevel.FilterRecoLevel = False
+CSCHaloFilterDigiAndRecoLevel = CSCBasedHaloFilter.clone()
+CSCHaloFilterDigiAndRecoLevel.FilterTriggerLevel = False
