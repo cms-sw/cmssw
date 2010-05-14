@@ -81,14 +81,17 @@ DTTracoCard::setConfig(const DTConfigManager *conf){
   _conf_traco_map = conf->getDTConfigTracoMap(sid);	
   _debug = conf->getDTTPGDebug();
 
-  // get lut configuration for this chamber
-  _conf_luts = conf->getDTConfigLUTs(sid);
-
   // get bti acceptance flag
   _flag_acc = conf->useAcceptParam();
 
   // get lut computation flag
   _lut_from_db = conf->lutFromDB();
+
+  // get lut configuration for this chamber
+  // 100511 SV only if luts are read from OMDS
+  if(_lut_from_db)
+    _conf_luts = conf->getDTConfigLUTs(sid);
+
 }
 
 void

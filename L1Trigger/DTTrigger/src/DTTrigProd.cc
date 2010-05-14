@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2009/11/02 14:18:31 $
- *   $Revision: 1.14 $
+ *   $Date: 2009/11/12 14:33:27 $
+ *   $Revision: 1.15 $
  *
  *   \author C. Battilana
  *
@@ -100,6 +100,8 @@ void DTTrigProd::beginRun(edm::Run& iRun, const edm::EventSetup& iEventSetup) {
    	dtConfig->getDTConfigTraco(tracoid)->print();
    	dtConfig->getDTConfigTSTheta(chid)->print();
    	dtConfig->getDTConfigTSPhi(chid)->print();
+        // 100511 SV LUTs will NOT be configurated from cfg if not found in DB
+        //dtConfig->getDTConfigLUTs(chid)->print(); 
   }
 
 

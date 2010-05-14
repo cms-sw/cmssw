@@ -6,6 +6,10 @@
 
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
+// @@@ add headers
+#include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
+#include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
+#include "CondFormats/DTObjects/interface/DTConfigAbstractHandler.h"
 
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
@@ -41,12 +45,16 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet& p)
   setWhatProduced(this,&DTConfigDBProducer::produce);
 
   // parameters to setup 
-  contact   = p.getParameter< std::string >("contact");
-  auth_path = p.getParameter< std::string >("authPath");
-  token     = p.getParameter< std::string >("token");
-  local     = p.getParameter< bool        >("siteLocalConfig");
+// @@@ remove
+//  contact   = p.getParameter< std::string >("contact");
+//  auth_path = p.getParameter< std::string >("authPath");
+//  token     = p.getParameter< std::string >("token");
+//  local     = p.getParameter< bool        >("siteLocalConfig");
+// @@@ add
   cfgConfig = p.getParameter< bool        >("cfgConfig");
-  
+
+// @@@ remove direct DB access
+/*  
   if ( local ) catalog = "";
   else         catalog = p.getParameter< std::string >("catalog");
 
@@ -61,6 +69,7 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet& p)
   rs = 0;
   ri = DTConfig1Handler::create( session, token );
   rs = ri->getContainer();  
+*/
     
   // get and store parameter set and config manager pointer
   m_ps = p;
@@ -85,6 +94,7 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet& p)
   flagDBTraco 	= false;
   flagDBTSS 	= false;
   flagDBTSM 	= false;
+  flagDBLUTS    = false;
 
   // set debug
   edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");  
@@ -100,9 +110,10 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet& p)
 DTConfigDBProducer::~DTConfigDBProducer()
 {
   // destruction time
-  DTConfig1Handler::remove( session );
-  session->disconnect();
-  delete session;
+// @@@ remove
+//  DTConfig1Handler::remove( session );
+//  session->disconnect();
+//  delete session;
 }
 
 
@@ -148,6 +159,12 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
   edm::ESHandle<DTCCBConfig> ccb_conf;
   iRecord.getRecord<DTCCBConfigRcd>().get(ccb_conf);
   int ndata = std::distance( ccb_conf->begin(), ccb_conf->end() );
+
+// @@@ add
+  DTConfigAbstractHandler* cfgCache = DTConfigAbstractHandler::getInstance();
+  const DTKeyedConfigListRcd& keyRecord =
+                              iRecord.getRecord<DTKeyedConfigListRcd>();
+
   if(m_debugDB)
   {
   	cout << ccb_conf->version() << endl;
@@ -213,18 +230,30 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 			cout << " BRICK " << id << endl;  
 
 		// create strings list
-        	std::vector<const std::string*> list;
-        	ri->getData( id, list );
+// @@@ change to vector of strings in place of vector of pointers to string
+//        	std::vector<const std::string*> list;
+        	std::vector<std::string> list;
+// @@@ change access to DB
+//        	ri->getData( id, list );
+//                const DTKeyedConfig* kBrick = 0;
+                cfgCache->getData( keyRecord, id, list );
 
 		// loop over strings
-        	std::vector<const std::string*>::const_iterator s_iter = list.begin();
-        	std::vector<const std::string*>::const_iterator s_iend = list.end();
+// @@@ change to vector of strings in place of vector of pointers to string
+//        	std::vector<const std::string*>::const_iterator s_iter = list.begin();
+//        	std::vector<const std::string*>::const_iterator s_iend = list.end();
+        	std::vector<std::string>::const_iterator s_iter = list.begin();
+        	std::vector<std::string>::const_iterator s_iend = list.end();
         	while ( s_iter != s_iend ) {
+// @@@ change to string in place of pointer to string
 			if(m_debugDB)
-				cout << "        ----> " << **s_iter << endl;
+				cout << "        ----> " << *s_iter << endl;
+//				cout << "        ----> " << **s_iter << endl;
 				
 			// copy string in unsigned int buffer
-			std::string str = **s_iter++;
+// @@@ change to string in place of pointer to string
+//			std::string str = **s_iter++;
+			std::string str = *s_iter++;
 			unsigned short int buffer[100];		//2 bytes
 			int c = 0;
 			const char* cstr = str.c_str();
@@ -393,7 +422,9 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 			
 			// LUT configuration string
 			if (buffer[2]==0xA8){
+
 				// LUT parameters read from OMDS
+                                flagDBLUTS = true;
 				DTConfigLUTs lutconf(buffer);
 				lutconf.setDebug(m_debugLUTs);
 				m_manager->setDTConfigLUTs(chambid,lutconf);
@@ -428,7 +459,16 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
       	++iter;
   }
   
-  
+  // SV 100511 add check flag for lut configuration
+  // if no lut configuration is found, luts are computed from geometry!
+  if(!flagDBLUTS && m_manager->lutFromDB()==true){
+        cout << "*** ATTENTION: Lut configuration parameters NOT found in OMDS:" << endl;
+        cout << "*** RE_RUN with the option TracoLutsFromDB = cms.bool(False)" << endl;
+        cout << "*** in L1TriggerConfig/DTTPGConfigProducers/python/L1DTConfigFromDB_cfi.py" << endl;
+        cout << "*** In this run LUTS are computed FROM GEOMETRY! " << endl;
+        m_manager->setLutFromDB(false);
+        return -1;
+  } 
   if(!flagDBBti || !flagDBTraco || !flagDBTSS || !flagDBTSM ){
   	configFromCfg();
 	return 1;
