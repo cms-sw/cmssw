@@ -17,6 +17,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
+using namespace std;
+
 const int SiPixelRawDataErrorModule::LINK_bits = 6;
 const int SiPixelRawDataErrorModule::ROC_bits  = 5;
 const int SiPixelRawDataErrorModule::DCOL_bits = 5;
@@ -68,7 +70,7 @@ SiPixelRawDataErrorModule::SiPixelRawDataErrorModule() :
   for(int i=0; i!=40; i++) for(int j=0; j!=37; j++){
     FedChNErrArray[i][j]=0; 
     FedChLErrArray[i][j]=0; 
-    if(j<15) FedETypeNErrArray[i][j]=0;
+    if(j<21) FedETypeNErrArray[i][j]=0;
   }
 }
 //
@@ -81,7 +83,7 @@ SiPixelRawDataErrorModule::SiPixelRawDataErrorModule(const uint32_t& id) :
   for(int i=0; i!=40; i++) for(int j=0; j!=37; j++){
     FedChNErrArray[i][j]=0; 
     FedChLErrArray[i][j]=0; 
-    if(j<15) FedETypeNErrArray[i][j]=0;
+    if(j<21) FedETypeNErrArray[i][j]=0;
   }
 }
 //
@@ -94,7 +96,7 @@ SiPixelRawDataErrorModule::SiPixelRawDataErrorModule(const uint32_t& id, const i
   for(int i=0; i!=40; i++) for(int j=0; j!=37; j++){
     FedChNErrArray[i][j]=0; 
     FedChLErrArray[i][j]=0; 
-    if(j<15) FedETypeNErrArray[i][j]=0;
+    if(j<21) FedETypeNErrArray[i][j]=0;
   }
 } 
 //
@@ -291,7 +293,7 @@ void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
       hid = "FedChLErrArray_" + temp.str();
       meFedChLErrArray_[j] = theDMBE->bookInt(hid);
       hid = "FedETypeNErrArray_" + temp.str();
-      if(j<15) meFedETypeNErrArray_[j] = theDMBE->bookInt(hid);
+      if(j<21) meFedETypeNErrArray_[j] = theDMBE->bookInt(hid);
     //}
   }
   delete theHistogramId;
@@ -424,8 +426,17 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
 	  numberOfSeriousErrors++;
 	  FedChNErrArray[FedId][chanNmbr]++;
 	  FedChLErrArray[FedId][chanNmbr] = errorType;
-	  FedETypeNErrArray[FedId][errorType-25]++;
+	  if(errorType<30) FedETypeNErrArray[FedId][errorType-25]++;
+	  else if(errorType>30) FedETypeNErrArray[FedId][errorType-19]++;
+	  else if(errorType==30 && TBMMessage==0) FedETypeNErrArray[FedId][errorType-25]++;
+	  else if(errorType==30 && TBMMessage==1) FedETypeNErrArray[FedId][errorType-24]++;
+	  else if(errorType==30 && (TBMMessage==2 || TBMMessage==3 || TBMMessage==4)) FedETypeNErrArray[FedId][errorType-23]++;
+	  else if(errorType==30 && TBMMessage==7) FedETypeNErrArray[FedId][errorType-22]++;
+	  else if(errorType==30 && TBMType==1) FedETypeNErrArray[FedId][errorType-21]++;
+	  else if(errorType==30 && TBMType==2) FedETypeNErrArray[FedId][errorType-20]++;
+	  else if(errorType==30 && TBMType==3) FedETypeNErrArray[FedId][errorType-19]++;
 	}
+	//std::cout<<"ERRORS on module level: FED= "<<FedId<<" , channel= "<<chanNmbr<<std::endl;
 	std::string currDir = theDMBE->pwd();
         static const char buf[] = "Pixel/AdditionalPixelErrors/FED_%d";
         char feddir[sizeof(buf)+2]; 
@@ -712,6 +723,7 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
 	  };
 	} else {
 	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
+  //std::cout<<"error word "<< hex << errorWord << dec << std::endl;
 	  switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
 	  case(25) : {
 	    chanNmbr = 0;
@@ -749,6 +761,7 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
 	    else chanNmbr = ((BLOCK-1)/2)*9+4+localCH;
 	    if ((chanNmbr<1)||(chanNmbr>36)) chanNmbr=0;  // signifies unexpected result
 	    (meChanNmbr_)->Fill((int)chanNmbr);
+	    //if(FedId==5||FedId==7||FedId==18)std::cout<<"TIMEOUT! "<<FedId<<","<<chanNmbr<<","<<CH1<<","<<CH2<<","<<CH3<<","<<CH4<<","<<CH5<<","<<BLOCK_mask<<","<<BLOCK<<","<<localCH<<std::endl;
 	    break; }
 	  case(30) : {
 	    int T0 = (errorWord >> DB0_shift) & DataBit_mask;
@@ -839,7 +852,15 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
 	  numberOfSeriousErrors++;
 	  FedChNErrArray[FedId][chanNmbr]++;
 	  FedChLErrArray[FedId][chanNmbr] = errorType;
-	  FedETypeNErrArray[FedId][errorType-25]++;
+	  if(errorType<30) FedETypeNErrArray[FedId][errorType-25]++;
+	  else if(errorType>30) FedETypeNErrArray[FedId][errorType-19]++;
+	  else if(errorType==30 && TBMMessage==0) FedETypeNErrArray[FedId][errorType-25]++;
+	  else if(errorType==30 && TBMMessage==1) FedETypeNErrArray[FedId][errorType-24]++;
+	  else if(errorType==30 && (TBMMessage==2 || TBMMessage==3 || TBMMessage==4)) FedETypeNErrArray[FedId][errorType-23]++;
+	  else if(errorType==30 && TBMMessage==7) FedETypeNErrArray[FedId][errorType-22]++;
+	  else if(errorType==30 && TBMType==1) FedETypeNErrArray[FedId][errorType-21]++;
+	  else if(errorType==30 && TBMType==2) FedETypeNErrArray[FedId][errorType-20]++;
+	  else if(errorType==30 && TBMType==3) FedETypeNErrArray[FedId][errorType-19]++;
 	}
       }// end if FedId
     }// end for loop over all error words
