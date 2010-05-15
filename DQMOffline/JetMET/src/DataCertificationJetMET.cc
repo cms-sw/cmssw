@@ -5,17 +5,12 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.39 2010/05/13 23:58:28 sturdy Exp $
+// $Id: DataCertificationJetMET.cc,v 1.40 2010/05/14 09:58:03 sturdy Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
 
 // Some switches
-#define NJetAlgo  4
-#define NL3JFlags 3
-#define NMETAlgo  3
-#define NL3MFlags 3
-
 //
 // constructors and destructor
 //
@@ -41,17 +36,8 @@ void
 DataCertificationJetMET::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
+  isData = iEvent.isRealData();
    
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle<ExampleData> pIn; 
-  iEvent.getByLabel("example",pIn);
-#endif
-   
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
-#endif
-
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -63,55 +49,50 @@ DataCertificationJetMET::beginJob(void)
   // verbose_ 0: suppress printouts
   //          1: show printouts
   verbose_ = conf_.getUntrackedParameter<int>("Verbose");
+  metFolder        = conf_.getUntrackedParameter<std::string>("metFolder");
+  caloJetMeanTest  = conf_.getUntrackedParameter<bool>("caloJetMeanTest",true);
+  caloJetKSTest    = conf_.getUntrackedParameter<bool>("caloJetKSTest",false);
+  pfJetMeanTest    = conf_.getUntrackedParameter<bool>("pfJetMeanTest",true);
+  pfJetKSTest      = conf_.getUntrackedParameter<bool>("pfJetKSTest",false);
+  jptJetMeanTest   = conf_.getUntrackedParameter<bool>("jptJetMeanTest",true);
+  jptJetKSTest     = conf_.getUntrackedParameter<bool>("jptJetKSTest",false);
+  caloMETMeanTest  = conf_.getUntrackedParameter<bool>("caloMETMeanTest",true);
+  caloMETKSTest    = conf_.getUntrackedParameter<bool>("caloMETKSTest",false);
+  pfMETMeanTest    = conf_.getUntrackedParameter<bool>("pfMETMeanTest",true);
+  pfMETKSTest      = conf_.getUntrackedParameter<bool>("pfMETKSTest",false);
+  tcMETMeanTest    = conf_.getUntrackedParameter<bool>("tcMETMeanTest",true);
+  tcMETKSTest      = conf_.getUntrackedParameter<bool>("tcMETKSTest",false);
+  muMETMeanTest    = conf_.getUntrackedParameter<bool>("muMETMeanTest",true);
+  muMETKSTest      = conf_.getUntrackedParameter<bool>("muMETKSTest",false);
 
+  jetTests[0][0] = conf_.getUntrackedParameter<bool>("caloBarrelJetMeanTest",true);
+  jetTests[0][1] = conf_.getUntrackedParameter<bool>("caloBarrelJetKSTest",false);
+  jetTests[1][0] = conf_.getUntrackedParameter<bool>("caloEndcapJetMeanTest",true);
+  jetTests[1][1] = conf_.getUntrackedParameter<bool>("caloEndcapJetKSTest",false);
+  jetTests[2][0] = conf_.getUntrackedParameter<bool>("caloForwardJetMeanTest",true);
+  jetTests[2][1] = conf_.getUntrackedParameter<bool>("caloForwardJetKSTest",false);
+  jetTests[3][0] = conf_.getUntrackedParameter<bool>("pfJetMeanTest",true);
+  jetTests[3][1] = conf_.getUntrackedParameter<bool>("pfJetKSTest",false);
+  jetTests[4][0] = conf_.getUntrackedParameter<bool>("jptJetMeanTest",true);
+  jetTests[4][1] = conf_.getUntrackedParameter<bool>("jptJetKSTest",false);
+
+  metTests[0][0] = conf_.getUntrackedParameter<bool>("caloMETMeanTest",true);
+  metTests[0][1] = conf_.getUntrackedParameter<bool>("caloMETKSTest",false);
+  metTests[1][0] = conf_.getUntrackedParameter<bool>("calonohfMETMeanTest",true);
+  metTests[1][1] = conf_.getUntrackedParameter<bool>("calonohfMETKSTest",false);
+  metTests[2][0] = conf_.getUntrackedParameter<bool>("pfMETMeanTest",true);
+  metTests[2][1] = conf_.getUntrackedParameter<bool>("pfMETKSTest",false);
+  metTests[3][0] = conf_.getUntrackedParameter<bool>("tcMETMeanTest",true);
+  metTests[3][1] = conf_.getUntrackedParameter<bool>("tcMETKSTest",false);
+  metTests[4][0] = conf_.getUntrackedParameter<bool>("muMETMeanTest",true);
+  metTests[4][1] = conf_.getUntrackedParameter<bool>("muMETKSTest",false);
+  
+  
   if (verbose_) std::cout << ">>> BeginJob (DataCertificationJetMET) <<<" << std::endl;
 
   // -----------------------------------------
   //
   dbe_ = edm::Service<DQMStore>().operator->();
-
-  ////QTest KS test thresholds
-  //jet_ks_thresh  = conf_.getUntrackedParameter<double>("jet_ks_thresh");
-  //met_ks_thresh  = conf_.getUntrackedParameter<double>("met_ks_thresh");
-  //met_phi_thresh = conf_.getUntrackedParameter<double>("met_phi_thresh");
-
-  // -----------------------------------------
-  // testType 0: no comparison with histograms
-  //          1: KS test
-  //          2: Chi2 test
-  //
-  testType_ = 0; 
-  testType_ = conf_.getUntrackedParameter<int>("TestType");
-  if (verbose_) std::cout << ">>> TestType_        = " <<  testType_  << std::endl;  
-
-  std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
-  if (verbose_) std::cout << ">>> FileName        = " << filename    << std::endl;
-  InMemory_ = true;
-
-  //
-  //--- If fileName is not defined, it means the the monitoring MEs are already in memory.
-  if (filename != "") InMemory_ = false;
-  if (verbose_) std::cout << "InMemory_           = " << InMemory_    << std::endl;
-
-  //
-  //--- If fileName is defined, read the test file and reference file and store in DQMStore.
-  if (!InMemory_) {
-
-    std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
-    if (verbose_) std::cout << "FileName           = " << filename    << std::endl;
-
-    std::string reffilename;
-    if (testType_>=1){
-      reffilename = conf_.getUntrackedParameter<std::string>("refFileName");
-      if (verbose_) std::cout << "Reference FileName = " << reffilename << std::endl;
-    }
-
-    // -- Current & Reference Run
-    //---------------------------------------------
-    dbe_->load(filename);
-
-  }
-
 }
 
 // ------------ method called once each job after finishing event loop  ------------
@@ -269,443 +250,17 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   CertificationSummaryMap->setBinLabel(2,"MET");
   CertificationSummaryMap->setBinLabel(3,"Jet");
 
-  // 3,4: CaloJet Barrel
-  // 3,3: CaloJet Endcap
-  // 3,2: CaloJet Forward
-  // 3,1: JPT
-  // 3,0: PFJet
-
-  // 2,4: CaloMET
-  // 2,3: CaloMETNoHF
-  // 2,2: TcMET
-  // 2,1: PFMET
-  // 2,0: MuonCorrectedMET
-
-  // 1,4: Barrel
-  // 1,3: EndCap
-  // 1,2: Forward
-
   reportSummary->Fill(1.);
   CertificationSummary->Fill(1.);
 
-  //----------------------------------------------------------------
-  // Book integers/histograms for data certification results
-  //----------------------------------------------------------------
-
-  std::string Jet_Tag_L2[NJetAlgo];
-  Jet_Tag_L2[0] = "JetMET_Jet_AntiKt";
-  Jet_Tag_L2[1] = "JetMET_Jet_ICone";
-  Jet_Tag_L2[2] = "JetMET_Jet_PFlow";
-  Jet_Tag_L2[3] = "JetMET_Jet_JPT";
-
-  std::string Jet_Tag_L3[NJetAlgo][NL3JFlags];
-  Jet_Tag_L3[1][0] = "JetMET_Jet_AntiKt_Barrel";
-  Jet_Tag_L3[1][1] = "JetMET_Jet_AntiKt_EndCap";
-  Jet_Tag_L3[1][2] = "JetMET_Jet_AntiKt_Forward";
-  Jet_Tag_L3[1][0] = "JetMET_Jet_ICone_Barrel";
-  Jet_Tag_L3[1][1] = "JetMET_Jet_ICone_EndCap";
-  Jet_Tag_L3[1][2] = "JetMET_Jet_ICone_Forward";
-  Jet_Tag_L3[2][0] = "JetMET_Jet_PFlow_Barrel";
-  Jet_Tag_L3[2][1] = "JetMET_Jet_PFlow_EndCap";
-  Jet_Tag_L3[2][2] = "JetMET_Jet_PFlow_Forward";
-  Jet_Tag_L3[3][0] = "JetMET_Jet_JPT_Barrel";
-  Jet_Tag_L3[3][1] = "JetMET_Jet_JPT_EndCap";
-  Jet_Tag_L3[3][2] = "JetMET_Jet_JPT_Forward";
-
-  std::string MET_Tag_L2[NMETAlgo];
-  MET_Tag_L2[0] = "JetMET_MET_CaloMET";
-  MET_Tag_L2[1] = "JetMET_MET_tcMET";
-  MET_Tag_L2[2] = "JetMET_MET_pfMET";
-
-  std::string MET_Tag_L3[NJetAlgo][NL3MFlags];
-  MET_Tag_L3[0][0] = "JetMET_MET_CaloMET_NoHF";
-  MET_Tag_L3[0][1] = "JetMET_MET_CaloMET_HO";
-  MET_Tag_L3[0][2] = "JetMET_MET_CaloMET_NoHFHO";
 
   if (RunDir=="Reference") RunDir="";
   if (verbose_) std::cout << RunDir << std::endl;
   dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummaryContents/");    
 
-  //
-  // Layer 1
-  //---------
-  MonitorElement* mJetDCFL1 = dbe_->bookFloat("JetMET_Jet");
-  MonitorElement* mMETDCFL1 = dbe_->bookFloat("JetMET_MET");
-
-  //
-  // Layer 2
-  //---------
-  MonitorElement* mJetDCFL2[10];
-  MonitorElement* mMETDCFL2[10];
-
-  for (int itag=0; itag<NJetAlgo; itag++) mJetDCFL2[itag] = dbe_->bookFloat(Jet_Tag_L2[itag]);
-  for (int itag=0; itag<NMETAlgo; itag++) mMETDCFL2[itag] = dbe_->bookFloat(MET_Tag_L2[itag]);
-
-  //
-  // Layer 3
-  //---------
-  MonitorElement* mJetDCFL3[20];
-  MonitorElement* mMETDCFL3[20];
-
-  int iL3JetTags=0;
-  for (int ialg=0; ialg<NJetAlgo; ialg++){
-    for (int idet=0; idet<3; idet++){
-      mJetDCFL3[iL3JetTags++]= dbe_->bookFloat(Jet_Tag_L3[ialg][idet]);
-    }
-  }
-  int iL3METTags=0;
-  int ialg=0; // CaloMET only
-  for (int idet=0; idet<3; idet++){
-    mMETDCFL3[iL3METTags++]= dbe_->bookFloat(MET_Tag_L3[ialg][idet]);
-  }
-
-  //----------------------------------------------------------------
-  // Data certification starts
-  //----------------------------------------------------------------
-
-  //
-  // Number of lumi section bins
-  //const int nLSBins=500;
-
-  //-- old code
-  Double_t test_Pt, test_Eta, test_Phi, test_Constituents, test_HFrac;
-  test_Pt = test_Eta = test_Phi = test_Constituents = test_HFrac = 0;
-  
-  Double_t test_Pt_Barrel,  test_Phi_Barrel;
-  Double_t test_Pt_EndCap,  test_Phi_EndCap;
-  Double_t test_Pt_Forward, test_Phi_Forward;
-  test_Pt_Barrel  = test_Phi_Barrel  = 0;
-  test_Pt_EndCap  = test_Phi_EndCap  = 0;
-  test_Pt_Forward = test_Phi_Forward = 0;
-
-  Int_t Jet_DCF_L1;
-  Int_t Jet_DCF_L2[NJetAlgo];
-  Int_t Jet_DCF_L3[NJetAlgo][NL3JFlags];
-  
   std::string refHistoName;
   std::string newHistoName;
-
-  MonitorElement * meNew;
-  //MonitorElement * meRef;
-
-  // --- Loop over jet algorithms for Layer 2
-  //for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
-  for (int iAlgo=0; iAlgo<3; iAlgo++) {    // KH removing JPT for now to avoid crashs
-
-    if (iAlgo == 0) {
-        refHistoName = "JetMET/Jet/AntiKtJets/";
-        newHistoName = "JetMET/Jet/AntiKtJets/";
-    }
-    if (iAlgo == 1) {
-        refHistoName = "JetMET/Jet/IterativeConeJets/";
-        newHistoName = "JetMET/Jet/IterativeConeJets/";
-    }
-    if (iAlgo == 2) {
-        refHistoName = "JetMET/Jet/PFJets/";
-        newHistoName = "JetMET/Jet/PFJets/";
-    }
-    if (iAlgo == 3) {
-        refHistoName = "JetMET/Jet/JPTJets/";
-        newHistoName = "JetMET/Jet/JPTJets/";
-    }
-
-    // Check if this folder exists. If not, skip.
-    if (!dbe_->containsAnyMonitorable(newHistoName)) continue;
-    
-    // ----------------
-    // --- Layer 2
-
-    test_Pt           = 0.;
-    test_Eta          = 0.;
-    test_Phi          = 0.;
-    test_Constituents = 0.;
-    test_HFrac        = 0.;
-
-    meNew = dbe_->get(newHistoName+"Pt");    
-    if (meNew->getRootObject() && meNew->getRefRootObject()) {
-      TH1F *refHisto = meNew->getRefTH1F();
-      TH1F *newHisto = meNew->getTH1F();
-      if ((refHisto) && (newHisto)) {
-	switch (testType_) {
-	case 1 :
-	  test_Pt = newHisto->KolmogorovTest(refHisto,"UO");
-	  break;
-	case 2 :
-	  test_Pt = newHisto->Chi2Test(refHisto);
-	  break;
-	}
-	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
-				   << ") Result = " << test_Pt << std::endl;    
-      }
-    }
-
-    std::cout << "ccc" << std::endl;
-
-    meNew = dbe_->get(newHistoName+"Eta");
-    if (meNew->getRootObject() && meNew->getRefRootObject()) {
-      TH1F *refHisto = meNew->getRefTH1F();
-      TH1F *newHisto = meNew->getTH1F();
-      if ((refHisto) && (newHisto)) {
-	switch (testType_) {
-	case 1 :
-	  test_Eta = newHisto->KolmogorovTest(refHisto,"UO");
-	case 2:
-	  test_Eta = newHisto->Chi2Test(refHisto);
-	}
-	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
-				   << ") Result = " << test_Eta << std::endl;    
-      }
-    }
-
-    meNew = dbe_->get(newHistoName+"Phi");
-    if (meNew->getRootObject() && meNew->getRefRootObject()) {
-      TH1F *refHisto = meNew->getRefTH1F();
-      TH1F *newHisto = meNew->getTH1F();
-      if ((refHisto) && (newHisto)) {
-	switch (testType_) {
-	case 1 :
-	  test_Phi = newHisto->KolmogorovTest(refHisto,"UO");
-	case 2:
-	  test_Phi = newHisto->Chi2Test(refHisto);
-	}
-	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
-				   << ") Result = " << test_Phi << std::endl;    
-      }
-    }
-     
-    meNew = dbe_->get(newHistoName+"Constituents");
-    if (meNew->getRootObject() && meNew->getRefRootObject()) {
-      TH1F *refHisto = meNew->getRefTH1F();
-      TH1F *newHisto = meNew->getTH1F();
-      if ((refHisto) && (newHisto)) {
-	switch (testType_) {
-	case 1 :	  
-	  test_Constituents = newHisto->KolmogorovTest(refHisto,"UO");
-	case 2 :
-	  test_Constituents = newHisto->Chi2Test(refHisto);
-	}
-	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
-				   << ") Result = " << test_Constituents << std::endl;    
-      }
-    }
-     
-    meNew = dbe_->get(newHistoName+"HFrac");
-    if (meNew->getRootObject() && meNew->getRefRootObject()) {
-      TH1F *refHisto = meNew->getRefTH1F();
-      TH1F *newHisto = meNew->getTH1F();
-      if ((refHisto) && (newHisto)) {
-	switch (testType_) {
-	case 1 :
-	  test_HFrac = newHisto->KolmogorovTest(refHisto,"UO");
-	case 2:
-	  test_HFrac = newHisto->Chi2Test(refHisto);
-	}
-	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
-				   << ") Result = " << test_HFrac << std::endl;    	
-      }
-    }
-
-    if (verbose_)
-    std::cout << "--- Layer 2 Algo "
-              << iAlgo    << " "
-              << test_Pt  << " "
-              << test_Eta << " "
-              << test_Phi << " "
-              << test_Constituents << " "
-              << test_HFrac << std::endl;
-
-    if ( (test_Pt     > 0.95) && (test_Eta          > 0.95) && 
-	 (test_Phi    > 0.95) && (test_Constituents > 0.95) && 
-	 (test_HFrac  > 0.95) )  {      
-      Jet_DCF_L2[iAlgo] = 1;
-    } else {
-      Jet_DCF_L2[iAlgo] = 0;
-    }
-    // --- Fill DC results histogram
-    mJetDCFL2[iAlgo]->Fill(double(Jet_DCF_L2[iAlgo]));
-      
-    // ----------------
-    // --- Layer 3
-    // --- Barrel
-
-    test_Pt_Barrel   = 0.;
-    test_Phi_Barrel  = 0.;
-    test_Pt_EndCap   = 0.;
-    test_Phi_EndCap  = 0.;
-    test_Pt_Forward  = 0.;
-    test_Phi_Forward = 0.;
-
-    meNew = dbe_->get(newHistoName+"Pt_Barrel");
-    if (meNew->getRootObject() && meNew->getRefRootObject()) {
-      TH1F *refHisto = meNew->getRefTH1F();
-      TH1F *newHisto = meNew->getTH1F();
-      if ((refHisto) && (newHisto)) {
-	switch (testType_) {
-	case 1 :
-	  test_Pt_Barrel = newHisto->KolmogorovTest(refHisto,"UO");
-	case 2 :
-	  test_Pt_Barrel = newHisto->Chi2Test(refHisto);
-	}
-	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
-				   << ") Result = " << test_Pt_Barrel << std::endl;    	
-      }
-    }
-
-    meNew = dbe_->get(newHistoName+"Phi_Barrel");
-    if (meNew->getRootObject() && meNew->getRefRootObject()) {
-      TH1F *refHisto = meNew->getRefTH1F();
-      TH1F *newHisto = meNew->getTH1F();
-      if ((refHisto) && (newHisto)) {
-	switch (testType_) {
-	case 1 :
-	  test_Phi_Barrel = newHisto->KolmogorovTest(refHisto,"UO");
-	case 2 :
-	  test_Phi_Barrel = newHisto->Chi2Test(refHisto);
-	}
-	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
-				   << ") Result = " << test_Phi_Barrel << std::endl;    	
-      }
-    }
-
-    // --- EndCap
-    meNew = dbe_->get(newHistoName+"Pt_EndCap");
-    if (meNew->getRootObject() && meNew->getRefRootObject()) {
-      TH1F *refHisto = meNew->getRefTH1F();
-      TH1F *newHisto = meNew->getTH1F();
-      if ((refHisto) && (newHisto)) {
-	switch (testType_) {
-	case 1 :
-	  test_Pt_EndCap = newHisto->KolmogorovTest(refHisto,"UO");
-	case 2 :
-	  test_Pt_EndCap = newHisto->Chi2Test(refHisto);
-	}
-	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
-				   << ") Result = " << test_Pt_EndCap << std::endl;    	
-      }
-    }
-
-    meNew = dbe_->get(newHistoName+"Phi_EndCap");
-    if (meNew->getRootObject() && meNew->getRefRootObject()) {
-      TH1F *refHisto = meNew->getRefTH1F();
-      TH1F *newHisto = meNew->getTH1F();
-      if ((refHisto) && (newHisto)) {
-	switch (testType_) {
-	case 1 :
-	  test_Phi_EndCap = newHisto->KolmogorovTest(refHisto,"UO");
-	case 2 :
-	  test_Phi_EndCap = newHisto->Chi2Test(refHisto);
-	}
-	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
-				   << ") Result = " << test_Phi_EndCap << std::endl;    	
-
-      }
-    }
-
-    // --- Forward
-    meNew = dbe_->get(newHistoName+"Pt_Forward");
-    if (meNew->getRootObject() && meNew->getRefRootObject()) {
-      TH1F *refHisto = meNew->getRefTH1F();
-      TH1F *newHisto = meNew->getTH1F();
-      if ((refHisto) && (newHisto)) {
-	switch (testType_) {
-	case 1 :
-	  test_Pt_Forward = newHisto->KolmogorovTest(refHisto,"UO");
-	case 2:
-	  test_Pt_Forward = newHisto->Chi2Test(refHisto);
-	}
-	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
-				   << ") Result = " << test_Pt_Forward << std::endl;    	
-      }
-    }
-
-    meNew = dbe_->get(newHistoName+"Phi_Forward");
-    if (meNew->getRootObject() && meNew->getRefRootObject()) {
-      TH1F *refHisto = meNew->getRefTH1F();
-      TH1F *newHisto = meNew->getTH1F();
-      if ((refHisto) && (newHisto)) {
-	switch (testType_) {
-	case 1 :
-	  test_Phi_Forward = newHisto->KolmogorovTest(refHisto,"UO");
-	case 2 :
-	  test_Phi_Forward = newHisto->Chi2Test(refHisto);
-	}
-	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
-				   << ") Result = " << test_Phi_Forward << std::endl;    	
-
-      }
-    }
-
-    if (verbose_)
-    std::cout << "--- Layer 3 Algo "
-              << iAlgo    << " "
-              << test_Pt_Barrel    << " "
-              << test_Phi_Barrel   << " "
-              << test_Pt_EndCap    << " "
-              << test_Phi_EndCap   << " "
-              << test_Pt_Forward   << " "
-              << test_Phi_Forward  << " "
-              << std::endl;
-
-    if ( (test_Pt_Barrel > 0.95) && (test_Phi_Barrel > 0.95) ) {
-      Jet_DCF_L3[iAlgo][0] = 1;
-    } else {
-      Jet_DCF_L3[iAlgo][0] = 0;
-    }
-    mJetDCFL3[iAlgo*NL3JFlags+0]->Fill(double(Jet_DCF_L3[iAlgo][0]));
-
-    if ( (test_Pt_EndCap > 0.95) && (test_Phi_EndCap > 0.95) ) {
-      Jet_DCF_L3[iAlgo][1] = 1;
-    } else {
-      Jet_DCF_L3[iAlgo][1] = 0;
-    }
-    // --- Fill DC results histogram
-    mJetDCFL3[iAlgo*NL3JFlags+1]->Fill(double(Jet_DCF_L3[iAlgo][1]));
-
-    if ( (test_Pt_Forward > 0.95) && (test_Phi_Forward > 0.95) ) {
-      Jet_DCF_L3[iAlgo][2] = 1;
-    } else {
-      Jet_DCF_L3[iAlgo][2] = 0;
-    }
-    // --- Fill DC results histogram
-    mJetDCFL3[iAlgo*NL3JFlags+2]->Fill(double(Jet_DCF_L3[iAlgo][2]));
-
-  }
-  // --- End of loop over jet algorithms
-
-  // Layer 1
-  //---------
-  Jet_DCF_L1= 1;
-  for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {   
-    if (Jet_DCF_L2[iAlgo] == 0) Jet_DCF_L1 = 0;
-  }
-  mJetDCFL1->Fill(double(Jet_DCF_L1));
-
-  // JET Data Certification Results
-  if (verbose_) {
-    std::cout << std::endl;
-    //
-    //--- Layer 1
-    //
-    printf("%6d %15d %-35s %10d\n",RunNumber,0,"JetMET", Jet_DCF_L1);
-    //
-    //--- Layer 2
-    //
-    for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
-      printf("%6d %15d %-35s %10d\n",RunNumber,0,Jet_Tag_L2[iAlgo].c_str(), Jet_DCF_L2[iAlgo]);
-    }
-    //
-    //--- Layer 3
-    //
-    for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
-      for (int iL3Flag=0; iL3Flag<NL3JFlags; iL3Flag++) {    
-	printf("%6d %15d %-35s %10d\n",RunNumber,0,Jet_Tag_L3[iAlgo][iL3Flag].c_str(), Jet_DCF_L3[iAlgo][iL3Flag]);
-      }
-    }
-    std::cout << std::endl;    
-  }
-
-  //  return;
-  //--- New code
+  
   //-----------------------------
   // Jet DQM Data Certification
   //-----------------------------
@@ -719,38 +274,40 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   RunDir = "";
   if (RunDir == "") newHistoName = "JetMET/Jet/";
   else              newHistoName = RunDir+"/JetMET/Run summary/Jet/";
-
+  std::string cleaningdir = "";
+  if (isData)
+    cleaningdir = "Cleaned";
   //Jet Phi histos
-  meJetPhi[0] = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/Phi_Barrel"))));
-  meJetPhi[1] = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/Phi_EndCap"))));
-  meJetPhi[2] = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/Phi_Forward"))));
+  meJetPhi[0] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Phi_Barrel"))));
+  meJetPhi[1] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Phi_EndCap"))));
+  meJetPhi[2] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Phi_Forward"))));
   meJetPhi[3] = new MonitorElement(*(dbe_->get((newHistoName+"PFJets/Phi"))));
   meJetPhi[4] = new MonitorElement(*(dbe_->get((newHistoName+"JPT/Phi"))));
 
   //Jet Eta histos
-  meJetEta[0] = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/Eta"))));
-  meJetEta[1] = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/Eta"))));
-  meJetEta[2] = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/Eta"))));
+  meJetEta[0] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Eta"))));
+  meJetEta[1] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Eta"))));
+  meJetEta[2] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Eta"))));
   meJetEta[3] = new MonitorElement(*(dbe_->get((newHistoName+"PFJets/Eta"))));
   meJetEta[4] = new MonitorElement(*(dbe_->get((newHistoName+"JPT/Eta"))));
 
   //Jet Pt histos
-  meJetPt[0]  = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/Pt_Barrel"))));
-  meJetPt[1]  = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/Pt_EndCap"))));
-  meJetPt[2]  = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/Pt_Forward"))));
+  meJetPt[0]  = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Pt_Barrel"))));
+  meJetPt[1]  = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Pt_EndCap"))));
+  meJetPt[2]  = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Pt_Forward"))));
   meJetPt[3]  = new MonitorElement(*(dbe_->get((newHistoName+"PFJets/Pt2"))));
   meJetPt[4]  = new MonitorElement(*(dbe_->get((newHistoName+"JPT/Pt2"))));
 
   ////Jet Constituents histos
-  meJetConstituents[0] = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/Constituents"))));
-  meJetConstituents[1] = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/Constituents"))));
-  meJetConstituents[2] = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/Constituents"))));
+  meJetConstituents[0] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Constituents"))));
+  meJetConstituents[1] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Constituents"))));
+  meJetConstituents[2] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Constituents"))));
   meJetConstituents[3] = new MonitorElement(*(dbe_->get((newHistoName+"PFJets/Constituents"))));
   //
   ////Jet EMFrac histos
-  meJetEMFrac[0] = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/EFrac"))));
-  meJetEMFrac[1] = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/EFrac"))));
-  meJetEMFrac[2] = new MonitorElement(*(dbe_->get((newHistoName+"AntiKtJets/EFrac"))));
+  meJetEMFrac[0] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/EFrac"))));
+  meJetEMFrac[1] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/EFrac"))));
+  meJetEMFrac[2] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/EFrac"))));
   meJetEMFrac[3] = new MonitorElement(*(dbe_->get((newHistoName+"PFJets/EFrac"))));
 
   //JPT specific histos
@@ -790,56 +347,53 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   float dc_Jet[5]                 = {-1.};
 
   for (int jtyp = 0; jtyp < 5; ++jtyp){
-    if (verbose_) std::cout<<"Executing loop on jetalg: "<<jtyp<<std::endl;
     //Mean test results
     if (jtyp < 4){
-      QReport_JetConstituents[jtyp][0] = meJetConstituents[jtyp]->getQReport("meanJetConstituentsTest"); //get QReport associated to Jet Constituents
-      QReport_JetConstituents[jtyp][1] = meJetConstituents[jtyp]->getQReport("KolmogorovTest"); //get QReport associated to Jet Constituents
-      QReport_JetEFrac[jtyp][0]     = meJetEMFrac[jtyp]->getQReport("meanEMFractionTest"); //get QReport associated to Jet EM fraction
-      QReport_JetEFrac[jtyp][1]     = meJetEMFrac[jtyp]->getQReport("KolmogorovTest"); //get QReport associated to Jet EM fraction
+      QReport_JetConstituents[jtyp][0] = meJetConstituents[jtyp]->getQReport("meanJetConstituentsTest");
+      QReport_JetConstituents[jtyp][1] = meJetConstituents[jtyp]->getQReport("KolmogorovTest");
+      QReport_JetEFrac[jtyp][0]        = meJetEMFrac[jtyp]->getQReport("meanEMFractionTest");
+      QReport_JetEFrac[jtyp][1]        = meJetEMFrac[jtyp]->getQReport("KolmogorovTest");
     }
     else {
-      QReport_JetNTracks[0]    = meJetNTracks->getQReport("meanNTracksTest"); //get QReport associated to JPTNTracks
-      QReport_JetNTracks[1]    = meJetNTracks->getQReport("KolmogorovTest"); //get QReport associated to JPTNTracks
+      QReport_JetNTracks[0]    = meJetNTracks->getQReport("meanNTracksTest");
+      QReport_JetNTracks[1]    = meJetNTracks->getQReport("KolmogorovTest");
     }
-    QReport_JetPt[jtyp][0] = meJetPt[jtyp]->getQReport("meanJetPtTest"); //get QReport associated to Jet Pt
+    QReport_JetPt[jtyp][0] = meJetPt[jtyp]->getQReport("meanJetPtTest");
     //Kolmogorov test results
-    QReport_JetPt[jtyp][1] = meJetPt[jtyp]->getQReport("KolmogorovTest"); //get QReport associated to Jet Pt
-    QReport_JetPhi[jtyp]   = meJetPhi[jtyp]->getQReport("KolmogorovTest"); //get QReport associated to Jet Phi
-    QReport_JetEta[jtyp]   = meJetEta[jtyp]->getQReport("KolmogorovTest"); //get QReport associated to Jet Eta
+    QReport_JetPt[jtyp][1] = meJetPt[jtyp]->getQReport("KolmogorovTest");
+    QReport_JetPhi[jtyp]   = meJetPhi[jtyp]->getQReport("KolmogorovTest");
+    QReport_JetEta[jtyp]   = meJetEta[jtyp]->getQReport("KolmogorovTest");
     
     //Jet Pt test
     if (QReport_JetPt[jtyp][0]){
       if (QReport_JetPt[jtyp][0]->getStatus()==100 ||
 	  QReport_JetPt[jtyp][0]->getStatus()==200)
-	//qr_Jet_Pt[jtyp][0] = QReport_JetPt[jtyp][0]->getQTresult();
 	qr_Jet_Pt[jtyp][0] = 1;
       else if (QReport_JetPt[jtyp][0]->getStatus()==300)
 	qr_Jet_Pt[jtyp][0] = 0;
       else 
 	qr_Jet_Pt[jtyp][0] = -1;
 
-      if (verbose_) std::cout<<"Found JetPt test on mean"<<std::endl;
-      if (verbose_) std::cout << QReport_JetPt[jtyp][0]->getMessage() << std::endl;
-      if (verbose_) std::cout << QReport_JetPt[jtyp][0]->getStatus() << std::endl;
-      if (verbose_) std::cout << QReport_JetPt[jtyp][0]->getQTresult() << std::endl;
+      //if (verbose_) std::cout<<"Found JetPt test on mean"<<std::endl;
+      //if (verbose_) std::cout << QReport_JetPt[jtyp][0]->getMessage() << std::endl;
+      //if (verbose_) std::cout << QReport_JetPt[jtyp][0]->getStatus() << std::endl;
+      //if (verbose_) std::cout << QReport_JetPt[jtyp][0]->getQTresult() << std::endl;
     }
     else qr_Jet_Pt[jtyp][0] = -2;
     
     if (QReport_JetPt[jtyp][1]){
       if (QReport_JetPt[jtyp][1]->getStatus()==100 ||
 	  QReport_JetPt[jtyp][1]->getStatus()==200) 
-	//qr_Jet_Pt[jtyp][1] = QReport_JetPt[jtyp][1]->getQTresult();
 	qr_Jet_Pt[jtyp][1] = 1;
       else if (QReport_JetPt[jtyp][1]->getStatus()==300) 
 	qr_Jet_Pt[jtyp][1] = 0;
       else
 	qr_Jet_Pt[jtyp][1] = 0;
 
-      if (verbose_) std::cout<<"Found JetPt KS test"<<std::endl;
-      if (verbose_) std::cout << QReport_JetPt[jtyp][1]->getMessage() << std::endl;
-      if (verbose_) std::cout << QReport_JetPt[jtyp][1]->getStatus() << std::endl;
-      if (verbose_) std::cout << QReport_JetPt[jtyp][1]->getQTresult() << std::endl;
+      //if (verbose_) std::cout<<"Found JetPt KS test"<<std::endl;
+      //if (verbose_) std::cout << QReport_JetPt[jtyp][1]->getMessage() << std::endl;
+      //if (verbose_) std::cout << QReport_JetPt[jtyp][1]->getStatus() << std::endl;
+      //if (verbose_) std::cout << QReport_JetPt[jtyp][1]->getQTresult() << std::endl;
     }
     else qr_Jet_Pt[jtyp][1] = -2;
     
@@ -847,17 +401,16 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     if (QReport_JetPhi[jtyp]){
       if (QReport_JetPhi[jtyp]->getStatus()==100 ||
 	  QReport_JetPhi[jtyp]->getStatus()==200) 
-	//qr_Jet_Phi[jtyp] = QReport_JetPhi[jtyp]->getQTresult();
 	qr_Jet_Phi[jtyp] = 1;
       else if (QReport_JetPhi[jtyp]->getStatus()==300)
 	qr_Jet_Phi[jtyp] = 0;
       else
 	qr_Jet_Phi[jtyp] = -1;
 
-      if (verbose_) std::cout<<"Found JetPhi KS test"<<std::endl;
-      if (verbose_) std::cout << QReport_JetPhi[jtyp]->getMessage() << std::endl;
-      if (verbose_) std::cout << QReport_JetPhi[jtyp]->getStatus() << std::endl;
-      if (verbose_) std::cout << QReport_JetPhi[jtyp]->getQTresult() << std::endl;
+      //if (verbose_) std::cout<<"Found JetPhi KS test"<<std::endl;
+      //if (verbose_) std::cout << QReport_JetPhi[jtyp]->getMessage() << std::endl;
+      //if (verbose_) std::cout << QReport_JetPhi[jtyp]->getStatus() << std::endl;
+      //if (verbose_) std::cout << QReport_JetPhi[jtyp]->getQTresult() << std::endl;
     }
     else qr_Jet_Phi[jtyp] = -2;
 
@@ -865,17 +418,16 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     if (QReport_JetEta[jtyp]){
       if (QReport_JetEta[jtyp]->getStatus()==100 ||
 	  QReport_JetEta[jtyp]->getStatus()==200) 
-	//qr_Jet_Eta[jtyp] = QReport_JetEta[jtyp]->getQTresult();
 	qr_Jet_Eta[jtyp] = 1;
       else if (QReport_JetEta[jtyp]->getStatus()==300) 
 	qr_Jet_Eta[jtyp] = 0;
       else
 	qr_Jet_Eta[jtyp] = -1;
 
-      if (verbose_) std::cout<<"Found JetEta KS test"<<std::endl;
-      if (verbose_) std::cout << QReport_JetEta[jtyp]->getMessage() << std::endl;
-      if (verbose_) std::cout << QReport_JetEta[jtyp]->getStatus() << std::endl;
-      if (verbose_) std::cout << QReport_JetEta[jtyp]->getQTresult() << std::endl;
+      //if (verbose_) std::cout<<"Found JetEta KS test"<<std::endl;
+      //if (verbose_) std::cout << QReport_JetEta[jtyp]->getMessage() << std::endl;
+      //if (verbose_) std::cout << QReport_JetEta[jtyp]->getStatus() << std::endl;
+      //if (verbose_) std::cout << QReport_JetEta[jtyp]->getQTresult() << std::endl;
     }
     else qr_Jet_Eta[jtyp] = -2;
 
@@ -884,34 +436,32 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       if (QReport_JetConstituents[jtyp][0]){
       	if (QReport_JetConstituents[jtyp][0]->getStatus()==100 ||
 	    QReport_JetConstituents[jtyp][0]->getStatus()==200) 
-      	  //qr_Jet_Constituents[jtyp][0] = QReport_JetConstituents[jtyp][0]->getQTresult();
       	  qr_Jet_Constituents[jtyp][0] = 1;
 	else if (QReport_JetConstituents[jtyp][0]->getStatus()==300) 
 	  qr_Jet_Constituents[jtyp][0] = 0;
 	else
 	  qr_Jet_Constituents[jtyp][0] = -1;
 
-	if (verbose_) std::cout<<"Found JetConstituents mean test"<<std::endl;
-      	if (verbose_) std::cout << QReport_JetConstituents[jtyp][0]->getMessage() << std::endl;
-      	if (verbose_) std::cout << QReport_JetConstituents[jtyp][0]->getStatus() << std::endl;
-      	if (verbose_) std::cout << QReport_JetConstituents[jtyp][0]->getQTresult() << std::endl;
+	//if (verbose_) std::cout<<"Found JetConstituents mean test"<<std::endl;
+      	//if (verbose_) std::cout << QReport_JetConstituents[jtyp][0]->getMessage() << std::endl;
+      	//if (verbose_) std::cout << QReport_JetConstituents[jtyp][0]->getStatus() << std::endl;
+      	//if (verbose_) std::cout << QReport_JetConstituents[jtyp][0]->getQTresult() << std::endl;
       }
       else qr_Jet_Constituents[jtyp][0] = -2;
 
       if (QReport_JetConstituents[jtyp][1]){
       	if (QReport_JetConstituents[jtyp][1]->getStatus()==100 ||
 	    QReport_JetConstituents[jtyp][1]->getStatus()==200) 
-      	  //qr_Jet_Constituents[jtyp][1] = QReport_JetConstituents[jtyp][1]->getQTresult();
       	  qr_Jet_Constituents[jtyp][1] = 1;
 	else if (QReport_JetConstituents[jtyp][1]->getStatus()==300) 
 	  qr_Jet_Constituents[jtyp][1] = 0;
 	else
 	  qr_Jet_Constituents[jtyp][1] = -1;
 
-	if (verbose_) std::cout<<"Found JetConstituents KS test"<<std::endl;
-      	if (verbose_) std::cout << QReport_JetConstituents[jtyp][1]->getMessage() << std::endl;
-      	if (verbose_) std::cout << QReport_JetConstituents[jtyp][1]->getStatus() << std::endl;
-      	if (verbose_) std::cout << QReport_JetConstituents[jtyp][1]->getQTresult() << std::endl;
+	//if (verbose_) std::cout<<"Found JetConstituents KS test"<<std::endl;
+      	//if (verbose_) std::cout << QReport_JetConstituents[jtyp][1]->getMessage() << std::endl;
+      	//if (verbose_) std::cout << QReport_JetConstituents[jtyp][1]->getStatus() << std::endl;
+      	//if (verbose_) std::cout << QReport_JetConstituents[jtyp][1]->getQTresult() << std::endl;
       }
       else qr_Jet_Constituents[jtyp][1] = -2;
 
@@ -919,34 +469,32 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       if (QReport_JetEFrac[jtyp][0]){
 	if (QReport_JetEFrac[jtyp][0]->getStatus()==100 ||
 	    QReport_JetEFrac[jtyp][0]->getStatus()==200) 
-	  //qr_Jet_EFrac[jtyp][0] = QReport_JetEFrac[jtyp][0]->getQTresult();
 	  qr_Jet_EFrac[jtyp][0] = 1;
 	else if (QReport_JetEFrac[jtyp][0]->getStatus()==300) 
 	  qr_Jet_EFrac[jtyp][0] = 0;
 	else
 	  qr_Jet_EFrac[jtyp][0] = -1;
 
-	if (verbose_) std::cout<<"Found JetEFrac mean test"<<std::endl;
-	if (verbose_) std::cout << QReport_JetEFrac[jtyp][0]->getMessage() << std::endl;
-	if (verbose_) std::cout << QReport_JetEFrac[jtyp][0]->getStatus() << std::endl;
-	if (verbose_) std::cout << QReport_JetEFrac[jtyp][0]->getQTresult() << std::endl;
+	//if (verbose_) std::cout<<"Found JetEFrac mean test"<<std::endl;
+	//if (verbose_) std::cout << QReport_JetEFrac[jtyp][0]->getMessage() << std::endl;
+	//if (verbose_) std::cout << QReport_JetEFrac[jtyp][0]->getStatus() << std::endl;
+	//if (verbose_) std::cout << QReport_JetEFrac[jtyp][0]->getQTresult() << std::endl;
       }
       else qr_Jet_EFrac[jtyp][0] = -2;
       
       if (QReport_JetEFrac[jtyp][1]){
 	if (QReport_JetEFrac[jtyp][1]->getStatus()==100 ||
 	    QReport_JetEFrac[jtyp][1]->getStatus()==200) 
-	  //qr_Jet_EFrac[jtyp][1] = QReport_JetEFrac[jtyp][1]->getQTresult();
 	  qr_Jet_EFrac[jtyp][1] = 1;
 	else if (QReport_JetEFrac[jtyp][1]->getStatus()==300) 
 	  qr_Jet_EFrac[jtyp][1] = 0;
 	else
 	  qr_Jet_EFrac[jtyp][1] = -1;
 
-	if (verbose_) std::cout<<"Found JetEFrac KS test"<<std::endl;
-	if (verbose_) std::cout << QReport_JetEFrac[jtyp][1]->getMessage() << std::endl;
-	if (verbose_) std::cout << QReport_JetEFrac[jtyp][1]->getStatus() << std::endl;
-	if (verbose_) std::cout << QReport_JetEFrac[jtyp][1]->getQTresult() << std::endl;
+	//if (verbose_) std::cout<<"Found JetEFrac KS test"<<std::endl;
+	//if (verbose_) std::cout << QReport_JetEFrac[jtyp][1]->getMessage() << std::endl;
+	//if (verbose_) std::cout << QReport_JetEFrac[jtyp][1]->getStatus() << std::endl;
+	//if (verbose_) std::cout << QReport_JetEFrac[jtyp][1]->getQTresult() << std::endl;
       }
       else qr_Jet_EFrac[jtyp][1] = -2;
     }
@@ -956,17 +504,16 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 	if (QReport_JetNTracks[ii]){
 	  if (QReport_JetNTracks[ii]->getStatus()==100 ||
 	      QReport_JetNTracks[ii]->getStatus()==200) 
-	    //qr_Jet_NTracks[ii] = QReport_JetNTracks[ii]->getQTresult();
 	    qr_Jet_NTracks[ii] = 1;
 	  else if (QReport_JetNTracks[ii]->getStatus()==300) 
 	    qr_Jet_NTracks[ii] = 0;
 	  else
 	    qr_Jet_NTracks[ii] = -1;
 	  
-	  if (verbose_) std::cout<<"Found JPTJetNTracks test"<<std::endl;
-	  if (verbose_) std::cout << QReport_JetNTracks[ii]->getMessage() << std::endl;
-	  if (verbose_) std::cout << QReport_JetNTracks[ii]->getStatus() << std::endl;
-	  if (verbose_) std::cout << QReport_JetNTracks[ii]->getQTresult() << std::endl;
+	  //if (verbose_) std::cout<<"Found JPTJetNTracks test"<<std::endl;
+	  //if (verbose_) std::cout << QReport_JetNTracks[ii]->getMessage() << std::endl;
+	  //if (verbose_) std::cout << QReport_JetNTracks[ii]->getStatus() << std::endl;
+	  //if (verbose_) std::cout << QReport_JetNTracks[ii]->getQTresult() << std::endl;
 	}
 	else qr_Jet_NTracks[ii] = -2;
       }
@@ -998,6 +545,25 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       printf("===========================================================================\n");
     }
     //certification result for Jet
+
+    //Only apply certain tests, as defined in the config
+    for (int ttyp = 0; ttyp < 2;  ++ttyp) {
+      if (!jetTests[jtyp][ttyp]) {
+	qr_Jet_Pt[jtyp][ttyp]           = 1;
+	if (ttyp ==1) {
+	  qr_Jet_Eta[jtyp]          = 1;
+	  qr_Jet_Phi[jtyp]          = 1;
+	}
+	if (jtyp < 4) {
+	  qr_Jet_EFrac[jtyp][ttyp]        = 1;
+	  qr_Jet_Constituents[jtyp][ttyp] = 1;
+	}
+	else{
+	  qr_Jet_NTracks[ttyp] = 1;
+	}
+      }
+    }
+    
     
     if (jtyp < 4) {
       if ( (qr_Jet_EFrac[jtyp][0]        == 0) ||
@@ -1069,35 +635,39 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   if (RunDir == "") newHistoName = "JetMET/MET/";
   else              newHistoName = RunDir+"/JetMET/Run summary/MET/";
 
+  if (isData)
+    cleaningdir = "BasicCleanup";
+  else
+    cleaningdir = "All";
   //MEx/MEy monitor elements
-  meMExy[0][0] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/All/METTask_CaloMEx"))));
-  meMExy[0][1] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/All/METTask_CaloMEy"))));
-  meMExy[1][0] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/All/METTask_CaloMEx"))));
-  meMExy[1][1] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/All/METTask_CaloMEy"))));
-  meMExy[2][0] = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/All/METTask_PfMEx"))));
-  meMExy[2][1] = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/All/METTask_PfMEy"))));
-  meMExy[3][0] = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/All/METTask_MEx"))));
-  meMExy[3][1] = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/All/METTask_MEy"))));
-  meMExy[4][0] = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/All/METTask_CaloMEx"))));
-  meMExy[4][1] = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/All/METTask_CaloMEy"))));
+  meMExy[0][0] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx"))));
+  meMExy[0][1] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy"))));
+  meMExy[1][0] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx"))));
+  meMExy[1][1] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy"))));
+  meMExy[2][0] = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMEx"))));
+  meMExy[2][1] = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMEy"))));
+  meMExy[3][0] = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MEx"))));
+  meMExy[3][1] = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MEy"))));
+  meMExy[4][0] = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx"))));
+  meMExy[4][1] = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy"))));
   //MET Phi monitor elements
-  meMETPhi[0]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/All/METTask_CaloMETPhi"))));
-  meMETPhi[1]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/All/METTask_CaloMETPhi"))));
-  meMETPhi[2]  = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/All/METTask_PfMETPhi"))));
-  meMETPhi[3]  = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/All/METTask_METPhi"))));
-  meMETPhi[4]  = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/All/METTask_CaloMETPhi"))));
+  meMETPhi[0]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMETPhi"))));
+  meMETPhi[1]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMETPhi"))));
+  meMETPhi[2]  = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMETPhi"))));
+  meMETPhi[3]  = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_METPhi"))));
+  meMETPhi[4]  = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMETPhi"))));
   //MET monitor elements
-  meMEt[0]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/All/METTask_CaloMET"))));
-  meMEt[1]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/All/METTask_CaloMET"))));
-  meMEt[2]  = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/All/METTask_PfMET"))));
-  meMEt[3]  = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/All/METTask_MET"))));
-  meMEt[4]  = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/All/METTask_CaloMET"))));
+  meMEt[0]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMET"))));
+  meMEt[1]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMET"))));
+  meMEt[2]  = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMET"))));
+  meMEt[3]  = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MET"))));
+  meMEt[4]  = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMET"))));
   //SumET monitor elements
-  meSumEt[0]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/All/METTask_CaloSumET"))));
-  meSumEt[1]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/All/METTask_CaloSumET"))));
-  meSumEt[2]  = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/All/METTask_PfSumET"))));
-  meSumEt[3]  = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/All/METTask_SumET"))));
-  meSumEt[4]  = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/All/METTask_CaloSumET"))));
+  meSumEt[0]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloSumET"))));
+  meSumEt[1]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloSumET"))));
+  meSumEt[2]  = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfSumET"))));
+  meSumEt[3]  = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_SumET"))));
+  meSumEt[4]  = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloSumET"))));
 				   
   //----------------------------------------------------------------------------
   //--- Extract quality test results and fill data certification results for MET
@@ -1119,39 +689,35 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   float dc_MET[5]            = {-999.};
 
   for (int mtyp = 0; mtyp < 5; ++mtyp){
-    if (verbose_) std::cout<<"Executing loop on metalg: "<<mtyp<<std::endl;
     //Mean test results
-    QReport_MExy[mtyp][0][0] = meMExy[mtyp][0]->getQReport("meanMExyTest"); //get QReport associated to MEx  
-    QReport_MExy[mtyp][0][1] = meMExy[mtyp][1]->getQReport("meanMExyTest"); //get QReport associated to MEy  
-    QReport_MEt[mtyp][0]     = meMEt[mtyp]->getQReport("meanMETTest"); //get QReport associated to MET
-    QReport_SumEt[mtyp][0]   = meSumEt[mtyp]->getQReport("meanSumETTest"); //get QReport associated to SumET
+    QReport_MExy[mtyp][0][0] = meMExy[mtyp][0]->getQReport("meanMExyTest");
+    QReport_MExy[mtyp][0][1] = meMExy[mtyp][1]->getQReport("meanMExyTest");
+    QReport_MEt[mtyp][0]     = meMEt[mtyp]->getQReport("meanMETTest");
+    QReport_SumEt[mtyp][0]   = meSumEt[mtyp]->getQReport("meanSumETTest");
     //phiQTest results
-    QReport_METPhi[mtyp][0]  = meMETPhi[mtyp]->getQReport("phiQTest"); //get QReport associated to METPhi  
+    QReport_METPhi[mtyp][0]  = meMETPhi[mtyp]->getQReport("phiQTest");
     //Kolmogorov test results
-    QReport_METPhi[mtyp][1]  = meMETPhi[mtyp]->getQReport("KolmogorovTest"); //get QReport associated to METPhi  
-    QReport_MExy[mtyp][1][0] = meMExy[mtyp][0]->getQReport("KolmogorovTest"); //get QReport associated to MEx  
-    QReport_MExy[mtyp][1][1] = meMExy[mtyp][1]->getQReport("KolmogorovTest"); //get QReport associated to MEy  
-    QReport_MEt[mtyp][1]     = meMEt[mtyp]->getQReport("KolmogorovTest"); //get QReport associated to MET
-    QReport_SumEt[mtyp][1]   = meSumEt[mtyp]->getQReport("KolmogorovTest"); //get QReport associated to SumET
+    QReport_METPhi[mtyp][1]  = meMETPhi[mtyp]->getQReport("KolmogorovTest");
+    QReport_MExy[mtyp][1][0] = meMExy[mtyp][0]->getQReport("KolmogorovTest");
+    QReport_MExy[mtyp][1][1] = meMExy[mtyp][1]->getQReport("KolmogorovTest");
+    QReport_MEt[mtyp][1]     = meMEt[mtyp]->getQReport("KolmogorovTest");
+    QReport_SumEt[mtyp][1]   = meSumEt[mtyp]->getQReport("KolmogorovTest");
     
     for (int testtyp = 0; testtyp < 2; ++testtyp) {
       //MEx test
       if (QReport_MExy[mtyp][testtyp][0]){
 	if (QReport_MExy[mtyp][testtyp][0]->getStatus()==100 ||
 	    QReport_MExy[mtyp][testtyp][0]->getStatus()==200) 
-	  //qr_MET_MExy[mtyp][testtyp][0] = QReport_MExy[mtyp][testtyp][0]->getQTresult();
 	  qr_MET_MExy[mtyp][testtyp][0] = 1;
 	else if (QReport_MExy[mtyp][testtyp][0]->getStatus()==300) 
-	  //qr_MET_MExy[mtyp][testtyp][0] = QReport_MExy[mtyp][testtyp][0]->getQTresult();
 	  qr_MET_MExy[mtyp][testtyp][0] = 0;
 	else
-	  //qr_MET_MExy[mtyp][testtyp][0] = QReport_MExy[mtyp][testtyp][0]->getQTresult();
 	  qr_MET_MExy[mtyp][testtyp][0] = -1;
 
-	if (verbose_) std::cout<<"Found MEx test "<<testtyp<<std::endl;
-	if (verbose_) std::cout << QReport_MExy[mtyp][testtyp][0]->getMessage() << std::endl;
-	if (verbose_) std::cout << QReport_MExy[mtyp][testtyp][0]->getStatus() << std::endl;
-	if (verbose_) std::cout << QReport_MExy[mtyp][testtyp][0]->getQTresult() << std::endl;
+	//if (verbose_) std::cout<<"Found MEx test "<<testtyp<<std::endl;
+	//if (verbose_) std::cout << QReport_MExy[mtyp][testtyp][0]->getMessage() << std::endl;
+	//if (verbose_) std::cout << QReport_MExy[mtyp][testtyp][0]->getStatus() << std::endl;
+	//if (verbose_) std::cout << QReport_MExy[mtyp][testtyp][0]->getQTresult() << std::endl;
       }
       else qr_MET_MExy[mtyp][testtyp][0] = -2;
 
@@ -1159,19 +725,16 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       if (QReport_MExy[mtyp][testtyp][1]){
 	if (QReport_MExy[mtyp][testtyp][1]->getStatus()==100 ||
 	    QReport_MExy[mtyp][testtyp][1]->getStatus()==200) 
-	  //qr_MET_MExy[mtyp][testtyp][1] = QReport_MExy[mtyp][testtyp][1]->getQTresult();
 	  qr_MET_MExy[mtyp][testtyp][1] = 1;
 	else if (QReport_MExy[mtyp][testtyp][1]->getStatus()==300) 
-	  //qr_MET_MExy[mtyp][testtyp][1] = QReport_MExy[mtyp][testtyp][1]->getQTresult();
 	  qr_MET_MExy[mtyp][testtyp][1] = 0;
 	else
-	  //qr_MET_MExy[mtyp][testtyp][1] = QReport_MExy[mtyp][testtyp][1]->getQTresult();
 	  qr_MET_MExy[mtyp][testtyp][1] = -1;
 
-	if (verbose_) std::cout<<"Found MEy test "<<testtyp<<std::endl;
-	if (verbose_) std::cout << QReport_MExy[mtyp][testtyp][1]->getMessage() << std::endl;
-	if (verbose_) std::cout << QReport_MExy[mtyp][testtyp][1]->getStatus() << std::endl;
-	if (verbose_) std::cout << QReport_MExy[mtyp][testtyp][1]->getQTresult() << std::endl;
+	//if (verbose_) std::cout<<"Found MEy test "<<testtyp<<std::endl;
+	//if (verbose_) std::cout << QReport_MExy[mtyp][testtyp][1]->getMessage() << std::endl;
+	//if (verbose_) std::cout << QReport_MExy[mtyp][testtyp][1]->getStatus() << std::endl;
+	//if (verbose_) std::cout << QReport_MExy[mtyp][testtyp][1]->getQTresult() << std::endl;
       }
       else qr_MET_MExy[mtyp][testtyp][1] = -2;
 
@@ -1179,19 +742,16 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       if (QReport_MEt[mtyp][testtyp]){
 	if (QReport_MEt[mtyp][testtyp]->getStatus()==100 ||
 	    QReport_MEt[mtyp][testtyp]->getStatus()==200) 
-	  //qr_MET_MEt[mtyp][testtyp] = QReport_MEt[mtyp][testtyp]->getQTresult();
 	  qr_MET_MEt[mtyp][testtyp] = 1;
 	else if (QReport_MEt[mtyp][testtyp]->getStatus()==300) 
-	  //qr_MET_MEt[mtyp][testtyp] = QReport_MEt[mtyp][testtyp]->getQTresult();
 	  qr_MET_MEt[mtyp][testtyp] = 0;
 	else
-	  //qr_MET_MEt[mtyp][testtyp] = QReport_MEt[mtyp][testtyp]->getQTresult();
 	  qr_MET_MEt[mtyp][testtyp] = -1;
 
-	if (verbose_) std::cout<<"Found MEt test "<<testtyp<<std::endl;
-	if (verbose_) std::cout << QReport_MEt[mtyp][testtyp]->getMessage() << std::endl;
-	if (verbose_) std::cout << QReport_MEt[mtyp][testtyp]->getStatus() << std::endl;
-	if (verbose_) std::cout << QReport_MEt[mtyp][testtyp]->getQTresult() << std::endl;
+	//if (verbose_) std::cout<<"Found MEt test "<<testtyp<<std::endl;
+	//if (verbose_) std::cout << QReport_MEt[mtyp][testtyp]->getMessage() << std::endl;
+	//if (verbose_) std::cout << QReport_MEt[mtyp][testtyp]->getStatus() << std::endl;
+	//if (verbose_) std::cout << QReport_MEt[mtyp][testtyp]->getQTresult() << std::endl;
       }
       else qr_MET_MEt[mtyp][testtyp] = -2;
 
@@ -1199,38 +759,32 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       if (QReport_SumEt[mtyp][testtyp]){
 	if (QReport_SumEt[mtyp][testtyp]->getStatus()==100 ||
 	    QReport_SumEt[mtyp][testtyp]->getStatus()==200) 
-	  //qr_MET_SumEt[mtyp][testtyp] = QReport_SumEt[mtyp][testtyp]->getQTresult();
 	  qr_MET_SumEt[mtyp][testtyp] = 1;
 	else if (QReport_SumEt[mtyp][testtyp]->getStatus()==300) 
-	  //qr_MET_SumEt[mtyp][testtyp] = QReport_SumEt[mtyp][testtyp]->getQTresult();
 	  qr_MET_SumEt[mtyp][testtyp] = 0;
 	else
-	  //qr_MET_SumEt[mtyp][testtyp] = QReport_SumEt[mtyp][testtyp]->getQTresult();
 	  qr_MET_SumEt[mtyp][testtyp] = -1;
 
-	if (verbose_) std::cout<<"Found SumEt test "<<testtyp<<std::endl;
-	if (verbose_) std::cout << QReport_SumEt[mtyp][testtyp]->getMessage() << std::setw(5);
-	if (verbose_) std::cout << QReport_SumEt[mtyp][testtyp]->getStatus() << std::setw(5);
-	if (verbose_) std::cout << QReport_SumEt[mtyp][testtyp]->getQTresult() << std::endl;
+	//if (verbose_) std::cout<<"Found SumEt test "<<testtyp<<std::endl;
+	//if (verbose_) std::cout << QReport_SumEt[mtyp][testtyp]->getMessage() << std::setw(5);
+	//if (verbose_) std::cout << QReport_SumEt[mtyp][testtyp]->getStatus() << std::setw(5);
+	//if (verbose_) std::cout << QReport_SumEt[mtyp][testtyp]->getQTresult() << std::endl;
       }
       else qr_MET_SumEt[mtyp][testtyp] = -2;
 
       //METPhi test
       if (QReport_METPhi[mtyp][testtyp]){
-	if (verbose_) std::cout<<"Found METPhi test "<<testtyp<<std::endl;
 	if (QReport_METPhi[mtyp][testtyp]->getStatus()==100 ||
 	    QReport_METPhi[mtyp][testtyp]->getStatus()==200) 
-	  //qr_MET_METPhi[mtyp][testtyp] = QReport_METPhi[mtyp][testtyp]->getQTresult();
 	  qr_MET_METPhi[mtyp][testtyp] = 1;
 	else if (QReport_METPhi[mtyp][testtyp]->getStatus()==300) 
-	  //qr_MET_METPhi[mtyp][testtyp] = QReport_METPhi[mtyp][testtyp]->getQTresult();
 	  qr_MET_METPhi[mtyp][testtyp] = 0;
 	else
-	  //qr_MET_METPhi[mtyp][testtyp] = QReport_METPhi[mtyp][testtyp]->getQTresult();
 	  qr_MET_METPhi[mtyp][testtyp] = -1;
-	if (verbose_) std::cout << QReport_METPhi[mtyp][testtyp]->getMessage() << std::endl;
-	if (verbose_) std::cout << QReport_METPhi[mtyp][testtyp]->getStatus() << std::endl;
-	if (verbose_) std::cout << QReport_METPhi[mtyp][testtyp]->getQTresult() << std::endl;
+	//if (verbose_) std::cout<<"Found METPhi test "<<testtyp<<std::endl;
+	//if (verbose_) std::cout << QReport_METPhi[mtyp][testtyp]->getMessage() << std::endl;
+	//if (verbose_) std::cout << QReport_METPhi[mtyp][testtyp]->getStatus() << std::endl;
+	//if (verbose_) std::cout << QReport_METPhi[mtyp][testtyp]->getQTresult() << std::endl;
       }
       else qr_MET_METPhi[mtyp][testtyp] = -2;
     }
@@ -1248,6 +802,20 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       }
       printf("===========================================================================\n");
     }
+
+
+    //Only apply certain tests, as defined in the config
+    for (int ttyp = 0; ttyp < 2;  ++ttyp) {
+      if (!metTests[mtyp][ttyp]) {
+	qr_MET_MExy[mtyp][ttyp][0]   = 1;
+	qr_MET_MExy[mtyp][ttyp][1]   = 1;
+	qr_MET_MEt[mtyp][ttyp]       = 1;
+	qr_MET_SumEt[mtyp][ttyp]     = 1;
+	qr_MET_METPhi[mtyp][ttyp]    = 1;
+      }
+    }
+    
+
     if ( 
 	(qr_MET_MExy[mtyp][0][0] == 0) ||
 	(qr_MET_MExy[mtyp][0][1] == 0) ||
@@ -1281,11 +849,6 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     CertificationSummaryMap->Fill(2., mtyp, dc_MET[mtyp]);
     reportSummaryMap->Fill(2., mtyp, dc_MET[mtyp]);
   }
-
-  mMETDCFL1->Fill(dc_MET[0]*dc_MET[1]);
-  mMETDCFL2[0]->Fill(dc_MET[0]);
-  mMETDCFL3[0]->Fill(dc_MET[1]);
-
 
   dbe_->setCurrentFolder("");  
 

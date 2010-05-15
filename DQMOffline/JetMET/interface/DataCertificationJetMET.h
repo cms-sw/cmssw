@@ -49,11 +49,28 @@ class DataCertificationJetMET : public edm::EDAnalyzer {
    edm::Service<TFileService> fs_;
 
    int verbose_;
-   int testType_;
    bool InMemory_;
-   float jet_ks_thresh;
-   float met_ks_thresh;
-   float met_phi_thresh;
+   bool isData;
+   std::string metFolder;
+
+   bool caloJetMeanTest;
+   bool caloJetKSTest;
+   bool pfJetMeanTest;
+   bool pfJetKSTest;
+   bool jptJetMeanTest;
+   bool jptJetKSTest;
+   bool caloMETMeanTest;
+   bool caloMETKSTest;
+   bool pfMETMeanTest;
+   bool pfMETKSTest;
+   bool tcMETMeanTest;
+   bool tcMETKSTest;
+   bool muMETMeanTest;
+   bool muMETKSTest;
+
+   bool jetTests[5][2];  //one for each type of jet certification/test type
+   bool metTests[5][2];  //one for each type of met certification/test type
+
 };
 
 #endif
