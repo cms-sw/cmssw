@@ -38,6 +38,7 @@ options.register( 'eventType',
 
 allowedOptions['eventType'] = [ 'ZTT', 'QCD', 'ZEE', 'ZMM', 'RealData' ]
 
+
 options.register( 'label',
                   "none",
                   VarParsing.VarParsing.multiplicity.singleton,
