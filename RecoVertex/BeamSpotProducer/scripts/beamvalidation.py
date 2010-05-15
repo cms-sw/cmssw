@@ -344,7 +344,7 @@ def write_plots(lines, plots,web):
 def get_productionFiles( directory ):
 
     list = commands.getstatusoutput('ls -t '+directory)
-    list = list[1]
+    list = list[1].split()
     newlist = []
     for i in list:
         if i.find('BeamFit_')!=-1:
@@ -408,6 +408,7 @@ if __name__ == '__main__':
     lines.append(br)
     #lines.append('to be written'+end)
     lines.append(processedruns[0]+', '+processedruns[1]+', '+processedruns[2])
+    print processedruns
     lines.append(br)
 
     lines.append('<h2>The Latest Tags</h2>'+end)
