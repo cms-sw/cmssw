@@ -88,7 +88,7 @@ class TableView(AbstractView, QTableWidget):
             return True
         operationId = self._operationId
         objects=self.allDataObjectChildren()
-        properties={}
+        properties=[]
         for object in objects:
             thread = ThreadChain(self.dataAccessor().properties, object)
             while thread.isRunning():
@@ -97,27 +97,27 @@ class TableView(AbstractView, QTableWidget):
             if operationId != self._operationId:
                 self._updatingFlag-=1
                 return False
-            properties[object]=thread.returnValue()
+            properties+=[thread.returnValue()]
         if self._filteredColumns!=[]:
             self._columns=self._filteredColumns
         else:
             self._columns=[]
             ranking={}
-            for object in objects:
-                for property in properties[object]:
-                    if not property[1] in ranking.keys():
-                        ranking[property[1]]=1
-                        if property[0]!="Category":
-                            self._columns+=[property[1]]
-                    elif property[1]=="Label":
-                        ranking[property[1]]+=100000
-                    elif property[1]=="Name":
-                        ranking[property[1]]+=10000
-                    else:
-                        ranking[property[1]]+=1
+            for property in properties:
+                if not property[1] in ranking.keys():
+                    ranking[property[1]]=1
+                    if property[0]!="Category":
+                        self._columns+=[property[1]]
+                elif property[1]=="Label":
+                    ranking[property[1]]+=100000
+                elif property[1]=="Name":
+                    ranking[property[1]]+=10000
+                else:
+                    ranking[property[1]]+=1
             self._columns.sort(lambda x,y: cmp(-ranking[x],-ranking[y]))
         self.setColumnCount(len(self._columns))
         self.setHorizontalHeaderLabels(self._columns)
+        i=0
         for object in objects:
             # Process application event loop in order to accept user input during time consuming drawing operation
             self._updateCounter+=1
@@ -128,7 +128,8 @@ class TableView(AbstractView, QTableWidget):
             # Abort drawing if operationId out of date
             if operationId != self._operationId:
                 break
-            self._createItem(object,properties[object])
+            self._createItem(object,properties[i])
+            i+=1
         if self._autosizeColumns:
             for i in range(len(self._columns)):
                 self.resizeColumnToContents(i)
