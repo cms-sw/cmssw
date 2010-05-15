@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/HIon/V19 (CMSSW_3_6_0_HLT7)
+# /dev/CMSSW_3_6_0/HIon/V22 (CMSSW_3_6_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V19')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V22')
 )
 
 streams = cms.PSet( 
@@ -974,7 +974,8 @@ trajFilterL3 = cms.ESProducer( "TrajectoryFilterESProducer",
 trajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "TrajectoryCleanerBySharedHits" ),
   appendToDataLabel = cms.string( "" ),
-  fractionShared = cms.double( 0.5 )
+  fractionShared = cms.double( 0.5 ),
+  allowSharedFirstHit = cms.bool( False )
 )
 
 DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",

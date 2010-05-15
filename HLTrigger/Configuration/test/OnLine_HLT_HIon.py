@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_0/HIon/V19 (CMSSW_3_6_0_HLT7)
+# /dev/CMSSW_3_6_0/HIon/V22 (CMSSW_3_6_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V19')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V22')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -1303,7 +1303,8 @@ process.trajFilterL3 = cms.ESProducer( "TrajectoryFilterESProducer",
 process.trajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "TrajectoryCleanerBySharedHits" ),
   appendToDataLabel = cms.string( "" ),
-  fractionShared = cms.double( 0.5 )
+  fractionShared = cms.double( 0.5 ),
+  allowSharedFirstHit = cms.bool( False )
 )
 
 process.DQM = cms.Service( "DQM",
@@ -1372,7 +1373,12 @@ process.MessageLogger = cms.Service( "MessageLogger",
       default = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
       FwkJob = cms.untracked.PSet(  limit = cms.untracked.int32( 10000000 ) )
     ),
-    suppressWarning = cms.untracked.vstring( 'hltPixelTracksForMinBias' ),
+    suppressWarning = cms.untracked.vstring( 'hltPixelTracksForMinBias',
+      'hltPixelTracksForHighMult',
+      'hltHITPixelTracksHE',
+      'hltHITPixelTracksHB',
+      'hltSiPixelClusters',
+      'hltPixelTracks' ),
     threshold = cms.untracked.string( "INFO" ),
 )
 process.MicroStateService = cms.Service( "MicroStateService",
