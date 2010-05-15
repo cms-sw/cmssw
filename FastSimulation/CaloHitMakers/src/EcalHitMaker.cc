@@ -688,10 +688,10 @@ EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 	 cp[2*is].whichDetector()!=DetId::Hcal&&
 	 cp[2*is+1].whichDetector()!=DetId::Hcal) 
 	{
-	  std::cout << " Problem with the segments " << std::endl;
-	  std::cout << cp[2*is].whichDetector() << " " << cp[2*is+1].whichDetector() << std::endl;
-	  std::cout << is << " " <<cp[2*is].getDetId().rawId() << std::endl; 
-	  std::cout << (2*is+1) << " " <<cp[2*is+1].getDetId().rawId() << std::endl; 
+//	  std::cout << " Problem with the segments " << std::endl;
+//	  std::cout << cp[2*is].whichDetector() << " " << cp[2*is+1].whichDetector() << std::endl;
+//	  std::cout << is << " " <<cp[2*is].getDetId().rawId() << std::endl; 
+//	  std::cout << (2*is+1) << " " <<cp[2*is+1].getDetId().rawId() << std::endl; 
 	  ++is;
 	  continue;
 	}
@@ -740,6 +740,7 @@ EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 	      if(is<nsegments && cp[2*is+2].whichDetector()==DetId::Ecal && cp[2*is+2].whichSubDetector()==EcalEndcap)
 		{
 		  CaloSegment gapsef(cp[2*is+1],cp[2*is+2],s,sX0,sL0,CaloSegment::PSEEGAP,myCalorimeter);
+		  segments_.push_back(gapsef);
 		  s+=gapsef.length();     
 		  sX0+=gapsef.X0length();                                                                                          
 		  sL0+=gapsef.L0length();                                                                                          
@@ -965,6 +966,12 @@ EcalHitMaker::getPads(double depth,bool inCm)
       std::cout << " FamosGrid: Could not go at such depth " << depth << std::endl;
       std::cout << " EMSHOWER " << EMSHOWER << std::endl;
       std::cout << " Track " << *myTrack_ << std::endl;
+      std::cout << " Segments " << segments_.size() << std::endl;
+      for(unsigned ii=0; ii<segments_.size() ; ++ii)
+	{
+	  std::cout << segments_[ii] << std::endl;
+	}
+      
       return false;
     }
   //  std::cout << *segiterator << std::endl;
