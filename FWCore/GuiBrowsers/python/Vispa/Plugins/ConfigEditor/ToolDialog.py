@@ -48,10 +48,10 @@ class ToolDialog(QDialog):
         cancel = QPushButton('&Cancel')
         bottom.addWidget(cancel)
         self.connect(cancel, SIGNAL('clicked()'), self.reject)
-        ok=QPushButton("&Apply")
-        bottom.addWidget(ok)
-        ok.setDefault(True)
-        self.connect(ok, SIGNAL('clicked()'), self.apply)
+        self.ok=QPushButton("&Apply")
+        bottom.addWidget(self.ok)
+        self.ok.setDefault(True)
+        self.connect(self.ok, SIGNAL('clicked()'), self.apply)
 
     def updateToolList(self):
         self._toolList.clear()
@@ -97,9 +97,13 @@ class ToolDialog(QDialog):
         self.updateToolList()
 
     def apply(self):
+        # allow property view to process parameter changes
+        if not self.ok.hasFocus():
+            self._properties.clearFocus()
+            self.ok.setFocus()
+            return
         parameterErrors=self._toolDataAccessor.parameterErrors(self._selectedTool)
         if len(parameterErrors)>0:
-            ok=False
             message="\n".join([error for error in parameterErrors])
             QCoreApplication.instance().errorMessage(message)
             return
@@ -109,8 +113,8 @@ class ToolDialog(QDialog):
                 self._selectedTool.apply(self._toolDataAccessor.configDataAccessor().process())
                 if not self._toolDataAccessor.configDataAccessor().process().checkRecording():
                     ok=False
-                    logging.error(__name__ + ": Could not apply tool "+self._toolDataAccessor.label(self._selectedTool)+" (problem with enable recording flag)")
-                    QCoreApplication.instance().errorMessage("Could not apply tool "+self._toolDataAccessor.label(self._selectedTool)+" (problem with enable recording flag)")
+                    logging.error(__name__ + ": Could not apply tool "+self._toolDataAccessor.label(self._selectedTool)+" (problem with enable recording flag) Please restart the ConfigEditor.")
+                    QCoreApplication.instance().errorMessage("Could not apply tool "+self._toolDataAccessor.label(self._selectedTool)+" (problem with enable recording flag) Please restart the ConfigEditor.")
             except Exception,e:
                 ok=False
                 logging.error(__name__ + ": Could not apply tool "+self._toolDataAccessor.label(self._selectedTool)+": "+exception_traceback())
