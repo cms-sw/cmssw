@@ -152,7 +152,7 @@ def calledBycmsRun():
       return True
 
 def CMSSWEnvironmentIsCurrent():
-   ''' Make sure that our CMSSW environment doesn't point ot another release!'''
+   ''' Make sure that our CMSSW environment doesn t point ot another release!'''
    if ReleaseBase != os.path.commonprefix([ReleaseBase, os.getcwd()]):
       return False
    else:
