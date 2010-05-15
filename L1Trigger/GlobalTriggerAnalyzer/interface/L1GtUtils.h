@@ -22,8 +22,11 @@
 
 // user include files
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -35,6 +38,9 @@ class L1GtStableParameters;
 class L1GtPrescaleFactors;
 class L1GtTriggerMask;
 class L1GtTriggerMenu;
+
+class L1GlobalTriggerReadoutRecord;
+class L1GlobalTriggerRecord;
 
 // class declaration
 
@@ -50,33 +56,48 @@ public:
 
 public:
 
+    enum TriggerCategory {
+        AlgorithmTrigger = 0,
+        TechnicalTrigger = 1
+    };
+
     /// public methods
 
+    // enum to string for TriggerCategory
+    const std::string triggerCategory (const TriggerCategory&) const;
 
     /// retrieve all the relevant L1 trigger event setup records and cache them to improve the speed
     void retrieveL1EventSetup(const edm::EventSetup&);
+
+    /// retrieve L1GtTriggerMenuLite (per run product) and cache it to improve the speed
+    void retrieveL1GtTriggerMenuLite(const edm::Event&, edm::InputTag&);
 
     /// get the input tags for L1GlobalTriggerRecord and L1GlobalTriggerReadoutRecord
     void getInputTag(const edm::Event& iEvent, edm::InputTag& l1GtRecordInputTag,
             edm::InputTag& l1GtReadoutRecordInputTag) const;
 
-    /// return the trigger "algorithm type" triggerAlgTechTrig
-    ///    physics algorithm alias or physics algorithm name = 0,
-    ///    technical trigger = 1
+    /// return the trigger "category" trigCategory
+    ///    algorithm trigger alias or algorithm trigger name AlgorithmTrigger = 0,
+    ///    technical trigger TechnicalTrigger = 1
     /// and its bit number
     ///
-    /// in case the physics algorithm / technical trigger is not in the menu, the returned function is false,
-    /// the trigger "algorithm type" is -1, and the value of the bit number is -1
+    /// in case the algorithm trigger / technical trigger is not in the menu,
+    /// the returned function is false, the trigger category is irrelevant
+    /// (default value is AlgorithmTrigger), and the value of the bit number is -1
 
-    const bool l1AlgTechTrigBitNumber(const std::string& nameAlgTechTrig,
-            int& triggerAlgTechTrig, int& bitNumber) const;
+    const bool l1AlgoTechTrigBitNumber(const std::string& nameAlgoTechTrig,
+            TriggerCategory& trigCategory, int& bitNumber) const;
+
+    /// deprecated version - use l1AlgoTechTrigBitNumber
+    const bool l1AlgTechTrigBitNumber(const std::string& nameAlgoTechTrig,
+            int& triggerAlgoTechTrig, int& bitNumber) const;
 
     /// return results for a given algorithm or technical trigger:
     /// input:
     ///   event
     ///   input tag for the L1GlobalTriggerRecord product
     ///   input tag for the L1GlobalTriggerReadoutRecord product
-    ///   physics algorithm name or alias or technical trigger name
+    ///   algorithm trigger name or alias, or technical trigger name
     /// output (by reference):
     ///    decision before mask,
     ///    decision after mask,
@@ -87,14 +108,14 @@ public:
     const int l1Results(const edm::Event& iEvent,
             const edm::InputTag& l1GtRecordInputTag,
             const edm::InputTag& l1GtReadoutRecordInputTag,
-            const std::string& nameAlgTechTrig, bool& decisionBeforeMask,
+            const std::string& nameAlgoTechTrig, bool& decisionBeforeMask,
             bool& decisionAfterMask, int& prescaleFactor, int& triggerMask) const;
 
     /// return results for a given algorithm or technical trigger,
     /// input tag for the an appropriate EDM product will be found from provenance
     /// input:
     ///   event
-    ///   physics algorithm name or alias or technical trigger name
+    ///   algorithm trigger name or alias, or technical trigger name
     /// output (by reference):
     ///    decision before mask,
     ///    decision after mask,
@@ -103,7 +124,7 @@ public:
     /// return: integer error code
 
     const int l1Results(const edm::Event& iEvent,
-            const std::string& nameAlgTechTrig, bool& decisionBeforeMask,
+            const std::string& nameAlgoTechTrig, bool& decisionBeforeMask,
             bool& decisionAfterMask, int& prescaleFactor, int& triggerMask) const;
 
     /// for the functions decisionBeforeMask, decisionAfterMask, decision
@@ -113,7 +134,7 @@ public:
     ///   event, event setup
     ///   input tag for the L1GlobalTriggerRecord product
     ///   input tag for the L1GlobalTriggerReadoutRecord product
-    ///   physics algorithm name or alias or technical trigger name
+    ///   algorithm trigger name or alias, or technical trigger name
     /// output (by reference):
     ///    error code
     /// return: the corresponding quantity
@@ -125,20 +146,20 @@ public:
     const bool decisionBeforeMask(const edm::Event& iEvent,
             const edm::InputTag& l1GtRecordInputTag,
             const edm::InputTag& l1GtReadoutRecordInputTag,
-            const std::string& nameAlgTechTrig, int& errorCode) const;
+            const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     const bool decisionBeforeMask(const edm::Event& iEvent,
-            const std::string& nameAlgTechTrig, int& errorCode) const;
+            const std::string& nameAlgoTechTrig, int& errorCode) const;
 
 
     ///   return decision after trigger mask for a given algorithm or technical trigger
     const bool decisionAfterMask(const edm::Event& iEvent,
             const edm::InputTag& l1GtRecordInputTag,
             const edm::InputTag& l1GtReadoutRecordInputTag,
-            const std::string& nameAlgTechTrig, int& errorCode) const;
+            const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     const bool decisionAfterMask(const edm::Event& iEvent,
-            const std::string& nameAlgTechTrig, int& errorCode) const;
+            const std::string& nameAlgoTechTrig, int& errorCode) const;
 
 
     ///   return decision after trigger mask for a given algorithm or technical trigger
@@ -146,60 +167,86 @@ public:
     const bool decision(const edm::Event& iEvent,
             const edm::InputTag& l1GtRecordInputTag,
             const edm::InputTag& l1GtReadoutRecordInputTag,
-            const std::string& nameAlgTechTrig, int& errorCode) const;
+            const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     const bool decision(const edm::Event& iEvent,
-            const std::string& nameAlgTechTrig, int& errorCode) const;
+            const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     ///   return prescale factor for a given algorithm or technical trigger
     const int prescaleFactor(const edm::Event& iEvent,
             const edm::InputTag& l1GtRecordInputTag,
             const edm::InputTag& l1GtReadoutRecordInputTag,
-            const std::string& nameAlgTechTrig, int& errorCode) const;
+            const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     const int prescaleFactor(const edm::Event& iEvent,
-            const std::string& nameAlgTechTrig, int& errorCode) const;
+            const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     ///   return trigger mask for a given algorithm or technical trigger
     const int triggerMask(const edm::Event& iEvent,
             const edm::InputTag& l1GtRecordInputTag,
             const edm::InputTag& l1GtReadoutRecordInputTag,
-            const std::string& nameAlgTechTrig, int& errorCode) const;
+            const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     const int triggerMask(const edm::Event& iEvent,
-            const std::string& nameAlgTechTrig, int& errorCode) const;
+            const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     ///     faster than previous two methods - one needs in fact for the
     ///     masks the event setup only
-    const int triggerMask(const std::string& nameAlgTechTrig, int& errorCode) const;
+    const int triggerMask(const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     /// return the index of the actual set of prescale factors used for the
     /// event (must be the same for all events in the luminosity block,
     /// if no errors)
+    ///
+
     const int prescaleFactorSetIndex(const edm::Event& iEvent,
             const edm::InputTag& l1GtRecordInputTag,
             const edm::InputTag& l1GtReadoutRecordInputTag,
-            const std::string& triggerAlgTechTrig, int& errorCode) const;
+            const TriggerCategory& trigCategory, int& errorCode) const;
 
     const int prescaleFactorSetIndex(const edm::Event& iEvent,
-            const std::string& triggerAlgTechTrig, int& errorCode) const;
+            const TriggerCategory& trigCategory, int& errorCode) const;
+
+    ///     deprecated versions
+    const int prescaleFactorSetIndex(const edm::Event& iEvent,
+            const edm::InputTag& l1GtRecordInputTag,
+            const edm::InputTag& l1GtReadoutRecordInputTag,
+            const std::string& triggerAlgoTechTrig, int& errorCode) const;
+
+    const int prescaleFactorSetIndex(const edm::Event& iEvent,
+            const std::string& triggerAlgoTechTrig, int& errorCode) const;
 
     /// return the actual set of prescale factors used for the
     /// event (must be the same for all events in the luminosity block,
     /// if no errors)
+
     const std::vector<int>& prescaleFactorSet(const edm::Event& iEvent,
             const edm::InputTag& l1GtRecordInputTag,
             const edm::InputTag& l1GtReadoutRecordInputTag,
-            const std::string& triggerAlgTechTrig, int& errorCode);
+            const TriggerCategory& trigCategory, int& errorCode);
 
     const std::vector<int>& prescaleFactorSet(const edm::Event& iEvent,
-            const std::string& triggerAlgTechTrig, int& errorCode);
+            const TriggerCategory& trigCategory, int& errorCode);
+
+    ///     deprecated versions
+    const std::vector<int>& prescaleFactorSet(const edm::Event& iEvent,
+            const edm::InputTag& l1GtRecordInputTag,
+            const edm::InputTag& l1GtReadoutRecordInputTag,
+            const std::string& triggerAlgoTechTrig, int& errorCode);
+
+    const std::vector<int>& prescaleFactorSet(const edm::Event& iEvent,
+            const std::string& triggerAlgoTechTrig, int& errorCode);
 
 
     /// return the set of trigger masks for the physics partition (partition zero)
     /// used for the event (remain the same in the whole run, if no errors)
     const std::vector<unsigned int>& triggerMaskSet(
-            const std::string& triggerAlgTechTrig, int& errorCode);
+            const TriggerCategory& trigCategory, int& errorCode);
+
+
+    ///     deprecated version
+    const std::vector<unsigned int>& triggerMaskSet(
+            const std::string& triggerAlgoTechTrig, int& errorCode);
 
     /// return the L1 trigger menu name
     const std::string& l1TriggerMenu() const;
@@ -207,16 +254,39 @@ public:
     /// return the L1 trigger menu implementation
     const std::string& l1TriggerMenuImplementation() const;
 
+    /// return a pointer to the L1 trigger menu from event setup
+    const L1GtTriggerMenu* ptrL1TriggerMenuEventSetup(int& errorCode);
+
+    /// return a pointer to the L1GtTriggerMenuLite product
+    const L1GtTriggerMenuLite* ptrL1GtTriggerMenuLite(int& errorCode);
+
+    /// check if L1 trigger configuration is available
+    /// return false and an error code if configuration is not available
+    const bool availableL1Configuration(int& errorCode, int& l1ConfCode) const;
+
+
 private:
 
-    /// cached stuff
+    static const std::string EmptyString;
+    static const int L1GtNotValidError;
+
+    /// return the trigger result given bit number and decision word
+    /// errorCode != 0 if bit number greater than size of decision word
+    /// print in debug mode a message in case of error
+    const bool trigResult(const DecisionWord& decWord, const int bitNumber,
+            const std::string& nameAlgoTechTrig,
+            const TriggerCategory& trigCategory, int& errorCode) const;
+
+private:
+
+    /// event setup cached stuff
 
     /// stable parameters
     const L1GtStableParameters* m_l1GtStablePar;
     unsigned long long m_l1GtStableParCacheID;
 
-    /// number of physics triggers
-    unsigned int m_numberPhysTriggers;
+    /// number of algorithm triggers
+    unsigned int m_numberAlgorithmTriggers;
 
     /// number of technical triggers
     unsigned int m_numberTechnicalTriggers;
@@ -244,11 +314,11 @@ private:
     const L1GtTriggerMask* m_l1GtTmVetoTech;
     unsigned long long m_l1GtTmVetoTechCacheID;
 
-    std::vector<unsigned int> m_triggerMaskAlgoTrig;
-    std::vector<unsigned int> m_triggerMaskTechTrig;
+    const std::vector<unsigned int>* m_triggerMaskAlgoTrig;
+    const std::vector<unsigned int>* m_triggerMaskTechTrig;
 
-    std::vector<unsigned int> m_triggerMaskVetoAlgoTrig;
-    std::vector<unsigned int> m_triggerMaskVetoTechTrig;
+    const std::vector<unsigned int>* m_triggerMaskVetoAlgoTrig;
+    const std::vector<unsigned int>* m_triggerMaskVetoTechTrig;
 
     // trigger menu
     const L1GtTriggerMenu* m_l1GtMenu;
@@ -258,6 +328,28 @@ private:
     const AlgorithmMap* m_algorithmAliasMap;
     const AlgorithmMap* m_technicalTriggerMap;
 
+    bool m_l1EventSetupValid;
+
+    /// L1GtTriggerMenuLite cached stuff
+
+
+    /// L1GtTriggerMenuLite
+    const L1GtTriggerMenuLite* m_l1GtMenuLite;
+
+    const L1GtTriggerMenuLite::L1TriggerMap* m_algorithmMapLite;
+    const L1GtTriggerMenuLite::L1TriggerMap* m_algorithmAliasMapLite;
+    const L1GtTriggerMenuLite::L1TriggerMap* m_technicalTriggerMapLite;
+
+    const std::vector<unsigned int>* m_triggerMaskAlgoTrigLite;
+    const std::vector<unsigned int>* m_triggerMaskTechTrigLite;
+
+    const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrigLite;
+    const std::vector<std::vector<int> >* m_prescaleFactorsTechTrigLite;
+
+    const edm::RunID* m_runIDCache;
+
+    bool m_l1GtMenuLiteValid;
+
 private:
 
     /// index of physics DAQ partition
@@ -266,6 +358,9 @@ private:
     std::vector<unsigned int> m_triggerMaskSet;
     std::vector<int> m_prescaleFactorSet;
 
+    /// flags to check which method was used to retrieve L1 trigger configuration
+    bool m_retrieveL1EventSetup;
+    bool m_retrieveL1GtTriggerMenuLite;
 
 };
 

@@ -12,11 +12,11 @@ import sys
 ###################### user choices ######################
 
 # (pre)release (cycle) to be run - it is used to choose a correct global tag
-#cmsRunRelease = 'CMSSW_3_6_X'
-cmsRunRelease = 'CMSSW_3_5_X'
+cmsRunRelease = 'CMSSW_3_6_X'
+#cmsRunRelease = 'CMSSW_3_5_X'
 
 # choose (pre)release used to produce the event samples
-sampleFromRelease = 'CMSSW_3_6_0_pre2'
+sampleFromRelease = 'CMSSW_3_5_6'
 #sampleFromRelease = 'CMSSW_3_5_2'
 #sampleFromRelease = 'CMSSW_3_5_0'
 #sampleFromRelease = 'CMSSW_3_4_1'
@@ -32,20 +32,21 @@ useRelValSample = True
 #
 # comment/uncomment the next line to choose sample type 
 # (un-commented selects data)
-useRelValSample=False 
+#useRelValSample=False 
 
 if useRelValSample == True :
     
     #globalTag = 'MC'
-    #globalTag = 'START'
-    globalTag = 'CRAFT'
+    globalTag = 'START'
+    #globalTag = 'CRAFT'
     
     # RelVals samples 
     # not all combinations (sampleFromRelease, useSample, dataType) are included
     #
+    useSample = 'MinBias'
     #useSample = 'RelValTTbar'
     #useSample = 'RelValQCD_Pt_80_120'
-    useSample = 'Cosmics_CRAFT09_R_V10'
+    #useSample = 'Cosmics_CRAFT09_R_V10'
      
     # data type
     dataType = 'RECO'
@@ -92,9 +93,9 @@ if (useRelValSample == True) and (useLocalFiles == False) :
     
     if cmsRunRelease == 'CMSSW_3_6_X' :
         if globalTag == 'MC' :
-            useGlobalTag = 'MC_3XY_V25'
+            useGlobalTag = 'MC_36Y_V7A'
         elif globalTag == 'START' :
-            useGlobalTag = 'START3X_V25'
+            useGlobalTag = 'START36_V7'
         elif globalTag == 'CRAFT' :
             useGlobalTag = 'CRAFT09_R_V10'
         else :
@@ -390,6 +391,19 @@ if (useRelValSample == True) and (useLocalFiles == False) :
                 '/store/relval/CMSSW_3_6_0_pre2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V24-v1/0000/04A74FCB-2727-DF11-BFE5-001731AF68B9.root'
                 ]);
 
+        elif (sampleFromRelease == 'CMSSW_3_5_6') and (useSample == 'MinBias') and (dataType == 'RAW') :
+
+            dataset = '/MinBias/Spring10-START3X_V25B-v1/GEN-SIM-RAW'
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
+        
+            readFiles.extend( [
+                '/store/mc/Spring10/MinBias/GEN-SIM-RAW/START3X_V25B-v1/0104/FECFDECD-9739-DF11-A00E-001A92971AAA.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RAW/START3X_V25B-v1/0104/FE747EEC-9D39-DF11-BD36-0018F3D09636.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RAW/START3X_V25B-v1/0104/FE706011-9139-DF11-8F2A-0018F3D096B6.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RAW/START3X_V25B-v1/0104/FE476F57-9239-DF11-BA70-002618943950.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RAW/START3X_V25B-v1/0104/FE12184C-8E39-DF11-89F8-00304867905A.root'
+               ]);
+
         elif (sampleFromRelease == 'CMSSW_3_5_2') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_3_5_2-START3X_V21-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
@@ -455,23 +469,6 @@ if (useRelValSample == True) and (useLocalFiles == False) :
                 '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V8_v1/0000/0AF5B676-5AF3-DD11-A22F-001617DBCF1E.root'
                 ]);
 
-        elif (sampleFromRelease == 'CMSSW_3_5_0') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
-        
-            dataset = '/RelValQCD_Pt_80_120/CMSSW_3_5_0-START3X_V21-v1/GEN-SIM-RECO'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
-
-            readFiles.extend( [
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/B27E46BF-3E13-DF11-A7EE-001A9281172C.root',
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/44E856CB-3F13-DF11-8B01-001A92971B7C.root',
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/3ACDFD75-4013-DF11-A204-001A92971BDC.root',
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/3A52592E-3E13-DF11-8EAE-001A92810AEA.root',
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/38DA44B8-3D13-DF11-B10D-0018F3D09642.root',
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/14004A7D-6213-DF11-B250-001A92810AEE.root',
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0012/EA2B34EC-3913-DF11-8E34-0026189438BC.root',
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0012/DA4420C6-3813-DF11-84CC-003048679000.root' 
-                ] );
-
-
         elif (sampleFromRelease == 'CMSSW_3_6_0_pre2') and (useSample == 'RelValTTbar') and (dataType == 'RECO') :
         
             dataset = '/RelValTTbar/CMSSW_3_6_0_pre2-START3X_V24-v1/GEN-SIM-RECO'
@@ -489,6 +486,36 @@ if (useRelValSample == True) and (useLocalFiles == False) :
                 '/store/relval/CMSSW_3_6_0_pre2/RelValTTbar/GEN-SIM-RECO/START3X_V24-v1/0000/306EBF32-2127-DF11-8865-003048678D86.root',
                 '/store/relval/CMSSW_3_6_0_pre2/RelValTTbar/GEN-SIM-RECO/START3X_V24-v1/0000/0069AC5F-2827-DF11-8986-001731AF698F.root'
                 ] );
+
+        elif (sampleFromRelease == 'CMSSW_3_5_6') and (useSample == 'MinBias') and (dataType == 'RECO') :
+            
+            dataset = '/MinBias/Spring10-START3X_V26A_356ReReco-v1/GEN-SIM-RECO'
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
+
+            readFiles.extend( [
+                '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FEFC70B6-F53D-DF11-B57E-003048679150.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FED8673E-F53D-DF11-9E58-0026189437EB.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FEBF7874-EF3D-DF11-910D-002354EF3BDF.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FEA8ECD8-F13D-DF11-8EBD-00304867BFAE.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FE838E9F-F43D-DF11-BEBA-00261894393B.root'
+                ] );
+
+        elif (sampleFromRelease == 'CMSSW_3_5_0') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
+        
+            dataset = '/RelValQCD_Pt_80_120/CMSSW_3_5_0-START3X_V21-v1/GEN-SIM-RECO'
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
+
+            readFiles.extend( [
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/B27E46BF-3E13-DF11-A7EE-001A9281172C.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/44E856CB-3F13-DF11-8B01-001A92971B7C.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/3ACDFD75-4013-DF11-A204-001A92971BDC.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/3A52592E-3E13-DF11-8EAE-001A92810AEA.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/38DA44B8-3D13-DF11-B10D-0018F3D09642.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/14004A7D-6213-DF11-B250-001A92810AEE.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0012/EA2B34EC-3913-DF11-8E34-0026189438BC.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0012/DA4420C6-3813-DF11-84CC-003048679000.root' 
+                ] );
+
 
         elif (sampleFromRelease == 'CMSSW_3_5_0') and (useSample == 'RelValTTbar') and (dataType == 'RECO') :
         
