@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_0/GRun/V22 (CMSSW_3_6_0_HLT8)
+# /dev/CMSSW_3_6_0/GRun/V23 (CMSSW_3_6_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/GRun/V22')
+  tableName = cms.string('/dev/CMSSW_3_6_0/GRun/V23')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -1941,7 +1941,7 @@ process.hltL1sVetoL1SingleEG2 = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( '""L1_BscMinBiasOR_BptxPlusORMinus" AND NOT L1_SingleEG2"' ),
+    L1SeedsLogicalExpression = cms.string( "L1_BscMinBiasOR_BptxPlusORMinus AND NOT L1_SingleEG2" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
