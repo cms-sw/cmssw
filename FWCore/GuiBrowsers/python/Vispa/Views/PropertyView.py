@@ -758,7 +758,7 @@ class TextEditWithButtonProperty(Property, QWidget):
             self.emit(SIGNAL('updatePropertyHeight'),self)
         self.setToolTip(self.strValue())
         # set property only if button is not being pressed
-        if not self.button() or not self.button().isVisible():
+        if not self.button() or not self.button().isDown():
             Property.valueChanged(self)
         
     def setHighlighted(self,highlight):
