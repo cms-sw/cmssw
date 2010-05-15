@@ -159,6 +159,9 @@ std::ostream & operator<<(std::ostream& ost ,const CaloSegment& seg)
     case CaloSegment::ECALHCALGAP:
       ost << "ECAL-HCAL GAP ";
       break;
+    case CaloSegment::PSEEGAP:
+      ost  << "PS-ECAL GAP";
+      break;
     default:
       ost << "GAP " ;
     }
