@@ -1071,8 +1071,8 @@ DQMStore::checkBinningMatches(MonitorElement *me, TH1 *h)
     //  edm::LogWarning ("DQMStore")
     std::cout << "*** DQMStore: WARNING:"
               << "checkBinningMatches: different binning - cannot add object '"
-              << h->GetName() << "' of type '"
-              << h->IsA()->GetName() << " to existing ME: "
+              << h->GetName() << "' of type "
+              << h->IsA()->GetName() << " to existing ME: '"
               << me->getFullname() << "'\n";
     return false;
   }
