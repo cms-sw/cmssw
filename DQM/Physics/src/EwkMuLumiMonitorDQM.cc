@@ -25,7 +25,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "DataFormats/METReco/interface/MET.h"
-
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -61,7 +61,8 @@ EwkMuLumiMonitorDQM::EwkMuLumiMonitorDQM( const ParameterSet & cfg ) :
   maxDeltaR_(cfg.getUntrackedParameter<double>("maxDeltaR")),
   mtMin_(cfg.getUntrackedParameter<double>("mtMin")),
   mtMax_(cfg.getUntrackedParameter<double>("mtMax")),
-  acopCut_(cfg.getUntrackedParameter<double>("acopCut")){
+  acopCut_(cfg.getUntrackedParameter<double>("acopCut")), 
+  dxyCut_(cfg.getUntrackedParameter<double>("DxyCut")){
 }
 
 
@@ -276,6 +277,14 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	}
       }
       
+      // Beam spot
+      Handle<reco::BeamSpot> beamSpotHandle;
+      if (!ev.getByLabel(InputTag("offlineBeamSpot"), beamSpotHandle)) {
+	LogWarning("") << ">>> No beam spot found !!!";
+	return;
+      }
+
+      
 	//  looping on muon....
       Handle<View<Muon> >   muons;     
       if (!ev.getByLabel(muonTag_, muons)) {           
@@ -284,7 +293,7 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
       }
       
       ev.getByLabel(muonTag_, muons);  
-      //saving only muons with pt> ptMuCut and eta<etaMuCut  
+      //saving only muons with pt> ptMuCut and eta<etaMuCut, and dxy<dxyCut  
       std::vector<reco::Muon>  highPtGlbMuons; 
       std::vector<reco::Muon>  highPtStaMuons; 
 
@@ -292,8 +301,13 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
         const reco::Muon & mu = muons->at(i);
 	double pt = mu.pt();
 	double eta = mu.eta();
-	if (pt> ptMuCut_ && fabs(eta)< etaMuCut_) {
-	  if (mu.isGlobalMuon()) highPtGlbMuons.push_back(mu);
+	if (pt> ptMuCut_ && fabs(eta)< etaMuCut_ ) {
+	  if (mu.isGlobalMuon()) { 
+	    //check the dxy....
+            double dxy = mu.innerTrack()->dxy(beamSpotHandle->position()); 
+	    if (fabs(dxy)>dxyCut_) continue;       
+	    highPtGlbMuons.push_back(mu);
+	  }
           if (mu.isGlobalMuon()) continue;
 	  // if is not, look if it is a standalone.... 
           if(mu.isStandAloneMuon()) highPtStaMuons.push_back(mu); 
@@ -459,6 +473,8 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	    isMu1Iso = (iso1 < isoCut03_);
             if (!isMu1Iso) continue;
 	    // look at the standalone muon ....
+            // stop the loop after 10 cicles....  
+	    (nHighPtStaMu> 10)?   nHighPtStaMu=10 : 1; 
 	    for (unsigned int j =0; j <nHighPtStaMu ; ++j ){
 	      reco::Muon staMuon = highPtStaMuons[j];
 	      math::XYZTLorentzVector mu2(staMuon.p4());
@@ -505,7 +521,8 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	      if (glbMuon.charge() == tk.charge()) continue; 
 	      double pt2 = tk.pt();
 	      double eta = tk.eta();
-	      if (pt2< ptMuCut_ || fabs(eta) > etaMuCut_) continue;
+	      double dxy = tk.dxy(beamSpotHandle->position());
+	      if (pt2< ptMuCut_ || fabs(eta) > etaMuCut_ || fabs(dxy)>dxyCut_) continue;
 	      //assuming that the track is a mu....
 	      math::XYZTLorentzVector mu2(tk.px(),tk.py(), tk.pz(), sqrt( (tk.p() * tk.p())  + ( 0.10566 * 0.10566))) ;
 	      math::XYZTLorentzVector pair = mu1 + mu2;

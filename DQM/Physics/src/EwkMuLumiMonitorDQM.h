@@ -68,7 +68,7 @@ private:
   double mtMin_;
   double mtMax_;
   double acopCut_; 
-
+  double  dxyCut_;
 
 
   

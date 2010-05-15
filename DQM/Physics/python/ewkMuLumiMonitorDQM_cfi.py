@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 CombIsoCuts = cms.PSet(
     IsRelativeIso = cms.untracked.bool(True),
     IsCombinedIso = cms.untracked.bool(True),
-    IsoCut03 = cms.untracked.double(0.1),   
+    IsoCut03 = cms.untracked.double(0.15),   
 #    deltaRTrk = cms.untracked.double(0.3),
     ptThreshold = cms.untracked.double("0.0"), 
  #   deltaRVetoTrk = cms.untracked.double("0.015"), 
@@ -46,7 +46,8 @@ ewkMuLumiMonitorDQM = cms.EDAnalyzer(
     # W cuts
     mtMin = cms.untracked.double(50.0),
     mtMax = cms.untracked.double(200.0),
-    acopCut = cms.untracked.double(2.)
+    acopCut = cms.untracked.double(2.),
+    DxyCut = cms.untracked.double(0.5),
 )
 
 
