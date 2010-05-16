@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.40 2010/05/14 09:58:03 sturdy Exp $
+// $Id: DataCertificationJetMET.cc,v 1.41 2010/05/15 16:48:01 sturdy Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -48,22 +48,8 @@ DataCertificationJetMET::beginJob(void)
   // -----------------------------------------
   // verbose_ 0: suppress printouts
   //          1: show printouts
-  verbose_ = conf_.getUntrackedParameter<int>("Verbose");
+  verbose_ = conf_.getUntrackedParameter<int>("Verbose",0);
   metFolder        = conf_.getUntrackedParameter<std::string>("metFolder");
-  caloJetMeanTest  = conf_.getUntrackedParameter<bool>("caloJetMeanTest",true);
-  caloJetKSTest    = conf_.getUntrackedParameter<bool>("caloJetKSTest",false);
-  pfJetMeanTest    = conf_.getUntrackedParameter<bool>("pfJetMeanTest",true);
-  pfJetKSTest      = conf_.getUntrackedParameter<bool>("pfJetKSTest",false);
-  jptJetMeanTest   = conf_.getUntrackedParameter<bool>("jptJetMeanTest",true);
-  jptJetKSTest     = conf_.getUntrackedParameter<bool>("jptJetKSTest",false);
-  caloMETMeanTest  = conf_.getUntrackedParameter<bool>("caloMETMeanTest",true);
-  caloMETKSTest    = conf_.getUntrackedParameter<bool>("caloMETKSTest",false);
-  pfMETMeanTest    = conf_.getUntrackedParameter<bool>("pfMETMeanTest",true);
-  pfMETKSTest      = conf_.getUntrackedParameter<bool>("pfMETKSTest",false);
-  tcMETMeanTest    = conf_.getUntrackedParameter<bool>("tcMETMeanTest",true);
-  tcMETKSTest      = conf_.getUntrackedParameter<bool>("tcMETKSTest",false);
-  muMETMeanTest    = conf_.getUntrackedParameter<bool>("muMETMeanTest",true);
-  muMETKSTest      = conf_.getUntrackedParameter<bool>("muMETKSTest",false);
 
   jetTests[0][0] = conf_.getUntrackedParameter<bool>("caloBarrelJetMeanTest",true);
   jetTests[0][1] = conf_.getUntrackedParameter<bool>("caloBarrelJetKSTest",false);
