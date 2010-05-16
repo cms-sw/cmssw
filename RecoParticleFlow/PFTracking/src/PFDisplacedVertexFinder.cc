@@ -257,8 +257,8 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
   TransientVertex theVertexAdaptiveRaw;
   TransientVertex theRecoVertex;
 
-
-  // ---- Clean for potentially poor seeds ------- //
+  
+  // ---- 1) Clean for potentially poor seeds ------- //
   // --------------------------------------------- //
 
   if (tracksToFit.size() < 2) {
@@ -294,7 +294,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
   }
 
   // ----------------------------------------------- //
-  // ---- PRESELECT GOOD TRACKS FOR FINAL VERTED --- //
+  // ---- PRESELECT GOOD TRACKS FOR FINAL VERTEX --- //
   // ----------------------------------------------- //
 
 
