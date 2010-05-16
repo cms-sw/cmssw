@@ -24,8 +24,8 @@ l3TkMuonTrackFSV.beamSpot = 'offlineBeamSpot'
 
 l3MuonTrackFSV = Validation.RecoMuon.muonValidationHLT_cff.l3MuonTrackV.clone()
 l3MuonTrackFSV.associatormap = 'tpToL3TrackAssociationFS'
-l3MuonTrackFSV.label_tp_effic = 'mergedtruthMuon:MergedTrackTruth'
-l3MuonTrackFSV.label_tp_fake = 'mergedtruthMuon:MergedTrackTruth'
+l3MuonTrackFSV.label_tp_effic = 'mergedtruth:MergedTrackTruth'
+l3MuonTrackFSV.label_tp_fake = 'mergedtruth:MergedTrackTruth'
 l3MuonTrackFSV.beamSpot = 'offlineBeamSpot'
 
 l2MuonMuTrackFSV = Validation.RecoMuon.muonValidationHLT_cff.l2MuonMuTrackV.clone()
@@ -48,8 +48,8 @@ l3TkMuonMuTrackFSV.beamSpot = 'offlineBeamSpot'
 
 l3MuonMuTrackFSV = Validation.RecoMuon.muonValidationHLT_cff.l3MuonMuTrackV.clone()
 l3MuonMuTrackFSV.associatormap = 'tpToL3MuonAssociationFS'
-l3MuonMuTrackFSV.label_tp_effic = 'mergedtruthMuon:MergedTrackTruth'
-l3MuonMuTrackFSV.label_tp_fake = 'mergedtruthMuon:MergedTrackTruth'
+l3MuonMuTrackFSV.label_tp_effic = 'mergedtruth:MergedTrackTruth'
+l3MuonMuTrackFSV.label_tp_fake = 'mergedtruth:MergedTrackTruth'
 l3MuonMuTrackFSV.beamSpot = 'offlineBeamSpot'
 
 # # Muon validation sequence

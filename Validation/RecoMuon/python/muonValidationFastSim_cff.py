@@ -19,18 +19,18 @@ staUpdMuonTrackVTrackAssocFS.label_tp_fake = 'mergedtruthMuon:MergedTrackTruth'
 
 glbMuonTrackVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.glbMuonTrackVTrackAssoc.clone()
 glbMuonTrackVTrackAssocFS.associatormap = 'tpToGlbTrackAssociationFS'
-glbMuonTrackVTrackAssocFS.label_tp_effic = 'mergedtruthMuon:MergedTrackTruth'
-glbMuonTrackVTrackAssocFS.label_tp_fake = 'mergedtruthMuon:MergedTrackTruth'
+glbMuonTrackVTrackAssocFS.label_tp_effic = 'mergedtruth:MergedTrackTruth'
+glbMuonTrackVTrackAssocFS.label_tp_fake = 'mergedtruth:MergedTrackTruth'
 
 tevMuonFirstTrackVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.tevMuonFirstTrackVTrackAssoc.clone()
 tevMuonFirstTrackVTrackAssocFS.associatormap = 'tpToTevFirstTrackAssociationFS'
-tevMuonFirstTrackVTrackAssocFS.label_tp_effic = 'mergedtruthMuon:MergedTrackTruth'
-tevMuonFirstTrackVTrackAssocFS.label_tp_fake = 'mergedtruthMuon:MergedTrackTruth'
+tevMuonFirstTrackVTrackAssocFS.label_tp_effic = 'mergedtruth:MergedTrackTruth'
+tevMuonFirstTrackVTrackAssocFS.label_tp_fake = 'mergedtruth:MergedTrackTruth'
 
 tevMuonPickyTrackVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.tevMuonPickyTrackVTrackAssoc.clone()
 tevMuonPickyTrackVTrackAssocFS.associatormap = 'tpToTevPickyTrackAssociationFS'
-tevMuonPickyTrackVTrackAssocFS.label_tp_effic = 'mergedtruthMuon:MergedTrackTruth'
-tevMuonPickyTrackVTrackAssocFS.label_tp_fake = 'mergedtruthMuon:MergedTrackTruth'
+tevMuonPickyTrackVTrackAssocFS.label_tp_effic = 'mergedtruth:MergedTrackTruth'
+tevMuonPickyTrackVTrackAssocFS.label_tp_fake = 'mergedtruth:MergedTrackTruth'
 
 staMuonTrackVMuonAssocFS = Validation.RecoMuon.muonValidation_cff.staMuonTrackVMuonAssoc.clone()
 staMuonTrackVMuonAssocFS.associatormap = 'tpToStaMuonAssociationFS'
@@ -44,18 +44,18 @@ staUpdMuonTrackVMuonAssocFS.label_tp_fake = 'mergedtruthMuon:MergedTrackTruth'
 
 glbMuonTrackVMuonAssocFS = Validation.RecoMuon.muonValidation_cff.glbMuonTrackVMuonAssoc.clone()
 glbMuonTrackVMuonAssocFS.associatormap = 'tpToGlbMuonAssociationFS'
-glbMuonTrackVMuonAssocFS.label_tp_effic = 'mergedtruthMuon:MergedTrackTruth'
-glbMuonTrackVMuonAssocFS.label_tp_fake = 'mergedtruthMuon:MergedTrackTruth'
+glbMuonTrackVMuonAssocFS.label_tp_effic = 'mergedtruth:MergedTrackTruth'
+glbMuonTrackVMuonAssocFS.label_tp_fake = 'mergedtruth:MergedTrackTruth'
 
 tevMuonFirstTrackVMuonAssocFS = Validation.RecoMuon.muonValidation_cff.tevMuonFirstTrackVMuonAssoc.clone()
 tevMuonFirstTrackVMuonAssocFS.associatormap = 'tpToTevFirstMuonAssociationFS'
-tevMuonFirstTrackVMuonAssocFS.label_tp_effic = 'mergedtruthMuon:MergedTrackTruth'
-tevMuonFirstTrackVMuonAssocFS.label_tp_fake = 'mergedtruthMuon:MergedTrackTruth'
+tevMuonFirstTrackVMuonAssocFS.label_tp_effic = 'mergedtruth:MergedTrackTruth'
+tevMuonFirstTrackVMuonAssocFS.label_tp_fake = 'mergedtruth:MergedTrackTruth'
 
 tevMuonPickyTrackVMuonAssocFS = Validation.RecoMuon.muonValidation_cff.tevMuonPickyTrackVMuonAssoc.clone()
 tevMuonPickyTrackVMuonAssocFS.associatormap = 'tpToTevPickyMuonAssociationFS'
-tevMuonPickyTrackVMuonAssocFS.label_tp_effic = 'mergedtruthMuon:MergedTrackTruth'
-tevMuonPickyTrackVMuonAssocFS.label_tp_fake = 'mergedtruthMuon:MergedTrackTruth'
+tevMuonPickyTrackVMuonAssocFS.label_tp_effic = 'mergedtruth:MergedTrackTruth'
+tevMuonPickyTrackVMuonAssocFS.label_tp_fake = 'mergedtruth:MergedTrackTruth'
 
 # Configurations for RecoMuonValidators
 
