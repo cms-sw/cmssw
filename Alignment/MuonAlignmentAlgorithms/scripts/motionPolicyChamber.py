@@ -39,7 +39,7 @@ parser=optparse.OptionParser(usage)
 parser.add_option("-s","--nsigma",
   help="optional minimum nsigma(deltax) position displacement in order to move a chamber; default NSIGMA=3",
   type="int",
-  default=3,
+  default=2,
   dest="nsigma")
 
 parser.add_option("--dt",
@@ -91,16 +91,20 @@ def loopover(muSystem):
     keys.sort(cscorder)
   else: raise Exception
   
-  nkeys, nkeysr, nmoved, nnotmoved = 0,0,0,0
+  nkeys, nkeysr, nkeyspass, nmoved, nnotmoved = 0,0,0,0,0
+  nfail_toideal, nfail_deltafinal, nfail_lowstat, nfail_nsigma = 0,0,0,0
+  nok_toideal, nok_deltafinal, nok_lowstat, nok_nsigma = 0,0,0,0
   
   for key in keys:
-    nkeys+=1
     if muSystem == "DT":
+      if len(key) != 3: continue
       g1 = geom0.dt[key]
       g2 = geomN.dt[key]
     else:
+      if len(key) != 4: continue
       g1 = geom0.csc[key]
       g2 = geomN.csc[key]
+    nkeys+=1
     
     if g1.relativeto != g2.relativeto:
       print "%s %s relativeto=\"%s\" versus relativeto=\"%s\"" % (muSystem, str(key), g1.relativeto, g2.relativeto)
@@ -109,37 +113,102 @@ def loopover(muSystem):
     #r = reports[0]
     for r in reports:
       if r.postal_address[1:] == key:
-        if r.status != "PASS": break
         found = True
         rep = r
         break
     if not found:
-      print muSystem, str(key), "not found. continue..."
+      print muSystem, str(key), "not found in the report. Continue..."
       continue
     nkeysr+=1
-    
-    # check that movement is in reasonable range of 10 cm:
-    if abs(g1.x - g2.x) >= 10. :
-      print "Warning!!!", muSystem, str(key), "moved too much:", g1.x - g2.x, "skipping..."
+
+    if rep.status != "PASS":
+      print muSystem, str(key), "status is not PASS: %s   Continue..." % rep.status
       continue
+    #print muSystem, str(key)
+    nkeyspass+=1
     
-    #print "%s %s position difference: %g - %g = %g --> %g, nsigma: %g)" % (
-    #        muSystem, str(key), g1.x, g2.x, g1.x - g2.x, abs(g1.x - g2.x)/rep.deltax.error, theNSigma * rep.deltax.error)
-    if abs(g1.x - g2.x) >= theNSigma * rep.deltax.error :
-      print muSystem, str(key), "moved!"
-      nmoved+=1
-      #move this chamber:
-      if muSystem == "DT":
-        geom0.dt[key] = copy.copy(geomN.dt[key])
-      else:
-        geom0.csc[key] = copy.copy(geomN.csc[key])
-    else:
-      print muSystem, str(key), "not moved"
-      nnotmoved+=1
+    ############################################################
+    # CHECKS
+    
+    ok = True
+    
+    if muSystem == "DT":
+      st = key[1]
       
-  print muSystem,": #chambers in   geometry =", nkeys, "   PASSed report status =", nkeysr, "   moved =", nmoved, "   not moved =", nnotmoved, "   with N sigma ", theNSigma
-  
-  
+      # check that movement respective to ideal geometry is in reasonable range of 20 mm or 20 mrad:
+      if abs(g2.x) > 2. or abs(g2.y) > 2. or abs(g2.phiy) > 0.02 or abs(g2.phiz) > 0.02:
+        ok = False
+        nfail_toideal += 1
+        print "Warning!!!", muSystem, str(key), \
+          "moved too much with respect to ideal: dx=%.2f mm  dy=%.2f mm  dphiy=%.2f mrad  dphiz=%.2f mrad  skipping..." % (g2.x*10, g2.y*10, g2.phiy*1000, g2.phiz*1000)
+      if ok: nok_toideal +=1
+      
+      # check that movements during the final iteration were negligible
+      if st != 4 :
+        if abs(rep.deltax.value) > 0.03 or abs(rep.deltay.value) > 0.03 or abs(rep.deltaphiy.value) > 0.0003 or abs(rep.deltaphiz.value) > 0.0006:
+          ok = False
+          nfail_deltafinal += 1
+          print "Warning!!!", muSystem, str(key), \
+            "moved too much at final iteration: dx=%.2f mm  dy=%.2f mm  dphiy=%.2f mrad  dphiz=%.2f mrad   skipping..." % \
+              (rep.deltax.value*10, rep.deltay.value*10, rep.deltaphiy.value*1000, rep.deltaphiz.value*1000)
+      else:
+        if abs(rep.deltax.value) > 0.03 or abs(rep.deltaphiy.value) > 0.0003 or abs(rep.deltaphiz.value) > 0.0006:
+          ok = False
+          nfail_deltafinal += 1
+          print "Warning!!!", muSystem, str(key), \
+            "moved too much at final iteration: dx=%.2f mm  dphiy=%.2f mrad  dphiz=%.2f mrad   skipping..." % \
+              (rep.deltax.value*10, rep.deltaphiy.value*1000, rep.deltaphiz.value*1000)
+      if ok: nok_deltafinal +=1
+
+      # low statictics check:
+      if rep.deltax.error > 0.5:
+        ok = False
+        nfail_lowstat +=1
+        print "Warning!!!", muSystem, str(key), "low statistics chamber with too big dx.error = %.2f mm   skipping..." % (rep.deltax.error*10.)
+      if ok: nok_lowstat +=1
+    
+      # N-SIGMA MOTION POLICY CHECK
+      #print "%s %s position difference: %g - %g = %g --> %g, nsigma: %g)" % (
+      #        muSystem, str(key), g1.x, g2.x, g1.x - g2.x, abs(g1.x - g2.x)/rep.deltax.error, theNSigma * rep.deltax.error)
+      if abs(g1.x - g2.x) < theNSigma * math.sqrt ( rep.deltax.error*rep.deltax.error + 0.02*0.02 ) :
+        ok = False
+        nfail_nsigma += 1
+        print muSystem, str(key), "not moved: xN-x0 = %.3f - %.3f = %.3f < %.3f mm" % \
+          ( g2.x*10., g1.x*10., (g2.x-g1.x)*10., theNSigma * math.sqrt ( rep.deltax.error*rep.deltax.error + 0.02*0.02 )*10.)
+    
+    if not ok: continue
+    
+    ############################################################
+    # MOTION
+    print muSystem, str(key), "moved!"
+    nmoved+=1
+    #move this chamber:
+    if muSystem == "DT":
+      geom0.dt[key] = copy.copy(geomN.dt[key])
+    else:
+      geom0.csc[key] = copy.copy(geomN.csc[key])
+    
+  nnotmoved = nkeys - nmoved
+  nsig = int(theNSigma)
+  print """
+%(muSystem)s REPORT for  %(nsig)d sigma policy:
+Cumulative counters:
+  %(nkeys)d\t chambers in geometry
+  %(nkeysr)d\t chambers in report
+  %(nkeyspass)d\t have PASS status
+  %(nok_toideal)d\t pass big shift with respect to ideal check
+  %(nok_deltafinal)d\t pass big deltas during final iteration
+  %(nok_lowstat)d\t pass low statistics (or big deltax.error) check
+  %(nmoved)d\t moved
+Not moved counters:
+  %(nnotmoved)d\t chambers not moved
+  Numbers of chambers were not moved due to:
+    %(nfail_toideal)d\t big shift with respect to ideal
+    %(nfail_deltafinal)d\t big deltas during final iteration
+    %(nfail_lowstat)d\t low statistics (or big deltax.error)
+    %(nfail_nsigma)d\t |x_final - x_initial| < nsigma
+""" % vars()
+
 if DO_DT: loopover("DT")
 if DO_CSC: loopover("CSC")
 
