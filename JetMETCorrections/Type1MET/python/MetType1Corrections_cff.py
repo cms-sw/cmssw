@@ -12,32 +12,37 @@ metJESCorIC5CaloJet = cms.EDProducer("Type1MET",
                                    metType = cms.string('CaloMET'),
                                    jetPTthreshold = cms.double(20.0),
                                    inputUncorMetLabel = cms.string('met'),
-                                   corrector = cms.string('ic5CaloL2L3')
+                                   corrector = cms.string('L2L3JetCorrectorIC5Calo'),
+                                   UscaleA = cms.double(1.2),
+                                   UscaleB = cms.double(2.1),
+                                   UscaleC = cms.double(0.6),
+                                   useTypeII = cms.bool(False),
+                                   hasMuonsCorr = cms.bool(False)
                                    )
 
 metJESCorKT4CaloJet = metJESCorIC5CaloJet.clone()
 metJESCorKT4CaloJet.inputUncorJetsLabel = "kt4CaloJets"
-metJESCorKT4CaloJet.corrector           = "kt4CaloL2L3"
+metJESCorKT4CaloJet.corrector           = "L2L3JetCorrectorKT4Calo"
 
 metJESCorKT6CaloJet = metJESCorIC5CaloJet.clone()
 metJESCorKT6CaloJet.inputUncorJetsLabel = "kt6CaloJets"
-metJESCorKT6CaloJet.corrector           = "kt6CaloL2L3"
+metJESCorKT6CaloJet.corrector           = "L2L3JetCorrectorKT6Calo"
 
 metJESCorAK5CaloJet = metJESCorIC5CaloJet.clone()
 metJESCorAK5CaloJet.inputUncorJetsLabel = "ak5CaloJets"
-metJESCorAK5CaloJet.corrector           = "ak5CaloL2L3"
+metJESCorAK5CaloJet.corrector           = "L2L3JetCorrectorAK5Calo"
 
 metJESCorAK7CaloJet = metJESCorIC5CaloJet.clone()
 metJESCorAK7CaloJet.inputUncorJetsLabel = "ak7CaloJets"
-metJESCorAK7CaloJet.corrector           = "ak7CaloL2L3"
+metJESCorAK7CaloJet.corrector           = "L2L3JetCorrectorAK7Calo"
 
 metJESCorSC5CaloJet = metJESCorIC5CaloJet.clone()
 metJESCorSC5CaloJet.inputUncorJetsLabel = "sisCone5CaloJets"
-metJESCorSC5CaloJet.corrector = "sisCone5CaloL2L3"
+metJESCorSC5CaloJet.corrector = "L2L3JetCorrectorSC5Calo"
 
 metJESCorSC7CaloJet = metJESCorIC5CaloJet.clone()
 metJESCorSC7CaloJet.inputUncorJetsLabel = "sisCone7CaloJets"
-metJESCorSC7CaloJet.corrector = "sisCone7CaloL2L3"
+metJESCorSC7CaloJet.corrector = "L2L3JetCorrectorSC7Calo"
 
 #MetType1Corrections = cms.Sequence(corMetType1Icone5*corMetType1Mcone5*corMetType1Mcone7)
 

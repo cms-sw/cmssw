@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.1 2008/08/27 00:41:21 kalavase Exp $
+// $Id: Type1MET.cc,v 1.2 2010/05/03 17:36:24 jdamgov Exp $
 //
 //
 
@@ -21,6 +21,7 @@
 // user include files
 #include "JetMETCorrections/Type1MET/interface/Type1MET.h"
 
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -29,6 +30,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 
 
 //using namespace std;
@@ -45,6 +47,11 @@ namespace cms
     correctorLabel   = iConfig.getParameter<std::string>("corrector");
     jetPTthreshold      = iConfig.getParameter<double>("jetPTthreshold");
     jetEMfracLimit      = iConfig.getParameter<double>("jetEMfracLimit");
+    UscaleA      = iConfig.getParameter<double>("UscaleA");
+    UscaleB      = iConfig.getParameter<double>("UscaleB");
+    UscaleC      = iConfig.getParameter<double>("UscaleC");
+    useTypeII      = iConfig.getParameter<bool>("useTypeII");
+    hasMuonsCorr   = iConfig.getParameter<bool>("hasMuonsCorr");
     if( metType == "CaloMET" )
       produces<CaloMETCollection>();
     else
@@ -61,13 +68,22 @@ namespace cms
     Handle<CaloJetCollection> inputUncorJets;
     iEvent.getByLabel( inputUncorJetsLabel, inputUncorJets );
     const JetCorrector* corrector = JetCorrector::getJetCorrector (correctorLabel, iSetup);
+
+// Remove lable from the code
+       Handle<View<reco::Muon> > inputMuons;
+       iEvent.getByLabel( "muons", inputMuons );
+// Remove lable from the code
+       Handle<ValueMap<reco::MuonMETCorrectionData> > vm_muCorrData_h;
+       iEvent.getByLabel( "muonMETValueMapProducer","muCorrData", vm_muCorrData_h);
+
     if( metType == "CaloMET")
       {
 	Handle<CaloMETCollection> inputUncorMet;                     //Define Inputs
 	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
 	std::auto_ptr<CaloMETCollection> output( new CaloMETCollection() );  //Create empty output
 	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), 
-		  jetPTthreshold, jetEMfracLimit, 
+		  jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr,
+                  *(inputMuons.product()), *(vm_muCorrData_h.product()),
 		  &*output );                                         //Invoke the algorithm
 	iEvent.put( output );                                        //Put output into Event
       }
@@ -77,7 +93,8 @@ namespace cms
 	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
 	std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
 	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), 
-		  jetPTthreshold, jetEMfracLimit,
+		  jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr,
+                  *(inputMuons.product()), *(vm_muCorrData_h.product()),
 		  &*output );                                         //Invoke the algorithm
 	iEvent.put( output );                                        //Put output into Event
       }

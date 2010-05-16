@@ -11,9 +11,22 @@
  * \version   1st Version May 14, 2005
  ************************************************************/
 
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "JetMETCorrections/Type1MET/interface/MuonMETInfo.h"
+
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 
 class JetCorrector;
 
@@ -25,12 +38,16 @@ class Type1METAlgo
   virtual void run(const reco::METCollection&, 
 		   const JetCorrector&,
 		   const reco::CaloJetCollection&, 
-		   double, double, 
+		   double, double, double, double, double, bool, bool,
+                   const edm::View<reco::Muon>& ,
+                   const edm::ValueMap<reco::MuonMETCorrectionData>& ,
 		   reco::METCollection *);
   virtual void run(const reco::CaloMETCollection&, 
 		   const JetCorrector&,
 		   const reco::CaloJetCollection&, 
-		   double, double,
+		   double, double, double, double, double, bool, bool,
+                   const edm::View<reco::Muon>& ,
+                   const edm::ValueMap<reco::MuonMETCorrectionData>& ,
 		   reco::CaloMETCollection*);
 };
 

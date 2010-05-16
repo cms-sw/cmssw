@@ -15,7 +15,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.h,v 1.1 2008/08/27 00:41:45 kalavase Exp $
+// $Id: Type1MET.h,v 1.2 2010/05/03 17:36:23 jdamgov Exp $
 //
 //
 
@@ -53,6 +53,11 @@ namespace cms
     std::string correctorLabel;
     double jetPTthreshold;
     double jetEMfracLimit;
+    double UscaleA;
+    double UscaleB;
+    double UscaleC;
+    bool useTypeII;
+    bool hasMuonsCorr;
   };
 }
 #endif
