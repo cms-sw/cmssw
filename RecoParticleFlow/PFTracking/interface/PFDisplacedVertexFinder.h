@@ -120,7 +120,7 @@ class PFDisplacedVertexFinder {
   void mergeSeeds(reco::PFDisplacedVertexSeedCollection&, std::vector<bool>& bLocked);
 
   /// Fit one by one the vertex points with associated tracks to get displaced vertices
-  bool fitVertexFromSeed(reco::PFDisplacedVertexSeed&, std::string, reco::PFDisplacedVertex&);
+  bool fitVertexFromSeed(reco::PFDisplacedVertexSeed&, reco::PFDisplacedVertex&);
 
   /// Remove potentially fakes displaced vertices
   void selectAndLabelVertices(reco::PFDisplacedVertexCollection&,  std::vector <bool>&);
