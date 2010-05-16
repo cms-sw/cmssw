@@ -32,11 +32,9 @@ process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoMuon.MuonTrackValidator_cff")
 if (FastSim):
-    from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
-    mergedtruth.simHitCollections =  cms.PSet(tracker = cms.vstring("famosSimHitsTrackerHits"))
-    mergedtruth.simHitLabel = 'famosSimHits'
-    mergedtruth.removeDeadModules = cms.bool(False)
-process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
+    process.load("FastSimulation.Validation.trackingParticlesFastSim_cfi")
+else:
+    process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 if (FastSim):
