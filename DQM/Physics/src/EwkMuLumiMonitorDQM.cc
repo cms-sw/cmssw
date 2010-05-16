@@ -516,7 +516,10 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	      return;     
 	    } 
 	    ev.getByLabel(caloTowerTag_, calotower);
-	    for (unsigned int j=0; j<tracks->size(); j++ ){	
+            // avoid to loop on more than 5000 trks
+            unsigned int nTrk = tracks->size();
+            (nTrk> 5000)?   nTrk=5000 : 1; 
+	    for (unsigned int j=0; j<nTrk; j++ ){	
 	      const reco::Track & tk = tracks->at(j);
 	      if (glbMuon.charge() == tk.charge()) continue; 
 	      double pt2 = tk.pt();
