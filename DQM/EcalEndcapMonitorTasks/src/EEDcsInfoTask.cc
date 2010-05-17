@@ -7,7 +7,8 @@
 
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 
-#include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
+#include "CondFormats/DataRecord/interface/EcalDCSTowerStatusRcd.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
@@ -28,8 +29,6 @@ EEDcsInfoTask::EEDcsInfoTask(const edm::ParameterSet& ps) {
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
-
-  dcsStatusCollection_ = ps.getParameter<edm::InputTag>("DcsStatusCollection");
 
   meEEDcsFraction_ = 0;
   meEEDcsActiveMap_ = 0;
@@ -80,9 +79,40 @@ void EEDcsInfoTask::endJob(void) {
 
 void EEDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
 
+  // information is by run, so fill the same for the run and for every lumi section
   for ( int itx = 0; itx < 40; itx++ ) {
     for ( int ity = 0; ity < 20; ity++ ) {
       readyLumi[itx][ity] = 1;
+    }
+  }
+
+  edm::ESHandle<EcalDCSTowerStatus> pDCSStatus;
+  iSetup.get<EcalDCSTowerStatusRcd>().get(pDCSStatus);
+  if ( !pDCSStatus.isValid() ) {
+    edm::LogWarning("EEDcsInfoTask") << "EcalDCSTowerStatus record not valid";
+    return;
+  }
+  const EcalDCSTowerStatus *dcsStatus = pDCSStatus.product();
+
+  for(int iz=-1; iz<=1; iz+=2) {
+    for(int itx=0 ; itx<20; itx++) {
+      for(int ity=0 ; ity<20; ity++) {
+        if (EcalScDetId::validDetId(itx+1,ity+1,iz )){
+
+          EcalScDetId eeid(itx+1,ity+1,iz);
+
+          uint16_t dbStatus = 0; // 0 = good          
+          EcalDCSTowerStatus::const_iterator dcsStatusIt = dcsStatus->find( eeid.rawId() );
+          if ( dcsStatusIt != dcsStatus->end() ) dbStatus = dcsStatusIt->getStatusCode();
+
+          if ( dbStatus > 0 ) {
+            int offsetSC = (iz > 0) ? 0 : 20;
+            readyRun[offsetSC+itx][ity] = 0;
+            readyLumi[offsetSC+itx][ity] = 0;
+          }
+
+        }
+      }
     }
   }
 
@@ -145,36 +175,6 @@ void EEDcsInfoTask::cleanup(void){
 
 }
 
-void EEDcsInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
-
-  edm::Handle<DcsStatusCollection> dcsh;
-
-  if ( e.getByLabel(dcsStatusCollection_, dcsh) ) {
-
-    for ( int iz = -1; iz < 2; iz+=2 ) {
-      for ( int itx = 0; itx < 20; itx++ ) {
-        for ( int ity = 0; ity < 20; ity++ ) {
-        
-          int offsetSC = (iz > 0) ? 0 : 20;
-          bool ready = false;
-        
-          if ( dcsh->size() > 0 ) ready = (iz < 0) ? (*dcsh)[0].ready(DcsStatus::EEm) : (*dcsh)[0].ready(DcsStatus::EEp);
-        
-          if ( !ready ) {
-            readyRun[offsetSC+itx][ity] = 0;
-            readyLumi[offsetSC+itx][ity] = 0;
-          }
-        
-        }
-      }
-    }
-    
-  } else {
-    edm::LogWarning("EEDcsInfoTask") << dcsStatusCollection_ << " not available";
-  }
-
-}
-
 void EEDcsInfoTask::fillMonitorElements(int ready[40][20]) {
 
   float readySum[18];
@@ -228,5 +228,9 @@ void EEDcsInfoTask::fillMonitorElements(int ready[40][20]) {
   }
 
   if( meEEDcsFraction_ ) meEEDcsFraction_->Fill( readySumTot/float(nValidChannelsTot) );
+
+}
+
+void EEDcsInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
 
 }

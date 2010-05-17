@@ -8,7 +8,8 @@
 
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
+#include "CondFormats/DataRecord/interface/EcalDAQTowerStatusRcd.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
@@ -30,11 +31,6 @@ EEDaqInfoTask::EEDaqInfoTask(const edm::ParameterSet& ps) {
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
-
-  EEMinusFedRangeMin_ = ps.getUntrackedParameter<int>("EEMinusFedRangeMin");
-  EEMinusFedRangeMax_ = ps.getUntrackedParameter<int>("EEMinusFedRangeMax");
-  EEPlusFedRangeMin_ = ps.getUntrackedParameter<int>("EEPlusFedRangeMin");
-  EEPlusFedRangeMax_ = ps.getUntrackedParameter<int>("EEPlusFedRangeMax");
 
   meEEDaqFraction_ = 0;
   meEEDaqActiveMap_ = 0;
@@ -85,79 +81,66 @@ void EEDaqInfoTask::endJob(void) {
 
 void EEDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
 
-  this->reset();
-  
-  for ( int iz = -1; iz < 2; iz+=2 ) {
-    for ( int ix = 1; ix <= 100; ix++ ) {
-      for ( int iy = 1; iy <= 100; iy++ ) {
-        int jx = (iz==1) ? 100 + ix : ix;
-        int jy = iy;
-        if( EEDetId::validDetId(ix, iy, iz) ) meEEDaqActiveMap_->setBinContent( jx, jy, 0.0 );
-        else meEEDaqActiveMap_->setBinContent( jx, jy, -1.0 );
-      }
+  // information is by run, so fill the same for the run and for every lumi section
+  for ( int itx = 0; itx < 40; itx++ ) {
+    for ( int ity = 0; ity < 20; ity++ ) {
+      readyLumi[itx][ity] = 1;
     }
   }
 
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
+  edm::ESHandle<EcalDAQTowerStatus> pDAQStatus;
+  iSetup.get<EcalDAQTowerStatusRcd>().get(pDAQStatus);
+  if ( !pDAQStatus.isValid() ) {
+    edm::LogWarning("EBDaqInfoTask") << "EcalDAQTowerStatus record not valid";
+    return;
+  }
+  const EcalDAQTowerStatus *daqStatus = pDAQStatus.product();
 
-  if( iSetup.find( recordKey ) ) {
+  for(int iz=-1; iz<=1; iz+=2) {
+    for(int itx=0 ; itx<20; itx++) {
+      for(int ity=0 ; ity<20; ity++) {
+        if (EcalScDetId::validDetId(itx+1,ity+1,iz )){
 
-    edm::ESHandle<RunInfo> sumFED;
-    iSetup.get<RunInfoRcd>().get(sumFED);    
-   
-    std::vector<int> FedsInIds= sumFED->m_fed_in;   
+          EcalScDetId eeid(itx+1,ity+1,iz);
 
-    float EEFedCount = 0.;
+          uint16_t dbStatus = 0; // 0 = good          
+          EcalDAQTowerStatus::const_iterator daqStatusIt = daqStatus->find( eeid.rawId() );
+          if ( daqStatusIt != daqStatus->end() ) dbStatus = daqStatusIt->getStatusCode();
 
-    for( unsigned int fedItr=0; fedItr<FedsInIds.size(); ++fedItr ) {
-
-      int fedID=FedsInIds[fedItr];
-
-      int iside = -1;
-      int ism = -1;
-
-      if( fedID >= EEMinusFedRangeMin_ && fedID <= EEMinusFedRangeMax_ ) {
-        iside = 0;
-        ism = fedID - EEMinusFedRangeMin_ + 1;
-      } else if( fedID >= EEPlusFedRangeMin_ && fedID <= EEPlusFedRangeMax_ ) {
-        iside = 1;
-        ism = fedID - EEPlusFedRangeMin_ + 10;
-      }
-
-      if ( iside > -1 ) {
-
-        EEFedCount++;
-
-        if ( meEEDaqActive_[ism-1] ) meEEDaqActive_[ism-1]->Fill(1.0);
-        
-        if( meEEDaqActiveMap_ ) {
-
-          for( int ix = 1; ix <=100; ix++ ) {
-            for( int iy = 1; iy <= 100; iy++ ) {
-              int ic = Numbers::icEE( ism, ix, iy );
-              int jx = (iside==1) ? 100 + ix : ix;
-              int jy = iy;
-              if( ic > -1 ) meEEDaqActiveMap_->setBinContent( jx, jy, 1.0 );
-            }
+          if ( dbStatus > 0 ) {
+            int offsetSC = (iz > 0) ? 0 : 20;
+            readyRun[offsetSC+itx][ity] = 0;
+            readyLumi[offsetSC+itx][ity] = 0;
           }
 
         }
-        
-        if( meEEDaqFraction_ ) meEEDaqFraction_->Fill( EEFedCount/18. );
-        
       }
-
     }
-    
-  } else {
-    
-    edm::LogWarning("EEDaqInfoTask") << "Cannot find any edm::RunInfoRcd";
-    
   }
 
 }
 
 void EEDaqInfoTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
+
+  this->fillMonitorElements(readyLumi);
+
+}
+
+void EEDaqInfoTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+  for ( int itx = 0; itx < 40; itx++ ) {
+    for ( int ity = 0; ity < 20; ity++ ) {
+      readyRun[itx][ity] = 1;
+    }
+  }
+
+}
+
+void EEDaqInfoTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  this->fillMonitorElements(readyRun);
 
 }
 
@@ -191,6 +174,62 @@ void EEDaqInfoTask::cleanup(void){
     }
 
   }
+
+}
+
+void EEDaqInfoTask::fillMonitorElements(int ready[40][20]) {
+
+  float readySum[18];
+  int nValidChannels[18];
+  for ( int ism = 0; ism < 18; ism++ ) {
+    readySum[ism] = 0;
+    nValidChannels[ism] = 0;
+  }
+  float readySumTot = 0.;
+  int nValidChannelsTot = 0;
+
+  for ( int iz = -1; iz < 2; iz+=2 ) {
+    for ( int itx = 0; itx < 20; itx++ ) {
+      for ( int ity = 0; ity < 20; ity++ ) {
+        for ( int h = 0; h < 5; h++ ) {
+          for ( int k = 0; k < 5; k++ ) {
+            
+            int ix = 5*itx + h;
+            int iy = 5*ity + k;
+
+            int offsetSC = (iz > 0) ? 0 : 20;
+            int offset = (iz > 0) ? 0 : 100;
+
+            if( EEDetId::validDetId(ix+1, iy+1, iz) ) {    
+
+              if(meEEDaqActiveMap_) meEEDaqActiveMap_->setBinContent( offset+ix+1, iy+1, ready[offsetSC+itx][ity] );
+              
+              EEDetId id = EEDetId(ix+1, iy+1, iz, EEDetId::XYMODE);
+
+              int ism = Numbers::iSM(id);
+              if(ready[offsetSC+itx][ity]) {
+                readySum[ism-1]++;
+                readySumTot++;
+              } 
+
+              nValidChannels[ism-1]++;
+              nValidChannelsTot++;
+
+            } else {
+              if(meEEDaqActiveMap_) meEEDaqActiveMap_->setBinContent( offset+ix+1, iy+1, -1.0 );
+            }
+
+          }
+        }
+      }
+    }
+  }
+
+  for ( int ism = 0; ism < 18; ism++ ) {
+    if( meEEDaqActive_[ism] ) meEEDaqActive_[ism]->Fill( readySum[ism]/float(nValidChannels[ism]) );
+  }
+
+  if( meEEDaqFraction_ ) meEEDaqFraction_->Fill( readySumTot/float(nValidChannelsTot) );
 
 }
 

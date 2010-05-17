@@ -5,7 +5,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
+#include "CondFormats/DataRecord/interface/EcalDCSTowerStatusRcd.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
@@ -26,8 +27,6 @@ EBDcsInfoTask::EBDcsInfoTask(const edm::ParameterSet& ps) {
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
-
-  dcsStatusCollection_ = ps.getParameter<edm::InputTag>("DcsStatusCollection");
 
   meEBDcsFraction_ = 0;
   meEBDcsActiveMap_ = 0;
@@ -78,11 +77,44 @@ void EBDcsInfoTask::endJob(void) {
 
 void EBDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
 
+  // information is by run, so fill the same for the run and for every lumi section
   for ( int iett = 0; iett < 34; iett++ ) {
     for ( int iptt = 0; iptt < 72; iptt++ ) {
       readyLumi[iptt][iett] = 1;
     }
   }
+  
+  edm::ESHandle<EcalDCSTowerStatus> pDCSStatus;
+  iSetup.get<EcalDCSTowerStatusRcd>().get(pDCSStatus);
+  if ( !pDCSStatus.isValid() ) {
+    edm::LogWarning("EBDcsInfoTask") << "EcalDCSTowerStatus record not valid";
+    return;
+  }
+  const EcalDCSTowerStatus *dcsStatus = pDCSStatus.product();
+
+  for(int iz=-1; iz<=1; iz+=2) {
+    for(int iptt=0 ; iptt<72; iptt++) {
+      for(int iett=0 ; iett<17; iett++) {
+        if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,iett+1,iptt+1 )){
+
+          EcalTrigTowerDetId ebid(iz,EcalBarrel,iett+1,iptt+1);
+          
+          uint16_t dbStatus = 0; // 0 = good
+          EcalDCSTowerStatus::const_iterator dcsStatusIt = dcsStatus->find( ebid.rawId() );
+          if ( dcsStatusIt != dcsStatus->end() ) dbStatus = dcsStatusIt->getStatusCode();
+
+          if ( dbStatus > 0 ) {
+            int ipttEB = iptt;
+            int iettEB = (iz==-1) ? iett : 17+iett;
+            readyRun[ipttEB][iettEB] = 0;
+            readyLumi[ipttEB][iettEB] = 0;
+          }
+          
+        }
+      }
+    }
+  }
+
 
 }
 
@@ -143,33 +175,6 @@ void EBDcsInfoTask::cleanup(void){
 
 }
 
-void EBDcsInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
-
-  edm::Handle<DcsStatusCollection> dcsh;
-
-  if ( e.getByLabel(dcsStatusCollection_, dcsh) ) {
-
-    for ( int iett = 0; iett < 34; iett++ ) {
-      for ( int iptt = 0; iptt < 72; iptt++ ) {
-
-        bool ready = false;
-        
-        if ( dcsh->size() > 0 ) ready = (iett < 17) ? (*dcsh)[0].ready(DcsStatus::EBm) : (*dcsh)[0].ready(DcsStatus::EBp);
-
-        if ( !ready ) {
-          readyRun[iptt][iett] = 0;
-          readyLumi[iptt][iett] = 0;
-        }
-
-      }
-    }
-    
-  } else {
-    edm::LogWarning("EBDcsInfoTask") << dcsStatusCollection_ << " not available";
-  }
-
-}
-
 void EBDcsInfoTask::fillMonitorElements(int ready[72][34]) {
 
   float readySum[36];
@@ -195,5 +200,9 @@ void EBDcsInfoTask::fillMonitorElements(int ready[72][34]) {
   }
 
   if( meEBDcsFraction_ ) meEBDcsFraction_->Fill(readySumTot/34./72.);
+
+}
+
+void EBDcsInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
 
 }

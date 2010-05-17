@@ -56,8 +56,6 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
-edm::InputTag dcsStatusCollection_; 
-
 MonitorElement* meEBDcsFraction_;
 MonitorElement* meEBDcsActive_[36];
 MonitorElement* meEBDcsActiveMap_;
