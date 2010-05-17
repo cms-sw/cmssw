@@ -396,7 +396,7 @@ void PlotMacro_Core(string input, string moduleName, string output)
    ChargeTIB->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   SaveCanvas(c1,output,"ChargeTIB.png");
+   SaveCanvas(c1,output,"SubDetChargeTIB");
    fprintf(pFile,"TIB   MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
    landau = getLandau(ChargeTIDM, Results, 0, 5400);
@@ -404,7 +404,7 @@ void PlotMacro_Core(string input, string moduleName, string output)
    ChargeTIDM->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   SaveCanvas(c1,output,"ChargeTIDM.png");
+   SaveCanvas(c1,output,"SubDetChargeTIDM");
    fprintf(pFile, "TIDM  MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
    landau = getLandau(ChargeTIDP, Results, 0, 5400);
@@ -412,7 +412,7 @@ void PlotMacro_Core(string input, string moduleName, string output)
    ChargeTIDP->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   SaveCanvas(c1,output,"ChargeTIDP.png");
+   SaveCanvas(c1,output,"SubDetChargeTIDP");
    fprintf(pFile, "TIDP  MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
    landau = getLandau(ChargeTOB, Results, 0, 5400);
@@ -420,7 +420,7 @@ void PlotMacro_Core(string input, string moduleName, string output)
    ChargeTOB->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   SaveCanvas(c1,output,"ChargeTOB.png");
+   SaveCanvas(c1,output,"SubDetChargeTOB");
    fprintf(pFile, "TOB   MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
    landau = getLandau(ChargeTECP1, Results, 0, 5400);
@@ -428,7 +428,7 @@ void PlotMacro_Core(string input, string moduleName, string output)
    ChargeTECP1->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   SaveCanvas(c1,output,"ChargeTECP1.png");
+   SaveCanvas(c1,output,"SubDetChargeTECP1");
    fprintf(pFile, "TECP1 MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
    landau = getLandau(ChargeTECP2, Results, 0, 5400);
@@ -436,7 +436,7 @@ void PlotMacro_Core(string input, string moduleName, string output)
    ChargeTECP2->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   SaveCanvas(c1,output,"ChargeTECP2.png");
+   SaveCanvas(c1,output,"SubDetChargeTECP2");
    fprintf(pFile, "TECP2 MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
    landau = getLandau(ChargeTECM1, Results, 0, 5400);
@@ -444,7 +444,7 @@ void PlotMacro_Core(string input, string moduleName, string output)
    ChargeTECM1->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   SaveCanvas(c1,output,"ChargeTECM1.png");
+   SaveCanvas(c1,output,"SubDetChargeTECM1");
    fprintf(pFile, "TECM1 MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
    landau = getLandau(ChargeTECM2, Results, 0, 5400);
@@ -452,7 +452,7 @@ void PlotMacro_Core(string input, string moduleName, string output)
    ChargeTECM2->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   SaveCanvas(c1,output,"ChargeTECM2.png");
+   SaveCanvas(c1,output,"SubDetChargeTECM2");
    fprintf(pFile, "TECM2 MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
    fclose(pFile);
