@@ -58,6 +58,20 @@ ESIntegrityClient::ESIntegrityClient(const ParameterSet& ps) {
     cout<<"ESIntegrityClient : Look up table file can not be found in "<<lookup_.fullPath().c_str()<<endl;
   }
 
+  hFED_ = 0;
+  hFiberOff_ = 0;
+  hFiberBadStatus_ = 0;
+  hKF1_ = 0;
+  hKF2_ = 0;
+  hKBC_ = 0;
+  hKEC_ = 0; 
+  hL1ADiff_ = 0;
+  hBXDiff_ = 0;
+  hOrbitNumberDiff_ = 0;
+  hSLinkCRCErr_ = 0; 
+
+  ievt_ = 0;
+  jevt_ = 0;
 }
 
 ESIntegrityClient::~ESIntegrityClient() {
