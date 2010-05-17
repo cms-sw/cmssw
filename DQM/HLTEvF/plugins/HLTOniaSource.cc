@@ -408,24 +408,24 @@ void  HLTOniaSource::fillOniaTriggerMEs( Handle<TrackCollection> &  collection, 
 void  HLTOniaSource::fillOniaTriggerMEs(std::vector<reco::RecoChargedCandidateRef>  &  candidateVector, string collectionLabel,  map<string, MonitorElement *>  & mapME ){
     
   for (unsigned int  i=0; i!=candidateVector.size(); i++) {
-   TrackRef tk = candidateVector[i]->get<TrackRef>();
-
-   //Fill MEs  
-   if(mapME[collectionLabel+"pt"]){  mapME[collectionLabel+"pt"]->Fill(tk->pt()); }
-   if(mapME[collectionLabel+"p"])  { mapME[collectionLabel+"p"]->Fill(tk->p()); }
-   if(mapME[collectionLabel+"eta"]) { mapME[collectionLabel+"eta"]->Fill(tk->eta()); }
-   if(mapME[collectionLabel+"phi"]) { mapME[collectionLabel+"phi"]->Fill(tk->phi()); }
-   if(mapME[collectionLabel+"etaphi"]){ mapME[collectionLabel+"etaphi"]->Fill(tk->phi(),tk->eta()); }
-   if(mapME[collectionLabel+"etapt"]){ mapME[collectionLabel+"etapt"]->Fill(tk->pt(),tk->eta()); }
-   if(mapME[collectionLabel+"charge"]){ mapME[collectionLabel+"charge"]->Fill(tk->charge()); }
-   
-   if(mapME[collectionLabel+"dxy"]){ mapME[collectionLabel+"dxy"]->Fill(tk->dxy(BSPosition_)); }
-   if(mapME[collectionLabel+"dz"]){ mapME[collectionLabel+"dz"]->Fill(tk->dz(BSPosition_)); }
-   
-   if(mapME[collectionLabel+"validhits"]) { mapME[collectionLabel+"validhits"]->Fill(tk->numberOfValidHits()); }
-   if(mapME[collectionLabel+"normchi"]){  mapME[collectionLabel+"normchi"]->Fill(tk->normalizedChi2()); }
+    const Track* tk = candidateVector[i]->get<TrackRef>().get();
+    if(tk) {
+      //Fill MEs  
+      if(mapME[collectionLabel+"pt"]){  mapME[collectionLabel+"pt"]->Fill(tk->pt()); }
+      if(mapME[collectionLabel+"p"])  { mapME[collectionLabel+"p"]->Fill(tk->p()); }
+      if(mapME[collectionLabel+"eta"]) { mapME[collectionLabel+"eta"]->Fill(tk->eta()); }
+      if(mapME[collectionLabel+"phi"]) { mapME[collectionLabel+"phi"]->Fill(tk->phi()); }
+      if(mapME[collectionLabel+"etaphi"]){ mapME[collectionLabel+"etaphi"]->Fill(tk->phi(),tk->eta()); }
+      if(mapME[collectionLabel+"etapt"]){ mapME[collectionLabel+"etapt"]->Fill(tk->pt(),tk->eta()); }
+      if(mapME[collectionLabel+"charge"]){ mapME[collectionLabel+"charge"]->Fill(tk->charge()); }
+      
+      if(mapME[collectionLabel+"dxy"]){ mapME[collectionLabel+"dxy"]->Fill(tk->dxy(BSPosition_)); }
+      if(mapME[collectionLabel+"dz"]){ mapME[collectionLabel+"dz"]->Fill(tk->dz(BSPosition_)); }
+      
+      if(mapME[collectionLabel+"validhits"]) { mapME[collectionLabel+"validhits"]->Fill(tk->numberOfValidHits()); }
+      if(mapME[collectionLabel+"normchi"]){  mapME[collectionLabel+"normchi"]->Fill(tk->normalizedChi2()); }
+    }
   }
- 
   if(mapME[collectionLabel+"nrcand"]){  mapME[collectionLabel+"nrcand"]->Fill( candidateVector.size());}
 }
 
@@ -440,22 +440,24 @@ void  HLTOniaSource::fillOniaTriggerMEs( Handle<RecoChargedCandidateCollection> 
     int num = 0;
     typedef RecoChargedCandidateCollection::const_iterator cand;
     for (cand i=myCollection.begin(); i!=myCollection.end(); i++) {
-      TrackRef tk = i->get<TrackRef>();
-      num++; 
-     //Fill MEs  
-      if(mapME[collectionLabel+"pt"]){  mapME[collectionLabel+"pt"]->Fill(tk->pt()); }
-      if(mapME[collectionLabel+"p"])  { mapME[collectionLabel+"p"]->Fill(tk->p()); }
-      if(mapME[collectionLabel+"eta"]) { mapME[collectionLabel+"eta"]->Fill(tk->eta()); }
-      if(mapME[collectionLabel+"phi"]) { mapME[collectionLabel+"phi"]->Fill(tk->phi()); }
-      if(mapME[collectionLabel+"etaphi"]){ mapME[collectionLabel+"etaphi"]->Fill(tk->phi(),tk->eta()); }
-      if(mapME[collectionLabel+"etapt"]){ mapME[collectionLabel+"etapt"]->Fill(tk->pt(),tk->eta()); }
-      if(mapME[collectionLabel+"charge"]){ mapME[collectionLabel+"charge"]->Fill(tk->charge()); }
-
-      if(mapME[collectionLabel+"dxy"]){ mapME[collectionLabel+"dxy"]->Fill(tk->dxy(BSPosition_)); }
-      if(mapME[collectionLabel+"dz"]){ mapME[collectionLabel+"dz"]->Fill(tk->dz(BSPosition_)); }
-
-      if(mapME[collectionLabel+"validhits"]) { mapME[collectionLabel+"validhits"]->Fill(tk->numberOfValidHits()); }
-      if(mapME[collectionLabel+"normchi"]){  mapME[collectionLabel+"normchi"]->Fill(tk->normalizedChi2()); }
+      const Track* tk = i->get<TrackRef>().get();
+      if(tk) {
+	num++; 
+	//Fill MEs  
+	if(mapME[collectionLabel+"pt"]){  mapME[collectionLabel+"pt"]->Fill(tk->pt()); }
+	if(mapME[collectionLabel+"p"])  { mapME[collectionLabel+"p"]->Fill(tk->p()); }
+	if(mapME[collectionLabel+"eta"]) { mapME[collectionLabel+"eta"]->Fill(tk->eta()); }
+	if(mapME[collectionLabel+"phi"]) { mapME[collectionLabel+"phi"]->Fill(tk->phi()); }
+	if(mapME[collectionLabel+"etaphi"]){ mapME[collectionLabel+"etaphi"]->Fill(tk->phi(),tk->eta()); }
+	if(mapME[collectionLabel+"etapt"]){ mapME[collectionLabel+"etapt"]->Fill(tk->pt(),tk->eta()); }
+	if(mapME[collectionLabel+"charge"]){ mapME[collectionLabel+"charge"]->Fill(tk->charge()); }
+	
+	if(mapME[collectionLabel+"dxy"]){ mapME[collectionLabel+"dxy"]->Fill(tk->dxy(BSPosition_)); }
+	if(mapME[collectionLabel+"dz"]){ mapME[collectionLabel+"dz"]->Fill(tk->dz(BSPosition_)); }
+	
+	if(mapME[collectionLabel+"validhits"]) { mapME[collectionLabel+"validhits"]->Fill(tk->numberOfValidHits()); }
+	if(mapME[collectionLabel+"normchi"]){  mapME[collectionLabel+"normchi"]->Fill(tk->normalizedChi2()); }
+      }
     }
     if(mapME[collectionLabel+"nrcand"]){  mapME[collectionLabel+"nrcand"]->Fill(num);}
   }
@@ -476,7 +478,9 @@ void HLTOniaSource::fillInvariantMass(vector<RecoChargedCandidateRef> & cand1,  
 	  massME_[cand1Label+cand2Label+chargeLabel+"highestpt"]->Fill((cand1[i]->p4()+cand2[0]->p4()).mass());
 	}
 	if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]){
-	  massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(cand1[i]->get<TrackRef>()->dz(BSPosition_) - cand2[0]->get<TrackRef>()->dz(BSPosition_)));
+	  const Track* tk1 = cand1[i]->get<TrackRef>().get();
+	  const Track* tk2 = cand2[0]->get<TrackRef>().get();
+	  if(tk1 && tk2) massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
 	}
 
       }
@@ -491,7 +495,9 @@ void HLTOniaSource::fillInvariantMass(vector<RecoChargedCandidateRef> & cand1,  
 	   massME_[cand1Label+cand2Label+chargeLabel]->Fill((cand1[i]->p4()+cand2[j]->p4()).mass());
 	}
 	if(massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]){
-	  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(cand1[i]->get<TrackRef>()->dz(BSPosition_) - cand2[j]->get<TrackRef>()->dz(BSPosition_)));
+	  const Track* tk1 = cand1[i]->get<TrackRef>().get();
+	  const Track* tk2 = cand2[j]->get<TrackRef>().get();
+	  if(tk1 && tk2)  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
 	}
       }
     }
@@ -517,7 +523,9 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 	}
 	
 	if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]){
-	  massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(cand1[i]->get<TrackRef>()->dz(BSPosition_) - candItr->get<TrackRef>()->dz(BSPosition_)));
+	  const Track* tk1 = cand1[i]->get<TrackRef>().get();
+	  const Track* tk2 = candItr->get<TrackRef>().get();
+	  if(tk1 && tk2 )massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
 	}
 
       }
@@ -531,7 +539,9 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 	   massME_[cand1Label+cand2Label+chargeLabel]->Fill((cand1[i]->p4()+candIter->p4()).mass());
 	}
 	if(massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]){
-	  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(cand1[i]->get<TrackRef>()->dz(BSPosition_) - candIter->get<TrackRef>()->dz(BSPosition_)));
+	  const Track* tk1 = cand1[i]->get<TrackRef>().get();
+	  const Track* tk2 = candIter->get<TrackRef>().get();
+	  if(tk1 && tk2 )  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
 	}
       }
     }
@@ -559,7 +569,8 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 	}
 	
 	if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]){
-	  massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(cand1[i]->get<TrackRef>()->dz(BSPosition_) - candItr->dz(BSPosition_)));
+	  const Track* tk1 = cand1[i]->get<TrackRef>().get();
+	  if(tk1)massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - candItr->dz(BSPosition_)));
 	}
       }
 
@@ -576,7 +587,8 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 	   massME_[cand1Label+cand2Label+chargeLabel]->Fill((cand1[i]->p4()+candLVector).mass());
 	}
 	if(massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]){
-	  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(cand1[i]->get<TrackRef>()->dz(BSPosition_) - candIter->dz(BSPosition_)));
+	  const Track* tk1 = cand1[i]->get<TrackRef>().get();
+	  if(tk1) massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - candIter->dz(BSPosition_)));
 	}
 
       }
