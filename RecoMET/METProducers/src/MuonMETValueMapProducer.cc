@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Puneeth Kalavase
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonMETValueMapProducer.cc,v 1.1 2010/05/04 11:40:40 fgolf Exp $
+// $Id: MuonMETValueMapProducer.cc,v 1.2 2010/05/14 00:25:31 fgolf Exp $
 //
 //
 
@@ -22,7 +22,7 @@ Implementation:
 #include <memory>
 
 // user include files
-#include "RecoMET/METAlgorithms/interface/MuonMETValueMapProducer.h"
+#include "RecoMET/METProducers/interface/MuonMETValueMapProducer.h"
 #include "RecoMET/METAlgorithms/interface/MuonMETAlgo.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -215,5 +215,4 @@ namespace cms {
   }
 }
 
-using cms::MuonMETValueMapProducer;
-DEFINE_FWK_MODULE(MuonMETValueMapProducer);
+

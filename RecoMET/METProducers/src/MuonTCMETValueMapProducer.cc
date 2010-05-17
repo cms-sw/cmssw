@@ -13,7 +13,7 @@
 //
 // Original Author:  Frank Golf
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonTCMETValueMapProducer.cc,v 1.1 2010/05/04 11:40:40 fgolf Exp $
+// $Id: MuonTCMETValueMapProducer.cc,v 1.2 2010/05/14 00:25:31 fgolf Exp $
 //
 //
 
@@ -21,7 +21,7 @@
 #include <memory>
 
 // user include files
-#include "RecoMET/METAlgorithms/interface/MuonTCMETValueMapProducer.h"
+#include "RecoMET/METProducers/interface/MuonTCMETValueMapProducer.h"
 
 #include "RecoMET/METAlgorithms/interface/TCMETAlgo.h"
 
@@ -3160,5 +3160,4 @@ namespace cms {
      }
 }
 
-using cms::MuonTCMETValueMapProducer;
-DEFINE_FWK_MODULE(MuonTCMETValueMapProducer);
+

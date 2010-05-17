@@ -22,7 +22,7 @@ Implementation:
 #include <string.h>
 
 // user include files
-#include "RecoMET/METAlgorithms/interface/MuonMET.h"
+#include "RecoMET/METProducers/interface/MuonMET.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/METReco/interface/MET.h"
@@ -98,5 +98,5 @@ namespace cms
   }
 }//end namespace cms
 
-using cms::MuonMET;
-DEFINE_FWK_MODULE(MuonMET);
+
+
