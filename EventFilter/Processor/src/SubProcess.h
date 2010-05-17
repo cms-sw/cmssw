@@ -90,6 +90,7 @@ namespace evf{
     int queueId(){return (mqm_.get()!=0 ? mqm_->id() : 0);}
     int queueStatus(){return (mqm_.get() !=0 ? mqm_->status() : 0);}
     int queueOccupancy(){return (mqm_.get() !=0 ? mqm_->occupancy() : -1);}
+    int controlQueueOccupancy(){return (mqs_.get() !=0 ? mqs_->occupancy() : -1);}
     pid_t queuePidOfLastSend(){return (mqm_.get() !=0 ? mqm_->pidOfLastSend() : -1);}
     pid_t queuePidOfLastReceive(){return (mqm_.get() !=0 ? mqm_->pidOfLastReceive() : -1);}
     pid_t pid() const {return pid_;}
