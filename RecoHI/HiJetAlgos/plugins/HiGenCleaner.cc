@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Jul 21 04:26:01 EDT 2009
-// $Id: HiGenCleaner.cc,v 1.1 2009/10/21 11:22:13 yilmaz Exp $
+// $Id: HiGenCleaner.cc,v 1.1 2010/05/04 14:17:24 yilmaz Exp $
 //
 //
 
@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
