@@ -1,4 +1,4 @@
-// $Id: Processing.cc,v 1.14 2009/09/29 07:57:56 mommsen Exp $
+// $Id: Processing.cc,v 1.15 2010/02/15 13:48:50 mommsen Exp $
 /// @file: Processing.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
@@ -72,7 +72,7 @@ Processing::do_processI2OFragment( I2OChain& frag ) const
     // match is enforced.
     try
     {
-      uint32 runNumber = outermost_context().getSharedResources()->_configuration->getRunNumber();
+      uint32_t runNumber = outermost_context().getSharedResources()->_configuration->getRunNumber();
       frag.assertRunNumber(runNumber);
     }
     catch(stor::exception::RunNumberMismatch &e)

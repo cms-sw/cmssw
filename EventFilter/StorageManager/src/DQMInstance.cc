@@ -1,4 +1,4 @@
-// $Id: DQMInstance.cc,v 1.20 2010/03/04 17:34:59 mommsen Exp $
+// $Id: DQMInstance.cc,v 1.21 2010/03/08 11:56:02 mommsen Exp $
 /// @file: DQMInstance.cc
 
 #include <cstdio>
@@ -230,7 +230,7 @@ size_t DQMGroup::populateTable(DQMEvent::TObjectTable& table) const
     {
       std::vector<TObject *> newObjectVector;
       pos = table.insert(pos, DQMEvent::TObjectTable::value_type(folderName, newObjectVector));
-      subFolderSize += 2*sizeof(uint32) + folderName.length();
+      subFolderSize += 2*sizeof(uint32_t) + folderName.length();
     }
     folder->fillObjectVector(pos->second);
   }

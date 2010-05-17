@@ -1744,7 +1744,7 @@ testI2OChain::init_msg_header()
     smMsg->fuGUID = value3;
 
     char test_value[] = "This is a test, This is a";
-    uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
+    uint32_t adler32_chksum = (uint32_t)cms::Adler32((char*)&test_value[0], sizeof(test_value));
     char host_name[255];
     gethostname(host_name, 255);
 
@@ -1781,19 +1781,19 @@ testI2OChain::init_msg_header()
     Strings outNames;
     outNames.clear();
     initMsgFrag.hltTriggerNames(outNames);
-    for (uint32 idx = 0; idx < hlt_names.size(); ++idx)
+    for (uint32_t idx = 0; idx < hlt_names.size(); ++idx)
       {
         CPPUNIT_ASSERT(outNames[idx] == hlt_names[idx]);
       }
     outNames.clear();
     initMsgFrag.hltTriggerSelections(outNames);
-    for (uint32 idx = 0; idx < hlt_selections.size(); ++idx)
+    for (uint32_t idx = 0; idx < hlt_selections.size(); ++idx)
       {
         CPPUNIT_ASSERT(outNames[idx] == hlt_selections[idx]);
       }
     outNames.clear();
     initMsgFrag.l1TriggerNames(outNames);
-    for (uint32 idx = 0; idx < l1_names.size(); ++idx)
+    for (uint32_t idx = 0; idx < l1_names.size(); ++idx)
       {
         CPPUNIT_ASSERT(outNames[idx] == l1_names[idx]);
       }
@@ -1822,10 +1822,10 @@ testI2OChain::event_msg_header()
     l1Bits.push_back(false);
     l1Bits.push_back(true);
 
-    uint32 hltBitCount = 21;
+    uint32_t hltBitCount = 21;
     std::vector<unsigned char> hltBits;
     hltBits.resize(1 + (hltBitCount-1)/4);
-    for (uint32 idx = 0; idx < hltBits.size(); ++idx) {
+    for (uint32_t idx = 0; idx < hltBits.size(); ++idx) {
       hltBits[idx] = 0x3 << idx;
       // should mask off bits for trig num GT hltBitCount...
     }
@@ -1854,7 +1854,7 @@ testI2OChain::event_msg_header()
     smMsg->fuGUID = value3;
 
     char test_value_event[] = "This is a test Event, This is a";
-    uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
+    uint32_t adler32_chksum = (uint32_t)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
     char host_name[255];
     gethostname(host_name, 255);
 
@@ -1899,11 +1899,11 @@ testI2OChain::event_msg_header()
     eventMsgFrag.hltTriggerBits(hltBits2);
     CPPUNIT_ASSERT(hltBits2.size() == hltBits.size());
 
-    uint32 trigIndex = 0;
-    for (uint32 idx = 0; idx < hltBits.size(); ++idx) {
-      for (uint32 jdx = 0; jdx < 4; ++jdx) {
-        uint32 indexMod = (trigIndex % 4);
-        uint32 trigMask = 0;
+    uint32_t trigIndex = 0;
+    for (uint32_t idx = 0; idx < hltBits.size(); ++idx) {
+      for (uint32_t jdx = 0; jdx < 4; ++jdx) {
+        uint32_t indexMod = (trigIndex % 4);
+        uint32_t trigMask = 0;
         switch (indexMod) {
         case 0:
           {
@@ -1958,7 +1958,7 @@ testI2OChain::error_event_msg_header()
     smMsg->fuProcID = value2;
     smMsg->fuGUID = value3;
 
-    uint32* dataPtr = (uint32*) smMsg->dataPtr();
+    uint32_t* dataPtr = (uint32_t*) smMsg->dataPtr();
     *dataPtr++ = 2;  // version number
     *dataPtr++ = runNumber;
     *dataPtr++ = lumiNumber;
@@ -2119,7 +2119,7 @@ testI2OChain::split_init_header()
     tmpBuffer.resize(bufferSize);
 
     char test_value[] = "This is a test, This is a";
-    uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
+    uint32_t adler32_chksum = (uint32_t)cms::Adler32((char*)&test_value[0], sizeof(test_value));
     char host_name[255];
     gethostname(host_name, 255);
 
@@ -2136,9 +2136,9 @@ testI2OChain::split_init_header()
 
     //std::cout << "Size = " << initBuilder.size() << std::endl;
 
-    uint32 fragmentSize = 50;
-    uint32 msgSize = initBuilder.size();
-    uint32 fragmentCount = 1 + ((uint32) (msgSize - 1) / fragmentSize);
+    uint32_t fragmentSize = 50;
+    uint32_t msgSize = initBuilder.size();
+    uint32_t fragmentCount = 1 + ((uint32_t) (msgSize - 1) / fragmentSize);
 
     Reference* ref = allocate_frame_with_basic_header(I2O_SM_PREAMBLE, 0,
                                                       fragmentCount);
@@ -2167,7 +2167,7 @@ testI2OChain::split_init_header()
     CPPUNIT_ASSERT(!initMsgChain.complete());
     CPPUNIT_ASSERT(!initMsgChain.faulty());
 
-    for (uint32 idx = 1; idx < fragmentCount; ++idx)
+    for (uint32_t idx = 1; idx < fragmentCount; ++idx)
       {
         ref = allocate_frame_with_basic_header(I2O_SM_PREAMBLE, idx,
                                                fragmentCount);
@@ -2214,7 +2214,7 @@ testI2OChain::split_init_header()
 
     std::vector<unsigned char> bufferCopy;
     initMsgChain.copyFragmentsIntoBuffer(bufferCopy);
-    for (uint32 idx = 0; idx < msgSize; ++idx)
+    for (uint32_t idx = 0; idx < msgSize; ++idx)
       {
         CPPUNIT_ASSERT(bufferCopy[idx] == tmpBuffer[idx]);
       }
@@ -2235,19 +2235,19 @@ testI2OChain::split_init_header()
     Strings outNames;
     outNames.clear();
     initMsgChain.hltTriggerNames(outNames);
-    for (uint32 idx = 0; idx < hlt_names.size(); ++idx)
+    for (uint32_t idx = 0; idx < hlt_names.size(); ++idx)
       {
         CPPUNIT_ASSERT(outNames[idx] == hlt_names[idx]);
       }
     outNames.clear();
     initMsgChain.hltTriggerSelections(outNames);
-    for (uint32 idx = 0; idx < hlt_selections.size(); ++idx)
+    for (uint32_t idx = 0; idx < hlt_selections.size(); ++idx)
       {
         CPPUNIT_ASSERT(outNames[idx] == hlt_selections[idx]);
       }
     outNames.clear();
     initMsgChain.l1TriggerNames(outNames);
-    for (uint32 idx = 0; idx < l1_names.size(); ++idx)
+    for (uint32_t idx = 0; idx < l1_names.size(); ++idx)
       {
         CPPUNIT_ASSERT(outNames[idx] == l1_names[idx]);
       }
@@ -2257,7 +2257,7 @@ testI2OChain::split_init_header()
                    initMsgChain.dataLocation(0));
 
     unsigned char* headerLoc = initMsgChain.headerLocation();
-    for (uint32 idx = 0; idx < initMsgChain.headerSize(); ++idx)
+    for (uint32_t idx = 0; idx < initMsgChain.headerSize(); ++idx)
       {
         CPPUNIT_ASSERT(headerLoc[idx] == tmpBuffer[idx]);
       }
@@ -2282,10 +2282,10 @@ testI2OChain::split_event_header()
     l1Bits.push_back(false);
     l1Bits.push_back(true);
 
-    uint32 hltBitCount = 21;
+    uint32_t hltBitCount = 21;
     std::vector<unsigned char> hltBits;
     hltBits.resize(1 + (hltBitCount-1)/4);
-    for (uint32 idx = 0; idx < hltBits.size(); ++idx) {
+    for (uint32_t idx = 0; idx < hltBits.size(); ++idx) {
       hltBits[idx] = 0x3 << idx;
       // should mask off bits for trig num GT hltBitCount...
     }
@@ -2307,7 +2307,7 @@ testI2OChain::split_event_header()
     tmpBuffer.resize(bufferSize);
 
     char test_value_event[] = "This is a test Event, This is a";
-    uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
+    uint32_t adler32_chksum = (uint32_t)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
     char host_name[255];
     gethostname(host_name, 255);
 
@@ -2323,9 +2323,9 @@ testI2OChain::split_event_header()
 
     //std::cout << "Size = " << eventBuilder.size() << std::endl;
 
-    uint32 fragmentSize = 10;
-    uint32 msgSize = eventBuilder.size();
-    uint32 fragmentCount = 1 + ((uint32) (msgSize - 1) / fragmentSize);
+    uint32_t fragmentSize = 10;
+    uint32_t msgSize = eventBuilder.size();
+    uint32_t fragmentCount = 1 + ((uint32_t) (msgSize - 1) / fragmentSize);
 
     Reference* ref = allocate_frame_with_basic_header(I2O_SM_DATA, 0,
                                                       fragmentCount);
@@ -2356,7 +2356,7 @@ testI2OChain::split_event_header()
     CPPUNIT_ASSERT(!eventMsgChain.complete());
     CPPUNIT_ASSERT(!eventMsgChain.faulty());
 
-    for (uint32 idx = 1; idx < fragmentCount; ++idx)
+    for (uint32_t idx = 1; idx < fragmentCount; ++idx)
       {
         ref = allocate_frame_with_basic_header(I2O_SM_DATA, idx,
                                                fragmentCount);
@@ -2405,7 +2405,7 @@ testI2OChain::split_event_header()
 
     std::vector<unsigned char> bufferCopy;
     eventMsgChain.copyFragmentsIntoBuffer(bufferCopy);
-    for (uint32 idx = 0; idx < msgSize; ++idx)
+    for (uint32_t idx = 0; idx < msgSize; ++idx)
       {
         CPPUNIT_ASSERT(bufferCopy[idx] == tmpBuffer[idx]);
       }
@@ -2430,13 +2430,13 @@ testI2OChain::split_event_header()
     eventMsgChain.hltTriggerBits(hltBits2);
     CPPUNIT_ASSERT(hltBits2.size() == hltBits.size());
 
-    uint32 trigIndex = 0;
-    for (uint32 idx = 0; idx < hltBits.size(); ++idx)
+    uint32_t trigIndex = 0;
+    for (uint32_t idx = 0; idx < hltBits.size(); ++idx)
       {
-        for (uint32 jdx = 0; jdx < 4; ++jdx)
+        for (uint32_t jdx = 0; jdx < 4; ++jdx)
           {
-            uint32 indexMod = (trigIndex % 4);
-            uint32 trigMask = 0;
+            uint32_t indexMod = (trigIndex % 4);
+            uint32_t trigMask = 0;
             switch (indexMod)
               {
               case 0:
@@ -2467,7 +2467,7 @@ testI2OChain::split_event_header()
                    eventMsgChain.dataLocation(0));
 
     unsigned char* headerLoc = eventMsgChain.headerLocation();
-    for (uint32 idx = 0; idx < eventMsgChain.headerSize(); ++idx)
+    for (uint32_t idx = 0; idx < eventMsgChain.headerSize(); ++idx)
       {
         CPPUNIT_ASSERT(headerLoc[idx] == tmpBuffer[idx]);
       }

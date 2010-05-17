@@ -1,4 +1,4 @@
-// $Id: DQMEventMsgData.cc,v 1.8 2010/05/11 18:01:18 mommsen Exp $
+// $Id: DQMEventMsgData.cc,v 1.9 2010/05/12 12:22:06 mommsen Exp $
 /// @file: DQMEventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -38,7 +38,7 @@ namespace stor
       return _topFolderName;
     }
 
-    uint32 DQMEventMsgData::do_adler32Checksum() const
+    uint32_t DQMEventMsgData::do_adler32Checksum() const
     {
       if( !headerOkay() )
       {
@@ -66,7 +66,7 @@ namespace stor
       return _dqmKey;
     }
 
-    uint32 DQMEventMsgData::do_runNumber() const
+    uint32_t DQMEventMsgData::do_runNumber() const
     {
 
       if( !headerOkay() )
@@ -81,7 +81,7 @@ namespace stor
       return _dqmKey.runNumber;
     }
 
-    uint32 DQMEventMsgData::do_lumiSection() const
+    uint32_t DQMEventMsgData::do_lumiSection() const
     {
 
       if( !headerOkay() )
@@ -96,7 +96,7 @@ namespace stor
       return _dqmKey.lumiSection;
     }
 
-    void DQMEventMsgData::do_assertRunNumber(uint32 runNumber)
+    void DQMEventMsgData::do_assertRunNumber(uint32_t runNumber)
     {
       if ( headerOkay() && do_runNumber() != runNumber )
       {
@@ -187,9 +187,9 @@ namespace stor
       }
 
       _headerSize = msgView->headerSize()
-        + sizeof(uint32); // in contrast to other message types,
+        + sizeof(uint32_t); // in contrast to other message types,
                           // DQM messages do not contain the data
-                          // length entry (uint32) in headerSize()
+                          // length entry (uint32_t) in headerSize()
       _headerLocation = msgView->startAddress();
       _topFolderName = msgView->topFolderName();
       _adler32 = msgView->adler32_chksum();

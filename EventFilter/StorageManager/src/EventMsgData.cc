@@ -1,4 +1,4 @@
-// $Id: EventMsgData.cc,v 1.5 2010/05/11 18:01:19 mommsen Exp $
+// $Id: EventMsgData.cc,v 1.6 2010/05/12 12:22:06 mommsen Exp $
 /// @file: EventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -63,7 +63,7 @@ namespace stor
       }
     }
 
-    uint32 EventMsgData::do_outputModuleId() const
+    uint32_t EventMsgData::do_outputModuleId() const
     {
       if ( !headerOkay() )
       {
@@ -77,7 +77,7 @@ namespace stor
       return _outputModuleId;
     }
 
-    uint32 EventMsgData::do_hltTriggerCount() const
+    uint32_t EventMsgData::do_hltTriggerCount() const
     {
       if ( !headerOkay() )
       {
@@ -107,7 +107,7 @@ namespace stor
     }
 
     void 
-    EventMsgData::do_assertRunNumber(uint32 runNumber)
+    EventMsgData::do_assertRunNumber(uint32_t runNumber)
     {
       if ( headerOkay() && do_runNumber() != runNumber )
       {
@@ -122,7 +122,7 @@ namespace stor
       }
     }
 
-    uint32 EventMsgData::do_runNumber() const
+    uint32_t EventMsgData::do_runNumber() const
     {
       if ( !headerOkay() )
       {
@@ -136,7 +136,7 @@ namespace stor
       return _runNumber;
     }
 
-    uint32 EventMsgData::do_lumiSection() const
+    uint32_t EventMsgData::do_lumiSection() const
     {
       if ( !headerOkay() )
       {
@@ -150,7 +150,7 @@ namespace stor
       return _lumiSection;
     }
 
-    uint32 EventMsgData::do_eventNumber() const
+    uint32_t EventMsgData::do_eventNumber() const
     {
       if ( !headerOkay() )
       {
@@ -164,7 +164,7 @@ namespace stor
       return _eventNumber;
     }
 
-    uint32 EventMsgData::do_adler32Checksum() const
+    uint32_t EventMsgData::do_adler32Checksum() const
     {
       if ( !headerOkay() )
       {

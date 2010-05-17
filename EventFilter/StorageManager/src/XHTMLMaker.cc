@@ -1,4 +1,4 @@
-// $Id: XHTMLMaker.cc,v 1.5 2009/12/27 05:41:11 elmer Exp $
+// $Id: XHTMLMaker.cc,v 1.6 2010/02/16 09:58:42 mommsen Exp $
 /// @file: XHTMLMaker.cc
 
 #include "EventFilter/StorageManager/interface/XHTMLMaker.h"
@@ -188,7 +188,7 @@ void XHTMLMaker::addInt( Node* parent, int value )
 }
 
 ////////////////////////
-//// Add an uint32: ////
+//// Add an uint32_t: ////
 ////////////////////////
 void XHTMLMaker::addInt( Node* parent, uint32_t value )
 {

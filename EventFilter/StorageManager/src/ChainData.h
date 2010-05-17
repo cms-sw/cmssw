@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.11 2010/05/11 18:01:18 mommsen Exp $
+// $Id: ChainData.h,v 1.12 2010/05/11 19:10:41 mommsen Exp $
 /// @file: ChainData.h
 
 #ifndef CHAINDATA_H
@@ -101,24 +101,24 @@ namespace stor
 
       std::string hltURL() const;
       std::string hltClassName() const;
-      uint32 outputModuleId() const;
+      uint32_t outputModuleId() const;
 
       std::string outputModuleLabel() const;
       void hltTriggerNames(Strings& nameList) const;
       void hltTriggerSelections(Strings& nameList) const;
       void l1TriggerNames(Strings& nameList) const;
 
-      void assertRunNumber(uint32 runNumber);
+      void assertRunNumber(uint32_t runNumber);
 
-      uint32 runNumber() const;
-      uint32 lumiSection() const;
-      uint32 eventNumber() const;
-      uint32 adler32Checksum() const;
+      uint32_t runNumber() const;
+      uint32_t lumiSection() const;
+      uint32_t eventNumber() const;
+      uint32_t adler32Checksum() const;
 
       std::string topFolderName() const;
       DQMKey dqmKey() const;
 
-      uint32 hltTriggerCount() const;
+      uint32_t hltTriggerCount() const;
       void hltTriggerBits(std::vector<unsigned char>& bitList) const;
 
       void tagForStream(StreamID);
@@ -144,7 +144,7 @@ namespace stor
 
       void checkForCompleteness();
       bool validateAdler32Checksum();
-      uint32 calculateAdler32() const;
+      uint32_t calculateAdler32() const;
 
     protected:
       toolbox::mem::Reference* _ref;
@@ -182,7 +182,7 @@ namespace stor
       virtual unsigned char* do_headerLocation() const;
 
       virtual unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
-      virtual uint32 do_outputModuleId() const;
+      virtual uint32_t do_outputModuleId() const;
 
       virtual std::string do_outputModuleLabel() const;
       virtual void do_hltTriggerNames(Strings& nameList) const;
@@ -192,15 +192,15 @@ namespace stor
       virtual std::string do_topFolderName() const;
       virtual DQMKey do_dqmKey() const;
 
-      virtual uint32 do_hltTriggerCount() const;
+      virtual uint32_t do_hltTriggerCount() const;
       virtual void do_hltTriggerBits(std::vector<unsigned char>& bitList) const;
 
-      virtual void do_assertRunNumber(uint32 runNumber);
+      virtual void do_assertRunNumber(uint32_t runNumber);
 
-      virtual uint32 do_runNumber() const;
-      virtual uint32 do_lumiSection() const;
-      virtual uint32 do_eventNumber() const;
-      virtual uint32 do_adler32Checksum() const;
+      virtual uint32_t do_runNumber() const;
+      virtual uint32_t do_lumiSection() const;
+      virtual uint32_t do_eventNumber() const;
+      virtual uint32_t do_adler32Checksum() const;
 
     }; // class ChainData
 
@@ -223,8 +223,8 @@ namespace stor
       unsigned long do_headerSize() const;
       unsigned char* do_headerLocation() const;
       unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
-      uint32 do_adler32Checksum() const;
-      uint32 do_outputModuleId() const;
+      uint32_t do_adler32Checksum() const;
+      uint32_t do_outputModuleId() const;
       std::string do_outputModuleLabel() const;
       void do_hltTriggerNames(Strings& nameList) const;
       void do_hltTriggerSelections(Strings& nameList) const;
@@ -239,8 +239,8 @@ namespace stor
       mutable std::vector<unsigned char> _headerCopy;
       mutable unsigned long _headerSize;
       mutable unsigned char* _headerLocation;
-      mutable uint32 _adler32;
-      mutable uint32 _outputModuleId;
+      mutable uint32_t _adler32;
+      mutable uint32_t _outputModuleId;
       mutable std::string _outputModuleLabel;
       mutable Strings _hltTriggerNames;
       mutable Strings _hltTriggerSelections;
@@ -267,14 +267,14 @@ namespace stor
       unsigned long do_headerSize() const;
       unsigned char* do_headerLocation() const;
       unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
-      uint32 do_outputModuleId() const;
-      uint32 do_hltTriggerCount() const;
+      uint32_t do_outputModuleId() const;
+      uint32_t do_hltTriggerCount() const;
       void do_hltTriggerBits(std::vector<unsigned char>& bitList) const;
-      void do_assertRunNumber(uint32 runNumber);
-      uint32 do_runNumber() const;
-      uint32 do_lumiSection() const;
-      uint32 do_eventNumber() const;
-      uint32 do_adler32Checksum() const;
+      void do_assertRunNumber(uint32_t runNumber);
+      uint32_t do_runNumber() const;
+      uint32_t do_lumiSection() const;
+      uint32_t do_eventNumber() const;
+      uint32_t do_adler32Checksum() const;
 
     private:
 
@@ -285,13 +285,13 @@ namespace stor
       mutable std::vector<unsigned char> _headerCopy;
       mutable unsigned long _headerSize;
       mutable unsigned char* _headerLocation;
-      mutable uint32 _outputModuleId;
-      mutable uint32 _hltTriggerCount;
+      mutable uint32_t _outputModuleId;
+      mutable uint32_t _hltTriggerCount;
       mutable std::vector<unsigned char> _hltTriggerBits;
-      mutable uint32 _runNumber;
-      mutable uint32 _lumiSection;
-      mutable uint32 _eventNumber;
-      mutable uint32 _adler32;
+      mutable uint32_t _runNumber;
+      mutable uint32_t _lumiSection;
+      mutable uint32_t _eventNumber;
+      mutable uint32_t _adler32;
 
     }; // EventMsgData
 
@@ -314,12 +314,12 @@ namespace stor
       unsigned long do_headerSize() const;
       unsigned char* do_headerLocation() const;
       unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
-      uint32 do_adler32Checksum() const;
+      uint32_t do_adler32Checksum() const;
       std::string do_topFolderName() const;
       DQMKey do_dqmKey() const;
-      void do_assertRunNumber(uint32 runNumber);
-      uint32 do_runNumber() const;
-      uint32 do_lumiSection() const;
+      void do_assertRunNumber(uint32_t runNumber);
+      uint32_t do_runNumber() const;
+      uint32_t do_lumiSection() const;
 
     private:
 
@@ -332,7 +332,7 @@ namespace stor
       mutable unsigned char* _headerLocation;
       mutable std::string _topFolderName;
       mutable DQMKey _dqmKey;
-      mutable uint32 _adler32;
+      mutable uint32_t _adler32;
 
     }; // class DQMEventMsgData
 
@@ -355,10 +355,10 @@ namespace stor
       unsigned long do_headerSize() const;
       unsigned char* do_headerLocation() const;
       unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
-      void do_assertRunNumber(uint32 runNumber);
-      uint32 do_runNumber() const;
-      uint32 do_lumiSection() const;
-      uint32 do_eventNumber() const;
+      void do_assertRunNumber(uint32_t runNumber);
+      uint32_t do_runNumber() const;
+      uint32_t do_lumiSection() const;
+      uint32_t do_eventNumber() const;
 
     private:
 
@@ -369,9 +369,9 @@ namespace stor
       mutable std::vector<unsigned char> _headerCopy;
       mutable unsigned long _headerSize;
       mutable unsigned char* _headerLocation;
-      mutable uint32 _runNumber;
-      mutable uint32 _lumiSection;
-      mutable uint32 _eventNumber;
+      mutable uint32_t _runNumber;
+      mutable uint32_t _lumiSection;
+      mutable uint32_t _eventNumber;
 
     }; // class ErrorEventMsgData
 
@@ -390,13 +390,13 @@ namespace stor
 
     protected:
 
-      uint32 do_runNumber() const;
-      uint32 do_lumiSection() const;
+      uint32_t do_runNumber() const;
+      uint32_t do_lumiSection() const;
 
     private:
 
-      mutable uint32 _runNumber;
-      mutable uint32 _lumiSection;
+      mutable uint32_t _runNumber;
+      mutable uint32_t _lumiSection;
 
     }; // class EndLumiSectMsgData
 

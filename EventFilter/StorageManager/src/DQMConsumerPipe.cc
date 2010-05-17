@@ -6,7 +6,7 @@
  * Initial Implementation based on Kurt's ConsumerPipe
  * make a common class later when all this works
  *
- * $Id: DQMConsumerPipe.cc,v 1.9 2008/01/28 19:51:39 hcheung Exp $
+ * $Id: DQMConsumerPipe.cc,v 1.10 2008/08/06 15:52:09 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/DQMConsumerPipe.h"
@@ -23,7 +23,7 @@ using namespace edm;
 /**
  * Initialize the static value for the root consumer id.
  */
-uint32 DQMConsumerPipe::rootId_ = 1;
+uint32_t DQMConsumerPipe::rootId_ = 1;
 
 /**
  * Initialize the static lock used to control access to the root ID.
@@ -104,7 +104,7 @@ DQMConsumerPipe::~DQMConsumerPipe()
 /**
  * Returns the consumer ID associated with this pipe.
  */
-uint32 DQMConsumerPipe::getConsumerId() const
+uint32_t DQMConsumerPipe::getConsumerId() const
 {
   return consumerId_;
 }

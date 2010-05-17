@@ -1,4 +1,4 @@
-// $Id: DQMEventRecord.cc,v 1.13.2.2 2010/04/22 14:03:01 mommsen Exp $
+// $Id: DQMEventRecord.cc,v 1.14 2010/04/30 07:44:56 mommsen Exp $
 /// @file: DQMEventRecord.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
@@ -91,7 +91,7 @@ DQMEventRecord::GroupRecord DQMEventRecord::populateAndGetGroup(const std::strin
   unsigned int sourceSize = serializer.currentSpaceUsed();
   unsigned int totalSize  = sourceSize 
     + sizeof(DQMEventHeader)
-    + 12*sizeof(uint32)
+    + 12*sizeof(uint32_t)
     + _releaseTag.length()
     + groupName.length()
     + subFolderSize;
@@ -108,7 +108,7 @@ DQMEventRecord::GroupRecord DQMEventRecord::populateAndGetGroup(const std::strin
     zeit,
     getLumiSection(),
     getUpdateNumber(),
-    (uint32)serializer.adler32_chksum(),
+    (uint32_t)serializer.adler32_chksum(),
     host_name_,
     _releaseTag,
     groupName,

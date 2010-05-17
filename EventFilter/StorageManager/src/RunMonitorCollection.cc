@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.cc,v 1.10.2.1 2010/04/22 14:04:08 mommsen Exp $
+// $Id: RunMonitorCollection.cc,v 1.11 2010/04/30 07:44:56 mommsen Exp $
 /// @file: RunMonitorCollection.cc
 
 #include <string>
@@ -92,7 +92,7 @@ void RunMonitorCollection::addUnwantedEvent(const I2OChain& ioc)
 
   _unwantedEventIDsReceived.addSample(ioc.eventNumber());
 
-  uint32 outputModuleId = ioc.outputModuleId();
+  uint32_t outputModuleId = ioc.outputModuleId();
 
   boost::mutex::scoped_lock sl(_unwantedEventMapLock);
 
@@ -200,7 +200,7 @@ RunMonitorCollection::UnwantedEvent::UnwantedEvent(const I2OChain& ioc)
   ioc.hltTriggerBits(bitList);
 }
 
-uint32 RunMonitorCollection::UnwantedEvent::nextId(0);
+uint32_t RunMonitorCollection::UnwantedEvent::nextId(0);
 
 
 /// emacs configuration

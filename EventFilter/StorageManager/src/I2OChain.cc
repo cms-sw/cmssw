@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.19 2010/04/30 07:44:56 mommsen Exp $
+// $Id: I2OChain.cc,v 1.20 2010/05/03 13:51:09 mommsen Exp $
 /// @file: I2OChain.cc
 
 #include <algorithm>
@@ -480,7 +480,7 @@ namespace stor
     return _data->dqmKey();
   }
 
-  uint32 I2OChain::outputModuleId() const
+  uint32_t I2OChain::outputModuleId() const
   {
     if (!_data)
       {
@@ -520,7 +520,7 @@ namespace stor
     _data->l1TriggerNames(nameList);
   }
 
-  uint32 I2OChain::hltTriggerCount() const
+  uint32_t I2OChain::hltTriggerCount() const
   {
     if (!_data)
       {
@@ -540,7 +540,7 @@ namespace stor
     _data->hltTriggerBits(bitList);
   }
 
-  void I2OChain::assertRunNumber(uint32 runNumber)
+  void I2OChain::assertRunNumber(uint32_t runNumber)
   {
     if (!_data)
       {
@@ -550,7 +550,7 @@ namespace stor
     return _data->assertRunNumber(runNumber);
   }
 
-  uint32 I2OChain::runNumber() const
+  uint32_t I2OChain::runNumber() const
   {
     if (!_data)
       {
@@ -560,7 +560,7 @@ namespace stor
     return _data->runNumber();
   }
 
-  uint32 I2OChain::lumiSection() const
+  uint32_t I2OChain::lumiSection() const
   {
     if (!_data)
       {
@@ -570,7 +570,7 @@ namespace stor
     return _data->lumiSection();
   }
 
-  uint32 I2OChain::eventNumber() const
+  uint32_t I2OChain::eventNumber() const
   {
     if (!_data)
       {
@@ -580,7 +580,7 @@ namespace stor
     return _data->eventNumber();
   }
 
-  uint32 I2OChain::adler32Checksum() const
+  uint32_t I2OChain::adler32Checksum() const
   {
     if (!_data)
       {

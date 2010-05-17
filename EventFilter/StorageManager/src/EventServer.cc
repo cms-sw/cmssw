@@ -2,7 +2,7 @@
  * This class manages the distribution of events to consumers from within
  * the storage manager.
  *
- * $Id$
+ * $Id: EventServer.cc,v 1.13 2009/06/10 08:15:26 dshpakov Exp $
  */
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
@@ -50,7 +50,7 @@ EventServer::EventServer(double maxEventRate, double maxDataRate,
   uLong crc = crc32(0L, Z_NULL, 0);
   Bytef* crcbuf = (Bytef*) hltOutputSelection.data();
   crc = crc32(crc, crcbuf, hltOutputSelection.length());
-  this->hltOutputModuleId_ = static_cast<uint32>(crc);
+  this->hltOutputModuleId_ = static_cast<uint32_t>(crc);
 
   outsideTimer_.reset();
   insideTimer_.reset();
@@ -81,7 +81,7 @@ EventServer::~EventServer()
  */
 void EventServer::addConsumer(boost::shared_ptr<ConsumerPipe> consumer)
 {
-  uint32 consumerId = consumer->getConsumerId();
+  uint32_t consumerId = consumer->getConsumerId();
   consumerTable_[consumerId] = consumer;
 
   // add the consumer (by ID) to the rateLimiter instance that we use
@@ -89,7 +89,7 @@ void EventServer::addConsumer(boost::shared_ptr<ConsumerPipe> consumer)
   //rateLimiter_->addConsumer(consumerId);
 }
 
-std::map< uint32, boost::shared_ptr<ConsumerPipe> > EventServer::getConsumerTable()
+std::map< uint32_t, boost::shared_ptr<ConsumerPipe> > EventServer::getConsumerTable()
 {
   return(consumerTable_);
 }
@@ -98,13 +98,13 @@ std::map< uint32, boost::shared_ptr<ConsumerPipe> > EventServer::getConsumerTabl
  * Returns a shared pointer to the consumer pipe with the specified ID
  * or an empty pointer if the ID was not found.
  */
-boost::shared_ptr<ConsumerPipe> EventServer::getConsumer(uint32 consumerId)
+boost::shared_ptr<ConsumerPipe> EventServer::getConsumer(uint32_t consumerId)
 {
   // initial empty pointer
   boost::shared_ptr<ConsumerPipe> consPtr;
 
   // lookup the consumer
-  std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
+  std::map< uint32_t, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
   consIter = consumerTable_.find(consumerId);
   if (consIter != consumerTable_.end())
   {
@@ -130,8 +130,8 @@ void EventServer::processEvent(const EventMsgView &eventView)
 
   boost::shared_ptr<ForeverCounter> ltCounter;
   boost::shared_ptr<RollingIntervalCounter> stCounter;
-  std::map<uint32, boost::shared_ptr<ForeverCounter> >::iterator ltIter;
-  std::map<uint32, boost::shared_ptr<RollingIntervalCounter> >::iterator stIter;
+  std::map<uint32_t, boost::shared_ptr<ForeverCounter> >::iterator ltIter;
+  std::map<uint32_t, boost::shared_ptr<RollingIntervalCounter> >::iterator stIter;
 
   // stop the timer that we use to measure CPU and real time outside the ES
   outsideTimer_.stop();
@@ -142,7 +142,7 @@ void EventServer::processEvent(const EventMsgView &eventView)
   // add the event to our statistics for events that are input to the ES
   double sizeInMB = static_cast<double>(eventView.size()) / 1048576.0;
   double now = BaseCounter::getCurrentTime();
-  uint32 outputModuleId = eventView.outModId();
+  uint32_t outputModuleId = eventView.outModId();
   // fetch (or create) the correct long term counter for the output module
   ltIter = ltInputCounters_.find(outputModuleId);
   if (ltIter == ltInputCounters_.end()) {
@@ -218,9 +218,9 @@ void EventServer::processEvent(const EventMsgView &eventView)
   // to the consumer pipe.
 
   // determine which consumers are interested in the event
-  std::vector<uint32> candidateList;
+  std::vector<uint32_t> candidateList;
   boost::shared_ptr< vector<char> > bufPtr;
-  std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
+  std::map< uint32_t, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
   for (consIter = consumerTable_.begin();
        consIter != consumerTable_.end();
        consIter++)
@@ -257,7 +257,7 @@ void EventServer::processEvent(const EventMsgView &eventView)
 
   // determine which of the candidate consumers are allowed
   // to receive another event at this time
-  std::vector<uint32> allowedList;
+  std::vector<uint32_t> allowedList;
   //if (runFairShareAlgo_) {
   //  allowedList = rateLimiter_->getAllowedConsumersFromList(sizeInMB,
   //                                                          candidateList);
@@ -267,9 +267,9 @@ void EventServer::processEvent(const EventMsgView &eventView)
   //}
 
   // send the event to the allowed consumers
-  for (uint32 idx = 0; idx < allowedList.size(); ++idx)
+  for (uint32_t idx = 0; idx < allowedList.size(); ++idx)
   {
-    uint32 consumerId = allowedList[idx];
+    uint32_t consumerId = allowedList[idx];
 
     // check if we need to make a local copy of the event
     if (bufPtr.get() == NULL)
@@ -348,8 +348,8 @@ void EventServer::processEvent(const EventMsgView &eventView)
     disconnectedConsumerTestCounter_ = 0;
 
     // determine which consumers have disconnected
-    std::vector<uint32> disconnectList;
-    std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
+    std::vector<uint32_t> disconnectList;
+    std::map< uint32_t, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
     for (consIter = consumerTable_.begin();
          consIter != consumerTable_.end();
          consIter++)
@@ -364,12 +364,12 @@ void EventServer::processEvent(const EventMsgView &eventView)
     }
 
     // remove disconnected consumers from the consumer table
-    std::vector<uint32>::const_iterator listIter;
+    std::vector<uint32_t>::const_iterator listIter;
     for (listIter = disconnectList.begin();
          listIter != disconnectList.end();
          listIter++)
     {
-      uint32 consumerId = *listIter;
+      uint32_t consumerId = *listIter;
       consumerTable_.erase(consumerId);
 
       // remove the consumer from the rateLimiter instance so that it is
@@ -397,13 +397,13 @@ void EventServer::processEvent(const EventMsgView &eventView)
 /**
  * Returns the next event for the specified consumer.
  */
-boost::shared_ptr< std::vector<char> > EventServer::getEvent(uint32 consumerId)
+boost::shared_ptr< std::vector<char> > EventServer::getEvent(uint32_t consumerId)
 {
   // initial empty buffer
   boost::shared_ptr< vector<char> > bufPtr;
 
   // lookup the consumer
-  std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
+  std::map< uint32_t, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
   consIter = consumerTable_.find(consumerId);
   if (consIter != consumerTable_.end())
   {
@@ -417,7 +417,7 @@ boost::shared_ptr< std::vector<char> > EventServer::getEvent(uint32 consumerId)
 
 void EventServer::clearQueue()
 {
-  std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
+  std::map< uint32_t, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
   for (consIter = consumerTable_.begin();
        consIter != consumerTable_.end();
        consIter++)
@@ -433,13 +433,13 @@ void EventServer::clearQueue()
  */
 long long EventServer::getEventCount(STATS_TIME_FRAME timeFrame,
                                      STATS_SAMPLE_TYPE sampleType,
-                                     uint32 outputModuleId,
+                                     uint32_t outputModuleId,
                                      double currentTime)
 {
   boost::shared_ptr<ForeverCounter> ltCounter;
   boost::shared_ptr<RollingIntervalCounter> stCounter;
-  std::map<uint32, boost::shared_ptr<ForeverCounter> >::iterator ltIter;
-  std::map<uint32, boost::shared_ptr<RollingIntervalCounter> >::iterator stIter;
+  std::map<uint32_t, boost::shared_ptr<ForeverCounter> >::iterator ltIter;
+  std::map<uint32_t, boost::shared_ptr<RollingIntervalCounter> >::iterator stIter;
 
   if (timeFrame == SHORT_TERM_STATS) {
     if (sampleType == INPUT_STATS) {
@@ -513,13 +513,13 @@ long long EventServer::getEventCount(STATS_TIME_FRAME timeFrame,
  */
 double EventServer::getEventRate(STATS_TIME_FRAME timeFrame,
                                  STATS_SAMPLE_TYPE sampleType,
-                                 uint32 outputModuleId,
+                                 uint32_t outputModuleId,
                                  double currentTime)
 {
   boost::shared_ptr<ForeverCounter> ltCounter;
   boost::shared_ptr<RollingIntervalCounter> stCounter;
-  std::map<uint32, boost::shared_ptr<ForeverCounter> >::iterator ltIter;
-  std::map<uint32, boost::shared_ptr<RollingIntervalCounter> >::iterator stIter;
+  std::map<uint32_t, boost::shared_ptr<ForeverCounter> >::iterator ltIter;
+  std::map<uint32_t, boost::shared_ptr<RollingIntervalCounter> >::iterator stIter;
 
   if (timeFrame == SHORT_TERM_STATS) {
     if (sampleType == INPUT_STATS) {
@@ -593,13 +593,13 @@ double EventServer::getEventRate(STATS_TIME_FRAME timeFrame,
  */
 double EventServer::getDataRate(STATS_TIME_FRAME timeFrame,
                                 STATS_SAMPLE_TYPE sampleType,
-                                uint32 outputModuleId,
+                                uint32_t outputModuleId,
                                 double currentTime)
 {
   boost::shared_ptr<ForeverCounter> ltCounter;
   boost::shared_ptr<RollingIntervalCounter> stCounter;
-  std::map<uint32, boost::shared_ptr<ForeverCounter> >::iterator ltIter;
-  std::map<uint32, boost::shared_ptr<RollingIntervalCounter> >::iterator stIter;
+  std::map<uint32_t, boost::shared_ptr<ForeverCounter> >::iterator ltIter;
+  std::map<uint32_t, boost::shared_ptr<RollingIntervalCounter> >::iterator stIter;
 
   if (timeFrame == SHORT_TERM_STATS) {
     if (sampleType == INPUT_STATS) {
@@ -675,13 +675,13 @@ double EventServer::getDataRate(STATS_TIME_FRAME timeFrame,
  */
 double EventServer::getDuration(STATS_TIME_FRAME timeFrame,
                                 STATS_SAMPLE_TYPE sampleType,
-                                uint32 outputModuleId,
+                                uint32_t outputModuleId,
                                 double currentTime)
 {
   boost::shared_ptr<ForeverCounter> ltCounter;
   boost::shared_ptr<RollingIntervalCounter> stCounter;
-  std::map<uint32, boost::shared_ptr<ForeverCounter> >::iterator ltIter;
-  std::map<uint32, boost::shared_ptr<RollingIntervalCounter> >::iterator stIter;
+  std::map<uint32_t, boost::shared_ptr<ForeverCounter> >::iterator ltIter;
+  std::map<uint32_t, boost::shared_ptr<RollingIntervalCounter> >::iterator stIter;
 
   if (timeFrame == SHORT_TERM_STATS) {
     if (sampleType == INPUT_STATS) {

@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.9 2010/02/01 14:08:49 mommsen Exp $
+// $Id: FileHandler.h,v 1.10 2010/03/19 13:24:30 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef StorageManager_FileHandler_h
@@ -24,8 +24,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2010/02/01 14:08:49 $
+   * $Revision: 1.10 $
+   * $Date: 2010/03/19 13:24:30 $
    */
 
   class FileHandler
@@ -76,7 +76,7 @@ namespace stor {
     /**
      * Return the luminosity section the file belongs to
      */
-    uint32 lumiSection() const
+    uint32_t lumiSection() const
     { return _fileRecord->lumiSection; }
     
     /**
@@ -105,7 +105,7 @@ namespace stor {
     /**
      * Set the adler checksum for the file
      */
-    void setAdler(uint32 s, uint32 i)
+    void setAdler(uint32_t s, uint32_t i)
     { _adlerstream = s; _adlerindex = i; }
     
     
@@ -211,8 +211,8 @@ namespace stor {
     const std::string  _logFile;                    // log file including path
     std::string  _cmsver;                           // CMSSW version string
 
-    uint32       _adlerstream;                      // adler32 checksum for streamer file
-    uint32       _adlerindex;                       // adler32 checksum for index file
+    uint32_t _adlerstream;                          // adler32 checksum for streamer file
+    uint32_t _adlerindex;                           // adler32 checksum for index file
   };
   
 } // stor namespace

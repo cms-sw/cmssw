@@ -1,4 +1,4 @@
-// $Id: InitMsgCollection.h,v 1.8 2009/09/16 10:44:29 mommsen Exp $
+// $Id: InitMsgCollection.h,v 1.9 2010/04/16 12:31:34 mommsen Exp $
 /// @file: InitMsgCollection.h 
 
 #ifndef StorageManager_InitMsgCollection_h
@@ -24,8 +24,8 @@ namespace stor
      to event consumers and written to output streams.
 
      $Author: mommsen $
-     $Revision: 1.8 $
-     $Date: 2009/09/16 10:44:29 $
+     $Revision: 1.9 $
+     $Date: 2010/04/16 12:31:34 $
   */
 
   typedef std::vector<unsigned char> InitMsgBuffer;
@@ -127,7 +127,7 @@ namespace stor
      *
      * @return the integer number of received INIT messages
      */
-    uint32 initMsgCount(const std::string& outputModuleLabel) const;
+    uint32_t initMsgCount(const std::string& outputModuleLabel) const;
 
     /**
      * Returns the maximum number of identical INIT messages received
@@ -135,7 +135,7 @@ namespace stor
      *
      * @return the integer number of maximum received INIT messages
      */
-    uint32 maxMsgCount() const;
+    uint32_t maxMsgCount() const;
 
     /**
      * Returns a string with information on which selections are available.
@@ -150,7 +150,7 @@ namespace stor
      *
      * @return the output module label or an empty string
      */
-    std::string getOutputModuleName(const uint32 outputModuleId) const;
+    std::string getOutputModuleName(const uint32_t outputModuleId) const;
 
     /**
      * Creates a single text string from the elements in the specified
@@ -174,12 +174,12 @@ namespace stor
      */
     void add(InitMsgView const& initMsgView);
 
-    typedef std::pair<InitMsgSharedPtr, uint32> InitMsgPtrAndCount;
+    typedef std::pair<InitMsgSharedPtr, uint32_t> InitMsgPtrAndCount;
     typedef std::vector<InitMsgPtrAndCount> InitMsgList;
     InitMsgList initMsgList_;
     InitMsgSharedPtr serializedFullSet_;
 
-    typedef std::map<uint32, std::string> OutModTable;
+    typedef std::map<uint32_t, std::string> OutModTable;
     OutModTable outModNameTable_;
     mutable boost::mutex listLock_;
   };

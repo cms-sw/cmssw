@@ -1,4 +1,4 @@
-// $Id: EndLumiSectMsgData.cc,v 1.4 2010/04/30 07:44:56 mommsen Exp $
+// $Id: EndLumiSectMsgData.cc,v 1.5 2010/05/03 13:51:09 mommsen Exp $
 /// @file: EndLumiSectMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -35,12 +35,12 @@ namespace stor
       }
     }
 
-    uint32 EndLumiSectMsgData::do_runNumber() const
+    uint32_t EndLumiSectMsgData::do_runNumber() const
     {
       return _runNumber;
     }
 
-    uint32 EndLumiSectMsgData::do_lumiSection() const
+    uint32_t EndLumiSectMsgData::do_lumiSection() const
     {
       return _lumiSection;
     }

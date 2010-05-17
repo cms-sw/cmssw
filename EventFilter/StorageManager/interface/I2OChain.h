@@ -1,4 +1,4 @@
-// $Id: I2OChain.h,v 1.8.2.1 2010/04/21 09:44:25 mommsen Exp $
+// $Id: I2OChain.h,v 1.9 2010/04/30 07:44:16 mommsen Exp $
 /// @file: I2OChain.h 
 
 #ifndef StorageManager_I2OChain_h
@@ -28,8 +28,8 @@ namespace stor {
    * the last instance of I2OChain goes out of scope.
    *
    * $Author: mommsen $
-   * $Revision: 1.8.2.1 $
-   * $Date: 2010/04/21 09:44:25 $
+   * $Revision: 1.9 $
+   * $Date: 2010/04/30 07:44:16 $
    */
 
 
@@ -453,7 +453,7 @@ namespace stor {
        only if, the message is an INIT or an Event message.  Otherwise,
        an exception is thrown.
      */
-    uint32 outputModuleId() const;
+    uint32_t outputModuleId() const;
 
     /**
        Returns the top folder contained in the message, if and
@@ -496,7 +496,7 @@ namespace stor {
        and only if, the message is an Event message.  Otherwise,
        an exception is thrown.
      */
-    uint32 hltTriggerCount() const;
+    uint32_t hltTriggerCount() const;
 
     /**
        Copies the HLT trigger bits into the specified vector, if and
@@ -512,27 +512,27 @@ namespace stor {
        message is an Event or ErrorEvent message. 
        Otherwise an exception is thrown.
      */
-    uint32 runNumber() const;
+    uint32_t runNumber() const;
 
     /**
        Returns the luminosity section of the message, if and only if,
        the message is an Event or ErrorEvent message. 
        Otherwise an exception is thrown.
      */
-    uint32 lumiSection() const;
+    uint32_t lumiSection() const;
 
     /**
        Returns the event number of the message, if and only if, the 
        message is an Event or ErrorEvent message. 
        Otherwise an exception is thrown.
      */
-    uint32 eventNumber() const;
+    uint32_t eventNumber() const;
 
     /**
        Returns the adler32 checksum as found in the message if available.
        Otherwise 0 is returned.
      */
-    uint32 adler32Checksum() const;
+    uint32_t adler32Checksum() const;
 
     /**
        Checks that the run number found in the I2OChain header
@@ -542,7 +542,7 @@ namespace stor {
        For error events, the given run number will be used by
        the StorageManager, but it will *not* be changed in the I2O header.
      */
-    void assertRunNumber(uint32 runNumber);
+    void assertRunNumber(uint32_t runNumber);
 
     /**
        Returns true if the I2O function code indicates that the message

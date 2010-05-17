@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: DQMMessageAnalyzer.cc,v 1.8.8.2 2010/04/22 13:59:10 mommsen Exp $
+  $Id: DQMMessageAnalyzer.cc,v 1.9 2010/04/30 07:56:47 mommsen Exp $
 
 */
 
@@ -404,8 +404,8 @@ void DQMMessageAnalyzer::analyze(const edm::Event& iEvent,
 
     Buffer buf(1024);
   
-    uint32 lumiSection = 789;
-    uint32 updateNumber = 111;
+    uint32_t lumiSection = 789;
+    uint32_t updateNumber = 111;
 
     // serialize the monitor element data
     serializeWorker_.serializeDQMEvent(toTable, useCompression_,
@@ -422,7 +422,7 @@ void DQMMessageAnalyzer::analyze(const edm::Event& iEvent,
                                         iEvent.id().run(), iEvent.id().event(),
                                         iEvent.time(),
                                         lumiSection, updateNumber,
-                                        (uint32)serializeWorker_.adler32_chksum(),
+                                        (uint32_t)serializeWorker_.adler32_chksum(),
                                         host_name_,
                                         edm::getReleaseVersion(), dirName,
                                         toTable);
@@ -526,7 +526,7 @@ DEFINE_FWK_MODULE(DQMMessageAnalyzer);
                                      event.time(),
                                      //event.time().value(),
                                      lumiSectionTag, updateNumber,
-                                     (uint32)serializeWorker_.adler32_chksum(),
+                                     (uint32_t)serializeWorker_.adler32_chksum(),
                                      host_name_,
                                      edm::getReleaseVersion(), dirName,
                                      toTable);

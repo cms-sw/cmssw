@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.h,v 1.9 2010/03/16 17:55:43 mommsen Exp $
+// $Id: RunMonitorCollection.h,v 1.10 2010/03/31 12:34:27 mommsen Exp $
 /// @file: RunMonitorCollection.h 
 
 #ifndef StorageManager_RunMonitorCollection_h
@@ -21,8 +21,8 @@ namespace stor {
    * in the current run
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2010/03/16 17:55:43 $
+   * $Revision: 1.10 $
+   * $Date: 2010/03/31 12:34:27 $
    */
   
   class RunMonitorCollection : public MonitorCollection
@@ -106,17 +106,17 @@ namespace stor {
 
     struct UnwantedEvent
     {
-      uint32 count;
-      uint32 previousCount;
+      uint32_t count;
+      uint32_t previousCount;
       std::string alarmName;
-      uint32 hltTriggerCount;
+      uint32_t hltTriggerCount;
       std::vector<unsigned char> bitList;
 
       UnwantedEvent(const I2OChain&);
 
-      static uint32 nextId;
+      static uint32_t nextId;
     };
-    typedef std::map<uint32, UnwantedEvent> UnwantedEventsMap;
+    typedef std::map<uint32_t, UnwantedEvent> UnwantedEventsMap;
     UnwantedEventsMap _unwantedEventsMap;
     mutable boost::mutex _unwantedEventMapLock;
 

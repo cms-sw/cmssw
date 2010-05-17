@@ -1,4 +1,4 @@
-// $Id: ErrorEventData.cc,v 1.4 2010/04/30 14:24:18 mommsen Exp $
+// $Id: ErrorEventData.cc,v 1.5 2010/05/11 18:01:19 mommsen Exp $
 /// @file: ErrorEventData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -62,7 +62,7 @@ namespace stor
     }
 
     void
-    ErrorEventMsgData::do_assertRunNumber(uint32 runNumber)
+    ErrorEventMsgData::do_assertRunNumber(uint32_t runNumber)
     {
       if ( headerOkay() && do_runNumber() != runNumber )
       {
@@ -79,7 +79,7 @@ namespace stor
       }
     }
 
-    uint32 ErrorEventMsgData::do_runNumber() const
+    uint32_t ErrorEventMsgData::do_runNumber() const
     {
       if ( !headerOkay() )
       {
@@ -93,7 +93,7 @@ namespace stor
       return _runNumber;
     }
 
-    uint32 ErrorEventMsgData::do_lumiSection() const
+    uint32_t ErrorEventMsgData::do_lumiSection() const
     {
       if ( !headerOkay() )
       {
@@ -107,7 +107,7 @@ namespace stor
       return _lumiSection;
     }
 
-    uint32 ErrorEventMsgData::do_eventNumber() const
+    uint32_t ErrorEventMsgData::do_eventNumber() const
     {
       if ( !headerOkay() )
       {

@@ -23,7 +23,7 @@
  *   isIdle() will return false since the consumer has moved from the idle
  *   to the disconnected state.)
  *
- * $Id: ConsumerPipe.h,v 1.14 2008/05/04 12:34:05 biery Exp $
+ * $Id: ConsumerPipe.h,v 1.15 2009/12/01 13:58:08 mommsen Exp $
  */
 
 #include <string>
@@ -64,8 +64,8 @@ namespace stor
 
     ~ConsumerPipe();
 
-    uint32 getConsumerId() const;
-    void initializeSelection(Strings const& fullTriggerList, uint32 outputModuleId);
+    uint32_t getConsumerId() const;
+    void initializeSelection(Strings const& fullTriggerList, uint32_t outputModuleId);
     bool isActive() const;
     bool isIdle() const;
     bool isDisconnected() const;
@@ -116,7 +116,7 @@ namespace stor
     CURL* han_;
     struct curl_slist *headers_;
     // characteristics of the consumer
-    uint32 consumerId_;
+    uint32_t consumerId_;
     std::string consumerName_;
     std::string consumerPriority_;
     int events_;
@@ -124,7 +124,7 @@ namespace stor
     Strings triggerSelection_;
     double rateRequest_;
     std::string hltOutputSelection_;
-    uint32 hltOutputModuleId_;
+    uint32_t hltOutputModuleId_;
     boost::shared_ptr<RollingSampleCounter> rateRequestCounter_;
     double minTimeBetweenEvents_;
     double lastConsideredEventTime_;
@@ -159,7 +159,7 @@ namespace stor
     boost::mutex eventQueueLock_;
 
     // class data members used for creating unique consumer IDs
-    static uint32 rootId_;
+    static uint32_t rootId_;
     static boost::mutex rootIdLock_;
 
     // statistics

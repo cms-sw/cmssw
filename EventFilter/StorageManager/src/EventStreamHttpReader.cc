@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.38 2009/11/05 12:47:40 mommsen Exp $
+  $Id: EventStreamHttpReader.cc,v 1.39 2009/12/01 13:58:08 mommsen Exp $
 /// @file: EventStreamHttpReader.cc
 */
 
@@ -415,7 +415,7 @@ namespace edm
   void EventStreamHttpReader::registerWithEventServer()
   {
     stor::ReadData data;
-    uint32 registrationStatus = ConsRegResponseBuilder::ES_NOT_READY;
+    uint32_t registrationStatus = ConsRegResponseBuilder::ES_NOT_READY;
     bool alreadySaidWaiting = false;
     do {
       data.d_.clear();

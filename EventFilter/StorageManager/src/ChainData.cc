@@ -1,4 +1,4 @@
-// $Id: ChainData.cc,v 1.10 2010/05/11 19:10:41 mommsen Exp $
+// $Id: ChainData.cc,v 1.11 2010/05/12 12:22:06 mommsen Exp $
 /// @file: ChainData.cc
 
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
@@ -130,13 +130,13 @@ void detail::ChainData::addFirstFragment(toolbox::mem::Reference* pRef)
   // variable default value for one of the fragKey fields.
   if (pRef)
     {
-      _fragKey.secondaryId_ = static_cast<uint32>(
+      _fragKey.secondaryId_ = static_cast<uint32_t>(
         (uintptr_t)pRef->getDataLocation()
       );
     }
   else
     {
-      _fragKey.secondaryId_ = static_cast<uint32>( time(0) );
+      _fragKey.secondaryId_ = static_cast<uint32_t>( time(0) );
     }
 
   if (pRef)
@@ -578,7 +578,7 @@ std::string detail::ChainData::hltClassName() const
     }
 }
 
-uint32 detail::ChainData::outputModuleId() const
+uint32_t detail::ChainData::outputModuleId() const
 {
   return do_outputModuleId();
 }
@@ -614,7 +614,7 @@ void detail::ChainData::l1TriggerNames(Strings& nameList) const
   do_l1TriggerNames(nameList);
 }
 
-uint32 detail::ChainData::hltTriggerCount() const
+uint32_t detail::ChainData::hltTriggerCount() const
 {
   return do_hltTriggerCount();
 }
@@ -625,27 +625,27 @@ detail::ChainData::hltTriggerBits(std::vector<unsigned char>& bitList) const
   do_hltTriggerBits(bitList);
 }
 
-void detail::ChainData::assertRunNumber(uint32 runNumber)
+void detail::ChainData::assertRunNumber(uint32_t runNumber)
 {
   do_assertRunNumber(runNumber);
 }
 
-uint32 detail::ChainData::runNumber() const
+uint32_t detail::ChainData::runNumber() const
 {
   return do_runNumber();
 }
 
-uint32 detail::ChainData::lumiSection() const
+uint32_t detail::ChainData::lumiSection() const
 {
   return do_lumiSection();
 }
 
-uint32 detail::ChainData::eventNumber() const
+uint32_t detail::ChainData::eventNumber() const
 {
   return do_eventNumber();
 }
 
-uint32 detail::ChainData::adler32Checksum() const
+uint32_t detail::ChainData::adler32Checksum() const
 {
   return do_adler32Checksum();
 }
@@ -782,10 +782,10 @@ bool detail::ChainData::validateAdler32Checksum()
 {
   if ( !complete() || !headerOkay() ) return false;
 
-  const uint32 expected = adler32Checksum();
+  const uint32_t expected = adler32Checksum();
   if (expected == 0) return false; // Adler32 not available
 
-  const uint32 calculated = calculateAdler32();
+  const uint32_t calculated = calculateAdler32();
 
   if ( calculated != expected )
   {
@@ -795,10 +795,10 @@ bool detail::ChainData::validateAdler32Checksum()
   return true;
 }
 
-uint32 detail::ChainData::calculateAdler32() const
+uint32_t detail::ChainData::calculateAdler32() const
 {
-  uint32 adlerA = 1;
-  uint32 adlerB = 0;
+  uint32_t adlerA = 1;
+  uint32_t adlerB = 0;
   
   toolbox::mem::Reference* curRef = _ref;
 
@@ -871,7 +871,7 @@ detail::ChainData::do_fragmentLocation(unsigned char* dataLoc) const
   return dataLoc;
 }
 
-uint32 detail::ChainData::do_outputModuleId() const
+uint32_t detail::ChainData::do_outputModuleId() const
 {
   std::stringstream msg;
   msg << "An output module ID is only available from a valid, ";
@@ -927,7 +927,7 @@ void detail::ChainData::do_l1TriggerNames(Strings& nameList) const
   XCEPT_RAISE(stor::exception::WrongI2OMessageType, msg.str());
 }
 
-uint32 detail::ChainData::do_hltTriggerCount() const
+uint32_t detail::ChainData::do_hltTriggerCount() const
 {
   std::stringstream msg;
   msg << "An HLT trigger count is only available from a valid, ";
@@ -944,10 +944,10 @@ detail::ChainData::do_hltTriggerBits(std::vector<unsigned char>& bitList) const
   XCEPT_RAISE(stor::exception::WrongI2OMessageType, msg.str());
 }
 
-void detail::ChainData::do_assertRunNumber(uint32 runNumber)
+void detail::ChainData::do_assertRunNumber(uint32_t runNumber)
 {}
 
-uint32 detail::ChainData::do_runNumber() const
+uint32_t detail::ChainData::do_runNumber() const
 {
   std::stringstream msg;
   msg << "A run number is only available from a valid, ";
@@ -955,7 +955,7 @@ uint32 detail::ChainData::do_runNumber() const
   XCEPT_RAISE(stor::exception::WrongI2OMessageType, msg.str());
 }
 
-uint32 detail::ChainData::do_lumiSection() const
+uint32_t detail::ChainData::do_lumiSection() const
 {
   std::stringstream msg;
   msg << "A luminosity section is only available from a valid, ";
@@ -963,7 +963,7 @@ uint32 detail::ChainData::do_lumiSection() const
   XCEPT_RAISE(stor::exception::WrongI2OMessageType, msg.str());
 }
 
-uint32 detail::ChainData::do_eventNumber() const
+uint32_t detail::ChainData::do_eventNumber() const
 {
   std::stringstream msg;
   msg << "An event number is only available from a valid, ";
@@ -971,7 +971,7 @@ uint32 detail::ChainData::do_eventNumber() const
   XCEPT_RAISE(stor::exception::WrongI2OMessageType, msg.str());
 }
 
-uint32 detail::ChainData::do_adler32Checksum() const
+uint32_t detail::ChainData::do_adler32Checksum() const
 {
   return 0;
 }

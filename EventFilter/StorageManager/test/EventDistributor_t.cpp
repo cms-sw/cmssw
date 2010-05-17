@@ -245,8 +245,8 @@ void testEventDistributor::testStreamSelection()
 
   // *** first event message (should pass) ***
 
-  uint32 eventNumber = 1;
-  uint32 hltBitCount = 9;
+  uint32_t eventNumber = 1;
+  uint32_t hltBitCount = 9;
   clear_trigger_bits(hltBits);
   set_trigger_bit(hltBits, 0, edm::hlt::Pass);
 
@@ -436,8 +436,8 @@ void testEventDistributor::testConsumerSelection()
   std::vector<unsigned char> hltBits;
   set_trigger_bit(hltBits, 8, edm::hlt::Ready);
 
-  uint32 eventNumber = 1;
-  uint32 hltBitCount = 9;
+  uint32_t eventNumber = 1;
+  uint32_t hltBitCount = 9;
   clear_trigger_bits(hltBits);
   set_trigger_bit(hltBits, 0, edm::hlt::Pass);
   set_trigger_bit(hltBits, 2, edm::hlt::Pass);

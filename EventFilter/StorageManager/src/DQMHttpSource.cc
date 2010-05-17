@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.18.2.2 2010/04/22 14:09:22 mommsen Exp $
+ *  $Id: DQMHttpSource.cc,v 1.19 2010/04/30 07:44:56 mommsen Exp $
 /// @file: DQMHttpSource.cc
  */
 
@@ -319,7 +319,7 @@ namespace edm
   void DQMHttpSource::registerWithDQMEventServer()
   {
     stor::ReadData data;
-    uint32 registrationStatus;
+    uint32_t registrationStatus;
     bool alreadySaidWaiting = false;
     do {
       data.d_.clear();

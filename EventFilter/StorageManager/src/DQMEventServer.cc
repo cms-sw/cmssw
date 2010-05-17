@@ -5,7 +5,7 @@
  * Initial Implementation based on Kurt's EventServer
  * make a common class later when all this works
  *
- * $Id$
+ * $Id: DQMEventServer.cc,v 1.5 2009/06/10 08:15:25 dshpakov Exp $
  *
  * Note: this class is no longer used in the StorageManager, but is still
  * required by the SMProxyServer (Remi Mommsen, May 5, 2009)
@@ -79,7 +79,7 @@ DQMEventServer::~DQMEventServer()
  */
 void DQMEventServer::addConsumer(boost::shared_ptr<DQMConsumerPipe> consumer)
 {
-  uint32 consumerId = consumer->getConsumerId();
+  uint32_t consumerId = consumer->getConsumerId();
   consumerTable[consumerId] = consumer;
 }
 
@@ -87,13 +87,13 @@ void DQMEventServer::addConsumer(boost::shared_ptr<DQMConsumerPipe> consumer)
  * Returns a shared pointer to the consumer pipe with the specified ID
  * or an empty pointer if the ID was not found.
  */
-boost::shared_ptr<DQMConsumerPipe> DQMEventServer::getConsumer(uint32 consumerId)
+boost::shared_ptr<DQMConsumerPipe> DQMEventServer::getConsumer(uint32_t consumerId)
 {
   // initial empty pointer
   boost::shared_ptr<DQMConsumerPipe> consPtr;
 
   // lookup the consumer
-  std::map< uint32, boost::shared_ptr<DQMConsumerPipe> >::const_iterator consIter;
+  std::map< uint32_t, boost::shared_ptr<DQMConsumerPipe> >::const_iterator consIter;
   consIter = consumerTable.find(consumerId);
   if (consIter != consumerTable.end())
   {
@@ -143,7 +143,7 @@ void DQMEventServer::processDQMEvent(const DQMEventMsgView &eventView)
   // create a local copy of the event (if not already done) and pass it
   // to the consumer pipe.
   boost::shared_ptr< vector<char> > bufPtr;
-  std::map< uint32, boost::shared_ptr<DQMConsumerPipe> >::const_iterator consIter;
+  std::map< uint32_t, boost::shared_ptr<DQMConsumerPipe> >::const_iterator consIter;
   for (consIter = consumerTable.begin();
        consIter != consumerTable.end();
        consIter++)
@@ -197,8 +197,8 @@ void DQMEventServer::processDQMEvent(const DQMEventMsgView &eventView)
     disconnectedConsumerTestCounter_ = 0;
 
     // determine which consumers have disconnected
-    std::vector<uint32> disconnectList;
-    std::map< uint32, boost::shared_ptr<DQMConsumerPipe> >::const_iterator consIter;
+    std::vector<uint32_t> disconnectList;
+    std::map< uint32_t, boost::shared_ptr<DQMConsumerPipe> >::const_iterator consIter;
     for (consIter = consumerTable.begin();
          consIter != consumerTable.end();
          consIter++)
@@ -213,12 +213,12 @@ void DQMEventServer::processDQMEvent(const DQMEventMsgView &eventView)
     }
 
     // remove disconnected consumers from the consumer table
-    std::vector<uint32>::const_iterator listIter;
+    std::vector<uint32_t>::const_iterator listIter;
     for (listIter = disconnectList.begin();
          listIter != disconnectList.end();
          listIter++)
     {
-      uint32 consumerId = *listIter;
+      uint32_t consumerId = *listIter;
       consumerTable.erase(consumerId);
     }
   }
@@ -227,13 +227,13 @@ void DQMEventServer::processDQMEvent(const DQMEventMsgView &eventView)
 /**
  * Returns the next event for the specified consumer.
  */
-boost::shared_ptr< std::vector<char> > DQMEventServer::getDQMEvent(uint32 consumerId)
+boost::shared_ptr< std::vector<char> > DQMEventServer::getDQMEvent(uint32_t consumerId)
 {
   // initial empty buffer
   boost::shared_ptr< vector<char> > bufPtr;
 
   // lookup the consumer
-  std::map< uint32, boost::shared_ptr<DQMConsumerPipe> >::const_iterator consIter;
+  std::map< uint32_t, boost::shared_ptr<DQMConsumerPipe> >::const_iterator consIter;
   consIter = consumerTable.find(consumerId);
   if (consIter != consumerTable.end())
   {
@@ -247,7 +247,7 @@ boost::shared_ptr< std::vector<char> > DQMEventServer::getDQMEvent(uint32 consum
 
 void DQMEventServer::clearQueue()
 {
-  std::map< uint32, boost::shared_ptr<DQMConsumerPipe> >::const_iterator consIter;
+  std::map< uint32_t, boost::shared_ptr<DQMConsumerPipe> >::const_iterator consIter;
   for (consIter = consumerTable.begin();
        consIter != consumerTable.end();
        consIter++)

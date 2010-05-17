@@ -25,7 +25,7 @@
  *
  *  Initial Implementation based on Kurt's ConsumerPipe
  *  We can think about a common class later...
- *  $Id: DQMConsumerPipe.h,v 1.6 2007/11/29 19:14:10 biery Exp $
+ *  $Id: DQMConsumerPipe.h,v 1.7 2008/08/06 15:52:08 biery Exp $
  */
 
 #include <string>
@@ -49,7 +49,7 @@ namespace stor
 
     ~DQMConsumerPipe();
 
-    uint32 getConsumerId() const;
+    uint32_t getConsumerId() const;
     void initializeSelection();
     bool isIdle() const;
     bool isDisconnected() const;
@@ -71,7 +71,7 @@ namespace stor
     CURL* han_;
     struct curl_slist *headers_;
     // characteristics of the consumer
-    uint32 consumerId_;
+    uint32_t consumerId_;
     std::string consumerName_;
     std::string consumerPriority_;
     std::string topFolderName_;
@@ -100,7 +100,7 @@ namespace stor
     boost::mutex eventQueueLock_;
 
     // class data members used for creating unique consumer IDs
-    static uint32 rootId_;
+    static uint32_t rootId_;
     static boost::mutex rootIdLock_;
   };
 }

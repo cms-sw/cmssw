@@ -1,4 +1,4 @@
-// $Id: InitMsgData.cc,v 1.5 2010/05/11 18:01:19 mommsen Exp $
+// $Id: InitMsgData.cc,v 1.6 2010/05/12 12:22:06 mommsen Exp $
 /// @file: InitMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -61,7 +61,7 @@ namespace stor
       }
     }
 
-    uint32 InitMsgData::do_adler32Checksum() const
+    uint32_t InitMsgData::do_adler32Checksum() const
     {
       if ( !headerOkay() )
       {
@@ -75,7 +75,7 @@ namespace stor
       return _adler32;
     }
 
-    uint32 InitMsgData::do_outputModuleId() const
+    uint32_t InitMsgData::do_outputModuleId() const
     {
       if ( !headerOkay() )
       {

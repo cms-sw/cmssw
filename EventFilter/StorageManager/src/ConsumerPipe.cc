@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: ConsumerPipe.cc,v 1.22 2008/08/06 15:52:09 biery Exp $
+ * $Id: ConsumerPipe.cc,v 1.23 2009/12/01 13:58:08 mommsen Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -21,7 +21,7 @@ using namespace edm;
 /**
  * Initialize the static value for the root consumer id.
  */
-uint32 ConsumerPipe::rootId_ = 1;
+uint32_t ConsumerPipe::rootId_ = 1;
 
 /**
  * Initialize the static lock used to control access to the root ID.
@@ -141,7 +141,7 @@ ConsumerPipe::~ConsumerPipe()
 /**
  * Returns the consumer ID associated with this pipe.
  */
-uint32 ConsumerPipe::getConsumerId() const
+uint32_t ConsumerPipe::getConsumerId() const
 {
   return consumerId_;
 }
@@ -152,7 +152,7 @@ uint32 ConsumerPipe::getConsumerId() const
  * that was specified in the constructor.
  */
 void ConsumerPipe::initializeSelection(Strings const& fullTriggerList,
-                                       uint32 outputModuleId)
+                                       uint32_t outputModuleId)
 {
   FDEBUG(5) << "Initializing consumer pipe, ID = " <<
     consumerId_ << std::endl;

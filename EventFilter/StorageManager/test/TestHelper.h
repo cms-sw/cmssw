@@ -1,4 +1,4 @@
-// $Id: TestHelper.h,v 1.4 2010/04/30 07:56:47 mommsen Exp $
+// $Id: TestHelper.h,v 1.5 2010/04/30 14:27:22 mommsen Exp $
 
 #ifndef StorageManager_TestHelper_h
 #define StorageManager_TestHelper_h
@@ -235,7 +235,7 @@ namespace stor
       smMsg->fuGUID = value3;
 
       char test_value[] = "This is a test, This is a";
-      uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
+      uint32_t adler32_chksum = (uint32_t)cms::Adler32((char*)&test_value[0], sizeof(test_value));
       char host_name[255];
       gethostname(host_name, sizeof(host_name));
 
@@ -292,7 +292,7 @@ namespace stor
       smEventMsg->fuGUID = value3;
 
       char test_value_event[] = "This is a test Event, This is a";
-      uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
+      uint32_t adler32_chksum = (uint32_t)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
       char host_name[255];
       gethostname(host_name, sizeof(host_name));
 
@@ -354,7 +354,7 @@ namespace stor
       I2O_SM_DQM_MESSAGE_FRAME* msg = (I2O_SM_DQM_MESSAGE_FRAME*)ref->getDataLocation();
 
       // no data yet to get a checksum (not needed for test)
-      uint32 adler32_chksum = 0;
+      uint32_t adler32_chksum = 0;
       char host_name[255];
       gethostname(host_name, sizeof(host_name));
 
@@ -376,19 +376,19 @@ namespace stor
     set_trigger_bit
     (
       std::vector<unsigned char>& hltBits,
-      uint32 bitIndex,
+      uint32_t bitIndex,
       edm::hlt::HLTState pathStatus
     )
     {
       // ensure that bit vector is large enough
-      uint32 minBitCount = bitIndex + 1;
-      uint32 minSize = 1 + ((minBitCount - 1) / 4);
+      uint32_t minBitCount = bitIndex + 1;
+      uint32_t minSize = 1 + ((minBitCount - 1) / 4);
       if (hltBits.size() < minSize) hltBits.resize(minSize);
 
-      uint32 vectorIndex = (uint32) (bitIndex / 4);
-      uint32 shiftCount = 2 * (bitIndex % 4);
+      uint32_t vectorIndex = (uint32_t) (bitIndex / 4);
+      uint32_t shiftCount = 2 * (bitIndex % 4);
 
-      uint32 clearMask = 0xff;
+      uint32_t clearMask = 0xff;
       clearMask ^= 0x3 << shiftCount;
 
       hltBits[vectorIndex] &= clearMask;

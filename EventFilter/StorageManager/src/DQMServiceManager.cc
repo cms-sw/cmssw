@@ -3,7 +3,7 @@
 //
 // (W.Badgett)
 //
-// $Id: DQMServiceManager.cc,v 1.12.2.2 2010/04/22 14:03:02 mommsen Exp $
+// $Id: DQMServiceManager.cc,v 1.13 2010/04/30 07:44:56 mommsen Exp $
 //
 // Note: this class is no longer used in the StorageManager, but is still
 // required by the SMProxyServer (Remi Mommsen, May 5, 2009)
@@ -130,7 +130,7 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
 	    {
 	      std::vector<TObject *> newObjectVector;
 	      table[folderName] = newObjectVector;
-	      subFolderSize += 2*sizeof(uint32) + folderName.length();
+	      subFolderSize += 2*sizeof(uint32_t) + folderName.length();
 	    }
 	    std::vector<TObject *> &objectVector = table[folderName];
 	    objectVector.push_back(object);
@@ -146,7 +146,7 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
       unsigned int sourceSize = serializer.currentSpaceUsed();
       unsigned int totalSize  = sourceSize 
 	+ sizeof(DQMEventHeader)
-	+ 12*sizeof(uint32)
+	+ 12*sizeof(uint32_t)
 	+ msg.releaseTag().length()
 	+ msg.topFolderName().length()
 	+ subFolderSize;
@@ -162,7 +162,7 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
 				 zeit,
 				 instance->getLumiSection(),
 				 instance->getUpdateNumber(),
-                                 (uint32)serializer.adler32_chksum(),
+                                 (uint32_t)serializer.adler32_chksum(),
                                  host_name_,
 				 msg.releaseTag(),
 				 msg.topFolderName(),

@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.17 2010/03/19 17:33:54 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.18 2010/05/11 18:02:30 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -158,13 +158,13 @@ StreamHandler::getNewFileRecord(const I2OChain& event)
 }
 
 
-std::string StreamHandler::getBaseFilePath(const uint32& runNumber, uint32_t fileCount) const
+std::string StreamHandler::getBaseFilePath(const uint32_t& runNumber, uint32_t fileCount) const
 {
   return _diskWritingParams._filePath + getFileSystem(runNumber, fileCount);
 }
 
 
-std::string StreamHandler::getFileSystem(const uint32& runNumber, uint32_t fileCount) const
+std::string StreamHandler::getFileSystem(const uint32_t& runNumber, uint32_t fileCount) const
 {
   // if the number of logical disks is not specified, don't
   // add a file system subdir to the path
@@ -185,8 +185,8 @@ std::string StreamHandler::getFileSystem(const uint32& runNumber, uint32_t fileC
 
 std::string StreamHandler::getCoreFileName
 (
-  const uint32& runNumber,
-  const uint32& lumiSection
+  const uint32_t& runNumber,
+  const uint32_t& lumiSection
 ) const
 {
   std::ostringstream coreFileName;

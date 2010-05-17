@@ -14,7 +14,7 @@
  * Initial Implementation based on Kurt's EventServer
  * we can think about a common class later...
  *
- * $Id$
+ * $Id: DQMEventServer.h,v 1.4 2009/06/10 08:15:21 dshpakov Exp $
  *
  * Note: this class is no longer used in the StorageManager, but is still
  * required by the SMProxyServer (Remi Mommsen, May 5, 2009)
@@ -39,11 +39,11 @@ namespace stor
     ~DQMEventServer();
 
     void addConsumer(boost::shared_ptr<DQMConsumerPipe> consumer);
-    boost::shared_ptr<DQMConsumerPipe> getConsumer(uint32 consumerId);
+    boost::shared_ptr<DQMConsumerPipe> getConsumer(uint32_t consumerId);
     void processDQMEvent(const DQMEventMsgView &eventView);
-    boost::shared_ptr< std::vector<char> > getDQMEvent(uint32 consumerId);
+    boost::shared_ptr< std::vector<char> > getDQMEvent(uint32_t consumerId);
     void clearQueue();
-    std::map< uint32, boost::shared_ptr<DQMConsumerPipe> > getConsumerTable()
+    std::map< uint32_t, boost::shared_ptr<DQMConsumerPipe> > getConsumerTable()
     { return(consumerTable);}
 
   private:
@@ -57,7 +57,7 @@ namespace stor
     int disconnectedConsumerTestCounter_;
 
     // consumer lists
-    std::map< uint32, boost::shared_ptr<DQMConsumerPipe> > consumerTable;
+    std::map< uint32_t, boost::shared_ptr<DQMConsumerPipe> > consumerTable;
     //std::vector<boost::shared_ptr<DQMConsumerPipe>> vipConsumerList;
   };
 }

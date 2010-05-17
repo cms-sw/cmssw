@@ -12,7 +12,7 @@
  * prescale is in effect.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: EventServer.h,v 1.12 2009/06/10 08:15:22 dshpakov Exp $
+ * $Id: EventServer.h,v 1.13 2009/07/21 06:44:31 mommsen Exp $
  */
 
 #include <sys/time.h>
@@ -46,11 +46,11 @@ namespace stor
     ~EventServer();
 
     void addConsumer(boost::shared_ptr<ConsumerPipe> consumer);
-    std::map< uint32, boost::shared_ptr<ConsumerPipe> > getConsumerTable();
-    boost::shared_ptr<ConsumerPipe> getConsumer(uint32 consumerId);
+    std::map< uint32_t, boost::shared_ptr<ConsumerPipe> > getConsumerTable();
+    boost::shared_ptr<ConsumerPipe> getConsumer(uint32_t consumerId);
 
     void processEvent(const EventMsgView &eventView);
-    boost::shared_ptr< std::vector<char> > getEvent(uint32 consumerId);
+    boost::shared_ptr< std::vector<char> > getEvent(uint32_t consumerId);
     void clearQueue();
 
     double getMaxEventRate() const { return maxEventRate_; }
@@ -59,19 +59,19 @@ namespace stor
 
     long long getEventCount(STATS_TIME_FRAME timeFrame = SHORT_TERM_STATS,
                             STATS_SAMPLE_TYPE sampleType = INPUT_STATS,
-                            uint32 outputModuleId = 0,
+                            uint32_t outputModuleId = 0,
                             double currentTime = ForeverCounter::getCurrentTime());
     double getEventRate(STATS_TIME_FRAME timeFrame = SHORT_TERM_STATS,
                         STATS_SAMPLE_TYPE sampleType = INPUT_STATS,
-                        uint32 outputModuleId = 0,
+                        uint32_t outputModuleId = 0,
                         double currentTime = ForeverCounter::getCurrentTime());
     double getDataRate(STATS_TIME_FRAME timeFrame = SHORT_TERM_STATS,
                        STATS_SAMPLE_TYPE sampleType = INPUT_STATS,
-                       uint32 outputModuleId = 0,
+                       uint32_t outputModuleId = 0,
                        double currentTime = ForeverCounter::getCurrentTime());
     double getDuration(STATS_TIME_FRAME timeFrame = SHORT_TERM_STATS,
                        STATS_SAMPLE_TYPE sampleType = INPUT_STATS,
-                       uint32 outputModuleId = 0,
+                       uint32_t outputModuleId = 0,
                        double currentTime = ForeverCounter::getCurrentTime());
 
     double getInternalTime(STATS_TIME_FRAME timeFrame = SHORT_TERM_STATS,
@@ -89,7 +89,7 @@ namespace stor
     double maxEventRate_;
     double maxDataRate_;
     std::string hltOutputSelection_;
-    uint32 hltOutputModuleId_;
+    uint32_t hltOutputModuleId_;
     bool runFairShareAlgo_;
 
     // new fair-share scheme
@@ -99,16 +99,16 @@ namespace stor
     int disconnectedConsumerTestCounter_;
 
     // consumer lists
-    std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable_;
+    std::map< uint32_t, boost::shared_ptr<ConsumerPipe> > consumerTable_;
     //std::vector<boost::shared_ptr<ConsumerPipe>> vipConsumerList;
 
     // statistics
-    std::map<uint32, boost::shared_ptr<ForeverCounter> > ltInputCounters_;
-    std::map<uint32, boost::shared_ptr<RollingIntervalCounter> > stInputCounters_;
-    std::map<uint32, boost::shared_ptr<ForeverCounter> > ltAcceptCounters_;
-    std::map<uint32, boost::shared_ptr<RollingIntervalCounter> > stAcceptCounters_;
-    std::map<uint32, boost::shared_ptr<ForeverCounter> > ltOutputCounters_;
-    std::map<uint32, boost::shared_ptr<RollingIntervalCounter> > stOutputCounters_;
+    std::map<uint32_t, boost::shared_ptr<ForeverCounter> > ltInputCounters_;
+    std::map<uint32_t, boost::shared_ptr<RollingIntervalCounter> > stInputCounters_;
+    std::map<uint32_t, boost::shared_ptr<ForeverCounter> > ltAcceptCounters_;
+    std::map<uint32_t, boost::shared_ptr<RollingIntervalCounter> > stAcceptCounters_;
+    std::map<uint32_t, boost::shared_ptr<ForeverCounter> > ltOutputCounters_;
+    std::map<uint32_t, boost::shared_ptr<RollingIntervalCounter> > stOutputCounters_;
     edm::CPUTimer outsideTimer_;
     edm::CPUTimer insideTimer_;
     boost::shared_ptr<ForeverCounter> longTermInsideCPUTimeCounter_;

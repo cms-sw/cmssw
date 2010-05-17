@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.13 2009/10/01 14:58:27 mommsen Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.14 2010/05/03 12:16:57 mommsen Exp $
 /// @file: DataSenderMonitorCollection.h 
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
@@ -26,8 +26,8 @@ namespace stor {
    * and events by their source (resource broker, filter unit, etc.)
    *
    * $Author: mommsen $
-   * $Revision: 1.13 $
-   * $Date: 2009/10/01 14:58:27 $
+   * $Revision: 1.14 $
+   * $Date: 2010/05/03 12:16:57 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -114,7 +114,7 @@ namespace stor {
     /**
      * Key that is used to identify output modules.
      */
-    typedef uint32 OutputModuleKey;
+    typedef uint32_t OutputModuleKey;
 
 
     /**
