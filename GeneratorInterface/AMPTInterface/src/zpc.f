@@ -942,8 +942,8 @@ cms              write(92,201) ityp(i),px(i),py(i),pz(i),xmass(i),
 cms  1                gx(i),gy(i),gz(i),ft(i)
               endif
            endif
- 200       format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,f8.2))
- 201       format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,e8.2))
+cyy 200      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,f8.2))
+cyy 201      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,e8.2))
 c
  1003   continue
 
@@ -1260,8 +1260,8 @@ cms  2                   gz(jscat),ft(jscat)
                  endif
               endif
            endif
- 200       format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,f8.2))
- 201       format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,e8.2))
+cyy           format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,f8.2))
+cyy           format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,e8.2))
            
         end if
 
@@ -1856,6 +1856,7 @@ cc      SAVE /prec5/
 cc      SAVE /ilist5/
         SAVE   
 
+        t=t
         dt1 = ct(i) - ft(i)
         
         gx(i) = gx(i) + vx(i) * dt1
@@ -1929,6 +1930,7 @@ cc      SAVE /anim/
 cc      SAVE /frzprc/
         SAVE   
 
+        t=t
 clin-6/06/02 no momentum change for partons already frozen out,
 c     however, spatial upgrade is needed to ensure overall system freezeout:
       if(isoft.eq.5) then
@@ -2136,6 +2138,8 @@ cc        external ran1
 cc      SAVE /rndm3/
         SAVE   
 
+        iscat=iscat
+        jscat=jscat
         iseed=iseedp
         xmu2 = (hbarc * xmu) ** 2
         xmp2 = xmp ** 2
@@ -2470,6 +2474,10 @@ cc      SAVE /ilist3/
 cc      SAVE /ilist5/
         SAVE   
 
+        i1=i1
+        i2=i2
+        i3=i3
+        t=t
         x1p = gx(i)
         x2p = gy(i)
         x3p = gz(i)
@@ -3601,6 +3609,7 @@ cc      SAVE /ilist1/
 cc      SAVE /ilist5/
         SAVE   
 
+        t=t
         k = nc
         if (tmin .lt. tmin1) then
            ot(l) = tmin
@@ -5814,6 +5823,7 @@ cc      SAVE /ilist2/
 cc      SAVE /ilist4/
         SAVE   
 
+        t=t
         if (iconfg .eq. 3 .or. iconfg .eq. 5) then
            jj = ichkpt
            do 1001 j = 1, jj
@@ -6332,11 +6342,11 @@ cms  &        gx(i), gy(i), gz(i), ft(i)
 
          event = event + 1
 
- 101        format (a12)
- 102        format (2(a8, 2x), '(',i3, ',',i6, ')+(',i3, ',', i6, ')',
-     &     2x, a4, 2x, e10.4, 2x, i8)
- 103        format (i10, 2x, i10, 2x, f8.3, 2x, f8.3)
- 104        format (i10, 2x, i10, 2x, 9(e12.6, 2x))
+cyy 101        format (a12)
+cyy 102        format (2(a8, 2x), '(',i3, ',',i6, ')+(',i3, ',', i6, ')',
+cyy     &     2x, a4, 2x, e10.4, 2x, i8)
+cyy 103        format (i10, 2x, i10, 2x, f8.3, 2x, f8.3)
+cyy 104        format (i10, 2x, i10, 2x, 9(e12.6, 2x))
 
         return
         end

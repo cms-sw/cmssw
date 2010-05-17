@@ -4928,6 +4928,7 @@ C...0 and 1, excluding the endpoints.
      &(RRLU98,RRLU(98)),(RRLU99,RRLU(99)),(RRLU00,RRLU(100))    
     
 C...Initialize generation from given seed.  
+      IDUM=IDUM
       IF(MRLU2.EQ.0) THEN   
         IJ=MOD(MRLU1/30082,31329)   
         KL=MOD(MRLU1,30082) 
@@ -15335,6 +15336,7 @@ C...by removing C* at the beginning of some of the lines below.
       DATA HEADER/'Tung evolution package has been invoked'/    
       DATA INIT/0/  
     
+      KF=KF
       HEADER=HEADER
       CHDFLM(1)=CHDFLM(1)
 C...Proton structure functions from Diemoz, Ferroni, Longo, Martinelli. 

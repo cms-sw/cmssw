@@ -5944,6 +5944,7 @@ C
 cc      SAVE /HPARNT/
         DIMENSION X(10)
         SAVE   
+        WGT=WGT
         PT2=dble(HINT1(1)**2/4.0-HIPR1(8)**2)*X(1)+dble(HIPR1(8))**2
         XT=2.0d0*DSQRT(PT2)/dble(HINT1(1))
         YMX1=DLOG(1.0d0/XT+DSQRT(1.0d0/XT**2-1.0d0))
@@ -5965,6 +5966,7 @@ C
 cc      SAVE /HPARNT/
         DIMENSION X(10)
         SAVE   
+        WGT=WGT
         PTMIN=ABS(HIPR1(10))-0.25
         PTMIN=MAX(PTMIN,HIPR1(8))
         AM2=0.D0

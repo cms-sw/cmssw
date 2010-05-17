@@ -2555,7 +2555,7 @@ cyy 210        format(2x,f5.2,3(2x,f7.4),3(2x,f9.2))
  240        format(a30,3(2x,f9.5))
 cyy 250        format(2x,f5.2,3(2x,f7.4),3(2x,f9.2),i6)
 csp
- 201        format(2x,f5.2,4(2x,f9.2))
+cyy 201        format(2x,f5.2,4(2x,f9.2))
 cyy 251        format(5e15.5)
 c
         return
