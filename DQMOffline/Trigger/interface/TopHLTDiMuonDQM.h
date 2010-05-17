@@ -10,14 +10,8 @@
  *   
  */
 
-//#include <memory>
 #include <string>
 #include <vector>
-//#include <functional>
-
-//#include <unistd.h>
-//#include <stdlib.h>
-//#include <string.h>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -44,8 +38,12 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/MuonReco/interface/MuonEnergy.h"
+#include "DataFormats/MuonReco/interface/MuonIsolation.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
@@ -67,21 +65,20 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
  protected:   
 
   void beginJob();
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context);
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
+  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+
+  void analyze(const edm::Event&, const edm::EventSetup&);
+
+  void endLuminosityBlock(  const edm::LuminosityBlock&, const edm::EventSetup&);
+  void endRun(  const edm::Run&, const edm::EventSetup&);
   void endJob();
 
  private:
 
-  edm::ParameterSet parameters_;
   DQMStore* dbe_;
   std::string monitorName_;
   std::string level_;
-  int counterEvt_;
-  int prescaleEvt_;
 
   int N_sig[100];
   int N_trig[100];
@@ -94,6 +91,8 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
   edm::InputTag L1_Collection_;
   edm::InputTag L3_Collection_;
   edm::InputTag L3_Isolation_;
+  edm::InputTag vertex_;
+  edm::InputTag muons_;
 
   std::vector<std::string> hltPaths_L1_;
   std::vector<std::string> hltPaths_L3_;
@@ -103,16 +102,18 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
   double vertex_X_cut_;
   double vertex_Y_cut_;
   double vertex_Z_cut_;
+
   double muon_pT_cut_;
   double muon_eta_cut_;
+  double muon_iso_cut_;
+
   double MassWindow_up_;
   double MassWindow_down_;
 
   // ----------member data ---------------------------
 
-  bool verbose_;
-
   MonitorElement * Trigs;
+  MonitorElement * NTracks;
   MonitorElement * NMuons;
   MonitorElement * NMuons_charge;
   MonitorElement * NMuons_iso;
@@ -123,6 +124,9 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
   MonitorElement * EtaMuons_sig;
   MonitorElement * EtaMuons_trig;
   MonitorElement * PhiMuons;
+  MonitorElement * CombRelIso03;
+  MonitorElement * VxVy_muons;
+  MonitorElement * Vz_muons;
 
   MonitorElement * DiMuonMassRC;
   MonitorElement * DiMuonMassWC;
@@ -136,8 +140,6 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
   MonitorElement * MuonEfficiency_pT;
   MonitorElement * MuonEfficiency_eta;
   MonitorElement * TriggerEfficiencies;
-
-  //  typedef std::vector<reco::Particle> ParticleCollection;
 
 };
 
