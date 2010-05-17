@@ -325,7 +325,7 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
   evt::State_t  state=shmBuffer_->evtState(cell->index());
 
   bool   reschedule  =true;
-  bool   shutDown    =(state==evt::EMPTY);
+  bool   shutDown    =(state==evt::STOP);
   bool   isLumi      =(state==evt::LUMISECTION);
   UInt_t fuResourceId=cell->fuResourceId();
   UInt_t buResourceId=cell->buResourceId();
@@ -743,6 +743,7 @@ vector<string> FUResourceTable::cellStates() const
     for (UInt_t i=0;i<n;i++) {
       evt::State_t state=shmBuffer_->evtState(i);
       if      (state==evt::EMPTY)      result.push_back("EMPTY");
+      else if (state==evt::STOP)       result.push_back("STOP");
       else if (state==evt::RAWWRITING) result.push_back("RAWWRITING");
       else if (state==evt::RAWWRITTEN) result.push_back("RAWWRITTEN");
       else if (state==evt::RAWREADING) result.push_back("RAWREADING");
