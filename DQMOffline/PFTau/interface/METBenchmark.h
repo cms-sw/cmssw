@@ -25,10 +25,15 @@ class METBenchmark : public Benchmark {
 
  protected:
   
-  TH1F*   pt_; 
-  TH1F*   px_; 
-  TH1F*   phi_; 
-  TH1F*   sumEt_;  
+  TH1F*   pt_;
+  TH1F*   pt2_;
+  TH1F*   px_;
+  TH1F*   py_;
+  TH1F*   phi_;
+  TH1F*   sumEt_;
+  TH1F*   sumEt2_;  
+  TH1F*   etOverSumEt_;
+  TH2F*   mex_VS_sumEt_;
 
 };
 
