@@ -18,7 +18,7 @@ namespace evf {
   
   // define event data states
   namespace evt {
-    enum State_t { EMPTY, LUMISECTION,
+    enum State_t { EMPTY, STOP, LUMISECTION,
 		   RAWWRITING, RAWWRITTEN,
 		   RAWREADING, RAWREAD,
 		   PROCESSING, PROCESSED,
@@ -232,7 +232,7 @@ namespace evf {
     key_t          dqmCellShmKey(unsigned int iCell);
 
     void           sem_init(int isem,int value);
-    void           sem_wait(int isem);
+    int            sem_wait(int isem);
     void           sem_post(int isem);
     
   public:
