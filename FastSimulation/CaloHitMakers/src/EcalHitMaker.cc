@@ -737,7 +737,7 @@ EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 	      L0PS2_+=preshsegment.L0length();
 
 	      // material between preshower and EE
-	      if(is<nsegments && cp[2*is+2].whichDetector()==DetId::Ecal && cp[2*is+2].whichSubDetector()==EcalEndcap)
+	      if(is<(nsegments-1) && cp[2*is+2].whichDetector()==DetId::Ecal && cp[2*is+2].whichSubDetector()==EcalEndcap)
 		{
 		  CaloSegment gapsef(cp[2*is+1],cp[2*is+2],s,sX0,sL0,CaloSegment::PSEEGAP,myCalorimeter);
 		  segments_.push_back(gapsef);
