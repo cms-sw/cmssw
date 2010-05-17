@@ -27,6 +27,12 @@ CSCEventData::CSCEventData(int chamberType) :
 
 
 CSCEventData::CSCEventData(unsigned short * buf){
+  unpack_data(buf);
+}
+
+
+void CSCEventData::unpack_data(unsigned short * buf)
+{
   // zero everything
   init();
   unsigned short * pos = buf;
