@@ -244,20 +244,20 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 	    	    } else {
 	      	      // EE data
 
-	      	      int x=0;
-	              int y=0;
-	              int z=0; 
+	      	      long x=0;
+	              long y=0;
+	              long z=0; 
 
 	              for(size_t ixt=0; ixt<my_EcalLogicId_EE.size(); ixt++){
 		
 		        if(my_EcalLogicId_EE[ixt].getID1()==fed_id && my_EcalLogicId_EE[ixt].getID2()==tt_id 
 		          && my_EcalLogicId_EE[ixt].getID3()==xt_id ) {
 		  
-		  	  int ecid= my_EcalLogicId[ixt].getLogicID();
+		  	  long ecid=(long) my_EcalLogicId_EE[ixt].getLogicID();
 		  	  // logic_id 201Zxxxyyy Z=0 / 2 -> z= -1 / 1 , x -> 1 100,  y -> 1 100 
-		  	  y=ecid-( (int)(ecid/1000) ) *1000;
+		  	  y=ecid-( (long)(ecid/1000) ) *1000;
 		  	  x= ( ecid- y) /1000 ;
-		  	  x= x -( (int)(x/1000) ) *1000;
+		  	  x= x -( (long)(x/1000) ) *1000;
 		  	  z= (ecid-y-x*1000 )/1000000 -2010;
 		  	  if(z==0) z=-1;
 		  	  if(z==2) z= 1; 
