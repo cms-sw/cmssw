@@ -64,7 +64,6 @@ TFitConstraintMGaus::init() {
 
 }
 
-
 //--------------
 // Destructor --
 //--------------
@@ -81,6 +80,12 @@ void TFitConstraintMGaus::setMassConstraint(Double_t Mass, Double_t Width) {
   _TheMassConstraint = Mass;
   _width = Width;
   setCovMatrix( 0 );
+  if(!Mass) throw cms::Exception("Configuration")
+    << "Error occured!\n"
+    << "Object type : TFitConstraintMGaus\n"
+    << "Object name : " << GetName() << "\n"
+    << "Object title: " << GetTitle() << "\n"
+    << "Mass of 0 GeV not supported, please choose a larger mass!\n";
   _covMatrix(0,0) = (Width*Width) / (Mass * Mass);
 
 }
