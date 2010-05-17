@@ -10,8 +10,8 @@
 #include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-//#include "FWCore/Framework/interface/ESTransientHandle.h"
+//#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
@@ -65,7 +65,7 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
   if (theRecordWatcher.check(es)) {  
     if (debug) LogTrace("") << "record has CHANGED!!, (re)initialise readout map!";
     delete theCabling; 
-    ESHandle<RPCEMap> readoutMapping;
+    ESTransientHandle<RPCEMap> readoutMapping;
     es.get<RPCEMapRcd>().get(readoutMapping);
     theCabling = readoutMapping->convert();
     theReadoutMappingSearch.init(theCabling);
