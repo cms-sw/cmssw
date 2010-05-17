@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_0/GRun/V25
+# /dev/CMSSW_3_6_0/GRun/V26
 
 import FWCore.ParameterSet.Config as cms
 
@@ -19,7 +19,7 @@ streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_Activit
     'HLT_MinBiasPixel_DoubleTrack', 
     'HLT_MinBiasPixel_SingleTrack', 
     'HLT_ZeroBiasPixel_SingleTrack', 
-    'HLT_MinBiasBSC_BPTX', 
+    'HLT_MinBiasBSC', 
     'HLT_StoppedHSCP_8E29', 
     'HLT_Activity_DT_Tuned', 
     'HLT_SelectEcalSpikes_L1R', 
@@ -28,11 +28,50 @@ streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_Activit
     'HLT_Activity_Ecal', 
     'HLT_Activity_PixelClusters', 
     'HLT_Activity_L1A', 
-    'HLT_MinBiasBSC', 
+    'HLT_MinBiasBSC_NoBPTX', 
     'HLT_PixelTracks_Multiplicity40', 
     'HLT_L1Tech_BSC_halo_forPhysicsBackground', 
     'HLT_L1_BptxXOR_BscMinBiasOR', 
     'HLT_PixelTracks_Multiplicity70')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMETTauMonitor_selector
+streamA_datasetJetMETTauMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetJetMETTauMonitor_selector.l1tResults = cms.InputTag('')
+streamA_datasetJetMETTauMonitor_selector.throw      = cms.bool(False)
+streamA_datasetJetMETTauMonitor_selector.triggerConditions = cms.vstring('HLT_L1Jet10U_NoBPTX', 
+    'HLT_L1SingleCenJet_NoBPTX', 
+    'HLT_L1SingleTauJet_NoBPTX', 
+    'HLT_L1Jet6U', 
+    'HLT_L1Jet6U_NoBPTX', 
+    'HLT_L1SingleCenJet', 
+    'HLT_L1SingleForJet', 
+    'HLT_L1SingleTauJet', 
+    'HLT_L1MET20', 
+    'HLT_L1SingleForJet_NoBPTX', 
+    'HLT_L1Jet10U')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuMonitor_selector
+streamA_datasetMuMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetMuMonitor_selector.l1tResults = cms.InputTag('')
+streamA_datasetMuMonitor_selector.throw      = cms.bool(False)
+streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_L1Mu', 
+    'HLT_L1MuOpen')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCosmics_selector
+streamA_datasetCosmics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetCosmics_selector.l1tResults = cms.InputTag('')
+streamA_datasetCosmics_selector.throw      = cms.bool(False)
+streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_TrackerCosmics', 
+    'HLT_RPCBarrelCosmics', 
+    'HLT_CSCBeamHaloRing2or3', 
+    'HLT_CSCBeamHaloOverlapRing2', 
+    'HLT_CSCBeamHaloOverlapRing1', 
+    'HLT_CSCBeamHalo', 
+    'HLT_L1MuOpen_NoBPTX', 
+    'HLT_L1Tech_BSC_halo', 
+    'HLT_L1MuOpen_AntiBPTX', 
+    'HLT_TkMu3_NoVertex', 
+    'HLT_L2Mu0_NoVertex')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalHPDNoise_selector
 streamA_datasetHcalHPDNoise_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -57,29 +96,6 @@ streamA_datasetHcalNZS_selector.throw      = cms.bool(False)
 streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_8E29', 
     'HLT_HcalPhiSym')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMETTauMonitor_selector
-streamA_datasetJetMETTauMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetJetMETTauMonitor_selector.l1tResults = cms.InputTag('')
-streamA_datasetJetMETTauMonitor_selector.throw      = cms.bool(False)
-streamA_datasetJetMETTauMonitor_selector.triggerConditions = cms.vstring('HLT_L1Jet10U', 
-    'HLT_L1SingleCenJet', 
-    'HLT_L1SingleTauJet', 
-    'HLT_L1Jet6U_BPTX', 
-    'HLT_L1Jet6U', 
-    'HLT_L1SingleCenJet_BPTX', 
-    'HLT_L1SingleForJet_BPTX', 
-    'HLT_L1SingleTauJet_BPTX', 
-    'HLT_L1MET20', 
-    'HLT_L1SingleForJet', 
-    'HLT_L1Jet10U_BPTX')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuMonitor_selector
-streamA_datasetMuMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetMuMonitor_selector.l1tResults = cms.InputTag('')
-streamA_datasetMuMonitor_selector.throw      = cms.bool(False)
-streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_L1Mu', 
-    'HLT_L1MuOpen_BPTX')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetRandomTriggers_selector
 streamA_datasetRandomTriggers_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetRandomTriggers_selector.l1tResults = cms.InputTag('')
@@ -94,22 +110,6 @@ streamA_datasetEGMonitor_selector.triggerConditions = cms.vstring('HLT_L1SingleE
     'HLT_L1DoubleEG5', 
     'HLT_L1SingleEG8', 
     'HLT_L1SingleEG5')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCosmics_selector
-streamA_datasetCosmics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetCosmics_selector.l1tResults = cms.InputTag('')
-streamA_datasetCosmics_selector.throw      = cms.bool(False)
-streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_TrackerCosmics', 
-    'HLT_RPCBarrelCosmics', 
-    'HLT_CSCBeamHaloRing2or3', 
-    'HLT_CSCBeamHaloOverlapRing2', 
-    'HLT_CSCBeamHaloOverlapRing1', 
-    'HLT_CSCBeamHalo', 
-    'HLT_L1MuOpen', 
-    'HLT_L1Tech_BSC_halo', 
-    'HLT_L1MuOpen_AntiBPTX', 
-    'HLT_TkMu3_NoVertex', 
-    'HLT_L2Mu0_NoVertex')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMu_selector
 streamA_datasetMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

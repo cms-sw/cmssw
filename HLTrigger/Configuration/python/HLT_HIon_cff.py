@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/HIon/V25 (CMSSW_3_6_0_HLT9)
+# /dev/CMSSW_3_6_0/HIon/V26 (CMSSW_3_6_0_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V25')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V26')
 )
 
 streams = cms.PSet( 
@@ -17,14 +17,14 @@ streams = cms.PSet(
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   A = cms.vstring( 'MinimumBias',
+    'JetMETTauMonitor',
+    'MuMonitor',
+    'Cosmics',
     'HcalHPDNoise',
     'ZeroBias',
     'HcalNZS',
-    'JetMETTauMonitor',
-    'MuMonitor',
     'RandomTriggers',
     'EGMonitor',
-    'Cosmics',
     'Mu',
     'JetMETTau',
     'EG' ),
@@ -43,14 +43,14 @@ datasets = cms.PSet(
   RPCMonitor = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
   MinimumBias = cms.vstring(  ),
+  JetMETTauMonitor = cms.vstring(  ),
+  MuMonitor = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
-  JetMETTauMonitor = cms.vstring(  ),
-  MuMonitor = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
   Mu = cms.vstring(  ),
   JetMETTau = cms.vstring(  ),
   EG = cms.vstring(  ),
