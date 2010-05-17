@@ -159,10 +159,10 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     mytrackCands =  * trackCands;   
     sort(mytrackCands.begin(),mytrackCands.end(),PtGreater());  
     this->fillOniaTriggerMEs(trackCands ,  trackTag_.label(), trackME_ );   
-   }else {
+  }else {
     LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access track collection with tag "<<trackTag_;
-   }
-    
+  }
+  
   //Get Beamspot 
   Handle<BeamSpot> recoBeamSpotHandle;
   iEvent.getByLabel(beamSpotTag_, recoBeamSpotHandle);
@@ -171,8 +171,8 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }else {
     LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access beam spot info with tag "<<beamSpotTag_;
   }  
-
-
+  
+  
   //Get Trigger Summary RA
   Handle<TriggerEventWithRefs> rawTriggerEvent;
   iEvent.getByLabel(triggerSummaryRAWTag_, rawTriggerEvent );
@@ -407,11 +407,11 @@ void  HLTOniaSource::fillOniaTriggerMEs( Handle<TrackCollection> &  collection, 
 
 void  HLTOniaSource::fillOniaTriggerMEs(std::vector<reco::RecoChargedCandidateRef>  &  candidateVector, string collectionLabel,  map<string, MonitorElement *>  & mapME ){
     
-  for (unsigned int  i=0; i!=candidateVector.size(); i++) {
+  for (size_t  i=0; i<candidateVector.size(); i++) {
     const Track* tk = candidateVector[i]->get<TrackRef>().get();
     if(tk) {
       //Fill MEs  
-      if(mapME[collectionLabel+"pt"]){  mapME[collectionLabel+"pt"]->Fill(tk->pt()); }
+      if(mapME[collectionLabel+"pt"]){ mapME[collectionLabel+"pt"]->Fill(tk->pt()); }
       if(mapME[collectionLabel+"p"])  { mapME[collectionLabel+"p"]->Fill(tk->p()); }
       if(mapME[collectionLabel+"eta"]) { mapME[collectionLabel+"eta"]->Fill(tk->eta()); }
       if(mapME[collectionLabel+"phi"]) { mapME[collectionLabel+"phi"]->Fill(tk->phi()); }
