@@ -692,7 +692,7 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
     //std::cout<<"FED has some errors!"<<std::endl;    
     
     // Look at FED errors now
-    int TBMType;
+    int TBMType=-1;
     edm::DetSet<SiPixelRawDataError>::const_iterator  di;
     for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
       //std::cout<<"Looping over errors now!"<<std::endl;
