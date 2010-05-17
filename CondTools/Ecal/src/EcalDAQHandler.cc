@@ -277,13 +277,15 @@ void popcon::EcalDAQHandler::getNewObjects() {
   
     bool debug = false;
     //    for(int kr = 0; kr < num_runs; kr++){
-    int krmax = min(num_runs, 100);
+    int krmax = min(num_runs, 1000);
     for(int kr = 0; kr < krmax; kr++){
+      if(m_to_transfer.size() < 20 ) {
+
       if(run_vec[kr].getRunTag().getGeneralTag() != "GLOBAL") continue;
       bool somediff = false;
       // initialize this run status to all OK
-      //      if(kr == 0) debug = true;
-      //      else debug = false;
+      if(kr == 0) debug = true;
+      else debug = false;
       irun = (unsigned long) run_vec[kr].getRunNumber();
       for(int k = 0 ; k < 2; k++ ) {
 	for(int iphi = 0 ; iphi < 72; iphi++) {
@@ -320,11 +322,9 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	continue;
       }
 
-	//////////////////////////  test ////// do not keep
-      if(fed_dat.size() != 54 || irun == 124089) {
-	//////////////////////////  test ////// do not keep
-	  //      if(fed_dat.size() != 54) {   // not all FEDs are read out. Find which one(s)
-	//	debug = true;
+	
+      if(fed_dat.size() != 54 ) {
+	// debug = true;
 	int SM[36] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 		      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	int Sect[2][9] = {{0, 0, 0, 0, 0, 0, 0, 0, 0},{0, 0, 0, 0, 0, 0, 0, 0, 0}};
@@ -355,7 +355,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	// mark all TT/SC in the not read out FEDs
 	for(int sm = 0; sm < 36; sm++)                      // barrel
 	  if(SM[sm] != 1) {
-	    cout << " missing EB " << sm + 1 << endl;
+	    //cout << " missing EB " << sm + 1 << endl;
 	    if(sm < 18) 
 	      for(int tt = 0; tt < 68; tt++)
 		newEBStatus[iphiEB[sm][tt] - 1][ietaEB[sm][tt] - 1][0] = 1;
@@ -366,7 +366,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	for(int z = 0; z < 2; z++)                      // endcaps
 	  for(int sec = 0; sec < 9; sec++)
 	    if(Sect[z][sec] != 1) {
-	      cout << " missing EE " << z << " " << sec + 1 << endl;
+	      //cout << " missing EE " << z << " " << sec + 1 << endl;
 	      int sec18 = sec;
 	      if(z == 1) sec18 = sec + 9;
 	      for(int sc = 0 ; sc < 41; sc++) {
@@ -419,11 +419,12 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	NbadTT = badTT_dat.size();
       }
 
-      cout << " run " << irun << " tag " << run_vec[kr].getRunTag().getGeneralTag()
+      /*      cout << " run " << irun << " tag " << run_vec[kr].getRunTag().getGeneralTag()
 	   << " Run type " << run_vec[kr].getRunTag().getRunTypeDef().getRunType()
 	   << " number of read FEDs " << fed_dat.size()
 	   << " number of bad FEs " << NbadTT
 	   << " fe_conf_id " << fe_conf_id << endl;
+      */
 
       //      *daqFile  << " run " << irun << " bad TT number " << NbadTT << "\n" << "Towers : ";
       for(size_t iTT = 0; iTT < NbadTT; iTT++){
@@ -433,10 +434,10 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	int side = 0; // EB/EE-
 	//*daqFile << fed_id << "/" << tt_id << " ";
 	//	cout << fed_id << "/" << tt_id << "/" << SM << "/" ;
-	cout << fed_id << "/" << tt_id << "/";
+	// cout << fed_id << "/" << tt_id << "/";
 	if(fed_id >= 610 && fed_id <= 645) { // barrel
 	  if(tt_id > 68) {
-	    cout << " Problem in Fed " << fed_id << " TT " << tt_id << " Give up " << endl;
+	    //cout << " Problem in Fed " << fed_id << " TT " << tt_id << " Give up " << endl;
 	    continue;
 	  }
 	  if(fed_id > 627) side = +1;  // EB+
@@ -447,7 +448,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	}
 	else if(fed_id <= 609 || (fed_id >= 646 && fed_id <= 654)) { // endcap
 	  if(tt_id > 41) {
-	    cout << " Problem in Fed " << fed_id << " SC " << tt_id << " Give up " << endl;
+	    //cout << " Problem in Fed " << fed_id << " SC " << tt_id << " Give up " << endl;
 	    continue;
 	  }
 	  if(fed_id < 610) {  // EE-
@@ -489,7 +490,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	  continue;
 	}
       } // end loop over iTT
-      if(!debug) cout << endl;
+      if(debug) cout << endl;
       //*daqFile  << endl;
       for(int k = 0 ; k < 2; k++ ) {
 	int iz = -1;
@@ -501,7 +502,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	      somediff = true;
 	      EcalTrigTowerDetId ebid(iz, EcalBarrel, ieta + 1, iphi + 1);
 	      daq_temp->setValue( ebid, newEBStatus[iphi][ieta][k]);
-	      if(!debug) cout << " change in EB side " << iz << " phi " << iphi +1 << " eta " << ieta + 1 << endl;
+	      if(debug) cout << " change in EB side " << iz << " phi " << iphi +1 << " eta " << ieta + 1 << endl;
 	    }  // new status
 	    if(debug) cout << newEBStatus[iphi][ieta][k] << " " ;
 	    oldEBStatus[iphi][ieta][k] = newEBStatus[iphi][ieta][k];
@@ -516,7 +517,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 		somediff = true;
 		EcalScDetId eeid(ix + 1, iy + 1, iz);
 		daq_temp->setValue( eeid, newEEStatus[ix][iy][k]);
-		if(!debug) cout << " change in EE side " << iz << " x " << ix +1 << " y " << iy + 1 << endl;
+		if(debug) cout << " change in EE side " << iz << " x " << ix +1 << " y " << iy + 1 << endl;
 	      }  // new status
 	      if(debug) cout << newEEStatus[ix][iy][k] << " " ;
 	      oldEEStatus[ix][iy][k] = newEEStatus[ix][iy][k];
@@ -534,6 +535,8 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	// we copy the last valid record to the object that is sent to the DB
 	EcalDAQTowerStatus* daq_pop = new EcalDAQTowerStatus();
 
+
+
 	int iz = -1;
 	for(int k = 0 ; k < 2; k++ ) {
 	  if(k == 1) iz = 1;
@@ -547,13 +550,13 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	      }
 	    }  // end loop over ieta
 	  }  // end loop over iphi
-
+	  
 	  // endcap
 	  for(int ix = 1 ; ix < 21; ix++) {
 	    for(int iy = 1 ; iy < 21; iy++) {
 	      if (EcalScDetId::validDetId(ix,iy,iz )){
 		EcalScDetId eeid(ix,iy,iz);
-	
+		
 		EcalDAQTowerStatus::const_iterator it =daq_temp->find(eeid.rawId());
 		uint16_t dbStatus = 0;
 		if ( it != daq_temp->end() ) {
@@ -564,6 +567,8 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	    }  // end loop over iy
 	  }  // end loop over ix
 	}  // end loop over k (side)
+	
+
 
 	cout << "Generating popcon record for run "<< irun << endl;
 
@@ -579,6 +584,8 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	m_userTextLog = ss.str()+";";
 
       }  // no change
+
+      } // check on number of already transferred runs 
     } // loop over runs
   } // check on run number > 0
 
