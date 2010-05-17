@@ -55,6 +55,7 @@ private:
     double                   volumeZ_;
     bool                     mergedBremsstrahlung_;
     bool                     removeDeadModules_;
+    bool                     useVertexId_;
     std::string              simHitLabel_;
 
     std::string MessageCategory_;
