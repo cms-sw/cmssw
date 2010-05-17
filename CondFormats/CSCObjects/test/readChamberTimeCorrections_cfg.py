@@ -19,8 +19,9 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         tag = cms.string('CSCChamberTimeCorrections')
     )),
     #connect = cms.string('frontier://FrontierDev/CMS_COND_CSC')
-    #connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_CSC')
-    connect = cms.string('sqlite_file:/afs/cern.ch/user/d/deisher/CMSSW_3_7_0_pre3/src/OnlineDB/CSCCondDB/test/CSCChamberTimeCorrections_before_133826.db')
+    connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_CSC')
+    #connect = cms.string('sqlite_file:/afs/cern.ch/user/d/deisher/CMSSW_3_7_0_pre3/src/OnlineDB/CSCCondDB/test/CSCChamberTimeCorrections_before_133826.db')
+     #connect = cms.string('sqlite_file:CSCCables.db')                                 
     #connect = cms.string('sqlite_file:/afs/cern.ch/user/d/deisher/CMSSW_3_7_0_pre3/src/CalibMuon/CSCCalibration/test/test_chipCorr_and_chamberCorr_after_133826.db')
                                    )
 
@@ -29,7 +30,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.prod1 = cms.EDAnalyzer("CSCReadChamberTimeCorrectionsValuesAnalyzer")
+process.prod1 = cms.EDAnalyzer("CSCReadChamberTimeCorrAnalyzer")
 
 process.printEventNumber = cms.OutputModule("AsciiOutputModule")
 
