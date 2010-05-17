@@ -229,12 +229,37 @@ void TrackingTruthProducer::associator(
 )
 {
     int index = 0;
+
+    // Solution to the problem of not having vertexId
+    bool useVertexId = true;
+    EncodedEventIdToIndex vertexId;
+    std::set<unsigned int> vertexIds;
+
+    // Loop for finding repeated vertexId (vertexId problem hack)
+    for (MixCollection<SimVertex>::MixItr iterator = mixCollection->begin(); iterator != mixCollection->end(); ++iterator)
+    {
+    	unsigned int vertexId = iterator->vertexId();
+        if ( vertexIds.find(vertexId) == vertexIds.end() )
+            vertexIds.insert(vertexId);
+        else
+        {
+        	edm::LogWarning(MessageCategory_) << "Multiple vertexId found, no using vertexId.";
+        	useVertexId = false;
+        	break;
+        }
+    }
+        
     // Clear the association map
     association.clear();
+
     // Create a association from simvertexes to overall index in the mix collection
     for (MixCollection<SimVertex>::MixItr iterator = mixCollection->begin(); iterator != mixCollection->end(); ++iterator, ++index)
     {
-        EncodedTruthId objectId = EncodedTruthId(iterator->eventId(), iterator->vertexId());
+    	EncodedTruthId objectId;
+    	if (useVertexId)
+            objectId = EncodedTruthId(iterator->eventId(), iterator->vertexId());
+        else
+            objectId = EncodedTruthId(iterator->eventId(), vertexId[iterator->eventId()]++);
         association.insert( make_pair(objectId, index) );
     }
 }
