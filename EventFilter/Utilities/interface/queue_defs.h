@@ -47,7 +47,7 @@
 
 namespace evf{
   struct prg{
-    prg():ls(0),ps(0),nbp(0),nba(0),Ms(0),ms(0){}
+    prg():ls(0),ps(0),nbp(0),nba(0),Ms(0),ms(0),dqm(0),trp(0){}
     unsigned int ls;
     unsigned int ps;
     unsigned int nbp;
