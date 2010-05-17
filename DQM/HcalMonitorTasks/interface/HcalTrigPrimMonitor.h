@@ -6,8 +6,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2010/03/07 18:17:47 $
-  * $Revision: 1.21.4.1 $
+  * $Date: 2010/03/25 11:00:58 $
+  * $Revision: 1.22 $
   * \author W. Fisher - FNAL
   */
 
@@ -23,6 +23,8 @@ class HcalTrigPrimMonitor: public HcalBaseDQMonitor {
                         const edm::Handle<HcalTrigPrimDigiCollection>& emul_tp_col);
       void reset();
       void beginRun(const edm::Run& run, const edm::EventSetup& c);
+      void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) ;
+      void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
       void cleanup();
       void endJob();
 
@@ -63,5 +65,9 @@ class HcalTrigPrimMonitor: public HcalBaseDQMonitor {
       MonitorElement* TPOccupancy_;
       MonitorElement* TPOccupancyEta_;
       MonitorElement* TPOccupancyPhi_;
+
+      int nBad_TP_per_LS_HB_;
+      int nBad_TP_per_LS_HE_;
+      int nBad_TP_per_LS_HF_;
 };
 #endif

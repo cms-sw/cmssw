@@ -82,6 +82,39 @@ HcalTrigPrimMonitor::setup() {
             = create_et_histogram(problem_folder + "TP Values/", subdet + "Missing Emul"+zsname);
       }//isHF
    }//isZS
+
+   // Number of bad cells vs. luminosity block
+   ProblemsVsLB = dbe_->bookProfile(
+         "TotalBadTPs_HCAL_vs_LS",
+         "Total Number of Bad HCAL TPs vs lumi section",
+         NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
+
+   ProblemsVsLB_HB = dbe_->bookProfile(
+         "TotalBadTPs_HB_vs_LS",
+         "Total Number of Bad HB TPs vs lumi section",
+         NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,3000);
+
+   ProblemsVsLB_HE = dbe_->bookProfile(
+         "TotalBadTPs_HE_vs_LS",
+         "Total Number of Bad HE TPs vs lumi section",
+         NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,3000);
+
+   ProblemsVsLB_HF = dbe_->bookProfile(
+         "TotalBadTPs_HF_vs_LS",
+         "Total Number of Bad HF TPs vs lumi section",
+         NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,3000);
+
+   // No TPs for HO, DO NOT fill this histogram
+   ProblemsVsLB_HO = dbe_->bookProfile(
+         "TotalBadTPs_HO_vs_LS",
+         "Total Number of Bad HO TPs vs lumi section",
+         NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,3000);
+
+   ProblemsVsLB->getTProfile()->SetMarkerStyle(20);
+   ProblemsVsLB_HB->getTProfile()->SetMarkerStyle(20);
+   ProblemsVsLB_HE->getTProfile()->SetMarkerStyle(20);
+   ProblemsVsLB_HO->getTProfile()->SetMarkerStyle(20);
+   ProblemsVsLB_HF->getTProfile()->SetMarkerStyle(20);
 }
 
 void HcalTrigPrimMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
@@ -170,6 +203,14 @@ HcalTrigPrimMonitor::processEvent (
             problem_map[1][kMissingEmul]->Fill(ieta, iphi);
             ++errorflag_per_event[1][isHF][kMissingEmul];
             bad_tps[1]->Fill(ieta, iphi);
+
+            // counts per LS
+            if (abs(ieta) <= 16)
+               ++nBad_TP_per_LS_HB_;
+            else if(abs(ieta) <= 28)
+               ++nBad_TP_per_LS_HE_;
+            else
+               ++nBad_TP_per_LS_HF_;
          }
       } //emul tp not found
       else {
@@ -242,8 +283,17 @@ HcalTrigPrimMonitor::processEvent (
             bad_tps[0]->Fill(ieta, iphi);
          else
             good_tps[0]->Fill(ieta, iphi);
-         if (mismatchedEt_ZS || mismatchedFG_ZS)
+         if (mismatchedEt_ZS || mismatchedFG_ZS) {
             bad_tps[1]->Fill(ieta, iphi);
+
+            // counts per LS
+            if (abs(ieta) <= 16)
+               ++nBad_TP_per_LS_HB_;
+            else if(abs(ieta) <= 28)
+               ++nBad_TP_per_LS_HE_;
+            else
+               ++nBad_TP_per_LS_HF_;
+         }
          else
             good_tps[1]->Fill(ieta, iphi);
       }//emul tp found
@@ -280,6 +330,14 @@ HcalTrigPrimMonitor::processEvent (
             problem_map[1][kMissingData]->Fill(ieta, iphi);
             ++errorflag_per_event[1][isHF][kMissingData];
             bad_tps[1]->Fill(ieta, iphi);
+
+            // counts per LS
+            if (abs(ieta) <= 16)
+               ++nBad_TP_per_LS_HB_;
+            else if(abs(ieta) <= 28)
+               ++nBad_TP_per_LS_HE_;
+            else
+               ++nBad_TP_per_LS_HF_;
          }
       } //data tp not found
    } //for emul_tp_col
@@ -318,6 +376,30 @@ HcalTrigPrimMonitor::cleanup() {
 void HcalTrigPrimMonitor::endJob()
 {
   if (enableCleanup_) cleanup(); 
+}
+
+void HcalTrigPrimMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) {
+   if (LumiInOrder(lumiSeg.luminosityBlock())==false) return;
+   HcalBaseDQMonitor::beginLuminosityBlock(lumiSeg,c);
+   ProblemsCurrentLB->Reset();
+   // Rest counter
+   nBad_TP_per_LS_HB_ = 0;
+   nBad_TP_per_LS_HE_ = 0;
+   nBad_TP_per_LS_HF_ = 0;
+}
+
+void HcalTrigPrimMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) {
+   if (LumiInOrder(lumiSeg.luminosityBlock())==false) return;
+   // Fill histograms for this LS
+   ProblemsVsLB_HB->Fill(currentLS, nBad_TP_per_LS_HB_);
+   ProblemsVsLB_HE->Fill(currentLS, nBad_TP_per_LS_HE_);
+   ProblemsVsLB_HF->Fill(currentLS, nBad_TP_per_LS_HF_);
+   ProblemsVsLB->Fill(currentLS, nBad_TP_per_LS_HB_ + nBad_TP_per_LS_HE_ + nBad_TP_per_LS_HF_);
+
+   ProblemsCurrentLB->Fill(-1,-1,levt_);
+   ProblemsCurrentLB->Fill(0,0, nBad_TP_per_LS_HB_);
+   ProblemsCurrentLB->Fill(1,0, nBad_TP_per_LS_HE_);
+   ProblemsCurrentLB->Fill(3,0, nBad_TP_per_LS_HF_);
 }
 
 
