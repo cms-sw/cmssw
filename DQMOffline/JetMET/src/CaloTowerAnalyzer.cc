@@ -225,6 +225,12 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   edm::Handle<edm::View<Candidate> > towers;
   iEvent.getByLabel(caloTowersLabel_, towers);
+
+  if( (!towers.isValid())) {
+    edm::LogInfo("")<<"CaloTowers "<< caloTowersLabel_<<" not found!"<<endl;
+    return;
+  }
+
   edm::View<Candidate>::const_iterator towerCand = towers->begin();
   
   // ==========================================================
