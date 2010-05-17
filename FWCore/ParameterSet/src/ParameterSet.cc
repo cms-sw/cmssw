@@ -96,6 +96,29 @@ namespace edm {
 
   ParameterSet::~ParameterSet() {}
 
+
+  ParameterSet::ParameterSet(const ParameterSet & p1)
+  : tbl_(p1.tbl_),
+    psetTable_(p1.psetTable_),
+    vpsetTable_(p1.vpsetTable_),
+    id_(p1.id_)
+  {
+  }
+
+
+  const ParameterSet & ParameterSet::operator=(const ParameterSet & p1)
+  {
+    if(this != &p1)
+    {
+      tbl_ = p1.tbl_;
+      psetTable_ = p1.psetTable_;
+      vpsetTable_ = p1.vpsetTable_;
+      id_ = p1.id_;
+    }
+    return *this;
+  }
+
+
   ParameterSet const& ParameterSet::registerIt() {
     if(!isRegistered()) {
       calculateID();

@@ -48,6 +48,10 @@ namespace edm {
 
     ~ParameterSet();
 
+    // instantiate in this library, so these methods don't cause code bloat
+    ParameterSet(const ParameterSet & p1);
+    const ParameterSet & operator=(const ParameterSet & p1);
+
     // identification
     ParameterSetID id() const;
     void setID(ParameterSetID const& id) const;
