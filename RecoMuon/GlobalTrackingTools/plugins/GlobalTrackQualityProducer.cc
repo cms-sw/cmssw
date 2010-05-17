@@ -5,7 +5,7 @@
 //
 //
 // Original Author:  Adam Everett
-// $Id: GlobalTrackQualityProducer.cc,v 1.3 2009/10/20 19:36:35 slava77 Exp $
+// $Id: GlobalTrackQualityProducer.cc,v 1.4 2009/10/21 00:04:02 slava77 Exp $
 //
 //
 
@@ -23,10 +23,11 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "DataFormats/MuonReco/interface/MuonQuality.h"
-
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& iConfig):
-  inputCollection_(iConfig.getParameter<edm::InputTag>("InputCollection")),theService(0),theGlbRefitter(0)
+  inputCollection_(iConfig.getParameter<edm::InputTag>("InputCollection")),inputLinksCollection_(iConfig.getParameter<edm::InputTag>("InputLinksCollection")),theService(0),theGlbRefitter(0),theGlbMatcher(0)
 {
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
@@ -35,6 +36,9 @@ GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& 
   // TrackRefitter parameters
   edm::ParameterSet refitterParameters = iConfig.getParameter<edm::ParameterSet>("RefitterParameters");
   theGlbRefitter = new GlobalMuonRefitter(refitterParameters, theService);
+
+  edm::ParameterSet trackMatcherPSet = iConfig.getParameter<edm::ParameterSet>("GlobalMuonTrackMatcher");
+  theGlbMatcher = new GlobalMuonTrackMatcher(trackMatcherPSet,theService);
 
   double maxChi2 = iConfig.getParameter<double>("MaxChi2");
   double nSigma = iConfig.getParameter<double>("nSigma");
@@ -46,6 +50,7 @@ GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& 
 GlobalTrackQualityProducer::~GlobalTrackQualityProducer() {
   if (theService) delete theService;
   if (theGlbRefitter) delete theGlbRefitter;
+  if (theGlbMatcher) delete theGlbMatcher;
   if (theEstimator) delete theEstimator;
 }
 
@@ -64,6 +69,9 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<reco::TrackCollection> glbMuons;
   iEvent.getByLabel(inputCollection_,glbMuons);
   
+  edm::Handle<reco::MuonTrackLinksCollection>    linkCollectionHandle;
+  iEvent.getByLabel(inputLinksCollection_, linkCollectionHandle);
+
   // reserve some space
   std::vector<reco::MuonQuality> valuesQual;
   valuesQual.reserve(glbMuons->size());
@@ -88,12 +96,46 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     }
     LogDebug(theCategory)<<"Kink " << thisKink.first << " " << thisKink.second;
     LogDebug(theCategory)<<"Rel Chi2 " << relative_tracker_chi2 << " " << relative_muon_chi2;
+
+    // Fill the STA-TK match information
+    float chi2, d, dist, Rpos;
+    chi2 = d = dist = Rpos = -1.0;
+    bool passTight = false;
+    typedef MuonTrajectoryBuilder::TrackCand TrackCand;
+    if ( linkCollectionHandle.isValid() ) {
+      for ( reco::MuonTrackLinksCollection::const_iterator links = linkCollectionHandle->begin();
+	    links != linkCollectionHandle->end(); ++links )
+	{
+	  if ( links->trackerTrack().isNull() ||
+	       links->standAloneTrack().isNull() ||
+	       links->globalTrack().isNull() ) 
+	    {
+	      edm::LogWarning(theCategory) << "Global muon links to constituent tracks are invalid. There should be no such object. Muon is skipped.";
+	      continue;
+	    }
+	  if (links->globalTrack() == glbRef) {
+	    TrackCand staCand = TrackCand((Trajectory*)(0),links->standAloneTrack());
+	    TrackCand tkCand = TrackCand((Trajectory*)(0),links->trackerTrack());
+	    chi2 = theGlbMatcher->match(staCand,tkCand,0,0);
+	    d    = theGlbMatcher->match(staCand,tkCand,1,0);
+	    Rpos = theGlbMatcher->match(staCand,tkCand,2,0);
+	    dist = theGlbMatcher->match(staCand,tkCand,3,0);
+	    passTight = theGlbMatcher->matchTight(staCand,tkCand);
+	  }
+	}
+    }
+
     float maxFloat01 = std::numeric_limits<float>::max()*0.1; // a better solution would be to use float above .. m/be not
     reco::MuonQuality muQual;
     muQual.trkKink    = thisKink.first > maxFloat01 ? maxFloat01 : thisKink.first;
     muQual.glbKink    = thisKink.second > maxFloat01 ? maxFloat01 : thisKink.second;
     muQual.trkRelChi2 = relative_tracker_chi2 > maxFloat01 ? maxFloat01 : relative_tracker_chi2;
     muQual.staRelChi2 = relative_muon_chi2 > maxFloat01 ? maxFloat01 : relative_muon_chi2;
+    muQual.tightMatch = passTight;
+    muQual.chi2LocalPosition = dist;
+    muQual.chi2LocalMomentum = chi2;
+    muQual.localDistance = d;
+    muQual.globalDeltaEtaPhi = Rpos;
     valuesQual.push_back(muQual);
   }
 
@@ -128,6 +170,7 @@ std::pair<double,double> GlobalTrackQualityProducer::kink(Trajectory& muon) cons
   typedef TransientTrackingRecHit::ConstRecHitPointer 	ConstRecHitPointer;
   typedef ConstRecHitPointer RecHit;
   typedef std::vector<TrajectoryMeasurement>::const_iterator TMI;
+
 
   vector<TrajectoryMeasurement> meas = muon.measurements();
   

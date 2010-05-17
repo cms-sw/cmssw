@@ -15,8 +15,8 @@
  * matches, then it makes a comparison of the TSOS local direction.
  *
  *
- *  $Date: 2010/02/02 22:07:23 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/03/08 15:34:44 $
+ *  $Revision: 1.11 $
  *
  *  \author Edwin Antillon      Purdue University
  *  \author Chang Liu           Purdue University
@@ -50,7 +50,7 @@ class GlobalMuonTrackMatcher {
     virtual ~GlobalMuonTrackMatcher();
     
     /// check if two tracks are compatible (less than Chi2Cut, DeltaDCut, DeltaRCut)
-    bool match(const TrackCand& sta, 
+    bool matchTight(const TrackCand& sta, 
                const TrackCand& track) const;
     
     /// check if two tracks are compatible

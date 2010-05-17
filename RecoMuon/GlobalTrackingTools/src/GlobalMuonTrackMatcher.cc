@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2010/03/08 15:34:44 $
- *  $Revision: 1.22 $
+ *  $Date: 2010/03/08 15:53:55 $
+ *  $Revision: 1.23 $
  *  
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -84,23 +84,23 @@ GlobalMuonTrackMatcher::~GlobalMuonTrackMatcher() {
 
 
 //
-// check if two tracks are compatible
+// check if two tracks are compatible with the *tight* criteria
 //
 bool 
-GlobalMuonTrackMatcher::match(const TrackCand& sta,
+GlobalMuonTrackMatcher::matchTight(const TrackCand& sta,
                               const TrackCand& track) const {
 
   std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> tsosPair
       = convertToTSOSMuHit(sta,track);
 
   double chi2 = match_Chi2(tsosPair.first,tsosPair.second);
-  if ( chi2 > 0. && chi2 < theChi2_1 ) return true;
+  if ( chi2 > 0. && chi2 < theChi2_2 ) return true;
 
-  double distance = match_D(tsosPair.first,tsosPair.second);
-  if ( distance > 0. && distance < theDeltaD_1 ) return true;
+  double distance = match_d(tsosPair.first,tsosPair.second);
+  if ( distance > 0. && distance < theDeltaD_2 ) return true;
 
-  double deltaR = match_Rpos(tsosPair.first,tsosPair.second);
-  if ( deltaR > 0. && deltaR < theDeltaR_3 ) return true;
+  //double deltaR = match_Rpos(tsosPair.first,tsosPair.second);
+  //if ( deltaR > 0. && deltaR < theDeltaR_3 ) return true;
 
   return false;
 
@@ -132,6 +132,9 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
   else if ( matchOption == 2 ) {
     // deltaR
     return match_Rpos(tsosPair.first,tsosPair.second);
+  }
+  else if ( matchOption == 3 ) {
+    return match_dist(tsosPair.first,tsosPair.second);
   }
   else {
     return -1.0;
