@@ -37,7 +37,7 @@ namespace edmtest
   CSCChipSpeedCorrectionDBReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
   {
     //const float epsilon = 1.E-09; // some 'small' value to test for non-positive values.
-    const float epsilon = 20; // some 'small' value to test 
+    //*    const float epsilon = 20; // some 'small' value to test 
 
     using namespace edm::eventsetup;
     std::ofstream DBChipSpeedCorrectionFile("dbChipSpeedCorrection.dat",std::ios::out);
@@ -54,7 +54,7 @@ namespace edmtest
     for( it=myChipCorr->chipSpeedCorr.begin();it!=myChipCorr->chipSpeedCorr.end(); ++it ){    
       counter++;
       DBChipSpeedCorrectionFile<<counter<<"  "<<it->speedCorr/100.<<std::endl;
-      //if ( it->speedCorr <= epsilon ) DBChipSpeedCorrectionFile << " ERROR? Chip Correction <= " << epsilon << std::endl;
+      //* if ( it->speedCorr <= epsilon ) DBChipSpeedCorrectionFile << " ERROR? Chip Correction <= " << epsilon << std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCChipSpeedCorrectionDBReadAnalyzer);
