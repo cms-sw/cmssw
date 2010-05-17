@@ -37,8 +37,8 @@ ESDaqInfoTask::ESDaqInfoTask(const ParameterSet& ps) {
 
    mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-   ESFedRangeMin_ = ps.getUntrackedParameter<int>("ESFedRangeMin");
-   ESFedRangeMax_ = ps.getUntrackedParameter<int>("ESFedRangeMax");
+   ESFedRangeMin_ = ps.getUntrackedParameter<int>("ESFedRangeMin", 520);
+   ESFedRangeMax_ = ps.getUntrackedParameter<int>("ESFedRangeMax", 575);
 
    meESDaqFraction_ = 0;
    meESDaqActiveMap_ = 0;

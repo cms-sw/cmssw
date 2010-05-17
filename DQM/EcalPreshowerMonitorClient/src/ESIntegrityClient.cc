@@ -19,7 +19,7 @@ ESIntegrityClient::ESIntegrityClient(const ParameterSet& ps) {
   debug_         = ps.getUntrackedParameter<bool>("debug", false);
   prefixME_      = ps.getUntrackedParameter<string>("prefixME", "");
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-  lookup_        = ps.getUntrackedParameter<FileInPath>("LookupTable");
+  lookup_        = ps.getUntrackedParameter<FileInPath>("LookupTable", edm::FileInPath("EventFilter/ESDigiToRaw/data/ES_lookup_table.dat"));
 
   // read in look-up table
   for (int i=0; i<2; ++i) 
@@ -130,10 +130,10 @@ void ESIntegrityClient::analyze(void) {
 
   char histo[200];
 
-  Double_t nDI_FedErr[56];
+  double nDI_FedErr[56];
   for (int i=0; i<56; ++i) nDI_FedErr[i] = 0;
 
-  MonitorElement* me;
+  MonitorElement* me = 0;
   
   sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES FEDs used for data taking").c_str());
   me = dqmStore_->get(histo);
