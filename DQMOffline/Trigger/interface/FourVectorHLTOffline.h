@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.51 2010/04/23 16:35:37 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.52 2010/04/29 12:24:51 rekovic Exp $
 //
 //
 
@@ -74,6 +74,8 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
 
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/JetReco/interface/JetFloatAssociation.h"
@@ -136,6 +138,10 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       bool hasL1Passed(const std::string& pathname, const edm::TriggerNames & triggerNames);
       bool hasHLTPassed(const std::string& pathname, const edm::TriggerNames& triggerNames);
 
+      void selectMuons(const edm::Handle<reco::MuonCollection> & muonHandle);
+      void selectElectrons(const edm::Handle<reco::GsfElectronCollection> & eleHandle);
+      void selectPhotons(const edm::Handle<reco::PhotonCollection> & phoHandle);
+      void selectJets(const edm::Handle<reco::CaloJetCollection> & jetHandle);
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
 
@@ -166,6 +172,15 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       reco::MuonCollection * fSelectedMuons;
       edm::Handle<reco::MuonCollection> fSelMuonsHandle;
+
+      reco::GsfElectronCollection * fSelectedElectrons;
+      edm::Handle<reco::GsfElectronCollection> fSelElectronsHandle;
+
+      reco::PhotonCollection * fSelectedPhotons;
+      edm::Handle<reco::PhotonCollection> fSelPhotonsHandle;
+
+      reco::CaloJetCollection * fSelectedJets;
+      edm::Handle<reco::CaloJetCollection> fSelJetsHandle;
 
       unsigned int nLS_; 
       double LSsize_ ;

@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.73 2010/04/22 10:18:41 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.74 2010/04/23 16:35:39 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -11,6 +11,7 @@
 using namespace edm;
 using namespace trigger;
 using namespace std;
+using namespace muon;
 
 FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   resetMe_(true),  currentRun_(-99)
@@ -240,34 +241,13 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     //  return;
 
   }
-
-  // for every event, first clear vector of selected muons
-  fSelectedMuons->clear();
-
-  if(muonHandle.isValid()) { 
-
-    for( reco::MuonCollection::const_iterator iter = muonHandle->begin(), iend = muonHandle->end(); iter != iend; ++iter )
-    {
-
-       if (iter->isGlobalMuon()){ 
-            if (iter->isTrackerMuon()){ 
-
-                fSelectedMuons->push_back(*iter);
-              
-            }
-       }
-       //if (iter->isStandAloneMuon()) { }
-       //if (iter->isTrackerMuon()){ }
-
-   } // end for
-  } // end if
-
-  edm::Handle<reco::MuonCollection> fSelMuonsHandle(fSelectedMuons,muonHandle.provenance());
+  selectMuons(muonHandle);
 
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
   iEvent.getByLabel("gsfElectrons",gsfElectrons); 
   if(!gsfElectrons.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "gsfElectrons not found, ";
+  selectElectrons(gsfElectrons);
 
   edm::Handle<reco::CaloTauCollection> tauHandle;
   iEvent.getByLabel("caloRecoTauProducer",tauHandle);
@@ -278,6 +258,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel("iterativeCone5CaloJets",jetHandle);
   if(!jetHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "jetHandle not found, ";
+  selectJets(jetHandle);
  
    // Get b tag information
  edm::Handle<reco::JetTagCollection> bTagIPHandle;
@@ -300,6 +281,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel("photons",photonHandle);
   if(!photonHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "photonHandle not found, ";
+  selectPhotons(photonHandle);
 
   edm::Handle<reco::TrackCollection> trackHandle;
   iEvent.getByLabel("pixelTracks",trackHandle);
@@ -312,7 +294,8 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   // electron Monitor
   objMonData<reco::GsfElectronCollection> eleMon;
-  eleMon.setReco(gsfElectrons);
+  //eleMon.setReco(gsfElectrons);
+  eleMon.setReco(fSelElectronsHandle);
   eleMon.setLimits(electronEtaMax_, electronEtMin_, electronDRMatch_, electronL1DRMatch_, dRMax_);
   
   eleMon.pushTriggerType(TriggerElectron);
@@ -347,7 +330,8 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
   // photon Monitor
   objMonData<reco::PhotonCollection> phoMon;
-  phoMon.setReco(photonHandle);
+  //phoMon.setReco(photonHandle);
+  phoMon.setReco(fSelPhotonsHandle);
   phoMon.setLimits(photonEtaMax_, photonEtMin_, photonDRMatch_, photonL1DRMatch_, dRMax_);
   
   phoMon.pushTriggerType(TriggerPhoton);
@@ -357,7 +341,8 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   // jet Monitor - NOTICE: we use genJets for MC
   objMonData<reco::CaloJetCollection> jetMon;
-  jetMon.setReco(jetHandle);
+  //jetMon.setReco(jetHandle);
+  jetMon.setReco(fSelJetsHandle);
   jetMon.setLimits(jetEtaMax_, jetEtMin_, jetDRMatch_, jetL1DRMatch_, dRMax_);
 
   jetMon.pushTriggerType(TriggerJet);
@@ -518,7 +503,8 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if (v->getPath().find("BTagIP") != std::string::npos ) btagMon = btagIPMon;
     else btagMon = btagMuMon;
 
-    if (v->getPath().find("L2Mu") != std::string::npos ) muoMon.setL2MuFlag(true);
+    // set flag for muon monitor if L2-muon or L1-muon type path
+    if (v->getPath().find("L2Mu") != std::string::npos || v->getPath().find("L1Mu") != std::string::npos ) muoMon.setL2MuFlag(true);
     else muoMon.setL2MuFlag(false);
     //if(*v != "HLT_L1Jet6U") continue;
 
@@ -2156,6 +2142,8 @@ int FourVectorHLTOffline::getTriggerTypeParsePathName(const string& pathname)
 	   objectType = trigger::TriggerElectron;    
 	 if (pathname.find("Photon") != std::string::npos) 
 	   objectType = trigger::TriggerPhoton;    
+	 if (pathname.find("EG") != std::string::npos) 
+	   objectType = trigger::TriggerPhoton;    
 	 if (pathname.find("Tau") != std::string::npos) 
 	   objectType = trigger::TriggerTau;    
 	 if (pathname.find("IsoTrack") != std::string::npos) 
@@ -2230,5 +2218,123 @@ bool FourVectorHLTOffline::hasHLTPassed(const string& pathname, const edm::Trigg
   rc  = triggerResults_->accept(pathByIndex);
 
   return rc;
+
+}
+
+void FourVectorHLTOffline::selectMuons(const edm::Handle<reco::MuonCollection> & muonHandle)
+{
+  // for every event, first clear vector of selected objects
+  fSelectedMuons->clear();
+
+  if(muonHandle.isValid()) { 
+
+    for( reco::MuonCollection::const_iterator iter = muonHandle->begin(), iend = muonHandle->end(); iter != iend; ++iter )
+    {
+
+      /*
+       if (iter->isGlobalMuon()){ 
+            if (iter->isTrackerMuon()){ 
+
+                fSelectedMuons->push_back(*iter);
+              
+            }
+       }
+       */
+       //if (iter->isStandAloneMuon()) { }
+       //if (iter->isTrackerMuon()){ }
+
+       if(isGoodMuon(*iter, muon::GlobalMuonPromptTight) && 
+          isGoodMuon(*iter, muon::TrackerMuonArbitrated))
+       {
+            fSelectedMuons->push_back(*iter);
+       }
+   } // end for
+  } // end if
+
+  edm::Handle<reco::MuonCollection> fSelMuonsHandle(fSelectedMuons,muonHandle.provenance());
+
+}
+
+void FourVectorHLTOffline::selectElectrons(const edm::Handle<reco::GsfElectronCollection> & eleHandle)
+{
+  // for every event, first clear vector of selected objects
+  fSelectedElectrons->clear();
+
+  if(eleHandle.isValid()) { 
+
+    for( reco::GsfElectronCollection::const_iterator iter = eleHandle->begin(), iend = eleHandle->end(); iter != iend; ++iter )
+    {
+
+      fSelectedElectrons->push_back(*iter);
+      /*
+       if (iter->isGlobalMuon()){ 
+            if (iter->isTrackerMuon()){ 
+
+                fSelectedElectrons->push_back(*iter);
+              
+            }
+       }
+       */
+
+    } // end for
+  } // end if
+
+  edm::Handle<reco::GsfElectronCollection> fSelElectronsHandle(fSelectedElectrons,eleHandle.provenance());
+
+}
+
+void FourVectorHLTOffline::selectPhotons(const edm::Handle<reco::PhotonCollection> & phoHandle)
+{
+  // for every event, first clear vector of selected objects
+  fSelectedPhotons->clear();
+
+  if(phoHandle.isValid()) { 
+
+    for( reco::PhotonCollection::const_iterator iter = phoHandle->begin(), iend = phoHandle->end(); iter != iend; ++iter )
+    {
+
+      fSelectedPhotons->push_back(*iter);
+      /*
+       if (iter->isGlobalMuon()){ 
+            if (iter->isTrackerMuon()){ 
+
+                fSelectedElectrons->push_back(*iter);
+              
+            }
+       }
+       */
+
+    } // end for
+  } // end if
+
+  edm::Handle<reco::PhotonCollection> fSelPhotonsHandle(fSelectedPhotons,phoHandle.provenance());
+
+}
+
+void FourVectorHLTOffline::selectJets(const edm::Handle<reco::CaloJetCollection> & jetHandle)
+{
+  // for every event, first clear vector of selected objects
+  fSelectedJets->clear();
+
+  if(jetHandle.isValid()) { 
+
+    for( reco::CaloJetCollection::const_iterator iter = jetHandle->begin(), iend = jetHandle->end(); iter != iend; ++iter )
+    {
+
+      fSelectedJets->push_back(*iter);
+      /*
+       if (iter->isGlobalMuon()){ 
+            if (iter->isTrackerMuon()){ 
+
+                fSelectedJets->push_back(*iter);
+              
+            }
+       }
+       */
+
+    } // end for
+  } // end if
+
+  edm::Handle<reco::CaloJetCollection> fSelJetsHandle(fSelectedJets,jetHandle.provenance());
 
 }
