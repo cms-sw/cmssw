@@ -17,6 +17,7 @@
 <use   name="TrackingTools/IPTools"/>
 <use   name="RecoTauTag/TauTagTools"/>
 <use   name="RecoVertex/KalmanVertexFit"/>
+<use   name="TrackingTools/TrackAssociator"/>
 <export>
   <lib   name="1"/>
 </export>
