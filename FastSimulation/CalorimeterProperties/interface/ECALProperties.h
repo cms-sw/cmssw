@@ -54,13 +54,13 @@ class ECALProperties : public CalorimeterProperties
   inline double interactionLength() const { return 18.5; }
 
  ///Photostatistics (photons/GeV) in the homegeneous material
-  inline virtual double photoStatistics() const=0;
+  virtual double photoStatistics() const=0;
 
   ///Light Collection efficiency 
-  inline virtual double lightCollectionEfficiency() const=0;
+  virtual double lightCollectionEfficiency() const=0;
 
   ///Light Collection uniformity
-  inline virtual double lightCollectionUniformity() const=0;
+  virtual double lightCollectionUniformity() const=0;
 
  protected:
 
