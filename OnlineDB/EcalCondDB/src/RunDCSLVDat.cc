@@ -55,8 +55,8 @@ void RunDCSLVDat::fetchData(map< EcalLogicID, RunDCSLVDat >* fillMap, RunIOV* io
 ResultSet *RunDCSLVDat::getBarrelRset() {
   ResultSet* rset = NULL;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-    " d.value, '5' NOMINAL_VALUE , d.since "
-    "FROM "+ getEBAccount()+".WBM_DCSLASTVALUE_VOLTAGE_VMON d "
+    " d.value_number , '5' NOMINAL_VALUE , d.VALUE_TIMESTAMP "
+    "FROM "+ getEBAccount()+".FWWIENERMARATHONCHANNEL_LV d "
     " JOIN "+ getEBAccount()+".LV_MAPPING h on "
     " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name"; 
   try {
@@ -72,8 +72,8 @@ ResultSet *RunDCSLVDat::getBarrelRset() {
 ResultSet *RunDCSLVDat::getEndcapRset() {
   ResultSet* rset = NULL;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-    " d.value, '5' NOMINAL_VALUE , d.since "
-    "FROM "+ getEEAccount()+".WBM_DCSLASTVALUE_VOLTAGE_VMON d "
+    " d.VALUE_NUMBER, '5' NOMINAL_VALUE , d.VALUE_TIMESTAMP "
+    "FROM "+ getEEAccount()+".FWWIENERMARATHONCHANNEL_LV d "
     " JOIN "+ getEEAccount()+".EE_LV_MAPPING h on "
     " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name"; 
   try {
