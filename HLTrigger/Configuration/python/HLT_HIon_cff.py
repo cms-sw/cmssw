@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/HIon/V24 (CMSSW_3_6_0_HLT8)
+# /dev/CMSSW_3_6_0/HIon/V25 (CMSSW_3_6_0_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V24')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V25')
 )
 
 streams = cms.PSet( 
@@ -16,8 +16,6 @@ streams = cms.PSet(
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  EventDisplay = cms.vstring(  ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'MinimumBias',
     'HcalHPDNoise',
     'ZeroBias',
@@ -26,10 +24,12 @@ streams = cms.PSet(
     'MuMonitor',
     'RandomTriggers',
     'EGMonitor',
-    'EG',
     'Cosmics',
     'Mu',
-    'JetMETTau' ),
+    'JetMETTau',
+    'EG' ),
+  EventDisplay = cms.vstring(  ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   DQM = cms.vstring(  ),
   HLTDQM = cms.vstring(  )
@@ -42,7 +42,6 @@ datasets = cms.PSet(
   AlCaP0 = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
   MinimumBias = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
@@ -51,10 +50,11 @@ datasets = cms.PSet(
   MuMonitor = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
-  EG = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   Mu = cms.vstring(  ),
   JetMETTau = cms.vstring(  ),
+  EG = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  )
 )
 
@@ -1475,6 +1475,7 @@ hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
 hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     CSCUseCalibrations = cms.bool( True ),
     CSCUseStaticPedestals = cms.bool( False ),
+    CSCUseTimingCorrections = cms.bool( False ),
     stripDigiTag = cms.InputTag( 'hltMuonCSCDigis','MuonCSCStripDigi' ),
     wireDigiTag = cms.InputTag( 'hltMuonCSCDigis','MuonCSCWireDigi' ),
     CSCstripWireDeltaTime = cms.int32( 8 ),
