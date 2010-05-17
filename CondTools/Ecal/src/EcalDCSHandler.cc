@@ -562,59 +562,61 @@ bool popcon::EcalDCSHandler::insertLVDataSetToOffline( const map<EcalLogicID, Ru
       int chan= ecid.getID2();
       int n=my_EELVchan.size();
      
-
 	for (int ixt=0; ixt<n; ixt++) {
+	  if(my_EELVchan[ixt].getID1()==dee && my_EELVchan[ixt].getID2()==chan){
 
-
-	if(my_EELVchan[ixt].getID1()==dee && my_EELVchan[ixt].getID2()==chan){
-
-
-	  int ilogic=my_EELVchan[ixt].getLogicID();
-	  int iz= (ilogic/1000000)-2010;
-	  if(iz==0) iz=-1;
-	  if(iz==2) iz=1;
-	  if(iz != 1 && iz!= -1) std::cout<< "BAD z"<< std::endl; 
-	  
-	  int iy=ilogic- int(ilogic/1000)*1000;
-	  
-	  int ix=(ilogic- int(ilogic/1000000)*1000000 -iy)/1000;
-	  
-	  int ixtower=  ((ix-1)/5) +1;
-	  int iytower=  ((iy-1)/5) +1;
-	  
-	  if(ixtower<1 || ixtower>20 || iytower <1 || iytower >20) 
-	    std::cout<< "BAD x/y"<<ilogic<<"/"<< ixtower<<"/"<<iytower<< std::endl;
-
-	  
-	  if (EcalScDetId::validDetId(ixtower,iytower,iz )){
-	    EcalScDetId eeid(ixtower,iytower,iz );
-	    EcalDCSTowerStatus::const_iterator it =dcs_temp->find(eeid.rawId());
-	    uint16_t dbStatus = 0;
-	    if ( it != dcs_temp->end() ) {
-	      dbStatus = it->getStatusCode();
+	    int ilogic=my_EELVchan[ixt].getLogicID();
+	    
+	    if(ilogic == 2012058060 || ilogic == 2010060058 
+	       ||  ilogic == 2012043041 || ilogic == 2010041043) {
+	      std::cout<< "crystal " << ilogic << " in the corner ignored" << std::endl; 
+	    } else {
+	      
+	    int iz= (ilogic/1000000)-2010;
+	    if(iz==0) iz=-1;
+	    if(iz==2) iz=1;
+	    if(iz != 1 && iz!= -1) std::cout<< "BAD z"<< std::endl; 
+	    
+	    int iy=ilogic- int(ilogic/1000)*1000;
+	    
+	    int ix=(ilogic- int(ilogic/1000000)*1000000 -iy)/1000;
+	    
+	    int ixtower=  ((ix-1)/5) +1;
+	    int iytower=  ((iy-1)/5) +1;
+	    
+	    if(ixtower<1 || ixtower>20 || iytower <1 || iytower >20) 
+	      std::cout<< "BAD x/y"<<ilogic<<"/"<< ixtower<<"/"<<iytower<< std::endl;
+	    
+	    if (EcalScDetId::validDetId(ixtower,iytower,iz )){
+	      EcalScDetId eeid(ixtower,iytower,iz );
+	      EcalDCSTowerStatus::const_iterator it =dcs_temp->find(eeid.rawId());
+	      uint16_t dbStatus = 0;
+	      if ( it != dcs_temp->end() ) {
+		dbStatus = it->getStatusCode();
+	      }
+	      
+	      uint16_t new_dbStatus= updateLV(&lv, dbStatus);
+	      if(new_dbStatus != dbStatus ) result=true;
+	      dcs_temp->setValue( eeid, new_dbStatus );
+	      
+	      //  std::cout <<"Dee/chan:"<<dee<<"/"<<chan <<" new db status ="<< new_dbStatus << " old  "<<dbStatus<<" LV: "<< lv.getLV()<<"/"<<lv.getLVNominal()<<" ilogic/x/y " <<ilogic<<"/"<< ixtower<<"/"<<iytower<<std::endl;
+	      
+	      if(new_dbStatus != dbStatus) {
+		std::cout <<"Dee/chan:"<<dee<<"/"<<chan <<" new db status ="<< new_dbStatus << " old  "<<dbStatus<<" LV: "<< lv.getLV()<<"/"<<lv.getLVNominal()<<std::endl;
+		
+	      } 
+	      
 	    }
-
-            uint16_t new_dbStatus= updateLV(&lv, dbStatus);
-            if(new_dbStatus != dbStatus ) result=true;
-            dcs_temp->setValue( eeid, new_dbStatus );
-
-	  if(new_dbStatus != dbStatus) {
-	    std::cout <<"Dee/chan:"<<dee<<"/"<<chan <<" new db status ="<< new_dbStatus << " old  "<<dbStatus<<" LV: "<< lv.getLV()<<"/"<<lv.getLVNominal()<<std::endl;
+	    
+	    }
+	  
 	    
 	  } 
-
-
-
-          }
-
-	}
 	
-      } 
-
-
-      // end of endcaps 
-    }
-
+	}
+    	
+    }// end of endcaps 
+	
 
 
   }
@@ -709,7 +711,9 @@ void popcon::EcalDCSHandler::getNewObjects()
 	econn->fetchValidDataSet(&rundat , &rp, location_p5 ,runmax);
 	
 	unsigned long long  irun=(unsigned long long) rp.getRunNumber();
-	
+
+	// just for testing purposes
+	//	irun= max_since+1; 
 	
 	if(max_since< irun) { 
 
