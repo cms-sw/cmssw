@@ -149,13 +149,14 @@ ResultSet *RunDCSHVDat::getBarrelRset() {
   return rset;
 }
 */
+
 ResultSet *RunDCSHVDat::getBarrelRset() {
   ResultSet* rset = NULL;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-    " d.value, h.nominal_value , d.since "
-    "FROM "+ getEBAccount()+".WBM_DCSLASTVALUE_VOLTAGE_VMON d "
+    " d.VALUE_NUMBER, h.nominal_value , d.CHANGE_DATE "
+    "FROM "+ getEBAccount()+".FWCAENCHANNEL_LV d "
     " JOIN "+ getEBAccount()+".HV_MAPPING h on "
-    " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name "; 
+    " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name and DPE_NAME='ACTUAL_VMON' "; 
   try {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();
@@ -169,10 +170,10 @@ ResultSet *RunDCSHVDat::getBarrelRset() {
 ResultSet *RunDCSHVDat::getEndcapAnodeRset() {
   ResultSet* rset = NULL;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-    " d.value, '800' NOMINAL_VALUE , d.since "
-    "FROM "+ getEEAccount()+".WBM_DCSLASTVALUE_HV_VMON d "
+    " d.value_number, '800' NOMINAL_VALUE , d.CHANGE_DATE "
+    "FROM "+ getEEAccount()+".FWCAENCHANNEL_LV d "
     " JOIN "+ getEEAccount()+".EE_HVA_MAPPING h on "
-    " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name"; 
+    " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name and dpe_name='ACTUAL_VMON' "; 
   try {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();
@@ -186,10 +187,10 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset() {
 ResultSet *RunDCSHVDat::getEndcapDynodeRset() {
   ResultSet* rset = NULL;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-    " d.value, '600' NOMINAL_VALUE , d.since "
-    "FROM "+ getEEAccount()+".WBM_DCSLASTVALUE_HV_VMON d "
+    " d.value_number, '600' NOMINAL_VALUE , d.CHANGE_DATE "
+    "FROM "+ getEEAccount()+".FWCAENCHANNEL_LV d "
     " JOIN "+ getEEAccount()+".EE_HVD_MAPPING h on "
-    " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name";
+    " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name and dpe_name='ACTUAL_VMON' ";
   try {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();

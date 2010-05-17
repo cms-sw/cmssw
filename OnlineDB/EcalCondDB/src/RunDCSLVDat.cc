@@ -58,7 +58,7 @@ ResultSet *RunDCSLVDat::getBarrelRset() {
     " d.value_number , '5' NOMINAL_VALUE , d.VALUE_TIMESTAMP "
     "FROM "+ getEBAccount()+".FWWIENERMARATHONCHANNEL_LV d "
     " JOIN "+ getEBAccount()+".LV_MAPPING h on "
-    " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name"; 
+    " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name and dpe_name='MEASUREMENTSENSEVOLTAGE' "; 
   try {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();
@@ -75,7 +75,7 @@ ResultSet *RunDCSLVDat::getEndcapRset() {
     " d.VALUE_NUMBER, '5' NOMINAL_VALUE , d.VALUE_TIMESTAMP "
     "FROM "+ getEEAccount()+".FWWIENERMARATHONCHANNEL_LV d "
     " JOIN "+ getEEAccount()+".EE_LV_MAPPING h on "
-    " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name"; 
+    " h.DPID = d.DPID join channelview cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name and dpe_name='MEASUREMENTSENSEVOLTAGE' "; 
   try {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();
