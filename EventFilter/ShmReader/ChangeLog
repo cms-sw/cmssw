@@ -1,6 +1,6 @@
 2010-05-17  Emilio Meschi <Emilio.Meschi@cern.ch>
 
-	* tag V01-05-02
+	* tag V01-05-03 (V01-05-02 already used)
 	* issue stop only on STOP event (EMPTY event generates error message)
 	
 2010-02-02  Emilio Meschi <Emilio.Meschi@cern.ch>
