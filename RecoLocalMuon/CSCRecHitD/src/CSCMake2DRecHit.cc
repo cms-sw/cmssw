@@ -223,5 +223,7 @@ bool CSCMake2DRecHit::isHitInFiducial( const CSCLayer* layer, const CSCRecHit2D&
 
 void CSCMake2DRecHit::setConditions( const CSCRecoConditions* reco ) {
   xMatchGatti_->setConditions( reco );
+  // And cache for use here
+  recoConditions_ = reco;
 } 
 
