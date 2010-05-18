@@ -18,6 +18,7 @@ namespace cond {
     virtual ~BaseKeyed(){}
 
     std::string const & key() const { return m_key;}
+    voif setKey(std::string const & ikey) {m_key=ikey;}
 
   private:
     // the key as string
