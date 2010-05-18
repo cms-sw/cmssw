@@ -71,7 +71,7 @@ if [ "$debugflag" != "off" ] ; then
    echo "Crash report saved to '$creport'."
 else
    $SHELLDIR/cmsShow.exe $originalOptions
-   if [ $? != "0" ] ; then
+   if [ $? -gt 128 ] ; then
       if [ "$rootflag" == "off" ] ; then
          echo ""
          echo "  ########################################################################"

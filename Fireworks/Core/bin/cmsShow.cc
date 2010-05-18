@@ -6,6 +6,7 @@
 #include "TEveManager.h"
 #include "TRint.h"
 #include "TApplication.h"
+#include "TSysEvtHandler.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include <iostream>
 #include <fstream>
@@ -61,6 +62,7 @@ namespace {
             break;
       }
    }   
+   
 }
 
 void run_app(TApplication &app, int argc, char **argv)
@@ -70,6 +72,24 @@ void run_app(TApplication &app, int argc, char **argv)
    edm::MessageDrop::instance()->messageLoggerScribeIsRunning = edm::MLSCRIBE_RUNNING_INDICATOR;
    //---------------------
    std::auto_ptr<CmsShowMain> pMain( new CmsShowMain(argc,argv) );
+
+   // Avoid haing root handling various associated to an error and install 
+   // back the default ones.
+   gSystem->ResetSignal(kSigBus);
+   gSystem->ResetSignal(kSigSegmentationViolation);
+   gSystem->ResetSignal(kSigIllegalInstruction);
+   gSystem->ResetSignal(kSigSystem);
+   gSystem->ResetSignal(kSigPipe);
+   gSystem->ResetSignal(kSigFloatingException);
+   
+   signal(SIGABRT, SIG_DFL);
+   signal(SIGBUS, SIG_DFL);
+   signal(SIGSEGV, SIG_DFL);
+   signal(SIGILL, SIG_DFL);
+   signal(SIGSYS, SIG_DFL);
+   signal(SIGFPE, SIG_DFL);
+   signal(SIGPIPE, SIG_DFL);
+   
    app.Run();
    pMain.reset();
 
