@@ -83,16 +83,21 @@ process.dtVsRPCRecHitV.standAloneMode = True
 process.cscVsRPCRecHitV.standAloneMode = True
 process.trackVsRPCRecHitV.standAloneMode = True
 
-process.rpcPointProducerPlusValidation_step = cms.Sequence(process.rpcPointProducer*
-                                                           process.rpcPointVsRecHitValidation_step)
+process.rpcPointProducerPlusValidation_step = cms.Sequence(
+    process.rpcPointProducer*
+    process.rpcPointVsRecHitValidation_step+
+    process.simVsRPCPointValidation_step
+)
 
 #### Post validation steps
 process.load("Validation.RPCRecHits.postValidation_cfi")
 
 ### Path
-process.postValidation_step = cms.Sequence(process.rpcRecHitPostValidation_step+
-                                           process.rpcPointVsRecHitPostValidation_step+
-                                           process.dqmSaver)
+process.postValidation_step = cms.Sequence(
+    process.rpcRecHitPostValidation_step+
+    process.rpcPointVsRecHitPostValidation_step*
+    process.dqmSaver
+)
 
 #process.out = cms.OutputModule("PoolOutputModule",
 #                               outputCommands = cms.untracked.vstring('drop *', "keep *_*_*_RPCRecHitValidation", 
@@ -101,7 +106,7 @@ process.postValidation_step = cms.Sequence(process.rpcRecHitPostValidation_step+
 #)
 
 process.p = cms.Path(process.rpcRecHitValidation_step+
-                     process.rpcPointProducerPlusValidation_step+
+                     process.rpcPointProducerPlusValidation_step*
                      process.postValidation_step)
 #process.outPath = cms.EndPath(process.out)
 
