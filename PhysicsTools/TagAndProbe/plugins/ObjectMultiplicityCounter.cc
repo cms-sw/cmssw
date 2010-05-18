@@ -18,7 +18,7 @@
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 class ObjectMultiplicityCounter : public edm::EDProducer {
@@ -31,7 +31,7 @@ class ObjectMultiplicityCounter : public edm::EDProducer {
     private:
         edm::InputTag probes_;            
         edm::InputTag objects_; 
-        StringCutObjectSelector<reco::Candidate,true> objCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
+        StringCutObjectSelector<reco::Jet,true> objCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
 };
 
 ObjectMultiplicityCounter::ObjectMultiplicityCounter(const edm::ParameterSet & iConfig) :
@@ -52,7 +52,8 @@ ObjectMultiplicityCounter::produce(edm::Event & iEvent, const edm::EventSetup & 
     using namespace edm;
 
     // read input
-    Handle<View<reco::Candidate> > probes, objects;
+    Handle<View<reco::Candidate> > probes;
+    Handle<View<reco::Jet> > objects;
     iEvent.getByLabel(probes_,  probes);
     iEvent.getByLabel(objects_, objects);
 
@@ -61,7 +62,8 @@ ObjectMultiplicityCounter::produce(edm::Event & iEvent, const edm::EventSetup & 
     
     // fill
     float count = 0.0;
-    View<reco::Candidate>::const_iterator probe, endprobes = probes->end(), object, endobjects = objects->end();
+    View<reco::Candidate>::const_iterator probe, endprobes = probes->end(); 
+    View<reco::Jet>::const_iterator object, endobjects = objects->end();
     for (object = objects->begin(); object != endobjects; ++object) {
       if ( !(objCut_(*object)) ) continue;
       count += 1.0;
