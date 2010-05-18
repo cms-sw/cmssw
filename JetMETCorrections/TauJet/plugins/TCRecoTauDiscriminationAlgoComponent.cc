@@ -6,29 +6,29 @@
  */
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
-#include "JetMETCorrections/TauJet/interface/TCTauCorrector.h"
+#include "RecoTauTag/RecoTau/interface/TCTauAlgorithm.h"
 
 class TCRecoTauDiscriminationAlgoComponent : public CaloTauDiscriminationProducerBase {
     public:
       	explicit TCRecoTauDiscriminationAlgoComponent(const ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
-		tcTauCorrector = new TCTauCorrector(iConfig);
+		tcTauAlgorithm = new TCTauAlgorithm(iConfig);
       	}
       	~TCRecoTauDiscriminationAlgoComponent(){} 
       	double discriminate(const CaloTauRef& theCaloTauRef);
 	void beginEvent(const Event&, const EventSetup&);
 
     private:
-	TCTauCorrector*  tcTauCorrector;
+	TCTauAlgorithm*  tcTauAlgorithm;
 };
 
 void TCRecoTauDiscriminationAlgoComponent::beginEvent(const Event& iEvent, const EventSetup& iSetup){
-	tcTauCorrector->eventSetup(iEvent,iSetup);
+	tcTauAlgorithm->eventSetup(iEvent,iSetup);
 }
 
 
 double TCRecoTauDiscriminationAlgoComponent::discriminate(const CaloTauRef& theCaloTauRef){
-	math::XYZTLorentzVector p4 = tcTauCorrector->correctedP4(*theCaloTauRef);
-	return (tcTauCorrector->algoComponent());
+	math::XYZTLorentzVector p4 = tcTauAlgorithm->recalculateEnergy(*theCaloTauRef);
+	return (tcTauAlgorithm->algoComponent());
 }
 
 DEFINE_FWK_MODULE(TCRecoTauDiscriminationAlgoComponent);

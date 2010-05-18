@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from JetMETCorrections.TauJet.JPTRecoTauProducer_cff import *
-from JetMETCorrections.TauJet.TCRecoTauProducer_cfi import *
+from RecoTauTag.RecoTau.JPTRecoTauProducer_cff import *
+from RecoTauTag.RecoTau.TCRecoTauProducer_cfi import *
 
 from RecoTauTag.RecoTau.CaloRecoTauDiscriminationByLeadingTrackFinding_cfi import *
 caloRecoTauDiscriminationByLeadingTrackFinding.CaloTauProducer = cms.InputTag('tcRecoTauProducer')

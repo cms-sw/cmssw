@@ -7,7 +7,7 @@
 <use name=JetMETCorrections/Objects>
 <use name=rootrflx>
 
-<use name=JetMETCorrections/TauJet>
+#<use name=JetMETCorrections/TauJet>
 <use name=RecoTauTag/RecoTau>
 
 <library file="TauJetCorrectorExample.cc" name=TauJetCorrectorExample>

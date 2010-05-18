@@ -6,29 +6,29 @@
  */
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
-#include "JetMETCorrections/TauJet/interface/TCTauCorrector.h"
+#include "RecoTauTag/RecoTau/interface/TCTauAlgorithm.h"
 
 class TCRecoTauDiscriminationAgainstHadronicJets : public CaloTauDiscriminationProducerBase {
     public:
       	explicit TCRecoTauDiscriminationAgainstHadronicJets(const ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
-		tcTauCorrector = new TCTauCorrector(iConfig);
+		tcTauAlgorithm = new TCTauAlgorithm(iConfig);
       	}
       	~TCRecoTauDiscriminationAgainstHadronicJets(){} 
       	double discriminate(const CaloTauRef& theCaloTauRef);
 	void beginEvent(const Event&, const EventSetup&);
 
     private:
-	TCTauCorrector*  tcTauCorrector;
+	TCTauAlgorithm*  tcTauAlgorithm;
 };
 
 void TCRecoTauDiscriminationAgainstHadronicJets::beginEvent(const Event& iEvent, const EventSetup& iSetup){
-	tcTauCorrector->eventSetup(iEvent,iSetup);
+	tcTauAlgorithm->eventSetup(iEvent,iSetup);
 }
 
 
 double TCRecoTauDiscriminationAgainstHadronicJets::discriminate(const CaloTauRef& theCaloTauRef){
-	math::XYZTLorentzVector p4 = tcTauCorrector->correctedP4(*theCaloTauRef);
-	return ((tcTauCorrector->algoComponent() != TCTauAlgorithm::TCAlgoHadronicJet) ? 1. : 0.);
+	math::XYZTLorentzVector p4 = tcTauAlgorithm->recalculateEnergy(*theCaloTauRef);
+	return ((tcTauAlgorithm->algoComponent() != TCTauAlgorithm::TCAlgoHadronicJet) ? 1. : 0.);
 }
 
 DEFINE_FWK_MODULE(TCRecoTauDiscriminationAgainstHadronicJets);

@@ -24,10 +24,11 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
-process.load("JetMETCorrections/TauJet/TCTauProducer_cff")
+#process.load("JetMETCorrections/TauJet/TCTauProducer_cff")
+process.load("RecoTauTag.Configuration.RecoTauTag_cff")
 
 process.runTCTauProducer = cms.Path(
-    process.TCTau
+    process.tautagging
 )
 
 process.TESTOUT = cms.OutputModule("PoolOutputModule",
