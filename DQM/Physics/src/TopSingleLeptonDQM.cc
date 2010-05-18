@@ -146,9 +146,9 @@ namespace TopSingleLepton {
     // MET (calo)
     hists_["metCalo_"    ] = store_->book1D("METCalo"    , "MET_{Calo}"       ,     50,     0.,    200.);   
     // W mass estimate
-    hists_["massW_"      ] = store_->book1D("MassW"      , "M(W)"             ,     50,    50.,    300.);   
+    hists_["massW_"      ] = store_->book1D("MassW"      , "M(W)"             ,     60,     0.,    300.);   
     // Top mass estimate
-    hists_["massTop_"    ] = store_->book1D("MassTop"    , "M(Top)"           ,     50,    50.,    550.);   
+    hists_["massTop_"    ] = store_->book1D("MassTop"    , "M(Top)"           ,     50,     0.,    500.);   
 
     // set bin labels for trigger monitoring
     triggerBinLabels(std::string("trigger"), triggerPaths_);
@@ -208,13 +208,13 @@ namespace TopSingleLepton {
     // btag discriminator for simple secondary vertex
     hists_["jetBDiscVtx_"] = store_->book1D("JetBDiscVtx", "Disc_{b/vtx}(Jet)",     35,    -1.,      6.);   
     // pt of the 1. leading jet (uncorrected)
-    hists_["jet1PtRaw_"  ] = store_->book1D("Jet1PtRaw"  , "pt_{Raw}(jet1)"   ,     60,     0.,    200.);   
+    hists_["jet1PtRaw_"  ] = store_->book1D("Jet1PtRaw"  , "pt_{Raw}(jet1)"   ,     60,     0.,    300.);   
     // pt of the 2. leading jet (uncorrected)
-    hists_["jet2PtRaw_"  ] = store_->book1D("Jet2PtRaw"  , "pt_{Raw}(jet2)"   ,     60,     0.,    200.);   
+    hists_["jet2PtRaw_"  ] = store_->book1D("Jet2PtRaw"  , "pt_{Raw}(jet2)"   ,     60,     0.,    300.);   
     // pt of the 3. leading jet (uncorrected)
-    hists_["jet3PtRaw_"  ] = store_->book1D("Jet3PtRaw"  , "pt_{Raw}(jet3)"   ,     60,     0.,    200.);   
+    hists_["jet3PtRaw_"  ] = store_->book1D("Jet3PtRaw"  , "pt_{Raw}(jet3)"   ,     60,     0.,    300.);   
     // pt of the 4. leading jet (uncorrected)
-    hists_["jet4PtRaw_"  ] = store_->book1D("Jet4PtRaw"  , "pt_{Raw}(jet4)"   ,     60,     0.,    200.);   
+    hists_["jet4PtRaw_"  ] = store_->book1D("Jet4PtRaw"  , "pt_{Raw}(jet4)"   ,     60,     0.,    300.);   
     return;
   }
 
@@ -365,6 +365,9 @@ namespace TopSingleLepton {
 	  correctedJets.push_back(correctedJet);
 	  ptL2L3 = correctedJet.pt();
 	}
+	else{
+	  correctedJets.push_back(*jet);
+	}
 	if(ptL2L3>30){ ++mult30; // determine jet multiplicity
 	  if( includeBTag_ ){
 	    // fill b-discriminators
@@ -415,7 +418,7 @@ namespace TopSingleLepton {
     */
 
     // fill W boson and top mass estimates
-    Calculate eventKinematics(MAXJETS, WMASS, corrector);
+    Calculate eventKinematics(MAXJETS, WMASS);
     double wMass   = eventKinematics.massWBoson  (correctedJets);
     double topMass = eventKinematics.massTopQuark(correctedJets);
     fill("massW_" , wMass  ); fill("massTop_" , topMass);
