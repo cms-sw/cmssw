@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_0/GRun/V29
+# /dev/CMSSW_3_6_0/GRun/V30
 
 import FWCore.ParameterSet.Config as cms
 
@@ -77,31 +77,6 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activ
     'HLT_Activity_PixelClusters', 
     'HLT_Activity_L1A', 
     'HLT_L1_BptxXOR_BscMinBiasOR')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEG_selector
-streamA_datasetEG_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetEG_selector.l1tResults = cms.InputTag('')
-streamA_datasetEG_selector.throw      = cms.bool(False)
-streamA_datasetEG_selector.triggerConditions = cms.vstring('HLT_DoublePhoton10_L1R', 
-    'HLT_Photon30_L1R_8E29', 
-    'HLT_Photon20_L1R', 
-    'HLT_Photon15_LooseEcalIso_L1R', 
-    'HLT_Photon15_TrackIso_L1R', 
-    'HLT_Photon15_L1R', 
-    'HLT_Photon10_L1R', 
-    'HLT_DoublePhoton5_Upsilon_L1R', 
-    'HLT_DoublePhoton5_Jpsi_L1R', 
-    'HLT_DoubleEle5_SW_L1R', 
-    'HLT_Ele20_LW_L1R', 
-    'HLT_Ele15_SiStrip_L1R', 
-    'HLT_Ele15_SC10_LW_L1R', 
-    'HLT_Ele15_LW_L1R', 
-    'HLT_Ele10_LW_EleId_L1R', 
-    'HLT_Ele10_LW_L1R', 
-    'HLT_DoublePhoton4_Jpsi_L1R', 
-    'HLT_DoublePhoton4_Upsilon_L1R', 
-    'HLT_DoublePhoton4_eeRes_L1R', 
-    'HLT_DoublePhoton5_L1R')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalHPDNoise_selector
 streamA_datasetHcalHPDNoise_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -192,4 +167,29 @@ streamA_datasetJetMETTau_selector.triggerConditions = cms.vstring('HLT_BTagIP_Je
     'HLT_BTagMu_Jet10U', 
     'HLT_DoubleJet15U_ForwardBackward', 
     'HLT_Jet15U_HcalNoiseFiltered')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEG_selector
+streamA_datasetEG_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetEG_selector.l1tResults = cms.InputTag('')
+streamA_datasetEG_selector.throw      = cms.bool(False)
+streamA_datasetEG_selector.triggerConditions = cms.vstring('HLT_DoublePhoton10_L1R', 
+    'HLT_Photon30_L1R_8E29', 
+    'HLT_Photon20_L1R', 
+    'HLT_Photon15_LooseEcalIso_L1R', 
+    'HLT_Photon15_TrackIso_L1R', 
+    'HLT_Photon15_L1R', 
+    'HLT_Photon10_L1R', 
+    'HLT_DoublePhoton5_Upsilon_L1R', 
+    'HLT_DoublePhoton5_Jpsi_L1R', 
+    'HLT_DoubleEle5_SW_L1R', 
+    'HLT_Ele20_LW_L1R', 
+    'HLT_Ele15_SiStrip_L1R', 
+    'HLT_Ele15_SC10_LW_L1R', 
+    'HLT_Ele15_LW_L1R', 
+    'HLT_Ele10_LW_EleId_L1R', 
+    'HLT_Ele10_LW_L1R', 
+    'HLT_DoublePhoton4_Jpsi_L1R', 
+    'HLT_DoublePhoton4_Upsilon_L1R', 
+    'HLT_DoublePhoton4_eeRes_L1R', 
+    'HLT_DoublePhoton5_L1R')
 

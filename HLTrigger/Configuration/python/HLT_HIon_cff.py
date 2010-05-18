@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/HIon/V29 (CMSSW_3_6_0_HLT9)
+# /dev/CMSSW_3_6_0/HIon/V30 (CMSSW_3_6_0_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V29')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V30')
 )
 
 streams = cms.PSet( 
@@ -19,21 +19,21 @@ streams = cms.PSet(
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   DQM = cms.vstring(  ),
   HLTDQM = cms.vstring(  ),
-  EventDisplay = cms.vstring(  ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'JetMETTauMonitor',
     'MuMonitor',
     'Cosmics',
     'MinimumBias',
     'Commissioning',
-    'EG',
     'HcalHPDNoise',
     'ZeroBias',
     'HcalNZS',
     'RandomTriggers',
     'EGMonitor',
     'Mu',
-    'JetMETTau' )
+    'JetMETTau',
+    'EG' ),
+  EventDisplay = cms.vstring(  ),
+  Express = cms.vstring( 'ExpressPhysics' )
 )
 datasets = cms.PSet( 
   LogMonitor = cms.vstring(  ),
@@ -44,20 +44,20 @@ datasets = cms.PSet(
   RPCMonitor = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
   MuMonitor = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   MinimumBias = cms.vstring(  ),
   Commissioning = cms.vstring(  ),
-  EG = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
   Mu = cms.vstring(  ),
-  JetMETTau = cms.vstring(  )
+  JetMETTau = cms.vstring(  ),
+  EG = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
