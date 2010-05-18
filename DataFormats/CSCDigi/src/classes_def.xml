@@ -28,7 +28,6 @@
    <class name="std::vector<CSCDDUStatusDigi>"/>
    <class name="std::vector<CSCDCCStatusDigi>"/>
    <class name="std::vector<CSCALCTStatusDigi>"/>
-   <class name="std::vector<CSCCLCTPreTrigger>"/>
 
    <class name="std::map<CSCDetId,std::vector<CSCWireDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCRPCDigi> >"/>
