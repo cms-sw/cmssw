@@ -26,7 +26,9 @@ class EcalSeverityLevelAlgo {
                                           const EcalChannelStatus &,
                                           float recHitEtThreshold = 5.,
                                           SpikeId spId = kSwissCross,
-                                          float spIdThreshold = 0.95
+                                          float spIdThreshold = 0.95,
+					  bool useTiming = false,
+					  float recHitEnergyThreshold = -999.
                                           );
 
                 /** return the estimator of the signal being a spike
@@ -47,6 +49,10 @@ class EcalSeverityLevelAlgo {
                  * a crystal and the crystal energy (also called S4/S1, Rook)
                  */
                 static float swissCross( const DetId id, const EcalRecHitCollection &, float recHitEtThreshold = 0. , bool avoidIeta85=true);
+
+		/** return whether or not the rechit is a spike based on the kOutOfTime rechit flag
+                 */
+		static bool spikeFromTiming( const EcalRecHit &, float recHitEnergyThreshold );
 
         private:
 

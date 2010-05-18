@@ -7,7 +7,9 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
                 const EcalChannelStatus & chStatus,
                 float recHitEtThreshold,
                 SpikeId spId,
-                float spIdThreshold
+		float spIdThreshold,
+        	bool useTiming,
+		float recHitEnergyThreshold
                 )
 {
 
@@ -31,7 +33,8 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
                 // the channel is in the recHit collection
                 // .. is it a spike?
                 if ( id.subdetId() == EcalBarrel && (spikeFromNeighbours(id, recHits, recHitEtThreshold, spId) > spIdThreshold)  ) return kWeird;
-                // for now no filtering on VPT discharges in the endcap
+		if ( useTiming && id.subdetId() == EcalBarrel && spikeFromTiming(*it, recHitEnergyThreshold) ) return kWeird;
+                // for now no filtering on VPT discharges in the endcap		
 
                 // .. not a spike, return the normal severity level
                 return severityLevel( *it, chStatus );
@@ -214,4 +217,12 @@ float EcalSeverityLevelAlgo::recHitApproxEt( const DetId id, const EcalRecHitCol
                 return recHitE( id, recHits ) / cosh( EBDetId::approxEta( id ) );
         }
         return 0;
+}
+
+
+bool EcalSeverityLevelAlgo::spikeFromTiming( const EcalRecHit &recHit, float recHitEnergyThreshold)
+{
+        if ( recHit.energy() < recHitEnergyThreshold )     return false;
+        if ( recHit.recoFlag() == EcalRecHit::kOutOfTime ) return true;
+        return false;
 }
