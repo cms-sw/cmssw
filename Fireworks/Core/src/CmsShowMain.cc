@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.160 2010/05/06 14:28:16 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.161 2010/05/07 09:59:26 amraktad Exp $
 //
 
 // system include files
@@ -217,6 +217,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       // configuration file
       if (vm.count(kConfigFileOpt)) {
          m_configFileName = vm[kConfigFileOpt].as<std::string>();
+         if (access(m_configFileName.c_str(), R_OK) == -1)
+         {
+            fwLog(fwlog::kError) << "Specified configuration file does not exist. Quitting.\n";
+            exit(1);
+         }
       } else {
          if (vm.count(kNoConfigFileOpt)) {
             fwLog(fwlog::kInfo) << "No configuration is loaded, show everything.\n";
