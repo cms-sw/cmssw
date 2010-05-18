@@ -30,7 +30,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         )
 )
 
-process.Test1 = cms.EDFilter("ExPopConEfficiency",
+process.Test1 = cms.EDAnalyzer("ExPopConEfficiency",
     record = cms.string('ThisJob'),
     Source = cms.PSet(
         params = cms.untracked.vdouble(0.1, 0.95, 1.0, 5.5),
@@ -41,7 +41,7 @@ process.Test1 = cms.EDFilter("ExPopConEfficiency",
     IsDestDbCheckedInQueryLog = cms.untracked.bool(True)
 )
 
-process.Test2 = cms.EDFilter("ExPopConEfficiency",
+process.Test2 = cms.EDAnalyzer("ExPopConEfficiency",
     record = cms.string('ThisJob'),
     Source = cms.PSet(
         params = cms.untracked.vdouble(0.85, 0.0, 0.9, 2.3),
@@ -52,7 +52,7 @@ process.Test2 = cms.EDFilter("ExPopConEfficiency",
     IsDestDbCheckedInQueryLog = cms.untracked.bool(True)
 )
 
-process.Test3 = cms.EDFilter("ExPopConEfficiency",
+process.Test3 = cms.EDAnalyzer("ExPopConEfficiency",
     record = cms.string('ThisJob'),
     Source = cms.PSet(
         params = cms.untracked.vdouble(0.92, 0.0, 0.8, 2.5),
@@ -63,7 +63,7 @@ process.Test3 = cms.EDFilter("ExPopConEfficiency",
     IsDestDbCheckedInQueryLog = cms.untracked.bool(True)
 )
 
-process.Test4 = cms.EDFilter("ExPopConEfficiency",
+process.Test4 = cms.EDAnalyzer("ExPopConEfficiency",
     record = cms.string('ThisJob'),
     Source = cms.PSet(
         params = cms.untracked.vdouble(0.1, 0.95, 1.0, 9.5),
