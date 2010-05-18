@@ -24,6 +24,13 @@
 #include "Roo1DTable.h"
 #include "RooMinuit.h"
 #include "RooNLLVar.h"
+#include "RooAbsDataStore.h"
+#include "RooEfficiency.h"
+#include "RooGaussian.h"
+#include "RooChebychev.h"
+#include "RooProdPdf.h"
+#include "RooGenericPdf.h"
+#include "RooExtendPdf.h"
 
 using namespace RooFit;
 
@@ -122,7 +129,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
   RooRealVar efficiency("efficiency", "Efficiency", 0, 1);
 
   RooDataSet fitEfficiency("fit_eff", "Efficiency from unbinned ML fit", RooArgSet(RooArgSet(binnedVariables, categories), efficiency), StoreAsymError(RooArgSet(binnedVariables, efficiency)));
-  RooDataSet sbsEfficiency("sbs_eff", "Efficiency from side band substraction", RooArgSet(RooArgSet(binnedVariables, categories), efficiency), StoreAsymError(RooArgSet(binnedVariables, efficiency)));
+//  RooDataSet sbsEfficiency("sbs_eff", "Efficiency from side band substraction", RooArgSet(RooArgSet(binnedVariables, categories), efficiency), StoreAsymError(RooArgSet(binnedVariables, efficiency)));
   RooDataSet cntEfficiency("cnt_eff", "Efficiency from counting", RooArgSet(RooArgSet(binnedVariables, categories), efficiency), StoreAsymError(RooArgSet(binnedVariables, efficiency)));
 
 
@@ -191,9 +198,9 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
       doFitEfficiency(w, pdfName.Data(), efficiency);
       fitEfficiency.add( RooArgSet(RooArgSet(meanOfVariables, *data_bin->get(0)), efficiency) );
 
-      efficiency.setVal(0);//reset
+/*      efficiency.setVal(0);//reset
       doSBSEfficiency(w, efficiency);
-      sbsEfficiency.add( RooArgSet(RooArgSet(meanOfVariables, *data_bin->get(0)), efficiency) );
+      sbsEfficiency.add( RooArgSet(RooArgSet(meanOfVariables, *data_bin->get(0)), efficiency) );*/
 
       efficiency.setVal(0);//reset
       doCntEfficiency(w, efficiency);
@@ -215,10 +222,10 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
   saveEfficiencyPlots(fitEfficiency, effCat+"::"+effState, binnedVariables, mappedCategories);
   gDirectory->cd("..");
 
-  sbsEfficiency.Write();
+/*  sbsEfficiency.Write();
   gDirectory->mkdir("sbs_eff_plots")->cd();
   saveEfficiencyPlots(sbsEfficiency, effCat+"::"+effState, binnedVariables, mappedCategories);
-  gDirectory->cd("..");
+  gDirectory->cd("..");*/
 
   cntEfficiency.Write();
   gDirectory->mkdir("cnt_eff_plots")->cd();
@@ -360,39 +367,47 @@ void TagProbeFitter::setInitialValues(RooWorkspace* w){
 
 void TagProbeFitter::saveFitPlot(RooWorkspace* w){
   // save refferences for convenience
-  RooRealVar& mass = *w->var("mass");
   RooCategory& efficiencyCategory = *w->cat("_efficiencyCategory_");
   RooAbsData& data = *w->data("data");
   RooAbsPdf& pdf = *w->pdf("simPdf");
+  RooArgSet *obs = pdf.getObservables(data);
+  RooRealVar* mass = 0;
+  TIterator* it = obs->createIterator();
+  for(RooAbsArg* v = (RooAbsArg*)it->Next(); v!=0; v = (RooAbsArg*)it->Next() ){
+    if(!v->InheritsFrom("RooRealVar")) continue;
+    mass = (RooRealVar*)v;
+    break;
+  }
+  if(!mass) return;
   // make a 2x2 canvas
   TCanvas canvas("fit_canvas");
   canvas.Divide(2,2);
   // plot the Passing Probes
   canvas.cd(1);
-  RooPlot* passFrame = mass.frame(Name("Passing"), Title("Passing Probes"));
+  RooPlot* passFrame = mass->frame(Name("Passing"), Title("Passing Probes"));
   data.plotOn(passFrame, Cut("_efficiencyCategory_==_efficiencyCategory_::Passed"));
   pdf.plotOn(passFrame, Slice(efficiencyCategory, "Passed"), ProjWData(efficiencyCategory, data), LineColor(kGreen));
   pdf.plotOn(passFrame, Slice(efficiencyCategory, "Passed"), ProjWData(efficiencyCategory, data), LineColor(kGreen), Components("backgroundPass"), LineStyle(kDashed));
   passFrame->Draw();
   // plot the Failing Probes
   canvas.cd(2);
-  RooPlot* failFrame = mass.frame(Name("Failing"), Title("Failing Probes"));
+  RooPlot* failFrame = mass->frame(Name("Failing"), Title("Failing Probes"));
   data.plotOn(failFrame, Cut("_efficiencyCategory_==_efficiencyCategory_::Failed"));
   pdf.plotOn(failFrame, Slice(efficiencyCategory, "Failed"), ProjWData(efficiencyCategory, data), LineColor(kRed));
   pdf.plotOn(failFrame, Slice(efficiencyCategory, "Failed"), ProjWData(efficiencyCategory, data), LineColor(kRed), Components("backgroundFail"), LineStyle(kDashed));
   failFrame->Draw();
   // plot the All Probes
   canvas.cd(3);
-  RooPlot* allFrame = mass.frame(Name("All"), Title("All Probes"));
+  RooPlot* allFrame = mass->frame(Name("All"), Title("All Probes"));
   data.plotOn(allFrame);
   pdf.plotOn(allFrame, ProjWData(efficiencyCategory, data), LineColor(kBlue));
   pdf.plotOn(allFrame, ProjWData(efficiencyCategory, data), LineColor(kBlue), Components("backgroundPass,backgroundFail"), LineStyle(kDashed));
   allFrame->Draw();
   // plot the Parameters
   canvas.cd(4);
-  RooPlot* statFrame = mass.frame(Name("Parameters"), Title("Parameters"));
-  pdf.paramOn(statFrame, &data);
-  statFrame->Draw();
+  RooPlot* statFrame = mass->frame(Name("Parameters"), Title("Parameters"));
+  pdf.paramOn(statFrame, &data, "", 0, "NELU", 0., 1., 1.);
+  statFrame->findObject(Form("%s_paramBox",pdf.GetName()))->Draw();
   //save and clean up
   canvas.Write();
   delete passFrame;
@@ -419,12 +434,12 @@ void TagProbeFitter::saveDistributionsPlot(RooWorkspace* w){
     canvas.cd(3*i+1);
     RooPlot* passFrame = reals[i]->frame(Name("Passing"), Title("Passing Probes"), Bins(100));
     data.plotOn(passFrame, Cut("_efficiencyCategory_==_efficiencyCategory_::Passed"), LineColor(kGreen));
-    data.statOn(passFrame);
+    data.statOn(passFrame, Cut("_efficiencyCategory_==_efficiencyCategory_::Passed"));
     passFrame->Draw();
     canvas.cd(3*i+2);
     RooPlot* failFrame = reals[i]->frame(Name("Failing"), Title("Failing Probes"), Bins(100));
     data.plotOn(failFrame, Cut("_efficiencyCategory_==_efficiencyCategory_::Failed"), LineColor(kRed));
-    data.statOn(failFrame);
+    data.statOn(failFrame, Cut("_efficiencyCategory_==_efficiencyCategory_::Failed"));
     failFrame->Draw();
     // plot the All Probes
     canvas.cd(3*i+3);
@@ -448,6 +463,16 @@ void TagProbeFitter::saveEfficiencyPlots(RooDataSet& eff, string effName, RooArg
       binCategories.addClone( RooBinningCategory(TString(v->GetName())+"_bins", TString(v->GetName())+"_bins", *v) );
     }
     RooMultiCategory allCats("allCats", "allCats", RooArgSet(binCategories, mappedCategories));
+    if(allCats.numTypes()==0){
+      RooPlot* p = plotVar->frame(Name(TString(plotVar->GetName())+"_plot"));
+      eff.plotOnXY(p,YVar(*e));
+      p->SetTitle("");
+      p->SetYTitle(TString("Efficiency of ")+effName.c_str());
+      p->SetAxisRange(0,1,"Y");
+      p->Write();
+      delete p;
+      return;
+    }
     RooDataSet myEff(eff);
     myEff.addColumn(allCats);
     TIterator* catIt = allCats.typeIterator();
@@ -516,15 +541,76 @@ void TagProbeFitter::varRestorer(RooWorkspace* w){
 
 
 int main(int argc, char* argv[]){
-  vector<string> inputs;
-  inputs.push_back("testNewWrite.root");
-  TagProbeFitter f(inputs, "MakeHisto", "fitter_tree", "myplots.root", 1, true);
+  // create test input file
+  TFile out("testTree.root","recreate");
+  out.mkdir("Test")->cd();
+  // pt
+  RooRealVar pt("pt","pt",1,10);
+  RooGenericPdf ptPdf("ptPdf","1",pt);
+  // eta
+  RooRealVar eta("eta","eta",-2.5,2.5);
+  // passing
+  RooCategory passing("passing","passing");
+  passing.defineType("Passed",1);
+  passing.defineType("Failed",0);
+  // efficiency value
+  RooRealVar a("a","a",0.9) ;
+  RooRealVar b("b","b",1) ;
+  RooRealVar c("c","c",3) ;
+//  RooFormulaVar efficiency("efficiency", "a/(1+exp(-b*(pt-c)))", RooArgList(a, b, c, pt)) ;
+  RooRealVar efficiency("efficiency", "efficiency", 0.9, 0.0, 1.0);
+  RooPlot* curve = pt.frame();
+  efficiency.plotOn(curve);
+  curve->Write("efficiencyCurve");
+  RooEfficiency passingPdf("passingPdf", "passingPdf", efficiency, passing, "Passed");
+  // mass
+  RooRealVar mass("mass", "mass", 2.6, 3.6);
+  RooRealVar mean("mean", "mean", 3.1, 3.0, 3.2);
+  RooRealVar sigma("sigma", "sigma", 0.03, 0.01, 0.05);
+  RooGaussian signal("signal", "signal", mass, mean, sigma);
+  RooRealVar numSignalAll("numSignalAll", "numSignalAll", 1000., 0., 1e10);
+  RooExtendPdf signalExt("signalExt", "signalExt", signal, numSignalAll);
+  RooProdPdf signalPdf("signalPdf", "signalPdf", RooArgSet(signalExt, ptPdf), Conditional(passingPdf,passing));
+  
+  RooRealVar cPass("cPass", "cPass", 0.1, -1, 1);
+  RooChebychev backgroundPass("backgroundPass", "backgroundPass", mass, cPass);
+  RooRealVar numBackgroundPass("numBackgroundPass", "numBackgroundPass", 1000., 0., 1e10);
+  RooExtendPdf backgroundPassPdf("backgroundPassPdf", "backgroundPassPdf", backgroundPass, numBackgroundPass);
+  
+  RooRealVar cFail("cFail", "cFail", 0.1, -1, 1);
+  RooChebychev backgroundFail("backgroundFail", "backgroundFail", mass, cFail);
+  RooRealVar numBackgroundFail("numBackgroundFail", "numBackgroundFail", 1000., 0., 1e10);
+  RooExtendPdf backgroundFailPdf("backgroundFailPdf", "backgroundFailPdf", backgroundFail, numBackgroundFail);
+  
+  RooSimultaneous backgroundPdf("backgroundPdf", "backgroundPdf", passing);
+  backgroundPdf.addPdf(backgroundPassPdf, "Passed");
+  backgroundPdf.addPdf(backgroundFailPdf, "Failed");
+  RooProdPdf backgroundPtPdf("backgroundPtPdf", "backgroundPtPdf", backgroundPdf, ptPdf);
+  // mc_true, True=signal, False=background
+  RooCategory mc_true("mc_true","mc_true");
+  mc_true.defineType("True",1);
+  mc_true.defineType("False",0);
 
-  f.addVariable("mass", "tag-probe mass", 2.5, 3.8, "GeV/c^{2}");
-  f.addVariable("pt", "probe pT", 3., 10., "GeV/c");
+  RooSimultaneous model("model", "model", mc_true);
+  model.addPdf(signalPdf, "True");
+  model.addPdf(backgroundPtPdf, "False");
+
+  RooDataSet* data = model.generate(RooArgSet(mass, pt, eta, passing, mc_true));
+  data->tree()->Write("fitter_tree");
+  
+  out.Close();
+  // end of generation
+  
+  // fit the test input
+  vector<string> inputs;
+  inputs.push_back("testTree.root");
+  TagProbeFitter f(inputs, "Test", "fitter_tree", "myplots.root", 1, true);
+
+  f.addVariable("mass", "tag-probe mass", 2.6, 3.6, "GeV/c^{2}");
+  f.addVariable("pt", "probe pT", 1., 10., "GeV/c");
   f.addVariable("eta", "probe #eta", -2.1, 2.1, "");
-  f.addCategory("mcTrue", "MC True", "c[true=1,false=0]");
-  f.addCategory("passing", "isMuon", "c[pass=1,fail=0]");
+  f.addCategory("mc_true_idx", "MC True", "c[true=1,false=0]");
+  f.addCategory("passing_idx", "isPassing", "c[pass=1,fail=0]");
 
   vector<string> pdfCommands;
   pdfCommands.push_back("efficiency[0.9,0,1]");
@@ -544,17 +630,17 @@ int main(int argc, char* argv[]){
 
   map<string, vector<double> >binnedReals;
   vector<double> ptBins;
-  ptBins.push_back(3.);
+  ptBins.push_back(1.);
   ptBins.push_back(4.5);
   ptBins.push_back(8.);
   ptBins.push_back(10.);
   binnedReals["pt"] = ptBins;
   vector<double> etaBins;
-  etaBins.push_back(-2.1);
-  etaBins.push_back(-1.2);
-  etaBins.push_back(0.);
-  etaBins.push_back(1.2);
-  etaBins.push_back(2.1);
+  etaBins.push_back(-2.5);
+//  etaBins.push_back(-1.2);
+//  etaBins.push_back(0.);
+//  etaBins.push_back(1.2);
+  etaBins.push_back(2.5);
   binnedReals["eta"] = etaBins;
 
   map<string, vector<string> > binnedStates;
@@ -564,13 +650,13 @@ int main(int argc, char* argv[]){
   binToPDFmap.push_back("*pt_bin0*");
   binToPDFmap.push_back("g2");
 
-  f.calculateEfficiency("pt_eta", "passing", "pass", unbinnedVariables, binnedReals, binnedStates, binToPDFmap, true);
+  f.calculateEfficiency("pt_eta", "passing_idx", "pass", unbinnedVariables, binnedReals, binnedStates, binToPDFmap, true);
 
   vector<string> mcBins;
   mcBins.push_back("true");
-  binnedStates["mcTrue"] = mcBins;
+  binnedStates["mc_true_idx"] = mcBins;
 
   vector<string> emptyMap; //no fits here
 
-  f.calculateEfficiency("pt_eta_mcTrue", "passing", "pass", unbinnedVariables, binnedReals, binnedStates, emptyMap, true);
+  f.calculateEfficiency("pt_eta_mcTrue", "passing_idx", "pass", unbinnedVariables, binnedReals, binnedStates, emptyMap, true);
 }
